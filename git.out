@@ -1,0 +1,11 @@
+[2m- If a pop-up comes up for credentials, choose manager-core twice[22m
+
+* Un-filtered GIT output:
+warning: git-credential-manager-core was renamed to git-credential-manager
+warning: see https://aka.ms/gcm/rename for more information
+Everything up-to-date
+
+
+* Filtered GIT output:
+
+Everything up-to-date
