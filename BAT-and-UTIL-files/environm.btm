@@ -786,11 +786,11 @@ return
 		rem PASSWORD=[REDACTED]
 
     ::::: API KEYS & PROGRAMMING STUFF:
-        SET OPENAI_API_KEY=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
-        SET DISCOGS_TOKEN=RekCIunfSjFQvYBDhUxYhtycIESNjrnfFOEzXZTO
-        SET WANDBI_AI_API_KEY=34feb7ffabde98f87c0f793ba8579c76cdc12108
+        rem OPENAI_API_KEY=[REDACTED]
+        rem DISCOGS_TOKEN=[REDACTED]
+        rem WANDBI_AI_API_KEY=[REDACTED]
+        rem GENIUS_ACCESS_TOKEN=[REDACTED]
         ::This created problems with validation though: if isdir C:\ProgramData\Anaconda3\Lib\site-packages (set PYTHONPATH=C:\ProgramData\Anaconda3\Lib\site-packages)
-        set GENIUS_ACCESS_TOKEN=a6Yv7k-X0QemFjQVK5PqsWDnwwSAfk9b1TxllU_mGogdgdx1kNwoPhVf1A90P6SJ
 
 	::::: CLAIRE-VIRONMENT VARIABLE DEFAULT VALUES:
 		SET OS=10
