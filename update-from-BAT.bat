@@ -6,13 +6,13 @@ REM     local GIT repo beore doing anything significant.  Or really, before doin
 
 
 rem CONFIGURATION:
-        rem SET MANIFEST_FILES=ingest_ics.py
-        rem SET SECONDARY_BAT_FILES=ics-ingest.bat update-from-BAT-via-manifest.bat  advice.bat print-message.bat validate-in-path.bat validate-environment-variables.bat validate-environment-variable.bat validate-env-var.bat white-noise.bat car.bat nocar.bat important.bat important_less.bat warning.bat error.bat fatalerror.bat errorlevel.bat randcolor.bat success.bat celebration.bat debug.bat randfg.bat randbg.bat py2exe.bat
 
-        SET MANIFEST_FILES=install-common-programs-with-winget.bat
+        SET MANIFEST_FILES=install-common-programs-with-winget.bat set-colors.bat bigecho.bat print-message.bat advice.bat celebration.bat debug.bat download-youtube-album.bat error.bat errorlevel.bat fatalerror.bat important.bat important_less.bat less_important.bat logging.bat none.bat print-if-debug.bat print-message.bat removal.bat set-randomfile.bat subtle.bat success.bat unimportant.bat warning.bat warning_soft.bat validate-in-path.bat validate-environment-variables.bat validate-environment-variable.bat validate-env-var.bat update-from-BAT-via-manifest.bat white-noise.bat randcolor.bat randfg.bat randbg.bat 
         
         set SECONDARY_UTIL_FILES=
 
+        rem SET SECONDARY_BAT_FILES=  
 
-call update-from-BAT-via-manifest
+
+call c:\bat\update-from-BAT-via-manifest
 

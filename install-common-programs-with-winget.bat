@@ -1,8 +1,12 @@
+@Echo OFF
+
 REM call list-all-available-winget-programs.bat
+REM      ^^ done via:    winget search --query ""
+
+
+
 
 winget install AutoHotkey.AutoHotkey               
-
-
 
 winget install BinaryFortress.DisplayFusion              
 winget install Google.Chrome                             
