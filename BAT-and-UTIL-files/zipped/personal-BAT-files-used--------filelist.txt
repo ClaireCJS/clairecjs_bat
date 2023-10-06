@@ -32,7 +32,7 @@
 2019-10-01  10:28            431   43%  randfg.bat
 2023-06-05  01:31             44   -4%  removal.bat
 2023-10-03  21:12            106   10%  rename-folders-with-hyphens-into-underscores.bat
-2023-09-20  18:18         21,576   79%  set-colors.bat
+2023-10-06  06:12         21,578   79%  set-colors.bat
 2023-10-06  05:37          1,157   61%  set-emojis.bat
 2023-06-08  08:06          1,793   70%  set-file-age.bat
 2023-05-30  00:32          1,398   58%  set-first-file.bat

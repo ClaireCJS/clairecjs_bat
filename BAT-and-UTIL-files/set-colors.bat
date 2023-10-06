@@ -1,6 +1,7 @@
 @Echo Off
 
 :PUBLISH:
+
 :DESCRIPTION: Creates a set of environment variables that can be used for messaging improvement
 :USAGE: call set-colors [test] - can add 'test' parameter to echo a test string
 :EFFECTS: sets %COLOR_{messagety[e} variables for all the message types we intend to have
@@ -27,6 +28,7 @@ rem ANSI: Initialization
 rem ANSI: special stuff: reset
             set ANSI_RESET=%ANSI_ESCAPE%0m
                 set ANSIRESET=%ANSI_RESET%
+
 
 rem ANSI: special stuff: position save/restore
             set ANSI_POSITION_SAVE=%ESCAPE%7%ANSI_ESCAPE%s                  %+ REM we do this the DEC way, then the SCO way
