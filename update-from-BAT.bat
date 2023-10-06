@@ -15,4 +15,6 @@ rem CONFIGURATION:
 
 
 call c:\bat\update-from-BAT-via-manifest
+call git add *.bat
+
 
