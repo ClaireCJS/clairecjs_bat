@@ -6,7 +6,7 @@
 :USAGE: call set-colors [test] - can add 'test' parameter to echo a test string
 :EFFECTS: sets %COLOR_{messagety[e} variables for all the message types we intend to have
 :REQUIRES: bigecho.bat (optional, only for testing)
-:RELATED: redefine-the-colorblack-randomly.bat (gives each command-line window a slightly different shade of black to make window edges easier to see)
+:RELATED: redefine-the-color-black-randomly.bat (gives each command-line window a slightly different shade of black to make window edges easier to see)
 :USED-BY:
 
 
