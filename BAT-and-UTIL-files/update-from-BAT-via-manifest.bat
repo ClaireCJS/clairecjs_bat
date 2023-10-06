@@ -93,6 +93,7 @@ goto :END_OF_SUBROUTINES
                                     call validate-environment-variable  TARGET_DIR
                         REM copy each file
                                     for %file in (%OUR_FILELIST%) do (
+                                        if not exist "%file%" (call error "'%file%' does not exist")
                                         call print-if-debug "Doing file %file%"
                                         set filetarget=%TARGET_DIR%\%file%
                                         REM delete first, if we want
