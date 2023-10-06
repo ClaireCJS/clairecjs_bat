@@ -229,6 +229,8 @@
 2023-06-20  03:45         13,942   69%  sync-filelist-helper.pl
 2023-10-06  06:57          2,602   70%  sync-filelist.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
+2021-03-29  00:47             72    0%  unzip-all.bat
+2023-05-29  13:58          2,466   66%  unzip-gracefully.bat
 2023-10-06  07:04          9,360   71%  update-from-BAT-via-manifest.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
 2023-09-15  03:21         14,767   77%  validate-environment-variable.bat
@@ -248,3 +250,10 @@
 2019-10-01  10:28             49    5%  yyyymmddclip.bat
 2019-10-01  10:28            573   46%  yyyymmddhhmm.bat
 2019-10-01  10:28            540   45%  yyyymmddhhmmss.bat
+2021-08-18  09:09            219   30%  zip-all-EXEs.bat
+2023-06-05  01:45          1,303   63%  zip-all-folders.bat
+2023-05-30  11:25          1,249   64%  zip-all-subfolders.bat
+2023-06-16  17:36            147   18%  zip-file.bat
+2023-06-13  18:07          5,495   73%  zip-folder.bat
+2023-06-16  17:36          5,525   73%  zip-old.bat
+2023-06-16  17:35            429   52%  zip.bat
