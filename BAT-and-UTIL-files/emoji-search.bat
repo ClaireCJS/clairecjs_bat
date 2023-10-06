@@ -1,7 +1,7 @@
 @Echo off
 
-::::: PURPOSE:  To echo all eoji variables representing a regular expression we provide
-
+:DESCRIPTION:  To search emoji environment variables (set by set-emoji.bat) using a regular expression [i.e. "grep my emojis"]
+:REQUIRES: set-emoji.bat (to set emoji envirionment variables), emoji.env (used by set-emoji.bat), print-message.bat, set-tmp-file.bat, important.bat, set-colors.bat (to set color environment variables)
 
 REM parameter processing
         set PARAM=%1
@@ -11,7 +11,7 @@ REM parameter processing
 
 
 REM dump environment to file
-        if not defined TMPFILE (call settmpfile)
+        if not defined TMPFILE (call set-tmp-file)
         if not exist %TMPFILE% .or. "%2" eq "force" (
             call important "Dumping environment variables..."
             timer /4 on

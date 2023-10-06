@@ -1,6 +1,6 @@
 @Echo OFF
 
-REm call debug "Setting emojis..."
+REM call debug "Setting emojis..."
 
 if "%1" eq "generate"            (fix_unicode_filenames.py script|sort|uniq >%bat%\emoji.env)
 if "%1" eq "force"               (goto :Set_Emojis )
