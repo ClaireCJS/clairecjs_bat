@@ -4,6 +4,7 @@
 ::::: USAGE:   set NUM_DICE_SIDES=xxx %+ dice.bat                  - roll a die with as many sides as the environment  variable  specifies
 ::::: USAGE:                             dice.bat [no arguments]   - interactively prompts for number of dice sides, with default value of 6
 
+:REQUIRES: set-colors.bat (for ANSI_FG_RGB function, env vars for stylizing)
 
 
 ::::: GET NUMBER OF SIDES OF DIE:

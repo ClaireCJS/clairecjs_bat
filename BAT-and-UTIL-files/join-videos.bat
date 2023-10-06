@@ -1,0 +1,1 @@
+mencoder -oac pcm -ovc copy -o output %1 %2
