@@ -9,7 +9,7 @@ goto :done
     echo We will set one for you.
     pause
     pause
-    set TEMP=c:\recycler\
+    set TEMP=c:\recycled\
     if "%OS"=="2K" set TEMP=c:\recycler\
     if "%OS"=="ME" set TEMP=c:\recycler\
     if "%OS"=="98" set TEMP=c:\recycler\

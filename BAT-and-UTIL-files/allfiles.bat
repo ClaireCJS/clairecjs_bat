@@ -20,7 +20,8 @@
     :: USAGE: allfiles mv /s         --- to rename all files via text editor recursing folders
     :: USAGE: allfiles exif          --- to rename all files via exif date
     :: USAGE: allfiles exif time     --- to rename all files via exif date AND time
-    :: USAGE: allfiles wav2mp3       --- to create script using wav2mp3.bat - ripped wav mode (unlabelled=VBR)
+    :: USAGE: allfiles wav2mp3       --- to create script using ffmpeg
+    :: USAGE: allfiles wav2mp3old    --- to create script using old internal ways (wav2mp3.bat - ripped wav mode (unlabelled=VBR))
 
 :: USED OCCASIONALLY:
     :: USAGE: allfiles               --- to run script based on filenames
@@ -81,8 +82,8 @@ if "%DEBUG_SSDWARN%" eq "1" goto :END
     if exist c:\windows\temp\*.*          (echo yr|*del /q /e c:\windows\temp\*.*         )
     if exist c:\windows\temp\avginfo.id	  (echo yr|*del /q /e c:\windows\temp\avginfo.id  )
     if exist c:\windows\temp\MpCmdRun.log (echo yr|*del /q /e c:\windows\temp\MpCmdRun.log)
-    if exist c:\recycler\MpCmdRun.log	  (echo yr|*del /q /e c:\recycler\MpCmdRun.log    )
-    set tmp=c:\recycler\
+    if exist c:\recycled\MpCmdRun.log	  (echo yr|*del /q /e c:\recycled\MpCmdRun.log    )
+    set tmp=c:\recycled\
     if "%DEBUG%" eq "1" (%COLOR_DEBUG% %+ echo * tmp directory is %tmp %+ %COLOR_NORMAL%)
     SET TMP1=%@UNIQUE[%tmp]
     SET TMP2=%@UNIQUE[%tmp]
@@ -91,8 +92,8 @@ if "%DEBUG_SSDWARN%" eq "1" goto :END
     SET TMP5=%TMP4.bat
     SET FILTERSCRIPT=type
     SET CALLINGDIR=%_CWD
-    set LATESTALLFILES1=c:\recycler\latest-allfiles-%_PID.bat
-    set LATESTALLFILES2=c:\recycler\latest-allfiles.bat
+    set LATESTALLFILES1=c:\recycled\latest-allfiles-%_PID.bat
+    set LATESTALLFILES2=c:\recycled\latest-allfiles.bat
     if "%DEBUG%" eq "1"  (%COLOR_DEBUG% %+ echo %%_CWD is "%_cwd" %+ %COLOR_NORMAL% %+ echo on)
     set VALIDATE_LINES=0
 
@@ -116,7 +117,7 @@ if "%DEBUG_SSDWARN%" eq "1" goto :END
 ::::: GENERATE FILE LIST USING DETERMINED "dir" OPTIONS:
     :ir %TMPDIRCMD >    %TMP1 ------- 20221119, adding unicode support by changing to the ">:u8" UTF-8-exclusive redirector:
     dir %TMPDIRCMD >:u8 %TMP1
-    %COLOR_LOGGING% %+ *copy %TMP1 c:\recycler\latest-allfiles-dircmd-output.txt
+    %COLOR_LOGGING% %+ *copy %TMP1 c:\recycled\latest-allfiles-dircmd-output.txt
     %COLOR_NORMAL%
 
 
@@ -127,29 +128,44 @@ if "%DEBUG_SSDWARN%" eq "1" goto :END
     *copy %TMP1 %TMP2
     %COLOR_NORMAL%
 
-::::Pre-Scrub, if necessary
-    if "%1"=="oops"     (               %+ goto :recover)
-    if "%1"=="retry"    (               %+ goto :recover)
-    if "%1"=="recover"  (               %+ goto :recover)
-    if "%1"=="mv"       (               %+ goto :allfiles_mv_prescrub)
-    if "%1"=="exif"     (               %+ goto :allfiles_exif_prescrub)
-    if "%1"=="filedate" (               %+ goto :allfiles_filedate_prescrub)
-    if "%1"=="master"   (               %+ goto :allfiles_master_prescrub)
-    if "%1"=="unicode"  (               %+ goto :allfiles_unicode)
-    if "%1"=="wav2mp3"  (set SWEEPING=1 %+ goto  :wav2mp3_prescrub)
-    if "%1"=="mp32wav"  (set SWEEPING=1 %+ goto  :mp32wav_prescrub)
-    if "%1"=="mpc2wav"  (set SWEEPING=1 %+ goto  :mpc2wav_prescrub)
-    if "%1"=="avi2wav"  (set SWEEPING=1 %+ goto  :avi2wav_prescrub)
-    if "%1"=="wav2avi"  (set SWEEPING=1 %+ goto  :wav2avi_prescrub)
-    if "%1"=="flac2wav" (set SWEEPING=1 %+ goto :flac2wav_prescrub)
+::::: Pre-Scrub, if necessary
+    if "%1"=="oops"       (               %+ goto :recover                   )
+    if "%1"=="retry"      (               %+ goto :recover                   )
+    if "%1"=="recover"    (               %+ goto :recover                   )
+    if "%1"=="mv"         (               %+ goto :allfiles_mv_prescrub      )
+    if "%1"=="exif"       (               %+ goto :allfiles_exif_prescrub    )
+    if "%1"=="filedate"   (               %+ goto :allfiles_filedate_prescrub)
+    if "%1"=="master"     (               %+ goto :allfiles_master_prescrub  )
+    if "%1"=="unicode"    (               %+ goto :allfiles_unicode          )
+    if "%1"=="flac2wav"   (set SWEEPING=1 %+ goto :flac2wav_prescrub         )
+    if "%1"=="mp32wav"    (set SWEEPING=1 %+ goto :mp32wav_prescrub          )
+    if "%1"=="mpc2wav"    (set SWEEPING=1 %+ goto :mpc2wav_prescrub          )
+    if "%1"=="wav2mp3"    (set SWEEPING=1 %+ goto :wav2mp3_ffmpeg            )
+    if "%1"=="wav2mp3old" (set SWEEPING=1 %+ goto :wav2mp3_prescrub          )
+    if "%1"=="avi2wav"    (set SWEEPING=1 %+ goto :avi2wav_prescrub          )
+    if "%1"=="wav2avi"    (set SWEEPING=1 %+ goto :wav2avi_prescrub          )
+    if "%1"=="flac2mp3"   (set SWEEPING=1 %+ goto :flac2mp3_ffmpeg           )
 goto :Edit
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+:::::::::::::::::::::::::::::::
+:wav2mp3_ffmpeg
+    call allwav2mp3.bat %*
+goto :END
+:::::::::::::::::::::::::::::::
+:::::::::::::::::::::::::::::::
+:flac2mp3_ffmpeg
+    call allflac2mp3.bat %*
+goto :END
+:::::::::::::::::::::::::::::::
+
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :recover
     ::::: sometimes start.exe fails to actually *start* the process (That's windows for ya.)  
     ::::  So we must use our recovered-copy:
-        :call c:\recycler\latest-allfiles.bat noexit
+        :call c:\recycled\latest-allfiles.bat noexit
          %EDITOR%        %LATESTALLFILES1%    
          call            %LATESTALLFILES1%    noexit
 goto :END
@@ -269,7 +285,7 @@ goto :Cleanup
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :do_prescrub
 	::::: 20221119 
-    %COLOR_UNIMPORTANT% %+      *copy                       %TMP1% c:\recycler\latest-allfiles-filelist-just-before-filterscript.txt
+    %COLOR_UNIMPORTANT% %+      *copy                       %TMP1% c:\recycled\latest-allfiles-filelist-just-before-filterscript.txt
     %COLOR_UNIMPORTANT% %+      *copy                       %TMP1%                                %TMP3%   %+ REM copy file before filtering it, so if filter hangs and is aborted, this can continue with unfiltered version of output
     %COLOR_DEBUG%       %+ echo %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9 %=>:u8 %TMP3% [is the filter command]
     %COLOR_UNIMPORTANT% %+      %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9   >:u8 %TMP3%
@@ -346,7 +362,7 @@ goto :Edit
                     echo *** WARNING ***        the file you just edited.  If you deleted or
                     echo *** WARNING ***        swapped any lines, HIT CTRL-BREAK NOW.  If you
                     echo *** WARNING ***        continue and this hoses your dir, you must look in 
-                    echo *** WARNING ***        c:\recycler (do not run allfiles again until you do)
+                    echo *** WARNING ***        c:\recycled (do not run allfiles again until you do)
                     echo *** WARNING ***        for 'latest-allfiles-(somenumber).bat', and reverse
                     echo *** WARNING ***        engineer the bat file using text editor macros
                     echo *** WARNING ***        to get your old filenames back.  BE CAREFUL!!!
@@ -475,11 +491,11 @@ goto :Edit
         %COLOR_UNIMPORTANT%
                             *copy %TMP5 %LATESTALLFILES2%
         echso %@RANDFG[]
-                            *copy %TMP1% c:\recycler\latest-tmp1
+                            *copy %TMP1% c:\recycled\latest-tmp1
         echso %@RANDFG[]
-                            *copy %TMP2% c:\recycler\latest-tmp2
+                            *copy %TMP2% c:\recycled\latest-tmp2
         echso %@RANDFG[]
-                            *copy %TMP3% c:\recycler\latest-tmp3
+                            *copy %TMP3% c:\recycled\latest-tmp3
 
     :done
         REM MOVED TO ALLFILES-HELPER--TIMING ISSUES: *del /q %TMP5 %TMP1 >nul

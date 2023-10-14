@@ -1,7 +1,7 @@
 @Echo Off
 call checkeditor
 
-set HANDLES=c:\recycler\handles-%_DATETIME-%PID.txt
+set HANDLES=c:\recycled\handles-%_DATETIME-%PID.txt
 
 if exist %1 goto :FilenameGiven
 

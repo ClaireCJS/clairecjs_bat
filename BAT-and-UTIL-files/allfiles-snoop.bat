@@ -1,1 +1,1 @@
-%EDITOR% c:\recycler\latest-allfiles.bat c:\recycler\latest-tmp1 c:\recycler\latest-tmp2 c:\recycler\latest-tmp3
+%EDITOR% c:\recycled\latest-allfiles.bat c:\recycled\latest-tmp1 c:\recycled\latest-tmp2 c:\recycled\latest-tmp3

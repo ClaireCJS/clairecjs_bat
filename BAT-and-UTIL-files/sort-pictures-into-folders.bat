@@ -1,6 +1,6 @@
 @echo off
 
-SET RECYCLEDBAT=c:\recycler\latest-sort-pictures-into-folders.bat
+SET RECYCLEDBAT=c:\recycled\latest-sort-pictures-into-folders.bat
 
 call fixtmp.bat
 call setpath.bat
@@ -48,6 +48,6 @@ call validate-environment-variable runme
 
 %COLOR_RUN%
     call %runme%
-    cp   %runme% c:\recycler\sort-pictures-into-folders-%_datetime.bat
+    cp   %runme% c:\recycled\sort-pictures-into-folders-%_datetime.bat
     *del %runme%
 
