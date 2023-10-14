@@ -1,6 +1,10 @@
 @Echo OFF
 
 
+:REQUIRES: set-colors.bat (to create RANDFG function) to have been run
+
+echos %@RANDFG[]
+
 
 REM OLD WAY UNTIL 2023/WINDOWS TERMINAL: :: Unfortunately, these internal variables don't actually work right:
 REM OLD WAY UNTIL 2023/WINDOWS TERMINAL:     set OLDFG=%_FG
@@ -16,4 +20,3 @@ REM OLD WAY UNTIL 2023/WINDOWS TERMINAL:
 REM OLD WAY UNTIL 2023/WINDOWS TERMINAL: set LAST_COLOR_RANDFG_FULLCMD=color %NEXT_COLOR%
 REM OLD WAY UNTIL 2023/WINDOWS TERMINAL:    %LAST_COLOR_RANDFG_FULLCMD%
 
-echos %@RANDFG[]
