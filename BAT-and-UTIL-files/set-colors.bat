@@ -103,6 +103,9 @@ rem ANSI: colors
                  function      RANDFG=`%@CHAR[27][38;2;%@RANDOM[55,255];%@RANDOM[42,255];%@RANDOM[42,255]m`
                  function ANSI_RANDFG=`%@CHAR[27][38;2;%@RANDOM[55,255];%@RANDOM[42,255];%@RANDOM[42,255]m`
 
+            rem example usage for random foreground: echos %@RANDFG[]
+
+
         rem Foreground Colors
             set ANSI_BLACK=%ANSI_ESCAPE%30m
             set ANSI_RED=%ANSI_ESCAPE%31m
