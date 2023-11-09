@@ -112,8 +112,12 @@
 2023-07-04  19:45             58    7%  fatalerror.bat
 2019-10-01  11:28            558   52%  find-first-filename-of-extension.bat
 2022-02-02  04:07         14,933   76%  find-folder-that-meets-conditions.bat
+2023-11-09  08:48          1,390   57%  fix-evillyrics-window-size-and-position.bat
 2019-10-01  11:28         14,337   82%  fix-file-dates-using-filenames.bat
 2023-10-06  09:11            983   60%  fix-google-photo-filenames.bat
+2023-11-09  08:46             80    3%  fix-lastfm-window-size-and-position.bat
+2023-11-09  08:46             21   -9%  fix-minilyrics-window-size-and-position.bat
+2020-05-26  15:36            143   50%  fix-music-window-sizes-and-positions.bat
 2023-08-10  00:08            550   54%  fix-window-title.bat
 2023-09-10  15:04         84,642   76%  fix_unicode_filenames.py
 2023-08-16  14:11         10,168   70%  fix_wrong_image_extensions.py
@@ -178,6 +182,7 @@
 2022-11-07  12:31             22    0%  list-mp3-tags.bat
 2022-11-04  03:35             38    3%  list-replaygain-tags-in-all-flac-files.bat
 2022-11-07  12:38             77   32%  list-replaygain-tags.bat
+2022-07-26  14:18             35   -5%  load-window-positions.bat
 2019-10-01  11:28             41    3%  lock-computer.bat
 2023-06-15  12:38          2,114   57%  logging.bat
 2023-07-05  00:25          3,961   73%  make-image-square.bat
@@ -232,10 +237,12 @@
 2019-10-01  11:28            186   18%  research-this-dir-on-wikipedia.bat
 2019-10-01  11:28            323   48%  restart-cpu-meter.bat
 2019-10-01  11:28            305   44%  restart-tcpip-stack.bat
+2023-11-09  08:46            984   52%  restore-window-positions.bat
 2023-06-09  19:15          2,922   67%  rn-latest-for-youtube-dl.bat
 2022-04-19  05:29            156   20%  rn-latest.bat
 2023-08-15  07:51          4,652   72%  rn.bat
 2022-03-13  20:26          3,560   74%  rotate-video.bat
+2023-11-09  08:42            589   49%  save-window-positions.bat
 2023-06-13  17:06             57    0%  send-keypress-alt_down.ahk
 2023-06-08  22:39             61    4%  send-keypress-alt_left.ahk
 2023-06-08  22:39             63    7%  send-keypress-alt_right.ahk

@@ -1,0 +1,1 @@
+@call fix-winamp %*
