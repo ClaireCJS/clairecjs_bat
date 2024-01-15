@@ -168,8 +168,9 @@ REM Actually display the message
                 if 2 == %msgNum% (echos     ``)
             )
             if  %BIG_HEADER eq    1          (echos %BLINK_OFF%)
-            %COLOR_NORMAL% 
-            echo ``
+            REM %COLOR_NORMAL% 
+            REM echo ``
+            echo %ANSI_COLOR_NORMAL%``
         )
         REM display our closing big-header, if we are in big-header mode
         if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****)

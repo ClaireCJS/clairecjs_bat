@@ -50,6 +50,7 @@ goto :END
 				if "%@REGEX[HADES,%DESC%]"   eq "1" ( color        red     on black %+ set echocommand=echos)
 				if "%@REGEX[THAILOG,%DESC%]" eq "1" ( color        red     on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_SMILING_FACE_WITH_HORNS%)
 				if "%@REGEX[GOLIATH,%DESC%]" eq "1" ( color bright magenta on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
+				if "%@REGEX[WYVERN,%DESC%]"  eq "1" ( color bright magenta on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
 				if "%@REGEX[DEMONA,%DESC%]"  eq "1" ( color bright red     on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_BAT%)
         ) else (
                 set spacer=

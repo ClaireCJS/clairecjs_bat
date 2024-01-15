@@ -35,6 +35,7 @@ rem ANSI: special stuff: position save/restore
             set ANSI_POSITION_RESTORE=%ESCAPE%8%ANSI_ESCAPE%u               %+ REM we do this the DEC way, then the SCO way
                 set ANSI_SAVE_POSITION=%ANSI_POSITION_SAVE%                
                 set ANSI_RESTORE_POSITION=%ANSI_POSITION_RESTORE%          
+                set ANSI_RESTORE=%ANSI_POSITION_RESTORE%          
             set ANSI_POSITION_REQUEST=%ANSI_ESCAPE%6n	                    %+ REM query/request current cursor position (reports as ESC[#;#R)
                 set ANSI_REQUEST_POSITION=%ANSI_POSITION_REQUEST%
 

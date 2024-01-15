@@ -32,8 +32,7 @@
     if "%1" eq "QUICK" imageindex-quick
 
 ::::: ENVIRONMENT VALIDATION:
-    call validate-environment-variable FILEMASK_IMAGE
-    call validate-environment-variable FILEMASK_VIDEO
+    call validate-environment-variables FILEMASK_IMAGE FILEMASK_VIDEO
 
 ::::: SETUP:
     unset /q TAGS

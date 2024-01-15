@@ -25,7 +25,7 @@
 
     :: Validate environment, environment variables
         call checkmachinename.bat
-        call environm.btm
+        call environm.btm force
         call validate-environment-variables COLOR_NORMAL COLOR_SUBTLE
 
     :: Initialize flags

@@ -1,1 +1,1 @@
-mklink /d %*
+mklink %*

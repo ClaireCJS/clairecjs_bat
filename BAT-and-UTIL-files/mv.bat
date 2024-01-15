@@ -31,6 +31,7 @@ REM create our move and undo commands
 REM actually do the move command:
         echos %MV_DECORATOR%%MOVE_DECORATOR%%MV_DECORATOR_ON%%MOVE_DECORATOR_ON%
               %MOVE_COMMAND% %* |& copy-move-post.py
+        rem   %MOVE_COMMAND% %* |& copy-move-post.exe ... is 7X slower
         echos %MV_DECORATOR_OFF%%MOVE_DECORATOR_OFF%
 
 gosub reset_option_variables

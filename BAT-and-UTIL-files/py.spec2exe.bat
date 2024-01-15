@@ -20,6 +20,7 @@ REM Check if other parameters were passed
         set OPTIONS=
         if "%2" ne "onefile" (echo. %+ call advice - Remember, we can do %0 %1 --onefile to compile as a single .EXE)
         if "%2" ne "" (set OPTIONS=%2$)
+        eset options
         REM DEBUG: call debug "- OPTIONS are: '%OPTIONS%'"
 
 
@@ -35,7 +36,7 @@ REM Compile the EXE...  Time it...
         set                     COMMAND=pyinstaller --noconfirm --log-level DEBUG %OPTIONS% %NAME_OF_PYTHON_SCRIPT_TO_BUILD_TO_EXE%
         call debug - About to: %COMMAND%
         %COLOR_RUN%    %+      %COMMAND%
-        call errorlevel "compilation of %NAME_OF_PYTHON_SCRIPT_TO_BUILD_TO_EXE% must have failed?" "??? Compilation was maybe succesful ???
+        call errorlevel "compilation of '%NAME_OF_PYTHON_SCRIPT_TO_BUILD_TO_EXE%' must have failed?" "??? Compilation was maybe succesful ???
 
 
 REM Let user know how long it took...

@@ -162,7 +162,7 @@ set ROLL_MADVR_LOGS=0
 
 
         REM winamp moves when vlc starts and this moves it back
-        call fml.bat
+        call advice "NOT doing: '%italics_on%call fml.bat%italics_off%' to fix minilyrics/winamp %faint_on%[commented out 20240101]%faint_off%"
 
 
 
@@ -385,6 +385,12 @@ set ROLL_MADVR_LOGS=0
             )
 	:TV_Lighting_Done_Already_NO3
  
+::::: FIX WINUAMP POSITION:
+     REM call important "Lower music volume..."
+     call askyn "Fix WinAmp position?" no
+                        set FIX_WINAMP_POSITION=0
+        if %DO_IT eq 1 (set FIX_WINAMP_POSITION=1)
+
 
 
 ::::: COPY SHOWNAME TO CLIPBOARD (AGAIN):
@@ -423,8 +429,8 @@ set ROLL_MADVR_LOGS=0
     rem call print-message logging "Ending!"
     call fix-window-title
 
-::::: FIX WINAMP POSITION AGAIN:
-        call fw
+::::: FIX WINAMP POSITION IF WE WERE ASKED:
+        if %FIX_WINAMP_POSITION eq 1 (call fw)
 
 
 :The_Very_End

@@ -11,6 +11,7 @@
 :: DETERMINE WHICH KIND OF "BEFORE" WE ARE RUNNING --- REMEMBER TO ADD NEW ONES TO THE USAGE... TRY TO KEEP THESE A-B-C:
 	if "%1"=="anger"          goto :anger
 	if "%1"=="application"    goto :jobapplication
+    If "%1"=="appointment"    goto :appointment
 	if "%1"=="bed"            goto :bedtime
 	if "%1"=="bedtime"        goto :bedtime
 	if "%1"=="breakfast"      goto :breakfast
@@ -296,6 +297,12 @@ goto :END
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:appointment
+	call checkeditor
+    https://docs.google.com/document/d/1ezPCv4YHkralE3SURDgitQi9xed-ZFHELuk5AcPa7Ko/edit
+goto :END
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
