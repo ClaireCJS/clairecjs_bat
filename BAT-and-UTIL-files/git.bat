@@ -55,6 +55,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         REM %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
         color bright blue on black
         echo * Un-filtered GIT output:
+        color blue on black
         set TEECOLOR=%COLOR_UNIMPORTANT%
         %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% 
         echo.
@@ -68,8 +69,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         cat %GIT_OUT% | grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
 
         %COLOR_REMOVAL%
-        if exist %GIT_OUT% *del /q /r  %GIT_OUT%>nul
-
+        if exist %GIT_OUT% (*del /q /r %GIT_OUT%>nul)
         call errorlevel "a git error!?! how can this be?!?! Command line was: %0 %*"
 
     set TERM=%TERM_TEMP%

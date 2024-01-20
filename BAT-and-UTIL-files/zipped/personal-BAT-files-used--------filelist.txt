@@ -136,7 +136,7 @@
 2023-06-02  20:02            623   53%  git-add-every-damn-file.bat
 2023-06-14  16:45            721   47%  git-add.bat
 2023-06-15  00:46             81    7%  git-commit-history.bat
-2023-07-11  23:43          2,307   56%  git-commit.bat
+2024-01-20  09:17          2,332   55%  git-commit.bat
 2023-10-06  07:37             45   -4%  git-config-set-commit-preference-to-rebase.bat
 2023-06-15  00:22             54    4%  git-config-set-commit-preferences-to-rebase.bat
 2023-10-06  07:37             18  -11%  git-history.bat
@@ -147,7 +147,7 @@
 2021-07-30  12:30             74    2%  git-log-normal.bat
 2021-07-30  12:30             88    4%  git-log-oneline.bat
 2019-10-01  11:28             25   -8%  git-log.bat
-2023-06-20  15:25          1,289   49%  git-push.bat
+2024-01-20  09:20          1,363   50%  git-push.bat
 2023-06-01  03:38            102   15%  git-rename-branch.bat
 2021-07-30  12:30             89    5%  git-revisions.bat
 2023-06-20  15:26          1,050   58%  git-setvars.bat
@@ -156,7 +156,7 @@
 2021-08-26  01:21             41    0%  git-suppress-CRLF-warning.bat
 2021-07-30  12:29            180   27%  git-timecapsule.bat
 2019-10-01  11:28             39    0%  git-win.bat
-2023-06-09  15:43          4,543   58%  git.bat
+2024-01-20  09:20          4,571   58%  git.bat
 2019-10-01  11:28            107   13%  google.bat
 2022-11-21  14:30          1,896   57%  grab.bat
 2019-10-01  11:27            429   48%  grant-me-access-to-all-files.bat

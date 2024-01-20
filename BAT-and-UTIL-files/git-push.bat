@@ -25,13 +25,17 @@ call errorlevel "Advice: for 'updates were rejected because the remote contains 
 
 echo.
 call validate-environment-variable GIT_OUT
-if "%@EXECSTR[grep Updates.were.rejected.because.the.remote.contains.work.that.you.do git.out]" ne "" call warning "You probably need to do 'git pull origin main'"
+if "%@EXECSTR[grep Updates.were.rejected.because.the.remote.contains.work.that.you.do git.out]" ne "" (call warning "You probably need to do 'git pull origin main'")
 
 echo.
 echo.
-call success "Git Push was successful!"
+REM moved below: call success "Git Push was successful!"
+
 
 set URL=https://github.com/%GITHUB_USERNAME%/%BASENAME%
 call advice "- Your GitHub URL is: %URL%"
 echo %URL>%BAT%\go-url.bat
 call advice "                      (type 'go-url' to go there)"
+
+
+call success "Git Push completed successfully!"

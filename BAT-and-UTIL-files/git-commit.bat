@@ -49,12 +49,13 @@ REM Actually commit the files
     %COMMITCOMMAND%
     REM git commit returns errorlevel if nothing to commit, so this isn't helpful: call errorlevel "git commit failed?!"
     REM                                                     ..........but this is: call errorlevel "there were no files to commit"
-    call errorlevel "there were no files to commit" "Commit was successful!"
+    call errorlevel "there were no files to commit" "%NEWLINE%%PARTY_POPPER%Commit was successful!"
 
 
 REM Remind that commit and push are not the same
     echo.
     call warning "* The files were not uploaded, though. To do that: 'push' (which which executes 'git push origin main')"
     if %NO_PAUSE ne 1 keystack push
+
 
 
