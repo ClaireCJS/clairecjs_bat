@@ -1,6 +1,6 @@
 @Echo OFF
 call warning "The first paramter to %0 should be a reddit username, or 'cleanup' to run cleanup"
-call advice "Consider running ripme.bat %0"
+call advice  "Consider running ripme.bat %0"
 
 if "%1" == "cleanup" goto :cleanup
 
@@ -14,12 +14,17 @@ if "%1" == "" goto :Usage
 call validate-in-path bdfr.exe "bdfr.exe not found, do we need to run 'pip install bdfr'?"
 
 set TARGET=c:\bdsmlr\%USER% (u_%USER%)
-
+if not exist "%TARGET%" (md /s "%TARGET%")
 
 call advice "removing --log has helped with failures before"
-         
-echo bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%"
-     bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%"
+    
+call warning "not sure if this --log parameter needs a filename or not..." %+ pause
+     
+rem %COLOR_UNIMPORTANT% %+ echo bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%"
+rem %COLOR_RUN%         %+      bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%"
+
+%COLOR_UNIMPORTANT% %+ echo bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%\log.txt"
+%COLOR_RUN%         %+      bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%\log.txt"
             
 call errorlevel
 call validate-environment-variable TARGET

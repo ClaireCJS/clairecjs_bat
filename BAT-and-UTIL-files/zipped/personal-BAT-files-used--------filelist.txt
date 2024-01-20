@@ -229,7 +229,7 @@
 2023-07-23  21:19             59   24%  randline.bat
 2023-03-03  17:19            251   38%  randline.pl
 2022-05-22  00:17          1,344   56%  Rebuild_Icon_Cache.bat
-2023-08-13  13:13          2,504   65%  reddit-user-download.bat
+2024-01-19  15:04          2,930   67%  reddit-user-download.bat
 2023-06-05  02:31             44   -4%  removal.bat
 2019-10-01  11:28            158   25%  remove-trailing-spaces.pl
 2023-10-03  22:12            106   10%  rename-folders-with-hyphens-into-underscores.bat
@@ -288,8 +288,8 @@
 2023-10-06  07:57          2,602   70%  sync-filelist.bat
 2023-07-03  14:45             48   -4%  unimportant.bat
 2019-10-01  11:28            544   82%  unmap-drives.bat
-2021-03-29  01:47             72    0%  unzip-all.bat
-2023-05-29  14:58          2,466   66%  unzip-gracefully.bat
+2024-01-20  08:59            146   16%  unzip-all.bat
+2024-01-20  09:11          3,242   66%  unzip-gracefully.bat
 2023-10-14  03:12          9,360   71%  update-from-BAT-via-manifest.bat
 2019-10-01  11:28            335   40%  usb-remove-safely.bat
 2023-05-28  10:54             38   -5%  validate-env-var.bat

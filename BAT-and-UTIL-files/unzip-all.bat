@@ -1,3 +1,8 @@
 @Echo Off
 
-for %1 in (*.zip) (call unzip-gracefully "%@UNQUOTE[%1]")
+call validate-environment-variable FILEMASK_ARCHIVE
+
+for %1 in (%FILEMASK_ARCHIVE%) (call unzip-gracefully "%@UNQUOTE[%1]")
+
+
+
