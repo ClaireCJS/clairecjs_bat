@@ -40,7 +40,7 @@ rem BRANCHING: Anaconda needs to skip the more advanced command-line stuff, and 
 rem ADVICE: Give it when appropriate
     if "%ARGV1" eq "rm"   (call important_less "adding '--cached' to 'rm' so we don't delete the local file" %+ set ARGV1=rm --cached %+ set ARGS=%@REPLACE[rm,rm --cached,%ARGS]) %+ REM Yeahhh, rm removes the file locally, and we don't want that! --cached just removes it from the repo
     if "%ARGV1" eq "pull" (call advice "'call git-config-set-commit-preferences-to-rebase' for 'you have divergent branches and need to specify how to reconcile them' situations")
-    if "%ARGV1" eq "push" (call subtle "- If a pop-up comes up for credentials, choose manager-core twice")
+    if "%ARGV1" eq "push" (call subtle "If a pop-up comes up for credentials, choose manager-core twice")
     echo.
     if %DEBUG_GIT_COMMANDS eq 1 call subtle "%GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS%"
 
