@@ -20,7 +20,7 @@ set GIT_OUT=git.out
 echo.
 REM call unimportant "[Unfiltered GIT output followed by filtered GIT output]..."
 set TEECOLOR=%COLOR_UNIMPORTANT%
-git push origin main %PARAMS% |& tee %GIT_OUT%
+call git push origin main %PARAMS% |& tee %GIT_OUT%
 call errorlevel "Advice: for 'updates were rejected because the remote contains work that you do not have locally', you may need to 'git pull origin main' to merge and then try again" 
 
 echo.
@@ -37,5 +37,5 @@ call advice "- Your GitHub URL is: %URL%"
 echo %URL>%BAT%\go-url.bat
 call advice "                      (type 'go-url' to go there)"
 
-
-call success "Git Push completed successfully!"
+echo.
+call success "%BLINK_ON%Git Push completed successfully!%BLINK_OFF%"
