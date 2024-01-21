@@ -15,31 +15,40 @@
 :                   if not isdir "%ZIP%" (echo * FOLDER: NO.)
 :   %DEBUG_THING_1% if     isdir "%ZIP%" (echo * FOLDER: YES.)
 :                   if     isdir "%ZIP%" (echo * FOLDER: YES.)
-    %DEBUG_THING_1% if     isdir "%ZIP%" (echo * ERROR: First arg of %ZIP% can't be a directory, silly! ;  beep ;  pause ;  END)
-                    if     isdir "%ZIP%" (echo * ERROR: First arg of %ZIP% can't be a directory, silly! %+ beep %+ pause %+ END)
+:   %DEBUG_THING_1% if     isdir "%ZIP%" (echo * ERROR: First arg of %ZIP% can't be a directory, silly! %+ beep %+ pause %+ goto :END)
+                    if     isdir "%ZIP%" (echo * ERROR: First arg of %ZIP% can't be a directory, silly! %+ beep %+ pause %+ goto :END)
 
 :: setup:
     set FILENAME_OLD=%ZIP%
     set FILENAME_NEW=%ZIP%
     set TO_UNZIP=%@UNQUOTE[%FILENAME_NEW%]
     set BASENAME=%@NAME[%TO_UNZIP%]
-    set TO_UNZIP_EXTENSION=%@EXT[%TO_UNZIP%]
-    call debug "TO_UNZIP_EXTENSION is '%TO_UNZIP_EXTENSION%'"
-    if "%TO_UNZIP_EXTENSION%" eq "7Z" (set USE_7Z=1)
-    if "%TO_UNZIP_EXTENSION%" ne "7Z" (set USE_7Z=0)
+    set TO_UNZIP_EXTENSION_1=%@UPPER[%@EXT[%TO_UNZIP%]]                          %+ rem will capture 7z for "file.7z"
+    set TO_UNZIP_EXTENSION_2=%@UPPER[%@EXT[%BASENAME%]]                          %+ rem will capture 7z for "file.7z.001"
+    rem call debug "BASENAME             is '%BASENAME%'"
+    rem call debug "TO_UNZIP_EXTENSION_1 is '%TO_UNZIP_EXTENSION_1%'"
+    rem call debug "TO_UNZIP_EXTENSION_2 is '%TO_UNZIP_EXTENSION_2%'"
+    if "%TO_UNZIP_EXTENSION_2%"    ne "7Z" (set USE_7Z=0 %+ set NUMBERED=0)
+    if "%TO_UNZIP_EXTENSION_1%"    ne "7Z" (set USE_7Z=0 %+ set NUMBERED=0)
+    if "%TO_UNZIP_EXTENSION_1%"    eq "7Z" (set USE_7Z=1 %+ set NUMBERED=0)
+    if "%TO_UNZIP_EXTENSION_2%"    eq "7Z" (set USE_7Z=1 %+ set NUMBERED=1)
     if %USE_7Z ne 1 (set EXTRACTOR=unzip /E /D /I /O)
-    if %USE_7Z eq 1 (set EXTRACTOR=7z x -aoa        )                     %+ REM -ao - set overwrite mode
+    if %USE_7Z eq 1 (set EXTRACTOR=7z x -aoa        )                            %+ REM -ao - set overwrite mode
 
-    set WE_CAN_DEAL_WITH_THIS_EXTENSION=0
-    if %TO_UNZIP_EXTENSION eq "7z" .or. %TO_UNZIP_EXTENSION eq "7z" (set WE_CAN_DEAL_WITH_THIS_EXTENSION=1)
-    if %WE_CAN_DEAL_WITH_THIS_EXTENSION eq 0 (call warning "We don't know how to deal with the '%ITALICS_ON%%BLINK_ON%%TO_UNZIP_EXTENSION%%ITALICS_OFF%%BLINK_OFF%' extension and will be skipping it!" %+ pause %+ goto :Skip_To_Here_If_Extension_Is_Unknown)
+    set                                                                            WE_CAN_DEAL_WITH_THIS_EXTENSION=0
+    if "%TO_UNZIP_EXTENSION_1" eq  "7Z" .or. "%TO_UNZIP_EXTENSION_2" eq  "7Z" (set WE_CAN_DEAL_WITH_THIS_EXTENSION=1)
+    if "%TO_UNZIP_EXTENSION_1" eq "RAR" .or. "%TO_UNZIP_EXTENSION_2" eq "RAR" (set WE_CAN_DEAL_WITH_THIS_EXTENSION=1)
+    if "%TO_UNZIP_EXTENSION_1" eq "ZIP" .or. "%TO_UNZIP_EXTENSION_2" eq "ZIP" (set WE_CAN_DEAL_WITH_THIS_EXTENSION=1)
+    if %WE_CAN_DEAL_WITH_THIS_EXTENSION eq 0 (call warning "We don't know how to deal with the '%ITALICS_ON%%BLINK_ON%%TO_UNZIP_EXTENSION_1%%ITALICS_OFF%%BLINK_OFF%' extension and will be skipping it!" %+ pause %+ goto :Skip_To_Here_If_Extension_Is_Unknown)
 
 :: do it:
         %DEBUG_THING_2%  md "%BASENAME%"
         %DEBUG_THING_2%  cd "%BASENAME%"
         %DEBUG_THING_2%  move ..\"%TO_UNZIP%"
+        %DEBUG_THING_2%  if %NUMBERED eq 1 (move ..\"%BASENAME%.0[0-9][0-9]")
         %DEBUG_THING_2%  %EXTRACTOR% "%TO_UNZIP%"
         %DEBUG_THING_2%  if %@FILES[/s/h,*] gt 1 (del "%TO_UNZIP%")  %+ REM 20151105 added filecheck to make sure somethign actually unzipped
+        %DEBUG_THING_2%  if %@FILES[/s/h,*] gt 1 .and. %NUMBERED eq 1 (del "%BASENAME%.0[0-9][0-9]")  %+ REM 20151105 added filecheck to make sure somethign actually unzipped
         :DEBUG: echo folder is %_CWP    pause
         %DEBUG_THING_2%  if %@FILES[/s/h,*] lt 1 (goto :Error)
         :ErrorDone`

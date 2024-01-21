@@ -38,7 +38,7 @@ goto :END
         REM DEBUG: echo.%+echo.%+echo.%+ 
         set TMP_CLR=%@REPLACE[COLOR_,,%var]
         REM DEBUG: echo * Processing colorvar %var (color=%TMP_CLR%)
-        if %ADD_TO_ALL_COLORS eq 1 set ALL_COLORS=%ALL_COLORS% %TMP_CLR%
+        if %ADD_TO_ALL_COLORS eq 1 (set ALL_COLORS=%ALL_COLORS% %TMP_CLR%)
         if %SILENT ne 1 (
             echo. 
             %[%VAR%] 

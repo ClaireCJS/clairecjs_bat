@@ -5,7 +5,7 @@
 :USAGE: 
 :DESCRIPTION: Used to package BAT/UTIL/helper files from a personal environment into a development project folder for public deployment
 :DESCRIPTION: Copies specific files to "BAT" folder, in a zip
-:USAGE: SET MANIFEST_FILES=ingest_youtube_album.py download-youtube-album.bat
+:USAGE: SET MANIFEST_FILES=ingest_youtube_album.py download-youtube-album.bat or SET MANIFEST_FILES=NONE
 :USAGE: set SECONDARY_BAT_FILES=%MANIFEST_FILES% validate-in-path.bat delete-largest-file.bat add-ReplayGain-tags.bat add-ReplayGain-tags-to-all-FLACs.bat add-ReplayGain-tags-to-all-MP3s.bat change-into-temp-folder.bat set-latestfilename.bat 
 :USAGE: set SECONDARY_UTIL_FILES=metamp3.exe metaflac.exe yt-dlp.exe
 :USAGE: call update-from-BAT-via-manifest.bat set-colors.bat
@@ -48,19 +48,21 @@ rem TELL USER:
 
 
 rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
-        for %myFileFull in (%MANIFEST_FILES%) (
-            set myFile=%@UNQUOTE[%myFileFull]
-            if not exist %SOURCE_DIR%\%myFile% (call error "Uh oh! Project source file %myFile% doesn't seem to exist in %SOURCE_DIR%")
-            if exist %myFile% (%COLOR_WARNING %+ attrib -r  %myFile% >nul)
-            if exist %myFile% (%COLOR_REMOVAL %+ %DELETE% %myFile%)
-            color bright black on black
-            REM echo is this thing on
-            %COLOR_SUBTLE%
-            (%COPY% %SOURCE_DIR%\%myFile% . ) %+ REM this messed up the coloring even tho it was better alignment: | call insert-before-each-line "%ANSI_GRAY%    "
-            call errorlevel
-            color bright black on black
-            if exist %myFile% attrib +r %myFile% >nul
-        )
+        if "%MANIFEST_FILES%" eq "NONE" (goto :Manifest_File_Update_Complete)
+                for %myFileFull in (%MANIFEST_FILES%) (
+                    set myFile=%@UNQUOTE[%myFileFull]
+                    if not exist %SOURCE_DIR%\%myFile% (call error "Uh oh! Project source file %myFile% doesn't seem to exist in %SOURCE_DIR%")
+                    if exist %myFile% (%COLOR_WARNING %+ attrib -r  %myFile% >nul)
+                    if exist %myFile% (%COLOR_REMOVAL %+ %DELETE% %myFile%)
+                    color bright black on black
+                    REM echo is this thing on
+                    %COLOR_SUBTLE%
+                    (%COPY% %SOURCE_DIR%\%myFile% . ) %+ REM this messed up the coloring even tho it was better alignment: | call insert-before-each-line "%ANSI_GRAY%    "
+                    call errorlevel
+                    color bright black on black
+                    if exist %myFile% attrib +r %myFile% >nul
+                )
+        :Manifest_File_Update_Complete
 
 
 rem DO SECONDARY FILES, OR SKIP THEM IF WE SAID TO:

@@ -256,6 +256,7 @@ return
             :SET DRIVES_HADES=                         %+  SET MAPPING_HADES_IP=66.167.233.214
             :ET DRIVE_C_HADES=                         %+  SET MAPPING_HADES_USR=oh
             :ET DRIVE_C_HADES_VAR=%A%                  %+  rem MAPPING_HADES_PWD=[REDACTED into private.env]
+
 		::FIRE (2011)
             if "%FIRE_DOWN%" eq "1" (goto :FireDownNoDriveDefinitions)
                 ::T HD300G=K    %+  SET K=HD300G           %+  SET MAPPING_K=FIRE300G 
@@ -290,6 +291,7 @@ return
             rem DRIVE_C_GOLIATH=L (Windows 7 era)  %+  SET MAPPING_GOLIATH_USR=Carolyn       %+ REM MAPPING_GOLIATH_IP=192.168.0.177
             SET DRIVE_C_GOLIATH=J                  %+  SET MAPPING_GOLIATH_USR=carol         %+ REM MAPPING_GOLIATH_IP=192.168.0.177
             SET DRIVE_C_GOLIATH_VAR=%J%            %+  rem MAPPING_GOLIATH_PWD=[REDACTED into private.env]
+
 		::THAILOG (2015)
 			:et   HD240G_DOWN=1 %+ rem HD240G=P    %+  SET P=HD240G           %+  SET MAPPING_P=THAILOG240G             %+ REM decomissioned 201910
             set   HD240G_DOWN=0 %+ set HD240G2=D   %+  SET D=HD240G2          %+  SET MAPPING_D=THAILOG240G2
@@ -329,6 +331,7 @@ return
             :: this is my microsoftlive cliocjs@gmail.com login password:
             REM MAPPING_DEMONA_PWD=[REDACTED into private.env]
 			:call validate-environment-variables HD1T3_PRESENCE HD18T3_PRESENCE - moved to CheckForSyncedDevices because path is not yet defined
+
 		::WYVERN (2023)
             set HD2T1=F %+ set MAPPING_F=WYVERN2T
             set DRIVES_WYVERN=F
@@ -834,9 +837,26 @@ return
 
 
     ::::: ANSI COLORS & EMOJI ENV VARS:
-        if %COLORS_HAVE_BEEN_SET ne 1 (call c:\bat\set-colors)                
-        if %EMOJIS_HAVE_BEEN_SET ne 1 (call c:\bat\set-emojis)                
+        if %COLORS_HAVE_BEEN_SET ne 1 .or. "%1" eq "force" (call c:\bat\set-colors)                
+        if %EMOJIS_HAVE_BEEN_SET ne 1 .or. "%1" eq "force" (
+            call c:\bat\set-emojis
+        )                
 
+    ::::: MACHINE-SPECIFIC EMOJI:                             ::: ALIASES:                                                                     (Consider: When new computer is added:)
+        set MACHINE_EMOJI_GOLIATH=%EMOJI_BAT%            %+   set EMOJI_MACHINE_GOLIATH=%MACHINE_EMOJI_GOLIATH%
+        set MACHINE_EMOJI_DEMONA=%EMOJI_DEVIL_FACE%      %+   set EMOJI_MACHINE_DEMONA=%MACHINE_EMOJI_DEMONA%
+        set MACHINE_EMOJI_WYVERN=%EMOJI_CASTLE%          %+   set EMOJI_MACHINE_WYVERN=%MACHINE_EMOJI_WYVERN%
+        set MACHINE_EMOJI_THAILOG=%EMOJI_MAN_VAMPIRE%    %+   set EMOJI_MACHINE_THAILOG=%MACHINE_EMOJI_THAILOG%
+        set MACHINE_EMOJI=%[MACHINE_EMOJI_%MACHINENAME%] %+   set EMOJI_MACHINE=%MACHINE_EMOJI%
+                                                              set  MACHINEEMOJI=%MACHINE_EMOJI%   %+ REM we also want a %machineemoji% without underscore to match our %machinename% that doesn't have an underscore
+
+    ::::: MACHINE-SPECIFIC COLORS:                            ::: ALIASES:                                                                     (Consider: When new computer is added:)
+        set MACHINE_COLOR_GOLIATH=%ANSI_MAGENTA%         %+   set COLOR_MACHINE_GOLIATH=%MACHINE_COLOR_GOLIATH%
+        set MACHINE_COLOR_DEMONA=%ANSI_BRIGHT_RED%       %+   set COLOR_MACHINE_DEMONA=%MACHINE_COLOR_DEMONA%
+        set MACHINE_COLOR_WYVERN=%ANSI_MAGENTA%          %+   set COLOR_MACHINE_WYVERN=%MACHINE_COLOR_WYVERN%
+        set MACHINE_COLOR_THAILOG=%ANSI_RED%             %+   set COLOR_MACHINE_THAILOG=%MACHINE_COLOR_THAILOG%
+        set MACHINE_COLOR=%[MACHINE_COLOR_%MACHINENAME%] %+   set COLOR_MACHINE=%MACHINE_COLOR%
+                                                              set  MACHINECOLOR=%MACHINE_COLOR%   %+ REM we also want a %machineemoji% without underscore to match our %machinename% that doesn't have an underscore
 
 	::::: COMMAND-LINE CUSTOMIZATION:
 		::::: HARD-TO-ESCAPE-CORRECTLY-SO-LET'S-FIGURE-IT-OUT-ONCE-AND-JUST-MAKE-IT-AN-ENVIRONMENT-VARIABLE STUFF:
@@ -868,6 +888,7 @@ return
 	:InitialBroadway
         set TABLET=1
         set OSBIT=32
+
     :InitialDemona
         :: hardware
             set CPU_CORES=16 %+ set OPTIMAL_CPU_THREADS=12 %+ REM guessing on optimal cpu threads here
@@ -880,8 +901,8 @@ return
             :: stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
         :: bugfix kludges
             set PROGRAMFILES=c:\Program Files
-        return
-    :SetThailogSetThailog
+    return
+
 	:InitialThailog
         :: hardware
             set CPU_CORES=6 %+ set OPTIMAL_CPU_THREADS=9
@@ -897,8 +918,9 @@ return
             :: stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
         :: bugfix kludges
             set PROGRAMFILES=c:\Program Files
-		return
-	:InitialGoliath
+    return
+
+    :InitialGoliath
         :: hardware
             set CPU_CORES=4 %+ set OPTIMAL_CPU_THREADS=2
             set MAXIMUM_TIME_FOR_TCC_TO_START=5
@@ -909,8 +931,9 @@ return
             *window /trans=228            
             rem OS_USERNAME=carolyn
             set OS_USERNAME=%MAPPING_GOLIATH_USR% %+ REM 202308-/Windows 10
-		return
-	:InitialWyvern
+    return
+
+    :InitialWyvern
         *window /trans=228            
         :: hardware
             set CPU_CORES=12 %+ set OPTIMAL_CPU_THREADS=12
@@ -921,8 +944,9 @@ return
             SET OS=11
             rem OS_USERNAME=carolyn
             set OS_USERNAME=%MAPPING_WYVERN_USR% 
-		return
-	:InitialHades
+	return
+
+    :InitialHades
         :: hardware
             SET HD256G=C %+  SET C=HD256G
         :: software
@@ -936,21 +960,24 @@ return
                 set    PHP_PEAR_DATA_DIR=%ProgramFiles%\PHP\data
                 set     PHP_PEAR_PHP_BIN=%ProgramFiles%\PHP\php.exe
                 set    PHP_PEAR_TEST_DIR=%ProgramFiles%\PHP\tests
-		return
-	:InitialFire
+	return
+
+    :InitialFire
         :: hardware
             SET HD300G=C %+  SET C=HD300G  %+ REM or should we be setting SHARE300G=C ?? confused about what to do here :)
         :: software
             SET OS=XP
             set OSBIT=32
             set OS_USERNAME=Administrator
-		return
-	:InitialMist
+	return
+
+    :InitialMist
 		SET HD25G=C %+  SET C=HD25G
 		SET OS=XP
         set OS_USERNAME=carolyn
         set OSBIT=32
-		return
+	return
+
     :InitialTemplate %+ REM Consider: When new computer is added - add new function here
         :: hardware
             set CPU_CORES=6 %+ set OPTIMAL_CPU_THREADS=9
@@ -959,8 +986,9 @@ return
         :: software
             SET OS=7
             set  claire
-		return
-	:InitialWork
+	return
+
+    :InitialWork
 		:not any more.... call %BAT%\work\set-[EMPLOYERNAME]-environment-vars
 		::::: PERSONAL:
 			SET MUSICSERVER=localhost:%MUSICSERVERPORT%
@@ -1936,7 +1964,7 @@ return
         set FILEMASK_RICHTEXT=*.html;*.htm;*.doc;*.rtf;*.docx;*.mht;*.pdf;*.url
         set FILEMASK_CODE=*.pl;*.py;*.java;*.bat;*.sql;*.asm;*.bas;*.c;*.h;*.java;*.pas;*.php;*.sql;*.vbs
         set FILEMASK_APPLICATION=*.exe;*.apk;*.msi;*.com
-        set FILEMASK_ARCHIVE=*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace
+        set FILEMASK_ARCHIVE=*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace;*.001 %+ REM 20240121: added *.001 because of .7z.001 files ... this is currently only used in unzip-gracefully.bat
         set FILEMASK_DISC_IMAGE=*.iso;*.img
         set FILEMASK_IMAGE=*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large %+ REM 20160421:removed comic extensions from here, 20161226:added DICOM(*.dcm)
         set FILEMASK_COMIC_BOOK=*.cbr;*.cbz
