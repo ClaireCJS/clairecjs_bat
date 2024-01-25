@@ -18,6 +18,7 @@ REM NAH :PUBLISH:
 ::::: SETUP:
     if   "%1" eq "alphabet" goto :By_Alphabet_Parameter
     if   "%1" eq "abc"      goto :By_Alphabet_Parameter
+    if   "%1" eq "ready"    goto :All_Ready_Drives
 	if   "%1" != ""         goto :%1            %+ REM       For when we pass usernames, machinemames, or drive letters.
 	if   "%1" eq ""         goto :%MACHINENAME% %+ REM       For when we pass   nothing, simply go to current drive letter
     call setDrive       %+  goto :%DRIVE%       %+ REM       For when we pass   nothing, simply go to current drive letter [WHAT USED TO HAPPEN]
@@ -26,7 +27,12 @@ REM NAH :PUBLISH:
 
 ::::: VALIDATION:
     rem this goes away as we abandon having to maintain this bat file:
-    call validate-environment-variables HD128G HD240G2 HD2000G5 HD4000G HD4000G2 HD4000G5 HD4000G7 HD6000G1 HD6000G2 HD10T1 HD10T2 HD18T1 HD18T2 HD18T3
+    rem call validate-environment-variables HD128G HD240G2 HD2000G5 HD4000G HD4000G2 HD4000G5 HD4000G7 HD6000G1 HD6000G2 HD10T1 HD10T2 HD18T1 HD18T2 HD18T3
+
+
+:All_Ready_Drives
+    free %_DRIVES | frpost
+    goto :END
 
 
 :By_Letter_Parameter
@@ -149,18 +155,17 @@ REM NAH :PUBLISH:
                 return
             :Ready_NO
                 echo.
-                %COLOR_WARNING%
-                echo * Drive %letter% is not ready. Refusing and resisting.
-                %COLOR_NORMAL%
+                call error "Drive %letter% is not ready. Refusing and resisting."
                 return
 
 
 :By_Username_Parameter
     :claire
     :clio
-        goto :ALLClio
+    :claire
+        goto :All_Claire
     :carolyn
-        goto :ALLCarolyn
+        goto :All_Carolyn
 
 :By_Computer_Parameter
     :Mist
@@ -198,13 +203,12 @@ goto :END
 :By_All_Parameter
     ::::: 'all' - but depending on who we are we want a diff order because we each care about the drives differently (I care about my own more!)
     :All
-        goto :ALL%USERNAME
-        :ALLClio
-        :ALLClaire
+        goto :ALL_%USERNAME%
+        :All_Claire
             REM free %HD240G2: %HD512G%:  %HD1000G3: %HD2000G5: %HD4000G%: %HD4000G2: %HD4000G5: %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: %HD18T2: %HD18T3: | frpost
             fr %DRIVES_GOLIATH% %DRIVES_THAILOG% %DRIVES_DEMONA% | cat
         goto :end
-        :ALLCarolyn
+        :All_Carolyn
             REM free %HD240G2: %HD512G%: %HD1000G3:  %HD2000G5: %HD4000G%: %HD4000G2: %HD4000G5: %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: %HD18T2: %HD18T3: | frpost
             fr %DRIVES_THAILOG% %DRIVES_DEMONA% %DRIVES_GOLIATH% | cat
         goto :end

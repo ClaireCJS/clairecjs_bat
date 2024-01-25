@@ -63,7 +63,7 @@
 2023-08-20  14:47            575   43%  connections-monitor.bat
 2023-10-06  12:01            163   34%  convert-16bit-or-32bit-legacy-executable-to-64bit-exe.bat
 2023-08-03  05:27             56    4%  copy-alias.bat
-2023-10-03  19:57          9,449   74%  copy-move-post.py
+2024-01-25  21:06         10,018   74%  copy-move-post.py
 2019-10-01  11:27            221   34%  counts-helper.bat
 2019-10-01  11:27             27   -7%  counts.bat
 2023-07-18  10:17          1,957   62%  cover_embedder.py
@@ -91,10 +91,10 @@
 2023-11-07  14:36          3,152   71%  echo-rainbow.bat
 2023-09-15  13:27          3,399   66%  editGrep.bat
 2023-10-06  06:33          1,701   57%  emoji-search.bat
-2024-01-21  16:54         66,804   79%  emoji.env
+2024-01-25  10:52         68,479   79%  emoji.env
 2021-03-04  14:25            205   19%  ensure-directories-exist.bat
 2023-08-02  17:26            310   35%  env.bat
-2024-01-21  16:12        165,351   81%  environm.btm
+2024-01-25  21:21        166,179   81%  environm.btm
 2023-05-29  17:16             42   -4%  error.bat
 2023-07-10  12:05          8,342   73%  errorlevel.bat
 2023-08-02  03:04            106   15%  eset.bat
@@ -125,9 +125,9 @@
 2023-08-16  14:11         10,168   70%  fix_wrong_image_extensions.py
 2023-10-14  02:43            481   46%  flac2wav.bat
 2019-10-01  11:28             56   13%  flv2avi.bat
-2023-08-29  06:12          7,593   71%  FR.BAT
-2023-08-29  06:13          4,546   67%  frpost-helper.pl
-2023-08-29  04:56            112    9%  frpost.bat
+2024-01-25  19:56          7,659   71%  FR.bat
+2024-01-25  21:18          8,244   69%  frpost-helper.pl
+2024-01-25  15:28            117    9%  frpost.bat
 2023-06-08  21:46            825   60%  generate-and-play-random-midi.btm
 2023-10-06  06:51          1,667   61%  generate-audio-playlists.bat
 2023-07-16  15:37         11,288   68%  generate-audio-transcripts-for-files-with-openlrc.py
@@ -212,7 +212,7 @@
 2022-02-02  04:03          3,953   60%  plot-generalized-graph---plot-graph.bat
 2019-10-01  11:28             45   -4%  png2jpg500.bat
 2023-06-09  23:02             67    6%  print-if-debug.bat
-2024-01-21  16:47         15,238   74%  print-message.bat
+2024-01-25  03:09         15,984   75%  print-message.bat
 2023-09-29  15:15         13,814   75%  process-done-torrent.btm
 2023-06-02  14:09          1,023   67%  prompt-Carolyn.bat
 2023-06-02  14:11            783   46%  prompt-Claire.bat
@@ -251,8 +251,8 @@
 2023-06-08  22:39             63    7%  send-keypress-alt_right.ahk
 2023-06-13  17:06             57    0%  send-keypress-alt_up.ahk
 2023-06-08  23:38             69    2%  send-keypress-ctrl_alt_left.ahk
-2023-11-15  17:03         21,724   79%  set-colors.bat
-2024-01-21  16:12          1,612   56%  set-emojis.bat
+2024-01-25  21:11         23,184   79%  set-colors.bat
+2024-01-25  10:52          5,626   63%  set-emojis.bat
 2023-06-08  09:06          1,793   70%  set-file-age.bat
 2023-05-30  01:32          1,398   58%  set-first-file.bat
 2023-10-06  07:00            184   53%  set-largest-filename.bat

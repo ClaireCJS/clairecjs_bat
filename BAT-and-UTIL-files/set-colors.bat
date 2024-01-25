@@ -14,8 +14,8 @@ REM  unexplored: Set text colour to index n in a 256-colour palette (e.g. \x1b[3
 REM  unexplored: is \x1b[?25h and \x1b[?25l. These show and hide the cursor, respectively.
 
 
-if "%1" eq "force" .or. "%1" eq "test" goto :Force
-if %COLORS_HAVE_BEEN_SET eq 1 (goto :AlreadyDone)
+if "%1" eq "force" .or. "%1" eq "test" (goto :Force      )
+if   1  eq %COLORS_HAVE_BEEN_SET       (goto :AlreadyDone)
 :Force
 
 
@@ -133,7 +133,7 @@ rem ANSI: colors
                 set ANSI_CYAN_BRIGHT=%ANSI_ESCAPE%96m
                 set ANSI_WHITE_BRIGHT=%ANSI_ESCAPE%97m
         rem Background Colors
-            set ANSI_BLACKGROUND_BLACK=%@ANSI_BG[0,0,0]
+            set ANSI_BACKGROUND_BLACK=%@ANSI_BG[0,0,0]
             set ANSI_BACKGROUND_BLACK_NON_EXPERIMENTAL=%ANSI_ESCAPE%40m
             set ANSI_BACKGROUND_RED=%ANSI_ESCAPE%41m
             set ANSI_BACKGROUND_GREEN=%ANSI_ESCAPE%42m
@@ -151,6 +151,25 @@ rem ANSI: colors
             set ANSI_BACKGROUND_BRIGHT_MAGENTA=%ANSI_ESCAPE%105m
             set ANSI_BACKGROUND_BRIGHT_CYAN=%ANSI_ESCAPE%106m
             set ANSI_BACKGROUND_BRIGHT_WHITE=%ANSI_ESCAPE%107m
+                rem Aliases:
+                    set ANSI_BG_BLACK=%ANSI_BACKGROUND_BLACK%
+                    set ANSI_BG_BLACK_NON_EXPERIMENTAL=%ANSI_BACKGROUND_BLACK_NON_EXPERIMENTAL%
+                    set ANSI_BG_RED=%ANSI_BACKGROUND_RED%
+                    set ANSI_BG_GREEN=%ANSI_BACKGROUND_GREEN%
+                    set ANSI_BG_YELLOW=%ANSI_BACKGROUND_YELLOW%
+                    set ANSI_BG_BLUE=%ANSI_BACKGROUND_BLUE%
+                    set ANSI_BG_MAGENTA=%ANSI_BACKGROUND_MAGENTA%
+                    set ANSI_BG_CYAN=%ANSI_BACKGROUND_CYAN%
+                    set ANSI_BG_WHITE=%ANSI_BACKGROUND_WHITE%
+                    set ANSI_BG_GREY=%ANSI_BACKGROUND_GREY%
+                    set ANSI_BG_GRAY=%ANSI_BACKGROUND_GRAY%
+                    set ANSI_BG_BRIGHT_RED=%ANSI_BACKGROUND_BRIGHT_RED%
+                    set ANSI_BG_BRIGHT_GREEN=%ANSI_BACKGROUND_BRIGHT_GREEN%
+                    set ANSI_BG_BRIGHT_YELLOW=%ANSI_BACKGROUND_BRIGHT_YELLOW%
+                    set ANSI_BG_BRIGHT_BLUE=%ANSI_BACKGROUND_BRIGHT_BLUE%
+                    set ANSI_BG_BRIGHT_MAGENTA=%ANSI_BACKGROUND_BRIGHT_MAGENTA%
+                    set ANSI_BG_BRIGHT_CYAN=%ANSI_BACKGROUND_BRIGHT_CYAN%
+                    set ANSI_BG_BRIGHT_WHITE=%ANSI_BACKGROUND_BRIGHT_WHITE%
 
 
 REM As of Windows Terminal we can now actually display italic characters
@@ -239,6 +258,9 @@ REM As of Windows Terminal we can now actually display italic characters
             set      CONCEAL_ON=%ANSI_CONCEAL_ON%
             set      CONCEAL_OFF=%ANSI_CONCEAL_OFF%
             set      CONCEAL=%CONCEAL_ON%
+            set      INVISIBLE_ON=%ANSI_CONCEAL_ON%
+            set      INVISIBLE_OFF=%ANSI_CONCEAL_OFF%
+            set      INVISIBLE=%CONCEAL_ON%
 
             set ANSI_STRIKETHROUGH=%ANSI_ESCAPE%9m
             set ANSI_STRIKETHROUGH_ON=%ANSI_STRIKETHROUGH%
@@ -277,7 +299,7 @@ REM wow it even supports the vt100 2-line-tall text!
 
 
 REM test strings that demonstrate all this ANSI functionality
-        set ANSI_TEST_STRING=concealed:'%CONCEAL%conceal%CONCEAL_off%' %ANSI_RED%R%ANSI_ORANGE%O%ANSI_YELLOW%Y%ANSI_GREEN%G%ANSI_CYAN%C%ANSI_BLUE%B%ANSI_MAGENTA%V%ANSI_WHITE% Hello, world. %BOLD%Bold!%BOLD_OFF% %FAINT%Faint%FAINT_OFF% %ITALICS%Italics%ITALIC_OFF% %UNDERLINE%underline%UNDERLINE_OFF% %OVERLINE%overline%OVERLINE_OFF% %DOUBLE_UNDERLINE%double_underline%DOUBLE_UNDERLINE_OFF% %REVERSE%reverse%REVERSE_OFF% %BLINK_SLOW%blink_slow%BLINK_SLOW_OFF% [non-blinking] %BLINK_FAST%blink_fast%BLINK_FAST_OFF% [non-blinking] %blink%blink_default%blink_off% [non-blinking] %STRIKETHROUGH%strikethrough%STRIKETHROUGH_OFF%
+        set ANSI_TEST_STRING=concealed:'%CONCEAL_ON%conceal%CONCEAL_off%' %ANSI_RED%R%ANSI_ORANGE%O%ANSI_YELLOW%Y%ANSI_GREEN%G%ANSI_CYAN%C%ANSI_BLUE%B%ANSI_MAGENTA%V%ANSI_WHITE% Hello, world. %BOLD%Bold!%BOLD_OFF% %FAINT%Faint%FAINT_OFF% %ITALICS%Italics%ITALIC_OFF% %UNDERLINE%underline%UNDERLINE_OFF% %OVERLINE%overline%OVERLINE_OFF% %DOUBLE_UNDERLINE%double_underline%DOUBLE_UNDERLINE_OFF% %REVERSE%reverse%REVERSE_OFF% %BLINK_SLOW%blink_slow%BLINK_SLOW_OFF% [non-blinking] %BLINK_FAST%blink_fast%BLINK_FAST_OFF% [non-blinking] %blink%blink_default%blink_off% [non-blinking] %STRIKETHROUGH%strikethrough%STRIKETHROUGH_OFF%
         set ANSI_TEST_STRING_2=%BIG_TEXT_LINE_1%big% %ANSI_RESET% Normal One
         set ANSI_TEST_STRING_3=%BIG_TEXT_LINE_2%big% %ANSI_RESET% Normal Two
         set ANSI_TEST_STRING_4=%WIDE_LINE%A wide line!

@@ -40,7 +40,7 @@ rem VALIDATION & SETUP:
 rem TELL USER:
         echo.
         call important "Updating: '%PROJECT_NAME%' files: " %+ %COLOR_IMPORTANT% 
-              echo            To: %[PROJECT_DIR]
+              echo                  To: %[PROJECT_DIR]
 
 
 

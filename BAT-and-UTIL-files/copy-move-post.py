@@ -73,6 +73,8 @@ def print_line_OLD_beforesummarysplits(line_buffer, r, g, b, additional_beginnin
 
 
 def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
+    color_change_ansi = f'\033[38;2;{r};{g};{b}m'
+    ansi_reset = '\033[0m'
 
     double  = False
     summary = False
@@ -91,13 +93,11 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     elif summary: line += EMOJIS_SUMMARY
     else: line += f'  '
 
-    # Handle transformation for FOOTERS
-    if summary:
+    if summary:                                                                             # Handle transformation for FOOTERS
         pattern = "|".join(re.escape(footer) for footer in FOOTERS)
         segments = re.split(pattern, line_buffer)
 
-        # Remove empty segments and strip spaces from the rest
-        segments = [seg.strip() for seg in segments if seg.strip()]
+        segments = [seg.strip() for seg in segments if seg.strip()]                         # Remove empty segments and strip spaces from the rest
 
         lines = []
         for segment in segments:
@@ -105,14 +105,17 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             if footer_match:
                 footer = footer_match.group(0)
                 lines.append(f"{segment} {footer}")
-                # Update line_buffer to remove the footer we just matched
-                line_buffer = line_buffer.replace(footer, "", 1).strip()
+                line_buffer = line_buffer.replace(footer, "", 1).strip()                    # Update line_buffer to remove the footer we just matched
 
         line_buffer = f'\n{EMOJIS_SUMMARY}'.join(lines)
 
-    line += f'\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{line_buffer.rstrip()}\033[0m\n'
-    line = line.replace("=>>", "↪️")
-
+    line += f'{color_change_ansi}{additional_beginning_ansi}{line_buffer.rstrip()}\033[0m\n'
+    line = line.replace(' => ' , f'{ansi_reset} => {color_change_ansi}')
+    line = line.replace( '=>>' , f'{ansi_reset}↪️{   color_change_ansi}')
+    line = line.replace(   '.' , f'{ansi_reset}.{   color_change_ansi}')
+    line = line.replace(   ':' , f'{ansi_reset}:{   color_change_ansi}')
+    line = line.replace( ' - ' , f'{ansi_reset} - { color_change_ansi}')
+    line = line.replace(  '\\' , f'{ansi_reset}\\{  color_change_ansi}')
 
     lines_to_print = line.split('\n')
     i = 0
