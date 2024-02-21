@@ -1,3 +1,5 @@
+@Echo OFF
+
 :: 201506 trying to get a handle of this tmp bullshit, 
 :: so i'm removing this as it came from settmp.bat: call settemp.bat %*
 

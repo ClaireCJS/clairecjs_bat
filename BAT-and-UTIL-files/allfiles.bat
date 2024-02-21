@@ -490,11 +490,11 @@ goto :Edit
                             *copy %TMP5 %LATESTALLFILES1%
         %COLOR_UNIMPORTANT%
                             *copy %TMP5 %LATESTALLFILES2%
-        echso %@RANDFG[]
+        echo %@RANDFG[]
                             *copy %TMP1% c:\recycled\latest-tmp1
-        echso %@RANDFG[]
+        echo %@RANDFG[]
                             *copy %TMP2% c:\recycled\latest-tmp2
-        echso %@RANDFG[]
+        echo %@RANDFG[]
                             *copy %TMP3% c:\recycled\latest-tmp3
 
     :done

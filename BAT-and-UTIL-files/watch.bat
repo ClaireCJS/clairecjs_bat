@@ -2,7 +2,6 @@
 :Edit self [good when testing]: %EDITOR% c:\bat\watch.bat
 
 
-set ROLL_MADVR_LOGS=0      
 
 
                          ::: PRE-2014 STUFF (HAHA):
@@ -15,20 +14,22 @@ set ROLL_MADVR_LOGS=0
     if "%1" == ""      (goto :The_Very_End)
     if "%1" == "askyn" (goto :askyn       )
 
+
 ::::: CONFIGURATION:
 	::::: The preferred videoplayer of the moment:
-	         set VIDEOPLAYER=call vlc -f
-             set EXE_TO_SEE_IF_RUNNING=vlc.exe
+	        set VIDEOPLAYER=call vlc -f
+            set EXE_TO_SEE_IF_RUNNING=vlc.exe
 
 	::::: The 2nd-favorite videoplayer of the moment:
-	         set ALT_VIDEOPLAYER=call mpc 
-             set ALT_EXE_TO_SEE_IF_RUNNING=mpc-hc.exe
+	        set ALT_VIDEOPLAYER=call mpc 
+            set ALT_EXE_TO_SEE_IF_RUNNING=mpc-hc.exe
 
 
 	::::: Whether to run a process that kills slui.exe every second:
-             set SLAY_SLUI=0
+            set SLAY_SLUI=0
 
-
+	::::: For when the MadVR plugin is used, which we stopped using in 2015ish:
+            set ROLL_MADVR_LOGS=0      
 
 
 
@@ -279,14 +280,17 @@ set ROLL_MADVR_LOGS=0
         
 ::::: DELETE IT IF WE ARE IN A FOLDER WHOSE NAME IMPLIES THAT WE SHOULD DELETE IT:
         %COLOR_REMOVAL%
-                                                               set DELETE=0
-        if %@REGEX[DELETE.AFTER.WATCHING,%@UPPER["%_CWP"]]==1  set DELETE=1
-        if isdir %*                                            set DELETE=0
+                                                                           set RENAMEIT=0
+                                                                           set SMALL_VID_WATCHING=0
+        if %@REGEX[DO_LATERRRRRRRRRRRRRRRRRRRRRRR\OH,%@UPPER["%_CWP"]]==1 (set SMALL_VID_WATCHING=1 %+ set RENAMEIT=1)
+                                                                           set             DELETE=0
+        if             %@REGEX[DELETE.AFTER.WATCHING,%@UPPER["%_CWP"]]==1 (set             DELETE=1)
+        if  isdir  %*                                                     (set             DELETE=0)
         if %DELETE eq 1 (
             echos %FAINT_OFF%
             *del /p  %*
             echos %FAINT_ON%
-            for %f in (%ARGSWITHSPACES%) if exist "%@NAME[%f].*" *del /p "%@NAME[%f].*"
+            for %f in (%ARGSWITHSPACES%) if exist "%@NAME[%f].*" (*del /p "%@NAME[%f].*")
         )
         echos %FAINT_OFF%
 
@@ -294,6 +298,14 @@ set ROLL_MADVR_LOGS=0
         REM call fml.bat
 
 ::::: IF WE ARE IN A FOLDER THAT ALREADY HAS A WATCHED SUB-FOLDER, WE NEED TO FIND IT, AND (LATER) MOVE WHAT WE WATCHED THERE:
+        :Reviewing_Small_Videos_Dir_Finding_Time
+            if %SMALL_VID_WATCHING eq 1 (
+                call rn %1
+                set                                REVIEWED_NOT_PRENAMED=..\..\REVIEWED-NOT-PRENAMED\
+                call validate-environment-variable REVIEWED_NOT_PRENAMED
+                goto :Watched_Dir_Found
+            )
+
         :Watched_Dir_Finding_Time
             unset /q WATCHEDTARGET
             if isdir        _watched                                                                       (set WATCHEDTARGET=       _watched                                                                       %+ goto :Watched_Dir_Found)
@@ -314,7 +326,6 @@ set ROLL_MADVR_LOGS=0
             :DealWithWatchedDir_YES
 
 ::::: PRIOR TO MOVING TO WATCHED FOLDER, IF IT'S IN A PRE-RENAMING PART OF THE WORKFLOW, GIVE AN OPPORTUNITY TO RENAME IT:
-                                                                  set RENAMEIT=0
                 if       %@REGEX[FOR.REVIEW,%@UPPER["%_CWP"]]==1  set RENAMEIT=1
                 if %@REGEX[WATCH.BEFORE.FRA,%@UPPER["%_CWP"]]==1  set RENAMEIT=1
                 if "%RENAMEIT%" eq "0" goto :RenameIt_NO
@@ -329,16 +340,17 @@ set ROLL_MADVR_LOGS=0
 
                 :Move any files that match the names of any files that we played, but which have a different extension (subtitles, texts, etc):										
                 :@ECHO ON
-                    if exist %ARGSWITHSEMICOLONS% (mv /p %ARGSWITHSEMICOLONS% %WATCHEDTARGET%)
-                    if exist "%@NAME[%1].*"       (mv /p "%@NAME[%1].*"       %WATCHEDTARGET%)
-                    if exist "%@NAME[%2].*"       (mv /p "%@NAME[%2].*"       %WATCHEDTARGET%)
-                    if exist "%@NAME[%3].*"       (mv /p "%@NAME[%3].*"       %WATCHEDTARGET%)
-                    if exist "%@NAME[%4].*"       (mv /p "%@NAME[%4].*"       %WATCHEDTARGET%)
-                    if exist "%@NAME[%5].*"       (mv /p "%@NAME[%5].*"       %WATCHEDTARGET%)
-                    if exist "%@NAME[%6].*"       (mv /p "%@NAME[%6].*"       %WATCHEDTARGET%)
-                    if exist "%@NAME[%7].*"       (mv /p "%@NAME[%7].*"       %WATCHEDTARGET%)
-                    if exist "%@NAME[%8].*"       (mv /p "%@NAME[%8].*"       %WATCHEDTARGET%)
-                    if exist "%@NAME[%9].*"       (mv /p "%@NAME[%9].*"       %WATCHEDTARGET%)
+                    if exist %ARGSWITHSEMICOLONS%          (echos %@RANDFG[] %+ mv /p %ARGSWITHSEMICOLONS%          %WATCHEDTARGET%)
+                    if exist "%@NAME[%1].*"                (echos %@RANDFG[] %+ mv /p "%@NAME[%1].*"                %WATCHEDTARGET%)
+                    if exist "%@NAME[%2].*"                (echos %@RANDFG[] %+ mv /p "%@NAME[%2].*"                %WATCHEDTARGET%)
+                    if exist "%@NAME[%3].*"                (echos %@RANDFG[] %+ mv /p "%@NAME[%3].*"                %WATCHEDTARGET%)
+                    if exist "%@NAME[%4].*"                (echos %@RANDFG[] %+ mv /p "%@NAME[%4].*"                %WATCHEDTARGET%)
+                    if exist "%@NAME[%5].*"                (echos %@RANDFG[] %+ mv /p "%@NAME[%5].*"                %WATCHEDTARGET%)
+                    if exist "%@NAME[%6].*"                (echos %@RANDFG[] %+ mv /p "%@NAME[%6].*"                %WATCHEDTARGET%)
+                    if exist "%@NAME[%7].*"                (echos %@RANDFG[] %+ mv /p "%@NAME[%7].*"                %WATCHEDTARGET%)
+                    if exist "%@NAME[%8].*"                (echos %@RANDFG[] %+ mv /p "%@NAME[%8].*"                %WATCHEDTARGET%)
+                    if exist "%@NAME[%9].*"                (echos %@RANDFG[] %+ mv /p "%@NAME[%9].*"                %WATCHEDTARGET%)
+                    if exist "%@NAME[%LAST_RENAMED_TO].*"  (echos %@RANDFG[] %+ mv /p "%@NAME[%LAST_RENAMED_TO].*"  %WATCHEDTARGET%)
                 :@ECHO OFF
             :DealWithWatchedDir_NO
 

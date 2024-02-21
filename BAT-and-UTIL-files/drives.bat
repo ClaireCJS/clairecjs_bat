@@ -46,18 +46,21 @@ goto :END
                 set EMOJITOUSE=%EMOJI_HARD_DISK%
 				color green on black
                 set spacer=  ``
-				if "%@REGEX[FIRE,%DESC%]"    eq "1" (%COLOR_RUN%                    %+ set echocommand=echos)
-				if "%@REGEX[HADES,%DESC%]"   eq "1" ( color        red     on black %+ set echocommand=echos)
-				if "%@REGEX[THAILOG,%DESC%]" eq "1" ( color        red     on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_SMILING_FACE_WITH_HORNS%)
-				if "%@REGEX[GOLIATH,%DESC%]" eq "1" ( color bright magenta on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
-				if "%@REGEX[WYVERN,%DESC%]"  eq "1" ( color bright magenta on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
-				if "%@REGEX[DEMONA,%DESC%]"  eq "1" ( color bright red     on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_BAT%)
+                set FOUND=0
+				if "%@REGEX[FIRE,%DESC%]"    eq "1" (set FOUND=1 %+ %COLOR_RUN%                    %+ set echocommand=echos)
+				if "%@REGEX[HADES,%DESC%]"   eq "1" (set FOUND=1 %+  color        red     on black %+ set echocommand=echos)
+				if "%@REGEX[THAILOG,%DESC%]" eq "1" (set FOUND=1 %+  color        red     on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_SMILING_FACE_WITH_HORNS%)
+				if "%@REGEX[GOLIATH,%DESC%]" eq "1" (set FOUND=1 %+  color bright magenta on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
+				if "%@REGEX[WYVERN,%DESC%]"  eq "1" (set FOUND=1 %+  color bright magenta on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
+				if "%@REGEX[DEMONA,%DESC%]"  eq "1" (set FOUND=1 %+  color bright red     on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_BAT%)
+                if  %FOUND eq 0 (set spacer= ``)
         ) else (
                 set spacer=
                 if "%desc%" eq "[NOT READY]" (
 	                set echocommand=echos 
                     %COLOR_SUBTLE% 
                     echos %FAINT_ON% 
+                    REM unset /q spacer
                     set spacer=  ``
                     set desc=[%ITALICS_ON%NOT READY%ITALICS_OFF%]
                     set EMOJITOUSE=%EMOJI_WILTED_FLOWER%

@@ -4,6 +4,8 @@
 
 ::::: FORK BEHAVIOR BASED ON WHAT FOLDER WE ARE IN:
 ::::: TODO use regex instead so it does a partial match for things like \media\delete-after-watching\hangout\${SomeShowName}
+	if "%_CWP"=="\GAMES-REPOSITORY\RHYTHM & MUSIC\Rocksmith"       gosub :rocksmithdlc
+	if "%_CWP"==                                      "\DLC"       gosub :rocksmithdlc
 	if "%_CWP"=="\MEDIA\DELETE-AFTER-WATCHING"                     gosub :videoWatchingRepo
 	if "%_CWP"==      "\DELETE-AFTER-WATCHING"                     gosub :videoWatchingRepo
 	if "%_CWP"=="\MEDIA\DELETE-AFTER-WATCHING\HANGOUT"             gosub :videoWatchingRepo
@@ -43,6 +45,11 @@ goto :END
 :videoWatchingRepo
 	gosub sayRole "VIDEO_WATCHING_REPO (%DELETEAFTERWATCHING%)"
     gosub delIfExists *.nfo
+return
+
+:rocksmithdlc
+    call debut "is rocksmith!"
+    call clean-rocksmith-dlc-dir %*
 return
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

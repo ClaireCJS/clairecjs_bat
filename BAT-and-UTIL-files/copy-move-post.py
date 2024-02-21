@@ -111,6 +111,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
 
     line += f'{color_change_ansi}{additional_beginning_ansi}{line_buffer.rstrip()}\033[0m\n'
     line = line.replace(' => ' , f'{ansi_reset} => {color_change_ansi}')
+    line = line.replace(' -> ' , f'{ansi_reset} -> {color_change_ansi}')
     line = line.replace( '=>>' , f'{ansi_reset}↪️{   color_change_ansi}')
     line = line.replace(   '.' , f'{ansi_reset}.{   color_change_ansi}')
     line = line.replace(   ':' , f'{ansi_reset}:{   color_change_ansi}')

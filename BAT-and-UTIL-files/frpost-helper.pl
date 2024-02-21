@@ -109,8 +109,11 @@ while ($line=<STDIN>) {
         #$msg .= "reald1 is $reald1\n";
 
 		#### PRINT GIGABYES, THEN TERABYTES {added 2023}:
+		if (($line =~ /bytes used/) && ($usednice < $TERABYTE) && ($totalnice >      $TERABYTE)) { $msg .= "  "; }
+		#if (($line =~ /bytes used/) && ($usednice < $TERABYTE) && ($totalnice > $TEN_TERABYTES)) { $msg .= " "; }
         $reald14print = &comma(sprintf("%.0f",($reald1/1024/1024/1024))     ) . "G" . $ANSI_ITALICS_OFF;   $msg .= " ($reald14print)";
-		if ($reald1 > 1099511627776) { #DEBUG: $msg .= " [reald1 is $reald1]";
+		#f ($reald1    > $TERABYTE) { #DEBUG: $msg .= " [reald1 is $reald1]";
+		if ($totalnice > $TERABYTE) { #DEBUG: $msg .= " [reald1 is $reald1]";	#trying 20240126
 			$reald2   = &comma(sprintf("%.1f",($reald1/1024/1024/1024/1024))) . "T" . $ANSI_ITALICS_OFF;   $msg .= " " . "[";
 		    if (($freenice<$TEN_TERABYTES) && ($totalnice>$TEN_TERABYTES) && $line =~ /bytes free/) { $msg .= " "; }
 
@@ -145,24 +148,23 @@ my $USE_TERABYTES=0;
 if ($totaltotalnice/1024/1024/1024) { $USE_TERABYTES=1; }	#I forgot how this makes sense
 
 
-#my $FINAL_ANSI  = "\e[38;2;192;48;192m";
+#y $FINAL_ANSI  = "\e[38;2;192;48;192m";
 my $FINAL_ANSI = "\e[48;2;0;64;02m\e[38;2;204;48;204m";
-
 
 if ($DISPLAY_TOTALS) {
 	my $SPACER = "    ";
 	print "$FINAL_ANSI\n\n";
-	print "$SPACER    Total Usable Space: ".sprintf("%19s",&comma($totaltotalnice))." ".sprintf("%8.1f",($totaltotalnice/1024/1024/1024))."G";
+	print "$SPACER    Total Usable Space: ".sprintf("%19s",&comma($totaltotalnice))."  ".sprintf("%8.1f",($totaltotalnice/1024/1024/1024))."G";
 	#if (($totaltotalnice/1024/1024/1024) > 1) { print "" . sprintf("%8.2f",($totaltotalnice/1024/1024/1024/1024)) . "T"; }
-	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totaltotalnice/1024/1024/1024/1024)) . "T"; }
+	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totaltotalnice/1024/1024/1024/1024)) . "T                  "; }
 	print "\n";
 	print "$SPACER    Total  Used  Space: ".sprintf("%19s",&comma($totalusednice) )." ".sprintf("%8.1f",($totalusednice /1024/1024/1024))."G";
-	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totalusednice/1024/1024/1024/1024)) . "T"; }
+	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totalusednice /1024/1024/1024/1024)) . "T                  "; }
 	print "\n";
 	print "$SPACER    Total  Free  Space: ".sprintf("%19s",&comma($totalfreenice) )." ".sprintf("%8.1f",($totalfreenice /1024/1024/1024))."G";
-	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totalfreenice/1024/1024/1024/1024)) . "T"; }
+	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totalfreenice /1024/1024/1024/1024)) . "T                  "; }
 	print "\n";
-	print "${SPACER}Percentage Free (Full): ".sprintf("%17s","") . sprintf("%7s","🌟🌟🌟 $freepct\%  (\e[21m" . &colorprint($fullpct,1) . "\e[24m\%\e[25m full") . "$ANSI_RESET$FINAL_ANSI) 🌟🌟🌟\n";
+	print "${SPACER}Percentage Free (Full): ".sprintf("%17s","") . sprintf("%7s","🌟🌟🌟 $freepct\%  (\e[21m" . &colorprint($fullpct,1) . "\e[24m\%\e[25m full") . "$ANSI_RESET$FINAL_ANSI) 🌟🌟🌟    \n";
 	print "$ANSI_RESET\n";
 }
 

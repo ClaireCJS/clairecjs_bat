@@ -1,5 +1,18 @@
 @Echo Off
 
+
+
+
+
+::::: DOCUMENTATION:
+    rem PASTE THIS INTO UTORRENT CLIENT: c:\tcmd\tcc.exe C:\bat\process-done-torrent.btm "%F" "%D" "%N" "%P" "%L" "%T" "%M" "%S" %K "%I"
+
+
+
+::::: MOVE TO CORRECT MONITOR:
+    if "%MACHINENAME%" eq "DEMONA" (call move-current-TCC-window-to-top-left-screen.bat)
+
+
 ::::: CONFIGURATION:
     SET TARGETDIR=%DROPDIR%\oh
     if "%MACHINENAME%" eq "GOLIATH" (set TARGETDIR=%TORRENT_GOLIATH%\oh)
@@ -11,8 +24,6 @@
 ::::: ENVIRONMENT VALIDATION:
     call validate-environment-variable FILEMASK_VIDEO
 
-::::: DOCUMENTATION:
-    :PASTED INTO UTORRENT CLIENT: c:\tcmd\tcc.exe C:\bat\process-done-torrent.btm "%F" "%D" "%N" "%P" "%L" "%T" "%M" "%S" %K "%I"
 
 ::::: UTORRENT INTEGRATION / SAVING OUR COMMAND:
 SET HOWABOUTTHIS=%0 %*
@@ -128,10 +139,10 @@ goto :RedeterminationOfSingleOrMulti
 		if "%EXTENSION%" eq "apk" set TARGETDIR=%TARGETDIR%\APK
 	if not isdir %TARGETDIR% (md %TARGETDIR%)
 
-	:cp    %N %TARGETDIR%
-	 cp /r %F %TARGETDIR%
-        %COLOR_WARNING% %+ echo. %+ echo ...Did it copy?
-        %COLOR_NORMAL%  %+ echo.
+	:echo r | cp    %N %TARGETDIR%
+	 echo r | cp /r %F %TARGETDIR%
+            %COLOR_WARNING% %+ echo. %+ echo ...Did it copy?
+            %COLOR_NORMAL%  %+ echo.
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -289,7 +300,7 @@ goto :END
 	%COLOR_DEBUG% %+ ECHO * THISDIR = %THISDIR% %+ %COLOR_NORMAL%
 	if not isdir %TARGET md %TARGET
 	%COLOR_DEBUG% %+ echo * cp /s /r . "%TARGET\%THISDIR%" %+ %COLOR_NORMAL%
-	                        cp /s /r . "%TARGET\%THISDIR%"
+	               echo r | cp /s /r . "%TARGET\%THISDIR%"
 return
 ::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -304,7 +315,7 @@ return
 	      set TARGET=%TARGETDIR%
 	      :OLD: if exist %it% cp %it% %TARGETDIR%
           %COLOR_SUCCESS%
-          if exist %it% copy /a: /e /h /r /g %it% %TARGETDIR%
+          if exist %it% (echo r | copy /a: /e /h /r /g %it% %TARGETDIR%)
           %COLOR_NORMAL%
 return
 ::::::::::::::::::::::::::::::::
@@ -315,8 +326,8 @@ return
                       set TEMP_TARGET="%@UNQUOTE[%TARGETDIR%\%THISDIR%.%@EXT[%shittyFileName]]"
     %COLOR_DEBUG%  %+ echo ****** ProcessShittyFileNames %shittyFileName%
     %COLOR_DEBUG%  %+ echo *      temp_target=%TEMP_TARGET% // thisdir=%thisdir%
-    %COLOR_DEBUG%  %+ echo * if exist %shittyFileName% (if not exist %TEMP_TARGET% (echo y cp /r %shittyFileName% %TEMP_TARGET%))
-    %COLOR_NORMAL% %+	     if exist %shittyFileName% (if not exist %TEMP_TARGET% (echo y|cp /r %shittyFileName% %TEMP_TARGET%))
+    %COLOR_DEBUG%  %+ echo * if exist %shittyFileName% (if not exist %TEMP_TARGET% (echo r cp /r %shittyFileName% %TEMP_TARGET%))
+    %COLOR_NORMAL% %+	     if exist %shittyFileName% (if not exist %TEMP_TARGET% (echo r|cp /r %shittyFileName% %TEMP_TARGET%))
 return
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

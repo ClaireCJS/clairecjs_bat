@@ -40,6 +40,8 @@
             if "%FILENAME_NEW%" eqc "%FILENAME_OLD%" (%COLOR_WARNING% %+ echos * %ITALICS_ON%No change.%ITALICS_OFF% %+ %COLOR_NORMAL% %+ echo. %+ goto :END)
             set  UNDOCOMMAND=%REN% "%FILENAME_NEW%" "%@UNQUOTE[%FILENAME_OLD%]" 
             set  REDOCOMMAND=%REN% "%FILENAME_OLD%" "%@UNQUOTE[%FILENAME_NEW%]"      %+ if "%DEBUG%" eq "1" (echo [DEBUG] About to: %REDOCOMMAND% %+ pause)
+                                 set LAST_RENAMED_TO=%@UNQUOTE[%FILENAME_NEW%]
+
                 %COLOR_SUCCCESS%
                 echos %FAINT_ON%
                 REM echo y|%REDOCOMMAND%                                                 
@@ -74,6 +76,7 @@
             %COLOR_WARNING%  %+ echo * Looks like you meant to use 'ren' and not 'rn', so we'll do that instead:
             %COLOR_RUN%      %+ ren "%@UNQUOTE[%1]" "%@UNQUOTE[%2]" 
             set UNDOCOMMAND=    ren "%@UNQUOTE[%2]" "%@UNQUOTE[%1]" 
+            set LAST_RENAMED_TO=%@UNQUOTE[%2]
         goto :END
 
         :DNE
@@ -84,8 +87,8 @@
         :after
             if "%AFTER_PRE%" eq ""  .and. "%AFTER_POST%" eq "" goto :NoAfter
                 %AFTER_PRE% %NEW_FILENAME% %AFTER_POST%
-                set LAST_AFTER_PRE=%LAST_AFTER_PRE%
-                set LAST_AFTER_POST=%LAST_AFTER_POST%
+                set LAST_RN_AFTER_PRE=%LAST_AFTER_PRE%
+                set LAST_RN_AFTER_POST=%LAST_AFTER_POST%
                 unset /q AFTER_PRE
                 unset /q AFTER_POST
             :NoAfter

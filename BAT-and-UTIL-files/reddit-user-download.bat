@@ -23,8 +23,8 @@ call warning "not sure if this --log parameter needs a filename or not..." %+ pa
 rem %COLOR_UNIMPORTANT% %+ echo bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%"
 rem %COLOR_RUN%         %+      bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%"
 
-%COLOR_UNIMPORTANT% %+ echo bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%\log.txt"
-%COLOR_RUN%         %+      bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%\log.txt"
+%COLOR_UNIMPORTANT% %+ echo About to: bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%\log.txt" %+ pause
+%COLOR_RUN%         %+                bdfr.exe download "%TARGET%" --user %USER% --submitted --no-dupes --log "%TARGET%\log.txt"
             
 call errorlevel
 call validate-environment-variable TARGET
