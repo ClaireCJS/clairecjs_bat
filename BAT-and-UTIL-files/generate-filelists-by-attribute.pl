@@ -4187,7 +4187,8 @@ sub quickfilefind {                         #hopefully this will speed it up
 
 	#if ($ISBASE){ &log("\n\n\n\n\n\n\nSetting QFF DEBUG back to 0...\n\n\n\n\n\n\n");$DEBUG_QFF=0;}#RUCK
 
-	my @regexes=split(/\|/,"$searchforall");
+	$searchforall =~ s/\|\|/|/g;																				#we do allow blank regex'es, for instance a line saying ":cheese" is saying to mark the regex of "" {everything} as cheese. But we do NOT allow blanks in between pipes. Those are errors that should be corrected
+	my @regexes=split(/\|/,"$searchforall");																	#multiple regex'es are split by "|" in our parlance
 	foreach $tmpfname (keys %ALLFILES) {																		#if (($DEBUG_QFF>=8)||($tmpfname =~ /$DEBUG_FILEWATCH_FILENAME/i)){print "[1]Searchfor=$searchfor, where=$where, tmpfname=\"$tmpfname\"\n";}																										
 		if ($DEBUG_QFF) { &log("\n\t *** Checking [".$i++."] if \"$tmpfname\" is in /^$where/i"); }
 		if ($tmpfname =~ /^$where/i) {

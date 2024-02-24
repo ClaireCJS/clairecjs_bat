@@ -210,13 +210,13 @@ goto :END
         goto :ALL_%USERNAME%
         :All_Claire
             REM free %HD240G2: %HD512G%:  %HD1000G3: %HD2000G5: %HD4000G%: %HD4000G2: %HD4000G5: %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: %HD18T2: %HD18T3: | frpost
-            call fr %DRIVES_GOLIATH% %DRIVES_WYVERN% %DRIVES_THAILOG% %DRIVES_DEMONA% %* >%TMPTMP
+            call fr %DRIVES_GOLIATH% %DRIVES_WYVERN% %DRIVES_THAILOG% %DRIVES_DEMONA% >%TMPTMP
             cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
 
         goto :end
         :All_Carolyn
             REM free %HD240G2: %HD512G%: %HD1000G3:  %HD2000G5: %HD4000G%: %HD4000G2: %HD4000G5: %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: %HD18T2: %HD18T3: | frpost
-            call fr %DRIVES_THAILOG% %DRIVES_WYVERN% %DRIVES_DEMONA% %DRIVES_GOLIATH% %* >%TMPTMP
+            call fr %DRIVES_THAILOG% %DRIVES_WYVERN% %DRIVES_DEMONA% %DRIVES_GOLIATH% >%TMPTMP
             cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
         goto :end
 
