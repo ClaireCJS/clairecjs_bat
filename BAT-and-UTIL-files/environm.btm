@@ -697,6 +697,10 @@ return
             set IP_DEMONA_2=192.168.1.190
             SET IP_GOLIATH=192.168.0.107  
             SET IP_WYVERN=192.168.0.97  
+        :: MAC addresses
+            set MAC_GOLIATH=BC:5F:F4:43:EC:6E
+            set MAC_WYVERN=TODO
+            set MAC_THAILOG=TODO
         :: drive mapping
             SET MAPPING_THAILOG_IP=%IP_THAILOG%
             SET MAPPING_DEMONA_IP=%IP_DEMONA%
@@ -2034,7 +2038,7 @@ return
     ::::: FUNCTION FOR EACH EXTENSION:
         ::::: NOTE: there is no methodology for setting a blank extension. Blank extensions are handled by UNKNOWN[command].BAT
          set  .001=call wrapper start
-         set   .7z=call wrapper start
+         set   .7z=call wrapper winrar
          set  .ahk=call AutoHotKey
          set  .ans=type
          set  .arj=call wrapper start
