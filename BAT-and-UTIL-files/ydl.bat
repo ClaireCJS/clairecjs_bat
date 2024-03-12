@@ -101,7 +101,7 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         call success "Succcess!"
 
     :: clean-up 0-byte description txt file
-        for %%f in (*.txt) do (
+        for %%f in (*.txt;*.description) do (
             if %%~zf==0 (
                 echo. 
                 call warning "Deleting zero-byte file: %%f ????"
@@ -109,6 +109,8 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
             )
         )
 
+    :: multiple-file downloads is janky and .description files don't all get turned into .txt correctly
+        if exist *.description (ren *.description *.txt)
 
     :: move files back into original folder we started in
         :dangerous: mv * ..

@@ -1,4 +1,4 @@
-@echo OFF
+@Echo OFF
 
 : EXAMPLE:
 :    C:\new>mcgetmac goliath
