@@ -1,4 +1,4 @@
-    @Echo Off
+@Echo Off
 
 :REQUIRES: set-colors.bat (to define certain environment variables that represent ANSI character control sequences)
 
@@ -16,8 +16,8 @@ REM Initialize variables
     set DO_PAUSE=-666
     set OUR_COLORTOUSE=
 
-REM validate environment
-    REM  we expect certain environment variables to be set to certain ANSI escape codes:
+REM Ensure correct environment
+    setdos /x0
 
 REM Process parameters
     if "%1" eq "test" goto :TestSuite
