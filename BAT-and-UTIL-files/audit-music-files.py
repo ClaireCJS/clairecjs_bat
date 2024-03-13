@@ -117,15 +117,16 @@ def main():
     with open(rg_yes_file, 'w', encoding='utf-8') as f: f.write('\n'.join(rg_yes))
     with open(rg_no_file , 'w', encoding='utf-8') as f: f.write('\n'.join(rg_no ))
 
-    #make bat file to fix it with our argt [add-replaygain-tags] script
+    #create bat script to fix errors, though it's just a functionless shell that calls our add-RelayGain-tags.bat
     if rg_no:
         rg_no_folders = set(os.path.dirname(file) for file in rg_no)
         with open(rg_fix_bat, 'w', encoding='utf-8') as f:
-            f.write('rem Use this script to fix files with missing replaygain tags\n\n')
+            f.write('rem Use this script to fix files with missing replaygain tags, then when done, run audit-music-files.py again\n\n')
             for folder in rg_no_folders:
-                f.write(f'pushd "{folder}"\n')
-                f.write(f'call add-replay-gain-tags\n')
-                f.write('popd\n')
+                f.write(f'cd    "{folder}"\n')              #in case pushd doesn't work
+                f.write(f'pushd "{folder}"\n')              #store location for return
+                f.write(f'call add-ReplayGain-tags\n')      #add the missing tags
+                f.write('popd\n')                           #return from whence we came
         #print(f"Created {rg_fix_bat} with backup rules.")
 
     elapsed_time = end_time - start_time
