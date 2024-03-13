@@ -357,6 +357,3 @@ if "%1" eq "test" (
 
 
 REM unrelated to colors, but nice-to-have variables:
-        set QUOTE=%@CHAR[34]  
-        set TAB=%CHAR[9]
-        set NEWLINE=%@CHAR[12]%@CHAR[13]

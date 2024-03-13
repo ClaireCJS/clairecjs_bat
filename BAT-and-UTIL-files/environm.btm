@@ -671,7 +671,7 @@ return
 
     ::::: BASIC HARDWARE:
         :: Default number of CPU cores in a machine, and default number of optimal threads (usually cores * 1.5)
-            set CPU_CORES=4
+            set CPU_CORES=12
             set OPTIMAL_CPU_THREADS=6
             set TABLET=0                                            %+ REM Later on, in Initial%MachineName%, set this to 1 for machinenames that are tablets (i.e. Windows tablets)
 
