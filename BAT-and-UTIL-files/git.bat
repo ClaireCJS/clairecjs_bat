@@ -40,7 +40,8 @@ rem BRANCHING: Anaconda needs to skip the more advanced command-line stuff, and 
 rem ADVICE: Give it when appropriate
     if "%ARGV1" eq "rm"   (call important_less "adding '--cached' to 'rm' so we don't delete the local file" %+ set ARGV1=rm --cached %+ set ARGS=%@REPLACE[rm,rm --cached,%ARGS]) %+ REM Yeahhh, rm removes the file locally, and we don't want that! --cached just removes it from the repo
     if "%ARGV1" eq "pull" (call advice "'call git-config-set-commit-preferences-to-rebase' for 'you have divergent branches and need to specify how to reconcile them' situations")
-    if "%ARGV1" eq "push" (call subtle "If a pop-up comes up for credentials, choose manager-core twice")
+    rem"%ARGV1" eq "push" (call subtle "If a pop-up comes up for credentials, choose manager-core twice")
+    if "%ARGV1" eq "push" (call advice "If a pop-up comes up for credentials, choose manager-core twice")
     echo.
     if %DEBUG_GIT_COMMANDS eq 1 call subtle "%GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS%"
 
@@ -54,14 +55,14 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         set GIT_OUT=git.%_PID.out
         REM %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
         color bright blue on black
-        echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%Un-filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
+        echo %ANSI_BRIGHT_BLUE%%STAR% %DOUBLE_UNDERLINE%%ITALICS%Un-filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
         color blue on black
         echo.
         set TEECOLOR=%COLOR_UNIMPORTANT%
         %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% 
         echo.
         color bright blue on black
-        echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
+        echo %ANSI_BRIGHT_BLUE%%STAR% %DOUBLE_UNDERLINE%%ITALICS%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
         echo.
 
         %COLOR_RUN%
