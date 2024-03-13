@@ -78,10 +78,10 @@ REM Type alias/synonym handling
 REM Behavior overides and message decorators depending on the type of message?
                                        set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=
     if  "%TYPE%"  eq "UNIMPORTANT"    (set DECORATOR_LEFT=...           %+ set DECORATOR_RIGHT=)
-    REM to avoid issues with the redirection character, ADVICE's left-decorator is inserted at runtime
+    REM to avoid issues with the redirection character, ADVICE's left-decorator needs to be inserted at runtime if it contains a '>' character. Could proably avoid this with setdos
     REM "%TYPE%"  eq "ADVICE"         (set DECORATOR_LEFT=`-->`         %+ set DECORATOR_RIGHT=) 
+    if  "%TYPE%"  eq "ADVICE"         (set DECORATOR_LEFT=%EMOJI_BACKHAND_INDEX_POINTING_RIGHT% `` %+ set DECORATOR_RIGHT= %EMOJI_BACKHAND_INDEX_POINTING_LEFT%) 
     if  "%TYPE%"  eq "NORMAL"         (set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=) 
-    if  "%TYPE%"  eq "ADVICE"         (set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=) 
     if  "%TYPE%"  eq "DEBUG"          (set DECORATOR_LEFT=- DEBUG: ``   %+ set DECORATOR_RIGHT=)
     if  "%TYPE%"  eq "LESS_IMPORTANT" (set DECORATOR_LEFT=%STAR% ``     %+ set DECORATOR_RIGHT=)
     if  "%TYPE%"  eq "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR% ``     %+ set DECORATOR_RIGHT=)
@@ -129,6 +129,7 @@ REM Pre-Message determination of how many times we will display the message
 
 REM Actually display the message
         REM display our opening big-header, if we are in big-header mode
+        setdos /x-6
         if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****)
 
         REM repeat the message the appropriate number of times
@@ -155,7 +156,7 @@ REM Actually display the message
                 if        %msgNum        == 3 (echos %ITALICS_ON%)
             )
 
-            REM HACK: This one decorator has to be manually displayed here at the last minute to avoid issues with ">" being the redirection character
+            REM HACK: Decorators with ">" in them need to be manually outputted here at the last minute to avoid issues with ">" being the redirection character, though setdos could work around this
             if "%TYPE%" eq "ADVICE" (echos `--> `)
 
             REM actually print the message:
@@ -179,6 +180,7 @@ REM Actually display the message
 
 
 REM Post-message delays and pauses
+        setdos /x0
         set DO_DELAY=0    
         REM DO_PAUSE=0 WOULD BE FATAL beause we set this from calling scripts for automation
         if "%TYPE%" eq "WARNING"                        (set DO_DELAY=1)
