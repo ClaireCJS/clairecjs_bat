@@ -109,6 +109,7 @@ def main():
     backup_existing_file(rg_no_file)
     backup_existing_file(rg_fix_bat)
 
+    print("")
     start_time = time.monotonic()
     rg_yes, rg_no = process_music_files()
     end_time = time.monotonic()
