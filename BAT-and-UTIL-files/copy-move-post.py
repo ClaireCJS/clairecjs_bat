@@ -5,6 +5,7 @@ import io
 import threading
 import queue
 import time
+import os
 import clairecjs_utils as claire
 from colorama import init
 init(autoreset=False)
@@ -13,6 +14,7 @@ init(autoreset=False)
 
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+move_decorator = os.environ.get('move_decorator', '')
 
 
 FOOTERS = [
@@ -57,7 +59,7 @@ def print_line_OLD_beforesummarysplits(line_buffer, r, g, b, additional_beginnin
         double      = True
         summary     = True
     #line = f'\033[93m'                                                                                                      # i liked my arrow yellow
-    line = ''
+    line = move_decorator
     if   any(substring in line_buffer for substring in ["Y/N/A/R"]):     line += f'❓❓ '                                     # emojis at beginning of prompty  lines
     if   any(substring in line_buffer for substring in ["=>","->"]):     line += EMOJIS_COPY                                 # emojis at beginning of filename lines
     elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):
@@ -74,7 +76,7 @@ def print_line_OLD_beforesummarysplits(line_buffer, r, g, b, additional_beginnin
 
 def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     color_change_ansi = f'\033[38;2;{r};{g};{b}m'
-    ansi_reset = '\033[0m'
+    ansi_reset = '\033[0m' + move_decorator
 
     double  = False
     summary = False
@@ -84,7 +86,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         double      = True
         summary     = True
 
-    line = ''
+    line = move_decorator
     if   any(substring in line_buffer for substring in ["Y/N/A/R)"]): line += f'❓❓ '
     elif any(substring in line_buffer for substring in ["=>","->"]): line += EMOJIS_COPY
     elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):
@@ -135,7 +137,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
 
 
 
-################################################################################################################################################################
+## MAIN #######################################################################################################################################################
 
 def reader_thread(q):
     while True:
@@ -151,11 +153,9 @@ q = queue.Queue()
 t = threading.Thread(target=reader_thread, args=(q,))
 t.start()
 
-
-
 line_buffer = ""
 in_prompt = False
-additional_beginning_ansi = ""
+additional_beginning_ansi = move_decorator
 r, g, b = get_random_color()
 
 while t.is_alive() or not q.empty():
