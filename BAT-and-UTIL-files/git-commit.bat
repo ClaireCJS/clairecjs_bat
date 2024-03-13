@@ -50,7 +50,7 @@ REM Actually commit the files
     %COMMITCOMMAND%
     REM git commit returns errorlevel if nothing to commit, so this isn't helpful: call errorlevel "git commit failed?!"
     REM                                                     ..........but this is: call errorlevel "there were no files to commit"
-    call errorlevel "there were no files to commit" "%NEWLINE%%STAR%Commit was successful! %PARTY_POPPER%"
+    call errorlevel "there were no files to commit" "%NEWLINE%%STAR% Commit was successful! %PARTY_POPPER%"
 
 
 REM Remind that commit and push are not the same
