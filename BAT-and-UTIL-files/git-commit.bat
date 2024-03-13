@@ -55,7 +55,8 @@ REM Actually commit the files
 
 REM Remind that commit and push are not the same
     echo.
-    call warning "* The files were not uploaded, though. To do that: 'push' (which which executes 'git push origin main')"
+    call warning "The files were not uploaded, though"
+    call advice "To do that: '%italics%push%italics_off%' (which which executes '%italics%git push origin main%italics_off%')"
     if %NO_PAUSE ne 1 keystack push
 
 
