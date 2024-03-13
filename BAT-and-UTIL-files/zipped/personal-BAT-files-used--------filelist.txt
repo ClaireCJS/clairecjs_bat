@@ -277,6 +277,7 @@
 2023-10-03  20:33          5,636   75%  sort-pictures-into-folders-helper.pl
 2023-10-14  02:49            933   54%  sort-pictures-into-folders.bat
 2023-05-30  11:07            501   44%  sort.bat
+2024-03-13  19:32            415   37%  speak-in-every-voice.bat
 2024-03-13  15:22          2,131   63%  speak.bat
 2023-07-19  19:34          4,768   62%  split-mp3-by-inputted-chapter-info-helper.py
 2023-10-06  07:10          1,507   55%  split-mp3-by-inputted-chapter-info.bat
