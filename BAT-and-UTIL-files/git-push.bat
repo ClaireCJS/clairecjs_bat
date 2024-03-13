@@ -38,4 +38,4 @@ echo %URL>%BAT%\go-url.bat
 call advice "                      (type 'go-url' to go there)"
 
 echo.
-call success "%BLINK_ON%Git Push completed successfully!%BLINK_OFF%"
+call celebration "%BLINK_ON%Git Push completed successfully%BLINK_OFF%"

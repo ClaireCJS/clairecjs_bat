@@ -89,7 +89,7 @@ REM Behavior overides and message decorators depending on the type of message?
     if  "%TYPE%"  eq "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %DOUBLE_UNDERLINE_ON%`` %+ set DECORATOR_RIGHT=%DOUBLE_UNDERLINE_OFF% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
     REM "%TYPE%"  eq "WARNING"        (set DECORATOR_LEFT=%EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %blink%!!%blink_off% `` %+ set DECORATOR_RIGHT= %blink%!!%blink_off% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING%)
     if  "%TYPE%"  eq "WARNING"        (set DECORATOR_LEFT=%RED_FLAG%%RED_FLAG%%RED_FLAG%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %@ANSI_BG_RGB[0,0,255]%blink%!!%blink_off% ``  %+  set DECORATOR_RIGHT= %blink%!!%blink_off%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %RED_FLAG%%RED_FLAG%%RED_FLAG%)
-    if  "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=*** %EMOJI_BIRTHDAY_CAKE% ``        %+ set DECORATOR_RIGHT=! %EMOJI_BIRTHDAY_CAKE% ***)
+    if  "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%)
     if  "%TYPE%"  eq "COMPLETION"     (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT=! ***)
     if  "%TYPE%"  eq "ALARM"          (set DECORATOR_LEFT=* ``          %+ set DECORATOR_RIGHT= *)
     if  "%TYPE%"  eq "ERROR"          (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT= ***)
@@ -117,8 +117,8 @@ REM Pre-Message pause based on message type
         if %DO_PAUSE% eq 1 (echo.)                                                                                                     %+ REM pausable messages need a litle visual cushion
 
 REM Pre-Message determination of if we do a big header or not
-                                                                                                                        set BIG_HEADER=0
-        if  "%TYPE%" eq "ERROR" .or. "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "ALARM" .or. "%TYPE%" eq "CELEBRATION" (set BIG_HEADER=1)
+                                                                                         set BIG_HEADER=0
+        if  "%TYPE%" eq "ERROR" .or. "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "ALARM" (set BIG_HEADER=1)
 
 REM Pre-Message determination of how many times we will display the message
         set HOW_MANY=1 
@@ -164,14 +164,13 @@ REM Actually display the message
             if "%TYPE%"     eq "UNIMPORTANT" (echos %FAINT_OFF%)
             if "%TYPE%"     eq "SUBTLE"      (echos %FAINT_OFF%)
             if "%TYPE%"     eq "SUCCESS"     (echos  %BOLD_OFF%)
-            if "%TYPE%"     eq "CELEBRATION" (
+            if "%TYPE%"     eq "CELEBRATION_OLD_CODE_TODO_REMOVE" (
                 if 1 == %msgNum% (echos     ``)
                 if 2 == %msgNum% (echos     ``)
             )
             if  %BIG_HEADER eq    1          (echos %BLINK_OFF%)
-            REM %COLOR_NORMAL% 
-            REM echo ``
-            echo %ANSI_COLOR_NORMAL%``
+
+            echo %ANSI_COLOR_NORMAL%`` 
         )
         REM display our closing big-header, if we are in big-header mode
         if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****)
