@@ -33,9 +33,9 @@ REM moved below: call success "Git Push was successful!"
 
 
 set URL=https://github.com/%GITHUB_USERNAME%/%BASENAME%
-call advice "- Your GitHub URL is: %URL%"
+call advice "Your GitHub URL is: %URL%"
 echo %URL>%BAT%\go-url.bat
-call advice "                      (type 'go-url' to go there)"
+call advice "                    (type 'go-url' to go there)"
 
 echo.
 call celebration "%BLINK_ON%%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed%BLINK_OFF%"

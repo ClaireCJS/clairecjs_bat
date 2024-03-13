@@ -157,7 +157,7 @@ REM Actually display the message
             )
 
             REM HACK: Decorators with ">" in them need to be manually outputted here at the last minute to avoid issues with ">" being the redirection character, though setdos could work around this
-            if "%TYPE%" eq "ADVICE" (echos `--> `)
+            if "%TYPE%" eq "ADVICE" (echos `----> `)
 
             REM actually print the message:
             echos %DECORATED_MESSAGE% 
