@@ -17,7 +17,7 @@ if "%SLEEPING%" eq "1" goto :Asleep              %+ REM don't speak loud words i
 
         rem Method 3: 2024 new replacement which works through ALL sound devices simultaneously which is pretty amazing:
         call validate-in-path wsay
-        wsay "%@UNQUOTE[%*]" --volume 100 --voice 3 --playback_device all
+        wsay "%@UNQUOTE[%*]" --volume 100 --voice 3 --playback_device all --speed 55
 
 
         rem The voices I had when I set this to 3 (Zira):
