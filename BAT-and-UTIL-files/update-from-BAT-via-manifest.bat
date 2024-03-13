@@ -167,7 +167,7 @@ rem reset our values so they don't accidentally get re-used, and CELEBRATE:
         SET MANIFEST_FILES=
         set SECONDARY_BAT_FILES=
         set SECONDARY_UTIL_FILES=
-        call success "*** Successfully updated from personal to '%PROJECT_NAME%' :)"
+        call success "Successfully updated from personal to '%ITALICS%%PROJECT_NAME%%ITALICS_OFF%'"
         echo.
         %PROJECT_DIR%\%
 
