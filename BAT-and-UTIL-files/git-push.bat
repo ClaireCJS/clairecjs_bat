@@ -38,4 +38,4 @@ echo %URL>%BAT%\go-url.bat
 call advice "                      (type 'go-url' to go there)"
 
 echo.
-call celebration "%BLINK_ON%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed successfully%BLINK_OFF%"
+call celebration "%BLINK_ON%%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed%BLINK_OFF%"
