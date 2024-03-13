@@ -33,6 +33,7 @@ REM Get reason to commit
     if "%NOPAUSE%" ne "1" .and. "%1" ne "nopause" .and. %GIT_SKIP_COMMIT_REASON_EDIT ne 1 (
         call important "Enter your commit reason:"
         %COLOR_INPUT%
+        call prompt-sound
         eset REASON
         REM don't turn off the flag here, even though that might be safer, because it would break calling this recursively on subfolders
     )
