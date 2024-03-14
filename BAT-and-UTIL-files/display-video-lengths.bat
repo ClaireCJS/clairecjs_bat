@@ -33,9 +33,9 @@ goto :END
         set MINUTES=%@FORMATN[3.0,%@EVAL[%SECONDS% / 60]]
         set   HOURS=%@FORMATN[1.1,%@EVAL[%MINUTES% / 60]]
         setdos /x-5
-        echos %ANSI_ERASE_CURRENT_LINE%                                                                          >>%tmpfile%
-        echo %hours% %ANSI_BOLD_ON%|%ANSI_BOLD_OFF% %MINUTES% |%SECONDS %ANSI_BOLD_ON%|%ANSI_BOLD_OFF% %vidfile% >>%tmpfile%
-        echo %hours% %ANSI_BOLD_ON%|%ANSI_BOLD_OFF% %MINUTES% |%SECONDS %ANSI_BOLD_ON%|%ANSI_BOLD_OFF% %vidfile% 
+            echos %ANSI_ERASE_CURRENT_LINE%                                                                          >>%tmpfile%
+            echo %hours% %ANSI_BOLD_ON%|%ANSI_BOLD_OFF% %MINUTES% |%SECONDS %ANSI_BOLD_ON%|%ANSI_BOLD_OFF% %vidfile% >>%tmpfile%
+            echo %hours% %ANSI_BOLD_ON%|%ANSI_BOLD_OFF% %MINUTES% |%SECONDS %ANSI_BOLD_ON%|%ANSI_BOLD_OFF% %vidfile% 
         setdos /x0
     return
 
