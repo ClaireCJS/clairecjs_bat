@@ -86,6 +86,7 @@
 2022-11-21  15:02            226   33%  del-WAVs-if-mp3s-or-flacs-exist.bat
 2023-10-06  08:29            252   28%  delete-WAVs-if-MP3s-exist.bat
 2023-07-16  13:40            602   50%  delete-zero-byte-files.bat
+2024-03-14  23:45            561   49%  deltree.bat
 2023-07-17  09:31          2,991   61%  detect-with-which.bat
 2023-10-06  07:58          2,064   58%  dice.bat
 2023-04-07  11:31             50   -4%  display-bitrate.bat
@@ -310,7 +311,7 @@
 2019-10-01  10:28             21   -9%  setwidth.bat
 2023-06-06  14:08          4,130   73%  show_current_pallete_prototype.py
 2020-09-13  00:47            184   33%  sizes.bat
-2023-08-16  03:39            280   41%  sleep.bat
+2024-03-14  22:20            279   41%  sleep.bat
 2019-10-01  10:28            949   51%  sort-by-human-readable-size.pl
 2019-10-01  10:28             71   16%  sort-by-line-length.pl
 2023-10-03  20:33          5,636   75%  sort-pictures-into-folders-helper.pl
@@ -370,4 +371,4 @@
 2023-06-16  17:36            147   18%  zip-file.bat
 2023-06-13  18:07          5,495   73%  zip-folder.bat
 2023-06-16  17:36          5,525   73%  zip-old.bat
-2023-06-16  17:35            429   52%  zip.bat
+2024-03-14  23:33            425   51%  zip.bat

@@ -14,5 +14,5 @@ if isdir "%PARAM1%" .and. "%PARAM2" eq "" (
     call zip-file   "%PARAM1%"
 ) else                                           (    
     *zip         %*       
-    )
+)
 
