@@ -55,14 +55,16 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         set GIT_OUT=git.%_PID.out
         REM %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
         color bright blue on black
-        echo %ANSI_BRIGHT_BLUE%%STAR% %DOUBLE_UNDERLINE%%ITALICS%Un-filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:|cat_fast
+        echos %STAR% ``
+        echo %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Un-filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
         color blue on black
         echo.
         set TEECOLOR=%COLOR_UNIMPORTANT%
         %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% 
         echo.
         color bright blue on black
-        echo %ANSI_BRIGHT_BLUE%%STAR% %DOUBLE_UNDERLINE%%ITALICS%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:|cat_fast
+        echos %STAR% ``
+        echo %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
         echo.
 
         %COLOR_RUN%
