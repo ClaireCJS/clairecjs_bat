@@ -40,6 +40,7 @@ REM Get reason to commit
 
 
 REM Generate commit command
+UNSET /Q GIT_OPTIONS_TEMP
     set COMMITCOMMAND=call git commit -a -m "%REASON%" --verbose %GIT_OPTIONS_TEMP% 
 
 
