@@ -2114,6 +2114,7 @@ return
          set   .pl=perl.exe
          set  .php=php        
          set  .png=call wrapper openimage
+         set  .ps1=pshell
          set   .py=python
          set   .qt=call wrapper start
          set  .rar=call wrapper start

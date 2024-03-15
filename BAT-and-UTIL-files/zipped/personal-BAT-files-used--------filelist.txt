@@ -90,6 +90,7 @@
 2023-07-17  09:31          2,991   61%  detect-with-which.bat
 2023-10-06  07:58          2,064   58%  dice.bat
 2023-04-07  11:31             50   -4%  display-bitrate.bat
+2024-03-15  00:06            399   39%  display-bluetooth-battery-levels.ps1
 2019-10-01  10:27             19  -10%  display-connections.bat
 2023-04-30  14:25             17  -11%  display-cuda-version.bat
 2019-10-01  10:25             71   10%  display-current-month.pl
@@ -115,7 +116,7 @@
 2024-03-13  20:01         68,850   79%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2023-08-02  16:26            310   35%  env.bat
-2024-03-13  23:24        169,138   81%  environm.btm
+2024-03-15  00:00        169,165   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2023-07-10  11:05          8,342   73%  errorlevel.bat
 2023-08-02  02:04            106   15%  eset.bat
@@ -232,7 +233,8 @@
 2019-10-01  10:28             41    5%  mpc2wav.bat
 2019-10-01  10:28         30,781   70%  mtsend.py
 2023-11-15  15:42          2,514   68%  mv.bat
-2024-03-09  02:28          1,576   53%  new-computer.bat
+2024-03-15  00:04          1,840   54%  new-computer.bat
+2024-03-15  00:03             45   29%  new-computer.ps1
 2023-10-14  01:50          4,119   61%  new-harddrive.bat
 2023-09-15  03:32             55   -1%  nocar.bat
 2023-06-08  03:09             41   -4%  none.bat

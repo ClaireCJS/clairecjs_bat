@@ -38,6 +38,13 @@
     call success "Perl files validated"
     echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. 
 
+:::: SET POWERSHELL STUFF:
+    call warning "Not sure if this will work right or not, make sure we get to the warnings after this:"
+    pause
+    new-computer.ps1
+    call success "yay it worked! maybe edit this part out of new-computer.bat now"
+    pause
+
 ::::: OTHER REMINDERS:    
     pause %+ call advice "if we still command-line-blog: Test mtsend.bat, install python-2.5.2.msi for mtsend" 
     pause %+ call warning "Change EditPlus preferences to syntax-highlight TXT files as .CPP files"            
