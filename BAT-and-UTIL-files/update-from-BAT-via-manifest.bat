@@ -88,6 +88,11 @@ goto :END_OF_SUBROUTINES
                 set OUR_FILELIST_3=%[SECONDARY_%shared_type%_FILES_3]
                 set OUR_FILELIST_4=%[SECONDARY_%shared_type%_FILES_4]
                 set OUR_FILELIST_5=%[SECONDARY_%shared_type%_FILES_5]
+                set OUR_FILELIST_6=%[SECONDARY_%shared_type%_FILES_6]
+                set OUR_FILELIST_7=%[SECONDARY_%shared_type%_FILES_7]
+                set OUR_FILELIST_8=%[SECONDARY_%shared_type%_FILES_8]
+                set OUR_FILELIST_9=%[SECONDARY_%shared_type%_FILES_9]
+                set OUR_FILELIST_10=%[SECONDARY_%shared_type%_FILES_10]
 
                 REM Create individual distribution files of our BATs, UTILs, as needed
                         REM Change into source folder to copy our files
@@ -99,7 +104,7 @@ goto :END_OF_SUBROUTINES
                                     if not exist %TARGET_DIR% mkdir /s %TARGET_DIR%
                                     call validate-environment-variable  TARGET_DIR
                         REM copy each file
-                                    for %file in (%OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4% %OUR_FILELIST_5%) do (
+                                    for %file in (%OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4% %OUR_FILELIST_5% %OUR_FILELIST_6% %OUR_FILELIST_7% %OUR_FILELIST_8% %OUR_FILELIST_9% %OUR_FILELIST_10%) do (
                                         if not exist "%file%" (call error "'%file%' does not exist")
                                         call print-if-debug "Doing file %file%"
                                         set filetarget=%TARGET_DIR%\%file%

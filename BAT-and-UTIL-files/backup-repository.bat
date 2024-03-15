@@ -21,9 +21,9 @@ set   SYNCTRIGER=__ last synced from master %SOURCE% collection __
 
 ::::: DECIDE IF WE WILL BACKUP .BAK FILES OR NOT
     set BACKUP_BAK_FILES=0
-    if  "%SOURCE" == "MP3AUX" (set BACKUP_BAK_FILES=1) %+ REM Careful, this uses environment variable name not folder name, so MP3AUX not \mp3-aux\
-    if %BACKUP_BAK_FILES% == 0 (set EXCLUSIONS=.git *.bak)
-    if %BACKUP_BAK_FILES% == 1 (set EXCLUSIONS=.git      )
+    if  "%SOURCE" == "MP3AUX"  (set BACKUP_BAK_FILES=1) %+ REM Careful, this uses environment variable name not folder name, so MP3AUX not \mp3-aux\
+    if %BACKUP_BAK_FILES% == 0 (set EXCLUSIONS=.git all.m3u these.m3u *.bak)
+    if %BACKUP_BAK_FILES% == 1 (set EXCLUSIONS=.git all.m3u these.m3u      )
 
 
 goto :NoDebug
