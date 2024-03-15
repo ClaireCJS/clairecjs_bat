@@ -18,10 +18,14 @@ move_decorator = os.environ.get('move_decorator', '')
 
 
 FOOTERS = [
-           "files copied", "file copied",
-           "files moved" , "file moved" ,
-           "dirs copied" , "dir copied" ,
-           "dirs moved"  , "dir moved"  ,
+           "files copied"         , "file copied",
+           "files moved"          , "file moved" ,
+           "dirs copied"          , "dir copied" ,
+           "dirs moved"           , "dir moved"  ,
+           "files would be copied", "file would be copied",
+           "files would be moved" , "file would be moved" ,
+           "dirs would be copied" , "dir would be copied" ,
+           "dirs would be moved"  , "dir would be moved"  ,
           ]
 
 MIN_RGB_VALUE_FG = 64; MAX_RGB_VALUE_FG = 255
@@ -51,27 +55,6 @@ def get_random_color(bg=False):
 
 def enclose_numbers(line): return re.sub(r'(\d+)', r'\033[21m\1\033[24m', line)                                             # ansi-stylize numbers - italics + double-underline
 
-def print_line_OLD_beforesummarysplits(line_buffer, r, g, b, additional_beginning_ansi=""):
-    double  = False                                                                                                         # double height or not?
-    summary = False                                                                                                         # copy/mv summary line?
-    if any(substring in line_buffer for substring in FOOTERS):
-        line_buffer = enclose_numbers(line_buffer)
-        double      = True
-        summary     = True
-    #line = f'\033[93m'                                                                                                      # i liked my arrow yellow
-    line = move_decorator
-    if   any(substring in line_buffer for substring in ["Y/N/A/R"]):     line += f'❓❓ '                                     # emojis at beginning of prompty  lines
-    if   any(substring in line_buffer for substring in ["=>","->"]):     line += EMOJIS_COPY                                 # emojis at beginning of filename lines
-    elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):
-        double = True;                                                   line += f'🛑🛑\033[6m\033[3m\033[4m\033[7m'        # emojis at beginning of error    lines during copying
-    elif any(substring in line_buffer for substring in ["Deleting "]):   line += f'﻿👻⛔'
-
-    elif summary:                                                        line += EMOJIS_SUMMARY                             # emojis at beginning of summary  lines of how many files copied
-    else:                                                                line += f'  '                                      # normal lines get prefixed with this
-    line += f'\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{line_buffer.rstrip()}\033[0m\n'                             # print line in our random-RGB color
-    line = line.replace("=>>","↪️") #.replace("=>","⭢︋")
-    if not double: sys.stdout.write(line)                                                                                   # normal height line
-    else:          sys.stdout.write(f'\033#3{line}\033#4{line}')                                                            # double height line
 
 
 def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
@@ -87,13 +70,14 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         summary     = True
 
     line = move_decorator
-    if   any(substring in line_buffer for substring in ["Y/N/A/R)"]): line += f'❓❓ '
-    elif any(substring in line_buffer for substring in ["=>","->"]): line += EMOJIS_COPY
-    elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):
-        double = True; line += f'🛑🛑\033[6m\033[3m\033[4m\033[7m'
-    elif any(substring in line_buffer for substring in ["Deleting "]): line += f'👻⛔'
-    elif summary: line += EMOJIS_SUMMARY
-    else: line += f'  '
+    if   any(substring in line_buffer for substring in ["\\recycled\\","\\recycler\\"] ): line += f'👻⛔'
+    elif any(substring in line_buffer for substring in ["Y/N/A/R)"]                    ): line += f'❓❓ '
+    elif any(substring in line_buffer for substring in ["=>","->"]                     ): line += EMOJIS_COPY
+    elif any(substring in line_buffer for substring in ["Deleting "]                   ): line += f'👻⛔'
+    elif any(substring in line_buffer for substring in ["TCC: (Sys)"]                  ):
+        double = True;                                                                    line += f'🛑🛑\033[6m\033[3m\033[4m\033[7m'
+    elif summary:                                                                         line += EMOJIS_SUMMARY
+    else:                                                                                 line += f'  '
 
     if summary:                                                                             # Handle transformation for FOOTERS
         pattern = "|".join(re.escape(footer) for footer in FOOTERS)
@@ -134,6 +118,30 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 sys.stdout.write(f'\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
     sys.stdout.write('\n')
 
+
+def print_line_OLD_beforesummarysplits(line_buffer, r, g, b, additional_beginning_ansi=""):
+    double  = False                                                                                                         # double height or not?
+    summary = False                                                                                                         # copy/mv summary line?
+    if any(substring in line_buffer for substring in FOOTERS):
+        line_buffer = enclose_numbers(line_buffer)
+        double      = True
+        summary     = True
+    #line = f'\033[93m'                                                                                                      # i liked my arrow yellow
+    line = move_decorator
+    if   any(substring in line_buffer for substring in ["recycled"]):    line += '🗑🗑'                      # trash cans if we're recycling
+    if   any(substring in line_buffer for substring in ["Y/N/A/R"]):     line += f'❓❓ '                                     # emojis at beginning of prompty  lines
+    if   any(substring in line_buffer for substring in ["=>","->"]):     line += EMOJIS_COPY                                 # emojis at beginning of filename lines
+    elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):
+        double = True;                                                   line += f'🛑🛑\033[6m\033[3m\033[4m\033[7m'        # emojis at beginning of error    lines during copying
+    elif any(substring in line_buffer for substring in ["Deleting "]):   line += f'﻿👻⛔'
+
+    elif summary:                                                        line += EMOJIS_SUMMARY                             # emojis at beginning of summary  lines of how many files copied
+    else:                                                                line += f'  '                                      # normal lines get prefixed with this
+    line += f'\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{line_buffer.rstrip()}\033[0m\n'                             # print line in our random-RGB color
+
+    line = line.replace("=>>","↪️") #.replace("=>","⭢︋")
+    if not double: sys.stdout.write(line)                                                                                   # normal height line
+    else:          sys.stdout.write(f'\033#3{line}\033#4{line}')                                                            # double height line
 
 
 
