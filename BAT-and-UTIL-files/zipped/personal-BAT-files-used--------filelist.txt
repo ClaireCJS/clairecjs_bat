@@ -321,10 +321,17 @@
 2023-05-30  11:07            501   44%  sort.bat
 2024-03-13  19:32            415   37%  speak-in-every-voice.bat
 2024-03-13  15:22          2,131   63%  speak.bat
+2023-07-17  09:39          4,725   71%  spl.bat
+2024-03-15  00:49             31    7%  splh.bat
+2024-03-15  00:49             91   32%  splhx.bat
 2023-07-19  19:34          4,768   62%  split-mp3-by-inputted-chapter-info-helper.py
 2023-10-06  07:10          1,507   55%  split-mp3-by-inputted-chapter-info.bat
+2023-06-08  04:25             18  -11%  split-window-to-run-command-then-exit-after.bat
 2023-06-08  03:59             60    0%  split-windows-terminal-screen-vertical.ahk
 2023-06-08  02:38             60    0%  split-windows-terminal-screen.ahk
+2023-06-08  07:50             31    0%  splv.bat
+2023-06-08  07:50             91   32%  splvx.bat
+2023-06-08  04:15             90   33%  splx.bat
 2022-08-17  11:44            135   44%  start-nonelevated.bat
 2019-10-01  10:28             18  -11%  stop-windows-update-reboot-nag.bat
 2019-10-01  10:28             53   10%  strip-ansi.pl
