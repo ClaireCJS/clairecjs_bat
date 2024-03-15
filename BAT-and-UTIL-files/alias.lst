@@ -21,35 +21,35 @@ UNKNOWN_CMD=echo 🚩 %ANSI_COLOR_ERROR% Unknown command: '%italics%%ANSI_YELLOW
 ;;;;;;;;;;;;; PASSTHROUGH ALIASES TO OVERLOAD EXISTING BUILT-IN/CYGWIN/WINDOWS COMMANDS: ;;;;;;;;;;;;;
 ;;;;;;;;;;;;; PASSTHROUGH ALIASES TO OVERLOAD EXISTING BUILT-IN/CYGWIN/WINDOWS COMMANDS: ;;;;;;;;;;;;;
 
-beep=  @call        beep.bat
-cat=   @call         cat.bat
-cd=    @call         "cd.bat"
-color= @call       color.bat
-copy=  @call c:\bat\copy.bat
-cls=   @call         cls.bat
-DEL=   @mv   %1$   \recycled
-du=    @call          du.bat
-diff=  @call        diff.bat
-eset=  @call        eset.bat
-head=  @call        head.bat
-kill=  @call        kill.bat
-label= @call       label.bat
-more=  @call        more.bat
-mv=    @call          mv.bat
-pause =@call pause-alias.bat
-python=@call      python.bat
-say=   @call         say.bat 
-sleep= @call       sleep.bat
-sort = @call        sort.bat
-speak= @call       speak.bat
-sync=  @call        sync.bat
-start= @call       start.bat
-tail=  @call        tail.bat
-touch= @call touch-alias.bat
-tee=   @call         tee.bat
-uniq=  @call        uniq.bat
-window=@call      window.bat
-wget=  @call        wget.bat
+beep=  @call         beep.bat
+cat=   @call          cat.bat
+cd=    @call          "cd.bat"
+color= @call c:\bat\color.bat
+copy=  @call  c:\bat\copy.bat
+cls=   @call          cls.bat
+DEL=   @mv    %1$   \recycled
+du=    @call           du.bat
+diff=  @call         diff.bat
+eset=  @call         eset.bat
+head=  @call         head.bat
+kill=  @call         kill.bat
+label= @call        label.bat
+more=  @call         more.bat
+mv=    @call           mv.bat
+pause =@call  pause-alias.bat
+python=@call       python.bat
+say=   @call          say.bat 
+sleep= @call        sleep.bat
+sort = @call         sort.bat
+speak= @call        speak.bat
+sync=  @call          sync.bat
+start= @call        start.bat
+tail=  @call         tail.bat
+touch= @call  touch-alias.bat
+tee=   @call          tee.bat
+uniq=  @call         uniq.bat
+window=@call       window.bat
+wget=  @call         wget.bat
 	          
 
 
