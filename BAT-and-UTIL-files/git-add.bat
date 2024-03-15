@@ -1,6 +1,8 @@
 @Echo OFF
+
 set ARGS=%*
 set NO_GIT_ADD_PAUSE=0
+
 if "%2" eq "nopause" .eq 1 (
     set NO_GIT_ADD_PAUSE=1
     ARGS=%1 %3$
@@ -16,13 +18,13 @@ REM create our add command
 
 
 REM Let the user know, and do it
-    call important "Adding files"
-    call important_less "command: '%italics%%ADDCOMMAND%italics_off%'"
+    call important      "➕Adding files➕"
+    call important_less "command: '%italics%%ADDCOMMAND%%italics_off%'"
     %COLOR_RUN%
     %ADDCOMMAND%
 
 REM do not pause if we're in automatic mode
-    if %NO_GIT_ADD_PAUSE ne 1 call errorlevel "git add failed?!"
-    if %NO_GIT_ADD_PAUSE eq 1 set NO_GIT_ADD_PAUSE=0
+    if %NO_GIT_ADD_PAUSE ne 1 (call errorlevel "git add failed?!")
+    if %NO_GIT_ADD_PAUSE eq 1 (set  NO_GIT_ADD_PAUSE=0           )
 
 
