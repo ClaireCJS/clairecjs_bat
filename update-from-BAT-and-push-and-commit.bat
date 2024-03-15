@@ -24,4 +24,3 @@ call commit-and-push.bat
 
 echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/BAT-and-UTIL-files  >go-to-individual-BAT-files-on-GitHub.bat
 
-update-from-BAT-via-manifest
