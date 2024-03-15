@@ -7,6 +7,7 @@
 :DESCRIPTION: Copies specific files to "BAT" folder, in a zip
 :USAGE: SET MANIFEST_FILES=ingest_youtube_album.py download-youtube-album.bat or SET MANIFEST_FILES=NONE
 :USAGE: set SECONDARY_BAT_FILES=%MANIFEST_FILES% validate-in-path.bat delete-largest-file.bat add-ReplayGain-tags.bat add-ReplayGain-tags-to-all-FLACs.bat add-ReplayGain-tags-to-all-MP3s.bat change-into-temp-folder.bat set-latestfilename.bat 
+:USAGE: set SECONDARY_BAT_FILES_2=(in case your list of files is longer than 8192, use additional variables)
 :USAGE: set SECONDARY_UTIL_FILES=metamp3.exe metaflac.exe yt-dlp.exe
 :USAGE: call update-from-BAT-via-manifest.bat set-colors.bat
 REM todo
@@ -80,9 +81,13 @@ goto :END_OF_SUBROUTINES
         :process_type [shared_type]
             call print-if-debug "Doing shared_type='%shared_type%'"
             if not defined SECONDARY_%shared_type%_FILES goto :No_Files_Of_This_Type
-                set SOURCE_DIR=c:\%shared_type\
+                set                                SOURCE_DIR=c:\%shared_type\
                 call validate-environment-variable SOURCE_DIR
                 set OUR_FILELIST=%[SECONDARY_%shared_type%_FILES]
+                set OUR_FILELIST_2=%[SECONDARY_%shared_type%_FILES_2]
+                set OUR_FILELIST_3=%[SECONDARY_%shared_type%_FILES_3]
+                set OUR_FILELIST_4=%[SECONDARY_%shared_type%_FILES_4]
+                set OUR_FILELIST_5=%[SECONDARY_%shared_type%_FILES_5]
 
                 REM Create individual distribution files of our BATs, UTILs, as needed
                         REM Change into source folder to copy our files
@@ -94,7 +99,7 @@ goto :END_OF_SUBROUTINES
                                     if not exist %TARGET_DIR% mkdir /s %TARGET_DIR%
                                     call validate-environment-variable  TARGET_DIR
                         REM copy each file
-                                    for %file in (%OUR_FILELIST%) do (
+                                    for %file in (%OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4% %OUR_FILELIST_5%) do (
                                         if not exist "%file%" (call error "'%file%' does not exist")
                                         call print-if-debug "Doing file %file%"
                                         set filetarget=%TARGET_DIR%\%file%

@@ -1,6 +1,5 @@
+GR=grep --text --color=always -i -d skip
 
-umm=call randblack^generate-and-play-random-midi
-comp=*comp /m
 
 realias=alias /r c:\TCMD\alias.lst
 readalias=realias
@@ -40,18 +39,18 @@ OLDcopy=*copy /Nt
 
 ;redefine basic command aliases
 
-mvfast=move /r /g /h /E
+comp=*comp /m
+:deltree is a bat file now
+md=*md /Nt
+netstat=*netstat -an
+rd=*rd /Nt
+ren=*ren /Nt
 
+;extend basic commands
+
+mvfast=move /r /g /h /E
 ldgjava=global /i /q if exist *.java grep --color=always -i -H %1$ *.java
 clf=d/bs %1$ >clip:
-:deltree is covered in environm.bat typically
-ren=*ren /Nt
-md=*md /Nt
-rd=*rd /Nt
-netstat=*netstat -an
-
-GR=grep --text --color=always -i -d skip
-grep20051001=c:\util\grep
 psg=psgr
 pg=@psgr
 psgr=@echo off %+ @tasklist /L |:u8 @gr %1$ |:u8 @call 80
@@ -61,8 +60,8 @@ htmld=dir *htm*
 ed=editpad
 
 
-add=echo %@LFN[%1] >>d:\list.tmp %+ tail.exe -5 d:\list.tmp
-utilaaaUNKNOWN_CMD=echo Unknown command: %1$ %+ rem c:\bat\unknown
+old_add=echo %@LFN[%1] >>d:\list.tmp %+ tail.exe -5 d:\list.tmp
+UNKNOWN_CMD=%COLOR_ERRROR% %+ echo %ANSI_COLOR_ERROR%🚩🚩 Unknown command: '%italics%%1$%italics_off%' 🚩🚩 %ANSI_COLOR_RESET%  %+ pause
 
 
 
@@ -141,3 +140,5 @@ a@@Shift-F5=newwarp
 :tasklist=tasklist.exe
 OLDeset=%COLOR_PROMPT% ^ *eset %1 %2 %3 %4 %5 %6  ^ %COLOR_NORMAL%
 
+umm=call randblack^generate-and-play-random-midi
+grep20051001=c:\util\grep
