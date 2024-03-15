@@ -5,6 +5,9 @@ realias=alias /r c:\TCMD\alias.lst
 readalias=realias
 
 
+UNKNOWN_CMD=echo 🚩 %ANSI_COLOR_ERROR% Unknown command: '%italics%%ANSI_YELLOW%%1$%ANSI_COLOR_ERROR%%italics_off%' %ANSI_RESET% 🚩 %+ call pause-alias
+
+
 ;passthrough aliases
 beep=  @call        beep.bat
 cat=   @call         cat.bat
@@ -61,7 +64,6 @@ ed=editpad
 
 
 old_add=echo %@LFN[%1] >>d:\list.tmp %+ tail.exe -5 d:\list.tmp
-UNKNOWN_CMD=%COLOR_ERRROR% %+ echo %ANSI_COLOR_ERROR%🚩🚩 Unknown command: '%italics%%1$%italics_off%' 🚩🚩 %ANSI_COLOR_RESET%  %+ pause
 
 
 

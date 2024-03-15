@@ -28,6 +28,7 @@ rem ANSI: Initialization
 rem ANSI: special stuff: reset
             set ANSI_RESET=%ANSI_ESCAPE%0m
                 set ANSIRESET=%ANSI_RESET%
+                set ANSI_COLOR_RESET=%ANSI_RESET%
 
 
 rem ANSI: special stuff: position save/restore
