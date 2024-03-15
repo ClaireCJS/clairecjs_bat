@@ -1,0 +1,143 @@
+
+umm=call randblack^generate-and-play-random-midi
+comp=*comp /m
+
+realias=alias /r c:\TCMD\alias.lst
+readalias=realias
+
+
+;passthrough aliases
+beep=  @call        beep.bat
+cat=   @call         cat.bat
+cd=    @call         "cd.bat"
+color= @call       color.bat
+copy=  @call c:\bat\copy.bat
+cls=   @call         cls.bat
+du=    @call          du.bat
+diff=  @call        diff.bat
+eset=  @call        eset.bat
+head=  @call        head.bat
+kill=  @call        kill.bat
+label= @call       label.bat
+more=  @call        more.bat
+mv=    @call          mv.bat
+pause =@call pause-alias.bat
+python=@call      python.bat
+say=   @call         say.bat 
+sleep= @call       sleep.bat
+sort = @call        sort.bat
+speak= @call       speak.bat
+sync=  @call        sync.bat
+start= @call       start.bat
+tail=  @call        tail.bat
+touch= @call touch-alias.bat
+tee=   @call         tee.bat
+uniq=  @call        uniq.bat
+window=@call      window.bat
+wget=  @call        wget.bat
+	          
+OLDcopy=*copy /Nt
+
+;redefine basic command aliases
+
+mvfast=move /r /g /h /E
+
+ldgjava=global /i /q if exist *.java grep --color=always -i -H %1$ *.java
+clf=d/bs %1$ >clip:
+:deltree is covered in environm.bat typically
+ren=*ren /Nt
+md=*md /Nt
+rd=*rd /Nt
+netstat=*netstat -an
+
+GR=grep --text --color=always -i -d skip
+grep20051001=c:\util\grep
+psg=psgr
+pg=@psgr
+psgr=@echo off %+ @tasklist /L |:u8 @gr %1$ |:u8 @call 80
+psgrep=@tasklist /L |:u8 gr %1$
+htmd=htmld
+htmld=dir *htm*
+ed=editpad
+
+
+add=echo %@LFN[%1] >>d:\list.tmp %+ tail.exe -5 d:\list.tmp
+utilaaaUNKNOWN_CMD=echo Unknown command: %1$ %+ rem c:\bat\unknown
+
+
+
+.=call "cd.bat" . %+ call fix-window-title %+ d
+..=call "cd.bat" ..
+...=call "cd.bat" ... %+ d/w
+
+AWK=gawk
+CLEAR=cls
+oldMV=move/r /g /h
+oldCLS=melt %+ *cls
+
+oldCOMP=*comp/a
+CP=copy/r /g
+tpause=*cls %+ type %1$ %+ pause>nul
+oldoldD=call 4windir
+oldd=call fix-window-title %+ dir
+d=dir
+DD=dir/bw *.com;*.exe;*.bat
+DDD=ls/x
+DEL=mv %1$ \recycled
+DES=describe %1*.*
+DESC=describe
+DG=dir/km|:u8 gr %1$ | cat_fast
+DG2023fail=@dir/km ::%1$|:u8 gr %1$
+DIR2=call 4windir
+LSDG=dir/b|:u8 grep --color=always %1$
+LSDGold=dir/b|:u8 grep --color=always %1$|:u8 tail.exe +1
+DGS=LDG
+duh=du -h
+EA=call ea.bat
+LDG=(dir/bs/a:|:u8 gr %1$)
+LDGold=(dir/bs/a:|:u8 gr %1$|:u8 tail.exe +1)
+:LDGtest=(dir/bs/a:|:u8 gr %1$|:u8 call cygtail -n +1)
+LFF=attrib /e %1$ /s
+FF=pushd %+ cd\ %+ attrib /e %1$ /s %+ popd
+:G=c:\bat\g.bat
+GBAT=gbatname|:u8 c:\bat\gbat
+GMD=*md %1 %+ *cd %1 %+ call gbat
+H=history
+oldkill=taskend /f
+li=LIST
+SWEEP=global/i
+X=EXIT
+ll=%@SFN["%1"]
+LD=call c:\bat\4windir %1$|:u8 c:\util\list /s/e
+oldLIST=c:\bat\list.bat
+olderLIST=c:\util\list.com
+EDIT=c:\util\e\e.exe
+HL=h|:u8 list /e/s
+normalLS=call nl %+ call 4windir /bwz
+NO=except (%1)
+PS=psl
+pss=tasklist /o /l|:u8 80|:u8 gr -v chrome
+PSSh=tasklist /o %1$
+PSL=tasklist /o /l %1$
+PS8=(tasklist /o /l %1$ |:u8  call 80)
+PWD=*CD
+oldDU=call 4windir/su|:u8 grep "[,\\]"|:u8 tail.exe +1|:u8 list /e/s
+oldLLIST=c:\util\list.com %@SFN[%1]
+oldGFF=c:\ %+ cd\ %+ attrib /e %1$ /s %+ d:\ %+ cd\ %+ attrib /e %1$ /s %+ e:\ %+ cd\ %+ attrib /e %1$ /s
+oldKILL=mv *.* c:\recycled
+oldLH=HL
+oldLIST=shroom -s c:\ c:\util\list.com %@SFN[%1]
+oldLS=call nl %+ call 4windir/bw
+@@F2=call speak Carolyn
+@@F3=call speak I love you
+@@F4=call fix-winamp-normal
+@@F5=call fix-winamp-alt
+a@@F4=oldcth
+a@@F5=randwarp
+a@@F6=randht
+a__F6=luminati
+a@@Shift-F4=spec
+a@@Shift-F5=newwarp
+:tasklist=tasklist.exe
+OLDeset=%COLOR_PROMPT% ^ *eset %1 %2 %3 %4 %5 %6  ^ %COLOR_NORMAL%
+
