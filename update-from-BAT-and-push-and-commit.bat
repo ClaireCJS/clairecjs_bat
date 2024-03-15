@@ -19,10 +19,11 @@ rem CONFIGURATION:
 rem Update BAT files from live location to github-folder location:
     call c:\bat\update-from-BAT-via-manifest
     *copy /u /q c:\TCMD\alias.lst BAT-and-UTIL-files\alias.lst
+    *copy /u /q c:\TCMD\tcmd.ini  BAT-and-UTIL-files\tcmd.ini
 
 
 rem Make sure they're all added:
-    call git add BAT-and-UTIL-files\*.bat BAT-and-UTIL-files\*.btm BAT-and-UTIL-files\*.pl BAT-and-UTIL-files\*.py BAT-and-UTIL-files\*.exe BAT-and-UTIL-files\*.lst BAT-and-UTIL-files\*.ahk
+    call git add BAT-and-UTIL-files\*.bat BAT-and-UTIL-files\*.btm BAT-and-UTIL-files\*.pl BAT-and-UTIL-files\*.py BAT-and-UTIL-files\*.exe BAT-and-UTIL-files\*.lst BAT-and-UTIL-files\*.ahk BAT-and-UTIL-files\*.ini
 
 
 rem Commit and Push:
