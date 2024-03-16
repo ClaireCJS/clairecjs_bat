@@ -32,8 +32,8 @@
 	if "%1"=="roadtrip"       goto :trip
 	if "%1"=="sleep"          goto :bedtime
 	if "%1"=="quake"          goto :quake
-	if "%1"=="quakelive"      goto :quakelive
 	if "%1"=="quake3"         goto :quake3
+	if "%1"=="quakelive"      goto :quakelive
 	if "%1"=="travel"         goto :trip
 	if "%1"=="trip"           goto :trip
 	if "%1"=="vacation"       goto :trip
@@ -117,11 +117,12 @@ goto :END
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :quake
-	echo Now splitting "after quake3" from "after quakelive", so choose one of those commands....
+	call advice "FYI: There are also separate, OLD '%italics%after quake3%italics_off%' and '%italics%after quakelive%italics_off%' commands"
+    call less_important "Killing AutoHotKey64..." %+ kill /f AutoHotKey64
 goto :END
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :guests
