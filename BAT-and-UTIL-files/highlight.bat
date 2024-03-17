@@ -54,7 +54,7 @@ REM doesn't dsplay the damn ansi when typed almost seems like gawk kills ansi em
     call change-command-separator-character-back silent
 
 
-::::: RESTORE ORIGINAL GREP-COLORS AND ESCAPE CHARACTER:
+rem RESTORE ORIGINAL GREP-COLORS AND ESCAPE CHARACTER:
     set  GREP_COLOR=%GREP_COLOR_NORMAL%
     set GREP_COLORS=%GREP_COLORS_NORMAL%
 
