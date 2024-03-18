@@ -1,7 +1,8 @@
 @echo on
 
 set WHAT_FOLDER_TO_ZIP=%1
-set ZIP_OPTIONS=%2 %3 %4 %5 %6 %7 %8 %9
+rem ZIP_OPTIONS=%2 %3 %4 %5 %6 %7 %8 %9
+set ZIP_OPTIONS=%2$
 
 
 call print-if-debug "*** CALLED: zip.bat %* from CWD=%_CWD and WHAT_FOLDER_TO_ZIP is '%WHAT_FOLDER_TO_ZIP%'"

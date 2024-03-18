@@ -23,17 +23,21 @@ rem Do the actual ZIP'ing...
         %COLOR_RUN%
         %ZIP_COMMAND%  | call insert-before-each-line "        "
 
+        rem Make sure it went well...
+            call errorlevel "error when zipping file %file_to_zip% in %0"
+            if %@FILESIZE["%TARGET_ZIP"] lt 1 (call fatal_error "created zip of '%TARGET_ZIP%' has no valid file size!" %+ goto :END)
 
 rem Delete the original file?
         echo.
         call askyn "%GHOST% Delete '%italics_on%%double_underline_on%%FILE_TO_ZIP%'%italics_off%%double_underline_off%" yes %TIME_TO_WAIT_BEFORE_DELETING_ORIGINAL_FILE%
-        rem fast_cat fixes TCC ansi display errors
         if %DO_IT eq 1 (
             %COLOR_REMOVAL%
             echos %FAINT_ON%                                                              | fast_cat
             *del "%FILE_TO_ZIP%" | call insert-before-each-line "        %ANSI_FAINT_ON%" | fast_cat
             echos %FAINT_OFF%                                                             | fast_cat
+            rem (fast_cat fixes TCC ansi display errors)
         )
+
 
 rem Success output:
         %COLOR_SUCCESS% %+ echo. %+ echo %ANSI_COLOR_SUCCESS%%BOLD_ON%%CHECKBOX% ZIP created:%BOLD_OFF%%ANSI_COLOR_RUN%
@@ -42,4 +46,7 @@ rem Success output:
         *zip /v "%TARGET_ZIP%" | call insert-before-each-line "        "
 
 
+
+
+:END
 
