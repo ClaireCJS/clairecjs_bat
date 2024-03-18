@@ -2002,6 +2002,9 @@ return
 :::::::::::::::::::::::::::::::::::::::::::::::::::: EXECUTABLE FILE EXTENSIONS ::::::::::::::::::::::::::::::::::::::::::::::::::::
 :DefineExecutableFileExtensions
 
+    ::::: AUTOCOMPLETE BEHAVIOR MODIFICATIONS:
+        set filecompletion=zip:*;
+
     ::::: FUNCTIONAL GROUPINGS OF EXTENSIONS:
         set FILEMASK_FILELIST=*.m3u;*.sfv
         set FILEMASK_TEXT=*.txt;*.log;*.ini;*.cfg;*.lst;*.msg;*.mesg;*.m3u;*.nfo;*.srt;*.sub;*.idx;*.ans;*.asc;*.diz;*.faq
