@@ -182,6 +182,13 @@ REM As of Windows Terminal we can now actually display italic characters
             set      BOLD_OFF=%ANSI_BOLD_OFF%
             set      BOLD=%BOLD_ON%
 
+                set ANSI_BRIGHT=%ANSI_BOLD%
+                set ANSI_BRIGHT_ON=%ANSI_BOLD%
+                set ANSI_BRIGHT_OFF=%ANSI_ESCAPE%22m
+                set      BRIGHT_ON=%ANSI_BOLD_ON%
+                set      BRIGHT_OFF=%ANSI_BOLD_OFF%
+                set      BRIGHT=%BOLD_ON%
+
             set ANSI_FAINT=%ANSI_ESCAPE%2m
             set ANSI_FAINT_ON=%ANSI_FAINT%
             set ANSI_FAINT_OFF=%ANSI_ESCAPE%22m

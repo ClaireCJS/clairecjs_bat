@@ -117,7 +117,7 @@
 2023-11-07  13:36          3,152   71%  echo-rainbow.bat
 2023-09-15  12:27          3,399   66%  editGrep.bat
 2023-10-06  05:33          1,701   57%  emoji-search.bat
-2024-03-13  20:01         68,850   79%  emoji.env
+2024-03-18  09:59         69,100   78%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2023-08-02  16:26            310   35%  env.bat
 2024-03-15  11:19        169,221   81%  environm.btm
@@ -304,7 +304,7 @@
 2023-06-13  16:06             57    0%  send-keypress-alt_up.ahk
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
-2024-03-15  11:23         23,135   80%  set-colors.bat
+2024-03-18  09:38         23,431   80%  set-colors.bat
 2024-03-13  13:45          6,083   63%  set-emojis.bat
 2023-06-08  08:06          1,793   70%  set-file-age.bat
 2023-05-30  00:32          1,398   58%  set-first-file.bat
@@ -388,7 +388,7 @@
 2021-08-18  09:09            219   30%  zip-all-EXEs.bat
 2023-06-05  01:45          1,303   63%  zip-all-folders.bat
 2023-05-30  11:25          1,249   64%  zip-all-subfolders.bat
-2023-06-16  17:36            147   18%  zip-file.bat
-2023-06-13  18:07          5,495   73%  zip-folder.bat
-2023-06-16  17:36          5,525   73%  zip-old.bat
-2024-03-14  23:33            425   51%  zip.bat
+2024-03-18  10:19          2,284   65%  zip-file.bat
+2024-03-18  09:25          5,943   74%  zip-folder.bat
+2024-03-18  09:24         11,751   86%  zip-old.bat
+2024-03-18  10:18            637   56%  zip.bat

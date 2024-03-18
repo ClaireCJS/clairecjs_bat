@@ -68,6 +68,8 @@ tee=   @call          tee.bat
 uniq=  @call         uniq.bat
 window=@call       window.bat
 wget=  @call         wget.bat
+zip=   @call          zip.bat
+zipp=  @call          zip.bat
 	       
 		  
 
@@ -104,6 +106,7 @@ x=exit
 
 no=except (%1)
 sweep=global/i
+;zipp=zip didn't work right
 
 
 

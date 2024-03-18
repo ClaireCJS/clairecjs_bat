@@ -1,5 +1,63 @@
 @echo off
 
+
+
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
+
+
+call warning "zip-old is deprecated and shouldn't be called anymore but is being called by %_callingfile"
+pause
+
+
 set WHAT_TO_ZIP=%1
 set ZIP_OPTIONS=%2 %3 %4 %5 %6 %7 %8 %9
 
