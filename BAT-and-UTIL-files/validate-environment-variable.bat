@@ -1,20 +1,23 @@
 @echo off
-
-:REQUIRES: exit-maybe.bat, warning.bat, fatalerror.bat, white-noise.bat (optional), bigecho.bat (optional)
-                                        REM car.bat, nocar.bat removed from requires 20230825
-
-::::: USAGE:
-    :: call validate-environment-variable VARNAME_NO_PERCENT "some error message" or "skip_validation_existence"
-    ::      where option can be:
-    ::                           "skip_validation_existence" to skip existence validation
-    ::                           "some error message"        to be additional information provided to user if there is an error
+ REM echo %ANSI_COLOR_DEBUG% %0 called with 1=%1, 2=%2, VARNAME=%VARNAME%, VEVPARAMS=%VEVPARAMS% %ANSI_COLOR_RESET%
 
 ::::: GET PARAMETERS:
-    set VEVPARAMS=%*
-    set VARNAME=%1                                                                           %+ if %DEBUG_VALIDATE_ENV_VAR% eq 1 echo %DEBUGPREFIX% if defined %VARNAME% goto :Defined_YES
+    set VEVPARAMS=%1$
+    set VARNAME=%1      
     set PARAM2=%2
     set PARAM3=%3
     set USER_MESSAGE=%2$
+    if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX% if defined %VARNAME% goto :Defined_YES)
+
+
+:USAGE:  call validate-environment-variable VARNAME_NO_PERCENT "some error message" or "skip_validation_existence"
+:USAGE:       where option can be:
+:USAGE:                             "skip_validation_existence" to skip existence validation
+:USAGE:                             "some error message"        to be additional information provided to user if there is an error
+
+:REQUIRES: exit-maybe.bat, warning.bat, fatalerror.bat, white-noise.bat (optional), bigecho.bat (optional)
+:                                       REM car.bat, nocar.bat removed from requires 20230825
+
 
 ::::: CLEAR LONGTERM ERROR FLAGS:
     set DEBUG_VALIDATE_ENV_VAR=0

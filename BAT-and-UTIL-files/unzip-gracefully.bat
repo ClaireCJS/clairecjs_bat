@@ -1,6 +1,6 @@
-@Echo on
+@Echo off
 
-:: manual configuration:
+:: manual configuratio:
     ::::set to "::::"  under normal conditions, "echo" for debug conditions:
     set      DEBUG_THING_1=::::                                           
     unset /q DEBUG_THING_2
@@ -46,12 +46,13 @@
         %DEBUG_THING_2%  cd "%BASENAME%"
         %DEBUG_THING_2%  move ..\"%TO_UNZIP%"
         %DEBUG_THING_2%  if %NUMBERED eq 1 (move ..\"%BASENAME%.0[0-9][0-9]")
+                         %COLOR_RUN%
         %DEBUG_THING_2%  %EXTRACTOR% "%TO_UNZIP%"
         %DEBUG_THING_2%  if %@FILES[/s/h,*] gt 1 (del "%TO_UNZIP%")  %+ REM 20151105 added filecheck to make sure somethign actually unzipped
         %DEBUG_THING_2%  if %@FILES[/s/h,*] gt 1 .and. %NUMBERED eq 1 (del "%BASENAME%.0[0-9][0-9]")  %+ REM 20151105 added filecheck to make sure somethign actually unzipped
         :DEBUG: echo folder is %_CWP    pause
         %DEBUG_THING_2%  if %@FILES[/s/h,*] lt 1 (goto :Error)
-        :ErrorDone`
+        :ErrorDone
         %DEBUG_THING_2%  cd ..
         %DEBUG_THING_2%  dir "%BASENAME%"
         %DEBUG_THING_2%  if isdir "%BASENAME%\%@NAME["%FILENAME_OLD%"]" mv/ds  "%BASENAME%\%@NAME["%FILENAME_OLD%"]" "%BASENAME%"

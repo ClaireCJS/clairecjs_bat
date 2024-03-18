@@ -37,11 +37,11 @@ rem ****************************************************************************
 
 rem Back up each important file:
 
-        gosub do_file dropbox_Y "Windows Terminal settings"    %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
-        gosub do_file dropbox_N "### file"                     %CONTACTS%
-        gosub do_file dropbox_N "Adobe Audition settings"      %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml 
-        gosub do_file dropbox_N "DVD catalog offline fragment" %PREBURN_DVD_CATALOG%
-        gosub do_file dropbox_N "BDR catalog offline fragment" %PREBURN_BDR_CATALOG%
+        gosub backup_file dropbox_Y "Windows Terminal settings"    %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+        gosub backup_file dropbox_Y "### file"                     %CONTACTS%
+        gosub backup_file dropbox_N "Adobe Audition settings"      %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml 
+        gosub backup_file dropbox_N "DVD catalog offline fragment" %PREBURN_DVD_CATALOG%
+        gosub backup_file dropbox_N "BDR catalog offline fragment" %PREBURN_BDR_CATALOG%
 
 rem **********************************************************************************************************************************************
 rem **********************************************************************************************************************************************
@@ -73,7 +73,7 @@ rem Sync important files folder
 
 goto :END
 
-    :do_file [dropbox_YN desc filepath]
+    :backup_file [dropbox_YN desc filepath]
         echo.
         call less_important "%ANSI_COLOR_CYAN%Backing up %italics_on%%double_underline_on%%ANSI_COLOR_BRIGHT_CYAN%%@UNQUOTE[%desc%]%italics_off%%double_underline_off% %ANSI_COLOR_BRIGHT_BLUE%(%filename%):"
         if not exist %filepath% (call error "file '%filename%' doesn't exist when trying to back up %desc%")
