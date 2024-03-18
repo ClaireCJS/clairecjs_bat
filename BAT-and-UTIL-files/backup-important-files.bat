@@ -26,7 +26,7 @@ rem Let user know what we're doing
 rem Ensure backup target folders exists — auto-create the local one it if it does not
 rem ...But do NOT auto-create the dropbox one (that's too intrusive to do automatically)
         if not isdir %BACKUP_TARGET (mkdir /s %BACKUP_TARGET%)
-        call validate-environment-variables DROPBOX BACKUP_TARGET_DROPBOX 
+        call validate-environment-variables DROPBOX BACKUP_TARGET_DROPBOX CONTACTS ABOUTTOBEBURNED PREBURN_DVD_CATALOG PREBURN_BDR_CATALOG
 
 
 rem **********************************************************************************************************************************************
@@ -37,9 +37,11 @@ rem ****************************************************************************
 
 rem Back up each important file:
 
-        gosub do_file dropbox_Y "Windows Terminal settings" %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
-        gosub do_file dropbox_N "### file"                  %CONTACTS%
-        gosub do_file dropbox_N "Adobe Audition settings"   %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml
+        gosub do_file dropbox_Y "Windows Terminal settings"    %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+        gosub do_file dropbox_N "### file"                     %CONTACTS%
+        gosub do_file dropbox_N "Adobe Audition settings"      %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml 
+        gosub do_file dropbox_N "DVD catalog offline fragment" %PREBURN_DVD_CATALOG%
+        gosub do_file dropbox_N "BDR catalog offline fragment" %PREBURN_BDR_CATALOG%
 
 rem **********************************************************************************************************************************************
 rem **********************************************************************************************************************************************
