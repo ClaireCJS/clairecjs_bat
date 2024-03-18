@@ -55,7 +55,7 @@
 2023-03-03  16:19            782   56%  change-into-random-dir.bat
 2023-05-05  01:06          1,814   50%  chatgpt-query.py
 2023-04-28  21:33             16  -12%  check-for-applications-and-programs-that-can-be-upgraded.bat
-2024-01-15  02:10         11,474   81%  checkmappings.bat
+2024-03-18  13:29         11,473   81%  checkmappings.bat
 2023-10-14  02:51            452   52%  checktemp.bat
 2022-02-02  03:10            526   50%  checkusername.bat
 2023-10-06  09:42             44   -2%  chown.bat
@@ -65,7 +65,7 @@
 2023-06-05  17:31            478   46%  color-cycle-by-ansi-proof_of_concept.py
 2023-06-05  23:43             64   29%  color.bat
 2023-05-26  15:16            832   62%  colors-all.bat
-2024-01-21  15:17          2,382   60%  colors.bat
+2024-03-18  14:14          2,802   61%  colors.bat
 2023-06-19  08:58            154   44%  commit-and-push.bat
 2019-10-01  09:27             21   -9%  commit.bat
 2023-08-20  13:47            575   43%  connections-monitor.bat
@@ -362,12 +362,12 @@
 2024-03-15  11:17         10,214   72%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28            335   40%  usb-remove-safely.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
-2023-09-15  03:21         14,767   77%  validate-environment-variable.bat
+2024-03-18  13:39         14,914   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
 2023-07-26  10:22          1,685   58%  validate-file-extension.bat
 2023-08-12  20:18          1,438   56%  validate-in-path.bat
 2023-04-28  14:04            627   51%  view_pickle.py
-2024-03-09  02:26            834   53%  wake-computers.bat
+2024-03-18  14:23          2,153   72%  wake-computers.bat
 2023-06-02  13:02             44   -4%  warning.bat
 2023-06-08  21:27             49   -4%  warning_soft.bat
 2024-01-28  22:55         17,710   74%  watch.bat

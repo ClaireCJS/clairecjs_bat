@@ -22,7 +22,7 @@ if %SILENT ne 1  (call colortool -c)
 
 call settmpfile 
 set ALL_COLORS=
-set|sed "s/=.*$//ig" >"%TMPFILE%"
+set|grep -i color|sed "s/=.*$//ig" >"%TMPFILE%"
 :DEBUG: (set|sed "s/=.*$//ig") %+ echo TMPFILE: %+ type "%TMPFILE%" %+ pause
 for /f "tokens=1-999" %co in (%TMPFILE%) gosub ProcessEnvVar %co%
 
@@ -39,13 +39,22 @@ goto :END
         set TMP_CLR=%@REPLACE[COLOR_,,%var]
         REM DEBUG: echo * Processing colorvar %var (color=%TMP_CLR%)
         if %ADD_TO_ALL_COLORS eq 1 (set ALL_COLORS=%ALL_COLORS% %TMP_CLR%)
-        if %SILENT ne 1 (
+        if %SILENT eq 1 (goto :silent_1)
             echo. 
-            %[%VAR%] 
+            rem Determine if this is a color command, or an ansi color value:
+            setdos /x-5
+            set IS_ANSI=%@REGEX[^ANSI_COLOR,%VAR%]
+            set IS_MACHINE=%@REGEX[^MACHINE_COLOR,%VAR%]
+            setdos /x0
+
+            if %IS_MACHINE eq 1 (set  IS_ANSI=1)
+            if %IS_ANSI    eq 1 (echos %[%VAR%]) 
+            if %IS_ANSI    eq 0       (%[%VAR%])
+
+            rem echos %IS_ANSI%/%IS_MACHINE% 
             echos  *** This is %VAR% *** `` 
-            color white on black 
-            set REM=echo.
-        )
+            %COLOR_NORMAL%
+        :silent_1
     return
 :END
 REM echo.

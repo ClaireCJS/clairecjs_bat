@@ -12,7 +12,7 @@ readalias=realias
 ;;;;;;;;;;;;; UNKNOWN COMMAND STUFF: ;;;;;;;;;;;;;
 ;;;;;;;;;;;;; UNKNOWN COMMAND STUFF: ;;;;;;;;;;;;;
 
-UNKNOWN_CMD=echo 🚩 %ANSI_COLOR_ERROR% Unknown command: '%italics%%ANSI_YELLOW%%1$%ANSI_COLOR_ERROR%%italics_off%' %ANSI_RESET% 🚩 %+ set PAUSE_WINDOW_TITLE=ERROR: %1 %+ call pause-alias
+UNKNOWN_CMD=set PAUSE_WINDOW_TITLE=ERROR: %1 %+ echo 🚩 %ANSI_COLOR_ERROR% Unknown command: '%italics%%ANSI_YELLOW%%1$%ANSI_COLOR_ERROR%%italics_off%' %ANSI_RESET% 🚩 %+ call pause-alias
 
 
 
@@ -60,7 +60,7 @@ say=   @call          say.bat
 sleep= @call        sleep.bat
 sort = @call         sort.bat
 speak= @call        speak.bat
-sync=  @call          sync.bat
+sync=  @call         sync.bat
 start= @call        start.bat
 tail=  @call         tail.bat
 touch= @call  touch-alias.bat
@@ -68,8 +68,8 @@ tee=   @call          tee.bat
 uniq=  @call         uniq.bat
 window=@call       window.bat
 wget=  @call         wget.bat
-zip=   @call          zip.bat
-zipp=  @call          zip.bat
+zip=   @call   c:\bat\zip.bat
+zipp=  @call   c:\bat\zip.bat
 	       
 		  
 

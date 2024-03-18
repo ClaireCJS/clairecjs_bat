@@ -1,4 +1,4 @@
-@echo off
+@echo on
 
 ::::: If we are tethering, there is no hope:
     if "%TETHERING%" eq "1" goto :END

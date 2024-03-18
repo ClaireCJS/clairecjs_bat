@@ -190,7 +190,8 @@ goto :Past_The_End_Of_The_Sub-Routines
 
             REM 20230825: i think we don't need to deal with car/nocar if the carrot is in quotes. Response to unrealted situation at: https://jpsoft.com/forums/threads/echo-rainbow-bat-rainbow-ize-any-message.11625/#post-66494
             REM call   car >nul                                                                              %+ rem //Turn off the carat command-line separator so we can use it in regular expressions
-            if "1" eq "%@REGEX[^.?[A-Z]:,%@UPPER[%VARVALUE%]]" (set IS_FILE_LOCATION=1)
+            REM    eq "%@REGEX[^.?[A-Z]:,%@UPPER[%VARVALUE%]]" (set IS_FILE_LOCATION=1)                      BUG! was matching MAC addresses haha
+            if "1" eq "%@REGEX[%=^[A-Z]:,%@UPPER[%VARVALUE%]]" (set IS_FILE_LOCATION=1)
             REM ON WINDOWS 10 AS OF 20220126 THIS CREATES PROBLEMS: call print-if-debug %DEBUGPREFIX%REGEXTEXT IS "%@REGEX[^[A-Z]:,%@UPPER[%VARVALUE%]]"
             REM call nocar >nul                                                                              %+ rem //Turn on  the carat command-line separator so we can use it in our normal fasion
 

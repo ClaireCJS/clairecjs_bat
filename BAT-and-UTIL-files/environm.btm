@@ -699,8 +699,10 @@ return
             SET IP_WYVERN=192.168.0.97  
         :: MAC addresses
             set MAC_GOLIATH=BC:5F:F4:43:EC:6E
-            set MAC_WYVERN=TODO
-            set MAC_THAILOG=TODO
+            set MAC_THAILOG=D0:50:99:38:A5:2C
+            set MAC_DEMONA=00:15:5D:AC:EE:A7
+            set MAC_DEMONA_2=68:1C:A2:12:33:B2
+            set MAC_WYVERN=74:56:3C:B3:9B:68
         :: drive mapping
             SET MAPPING_THAILOG_IP=%IP_THAILOG%
             SET MAPPING_DEMONA_IP=%IP_DEMONA%
@@ -873,12 +875,12 @@ return
                                                               set  MACHINEEMOJI=%MACHINE_EMOJI%   %+ REM we also want a %machineemoji% without underscore to match our %machinename% that doesn't have an underscore
 
     ::::: MACHINE-SPECIFIC COLORS:                            ::: ALIASES:                                                                     (Consider: When new computer is added:)
-        set MACHINE_COLOR_GOLIATH=%ANSI_MAGENTA%         %+   set COLOR_MACHINE_GOLIATH=%MACHINE_COLOR_GOLIATH%
-        set MACHINE_COLOR_DEMONA=%ANSI_BRIGHT_RED%       %+   set COLOR_MACHINE_DEMONA=%MACHINE_COLOR_DEMONA%
-        set MACHINE_COLOR_WYVERN=%ANSI_MAGENTA%          %+   set COLOR_MACHINE_WYVERN=%MACHINE_COLOR_WYVERN%
-        set MACHINE_COLOR_THAILOG=%ANSI_RED%             %+   set COLOR_MACHINE_THAILOG=%MACHINE_COLOR_THAILOG%
-        set MACHINE_COLOR=%[MACHINE_COLOR_%MACHINENAME%] %+   set COLOR_MACHINE=%MACHINE_COLOR%
-                                                              set  MACHINECOLOR=%MACHINE_COLOR%   %+ REM we also want a %machineemoji% without underscore to match our %machinename% that doesn't have an underscore
+        set MACHINE_COLOR_GOLIATH=%ANSI_MAGENTA%         %+   set ANSI_COLOR_MACHINE_GOLIATH=%MACHINE_COLOR_GOLIATH%
+        set MACHINE_COLOR_DEMONA=%ANSI_BRIGHT_RED%       %+   set ANSI_COLOR_MACHINE_DEMONA=%MACHINE_COLOR_DEMONA%
+        set MACHINE_COLOR_WYVERN=%ANSI_MAGENTA%          %+   set ANSI_COLOR_MACHINE_WYVERN=%MACHINE_COLOR_WYVERN%
+        set MACHINE_COLOR_THAILOG=%ANSI_RED%             %+   set ANSI_COLOR_MACHINE_THAILOG=%MACHINE_COLOR_THAILOG%
+        set MACHINE_COLOR=%[MACHINE_COLOR_%MACHINENAME%] %+   set ANSI_COLOR_MACHINE=%MACHINE_COLOR%
+                                                              set ANSI_MACHINE_COLOR=%MACHINE_COLOR%   %+ REM we also want a %machineemoji% without underscore to match our %machinename% that doesn't have an underscore
 
 	::::: COMMAND-LINE CUSTOMIZATION:
 		::::: HARD-TO-ESCAPE-CORRECTLY-SO-LET'S-FIGURE-IT-OUT-ONCE-AND-JUST-MAKE-IT-AN-ENVIRONMENT-VARIABLE STUFF:
