@@ -154,16 +154,11 @@ my $FINAL_ANSI = "\e[48;2;0;64;02m\e[38;2;204;48;204m";
 if ($DISPLAY_TOTALS) {
 	my $SPACER = "    ";
 	print "$FINAL_ANSI\n\n";
-	print "$SPACER    Total Usable Space: ".sprintf("%19s",&comma($totaltotalnice))."  ".sprintf("%8.1f",($totaltotalnice/1024/1024/1024))."G";
-	#if (($totaltotalnice/1024/1024/1024) > 1) { print "" . sprintf("%8.2f",($totaltotalnice/1024/1024/1024/1024)) . "T"; }
-	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totaltotalnice/1024/1024/1024/1024)) . "T                  "; }
-	print "\n";
-	print "$SPACER    Total  Used  Space: ".sprintf("%19s",&comma($totalusednice) )." ".sprintf("%8.1f",($totalusednice /1024/1024/1024))."G";
-	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totalusednice /1024/1024/1024/1024)) . "T                  "; }
-	print "\n";
-	print "$SPACER    Total  Free  Space: ".sprintf("%19s",&comma($totalfreenice) )." ".sprintf("%8.1f",($totalfreenice /1024/1024/1024))."G";
-	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totalfreenice /1024/1024/1024/1024)) . "T                  "; }
-	print "\n";
+
+	print "$SPACER    Total Usable Space: ".sprintf("%19s",&comma($totaltotalnice))." ".sprintf("%8.1f",($totaltotalnice/1024/1024/1024))."G";	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totaltotalnice/1024/1024/1024/1024)) . "T                 "; }	print "\n";
+	print "$SPACER    Total  Used  Space: ".sprintf("%19s",&comma($totalusednice) )." ".sprintf("%8.1f",($totalusednice /1024/1024/1024))."G";	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totalusednice /1024/1024/1024/1024)) . "T                 "; }	print "\n";
+	print "$SPACER    Total  Free  Space: ".sprintf("%19s",&comma($totalfreenice) )." ".sprintf("%8.1f",($totalfreenice /1024/1024/1024))."G";	if ($USE_TERABYTES) { print "" . sprintf("%8.2f",($totalfreenice /1024/1024/1024/1024)) . "T                 "; }	print "\n";
+
 	print "${SPACER}Percentage Free (Full): ".sprintf("%17s","") . sprintf("%7s","🌟🌟🌟 $freepct\%  (\e[21m" . &colorprint($fullpct,1) . "\e[24m\%\e[25m full") . "$ANSI_RESET$FINAL_ANSI) 🌟🌟🌟    \n";
 	print "$ANSI_RESET\n";
 }

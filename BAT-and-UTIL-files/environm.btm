@@ -285,7 +285,7 @@ return
             rem HD4000G5_DOWN=0  %+ set HD4000G5=V       %+ SET V=HD4000G5     %+  SET MAPPING_V=GOLIATH4000G5 %+ REM 2024 moved to thailog
 
             REM cannot account for these as of 2024/02/20:
-			set   HD512G_DOWN=1  %+ set HD512G=J         %+  SET J=HD512G      %+  SET MAPPING_J=GOLIATH512G   %+ REM 20230803ish moved from Thailog to Goliath - 20240220 set to _DOWN/abandoned in dead-Goliath's case
+			set  HD512G_DOWN=1   %+ set HD512G=J         %+ SET J=HD512G       %+  SET MAPPING_J=GOLIATH512G   %+ REM 20230803ish moved from Thailog to Goliath - 20240220 set to _DOWN/abandoned in dead-Goliath's case
             SET HD1000G_DOWN=1   %+ set HD1000G2=L       %+ SET L=HD1000G2     %+  SET MAPPING_L=GOLIATH1000G  %+ SET HD1G2=%HD1000G2% %+ REM marked as down 2024/02/20 because cannot locate
 			SET HD2000G_DOWN=1   %+ set HD2000G5=N       %+ SET N=HD2000G5     %+  SET MAPPING_N=GOLIATH2000G  %+ SET HD2T5=%HD2000G5% %+ REM marked as down 2024/02/20 because cannot locate
 
@@ -1574,18 +1574,21 @@ return
                         set NEWCAS_BACKUP=%NEWCAS_BACKUP_DRIVE%:\BACKUPS\newcas.bak
             :: Pre-Burn General
                 :PreBurn_DVD_General:
-                    SET OLD_PREBURN_DVDDRIVE=%HD250G%
-                    SET OLD_PREBURN_DVD=%OLD_PREBURN_DVDDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED
-                    SET OLD_PREBURN_DVD_CATALOG=%OLD_PREBURN_DVD%\ADD-TO-OFFLINETXT.txt
-                    SET PREBURN_DVDDRIVE=%HD2000G5%
+                    rem 2024 are these being used anymore? dont' think so: SET OLD_PREBURN_DVDDRIVE=%HD250G%
+                    rem 2024 are these being used anymore? dont' think so: SET OLD_PREBURN_DVD=%OLD_PREBURN_DVDDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED
+                    SET rem 2024 are these being used anymore? dont' think so: OLD_PREBURN_DVD_CATALOG=%OLD_PREBURN_DVD%\ADD-TO-OFFLINETXT.txt
+                    rem PREBURN_DVDDRIVE=%HD2000G5% %+ rem from 2015-2024
+                    SET PREBURN_DVDDRIVE=%HD18T2% %+ rem temporary until new harddrive comes
                     SET PREBURN_DVD=%PREBURN_DVDDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED-DVD    
+                    rem this drive is nearing capacity (2024/04):
                     set PREBURN_DVD_BACKUPDRIVE=%HD4000G%
                     SET PREBURN_DVD_BACKUP=%PREBURN_DVD_BACKUPDRIVE%:\BACKUPS\ABOUT-TO-BE-BURNED-DVD    
                     SET PREBURN_DVD_CATALOG=%PREBURN_DVD%\ADD-TO-OFFLINETXT.txt
                 :PreBurn_BDR_General:
-                    SET PREBURN_BDRDRIVE=%HD2000G5%
+                    SET PREBURN_BDRDRIVE=%PREBURN_DVDDRIVE%
                     SET PREBURN_BDR=%PREBURN_BDRDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED
                     SET PREBURN_BDR_CATALOG=%PREBURN_BDR%\ADD_TO_CATALOG.txt
+                    rem this drive is nearing capacity (2024/04):
                     SET PREBURN_BDR_BACKUPDRIVE=%HD4000G%
                     SET PREBURN_BDR_BACKUP=%PREBURN_BDR_BACKUPDRIVE%:\BACKUPS\ABOUT-TO-BE-BURNED
             :: Pre-Burn Data
@@ -1612,6 +1615,8 @@ return
 				SET DATA1DRIVE=%DATADRIVE%
 				SET DATA1=%DATA%
 				SET NEW=%NEWCL% %+ SET NEWDRIVE=%NEWCLDRIVE%
+                set ABOUTTOBEBURNEDDVD_BACKUP=%PREBURN_DVD_BACKUP%
+                SET ABOUTTOBEBURNEDBDR_BACKUP=%PREBURN_BDR_BACKUP%
             :: Validation                                   {try to shape like christmas tree}            [That comment is the angel!]
                 gosub ValidateFolderExists                          DATA1DRIVE DATA1
                 gosub ValidateFolderExists                          DATA2DRIVE DATA2

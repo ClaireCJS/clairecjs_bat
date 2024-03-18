@@ -90,7 +90,7 @@
 2022-11-21  15:02            226   33%  del-WAVs-if-mp3s-or-flacs-exist.bat
 2023-10-06  08:29            252   28%  delete-WAVs-if-MP3s-exist.bat
 2023-07-16  13:40            602   50%  delete-zero-byte-files.bat
-2024-03-15  17:04            709   57%  deltree.bat
+2024-03-18  10:33            877   56%  deltree.bat
 2023-07-17  09:31          2,991   61%  detect-with-which.bat
 2023-10-06  07:58          2,064   58%  dice.bat
 2023-04-07  11:31             50   -4%  display-bitrate.bat
@@ -120,7 +120,7 @@
 2024-03-18  09:59         69,100   78%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2023-08-02  16:26            310   35%  env.bat
-2024-03-15  11:19        169,221   81%  environm.btm
+2024-03-18  11:10        169,780   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2023-07-10  11:05          8,342   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -155,7 +155,7 @@
 2023-10-14  01:43            481   46%  flac2wav.bat
 2019-10-01  10:28             56   13%  flv2avi.bat
 2024-02-21  14:08          8,183   72%  FR.bat
-2024-02-21  02:51          8,611   69%  frpost-helper.pl
+2024-03-18  11:22          8,477   69%  frpost-helper.pl
 2024-02-21  02:01            117    9%  frpost.bat
 2023-06-08  20:46            825   60%  generate-and-play-random-midi.bat
 2023-06-08  20:46            825   60%  generate-and-play-random-midi.btm
