@@ -1,0 +1,1 @@
+while (<>) { print lc($_); }
