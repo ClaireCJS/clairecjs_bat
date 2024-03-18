@@ -1,0 +1,42 @@
+@Echo OFF
+ cls
+
+
+REM sometimes we're in a stage in our life where we want this 
+REM script to open itself up in a text editor every time we reboot
+        SET EDIT_SELF=1
+
+
+REM Load our autohotkey script right away since it has winamp control aspects in it
+        call c:\bat\autohotkey.bat c:\bat\autoexec.ahk
+
+
+REM Above all else, the music must flow
+        if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (call winamp autoexec*)
+
+REM Occasionally something glitches and it wants to run this in a new TCC window. 
+REM This gives us a chance to stop it, if we are there and present
+        call pause-for-x-seconds 90 "* Press any key to run autoexec..."
+
+REM Log each run of this:
+        echo * %0 run at at %_DATETIME>>c:\logs\reboots-%MACHINENAME%.log
+
+REM Startup various programs
+        call chrome
+        call opera
+        call map-drives
+        call bsr
+        call start-everything       %+ REM this is the service called "Everything", not the abstract concept of everything
+        call TTRGB
+        call OBS
+
+REM Edit this script, if so instructed:
+        if %EDIT_SELF eq 1 (
+            call validate-environment-variables BAT MACHINENAME EDITOR EDITORBG
+            set  SELF=%BAT%\%MACHINENAME%\autoexec.btm
+            %EDITORBG% %SELF%
+        )
+
+REM Stuff to run only if this machine is our music server
+        if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (call fix-minilyrics-window-size-and-position)
+
