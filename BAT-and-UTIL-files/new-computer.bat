@@ -45,10 +45,13 @@
     call success "yay it worked! maybe edit this part out of new-computer.bat now"
     pause
 
+:::: SHARE WHAT WE CAN:
+    call create-all-drive-shares-(for-new-installations).bat
+
 ::::: OTHER REMINDERS:    
-    pause %+ call advice "if we still command-line-blog: Test mtsend.bat, install python-2.5.2.msi for mtsend" 
-    pause %+ call warning "Change EditPlus preferences to syntax-highlight TXT files as .CPP files"            
+    pause %+ call warning "Run install-common-programs-with-winget.bat in another window now, then come back here"            
+    pause
     pause %+ call warning "After installing perl to c:\perl\, run c:\bat\setup-perl-junctions-on-new-computer.bat"            
-    pause %+ call warning "Run install-common-programs-with-winget.bat"            
-    pause %+ call warning "Let's calibrate our monitor at %ITALICS_ON%%CALIBRATION_URL%%ITALICS_OFF%"
-    pause %+ %CALIBRATION_URL%
+    pause %+ call warning "Change EditPlus preferences to syntax-highlight TXT files as .CPP files"            
+    pause %+ call warning "Let's calibrate our monitor at %ITALICS_ON%%CALIBRATION_URL%%ITALICS_OFF%" %+ pause %+ pause %+ %CALIBRATION_URL%
+    pause %+ call advice "if we still command-line-blog: Test mtsend.bat, install python-2.5.2.msi for mtsend" 
