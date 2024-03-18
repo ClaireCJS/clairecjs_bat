@@ -2,6 +2,11 @@
  cls
 
 
+
+REM refer to install-autoexec-launcher-to-startup.bat for instructions on how to make this run every bootup!
+
+
+
 REM sometimes we're in a stage in our life where we want this 
 REM script to open itself up in a text editor every time we reboot
         SET EDIT_SELF=1

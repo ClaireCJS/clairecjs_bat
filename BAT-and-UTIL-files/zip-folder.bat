@@ -1,4 +1,4 @@
-@echo on
+@Echo OFF
 
 set WHAT_FOLDER_TO_ZIP=%1
 rem ZIP_OPTIONS=%2 %3 %4 %5 %6 %7 %8 %9
@@ -31,6 +31,10 @@ if "%DEBUG%" eq "1" (dir %+ pause)
 :itsadir
     set     DIR="%@STRIP[%=",%WHAT_FOLDER_TO_ZIP%]"
     set ARCHIVE="%@STRIP[%="\,%WHAT_FOLDER_TO_ZIP%].zip"
+    if defined USE_ZIP_NAME (
+        set ARCHIVE="%@UNQUOTE[%USE_ZIP_NAME%]"
+        set USE_ZIP_NAME=
+    )
     if "%DEBUG%" eq "1" (call print-if-debug * DIR is %DIR , archive name will be %ARCHIVE %+ pause)
 
     %COLOR_GREP% %+  echos * ZIP: %WHAT_FOLDER_TO_ZIP% %+ %COLOR_NORMAL% %+ echo.
@@ -70,7 +74,7 @@ if "%DEBUG%" eq "1" (dir %+ pause)
                                             call success "Archive has been created."
                     :COLOR_RUN%       %+    echo * AUTO_DEL_DIR=%AUTO_DEL_DIR%       %+ %COLOR_REMOVAL%
                     if %AUTO_DEL_DIR% eq 1 (echo r | deltree %DIR%)
-                    if %AUTO_DEL_DIR% ne 1 (         deltree %DIR%)
+                    rem let's stop doing this now that we're using this more: if %AUTO_DEL_DIR% ne 1 (deltree %DIR%)
                     %COLOR_SUCCESS    %+    call removal "Original folder has been deleted"
                 goto :Archive_Step_DONE
                 :Archive_Exists_After_Done_NO
