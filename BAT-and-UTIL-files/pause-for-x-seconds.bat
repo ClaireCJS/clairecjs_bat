@@ -1,18 +1,17 @@
 @echo off
-set SECONDS=%1
-call val-env-var SECONDS "Must provide number of seconds to pause when invoking %0 ... And optional 2nd parameter of your pause message"
 
-if "%2" ne "" (set MSG=%@UNQUOTE[%2])
-if "%2" eq "" (set MSG=Press any key when ready...)
+rem Validate the parameters
+        set              SECONDS=%1
+        call val-env-var SECONDS "Must provide number of seconds to pause when invoking %0 ... And optional 2nd parameter of your pause message"
 
-set NUM_ARROWS=%@EVAL[%@LEN[%MSG] / 2 + .5]
-                   set DOWNLEFTARROWS=
-repeat %NUM_ARROWS set DOWNLEFTARROWS=%DOWNLEFTARROWS%%EMOJI_DOWN_LEFT_ARROW%
+rem Set up the pause text
+        set                PAUSE_MESSAGE=Press any key when ready...
+        if "%2" ne "" (set PAUSE_MESSAGE=%@UNQUOTE[%2])
 
-%COLOR_PAUSE%
-set TIME_MSG=%DOWNLEFTARROWS% %EMOJI_ALARM_CLOCK% will continue in %FAINT_OFF%%ITALICS_ON%%BLINK_ON%%ANSI_BRIGHT_RED%%SECONDS%%ANSI_COLOR_PAUSE%%BLINK_OFF%%ITALICS_OFF%%FAINT_ON% seconds...%FAINT_OFF% %EMOJI_ALARM_CLOCK%
-set TIME_MSG_ERASER=%ANSI_ERASE_LINE%
-set PAUSE_MESSAGE=%ANSI_COLOR_PAUSE%%EMOJI_PAUSE_BUTTON% %MSG%%FAINT_ON%%ANSI_POSITION_SAVE%     %ANSI_MOVE_UP_1%%@ANSI_MOVE_TO_COL[1]%EMOJI_PAUSE_BUTTON% %TIME_MSG%%ANSI_POSITION_RESTORE% %ANSI_POSITION_SAVE%
-echo.
-inkey /C /W%SECONDS% /T %PAUSE_MESSAGE% %%unused_variable
-echo %ANSI_POSITION_RESTORE%%EMOJI_CHECK_MARK%    %ANSI_MOVE_UP_1%%@ANSI_MOVE_TO_COL[1]%TIME_MSG_ERASER%
+rem Set the colors (two redundant methods):
+                   %COLOR_PAUSE%
+        echos %ANSI_COLOR_PAUSE%
+
+rem Do the actual pause:
+        *pause /W%SECONDS% /T %PAUSE% %PAUSE_MESSAGE% 
+
