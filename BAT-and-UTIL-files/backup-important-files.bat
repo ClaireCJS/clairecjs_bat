@@ -21,7 +21,7 @@ rem Configuration & environment validation
         set BACKUP_TARGET_DROPBOX=%DROPBOX%\BACKUPS\IMPORTANT_FILES.%MACHINENAME%
 
 rem Let user know what we're doing 
-        cls %+ echo. %+ echo. %+ echo. %+ call important "Backing up important files" %+ echo. %+ rem might want to move the CLS to the 'backing backups up to every available backup drive' section
+        cls %+ echo. %+ call important "Backing up important files" %+ echo. %+ rem might want to move the CLS to the 'backing backups up to every available backup drive' section
 
 rem Ensure backup target folders exists — auto-create the local one it if it does not
 rem ...But do NOT auto-create the dropbox one (that's too intrusive to do automatically)
@@ -39,6 +39,7 @@ rem Back up each important file:
 
         gosub do_file dropbox_Y "Windows Terminal settings" %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
         gosub do_file dropbox_N "### file"                  %CONTACTS%
+        gosub do_file dropbox_N "Adobe Audition settings"   %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml
 
 rem **********************************************************************************************************************************************
 rem **********************************************************************************************************************************************
@@ -47,6 +48,10 @@ rem ****************************************************************************
 rem **********************************************************************************************************************************************
 
 
+echo.
+echo %ANSI_COLOR_BRIGHT_GREEN%%CHECK% Done!
+echo.
+echo.
 echo.
 call important "Backing backups up to every available backup drive...%FAINT_ON%"
 echo.
@@ -68,7 +73,7 @@ goto :END
 
     :do_file [dropbox_YN desc filepath]
         echo.
-        call less_important "Backing up %@UNQUOTE[%desc%] (%italics_on%%filename%%italics_off%):"
+        call less_important "%ANSI_COLOR_CYAN%Backing up %italics_on%%double_underline_on%%ANSI_COLOR_BRIGHT_CYAN%%@UNQUOTE[%desc%]%italics_off%%double_underline_off% %ANSI_COLOR_BRIGHT_BLUE%(%filename%):"
         if not exist %filepath% (call error "file '%filename%' doesn't exist when trying to back up %desc%")
         echos %@RANDFG[]
 
