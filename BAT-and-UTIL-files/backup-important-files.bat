@@ -87,7 +87,8 @@ goto :END
     
         rem Always copy it to dropbox if instructed
             if "%dropbox_YN%" ne "dropbox_Y" goto :Dropbox_NO
-            set SAME=%@COMPARE[%filepath,%target_filename_dropbox]) else (set SAME=0)
+            set SAME=0
+            if exist %target_filename_dropbox (set SAME=%@COMPARE[%filepath,%target_filename_dropbox]) 
             if %SAME eq 0 (
                 echos %SPACER%``
                 *copy /a: /G /H /J /K /Z /u /Ns %filepath% %TARGET_FILENAME_DROPBOX% | insert-before-each-line %SPACER%
@@ -96,7 +97,7 @@ goto :END
 
         rem Check if it's the same as the local backup
             if exist %TARGET_FILENAME% (set SAME=%@COMPARE[%filepath,%target_filename]) else (set SAME=0)
-            if %SAME eq 1 (echo %SPACER%%CHECK% %ANSI_GREEN%%@UNQUOTE[%desc%] (%italics_on%%filename%%italics_off%) already backed up today %+ return)
+            if %SAME eq 1 (echo %SPACER%%CHECK% %ANSI_GREEN%%@UNQUOTE[%desc%] (%italics_on%%filename%%italics_off%) already backed up %+ return)
 
         rem Do the local backup if it's not the same:
             echos %SPACER%`` %+ *copy /a: /G /H /J /K /Z /u /Ns %filepath% %TARGET_FILENAME%         | insert-before-each-line %SPACER%

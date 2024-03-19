@@ -128,7 +128,7 @@ if %OUR_ERRORLEVEL% gt 0 (
     echo.
     echo.
     echo.
-    call advice - You can put code like this in your script:
+    call advice "* You can put code like this in your script:"
     call advice "     :Redo_1"
     call advice "             %OUR_COMMAND%" 
     REM call advice "             call %0 %optional_success_msg_in_quotes% %optional_failure_msg_in_quotes%"

@@ -40,7 +40,8 @@ goto :NoDebug
                 set NOPAUSETEMP=%NOPAUSE%
                 set NOPAUSE=1
                     call git-commit
-                    call sync-a-folder-to-somewhere.bat /[!%EXCLUSIONS%]
+                    rem call sync-a-folder-to-somewhere.bat /[!%EXCLUSIONS%]
+                        call sync-a-folder-to-somewhere.bat /[!%EXCLUSIONS%]
                 set NOPAUSE=%NOPAUSETEMP%
             goto :GIT_Done
     :GIT_No

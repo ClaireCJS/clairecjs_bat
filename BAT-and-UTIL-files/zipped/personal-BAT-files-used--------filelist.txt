@@ -41,8 +41,8 @@
 2023-06-06  04:10            966   63%  autoexec.ahk
 2023-07-03  18:02          1,603   58%  average.py
 2023-06-07  19:48             18  -11%  avg.bat
-2023-09-18  06:05          7,834   78%  backup-repositories.bat
-2024-03-15  13:41          1,927   56%  backup-repository.bat
+2024-03-19  10:50          7,930   78%  backup-repositories.bat
+2024-03-19  10:35          2,009   58%  backup-repository.bat
 2019-10-01  10:27          1,744   57%  backup-thing.bat
 2019-10-01  10:27            283   43%  backup-to-bdrs.bat
 2019-10-01  10:27            254   39%  backup-to-CDs.bat
@@ -117,12 +117,12 @@
 2023-11-07  13:36          3,152   71%  echo-rainbow.bat
 2023-09-15  12:27          3,399   66%  editGrep.bat
 2023-10-06  05:33          1,701   57%  emoji-search.bat
-2024-03-18  14:52         69,285   78%  emoji.env
+2024-03-19  13:24         69,311   78%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2023-08-02  16:26            310   35%  env.bat
-2024-03-18  15:51        170,015   81%  environm.btm
+2024-03-19  11:17        170,604   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
-2023-07-10  11:05          8,342   73%  errorlevel.bat
+2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
 2019-10-01  10:25            831   58%  EvilLyrics-Milkdrop2.ahk
 2023-06-03  04:00             64   13%  exiflist.bat
@@ -304,7 +304,7 @@
 2023-06-13  16:06             57    0%  send-keypress-alt_up.ahk
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
-2024-03-18  14:42         24,439   80%  set-colors.bat
+2024-03-19  12:39         25,920   81%  set-colors.bat
 2024-03-13  13:45          6,083   63%  set-emojis.bat
 2023-06-08  08:06          1,793   70%  set-file-age.bat
 2023-05-30  00:32          1,398   58%  set-first-file.bat

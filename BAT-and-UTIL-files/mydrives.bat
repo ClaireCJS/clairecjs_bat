@@ -1,11 +1,11 @@
-@Echo OFF
+@Echo On
  echo.
 
 call validate-environment-variables MACHINENAME DRIVES_%MACHINENAME% MAX_MACHINENAME_LENGTH
 
 set STUFF=
-%COLOR_IMPORTANT% %+                                                    gosub TellForMachine %MACHINENAME%
-%COLOR_SUBTLE% %+ for %ma in (%ALL_COMPUTERS%) if %ma ne %MACHINENAME% (gosub TellForMachine %ma%)
+%COLOR_IMPORTANT% %+                                                       gosub TellForMachine %MACHINENAME%
+%COLOR_SUBTLE%    %+ for %ma in (%ALL_COMPUTERS%) if %ma ne %MACHINENAME% (gosub TellForMachine %ma%)
 echo %STUFF% |:u8 call highlight-by-computer-name
 
 goto :END

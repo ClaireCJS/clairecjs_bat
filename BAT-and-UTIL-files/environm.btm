@@ -279,29 +279,29 @@ return
 			SET HD1500G_DOWN=1   %+ set HD1500G=L(DOWN)  %+ :ET L=HD1500G      %+  SET MAPPING_L=GOLIATH1500G  %+ SET HD1500G1=%HD1500G%
 			SET HD2000G4_DOWN=1  %+ set HD2000G4=G       %+ SET G=HD2000G4     %+  SET MAPPING_G=GOLIATH2000G2 %+ REM removed 20220410
 			rem HD4000G_DOWN=0   %+ set HD4000G=B        %+ SET B=HD4000G      %+  SET MAPPING_B=GOLIATH4000G  %+ SET HD4000G1=%HD4000G% - moved to Thailog 20240220
-			rem HD4000G2_DOWN=0  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=GOLIATH4000G2 - moved to Wyvern 20240125ish
+			set HD4000G2_DOWN=1  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=GOLIATH4000G2 - moved to Wyvern 20240125ish but died fast when Carolyn put mounting tape on the fucking pins of the drive
 			SET HD4000G3_DOWN=1  %+ rem HD4000G3=F       %+ SET F=HD4000G3     %+  SET MAPPING_F=GOLIATH4000G3 
 			rem HD4000G4_DOWN=1  %+ rem HD4000G4=H       %+ SET H=HD4000G4     %+  SET MAPPING_H=GOLIATH4000G4 - moved to Thailog 20240219
             rem HD4000G5_DOWN=0  %+ set HD4000G5=V       %+ SET V=HD4000G5     %+  SET MAPPING_V=GOLIATH4000G5 %+ REM 2024 moved to thailog
 
             REM cannot account for these as of 2024/02/20:
-			set  HD512G_DOWN=1   %+ set HD512G=J         %+ SET J=HD512G       %+  SET MAPPING_J=GOLIATH512G   %+ REM 20230803ish moved from Thailog to Goliath - 20240220 set to _DOWN/abandoned in dead-Goliath's case
             SET HD1000G_DOWN=1   %+ set HD1000G2=L       %+ SET L=HD1000G2     %+  SET MAPPING_L=GOLIATH1000G  %+ SET HD1G2=%HD1000G2% %+ REM marked as down 2024/02/20 because cannot locate
-			SET HD2000G_DOWN=1   %+ set HD2000G5=N       %+ SET N=HD2000G5     %+  SET MAPPING_N=GOLIATH2000G  %+ SET HD2T5=%HD2000G5% %+ REM marked as down 2024/02/20 because cannot locate
+			set HD512G=J         %+  SET J=HD512G        %+  SET MAPPING_J=GOLIATH512G                         %+ REM decomissioned 20230803 ?
 
             rem DRIVES_GOLIATH=A B E F H L M N V   
             rem DRIVES_GOLIATH=A B E L N V W       
             rem DRIVES_GOLIATH=B J L N V 
             rem DRIVES_GOLIATH=J L N 
-            unSET DRIVES_GOLIATH
+            rem DRIVES_GOLIATH=J L
+            rem DRIVES_GOLIATH=L
+            UNset DRIVES_GOLIATH
             rem DRIVE_C_GOLIATH=L (Windows 7 era)  %+  SET MAPPING_GOLIATH_USR=Carolyn       %+ set MAPPING_GOLIATH_IP=192.168.0.177
-            SET DRIVE_C_GOLIATH=J                  %+  SET MAPPING_GOLIATH_USR=carol         %+ set MAPPING_GOLIATH_IP=192.168.0.177
-            SET DRIVE_C_GOLIATH_VAR=%J%            %+  rem MAPPING_GOLIATH_PWD=[REDACTED into private.env]
+            rem DRIVE_C_GOLIATH=J                  %+  SET MAPPING_GOLIATH_USR=carol         %+ set MAPPING_GOLIATH_IP=192.168.0.177
+            rem DRIVE_C_GOLIATH_VAR=%J%            %+  rem MAPPING_GOLIATH_PWD=[REDACTED into private.env]
 
 		::THAILOG (2015)
 			:et   HD240G_DOWN=1 %+ rem HD240G=P    %+  SET P=HD240G           %+  SET MAPPING_P=THAILOG240G                           %+ REM decomissioned 201910
             set   HD240G_DOWN=0 %+ set HD240G2=D   %+  SET D=HD240G2          %+  SET MAPPING_D=THAILOG240G2 
-			rem moved 2 Goliath %+ set HD512G=J    %+  SET J=HD512G           %+  SET MAPPING_J=THAILOG512G                           %+ REM decomissioned 20230803 floating around the room Carolyn's tryna inst win10 on it rn
 			set HD1500G2_DOWN=1 %+ rem HD1500G2=W  %+  SET W=HD1500G2         %+  SET MAPPING_W=THAILOG1500G2                         %+ REM down around post-Andrea time
             set HD1500G2_DOWN=1 %+ rem SHARE1500G2=\\thailog\\thailog1500g2\  %+  SET SHARING_W=%SHARE1500G2%                         %+ REM out of drive letters, but still want an environment variable for this harddrive
             set  HD2000G_DOWN=1 %+ rem HD2000G=O   %+  SET O=HD2000G          %+  SET MAPPING_O=THAILOG2000G                          %+ SET  HD2000G1=%HD2000G%
@@ -327,8 +327,8 @@ return
             :et DRIVES_THAILOG=  D   I   K P Q R         %+  rem Do not use inaccessible/down/crashed drives
             set DRIVES_THAILOG=  D H I   K P Q R   V     %+  rem Do not use inaccessible/down/crashed drives
             set DRIVES_THAILOG=B D H I   K P Q R   V     %+  rem Do not use inaccessible/down/crashed drives
-            set DRIVE_C_THAILOG=J                        %+  SET MAPPING_THAILOG_IP_REMOTE=%PUBLIC_IP%
-            set DRIVE_C_THAILOG_VAR=%J%                  %+  SET MAPPING_THAILOG_IP_TETHERING=%TETHERING_IP_THAILOG%   %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
+            set DRIVE_C_THAILOG=D                        %+  SET MAPPING_THAILOG_IP_REMOTE=%PUBLIC_IP%
+            set DRIVE_C_THAILOG_VAR=%D%                  %+  SET MAPPING_THAILOG_IP_TETHERING=%TETHERING_IP_THAILOG%   %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
                                                          %+  SET MAPPING_THAILOG_USR=share  %+ REM MAPPING_THAILOG_PWD=[REDACTED into private.env]
 		::DEMONA (2022)
             set  HD1000G3_DOWN=0 %+ set HD1000G3=S  %+  SET S=HD1000G3  %+  SET MAPPING_S=DEMONA1T   %+ SET     HD1T3=%HD1000G3%  %+ set DEMONA1T=%HD1000G3%    %+ set  HD1T3_PRESENCE=%HD1T3%:\__ I awaken! __
@@ -355,9 +355,9 @@ return
             REM MAPPING_WYVERN_PWD=[REDACTED into private.env]
 
         ::SPARE/LIMBO
-            rem annoying 10TB drive with L-tab broken off SATA power port
-               set   HD10T1_DOWN=0  %+ set HD10T1=W         %+  SET W=HD10T1      %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1 
-               REM temporarily suspended: SET MAPPING_W=GOLIATH10T1   
+               set   HD10T1_DOWN=1  %+ set HD10T1=W      %+ SET W=HD10T1       %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1  %+ rem annoying 10TB drive with L-tab broken off SATA power port
+			   set HD2000G5_DOWN=1  %+ set HD2000G5=N    %+ SET N=HD2000G5     %+ SET HD2T5=%HD2000G5%  %+ REM marked as down 2024/02/20 because cannot locate
+               REM suspended: SET MAPPING_W=GOLIATH10T1  %+  SET MAPPING_N=GOLIATH2000G  
 
 
         ::MARK SSD DRIVES: 
@@ -1147,7 +1147,8 @@ return
 			SET DROPBOX_CLAIRE_DRIVE=%DROPBOXDRIVE%
 			SET DROPBOX_CLAIRE=%DROPBOX%
         ::dropbox_Carolyn
-            SET DROPBOX_CAROLYN_DRIVE=%HD4000G5%
+            rem DROPBOX_CAROLYN_DRIVE=%HD4000G5%
+            SET DROPBOX_CAROLYN_DRIVE=%HD2T1%
             SET DROPBOX_CAROLYN=%DROPBOX_CAROLYN_DRIVE%:\DropboxCarolyn\Dropbox
             SET DROPBOX_OVERFLOW_DIRNAME=DROPBOX_OVERFLOW
                 ::aliases
@@ -1171,8 +1172,9 @@ return
             SET QUOTES=%www%\QUOTES\quotes.txt
 
         ::ftp server
-            SET FTPSERVERDRIVE=%HD512G%
-            SET FTPSERVER=%FTPSERVERDRIVE%:\FTP
+            rem FTPSERVERDRIVE=%HD512G%
+            set FTPSERVERDRIVE=%PUBCLDRIVE%
+            set FTPSERVER=%PUBCL%\ftp
             :: aliases
                 set FTP_DRIVE=%FTPSERVERDRIVE%
                 set FTP=%FTPSERVER%
@@ -1217,18 +1219,18 @@ return
             :PUBCAS, WWWCAS done below
 
 
-	::::: SPECIAL FILES:
-		:ET CONTACTS=%WWWCL\private\personal.htm     %+ REM moved for legal reasons
-		SET CONTACTS=%DROPBOX_CLAIRE%\personal.htm
-		SET LOCATIONS=%DROPBOX_CLAIRE%\locations.htm
-		SET   ALBUMS=%VCR%\album.htm
+        ::::: SPECIAL FILES:
+            :ET CONTACTS=%WWWCL\private\personal.htm     %+ REM moved for legal reasons
+            SET CONTACTS=%DROPBOX_CLAIRE%\personal.htm
+            SET LOCATIONS=%DROPBOX_CLAIRE%\locations.htm
+            SET   ALBUMS=%VCR%\album.htm
 
-	::::: MEDIA REPOSITORIES:
-		::::: THE COLLCTION OF EVERY MEDIA AND FILE COLLECTION:
-            set ALL_COLLECTIONS_DRIVE=C
-            set ALL_COLLECTIONS=%ALL_COLLECTIONS_DRIVE%:\MEDIA
-            set ALL_COLLECTIONS_BY_DRIVE=%ALL_COLLECTIONS%\by-drive
-            set ALL_MEDIA_BY_DRIVE=%ALL_COLLECTIONS_BY_DRIVE%\\MEDIA
+        ::::: MEDIA REPOSITORIES:
+            ::::: THE COLLCTION OF EVERY MEDIA AND FILE COLLECTION:
+                set ALL_COLLECTIONS_DRIVE=C
+                set ALL_COLLECTIONS=%ALL_COLLECTIONS_DRIVE%:\MEDIA
+                set ALL_COLLECTIONS_BY_DRIVE=%ALL_COLLECTIONS%\by-drive
+                set ALL_MEDIA_BY_DRIVE=%ALL_COLLECTIONS_BY_DRIVE%\\MEDIA
 		::::: CURATED COLLECTIONS:
             :: this list is mostly alphabetically, but these had to be moved up top:
                 set              TEXTDRIVE=%HD6000G1%
@@ -1318,10 +1320,12 @@ return
                 set              MP3_OFFICIAL=%MP3OFFICIAL%
                 set          MP3_SVN_REPO_DIR=%MP3OFFICIALDRIVE%:/mp3-svn-repo
                 set          MP3_SVN_REPO_URL=file:///%MP3_SVN_REPO_DIR%
-                set           MP3BACKUP1DRIVE=%HD4000G2% %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3
+                rem           MP3BACKUP1DRIVE=%HD4000G2% %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3
                 rem           MP3BACKUP2DRIVE=%HD10000G2 %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3
-                set           MP3BACKUP2DRIVE=%HD20T1    %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3
-                set           MP3BACKUP3DRIVE=%HD18000G% %+ set MP3BACKUP3=%MP3BACKUP3DRIVE%:\mp3
+                set           MP3BACKUP1DRIVE=%HD18T2%   %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3 %+ rem Wyvern  copy
+                set           MP3BACKUP2DRIVE=%HD20T1    %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3 %+ rem Thailog copy
+                set           MP3BACKUP3DRIVE=%HD18000G% %+ set MP3BACKUP3=%MP3BACKUP3DRIVE%:\mp3         %+ rem Demona  copy
+
                 set           MP3AUXBACKUPDRIVE=%MP3BACKUP1DRIVE% %+ set MP3AUXBACKUP=%MP3AUXBACKUPDRIVE%:\BACKUPS\mp3-aux
                                                                         :^^^^ not in \BACKUPS\ folder because this is THAILOG/our old music server
                     :: Aliases
@@ -1333,38 +1337,41 @@ return
                         set MP3_BACKUP_3=%MP3BACKUP3%
                         set MP3_SECONDARY=%MP3BACKUP3% %+ REM we call this one secondary because it's THAILOG's old music server (2015-2022)
                         set MP3SECONDARY=%MP3_SECONDARY%
-                :: lyrics
-					:: old computer
-						set LYRICS_OLD_THAILOG_MAIN_DRIVE=%HD512G%
-						set LYRICS_OLD_THAILOG_MAIN=%LYRICS_MAIN_DRIVE%:\program files (x86)\EvilLyrics\lyrics
-					:: new computer
-						set LYRICS_MAIN_DRIVE=%HD1T3%
-						set LYRICS_MAIN=%LYRICS_MAIN_DRIVE%:\UTIL2\EvilLyrics\EvilLyrics\lyrics
-                    :: Aliases
-                        set LYRICSDRIVE=%LYRICS_MAIN_DRIVE%
-                        set LYRICS_DRIVE=%LYRICS_MAIN_DRIVE%
-                        set LYRICS=%LYRICS_MAIN%
-                    :: Backups
-                    set LYRICS_BACKUPDRIVE=%HD1000G2%
+            :: lyrics
+                :: old computer
+                    set LYRICS_OLD_THAILOG_MAIN_DRIVE=%HD512G%
+                    set LYRICS_OLD_THAILOG_MAIN=%LYRICS_MAIN_DRIVE%:\program files (x86)\EvilLyrics\lyrics
+                :: new computer
+                    set LYRICS_MAIN_DRIVE=%HD1T3%
+                    set LYRICS_MAIN=%LYRICS_MAIN_DRIVE%:\UTIL2\EvilLyrics\EvilLyrics\lyrics
+                :: Aliases
+                    set LYRICSDRIVE=%LYRICS_MAIN_DRIVE%
+                    set LYRICS_DRIVE=%LYRICS_MAIN_DRIVE%
+                    set LYRICS=%LYRICS_MAIN%
+                :: Backups
+                    rem LYRICS_BACKUPDRIVE=%HD1000G2%                                                %+ rem Goliath
+                    rem LYRICS_BACKUP=%LYRICS_BACKUP_DRIVE%:\program files (x86)\EvilLyrics\lyrics   %+ rem Goliath
+                    set LYRICS_BACKUPDRIVE=%HD2T1%
                     set LYRICS_BACKUP_DRIVE=%LYRICS_BACKUPDRIVE%
-                    set LYRICS_BACKUP=%LYRICS_BACKUP_DRIVE%:\program files (x86)\EvilLyrics\lyrics
-                set                    MIDI=%MP3OFFICIAL%\MISC\MIDI
-                set        MUSICVIDEOSDRIVE=%HD6000G2%
-                set             MUSICVIDEOS=%MUSICVIDEOSDRIVE%:\MEDIA\MUSIC-VIDEOS
-                set  MUSICVIDEOSBACKUPDRIVE=%HD4000G5%
-                set       MUSICVIDEOSBACKUP=%MUSICVIDEOSBACKUPDRIVE%:\BACKUPS\MUSIC-VIDEOS
-                set           SPECIALSDRIVE=%HD6000G1%
-                set                SPECIALS=%SPECIALSDRIVE%:\MEDIA\SPECIALS-AND-DOCUMENTARIES
-                rem                SPECIALS_BACKUP is not necessary because %DOCUMENTARIES% and %SPECIALS% are synonymous
-                set            SHORTSDRIVE=%HD6000G2%
-                set    SHORTS=%SHORTSDRIVE%:\MEDIA\SHORTS
-                set    SHORTS_BACKUP_DRIVE=%HD4000G%
-                set    SHORTS_BACKUP=%SHORTS_BACKUP_DRIVE%:\BACKUPS\shorts.bak
-                rem                SUBGENIUSDRIVE=%HD10000G% - moved 20240125 whe broke L-part of energy 
-                set                SUBGENIUSDRIVE=%HD18T1%                
-                set     SUBGENIUS=%SUBGENIUSDRIVE%:\MEDIA\SubGenius
-                set     SUBGENIUS_BACKUP_DRIVE=%HD4000G2%
-                set     SUBGENIUS_BACKUP=%SUBGENIUS_BACKUP_DRIVE%:\BACKUPS\SubGenius.bak
+                    set LYRICS_BACKUP=%LYRICS_BACKUP_DRIVE%:\util2\EvilLyrics\EvilLyrics\lyrics
+                :: Midi, Music Videos, specials, shorts, subgenius
+                    set                    MIDI=%MP3OFFICIAL%\MISC\MIDI
+                    set        MUSICVIDEOSDRIVE=%HD6000G2%
+                    set             MUSICVIDEOS=%MUSICVIDEOSDRIVE%:\MEDIA\MUSIC-VIDEOS
+                    set  MUSICVIDEOSBACKUPDRIVE=%HD4000G5%
+                    set       MUSICVIDEOSBACKUP=%MUSICVIDEOSBACKUPDRIVE%:\BACKUPS\MUSIC-VIDEOS
+                    set           SPECIALSDRIVE=%HD6000G1%
+                    set                SPECIALS=%SPECIALSDRIVE%:\MEDIA\SPECIALS-AND-DOCUMENTARIES
+                    rem                SPECIALS_BACKUP is not necessary because %DOCUMENTARIES% and %SPECIALS% are synonymous
+                    set            SHORTSDRIVE=%HD6000G2%
+                    set    SHORTS=%SHORTSDRIVE%:\MEDIA\SHORTS
+                    set    SHORTS_BACKUP_DRIVE=%HD4000G%
+                    set    SHORTS_BACKUP=%SHORTS_BACKUP_DRIVE%:\BACKUPS\shorts.bak
+                    rem                SUBGENIUSDRIVE=%HD10000G% - moved 20240125 whe broke L-part of energy 
+                    set                SUBGENIUSDRIVE=%HD18T1%                
+                    set     SUBGENIUS=%SUBGENIUSDRIVE%:\MEDIA\SubGenius
+                    set     SUBGENIUS_BACKUP_DRIVE=%HD4000G2%
+                    set     SUBGENIUS_BACKUP=%SUBGENIUS_BACKUP_DRIVE%:\BACKUPS\SubGenius.bak
                 :these had to be moved down because they rely on previous values:
                     :et      FLACOFFICIALDRIVE=%MP3OFFICIALDRIVE%
                     :et           FLACOFFICIAL=%FLACOFFICIALDRIVE%:\flac

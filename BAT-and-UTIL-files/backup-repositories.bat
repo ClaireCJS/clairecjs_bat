@@ -62,7 +62,7 @@
 %BACKUPREPOSTARTER% call backup-repository EXTRAS                                 EXTRAS_BACKUP
 %BACKUPREPOSTARTER% call backup-repository PRN1                                     PRN1_BACKUP            %+ REM 2022/03/17 - 2.2TB 
 :BACKUPREPOSTARTER% call backup-repository PRN2                              [IS PART OF NEWCL]            %+ REM 2022/03/18 - no need to backup as it's part of %NEWCL%
-%BACKUPREPOSTARTER% call backup-repository FTP                                       FTP_BACKUP
+:BACKUPREPOSTARTER% call backup-repository FTP                                       FTP_BACKUP            %+ REM 2024/03/19 - moved this to be part of PUBCL so no longer needs own backup job
 %BACKUPREPOSTARTER% call backup-repository TEXT                                     TEXT_BACKUP 
 %BACKUPREPOSTARTER% call backup-repository COMMERCIALS                       COMMERCIALS_BACKUP
 %BACKUPREPOSTARTER% call backup-repository COMEDY                                 COMEDY_BACKUP

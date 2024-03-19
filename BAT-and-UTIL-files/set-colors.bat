@@ -333,6 +333,7 @@ REM wow it even supports the vt100 2-line-tall text!
             REM this is a guess:
             set BIG_TEXT_END=%ESCAPE%#0
             set BIG_OFF=%BIG_TEXT_END%
+            set BIG_TEXT_OFF=%BIG_OFF%
             set BIG_TOP_OFF=%BIG_OFF%
             set BIG_BOT_OFF=%BIG_OFF%
 
