@@ -60,7 +60,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         color blue on black
         echo.
         set TEECOLOR=%COLOR_UNIMPORTANT%
-        %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% 
+        %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% | cat_fast
         echo.
         color bright blue on black
         echos %STAR% ``
@@ -68,7 +68,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         echo.
 
         %COLOR_RUN%
-        cat %GIT_OUT% | grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
+        cat %GIT_OUT% | grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename' | cat_fast
 
         %COLOR_REMOVAL%
         if exist %GIT_OUT% (*del /q /r %GIT_OUT%>nul)
