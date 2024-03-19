@@ -389,6 +389,6 @@
 2023-06-05  01:45          1,303   63%  zip-all-folders.bat
 2023-05-30  11:25          1,249   64%  zip-all-subfolders.bat
 2024-03-18  10:19          2,284   65%  zip-file.bat
-2024-03-18  14:44          6,128   74%  zip-folder.bat
+2024-03-18  23:27          6,293   74%  zip-folder.bat
 2024-03-18  09:24         11,751   86%  zip-old.bat
 2024-03-18  10:18            637   56%  zip.bat

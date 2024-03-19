@@ -3,7 +3,7 @@
 call validate-environment-variable FILEMASK_ARCHIVE
 set FILEMASK_ARCHIVE_VALIDATED=1
 
-for /a:d /h %1 in (z*.*) do gosub process_folder_1 "%1"
+for /a:d /h %1 in (*.*) do gosub process_folder_1 "%1"
 
 goto :END
 
