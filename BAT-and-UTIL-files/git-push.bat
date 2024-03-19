@@ -23,7 +23,7 @@ set TEECOLOR=%COLOR_UNIMPORTANT%
 REM old, but now git has it's own TEE to git.out internally: 
 REM      call git push origin main %PARAMS% |& tee %GIT_OUT%
 REM new:
-call git-push origin main %PARAMS% 
+call git push origin main %PARAMS% 
 call errorlevel "Advice: for 'updates were rejected because the remote contains work that you do not have locally', you may need to 'git pull origin main' to merge and then try again" 
 
 echo.
