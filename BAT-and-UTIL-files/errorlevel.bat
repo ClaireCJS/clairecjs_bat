@@ -72,9 +72,11 @@ REM Parameters: Process: errorlevel
 
 
 REM Parameters: Process: calling file
-    set OUR_CALLING_FILE=(calling file unknown)
+    set CALLING_FILE_UNKNOWN=(calling file unknown)
+    set OUR_CALLING_FILE=%CALLING_FILE_UNKNOWN%
     if defined %_callingfile set OUR_CALLING_FILE=%_callingfile
-
+                             set OUR_CALLING_FILE_2=%_pbatchname
+    rem echo OUR1==%OUR_CALLING_FILE%,OUR2==%OUR_CALLING_FILE_2% BUT pbatchname==%_pbatchname  callingfile==%_callingfile
 
     REM If there is a %3 then we didn't listen to the invocation instructions and screwed up -- just treat the entire set of parameters as one big error message
     if "%3" ne "" (
@@ -113,7 +115,8 @@ if %OUR_ERRORLEVEL% gt 0 (
     REM call  print-if-debug * ARGV is: %*
 
     set OUR_COMMAND=that_thing_you_did[.exe/.bat/etc]
-    if "%OUR_CALLING_FILE%" ne "" (set OUR_COMMAND=%OUR_CALLING_FILE%)
+    if "%OUR_CALLING_FILE%"   ne "" (set OUR_COMMAND=%OUR_CALLING_FILE%)
+    if "%OUR_CALLING_FILE_2%" ne "" (set OUR_COMMAND_2=%OUR_CALLING_FILE_2%)
 
     set   optional_success_msg_in_quotes=[optional_success_msg_in_quotes]
     set   optional_failure_msg_in_quotes=[optional_failure_msg_in_quotes]
@@ -130,7 +133,8 @@ if %OUR_ERRORLEVEL% gt 0 (
     echo.
     call advice "* You can put code like this in your script:"
     call advice "     :Redo_1"
-    call advice "             %OUR_COMMAND%" 
+    if "%OUR_COMMAND%" ne "%CALLING_FILE_UNKNOWN%" (call advice "                         %OUR_COMMAND%" )
+    call advice "             rem [debug] %OUR_COMMAND_2%" 
     REM call advice "             call %0 %optional_success_msg_in_quotes% %optional_failure_msg_in_quotes%"
     %COLOR_ADVICE%
     echos              ``

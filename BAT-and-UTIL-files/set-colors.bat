@@ -83,9 +83,25 @@ rem ANSI: cursor
  
 
 rem ANSI: erase
+    rem Clear Screen: \u001b[{n}J clears the screen
+    rem                     n=0 clears from cursor until end of screen,
+    rem                     n=1 clears from cursor to beginning of screen
+    rem                     n=2 clears entire screen
+    rem Clear Line: \u001b[{n}K clears the current line
+    rem                   n=0 clears from cursor to end of line
+    rem                   n=1 clears from cursor to start of line
+    rem                   n=2 clears entire line
             set ANSI_ERASE_CURRENT_LINE=%ANSI_ESCAPE%K                      %+ rem erases in line
                 set ANSI_ERASE_LINE=%ANSI_ERASE_CURRENT_LINE%               %+ rem alias
                 set ANSI_LINE_ERASE=%ANSI_ERASE_CURRENT_LINE%               %+ rem alias
+            set ANSI_ERASE_TO_END_OF_LINE=%ANSI_ESCAPE%0K                   %+ rem erases from cursor until end of line
+                set ANSI_ERASE_TO_END=%ANSI_ERASE_TO_END_OF_LINE%
+                set ANSI_ERASE_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%
+            set ANSI_ERASE_TO_BEG_OF_LINE=%ANSI_ESCAPE%1K                   %+ rem erases from cursor until end of line
+                set ANSI_ERASE_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%
+                set ANSI_ERASE_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%
+                set ANSI_ERASE_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
+
 
 rem ANSI: colors 
         rem custom rgb colors for foreground/background
