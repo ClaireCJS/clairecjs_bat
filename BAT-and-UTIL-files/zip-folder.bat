@@ -79,7 +79,7 @@ if "%DEBUG%" eq "1" (dir %+ pause)
                     if %AUTO_DEL_DIR% ne 0 (
                         rem deltree now asks and doesn't do it blindly...
                         deltree %DIR%
-                        call removal "Original folder has been deleted"
+                        if %DELTREE_PERFORMED eq 1 (call removal "%CHECK% Original folder has been deleted")
                     )
                     %COLOR_SUCCESS% 
                 goto :Archive_Step_DONE

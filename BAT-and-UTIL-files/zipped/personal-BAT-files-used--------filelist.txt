@@ -72,7 +72,7 @@
 2023-10-06  11:01            163   34%  convert-16bit-or-32bit-legacy-executable-to-64bit-exe.bat
 2023-06-02  04:02          4,440   67%  convert_midi_to_wav_with_soundfont.py
 2023-08-03  04:27             56    4%  copy-alias.bat
-2024-03-15  01:47         11,043   75%  copy-move-post.py
+2024-03-19  17:59         10,928   74%  copy-move-post.py
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
 2023-06-07  04:46         61,308   71%  cover_downloader.py
@@ -90,7 +90,7 @@
 2022-11-21  15:02            226   33%  del-WAVs-if-mp3s-or-flacs-exist.bat
 2023-10-06  08:29            252   28%  delete-WAVs-if-MP3s-exist.bat
 2023-07-16  13:40            602   50%  delete-zero-byte-files.bat
-2024-03-18  10:33            877   56%  deltree.bat
+2024-03-19  18:01          1,054   59%  deltree.bat
 2023-07-17  09:31          2,991   61%  detect-with-which.bat
 2023-10-06  07:58          2,064   58%  dice.bat
 2023-04-07  11:31             50   -4%  display-bitrate.bat
@@ -389,6 +389,6 @@
 2023-06-05  01:45          1,303   63%  zip-all-folders.bat
 2023-05-30  11:25          1,249   64%  zip-all-subfolders.bat
 2024-03-18  10:19          2,284   65%  zip-file.bat
-2024-03-18  23:27          6,293   74%  zip-folder.bat
+2024-03-19  18:05          6,330   73%  zip-folder.bat
 2024-03-18  09:24         11,751   86%  zip-old.bat
 2024-03-18  10:18            637   56%  zip.bat

@@ -28,8 +28,8 @@ FOOTERS = [
            "dirs would be moved"  , "dir would be moved"  ,
           ]
 
-MIN_RGB_VALUE_FG = 64; MAX_RGB_VALUE_FG = 255
-MIN_RGB_VALUE_BG = 16; MAX_RGB_VALUE_BG = 64
+MIN_RGB_VALUE_FG = 88; MAX_RGB_VALUE_FG = 255
+MIN_RGB_VALUE_BG = 12; MAX_RGB_VALUE_BG = 40
 
 EMOJIS_SUMMARY = '✔️ '
 EMOJIS_COPY    = f'⭢︋📂' #'-->📂 '
@@ -70,14 +70,15 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         summary     = True
 
     line = move_decorator
-    if   any(substring in line_buffer for substring in ["\\recycled\\","\\recycler\\"] ): line += f'👻⛔'
-    elif any(substring in line_buffer for substring in ["Y/N/A/R)"]                    ): line += f'❓❓ '
-    elif any(substring in line_buffer for substring in ["=>","->"]                     ): line += EMOJIS_COPY
-    elif any(substring in line_buffer for substring in ["Deleting "]                   ): line += f'👻⛔'
-    elif any(substring in line_buffer for substring in ["TCC: (Sys)"]                  ):
-        double = True;                                                                    line += f'🛑🛑\033[6m\033[3m\033[4m\033[7m'
-    elif summary:                                                                         line += EMOJIS_SUMMARY
-    else:                                                                                 line += f'  '
+    file_killers = ["\\recycled\\","\\recycler\\","Removing "]
+    if   any(substring in line_buffer for substring in file_killers  ): line += f'👻⛔'
+    elif any(substring in line_buffer for substring in ["Y/N/A/R)"]  ): line += f'❓❓ '
+    elif any(substring in line_buffer for substring in ["=>","->"]   ): line += EMOJIS_COPY
+    elif any(substring in line_buffer for substring in ["Deleting "] ): line += f'👻⛔'
+    elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):
+        double = True;                                                  line += f'🛑🛑\033[6m\033[3m\033[4m\033[7m'
+    elif summary:                                                       line += EMOJIS_SUMMARY
+    else:                                                               line += f'  '
 
     if summary:                                                                             # Handle transformation for FOOTERS
         pattern = "|".join(re.escape(footer) for footer in FOOTERS)
@@ -167,7 +168,8 @@ additional_beginning_ansi = move_decorator
 r, g, b = get_random_color()
 
 while t.is_alive() or not q.empty():
-#hile True:                                                                                                                         # It's tempting to process things line-by-line, but due to prompts and such, we must process things char-by-char
+#hile True:
+    # It's tempting to process things line-by-line, but due to prompts and such, we must process things char-by-char
     try:
         char = q.get(timeout=0.008)
         if char is None: break
@@ -186,7 +188,7 @@ while t.is_alive() or not q.empty():
         elif in_prompt and char == '\n':
             in_prompt = False
             sys.stdout.write(f'\033[1D{line_buffer.rstrip()}\033[0m\n')
-            sys.stdout.flush()
+            sys.stdout.flush()                        #should this be removed in favor of the end-of-loop one?
             line_buffer = ""
         elif char == '\n':
             if any(substring in line_buffer for substring in FOOTERS): additional_beginning_ansi += "\033[6m"                           # make it blink
