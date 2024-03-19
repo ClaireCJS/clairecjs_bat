@@ -181,7 +181,7 @@
 2021-07-30  11:30             74    2%  git-log-normal.bat
 2021-07-30  11:30             88    4%  git-log-oneline.bat
 2019-10-01  10:28             25   -8%  git-log.bat
-2024-03-14  13:17          1,526   50%  git-push.bat
+2024-03-19  19:38          1,536   50%  git-push.bat
 2023-06-01  02:38            102   15%  git-rename-branch.bat
 2021-07-30  11:30             89    5%  git-revisions.bat
 2024-03-14  21:01          1,150   56%  git-setvars.bat
@@ -190,7 +190,7 @@
 2021-08-26  00:21             41    0%  git-suppress-CRLF-warning.bat
 2021-07-30  11:29            180   27%  git-timecapsule.bat
 2019-10-01  10:28             39    0%  git-win.bat
-2024-03-19  14:39          4,887   59%  git.bat
+2024-03-19  19:40          4,851   59%  git.bat
 2019-10-01  10:28            107   13%  google.bat
 2022-11-21  13:30          1,896   57%  grab.bat
 2019-10-01  10:27            429   48%  grant-me-access-to-all-files.bat
