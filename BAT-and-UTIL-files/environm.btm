@@ -1370,7 +1370,8 @@ return
                     rem                SUBGENIUSDRIVE=%HD10000G% - moved 20240125 whe broke L-part of energy 
                     set                SUBGENIUSDRIVE=%HD18T1%                
                     set     SUBGENIUS=%SUBGENIUSDRIVE%:\MEDIA\SubGenius
-                    set     SUBGENIUS_BACKUP_DRIVE=%HD4000G2%
+                    rem     SUBGENIUS_BACKUP_DRIVE=%HD4000G2%
+                    set     SUBGENIUS_BACKUP_DRIVE=%HD20T1%
                     set     SUBGENIUS_BACKUP=%SUBGENIUS_BACKUP_DRIVE%:\BACKUPS\SubGenius.bak
                 :these had to be moved down because they rely on previous values:
                     :et      FLACOFFICIALDRIVE=%MP3OFFICIALDRIVE%
@@ -1795,12 +1796,14 @@ return
 			:PostBurn_Rally_Point:
 				SET                     OLDREADYTODELETE1DRIVE=%HD250G%
 				SET OLD_READYTODELETE1=%OLDREADYTODELETE1DRIVE%:\MEDIA\ready-to-delete
+
 				SET READYTODELETE1DRIVE=%PREBURN_DVDDRIVE%
 				SET      READYTODELETE1=%PREBURN_DVD%\READY-TO-DELETE
                 
-				SET                 READYTODELETE2DRIVE=%HD2000G5%
+				rem                 READYTODELETE2DRIVE=%HD2000G5%
+				SET                 READYTODELETE2DRIVE=%HD18T2%
 				SET READYTODELETE2=%READYTODELETE2DRIVE%:\MEDIA\ready-to-delete
-				SET READYTODELETE2ROOTALIAS=%READYTODELETE2DRIVE%:\ready-to-delete
+				SET READYTODELETE2ROOTALIAS=%READYTODELETE2DRIVE%:\MEDIA\ready-to-delete
 			:PreWatch_Rally_Point
 				rem                            DELETEAFTERWATCHINGDRIVE=%HD10000G1% %+ rem moved 20240125 after breaking the harddrive's power port
 				SET                            DELETEAFTERWATCHINGDRIVE=%HD10T2%
