@@ -11,7 +11,7 @@ goto :END
 
 :Params
     setdos /A0
-    set|findstr /i %PARAM%
+    set|findstr /i %PARAM%|findstr /v CMDLINE=env |findstr /v PARAM=%PARAM%
     setdos /A1
 goto :END
 

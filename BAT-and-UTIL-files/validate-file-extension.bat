@@ -2,12 +2,23 @@
 
 rem USAGE:   call validate-file-extension [filename]   [extension(s)]           //%FILEMASK_{type} env vars work!  "*.txt;*.bat" works. "txt bat" works too.
 rem EXAMPLE: call validate-file-extension filename.txt txt                      //example to check for one  extension
-rem EXAMPLE: call validate-file-extension %FILENAME%   "txt text rth html"      //example to check for many extensions
+rem EXAMPLE: call validate-file-extension %FILENAME%   "txt text rtf html"      //example to check for many extensions
 
 
 rem SETUP: Get Parameters
     set VALIDATION_FILE=%1
     set EXTENSION_LIST=%2
+
+rem USAGE if no parameters:
+    if "%1" eq "" (
+        echo.
+        call important_less "USAGE: validate-if-file-extension {filename} {extension(s)}"
+        echo.
+        %COLOR_ADVICE% %+ echo EXAMPLE: validate-if-file-extension %%FILENAME  txt
+        %COLOR_ADVICE% %+ echo EXAMPLE: validate-if-file-extension %%FILENAME "txt text rtf html"
+        %COLOR_ADVICE% %+ echo EXAMPLE: validate-if-file-extension %%FILENAME *.txt;*.rtf;*.html
+        goto :END
+    )
 
 rem SETUP: Validate parameters
     call validate-env-var VALIDATION_FILE skip_validation_existence
@@ -28,3 +39,4 @@ rem ERROR: At this point, all checks have failed and the file is not valid!
 
 :Validated_File_Extension_Successfully
 
+:END
