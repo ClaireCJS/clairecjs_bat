@@ -112,10 +112,10 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     line += f'{color_change_ansi}{additional_beginning_ansi}{line_buffer.rstrip()}\033[0m\n'
 
     line = line.replace(' => ' , f'{ansi_reset} => {color_change_ansi}')                                      #\
-    line = line.replace(' -> ' , f'{ansi_reset} -> {color_change_ansi}')                                      # \
-    line = line.replace( '=>>' , f'{ansi_reset}↪️{   color_change_ansi}')                                      #  \
-    line = line.replace(   '.' , f'{ansi_reset}.{   color_change_ansi}')                                      #   >--- Keep all these characters in the default font color, which
-    line = line.replace(   ':' , f'{ansi_reset}:{   color_change_ansi}')                                      #  /     is the one succeptible to the color-cycling that we use
+    line = line.replace(' -> ' , f'{ansi_reset} -> {color_change_ansi}')                                      # \      Keep all these characters in the default font color, which
+    line = line.replace( '=>>' , f'{ansi_reset}↪️{   color_change_ansi}')  #this arrow looks better here       #  \     is the one succeptible to the color-cycling that we use
+    line = line.replace(   '.' , f'{ansi_reset}.{   color_change_ansi}')                                      #   >---
+    line = line.replace(   ':' , f'{ansi_reset}:{   color_change_ansi}')                                      #  /
     line = line.replace( ' - ' , f'{ansi_reset} - { color_change_ansi}')                                      # /
     line = line.replace(  '\\' , f'{ansi_reset}\\{  color_change_ansi}')                                      #/
 
