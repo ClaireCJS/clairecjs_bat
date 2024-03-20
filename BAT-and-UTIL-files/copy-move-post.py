@@ -1,3 +1,18 @@
+"""
+        COPY/MOVE postprocessor
+
+                    * makes each line a random color (to increase visual accessibility to boundaries between filenames)
+
+                    * color cycles delimiter characters (to ease anxiety that things are hung)
+
+                    * Inserts relevant emoji at the beginning of the line (to decrease visual processing energy)
+
+                    * blinks and double-heightens errors (to decrease required attention level)
+
+                    * double-heightens summaries (to increase visual accessibility to the part that matters more than the details)
+
+"""
+
 import random
 import sys
 import re
@@ -6,7 +21,7 @@ import threading
 import queue
 import time
 import os
-import clairecjs_utils as claire
+import clairecjs_utils as claire                                                                                #my library that has color-cycling-by-ANSI functionality used
 from colorama import init
 init(autoreset=False)
 
@@ -167,7 +182,7 @@ while t.is_alive() or not q.empty():
             r, g, b = get_random_color()                                                                                                # Reset for the next line
 
     except queue.Empty:
-        claire.tick(mode="fg")
+        claire.tick(mode="fg")                                                                                                          # color-cycle the default-color text using my library
         sys.stdout.flush()
 
     sys.stdout.flush()
