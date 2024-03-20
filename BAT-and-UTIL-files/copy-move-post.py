@@ -11,14 +11,17 @@ from colorama import init
 init(autoreset=False)
 
 
+EMOJIS_COPY    = '⭢︋📂'
+EMOJIS_PROMPT  = '❓❓ '
+EMOJIS_DELETE  = '👻⛔'
+EMOJIS_SUMMARY = '✔️ '
+EMOJIS_ERROR   = '🛑🛑'
 
+MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                                                                  #\__ range of random values we
+MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                                                                  #/   choose random colors from
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-move_decorator = os.environ.get('move_decorator', '')
-
-
-FOOTERS = [
-           "files copied"         , "file copied",
+FOOTERS = [                                                                                                     #values that indicate a copy/move summary line,
+           "files copied"         , "file copied",                                                              #which we like to identify for special treatment
            "files moved"          , "file moved" ,
            "dirs copied"          , "dir copied" ,
            "dirs moved"           , "dir moved"  ,
@@ -27,14 +30,14 @@ FOOTERS = [
            "dirs would be copied" , "dir would be copied" ,
            "dirs would be moved"  , "dir would be moved"  ,
           ]
+file_removals = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                         #values that indicate a file deletion/removal
 
-MIN_RGB_VALUE_FG = 88; MAX_RGB_VALUE_FG = 255
-MIN_RGB_VALUE_BG = 12; MAX_RGB_VALUE_BG = 40
 
-EMOJIS_SUMMARY = '✔️ '
-EMOJIS_COPY    = f'⭢︋📂' #'-->📂 '
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                            #utf-8 fix
 
-def enable_vt_support():
+move_decorator = os.environ.get('move_decorator', '')                                                           #fetch user-specified decorator (if any)
+
+def enable_vt_support():                                                                                        #this was painful to figure out
     import os
     if os.name == 'nt':
         import ctypes
@@ -46,14 +49,14 @@ def enable_vt_support():
         out_modes = ctypes.c_uint32(out_modes.value | 0x0004)
         ctypes.windll.kernel32.SetConsoleMode(hOut, out_modes)
 
-def get_random_color(bg=False):
+def get_random_color(bg=False):                                                                                 #return random rgb values within our confifured threshold
     if bg: min_rgb_value = MIN_RGB_VALUE_BG; max_rgb_value = MAX_RGB_VALUE_BG
     else:  min_rgb_value = MIN_RGB_VALUE_FG; max_rgb_value = MAX_RGB_VALUE_FG
     return random.randint(min_rgb_value,max_rgb_value), \
            random.randint(min_rgb_value,max_rgb_value), \
            random.randint(min_rgb_value,max_rgb_value)
 
-def enclose_numbers(line): return re.sub(r'(\d+)', r'\033[21m\1\033[24m', line)                                             # ansi-stylize numbers - italics + double-underline
+def enclose_numbers(line): return re.sub(r'(\d+)', r'\033[21m\1\033[24m', line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
 
 
 
@@ -64,85 +67,53 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     double  = False
     summary = False
 
-    if any(substring in line_buffer for substring in FOOTERS):
+    if any(substring in line_buffer for substring in FOOTERS):                                                  #identify if we're in a footer/summary line
         line_buffer = enclose_numbers(line_buffer)
         double      = True
         summary     = True
 
-    line = move_decorator
-    file_killers = ["\\recycled\\","\\recycler\\","Removing "]
-    if   any(substring in line_buffer for substring in file_killers  ): line += f'👻⛔'
-    elif any(substring in line_buffer for substring in ["Y/N/A/R)"]  ): line += f'❓❓ '
-    elif any(substring in line_buffer for substring in ["=>","->"]   ): line += EMOJIS_COPY
-    elif any(substring in line_buffer for substring in ["Deleting "] ): line += f'👻⛔'
-    elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):
-        double = True;                                                  line += f'🛑🛑\033[6m\033[3m\033[4m\033[7m'
-    elif summary:                                                       line += EMOJIS_SUMMARY
-    else:                                                               line += f'  '
+    line = move_decorator                                                                                                      #decorate with environment-var-supplied ecorator if applicable
+    if   any(substring in line_buffer for substring in file_removals ): line += EMOJIS_DELETE                                  #treatment for file deletion lines
+    elif any(substring in line_buffer for substring in ["Y/N/A/R)"]  ): line += EMOJIS_PROMPT                                  #treatment for  user prompt  lines
+    elif any(substring in line_buffer for substring in ["=>","->"]   ): line += EMOJIS_COPY                                    #treatment for   file copy   lines
+    elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):                                                        #treatment for error message lines
+        double = True;                                                  line += EMOJIS_ERROR + f'\033[6m\033[3m\033[4m\033[7m'
+    elif summary:                                                       line += EMOJIS_SUMMARY                                 #treatment for summary lines
+    else:                                                               line += f'  '                                          #TODO figure out why this line is here
 
-    if summary:                                                                             # Handle transformation for FOOTERS
+    if summary:                                                                                                # Handle transformation for summary lines
         pattern = "|".join(re.escape(footer) for footer in FOOTERS)
         segments = re.split(pattern, line_buffer)
-
-        segments = [seg.strip() for seg in segments if seg.strip()]                         # Remove empty segments and strip spaces from the rest
-
+        segments = [seg.strip() for seg in segments if seg.strip()]                                            # Remove empty segments and strip spaces from the rest
         lines = []
         for segment in segments:
             footer_match = re.search(pattern, line_buffer)
             if footer_match:
                 footer = footer_match.group(0)
                 lines.append(f"{segment} {footer}")
-                line_buffer = line_buffer.replace(footer, "", 1).strip()                    # Update line_buffer to remove the footer we just matched
-
+                line_buffer = line_buffer.replace(footer, "", 1).strip()                                       # Update line_buffer to remove the footer we just matched
         line_buffer = f'\n{EMOJIS_SUMMARY}'.join(lines)
 
     line += f'{color_change_ansi}{additional_beginning_ansi}{line_buffer.rstrip()}\033[0m\n'
-    line = line.replace(' => ' , f'{ansi_reset} => {color_change_ansi}')
-    line = line.replace(' -> ' , f'{ansi_reset} -> {color_change_ansi}')
-    line = line.replace( '=>>' , f'{ansi_reset}↪️{   color_change_ansi}')
-    line = line.replace(   '.' , f'{ansi_reset}.{   color_change_ansi}')
-    line = line.replace(   ':' , f'{ansi_reset}:{   color_change_ansi}')
-    line = line.replace( ' - ' , f'{ansi_reset} - { color_change_ansi}')
-    line = line.replace(  '\\' , f'{ansi_reset}\\{  color_change_ansi}')
 
-    lines_to_print = line.split('\n')
+    line = line.replace(' => ' , f'{ansi_reset} => {color_change_ansi}')                                      #\
+    line = line.replace(' -> ' , f'{ansi_reset} -> {color_change_ansi}')                                      # \
+    line = line.replace( '=>>' , f'{ansi_reset}↪️{   color_change_ansi}')                                      #  \
+    line = line.replace(   '.' , f'{ansi_reset}.{   color_change_ansi}')                                      #   >--- Keep all these characters in the default font color, which
+    line = line.replace(   ':' , f'{ansi_reset}:{   color_change_ansi}')                                      #  /     is the one succeptible to the color-cycling that we use
+    line = line.replace( ' - ' , f'{ansi_reset} - { color_change_ansi}')                                      # /
+    line = line.replace(  '\\' , f'{ansi_reset}\\{  color_change_ansi}')                                      #/
+
+    lines_to_print = line.split('\n')                                                                         #there really shouldn't be a \n in our line, but things happen
     i = 0
-    for myline in lines_to_print:
-        #print(f"myline is ((({myline})))")
+    for myline in lines_to_print:                                                                             #print our line, but do it double-height if we're supposed to
         if myline != '\n' and myline != '':
-            #i += 1
-            #sys.stdout.write(f'{i}"LINE={line}"')
             if not double:
                 sys.stdout.write(f'{myline}')
             else:
-                enable_vt_support()                 #suggestion from https://github.com/microsoft/terminal/issues/15838
+                enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838
                 sys.stdout.write(f'\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
     sys.stdout.write('\n')
-
-
-def print_line_OLD_beforesummarysplits(line_buffer, r, g, b, additional_beginning_ansi=""):
-    double  = False                                                                                                         # double height or not?
-    summary = False                                                                                                         # copy/mv summary line?
-    if any(substring in line_buffer for substring in FOOTERS):
-        line_buffer = enclose_numbers(line_buffer)
-        double      = True
-        summary     = True
-    #line = f'\033[93m'                                                                                                      # i liked my arrow yellow
-    line = move_decorator
-    if   any(substring in line_buffer for substring in ["recycled"]):    line += '🗑🗑'                      # trash cans if we're recycling
-    if   any(substring in line_buffer for substring in ["Y/N/A/R"]):     line += f'❓❓ '                                     # emojis at beginning of prompty  lines
-    if   any(substring in line_buffer for substring in ["=>","->"]):     line += EMOJIS_COPY                                 # emojis at beginning of filename lines
-    elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):
-        double = True;                                                   line += f'🛑🛑\033[6m\033[3m\033[4m\033[7m'        # emojis at beginning of error    lines during copying
-    elif any(substring in line_buffer for substring in ["Deleting "]):   line += f'﻿👻⛔'
-
-    elif summary:                                                        line += EMOJIS_SUMMARY                             # emojis at beginning of summary  lines of how many files copied
-    else:                                                                line += f'  '                                      # normal lines get prefixed with this
-    line += f'\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{line_buffer.rstrip()}\033[0m\n'                             # print line in our random-RGB color
-
-    line = line.replace("=>>","↪️") #.replace("=>","⭢︋")
-    if not double: sys.stdout.write(line)                                                                                   # normal height line
-    else:          sys.stdout.write(f'\033#3{line}\033#4{line}')                                                            # double height line
 
 
 
@@ -176,27 +147,24 @@ while t.is_alive() or not q.empty():
         claire.tick(mode="fg")
         line_buffer += char
 
-        if char == '?' and not in_prompt:
+        if char == '?' and not in_prompt:         #coloring for copy/move prompts, so we can make them blinky & attention-get'y
             in_prompt = True
             bgr, bgg, bgb = get_random_color(bg=True)                                                                                   # Reset for the next line
             r  ,   g,   b = get_random_color()                                                                                          # Reset for the next line
-            #ys.stdout.write(f'\033[38;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   \033[6m{line_buffer}\033[0m ') #\033[1C
-            #ys.stdout.write(f'\033[48;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   \033[6m{line_buffer}\033[0m ') #\033[1C
             sys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
             #moved to end of loop: sys.stdout.flush()                                                                                   # Flush the output buffer to display the prompt immediately
             line_buffer = ""
-        elif in_prompt and char == '\n':
+        elif in_prompt and char == '\n':          #if we hit end-of-line in a copy/move user prompt, flush the output so the user can see the prompt... promptly
             in_prompt = False
             sys.stdout.write(f'\033[1D{line_buffer.rstrip()}\033[0m\n')
-            sys.stdout.flush()                        #should this be removed in favor of the end-of-loop one?
+            sys.stdout.flush()
             line_buffer = ""
-        elif char == '\n':
+        elif char == '\n':                        #if we hit end of line NOT in a copy/move user prompt
             if any(substring in line_buffer for substring in FOOTERS): additional_beginning_ansi += "\033[6m"                           # make it blink
             print_line(line_buffer, r, g, b, additional_beginning_ansi)
             line_buffer               = ""                                                                                              # Reset for the next line
             additional_beginning_ansi = ""                                                                                              # Reset for the next line
             r, g, b = get_random_color()                                                                                                # Reset for the next line
-
 
     except queue.Empty:
         claire.tick(mode="fg")

@@ -45,7 +45,7 @@
 2023-07-03  18:02          1,603   58%  average.py
 2023-06-07  19:48             18  -11%  avg.bat
 2024-03-19  10:46          6,788   70%  backup-important-files.bat
-2024-03-19  10:50          7,930   78%  backup-repositories.bat
+2024-03-19  20:02          8,044   77%  backup-repositories.bat
 2024-03-19  10:35          2,009   58%  backup-repository.bat
 2019-10-01  10:27          1,744   57%  backup-thing.bat
 2019-10-01  10:27            283   43%  backup-to-bdrs.bat
@@ -83,7 +83,7 @@
 2024-03-18  17:01            310   31%  convert-each-line-to-a-dot.pl
 2023-06-02  04:02          4,440   67%  convert_midi_to_wav_with_soundfont.py
 2023-08-03  04:27             56    4%  copy-alias.bat
-2024-03-19  17:59         10,928   74%  copy-move-post.py
+2024-03-20  00:58         10,736   73%  copy-move-post.py
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
 2023-06-07  04:46         61,308   71%  cover_downloader.py

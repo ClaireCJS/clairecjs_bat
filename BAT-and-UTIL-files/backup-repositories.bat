@@ -4,6 +4,7 @@
 ::::: PARAMETERS:
     unset /q BACKUPREPOSTARTER
     if "%1" eq "simultaneous" .or. "%1" eq "parallel" (set BACKUPREPOSTARTER=call startafter1secondpausewithexitafter)
+    if "%1" ne "" (goto %1)         %+ rem Quick way to pick up where we left off at a specific point
     REM call print-if-debug "BackupRepoStarter is '%BACKUPREPOSTARTER%'"
 
 
@@ -51,6 +52,7 @@
 %BACKUPREPOSTARTER% call backup-repository MP3AUX                                  MP3AUXBACKUP
 %BACKUPREPOSTARTER% call backup-repository GAMES_DEMONA                     GAMES_DEMONA_BACKUP            %+ REM added 2023/09/18
 %BACKUPREPOSTARTER% call backup-repository GAMES                                    GAMESBACKUP            %+ REM 2022/02/18 -  167G 
+:pictures
 %BACKUPREPOSTARTER% call backup-repository PICTURES                             PICTURES_BACKUP_1
 %BACKUPREPOSTARTER% call backup-repository PICTURES                             PICTURES_BACKUP_2
 %BACKUPREPOSTARTER% call backup-repository EMULATION                            EMULATIONBACKUP            %+ REM 2022/02/18 - ~850G 
