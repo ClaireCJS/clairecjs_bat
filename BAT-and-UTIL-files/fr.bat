@@ -15,6 +15,11 @@ REM NAH :PUBLISH:
 :REPLACES: OBSOLETE: c:\util\fr5 c (compiled C program I wrote in early 1990s that eventually became un-runnable on modern systems)
 :REPLACES: OBSOLETE: celmegs from celerity bbs program (mid-1980s)
 
+
+    ::::: SETUP:
+if not defined TMPTMP (SET TMPTMP="%@UNIQUE[%TEMP]-%*")
+
+
 ::::: SETUP:
     if   "%1" eq "alphabet" goto :By_Alphabet_Parameter
     if   "%1" eq "all"      goto :By_All_Parameter
@@ -27,12 +32,11 @@ REM NAH :PUBLISH:
 
 
 ::::: VALIDATION:
-    rem this goes away as we abandon having to maintain this bat file:
+    rem this goes away as we abandon having to maintain this bat file as actively:
     rem call validate-environment-variables HD128G HD240G2 HD2000G5 HD4000G HD4000G2 HD4000G5 HD4000G7 HD6000G1 HD6000G2 HD10T1 HD10T2 HD18T1 HD18T2 HD18T3
 
 
 :All_Ready_Drives
-    SET TMPTMP="%@UNIQUE[%TEMP]-%*"
     free %_DRIVES | frpost >%TMPTMP%
     cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
     goto :END
@@ -186,14 +190,17 @@ REM NAH :PUBLISH:
         goto :end
     :Goliath
         rem free %HD1000G2: %HD2000G5: %HD4000G: %HD4000G2: %HD4000G5: %HD18T2: | frpost
-        call fr %DRIVES_GOLIATH% 
+        call fr %DRIVES_GOLIATH% >%TMPTMP%
+        cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
         goto :end
     :Thailog
         rem free %HD240G2: %HD512G:  %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: | frpost
-        call fr %DRIVES_THAILOG% 
+        call fr %DRIVES_THAILOG% >%TMPTMP%
+        cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
         goto :end
     :Demona
-        call fr %DRIVES_DEMONA% 
+        call fr %DRIVES_DEMONA%  >%TMPTMP%
+        cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
         goto :end
 
 

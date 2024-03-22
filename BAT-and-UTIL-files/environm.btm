@@ -1294,7 +1294,8 @@ return
                 set               GAMESBACKUP=%GAMESBACKUPDRIVE%:\BACKUPS\games.bak
                 set        GAMES_DEMONA_DRIVE=%HD18T3%
                 set              GAMES_DEMONA=%GAMES_DEMONA_DRIVE%:\GAMES.Demona
-                set GAMES_DEMONA_BACKUP_DRIVE=%GAMESBACKUPDRIVE%
+                rem GAMES_DEMONA_BACKUP_DRIVE=%GAMESBACKUPDRIVE% - moved on 2024/03/02 when %HD6T3% [P:] got full
+                set GAMES_DEMONA_BACKUP_DRIVE=%HD10T2%
                 set       GAMES_DEMONA_BACKUP=%GAMES_DEMONA_BACKUP_DRIVE%:\BACKUPS\games.Demona.bak
                 set                BOARDGAMES=%GAMES%\BOARD GAMES
                 set           BOARDGAMESDRIVE=%GAMESDRIVE%
