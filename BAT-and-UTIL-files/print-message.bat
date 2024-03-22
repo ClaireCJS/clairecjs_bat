@@ -5,7 +5,7 @@
 REM usage call print-message MESSAGE_TYPE "message" [0|1]               - arg1=message/colorType, arg2=message, arg3=pause (1) or not (0)
 REM usage call print-message TEST                                       - to run internal test suite
 REM usage call print-message message without quotes                     - no 3rd arg of 0|1 will cause the whole line to be treated as the message
-REM                               NOTE: arg1 must match a color type i.e. "ERROR" "WARNING" "DEBUG" "SUCCESS" "IMPORTANT" "INPUT" "LESS_IMPORTANT", etc
+REM            NOTE: arg1 must match a color type i.e. "ERROR" "WARNING" "DEBUG" "SUCCESS" "IMPORTANT" "INPUT" "LESS_IMPORTANT", etc
 
 REM DEBUG:
     set DEBUG_PRINTMESSAGE=0
