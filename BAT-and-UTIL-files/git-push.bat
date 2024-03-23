@@ -1,4 +1,5 @@
 @Echo OFF
+unset /q params
 set PARAMS=%*
 set BASENAME=%@NAME[%_CWD]
 if %VALIDATED_GITPUSH ne 1 (
