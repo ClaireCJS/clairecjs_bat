@@ -17,7 +17,6 @@ REM Initialize variables
     set PARAM2=%2
     set PARAM3=%3
     set TYPE=
-    set MESSAGE=Null
     set DO_PAUSE=-666
     set OUR_COLORTOUSE=
 
@@ -27,18 +26,20 @@ REM Ensure correct environment
 REM Process parameters
     if "%PARAM1%" eq "test" (goto :TestSuite)
     if "%PARAM1%" eq "none" (goto :None     )
-    if "%PARAM3%" eq ""                     (
-            set MESSAGE=%@UNQUOTE[`%PARAMS`]``
-            if %DEBUG_PRINTMESSAGE eq 1 (%COLOR_DEBUG% %+ echo debug branch 2: message is now %MESSAGE %+ %COLOR_NORMAL%)
-            REM set TYPE=NORMAL                                         making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer's-proof things around here.
-            REM set OUR_COLORTOUSE=%COLOR_NORMAL%                       making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer's-proof things around here.
-            REM changed my mind: set DO_PAUSE=1                         we pause by default becuase calling this way means the user doesn't know what they are doing quite as well
-    )
-    if "%PARAM3%" ne ""      (set MESSAGE=%@UNQUOTE[`%PARAM2`])
+    rem if "%PARAM3%" eq ""                     (
+    rem         set MESSAGE=%@UNQUOTE[`%PARAMS`]``
+    rem         if %DEBUG_PRINTMESSAGE eq 1 (%COLOR_DEBUG% %+ echo debug branch 2: message is now %MESSAGE %+ %COLOR_NORMAL%)
+    rem         REM set TYPE=NORMAL                                         making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer's-proof things around here.
+    rem         REM set OUR_COLORTOUSE=%COLOR_NORMAL%                       making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer's-proof things around here.
+    rem         REM changed my mind: set DO_PAUSE=1                         we pause by default becuase calling this way means the user doesn't know what they are doing quite as well
+    rem )
+    set MESSAGE=Null
+                              set MESSAGE=%@UNQUOTE[`%PARAMS2`]
+    if "%PARAM3%" eq ""      (set MESSAGE=%@UNQUOTE[`%PARAM2%`])
     if "%PARAM3%" eq "1"     (set DO_PAUSE=1)
     if "%PARAM2%" eq "yes"   (set DO_PAUSE=1)                    %+ REM capture a few potential call mistakes
     if "%PARAM2%" eq "pause" (set DO_PAUSE=1)                    %+ REM capture a few potential call mistakes
-    if %DEBUG_PRINTMESSAGE% eq 1 echo debug branch 1 because %%PARAM3 is %PARAM3 - btw %%PARAM2=%PARAM2 - message is now %MESSAGE
+    if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PARAM3 is %PARAM3 - btw %%PARAM2=%PARAM2 - message is now %MESSAGE%ANSI_RESET% )
     set TYPE=%PARAM1%                                            %+ REM both the color and message type
 
 

@@ -32,6 +32,7 @@ EMOJIS_DELETE  = '👻⛔'
 EMOJIS_SUMMARY = '✔️ '
 EMOJIS_ERROR   = '🛑🛑'
 
+#Note to self: either maintain a simultaneous update of these 4 values in set-colors.bat or create env-var overrides:
 MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                                                                  #\__ range of random values we
 MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                                                                  #/   choose random colors from
 

@@ -10,6 +10,7 @@
 2023-08-26  19:25          1,074   68%  age.bat
 2022-02-02  02:53          1,574   63%  alarm-beep.bat
 2024-02-02  20:24          3,616   58%  ALIAS.LST
+2024-03-23  01:14          1,439   56%  all-ready-drives.bat
 2019-10-01  10:27            226   25%  allbmp2jpg.bat
 2023-05-19  13:46          5,373   61%  allfile2.pl
 2023-05-19  13:46            657   47%  allfilea2w.pl
@@ -83,7 +84,7 @@
 2024-03-18  17:01            310   31%  convert-each-line-to-a-dot.pl
 2023-06-02  04:02          4,440   67%  convert_midi_to_wav_with_soundfont.py
 2023-08-03  04:27             56    4%  copy-alias.bat
-2024-03-20  00:58         10,736   73%  copy-move-post.py
+2024-03-22  23:53         11,777   72%  copy-move-post.py
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
 2023-06-07  04:46         61,308   71%  cover_downloader.py
@@ -96,7 +97,7 @@
 2023-07-04  17:17            290   35%  crop-center-square-of-image.bat
 2019-10-01  10:27            195   49%  cut.bat
 2019-10-01  10:27             25   -8%  d20.bat
-2023-05-29  18:31             44   -4%  debug.bat
+2024-03-23  01:03             43   -4%  debug.bat
 2023-05-30  11:25             29   -6%  debugEcho.bat
 2023-10-14  02:33            197   29%  del-FLACs-if-mp3s-exist.bat
 2023-10-14  02:46            195   27%  del-WAVs-if-mp3s-exist.bat
@@ -138,10 +139,10 @@
 2023-07-16  13:29         10,912   75%  edit-currently-playing-attrib.bat
 2023-09-15  12:27          3,399   66%  editGrep.bat
 2023-10-06  05:33          1,701   57%  emoji-search.bat
-2024-03-19  13:24         69,311   78%  emoji.env
+2024-03-23  01:18         69,615   78%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-03-20  23:50        170,832   81%  environm.btm
+2024-03-22  21:54        171,035   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -321,7 +322,7 @@
 2024-03-13  12:40             82   43%  prompt-sound.bat
 2019-10-01  10:28             33   10%  prompt-work.bat
 2023-06-01  01:48             19  -10%  push.bat
-2023-08-03  16:11          2,921   63%  put.bat
+2024-03-23  00:25          2,923   61%  put.bat
 2023-11-15  15:32          2,229   60%  py.spec2exe.bat
 2023-05-20  00:22            146   20%  py2exe-create-spec-file.bat
 2023-11-15  13:15            583   46%  py2exe.bat
@@ -360,6 +361,7 @@
 2022-03-13  19:26          3,560   74%  rotate-video.bat
 2023-11-09  07:42            589   49%  save-window-positions.bat
 2023-05-30  11:25            999   57%  say.bat
+2024-03-23  00:42            163   21%  scream.bat
 2019-10-01  10:28            831   48%  select-random-lines-from.pl
 2023-06-13  16:06             57    0%  send-keypress-alt_down.ahk
 2023-06-08  21:39             61    4%  send-keypress-alt_left.ahk
@@ -367,7 +369,7 @@
 2023-06-13  16:06             57    0%  send-keypress-alt_up.ahk
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
-2024-03-19  12:39         25,920   81%  set-colors.bat
+2024-03-23  00:25         31,196   82%  set-colors.bat
 2024-03-13  13:45          6,083   63%  set-emojis.bat
 2023-06-08  08:06          1,793   70%  set-file-age.bat
 2023-05-30  00:32          1,398   58%  set-first-file.bat
@@ -441,7 +443,7 @@
 2019-10-01  10:28            335   40%  usb-remove-safely.bat
 2024-03-18  09:00            216   28%  validate-ahk.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
-2024-03-18  21:17         15,106   76%  validate-environment-variable.bat
+2024-03-23  00:56         14,083   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
 2024-03-20  11:59          2,171   62%  validate-file-extension.bat
 2023-08-12  20:18          1,438   56%  validate-in-path.bat

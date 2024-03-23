@@ -188,19 +188,11 @@ goto :Past_The_End_Of_The_Sub-Routines
 
         ::::: ADDITIONALLY, VALIDATE THAT IT EXISTS, IF IT SEEMS TO BE POINTING TO A FOLDER/FILE:
             :Defined_YES
-            set VARVALUE=%[%VARNAME%]                        %+ if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
+            set VARVALUE=%[%VARNAME%]``                      %+ if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
             set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])       %+ set IS_FILE_LOCATION=0
-
-            REM 20230825: i think we don't need to deal with car/nocar if the carrot is in quotes. Response to unrealted situation at: https://jpsoft.com/forums/threads/echo-rainbow-bat-rainbow-ize-any-message.11625/#post-66494
-            REM call   car >nul                                                                              %+ rem //Turn off the carat command-line separator so we can use it in regular expressions
-            REM 1" eq "%@REGEX[^.?[A-Z]:,%@UPPER[%VARVALUE%]]" (set IS_FILE_LOCATION=1)                      BUG! was matching MAC addresses haha
-            REM 1" eq "%@REGEX[%=^[A-Z]:,%@UPPER[%VARVALUE%]]" (set IS_FILE_LOCATION=1)
             setdos /x-5
             if "1" eq   "%@REGEX[^[A-Z]:,%@UPPER[%VARVALUE%]]" (set IS_FILE_LOCATION=1)
             setdos /x0
-            REM ON WINDOWS 10 AS OF 20220126 THIS CREATES PROBLEMS: call print-if-debug %DEBUGPREFIX%REGEXTEXT IS "%@REGEX[^[A-Z]:,%@UPPER[%VARVALUE%]]"
-            REM call nocar >nul                                                                              %+ rem //Turn on  the carat command-line separator so we can use it in our normal fasion
-
             if  "0" eq "%IS_FILE_LOCATION%"         (goto :DontValidateIfExists)
             if  "0" eq "%@READY[%VARVALUEDRIVE%]"   (goto :DontValidateIfExists)                         %+ rem //Don't look for if drive letter doesn't exist--it's SLOWWWWW
             if   1  eq  %SKIP_VALIDATION_EXISTENCE% (goto :DontValidateIfExists)                         %+ rem //Don't look for if we want to validate the variable only

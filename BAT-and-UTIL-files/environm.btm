@@ -866,6 +866,7 @@ return
         if %EMOJIS_HAVE_BEEN_SET ne 1 .or. "%1" eq "force" (call c:\bat\set-emojis force)
 
 
+
     ::::: MACHINE-SPECIFIC EMOJI:                             ::: ALIASES:                                                                     (Consider: When new computer is added:)
         set MACHINE_EMOJI_GOLIATH=%EMOJI_BAT%            %+   set EMOJI_MACHINE_GOLIATH=%MACHINE_EMOJI_GOLIATH%
         set MACHINE_EMOJI_DEMONA=%EMOJI_DEVIL_FACE%      %+   set EMOJI_MACHINE_DEMONA=%MACHINE_EMOJI_DEMONA%
@@ -2363,7 +2364,8 @@ return
     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     :FinalValidations
         if "%FINAL_VALIDATIONS_RUN" eq "1" goto :FinalValidationsDone
-            call validate-environment-variables GATEWAY OS_USERNAME
+            if not defined STAR (set STAR=*) %+ rem Star is just a choice of asterisk. In our case we use 🌟 which is more easily noticeable in console output. This is defined in set-emoji.bat
+            call validate-environment-variables GATEWAY OS_USERNAME STAR
             set FINAL_VALIDATIONS_RUN=1
         :FinalValidationsDone
     return

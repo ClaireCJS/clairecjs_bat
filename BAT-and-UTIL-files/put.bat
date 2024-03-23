@@ -21,10 +21,10 @@
 			                   echo So far, this only works on folders. So "%1" would have to be a folder.
 		goto :END
         :NoArg2
-            %COLOR_WARNING% %+ echo Must pass 2 arguments. 2nd must be destination folder.
+            call warning "Must pass 2 arguments. 2nd must be destination folder."
         goto :END
         :NoExistArg2
-            %COLOR_WARNING% %+ echo Destination folder of %2 must exist.
+            call warning "Destination folder of '%2' must exist."
         goto :END
 
 
@@ -62,7 +62,8 @@ if isdir "%TARGET" goto :TargetExists_YES
 	:TargetExists_NO
 		echo. %+ echo. %+ echo. %+ %COLOR_NORMAL%
 		dir "%TARGET"
-        %COLOR_WARNING% %+ echo. %+ echo * Oops! Target %TARGET% does not exist! Not sure what to do.
+        echo. 
+        call warning "Oops! Target %TARGET% does not exist! Not sure what to do."
 		goto :END
 	:TargetExists_YES
 
@@ -70,10 +71,10 @@ if isdir "%TARGET" goto :TargetExists_YES
 	set TARGETNOQUOTES=%@STRIP[%=",%TARGET]
     set     UNDOCOMMAND=%MOVE_COMMAND% "%TARGETNOQUOTES%\%TARGETDIR%"  %SOURCE% 
     set     REDOCOMMAND=%MOVE_COMMAND%  %SOURCE%  "%TARGETNOQUOTES%\%TARGETDIR%"
-    %COLOR_DEBUG% %+  echo. %+ echo. %+ echo * Ready to: %REDOCOMMAND% %+ %COLOR_NORMAL%
+    %COLOR_DEBUG% %+  echo. %+ echo. %+ echo %STAR% Ready to: %REDOCOMMAND% %+ %COLOR_NORMAL%
 	if "%CONFIRM%" eq "1" .or. "%DEBUG%" eq "1" (%COLOR_IMPORTANT% %+ pause)
     %COLOR_SUCCESS%
-	echo y|%REDOCOMMAND% | copy-move-post
+	(echo y| %REDOCOMMAND%) |& copy-move-post 
     %COLOR_NORMAL%
 
 ::::: ENSURE ORIGINAL SOURCE IS GONE, IF NOT, TRY AGAIN AND/OR WARN:
@@ -81,7 +82,7 @@ if isdir "%TARGET" goto :TargetExists_YES
 	if isdir %SOURCE (rmdir %SOURCE)
 	if isdir %SOURCE (if exist "%SOURCENOQUOTES\Thumbs.db" (*del /z "%SOURCE\thumbs.db"))
 	if isdir %SOURCE (rmdir %SOURCE)
-	if isdir %SOURCE (%COLOR_WARNING% %+ echo WARNING: %1 still exists -- rmdir "%1" failed %+ %COLOR_NORMAL%)
+	if isdir %SOURCE (call warning "%1 still exists —— %emphasis%rmdir '%1'%deemphasis% %BLINK_ON%failed%BLINK_OFF%!")
 	goto :END
 
 
