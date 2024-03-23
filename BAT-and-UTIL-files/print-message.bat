@@ -11,11 +11,11 @@ REM DEBUG:
     set DEBUG_PRINTMESSAGE=0
 
 REM Initialize variables
-    set PARAMS=%*
-    set PARAMS2=%2$
-    set PARAM1=%1
-    set PARAM2=%2
-    set PARAM3=%3
+    set PM_PARAMS=%*
+    set PM_PARAMS2=%2$
+    set PM_PARAM1=%1
+    set PM_PARAM2=%2
+    set PM_PARAM3=%3
     set TYPE=
     set DO_PAUSE=-666
     set OUR_COLORTOUSE=
@@ -24,37 +24,37 @@ REM Ensure correct environment
     setdos /x0
 
 REM Process parameters
-    if "%PARAM1%" eq "test" (goto :TestSuite)
-    if "%PARAM1%" eq "none" (goto :None     )
-    rem if "%PARAM3%" eq ""                     (
-    rem         set MESSAGE=%@UNQUOTE[`%PARAMS`]``
+    if "%PM_PARAM1%" eq "test" (goto :TestSuite)
+    if "%PM_PARAM1%" eq "none" (goto :None     )
+    rem if "%PM_PARAM3%" eq ""                     (
+    rem         set MESSAGE=%@UNQUOTE[`%PM_PARAMS`]``
     rem         if %DEBUG_PRINTMESSAGE eq 1 (%COLOR_DEBUG% %+ echo debug branch 2: message is now %MESSAGE %+ %COLOR_NORMAL%)
     rem         REM set TYPE=NORMAL                                         making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer's-proof things around here.
     rem         REM set OUR_COLORTOUSE=%COLOR_NORMAL%                       making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer's-proof things around here.
     rem         REM changed my mind: set DO_PAUSE=1                         we pause by default becuase calling this way means the user doesn't know what they are doing quite as well
     rem )
     set MESSAGE=Null
-                              set MESSAGE=%@UNQUOTE[`%PARAMS2`]
-    if "%PARAM3%" eq ""      (set MESSAGE=%@UNQUOTE[`%PARAM2%`])
-    if "%PARAM3%" eq "1"     (set DO_PAUSE=1)
-    if "%PARAM2%" eq "yes"   (set DO_PAUSE=1)                    %+ REM capture a few potential call mistakes
-    if "%PARAM2%" eq "pause" (set DO_PAUSE=1)                    %+ REM capture a few potential call mistakes
-    if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PARAM3 is %PARAM3 - btw %%PARAM2=%PARAM2 - message is now %MESSAGE%ANSI_RESET% )
-    set TYPE=%PARAM1%                                            %+ REM both the color and message type
+                                 set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]
+    if "%PM_PARAM3%" eq ""      (set MESSAGE=%@UNQUOTE[`%PM_PARAM2%`])
+    if "%PM_PARAM3%" eq "1"     (set DO_PAUSE=1)
+    if "%PM_PARAM2%" eq "yes"   (set DO_PAUSE=1)                    %+ REM capture a few potential call mistakes
+    if "%PM_PARAM2%" eq "pause" (set DO_PAUSE=1)                    %+ REM capture a few potential call mistakes
+    if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% )
+    set TYPE=%PM_PARAM1%                                            %+ REM both the color and message type
 
 
     if %DEBUG_PRINTMESSAGE% eq 1 (echo DEBUG: TYPE=%TYPE%,DO_PAUSE=%DO_PAUSE%,MESSAGE=%MESSAGE%)
     if defined COLOR_%TYPE% (set OUR_COLORTOUSE=%[COLOR_%TYPE%])
     if not defined OUR_COLORTOUSE  (
-        if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG% %RED_FLAG% Oops! Let's try setting OUR_COLORTOUSE to %%COLOR_%@UPPER[%PARAM1])
-        set TYPE=%PARAM1%
+        if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG% %RED_FLAG% Oops! Let's try setting OUR_COLORTOUSE to %%COLOR_%@UPPER[%PM_PARAM1])
+        set TYPE=%PM_PARAM1%
         set OUR_COLORKEY=COLOR_%TYPE%
         if %DEBUG_PRINTMESSAGE eq 1 (
             echo colorkey is ``%OUR_COLORKEY%
             echo     next is %[%OUR_COLORKEY%]
         )
         set OUR_COLORTOUSE=%[%OUR_COLORKEY%]
-        set MESSAGE=%@UNQUOTE[`%PARAMS2`]
+        set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]
     )
     if %DEBUG_PRINTMESSAGE eq 1 (echo TYPE=%TYPE% OUR_COLORTOUSE=%OUR_COLORTOUSE% DO_PAUSE=%DO_PAUSE% MESSAGE is: %MESSAGE% )
 
