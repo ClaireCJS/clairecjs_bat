@@ -44,8 +44,8 @@ goto :END
 
             if "%@READY[%letter%]" ne "1" goto :Drive_Not_Ready
                 echo %STAR% Doing drive letter %DRIVE_LETTER_PRETTY%... 
-                title Doing %letter%: -- %COMMAND% -- (remember: DRIVE_LETTER will be substituted with the drive letter of each and every available drive in this situation)
                 set FIXED_COMMAND=%@REPLACE[DRIVE_LETTER,%letter,%COMMAND]
+                title Doing %letter%: -- %FIXED_COMMAND% 
 
                 rem call debug "cmd=%COMMAND%%NEWLINE%         fix=%FIXED_COMMAND%%NEWLINE%"                   
                 rem echo WOULD DO: FIXED_COMMAND=%FIXED_COMMAND%
