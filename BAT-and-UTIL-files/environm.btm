@@ -899,7 +899,7 @@ return
 		::::: 2010s STUFF:
             ::::: ALPHABET/LETTER HARD-CODINGS, FOR REASONS:
                 SET THE_ALPHABET=A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-                SET THE_ALPHABET_BY_DRIVE_PRIORITY=M I X Y E C D F H K L Q R S T U V W J P G N O A B Z
+                SET THE_ALPHABET_BY_DRIVE_PRIORITY=S F D M I X Y E C H K L Q R T U V W J P G N O A B Z
                 SET THE_LETTER_C=C                    %+ rem Do not change. Necessary in situations where we have to pass environment variable names and just want to pass a C. It happens.
 
 return
