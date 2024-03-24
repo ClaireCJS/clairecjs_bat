@@ -1,5 +1,6 @@
 #!/usr/local/bin/perl
 
+
 use   MP3::Info;
 #se Video::Info;								#deprecated: 2000-2011 - install Video::Info::Magic perhaps
 use Video::Info::Magic;					        #202306 demona fix attempt
@@ -70,9 +71,50 @@ my $numAudioFiles=0;
 my %NamesUsed=();
 my %NUM_FILES_BY_EXTENSION=();
 my @FILENUM_ALREADY_BASERENAMED=();
+my $REMOVE_PARENT_FOLDER_NAME_FROM_FILENAME=0; 
+my $REMOVE_GRANDPARENT_FOLDER_NAME_FROM_FILENAME=0; 
+my $parent_dir="";
+my $parent_dir_without_year="";
+my $grandparent_dir="";
 
 
-if ($DEBUG_CURDIR) { print "==> curdir = $curdir\n"; }
+
+if ($ENV{"REMOVE_ARTIST_ALBUM_FROM_FILENAME_MODE"} == 1) {						#2024 behavior added
+	     $REMOVE_PARENT_FOLDER_NAME_FROM_FILENAME=1; 
+	$REMOVE_GRANDPARENT_FOLDER_NAME_FROM_FILENAME=1; 
+
+	(@segs) = split (/[\\\/]/,$curdir);										    #split current folder into segments
+		 $parent_dir = $segs[@segs-1];
+	$grandparent_dir = $segs[@segs-2];
+
+	$parent_dir_without_year = $parent_dir;
+	$parent_dir_without_year =~ s/^[12]\d\d\d\s?\-?\s?//;
+
+	if (0) {																	#just some debug stuff, do not rename files with this on ever
+		print "echo !!!!! curdir = $curdir \n"; 
+		print "echo !!!!!   segs = @segs   \n"; 
+		print "echo !!!!!     gp = $grandparent_dir \n"; 
+		print "echo !!!!!      p = $parent_dir      \n"; 
+
+
+		print "echo !!!!! curdir = $curdir \n"; 
+		$test1 = $curdir;
+		$test1 =~ s/$parent_dir//ig;
+		print "echo !!!!!  test1 = $test1      \n"; 
+
+		$test2 = $curdir;
+		$test2 =~ s/$grandparent_dir//ig;
+		print "echo !!!!!  test2 = $test2      \n"; 
+
+		$test3 = $curdir;
+		$test3 =~ s/$parent_dir//ig;
+		$test3 =~ s/$grandparent_dir//ig;
+		print "echo !!!!!  test3 = $test3      \n"; 
+	}
+
+}
+
+if ($DEBUG_CURDIR) { print "echo !!!!! curdir = $curdir\n"; }
 ##### MAKE SOME DETEMRINATIONS REGARDING IMAGE-MODE:
 my $CAMERA_FILENAME_PREFIX="";
 if (
@@ -111,7 +153,7 @@ if (
 
 
 
-##### READ IN THE NAMES OF THE FILES WE PLAN ON RENAMING:
+##### READ THE NAMES OF THE FILES WE PLAN ON RENAMING INTO OUR PROCESSING ARRAYS:
 my $file="";
 my $filebase="";
 my @ORIGINAL_FILENAMES=();
@@ -123,13 +165,13 @@ open(NEWNAMES,"$ARGV[0]");          ##### 1st file, $tmp1, the   new    filename
 		$filebase = &remove_extension($filename);
 		push(@LINES,$filename); 
 		$ORIGINAL_FILENAMES{$fileNumber}= $filename;
-		$ORIGINAL_FILEBASES{$fileNumber}= $filebase;														#DEBUG#if (1) { print "==> \$ORIGINAL_FILEBASES{filenum=$fileNumber=$filename}='$filebase'\n"; }
+		$ORIGINAL_FILEBASES{$fileNumber}= $filebase;														#DEBUG#if (1) { print "echo !!!!! \$ORIGINAL_FILEBASES{filenum=$fileNumber=$filename}='$filebase'\n"; }
 		$BASE_RENAMINGS{$filebase}        = uc($filebase);
 		$FILENAMES{$filename}             = "1";
 		$FILEBASES{$filebase}             = "1";
 		#DEBUG: print "[filenoext=$fileNoExt]\n";
 	}
-close(NEWNAMES); ##### #wasn't that easy?. NO!
+close(NEWNAMES); 
 my $numFiles=@LINES;
 
 ##### RUN EACH FILE THROUGH THE RENAMING ENGINE:
@@ -265,8 +307,18 @@ foreach $filename (@LINES) {
 		$filename =~ s/^[^\-]+ - [^\-]+ - ([a-z]+\.[a-z][a-z][a-z])/$1/;
 	}
 
+
+	##### 2024/03/24 - adding peeling off album/artist from filename based on grand/parent foldernames:
+	if (0) {			#debug
+			print "***** parent_dir=$parent_dir *****\n";#goat
+			print "***** parent_dir_without_year=$parent_dir_without_year *****\n";#goat
+	}
+	if (     $REMOVE_PARENT_FOLDER_NAME_FROM_FILENAME) { $filename =~      s/$parent_dir\s?-?\s?//i; } 
+	if (     $REMOVE_PARENT_FOLDER_NAME_FROM_FILENAME) { $filename =~      s/$parent_dir_without_year\s?-?\s?//i; } 
+	if ($REMOVE_GRANDPARENT_FOLDER_NAME_FROM_FILENAME) { $filename =~ s/$grandparent_dir\s?-?\s?//i; } 
+
+
 	#$filename =~ s/�/'/g;			#Noo!!! perl doesn't like the apostrophe just appearing raw like that in here!
-	#GOAT 
 	$filename =~ s/\x{2019}/'/g;	#Yes!!! Defeat the evil Al Queda apostrophes, as we used to call them at an old job
 	#use Unicode::UTF8 qw[decode_utf8 encode_utf8];
 	#$filename = decode_utf8($filename);
@@ -1090,12 +1142,12 @@ foreach $filename (@LINES) {
 	}	#endif $isVideo
 
 
-	#print "==> currentNewName is $filename \n";
+	#print "echo !!!!! currentNewName is $filename \n";
     if ($filename =~ /(\([^\)]* - )(just the [a-z\s]+\))/i)
     {
         my $lcd2 = lc($2);
         my $new = "$1$lcd2";
-        #print "==> \$1/\$2 is $1/$2, while \$lcd2 is $lcd2\n==> new is $new\n";
+        #print "echo !!!!! \$1/\$2 is $1/$2, while \$lcd2 is $lcd2\necho !!!!! new is $new\n";
         $filename =~ s/$1$2/$new/;
     }#endif
 
@@ -2044,8 +2096,10 @@ if (($BITRATES_ALL_THE_SAME==1) && ($FREQUENCIES_ALL_THE_SAME) && ($CHANNELS_ALL
 	}
 
 	##### Actually add (or not, if it's already there) the zero byte file indicating our bitrate/source info:
-	if (-e $filenameNoteFilename) {
-		print "***** NOT ADDING ZERO-BYTE FILE BECAUSE IT ALREADY EXISTS: $filenameNoteFilename\n";
+	if ("" == $filenameNoteFilename) {
+		print "***** NOT ADDING ZERO-BYTE FILE BECAUSE WE HAVE NONE TO ADD *****\n";
+	} elsif (-e $filenameNoteFilename) {
+		print "***** NOT ADDING ZERO-BYTE FILE BECAUSE IT ALREADY EXISTS: $filenameNoteFilename ***\n";
 	} else {
 		print "***** ADDING ZERO-BYTE FILE: ******     $filenameNoteFilename\n";
 		open (ZEROBYTEFILE,">$filenameNoteFilename");

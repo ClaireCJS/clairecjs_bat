@@ -114,7 +114,9 @@ while (<NEWNAMES>) {
 		#UNICODE:
 		#rint "set OLDNAME=\"$currentOldName\"\n";
 		#print "set NEWNAME=\"$currentNewName\"\n";
-        print "            if exist \"\%NEWNAME\%\" .and. \"\%NEWNAME\%\" ne \"\%OLDNAME\%\" (echo WARNING! NEWNAME OF %NEWNAME% ALREADY EXISTS! CHOOSE NEW NAME! %+ beep %+ beep %+ window maximize %+ eset NEWNAME %+ pause)\n";
+        print "            if exist \"\%NEWNAME\%\" .and. \"\%NEWNAME\%\" ne \"\%OLDNAME\%\" (echo %ANSI_COLOR_WARNING%WARNING! NEWNAME OF %BLINK_ON%%NEWNAME%%BLINK_OFF% ALREADY EXISTS! CHOOSE NEW NAME! %+ beep %+ beep %+ ";
+		#no longer doing this with advent of windows terminal: print "window maximize %+ "
+		print "eset NEWNAME %+ pause)\n";
         print "            if exist \"\%OLDNAME\%\" .and. not exist \"\%NEWNAME\%\" move /r /g "." \"\%OLDNAME\%\" \"\%TMPNAME\"\n";
         print "            if                             not exist \"\%NEWNAME\%\" move /r /g ". "  \%TMPNAME\%   \"\%NEWNAME\%\"\n";
 

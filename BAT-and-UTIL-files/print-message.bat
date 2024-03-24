@@ -2,10 +2,11 @@
 
 :REQUIRES: set-colors.bat (to define certain environment variables that represent ANSI character control sequences)
 
-REM usage call print-message MESSAGE_TYPE "message" [0|1]               - arg1=message/colorType, arg2=message, arg3=pause (1) or not (0)
-REM usage call print-message TEST                                       - to run internal test suite
-REM usage call print-message message without quotes                     - no 3rd arg of 0|1 will cause the whole line to be treated as the message
-REM            NOTE: arg1 must match a color type i.e. "ERROR" "WARNING" "DEBUG" "SUCCESS" "IMPORTANT" "INPUT" "LESS_IMPORTANT", etc
+:USAGE: call print-message MESSAGE_TYPE "message" [0|1]               - arg1=message/colorType, arg2=message, arg3=pause (1) or not (0)
+:USAGE: call print-message TEST                                       - to run internal test suite
+:USAGE: call print-message message without quotes                     - no 3rd arg of 0|1 will cause the whole line to be treated as the message
+:USAGE: NOTE: arg1 must match a color type i.e. "ERROR" "WARNING" "DEBUG" "SUCCESS" "IMPORTANT" "INPUT" "LESS_IMPORTANT", etc
+:USAGE: ALSO: can set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1 to suppress audio effects. Must be set each call.
 
 REM DEBUG:
     set DEBUG_PRINTMESSAGE=0
@@ -118,8 +119,10 @@ REM Update the window title, with its own independent decorators
     if "%TYPE%" eq    "FATAL_ERROR" (set TITLE=!!!! FATAL ERROR: %title% !!!!)
 
 REM Pre-message beep based on message type
-    if "%TYPE%" eq "DEBUG"  (beep  lowest 1)
-    if "%TYPE%" eq "ADVICE" (beep highest 3)
+    if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO eq 1 (goto :No_Beeps_1)
+        if "%TYPE%" eq "DEBUG"  (beep  lowest 1)
+        if "%TYPE%" eq "ADVICE" (beep highest 3)
+    :No_Beeps_1
 
 REM Pre-Message pause based on message type
         if %DO_PAUSE% eq 1 (echo.)                                                                                                     %+ REM pausable messages need a litle visual cushion
@@ -196,27 +199,29 @@ REM Post-message delays and pauses
         if "%TYPE%" eq "FATAL_ERROR"                    (set DO_PAUSE=2)
 
 REM Post-message beeps and sound effects
-        if "%TYPE%" eq "CELEBRATION" .or. "%TYPE%" eq "COMPLETION" (beep exclamation)
-        if "%TYPE%" eq "ERROR" .or. "%TYPE%" eq "ALARM"   (
-            beep 145 1 
-            beep 120 1 
-            beep 100 1 
-            beep  80 1 
-            beep  65 1 
-            beep  50 1 
-            beep  40 1 
-            beep hand
-        )         
-        if "%TYPE%" eq "WARNING" (
-            *beep 60 1 
-            *beep 69 1        
-            REM beep hand was overkil
-            beep question
-        )                                                                                                                              
-        if "%TYPE%" eq "FATAL_ERROR" (
-            for %alarmNum in (1 2 3) do (beep %+ beep 145 1 %+ beep 120 1 %+ beep 100 1 %+ beep 80 1 %+ beep 65 1 %+ beep 50 1 %+ beep 40 1)
-            beep hand
-         )        
+        if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO eq 1 (goto :No_Beeps_2)
+            if "%TYPE%" eq "CELEBRATION" .or. "%TYPE%" eq "COMPLETION" (beep exclamation)
+            if "%TYPE%" eq "ERROR" .or. "%TYPE%" eq "ALARM"   (
+                beep 145 1 
+                beep 120 1 
+                beep 100 1 
+                beep  80 1 
+                beep  65 1 
+                beep  50 1 
+                beep  40 1 
+                beep hand
+            )         
+            if "%TYPE%" eq "WARNING" (
+                *beep 60 1 
+                *beep 69 1        
+                REM beep hand was overkil
+                beep question
+            )                                                                                                                              
+            if "%TYPE%" eq "FATAL_ERROR" (
+                for %alarmNum in (1 2 3) do (beep %+ beep 145 1 %+ beep 120 1 %+ beep 100 1 %+ beep 80 1 %+ beep 65 1 %+ beep 50 1 %+ beep 40 1)
+                beep hand
+             )        
+        :No_Beeps_2
 
     REM Do delay:
         if %DO_DELAY gt 0 (delay %DO_DELAY)
@@ -268,4 +273,5 @@ goto :END
 :END
 
 
+if defined PRINTMESSAGE_OPT_SUPPRESS_AUDIO (set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=)
 

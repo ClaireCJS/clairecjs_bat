@@ -136,7 +136,7 @@ rem ANSI: colors
             set MAX_RGB_VALUE_BG=40
             rem but for my command line general usage i noticed i want the backgrounds to be a bit brighter, lol: 
             rem           (make sure it's not possible for these values to exceed 255)
-                set EMPHASIS_BG_EXPANSION_FACTOR=1.8
+                set EMPHASIS_BG_EXPANSION_FACTOR=1.4
                 set MIN_RGB_VALUE_BG=%@FLOOR[%@EVAL[%MIN_RGB_VALUE_BG*%EMPHASIS_BG_EXPANSION_FACTOR%]]
                 Set MAX_RGB_VALUE_BG=%@FLOOR[%@EVAL[%MAX_RGB_VALUE_BG*%EMPHASIS_BG_EXPANSION_FACTOR%]]
 

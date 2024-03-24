@@ -1,11 +1,11 @@
 @Echo Off
- call environm %+ REM this one doesn't seem to hang on stale command lines for some reason
- setdos /X0
 
-:::::::::::::: BIG PLAN: ADD REVERT ACTION.
+
+
+
+:::::::::::::: POSSIBLE PLAN: ADD REVERT ACTION.
 :::::::::::::: SIMPLY PIPE TO FILTERSCRIPT TWICE, BUT SECOND TIME PASS AN ARG OR ENVVAR FOR REVERSING IT
 :::::::::::::: ALLFILE1.PL  OR WHATEVER would simply check this and invert itself.
-
 
 
 :::::::::::::: **** set SWEEPING=1         --- suppresses pauses
@@ -43,17 +43,22 @@
     :: USAGE: allfiles mp32wav       --- to create script using mp32wav.bat - USE GENERALLY SUPERSECED BY EXTRACT-ALL-WAVS.BAT
     :: USAGE: allfiles mpc2wav       --- to create script using mpc2wav.bat - USE GENERALLY SUPERSECED BY EXTRACT-ALL-WAVS.BAT
 
-::::: These need to be defined if not already.  For me, perl.exe is
-::::: already in my path so I don't need to specify it's directory,
-::::: but most people probably would have to:
 
-     if "%BAT"    == "" SET    BAT=c:\bat
-     if "%PERL"   == "" SET   PERL=perl
-    :if "%EDITOR" == "" SET EDITOR=notepad
+rem Environment validation
+         call environm %+ REM this one doesn't seem to hang on stale command lines for some reason
+         setdos /X0
 
+        ::::: These need to be defined if not already.  For me, perl.exe is
+        ::::: already in my path so I don't need to specify it's directory,
+        ::::: but some people may need to:
+             if "%BAT"    == "" SET    BAT=c:\bat
+             if "%PERL"   == "" SET   PERL=perl
+            :if "%EDITOR" == "" SET EDITOR=notepad
+            call validate-environment-variables  PERL  BAT EDITOR 
+            call validate-in-path               %PERL%
 
 :ErrorCheck
-    call setDrive
+    call set-drive-related-environment-variables
    if "%[%DRIVEHD%_SSD]" eq "1" goto :ssdwarn_yes
                                 goto :ssdwarn_no
                 :ssdwarn_yes
@@ -171,17 +176,26 @@ goto :END
 goto :END
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-:::::::::::::::::::::::::::::::::::::::::::
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :allfiles_mv_prescrub
     set VALIDATE_LINES=1
-    : This prescrub does things like removes underscores, capitalizes each word
+
+
+
+    rem This prescrub does things like removes underscores, capitalizes each word 
+    rem THIS IS THE MEAT! 99% OF THE TIME WE CAL THIS SCRIPT, THIS IS WHAT WE'RE DOING:
     set FILTERSCRIPT=%BAT%\allfilesmv.pl
 
-    if "%HYPHENSWAP%" eq "1" set FILTERSCRIPT=%BAT%\allfilesHyphenswap.pl
+  
+    rem If our task is simply swapping what's before/after hyphens in filenames, change the filterscript accordingly:
+    if "%HYPHENSWAP%" eq "1" (set FILTERSCRIPT=%BAT%\allfilesHyphenswap.pl)
 
-    : This encourages development:
+    rem This encourages development:
     if "%@UPPER[%USERNAME%]" ne "CAROLYN" .and. "%SWEEPING%" ne "1" .and. "%ALLFILESNOSCRIPTEDIT%" ne "1" call editplus %FILTERSCRIPT%
 goto :do_prescrub
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
 :::::::::::::::::::::::::::::::::::::::::::
 :allfiles_exif_prescrub
     set VALIDATE_LINES=1
