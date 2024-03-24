@@ -8,6 +8,7 @@ rem Check invocation
             echo :USAGE:    Also: can set DRIVE_LETTERS_TO_USE=L M N O P    .... in order to only use certain letters or control the order. Must set it each call.
             echo :USAGE:                                                    .... [But you don't generally need to worry about this because it uses %%THE_ALPHABET_BY_DRIVE_PRIORITY%% internally]
             echo :USAGE:    Also: can set OPTION_SKIP_SAME_C=1              .... to make it not apply to any drive letter that is the same as the current computer's C: drive
+            echo :USAGE:    Also: can set OPTION_ECHO_RAYRAY=1              .... to echo 'rayrayrayray' to our command ... needed for overwriting on copies
 
             call scream
             goto :END
@@ -51,7 +52,8 @@ goto :END
                 rem echo WOULD DO: FIXED_COMMAND=%FIXED_COMMAND%
 
                 rem Actually do it:
-                        %FIXED_COMMAND%
+                        if %OPTION_ECHO_RAYRAY eq 1 (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%)
+                        if %OPTION_ECHO_RAYRAY ne 1 (%FIXED_COMMAND%)
             :Drive_Not_Ready
             :End_Of_For_Loop
         return
@@ -61,4 +63,4 @@ goto :END
 
 rem Cleanup
         if defined DRIVE_LETTERS_TO_USE (unset /q DRIVE_LETTERS_TO_USE)
-        if defined OPTION_SKIP_SAME_C   (unset /q OPTION_SKIP_SAME_C)
+        if defined OPTION_SKIP_SAME_C   (unset /q OPTION_SKIP_SAME_C  )

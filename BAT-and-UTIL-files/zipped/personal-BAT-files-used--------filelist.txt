@@ -10,8 +10,8 @@
 2023-08-26  19:25          1,074   68%  age.bat
 2022-02-02  02:53          1,574   63%  alarm-beep.bat
 2024-02-02  20:24          3,616   58%  ALIAS.LST
-2024-03-23  01:14          1,439   56%  all-ready-drives.bat
-2019-10-01  10:27            226   25%  allbmp2jpg.bat
+2024-03-24  12:40          4,059   66%  all-ready-drives.bat
+2024-03-24  19:07            238   24%  allbmp2jpg.bat
 2023-05-19  13:46          5,373   61%  allfile2.pl
 2023-05-19  13:46            657   47%  allfilea2w.pl
 2023-10-03  20:28         10,985   64%  allfileexif.pl
@@ -84,7 +84,7 @@
 2024-03-18  17:01            310   31%  convert-each-line-to-a-dot.pl
 2023-06-02  04:02          4,440   67%  convert_midi_to_wav_with_soundfont.py
 2023-08-03  04:27             56    4%  copy-alias.bat
-2024-03-22  23:53         11,777   72%  copy-move-post.py
+2024-03-24  18:46         12,021   72%  copy-move-post.py
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
 2023-06-07  04:46         61,308   71%  cover_downloader.py
@@ -97,6 +97,8 @@
 2023-07-04  17:17            290   35%  crop-center-square-of-image.bat
 2019-10-01  10:27            195   49%  cut.bat
 2019-10-01  10:27             25   -8%  d20.bat
+2019-10-01  10:27             41   -4%  DataExecutionPrevention-turn-off.bat
+2019-10-01  10:27             40   -5%  DataExecutionPrevention-turn-on.bat
 2024-03-23  01:03             43   -4%  debug.bat
 2023-05-30  11:25             29   -6%  debugEcho.bat
 2023-10-14  02:33            197   29%  del-FLACs-if-mp3s-exist.bat
@@ -107,6 +109,14 @@
 2023-10-06  08:29            252   28%  delete-WAVs-if-MP3s-exist.bat
 2023-07-16  13:40            602   50%  delete-zero-byte-files.bat
 2024-03-19  18:01          1,054   59%  deltree.bat
+2019-10-01  10:27             23    5%  dep-all.bat
+2022-11-16  20:44            144   21%  dep-MP3s-if-FLACs-exist.bat
+2024-03-24  19:13             47    3%  dep-off.bat
+2024-03-24  19:14             46    3%  dep-on.bat
+2024-03-24  19:08             18  -11%  dep.bat
+2019-10-01  10:27             32   -6%  deprecate-all.bat
+2024-03-24  19:10          1,162   59%  deprecate.bat
+2019-10-01  10:27             20  -10%  deprecated.bat
 2023-07-17  09:31          2,991   61%  detect-with-which.bat
 2023-10-06  07:58          2,064   58%  dice.bat
 2019-10-01  10:27            376   54%  diff.bat
@@ -142,7 +152,7 @@
 2024-03-23  01:18         69,615   78%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-03-22  21:54        171,035   81%  environm.btm
+2024-03-23  21:01        171,144   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -287,7 +297,7 @@
 2019-10-01  10:28             41    5%  mpc2wav.bat
 2019-10-01  10:28         30,781   70%  mtsend.py
 2024-03-15  01:39          4,030   68%  mv.bat
-2024-03-19  10:58            673   47%  mydrives.bat
+2024-03-23  20:57            674   47%  mydrives.bat
 2023-06-09  01:14          3,452   76%  nd.bat
 2024-03-18  02:10          1,990   54%  new-computer.bat
 2024-03-15  00:03             45   29%  new-computer.ps1
@@ -299,7 +309,7 @@
 2019-10-01  10:28            562   43%  numbers.pl
 2023-07-01  08:28            363   50%  okgoogle.bat
 2022-07-03  20:15          2,365   72%  opera.bat
-2024-03-16  15:04          1,087   51%  pause-alias.bat
+2024-03-24  18:42          1,124   53%  pause-alias.bat
 2024-03-18  14:57            582   44%  pause-for-x-seconds.bat
 2019-10-01  10:28            127    9%  pause-wrapper.bat
 2023-06-04  01:41          1,020   48%  pd.bat
@@ -309,6 +319,7 @@
 2019-10-01  10:28          1,194   54%  plot-generalized-graph---enter-new-data.bat
 2022-02-02  03:03          3,953   60%  plot-generalized-graph---plot-graph.bat
 2019-10-01  10:28             45   -4%  png2jpg500.bat
+2024-03-24  19:05          1,434   64%  preprocess-music-batch.bat
 2024-03-18  11:29             13  -15%  prevdir.bat
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
 2024-03-18  11:29             13  -15%  previousdir.bat
@@ -431,6 +442,7 @@
 2019-10-01  10:28             70   12%  TRIMEXT.pl
 2019-10-01  10:28            244   32%  trimextonly.pl
 2019-10-01  10:28            214   34%  trimfile.pl
+2024-03-24  19:17            300   42%  undep.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
 2019-10-01  10:28            197   49%  uniq-relaxed.pl
 2019-10-01  10:28            544   82%  unmap-drives.bat
@@ -451,7 +463,7 @@
 2024-03-18  14:23          2,153   72%  wake-computers.bat
 2023-06-02  13:02             44   -4%  warning.bat
 2023-06-08  21:27             49   -4%  warning_soft.bat
-2024-01-28  22:55         17,710   74%  watch.bat
+2024-03-23  19:10         17,928   74%  watch.bat
 2022-11-09  12:11          5,931   65%  wav2mp3.bat
 2019-10-01  10:28             11  -18%  wcclip.bat
 2023-07-19  19:12          2,039   62%  wedding_party.py

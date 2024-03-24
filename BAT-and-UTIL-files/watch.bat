@@ -2,6 +2,10 @@
 :Edit self [good when testing]: %EDITOR% c:\bat\watch.bat
 
 
+rem TODO: if in \MEDIA\FOR-REVIEW\DO_LATERRRRRRRRRRRRRRRRRRRRRRR\oh set to reviewing mode
+rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfilename].* to ..\..\REVIEWED-NOT-PRENAMED\
+
+
 
 
                          ::: PRE-2014 STUFF (HAHA):
@@ -72,7 +76,7 @@
 		gosub checkiffileexists %2
 		gosub checkiffileexists %3
 		gosub checkiffileexists %4
-		gosub checkiffileexists %5
+ 		gosub checkiffileexists %5
 		gosub checkiffileexists %6
 		gosub checkiffileexists %7
 		gosub checkiffileexists %8

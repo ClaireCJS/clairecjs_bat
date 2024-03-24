@@ -10,6 +10,7 @@ rem Set window title if instructed:
         if "%PAUSE_WINDOW_TITLE%" ne "" (
             set OLD_TITLE=%@EXECSTR[title]
             title %PAUSE_WINDOW_TITLE%
+            set PAUSE_WINDOW_TITLE=
         )
 
 

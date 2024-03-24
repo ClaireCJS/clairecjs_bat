@@ -128,6 +128,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 sys.stdout.write(f'{myline}')
             else:
                 enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838
+                sys.stdout.write(f'\033[1G')        #20240324: possible bugfix for ansi codes creeping out due to TCC error and mis-aligning our double-height lines - prepend the ansi code to move to column 1 first, prior to printing our line
                 sys.stdout.write(f'\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
     sys.stdout.write('\n')
 

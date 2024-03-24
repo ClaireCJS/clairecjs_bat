@@ -1,4 +1,4 @@
-@Echo On
+@Echo Off
  echo.
 
 call validate-environment-variables MACHINENAME DRIVES_%MACHINENAME% MAX_MACHINENAME_LENGTH

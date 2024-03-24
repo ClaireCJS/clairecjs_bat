@@ -319,23 +319,23 @@ return
             set HD20T1_DOWN=0   %+ set HD20T1=R    %+  SET R=HD20T1           %+  SET MAPPING_R=THAILOG20T1   %+ set HD20T=%HD20T1%
 			rem moved 2 Goliath %+ set HD10T1=W    %+  SET W=HD10T1           %+  SET MAPPING_W=THAILOG10T1   %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1 
 			rem moved to Demona %+ set HD10T2=U    %+  SET U=HD10T2           %+  SET MAPPING_U=THAILOG10T2   %+ set HD10000G2=%HD10T2 
-            :et DRIVES_THAILOG=  D   I J K O Q S T U W   %+  rem Do not use inaccessible/down/crashed drives
-            :et DRIVES_THAILOG=  D   I J K O Q     U W   %+  rem Do not use inaccessible/down/crashed drives
-            :et DRIVES_THAILOG=  D   I J K   Q     U W   %+  rem Do not use inaccessible/down/crashed drives
-            :et DRIVES_THAILOG=  D   I   K   Q       W   %+  rem Do not use inaccessible/down/crashed drives
-            :et DRIVES_THAILOG=  D   I   K   Q           %+  rem Do not use inaccessible/down/crashed drives
-            :et DRIVES_THAILOG=  D   I   K P Q R         %+  rem Do not use inaccessible/down/crashed drives
-            set DRIVES_THAILOG=  D H I   K P Q R   V     %+  rem Do not use inaccessible/down/crashed drives
-            set DRIVES_THAILOG=B D H I   K P Q R   V     %+  rem Do not use inaccessible/down/crashed drives
-            set DRIVE_C_THAILOG=D                        %+  SET MAPPING_THAILOG_IP_REMOTE=%PUBLIC_IP%
-            set DRIVE_C_THAILOG_VAR=%D%                  %+  SET MAPPING_THAILOG_IP_TETHERING=%TETHERING_IP_THAILOG%   %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
-                                                         %+  SET MAPPING_THAILOG_USR=share  %+ REM MAPPING_THAILOG_PWD=[REDACTED into private.env]
+            :et DRIVES_THAILOG=D      I J K O Q S T U W   %+  rem Do not use inaccessible/down/crashed drives
+            :et DRIVES_THAILOG=D      I J K O Q     U W   %+  rem Do not use inaccessible/down/crashed drives
+            :et DRIVES_THAILOG=D      I J K   Q     U W   %+  rem Do not use inaccessible/down/crashed drives
+            :et DRIVES_THAILOG=D      I   K   Q       W   %+  rem Do not use inaccessible/down/crashed drives
+            :et DRIVES_THAILOG=D      I   K   Q           %+  rem Do not use inaccessible/down/crashed drives
+            :et DRIVES_THAILOG=D      I   K P Q R         %+  rem Do not use inaccessible/down/crashed drives
+            set DRIVES_THAILOG=D    H I   K P Q R V       %+  rem Do not use inaccessible/down/crashed drives
+            set DRIVES_THAILOG=D  B H I   K P Q R V       %+  rem Do not use inaccessible/down/crashed drives
+            set DRIVE_C_THAILOG=D                         %+  SET MAPPING_THAILOG_IP_REMOTE=%PUBLIC_IP%
+            set DRIVE_C_THAILOG_VAR=%D%                   %+  SET MAPPING_THAILOG_IP_TETHERING=%TETHERING_IP_THAILOG%   %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
+                                                          %+  SET MAPPING_THAILOG_USR=share  %+ REM MAPPING_THAILOG_PWD=[REDACTED into private.env]
 		::DEMONA (2022)
             set  HD1000G3_DOWN=0 %+ set HD1000G3=S  %+  SET S=HD1000G3  %+  SET MAPPING_S=DEMONA1T   %+ SET     HD1T3=%HD1000G3%  %+ set DEMONA1T=%HD1000G3%    %+ set  HD1T3_PRESENCE=%HD1T3%:\__ I awaken! __
             set HD18000G3_DOWN=0 %+ set HD18000G3=T %+  SET T=HD18000G3 %+  SET MAPPING_T=DEMONA18T1 %+ SET    HD18T3=%HD18000G3% %+ set DEMONA18T1=%HD18000G3% %+ set HD18T3_PRESENCE=%HD18T3:\__ I awaken __  %+ DEMONA18T=%DEMONA18T1% 
             set  HD18000G_DOWN=0 %+ set HD18000G=O  %+  SET O=HD18000G  %+  SET MAPPING_O=DEMONA18T2 %+ SET HD18000G1=%HD18000G%  %+ set HD18T=%HD18000G%       %+                                              %+ set HD18T1=%HD18T%
 			set    HD10T2_DOWN=0 %+ set HD10T2=U    %+  SET U=HD10T2    %+  SET MAPPING_U=DEMONA10T2 %+ set HD10000G2=%HD10T2 
-            set  DRIVES_DEMONA=S T O U
+            set  DRIVES_DEMONA=S  T O U
             set DRIVE_C_DEMONA=S
             set DRIVE_C_DEMONA_VAR=%S%
             SET MAPPING_DEMONA_USR=Claire
@@ -346,8 +346,8 @@ return
 		::WYVERN (2023)
             set HD2T1=F %+ set MAPPING_F=WYVERN2T
             set HD18000G2_DOWN=0 %+ set HD18000G2=A      %+ SET A=HD18000G2    %+  SET MAPPING_A=WYVERN18T2       %+  SET HD18T2=A %+ set ARCHIVEDRIVE=A 
-			set HD4000G2_DOWN=0  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=WYVERN4000G2     %+  SET HD4G2=E  
-            set DRIVES_WYVERN=F E A
+			rem HD4000G2_DOWN=0  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=WYVERN4000G2     %+  SET HD4G2=E   ... this didn't work out.. the dang'ed drive was dead——Carolyn put mounting tape on the prongs
+            set DRIVES_WYVERN=F A
             set DRIVE_C_WYVERN=F
             set DRIVE_C_WYVERN_VAR=%F%
             SET MAPPING_WYVERN_USR=carol
