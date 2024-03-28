@@ -3,8 +3,9 @@
 
 ::::: PARAMETERS:
     unset /q BACKUPREPOSTARTER
-    if "%1" eq "simultaneous" .or. "%1" eq "parallel" (set BACKUPREPOSTARTER=call startafter1secondpausewithexitafter)
+    if "%1" eq "simultaneous" .or. "%1" eq "parallel" (set BACKUPREPOSTARTER=call startafter1secondpausewithexitafter %+ goto :Next_1)
     if "%1" ne "" (goto %1)         %+ rem Quick way to pick up where we left off at a specific point
+    :Next_1
     REM call print-if-debug "BackupRepoStarter is '%BACKUPREPOSTARTER%'"
 
 

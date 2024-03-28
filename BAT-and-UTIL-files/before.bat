@@ -117,12 +117,17 @@ goto :END
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :quake
-	call advice "FYI: There are also separate, OLD '%italics%after quake3%italics_off%' and '%italics%after quakelive%italics_off%' commands"
-    call less_important "Killing AutoHotKey64..." %+ kill /f AutoHotKey64
+        call validate-environment-variables UTIL
+        call validate-in-path               winkill kill advice less_important winamp-pause
+        call advice         "FYI: There are also separate, OLD '%italics%after quake3%italics_off%' and '%italics%after quakelive%italics_off%' commands"
+        call less_important "Killing %italics%AutoHotKey64%italics_off%..."                    %+ kill  /f   AutoHotKey64
+        call less_important "Killing %italics%OVRServiceLauncher/Server/Redir%italics_off%..." %+ kill  /f   OVRServiceLauncher      %+ kill /f OVRServer_x64       %+ kill /f OVRRedir          
+        call less_important "Pausing %italics%WinAmp%italics_off%..."                          %+ call       winamp-pause
+        call less_important "Disabling %italics%Windows%italics_off% key..."                   %+ call       WinKill
 goto :END
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :guests
@@ -171,8 +176,9 @@ goto :END
 	echo Killing Setpoint to stop annoying caps lock OSD...
 	kill /f setpoint
 	echo.
-	echo Pausing torrents...
-	call utorrent-control pausealltorrents
+    rem doesn't work anymore:
+	rem echo Pausing torrents...
+	rem call utorrent-control pausealltorrents
 	echo.
 	echo.
 	echo.
@@ -205,7 +211,7 @@ goto :END
 		echo.
 
 	echo Change the stereo to CD mode + volume 42...
-		pause
+		call paus
 
 	:Follow-up on previous promise to close VNC:
 		echo Killing VNCViewer...

@@ -115,6 +115,8 @@ sweep=global/i
 ;;;;;;;;;;;;; REDEFINE BASIC COMMAND BEHAVIOR: ;;;;;;;;;;;;;
 ;;;;;;;;;;;;; REDEFINE BASIC COMMAND BEHAVIOR: ;;;;;;;;;;;;;
 
+7unzip=7z.exe
+7zip=7z.exe
 comp=*comp /m
 :deltree is a bat file now
 gr=grep --text --color=always -i -d skip

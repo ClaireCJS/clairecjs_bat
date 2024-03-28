@@ -48,14 +48,14 @@
 2023-07-03  18:02          1,603   58%  average.py
 2023-06-07  19:48             18  -11%  avg.bat
 2024-03-19  10:46          6,788   70%  backup-important-files.bat
-2024-03-19  20:02          8,044   77%  backup-repositories.bat
+2024-03-27  17:31          8,073   77%  backup-repositories.bat
 2024-03-19  10:35          2,009   58%  backup-repository.bat
 2019-10-01  10:27          1,744   57%  backup-thing.bat
 2019-10-01  10:27            283   43%  backup-to-bdrs.bat
 2019-10-01  10:27            254   39%  backup-to-CDs.bat
 2019-10-01  10:27            255   41%  backup-to-dvDs.bat
 2023-12-03  06:58          4,081   72%  beep.bat
-2024-03-15  18:21         11,220   75%  before.bat
+2024-03-28  02:32         12,011   75%  before.bat
 2023-08-21  18:05            850   54%  bigecho.bat
 2024-01-28  02:00             86   13%  calibrate-monitor.bat
 2023-08-27  23:36            326   43%  cat.bat
@@ -123,6 +123,7 @@
 2023-07-17  09:31          2,991   61%  detect-with-which.bat
 2023-10-06  07:58          2,064   58%  dice.bat
 2019-10-01  10:27            376   54%  diff.bat
+2024-03-28  02:32             18    0%  disable-windows-key.bat
 2023-04-07  11:31             50   -4%  display-bitrate.bat
 2024-03-15  00:06            399   39%  display-bluetooth-battery-levels.ps1
 2019-10-01  10:27             19  -10%  display-connections.bat
@@ -155,7 +156,7 @@
 2024-03-23  01:18         69,615   78%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-03-23  21:01        171,144   81%  environm.btm
+2024-03-27  17:12        171,211   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -261,8 +262,9 @@
 2019-10-01  10:28            120   18%  insert-before-each-line.pl
 2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
 2023-10-06  05:31         14,639   74%  install-common-programs-with-winget.bat
+2023-07-14  09:50            278   36%  isRunning-fast.bat
 2023-08-26  14:54          1,084   59%  isRunning-helper.bat
-2023-08-26  14:52          2,418   63%  isRunning.bat
+2024-03-28  02:31          2,418   63%  isRunning.bat
 2023-10-20  03:38            209   23%  join-videos.bat
 2023-07-10  09:43            184   42%  kill.bat
 2019-10-01  10:28            102   18%  label.bat
@@ -485,6 +487,7 @@
 2023-06-15  19:57             18  -11%  windowlist.bat
 2023-06-08  19:05             29   11%  windows-a-v1.ahk
 2023-06-08  19:05             31   10%  windows-a-v2.ahk
+2024-03-28  02:31            117   16%  winkill.bat
 2023-07-17  09:49          3,149   67%  wrapper.bat
 2024-03-12  13:02          5,632   60%  ydl.bat
 2019-10-01  10:28            412   41%  yyyymmdd(dow).bat

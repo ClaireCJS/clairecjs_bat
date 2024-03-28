@@ -2131,7 +2131,8 @@ return
          set  .par=call wrapper start
          set  .pas=notepad
          set  .pcx=call wrapper openimage
-         set  .pdf=call wrapper start
+         rem  .pdf=call wrapper start      #buggy in 2023/2024
+         set  .pdf=call wrapper explorer
          REM   as of 20230602perl is now a bat file so we alias perl=call perl.bat
          set   .pl=perl.exe
          set  .php=php        
