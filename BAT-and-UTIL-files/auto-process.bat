@@ -1,5 +1,7 @@
 @Echo OFF
 
+call advice "Can run '%double_underline_on%%0 music%double_underline_off%' to force music-autoprocessing mode"
+
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 rem  GENERAL: Intended as a context-specific command to process files in general, but so far only used to process audio folders
 
