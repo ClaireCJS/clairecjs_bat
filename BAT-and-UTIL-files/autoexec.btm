@@ -32,6 +32,9 @@ REM Startup various programs
         call map-drives
         call bsr
         call start-everything       %+ REM this is the service called "Everything", not the abstract concept of everything
+
+        call important "Pretty much done, just a couple more things..."
+        sleep 5
         call TTRGB
         call OBS
 

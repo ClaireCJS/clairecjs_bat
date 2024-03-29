@@ -37,14 +37,16 @@ goto :END
             if "%@UPPER[%[%letter]]" eq "%@UPPER[%[%[DRIVE_C_%MACHINENAME%]]]"  set SAME=1
             rem same for %letter% is %same%
             if %SAME eq 0 .and. %OPTION_SKIP_SAME_C eq 1  goto :Not_Same
-                echos %STAR% ``
-                echo %ANSI_COLOR_RED%Skipping drive %DRIVE_LETTER_PRETTY% %ANSI_COLOR_RED%because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]... %ANSI_RESET%
+                rem echos %STAR% ``
+                rem echo %ANSI_COLOR_RED%Skipping drive %DRIVE_LETTER_PRETTY% %ANSI_COLOR_RED%because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]... %ANSI_RESET%
+                call bigecho %STAR% %ANSI_COLOR_RED%Skipping drive %DRIVE_LETTER_PRETTY%
+                call echo       %ITALICS_ON%%ANSI_COLOR_RED%(because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]...)%ITALICS_OFF%%ANSI_RESET%
                 goto :End_Of_For_Loop
             :Not_Same
 
 
             if "%@READY[%letter%]" ne "1" goto :Drive_Not_Ready
-                echo %STAR% Doing drive letter %DRIVE_LETTER_PRETTY%... 
+                call bigecho %STAR% Doing drive letter %DRIVE_LETTER_PRETTY%... 
                 set FIXED_COMMAND=%@REPLACE[DRIVE_LETTER,%letter,%COMMAND]
                 title Doing %letter%: -- %FIXED_COMMAND% 
 
@@ -64,3 +66,4 @@ goto :END
 rem Cleanup
         if defined DRIVE_LETTERS_TO_USE (unset /q DRIVE_LETTERS_TO_USE)
         if defined OPTION_SKIP_SAME_C   (unset /q OPTION_SKIP_SAME_C  )
+        call fix-window-title
