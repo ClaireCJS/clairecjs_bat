@@ -7,13 +7,14 @@
 :USAGE: OPTION:        Add "big" as a 2nd parameter to use double-height text
 
 rem CONFIGURATION:
+        call turn-off-file-redirection
         set DEFAULT_DIVIDER==
         rem                 ^ our default divider is '=', the equal symbol
 
 
 rem Respond to parameters [if any]:
                                              set DIVIDER=%DEFAULT_DIVIDER%
-        if "%1" ne ""   .and. "%1" ne "big" (set DIVIDER=%1)
+        if "%1" ne ""   .and. "%1" ne "big" (set DIVIDER=%@UNQUOTE[%1])
                                              set BIG=0
         if "%2" eq "big" .or. "%1" eq "big" (set BIG=1)
 
@@ -54,5 +55,7 @@ rem TCC/Windows Terminal rendering bug that required a lot of ANSI fuddling to d
 
 
 :END
+
+call turn-on-file-redirection
 
 

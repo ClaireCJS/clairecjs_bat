@@ -135,7 +135,7 @@
 2023-07-10  20:27          1,060   49%  display-emojis-in-environment.bat
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
 2022-11-19  16:52            242   29%  display-flac-tags.bat
-2024-03-30  14:46          2,887   66%  display-horizontal-divider.bat
+2024-03-31  05:14          2,971   65%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-03-29  20:08            128    6%  display-mp3-artists.bat
 2023-05-24  10:52            732   55%  display-mp3-comment-with-eyed3-library.py
@@ -456,6 +456,12 @@
 2019-10-01  10:28             70   12%  TRIMEXT.pl
 2019-10-01  10:28            244   32%  trimextonly.pl
 2019-10-01  10:28            214   34%  trimfile.pl
+2019-10-01  10:28            139   16%  turn-nested-variable-expansion-off.bat
+2019-10-01  10:28            139   16%  turn-nested-variable-expansion-on.bat
+2024-03-18  13:57             13  -15%  turn-off-command-separator.bat
+2024-03-31  05:15            633   46%  turn-off-file-redirection.bat
+2024-03-18  13:57             12  -16%  turn-on-command-separator.bat
+2024-03-31  05:14            632   46%  turn-on-file-redirection.bat
 2024-03-24  19:17            300   42%  undep.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
