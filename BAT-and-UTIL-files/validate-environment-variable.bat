@@ -250,5 +250,5 @@ goto :Past_The_End_Of_The_Sub-Routines
 :ItExistsAfterall
 :DontValidateIfExists
 :END
-title %LAST_TITLE%
+call fix-window-title
 
