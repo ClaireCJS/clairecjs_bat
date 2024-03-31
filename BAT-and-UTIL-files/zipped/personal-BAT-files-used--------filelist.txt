@@ -25,7 +25,7 @@
 2023-10-14  02:51            114   51%  allfiles-snoop.bat
 2024-03-24  20:07         25,742   74%  ALLFILES.bat
 2023-05-19  13:45            395   40%  allfilesHyphenswap.pl
-2024-03-24  20:51        116,463   71%  allfilesmv.pl
+2024-03-29  19:25        116,746   71%  allfilesmv.pl
 2023-05-19  15:39          1,218   55%  allfileunicode.pl
 2023-05-19  13:45          1,036   54%  allfilew2a.pl
 2023-05-19  13:45          5,094   61%  allfilew2m.pl
@@ -121,7 +121,7 @@
 2024-03-24  19:10          1,162   59%  deprecate.bat
 2019-10-01  10:27             20  -10%  deprecated.bat
 2023-07-01  06:46            721   55%  detect-command-line-container.bat
-2023-07-17  09:31          2,991   61%  detect-with-which.bat
+2024-03-30  13:02          3,072   61%  detect-with-which.bat
 2023-10-06  07:58          2,064   58%  dice.bat
 2019-10-01  10:27            376   54%  diff.bat
 2024-03-28  02:32             18    0%  disable-windows-key.bat
@@ -135,15 +135,18 @@
 2023-07-10  20:27          1,060   49%  display-emojis-in-environment.bat
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
 2022-11-19  16:52            242   29%  display-flac-tags.bat
+2024-03-30  14:46          2,887   66%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
+2024-03-29  20:08            128    6%  display-mp3-artists.bat
 2023-05-24  10:52            732   55%  display-mp3-comment-with-eyed3-library.py
-2023-10-06  08:30             32   -6%  display-mp3-tags.bat
+2024-03-29  20:09            135   23%  display-mp3-tags.bat
 2020-12-30  20:05             71    8%  display-this-month.pl
 2023-08-26  19:26          2,838   72%  display-time-elapsed.bat
 2024-03-13  23:07          1,376   68%  display-video-length.bat
 2024-03-13  23:35          1,088   61%  display-video-lengths.bat
 2023-12-18  16:04             21   -9%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
+2024-03-30  13:19             35   -5%  divider.bat
 2023-08-21  07:08         20,242   69%  download-youtube-album.bat
 2024-02-21  01:39          3,665   68%  drives.bat
 2019-10-01  10:27            193   49%  du.bat
@@ -455,7 +458,7 @@
 2019-10-01  10:28            214   34%  trimfile.pl
 2024-03-24  19:17            300   42%  undep.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
-2019-10-01  10:28            197   49%  uniq-relaxed.pl
+2024-03-31  05:05            211   31%  uniq-relaxed.pl
 2019-10-01  10:28            544   82%  unmap-drives.bat
 2024-03-18  21:21            182   22%  unzip-all.bat
 2024-03-18  21:19          4,412   71%  unzip-gracefully.bat
@@ -466,7 +469,7 @@
 2019-10-01  10:28            335   40%  usb-remove-safely.bat
 2024-03-18  09:00            216   28%  validate-ahk.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
-2024-03-23  00:56         14,083   77%  validate-environment-variable.bat
+2024-03-31  05:06         14,148   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
 2024-03-20  11:59          2,171   62%  validate-file-extension.bat
 2023-08-12  20:18          1,438   56%  validate-in-path.bat
@@ -488,7 +491,7 @@
 2023-06-15  19:57             18  -11%  windowlist.bat
 2023-06-08  19:05             29   11%  windows-a-v1.ahk
 2023-06-08  19:05             31   10%  windows-a-v2.ahk
-2024-03-28  23:07            123   16%  winkill.bat
+2024-03-29  23:30            198   37%  winkill.bat
 2023-07-17  09:49          3,149   67%  wrapper.bat
 2024-03-12  13:02          5,632   60%  ydl.bat
 2019-10-01  10:28            412   41%  yyyymmdd(dow).bat

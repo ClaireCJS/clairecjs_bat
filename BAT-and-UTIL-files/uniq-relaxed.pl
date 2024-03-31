@@ -1,14 +1,8 @@
-@echo off
-if "%CYGWIN"=="0" goto :nocygwin
-if "%CYGWIN" ne ""  goto :cygwin
-goto :nocygwin
-
-:nocygwin
-c:\util\uniq.exe %*
-goto :end
-
-:cygwin
-c:\cygwin\bin\uniq.exe %*
-goto :end
-
-:end
+# This is a very relaxed uniq.  The file doesn't have to be sorted. The case doesn't have to match.
+$uctmp;
+while(<>) {
+	$uctmp=uc($_);
+	if ($seen{$uctmp}) { next; }
+    $seen{$uctmp}=1;
+    print $_;
+}

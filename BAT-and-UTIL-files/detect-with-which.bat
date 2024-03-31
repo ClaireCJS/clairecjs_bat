@@ -47,6 +47,8 @@ REM so we will leave this as a do-nothing section in case this changes in the fu
 
 
 REM execute the `which` command and  scrub our results:
+echo  %EMOJI_CALL_ME_HAND%  set tmp_which=%%@EXECSTR[which %clean_param]
+pause
         set tmp_which=%@EXECSTR[which %clean_param]
         set RESULT=%tmp_which%
         if "%@REGEXSUB[2,(.*: )(.*),%tmp_which]" ne "" (set RESULT=%@REGEXSUB[2,"(.*: )(.*)",%tmp_which])

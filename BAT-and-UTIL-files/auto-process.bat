@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo On
 
 call advice "Can run '%double_underline_on%%0 music%double_underline_off%' to force music-autoprocessing mode"
 
@@ -61,9 +61,9 @@ rem             9) opens album art in album viewer for review
 
 
 ::::: BRANCH TO UTILITY FUNCTIONS (renamings already done, music_standardized_renamings already done if PROBABLY_MUSIC=1)
-::  if %COUNT_FLAC% eq 0 .and. %COUNT_WAV% gt 0 (gosub branchDebug B %+ gosub :music_standardized_renamings %+ goto :END)  :: beta
-    if %COUNT_FLAC% gt 1 .and. %COUNT_MP3% eq 0 (gosub branchDebug A %+ gosub :music_FLAC_unconverted       %+ goto :END)  :: for years, until 20221117
+    :f %COUNT_FLAC% eq 0 .and. %COUNT_WAV% gt 0 (gosub branchDebug B %+ gosub :music_standardized_renamings %+ goto :END)  :: beta
     :f %COUNT_FLAC% gt 1 .and. %COUNT_MP3% eq 0 (gosub branchDebug A %+ gosub :music_FLAC_unconverted       %+ goto :END)  :: 20221117 commented out because we are allowing FLACs into our collection now
+    if %COUNT_FLAC% gt 1 .or.  %COUNT_MP3% gt 1 .or.  %COUNT_WAV% gt 1 (gosub branchDebug C %+ gosub :music_standardized_renamings %+ goto :END)  :: for years, until 20221117
 
 
 ::::: IF WE GOT HERE, IT IS [CURRENTLY] AN ERROR INDICATING WE NEVER BRANCHED ANYWHERE ELSE:
@@ -166,7 +166,7 @@ goto :END                                                                       
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :music_FLAC_only_renamings
             echo.
-							echo This shouldn't be happening because we are allowing FLAC files into our MP3 collection now. What gives?
+							call warning "This shouldn't be happening because we are allowing FLAC files into our MP3 collection now. What gives?"
 							pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ 
             dir
         return
@@ -177,62 +177,63 @@ goto :END                                                                       
         :music_FLAC_unconverted
             set WAS_MUSIC=1
             rem 2022 Now that we are allowing FLAC files into our collection, there's no need to convert them, and this section is deprecated:
-            gosub :music_FLAC_only_renamings
+            rem gosub :music_FLAC_only_renamings
 
             call warning "This looks like a freshly-named FLAC album"
+
             :: collapse artwork in subfolders
                 for %%zz in (art cover covers artwork artworks) if isdir "%zz" mv/ds "%zz" .
-            :: convert to wav
-                if %@FILES[*.flac] gt %@FILES[*.wav] (call allfiles flac2wav)
-                cls
-                echo. %+ echo. %+ echo. %+ echo.
-                pause
-                %COLOR_NORMAL%
-                cls
-                dir
-                echo.
-                call warning "These names better look good!  Last chance to abort!"
-                pause
-            :: segregate WAVs to separate folder
-                set       ALBUM_DIR_FLAC=%_CWD
-                set       ALBUM_DIR_BASE=%@NAME[%_CWD]
-                set       ALBUM_DIR_WAV=..\"%ALBUM_DIR_BASE%"
-                if exist %ALBUM_DIR_WAV% (set ALBUM_DIR_WAV=%ALBUM_DIR_WAV%.wav)
-                if exist %ALBUM_DIR_WAV% (echo *WTF*, %ALBUM_DIR_WAV% already exists aborting %+ pause %+ pause %+ beep %+ pause %+ goto :END)
-                md       %ALBUM_DIR_WAV%
-                set ALBUM_DIR_WAV_TRUENAME=%@TRUENAME[%ALBUM_DIR_WAV%]
 
-                %COLOR_REMOVAL%
-                mv *.wav %ALBUM_DIR_WAV%
-                no *.flac cp * %ALBUM_DIR_WAV%
-                %COLOR_NORMAL%
-
-            :: create burn target dir
-                cd ..
-                set BAND_NAME_BASE="%@NAME[%_CWD]"
-                set MUSIC_BURN_DESTINATION_BASE=%DATA2%\MUSIC
-                set MUSIC_BURN_DESTINATION_BAND="%@UNQUOTE[%MUSIC_BURN_DESTINATION_BASE%]\%@UNQUOTE[%BAND_NAME_BASE%]"
-                if not isdir "%MUSIC_BURN_DESTINATION_BASE%" md /s "%@UNQUOTE[%MUSIC_BURN_DESTINATION_BASE%]"
-                if not isdir "%MUSIC_BURN_DESTINATION_BAND%" md /s "%@UNQUOTE[%MUSIC_BURN_DESTINATION_BAND%]"
-                call validate-environment-variable                             MUSIC_BURN_DESTINATION_BASE
-                call validate-environment-variable                             MUSIC_BURN_DESTINATION_BAND
-
-            :: move flac version to burn target dir
-                %COLOR_SUCCESS%
-                 echo      mv/ds "%ALBUM_DIR_FLAC%" "%@UNQUOTE[%MUSIC_BURN_DESTINATION_BAND%]\%@UNQUOTE[%ALBUM_DIR_BASE%].flac"
-                (echo yryr|mv/ds "%ALBUM_DIR_FLAC%" "%@UNQUOTE[%MUSIC_BURN_DESTINATION_BAND%]\%@UNQUOTE[%ALBUM_DIR_BASE%].flac")
-                if isdir "%ALBUM_DIR_FLAC%" rd "%ALBUM_DIR_FLAC%"
-                %COLOR_NORMAL%
-
-            :: files to delete if present:
-                if exist "WHOLE ALBUM.wav" del "WHOLE ALBUM.WAV"
-
-            :: go to the finished folder (so we are in good position to use 'nd' to go to next dir)
-                "%@UNQUOTE[%ALBUM_DIR_WAV_TRUENAME%]\"
-
-            :: report that we are done:
-                echo. %+ echo. %+ echo. %+ echo.
-                dir
+            rem :: convert to wav
+            rem     if %@FILES[*.flac] gt %@FILES[*.wav] (call allfiles flac2wav)
+            rem     cls
+            rem     echo. %+ echo. %+ echo. %+ echo.
+            rem     pause
+            rem     %COLOR_NORMAL%
+            rem     cls
+            rem     dir
+            rem     echo.
+            rem     call warning "These names better look good!  Last chance to abort!"
+            rem     pause
+            rem :: segregate WAVs to separate folder
+            rem     set       ALBUM_DIR_FLAC=%_CWD
+            rem     set       ALBUM_DIR_BASE=%@NAME[%_CWD]
+            rem     set       ALBUM_DIR_WAV=..\"%ALBUM_DIR_BASE%"
+            rem     if exist %ALBUM_DIR_WAV% (set ALBUM_DIR_WAV=%ALBUM_DIR_WAV%.wav)
+            rem     if exist %ALBUM_DIR_WAV% (echo *WTF*, %ALBUM_DIR_WAV% already exists aborting %+ pause %+ pause %+ beep %+ pause %+ goto :END)
+            rem     md       %ALBUM_DIR_WAV%
+            rem     set ALBUM_DIR_WAV_TRUENAME=%@TRUENAME[%ALBUM_DIR_WAV%]
+            rem 
+            rem     %COLOR_REMOVAL%
+            rem     mv *.wav %ALBUM_DIR_WAV%
+            rem     no *.flac cp * %ALBUM_DIR_WAV%
+            rem     %COLOR_NORMAL%
+            rem 
+            rem :: create burn target dir
+            rem     cd ..
+            rem     set BAND_NAME_BASE="%@NAME[%_CWD]"
+            rem     set MUSIC_BURN_DESTINATION_BASE=%DATA2%\MUSIC
+            rem     set MUSIC_BURN_DESTINATION_BAND="%@UNQUOTE[%MUSIC_BURN_DESTINATION_BASE%]\%@UNQUOTE[%BAND_NAME_BASE%]"
+            rem     if not isdir "%MUSIC_BURN_DESTINATION_BASE%" md /s "%@UNQUOTE[%MUSIC_BURN_DESTINATION_BASE%]"
+            rem     if not isdir "%MUSIC_BURN_DESTINATION_BAND%" md /s "%@UNQUOTE[%MUSIC_BURN_DESTINATION_BAND%]"
+            rem     call validate-environment-variables                            MUSIC_BURN_DESTINATION_BASE MUSIC_BURN_DESTINATION_BAND
+            rem 
+            rem :: move flac version to burn target dir
+            rem     %COLOR_SUCCESS%
+            rem      echo      mv/ds "%ALBUM_DIR_FLAC%" "%@UNQUOTE[%MUSIC_BURN_DESTINATION_BAND%]\%@UNQUOTE[%ALBUM_DIR_BASE%].flac"
+            rem     (echo yryr|mv/ds "%ALBUM_DIR_FLAC%" "%@UNQUOTE[%MUSIC_BURN_DESTINATION_BAND%]\%@UNQUOTE[%ALBUM_DIR_BASE%].flac")
+            rem     if isdir "%ALBUM_DIR_FLAC%" rd "%ALBUM_DIR_FLAC%"
+            rem     %COLOR_NORMAL%
+            rem 
+            rem :: files to delete if present:
+            rem     if exist "WHOLE ALBUM.wav" del "WHOLE ALBUM.WAV"
+            rem 
+            rem :: go to the finished folder (so we are in good position to use 'nd' to go to next dir)
+            rem     "%@UNQUOTE[%ALBUM_DIR_WAV_TRUENAME%]\"
+            rem 
+            rem :: report that we are done:
+            rem     echo. %+ echo. %+ echo. %+ echo.
+            rem     dir
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

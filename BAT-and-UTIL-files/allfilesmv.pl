@@ -194,10 +194,11 @@ foreach $filename (@LINES) {
 
     # Determine if it's audio
 	$cheating_NotReallyVideo = 0;												#used for internal cheating
-    $isAudio = 0;
-    $isImage = 0;
-    $isVideo = 0;
-    $isComic = 0;
+    $isAudio  = 0;
+    $isImage  = 0;
+    $isVideo  = 0;
+    $isComic  = 0;
+	$isLyrics = 0;
     if ($filename =~ /\.jpe?g$/i)            { $isImage=1; }
     if ($filename =~ /\.jpe?g.deprecated$/i) { $isImage=1; }
     if ($filename =~ /\.gif$/i)              { $isImage=1; }
@@ -207,6 +208,7 @@ foreach $filename (@LINES) {
     if ($filename =~ /\.pdf$/i)              { $isComic=1; }
     if ($filename =~ /\.cb[rz]$/i)           { $isComic=1; }
     if ($filename =~ /\.au$/i)               { $isAudio=1; }
+
     if ($filename =~ /\.mp3$/i)              { $isAudio=1; $NUM_FILES_BY_EXTENSION{"mp3"}++; }
     if ($filename =~ /\.mp[24]$/i)           { $isAudio=1; }
     if ($filename =~ /\.wav$/i)              { $isAudio=1; }
@@ -247,6 +249,10 @@ foreach $filename (@LINES) {
     if ($filename =~ /\.vob$/i)     { $isVideo=1; }  
     if ($filename =~ /\.zip$/i)     { $isVideo=1; $cheating_NotReallyVideo=1; } #cheating
 
+	##### lyric files — for now, treat them the same as audio files, even though they are not:
+    if ($filename =~ /\.lrc$/i)     { $isLyrics = 1; }
+    if ($filename =~ /\.kas$/i)     { $isLyrics = 1; }
+	if ($isLyrics)                  { $isAudio  = 1; }
 
 	##### Keep track of what kinds of files make up this folder, so we can decide if it's an album/music folder or not:
 	if ($DEBUG_TRANSFORMATION) { print ":Checkpoint 02.B1: $filename\n"; }

@@ -8,7 +8,8 @@
     set PARAM3=%3
     set USER_MESSAGE=%2$
     if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX% if defined %VARNAME% goto :Defined_YES)
-
+    set LAST_TITLE=%_WINTITLE
+    title %0
 
 :USAGE:  call validate-environment-variable VARNAME_NO_PERCENT "some error message" or "skip_validation_existence"
 :USAGE:       where option can be:
@@ -249,3 +250,5 @@ goto :Past_The_End_Of_The_Sub-Routines
 :ItExistsAfterall
 :DontValidateIfExists
 :END
+title %LAST_TITLE%
+
