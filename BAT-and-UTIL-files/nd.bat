@@ -1,5 +1,8 @@
 @echo off
 
+:DESCRIPTION: this simply goes to the next folder, alphabetically. A lateral folder move. 
+:DESCRIPTION: But it also has some folder-specific auto-reaction stuff
+
 ::::: ENVIRONMENT VALIDATION:
     call checktemp
 
@@ -27,7 +30,7 @@
 ::::: MOVE TO THE NEXT FOLDER:
     set TARGET_TEMP_SCRIPT="%TEMP\go-to-next-directory.bat"
     go-to-next-directory-generator.pl "%_CWD" >:u8 %TARGET_TEMP_SCRIPT%
-    echo done with perl
+    REM echo done with perl
     call %TARGET_TEMP_SCRIPT%
 
 ::::: Take a file along with us, if one is given: part 2 of 2:

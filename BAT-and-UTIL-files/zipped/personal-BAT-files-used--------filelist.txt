@@ -60,7 +60,7 @@
 2023-08-21  18:05            850   54%  bigecho.bat
 2024-01-28  02:00             86   13%  calibrate-monitor.bat
 2023-08-27  23:36            326   43%  cat.bat
-2023-06-04  03:11          1,053   54%  cd.bat
+2024-04-03  14:31          2,424   64%  cd.bat
 2023-06-01  05:18            107   10%  celebration.bat
 2023-03-03  16:19            782   56%  change-into-random-dir.bat
 2023-05-05  01:06          1,814   50%  chatgpt-query.py
@@ -289,11 +289,15 @@
 2019-10-01  10:28             28   -7%  lowercase.pl
 2023-07-04  23:25          3,961   73%  make-image-square.bat
 2019-10-01  10:28          1,487   67%  make-video-from-audio-and-image.bat
+2024-04-03  12:28            334   41%  make-zero-byte-file-named.bat
 2020-10-11  17:19          1,153   61%  makefilelist.bat
 2022-02-02  02:57         36,984   67%  MAKEIMG.PL
 2019-10-01  10:28         13,723   75%  makethumbnail.pl
 2024-01-15  01:53         12,663   79%  map-drives.btm
+2024-04-03  14:35            506   36%  MCD.bat
+2024-04-03  14:46            164   18%  mcdnow.bat
 2019-10-01  10:28             41   18%  mkv2avi.bat
+2024-04-03  14:42            517   46%  mmddhhmmss.bat
 2020-04-22  19:57          1,662   57%  monitor-to-react-after-program-closes.bat
 2023-06-15  01:12             81   30%  more.bat
 2024-03-20  12:00            382   37%  mount-iso.bat
@@ -307,7 +311,7 @@
 2019-10-01  10:28         30,781   70%  mtsend.py
 2024-03-15  01:39          4,030   68%  mv.bat
 2024-03-23  20:57            674   47%  mydrives.bat
-2023-06-09  01:14          3,452   76%  nd.bat
+2024-04-02  18:25          3,622   75%  nd.bat
 2024-03-18  02:10          1,990   54%  new-computer.bat
 2024-03-15  00:03             45   29%  new-computer.ps1
 2023-10-14  01:50          4,119   61%  new-harddrive.bat
@@ -315,6 +319,7 @@
 2023-09-15  03:32             55   -1%  nocar.bat
 2023-06-08  03:09             41   -4%  none.bat
 2023-10-06  08:38          1,197   56%  normalize-all-wavs.bat
+2024-04-03  14:40            400   52%  now.bat
 2019-10-01  10:28            562   43%  numbers.pl
 2023-07-01  08:28            363   50%  okgoogle.bat
 2022-07-03  20:15          2,365   72%  opera.bat
@@ -449,6 +454,7 @@
 2019-10-01  10:28            201   44%  tail.bat
 2023-06-09  14:38            153   41%  tee.bat
 2024-03-19  15:23          1,646   85%  test-askyn.bat
+2024-04-03  14:32            293   48%  test-cd.bat
 2023-06-02  21:00          1,020   66%  test-errorlevel-catcher.bat
 2023-08-29  05:29             49   17%  tock.py
 2024-02-02  21:12            585   58%  touch-alias.bat
@@ -500,11 +506,12 @@
 2024-03-29  23:30            198   37%  winkill.bat
 2023-07-17  09:49          3,149   67%  wrapper.bat
 2024-03-12  13:02          5,632   60%  ydl.bat
-2019-10-01  10:28            412   41%  yyyymmdd(dow).bat
-2019-10-01  10:28            358   35%  yyyymmdd.bat
-2019-10-01  10:28             49    5%  yyyymmddclip.bat
+2024-04-03  14:43            568   47%  yyyymmdd(dow).bat
+2024-04-03  14:42            438   41%  yyyymmdd.bat
+2024-04-03  14:40            135   13%  yyyymmddclip.bat
+2024-04-03  14:44            163   23%  yyyymmdddow.bat
 2019-10-01  10:28            573   46%  yyyymmddhhmm.bat
-2019-10-01  10:28            540   45%  yyyymmddhhmmss.bat
+2024-04-03  14:39            580   47%  yyyymmddhhmmss.bat
 2024-03-18  14:38            141   21%  zip-all-EXEs.bat
 2023-06-05  01:45          1,303   63%  zip-all-folders.bat
 2023-05-30  11:25          1,249   64%  zip-all-subfolders.bat
