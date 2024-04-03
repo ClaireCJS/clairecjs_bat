@@ -182,7 +182,8 @@ REM Actually display the message
             )
             if  %BIG_HEADER eq    1          (echos %BLINK_OFF%)
 
-            echo %ANSI_COLOR_NORMAL%`` 
+            REM setting color to normal (black on black) and using the erase-to-end-of-line sequence fixes the Windows Termina+TCC bug where a big of the background color is shown in the rightmost column
+            echo %ANSI_COLOR_NORMAL%%ANSI_ERASE_TO_EOL%`` 
         )
         REM display our closing big-header, if we are in big-header mode
         if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****)
