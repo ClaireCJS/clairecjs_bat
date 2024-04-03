@@ -9,6 +9,8 @@ rem Check invocation
             echo :USAGE:                                                    .... [But you don't generally need to worry about this because it uses %%THE_ALPHABET_BY_DRIVE_PRIORITY%% internally]
             echo :USAGE:    Also: can set OPTION_SKIP_SAME_C=1              .... to make it not apply to any drive letter that is the same as the current computer's C: drive
             echo :USAGE:    Also: can set OPTION_ECHO_RAYRAY=1              .... to echo 'rayrayrayray' to our command ... needed for overwriting on copies
+            echo :USAGE:    
+            echo :USAGE:    Note: MACHINENAME and DRIVE_C_MACHINAME must be set if you don't want to end up trying to copy files over themselves (which shoudln't hurt, but is ugly-looking)
 
             call scream
             goto :END
@@ -19,16 +21,25 @@ rem get command, which may be enclosed in quotes (so we can in theory use multip
         if "%2" eq "" (set COMMAND=%@UNQUOTE[%1%])
         rem echo %ANSI_COLOR_DEBUG% command is %COMMAND%%ANSI_RESET%
 
-rem Go through each ready drive EXCEPT c which is our assumed drivfe, and substitute DRIVE_LETTER into the proper letter:
-        set                                            OUR_ALPHABET_TO_USE=a b c d e f g h i j k l m n o p q r s t u v w x y z
-        if defined THE_ALPHABET                   (set OUR_ALPHABET_TO_USE=%THE_ALPHABET%)
-        if defined THE_ALPHABET_BY_DRIVE_PRIORITY (set OUR_ALPHABET_TO_USE=%THE_ALPHABET_BY_DRIVE_PRIORITY%)
-        if defined DRIVE_LETTERS_TO_USE           (set OUR_ALPHABET_TO_USE=%DRIVE_LETTERS_TO_USE%)
+        set                                            OUR_ALPHABET_TO_USE=a b c d e f g h i j k l m n o p q r s t u v w x y z %+ rem Default alphabet
+        if defined THE_ALPHABET                   (set OUR_ALPHABET_TO_USE=%THE_ALPHABET%)                                     %+ rem Allow user-defined alphabet 
+        if defined THE_ALPHABET_BY_DRIVE_PRIORITY (set OUR_ALPHABET_TO_USE=%THE_ALPHABET_BY_DRIVE_PRIORITY%)                   %+ rem Allow user-defined alphabet by drive priority —— when testing with another human you tend to want it to copy it to that human's drive before all the other drives, and want your own alphabet order
+        if defined DRIVE_LETTERS_TO_USE           (set OUR_ALPHABET_TO_USE=%DRIVE_LETTERS_TO_USE%)                             %+ rem Allow on-the-fly user-defined alphabet —— for very specialized situations
         rem call debug                                "OUR_ALPHABET_TO_USE is '%OUR_ALPHABET_TO_USE%'"
-        for %%tmpletter in                           (%OUR_ALPHABET_TO_USE%) gosub doLetter %tmpletter
+
+        
+rem Go through each ready drive, and substitute DRIVE_LETTER into the proper letter:
+        for %%tmpletter in (%OUR_ALPHABET_TO_USE%) gosub doLetter %tmpletter
+
 goto :END
 
+
+
+
+
+
         :doLetter [letter]
+            echo.
             set DRIVE_LETTER_PRETTY=%emphasis%%@UPPER[%letter%]%deemphasis%:
             rem call important_less "doing %drive_letter_pretty%"
             rem echo if "%%@READY[%letter%]"{%@READY[%letter%]} eq "1" 

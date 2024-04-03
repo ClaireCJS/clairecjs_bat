@@ -2021,9 +2021,11 @@ return
         set FILEMASK_FILELIST=*.m3u;*.sfv
         set FILEMASK_TEXT=*.txt;*.log;*.ini;*.cfg;*.lst;*.msg;*.mesg;*.m3u;*.nfo;*.srt;*.sub;*.idx;*.ans;*.asc;*.diz;*.faq
         set FILEMASK_RICHTEXT=*.html;*.htm;*.doc;*.rtf;*.docx;*.mht;*.pdf;*.url
-        set FILEMASK_CODE=*.pl;*.py;*.java;*.bat;*.sql;*.asm;*.bas;*.c;*.h;*.java;*.pas;*.php;*.sql;*.vbs
+        set FILEMASK_SCRIPT=*.btm;*.bat;*.cmd;*.sh
+        rem Not sure if including FILEMASK_SCRIPT in FILEMASK_CODE makes sense, but we'll do this for now:
+        set FILEMASK_CODE=%FILEMASK_SCRIPT%;*.pl;*.py;*.java;*.bat;*.btm;*.sql;*.asm;*.bas;*.c;*.h;*.java;*.pas;*.php;*.sql;*.vbs
         set FILEMASK_APPLICATION=*.exe;*.apk;*.msi;*.com
-        set FILEMASK_ARCHIVE=*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace;*.001 %+ REM 20240121: added *.001 because of .7z.001 files ... this is currently only used in unzip-gracefully.bat
+        set FILEMASK_ARCHIVE=*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace;*.001 %+ rem 20240121: added *.001 because of .7z.001 files ... this is currently only used in unzip-gracefully.bat
         set FILEMASK_DISC_IMAGE=*.iso;*.img
         set FILEMASK_IMAGE=*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large %+ REM 20160421:removed comic extensions from here, 20161226:added DICOM(*.dcm)
         set FILEMASK_COMIC_BOOK=*.cbr;*.cbz

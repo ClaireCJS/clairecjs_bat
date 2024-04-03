@@ -7,7 +7,7 @@
 
                     * Inserts relevant emoji at the beginning of the line (to decrease visual processing energy)
 
-                    * blinks and double-heightens errors (to decrease required attention level)
+                    * blinks and double-heightens errors (to decrease required attention level & grab attention for addressing errors sooner)
 
                     * double-heightens summaries (to increase visual accessibility to the part that matters more than the details)
 
@@ -25,7 +25,7 @@ import clairecjs_utils as claire                                                
 from colorama import init
 init(autoreset=False)
 
-
+DEFAULT_MODE   = "fg"                                                                                           #whether to color-cycle foreground ("fg"), background ("bg"), or both ("both").
 EMOJIS_COPY    = '⭢︋📂'
 EMOJIS_PROMPT  = '❓❓ '
 EMOJIS_DELETE  = '👻⛔'
@@ -155,13 +155,21 @@ in_prompt = False
 additional_beginning_ansi = move_decorator
 r, g, b = get_random_color()
 
+my_mode = DEFAULT_MODE
+#sys.stdout.write(f"sys.argv is {sys.argv}\n")
+if len(sys.argv) > 1:
+    #sys.stdout.write(f"sys.argv[1] is {sys.argv[1]}\n")
+    if sys.argv[1] == 'bg' or sys.argv[1] == 'both': my_mode = sys.argv[1]
+#sys.stdout.write(f"my_mode is {my_mode}\n")
+
 while t.is_alive() or not q.empty():
 #hile True:
     # It's tempting to process things line-by-line, but due to prompts and such, we must process things char-by-char
     try:
         char = q.get(timeout=0.008)
         if char is None: break
-        claire.tick(mode="fg")
+
+        claire.tick(mode=my_mode)
         line_buffer += char
 
         if char == '?' and not in_prompt:         #coloring for copy/move prompts, so we can make them blinky & attention-get'y
@@ -184,7 +192,7 @@ while t.is_alive() or not q.empty():
             r, g, b = get_random_color()                                                                                                # Reset for the next line
 
     except queue.Empty:
-        claire.tick(mode="fg")                                                                                                          # color-cycle the default-color text using my library
+        claire.tick(mode=my_mode)                                                                                                          # color-cycle the default-color text using my library
         sys.stdout.flush()
 
     sys.stdout.flush()
