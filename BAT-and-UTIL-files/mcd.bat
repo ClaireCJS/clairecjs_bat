@@ -5,9 +5,12 @@
 
 
 
-if "%@UPPER[%1]" eq "NOW" (mcdnow %&)  %+ REM do not use 'call' - this is a transfer of control to the correct BAT file
+if "%@UPPER[%1]" eq "NOW" (call mcdnow %& %+ goto :END)  
 
 if     isdir %1 (call warning "folder '%1' %blink_on%already exists%blink_off%!'")
-if not isdir %1 (md %1)
-                 cd %1
+if not isdir %1 (*md %1)
+                  cd %1
+
+
+:END
 

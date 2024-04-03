@@ -1,6 +1,6 @@
 @Echo on
 
-mcd test-cd
+call  mcd test-cd
 
 repeat 100 call make-zero-byte-file-named %_repeat
 
@@ -14,6 +14,5 @@ cd test-cd
 
 cd ..
 
-pause
 
-dir test-cd
+

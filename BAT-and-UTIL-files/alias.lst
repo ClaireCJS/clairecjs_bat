@@ -56,6 +56,7 @@ more=  @call         more.bat
 mv=    @call           mv.bat
 pause =@call  pause-alias.bat
 python=@call       python.bat
+rd=    @call     rd-alias.bat 
 say=   @call          say.bat 
 sleep= @call        sleep.bat
 sort = @call         sort.bat
@@ -122,7 +123,7 @@ comp=*comp /m
 gr=grep --text --color=always -i -d skip
 md=*md /Nt
 netstat=*netstat -an
-rd=*rd /Nt
+;rd is aliased to rd-alias.bat now... but it used to be: rd=*rd /Nt
 ren=*ren /Nt
 
 
