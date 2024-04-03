@@ -1,5 +1,11 @@
 @Echo Off
 
+:DESCRIPTION: "cd" but with file-number-tracking and a tiny bit of file maintenance
+:DESCRIPTION:
+:DESCRIPTION: NOTE: Uses a bunch of fancy environment variables for stylization —— see set-colors.bat for those.
+:DESCRIPTION:                                                                      (Not required, but nice to have.)
+
+
 rem Capture parameters & keep track of the last folder we're in —— this is done automatically in other ways but we want our own:
         set CD_PARAMS=%*
         set CD_PARAM1=%1
@@ -7,7 +13,6 @@ rem Capture parameters & keep track of the last folder we're in —— this is d
         set CD_PARAM3=%3
         set CD_PARAM4=%4
         set CD_PARAM5=%5
-
 
 rem Does the folder exist?
         if "-" ne "%CD_PARAM1%" .and. not isdir %CD_PARAM1% .and. not isdir %CD_PARAM2% .and. not isdir %CD_PARAM3% .and. not isdir %CD_PARAM4% .and. not isdir %CD_PARAM5% (
