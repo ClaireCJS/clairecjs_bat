@@ -74,11 +74,13 @@ rem Delete files we don't ever want to exist:
             if exist       a.out (                     *del /z       a.out) %+ rem ::::: cruft: Unix
             if exist       *.pkf (                     *del /z       *.pkf) %+ rem ::::: cruft: CoolEdit/Audition 
             if exist       *.mta (sweep if exist *.mta *del /z       *.mta) %+ rem ::::: cruft: Samsung Allshare 
-            if exist   clear     (                                          %+ rem ::::: cruft: wget calls to WinAmp's wawi plugin
-                    call warning "'clear' file found!%ANSI_COLOR_RED%" 
-                    call divider 
-                    type clear 
-                    call divider 
+            rem ::::: cruft: wget calls to WinAmp's wawi plugin:
+            if exist   clear     (                                          
+                    echos %ANSI_COLOR_WARNING% 'clear' file found %DASH% this should probably be deleted! %ANSI_COLOR_NORMAL%
+                    echo  %ANSI_COLOR_MAGENTA% %+ call divider 
+                    echos %[ANSI_COLOR_YELLOW]%BLINK_ON% %+ type clear 
+                    echos %ANSI_COLOR_MAGENTA%%BLINK_OFF %+ call divider 
+                    echos %ANSI_COLOR_BRIGHT_RED%%ANSI_BLINK_ON%%EMOJI_RED_QUESTION_MARK%
                     *del /p clear
             )                                                
 
