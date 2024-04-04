@@ -350,7 +350,8 @@ return
             set DRIVES_WYVERN=F A
             set DRIVE_C_WYVERN=F
             set DRIVE_C_WYVERN_VAR=%F%
-            SET MAPPING_WYVERN_USR=carol
+            rem MAPPING_WYVERN_USR=carol   [202311-20240403]
+            SET MAPPING_WYVERN_USR=carolyn
             :: this is Carolyn's microsoftlive carolyncasl@gmail.com login password:
             REM MAPPING_WYVERN_PWD=[REDACTED into private.env]
 
@@ -358,7 +359,6 @@ return
                set   HD10T1_DOWN=1  %+ set HD10T1=W      %+ SET W=HD10T1       %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1  %+ rem annoying 10TB drive with L-tab broken off SATA power port
 			   set HD2000G5_DOWN=1  %+ set HD2000G5=N    %+ SET N=HD2000G5     %+ SET HD2T5=%HD2000G5%  %+ REM marked as down 2024/02/20 because cannot locate
                REM suspended: SET MAPPING_W=GOLIATH10T1  %+  SET MAPPING_N=GOLIATH2000G  
-
 
         ::MARK SSD DRIVES: 
 			SET   HD128G_SSD=1

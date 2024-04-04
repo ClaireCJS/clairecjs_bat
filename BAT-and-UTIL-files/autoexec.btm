@@ -19,6 +19,9 @@ REM Load our autohotkey script right away since it has winamp control aspects in
 REM Above all else, the music must flow
         if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (call winamp autoexec*)
 
+REM backup files
+        call backup-important-files
+
 REM Occasionally something glitches and it wants to run this in a new TCC window. 
 REM This gives us a chance to stop it, if we are there and present
         call pause-for-x-seconds 90 "* Press any key to run autoexec..."
@@ -27,6 +30,7 @@ REM Log each run of this:
         echo * %0 run at at %_DATETIME>>c:\logs\reboots-%MACHINENAME%.log
 
 REM Startup various programs
+        call roll-logs
         call chrome
         call opera
         call map-drives

@@ -10,7 +10,7 @@
 2023-08-26  19:25          1,074   68%  age.bat
 2022-02-02  02:53          1,574   63%  alarm-beep.bat
 2024-02-02  20:24          3,616   58%  ALIAS.LST
-2024-04-03  19:46          5,029   67%  all-ready-drives.bat
+2024-04-04  00:20          5,147   67%  all-ready-drives.bat
 2024-03-24  19:07            238   24%  allbmp2jpg.bat
 2024-03-24  20:48          5,494   61%  allfile2.pl
 2023-05-19  13:46            657   47%  allfilea2w.pl
@@ -48,7 +48,7 @@
 2023-10-06  08:04             23   -8%  autoprocess.bat
 2023-07-03  18:02          1,603   58%  average.py
 2023-06-07  19:48             18  -11%  avg.bat
-2024-03-19  10:46          6,788   70%  backup-important-files.bat
+2024-04-04  04:49          6,788   70%  backup-important-files.bat
 2024-03-27  17:31          8,073   77%  backup-repositories.bat
 2024-03-19  10:35          2,009   58%  backup-repository.bat
 2019-10-01  10:27          1,744   57%  backup-thing.bat
@@ -162,7 +162,7 @@
 2024-04-03  18:34         69,673   78%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-04-03  19:35        171,395   81%  environm.btm
+2024-04-04  13:29        171,457   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -485,11 +485,13 @@
 2019-10-01  10:28            335   40%  usb-remove-safely.bat
 2024-03-18  09:00            216   28%  validate-ahk.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
-2024-03-31  05:06         14,148   77%  validate-environment-variable.bat
+2024-04-04  00:32         14,278   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
 2024-03-20  11:59          2,171   62%  validate-file-extension.bat
 2023-08-12  20:18          1,438   56%  validate-in-path.bat
 2023-04-28  14:04            627   51%  view_pickle.py
+2023-06-13  18:25          1,372   57%  wake-all-drives-helper.bat
+2023-06-11  14:06             95    5%  wake-all-drives.bat
 2024-03-18  14:23          2,153   72%  wake-computers.bat
 2023-06-02  13:02             44   -4%  warning.bat
 2023-06-08  21:27             49   -4%  warning_soft.bat

@@ -75,7 +75,7 @@ goto :END
 
     :backup_file [dropbox_YN desc filepath]
         echo.
-        call less_important "%ANSI_COLOR_CYAN%Backing up %italics_on%%double_underline_on%%ANSI_COLOR_BRIGHT_CYAN%%@UNQUOTE[%desc%]%italics_off%%double_underline_off% %ANSI_COLOR_BRIGHT_BLUE%(%filename%):"
+        call less_important "%ANSI_COLOR_CYAN%Backing up %italics_on%%double_underline_on%%ANSI_COLOR_BRIGHT_CYAN%%@UNQUOTE[%desc%]%italics_off%%double_underline_off% %ANSI_COLOR_BRIGHT_BLUE%(%filepath%):"
         if not exist %filepath% (call error "file '%filename%' doesn't exist when trying to back up %desc%")
         echos %@RANDFG[]
 

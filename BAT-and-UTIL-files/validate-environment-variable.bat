@@ -189,10 +189,11 @@ goto :Past_The_End_Of_The_Sub-Routines
 
         ::::: ADDITIONALLY, VALIDATE THAT IT EXISTS, IF IT SEEMS TO BE POINTING TO A FOLDER/FILE:
             :Defined_YES
-            set VARVALUE=%[%VARNAME%]``                      %+ if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
-            set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])       %+ set IS_FILE_LOCATION=0
+            set VARVALUE=%[%VARNAME%]``                    %+ if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
+            set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])     %+ set IS_FILE_LOCATION=0
             setdos /x-5
-            if "1" eq   "%@REGEX[^[A-Z]:,%@UPPER[%VARVALUE%]]" (set IS_FILE_LOCATION=1)
+rem         if defined VARVALUE .and. "1" eq "%@REGEX[^[A-Z]:,%@UPPER[%VARVALUE%]]" (set IS_FILE_LOCATION=1)
+            if defined VARVALUE .and. "1" eq "%@REGEX[^[A-Z]:,%@UPPER[%VARVALUE%]]" (set IS_FILE_LOCATION=1)
             setdos /x0
             if  "0" eq "%IS_FILE_LOCATION%"         (goto :DontValidateIfExists)
             if  "0" eq "%@READY[%VARVALUEDRIVE%]"   (goto :DontValidateIfExists)                         %+ rem //Don't look for if drive letter doesn't exist--it's SLOWWWWW

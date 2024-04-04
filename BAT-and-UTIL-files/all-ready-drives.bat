@@ -29,6 +29,8 @@ rem get command, which may be enclosed in quotes (so we can in theory use multip
 
         
 rem Go through each ready drive, and substitute DRIVE_LETTER into the proper letter:
+        call wake-all-drives
+        echo.
         for %%tmpletter in (%OUR_ALPHABET_TO_USE%) gosub doLetter %tmpletter
 
 goto :END
@@ -39,7 +41,6 @@ goto :END
 
 
         :doLetter [letter]
-            echo.
             set DRIVE_LETTER_PRETTY=%emphasis%%@UPPER[%letter%]%deemphasis%:
             rem call important_less "doing %drive_letter_pretty%"
             rem echo if "%%@READY[%letter%]"{%@READY[%letter%]} eq "1" 
@@ -48,15 +49,19 @@ goto :END
             if "%@UPPER[%[%letter]]" eq "%@UPPER[%[%[DRIVE_C_%MACHINENAME%]]]"  set SAME=1
             rem same for %letter% is %same%
             if %SAME eq 0 .and. %OPTION_SKIP_SAME_C eq 1  goto :Not_Same
+                echo.
                 rem echos %STAR% ``
                 rem echo %ANSI_COLOR_RED%Skipping drive %DRIVE_LETTER_PRETTY% %ANSI_COLOR_RED%because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]... %ANSI_RESET%
                 call bigecho %STAR% %ANSI_COLOR_RED%Skipping drive %DRIVE_LETTER_PRETTY%
-                call echo       %ITALICS_ON%%ANSI_COLOR_RED%(because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]...)%ITALICS_OFF%%ANSI_RESET%
+                echo       %ITALICS_ON%%ANSI_COLOR_RED%(because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]...)%ITALICS_OFF%%ANSI_RESET%
+                echo.
                 goto :End_Of_For_Loop
             :Not_Same
 
 
             if "%@READY[%letter%]" ne "1" goto :Drive_Not_Ready
+                rem no yes
+                echo.
                 call bigecho %STAR% Doing drive letter %DRIVE_LETTER_PRETTY%... 
                 set FIXED_COMMAND=%@REPLACE[DRIVE_LETTER,%letter,%COMMAND]
                 title Doing %letter%: -- %FIXED_COMMAND% 
