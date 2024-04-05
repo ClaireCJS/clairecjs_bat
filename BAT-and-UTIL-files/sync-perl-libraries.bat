@@ -12,6 +12,7 @@ rem Sync our libraries to every drive letter that has them:
         set OPTION_ECHO_RAYRAY=1
         call all-ready-drives "if exist DRIVE_LETTER:%PERL_OFFICIAL_SITELIB_ALL_PATH% copy /e /w /u /s /a: /[!.git *.bak] /h /z /k /g %PERL_OFFICIAL_SITELIB_ALL% DRIVE_LETTER:%PERL_OFFICIAL_SITELIB_ALL_PATH%"
 
+
 rem Commit them pushto any GIT library that may exist, while handling our convention of suppressing-pauses-by-environment-variable, since our git-commit wrapper has pauses for interactive uses:
         echo.
         call divider big

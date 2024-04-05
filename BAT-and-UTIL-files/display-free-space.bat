@@ -41,12 +41,17 @@ rem Process paramters:
 
 
 rem Validate parameters:
-    if 0 eq %@READY[%DISPLAY_FREE_SPACE_TARGET%] (call error "Does not exist: '%italics_on%%DISPLAY_FREE_SPACE_TARGET%%italics_off%'" %+ goto :END)
+        if 0 eq %@READY[%DISPLAY_FREE_SPACE_TARGET%] (call error "Does not exist: '%italics_on%%DISPLAY_FREE_SPACE_TARGET%%italics_off%'" %+ goto :END)
 
-set DISKFREE=%ansi_color_error%%blink%ERROR
-set DISKFREE=%@COMMA[%@EVAL[%@DISKFREE[%DISPLAY_FREE_SPACE_TARGET%]/1024/1024/1024]]
-call print-message %MESSAGE_TYPE% "Free space now %DISKFREE%"
 
+rem Get the free space and print it out
+        set DISKFREE=%ansi_color_error%%blink%ERROR
+        set DISKFREE=%@COMMA[%@EVAL[%@DISKFREE[%DISPLAY_FREE_SPACE_TARGET%]/1024/1024/1024]]
+        call print-message %MESSAGE_TYPE% "Free space now %DISKFREE%"
+
+rem a Warning if space is low?
+        if %@DISKFREE[%SYNCTARGET%] lt 150000000 (set NEWLINE_REPLACEMENT=0 %+ repeat 3 (beep 60 25 %+ beep 800 3) %+ call WARNING "Not much free space left on %SYNCTARGET%!" %+ pause 3000 )
 
 
 :END
+
