@@ -220,7 +220,7 @@
 2023-06-02  19:02            623   53%  git-add-every-damn-file.bat
 2024-03-15  10:52            797   49%  git-add.bat
 2023-06-14  23:46             81    7%  git-commit-history.bat
-2024-03-14  21:10          2,455   55%  git-commit.bat
+2024-04-05  14:18          2,454   56%  git-commit.bat
 2023-10-06  06:37             45   -4%  git-config-set-commit-preference-to-rebase.bat
 2023-06-14  23:22             54    4%  git-config-set-commit-preferences-to-rebase.bat
 2023-10-06  06:37             18  -11%  git-history.bat
@@ -343,7 +343,7 @@
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
 2024-03-18  11:29             13  -15%  previousdir.bat
 2023-06-09  22:02             67    6%  print-if-debug.bat
-2024-04-03  18:12         17,654   74%  print-message.bat
+2024-04-05  14:31         18,358   75%  print-message.bat
 2024-02-14  02:28         13,998   74%  process-done-torrent.btm
 2024-03-18  22:28          2,192   64%  process-rookie-folders.bat
 2023-06-02  13:09          1,023   67%  prompt-Carolyn.bat
@@ -454,11 +454,14 @@
 2023-06-01  14:32             43   -4%  subtle.bat
 2023-06-01  05:17            294   42%  success.bat
 2023-11-23  13:46             11  -18%  symlink.bat
-2023-08-22  23:44          6,738   70%  sync-a-folder-to-somewhere.bat
+2024-04-05  14:29          6,780   70%  sync-a-folder-to-somewhere.bat
 2023-06-20  03:45         13,942   69%  sync-filelist-helper.pl
 2023-10-06  06:57          2,602   70%  sync-filelist.bat
+2024-04-05  14:33             42   -4%  sync-perl-libraries-to-dropbox.bat
 2024-04-05  14:01          1,482   54%  sync-perl-libraries.bat
 2024-04-05  13:45            457   38%  sync-perlsitelib-to-dropbox.bat
+2024-04-05  14:35             59   -3%  sync-python-libraries-to-dropbox.bat
+2024-04-05  14:29            500   38%  sync-python-personal-libaries-to-dropbox.bat
 2019-10-01  10:28            201   44%  tail.bat
 2023-06-09  14:38            153   41%  tee.bat
 2024-03-19  15:23          1,646   85%  test-askyn.bat
