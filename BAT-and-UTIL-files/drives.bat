@@ -36,12 +36,17 @@ goto :END
 				set DESC=%@label[%drive%]
 				goto :Ready_DONE
 			:Ready_DONE
+
+        rem Colors/setup for andom discs
 		%COLOR_WARNING%
         set color_to_use=%color_warning%
         set spacer=
         set EMOJITOUSE=%EMOJI_OPTICAL_DISK%
         set echocommand=call echobig
 		if "%@REGEX[NOT READY,%DESC%]" eq "1" %COLOR_NORMAL%
+
+        rem But if they are part of our system (label has "HDxxG" or "HDxxT" in it), display them with the proper color for the computer they're from:
+        rem TODO: update to use official machine emoji rather than hardcoded emoji
 		if "%@REGEX[HD[0-9]+G,%DESC%]" eq "1" .or. "%@REGEX[HD[0-9]+T,%DESC%]" eq "1" (
                 set EMOJITOUSE=%EMOJI_HARD_DISK%
 				color green on black
@@ -73,7 +78,7 @@ goto :END
             set Post=%UNDERLINE_OFF%%BLINK_OFF%%ANSI_RESET%%ANSI_COLOR_SUCCESS%%FAINT_ON%  `<`---- you are here%FAINT_OFF%
         )
         setdos /x-678
-		%echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%
+		%echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
         setdos /x0
         if "%echocommand%" eq "echos" (%COLOR_NORMAL%%FAINT_OFF% %+ echo.)
 	return

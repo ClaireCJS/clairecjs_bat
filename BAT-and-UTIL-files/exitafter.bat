@@ -1,25 +1,13 @@
 @Echo OFF
 
 
+:DESCRIPTION: This simply issues an 'exit' command if we are passed 'exit' or 'exitafter' for either %1 or %2
 
-::::: OPTIONS:
-    if "%WINDOW_MINIMIZE%" eq  "1" (window min )
-    if  "WINDOW_MINIMIZE"  eq "%1" (window min )
-    if "%WINDOW_HIDE%"     eq  "1" (window hide)
-    if  "WINDOW_HIDE"      eq "%1" (window hide)
+:USAGE: At the end of any bat file, simply invoke: call exitafter %* —— This will exit if the proper parameters or environment variables were set
 
-
-
-
-::::: PASS THORUGH THE COMMAND-LINE:
-%*
-
-
-
-unset /q WINDOW_MINIMIZE
-unset /q WINDOW_HIDE
-
-exit
-
-
+if "%1" eq  "exit"      (exit)
+if "%2" eq  "exit"      (exit)
+if "%1" eq  "exitafter" (exit)
+if "%2" eq  "exitafter" (exit)
+if  "1" eq "%EXITAFTER" (set EXITAFTER=0 %+ exit)
 
