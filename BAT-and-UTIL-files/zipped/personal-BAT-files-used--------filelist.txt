@@ -10,7 +10,7 @@
 2023-08-26  19:25          1,074   68%  age.bat
 2022-02-02  02:53          1,574   63%  alarm-beep.bat
 2024-02-02  20:24          3,616   58%  ALIAS.LST
-2024-04-04  00:20          5,147   67%  all-ready-drives.bat
+2024-04-05  15:40          5,173   67%  all-ready-drives.bat
 2024-03-24  19:07            238   24%  allbmp2jpg.bat
 2024-03-24  20:48          5,494   61%  allfile2.pl
 2023-05-19  13:46            657   47%  allfilea2w.pl
@@ -66,6 +66,7 @@
 2024-04-05  05:59            772   55%  change-into-random-dir.bat
 2023-05-05  01:06          1,814   50%  chatgpt-query.py
 2023-04-28  21:33             16  -12%  check-for-applications-and-programs-that-can-be-upgraded.bat
+2024-04-05  15:49            705   64%  check-if-asking-for-usage.bat
 2024-03-18  13:29         11,473   81%  checkmappings.bat
 2023-10-14  02:51            452   52%  checktemp.bat
 2022-02-02  03:10            526   50%  checkusername.bat
@@ -80,7 +81,7 @@
 2023-06-05  23:43             64   29%  color.bat
 2019-10-01  10:27            592   49%  colorize-by-computer-name.bat
 2023-05-26  15:16            832   62%  colors-all.bat
-2024-03-18  14:14          2,802   61%  colors.bat
+2024-04-05  16:26          2,918   61%  colors.bat
 2024-03-23  01:28            166   46%  commit-and-push.bat
 2019-10-01  09:27             21   -9%  commit.bat
 2023-08-20  13:47            575   43%  connections-monitor.bat
@@ -137,8 +138,10 @@
 2023-07-10  20:27          1,060   49%  display-emojis-in-environment.bat
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
 2022-11-19  16:52            242   29%  display-flac-tags.bat
+2024-04-05  18:04          2,909   67%  display-free-space.bat
 2024-03-31  05:14          2,971   65%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
+2024-04-05  16:27            775   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-03-29  20:08            128    6%  display-mp3-artists.bat
 2023-05-24  10:52            732   55%  display-mp3-comment-with-eyed3-library.py
 2024-03-29  20:09            135   23%  display-mp3-tags.bat
@@ -152,14 +155,16 @@
 2023-08-21  07:08         20,242   69%  download-youtube-album.bat
 2024-04-04  21:23          3,978   66%  drives.bat
 2019-10-01  10:27            193   49%  du.bat
+2024-04-05  17:32            846   51%  dump-environment-to-tmpfile.bat
 2024-03-13  23:19             32   -6%  dvl.bat
 2019-10-01  10:27             45   -4%  ec.bat
 2023-11-07  13:36          3,152   71%  echo-rainbow.bat
 2023-06-26  20:54         29,196   69%  edit-currently-playing-attrib-helper.pl
 2023-07-16  13:29         10,912   75%  edit-currently-playing-attrib.bat
 2023-09-15  12:27          3,399   66%  editGrep.bat
-2023-10-06  05:33          1,701   57%  emoji-search.bat
-2024-04-03  18:34         69,673   78%  emoji.env
+2023-07-14  10:37             23   -8%  emoji-grep.bat
+2024-04-05  16:35          1,818   59%  emoji-search.bat
+2024-04-05  17:08         69,852   78%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2024-03-20  14:55            359   38%  env.bat
 2024-04-05  13:55        173,720   81%  environm.btm
@@ -205,6 +210,7 @@
 2024-03-20  23:46          8,597   73%  FR.bat
 2024-03-18  11:22          8,477   69%  frpost-helper.pl
 2024-02-21  02:01            117    9%  frpost.bat
+2024-04-05  17:58          1,452   57%  gather-message-types-into-pretty-environment-variable.bat
 2023-06-08  20:46            825   60%  generate-and-play-random-midi.bat
 2023-06-08  20:46            825   60%  generate-and-play-random-midi.btm
 2023-10-06  05:51          1,667   61%  generate-audio-playlists.bat
@@ -400,7 +406,7 @@
 2023-06-13  16:06             57    0%  send-keypress-alt_up.ahk
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
-2024-04-03  17:00         31,257   82%  set-colors.bat
+2024-04-05  17:54         32,616   82%  set-colors.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
 2024-03-13  13:45          6,083   63%  set-emojis.bat
@@ -495,7 +501,7 @@
 2024-04-04  00:32         14,278   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
 2024-03-20  11:59          2,171   62%  validate-file-extension.bat
-2023-08-12  20:18          1,438   56%  validate-in-path.bat
+2024-04-05  18:20          1,442   56%  validate-in-path.bat
 2023-04-28  14:04            627   51%  view_pickle.py
 2023-06-13  18:25          1,372   57%  wake-all-drives-helper.bat
 2023-06-11  14:06             95    5%  wake-all-drives.bat

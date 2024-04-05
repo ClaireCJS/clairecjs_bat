@@ -8,8 +8,23 @@
 :USAGE: NOTE: arg1 must match a color type i.e. "ERROR" "WARNING" "DEBUG" "SUCCESS" "IMPORTANT" "INPUT" "LESS_IMPORTANT", etc
 :USAGE: ALSO: can set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1 to suppress audio effects. Must be set each call.
 
+
+
+
+rem MESSAGE TYPES LIST: PLEASE ADD ANY NEW MESSAGE TYPES TO THIS LIST BEFORE IMPLEMENTING THEM!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    set MESSAGE_TYPES=FATAL_ERROR ERROR_FATAL ERROR WARNING WARNING_LESS WARNING_SOFT ALARM DEBUG IMPORTANT IMPORTANT_LESS LESS_IMPORTANT CELEBRATION COMPLETION SUCCESS REMOVAL ADVICE NORMAL UNIMPORTANT SUBTLE
+    set MESSAGE_TYPES_WITHOUT_ALIASES=FATAL_ERROR ERROR WARNING WARNING_LESS ALARM DEBUG IMPORTANT IMPORTANT_LESS CELEBRATION COMPLETION SUCCESS REMOVAL ADVICE NORMAL UNIMPORTANT SUBTLE
+    if "%1" eq "vars_only" (goto :END) %+ rem we like to grab these 2 env varibles when environm is run, even before print-message is ever run, via this call: if not defined MESSAGE_TYPES (call print-message vars_only)
+    rem ^^^ Gther all these into a nice looking environment variable where they are each appropriately ansi-colored with: gather-message-types-into-pretty-environment-variable.bat
+
+
+
+
+
+
 REM DEBUG:
     set DEBUG_PRINTMESSAGE=0
+
 
 REM Initialize variables
     set PM_PARAMS=%*
@@ -63,6 +78,7 @@ REM Validate parameters
     if %VALIDATED_PRINTMESSAGE_ENV ne 1 (
         call validate-environment-variable  COLOR_%TYPE% "This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment"
         call validate-environment-variable  MESSAGE skip_validation_existence
+        call validate-in-path beep colors
         REM call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF
         set VALIDATED_PRINTMESSAGE_ENV=1
     )
@@ -102,13 +118,16 @@ REM Behavior overides and message decorators depending on the type of message?
     if  "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%)
     if  "%TYPE%"  eq "COMPLETION"     (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT=! ***)
     if  "%TYPE%"  eq "ALARM"          (set DECORATOR_LEFT=* ``          %+ set DECORATOR_RIGHT= *)
+    if  "%TYPE%"  eq "REMOVAL"        (set DECORATOR_LEFT=%RED_SKULL%%SKULL%%RED_SKULL% ``        %+ set DECORATOR_RIGHT= %RED_SKULL%%SKULL%%RED_SKULL%)
     if  "%TYPE%"  eq "ERROR"          (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT= ***)
     if  "%TYPE%"  eq "FATAL_ERROR"    (set DECORATOR_LEFT=***** !!! ``  %+ set DECORATOR_RIGHT= !!! *****)
     set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
 
 
-REM Update the window title, with its own independent decorators 
+REM We're going to update the window title to the message:
     set TITLE=%MESSAGE%
+
+REM But first let's decorate the window title for certain message types:
     if "%TYPE%" eq          "DEBUG" (set            TITLE=DEBUG: %title%)
     if "%TYPE%" eq   "WARNING_LESS" (set          TITLE=Warning: %title%)
     if "%TYPE%" eq        "WARNING" (set          TITLE=WARNING: %title% !)
@@ -119,7 +138,11 @@ REM Update the window title, with its own independent decorators
     if "%TYPE%" eq          "ERROR" (set         TITLE=!! ERROR: %title% !!)
     if "%TYPE%" eq    "FATAL_ERROR" (set TITLE=!!!! FATAL ERROR: %title% !!!!)
 
-REM Pre-message beep based on message type
+REM Prior to actually updating the window title:
+    title %title%
+
+
+REM Some messages will be decorated with audio:
     if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO eq 1 (goto :No_Beeps_1)
         if "%TYPE%" eq "DEBUG"  (beep  lowest 1)
         if "%TYPE%" eq "ADVICE" (beep highest 3)

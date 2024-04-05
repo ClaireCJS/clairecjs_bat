@@ -8,22 +8,24 @@ REM parameter processing
         set SILENT=0
         if "%PARAM%" eq  ""  (set PARAM=.*)
         if  "silent" eq "%1" (set SILENT=1)
+        call validate-environment-variables STAR PARAM BIG_TOP BIG_BOT
 
-
-REM dump environment to file
-        if not defined TMPFILE (call set-tmp-file)
-        if not exist %TMPFILE% .or. "%2" eq "force" (
-            call important "Dumping environment variables..."
-            timer /4 on
-            REM 2.2 seconds            set|sed "s/=.*$//ig" >"%TMPFILE%"
-            set|cut -d "=" -f1 >"%TMPFILE%"
-            timer /4 off
-            :DEBUG: (set|sed "s/=.*$//ig") %+ echo TMPFILE: %+ type "%TMPFILE%" %+ pause
-        )
+REM dump environment to tmp%file
+        call dump-environment-to-tmpfile.bat
 
 REM go through each enviroment variable
+        echo.
+        set EMOJI_GREP_RESULTS=
         for /f "tokens=1-999" %co in (%TMPFILE%) gosub ProcessEnvVar %co%
 
+        iF "%EMOJI_GREP_RESULTS%" eq "" (
+            call warning "Found no emoji with '%italics%%PARAM%%italics_off%' in its name"
+        ) else (
+            echo.
+            echo  %star% These are all the results: %EMOJI_GREP_RESULTS%
+            echo.
+            call bigecho %EMOJI_GREP_RESULTS%
+        )
 
 goto :END
     :ProcessEnvVar [var]
@@ -31,8 +33,9 @@ goto :END
         if "%@REGEX[%@UPPER[%PARAM],%@UPPER[%VAR%]]" ne "1" (return)
         if %FOUND ne 1 (echo.)
         set FOUND=1
+        set EMOJI_GREP_RESULTS=%EMOJI_GREP_RESULTS% %[%VAR%]
         if %SILENT ne 1 (
-            echo  %faint%* This is%faint_off% %VAR%: %[%VAR%]
+            echo  %faint%%star% This is%faint_off% %VAR%: %[%VAR%]
             REM also echo it in double-height if we can:
                 if defined BIG_TOP .and. defined BIG_BOT (
                     echo   %BIG_TOP%%[%VAR%]

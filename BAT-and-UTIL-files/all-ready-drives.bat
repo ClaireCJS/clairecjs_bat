@@ -83,3 +83,4 @@ rem Cleanup
         if defined DRIVE_LETTERS_TO_USE (unset /q DRIVE_LETTERS_TO_USE)
         if defined OPTION_SKIP_SAME_C   (unset /q OPTION_SKIP_SAME_C  )
         call fix-window-title
+        echos %ANSI_RESET%

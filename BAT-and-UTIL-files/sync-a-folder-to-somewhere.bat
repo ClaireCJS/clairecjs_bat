@@ -156,8 +156,11 @@ pushd
 :END
 
 popd
-call important "Free space now %@DISKFREE[%SYNCTARGET%]"
-if %@DISKFREE[%SYNCTARGET%] lt 150000000 (%COLOR_WARNING% %+ set NEWLINE_REPLACEMENT=0 %+ call WARNING "Not much free space left on %SYNCTARGET%!" %+ pause 3000 )
+call display-free-space %SYNCTARGET%
+rem set DISKFREE=%@COMMA[%@EVAL[%@DISKFREE[%SYNCTARGET%]/1024/1024/1024]]
+rem call important "Free space now %DISKFREE%"
+
+if %@DISKFREE[%SYNCTARGET%] lt 150000000 (set NEWLINE_REPLACEMENT=0 %+ repeat 3 (beep 60 25 %+ beep 800 3) %+ call WARNING "Not much free space left on %SYNCTARGET%!" %+ pause 3000 )
 
 unset /q ZIP
 %COLOR_NORMAL%

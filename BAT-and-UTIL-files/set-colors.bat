@@ -39,6 +39,8 @@ rem ANSI: special stuff: position save/restore
                 set ANSI_RESTORE=%ANSI_POSITION_RESTORE%          
             set ANSI_POSITION_REQUEST=%ANSI_ESCAPE%6n	                    %+ REM query/request current cursor position (reports as ESC[#;#R)
                 set ANSI_REQUEST_POSITION=%ANSI_POSITION_REQUEST%
+            set ANSI_REQUEST_FG_COLOR=%ANSI_ESCAPE%38;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
+            set ANSI_REQUEST_BG_COLOR=%ANSI_ESCAPE%48;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
 
 rem ANSI: position movement
         rem To Home
@@ -93,17 +95,25 @@ rem ANSI: erase
     rem                   n=2 clears entire line
             set ANSI_ERASE_CURRENT_LINE=%ANSI_ESCAPE%K                      %+ rem erases in line
                 set ANSI_ERASE_LINE=%ANSI_ERASE_CURRENT_LINE%               %+ rem alias
+                set ANSI_CLEAR_LINE=%ANSI_ERASE_CURRENT_LINE%               %+ rem alias
                 set ANSI_LINE_ERASE=%ANSI_ERASE_CURRENT_LINE%               %+ rem alias
+                set ANSI_LINE_CLEAR=%ANSI_ERASE_CURRENT_LINE%               %+ rem alias
             set ANSI_ERASE_TO_END_OF_LINE=%ANSI_ESCAPE%0K                   %+ rem erases from cursor until end of line
                 set ANSI_ERASE_TO_END=%ANSI_ERASE_TO_END_OF_LINE%
+                set ANSI_CLEAR_TO_END=%ANSI_ERASE_TO_END_OF_LINE%
                 set ANSI_ERASE_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%
+                set ANSI_CLEAR_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%
                 set     ANSI_LINE_FIX=%ANSI_ERASE_TO_END_OF_LINE%
                 set      ANSI_LINEFIX=%ANSI_LINE_FIX%
                 set          ANSI_EOL=%ANSI_LINE_FIX%
             set ANSI_ERASE_TO_BEG_OF_LINE=%ANSI_ESCAPE%1K                   %+ rem erases from cursor until end of line
+                set ANSI_CLEAR_TO_BEG_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
                 set ANSI_ERASE_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%
+                set ANSI_CLEAR_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%
                 set ANSI_ERASE_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%
+                set ANSI_CLEAR_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%
                 set ANSI_ERASE_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
+                set ANSI_CLEAR_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
 
 
 rem ANSI: colors 
@@ -168,6 +178,7 @@ rem ANSI: colors
             set ANSI_WHITE=%ANSI_ESCAPE%37m
             set ANSI_GRAY=%ANSI_ESCAPE%90m
             set ANSI_GREY=%ANSI_ESCAPE%90m
+            set ANSI_BRIGHT_BLACK=%ANSI_GREY%
             set ANSI_BRIGHT_RED=%ANSI_ESCAPE%91m
             set ANSI_BRIGHT_GREEN=%ANSI_ESCAPE%92m
             set ANSI_BRIGHT_YELLOW=%ANSI_ESCAPE%93m
@@ -192,6 +203,7 @@ rem ANSI: colors
                 set ANSI_COLOR_WHITE=%ANSI_ESCAPE%37m
                 set ANSI_COLOR_GRAY=%ANSI_ESCAPE%90m
                 set ANSI_COLOR_GREY=%ANSI_ESCAPE%90m
+                set ANSI_COLOR_BRIGHT_BLACK=%ANSI_COLOR_GREY%
                 set ANSI_COLOR_BRIGHT_RED=%ANSI_ESCAPE%91m
                 set ANSI_COLOR_BRIGHT_GREEN=%ANSI_ESCAPE%92m
                 set ANSI_COLOR_BRIGHT_YELLOW=%ANSI_ESCAPE%93m
@@ -390,27 +402,28 @@ REM test strings that demonstrate all this ANSI functionality
 REM colors for our messaging system
         set COLOR_ADVICE=        color bright magenta on        black  %+ set ANSI_COLOR_ADVICE=%ANSI_RESET%%ANSI_BRIGHT_MAGENTA%%ANSI_BACKGROUND_BLACK%%+ 
         SET COLOR_ALARM=         color bright white   on        red    %+ set ANSI_COLOR_ALARM=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_RED%                         %+ set COLOR_ERROR=%COLOR_ALARM% %+ set ANSI_COLOR_ERROR=%ANSI_COLOR_ALARM% %+ set COLOR_FATAL_ERROR=%COLOR_ERROR% %+ SET ANSI_COLOR_FATAL_ERROR=%ANSI_COLOR_ALARM% %+ set COLOR_ERROR_FATAL=%COLOR_FATAL_ERROR% %+ set ANSI_COLOR_ERROR_FATAL=%ANSI_COLOR_FATAL_ERROR%
-        SET COLOR_COMPLETION=    color bright white   on        green  %+ set ANSI_COLOR_COMPLETION=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_GREEN%                  %+ set COLOR_CELEBRATION=%COLOR_COMPLETION%
+        SET COLOR_COMPLETION=    color bright white   on        green  %+ set ANSI_COLOR_COMPLETION=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_GREEN%                  %+ set COLOR_CELEBRATION=%COLOR_COMPLETION% %+ set ANSI_COLOR_CELEBRATION=%ANSI_COLOR_COMPLETION%
         SET COLOR_DEBUG=         color        green   on        black  %+ set ANSI_COLOR_DEBUG=%ANSI_RESET%%ANSI_BRIGHT_GREEN%%ANSI_BACKGROUND_BLACK%
         SET COLOR_IMPORTANT=     color bright cyan    on        black  %+ set ANSI_COLOR_IMPORTANT=%ANSI_RESET%%ANSI_BRIGHT_CYAN%%ANSI_BACKGROUND_BLACK%
         SET COLOR_IMPORTANT_LESS=color        cyan    on        black  %+ set ANSI_COLOR_IMPORTANT_LESS=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_BLACK%%faint_on%            %+ set COLOR_LESS_IMPORTANT=%COLOR_IMPORTANT_LESS% %+ set ANSI_COLOR_LESS_IMPORTANT=%ANSI_COLOR_IMPORTANT_LESS%
         SET COLOR_INPUT=         color bright white   on        black  %+ set ANSI_COLOR_INPUT=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_BLACK%                       %+ rem  had this set from inception til 2023
         SET COLOR_GREP=          color bright yellow  on        green  %+ set ANSI_COLOR_GREP=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_GREEN%                      
-        :ET COLOR_LOGGING=       color bright blue    on        black  %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_BRIGHT_BLUE%%ANSI_BACKGROUND_BLACK%                      %+ rem  For logging temp filenames to screen, etc.
+        rem COLOR_LOGGING=       color bright blue    on        black  %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_BRIGHT_BLUE%%ANSI_BACKGROUND_BLACK%                      %+ rem  For logging temp filenames to screen, etc.
         SET COLOR_LOGGING=       COLOR        cyan    on        red    %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_RED%%OVERSTRIKE_ON%%ITALICS_ON%    %+ rem  For logging temp filenames to screen, etc.
         SET COLOR_NORMAL=        color        white   on        black  %+ set ANSI_COLOR_NORMAL=%ANSI_RESET%
         SET COLOR_PAUSE=         color        cyan    on        black  %+ set ANSI_COLOR_PAUSE=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_BLACK%
-        :ET COLOR_PROMPT=        color        yellow  on        black  %+ set ANSI_COLOR_PROMPT=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                            %+ rem tried changing to bright red on 20230605
+        rem COLOR_PROMPT=        color        yellow  on        black  %+ set ANSI_COLOR_PROMPT=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                            %+ rem tried changing to bright red on 20230605
         SET COLOR_PROMPT=        color bright red     on        black  %+ set ANSI_COLOR_PROMPT=%ANSI_RESET%%ANSI_BRIGHT_RED%%ANSI_BACKGROUND_BLACK%                        
         set COLOR_REMOVAL=       color bright red     on        black  %+ set ANSI_COLOR_REMOVAL=%ANSI_RESET%%ANSI_BRIGHT_RED%%ANSI_BACKGROUND_BLACK%                       
         SET COLOR_RUN=           color        yellow  on        black  %+ set ANSI_COLOR_RUN=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                               
         SET COLOR_SUCCESS=       color bright green   on        black  %+ set ANSI_COLOR_SUCCESS=%ANSI_RESET%%ANSI_BRIGHT_GREEN%%ANSI_BACKGROUND_BLACK%                     
-        SET COLOR_SUBTLE=        color bright black   on        black  %+ set ANSI_COLOR_SUBTLE=%ANSI_RESET%%ANSI_BRIGHT_BLACK%%ANSI_BACKGROUND_BLACK%                      
+        rem COLOR_SUBTLE=        color bright black   on        black  %+ set ANSI_COLOR_SUBTLE=%ANSI_RESET%%ANSI_BRIGHT_BLACK%%ANSI_BACKGROUND_BLACK%                      
+        SET COLOR_SUBTLE=        color bright black   on        black  %+ set ANSI_COLOR_SUBTLE=%ANSI_RESET%%ANSI_BRIGHT_BLACK%                                             %+ rem 20240405 experimenting with leaving the default background collr in place for these
         SET COLOR_UNIMPORTANT=   color        blue    on        black  %+ set ANSI_COLOR_UNIMPORTANT=%ANSI_RESET%%ANSI_BLUE%%ANSI_BACKGROUND_BLACK%                         
-        :ET COLOR_WARNING=       color bright yellow  on        black  %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%                    %+ rem from inception 'til 20230529
+        rem COLOR_WARNING=       color bright yellow  on        black  %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%                    %+ rem from inception 'til 20230529
         SET COLOR_WARNING=       color bright yellow  on        blue   %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLUE%                     %+ rem 20230529-
-        :ET COLOR_WARNING_LESS=  color        yellow  on        black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                      %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ REM inception-20230605
-        SET COLOR_WARNING_LESS=  color bright yellow  on        black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%               %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ REM 2020606-
+        rem COLOR_WARNING_LESS=  color        yellow  on        black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                      %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ REM inception-20230605
+        SET COLOR_WARNING_LESS=  color bright yellow  on        black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%               %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ set ANSI_COLOR_WARNING_SOFT=%ANSI_COLOR_WARNING_LESS% %+ REM 2020606-
 
 rem colors for GREP:
     REM original probably still good for Carolyn
@@ -425,6 +438,7 @@ set COLORS_HAVE_BEEN_SET=1
 :AlreadyDone
 
 if "%1" eq "test" (
+
     echo.
     echo %ANSI_TEST_STRING_4%
     echo %ANSI_TEST_STRING%
@@ -436,6 +450,3 @@ if "%1" eq "test" (
 )
 
 
-
-
-REM unrelated to colors, but nice-to-have variables:

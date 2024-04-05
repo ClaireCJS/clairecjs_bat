@@ -17,7 +17,10 @@ call environm
 set SILENT=0
 if "%1" eq "silent" set SILENT=1
 
-if %SILENT ne 1  (call colortool -c)
+if %SILENT ne 1  (
+    call display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
+    call colortool -c
+)
 
 
 call settmpfile 

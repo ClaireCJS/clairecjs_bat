@@ -1,13 +1,13 @@
 @Echo OFF                                       
 
 ::::: VALIDATE ENVIRONMENT:
-    call validate-environment-variable DROPBOX PYTHON_OFFICIAL_SITELIB_CLAIRE
+    call validate-environment-variables DROPBOX_CLAIRE PYTHON_OFFICIAL_SITELIB_CLAIRE
 
 
 ::::: INVOCATION PATTERN FOR OUR FOLDERSYNC SCRIPT:
     set   SYNCSOURCE=%PYTHON_OFFICIAL_SITELIB_CLAIRE%
-    set   SYNCTARGET=%DROPBOX%\BACKUPS\PROGRAMMING\Python\clairecjs_util\
-    set   SYNCTRIGER=__ Python personal libraries last backed up to dropbox __
+    set   SYNCTARGET=%DROPBOX_CLAIRE%\BACKUPS\PROGRAMMING\Python\clairecjs_util\
+    set   SYNCTRIGER=__ Python personal libraries last backed up to DROPBOX_CLAIRE __
     call  sync-a-folder-to-somewhere.bat /[!.git *.bak]            
 
 
