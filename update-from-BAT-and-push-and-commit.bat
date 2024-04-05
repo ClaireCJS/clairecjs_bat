@@ -22,11 +22,11 @@ rem CONFIGURATION:
 
 rem Update BAT files from live location to github-folder location:
     call c:\bat\update-from-BAT-via-manifest
-    *copy /u /q c:\bat\Demona\autoexec.btm BAT-and-UTIL-files\autoexec.btm
-    *copy /u /q c:\TCMD\alias.lst          BAT-and-UTIL-files\alias.lst
-    *copy /u /q c:\TCMD\tcmd.ini           BAT-and-UTIL-files\tcmd.ini
-    *copy /u /q c:\TCMD\tcstart.bat        BAT-and-UTIL-files\tcstart.bat
-    *copy /u /q c:\util\ColorTool.exe      BAT-and-UTIL-files\ColorTool.exe
+    *copy /u /q c:\bat\Demona\autoexec.btm        BAT-and-UTIL-files\autoexec.btm
+    *copy /u /q c:\TCMD\alias.lst                 BAT-and-UTIL-files\alias.lst
+    *copy /u /q c:\TCMD\tcmd.ini                  BAT-and-UTIL-files\tcmd.ini
+    *copy /u /q c:\TCMD\tcstart.bat               BAT-and-UTIL-files\tcstart.bat
+    *copy /u /q c:\util\ColorTool\ColorTool.exe   BAT-and-UTIL-files\ColorTool.exe
 
 
 rem Make sure they're all added:
