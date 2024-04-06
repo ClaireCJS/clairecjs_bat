@@ -275,7 +275,8 @@
 2019-10-01  10:28            120   18%  insert-after-each-line.pl
 2019-10-01  10:28            120   18%  insert-before-each-line.pl
 2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
-2023-10-06  05:31         14,639   74%  install-common-programs-with-winget.bat
+2024-04-06  00:26         14,309   75%  install-common-programs-with-winget-helper.cmd
+2024-04-06  00:26            381   36%  install-common-programs-with-winget.bat
 2023-07-14  09:50            278   36%  isRunning-fast.bat
 2023-08-26  14:54          1,084   59%  isRunning-helper.bat
 2024-03-28  02:31          2,418   63%  isRunning.bat
