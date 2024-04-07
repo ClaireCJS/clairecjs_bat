@@ -26,7 +26,8 @@ rem Add help parameters:
 
 
 rem Process paramters:
-    if "%2" eq "" (
+    if "%*" eq "" (set DISPLAY_FREE_SPACE_TARGET=%_CWD %+ goto :param_done)
+    if "%2" eq "" .and. "%1" ne "" (
             rem if we give 1 arg, it could be either a message type or drive letter with or without a colon after it:
                     if 1 eq %@REGEX[:,%1] .or. 1 eq %@LEN[%1] (
                         set DISPLAY_FREE_SPACE_TARGET=%1
@@ -38,6 +39,7 @@ rem Process paramters:
                     set DISPLAY_FREE_SPACE_TARGET=%1
                     set MESSAGE_TYPE=%2
     )
+    :param_done
 
 
 rem Validate parameters:
@@ -46,12 +48,16 @@ rem Validate parameters:
 
 rem Get the free space and print it out
         set DISKFREE=%ansi_color_error%%blink%ERROR
-        set DISKFREE=%@COMMA[%@EVAL[%@DISKFREE[%DISPLAY_FREE_SPACE_TARGET%]/1024/1024/1024]]
-        call print-message %MESSAGE_TYPE% "Free space now %DISKFREE%"
+        set DISKFREE=%@COMMA[%@FLOOR[%@EVAL[%@DISKFREE[%DISPLAY_FREE_SPACE_TARGET%]/1024/1024/1024]]]
+        call print-message %MESSAGE_TYPE% "Free space now %@RANDBG_SOFT[]%[DISKFREE]%deemphasis%%italics%%faint%G%italics_off%%faint_off%"
 
 rem a Warning if space is low?
-        if %@DISKFREE[%SYNCTARGET%] lt 150000000 (set NEWLINE_REPLACEMENT=0 %+ repeat 3 (beep 60 25 %+ beep 800 3) %+ call WARNING "Not much free space left on %SYNCTARGET%!" %+ pause 3000 )
-
+        if %@DISKFREE[%DISPLAY_FREE_SPACE_TARGET%] gt 150000000 (goto :Disk_Fine)
+                set NEWLINE_REPLACEMENT=0 
+                repeat 3 (beep 60 25 %+ beep 800 3) 
+                call WARNING "Not much free space left on %SYNCTARGET%!" 
+                pause 3000 
+        :Disk_Fine
 
 :END
 

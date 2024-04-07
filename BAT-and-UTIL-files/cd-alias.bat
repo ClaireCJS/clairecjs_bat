@@ -15,8 +15,11 @@ rem Capture parameters & keep track of the last folder we're in —— this is d
         set CD_PARAM5=%5
 
 rem Does the folder exist?
-        if "-" ne "%CD_PARAM1%" .and. not isdir %CD_PARAM1% .and. not isdir %CD_PARAM2% .and. not isdir %CD_PARAM3% .and. not isdir %CD_PARAM4% .and. not isdir %CD_PARAM5% (
+        rem call debug "CD COMMAND IS cd %*"
+        if "-" ne "%CD_PARAM1%" .and. not isdir "%CD_PARAMS%" .and. not isdir "%CD_PARAM1%" .and. not isdir "%CD_PARAM2%" .and. not isdir %CD_PARAM1% .and. not isdir %CD_PARAM2% .and. not isdir %CD_PARAM3% .and. not isdir %CD_PARAM4% .and. not isdir %CD_PARAM5% (
             call error "Folder does not exist: %italics_on%%CD_PARAMS%%italics_off%"
+            rem But try anyway in case we're wrong:
+            *cd %*
             goto :END
         )
 

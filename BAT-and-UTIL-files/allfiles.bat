@@ -419,9 +419,9 @@ goto :Edit
 	::::: GET IN THE RIGHT DIR (yes, 3 different ways to make sure)
 	::::: for example, "h:\test" would not work but h:\test would,
 	::::: but "h:\two words" would work and h:\two words woudn't.
-        echo cd "%_cwd"                                                                           >>:u8 %TMP5%
-        echo    "%_cwd"\                                                                          >>:u8 %TMP5%
-        echo     %_cwd\                                                                           >>:u8 %TMP5%
+        echo *cd "%_cwd"                                                                          >>:u8 %TMP5%
+        echo     "%_cwd"\                                                                         >>:u8 %TMP5%
+        echo      %_cwd\                                                                          >>:u8 %TMP5%
 
         if "%NOCLS%"    eq "1" goto :nocls1
         if "%DEBUG%"    eq "1" goto :nocls1

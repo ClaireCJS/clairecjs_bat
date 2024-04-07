@@ -23,7 +23,7 @@
 2023-10-14  02:51            618   49%  allfiles-helper.bat
 2023-05-19  13:45            985   51%  allfiles-prescript-template.pl
 2023-10-14  02:51            114   51%  allfiles-snoop.bat
-2024-03-24  20:07         25,742   74%  ALLFILES.bat
+2024-04-07  17:34         25,742   74%  ALLFILES.bat
 2023-05-19  13:45            395   40%  allfilesHyphenswap.pl
 2024-03-29  19:25        116,746   71%  allfilesmv.pl
 2023-05-19  15:39          1,218   55%  allfileunicode.pl
@@ -60,12 +60,13 @@
 2024-04-04  21:21          1,370   58%  bigecho.bat
 2024-01-28  02:00             86   13%  calibrate-monitor.bat
 2023-08-27  23:36            326   43%  cat.bat
-2024-04-03  18:19          5,933   72%  cd-alias.bat
+2024-04-07  17:42          6,747   70%  cd-alias.bat
 2024-04-03  14:31          2,424   64%  cd.bat
 2023-06-01  05:18            107   10%  celebration.bat
 2024-04-05  05:59            772   55%  change-into-random-dir.bat
 2023-05-05  01:06          1,814   50%  chatgpt-query.py
 2023-04-28  21:33             16  -12%  check-for-applications-and-programs-that-can-be-upgraded.bat
+2024-04-07  20:15            189   18%  check-for-invalid-audio-files.bat
 2024-04-05  15:49            705   64%  check-if-asking-for-usage.bat
 2024-03-18  13:29         11,473   81%  checkmappings.bat
 2023-10-14  02:51            452   52%  checktemp.bat
@@ -138,7 +139,7 @@
 2023-07-10  20:27          1,060   49%  display-emojis-in-environment.bat
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
 2022-11-19  16:52            242   29%  display-flac-tags.bat
-2024-04-05  18:04          2,909   67%  display-free-space.bat
+2024-04-06  02:46          3,506   66%  display-free-space.bat
 2024-03-31  05:14          2,971   65%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-04-05  16:27            775   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
@@ -167,7 +168,7 @@
 2024-04-05  17:08         69,852   78%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-04-05  13:55        173,720   81%  environm.btm
+2024-04-06  04:36        173,914   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -275,8 +276,8 @@
 2019-10-01  10:28            120   18%  insert-after-each-line.pl
 2019-10-01  10:28            120   18%  insert-before-each-line.pl
 2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
-2024-04-06  00:26         14,309   75%  install-common-programs-with-winget-helper.cmd
-2024-04-06  00:26            381   36%  install-common-programs-with-winget.bat
+2024-04-06  04:37         14,566   75%  install-common-programs-with-winget-helper.cmd
+2024-04-06  04:37            381   36%  install-common-programs-with-winget.bat
 2023-07-14  09:50            278   36%  isRunning-fast.bat
 2023-08-26  14:54          1,084   59%  isRunning-helper.bat
 2024-03-28  02:31          2,418   63%  isRunning.bat
@@ -359,7 +360,7 @@
 2024-03-13  12:40             82   43%  prompt-sound.bat
 2019-10-01  10:28             33   10%  prompt-work.bat
 2023-06-01  01:48             19  -10%  push.bat
-2024-03-23  00:25          2,923   61%  put.bat
+2024-04-07  14:30          2,888   61%  put.bat
 2023-11-15  15:32          2,229   60%  py.spec2exe.bat
 2023-05-20  00:22            146   20%  py2exe-create-spec-file.bat
 2023-11-15  13:15            583   46%  py2exe.bat
@@ -376,7 +377,7 @@
 2024-04-05  06:00            369   29%  randline.pl
 2019-10-01  10:28            567   55%  randomize-file.pl
 2023-08-03  01:20            298   40%  random_color_each_line.py
-2024-04-03  18:10          1,186   67%  rd-alias.bat
+2024-04-06  01:26            498   39%  rd-alias.bat
 2023-06-08  17:34             29    4%  realias.bat
 2022-05-21  23:17          1,344   56%  Rebuild_Icon_Cache.bat
 2024-02-07  04:00          2,959   67%  reddit-user-download.bat
@@ -465,7 +466,7 @@
 2023-06-20  03:45         13,942   69%  sync-filelist-helper.pl
 2023-10-06  06:57          2,602   70%  sync-filelist.bat
 2024-04-05  14:33             42   -4%  sync-perl-libraries-to-dropbox.bat
-2024-04-05  18:26          1,564   55%  sync-perl-libraries.bat
+2024-04-06  02:05          1,676   54%  sync-perl-libraries.bat
 2024-04-05  15:20             30   -6%  sync-perl.bat
 2024-04-05  13:45            457   38%  sync-perlsitelib-to-dropbox.bat
 2024-04-05  14:35             59   -3%  sync-python-libraries-to-dropbox.bat

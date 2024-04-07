@@ -1,4 +1,4 @@
-@Echo On
+@Echo Off
 
 rem Figure out which argument is the folder:
         repeat 20 if isdir %[%_repeat] set RD_FOLDER=%[%_repeat]

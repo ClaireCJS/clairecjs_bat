@@ -16,6 +16,7 @@ rem Sync our libraries to every drive letter that has them:
 rem Commit them pushto any GIT library that may exist, while handling our convention of suppressing-pauses-by-environment-variable, since our git-commit wrapper has pauses for interactive uses:
         echo.
         call divider big
+        if "%1" eq "nogit" .or. "%MACHINENAME%" ne "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY=%" (goto :nogit)
         set NOPAUSE_OLD=%NOPAUSE%
             set NOPAUSE=1
                 call git-commit %*

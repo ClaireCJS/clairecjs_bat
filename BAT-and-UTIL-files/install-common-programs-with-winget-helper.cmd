@@ -1,5 +1,8 @@
-winget install AutoHotkey.AutoHotkey               
+echo Not doing, because I keep it in my own UTIL2 folder: winget install AutoHotkey.AutoHotkey               
+echo Not doing, because I prefer to copy the foldre from another machine so the installations are consistent: winget install Cygwin.Cygwin
+echo Not doing, because I prefer to use Anaconda: winget install Python.Python.3.11
 
+winget install -e --id Microsoft.WindowsTerminal
 winget install BinaryFortress.DisplayFusion              
 winget install Google.Chrome                             
 winget install Opera.Opera                               
@@ -11,15 +14,15 @@ winget install Microsoft.VCRedist.2012.x64
 winget install Microsoft.VCRedist.2012.x86               
 winget install Microsoft.VCRedist.2013.x86               
 winget install Microsoft.VCRedist.2013.x64               
-winget install Cygwin.Cygwin
 winget install Oracle.JavaRuntimeEnvironment             
 winget install AndreWiethoff.ExactAudioCopy
+
+winget install --id=Anaconda.Anaconda3  -e
 
 winget install Resplendence.WhoCrashed
 winget install TigerVNCproject.TigerVNC
 winget install uvncbvba.UltraVnc
 winget install DOSBox-X
-winget install Python.Python.3.11
 winget install StrawberryPerl.StrawberryPerl
 winget install Discord.Discord
 winget install Twitch.TwitchStudio
@@ -35,7 +38,7 @@ winget install AMD_Chipset_IODrivers
 winget install EpicGames.EpicGamesLauncher
 winget install AUDT_12_1_3                               
 winget install AirDroidCast                              
-winget install Anaconda3 py310_2023.03-0 (Python 3.10.9X 
+
 winget install PowerSoftware.AnyBurn                     
 winget install BrettspielWelt                            
 winget install DTSInc.DTSSoundUnbound_t5j2fzbtdg37r      
