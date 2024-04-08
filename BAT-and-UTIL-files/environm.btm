@@ -661,6 +661,9 @@ return
 :CommonEnvVarsIncludingNetworking
     :::::::::: Set common environment variables that we want for all machines (or are just too lazy to set it per-machine)
 
+    ::::: 2024 STUFF:
+            set VALIDATE_MULTIPLE=0 %+ rem if Validate-environment-variables gets aborted and this flag is set to 1, it can create a phantom error, so let's just keep it set to 0 when possible
+
     ::::: 2023 STUFF:
             set MAXIMUM_TIME_FOR_TCC_TO_START=4
 

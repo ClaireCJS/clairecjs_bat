@@ -1,5 +1,4 @@
-@echo off
- REM echo %ANSI_COLOR_DEBUG% %0 called with 1=%1, 2=%2, VARNAME=%VARNAME%, VEVPARAMS=%VEVPARAMS% %ANSI_COLOR_RESET%
+@Echo off
 
 ::::: GET PARAMETERS:
     set VEVPARAMS=%1$
@@ -20,6 +19,11 @@
 :                                       REM car.bat, nocar.bat removed from requires 20230825
 
 
+::::: DEBUG STUFFS:
+    :echo %ANSI_COLOR_DEBUG% %0 called with 1=%1, 2=%2, VARNAME=%VARNAME%, VEVPARAMS=%VEVPARAMS% %ANSI_COLOR_RESET%
+    :echo on
+
+
 ::::: CLEAR LONGTERM ERROR FLAGS:
     set DEBUG_VALIDATE_ENV_VAR=0
     set DEBUG_NORMALIZE_MESSAGE=0
@@ -31,6 +35,9 @@
     set DEBUGPREFIX=- {validate-environment-variable} * ``
 
 ::::: VALIDATE PARAMETERS STRICTLY
+    rem call debug "param3            is %param3%"
+    rem call debug "validate_multiple is %validate_multiple%"
+    rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %*"
     if "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 (
         call bigecho "%ANSI_COLOR_ALARM%*** ERROR! ***"
         color bright white on red
@@ -84,6 +91,9 @@
 
     if %VALIDATE_MULTIPLE ne 1 (
         gosub validate_environment_variable %VARNAME%
+
+        rem If this script gets aborted, leaving this flag set can create false errors:
+        unset /q VALIDATE_MULTIPLE 
     ) else (
         set USER_MESSAGE=
         do i = 1 to %# (

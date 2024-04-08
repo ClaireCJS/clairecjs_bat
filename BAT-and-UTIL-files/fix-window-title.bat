@@ -1,4 +1,5 @@
 @Echo OFF
+:Echo on
 
 :ASSUMES: detect-command-line-container has been called to set %container
 
