@@ -60,10 +60,10 @@
 2024-04-04  21:21          1,370   58%  bigecho.bat
 2024-01-28  02:00             86   13%  calibrate-monitor.bat
 2023-08-27  23:36            326   43%  cat.bat
-2024-04-07  17:42          6,747   70%  cd-alias.bat
+2024-04-09  22:07          7,354   71%  cd-alias.bat
 2024-04-03  14:31          2,424   64%  cd.bat
 2023-06-01  05:18            107   10%  celebration.bat
-2024-04-05  05:59            772   55%  change-into-random-dir.bat
+2024-04-09  22:05            923   59%  change-into-random-dir.bat
 2023-05-05  01:06          1,814   50%  chatgpt-query.py
 2023-04-28  21:33             16  -12%  check-for-applications-and-programs-that-can-be-upgraded.bat
 2024-04-07  20:15            189   18%  check-for-invalid-audio-files.bat
@@ -83,7 +83,7 @@
 2019-10-01  10:27            592   49%  colorize-by-computer-name.bat
 2023-05-26  15:16            832   62%  colors-all.bat
 2024-04-05  16:26          2,918   61%  colors.bat
-2024-03-23  01:28            166   46%  commit-and-push.bat
+2024-04-09  19:19            289   38%  commit-and-push.bat
 2019-10-01  09:27             21   -9%  commit.bat
 2023-08-20  13:47            575   43%  connections-monitor.bat
 2023-10-06  11:01            163   34%  convert-16bit-or-32bit-legacy-executable-to-64bit-exe.bat
@@ -351,7 +351,7 @@
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
 2024-03-18  11:29             13  -15%  previousdir.bat
 2023-06-09  22:02             67    6%  print-if-debug.bat
-2024-04-05  14:31         18,358   75%  print-message.bat
+2024-04-09  21:49         20,341   74%  print-message.bat
 2024-02-14  02:28         13,998   74%  process-done-torrent.btm
 2024-03-18  22:28          2,192   64%  process-rookie-folders.bat
 2023-06-02  13:09          1,023   67%  prompt-Carolyn.bat
@@ -502,7 +502,7 @@
 2019-10-01  10:28            335   40%  usb-remove-safely.bat
 2024-03-18  09:00            216   28%  validate-ahk.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
-2024-04-08  15:09         14,697   77%  validate-environment-variable.bat
+2024-04-09  22:06         14,688   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
 2024-03-20  11:59          2,171   62%  validate-file-extension.bat
 2024-04-05  18:20          1,442   56%  validate-in-path.bat

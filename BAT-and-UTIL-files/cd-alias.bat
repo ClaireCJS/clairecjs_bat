@@ -24,21 +24,26 @@ rem Does the folder exist?
         )
 
 rem Change into the folder —— the actual thing we mean to do 😂 —— and count the files:
-        set NUMFILES_NOW_2=%@FILES[.,-d]
+        set NUM_FILES_NOW_2=%@FILES[.,-d]
+
                                       set FILE_COUNT_LAST=%[FILE_COUNT_%[_CWD]_EXITED]
         if "%FILE_COUNT_LAST%" eq "" (set FILE_COUNT_LAST=%[FILE_COUNT_%[_CWD]_ENTERED]) %+ rem if no exit  value, get entered value
         if "%FILE_COUNT_LAST%" eq "" (set FILE_COUNT_LAST=%[FILE_COUNT_%[_CWD]]        ) %+ rem if no enter value, get generic value [this shouldn't happen and is just added as a foolproof mechanism]
-        set                   FILE_COUNT_%[_CWD]_EXITED=%NUMFILES_NOW_2%
+
+        set FILE_COUNT_%[_CWD]_EXITED=%NUM_FILES_NOW_2%
         set LAST_FOLDER=%_CWD
+
         *cd %CD_PARAMS%
-        set NUMFILES_NOW=%@FILES[.,-d]
+
+        set NUM_FILES_NOW=%@FILES[.,-d]
+        set FILE_COUNT_%[_CWD]_ENTERED=%NUM_FILES_NOW%   %+ rem the new value of this variable  is the number of files there now
 
         rem How do we set the files that were in the folder prior? By looking at *both* FILE_COUNT_%_CWD_ENTERED & FILE_COUNT_%_CWD_EXITED
-        rem NUMFILES_THEN=%[FILE_COUNT_%[_CWD]_ENTERED] %+ rem the old value of this variable was the number of files in this folder LAST time we entered it
-                                    set NUMFILES_THEN=%[FILE_COUNT_%[_CWD]_EXITED]  %+ rem the old value of this variable was the number of files in this folder LAST time we entered it
-        if "%NUMFILES_THEN%" eq "" (set NUMFILES_THEN=%[FILE_COUNT_%[_CWD]_ENTERED])
-        set FILE_COUNT_%[_CWD]_ENTERED=%NUMFILES_NOW%   %+ rem the new value of this variable  is the number of files there now
-        set FILE_COUNT_%[_CWD]=%NUMFILES_NOW%           %+ rem We also maintain a "current count of files" var which is the last value regardless of entering or existing
+        rem NUM_FILES_THEN=%[FILE_COUNT_%[_CWD]_ENTERED] %+ rem the old value of this variable was the number of files in this folder LAST time we entered it
+                                    set NUM_FILES_THEN=%[FILE_COUNT_%[_CWD]_EXITED]  %+ rem the old value of this variable was the number of files in this folder LAST time we entered it
+        if "%NUM_FILES_THEN%" eq "" (set NUM_FILES_THEN=%[FILE_COUNT_%[_CWD]_ENTERED])
+        set FILE_COUNT_%[_CWD]_ENTERED=%NUM_FILES_NOW%   %+ rem the new value of this variable  is the number of files there now
+        set FILE_COUNT_%[_CWD]=%NUM_FILES_NOW%           %+ rem We also maintain a "current count of files" var which is the last value regardless of entering or existing
 
 
 rem Change the window title to the folder, while keeping track of the last couple titles:
@@ -48,25 +53,29 @@ rem Change the window title to the folder, while keeping track of the last coupl
             title %CD_PARAMS%
         )
 
-rem If there were a different number of files now, than when we entered or existed this folder last time, let us know:
-        set NUMFILES_THEN_2=%FILE_COUNT_LAST%
-        rem 🔴Folder %LAST_FOLDER% had %NUMFILES_NOW_2% file. Last time we checked, it had %NUMFILES_THEN_2%
-        rem  not defined       NUMFILES_NOW_2  (goto  :skip_saying)
-        if   not defined       NUMFILES_THEN_2 (goto  :skip_saying)
-        if %NUMFILES_NOW_2 eq %NUMFILES_THEN_2 (goto  :skip_saying)
-        if %NUMFILES_NOW_2 gt %NUMFILES_THEN_2 (set VERB=%ansi_color_bright_green%increased)
-        if %NUMFILES_NOW_2 lt %NUMFILES_THEN_2 (set VERB=%ansi_color_red%decreased)
-        call less_important "%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%numfiles_then_2%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUMFILES_NOW_2%%bold_off%%blink_off%%double_underline_off% %faint_on%since last check of %faint_off%%italics_on%%LAST_FOLDER%%italics_off%%faint_off%"
+rem If there were a different number of files now than when we last entered this folder, let us know either/both:
+        set NUM_FILES_THEN_2=%FILE_COUNT_LAST%
+        rem 🔴Folder %LAST_FOLDER% had %NUM_FILES_NOW_2% file. Last time we checked, it had %NUM_FILES_THEN_2%
+        rem  not defined       NUM_FILES_NOW_2   (goto  :skip_saying)
+        if   not defined       NUM_FILES_THEN_2  (goto  :skip_saying)
+        if %NUM_FILES_NOW_2 eq %NUM_FILES_THEN_2 (goto  :skip_saying)
+        if %NUM_FILES_NOW_2 gt %NUM_FILES_THEN_2 (set CHANGE=increased %+ set VERB=%ansi_color_bright_green%increased)
+        if %NUM_FILES_NOW_2 lt %NUM_FILES_THEN_2 (set CHANGE=decreased %+ set VERB=%ansi_color_red%decreased)
+        set PERCENT=%@FLOOR[100-%@EVAL[100*(%NUM_FILES_NOW_2 / %NUM_FILES_THEN_2)]]
+        set PERCENT=%@EVAL[-1 * %PERCENT]
+        call less_important "%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then_2%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW_2%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]{PERCENT}%faint_on%) %faint_on%since last check of %faint_off%%italics_on%%LAST_FOLDER%%italics_off%%faint_off%"
         :skip_saying
 
 rem If there were a different number of files when we entered our new folder than when we last exited our new folder, let us know:
-        rem 💚Folder %_CWD has %NUMFILES_NOW% file. Last time it had %NUMFILES_THEN%
-        rem not defined      NUMFILES_NOW  (goto  :skip_saying_2)
-        if  not defined      NUMFILES_THEN (goto  :skip_saying_2)
-        if %NUMFILES_NOW eq %NUMFILES_THEN (goto  :skip_saying_2)
-        if %NUMFILES_NOW gt %NUMFILES_THEN (set VERB=%ansi_color_bright_green%increased)
-        if %NUMFILES_NOW lt %NUMFILES_THEN (set VERB=%ansi_color_red%decreased)
-        call less_important "%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%numfiles_then%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUMFILES_NOW%%bold_off%%blink_off%%double_underline_off% %faint_on%since last check in %faint_off%%italics_on%%[_cwd]%italics_off%%faint_off%"
+        rem 💚Folder %_CWD has %NUM_FILES_NOW% file. Last time it had %NUM_FILES_THEN%
+        rem not defined      NUM_FILES_NOW   (goto  :skip_saying_2)
+        if  not defined      NUM_FILES_THEN  (goto  :skip_saying_2)
+        if %NUM_FILES_NOW eq %NUM_FILES_THEN (goto  :skip_saying_2)
+        if %NUM_FILES_NOW gt %NUM_FILES_THEN (set CHANGE=increased %+ set VERB=%ansi_color_bright_green%increased)
+        if %NUM_FILES_NOW lt %NUM_FILES_THEN (set CHANGE=decreased %+ set VERB=%ansi_color_red%decreased)
+        set PERCENT=%@FLOOR[100-%@EVAL[100*(%NUM_FILES_NOW / %NUM_FILES_THEN)]]
+        set PERCENT=%@EVAL[-1 * %PERCENT]
+        call less_important "%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]{PERCENT}%faint_on%) %faint_on%since last check in %faint_off%%italics_on%%[_cwd]%italics_off%%faint_off%"
         :skip_saying_2
 
 rem Stuff we don't normally do is coming up —— so color it a warning color to some extent

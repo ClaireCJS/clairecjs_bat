@@ -38,3 +38,7 @@ rem Commit and Push:
     echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/BAT-and-UTIL-files  >go-to-individual-BAT-files-on-GitHub.bat
 
 
+unset /q SECONDARY_BAT_FILES
+unset /q SECONDARY_BAT_FILES_2
+unset /q SECONDARY_UTIL_FILES_2
+

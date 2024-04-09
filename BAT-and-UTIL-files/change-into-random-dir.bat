@@ -2,20 +2,23 @@
 
 call fixtmp>nul
 
+call set-tmpfile
+set RANDIR_SCRIPT_TO_RUN=%[tmpfile].bat
+
 dir /ba:d >:u8 dir.txt
 
 rem :set randir=%@EXECSTR[dir /ba:d|randline]
 rem :set randir=%@EXECSTR[@randline<dir.txt]
-rem >:u8 run.bat
-rem echos cd ">:u8 run.bat
+rem >:u8 %RANDIR_SCRIPT_TO_RUN%
+rem echos cd ">:u8 %RANDIR_SCRIPT_TO_RUN%
 
 set MAKE_IT_CD=1
-    call randline.pl<dir.txt >>:u8 run.bat
+    call randline.pl<dir.txt >>:u8 %RANDIR_SCRIPT_TO_RUN%
 set MAKE_IT_CD=0
 
-if not exist run.bat (pause)
-call         run.bat
-*del      ..\run.bat>nul
+if not exist %RANDIR_SCRIPT_TO_RUN% (pause)
+call         %RANDIR_SCRIPT_TO_RUN%
+*del         %RANDIR_SCRIPT_TO_RUN%>nul
 
 
 rem %COLOR_IMPORTANT% %+ echo * It's %RANDIR% %+ %COLOR_NORMAL%

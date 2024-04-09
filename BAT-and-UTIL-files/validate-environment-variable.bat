@@ -178,7 +178,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                                 call warning "*** %@UNQUOTE[%USER_MESSAGE%] ***"
                             )
                                 
-                            %COLOR_ALARM%           %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo.
+                            %COLOR_ALARM%  %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo.
                             call bigecho "%ANSI_COLOR_ALARM%*** ERROR! ***"
                             REM call alarm-beep     %+ REM was too annoying for the severity of the corresponding situations
                             call white-noise 1      %+ REM reduced to 2 seconds, then after a year or few, reduced to 1 second

@@ -4,9 +4,12 @@
 
 :USAGE: call print-message MESSAGE_TYPE "message" [0|1]               - arg1=message/colorType, arg2=message, arg3=pause (1) or not (0)
 :USAGE: call print-message TEST                                       - to run internal test suite
-:USAGE: call print-message message without quotes                     - no 3rd arg of 0|1 will cause the whole line to be treated as the message
-:USAGE: NOTE: arg1 must match a color type i.e. "ERROR" "WARNING" "DEBUG" "SUCCESS" "IMPORTANT" "INPUT" "LESS_IMPORTANT", etc
-:USAGE: ALSO: can set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1 to suppress audio effects. Must be set each call.
+:USAGE: call print-message message without quotes                     - no 3rd arg of 0|1 will cause the whole line to be treated as a message without a message type. This is really only meant for processing malformed calls. We're not supposed to do it this way.
+:USAGE: NOTE: arg1 must match an existing message type i.e. "ERROR" "WARNING" "DEBUG" "SUCCESS" "IMPORTANT" "INPUT" "LESS_IMPORTANT"
+:USAGE: ENVIRONMENT: set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1  to suppress audio effects. Must be set each call.
+:USAGE: ENVIRONMENT:                         If SLEEPING=1, we suppress audio effects as well! This doesn't need to be set each call.
+:USAGE: ENVIRONMENT:              if NEWLINE_REPLACEMENT=1, we replace newlines so that the message becomes a 1-line message. Must be set each call.
+:USAGE: MESSAGE CONTENTS:    Use "{PERCENT}" in your message contents to display a % sign, if you have problems.
 
 
 
@@ -35,7 +38,7 @@ REM Initialize variables
     set TYPE=
     set DO_PAUSE=-666
     set OUR_COLORTOUSE=
-
+    if %SLEEPING eq 1 (set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1)
 REM Ensure correct environment
     setdos /x0
 
@@ -89,8 +92,11 @@ REM convert special characters
     REM might want to do if %NEWLINE_REPLACEMENT eq 1 instead:
     if %NEWLINE_REPLACEMENT eq 1 (
         set MESSAGE=%@REPLACE[\n,%@CHAR[12]%@CHAR[13],%@REPLACE[\t,%@CHAR[9],%MESSAGE]]
+        unsewt /q NEWLINE_REPLACEMENT
     )
-    if "%NEWLINE_REPLACEMENT%" != "" (set NEWLINE_REPLACEMENT=)
+    rem sixteen percent symbols is insane, but what is needed:
+    set MESSAGE=%@REPLACE[{PERCENT},%%%%%%%%%%%%%%%%,%MESSAGE]
+    
 
 
 REM Type alias/synonym handling
