@@ -85,7 +85,10 @@ def fix_malformed_ics(ics_string):
     """
     print("* Fixing ics data...")
     summary_search = re.search(r"SUMMARY:(.*)", ics_string)
-    summary       = summary_search.group(1)
+    if summary_search is not None:
+        summary = summary_search.group(1)
+    else:
+        summary = "Summary unavailable"
     vevent_search = re.compile(r"(BEGIN:VEVENT.*?)(END:VEVENT)", re.DOTALL)
     valarm_search = re.compile(r"(BEGIN:VALARM.*?)(END:VALARM)", re.DOTALL)
     updated_ics   = ics_string
