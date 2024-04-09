@@ -199,6 +199,7 @@
 2023-11-09  07:46             80    3%  fix-lastfm-window-size-and-position.bat
 2023-11-09  07:46             21   -9%  fix-minilyrics-window-size-and-position.bat
 2020-05-26  14:36            143   50%  fix-music-window-sizes-and-positions.bat
+2024-03-21  21:10          4,216   68%  fix-winamp.bat
 2024-04-08  15:08            560   54%  fix-window-title.bat
 2019-10-01  10:28             54    0%  fixclip.bat
 2023-08-29  06:34            162   25%  fix_taskbar_hidden_by_ctypes_call.py
@@ -389,6 +390,7 @@
 2019-10-01  10:28            186   18%  research-this-dir-on-wikipedia.bat
 2019-10-01  10:28            323   48%  restart-cpu-meter.bat
 2019-10-01  10:28            305   44%  restart-tcpip-stack.bat
+2024-04-09  23:25          3,920   64%  restart-winamp.bat
 2023-11-09  07:46            984   52%  restore-window-positions.bat
 2023-06-02  18:26            230   26%  return-a-0.py
 2023-06-02  18:26            306   33%  return-a-1.py
@@ -423,6 +425,7 @@
 2024-01-25  22:07            658   48%  set-tmp-file.bat
 2023-10-06  05:32             23   -8%  set-tmpfile.bat
 2023-06-05  15:17          1,201   51%  set-user-account-to-automatically-login.bat
+2023-04-24  09:52            255   53%  set-winamp-constants.bat
 2024-03-24  20:03             49   -4%  setDrive.bat
 2024-03-24  20:04             49   -4%  setlabel.bat
 2023-07-06  10:53          9,004   77%  SETPATH.BAT
@@ -520,8 +523,12 @@
 2023-07-10  10:05            494   65%  wget32.bat
 2023-07-16  15:46          3,480   60%  whisper-faster.bat
 2023-05-29  17:47          4,116   71%  white-noise.bat
+2024-04-09  23:12            463   42%  winamp-close-gracefully.bat
+2024-04-09  23:12             25   -8%  winamp-restart.bat
+2024-03-28  04:20          2,731   68%  winamp-start.bat
 2023-05-31  03:37          1,016   52%  winamp-status-from-file.pl
 2023-05-31  03:55            985   52%  winamp-status.pl
+2024-03-28  04:19             21   -9%  winamp.bat
 2024-03-24  19:35            898   44%  window.bat
 2023-06-15  19:57             18  -11%  windowlist.bat
 2023-06-08  19:05             29   11%  windows-a-v1.ahk
