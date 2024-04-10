@@ -21,7 +21,7 @@
 
 1. Download the TCC command line installer from JPsoft at [www.jpsoft.com](http:///www.jpsoft.com)
 
-1. Install TCC to <em>c:\TCMD\</em> instead of to the default location in program files
+1. Install TCC to <em>c:\TCMD\ </em>instead of to the default location in program files
 
 1. Now you're ready to download my script files:<BR>
    <em>git clone http://www.github.com/clairecjs/clairecjs_bat</em>
@@ -37,11 +37,12 @@
 1. Copy *c:\bat\tcstart.bat* into *c:\tcmd*:<BR>
    <em>copy c:\bat\tcstart.bat c:\tcmd</em>
 
-1. Configure *tcstart.bat*: Open it up in a text editor and change the values for OS and MACHINENAME:
-   <em>set OS=10</em>
-   <em>SET MACHINENAME=DEMONA</em> —— Change this to your machinename! Or just use the same name as me 😅
-   Valid OS values are 95/98/XP/ME/2K/7/10/11 —— I've used all of these over the years! Most people just want "11" these days!
-   This is the minimal script that is run every time TCC is opened, transient or not.
+1. Configure *tcstart.bat*:    This is the minimal script that is run every time TCC is opened, transient or not.<BR>
+   Open it up in a text editor and change the values for OS and MACHINENAME:<BR>
+   <em>set OS=10</em><BR>
+   <em>SET MACHINENAME=DEMONA</em> —— Change this to your machinename! Or just use the same name as me 😅<BR>
+   Valid OS values are 95/98/XP/ME/2K/7/10/11 —— I've used all of these over the years!<BR>
+   Most people just want "11" these days!<BR>
 
 1. You will also want to pay attention to *c:\bat\environm.btm*. Open it up in a text editor. You don't need to do anything at first —— What you will want to do is run "environm.btm" over and over until you are satisfied with what it does. This is the script that is run every time TCC is run in a non-transient way. This is the most imporant script, basically the equivalent of your unix .init/.rc type files. This defines EVERYTHING. File locations, executable extensions, every possible environment varaiabe, harddrives, drive mapping... Everything. It will likely trip up errors and need parts commented out. If you run "environm validate" it will most definitely fail, as this validates all (25+) of my repository file locations.  But this file has an incredible set of messy examples that you can customize. Ultimately, this is the file you want to customize for the rest of your life. If you have private environment variables you don't want in your environm.btm for privacy reasons, put them in a file called c:\bat\private.env and they will be read from that.
 
