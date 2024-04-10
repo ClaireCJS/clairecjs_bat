@@ -6,15 +6,18 @@
 
 #### These BAT files have been in constant development for over 35 year too.
 
-##### I've jokingly called this the "Clairevironment layer" —— A full layer of scripts built on top of TCC's functionality for 35 years.
+##### I've jokingly called this the "Clairevironment layer" —— A full layer of scripts built on top of TCC's functionality for 35 years. Rich color, ANSI stylization, audio effects where appropriate, validators to prevent script brittlness, workflow management, all kinds of stuff that is hard for me to describe because I've been working on this environment for 35 years.
 
 
 
-### To install and use this, make sure to use the paths specified, because there is some ugly hard-coding at points. Do not deviate from these steps or things will eventually fail:
+---------------------------------
+
+
+### ‼ To install and use this, make sure to use the paths specified, because there is some ugly hard-coding at points. Do not deviate from these steps or things will eventually fail:
 
 1. A lot of my stuff uses unix commands, so you should <em>probably</em> install [cygwin](https://www.cygwin.com/install.html), or learn to recognize which things are breaking because of a lack of cygwin.
 
-1. A lot of my stuff uses advanced ANSI codes that are ONLY supported in Windows Terminal.  The default Windows console can NOT handle these.
+1. A lot of my stuff uses advanced ANSI codes that are ONLY supported in Windows Terminal.  The default Windows console can *NOT* handle these.  Install Windows Terminal either from the [official link at aka.ms](https://aka.ms/terminal) or [later/development versions from GitHub](https://github.com/microsoft/terminal)
 
 1. Download the TCC command line installer from JPsoft at [www.jpsoft.com](http:///www.jpsoft.com)
 
@@ -53,6 +56,7 @@
    Setpath.bat also generates a *setpath.cmd* so that if you go into PowerShell or other shells, you can use the same generated path.
 
 
+---------------------------------
 
 
 # I would absolutely love feedback! 🤓
