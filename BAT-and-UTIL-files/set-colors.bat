@@ -453,6 +453,7 @@ rem Function to strip ansi from strings —— regex to strip ansi is '(\x9B|\x1
 rem This is loaded in our environm.btm as well, so we must be careful not to laod it twice:
         if not defined PLUGIN_STRIPANSI_LOADED (set PLUGIN_STRIPANSI_LOADED=0)
         if %PLUGIN_STRIPANSI_LOADED ne 1 (
+            if not defined PLUGIN_TCC_BASE (set PLUGIN_TCC_BASE=%BAT%)
             set PLUGIN_STRIPANSI=%PLUGIN_TCC_BASE%\StripAnsi.dll
             if exist %PLUGIN_STRIPANSI% (
                 set PLUGIN_STRIPANSI_LOADED=1

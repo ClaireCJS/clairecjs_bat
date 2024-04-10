@@ -52,11 +52,11 @@ Installation is not easy, bedcause this is really about integrating existing too
  
 1. For EVERYTHING to work, we also need Perl. <BR>
    If you don't have Perl, install [Strawberry Perl](https://strawberryperl.com) to C:\PERL (not C:\STRAWBERRY), or else anything piping to Python or Perl will fail.<BR>
-   You also may need my (my personal perl libraries)[https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/perl-sitelib-Clio.zip] ... Sorry, they have no installer. Just download (the zip file)[https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/perl-sitelib-Clio.zip] and unzip into into <em>c:\perl\perl\site\lib\Clio</em>
+   You also may need my [my personal perl libraries](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/perl-sitelib-Clio.zip) ... Sorry, they have no installer. Just download [the zip file](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/perl-sitelib-Clio.zip) and unzip into into <em>c:\perl\perl\site\lib\Clio</em>
 
 1. For EVERYTHING to work, we also need Python.<BR>
    If you don't have Python, install [Anaconda Python](https://www.anaconda.com/download) or else anything using an adjunct Pythons script is likely to fail.<BR>
-   You might also need my (clairecjs_util Python package)[https://github.com/clairecjs/clairecjs_utils] ... Sorry, it has no installer. Just <em>git clone http://www.github.com/clairecjs/clairecjs_utils</em> and copy that folder into <em>anaconda3\lib\site-packages\clairecjs_utils</em>
+   You might also need my [clairecjs_util Python package](https://github.com/clairecjs/clairecjs_utils) ... Sorry, it has no installer. Just <em>git clone http://www.github.com/clairecjs/clairecjs_utils</em> and copy that folder into <em>anaconda3\lib\site-packages\clairecjs_utils</em>
 
 
 1. You will also want to pay attention to *c:\bat\environm.btm*.<br>
