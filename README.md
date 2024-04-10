@@ -47,12 +47,17 @@ Installation is not easy, bedcause this is really about integrating existing too
    Most people just want "11" these days!<BR>
 
 1. Run TCC.exe your first time, ignoring any errors.  But not directly!  You want to open it in Windows Terminal!   So open up Windows Terminal, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click <em>'Add new profile'</em>. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to "TCC", the command line to "c:\tcmd\tcc.exe", the starting directory to "c:\tcmd", and run as administrator turned on.
-
+ 
 1. Now that you are running TCC inside of Windows Terminal, type <em>option</em> at the TCC command line, switch to the "Advanced" tab.  In the upper-left is a section called *Special Characters*.  Change the separator to "^" (the caret character). This is actually a deviation from how most people do things, and it creates complications that I've mitigated. However, it's required for backward compatibility with decisions I made in the 1990s (which I have not yet mitigated, and probably never will).
+ 
+1. For EVERYTHING to work, we also need Perl. <BR>
+   If you don't have Perl, install [Strawberry Perl](https://strawberryperl.com) to C:\PERL (not C:\STRAWBERRY), or else anything piping to Python or Perl will fail.<BR>
+   You also may need my (my personal perl libraries)[https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/perl-sitelib-Clio.zip] ... Sorry, they have no installer. Just download (the zip file)[https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/perl-sitelib-Clio.zip] and unzip into into <em>c:\perl\perl\site\lib\Clio</em>
 
-1. For EVERYTHING to work, we also need Python. If you don't have Python, install [Anaconda Python](https://www.anaconda.com/download) or else anything using an adjunct Pythons script is likely to fail
+1. For EVERYTHING to work, we also need Python.<BR>
+   If you don't have Python, install [Anaconda Python](https://www.anaconda.com/download) or else anything using an adjunct Pythons script is likely to fail.<BR>
+   You might also need my (clairecjs_util Python package)[https://github.com/clairecjs/clairecjs_utils] ... Sorry, it has no installer. Just <em>git clone http://www.github.com/clairecjs/clairecjs_utils</em> and copy that folder into <em>anaconda3\lib\site-packages\clairecjs_utils</em>
 
-1. For EVERYTHING to work, we also need Perl. If you don't have Perl, install [Strawberry Perl](https://strawberryperl.com) to C:\PERL (not C:\STRAWBERRY), or else anything piping to Python or Perl will fail.
 
 1. You will also want to pay attention to *c:\bat\environm.btm*.<br>
 	This is the script that is run every time TCC is run in a non-transient way.<BR>

@@ -2473,7 +2473,7 @@ return
             set PLUGIN_4WT_LOADED=1
             plugin /l %PLUGIN_4WT% >&>nul
         )
-
+   
         set PLUGIN_STRIPANSI_LOADED=0
         set PLUGIN_STRIPANSI=%PLUGIN_TCC_BASE%\StripAnsi.dll
         if exist %PLUGIN_STRIPANSI% (
