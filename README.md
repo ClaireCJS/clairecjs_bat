@@ -56,19 +56,20 @@ Installation is not easy, bedcause this is really about integrating existing too
 	This is the script that is run every time TCC is run in a non-transient way.<BR>
 	This is the most imporant script, basically the equivalent of your unix .init/.rc type files.<BR>
 	Open it up in a text editor.<br>
-	You don't need to do anything at first — It's just important tyat you now this file defines EVERYTHING. E-V-E-R-Y-T-H-I-N-G. 
+	You don't need to do anything at first — It's just important tyat you know this file defines EVERYTHING.<BR>
+	E-V-E-R-Y-T-H-I-N-G. 
 
-1. Configure <em>c:\bat\environm.btm:</em>.<BR>
+1. Configure <em>c:\bat\environm.btm</em>:<BR>
 	Run environm.btm over and over until any errors you don't like seeing are gone.<BR>
 	You also could ignore them, but that would be ugly on your screen.<BR>
 	*environm.btm* will now be the central script to handle all definitions of all things, to make sure your command line is in a PERFECT ZEN STATE for you.<BR>
 	This file has an incredible set of messy examples that you can customize.<BR>
 	Ultimately, this is the file you want to customize for the rest of your life.<BR>
-	If you have private environment variables you don't want in your <EM>environm.btm </EM>for privacy reasons, put them in <EM>c:\bat\private.env </EM>s.
+	If you have private environment variables you don't want in your <EM>environm.btm </EM>for privacy reasons, put them in <EM>c:\bat\private.env </EM>.
 
 
-1. ENJOY THE CLARIEVIRONMENT!  There's soooooooo much stuff in here. In the future, I will add more reference to this page about them. For the most part, you just have to explore. Most stuff is fairly heavily documented/commented.
-   Remember: *c:\bat\setpath.bat* can be run to set your path, if you wind up in a situation where commands aren't in your path. 
+1. ENJOY THE CLARIEVIRONMENT!  There's soooooooo much stuff in here. In the future, I will add more reference to this page about them. For the most part, you just have to explore. Most stuff is fairly heavily documented/commented.<BGR>
+   Remember: *c:\bat\setpath.bat* can be run to set your path, if you wind up in a situation where commands aren't in your path.<BR>
    Setpath.bat also generates a *setpath.cmd* so that if you go into PowerShell or other shells, you can use the same generated path.
 
 
