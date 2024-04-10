@@ -193,7 +193,8 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
 
     :SetPrivateEnvVars
-            set /r c:\bat\private.env
+            rem This is where all my API keys, passwords, and stuff I don't want on GitHub lives!
+            if exist c:\bat\private.env (set /r c:\bat\private.env)
     return
 
 

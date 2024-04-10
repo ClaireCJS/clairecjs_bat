@@ -1,27 +1,15 @@
 @Echo off
 
-rem major speedup by skipping this bat file for certain shells:
-    IF "%_PIPE %_TRANSIENT" != "0 0" (call setpath %+ QUIT)
+rem MAJOR speedup by skipping this bat file if it's a transient shell —— special thanks to the helpful folks at the JPSoft forums for this one:
+        IF "%_PIPE %_TRANSIENT" != "0 0" (call c:\bat\setpath %+ QUIT)
 
 
-
-
-rem ::::: BAD IDEA, DON'T DO THIS, BECAUSE THIS HAPPENS MORE THAN YOU'D THINK:
-    :*cls 
-    :echo Running TCStart.btm...
-
-
-
-
-rem ::::: OPTOINALLY FIX THE WINDOW SO NONE OF THE EXTRA TCMD DDOCKED STUFF EXISTS, LEAVING ONLY THE MAIN WINDOW:
-    rem window restore
-
-
-rem ::::: SET UP FOR ENVIRONMENT.BAT
-    set OS=10
-    SET MACHINENAME=DEMONA
-    set LOGGING_LEVEL=None
-    set MOST_SECONDS_TCC_WOULD_EVER_TAKE_TO_START_UP=6
+rem SET UP FOR ENVIRONMENT.BAT
+        set OS=10
+        rem valid os values are: 95/98/ME/XP/7/10/11
+        SET MACHINENAME=DEMONA
+        set LOGGING_LEVEL=None
+        set MOST_SECONDS_TCC_WOULD_EVER_TAKE_TO_START_UP=6
 
 rem ::::: RUN ENVIRONMENT.BAT, WITH THE ONE PRE-REQUISITE THAT THE MACHINE NAME IS SET:
     title TCC
@@ -30,6 +18,13 @@ rem ::::: RUN ENVIRONMENT.BAT, WITH THE ONE PRE-REQUISITE THAT THE MACHINE NAME 
 
 
 
+
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+rem Everything past this point is just to handle splitting panes horizontally and vertically.  It's a not-graceful thing done by simulating
+rem keystrokes with AutoHotKey and placing bat files into c:\tcmd\ which are picked up later.  It's gross but, I made it the day i installed 
+rem Windows Terminal and it works
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
 
