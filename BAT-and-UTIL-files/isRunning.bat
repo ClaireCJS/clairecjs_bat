@@ -15,14 +15,14 @@
 
 ::::: CHECK IF THE PROCESS IS RUNNING:
     if %isRunning_fast eq 1 (
-        set COMMENT=echo doing fast, %%1='%1'
+        set COMMENTISRUNNING=echo doing fast, %%1='%1'
         if %@pid[%1] ne 0 (
             set ISRUNNING=1
         ) else (
             set ISRUNNING=0
         )
     ) else (
-        set COMMENT=had to remove these in 2022 when moving to Windows 10... set TASKLIST_NONEXE_OPTIONS=/l /o
+        set COMMENTISRUNNING=had to remove these in 2022 when moving to Windows 10... set TASKLIST_NONEXE_OPTIONS=/l /o
         REM old command was: set OUTPUT=%@EXECSTR[taskList  %*|grep -i -v grep|grep -i -v keep-killing-if-running|grep -i -v react-after-program-closes] ADFASDFASFDASDF
         set  OUTPUT=%@EXECSTR[isRunning-helper %*]
         if %DEBUG eq 1 (echo %ANSI_COLOR_DEBUG%OUTPUT is '%italics%%OUTPUT%%italics_off%')

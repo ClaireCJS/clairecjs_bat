@@ -29,7 +29,7 @@ REM DEBUG:
     set DEBUG_PRINTMESSAGE=0
 
 
-REM Initialize variables
+REM Initialize variables:
     set PM_PARAMS=%*
     set PM_PARAMS2=%2$
     set PM_PARAM1=%1
@@ -131,9 +131,13 @@ REM Behavior overides and message decorators depending on the type of message?
     set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
 
 
-REM We're going to update the window title to the message:
-    rem TODO! We need our %@STRIP_ANSI[] function to strip the ansi from the title! ANSI does not work in window titles 😂
-    set TITLE=%ORIGINAL_MESSAGE%
+REM We're going to update the window title to the message. If possible, strip any ANSI color codes from it:
+    if %PLUGIN_STRIPANSI_LOADED eq 1 (
+        set CLEAN_MESSAGE=%@STRIPANSI[%ORIGINAL_MESSAGE]
+    ) else (
+        set CLEAN_MESSAGE=%ORIGINAL_MESSAGE%
+    )
+    set TITLE=%CLEAN_MESSAGE%
 
     REM But first let's decorate the window title for certain message types Prior to actually updating the window title:
         if "%TYPE%" eq          "DEBUG" (set            TITLE=DEBUG: %title%)

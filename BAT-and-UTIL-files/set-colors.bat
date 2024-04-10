@@ -449,37 +449,25 @@ rem colors for GREP:
 
 
 
-rem NEW: 2024/04/10: Define a function to strip ansi from strings —— regex to strip ansi is '(\x9B|\x1B\[)[0-?] *[ -\/]*[@-~]' 
-rem HOWEVER, I JUST CANNOT GET THIS TO WORK!
+rem Function to strip ansi from strings —— regex to strip ansi is '(\x9B|\x1B\[)[0-?] *[ -\/]*[@-~]' 
+rem This is loaded in our environm.btm as well, so we must be careful not to laod it twice:
+        if not defined PLUGIN_STRIPANSI_LOADED (set PLUGIN_STRIPANSI_LOADED=0)
+        if %PLUGIN_STRIPANSI_LOADED ne 1 (
+            set PLUGIN_STRIPANSI=%PLUGIN_TCC_BASE%\StripAnsi.dll
+            if exist %PLUGIN_STRIPANSI% (
+                set PLUGIN_STRIPANSI_LOADED=1
+                plugin /l %PLUGIN_STRIPANSI% >nul
+            )
+        )
 
-rem function strip_ansi_fail_1=`set string=%1$ %+ unset /q stripped %+ :loop %+  for /f "tokens=1,* delims=" %%a in ("%string%") do ( set "stripped=!stripped!%%a" %+ set "string=%%b" ) %+ if not "%string%"=="" goto :loop %+  return %stripped%"`
-rem function REREPLACE_EXAMPLE=`%@REREPLACE[[Hh]ello,Goodbye,%1$]`
-
-:StripAnsiTest
-if not defined      ESCAPE           (set                ESCAPE=%@CHAR[27])
-if not defined ANSI_ESCAPE           (set           ANSI_ESCAPE=%@CHAR[27][)
-if not defined ANSI_DOUBLE_UNDERLINE (set ANSI_DOUBLE_UNDERLINE=%ANSI_ESCAPE%21m)
-rem function STRIP_ANSI_fail_1=`%@REREPLACE[%@CHAR[27]\[[0-9a-z] *[ -\/]*[@-~],,%1$]`     %+ rem Char[27] gives an error inside funcs, huh???
-rem function STRIP_ANSI_fail_2=`%@REREPLACE[%ESCAPE\[[0-9a-z] *[ -\/]*[@-~],,%1$]`     
-rem function STRIP_ANSI_fail_3=`%@REREPLACE[(%ESCAPE\[[0-9a-z] *[ -\/]*[@-~]),,%1$]`     
-rem function STRIP_ANSI_fail_4=`%@REREPLACE[(%ANSI_ESCAPE[0-9a-z] *[ -\/]*[@-~]),,%1$]`    
-function strip_ansi_gpt=`set string=%1$ %+    set "stripped=" %+    :loop %+    set "ansi=" %+    for /F "delims=" %%A in ("%string%") do (        set "line=%%A" %+        setlocal enabledelayedexpansion %+        for /F "tokens=1,* delims=" %%B in ("!line!") do (            set "ansi=%%B" %+            set "line=%%C"        ) %+        endlocal %+        set "stripped=!stripped!!ansi!" %+        set "string=!line!"    ) %+  set "%2=%stripped%"`
-setdos /x-5
-function STRIP_ANSI_COLOR=`%@REREPLACE["^e\[.*?m",,%1$]`     
-function STRIP_ANSI=`%@REREPLACE["^e\[.*?m",,%1$]`     
-setdos /x0
-if "%1" eq "stripansitest" (
-    echo.
-    echo %ANSI_COLOR_WARNING% THIS DOESN'T WORK YET! %ANSI_COLOR_RESET%%ANSI_EOL%
-    echos %ANSI_BLINK_ON%[Strip-ansi-color Test:] ``
-    echos %@STRIP_ANSI_COLOR[%ANSI_DOUBLE_UNDERLINE% %ANSI_COLOR_MAGENTA% Hello %ANSI_COLOR_GREEN% world!]
-    echos [/EndTest]%ANSI_BLINK_OFF%
-    echo.
-    echos %ANSI_BLINK_ON%[Strip-ansi Test:]       ``
-    echos %@STRIP_ANSI_TEST[%ANSI_DOUBLE_UNDERLINE% %ANSI_COLOR_MAGENTA% Hello %ANSI_COLOR_GREEN% world!]
-    echos [/EndTest]%ANSI_BLINK_OFF%
-    echo.
-)
+    :StripAnsiTest
+        if "%1" eq "stripansitest" (
+            echo.
+            echos %ANSI_BLINK_ON%[Strip-ansi Test:]``
+            echos %@STRIPANSI[%ANSI_DOUBLE_UNDERLINE%%ANSI_COLOR_MAGENTA%Hello %ANSI_COLOR_GREEN%world!]
+            echos [/EndTest]%ANSI_BLINK_OFF% If "Hello World" isn't underlined, the test succeeded!
+            echo.
+        )
 
 
 

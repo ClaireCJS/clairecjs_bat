@@ -39,18 +39,20 @@ Installation is not easy, bedcause this is really about integrating existing too
 1. Copy our TCC-start-script into the TCC folder:<BR>
    <em>copy c:\bat\tcstart.bat c:\tcmd</em>
 
-1. Configure *tcstart.bat*:    This is the minimal script that is run every time TCC is opened, transient or not.<BR>
+1. Configure *c:\tcmd\tcstart.bat*:    This is the minimal script that is run every time TCC is opened, transient or not.<BR>
    Open it up in a text editor and change the values for OS and MACHINENAME:<BR>
-   <em>set OS=10</em><BR>
+   <em>set OS=11</em><BR>
    <em>SET MACHINENAME=DEMONA</em> — Change this to your machinename! Or just use the same name as me 😅<BR>
    Valid OS values are 95/98/XP/ME/2K/7/10/11 — I've used all of these over the years!<BR>
    Most people just want "11" these days!<BR>
 
 1. Run TCC.exe your first time, ignoring any errors.  But not directly!  You want to open it in Windows Terminal!   So open up Windows Terminal, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click <em>'Add new profile'</em>. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to "TCC", the command line to "c:\tcmd\tcc.exe", the starting directory to "c:\tcmd", and run as administrator turned on.
 
-1. Type <em>option</em> at the TCC command line, switch to the "Advanced" tab.  In the upper-left is a section called *Special Characters*.  Change the separator to "^" (the caret character). This is actually a deviation from how most people do things, and it creates complications that I've mitigated. However, it's required for backward compatibility with decisions I made in the 1990s (which I have not yet mitigated, and probably never will).
+1. Now that you are running TCC inside of Windows Terminal, type <em>option</em> at the TCC command line, switch to the "Advanced" tab.  In the upper-left is a section called *Special Characters*.  Change the separator to "^" (the caret character). This is actually a deviation from how most people do things, and it creates complications that I've mitigated. However, it's required for backward compatibility with decisions I made in the 1990s (which I have not yet mitigated, and probably never will).
 
-1. You really need to install [Anaconda Python](https://www.anaconda.com/download) and [Strawberry Perl](https://strawberryperl.com), too ..... Or else anything piping to Python or Perl will fail.
+1. For EVERYTHING to work, we also need Python. If you don't have Python, install [Anaconda Python](https://www.anaconda.com/download) or else anything using an adjunct Pythons script is likely to fail
+
+1. For EVERYTHING to work, we also need Perl. If you don't have Perl, install [Strawberry Perl](https://strawberryperl.com) to C:\PERL (not C:\STRAWBERRY), or else anything piping to Python or Perl will fail.
 
 1. You will also want to pay attention to *c:\bat\environm.btm*.<br>
 	This is the script that is run every time TCC is run in a non-transient way.<BR>

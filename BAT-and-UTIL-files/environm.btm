@@ -2465,12 +2465,22 @@ return
 
 
     :Load_TCC_Plugins   
+        set PLUGIN_TCC_BASE=%UTIL%\TCC
+
         set PLUGIN_4WT_LOADED=0
-        if exist c:\util\4wt.dll (
+        set PLUGIN_4WT=%PLUGIN_TCC_BASE%\4wt.dll
+        if exist %PLUGIN_4WT% (
             set PLUGIN_4WT_LOADED=1
-            plugin /l c:\util\4wt.dll >&>nul
+            plugin /l %PLUGIN_4WT% >&>nul
         )
-    return
+
+        set PLUGIN_STRIPANSI_LOADED=0
+        set PLUGIN_STRIPANSI=%PLUGIN_TCC_BASE%\StripAnsi.dll
+        if exist %PLUGIN_STRIPANSI% (
+            set PLUGIN_STRIPANSI_LOADED=1
+            plugin /l %PLUGIN_STRIPANSI% >nul
+        )
+return
 
 
 

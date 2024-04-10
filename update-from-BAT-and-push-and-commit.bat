@@ -27,10 +27,11 @@ rem Update BAT files from live location to github-folder location:
     *copy /u /q c:\TCMD\tcmd.ini                  BAT-and-UTIL-files\tcmd.ini
     *copy /u /q c:\TCMD\tcstart.bat               BAT-and-UTIL-files\tcstart.bat
     *copy /u /q c:\util\ColorTool\ColorTool.exe   BAT-and-UTIL-files\ColorTool.exe
+    *copy /u /q %PUBCL%\dev\Perl\Clio.zip         BAT-and-UTIL-files\perl-sitelib-Clio.zip
 
 
 rem Make sure they're all added:
-    call git add BAT-and-UTIL-files\*.bat BAT-and-UTIL-files\*.btm BAT-and-UTIL-files\*.pl BAT-and-UTIL-files\*.py BAT-and-UTIL-files\*.exe BAT-and-UTIL-files\*.lst BAT-and-UTIL-files\*.ahk BAT-and-UTIL-files\*.ini
+    call git add BAT-and-UTIL-files\*.bat BAT-and-UTIL-files\*.btm BAT-and-UTIL-files\*.pl BAT-and-UTIL-files\*.py BAT-and-UTIL-files\*.exe BAT-and-UTIL-files\*.lst BAT-and-UTIL-files\*.ahk BAT-and-UTIL-files\*.ini BAT-and-UTIL-files\*.zip
 
 
 rem Commit and Push:
