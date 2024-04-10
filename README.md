@@ -15,7 +15,9 @@ Installation is not easy, bedcause this is really about integrating existing too
 ---------------------------------
 
 
-### ‼ To install and use this, make sure to use the paths specified, because there is some ugly hard-coding at points. Do not deviate from these steps or things will eventually fail:
+### ‼ Installation is NOT easy. This is a full stack of stuff built around a command line. To use everything I've put here, you have to install everything I've instructed here. This is what I go through every new computer.
+
+### ‼ Make sure to use the paths specified, because there is some ugly hard-coding at points. Do not deviate from these steps or things will eventually fail:
 
 1. A lot of my stuff uses unix commands, so you should <em>probably</em> install [cygwin](https://www.cygwin.com/install.html), or learn to recognize which things are breaking because of a lack of cygwin.
 
