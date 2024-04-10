@@ -21,20 +21,20 @@
 
 1. Download the TCC command line installer from JPsoft at [www.jpsoft.com](http:///www.jpsoft.com)
 
-1. Install TCC to *c:\TCMD\* instead of to the default location in program files
+1. Install TCC to <em>c:\TCMD\</em> instead of to the default location in program files
 
-1. Download these script files:
+1. Now you're ready to download my script files:<BR>
    <em>git clone http://www.github.com/clairecjs/clairecjs_bat</em>
 
 1. Put these script files into the correct hardcoded location of *c:\bat*:<br>
    <em>copy clairecjs_bat\BAT-and-UTIL-files\ c:\bat</em>
 
-1. Add *C:\BAT\* to your PATH:
-   <em>PATH=%PATH%;c:\bat\</em>
-   (A better way might be to go into advanced settings under Window and edit it there.)
+1. Add <em>C:\BAT\</em> to your PATH:<BR>
+   <em>PATH=%PATH%;c:\bat\</em><BR>
+   (A better way might be to go into advanced settings under Window and edit it there.)<BR>
    (An alternate method to do this quickly is to just run c:\bat\setpath.bat)
 
-1. Copy *c:\bat\tcstart.bat* into *c:\tcmd*:
+1. Copy *c:\bat\tcstart.bat* into *c:\tcmd*:<BR>
    <em>copy c:\bat\tcstart.bat c:\tcmd</em>
 
 1. Configure *tcstart.bat*: Open it up in a text editor and change the values for OS and MACHINENAME:
