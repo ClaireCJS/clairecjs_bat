@@ -70,7 +70,7 @@
 2024-04-05  15:49            705   64%  check-if-asking-for-usage.bat
 2024-03-18  13:29         11,473   81%  checkmappings.bat
 2023-10-14  02:51            452   52%  checktemp.bat
-2022-02-02  03:10            526   50%  checkusername.bat
+2024-04-10  12:34            487   51%  checkusername.bat
 2023-10-06  09:42             44   -2%  chown.bat
 2022-07-03  20:17            567   51%  chrome.bat
 2019-10-01  10:27             33   13%  cl.bat
@@ -101,6 +101,7 @@
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
 2019-10-01  10:27            336   39%  create-symlinks-by_Letter_only.bat
 2023-05-28  09:30         24,782   80%  create-symlinks.bat
+2024-04-10  12:38            459   35%  create-these_m3u-playlists.bat
 2023-07-04  17:17            290   35%  crop-center-square-of-image.bat
 2019-10-01  10:27            195   49%  cut.bat
 2019-10-01  10:27             25   -8%  d20.bat
@@ -167,8 +168,9 @@
 2024-04-05  16:35          1,818   59%  emoji-search.bat
 2024-04-05  17:08         69,852   78%  emoji.env
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
+2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-04-08  15:08        174,133   81%  environm.btm
+2024-04-09  23:33        174,205   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -215,9 +217,11 @@
 2024-04-05  17:58          1,452   57%  gather-message-types-into-pretty-environment-variable.bat
 2023-06-08  20:46            825   60%  generate-and-play-random-midi.bat
 2023-06-08  20:46            825   60%  generate-and-play-random-midi.btm
-2023-10-06  05:51          1,667   61%  generate-audio-playlists.bat
+2024-04-10  12:46          1,942   64%  generate-audio-playlists.bat
 2023-07-16  14:37         11,288   68%  generate-audio-transcripts-for-files-with-openlrc.py
 2022-10-15  15:52          4,840   59%  generate-filelists-by-attribute-audio.ini
+2019-10-01  10:28          4,444   64%  generate-filelists-by-attribute-images-and-video-WWW.ini
+2024-04-10  12:48          5,461   76%  generate-filelists-by-attribute-video.ini
 2024-02-24  11:55        233,671   73%  generate-filelists-by-attribute.pl
 2023-06-02  04:05            534   52%  generate_and_play_random_midi.py
 2023-06-02  08:51          8,693   74%  generate_midi_randomly.py
@@ -227,7 +231,7 @@
 2023-04-26  23:53            809   54%  get_lyrics_from_audio_file_via_whisperAI.py
 2023-06-02  19:02            623   53%  git-add-every-damn-file.bat
 2024-03-15  10:52            797   49%  git-add.bat
-2023-06-14  23:46             81    7%  git-commit-history.bat
+2024-04-09  23:33            158   14%  git-commit-history.bat
 2024-04-05  14:18          2,454   56%  git-commit.bat
 2023-10-06  06:37             45   -4%  git-config-set-commit-preference-to-rebase.bat
 2023-06-14  23:22             54    4%  git-config-set-commit-preferences-to-rebase.bat
@@ -258,6 +262,7 @@
 2019-10-01  10:28            839   63%  handles-post.pl
 2023-10-14  02:50          1,031   53%  handles.bat
 2019-10-01  10:28            204   49%  head.bat
+2024-04-10  13:14            878   50%  helper-end.bat
 2024-03-17  18:44          2,915   62%  highlight.bat
 2024-01-06  05:26             40    0%  hilight-by-computer-name.bat
 2023-06-05  11:51          1,579   63%  hilight.bat
@@ -272,6 +277,8 @@
 2023-05-29  22:54             46   -4%  important.bat
 2023-06-01  05:19             51   -1%  important_less.bat
 2023-07-10  03:06            982   61%  incorporate_folder_name_into_images.py
+2024-04-10  13:22         14,059   69%  index-MP3-helper.bat
+2024-04-10  13:15            701   55%  index-MP3.bat
 2024-04-09  14:57         11,965   68%  ingest_ics.py
 2023-07-21  07:55         30,151   74%  ingest_youtube_album.py
 2019-10-01  10:28            120   18%  insert-after-each-line.pl
@@ -310,6 +317,7 @@
 2024-01-15  01:53         12,663   79%  map-drives.btm
 2024-04-03  14:35            506   36%  MCD.bat
 2024-04-03  14:46            164   18%  mcdnow.bat
+2024-04-10  12:56          5,742   71%  mchk.bat
 2023-07-14  09:09             24   -8%  minilyrics.bat
 2019-10-01  10:28             41   18%  mkv2avi.bat
 2024-04-03  14:42            517   46%  mmddhhmmss.bat
@@ -320,10 +328,12 @@
 2024-02-12  21:06            492   40%  move-current-TCC-window-to-top-left-screen.bat
 2023-07-14  13:35            693   57%  move-winamp.ahk
 2023-07-14  13:31            684   55%  move-window-by-class-name.ahk
+2024-04-10  12:41          1,057   57%  MP3INDEX.bat
 2023-08-03  05:30            188   18%  mp42gif.bat
 2019-10-01  10:28             28    0%  mp42wav.bat
 2019-10-01  10:28             41    5%  mpc2wav.bat
 2019-10-01  10:28         30,781   70%  mtsend.py
+2024-04-10  12:57             13  -15%  music-search.bat
 2024-03-15  01:39          4,030   68%  mv.bat
 2024-03-23  20:57            674   47%  mydrives.bat
 2024-04-02  18:25          3,622   75%  nd.bat
@@ -405,6 +415,7 @@
 2023-11-09  07:42            589   49%  save-window-positions.bat
 2023-05-30  11:25            999   57%  say.bat
 2024-03-23  00:42            163   21%  scream.bat
+2024-04-10  12:57             13  -15%  search-music.bat
 2019-10-01  10:28            831   48%  select-random-lines-from.pl
 2023-06-13  16:06             57    0%  send-keypress-alt_down.ahk
 2023-06-08  21:39             61    4%  send-keypress-alt_left.ahk
@@ -522,6 +533,9 @@
 2024-03-23  19:10         17,928   74%  watch.bat
 2022-11-09  12:11          5,931   65%  wav2mp3.bat
 2019-10-01  10:28             11  -18%  wcclip.bat
+2024-04-10  13:09          1,705   71%  WCHEADER.bat
+2024-04-10  13:05             19  -10%  wcnice.bat
+2024-04-10  13:08            407   37%  wcpretty.bat
 2023-07-19  19:12          2,039   62%  wedding_party.py
 2023-05-17  17:45            604   58%  wget.bat
 2023-07-10  10:05            494   65%  wget32.bat

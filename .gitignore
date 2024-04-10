@@ -1,3 +1,6 @@
+# The file i keep my private keys in. If for some reason I were to accidentally try to upload it, this is my last line of defense:
+private.env
+
 !Build/
 .last_cover_stats
 /META.yml

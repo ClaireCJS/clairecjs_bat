@@ -1,5 +1,6 @@
-@echo off
+@Echo off
 
+:Restart
 if "%USERNAME"=="" goto :bad
                    goto :good
 
@@ -10,9 +11,8 @@ if "%USERNAME"=="" goto :bad
 	echo ERROR!!!!!!!!!!!!!!
 	echo.
 	echo     You do not have %%USERNAME defined!
-	echo     This would normally be 'Claire' or 'carolyn'
+	echo     This would normally be 'Claire' or 'Carolyn'
 	echo     This is required; please set this now.
-	echo     Make sure you do it right the first time; no second chances.
 	echo.
 	echo.
 	echo.
@@ -21,6 +21,7 @@ if "%USERNAME"=="" goto :bad
 			eset USERNAME
 			echo * You have set the username to '%USERNAME'.
 		pause
+        goto :Restart
 goto :end
 
 

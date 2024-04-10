@@ -832,7 +832,8 @@ return
 		@SET UNIXHOST=claire.sheer.us
 		rem PASSWORD=[REDACTED into private.env]
 
-    ::::: API KEYS & PROGRAMMING STUFF:
+    ::::: API KEYS & PROGRAMMING STUFF - private keys are in private.env
+        set GITHUB_USERNAME=clairecjs
         rem [REDACTED to private.env]
         ::This created problems with validation though: if isdir C:\ProgramData\Anaconda3\Lib\site-packages (set PYTHONPATH=C:\ProgramData\Anaconda3\Lib\site-packages)
 
