@@ -132,6 +132,7 @@ REM Behavior overides and message decorators depending on the type of message?
 
 REM We're going to update the window title to the message:
     rem TODO! We need a %@STRIP_ANSI[] function to strip the ansi from the title! ANSI does not work in window titles 😂
+    rem can use @REREPLACE maybe
     set TITLE=%MESSAGE%
 
 REM But first let's decorate the window title for certain message types:

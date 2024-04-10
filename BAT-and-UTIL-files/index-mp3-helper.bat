@@ -40,8 +40,8 @@
 	:f     exist    "%MP3LISTBAK%" (echos                 >   "%MP3LISTBAK")
 	                                echos                 >   "%MP3LISTBAK"     %+ REM Let's try just doing this always
 	:f     exist "%RECENTLISTBAK%" (echos                 >"%RECENTLISTBAK")
-	if     exist    "%MP3LIST%"    (echo ray|copy /q     "%MP3LIST"    "%MP3LISTBAK")
-	:f     exist "%RECENTLIST%"    (echo ray|copy /q  "%RECENTLIST" "%RECENTLISTBAK")
+	if     exist    "%MP3LIST%"    (echo ray|*copy /q     "%MP3LIST"    "%MP3LISTBAK")
+	:f     exist "%RECENTLIST%"    (echo ray|*copy /q  "%RECENTLIST" "%RECENTLISTBAK")
     if not exist    "%MP3LISTBAK%" (call alarm "MP3LISTBAK of %MP3LISTBAK% does not exist, and should!")
 
 
@@ -53,19 +53,17 @@
 
 :CREATE_THESE_AND_ALL_IN_EACH_DIR
     	%MP3OFFICIAL%\
-        call important "Creating %MP3OFFICIAL\LISTS\dir.txt to flush filelistings into cache"
+        call important "Creating %MP3OFFICIAL\LISTS\dir.txt to flush filenames into cache"
 		dir /s >%MP3OFFICIAL%\LISTS\dir.txt
 
-		if "%1"=="quick" goto :quick2_YES
-				 goto :quick2_NO
-		:quick2_NO
-				call important "Creating directory & recursive playlists..(these.m3u & all.m3u)"
-                %COLOR_RUN%
-                    pushd .
-                    %MP3OFFICIAL%\
-                        call create-these_m3u-playlists
-                        call create-all_m3u-playlists 
-                    popd
+		if "%1"=="quick" (goto :quick2_YES)
+            call important "Creating directory & recursive playlists..(these.m3u & all.m3u)"
+            %COLOR_RUN%
+            pushd .
+            %MP3OFFICIAL%\
+                call create-these_m3u-playlists
+                call create-all_m3u-playlists 
+            popd
 		:quick2_YES
 	%MP3OFFICIAL\
 

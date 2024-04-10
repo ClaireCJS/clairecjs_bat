@@ -3,20 +3,29 @@
 :PUBLISH:
 
 :DESCRIPTION: Creates a set of environment variables that can be used for messaging improvement
-:USAGE: call set-colors [test] - can add 'test' parameter to echo a test string
-:EFFECTS: sets %COLOR_{messagety[e} variables for all the message types we intend to have
-:REQUIRES: bigecho.bat (optional, only for testing)
-:RELATED: redefine-the-color-black-randomly.bat (gives each command-line window a slightly different shade of black to make window edges easier to see)
-:USED-BY:
+:USAGE:       call set-colors                - standard invocation
+:USAGE:       call set-colors force          - run it again, even if it's already been run (normally this is protected from happening)
+:USAGE:       call set-colors test           - to see the ANSI codes in action
+:USAGE:       call set-colors stripansitest  - to test our %@STRIP_ANSI function
+:EFFECTS:     sets %COLOR_{messagety[e} variables for all the message types we intend to have
+:REQUIRES:    bigecho.bat (optional, only for testing)
+:RELATED:     redefine-the-color-black-randomly.bat (gives each command-line window a slightly different shade of black to make window edges easier to see)
+:USED-BY:     environm.btm runs this to set all our ANSI-related environment variables
 
 
 REM  unexplored: Set text colour to index n in a 256-colour palette (e.g. \x1b[38;5;34m)
 REM  unexplored: is \x1b[?25h and \x1b[?25l. These show and hide the cursor, respectively.
 
 
-if "%1" eq "force" .or. "%1" eq "test" (goto :Force      )
-if   1  eq %COLORS_HAVE_BEEN_SET       (goto :AlreadyDone)
-:Force
+
+
+
+
+rem Branch by parameter:
+        if "%1" eq "force" .or. "%1" eq "test" (goto :Force        )
+        if "%1" eq "stripansitest"             (goto :StripAnsiTest)
+        if   1  eq %COLORS_HAVE_BEEN_SET       (goto :AlreadyDone  )
+        :Force
 
 
 rem ANSI: Initialization 
@@ -434,9 +443,33 @@ rem colors for GREP:
         :SET LC-ALL=C
         :^^^^^^^^^^^ LC-ALL=C actually gives an 86% speed grep increase [as of 2015ish on computer Thailog] at the expense of not being able to grep 2-byte-per-char type unicode files but in 20230504 it was decided unicode files are more common and our new computer is faster so this isn't worth it
 
-rem Define a function to strip ansi from strings:
-rem regex to strip ansi is '(\x9B|\x1B\[)[0-?] *[ -\/]*[@-~]' but TCC doesn't have regex substitution. Guess we can use sed? But then we require cygwin.
-function strip_ansi_fail=`set string=%1$ %+ unset /q stripped %+ :loop %+  for /f "tokens=1,* delims=" %%a in ("%string%") do ( set "stripped=!stripped!%%a" %+ set "string=%%b" ) %+ if not "%string%"=="" goto :loop %+  return %stripped%"`
+
+
+
+
+
+
+rem NEW: 2024/04/10: Define a function to strip ansi from strings —— regex to strip ansi is '(\x9B|\x1B\[)[0-?] *[ -\/]*[@-~]' 
+rem function strip_ansi_fail_1=`set string=%1$ %+ unset /q stripped %+ :loop %+  for /f "tokens=1,* delims=" %%a in ("%string%") do ( set "stripped=!stripped!%%a" %+ set "string=%%b" ) %+ if not "%string%"=="" goto :loop %+  return %stripped%"`
+rem function REREPLACE_EXAMPLE=`%@REREPLACE[[Hh]ello,Goodbye,%1$]`
+
+:StripAnsiTest
+if not defined      ESCAPE           (set                ESCAPE=%@CHAR[27])
+if not defined ANSI_ESCAPE           (set           ANSI_ESCAPE=%@CHAR[27][)
+if not defined ANSI_DOUBLE_UNDERLINE (set ANSI_DOUBLE_UNDERLINE=%ANSI_ESCAPE%21m)
+function STRIP_ANSI_fail_1=`%@REREPLACE[%@CHAR[27]\[[0-9a-z] *[ -\/]*[@-~],,%1$]`     %+ rem Char[27] gives an error inside funcs, huh???
+function STRIP_ANSI_fail_2=`%@REREPLACE[%ESCAPE\[[0-9a-z] *[ -\/]*[@-~],,%1$]`     
+function STRIP_ANSI_TEST =`%@REREPLACE[(%ESCAPE\[[0-9a-z] *[ -\/]*[@-~]),,%1$]`     
+if "%1" eq "stripansitest" (
+    echos %ANSI_BLINK_ON%%ANSI_COLOR_RED%[Test:] ``
+    echos %@STRIP_ANSI_TEST[%ANSI_DOUBLE_UNDERLINE% Hello world!]
+    echos [/EndTest]%ANSI_BLINK_OFF%
+)
+
+
+
+
+
 
 set COLORS_HAVE_BEEN_SET=1
 :AlreadyDone
