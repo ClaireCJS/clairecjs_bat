@@ -8,7 +8,7 @@
 :USAGE: NOTE: arg1 must match an existing message type i.e. "ERROR" "WARNING" "DEBUG" "SUCCESS" "IMPORTANT" "INPUT" "LESS_IMPORTANT"
 :USAGE: ENVIRONMENT: set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1  to suppress audio effects. Must be set each call.
 :USAGE: ENVIRONMENT:                         If SLEEPING=1, we suppress audio effects as well! This doesn't need to be set each call.
-:USAGE: ENVIRONMENT:              if NEWLINE_REPLACEMENT=1, we replace newlines so that the message becomes a 1-line message. Must be set each call.
+:USAGE: ENVIRONMENT:              if NEWLINE_REPLACEMENT=1, we replace \n with newlines so that the message can becomes longer than 1 line. Must be set each call.
 :USAGE: MESSAGE CONTENTS:    Use "{PERCENT}" in your message contents to display a % sign, if you have problems.
 
 
@@ -89,6 +89,7 @@ REM Validate parameters
 
 REM convert special characters
     set MESSAGE=%@UNQUOTE[%MESSAGE]
+    set ORIGINAL_MESSAGE=%MESSAGE%
     REM might want to do if %NEWLINE_REPLACEMENT eq 1 instead:
     if %NEWLINE_REPLACEMENT eq 1 (
         set MESSAGE=%@REPLACE[\n,%@CHAR[12]%@CHAR[13],%@REPLACE[\t,%@CHAR[9],%MESSAGE]]
@@ -131,33 +132,31 @@ REM Behavior overides and message decorators depending on the type of message?
 
 
 REM We're going to update the window title to the message:
-    rem TODO! We need a %@STRIP_ANSI[] function to strip the ansi from the title! ANSI does not work in window titles 😂
-    rem can use @REREPLACE maybe
-    set TITLE=%MESSAGE%
+    rem TODO! We need our %@STRIP_ANSI[] function to strip the ansi from the title! ANSI does not work in window titles 😂
+    set TITLE=%ORIGINAL_MESSAGE%
 
-REM But first let's decorate the window title for certain message types:
-    if "%TYPE%" eq          "DEBUG" (set            TITLE=DEBUG: %title%)
-    if "%TYPE%" eq   "WARNING_LESS" (set          TITLE=Warning: %title%)
-    if "%TYPE%" eq        "WARNING" (set          TITLE=WARNING: %title% !)
-    if "%TYPE%" eq "LESS_IMPORTANT" (set                 TITLE=! %title% !)
-    if "%TYPE%" eq "IMPORTANT_LESS" (set                 TITLE=! %title% !)
-    if "%TYPE%" eq      "IMPORTANT" (set                TITLE=!! %title% !!)
-    if "%TYPE%" eq          "ALARM" (set          TITLE=! ALARM: %title% !)
-    if "%TYPE%" eq          "ERROR" (set         TITLE=!! ERROR: %title% !!)
-    if "%TYPE%" eq    "FATAL_ERROR" (set TITLE=!!!! FATAL ERROR: %title% !!!!)
+    REM But first let's decorate the window title for certain message types Prior to actually updating the window title:
+        if "%TYPE%" eq          "DEBUG" (set            TITLE=DEBUG: %title%)
+        if "%TYPE%" eq   "WARNING_LESS" (set          TITLE=Warning: %title%)
+        if "%TYPE%" eq        "WARNING" (set          TITLE=WARNING: %title% !)
+        if "%TYPE%" eq "LESS_IMPORTANT" (set                 TITLE=! %title% !)
+        if "%TYPE%" eq "IMPORTANT_LESS" (set                 TITLE=! %title% !)
+        if "%TYPE%" eq      "IMPORTANT" (set                TITLE=!! %title% !!)
+        if "%TYPE%" eq          "ALARM" (set          TITLE=! ALARM: %title% !)
+        if "%TYPE%" eq          "ERROR" (set         TITLE=!! ERROR: %title% !!)
+        if "%TYPE%" eq    "FATAL_ERROR" (set TITLE=!!!! FATAL ERROR: %title% !!!!)
 
-REM Prior to actually updating the window title:
     title %title%
 
 
 REM Some messages will be decorated with audio:
-    if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO eq 1 (goto :No_Beeps_1)
+    if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO ne 1 (
         if "%TYPE%" eq "DEBUG"  (beep  lowest 1)
         if "%TYPE%" eq "ADVICE" (beep highest 3)
-    :No_Beeps_1
+    )
 
-REM Pre-Message pause based on message type
-        if %DO_PAUSE% eq 1 (echo.)                                                                                                     %+ REM pausable messages need a litle visual cushion
+REM Pre-Message pause based on message type (pausable messages need a litle visual cushion):
+        if %DO_PAUSE% eq 1 (echo.)           
 
 REM Pre-Message determination of if we do a big header or not
                                                                                          set BIG_HEADER=0

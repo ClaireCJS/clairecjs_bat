@@ -188,6 +188,7 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 	gosub OSSpecificOverrides
 	gosub SetJavaClasspath
     gosub SetPrivateEnvVars
+    gosub Load_TCC_Plugins
     gosub FinalValidations
 	goto :END
 
@@ -2457,9 +2458,33 @@ return
                 :pause
             goto :END
 
-        :::::::::::::::::::::::::::::::::::::: ERROR SUBROUTINES: END :::::::::::::::::::::::::::::::::::::::
-        :::::::::::::::::::::::::::::::::::::: ERROR SUBROUTINES: END :::::::::::::::::::::::::::::::::::::::
-        :::::::::::::::::::::::::::::::::::::: ERROR SUBROUTINES: END :::::::::::::::::::::::::::::::::::::::
+
+
+
+
+
+
+    :Load_TCC_Plugins   
+        set PLUGIN_4WT_LOADED=0
+        if exist c:\util\4wt.dll (
+            set PLUGIN_4WT_LOADED=1
+            plugin /l c:\util\4wt.dll >&>nul
+        )
+    return
+
+
+
+
+
+
+
+
+
+
+
+        :::::::::::::::::::::::::::::::::::::: SUBROUTINES: END :::::::::::::::::::::::::::::::::::::::
+        :::::::::::::::::::::::::::::::::::::: SUBROUTINES: END :::::::::::::::::::::::::::::::::::::::
+        :::::::::::::::::::::::::::::::::::::: SUBROUTINES: END :::::::::::::::::::::::::::::::::::::::
 
 :END
     :Cleanup

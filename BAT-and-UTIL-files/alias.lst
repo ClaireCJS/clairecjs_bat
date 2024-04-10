@@ -112,6 +112,15 @@ sweep=global/i
 
 
 
+;;;;;;;;;;;;; COMMON TYPOS: ;;;;;;;;;;;;;
+;;;;;;;;;;;;; COMMON TYPOS: ;;;;;;;;;;;;;
+;;;;;;;;;;;;; COMMON TYPOS: ;;;;;;;;;;;;;
+
+functoin=function
+unfunctoin=unfunction
+
+
+
 
 ;;;;;;;;;;;;; REDEFINE BASIC COMMAND BEHAVIOR: ;;;;;;;;;;;;;
 ;;;;;;;;;;;;; REDEFINE BASIC COMMAND BEHAVIOR: ;;;;;;;;;;;;;
@@ -169,6 +178,7 @@ cp=copy/r /g
 ps=psl
 pwd=*cd
 ;touch handled above
+
 
 
 
