@@ -65,6 +65,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
         echo.
 
+        rem piping to cat_fast fixes TCC+WT ansi rendering errors
         %COLOR_RUN%
         cat %GIT_OUT% | grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename' | cat_fast
 
