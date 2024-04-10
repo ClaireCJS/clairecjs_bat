@@ -29,8 +29,8 @@
 1. Put these script files into the correct hardcoded location of *c:\bat*:<br>
    <em>copy clairecjs_bat\BAT-and-UTIL-files\ c:\bat</em>
 
-1. Add <em>C:\BAT\</em> to your PATH:<BR>
-   <em>PATH=%PATH%;c:\bat\</em><BR>
+1. Add <em>C:\BAT\ </em>to your PATH:<BR>
+   <em>PATH=%PATH%;c:\bat\ </em><BR>
    (A better way might be to go into advanced settings under Window and edit it there.)<BR>
    (An alternate method to do this quickly is to just run c:\bat\setpath.bat)
 
@@ -44,7 +44,9 @@
    Valid OS values are 95/98/XP/ME/2K/7/10/11 —— I've used all of these over the years!<BR>
    Most people just want "11" these days!<BR>
 
-1. You will also want to pay attention to *c:\bat\environm.btm*. Open it up in a text editor. You don't need to do anything at first —— What you will want to do is run "environm.btm" over and over until you are satisfied with what it does. This is the script that is run every time TCC is run in a non-transient way. This is the most imporant script, basically the equivalent of your unix .init/.rc type files. This defines EVERYTHING. File locations, executable extensions, every possible environment varaiabe, harddrives, drive mapping... Everything. It will likely trip up errors and need parts commented out. If you run "environm validate" it will most definitely fail, as this validates all (25+) of my repository file locations.  But this file has an incredible set of messy examples that you can customize. Ultimately, this is the file you want to customize for the rest of your life. If you have private environment variables you don't want in your environm.btm for privacy reasons, put them in a file called c:\bat\private.env and they will be read from that.
+1. You will also want to pay attention to *c:\bat\environm.btm*.<br>
+	Open it up in a text editor.<br>
+	You don't need to do anything at first —— What you will want to do is run "environm.btm" over and over until you are satisfied with what it does. This is the script that is run every time TCC is run in a non-transient way. This is the most imporant script, basically the equivalent of your unix .init/.rc type files. This defines EVERYTHING. File locations, executable extensions, every possible environment varaiabe, harddrives, drive mapping... Everything. It will likely trip up errors and need parts commented out. If you run "environm validate" it will most definitely fail, as this validates all (25+) of my repository file locations.  But this file has an incredible set of messy examples that you can customize. Ultimately, this is the file you want to customize for the rest of your life. If you have private environment variables you don't want in your environm.btm for privacy reasons, put them in a file called c:\bat\private.env and they will be read from that.
 
 1. Run TCC.exe your first time, ignoring any errors.  But not directly!  You want to open it in Windows Terminal!   So open up Windows Terminal, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click <em>'Add new profile'</em>. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to "TCC", the command line to "c:\tcmd\tcc.exe", the starting directory to "c:\tcmd", and run as administrator turned on.
 
