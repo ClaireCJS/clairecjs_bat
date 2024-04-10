@@ -434,6 +434,10 @@ rem colors for GREP:
         :SET LC-ALL=C
         :^^^^^^^^^^^ LC-ALL=C actually gives an 86% speed grep increase [as of 2015ish on computer Thailog] at the expense of not being able to grep 2-byte-per-char type unicode files but in 20230504 it was decided unicode files are more common and our new computer is faster so this isn't worth it
 
+rem Define a function to strip ansi from strings:
+rem regex to strip ansi is '(\x9B|\x1B\[)[0-?] *[ -\/]*[@-~]' but TCC doesn't have regex substitution. Guess we can use sed? But then we require cygwin.
+function strip_ansi_fail=`set string=%1$ %+ unset /q stripped %+ :loop %+  for /f "tokens=1,* delims=" %%a in ("%string%") do ( set "stripped=!stripped!%%a" %+ set "string=%%b" ) %+ if not "%string%"=="" goto :loop %+  return %stripped%"`
+
 set COLORS_HAVE_BEEN_SET=1
 :AlreadyDone
 
