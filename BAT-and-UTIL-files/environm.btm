@@ -633,15 +633,14 @@ return
 
 		::2011 NOT MAKING A REMAPFIRE  EVEN THOUGH FIRE  IS  REBORN - LET'S SEE IF WE REALLY NEED THIS ANYMORE
 		::2011 NOT MAKING A REMAPCHAOS EVEN THOUGH CHAOS NOW EXISTS - TRUE TEST TO SEE IF WE REALLY NEED THIS ANYMORE
-		::2011 NOT adding O: or R: to this - does this remap shit even come into play anymore? ..................... [2021: yes, yes it does!]
+		::2011 NOT adding O: or R: to this - does this remap even come into play anymore? ..................... [2021: yes, yes it does!]
 		::2012 NOT MAKING A REMAPGOLIATH EVEN THOUGH THIS IS A COMPLETELY NEW COMPUTER NAME - TRUE TEST TO SEE IF THIS IS USED ANYMORE
-		::2012      SO IT TURNS OUT REMAP{MACHINENAME} IS USED FOR EC.BAT, when finding the attrib.lsts! But really only on Hades, to remap O: to C:
 		::2013 Actually, EC.bat USES THIS! AT THE VERY LEAST FOR COMPUTERS WITH MP3-RELATED DRIVES! 
 		::2013     *** THIS IS A PROBLEM FOR CAROLYN EC'ING -- WE DEFINITELY NEED TO MAINTAIN THIS!!! ***  (So much for trying to kill this in 2011)
 		::2014 FINALLY ACCEPTING THIS ISN'T GOING AWAY. Keep maintaining it. Don't question past wisdom in this instance.
         ::2015 Seriously. Just accept that this is permanent. It's not so bad.
         ::2018 It really isn't. I feel good about this.
-        ::2021 No, it's definitely still permanent! Don't ever change! Stop fighting this!
+        ::2021 No, it's definitely still permanent! Don't ever change! Stop fighting this! You need these variables in VERY VERY VERY RARE instances!
 return
 
 

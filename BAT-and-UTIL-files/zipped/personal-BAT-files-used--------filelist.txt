@@ -12,6 +12,8 @@
 2024-02-02  20:24          3,616   58%  ALIAS.LST
 2024-04-05  15:40          5,173   67%  all-ready-drives.bat
 2024-03-24  19:07            238   24%  allbmp2jpg.bat
+2024-04-10  15:09          1,654   62%  allcomputers.bat
+2024-04-05  14:07          2,297   74%  allcomputersexceptself.bat
 2024-03-24  20:48          5,494   61%  allfile2.pl
 2023-05-19  13:46            657   47%  allfilea2w.pl
 2023-10-03  20:28         10,985   64%  allfileexif.pl
@@ -97,7 +99,7 @@
 2019-10-01  10:27             27   -7%  counts.bat
 2023-06-07  04:46         61,308   71%  cover_downloader.py
 2023-07-18  09:17          1,957   62%  cover_embedder.py
-2019-10-01  10:28            101    5%  create-all-drive-shares-(for-new-installations).bat
+2024-04-10  15:13            435   49%  create-all-drive-shares-(for-new-installations).bat
 2023-10-06  05:56            710   50%  create-and-change-into-temp-folder.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
 2019-10-01  10:27            336   39%  create-symlinks-by_Letter_only.bat
@@ -215,6 +217,7 @@
 2024-03-20  23:46          8,597   73%  FR.bat
 2024-03-18  11:22          8,477   69%  frpost-helper.pl
 2024-02-21  02:01            117    9%  frpost.bat
+2019-10-01  10:28             71   -2%  ftphome.bat
 2024-04-05  17:58          1,452   57%  gather-message-types-into-pretty-environment-variable.bat
 2023-06-08  20:46            825   60%  generate-and-play-random-midi.bat
 2023-06-08  20:46            825   60%  generate-and-play-random-midi.btm
@@ -268,6 +271,8 @@
 2024-01-06  05:26             40    0%  hilight-by-computer-name.bat
 2023-06-05  11:51          1,579   63%  hilight.bat
 2024-01-06  05:26             40    0%  hilite-by-computer-name.bat
+2023-11-12  01:43            824   65%  hosts-supplimental.txt
+2024-04-10  15:07            287   39%  hosts.bat
 2022-05-10  20:56            195   38%  hstart.bat
 2020-02-26  04:24          1,114   58%  html_viewer.bat
 2023-06-05  15:45          1,556   61%  IE.bat
@@ -309,6 +314,8 @@
 2019-10-01  10:28             41    3%  lock-computer.bat
 2023-06-15  11:38          2,114   57%  logging.bat
 2019-10-01  10:28             28   -7%  lowercase.pl
+2024-04-10  15:20            181   22%  make-directory-matching-drive-label-on-every-drive.bat
+2024-04-10  15:26            892   52%  make-directory-matching-drive-label.bat
 2023-07-04  23:25          3,961   73%  make-image-square.bat
 2019-10-01  10:28          1,487   67%  make-video-from-audio-and-image.bat
 2024-04-03  12:28            334   41%  make-zero-byte-file-named.bat
@@ -338,9 +345,9 @@
 2024-03-15  01:39          4,030   68%  mv.bat
 2024-03-23  20:57            674   47%  mydrives.bat
 2024-04-02  18:25          3,622   75%  nd.bat
-2024-03-18  02:10          1,990   54%  new-computer.bat
+2024-04-10  15:14          1,850   53%  new-computer.bat
 2024-03-15  00:03             45   29%  new-computer.ps1
-2023-10-14  01:50          4,119   61%  new-harddrive.bat
+2024-04-10  15:24          3,985   60%  new-harddrive.bat
 2024-03-18  11:28             13  -15%  nextdir.bat
 2023-09-15  03:32             55   -1%  nocar.bat
 2023-06-08  03:09             41   -4%  none.bat
@@ -445,6 +452,7 @@
 2023-07-06  10:53          9,004   77%  SETPATH.BAT
 2023-06-02  12:32            604   56%  setprompt.bat
 2023-10-06  05:32            132    5%  settmp.bat
+2024-04-10  15:17            731   51%  setup-perl-junctions-on-new-computer.bat
 2019-10-01  10:28             21   -9%  setwidth.bat
 2023-06-06  14:08          4,130   73%  show_current_pallete_prototype.py
 2019-10-01  10:28          5,276   63%  sizedir.pl
@@ -520,6 +528,7 @@
 2019-10-01  10:28            326   33%  urlencode.pl
 2019-10-01  10:28            335   40%  usb-remove-safely.bat
 2024-03-18  09:00            216   28%  validate-ahk.bat
+2024-04-10  15:12            714   51%  validate-all-perl-files.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
 2024-04-09  22:06         14,688   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat

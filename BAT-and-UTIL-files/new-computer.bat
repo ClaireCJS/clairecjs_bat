@@ -39,11 +39,9 @@
     echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. 
 
 :::: SET POWERSHELL STUFF:
-    call warning "Not sure if this will work right or not, make sure we get to the warnings after this:"
-    pause
-    new-computer.ps1
-    call success "yay it worked! maybe edit this part out of new-computer.bat now"
-    pause
+
+    call new-computer.ps1 %+ rem this does: Set-ExecutionPolicy -ExecutionPolicy Bypass
+
 
 :::: SHARE WHAT WE CAN:
     call create-all-drive-shares-(for-new-installations).bat
@@ -54,4 +52,4 @@
     pause %+ call warning "After installing perl to c:\perl\, run c:\bat\setup-perl-junctions-on-new-computer.bat"            
     pause %+ call warning "Change EditPlus preferences to syntax-highlight TXT files as .CPP files"            
     pause %+ call warning "Let's calibrate our monitor at %ITALICS_ON%%CALIBRATION_URL%%ITALICS_OFF%" %+ pause %+ pause %+ %CALIBRATION_URL%
-    pause %+ call advice "if we still command-line-blog: Test mtsend.bat, install python-2.5.2.msi for mtsend" 
+    pause %+ call advice  "if we still command-line-blog: Test mtsend.bat, install python-2.5.2.msi for mtsend" 
