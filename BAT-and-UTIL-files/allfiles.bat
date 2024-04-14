@@ -420,26 +420,26 @@ goto :Edit
 	::::: for example, "h:\test" would not work but h:\test would,
 	::::: but "h:\two words" would work and h:\two words woudn't.
         echo *cd "%_cwd"                                                                          >>:u8 %TMP5%
-        echo     "%_cwd"\                                                                         >>:u8 %TMP5%
-        echo      %_cwd\                                                                          >>:u8 %TMP5%
+        rem      "%_cwd"\                                                                         >>:u8 %TMP5%
+        rem       %_cwd\                                                                          >>:u8 %TMP5%
 
-        if "%NOCLS%"    eq "1" goto :nocls1
-        if "%DEBUG%"    eq "1" goto :nocls1
-        if "%SWEEPING%" eq "1" goto :nocls1
+        if "%NOCLS%"    eq "1" (goto :nocls1)
+        if "%DEBUG%"    eq "1" (goto :nocls1)
+        if "%SWEEPING%" eq "1" (goto :nocls1)
     	    echo cls                                                                              >>:u8 %TMP5%
         :nocls1
-        if "%DEBUG%" eq "1" echo call print-if-debug Current directory is %%_cwd                      >>:u8 %TMP5%
+        if "%DEBUG%" eq "1" echo call print-if-debug Current directory is %%_cwd                  >>:u8 %TMP5%
 	    if "%DEBUG%" eq "1" echo pause                                                            >>:u8 %TMP5%
 
 
     if "%1"=="mv" goto :allfiles_mv_creation_meat
         :NormalCreationMeat
-            %COLOR_IMPORTANT% %+ echo - Using normal creation meat... %+ %COLOR_NORMAL%
+            call less_important "Using normal creation meat..."
             type %TMP1                                                                            >>:u8 %TMP5
             goto :FinishCreatingBatfile
 
         :allfiles_mv_creation_meat
-            %COLOR_IMPORTANT% %+ echo - Using allfiles_mv creation meat... %+ %COLOR_NORMAL%
+            call less_important "Using allfiles_mv creation meat..."
             :allfile2.pl is simply one that checks %TMP1 vs %TMP2 and creates rename commands to rename the names in %TMP1% to %TMP2%. That is all.
             set DIFFERENCE_SCRIPT=%BAT%\allfile2.pl
             if "%DEBUG" == "1" echo * About to: %PERL% %DIFFERENCE_SCRIPT% %TMP1% %TMP2%          >>:u8 %TMP5%
@@ -519,24 +519,25 @@ goto :Edit
 
 ::::: CLEAN-UP:
 :CleanUp
-	unset /q ADDTIME
-	unset /q DEBUG
-    unset /q SKIPEDIT
-    unset /q SKIPWARN
-    unset /q STARTWITHCALL
-    unset /q NOEXITINTERNAL
-    unset /q NOCLS
-:       unset /q FILTERSCRIPT
-:       unset /q TMPDIRCMD
-:	unset /q TMP1
-:	unset /q TMP2
-:	unset /q TMP3
-:	unset /q TMP4
-:	unset /q TMP5
-    %COLOR_NORMAL%
-    if "%SWEEPING%" eq "1" dir
-	:unset /q LATESTALLFILES1
-	:unset /q LATESTALLFILES2
-    window restore
+        unset /q ADDTIME
+        unset /q DEBUG
+        unset /q SKIPEDIT
+        unset /q SKIPWARN
+        unset /q STARTWITHCALL
+        unset /q NOEXITINTERNAL
+        unset /q NOCLS
+    rem unset /q FILTERSCRIPT
+    rem unset /q TMPDIRCMD
+    rem	unset /q TMP1
+    rem	unset /q TMP2
+    rem	unset /q TMP3
+    rem	unset /q TMP4
+    rem	unset /q TMP5
+        if "%SWEEPING%" eq "1" dir
+        :unset /q LATESTALLFILES1
+        :unset /q LATESTALLFILES2
+        window restore
 
 :END
+%COLOR_NORMAL%
+

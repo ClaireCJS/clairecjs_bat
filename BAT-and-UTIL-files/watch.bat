@@ -291,7 +291,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
         if             %@REGEX[DELETE.AFTER.WATCHING,%@UPPER["%_CWP"]]==1 (set             DELETE=1)
         if  isdir  %*                                                     (set             DELETE=0)
         if %DELETE eq 1 (
-            echos %FAINT_OFF%
+            echos %FAINT_OFF%❓ ``
             *del /p  %*
             echos %FAINT_ON%
             for %f in (%ARGSWITHSPACES%) if exist "%@NAME[%f].*" (*del /p "%@NAME[%f].*")

@@ -1,8 +1,9 @@
 @Echo OFF
 
-::::: purely cosmetic:
-    if %1 eq "randcolor" (call randfg)
+rem For purely cosmetic reasons, we want each file to be a different color:
+        if %1 eq "randcolor" (call randfg)
 
-::::: do the thing:
-    for %tmpfile in (*.wav) if exist "%@NAME[%tmpfile].mp3" .or. exist "%@NAME[%tmpfile].flac" del "%@NAME[%tmpfile%].wav"
+rem If an mp3+wav pair exists, delete the wav, because it is redundant:
+        for %tmpfile in (*.wav) if exist "%@NAME[%tmpfile].mp3" .or. exist "%@NAME[%tmpfile].flac" del "%@NAME[%tmpfile%].wav"
+
 

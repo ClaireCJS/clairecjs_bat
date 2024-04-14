@@ -16,7 +16,7 @@
 
 
 rem Configuration & environment validation
-        set SPACER=        ``
+        set SPACER=           ``
         set BACKUP_TARGET=c:\BACKUPS\IMPORTANT_FILES.%MACHINENAME%
         set BACKUP_TARGET_DROPBOX=%DROPBOX%\BACKUPS\IMPORTANT_FILES.%MACHINENAME%
 
@@ -51,11 +51,10 @@ rem ****************************************************************************
 
 
 echo.
-echo %ANSI_COLOR_BRIGHT_GREEN%%CHECK% Done!
+call success "Done!"
 echo.
 echo.
-echo.
-call important "Backing backups up to every available backup drive...%FAINT_ON%"
+call less_important "Backing backups up to every available backup drive...%FAINT_ON%"
 echo.
 rem Sync important files folder
     for %letter in (%THE_ALPHABET) (
@@ -67,8 +66,9 @@ rem Sync important files folder
             *copy /e /w /u /s /a: /h /z /k /g /u /Nts %BACKUP_TARGET% %BACKUP_TARGET_TMP% | convert-each-line-to-a-dot.pl | fast_cat
         )
     )
-    echos %FAINT_OFF%%@ANSI_MOVE_TO_COL[1]%ANSI_COLOR_BRIGHT_GREEN%%CHECKBOX% All done!
-    echo.
+    echos %FAINT_OFF%%@ANSI_MOVE_TO_COL[1]
+    rem echos %ANSI_COLOR_BRIGHT_GREEN%%CHECKBOX% All done! %+ echo.
+    call success "%italics_on%%underline_on%All%italics_off%%underline_off% done!"
 
 
 goto :END
@@ -86,14 +86,15 @@ goto :END
    
     
         rem Always copy it to dropbox if instructed
-            if "%dropbox_YN%" ne "dropbox_Y" goto :Dropbox_NO
-            set SAME=0
-            if exist %target_filename_dropbox (set SAME=%@COMPARE[%filepath,%target_filename_dropbox]) 
-            if %SAME eq 0 (
-                echos %SPACER%``
-                *copy /a: /G /H /J /K /Z /u /Ns %filepath% %TARGET_FILENAME_DROPBOX% | insert-before-each-line %SPACER%
+            if "%dropbox_YN%" eq "dropbox_Y" (
+                set SAME=0
+                if exist %target_filename_dropbox (set SAME=%@COMPARE[%filepath,%target_filename_dropbox]) 
+                if %SAME eq 0 (
+                    echos %SPACER%``
+                    *copy /a: /G /H /J /K /Z /u /Ns %filepath% %TARGET_FILENAME_DROPBOX% | insert-before-each-line %SPACER%
+                )
             )
-            :Dropbox_NO
+
 
         rem Check if it's the same as the local backup
             if exist %TARGET_FILENAME% (set SAME=%@COMPARE[%filepath,%target_filename]) else (set SAME=0)

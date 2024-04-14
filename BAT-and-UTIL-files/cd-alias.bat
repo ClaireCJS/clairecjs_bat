@@ -56,14 +56,18 @@ rem Change the window title to the folder, while keeping track of the last coupl
 rem If there were a different number of files now than when we last entered this folder, let us know either/both:
         set NUM_FILES_THEN_2=%FILE_COUNT_LAST%
         rem 🔴Folder %LAST_FOLDER% had %NUM_FILES_NOW_2% file. Last time we checked, it had %NUM_FILES_THEN_2%
-        rem  not defined       NUM_FILES_NOW_2   (goto  :skip_saying)
-        if   not defined       NUM_FILES_THEN_2  (goto  :skip_saying)
+        rem  not defined        NUM_FILES_NOW_2  (goto  :skip_saying)
+        if   not defined        NUM_FILES_THEN_2 (goto  :skip_saying)
         if %NUM_FILES_NOW_2 eq %NUM_FILES_THEN_2 (goto  :skip_saying)
         if %NUM_FILES_NOW_2 gt %NUM_FILES_THEN_2 (set CHANGE=increased %+ set VERB=%ansi_color_bright_green%increased)
         if %NUM_FILES_NOW_2 lt %NUM_FILES_THEN_2 (set CHANGE=decreased %+ set VERB=%ansi_color_red%decreased)
+        if         0        eq %NUM_FILES_THEN_2 (set CD_PERCENT=0 %+ goto :NoPercent)
+        if         0        ne %NUM_FILES_THEN_2 (set CD_PERCENT=1)
         set PERCENT=%@FLOOR[100-%@EVAL[100*(%NUM_FILES_NOW_2 / %NUM_FILES_THEN_2)]]
         set PERCENT=%@EVAL[-1 * %PERCENT]
-        call less_important "%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then_2%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW_2%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]{PERCENT}%faint_on%) %faint_on%since last check of %faint_off%%italics_on%%LAST_FOLDER%%italics_off%%faint_off%"
+        :NoPercent
+        if %CD_PERCENT eq 1 (call less_important "%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then_2%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW_2%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]{PERCENT}%faint_on%) %faint_on%since last check of %faint_off%%italics_on%%LAST_FOLDER%%italics_off%%faint_off%")
+        if %CD_PERCENT eq 0 (call less_important "%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then_2%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW_2%%bold_off%%blink_off%%double_underline_off% %faint_on%since last check of %faint_off%%italics_on%%LAST_FOLDER%%italics_off%%faint_off%") %+ REM previous line copied over but with percent section removed to avoid divide by zero errors
         :skip_saying
 
 rem If there were a different number of files when we entered our new folder than when we last exited our new folder, let us know:

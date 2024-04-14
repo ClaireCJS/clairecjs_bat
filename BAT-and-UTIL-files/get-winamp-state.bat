@@ -1,4 +1,4 @@
-@Echo Off
+@Echo off
 
 
 :DESCRIPTION: Gets the current state of the music, and sets MUSICSTATE to one of the following values:
@@ -43,9 +43,9 @@
         set                     WGETDIR=c:\logs\wget
         set           WGETFILE=%WGETDIR%\main
         if exist    "%WGETFILE%"       (*del /qy "%WGETFILE%" >nul)
-        wget.exe --quiet -P %WGETDIR% %MUSICSERVERSTATUSURL%
+        wget.exe --quiet -t 2 -P %WGETDIR% %MUSICSERVERSTATUSURL%
         set           WGET_RETURN_FILE=%WGETDIR%\main
-        if not exist %WGET_RETURN_FILE% (call warning "WGET_RETURN_FILE of '%WGET_RETURN_FILE%' does not exist")
+        if not exist %WGET_RETURN_FILE% (call warning "WinAmp may not be running, or WAWI may not be installed, because WGET_RETURN_FILE of '%WGET_RETURN_FILE%' does not exist")
 
         if "%1" eq "fast" (goto :Fast  )
         if "%1" ne "fast" (goto :normal)

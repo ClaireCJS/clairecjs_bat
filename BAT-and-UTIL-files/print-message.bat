@@ -93,7 +93,7 @@ REM convert special characters
     REM might want to do if %NEWLINE_REPLACEMENT eq 1 instead:
     if %NEWLINE_REPLACEMENT eq 1 (
         set MESSAGE=%@REPLACE[\n,%@CHAR[12]%@CHAR[13],%@REPLACE[\t,%@CHAR[9],%MESSAGE]]
-        unsewt /q NEWLINE_REPLACEMENT
+        unset /q NEWLINE_REPLACEMENT
     )
     rem sixteen percent symbols is insane, but what is needed:
     set MESSAGE=%@REPLACE[{PERCENT},%%%%%%%%%%%%%%%%,%MESSAGE]
