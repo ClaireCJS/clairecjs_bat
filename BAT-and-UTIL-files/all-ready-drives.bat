@@ -45,10 +45,12 @@ goto :END
             rem call important_less "doing %drive_letter_pretty%"
             rem echo if "%%@READY[%letter%]"{%@READY[%letter%]} eq "1" 
 
+
                                                                                 set SAME=0
             if "%@UPPER[%[%letter]]" eq "%@UPPER[%[%[DRIVE_C_%MACHINENAME%]]]"  set SAME=1
             rem same for %letter% is %same%
-            if %SAME eq 0 .and. %OPTION_SKIP_SAME_C eq 1  goto :Not_Same
+            if  not  defined     OPTION_SKIP_SAME_C       (goto :Not_Skipped)
+            if %SAME eq 0 .and. %OPTION_SKIP_SAME_C eq 1  (goto :Not_Skipped)
                 echo.
                 rem echos %STAR% ``
                 rem echo %ANSI_COLOR_RED%Skipping drive %DRIVE_LETTER_PRETTY% %ANSI_COLOR_RED%because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]... %ANSI_RESET%
@@ -56,7 +58,7 @@ goto :END
                 echo       %ITALICS_ON%%ANSI_COLOR_RED%(because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]...)%ITALICS_OFF%%ANSI_RESET%
                 echo.
                 goto :End_Of_For_Loop
-            :Not_Same
+            :Not_Skipped
 
 
             if "%@READY[%letter%]" ne "1" goto :Drive_Not_Ready
