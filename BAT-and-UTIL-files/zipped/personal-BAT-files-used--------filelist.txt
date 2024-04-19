@@ -99,8 +99,8 @@
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
-2023-06-07  04:46         61,308   71%  cover_downloader.py
-2024-04-18  16:27          2,632   63%  cover_embedder.py
+2024-04-19  20:17         62,363   71%  cover_downloader.py
+2024-04-19  20:18          2,893   64%  cover_embedder.py
 2024-04-10  15:13            435   49%  create-all-drive-shares-(for-new-installations).bat
 2023-10-06  05:56            710   50%  create-and-change-into-temp-folder.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat

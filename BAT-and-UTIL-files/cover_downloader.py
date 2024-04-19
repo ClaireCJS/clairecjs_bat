@@ -282,12 +282,29 @@ def delete_file_with_backup(filename):
 
 
 
-def does_companion_exist(filename):
+def does_companion_exist_OLD_tried_and_true_for_a_year(filename):
     base_filename = os.path.splitext(filename)[0]
     image_extensions = [".jpg", ".jpeg", ".png", ".webp"]
     possible_filenames = [f"{base_filename}{s}{image_extension}"
                           for s in ["", "A", "B"] + [f"B{i}" for i in range(1, 999)]
                           for image_extension in image_extensions]
+    for possible_filename in possible_filenames:
+        #primt("[CA] Checking " + possible_filename)
+        if file_exists_and_nonzero_size(possible_filename):
+            return True
+    return False
+
+
+
+def does_companion_exist(filename):                                 #new 2024/04/19 version of function to include truncated last character situation I've run into
+    base_filename_1 = os.path.splitext(filename)[0]                 #with    last charcter
+    base_filename_2 = os.path.splitext(filename)[:-1]               #without last charcter
+    image_extensions = [".jpg", ".jpeg", ".png", ".webp"]
+    possible_filenames = [ f"{filename_to_use}{fname_range_sfx}{image_extension}"
+                          for filename_to_use in [base_filename_1, base_filename_2]
+                          for fname_range_sfx in ["", "A", "B", "C"] + [f"B{i}" for i in range(1, 999)]
+                          for image_extension in image_extensions]
+    #primt("[PF] possible_filenames: " + possible_filenames)
     for possible_filename in possible_filenames:
         #primt("[CA] Checking " + possible_filename)
         if file_exists_and_nonzero_size(possible_filename):
