@@ -1,4 +1,5 @@
-2023-07-16  21:34            772   50%  add-art-to-flac.bat
+2024-04-19  16:10          2,482   63%  add-art-to-flac-helper.bat
+2024-04-19  16:05            780   55%  add-art-to-flac.bat
 2023-07-18  09:19          3,817   70%  add-art-to-mp3.bat
 2023-05-05  02:24            459   47%  add-art-to-song.bat
 2023-10-14  02:56          1,044   45%  add-m3u-to-winamp-playlist.bat
@@ -99,7 +100,7 @@
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
 2023-06-07  04:46         61,308   71%  cover_downloader.py
-2023-07-18  09:17          1,957   62%  cover_embedder.py
+2024-04-18  16:27          2,632   63%  cover_embedder.py
 2024-04-10  15:13            435   49%  create-all-drive-shares-(for-new-installations).bat
 2023-10-06  05:56            710   50%  create-and-change-into-temp-folder.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
@@ -405,6 +406,7 @@
 2022-05-21  23:17          1,344   56%  Rebuild_Icon_Cache.bat
 2024-02-07  04:00          2,959   67%  reddit-user-download.bat
 2023-06-05  01:31             44   -4%  removal.bat
+2024-04-19  15:57            455   43%  remove-art-from-flac.bat
 2019-10-01  10:28            158   25%  remove-trailing-spaces.pl
 2023-10-03  21:12            106   10%  rename-folders-with-hyphens-into-underscores.bat
 2023-07-10  03:06            982   61%  rename_images_to_incorporate_folder_name.py
@@ -536,7 +538,7 @@
 2023-05-28  09:54             38   -5%  validate-env-var.bat
 2024-04-09  22:06         14,688   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
-2024-03-20  11:59          2,171   62%  validate-file-extension.bat
+2024-04-19  15:48          2,082   60%  validate-file-extension.bat
 2024-04-05  18:20          1,442   56%  validate-in-path.bat
 2023-04-28  14:04            627   51%  view_pickle.py
 2023-06-13  18:25          1,372   57%  wake-all-drives-helper.bat

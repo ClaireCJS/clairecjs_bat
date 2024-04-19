@@ -7,22 +7,22 @@ rem EXAMPLE: call validate-file-extension %FILENAME%   "txt text rtf html"      
 
 rem SETUP: Get Parameters
     set VALIDATION_FILE=%1
-    set EXTENSION_LIST=%2
+    set  EXTENSION_LIST=%2
 
 rem USAGE if no parameters:
     if "%1" eq "" (
         echo.
-        call important_less "USAGE: validate-if-file-extension {filename} {extension(s)}"
+        call important_less "USAGE: $0 {filename} {extension(s)}"
         echo.
-        %COLOR_ADVICE% %+ echo EXAMPLE: validate-if-file-extension %%FILENAME  txt
-        %COLOR_ADVICE% %+ echo EXAMPLE: validate-if-file-extension %%FILENAME "txt text rtf html"
-        %COLOR_ADVICE% %+ echo EXAMPLE: validate-if-file-extension %%FILENAME *.txt;*.rtf;*.html
+        %COLOR_ADVICE% %+ echo EXAMPLE: $0 %%FILENAME  txt
+        %COLOR_ADVICE% %+ echo EXAMPLE: $0 %%FILENAME "txt text rtf html"
+        %COLOR_ADVICE% %+ echo EXAMPLE: $0 %%FILENAME *.txt;*.rtf;*.html
         goto :END
     )
 
 rem SETUP: Validate parameters
     call validate-env-var VALIDATION_FILE skip_validation_existence
-    call validate-env-var EXTENSION_LIST "your second parameter to %0 needs to be an extension or list of extensions but was instead '%EXTENSION_LIST%'"
+    if not defined EXTENSION_LIST (call error "your second parameter to %0 needs to be an extension or list of extensions but was instead '%EXTENSION_LIST%'")
 
 rem MESSAGE: Message extension parameters because our filemask env vars are usually "*.txt;*.lst" and we need "txt lst"
     set  EXTENSION_LIST_TO_USE=%@REPLACE[*.,,%@REPLACE[;, ,%EXTENSION_LIST%]]
