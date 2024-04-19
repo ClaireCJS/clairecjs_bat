@@ -1,4 +1,4 @@
-@Echo On
+@Echo OFF
 
 rem We had to move this functionality into a subordinate BAT file after discovering that WinAmp only displays
 rem artwork added by Metaflac if you remove the existing artwork first.  So adding requires removing first.

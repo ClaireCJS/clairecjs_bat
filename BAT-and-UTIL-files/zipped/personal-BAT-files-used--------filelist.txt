@@ -406,7 +406,7 @@
 2022-05-21  23:17          1,344   56%  Rebuild_Icon_Cache.bat
 2024-02-07  04:00          2,959   67%  reddit-user-download.bat
 2023-06-05  01:31             44   -4%  removal.bat
-2024-04-19  15:57            455   43%  remove-art-from-flac.bat
+2024-04-19  20:02            456   43%  remove-art-from-flac.bat
 2019-10-01  10:28            158   25%  remove-trailing-spaces.pl
 2023-10-03  21:12            106   10%  rename-folders-with-hyphens-into-underscores.bat
 2023-07-10  03:06            982   61%  rename_images_to_incorporate_folder_name.py

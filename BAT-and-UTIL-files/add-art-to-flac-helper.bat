@@ -1,4 +1,4 @@
-@Echo On
+@Echo OFF
 
 rem Validate the environment:
         if %VALIDATE_ADDARTTOFLAC ne 1 (

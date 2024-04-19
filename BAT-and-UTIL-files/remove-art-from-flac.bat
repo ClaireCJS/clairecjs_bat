@@ -1,4 +1,4 @@
-@Echo On
+@Echo OFF
 
 rem This is achieved by the framework of add-art-to-flac-helper.bat, except with a signal to remove instead of add:
 
