@@ -28,7 +28,6 @@ winget install Discord.Discord
 winget install Twitch.TwitchStudio
 winget install TorProject.TorBrowser            
 
-winget install 34527Hannistudio.WinSCP-SFTPandFTPClientX 
 winget install 35795FlorianHeidenreich.Mp3tag_rf0p6xgxmX 
 winget install 38812MedievalSoftware.CUESplitter_qfb500X 
 winget install 6760NGPDFLab.PDFX_sbe4t8mqwq93a           
@@ -157,8 +156,7 @@ winget install {3DA6DF03-E5CD-4A93-B06F-707484742BAB}
 winget install Microsoft.msmpisdk                        
 winget install EaseUS.PartitionMaster
 winget install Amazon.Games
-winget install BandicamCompany.Bandicam
-winget install SaitoGames.BattlePainters           
+winget install Soulseek.SoulseekQt          
 winget install {4f84f2dc-3f70-433a-8f50-8293e0089b0f}    
 winget install {56674F3A-EE02-4EC7-B429-B8C37CA254E3}    
 winget install Microsoft.CLRTypesSQLServer.2019          
@@ -167,7 +165,7 @@ winget install {6A86F611-906C-422D-B34A-103662CBC195}_iX
 winget install {6F320B93-EE3C-4826-85E0-ADF79F8D4C61}    
 winget install {853997DA-6FCB-4FB9-918E-E0FF881FAF65}    
 winget install {89581302-705F-42C5-99B0-E368A845DAD5}    
-winget install Soulseek.SoulseekQt                       
+winget install -e --id WinSCP.WinSCP.RC
 winget install {90462BD2-DF5B-449C-A401-FCC1DC264E4E}    
 winget install {9A25302D-30C0-39D9-BD6F-21E6EC160475}    
 winget install {9DB46C4E-91B1-47AC-8C69-BEE1995A1133}    
@@ -229,6 +227,8 @@ winget install Steam App 301690
 winget install Steam App 301700                          
 winget install Steam App 302590                          
 winget install Steam App 318090                          
+winget install BandicamCompany.Bandicam
+winget install SaitoGames.BattlePainters           
 winget install Steam App 318600                          
 winget install Steam App 320                             
 winget install Steam App 327030                          

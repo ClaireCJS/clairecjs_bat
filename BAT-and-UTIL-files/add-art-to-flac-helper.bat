@@ -17,7 +17,7 @@ rem Are we adding art, or removing it? This changes our parameters and how we va
          call print-if-debug  "REMOVE_ART_FROM_FLAC is '%REMOVE_ART_FROM_FLAC%'"
 
          if %REMOVE_ART_FROM_FLAC eq 1 (
-                set             VERB=removed
+                set             VERB=%ANSI_COLOR_REMOVAL%removed%ANSI_COLOR_RESET%
                 set            MUSIC=%1
                 set  ARTWORK_COMMAND=--remove --block-type=PICTURE %MUSIC% 
                 call validate-environment-variable MUSIC 
@@ -36,21 +36,21 @@ rem Are we adding art, or removing it? This changes our parameters and how we va
 
 
 rem Run the command!
-         echos %ANSI_COLOR_DEBUG% 
-         echo  %STAR% metaflac %ARTWORK_COMMAND% %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_COLOR_RUN%
-                      metaflac %ARTWORK_COMMAND%
+         echos %ANSI_COLOR_DEBUG%%STAR%
+         echo  metaflac %ARTWORK_COMMAND% %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_COLOR_RUN%
+               metaflac %ARTWORK_COMMAND%
         call print-if-debug "this has now been fairly well tested for flac files, and fyi ERRORLEVEL == '%ERRORLEVEL%'"
 
 
 rem Check if there was an error, and delete the artwork file if there wasn't:
         if ERRORLEVEL 1 (call error "embedding art '%ART%' into song '%SONG%' failed?! ")
         if ERRORLEVEL 0 .and. %DONT_DELETE_ART_AFTER_EMBEDDING ne 1 (
-            call success "Art %VERB%" 
+            call success "Art %italics_on%%VERB%%italics_off%" 
 
             if %DONT_DELETE_ART_AFTER_EMBEDDING ne 1 .and. exist %ART% .and. %REMOVE_ART_FROM_FLAC ne 1 (
-                    echos %ANSI_COLOR_REMOVAL%%ANSI_STRIKETHROUGH_ON%%FAINT_ON%
+                    echos  %ANSI_COLOR_REMOVAL%%ANSI_STRIKETHROUGH_ON%%FAINT_ON%
                     del /p %ART%
-                    echos %ANSI_RESET%
+                    echos  %ANSI_RESET%
             )
         )
         unset /q REMOVE_ART_FROM_FLAC

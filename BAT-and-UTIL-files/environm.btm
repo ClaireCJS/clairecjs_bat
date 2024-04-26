@@ -346,7 +346,7 @@ return
 			:call validate-environment-variables HD1T3_PRESENCE HD18T3_PRESENCE - moved to CheckForSyncedDevices because path is not yet defined
 
 		::WYVERN (2023)
-            set HD2T1=F %+ set MAPPING_F=WYVERN2T
+            set HD2T1=F %+ set MAPPING_F=WYVERN2T1
             set HD18000G2_DOWN=0 %+ set HD18000G2=A      %+ SET A=HD18000G2    %+  SET MAPPING_A=WYVERN18T2       %+  SET HD18T2=A %+ set ARCHIVEDRIVE=A 
 			rem HD4000G2_DOWN=0  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=WYVERN4000G2     %+  SET HD4G2=E   ... this didn't work out.. the dang'ed drive was dead——Carolyn put mounting tape on the prongs
             set DRIVES_WYVERN=F A
@@ -2179,7 +2179,7 @@ return
          set  .ps1=pshell
          set   .py=python
          set   .qt=call wrapper start
-         set  .rar=call wrapper start
+         set  .rar=call winrar
          set  .r00=call wrapper start
          set  .ace=call wrapper start
          set   .ra=call wrapper start

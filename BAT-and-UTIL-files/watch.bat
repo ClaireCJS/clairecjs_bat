@@ -291,8 +291,9 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
         if             %@REGEX[DELETE.AFTER.WATCHING,%@UPPER["%_CWP"]]==1 (set             DELETE=1)
         if  isdir  %*                                                     (set             DELETE=0)
         if %DELETE eq 1 (
-            echos %FAINT_OFF%❓ ``
-            *del /p  %*
+            echos %FAINT_OFF%%EMOJI_RED_QUESTION_MARK% ``
+            rem *del /p  %* has bad emoji rendering?, try this:
+                *del /p  %* 
             echos %FAINT_ON%
             for %f in (%ARGSWITHSPACES%) if exist "%@NAME[%f].*" (*del /p "%@NAME[%f].*")
         )
@@ -372,13 +373,13 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
     :askyn
     echo. %+ echo. %+ echo. %+ echo. %+ echo. 
 
-    call askyn "Run 'after show'?" no
+    call askyn "Run '%italics_on%after show%italics_off%'?" no
     	set MINIMIZE_AFTER=0
         if %DO_IT eq 1 (call after show)
 
     REM todo check if we are in a movie folder?
 
-    call askyn "Run 'after movie'?" no
+    call askyn "Run '%italics_on%after movie%italics_off%'?" no
     	set MINIMIZE_AFTER=0
         if %DO_IT eq 1 (call after movie)
 
@@ -392,7 +393,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 ::::: WAKE UP WITH SOME PARTY LIGHTS:
 	REM if "%TVLIGHTING%" eq "0" goto :TV_Lighting_Done_Already_NO3
 	:TV_Lighting_Done_Already_YES3
-        call askyn "Fix lights ('ok google I'm done watching tv')?" no
+        call askyn "Fix lights ('%italics_on%ok google I'm done watching tv%italics_off%')?" no
     		if %DO_IT eq 1 (
                 rem call exit-maybe
                 call okgoogle I'm done watching TV

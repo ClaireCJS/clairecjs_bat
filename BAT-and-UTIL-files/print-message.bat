@@ -63,7 +63,10 @@ REM Process parameters
 
 
     if %DEBUG_PRINTMESSAGE% eq 1 (echo DEBUG: TYPE=%TYPE%,DO_PAUSE=%DO_PAUSE%,MESSAGE=%MESSAGE%)
-    if defined COLOR_%TYPE% (set OUR_COLORTOUSE=%[COLOR_%TYPE%])
+    if defined COLOR_%TYPE% (
+        set OUR_COLORTOUSE=%[COLOR_%TYPE%]
+        set OUR_ANSICOLORTOUSE=%[ANSI_COLOR_%TYPE%]
+     )
     if not defined OUR_COLORTOUSE  (
         if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG% %RED_FLAG% Oops! Let's try setting OUR_COLORTOUSE to %%COLOR_%@UPPER[%PM_PARAM1])
         set TYPE=%PM_PARAM1%
@@ -128,7 +131,7 @@ REM Behavior overides and message decorators depending on the type of message?
     if  "%TYPE%"  eq "REMOVAL"        (set DECORATOR_LEFT=%RED_SKULL%%SKULL%%RED_SKULL% ``        %+ set DECORATOR_RIGHT= %RED_SKULL%%SKULL%%RED_SKULL%)
     if  "%TYPE%"  eq "ERROR"          (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT= ***)
     if  "%TYPE%"  eq "FATAL_ERROR"    (set DECORATOR_LEFT=***** !!! ``  %+ set DECORATOR_RIGHT= !!! *****)
-    set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
+    rem 20240419 moved to after setting COLOR_TO_USE so we can start setting that before the right decorator in case the message contents changed the color: set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
 
 
 REM We're going to update the window title to the message. If possible, strip any ANSI color codes from it:
@@ -162,20 +165,25 @@ REM Some messages will be decorated with audio:
 REM Pre-Message pause based on message type (pausable messages need a litle visual cushion):
         if %DO_PAUSE% eq 1 (echo.)           
 
-REM Pre-Message determination of if we do a big header or not
+REM Pre-Message determination of if we do a big header or not:
                                                                                          set BIG_HEADER=0
         if  "%TYPE%" eq "ERROR" .or. "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "ALARM" (set BIG_HEADER=1)
 
-REM Pre-Message determination of how many times we will display the message
+REM Pre-Message determination of how many times we will display the message:
         set HOW_MANY=1 
         if "%TYPE%" eq "CELEBRATION" (set HOW_MANY=1 2)
         if "%TYPE%" eq       "ERROR" (set HOW_MANY=1 2 3)
         if "%TYPE%" eq "FATAL_ERROR" (set HOW_MANY=1 2 3 4 5)
 
-REM Actually display the message
-        REM display our opening big-header, if we are in big-header mode
+REM Actually display the message:
         setdos /x-6
+
+        REM display our opening big-header, if we are in big-header mode
         if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****)
+
+        rem Assemble our message, including resetting the color via ansi codes (%OUR_ANSICOLORTOUSE%) before adding the right decorator, in case the color was changed within the message itself
+        rem DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT% ———————————— this was the old way
+        set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%OUR_ANSICOLORTOUSE%%DECORATOR_RIGHT%
 
         REM repeat the message the appropriate number of times
         for %msgNum in (%HOW_MANY%) do (           

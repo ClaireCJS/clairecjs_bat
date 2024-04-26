@@ -1,5 +1,17 @@
 #SingleInstance
 
+;;;;;;;; 
+;;;;;;;;  2024 — What this does so far:
+;;;;;;;; 
+;;;;;;;;   *  Ctrl+Hyphen for en dash ––
+;;;;;;;;   *   Alt+Hyphen for em dash ——
+;;;;;;;; 
+;;;;;;;;   *  NOT WORKING AS OF 20240426 — Pause Winamp — Pause key, Ctrl-Shift-P      
+;;;;;;;;   *  NOT WORKING AS OF 20240426 — Show  Winamp — Windows-W
+;;;;;;;;
+;;;;;;;; 
+
+
 ;; ; Stop, Windows-v, and Ctrl-Alt-V
 ;; #IfWinExist %WinampClass%
 ;; {
@@ -45,6 +57,10 @@ Pause::
 #W:: {
   WinActivate("Winamp")
 }
+
+
+^-::Send "–" ; Ctrl+Hyphen for en dash 
+!-::Send "—" ;  Alt+Hyphen for em dash
 
 
 

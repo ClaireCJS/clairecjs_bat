@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo On
  cls
 
 
@@ -12,9 +12,13 @@ REM script to open itself up in a text editor every time we reboot
         SET EDIT_SELF=1
 
 
-REM Load our autohotkey script right away since it has winamp control aspects in it
-        call c:\bat\autohotkey.bat c:\bat\autoexec.ahk
+REM 20240422 reboot seemed like the environment wasn't set up right on initial run for some reason
+        set MACHINENAME=DEMONA
+        call c:\bat\setpath
+        call environm
 
+REM Load our autohotkey script right away since it has winamp control aspects in it
+        call AutoHotKey-autoexec.bat
 
 REM Above all else, the music must flow
         if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (call winamp autoexec*)
@@ -35,7 +39,7 @@ REM Startup various programs
         call start-everything       %+ REM this is the service called "Everything", not the abstract concept of everything
 
         call important "Pretty much done, just a couple more things..."
-        sleep 5
+        sleep 6
         call TTRGB
         call OBS
 
@@ -53,3 +57,5 @@ REM Edit this script, if so instructed:
 REM Stuff to run only if this machine is our music server
         if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (call fix-minilyrics-window-size-and-position)
 
+REM We're done!
+        call celebrate autoexec done
