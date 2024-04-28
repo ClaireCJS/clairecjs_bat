@@ -1,5 +1,6 @@
-set ASK_QUESTION=%[1]
-echo ask question is '%ASK_QUESTION%'
+@set ASK_QUESTION=%[1]
+@if defined AskYN_question (set ASK_QUESTION=%AskYN_question% %+ unset /q AskYN_question)
+rem echo ask question is '%ASK_QUESTION%'
 @echo off
 set DEFAULT_ANSWER=%2
 set WAIT_TIME=%3
@@ -69,6 +70,7 @@ REM Build the question prompt:
         if "%default_answer" eq "yes" set PRETTY_QUESTION=%pretty_question%%faint%n%faint_off%
         if "%default_answer" eq "no"  set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%N%underline_off%%bold_off%
                                       set PRETTY_QUESTION=%pretty_question%%@ANSI_FG_RGB[%BRACKET_COLOR]]%EMOJI_RED_QUESTION_MARK%
+                                      set PRETTY_QUESTION_ANSWERED=%@REPLACE[%BLINK_ON%,,%PRETTY_QUESTION] %+ rem an unblinking version, so the question mark that blinks before we answer is still displayed——but stops blinking after we answer the question 
 
 
 REM Which keys will we allow?
@@ -83,20 +85,6 @@ REM Decide how to display the question prompt:
         if defined ASKYN_DECORATOR (set ASKYN_DECORATOR=)
 
 
-REM Dead timer-spacing code:
-        rem                         set TIMER_SPACER=.     ``
-        rem IF %WAIT_TIME gt 9     (set TIMER_SPACER=%TIMER_SPACER% ``)
-        rem IF %WAIT_TIME gt 99    (set TIMER_SPACER=%TIMER_SPACER% ``)
-        rem IF %WAIT_TIME gt 999   (set TIMER_SPACER=%TIMER_SPACER% ``)
-        rem IF %WAIT_TIME gt 9999  (set TIMER_SPACER=%TIMER_SPACER% ``)
-        rem IF %WAIT_TIME gt 99999 (set TIMER_SPACER=%TIMER_SPACER% ``)
-        rem    timer spacer [0] is '%TIMER_SPACER%'%newline%askk_question [0] is '%ASK_QUESTION'
-        rem not a good approach for double-height questions: IF %WAIT_TIMER_ACTIVE eq 1 (echos %TIMER_SPACER%``)  %+ rem Spacer because of TCCv31 bug where timer resets to column 1
-        rem timer spacer [A] is '%TIMER_SPACER%'%newline%ask_question [A] is '%ASK_QUESTION'
-        rem IF %WAIT_TIMER_ACTIVE eq 1 (set PRETTY_QUESTION=%TIMER_SPACER%%PRETTY_QUESTION%)                                    %+ rem Spacer because of TCCv31 bug where timer resets to column 1
-        rem timer spacer [B] is '%TIMER_SPACER%'%newline%pretty_question [B] is '%PRETTY_QUESTION'
-        rem echos %ANSI_COLOR_PROMPT% 
-        rem %ECHO_COMMAND% %PRETTY_QUESTION%%ANSI_POSITION_SAVE%``  %+ rem yes, there should be no space between %ECHO_COMMAND% and %PRETTY_QUESTION%
 
 
 REM Print the question out if we aren't loading INKEY with the question:
@@ -109,7 +97,7 @@ REM Load INKEY with the question, unless we've already printed it out:
 
 
 REM Actually answer the question here —— make the windows 'question' noise first, then get the user input:
-        beep question                                                             
+        *beep question                                                             
         inkey /x %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
         echos %BLINK_OFF%
 
@@ -137,8 +125,8 @@ REM Process the enter key into our default answer:
 
 
 REM Set our 2 major return values that are referred to from calling scripts:
-        if "%OUR_ANSWER%" eq "Y" .or. "%OUR_ANSWER%" eq "yes" ( set DO_IT=1 %+ set ANSWER=Y)
-        if "%OUR_ANSWER%" eq "N" .or. "%OUR_ANSWER%" eq "no"  ( set DO_IT=0 %+ set ANSWER=N) 
+        if "%OUR_ANSWER%" eq "Y" .or. "%OUR_ANSWER%" eq "yes" (set DO_IT=1 %+ set ANSWER=Y)
+        if "%OUR_ANSWER%" eq "N" .or. "%OUR_ANSWER%" eq "no"  (set DO_IT=0 %+ set ANSWER=N) 
 
 
 REM Generate "pretty" answers:
@@ -147,10 +135,13 @@ REM Generate "pretty" answers:
         call print-if-debug "our_answer is '%OUR_ANSWER', default_answer is '%DEFAULT_ANSWER%', answer is '%ANSWER%', PRETTY_ANSWER is '%PRETTY_ANSWER%'"
 
 
+REM Change "pretty" question so that the auto-question mark is no longer blinking because it has now been answered:
+
+
 REM Print our "pretty" answers in the right spots (challenging with double-height), erasing any timer leftovers:
-        if %BIG_QUESTION ne 1 .and. %WAIT_TIMER_ACTIVE eq 0 (echo %@ANSI_MOVE_LEFT[1]%PRETTY_ANSWER% %@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION%)  %+ rem re-copy the question over itself to stop the prompt-related blinking  
-        if %BIG_QUESTION ne 1 .and. %WAIT_TIMER_ACTIVE eq 1 (echo %@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION% %PRETTY_ANSWER%      ``)             %+ rem re-copy the question over itself to stop the prompt-related blinking  
-        if %BIG_QUESTION eq 1 (echo %ANSI_POSITION_RESTORE%%BLINK_ON% %PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%%@ANSI_MOVE_UP[1]%BIG_TOP%%BLINK_ON% %PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%%ANSI_RESET%)
+        if %BIG_QUESTION ne 1 .and. %WAIT_TIMER_ACTIVE eq 0 (echo %@ANSI_MOVE_LEFT[1]%PRETTY_ANSWER_ANSWERED% %@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED%)  %+ rem re-copy the question over itself to stop the prompt-related blinking  
+        if %BIG_QUESTION ne 1 .and. %WAIT_TIMER_ACTIVE eq 1 (echo %@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED% %PRETTY_ANSWER%      ``)                      %+ rem re-copy the question over itself to stop the prompt-related blinking  
+        if %BIG_QUESTION eq 1                               (echo %ANSI_POSITION_RESTORE%%BLINK_ON% %PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%%@ANSI_MOVE_UP[1]%BIG_TOP%%BLINK_ON% %PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%%ANSI_RESET%)
 
 
 goto :END

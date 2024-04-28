@@ -126,6 +126,10 @@ goto :END
         call less_important "Killing %italics%OVRServiceLauncher/Server/Redir%italics_off%..." %+ kill  /f   OVRServiceLauncher      %+ kill /f OVRServer_x64       %+ kill /f OVRRedir          
         call less_important "Pausing %italics%WinAmp%italics_off%..."                          %+ call       winamp-pause
         call less_important "Disabling %italics%Windows%italics_off% key..."                   %+ call       WinKill
+        cls
+        say "Go forth"
+        say "and frag!"
+        keystack "after" " " "quake"
 goto :END
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

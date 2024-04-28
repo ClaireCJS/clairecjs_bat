@@ -1,10 +1,19 @@
 @Echo OFF
 
 ::::: WARN:
-    %COLOR_ALARM%   %+ echo. %+ echo **** THIS WILL COLLAPSE ALL DIRECTORIES!!! ****
-    %COLOR_WARNING% %+ echo. %+ echo **** There is no going back!!! ****
-    %COLOR_ADVICE%  %+ echo. %+ echo Directory tree will be saved in \recycled\undo.txt
+    call alarm   "THIS WILL COLLAPSE ALL DIRECTORIES"
+    call warning "There is no going back"
+    call advice  "Directory tree will be saved in \recycled\undo.txt"
     %COLOR_NORMAL%  %+ echo. %+ pause
+
+pause
+pause
+pause
+pause
+pause
+pause
+pause
+pause
 
 ::::: SAVE UNDO INFORMATION:
     dir /bs/a: >\recycled\undo.txt

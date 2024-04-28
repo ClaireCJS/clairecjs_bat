@@ -27,7 +27,7 @@
 ;; {
 ;;     Media_Next::
 ;;     #b::
-;;     ^!b::
+;;     ^!b::PP 
 ;;     ControlSend, ahk_parent, b
 ;;     return
 ;; }
@@ -42,10 +42,10 @@
 ;;     return
 ;; }
 
-
-#C::
-Pause::
+;;Winamp v1.x
 ^!p::
+Pause::
+#C::
 {
     if not WinExist("ahk_class Winamp v1.x")
         return
@@ -59,6 +59,10 @@ Pause::
 }
 
 
+^?::Send "❔" ; Ctrl+? for ❔ [white]
+!?::Send "❓" ;  Alt+? for ❓ [red]
+^8::Send "⭐" ; Ctrl+8 for ⭐
+!8::Send "🌟" ;  Alt+8 for 🌟
 ^-::Send "–" ; Ctrl+Hyphen for en dash 
 !-::Send "—" ;  Alt+Hyphen for em dash
 

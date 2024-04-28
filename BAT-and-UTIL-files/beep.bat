@@ -1,5 +1,7 @@
 @Echo Off
 
+rem title %0 %*
+
 
 :USAGE: beep {freq} {duration}
 :USAGE: beep highest {duration}
@@ -14,7 +16,7 @@ REM CONFIGURATION: SET THE HIGHEST BEEP ALLOWED:
 
 set FREQ_OR_SYSTEMSOUND=%1
 set DURATION=%2
-
+set BEEPBAT_PARAM3=%3$
 
 
 REM to test system sounds:
@@ -37,7 +39,7 @@ REM these system sound names are valid for *beep:
 REM but also we have a value we don't want to go above based on testing our speakers/setup
 if  %SKIP_FREQ_CHECK% ne 1 .and. defined HIGHEST_BEEP .and. %FREQ_OR_SYSTEMSOUND% gt %HIGHEST_BEEP% .and. "%FREQ_OR_SYSTEMSOUND%" ne "systemsoundtest" (
     call error "Beep value of %FREQ_OR_SYSTEMSOUND% is higher than HIGHEST_BEEP of %HIGHEST_BEEP, sorry!"
-    rem CANCEL
+    rem CANCEL is really destructive to do right here
     goto :The_Very_END
 )
 
@@ -50,14 +52,14 @@ REM branch based on awake/asleep value to not disturb others
                            goto :Awake
 
                 :Asleep
-                        %COLOR_ALARM%   %+ echos !                %+ REM "see"  silent beeps
-                        %COLOR_NORMAL%  %+ *beep 0 %DURATION% %3$ %+ REM "hear" silent beep to keep the same rhythm/duration -- makes a difference
+                        %COLOR_ALARM%   %+ echos !                                       %+ REM "see"  silent beeps
+                        %COLOR_NORMAL%  %+ *beep 0 %DURATION% %BEEPBAT_PARAM3%           %+ REM "hear" silent beep to keep the same rhythm/duration -- makes a difference
                 goto :END
 
 
                 :Awake
-                     rem *beep %FREQ_OR_SYSTEMSOUND% %DURATION% %3$         %+ REM Just beep normally
-                         *beep %FREQ_OR_SYSTEMSOUND% %DURATION% %3$         %+ REM Just beep normally
+                     rem *beep %FREQ_OR_SYSTEMSOUND% %DURATION% %BEEPBAT_PARAM3%         %+ REM Just beep normally
+                         *beep %FREQ_OR_SYSTEMSOUND% %DURATION% %BEEPBAT_PARAM3%         %+ REM Just beep normally
                 goto :END
 
                 :systemsoundtest
@@ -83,12 +85,12 @@ REM branch based on awake/asleep value to not disturb others
 REM Add on our own options to /?
     if "%FREQ_OR_SYSTEMSOUND%" eq "/?" (
         echo.
-        call important "Bonus usages:"
+        call important_less "Bonus usages:"
         %COLOR_ADVICE%
-        echo     beep highest {duration}
-        echo     beep lowest  {duration}
-        echo     beep systemsoundtest
-        %COLOR_normal%
+        echo       beep highest {duration}
+        echo       beep lowest  {duration}
+        echo       beep systemsoundtest
+        %COLOR_NORMAL%
 
     )
 :The_Very_END

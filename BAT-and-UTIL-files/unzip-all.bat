@@ -2,6 +2,9 @@
 
 if %FILEMASK_ARCHIVE_VALIDATED ne 1 (call validate-environment-variable FILEMASK_ARCHIVE)
 
-for %1 in (%FILEMASK_ARCHIVE%) (call unzip-gracefully "%@UNQUOTE[%1]")
+echo.
+
+for %%our_current_archive in (%FILEMASK_ARCHIVE%) (call randfg %+ call unzip-gracefully "%@UNQUOTE[%our_current_archive]" %+ call randfg %+ call divider -)
+
 
 

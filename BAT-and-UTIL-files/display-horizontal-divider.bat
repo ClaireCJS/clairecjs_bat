@@ -13,10 +13,16 @@ rem CONFIGURATION:
 
 
 rem Respond to parameters [if any]:
-                                             set DIVIDER=%DEFAULT_DIVIDER%
-        if "%1" ne ""   .and. "%1" ne "big" (set DIVIDER=%@UNQUOTE[%1])
-                                             set BIG=0
-        if "%2" eq "big" .or. "%1" eq "big" (set BIG=1)
+        set DIVIDER_PARAM1=%1
+        if defined USE_THIS_DIVIDER (
+            set DIVIDER_PARAM1=%USE_THIS_DIVIDER%
+            unset /q USE_THIS_DIVIDER
+        )
+
+                                                                       set DIVIDER=%DEFAULT_DIVIDER%
+        if "%DIVIDER_PARAM1%" ne "" .and. "%DIVIDER_PARAM1%" ne "big" (set DIVIDER=%@UNQUOTE[%DIVIDER_PARAM1%])
+                                                           set BIG=0
+        if "%2" eq "big" .or. "%DIVIDER_PARAM1%" eq "big" (set BIG=1)
 
 
 rem Our divider could be any length, and our screen could have any number of columns,

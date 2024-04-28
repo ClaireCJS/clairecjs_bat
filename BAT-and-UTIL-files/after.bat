@@ -256,7 +256,7 @@ goto :END
 :movie
 		set AFTERMOVIE=1
 		call killifrunning editPlus editplus
-		set categories=People,Carolyn,Clio,Media,Video,Movies,Reviews
+		set categories=People,Carolyn,Claire,Media,Video,Movies,Reviews
 		echo.
 		echo Enter movie name:
             if "%MOVIE"=="" set MOVIE=.
@@ -276,8 +276,8 @@ goto :END
 		if "%NETFLIX_RATING%"          == "" set NETFLIX_RATING=.
 		if "%IMDB_RATING%"             == "" set IMDB_RATING=.
 		if "%IMDB_LINK%"               == "" set IMDB_LINK=.
-		if "%CLIOS_NETFLIX_RATING%"    == "" set CLIOS_NETFLIX_RATING=.
-		if "%CLIOS_IMDB_RATING%"       == "" set CLIOS_IMDB_RATING=.
+		if "%CLAIRES_NETFLIX_RATING%"  == "" set CLAIRES_NETFLIX_RATING=.
+		if "%CLAIRES_IMDB_RATING%"     == "" set CLAIRES_IMDB_RATING=.
 		if "%CAROLYNS_NETFLIX_RATING%" == "" set CAROLYNS_NETFLIX_RATING=.
 		if "%CAROLYNS_IMDB_RATING%"    == "" set CAROLYNS_IMDB_RATING=.
 		if "%YEAR%"                    == "" set YEAR=%_YEAR
@@ -292,10 +292,10 @@ goto :END
 		eset IMDB_RATING                %+ if "%IMDB_RATING%"             eq "." goto :IMDBRating
         :imdb_link
 		eset IMDB_LINK                  %+ if "%IMDB_LINK%"               eq "." goto :imdb_link
-        :clios_netflix_rating
-		eset CLIOS_NETFLIX_RATING      %+ if "%CLIOS_NETFLIX_RATING%"   eq "." goto :clios_netflix_rating
-        :clios_imdb_rating
-		eset CLIOS_IMDB_RATING         %+ if "%CLIOS_IMDB_RATING%"      eq "." goto :clios_imdb_rating
+        :claires_netflix_rating
+		eset CLAIRES_NETFLIX_RATING     %+ if "%CLAIRES_NETFLIX_RATING%"  eq "." goto :claires_netflix_rating
+        :claires_imdb_rating
+		eset CLAIRES_IMDB_RATING        %+ if "%CLAIRES_IMDB_RATING%"     eq "." goto :claires_imdb_rating
         :carolyns_netflix_rating
 		eset CAROLYNS_NETFLIX_RATING    %+ if "%CAROLYNS_NETFLIX_RATING%" eq "." goto :carolyns_netflix_rating
         :carolyns_imdb_rating
@@ -315,7 +315,7 @@ goto :END
 		echo NOTE: This is being put into drafts, and not published right away. %+ echos %MOVIE% (%YEAR%) >clip:
 		call mtblog %BAT\blog-movie-body-template.txt %*
 	goto :gotoblog%USERNAME
-		:gotoblogclio
+		:gotoblogclaire
 			SET TMPNAME=%NETNAME_DEAD%
 		goto :gotoblogdone_BEGIN
 		:gotoblogcarolyn
@@ -408,15 +408,13 @@ return
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :quake
 	echo.
-	echo.
-	echo.
-	echo.
-	echo Restarting Setpoint...
-	start setpoint
-	echo Killing IHateThisKey...
-	echo Restarting torrents...
-	call utorrent-control resumealltorrents
-	kill /f IHateThisKey*
+	rem echo Restarting Setpoint... %+ start setpoint
+	rem echo Killing IHateThisKey... %+ kill /f IHateThisKey*
+	echo Killing WinKill...
+         kill /f WinKill
+    call unimportant "(we used to restart torrents automatically here)"
+	rem echo Restarting torrents...
+	rem call utorrent-control resumealltorrents
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -426,14 +424,14 @@ goto :END
 :concert
 		echo Add concert to diary too...
 		pause
-	call as clio diary
+	call as claire diary
 		pause
 	http://www.songkick.com/
 	%EDITOR %WWWCL\media\concerts.htm
 		echo Fix concertnext band (after pressing a key)...
 		pause>nul
 	call al.bat
-	set categories=People,Carolyn,Clio,Media,Audio,Music,Journal,Concerts,Reviews
+	set categories=People,Carolyn,Claire,Media,Audio,Music,Journal,Concerts,Reviews
 		echo.
 		echo Enter band name:
 	if "%BAND"=="" set BAND=.
@@ -469,8 +467,8 @@ return
 
     :AlreadyHaveWeight
     set WEIGHT_NAME=%KNOWN_NAME%
-    if "%USERNAME%" eq "clio"  (set WEIGHT_NAME=claire)
-    if  %WEIGHT%    lt  150    (set WEIGHT_NAME=carolyn)
+    if "%USERNAME%" eq "claire" (set WEIGHT_NAME=claire)
+    if  %WEIGHT%    lt  150     (set WEIGHT_NAME=carolyn)
 
     echo %WEIGHT_NAME,%YYYYMMDDHHMM,%WEIGHT >>%OURFILE
 
@@ -516,7 +514,7 @@ goto :END
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :dream
-	set categories=People,Journal,Dreams,Clio
+	set categories=People,Journal,Dreams,Claire
 	if "%USERNAME"=="carolyn" set categories=People,Journal,Dreams,Carolyn
 	echo Paste your clipboard into this next file... It will contain the date...
 	call YYYYMMDD
@@ -577,8 +575,8 @@ goto :END
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :yardsale
-	:et categories=People,Carolyn,Clio,Yard Sales,Hobbies & Activities
-	set categories=People,Carolyn,Clio,Yard Sales,Hobbies &amp; Activities
+	:et categories=People,Carolyn,Claire,Yard Sales,Hobbies & Activities
+	set categories=People,Carolyn,Claire,Yard Sales,Hobbies &amp; Activities
 	echo Paste your clipboard into this next file... It will contain the date...
 	call YYYYMMDDclip
 	pause
@@ -681,7 +679,7 @@ goto :END
     pause %+ %COLOR_ADVICE%  %+ echo * There's a  place tag, right?  You forget to tag the place a lot.
     pause %+ %COLOR_ADVICE%  %+ echo * There's an event tag, right?  Holidays, birthday parties, etc?
     pause %+ %COLOR_ADVICE%  %+ echo * Have you spell-checked what you have written?  EditPlus has capabilities to install one.
-    pause %+ %COLOR_ADVICE%  %+ echo * Did you have Clio review the tags so it's not a big fight the next day? :)
+    pause %+ %COLOR_ADVICE%  %+ echo * Did you have Claire review the tags so it's not a big fight the next day? :)
     pause
 
     :TaggingCommon

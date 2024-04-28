@@ -7,7 +7,7 @@
 2024-03-13  12:23          1,055   46%  add-ReplayGain-tags-to-all-mp3s.bat
 2023-07-18  19:22             97   36%  add-ReplayGain-tags.bat
 2023-05-29  22:39             43   -4%  advice.bat
-2023-09-15  03:27         28,865   76%  after.bat
+2024-04-28  00:39         29,018   76%  after.bat
 2023-08-26  19:25          1,074   68%  age.bat
 2022-02-02  02:53          1,574   63%  alarm-beep.bat
 2024-02-02  20:24          3,616   58%  ALIAS.LST
@@ -39,7 +39,7 @@
 2019-10-01  10:27             74    5%  alltif2jpg.bat
 2024-04-14  15:52            529   40%  allwav2mp3.bat
 2022-02-07  13:15             19  -10%  an.bat
-2024-04-26  14:03          9,567   71%  askYN.bat
+2024-04-27  06:26          8,791   70%  askYN.bat
 2024-03-18  22:08          1,047   53%  assimilate-rookie-folders.bat
 2024-04-14  23:40            672   54%  audio-batch-processing---encode-everything-and-remove-redundant-WAVs.bat
 2019-10-01  10:27          2,571   69%  audio-countdown-noise.bat
@@ -60,8 +60,8 @@
 2019-10-01  10:27            283   43%  backup-to-bdrs.bat
 2019-10-01  10:27            254   39%  backup-to-CDs.bat
 2019-10-01  10:27            255   41%  backup-to-dvDs.bat
-2024-04-25  20:40          4,122   72%  beep.bat
-2024-03-28  02:32         12,011   75%  before.bat
+2024-04-27  06:29          4,285   71%  beep.bat
+2024-04-28  00:35         12,111   75%  before.bat
 2024-04-04  21:21          1,370   58%  bigecho.bat
 2024-01-28  02:00             86   13%  calibrate-monitor.bat
 2023-08-27  23:36            326   43%  cat.bat
@@ -83,7 +83,7 @@
 2019-10-01  10:27             55    0%  clear-buffered-keystrokes.bat
 2023-07-19  11:13             20    5%  clip.bat
 2023-06-19  23:00            455   41%  cls.bat
-2019-10-01  10:27            457   44%  collapse-all-directories.bat
+2024-04-27  06:50            435   41%  collapse-all-directories.bat
 2023-06-05  17:31            478   46%  color-cycle-by-ansi-proof_of_concept.py
 2023-06-05  23:43             64   29%  color.bat
 2019-10-01  10:27            592   49%  colorize-by-computer-name.bat
@@ -148,7 +148,7 @@
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
 2022-11-19  16:52            242   29%  display-flac-tags.bat
 2024-04-06  02:46          3,506   66%  display-free-space.bat
-2024-03-31  05:14          2,971   65%  display-horizontal-divider.bat
+2024-04-27  06:42          3,238   66%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-04-05  16:27            775   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-03-29  20:08            128    6%  display-mp3-artists.bat
@@ -377,7 +377,7 @@
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
 2024-03-18  11:29             13  -15%  previousdir.bat
 2023-06-09  22:02             67    6%  print-if-debug.bat
-2024-04-19  21:00         21,175   74%  print-message.bat
+2024-04-27  06:38         21,402   74%  print-message.bat
 2024-02-14  02:28         13,998   74%  process-done-torrent.btm
 2024-03-18  22:28          2,192   64%  process-rookie-folders.bat
 2023-06-02  13:09          1,023   67%  prompt-Carolyn.bat
@@ -403,7 +403,8 @@
 2024-04-05  06:00            369   29%  randline.pl
 2019-10-01  10:28            567   55%  randomize-file.pl
 2023-08-03  01:20            298   40%  random_color_each_line.py
-2024-04-06  01:26            498   39%  rd-alias.bat
+2024-04-27  06:19            308   39%  rar.bat
+2024-04-27  06:02            743   47%  rd-alias.bat
 2023-06-08  17:34             29    4%  realias.bat
 2022-05-21  23:17          1,344   56%  Rebuild_Icon_Cache.bat
 2024-02-07  04:00          2,959   67%  reddit-user-download.bat
@@ -427,7 +428,7 @@
 2024-03-18  21:33            701   44%  rookie-pcvr.bat
 2022-03-13  19:26          3,560   74%  rotate-video.bat
 2023-11-09  07:42            589   49%  save-window-positions.bat
-2023-05-30  11:25            999   57%  say.bat
+2024-04-28  00:35          1,303   57%  say.bat
 2024-03-23  00:42            163   21%  scream.bat
 2024-04-10  12:57             13  -15%  search-music.bat
 2019-10-01  10:28            831   48%  select-random-lines-from.pl
@@ -437,7 +438,7 @@
 2023-06-13  16:06             57    0%  send-keypress-alt_up.ahk
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
-2024-04-10  18:27         35,458   81%  set-colors.bat
+2024-04-27  02:45         34,174   82%  set-colors.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
 2024-03-13  13:45          6,083   63%  set-emojis.bat
@@ -528,8 +529,8 @@
 2023-07-03  13:45             48   -4%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
 2019-10-01  10:28            544   82%  unmap-drives.bat
-2024-03-18  21:21            182   22%  unzip-all.bat
-2024-04-25  21:41          4,376   70%  unzip-gracefully.bat
+2024-04-27  06:48            278   34%  unzip-all.bat
+2024-04-27  06:49          5,679   71%  unzip-gracefully.bat
 2024-03-19  19:43         10,812   73%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2019-10-01  10:28            232   26%  urldecode.pl
@@ -538,7 +539,7 @@
 2024-03-18  09:00            216   28%  validate-ahk.bat
 2024-04-10  15:12            714   51%  validate-all-perl-files.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
-2024-04-09  22:06         14,688   77%  validate-environment-variable.bat
+2024-04-27  06:20         14,688   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
 2024-04-19  15:48          2,082   60%  validate-file-extension.bat
 2024-04-05  18:20          1,442   56%  validate-in-path.bat

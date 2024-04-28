@@ -82,9 +82,9 @@ REM Process parameters
 
 REM Validate parameters
     if %VALIDATED_PRINTMESSAGE_ENV ne 1 (
-        call validate-environment-variable  COLOR_%TYPE% "This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment"
-        call validate-environment-variable  MESSAGE skip_validation_existence
-        call validate-in-path beep colors
+        if not defined COLOR_%TYPE%  (call fatal_error "This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment")
+        if not defined MESSAGE       (call fatal_error "$0 called without a message")
+        call validate-in-path beep.bat 
         REM call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF
         set VALIDATED_PRINTMESSAGE_ENV=1
     )
@@ -135,11 +135,13 @@ REM Behavior overides and message decorators depending on the type of message?
 
 
 REM We're going to update the window title to the message. If possible, strip any ANSI color codes from it:
-    if %PLUGIN_STRIPANSI_LOADED eq 1 (
+    if not defined %PLUGIN_STRIPANSI_LOADED (goto :No_Title_Stripping)
+    if   1 ne      %PLUGIN_STRIPANSI_LOADED (goto :No_Title_Stripping)
         set CLEAN_MESSAGE=%@STRIPANSI[%ORIGINAL_MESSAGE]
-    ) else (
+    goto :Set_Title_Var_Now
+    :No_Title_Stripping
         set CLEAN_MESSAGE=%ORIGINAL_MESSAGE%
-    )
+    :Set_Title_Var_Now
     set TITLE=%CLEAN_MESSAGE%
 
     REM But first let's decorate the window title for certain message types Prior to actually updating the window title:
@@ -287,6 +289,7 @@ goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
         :TestSuite
+                call validate-in-path colors.bat important 
                 cls
                 call colors silent %+ REM sets ALL_COLORS
                 echo.

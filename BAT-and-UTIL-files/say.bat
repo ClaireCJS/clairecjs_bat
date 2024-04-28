@@ -8,23 +8,29 @@
     if exist %UTIL%\banner.exe (goto :Standalone_Banner_EXE)
                                (goto :DOS_Version          )
 
+    set WIDTH=%@EVAL[%_COLUMNS - 1]
+
 	:CygWin_Banner_EXE
-        ::::: Double check that the EXE is actually there, since 
-        ::::: it isn't necessarily in a default cygwin installation:
+        rem Double check that the EXE is actually there, since 
+        rem it isn't necessarily in a default cygwin installation:
             set BANNER=c:\cygwin\bin\banner.exe
             if not exist %BANNER% (goto :Standalone_Banner_EXE)
 
-        ::::: Use internal %_COLUMNS var to set width of banner
-            set WIDTH=%@EVAL[%_COLUMNS - 1]
-            %BANNER% -c# --width=%WIDTH% %*
+        rem Use internal %_COLUMNS var to set width of banner
+            %BANNER% -cO --width=%WIDTH% %*
+            rem # was our character for a long time, but O is more readable
 	goto :END
 
 	:Standalone_Banner_EXE
-        %UTIL%\banner.exe %*
+        set                                 STANDALONE_BANNER=%UTIL%\banner.exe 
+        call validate-environment-variables STANDALONE_BANNER  UTIL  WIDTH
+        %UTIL%\banner.exe -cO --w %WIDTH% %*
 	goto :END
 
 	:DOS_Version
+        call warning "this doesn't work anymore"
         %UTIL%\sayold.com %*
+        pause
 	goto :END
 
 :END

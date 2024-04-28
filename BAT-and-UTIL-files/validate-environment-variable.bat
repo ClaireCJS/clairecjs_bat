@@ -42,7 +42,7 @@
         call bigecho "%ANSI_COLOR_ALARM%*** ERROR! ***"
         color bright white on red
         echo  We can't be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
-        echo  %underline%Did you mean%underline_off%: %italics%validate-environment-varaible%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
+        echo  %underline%Did you mean%underline_off%: %italics%validate-environment-variable%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
         echo                                   (with an 's' after '%italics%variable%italics_off%')  ????
         call exit-maybe
         
