@@ -1,7 +1,7 @@
-@set ASK_QUESTION=%[1]
-@if defined AskYN_question (set ASK_QUESTION=%AskYN_question% %+ unset /q AskYN_question)
-rem echo ask question is '%ASK_QUESTION%'
 @echo off
+
+set                            ASK_QUESTION=%[1]
+if defined AskYN_question (set ASK_QUESTION=%AskYN_question% %+ unset /q AskYN_question)
 set DEFAULT_ANSWER=%2
 set WAIT_TIME=%3
 set PARAM_4=%4
@@ -12,14 +12,35 @@ set PARAM_5=%5``
 if "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%" eq "--help" .or. "%ASK_QUESTION%" eq "/?" .or. "%ASK_QUESTION%" eq "-?" .or. "%ASK_QUESTION%" eq "-h" (
     %color_advice%
     echo USAGE: askyn ["question"] ["yes" or "no"] - 1st param is question, 2nd is yes/no defult, 3rd is wait_time before expiration, 4th parameter is 'big' if it's big
+    echo USAGE: askyn test - run our test suite
     goto :END
 )
-
 
 :USAGE: askyn "question" "yes|no" - 1st param is question, 2nd is yes/no defult, 3rd is wait_time before expiration (NULL for no wait time), 4th is "no_enter" do disallow enter key, 5th is "big" to make this a big-text prompt
 :SIDE-EFFECTS: sets ANSWER to Y or N, and sets DO_IT to 1 (if yes) or 0 (if no)
 :DEPENDENCIES: set-colors.bat validate-environment-variable.bat validate-environment-variables.bat print-if-debug.bat fatal_error.bat bigecho.bat bigechos.bat echobig.bat echosbig.bat test-askyn.bat
 
+
+
+REM Test suite special case:
+        if "%1" ne "test" goto :Not_A_Test
+                cls
+                call important "About to do %0 test suite"
+                echo ———————————————————————————————————————————————————————————————
+                call AskYN         "  Big question defaulting to  no"  no    0 big
+                call AskYN         "  Big question defaulting to yes" yes    0 big
+                call AskYN         "Timed question defaulting to  no"  no    9 big
+                call AskYN         "Timed question defaulting to yes" yes    9 big
+                call AskYN         "TIMED question defaulting to  no"  no 9999 big
+                call AskYN         "TIMED question defaulting to yes" yes 9999 big
+                call AskYN "Generic       question defaulting to yes" yes
+                call AskYN "Generic       question defaulting to  no"  no
+                call AskYN "Generic timed question defaulting to yes" yes    9
+                call AskYN "Generic timed question defaulting to  no"  no    9
+                call AskYN "Generic TIMED question defaulting to yes" yes 9999
+                call AskYN "Generic TIMED question defaulting to  no"  no 9999
+                goto :END
+        :Not_A_Test
 
 
 REM Variable setup:
@@ -78,13 +99,11 @@ REM Which keys will we allow?
         if %NO_ENTER_KEY eq 1 (set ALLOWABLE_KEYS=yn)
 
 
-REM Decide how to display the question prompt:
-                                    set ECHO_COMMAND=echos
-        if defined ASKYN_DECORATOR (set ECHO_COMMAND=echos %ASKYN_DECORATOR%)
-        if %BIG_QUESTION eq 1      (set ECHO_COMMAND=%@REPLACE[echos ,call bigechos ,%ECHO_COMMAND])
-        if defined ASKYN_DECORATOR (set ASKYN_DECORATOR=)
-
-
+:deprecated: REM Decide how to display the question prompt:
+:deprecated:                                     set ECHO_COMMAND=echos
+:deprecated:         if defined ASKYN_DECORATOR (set ECHO_COMMAND=echos %ASKYN_DECORATOR%)
+:deprecated:         if %BIG_QUESTION eq 1      (set ECHO_COMMAND=%@REPLACE[echos ,call bigechos ,%ECHO_COMMAND])
+:deprecated:         if defined ASKYN_DECORATOR (set ASKYN_DECORATOR=)
 
 
 REM Print the question out if we aren't loading INKEY with the question:
@@ -92,8 +111,9 @@ REM Print the question out if we aren't loading INKEY with the question:
 
 
 REM Load INKEY with the question, unless we've already printed it out:
-        set INKEY_QUESTION=%PRETTY_QUESTION%%ANSI_POSITION_SAVE% ``
-        if %BIG_QUESTION eq 1 .and. %WAIT_TIMER_ACTIVE eq 0 (set INKEY_QUESTION=)
+                                    set INKEY_QUESTION=%PRETTY_QUESTION%%ANSI_POSITION_SAVE%``
+        rem   IT_TIMER_ACTIVE ne 0 (set INKEY_QUESTION=%INKEY_QUESTION% ``)
+        if %WAIT_TIMER_ACTIVE eq 0 .and. %BIG_QUESTION eq 1 (set INKEY_QUESTION=)
 
 
 REM Actually answer the question here —— make the windows 'question' noise first, then get the user input:
@@ -135,13 +155,24 @@ REM Generate "pretty" answers:
         call print-if-debug "our_answer is '%OUR_ANSWER', default_answer is '%DEFAULT_ANSWER%', answer is '%ANSWER%', PRETTY_ANSWER is '%PRETTY_ANSWER%'"
 
 
-REM Change "pretty" question so that the auto-question mark is no longer blinking because it has now been answered:
-
-
+REM Change "pretty" question so that the auto-question mark is no longer blinking because it has now been answered, and
 REM Print our "pretty" answers in the right spots (challenging with double-height), erasing any timer leftovers:
-        if %BIG_QUESTION ne 1 .and. %WAIT_TIMER_ACTIVE eq 0 (echo %@ANSI_MOVE_LEFT[1]%PRETTY_ANSWER_ANSWERED% %@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED%)  %+ rem re-copy the question over itself to stop the prompt-related blinking  
-        if %BIG_QUESTION ne 1 .and. %WAIT_TIMER_ACTIVE eq 1 (echo %@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED% %PRETTY_ANSWER%      ``)                      %+ rem re-copy the question over itself to stop the prompt-related blinking  
-        if %BIG_QUESTION eq 1                               (echo %ANSI_POSITION_RESTORE%%BLINK_ON% %PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%%@ANSI_MOVE_UP[1]%BIG_TOP%%BLINK_ON% %PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%%ANSI_RESET%)
+        if %BIG_QUESTION ne 1 (
+            if %WAIT_TIMER_ACTIVE eq 0 (echo %ANSI_POSITION_SAVE%%@ANSI_MOVE_LEFT[1]%PRETTY_ANSWER_ANSWERED% %@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED% %PRETTY_ANSWER%)  
+            if %WAIT_TIMER_ACTIVE eq 1 (echo %@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED% %PRETTY_ANSWER%      ``)                                                          
+        )
+        if %BIG_QUESTION eq 1 (
+                                          set MOVE_LEFT_BY=1
+            if  %WAIT_TIMER_ACTIVE eq 1  (set MOVE_LEFT_BY=4
+                if %WAIT_TIME gt 10      (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
+                if %WAIT_TIME gt 100     (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
+                if %WAIT_TIME gt 1000    (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
+                if %WAIT_TIME gt 10000   (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
+                if %WAIT_TIME gt 100000  (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
+                if %WAIT_TIME gt 1000000 (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
+            )
+            echo %@ANSI_MOVE_LEFT[%MOVE_LEFT_BY]%ANSI_POSITION_SAVE%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%%@ANSI_MOVE_UP[1]%BIG_TOP%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%
+        )
 
 
 goto :END

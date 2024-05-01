@@ -42,7 +42,7 @@ rem TCC/Windows Terminal rendering bug that required a lot of ANSI fuddling to d
         set NUM_REPEATS=%@EVAL[%NUM_REPEATS - 1]
         repeat %NUM_REPEATS set DIVIDER_FULL=%DIVIDER%%DIVIDER_FULL%
         rem works but blank line necessary after because that one line is stuck in big:
-        echo %ANSI_SAVE_POSITION%%BIG_TOP%%DIVIDER_FULL%%ANSI_RESTORE_POSITION%%BIG_OFF%%NEWLINE%%@ANSI_MOVE_UP[1]%BIG_BOT%%DIVIDER_FULL%
+        echos %ANSI_SAVE_POSITION%%BIG_TOP%%DIVIDER_FULL%%ANSI_RESTORE_POSITION%%BIG_OFF%%NEWLINE%%@ANSI_MOVE_UP[1]%BIG_BOT%%DIVIDER_FULL%
 
         rem echos %ANSI_SAVE_POSITION%
         rem echos %BIG_TOP%%DIVIDER_FULL%%BIG_OFF%
@@ -63,5 +63,5 @@ rem TCC/Windows Terminal rendering bug that required a lot of ANSI fuddling to d
 :END
 
 call turn-on-file-redirection
-
+echo.
 

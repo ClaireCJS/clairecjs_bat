@@ -39,7 +39,7 @@
 2019-10-01  10:27             74    5%  alltif2jpg.bat
 2024-04-14  15:52            529   40%  allwav2mp3.bat
 2022-02-07  13:15             19  -10%  an.bat
-2024-04-27  06:26          8,791   70%  askYN.bat
+2024-05-01  19:51         10,969   73%  askYN.bat
 2024-03-18  22:08          1,047   53%  assimilate-rookie-folders.bat
 2024-04-14  23:40            672   54%  audio-batch-processing---encode-everything-and-remove-redundant-WAVs.bat
 2019-10-01  10:27          2,571   69%  audio-countdown-noise.bat
@@ -150,7 +150,7 @@
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
 2022-11-19  16:52            242   29%  display-flac-tags.bat
 2024-04-06  02:46          3,506   66%  display-free-space.bat
-2024-04-27  06:42          3,238   66%  display-horizontal-divider.bat
+2024-05-01  19:27          3,244   66%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-04-05  16:27            775   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-03-29  20:08            128    6%  display-mp3-artists.bat
@@ -163,7 +163,7 @@
 2023-12-18  16:04             21   -9%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-03-30  13:19             35   -5%  divider.bat
-2023-08-21  07:08         20,242   69%  download-youtube-album.bat
+2024-05-01  04:15         20,252   69%  download-youtube-album.bat
 2023-06-12  20:31             67    0%  download-youtube-music.bat
 2023-06-09  21:26             35   -5%  download-youtube-video-with-chapters-as-an-mp3-album.bat
 2024-04-04  21:23          3,978   66%  drives.bat
@@ -246,7 +246,7 @@
 2023-06-02  19:02            623   53%  git-add-every-damn-file.bat
 2024-03-15  10:52            797   49%  git-add.bat
 2024-04-09  23:33            158   14%  git-commit-history.bat
-2024-04-05  14:18          2,454   56%  git-commit.bat
+2024-05-01  04:14          2,469   55%  git-commit.bat
 2023-10-06  06:37             45   -4%  git-config-set-commit-preference-to-rebase.bat
 2023-06-14  23:22             54    4%  git-config-set-commit-preferences-to-rebase.bat
 2023-10-06  06:37             18  -11%  git-history.bat
@@ -446,6 +446,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-04-27  02:45         34,174   82%  set-colors.bat
+2023-06-05  23:30             68   15%  set-current_playing_song.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
 2024-03-13  13:45          6,083   63%  set-emojis.bat
@@ -454,6 +455,8 @@
 2024-03-24  20:03             49   -4%  set-label.bat
 2023-10-06  06:00            184   53%  set-largest-filename.bat
 2023-10-06  05:58          1,232   63%  set-latest-filename.bat
+2023-06-05  23:46             24   -8%  set-nicetime.bat
+2023-06-05  23:53            703   61%  set-nice_time.bat
 2023-06-14  22:07          2,598   64%  set-random-file.bat
 2023-10-06  05:56             26   -7%  set-randomfile.bat
 2023-06-14  14:58            123   10%  set-task.bat

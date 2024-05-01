@@ -28,7 +28,7 @@ REM Get reason to commit
             )
             call set-current_playing_song
             call set-nicetime
-            set REASON=%_dow %nicetime: %currently_playing_song
+            set REASON=%_dow %nicetime: %@unquote[%currently_playing_song]
     )
     if "%NOPAUSE%" ne "1" .and. "%1" ne "nopause" .and. %GIT_SKIP_COMMIT_REASON_EDIT ne 1 (
         call important "Enter your commit reason:"
@@ -41,7 +41,7 @@ REM Get reason to commit
 
 REM Generate commit command
 UNSET /Q GIT_OPTIONS_TEMP
-    set COMMITCOMMAND=call git commit -a -m "%REASON%" --verbose %GIT_OPTIONS_TEMP% 
+    set COMMITCOMMAND=call git.bat commit -a -m "%REASON%" --verbose %GIT_OPTIONS_TEMP% 
 
 
 REM Actually commit the files

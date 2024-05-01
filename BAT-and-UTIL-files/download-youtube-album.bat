@@ -228,8 +228,8 @@ REM                 \-- it may need resized  in order to become square (720x720 
 
             :embed_again
             if %image_was_changed eq 1 (
-                if %auto_embed ne 1 (call openimage "%image%")
-                if not exist "%image%" (call error "image of '%image%' doesn't exist")
+                if %auto_embed ne 1    (call openimage  "%image%")
+                if not exist "%image%" (call error       "image of '%image%' doesn't exist")
                 call askyn "Are we satisfied with the new image?" yes 300
                 if %DO_IT eq 0 (call warning "Returning to command line..." %+ call advice "Run '%0 img' to return to this point" %+ cancel)
                 set DONT_DELETE_ART_AFTER_EMBEDDING=1
