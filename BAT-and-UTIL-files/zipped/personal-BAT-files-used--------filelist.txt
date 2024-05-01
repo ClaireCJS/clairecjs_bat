@@ -83,7 +83,8 @@
 2019-10-01  10:27             55    0%  clear-buffered-keystrokes.bat
 2023-07-19  11:13             20    5%  clip.bat
 2023-06-19  23:00            455   41%  cls.bat
-2024-04-27  06:50            435   41%  collapse-all-directories.bat
+2024-04-28  12:42             55    8%  collapse-all-directories.bat
+2024-04-28  21:05          1,682   59%  collapse-all-subfolders-into-current-folder.bat
 2023-06-05  17:31            478   46%  color-cycle-by-ansi-proof_of_concept.py
 2023-06-05  23:43             64   29%  color.bat
 2019-10-01  10:27            592   49%  colorize-by-computer-name.bat
@@ -121,6 +122,7 @@
 2024-04-14  15:49            341   36%  del-WAVs-if-mp3s-or-flacs-exist.bat
 2023-12-13  09:00            427   39%  delete-duplicate-files-in-each-subfolder-but-not-across-current-folder.bat
 2023-12-13  09:33          1,988   59%  delete-duplicate-files-including-subfolder-duplicates.bat
+2024-05-01  04:05            639   49%  delete-largest-file.bat
 2023-10-06  08:29            252   28%  delete-WAVs-if-MP3s-exist.bat
 2023-07-16  13:40            602   50%  delete-zero-byte-files.bat
 2024-03-19  18:01          1,054   59%  deltree.bat
@@ -162,10 +164,13 @@
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-03-30  13:19             35   -5%  divider.bat
 2023-08-21  07:08         20,242   69%  download-youtube-album.bat
+2023-06-12  20:31             67    0%  download-youtube-music.bat
+2023-06-09  21:26             35   -5%  download-youtube-video-with-chapters-as-an-mp3-album.bat
 2024-04-04  21:23          3,978   66%  drives.bat
 2019-10-01  10:27            193   49%  du.bat
 2024-04-05  17:32            846   51%  dump-environment-to-tmpfile.bat
 2024-03-13  23:19             32   -6%  dvl.bat
+2023-06-12  20:31             37   -5%  dym.bat
 2019-10-01  10:27             45   -4%  ec.bat
 2023-11-07  13:36          3,152   71%  echo-rainbow.bat
 2023-06-26  20:54         29,196   69%  edit-currently-playing-attrib-helper.pl
@@ -235,6 +240,7 @@
 2023-06-02  08:51          8,693   74%  generate_midi_randomly.py
 2019-10-01  10:28          8,414   64%  get-current-song-playing.pl
 2023-05-31  03:52            399   47%  get-currently-playing-tracknum-from-wawi-index_html.pl
+2023-07-04  20:09            549   59%  get-image-dimensions.bat
 2024-04-14  03:43          4,144   63%  get-winamp-state.bat
 2023-04-26  23:53            809   54%  get_lyrics_from_audio_file_via_whisperAI.py
 2023-06-02  19:02            623   53%  git-add-every-damn-file.bat
@@ -360,6 +366,7 @@
 2019-10-01  10:28            562   43%  numbers.pl
 2024-04-03  15:05             88    6%  numfiles.bat
 2023-07-01  08:28            363   50%  okgoogle.bat
+2023-07-04  17:35            232   41%  openimage.bat
 2022-07-03  20:15          2,365   72%  opera.bat
 2024-03-24  18:42          1,124   53%  pause-alias.bat
 2024-03-18  14:57            582   44%  pause-for-x-seconds.bat
@@ -377,7 +384,7 @@
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
 2024-03-18  11:29             13  -15%  previousdir.bat
 2023-06-09  22:02             67    6%  print-if-debug.bat
-2024-04-27  06:38         21,402   74%  print-message.bat
+2024-04-29  14:29         21,337   74%  print-message.bat
 2024-02-14  02:28         13,998   74%  process-done-torrent.btm
 2024-03-18  22:28          2,192   64%  process-rookie-folders.bat
 2023-06-02  13:09          1,023   67%  prompt-Carolyn.bat
@@ -449,6 +456,7 @@
 2023-10-06  05:58          1,232   63%  set-latest-filename.bat
 2023-06-14  22:07          2,598   64%  set-random-file.bat
 2023-10-06  05:56             26   -7%  set-randomfile.bat
+2023-06-14  14:58            123   10%  set-task.bat
 2023-06-09  18:47            300   37%  set-temp-folder.bat
 2024-01-25  22:07            658   48%  set-tmp-file.bat
 2023-10-06  05:32             23   -8%  set-tmpfile.bat
@@ -529,8 +537,8 @@
 2023-07-03  13:45             48   -4%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
 2019-10-01  10:28            544   82%  unmap-drives.bat
-2024-04-27  06:48            278   34%  unzip-all.bat
-2024-04-27  06:49          5,679   71%  unzip-gracefully.bat
+2024-04-28  20:54            287   35%  unzip-all.bat
+2024-04-28  21:01          6,124   71%  unzip-gracefully.bat
 2024-03-19  19:43         10,812   73%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2019-10-01  10:28            232   26%  urldecode.pl
@@ -573,6 +581,7 @@
 2024-03-29  23:30            198   37%  winkill.bat
 2023-07-17  09:49          3,149   67%  wrapper.bat
 2024-03-12  13:02          5,632   60%  ydl.bat
+2024-05-01  04:02             37   -5%  ydm.bat
 2024-04-03  14:43            568   47%  yyyymmdd(dow).bat
 2024-04-03  14:42            438   41%  yyyymmdd.bat
 2024-04-03  14:40            135   13%  yyyymmddclip.bat

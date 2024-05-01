@@ -20,12 +20,15 @@
         rem call debug "BASENAME             is '%BASENAME%'"
         rem call debug "TO_UNZIP_EXTENSION_1 is '%TO_UNZIP_EXTENSION_1%'"
         rem call debug "TO_UNZIP_EXTENSION_2 is '%TO_UNZIP_EXTENSION_2%'"
-        if "%TO_UNZIP_EXTENSION_2%" != "7Z"  (set USE_7Z=0  %+ set NUMBERED=0)
         if "%TO_UNZIP_EXTENSION_1%" != "7Z"  (set USE_7Z=0  %+ set NUMBERED=0)
+        if "%TO_UNZIP_EXTENSION_1%" != "RAR" (set USE_RAR=0 %+ set NUMBERED=0)
+        
         if "%TO_UNZIP_EXTENSION_1%" == "7Z"  (set USE_7Z=1  %+ set NUMBERED=0)
-        if "%TO_UNZIP_EXTENSION_2%" == "7Z"  (set USE_7Z=1  %+ set NUMBERED=1)
         if "%TO_UNZIP_EXTENSION_1%" == "RAR" (set USE_RAR=1 %+ set NUMBERED=0)
-        if "%TO_UNZIP_EXTENSION_2%" == "RAR" (set USE_RAR=1 %+ set NUMBERED=1)       %+ rem dont think this will work
+
+        if "%TO_UNZIP_EXTENSION_2%" == "7Z"  (set USE_7Z=1  %+ set NUMBERED=1)
+        if "%TO_UNZIP_EXTENSION_2%" == "RAR" (set USE_RAR=1 %+ set NUMBERED=1)       %+ rem not sure if this will work
+
 
     set                                                                            WE_CAN_DEAL_WITH_THIS_EXTENSION=0
     if "%TO_UNZIP_EXTENSION_1" ==  "7Z" .or. "%TO_UNZIP_EXTENSION_2" ==  "7Z" (set WE_CAN_DEAL_WITH_THIS_EXTENSION=1)
@@ -36,40 +39,44 @@
 :: do it:
         *md "%BASENAME%"
         *cd "%BASENAME%"
-        rem moving the zip into the folder also solves the problem of losing track of which zips are unzipped when interrupted [the ones done are moved into their folder]
+        rem moving the zip into the folder also solves the problem of losing track of which zips are unzipped when interrupted [the ones not done are not moved into their folder, though the last interrupted one is which requires paying attention]
         rem echo if %NUMBERED ne 1 (move /q ..\"%TO_UNZIP%"            )
-                 if %NUMBERED ne 1 (move /q ..\"%TO_UNZIP%"            )
-                 if %NUMBERED eq 1 (move /q ..\"%BASENAME%.0[0-9][0-9]")
+        echos %ANSI_COLOR_REMOVAL%%FAINT_ON%%ITALICS_ON%
+                 if %NUMBERED ne 1 (move /Ns /g ..\"%TO_UNZIP%"            )
+                 if %NUMBERED eq 1 (move /Ns /g ..\"%BASENAME%.0[0-9][0-9]")
                          rem pause
+        echos %FAINT_OFF%%ITALICS_OFF%%ANSI_RESET%
         rem echo on
         rem %color_debug% %+ dir
+        echo.
         %COLOR_RUN%
         set DISPLAY_NAME='%emphasis%%TO_UNZIP%%deemphasis%'
+        rem call debug "USE_7Z == %USE_7Z , USE_RAR == %USE_RAR , TO_UNZIP= %TO_UNZIP%"
         rem if %USE_7Z eq 1 .and. %USE_RAR ne 1 (echo %STAR%%@RANDFG[]7unzipping %DISPLAY_NAME%...%@RANDFG[] %+  *7unzip /E /O /P    "%TO_UNZIP%"|& copy-move-post.py ) 
             if %USE_7Z ne 1 .and. %USE_RAR ne 1 (echo %STAR%%@RANDFG[ ]Unzipping %DISPLAY_NAME%...%@RANDFG[] %+    unzip /E /O /D /I "%TO_UNZIP%"|& copy-move-post.py )
             if %USE_7Z eq 1 .and. %USE_RAR ne 1 (echo %STAR%%@RANDFG[]7unzipping %DISPLAY_NAME%...%@RANDFG[] %+   7z.exe x -aoa      "%TO_UNZIP%"|& copy-move-post.py ) 
             if %USE_7Z ne 1 .and. %USE_RAR eq 1 (echo %STAR%%@RANDFG[  ]UnRARing %DISPLAY_NAME%...%@RANDFG[] %+ call rar x  -o+      "%TO_UNZIP%"|& copy-move-post.py )
         call errorlevel "problem uncompressing %DISPLAY_NAME%"
         REM -ao - set overwrite mode
-        rem echo on
-        rem pause
+        echo.
         echo %ANSI_RESET%%@ANSI_MOVE_TO_COL[1]%CHECK% %ANSI_COLOR_SUCCESS%Uncompressed %DISPLAY_NAME%%ANSI_COLOR_SUCCESS%%ANSI_RESET%%ANSI_EOL%
-        rem pause
-        rem kill /f 7z*
+        echos %ANSI_COLOR_SUCCESS%%FAINT_ON%
+        dir   
+        echos %FAINT_OFF%%ANSI_RESET%
+        set FILECOUNT=%@FILES[/s/h,*]
+        echo.
         rem echo call AskYN "Delete the original archive" no 15
                 set  AskYN_question=Delete the original archive
                 call AskYN overriddenbyenvvar no 8
-                                                    set WE_DELETE=0
-                                 if %ANSWER == "Y" (set WE_DELETE=1)
+                                                 set WE_DELETE=0
+                           if "%ANSWER%" == "Y" (set WE_DELETE=1)
+        rem call debug "file count == %FILECOUNT%, WE_DELETE == %WE_DELETE%, NUMBERED == %NUMBERED%, TO_UNZIP == '%TO_UNZIP%', CWP == %_CWP"
         if %WE_DELETE eq 1 .and. %@FILES[/s/h,*] gt 1                      (del /p "%TO_UNZIP%"            )  %+ rem 20151105 added filecheck to make sure something actually unzipped
         if %WE_DELETE eq 1 .and. %@FILES[/s/h,*] gt 1 .and. %NUMBERED eq 1 (del /p "%BASENAME%.0[0-9][0-9]")  %+ rem 20151105 added filecheck to make sure something actually unzipped
         rem call print=if-debug "folder is '%_CWP'"
         if %@FILES[/s/h,*] lt 1 (goto :Error)
         :ErrorDone
         cd ..
-        echos %ANSI_COLOR_SUCCESS%
-        dir "%BASENAME%"
-        echos %ANSI_RESET%
         if isdir "%BASENAME%\%@NAME["%FILENAME_OLD%"]" (%COLOR_REMOVAL% %+ mv/ds  "%BASENAME%\%@NAME["%FILENAME_OLD%"]" "%BASENAME%" %+ %COLOR_NORMAL%)
         :::::::::::::::  rem ^^^^^^^^^^^^^^^ That last line address the situation of zip files that have a folder with the ZIP's own name in them by collapsing the original name into the new name, to create a subfolder with the same name as an enclosing folder, which is stupid
 

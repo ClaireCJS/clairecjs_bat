@@ -135,14 +135,13 @@ REM Behavior overides and message decorators depending on the type of message?
 
 
 REM We're going to update the window title to the message. If possible, strip any ANSI color codes from it:
-    if not defined %PLUGIN_STRIPANSI_LOADED (goto :No_Title_Stripping)
-    if   1 ne      %PLUGIN_STRIPANSI_LOADED (goto :No_Title_Stripping)
+    if "1"  ne  "%PLUGIN_STRIPANSI_LOADED" (goto :No_Title_Stripping)
         set CLEAN_MESSAGE=%@STRIPANSI[%ORIGINAL_MESSAGE]
-    goto :Set_Title_Var_Now
+        goto :Set_Title_Var_Now
     :No_Title_Stripping
         set CLEAN_MESSAGE=%ORIGINAL_MESSAGE%
     :Set_Title_Var_Now
-    set TITLE=%CLEAN_MESSAGE%
+        set TITLE=%CLEAN_MESSAGE%
 
     REM But first let's decorate the window title for certain message types Prior to actually updating the window title:
         if "%TYPE%" eq          "DEBUG" (set            TITLE=DEBUG: %title%)
