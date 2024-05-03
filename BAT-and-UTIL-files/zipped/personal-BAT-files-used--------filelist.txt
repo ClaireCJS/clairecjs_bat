@@ -7,7 +7,7 @@
 2024-03-13  12:23          1,055   46%  add-ReplayGain-tags-to-all-mp3s.bat
 2023-07-18  19:22             97   36%  add-ReplayGain-tags.bat
 2023-05-29  22:39             43   -4%  advice.bat
-2024-04-28  00:39         29,018   76%  after.bat
+2024-05-03  04:35         29,132   76%  after.bat
 2023-08-26  19:25          1,074   68%  age.bat
 2022-02-02  02:53          1,574   63%  alarm-beep.bat
 2024-02-02  20:24          3,616   58%  ALIAS.LST
@@ -481,6 +481,8 @@
 2019-10-01  10:28          5,276   63%  sizedir.pl
 2020-09-13  00:47            184   33%  sizes.bat
 2024-03-14  22:20            279   41%  sleep.bat
+2024-05-01  19:47             38   -5%  snip.bat
+2024-05-03  14:30            377   56%  snipping-tool.bat
 2019-10-01  10:28            949   51%  sort-by-human-readable-size.pl
 2019-10-01  10:28             71   16%  sort-by-line-length.pl
 2023-10-03  20:33          5,636   75%  sort-pictures-into-folders-helper.pl

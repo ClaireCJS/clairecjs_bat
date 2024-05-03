@@ -410,8 +410,11 @@ return
 	echo.
 	rem echo Restarting Setpoint... %+ start setpoint
 	rem echo Killing IHateThisKey... %+ kill /f IHateThisKey*
-	echo Killing WinKill...
-         kill /f WinKill
+	echo 
+    call less_important "Killing WinKill..."        
+    @kill /f WinKill
+    call less_important "Restarting AutoHotKey..."
+    call AutoHotKey-autoexec
     call unimportant "(we used to restart torrents automatically here)"
 	rem echo Restarting torrents...
 	rem call utorrent-control resumealltorrents
