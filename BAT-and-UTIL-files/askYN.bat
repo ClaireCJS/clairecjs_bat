@@ -22,7 +22,7 @@ if "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%" eq "--help" .or. "%ASK_QUEST
 
 
 
-REM Test suite special case:
+REM Test suite special case, including testing for the facts that higher timer values are wider timers which affect answer character placement:
         if "%1" ne "test" goto :Not_A_Test
                 cls
                 call important "About to do %0 test suite"

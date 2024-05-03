@@ -110,6 +110,7 @@ winget install Microsoft.XboxGamingOverlay_8wekyb3d8bbwe
 winget install Microsoft.XboxIdentityProvider_8wekyb3d8X 
 winget install ImageMagick.ImageMagick
 winget install Mega.MEGASync
+winget install --id=OpenSight.FlashFXP  -e
 winget install Microsoft.XboxSpeechToTextOverlay_8wekybX 
 winget install Microsoft.YourPhone_8wekyb3d8bbwe         
 winget install Microsoft.ZuneMusic_8wekyb3d8bbwe         

@@ -84,7 +84,7 @@
 2023-07-19  11:13             20    5%  clip.bat
 2023-06-19  23:00            455   41%  cls.bat
 2024-04-28  12:42             55    8%  collapse-all-directories.bat
-2024-04-28  21:05          1,682   59%  collapse-all-subfolders-into-current-folder.bat
+2024-05-02  16:19          1,679   59%  collapse-all-subfolders-into-current-folder.bat
 2023-06-05  17:31            478   46%  color-cycle-by-ansi-proof_of_concept.py
 2023-06-05  23:43             64   29%  color.bat
 2019-10-01  10:27            592   49%  colorize-by-computer-name.bat
@@ -166,6 +166,7 @@
 2024-05-01  04:15         20,252   69%  download-youtube-album.bat
 2023-06-12  20:31             67    0%  download-youtube-music.bat
 2023-06-09  21:26             35   -5%  download-youtube-video-with-chapters-as-an-mp3-album.bat
+2024-05-02  22:39          2,072   59%  drastically-shorten-and-standardize-filenames.bat
 2024-04-04  21:23          3,978   66%  drives.bat
 2019-10-01  10:27            193   49%  du.bat
 2024-04-05  17:32            846   51%  dump-environment-to-tmpfile.bat
@@ -300,7 +301,7 @@
 2019-10-01  10:28            120   18%  insert-after-each-line.pl
 2019-10-01  10:28            120   18%  insert-before-each-line.pl
 2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
-2024-04-25  18:48         14,535   75%  install-common-programs-with-winget-helper.cmd
+2024-05-03  02:36         14,579   75%  install-common-programs-with-winget-helper.cmd
 2024-04-06  04:37            381   36%  install-common-programs-with-winget.bat
 2023-07-14  09:50            278   36%  isRunning-fast.bat
 2023-08-26  14:54          1,084   59%  isRunning-helper.bat
@@ -417,6 +418,8 @@
 2024-02-07  04:00          2,959   67%  reddit-user-download.bat
 2023-06-05  01:31             44   -4%  removal.bat
 2024-04-19  20:02            456   43%  remove-art-from-flac.bat
+2024-05-02  22:43          1,828   58%  remove-commas-from-filenames.bat
+2024-05-02  23:07          1,828   58%  remove-pluses-from-filenames.bat
 2019-10-01  10:28            158   25%  remove-trailing-spaces.pl
 2023-10-03  21:12            106   10%  rename-folders-with-hyphens-into-underscores.bat
 2023-07-10  03:06            982   61%  rename_images_to_incorporate_folder_name.py
@@ -445,6 +448,8 @@
 2023-06-13  16:06             57    0%  send-keypress-alt_up.ahk
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
+2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
+2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
 2024-04-27  02:45         34,174   82%  set-colors.bat
 2023-06-05  23:30             68   15%  set-current_playing_song.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat

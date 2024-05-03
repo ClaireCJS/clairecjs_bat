@@ -2,23 +2,23 @@
 
 
 ::::: VALIDATE ENVIRONMENT:
-        if 1 ne %VALIDATED_COLLAPSE_ALL_SUBFOLDERS_INTO_CURRENT_FOLDER  (
-            set  VALIDATED_COLLAPSE_ALL_SUBFOLDERS_INTO_CURRENT_FOLDER=1
+        if 1 ne %VALIDATED_DRASTICALLY_SHORTEN_AND_STANDARDIZE_FILENAMES  (
+            set  VALIDATED_DRASTICALLY_SHORTEN_AND_STANDARDIZE_FILENAMES=1
             call validate-in-path  warning advice success less_important divider 
             call validate-env-vars temp 
         )
 
 
 ::::: CONFIGURE TEMP FILE LOCATION / NAME —— Do not use a filename with spaces in it
-        set DIRECTORY_TREE_BACKUP=%temp\undo-collapse-%_PID.txt                                    
+        set DIRECTORY_TREE_BACKUP=%temp\undo-drastically-shorten-and-standardize-filenames-%_PID.txt                                    
  
 
 ::::: WARN:
         cls
         echo.
-        call warning        "THIS WILL COLLAPSE ALL SUBFOLDERS INTO CURRENT FOLDER"
+        call warning        "THIS WILL REMOVE ALL COMMAS FROM ALL FILENAMES!"
         echo.
-        call warning        "There is no going back"
+        call warning        "There is no going back... You lose a lot of the filenames"
         echo.
         call advice         "Directory tree will be saved in '%DIRECTORY_TREE_BACKUP%'"
         pause
@@ -30,7 +30,7 @@
     call less_important "first, a sample of what it will do:"
     echo.
     color bright yellow on black
-    for /a:d /h %dir in (*) echo mv/ds "%dir" .
+    for /h %filename in ("*,*.*") do (echo ren "%filename" "%@REPLACE[,,,%filename]") 
     echo.
     pause
 
@@ -55,7 +55,7 @@
 
 
 ::::: DO IT! —— COLLAPSE ALL THE FOLDERS!:
-    for /a:d /h %dir in (*)      mv/ds "%dir" .
+    for /h %filename in ("*,*.*") do  (    *ren "%filename" "%@REPLACE[,,,%filename]") 
 
 
 ::::: SHOW SUCCESS:
