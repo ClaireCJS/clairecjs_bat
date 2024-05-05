@@ -30,7 +30,7 @@
     call less_important "first, a sample of what it will do:"
     echo.
     color bright yellow on black
-    for /h %filename in (*.*) do if %@LEN[%filename] gt 25 (echo ren "%filename" "%@REPLACE[(,_,%@REPLACE[ ,_,%@LEFT[25,%filename]%@RIGHT[2,%_DATETIME]%@RANDOM[1,1000].%@EXT[%filename]]]") 
+    for /h %filename in (*.*) do if %@LEN[%filename] gt 32 (echo ren "%filename" "%@REPLACE[(,_,%@REPLACE[ ,_,%@LEFT[24,%filename]%@RIGHT[1,%_DATETIME]%@RANDOM[1,999].%@EXT[%filename]]]") 
     echo.
     pause
 
@@ -55,7 +55,7 @@
 
 
 ::::: DO IT! —— COLLAPSE ALL THE FOLDERS!:
-    for /h %filename in (*.*) do if %@LEN[%filename] gt 25 (    *ren "%filename" "%@REPLACE[,,,%@REPLACE[(,_,%@REPLACE[ ,_,%@LEFT[25,%filename]%@RIGHT[2,%_DATETIME]%@RANDOM[1,1000].%@EXT[%filename]]]]") 
+    for /h %filename in (*.*) do if %@LEN[%filename] gt 32 (    *ren "%filename" "%@REPLACE[,,,%@REPLACE[(,_,%@REPLACE[ ,_,%@LEFT[24,%filename]%@RIGHT[1,%_DATETIME]%@RANDOM[1,999].%@EXT[%filename]]]]") 
 
 
 ::::: SHOW SUCCESS:

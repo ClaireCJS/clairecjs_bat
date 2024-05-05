@@ -80,11 +80,14 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
             gosub AddFolderToPathEndOnlyIfItExists "C:\Program Files\Graphviz\bin"
             :gosub AddFolderToPathEndOnlyIfItExists 
         :SmartGPT, Chocolatey, Docker
-            gosub  AddFolderToPathEndOnlyIfItExists %USERPROFILE%\.cargo\bin
-            gosub  AddFolderToPathEndOnlyIfItExists %allusersprofile%\chocolatey\bin\
-            gosub  AddFolderToPathEndOnlyIfItExists "C:\Program Files\Docker\cli-plugins"
-            gosub  AddFolderToPathEndOnlyIfItExists "C:\Program Files\Docker\Docker\resources\bin"
-            gosub  AddFolderToPathEndOnlyIfItExists  C:\ProgramData\anaconda3\Lib\site-packages\torch\lib
+            gosub AddFolderToPathEndOnlyIfItExists %USERPROFILE%\.cargo\bin
+            gosub AddFolderToPathEndOnlyIfItExists %allusersprofile%\chocolatey\bin\
+            gosub AddFolderToPathEndOnlyIfItExists "C:\Program Files\Docker\cli-plugins"
+            gosub AddFolderToPathEndOnlyIfItExists "C:\Program Files\Docker\Docker\resources\bin"
+            gosub AddFolderToPathEndOnlyIfItExists "C:\ProgramData\anaconda3\Lib\site-packages\torch\lib"
+    :2024
+            gosub AddFolderToPathEndOnlyIfItExists "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_1.22.10861.0_x64__8wekyb3d8bbwe" %+ rem WinGet
+            gosub AddFolderToPathEndOnlyIfItExists "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_1.22.11132.0_x64__8wekyb3d8bbwe" %+ rem WinGet
 
 ::::: MOST IMPORTANT STUFF: machinename-specific, then OS-specific BATs, then main/normal/non-specific -- for both BATs and UTILs:
 	gosub AddFolderToPathBegOnlyIfItExists C:\UTIL\
