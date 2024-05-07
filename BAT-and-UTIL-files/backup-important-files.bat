@@ -23,10 +23,12 @@ rem Configuration & environment validation
 rem Let user know what we're doing 
         cls %+ echo. %+ call important "Backing up important files" %+ echo. %+ rem might want to move the CLS to the 'backing backups up to every available backup drive' section
 
+
 rem Ensure backup target folders exists — auto-create the local one it if it does not
 rem ...But do NOT auto-create the dropbox one (that's too intrusive to do automatically)
         if not isdir %BACKUP_TARGET (mkdir /s %BACKUP_TARGET%)
         call validate-environment-variables DROPBOX BACKUP_TARGET_DROPBOX CONTACTS ABOUTTOBEBURNED PREBURN_DVD_CATALOG PREBURN_BDR_CATALOG
+        call validate-in-path important less_important success error fatal_error
 
 
 rem **********************************************************************************************************************************************
@@ -57,18 +59,21 @@ echo.
 call less_important "Backing backups up to every available backup drive...%FAINT_ON%"
 echo.
 rem Sync important files folder
-    for %letter in (%THE_ALPHABET) (
+    for %letter in (%THE_ALPHABET Done!) (
         echos %ANSI_SAVE_POSITION%
-        echo  %@ANSI_MOVE_TO_COL[1]%ANSI_COLOR_WARNING%[%letter%:]%ANSI_RESET%
+        if "%@LEN[%letter]" == "1" (echo  %@ANSI_MOVE_TO_COL[1]%ANSI_COLOR_WARNING%[%letter%:]%ANSI_RESET%%ANSI_EOL%)
         echos %@ANSI_MOVE_TO_COL[5]%ANSI_MOVE_UP_1%%ANSI_GREY%
         if 1 eq %@READY[%letter%] .and. isdir %letter%:\backups (
             set BACKUP_TARGET_TMP=%letter%:\backups\IMPORTANT_FILES.%MACHINENAME%
-            *copy /e /w /u /s /a: /h /z /k /g /u /Nts %BACKUP_TARGET% %BACKUP_TARGET_TMP% | convert-each-line-to-a-dot.pl | fast_cat
+            echos %ANSI_COLOR_ALARM%%BLINK_ON%%ITALICS_ON%
+            *copy /e /w /u /s /a: /h /z /k /g /u /Nts %BACKUP_TARGET% %BACKUP_TARGET_TMP% |:u8 convert-each-line-to-a-randomly-colored-dot.pl |:u8 fast_cat
+            call errorlevel
         )
     )
-    echos %FAINT_OFF%%@ANSI_MOVE_TO_COL[1]
+    rem echos %BLINK_OFF%%FAINT_OFF%%ANSI_EOL%%@ANSI_MOVE_TO_COL[1]
     rem echos %ANSI_COLOR_BRIGHT_GREEN%%CHECKBOX% All done! %+ echo.
-    call success "%italics_on%%underline_on%All%italics_off%%underline_off% done!"
+    echo.
+    call success "%italics_on%%underline_on%All%italics_off%%underline_off% important files backed up to all relevant drives!"
 
 
 goto :END
@@ -91,7 +96,7 @@ goto :END
                 if exist %target_filename_dropbox (set SAME=%@COMPARE[%filepath,%target_filename_dropbox]) 
                 if %SAME eq 0 (
                     echos %SPACER%``
-                    *copy /a: /G /H /J /K /Z /u /Ns %filepath% %TARGET_FILENAME_DROPBOX% | insert-before-each-line %SPACER%
+                    *copy /a: /G /H /J /K /Z /u /Ns %filepath% %TARGET_FILENAME_DROPBOX% |:u8 insert-before-each-line %SPACER%
                 )
             )
 
@@ -101,8 +106,8 @@ goto :END
             if %SAME eq 1 (echo %SPACER%%CHECK% %ANSI_GREEN%%@UNQUOTE[%desc%] (%italics_on%%filename%%italics_off%) already backed up %+ return)
 
         rem Do the local backup if it's not the same:
-            echos %SPACER%`` %+ *copy /a: /G /H /J /K /Z /u /Ns %filepath% %TARGET_FILENAME%         | insert-before-each-line %SPACER%
-            echos %SPACER%`` %+ *copy /a: /G /H /J /K /Z /u /Ns %filepath% %TARGET_FILENAME_DATED%   | insert-before-each-line %SPACER%
+            echos %SPACER%`` %+ *copy /a: /G /H /J /K /Z /u /Ns %filepath% %TARGET_FILENAME%         |:u8 insert-before-each-line %SPACER%
+            echos %SPACER%`` %+ *copy /a: /G /H /J /K /Z /u /Ns %filepath% %TARGET_FILENAME_DATED%   |:u8 insert-before-each-line %SPACER%
     return
 
 
