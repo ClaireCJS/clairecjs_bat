@@ -22,9 +22,9 @@ REM  unexplored: is \x1b[?25h and \x1b[?25l. These show and hide the cursor, res
 
 
 rem Branch by parameter:
-        if "%1" eq "force" .or. "%1" eq "test" (goto :Force        )
-        if "%1" eq "stripansitest"             (goto :StripAnsiTest)
-        if   1  eq %COLORS_HAVE_BEEN_SET       (goto :AlreadyDone  )
+        if "%1" == "force" .or. "%1" == "test" (goto :Force        )
+        if "%1" == "stripansitest"             (goto :StripAnsiTest)
+        if  "1" == "%COLORS_HAVE_BEEN_SET%"    (goto :AlreadyDone  )
         :Force
 
 
@@ -451,8 +451,14 @@ rem colors for GREP:
 
 rem Function to strip ansi from strings —— regex to strip ansi is '(\x9B|\x1B\[)[0-?] *[ -\/]*[@-~]' 
 rem This is loaded in our environm.btm as well, so we must be careful not to laod it twice:
-        if not defined PLUGIN_STRIPANSI_LOADED (set PLUGIN_STRIPANSI_LOADED=0)
-        if %PLUGIN_STRIPANSI_LOADED ne 1 .or. not isplugin @stripAnsi (
+        if not defined  PLUGIN_STRIPANSI_LOADED (set PLUGIN_STRIPANSI_LOADED=0)
+                                                    set DO=0
+        if not "1" ==  "%PLUGIN_STRIPANSI_LOADED%" (set DO=1)
+        if     "1" == "%DO%" (goto :SkipPluginCheck)
+        if not         ISPLUGIN @STRIPANSI         (set DO=1)
+        :SkipPluginCheck
+
+        if     "1" == "%DO%" (
             if not defined PLUGIN_TCC_BASE (set PLUGIN_TCC_BASE=%BAT%)
             set PLUGIN_STRIPANSI=%PLUGIN_TCC_BASE%\StripAnsi.dll
             if exist %PLUGIN_STRIPANSI% (
@@ -462,7 +468,7 @@ rem This is loaded in our environm.btm as well, so we must be careful not to lao
         )
 
     :StripAnsiTest
-        if "%1" eq "stripansitest" (
+        if "%1" == "stripansitest" (
             echo.
             echos %ANSI_BLINK_ON%[Strip-ansi Test:]``
             echos %@STRIPANSI[%ANSI_DOUBLE_UNDERLINE%%ANSI_COLOR_MAGENTA%Hello %ANSI_COLOR_GREEN%world!]
@@ -478,7 +484,7 @@ rem This is loaded in our environm.btm as well, so we must be careful not to lao
 set COLORS_HAVE_BEEN_SET=1
 :AlreadyDone
 
-if "%1" eq "test" (
+if "%1" == "test" (
 
     echo.
     echo %ANSI_TEST_STRING_4%

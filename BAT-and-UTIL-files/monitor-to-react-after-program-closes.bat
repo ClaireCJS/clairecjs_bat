@@ -1,3 +1,5 @@
+@Echo OFF
+
 :::: USAGE:  monitor-to-react-after-program-closes videolan.vlc "call unpause"
 ::::         ...would run the command "call unpause" once the process VLCPlayer is no longer running
 :::: Do everything related to making this window invisible first:
@@ -12,7 +14,7 @@
 	if "%REACTION%" eq "" (gosub :NoArg 2  "how to react"    %+ goto :END)
 
 :::: See if the process is running:
-    title * Waiting for: %WAIT_FOR% to close before running: %@UNQUOTE[%REACTION%]
+    title Waiting for: %WAIT_FOR% to close before running: %@UNQUOTE[%REACTION%]
     :TryAgain
 	call IsRunning %WAIT_FOR%
 
@@ -32,12 +34,11 @@
         goto :END
             ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                 :NoArg [arg explanation]
-                    %COLOR_ALARM%  %+ echos * FATAL ERROR: Argument %arg% (%@UNQUOTE[%explanation%]) is missing.
-                    %COLOR_NORMAL% %+ echo. %+ call white-noise 1
+                    call FATAL_ERROR "Argument '%arg%' (%@UNQUOTE[%explanation%]) is missing."
                 return
             ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :END
 
 ::::: Exit if instructed:
-    %COLOR_DEBUG% %+ echo - hidden is %HIDDEN% %+ %COLOR_NORMAL%
+    call debug "hidden is '%HIDDEN%'"
     if "%HIDDEN%" eq "1" (exit)

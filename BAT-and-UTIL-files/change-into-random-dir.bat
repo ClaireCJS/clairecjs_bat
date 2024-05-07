@@ -1,8 +1,8 @@
 @Echo off
 
 call fixtmp>nul
-
 call set-tmpfile
+
 set RANDIR_SCRIPT_TO_RUN=%[tmpfile].bat
 
 dir /ba:d >:u8 dir.txt

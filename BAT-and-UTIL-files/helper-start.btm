@@ -1,0 +1,53 @@
+@Echo on
+
+
+if "%OS%" eq "95" goto %OS%
+if "%OS%" eq "98" goto %OS%
+if "%OS%" eq "me" goto %OS%
+
+::::: DEFAULT OS:
+    goto :Default
+
+
+
+:95
+:98
+:ME
+    *start c:\4dos\4dos.com c:\4dos %&
+goto :END
+
+
+
+:Default
+:NT
+:2K
+:XP
+:7
+:10
+    set LAUNCHER="%ComSpec%"
+    if "%MAXIMIZE"  == "1" set MAX=/max
+    if "%MINIMIZE"  == "1" set MIN=/min
+    if "%INVISIBLE" == "1" set INV=/inv
+    if "%TITLE"     != ""  set TIT=%TITLE
+    if "%TITLE"     == ""  set TIT=%@NAME["%&"]
+    if "%POS%"     eq ""  .and. "%BIG%" ne "1" set POS=/POS=-1000,-1000,0,0
+    
+    
+    :20150716 - noticed /c side-effects a maximize that is very annoying
+    :20150811 - added POS with defualt value to launch on left screen on Thailog, will see if it impacts other computers
+    :old  *start %POS% "%TIT%" %MAX% %MIN%       %LAUNCHER% %* 
+    %color_debug%
+     echo *start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
+    %color_run%
+          *start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
+
+
+:END
+    unset /q TIT
+    unset /q TITLE
+    unset /q MAXIMIZE
+    unset /q MINIMIZE
+    unset /q MAX
+    unset /q MIN
+    unset /q INV
+    %COLOR_NORMAL%

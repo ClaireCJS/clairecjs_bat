@@ -1,8 +1,7 @@
 @echo off
 
-:%COLOR_LOGGING%
-:color %@RANDOM[0,15] on %@RANDOM[0,15]
-call randcolor
+ call randcolor
+
 :TOO SLOW: call validate-environment-variable UTIL
 :TOO SLOW: if not exist c:\cygwin\bin\wget.exe (goto :nocygwin)
 

@@ -7,7 +7,7 @@ rem *** CONFIGURATION: ***
 
     rem Location of git.ee:
         set GIT=c:\UTIL2\git\bin\git.exe
-
+        set GIT_PYTHON_GIT_EXECUTABLE=%GIT%
 
 rem *** GET USAGE: ***
     rem git init
@@ -28,6 +28,8 @@ rem SETUP: Parameters and variables
     set ARGS=%*
     set ARGV1=%1
     set HOMEDRIVE=C:
+    set TERM_TEMP=%TERM%
+    set TERM=msys
 
 
 rem BRANCHING: Anaconda needs to skip the more advanced command-line stuff, and pray
@@ -47,11 +49,14 @@ rem ADVICE: Give it when appropriate
 
 
 rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filter out annoying warnings messages, check for errors
-    %COLOR_RUN%         
-    :Anaconda
-    set TERM_TEMP=%TERM%
-    set TERM=msys
 
+    :Anaconda
+        %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% 
+    goto :END
+    
+
+    :TCC    
+        %COLOR_RUN%         
         set GIT_OUT=git.%_PID.out
         REM %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
         color bright blue on black
@@ -72,7 +77,12 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         %COLOR_REMOVAL%
         if exist %GIT_OUT% (*del /q /r %GIT_OUT%>nul)
         call errorlevel "a git error!?! how can this be?!?! Command line was: %0 %*"
+    goto :END
 
+
+
+:Done_With_Git
+:END
     set TERM=%TERM_TEMP%
 
 
