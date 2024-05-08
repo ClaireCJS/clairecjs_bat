@@ -22,9 +22,9 @@ pushd
         if "%SYNCTRIGER%" eq "" goto :NoSyncTriger
 
     ::::: VALIDATE INVOCATION ACCURATE:
-        if not isdir  %SYNCSOURCE% (call FATAL_ERROR "SYNCTARGET of '%syncsource%' must exist!" %+ goto :END) 
-        if not isdir  %SYNCTARGET% (call FATAL_ERROR "SYNCTARGET of '%synctarget%' must exist!" %+ goto :END) 
-        if not defined SYNCTRIGER  (call FATAL_ERROR "SYNCTRIGER must be defined!"              %+ goto :END) 
+        if not isdir  %SYNCSOURCE% (call FATAL_ERROR "SYNCTARGET of '%italics_on%%syncsource%%italics_off%' must exist!" %+ goto :END) 
+        if not isdir  %SYNCTARGET% (call FATAL_ERROR "SYNCTARGET of '%italics_on%%synctarget%%italics_off%' must exist!" %+ goto :END) 
+        if not defined SYNCTRIGER  (call FATAL_ERROR "SYNCTRIGER (yes spelled that way) must be defined!"                %+ goto :END) 
         call validate-environment-variables SYNCSOURCE SYNCTARGET 
 
 :CaptureParameters
@@ -106,12 +106,16 @@ pushd
     %COLOR_NORMAL%    %+ echo.
 
 :Do_It
-    REM actually do the copy here!
-    %COLOR_RUN%      %+ echo rayrayray | %REDOCOMMAND% | copy-move-post.py
-    %COLOR_WARNING%  %+ if exist "%ZIPFULLNAMEBUG%" mv "%ZIPFULLNAMEBUG%" "%ZIPFULLNAME%"
-    %COLOR_SUCCESS%  %+	title Sync done.
+    %COLOR_RUN%
+    REM actually do the copy here! fast_cat is the fastest version of cat.exe {after testing}, which is used to fix ANSI rendering problems
+    rem RIGHT WAY BUT ARGH: echo rayrayray |:u8 %REDOCOMMAND% |:u8 copy-move-post
+    rem WRONG WAY BUT WORKS:
+    rem echo rayrayray |:u8 *copy /e /w /u /s /r /a: /h /z /k /g /Nt "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]" |:u8 copy-move-post
+    (echo rayrayray | *copy /e /w /u /s /r /a: /h /z /k /g /Nt "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]") |:u8 copy-move-post
+    if exist "%ZIPFULLNAMEBUG%" (%COLOR_WARNING% %+ mv "%ZIPFULLNAMEBUG%" "%ZIPFULLNAME%")
     set LASTCOMMAND=%REDOCOMMAND%
-
+    title Sync done.
+    %COLOR_SUCCESS%  
 
 :FlagLastSync
     if "%@UPPER[%SYNCTRIGER%]" eq "NONE" goto :NoFlag
@@ -160,7 +164,7 @@ call display-free-space %SYNCTARGET%
 rem set DISKFREE=%@COMMA[%@EVAL[%@DISKFREE[%SYNCTARGET%]/1024/1024/1024]]
 rem call important "Free space now %DISKFREE%"
 
-if %@DISKFREE[%SYNCTARGET%] lt 150000000 (set NEWLINE_REPLACEMENT=0 %+ repeat 3 (beep 60 25 %+ beep 800 3) %+ call WARNING "Not much free space left on %SYNCTARGET%!" %+ pause 3000 )
+if %@DISKFREE[%SYNCTARGET%] lt 150000000 (set NEWLINE_REPLACEMENT=0 %+ repeat 3 (beep 60 25 %+ beep 800 3) %+ call WARNING "Not much free space left on %SYNCTARGET%!" %+ call pause-for-x-seconds 3000 )
 
 unset /q ZIP
 %COLOR_NORMAL%

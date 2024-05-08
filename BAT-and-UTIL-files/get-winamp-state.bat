@@ -2,21 +2,22 @@
 
 
 :DESCRIPTION: Gets the current state of the music, and sets MUSICSTATE to one of the following values:
-:                     PAUSED
-:                     STOPPED
-:                     PLAYING
+:DESCRIPTION:         PAUSED
+:DESCRIPTION:         STOPPED
+:DESCRIPTION:         PLAYING
 :                     
 :USAGE: get-winamp-state [silent]
 :                     
-:REQUIREMENT: 1) WinAmp with the WAWI plugin installed       
-:REQUIREMENT: 2) MUSICSERVER environment variable set to music server (including port) for example "68.167.161.182:666"
-:REQUIREMENT: 3) OLD REQUIREMENT: Perl with LWP::Simple (to run winamp-status.pl) [BUT THIS BROKE IN 2016; NOW USING WGET)
+:REQUIRES: 1) WinAmp with the WAWI plugin installed       
+:REQUIRES: 2) MUSICSERVERSTATUSURL MUSICSERVERMACHINENAME MACHINENAME environments variable set to music server (including port) for example "68.167.161.182:666"
+:REQUIRES: 3) OLD REQUIREMENT: Perl with LWP::Simple (to run winamp-status.pl) [BUT THIS BROKE IN 2016; NOW USING WGET)
                      
                      
 
 ::::: VALIDATE ENVIRONMENT:
     if "%VALIDATED_GET_WINAMP_STATE%" eq "1" goto :EnvironmentAlreadyValidated
         call validate-environment-variables MUSICSERVERSTATUSURL MUSICSERVERMACHINENAME MACHINENAME
+        call validate-in-path               winamp-status-from-file.pl warning isRunning wget.exe
         set VALIDATED_GET_WINAMP_STATE=1
     :EnvironmentAlreadyValidated
 
@@ -63,7 +64,8 @@
                     setdos /x0
                 goto :normal_done
                 :normal
-                    set MUSICSTATE=%@EXECSTR[winamp-status-from-file.pl <%WGET_RETURN_FILE%]
+                    if     exist %WGET_RETURN_FILE (set MUSICSTATE=UNKNOWN)
+                    if not exist %WGET_RETURN_FILE (set MUSICSTATE=%@EXECSTR[winamp-status-from-file.pl <%WGET_RETURN_FILE%])
                 :normal_done
 
     :IsNotRunning

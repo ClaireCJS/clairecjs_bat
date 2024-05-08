@@ -1,8 +1,9 @@
 @echo off
 
 rem Validate the parameters
-        set              SECONDS=%1
-        call val-env-var SECONDS "Must provide number of seconds to pause when invoking %0 ... And optional 2nd parameter of your pause message"
+        set                       SECONDS=%1
+        call validate-env-var     SECONDS     "Must provide number of seconds to pause when invoking %0 ... And optional 2nd parameter of your pause message"
+        call validate-is-number  %SECONDS%
 
 rem Set up the pause text
         set                PAUSE_MESSAGE=Press any key when ready...

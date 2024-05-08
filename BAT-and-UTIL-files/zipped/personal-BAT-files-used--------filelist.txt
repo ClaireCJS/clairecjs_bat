@@ -53,9 +53,13 @@
 2023-10-06  08:04             23   -8%  autoprocess.bat
 2023-07-03  18:02          1,603   58%  average.py
 2023-06-07  19:48             18  -11%  avg.bat
+2024-05-08  14:41          1,886   67%  backup-game-saves.bat
 2024-05-07  14:44          7,195   70%  backup-important-files.bat
 2024-03-27  17:31          8,073   77%  backup-repositories.bat
 2024-03-19  10:35          2,009   58%  backup-repository.bat
+2024-05-08  13:27            698   47%  backup-rocksmith.bat
+2024-05-08  14:42            961   50%  backup-Rogue_Legacy_2.bat
+2024-05-08  13:52             28   -7%  backup-save-games.bat
 2019-10-01  10:27          1,744   57%  backup-thing.bat
 2019-10-01  10:27            283   43%  backup-to-bdrs.bat
 2019-10-01  10:27            254   39%  backup-to-CDs.bat
@@ -203,7 +207,7 @@
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-05-08  01:52        174,348   81%  environm.btm
+2024-05-08  13:34        176,586   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -262,7 +266,7 @@
 2019-10-01  10:28          8,414   64%  get-current-song-playing.pl
 2023-05-31  03:52            399   47%  get-currently-playing-tracknum-from-wawi-index_html.pl
 2023-07-04  20:09            549   59%  get-image-dimensions.bat
-2024-04-14  03:43          4,144   63%  get-winamp-state.bat
+2024-05-08  04:59          4,389   64%  get-winamp-state.bat
 2023-04-26  23:53            809   54%  get_lyrics_from_audio_file_via_whisperAI.py
 2023-06-02  19:02            623   53%  git-add-every-damn-file.bat
 2024-03-15  10:52            797   49%  git-add.bat
@@ -397,7 +401,7 @@
 2022-07-03  20:15          2,365   72%  opera.bat
 2024-03-28  02:16             23   -8%  paus.btm
 2024-03-24  18:42          1,124   53%  pause-alias.bat
-2024-03-18  14:57            582   44%  pause-for-x-seconds.bat
+2024-05-08  13:30            648   48%  pause-for-x-seconds.bat
 2019-10-01  10:28            127    9%  pause-wrapper.bat
 2024-05-07  13:56             23   -8%  pause.btm
 2023-06-04  01:41          1,020   48%  pd.bat
@@ -556,7 +560,7 @@
 2023-06-01  05:17            294   42%  success.bat
 2024-05-07  14:10          7,911   73%  switch-winamp-to-playlist.bat
 2023-11-23  13:46             11  -18%  symlink.bat
-2024-04-05  14:29          6,780   70%  sync-a-folder-to-somewhere.bat
+2024-05-08  14:39          7,439   69%  sync-a-folder-to-somewhere.bat
 2023-06-20  03:45         13,942   69%  sync-filelist-helper.pl
 2023-10-06  06:57          2,602   70%  sync-filelist.bat
 2024-04-05  14:33             42   -4%  sync-perl-libraries-to-dropbox.bat
@@ -595,6 +599,7 @@
 2019-10-01  10:28            232   26%  urldecode.pl
 2019-10-01  10:28            326   33%  urlencode.pl
 2019-10-01  10:28            335   40%  usb-remove-safely.bat
+2023-06-04  11:17             40   -5%  val-env-var.bat
 2024-03-18  09:00            216   28%  validate-ahk.bat
 2024-04-10  15:12            714   51%  validate-all-perl-files.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
