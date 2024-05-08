@@ -351,7 +351,7 @@ return
             set     HD2T1_DOWN=0 %+ set HD2T1=F          %+ set F=HD2T1        %+  set MAPPING_F=WYVERN2T1
             set HD18000G2_DOWN=0 %+ set HD18000G2=A      %+ SET A=HD18000G2    %+  SET MAPPING_A=WYVERN18T2       %+  SET HD18T2=A %+ set ARCHIVEDRIVE=A 
             set HD20000G2_DOWN=0 %+ set HD20000G2=W      %+ SET W=HD20000G2    %+  SET MAPPING_W=WYVERN20T2       %+  SET HD20T2=W 
-            set  DRIVES_WYVERN=F A W
+            set  DRIVES_WYVERN=F  A W
             set DRIVE_C_WYVERN=F
             set DRIVE_C_WYVERN_VAR=%F%
             rem MAPPING_WYVERN_USR=carol   [202311-20240403]
