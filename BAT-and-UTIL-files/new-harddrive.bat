@@ -77,7 +77,7 @@ rem STUFF WE CAN ONLY DO IF THE DRIVE IS ACTUALLY READY RIGHT NOW:
                 pause
                 start \\%MACHINENAME%
                 echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ 
-                    pause
+                pause
         :Ready_DONE
 
 
@@ -90,3 +90,6 @@ goto :END
         return
         ::::::::::::::::::::::::::::::
 :END
+
+call celebration "New harddrive woo!"
+

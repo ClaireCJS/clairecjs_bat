@@ -64,7 +64,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         color blue on black
         echo.
         set TEECOLOR=%COLOR_UNIMPORTANT%
-        %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% | cat_fast
+        %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% |:u8 cat_fast
         echo.
         color bright blue on black
         echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
@@ -72,7 +72,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
 
         rem piping to cat_fast fixes TCC+WT ansi rendering errors
         %COLOR_RUN%
-        cat %GIT_OUT% | grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename' | cat_fast
+        if exist %GIT_OUT% (cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename' |:u8 cat_fast)
 
         %COLOR_REMOVAL%
         if exist %GIT_OUT% (*del /q /r %GIT_OUT%>nul)

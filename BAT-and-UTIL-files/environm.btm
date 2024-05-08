@@ -350,8 +350,7 @@ return
 			rem HD4000G2_DOWN=0  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=WYVERN4000G2     %+  SET HD4G2=E   ... this didn't work out.. the dang'ed drive was dead——Carolyn put mounting tape on the prongs
             set     HD2T1_DOWN=0 %+ set HD2T1=F          %+ set F=HD2T1        %+  set MAPPING_F=WYVERN2T1
             set HD18000G2_DOWN=0 %+ set HD18000G2=A      %+ SET A=HD18000G2    %+  SET MAPPING_A=WYVERN18T2       %+  SET HD18T2=A %+ set ARCHIVEDRIVE=A 
-            set HD20000G2_DOWN=0 %+ set HD20000G2=W      %+ SET W=HD20000G2    %+  SET MAPPING_W=WYVERN20T1       %+  SET HD20T2=W 
-            rem todo have Carolyn change to -----------------------------------------------------WYVERN20T2 
+            set HD20000G2_DOWN=0 %+ set HD20000G2=W      %+ SET W=HD20000G2    %+  SET MAPPING_W=WYVERN20T2       %+  SET HD20T2=W 
             set  DRIVES_WYVERN=F A W
             set DRIVE_C_WYVERN=F
             set DRIVE_C_WYVERN_VAR=%F%
@@ -1308,18 +1307,19 @@ return
                 set               COMEDY_BACKUP_DRIVE=%HD4000G5%
                 set               COMEDY_BACKUP=%COMEDY_BACKUP_DRIVE%:\BACKUPS\comedy.bak
 
-                :et               COMICSDRIVE=%HD4000G3%
+                rem               COMICSDRIVE=%HD4000G3%
                 set               COMICSDRIVE=%HD18T3%
                 set                    COMICS=%COMICSDRIVE%:\MEDIA\comics
                 set                    COMICS_BACKUP_DRIVE=%HD20T1%
                 set                    COMICS_BACKUP=%COMICS_BACKUP_DRIVE%:\BACKUPS\comics.bak
-                :et            EMULATIONDRIVE=%HD1500G%
-                :et            EMULATIONDRIVE=%HD4000G7%
-                :et            EMULATIONDRIVE=%HD6000G3% ------ CRASHED IN 2020 OR 2021, HAD TO RE-CREATE FROM OLD BACKUP IN 2022
+                rem            EMULATIONDRIVE=%HD1500G%
+                rem            EMULATIONDRIVE=%HD4000G7%
+                rem            EMULATIONDRIVE=%HD6000G3% ------ CRASHED IN 2020 OR 2021, HAD TO RE-CREATE FROM OLD BACKUP IN 2022
                 set            EMULATIONDRIVE=%HD4000G7% 
                 set                 EMULATION=%EMULATIONDRIVE%:\MEDIA\EMULATION
-                :et      EMULATIONBACKUPDRIVE=%HD4000G1% - moved on 20230828 after HD6000G3 revived
-                set      EMULATIONBACKUPDRIVE=%HD6000G3% 
+                rem      EMULATIONBACKUPDRIVE=%HD4000G1% - moved away from this on 20230828 after HD6000G3 revived
+                set      EMULATIONBACKUPDRIVE=%HD6000G3% - moved away from this on 20240508 after HD6000G3 became too full post-modded-xbox360
+                set      EMULATIONBACKUPDRIVE=%HD20T2% 
                 set           EMULATIONBACKUP=%EMULATIONBACKUPDRIVE%:\BACKUPS\emulation.bak
                 set             EYECANDYDRIVE_PRECRASH1=%HD2000G3%
                 set                  EYECANDY_PRECRASH1=%EYECANDYDRIVE_PRECRASH%:\MEDIA\EYE CANDY
@@ -2476,7 +2476,9 @@ return
 
 
     :Load_TCC_Plugins
-        call load-TCC-plugins
+        set           plugin_loader=c:\bat\load-TCC-plugins.bat
+        if not exist %plugin_loader% (call error "plugin loader '%italics_on%%plugin_loader%%italics_off%' does not exist")
+        call         %plugin_loader%
     return
 
 

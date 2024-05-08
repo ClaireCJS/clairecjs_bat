@@ -85,7 +85,7 @@
 2023-04-28  21:33             16  -12%  check-for-applications-and-programs-that-can-be-upgraded.bat
 2024-04-07  20:15            189   18%  check-for-invalid-audio-files.bat
 2024-04-05  15:49            705   64%  check-if-asking-for-usage.bat
-2024-03-18  13:29         11,473   81%  checkmappings.bat
+2024-05-08  16:55         11,411   80%  checkmappings.bat
 2023-10-14  02:51            452   52%  checktemp.bat
 2024-04-10  12:34            487   51%  checkusername.bat
 2023-10-06  09:42             44   -2%  chown.bat
@@ -248,7 +248,7 @@
 2023-10-14  01:43            481   46%  flac2wav.bat
 2019-10-01  10:28             56   13%  flv2avi.bat
 2023-07-06  10:22             59   -1%  fml.bat
-2024-03-20  23:46          8,597   73%  FR.bat
+2024-05-08  16:41          8,632   73%  FR.bat
 2024-03-18  11:22          8,477   69%  frpost-helper.pl
 2024-02-21  02:01            117    9%  frpost.bat
 2019-10-01  10:28             71   -2%  ftphome.bat
@@ -292,7 +292,7 @@
 2021-08-26  00:21             41    0%  git-suppress-CRLF-warning.bat
 2021-07-30  11:29            180   27%  git-timecapsule.bat
 2019-10-01  10:28             39    0%  git-win.bat
-2024-05-06  17:43          5,096   60%  git.bat
+2024-05-08  14:51          5,129   60%  git.bat
 2023-06-09  01:10          3,540   62%  go-to-next-directory-generator.pl
 2019-10-01  10:28            107   13%  google.bat
 2019-10-01  10:28            451   48%  grab-helper.pl
@@ -387,7 +387,7 @@
 2024-04-02  18:25          3,622   75%  nd.bat
 2024-04-10  15:14          1,850   53%  new-computer.bat
 2024-03-15  00:03             45   29%  new-computer.ps1
-2024-04-10  15:24          3,985   60%  new-harddrive.bat
+2024-05-08  17:02          4,026   59%  new-harddrive.bat
 2024-05-07  14:13             20  -10%  next.bat
 2024-03-18  11:28             13  -15%  nextdir.bat
 2023-09-15  03:32             55   -1%  nocar.bat
