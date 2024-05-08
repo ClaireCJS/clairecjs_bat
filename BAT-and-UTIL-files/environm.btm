@@ -2464,25 +2464,9 @@ return
 
 
 
-    :Load_TCC_Plugins   
-        set PLUGIN_TCC_BASE=%BAT%
-
-        rem These are also loaded via the same code in set-colors.bat, so we must be careful not to double-load:
-
-        if not defined PLUGIN_4WT_LOADED (set PLUGIN_4WT_LOADED=0)
-        set PLUGIN_4WT=%PLUGIN_TCC_BASE%\4wt.dll
-        if exist %PLUGIN_4WT% .and. %PLUGIN_4WT_LOADED% ne 1 (
-            set PLUGIN_4WT_LOADED=1
-            plugin /l %PLUGIN_4WT% >&>nul
-        )
-   
-        if not defined PLUGIN_STRIPANSI_LOADED (set PLUGIN_STRIPANSI_LOADED=0)
-        set PLUGIN_STRIPANSI=%PLUGIN_TCC_BASE%\StripAnsi.dll
-        if exist %PLUGIN_STRIPANSI% .and. %PLUGIN_STRIPANSI_LOADED% ne 1 (
-            set PLUGIN_STRIPANSI_LOADED=1
-            plugin /l %PLUGIN_STRIPANSI% >nul
-        )
-return
+    :Load_TCC_Plugins
+        call load-TCC-plugins
+    return
 
 
 

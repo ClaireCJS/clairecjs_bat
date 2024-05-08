@@ -450,23 +450,8 @@ rem colors for GREP:
 
 
 rem Function to strip ansi from strings —— regex to strip ansi is '(\x9B|\x1B\[)[0-?] *[ -\/]*[@-~]' 
-rem This is loaded in our environm.btm as well, so we must be careful not to laod it twice:
-        if not defined  PLUGIN_STRIPANSI_LOADED (set PLUGIN_STRIPANSI_LOADED=0)
-                                                    set DO=0
-        if not "1" ==  "%PLUGIN_STRIPANSI_LOADED%" (set DO=1)
-        if     "1" == "%DO%" (goto :SkipPluginCheck)
-        if not         ISPLUGIN @STRIPANSI         (set DO=1)
-        :SkipPluginCheck
-
-        if     "1" == "%DO%" (
-            if not defined PLUGIN_TCC_BASE (set PLUGIN_TCC_BASE=%BAT%)
-            set PLUGIN_STRIPANSI=%PLUGIN_TCC_BASE%\StripAnsi.dll
-            if exist %PLUGIN_STRIPANSI% (
-                set PLUGIN_STRIPANSI_LOADED=1
-                plugin /l %PLUGIN_STRIPANSI% >nul
-            )
-        )
-
+rem This is loaded in our environm.btm as well, but we like to double-check when running set-colors:
+    call load-TCC-plugins 
     :StripAnsiTest
         if "%1" == "stripansitest" (
             echo.

@@ -135,7 +135,8 @@ REM Behavior overides and message decorators depending on the type of message?
 
 
 REM We're going to update the window title to the message. If possible, strip any ANSI color codes from it:
-    if "1"  ne  "%PLUGIN_STRIPANSI_LOADED" (goto :No_Title_Stripping)
+    rem this became unreliable: if not "1"== "%PLUGIN_STRIPANSI_LOADED" (goto :No_Title_Stripping)
+    if not plugin stripansi (goto :No_Title_Stripping)
         set CLEAN_MESSAGE=%@STRIPANSI[%ORIGINAL_MESSAGE]
         goto :Set_Title_Var_Now
     :No_Title_Stripping
