@@ -1638,7 +1638,8 @@ return
                     rem 2024 are these being used anymore? dont' think so: SET OLD_PREBURN_DVD=%OLD_PREBURN_DVDDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED
                     SET rem 2024 are these being used anymore? dont' think so: OLD_PREBURN_DVD_CATALOG=%OLD_PREBURN_DVD%\ADD-TO-OFFLINETXT.txt
                     rem PREBURN_DVDDRIVE=%HD2000G5% %+ rem from 2015-2024
-                    SET PREBURN_DVDDRIVE=%HD18T2% %+ rem temporary until new harddrive comes
+                    rem PREBURN_DVDDRIVE=%HD18T2%   %+ rem from 2024-20240509 temporary 
+                    SET PREBURN_DVDDRIVE=%HD20T2% 
                     SET PREBURN_DVD=%PREBURN_DVDDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED-DVD    
                     rem this drive is nearing capacity (2024/04):
                     set PREBURN_DVD_BACKUPDRIVE=%HD4000G%
@@ -1844,14 +1845,12 @@ return
                 set REVIEWDIRBACKUPDRIVE=%HD18T2%
                 set REVIEWDIRBACKUP=%REVIEWDIRBACKUPDRIVE%:\BACKUPS\for-review.bak
 			:PostBurn_Rally_Point:
-				SET                     OLDREADYTODELETE1DRIVE=%HD250G%
-				SET OLD_READYTODELETE1=%OLDREADYTODELETE1DRIVE%:\MEDIA\ready-to-delete
-
 				SET READYTODELETE1DRIVE=%PREBURN_DVDDRIVE%
 				SET      READYTODELETE1=%PREBURN_DVD%\READY-TO-DELETE
                 
 				rem                 READYTODELETE2DRIVE=%HD2000G5%
-				SET                 READYTODELETE2DRIVE=%HD18T2%
+				rem                 READYTODELETE2DRIVE=%HD18T2% %+ rem temporarily until 20240509 when 20T2 brought oline
+				SET                 READYTODELETE2DRIVE=%HD20T2%
 				SET READYTODELETE2=%READYTODELETE2DRIVE%:\MEDIA\ready-to-delete
 				SET READYTODELETE2ROOTALIAS=%READYTODELETE2DRIVE%:\MEDIA\ready-to-delete
 			:PreWatch_Rally_Point

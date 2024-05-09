@@ -1,7 +1,7 @@
 @Echo OFF
 
 call advice "       USAGE:  Backup-Repository [REPO-VARNAME] [BACKUPLOCATION-VARNAME] [GIT]"
-call important "  INVOCATION:  Backup-Repository %1 %2 %3 %4 %5 %6 %7 %8 %9"
+call important "  INVOCATION:  Backup-Repository %@FORMAT[%@LEN[%[%1]],%1] %2 %3 %4 %5 %6 %7 %8 %9"
 call important "    EXPANDED:  Backup-Repository %[%1] %[%2] %[%3] %[%4] %[%5] %[%6] %[%7] %[%8] %[%9]"
 
 

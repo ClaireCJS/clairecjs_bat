@@ -99,8 +99,8 @@ pushd
         :NotZipping
 
 :Let_user_know_what_we_are_going_to_do
-    set NEWLINE_REPLACEMENT=0 %+ call important "%blink_on%Syncing:%blink_off% SOURCE = %SYNCSOURCE%"
-    set NEWLINE_REPLACEMENT=0 %+ call important "%blink_on%Syncing:%blink_off% TARGET = %SYNCTARGET% "
+    set NEWLINE_REPLACEMENT=0 %+ call important_less "%blink_on%Syncing:%blink_off% SOURCE = %SYNCSOURCE%"
+    set NEWLINE_REPLACEMENT=0 %+ call important_less "%blink_on%Syncing:%blink_off% TARGET = %SYNCTARGET% "
     if "%TARGETNAME%" ne "" (set NEWLINE_REPLACEMENT=0 %+ call important "   Name: %TARGETNAME%")
     set NEWLINE_REPLACEMENT=0 %+ call important_less "  Command: %REDOCOMMAND%"
     %COLOR_NORMAL%    %+ echo.
