@@ -49,7 +49,7 @@ rem Validate parameters:
 rem Get the free space and print it out
         set DISKFREE=%ansi_color_error%%blink%ERROR
         set DISKFREE=%@COMMA[%@FLOOR[%@EVAL[%@DISKFREE[%DISPLAY_FREE_SPACE_TARGET%]/1024/1024/1024]]]
-        call print-message %MESSAGE_TYPE% "Free space now %@RANDBG_SOFT[]%[DISKFREE]%deemphasis%%italics%%faint%G%italics_off%%faint_off%"
+        call print-message %MESSAGE_TYPE% "Free space now %@RANDBG_SOFT[]%[DISKFREE]%deemphasis%%italics%%blink_on%G%blink_off%%italics_off%"
 
 rem a Warning if space is low?
         if %@DISKFREE[%DISPLAY_FREE_SPACE_TARGET%] gt 150000000 (goto :Disk_Fine)

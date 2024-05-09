@@ -99,10 +99,10 @@ pushd
         :NotZipping
 
 :Let_user_know_what_we_are_going_to_do
-    set NEWLINE_REPLACEMENT=0 %+ call important_less "%blink_on%Syncing:%blink_off% SOURCE = %SYNCSOURCE%"
-    set NEWLINE_REPLACEMENT=0 %+ call important_less "%blink_on%Syncing:%blink_off% TARGET = %SYNCTARGET% "
-    if "%TARGETNAME%" ne "" (set NEWLINE_REPLACEMENT=0 %+ call important "   Name: %TARGETNAME%")
-    set NEWLINE_REPLACEMENT=0 %+ call important_less "  Command: %REDOCOMMAND%"
+                             set NEWLINE_REPLACEMENT=0 %+ call important_less "%blink_on%Syncing:%blink_off% SOURCE = %italics_on%%SYNCSOURCE%%italics_off%"
+                             set NEWLINE_REPLACEMENT=0 %+ call important_less "%blink_on%Syncing:%blink_off% TARGET = %italics_on%%SYNCTARGET%%italics_off%"
+    if "%TARGETNAME%" ne "" (set NEWLINE_REPLACEMENT=0 %+ call important_less "   Name: %italics_on%%TARGETNAME%%italics_off%")
+                             set NEWLINE_REPLACEMENT=0 %+ call important_less "Command: %italics_on%%REDOCOMMAND%%italics_off%"
     %COLOR_NORMAL%    %+ echo.
 
 :Do_It
@@ -168,3 +168,4 @@ if %@DISKFREE[%SYNCTARGET%] lt 150000000 (set NEWLINE_REPLACEMENT=0 %+ repeat 3 
 
 unset /q ZIP
 %COLOR_NORMAL%
+echo.

@@ -1,19 +1,29 @@
 @Echo OFF
 
-call advice "       USAGE:  Backup-Repository [REPO-VARNAME] [BACKUPLOCATION-VARNAME] [GIT]"
-call important "  INVOCATION:  Backup-Repository %@FORMAT[%@LEN[%[%1]],%1] %2 %3 %4 %5 %6 %7 %8 %9"
-call important "    EXPANDED:  Backup-Repository %[%1] %[%2] %[%3] %[%4] %[%5] %[%6] %[%7] %[%8] %[%9]"
+rem Capture and validate parameters:
+        set SOURCE=%1
+        set TARGET=%2
+        call validate-environment-variables SOURCE TARGET
+
+
+rem Make a pretty, *aligned* header:
+        set USAGE_TEXT_1=[Repository-VarName]
+        set USAGE_TEXT_2=[BackupLocation-VarName]
+
+                                                set FIELD1_LEN=%@LEN[%[%1]] 
+        if %@LEN[%1]            gt %FIELD1_LEN (set FIELD1_LEN=%@LEN[%1])
+        if %@LEN[%USAGE_TEXT_1] gt %FIELD1_LEN (set FIELD1_LEN=%@LEN[%USAGE_TEXT_1])
+
+                                                set FIELD2_LEN=%@LEN[%[%2]] 
+        if %@LEN[%2]            gt %FIELD2_LEN (set FIELD2_LEN=%@LEN[%2])
+        if %@LEN[%USAGE_TEXT_2] gt %FIELD2_LEN (set FIELD2_LEN=%@LEN[%USAGE_TEXT_2])
+
+        call advice  "             %underline_on%USAGE%underline_off%:%ANSI_COLOR_CYAN%  Backup-Repository  %zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz%%@FORMAT[%FIELD1_LEN,%USAGE_TEXT_1]  %zzzzzzzzzzzzzzzzzzzzzzzz%%@FORMAT[%FIELD2_LEN,%USAGE_TEXT_2]  ['GIT']"
+        call important       "%underline_on%INVOCATION%underline_off%:%ANSI_COLOR_CYAN%  Backup-Repository  %ANSI_COLOR_BRIGHT_GREEN%%italics_on%%@FORMAT[%FIELD1_LEN,%1]%zzzzzzzzz%  %ANSI_COLOR_BRIGHT_YELLOW%%@FORMAT[%FIELD2_LEN,%2]%italics_off% %ANSI_COLOR_GREEN%%@FORMAT[7,%[3] ] %[4] %[5] %[6] %[7] %[8] %[9]"
+        call important       "  %underline_on%EXPANDED%underline_off%:%ANSI_COLOR_CYAN%  Backup-Repository  %ANSI_COLOR_BRIGHT_GREEN%%zzzzzzzzzz%%@FORMAT[%FIELD1_LEN,%[%1]]%zzzzzz%  %ANSI_COLOR_BRIGHT_YELLOW%%@FORMAT[%FIELD2_LEN,%[%2]]%zzzzzzzz% %ANSI_COLOR_GREEN%%@FORMAT[7,%[%3] ] %[%4] %[%5] %[%6] %[%7] %[%8] %[%9]"
 
 
 
-:::: This *does* validate the source and target, but it does it within a subordinate script.
-
-
-
-set SOURCE=%1
-set TARGET=%2
-
-call validate-environment-variables SOURCE TARGET
 
 set   SYNCSOURCE=%[%SOURCE%]
 set   SYNCTARGET=%[%TARGET%]
@@ -54,4 +64,8 @@ goto :NoDebug
 
 if "%3" eq "exitafter" (exit)
 
+if %BACKING_UP_MULTIPLE_REPOSITORIES eq 1 (
+    call randFG
+    call divider
+)
 

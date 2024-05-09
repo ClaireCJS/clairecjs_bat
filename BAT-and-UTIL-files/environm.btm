@@ -1337,8 +1337,7 @@ return
                 set               ROOKIEDRIVE=%HD10T2%
                 set                    ROOKIE=%ROOKIEDRIVE%:\RSL\
                 rem          GAMESBACKUPDRIVE=%HD18T3%     
-                rem          GAMESBACKUPDRIVE=%HD6000G3% moved to HD20T2 on 2024/05/08 after modded Xbox360 increased repo to be too big for drive
-                set          GAMESBACKUPDRIVE=%HD20T2%
+                set          GAMESBACKUPDRIVE=%HD6000G3% 
                 set               GAMESBACKUP=%GAMESBACKUPDRIVE%:\BACKUPS\games.bak
                 set        GAMES_DEMONA_DRIVE=%HD18T3%
                 set              GAMES_DEMONA=%GAMES_DEMONA_DRIVE%:\GAMES.Demona

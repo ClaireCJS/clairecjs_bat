@@ -4,7 +4,7 @@
 ::::: PARAMETERS:
     unset /q BACKUPREPOSTARTER
     if "%1" eq "simultaneous" .or. "%1" eq "parallel" (set BACKUPREPOSTARTER=call startafter1secondpausewithexitafter %+ goto :Next_1)
-    if "%1" ne "" (goto %1)         %+ rem Quick way to pick up where we left off at a specific point
+    if "%1" ne "" (goto :%1)         %+ rem Quick way to pick up where we left off at a specific point
     :Next_1
     REM call print-if-debug "BackupRepoStarter is '%BACKUPREPOSTARTER%'"
 
@@ -24,6 +24,7 @@
 
 
 ::::: BACKUP ALL KNOWN REPOSITORIES:                                                                       %+ REM to backup BAK files, you will need to edit backup-repository.bat
+set BACKING_UP_MULTIPLE_REPOSITORIES=1
 %BACKUPREPOSTARTER% call backup-repository PROGRAMMING_SANDBOX       PROGRAMMING_SANDBOX_BACKUP
 %BACKUPREPOSTARTER% call backup-repository PYTHON_CLAIRE                   PYTHON_CLAIRE_BACKUP
 %BACKUPREPOSTARTER% call backup-repository PERL_CLAIRE                       PERL_CLAIRE_BACKUP
@@ -51,6 +52,7 @@
 %BACKUPREPOSTARTER% call backup-repository MP3VERSIONING                    MP3VERSIONINGBACKUP
 %BACKUPREPOSTARTER% call backup-repository MP3AUX                                  MP3AUXBACKUP
 %BACKUPREPOSTARTER% call backup-repository MP3AUX                                  MP3AUXBACKUP
+:games
 %BACKUPREPOSTARTER% call backup-repository GAMES_DEMONA                     GAMES_DEMONA_BACKUP            %+ REM added 2023/09/18
 %BACKUPREPOSTARTER% call backup-repository GAMES                                    GAMESBACKUP            %+ REM 2022/02/18 -  167G 
 :pictures
@@ -94,7 +96,7 @@
 :::::::::::::::::::: NOT SURE IF I WILL DO THIS ONES:
 :::::                 set                  ANIME=%ANIMEDRIVE%:\MEDIA\ANIME
 
-
+set BACKING_UP_MULTIPLE_REPOSITORIES=0
 timer
 
 call success
