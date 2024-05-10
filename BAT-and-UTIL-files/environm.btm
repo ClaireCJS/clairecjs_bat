@@ -1314,11 +1314,12 @@ return
                 set                    COMICS_BACKUP=%COMICS_BACKUP_DRIVE%:\BACKUPS\comics.bak
                 rem            EMULATIONDRIVE=%HD1500G%
                 rem            EMULATIONDRIVE=%HD4000G7%
-                rem            EMULATIONDRIVE=%HD6000G3% ------ CRASHED IN 2020 OR 2021, HAD TO RE-CREATE FROM OLD BACKUP IN 2022
-                set            EMULATIONDRIVE=%HD4000G7% 
+                rem            EMULATIONDRIVE=%HD6000G3% ————————————— CRASHED IN 2020 OR 2021, HAD TO RE-CREATE FROM OLD BACKUP IN 2022
+                rem            EMULATIONDRIVE=%HD4000G7% ————————————— 2022–2024/05/10 —— moved to HD18T3[T:] when repo grew too large for HD4T7
+                set            EMULATIONDRIVE=%HD18000G3% 
                 set                 EMULATION=%EMULATIONDRIVE%:\MEDIA\EMULATION
-                rem      EMULATIONBACKUPDRIVE=%HD4000G1% - moved away from this on 20230828 after HD6000G3 revived
-                set      EMULATIONBACKUPDRIVE=%HD6000G3% - moved away from this on 20240508 after HD6000G3 became too full post-modded-xbox360
+                rem      EMULATIONBACKUPDRIVE=%HD4000G1% ————————————— moved away from this on 20230828 after HD6T3 revived
+                rem      EMULATIONBACKUPDRIVE=%HD6000G3% ————————————— moved away from this on 20240508 after HD6T3 became too full with xbox360 stuff
                 set      EMULATIONBACKUPDRIVE=%HD20T2% 
                 set           EMULATIONBACKUP=%EMULATIONBACKUPDRIVE%:\BACKUPS\emulation.bak
                 set             EYECANDYDRIVE_PRECRASH1=%HD2000G3%
