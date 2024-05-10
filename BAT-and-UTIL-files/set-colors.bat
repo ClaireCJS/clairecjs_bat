@@ -451,7 +451,7 @@ rem colors for GREP:
 
 rem Function to strip ansi from strings —— regex to strip ansi is '(\x9B|\x1B\[)[0-?] *[ -\/]*[@-~]' 
 rem This is loaded in our environm.btm as well, but we like to double-check when running set-colors:
-    call load-TCC-plugins 
+    call c:\bat\load-TCC-plugins.bat
     :StripAnsiTest
         if "%1" == "stripansitest" (
             echo.

@@ -1,6 +1,6 @@
 @Echo OFF
  set PLUGIN_TCC_BASE=%BAT%
-
+ path=%path%;%PLUGIN_TCC_BASE%
 
         if not defined       PLUGIN_4WT_LOADED (set       PLUGIN_4WT_LOADED=0)
         if not defined PLUGIN_STRIPANSI_LOADED (set PLUGIN_STRIPANSI_LOADED=0)

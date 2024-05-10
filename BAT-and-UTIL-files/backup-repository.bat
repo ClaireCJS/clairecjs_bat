@@ -18,6 +18,7 @@ rem Make a pretty, *aligned* header:
         if %@LEN[%2]            gt %FIELD2_LEN (set FIELD2_LEN=%@LEN[%2])
         if %@LEN[%USAGE_TEXT_2] gt %FIELD2_LEN (set FIELD2_LEN=%@LEN[%USAGE_TEXT_2])
 
+        echo.
         call advice  "             %underline_on%USAGE%underline_off%:%ANSI_COLOR_CYAN%  Backup-Repository  %zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz%%@FORMAT[%FIELD1_LEN,%USAGE_TEXT_1]  %zzzzzzzzzzzzzzzzzzzzzzzz%%@FORMAT[%FIELD2_LEN,%USAGE_TEXT_2]  ['GIT']"
         call important       "%underline_on%INVOCATION%underline_off%:%ANSI_COLOR_CYAN%  Backup-Repository  %ANSI_COLOR_BRIGHT_GREEN%%italics_on%%@FORMAT[%FIELD1_LEN,%1]%zzzzzzzzz%  %ANSI_COLOR_BRIGHT_YELLOW%%@FORMAT[%FIELD2_LEN,%2]%italics_off% %ANSI_COLOR_GREEN%%@FORMAT[7,%[3] ] %[4] %[5] %[6] %[7] %[8] %[9]"
         call important       "  %underline_on%EXPANDED%underline_off%:%ANSI_COLOR_CYAN%  Backup-Repository  %ANSI_COLOR_BRIGHT_GREEN%%zzzzzzzzzz%%@FORMAT[%FIELD1_LEN,%[%1]]%zzzzzz%  %ANSI_COLOR_BRIGHT_YELLOW%%@FORMAT[%FIELD2_LEN,%[%2]]%zzzzzzzz% %ANSI_COLOR_GREEN%%@FORMAT[7,%[%3] ] %[%4] %[%5] %[%6] %[%7] %[%8] %[%9]"
@@ -31,16 +32,16 @@ set   SYNCTRIGER=__ last synced from master %SOURCE% collection __
 
 ::::: DECIDE IF WE WILL BACKUP .BAK FILES OR NOT
     set BACKUP_BAK_FILES=0
-    if  "%SOURCE" == "MP3AUX"  (set BACKUP_BAK_FILES=1) %+ REM Careful, this uses environment variable name not folder name, so MP3AUX not \mp3-aux\
+    if  "%SOURCE%" == "MP3AUX"  (set BACKUP_BAK_FILES=1) %+ REM Careful, this uses environment variable name not folder name, so MP3AUX not \mp3-aux\
     if %BACKUP_BAK_FILES% == 0 (set EXCLUSIONS=.git all.m3u these.m3u *.bak)
     if %BACKUP_BAK_FILES% == 1 (set EXCLUSIONS=.git all.m3u these.m3u      )
 
 
 goto :NoDebug
     %color_debug%
-    ECHO SYNCSOURCE=%SYNCSOURCE%
-    ECHO     TARGET=%SYNCTARGET%
-    ECHO    TRIGGER=%SYNCTRIGER%
+    echo SYNCSOURCE=%SYNCSOURCE%
+    echo     TARGET=%SYNCTARGET%
+    echo    TRIGGER=%SYNCTRIGER%
 :NoDebug
 
 ::::: GIT-COMMIT IF APPLICABLE:

@@ -64,5 +64,5 @@ if ($DEBUG) { print "echo * At this point, next folder should be=\"$folders[$ind
 $full_target =~ s/\\\\$/\\/;		#double backslash at end
 
 ##### OUTPUT to be redirected to a script which is then run:
-print "    \"$full_target\"\n";
-print "*cd \"$full_target\"\n";
+print "   \"$full_target\"\n";
+print "cd \"$full_target\"\n";

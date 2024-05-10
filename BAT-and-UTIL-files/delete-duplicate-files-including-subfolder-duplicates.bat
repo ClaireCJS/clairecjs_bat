@@ -3,7 +3,12 @@
 REM /SHA1 is slightly faster but potentially insecure
 REM /Nj  isn't working right dammit
 
-dedupe *.* /A: /D /P /R /S /V /SHA1  .
+               set FILES=*.*
+if "%1" ne "" (set FILES=%1)
+
+%color_warning_less%
+dedupe %FILES% /A: /D /P /R /S /V /SHA1  .
+%color_normal%
 
 REM     
 REM    Options:
