@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo Off
 
 rem *** CONFIGURATION: ***
 
@@ -6,7 +6,8 @@ rem *** CONFIGURATION: ***
         set DEBUG_GIT_COMMANDS=0
 
     rem Location of git.ee:
-        set GIT=c:\UTIL2\git\bin\git.exe
+        set GIT_EXE=c:\UTIL2\git\bin\git.exe
+        set GIT=%GET_EXE%
         set GIT_PYTHON_GIT_EXECUTABLE=%GIT%
 
 rem *** GET USAGE: ***
@@ -32,12 +33,8 @@ rem SETUP: Parameters and variables
     set TERM=msys
 
 
-rem BRANCHING: Anaconda needs to skip the more advanced command-line stuff, and pray
-    call get-command-line
-    goto :%OUR_COMMAND_LINE%
-    :TCC
-    call git-setvars
 
+    
 
 rem ADVICE: Give it when appropriate
     if "%ARGV1" eq "rm"   (call important_less "adding '--cached' to 'rm' so we don't delete the local file" %+ set ARGV1=rm --cached %+ set ARGS=%@REPLACE[rm,rm --cached,%ARGS]) %+ REM Yeahhh, rm removes the file locally, and we don't want that! --cached just removes it from the repo
@@ -45,34 +42,43 @@ rem ADVICE: Give it when appropriate
     rem"%ARGV1" eq "push" (call subtle "If a pop-up comes up for credentials, choose manager-core twice")
     if "%ARGV1" eq "push" (call advice "If a pop-up comes up for credentials, choose manager-core twice")
     echo.
-    if %DEBUG_GIT_COMMANDS eq 1 call subtle "%GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS%"
+    if %DEBUG_GIT_COMMANDS eq 1 call subtle "%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%"
+
 
 
 rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filter out annoying warnings messages, check for errors
 
-    :Anaconda
-        %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% 
-    goto :END
+    rem BRANCHING: Anaconda needs to skip the more advanced command-line stuff, and pray
+            call get-command-line
+            goto :%OUR_COMMAND_LINE%
+
+            :Anaconda
+                echo Anaconda
+                %GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% 
+            goto :END
     
 
     :TCC    
+        call git-setvars
         %COLOR_RUN%         
         set GIT_OUT=git.%_PID.out
-        REM %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
+        REM %GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
         color bright blue on black
         echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Un-filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
         color blue on black
         echo.
         set TEECOLOR=%COLOR_UNIMPORTANT%
-        %GIT% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% |:u8 cat_fast
+        %TEECOLOR%
+        %GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% |:u8 cat_fast
         echo.
         color bright blue on black
         echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
         echo.
 
-        rem piping to cat_fast fixes TCC+WT ansi rendering errors
-        %COLOR_RUN%
-        if exist %GIT_OUT% (cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename' |:u8 cat_fast)
+        rem %COLOR_RUN%
+        echos %@ANSI_RGB[0,225,0]
+        if not exist %GIT_OUT% (echo %ANSI_COLOR_ERROR% GIT output does not exist: %GIT_OUT% %+ pause)
+        if     exist %GIT_OUT% (cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename' |:u8 cat_fast) %+ rem piping to cat_fast fixes TCC+WT ansi rendering errors
 
         %COLOR_REMOVAL%
         if exist %GIT_OUT% (*del /q /r %GIT_OUT%>nul)
