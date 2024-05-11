@@ -1,7 +1,7 @@
 @Echo OFF
 
 if defined TEECOLOR (
-	      %TEECOLOR%
+          %TEECOLOR%
 	set    TEECOLOR=
 )
 
@@ -11,3 +11,4 @@ if defined TEEMESSAGE (
     echo  %TEEMESSAGE%
     set    TEEMESSAGE=
 )
+

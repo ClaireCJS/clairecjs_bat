@@ -71,7 +71,9 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         rem Output the unfiltered output while capturing it to a file via tee:
         set TEECOLOR=%COLOR_UNIMPORTANT%
         %TEECOLOR%
-        %GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% |:u8 cat_fast
+        if "%1" ne "status" (%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                           |& tee %GIT_OUT% |:u8 cat_fast)
+        if "%1" eq "status" (%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% | highlight "^ M.*$" | highlight "^A .*$" |& tee %GIT_OUT% |:u8 cat_fast)
+
         rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
         if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo None!)
         echo.
@@ -84,7 +86,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 color bright blue on black
                 echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
                 echo.
-                echos %@ANSI_RGB[0,225,0]
+                echos %@ANSI_RGB[0,205,0]
                 cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename' |:u8 cat_fast
                 rem piping to cat_fast fixes TCC+WT ansi rendering errors
         ) 
