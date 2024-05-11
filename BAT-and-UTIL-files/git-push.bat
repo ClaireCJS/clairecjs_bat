@@ -1,43 +1,59 @@
 @Echo OFF
-unset /q GP_PARAMS
-set GP_PARAMS=%*
-set BASENAME=%@NAME[%_CWD]
-if %VALIDATED_GITPUSH ne 1 (
-    call validate-in-path git.bat errorlevel advice important
-    call validate-environment-variables GITHUB_USERNAME BAT BASENAME 
-    set VALIDATED_GITPUSH=1
-)
 
-echo.
-echo.
-echo.
-echo.
-set spacer=
-if "%GP_PARAMS%" ne "" set spacer= ``
-call important "About to: 'git push origin main%spacer%%GP_PARAMS%' in %@NAME[%_CWP]"
-if %NO_PAUSE ne 1 pause
 
-set GIT_OUT=git.out
-echo.
-REM call unimportant "[Unfiltered GIT output followed by filtered GIT output]..."
-set TEECOLOR=%COLOR_UNIMPORTANT%
-REM old, but now git has it's own TEE to git.out internally: 
-REM      call git push origin main %GP_PARAMS% |& tee %GIT_OUT%
-REM new:
-call git push origin main %GP_PARAMS% 
-call errorlevel "Advice: for 'updates were rejected because the remote contains work that you do not have locally', you may need to 'git pull origin main' to merge and then try again" 
+rem Collect parameters:
+        unset /q GIT_PUSH_PARAMETERS
+        set      GIT_PUSH_PARAMETERS=%*
 
-echo.
-call validate-environment-variable GIT_OUT
-if "%@EXECSTR[grep Updates.were.rejected.because.the.remote.contains.work.that.you.do git.out]" ne "" (call warning "You probably need to do 'git pull origin main'")
 
-echo.
-REM moved below: call success "Git Push was successful!"
+rem Configuratoin:
+        set GIT_OUT=git.out
+        set BASENAME=%@NAME[%_CWD]
+        set MY_GITHUB_URL=https://github.com/%GITHUB_USERNAME%/%BASENAME%
 
-set URL=https://github.com/%GITHUB_USERNAME%/%BASENAME%
-call advice "Your GitHub URL is: %URL%"
-echo %URL>%BAT%\go-url.bat
-call advice "                    (type 'go-url' to go there)"
 
-echo.
-call celebration "%BLINK_ON%%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed%BLINK_OFF%"
+rem Validate environment:
+        if %VALIDATED_GITPUSH ne 1 (
+            call validate-in-path git.bat errorlevel advice important celebration
+            call validate-environment-variables GITHUB_USERNAME BAT BASENAME MY_GITHUB_URL GITHUB_USERNAME
+            set VALIDATED_GITPUSH=1
+        )
+
+
+
+
+rem Cosmetics:
+        echo.
+        echo.
+        echo.
+        echo.
+        set spacer=
+        if "%GIT_PUSH_PARAMETERS%" ne "" (set spacer= ``)
+
+
+rem Inform regarding what we're about to do:
+        call important "About to: 'git push origin main%spacer%%GIT_PUSH_PARAMETERS%' in %@NAME[%_CWP]"
+        rem I stopped wanting a pause *ALL* the time, ater awhile: if %NO_PAUSE ne 1 (pause)
+        echo.
+
+rem Run GIT, check for error status, and collect the output:
+        rem old: call unimportant "[Unfiltered GIT output followed by filtered GIT output]..."
+        REM old, but now git has it's own TEE to git.out internally: 
+            REM set TEECOLOR=%COLOR_UNIMPORTANT%
+            REM call git push origin main %GIT_PUSH_PARAMETERS% |& tee %GIT_OUT%
+                call git push origin main %GIT_PUSH_PARAMETERS% 
+                call errorlevel "Advice: for 'updates were rejected because the remote contains work that you do not have locally', you may need to 'git pull origin main' to merge and then try again" 
+        echo.
+        call validate-environment-variable GIT_OUT
+        if "%@EXECSTR[grep Updates.were.rejected.because.the.remote.contains.work.that.you.do git.out]" ne "" (call warning "You probably need to do 'git pull origin main'" %+ pause)
+        echo.
+
+rem Provide easy way to check that it happened online:
+        call advice "Your GitHub URL is: %MY_GITHUB_URL%"
+        echo %MY_GITHUB_URL>%BAT%\go-url.bat
+        call advice "                    (type 'go-url' to go there)"
+
+rem Be happy that we were successful!
+        echo.
+        call celebration "%BLINK_ON%%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed%BLINK_OFF%"
+
