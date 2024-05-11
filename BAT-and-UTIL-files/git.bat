@@ -61,27 +61,36 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
     :TCC    
         call git-setvars
         %COLOR_RUN%         
-        set GIT_OUT=git.%_PID.out
+        set GIT_OUT=git.%_PID.%_DATETIME.out
         REM %GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
+
         color bright blue on black
         echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Un-filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
         color blue on black
         echo.
+        rem Output the unfiltered output while capturing it to a file via tee:
         set TEECOLOR=%COLOR_UNIMPORTANT%
         %TEECOLOR%
         %GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& tee %GIT_OUT% |:u8 cat_fast
-        echo.
-        color bright blue on black
-        echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
+        rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
+        if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo None!)
         echo.
 
+
+
+        rem Output the filtered output from our captured file for a more meaningful/processed set of output...
         rem %COLOR_RUN%
-        echos %@ANSI_RGB[0,225,0]
-        if not exist %GIT_OUT% (echo %ANSI_COLOR_ERROR% GIT output does not exist: %GIT_OUT% %+ pause)
-        if     exist %GIT_OUT% (cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename' |:u8 cat_fast) %+ rem piping to cat_fast fixes TCC+WT ansi rendering errors
+        if     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (
+                color bright blue on black
+                echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
+                echo.
+                echos %@ANSI_RGB[0,225,0]
+                cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename' |:u8 cat_fast
+                rem piping to cat_fast fixes TCC+WT ansi rendering errors
+        ) 
 
         %COLOR_REMOVAL%
-        if exist %GIT_OUT% (*del /q /r %GIT_OUT%>nul)
+        rem TODO if exist %GIT_OUT% (del /q /r %GIT_OUT%>nul)
         call errorlevel "a git error!?! how can this be?!?! Command line was: %0 %*"
     goto :END
 
