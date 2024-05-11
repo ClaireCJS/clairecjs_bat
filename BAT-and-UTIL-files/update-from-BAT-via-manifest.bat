@@ -30,13 +30,17 @@ rem VALIDATION & SETUP:
         set   COPY=*copy /E /Ns /R /U
         set   COPY=*copy /E /Ns    /U
         set   COPY=*copy    /Ns    /U
+        set   COPY=*copy    /Ns /R /U
         set UPDATE=*copy /q /Ns    /U
         set DELETE=*del /z /q
+        rem Some stuff we only need to validate once per command-line sessoin:
         if %VALIDATED_UPDATEFROMBATVIAMANIFEST_ENV_ALREADY ne 1 (
-            call validate-environment-variables MANIFEST_FILES BAT SOURCE_DIR COPY
+            call validate-environment-variables BAT COPY
             call validate-in-path important_less success errorlevel
             set VALIDATED_UPDATEFROMBATVIAMANIFEST_ENV_ALREADY=1
         )
+        rem Some stuff we need to validate each and every run:
+        call validate-environment-variables MANIFEST_FILES SOURCE_DIR 
 
 rem TELL USER:
         echo.
@@ -50,18 +54,22 @@ rem TELL USER:
 
 rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
         if "%MANIFEST_FILES%" eq "NONE" (goto :Manifest_File_Update_Complete)
+                echo hello mcfly manifest files are %MANIFEST_FILES%
                 for %myFileFull in (%MANIFEST_FILES%) (
+                    ehco file=%myFileFull
+                    echos %@RANDFG[].
                     set myFile=%@UNQUOTE[%myFileFull]
                     if not exist %SOURCE_DIR%\%myFile% (call error "Uh oh! Project source file %myFile% doesn't seem to exist in %SOURCE_DIR%")
-                    if exist %myFile% (%COLOR_WARNING %+ attrib -r  %myFile% >nul)
-                    if exist %myFile% (%COLOR_REMOVAL %+ %DELETE% %myFile%)
-                    color bright black on black
+                    rem  Taking this out for a speedup:
+                        if exist %myFile% (%COLOR_WARNING %+ attrib -r  %myFile% >nul) %+ REM is this really necessary?
+                        if exist %myFile% (%COLOR_REMOVAL %+ %DELETE% %myFile%)
                     REM echo is this thing on
-                    %COLOR_SUBTLE%
-                    (%COPY% %SOURCE_DIR%\%myFile% . ) %+ REM this messed up the coloring even tho it was better alignment: | call insert-before-each-line "%ANSI_GRAY%    "
-                    call errorlevel
+                    REM %COLOR_SUBTLE%
                     color bright black on black
-                    if exist %myFile% attrib +r %myFile% >nul
+                    (%COPY% %SOURCE_DIR%\%myFile% . )            %+ REM this messed up the coloring even tho it was better alignment: | call insert-before-each-line "%ANSI_GRAY%    "
+                    rem speeding up by not doing this even though I kinda want to: call errorlevel
+                    rem speeding up by not doing this even though I kinda want to: color bright black on black
+                    if exist %myFile% (attrib +r %myFile% >nul) %+ REM prevent us from editing files in the wrong locatoin later
                 )
         :Manifest_File_Update_Complete
 
@@ -106,7 +114,7 @@ goto :END_OF_SUBROUTINES
                         REM copy each file
                                     for %file in (%OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4% %OUR_FILELIST_5% %OUR_FILELIST_6% %OUR_FILELIST_7% %OUR_FILELIST_8% %OUR_FILELIST_9% %OUR_FILELIST_10%) do (
                                         if not exist "%file%" (call error "'%file%' does not exist")
-                                        call print-if-debug "Doing file %file%"
+                                        rem call print-if-debug "Doing file %file%"
                                         set filetarget=%TARGET_DIR%\%file%
                                         REM delete first, if we want
                                                 REM if exist %filetarget% (
@@ -139,7 +147,7 @@ goto :END_OF_SUBROUTINES
                             REM suppress stdout, any output now would be stderr so color it as such
                                     echo.
                                     call important_less "Zipping associated %shared_type% files..."
-                                    call unimportant    "    zip command: %ZIP_COMMAND%"
+                                    rem call unimportant    "    zip command: %ZIP_COMMAND%"
                                     call unimportant    "            CWD: %_CWD%"
                                     REM choose your zip output strategy:
                                         REM %COLOR_ERRROR% %+ %ZIP_COMMAND% >nul

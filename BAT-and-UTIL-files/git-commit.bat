@@ -9,7 +9,8 @@ REM Initialize git
 REM Show modified/uncommitted files
     echo.
     call important "Here is the current status of our files:"
-    call git.bat status --short | highlight "^ M.*$" | highlight "^A .*$"
+    call git.bat status --short 
+    call errorlevel
     echo.
 
 
@@ -59,6 +60,7 @@ REM Remind that commit and push are not the same
     call warning "The files were not uploaded, though"
     call advice "%To do that: '%italics%push%italics_off%' (which which executes '%italics%git push origin main%italics_off%')"
     rem this interfered when using this as a subordinate bat: if %NOPAUSE ne 1 (keystack push)
+
 
 
 

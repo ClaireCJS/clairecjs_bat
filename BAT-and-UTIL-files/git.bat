@@ -71,8 +71,8 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         rem Output the unfiltered output while capturing it to a file via tee:
         set TEECOLOR=%COLOR_UNIMPORTANT%
         %TEECOLOR%
-        if "%1" ne "status" (%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                           |& tee %GIT_OUT% |:u8 cat_fast)
-        if "%1" eq "status" (%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% | highlight "^ M.*$" | highlight "^A .*$" |& tee %GIT_OUT% |:u8 cat_fast)
+        if "%1" ne "status" (%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                                       |& tee %GIT_OUT% |:u8 cat_fast)
+        if "%1" eq "status" (%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% | call highlight "^ *M.*$" | call highlight "^A *.*$" |& tee %GIT_OUT% |:u8 cat_fast)
 
         rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
         if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo None!)

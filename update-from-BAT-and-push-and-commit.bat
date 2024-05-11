@@ -33,6 +33,10 @@ rem Update BAT files from live location to github-folder location:
     *copy /u /q "c:\girder\claire's girder files\Demona.gml" BAT-and-UTIL-files\girder.gml
 
 
+rem Give a chance to stop here...
+    call askYN "Continue with git add + commit + push?" yes 15
+    if %DO_IT eq 0 (goto :Skip_TheRest)
+
 rem Make sure they're all added:
     call git add BAT-and-UTIL-files\*.bat BAT-and-UTIL-files\*.btm BAT-and-UTIL-files\*.pl BAT-and-UTIL-files\*.py BAT-and-UTIL-files\*.exe BAT-and-UTIL-files\*.lst BAT-and-UTIL-files\*.ahk BAT-and-UTIL-files\*.ini BAT-and-UTIL-files\*.zip BAT-and-UTIL-files\*.gml
 
@@ -42,7 +46,9 @@ rem Commit and Push:
     echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/BAT-and-UTIL-files  >go-to-individual-BAT-files-on-GitHub.bat
 
 
-unset /q SECONDARY_BAT_FILES
-unset /q SECONDARY_BAT_FILES_2
-unset /q SECONDARY_UTIL_FILES_2
+:Skip_TheRest
+    unset /q SECONDARY_BAT_FILES
+    unset /q SECONDARY_BAT_FILES_2
+    unset /q SECONDARY_UTIL_FILES_2
+
 
