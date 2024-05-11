@@ -113,6 +113,7 @@ goto :END_OF_SUBROUTINES
                                     call validate-environment-variable  TARGET_DIR
                         REM copy each file
                                     for %file in (%OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4% %OUR_FILELIST_5% %OUR_FILELIST_6% %OUR_FILELIST_7% %OUR_FILELIST_8% %OUR_FILELIST_9% %OUR_FILELIST_10%) do (
+                                        echos %@randfg[].
                                         if not exist "%file%" (call error "'%file%' does not exist")
                                         rem call print-if-debug "Doing file %file%"
                                         set filetarget=%TARGET_DIR%\%file%
@@ -148,7 +149,7 @@ goto :END_OF_SUBROUTINES
                                     echo.
                                     call important_less "Zipping associated %shared_type% files..."
                                     rem call unimportant    "    zip command: %ZIP_COMMAND%"
-                                    call unimportant    "            CWD: %_CWD%"
+                                    rem call unimportant    "            CWD: %_CWD%"
                                     REM choose your zip output strategy:
                                         REM %COLOR_ERRROR% %+ %ZIP_COMMAND% >nul
                                             %COLOR_SUCCESS %+ %ZIP_COMMAND% 

@@ -19,7 +19,7 @@ REM create our add command
 
 REM Let the user know, and do it
     call important      "➕Adding files➕"
-    call important_less "command: '%italics%%ADDCOMMAND%%italics_off%'"
+    call print-if-debug "command: '%italics%%ADDCOMMAND%%italics_off%'"
     %COLOR_RUN%
     %ADDCOMMAND%
 
