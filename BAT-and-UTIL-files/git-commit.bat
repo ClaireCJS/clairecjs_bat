@@ -32,6 +32,7 @@ REM Get reason to commit
             set REASON=%_dow %nicetime: %@unquote[%currently_playing_song]
     )
     if "%NOPAUSE%" ne "1" .and. "%1" ne "nopause" .and. %GIT_SKIP_COMMIT_REASON_EDIT ne 1 (
+        echo.
         call important "Enter your commit reason:"
         %COLOR_INPUT%
         call prompt-sound
