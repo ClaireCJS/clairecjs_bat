@@ -175,7 +175,7 @@ sub colorprint($) {
 	#print "Value is $value\n";
 
 	my $blink = 0;
-	if ($value < 70) {
+	if ($value < 75) {
 		# Green to yellow-like green gradient
 		$r = int($value / 60 * 255); # Increasing red component for the yellow-green transition
 		$g = 255;
@@ -186,7 +186,7 @@ sub colorprint($) {
 			$g = int($g*$factor);
 			$blink = 0;
 		}
-	} elsif ($value < 80) {
+	} elsif ($value < 82) {
 		# Yellow to orange-like yellow gradient
 		$r = 255;
 		$g = int(255 - (($value - 60) / 20 * 90)); # Decreasing green component for the yellow-orange transition
@@ -195,20 +195,20 @@ sub colorprint($) {
 		$r = int($r*$factor); if ($r > 255) { $r=255; }
 		$g = int($g*$factor); if ($g > 255) { $g=255; }
 		$blink = 0;
-	} elsif ($value < 90) {
+	} elsif ($value < 89) {
 		# Orange to red gradient
 		$r = 255;
 		$g = int(165 - (($value - 80) / 10 * 96)); # Further decreasing green component for the orange-red transition
 		$b = 0;
 		$blink = 0;
-	} elsif ($value < 98) {
+	} elsif ($value < 96) {
 		# Red
 		$r = 255;
 		$g = int(69 - (($value - 90) / 8 * 69)); # Reducing green to 0 for bright red
 		$b = 0;
 		$blink = 0;
-	} else {
-		# Bright red with blinking for >= 98%
+	} else { ()
+		# Bright red with blinking
 		$r = 255;
 		$g = 0;
 		$b = 0;

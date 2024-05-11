@@ -1,9 +1,9 @@
-@Echo on
+@Echo OFF
 
 
-if "%OS%" eq "95" goto %OS%
-if "%OS%" eq "98" goto %OS%
-if "%OS%" eq "me" goto %OS%
+if "%OS%" eq "me" (goto %OS%)
+if "%OS%" eq "98" (goto %OS%)
+if "%OS%" eq "95" (goto %OS%)
 
 ::::: DEFAULT OS:
     goto :Default
@@ -37,9 +37,9 @@ goto :END
     :20150811 - added POS with defualt value to launch on left screen on Thailog, will see if it impacts other computers
     :old  *start %POS% "%TIT%" %MAX% %MIN%       %LAUNCHER% %* 
     %color_debug%
-     echo *start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
+    rem echo     *start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
     %color_run%
-          *start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
+               *  start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
 
 
 :END

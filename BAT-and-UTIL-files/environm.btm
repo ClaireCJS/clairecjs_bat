@@ -1161,7 +1161,7 @@ return
         ::dropbox_Carolyn
             rem DROPBOX_CAROLYN_DRIVE=%HD4000G5%
             SET DROPBOX_CAROLYN_DRIVE=%HD2T1%
-            SET DROPBOX_CAROLYN=%DROPBOX_CAROLYN_DRIVE%:\DropboxCarolyn\Dropbox
+            SET DROPBOX_CAROLYN=%DROPBOX_CAROLYN_DRIVE%:\Dropbox
             SET DROPBOX_OVERFLOW_DIRNAME=DROPBOX_OVERFLOW
                 ::aliases
                     SET DROPBOXCAROLYN_DRIVE=%DROPBOX_CAROLYN_DRIVE%
@@ -1300,8 +1300,8 @@ return
                 set          COMMERCIALS_BACKUP_DRIVE=%HD4000G7%
                 set          COMMERCIALS_BACKUP=%COMMERCIALS_BACKUP_DRIVE%:\BACKUPS\commercials.bak
 
-                :et               COMEDYDRIVE=%HD6000G3%       ----- CRASHED IN 2020 OR 2021 OR SO, HAD TO RE-CREATE FROM OLD BACKUP IN 2022 -- BUT WHERE IS IT?!
-                :                                                    DATA-BDR-11-mp3 apparently has a backup of it! TODO! GET CAROLYN TO RETRIEVE IT
+                rem               COMEDYDRIVE=%HD6000G3%       ----- CRASHED IN 2020 OR 2021 OR SO, HAD TO RE-CREATE FROM OLD BACKUP IN 2022 -- BUT WHERE IS IT?!
+                rem                                                  DATA-BDR-11-mp3 apparently has a backup of it! TODO! GET CAROLYN TO RETRIEVE IT
                 set               COMEDYDRIVE=%HD10T2%
                 set               COMEDY=%COMEDYDRIVE%:\MEDIA\COMEDY
                 set               COMEDY_BACKUP_DRIVE=%HD4000G5%
@@ -1318,7 +1318,7 @@ return
                 rem            EMULATIONDRIVE=%HD4000G7% ————————————— 2022–2024/05/10 —— moved to HD18T3[T:] when repo grew too large for HD4T7
                 set            EMULATIONDRIVE=%HD18000G3% 
                 set                 EMULATION=%EMULATIONDRIVE%:\MEDIA\EMULATION
-                rem      EMULATIONBACKUPDRIVE=%HD4000G1% ————————————— moved away from this on 20230828 after HD6T3 revived
+                rem      EMULATIONBACKUPDRIVE=%HD4000G1% ————————————— moved away from this on 20230828 after HD4G1 died(?) & HD6T3 revived 
                 rem      EMULATIONBACKUPDRIVE=%HD6000G3% ————————————— moved away from this on 20240508 after HD6T3 became too full with xbox360 stuff
                 set      EMULATIONBACKUPDRIVE=%HD20T2% 
                 set           EMULATIONBACKUP=%EMULATIONBACKUPDRIVE%:\BACKUPS\emulation.bak
@@ -1439,7 +1439,7 @@ return
                     :et               FLAC_BACKUP=%FLAC_BACKUP_DRIVE%:\BACKUPS\flac.bak
                     set           TXTDRIVE=%TEXTDRIVE%
                     set                TXT=%TEXT%
-            :: here's the ones based on physical drives with a \MEDIA\ folder--for extra sanity of knowing everything is in place
+            :: here's the ones based on physical drives with a \MEDIA\ folder——for extra sanity of knowing everything is in place —— consider this when adding new harddrives 
                                                :ET MEDIA_B=%HD4000G1%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G1  MEDIA_B
                                                :ET MEDIA_D=%HD6000G3%:\MEDIA\ %+ gosub ValidateFolderExists HD6000G3  MEDIA_D
                                                :ET MEDIA_E=%HD4000G2%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G2  MEDIA_E
@@ -1450,14 +1450,14 @@ return
                                                :ET MEDIA_L=%HD1500G1%:\MEDIA\ %+ gosub ValidateFolderExists HD1500G1  MEDIA_L
                  if "%HD2000G5_DOWN%"  ne "1" (SET MEDIA_N=%HD2000G5%:\MEDIA\ %+ gosub ValidateFolderExists HD2000G5  MEDIA_N)
                                                :ET MEDIA_O=%HD2000G1%:\MEDIA\ %+ gosub ValidateFolderExists HD2000G1  MEDIA_O :decommissioned media folder 20191002, drive itself 20210323
-                 if "%HD18T1_DOWN%"    ne "1" (SET MEDIA_O=%HD18T1%:\MEDIA\   %+ gosub ValidateFolderExists HD18T1    MEDIA_O)
+                 if "%HD18T1_DOWN%"    ne "1" (SET MEDIA_O=%[HD18T1]%:\MEDIA\ %+ gosub ValidateFolderExists HD18T1    MEDIA_O)
                  if "%HD6000G1_DOWN%"  ne "1" (SET MEDIA_Q=%HD6000G1%:\MEDIA\ %+ gosub ValidateFolderExists HD6000G1  MEDIA_Q)
                                                :ET MEDIA_R=%HD2000G2%:\MEDIA\ %+ gosub ValidateFolderExists HD2000G2  MEDIA_R
                  if "%HD4000G6_DOWN%"  ne "1" (SET MEDIA_S=%HD4000G6%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G6  MEDIA_S)
                  if "%HD6000G3_DOWN%"  ne "1" (SET MEDIA_T=%HD6000G3%:\MEDIA\ %+ gosub ValidateFolderExists HD6000G3  MEDIA_T)
                  if "%HD10000G2_DOWN%" ne "1" (SET MEDIA_U=%HD10000G2:\MEDIA\ %+ gosub ValidateFolderExists HD10000G2 MEDIA_U)
                  if "%HD4000G5_DOWN%"  ne "1" (SET MEDIA_V=%HD4000G5%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G5  MEDIA_V)
-                 if "%HD10T1_DOWN%"    ne "1" (SET MEDIA_W=%HD10000G1:\MEDIA\ %+ gosub ValidateFolderExists HD10000G1 MEDIA_W)
+                 if "%HD20T2_DOWN%"    ne "1" (SET MEDIA_W=%HD20000G2:\MEDIA\ %+ gosub ValidateFolderExists HD20000G2 MEDIA_W)
             :Validation:
                 gosub ValidateFolderExists               THE_LETTER_C ALL_COLLECTIONS
                 gosub ValidateFolderExists               THE_LETTER_C ALL_MEDIA_BY_DRIVE 

@@ -71,7 +71,12 @@ rem STUFF WE CAN ONLY DO IF THE DRIVE IS ACTUALLY READY RIGHT NOW:
                 %COLOR_LOGGING%   %+ call make-directory-matching-drive-label-on-every-drive %*
                 %COLOR_NORMAL%    %+ cls
 
+            rem REMIND OF environm.btm EDITS:
+                call important "Update the code near '%blink_on%SET MEDIA_Q%blink_off%' in '%italics_on%environm.btm%italics_off%'... "
+                pause
+
             rem DOUBLE CHECK THIS CONFUSING SITUATION THAT HAPPENS WHEN WE SHIFT DRIVE LETTERS AROUND:
+                cls
                 gosub question "* Click into each network share and make sure it matches what you think it does."
                 call advice "...sometimes changing around drive letters leaves shares associated incorrectly."
                 pause

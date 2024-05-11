@@ -73,7 +73,10 @@
 2024-05-06  06:02             47    0%  bluetooth.bat
 2024-05-07  13:50            417   41%  bring-back-focus.bat
 2024-05-07  14:18             27   -7%  bring-focus-back.bat
+2024-05-10  19:12             79    6%  calendar-monitor-helper.bat
+2024-05-10  18:52          1,920   63%  calendar-monitor.bat
 2024-01-28  02:00             86   13%  calibrate-monitor.bat
+2024-05-10  17:59             22   -9%  calmon.bat
 2023-09-15  03:33             58   -1%  car.bat
 2023-08-27  23:36            326   43%  cat.bat
 2024-04-12  18:53          8,063   72%  cd-alias.bat
@@ -89,7 +92,7 @@
 2023-10-14  02:51            452   52%  checktemp.bat
 2024-04-10  12:34            487   51%  checkusername.bat
 2023-10-06  09:42             44   -2%  chown.bat
-2022-07-03  20:17            567   51%  chrome.bat
+2024-05-11  16:42            559   51%  chrome.bat
 2019-10-01  10:27             33   13%  cl.bat
 2019-10-01  10:27             55    0%  clear-buffered-keystrokes.bat
 2023-07-19  11:13             20    5%  clip.bat
@@ -208,7 +211,7 @@
 2021-03-04  13:25            205   19%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-05-10  17:25        176,988   81%  environm.btm
+2024-05-11  14:23        177,043   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -250,7 +253,7 @@
 2019-10-01  10:28             56   13%  flv2avi.bat
 2023-07-06  10:22             59   -1%  fml.bat
 2024-05-08  16:41          8,632   73%  FR.bat
-2024-03-18  11:22          8,477   69%  frpost-helper.pl
+2024-05-11  14:20          8,469   69%  frpost-helper.pl
 2024-02-21  02:01            117    9%  frpost.bat
 2019-10-01  10:28             71   -2%  ftphome.bat
 2024-04-05  17:58          1,452   57%  gather-message-types-into-pretty-environment-variable.bat
@@ -303,7 +306,7 @@
 2023-10-14  02:50          1,031   53%  handles.bat
 2019-10-01  10:28            204   49%  head.bat
 2024-04-10  13:14            878   50%  helper-end.bat
-2024-05-07  13:40          1,180   54%  helper-start.btm
+2024-05-10  18:50          1,201   54%  helper-start.btm
 2024-03-17  18:44          2,915   62%  highlight.bat
 2024-01-06  05:26             40    0%  hilight-by-computer-name.bat
 2023-06-05  11:51          1,579   63%  hilight.bat
@@ -329,9 +332,13 @@
 2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
 2024-05-03  02:36         14,579   75%  install-common-programs-with-winget-helper.cmd
 2024-04-06  04:37            381   36%  install-common-programs-with-winget.bat
+2023-04-28  22:19        527,427   80%  install-common-programs-with-winget.lst
+2024-04-06  04:37             19  -10%  install-program-with-winget.bat
+2023-04-28  21:53             38    3%  install-program.bat
+2024-05-11  16:48            117   11%  install-winget.cmd
 2023-07-14  09:50            278   36%  isRunning-fast.bat
 2023-08-26  14:54          1,084   59%  isRunning-helper.bat
-2024-04-10  20:00          2,436   64%  isRunning.bat
+2024-05-10  18:51          2,599   63%  isRunning.bat
 2023-10-20  03:38            209   23%  join-videos.bat
 2023-07-10  09:43            184   42%  kill.bat
 2019-10-01  10:28          1,195   57%  KillIfRunning.bat
@@ -390,7 +397,7 @@
 2024-05-10  10:37             18  -11%  nd.bat
 2024-04-10  15:14          1,850   53%  new-computer.bat
 2024-03-15  00:03             45   29%  new-computer.ps1
-2024-05-08  17:02          4,026   59%  new-harddrive.bat
+2024-05-10  17:33          4,256   60%  new-harddrive.bat
 2024-05-07  14:13             20  -10%  next.bat
 2024-05-10  10:48          3,625   75%  nextdir.bat
 2023-09-15  03:32             55   -1%  nocar.bat
@@ -408,6 +415,7 @@
 2019-10-01  10:28            127    9%  pause-wrapper.bat
 2024-05-07  13:56             23   -8%  pause.btm
 2024-05-10  10:39             16  -12%  pd.bat
+2019-10-01  10:28             24   -8%  pf.bat
 2023-04-28  14:03            627   51%  pickle_view.py
 2024-05-07  14:16          1,870   51%  play-m3u-with-VLC.bat
 2019-10-01  10:28             36   -5%  play-m3u-with-winamp.bat
@@ -429,6 +437,8 @@
 2024-05-08  01:51         21,422   74%  print-message.bat
 2024-02-14  02:28         13,998   74%  process-done-torrent.btm
 2024-03-18  22:28          2,192   64%  process-rookie-folders.bat
+2024-05-11  16:42             29   -6%  programfiles.bat
+2019-10-01  10:28             60   19%  programfilesx86.bat
 2023-06-02  13:09          1,023   67%  prompt-Carolyn.bat
 2023-06-02  13:11            783   46%  prompt-Claire.bat
 2023-06-02  20:35          5,226   70%  prompt-common.bat
@@ -470,6 +480,7 @@
 2023-07-10  03:06            982   61%  rename_images_to_incorporate_folder_name.py
 2019-10-01  10:28            184   18%  research-this-dir-on-discogs.bat
 2019-10-01  10:28            186   18%  research-this-dir-on-wikipedia.bat
+2024-05-11  16:41            539   46%  restart-chrome.bat
 2019-10-01  10:28            323   48%  restart-cpu-meter.bat
 2019-10-01  10:28            305   44%  restart-tcpip-stack.bat
 2024-04-09  23:25          3,920   64%  restart-winamp.bat

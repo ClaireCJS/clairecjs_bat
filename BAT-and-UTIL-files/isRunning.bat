@@ -1,7 +1,8 @@
 @Echo Off
 
-::::: USAGE: 
-	:isRunning winamp - sets envvar ISRUNNING to 0 or 1, depending on if winamp (in this example) is running
+:USAGE: isRunning {regex} ['quiet'] - sets envvar ISRUNNING to 0 or 1, depending on if a process matching regex is running
+:USAGE:                               optional param 2 of 'quiet' makes it silent mode
+:USAGE: SET ISRUNNING_FAST=1 to run it at a faster speed
 
 ::::: DEBUG:
 	if %DEBUG eq 1 (Echo ON)
@@ -25,7 +26,7 @@
         set COMMENTISRUNNING=had to remove these in 2022 when moving to Windows 10... set TASKLIST_NONEXE_OPTIONS=/l /o
         REM old command was: set OUTPUT=%@EXECSTR[taskList  %*|grep -i -v grep|grep -i -v keep-killing-if-running|grep -i -v react-after-program-closes] ADFASDFASFDASDF
         set  OUTPUT=%@EXECSTR[isRunning-helper %*]
-        if %DEBUG eq 1 (echo %ANSI_COLOR_DEBUG%OUTPUT is '%italics%%OUTPUT%%italics_off%')
+        if %DEBUG eq 1 (call debug "%OUTPUT is '%italics%%OUTPUT%%italics_off%'")
         if "%OUTPUT%" eq "" (set ISRUNNING=0)
         if "%OUTPUT%" ne "" (set ISRUNNING=1)
     )
@@ -47,7 +48,7 @@
             :IsRunning_NO
                 color bright red on blue 
                 echos %@ANSI_RGB_BG[80,0,0]
-                    if "%2" eq "quiet" goto :Quiet_YES
+                    if "%2" eq "quiet" .or. "%2" eq "silent" (goto :Quiet_YES)
                             :Quiet_No
                                 @echos %emoji_stop_sign% %italics%%1%italics_off% is %double_underline%NOT%double_underline_off% running %emoji_stop_sign%`` %+ %COLOR_NORMAL% %+ echo.
                                 goto :Quiet_DONE
