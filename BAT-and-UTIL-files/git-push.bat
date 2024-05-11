@@ -14,7 +14,7 @@ rem Configuratoin:
 
 rem Validate environment:
         if %VALIDATED_GITPUSH ne 1 (
-            call validate-in-path git.bat errorlevel advice important celebration
+            call validate-in-path               git.bat errorlevel advice important celebration
             call validate-environment-variables GITHUB_USERNAME BAT BASENAME MY_GITHUB_URL GITHUB_USERNAME
             set VALIDATED_GITPUSH=1
         )
@@ -56,4 +56,5 @@ rem Provide easy way to check that it happened online:
 rem Be happy that we were successful!
         echo.
         call celebration "%BLINK_ON%%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed%BLINK_OFF%"
+
 

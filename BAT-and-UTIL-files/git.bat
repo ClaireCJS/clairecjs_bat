@@ -9,6 +9,8 @@ rem *** CONFIGURATION: ***
         set GIT_EXE=c:\UTIL2\git\bin\git.exe
         set GIT=%GET_EXE%
         set GIT_PYTHON_GIT_EXECUTABLE=%GIT%
+        rem GIT_OUT=git.%_PID.%_DATETIME.out would be an ideal filename but these files are used elsewhere and we don't want to guess or store their name so let's just stick with git.out:
+        set GIT_OUT=git.out
 
 rem *** GET USAGE: ***
     rem git init
@@ -61,7 +63,6 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
     :TCC    
         call git-setvars
         %COLOR_RUN%         
-        set GIT_OUT=git.%_PID.%_DATETIME.out
         REM %GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
 
         color bright blue on black
@@ -90,9 +91,8 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename' |:u8 cat_fast
                 rem piping to cat_fast fixes TCC+WT ansi rendering errors
         ) 
-
-        %COLOR_REMOVAL%
-        rem TODO if exist %GIT_OUT% (del /q /r %GIT_OUT%>nul)
+        
+        if exist %GIT_OUT% (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT%>nul)
         call errorlevel "a git error!?! how can this be?!?! Command line was: %0 %*"
     goto :END
 

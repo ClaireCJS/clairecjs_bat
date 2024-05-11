@@ -24,7 +24,7 @@ REM Get reason to commit
                 REM set REASON=%[latest_file] on %VERY_NICE_DATE% 
         rem But this one embraces the chaos that is my personality
             if %PATH_VALIDATED_GIT_COMMIT_VIP_SCPS ne 1 (
-                call validate-in-path set-current_playing_song
+                call validate-in-path set-current_playing_song git.bat
                 set PATH_VALIDATED_GIT_COMMIT_VIP_SCPS=1
             )
             call set-current_playing_song

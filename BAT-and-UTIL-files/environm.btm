@@ -2503,7 +2503,6 @@ return
         set RUNNING_ENVIRONM=0
 
 
-
 :POST-END
     rem Sometimes this script is passed an additional command (via 'NEXTCOMMAND' environment variable) to be run at the end:
         if "%NEXTCOMMAND%" ne "" (%NEXTCOMMAND%)

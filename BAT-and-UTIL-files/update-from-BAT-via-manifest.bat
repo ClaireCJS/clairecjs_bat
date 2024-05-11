@@ -36,7 +36,7 @@ rem VALIDATION & SETUP:
         rem Some stuff we only need to validate once per command-line sessoin:
         if %VALIDATED_UPDATEFROMBATVIAMANIFEST_ENV_ALREADY ne 1 (
             call validate-environment-variables BAT COPY
-            call validate-in-path important_less success errorlevel
+            call validate-in-path important_less success errorlevel insert-before-each-line
             set VALIDATED_UPDATEFROMBATVIAMANIFEST_ENV_ALREADY=1
         )
         rem Some stuff we need to validate each and every run:
@@ -116,14 +116,12 @@ goto :END_OF_SUBROUTINES
                                         echos %@randfg[].
                                         if not exist "%file%" (call error "'%file%' does not exist")
                                         rem call print-if-debug "Doing file %file%"
-                                        set filetarget=%TARGET_DIR%\%file%
                                         REM delete first, if we want
                                                 REM if exist %filetarget% (
                                                 REM     %COLOR_REMOVAL% 
                                                 REM     %DELETE% %filetarget%
                                                 REM )
-                                        %COLOR_SUCCESS%
-                                        %UPDATE% %file% %filetarget%
+                                        %UPDATE% %file% %TARGET_DIR%\%file%
                                     )
                                 popd
 
@@ -152,7 +150,7 @@ goto :END_OF_SUBROUTINES
                                     rem call unimportant    "            CWD: %_CWD%"
                                     REM choose your zip output strategy:
                                         REM %COLOR_ERRROR% %+ %ZIP_COMMAND% >nul
-                                            %COLOR_SUCCESS %+ %ZIP_COMMAND% 
+                                            %COLOR_SUCCESS %+ %ZIP_COMMAND% | insert-before-each-line "           "
                                     call errorlevel "Zipping our associated %shared_type% file failed?!"
                             REM ensure zip generated
                                     echo.>& nul
