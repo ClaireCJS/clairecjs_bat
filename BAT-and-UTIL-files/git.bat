@@ -88,8 +88,10 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
                 echo.
                 echos %@ANSI_RGB[0,205,0]
-                cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename' |:u8 cat_fast
-                rem piping to cat_fast fixes TCC+WT ansi rendering errors
+                if not exist %GIT_OUT% (goto :NoGitOutToGrep)
+                    rem piping to cat_fast fixes TCC+WT ansi rendering errors:
+                    cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename' |:u8 cat_fast
+                :NoGitOutToGrep
         ) 
         
         if exist %GIT_OUT% (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT%>nul)

@@ -130,7 +130,7 @@ unfunctoin=unfunction
 7zip=7z.exe
 comp=*comp /m
 :deltree is a bat file now
-gr=grep --text --color=always -i -d skip
+gr=grep -i --text --color=always -d skip
 md=*md /Nt
 netstat=*netstat -an
 ;rd is aliased to rd-alias.bat now... but it used to be: rd=*rd /Nt
