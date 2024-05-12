@@ -1,4 +1,4 @@
-@Echo Off
+@Echo OFF
 
 rem *** CONFIGURATION: ***
 
@@ -63,7 +63,6 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
     :TCC    
         call git-setvars
         %COLOR_RUN%         
-        REM %GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |& grep -v 'git-credential-manager-core was renamed to git-credential-manager' | grep -v 'https:..aka.ms.gcm.rename'
 
         color bright blue on black
         echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Un-filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
@@ -80,9 +79,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         echo.
 
 
-
         rem Output the filtered output from our captured file for a more meaningful/processed set of output...
-        rem %COLOR_RUN%
         if     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (
                 color bright blue on black
                 echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:

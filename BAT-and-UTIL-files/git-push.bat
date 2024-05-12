@@ -44,9 +44,9 @@ rem Run GIT, check for error status, and collect the output:
                 call git.bat push origin main %GIT_PUSH_PARAMETERS% 
                 call errorlevel "Advice: for 'updates were rejected because the remote contains work that you do not have locally', you may need to 'git pull origin main' to merge and then try again" 
         echo.
-        call validate-environment-variable GIT_OUT
+        if not exist %GIT_OUT% (goto :NoGitOut)
         if "%@EXECSTR[grep Updates.were.rejected.because.the.remote.contains.work.that.you.do git.out]" ne "" (call warning "You probably need to do 'git pull origin main'" %+ pause)
-        rem echo.
+        :NoGitOut
 
 rem Provide easy way to check that it happened online:
         call advice "Your GitHub URL is: %MY_GITHUB_URL%"
