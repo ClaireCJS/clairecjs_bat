@@ -329,6 +329,7 @@
 2023-07-21  07:55         30,151   74%  ingest_youtube_album.py
 2019-10-01  10:28            120   18%  insert-after-each-line.pl
 2019-10-01  10:28            120   18%  insert-before-each-line.pl
+2024-05-12  13:26          1,481   65%  insert-foldername-into-end-of-filenames.bat
 2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
 2024-05-03  02:36         14,579   75%  install-common-programs-with-winget-helper.cmd
 2024-04-06  04:37            381   36%  install-common-programs-with-winget.bat
@@ -399,7 +400,7 @@
 2024-03-15  00:03             45   29%  new-computer.ps1
 2024-05-10  17:33          4,256   60%  new-harddrive.bat
 2024-05-07  14:13             20  -10%  next.bat
-2024-05-10  10:48          3,625   75%  nextdir.bat
+2024-05-12  13:01          3,622   75%  nextdir.bat
 2023-09-15  03:32             55   -1%  nocar.bat
 2023-06-08  03:09             41   -4%  none.bat
 2023-10-06  08:38          1,197   56%  normalize-all-wavs.bat
