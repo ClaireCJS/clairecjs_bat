@@ -207,7 +207,7 @@ sub colorprint($) {
 		$g = int(69 - (($value - 90) / 8 * 69)); # Reducing green to 0 for bright red
 		$b = 0;
 		$blink = 0;
-	} else { ()
+	} else { 
 		# Bright red with blinking
 		$r = 255;
 		$g = 0;
