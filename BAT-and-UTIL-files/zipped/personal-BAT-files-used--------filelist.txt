@@ -267,6 +267,7 @@
 2024-02-24  11:55        233,671   73%  generate-filelists-by-attribute.pl
 2023-06-02  04:05            534   52%  generate_and_play_random_midi.py
 2023-06-02  08:51          8,693   74%  generate_midi_randomly.py
+2024-05-14  12:36          4,173   66%  generate_thesem3u_and_allm3u_playlists_in_folder.py
 2019-10-01  10:28          8,414   64%  get-current-song-playing.pl
 2023-05-31  03:52            399   47%  get-currently-playing-tracknum-from-wawi-index_html.pl
 2023-07-04  20:09            549   59%  get-image-dimensions.bat
@@ -275,7 +276,7 @@
 2023-06-02  19:02            623   53%  git-add-every-damn-file.bat
 2024-05-11  18:04            797   48%  git-add.bat
 2024-04-09  23:33            158   14%  git-commit-history.bat
-2024-05-11  17:12          2,529   55%  git-commit.bat
+2024-05-12  14:03          2,555   56%  git-commit.bat
 2023-10-06  06:37             45   -4%  git-config-set-commit-preference-to-rebase.bat
 2023-06-14  23:22             54    4%  git-config-set-commit-preferences-to-rebase.bat
 2023-10-06  06:37             18  -11%  git-history.bat
@@ -323,7 +324,7 @@
 2023-05-29  22:54             46   -4%  important.bat
 2023-06-01  05:19             51   -1%  important_less.bat
 2023-07-10  03:06            982   61%  incorporate_folder_name_into_images.py
-2024-04-10  13:22         14,059   69%  index-MP3-helper.bat
+2024-05-14  11:26         14,056   69%  index-MP3-helper.bat
 2024-04-10  13:15            701   55%  index-MP3.bat
 2024-04-09  14:57         11,965   68%  ingest_ics.py
 2023-07-21  07:55         30,151   74%  ingest_youtube_album.py
@@ -331,7 +332,7 @@
 2019-10-01  10:28            120   18%  insert-before-each-line.pl
 2024-05-12  13:26          1,481   65%  insert-foldername-into-end-of-filenames.bat
 2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
-2024-05-03  02:36         14,579   75%  install-common-programs-with-winget-helper.cmd
+2024-05-13  12:01         14,621   75%  install-common-programs-with-winget-helper.cmd
 2024-04-06  04:37            381   36%  install-common-programs-with-winget.bat
 2023-04-28  22:19        527,427   80%  install-common-programs-with-winget.lst
 2024-04-06  04:37             19  -10%  install-program-with-winget.bat

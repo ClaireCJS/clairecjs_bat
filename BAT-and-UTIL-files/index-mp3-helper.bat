@@ -12,12 +12,12 @@
 :PRE_SETUP
 	timer>nul
     rem  Validate the environment:
-    call validate-environment-variables  MP3OFFICIALDRIVE   MP3OFFICIAL 
-	call ensure-drive-is-mapped         %MP3OFFICIALDRIVE%
-    call validate-in-path                generate-filelists-by-attribute.pl create-all_m3u-playlists create-these_m3u-playlists mp3index generate-audio-playlists mchk
-	call checkusername
-	cls
-	timer /3 on
+            call validate-environment-variables  MP3OFFICIALDRIVE   MP3OFFICIAL 
+            call ensure-drive-is-mapped         %MP3OFFICIALDRIVE%
+            call validate-in-path                generate-filelists-by-attribute.pl create-all_m3u-playlists create-these_m3u-playlists mp3index generate-audio-playlists mchk
+            call checkusername
+            cls
+            timer /3 on
 
 
 
@@ -276,8 +276,8 @@ return
 	rem Force a glance at any errors generated. 
     rem In the past, the file exceeded the maximum file size for older versions of EditPlus, so we would check for presence of an alternate text editor (SlickEdit):
         set BIGEDITOR="%Program Files%\SlickEdit Pro 21.0.0\win\vs.exe"
-        if exist %BIGEDITOR% ( %BIGEDITOR% "%MP3OFFICIAL%\LISTS\INDEXER.LOG" )
-        else                 (    %EDITOR% "%MP3OFFICIAL%\LISTS\INDEXER.LOG" )
+        if     exist %BIGEDITOR% ( %BIGEDITOR% "%MP3OFFICIAL%\LISTS\INDEXER.LOG" )
+        if not exist %BIGEDITOR% (    %EDITOR% "%MP3OFFICIAL%\LISTS\INDEXER.LOG" )
 
 	rem Stop the timer we started earlier:
 		timer /3 off

@@ -17,6 +17,7 @@ winget install Microsoft.VCRedist.2013.x64
 winget install Oracle.JavaRuntimeEnvironment             
 winget install AndreWiethoff.ExactAudioCopy
 
+winget install -e --id GlavSoft.TightVNC
 winget install --id=Anaconda.Anaconda3  -e
 
 winget install Resplendence.WhoCrashed
