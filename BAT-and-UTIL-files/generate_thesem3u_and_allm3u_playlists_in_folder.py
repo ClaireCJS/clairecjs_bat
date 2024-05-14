@@ -1,3 +1,18 @@
+'''
+        USAGE:
+            set FILEMASK_AUDIO=*.mp3;*.flac <etc>               {if you don't set this, a default set of extensoins will be used}
+            generate_thesem3u_and_allm3u_playlists_in_folder.py <folder we want to generate playlists in>
+
+        DESCRIPTION:
+            * Walks a given folder tree looking for audio files in all folders and subfolders
+            1) Generates these.m3u playlists in every folder that has audio files.               Filenames, no path.
+            2) Generates   all.m3u playlists in every folder that has audio files in subfolders. Full paths for each entry.
+
+        EXTEND:
+            This program could be warped to other objectives. For example:
+                    set FILEMASK_AUDIO=*.gif;*.jpg;*.webp
+            ...and you could generate lists of images.
+'''
 import os
 import sys
 import fnmatch
