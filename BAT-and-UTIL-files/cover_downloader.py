@@ -1010,9 +1010,9 @@ def clean_up_zero_byte_downloads():                                             
         file.write('\n:CleanUp_Zero_Byte_Images_Execute\n')
         if IS_WINDOWS and OUR_SHELL.lower() != "bash":
             file.write('set FMASK_IMAGE=*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large\n')
-            if OUR_SHELL == "TCC": file.write('call delete-zero-byte-files\n\n')                                                    #i have my own script for this purpose so i call that one too just to be double-thorough
-            if OUR_SHELL == "TCC": file.write('for  %A in  (%FMASK_IMAGE%)  do ( if %@FILESIZE["%A"] == 0 (*del   "%A") )\n\n')
-            else:                  file.write('for %%A in ("%FMASK_IMAGE%") do (if %%~zA            equ 0 ( del "%%~A") )\n\n')     #untested
+            if OUR_SHELL == "TCC": file.write('call delete-zero-byte-files %FMASK_IMAGE%\n\n')                                      #i have my own script for this purpose so i call that one too just to be double-thorough, however that script needs to be passed a list of extensions or it ends up deleting other 0-byte files that are unrelated to this task
+            if OUR_SHELL == "TCC": file.write('for  %A in  (%FMASK_IMAGE%)  do ( if %@FILESIZE["%A"] == 0 (*del /p   "%A") )\n\n')
+            else:                  file.write('for %%A in ("%FMASK_IMAGE%") do (if %%~zA            equ 0 ( del /p "%%~A") )\n\n')  #untested
         else:
             file.write('export FMASK_IMAGE="*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large"\n')
             file.write('find . -name "$FMASK_IMAGE" -size 0 -delete\n\n')                                                           #untested

@@ -128,7 +128,7 @@
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
-2024-04-19  20:17         62,363   71%  cover_downloader.py
+2024-05-14  20:07         62,501   71%  cover_downloader.py
 2024-04-19  20:18          2,893   64%  cover_embedder.py
 2024-04-10  15:13            435   49%  create-all-drive-shares-(for-new-installations).bat
 2023-10-06  05:56            710   50%  create-and-change-into-temp-folder.bat
@@ -539,7 +539,7 @@
 2019-10-01  10:28             21   -9%  setwidth.bat
 2023-06-06  14:08          4,130   73%  show_current_pallete_prototype.py
 2019-10-01  10:28          5,276   63%  sizedir.pl
-2020-09-13  00:47            184   33%  sizes.bat
+2024-05-14  19:06            668   52%  sizes.bat
 2024-03-14  22:20            279   41%  sleep.bat
 2024-05-03  14:33             24   -8%  snip.bat
 2024-05-03  14:30            377   56%  snipping-tool.bat

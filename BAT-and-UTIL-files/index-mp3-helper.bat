@@ -12,10 +12,11 @@
 :PRE_SETUP
 	timer>nul
     rem  Validate the environment:
-            call validate-environment-variables  MP3OFFICIALDRIVE   MP3OFFICIAL 
-            call ensure-drive-is-mapped         %MP3OFFICIALDRIVE%
-            call validate-in-path                generate-filelists-by-attribute.pl create-all_m3u-playlists create-these_m3u-playlists mp3index generate-audio-playlists mchk
-            call checkusername
+            call     validate-environment-variables  MP3OFFICIALDRIVE   MP3OFFICIAL 
+            call     ensure-drive-is-mapped         %MP3OFFICIALDRIVE%
+            rem OLD: validate-in-path                mchk mp3index generate-audio-playlists generate-filelists-by-attribute.pl create-all_m3u-playlists create-these_m3u-playlists 
+            call     validate-in-path                mchk mp3index generate-audio-playlists generate-filelists-by-attribute.pl generate_thesem3u_and_allm3u_playlists_in_folder.py
+            call     checkusername
             cls
             timer /3 on
 
@@ -61,8 +62,10 @@
             %COLOR_RUN%
             pushd .
             %MP3OFFICIAL%\
-                call create-these_m3u-playlists
-                call create-all_m3u-playlists 
+                rem OLD: call create-these_m3u-playlists
+                rem OLD: call create-all_m3u-playlists 
+                rem NEW:
+                generate_thesem3u_and_allm3u_playlists_in_folder.py c:\mp3\
             popd
 		:quick2_YES
 	%MP3OFFICIAL\
