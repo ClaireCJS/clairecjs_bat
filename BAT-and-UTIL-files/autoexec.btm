@@ -21,7 +21,10 @@ REM Load our autohotkey script right away since it has winamp control aspects in
         call AutoHotKey-autoexec.bat
 
 REM Above all else, the music must flow
-        if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (call winamp autoexec*)
+        if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (
+            call winamp autoexec
+            call fix-minilyrics-window-size-and-position
+        )
 
 REM Occasionally something glitches and it wants to run this in a new TCC window. 
 REM This gives us a chance to stop it, if we are there and present
@@ -45,7 +48,13 @@ REM Startup various programs
 
 REM backup files
         call backup-important-files
-
+        call backup-important-folders
+        call bat
+        call dist full
+        call util
+        call dist full
+        call util2
+        call dist full
 
 REM Edit this script, if so instructed:
         if %EDIT_SELF eq 1 (
@@ -54,8 +63,6 @@ REM Edit this script, if so instructed:
             %EDITORBG% %SELF%
         )
 
-REM Stuff to run only if this machine is our music server
-        if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (call fix-minilyrics-window-size-and-position)
 
 REM We're done!
         call celebrate autoexec done

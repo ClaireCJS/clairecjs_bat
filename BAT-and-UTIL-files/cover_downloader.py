@@ -928,9 +928,13 @@ def fetch_release_data(resource_url):
 
 def modify_filename_with_letter(filename, letter):
     base, extension = os.path.splitext(filename)
-    if letter == 'A' or letter[0] == 'B':
+    #f letter == 'A' or letter[0] == 'B' :
+    if letter == 'A' or letter[0] == 'B' or letter[0] == 'C':
         pattern = re.compile(r'[A-Z][0-9]*$', re.IGNORECASE)
+        file.write(f'        rem base for filename {filename} is {base}, extensoin is {extension}\n')       #2024/05
         base = pattern.sub('', base)  # Remove the existing suffix, if present
+        file.write(f'                                 rem is now {base}, extensoin is {extension}\n\n')     #2024/05
+        #something is wrong here. "Cherries.jpg" becoming "CherrieB9.jpg instead of "CherriesB9.jpg". Will have to look into it.
     return f"{base}{letter}{extension}"
 
 

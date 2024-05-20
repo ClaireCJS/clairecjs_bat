@@ -53,7 +53,7 @@ rem TELL USER:
 rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
         if "%MANIFEST_FILES%" eq "NONE" (goto :Manifest_File_Update_Complete)               
                 for %myFileFull in (%MANIFEST_FILES%) (
-                    ehco file=%myFileFull
+                    rem echo file=%myFileFull
                     echos %@RANDFG[]*
                     set myFile=%@UNQUOTE[%myFileFull]
                     if not exist %SOURCE_DIR%\%myFile% (call error "Uh oh! Project source file %myFile% doesn't seem to exist in %SOURCE_DIR%")

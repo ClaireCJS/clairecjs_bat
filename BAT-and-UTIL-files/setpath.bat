@@ -38,6 +38,7 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\git\bin
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\nmap
+		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\emulation\xbox
 	:Programs_That_May_Be_Installed_That_I_Script_With_Or_Use
 		gosub AddFolderToPathEndOnlyIfItExists "%ProgramFiles%\FastPictureViewer"
 		gosub AddFolderToPathBegOnlyIfItExists "%ProgramFiles%\ImageMagick"

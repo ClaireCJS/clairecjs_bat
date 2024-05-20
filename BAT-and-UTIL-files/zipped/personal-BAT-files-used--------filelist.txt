@@ -55,15 +55,17 @@
 2023-06-07  19:48             18  -11%  avg.bat
 2024-05-08  14:41          1,886   67%  backup-game-saves.bat
 2024-05-07  14:44          7,195   70%  backup-important-files.bat
+2024-05-20  20:04          1,079   64%  backup-important-folders.bat
 2024-05-09  07:32          8,160   77%  backup-repositories.bat
 2024-05-09  20:16          3,305   66%  backup-repository.bat
 2024-05-08  13:27            698   47%  backup-rocksmith.bat
-2024-05-08  14:42            961   50%  backup-Rogue_Legacy_2.bat
+2024-05-20  20:02          1,068   50%  backup-Rogue_Legacy_2.bat
 2024-05-08  13:52             28   -7%  backup-save-games.bat
 2019-10-01  10:27          1,744   57%  backup-thing.bat
 2019-10-01  10:27            283   43%  backup-to-bdrs.bat
 2019-10-01  10:27            254   39%  backup-to-CDs.bat
 2019-10-01  10:27            255   41%  backup-to-dvDs.bat
+2024-05-20  20:02          1,031   50%  backup-Xenia.bat
 2024-05-06  06:02             47    0%  batteries.bat
 2024-05-06  06:02             47    0%  battery.bat
 2024-04-27  06:29          4,285   71%  beep.bat
@@ -128,7 +130,7 @@
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
-2024-05-14  20:07         62,501   71%  cover_downloader.py
+2024-05-20  15:38         62,931   71%  cover_downloader.py
 2024-04-19  20:18          2,893   64%  cover_embedder.py
 2024-04-10  15:13            435   49%  create-all-drive-shares-(for-new-installations).bat
 2023-10-06  05:56            710   50%  create-and-change-into-temp-folder.bat
@@ -172,6 +174,7 @@
 2023-04-30  14:25             17  -11%  display-cuda-version.bat
 2019-10-01  10:25             71   10%  display-current-month.pl
 2024-01-26  04:37          8,051   85%  display-date-and-time-nicely.bat
+2024-05-16  14:00             22   -9%  display-dns.bat
 2024-01-25  21:12          7,595   90%  display-drive-mapping.bat
 2024-05-08  21:43          1,801   57%  display-drives-by-computer.bat
 2023-07-10  20:27          1,060   49%  display-emojis-in-environment.bat
@@ -191,6 +194,7 @@
 2023-12-18  16:04             21   -9%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-03-30  13:19             35   -5%  divider.bat
+2024-05-16  13:59             47   13%  dns-display.bat
 2024-05-01  04:15         20,252   69%  download-youtube-album.bat
 2023-06-12  20:31             67    0%  download-youtube-music.bat
 2023-06-09  21:26             35   -5%  download-youtube-video-with-chapters-as-an-mp3-album.bat
@@ -532,7 +536,7 @@
 2023-04-24  09:52            255   53%  set-winamp-constants.bat
 2024-03-24  20:03             49   -4%  setDrive.bat
 2024-03-24  20:04             49   -4%  setlabel.bat
-2024-05-03  15:16          9,307   77%  SETPATH.bat
+2024-05-16  11:24          9,373   77%  SETPATH.bat
 2023-06-02  12:32            604   56%  setprompt.bat
 2023-10-06  05:32            132    5%  settmp.bat
 2024-04-10  15:17            731   51%  setup-perl-junctions-on-new-computer.bat
@@ -549,6 +553,7 @@
 2023-10-14  02:49            933   54%  sort-pictures-into-folders.bat
 2023-05-30  11:07            501   44%  sort.bat
 2024-03-17  18:42            115   32%  sortclip.bat
+2023-02-01  02:08             21   -9%  sp.bat
 2024-03-13  19:32            415   37%  speak-in-every-voice.bat
 2024-03-13  15:22          2,131   63%  speak.bat
 2023-07-17  09:39          4,725   71%  spl.bat
@@ -578,7 +583,7 @@
 2023-06-01  05:17            294   42%  success.bat
 2024-05-07  14:10          7,911   73%  switch-winamp-to-playlist.bat
 2023-11-23  13:46             11  -18%  symlink.bat
-2024-05-09  15:33          7,733   69%  sync-a-folder-to-somewhere.bat
+2024-05-20  19:55          7,733   69%  sync-a-folder-to-somewhere.bat
 2023-06-20  03:45         13,942   69%  sync-filelist-helper.pl
 2023-10-06  06:57          2,602   70%  sync-filelist.bat
 2024-04-05  14:33             42   -4%  sync-perl-libraries-to-dropbox.bat
@@ -589,6 +594,7 @@
 2024-04-05  14:29            500   38%  sync-python-personal-libaries-to-dropbox.bat
 2024-04-05  15:20             32   -6%  sync-python.bat
 2019-10-01  10:28            201   44%  tail.bat
+2024-05-18  21:13             47    5%  tcc-in-console-window.bat
 2024-05-11  17:17            166   43%  tee.bat
 2024-03-19  15:23          1,646   85%  test-askyn.bat
 2024-04-03  14:32            293   48%  test-cd.bat
@@ -612,7 +618,7 @@
 2024-05-07  14:00             25   -8%  unpause.bat
 2024-04-28  20:54            287   35%  unzip-all.bat
 2024-04-28  21:01          6,124   71%  unzip-gracefully.bat
-2024-05-11  17:56         11,079   73%  update-from-BAT-via-manifest.bat
+2024-05-14  20:09         11,897   73%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2019-10-01  10:28            232   26%  urldecode.pl
 2019-10-01  10:28            326   33%  urlencode.pl

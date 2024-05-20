@@ -1,17 +1,17 @@
 @Echo OFF                                       
 
-rem backup rogue legacy 2 savegame into monthly folders
+rem backup Xenia emulator savegames into monthly folders
 
 ::::: VALIDATE ENVIRONMENT:
-    call validate-environment-variables AppData  MACHINENAME GAME_SAVES_BACKUPS
+    call validate-environment-variables HOMEPATH MACHINENAME GAME_SAVES_BACKUPS
     
 :::: SET UP SYNC:
-    set SYNCSOURCE=%AppData%\..\LocalLow\Cellar Door Games\Rogue Legacy 2
-    set SYNCBASE=%GAME_SAVES_BACKUPS%\Rogue_Legacy_2.%MACHINENAME%
+    set SYNCSOURCE=%HOMEPATH%\Documents\Xenia
+    set SYNCBASE=%GAME_SAVES_BACKUPS%\Xenia.%MACHINENAME%
 
-    call validate-environment-variable SYNCBASE
+    if not isdir %SYNCBASE% (md /s %SYNCBASE%)
     call yyyymmdd
-    set SYNCTARGET=%SYNCBASE%\%YYYY%YMM%
+    set SYNCTARGET=%SYNCBASE%\%YYYY%%MM%
     if not isdir %SYNCTARGET% (md /s %SYNCTARGET%)
 
     set SYNCTRIGER=__ last backed up __   
