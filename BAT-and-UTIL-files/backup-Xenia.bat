@@ -3,10 +3,10 @@
 rem backup Xenia emulator savegames into monthly folders
 
 ::::: VALIDATE ENVIRONMENT:
-    call validate-environment-variables HOMEPATH MACHINENAME GAME_SAVES_BACKUPS
+    call validate-environment-variables USERPROFILE MACHINENAME GAME_SAVES_BACKUPS
     
 :::: SET UP SYNC:
-    set SYNCSOURCE=%HOMEPATH%\Documents\Xenia
+    set SYNCSOURCE=%USERPROFILE%\Documents\Xenia
     set SYNCBASE=%GAME_SAVES_BACKUPS%\Xenia.%MACHINENAME%
 
     if not isdir %SYNCBASE% (md /s %SYNCBASE%)
