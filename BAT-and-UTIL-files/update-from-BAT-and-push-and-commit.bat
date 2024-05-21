@@ -45,7 +45,7 @@ rem To update manually-selected files from other locations, define and validate 
         set AUDIO_PROCESSING_NOTES=%NOTES%\audio-processing-batch-NOTES.txt
         set       PERL_SITELIB_ZIP=%PUBCL%\dev\Perl\Clio.zip
         set          COLORTOOL_EXE=%UTIL%\ColorTool\ColorTool.exe
-        set   PRIMARY_AUTOEXEC_BAT=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%\Demona\autoexec.btm
+        set   PRIMARY_AUTOEXEC_BAT=%BAT%\%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%\autoexec.btm
 
         set           TCMD_ALIASES=%TCMD_DIR%\alias.lst                            
         set               TCMD_INI=%TCMD_DIR%\tcmd.ini                             
