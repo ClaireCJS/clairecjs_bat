@@ -41,29 +41,29 @@ rem Update BAT files from live location to github-folder location:
 
 rem To update manually-selected files from other locations, define and validate them first:
         set               TCMD_DIR=c:\TCMD
-        set   GIRDER_CONFIGURATION="c:\girder\claire's girder files\Demona.gml"
-        set AUDIO_PROCESSING_NOTES=%NOTES%\audio-processing-batch-NOTES.txt
+        set               TCMD_INI=%TCMD_DIR%\tcmd.ini                             
+        set           TCMD_ALIASES=%TCMD_DIR%\alias.lst                            
+        set      TCMD_START_SCRIPT=%TCMD_DIR%\tcstart.bat                          
         set       PERL_SITELIB_ZIP=%PUBCL%\dev\Perl\Clio.zip
         set          COLORTOOL_EXE=%UTIL%\ColorTool\ColorTool.exe
+        set AUDIO_PROCESSING_NOTES=%NOTES%\audio-processing-batch-NOTES.txt
+        set   GIRDER_CONFIGURATION="c:\girder\claire's girder files\Demona.gml"
         set   PRIMARY_AUTOEXEC_BAT=%BAT%\%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%\autoexec.btm
-
-        set           TCMD_ALIASES=%TCMD_DIR%\alias.lst                            
-        set               TCMD_INI=%TCMD_DIR%\tcmd.ini                             
-        set      TCMD_START_SCRIPT=%TCMD_DIR%\tcstart.bat                          
 
         call validate-environment-variables BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT
 
-rem Now that the validation is complete, update manually-selected files from live locations to github-folder location:
-        *copy /u /q %PRIMARY_AUTOEXEC_BAT%                       BAT-and-UTIL-files\autoexec.btm
-        *copy /u /q %TCMD_ALIASES%                               BAT-and-UTIL-files\alias.lst
-        *copy /u /q %TCMD_INI%                                   BAT-and-UTIL-files\tcmd.ini
-        *copy /u /q %TCMD_START_SCRIPT%                          BAT-and-UTIL-files\tcstart.bat
-        *copy /u /q %COLORTOOL_EXE%                              BAT-and-UTIL-files\ColorTool.exe
-        *copy /u /q %PERL_SITELIB_ZIP%                           BAT-and-UTIL-files\perl-sitelib-Clio.zip
-        *copy /u /q %GIRDER_CONFIGURATION%                       BAT-and-UTIL-files\girder.gml
-        *copy /u /q %AUDIO_PROCESSING_NOTES%                    "BAT-and-UTIL-files\notes - audio processing.txt"
-        rem y /u /q update-from-BAT-and-push-and-commit.bat      BAT-and-UTIL-files                                   %+ rem Yes, we are copying THIS script too, even though it only lives in my dev folder! 
-        *copy /u /q %0                                           BAT-and-UTIL-files                                   %+ rem Yes, we are copying THIS script too, even though it only lives in my dev folder! 
+rem Now that the validation is complete, update a few hand-picked files from their live locations to my github-folder location:
+        set                                   COPY=*copy /u /q
+        set                                 TARGET=BAT-and-UTIL-files
+        %copy%  %PRIMARY_AUTOEXEC_BAT%     %TARGET%\autoexec.btm
+        %copy%  %TCMD_ALIASES%             %TARGET%\alias.lst
+        %copy%  %TCMD_INI%                 %TARGET%\tcmd.ini
+        %copy%  %TCMD_START_SCRIPT%        %TARGET%\tcstart.bat
+        %copy%  %COLORTOOL_EXE%            %TARGET%\ColorTool.exe
+        %copy%  %PERL_SITELIB_ZIP%         %TARGET%\perl-sitelib-Clio.zip
+        %copy%  %GIRDER_CONFIGURATION%     %TARGET%\girder.gml
+        %copy%  %AUDIO_PROCESSING_NOTES%  "%TARGET%\notes - audio processing.txt"
+        %copy%  %0                         %TARGET%                                        %+ rem Yes, we are copying THIS script too——it only lives in my dev folder
 
 
 rem Give a chance to stop here...

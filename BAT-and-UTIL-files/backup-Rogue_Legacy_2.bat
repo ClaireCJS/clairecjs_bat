@@ -11,7 +11,7 @@ rem backup rogue legacy 2 savegame into monthly folders
 
     call validate-environment-variable SYNCBASE
     call yyyymmdd
-    set SYNCTARGET=%SYNCBASE%\%YYYY%YMM%
+    set SYNCTARGET=%SYNCBASE%\%YYYY%%MM%
     if not isdir %SYNCTARGET% (md /s %SYNCTARGET%)
 
     set SYNCTRIGER=__ last backed up __   
