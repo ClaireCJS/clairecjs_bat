@@ -458,13 +458,19 @@ def translate_emoji_to_ascii(char):
     return demojized
 
 
+
 def get_name_from_hex(unicode_hex):
     unicode_hex = unicode_hex.replace('\\u', '')  # Remove the Unicode escape sequence part
+    unicode_hex = unicode_hex.replace('\\U', '')  # Remove the Unicode escape sequence part     #2024/05/23 situation
     unicode_char = chr(int(unicode_hex, 16))  # Convert hex string to Unicode character
     try:
         return unicodedata.name(unicode_char)
     except ValueError:  # Raised when the character does not have a name
-        return "[ERROR: get_name_from_hex fail]"
+        unicode_char = chr(int("000" + unicode_hex, 16))  # Convert hex string to Unicode character
+        try:
+            return unicodedata.name(unicode_char)
+        except ValueError:  # Raised when the character does not have a name
+            return f"[ERROR: get_name_from_hex fail for hex={unicode_hex},char={unicode_char}]"
 
 
 
@@ -1429,10 +1435,14 @@ unicode_to_ascii_custom_character_mapping = {
     #it is called "ZERO WIDTH JOINER" and used in Indian languages: https://www.fileformat.info/info/unicode/char/200d/index.htm
     '\u200d     ': ['|',' '],  #deciding what to do with this character was difficult
 
+
     #these mfs exposed a python bug where certain characters aren't usable as keys in a dictionary
         '\u1f1fe': ["Y",],
     'code u1f1fe': ["Y",],                          #workaround
     'code u008d' : ["{reverse line feed}",],        #workaround
+
+    '\U0001fabd' :["_"],            #2024/05/23 ran nto this not sure what it is
+    '\U0001fae7' :["_"],            #2024/05/23 ran nto this not sure what it is
 
 
 
