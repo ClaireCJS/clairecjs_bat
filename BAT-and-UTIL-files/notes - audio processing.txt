@@ -204,9 +204,6 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 		         cover_downloader.py is very well documented within the script, if you are looking for more tips/info.
 				 "sweep cover_downloader" is also valid if you want to run a buncha stuff while not-at-keyboard                 
 		- 2) after successful step #1, run the freshly-generated get-art.bat, which is generated in step #1 (could sweep thru several folders too)
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 
 		- 3) manually review the JPGs downloaded [in irfanview]
 				- deleting the invalid ones (so one is left per song) —— The ones that are NOT for the right song
 				                      [Make sure to at least glance at the artist and song title if there is one]
@@ -233,7 +230,12 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 			 than doing it all manually!  Which is what the next step will be: Doing the missed ones manually.
 
 
-- TAGGING: STEP 3: ALBUM ART: Mp3Tag - embed album art manually
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 -
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐  
+
+
+- TAGGING: STEP 3: ALBUM ART: Mp3Tag - embed album art manually for all the ones missed
 	- this is to review any embeddings done in the last step, and to manually embed all the ones the last step missed
 	- embed album art using the Mp3Tag program 
 		- FIRST TIME RUNNING IT AFTER INSTALLATION: Go to Options->Tags->Mpeg and uncheck 'APE' under 'Read' and 'APEv2' under 'Write' and 'APE' under 'Remove' - basically, turn off APE support to properly "see" art embedded with my scripts

@@ -3,5 +3,5 @@
 
     echo.
     echo.
-    call important "Killing Winamp & MiniLyrics & Last.fm..."
+    call important "Killing MiniLyrics..."
     call killIfRunning  MiniLyrics  MiniLyrics

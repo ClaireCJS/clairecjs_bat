@@ -101,6 +101,8 @@
 2024-05-23  06:42            926   43%  cls.bat
 2024-04-28  12:42             55    8%  collapse-all-directories.bat
 2024-05-02  16:19          1,679   59%  collapse-all-subfolders-into-current-folder.bat
+2024-05-24  05:34            259   29%  color-cycle-background-briefly.bat
+2024-05-24  05:26          5,124   88%  color-cycle-background.ansi
 2023-06-05  17:31            478   46%  color-cycle-by-ansi-proof_of_concept.py
 2023-06-05  23:43             64   29%  color.bat
 2019-10-01  10:27            592   49%  colorize-by-computer-name.bat
@@ -130,7 +132,7 @@
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
-2024-05-20  15:38         62,931   71%  cover_downloader.py
+2024-05-23  15:11         63,243   71%  cover_downloader.py
 2024-04-19  20:18          2,893   64%  cover_embedder.py
 2024-04-10  15:13            435   49%  create-all-drive-shares-(for-new-installations).bat
 2023-10-06  05:56            710   50%  create-and-change-into-temp-folder.bat
@@ -273,6 +275,7 @@
 2024-04-10  12:48          5,461   76%  generate-filelists-by-attribute-video.ini
 2024-02-24  11:55        233,671   73%  generate-filelists-by-attribute.pl
 2023-06-02  04:05            534   52%  generate_and_play_random_midi.py
+2024-05-24  05:28            564   48%  generate_color_cycle_background_ansi.py
 2023-06-02  08:51          8,693   74%  generate_midi_randomly.py
 2024-05-14  12:36          4,173   66%  generate_thesem3u_and_allm3u_playlists_in_folder.py
 2019-10-01  10:28          8,414   64%  get-current-song-playing.pl
@@ -416,7 +419,7 @@
 2019-10-01  10:28            562   43%  numbers.pl
 2024-04-03  15:05             88    6%  numfiles.bat
 2023-07-01  08:28            363   50%  okgoogle.bat
-2023-07-04  17:35            232   41%  openimage.bat
+2024-05-23  10:36            431   55%  openimage.bat
 2022-07-03  20:15          2,365   72%  opera.bat
 2024-03-28  02:16             23   -8%  paus.btm
 2024-03-24  18:42          1,124   53%  pause-alias.bat
@@ -443,7 +446,7 @@
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
 2024-03-18  11:29             13  -15%  previousdir.bat
 2023-06-09  22:02             67    6%  print-if-debug.bat
-2024-05-08  01:51         21,422   74%  print-message.bat
+2024-05-23  08:03         21,443   74%  print-message.bat
 2024-02-14  02:28         13,998   74%  process-done-torrent.btm
 2024-03-18  22:28          2,192   64%  process-rookie-folders.bat
 2024-05-11  16:42             29   -6%  programfiles.bat
@@ -491,6 +494,8 @@
 2023-07-10  03:06            982   61%  rename_images_to_incorporate_folder_name.py
 2019-10-01  10:28            184   18%  research-this-dir-on-discogs.bat
 2019-10-01  10:28            186   18%  research-this-dir-on-wikipedia.bat
+2024-05-24  05:22            124   21%  reset-ansi.bat
+2024-05-24  05:20             76   58%  reset.ansi
 2024-05-11  16:41            539   46%  restart-chrome.bat
 2019-10-01  10:28            323   48%  restart-cpu-meter.bat
 2019-10-01  10:28            305   44%  restart-tcpip-stack.bat
@@ -571,10 +576,10 @@
 2023-06-08  07:50             91   32%  splvx.bat
 2023-06-08  04:15             90   33%  splx.bat
 2024-03-18  02:03            150   21%  start-everything.bat
-2023-07-14  09:11            207   45%  start-minilyrics.bat
+2024-05-23  08:08            213   46%  start-minilyrics.bat
 2022-08-17  11:44            135   44%  start-nonelevated.bat
 2023-07-19  09:18          2,465   63%  start.bat
-2024-04-09  23:28            148   35%  stop-minilyrics.bat
+2024-05-23  08:07            129   38%  stop-minilyrics.bat
 2019-10-01  10:28             18  -11%  stop-windows-update-reboot-nag.bat
 2024-05-07  14:05             22   -9%  stop.bat
 2019-10-01  10:28             53   10%  strip-ansi.pl
@@ -602,6 +607,7 @@
 2024-03-19  15:23          1,646   85%  test-askyn.bat
 2024-04-03  14:32            293   48%  test-cd.bat
 2023-06-02  21:00          1,020   66%  test-errorlevel-catcher.bat
+2024-05-24  05:23            104   25%  tock.bat
 2023-08-29  05:29             49   17%  tock.py
 2024-02-02  21:12            585   58%  touch-alias.bat
 2019-10-01  10:28            210   33%  TRIMDIR.pl
@@ -621,7 +627,7 @@
 2024-05-07  14:00             25   -8%  unpause.bat
 2024-04-28  20:54            287   35%  unzip-all.bat
 2024-04-28  21:01          6,124   71%  unzip-gracefully.bat
-2024-05-14  20:09         11,897   73%  update-from-BAT-via-manifest.bat
+2024-05-23  07:58         11,897   73%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2019-10-01  10:28            232   26%  urldecode.pl
 2019-10-01  10:28            326   33%  urlencode.pl
@@ -667,7 +673,7 @@
 2024-05-07  14:06          1,251   67%  winamp-stop.bat
 2024-05-07  14:01            991   53%  winamp-unpause.bat
 2024-03-28  04:19             21   -9%  winamp.bat
-2024-04-10  17:43          2,328   57%  window.bat
+2024-05-24  05:32          2,574   59%  window.bat
 2023-06-15  19:57             18  -11%  windowlist.bat
 2023-06-08  19:05             29   11%  windows-a-v1.ahk
 2023-06-08  19:05             31   10%  windows-a-v2.ahk

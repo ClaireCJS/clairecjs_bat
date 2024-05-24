@@ -20,6 +20,13 @@ rem First, we detect the command line container so we can use the native window 
         call detect-command-line-container
 
 
+
+rem If it is a 'window restore' command, we use our workaround, courtsey of Verfatica's plugin [which must be present!]:
+        if  "%@REGEX[/flash,%WINDOW_PARAM_1]" eq "1"  (
+            call color-cycle-background-briefly
+        )
+
+
 rem If it is a 'window restore' command, we use our workaround, courtsey of Verfatica's plugin [which must be present!]:
         if "%WINDOW_PARAM_1" eq "restore" .and. %PLUGIN_4WT_LOADED% eq 1 (
              rem 1=minimize, 2=restore, 3=maximize, 4=unmaximize, 5=?, 6=minmimize --- Verfatica's way was to do 6, then 1
@@ -33,7 +40,7 @@ rem If it is a 'window restore' command, we use our workaround, courtsey of Verf
 rem Otherwise, we [quietly] warn the user that the command isn't going to work:
         if "%container" eq "WindowsTerminal" .and. %RUNNING_ENVIRONM ne 1 .and. %SUPPRESS_WINDOW_UNDER_WINDOWS_TERMINAL_WARNING ne 1 (
             set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
-            call advice "Window command does not work under WindowsTerminal, but we will try this anyway: '%0 %*'"
+            call advice "Window command mostly doesn't under WindowsTerminal, but we will try this anyway: '%0 %*'"
         )
 
 
