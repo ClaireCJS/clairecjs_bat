@@ -24,7 +24,7 @@ VERBOSITY = 1                                                                   
            #6 each common substring check
 
 
-
+LAST_COMMON = set()
 
 
 
@@ -64,7 +64,7 @@ def get_common_substring(path1, path2):
 
 
 def reorder_playlist(lines):
-    global SHUFFLE, MAX_ATTEMPTS
+    global SHUFFLE, MAX_ATTEMPTS, LAST_COMMON
 
     if SHUFFLE:
         if VERBOSITY >= 3: print("🟢 Shuffling playlist...", end="")
@@ -98,7 +98,9 @@ def reorder_playlist(lines):
                 for j in range(i + 1, n):
                     #f not get_common_substring(lines[i], lines[j]) and not get_common_substring(lines[i - 1], lines[j]):
                     if not get_common_substring(lines[i], lines[j]):
-                        if VERBOSITY >= 5: print(f"\t\t🔴Swapping these 2 playlist entries:\n\t\t\t1: {lines[i]}\n\t\t\t2: {lines[j]}")
+                        if VERBOSITY >= 5:
+                            print(f"\t\t🔴Swapping entries 1 & 2:\n\t\t\t0: {lines[i-1]}\n\t\t\t1: {lines[i]}\n\t\t\t2: {lines[j]}\n\t\t\t",end="")
+                            print(list(LAST_COMMON))
                         lines[i], lines[j] = lines[j], lines[i]
                         break
         attempts        += 1
