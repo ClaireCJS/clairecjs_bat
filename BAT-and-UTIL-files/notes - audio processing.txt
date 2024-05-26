@@ -36,7 +36,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 - do all the renamings/pre-research of albums
 	- manually walk through all the folders in the batch to do this —— it's a detail-oriented task
-	- albums should be FLAC, MP3, or WAV -- any other formats need to be converted to wav (extract-all-wavs.bat) and the original audio files trashed or archived
+	- albums should be FLAC, MP3, or WAV —— any other formats need to be converted to wav (extract-all-wavs.bat) and the original audio files trashed or archived
 	- DO NOT look at/deal with cover art, because later we will be downloading more, so this would end up making us do it twice!! 
 	- If every single mp3 has the artist and album nam e in it, there is a quick fix!
 		* "an rmaa" - rmaa stands for remove artist & album info - this command will change names like:
@@ -57,8 +57,8 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 
-- NO LONGER DONE: once upon a time (1995-2022), this is where we would extract-all-wavs for every damn (non-wav) adio file by doing "sweep extract-all-wavs"
-	- but now (2023), we allow mp3/flac/wav files to exist at this point in the process, because we no longer re-encode EVERY file, because we now have faith in ReplayGain
+- NO LONGER DONE: once upon a time (1995-2022), this is where we would extract-all-wavs for every damn (non-wav) audio file by doing "sweep extract-all-wavs"
+	    - but now (2023), we allow mp3/flac/wav files to exist at this point in the process, because we no longer re-encode EVERY file, because we now have faith in ReplayGain
 
 
 
@@ -270,7 +270,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 - TAGGING: STEP 4: ALBUM ART: run-eaa-in-appropriate-subfolders (extract superior embedded artwork over inferior artwork on harddrive)
 	- BACKGROUND: Often times, when we embedded album art into our mp3|flac files, we found ones on the internet that are much higher resolution than the cover|folder.jpg|gif|png files sitting in the folder
 		- so we need to make these superior higher resolution versions in the mp3|flac files ALSO be the one sitting in the folder as a separate file
-		- "eaa" is the command - extract album art - this exracts the cover art and overwrites the existing one ONLY IF it's a larger file
+		- "eaa" is the command - extract album art - this extracts the cover art from the first audio file it finds, and overwrites the existing image file ONLY IF the extracted one is a larger file size
 			- but when should we run it?
 				- always makes sense to run in a folder that already has a cover|folder.jpg|gif|png because it may find a higher quality one
 				- always makes sense to run in album folders                         (easy to detect as they almost always have filenames that start with a number)
@@ -280,7 +280,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 - TAGGING: STEP 5: ALBUM ART: final review
-	- optional, but recommended: run duplicate-files-delete-them-including-sufolder-duplicates and ANSWER VERY VERY VERY CAREFULLY when deleting
+	- optional, but recommended: run "duplicate-files-delete-them-including-sufolder-duplicates" and ANSWER ⭐⭐⭐VERY VERY VERY⭐⭐⭐ CAREFULLY when deleting
 	- finally, go through a full directory-crawl reviewing/deleting/renaming the downloaded album art from all the previous steps so that everything is perfect
             - THIS IS A BIG STEP! MusicBrainz Picard can leave a ton of these in each folder. This is the final review. It is slow and arduous.
 
@@ -288,13 +288,15 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 - TAGGING: STEP 6: THE ACTUAL TAGGING: – Tag&Rename — finally giving up on id3v1 tags in 2023!
-	- get all fields of all file tags right
+    	- get all fields of all id3v2 tags right
+                - cover songs: sometimes we like to mention original artists in the comments
 
 
 
 - TAGGING: STEP 7: add ReplayGain tags - "sweep argt" - to all (flac/mp3) files
 	- may not work with songs (esp flac) that have a percent in their name! May have to temp-rename (esp flacs) to work at command line! 
-		- won't find this out until the review later, just something being mentioned
+		- will not find this out until the review later, just something being mentioned
+        - this is a good reason to still avoid percent-signs in music in 2024.  If we were not unicode-phobic in filenames I would recommend a unicode % that is different than the ascii %
 
 
 
@@ -314,11 +316,11 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 - manually review ReplayGain tags 
-	- WE DO IT AUTOMATICALLY NOW!!!!!!!!!!!!!!!!!!!
+	- WE DO IT AUTOMATICALLY NOW!!!!!!!!!!!!!!!!!!! YAYYY!!!!
 		* Step 1: run: audit-music-files.py  ----------- requires working python with a lot of installed packages tho
 		* Step 2: if RG_fix.bat is generated (or RG_yes.dat is non-zero), we havef problems — run RG_fix.bat to fix them (hopefully it does), then repeat Step 1
 				  If repeating leaves some stragglers (RG_no.dat is nonzero in size) you may have to refer to "SOME SONGS WILL HAVE FAILED" in the deprecated instructions below
-		* Step 3: There is no step 3! THESE ARE JUST DEPRECATED OLD INSTRUCTIONS TO KEEP AROUND:
+		* Step Z: There is no step Z! THESE ARE JUST DEPRECATED OLD INSTRUCTIONS TO KEEP AROUND:
 				- walk the folder tree manually, typing "lr" [list-replaygain-tags] at command line in each folder
 					- use "nd" to go to next folder for ease
 					- use "nd" only after being done with any subfolders -- don't forget "cheese", or "ORIGINAL-VERSIONS", or *any* subfolders
@@ -477,9 +479,9 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 BRAINSTORMING: Flac files don't display internal album art correctly, so if it's a MISC folder and a DIFFERENT song has a JPG companion, it'll pick that up and display the wrong cover
 	Possible solution: Sweep entire music collection looking for all FLACs.  
 		NOT QUITE: If there is not a cover.jpg file, extract it from each flac.
-			But wait, a MISC folderof 80s hits would end up with one cover.jpg. so no can't blindly do this
-			For a misc folder, we'd need.... a *companion* jpg for each flac.
-				But can't do this blindly! for albums it would be really dumb!
+			But wait, a MISC folder of 80s hits would end up with one cover.jpg. so no can't blindly do this
+			For a misc folder, we'd need.... a *sidecar* jpg for each and every flac.
+				But we can't do this blindly! for albums it would be really dumb!
 		Soooo:
 			no flac files ------ don't worry
 			all flac files ----- 
@@ -489,5 +491,7 @@ BRAINSTORMING: Flac files don't display internal album art correctly, so if it's
 
 			.....soooO: pretty much, we want companion-jpgs for all FLACs unless it's an all-flac album (if exist [0-1]*.flac and not exist *.mp3) then just a cover.jpg
 
-			....this should probably be done right before the step where we review all album art
+			....this should probably be done right before the step where we review all album art?
+
+
 

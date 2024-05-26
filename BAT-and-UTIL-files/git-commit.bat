@@ -16,6 +16,7 @@ REM Show modified/uncommitted files
 
 REM Get reason to commit
     set REASON=%1 
+    :Get_Reason
     if "%REASON%" eq "" .or. "%REASON%" eq "--verbose" (
         rem I liked this one:
                 REM generate a very nice commit comment akin to "update on 2023/06/01 -- 5:14:10 PM -- Thursday /// README.md"
@@ -39,6 +40,7 @@ REM Get reason to commit
         eset REASON
         REM don't turn off the flag here, even though that might be safer, because it would break calling this recursively on subfolders
     )
+    if "%REASON%" == "" (call warning "Reason must be provided!" %+ pause %+ goto :Get_Reason)
 
 
 REM Generate commit command

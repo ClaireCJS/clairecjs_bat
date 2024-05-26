@@ -1,5 +1,7 @@
-@echo off
+@Echo OFF
 echo.
+
+:DESCRIPTION: Post-processor for the "net use" command.  See display-drive-mapping.jpg for sample.
 
 REM 2.5 net use|sed "s/ *Microsoft Windows Network *//"|grep -i -v new.connections|grep -i -v status|grep -i -v "[\-][\-][\-]"|call strip-blank-lines|grep -i -v "%=^[\t ]*$"|grep -i -v completed.successfully | sed -e "s/\\\\\\\\/PLACEHOLDER/g"  -e "s/\\\\\([^\\]\)/\\\\%ITALICS_ON%%UNDERLINE_OFF%\1/g; s/PLACEHOLDER/\\\\\\\\/g"  -e "s/GOLIATH/%MACHINE_COLOR_GOLIATH%%FAINT_ON%GOLIATH%FAINT_OFF%/g"  -e "s/WYVERN\([0-9a-zA-Z]*\)/%MACHINE_COLOR_WYVERN%WYVERN\1 %ITALICS_OFF%%EMOJI_CASTLE%/g"  -e "s/DEMONA\([0-9a-zA-Z]*\)/%MACHINE_COLOR_DEMONA%DEMONA\1 %ITALICS_OFF%%EMOJI_MACHINE_DEMONA%/g"  -e "s/THAILOG\([0-9a-zA-Z]*\)/%MACHINE_COLOR_THAILOG%THAILOG\1 %ITALICS_OFF%%EMOJI_MACHINE_THAILOG%/g"  -e "s/$/%ITALICS_OFF%%ANSI_RESET%/"  -e "s/^/%ANSI_RESET%/"|cat
 rem 2.5 net use|sed "s/ *Microsoft Windows Network *//"|grep -i -v new.connections|grep -i -v status|grep -i -v "[\-][\-][\-]"|grep -i -v "%=^[\t ]*$"|grep -i -v completed.successfully | sed -e "/^[[:space:]]*$/d" -e "s/\\\\\\\\/PLACEHOLDER/g"  -e "s/\\\\\([^\\]\)/\\\\%ITALICS_ON%%UNDERLINE_OFF%\1/g; s/PLACEHOLDER/\\\\\\\\/g"  -e "s/GOLIATH/%MACHINE_COLOR_GOLIATH%%FAINT_ON%GOLIATH%FAINT_OFF%/g"  -e "s/WYVERN\([0-9a-zA-Z]*\)/%MACHINE_COLOR_WYVERN%WYVERN\1 %ITALICS_OFF%%EMOJI_CASTLE%/g"  -e "s/DEMONA\([0-9a-zA-Z]*\)/%MACHINE_COLOR_DEMONA%DEMONA\1 %ITALICS_OFF%%EMOJI_MACHINE_DEMONA%/g"  -e "s/THAILOG\([0-9a-zA-Z]*\)/%MACHINE_COLOR_THAILOG%THAILOG\1 %ITALICS_OFF%%EMOJI_MACHINE_THAILOG%/g"  -e "s/$/%ITALICS_OFF%%ANSI_RESET%/"  -e "s/^/%ANSI_RESET%/" |cat

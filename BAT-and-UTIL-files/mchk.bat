@@ -39,8 +39,8 @@ goto :theend
 	rem 2001-2009: if exist %HD80G2:\mp3-new\filelist.txt gr "%*" %HD80G2:\mp3-new\filelist.txt
     rem 2014:      *grep      -i "%*" "%INDEXFILE"|remap|sort|uniq
     rem 2015: removing remap becuase we now symlink c:\mp3\ and it should just be c:\mp3\ everywhere on a properly-vetted machine
-
-	gr "%*" "%INDEXFILE"|sort -u|sed 's/\//\\\/ig'
+	rem 2024: removing quotes around parameter  OLD:    gr "%*" "%INDEXFILE"|sort -u|sed 's/\//\\\/ig'
+	gr  %*  "%INDEXFILE" |:u8 sort -u |:u8 sed 's/\//\\\/ig'
 
 goto :theend
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

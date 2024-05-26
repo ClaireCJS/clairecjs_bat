@@ -98,7 +98,7 @@
 2019-10-01  10:27             33   13%  cl.bat
 2019-10-01  10:27             55    0%  clear-buffered-keystrokes.bat
 2023-07-19  11:13             20    5%  clip.bat
-2024-05-23  06:42            926   43%  cls.bat
+2024-05-26  15:17          1,049   42%  cls.bat
 2024-04-28  12:42             55    8%  collapse-all-directories.bat
 2024-05-02  16:19          1,679   59%  collapse-all-subfolders-into-current-folder.bat
 2024-05-24  05:34            259   29%  color-cycle-background-briefly.bat
@@ -178,7 +178,7 @@
 2019-10-01  10:25             71   10%  display-current-month.pl
 2024-01-26  04:37          8,051   85%  display-date-and-time-nicely.bat
 2024-05-16  14:00             22   -9%  display-dns.bat
-2024-05-26  04:40          8,747   90%  display-drive-mapping.bat
+2024-05-26  13:14          8,849   89%  display-drive-mapping.bat
 2024-05-26  13:12        208,745    6%  display-drive-mapping.jpg
 2024-05-08  21:43          1,801   57%  display-drives-by-computer.bat
 2023-07-10  20:27          1,060   49%  display-emojis-in-environment.bat
@@ -193,6 +193,7 @@
 2024-05-23  07:52            754   54%  display-mp3-length.bat
 2024-05-23  07:49            108   15%  display-mp3-lengths.bat
 2024-03-29  20:09            135   23%  display-mp3-tags.bat
+2024-05-26  14:20             83   16%  display-song-lengths.bat
 2020-12-30  20:05             71    8%  display-this-month.pl
 2023-08-26  19:26          2,838   72%  display-time-elapsed.bat
 2024-03-13  23:07          1,376   68%  display-video-length.bat
@@ -287,7 +288,7 @@
 2023-06-02  19:02            623   53%  git-add-every-damn-file.bat
 2024-05-11  18:04            797   48%  git-add.bat
 2024-04-09  23:33            158   14%  git-commit-history.bat
-2024-05-12  14:03          2,555   56%  git-commit.bat
+2024-05-26  13:17          2,668   56%  git-commit.bat
 2023-10-06  06:37             45   -4%  git-config-set-commit-preference-to-rebase.bat
 2023-06-14  23:22             54    4%  git-config-set-commit-preferences-to-rebase.bat
 2023-10-06  06:37             18  -11%  git-history.bat
@@ -358,6 +359,7 @@
 2019-10-01  10:28            102   18%  label.bat
 2020-04-22  19:57            278   32%  launch-monitor-to-react-after-program-closes.bat
 2023-04-09  07:00          2,410   66%  left-center-right.pl
+2024-05-26  14:20             35   -5%  lengths.bat
 2023-06-01  05:19             51   -1%  less_important.bat
 2023-06-03  04:14            708   46%  list-exif-dates.bat
 2022-11-25  04:57            837   46%  list-flac-replaygain-tags.bat
@@ -388,7 +390,7 @@
 2024-01-15  01:53         12,663   79%  map-drives.btm
 2024-04-03  14:35            506   36%  MCD.bat
 2024-04-03  14:46            164   18%  mcdnow.bat
-2024-04-10  17:00          5,777   71%  mchk.bat
+2024-05-26  13:28          5,886   71%  mchk.bat
 2023-07-14  09:09             24   -8%  minilyrics.bat
 2019-10-01  10:28             41   18%  mkv2avi.bat
 2024-04-03  14:42            517   46%  mmddhhmmss.bat
@@ -449,6 +451,7 @@
 2023-06-09  22:02             67    6%  print-if-debug.bat
 2024-05-23  08:03         21,443   74%  print-message.bat
 2024-02-14  02:28         13,998   74%  process-done-torrent.btm
+2024-05-26  14:43             25   -8%  process-filelist-to-prevent-consecutive-entries-from-same-folder.bat
 2024-03-18  22:28          2,192   64%  process-rookie-folders.bat
 2024-05-11  16:42             29   -6%  programfiles.bat
 2019-10-01  10:28             60   19%  programfilesx86.bat
@@ -486,6 +489,7 @@
 2019-10-01  10:28          2,682   53%  REMAP.pl
 2023-06-05  01:31             44   -4%  removal.bat
 2024-04-19  20:02            456   43%  remove-art-from-flac.bat
+2024-05-26  13:21             26   -7%  remove-blank-lines.bat
 2024-05-02  22:43          1,828   58%  remove-commas-from-filenames.bat
 2024-05-04  18:02          3,157   64%  remove-filename-characters-invalid-for-xbox360.bat
 2024-05-04  17:57          2,257   60%  remove-percents-from-filenames.bat
@@ -493,6 +497,7 @@
 2019-10-01  10:28            158   25%  remove-trailing-spaces.pl
 2023-10-03  21:12            106   10%  rename-folders-with-hyphens-into-underscores.bat
 2023-07-10  03:06            982   61%  rename_images_to_incorporate_folder_name.py
+2024-05-26  16:25          5,743   68%  reorder_playlist.py
 2019-10-01  10:28            184   18%  research-this-dir-on-discogs.bat
 2019-10-01  10:28            186   18%  research-this-dir-on-wikipedia.bat
 2024-05-24  05:22            124   21%  reset-ansi.bat
@@ -523,7 +528,7 @@
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
-2024-05-10  02:35         33,761   82%  set-colors.bat
+2024-05-26  13:52         33,761   82%  set-colors.bat
 2023-06-05  23:30             68   15%  set-current_playing_song.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
