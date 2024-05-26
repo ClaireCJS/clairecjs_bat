@@ -178,7 +178,7 @@
 2019-10-01  10:25             71   10%  display-current-month.pl
 2024-01-26  04:37          8,051   85%  display-date-and-time-nicely.bat
 2024-05-16  14:00             22   -9%  display-dns.bat
-2024-01-25  21:12          7,595   90%  display-drive-mapping.bat
+2024-05-26  04:40          8,747   90%  display-drive-mapping.bat
 2024-05-08  21:43          1,801   57%  display-drives-by-computer.bat
 2023-07-10  20:27          1,060   49%  display-emojis-in-environment.bat
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
@@ -275,7 +275,7 @@
 2024-04-10  12:48          5,461   76%  generate-filelists-by-attribute-video.ini
 2024-02-24  11:55        233,671   73%  generate-filelists-by-attribute.pl
 2023-06-02  04:05            534   52%  generate_and_play_random_midi.py
-2024-05-24  05:28            564   48%  generate_color_cycle_background_ansi.py
+2024-05-24  12:32            569   48%  generate_color_cycle_background_ansi.py
 2023-06-02  08:51          8,693   74%  generate_midi_randomly.py
 2024-05-14  12:36          4,173   66%  generate_thesem3u_and_allm3u_playlists_in_folder.py
 2019-10-01  10:28          8,414   64%  get-current-song-playing.pl
@@ -673,7 +673,7 @@
 2024-05-07  14:06          1,251   67%  winamp-stop.bat
 2024-05-07  14:01            991   53%  winamp-unpause.bat
 2024-03-28  04:19             21   -9%  winamp.bat
-2024-05-24  05:32          2,574   59%  window.bat
+2024-05-24  12:31          2,599   58%  window.bat
 2023-06-15  19:57             18  -11%  windowlist.bat
 2023-06-08  19:05             29   11%  windows-a-v1.ahk
 2023-06-08  19:05             31   10%  windows-a-v2.ahk

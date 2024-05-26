@@ -10,6 +10,6 @@ def generate_ansi_bg_color_cycle():
 
 if __name__ == "__main__":
     ansi_codes = generate_ansi_bg_color_cycle()
-    with open("color_cycle_output.txt", "w") as file:
+    with open("color-cycle-background.ansi", "w") as file:
         for ansi_code in ansi_codes:
             file.write(ansi_code + '\n')

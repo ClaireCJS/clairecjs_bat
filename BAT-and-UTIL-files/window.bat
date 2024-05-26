@@ -21,9 +21,10 @@ rem First, we detect the command line container so we can use the native window 
 
 
 
-rem If it is a 'window restore' command, we use our workaround, courtsey of Verfatica's plugin [which must be present!]:
+rem If it is a 'window flash' command, we use a semi-workaround: color-cycling the background color using ANSI codes:
         if  "%@REGEX[/flash,%WINDOW_PARAM_1]" eq "1"  (
             call color-cycle-background-briefly
+            goto :END
         )
 
 
@@ -40,7 +41,7 @@ rem If it is a 'window restore' command, we use our workaround, courtsey of Verf
 rem Otherwise, we [quietly] warn the user that the command isn't going to work:
         if "%container" eq "WindowsTerminal" .and. %RUNNING_ENVIRONM ne 1 .and. %SUPPRESS_WINDOW_UNDER_WINDOWS_TERMINAL_WARNING ne 1 (
             set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
-            call advice "Window command mostly doesn't under WindowsTerminal, but we will try this anyway: '%0 %*'"
+            call advice "Window command mostly doesn't work under WindowsTerminal, but we will try this anyway: '%0 %*'"
         )
 
 
