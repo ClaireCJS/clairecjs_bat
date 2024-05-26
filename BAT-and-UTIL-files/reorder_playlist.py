@@ -3,55 +3,59 @@ import os
 import sys
 import shutil
 
-global VERBOSITY
-VERBOSITY = 3
 
-#0 no output
-#1 file saving
-#2 basic output only, 'hunting' message
-#3 backup & are we shuffling?
-#4 file loading
-#5 swaps performed & consecutives-still-exist message
-#6 each common substring check
+
+global VERBOSITY, FOLDER_NAMES_TO_IGNORE, SHUFFLE, LAST_COMMON, MAX_ATTEMPTS
+
+SHUFFLE = True                                                                                                          # randomize the entire playlist first? True=Yes
+
+MAX_ATTEMPTS = 50                                                                                                       # how many times to keep going through the file before giving up... It generally will be done after 2-3 no mat#####                     er what, anyway
+
+FOLDER_NAMES_TO_IGNORE = ['', 'music', 'mp3', 'tv & movies & games']                                                    # don't swap entries simply from encountering *these* in the folder tree [must include '']
+                        #'misc' may or may not be a good addition here. Currently thinking no.
+
+           #0 no output
+VERBOSITY = 1                                                                                                           # default verbosity level if not specified as 2nd command-line argument
+           #1 file saving
+           #2 basic output only, 'hunting' message
+           #3 backup & are we shuffling?
+           #4 file loading
+           #5 swaps performed & consecutives-still-exist message
+           #6 each common substring check
+
+
+
+
+
+
+
 
 def load_m3u(filename):
     with open(filename, 'r', encoding='utf-8') as file:
-        lines = [line.strip() for line in file if line.strip() and not line.startswith('#')]
+        lines = [line.strip() for line in file if line.strip() and not line.startswith('#')]                            # ignore comment lines
     if VERBOSITY >= 4: print(f"🟢 Loaded {len(lines)} lines from {filename}")
     return lines
 
+
 def save_m3u(filename, lines):
     with open(filename, 'w', encoding='utf-8') as file:
-        for line in lines:
-            file.write(line + '\n')
+        for line in lines: file.write(line + '\n')
     if VERBOSITY >= 1: print(f"🟢 Saved {len(lines)} lines to {filename}")
+
 
 def get_folder(file):
     return os.path.dirname(file)
 
 
-#####                   def extract_keywords(file_path):
-#####                       # Extract keywords by splitting the path and file name into words
-#####                       #ath_parts = re.split(r'[/\\\s\-_]+', file_path)
-#####                       path_parts = re.split(r'[\\\/]+', file_path)
-#####                       keywords = set(part.lower() for part in path_parts if part)
-#####                       return keywords
-#####
-#####                   def has_common_keywords(file1, file2):
-#####                       keywords1 = extract_keywords(file1)
-#####                       keywords2 = extract_keywords(file2)
-#####                       common_keywords = keywords1.intersection(keywords2)
-#####                       return bool(common_keywords)
-#####
-#####
-
 def get_common_substring(path1, path2):
     # Extract parts of the paths and find common substrings
-    #parts1 = path1.lower().split(os.sep); parts2 = path2.lower().split(os.sep)
-    folder_names_to_ignore = ['', 'mp3', 'tv & movies & games']
+    global LAST_COMMON
+    folder_names_to_ignore = FOLDER_NAMES_TO_IGNORE
+    #arts1 = path1.lower().split(os.sep); parts2 = path2.lower().split(os.sep)
     parts1 = [part for part in path1.lower().split(os.sep) if part not in folder_names_to_ignore]
     parts2 = [part for part in path2.lower().split(os.sep) if part not in folder_names_to_ignore]
     common_parts = set(parts1) & set(parts2)
+    LAST_COMMON = common_parts
     return_value = False
     #eturn_value = any(part for part in common_parts if part.isalnum())
     if len(common_parts) > 0: return_value = True
@@ -59,29 +63,30 @@ def get_common_substring(path1, path2):
     return return_value
 
 
-
 def reorder_playlist(lines):
-    shuffle = False
-    if shuffle:
+    global SHUFFLE, MAX_ATTEMPTS
+
+    if SHUFFLE:
         if VERBOSITY >= 3: print("🟢 Shuffling playlist...", end="")
         random.shuffle(lines)
         if VERBOSITY >= 3: print("done!")
     else:
         if VERBOSITY >= 3: print("🔴 NOT shuffling playlist...")
     n = len(lines)
+
     #ax_attempts = n * 2  # Set a limit on the number of attempts to reorder
-    max_attempts = 3
+    max_attempts = MAX_ATTEMPTS
     attempts = 0
 
     if VERBOSITY >= 2: print("🟡 Hunting consecutive entries from same folder...")
     remaining_count = max_attempts
-    while attempts < max_attempts:
+    while attempts  < max_attempts:
         if VERBOSITY >= 2: print(f"\t🔰 maximum {remaining_count} passes left")
         success = True
         for i in range(1, n):
             if get_common_substring(lines[i - 1], lines[i]):
                 success = False
-                if VERBOSITY >= 5: print(f"\t🧧Consecutive-duplicates still exist.")
+                if VERBOSITY >= 5: print(f"\t🧧Consecutive-duplicates still exist with:\n\t\t{lines[i-1]}\n\t\t{lines[i]}\n\t\t{LAST_COMMON}")
                 break
         if success:
             if VERBOSITY >= 2: print(f"\t🟢 maximum 0 passes left 🎈[finished up early]🎈")
@@ -91,7 +96,8 @@ def reorder_playlist(lines):
         for i in range(1, n):
             if get_common_substring(lines[i - 1], lines[i]):
                 for j in range(i + 1, n):
-                    if not get_common_substring(lines[i], lines[j]) and not get_common_substring(lines[i - 1], lines[j]):
+                    #f not get_common_substring(lines[i], lines[j]) and not get_common_substring(lines[i - 1], lines[j]):
+                    if not get_common_substring(lines[i], lines[j]):
                         if VERBOSITY >= 5: print(f"\t\t🔴Swapping these 2 playlist entries:\n\t\t\t1: {lines[i]}\n\t\t\t2: {lines[j]}")
                         lines[i], lines[j] = lines[j], lines[i]
                         break
