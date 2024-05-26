@@ -179,6 +179,7 @@
 2024-01-26  04:37          8,051   85%  display-date-and-time-nicely.bat
 2024-05-16  14:00             22   -9%  display-dns.bat
 2024-05-26  04:40          8,747   90%  display-drive-mapping.bat
+2024-05-26  13:12        208,745    6%  display-drive-mapping.jpg
 2024-05-08  21:43          1,801   57%  display-drives-by-computer.bat
 2023-07-10  20:27          1,060   49%  display-emojis-in-environment.bat
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
