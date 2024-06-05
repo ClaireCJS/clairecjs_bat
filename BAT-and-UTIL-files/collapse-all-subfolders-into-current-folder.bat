@@ -55,7 +55,7 @@
 
 
 ::::: DO IT! —— COLLAPSE ALL THE FOLDERS!:
-    for /a:d /h %dir in (*)      mv/ds "%dir" .
+    for /a:d /h %dir in (*)      *move /ds /g "%dir" .
 
 
 ::::: SHOW SUCCESS:

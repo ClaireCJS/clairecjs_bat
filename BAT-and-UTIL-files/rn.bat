@@ -10,7 +10,9 @@
     if not exist  %1           goto :DNE
 
 :::: Get/react to arguments:
-    if "%2" ne "" .and. "%1" ne "recursive" .and. "%2" ne "recursive" goto :oops_they_meant_to_do_ren_and_not_rn
+    rem OLD ne "" .and. "%1" ne "recursive" .and. "%2" ne "recursive" goto :oops_they_meant_to_do_ren_and_not_rn
+                                                                       set END_NAME_SPECIFIED=0
+    if "%2" ne "" .and. "%1" ne "recursive" .and. "%2" ne "recursive" (set END_NAME_SPECIFIED=1)
     set FILES=%@FILES[%1]                                                                                                              %+ call print-if-debug * FILES is %FILES%
     set ISDIR=0
     if  isdir    %1 goto :IsDir
@@ -35,7 +37,8 @@
                     call validate-environment-variable FILENAME_OLD_TRUENAME
             color bright red on black 
             set  FILENAME_NEW=%FILENAME_OLD%        
-            eset FILENAME_NEW 
+            if %END_NAME_SPECIFIED eq 1 ( set FILENAME_NEW=%2)
+            if %END_NAME_SPECIFIED ne 1 (eset FILENAME_NEW)
             %COLOR_RUN%
             if "%FILENAME_NEW%" eqc "%FILENAME_OLD%" (%COLOR_WARNING% %+ echos * %ITALICS_ON%No change.%ITALICS_OFF% %+ %COLOR_NORMAL% %+ echo. %+ goto :END)
             set  UNDOCOMMAND=%REN% "%FILENAME_NEW%" "%@UNQUOTE[%FILENAME_OLD%]" 

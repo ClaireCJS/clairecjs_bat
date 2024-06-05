@@ -848,14 +848,14 @@ return($day);
 ###########################################################################
 sub gather_id3_genres_artists_albums_songs {
     if ($NO_GENRE_PROCESSING_WHATSOEVER) { &log("\n*** NOT Retrieving id3 genre tags.\n"); return; }  #TODO this will cause skipping of artists/bands/songs too
-    &log("\n*** Retrieving id3 genre/artist/album/song tags from $num_files_to_check files.");
+    &log                                           ("\n*** Retrieving id3 genre/artist/album/song tags from $num_files_to_check files.");
     my ($mp3_file1,$mp3_file2,$genrev1,$genrev2,$bestgenre,$artist,$album,$song);
     my $factor = 500;												#hard-coding this isn't as elegant, let's instead calcluate a value:
     $factor = int ($num_files_to_check / 200);						#how many dots to display, set to 100 and each dot is 1% progress
     if ($factor == 0) { $factor=1; }
 
     foreach my $tmpfile (@files) {
-		#print "[PTFG] tmpfile=$tmpfile\n";
+		#print "[PTFG] tmpfile=$tmpfile\n";							#2024/06/02 - had to uncomment this for a weird encoding issue in a Sloppy Jane album [Willow]. Fixed by re-saving metadata of each song in VLCplayer. Made me realize parts of this need a try/catch so that the name is outputted if there is an error, but not otherwise. No need to actually implement that unless this comes up again, though.
         if (($numEncountered++ % $factor)==0) { &log("."); }
         if ($tmpfile !~ /\.mp3$/i) { next; }                        #id3 tags are only for mp3 files! #TODO FLac support would go here
         ($genrev1,$genrev2,$artist,$album,$song) = &get_genre_artist_album_song_for_one_mp3($tmpfile);

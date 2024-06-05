@@ -39,7 +39,7 @@ goto :END
     %color_debug%
     rem echo     *start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
     %color_run%
-               *  start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
+                 *start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
 
 
 :END

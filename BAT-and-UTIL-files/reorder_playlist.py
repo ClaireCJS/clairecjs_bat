@@ -95,7 +95,8 @@ def reorder_playlist(lines):
         # Try to swap the problematic entry with a non-adjacent one
         for i in range(1, n):
             if get_common_substring(lines[i - 1], lines[i]):
-                for j in range(i + 1, n):
+                for j in range(i + 1,      n):
+                #or j in range(i + (n/2), 2n???): want to do something like this, swap it halfway ... but would go over total.... so..... subtract length if over the total length? ... and run until ... 2n??!
                     #f not get_common_substring(lines[i], lines[j]) and not get_common_substring(lines[i - 1], lines[j]):
                     if not get_common_substring(lines[i], lines[j]):
                         if VERBOSITY >= 5:
