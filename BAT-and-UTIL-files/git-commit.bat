@@ -36,7 +36,8 @@ REM Get reason to commit
         echo.
         call important "Enter your commit reason:"
         %COLOR_INPUT%
-        call prompt-sound
+        window restore
+        call prompt-sound "Enter commit reason:"
         eset REASON
         REM don't turn off the flag here, even though that might be safer, because it would break calling this recursively on subfolders
     )
