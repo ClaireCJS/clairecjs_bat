@@ -28,12 +28,15 @@
         :IsDir
             set ISDIR=1
         :IsSingleFile
-            set REN=ren
-            if %ISDIR% == 1 (set REN=mv/ds)
+            set REN=*ren /Nts
+            if %ISDIR eq 1 (
+                                   set REN=  mv /ds /Ns
+                if "%3" eq "fast" (set REN=*move/ds /Ns)
+            )
             set  FILENAME_OLD=%@UNQUOTE[%1]                             
                     :et  FILENAME_OLD_TRUENAME=%@TRUENAME["%1"]
                     set  FILENAME_OLD_TRUENAME=%@TRUENAME["%FILENAME_OLD%"]
-                    call print-if-debug "[About to validate-env-var FILENAME_OLD_TRUENAME]"
+                    if %DEBUG gt 0 (call print-if-debug "[About to validate-env-var FILENAME_OLD_TRUENAME]")
                     call validate-environment-variable FILENAME_OLD_TRUENAME
             color bright red on black 
             set  FILENAME_NEW=%FILENAME_OLD%        
@@ -46,11 +49,12 @@
                                  set LAST_RENAMED_TO=%@UNQUOTE[%FILENAME_NEW%]
 
                 %COLOR_SUCCCESS%
-                echos %FAINT_ON%
+                echos %FAINT_ON%%@RANDFG_SOFT[]%RN_DECORATOR% ``
                 REM echo y|%REDOCOMMAND%                                                 
+                rem call debug "redo command is %blink_on%%REDOCOMMAND%%blink_off%"
                 %REDOCOMMAND%                                                 
                 echos %FAINT_OFF%
-                call validate-environment-variable FILENAME_NEW
+                if not exist %FILENAME_NEW (call fatal_error "filename_new does not exist! %blink_off%%filename_new%%blink_off%")
 
         :RenameCompanions
             set BASENAME_OLD=%~n1
