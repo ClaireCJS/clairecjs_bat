@@ -2,8 +2,8 @@
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-::::: FORK BEHAVIOR BASED ON WHAT FOLDER WE ARE IN:
-::::: TODO use regex instead so it does a partial match for things like \media\delete-after-watching\hangout\${SomeShowName}
+rem FORK BEHAVIOR BASED ON WHAT FOLDER WE ARE IN:
+    ::::: Future note: If we run into future situations where we want a whole tree to behave a certain way, we will have to use regex
 	if "%_CWP"=="\GAMES-REPOSITORY\RHYTHM & MUSIC\Rocksmith"       gosub :rocksmithdlc
 	if "%_CWP"==                                      "\DLC"       gosub :rocksmithdlc
 	if "%_CWP"=="\MEDIA\DELETE-AFTER-WATCHING"                     gosub :videoWatchingRepo
@@ -48,7 +48,7 @@ goto :END
 return
 
 :rocksmithdlc
-    call debut "is rocksmith!"
+    call debug "is rocksmith!"
     call clean-rocksmith-dlc-dir %*
 return
 

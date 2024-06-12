@@ -49,7 +49,7 @@
 2024-04-14  23:40            672   54%  audio-batch-processing---encode-everything-and-remove-redundant-WAVs.bat
 2019-10-01  10:27          2,571   69%  audio-countdown-noise.bat
 2024-03-13  20:08          5,959   68%  audit-music-files.py
-2024-02-20  18:34          5,064   78%  auto-clean.bat
+2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
 2024-04-26  14:52          1,414   64%  autoexec.ahk
 2024-04-26  14:56             56    8%  AutoHotKey-autoexec.bat
@@ -101,6 +101,9 @@
 2023-10-06  09:42             44   -2%  chown.bat
 2024-05-11  16:42            559   51%  chrome.bat
 2019-10-01  10:27             33   13%  cl.bat
+2024-06-12  12:57          4,063   66%  clean-dbcu.bat
+2024-06-12  12:11            536   46%  clean-rocksmith-dlc-dir.bat
+2023-10-06  08:03             21   -9%  clean.bat
 2019-10-01  10:27             55    0%  clear-buffered-keystrokes.bat
 2023-07-19  11:13             20    5%  clip.bat
 2024-05-26  15:17          1,049   42%  cls.bat
@@ -198,6 +201,7 @@
 2024-05-23  07:52            754   54%  display-mp3-length.bat
 2024-05-23  07:49            108   15%  display-mp3-lengths.bat
 2024-03-29  20:09            135   23%  display-mp3-tags.bat
+2024-06-12  12:56            416   50%  display-size-of-current-folder-tree.bat
 2024-05-26  14:20             83   16%  display-song-lengths.bat
 2020-12-30  20:05             71    8%  display-this-month.pl
 2023-08-26  19:26          2,838   72%  display-time-elapsed.bat
@@ -224,10 +228,10 @@
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
 2024-04-05  17:08         69,852   78%  emoji.env
-2021-03-04  13:25            205   19%  ensure-directories-exist.bat
+2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-05-11  14:23        177,043   81%  environm.btm
+2024-06-12  12:18        177,261   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -254,7 +258,7 @@
 2022-02-02  02:53            666   51%  firefox.bat
 2023-11-09  07:48          1,390   57%  fix-evillyrics-window-size-and-position.bat
 2019-10-01  10:28         14,337   82%  fix-file-dates-using-filenames.bat
-2023-10-06  08:11            983   60%  fix-google-photo-filenames.bat
+2024-06-12  12:03            969   59%  fix-google-photo-filenames.bat
 2023-11-09  07:46             80    3%  fix-lastfm-window-size-and-position.bat
 2023-11-09  07:46             21   -9%  fix-minilyrics-window-size-and-position.bat
 2020-05-26  14:36            143   50%  fix-music-window-sizes-and-positions.bat

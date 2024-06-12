@@ -1772,6 +1772,9 @@ return
 				:ET NEWPICTURESBACKUPDRIVE=%HD18T3%     :changed 20230823 when HD6000G3 revived
 				SET NEWPICTURESBACKUPDRIVE=%HD6000G3%
 				SET NEWPICTURESBACKUP=%NEWPICTURESBACKUPDRIVE%:\backups\newpics.bak\
+                set SCREENSHOTSDRIVE=%NEWPICTURESDRIVE%
+                set SCREENSHOTS=%NEWPICTURES%\_screenshots
+
 			:Final_Repository
 				SET PICTURESMACHINE=THAILOG
 				REM PICTURESDRIVE=%HD10000G1% - moved 20240125 after breaking power connector off HD10T
@@ -1835,6 +1838,7 @@ return
                 gosub ValidateFolderExists       PICTURESDRIVE             PICTURES1024x600
                 gosub ValidateFolderExists       PICTURESDRIVE             PICTURES1024x768
                 gosub ValidateFolderExists       POSTCARDSDRIVE            POSTCARDS
+                gosub ValidateFolderExists     SCREENSHOTSDRIVE            SCREENSHOTS
 
 		::::: VIDEO WORKFLOW LOCATIONS:
 			:PreBurn_Rally_Point:

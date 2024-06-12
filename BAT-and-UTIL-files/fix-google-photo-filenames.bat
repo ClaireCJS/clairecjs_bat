@@ -1,22 +1,12 @@
 @Echo OFF
 
-
 rem   This adds the hyphens back into the filenames & reformats filenames so we get "YYYY-MM-DD HHMM - " formatted filenames
 
-
 rem   Example renamings:
-
-rem :⭢︋📂20230107_232125546.MP.jpg -> 
-rem :   2023-01-07 2321 - 32125546.MP.jpg
-rem :
-rem :⭢︋📂20230107_232126848.jpg -> 
-rem :   2023-01-07 2321 - 32126848.jpg
-rem :
-rem :⭢︋📂20230107_232128116.jpg -> 
-rem :   2023-01-07 2321 - 32128116.jpg
-rem :
-rem :⭢︋📂20230107_232129440.MP.jpg -> 
-rem :    2023-01-07 2321 - 32129440.MP.jpg
+            rem :⭢︋📂20230107_232125546.MP.jpg -> 2023-01-07 2321 - 32125546.MP.jpg
+            rem :⭢︋📂20230107_232126848.jpg    -> 2023-01-07 2321 - 32126848.jpg
+            rem :⭢︋📂20230107_232128116.jpg    -> 2023-01-07 2321 - 32128116.jpg
+            rem :⭢︋📂20230107_232129440.MP.jpg -> 2023-01-07 2321 - 32129440.MP.jpg
 
 
 
