@@ -236,31 +236,43 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 - TAGGING: STEP 3: ALBUM ART: Mp3Tag - embed album art manually for all the ones missed
-	- this is to review any embeddings done in the last step, and to manually embed all the ones the last step missed
-	- embed album art using the Mp3Tag program 
-		- FIRST TIME RUNNING IT AFTER INSTALLATION: Go to Options->Tags->Mpeg and uncheck 'APE' under 'Read' and 'APEv2' under 'Write' and 'APE' under 'Remove' - basically, turn off APE support to properly "see" art embedded with my scripts
+	- PURPOSE: (1) to review album-art embedded so far
+               (2) to   add  album-art where still missing
+	-  METHOD: review/embed album-art using the Mp3Tag program 
+    -  CARING: we care more for stuff we actually listen to than stuff we just collect
+    -  IN PLAIN ENGLISH: We use Mp3Tag to go through all the files and make sure there is 1 cover art in each file.
+                                Mp3Tag has search tools (with ctrl-1 through ctrl-7 hotkeys) that link to BAT files I wrote to find art better.
+                                Ultimately, missing art is copy-pasted into Mp3Tag. It is a tedious process
+    -  FIRST-TIME Mp3Tag CONFIGURATION:
+		- FIRST TIME RUNNING Mp3tag AFTER INSTALLATION: Go to Options->Tags->Mpeg and uncheck 'APE' under 'Read' and 'APEv2' under 'Write' and 'APE' under 'Remove' - basically, turn off APE support to properly "see" art embedded with my scripts
 		- ART QUALITY: we like to have >500x500 res if possible, but really, we love having >1000x1000 res. 
-		- CARING: we care more for stuff we actually listen to than stuff we just collect
 		- If the art is present, it was likely downlaoded that way, or embedded in the last step! Yay! Already done!
 		- if the art is not present, we have to add it. Boo!
 			- first click the MP3/FLAC and try to locally add whatever cover.jpg/png is in the folder already
 		- searching can be automated using Mp3Tag's "tools":
 			- you can use the tool (right click, but also there are some keystrokes like Ctrl-3 through Ctrl-7) to automate google image searches for better cover art
-				- TODO: setting up the tools is tedious - finish this list
+				- TODO: setting up the tools is tedious - finish this list?
 					#1/Ctrl-1: name: winamp.bat enqueue                           path: c:\tcmd\tcc.exe parameter: C:\bat\winamp-add.bat "%_path%"                                // check 'for all selected files': Yes
 					#2/Ctrl-2: name: enqueueue                                    path: c:\tcmd\tcc.exe parameter: c:\bat\enqueue.bat "%_path%"                                   // check 'for all selected files': Yes
 					#3/Ctrl-3: name: album-art-tool-for-mp3Tag  [using filename]  path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.btm "%_filename%"             // check 'for all selected files': Yes
 					#4/Ctrl-4: name: album-art-tool-for-mp3Tag-beforeDash         path: C:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag-beforedash.btm "%_filename%"  // check 'for all selected files': Yes
-					#5/Ctrl-5: name: album-art-tool-for-mp3Tag ARTIST+ALBUM       path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.btm "%artist%" "%album%"      // check 'for all selected files': Yes
+					#5/Ctrl-5: name: album-art-tool-for-mp3Tag ARTIST+ALBUM       path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.btm "%artist%" "%album%"      // check 'for all selected files': Yes - this one is used for most album rips
 					#6/Ctrl-6: name: album-art-tool-for-mp3Tag ALBUM ONLY         path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.btm "%album%"                 // check 'for all selected files': Yes
 					#7/Ctrl-7: name: album-art-tool-for-mp3Tag artist + filename  path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.btm "%artist%"  "%_filename%" // check 'for all selected files': Yes
-	- for ONEDIR/MISC folders from many different years, this can actually be a good time to edit the year tag 
+	- RULE: only embed ONE album art image——the cover——per file. 
+            - Why? multi-image embedding [i.e. back, front, inlay, etc] as this can confuse some players:
+                    - multiple ones cause weird behavior in MiniLyrics
+                    - WinAmp can't always view the extra covers anyway
+    - NOTE: If you download a better one than the cover.jpg in the folder, you should delete the cover.jpg already in the folder!
+            - This is very hard to notice/remember, buuuuut, the way you do is:
+                - (1) When you want to replace the image, you right-click it and say "add" and it opens the folder. 
+                - (2) From there, if a cover.jpg exists, you add it.
+                - (3) If the opinion is that it is not good enough, then right-click, say "add", and when the filepicker window opens...
+                - (4) ...just delete the cover.jpg. Do not actually add it. We were just pretending to add it to open the filepicker.
+                - (5) This is when we would typically hit Ctrl-5 (or 4, or 7, or 6) to search for a better cover image
+	- TIP: for ONEDIR/MISC folders from many different years, this can actually be a good time to edit the year tag 
 		- [yes, tags can be edited in mp3tag too! it's just not the preferred tool we usually use for that]
-		- Ctrl-3 / tool#3 / "using filename" is often the best tool for ONEDIR stuff that has the artist name in the filename
-	- and oh: only embed ONE album art image -- the cover -- per file ... forget multi-image embedding
-		- sure, it's possible to embed back.jpgs officially as the back, pictures of the disc.jpgs as pictures of the disc, etc etc, but:
-			- multiple ones cause weird behavior in MiniLyrics
-			- WinAmp can't always view the extra covers so what's the point
+		- Ctrl-3 / tool#3 / "using filename" is often the best tool to find album-art for ONEDIR stuff that has the artist name in the filename
 
 
 
