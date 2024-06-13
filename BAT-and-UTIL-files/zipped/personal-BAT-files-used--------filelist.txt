@@ -601,6 +601,7 @@
 2024-05-07  14:05             22   -9%  stop.bat
 2019-10-01  10:28             53   10%  strip-ansi.pl
 2023-08-08  12:46             24   -8%  strip-blank-lines.bat
+2024-06-13  08:25            182   28%  strip-html.pl
 2019-10-01  10:28          3,438   74%  strip-video-rotation-metadata.bat
 2024-04-10  19:14         22,528   11%  StripAnsi.dll
 2024-04-10  22:25             44   12%  StripAnsi.txt
