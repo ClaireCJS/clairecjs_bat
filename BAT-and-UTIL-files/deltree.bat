@@ -33,3 +33,4 @@ rem Currently not implemented, but reset this just to be safe:
     if %AUTO_DEL_DIR eq 1 (set AUTO_DEL_DIR=0)
 
 
+title TCC

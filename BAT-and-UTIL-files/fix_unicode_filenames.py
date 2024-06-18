@@ -287,6 +287,7 @@ def translate_one_or_more_chars_with_custom_character_mapping(chars, mode):     
         else:                                   mapping_number_to_use = 0
         translated_chars.append(mapping[mapping_number_to_use])
         done = True                                                             # If any character is mapped, mark it as done
+        if DEBUG_UNIDECODECHAR_TRANSLATECHAR: primt("\n")
 
     return ''.join(translated_chars), done
 
@@ -460,17 +461,34 @@ def translate_emoji_to_ascii(char):
 
 
 def get_name_from_hex(unicode_hex):
+    primt(f"\n\nRunning get_name_from_hex({unicode_hex})")
+    unicode_hex_original = unicode_hex
+
     unicode_hex = unicode_hex.replace('\\u', '')  # Remove the Unicode escape sequence part
     unicode_hex = unicode_hex.replace('\\U', '')  # Remove the Unicode escape sequence part     #2024/05/23 situation
-    unicode_char = chr(int(unicode_hex, 16))  # Convert hex string to Unicode character
+
+    primt(f"unicode_hex is now {unicode_hex}")
+
+    unicode_char = chr(int(unicode_hex, 16))      # Convert hex string to Unicode character
     try:
         return unicodedata.name(unicode_char)
-    except ValueError:  # Raised when the character does not have a name
+    except ValueError:                                    # Raised when the character does not have a name
+
         unicode_char = chr(int("000" + unicode_hex, 16))  # Convert hex string to Unicode character
         try:
             return unicodedata.name(unicode_char)
-        except ValueError:  # Raised when the character does not have a name
-            return f"[ERROR: get_name_from_hex fail for hex={unicode_hex},char={unicode_char}]"
+        except ValueError:                                    # Raised when the character does not have a name
+
+            unicode_char = chr(int("00" + unicode_hex, 16))  # Convert hex string to Unicode character
+            try:
+                return unicodedata.name(unicode_char)
+            except ValueError:                                    # Raised when the character does not have a name
+
+                unicode_char = chr(int("0" + unicode_hex, 16))  # Convert hex string to Unicode character
+                try:
+                    return unicodedata.name(unicode_char)
+                except ValueError:  # Raised when the character does not have a name
+                    return f"            [ERROR: get_name_from_hex ___ fail_for_hex={unicode_hex_original},char={unicode_char}]               "
 
 
 
@@ -916,7 +934,7 @@ def create_script_to_define_emoji_characters_tried_without_gpt_got_5718():
 
 
 def create_script_to_define_emoji_characters_got_3106_much_better():
-    print("EMOJI_ENVIRONMENT_VARIABLES_CREATED_BY=fix_unicode_files.py script")
+    primt("EMOJI_ENVIRONMENT_VARIABLES_CREATED_BY=fix_unicode_files.py script")
     import ctypes
     from emoji.unicode_codes import EMOJI_DATA
     processed_emojis = set()  # Set to track processed emojis
@@ -957,13 +975,13 @@ def create_script_to_define_emoji_characters_got_3106_much_better():
 
     # Print the output strings
     for output_string in output_strings:
-        print(output_string)
+        primt(output_string)
 
 
 
 # thread about this: https://jpsoft.com/forums/threads/1431-emoji-environment-variables-for-your-echoing-convenience.11618/
 def create_script_to_define_emoji_characters(): #2860, 1431 unique
-    print("EMOJI_ENVIRONMENT_VARIABLES_CREATED_BY=fix_unicode_files.py script")
+    primt("EMOJI_ENVIRONMENT_VARIABLES_CREATED_BY=fix_unicode_files.py script")
     import ctypes
     from emoji.unicode_codes import EMOJI_DATA
     processed_emojis = set()  # Set to track processed emojis
@@ -1012,7 +1030,7 @@ def create_script_to_define_emoji_characters(): #2860, 1431 unique
     for output_string in output_strings:
         if output_string in printed: continue
         printed.add(output_string)
-        print(output_string)
+        primt(output_string)
 
 
 
@@ -1441,11 +1459,6 @@ unicode_to_ascii_custom_character_mapping = {
     'code u1f1fe': ["Y",],                          #workaround
     'code u008d' : ["{reverse line feed}",],        #workaround
 
-    '\U0001fabd' :["_"],            #2024/05/23 ran nto this not sure what it is
-    '\U0001fae7' :["_"],            #2024/05/23 ran nto this not sure what it is
-
-
-
     "'":          ["'"],                             #is this a unicode apostrophe?
     '\ue0067':    ["E","g"],
     '\u1faf6':    ["{heart hands}",],
@@ -1456,6 +1469,8 @@ unicode_to_ascii_custom_character_mapping = {
     'code ud83d': ["{smiling face with open mouth}"],
     "\u1f409":    ["{dragon}",],
     "code u1f409":["{dragon}",],
+    "code 1fa77": ["{unicorn}",],
+    "code u1fa77": ["{unicorn}",],
     #"ðŸ¦‹":      ["{butterfly}",],             \
     #"ðŸ”—":      ["{chain link}",],             \
     #"ðŸ§¨":      ["{firecracker}",],             \
@@ -1477,13 +1492,20 @@ unicode_to_ascii_custom_character_mapping = {
     #"":      ["",],
 
 
+    '\U0001fabd' :["_"],            #2024/05/23 ran nto this not sure what it is
+    '\U0001fae7' :["_"],            #2024/05/23 ran nto this not sure what it is
+    '\U0001fae6' :["_"],            #2024/06/12 ran nto this not sure what it is
+    '\U0001fa75' :["_"],            #2024/06/12 ran nto this not sure what it is
+
+
+
 }
 
 
 if __name__ == "__main__":
     #we do this only in main because otherwise it affects loading modules
     original_print = print                                      # Store the original print function before overriding
-    #goat builtins.print = print_error                               # Override the built-in print function with the custom one
+    builtins.print = print_error                               # Override the built-in print function with the custom one
     main()
 
 

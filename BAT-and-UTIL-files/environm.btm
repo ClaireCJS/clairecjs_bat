@@ -1130,12 +1130,13 @@ return
             set LOCAL_BACKUPS_DIR=%LOCAL_BACKUPS_DRIVE%:\%BACKUPS_DIRNAME%
 
         ::hardware
-            rem HARDWARE_MAIN_DRIVE=%HD10T1% - broke L-tab off power-port 
-            set HARDWARE_MAIN_DRIVE=%HD18T1%
+            rem HARDWARE_MAIN_DRIVE=%HD10T1% —— until 2023/early —— broke L-tab off power-port 
+            rem HARDWARE_MAIN_DRIVE=%HD18T1% —— until 2024/06/16 —— O: got full, moved to T:
+            set HARDWARE_MAIN_DRIVE=%HD18T3% 
                 :: aliases
                 set HARDWARE_DRIVE=%HARDWARE_MAIN_DRIVE%
                 set HARDWAREDRIVE=%HARDWARE_DRIVE%
-            set HARDWARE_MAIN=%HARDWARE_MAIN_DRIVE%:\HARDWARE
+            set HARDWARE_MAIN=%HARDWARE_MAIN_DRIVE%:\HARDWARE.main
                 set HARDWARE_THAILOG_DRIVE=%HARDWARE_MAIN_DRIVE%
                 set HARDWARE_THAILOG=%HARDWARE_MAIN%
                 :: aliases
@@ -1295,7 +1296,8 @@ return
                 set          CELEBRITIES_BACKUP_DRIVE=%HD18000G%
                 set          CELEBRITIES_BACKUP=%CELEBRITIES_BACKUP_DRIVE%:\BACKUPS\celebrities.bak
                 rem          COMMERCIALSDRIVE=%HD10000G1% - moved 20240125 after breaking L-tab off power port of drive
-                set          COMMERCIALSDRIVE=%HD18T1%
+                rem          COMMERCIALSDRIVE=%HD18T1%    - moved 20240613 after getting more full and Wyvern getting its 2nd 18TB
+                set          COMMERCIALSDRIVE=%HD20T2%
                 set          COMMERCIALS=%COMMERCIALSDRIVE%:\MEDIA\MISC-COMMERCIALS\
                 set          COMMERCIALS_BACKUP_DRIVE=%HD4000G7%
                 set          COMMERCIALS_BACKUP=%COMMERCIALS_BACKUP_DRIVE%:\BACKUPS\commercials.bak
@@ -1307,8 +1309,9 @@ return
                 set               COMEDY_BACKUP_DRIVE=%HD4000G5%
                 set               COMEDY_BACKUP=%COMEDY_BACKUP_DRIVE%:\BACKUPS\comedy.bak
 
-                rem               COMICSDRIVE=%HD4000G3%
-                set               COMICSDRIVE=%HD18T3%
+                rem               COMICSDRIVE=%HD4000G3% —— until 2021–2023-ish
+                rem               COMICSDRIVE=%HD18T3%   —— until 2024/06/16 
+                set               COMICSDRIVE=%HD20T2%
                 set                    COMICS=%COMICSDRIVE%:\MEDIA\comics
                 set                    COMICS_BACKUP_DRIVE=%HD20T1%
                 set                    COMICS_BACKUP=%COMICS_BACKUP_DRIVE%:\BACKUPS\comics.bak

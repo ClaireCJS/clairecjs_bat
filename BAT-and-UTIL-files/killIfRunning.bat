@@ -1,3 +1,5 @@
+@Echo OFF
+
 :::: USAGE:  killIfRunning processIsRunningRegex processKillGlob
 ::::    ex:  killIfRunning winamp                winamp*
 
@@ -19,8 +21,7 @@
 goto :END
 
 	:NoArg1
-		echo * FATAL ERROR: need at least one argument
-		call white-noise 1
+		echo %ANSI_COLOR_ERROR%* ERROR: need at least one argument %ANSI_RESET%
 		pause
         gosub :USAGE
 	goto :END

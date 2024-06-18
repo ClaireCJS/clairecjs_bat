@@ -165,7 +165,7 @@
 2024-05-01  04:05            639   49%  delete-largest-file.bat
 2023-10-06  08:29            252   28%  delete-WAVs-if-MP3s-exist.bat
 2023-07-16  13:40            602   50%  delete-zero-byte-files.bat
-2024-03-19  18:01          1,054   59%  deltree.bat
+2024-06-13  16:43          1,065   58%  deltree.bat
 2019-10-01  10:27             23    5%  dep-all.bat
 2022-11-16  20:44            144   21%  dep-MP3s-if-FLACs-exist.bat
 2024-03-24  19:13             47    3%  dep-off.bat
@@ -231,7 +231,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-06-12  12:18        177,261   81%  environm.btm
+2024-06-16  23:24        177,642   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -266,13 +266,13 @@
 2024-04-08  15:08            560   54%  fix-window-title.bat
 2019-10-01  10:28             54    0%  fixclip.bat
 2023-08-29  06:34            162   25%  fix_taskbar_hidden_by_ctypes_call.py
-2024-05-23  07:54         85,222   76%  fix_unicode_filenames.py
+2024-06-13  16:48         86,357   76%  fix_unicode_filenames.py
 2023-07-10  10:39        519,397   45%  fix_unicode_filenames_every_char.py
 2023-08-16  13:11         10,168   70%  fix_wrong_image_extensions.py
 2023-10-14  01:43            481   46%  flac2wav.bat
 2019-10-01  10:28             56   13%  flv2avi.bat
 2023-07-06  10:22             59   -1%  fml.bat
-2024-05-08  16:41          8,632   73%  FR.bat
+2024-06-13  20:10          8,818   73%  FR.bat
 2024-05-12  02:06          8,467   69%  frpost-helper.pl
 2024-02-21  02:01            117    9%  frpost.bat
 2019-10-01  10:28             71   -2%  ftphome.bat
@@ -365,7 +365,7 @@
 2024-05-10  18:51          2,599   63%  isRunning.bat
 2023-10-20  03:38            209   23%  join-videos.bat
 2023-07-10  09:43            184   42%  kill.bat
-2019-10-01  10:28          1,195   57%  KillIfRunning.bat
+2024-06-13  19:45          1,211   57%  KillIfRunning.bat
 2019-10-01  10:28            102   18%  label.bat
 2020-04-22  19:57            278   32%  launch-monitor-to-react-after-program-closes.bat
 2023-04-09  07:00          2,410   66%  left-center-right.pl
@@ -570,8 +570,9 @@
 2019-10-01  10:28          5,276   63%  sizedir.pl
 2024-05-14  19:06            668   52%  sizes.bat
 2024-03-14  22:20            279   41%  sleep.bat
+2024-05-03  14:34             24   -8%  sn.bat
 2024-05-03  14:33             24   -8%  snip.bat
-2024-05-03  14:30            377   56%  snipping-tool.bat
+2024-06-13  19:46            747   69%  snipping-tool.bat
 2019-10-01  10:28            949   51%  sort-by-human-readable-size.pl
 2019-10-01  10:28             71   16%  sort-by-line-length.pl
 2023-10-03  20:33          5,636   75%  sort-pictures-into-folders-helper.pl

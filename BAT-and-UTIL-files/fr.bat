@@ -202,6 +202,10 @@ if not defined TMPTMP (SET TMPTMP="%@UNIQUE[%TEMP]-%*")
         call fr %DRIVES_DEMONA%  >%TMPTMP%
         cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
         goto :end
+    :Wyvern
+        call fr %DRIVES_WYVERN%  >%TMPTMP%
+        cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
+        goto :end
 
 
 :By_Alphabet_Parameter
