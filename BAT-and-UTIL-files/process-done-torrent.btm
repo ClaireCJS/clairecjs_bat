@@ -299,8 +299,8 @@ goto :END
 	%COLOR_DEBUG% %+ echo * TARGET  = %TARGET% %+ %COLOR_NORMAL%
 	%COLOR_DEBUG% %+ ECHO * THISDIR = %THISDIR% %+ %COLOR_NORMAL%
 	if not isdir %TARGET md %TARGET
-	%COLOR_DEBUG% %+ echo * cp /s /r . "%TARGET\%THISDIR%" %+ %COLOR_NORMAL%
-	               echo r | cp /s /r . "%TARGET\%THISDIR%"
+	%COLOR_DEBUG% %+ echo * copy /g /s /r . "%TARGET\%THISDIR%" %+ %COLOR_NORMAL%
+	               echo r | copy /g /s /r . "%TARGET\%THISDIR%"
 return
 ::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -326,8 +326,8 @@ return
                       set TEMP_TARGET="%@UNQUOTE[%TARGETDIR%\%THISDIR%.%@EXT[%shittyFileName]]"
     %COLOR_DEBUG%  %+ echo ****** ProcessShittyFileNames %shittyFileName%
     %COLOR_DEBUG%  %+ echo *      temp_target=%TEMP_TARGET% // thisdir=%thisdir%
-    %COLOR_DEBUG%  %+ echo * if exist %shittyFileName% (if not exist %TEMP_TARGET% (echo r cp /r %shittyFileName% %TEMP_TARGET%))
-    %COLOR_NORMAL% %+	     if exist %shittyFileName% (if not exist %TEMP_TARGET% (echo r|cp /r %shittyFileName% %TEMP_TARGET%))
+    %COLOR_DEBUG%  %+ echo * if exist %shittyFileName% (if not exist %TEMP_TARGET% (echo r copy /g /r %shittyFileName% %TEMP_TARGET%))
+    %COLOR_NORMAL% %+	     if exist %shittyFileName% (if not exist %TEMP_TARGET% (echo r|copy /g /r %shittyFileName% %TEMP_TARGET%))
 return
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

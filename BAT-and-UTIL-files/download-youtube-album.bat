@@ -221,16 +221,16 @@ REM                 \-- it may need resized  in order to become square (720x720 
             set         Q1="Does this need to be %EMOJI_LEFT_RIGHT_ARROW%%EMOJI_UP_DOWN_ARROW% %italics%%underline%expanded%italics_off%%underline_off% %EMOJI_LEFT_RIGHT_ARROW%%EMOJI_UP_DOWN_ARROW% to square? (i.e. what we have is a rectangle, so add black boxes at the top & bottom to make it square)?"
             set         Q2="Does this need to be %EMOJI_SCISSORS% %italics%%underline%cropped%italics_off%%underline_off% %EMOJI_SCISSORS% to square? (i.e. crop out %faint%[black?]%faint_off% boxes on sides)"
             set         Q3="Does this need to be %EMOJI_RIGHT_ARROW%%EMOJI_LEFT_ARROW% %italics%%underline%squished%italics_off%%underline_off% %EMOJI_RIGHT_ARROW%%EMOJI_LEFT_ARROW% to square? (i.e. what we have is obviously a square incorrectly stretched out to rectangle)" 
-            call askyn %Q1% yes %+ if %do_it eq 1 (set image_was_changed=1 %+ call expand-image-to-square      "%image%" %+ goto :done_with_questions)
-            call askyn %Q2% yes %+ if %do_it eq 1 (set image_was_changed=1 %+ call crop-center-square-of-image "%image%" %+ goto :done_with_questions)
-            call askyn %Q3% no  %+ if %do_it eq 1 (set image_was_changed=1 %+ call make-image-square           "%image%" %+ goto :done_with_questions)
+            call askyn %Q1% yes 0 %+ if %do_it eq 1 (set image_was_changed=1 %+ call expand-image-to-square      "%image%" %+ goto :done_with_questions)
+            call askyn %Q2% yes 0 %+ if %do_it eq 1 (set image_was_changed=1 %+ call crop-center-square-of-image "%image%" %+ goto :done_with_questions)
+            call askyn %Q3% no  0 %+ if %do_it eq 1 (set image_was_changed=1 %+ call make-image-square           "%image%" %+ goto :done_with_questions)
             :done_with_questions
 
             :embed_again
             if %image_was_changed eq 1 (
                 if %auto_embed ne 1    (call openimage  "%image%")
                 if not exist "%image%" (call error       "image of '%image%' doesn't exist")
-                call askyn "Are we satisfied with the new image?" yes 300
+                call askyn "Are we satisfied with the new image?" yes 0
                 if %DO_IT eq 0 (call warning "Returning to command line..." %+ call advice "Run '%0 img' to return to this point" %+ cancel)
                 set DONT_DELETE_ART_AFTER_EMBEDDING=1
 

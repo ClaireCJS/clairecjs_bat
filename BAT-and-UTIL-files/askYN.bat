@@ -27,19 +27,27 @@ REM Test suite special case, including testing for the facts that higher timer v
         if "%1" ne "test" goto :Not_A_Test
                 cls
                 call important "About to do %0 test suite"
-                echo ———————————————————————————————————————————————————————————————
-                call AskYN         "  Big question defaulting to  no"  no    0 big
-                call AskYN         "  Big question defaulting to yes" yes    0 big
-                call AskYN         "Timed question defaulting to  no"  no    9 big
-                call AskYN         "Timed question defaulting to yes" yes    9 big
-                call AskYN         "TIMED question defaulting to  no"  no 9999 big
-                call AskYN         "TIMED question defaulting to yes" yes 9999 big
-                call AskYN "Generic       question defaulting to yes" yes
-                call AskYN "Generic       question defaulting to  no"  no
-                call AskYN "Generic timed question defaulting to yes" yes    9
-                call AskYN "Generic timed question defaulting to  no"  no    9
-                call AskYN "Generic TIMED question defaulting to yes" yes 9999
-                call AskYN "Generic TIMED question defaulting to  no"  no 9999
+                echo ———————————————————————————————————————————————————————————————————
+                call AskYN         "  Big question defaulting to  no d:0"  no      0 big
+                call AskYN         "  Big question defaulting to yes d:0" yes      0 big
+                call AskYN         "Timed question defaulting to  no d:1"  no      9 big
+                call AskYN         "Timed question defaulting to yes d:1" yes      9 big
+                call AskYN         "TIMED question defaulting to  no d:2"  no     99 big
+                call AskYN         "TIMED question defaulting to yes d:2" yes     99 big
+                call AskYN         "TIMED question defaulting to  no d:3"  no    999 big
+                call AskYN         "TIMED question defaulting to yes d:3" yes    999 big
+                call AskYN         "TIMED question defaulting to  no d:4"  no   9999 big
+                call AskYN         "TIMED question defaulting to yes d:4" yes   9999 big
+                call AskYN         "TIMED question defaulting to  no d:5"  no  99999 big
+                call AskYN         "TIMED question defaulting to yes d:5" yes  99999 big
+                call AskYN         "TIMED question defaulting to  no d:6"  no 999999 big
+                call AskYN         "TIMED question defaulting to yes d:6" yes 999999 big
+                call AskYN "Generic       question defaulting to yes"     yes
+                call AskYN "Generic       question defaulting to  no"      no
+                call AskYN "Generic timed question defaulting to yes"     yes      9
+                call AskYN "Generic timed question defaulting to  no"      no      9
+                call AskYN "Generic TIMED question defaulting to yes"     yes   9999
+                call AskYN "Generic TIMED question defaulting to  no"      no   9999
                 goto :END
         :Not_A_Test
 
@@ -176,6 +184,8 @@ REM Print our "pretty" answers in the right spots (challenging with double-heigh
                 if %WAIT_TIME gt 10000   (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
                 if %WAIT_TIME gt 100000  (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
                 if %WAIT_TIME gt 1000000 (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
+                if %LEFT_MORE gt 0       (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + %LEFT_MORE])
+                rem LEFT_MORE is a secret kludge in case the cursor doesn't quite move to the left enough
             )
             echo %@ANSI_MOVE_LEFT[%MOVE_LEFT_BY]%ANSI_POSITION_SAVE%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%%@ANSI_MOVE_UP[1]%BIG_TOP%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%
         )

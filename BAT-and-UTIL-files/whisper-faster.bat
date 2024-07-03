@@ -2,30 +2,24 @@
 
 
 
-:POSSIBLE ADVICE: --beam_size 5 might help?
-    ::::: --highlight_words True - adds stuff to srt files, maybe try this
-
-
-
-
-
-
-
-
-
 
 
 REM environment validation
         REm can't validate if filename exits because it could be anyhere in the command tail, but don't worry, whisper will error out if it doesn't exist, and errorlevel.bat will catch that error if thrown in a batch situation
         call validate-in-path whisper-faster.exe askyn.bat warning.bat errorlevel.bat
+        
 
+
+REM parameter validation
+        set                                OUR_INPUT_FILE=%1
+        call validate-environment-variable OUR_INPUT_FILE
 
 
 
 
 
 REM startup
-        %COLOR_ADVICE% %+ echo --`>` whisper-faster.bat
+        %COLOR_ADVICE%      %+ echo --`>` whisper-faster.bat
         %COLOR_UNIMPORTANT% %+ timer /7 on
 
 
@@ -48,13 +42,34 @@ REM CLI option setup
 
 
 
+REM run whisperx [which is a layer built on top of whisper that is more subtitle-specific]
+rem but at various points i have used this whisper-faster.exe who's origins i don't remember? 
+        : Key Differences
+        : Word-Level Timestamps:
+        : 
+        : Whisper: Provides overall transcription with approximate timing for segments.
+        : WhisperX: Provides detailed word-level timestamps for more precise synchronization.
+        : Purpose and Use Cases:
+        : 
+        : Whisper: General-purpose transcription and translation.
+        : WhisperX: Enhanced transcription with precise timing, useful for subtitle generation, detailed speech analysis, and other applications needing exact word timings.
+        : Development and Maintenance:
+        : 
+        : Whisper: Officially developed and maintained by OpenAI.
+        : WhisperX: Community-driven, leveraging Whisper’s models with additional processing for specific use cases.
 
-REM run whisper
         REM want these options but they don't apply if vad_filter False: --vad_min_silence_duration_ms 2000 --vad_speech_pad_ms 400 --vad_max_speech_duration_s 10 
         REM --vad_filter False  
+
+        rem :POSSIBLE ADVICE: --beam_size 5 might help?
+        rem    ::::: --highlight_words True - adds stuff to srt files, maybe try it
+
+
+        set OUR_WHISPER=cmd.exe /c whisperx.exe
+        set OUR_WHISPER=cmd.exe /c whisper-faster.exe
         %COLOR_RUN%
         @echo on
-        %DRY_RUN_TEXT% cmd.exe /c whisper-faster.exe --verbose True %CLI_OPT_LANGUAGE% --threads 12 --device cuda --model large-v2 --output_dir "%_CWD" --output_format lrc     --beam_size 5  %*
+        %DRY_RUN_TEXT% %OUR_WHISPER% --verbose True %CLI_OPT_LANGUAGE% --threads 12 --device cuda --model large-v2 --output_dir "%_CWD" --output_format lrc     --beam_size 5  %OUR_INPUT_FILE%
         @call errorlevel "failure during whisper-faster.exe"
         @echo off
 

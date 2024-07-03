@@ -23,6 +23,7 @@ REM Load our autohotkey script right away since it has winamp control aspects in
 REM Above all else, the music must flow
         if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (
             call winamp autoexec
+            call sleep 3
             call fix-minilyrics-window-size-and-position
         )
 

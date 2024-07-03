@@ -71,7 +71,7 @@ if ($ENV{"AUTOMARK"} ne "") {
 my $AUDIOSCROBBLER_LOG = $ARGV[0];
 my $ALL_SONGS_LIST     = $ARGV[1];
 my $REGEX              = $ARGV[2];						#we can also pass it a regex, to edit the status of songs that AREN'T currently playing
-my $COMMENT            = $ENV{"comment"};
+my $COMMENT            = $ENV{"LEARNED_COMMENT"};		#20240702 —— changed this from 'comment' to 'learned_comment' to avoid scope collisions
 if ($AUDIOSCROBBLER_LOG eq "") { print "echo * FATAL ERROR 1: First argument must specify filename of AUDIOSCROBBLER LOG!!\n"; exit(); }
 if (!-e $AUDIOSCROBBLER_LOG)   { print "echo * FATAL ERROR 2: AUDIOSCROBBLER_LOG OF \"$AUDIOSCROBBLER_LOG\" DOES NOT EXIST!!\n"; exit; }
 if (($METHOD eq "2008") || ($METHOD eq "2009")) {

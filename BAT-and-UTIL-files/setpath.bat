@@ -78,6 +78,9 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
             gosub AddFolderToPathEndOnlyIfItExists  C:\ProgramData\miniconda3\Scripts\
             gosub AddFolderToPathEndOnlyIfItExists  C:\ProgramData\miniconda3\Library\bin\
             gosub AddFolderToPathEndOnlyIfItExists "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1\bin"
+            gosub AddFolderToPathEndOnlyIfItExists "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1\lib\x64"
+            gosub AddFolderToPathEndOnlyIfItExists "T:\ProgramData.Demona.ssd-spillover\anaconda3\Lib\site-packages\torch\lib\x64"
+            gosub AddFolderToPathEndOnlyIfItExists                                  "c:\anaconda3\Lib\site-packages\torch\lib\x64"
             gosub AddFolderToPathEndOnlyIfItExists "C:\Program Files\Graphviz\bin"
             :gosub AddFolderToPathEndOnlyIfItExists 
         :SmartGPT, Chocolatey, Docker

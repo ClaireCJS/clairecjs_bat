@@ -44,7 +44,7 @@
 2019-10-01  10:27             74    5%  alltif2jpg.bat
 2024-04-14  15:52            529   40%  allwav2mp3.bat
 2022-02-07  13:15             19  -10%  an.bat
-2024-05-26  19:49         11,392   73%  askYN.bat
+2024-06-25  16:11         12,395   74%  askYN.bat
 2024-03-18  22:08          1,047   53%  assimilate-rookie-folders.bat
 2024-04-14  23:40            672   54%  audio-batch-processing---encode-everything-and-remove-redundant-WAVs.bat
 2019-10-01  10:27          2,571   69%  audio-countdown-noise.bat
@@ -135,7 +135,7 @@
 2023-05-29  13:58            191   35%  convert-to-mp4.bat
 2019-10-01  10:27             45   -4%  convert-webm-to-mp4.bat
 2023-06-02  04:02          4,440   67%  convert_midi_to_wav_with_soundfont.py
-2024-04-03  20:03            599   42%  copy-alias.bat
+2024-07-03  00:40            642   44%  copy-alias.bat
 2024-04-03  20:03         12,543   71%  copy-move-post.py
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
@@ -211,8 +211,8 @@
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-03-30  13:19             35   -5%  divider.bat
 2024-05-16  13:59             47   13%  dns-display.bat
-2024-05-01  04:15         20,252   69%  download-youtube-album.bat
-2023-06-12  20:31             67    0%  download-youtube-music.bat
+2024-06-28  10:49         20,256   69%  download-youtube-album.bat
+2024-06-27  12:31            119   23%  download-youtube-music.bat
 2023-06-09  21:26             35   -5%  download-youtube-video-with-chapters-as-an-mp3-album.bat
 2024-05-04  12:51          2,070   59%  drastically-shorten-and-standardize-filenames.bat
 2024-04-04  21:23          3,978   66%  drives.bat
@@ -222,8 +222,8 @@
 2023-06-12  20:31             37   -5%  dym.bat
 2019-10-01  10:27             45   -4%  ec.bat
 2023-11-07  13:36          3,152   71%  echo-rainbow.bat
-2023-06-26  20:54         29,196   69%  edit-currently-playing-attrib-helper.pl
-2023-07-16  13:29         10,912   75%  edit-currently-playing-attrib.bat
+2024-07-03  01:23         29,297   69%  edit-currently-playing-attrib-helper.pl
+2024-07-03  01:23         10,928   75%  edit-currently-playing-attrib.bat
 2023-09-15  12:27          3,399   66%  editGrep.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
@@ -239,7 +239,7 @@
 2023-06-03  04:00             64   13%  exiflist.bat
 2024-04-05  14:06            408   50%  exit-after-command.bat
 2024-04-05  14:11             18  -11%  exit-after.bat
-2024-03-18  18:34            557   48%  exit-maybe.bat
+2024-06-25  16:11            824   47%  exit-maybe.bat
 2024-04-05  14:10            462   43%  exitafter.bat
 2023-07-04  19:46            352   37%  expand-image-to-square.bat
 2022-02-07  13:04            176   23%  extract-all-WAVs-from-audio-files.bat
@@ -387,6 +387,7 @@
 2023-06-15  11:38          2,114   57%  logging.bat
 2024-05-04  12:22          1,769   58%  lowercase-all-filenames.bat
 2019-10-01  10:28             28   -7%  lowercase.pl
+2024-06-25  15:19          7,364   63%  lrc.bat
 2024-04-10  15:20            181   22%  make-directory-matching-drive-label-on-every-drive.bat
 2024-04-10  15:26            892   52%  make-directory-matching-drive-label.bat
 2023-07-04  23:25          3,961   73%  make-image-square.bat
@@ -460,7 +461,7 @@
 2024-03-18  11:29             13  -15%  previousdir.bat
 2023-06-09  22:02             67    6%  print-if-debug.bat
 2024-05-23  08:03         21,443   74%  print-message.bat
-2024-02-14  02:28         13,998   74%  process-done-torrent.btm
+2024-06-28  10:49         14,018   74%  process-done-torrent.btm
 2024-05-26  14:43             25   -8%  process-filelist-to-prevent-consecutive-entries-from-same-folder.bat
 2024-03-18  22:28          2,192   64%  process-rookie-folders.bat
 2024-05-11  16:42             29   -6%  programfiles.bat
@@ -561,7 +562,7 @@
 2023-04-24  09:52            255   53%  set-winamp-constants.bat
 2024-03-24  20:03             49   -4%  setDrive.bat
 2024-03-24  20:04             49   -4%  setlabel.bat
-2024-05-16  11:24          9,373   77%  SETPATH.bat
+2024-06-25  15:17          9,756   78%  SETPATH.bat
 2023-06-02  12:32            604   56%  setprompt.bat
 2023-10-06  05:32            132    5%  settmp.bat
 2024-04-10  15:17            731   51%  setup-perl-junctions-on-new-computer.bat
@@ -655,7 +656,7 @@
 2024-03-18  09:00            216   28%  validate-ahk.bat
 2024-04-10  15:12            714   51%  validate-all-perl-files.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
-2024-04-27  06:20         14,688   77%  validate-environment-variable.bat
+2024-07-03  01:24         14,808   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
 2024-04-19  15:48          2,082   60%  validate-file-extension.bat
 2024-04-05  18:20          1,442   56%  validate-in-path.bat
@@ -677,7 +678,7 @@
 2023-07-10  10:05            494   65%  wget32.bat
 2019-10-01  10:28             54    6%  wgetquiet.bat
 2024-05-21  10:58          2,529   59%  where.bat
-2023-07-16  15:46          3,480   60%  whisper-faster.bat
+2024-06-28  10:49          4,709   60%  whisper-faster.bat
 2023-05-29  17:47          4,116   71%  white-noise.bat
 2024-04-09  23:12            463   42%  winamp-close-gracefully.bat
 2024-05-07  14:13            138   15%  winamp-next.bat
@@ -699,7 +700,7 @@
 2024-03-29  23:30            198   37%  winkill.bat
 2023-07-17  09:49          3,149   67%  wrapper.bat
 2024-03-12  13:02          5,632   60%  ydl.bat
-2024-05-01  04:02             37   -5%  ydm.bat
+2024-06-27  12:31             89   18%  ydm.bat
 2024-04-03  14:43            568   47%  yyyymmdd(dow).bat
 2024-04-03  14:42            438   41%  yyyymmdd.bat
 2024-04-03  14:40            135   13%  yyyymmddclip.bat

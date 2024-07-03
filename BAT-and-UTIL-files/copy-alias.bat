@@ -9,7 +9,7 @@ rem     2) adding /Nt to not update JPSTREE.IDX because we don't feel that's wor
 rem     3) adding /RCT [new 2024 option] to compress over SMB shares for faster copies
 rem
 
-
+title Copying %*
 
                               set COPYBATPARAMS=%*
 if "%OS%" eq "7" (*copy /Nt /RCT /G %COPYBATPARAMS% %+ goto :END)
@@ -19,3 +19,6 @@ if "%OS%" eq "7" (*copy /Nt /RCT /G %COPYBATPARAMS% %+ goto :END)
 
 
 :END
+
+title Done copying %*
+

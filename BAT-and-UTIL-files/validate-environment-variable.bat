@@ -46,36 +46,36 @@
         echo                                   (with an 's' after '%italics%variable%italics_off%')  ????
         call exit-maybe
         
-        set COMMENT=color white on black
-        set COMMENT=beep
-        set COMMENT=beep
-        set COMMENT=beep
-        set COMMENT=beep
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
-        set COMMENT=*pause
+        set VEV_COMMENT=color white on black
+        set VEV_COMMENT=beep
+        set VEV_COMMENT=beep
+        set VEV_COMMENT=beep
+        set VEV_COMMENT=beep
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
+        set VEV_COMMENT=*pause
 
         goto :END
     )

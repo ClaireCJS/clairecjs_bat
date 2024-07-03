@@ -14,7 +14,7 @@ call validate-environment-variables TMPMUSICSERVERCDRIVE AUDIOSCROBBLER_LOG MACH
 
 
 ::::: INITIALIZE COMMENT PASSTHROUGH:
-    ::DO NOT DO THIS:: set COMMENT=%* - DOESN'T WORK LIKE THAT
+    ::DO NOT DO THIS:: set LEARNED_COMMENT=%* - DOESN'T WORK LIKE THAT
 
 
 
@@ -238,7 +238,7 @@ goto :skip_old_way
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :END
     set LAST_ATTRIB=%ATTRIB%             %+    unset /q ATTRIB
-    set LAST_COMMENT=%COMMENT%           %+    unset /q COMMENT
+    set LAST_COMMENT=%LEARNED_COMMENT%   %+    unset /q LEARNED_COMMENT
 	set LAST_VERBOSE=%VERBOSE%           %+    unset /q VERBOSE
 	set LAST_AUTOMARK=%AUTOMARK%         %+    unset /q AUTOMARK
 	set LAST_AUTOMARKAS=%AUTOMARKAS%     %+    unset /q AUTOMARKAS
