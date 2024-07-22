@@ -1,13 +1,14 @@
 @Echo OFF
-call warning "The first paramter to %0 should be a reddit username, or 'cleanup' to run cleanup"
-call advice  "Consider running ripme.bat %0"
-
 if "%1" == "cleanup" goto :cleanup
-
 set USER=%1
+
+call warning "The first paramater to %0 should be a reddit username, or 'cleanup' to run cleanup"
+rem obsolete now that we have bdfr: call advice  "Consider running ripme.bat %0"
+
+
 set USER_URL=https://www.reddit.com/user/%USER%
 call clip %USER_URL%
-call debug "Reddit user = '%USER%'\n%overstrike%Reddit url  = '%USER_URL%'%overstrike_off% [not currently used]"
+call debug "Reddit user = '%USER%'%NEWLINE%%overstrike%Reddit url  = '%USER_URL%'%overstrike_off% [not currently used]"
 
 if "%1" == "" goto :Usage
 

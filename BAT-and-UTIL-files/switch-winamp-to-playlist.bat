@@ -36,7 +36,7 @@
 		echo.
 
 		set  PLAYLIST=%@REPLACE[.m3u.m3u,.m3u,%@STRIP[%=",%1.m3u]]
-		call important "echo PLAYLIST set to '%PLAYLIST%'"
+		call important "echo PLAYLIST set to '%emphasis%%PLAYLIST%%deemphasis%'"
 
         pause
 
@@ -72,19 +72,19 @@
 	::that list blindly without knowing what it is (i.e. after index).
 			          call  debug             "FULLLIST  is '%FULLLIST%'"
 	if "%BOTH"=="1" ( call  debug             "FULLLIST2 is '%FULLLIST2'")
-                     %COLOR_SUCCESS% %+ copy "%FULLLIST"   %MP3\LISTS\now-playing-playlist.m3u
-	if "%BOTH"=="1" (%COLOR_SUCCESS% %+ copy "%FULLLIST2" %MP32\LISTS\now-playing-playlist.m3u)
+                     %COLOR_SUCCESS% %+ echo r|copy "%FULLLIST"   %MP3\LISTS\now-playing-playlist.m3u
+	if "%BOTH"=="1" (%COLOR_SUCCESS% %+ echo r|copy "%FULLLIST2" %MP32\LISTS\now-playing-playlist.m3u)
 	call debug "originallist = '%ORIGINALLIST%'"
 	:DEBUG: PAUSE
 			        echo %ORIGINALLIST%>%MP3\LISTS\now-playing.dat
 	if "%BOTH"=="1" echo %ORIGINALLIST2>%MP3\LISTS\now-playing.dat
-	cll debug "originallist = '%ORIGINALLIST%'"
+	call debug "originallist = '%ORIGINALLIST%'"
 	:DEBUG: PAUSE
 
 	call less_important "PLAYLIST is '%PLAYLIST%'"
 	echo.
 	echo.
-	if not exist %FULLLIST (call FATAL_ERROR "%FULLLIST MUST EXIST)
+	if not exist %FULLLIST (call FATAL_ERROR "FullList of %emphasis%%FULLLIST%%deemphasis% MUST EXIST!")
 
 :DO_IT
 	call debug "MUSICSERVER is '%MUSICSERVER%'"
@@ -149,3 +149,4 @@ call winamp-randomize-playlist
 		unset /q     PLAYLIST2
 	:noclean
 	if exist clear (echo R|*del /q clear >nul)
+    call fix-window-title
