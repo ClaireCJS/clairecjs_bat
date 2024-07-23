@@ -7,18 +7,11 @@ REM refer to install-autoexec-launcher-to-startup.bat for instructions on how to
 
 
 
-REM sometimes we're in a stage in our life where we want this 
-REM script to open itself up in a text editor every time we reboot
-        SET EDIT_SELF=1
+SET  EDIT_SELF=1
+set  MACHINENAME=DEMONA
+call autoexec-common %*   
 
 
-REM 20240422 reboot seemed like the environment wasn't set up right on initial run for some reason
-        set MACHINENAME=DEMONA
-        call c:\bat\setpath
-        call environm
-
-REM Load our autohotkey script right away since it has winamp control aspects in it
-        call AutoHotKey-autoexec.bat
 
 REM Above all else, the music must flow
         if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (
@@ -31,17 +24,22 @@ REM Occasionally something glitches and it wants to run this in a new TCC window
 REM This gives us a chance to stop it, if we are there and present
         call pause-for-x-seconds 90 "* Press any key to run autoexec..."
 
+
+
+
+
+
+
 REM Log each run of this:
         echo * %0 run at at %_DATETIME>>c:\logs\reboots-%MACHINENAME%.log
 
 REM Startup various programs
-        call roll-logs
+        rem  call roll-logs
         call chrome
         call opera
-        call map-drives
         call bsr
-        call start-everything       %+ REM this is the service called "Everything", not the abstract concept of everything
-        call calendar-monitor
+        rem call start-everything       %+ REM this is the service called "Everything", not the abstract concept of everything
+        rem call calendar-monitor
 
         call important "Pretty much done, just a couple more things..."
         sleep 6
@@ -49,8 +47,8 @@ REM Startup various programs
         call OBS
 
 REM backup files
-        call backup-important-files
-        call backup-important-folders
+        rem call backup-important-files
+        rem call backup-important-folders
         call bat
         call dist full
         call util

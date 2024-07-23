@@ -1,0 +1,62 @@
+@Echo OFF
+
+
+rem Only meant to be called by the various autoexec-<MACHINENAME>.BTM/.BATs
+
+
+
+rem Set path:
+        call less_important "Setting path..."
+        call setpath.bat %*
+        gosub done_with_step
+
+rem Initialize environment:
+        call less_important "Initializing environment..."
+        call environm %*
+        window "AUTOEXEC"
+        gosub done_with_step
+
+rem Load our autohotkey script right away since it has winamp control aspects in it
+        call less_important "Initializing %italics_on%AutoHotKey%italics_off%..."
+        call AutoHotKey-autoexec.bat %*
+        gosub done_with_step
+
+rem Start the service called "Everything" (not the abstract concept of everything):
+        call less_important "Initializing %italics_on%Everything%italics_off% service..."
+        call start-everything %*
+        gosub done_with_step
+
+rem Maintain LOG files:
+        call less_important "Rolling log files..."
+        call roll-logs %*
+        gosub done_with_step
+
+rem Map drives
+        call important "Mapping drives..."
+        call map-drives %*
+        gosub done_with_step
+
+rem Things for our primary machines only:
+        if "%machinename%" ne "WYVERN" .and. "%machinename%" ne "DEMONA" (goto :NoCalmon)
+            rem Start calendar monitor for primary machines only:
+                    call less_important "Initializing calendar monitor..."
+                    call calendar-monitor %*
+                    gosub done_with_step
+
+            REM backup files
+                    call backup-important-files   %*
+                    call backup-important-folders %*
+                    gosub done_with_step
+        :NoCalmon
+
+
+
+goto :END
+
+            :done_with_step
+                title AUTOEXEC
+            return
+
+:END
+
+call success %italics_on%%0%italics_off% done

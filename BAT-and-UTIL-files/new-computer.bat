@@ -25,7 +25,7 @@
 
 ::::: EDIT BAT/ENVIRONMENT FILES:
     %BAT%\
-    %EDITOR% environm.btm allcomputers.bat allcomputersexceptself.bat backup-stuff.BAT drives.bat display-drive-mapping.bat fr.bat wake-computers.bat
+    %EDITOR% environm.btm autoexec-common.btm allcomputers.bat allcomputersexceptself.bat backup-stuff.BAT drives.bat display-drive-mapping.bat fr.bat wake-computers.bat
 
 ::::: HOSTS?
     echo. %+ call warning "Hey, we probably need to edit hosts to put this computer in." %+ pause %+ color white on black
