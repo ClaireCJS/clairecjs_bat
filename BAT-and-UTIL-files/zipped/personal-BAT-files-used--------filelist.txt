@@ -353,7 +353,7 @@
 2023-07-21  07:55         30,151   74%  ingest_youtube_album.py
 2019-10-01  10:28            120   18%  insert-after-each-line.pl
 2019-10-01  10:28            120   18%  insert-before-each-line.pl
-2024-05-12  13:26          1,481   65%  insert-foldername-into-end-of-filenames.bat
+2024-07-26  06:11          1,617   61%  insert-foldername-into-end-of-filenames.bat
 2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
 2024-05-13  12:01         14,621   75%  install-common-programs-with-winget-helper.cmd
 2024-04-06  04:37            381   36%  install-common-programs-with-winget.bat
