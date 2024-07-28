@@ -858,12 +858,17 @@ sub gather_id3_genres_artists_albums_songs {
 		#print "[PTFG] tmpfile=$tmpfile\n";							#2024/06/02 - had to uncomment this for a weird encoding issue in a Sloppy Jane album [Willow]. Fixed by re-saving metadata of each song in VLCplayer. Made me realize parts of this need a try/catch so that the name is outputted if there is an error, but not otherwise. No need to actually implement that unless this comes up again, though.
         if (($numEncountered++ % $factor)==0) { &log("."); }
         if ($tmpfile !~ /\.mp3$/i) { next; }                        #id3 tags are only for mp3 files! #TODO FLac support would go here
-        ($genrev1,$genrev2,$artist,$album,$song) = &get_genre_artist_album_song_for_one_mp3($tmpfile);
+        ($genrev1,$genrev2,$artist,$album,$song,$year) = &get_genre_artist_album_song_year_for_one_mp3($tmpfile);
 
 		## TODO GOAT MAY NEED TO CHECK IF THESE VALUES EXIST, AND IF THEY DON'T, INITIALIZE TO ZERO
         $ARTIST{$artist}->{$tmpfile}++;
         $ALBUM{$album}->{$tmpfile}++;
         $SONG{$song}->{$tmpfile}++;
+		#TODO? $YEAR{$year}->{$tmpfile}++;
+
+
+        if ($year != "") { $ATTRIBUTES{"year-$year"}->{$tmpfile}=1; }
+
 
         $bestgenre=$genrev2;
         if   (($genrev1 eq "") && ($genrev2 eq "")) { $bestgenre=$genrev1=$genrev2="NEEDS-ID3-TAGGING"  ; }
@@ -897,7 +902,7 @@ sub gather_id3_genres_artists_albums_songs {
 
 
 #################################################################################################################################################################
-sub get_genre_artist_album_song_for_one_mp3 {
+sub get_genre_artist_album_song_year_for_one_mp3 {
     if ($NO_GENRE_PROCESSING_WHATSOEVER) { return; }
     my $filename = $_[0];
 
@@ -941,7 +946,7 @@ sub get_genre_artist_album_song_for_one_mp3 {
 		($tmpsong, $tmptrack, $tmpartist, $tmpalbum, $tmpcomment, $tmpyear, $tmpgenre) = $tag->autoinfo();
 		#&log("==> GOAT DEBUG ID3 BANDSONGARTIST READ: $tmpsong, $tmptrack, $tmpartist, $tmpalbum, $tmpcomment, $tmpyear, $tmpgenre) = \$tag->autoinfo()\n\t\tfrom $filename;\n");
 	}
-    return(lc($genrev1),lc($genrev2),ucfirst($tmpartist),ucfirst($tmpalbum),ucfirst($tmpsong));		#keep everything lowercase
+    return(lc($genrev1),lc($genrev2),ucfirst($tmpartist),ucfirst($tmpalbum),ucfirst($tmpsong),lc($tmpyear));		
 }
 #################################################################################################################################################################
 
@@ -2692,7 +2697,7 @@ sub read_ini {
 	while($line=<INI>) {
 	    ##### Get line, skip if necessary or sanity check it:
 	    $linenum++;
-	    if (($line =~ /^#/) || ($line !~ /=/)) { next; }      #skip comments & lines without a "="
+	    if (($line =~ /^#/) || ($line !~ /=/)) { next; }			#skip comments & lines without a "="
 	
 	    ##### Preprocess line:
 	    chomp $line;
@@ -2701,8 +2706,8 @@ sub read_ini {
 	    $value  = &remove_leading_and_trailing_spaces($value );														if ($value  eq "") { &death("\n\n*** FATAL ERROR: No value given for option \"$option\" in INI file $INI on line $linenum!\n"); }
 	    if ($value =~ /\$ENV/) {									#evaluate any environment variables
 			my $oldvalue=$value; 
-			$value = eval $value;				#sheer brilliance!
-			&log("\n[DEBUG-ENVVAR: evaluated & modified value of \"$oldvalue\" is \"$value\"]");
+			$value = eval $value;																					#sheer brilliance!
+			&log("\n\t\t\t[DEBUG-ENVVAR: evaluated & modified value of \"$oldvalue\" is \"$value\"]");
 		}        																									if ($value eq "") { &death("\n\n*** FATAL ERROR: Value given for option \"$option\" in INI file $INI on line $linenum is invalid.  Perhaps it is an environment variable that does not exist! Value = \"$value\" line=\"$line\""); }
 		if ($USE_BACKSLASHES_INSTEAD_OF_SLASHES) { $value =~ s/\//\\/g; }
 		else                                     { $value =~ s/\\/\//g; }
@@ -4005,7 +4010,8 @@ sub process_attributelist {		#1st pass lists sprinkled everywhere (attrib.lst)
 
 						##### DETERMINE WEIGHT OF ATTRIBUTE:
 						if (($tmpattrib =~ /\*/) && ($tmpattrib !~ /caption-/i) && ($tmpattrib !~ /postcaption-/i) && ($tmpattrib !~ /^thing-/i) && ($tmpattrib !~ /^person-/i) && ($tmpattrib !~ /^activity-/i) && ($tmpattrib !~ /^place-/i)) {
-							($newtmpattrib,$tmpWeight)=split(/\*/,$tmpattrib);
+							#$newtmpattrib,$tmpWeight)=split(/\*/ ,$tmpattrib);	#this is proper
+							($newtmpattrib,$tmpWeight)=split(/\*+/,$tmpattrib);	#this allows double-asterisk typos to work the same
 							if (($tmpWeight !~ /^\d*\.?\d*$/) || ($tmpWeight eq "") || ($tmpWeight eq ".")) {  #validate weight
 								&log("\n\nERROR W2: WEIGHT of \"$tmpWeight\" is not valid [tmpattrib=$tmpattrib,newtmpattrib=$newtmpattrib,tmpWeight=$tmpWeight]!\n\t LINE=$line"); 
 								$newtmpattrib = $tmpattrib; $tmpWeight=1;

@@ -13,7 +13,7 @@ rem SET UP FOR ENVIRONMENT.BAT
 
 rem ::::: RUN ENVIRONMENT.BAT, WITH THE ONE PRE-REQUISITE THAT THE MACHINE NAME IS SET:
     title TCC
-    call c:\bat\environm.btm 
+    call c:\bat\environm.btm tcstart
 
 
 
