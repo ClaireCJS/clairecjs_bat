@@ -528,7 +528,7 @@
 2023-06-09  18:15          2,922   67%  rn-latest-for-youtube-dl.bat
 2022-04-19  04:29            156   20%  rn-latest.bat
 2024-06-05  16:56          5,075   73%  rn.bat
-2024-03-18  21:33            701   44%  rookie-pcvr.bat
+2024-08-02  22:12            739   45%  rookie-pcvr.bat
 2022-03-13  19:26          3,560   74%  rotate-video.bat
 2023-11-09  07:42            589   49%  save-window-positions.bat
 2024-04-28  00:35          1,303   57%  say.bat

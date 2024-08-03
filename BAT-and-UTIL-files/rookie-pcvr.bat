@@ -15,5 +15,6 @@ pause
 pause
 pause
 >"__ last run as of timestamp of this file __"
-start "PCVR-Rookie v1.4.exe"
+rem start "PCVR-Rookie v1.4.exe"
+    start "PCVR-Rookie v1.5.exe"
 %ROOKIE%
