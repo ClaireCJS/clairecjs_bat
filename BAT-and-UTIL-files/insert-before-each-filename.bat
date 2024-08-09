@@ -23,8 +23,8 @@ goto :END
 
                 echos %@RandFG[]                    ``
                 ren "%file_unquoted%" "%target%" 
-                rem /Ns option on `ren` doesn't work right so no way to suppress '1 file renamed' easily
-                rem piping to this slows it down: | findstr  /v "file.renamed"
+                rem /Ns option on `ren` doesn't work right so no way to suppress the '1 file renamed' output easily
+                rem and piping to this slows it down: | findstr  /v "file.renamed" ... so yea, let that annoying output exist i guess
                 echo.
                 :Skip
             return
