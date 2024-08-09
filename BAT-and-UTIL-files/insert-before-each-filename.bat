@@ -1,17 +1,9 @@
 @Echo Off
 
-set INSERT_TEXT=%1
-if "%1" eq "SetVarsOnly" (goto :END)
-
+set                                INSERT_TEXT=%1
 call validate-environment-variable INSERT_TEXT
-
-rem if exist "%inserttrigger%" (
-rem     call warning "Already did this folder. Aborting. (inserttrigger file of %inserttrigger% exists)"
-rem     goto :END
-rem )
-
 for /h %file in (*) do (gosub processfile "%@UNQUOTE[%file%]")
-goto :Cleanup
+goto :END
 
             :processfile [FILE_QUOTED]
                 set FILE_UNQUOTED=%@unquote[%file_quoted]
@@ -37,8 +29,5 @@ goto :Cleanup
                 :Skip
             return
 
-
-:Cleanup
-rem >"%inserttrigger%"
 
 :END
