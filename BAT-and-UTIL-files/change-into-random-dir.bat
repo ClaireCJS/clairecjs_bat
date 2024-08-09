@@ -5,7 +5,10 @@ call set-tmpfile
 
 set RANDIR_SCRIPT_TO_RUN=%[tmpfile].bat
 
-dir /ba:d >:u8 dir.txt
+set OUR_OPTS=
+if "%1" ne "" (set OUR_OPTS=*%1*)
+
+dir /ba:d %OUR_OPTS% >:u8 dir.txt
 
 rem :set randir=%@EXECSTR[dir /ba:d|randline]
 rem :set randir=%@EXECSTR[@randline<dir.txt]
