@@ -1,18 +1,19 @@
-@Echo OFF
+@Echo on
 
 
 rem Only meant to be called by the various autoexec-<MACHINENAME>.BTM/.BATs
 
-
+rem Set colors so less_important works:
+        rem nahhh too complicated to do it this early call set-colors force
 
 rem Set path:
-        call less_important "Setting path..."
+        rem call less_important "Setting path..."
         call setpath.bat %*
         gosub done_with_step
 
 rem Initialize environment:
-        call less_important "Initializing environment..."
-        call environm %*
+        rem call less_important "Initializing environment..."
+        call environm 
         window "AUTOEXEC"
         gosub done_with_step
 

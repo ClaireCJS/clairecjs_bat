@@ -33,7 +33,7 @@
 2023-10-14  02:51            114   51%  allfiles-snoop.bat
 2024-04-12  16:02         25,780   74%  ALLFILES.bat
 2023-05-19  13:45            395   40%  allfilesHyphenswap.pl
-2024-03-29  19:25        116,746   71%  allfilesmv.pl
+2024-08-19  17:06        118,314   71%  allfilesmv.pl
 2023-05-19  15:39          1,218   55%  allfileunicode.pl
 2023-05-19  13:45          1,036   54%  allfilew2a.pl
 2023-05-19  13:45          5,094   61%  allfilew2m.pl
@@ -51,7 +51,7 @@
 2024-03-13  20:08          5,959   68%  audit-music-files.py
 2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
-2024-07-23  22:46          1,854   67%  autoexec-common.btm
+2024-08-19  03:11          1,975   66%  autoexec-common.btm
 2024-04-26  14:52          1,414   64%  autoexec.ahk
 2024-04-26  14:56             56    8%  AutoHotKey-autoexec.bat
 2024-03-18  02:07            556   41%  AutoHotKey.bat
@@ -230,7 +230,7 @@
 2023-09-15  12:27          3,399   66%  editGrep.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
-2024-04-05  17:08         69,852   78%  emoji.env
+2024-08-15  04:28         69,933   78%  emoji.env
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat

@@ -76,6 +76,7 @@ my $REMOVE_GRANDPARENT_FOLDER_NAME_FROM_FILENAME=0;
 my $parent_dir="";
 my $parent_dir_without_year="";
 my $grandparent_dir="";
+my $cheating_NotReallyVideo="";													#to track when we are renaming [usually sidecar/companion] files as if they are videos, for filetypes that are not videos, like TXT files. Yeah, it's weird.
 
 
 
@@ -1293,7 +1294,7 @@ foreach $filename (@LINES) {
 
 	### For video files, let's attempt to start extracting codec and FPS type information
 	### and inserting it into the filename. this will be a BIG timesaver
-	if (($isVideo) && ($filename !~ /\.mpe?g/i) && ($filename !~ /\.sub/i) && ($filename !~ /\.srt/i) && ($filename !~ /\.idx/i) && ($filename !~ /\.vob/i)) { 
+	if (($isVideo) && ($filename !~ /\.webm/i) && ($filename !~ /\.mpe?g/i) && ($filename !~ /\.sub/i) && ($filename !~ /\.srt/i) && ($filename !~ /\.idx/i) && ($filename !~ /\.vob/i)) { 
 		if ($DEBUG_TRANSFORMATION) { print "&InsertVideoAttributesIntoFilename(filename=$filename,original_filename=$original_filename);\n"; }
 		$filename = &InsertVideoAttributesIntoFilename($filename,$original_filename); 
 	}
@@ -2450,58 +2451,75 @@ sub InsertVideoAttributesIntoFilename {
 
 
 
+################################################################################################################################################
+{
+	$last_randcolor;
+	sub randcolor_simple {
+		my $color_code = int(rand(8)) + 30;
+		while ($color_code == $last_randcolor) {
+			$color_code = int(rand(8)) + 30;
+		}
+		$last_randcolor = $color_code;
+		return "\e[${color_code}m";
+	}
+}
+################################################################################################################################################
+
+
 
 ################################################################################################################################################
 sub GetVideoInfo {
+	#uses global $cheating_NotReallyVideo
 	my $real = $_[0];		#the filename to our video
 	my %attributes=();
 
-	eval { $info = Video::Info->new(-file=>$real); };
-	#$info = Video::Info->new(-file=>$real); };
-	if ($DEBUG_VIDEO_ATTRIBUTES) { %tmpattributes=%{$info}; foreach my $key (sort keys %tmpattributes) { print "\t* Tmpattributes{$key}=$tmpattributes{$key}\n"; }  }
-	if ($info ne "") {
-		my ($fps,$vcodec,$acodec,$length,$achans,$arate,$width,$height,$vframes,$vrate)=("","","","","","","","","","");
-		eval {
-			$fps    	= $info->fps();		#|| warn("asdf");
-			$vcodec 	= $info->vcodec();	#|| warn("asdf"); 
-			$acodec 	= $info->acodec();
-			$vframes	= $info->vframes();
-			$achans 	= $info->achans();
-			$arate  	= $info->arate();
-			$width  	= $info->width();
-			$height		= $info->height();
-			#$vrate		= $info->vrate();		#vrate doesn't work right
-		};
-		warn $@ if $@;
-		#print "<BR>length is $length";
-		if ($height>0) { $attributes{height}=$height; }
-		if ($width >0) { $attributes{width} =$width; }
-		#if ($vrate>0) { $attributes{vrate}= $vrate; }
-		#print "vrate is $vrate";
-		#print ":achans is $achans\n";
-		#
-		if (($fps>0) && ($vframes>0)) { $length = &round($vframes / $fps); }
-		if ($vcodec ne "") { $attributes{vcodec}=&nicecodec($vcodec); }
+	if ($cheating_NotReallyVideo) {
+		#then don't do any of this stuff!!
+	} else {
+		eval { $info = Video::Info->new(-file=>$real); };
+		#$info = Video::Info->new(-file=>$real); };
+		if ($DEBUG_VIDEO_ATTRIBUTES) { %tmpattributes=%{$info}; foreach my $key (sort keys %tmpattributes) { print "\t* Tmpattributes{$key}=$tmpattributes{$key}\n"; }  }
+		if ($info ne "") {
+			my ($fps,$vcodec,$acodec,$length,$achans,$arate,$width,$height,$vframes,$vrate)=("","","","","","","","","","");
+			#bless $info;
+			eval {			$fps    	= $info->fps();		    };  warn &randcolor_simple() . $real . ":\t " . $@ if $@; #|| warn("asdf");		};
+			eval {			$vcodec 	= $info->vcodec();	    };  warn &randcolor_simple() . $real . ":\t " . $@ if $@; #|| warn("asdf"); 		};
+			eval {			$acodec 	= $info->acodec();		};	warn &randcolor_simple() . $real . ":\t " . $@ if $@;
+			eval {			$vframes	= $info->vframes();		};	warn &randcolor_simple() . $real . ":\t " . $@ if $@;
+			eval {			$achans 	= $info->achans();		};	warn &randcolor_simple() . $real . ":\t " . $@ if $@;
+			eval {			$arate  	= $info->arate();		};	warn &randcolor_simple() . $real . ":\t " . $@ if $@;
+			eval {			$width  	= $info->width();		};	warn &randcolor_simple() . $real . ":\t " . $@ if $@;
+			eval {			$height		= $info->height();		};  warn &randcolor_simple() . $real . ":\t " . $@ if $@;
+			eval {			$vrate		= $info->vrate();		};  warn &randcolor_simple() . $real . ":\t " . $@ if $@; #vrate doesn't work right
+			#print "<BR>length is $length";
+			if ($height>0) { $attributes{height}=$height; }
+			if ($width >0) { $attributes{width} =$width; }
+			#if ($vrate>0) { $attributes{vrate}= $vrate; }
+			#print "vrate is $vrate";
+			#print ":achans is $achans\n";
+			#
+			if (($fps>0) && ($vframes>0)) { $length = &round($vframes / $fps); }
+			if ($vcodec ne "") { $attributes{vcodec}=&nicecodec($vcodec); }
 
-		#Kludge fix:
-		$attributes{achans}=$achans;
-		if ($acodec ne "") { 
-			$attributes{acodec}=&nicecodec($acodec); 
-			if (($achans ne "") || ($arate ne "")) {
-				if ($arate ne "") { $attributes{arate} = &round_audio_kbps($arate / 1024) . "kbps"; }
-				#this block was good for photo-album, but killing allfiles-mv:
-				#if ($achans ne "") {
-				#	if ($achans == 0) { $attributes{achans}="broken"; }		#theoretically should not happen
-				#	if ($achans == 1) { $attributes{achans}="mono"; }
-				#	if ($achans == 2) { $attributes{achans}="stereo"; }
-				#	if ($achans >  2) { $attributes{achans}="$achans" . "-channel"; }
-				#}
+			#Kludge fix:
+			$attributes{achans}=$achans;
+			if ($acodec ne "") { 
+				$attributes{acodec}=&nicecodec($acodec); 
+				if (($achans ne "") || ($arate ne "")) {
+					if ($arate ne "") { $attributes{arate} = &round_audio_kbps($arate / 1024) . "kbps"; }
+					#this block was good for photo-album, but killing allfiles-mv:
+					#if ($achans ne "") {
+					#	if ($achans == 0) { $attributes{achans}="broken"; }		#theoretically should not happen
+					#	if ($achans == 1) { $attributes{achans}="mono"; }
+					#	if ($achans == 2) { $attributes{achans}="stereo"; }
+					#	if ($achans >  2) { $attributes{achans}="$achans" . "-channel"; }
+					#}
+				}
 			}
+			if ($length ne "") { $attributes{length}=&convert_seconds_to_readable_length($length); }
+			if ($fps     >  0) { $attributes{fps}   =&nicefps                           ($fps   ); }
 		}
-		if ($length ne "") { $attributes{length}=&convert_seconds_to_readable_length($length); }
-		if ($fps > 0) { $attributes{fps}=&nicefps($fps); }
 	}
-
 
 	if ($DEBUG_VIDEO_ATTRIBUTES) { foreach my $key (sort keys %attributes) { print "\t* Attributes{$key}=$attributes{$key}\n"; } print "\n"; }
 
