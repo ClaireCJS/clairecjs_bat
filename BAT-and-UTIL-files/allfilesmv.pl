@@ -844,6 +844,7 @@ foreach $filename (@LINES) {
 					 "\\(*x264\\)*-finch",
 					 "\\(*x264\\)*-NTb",
 					 "\\(*x264\\)*-w4f",
+					 "\\(*x264\\)*-EVO",
 					 #"",
 					 #"x264-",
 					 #"x264-",
@@ -852,6 +853,7 @@ foreach $filename (@LINES) {
 			$filename =~ s/$tmp/(x264)/i;
 		}
 		#release groups and other kill-strings
+		$filename =~ s/\-WURUHI//;
 		foreach $tmp (
 					 "h264-Cyphanix",
 					 "h264-BTN",
