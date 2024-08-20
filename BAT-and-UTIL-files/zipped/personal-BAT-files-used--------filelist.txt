@@ -281,7 +281,7 @@
 2024-04-08  15:08            560   54%  fix-window-title.bat
 2019-10-01  10:28             54    0%  fixclip.bat
 2023-08-29  06:34            162   25%  fix_taskbar_hidden_by_ctypes_call.py
-2024-06-13  16:48         86,357   76%  fix_unicode_filenames.py
+2024-08-20  16:34         91,903   76%  fix_unicode_filenames.py
 2023-07-10  10:39        519,397   45%  fix_unicode_filenames_every_char.py
 2023-08-16  13:11         10,168   70%  fix_wrong_image_extensions.py
 2023-10-14  01:43            481   46%  flac2wav.bat

@@ -134,7 +134,8 @@ DEBUG_LANG_DETECT=False
 DEBUG_POLYGLOT=False
 DEBUG_CHAR                        = bool(False or DEBUG_ALL_CHARS or DEBUG_MOST_CHARS)
 DEBUG_UNIDECODECHAR               = bool(False or DEBUG_ALL_CHARS or DEBUG_MOST_CHARS)
-DEBUG_UNIDECODECHAR_TRANSLATECHAR = bool(False or DEBUG_ALL_CHARS)                      # super verbose
+DEBUG_UNIDECODECHAR_TRANSLATECHAR = bool(False
+or DEBUG_ALL_CHARS)                      # super verbose
 DEBUG_INTERNAL_TESTING=False
 #######################################################################################################
 
@@ -260,9 +261,9 @@ def translate_one_or_more_chars_with_custom_character_mapping(chars, mode):     
 
     code2 = ""                                      # unicode code without the \ before it
     for char in chars:                              # If it's not in our custom mapping, we basically pass through without doing anything
-        code, code2 = "", ""
+        code, code2, code3 = "", "", ""
         if DEBUG_UNIDECODECHAR_TRANSLATECHAR:
-            code  =     get_unicode_hex(char)
+            code  =               get_unicode_hex(char)
             code2 = "code " + str(get_unicode_hex(char)).replace("\\","")
             primt(f"\t{Fore.CYAN}translate_one_or_more_chars_with_custom_character_mapping(char={char},code={code},code2={code2})",end="")
 
@@ -271,7 +272,7 @@ def translate_one_or_more_chars_with_custom_character_mapping(chars, mode):     
             mapping = unicode_to_ascii_custom_character_mapping[char]
             if DEBUG_UNIDECODECHAR_TRANSLATECHAR: primt(f"{Fore.GREEN}    Found in mapping!",end="")
         else:
-            if DEBUG_UNIDECODECHAR_TRANSLATECHAR: primt(f"{Fore.RED}Not found in mapping!",end="")
+            if DEBUG_UNIDECODECHAR_TRANSLATECHAR: primt(  f"{Fore.RED}Not found in mapping!",end="")
             code2 = "code " + str(get_unicode_hex(char)).replace("\\","")
             if code2 in unicode_to_ascii_custom_character_mapping:
                 if DEBUG_UNIDECODECHAR_TRANSLATECHAR: primt(f"{Fore.GREEN}{Style.BRIGHT}Found by 2nd-attempt code lookup!{Style.NORMAL}",end="")
@@ -472,23 +473,29 @@ def get_name_from_hex(unicode_hex):
     unicode_char = chr(int(unicode_hex, 16))      # Convert hex string to Unicode character
     try:
         return unicodedata.name(unicode_char)
-    except ValueError:                                    # Raised when the character does not have a name
+    except ValueError:                                              # Raised when the character does not have a name
 
-        unicode_char = chr(int("000" + unicode_hex, 16))  # Convert hex string to Unicode character
+        unicode_char = chr(int("000" + unicode_hex, 16))            # Convert hex string to Unicode character
         try:
             return unicodedata.name(unicode_char)
-        except ValueError:                                    # Raised when the character does not have a name
+        except ValueError:                                          # Raised when the character does not have a name
 
-            unicode_char = chr(int("00" + unicode_hex, 16))  # Convert hex string to Unicode character
+            unicode_char = chr(int("00" + unicode_hex, 16))         # Convert hex string to Unicode character
             try:
                 return unicodedata.name(unicode_char)
-            except ValueError:                                    # Raised when the character does not have a name
+            except ValueError:                                      # Raised when the character does not have a name
 
-                unicode_char = chr(int("0" + unicode_hex, 16))  # Convert hex string to Unicode character
+                unicode_char = chr(int("0" + unicode_hex, 16))      # Convert hex string to Unicode character
                 try:
                     return unicodedata.name(unicode_char)
-                except ValueError:  # Raised when the character does not have a name
-                    return f"            [ERROR: get_name_from_hex ___ fail_for_hex={unicode_hex_original},char={unicode_char}]               "
+                except ValueError:                                  # Raised when the character does not have a name
+
+                    unicode_char = chr(int("u" + unicode_hex, 16))  # Convert hex string to Unicode character
+                    try:
+                        return unicodedata.name(unicode_char)
+                    except ValueError:                              # Raised when the character does not have a name
+
+                        return f"            [ERROR: get_name_from_hex ___ fail_for_hex={unicode_hex_original},char={unicode_char}]               "
 
 
 
@@ -1484,7 +1491,118 @@ unicode_to_ascii_custom_character_mapping = {
     "／":         ["/","--"],                   #what strange new slash is this?
 
     "♬":      ["♫",],                          #unicode 'beamed music note' to ascii music note
-    #"":      ["",],
+    "code u1FA01":      ["{Military Helmet}",],
+    "code u1FA02":      ["{Accordion}",],
+    "code u1FA03":      ["{Long Drum}",],
+    "code u1FA04":      ["{Coin}",],
+    "code u1FA05":      ["{Carpentry Saw}",],
+    "code u1FA06":      ["{Screwdriver}",],
+    "code u1FA07":      ["{Ladder}",],
+    "code u1FA08":      ["{Hook}",],
+    "code u1FA09":      ["{Mirror}",],
+    "code u1FA0A":      ["{Window}",],
+    "code u1FA0B":      ["{Plunger}",],
+    "code u1FA0C":      ["{Sewing Needle}",],
+    "code u1FA0D":      ["{Safety Pin}",],
+    "code u1FA0E":      ["{Broom}",],
+    "code u1FA0F":      ["{Bucket}",],
+    "code u1FA10":      ["{Toothbrush}",],
+    "code u1FA11":      ["{Hose}",],
+    "code u1FA12":      ["{Mouse Trap}",],
+    "code u1FA13":      ["{Skateboard}",],
+    "code u1FA14":      ["{Roller Skate}",],
+    "code u1FA15":      ["{Fishing Pole}",],
+    "code u1FA16":      ["{Yo-Yo}",],
+    "code u1FA17":      ["{Kite}",],
+    "code u1FA18":      ["{Parachute}",],
+    "code u1FA19":      ["{Boomerang}",],
+    "code u1FA1A":      ["{Magic Wand}",],
+    "code u1FA1B":      ["{Nazar Amulet}",],
+    "code u1FA1C":      ["{Hamsa}",],
+    "code u1FA1D":      ["{Red Envelope}",],
+    "code u1FA1E":      ["{Carp Streamer}",],
+    "code u1FA1F":      ["{Firecracker}",],
+    "code u1FAB0":      ["{Fly}",],
+    "code u1FAB1":      ["{Worm}",],
+    "code u1FAB2":      ["{Beetle}",],
+    "code u1FAB3":      ["{Cockroach}",],
+    "code u1FAB4":      ["{Potted Plant}",],
+    "code u1FAB5":      ["{Wood}",],
+    "code u1FAB6":      ["{Feather}",],
+    "code u1FAB7":      ["{Lotus}",],
+    "code u1FAB8":      ["{Coral}",],
+    "code u1FAB9":      ["{Empty Nest}",],
+    "code u1FABA":      ["{Nest with Eggs}",],
+    "code u1fabb":      ["{Hyacinth}",],
+    "code u1FABC":      ["{Jellyfish}",],
+    "code u1FABD":      ["{Wing}",],
+    "code u1FABE":      ["{Plant in Ground}",],
+    "code u1FABF":      ["{Goose}",],
+    "code u1FAC0":      ["{Anatomical Heart}",],
+    "code u1FAC1":      ["{Lungs}",],
+    "code u1FAC2":      ["{People Hugging}",],
+    "code u1FAC3":      ["{Pregnant Man}",],
+    "code u1FAC4":      ["{Pregnant Person}",],
+    "code u1FAC5":      ["{Person with Crown}",],
+    "code u1FAC6":      ["{Person in Lotus Position}",],
+    "code u1FAC7":      ["{Hamsa}",],
+    "code u1FAC8":      ["{Empty Bowl}",],
+    "code u1FAC9":      ["{Nest with Eggs}",],
+    "code u1FACA":      ["{Bowl with Spoon}",],
+    "code u1FACB":      ["{Jar}",],
+    "code u1FACC":      ["{Empty Jar}",],
+    "code u1FACD":      ["{Meringue}",],
+    "code u1FACE":      ["{Moose}",],
+    "code u1FACF":      ["{Donkey}",],
+    "code u1FAD0":      ["{Blueberries}",],
+    "code u1FAD1":      ["{Bell Pepper}",],
+    "code u1FAD2":      ["{Olive}",],
+    "code u1FAD3":      ["{Flatbread}",],
+    "code u1FAD4":      ["{Tamale}",],
+    "code u1FAD5":      ["{Fondue}",],
+    "code u1FAD6":      ["{Teapot}",],
+    "code u1FAD7":      ["{Pouring Liquid}",],
+    "code u1FAD8":      ["{Beans}",],
+    "code u1FAD9":      ["{Jar with a Lid}",],
+    "code u1FADA":      ["{Ginger Root}",],
+    "code u1FADB":      ["{Pea Pod}",],
+    "code u1FADC":      ["{Empty Bowl}",],
+    "code u1FADD":      ["{Bowl with Spoon}",],
+    "code u1FADE":      ["{Tamale}",],
+    "code u1FADF":      ["{Empty Plate}",],
+    "code u1FAE0":      ["{Melting Face}",],
+    "code u1FAE1":      ["{Saluting Face}",],
+    "code u1FAE2":      ["{Face with Open Eyes and Hand Over Mouth}",],
+    "code u1FAE3":      ["{Face with Peeking Eye}",],
+    "code u1FAE4":      ["{Face with Diagonal Mouth}",],
+    "code u1FAE5":      ["{Dotted Line Face}",],
+    "code u1FAE6":      ["{Biting Lip}",],
+    "code u1FAE7":      ["{Bubbles}",],
+    "code u1FAE8":      ["{Shaking Face}",],
+    "code u1FAE9":      ["{Pink Heart}",],
+    "code u1FAEA":      ["{Light Blue Heart}",],
+    "code u1FAEB":      ["{Grey Heart}",],
+    "code u1FAEC":      ["{Hand with Palm Facing Up}",],
+    "code u1FAED":      ["{Hand with Palm Facing Down}",],
+    "code u1FAEE":      ["{Index Pointing at the Viewer}",],
+    "code u1FAEF":      ["{Rightwards Hand}",],
+    "code u1FAF0":      ["{Leftwards Hand}",],
+    "code u1FAF1":      ["{Palm Down Hand}",],
+    "code u1FAF2":      ["{Palm Up Hand}",],
+    "code u1FAF3":      ["{Hand with Thumb and Index Finger Together}",],
+    "code u1FAF4":      ["{Leftwards Palm with Thumb and Index Finger}",],
+    "code u1FAF5":      ["{Palm with Index and Thumb Crossed}",],
+    "code u1FAF6":      ["{Hands Holding Heart}",],
+    "code u1FAF7":      ["{Rightwards Hand}",],
+    "code u1FAF8":      ["{Leftwards Hand}",],
+    "code u1FAF9":      ["{Index Pointing at the Viewer}",],
+    "code u1FAFA":      ["{Rightwards Hand}",],
+    "code u1FAFB":      ["{Leftwards Hand}",],
+    "code u1FAFC":      ["{Palm Up Hand}",],
+    "code u1FAFD":      ["{Palm Down Hand}",],
+    "code u1FAFE":      ["{Palm with Thumb and Index Finger Together}",],
+    "code u1FAFF":      ["{Rightwards Palm with Thumb and Index Finger}",],
+
     #"":      ["",],
     #"":      ["",],
     #"":      ["",],
