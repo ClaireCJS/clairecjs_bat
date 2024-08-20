@@ -63,16 +63,19 @@ Installation is not easy, bedcause this is really about integrating existing too
 
 1. You will also want to pay attention to *c:\bat\environm.btm*.<br>
 	This is the script that is run every time TCC is run in a non-transient way.<BR>
-	This is the most imporant script, basically the equivalent of your unix .init/.rc type files.<BR>
+	This is the most important script, basically the equivalent of your unix .init/.rc type files.<BR>
 	Open it up in a text editor.<br>
-	You don't need to do anything at first — It's just important tyat you know this file defines EVERYTHING.<BR>
+	You don't need to do anything at first — It's just important that you know this file defines EVERYTHING.<BR>
 	E-V-E-R-Y-T-H-I-N-G. 
+	Harddrive letters, machine names, drive-to-machine mappings, repository locations, drive mapping information, IP addresses, the works. (Passwords go in private.env, however.)
+	THIS IS THE MAIN FILE TO ORGANIZE MY COMMAND LINE LIFE.
 
 1. Configure <em>c:\bat\environm.btm</em>:<BR>
 	Run environm.btm over and over until any errors you don't like seeing are gone.<BR>
-	You also could ignore them, but that would be ugly on your screen.<BR>
+	You also could ignore them, but that would be ugly on your screen, and they tend to represent action items.<BR>
 	*environm.btm* will now be the central script to handle all definitions of all things, to make sure your command line is in a PERFECT ZEN STATE for you.<BR>
 	This file has an incredible set of messy examples that you can customize.<BR>
+	Run *environm validate* to run the full set of repository location validation. This absolutely won't work but is a framework for making sure every repository you ever create exists in the correct place and is accessible from every computer in your LAN regardless of mapped drive letter differences.
 	Ultimately, this is the file you want to customize for the rest of your life.<BR>
 	If you have private environment variables you don't want in your <EM>environm.btm </EM>for privacy reasons, put them in <EM>c:\bat\private.env </EM>.
 
@@ -88,5 +91,6 @@ Installation is not easy, bedcause this is really about integrating existing too
 
 # I would absolutely love feedback! 🤓
 
-I would love to know how this works out for somebody who has never done it. Such feedback is something I could use to further generalize my scripts to be more workable for other people.
+I would love to know how this works out for somebody who has never done it. Nobody outside of my own family has ever tried to use my environment. Such feedback is something I could use to further generalize my scripts to be more workable for other people.
+
 
