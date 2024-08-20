@@ -553,7 +553,7 @@
 2024-08-20  05:22          1,485   58%  run-cmd-file.bat
 2024-08-20  05:18             90   16%  run-com-file.bat
 2023-05-28  12:17             43    0%  run-first-file-in-dir.bat
-2024-08-20  05:13            458   41%  run-first-file-in-directory.bat
+2024-08-20  17:30            778   44%  run-first-file-in-directory.bat
 2023-05-28  12:17             43    0%  run-first-file-in-folder.bat
 2024-08-20  05:11            375   32%  run-first-image-file-in-directory.bat
 2024-08-20  05:09            188   25%  run-piped-input-as-bat.bat
@@ -696,7 +696,7 @@
 2024-03-18  09:00            216   28%  validate-ahk.bat
 2024-04-10  15:12            714   51%  validate-all-perl-files.bat
 2023-05-28  09:54             38   -5%  validate-env-var.bat
-2024-07-03  01:24         14,808   77%  validate-environment-variable.bat
+2024-08-20  17:24         14,833   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
 2024-04-19  15:48          2,082   60%  validate-file-extension.bat
 2024-04-05  18:20          1,442   56%  validate-in-path.bat
