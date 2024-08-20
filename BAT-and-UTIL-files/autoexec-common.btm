@@ -27,15 +27,16 @@ rem Start the service called "Everything" (not the abstract concept of everythin
         call start-everything %*
         gosub done_with_step
 
-rem Maintain LOG files:
-        call less_important "Rolling log files..."
-        call roll-logs %*
-        gosub done_with_step
-
 rem Map drives
         call important "Mapping drives..."
         call map-drives %*
         gosub done_with_step
+
+rem Maintainence, including rolling files:
+        call less_important "Running maintanence..."
+        call                         maintanence NoWarning
+        gosub done_with_step
+
 
 rem Things for our primary machines only:
         if "%machinename%" ne "WYVERN" .and. "%machinename%" ne "DEMONA" (goto :NoCalmon)
@@ -50,7 +51,7 @@ rem Things for our primary machines only:
                     gosub done_with_step
         :NoCalmon
 
-
+rem Maintenance including rolling logfiles:
 
 goto :END
 

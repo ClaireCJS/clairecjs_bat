@@ -20,7 +20,7 @@
 my $DEBUG_BAT                        = 0;			#set to   1     for pauses in the actual batfile which is generated, 0 else
 my $DEBUG                            = 0;			#set to 0,1,2,3 for more verbose output, like every line found in audioscrobbler log
 my $DEBUG_FIND_IN_AUDIOSCROBBLER_LOG = 0;			#set to 0,1,2   for more verbose output
-my $DEBUG_CLIPBOARD_TEXT             = 0;#GOAT           #set to   1     for more debug info about what gets copied to the clipboard
+my $DEBUG_CLIPBOARD_TEXT             = 0;           #set to   1     for more debug info about what gets copied to the clipboard
 
 print ":debug     is $DEBUG    \n:debug_bat is $DEBUG_BAT\n";
 
@@ -36,8 +36,6 @@ if ($METHOD eq "2009") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = ": Sent Start for "   
 if ($METHOD eq "2011") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "Failed to extract MBID for"                     ; $AUDIOSCROBBLER_LOG_SEARCH_FOR2 = "Starting query FP for"; $AUDIOSCROBBLER_LOG_SEARCH_FOR3 = "DISABELEDEvent::TrackChanged"; }	
 if ($METHOD eq "2012") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "Line received: START c=.*&a=.*&t=.*"            ; }	
 if ($METHOD eq "2013") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "PlayerCommandParser::PlayerCommandParser.*START"; }	
-
-#TODO?:perhaps we could do something where if nothing is found using the 2012 method, we fall back to the 2011 method
 
 
 

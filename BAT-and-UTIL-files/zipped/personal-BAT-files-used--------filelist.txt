@@ -51,7 +51,7 @@
 2024-03-13  20:08          5,959   68%  audit-music-files.py
 2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
-2024-08-19  03:11          1,975   66%  autoexec-common.btm
+2024-08-20  09:38          2,074   67%  autoexec-common.btm
 2024-04-26  14:52          1,414   64%  autoexec.ahk
 2024-04-26  14:56             56    8%  AutoHotKey-autoexec.bat
 2024-03-18  02:07            556   41%  AutoHotKey.bat
@@ -82,7 +82,7 @@
 2024-05-06  06:02             47    0%  battery.bat
 2024-04-27  06:29          4,285   71%  beep.bat
 2024-04-28  00:35         12,111   75%  before.bat
-2024-04-04  21:21          1,370   58%  bigecho.bat
+2024-08-20  08:16          1,380   58%  bigecho.bat
 2024-05-06  06:02             47    0%  bluetooth-batteries.bat
 2024-05-06  06:02             47    0%  bluetooth.bat
 2024-05-07  13:50            417   41%  bring-back-focus.bat
@@ -210,6 +210,7 @@
 2024-05-23  07:52            754   54%  display-mp3-length.bat
 2024-05-23  07:49            108   15%  display-mp3-lengths.bat
 2024-03-29  20:09            135   23%  display-mp3-tags.bat
+2024-08-20  09:22          1,137   57%  display-open-file-handles.bat
 2024-06-12  12:56            416   50%  display-size-of-current-folder-tree.bat
 2024-05-26  14:20             83   16%  display-song-lengths.bat
 2020-12-30  20:05             71    8%  display-this-month.pl
@@ -236,8 +237,8 @@
 2023-06-12  20:31             37   -5%  dym.bat
 2019-10-01  10:27             45   -4%  ec.bat
 2023-11-07  13:36          3,152   71%  echo-rainbow.bat
-2024-07-03  01:23         29,297   69%  edit-currently-playing-attrib-helper.pl
-2024-07-03  01:23         10,928   75%  edit-currently-playing-attrib.bat
+2024-08-20  09:00         29,171   69%  edit-currently-playing-attrib-helper.pl
+2024-08-20  08:59          8,960   71%  edit-currently-playing-attrib.bat
 2023-09-15  12:27          3,399   66%  editGrep.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
@@ -332,7 +333,7 @@
 2021-08-26  00:21             41    0%  git-suppress-CRLF-warning.bat
 2021-07-30  11:29            180   27%  git-timecapsule.bat
 2019-10-01  10:28             39    0%  git-win.bat
-2024-05-12  13:52          6,310   61%  git.bat
+2024-08-20  07:07          6,124   60%  git.bat
 2019-10-01  10:27             18  -11%  go-to-bat-file-folder.bat
 2024-05-10  10:38          3,538   62%  go-to-next-directory-generator.pl
 2019-10-01  10:28            107   13%  google.bat
@@ -340,7 +341,7 @@
 2022-11-21  13:30          1,896   57%  grab.bat
 2024-04-03  17:44            589   53%  grant-me-access-to-all-files.bat
 2019-10-01  10:28            839   63%  handles-post.pl
-2023-10-14  02:50          1,031   53%  handles.bat
+2024-08-20  09:17             36   -5%  handles.bat
 2019-10-01  10:28            204   49%  head.bat
 2024-04-10  13:14            878   50%  helper-end.bat
 2024-05-28  00:45          1,201   55%  helper-start.btm
@@ -384,6 +385,7 @@
 2023-07-10  09:43            184   42%  kill.bat
 2024-06-13  19:45          1,211   57%  KillIfRunning.bat
 2019-10-01  10:28            102   18%  label.bat
+2024-08-20  09:13             21   -9%  lastfm-start.bat
 2020-04-22  19:57            278   32%  launch-monitor-to-react-after-program-closes.bat
 2023-04-09  07:00          2,410   66%  left-center-right.pl
 2024-05-26  14:20             35   -5%  lengths.bat
@@ -453,7 +455,7 @@
 2024-05-23  10:36            431   55%  openimage.bat
 2022-07-03  20:15          2,365   72%  opera.bat
 2024-03-28  02:16             23   -8%  paus.btm
-2024-03-24  18:42          1,124   53%  pause-alias.bat
+2024-08-20  08:22          1,115   53%  pause-alias.bat
 2024-05-08  13:30            648   48%  pause-for-x-seconds.bat
 2019-10-01  10:28            127    9%  pause-wrapper.bat
 2024-05-07  13:56             23   -8%  pause.btm
@@ -477,12 +479,12 @@
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
 2024-03-18  11:29             13  -15%  previousdir.bat
 2023-06-09  22:02             67    6%  print-if-debug.bat
-2024-05-23  08:03         21,443   74%  print-message.bat
+2024-08-20  08:41         23,762   74%  print-message.bat
 2024-06-28  10:49         14,018   74%  process-done-torrent.btm
 2024-05-26  14:43             25   -8%  process-filelist-to-prevent-consecutive-entries-from-same-folder.bat
 2024-03-18  22:28          2,192   64%  process-rookie-folders.bat
 2024-05-11  16:42             29   -6%  programfiles.bat
-2019-10-01  10:28             60   19%  programfilesx86.bat
+2024-08-20  09:15            152   25%  programfilesx86.bat
 2023-06-02  13:09          1,023   67%  prompt-Carolyn.bat
 2023-06-02  13:11            783   46%  prompt-Claire.bat
 2023-06-02  20:35          5,226   70%  prompt-common.bat
@@ -542,6 +544,9 @@
 2023-06-09  18:15          2,922   67%  rn-latest-for-youtube-dl.bat
 2022-04-19  04:29            156   20%  rn-latest.bat
 2024-06-05  16:56          5,075   73%  rn.bat
+2024-08-20  09:27            499   39%  roll-lastfm-log.bat
+2024-08-20  07:13            222   23%  roll-log-madvr.bat
+2024-08-20  09:29          2,795   68%  roll-logs.bat
 2024-08-02  22:12            739   45%  rookie-pcvr.bat
 2022-03-13  19:26          3,560   74%  rotate-video.bat
 2024-08-20  07:02            374   59%  run-all-backups.bat
@@ -563,9 +568,10 @@
 2023-06-13  16:06             57    0%  send-keypress-alt_up.ahk
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
+2024-08-20  07:37             21   -9%  set-all_colors.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
-2024-05-26  13:52         33,761   82%  set-colors.bat
+2024-08-20  08:34         37,012   83%  set-colors.bat
 2023-06-05  23:30             68   15%  set-current_playing_song.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
@@ -620,6 +626,7 @@
 2023-06-08  07:50             91   32%  splvx.bat
 2023-06-08  04:15             90   33%  splx.bat
 2024-03-18  02:03            150   21%  start-everything.bat
+2024-08-20  09:13            132   23%  start-lastfm.bat
 2024-07-08  04:11            298   52%  start-minilyrics.bat
 2022-08-17  11:44            135   44%  start-nonelevated.bat
 2023-07-19  09:18          2,465   63%  start.bat
@@ -679,6 +686,7 @@
 2024-05-07  14:00             25   -8%  unpause.bat
 2024-04-28  20:54            287   35%  unzip-all.bat
 2024-04-28  21:01          6,124   71%  unzip-gracefully.bat
+2024-08-20  09:34            443   39%  update-cygwin.bat
 2024-05-23  07:58         11,897   73%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2019-10-01  10:28            232   26%  urldecode.pl
@@ -730,7 +738,7 @@
 2023-06-08  19:05             29   11%  windows-a-v1.ahk
 2023-06-08  19:05             31   10%  windows-a-v2.ahk
 2024-03-29  23:30            198   37%  winkill.bat
-2023-07-17  09:49          3,149   67%  wrapper.bat
+2024-08-20  09:31          3,359   68%  wrapper.bat
 2024-03-12  13:02          5,632   60%  ydl.bat
 2024-06-27  12:31             89   18%  ydm.bat
 2024-04-03  14:43            568   47%  yyyymmdd(dow).bat

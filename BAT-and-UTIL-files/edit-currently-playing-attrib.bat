@@ -1,88 +1,62 @@
  @Echo off
-:     ^^^----- WARNING: turning Echo ON makes this script not work!! 2023: NO LONGER TRUE!! HAHA!
-
-:et AUDIOSCROBBLER_LOG=%TMPMUSICSERVERCDRIVE%:\program files\winamp\plugins\AudioScrobbler.log.txt
-set AUDIOSCROBBLER_LOG=%TMPMUSICSERVERCDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
-
-call validate-environment-variables TMPMUSICSERVERCDRIVE AUDIOSCROBBLER_LOG MACHINENAME MUSICSERVERMACHINENAME
-
-
-::::: SETUP:
-	:Fix Twitter non-response side-effect:
-	:call nocar
+  rem WARNING: Do NOT turn echo on if %DEBUG% is 1, because this won't work if we do that. In general, this script can be problematic with echo on
 
 
 
-::::: INITIALIZE COMMENT PASSTHROUGH:
-    ::DO NOT DO THIS:: set LEARNED_COMMENT=%* - DOESN'T WORK LIKE THAT
+rem CONFIGURATION:
+		set VERBOSE=1          %+ rem Setting this to 1 will make the greps be put on the screen
+
+rem ENVIRONMENT VALIDATION:
+        if %EC_VALIDATED ne 1 (
+            call validate-environment-variables TMPMUSICSERVERCDRIVE MUSICSERVERCDRIVE AUDIOSCROBBLER_LOG MACHINENAME MUSICSERVERMACHINENAME EDITOR TEMP MACHINENAME MP3OFFICIAL MUSICSERVERMACHINENAME MUSICSERVERUSERNAME
+            set EC_VALIDATED=1
+        )
+
+rem CLIPBOARD FIX + FIGURE OUT OUR FILENAME:
+		unset /q ECCHECKPASSED %+ rem This really needs to be done. A lot
+        if %ECCHECKPASSED == 1 (goto :eccheckpassed)
+            rem DEBUG: :echo checking eccheckpassed
+            call fixclip
+            set  ECCHECKPASSED=1
+            rem CREATE FILENAME FOR SCRIPT TO RUN:
+                call  yyyymmdd
+                set   LEARNEDSCRIPT=%temp\ec-tmp-%_PID%-%YYYYMMDDHHMMSS%.bat                  
+            rem DEGBUG: :echo LEARNEDSCRIPT is %LEARNEDSCRIPT% %+ pause
+        :eccheckpassed
 
 
 
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::::: DEBUG STUFF:
-	:Do NOT turn echo on if %DEBUG% is 1, because this won't work if we do that.
-
-	:Setting this to 1 will make the greps be put on the screen..
-		set VERBOSE=1
-
-	:::: You want this a lot, too:
-		unset /q ECCHECKPASSED
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-
-
-
-
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::::: Make sure we have %temp and %editor defined, but only do it once, for speedup purposes
-	if %ECCHECKPASSED == 1 goto :eccheckpassed
-		:Debug
-			:echo checking eccheckpassed
-		:Check_Initial_Conditions
-			call  checktemp.bat
-			call  fixclip
-			call  yyyymmdd
-            call validate-environment-variables TEMP EDITOR MACHINENAME MP3OFFICIAL MUSICSERVERMACHINENAME MUSICSERVERUSERNAME
-		:Set_The_Script_To_Run
-			SET   ECCHECKPASSED=1
-			set   LEARNEDSCRIPT=%temp\ec-tmp-%_PID%-%YYYYMMDDHHMMSS%.bat
-		:Debug
-			:echo LEARNEDSCRIPT is %LEARNEDSCRIPT%
-			:pause
-	:eccheckpassed
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-
-
-
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::::: Make sure LAST.FM scrobbler is running, or this won't work: (only doable on the same machine)
-	if "%MACHINENAME%" ne "%MUSICSERVERMACHINENAME" goto :CheckIfLastFMIsRunning_Nevermind
+rem Make sure LAST.FM scrobbler is running, or this won't work: (only doable on the same machine):
+	if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME" (
 		call isrunning Last.*fm
-        call print-if-debug "ISRUNNING='%ISRUNNING%'"
-        :pause
-		if "%ISRUNNING%" eq "1"  goto :LastFMIsRunning_Yes
-			:LastFMIsRunning_No
-				beep 300 %+ beep 250 %+ beep 200 %+ beep 150
-                call FATAL_ERROR "Last.fm scrobbler must be running! Running it now."
-                %COLOR_RUN%    %+ call lastfm-start 
-                %COLOR_NORMAL%
-			goto :END
-		:LastFMIsRunning_Yes
-	:CheckIfLastFMIsRunning_Nevermind
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        call print-if-debug "ISRUNNING='%ISRUNNING%'" %+ if %DEBUG eq 1 (pause)
+		if "%ISRUNNING%" ne "1" (
+                call alarm "Last.fm scrobbler must be running! Running it now."
+                call lastfm-start                 
+         )
+		call isrunning Last.*fm
+		if "%ISRUNNING%" ne "1" (call fatal_error "could not restart Last.fm scrobbler, despite trying")
+	)
 
 
 
+rem Multi-room patch for house addition construction (2003-2006) is now deprecated with an annoying warning, as no longer need to do this:	
+        rem call setTmpMusicServer.bat %*
 
 
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-: Multi-room patch is now deprecated with an annoying warning, no longer need to do this:	call setTmpMusicServer.bat %*
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+rem If for some reason we made it here, try the old method:
+        goto :2013way
 
 
+:END
+    rem save values for auditing:
+        set LAST_ATTRIB=%ATTRIB%             %+    unset /q ATTRIB
+        set LAST_COMMENT=%LEARNED_COMMENT%   %+    unset /q LEARNED_COMMENT
+        set LAST_VERBOSE=%VERBOSE%           %+    unset /q VERBOSE
+        set LAST_AUTOMARK=%AUTOMARK%         %+    unset /q AUTOMARK
+        set LAST_AUTOMARKAS=%AUTOMARKAS%     %+    unset /q AUTOMARKAS
+goto :EOF
 
-goto :2013way
 
 
 
@@ -199,10 +173,6 @@ goto :skip_old_way
 
 
 
-
-
-
-
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :2013way
 	:if "%HADES_DOWN"=="1" goto :HadesDown
@@ -235,11 +205,8 @@ goto :skip_old_way
 
 
 
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:END
-    set LAST_ATTRIB=%ATTRIB%             %+    unset /q ATTRIB
-    set LAST_COMMENT=%LEARNED_COMMENT%   %+    unset /q LEARNED_COMMENT
-	set LAST_VERBOSE=%VERBOSE%           %+    unset /q VERBOSE
-	set LAST_AUTOMARK=%AUTOMARK%         %+    unset /q AUTOMARK
-	set LAST_AUTOMARKAS=%AUTOMARKAS%     %+    unset /q AUTOMARKAS
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+
+
+:EOF

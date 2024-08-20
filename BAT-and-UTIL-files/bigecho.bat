@@ -17,10 +17,10 @@ set PARAMS=%@UNQUOTE[%*]
 setdos /x-678
 
     rem we use the ANSI_ERASE_TO_EOL sequence after setting the color to 'normal' to evade a Windows Terminal+TCC bug where the background color bleeds into the rightmost column
-    %COLOR_TO_USE% %+ echos %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%%ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL% %+ echo.
+    %COLOR_TO_USE% %+  echo %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%%ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
     %COLOR_TO_USE% %+ echos %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL% %+ if %ECHOSBIG ne 1 (echo.)
 
-    echos %BIG_TEXT_END%%ANSI_RESET%
+    echos %BIG_TEXT_END%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
 
 
 setdos /x0
