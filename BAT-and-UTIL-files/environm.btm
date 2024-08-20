@@ -670,7 +670,7 @@ return
 
     ::::: 2024 STUFF:
             set VALIDATE_MULTIPLE=0 %+ rem if Validate-environment-variables gets aborted and this flag is set to 1, it can create a phantom error, so let's just keep it set to 0 when possible
-            set AUDIOSCROBBLER_LOG=%MUSICSERVERCDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
+            set AUDIOSCROBBLER_LOG=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
 
     ::::: 2023 STUFF:
             set MAXIMUM_TIME_FOR_TCC_TO_START=4

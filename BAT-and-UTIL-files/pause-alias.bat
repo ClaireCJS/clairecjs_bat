@@ -23,7 +23,7 @@ rem Clear the keyboard buffer to prevent accidental pause-bypasses:
 
 
 rem Preface the pause with an emoji for visual processing ease:
-        echos %EMOJI_PAUSE_BUTTON% ``
+        echos %EMOJI_PAUSE_BUTTON% %ANSI_RESET%``
 
 rem Again, clear the keyboard buffer [/C option] to prevent accidental pause-bypasses:
         *pause /C %* 

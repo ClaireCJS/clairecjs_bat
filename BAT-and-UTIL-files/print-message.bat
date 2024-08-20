@@ -297,8 +297,11 @@ REM For errors, give chance to gracefully exit the script (no more mashing of ct
         )
 
 REM Hit user with the 'pause' prompt several times, to prevent accidental passthrough from previous key mashing
-        if %DO_PAUSE% gt 1 (for %pauseNum in (9 8 7 6 5) do (echos    %pause% %ANSI_RESET%%blink_on%[%pauseNum%]%blink_off% %@ANSI_RANDFG_SOFT[]%@ANSI_RANDBG_SOFT[]`` %+ *pause %+ echos %ANSI_RESET%%ANSI_EOL%))
-        if %DO_PAUSE% gt 0 (for %pauseNum in (4 3 2 1 0) do (echos    %pause% %ANSI_RESET%%blink_on%[%pauseNum%]%blink_off% %@ANSI_RANDFG_SOFT[]%@ANSI_RANDBG_SOFT[]`` %+ *pause %+ echos %ANSI_RESET%%ANSI_EOL%))
+        unset /q loop
+        if %DO_PAUSE gt 0 (set           loop=4 3 2 1 0)
+        if %DO_PAUSE gt 1 (set loop=9 8 7 6 5 4 3 2 1 0)
+        if defined loop (for %pauseNum in (%loop%) do (echos    %pause% %ANSI_RESET%%blink_on%%ansi_red%%ansi_save_position%[%ansi_bright_red%%pauseNum%%ansi_red%]%blink_off% %@ANSI_RANDFG_SOFT[]%@ANSI_RANDBG_SOFT[]`` %+ echos Press any key when ready... %+ *pause /c >nul %+ echo %@ansi_move_left[3] %CHECK%%@ansi_move_up[1]%@ansi_move_left[31]%ansi_restore_positon%%@ansi_move_down[1]%ansi_reset%%ansi_color_green%%faint_on%[%pauseNum%]%ansi_reset%%@ansi_move_right[28]))
+
 
 goto :END
 
