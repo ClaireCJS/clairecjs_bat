@@ -289,27 +289,29 @@ notepad c:\bat\environm.btm
 @cls
 @echo *** Finally, some parting advice for new machines entering the Clairevironent: ***
 @echo .
-@echo *** 1) Run new-computer.bat to take care of some new-computer loose ends ***
+@echo *** 1) Run new-computer.btm to take care of some new-computer loose ends ***
 @echo *** 2) Run install-common-programs-with-winget.bat to install a TON of commonly-used programs! ***
 @echo .
 @echo .
 @echo .
 @echo .
 @echo *** We can do that now if you'd like! ***
-@echo *** To run new-computer.bat (quick and easy): ***
+@echo *** To run new-computer.bat (which will open several scripts in your text editor): ***
 @pause
-call c:\bat\new-computer.bat
+call c:\bat\new-computer.btm
 @echo .
 @echo .
 @echo .
 @echo *** To run install-common-programs-with-winget.bat (will take awhile, and possibly need user input): ***
 @pause
-call c:\bat\install-common-programs-with-winget.bat
+call c:\bat\install-common-programs-with-winget-helper.cmd
 @echo .
 @echo .
 @echo .
 @echo .
-@echo *** Common programs installed! All done! Enjoy your command-line! ***
+@echo *** Common programs installed! All done! Enjoy your command-line with bonus goodies! ***
+
+
 
 
    

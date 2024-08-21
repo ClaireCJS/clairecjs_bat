@@ -22,40 +22,29 @@
      set NEW_COMPUTER_NAME=?????
     eset NEW_COMPUTER_NAME
 
-:::: SET POWERSHELL STUFF:
-    call new-computer.ps1 %+ rem this does: Set-ExecutionPolicy -ExecutionPolicy Bypass
 
 ::::: EDIT BAT/ENVIRONMENT FILES:
-    cls
-    echo Opening up all the scripts with hardcoded computer names and such that need to be reviewed when new computers are added
-    pause
     %BAT%\
     %EDITOR% environm.btm autoexec-common.btm allcomputers.bat allcomputersexceptself.bat backup-stuff.BAT drives.bat display-drive-mapping.bat fr.bat wake-computers.bat
 
 ::::: HOSTS?
     echo. %+ call warning "Hey, we probably need to edit hosts to put this computer in." %+ pause %+ color white on black
-    call advice "It's handy sometimes to list your LAN/house computers' IPs here"
-    pause
     call hosts
 
-
-:::: SHARE WHAT WE CAN:
-    pause
-    echo Now let's try creating all our drive shares... This is untested and may not work...
-    call create-all-drive-shares-(for-new-installations).bat
-
-
 ::::: VALIDATE PERL SCRIPTS:
-    pause
     %BAT%
-    echo Now we will validate every perl script for compilation error:
-    pause
     call validate-all-perl-files
     echo.
     call success "Perl files validated"
     echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. 
 
+:::: SET POWERSHELL STUFF:
 
+    call new-computer.ps1 %+ rem this does: Set-ExecutionPolicy -ExecutionPolicy Bypass
+
+
+:::: SHARE WHAT WE CAN:
+    call create-all-drive-shares-(for-new-installations).bat
 
 ::::: OTHER REMINDERS:    
     pause %+ call warning "Run install-common-programs-with-winget.bat in another window now, then come back here"            
