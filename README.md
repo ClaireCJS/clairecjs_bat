@@ -87,23 +87,16 @@ But here are the proper instructions:
 
 1. Dynamically-generated PATHs accessible from PowerShell/CMD. Look at ```setpath.bat```. TODO.
 
-## And here are some more esoteric things you can do:
 
-1. Tagging music: Embedding album art and *ReplayGain* tags into music files
+## Visual things you can do:
 
-1. Controlling *Winamp*: Play/Pause/Stop/etc as well as randomizing/adding/removing songs to the playlist. Determining the current song playing (if winamp is integrated into last.fm).
+1. Use ```print-message.bat``` to consistently display messages in the best way possible
 
-1. TODO
+1. Use ```emoji-grep.bat`` to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
 
-## Cosmetic things you can do:
+1. Change the colors of your prompt (per-person/username, even) by looking at ```setprompt.bat```
 
-1. Change the message decorators and audio effects in ```print-message.bat```
-
-1. Change the frequencies
-
-1. Change the colors of your prompt (per-person/username, even) in ```setprompt.bat```
-
-1. Add color-cycling of default-color'ed text to slow scripts, so that you know things aren't hung, by piping any slow steps to ```copy-move-post.py```. What's going on in the background for that is a lot of tight ANSI-voodoo loops and math calculations, along with using adaptive throttling using precision timers to avoid eating up all the cpu cycles:  Some examples of how to do this are:
+1. Add ```color-cycling``` of default-color'ed text to slow scripts, so that you know things aren't hung, by piping any slow steps to ```copy-move-post.py```. What's going on in the background for that is a lot of tight ANSI-voodoo loops and math calculations, along with using adaptive throttling using precision timers to avoid eating up all the cpu cycles:  Some examples of how to do this are:
 ```     very-slow.exe | copy-move-post```
 ```call very-slow-bat | copy-move-post```
 ``` very-slow-command | copy-move-post```
@@ -113,18 +106,14 @@ But here are the proper instructions:
 ```echo %EMOJI_TRUMPET_COLORABLE% %PENTAGRAM% %PENTACLE% %EMOJI_TRUMPET_FLIPPED%``````
     In this example, the pentagram is red a secondary environment variable was created that includes chaging the color to red *before* the pentagram, and changing the color to default/white *after* the pentagram. 
 
-1. Use ```emoji-grep.bat`` to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
-
 ## Audio things you can do:
 
 * Track the progress of minimized scripts by adding audio countdowns! As the beeps get lower and lower, you know your job is closer and closer to being done. For example, you can track a 5-step process this way:
-```
-	step1.exe $+ call audio-countdown-noise 1 5
+```	step1.exe $+ call audio-countdown-noise 1 5
 	step2.exe $+ call audio-countdown-noise 2 5
 	step3.exe $+ call audio-countdown-noise 3 5
 	step4.exe $+ call audio-countdown-noise 4 5
-	step5.exe $+ call audio-countdown-noise 5 5
-```
+	step5.exe $+ call audio-countdown-noise 5 5```
 
 * Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line. 
   (Change them in the Windows control panel.)
@@ -141,7 +130,43 @@ But here are the proper instructions:
 
 * Use ```cacophony.bat```   to create audio unpleasantness
 
+
+## More esoteric things you can do:
+
+1. Tagging music: Embedding album art and *ReplayGain* tags into music files
+
+1. Controlling *Winamp*: Play/Pause/Stop/etc as well as randomizing/adding/removing songs to the playlist. Determining the current song playing (if winamp is integrated into last.fm).
+
+1. TODO
+
+
 ## Best practices for scripting, that reduce script brittleness, increase script longevity, and reduce the time that passes before realizing things are set up wrong:
+
+1. Always use our internal message-printing system for consistency of presentation compliance. Messages are displayed with ```print-message.bat {message_type} {"message in quotes"}```. Environment variables ```%MESSAGE_TYPES_WITHOUT_ALIASES%``` contains all the different types of messages. Message types have their own dedicated BAT files of the same name. Here are examples of the current types, in approximate order of drama:
+```
+	call fatal_error    "We're DONE! There is NO HOPE! STOP!!!"
+	call error          "Uh-oh! This might be broken!"
+	call alarm          "Take notice! We need attention!"
+	call warning        "This may do a bad thing!"
+	call warning_less   "This may do a thing that maybe might be a little bad..."
+
+	call important      "narration of main tasks"
+	call important_less "narration of subtasks"
+	call unimportant    "not sure if we need to bother saying this anymore"
+	call subtle         "pretty sure i don't need to say this anymore"
+
+	call advice         "this is something nice to know right now"
+	call debug          "the value for X is 69 right now"
+	call removal        "File deleted!"
+
+	call completion     "task competed"
+	call success        "task successful"
+	call celebration    "everything is done, let's have cake"
+
+	call normal         "we don't use this one"
+```
+    The message decorators and audio effects can be changed in ```print-message.bat```.
+    To see a test of every message type, run ```print-message.bat test fast```.
 
 1. Eradicating hard-coded paths: By having environment variables for each harddrive (and for common locations) all centrally defined in ```environm.btm```, we can reference locations in a dynamic way that changes over time [less brittle, more reliable].
 
