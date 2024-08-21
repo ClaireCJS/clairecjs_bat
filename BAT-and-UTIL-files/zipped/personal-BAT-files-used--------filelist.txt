@@ -109,6 +109,7 @@
 2023-10-06  09:42             44   -2%  chown.bat
 2024-05-11  16:42            559   51%  chrome.bat
 2019-10-01  10:27             33   13%  cl.bat
+2024-08-21  15:16          7,251   80%  clairevironment-install.bat
 2024-06-12  12:57          4,063   66%  clean-dbcu.bat
 2019-10-01  10:28            122   14%  clean-dropbox.bat
 2024-06-12  12:11            536   46%  clean-rocksmith-dlc-dir.bat
@@ -246,7 +247,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-08-20  22:58        177,850   81%  environm.btm
+2024-08-21  16:40        177,784   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -292,7 +293,7 @@
 2024-08-20  22:53             34   -5%  free-space.bat
 2024-08-20  23:07          2,015   59%  free-up-harddrive-space.bat
 2024-08-20  22:17             33   -6%  freemon.bat
-2024-05-12  02:06          8,467   69%  frpost-helper.pl
+2024-08-21  12:42         12,920   77%  frpost-helper.pl
 2024-02-21  02:01            117    9%  frpost.bat
 2019-10-01  10:28             71   -2%  ftphome.bat
 2024-04-05  17:58          1,452   57%  gather-message-types-into-pretty-environment-variable.bat
@@ -381,7 +382,9 @@
 2023-04-28  22:19        527,427   80%  install-common-programs-with-winget.lst
 2024-04-06  04:37             19  -10%  install-program-with-winget.bat
 2023-04-28  21:53             38    3%  install-program.bat
+2024-08-21  14:40             27   -7%  install-winget.bat
 2024-05-11  16:48            117   11%  install-winget.cmd
+2024-08-21  14:55             50    0%  install-winget.ps1
 2023-07-14  09:50            278   36%  isRunning-fast.bat
 2023-08-26  14:54          1,084   59%  isRunning-helper.bat
 2024-05-10  18:51          2,599   63%  isRunning.bat

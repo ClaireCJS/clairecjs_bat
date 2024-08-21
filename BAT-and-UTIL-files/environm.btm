@@ -214,7 +214,7 @@ return
 
 
 :DefineHarddrivesAndDriveMapping
-	::::: HARDDRIVES:
+	::::: DEFINE HARDDRIVES:
         :: Define an environment variable for each harddrive, as well as marking which ones are SSDs.
 		:: I like to make the drive letter be the first letter in the machine's name
 			:: For example, Storm's C: would be set to S:, it's D: to T:, it's E: to U:, it's F: to V:.
@@ -222,8 +222,6 @@ return
 			:: For example, Fire's  C: would be set to F:, etc...
 			:: Magic collided with Mist, so generally Magic's C: is J:, D: is K:, etc.
 			:: Hell  collided with Fire, so generally  Hell's C: is P:, D: is Q:, etc.
-			:: "Goliath just inserted itself all over the place" -Carolyn
-
 
 		::     Wyvern A
         ::    Thailog B 
@@ -670,7 +668,6 @@ return
 
     ::::: 2024 STUFF:
             set VALIDATE_MULTIPLE=0 %+ rem if Validate-environment-variables gets aborted and this flag is set to 1, it can create a phantom error, so let's just keep it set to 0 when possible
-            set AUDIOSCROBBLER_LOG=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
 
     ::::: 2023 STUFF:
             set MAXIMUM_TIME_FOR_TCC_TO_START=4
@@ -734,6 +731,7 @@ return
                 set MASTER=%MACHINEMASTER%
                 set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_C_DRIVE=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%
         ::::: MUSIC SERVER(s):
+            set AUDIOSCROBBLER_LOG=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
             SET MUSICSERVERMACHINENAME=DEMONA
             SET MUSICSERVERIPONLY=%IP_DEMONA%
             set   MUSICSERVERPORT=666
@@ -1038,7 +1036,7 @@ return
 			if isdir "c:\Program Files\Java\jdk1.7.0_76" set JAVA_HOME=c:\Program Files\Java\jdk1.7.0_76
 		::::: MAVEN:
 			set    TRUNK=c:\dharness\trunk
-			set  M2_REPO=c:\Users\jlipinski\.m2\repository
+			set  M2_REPO=c:\Users\jlip\.m2\repository
 			set  M2_HOME=C:\util\MAVEN\apache-maven-3.0.5
             :Validate:
                 set CDRIVE=C
