@@ -92,7 +92,7 @@ But here are the proper instructions:
 
 1. Use ```print-message.bat``` to consistently display messages in the best way possible
 
-1. Use ```emoji-grep.bat`` to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
+1. Use ```emoji-grep.bat``` to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
 
 1. Change the colors of your prompt (per-person/username, even) by looking at ```setprompt.bat```
 
@@ -103,7 +103,7 @@ But here are the proper instructions:
     * This is integrated into our ```copy``` (cp) and ```move``` (mv) and ```unzip-gracefully``` (uzg) commands, all of which can look stalled when running on big files. Notice how all the backslashes color-cycle? Seeing the colors cycle lets you know that things are *not* in fact stalled or hung. AND IT LOOKS REALLY REALLY COOL.
 
 1. Use (ANSI escape codes)[https://en.wikipedia.org/wiki/ANSI_escape_code] in conjunction with [sixels](https://en.wikipedia.org/wiki/Sixel) to create brand new characters that don't exist.  To see some of the ones I created:
-```echo %EMOJI_TRUMPET_COLORABLE% %PENTAGRAM% %PENTACLE% %EMOJI_TRUMPET_FLIPPED%``````
+```echo %EMOJI_TRUMPET_COLORABLE% %PENTAGRAM% %PENTACLE% %EMOJI_TRUMPET_FLIPPED%```
     In this example, the pentagram is red a secondary environment variable was created that includes chaging the color to red *before* the pentagram, and changing the color to default/white *after* the pentagram. 
 
 ## Audio things you can do:
@@ -167,8 +167,8 @@ But here are the proper instructions:
 
 	call normal         "we don't use this one"
 ```
-    The message decorators and audio effects can be changed in ```print-message.bat```.
-    To see a test of every message type, run ```print-message.bat test fast```.
+    * The message decorators and audio effects can be changed in ```print-message.bat```
+    * To see a test of every message type, run ```print-message.bat test fast```
 
 1. Eradicating hard-coded paths: By having environment variables for each harddrive (and for common locations) all centrally defined in ```environm.btm```, we can reference locations in a dynamic way that changes over time [less brittle, more reliable].
 
