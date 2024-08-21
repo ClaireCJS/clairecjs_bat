@@ -188,7 +188,7 @@ But here are the proper instructions:
 ## Accessibility / mental fatigue improvements:
 
 1. Reduce mental fatigue be adding emoji to your scripts, particularly in the first column. It allows quicker understanding of what's going on, often saving having to read. 
-    1400+ emoji are defined as enironment variables in ```set-emojis.bat```, as well as custom pentacle & pentagram & trumpet emoji created by (ANSI escape codes)[https://en.wikipedia.org/wiki/ANSI_escape_code] after hand-drawing and converting to [sixels](https://en.wikipedia.org/wiki/Sixel).
+    1400+ emoji are defined as enironment variables in ```set-emojis.bat```, as well as custom pentacle & pentagram & trumpet emoji created by [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) after hand-drawing and converting to [sixels](https://en.wikipedia.org/wiki/Sixel).
 
 1. Accelerate visual understanding of what's going on by adding color to your scripts, including consistent colors for consistent types of things, and random colors where applicable. For example, use ```%ANSI_COLOR_ADVICE%``` for advice, ```%ANSI_COLOR_WARNING%``` for warnings, ```%ANSI_COLOR_ERROR%``` for errors, ```%ANSI_COLOR_DEBUG%``` for debug info, etc. But for a huge list of long filenames, you would want each line to be a unique random color, which really helps when filenames get several lines long and you have trouble knowing where one ends and another begin. A random-colored emphasis can be added with ```%EMPHASIS%``` and ```%DEEMPHASIS%```.   All these environment variables are defined in ```set-colors.bat```, including the functions for custom-RGB foreground/background colors, random colors, and almost every kind of supported ANSI formatting in existence.
 
@@ -202,7 +202,7 @@ But here are the proper instructions:
 
 ## Some scripts that drastically increase scripting power now exist:
 
-1. ```all-ready-drives.bat```can run a command on every single harddrive in your house/LAN
+1. ```all-ready-drives.bat``` can run a command on every single harddrive in your house/LAN
 
 1. ```.bat``` 
 1. ```.bat``` 
@@ -236,6 +236,12 @@ But here are the proper instructions:
 
 
 
+---------------------------------
+
+
+# I would absolutely love feedback! 🤓
+
+I would love to know how this works out for somebody who has never done it. Nobody outside of my own family has ever tried to use my environment. Such feedback is something I could use to further generalize my scripts to be more workable for other people.
 
 
 
@@ -250,6 +256,79 @@ But here are the proper instructions:
 
 
 
+
+
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
 
 
 
@@ -268,16 +347,16 @@ Here are the old, deprecated, manual instructions, in case *clairevironment-inst
 
 1. A lot of my stuff uses advanced ANSI codes that are ONLY supported in Windows Terminal.  The default Windows console can *NOT* handle these.  Install Windows Terminal either from the [official link at aka.ms](https://aka.ms/terminal) or [later/development versions from GitHub](https://github.com/microsoft/terminal)
 
-1. Download my script/util folder into <em>c:\bat</em>, and place my *tcstart.bat* script into the correct folder<BR>
+1. Download my script/util folder into *c:\bat*, and place my *tcstart.bat* script into the correct folder<BR>
 ```
 	git clone http://www.github.com/clairecjs/clairecjs_bat c:\clairecjs_bat.tmp
 	move c:\clairecjs_bat.tmp\BAT-and-util-files c:\bat
 	move c:\bat\tcstart.bat c:\tcmd
 ```
 
-1. Add <em>C:\BAT\</em>to the BEGINNING your PATH:<BR>
+1. Add *C:\BAT\* to the BEGINNING your PATH:<BR>
 ```
-   PATH=c:\bat\;%PATH% </em><BR>
+   PATH=c:\bat\;%PATH%<BR>
 ```
    (A better way might be to go into advanced settings under Windows and edit it there.)<BR>
    (Impatient? Just run c:\bat\setpath.bat or c:\bat\setpath.cmd)
@@ -326,13 +405,5 @@ Here are the old, deprecated, manual instructions, in case *clairevironment-inst
    Remember: *c:\bat\setpath.bat* can be run to set your path, if you wind up in a situation where commands aren't in your path.<BR>
    Setpath.bat also generates a *setpath.cmd* so that if you go into PowerShell or other shells, you can use the same generated path.
 
-
-
----------------------------------
-
-
-# I would absolutely love feedback! 🤓
-
-I would love to know how this works out for somebody who has never done it. Nobody outside of my own family has ever tried to use my environment. Such feedback is something I could use to further generalize my scripts to be more workable for other people.
 
 
