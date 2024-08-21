@@ -98,6 +98,11 @@ move c:\strawberry c:\perl
 @echo If so, then:
 @pause
 
+
+
+
+
+
 @cls
 @echo ................................
 @echo ...Installing Anaconda Python...
@@ -106,6 +111,24 @@ move c:\strawberry c:\perl
 @echo ................................
 winget install --id=Anaconda.Anaconda3 -e
 @pause
+
+
+
+
+
+@cls
+@echo .........................
+@echo ...Installing EditPlus...
+@echo ...Installing EditPlus...
+@echo ...Installing EditPlus...
+@echo .........................
+winget install ES-Computing.EditPlus
+@pause
+
+
+
+
+
 
 
 @cls
@@ -159,7 +182,7 @@ PATH=c:\bat\;%PATH%
 setx    PATH "c:\bat\;%PATH%". N
 @echo * Updating windows system variable path for all users:
 setx /m PATH "c:\bat\;%PATH%". N
-@echo * Running Claire's path:
+@echo * Running Claire's dynamically-generated path:
 call c:\bat\setpath.bat
 @pause
 
@@ -193,11 +216,43 @@ md clairecjs_utils
 cd clairecjs_utils
 git clone http://www.github.com/clairecjs/clairecjs_utils
 @pause
+@echo .
+@echo .
+@echo .
+@echo *** NOTE: I haven't verified that winget installs python to c:\ProgramData\anaconda3 ***
+@echo ***         We should probably double-check that it's there, so let's do that now... ***
+@pause
+@echo .
+@echo .
+@echo .
+@echo *** Let's just do a quick directory to take a look at c:\ProgramData\anaconda3\: ***
+@echo .
+dir c:\ProgramData\anaconda3
+@echo .
+@echo .
+@echo *** Is it there? A bunch of stuff, and not just 1 folder? ***
+@echo *** If it's just 1 folder, you're going to need to move clairecjs_utils to the right place ***
+@echo *** If it's the full Anaconda Python installation with a bunch of files in it, then: ***
+@pause
+@echo .
+@echo .
+@echo .
+@echo *** Now let's look inside the clairecjs_utils folder ***
+@echo *** We should see some python files, including several that start with "claire" ***
+@pause
+@echo .
+dir c:\ProgramData\anaconda3\lib\site-packages\clairecjs_utils
+@echo .
+@echo *** If the above command shows an empty folder, or an error, something went wrong ***
+@echo *** If you see several python files, including several that start with "claire", then: ***
+@pause
+
+
 
 
 
 @cls
-@echo Now it is time for you to set your Claireironment machine name and OS 
+@echo Now it is time for you to set your Clairevironment machine name and OS 
 @echo .
 @echo Open up c:\TCMD\tcstart.bat in a text editor and change the values for OS and MACHINENAME.
 @echo .
@@ -211,4 +266,50 @@ notepad c:\tcmd\tcstart.bat
 @pause
 
 
+`   
 
+
+
+@cls
+@echo *** Now it is time for you to edit environm.btm to suit your needs. ***
+@echo .
+@echo *** Open up c:\bat\environ.btm and have at it. ***
+@echo *** See https://github.com/ClaireCJS/clairecjs_bat/blob/main/README.md for instructions ***
+@echo .
+@pause
+notepad c:\bat\environm.btm
+@pause
+
+
+
+
+
+
+
+@cls
+@echo *** Finally, some parting advice for new machines entering the Clairevironent: ***
+@echo .
+@echo *** 1) Run new-computer.bat to take care of some new-computer loose ends ***
+@echo *** 2) Run install-common-programs-with-winget.bat to install a TON of commonly-used programs! ***
+@echo .
+@echo .
+@echo .
+@echo .
+@echo *** We can do that now if you'd like! ***
+@echo *** To run new-computer.bat (quick and easy): ***
+@pause
+call c:\bat\new-computer.bat
+@echo .
+@echo .
+@echo .
+@echo *** To run install-common-programs-with-winget.bat (will take awhile, and possibly need user input): ***
+@pause
+call c:\bat\install-common-programs-with-winget.bat
+@echo .
+@echo .
+@echo .
+@echo .
+@echo *** Common programs installed! All done! Enjoy your command-line! ***
+
+
+   
