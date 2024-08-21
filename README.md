@@ -109,11 +109,13 @@ But here are the proper instructions:
 ## Audio things you can do:
 
 * Track the progress of minimized scripts by adding audio countdowns! As the beeps get lower and lower, you know your job is closer and closer to being done. For example, you can track a 5-step process this way:
-```	step1.exe $+ call audio-countdown-noise 1 5
+```
+	step1.exe $+ call audio-countdown-noise 1 5
 	step2.exe $+ call audio-countdown-noise 2 5
 	step3.exe $+ call audio-countdown-noise 3 5
 	step4.exe $+ call audio-countdown-noise 4 5
-	step5.exe $+ call audio-countdown-noise 5 5```
+	step5.exe $+ call audio-countdown-noise 5 5
+```
 
 * Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line. 
   (Change them in the Windows control panel.)
