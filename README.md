@@ -2,14 +2,12 @@
 
 ## BAT files created for [JPsoft's TCC/TCMD command-line](http://www.JPSoft.com)...
 
-### ...arguably the most sophisticated 64-bit command-line in existence, in constant development for over 35 years... LOL. 
-### But seriously, I put a lot of work into this.
-
-#### These BAT files have been in constant development for over 35 years.
+### ...arguably the most sophisticated 64-bit command-line in existence, in constant development for over 35 years... 
+### ...And this is the result of me using it for over 35 years.
 
 This is basically a full layer of scripts built on top of TCC's functionality for 35 years, to add all kinds of functionality and improvement. Rich color, ANSI stylization, audio effects where appropriate, validators to prevent script brittleness, workflow management, repository validation, backups, maintenance, all kinds of stuff that is hard for me to describe because I've been working on this environment for 35 years. There's at least 800 scripts in this repo, though a lot are oneliners that call others and it's really probably only 300 significant scripts.
 
-Installation is not easy, bedcause this is really about integrating existing tools that already exist
+This is really about integrating existing tools that already exist.
 
 
 
@@ -27,7 +25,7 @@ But here are the proper instructions:
 
 1. Download the TCC command line installer from JPsoft at [www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of <em>c:\TCMD\</em>, or things will break. DON'T run it just yet.
 
-1. Grab [clairevironment-install.bat](http://www.github.com/clairecjs/clairecjs_bat/BAT-and-util-files/clairevironment-install.bat), and run (double-click) it.  Follow its instructions and pay attention.
+1. Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/clairevironment-install.bat), and run (double-click) it.  Follow its instructions and pay attention.
 
 1. Add TCC to Windows Terminal and Run it: 
     Open up *Windows Terminal*, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click <em>'Add new profile'</em>. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to "TCC", the command line to "c:\tcmd\tcc.exe", the starting directory to "c:\tcmd", and run as administrator turned on.
@@ -36,21 +34,17 @@ But here are the proper instructions:
 1. At your freshly-run TCC command-line, type ```option```, and switch to the *"Advanced"* tab.  In the upper-left is a section called *Special Characters*.  Change the separator to "^" (the [caret character](https://en.wikipedia.org/wiki/Caret)). 
     This is actually a deviation from how most people do things, due to the isolation of learning this command-line in the 1980s and 1990s. It creates complications that I've mostly mitigated—but not completely. Any mitigations I missed will cause failures unless you do this.
 
-1. At this point, everything is installed, and the only problems you have at this point should be mostly-false error messages.
+
+## At this point, everything is installed! The only problems you have at this point should be mostly-false error messages.
 
 1. To deal with mostly-false error messages, You need to open up *c:\bat\environm.btm* and edit it.<br>
 	This is the script that is run every time TCC is run in a non-transient way.<BR>
 	This is the most important script, basically the equivalent of your unix .init/.rc type files.<BR>
 	Open it up in a text editor, and look through, at the very least, the parts definining harddrives.<br>
 	You don't need to do anything at first — It's just important that you know this file defines EVERYTHING.<BR>
-	E-V-E-R-Y-T-H-I-N-G. 
-	Harddrive letters (to eradicate the process of hard-coded paths in scripts), drive-to-machine mappings (for sharing drives across all local computers in this environment), repository locations (for validating and backing up all your various collections), the works. 
-	Passwords, secret things, and secret API keys go in ```private.env```
-	THIS IS THE MAIN FILE TO ORGANIZE ONE'S COMMAND-LINE LIFE.
-	You want it to produce *no* output when it runs.
-	NONE.
-	So get on that 😂😂😂
-
+	This script defines E-V-E-R-Y-T-H-I-N-G. Harddrive letters (to eradicate the process of hard-coded paths in scripts), drive-to-machine mappings (for sharing drives across all local computers in this environment), repository locations (for validating and backing up all your various collections), the works. (Passwords, secret things, and secret API keys go in ```private.env```)
+    * You want it to produce *no* output when it runs.
+      So let's get on that 😂😂😂
 
 ## Now let's go over some things you definitely will want to do:
 
@@ -63,7 +57,7 @@ But here are the proper instructions:
     * This will allow you to use a our computer-related scripts, including: all-computers, all-computers-except-self, colorize-by-computer-name, highlight-by-computer-name, display-drives-by-computer.  Various computers are associated with various colors and emoji, which allows a faster visual summary of what's going on.
 
 1. Define all your harddrives:
-    * Edit ``environm.btm```and search for "DEFINE HARDDRIVES" and look through the next couple of pages. It looks absolutely bonkers, but redefinining the same information in a few different ways has been integral to ease-of-use. Just comment out anything that isn't YOUR harddrive. Unlike me, you might only have 1 computer and 1 drive, instead of 4 computers and 20 or so drives.
+    * Edit ```environm.btm```and search for ```DEFINE HARDDRIVES``` and look through the next couple of pages. It looks absolutely bonkers, but redefinining the same information in a few different ways has been integral to ease-of-use. Just comment out anything that isn't YOUR harddrive. Unlike me, you might only have 1 computer and 1 drive, instead of 4 computers and 20 or so drives.
     * This will let you use a slew of drive-related scripts, including: do-command-on-all-all-drives, wake-all-drives, map-drives, unmap-drives, checkmappings, display-drive-mapping, ensure-drive-is-mapped, label-all-drives, make-directory-matching-drive-label, wake-all-drives, myDrives, drives, whichdrive, c-drives
 
 
