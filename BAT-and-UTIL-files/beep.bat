@@ -10,7 +10,7 @@ rem title %0 %*
 
 
 REM CONFIGURATION: SET THE HIGHEST BEEP ALLOWED:
-        set  LOWEST_BEEP=39      %+ REM painstakingly tested this on 20230605 on computer DEMONA with Onkyo stereo - 13391 actually is lower than 13390
+        set  LOWEST_BEEP=39      %+ REM painstakingly tested this on 20230605 on computer DEMONA with Onkyo stereo 
         set HIGHEST_BEEP=13390   %+ REM painstakingly tested this on 20230605 on computer DEMONA with Onkyo stereo - 13391 actually is lower than 13390
 
 

@@ -80,7 +80,7 @@
 2024-08-20  05:47             36    0%  BAT.bat
 2024-05-06  06:02             47    0%  batteries.bat
 2024-05-06  06:02             47    0%  battery.bat
-2024-04-27  06:29          4,285   71%  beep.bat
+2024-08-21  22:19          4,249   71%  beep.bat
 2024-04-28  00:35         12,111   75%  before.bat
 2024-08-20  08:16          1,380   58%  bigecho.bat
 2024-05-06  06:02             47    0%  bluetooth-batteries.bat
@@ -305,7 +305,7 @@
 2019-10-01  10:28          4,444   64%  generate-filelists-by-attribute-images-and-video-WWW.ini
 2024-04-10  12:48          5,461   76%  generate-filelists-by-attribute-video.ini
 2024-07-26  16:04        234,327   73%  generate-filelists-by-attribute.pl
-2023-06-02  04:05            534   52%  generate_and_play_random_midi.py
+2024-08-21  22:29            913   53%  generate_and_play_random_midi.py
 2024-05-24  12:32            569   48%  generate_color_cycle_background_ansi.py
 2023-06-02  08:51          8,693   74%  generate_midi_randomly.py
 2024-05-14  12:36          4,173   66%  generate_thesem3u_and_allm3u_playlists_in_folder.py
@@ -428,6 +428,8 @@
 2024-04-03  14:35            506   36%  MCD.bat
 2024-04-03  14:46            164   18%  mcdnow.bat
 2024-05-26  13:28          5,886   71%  mchk.bat
+2024-08-21  22:29            520   44%  midirandia.midi
+2024-08-21  22:29        589,396   23%  midirandia.wav
 2023-07-14  09:09             24   -8%  minilyrics.bat
 2019-10-01  10:28             41   18%  mkv2avi.bat
 2024-04-03  14:42            517   46%  mmddhhmmss.bat
@@ -456,6 +458,7 @@
 2023-09-15  03:32             55   -1%  nocar.bat
 2023-06-08  03:09             41   -4%  none.bat
 2023-10-06  08:38          1,197   56%  normalize-all-wavs.bat
+2019-10-01  10:28            502   55%  note-frequencies.dat
 2024-04-03  14:40            400   52%  now.bat
 2019-10-01  10:28            562   43%  numbers.pl
 2024-04-03  15:05             88    6%  numfiles.bat

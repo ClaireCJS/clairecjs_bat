@@ -99,32 +99,79 @@ But here are the proper instructions:
 
 1. Change the message decorators and audio effects in ```print-message.bat```
 
-1. Change the colors of your path (per-person, even) in ```setpath.bat```
+1. Change the frequencies
 
-1. TODO AUDIO
+1. Change the colors of your prompt (per-person/username, even) in ```setprompt.bat```
 
-## Some best practices for scripting now exist:
+1. Add color-cycling of default-color'ed text to slow scripts, so that you know things aren't hung, by piping any slow steps to ```copy-move-post.py```. What's going on in the background for that is a lot of tight ANSI-voodoo loops and math calculations, along with using adaptive throttling using precision timers to avoid eating up all the cpu cycles:  Some examples of how to do this are:
+```     very-slow.exe | copy-move-post```
+```call very-slow-bat | copy-move-post```
+``` very-slow-command | copy-move-post```
+    * This is integrated into our ```copy``` (cp) and ```move``` (mv) and ```unzip-gracefully``` (uzg) commands, all of which can look stalled when running on big files. Notice how all the backslashes color-cycle? Seeing the colors cycle lets you know that things are *not* in fact stalled or hung. AND IT LOOKS REALLY REALLY COOL.
 
-1. Validating environment variables: ```call validate-environment-variable VARNAME``` to validate that an environment variable exists (and if it is a file/folder, it validates that the file/folder exists as well)
+1. Use (ANSI escape codes)[https://en.wikipedia.org/wiki/ANSI_escape_code] in conjunction with [sixels](https://en.wikipedia.org/wiki/Sixel) to create brand new characters that don't exist.  To see some of the ones I created:
+```echo %EMOJI_TRUMPET_COLORABLE% %PENTAGRAM% %PENTACLE% %EMOJI_TRUMPET_FLIPPED%``````
+    In this example, the pentagram is red a secondary environment variable was created that includes chaging the color to red *before* the pentagram, and changing the color to default/white *after* the pentagram. 
 
-1. Validating commands: ```call validate-in-path whatever``` to validate if a command (internal, EXE, BAT, whatever) is valid
+1. Use ```emoji-grep.bat`` to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
 
-1. Validating successful runs: ```call errorlevel.bat``` will halt execution if any form of errorlevel is returned by internal or external commands.  (It uses visual and audio alarms that are defined in ```print-messages.bat```)
+## Audio things you can do:
 
-1. Automatically re-running tings that fail: ```errorlevel.bat``` sets an environment variable called ```REDO_BECAUSE_OF_ERRORLEVEL``` to 1, which can be used in conjunction with an if-then-goto statement to re-try something over and over. This is super-useful when a single peice of a long complicated workflow is brittle, and you find yourself having to interrupt workflow automation to fix things in the middle. This allows you to get that failed step working, then press any key to continue without losing your place.
+* Track the progress of minimized scripts by adding audio countdowns! As the beeps get lower and lower, you know your job is closer and closer to being done. For example, you can track a 5-step process this way:
+```
+	step1.exe $+ call audio-countdown-noise 1 5
+	step2.exe $+ call audio-countdown-noise 2 5
+	step3.exe $+ call audio-countdown-noise 3 5
+	step4.exe $+ call audio-countdown-noise 4 5
+	step5.exe $+ call audio-countdown-noise 5 5
+```
 
-1. Improving accessibility by adding emoji to your scripts. Thousands are defined as enironment variables in ```set-emojis.bat```, as well as custom pentacle & pentagram & trumpet emoji created by (ANSI escape codes)[https://en.wikipedia.org/wiki/ANSI_escape_code] after hand-drawing and converting to [sixels](https://en.wikipedia.org/wiki/Sixel))
+* Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line. 
+  (Change them in the Windows control panel.)
 
-1. Improving accessibility by adding color to your scripts.  Environment variables defined in ``set-colors.bat``` allow color-changing via ANSI codes, including custom-RGB foreground/background colors, and random colors to help differentiate when wrapped lines end (each line is a different color).
+* Use ```speak.bat```       to speak with a human voice
 
-1. Improving accessibility by adding formatting to your scripts: double-height text, bold & faint text, italicized & underscored text, blinking & reverse text, double-width text, and strikethrough text. Environment variables defined in ``set-colors.bat``` make it very easy. For example:
+* Use ```okgoogle.bat```    to control your smart home with a human voice
+
+* Use ```charge.bat```      to rally the troops
+
+* Use ```white-noise.bat``` to create random white noise.
+
+* Use ```white-noise.bat``` to create random midi "music".  
+
+* Use ```cacophony.bat```   to create audio unpleasantness
+
+## Best practices for scripting, that reduce script brittleness, increase script longevity, and reduce the time that passes before realizing things are set up wrong:
+
+1. Eradicating hard-coded paths: By having environment variables for each harddrive (and for common locations) all centrally defined in ```environm.btm```, we can reference locations in a dynamic way that changes over time [less brittle, more reliable].
+
+1. Validating environment variables: ```call validate-environment-variable VARNAME``` validates that an environment variable exists. And if the variable is a file/folder location, it will then validate it actually exists. Always validate environment variables before using them.
+
+1. Validating commands: ```call validate-in-path whatever``` to validate if a command (internal, EXE, BAT, whatever) is valid. Always validate commands before using them. 
+
+1. Validating successful runs: ```call errorlevel.bat "{optional custom error message in quotes}"``` will halt execution if any form of errorlevel is returned by the previous command (whether internal, executable, or script).   
+  Always validate after running any kind of step that can fail.  
+  (It uses visual and audio alarms that are defined in ```print-messages.bat```, and sets a ```%REDO%``` environment variable that can be used for automatic retries.) 
+
+1. Automatically re-running things that fail: ```errorlevel.bat``` sets an environment variable called ```%REDO%``` to 1, which can be used to re-try sections of script over and over and over until they succeed. SUPER-USEFUL when a single peice of a long complicated workflow fails, and you find yourself having to manually run a step in the middle of a long script. This allows you to fix the situation, then press any key to retry without losing your place in your script. 
+    In the event of error, it gives a timed prompt allowing a gracefully return to the command line in a more reliable way than ``Ctrl-C``` or ```Ctrl-Break``` (or rapidly alternating between those 2 keys, which unfortunately works worse in Windows Terminal).
+    
+1. Improving presentation with ANSI cursor position manipulation. For example, a prompt can be blinking and red to draw attention to it, but once answered, green without the blinking once you answer it.  ```set-colors.bat``` defines various cursor functions like ```%ANSI_POSITION_SAVE%```, ```%ANSI_POSITION_RESTOR%```, ```%@ANSI_MOVE_UP[1]```, and such.  We also stick ```%ANSI_EOL%``` at the end of lines a lot in order to fix the bug where background colors bleed over to the rightmost column of the screen.
+
+## Accessibility / mental fatigue improvements:
+
+1. Reduce mental fatigue be adding emoji to your scripts, particularly in the first column. It allows quicker understanding of what's going on, often saving having to read. 
+    1400+ emoji are defined as enironment variables in ```set-emojis.bat```, as well as custom pentacle & pentagram & trumpet emoji created by (ANSI escape codes)[https://en.wikipedia.org/wiki/ANSI_escape_code] after hand-drawing and converting to [sixels](https://en.wikipedia.org/wiki/Sixel).
+
+1. Accelerate visual understanding of what's going on by adding color to your scripts, including consistent colors for consistent types of things, and random colors where applicable. For example, use ```%ANSI_COLOR_ADVICE%``` for advice, ```%ANSI_COLOR_WARNING%``` for warnings, ```%ANSI_COLOR_ERROR%``` for errors, ```%ANSI_COLOR_DEBUG%``` for debug info, etc. But for a huge list of long filenames, you would want each line to be a unique random color, which really helps when filenames get several lines long and you have trouble knowing where one ends and another begin. A random-colored emphasis can be added with ```%EMPHASIS%``` and ```%DEEMPHASIS%```.   All these environment variables are defined in ```set-colors.bat```, including the functions for custom-RGB foreground/background colors, random colors, and almost every kind of supported ANSI formatting in existence.
+
+1. Improve misdirected attention by adding blinking and double-height text (```set-colors.bat```)
+
+1. Improving  legibility by adding as much formatting as possible to scripts: bold & faint text, italicized & underscored text, reverse text, and strikethrough text. Environment variables defined in ```set-colors.bat``` make it very easy. For example:
 ```
 	echo %@RANDCOLOR_FG[]This randomly-colored text has %BOLD_ON%bold%BOLD_OFF% and %ITALICS_ON%italics%ITALICS_OFF% text, and %@ANSI_RGB_FG[0,155,0] I really like this shade of green, %@ANSI_RGB_FG[0,0,50] especially with a slightly blue background to it.
 ```
 
-1. Improving presentation by adding ANSI cursor position manipulation. For example, a prompt can be blinking to draw attention to it, and once answered, re-drawn without the blinking, to help properly focus attention.  ```set-colors.bat``` defines various cursor functions like ```%ANSI_POSITION_SAVE%```, ```%ANSI_POSITION_RESTRE%```, ```%@ANSI_MOVE_UP[1]```, and such.  We also stick ```%ANSI_EOL%``` at the end of lines a lot in order to fix the bug where background colors bleed over to the rightmost column of the screen.
-
-1. Eradicating the bad practice of hard-coded paths by having environment variables set to each drive.
 
 ## Some scripts that drastically increase scripting power now exist:
 

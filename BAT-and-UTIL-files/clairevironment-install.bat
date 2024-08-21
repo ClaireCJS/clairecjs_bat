@@ -304,14 +304,55 @@ call c:\bat\new-computer.btm
 @echo .
 @echo *** To run install-common-programs-with-winget.bat (will take awhile, and possibly need user input): ***
 @pause
-call c:\bat\install-common-programs-with-winget-helper.cmd
+@echo *** First, let's open it up in notepad. ***
+@echo *** You can remove programs you don't want to install by removing them from the script ***
+@echo *** You can also just ignore it and close it! ***
+notepad c:\bat\install-common-programs-with-winget-helper.cmd
+@pause
 @echo .
 @echo .
 @echo .
 @echo .
-@echo *** Common programs installed! All done! Enjoy your command-line with bonus goodies! ***
+@echo .
+@echo .
+@echo .
+@echo .
+@echo *** Now, let's install the programs in the script we just opened ***
+@echo *** If you get bored and just want to continue to the next step, try Ctrl-C'ing out of this part: ***
+@pause
+call c:\bat\install-common-programs-with-winget-helper.cmdc
+@echo .
+@echo .
+@echo .
+@echo .
+@echo *** Common programs installed! 
+@pause
 
 
 
+@cls
+@echo *** All done! Enjoy your command-line with bonus goodies! ***
+@echo *** All done! Enjoy your command-line with bonus goodies! ***
+@echo *** All done! Enjoy your command-line with bonus goodies! ***
+@echo .
+@echo .
+@echo .
+@echo "             ================================================.             "
+@echo "                  .-.   .-.     .--.                         |             "
+@echo "                 | OO| | OO|   / _.-' .-.   .-.  .-.   .''.  |             "
+@echo "                 |   | |   |   \  '-. '-'   '-'  '-'   '..'  |             "
+@echo "                 '^^^' '^^^'    '--'                         |             "
+@echo "             ===============.  .-.  .================.  .-.  |             "
+@echo "                            | |   | |                |  '-'  |             "
+@echo "                            | ':-:' |                |       |             "
+@echo "                            |  '-'  |                |  .-.  |             "
+@echo "             ==============='       '================'  '-'  |             "
+@echo .
+@echo .
+@echo .
+@echo *** All done! Enjoy your command-line with bonus goodies! ***
+@echo *** All done! Enjoy your command-line with bonus goodies! ***
+@echo *** All done! Enjoy your command-line with bonus goodies! ***
+@echo .
 
    
