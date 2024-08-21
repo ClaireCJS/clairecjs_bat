@@ -19,34 +19,39 @@ This is really about integrating existing tools that already exist.
 ### ‼ Make sure to use the paths specified. A couple things need to be in alternate areas.
 
 
-The abridged instructions are: Install TCC, run clairevironment-install.bat, add TCC to Windows Terminal, and yu're done!
+The abridged instructions are: Install TCC, run *clairevironment-install.bat*, add TCC to Windows Terminal, and you're done!
 
 But here are the proper instructions:
 
-1. Download the TCC command line installer from JPsoft at [www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of <em>c:\TCMD\</em>, or things will break. DON'T run it just yet.
+1. Download TCC (Take Command command-line) from [http://www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of <em>c:\TCMD\</em>. DON'T run it just yet.
 
 1. Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/clairevironment-install.bat), and run (double-click) it.  Follow its instructions and pay attention.
 
 1. Add TCC to Windows Terminal and Run it: 
-    Open up *Windows Terminal*, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click <em>'Add new profile'</em>. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to "TCC", the command line to "c:\tcmd\tcc.exe", the starting directory to "c:\tcmd", and run as administrator turned on.
+    Open up *Windows Terminal*, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click *Add new profile*. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to "TCC", the command line to ```c:\tcmd\tcc.exe```, the starting directory to ```c:\tcmd```, and *Run As Administrator* turned on.
     Now run it.
 
-1. At your freshly-run TCC command-line, type ```option```, and switch to the *"Advanced"* tab.  In the upper-left is a section called *Special Characters*.  Change the separator to "^" (the [caret character](https://en.wikipedia.org/wiki/Caret)). 
+1. At your freshly-run TCC command-line, type ```option```, and switch to the *"Advanced"* tab.  In the upper-left is a section called *"Special Characters"*.  Change the separator to "^" (the [caret character](https://en.wikipedia.org/wiki/Caret)). 
     This is actually a deviation from how most people do things, due to the isolation of learning this command-line in the 1980s and 1990s. It creates complications that I've mostly mitigated—but not completely. Any mitigations I missed will cause failures unless you do this.
 
 
-## At this point, everything is installed! The only problems you have at this point should be mostly-false error messages.
+## At this point, everything is installed! The only problems you have at this point should be mostly-false error messages related to configuration.
 
-1. To deal with mostly-false error messages, You need to open up *c:\bat\environm.btm* and edit it.<br>
-	This is the script that is run every time TCC is run in a non-transient way.<BR>
-	This is the most important script, basically the equivalent of your unix .init/.rc type files.<BR>
-	Open it up in a text editor, and look through, at the very least, the parts definining harddrives.<br>
-	You don't need to do anything at first — It's just important that you know this file defines EVERYTHING.<BR>
+1. To deal with mostly-false error messages, you will even5tually need to edit ```c:\bat\environm.btm```.<br>
+	This is the most script, which is run every time TCC is run. This is the the equivalent of a unix .init/.rc type files.<BR>
 	This script defines E-V-E-R-Y-T-H-I-N-G. Harddrive letters (to eradicate the process of hard-coded paths in scripts), drive-to-machine mappings (for sharing drives across all local computers in this environment), repository locations (for validating and backing up all your various collections), the works. (Passwords, secret things, and secret API keys go in ```private.env```)
-    * You want it to produce *no* output when it runs.
+    * You ultimately want it to produce *no* output when it runs, or else there will be permanent ugliness.
       So let's get on that 😂😂😂
 
 ## Now let's go over some things you definitely will want to do:
+
+1. Define all your harddrives:
+    * Edit ```environm.btm```and search for ```DEFINE HARDDRIVES``` and look through the next couple of pages. It looks absolutely bonkers, but redefinining the same information in a few different ways has been integral to ease-of-use. Just comment out anything that isn't YOUR harddrive. Unlike me, you might only have 1 computer and 1 drive, instead of 4 computers and 20 or so drives.
+    * This will let you hard-code harddrives in scripts as environment variables instead of letters, so that if it is a different letter on a different computer in your house/LAN, there is a way to reference both locations correctly and simultaneously 
+    * This will let you use our drive-related scripts, including: do-command-on-all-all-drives, wake-all-drives, map-drives, unmap-drives, checkmappings, display-drive-mapping, ensure-drive-is-mapped, label-all-drives, make-directory-matching-drive-label, wake-all-drives, myDrives, drives, whichdrive, c-drives
+
+
+## Now let's go over some things you probably will want to do:
 
 1. Define the computers in your system:
     * Edit ```environm.btm``` 
@@ -54,34 +59,39 @@ But here are the proper instructions:
     * Search for ```set ALL_COMPUTERS```   , and list out the names of all your computers in your house/lan here, INCLUDING DEAD/BROKEN ONES.
     * Search for ```MACHINE-SPECIFIC EMOJI``` and choose an emoji for your computer (type ```env emoji``` or edit ```emoji.env``` to see a list of them, and use ```emoji-grep``` to search for emoji via regular expression)
     * Search for ```MACHINE-SPECIFIC COLORS``` and choose a color unique for your computer. 
-    * This will allow you to use a our computer-related scripts, including: all-computers, all-computers-except-self, colorize-by-computer-name, highlight-by-computer-name, display-drives-by-computer.  Various computers are associated with various colors and emoji, which allows a faster visual summary of what's going on.
+    * This will allow you to use our computer-related scripts, including: all-computers, all-computers-except-self, colorize-by-computer-name, highlight-by-computer-name, display-drives-by-computer.  Various computers are associated with various colors and emoji, which allows a faster visual summary of what's going on.
 
-1. Define all your harddrives:
-    * Edit ```environm.btm```and search for ```DEFINE HARDDRIVES``` and look through the next couple of pages. It looks absolutely bonkers, but redefinining the same information in a few different ways has been integral to ease-of-use. Just comment out anything that isn't YOUR harddrive. Unlike me, you might only have 1 computer and 1 drive, instead of 4 computers and 20 or so drives.
-    * This will let you use a slew of drive-related scripts, including: do-command-on-all-all-drives, wake-all-drives, map-drives, unmap-drives, checkmappings, display-drive-mapping, ensure-drive-is-mapped, label-all-drives, make-directory-matching-drive-label, wake-all-drives, myDrives, drives, whichdrive, c-drives
-
-
-## Now let's go over some things you probably will want to do:
-
-
-1. Validate that your collections (repositories) haven't disappeared, and are fully accessible.
-    * Edit ```c:\bat\environm.btm``` and search for "```DEFINE REPOSITORIES```".  For me, it's literally 35 screens of information about various repositories and workflows. Ignore or comment out what doesn't apply to you. Change what does apply to you.
+1. Validate that your collections (repositories) haven't disappeared, and are fully accessible:
+    * Edit ```c:\bat\environm.btm``` and search for "```DEFINE REPOSITORIES```".  For me, it's literally 35 screens of information about various repositories and workflows. Ignore or comment out what doesn't apply to you. Change what does apply to you. If you add anything, make sure to also add a validation for it. Follow the existing patterns in the file.
     * Run  ```c:\bat\environm.btm validate``` to validate all repository locations across all harddrives across all machines sharing this environment in the current house/LAN.  At first, it will be errors galore, because you are not me, and do not have my collections.  But after you edit *environm.btm* to properly reflect the locations of your collections/repositories (just follow the examples therein), you'll be able to use the *backup-repositories.bat* and *backups.bat* scripts, as well as validate that they are all still there. For me, with 20+ harddrives, this is often how I find out about a crashed drive.
 
-1. Create a reliable backup plan:
+1. Create a reliable backup plan for your collections/repositories:
     * Edit ```backup-repositories.bat``` to match the repositories you want backed up. IT'S REALLY EASY. If ```environm validate``` produces no errors, you likely can edit this without any knowledge and experience, and then run ```backup-repositories.bat``` to start running your backups. They may error out the first time, if the destination folder doesn't exist. But once you fix that, it should be smooth backup sailing for life.
+
+1. Create a reliable backup plan for important individual files:
+    * Edit ```backup-important-files.bat``` to reference important files you want backed up. Search for ```MAIN: BEGIN``` and follow the patterns within. For the dropbox functionality to work, you must have your dropbox-related variables defined properly in ```environm.btm```.
+
+1. Create a reliable backup plan for important individual folders:
+    * Edit ```backup-important-folders.bat``` to reference important folders you want backed up. Search for ```MAIN:``` and follow the patterns within. This one calls an individual BAT file for each important-individual-folder that you want to backup. Three examples already exist in the file for *Rogue Legacy 2*, *Xenia*, and *Rocksmith*. Follow the pattern to add more.
 
 1. TODO
 
+1. TODO
+
+1. TODO
+
+1. TODO
+
+
 ## And let's go over some things you MAY want to do:
 
-1. Dynamically-generated PATHs accessible from PowerShell/CMD. TODO.
+1. Dynamically-generated PATHs accessible from PowerShell/CMD. Look at ```setpath.bat```. TODO.
 
 ## And here are some more esoteric things you can do:
 
 1. Tagging music: Embedding album art and *ReplayGain* tags into music files
 
-1. Controlling Winamp: Play/Pause/Stop/etc as well as randomizing/adding/removing songs to the playlist. Determining the current song playing (if winamp is integrated into last.fm).
+1. Controlling *Winamp*: Play/Pause/Stop/etc as well as randomizing/adding/removing songs to the playlist. Determining the current song playing (if winamp is integrated into last.fm).
 
 1. TODO
 
