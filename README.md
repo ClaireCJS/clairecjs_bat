@@ -334,6 +334,12 @@ I would love to know how this works out for somebody who has never done it. Nobo
 
 Here are the old, deprecated, manual instructions, in case *clairevironment-install* fails in the future:
 
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
+
+
 1. Install the Winget tool—which automated program installation—by invoking the following command in PowerShell:
 ```
   Add-AppxPackage -Path "https://aka.ms/getwinget"
