@@ -40,14 +40,15 @@ But here are the proper instructions:
     This is actually a deviation from how most people do things, due to the isolation of learning this command-line in the 1980s and 1990s. It creates complications that I've mostly mitigated—but not completely. Any mitigations I missed will cause failures unless you do this.
 
 
-## At this point, everything is installed! The only problems you have at this point should be mostly-false error messages related to configuration.
+## At this point, everything is installed! 
+### The only problems you have at this point should be mostly-false error messages related to configuration.
 
 1. To deal with mostly-false error messages, and to get our extra functionality working, you will need to edit ```c:\bat\environm.btm```, our central script that manages E-V-E-R-Y-T-H-I-N-G in a manner akin to unix .init/.rc files.<BR>
 	Examples of some things defined in this central script are Harddrive variables to eradicate hard-coded paths, drive-to-machine mappings to make every harddrive in the house/lan accessible to every other computer in the house/lan, repository locations for validating and backing up all your various collections. Secret things, like passwords, API keys, and IP addresses, might better belong in ```private.env```
     * The goal is for ```environm.btm``` to produce *no* output when it runs.
       So let's get on that 😂😂😂
 
-## Now let's go over some things you definitely will want to do:
+### Now let's go over some things you definitely will want to do:
 
 1. Define all your harddrives:
     * Edit ```environm.btm```and search for ```DEFINE HARDDRIVES``` and look through the next couple of pages. It looks absolutely bonkers, but redefinining the same information in a few different ways has been integral to ease-of-use. Just comment out anything that isn't YOUR harddrive. Unlike me, you might only have 1 computer and 1 drive, instead of 4 computers and 20 or so drives.
@@ -114,11 +115,11 @@ But here are the proper instructions:
 
 * Track the progress of minimized scripts by adding audio countdowns! As the beeps get lower and lower, you know your job is closer and closer to being done. For example, you can track a 5-step process this way:
 ```
-	step1.exe $+ call audio-countdown-noise 1 5
-	step2.exe $+ call audio-countdown-noise 2 5
-	step3.exe $+ call audio-countdown-noise 3 5
-	step4.exe $+ call audio-countdown-noise 4 5
-	step5.exe $+ call audio-countdown-noise 5 5
+  step1.exe   $+   call audio-countdown-noise 1 5
+  step2.exe   $+   call audio-countdown-noise 2 5
+  step3.exe   $+   call audio-countdown-noise 3 5
+  step4.exe   $+   call audio-countdown-noise 4 5
+  step5.exe   $+   call audio-countdown-noise 5 5
 ```
 
 * Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line.<BR>Change them in the Windows control panel.
