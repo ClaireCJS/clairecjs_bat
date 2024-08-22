@@ -7,6 +7,7 @@
 :USAGE:                                  ^^^^^^^———— use "{PERCENT}" in your message to insert a   "%"   into your message
 :USAGE:                                  ^^^^^^^———— use     "\n"    in your message to insert a newline into your message but only if %NEWLINE_REPLACEMENT% is set to 1, which must be done EACH time you do this
 :USAGE:
+:USAGE: call print-message demo      ————— to run demo suite
 :USAGE: call print-message TEST      ————— to run internal test suite
 :USAGE: call print-message TEST fast ————— to run internal test suite without a pause for keystroke in between each one
 :USAGE:                                           
@@ -51,8 +52,9 @@ REM Ensure correct environment
     setdos /x0
 
 REM Process parameters
-    if "%PM_PARAM2%" ne "fast" (set FAST=0)                        %+ REM used for "test fast" 
-    if "%PM_PARAM2%" eq "fast" (set FAST=1)                        %+ REM used for "test fast" 
+    if "%PM_PARAM2%" ne "fast" (set   FAST=0   )                        %+ REM used for "test fast" 
+    if "%PM_PARAM2%" eq "fast" (set   FAST=1   )                        %+ REM used for "test fast" 
+    if "%PM_PARAM1%" eq "demo" (goto :DemoSuite)
     if "%PM_PARAM1%" eq "test" (goto :TestSuite)
     if "%PM_PARAM1%" eq "none" (goto :None     )
     rem if "%PM_PARAM3%" eq ""                     (
@@ -307,6 +309,31 @@ goto :END
 
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :DemoSuite
+                cls
+                echo.
+                call fatal_error    "We're DONE! There is NO HOPE! STOP!!!"
+                call error          "Uh-oh! This might be broken!"
+                call alarm          "Take notice! We need attention!"
+                call warning        "This may do a bad thing!"
+                call warning_less   "This may do a thing that maybe might be a little bad..."
+                call removal        "temp files have been deleted"
+                echo.
+                call important      "narration of main tasks"
+                call important_less "narration of subtasks"
+                call unimportant    "not sure if we need to bother saying this anymore"
+                call subtle         "pretty sure i don't need to say this anymore"
+                echo.
+                call advice         "some good advice to take into consideration right now"
+                call debug          "the value for %foo[1] is 4329.9342093 right now"
+                echo.
+                call completion     "subtask completed"
+                call success        "main task successful"
+                call celebration    "entire script is done, let's have cake!"
+                echo.
+                call normal         "we don't use this one"
+                echo.
+        goto :END
 
         :TestSuite
                 call validate-in-path important 

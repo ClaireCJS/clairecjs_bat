@@ -1,0 +1,1 @@
+@call run-piped-input-as-bat.bat  <clip:

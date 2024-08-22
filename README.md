@@ -204,7 +204,7 @@ But here are the proper instructions:
 
 1. ```all-ready-drives.bat``` can run a command on every single harddrive in your house/LAN
 
-1. ```.bat``` 
+1. git wrappers
 1. ```.bat``` 
 1. ```.bat``` 
 1. ```.bat``` 
@@ -224,7 +224,7 @@ But here are the proper instructions:
 
 ## Fun trinkets:
 
-1. Never forget someone's age with ```age.bat```.  "How old is your mom?" ```age mom```.  "She's 77.389"
+1. Never forget someone's age with ```age.bat```.  "How old is your mom?"  "She's 77.389"
 ![image](https://github.com/user-attachments/assets/325d90a4-2ddb-444c-a09f-e6c917acf04b)
 
 
