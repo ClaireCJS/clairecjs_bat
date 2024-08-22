@@ -14,12 +14,17 @@ This is really about integrating existing tools that already exist.
 ---------------------------------
 
 
-###  This is a full stack of stuff built around a command line. To use everything I've put here, you have to install everything as I've instructed here. This is what I go through every new computer. 
 
-### ‼ Make sure to use the paths specified. A couple things need to be in alternate areas.
+# I would absolutely love feedback! 🤓
+
+I would love to know how this works out for somebody who has never done it. Nobody outside of my own family has ever tried to use my environment. Such feedback is something I could use to further generalize my scripts to be more workable for other people.
+
+---------------------------------
 
 
-The abridged instructions are: Install TCC, run *clairevironment-install.bat*, add TCC to Windows Terminal, and you're done!
+### INSTALLATION INSTRUCTIONS
+
+The abridged instructions are: Install TCC, run *clairevironment-install.bat*, add TCC to Windows Terminal, run it and change the command separator character, and you're ready to run my environment!
 
 But here are the proper instructions:
 
@@ -37,10 +42,9 @@ But here are the proper instructions:
 
 ## At this point, everything is installed! The only problems you have at this point should be mostly-false error messages related to configuration.
 
-1. To deal with mostly-false error messages, you will even5tually need to edit ```c:\bat\environm.btm```.<br>
-	This is the most script, which is run every time TCC is run. This is the the equivalent of a unix .init/.rc type files.<BR>
-	This script defines E-V-E-R-Y-T-H-I-N-G. Harddrive letters (to eradicate the process of hard-coded paths in scripts), drive-to-machine mappings (for sharing drives across all local computers in this environment), repository locations (for validating and backing up all your various collections), the works. (Passwords, secret things, and secret API keys go in ```private.env```)
-    * You ultimately want it to produce *no* output when it runs, or else there will be permanent ugliness.
+1. To deal with mostly-false error messages, and to get our extra functionality working, you will need to edit ```c:\bat\environm.btm```, our central script that manages E-V-E-R-Y-T-H-I-N-G in a manner akin to unix .init/.rc files.<BR>
+	Examples of some things defined in this central script are Harddrive variables to eradicate hard-coded paths, drive-to-machine mappings to make every harddrive in the house/lan accessible to every other computer in the house/lan, repository locations for validating and backing up all your various collections. Secret things, like passwords, API keys, and IP addresses, might better belong in ```private.env```
+    * The goal is for ```environm.btm``` to produce *no* output when it runs.
       So let's get on that 😂😂😂
 
 ## Now let's go over some things you definitely will want to do:
@@ -117,19 +121,12 @@ But here are the proper instructions:
 	step5.exe $+ call audio-countdown-noise 5 5
 ```
 
-* Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line. 
-  (Change them in the Windows control panel.)
-
+* Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line.<BR>Change them in the Windows control panel.
 * Use ```speak.bat```       to speak with a human voice
-
 * Use ```okgoogle.bat```    to control your smart home with a human voice
-
 * Use ```charge.bat```      to rally the troops
-
 * Use ```white-noise.bat``` to create random white noise.
-
 * Use ```white-noise.bat``` to create random midi "music".  
-
 * Use ```cacophony.bat```   to create audio unpleasantness
 
 
@@ -144,31 +141,35 @@ But here are the proper instructions:
 
 ## Best practices for scripting, that reduce script brittleness, increase script longevity, and reduce the time that passes before realizing things are set up wrong:
 
-1. Always use our internal message-printing system for consistency of presentation compliance. Messages are displayed with ```print-message.bat {message_type} {"message in quotes"}```. Environment variables ```%MESSAGE_TYPES_WITHOUT_ALIASES%``` contains all the different types of messages. Message types have their own dedicated BAT files of the same name. Here are examples of the current types, in approximate order of drama:
+1. Always use our internal message-printing system for consistency of presentation compliance. 
+    * Messages are displayed with ```print-message.bat {message_type} {"message in quotes"}```
+    * To see a test of every message type, run ```print-message.bat test fast```
+    * Message decorators and audio effects can be changed in ```print-message.bat```
+    * Environment variable ```%MESSAGE_TYPES_WITHOUT_ALIASES%``` contains all the different types of messages
+    * Message types have each etheir own dedicated BAT files of the same name. 
+    * Here are examples of messages of each types, in approximate order of drama:
 ```
 	call fatal_error    "We're DONE! There is NO HOPE! STOP!!!"
 	call error          "Uh-oh! This might be broken!"
 	call alarm          "Take notice! We need attention!"
 	call warning        "This may do a bad thing!"
 	call warning_less   "This may do a thing that maybe might be a little bad..."
+	call removal        "temp files have been deleted"
 
 	call important      "narration of main tasks"
 	call important_less "narration of subtasks"
 	call unimportant    "not sure if we need to bother saying this anymore"
 	call subtle         "pretty sure i don't need to say this anymore"
 
-	call advice         "this is something nice to know right now"
-	call debug          "the value for X is 69 right now"
-	call removal        "File deleted!"
+	call advice         "some good advice to take into consideration right now"
+	call debug          "the value for %foo[1] is 4329.9342093 right now"
 
-	call completion     "task competed"
-	call success        "task successful"
-	call celebration    "everything is done, let's have cake"
+	call completion     "subtask completed"
+	call success        "main task successful"
+	call celebration    "entire script is done, let's have cake!"
 
 	call normal         "we don't use this one"
 ```
-    * The message decorators and audio effects can be changed in ```print-message.bat```
-    * To see a test of every message type, run ```print-message.bat test fast```
 
 1. Eradicating hard-coded paths: By having environment variables for each harddrive (and for common locations) all centrally defined in ```environm.btm```, we can reference locations in a dynamic way that changes over time [less brittle, more reliable].
 
