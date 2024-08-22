@@ -17,10 +17,25 @@ set PARAMS=%@UNQUOTE[%*]
 setdos /x-678
 
     rem we use the ANSI_ERASE_TO_EOL sequence after setting the color to 'normal' to evade a Windows Terminal+TCC bug where the background color bleeds into the rightmost column
-    %COLOR_TO_USE% %+  echo %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%%ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
-    %COLOR_TO_USE% %+ echos %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL% %+ if %ECHOSBIG ne 1 (echo.)
+    rem %COLOR_TO_USE% %+  echo %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%%ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
+    rem %COLOR_TO_USE% %+ echos %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL% %+ if %ECHOSBIG ne 1 (echo.)
+    rem echos %BIG_TEXT_END%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
 
-    echos %BIG_TEXT_END%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
+    rem There was a lot of weirdness with background color bleedthrough:
+    rem I opened this bug report with Windows Terminal to fix it: 
+    rem https://github.com/microsoft/terminal/issues/17771
+
+    %COLOR_TO_USE% %+  echo %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%%ANSI_RESET%
+    %COLOR_TO_USE% %+ echos %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+    if %ECHOSBIG ne 1 (echo.)
+
+
+
+    rem %COLOR_TO_USE% %+  echo %BIG_TEXT_LINE_1%%PARAMS%%ANSI_RESET%
+    rem %COLOR_TO_USE% %+ echos %BIG_TEXT_LINE_2%%PARAMS%%ANSI_RESET%
+    rem if %ECHOSBIG ne 1 (echo.)
+
+    rem echos %BIG_TEXT_END%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
 
 
 setdos /x0

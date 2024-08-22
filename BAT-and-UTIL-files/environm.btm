@@ -2137,7 +2137,6 @@ return
          set  .cfg=notepad
          set  .chm=call wrapper start
          set  .cmd=call run-cmd-file
-         set  .cmd=cmd /c
          set  .com=call run-com-file
          set  .cpl=call wrapper start
          set  .diz=type

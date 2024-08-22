@@ -1,4 +1,4 @@
-@echo on
+@echo off
 call validate-in-path cmd.exe
 set FILE=%1
 cmd.exe /c %FILE%

@@ -77,6 +77,7 @@ REM Process parameters
     if defined COLOR_%TYPE% (
         set OUR_COLORTOUSE=%[COLOR_%TYPE%]
         set OUR_ANSICOLORTOUSE=%[ANSI_COLOR_%TYPE%]
+        rem echo set OUR_ANSICOLORTOUSE=%%ANSI_COLOR_%TYPE%
      )
     if not defined OUR_COLORTOUSE  (
         if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG% %RED_FLAG% Oops! Let's try setting OUR_COLORTOUSE to %%COLOR_%@UPPER[%PM_PARAM1])
@@ -96,7 +97,7 @@ REM Validate parameters
         if not defined COLOR_%TYPE%  (call fatal_error "This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment")
         if not defined MESSAGE       (call fatal_error "$0 called without a message")
         call validate-in-path beep.bat 
-        REM call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF
+        call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF
         set VALIDATED_PRINTMESSAGE_ENV=1
     )
 
@@ -191,13 +192,24 @@ REM Pre-Message determination of how many times we will display the message:
 REM Actually display the message:
         setdos /x-6
 
-        REM display our opening big-header, if we are in big-header mode
-        if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho %@ANSI_MOVE_TO_COL[0]****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****%ANSI_ERASE_TO_EOL%)
-
         rem Assemble our message, including resetting the color via ansi codes (%OUR_ANSICOLORTOUSE%) before adding the right decorator, in case the color was changed within the message itself
         rem DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT% ———————————— this was the old way
-        set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%OUR_ANSICOLORTOUSE%%DECORATOR_RIGHT%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
+        set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%OUR_ANSICOLORTOUSE%%DECORATOR_RIGHT%
 
+        REM display our opening big-header, if we are in big-header mode
+        rem production: if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho %@ANSI_MOVE_TO_COL[0]****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****%ANSI_RESET%%ANSI_ERASE_TO_EOL%)
+        rem test:
+
+        if %BIG_HEADER eq 1 (
+            SET BIG_ECHO_MSG_TO_USE=%our_ansicolortouse%****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****
+            rem There was a lot of weirdness with background color bleedthrough when doing this:
+            rem call bigecho %BIG_ECHO_MSG_TO_USE%
+            rem I opened this bug report with Windows Terminal to fix it: 
+            rem https://github.com/microsoft/terminal/issues/17771
+            rem We assemble the double-height lines manually here, without using bigecho.bat, to have the most control over that bug:
+            echo %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
+            echo %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+        )
 
         REM repeat the message the appropriate number of times
         for %msgNum in (%HOW_MANY%) do (           
@@ -234,24 +246,28 @@ REM Actually display the message:
 
 
             REM actually print the message:
-            echos %DECORATED_MESSAGE%%ANSI_ERASE_TO_EOL% 
+            echos %DECORATED_MESSAGE%
 
             REM handle post-message formatting
-            if "%TYPE%"     eq "UNIMPORTANT" (echos %FAINT_OFF%)
             if "%TYPE%"     eq "SUBTLE"      (echos %FAINT_OFF%)
+            if "%TYPE%"     eq "UNIMPORTANT" (echos %FAINT_OFF%)
             if "%TYPE%"     eq "SUCCESS"     (echos %BOLD_OFF%)
             if "%TYPE%"     eq "CELEBRATION_OLD_CODE_TODO_REMOVE" (
                 if 1 == %msgNum% (echos     ``)
                 if 2 == %msgNum% (echos     ``)
             )
-            if  %BIG_HEADER eq    1          (echos %BLINK_OFF%)
+            rem test relying on the ansi_reset below instead: 
+            rem if  %BIG_HEADER eq    1          (echos %BLINK_OFF%)
 
-            REM setting color to normal (black on black) and using the erase-to-end-of-line sequence fixes the Windows Termina+TCC bug where a big of the background color is shown in the rightmost column
-            echo %ANSI_COLOR_NORMAL%%ANSI_ERASE_TO_EOL%`` 
+            REM setting color to normal (white on black) and using the erase-to-end-of-line sequence helps with the Windows Termina+TCC bug(?) where a bit of the background color is shown in the rightmost column
+            echo %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%`` 
         )
         REM display our closing big-header, if we are in big-header mode
-        if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****%ANSI_ERASE_TO_EOL%)
-
+        rem if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%[DECORATOR_RIGHT]****%ANSI_RESET%%ANSI_ERASE_TO_EOL%)
+        if %BIG_HEADER eq 1 (
+            echo %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
+            echo %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+        )
 
 
 REM Post-message delays and pauses

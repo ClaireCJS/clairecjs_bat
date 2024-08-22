@@ -35,9 +35,12 @@ rem ANSI: Initialization
                 set ANSIESCAPE=%ANSI_ESCAPE%
 
 rem ANSI: special stuff: reset
-            set ANSI_RESET=%ANSI_ESCAPE%0m
-                set ANSIRESET=%ANSI_RESET%
-                set ANSI_COLOR_RESET=%ANSI_RESET%
+            set ANSI_RESET_FG_COLOR=%ANSI_ESCAPE%0m
+            set ANSI_RESET=%ANSI_ESCAPE%39m%ANSI_ESCAPE%49m%ANSI_RESET_FG_COLOR%
+                set ANSI_RESET_FULL=%ANSI_RESET%
+                set ANSI_FULL_RESET=%ANSI_RESET%
+                set ANSI_COLOR_RESET=%ANSI_RESET_FG_COLOR%
+                set ANSI_RESET_COLOR=%ANSI_RESET_FG_COLOR%
 
 
 rem ANSI: special stuff: position save/restore

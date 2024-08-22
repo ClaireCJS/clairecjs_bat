@@ -251,13 +251,14 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 1. ```.bat``` 
 
 
-## Fun trinkets:
+## Fun/uncategories trinkets:
 
 1. Never forget someone's age with ```age.bat```.  "How old is your mom?"  "She's 77.389"
 ![image](https://github.com/user-attachments/assets/325d90a4-2ddb-444c-a09f-e6c917acf04b)
 
-
 1. rainbow-echo TODO
+
+1. ```make-file-list``` to enerate a filelist.txt of all the files in the current directory tree
 
 ---------------------------------
 
