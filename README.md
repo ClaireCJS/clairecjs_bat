@@ -224,7 +224,15 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
 1. Tagging music: Embedding album art and *ReplayGain* tags into music files
 
-1. Controlling *Winamp*: Play/Pause/Stop/etc as well as randomizing/adding/removing songs to the playlist. Determining the current song playing (if winamp is integrated into last.fm).
+1. Controlling *Winamp*: Music control, playlist management, and extracting the current song playing:
+	* ```winamp-setup-notes.txt``` — My personal guide on how to build WinAmp my way. 
+	* ```stop.bat```, ```play.bat```, ```paus.bat``` (without an e, as that's a reserved command), ```unpause.bat```, ```next.bat```, ```prev.bat``` — basic winamp stop/play/pause/unpase/next-track/previous-track functionality.
+	* ```winamp-randomize-randomize.bat``` aka ```randomize``` — randomizes winamp's playlist
+	* ```winamp-start.bat``` — launches and initializes WinAmp. Moves windows to specific positions via 
+	* ```winamp-restart.bat``` — kills winamp/etc with ```winamp-close-gracefully.bat```, then if that doesn't work, via less gradceful methods.  Then re-launches WinAmp with ```winamp-start```, which uses ```fix-winamp.bat```to move all winedows to specific, hard-coded locations
+	* ```switch-winamp-to-playlist.bat``` and ```add-m3u-to-winamp-playlist.bat``` — Replace or append to existing winamp plalylist
+	* ```get-winamp-state.bat``` — retrives winamp state, prints it out, and assigns it to the ```%WINAMP_STATE%``` varaible
+	* ```winamp_monitor.py``` — logs tracks playing to the screen, to test Python-Winamp functoinality
 
 1. TODO
 

@@ -1,4 +1,4 @@
-ep winuse strict; 
+use strict; 
 use warnings; 
 use LWP::Simple;
 
