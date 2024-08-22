@@ -51,6 +51,7 @@ rem TELL USER:
 
 
 rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
+        echo MANIFEST_FILES are: %MANIFEST_FILES%
         if "%MANIFEST_FILES%" eq "NONE" (goto :Manifest_File_Update_Complete)               
                 for %myFileFull in (%MANIFEST_FILES%) (
                     rem echo file=%myFileFull
@@ -63,6 +64,7 @@ rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
                     REM echo is this thing on
                     REM %COLOR_SUBTLE%
                     color bright black on black
+                    REM echo (%COPY% %SOURCE_DIR%\%myFile% . )
                     (%COPY% %SOURCE_DIR%\%myFile% . )            %+ REM this messed up the coloring even tho it was better alignment: | call insert-before-each-line "%ANSI_GRAY%    "
                     rem speeding up by not doing this even though I kinda want to: call errorlevel
                     rem speeding up by not doing this even though I kinda want to: color bright black on black

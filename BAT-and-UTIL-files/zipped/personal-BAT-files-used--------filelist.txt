@@ -285,7 +285,7 @@
 2023-08-29  06:34            162   25%  fix_taskbar_hidden_by_ctypes_call.py
 2024-08-20  16:34         91,903   76%  fix_unicode_filenames.py
 2023-07-10  10:39        519,397   45%  fix_unicode_filenames_every_char.py
-2023-08-16  13:11         10,168   70%  fix_wrong_image_extensions.py
+2024-08-22  22:12         10,171   70%  fix_wrong_image_extensions.py
 2023-10-14  01:43            481   46%  flac2wav.bat
 2019-10-01  10:28             56   13%  flv2avi.bat
 2023-07-06  10:22             59   -1%  fml.bat
@@ -319,7 +319,7 @@
 2024-05-11  18:04            797   48%  git-add.bat
 2024-04-09  23:33            158   14%  git-commit-history.bat
 2024-06-05  19:11          2,715   56%  git-commit.bat
-2023-10-06  06:37             45   -4%  git-config-set-commit-preference-to-rebase.bat
+2024-08-22  18:29             44   -4%  git-config-set-commit-preference-to-rebase.bat
 2023-06-14  23:22             54    4%  git-config-set-commit-preferences-to-rebase.bat
 2023-10-06  06:37             18  -11%  git-history.bat
 2023-07-18  08:39          1,627   64%  git-init-remote-link-local-project-to-remote-git-repo.bat
@@ -390,6 +390,7 @@
 2023-08-26  14:54          1,084   59%  isRunning-helper.bat
 2024-05-10  18:51          2,599   63%  isRunning.bat
 2023-10-20  03:38            209   23%  join-videos.bat
+2024-08-22  22:11            682   52%  jpg2png.bat
 2023-07-10  09:43            184   42%  kill.bat
 2024-06-13  19:45          1,211   57%  KillIfRunning.bat
 2019-10-01  10:28            102   18%  label.bat
@@ -588,7 +589,7 @@
 2024-08-20  07:37             21   -9%  set-all_colors.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
-2024-08-22  16:17         37,228   83%  set-colors.bat
+2024-08-22  22:08         37,228   83%  set-colors.bat
 2023-06-05  23:30             68   15%  set-current_playing_song.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
@@ -611,7 +612,7 @@
 2023-04-24  09:52            255   53%  set-winamp-constants.bat
 2024-03-24  20:03             49   -4%  setDrive.bat
 2024-03-24  20:04             49   -4%  setlabel.bat
-2024-06-25  15:17          9,756   78%  SETPATH.bat
+2024-08-22  22:05          9,946   77%  SETPATH.bat
 2024-08-22  00:52             21   -9%  setprompt.bat
 2023-10-06  05:32            132    5%  settmp.bat
 2024-04-10  15:17            731   51%  setup-perl-junctions-on-new-computer.bat
@@ -707,7 +708,7 @@
 2024-04-28  20:54            287   35%  unzip-all.bat
 2024-04-28  21:01          6,124   71%  unzip-gracefully.bat
 2024-08-20  09:34            443   39%  update-cygwin.bat
-2024-08-22  06:20         12,010   73%  update-from-BAT-via-manifest.bat
+2024-08-22  18:14         12,137   73%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2019-10-01  10:28            232   26%  urldecode.pl
 2019-10-01  10:28            326   33%  urlencode.pl
@@ -719,7 +720,7 @@
 2024-08-20  17:24         14,833   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
 2024-04-19  15:48          2,082   60%  validate-file-extension.bat
-2024-04-05  18:20          1,442   56%  validate-in-path.bat
+2024-08-22  21:55          1,661   57%  validate-in-path.bat
 2024-05-04  22:16            357   43%  validate-is-number.bat
 2023-04-28  14:04            627   51%  view_pickle.py
 2023-06-13  18:25          1,372   57%  wake-all-drives-helper.bat

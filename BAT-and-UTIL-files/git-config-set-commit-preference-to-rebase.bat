@@ -1,1 +1,1 @@
-@call sgit config --global pull.rebase true
+@call git config --global pull.rebase true

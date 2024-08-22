@@ -1,5 +1,7 @@
 @echo off
 
+rem Used to submit following bug report to Microsoft Terminal: https://github.com/microsoft/terminal/issues/17771
+
 rem note that "%@CHAR[27]" creates the ESC character
 rem note that "repeat 2 echo." is how we make 2 blank lines
 rem note that ANSI_RESET is a set of codes to reset all ANSI colors and formatting

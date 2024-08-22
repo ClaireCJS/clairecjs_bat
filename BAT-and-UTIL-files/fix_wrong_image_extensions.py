@@ -170,8 +170,8 @@ def get_usage_msg():
 
       fix_wrong_image_extensions.py - incorrect image extension corrector
 
-    * Add /c to correct image extensions in the current folder
-    * Add /s to correct image extensions in this and all subfolders!s
+    * Add /c to correct image extensions in the  current    folder
+    * Add /s to correct image extensions in this and all subfolders!
 
     Image extensions known to this program: {known_image_extensions}
 """
