@@ -1,4 +1,3 @@
-c:\cygwin\bin\sort.exe --ignore-case -k5
 2024-04-19  21:15          2,577   64%  add-art-to-flac-helper.bat
 2024-04-19  16:05            780   55%  add-art-to-flac.bat
 2023-07-18  09:19          3,817   70%  add-art-to-mp3.bat
@@ -651,6 +650,7 @@ c:\cygwin\bin\sort.exe --ignore-case -k5
 2024-05-23  08:07            129   38%  stop-minilyrics.bat
 2019-10-01  10:28             18  -11%  stop-windows-update-reboot-nag.bat
 2024-05-07  14:05             22   -9%  stop.bat
+2024-08-22  03:41            790   60%  strings.bat
 2019-10-01  10:28             53   10%  strip-ansi.pl
 2023-08-08  12:46             24   -8%  strip-blank-lines.bat
 2024-06-13  08:25            182   28%  strip-html.pl

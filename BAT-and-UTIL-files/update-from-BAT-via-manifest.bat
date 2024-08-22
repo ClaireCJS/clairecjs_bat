@@ -1,4 +1,4 @@
-@Echo On
+@Echo OFF
 
 
 :DESCRIPTION:  Used to package BAT/UTIL/helper files from a personal environment into a development project folder for public deployment
@@ -113,7 +113,7 @@ goto :END_OF_SUBROUTINES
                                     for %file in (%OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4% %OUR_FILELIST_5% %OUR_FILELIST_6% %OUR_FILELIST_7% %OUR_FILELIST_8% %OUR_FILELIST_9% %OUR_FILELIST_10%) do (
                                         rem This echo is the main one that happens first...
                                         echos %@randfg[].
-                                        echo %_CWP: if not exist "%file%" (call error "'%file%' does not exist")
+                                        rem DEBUG: echo %_CWP: if not exist "%file%" (call error "'%file%' does not exist")
                                         if not exist "%file%" (call error "'%file%' does not exist")
                                         rem call print-if-debug "Doing file %file%"
                                         REM delete first, if we want
