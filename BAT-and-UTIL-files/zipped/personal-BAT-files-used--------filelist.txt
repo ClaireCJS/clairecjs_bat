@@ -595,6 +595,7 @@
 2023-10-06  05:58          1,232   63%  set-latest-filename.bat
 2023-06-05  23:46             24   -8%  set-nicetime.bat
 2023-06-05  23:53            703   61%  set-nice_time.bat
+2024-08-22  00:48            917   51%  set-prompt.bat
 2023-06-14  22:07          2,598   64%  set-random-file.bat
 2023-10-06  05:56             26   -7%  set-randomfile.bat
 2023-06-14  14:58            123   10%  set-task.bat
@@ -606,7 +607,7 @@
 2024-03-24  20:03             49   -4%  setDrive.bat
 2024-03-24  20:04             49   -4%  setlabel.bat
 2024-06-25  15:17          9,756   78%  SETPATH.bat
-2023-06-02  12:32            604   56%  setprompt.bat
+2024-08-22  00:52             21   -9%  setprompt.bat
 2023-10-06  05:32            132    5%  settmp.bat
 2024-04-10  15:17            731   51%  setup-perl-junctions-on-new-computer.bat
 2019-10-01  10:28             21   -9%  setwidth.bat

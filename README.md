@@ -97,7 +97,7 @@ But here are the proper instructions:
 
 1. Use ```emoji-grep.bat``` to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
 
-1. Change the colors of your prompt (per-person/username, even) by looking at ```setprompt.bat```
+1. Change your prompt (per-person/username, even) and its colors by looking at ```prompt-common.bat``` and ```set-prompt.bat``` and ```prompt-Claire.bat```. The prompt includes current CPU usage (which was insanity to implement).
 
 1. Add ```color-cycling``` of default-color'ed text to slow scripts, so that you know things aren't hung, by piping any slow steps to ```copy-move-post.py```. What's going on in the background for that is a lot of tight ANSI-voodoo loops and math calculations, along with using adaptive throttling using precision timers to avoid eating up all the cpu cycles:  Some examples of how to do this are:
 ```     very-slow.exe | copy-move-post```
@@ -225,7 +225,7 @@ But here are the proper instructions:
 ## Fun trinkets:
 
 1. Never forget someone's age with ```age.bat```.  "How old is your mom?" ```age mom```.  "She's 77.389"
-
+![image](https://github.com/user-attachments/assets/325d90a4-2ddb-444c-a09f-e6c917acf04b)
 
 
 1. ENJOY THE CLARIEVIRONMENT!  There's soooooooo much stuff in here. In the future, I will add more reference to this page about them. For the most part, you just have to explore. Most stuff is fairly heavily documented/commented.<BGR>
