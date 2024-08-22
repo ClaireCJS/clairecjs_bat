@@ -17,18 +17,18 @@ This is really about integrating existing tools that already exist.
 
 # I would absolutely love feedback! 🤓
 
-I would love to know how this works out for somebody who has never done it. Nobody outside of my own family has ever tried to use my environment. Such feedback is something I could use to further generalize my scripts to be more workable for other people.
+I would love to know how this works out for somebody who has never done it. Nobody outside of my own family has ever tried to use my environment. Such feedback is something I could use to further generalize my scripts to be more workable for other people. I can't really test the process on my own machines without wiping them 😅
 
 ---------------------------------
 
 
-### INSTALLATION INSTRUCTIONS
+# INSTALLATION INSTRUCTIONS
 
 The abridged instructions are: Install TCC, run *clairevironment-install.bat*, add TCC to Windows Terminal, run it and change the command separator character, and you're ready to run my environment!
 
 But here are the proper instructions:
 
-1. Download TCC (Take Command command-line) from [http://www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of <em>c:\TCMD\</em>. DON'T run it just yet.
+1. Download TCC (Take Command command-line) from [http://www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of ```c:\TCMD\```. DON'T run it just yet.
 
 1. Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/clairevironment-install.bat), and run (double-click) it.  Follow its instructions and pay attention.
 
@@ -43,9 +43,10 @@ But here are the proper instructions:
 # At this point, everything is installed!!! 
 ### The only problems you have at this point should be mostly-false error messages related to configuration.
 
-1. To deal with mostly-false error messages, and to get our extra functionality working, you will need to edit ```c:\bat\environm.btm```, our central script that manages E-V-E-R-Y-T-H-I-N-G in a manner akin to unix .init/.rc files.<BR>
-	Examples of some things defined in this central script are Harddrive variables to eradicate hard-coded paths, drive-to-machine mappings to make every harddrive in the house/lan accessible to every other computer in the house/lan, repository locations for validating and backing up all your various collections. Secret things, like passwords, API keys, and IP addresses, might better belong in ```private.env```
-    * The goal is for ```environm.btm``` to produce *no* output when it runs.
+1. To deal with mostly-false error messages, and to get our extra functionality working, you will need to edit ```c:\bat\environm.btm```. The goal is for it to produce *no* output when it runs. This is where E-V-E-R-Y-T-H-I-N-G is managed (a bit like unix .init/.rc files on steroids).<BR>
+	Examples of some things defined in this central script are harddrive variables to eradicate hard-coded paths, drive-to-machine mappings to make every harddrive in the house/lan accessible to every other computer in the house/lan, repository locations for validating and backing up all your various collections. <BR>
+	Secret things, like passwords, API keys, and IP addresses, can be stored in ```private.env```
+    * Again, the goal is for ```environm.btm``` to produce *no* output when it runs.
       So let's get on that 😂😂😂
 
 ---------------------------------
@@ -205,7 +206,7 @@ But here are the proper instructions:
 1. ```all-ready-drives.bat``` can run a command on every single harddrive in your house/LAN
 
 1. git wrappers
-1. ```.bat``` 
+1. ```dist.bat``` 
 1. ```.bat``` 
 1. ```.bat``` 
 1. ```.bat``` 

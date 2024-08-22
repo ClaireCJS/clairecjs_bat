@@ -461,6 +461,7 @@
 2024-08-22  01:04             43   -4%  normal.bat
 2023-10-06  08:38          1,197   56%  normalize-all-wavs.bat
 2019-10-01  10:28            502   55%  note-frequencies.dat
+2024-08-22  01:08             91   15%  note-frequencies.txt
 2024-04-03  14:40            400   52%  now.bat
 2019-10-01  10:28            562   43%  numbers.pl
 2024-04-03  15:05             88    6%  numfiles.bat
