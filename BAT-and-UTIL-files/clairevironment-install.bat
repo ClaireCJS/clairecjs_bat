@@ -155,6 +155,19 @@ move c:\clairecjs_bat.tmp\BAT-and-util-files c:\bat
 @echo ...Done moving Claire's scripts to c:\bat\...
 @echo ...Done moving Claire's scripts to c:\bat\...
 @echo .............................................
+@echo .
+@echo .
+@rem Gotta make these just in case I have them hardcoded:
+@if not exist c:\util md c:\util 
+@if not exist c:\util md c:\util2
+@echo :) >"c:\util\__ put permanent binaries that you can't function without, that you want in your path, in here __"
+@echo :) >"c:\util2\__ put permanent portable programs (and large things) that you CAN function without, in here __"
+@rem TODO util-dist.bat
+@echo (And also making c:\util and c:\util2 folders.)
+@echo Use c:\util\  for any binaries you want to keep, and have in your path, for perpetuity. Things you can't function without.
+@echo Use c:\util2\ for large things. Portable programs that you want to keep for perpetuity. Things you can function without.
+@echo .
+@echo .
 @pause
 
 

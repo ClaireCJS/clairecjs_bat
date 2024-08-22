@@ -109,7 +109,7 @@
 2023-10-06  09:42             44   -2%  chown.bat
 2024-05-11  16:42            559   51%  chrome.bat
 2019-10-01  10:27             33   13%  cl.bat
-2024-08-21  20:55          9,800   78%  clairevironment-install.bat
+2024-08-22  01:45         12,434   77%  clairevironment-install.bat
 2024-06-12  12:57          4,063   66%  clean-dbcu.bat
 2019-10-01  10:28            122   14%  clean-dropbox.bat
 2024-06-12  12:11            536   46%  clean-rocksmith-dlc-dir.bat
