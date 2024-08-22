@@ -40,8 +40,8 @@ But here are the proper instructions:
     This is actually a deviation from how most people do things, due to the isolation of learning this command-line in the 1980s and 1990s. It creates complications that I've mostly mitigated—but not completely. Any mitigations I missed will cause failures unless you do this.
 
 
-# At this point, everything is installed! 
-## The only problems you have at this point should be mostly-false error messages related to configuration.
+# At this point, everything is installed!!! 
+### The only problems you have at this point should be mostly-false error messages related to configuration.
 
 1. To deal with mostly-false error messages, and to get our extra functionality working, you will need to edit ```c:\bat\environm.btm```, our central script that manages E-V-E-R-Y-T-H-I-N-G in a manner akin to unix .init/.rc files.<BR>
 	Examples of some things defined in this central script are Harddrive variables to eradicate hard-coded paths, drive-to-machine mappings to make every harddrive in the house/lan accessible to every other computer in the house/lan, repository locations for validating and backing up all your various collections. Secret things, like passwords, API keys, and IP addresses, might better belong in ```private.env```
@@ -50,23 +50,29 @@ But here are the proper instructions:
 
 ---------------------------------
 
-### Now let's go over some things you definitely will want to do:
+### Things you almost definitely will want to do:
 
 1. Define all your harddrives:
-    * Edit ```environm.btm```and search for ```DEFINE HARDDRIVES``` and look through the next couple of pages. It looks absolutely bonkers, but redefinining the same information in a few different ways has been integral to ease-of-use. Just comment out anything that isn't YOUR harddrive. Unlike me, you might only have 1 computer and 1 drive, instead of 4 computers and 20 or so drives.
+    * Edit ```environm.btm``` to make the following changes: 
+    * Search for ```DEFINE HARDDRIVES``` and look through the next couple of pages. It looks absolutely bonkers, but redefinining the same information in a few different ways has been integral to ease-of-use. Just comment out anything that isn't YOUR harddrive. Unlike me, you might only have 1 computer and 1 drive, instead of 4 computers and 20 or so drives. You might not need the harddrive funtionality at all.
     * This will let you hard-code harddrives in scripts as environment variables instead of letters, so that if it is a different letter on a different computer in your house/LAN, there is a way to reference both locations correctly and simultaneously 
     * This will let you use our drive-related scripts, including: do-command-on-all-all-drives, wake-all-drives, map-drives, unmap-drives, checkmappings, display-drive-mapping, ensure-drive-is-mapped, label-all-drives, make-directory-matching-drive-label, wake-all-drives, myDrives, drives, whichdrive, c-drives
 
 
-### Now let's go over some things you probably will want to do:
+### Things you probably will want to do:
 
 1. Define the computers in your system:
-    * Edit ```environm.btm``` 
+    * Edit ```environm.btm``` to make the following changes: 
     * Search for ```set ALL_COMPUTERS_UP```, and list out the names of all your computers in your house/lan here
     * Search for ```set ALL_COMPUTERS```   , and list out the names of all your computers in your house/lan here, INCLUDING DEAD/BROKEN ONES.
     * Search for ```MACHINE-SPECIFIC EMOJI``` and choose an emoji for your computer (type ```env emoji``` or edit ```emoji.env``` to see a list of them, and use ```emoji-grep``` to search for emoji via regular expression)
     * Search for ```MACHINE-SPECIFIC COLORS``` and choose a color unique for your computer. 
     * This will allow you to use our computer-related scripts, including: all-computers, all-computers-except-self, colorize-by-computer-name, highlight-by-computer-name, display-drives-by-computer.  Various computers are associated with various colors and emoji, which allows a faster visual summary of what's going on.
+
+
+### Things to do when you get around to it:
+
+1. Edit ```setpath.bat```to convert your path-setting to dynamically-generated PATHs (also accessible from PowerShell/CMD). Take note of the various functions that can add folders path if the foldrese exist, but not if they don't exist. Tthere can be machine-specific paths, paths that depend on, well. Anything really. And paths defined this way survive to all future machines, so adding them here is adding them for life.
 
 1. Validate that your collections (repositories) haven't disappeared, and are fully accessible:
     * Edit ```c:\bat\environm.btm``` and search for "```DEFINE REPOSITORIES```".  For me, it's literally 35 screens of information about various repositories and workflows. Ignore or comment out what doesn't apply to you. Change what does apply to you. If you add anything, make sure to also add a validation for it. Follow the existing patterns in the file.
@@ -83,10 +89,6 @@ But here are the proper instructions:
 
 1. TODO
 
-
-### And let's go over some things you MAY want to do:
-
-1. Dynamically-generated PATHs accessible from PowerShell/CMD. Look at ```setpath.bat```. TODO.
 
 
 ### Visual things you can do:
