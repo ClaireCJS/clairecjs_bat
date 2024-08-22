@@ -1,3 +1,4 @@
+c:\cygwin\bin\sort.exe --ignore-case -k5
 2024-04-19  21:15          2,577   64%  add-art-to-flac-helper.bat
 2024-04-19  16:05            780   55%  add-art-to-flac.bat
 2023-07-18  09:19          3,817   70%  add-art-to-mp3.bat
@@ -703,7 +704,7 @@
 2024-04-28  20:54            287   35%  unzip-all.bat
 2024-04-28  21:01          6,124   71%  unzip-gracefully.bat
 2024-08-20  09:34            443   39%  update-cygwin.bat
-2024-05-23  07:58         11,897   73%  update-from-BAT-via-manifest.bat
+2024-08-22  06:20         12,010   73%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2019-10-01  10:28            232   26%  urldecode.pl
 2019-10-01  10:28            326   33%  urlencode.pl
