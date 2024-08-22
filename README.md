@@ -40,13 +40,15 @@ But here are the proper instructions:
     This is actually a deviation from how most people do things, due to the isolation of learning this command-line in the 1980s and 1990s. It creates complications that I've mostly mitigated—but not completely. Any mitigations I missed will cause failures unless you do this.
 
 
-## At this point, everything is installed! 
-### The only problems you have at this point should be mostly-false error messages related to configuration.
+# At this point, everything is installed! 
+## The only problems you have at this point should be mostly-false error messages related to configuration.
 
 1. To deal with mostly-false error messages, and to get our extra functionality working, you will need to edit ```c:\bat\environm.btm```, our central script that manages E-V-E-R-Y-T-H-I-N-G in a manner akin to unix .init/.rc files.<BR>
 	Examples of some things defined in this central script are Harddrive variables to eradicate hard-coded paths, drive-to-machine mappings to make every harddrive in the house/lan accessible to every other computer in the house/lan, repository locations for validating and backing up all your various collections. Secret things, like passwords, API keys, and IP addresses, might better belong in ```private.env```
     * The goal is for ```environm.btm``` to produce *no* output when it runs.
       So let's get on that 😂😂😂
+
+---------------------------------
 
 ### Now let's go over some things you definitely will want to do:
 
@@ -56,7 +58,7 @@ But here are the proper instructions:
     * This will let you use our drive-related scripts, including: do-command-on-all-all-drives, wake-all-drives, map-drives, unmap-drives, checkmappings, display-drive-mapping, ensure-drive-is-mapped, label-all-drives, make-directory-matching-drive-label, wake-all-drives, myDrives, drives, whichdrive, c-drives
 
 
-## Now let's go over some things you probably will want to do:
+### Now let's go over some things you probably will want to do:
 
 1. Define the computers in your system:
     * Edit ```environm.btm``` 
@@ -81,19 +83,13 @@ But here are the proper instructions:
 
 1. TODO
 
-1. TODO
 
-1. TODO
-
-1. TODO
-
-
-## And let's go over some things you MAY want to do:
+### And let's go over some things you MAY want to do:
 
 1. Dynamically-generated PATHs accessible from PowerShell/CMD. Look at ```setpath.bat```. TODO.
 
 
-## Visual things you can do:
+### Visual things you can do:
 
 1. Use ```print-message.bat``` to consistently display messages in the best way possible
 
@@ -111,7 +107,7 @@ But here are the proper instructions:
 ```echo %EMOJI_TRUMPET_COLORABLE% %PENTAGRAM% %PENTACLE% %EMOJI_TRUMPET_FLIPPED%```
     In this example, the pentagram is red a secondary environment variable was created that includes chaging the color to red *before* the pentagram, and changing the color to default/white *after* the pentagram. 
 
-## Audio things you can do:
+### Audio things you can do:
 
 * Track the progress of minimized scripts by adding audio countdowns! As the beeps get lower and lower, you know your job is closer and closer to being done. For example, you can track a 5-step process this way:
 ```
@@ -131,7 +127,7 @@ But here are the proper instructions:
 * Use ```cacophony.bat```   to create audio unpleasantness
 
 
-## More esoteric things you can do:
+### More esoteric things you can do:
 
 1. Tagging music: Embedding album art and *ReplayGain* tags into music files
 
@@ -140,7 +136,7 @@ But here are the proper instructions:
 1. TODO
 
 
-## Best practices for scripting, that reduce script brittleness, increase script longevity, and reduce the time that passes before realizing things are set up wrong:
+### Best practices for scripting, that reduce script brittleness, increase script longevity, and reduce the time that passes before realizing things are set up wrong:
 
 1. Always use our internal message-printing system for consistency of presentation compliance. 
     * Messages are displayed with ```print-message.bat {message_type} {"message in quotes"}```
@@ -187,7 +183,7 @@ But here are the proper instructions:
     
 1. Improving presentation with ANSI cursor position manipulation. For example, a prompt can be blinking and red to draw attention to it, but once answered, green without the blinking once you answer it.  ```set-colors.bat``` defines various cursor functions like ```%ANSI_POSITION_SAVE%```, ```%ANSI_POSITION_RESTOR%```, ```%@ANSI_MOVE_UP[1]```, and such.  We also stick ```%ANSI_EOL%``` at the end of lines a lot in order to fix the bug where background colors bleed over to the rightmost column of the screen.
 
-## Accessibility / mental fatigue improvements:
+### Accessibility / mental fatigue improvements:
 
 1. Reduce mental fatigue be adding emoji to your scripts, particularly in the first column. It allows quicker understanding of what's going on, often saving having to read. 
     1400+ emoji are defined as enironment variables in ```set-emojis.bat```, as well as custom pentacle & pentagram & trumpet emoji created by [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) after hand-drawing and converting to [sixels](https://en.wikipedia.org/wiki/Sixel).
@@ -202,7 +198,7 @@ But here are the proper instructions:
 ```
 
 
-## Some scripts that drastically increase scripting power now exist:
+### Some scripts that drastically increase scripting power now exist:
 
 1. ```all-ready-drives.bat``` can run a command on every single harddrive in your house/LAN
 
