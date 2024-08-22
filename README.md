@@ -1,13 +1,15 @@
 # 🤓 The Clairevironment — Claire's personal script collection 🤓
 
-## BAT files created for [JPsoft's TCC/TCMD command-line](http://www.JPSoft.com)...
+## Plunge into the command-line lifestyle! 😂
+
+## BAT files created for [JPsoft's TCC/TCMD command-line](http://www.JPSoft.com)... 🤓
 
 ### ...arguably the most sophisticated 64-bit command-line in existence, in constant development for over 35 years... 
-### ...And this is the result of me using it for over 35 years.
+### ...And this is the result of me using it for over 35 years...
 
-This is basically a full layer of scripts built on top of TCC's functionality for 35 years, to add all kinds of functionality and improvement. Rich color, ANSI stylization, audio effects where appropriate, validators to prevent script brittleness, workflow management, repository validation, backups, maintenance, all kinds of stuff that is hard for me to describe because I've been working on this environment for 35 years. There's at least 800 scripts in this repo, though a lot are oneliners that call others and it's really probably only 300 significant scripts.
+This is basically a full layer of scripts built on top of TCC's functionality for 35 years, to add all kinds of functionality and improvement. Rich color, ANSI stylization, audio effects where appropriate, validators to prevent script brittleness, workflow management, repository validation, backups, maintenance, unix commands, all kinds of stuff that is hard for me to describe because I've been working on this environment for 35 years. There's at least 800 scripts in this repo, though a lot are oneliners that call others and it's really probably only 400 significant scripts.
 
-This is really about integrating existing tools that already exist.
+After improving my environment for several decades, I decided to generalize it to see if other people could roll it out and use it, as well as to back up all my work and have something to show for it.
 
 
 
@@ -71,7 +73,7 @@ But here are the proper instructions:
     * This will allow you to use our computer-related scripts, including: all-computers, all-computers-except-self, colorize-by-computer-name, highlight-by-computer-name, display-drives-by-computer.  Various computers are associated with various colors and emoji, which allows a faster visual summary of what's going on.
 
 
-### Things to do when you get around to it:
+### Things you sould do when you get around to it:
 
 1. Edit ```setpath.bat```to convert your path-setting to dynamically-generated PATHs (also accessible from PowerShell/CMD). Take note of the various functions that can add folders path if the foldrese exist, but not if they don't exist. Tthere can be machine-specific paths, paths that depend on, well. Anything really. And paths defined this way survive to all future machines, so adding them here is adding them for life.
 
@@ -91,55 +93,58 @@ But here are the proper instructions:
 1. TODO
 
 
+---------------------------------
 
-### Visual things you can do:
+# Enhanced Scripting Functionality
 
-1. Use ```print-message.bat``` to consistently display messages in the best way possible
-
-1. Use ```emoji-grep.bat``` to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
-
-1. Change your prompt (per-person/username, even) and its colors by looking at ```prompt-common.bat``` and ```set-prompt.bat``` and ```prompt-Claire.bat```. The prompt includes current CPU usage (which was insanity to implement).
-
-1. Add ```color-cycling``` of default-color'ed text to slow scripts, so that you know things aren't hung, by piping any slow steps to ```copy-move-post.py```. What's going on in the background for that is a lot of tight ANSI-voodoo loops and math calculations, along with using adaptive throttling using precision timers to avoid eating up all the cpu cycles:  Some examples of how to do this are:
-```     very-slow.exe | copy-move-post```
-```call very-slow-bat | copy-move-post```
-``` very-slow-command | copy-move-post```
-    * This is integrated into our ```copy``` (cp) and ```move``` (mv) and ```unzip-gracefully``` (uzg) commands, all of which can look stalled when running on big files. Notice how all the backslashes color-cycle? Seeing the colors cycle lets you know that things are *not* in fact stalled or hung. AND IT LOOKS REALLY REALLY COOL.
-
-1. Use (ANSI escape codes)[https://en.wikipedia.org/wiki/ANSI_escape_code] in conjunction with [sixels](https://en.wikipedia.org/wiki/Sixel) to create brand new characters that don't exist.  To see some of the ones I created:
-```echo %EMOJI_TRUMPET_COLORABLE% %PENTAGRAM% %PENTACLE% %EMOJI_TRUMPET_FLIPPED%```
-    In this example, the pentagram is red a secondary environment variable was created that includes chaging the color to red *before* the pentagram, and changing the color to default/white *after* the pentagram. 
-
-### Audio things you can do:
-
-* Track the progress of minimized scripts by adding audio countdowns! As the beeps get lower and lower, you know your job is closer and closer to being done. For example, you can track a 5-step process this way:
-```
-  step1.exe   $+   call audio-countdown-noise 1 5
-  step2.exe   $+   call audio-countdown-noise 2 5
-  step3.exe   $+   call audio-countdown-noise 3 5
-  step4.exe   $+   call audio-countdown-noise 4 5
-  step5.exe   $+   call audio-countdown-noise 5 5
-```
-
-* Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line.<BR>Change them in the Windows control panel.
-* Use ```speak.bat```       to speak with a human voice
-* Use ```okgoogle.bat```    to control your smart home with a human voice
-* Use ```charge.bat```      to rally the troops
-* Use ```white-noise.bat``` to create random white noise.
-* Use ```white-noise.bat``` to create random midi "music".  
-* Use ```cacophony.bat```   to create audio unpleasantness
-
-
-### More esoteric things you can do:
-
-1. Tagging music: Embedding album art and *ReplayGain* tags into music files
-
-1. Controlling *Winamp*: Play/Pause/Stop/etc as well as randomizing/adding/removing songs to the playlist. Determining the current song playing (if winamp is integrated into last.fm).
-
-1. TODO
+Now that we have an environment, and our file are backed up, and we can relax.... What else can we do?
 
 
 ### Best practices for scripting, that reduce script brittleness, increase script longevity, and reduce the time that passes before realizing things are set up wrong:
+
+
+1. Eradicating hard-coded paths: By having environment variables for each harddrive (and for common locations) all centrally defined in ```environm.btm```, we can reference locations in a dynamic way that changes over time [less brittle, more reliable].
+
+1. Validating environment variables: ```call validate-environment-variable VARNAME``` validates that an environment variable exists. And if the variable is a file/folder location, it will then validate it actually exists. Always validate environment variables before using them.
+
+1. Validating commands: ```call validate-in-path whatever``` to validate if a command (internal, EXE, BAT, whatever) is valid. Always validate commands before using them. 
+
+1. Validating successful runs: ```call errorlevel.bat "{optional custom error message in quotes}"``` will halt execution if any form of errorlevel is returned by the previous command (whether internal, executable, or script).   
+  Always validate after running any kind of step that can fail.  
+  (It uses visual and audio alarms that are defined in ```print-messages.bat```, and sets a ```%REDO%``` environment variable that can be used for automatic retries.) 
+
+1. Automatically re-running things that fail: ```errorlevel.bat``` sets an environment variable called ```%REDO%``` to 1, which can be used to re-try sections of script over and over and over until they succeed. SUPER-USEFUL when a single peice of a long complicated workflow fails, and you find yourself having to manually run a step in the middle of a long script. This allows you to fix the situation, then press any key to retry without losing your place in your script. 
+    In the event of error, it gives a timed prompt allowing a gracefully return to the command line in a more reliable way than ``Ctrl-C``` or ```Ctrl-Break``` (or rapidly alternating between those 2 keys, which unfortunately works worse in Windows Terminal).
+
+    
+1. Improving presentation with ANSI cursor position manipulation. For example, a prompt can be blinking and red to draw attention to it, but once answered, green without the blinking once you answer it.  ```set-colors.bat``` defines various cursor functions like ```%ANSI_POSITION_SAVE%```, ```%ANSI_POSITION_RESTOR%```, ```%@ANSI_MOVE_UP[1]```, and such.  We also stick ```%ANSI_EOL%``` at the end of lines a lot in order to fix the bug where background colors bleed over to the rightmost column of the screen.
+
+
+
+### Accessibility / mental fatigue / emotional improvements:
+
+1. Reduce crash/hang/glitch anxiety by adding ```text color-cycling``` to slow scripts. Increases rainbow beauty and LOOKS REALLY COOL.
+    * Integrated into our ```copy``` (cp) and ```move``` (mv) and ```unzip-gracefully``` (uzg) commands. (Notice how all the backslashes color-cycle when copying?)
+    * Do this by by piping any slow steps to ```copy-move-post.py```
+    * What's going on in the background for that is a lot of tight ANSI-voodoo loops and math calculations, along with using adaptive throttling with precision timers to preserve cpu resource
+    * Some examples of how to do this are:
+```
+     very-slow.exe | copy-move-post
+call very-slow-bat | copy-move-post
+very-slow-commmand | copy-move-post
+```
+
+1. Reduce mental fatigue be adding emoji to your scripts, particularly in the first column. It allows quicker understanding of what's going on, often saving having to read. 
+    1400+ emoji are defined as enironment variables in ```set-emojis.bat```, as well as custom pentacle & pentagram & trumpet emoji created by [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) after hand-drawing and converting to [sixels](https://en.wikipedia.org/wiki/Sixel).
+
+1. Accelerate visual understanding of what's going on by adding color to your scripts, including consistent colors for consistent types of things, and random colors where applicable. For example, use ```%ANSI_COLOR_ADVICE%``` for advice, ```%ANSI_COLOR_WARNING%``` for warnings, ```%ANSI_COLOR_ERROR%``` for errors, ```%ANSI_COLOR_DEBUG%``` for debug info, etc. But for a huge list of long filenames, you would want each line to be a unique random color, which really helps when filenames get several lines long and you have trouble knowing where one ends and another begin. A random-colored emphasis can be added with ```%EMPHASIS%``` and ```%DEEMPHASIS%```.   All these environment variables are defined in ```set-colors.bat```, including the functions for custom-RGB foreground/background colors, random colors, and almost every kind of supported ANSI formatting in existence.
+
+1. Improve misdirected attention by adding blinking and double-height text (```set-colors.bat```)
+
+1. Improving  legibility by adding as much formatting as possible to scripts: bold & faint text, italicized & underscored text, reverse text, and strikethrough text. Environment variables defined in ```set-colors.bat``` make it very easy. For example:
+```
+	echo %@RANDCOLOR_FG[]This randomly-colored text has %BOLD_ON%bold%BOLD_OFF% and %ITALICS_ON%italics%ITALICS_OFF% text, and %@ANSI_RGB_FG[0,155,0] I really like this shade of green, %@ANSI_RGB_FG[0,0,50] especially with a slightly blue background to it.
+```
 
 1. Always use our internal message-printing system for consistency of presentation compliance. 
     * Messages are displayed with ```print-message.bat {message_type} {"message in quotes"}```
@@ -171,51 +176,66 @@ But here are the proper instructions:
 	call normal         "we don't use this one"
 ```
 
-1. Eradicating hard-coded paths: By having environment variables for each harddrive (and for common locations) all centrally defined in ```environm.btm```, we can reference locations in a dynamic way that changes over time [less brittle, more reliable].
+---------------------------------
 
-1. Validating environment variables: ```call validate-environment-variable VARNAME``` validates that an environment variable exists. And if the variable is a file/folder location, it will then validate it actually exists. Always validate environment variables before using them.
+# Other cool things we can do
 
-1. Validating commands: ```call validate-in-path whatever``` to validate if a command (internal, EXE, BAT, whatever) is valid. Always validate commands before using them. 
+Stuff that isn't about scripting functionality, but which is cool.<BR>
+Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
-1. Validating successful runs: ```call errorlevel.bat "{optional custom error message in quotes}"``` will halt execution if any form of errorlevel is returned by the previous command (whether internal, executable, or script).   
-  Always validate after running any kind of step that can fail.  
-  (It uses visual and audio alarms that are defined in ```print-messages.bat```, and sets a ```%REDO%``` environment variable that can be used for automatic retries.) 
 
-1. Automatically re-running things that fail: ```errorlevel.bat``` sets an environment variable called ```%REDO%``` to 1, which can be used to re-try sections of script over and over and over until they succeed. SUPER-USEFUL when a single peice of a long complicated workflow fails, and you find yourself having to manually run a step in the middle of a long script. This allows you to fix the situation, then press any key to retry without losing your place in your script. 
-    In the event of error, it gives a timed prompt allowing a gracefully return to the command line in a more reliable way than ``Ctrl-C``` or ```Ctrl-Break``` (or rapidly alternating between those 2 keys, which unfortunately works worse in Windows Terminal).
-    
-1. Improving presentation with ANSI cursor position manipulation. For example, a prompt can be blinking and red to draw attention to it, but once answered, green without the blinking once you answer it.  ```set-colors.bat``` defines various cursor functions like ```%ANSI_POSITION_SAVE%```, ```%ANSI_POSITION_RESTOR%```, ```%@ANSI_MOVE_UP[1]```, and such.  We also stick ```%ANSI_EOL%``` at the end of lines a lot in order to fix the bug where background colors bleed over to the rightmost column of the screen.
+## Visual things you can do:
 
-### Accessibility / mental fatigue improvements:
+1. Use ```emoji-grep.bat``` to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
 
-1. Reduce mental fatigue be adding emoji to your scripts, particularly in the first column. It allows quicker understanding of what's going on, often saving having to read. 
-    1400+ emoji are defined as enironment variables in ```set-emojis.bat```, as well as custom pentacle & pentagram & trumpet emoji created by [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) after hand-drawing and converting to [sixels](https://en.wikipedia.org/wiki/Sixel).
+1. Use ```env ansi_``` to display all the ANSI variables (but not functions) that we have defined 
 
-1. Accelerate visual understanding of what's going on by adding color to your scripts, including consistent colors for consistent types of things, and random colors where applicable. For example, use ```%ANSI_COLOR_ADVICE%``` for advice, ```%ANSI_COLOR_WARNING%``` for warnings, ```%ANSI_COLOR_ERROR%``` for errors, ```%ANSI_COLOR_DEBUG%``` for debug info, etc. But for a huge list of long filenames, you would want each line to be a unique random color, which really helps when filenames get several lines long and you have trouble knowing where one ends and another begin. A random-colored emphasis can be added with ```%EMPHASIS%``` and ```%DEEMPHASIS%```.   All these environment variables are defined in ```set-colors.bat```, including the functions for custom-RGB foreground/background colors, random colors, and almost every kind of supported ANSI formatting in existence.
+1. Change your prompt (per-person/username, even) and its colors by looking at ```prompt-common.bat``` and ```set-prompt.bat``` and ```prompt-Claire.bat```. The prompt includes current CPU usage (which was insanity to implement).
 
-1. Improve misdirected attention by adding blinking and double-height text (```set-colors.bat```)
+1. Use [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) in conjunction with [sixels](https://en.wikipedia.org/wiki/Sixel) to create brand new characters that don't exist.  To see some of the ones I created:
+```echo %EMOJI_TRUMPET_COLORABLE% %PENTAGRAM% %PENTACLE% %EMOJI_TRUMPET_FLIPPED%```
+    In this example, the pentagram is red a secondary environment variable was created that includes chaging the color to red *before* the pentagram, and changing the color to default/white *after* the pentagram. 
 
-1. Improving  legibility by adding as much formatting as possible to scripts: bold & faint text, italicized & underscored text, reverse text, and strikethrough text. Environment variables defined in ```set-colors.bat``` make it very easy. For example:
+### Audio things you can do:
+
+* Use ```speak.bat```       to speak with a human voice
+* Use ```okgoogle.bat```    to control your smart home with a human voice
+
+* Use ```randmidi.bat```    to create and play 15 seconds of random midi "music"
+
+* Track the progress of minimized scripts by adding audio countdowns! As the beeps get lower and lower, you know your job is closer and closer to being done. For example, you can track a 5-step process this way:
 ```
-	echo %@RANDCOLOR_FG[]This randomly-colored text has %BOLD_ON%bold%BOLD_OFF% and %ITALICS_ON%italics%ITALICS_OFF% text, and %@ANSI_RGB_FG[0,155,0] I really like this shade of green, %@ANSI_RGB_FG[0,0,50] especially with a slightly blue background to it.
+  step1.exe   $+   call audio-countdown-noise 1 5
+  step2.exe   $+   call audio-countdown-noise 2 5
+  step3.exe   $+   call audio-countdown-noise 3 5
+  step4.exe   $+   call audio-countdown-noise 4 5
+  step5.exe   $+   call audio-countdown-noise 5 5
 ```
+
+* Use ```white-noise.bat``` to create random white noise.
+* Use ```cacophony.bat```   to create audio unpleasantness
+
+* Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line.<BR>Change them in the Windows control panel.
+
+* Use ```charge.bat```      to rally the troops
+
+
+### More esoteric things you can do:
+
+1. Tagging music: Embedding album art and *ReplayGain* tags into music files
+
+1. Controlling *Winamp*: Play/Pause/Stop/etc as well as randomizing/adding/removing songs to the playlist. Determining the current song playing (if winamp is integrated into last.fm).
+
+1. TODO
+
 
 
 ### Some scripts that drastically increase scripting power now exist:
 
 1. ```all-ready-drives.bat``` can run a command on every single harddrive in your house/LAN
 
-1. git wrappers
-1. ```dist.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
+1. git wrappers todo
+1. ```dist.bat``` todo
 1. ```.bat``` 
 1. ```.bat``` 
 1. ```.bat``` 
@@ -228,6 +248,12 @@ But here are the proper instructions:
 1. Never forget someone's age with ```age.bat```.  "How old is your mom?"  "She's 77.389"
 ![image](https://github.com/user-attachments/assets/325d90a4-2ddb-444c-a09f-e6c917acf04b)
 
+
+1. rainbow-echo TODO
+
+---------------------------------
+
+## Enjoy!
 
 1. ENJOY THE CLARIEVIRONMENT!  There's soooooooo much stuff in here. In the future, I will add more reference to this page about them. For the most part, you just have to explore. Most stuff is fairly heavily documented/commented.<BGR>
    Remember: *c:\bat\setpath.bat* can be run to set your path, if you wind up in a situation where commands aren't in your path.<BR>
