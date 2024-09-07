@@ -14,6 +14,7 @@
 2023-10-06  11:20        957,443   55%  pizza-per-square-inch-calculator.exe
 2015-02-27  21:11         92,568   52%  RemoveDrive.exe
 2014-07-27  15:32         72,704   47%  speak.exe
+2011-11-18  00:33        240,192    8%  taskbar-autohide.exe
 2012-11-13  01:36          5,632   59%  wake-on-lan.exe
 2005-08-04  10:10        121,776   54%  wget.exe
 2005-08-04  10:10        121,776   54%  wget32.exe

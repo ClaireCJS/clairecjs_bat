@@ -11,10 +11,9 @@ rem
 
 title Copying %*
 
-                              set COPYBATPARAMS=%*
-if "%OS%" eq "7" (*copy /Nt /RCT /G %COPYBATPARAMS% %+ goto :END)
-                  *copy /Nt /RCT /G %COPYBATPARAMS% |& copy-move-post.py 
-
+                                 set COPYBATPARAMS=%*
+if "%OS%" eq "7" (*copy /Nt /RCT /G /R /K /L /Z %COPYBATPARAMS% %+ goto :END)
+                 (*copy /Nt /RCT /G /R /K /L /Z %COPYBATPARAMS%) |& copy-move-post.py ) | fast_cat
 
 
 

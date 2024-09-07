@@ -5,6 +5,10 @@
 REM Initialize git
     call git-setvars
 
+REM run any pre-commit scripts
+    if exist pre-commit.bat (call pre-commit.bat)
+    if exist  precommit.bat (call  precommit.bat)
+    
 
 REM Show modified/uncommitted files
     echo.

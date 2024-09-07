@@ -851,7 +851,8 @@ return
 		SET BAT=%BATDRIVE%:\BAT
 		SET HOME=%BAT%
         SET UTILDRIVE=C
-		SET UTIL=%UTILDRIVE%:\UTIL
+        if     isdir (%UTILDRIVE%:\UTIL) SET UTIL=%UTILDRIVE%:\UTIL
+        if not isdir (%UTILDRIVE%:\UTIL) SET UTIL=%BAT%
         set UTIL1DRIVE=%UTILDRIVE%
         set UTIL1=%UTIL%
         set UTIL2DRIVE=C
@@ -936,6 +937,9 @@ return
             :: stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
         :: bugfix kludges
             set PROGRAMFILES=c:\Program Files
+        :: CUDA kludge:
+            set cuda_path=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1
+
     return
 
 	:InitialThailog
@@ -1376,9 +1380,11 @@ return
                 set           MP3BACKUP1DRIVE=%HD18T2%   %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3 %+ rem Wyvern  copy
                 set           MP3BACKUP2DRIVE=%HD20T1    %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3 %+ rem Thailog copy
                 set           MP3BACKUP3DRIVE=%HD18000G% %+ set MP3BACKUP3=%MP3BACKUP3DRIVE%:\mp3         %+ rem Demona  copy
-
-                set           MP3AUXBACKUPDRIVE=%MP3BACKUP1DRIVE% %+ set MP3AUXBACKUP=%MP3AUXBACKUPDRIVE%:\BACKUPS\mp3-aux
+                set         MP3AUXBACKUPDRIVE=%MP3BACKUP1DRIVE% %+ set MP3AUXBACKUP=%MP3AUXBACKUPDRIVE%:\BACKUPS\mp3-aux
                                                                         :^^^^ not in \BACKUPS\ folder because this is THAILOG/our old music server
+                set     NOW_PLAYING_ALBUM_ART=%MP3OFFICIAL%\lists\winamp_now_playing.jpg
+                set     NOW_PLAYING_SONG_INFO=%MP3OFFICIAL%\lists\winamp_now_playing.txt
+
                     :: Aliases
                         set MP3_BACKUP_1_DRIVE=%MP3BACKUP1DRIVE%
                         set MP3_BACKUP_2_DRIVE=%MP3BACKUP2DRIVE%
@@ -1461,6 +1467,9 @@ return
                  if "%HD4000G5_DOWN%"  ne "1" (SET MEDIA_V=%HD4000G5%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G5  MEDIA_V)
                  if "%HD20T2_DOWN%"    ne "1" (SET MEDIA_W=%HD20000G2:\MEDIA\ %+ gosub ValidateFolderExists HD20000G2 MEDIA_W)
             :Validation:
+                rem the plugin erases them if you stop, though: if not exist %NOW_PLAYING_ALBUM_ART% (call warning "NOW_PLAYING_ALBUM_ART of %NOW_PLAYING_ALBUM_ART% cannot be found" %+ pause)
+                rem the plugin erases them if you stop, though: if not exist %NOW_PLAYING_SONG_INFO% (call warning "NOW_PLAYING_SONG_INFO of %NOW_PLAYING_SONG_INFO% cannot be found" %+ pause)
+
                 gosub ValidateFolderExists               THE_LETTER_C ALL_COLLECTIONS
                 gosub ValidateFolderExists               THE_LETTER_C ALL_MEDIA_BY_DRIVE 
                 gosub ValidateFolderExists                  ANSIDRIVE ANSI 

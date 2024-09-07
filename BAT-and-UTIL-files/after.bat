@@ -12,10 +12,11 @@
         if not isdir %PUBCL (echo Environment variable %%PUBCL must be set to use this. %+ goto :END)
 
 ::::: PARAMETER BRANCHING:
-    if "%1"=="aftershock"	         goto :earthquake
-    if "%1"=="application"	         goto :jobapplication
+    if "%1"=="aftershock"	    goto :earthquake
+    if "%1"=="application"	    goto :jobapplication
     if "%1"=="book"			   (set  LOGFILE_BASENAME_TO_USE=book)
     if "%1"=="camera"		   (gosub :AfterCamera)
+    if "%1"=="censor"		   (call after-censor %+ goto :END)
     if "%1"=="camping"		   (set  LOGFILE_BASENAME_TO_USE=NULL	%+		%EDITOR %WWW\events\camping\camping-trips.txt)
     if "%1"=="coincidence"	   (set  LOGFILE_BASENAME_TO_USE=movie	%+		gosub coincidence )
     if "%1"=="concert"		   (set  LOGFILE_BASENAME_TO_USE=NULL	%+		gosub concert)

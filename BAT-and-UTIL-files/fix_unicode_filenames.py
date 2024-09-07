@@ -1487,8 +1487,9 @@ unicode_to_ascii_custom_character_mapping = {
     "⧸":          ["/","--"],
     "\u29F8":     ["/","--"],
     "／":         ["/","--"],                   #what strange new slash is this?
-
-    "♬":      ["♫",],                          #unicode 'beamed music note' to ascii music note
+    "♬":         ["♫",],                          #unicode 'beamed music note' to ascii music note
+    "code uea00":       ["{EA00}",],
+    "code u00001":      ["{00001}",],
     "code u1fa01":      ["{Military Helmet}",],
     "code u1fa02":      ["{Accordion}",],
     "code u1fa03":      ["{Long Drum}",],
@@ -1602,7 +1603,6 @@ unicode_to_ascii_custom_character_mapping = {
     "code u1fafd":      ["{Palm Down Hand}",],
     "code u1fafe":      ["{Palm with Thumb and Index Finger Together}",],
     "code u1faff":      ["{Rightwards Palm with Thumb and Index Finger}",],
-
     "code u1f3fb":      ["{Light Skin Tone}",],
     "code u1f3fc":      ["{Medium-Light Skin Tone}",],
     "code u1f3fd":      ["{Medium Skin Tone}",],
@@ -1612,9 +1612,11 @@ unicode_to_ascii_custom_character_mapping = {
     "code u1f3f9":      ["{Bow and Arrow}",],
     "code u1f3f8":      ["{Drum with Drumsticks}",],
     "code u1f3f7":      ["{Label}",],
-
-    #"":      ["",],
-    #"":      ["",],
+    "♠️":                ["{spade}",],
+    "code u1fa76":      ["{1FA76}",],
+    "code 1faa9" :      ["{1FAA9}",],
+    "code u1faa9":      ["{1FAA9}",],
+    "code u1faac":      ["{1FAAC}",],
     #"":      ["",],
     #"":      ["",],
     #"":      ["",],

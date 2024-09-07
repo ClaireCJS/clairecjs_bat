@@ -1,7 +1,7 @@
 @echo off
 
 %color_warning%
-    echo wait this doesn't do anything. well it does. but you have to reboot befor eit happens.
+    echo wait this doesn't do anything. well it does. but you have to reboot before it happens.
     echo so it's kinda stupid.... you may want to abort...
 
 %color_normal%

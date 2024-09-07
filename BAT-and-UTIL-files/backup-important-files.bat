@@ -37,6 +37,13 @@ rem ****************************************************************************
 rem **********************************************************************************************************************************************
 rem **********************************************************************************************************************************************
 
+rem Define any yet-undefined important files we're about to back up:
+        set EYEBARCAPS=%HD1T3%:\beta\browser-extension\eyebarCaptions.txt
+
+rem Make sure they are there:
+        call validate-environment-variables EYEBARCAPS
+
+
 rem Back up each important file:
 
         gosub backup_file dropbox_Y "Windows Terminal settings"    %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
@@ -44,6 +51,7 @@ rem Back up each important file:
         gosub backup_file dropbox_N "Adobe Audition settings"      %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml 
         gosub backup_file dropbox_N "DVD catalog offline fragment" %PREBURN_DVD_CATALOG%
         gosub backup_file dropbox_N "BDR catalog offline fragment" %PREBURN_BDR_CATALOG%
+        gosub backup_file dropbox_N "eyebar captions"              %EYEBARCAPS%
 
 rem **********************************************************************************************************************************************
 rem **********************************************************************************************************************************************

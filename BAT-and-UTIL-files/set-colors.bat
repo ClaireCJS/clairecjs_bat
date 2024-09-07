@@ -416,6 +416,10 @@ REM wow it even supports the vt100 2-line-tall text!
             set BIG_TOP_OFF=%BIG_OFF%
             set BIG_BOT_OFF=%BIG_OFF%
 
+REM truly esoteric stuff
+            set ERASE_COLOR_MODE_ON=%ANSI_ESCAPE%?117h  
+            set ERASE_COLOR_MODE_OFF=%ANSI_ESCAPE%?117l
+
 
 REM test strings that demonstrate all this ANSI functionality
         set ANSI_TEST_STRING=concealed:'%CONCEAL_ON%conceal%CONCEAL_off%' %ANSI_RED%R%ANSI_ORANGE%O%ANSI_YELLOW%Y%ANSI_GREEN%G%ANSI_CYAN%C%ANSI_BLUE%B%ANSI_MAGENTA%V%ANSI_WHITE% Hello, world. %BOLD%Bold!%BOLD_OFF% %FAINT%Faint%FAINT_OFF% %ITALICS%Italics%ITALIC_OFF% %UNDERLINE%underline%UNDERLINE_OFF% %OVERLINE%overline%OVERLINE_OFF% %DOUBLE_UNDERLINE%double_underline%DOUBLE_UNDERLINE_OFF% %REVERSE%reverse%REVERSE_OFF% %BLINK_SLOW%blink_slow%BLINK_SLOW_OFF% [non-blinking] %BLINK_FAST%blink_fast%BLINK_FAST_OFF% [non-blinking] %blink%blink_default%blink_off% [non-blinking] %STRIKETHROUGH%strikethrough%STRIKETHROUGH_OFF%

@@ -256,6 +256,10 @@ REM Actually display the message:
                 if 1 == %msgNum% (echos     ``)
                 if 2 == %msgNum% (echos     ``)
             )
+            if "%TYPE%"     eq "CELEBRATION"  (
+                if %msgNum == 1 (echos %BIG_TEXT_END%%ANSI_RESET%``)
+                if %msgNum == 2 (echos %BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%``)
+            )
             rem test relying on the ansi_reset below instead: 
             rem if  %BIG_HEADER eq    1          (echos %BLINK_OFF%)
 
