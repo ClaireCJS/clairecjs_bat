@@ -1,0 +1,1 @@
+@call git-log-normal %*

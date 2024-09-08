@@ -1,0 +1,1 @@
+@call set-random-file %*

@@ -1,0 +1,1 @@
+@call restore-window-positions %*

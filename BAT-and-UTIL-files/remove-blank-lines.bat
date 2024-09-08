@@ -1,0 +1,1 @@
+@call strip-blank-lines %*

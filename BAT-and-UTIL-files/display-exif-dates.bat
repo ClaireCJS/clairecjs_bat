@@ -1,0 +1,1 @@
+@call list-exif-dates %*

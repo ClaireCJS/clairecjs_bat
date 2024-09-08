@@ -1,0 +1,1 @@
+windowhide /list

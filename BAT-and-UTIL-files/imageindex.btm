@@ -1,0 +1,215 @@
+@Echo OFF
+
+::::: CONFIGURATION:
+    setdos /X0
+    set DEBUG=0
+    set HTML_VIEWER=call html_viewer
+    set LATEST_IMAGEINDEX_DIR=c:\recycler
+    set LATEST_IMAGEINDEX_HTML_FILENAME_INPUT=latest-imageindex-input.html
+    set LATEST_IMAGEINDEX_HTML_FILENAME_OUTPUT=latest-imageindex.html
+    set LATEST_IMAGEINDEX_HTML_FULLNAME_OUTPUT=%LATEST_IMAGEINDEX_DIR%\%LATEST_IMAGEINDEX_HTML_FILENAME_OUTPUT%
+    set LATEST_IMAGEINDEX_HTML_FULLNAME_INPUT=%LATEST_IMAGEINDEX_DIR%\latest-imageindex-input.html
+
+::::: PRELIMINARY REMINDERS:
+    if "%MACHINENAME"=="MAGIC" (%COLOR_ALARM% %+ echo * Carolyn, if you're tagging new pictures, you better run make-thumbnails.bat first! %+ %COLOR_NORMAL% %+ pause)
+
+
+
+::::: DOCUMENTATION:
+    :PUBLISH
+    :SUMMARY:  This let's you view all images in a directory in your webbrowser, very conveniuent.
+    :USAGE:    image-index          [to view all images in current dir]
+    :USAGE:    image-index /s       [to view all images in current dir AND subdirectories]
+    :USAGE:    image-index GENERATE [to generate a clean image-index.html that STAYS in the directory -- for distribution purposes]
+    :USAGE:    set IMAGEINDEX_QUICK=1 - to pass parameters through to suppress slow &linkify of captoins
+    :REQUIRES: 4DOS for the scripting (more powerful 'dir' & stderr redirect)
+    :REQUIRES: PERL
+    :REQUIRES: makeimg.pl to transform filelists to HTML referneces
+    :REQUIRES: 'cut' unix port to trim directories (could be worked around with a better makeimg.pl)
+
+
+::::: PARAMETERS:
+    if "%1" eq "QUICK" imageindex-quick
+
+::::: ENVIRONMENT VALIDATION:
+    call validate-environment-variables FILEMASK_IMAGE FILEMASK_VIDEO
+
+::::: SETUP:
+    unset /q TAGS
+    unset /q DESCRIPTION
+    unset /q TITLE
+    call nocar.bat
+    set DIRB=dir /b
+    set DIRS=dir /b /s
+    set DIRBDATE=ls --sort=t
+    SET TMP1=%@UNIQUE[c:\recycler]
+    SET TMP2=%@UNIQUE[c:\recycler]
+    SET TMP3=%@UNIQUE[c:\recycler].html
+    if exist %TMP1% *del /q %TMP1%
+    if exist %TMP2% *del /q %TMP2%
+    if exist %TMP3% *del /q %TMP3%
+    :sets %WIDTH% to screen resolution:
+    call setwidth.bat
+
+::::: DIRECTIVES LIKE 'COMPACT' AND 'GENERATE' NEED TO BE PARSED, BUT WE
+::::: CAN'T IGNORE A POTENTIAL WILDCARD COMING AFTER THOSE:
+SET WILDCARD=%1
+if  "%@INDEX[%1,?]" NE "-1" (goto :Help)
+unset /q GENERATE
+unset /q COMPACT
+unset /q VIDEO
+if "%@UPPER[%1]" eq "GENERATE" .or. "%@UPPER[%2]" eq "GENERATE" .or. "%@UPPER[%3]" eq "GENERATE" .or. "%@UPPER[%4]" eq "GENERATE"  (SET WILDCARD=%2 %+ SET GENERATE=GENERATE)
+if "%@UPPER[%1]" eq "COMPACT"  .or. "%@UPPER[%2]" eq "COMPACT"  .or. "%@UPPER[%3]" eq "COMPACT"  .or. "%@UPPER[%4]" eq "COMPACT"   (SET WILDCARD=%2 %+ SET  COMPACT=COMPACT )
+if "%1" eq "VIDEO"     (SET WILDCARD=%2 %+ SET VIDEO=VIDEO)
+if "%2" eq "VIDEO"     (SET WILDCARD=%3 %+ SET VIDEO=VIDEO)
+if "%3" eq "VIDEO"     (SET WILDCARD=%4 %+ SET VIDEO=VIDEO)
+if "%4" eq "VIDEO"     (SET WILDCARD=%5 %+ SET VIDEO=VIDEO)
+%COLOR_DEBUG% %+ echo * VIDEO is %VIDEO %+ %COLOR_NORMAL%
+:pause
+UNSET /Q RECURSIVE
+UNSET /Q ODT
+if "%1"=="/s"        (SET WILDCARD=%2 %+ SET RECURSIVE=1)
+if "%2"=="/s"        (SET WILDCARD=%3 %+ SET RECURSIVE=1)
+if "%3"=="/s"        (SET WILDCARD=%4 %+ SET RECURSIVE=1)
+if "%4"=="/s"        (SET WILDCARD=%5 %+ SET RECURSIVE=1)
+if "%1"=="/odt"      (SET WILDCARD=%2 %+ SET ODT=ODT)
+if "%2"=="/odt"      (SET WILDCARD=%3 %+ SET ODT=ODT)
+if "%3"=="/odt"      (SET WILDCARD=%4 %+ SET ODT=ODT)
+if "%4"=="/odt"      (SET WILDCARD=%5 %+ SET ODT=ODT)
+if "%RECURSIVE"=="1" (set DIRB=%DIRS)
+
+if "%DEBUG"=="1" (%COLOR_DEBUG% %+ echo * Checkpoint Alpha.  %+ %COLOR_NORMAL% %+ pause)
+
+::::: Generate directory of images:
+    if "%ODT"=="ODT" goto :ODT
+    :generate
+    :20080424: In response to Flickr now allowing video, we need to slide AVIs in with JPGs alphabetically, whether they exist or not:      
+    if "%VIDEO"=="VIDEO" goto :video_only
+    %COLOR_REMOVAL%
+
+    :::: TCMD v15 way:        
+:      %DIRB%       %FILEMASK_VIDEO%;%FILEMASK_IMAGE%     
+:   (((%DIRB%       %FILEMASK_VIDEO%;%FILEMASK_IMAGE%) >&>nul) >>%TMP2)
+
+    :::: TCMD v19 bug-workaround:        
+    call settmpfile %+ set TMPDIRFILE=%TMPFILE% %+ call settmpfile %+ REM grab another unique tmp filename, but leave %tmpfile pointing to somethign that isn't what we just popped off - i should probably have a tmpFile factory script at this point
+    (((if exist %FILEMASK_IMAGE% %DIRB% %FILEMASK_IMAGE%) >&>nul) >>%TMPDIRFILE%)
+    (((if exist %FILEMASK_VIDEO% %DIRB% %FILEMASK_VIDEO%) >&>nul) >>%TMPDIRFILE%)
+    call sort.bat <"%TMPDIRFILE%" >%TMP2
+
+    %COLOR_NORMAL%
+    if "%DEBUG%" eq "1" (%COLOR_DEBUG% %+ echo * Checkpoint afterDIRB. %+ pause)
+    goto :done_with_file_index
+        :video_only
+        if exist %FILEMASK_VIDEO%  .or. "%RECURSIVE"=="1" (%DIRB% %FILEMASK_VIDEO% >&>nul >>%TMP2)
+        echo well?
+        if "%DEBUG%" eq "1" (%COLOR_DEBUG% %+ echo * Checkpoint after :video_only. %+ pause)
+    :done_with_file_index
+    %COLOR_DEBUG% %+ echo * Directory has been generated. Filename: %TMP2   Dircmd: %DIRB  Recursive: %RECURSIVE 
+    if "%DEBUG"=="1" (echo * tmp2[A] is %TMP2  %+ pause)
+    %COLOR_NORMAL%
+
+::::: Once we've generated our image directory, we need to sort it:
+    copy "%TMP2" c:\recycler\latest-imageindex-directory-unsorted.txt
+    if "%RECURSIVE"=="1" goto :recurse1
+    %COLOR_LOGGING% %+ echos * Sorting %TMP2 into %TMP1... `` %+ %COLOR_NORMAL% %+ echo.
+    (type "%TMP2" | sort) >%TMP1
+    goto done1
+    :recurse1
+    (type "%TMP2" | cut -c%@EVAL[%@LEN[%_CWDS] + 1]- | sort) >%TMP1
+    :done1
+
+
+::::: DEBUG:
+    if "%DEBUG"=="1" (%COLOR_DEBUG %+ echo * tmp2[B] is %TMP2  %+ pause %+ %COLOR_NORMAL%)
+    %COLOR_DEBUG% %+ echo * wildcard is $WILDCARD, as in dir %WILDCARD*.jpg %+ %COLOR_NORMAL% 
+
+
+::::: ODT:
+    if "%ODT"=="ODT" goto ODT
+                     goto SKIPODT
+        :ODT
+            %DIRBDATE >&>nul >%TMP1
+            %COLOR_IMPORTANT%
+            echo * A directory has been generated to %TMP1
+            %COLOR_NORMAL%
+        :SKIPODT
+            if "%DEBUG"=="1" (%color_debug% %+ echo * Checkpoint Beta. %+ pause %+ %color_normal%)
+
+
+
+: #Let's grep using %WILDCARD .. this'll be SOOO much better than
+: #actually using real wildcards!
+     if "%WILDCARD" != "" (grep -iq %WILDCARD "%TMP1" >"%TMP2"  %+  copy "%TMP2" "%TMP1")
+
+
+::::: GENERATE THE FILE:
+    :erl %BAT%\makeimg.pl "%_CWD" %COMPACT %GENERATE %2 %3 %4 %5 %6 %7 %8 %9 <%TMP1 >%TMP3
+    perl %BAT%\makeimg.pl "%_CWD" %COMPACT %GENERATE %2 %3 %4 %5 %6 %7 %8 %9 <%TMP1 | tee %TMP3 | call hilight \*\*\*\*\*\*\*\*\*\*\*\*\*\*\* [0-9]+ of [0-9]+ \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
+    if not exist %TMP3% (%COLOR_ALARM% %+ echo * ERROR: %TMP3% doesn't exist?!?! Did Makeimg.pl fail? %+ beep %+ pause %+ pause)
+
+::::: COPY THE FILE:
+    copy "%TMP1"     "%LATEST_IMAGEINDEX_HTML_FULLNAME_INPUT%"
+    copy "%TMP3"      %LATEST_IMAGEINDEX_HTML_FULLNAME_OUTPUT%
+    copy "%TMP3" %TMP\%LATEST_IMAGEINDEX_HTML_FILENAME_OUTPUT%
+    :DEBUG: pause
+
+::::: NOW IS A GOOD TIME TO KILL OTHER IEXPLORE:
+    : only if html_viewer uses iexplore, actually:    kill /f iexplore*
+
+
+if "%GENERATE"=="GENERATE" goto :GENERATE2
+                           goto :VIEW
+
+    :VIEW
+        :et LAST_HTMLVIEW_INVOCATION=%HTML_VIEWER% "%TMP3" IE
+        set LAST_HTMLVIEW_INVOCATION=%HTML_VIEWER% "%TMP3" CHROME
+        %COLOR_DEBUG%  %+ echo * tmp3 is %TMP3 ... tmp\filename[tmp3] is "%TMP\%@FILENAME[%TMP3]" ... command is %LAST_HTMLVIEW_INVOCATION% %+ %color_normal%        
+        %COLOR_RUN%    %+ %LAST_HTMLVIEW_INVOCATION%
+        %COLOR_NORMAL%
+    goto :CLEANUP
+
+
+:End
+    :GENERATE2
+    copy /r %TMP3 "%_CWD\index.html"
+    %HTML_VIEWER% "%_CWD\index.html"
+    goto :CLEANUP
+
+        :CLEANUP
+            ::::: But don't cleanup if we are in debug mode, because we want to examine these values:
+            if "%DEBUG"=="1" goto :TheEnd
+            UNSET /Q ODT
+            :NSET /q TMP1
+            UNSET /q TMP2
+            :NSET /q TMP3
+            UNSET /q CLEAN
+            unset /q WIDTH
+            UNSET /q COMPACT
+            UNSET /Q GENERATE
+            UNSET /q WILDCARD
+            UNSET /Q RECURSIVE
+            unset /Q VIDEO
+        goto :TheEnd
+
+        :Help
+            %color_advice%
+            Echo.
+            Echo  USAGE: 
+            Echo        image-index          - generic index
+            Echo        image-index /s       - recursive
+            Echo        image-index /odt     - newest images first
+            Echo        image-index generate - generate an HTML index that stays in the current directory
+            Echo        image-index compact  - compact index (no filename labels)
+            Echo  WILDCARDS:
+            Echo        All options can be followed with a regular expression wildcard.
+            Echo        For example:  image-index compact mod5.*08.*jpg 
+            Echo.
+            Echo.
+            %color_normal%
+        goto :TheEnd
+
+:TheEnd
+    call fixtemp
+    set      LAST_ACTION=IMAGE_INDEX
+    unset /q LAST_ACTION_TYPE
