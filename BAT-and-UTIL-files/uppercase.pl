@@ -1,1 +1,0 @@
-while (<>) { print uc($_); }

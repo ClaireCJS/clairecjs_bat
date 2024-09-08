@@ -1,1 +1,0 @@
-@call display-horizontal-divider %*

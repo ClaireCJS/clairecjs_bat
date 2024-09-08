@@ -1,1 +1,0 @@
-@call colors silent
