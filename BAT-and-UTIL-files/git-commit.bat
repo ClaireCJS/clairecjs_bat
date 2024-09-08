@@ -37,12 +37,22 @@ REM Get reason to commit
             set REASON=%_dow %nicetime: %@unquote[%currently_playing_song]
     )
     if "%NOPAUSE%" ne "1" .and. "%1" ne "nopause" .and. %GIT_SKIP_COMMIT_REASON_EDIT ne 1 (
-        echo.
-        call important "Enter your commit reason:"
-        %COLOR_INPUT%
-        window restore
-        call prompt-sound "Enter commit reason:"
-        eset REASON
+        if "%1" ne "" (
+            if "%1" ne "auto" .and. "%1" eq "" (                                   eset REASON %+ set EDIT=1)
+            if "%1" ne "auto" .and. "%1" ne "" (set REASON=%* %EMDASH% %REASON% %+ eset REASON %+ set EDIT=1)
+            if "%1" eq "auto" .and. "%2" ne "" (set REASON=%* %EMDASH% %REASON%                %+ set EDIT=0)
+            if "%1" eq "auto" .and. "%2" eq "" (set EDIT=0 %+ echo %ANSI_COLOR_SUBTLE%Skipping edit of commit reason:%NEWLINE%%TAB%* %italics_on%%REASON%%italics_off%%ANSI_RESET%)
+            if %EDIT eq 1 (
+                echo.
+                call important "Enter your commit reason:"
+                %COLOR_INPUT%
+                rem  window restore
+                call window-restore
+                rem  prompt-sound "Enter commit reason:" —— got tired of waiting for this to play before proceeding!
+                call prompt-sound silent
+                eset REASON
+            )
+        )       
         REM don't turn off the flag here, even though that might be safer, because it would break calling this recursively on subfolders
     )
     if "%REASON%" == "" (call warning "Reason must be provided!" %+ pause %+ goto :Get_Reason)
