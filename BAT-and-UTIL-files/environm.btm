@@ -119,8 +119,6 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 :::::::::::::::::::::::::::::::::::::::::::::::::::::: CONFIGURATION :::::::::::::::::::::::::::::::::::::::::::::::::::: 
     :::: Command-line parsing options:
     	SET BAT=c:\bat               %+ REM for safety, just redefine this here
-        :setdos /X-4                 %+ REM Bad    idea: This would turn off nested variable expansion. That makes a ton of scripting simpler, but it also breaks our more complex scripts, so we need to leave this on.
-        :setdos /X-8                 %+ REM Better idea: Type 'option' and set escape character to '�' // Bad idea: This would Turn off escape character, theoretically forcing us to exclusively use "%=", a best practice, but in actuality making it so we can't escape anything at all!
 
     :::: Internet Cellphone Tethering options:        
         set TETHERING=0	             %+ REM Connectivity toggle, for when internet is down and we tether to a cell-phone. 
@@ -672,10 +670,8 @@ return
     ::::: 2023 STUFF:
             set MAXIMUM_TIME_FOR_TCC_TO_START=4
 
-    ::::: COMMAND-LINE OPTIONS:
-            REM DO NOT DISTURB THIS! IT'S A MULTI-LINE!  In practice it's not usable other than to inform us, but still.
-            set ESCAPE_CHARACTER=±±±
-            set COMMAND_SEPARATOR=CARET
+    ::::: COMMAND-LINE OPTIONS SYNCED WITH "OPTION" COMMAND IN TCC OPTIONS —— FOR SOME REASON WON'T WORK UNLESS IN SEPARATE BAT:
+            call set-escape-character-and-command-separator-character
 
     ::::: BASIC HARDWARE:
         :: Default number of CPU cores in a machine, and default number of optimal threads (usually cores * 1.5)
@@ -851,8 +847,8 @@ return
 		SET BAT=%BATDRIVE%:\BAT
 		SET HOME=%BAT%
         SET UTILDRIVE=C
-        if     isdir (%UTILDRIVE%:\UTIL) SET UTIL=%UTILDRIVE%:\UTIL
-        if not isdir (%UTILDRIVE%:\UTIL) SET UTIL=%BAT%
+        if     isdir %UTILDRIVE%:\UTIL (SET UTIL=%UTILDRIVE%:\UTIL)
+        if not isdir %UTILDRIVE%:\UTIL (SET UTIL=%BAT%            )
         set UTIL1DRIVE=%UTILDRIVE%
         set UTIL1=%UTIL%
         set UTIL2DRIVE=C

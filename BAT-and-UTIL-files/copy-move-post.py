@@ -31,6 +31,7 @@ EMOJIS_PROMPT  = '❓❓ '
 EMOJIS_DELETE  = '👻⛔'
 EMOJIS_SUMMARY = '✔️ '
 EMOJIS_ERROR   = '🛑🛑'
+nomoji         = False                                                                                          #set to True to disable [some] emoji decoration of lines
 
 #Note to self: either maintain a simultaneous update of these 4 values in set-colors.bat or create env-var overrides:
 MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                                                                  #\__ range of random values we
@@ -88,14 +89,18 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         double      = True
         summary     = True
 
-    line = move_decorator                                                                                                      #decorate with environment-var-supplied ecorator if applicable
-    if   any(substring in line_buffer for substring in file_removals ): line += EMOJIS_DELETE                                  #treatment for file deletion lines
-    elif any(substring in line_buffer for substring in ["Y/N/A/R)"]  ): line += EMOJIS_PROMPT                                  #treatment for  user prompt  lines
-    elif any(substring in line_buffer for substring in ["=>","->"]   ): line += EMOJIS_COPY                                    #treatment for   file copy   lines
-    elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):                                                        #treatment for error message lines
-        double = True;                                                  line += EMOJIS_ERROR + f'\033[6m\033[3m\033[4m\033[7m'
-    elif summary:                                                       line += EMOJIS_SUMMARY                                 #treatment for summary lines
-    else:                                                               line += f'  '                                          #TODO figure out why this line is here
+    #DEBUG: print(f"nomoji is {nomoji}")
+    if nomoji is True:
+        line = ""
+    else:
+        line = move_decorator                                                                                                      #decorate with environment-var-supplied decorator if applicable
+        if   any(substring in line_buffer for substring in file_removals ): line += EMOJIS_DELETE                                  #treatment for file deletion lines
+        elif any(substring in line_buffer for substring in ["Y/N/A/R)"]  ): line += EMOJIS_PROMPT                                  #treatment for  user prompt  lines
+        elif any(substring in line_buffer for substring in ["=>","->"]   ): line += EMOJIS_COPY                                    #treatment for   file copy   lines
+        elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):                                                        #treatment for error message lines
+            double = True;                                                  line += EMOJIS_ERROR + f'\033[6m\033[3m\033[4m\033[7m'
+        elif summary:                                                       line += EMOJIS_SUMMARY                                 #treatment for summary lines
+        else:                                                               line += f'  '                                          #TODO figure out why this line is here
 
     if summary:                                                                                                # Handle transformation for summary lines
         pattern = "|".join(re.escape(footer) for footer in FOOTERS)
@@ -112,13 +117,14 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
 
     line += f'{color_change_ansi}{additional_beginning_ansi}{line_buffer.rstrip()}\033[0m\n'
 
-    line = line.replace(' => ' , f'{ansi_reset} => {color_change_ansi}')                                      #\
-    line = line.replace(' -> ' , f'{ansi_reset} -> {color_change_ansi}')                                      # \      Keep all these characters in the default font color, which
-    line = line.replace( '=>>' , f'{ansi_reset}↪️{   color_change_ansi}')  #this arrow looks better here       #  \     is the one succeptible to the color-cycling that we use
-    line = line.replace(   '.' , f'{ansi_reset}.{   color_change_ansi}')                                      #   >---
-    line = line.replace(   ':' , f'{ansi_reset}:{   color_change_ansi}')                                      #  /
-    line = line.replace( ' - ' , f'{ansi_reset} - { color_change_ansi}')                                      # /
-    line = line.replace(  '\\' , f'{ansi_reset}\\{  color_change_ansi}')                                      #/
+    if not nomoji:
+        line = line.replace(' => ' , f'{ansi_reset} => {color_change_ansi}')                                  #\
+        line = line.replace(' -> ' , f'{ansi_reset} -> {color_change_ansi}')                                  # \      Keep all these characters in the default font color, which
+        line = line.replace( '=>>' , f'{ansi_reset}↪️{   color_change_ansi}')  #this arrow looks better here   #  \     is the one succeptible to the color-cycling that we use
+        line = line.replace(   '.' , f'{ansi_reset}.{   color_change_ansi}')                                  #   >---
+        line = line.replace(   ':' , f'{ansi_reset}:{   color_change_ansi}')                                  #  /
+        line = line.replace( ' - ' , f'{ansi_reset} - { color_change_ansi}')                                  # /
+        line = line.replace(  '\\' , f'{ansi_reset}\\{  color_change_ansi}')                                  #/
 
     lines_to_print = line.split('\n')                                                                         #there really shouldn't be a \n in our line, but things happen
     i = 0
@@ -160,7 +166,11 @@ my_mode = DEFAULT_MODE
 if len(sys.argv) > 1:
     #sys.stdout.write(f"sys.argv[1] is {sys.argv[1]}\n")
     if sys.argv[1] == 'bg' or sys.argv[1] == 'both': my_mode = sys.argv[1]
+    for arg in sys.argv[1:]:
+        if arg in ["nomoji", "no-emoji"]: nomoji = True
+        else                            : nomoji = False
 #sys.stdout.write(f"my_mode is {my_mode}\n")
+#sys.stdout.write(f"nomoji  is {nomoji }\n")
 
 while t.is_alive() or not q.empty():
 #hile True:

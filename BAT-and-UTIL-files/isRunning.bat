@@ -2,7 +2,7 @@
 
 :USAGE: isRunning {regex} ['quiet'] - sets envvar ISRUNNING to 0 or 1, depending on if a process matching regex is running
 :USAGE:                               optional param 2 of 'quiet' makes it silent mode
-:USAGE: SET ISRUNNING_FAST=1 to run it at a faster speed
+:USAGE: SET ISRUNNING_FAST=1 to run it at a faster speed, but can only check PID
 
 ::::: DEBUG:
 	if %DEBUG eq 1 (Echo ON)

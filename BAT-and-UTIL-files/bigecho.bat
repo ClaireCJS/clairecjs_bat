@@ -24,10 +24,18 @@ setdos /x-678
     rem There was a lot of weirdness with background color bleedthrough:
     rem I opened this bug report with Windows Terminal to fix it: 
     rem https://github.com/microsoft/terminal/issues/17771
+    rem But it turned out to not be a bug, and this is just what we have to do:
 
-    %COLOR_TO_USE% %+  echo %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%%ANSI_RESET%
-    %COLOR_TO_USE% %+ echos %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+    if %ECHOSBIG_NEWLINE_AFTER eq 1 (set XX=2 %+ echos %@ANSI_MOVE_DOWN[%xx]%@ANSI_MOVE_UP[%@EVAL[%xx-1]]%@ANSI_MOVE_TO_COL[1])
+
+    %COLOR_TO_USE% %+ echos %BIG_TEXT_LINE_1%%PARAMS% %+ echos %BIG_TEXT_END%%ANSI_RESET%           %+ if %ECHOSBIG_SAVE_POS_AT_END_OF_TOP_LINE eq 1 (echos %ANSI_SAVE_POSITION%)  
+    echo.
+    %COLOR_TO_USE% %+ echos %BIG_TEXT_LINE_2%%PARAMS% %+ echos %BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL% %+ if %ECHOSBIG_SAVE_POS_AT_END_OF_BOT_LINE eq 1 (echos %ANSI_SAVE_POSITION%)  
+    echo.
     if %ECHOSBIG ne 1 (echo.)
+
+    echos %@ANSI_MOVE_UP[1]
+    if %ECHOSBIG_NEWLINE_AFTER eq 1 (echo. %+ echo.)
 
 
 
@@ -40,6 +48,6 @@ setdos /x-678
 
 setdos /x0
 
-REM option should only affect it once
-if defined COLOR_TO_USE (set COLOR_TO_USE=)
+REM This option should only affect it once, and thus needs to self-delete:
+        if defined COLOR_TO_USE (set COLOR_TO_USE=)
 

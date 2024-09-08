@@ -109,28 +109,39 @@ REM Which keys will we allow?
         if %NO_ENTER_KEY eq 1 (set ALLOWABLE_KEYS=yn)
 
 
-:deprecated: REM Decide how to display the question prompt:
-:deprecated:                                     set ECHO_COMMAND=echos
-:deprecated:         if defined ASKYN_DECORATOR (set ECHO_COMMAND=echos %ASKYN_DECORATOR%)
-:deprecated:         if %BIG_QUESTION eq 1      (set ECHO_COMMAND=%@REPLACE[echos ,call bigechos ,%ECHO_COMMAND])
-:deprecated:         if defined ASKYN_DECORATOR (set ASKYN_DECORATOR=)
 
 
-REM Print the question out if we aren't loading INKEY with the question:
-        if %BIG_QUESTION eq 1 (call echosbig %PRETTY_QUESTION% ``)
 
+
+REM Print the question out with a spacer below to deal with pesky ANSI behavior:
+        rem if %BIG_QUESTION eq 1 (SET xx=4)
+        rem if %BIG_QUESTION ne 1 (SET xx=3)
+        set XX=4
+        repeat %XX% echo.
+        echos   %@ANSI_MOVE_LEFT[2]``
+        echos %@ANSI_MOVE_UP[%@EVAL[%xx-1]]
+        echos %@ANSI_MOVE_UP[1]
+        if %BIG_QUESTION eq 1 (
+            echos %BIG_TOP%%PRETTY_QUESTION%%ANSI_CLEAR_TO_END%%newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
+            if %WAIT_TIMER_ACTIVE eq 1 (echos %@ANSI_MOVE_UP[1])
+        )
+            
 
 REM Load INKEY with the question, unless we've already printed it out:
-                                    set INKEY_QUESTION=%PRETTY_QUESTION%%ANSI_POSITION_SAVE%``
-        rem   IT_TIMER_ACTIVE ne 0 (set INKEY_QUESTION=%INKEY_QUESTION% ``)
+                                    set INKEY_QUESTION=%PRETTY_QUESTION%
         if %WAIT_TIMER_ACTIVE eq 0 .and. %BIG_QUESTION eq 1 (set INKEY_QUESTION=)
 
 
 REM Actually answer the question here —— make the windows 'question' noise first, then get the user input:
-        *beep question                                                             
-        inkey /x %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
-        echos %BLINK_OFF%
-
+        echos %ANSI_CURSOR_SHOW%
+        *beep question    
+        unset /q SLASH_X
+        if  %BIG_QUESTION eq 1 .and. %WAIT_TIMER_ACTIVE eq 1 (set SLASH_X=/x)
+        echos %ANSI_POSITION_SAVE%
+        if %BIG_QUESTION eq 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_RESTORE%)
+        if %BIG_QUESTION ne 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_SAVE%)
+        inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
+        echos %BLINK_OFF%%ANSI_CURSOR_SHOW%
 
 REM set default answer if we hit ENTER, or timed out (which should only happen if WAIT_OPS exists):
         if "%WAIT_OPS%" ne "" .and. ("%OUR_ANSWER%" eq "" .or. "%OUR_ANSWER%" eq "@28") (
@@ -138,12 +149,10 @@ REM set default answer if we hit ENTER, or timed out (which should only happen i
             call print-if-debug "timed out, OUR_ANSWER set to '%OUR_ANSWER%'"
         )        
 
-
 REM Make sure we have an answer, and initialize our return values
         if not defined OUR_ANSWER ( call error "OUR_ANSWER is not defined in %0" )
         set DO_IT=0
         set ANSWER=%OUR_ANSWER%
-
 
 REM Process the enter key into our default answer:
         if %OUR_ANSWER% eq "@28" .or. "%@ASCII[%OUR_ANSWER]"=="64 50 56" (
@@ -152,6 +161,7 @@ REM Process the enter key into our default answer:
             echos  ``
             call print-if-debug "enter key processing, answer is now '%ANSWER%'"
         ) 
+
 
 REM Title
 title %@STRIPANSI[%PRETTY_QUESTION] %A
@@ -169,14 +179,13 @@ REM Generate "pretty" answers & update the title:
         title %@REPLACE[%EMOJI_RED_QUESTION_MARK,,%@STRIPANSI[%@UNQUOTE[%ASK_QUESTION]? %EMDASH% %PRETTY_ANSWER%]]
 
 
-REM Change "pretty" question so that the auto-question mark is no longer blinking because it has now been answered, and
-REM Print our "pretty" answers in the right spots (challenging with double-height), erasing any timer leftovers:
+REM Re-print "pretty" question so that the auto-question mark is no longer blinking because it has now been answered, and
+REM print our "pretty" answers in the right spots (challenging with double-height), erasing any timer leftovers:
         if %BIG_QUESTION ne 1 (
-            if %WAIT_TIMER_ACTIVE eq 0 (echo %ANSI_POSITION_SAVE%%@ANSI_MOVE_LEFT[1]%PRETTY_ANSWER_ANSWERED% %@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED% %PRETTY_ANSWER%)  
-            if %WAIT_TIMER_ACTIVE eq 1 (echo %@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED% %PRETTY_ANSWER%      ``)                                                          
+            if %WAIT_TIMER_ACTIVE eq 0 (echo %ANSI_POSITION_RESTORE%%PRETTY_ANSWER_ANSWERED%%@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED%%PRETTY_ANSWER%)  
+            if %WAIT_TIMER_ACTIVE eq 1 (echo %ANSI_POSITION_RESTORE%%ZZZZZZZZZZZZZZZZZZZZZZ%%@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED%%PRETTY_ANSWER%      %ANSI_CLEAR_TO_END%``)
         )
-        if %BIG_QUESTION eq 1 (
-                                          set MOVE_LEFT_BY=1
+        if %BIG_QUESTION eq 1 (           set MOVE_LEFT_BY=1
             if  %WAIT_TIMER_ACTIVE eq 1  (set MOVE_LEFT_BY=4
                 if %WAIT_TIME gt 10      (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
                 if %WAIT_TIME gt 100     (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
@@ -186,8 +195,17 @@ REM Print our "pretty" answers in the right spots (challenging with double-heigh
                 if %WAIT_TIME gt 1000000 (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
                 if %LEFT_MORE gt 0       (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + %LEFT_MORE])
                 rem LEFT_MORE is a secret kludge in case the cursor doesn't quite move to the left enough
+                echos %@ANSI_MOVE_LEFT[%MOVE_LEFT_BY]
             )
-            echo %@ANSI_MOVE_LEFT[%MOVE_LEFT_BY]%ANSI_POSITION_SAVE%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%%@ANSI_MOVE_UP[1]%BIG_TOP%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_POSITION_RESTORE%
+            rem DEBUG: echos %ANSI_POSITION_RESTORE%[RESTORE HERE] %+ *pause>nul
+
+            unset /q SPACER
+            if %WAIT_TIMER_ACTIVE ne 1 (set SPACER=%@ANSI_MOVE_UP[1]) 
+
+            echos %ANSI_POSITION_RESTORE%%SPACER%%ZZZZZZZZZZZZZZZZZ%%BIG_TOP%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_CURSOR_SHOW%%ANSI_ERASE_TO_END_OF_LINE%
+            echos %ANSI_POSITION_RESTORE%%SPACER%%@ANSI_MOVE_DOWN[1]%BIG_BOT%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_CURSOR_SHOW%%ANSI_ERASE_TO_END_OF_LINE%
+
+            repeat 1 echo.
         )
 
 

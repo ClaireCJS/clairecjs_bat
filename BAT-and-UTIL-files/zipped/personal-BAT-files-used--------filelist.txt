@@ -44,7 +44,7 @@
 2019-10-01  10:27             74    5%  alltif2jpg.bat
 2024-04-14  15:52            529   40%  allwav2mp3.bat
 2022-02-07  13:15             19  -10%  an.bat
-2024-06-25  16:11         12,395   74%  askYN.bat
+2024-09-08  00:48         12,947   73%  askYN.bat
 2024-03-18  22:08          1,047   53%  assimilate-rookie-folders.bat
 2024-04-14  23:40            672   54%  audio-batch-processing---encode-everything-and-remove-redundant-WAVs.bat
 2019-10-01  10:27          2,571   69%  audio-countdown-noise.bat
@@ -82,7 +82,7 @@
 2024-05-06  06:02             47    0%  battery.bat
 2024-08-21  22:19          4,249   71%  beep.bat
 2024-04-28  00:35         12,111   75%  before.bat
-2024-08-22  17:28          2,045   65%  bigecho.bat
+2024-09-07  23:01          2,599   64%  bigecho.bat
 2024-05-06  06:02             47    0%  bluetooth-batteries.bat
 2024-05-06  06:02             47    0%  bluetooth.bat
 2024-05-07  13:50            417   41%  bring-back-focus.bat
@@ -147,7 +147,7 @@
 2019-10-01  10:27             45   -4%  convert-webm-to-mp4.bat
 2023-06-02  04:02          4,440   67%  convert_midi_to_wav_with_soundfont.py
 2024-08-26  21:12            680   43%  copy-alias.bat
-2024-04-03  20:03         12,543   71%  copy-move-post.py
+2024-09-08  19:35         13,053   71%  copy-move-post.py
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
@@ -185,8 +185,8 @@
 2024-03-24  19:14             46    3%  dep-on.bat
 2024-03-24  19:08             18  -11%  dep.bat
 2019-10-01  10:27             32   -6%  deprecate-all.bat
-2024-09-04  12:47            598   45%  deprecate-files-in-other-folder-if-they-have-the-same-name-as-files-in-this-folder.bat
-2024-03-24  19:10          1,162   59%  deprecate.bat
+2024-09-08  05:10            604   45%  deprecate-files-in-other-folder-if-they-have-the-same-name-as-files-in-this-folder.bat
+2024-09-08  05:11          1,178   58%  deprecate.bat
 2019-10-01  10:27             20  -10%  deprecated.bat
 2023-07-01  06:46            721   55%  detect-command-line-container.bat
 2024-04-01  23:43          3,120   61%  detect-with-which.bat
@@ -207,7 +207,7 @@
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
 2022-11-19  16:52            242   29%  display-flac-tags.bat
 2024-05-09  07:33          3,509   66%  display-free-space.bat
-2024-05-01  19:27          3,244   66%  display-horizontal-divider.bat
+2024-09-08  18:05          7,756   72%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-04-05  16:27            775   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-03-29  20:08            128    6%  display-mp3-artists.bat
@@ -247,11 +247,11 @@
 2023-09-15  12:27          3,399   66%  editGrep.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
-2024-08-15  04:28         69,933   78%  emoji.env
+2024-09-08  19:25         70,062   78%  emoji.env
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-09-06  06:24        178,530   81%  environm.btm
+2024-09-08  17:25        178,005   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-03-19  12:14          8,344   73%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -393,11 +393,11 @@
 2024-08-21  14:55             50    0%  install-winget.ps1
 2023-07-14  09:50            278   36%  isRunning-fast.bat
 2023-08-26  14:54          1,084   59%  isRunning-helper.bat
-2024-05-10  18:51          2,599   63%  isRunning.bat
+2024-09-08  16:18          2,623   63%  isRunning.bat
 2023-10-20  03:38            209   23%  join-videos.bat
 2024-08-22  22:11            682   52%  jpg2png.bat
 2023-07-10  09:43            184   42%  kill.bat
-2024-06-13  19:45          1,211   57%  KillIfRunning.bat
+2024-09-07  17:12          3,429   81%  KillIfRunning.bat
 2019-10-01  10:28            102   18%  label.bat
 2024-08-20  09:13             21   -9%  lastfm-start.bat
 2020-04-22  19:57            278   32%  launch-monitor-to-react-after-program-closes.bat
@@ -436,6 +436,7 @@
 2022-02-02  02:57         36,984   67%  MAKEIMG.PL
 2019-10-01  10:28         13,723   75%  makethumbnail.pl
 2024-01-15  01:53         12,663   79%  map-drives.btm
+2024-09-07  20:04             21   -9%  maximize.bat
 2024-04-03  14:35            506   36%  MCD.bat
 2024-04-03  14:46            164   18%  mcdnow.bat
 2024-05-26  13:28          5,886   71%  mchk.bat
@@ -572,6 +573,7 @@
 2024-04-09  23:25          3,920   64%  restart-winamp.bat
 2019-10-01  10:28             27   -7%  restart.bat
 2023-11-09  07:46            984   52%  restore-window-positions.bat
+2024-09-07  20:04             22   -9%  restore-window.bat
 2023-06-02  18:26            230   26%  return-a-0.py
 2023-06-02  18:26            306   33%  return-a-1.py
 2019-10-01  10:28             40    5%  reverse.pl
@@ -604,13 +606,15 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
+2024-09-07  20:19             19  -10%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
-2024-08-23  21:38         37,371   83%  set-colors.bat
+2024-09-08  19:55         39,320   83%  set-colors.bat
 2023-06-05  23:30             68   15%  set-current_playing_song.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
 2024-03-13  13:45          6,083   63%  set-emojis.bat
+2024-09-08  17:25            225   60%  set-escape-character-and-command-separator-character.bat
 2023-06-08  08:06          1,793   70%  set-file-age.bat
 2023-05-30  00:32          1,398   58%  set-first-file.bat
 2024-03-24  20:03             49   -4%  set-label.bat
@@ -637,7 +641,7 @@
 2023-06-06  14:08          4,130   73%  show_current_pallete_prototype.py
 2019-10-01  10:28          5,276   63%  sizedir.pl
 2024-05-14  19:06            668   52%  sizes.bat
-2024-03-14  22:20            279   41%  sleep.bat
+2024-09-07  14:05            336   42%  sleep.bat
 2024-05-03  14:34             24   -8%  sn.bat
 2024-05-03  14:33             24   -8%  snip.bat
 2024-06-13  19:46            747   69%  snipping-tool.bat
@@ -671,7 +675,7 @@
 2022-08-17  11:44            135   44%  start-nonelevated.bat
 2024-09-07  13:18            525   38%  start-tagging-images.bat
 2019-10-01  10:28             78   25%  start-windows-update-services.bat
-2023-07-19  09:18          2,465   63%  start.bat
+2024-09-07  15:51          2,465   63%  start.bat
 2024-09-07  13:12             68    8%  startafter1secondpause.bat
 2024-09-07  13:12            197   31%  startafter1secondpausewithexitafter.bat
 2024-09-07  13:23            501   40%  stop-milkdrop.bat
@@ -783,6 +787,8 @@
 2024-05-07  14:01            991   53%  winamp-unpause.bat
 2024-03-28  04:19             21   -9%  winamp.bat
 2024-08-23  12:02            776   55%  winamp_monitor.py
+2024-09-07  20:10             25   12%  window-maximize.bat
+2024-09-07  20:10             25   -8%  window-restore.bat
 2024-05-24  12:31          2,599   58%  window.bat
 2023-06-15  19:57             18  -11%  windowlist.bat
 2023-06-08  19:05             29   11%  windows-a-v1.ahk

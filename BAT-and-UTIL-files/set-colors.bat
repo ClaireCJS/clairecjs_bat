@@ -49,6 +49,8 @@ rem ANSI: special stuff: position save/restore
                 set ANSI_SAVE_POSITION=%ANSI_POSITION_SAVE%                
                 set ANSI_RESTORE_POSITION=%ANSI_POSITION_RESTORE%          
                 set ANSI_RESTORE=%ANSI_POSITION_RESTORE%          
+                set ANSI_LOAD_POSITION=%ANSI_POSITION_RESTORE%          
+                set ANSI_POSITION_LOAD=%ANSI_POSITION_RESTORE%          
             set ANSI_POSITION_REQUEST=%ANSI_ESCAPE%6n	                    %+ REM query/request current cursor position (reports as ESC[#;#R)
                 set ANSI_REQUEST_POSITION=%ANSI_POSITION_REQUEST%
             set ANSI_REQUEST_FG_COLOR=%ANSI_ESCAPE%38;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
@@ -86,14 +88,37 @@ rem ANSI: position movement
 
 
 rem ANSI: cursor
-            set ANSI_CURSOR_HIDE=%ANSI_ESCAPE%?25l                          %+ rem hides the cursor
-                set ANSI_HIDE_CURSOR=%ANSI_CURSOR_HIDE%                     %+ rem alias
-                set ANSI_INVISIBLE_CURSOR=%ANSI_CURSOR_HIDE%                %+ rem alias
-                set ANSI_CURSOR_INVISIBLE=%ANSI_CURSOR_HIDE%                %+ rem alias
-            set ANSI_CURSOR_SHOW=%ANSI_ESCAPE%?25h                          %+ rem shows the cursor
-                set ANSI_SHOW_CURSOR=%ANSI_CURSOR_SHOW%                     %+ rem alias
-                set ANSI_VISIBLE_CURSOR=%ANSI_CURSOR_SHOW%                  %+ rem alias
-                set ANSI_CURSOR_VISIBLE=%ANSI_CURSOR_SHOW%                  %+ rem alias
+        rem Cursor visibility:
+                set ANSI_CURSOR_HIDE=%ANSI_ESCAPE%?25l                          %+ rem hides the cursor
+                    set ANSI_HIDE_CURSOR=%ANSI_CURSOR_HIDE%                     %+ rem alias
+                    set ANSI_INVISIBLE_CURSOR=%ANSI_CURSOR_HIDE%                %+ rem alias
+                    set ANSI_CURSOR_INVISIBLE=%ANSI_CURSOR_HIDE%                %+ rem alias
+                set ANSI_CURSOR_SHOW=%ANSI_ESCAPE%?25h                          %+ rem shows the cursor
+                    set ANSI_SHOW_CURSOR=%ANSI_CURSOR_SHOW%                     %+ rem alias
+                    set ANSI_VISIBLE_CURSOR=%ANSI_CURSOR_SHOW%                  %+ rem alias
+                    set ANSI_CURSOR_VISIBLE=%ANSI_CURSOR_SHOW%                  %+ rem alias
+
+        rem Cursor shape:
+                set ANSI_CURSOR_CHANGE_TO_DEFAULT=%ansi_escape%0 q
+                set ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING=%ansi_escape%1 q
+                set ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY=%ansi_escape%2 q
+                set ANSI_CURSOR_CHANGE_TO_UNDERLINE_BLINKING=%ansi_escape%3 q
+                set ANSI_CURSOR_CHANGE_TO_UNDERLINE_STEADY=%ansi_escape%4 q
+                set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING=%ansi_escape%5 q
+                set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_STEADY=%ansi_escape%6 q
+
+        rem Cursor color:
+                    function ANSI_CURSOR_CHANGE_TO_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                  %+ rem moves cursor to line #, column #\_____ both work
+                    function                   ANSI_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function                    SET_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function                        CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function           ANSI_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function            ANSI_CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function                 CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function         CURSOR_COLOR_CHANGE_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function            SET_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function                CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+
  
 
 rem ANSI: erase

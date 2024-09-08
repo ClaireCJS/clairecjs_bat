@@ -6,7 +6,7 @@ rem Get paramters:
         call validate-environment-variable FOLDER_TO_DEP_IN 
 
 rem Check each file, dep if exists in FOLDER_TO_DEP_IN:
-    for /a: /h %%tmpFile in (*) do   if exist "%FOLDER_TO_DEP_IN%\%tmpFile" (echos %@RANDFG_SOFT[] %+ call deprecate "%FOLDER_TO_DEP_IN%\%tmpFile")
+    for /a: /h %%tmpFile in (*) do   if exist "%FOLDER_TO_DEP_IN%\%tmpFile" (echos %@RANDFG_SOFT[] %+ call deprecate "%FOLDER_TO_DEP_IN%\%tmpFile" force)
 
 
 goto :END
