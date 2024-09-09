@@ -15,7 +15,9 @@ call environm
 :::::             Yes, we COULD print these out somehow
 
 
-call validate-in-path sed grep colortool display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables
+call validate-in-path   sed grep colortool display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables
+call validate-env-vars  DEFAULT_TAB_STOP_WIDTH ANSI_ESCAPE ESCAPE 
+call validate-functions ANSI_MOVE_TO_COL
 
 :cls
 set SILENT=0
@@ -33,6 +35,8 @@ if %SILENT ne 1  (
     echos %@ANSI_MOVE_TO_COL[6]%ANSI_ESCAPE%0g
     echos %@ANSI_MOVE_TO_COL[7]%ESCAPE%H
     call colortool -c
+    call reset-tab-stops %DEFAULT_TAB_STOP_WIDTH%
+
 )
 
 

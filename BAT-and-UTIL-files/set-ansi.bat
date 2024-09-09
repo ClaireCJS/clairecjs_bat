@@ -98,12 +98,15 @@ rem ANSI: cursor position movement
                 function ANSI_LEFT=`%@CHAR[27][%1D`                         %+ rem alias
 
         rem Line-based:
+            function   ANSI_MOVE_LINES_UP=`%@CHAR[27][%1F`                  %+ rem moves cursor to beginning of previous line, # lines up
+            function   ANSI_MOVE_UP_LINES=`%@CHAR[27][%1F`                  %+ rem moves cursor to beginning of previous line, # lines up
             function ANSI_MOVE_LINES_DOWN=`%@CHAR[27][%1E`                  %+ rem moves cursor to beginning of next line, # lines down
-            function ANSI_MOVE_LINES_UP=`%@CHAR[27][%1F`                    %+ rem moves cursor to beginning of previous line, # lines up
+            function ANSI_MOVE_DOWN_LINES=`%@CHAR[27][%1E`                  %+ rem moves cursor to beginning of next line, # lines down
 
         rem Tab-stop management:
             set       ANSI_TABSTOP_SET=%ESCAPE%H                            %+ rem Sets a tab stop in the current column the cursor is on
             set   ANSI_TABSTOP_SET_COL=%ESCAPE%H                            %+ rem Sets a tab stop in the current column the cursor is on
+            set   ANSI_TABSTOP_CLR_COL=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
             set     ANSI_TABSTOP_CLEAR=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
             set ANSI_TABSTOP_CLEAR_COL=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
             set ANSI_TABSTOP_CLEAR_ALL=%ESCAPE%[3g                          %+ rem Clears ALLLLLL tab sstops
