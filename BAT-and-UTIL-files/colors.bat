@@ -24,8 +24,6 @@ if "%1" eq "silent" set SILENT=1
 if %SILENT ne 1  (
     call display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
     echo.
-    set ALIGN.CELL=C
-    set separator.cell=  ``
     call colortool -c
 )
 

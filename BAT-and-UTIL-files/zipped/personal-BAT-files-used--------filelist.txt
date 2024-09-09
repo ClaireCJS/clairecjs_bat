@@ -248,6 +248,7 @@
 2023-11-07  13:36          3,152   71%  echo-rainbow.bat
 2024-08-20  09:00         29,171   69%  edit-currently-playing-attrib-helper.pl
 2024-08-20  08:59          8,960   71%  edit-currently-playing-attrib.bat
+2023-06-15  11:32            976   52%  edit-windows-terminal-settings.bat
 2023-09-15  12:27          3,399   66%  editGrep.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
@@ -340,7 +341,7 @@
 2021-07-30  11:30             88    4%  git-log-oneline.bat
 2019-10-01  10:28             25   -8%  git-log.bat
 2024-08-27  11:17          2,322   56%  git-pull.bat
-2024-05-12  14:01          2,341   57%  git-push.bat
+2024-09-09  12:07          2,425   57%  git-push.bat
 2023-06-01  02:38            102   15%  git-rename-branch.bat
 2021-07-30  11:30             89    5%  git-revisions.bat
 2024-03-19  14:37             17  -11%  git-rm.bat
@@ -541,7 +542,7 @@
 2023-10-06  06:47             37   -5%  randir.bat
 2023-07-23  20:19             59   24%  randline.bat
 2024-04-05  06:00            369   29%  randline.pl
-2024-09-09  00:11            217   33%  random-cursor-color.bat
+2024-09-09  12:19            304   43%  random-cursor-color.bat
 2024-09-09  00:15            184   30%  random-cursor-shape.bat
 2024-09-09  00:09             73   29%  random-cursor.bat
 2019-10-01  10:28            567   55%  randomize-file.pl
@@ -618,7 +619,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-09-09  06:43         65,008   83%  set-ansi.bat
+2024-09-09  13:48         65,939   83%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat
@@ -626,7 +627,7 @@
 2024-09-09  02:10            912   50%  set-cursor.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
-2024-09-08  22:09            762   43%  set-emojis.bat
+2024-09-09  12:20            635   44%  set-emojis.bat
 2024-09-08  17:25            225   60%  set-escape-character-and-command-separator-character.bat
 2023-06-08  08:06          1,793   70%  set-file-age.bat
 2023-05-30  00:32          1,398   58%  set-first-file.bat

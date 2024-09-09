@@ -75,7 +75,7 @@ rem ANSI: cursor position movement
                 set ANSI_MOVE_HOME=%ANSI_HOME%
                 set ANSI_MOVE_TO_HOME=%ANSI_HOME%
 
-        rem To a specific position
+        rem To a specific position:
             function ANSI_MOVE_TO_POS1=`%@CHAR[27][%1;%2H`                  %+ rem moves cursor to line #, column #\_____ both work
             function ANSI_MOVE_TO_POS2=`%@CHAR[27][%1;%2f`                  %+ rem moves cursor to line #, column #/
                 function ANSI_MOVE_POS=`%@CHAR[27][%1;%2H`                  %+ rem alias
@@ -83,9 +83,9 @@ rem ANSI: cursor position movement
             function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`	                    %+ rem moves cursor to column #
             function ANSI_MOVE_TO_ROW=`%@CHAR[27][%1H`                      %+ rem unfortunately does not preserve column position! not possible! cursor request ansi code return value cannot be captured
         
-        function ANSI_MOVE_TO_COORDINATE_unsupported=`%@CHAR[27][%1,%2H`    %+ rem Windows Terminal 2024 doesn't seem to support this 🐐
+        function ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%[2]H`      %+ rem Windows Terminal 2024 doesn't seem to support this 🐐 but we could TODO: decompose it into row/column statements
 
-        rem Up/Down/Left/Right
+        rem Up/Down/Left/Right:
             set ANSI_MOVE_UP_1=%ESCAPE%M                                    %+ rem moves cursor one line up, scrolling if needed
                 set ANSI_MOVE_UP_ONE=%ANSI_MOVE_UP_1%                       %+ rem alias
             function ANSI_MOVE_UP=`%@CHAR[27][%1A`                          %+ rem moves cursor up # lines
@@ -97,9 +97,18 @@ rem ANSI: cursor position movement
             function ANSI_MOVE_LEFT=`%@CHAR[27][%1D`	                    %+ rem moves cursor left # columns
                 function ANSI_LEFT=`%@CHAR[27][%1D`                         %+ rem alias
 
-        rem Line-based
+        rem Line-based:
             function ANSI_MOVE_LINES_DOWN=`%@CHAR[27][%1E`                  %+ rem moves cursor to beginning of next line, # lines down
             function ANSI_MOVE_LINES_UP=`%@CHAR[27][%1F`                    %+ rem moves cursor to beginning of previous line, # lines up
+
+        rem Tab-stop management:
+            set   ANSI_TABSTOP_SET=%ESCAPE%H   %+ rem Sets a tab stop in the current column the cursor is on
+            set ANSI_TABSTOP_CLEAR=%ESCAPE%[0g %+ rem Sets a tab stop in the current column the cursor is on
+
+        rem Tab-stop management: Not very useful:
+            function  ANSI_TAB_FORWARD=`%@CHAR[27][%1I` %+ rem Advance the cursor to the   next   column (in the same row) with a tab stop. If there are no more tab stops, move to the  last column in the row. If the cursor is in the  last column, move to the first column of the next row
+            function ANSI_TAB_BACKWARD=`%@CHAR[27][%1Z` %+ rem Retreat the cursor to the previous column (in the same row) with a tab stop. If there are no more tab stops, move to the first column in the row. If the cursor is in the first column, don't move the cursor
+
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -538,6 +547,7 @@ REM DEC drawing font support:
                     set DRAWING_FONT_LINE_VERTICAL=x
                     set DRAWING_FONT_LINE_VERT=x
 
+
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 REM ANSI: unsupported in Windows Terminal:
@@ -660,7 +670,6 @@ rem 2) Custom colors for HILITE —— a separate command for grep that simply h
             rem                   it was decided unicode is way too ubiquitous to skip proper processing, even for an 86% speedup
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
 
 rem Function to strip ansi from strings —— regex to strip ansi is '(\x9B|\x1B\[)[0-?] *[ -\/]*[@-~]' 
 rem This is loaded in our environm.btm as well, but we like to double-check when running set-ansi:
