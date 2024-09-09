@@ -74,13 +74,16 @@ REM Actually commit the files
 
 
 REM Remind that commit and push are not the same
-    if "%1" ne "no_push_warning" (
+    if %no_push_warning ne 1 (
             echo.
             call warning "The files were not uploaded, though"
             call advice "%To do that: '%italics%push%italics_off%' (which which executes '%italics%git push origin main%italics_off%')"
-            rem this interfered when using this as a subordinate bat: if %NOPAUSE ne 1 (keystack push)
+            rem This option meant to expire after single use:
+            unset /q no_push_warning
     )
 
 
+:END
+    rem this interfered when using this as a subordinate bat:  if %NOPAUSE ne 1 (keystack push)
 
 
