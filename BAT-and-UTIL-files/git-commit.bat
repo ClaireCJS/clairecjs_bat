@@ -41,7 +41,7 @@ REM Get reason to commit
             if "%1" ne "auto" .and. "%1" eq "" (                                   eset REASON %+ set EDIT=1)
             if "%1" ne "auto" .and. "%1" ne "" (set REASON=%* %EMDASH% %REASON% %+ eset REASON %+ set EDIT=1)
             if "%1" eq "auto" .and. "%2" ne "" (set REASON=%* %EMDASH% %REASON%                %+ set EDIT=0)
-            if "%1" eq "auto" .and. "%2" eq "" (set EDIT=0 %+ echo %ANSI_COLOR_SUBTLE%Skipping edit of commit reason:%NEWLINE%%TAB%* %italics_on%%REASON%%italics_off%%ANSI_RESET%)
+            if "%1" eq "auto" .and. "%2" eq "" (set EDIT=0                                                  ) %+ rem (reason remains its pre-existing value)
             if %EDIT eq 1 (
                 echo.
                 call important "Enter your commit reason:"
@@ -51,6 +51,9 @@ REM Get reason to commit
                 rem  prompt-sound "Enter commit reason:" —— got tired of waiting for this to play before proceeding!
                 call prompt-sound silent
                 eset REASON
+            ) else (
+                echo.
+                echo %ANSI_COLOR_SUBTLE%*%faint_on% Used automatic commit reason of:%faint_off%%NEWLINE%%TAB%%TAB%%italics_on%%REASON%%italics_off%%ANSI_RESET%
             )
         )       
         REM don't turn off the flag here, even though that might be safer, because it would break calling this recursively on subfolders
