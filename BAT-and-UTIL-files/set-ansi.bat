@@ -1,8 +1,8 @@
 @Echo Off
 
 
-:———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-:PUBLISH:
+:——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 :USED-BY:     this is run each time our command-line is launched, via environm.btm, which is called from TCStart.bat, which is automatically run each time a TCC command-line window/tab/pane is openened
 :DESCRIPTION: Creates a set of environment variables that can be used for messaging improvement
 :USAGE:       call set-ansi                  - standard invocation
@@ -14,7 +14,7 @@
 :EFFECTS:     sets %COLOR_{messagetype}_HEX  variables —— of rgb hex codes —— for all the message types that we have so far used in situations that require hex versions of their color code, particularly custom cursor colors
 :REQUIRES:    bigecho.bat (optional, only for testing)
 :RELATED:     redefine-the-color-black-randomly.bat (gives each command-line window a slightly different shade of black to make window edges easier to see)
-:———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+:——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
 
@@ -33,6 +33,8 @@ rem ANSI: Initialization
             set ESCAPE=%@CHAR[27]
             set ANSI_ESCAPE=%@CHAR[27][
                 set ANSIESCAPE=%ANSI_ESCAPE%
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 rem Utility functions:
         function random_hex_char=`%@substr[0123456789ABCDEF,%@random[0,15],1]`
@@ -84,16 +86,16 @@ rem ANSI: cursor position movement
         function ANSI_MOVE_TO_COORDINATE_unsupported=`%@CHAR[27][%1,%2H`    %+ rem Windows Terminal 2024 doesn't seem to support this 🐐
 
         rem Up/Down/Left/Right
-            set ANSI_MOVE_UP_1=%ESCAPE%M	                                %+ rem moves cursor one line up, scrolling if needed
+            set ANSI_MOVE_UP_1=%ESCAPE%M                                    %+ rem moves cursor one line up, scrolling if needed
                 set ANSI_MOVE_UP_ONE=%ANSI_MOVE_UP_1%                       %+ rem alias
-            function ANSI_MOVE_UP=`%@CHAR[27][%1A`	                        %+ rem moves cursor up # lines
+            function ANSI_MOVE_UP=`%@CHAR[27][%1A                           %+ rem moves cursor up # lines
                 function ANSI_UP=`%@CHAR[27][%1A`	                        %+ rem alias
             function ANSI_MOVE_DOWN=`%@CHAR[27][%1B`	                    %+ rem moves cursor down # lines
-                function ANSI_DOWN=`%@CHAR[27][%1B`	                        %+ rem alias
+                function ANSI_DOWN=`%@CHAR[27][%1B`                         %+ rem alias
             function ANSI_MOVE_RIGHT=`%@CHAR[27][%1C`	                    %+ rem moves cursor right # columns
                 function ANSI_RIGHT=`%@CHAR[27][%1C`	                    %+ rem alias
             function ANSI_MOVE_LEFT=`%@CHAR[27][%1D`	                    %+ rem moves cursor left # columns
-                function ANSI_LEFT=`%@CHAR[27][%1D`	                        %+ rem alias
+                function ANSI_LEFT=`%@CHAR[27][%1D`                         %+ rem alias
 
         rem Line-based
             function ANSI_MOVE_LINES_DOWN=`%@CHAR[27][%1E`                  %+ rem moves cursor to beginning of next line, # lines down
