@@ -15,7 +15,7 @@ REM go through each enviroment variable
 goto :END
     :ProcessEnvVar [var]
         set ANSI_VAR_NAME=ANSI_COLOR_%VAR%
-        echos message_type = %var% %@ANSI_MOVE_TO_COL[30] ansi_env_var_name=%ansi_var_name% %@ANSI_MOVE_TO_COL[75]
+        echos %@ANSI_MOVE_TO_COL[13]message_type =%ESCAPE_CHARACTER%> %var% %@ANSI_MOVE_TO_COL[45]ansi_env_var_name=%ansi_var_name% %@ANSI_MOVE_TO_COL[1]
         if defined %[ANSI_VAR_NAME] (echos %[%[ANSI_VAR_NAME]]THIS COLOR)
         echo %ANSI_RESET%
     return

@@ -126,7 +126,7 @@
 2023-06-05  23:43             64   29%  color.bat
 2019-10-01  10:27            592   49%  colorize-by-computer-name.bat
 2023-05-26  15:16            832   62%  colors-all.bat
-2024-04-05  16:26          2,918   61%  colors.bat
+2024-09-09  11:47          3,636   64%  colors.bat
 2024-09-09  00:26            404   39%  commit-and-push.bat
 2019-10-01  09:27             21   -9%  commit.bat
 2024-08-21  23:40             47   -4%  completion.bat
@@ -213,7 +213,7 @@
 2024-05-09  07:33          3,509   66%  display-free-space.bat
 2024-09-09  06:45          7,764   72%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
-2024-04-05  16:27            775   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
+2024-09-09  11:24            814   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-03-29  20:08            128    6%  display-mp3-artists.bat
 2023-05-24  10:52            732   55%  display-mp3-comment-with-eyed3-library.py
 2024-05-23  07:52            754   54%  display-mp3-length.bat
