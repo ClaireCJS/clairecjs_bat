@@ -347,7 +347,7 @@
 2021-08-26  00:21             41    0%  git-suppress-CRLF-warning.bat
 2021-07-30  11:29            180   27%  git-timecapsule.bat
 2019-10-01  10:28             39    0%  git-win.bat
-2024-08-20  07:07          6,124   60%  git.bat
+2024-09-09  00:19          6,130   60%  git.bat
 2019-10-01  10:27             18  -11%  go-to-bat-file-folder.bat
 2024-05-10  10:38          3,538   62%  go-to-next-directory-generator.pl
 2019-10-01  10:28            107   13%  google.bat
@@ -747,7 +747,7 @@
 2024-04-28  20:54            287   35%  unzip-all.bat
 2024-04-28  21:01          6,124   71%  unzip-gracefully.bat
 2024-08-20  09:34            443   39%  update-cygwin.bat
-2024-08-22  18:14         12,137   73%  update-from-BAT-via-manifest.bat
+2024-09-09  00:17         12,193   73%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2019-10-01  10:28            232   26%  urldecode.pl
 2019-10-01  10:28            326   33%  urlencode.pl

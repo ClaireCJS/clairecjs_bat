@@ -44,6 +44,8 @@ rem TELL USER:
         echo.
         call important "Updating: '%PROJECT_NAME%' files: " %+ %COLOR_IMPORTANT% 
               echo                  To: %[PROJECT_DIR]
+              echos %ANSI_COLOR_IMPORTANT_LESS%
+              echo      Manifest Files: %MANIFEST_FILES%
 
 
 
@@ -51,7 +53,6 @@ rem TELL USER:
 
 
 rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
-        echo MANIFEST_FILES are: %MANIFEST_FILES%
         if "%MANIFEST_FILES%" eq "NONE" (goto :Manifest_File_Update_Complete)               
                 for %myFileFull in (%MANIFEST_FILES%) (
                     rem echo file=%myFileFull

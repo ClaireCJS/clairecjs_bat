@@ -71,8 +71,8 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         rem Output the unfiltered output while capturing it to a file via tee:
         set TEECOLOR=%COLOR_UNIMPORTANT%
         %TEECOLOR%
-        if "%1" ne "status" (%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                                       |cat_fast|& tee %GIT_OUT% |:u8 cat_fast)
-        if "%1" eq "status" (%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% | call highlight "^ *M.*$" | call highlight "^A *.*$" |cat_fast|& tee %GIT_OUT% |:u8 cat_fast)
+        if "%1" ne "status" ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                                             |&:u8 tee %GIT_OUT%) |:u8 cat_fast)
+        if "%1" eq "status" ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |:u8 call highlight "^ *M.*$" |:u8 call highlight "^A *.*$" |&:u8 tee %GIT_OUT%) |:u8 cat_fast)
 
         rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
         if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo None!)
@@ -87,7 +87,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 echos %@ANSI_RGB[0,205,0]
                 if not exist %GIT_OUT% (goto :NoGitOutToGrep)
                     rem piping to cat_fast fixes TCC+WT ansi rendering errors:
-                    cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename' |:u8 cat_fast
+                    (cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
                 :NoGitOutToGrep
         ) 
         
