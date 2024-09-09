@@ -7,7 +7,7 @@
 2024-03-13  12:23          1,055   46%  add-ReplayGain-tags-to-all-mp3s.bat
 2023-07-18  19:22             97   36%  add-ReplayGain-tags.bat
 2023-05-29  22:39             43   -4%  advice.bat
-2024-09-07  12:33         29,182   76%  after.bat
+2024-09-09  09:22         29,307   75%  after.bat
 2023-08-26  19:25          1,074   68%  age.bat
 2022-02-02  02:53          1,574   63%  alarm-beep.bat
 2023-05-30  11:25             91   14%  album-art-tool-for-mp3Tag-beforeDash.bat
@@ -48,7 +48,7 @@
 2024-09-09  01:32         13,506   74%  askYN.bat
 2024-03-18  22:08          1,047   53%  assimilate-rookie-folders.bat
 2024-04-14  23:40            672   54%  audio-batch-processing---encode-everything-and-remove-redundant-WAVs.bat
-2019-10-01  10:27          2,571   69%  audio-countdown-noise.bat
+2024-09-09  09:30          2,571   69%  audio-countdown-noise.bat
 2024-03-13  20:08          5,959   68%  audit-music-files.py
 2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
@@ -94,7 +94,7 @@
 2024-05-10  17:59             22   -9%  calmon.bat
 2023-09-15  03:33             58   -1%  car.bat
 2023-08-27  23:36            326   43%  cat.bat
-2024-04-12  18:53          8,063   72%  cd-alias.bat
+2024-09-09  05:27          8,136   72%  cd-alias.bat
 2024-04-03  14:31          2,424   64%  cd.bat
 2024-04-10  14:08             20  -10%  celebrate.bat
 2023-06-01  05:18            107   10%  celebration.bat
@@ -137,6 +137,7 @@
 2024-05-07  13:27            234   35%  convert-all-video-to-MKV.bat
 2024-05-07  14:32             74   -1%  convert-each-line-to-a-dot.pl
 2024-09-09  04:45            786   53%  convert-each-line-to-a-randomly-colored-dot.pl
+2024-09-09  07:44          1,193   57%  convert-each-line-to-a-randomly-colored-dot.py
 2019-10-01  10:25          1,089   50%  convert-id3-to-filenameregex.pl
 2019-10-01  10:25            160   24%  convert-newlines-to-spaces.pl
 2024-05-07  14:27            145   16%  convert-slashes-to-backslashes.bat
@@ -210,7 +211,7 @@
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
 2022-11-19  16:52            242   29%  display-flac-tags.bat
 2024-05-09  07:33          3,509   66%  display-free-space.bat
-2024-09-08  18:05          7,756   72%  display-horizontal-divider.bat
+2024-09-09  06:45          7,764   72%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-04-05  16:27            775   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-03-29  20:08            128    6%  display-mp3-artists.bat
@@ -560,6 +561,7 @@
 2024-05-04  17:57          2,257   60%  remove-percents-from-filenames.bat
 2024-05-02  23:07          1,828   58%  remove-pluses-from-filenames.bat
 2019-10-01  10:28            158   25%  remove-trailing-spaces.pl
+2024-09-09  09:04          1,683   61%  remove-x-characters-from-beginning-of-filenames.bat
 2023-10-03  21:12            106   10%  rename-folders-with-hyphens-into-underscores.bat
 2023-07-10  03:06            982   61%  rename_images_to_incorporate_folder_name.py
 2024-06-05  16:58          1,886   59%  renumber-all-music-files-(to-randomize-usb-sticks).bat
@@ -616,7 +618,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-09-09  02:03         64,237   83%  set-ansi.bat
+2024-09-09  06:43         65,008   83%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat

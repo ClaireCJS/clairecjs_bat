@@ -45,7 +45,6 @@ rem all while considering that double-height lines use 2 columns per character:
         if %BIG eq 1 (set SCREEN_COLUMNS=%@EVAL[%SCREEN_COLUMNS / 2])
         set DIVIDER_LENGTH=%@LEN[%DIVIDER]
         set NUM_REPEATS=%@EVAL[%SCREEN_COLUMNS / %DIVIDER_LENGTH]
-        rNUM_REPEATS=%@EVAL[%NUM_REPEATS - 1]
 
 rem Actually write out the divider, which is easy for normal height text:
         if %BIG eq 1 (goto :BIG)
@@ -80,6 +79,7 @@ rem Actually write out the divider, which is easy for normal height text:
                                     )
             set DIVIDER_LEFT==
             set DIVIDER_RIGHT=-      
+            set  NUM_REPEATS=%@EVAL[%NUM_REPEATS - 1]
             set  REPEAT_LEFT=%@FLOOR[%@EVAL[                %HZ_PCT/100 * %NUM_REPEATS - 1]]
             set REPEAT_RIGHT=%@FLOOR[%@EVAL[%NUM_REPEATS - (%HZ_PCT/100 * %NUM_REPEATS)   ]]
             unset /q LEFT  %+ 

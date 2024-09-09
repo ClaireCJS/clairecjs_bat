@@ -7,7 +7,7 @@
     set ITEM_NUMBER=%1
     set TOTAL_ITEMS=%2
     set OVERRIDE_IN=%3
-    set INTERVAL=4       %+ if "%OVERRIDE_IN%" ne "" set INTERVAL=%OVERRIDE_IN%    %+ REM //Allow overriding default note length
+    set INTERVAL=2       %+ if "%OVERRIDE_IN%" ne "" set INTERVAL=%OVERRIDE_IN%    %+ REM //Allow overriding default note length
     
 
 ::::: DETERMINE BEEP FREQUENCY:

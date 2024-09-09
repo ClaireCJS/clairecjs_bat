@@ -17,6 +17,7 @@
     if "%1"=="book"			   (set  LOGFILE_BASENAME_TO_USE=book)
     if "%1"=="camera"		   (gosub :AfterCamera)
     if "%1"=="censor"		   (call after-censor %+ goto :END)
+    if "%1"=="censored"		   (call after-censor %+ goto :END)
     if "%1"=="camping"		   (set  LOGFILE_BASENAME_TO_USE=NULL	%+		%EDITOR %WWW\events\camping\camping-trips.txt)
     if "%1"=="coincidence"	   (set  LOGFILE_BASENAME_TO_USE=movie	%+		gosub coincidence )
     if "%1"=="concert"		   (set  LOGFILE_BASENAME_TO_USE=NULL	%+		gosub concert)
@@ -68,8 +69,8 @@
     if "%1"=="weight"		   (goto :weight)
     if "%1"=="yardsale"		   (goto :yardsale)
     :DEBUG: echo %%LOGFILE_BASENAME_TO_USE is %LOGFILE_BASENAME_TO_USE
-    if "%LOGFILE_BASENAME_TO_USE"==""		(%COLOR_ALARM% %+ echo *** Error: "after" type unknown.  %+ %COLOR_WARNING% %+ echo * Must be book, camera/pictures, camping, coincidence, concert, disagreement, dream, earthquake/aftershock, funeral, game, gun[s], hair, inject, internetoutage, [job]application, laser, month, mouse, movie, mov, nap, netflix, peapod, poweroutage, quake[live], quote, RockSmith, screw (bad companies), show, tagging, trans, wedding/divorce, weigh[t], yardsale, year %+ goto :END )
-    if "%LOGFILE_BASENAME_TO_USE"=="NULL"		goto :LOGFILE_BASENAME_TO_USEisnull
+    if "%LOGFILE_BASENAME_TO_USE"==""     (echo. %+ echo %ANSI_COLOR_ALARM%*** Error:  "after" type unknown: %+ %COLOR_WARNING% %+ echo *** Must be one of the following: book, camera/pictures, camping, censor[ed], coincidence, concert, disagreement, dream, earthquake/aftershock, funeral, game, gun[s], hair, inject, internetoutage, [job]application, laser, month, mouse, movie, mov, nap, netflix, peapod, poweroutage, quake[live], quote, RockSmith, screw (bad companies), show, tagging, trans, wedding/divorce, weigh[t], yardsale, year %ANSI_RESET% %+ goto :END )
+    if "%LOGFILE_BASENAME_TO_USE"=="NULL" (goto :LOGFILE_BASENAME_TO_USEisnull)
 
 
                            set tmpfile=%PUBCL%\journal\%LOGFILE_BASENAME_TO_USE%-%_YEAR.txt

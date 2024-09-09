@@ -79,7 +79,7 @@ rem If there were a different number of files when we entered our new folder tha
         if %NUM_FILES_NOW lt %NUM_FILES_THEN (set CHANGE=decreased %+ set VERB=%ansi_color_red%decreased)
         set PERCENT=%@FLOOR[100-%@EVAL[100*(%NUM_FILES_NOW / %NUM_FILES_THEN)]]
         set PERCENT=%@EVAL[-1 * %PERCENT]
-        call less_important "%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]{PERCENT}%faint_on%) %faint_on%since last check in %faint_off%%italics_on%%[_cwd]%italics_off%%faint_off%"
+        echo %STAR% %ANSI_COLOR_LESS_IMPORTANT%%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]%%%faint_on%) %faint_on%since last check in %faint_off%%italics_on%%[_cwd]%italics_off%%faint_off%%ANSI_RESET%%ANSI_EOL%
         :skip_saying_2
 
 rem Stuff we don't normally do is coming up —— so color it a warning color to some extent
@@ -90,17 +90,17 @@ rem Rename extensions we don't ever want to exist:
             if exist *.jpg!d     (ren /E *.jpg!d     *.jpg >&nul)
 
 rem Delete files we don't ever want to exist:
-            if exist  thumbs.db  (                     *del /z  thumbs.db ) %+ rem ::::: cruft: Windows 
-            if exist desktop.ini (                     *del /z desktop.ini) %+ rem ::::: cruft: Windows 
-            if exist       a.out (                     *del /z       a.out) %+ rem ::::: cruft: Unix
-            if exist       *.pkf (                     *del /z       *.pkf) %+ rem ::::: cruft: CoolEdit/Audition 
-            if exist       *.mta (sweep if exist *.mta *del /z       *.mta) %+ rem ::::: cruft: Samsung Allshare 
-            rem ::::: cruft: wget calls to WinAmp's wawi plugin:
+            if exist  thumbs.db  (                     *del /z  thumbs.db ) %+ rem cruft: Windows 
+            if exist desktop.ini (                     *del /z desktop.ini) %+ rem cruft: Windows 
+            if exist       a.out (                     *del /z       a.out) %+ rem cruft: Unix
+            if exist       *.pkf (                     *del /z       *.pkf) %+ rem cruft: CoolEdit/Audition 
+            if exist       *.mta (sweep if exist *.mta *del /z       *.mta) %+ rem cruft: Samsung Allshare 
+            rem cruft: wget calls to WinAmp's wawi plugin leaves file named 'clear' that we've found repeatedly:
             if exist   clear     (                                          
                     echos %ANSI_COLOR_WARNING% 'clear' file found %DASH% this should probably be deleted! %ANSI_COLOR_NORMAL%
-                    echo  %ANSI_COLOR_MAGENTA% %+ call divider 
-                    echos %[ANSI_COLOR_YELLOW]%BLINK_ON% %+ type clear 
-                    echos %ANSI_COLOR_MAGENTA%%BLINK_OFF %+ call divider 
+                    echo  %ANSI_COLOR_MAGENTA%             %+   call divider 
+                    echos %[ANSI_COLOR_YELLOW]%BLINK_ON%   %+   type  clear 
+                    echos %ANSI_COLOR_MAGENTA%%BLINK_OFF   %+   call divider 
                     echos %ANSI_COLOR_BRIGHT_RED%%ANSI_BLINK_ON%%EMOJI_RED_QUESTION_MARK%
                     *del /p clear
             )                                                

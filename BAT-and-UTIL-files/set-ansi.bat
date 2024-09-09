@@ -483,21 +483,19 @@ rem ANSI: erasing
                 set ANSI_ERASE_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
                 set ANSI_CLEAR_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
 
-            set ANSI_ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
-            set      ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
-            set   ANSI_ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
-            set        ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
-            set           ANSI_ERASE_TO_EOP=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
-            set                ERASE_TO_EOP=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
-
-            set     ANSI_ERASE_UP_TO_CURSOR=%ANSI_ESCAPE%[1J                 %+ rem erases from start of page up to cursor! weird!
-
-            set      ANSI_ERASE_ENTIRE_PAGE=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
-            set             ANSI_ERASE_PAGE=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
-            set                  ERASE_PAGE=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
-            set    ANSI_ERASE_ENTIRE_SCREEN=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
-            set           ANSI_ERASE_SCREEN=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
-            set                ERASE_SCREEN=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
+            set ANSI_ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
+            set      ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
+            set   ANSI_ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
+            set        ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
+            set           ANSI_ERASE_TO_EOP=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
+            set                ERASE_TO_EOP=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
+            set     ANSI_ERASE_UP_TO_CURSOR=%ANSI_ESCAPE%1J                  %+ rem erases from start of page up to cursor! weird!
+            set      ANSI_ERASE_ENTIRE_PAGE=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
+            set             ANSI_ERASE_PAGE=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
+            set                  ERASE_PAGE=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
+            set    ANSI_ERASE_ENTIRE_SCREEN=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
+            set           ANSI_ERASE_SCREEN=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
+            set                ERASE_SCREEN=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
 
             rem UNIMPLEMENTED: L   Erase in Line   (ESC [ Ps K). Erases some or all of the Active Line according to the parameter.
             rem UNIMPLEMENTED: EF  Erase in Field  (ESC [ Pn N). Erases some or all of the Active Field according to the parameter.
