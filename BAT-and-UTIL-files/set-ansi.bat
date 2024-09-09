@@ -571,12 +571,13 @@ REM ANSI: Custom Character Generation using ANSI & sixels —— so far just hav
                     REM         Step 2: To activate charset, use SCS sequence w/id "@", i.e. "\x1B( @" [note that there's a space before the @!]
                     REM                 Then you can output left trumpet w/ *( & right w/ )+.
                     REM         Step 3: To return to regular text, you MUST switch back to charset with SCS sequence "\x1B(B"
+
     rem Various iterations of getting to our trumpets (first 3 remarks), then to our trumpets+pentacles (remarks 4 and beyond) —— you have to define them all in one sequence
             REM 1)  printf "\eP0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@\e\\"    %+ rem 10   x 20  character - max size on Windows Terminal is 16x32, which might be a little better than 10x20. Although be aware that that's not one of the standard sizes, so it may not work on other terminals. If it's just for personal use, though, you probably won't care.
             REM 2)    %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;1111111111/HHHHHHHHHH/zzzzzzzzzz/??????????%ESCAPE%
             REM 3)    %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA%ESCAPE%
-            REM 4)    it's a dang pentacle not a pentagram _?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????%ESCAPE%
-            REM 5)    %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????%ESCAPE%   %+ REM v-------------------------------------------------------------------------------- i think this is when the pentagrams/pentacles were added:
+            REM 4)    it's a dang pentacle not a pentagram _?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????%ESCAPE%   %+ REM ———————————————————— this is when the pentagrams/pentacles were added:
+            REM 5)    %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????%ESCAPE%   
                 echos %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????@B@;?_OG[cIQaA/}@?_OJ{CAB/BMRaAAANqa/????@@AAAB@B@;aQIc[GO_??/BC{JO_?@}?/qNAAAaRMB?/AAA@@?????%ESCAPE%       
             REM not converted to size yet echo %ESCAPE%P2;8;1;16;0;2;32;0{ !???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????@B@;?_OG[cIQaA/}@?_OJ{CAB/BMRaAAANqa/????@@AAAB@B@;aQIc[GO_??/BC{JO_?@}?/qNAAAaRMB?/AAA@@?????%ESCAPE%           
 
@@ -586,9 +587,11 @@ REM ANSI: Custom Character Generation using ANSI & sixels —— so far just hav
             set     EMOJI_TRUMPET_FLIPPED=%ESCAPE( @)+%ESCAPE%(B
             set            EMOJI_PENTACLE=%ESCAPE( @,-%ESCAPE%(B
             set EMOJI_PENTAGRAM_UNCOLORED=%ESCAPE( @./%ESCAPE%(B
+
    rem Adding fluorishes to our custom emoji:
             set           EMOJI_PENTAGRAM=%ANSI_RED%%ESCAPE( @./%ESCAPE%(B%ANSI_RESET%        %+ rem Make a red version of our pentagram emoji 
             set  EMOJI_PENTAGRAM_BLINKING=%blink_on%%EMOJI_PENTAGRAM%%blink_off%%ANSI_RESET%  %+ rem Now  add blinking  to our pentagram emoji 
+
    rem Adding aliases for our custom emoji:
             set                 PENTAGRAM=%EMOJI_PENTAGRAM%
             set        PENTAGRAM_BLINKING=%EMOJI_PENTAGRAM_BLINKING%
@@ -632,7 +635,7 @@ REM colors for our messaging system, in TCC command, ANSI_COLOR_{type} environme
         set COLOR_REMOVAL=       color bright red     on        black  %+ set ANSI_COLOR_REMOVAL=%ANSI_RESET%%ANSI_BRIGHT_RED%%ANSI_BACKGROUND_BLACK%                       
         SET COLOR_RUN=           color        yellow  on        black  %+ set ANSI_COLOR_RUN=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                               
         SET COLOR_SUCCESS=       color bright green   on        black  %+ set ANSI_COLOR_SUCCESS=%ANSI_RESET%%ANSI_BRIGHT_GREEN%%ANSI_BACKGROUND_BLACK%                     
-                                                                          set COLOR_SUCCESS_HEX=00FF00
+                                                                          set      COLOR_SUCCESS_HEX=00FF00
         rem COLOR_SUBTLE=        color bright black   on        black  %+ set ANSI_COLOR_SUBTLE=%ANSI_RESET%%ANSI_BRIGHT_BLACK%%ANSI_BACKGROUND_BLACK%                      
         SET COLOR_SUBTLE=        color bright black   on        black  %+ set ANSI_COLOR_SUBTLE=%ANSI_RESET%%ANSI_BRIGHT_BLACK%                                             %+ rem 20240405 experimenting with leaving the default background collr in place for these
         SET COLOR_UNIMPORTANT=   color        blue    on        black  %+ set ANSI_COLOR_UNIMPORTANT=%ANSI_RESET%%ANSI_BLUE%%ANSI_BACKGROUND_BLACK%                         
@@ -643,13 +646,20 @@ REM colors for our messaging system, in TCC command, ANSI_COLOR_{type} environme
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-rem colors for GREP:
+rem 1) Custom colors for GREP   —— makes finding your matches a LOT useable
+rem 2) Custom colors for HILITE —— a separate command for grep that simply highlights matches (and shows ALL lines), super useful
+
     REM original probably still good for Carolyn
-        set GREP_COLOR_NORMAL=mt=1;33;42           %+  set GREP_COLOR_HILITE=1;41;37              %+ set GREP_COLOR=%GREP_COLOR_NORMAL%  %+ REM this one is deprecated
+            set GREP_COLOR_NORMAL=mt=1;33;42           %+  set GREP_COLOR_HILITE=1;41;37              %+ set GREP_COLOR=%GREP_COLOR_NORMAL%  %+ REM this one is deprecated
+
     REM adding blinking 20230802        
-        set GREP_COLOR_NORMAL=mt=42;5;185          %+  set GREP_COLOR_HILITE=1;41;37              %+ set GREP_COLOR=%GREP_COLOR_NORMAL%  %+ REM this one is deprecated
-        set GREP_COLORS_NORMAL=fn=1;33:ln=1;36;44  %+  set GREP_COLORS_HILITE=fn=1;34:ln=1;37;44  %+ set GREP_COLORS=%GREP_COLOR_NORMAL% %+ REM do NOT change set GREP_COLORS= to be GREP_COLORS_NORMAL with an S, those are the highlight colors actually
-        rem SET LC-ALL=C  ——— setting LC-ALL=C actually gives an 86% speed grep increase [as of 2015ish on computer Thailog] at the expense of not being able to grep 2-byte-per-char type unicode files but in 20230504 it was decided unicode files are more common and our new computer is faster so this isn't worth it
+            set GREP_COLOR_NORMAL=mt=42;5;185          %+  set GREP_COLOR_HILITE=1;41;37              %+ set GREP_COLOR=%GREP_COLOR_NORMAL%  %+ REM this one is deprecated
+            set GREP_COLORS_NORMAL=fn=1;33:ln=1;36;44  %+  set GREP_COLORS_HILITE=fn=1;34:ln=1;37;44  %+ set GREP_COLORS=%GREP_COLOR_NORMAL% %+ REM do NOT change set GREP_COLORS= to be GREP_COLORS_NORMAL with an S, those are the highlight colors actually
+
+    REM Options we are no longer using:
+            rem SET LC-ALL=C  ——— setting LC-ALL=C actually gives an 86% speed grep increase [as of 2015ish on computer Thailog] 
+            rem                   at the expense of not being able to grep 2-byte-per-char type unicode files but in 2023/05/04 
+            rem                   it was decided unicode is way too ubiquitous to skip proper processing, even for an 86% speedup
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
