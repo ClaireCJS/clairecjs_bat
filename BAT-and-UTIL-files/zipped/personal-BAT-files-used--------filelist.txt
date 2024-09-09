@@ -621,6 +621,7 @@
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat
 2023-06-05  23:30             68   15%  set-current_playing_song.bat
+2024-09-09  02:10            912   50%  set-cursor.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
 2024-09-08  22:09            762   43%  set-emojis.bat
