@@ -59,8 +59,7 @@ REM Get reason to commit
     if "%REASON%" == "" (
         call warning "Reason must be provided!" %+ pause %+ goto :Get_Reason
     ) else (
-        echo.
-        echo %ANSI_COLOR_SUBTLE%*%faint_on% Used automatic commit reason of:%faint_off%%NEWLINE%%TAB%%TAB%%italics_on%%REASON%%italics_off%%ANSI_RESET%
+        echo %ANSI_COLOR_SUBTLE%*%faint_on% Used automatic commit reason of:%faint_off%%TAB%%italics_on%%REASON%%italics_off%%ANSI_RESET%
     )
 
 
