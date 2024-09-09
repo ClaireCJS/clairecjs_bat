@@ -44,7 +44,7 @@ rem TELL USER:
         echo.
         call important "Updating: '%PROJECT_NAME%' files: " %+ %COLOR_IMPORTANT% 
               echo                  To: %[PROJECT_DIR]%ANSI_COLOR_IMPORTANT_LESS%
-              echo                  Manifest Files: %Md batANIFEST_FILES%
+              echo                  Manifest Files: %MANIFEST_FILES%
 
 
 
