@@ -55,10 +55,13 @@ REM Get reason to commit
         )       
         REM don't turn off the flag here, even though that might be safer, because it would break calling this recursively on subfolders
     ) else (
+    )
+    if "%REASON%" == "" (
+        call warning "Reason must be provided!" %+ pause %+ goto :Get_Reason
+    ) else (
         echo.
         echo %ANSI_COLOR_SUBTLE%*%faint_on% Used automatic commit reason of:%faint_off%%NEWLINE%%TAB%%TAB%%italics_on%%REASON%%italics_off%%ANSI_RESET%
     )
-    if "%REASON%" == "" (call warning "Reason must be provided!" %+ pause %+ goto :Get_Reason)
 
 
 REM Generate commit command
