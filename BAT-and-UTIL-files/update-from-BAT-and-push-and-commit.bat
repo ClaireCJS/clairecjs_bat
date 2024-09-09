@@ -85,7 +85,7 @@ rem Make sure they're all added:
 
 rem Commit and Push:
         echo.
-        call commit-and-push.bat
+        call commit-and-push.bat no_push_warning
         echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/BAT-and-UTIL-files  >go-to-individual-BAT-files-on-GitHub.bat
 
 rem Cleanup:
