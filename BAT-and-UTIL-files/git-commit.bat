@@ -51,12 +51,12 @@ REM Get reason to commit
                 rem  prompt-sound "Enter commit reason:" —— got tired of waiting for this to play before proceeding!
                 call prompt-sound silent
                 eset REASON
-            ) else (
-                echo.
-                echo %ANSI_COLOR_SUBTLE%*%faint_on% Used automatic commit reason of:%faint_off%%NEWLINE%%TAB%%TAB%%italics_on%%REASON%%italics_off%%ANSI_RESET%
             )
         )       
         REM don't turn off the flag here, even though that might be safer, because it would break calling this recursively on subfolders
+    ) else (
+        echo.
+        echo %ANSI_COLOR_SUBTLE%*%faint_on% Used automatic commit reason of:%faint_off%%NEWLINE%%TAB%%TAB%%italics_on%%REASON%%italics_off%%ANSI_RESET%
     )
     if "%REASON%" == "" (call warning "Reason must be provided!" %+ pause %+ goto :Get_Reason)
 
