@@ -140,6 +140,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                                 REM rem Substitute the final sequence of exclamation marks in ERROR_MESSAGE
                                 REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: EXCLAMATION_MARKS is '%EXCLAMATION_MARKS%')
                                 REM set NORMALIZED_ERROR_MESSAGE=%@REPLACE[!!!,%EXCLAMATION_MARKS%,%ERROR_MESSAGE%]
+                                REM set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
 
                                 if %LENGTH_DIFF% lss 0 (
                                     set /a "LENGTH_DIFF=-%LENGTH_DIFF% / 2"
@@ -154,11 +155,10 @@ goto :Past_The_End_Of_The_Sub-Routines
                                     if          %@EVAL[%LENGTH_DIFF % 2] == 0 (set "USER_MESSAGE=%USER_MESSAGE%*" )
                                 )
 
-                                rem Output the updated ERROR_MESSAGE
-                                set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
                             :Do_It_1_Done
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo ERROR_MESSAGE[2]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
-                            call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR! ***"
+                            call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR!! ***"
+                            rem Output the updated ERROR_MESSAGE
                             %COLOR_ALARM%       
                             echos %ERROR_MESSAGE% 
                             %COLOR_NORMAL% 
@@ -179,7 +179,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                             )
                                 
                             %COLOR_ALARM%  %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo.
-                            call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR! ***"
+                            call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR!!! ***"
                             REM call alarm-beep     %+ REM was too annoying for the severity of the corresponding situations
                             call white-noise 1      %+ REM reduced to 2 seconds, then after a year or few, reduced to 1 second
                             REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%

@@ -53,7 +53,7 @@ rem                      2) outputs a .BAT pattern that can be incorporated into
 if 1   ne     %validated_errorlevel (
 call           validate-in-path     print-if-debug.bat advice.bat print-message.bat randcolor.bat colors.bat colortool.bat settmpfile.bat important.bat fatalerror.bat fatal_error.bat car.bat nocar.bat exit-maybe.bat sed
 call           validate-functions   ANSI_CURSOR_CHANGE_COLOR_HEX
-call           validate-env-vars    ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING COLOR_ALARM_HEX 
+call           validate-env-vars    ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING ANSI_PREFERRED_CURSOR_SHAPE COLOR_ALARM_HEX COLOR_SUCCESS_HEX
 set            validated_errorlevel=1
 )
 
@@ -95,6 +95,7 @@ REM Parameters: Process: calling file
 
 
 if %OUR_ERRORLEVEL% le 0 (   
+    echos %@ANSI_CURSOR_CHANGE_COLOR_HEX[%color_success_hex]%ANSI_PREFERRED_CURSOR_SHAPE%
     if defined OUR_SUCCESS_MESSAGE (
         @Echo OFF
         %COLOR_SUCCESS%
@@ -110,7 +111,8 @@ if %OUR_ERRORLEVEL% gt 0 (
     set REDO=
 
     rem Change cursor to angry: BIG BLINKING RED BLOCK:
-    echos %@ANSI_CURSOR_CHANGE_COLOR_HEX[%color_alarm_hex]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%
+    if not defined ANSI_PREFERRED_CURSOR_SHAPE (SET ANSI_PREFERRED_CURSOR_SHAPE=%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%)
+    echos %@ANSI_CURSOR_CHANGE_COLOR_HEX[%color_alarm_hex]%ANSI_PREFERRED_CURSOR_SHAPE%
 
     if "%OUR_FAILURE_MESSAGE%" eq "" (
         set OUR_FAILURE_MESSAGE=An ERRORLEVEL of %OUR_ERRORLEVEL% (bad) was returned, which is greater than 0 (good)!

@@ -18,3 +18,7 @@
 
 :: Do it
     call prompt-common
+
+:: Also reset the cursor:
+    call cursor-Claire
+

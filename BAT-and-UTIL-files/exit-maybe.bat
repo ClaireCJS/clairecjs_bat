@@ -10,6 +10,7 @@ set  askyn_decorator=
 rem some weird bug where we need to move left 1 more column than expected when counting down [probably due to ansi weirdness], 
 rem otherwise a bit of screen junk remains, so we set LEFT_MORE=1 to kludge askyn.bat:
     set LEFT_MORE=1
+    rem came here thinking there was a bug in askyn but it turned out it was just the 'no_enter' option here deliberately making enter not work... 😂 2024/09/08
     call askyn "%MYCOLOR%%italics%%blink%%underline%Return%underline_off% to command line?%blink_off%%italics_off" yes 99999 no_enter big
     set LEFT_MORE=0
 
