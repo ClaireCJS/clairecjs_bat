@@ -88,7 +88,7 @@ rem ANSI: cursor position movement
         rem Up/Down/Left/Right
             set ANSI_MOVE_UP_1=%ESCAPE%M                                    %+ rem moves cursor one line up, scrolling if needed
                 set ANSI_MOVE_UP_ONE=%ANSI_MOVE_UP_1%                       %+ rem alias
-            function ANSI_MOVE_UP=`%@CHAR[27][%1A                           %+ rem moves cursor up # lines
+            function ANSI_MOVE_UP=`%@CHAR[27][%1A`                          %+ rem moves cursor up # lines
                 function ANSI_UP=`%@CHAR[27][%1A`	                        %+ rem alias
             function ANSI_MOVE_DOWN=`%@CHAR[27][%1B`	                    %+ rem moves cursor down # lines
                 function ANSI_DOWN=`%@CHAR[27][%1B`                         %+ rem alias

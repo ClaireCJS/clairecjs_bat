@@ -66,12 +66,16 @@ def enable_vt_support():                                                        
         out_modes = ctypes.c_uint32(out_modes.value | 0x0004)
         ctypes.windll.kernel32.SetConsoleMode(hOut, out_modes)
 
-def get_random_color(bg=False):                                                                                 #return random rgb values within our confifured threshold
+def convert_rgb_tuple_to_hex_string_with_hash(r, g, b): return "#{:02X}{:02X}{:02X}".format(r, g, b)
+
+def get_random_color(bg=False, hex=False):                                                                      #return random rgb values within our confifured threshold
     if bg: min_rgb_value = MIN_RGB_VALUE_BG; max_rgb_value = MAX_RGB_VALUE_BG
     else:  min_rgb_value = MIN_RGB_VALUE_FG; max_rgb_value = MAX_RGB_VALUE_FG
-    return random.randint(min_rgb_value,max_rgb_value), \
-           random.randint(min_rgb_value,max_rgb_value), \
-           random.randint(min_rgb_value,max_rgb_value)
+    rand_r = random.randint(min_rgb_value,max_rgb_value)
+    rand_g = random.randint(min_rgb_value,max_rgb_value)
+    rand_b = random.randint(min_rgb_value,max_rgb_value)
+    if hex: return convert_rgb_tuple_to_hex_string_with_hash(rand_r, rand_g, rand_b)
+    else  : return            rand_r, rand_g, rand_b
 
 def enclose_numbers(line): return re.sub(r'(\d+)', r'\033[21m\1\033[24m', line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
 
@@ -159,10 +163,13 @@ t.start()
 line_buffer = ""
 in_prompt = False
 additional_beginning_ansi = move_decorator
-r, g, b = get_random_color()
+r,g,b  = get_random_color()
+rgbhex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
+#r_hex, g_hex, b_hex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
+#sys.stdout.write(f"rgbhex is {rgbhex}\n")
+#sys.stdout.write(f"sys.argv is {sys.argv}\n")
 
 my_mode = DEFAULT_MODE
-#sys.stdout.write(f"sys.argv is {sys.argv}\n")
 if len(sys.argv) > 1:
     #sys.stdout.write(f"sys.argv[1] is {sys.argv[1]}\n")
     if sys.argv[1] == 'bg' or sys.argv[1] == 'both': my_mode = sys.argv[1]
@@ -176,8 +183,8 @@ while t.is_alive() or not q.empty():
 #hile True:
     # It's tempting to process things line-by-line, but due to prompts and such, we must process things char-by-char
     try:
-        char = q.get(timeout=0.008)
-        if char is None: break
+        char = q.get(timeout=0.008)                                                                                                     # grab the characters *this* fast!
+        if char is None: break                                                                                                          # but not much faster because we're probably coming right back if no chars are in the buffer yet
 
         claire.tick(mode=my_mode)
         line_buffer += char
@@ -186,7 +193,8 @@ while t.is_alive() or not q.empty():
             in_prompt = True
             bgr, bgg, bgb = get_random_color(bg=True)                                                                                   # Reset for the next line
             r  ,   g,   b = get_random_color()                                                                                          # Reset for the next line
-            sys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
+            rgbhex        = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
+            sys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m\033[ q\033]12;{rgbhex}\007{additional_beginning_ansi}❓❓   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
             #moved to end of loop: sys.stdout.flush()                                                                                   # Flush the output buffer to display the prompt immediately
             line_buffer = ""
         elif in_prompt and char == '\n':          #if we hit end-of-line in a copy/move user prompt, flush the output so the user can see the prompt... promptly
@@ -201,8 +209,12 @@ while t.is_alive() or not q.empty():
             additional_beginning_ansi = ""                                                                                              # Reset for the next line
             r, g, b = get_random_color()                                                                                                # Reset for the next line
 
+            #REFERENCE: function ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                                 # with "#" in front of color
+            #rgbhex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)                                                                  # Reset for the next line
+            #additional_beginning_ansi = f"\033[ q\033]" + "12;" + rgbhex + f"\007"                                                     # Reset for the next line: make cursor same color 🐐
+
     except queue.Empty:
-        claire.tick(mode=my_mode)                                                                                                          # color-cycle the default-color text using my library
+        claire.tick(mode=my_mode)                                                                                                       # color-cycle the default-color text using my library
         sys.stdout.flush()
 
     sys.stdout.flush()
