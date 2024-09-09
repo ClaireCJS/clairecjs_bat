@@ -8,7 +8,7 @@ set NO_PAUSE=0 %+ rem decided i no longer want to default to not-pausing cause i
 set CAP_PARAMS=%1
 
 call commit %CAP_PARAMS%
-repeat 2 echo.
+repeat 3 echo.
 call divider %emoji_fire%
 call push   %CAP_PARAMS%
 
