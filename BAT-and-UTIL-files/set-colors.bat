@@ -14,7 +14,6 @@
 
 
 REM  unexplored: Set text colour to index n in a 256-colour palette (e.g. \x1b[38;5;34m)
-REM  unexplored: is \x1b[?25h and \x1b[?25l. These show and hide the cursor, respectively.
 
 
 
@@ -27,6 +26,10 @@ rem Branch by parameter:
         if  "1" == "%COLORS_HAVE_BEEN_SET%"    (goto :AlreadyDone  )
         :Force
 
+rem Utility functions:
+        function random_hex_char=`%@substr[0123456789ABCDEF,%@random[0,15],1]`
+        function random_rgb_hex=`%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]`
+
 
 rem ANSI: Initialization 
         rem set up basic beginning of all ansi codes
@@ -36,7 +39,7 @@ rem ANSI: Initialization
 
 rem ANSI: special stuff: reset
             set ANSI_RESET_FG_COLOR=%ANSI_ESCAPE%0m
-            set ANSI_RESET=%ANSI_ESCAPE%39m%ANSI_ESCAPE%49m%ANSI_RESET_FG_COLOR%
+            set ANSI_RESET=%ANSI_ESCAPE%39m%ANSI_ESCAPE%49m%ANSI_RESET_FG_COLOR%%ESCAPE%(B %+ REM added "esc(B" in case we are stuck in drawing font instead of english font
                 set ANSI_RESET_FULL=%ANSI_RESET%
                 set ANSI_FULL_RESET=%ANSI_RESET%
                 set ANSI_COLOR_RESET=%ANSI_RESET_FG_COLOR%
@@ -51,8 +54,12 @@ rem ANSI: special stuff: position save/restore
                 set ANSI_RESTORE=%ANSI_POSITION_RESTORE%          
                 set ANSI_LOAD_POSITION=%ANSI_POSITION_RESTORE%          
                 set ANSI_POSITION_LOAD=%ANSI_POSITION_RESTORE%          
+
+rem ANSI: special stuff: position requests/polling:
             set ANSI_POSITION_REQUEST=%ANSI_ESCAPE%6n	                    %+ REM query/request current cursor position (reports as ESC[#;#R)
-                set ANSI_REQUEST_POSITION=%ANSI_POSITION_REQUEST%
+                set       ANSI_REQUEST_POSITION=%ANSI_POSITION_REQUEST%
+                set        ANSI_CURSOR_POSITION=%ANSI_POSITION_REQUEST%
+                set ANSI_REPORT_CURSOR_POSITION=%ANSI_POSITION_REQUEST%
             set ANSI_REQUEST_FG_COLOR=%ANSI_ESCAPE%38;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
             set ANSI_REQUEST_BG_COLOR=%ANSI_ESCAPE%48;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
 
@@ -69,6 +76,8 @@ rem ANSI: position movement
                 function ANSI_MOVE=`%@CHAR[27][%1;%2H`                      %+ rem alias
             function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`	                    %+ rem moves cursor to column #
             function ANSI_MOVE_TO_ROW=`%@CHAR[27][%1H`                      %+ rem unfortunately does not preserve column position! not possible! cursor request ansi code return value cannot be captured
+        
+        function ANSI_MOVE_TO_COORDINATE_unsupported=`%@CHAR[27][%1,%2H`    %+ rem Windows Terminal 2024 doesn't seem to support this 🐐
 
         rem Up/Down/Left/Right
             set ANSI_MOVE_UP_1=%ESCAPE%M	                                %+ rem moves cursor one line up, scrolling if needed
@@ -106,18 +115,42 @@ rem ANSI: cursor
                 set ANSI_CURSOR_CHANGE_TO_UNDERLINE_STEADY=%ansi_escape%4 q
                 set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING=%ansi_escape%5 q
                 set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_STEADY=%ansi_escape%6 q
+                rem Aliases:
+                        set ANSI_CURSOR_SHAPE_DEFAULT=%ansi_escape%0 q
+                        set ANSI_CURSOR_SHAPE_BLOCK_BLINKING=%ansi_escape%1 q
+                        set ANSI_CURSOR_SHAPE_BLOCK_STEADY=%ansi_escape%2 q
+                        set ANSI_CURSOR_SHAPE_UNDERLINE_BLINKING=%ansi_escape%3 q
+                        set ANSI_CURSOR_SHAPE_UNDERLINE_STEADY=%ansi_escape%4 q
+                        set ANSI_CURSOR_SHAPE_VERTICAL_BAR_BLINKING=%ansi_escape%5 q
+                        set ANSI_CURSOR_SHAPE_VERTICAL_BAR_STEADY=%ansi_escape%6 q
+
+                function ANSI_RANDOM_CURSOR_SHAPE=`%@char[27][%@random[0,6] q`
+                function ANSI_CURSOR_RANDOM_SHAPE=`%@char[27][%@random[0,6] q`
+                function ANSI_CURSOR_SHAPE_RANDOM=`%@char[27][%@random[0,6] q`
+                function      CURSOR_SHAPE_RANDOM=`%@char[27][%@random[0,6] q`
+                function      CURSOR_SHAPE_RANDOM=`%@char[27][%@random[0,6] q`
+                function      CURSOR_RANDOM_SHAPE=`%@char[27][%@random[0,6] q`
+                function      RANDOM_CURSOR_SHAPE=`%@char[27][%@random[0,6] q`
+                function       ANSI_CURSOR_RANDOM=`%@char[27][%@random[0,6] q`
 
         rem Cursor color:
-                    function ANSI_CURSOR_CHANGE_TO_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                  %+ rem moves cursor to line #, column #\_____ both work
-                    function                   ANSI_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function                    SET_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function                        CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function           ANSI_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function            ANSI_CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function                 CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function         CURSOR_COLOR_CHANGE_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function            SET_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function                CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                
+                    function   CURSOR_COLOR_CHANGE_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function     ANSI_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function      ANSI_CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function      SET_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function          CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function           CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function             ANSI_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function              SET_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function                  CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+
+                    function  ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                  %+ rem like above section but with "#" in front of color
+                    function  ANSI_CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function       CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function         ANSI_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function          SET_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function              CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
 
  
 
@@ -152,6 +185,28 @@ rem ANSI: erase
                 set ANSI_ERASE_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
                 set ANSI_CLEAR_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
 
+            set ANSI_ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
+            set      ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
+            set   ANSI_ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
+            set        ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
+            set           ANSI_ERASE_TO_EOP=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
+            set                ERASE_TO_EOP=%ANSI_ESCAPE%[J                   %+ rem erases from cursor until end of the page
+
+            set     ANSI_ERASE_UP_TO_CURSOR=%ANSI_ESCAPE%[1J                 %+ rem erases from start of page up to cursor! weird!
+
+            set      ANSI_ERASE_ENTIRE_PAGE=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
+            set             ANSI_ERASE_PAGE=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
+            set                  ERASE_PAGE=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
+            set    ANSI_ERASE_ENTIRE_SCREEN=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
+            set           ANSI_ERASE_SCREEN=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
+            set                ERASE_SCREEN=%ANSI_ESCAPE%[2J                 %+ rem erases entire screen
+
+            rem UNIMPLEMENTED: L   Erase in Line   (ESC [ Ps K). Erases some or all of the Active Line according to the parameter.
+            rem UNIMPLEMENTED: EF  Erase in Field  (ESC [ Pn N). Erases some or all of the Active Field according to the parameter.
+            rem UNIMPLEMENTED: EA  Erase in Area   (ESC [ Ps O). Erases some or all of the Active Qualified Area according to the parameter.
+            rem UNIMPLEMENTED: ECH Erase Character (ESC [ Pn X). Erases the following Pn characters, starting with the character at the cursor. The host may also erase a specified number of characters (up to 255).
+            rem                                     ESC [ P	    Deletes  1 character
+            rem                                     ESC [ 12 P	Deletes 12 characters
 
 rem ANSI: colors 
         rem custom rgb colors for foreground/background
@@ -414,6 +469,23 @@ REM As of Windows Terminal we can now actually display italic characters
                 set OVERSTRIKE_ON=%STRIKETHROUGH_ON%
                 set OVERSTRIKE_OFF=%STRIKETHROUGH_OFF%
                 set OVERSTRIKE=%OVERSTRIKE_ON%
+ 
+            set   UNSUPPORTED_ANSI_DEFAULT_FONT=%ANSI_ESCAPE%10m
+            set     UNSUPPORTED_ANSI_ALT_FONT_1=%ANSI_ESCAPE%11m
+            set     UNSUPPORTED_ANSI_ALT_FONT_2=%ANSI_ESCAPE%12m
+            set     UNSUPPORTED_ANSI_ALT_FONT_3=%ANSI_ESCAPE%13m
+            set     UNSUPPORTED_ANSI_ALT_FONT_4=%ANSI_ESCAPE%14m
+            set     UNSUPPORTED_ANSI_ALT_FONT_5=%ANSI_ESCAPE%15m
+            set     UNSUPPORTED_ANSI_ALT_FONT_6=%ANSI_ESCAPE%16m
+            set     UNSUPPORTED_ANSI_ALT_FONT_7=%ANSI_ESCAPE%17m
+            set     UNSUPPORTED_ANSI_ALT_FONT_8=%ANSI_ESCAPE%18m
+            set     UNSUPPORTED_ANSI_ALT_FONT_9=%ANSI_ESCAPE%19m
+            set         UNSUPPORTED_ANSI_GOTHIC=%ANSI_ESCAPE%20m
+            set              UNSUPPORTED_FRAMED=%ANSI_ESCAPE%51m
+            set           UNSUPPORTED_ENCIRCLED=%ANSI_ESCAPE%52m
+            set  UNSUPPORTED_FRAME_ENCIRCLE_OFF=%ANSI_ESCAPE%54m
+            set UNSUPPORTED_SET_UNDERLINE_COLOR=%ANSI_ESCAPE%58;2;255,0,0m %+ REM set underline color to red
+
 
 
 REM wow it even supports the vt100 2-line-tall text!
@@ -441,21 +513,91 @@ REM wow it even supports the vt100 2-line-tall text!
             set BIG_TOP_OFF=%BIG_OFF%
             set BIG_BOT_OFF=%BIG_OFF%
 
+
+REM DEC drawing font support:
+            set                   ANSI_FONT_DRAWING_ON=%[ESCAPE](0
+            set                   ANSI_FONT_DRAWING_OFF=%ESCAPE%(B
+            set ANSI_DRAWING_OFF=%ANSI_FONT_DRAWING_OFF%
+            set      DRAWING_OFF=%ANSI_FONT_DRAWING_OFF%
+            set  ANSI_DRAWING_ON=%ANSI_FONT_DRAWING_ON%
+            set       DRAWING_ON=%ANSI_FONT_DRAWING_ON%
+            set          DRAWING=%ANSI_FONT_DRAWING_ON%
+
+            rem drawing font characters:
+                    set DRAWING_FONT_CORNER_LOWER_RIGHT=j
+                    set DRAWING_FONT_CORNER_UPPER_RIGHT=k
+                    set DRAWING_FONT_CORNER_UPPER_LEFT=l
+                    set DRAWING_FONT_CORNER_LOWER_LEFT=m
+                    set DRAWING_FONT_PLUS=n
+                    set DRAWING_FONT_DASH=q
+                    set DRAWING_FONT_ROW_LEFT=t
+                    set DRAWING_FONT_ROW_RIGHT=u
+                    set DRAWING_FONT_COL_BOTTOM=v
+                    set DRAWING_FONT_COL_BOT=v
+                    set DRAWING_FONT_COL_TOP=w
+                    set DRAWING_FONT_LINE_HORIZONTAL=q
+                    set DRAWING_FONT_LINE_HORIZ=q
+                    set DRAWING_FONT_LINE_VERTICAL=x
+                    set DRAWING_FONT_LINE_VERT=x
+
 REM truly esoteric stuff
             set ERASE_COLOR_MODE_ON=%ANSI_ESCAPE%?117h  
             set ERASE_COLOR_MODE_OFF=%ANSI_ESCAPE%?117l
 
 
+REM Custom Character Generation — using ANSI & sixels *****
+
+    rem     This sets up the trumpet (& reverse trumpet), pentagram (& pentacle), used in c:\bat\set-emojis.bat
+                    REM Original advice given to me from ANSI guru:
+                    REM         Step 1: DECDLD seq to define custom charset (aka soft font) w/four characters: "()*+" [ascii 40-44] representing the trumpet glyphs.
+                    REM         Step 2: To activate charset, use SCS sequence w/id "@", i.e. "\x1B( @" [note that there's a space before the @!]
+                    REM                 Then you can output left trumpet w/ *( & right w/ )+.
+                    REM         Step 3: To return to regular text, you MUST switch back to charset with SCS sequence "\x1B(B"
+
+    rem Various iterations of getting to our trumpets:
+            rem c:\cygwin\bin\printf.exe "\eP0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@\e\\" 
+            REM                 10   x 20  character - max size on Windows Terminal is 16x32, which might be a little better than 10x20. Although be aware that that's not one of the standard sizes, so it may not work on other terminals. If it's just for personal use, though, you probably won't care.
+            REM  %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;1111111111/HHHHHHHHHH/zzzzzzzzzz/??????????%ESCAPE%
+            REM  %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA%ESCAPE%
+            REM  it's a dang pentacle not a pentagram _?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????%ESCAPE%
+            REM  %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????%ESCAPE%   %+ REM v-------------------------------------------------------------------------------- i think this is when the pentagrams/pentacles were added:
+            echos %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????@B@;?_OG[cIQaA/}@?_OJ{CAB/BMRaAAANqa/????@@AAAB@B@;aQIc[GO_??/BC{JO_?@}?/qNAAAaRMB?/AAA@@?????%ESCAPE%       
+            REM not converted to size yet echo %ESCAPE%P2;8;1;16;0;2;32;0{ !???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????@B@;?_OG[cIQaA/}@?_OJ{CAB/BMRaAAANqa/????@@AAAB@B@;aQIc[GO_??/BC{JO_?@}?/qNAAAaRMB?/AAA@@?????%ESCAPE%           
+            set            EMOJI_TRUMPET=%@CHAR[55356]%@CHAR[57274]
+            set            EMOJI_TRUMPET_COLORABLE=%ESCAPE( @*(%ESCAPE%(B
+            set              EMOJI_TRUMPET_FLIPPED=%ESCAPE( @)+%ESCAPE%(B
+            set                     EMOJI_PENTACLE=%ESCAPE( @,-%ESCAPE%(B
+            set          EMOJI_PENTAGRAM_UNCOLORED=%ESCAPE( @./%ESCAPE%(B
+            set          EMOJI_PENTAGRAM=%ANSI_RED%%ESCAPE( @./%ESCAPE%(B%ANSI_RESET%
+            set EMOJI_PENTAGRAM_BLINKING=%blink_on%%EMOJI_PENTAGRAM%%blink_off%%ANSI_RESET%
+            set                          PENTAGRAM=%EMOJI_PENTAGRAM%
+            set                 PENTAGRAM_BLINKING=%EMOJI_PENTAGRAM_BLINKING%
+            set           EMOJI_BLINKING_PENTAGRAM=%EMOJI_PENTAGRAM_BLINKING%
+            set                 BLINKING_PENTAGRAM=%EMOJI_PENTAGRAM_BLINKING%
+            set                           PENTACLE=%EMOJI_PENTACLE%
+            rem EMOJIPENTAGRAMBLINKINGOLD=%@ANSI_FG[160,0,00]%reverse_on%%blink_on%%EMOJI_PENTAGRAM%%blink_off%%reverse_off%
+
+            
+    rem Various experiments:
+            REM experiment: echo %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/5#17;2;31;9;5#18;2;31;9;5#19;2;33;9;5#20;2;36;10;5#21;2;37;10;5#22;2;39;10;5#23;2;42;11;5#24;2;42;11;5#25;2;44;11;6#26;2;46;11;5#27;2;47;12;6#28;2;50;13;6#29;2;51;13;6#30;2;53;13;6#31;2;56;14;7#32;2;58;14;6#33;2;56;14;7#34;2;59;15;7#35;2;60;15;7#36;2;62;15;7#37;2;64;16;7#38;2;66;16;7#39;2;68;16;7#40;2;69;17;7#41;2;71;16;7#42;2;71;17;7#43;2;73;18;8#44;2;75;18;8#45;2;76;18;7#46;2;76;18;8#47;2;78;18;8#48;2;78;19;8#49;2;79;19;8#50;2;80;19;8#51;2;82;20;8#52;2;84;20;8#53;2;85;20;8#54;2;86;20;9#55;2;87;20;9#56;2;88;21;9#57;2;90;21;9#58;2;92;22;9#59;2;93;22;9#60;2;93;22;9#61;2;94;22;9#1~nFNFN!6BFFNFFn$#2?O#4G#22O#0G?!6C?G???O$#23??o#41_#12O!6?G#3G#15O#18O#4G_$#52!4?_#58_?o___#55O?_#45_#26O#2G$#29!5?O??G#30G#24G#36?O#32??_#7O$#59!6?_???O_$#10!6?G#21G#60OO??_$#51!6?O-#1~_#16B#60w`?A?O!4?P_#27@#0Aw$#3?O!4?O#52_!7?O#1@F$#0?F#29C#58C??@BF~F@@#17C#53C#28A#4C$#2?G#35_#53@#55GA!4?O#10O#13G#42??C#6_$#38??G#56A#25C#59@?Cg??A?_W#49_#8G$#40??O#49?A#47_!7?A#51?G#9O$#61!4?O#22G!6?O$#19!5?C#48C!6?G$#36!5?O#26_!5?C$#11!6?G#43O#57??g?A?B$#50!7?G#20???G#37_$#30!11?_$#54!11?C-#1~{ww_!6?_?ooo|~$#0?BC?O__!5?_??GA$#7??A#58@!4?@@???D#3G#2C$#22??@#18C!5?C#5_#27C?G#34?@$#44???A??@#4_#8__#46Q#16A#15O??A$#59!4?@C#28O!7?C$#19!4?G#49G!4?G#33O#55G?A$#54!4?C#52@?G?O#50?@#31A$#61!4?A#43A?O#57AA#47??@$#10!5?O#60G@??@G?A@$#13!6?A???C#56?C$#36!6?C#14C#17C#38G$#37!7?A#39G$#51!8?O-#1!8BAA!8B$#0!8?@@-%ESCAPE%\
+            REM c:\cygwin\bin\printf.exe "\e( @\e[33m*(*(*(\e(B \e[36m This is an important message \e( @\e[33m)+ )+ )+ , , - - \e(B\e[m\n"
+
+            rem a joke: ~DDD??~___~??~```??~KJ`??@ACWCA@??~```~??~___~
+
+:Set_Emojis
+
+
 REM test strings that demonstrate all this ANSI functionality
         set ANSI_TEST_STRING=concealed:'%CONCEAL_ON%conceal%CONCEAL_off%' %ANSI_RED%R%ANSI_ORANGE%O%ANSI_YELLOW%Y%ANSI_GREEN%G%ANSI_CYAN%C%ANSI_BLUE%B%ANSI_MAGENTA%V%ANSI_WHITE% Hello, world. %BOLD%Bold!%BOLD_OFF% %FAINT%Faint%FAINT_OFF% %ITALICS%Italics%ITALIC_OFF% %UNDERLINE%underline%UNDERLINE_OFF% %OVERLINE%overline%OVERLINE_OFF% %DOUBLE_UNDERLINE%double_underline%DOUBLE_UNDERLINE_OFF% %REVERSE%reverse%REVERSE_OFF% %BLINK_SLOW%blink_slow%BLINK_SLOW_OFF% [non-blinking] %BLINK_FAST%blink_fast%BLINK_FAST_OFF% [non-blinking] %blink%blink_default%blink_off% [non-blinking] %STRIKETHROUGH%strikethrough%STRIKETHROUGH_OFF%
-        set ANSI_TEST_STRING_2=%BIG_TEXT_LINE_1%big% %ANSI_RESET% Normal One
-        set ANSI_TEST_STRING_3=%BIG_TEXT_LINE_2%big% %ANSI_RESET% Normal Two
-        set ANSI_TEST_STRING_4=%WIDE_LINE%A wide line!
+        set ANSI_TEST_STRING_2=%BIG_TEXT_LINE_1%big% %ANSI_RESET% Normal One%PENTAGRAM%
+        set ANSI_TEST_STRING_3=%BIG_TEXT_LINE_2%big% %ANSI_RESET% Normal Two%PENTAGRAM%
+        set ANSI_TEST_STRING_4=%WIDE_LINE%A wide line!%PENTAGRAM%
 
 
 REM colors for our messaging system
         set COLOR_ADVICE=        color bright magenta on        black  %+ set ANSI_COLOR_ADVICE=%ANSI_RESET%%ANSI_BRIGHT_MAGENTA%%ANSI_BACKGROUND_BLACK%%+ 
         SET COLOR_ALARM=         color bright white   on        red    %+ set ANSI_COLOR_ALARM=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_RED%                         %+ set COLOR_ERROR=%COLOR_ALARM% %+ set ANSI_COLOR_ERROR=%ANSI_COLOR_ALARM% %+ set COLOR_FATAL_ERROR=%COLOR_ERROR% %+ SET ANSI_COLOR_FATAL_ERROR=%ANSI_COLOR_ALARM% %+ set COLOR_ERROR_FATAL=%COLOR_FATAL_ERROR% %+ set ANSI_COLOR_ERROR_FATAL=%ANSI_COLOR_FATAL_ERROR%
+                                                                          set      COLOR_ALARM_HEX=FF0000
         SET COLOR_COMPLETION=    color bright white   on        green  %+ set ANSI_COLOR_COMPLETION=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_GREEN%                  %+ set COLOR_CELEBRATION=%COLOR_COMPLETION% %+ set ANSI_COLOR_CELEBRATION=%ANSI_COLOR_COMPLETION%
         SET COLOR_DEBUG=         color        green   on        black  %+ set ANSI_COLOR_DEBUG=%ANSI_RESET%%ANSI_BRIGHT_GREEN%%ANSI_BACKGROUND_BLACK%
         SET COLOR_IMPORTANT=     color bright cyan    on        black  %+ set ANSI_COLOR_IMPORTANT=%ANSI_RESET%%ANSI_BRIGHT_CYAN%%ANSI_BACKGROUND_BLACK%

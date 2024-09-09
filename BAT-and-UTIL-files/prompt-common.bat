@@ -57,6 +57,9 @@ rem ///// DEFAULT BEHAVIOR THAT CAN BE OVERRIDDEN:
 rem ///// BUILD THE PROMPT:
     :Setup
         unset /q TMPPROMPT
+    :Reset_Font_To_English
+        rem just in case we used ansi to flip it into DEC drawing font, we want it back
+        set TMPPROMPT=$e(B%TMPPROMPT%
     :Add_Time_Of_Day
         set TMPPROMPT=%TMPPROMPT%$e[%TIME_COLOR_BRACKETS%m$L
         set TMPPROMPT=%TMPPROMPT%$e[%TIME_COLOR_THE_TIME%m$M

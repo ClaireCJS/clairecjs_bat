@@ -49,8 +49,13 @@ rem                      2) outputs a .BAT pattern that can be incorporated into
 
 :PUBLISH:
 :DESCRIPTION: GOAT TODO
-:DEPENDENCIES: validate-in-path.bat print-if-debug.bat advice.bat print-message.bat randcolor.bat colors.bat colortool.bat settmpfile.bat important.bat fatalerror.bat fatal_error.bat car.bat nocar.bat exit-maybe.bat
-call           validate-in-path     print-if-debug.bat advice.bat print-message.bat randcolor.bat colors.bat colortool.bat settmpfile.bat important.bat fatalerror.bat fatal_error.bat car.bat nocar.bat exit-maybe.bat
+:DEPENDENCIES: validate-in-path.bat print-if-debug.bat advice.bat print-message.bat randcolor.bat colors.bat colortool.bat settmpfile.bat important.bat fatalerror.bat fatal_error.bat car.bat nocar.bat exit-maybe.bat sed
+if 1   ne     %validated_errorlevel (
+call           validate-in-path     print-if-debug.bat advice.bat print-message.bat randcolor.bat colors.bat colortool.bat settmpfile.bat important.bat fatalerror.bat fatal_error.bat car.bat nocar.bat exit-maybe.bat sed
+call           validate-functions   ANSI_CURSOR_CHANGE_COLOR_HEX
+call           validate-env-vars    ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING COLOR_ALARM_HEX 
+set            validated_errorlevel=1
+)
 
 
 REM Configuration: Debug
@@ -88,9 +93,6 @@ REM Parameters: Process: calling file
     )
 
 
-REM Make sure sed is in our path, but the sed part can be removed and this will still work
-    call validate-in-path sed
-
 
 if %OUR_ERRORLEVEL% le 0 (   
     if defined OUR_SUCCESS_MESSAGE (
@@ -105,7 +107,10 @@ if %OUR_ERRORLEVEL% le 0 (
 
 if %OUR_ERRORLEVEL% gt 0 (   
     set REDO_BECAUSE_OF_ERRORLEVEL=1
-    set REDO=1
+    set REDO=
+
+    rem Change cursor to angry: BIG BLINKING RED BLOCK:
+    echos %@ANSI_CURSOR_CHANGE_COLOR_HEX[%color_alarm_hex]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%
 
     if "%OUR_FAILURE_MESSAGE%" eq "" (
         set OUR_FAILURE_MESSAGE=An ERRORLEVEL of %OUR_ERRORLEVEL% (bad) was returned, which is greater than 0 (good)!

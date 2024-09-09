@@ -670,8 +670,9 @@ return
     ::::: 2023 STUFF:
             set MAXIMUM_TIME_FOR_TCC_TO_START=4
 
-    ::::: COMMAND-LINE OPTIONS SYNCED WITH "OPTION" COMMAND IN TCC OPTIONS —— FOR SOME REASON WON'T WORK UNLESS IN SEPARATE BAT:
-            call set-escape-character-and-command-separator-character
+    ::::: COMMAND-LINE OPTIONS SYNCED WITH "OPTION" COMMAND IN TCC OPTIONS -- FOR SOME REASON WON'T WORK UNLESS IN SEPARATE BAT:
+            setdos /X0
+            call c:\bat\set-escape-character-and-command-separator-character
 
     ::::: BASIC HARDWARE:
         :: Default number of CPU cores in a machine, and default number of optimal threads (usually cores * 1.5)
