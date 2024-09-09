@@ -102,12 +102,15 @@ rem ANSI: cursor position movement
             function ANSI_MOVE_LINES_UP=`%@CHAR[27][%1F`                    %+ rem moves cursor to beginning of previous line, # lines up
 
         rem Tab-stop management:
-            set   ANSI_TABSTOP_SET=%ESCAPE%H   %+ rem Sets a tab stop in the current column the cursor is on
-            set ANSI_TABSTOP_CLEAR=%ESCAPE%[0g %+ rem Sets a tab stop in the current column the cursor is on
+            set       ANSI_TABSTOP_SET=%ESCAPE%H                            %+ rem Sets a tab stop in the current column the cursor is on
+            set   ANSI_TABSTOP_SET_COL=%ESCAPE%H                            %+ rem Sets a tab stop in the current column the cursor is on
+            set     ANSI_TABSTOP_CLEAR=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
+            set ANSI_TABSTOP_CLEAR_COL=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
+            set ANSI_TABSTOP_CLEAR_ALL=%ESCAPE%[3g                          %+ rem Clears ALLLLLL tab sstops
 
         rem Tab-stop management: Not very useful:
-            function  ANSI_TAB_FORWARD=`%@CHAR[27][%1I` %+ rem Advance the cursor to the   next   column (in the same row) with a tab stop. If there are no more tab stops, move to the  last column in the row. If the cursor is in the  last column, move to the first column of the next row
-            function ANSI_TAB_BACKWARD=`%@CHAR[27][%1Z` %+ rem Retreat the cursor to the previous column (in the same row) with a tab stop. If there are no more tab stops, move to the first column in the row. If the cursor is in the first column, don't move the cursor
+            function  ANSI_TAB_FORWARD=`%@CHAR[27][%1I`                     %+ rem Advance the cursor to the   next   column (in the same row) with a tab stop. If there are no more tab stops, move to the  last column in the row. If the cursor is in the  last column, move to the first column of the next row
+            function ANSI_TAB_BACKWARD=`%@CHAR[27][%1Z`                     %+ rem Retreat the cursor to the previous column (in the same row) with a tab stop. If there are no more tab stops, move to the first column in the row. If the cursor is in the first column, don't move the cursor
 
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

@@ -667,7 +667,8 @@ return
 
     ::::: 2024 STUFF:
             set VALIDATE_MULTIPLE=0 %+ rem if Validate-environment-variables gets aborted and this flag is set to 1, it can create a phantom error, so let's just keep it set to 0 when possible
-
+            set WINDOWS_TERMINAL_SETTINGS=%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+            call validate-environment-variable WINDOWS_TERMINAL_SETTINGS
     ::::: 2023 STUFF:
             set MAXIMUM_TIME_FOR_TCC_TO_START=4
 
@@ -840,7 +841,6 @@ return
         set GITHUB_USERNAME=clairecjs
         rem [REDACTED to private.env]
         ::This created problems with validation though: if isdir C:\ProgramData\Anaconda3\Lib\site-packages (set PYTHONPATH=C:\ProgramData\Anaconda3\Lib\site-packages)
-
 
 	::::: CLAIRE-VIRONMENT VARIABLE DEFAULT VALUES:
 		SET OS=10

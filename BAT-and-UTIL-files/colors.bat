@@ -24,6 +24,14 @@ if "%1" eq "silent" set SILENT=1
 if %SILENT ne 1  (
     call display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
     echo.
+    rem repeat 6 echos @ANSI_MOVE_TO_COL[%_repeat]%ESCAPE%[3g%%ESCAPE%H 🐐 this breaks it .. we really want to fix it
+    echos %@ANSI_MOVE_TO_COL[1]%ANSI_ESCAPE%0g
+    echos %@ANSI_MOVE_TO_COL[2]%ANSI_ESCAPE%0g
+    echos %@ANSI_MOVE_TO_COL[3]%ANSI_ESCAPE%0g
+    echos %@ANSI_MOVE_TO_COL[4]%ANSI_ESCAPE%0g
+    echos %@ANSI_MOVE_TO_COL[5]%ANSI_ESCAPE%0g
+    echos %@ANSI_MOVE_TO_COL[6]%ANSI_ESCAPE%0g
+    echos %@ANSI_MOVE_TO_COL[7]%ESCAPE%H
     call colortool -c
 )
 
