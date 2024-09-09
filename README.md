@@ -188,8 +188,7 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
 1. Use ```emoji-grep.bat``` to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
 
-1. Use ```env ansi_``` to display all the ANSI variables that we have defined 
-	Use ```functions|grep -i ansi_``` to display all the ANSI functions that we have defined 
+1. Use ```env ansi_``` to display all the ANSI variables that we have defined.<BR>Use ```functions|grep -i ansi_``` to display all the ANSI functions that we have defined 
 
 1. Change your prompt (per-person/username, even) and its colors by looking at ```prompt-common.bat``` and ```set-prompt.bat``` and ```prompt-Claire.bat```. The prompt includes current CPU usage (which was insanity to implement).  Do the same thing for cursor colors with ``set-cursor.bat`` and a variation of ``cursor-Claire.bat``
 
