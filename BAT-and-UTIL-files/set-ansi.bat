@@ -30,9 +30,10 @@ rem —————————————————————————�
 
 rem ANSI: Initialization 
         rem set up basic beginning of all ansi codes
-            set ESCAPE=%@CHAR[27]
-            set ANSI_ESCAPE=%@CHAR[27][
-                set ANSIESCAPE=%ANSI_ESCAPE%
+            set                  ESCAPE=%@CHAR[27]
+            set             ANSI_ESCAPE=%ESCAPE%[
+            set ANSIESCAPE=%ANSI_ESCAPE%
+            set   ANSI_CSI=%ANSI_ESCAPE%                %+ rem CSI == Control Sequence Introducer
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -53,21 +54,21 @@ rem ANSI: special stuff: reset
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 rem ANSI: special stuff: cursor position save/restore
-            set ANSI_POSITION_SAVE=%ESCAPE%7%ANSI_ESCAPE%s                  %+ REM we do this the DEC way, then the SCO way
-            set ANSI_POSITION_RESTORE=%ESCAPE%8%ANSI_ESCAPE%u               %+ REM we do this the DEC way, then the SCO way
-                set ANSI_SAVE_POSITION=%ANSI_POSITION_SAVE%                
-                set ANSI_RESTORE_POSITION=%ANSI_POSITION_RESTORE%          
-                set ANSI_RESTORE=%ANSI_POSITION_RESTORE%          
-                set ANSI_LOAD_POSITION=%ANSI_POSITION_RESTORE%          
-                set ANSI_POSITION_LOAD=%ANSI_POSITION_RESTORE%          
+        set ANSI_POSITION_SAVE=%ESCAPE%7%ANSI_ESCAPE%s                  %+ REM we do this the DEC way, then the SCO way
+        set ANSI_POSITION_RESTORE=%ESCAPE%8%ANSI_ESCAPE%u               %+ REM we do this the DEC way, then the SCO way
+            set ANSI_SAVE_POSITION=%ANSI_POSITION_SAVE%                
+            set ANSI_RESTORE_POSITION=%ANSI_POSITION_RESTORE%          
+            set ANSI_RESTORE=%ANSI_POSITION_RESTORE%          
+            set ANSI_LOAD_POSITION=%ANSI_POSITION_RESTORE%          
+            set ANSI_POSITION_LOAD=%ANSI_POSITION_RESTORE%          
 
 rem ANSI: special stuff: cursor position requests/polling:
-            set ANSI_POSITION_REQUEST=%ANSI_ESCAPE%6n	                    %+ REM query/request current cursor position (reports as ESC[#;#R)
-                set       ANSI_REQUEST_POSITION=%ANSI_POSITION_REQUEST%
-                set        ANSI_CURSOR_POSITION=%ANSI_POSITION_REQUEST%
-                set ANSI_REPORT_CURSOR_POSITION=%ANSI_POSITION_REQUEST%
-            set ANSI_REQUEST_FG_COLOR=%ANSI_ESCAPE%38;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
-            set ANSI_REQUEST_BG_COLOR=%ANSI_ESCAPE%48;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
+        set ANSI_POSITION_REQUEST=%ANSI_ESCAPE%6n	                    %+ REM query/request current cursor position (reports as ESC[#;#R)
+            set       ANSI_REQUEST_POSITION=%ANSI_POSITION_REQUEST%
+            set        ANSI_CURSOR_POSITION=%ANSI_POSITION_REQUEST%
+            set ANSI_REPORT_CURSOR_POSITION=%ANSI_POSITION_REQUEST%
+        set ANSI_REQUEST_FG_COLOR=%ANSI_ESCAPE%38;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
+        set ANSI_REQUEST_BG_COLOR=%ANSI_ESCAPE%48;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
 
 rem ANSI: cursor position movement
         rem To Home
@@ -104,12 +105,14 @@ rem ANSI: cursor position movement
             function ANSI_MOVE_DOWN_LINES=`%@CHAR[27][%1E`                  %+ rem moves cursor to beginning of next line, # lines down
 
         rem Tab-stop management:
-            set       ANSI_TABSTOP_SET=%ESCAPE%H                            %+ rem Sets a tab stop in the current column the cursor is on
-            set   ANSI_TABSTOP_SET_COL=%ESCAPE%H                            %+ rem Sets a tab stop in the current column the cursor is on
-            set   ANSI_TABSTOP_CLR_COL=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
-            set     ANSI_TABSTOP_CLEAR=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
-            set ANSI_TABSTOP_CLEAR_COL=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
-            set ANSI_TABSTOP_CLEAR_ALL=%ESCAPE%[3g                          %+ rem Clears ALLLLLL tab sstops
+            set        ANSI_TABSTOP_SET=%ESCAPE%H                            %+ rem Sets a tab stop in the current column the cursor is on
+            set    ANSI_TABSTOP_SET_COL=%ESCAPE%H                            %+ rem Sets a tab stop in the current column the cursor is on
+            set    ANSI_TABSTOP_CLR_COL=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
+            set      ANSI_TABSTOP_CLEAR=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
+            set  ANSI_TABSTOP_CLEAR_COL=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
+            set  ANSI_TABSTOP_CLEAR_ALL=%ESCAPE%[3g                          %+ rem Clears ALLLLLLLLLLLLLLL tab stops —— better run     reset-tab-stops.bat after!
+            set ANSI_TABSTOP_RESET_TO_8=%ESCAPE%[?W                          %+ rem resets all tabs to width of 8 —— in leiu of running reset-tab-stops.bat after!
+            set      ANSI_TABSTOP_RESET=%ESCAPE%[?W                          %+ rem resets all tabs to width of 8 —— in leiu of running reset-tab-stops.bat after!
 
         rem Tab-stop management: Not very useful:
             function  ANSI_TAB_FORWARD=`%@CHAR[27][%1I`                     %+ rem Advance the cursor to the   next   column (in the same row) with a tab stop. If there are no more tab stops, move to the  last column in the row. If the cursor is in the  last column, move to the first column of the next row
@@ -117,6 +120,7 @@ rem ANSI: cursor position movement
 
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 
  rem ANSI: cursor visibility
         rem Cursor visibility:
@@ -174,6 +178,139 @@ rem —————————————————————————�
                     function          SET_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
                     function              CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
 
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+REM ANSI: styles —— As of Windows Terminal we can now actually display italic characters
+        REM 0m=reset, 1m=bold, 2m=faint, 3m=italic, 4m=underline, 5m=blink slow, 6m=blink fast, 7m=reverse, 8m=conceal, 9m=strikethrough
+        set ANSI_BOLD=%ANSI_ESCAPE%1m
+        set ANSI_BOLD_ON=%ANSI_BOLD%
+        set ANSI_BOLD_OFF=%ANSI_ESCAPE%22m
+        set      BOLD_ON=%ANSI_BOLD_ON%
+        set      BOLD_OFF=%ANSI_BOLD_OFF%
+        set      BOLD=%BOLD_ON%
+
+            set ANSI_BRIGHT=%ANSI_BOLD%
+            set ANSI_BRIGHT_ON=%ANSI_BOLD%
+            set ANSI_BRIGHT_OFF=%ANSI_ESCAPE%22m
+            set      BRIGHT_ON=%ANSI_BOLD_ON%
+            set      BRIGHT_OFF=%ANSI_BOLD_OFF%
+            set      BRIGHT=%BOLD_ON%
+
+        set ANSI_FAINT=%ANSI_ESCAPE%2m
+        set ANSI_FAINT_ON=%ANSI_FAINT%
+        set ANSI_FAINT_OFF=%ANSI_ESCAPE%22m
+        set      FAINT_ON=%ANSI_FAINT_ON%
+        set      FAINT_OFF=%ANSI_FAINT_OFF%
+        set      FAINT=%FAINT_ON%
+
+        set ANSI_ITALICS=%ANSI_ESCAPE%3m
+        set ANSI_ITALICS_ON=%ANSI_ITALICS%
+        set ANSI_ITALICS_OFF=%ANSI_ESCAPE%23m
+        set      ITALICS_ON=%ANSI_ITALICS_ON%
+        set      ITALICS_OFF=%ANSI_ITALICS_OFF%
+        set      ITALICS=%ITALICS_ON%
+
+        set ANSI_UNDERLINE=%ANSI_ESCAPE%4m
+        set ANSI_UNDERLINE_ON=%ANSI_UNDERLINE%
+        set ANSI_UNDERLINE_OFF=%ANSI_ESCAPE%24m
+        set      UNDERLINE_ON=%ANSI_UNDERLINE_ON%
+        set      UNDERLINE_OFF=%ANSI_UNDERLINE_OFF%
+        set      UNDERLINE=%UNDERLINE_ON%
+
+        set ANSI_OVERLINE=%ANSI_ESCAPE%53m
+        set ANSI_OVERLINE_ON=%ANSI_OVERLINE%
+        set ANSI_OVERLINE_OFF=%ANSI_ESCAPE%55m
+        set      OVERLINE_ON=%ANSI_OVERLINE_ON%
+        set      OVERLINE_OFF=%ANSI_OVERLINE_OFF%
+        set      OVERLINE=%OVERLINE_ON%
+
+        set ANSI_DOUBLE_UNDERLINE=%ANSI_ESCAPE%21m
+        set ANSI_DOUBLE_UNDERLINE_ON=%ANSI_DOUBLE_UNDERLINE%
+        set ANSI_DOUBLE_UNDERLINE_OFF=%ANSI_ESCAPE%24m
+        set      DOUBLE_UNDERLINE_ON=%ANSI_DOUBLE_UNDERLINE_ON%
+        set      DOUBLE_UNDERLINE_OFF=%ANSI_DOUBLE_UNDERLINE_OFF%
+        set      DOUBLE_UNDERLINE=%DOUBLE_UNDERLINE_ON%
+
+            set ANSI_UNDERLINE_DOUBLE=%ANSI_DOUBLE_UNDERLINE%
+            set ANSI_UNDERLINE_DOUBLE_ON=%ANSI_DOUBLE_UNDERLINE_ON%
+            set ANSI_UNDERLINE_DOUBLE_OFF=%ANSI_DOUBLE_UNDERLINE_OFF%
+            set      UNDERLINE_DOUBLE_ON=%DOUBLE_UNDERLINE_ON%
+            set      UNDERLINE_DOUBLE_OFF=%DOUBLE_UNDERLINE_OFF%
+            set      UNDERLINE_DOUBLE=%DOUBLE_UNDERLINE%
+
+        set ANSI_BLINK_SLOW=%ANSI_ESCAPE%5m
+        set ANSI_BLINK_SLOW_ON=%ANSI_BLINK_SLOW%
+        set ANSI_BLINK_SLOW_OFF=%ANSI_ESCAPE%25m
+        set      BLINK_SLOW_ON=%ANSI_BLINK_SLOW_ON%
+        set      BLINK_SLOW_OFF=%ANSI_BLINK_SLOW_OFF%
+        set      BLINK_SLOW=%BLINK_SLOW_ON%
+
+        set ANSI_BLINK_FAST=%ANSI_ESCAPE%6m
+        set ANSI_BLINK_FAST_ON=%ANSI_BLINK_FAST%
+        set ANSI_BLINK_FAST_OFF=%ANSI_ESCAPE%25m
+        set      BLINK_FAST_ON=%ANSI_BLINK_FAST_ON%
+        set      BLINK_FAST_OFF=%ANSI_BLINK_FAST_OFF%
+        set      BLINK_FAST=%BLINK_FAST_ON%
+
+        set ANSI_BLINK=%ANSI_BLINK_FAST%
+        set ANSI_BLINK_ON=%ANSI_BLINK_FAST_ON%
+        set ANSI_BLINK_OFF=%ANSI_BLINK_FAST_OFF%
+        set      BLINK_ON=%ANSI_BLINK_ON%
+        set      BLINK_OFF=%ANSI_BLINK_OFF%
+        set      BLINK=%BLINK_ON%
+
+        set ANSI_REVERSE=%ANSI_ESCAPE%7m
+        set ANSI_REVERSE_ON=%ANSI_REVERSE%
+        set ANSI_REVERSE_OFF=%ANSI_ESCAPE%27m
+        set      REVERSE_ON=%ANSI_REVERSE_ON%
+        set      REVERSE_OFF=%ANSI_REVERSE_OFF%
+        set      REVERSE=%REVERSE_ON%
+
+        set ANSI_CONCEAL=%ANSI_ESCAPE%8m
+        set ANSI_CONCEAL_ON=%ANSI_CONCEAL%
+        set ANSI_CONCEAL_OFF=%ANSI_ESCAPE%28m
+        set      CONCEAL_ON=%ANSI_CONCEAL_ON%
+        set      CONCEAL_OFF=%ANSI_CONCEAL_OFF%
+        set      CONCEAL=%CONCEAL_ON%
+        set      INVISIBLE_ON=%ANSI_CONCEAL_ON%
+        set      INVISIBLE_OFF=%ANSI_CONCEAL_OFF%
+        set      INVISIBLE=%CONCEAL_ON%
+
+        set ANSI_STRIKETHROUGH=%ANSI_ESCAPE%9m
+        set ANSI_STRIKETHROUGH_ON=%ANSI_STRIKETHROUGH%
+        set ANSI_STRIKETHROUGH_OFF=%ANSI_ESCAPE%29m
+        set      STRIKETHROUGH_ON=%ANSI_STRIKETHROUGH_ON%
+        set      STRIKETHROUGH_OFF=%ANSI_STRIKETHROUGH_OFF%
+        set      STRIKETHROUGH=%STRIKETHROUGH_ON%
+            set OVERSTRIKE_ON=%STRIKETHROUGH_ON%
+            set OVERSTRIKE_OFF=%STRIKETHROUGH_OFF%
+            set OVERSTRIKE=%OVERSTRIKE_ON%
+
+        REM wow it even supports the vt100 2-line-tall (double-height) and wide (double-wide) text!
+                set WIDE=%ESCAPE%#6
+                    set WIDE_ON=%WIDE%
+                    set WIDELINE=%WIDE%
+                    set WIDE_LINE=%WIDE%
+                    set WIDE_OFF=%ESCAPE%#5
+                    set ANSI_WIDE_ON=%WIDE%
+                    set ANSI_WIDELINE=%WIDE%
+                    set ANSI_WIDE_LINE=%WIDE%
+                    set ANSI_WIDE_OFF=%ESCAPE%#5
+                set BIG_TEXT_LINE_1=%ESCAPE%#3
+                set BIG_TEXT_LINE_2=%ESCAPE%#4
+                    set BIG_TOP=%BIG_TEXT_LINE_1%
+                    set BIG_TOP_ON=%BIG_TOP%
+                    set BIG_BOT=%BIG_TEXT_LINE_2%
+                    set BIG_BOT_ON=%BIG_BOT%
+                    set BIG_BOTTOM=%BIG_BOT%
+                    set BIG_BOTTOM_ON=%BIG_BOTTOM%
+                    REM this/these is/are guess(es):
+                        set BIG_TEXT_END=%ESCAPE%#0
+                        set BIG_OFF=%BIG_TEXT_END%
+                        set BIG_TEXT_OFF=%BIG_OFF%
+                        set BIG_TOP_OFF=%BIG_OFF%
+                        set BIG_BOT_OFF=%BIG_OFF%
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -331,139 +468,6 @@ rem ANSI: colors
                     set ANSI_BG_BRIGHT_CYAN=%ANSI_BACKGROUND_BRIGHT_CYAN%
                     set ANSI_BG_BRIGHT_WHITE=%ANSI_BACKGROUND_BRIGHT_WHITE%
 
-rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-REM ANSI: styles —— As of Windows Terminal we can now actually display italic characters
-            REM 0m=reset, 1m=bold, 2m=faint, 3m=italic, 4m=underline, 5m=blink slow, 6m=blink fast, 7m=reverse, 8m=conceal, 9m=strikethrough
-            set ANSI_BOLD=%ANSI_ESCAPE%1m
-            set ANSI_BOLD_ON=%ANSI_BOLD%
-            set ANSI_BOLD_OFF=%ANSI_ESCAPE%22m
-            set      BOLD_ON=%ANSI_BOLD_ON%
-            set      BOLD_OFF=%ANSI_BOLD_OFF%
-            set      BOLD=%BOLD_ON%
-
-                set ANSI_BRIGHT=%ANSI_BOLD%
-                set ANSI_BRIGHT_ON=%ANSI_BOLD%
-                set ANSI_BRIGHT_OFF=%ANSI_ESCAPE%22m
-                set      BRIGHT_ON=%ANSI_BOLD_ON%
-                set      BRIGHT_OFF=%ANSI_BOLD_OFF%
-                set      BRIGHT=%BOLD_ON%
-
-            set ANSI_FAINT=%ANSI_ESCAPE%2m
-            set ANSI_FAINT_ON=%ANSI_FAINT%
-            set ANSI_FAINT_OFF=%ANSI_ESCAPE%22m
-            set      FAINT_ON=%ANSI_FAINT_ON%
-            set      FAINT_OFF=%ANSI_FAINT_OFF%
-            set      FAINT=%FAINT_ON%
-
-            set ANSI_ITALICS=%ANSI_ESCAPE%3m
-            set ANSI_ITALICS_ON=%ANSI_ITALICS%
-            set ANSI_ITALICS_OFF=%ANSI_ESCAPE%23m
-            set      ITALICS_ON=%ANSI_ITALICS_ON%
-            set      ITALICS_OFF=%ANSI_ITALICS_OFF%
-            set      ITALICS=%ITALICS_ON%
-
-            set ANSI_UNDERLINE=%ANSI_ESCAPE%4m
-            set ANSI_UNDERLINE_ON=%ANSI_UNDERLINE%
-            set ANSI_UNDERLINE_OFF=%ANSI_ESCAPE%24m
-            set      UNDERLINE_ON=%ANSI_UNDERLINE_ON%
-            set      UNDERLINE_OFF=%ANSI_UNDERLINE_OFF%
-            set      UNDERLINE=%UNDERLINE_ON%
-
-            set ANSI_OVERLINE=%ANSI_ESCAPE%53m
-            set ANSI_OVERLINE_ON=%ANSI_OVERLINE%
-            set ANSI_OVERLINE_OFF=%ANSI_ESCAPE%55m
-            set      OVERLINE_ON=%ANSI_OVERLINE_ON%
-            set      OVERLINE_OFF=%ANSI_OVERLINE_OFF%
-            set      OVERLINE=%OVERLINE_ON%
-
-            set ANSI_DOUBLE_UNDERLINE=%ANSI_ESCAPE%21m
-            set ANSI_DOUBLE_UNDERLINE_ON=%ANSI_DOUBLE_UNDERLINE%
-            set ANSI_DOUBLE_UNDERLINE_OFF=%ANSI_ESCAPE%24m
-            set      DOUBLE_UNDERLINE_ON=%ANSI_DOUBLE_UNDERLINE_ON%
-            set      DOUBLE_UNDERLINE_OFF=%ANSI_DOUBLE_UNDERLINE_OFF%
-            set      DOUBLE_UNDERLINE=%DOUBLE_UNDERLINE_ON%
-
-                set ANSI_UNDERLINE_DOUBLE=%ANSI_DOUBLE_UNDERLINE%
-                set ANSI_UNDERLINE_DOUBLE_ON=%ANSI_DOUBLE_UNDERLINE_ON%
-                set ANSI_UNDERLINE_DOUBLE_OFF=%ANSI_DOUBLE_UNDERLINE_OFF%
-                set      UNDERLINE_DOUBLE_ON=%DOUBLE_UNDERLINE_ON%
-                set      UNDERLINE_DOUBLE_OFF=%DOUBLE_UNDERLINE_OFF%
-                set      UNDERLINE_DOUBLE=%DOUBLE_UNDERLINE%
-
-
-            set ANSI_BLINK_SLOW=%ANSI_ESCAPE%5m
-            set ANSI_BLINK_SLOW_ON=%ANSI_BLINK_SLOW%
-            set ANSI_BLINK_SLOW_OFF=%ANSI_ESCAPE%25m
-            set      BLINK_SLOW_ON=%ANSI_BLINK_SLOW_ON%
-            set      BLINK_SLOW_OFF=%ANSI_BLINK_SLOW_OFF%
-            set      BLINK_SLOW=%BLINK_SLOW_ON%
-
-            set ANSI_BLINK_FAST=%ANSI_ESCAPE%6m
-            set ANSI_BLINK_FAST_ON=%ANSI_BLINK_FAST%
-            set ANSI_BLINK_FAST_OFF=%ANSI_ESCAPE%25m
-            set      BLINK_FAST_ON=%ANSI_BLINK_FAST_ON%
-            set      BLINK_FAST_OFF=%ANSI_BLINK_FAST_OFF%
-            set      BLINK_FAST=%BLINK_FAST_ON%
-
-            set ANSI_BLINK=%ANSI_BLINK_FAST%
-            set ANSI_BLINK_ON=%ANSI_BLINK_FAST_ON%
-            set ANSI_BLINK_OFF=%ANSI_BLINK_FAST_OFF%
-            set      BLINK_ON=%ANSI_BLINK_ON%
-            set      BLINK_OFF=%ANSI_BLINK_OFF%
-            set      BLINK=%BLINK_ON%
-
-            set ANSI_REVERSE=%ANSI_ESCAPE%7m
-            set ANSI_REVERSE_ON=%ANSI_REVERSE%
-            set ANSI_REVERSE_OFF=%ANSI_ESCAPE%27m
-            set      REVERSE_ON=%ANSI_REVERSE_ON%
-            set      REVERSE_OFF=%ANSI_REVERSE_OFF%
-            set      REVERSE=%REVERSE_ON%
-
-            set ANSI_CONCEAL=%ANSI_ESCAPE%8m
-            set ANSI_CONCEAL_ON=%ANSI_CONCEAL%
-            set ANSI_CONCEAL_OFF=%ANSI_ESCAPE%28m
-            set      CONCEAL_ON=%ANSI_CONCEAL_ON%
-            set      CONCEAL_OFF=%ANSI_CONCEAL_OFF%
-            set      CONCEAL=%CONCEAL_ON%
-            set      INVISIBLE_ON=%ANSI_CONCEAL_ON%
-            set      INVISIBLE_OFF=%ANSI_CONCEAL_OFF%
-            set      INVISIBLE=%CONCEAL_ON%
-
-            set ANSI_STRIKETHROUGH=%ANSI_ESCAPE%9m
-            set ANSI_STRIKETHROUGH_ON=%ANSI_STRIKETHROUGH%
-            set ANSI_STRIKETHROUGH_OFF=%ANSI_ESCAPE%29m
-            set      STRIKETHROUGH_ON=%ANSI_STRIKETHROUGH_ON%
-            set      STRIKETHROUGH_OFF=%ANSI_STRIKETHROUGH_OFF%
-            set      STRIKETHROUGH=%STRIKETHROUGH_ON%
-                set OVERSTRIKE_ON=%STRIKETHROUGH_ON%
-                set OVERSTRIKE_OFF=%STRIKETHROUGH_OFF%
-                set OVERSTRIKE=%OVERSTRIKE_ON%
-
-            REM wow it even supports the vt100 2-line-tall (double-height) and wide (double-wide) text!
-                        set WIDE=%ESCAPE%#6
-                            set WIDE_ON=%WIDE%
-                            set WIDELINE=%WIDE%
-                            set WIDE_LINE=%WIDE%
-                            set WIDE_OFF=%ESCAPE%#5
-                            set ANSI_WIDE_ON=%WIDE%
-                            set ANSI_WIDELINE=%WIDE%
-                            set ANSI_WIDE_LINE=%WIDE%
-                            set ANSI_WIDE_OFF=%ESCAPE%#5
-                        set BIG_TEXT_LINE_1=%ESCAPE%#3
-                        set BIG_TEXT_LINE_2=%ESCAPE%#4
-                            set BIG_TOP=%BIG_TEXT_LINE_1%
-                            set BIG_TOP_ON=%BIG_TOP%
-                            set BIG_BOT=%BIG_TEXT_LINE_2%
-                            set BIG_BOT_ON=%BIG_BOT%
-                            set BIG_BOTTOM=%BIG_BOT%
-                            set BIG_BOTTOM_ON=%BIG_BOTTOM%
-                            REM this/these is/are guess(es):
-                                set BIG_TEXT_END=%ESCAPE%#0
-                                set BIG_OFF=%BIG_TEXT_END%
-                                set BIG_TEXT_OFF=%BIG_OFF%
-                                set BIG_TOP_OFF=%BIG_OFF%
-                                set BIG_BOT_OFF=%BIG_OFF%
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -498,19 +502,20 @@ rem ANSI: erasing
                 set ANSI_ERASE_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
                 set ANSI_CLEAR_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
 
-            set ANSI_ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
-            set      ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
-            set   ANSI_ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
-            set        ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
-            set           ANSI_ERASE_TO_EOP=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
-            set                ERASE_TO_EOP=%ANSI_ESCAPE%J                   %+ rem erases from cursor until end of the page
-            set     ANSI_ERASE_UP_TO_CURSOR=%ANSI_ESCAPE%1J                  %+ rem erases from start of page up to cursor! weird!
+            set ANSI_ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
+            set      ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
+            set   ANSI_ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
+            set        ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
+            set           ANSI_ERASE_TO_EOP=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
+            set                ERASE_TO_EOP=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
+            set     ANSI_ERASE_UP_TO_CURSOR=%ANSI_ESCAPE%1J                 %+ rem erases from start of page up to cursor! weird!
             set      ANSI_ERASE_ENTIRE_PAGE=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
             set             ANSI_ERASE_PAGE=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
             set                  ERASE_PAGE=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
             set    ANSI_ERASE_ENTIRE_SCREEN=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
             set           ANSI_ERASE_SCREEN=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
             set                ERASE_SCREEN=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
+            set                    ANSI_CLS=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
 
             rem UNIMPLEMENTED: L   Erase in Line   (ESC [ Ps K). Erases some or all of the Active Line according to the parameter.
             rem UNIMPLEMENTED: EF  Erase in Field  (ESC [ Pn N). Erases some or all of the Active Field according to the parameter.
@@ -553,26 +558,80 @@ REM DEC drawing font support:
                     set DRAWING_FONT_LINE_VERTICAL=x
                     set DRAWING_FONT_LINE_VERT=x
 
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+REM ANSI: margin-setting / anti-scroll areas
+
+        rem Cordoning off rows:
+                rem Want to   lock the top  5 rows from scrolling?  echos @%ANSI_LOCK_TOP_ROWS[5]
+                        function      ANSI_LOCK_TOP_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%@EVAL[%1+1];%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                        function ANSI_UNLOCK_LOCKED_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                        set      ANSI_UNLOCK_LOCKED_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                rem Want to unlock all locked rows for  scrolling?  echos %ANSI_UNLOCK_ROWS%       or  echos %@ANSI_UNLOCK_ROWS[]
+
+                        function        ANSI_UNLOCK_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                        set             ANSI_UNLOCK_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+
+        rem Cordoning off columns:
+                rem Want to lock *columns* at the *sides*? That's funkier! First we have to determine the string to enable it:
+                        set    ANSI_LOCK_COLUMNS_ENABLE=%ANSI_CSI%?69h
+                rem Then, we incorporate that enabling screen into our function to lock BOTH sides an equal amount based on a single parameter:
+                rem BUT A CATCH! You most likely want to do an echos %ANSI_POSITION_SAVE% and RESTORE before and after...
+                        function ANSI_LOCK_SIDE_COLUMNS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
+                        function      ANSI_LOCK_COLUMNS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
+                        function    ANSI_LOCK_SIDE_COLS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
+                        function         ANSI_LOCK_COLS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
+                rem And when we want to unlock it, use the "?69l" code:                                      %+ rem EXAMPLE: echos %ANSI_UNLOCK_COLUMNS%
+                        set   ANSI_LOCK_COLUMNS_DISABLE=%ANSI_CSI%?69l
+                        set ANSI_LOCKED_COLUMNS_DISABLE=%ANSI_CSI%?69l
+                        set         ANSI_UNLOCK_COLUMNS=%ANSI_CSI%?69l
+                        set         ANSI_COLUMNS_UNLOCK=%ANSI_CSI%?69l
+                        set          ANSI_RESET_COLUMNS=%ANSI_CSI%?69l
+                        set           ANSI_COLUMS_RESET=%ANSI_CSI%?69l
+                        set            ANSI_UNLOCK_COLS=%ANSI_CSI%?69l
+                        set            ANSI_COLS_UNLOCK=%ANSI_CSI%?69l
+                        set             ANSI_RESET_COLS=%ANSI_CSI%?69l
+                        set             ANSI_COLS_RESET=%ANSI_CSI%?69l
+
+                rem A special function that makes us end up with cordoned off columns on both sides in a random color without disturbing your cursor location very much ... Very dramatic:
+                        function ANSI_COLOR_SIDE_COLS=`%ANSI_SAVE_POSITION%%@ANSI_RANDBG[]%ANSI_CLS%%@ANSI_LOCK_COLS[%1]%ANSI_RESTORE_POSITION%%@ANSI_MOVE_UP[2]%@ANSI_MOVE_RIGHT[%1]`
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 REM ANSI: unsupported in Windows Terminal:
  
-            set   UNSUPPORTED_ANSI_DEFAULT_FONT=%ANSI_ESCAPE%10m
-            set     UNSUPPORTED_ANSI_ALT_FONT_1=%ANSI_ESCAPE%11m
-            set     UNSUPPORTED_ANSI_ALT_FONT_2=%ANSI_ESCAPE%12m
-            set     UNSUPPORTED_ANSI_ALT_FONT_3=%ANSI_ESCAPE%13m
-            set     UNSUPPORTED_ANSI_ALT_FONT_4=%ANSI_ESCAPE%14m
-            set     UNSUPPORTED_ANSI_ALT_FONT_5=%ANSI_ESCAPE%15m
-            set     UNSUPPORTED_ANSI_ALT_FONT_6=%ANSI_ESCAPE%16m
-            set     UNSUPPORTED_ANSI_ALT_FONT_7=%ANSI_ESCAPE%17m
-            set     UNSUPPORTED_ANSI_ALT_FONT_8=%ANSI_ESCAPE%18m
-            set     UNSUPPORTED_ANSI_ALT_FONT_9=%ANSI_ESCAPE%19m
-            set         UNSUPPORTED_ANSI_GOTHIC=%ANSI_ESCAPE%20m
-            set              UNSUPPORTED_FRAMED=%ANSI_ESCAPE%51m
-            set           UNSUPPORTED_ENCIRCLED=%ANSI_ESCAPE%52m
-            set  UNSUPPORTED_FRAME_ENCIRCLE_OFF=%ANSI_ESCAPE%54m
-            set UNSUPPORTED_SET_UNDERLINE_COLOR=%ANSI_ESCAPE%58;2;255,0,0m %+ REM set underline color to red
+        set        UNSUPPORTED_ANSI_DEFAULT_FONT=%ANSI_ESCAPE%10m
+        set          UNSUPPORTED_ANSI_ALT_FONT_1=%ANSI_ESCAPE%11m
+        set          UNSUPPORTED_ANSI_ALT_FONT_2=%ANSI_ESCAPE%12m
+        set          UNSUPPORTED_ANSI_ALT_FONT_3=%ANSI_ESCAPE%13m
+        set          UNSUPPORTED_ANSI_ALT_FONT_4=%ANSI_ESCAPE%14m
+        set          UNSUPPORTED_ANSI_ALT_FONT_5=%ANSI_ESCAPE%15m
+        set          UNSUPPORTED_ANSI_ALT_FONT_6=%ANSI_ESCAPE%16m
+        set          UNSUPPORTED_ANSI_ALT_FONT_7=%ANSI_ESCAPE%17m
+        set          UNSUPPORTED_ANSI_ALT_FONT_8=%ANSI_ESCAPE%18m
+        set          UNSUPPORTED_ANSI_ALT_FONT_9=%ANSI_ESCAPE%19m
+        set              UNSUPPORTED_ANSI_GOTHIC=%ANSI_ESCAPE%20m
+        set                   UNSUPPORTED_FRAMED=%ANSI_ESCAPE%51m
+        set                UNSUPPORTED_ENCIRCLED=%ANSI_ESCAPE%52m
+        set       UNSUPPORTED_FRAME_ENCIRCLE_OFF=%ANSI_ESCAPE%54m
+        set      UNSUPPORTED_SET_UNDERLINE_COLOR=%ANSI_ESCAPE%58;2;255,0,0m %+ REM set underline color to red
+        function   UNSUPPORTED_SET_WARN_BELL_VOL=`%@CHAR[27][%1 t`          %+ REM 1/0/None=Off, 2-4=low, 5-8=high
+        function UNSUPPORTED_SET_MARGIN_BELL_VOL=`%@CHAR[27][%1 u`          %+ REM 1=Off, 2-4=low, None,0,5-8=high
+        set             UNSUPORTED_RUN_ALL_TESTS=%ANSI_ESCAPE%4;0y
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+REM ANSI: testing
+        set          TEST_SCREEN_ALIGNMENT=%ESCAPE%#8    %+ rem "Screen alignment display"
+        set ANSI_IDENTIFY_HOST_TO_TERMINAL=%ESCAPE%Z     %+ rem for me just returns "[?61;6;7;21;22;23;24;28;32;42c"
+        set      IDENTIFY_HOST_TO_TERMINAL=%ESCAPE%Z     %+ rem for me just returns "[?61;6;7;21;22;23;24;28;32;42c"
+        set        DEVICE_ATTRIBUTES_QUERY=%ESCAPE%Z     %+ rem for me just returns "[?61;6;7;21;22;23;24;28;32;42c"
+        set   ANSI_DEVICE_ATTRIBUTES_QUERY=%ESCAPE%Z     %+ rem for me just returns "[?61;6;7;21;22;23;24;28;32;42c"
+        set       ANSI_SOFT_TERMINAL_RESET=%ANSI_CSI%!p
+        set            SOFT_TERMINAL_RESET=%ANSI_CSI%!p
+        set                  SET_INSERT_ON=%ANSI_CSI%!p  %+ rem is really SOFT_TERMINAL_RESE but sets insert to on which is useful
+        set             ANSI_SET_INSERT_ON=%ANSI_CSI%!p  %+ rem is really SOFT_TERMINAL_RESE but sets insert to on which is useful
+        set            HARD_TERMINAL_RESET=%ESCAPE%c     %+ rem not recommended
+        set       ANSI_HARD_TERMINAL_RESET=%ESCAPE%c     %+ rem not recommended
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 

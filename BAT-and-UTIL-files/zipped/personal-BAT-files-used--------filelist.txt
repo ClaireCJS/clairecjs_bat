@@ -44,6 +44,7 @@
 2019-10-01  10:27             74    5%  alltif2jpg.bat
 2024-04-14  15:52            529   40%  allwav2mp3.bat
 2022-02-07  13:15             19  -10%  an.bat
+2024-09-09  18:24            137   23%  ansi-references.bat
 2024-09-08  22:24             21   -9%  ansi-reset.bat
 2024-09-09  01:32         13,506   74%  askYN.bat
 2024-03-18  22:08          1,047   53%  assimilate-rookie-folders.bat
@@ -53,9 +54,9 @@
 2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
 2024-08-20  09:38          2,074   67%  autoexec-common.btm
-2024-04-26  14:52          1,414   64%  autoexec.ahk
-2024-04-26  14:56             56    8%  AutoHotKey-autoexec.bat
-2024-03-18  02:07            556   41%  AutoHotKey.bat
+2024-09-10  00:52          9,371   72%  autoexec.ahk
+2024-09-10  02:31            407   36%  AutoHotKey-autoexec.bat
+2024-09-10  02:31            662   42%  AutoHotKey.bat
 2024-03-24  20:50          3,094   61%  autoname.bat
 2023-10-06  08:04             23   -8%  autoprocess.bat
 2023-07-03  18:02          1,603   58%  average.py
@@ -135,6 +136,7 @@
 2019-10-01  10:27          1,226   59%  convert-all-MOV-to-AVI.bat
 2023-02-16  04:54             86   12%  convert-all-TS-to-MP4.bat
 2024-05-07  13:27            234   35%  convert-all-video-to-MKV.bat
+2023-06-26  19:26             96   20%  convert-com-to-64bit-exe.bat
 2024-05-07  14:32             74   -1%  convert-each-line-to-a-dot.pl
 2024-09-09  04:45            786   53%  convert-each-line-to-a-randomly-colored-dot.pl
 2024-09-09  07:44          1,193   57%  convert-each-line-to-a-randomly-colored-dot.py
@@ -538,6 +540,7 @@
 2019-10-01  10:28            220   36%  randbg.bat
 2019-10-01  10:28            331   52%  randcolor.bat
 2024-09-09  00:10             24   -8%  randcursor.bat
+2024-09-09  20:08             31   -6%  RANDDOTS.BAT
 2023-10-14  03:09            970   69%  randfg.bat
 2024-03-17  18:31          1,831   62%  randfile.bat
 2023-10-06  06:47             37   -5%  randir.bat
@@ -546,9 +549,11 @@
 2024-09-09  12:19            304   43%  random-cursor-color.bat
 2024-09-09  00:15            184   30%  random-cursor-shape.bat
 2024-09-09  00:09             73   29%  random-cursor.bat
+2024-09-09  18:46             56    6%  random-infinite-dots.bat
 2019-10-01  10:28            567   55%  randomize-file.pl
 2019-10-01  10:28             48   -4%  randomize.bat
 2023-08-03  01:20            298   40%  random_color_each_line.py
+2024-09-09  20:08             31   -6%  randots.BAT
 2024-04-27  06:19            308   39%  rar.bat
 2024-04-27  06:02            743   47%  rd-alias.bat
 2023-06-08  17:34             29    4%  realias.bat
@@ -570,8 +575,8 @@
 2024-05-27  20:41          6,632   67%  reorder_playlist.py
 2019-10-01  10:28            184   18%  research-this-dir-on-discogs.bat
 2019-10-01  10:28            186   18%  research-this-dir-on-wikipedia.bat
-2024-05-24  05:22            124   21%  reset-ansi.bat
-2024-09-09  14:48          1,175   62%  reset-tab-stops.bat
+2024-09-10  01:05            144   28%  reset-ansi.bat
+2024-09-10  01:10          2,673   61%  reset-tab-stops.bat
 2024-09-08  22:23             79   57%  reset.ansi
 2024-05-11  16:41            539   46%  restart-chrome.bat
 2019-10-01  10:28            323   48%  restart-cpu-meter.bat
@@ -610,7 +615,7 @@
 2024-08-20  05:11            375   32%  run-first-image-file-in-directory.bat
 2024-08-20  05:09            188   25%  run-piped-input-as-bat.bat
 2023-11-09  07:42            589   49%  save-window-positions.bat
-2024-04-28  00:35          1,303   57%  say.bat
+2024-09-09  20:51          1,374   55%  say.bat
 2024-03-23  00:42            163   21%  scream.bat
 2024-04-10  12:57             13  -15%  search-music.bat
 2019-10-01  10:28            831   48%  select-random-lines-from.pl
@@ -621,7 +626,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-09-09  13:48         65,939   83%  set-ansi.bat
+2024-09-10  02:26         72,580   83%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat
@@ -633,6 +638,7 @@
 2024-09-08  17:25            225   60%  set-escape-character-and-command-separator-character.bat
 2023-06-08  08:06          1,793   70%  set-file-age.bat
 2023-05-30  00:32          1,398   58%  set-first-file.bat
+2024-09-10  02:32             24   -8%  set-insert-on.bat
 2024-03-24  20:03             49   -4%  set-label.bat
 2023-10-06  06:00            184   53%  set-largest-filename.bat
 2023-10-06  05:58          1,232   63%  set-latest-filename.bat
@@ -735,6 +741,7 @@
 2023-06-02  21:00          1,020   66%  test-errorlevel-catcher.bat
 2024-05-24  05:23            104   25%  tock.bat
 2023-08-29  05:29             49   17%  tock.py
+2024-09-09  22:48         12,060   76%  ToolTipOptions.ahk
 2024-02-02  21:12            585   58%  touch-alias.bat
 2019-10-01  10:28            210   33%  TRIMDIR.pl
 2019-10-01  10:28             70   12%  TRIMEXT.pl
@@ -780,7 +787,7 @@
 2023-06-02  13:02             44   -4%  warning.bat
 2024-08-22  01:03             49    0%  warning_less.bat
 2023-06-08  21:27             49   -4%  warning_soft.bat
-2024-04-26  14:18         18,101   74%  watch.bat
+2024-09-09  18:45         18,172   74%  watch.bat
 2022-11-09  12:11          5,931   65%  wav2mp3.bat
 2019-10-01  10:28             11  -18%  wcclip.bat
 2024-04-10  13:09          1,705   71%  WCHEADER.bat

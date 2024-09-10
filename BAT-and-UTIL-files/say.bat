@@ -13,18 +13,18 @@
 	:CygWin_Banner_EXE
         rem Double check that the EXE is actually there, since 
         rem it isn't necessarily in a default cygwin installation:
-            set BANNER=c:\cygwin\bin\banner.exe
-            if not exist %BANNER% (goto :Standalone_Banner_EXE)
+            set CYGWIN_BANNER=c:\cygwin\bin\banner.exe
+            if not exist %CYGWIN_BANNER% (goto :Standalone_Banner_EXE)
 
         rem Use internal %_COLUMNS var to set width of banner
-            %BANNER% -cO --width=%WIDTH% %*
+            %CYGWIN_BANNER% -cO --width=%WIDTH% %* |sed -e "s/[^ ]/█/g"
             rem # was our character for a long time, but O is more readable
 	goto :END
 
 	:Standalone_Banner_EXE
         set                                 STANDALONE_BANNER=%UTIL%\banner.exe 
         call validate-environment-variables STANDALONE_BANNER  UTIL  WIDTH
-        %UTIL%\banner.exe -cO --w %WIDTH% %*
+        %STANDALONE_BANNER% -cO --w %WIDTH% %*
 	goto :END
 
 	:DOS_Version
@@ -34,3 +34,4 @@
 	goto :END
 
 :END
+echos %@ANSI_MOVE_UP[1]

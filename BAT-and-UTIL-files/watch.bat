@@ -245,7 +245,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 
 
 
-::::: THIS IS WHAT HAPPENS WHILE WE ARE WATCHING, AFTER THE 2ND-PASS LIGHTING DOUBLE-CHECK. BASICALLY, WE WAIT:
+::::: THIS IS WHAT HAPPENS WHILE WE ARE WATCHING AFTER THE 2ND-PASS LIGHTING DOUBLE-CHECK. BASICALLY, WE WAIT:
         REM winamp moves when vlc starts and this moves it back
         call sleep 3
         call fml.bat
@@ -258,12 +258,14 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
                 REM winamp moves when vlc starts and this moves it back
 
             if %ISRUNNING eq 1 (goto :Still_Watching)
+
+        
+::::: THIS IS WHAT HAPPENS WHEN WE'RE FINALLY DONE WATCHING:
         :: done watching - bring command-line window back to front:
             window restore
 			REM call fix-minilyrics-window-size-and-position
         	:202007: NOPE SO SICK OF THIS NOW!!! call restore-window-positions
             REM call advice "Type 'rwp' to restore the window positions (if they got messed up by watching this video)."
-
             call sleep 1
             window restore
             window /flash=2
