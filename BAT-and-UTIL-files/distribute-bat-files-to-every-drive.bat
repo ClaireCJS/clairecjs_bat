@@ -26,7 +26,7 @@
 ::::: PREPARE FOR COPY:
         pushd
         call go-to-bat-file-folder
-        if exist *.bak (*del *.bak)
+        if exist *.bak (*del /q *.bak)
 
 ::::: BRANCH TO DIFFERENT BEHAVIORS BASED ON PARAMETERS:
         set Command_To_Use=copy /g /h /u /[!.git *.bak] %1%SPACE

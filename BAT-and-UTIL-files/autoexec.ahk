@@ -27,14 +27,13 @@ global       dummy_mode         := 0  ;used to avoid passing caps lock mode beca
 global insert_up_tray_text      := " ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— "
 global insert_dn_tray_text      := " —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— "
 global insert_up_popup_text     := "      ███                                              █                       `n     █   █                                                    █                `n    █     █                                                   █                `n    █     █ ███ ███  █████  ███ ██  ███ ███ ███ ██   ███     ████    █████     `n    █     █  █   █  █     █   ██  █  █   █    ██  █    █      █     █     █    `n    █     █  █   █  ███████   █      █ █ █    █        █      █     ███████    `n    █     █   █ █   █         █      █ █ █    █        █      █     █          `n     █   █    █ █   █     █   █       █ █     █        █      █  █  █     █    `n      ███      █     █████  █████     █ █   █████    █████     ██    █████     `n"
-global insert_dn_popup_text     := "    █████                                            `n      █                                      █       `n      █                                      █       `n      █    ██ ██    █████   █████  ███ ██   ████     `n      █     ██  █  █     █ █     █   ██  █   █       `n      █     █   █   ███    ███████   █       █       `n      █     █   █      ██  █         █       █       `n      █     █   █  █     █ █     █   █       █  █    `n    █████  ███ ███  █████   █████  █████      ██     `n"
-                                
+global insert_dn_popup_text     := "    ████                                            `n      █                                      █       `n      █                                      █       `n      █    ██ ██    █████   █████  ███ ██   ████     `n      █     ██  █  █     █ █     █   ██  █   █       `n      █     █   █   ███    ███████   █       █       `n      █     █   █      ██  █         █       █       `n      █     █   █  █     █ █     █   █       █  █    `n    █████  ███ ███  █████   █████  █████      ██     `n"
+
 global numLock_up_tray_text     := " —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— "
 global numLock_dn_tray_text     := " —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— "
 global numLock_up_popup_text    := " —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— "
 global numLock_dn_popup_text    := " —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— "
-global numLock_dn_popup_text    := "    ██  ███                 █████                   ██                ███              `n     █   █                    █                      █               █   █             `n     ██  █                    █                      █              █     █            `n     ██  █  ██  ██  ███ █     █      █████   █████   █  ██          █     █ ██ ██      `n     █ █ █   █   █   █ █ █    █     █     █ █     █  █  █           █     █  ██  █     `n     █  ██   █   █   █ █ █    █     █     █ █        █ █            █     █  █   █     `n     █  ██   █   █   █ █ █    █     █     █ █        ███            █     █  █   █     `n     █   █   █  ██   █ █ █    █   █ █     █ █     █  █  █            █   █   █   █     `n    ███  █    ██ ██ ██ █ ██ ███████  █████   █████  ██   ██           ███   ███ ███    `n"
-                                
+global numLock_dn_popup_text    := "    ██  ███                 █████                   ██                ███              `n     █   █                    █                      █               █   █             `n     ██  █                    █                      █              █     █            `n     ██  █  ██  ██  ███ █     █      █████   █████   █  ██          █     █ ██ ██      `n     █ █ █   █   █   █ █ █    █     █     █ █     █  █  █           █     █  ██  █     `n     █  ██   █   █   █ █ █    █     █     █ █        █ █            █     █  █   █     `n     █  ██   █   █   █ █ █    █     █     █ █        ███            █     █  █   █     `n     █   █   █  ██   █ █ █    █   █ █     █ █     █  █  █            █   █   █   █     `n    ███  █    ██ ██ ██ █ ██ ███████  █████   █████  ██   ██           ███   ███ ███    `n"                                
 
 global capsLock_up_tray_text    := " ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— "
 global capsLock_dn_tray_text    := " —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— "
@@ -102,9 +101,8 @@ HandleKey(      KeyName   ,     KeyModeVarName,        key_up_tray_text,        
     global scrollLock_up_popup_text   
     global scrollLock_dn_popup_text   
 
-    ;if WinActive("TCC")                                    ; originally the entire rest of the block here was for TCC-only to try to change the cursor shape with ANSI codes, but that was impossible
-    %KeyModeVarName% := !%KeyModeVarName%                           ; Toggle the key mode state
-    ToolTipFont("s20", "Gill Sans Ultra Bold")
+    ;if WinActive("TCC")                                  ; originally the entire rest of the block here was for TCC-only to try to change the cursor shape with ANSI codes, but that was impossible
+    %KeyModeVarName% := !%KeyModeVarName%                 ; Toggle the key mode state
     if (%KeyModeVarName%) {
         ;ansiCode  := Chr(27) key_dn_ansi_code_exp        ; experimental, doesn't work, abandoned
         tray_text  :=         key_dn_tray_text
@@ -115,113 +113,25 @@ HandleKey(      KeyName   ,     KeyModeVarName,        key_up_tray_text,        
         popup_text :=         key_up_popup_text
     }
     margin   := 50
-    x_offset := 240                                         ; higher #s == move box left — 250 is too much
-    y_offset := 110                                         ; higher #s == move box up
-    if (insert_mode) {
-        x_offset := x_offset + 90     
+    x_offset := 300                                       ; higher #s == move box left — 250 is too much AT FIRST but then added others —— this one is trial and error, yuck
+    y_offset := 110                                       ; higher #s == move box up
+    if (insert_mode) {                              
+        x_offset := x_offset + 90                        ; the word 'overwrite' is longer than 'insert', so move it this much more
     }
     ToolTipOptions.Init()
-    ToolTipOptions.SetFont("s10 norm", "Consolas Bold")
+    ToolTipOptions.SetFont(       "s10 norm","Consolas Bold")
     ToolTipOptions.SetMargins(margin, margin, margin, margin)
-    ;oolTipOptions.SetTitle("" , 4)
+    ToolTipOptions.SetTitle(" " , 4)                                     ; makes a blue exclaimation mark on the pop-up box to the left of our text
     ToolTipOptions.SetColors("White", "Blue")
-    ;oolTip("Hello world!")
     ToolTip popup_text, A_ScreenWidth //2 - x_offset, A_ScreenHeight//2 - y_offset
-    ;oolTip popup_text, A_ScreenWidth //2           , A_ScreenHeight//2            
-    SetTimer(() => ToolTip("", 0), 750)                     ; Optionally, hide the tooltip after a short delay
+    SetTimer(() => ToolTip("", 0), 750)                                  ; hide the on-screen banner  after these many ms
 
     CoordMode "ToolTip", "Screen"
-    TrayTip    ".`n" tray_text
-    SetTimer () =>TrayTip(), -1000
+    TrayTip   "⚠`n" tray_text   
+    SetTimer () =>TrayTip(), -1000                                       ; hide the tray notificatiOn after these many ms
     return
 }
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; INSERT MODE TOOLTIP ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;; TOOLTIP UTILITY FUNCTIONS ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; ToolTipOpt v1.004
-; Changes:
-;  v1.001 - Pass "Default" to restore a setting to default
-;  v1.002 - ANSI compatibility
-;  v1.003 - Added workarounds for ToolTip's parameter being overwritten by code within the message hook.
-;  v1.004 - Fixed text colour.
- 
-ToolTipFont(Options := "", Name := "", hwnd := "") {
-    static hfont := 0
-    if (hwnd = "")
-        hfont := Options="Default" ? 0 : _TTG("Font", Options, Name), _TTHook()
-    else
-        DllCall("SendMessage", "ptr", hwnd, "uint", 0x30, "ptr", hfont, "ptr", 0)
-}
- 
-ToolTipColor(Background := "", Text := "", hwnd := "") {
-    static bc := "", tc := ""
-    if (hwnd = "") {
-        if (Background != "")
-            bc := Background="Default" ? "" : _TTG("Color", Background)
-        if (Text != "")
-            tc := Text="Default" ? "" : _TTG("Color", Text)
-        _TTHook()
-    }
-    else {
-        ;🐐 VarSetCapacity(empty, 2, 0)
-        DllCall("UxTheme.dll\SetWindowTheme", "ptr", hwnd, "ptr", 0
-            , "ptr", (bc != "" && tc != "") ? &empty : 0)
-        if (bc != "")
-            DllCall("SendMessage", "ptr", hwnd, "uint", 1043, "ptr", bc, "ptr", 0)
-        if (tc != "")
-            DllCall("SendMessage", "ptr", hwnd, "uint", 1044, "ptr", tc, "ptr", 0)
-    }
-}
- 
-_TTHook() {
-    static hook := 0
-    ;🐐 if !hook
-        ;🐐 hook := DllCall("SetWindowsHookExW", "int", 4            , "ptr", egisterCallback("_TTWndProc"), "ptr", 0            , "uint", DllCall("GetCurrentThreadId"), "ptr")
-}
- 
-_TTWndProc(nCode, _wp, _lp) {
-    Critical 999
-   ;lParam  := NumGet(_lp+0*A_PtrSize)
-   ;wParam  := NumGet(_lp+1*A_PtrSize)
-    uMsg    := NumGet(_lp+2*A_PtrSize, "uint")
-    ;🐐 hwnd    := NumGet(_lp+3*A_PtrSize)
-    if (nCode >= 0 && (uMsg = 1081 || uMsg = 1036)) {
-        ;🐐 _hack_ := ahk_id %hwnd%
-        ;🐐 WinGetClass wclass, %_hack_%
-        ;🐐 if (wclass = "tooltips_class32") {
-        ;🐐     ToolTipColor(,, hwnd)
-        ;🐐     ToolTipFont(,, hwnd)
-        ;🐐 }
-    }
-    return DllCall("CallNextHookEx", "ptr", 0, "int", nCode, "ptr", _wp, "ptr", _lp, "ptr")
-}
- 
-_TTG(Cmd, Arg1, Arg2 := "") {
-    static htext := 0, hgui := 0
-    if !htext {
-        ;🐐 Gui _TTG: Add, Text, +hwndhtext
-        ;🐐 Gui _TTG: +hwndhgui +0x40000000
-    }
-    ;🐐 Gui _TTG: %Cmd%, %Arg1%, %Arg2%
-    ;🐐 if (Cmd = "Font") {
-        ;🐐 GuiControl _TTG: Font, %htext%
-        ;🐐 SendMessage 0x31, 0, 0,, ahk_id %htext%
-        ;🐐 return ErrorLevel
-    ;🐐 }
-    if (Cmd = "Color") {
-        hdc := DllCall("GetDC", "ptr", htext, "ptr")
-        ;🐐 SendMessage 0x138, hdc, htext,, ahk_id %hgui%
-        ;🐐 clr := DllCall("GetBkColor", "ptr", hdc, "uint")
-        ;🐐 DllCall("ReleaseDC", "ptr", htext, "ptr", hdc)
-        ;🐐 return clr
-    }
-}
-;;;;;;;;;;;;;;;;;;;;;;;;;; TOOLTIP UTILITY FUNCTIONS ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 
 
 
