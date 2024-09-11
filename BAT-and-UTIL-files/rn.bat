@@ -63,8 +63,8 @@
                 if "%%~nxF" neq "%FILENAME_OLD%" (
                     set FILENAME_COMPANION_OLD=%%~nxF
                     set FILENAME_COMPANION_NEW=%BASENAME_NEW%%%~xF
-                    %COLOR_SUCCESS%        %+  echo %FAINT_ON%     - Renaming companion: %FILENAME_COMPANION_OLD% 
-                    %COLOR_SUCCESS%        %+  echo %FAINT_ON%                       To: %FILENAME_COMPANION_NEW%%FAINT_OFF% %+ %COLOR_NORMAL%
+                    %COLOR_SUCCESS%        %+  echo %FAINT_ON%     - Renaming sidecar file: %FILENAME_COMPANION_OLD% 
+                    %COLOR_SUCCESS%        %+  echo %FAINT_ON%                          To: %FILENAME_COMPANION_NEW%%FAINT_OFF% %+ %COLOR_NORMAL%
                     %COLOR_SUBTLE%         %+  echos %FAINT_ON%%ITALICS_ON%                           ``
                     call validate-environment-variable FILENAME_COMPANION_OLD "Script currently doesn't rename companion files if they aren't in the current folder"
                                               %REN% "%FILENAME_COMPANION_OLD%" "%FILENAME_COMPANION_NEW%"

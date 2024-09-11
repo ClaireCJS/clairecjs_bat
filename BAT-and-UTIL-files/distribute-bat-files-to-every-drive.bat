@@ -100,6 +100,11 @@ goto :Cleanup
             set NO_GIT_ADD_PAUSE=%TEMP_OPTION%
             call GIT-COMMIT nopause
 
+    rem update to github...
+            call askYN "Update to %italics_on%GitHub%italics_off% as well?" yes 600
+            if %ANSWER eq Y (call publish-bat-updates-to-github.bat)
+
+
 goto :Cleanup
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

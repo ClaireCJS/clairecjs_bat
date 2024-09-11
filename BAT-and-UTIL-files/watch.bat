@@ -95,6 +95,11 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 				:Play_Can
 
 
+::::: MISC VALIDATIONS:
+        call validate-in-path bring-back-focus advice fml vlc
+
+
+
 
 ::::: ARGUMENTS CONVERTED TO SEMICOLON-DELIMITED BECAUSE THAT'S WHAT MANY COMMANDS USE:
        :echo set ARGSWITHSEMICOLONS=%1;%2;%3;%4;%5;%6;%7;%8;%9
@@ -268,6 +273,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
             REM call advice "Type 'rwp' to restore the window positions (if they got messed up by watching this video)."
             call sleep 1
             window restore
+            call bring-back-focus
             window /flash=2
             echo.
 
