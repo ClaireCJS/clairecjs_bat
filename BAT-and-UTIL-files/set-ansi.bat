@@ -99,8 +99,7 @@ rem ANSI: cursor position movement
                 function ANSI_MOVE=`%@CHAR[27][%1;%2H`                      %+ rem alias
             function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`	                    %+ rem moves cursor to column #
             function ANSI_MOVE_TO_ROW=`%@CHAR[27][%1H`                      %+ rem unfortunately does not preserve column position! not possible! cursor request ansi code return value cannot be captured
-        
-        rem function ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%[2]H`   %+ rem Windows Terminal 2024 doesn't seem to support this but we could TODO: decompose it into row/column statements
+            rem tion ANSI_MOVE_TO_COORDINATE                                %+ rem is defined in our unsupported section, as it's a replacement for an unsupported code
 
         rem Up/Down/Left/Right:
             set ANSI_MOVE_UP_1=%ESCAPE%M                                    %+ rem moves cursor one line up, scrolling if needed
@@ -637,8 +636,6 @@ REM ANSI: unsupported in Windows Terminal:
         function UNSUPPORTED_SET_MARGIN_BELL_VOL=`%@CHAR[27][%1 u`              %+ rem 1=Off, 2-4=low, None,0,5-8=high
         function  ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%2H`            %+ rem Windows Terminal 2024 doesn't support this official code................
         function  ANSI_MOVE_TO_COORDINATE=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem    .........so instead, we reduce into 2 separate commands internally 😎
-            function ANSI_MOVE_TO_COL=``	                    %+ rem moves cursor to column #
-            function ANSI_MOVE_TO_ROW=``                      %+ rem unfortunately does not preserve column position! not possible! cursor request ansi code return value cannot be captured
 
         set UNSUPPORTED_MAP_A_TO_Z=%ANSI_DCS%"y1/7A/7A/7A/7A/7A/7A/-%ANSI_ST%   %+ rem Windows Terminal 2024 doesn't seem to support this 😢
 

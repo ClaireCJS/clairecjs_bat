@@ -18,35 +18,38 @@
 ;#Include c:\bat\ShinsOverlayClass.ahk
 #Include c:\bat\ToolTipOptions.ahk
 Persistent
-global    insert_mode             := 0  
-global  num_lock_mode             := 0
-;lobal caps_lock_mode             := 0
-global     dummy_mode             := 0  ;used to avoid passing caps lock mode because we manage that in the outer layer, but the other 2 in the inner layer
-                                  
-global insert_up_tooltip_text     := " —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— "
-global insert_dn_tooltip_text     := " ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— "
-global insert_up_popup_text       := "      ███                                              █                       `n     █   █                                                    █                `n    █     █                                                   █                `n    █     █ ███ ███  █████  ███ ██  ███ ███ ███ ██   ███     ████    █████     `n    █     █  █   █  █     █   ██  █  █   █    ██  █    █      █     █     █    `n    █     █  █   █  ███████   █      █ █ █    █        █      █     ███████    `n    █     █   █ █   █         █      █ █ █    █        █      █     █          `n     █   █    █ █   █     █   █       █ █     █        █      █  █  █     █    `n      ███      █     █████  █████     █ █   █████    █████     ██    █████     `n"
-global insert_dn_popup_text       := "    █████                                            `n      █                                      █       `n      █                                      █       `n      █    ██ ██    █████   █████  ███ ██   ████     `n      █     ██  █  █     █ █     █   ██  █   █       `n      █     █   █   ███    ███████   █       █       `n      █     █   █      ██  █         █       █       `n      █     █   █  █     █ █     █   █       █  █    `n    █████  ███ ███  █████   █████  █████      ██     `n"
-                                  
-global numLock_up_tooltip_text    := " —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— "
-global numLock_dn_tooltip_text    := " —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— "
-global numLock_up_popup_text      := " —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— "
-global numLock_dn_popup_text      := " —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— "
-                                  
-global capsLock_up_tooltip_text   := " ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— "
-global capsLock_dn_tooltip_text   := " —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— "
-global capsLock_up_popup_text     := " ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— "
-global capsLock_dn_popup_text     := " —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— "
+global      insert_mode         := 0  
+global    num_lock_mode         := 0
+global   caps_lock_mode         := 0
+global scroll_lock_mode         := 0
+global       dummy_mode         := 0  ;used to avoid passing caps lock mode because we manage that in the outer layer, but the other 2 in the inner layer
+                                
+global insert_up_tray_text      := " ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— "
+global insert_dn_tray_text      := " —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— "
+global insert_up_popup_text     := "      ███                                              █                       `n     █   █                                                    █                `n    █     █                                                   █                `n    █     █ ███ ███  █████  ███ ██  ███ ███ ███ ██   ███     ████    █████     `n    █     █  █   █  █     █   ██  █  █   █    ██  █    █      █     █     █    `n    █     █  █   █  ███████   █      █ █ █    █        █      █     ███████    `n    █     █   █ █   █         █      █ █ █    █        █      █     █          `n     █   █    █ █   █     █   █       █ █     █        █      █  █  █     █    `n      ███      █     █████  █████     █ █   █████    █████     ██    █████     `n"
+global insert_dn_popup_text     := "    █████                                            `n      █                                      █       `n      █                                      █       `n      █    ██ ██    █████   █████  ███ ██   ████     `n      █     ██  █  █     █ █     █   ██  █   █       `n      █     █   █   ███    ███████   █       █       `n      █     █   █      ██  █         █       █       `n      █     █   █  █     █ █     █   █       █  █    `n    █████  ███ ███  █████   █████  █████      ██     `n"
+                                
+global numLock_up_tray_text     := " —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— "
+global numLock_dn_tray_text     := " —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— "
+global numLock_up_popup_text    := " —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— "
+global numLock_dn_popup_text    := " —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— "
+global numLock_dn_popup_text    := "    ██  ███                 █████                   ██                ███              `n     █   █                    █                      █               █   █             `n     ██  █                    █                      █              █     █            `n     ██  █  ██  ██  ███ █     █      █████   █████   █  ██          █     █ ██ ██      `n     █ █ █   █   █   █ █ █    █     █     █ █     █  █  █           █     █  ██  █     `n     █  ██   █   █   █ █ █    █     █     █ █        █ █            █     █  █   █     `n     █  ██   █   █   █ █ █    █     █     █ █        ███            █     █  █   █     `n     █   █   █  ██   █ █ █    █   █ █     █ █     █  █  █            █   █   █   █     `n    ███  █    ██ ██ ██ █ ██ ███████  █████   █████  ██   ██           ███   ███ ███    `n"
+                                
 
-global scrollLock_up_tooltip_text := " ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— "
-global scrollLock_dn_tooltip_text := " ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— "
-global scrollLock_up_popup_text   := " ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———  scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— "
-global scrollLock_dn_popup_text   := " ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— "
+global capsLock_up_tray_text    := " ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— "
+global capsLock_dn_tray_text    := " —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— "
+global capsLock_up_popup_text   := " ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— "
+global capsLock_dn_popup_text   := " —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— "
+
+global scrollLock_up_tray_text  := " ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— "
+global scrollLock_dn_tray_text  := " ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— "
+global scrollLock_up_popup_text := " ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———  scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— "
+global scrollLock_dn_popup_text := " ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— "
 
 Insert::   
 { 
     Send      "{Insert}"  
-    HandleKey( "Insert"   ,    "insert_mode",   insert_up_tooltip_text,   insert_dn_tooltip_text,   insert_up_popup_text,   insert_dn_popup_text,               "[2 q",               "[4 q") 
+    HandleKey( "Insert"   ,      "insert_mode",     insert_up_tray_text,     insert_dn_tray_text,     insert_up_popup_text,     insert_dn_popup_text,               "[2 q",               "[4 q") 
 }
 NumLock:: 
 { 
@@ -55,7 +58,7 @@ NumLock::
     } else {                                                   
         SetNumLockState( "On")                                ; Turn Num Lock On
     }
-    HandleKey( "NumLock"  ,  "num_lock_mode",  numLock_up_tooltip_text,  numLock_dn_tooltip_text,  numLock_up_popup_text,  numLock_dn_popup_text,               "[2 q",               "[4 q") 
+    HandleKey( "NumLock"  ,    "num_lock_mode",    numLock_up_tray_text,    numLock_dn_tray_text,    numLock_up_popup_text,    numLock_dn_popup_text,              "dummy",              "dummy") 
 }
 CapsLock:: 
 { 
@@ -64,7 +67,7 @@ CapsLock::
     } else {                                                   
         SetCapsLockState( "On")                               ; Turn Caps Lock On
     }
-    HandleKey( "CapsLock" ,     "dummy_mode", capsLock_up_tooltip_text, capsLock_dn_tooltip_text, capsLock_up_popup_text, capsLock_dn_popup_text,               "[2 q",               "[4 q") 
+    HandleKey( "CapsLock" ,   "caps_lock_mode",   capsLock_up_tray_text,   capsLock_dn_tray_text,   capsLock_up_popup_text,   capsLock_dn_popup_text,              "dummy",              "dummy") 
 }
 ScrollLock:: 
 { 
@@ -73,44 +76,43 @@ ScrollLock::
     } else {                                                   
         SetScrollLockState( "On")                             ; Turn Scroll Lock On
     }
-    HandleKey("ScrollLock",     "dummy_mode", scrollLock_up_tooltip_text, scrollLock_dn_tooltip_text, scrollLock_up_popup_text, scrollLock_dn_popup_text,               "[2 q",               "[4 q") 
+    HandleKey("ScrollLock", "scroll_lock_mode", scrollLock_up_tray_text, scrollLock_dn_tray_text, scrollLock_up_popup_text, scrollLock_dn_popup_text,              "dummy",              "dummy") 
 }
-HandleKey(      KeyName   ,       KeyModeVar,      key_up_tooltip_text,      key_dn_tooltip_text,      key_up_popup_text,      key_dn_popup_text, key_up_ansi_code_exp, key_dn_ansi_code_exp) 
+HandleKey(      KeyName   ,     KeyModeVarName,        key_up_tray_text,        key_dn_tray_text,        key_up_popup_text,        key_dn_popup_text, key_up_ansi_code_exp, key_dn_ansi_code_exp) 
 {
     global      insert_mode          
-    ;lobal   caps_lock_mode          
+    global   caps_lock_mode          
     global    num_lock_mode                                             
     global scroll_lock_mode                                             
     global       dummy_mode                                             
-    global insert_up_tooltip_text  
-    global insert_dn_tooltip_text  
+    global insert_up_tray_text  
+    global insert_dn_tray_text  
     global insert_up_popup_text    
     global insert_dn_popup_text    
-    global capsLock_up_tooltip_text
-    global capsLock_dn_tooltip_text
+    global capsLock_up_tray_text
+    global capsLock_dn_tray_text
     global capsLock_up_popup_text  
     global capsLock_dn_popup_text  
-    global numLock_up_tooltip_text 
-    global numLock_dn_tooltip_text 
+    global numLock_up_tray_text 
+    global numLock_dn_tray_text 
     global numLock_up_popup_text   
     global numLock_dn_popup_text   
-    global scrollLock_up_tooltip_text 
-    global scrollLock_dn_tooltip_text 
+    global scrollLock_up_tray_text 
+    global scrollLock_dn_tray_text 
     global scrollLock_up_popup_text   
     global scrollLock_dn_popup_text   
 
-    ;if WinActive("TCC") {
-    ;global          %KeyModeVar%                           ; Ensure we're using the global key mode variable
-    %KeyModeVar% := !%KeyModeVar%                           ; Toggle the key mode state
+    ;if WinActive("TCC")                                    ; originally the entire rest of the block here was for TCC-only to try to change the cursor shape with ANSI codes, but that was impossible
+    %KeyModeVarName% := !%KeyModeVarName%                           ; Toggle the key mode state
     ToolTipFont("s20", "Gill Sans Ultra Bold")
-    if (%KeyModeVar%) {
-        ansiCode := Chr(27) key_dn_ansi_code_exp            ; experimental, doesn't work
-        text1    :=         key_dn_tooltip_text
-        text     :=         key_dn_popup_text
+    if (%KeyModeVarName%) {
+        ;ansiCode  := Chr(27) key_dn_ansi_code_exp        ; experimental, doesn't work, abandoned
+        tray_text  :=         key_dn_tray_text
+        popup_text :=         key_dn_popup_text
     } else {
-        ansiCode := Chr(27) key_up_ansi_code_exp            ; experimental, doesn't work
-        text1    :=         key_up_tooltip_text
-        text     :=         key_up_popup_text
+        ;ansiCode  := Chr(27) key_up_ansi_code_exp        ; experimental, doesn't work, abandoned
+        tray_text  :=         key_up_tray_text
+        popup_text :=         key_up_popup_text
     }
     margin   := 50
     x_offset := 240                                         ; higher #s == move box left — 250 is too much
@@ -124,14 +126,13 @@ HandleKey(      KeyName   ,       KeyModeVar,      key_up_tooltip_text,      key
     ;oolTipOptions.SetTitle("" , 4)
     ToolTipOptions.SetColors("White", "Blue")
     ;oolTip("Hello world!")
-    ToolTip    text, A_ScreenWidth //2 - x_offset, A_ScreenHeight//2 - y_offset
-    ;oolTip    text, A_ScreenWidth //2           , A_ScreenHeight//2            
+    ToolTip popup_text, A_ScreenWidth //2 - x_offset, A_ScreenHeight//2 - y_offset
+    ;oolTip popup_text, A_ScreenWidth //2           , A_ScreenHeight//2            
     SetTimer(() => ToolTip("", 0), 750)                     ; Optionally, hide the tooltip after a short delay
 
     CoordMode "ToolTip", "Screen"
-    TrayTip    ".`n" text1
+    TrayTip    ".`n" tray_text
     SetTimer () =>TrayTip(), -1000
-    ;}
     return
 }
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; INSERT MODE TOOLTIP ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
