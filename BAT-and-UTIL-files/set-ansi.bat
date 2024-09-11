@@ -28,12 +28,28 @@ rem Branch by parameter:
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-rem ANSI: Initialization 
-        rem set up basic beginning of all ansi codes
-            set                  ESCAPE=%@CHAR[27]
-            set             ANSI_ESCAPE=%ESCAPE%[
-            set ANSIESCAPE=%ANSI_ESCAPE%
-            set   ANSI_CSI=%ANSI_ESCAPE%                %+ rem CSI == Control Sequence Introducer
+rem ANSI: Base variables used in other variables: 
+        set                  ESCAPE=%@CHAR[27]
+        set             ANSI_ESCAPE=%ESCAPE%[
+        set ANSIESCAPE=%ANSI_ESCAPE%
+
+
+rem ANSI: esoterica to bve used in next section
+        set  ANSI_APP_PROGRAM_COMMAND=%ESCAPE%_         %+ rem APC == Application Program    Command
+        set  ANSI_DEVICE_CONTROL_STRING=%ESCAPE%P       %+ rem DCS == Device      Control    String
+        set  ANSI_OPERATING_SYSTEM_COMMAND=%ESCAPE%]    %+ rem OSC == Operating   System     Command
+        set  ANSI_PRIVACY_MESSAGE=%ESCAPE%%@CHAR[94]    %+ rem  PM == Privacy     Message    
+        set  ANSI_START_OF_STRING=%ESCAPE%X             %+ rem SOS == Start       Of         String 
+        set  ANSI_STRING_TERMINATOR=%ESCAPE%\           %+ rem  ST == String      Terminator
+
+rem ANSI: Names influenced by online references:
+        set  ANSI_APC=%ANSI_APP_PROGRAM_COMMAND%        %+ rem APC == Application Program    Command
+        set  ANSI_CSI=%ANSI_ESCAPE%                     %+ rem CSI == Control     Sequence   Introducer       
+        set  ANSI_DCS=%ANSI_DEVICE_CONTROL_STRING%      %+ rem DCS == Device      Control    String
+        set  ANSI_OSC=%ANSI_OPERATING_SYSTEM_COMMAND%   %+ rem OSC == Operating   System     Command
+        set  ANSI_PM=%ANSI_PRIVACY_MESSAGE%             %+ rem  PM == Privacy     Message    
+        set  ANSI_SOS=%ANSI_START_OF_STRING%            %+ rem SOS == Start       Of         String 
+        set  ANSI_ST=%ANSI_STRING_TERMINATOR%           %+ rem  ST == String      Terminator
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -84,7 +100,7 @@ rem ANSI: cursor position movement
             function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`	                    %+ rem moves cursor to column #
             function ANSI_MOVE_TO_ROW=`%@CHAR[27][%1H`                      %+ rem unfortunately does not preserve column position! not possible! cursor request ansi code return value cannot be captured
         
-        function ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%[2]H`      %+ rem Windows Terminal 2024 doesn't seem to support this 🐐 but we could TODO: decompose it into row/column statements
+        rem function ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%[2]H`   %+ rem Windows Terminal 2024 doesn't seem to support this but we could TODO: decompose it into row/column statements
 
         rem Up/Down/Left/Right:
             set ANSI_MOVE_UP_1=%ESCAPE%M                                    %+ rem moves cursor one line up, scrolling if needed
@@ -599,28 +615,36 @@ REM ANSI: margin-setting / anti-scroll areas
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 REM ANSI: unsupported in Windows Terminal:
- 
-        set        UNSUPPORTED_ANSI_DEFAULT_FONT=%ANSI_ESCAPE%10m
-        set          UNSUPPORTED_ANSI_ALT_FONT_1=%ANSI_ESCAPE%11m
-        set          UNSUPPORTED_ANSI_ALT_FONT_2=%ANSI_ESCAPE%12m
-        set          UNSUPPORTED_ANSI_ALT_FONT_3=%ANSI_ESCAPE%13m
-        set          UNSUPPORTED_ANSI_ALT_FONT_4=%ANSI_ESCAPE%14m
-        set          UNSUPPORTED_ANSI_ALT_FONT_5=%ANSI_ESCAPE%15m
-        set          UNSUPPORTED_ANSI_ALT_FONT_6=%ANSI_ESCAPE%16m
-        set          UNSUPPORTED_ANSI_ALT_FONT_7=%ANSI_ESCAPE%17m
-        set          UNSUPPORTED_ANSI_ALT_FONT_8=%ANSI_ESCAPE%18m
-        set          UNSUPPORTED_ANSI_ALT_FONT_9=%ANSI_ESCAPE%19m
-        set              UNSUPPORTED_ANSI_GOTHIC=%ANSI_ESCAPE%20m
-        set                   UNSUPPORTED_FRAMED=%ANSI_ESCAPE%51m
-        set                UNSUPPORTED_ENCIRCLED=%ANSI_ESCAPE%52m
-        set       UNSUPPORTED_FRAME_ENCIRCLE_OFF=%ANSI_ESCAPE%54m
-        set      UNSUPPORTED_SET_UNDERLINE_COLOR=%ANSI_ESCAPE%58;2;255,0,0m %+ REM set underline color to red
-        function   UNSUPPORTED_SET_WARN_BELL_VOL=`%@CHAR[27][%1 t`          %+ REM 1/0/None=Off, 2-4=low, 5-8=high
-        function UNSUPPORTED_SET_MARGIN_BELL_VOL=`%@CHAR[27][%1 u`          %+ REM 1=Off, 2-4=low, None,0,5-8=high
-        set             UNSUPORTED_RUN_ALL_TESTS=%ANSI_ESCAPE%4;0y
+        set      UNSUPPORTED_SET_UNDERLINE_COLOR=%ANSI_CSI%58;2;255,0,0m %+ REM set underline color to red
+        set               UNSUPPORTED_NUMLOCK_ON=%ANSI_CSI%?108h
+        set              UNSUPPORTED_NUMLOCK_OFF=%ANSI_CSI%?108l
+        set             UNSUPORTED_RUN_ALL_TESTS=%ANSI_CSI%4;0y
+        set        UNSUPPORTED_ANSI_DEFAULT_FONT=%ANSI_CSI%10m
+        set          UNSUPPORTED_ANSI_ALT_FONT_1=%ANSI_CSI%11m
+        set          UNSUPPORTED_ANSI_ALT_FONT_2=%ANSI_CSI%12m
+        set          UNSUPPORTED_ANSI_ALT_FONT_3=%ANSI_CSI%13m
+        set          UNSUPPORTED_ANSI_ALT_FONT_4=%ANSI_CSI%14m
+        set          UNSUPPORTED_ANSI_ALT_FONT_5=%ANSI_CSI%15m
+        set          UNSUPPORTED_ANSI_ALT_FONT_6=%ANSI_CSI%16m
+        set          UNSUPPORTED_ANSI_ALT_FONT_7=%ANSI_CSI%17m
+        set          UNSUPPORTED_ANSI_ALT_FONT_8=%ANSI_CSI%18m
+        set          UNSUPPORTED_ANSI_ALT_FONT_9=%ANSI_CSI%19m
+        set              UNSUPPORTED_ANSI_GOTHIC=%ANSI_CSI%20m
+        set                   UNSUPPORTED_FRAMED=%ANSI_CSI%51m
+        set                UNSUPPORTED_ENCIRCLED=%ANSI_CSI%52m
+        set       UNSUPPORTED_FRAME_ENCIRCLE_OFF=%ANSI_CSI%54m
+        function   UNSUPPORTED_SET_WARN_BELL_VOL=`%@CHAR[27][%1 t`              %+ rem 1/0/None=Off, 2-4=low, 5-8=high
+        function UNSUPPORTED_SET_MARGIN_BELL_VOL=`%@CHAR[27][%1 u`              %+ rem 1=Off, 2-4=low, None,0,5-8=high
+        function  ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%2H`            %+ rem Windows Terminal 2024 doesn't support this official code................
+        function  ANSI_MOVE_TO_COORDINATE=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem    .........so instead, we reduce into 2 separate commands internally 😎
+            function ANSI_MOVE_TO_COL=``	                    %+ rem moves cursor to column #
+            function ANSI_MOVE_TO_ROW=``                      %+ rem unfortunately does not preserve column position! not possible! cursor request ansi code return value cannot be captured
+
+        set UNSUPPORTED_MAP_A_TO_Z=%ANSI_DCS%"y1/7A/7A/7A/7A/7A/7A/-%ANSI_ST%   %+ rem Windows Terminal 2024 doesn't seem to support this 😢
+
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-REM ANSI: testing
+REM ANSI: testing —— and the magic way to know whether we are in insert mode or not:
         set          TEST_SCREEN_ALIGNMENT=%ESCAPE%#8    %+ rem "Screen alignment display"
         set ANSI_IDENTIFY_HOST_TO_TERMINAL=%ESCAPE%Z     %+ rem for me just returns "[?61;6;7;21;22;23;24;28;32;42c"
         set      IDENTIFY_HOST_TO_TERMINAL=%ESCAPE%Z     %+ rem for me just returns "[?61;6;7;21;22;23;24;28;32;42c"
@@ -632,6 +656,17 @@ REM ANSI: testing
         set             ANSI_SET_INSERT_ON=%ANSI_CSI%!p  %+ rem is really SOFT_TERMINAL_RESE but sets insert to on which is useful
         set            HARD_TERMINAL_RESET=%ESCAPE%c     %+ rem not recommended
         set       ANSI_HARD_TERMINAL_RESET=%ESCAPE%c     %+ rem not recommended
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+REM TODO try when have a keyboard with LED lights on it:
+        rem DECKLHIM—Keyboard LED's Host Indicator Mode
+        rem DECKLHIM controls the state of the keyboard LED's host indicator mode.
+        rem Default: Reset.
+        rem CSI ? 1 1 0 h -  set: keyboard led's host indicator mode
+        rem CSI ? 1	1 0 l- Reset: keyboard LED's host indicator mode.
+        rem DECLL controls keyboard LEDs independently of any keyboard state. The use of LEDs for this purpose conflicts with their use as keyboard state indicators. DECKLHIM selects a mode of how the keyboard LEDs are to be used: as keyboard indicators; or host indicators. If host indicators is selected, then the DECLL sequence can be used to control the keyboard LEDs.
+        rem For DECLL to function, DECKLHIM must be set. See DECLL for the implications of using DECLL to control the keyboard LEDs independently of any keyboard state.
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 

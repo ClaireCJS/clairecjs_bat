@@ -54,9 +54,9 @@
 2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
 2024-08-20  09:38          2,074   67%  autoexec-common.btm
-2024-09-10  00:52          9,371   72%  autoexec.ahk
-2024-09-10  02:31            407   36%  AutoHotKey-autoexec.bat
-2024-09-10  02:31            662   42%  AutoHotKey.bat
+2024-09-11  02:31         17,413   80%  autoexec.ahk
+2024-09-11  02:31            899   52%  AutoHotKey-autoexec.bat
+2024-09-11  02:27          1,645   58%  AutoHotKey.bat
 2024-03-24  20:50          3,094   61%  autoname.bat
 2023-10-06  08:04             23   -8%  autoprocess.bat
 2023-07-03  18:02          1,603   58%  average.py
@@ -128,7 +128,7 @@
 2019-10-01  10:27            592   49%  colorize-by-computer-name.bat
 2023-05-26  15:16            832   62%  colors-all.bat
 2024-09-09  11:47          3,636   64%  colors.bat
-2024-09-09  00:26            404   39%  commit-and-push.bat
+2024-09-10  17:50          1,200   56%  commit-and-push.bat
 2019-10-01  09:27             21   -9%  commit.bat
 2024-08-21  23:40             47   -4%  completion.bat
 2023-08-20  13:47            575   43%  connections-monitor.bat
@@ -255,7 +255,7 @@
 2023-09-15  12:27          3,399   66%  editGrep.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
-2024-09-08  19:25         70,062   78%  emoji.env
+2024-09-10  03:11         70,065   78%  emoji.env
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
@@ -578,6 +578,7 @@
 2024-09-10  01:05            144   28%  reset-ansi.bat
 2024-09-10  01:10          2,673   61%  reset-tab-stops.bat
 2024-09-08  22:23             79   57%  reset.ansi
+2024-09-11  01:44             62   10%  restart-ahk.bat
 2024-05-11  16:41            539   46%  restart-chrome.bat
 2019-10-01  10:28            323   48%  restart-cpu-meter.bat
 2024-09-07  13:33             85   28%  restart-displayfusion.bat
@@ -626,7 +627,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-09-10  02:26         72,580   83%  set-ansi.bat
+2024-09-10  18:50         76,139   82%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat
