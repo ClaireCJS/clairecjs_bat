@@ -259,7 +259,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-09-11  15:26        180,098   81%  environm.btm
+2024-09-11  19:28        184,618   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat

@@ -1,7 +1,9 @@
-@set PERFORMANCE_TUNING=1
+@set PERFORMANCE_TUNING=0
 @if %PERFORMANCE_TUNING eq 1 timer /9 /q on
 @Echo off
 
+rem SPEEDUP VERDICT #1: We need to separate all our validation calls into one location, then put them in an if/else so we don't go into validation subroutines over and over
+rem SPEEDUP VERDICT #2: We need to move repositories, other environment variables, into a separate environm.env file much like private.env
 
 
 
@@ -52,11 +54,11 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::: CHAY-CHAY-CHANGES :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-	:: When a new computer   is     added: run new-computer .bat {search this script for 'Consider: When new computer is added'}
-	:: When a new harddrive  is     added: run new-harddrive.bat {will need to know letter}
-    :: When a old harddrive  is     moved to another computer: move it in checkmappings.bat
- 	:: When a new harddrive  is [re]moved: whichdrive {driveletter} to get HDxxxxG environment variable, then editgrep HDxxxxG to edit all scripts mentioning it
-    :: When a new repository is   created: create backup job in backup-repositories.bat
+	rem When a new computer   is     added: run new-computer .bat {search this script for 'Consider: When new computer is added'}
+	rem When a new harddrive  is     added: run new-harddrive.bat {will need to know letter}
+    rem When a old harddrive  is     moved to another computer: move it in checkmappings.bat
+ 	rem When a new harddrive  is [re]moved: whichdrive {driveletter} to get HDxxxxG environment variable, then editgrep HDxxxxG to edit all scripts mentioning it
+    rem When a new repository is   created: create backup job in backup-repositories.bat
 :::::::::::::::::::::::::::::::::::::::::::::::::::: CHAY-CHAY-CHANGES :::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
@@ -87,10 +89,10 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
 
 :::::::::::::::::::::::::::::::::::::::::::::::: COMMAND-LINE/ENVIRONMENT PARAMETERS: ::::::::::::::::::::::::::::::::::::::::::::::::
-    :: Ways to keep this script from being run too often:
-            :: 1) TCSTART.BAT can pass a "TCSTART" parameter so that we can tell when this has been run and not run it repeatedly
-            :: 2) Secondary shells start from a different INI-specified location, using a different TCStart.bat, which sets SECONDARYSHELL=1
-            :: 3) We also set ENVIRONM_RUN=1 after running, to prevent successive timewasting runs
+    rem Ways to keep this script from being run too often:
+            rem 1) TCSTART.BAT can pass a "TCSTART" parameter so that we can tell when this has been run and not run it repeatedly
+            rem 2) Secondary shells start from a different INI-specified location, using a different TCStart.bat, which sets SECONDARYSHELL=1
+            rem 3) We also set ENVIRONM_RUN=1 after running, to prevent successive timewasting runs
         if "%1" eq "force" .or. "%1" eq "validate" (goto :Force_1       )
             call set-cursor                                                                       %+ REM at least reset the cursor
             if  "1" eq "%ENVIRONM_RUN%"                                  (goto :The_Very_END  )   %+ REM added this line 2023/07/26
@@ -98,10 +100,14 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
             if  "1" eq "%SECONDARYSHELL%"                                (goto :SecondaryShell)
         :Force_1
 
-    :: DEBUG & VALIDATION traces can be turned on with these:
+    rem DEBUG & VALIDATIONS can be turned on with these:
         if "%@UPPER[%1]" eq "VALIDATE" (set PERFORM_VALIDATIONS=1 %+ set DEBUG_VALIDATIONS=1 %+ call wake-all-drives)
         if "%@UPPER[%1]" eq "AUTOEXEC" (set PERFORM_VALIDATIONS=1 %+ set AUTOEXEC=1                                 )
         if "%@UPPER[%1]" eq "DEBUG"    (set   DEBUG_VALIDATIONS=1 %+ set DEBUG_TMP=%DEBUG%   %+ set DEBUG=1         )
+
+    rem VALIDATIONS take a full 0.5 seconds longer if you actually call the routine, vs turning the call itself into a REM statement when we're not doing them
+                                        set gosubValidateFolderExists=rem gosub ValidateFolderExists
+        if %PERFORM_VALIDATIONS eq 1   (set gosubValidateFolderExists=    gosub ValidateFolderExists)
 :::::::::::::::::::::::::::::::::::::::::::::::: COMMAND-LINE/ENVIRONMENT PARAMETERS :::::::::::::::::::::::::::::::::::::::::::::::::
 
 
@@ -172,26 +178,26 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
     rem Vars related to running this:
             set RUNNING_ENVIRONM=1
-            if %PERFORMANCE_TUNING lt 1 (set QUIET_TIMER_OR_NOT=/q)
-            timer %QUIET_TIMER_OR_NOT% /9 /s
+            if %PERFORMANCE_TUNING lt 1 ( set   QUIET_TIMER_OR_NOT=/q)
+            if %PERFORMANCE_TUNING gt 0 (timer %QUIET_TIMER_OR_NOT% /9 /s)
 
     rem gosub StartKillBots { call c:\bat\slui-killbot } { @processmonitor slui started forever (taskend /f slui) } %+ REM stupid slui process kept stealing focus around 2015...  Use focus-monitor.exe to debug that situation. This keeps it dead, but the monitor only lasts per-command-line window, so we need it in this CLI initialization script. But wait! It eats up CPU, so it might not actually be worth it.
-	gosub PreliminaryErrorCheck                           %+    gosub stopwatch_button orange
-	gosub DefineHarddrivesAndDriveMapping                 %+    gosub stopwatch_button orange
-	gosub CommonEnvVarsIncludingNetworking                %+    gosub stopwatch_button orange
-	gosub Initial%MACHINENAME%                            %+    gosub stopwatch_button orange
-	gosub DefineRepositories                              %+    gosub stopwatch_button orange
-	gosub DefineExecutableFileExtensions                  %+    gosub stopwatch_button orange
-	gosub SetUsernameAndNetName                           %+    gosub stopwatch_button orange
-	gosub Initial%USERNAME%                               %+    gosub stopwatch_button orange
-	gosub SetPathAndPrompt                                %+    gosub stopwatch_button orange
-	gosub LoadAliases                                     %+    gosub stopwatch_button orange
-	gosub CheckForSyncedDevices                           %+    gosub stopwatch_button orange
-	gosub OSSpecificOverrides                             %+    gosub stopwatch_button orange
-	gosub SetJavaClasspath                                %+    gosub stopwatch_button orange
-    gosub SetPrivateEnvVars                               %+    gosub stopwatch_button orange
-    gosub Load_TCC_Plugins                                %+    gosub stopwatch_button orange
-    gosub FinalValidations                                %+    
+	gosub PreliminaryErrorCheck                           %+    gosub stopwatch_button orange "after PreliminaryErrorCheck           " %+ rem 0.03
+	gosub DefineHarddrivesAndDriveMapping                 %+    gosub stopwatch_button orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
+	gosub CommonEnvVarsIncludingNetworking                %+    gosub stopwatch_button orange "after CommonEnvVarsIncludingNetworking" %+ rem 0.04
+	gosub Initial%MACHINENAME%                            %+    gosub stopwatch_button orange "after Initial                         " %+ rem 0.11
+	gosub DefineRepositories                              %+    gosub stopwatch_button orange "after DefineRepositories              " %+ rem 1.20  !!
+	gosub DefineExecutableFileExtensions                  %+    gosub stopwatch_button orange "after DefineExecutableFileExtensions  " %+ rem 0.24 
+	gosub SetUsernameAndNetName                           %+    gosub stopwatch_button orange "after SetUsernameAndNetName           " %+ rem 0.04
+	gosub Initial%USERNAME%                               %+    gosub stopwatch_button orange "after Initial                         " %+ rem 0.01
+	gosub SetPathAndPrompt                                %+    gosub stopwatch_button orange "after SetPathAndPrompt                " %+ rem 0.29  29
+	gosub LoadAliases                                     %+    gosub stopwatch_button orange "after LoadAliases                     " %+ rem 0.02
+	gosub CheckForSyncedDevices                           %+    gosub stopwatch_button orange "after CheckForSyncedDevices           " %+ rem 0.01
+	gosub OSSpecificOverrides                             %+    gosub stopwatch_button orange "after OSSpecificOverrides             " %+ rem 0.05
+	gosub SetJavaClasspath                                %+    gosub stopwatch_button orange "after SetJavaClasspath                " %+ rem 0.25  25
+    gosub SetPrivateEnvVars                               %+    gosub stopwatch_button orange "after SetPrivateEnvVars               " %+ rem 0.015
+    gosub Load_TCC_Plugins                                %+    gosub stopwatch_button orange "after Load_TCC_Plugins                " %+ rem 0.13
+    gosub FinalValidations                                %+    gosub stopwatch_button orange "after FinalValidations                " %+ rem 0.013
 	goto :END
 
 
@@ -217,41 +223,41 @@ return
 
 :DefineHarddrivesAndDriveMapping
 	::::: DEFINE HARDDRIVES:
-        :: Define an environment variable for each harddrive, as well as marking which ones are SSDs.
-		:: I like to make the drive letter be the first letter in the machine's name
-			:: For example, Storm's C: would be set to S:, it's D: to T:, it's E: to U:, it's F: to V:.
-			:: For example, Magic's C: would be set to M:, it's D: to N:, it's E: to O:.
-			:: For example, Fire's  C: would be set to F:, etc...
-			:: Magic collided with Mist, so generally Magic's C: is J:, D: is K:, etc.
-			:: Hell  collided with Fire, so generally  Hell's C: is P:, D: is Q:, etc.
+        rem Define an environment variable for each harddrive, as well as marking which ones are SSDs.
+		rem I like to make the drive letter be the first letter in the machine's name
+			rem For example, Storm's C: would be set to S:, it's D: to T:, it's E: to U:, it's F: to V:.
+			rem For example, Magic's C: would be set to M:, it's D: to N:, it's E: to O:.
+			rem For example, Fire's  C: would be set to F:, etc...
+			rem Magic collided with Mist, so generally Magic's C: is J:, D: is K:, etc.
+			rem Hell  collided with Fire, so generally  Hell's C: is P:, D: is Q:, etc.
 
-		::     Wyvern A
-        ::    Thailog B 
-		::     System C
-        ::    Thailog D
-        ::     Wyvern EF
-        ::       DOWN G
-		::    Thailog HI
-        ::      ????? J 	 (ssd:j) 
-        ::    Thailog K                
-		::    Goliath L
-        :: prob free? M 
-        ::      CADDY N      (also was using W but will have to find another letter)
-		::     Demona O          
-        ::    Thailog PQR
-        ::     Demona STU
-		::    Thailog V     
-		::     Wyvern W      (was caddy)
-		::      Thumb X	     (USB thumbdrive)
-		::     CD/DVD YZ	 (y=read/cd,z=write/dvd)
-		:: CardReader ???    (maybe unmap drives before doing cardreader stuff)
+		rem     Wyvern A
+        rem    Thailog B 
+		rem     System C
+        rem    Thailog D
+        rem     Wyvern EF
+        rem       DOWN G
+		rem    Thailog HI
+        rem      ????? J 	 (ssd:j) 
+        rem    Thailog K                
+		rem    Goliath L
+        rem prob free? M 
+        rem      CADDY N      (also was using W but will have to find another letter)
+		rem     Demona O          
+        rem    Thailog PQR
+        rem     Demona STU
+		rem    Thailog V     
+		rem     Wyvern W      (was caddy)
+		rem      Thumb X	     (USB thumbdrive)
+		rem     CD/DVD YZ	 (y=read/cd,z=write/dvd)
+		rem CardReader ???    (maybe unmap drives before doing cardreader stuff)
 
-		::       reserved  C XYZ
-		::           Fire  (K-old=%SHARE300G%,Q-old=%SHARE250G%,U-old=%HD1000G%)
-		::        Thailog  DHIKPQRV
-        ::         Demona  OSTU
-        ::         Wyvern  AEFW
-        ::           Free  MN?J?
+		rem       reserved  C XYZ
+		rem           Fire  (K-old=%SHARE300G%,Q-old=%SHARE250G%,U-old=%HD1000G%)
+		rem        Thailog  DHIKPQRV
+        rem         Demona  OSTU
+        rem         Wyvern  AEFW
+        rem           Free  MN?J?
 
 
 
@@ -342,7 +348,7 @@ return
             set DRIVE_C_DEMONA=S
             set DRIVE_C_DEMONA_VAR=%S%
             SET MAPPING_DEMONA_USR=Claire
-            :: this is my microsoftlive cliocjs@gmail.com login password:
+            rem this is my microsoftlive cliocjs@gmail.com login password:
             REM MAPPING_DEMONA_PWD=[REDACTED into private.env]
 			:call validate-environment-variables HD1T3_PRESENCE HD18T3_PRESENCE - moved to CheckForSyncedDevices because path is not yet defined
 
@@ -356,7 +362,7 @@ return
             set DRIVE_C_WYVERN_VAR=%F%
             rem MAPPING_WYVERN_USR=carol   [202311-20240403]
             SET MAPPING_WYVERN_USR=carolyn
-            :: this is Carolyn's microsoftlive carolyncasl@gmail.com login password:
+            rem this is Carolyn's microsoftlive carolyncasl@gmail.com login password:
             REM MAPPING_WYVERN_PWD=[REDACTED into private.env]
 
         ::SPARE/LIMBO
@@ -377,8 +383,8 @@ return
             SET   DRIVES_SSD=%HD128G% %HD240G% %HD240G2% %HD512G% %HD1000G% %HD1000G3% %HD2T1%
 
         ::::::: FAILED IDEA
-        :: was trying to *create* all shares for a machine with a single line along: for %d in (%drives_thailog%) echo drive=%d drivereal=%[%[%d]] mapping=%[mapping_%d]    net share %[mapping_%d]=%[%[%[%d]REAL]] GRANT:Everyone,FULL
-        :: but alas, the logic and abstraction just isn't there - %C often points to the wrong drive because we don't redefine that per-computer
+        rem was trying to *create* all shares for a machine with a single line along: for %d in (%drives_thailog%) echo drive=%d drivereal=%[%[%d]] mapping=%[mapping_%d]    net share %[mapping_%d]=%[%[%[%d]REAL]] GRANT:Everyone,FULL
+        rem but alas, the logic and abstraction just isn't there - %C often points to the wrong drive because we don't redefine that per-computer
 
         ::::::::::::::::::: OLD STUFF ::::::::::::::::::: 
 		::Magic
@@ -465,175 +471,175 @@ return
 	::::: DEFINE DRIVE REMAPPING (reverse lookup to convert drive letter to %HDxxxG environment variable):
 
 
-		:::::::::::::::::::::::::::::::::::::::::::::::: Doing this is quite awesome, because now we can catalog filelists			%+ REM Consider: When new computer is added
-		:::::::::::::::::::::::::::::::::::::::::::::::: made for any machine and pipe them through remap.pl %REMAP<MACHINENAME>
-		:::::::::::::::::::::::::::::::::::::::::::::::: (no need to remember the %REMAP<MACHINENAME> argument, which is hard to script,
-		::::::::::::::::::::::::::::::::::::::::::::::::  because remap.pl automatically checks the environment for %REMAP%MACHINEMAME)
-		:::::::::::::::::::::::::::::::::::::::::::::::: and the drive letters will be automagically adjusted to be accurate for 
-		:::::::::::::::::::::::::::::::::::::::::::::::: whichever machine we are on, i.e if Sally calls HD40G Q:, and Harry called HD40G X:, this mapping will change Q: to X:
-		:::::::::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD60G d,%HD40G e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G m,%HD25G n,%HD80G3 s,%HD60G t,%HD40G u,%HD80G2 v,%HD120G 
-		::::::::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G d,%HD80G e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G m,%HD25G n,%HD80G3 s,%HD60G t,%HD40G u,%HD80G2 v,%HD120G
-		::::::::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G          e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G m,%HD25G n,%HD80G3 s,%HD60G t,%HD40G u,%HD80G2 v,%HD120G
-		:::::::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD60G d,%HD40G e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD80G3 s,%HD60G   t,%HD40G u,%HD80G2 v,%HD120G 
-		:::::::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G d,%HD80G e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD80G3 s,%HD60G   t,%HD40G u,%HD80G2 v,%HD120G
-		:::::::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G          e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD80G3 s,%HD60G   t,%HD40G u,%HD80G2 v,%HD120G
-		::::::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD60G d,%HD40G e,%HD80G2 f,%HD120G  g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD120G3 o,%HD80G3 s,%HD60G t,%HD40G  u,%HD80G2 v,%HD120G 
-		::::::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G d,%HD80G e,%HD80G2 f,%HD120G  g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD120G3 o,%HD80G3 s,%HD60G t,%HD40G  u,%HD80G2 v,%HD120G
-		::::::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G          e,%HD80G2 d,%HD120G3 g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD120G3 o,%HD80G3 s,%HD60G t,%HD40G  u,%HD80G2 v,%HD120G
-		:::::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G 
-		:::::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G   e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		:::::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		::::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    L,%HD250G    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G 
-		::::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G   e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    L,%HD250G    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		::::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    L,%HD250G    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		::::::::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    L,%HD250G    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		:::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G               j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G 
-		:::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G   e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		:::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		:::::::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		::::::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G     j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G 
-		::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G     j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G 
-		::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G   e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G     j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G     j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		::::::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G     j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
-		:::::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G 
-		:::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G 
-		:::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G   e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
-		:::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
-		:::::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
-		:::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G 
-		::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G 
-		::::::::::::::::::::::::::::::ET  REMAPFIRE=c,%HD16G   d,%HD80G2  e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
-		::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD80G2 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
-		:::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD80G2 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
-		:::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
-		::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD80G3  o,%HD120G3     p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
-		:::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
-		::::::::::::::::::::::::::::::let's try changing c:     d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
-		:::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
-		:::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
-		::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
-		::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD80G3  o,%HD120G3     p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
-		::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
-		::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
-		::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
-		:::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
-		:::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD80G3  o,%HD120G3     p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
-		:::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
-		:::::::::::::::::::::::::::SET  REMAPMIST=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
-		:::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
-		::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G 
-		::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD80G3  o,%HD120G3     p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G 
-		::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G
-		::::::::::::::::::::::::::SET  REMAPMIST=c,%HD120G4 d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G
-		::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G
-		:::::::::::::::::::::::::SET REMAPHADES=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G 
-		:::::::::::::::::::::::::SET  REMAPHELL=c,%HD750G3A  d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G 
-		:::::::::::::::::::::::::SET  REMAPMIST=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G
-		:::::::::::::::::::::::::SET REMAPMAGIC=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G
-		::::::::::::::::::::::::SET REMAPHADES=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G   l,%HD1500G    m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD750G3A t,%HD750G3B u,%HD1000G v,%HD750G  
-		::::::::::::::::::::::::SET  REMAPHELL=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G   l,%HD1500G    m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD750G3A t,%HD750G3B u,%HD1000G v,%HD750G 
-		::::::::::::::::::::::::SET  REMAPMIST=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G   l,%HD1500G    m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD750G3A t,%HD750G3B u,%HD1000G v,%HD750G
-		::::::::::::::::::::::::SET REMAPMAGIC=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G   l,%HD1500G    m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD750G3A t,%HD750G3B u,%HD1000G v,%HD750G
-		:::::::::::::::::::::::SET REMAPHADES=c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     p,%HD140G q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD750G w,%HD1500G2 
-		:::::::::::::::::::::::SET  REMAPHELL=c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     p,%HD140G q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD750G w,%HD1500G2
-		:::::::::::::::::::::::SET  REMAPMIST=c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     p,%HD140G q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD750G W,%HD1500G2
-		::::::::::::::::::::::SET REMAPMAGIC=c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     p,%HD140G q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD750G w,%HD1500G2
-		:::::::::::::::::::::::SET  REMAPFIRE=c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     p,%HD140G q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD750G w,%HD1500G2
-		::::::::::::::::::::::SET REMAPHADES=b,%HD4000G c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
-		::::::::::::::::::::::SET  REMAPHELL=b,%HD4000G c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		::::::::::::::::::::::SET  REMAPMIST=b,%HD4000G c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD1500G2
-		::::::::::::::::::::::SET REMAPMAGIC=b,%HD4000G c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		::::::::::::::::::::::SET  REMAPFIRE=b,%HD4000G c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		::::::::::::::::::::SET REMAPHADES=b,%HD4000G c,%HD2000G    g,%HD2000G4    k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
-		::::::::::::::::::::SET  REMAPHELL=b,%HD4000G c,%HD2000G    g,%HD2000G4    k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		::::::::::::::::::::SET  REMAPMIST=b,%HD4000G c,%HD2000G    g,%HD2000G4    k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD1500G2
-		:::::::::::::::::::::SET REMAPMAGIC=b,%HD4000G c,%HD2000G    g,%HD2000G4    k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		:::::::::::::::::::::SET  REMAPFIRE=b,%HD4000G c,%HD2000G    g,%HD2000G4    k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		::::::::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
-		::::::::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
-		::::::::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		::::::::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		:::::::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
-		:::::::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
-		:::::::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		:::::::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		::::::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
-		::::::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
-		::::::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		::::::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2
-		:::::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		:::::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		::::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD250G r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		::::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD250G r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		::::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD250G r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD250G r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::::::::SET REMAPTHAILOG=b,%HD4000G c,%HD240G  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD250G r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		:::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		:::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		:::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		:::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		:::::::::::::::SET REMAPTHAILOG=b,%HD4000G c,%HD240G  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::::::SET REMAPTHAILOG=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		:::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		:::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		:::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		:::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		:::::::::::::SET REMAPTHAILOG=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::::SET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		::::::::::::SET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		:::::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		:::::::::::SET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%H1500023
-		:::::::::::SET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD150023
-		::::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		:::::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		:::::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
-		::::::::::SET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
-		::::::::::SET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
-		:::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
-		::::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
-		::::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
-		::::::::::ET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		:::::::::sET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		:::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		:::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		:::::::::ET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		::::::::sET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		:::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD512G  d,%HD240G2  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		::::::::ET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		:::::::sET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		:::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		:::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD512G  d,%HD240G2  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		::::::SET    REMAPFIRE=b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		::::::SET REMAPGOLIATH=b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD18T%  p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		::::::SET REMAPTHAILOG=b,%HD4000G c,%HD512G  d,%HD240G2  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD18T%  p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		:::::SET REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2   d,%HD240G2% e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		:::::SET REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G%   d,%HD240G2% e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		:::::SET  REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1000G3% d,%HD240G2% e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		::::SET REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2 d,%HD240G2% e,%HD4000G2 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		::::SET REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G% d,%HD240G2% e,%HD4000G2 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		::::SET  REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1T3%  d,%HD240G2% e,%HD4000G2 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		:::SET REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2 d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		:::SET REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G% d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		:::SET  REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1T3%  d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		::SET REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2 d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		::SET REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G% d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		::SET  REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1T3%  d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		:SET REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2 d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% p,%HD2T1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		:SET REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G% d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% p,%HD2T1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
-		:SET  REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1T3%  d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% p,%HD2T1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem :::::::::::::::::::::::::::::::::::::::::::::::: Doing this is quite awesome, because now we can catalog filelists			%+ REM Consider: When new computer is added
+		rem :::::::::::::::::::::::::::::::::::::::::::::::: made for any machine and pipe them through remap.pl %REMAP<MACHINENAME>
+		rem :::::::::::::::::::::::::::::::::::::::::::::::: (no need to remember the %REMAP<MACHINENAME> argument, which is hard to script,
+		rem ::::::::::::::::::::::::::::::::::::::::::::::::  because remap.pl automatically checks the environment for %REMAP%MACHINEMAME)
+		rem :::::::::::::::::::::::::::::::::::::::::::::::: and the drive letters will be automagically adjusted to be accurate for 
+		rem :::::::::::::::::::::::::::::::::::::::::::::::: whichever machine we are on, i.e if Sally calls HD40G Q:, and Harry called HD40G X:, this mapping will change Q: to X:
+		rem :::::::::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD60G d,%HD40G e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G m,%HD25G n,%HD80G3 s,%HD60G t,%HD40G u,%HD80G2 v,%HD120G 
+		rem ::::::::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G d,%HD80G e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G m,%HD25G n,%HD80G3 s,%HD60G t,%HD40G u,%HD80G2 v,%HD120G
+		rem ::::::::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G          e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G m,%HD25G n,%HD80G3 s,%HD60G t,%HD40G u,%HD80G2 v,%HD120G
+		rem :::::::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD60G d,%HD40G e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD80G3 s,%HD60G   t,%HD40G u,%HD80G2 v,%HD120G 
+		rem :::::::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G d,%HD80G e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD80G3 s,%HD60G   t,%HD40G u,%HD80G2 v,%HD120G
+		rem :::::::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G          e,%HD80G2 f,%HD120G g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD80G3 s,%HD60G   t,%HD40G u,%HD80G2 v,%HD120G
+		rem ::::::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD60G d,%HD40G e,%HD80G2 f,%HD120G  g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD120G3 o,%HD80G3 s,%HD60G t,%HD40G  u,%HD80G2 v,%HD120G 
+		rem ::::::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G d,%HD80G e,%HD80G2 f,%HD120G  g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD120G3 o,%HD80G3 s,%HD60G t,%HD40G  u,%HD80G2 v,%HD120G
+		rem ::::::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G          e,%HD80G2 d,%HD120G3 g,%HD80G h,%HD16G i,%HD80G j,%HD120G2 m,%HD25G n,%HD120G3 o,%HD80G3 s,%HD60G t,%HD40G  u,%HD80G2 v,%HD120G
+		rem :::::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G 
+		rem :::::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G   e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem :::::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem ::::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    L,%HD250G    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G 
+		rem ::::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G   e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    L,%HD250G    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem ::::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    L,%HD250G    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem ::::::::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    L,%HD250G    m,%HD25G n,%HD120G3 o,%HD80G3    s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem :::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G               j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G 
+		rem :::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G   e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem :::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem :::::::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD120G2    j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem ::::::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G     j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G 
+		rem ::::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G     j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G 
+		rem ::::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G   e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G     j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem ::::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G     j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem ::::::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G     j,%HD200GA k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD60G v,%HD120G
+		rem :::::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G 
+		rem :::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G 
+		rem :::::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G   e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
+		rem :::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
+		rem :::::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
+		rem :::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G 
+		rem ::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G 
+		rem ::::::::::::::::::::::::::::::ET  REMAPFIRE=c,%HD16G   d,%HD80G2  e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
+		rem ::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD80G2 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
+		rem :::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD80G2 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
+		rem :::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
+		rem ::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD80G3  o,%HD120G3     p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
+		rem :::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
+		rem ::::::::::::::::::::::::::::::let's try changing c:     d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
+		rem :::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
+		rem :::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
+		rem ::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
+		rem ::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD80G3  o,%HD120G3     p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
+		rem ::::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
+		rem ::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
+		rem ::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
+		rem :::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
+		rem :::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD80G3  o,%HD120G3     p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
+		rem :::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
+		rem :::::::::::::::::::::::::::SET  REMAPMIST=c,%HD120G4 d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
+		rem :::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G
+		rem ::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G 
+		rem ::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD80G3  o,%HD120G3     p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G 
+		rem ::::::::::::::::::::::::::SET  REMAPFIRE=c,%HD16G   d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G
+		rem ::::::::::::::::::::::::::SET  REMAPMIST=c,%HD120G4 d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G
+		rem ::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G
+		rem :::::::::::::::::::::::::SET REMAPHADES=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G 
+		rem :::::::::::::::::::::::::SET  REMAPHELL=c,%HD750G3A  d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G 
+		rem :::::::::::::::::::::::::SET  REMAPMIST=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G
+		rem :::::::::::::::::::::::::SET REMAPMAGIC=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD120G4 t,%HD500G2 u,%HD120G2 v,%HD120G
+		rem ::::::::::::::::::::::::SET REMAPHADES=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G   l,%HD1500G    m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD750G3A t,%HD750G3B u,%HD1000G v,%HD750G  
+		rem ::::::::::::::::::::::::SET  REMAPHELL=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G   l,%HD1500G    m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD750G3A t,%HD750G3B u,%HD1000G v,%HD750G 
+		rem ::::::::::::::::::::::::SET  REMAPMIST=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G   l,%HD1500G    m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD750G3A t,%HD750G3B u,%HD1000G v,%HD750G
+		rem ::::::::::::::::::::::::SET REMAPMAGIC=c,%HD750G3A d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD250GA j,%HD250GB     k,%HD300G L,%HD750G   l,%HD1500G    m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G r,%HD400G   s,%HD750G3A t,%HD750G3B u,%HD1000G v,%HD750G
+		rem :::::::::::::::::::::::SET REMAPHADES=c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     p,%HD140G q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD750G w,%HD1500G2 
+		rem :::::::::::::::::::::::SET  REMAPHELL=c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     p,%HD140G q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD750G w,%HD1500G2
+		rem :::::::::::::::::::::::SET  REMAPMIST=c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     p,%HD140G q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD750G W,%HD1500G2
+		rem ::::::::::::::::::::::SET REMAPMAGIC=c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     p,%HD140G q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD750G w,%HD1500G2
+		rem :::::::::::::::::::::::SET  REMAPFIRE=c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     p,%HD140G q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD750G w,%HD1500G2
+		rem ::::::::::::::::::::::SET REMAPHADES=b,%HD4000G c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
+		rem ::::::::::::::::::::::SET  REMAPHELL=b,%HD4000G c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem ::::::::::::::::::::::SET  REMAPMIST=b,%HD4000G c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD1500G2
+		rem ::::::::::::::::::::::SET REMAPMAGIC=b,%HD4000G c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem ::::::::::::::::::::::SET  REMAPFIRE=b,%HD4000G c,%HD2000G d,%HD500G2 e,%HD120G2 f,%HD120G     g,%HD2000G4 h,%HD750G2 i,%HD250GA j,%HD250GB     k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem ::::::::::::::::::::SET REMAPHADES=b,%HD4000G c,%HD2000G    g,%HD2000G4    k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
+		rem ::::::::::::::::::::SET  REMAPHELL=b,%HD4000G c,%HD2000G    g,%HD2000G4    k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem ::::::::::::::::::::SET  REMAPMIST=b,%HD4000G c,%HD2000G    g,%HD2000G4    k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G v,%HD1500G2
+		rem :::::::::::::::::::::SET REMAPMAGIC=b,%HD4000G c,%HD2000G    g,%HD2000G4    k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem :::::::::::::::::::::SET  REMAPFIRE=b,%HD4000G c,%HD2000G    g,%HD2000G4    k,%HD300G L,%HD1500G  m,%HD128G n,%HD2000G5 o,%HD2000G     q,%HD250G r,%HD2000G2   s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem ::::::::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
+		rem ::::::::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
+		rem ::::::::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem ::::::::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 s,%HD750G3 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem :::::::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
+		rem :::::::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
+		rem :::::::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem :::::::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem ::::::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
+		rem ::::::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2 
+		rem ::::::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem ::::::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G w,%HD1500G2
+		rem :::::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem :::::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G q,%HD250G r,%HD2000G2 t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem ::::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD250G r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem ::::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD250G r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem ::::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD250G r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD250G r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::::::SET REMAPTHAILOG=b,%HD4000G c,%HD240G  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD250G r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem :::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem :::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem :::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem :::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD2000G e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem :::::::::::::::SET REMAPTHAILOG=b,%HD4000G c,%HD240G  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem ::::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem ::::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::::SET REMAPTHAILOG=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD300G L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem :::::::::::::SET    REMAPMIST=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem :::::::::::::SET    REMAPFIRE=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem :::::::::::::SET   REMAPHADES=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem :::::::::::::SET REMAPGOLIATH=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem :::::::::::::SET REMAPTHAILOG=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::SET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem ::::::::::::SET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
+		rem :::::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem :::::::::::SET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%H1500023
+		rem :::::::::::SET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD150023
+		rem ::::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem :::::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem :::::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::SET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
+		rem ::::::::::SET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
+		rem :::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
+		rem ::::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
+		rem ::::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
+		rem ::::::::::ET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::::sET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::::ET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::::sET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD512G  d,%HD240G2  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::::ET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::sET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD512G  d,%HD240G2  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::SET    REMAPFIRE=b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::SET REMAPGOLIATH=b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD18T%  p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::SET REMAPTHAILOG=b,%HD4000G c,%HD512G  d,%HD240G2  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD18T%  p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::SET REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2   d,%HD240G2% e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem :::::SET REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G%   d,%HD240G2% e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem :::::SET  REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1000G3% d,%HD240G2% e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem ::::SET REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2 d,%HD240G2% e,%HD4000G2 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem ::::SET REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G% d,%HD240G2% e,%HD4000G2 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem ::::SET  REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1T3%  d,%HD240G2% e,%HD4000G2 g,%HD2000G4 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem :::SET REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2 d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem :::SET REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G% d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem :::SET  REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1T3%  d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD240G q,%HD6000G1% r,%HD2000G2% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem ::SET REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2 d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem ::SET REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G% d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem ::SET  REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1T3%  d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem :SET REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2 d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% p,%HD2T1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem :SET REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G% d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% p,%HD2T1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
+		rem :SET  REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1T3%  d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% p,%HD2T1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD10T1%
 		SET  REMAPGOLIATH=a,%HD18T2% b,%HD4000G c,%HD240G2 d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% p,%HD2T1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD20T2%
 		SET  REMAPTHAILOG=a,%HD18T2% b,%HD4000G c,%HD512G% d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% p,%HD2T1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD20T2%
 		SET   REMAPDEMONA=a,%HD18T2% b,%HD4000G c,%HD1T3%  d,%HD240G2% e,%HD4000G2 h,%HD4000G4% i,%HD4000G7% j,%HD240G% k,%HD6000G2% l,%HD1T2% m,%HD128G% n,%HD2000G5 o,%HD18T% p,%HD6000G3 q,%HD6000G1% p,%HD2T1% r,%HD20T1% s,%HD1000G3% t,%HD18T3% u,%HD10T2% v,%HD4000G5% w,%HD20T2%
@@ -681,44 +687,46 @@ return
             call c:\bat\set-escape-character-and-command-separator-character
 
     ::::: BASIC HARDWARE:
-        :: Default number of CPU cores in a machine, and default number of optimal threads (usually cores * 1.5)
+        rem Default number of CPU cores in a machine, and default number of optimal threads (usually cores * 1.5)
             set CPU_CORES=12
             set OPTIMAL_CPU_THREADS=6
             set TABLET=0                                            %+ REM Later on, in Initial%MachineName%, set this to 1 for machinenames that are tablets (i.e. Windows tablets)
 
     ::::: BASIC NETWORKING:
             set ISP=Cox
-        :: public
+        rem public
             REM PUBLIC_IP=[REDACTED into private.env]               %+ REM 20170516 - NOT our pubic static IP but our internal IP, which is DHCP'ed as of 2017
             set DYNDNS_IP=%NETNAME%.servebeer.com                   %+ REM 20170516 - NOT our pubic static IP but our internal IP, which is DHCP'ed as of 2017
-        :: gateway
+        rem gateway
             :et GATEWAY_DSL=68.167.161.177        %+ REM 2006-2016 [[Silcon]]
             :et GATEWAY_DSL=66.167.233.209        %+ REM 2016-2017 [Megapath]
             set GATEWAY_COX=192.168.0.1           %+ REM 2017-     [[[Cox]]]] 
             set GATEWAY=%GATEWAY_COX%
             if "%TETHERING%" eq "1" (set GATEWAY=%GATEWAY_TETHERING%)   %+ REM later on, after path is set, we will: call validate-environment-variable GATEWAY
-        :: wifi
+        rem wifi
             set WAP_INTERNAL=wap                  %+ REM maintained in hosts.txt
             set WAP_EXTERNAL=%PUBLIC_IP%
             set WAP=%WAP_INTERNAL%                %+ if "%MACHINENAME%" eq "WORK" (set WAP=%WAP_EXTERNAL%)
-        :: IP addresses
+        rem IP addresses
             :et IP_THAILOG=192.168.0.106          %+ REM but it reset in 2019/09 from .106 to .136 for some reason
             set IP_THAILOG=192.168.0.136
             set IP_DEMONA=192.168.0.17
             set IP_DEMONA_2=192.168.1.190
             SET IP_GOLIATH=192.168.0.107  
             SET IP_WYVERN=192.168.0.97  
-        :: MAC addresses
+        rem MAC addresses
             set MAC_GOLIATH=BC:5F:F4:43:EC:6E
             set MAC_THAILOG=D0:50:99:38:A5:2C
             set MAC_DEMONA=00:15:5D:AC:EE:A7
             set MAC_DEMONA_2=68:1C:A2:12:33:B2
             set MAC_WYVERN=74:56:3C:B3:9B:68
-        :: drive mapping
+        rem drive mapping
             SET MAPPING_THAILOG_IP=%IP_THAILOG%
             SET MAPPING_DEMONA_IP=%IP_DEMONA%
             SET MAPPING_GOLIATH_IP=%IP_GOLIATH%
             SET MAPPING_WYVERN_IP=%IP_WYVERN%
+
+    gosub stopwatch_button yellow "      %STAR%[1]CommonEnvVarsIncludingNetworking"
 
 	::::: WHO'S THE BOSS?
         ::::: MASTER/PRIMARY MACHINE:
@@ -757,15 +765,15 @@ return
                     SET TMPMUSICSERVERCDRIVE=C
                     SET WAWILOGSDRIVE=C
                     SET WAWILOGS=%WAWILOGSDRIVE%:\logs\wawi
-                    gosub ValidateFolderExists WAWILOGSDRIVE WAWILOGS
-                    gosub ValidateFolderExists WAWILOGSDRIVE WAWILOGS
+                    %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
+                    %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
                 :NotMusicServer
 
         ::::: SERVER THAT CONTROLS THE IMAGES THAT ARE ON THE BACKGROUNDS OF OUR SCREENS:
             SET SERVER_OF_SCREEN_BACKGROUNDS=THAILOG
         ::::: HOUSE STUFF:
-            :: cameras        
-                :: IPcam #1 
+            rem cameras        
+                rem IPcam #1 
                     :et IPCAM1_IP=192.168.0.149
 		    set IPCAM1_IP=192.168.0.151
                     set IPCAM1_MAC=54:CD:EE:00:F2:96
@@ -785,7 +793,7 @@ return
                     set IPCAM1_STREAM=%IPCAM1_STREAM_URL_INTERNAL%
                     set IPCAM1=%IPCAM1_STREAM%
                     set IPCAM=%IPCAM1%
-                :: IPcam #2
+                rem IPcam #2
                     :et IPCAM2_IP=192.168.0.116
                     set IPCAM2_IP=192.168.0.121
                     set IPCAM2_MAC=54:CD:EE:00:F6:35
@@ -805,25 +813,25 @@ return
                     set IPCAM2_STREAM_URL=%IPCAM2_STREAM_URL_INTERNAL%
                     set IPCAM2_STREAM=%IPCAM2_STREAM_URL_INTERNAL%
                     set IPCAM2=%IPCAM2_STREAM%
-                :: camera summary
+                rem camera summary
                     set IPCAMS_STREAMS_URLS=%IPCAM1% %IPCAM2%
                     set IPCAMS_NAMES=IPCAM1 IPCAM2
-            :: girder
+            rem girder
                 rem GIRDERPORT=[REDACTED into private.env]
                 rem GIRDERPASSWORD=[REDACTED into private.env]
-            :: where this computer is
+            rem where this computer is
                 SET LOCATION=upstairs
-            :: X10 (deprecated)
-                :: computerwith X10 USB controller
+            rem X10 (deprecated)
+                rem computerwith X10 USB controller
                     set X10_SERVER=THAILOG 
-                :: house rooms                
+                rem house rooms                
                     SET X10_LIGHTS_UPSTAIRS_LIVING_ROOM=B7
                     SET X10_LIGHTS_UPSTAIRS_HALLWAY=    B1
                     SET X10_LIGHTS_KITCHEN=         A9 A13                     %+ REM A9 is technically not the kitchen, but the guitar-area light used to GET to the kitchen
-                :: house sections
+                rem house sections
                     SET X10_LIGHTS_UPSTAIRS=        A1  A2  A3  A4  A5  A6  A7 %X10_LIGHTS_UPSTAIRS_HALLWAY% %X10_LIGHTS_UPSTAIRS_LIVING_ROOM%
                     SET X10_LIGHTS_DOWNSTAIRS=      A10 A11 A12 A14 A15 A16    %X10_LIGHTS_KITCHEN%
-                :: device types
+                rem device types
                     set X10_IPCAM=I1                %+ REM used for lazy power cycling when the IP cam gets messed up
                     SET X10_CHIMES=                 A8                                         
                     SET X10_LIGHTS_BLACKLIGHT=      A6 A14
@@ -865,18 +873,21 @@ return
 		SET HEIGHT=%@WINMETRICS[1]
 		SET EDITOR=call ep
 		SET EDITORBG=call epb
-        gosub ValidateFolderExists   BATDRIVE BAT
-        gosub ValidateFolderExists  UTILDRIVE UTIL
-        gosub ValidateFolderExists UTIL1DRIVE UTIL1
-        gosub ValidateFolderExists UTIL2DRIVE UTIL2
+        %gosubValidateFolderExists%   BATDRIVE BAT
+        %gosubValidateFolderExists%  UTILDRIVE UTIL
+        %gosubValidateFolderExists% UTIL1DRIVE UTIL1
+        %gosubValidateFolderExists% UTIL2DRIVE UTIL2
     
     ::::: STUFF TO HELP 3RD PARTY SOFTWARE WORK THE WAY WE WANT:
         set GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
 
     ::::: ANSI COLORS & EMOJI ENV VARS:
-        if %COLORS_HAVE_BEEN_SET ne 1 .or. "%1" eq "force" (call c:\bat\set-colors force)                
+        gosub stopwatch_button yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"
+        if %COLORS_HAVE_BEEN_SET ne 1 .or. "%1" eq "force" (call c:\bat\set-ansi   force)                
+        gosub stopwatch_button yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"
         if %EMOJIS_HAVE_BEEN_SET ne 1 .or. "%1" eq "force" (call c:\bat\set-emojis force)
+        gosub stopwatch_button yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"
         if not defined MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
 
 
@@ -928,46 +939,46 @@ return
         set OSBIT=32
 
     :InitialDemona
-        :: hardware
+        rem hardware
             set CPU_CORES=16 %+ set OPTIMAL_CPU_THREADS=12 %+ REM guessing on optimal cpu threads here
             set HD1000G3=C   %+ set C=HD1000G3  %+  set HD1T3=C  %+ set DEMONA1T=C  %+ SET  HD1T3_PRESENCE=%HD1T3%:\__ I awaken! __
-        :: software
+        rem software
             SET OS=10
             rem OS_USERNAME=Claire
             set OS_USERNAME=%MAPPING_DEMONA_USR% 
-        :: runalot [everytime environm is run]
-            :: stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
-        :: bugfix kludges
+        rem runalot [everytime environm is run]
+            rem stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
+        rem bugfix kludges
             set PROGRAMFILES=c:\Program Files
-        :: CUDA kludge:
+        rem CUDA kludge:
             set cuda_path=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1
 
     return
 
 	:InitialThailog
-        :: hardware
+        rem hardware
             set CPU_CORES=6 %+ set OPTIMAL_CPU_THREADS=9
             :ET HD240G=C    %+ :ET C=HD240G
             :ET HD240G2=C   %+ :ET C=HD240G2
             SET HD512G=C    %+ SET C=HD512G
             set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=13 %+ REM Network card's interface number in the "routes" command, for the network card used to reach non-tethered machines (i.e. i.e. those machines not sharing the tethered internet connection and retaining their normal broadband network configurations)
-        :: software
+        rem software
             SET OS=10
             REM OS_USERNAME=%MAPPING_THAILOG_USR% -- this is the default but on this machine we had to make a separate user for sharing so this wouldn't match
             set OS_USERNAME=claire
-        :: runalot [everytime environm is run]
-            :: stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
-        :: bugfix kludges
+        rem runalot [everytime environm is run]
+            rem stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
+        rem bugfix kludges
             set PROGRAMFILES=c:\Program Files
     return
 
     :InitialGoliath
-        :: hardware
+        rem hardware
             set CPU_CORES=4 %+ set OPTIMAL_CPU_THREADS=2
             set MAXIMUM_TIME_FOR_TCC_TO_START=5
     		SET HD1000G=C %+ SET C=HD1000G
             set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=12 %+ REM Network card's interface number in the "routes" command, for the network card used to reach non-tethered machines (i.e. i.e. those machines not sharing the tethered internet connection and retaining their normal broadband network configurations)
-         :: software
+         rem software
             SET OS=10
             *window /trans=228            
             rem OS_USERNAME=carolyn
@@ -976,24 +987,24 @@ return
 
     :InitialWyvern
         *window /trans=228            
-        :: hardware
+        rem hardware
             set CPU_CORES=12 %+ set OPTIMAL_CPU_THREADS=12
             set MAXIMUM_TIME_FOR_TCC_TO_START=4
     		SET HD2T1=C %+ SET C=HD2T1
             rem set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=12 %+ REM Network card's interface number in the "routes" command, for the network card used to reach non-tethered machines (i.e. i.e. those machines not sharing the tethered internet connection and retaining their normal broadband network configurations)
-         :: software
+         rem software
             SET OS=11
             rem OS_USERNAME=carolyn
             set OS_USERNAME=%MAPPING_WYVERN_USR% 
 	return
 
     :InitialHades
-        :: hardware
+        rem hardware
             SET HD256G=C %+  SET C=HD256G
-        :: software
+        rem software
             SET OS=7
             set OS_USERNAME=oh
-            :: had a weird PHP install back then
+            rem had a weird PHP install back then
                 set PHP_PEAR_SYSCONF_DIR=%ProgramFiles%\PHP
                 set PHP_PEAR_INSTALL_DIR=%ProgramFiles%\PHP\pear
                 set     PHP_PEAR_DOC_DIR=%ProgramFiles%\PHP\docs
@@ -1004,9 +1015,9 @@ return
 	return
 
     :InitialFire
-        :: hardware
+        rem hardware
             SET HD300G=C %+  SET C=HD300G  %+ REM or should we be setting SHARE300G=C ?? confused about what to do here :)
-        :: software
+        rem software
             SET OS=XP
             set OSBIT=32
             set OS_USERNAME=Administrator
@@ -1020,11 +1031,11 @@ return
 	return
 
     :InitialTemplate %+ REM Consider: When new computer is added - add new function here
-        :: hardware
+        rem hardware
             set CPU_CORES=6 %+ set OPTIMAL_CPU_THREADS=9
             SET HD[TODO]G=C %+ SET C=HD[TODO]G
             set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=[TODO] %+ REM Secondary network card (ethernet cable #2)'s interface number in the "routes" command
-        :: software
+        rem software
             SET OS=7
             set  claire
 	return
@@ -1047,21 +1058,21 @@ return
             :Validate:
                 set CDRIVE=C
                 set C_DRIVE=%CDRIVE%
-                gosub ValidateFolderExists CDRIVE TRUNK
-                gosub ValidateFolderExists CDRIVE M2_REPO
-                gosub ValidateFolderExists CDRIVE M2_HOME
+                %gosubValidateFolderExists% CDRIVE TRUNK
+                %gosubValidateFolderExists% CDRIVE M2_REPO
+                %gosubValidateFolderExists% CDRIVE M2_HOME
 		::::: ORACLEXE:
 			set ORACLE_HOME=C:\oraclexe\app\oracle\product\11.2.0\server
 			set ORACLE_SID=XE
-                gosub ValidateFolderExists CDRIVE ORACLE_HOME
+                %gosubValidateFolderExists% CDRIVE ORACLE_HOME
 		::::: WEBLOGIC:
 			set  ORACLE_DOMAIN=diss
 			SET WEBLOGICDOMAIN=C:\Oracle\Middleware\Oracle_Home\user_projects\domains\%ORACLE_DOMAIN%
 			SET WEBLOGIC_DOMAIN=%WEBLOGICDOMAIN%
 			SET        MW_HOME=C:\Oracle\Middleware
 			SET    WEBLOGICJAR=c:\Oracle\Middleware\wlserver_10.3\server\lib\weblogic.jar
-                gosub ValidateFolderExists CDRIVE WEBLOGICDOMAIN
-                gosub ValidateFolderExists CDRIVE MW_HOME
+                %gosubValidateFolderExists% CDRIVE WEBLOGICDOMAIN
+                %gosubValidateFolderExists% CDRIVE MW_HOME
 		return
 
         
@@ -1082,7 +1093,8 @@ return
 
 ::::::::::::::::::::::::::::::::::::: DEFINE REPOSITORIES FOR VARIOUS... THINGS :::::::::::::::::::::::::::::::::::::
 :DefineRepositories
-
+    rem 🐐if exist c:\bat\environm.env (set /r c:\bat\environm.env)
+    gosub stopwatch_button magenta "      DefineRepositories [1]          " %+ rem 1.20  !!
 
     :::::::: REMEMBER WHEN ADDING/REMOVING REPOSITORIES, BACKUP-REPOSITORIES.BAT NEEDS EDITING ::::::::
 
@@ -1138,15 +1150,15 @@ return
             rem HARDWARE_MAIN_DRIVE=%HD10T1% —— until 2023/early —— broke L-tab off power-port 
             rem HARDWARE_MAIN_DRIVE=%HD18T1% —— until 2024/06/16 —— O: got full, moved to T:
             set HARDWARE_MAIN_DRIVE=%HD18T3% 
-                :: aliases
+                rem aliases
                 set HARDWARE_DRIVE=%HARDWARE_MAIN_DRIVE%
                 set HARDWAREDRIVE=%HARDWARE_DRIVE%
             set HARDWARE_MAIN=%HARDWARE_MAIN_DRIVE%:\HARDWARE.main
                 set HARDWARE_THAILOG_DRIVE=%HARDWARE_MAIN_DRIVE%
                 set HARDWARE_THAILOG=%HARDWARE_MAIN%
-                :: aliases
+                rem aliases
                     set HARDWARE=%HARDWARE_MAIN%
-            :: backups
+            rem backups
                 set HARDWARE_THAILOG_BACKUP_DRIVE=%HD4000G5%
                 set HARDWARE_THAILOG_BACKUP=%HARDWARE_THAILOG_BACKUP_DRIVE%:\backups\HARDWARE.Thailog.bak
 
@@ -1193,10 +1205,10 @@ return
             rem FTPSERVERDRIVE=%HD512G%
             set FTPSERVERDRIVE=%PUBCLDRIVE%
             set FTPSERVER=%PUBCL%\ftp
-            :: aliases
+            rem aliases
                 set FTP_DRIVE=%FTPSERVERDRIVE%
                 set FTP=%FTPSERVER%
-            :: backups
+            rem backups
                 set FTP_BACKUP_DRIVE=%HD10T2%
                 set FTP_BACKUP=%FTP_BACKUP_DRIVE%:\BACKUPS\ftp.bak
 
@@ -1205,6 +1217,8 @@ return
             set IRC=%IRCDRIVE%:\IRC
             set IRCBACKUPDRIVE=%HD10T2%
             set IRCBACKUP=%IRCBACKUPDRIVE%:\BACKUPS\IRC.bak
+
+        gosub stopwatch_button magenta "      DefineRepositories [5]          " %+ rem 1.20  !!
 
         ::programming libraries I maintain
             set PERL_OFFICIAL_DRIVE=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%
@@ -1217,10 +1231,10 @@ return
             set PERL_OFFICIAL_SITELIB_CLAIRE_PATH=%PERL_OFFICIAL_SITELIB_PATH%\Clio
             set PERL_OFFICIAL_SITELIB_CLAIRE=%PERL_OFFICIAL_DRIVE%:%PERL_OFFICIAL_SITELIB_PATH%
 
-            gosub ValidateFolderExists           PERL_OFFICIAL_DRIVE PERL_OFFICIAL
-            gosub ValidateFolderExists           PERL_OFFICIAL_DRIVE PERL_OFFICIAL_SITELIB
-            gosub ValidateFolderExists           PERL_OFFICIAL_DRIVE PERL_OFFICIAL_SITELIB_ALL
-            gosub ValidateFolderExists           PERL_OFFICIAL_DRIVE PERL_OFFICIAL_SITELIB_CLAIRE
+            %gosubValidateFolderExists%           PERL_OFFICIAL_DRIVE PERL_OFFICIAL
+            %gosubValidateFolderExists%           PERL_OFFICIAL_DRIVE PERL_OFFICIAL_SITELIB
+            %gosubValidateFolderExists%           PERL_OFFICIAL_DRIVE PERL_OFFICIAL_SITELIB_ALL
+            %gosubValidateFolderExists%           PERL_OFFICIAL_DRIVE PERL_OFFICIAL_SITELIB_CLAIRE
 
             set PYTHON_OFFICIAL_DRIVE=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%
             set PYTHON_OFFICIAL_PATH=\ProgramData\Anaconda3
@@ -1232,42 +1246,43 @@ return
             set PYTHON_OFFICIAL_SITELIB_CLAIRE_PATH=%PYTHON_OFFICIAL_SITELIB_PATH%\clairecjs_utils
             set PYTHON_OFFICIAL_SITELIB_CLAIRE=%PYTHON_OFFICIAL_DRIVE%:%PYTHON_OFFICIAL_SITELIB_CLAIRE_PATH%
 
-            gosub ValidateFolderExists         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL
-            gosub ValidateFolderExists         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL_SITELIB
-            gosub ValidateFolderExists         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL_SITELIB_ALL
-            gosub ValidateFolderExists         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL_SITELIB_CLAIRE
+            %gosubValidateFolderExists%         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL
+            %gosubValidateFolderExists%         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL_SITELIB
+            %gosubValidateFolderExists%         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL_SITELIB_ALL
+            %gosubValidateFolderExists%         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL_SITELIB_CLAIRE
 
 
         :Validation:
-            gosub ValidateFolderExists                      IRCDRIVE IRC
-            gosub ValidateFolderExists                     LOGSDRIVE LOGS
-            gosub ValidateFolderExists             LOGS_BACKUP_DRIVE LOGS_BACKUP
-            gosub ValidateFolderExists                    NOTESDRIVE NOTES
-            gosub ValidateFolderExists                    PUBCLDRIVE PUBCL
-            gosub ValidateFolderExists              PUBCLBACKUPDRIVE PUBCLBACKUP
-            gosub ValidateFolderExists                    RANTSDRIVE RANTS
-            gosub ValidateFolderExists                    WWWCLDRIVE WWWCL
-            gosub ValidateFolderExists            WWWCL_BACKUP_DRIVE WWWCL_BACKUP
-            gosub ValidateFolderExists           WWWCAS_BACKUP_DRIVE WWWCAS_BACKUP
-            gosub ValidateFolderExists                   QUOTESDRIVE QUOTES
-            gosub ValidateFolderExists                  DROPBOXDRIVE DROPBOX
-            gosub ValidateFolderExists          DROPBOX_CLAIRE_DRIVE DROPBOX_CLAIRE
-            gosub ValidateFolderExists                 HARDWAREDRIVE HARDWARE
-            gosub ValidateFolderExists        HARDWARE_THAILOG_DRIVE HARDWARE_THAILOG
-            gosub ValidateFolderExists HARDWARE_THAILOG_BACKUP_DRIVE HARDWARE_THAILOG_BACKUP
-            gosub ValidateFolderExists                     FTP_DRIVE FTP
-            gosub ValidateFolderExists                FTPSERVERDRIVE FTPSERVER
-            gosub ValidateFolderExists              FTP_BACKUP_DRIVE FTP_BACKUP
-            gosub ValidateFolderExists             INSTALLFILESDRIVE INSTALLFILES
-            gosub ValidateFolderExists       INSTALLFILESBACKUPDRIVE INSTALLFILESBACKUP
-            gosub ValidateFolderExists         DROPBOX_CAROLYN_DRIVE DROPBOX_CAROLYN
-            gosub ValidateFolderExists         PROFILEPIXClaireDRIVE PROFILEPIXClaire
-            gosub ValidateFolderExists        PROFILEPIXCarolynDRIVE PROFILEPIXCarolyn
-            gosub ValidateFolderExists           LOCAL_BACKUPS_DRIVE LOCAL_BACKUPS_DIR
-            gosub ValidateFolderExists                IRCBACKUPDRIVE IRCBACKUP
+            %gosubValidateFolderExists%                      IRCDRIVE IRC
+            %gosubValidateFolderExists%                     LOGSDRIVE LOGS
+            %gosubValidateFolderExists%             LOGS_BACKUP_DRIVE LOGS_BACKUP
+            %gosubValidateFolderExists%                    NOTESDRIVE NOTES
+            %gosubValidateFolderExists%                    PUBCLDRIVE PUBCL
+            %gosubValidateFolderExists%              PUBCLBACKUPDRIVE PUBCLBACKUP
+            %gosubValidateFolderExists%                    RANTSDRIVE RANTS
+            %gosubValidateFolderExists%                    WWWCLDRIVE WWWCL
+            %gosubValidateFolderExists%            WWWCL_BACKUP_DRIVE WWWCL_BACKUP
+            %gosubValidateFolderExists%           WWWCAS_BACKUP_DRIVE WWWCAS_BACKUP
+            %gosubValidateFolderExists%                   QUOTESDRIVE QUOTES
+            %gosubValidateFolderExists%                  DROPBOXDRIVE DROPBOX
+            %gosubValidateFolderExists%          DROPBOX_CLAIRE_DRIVE DROPBOX_CLAIRE
+            %gosubValidateFolderExists%                 HARDWAREDRIVE HARDWARE
+            %gosubValidateFolderExists%        HARDWARE_THAILOG_DRIVE HARDWARE_THAILOG
+            %gosubValidateFolderExists% HARDWARE_THAILOG_BACKUP_DRIVE HARDWARE_THAILOG_BACKUP
+            %gosubValidateFolderExists%                     FTP_DRIVE FTP
+            %gosubValidateFolderExists%                FTPSERVERDRIVE FTPSERVER
+            %gosubValidateFolderExists%              FTP_BACKUP_DRIVE FTP_BACKUP
+            %gosubValidateFolderExists%             INSTALLFILESDRIVE INSTALLFILES
+            %gosubValidateFolderExists%       INSTALLFILESBACKUPDRIVE INSTALLFILESBACKUP
+            %gosubValidateFolderExists%         DROPBOX_CAROLYN_DRIVE DROPBOX_CAROLYN
+            %gosubValidateFolderExists%         PROFILEPIXClaireDRIVE PROFILEPIXClaire
+            %gosubValidateFolderExists%        PROFILEPIXCarolynDRIVE PROFILEPIXCarolyn
+            %gosubValidateFolderExists%           LOCAL_BACKUPS_DRIVE LOCAL_BACKUPS_DIR
+            %gosubValidateFolderExists%                IRCBACKUPDRIVE IRCBACKUP
 
             :PUBCAS, WWWCAS done below
 
+        gosub stopwatch_button magenta "      DefineRepositories [10]          " %+ 
 
         ::::: SPECIAL FILES:
             :ET CONTACTS=%WWWCL\private\personal.htm     %+ REM moved for legal reasons
@@ -1282,14 +1297,14 @@ return
                 set ALL_COLLECTIONS_BY_DRIVE=%ALL_COLLECTIONS%\by-drive
                 set ALL_MEDIA_BY_DRIVE=%ALL_COLLECTIONS_BY_DRIVE%\\MEDIA
 		::::: CURATED COLLECTIONS:
-            :: this list is mostly alphabetically, but these had to be moved up top:
+            rem this list is mostly alphabetically, but these had to be moved up top:
                 set              TEXTDRIVE=%HD6000G1%
                 set                   TEXT=%TEXTDRIVE%:\MEDIA\TXT
-                    :: Backups
+                    rem Backups
                         :et TEXT_BACKUP_DRIVE=%HD2000G4%
                         set TEXT_BACKUP_DRIVE=%HD18T3%
                         set TEXT_BACKUP=%TEXT_BACKUP_DRIVE%:\backups\txt.bak
-            :: here's the rest, alphabetically:
+            rem here's the rest, alphabetically:
                 set                ANIMEDRIVE=%HD6000G2%
                 set                     ANIME=%ANIMEDRIVE%:\MEDIA\ANIME
                 set                 ANSIDRIVE=%TEXTDRIVE%
@@ -1387,7 +1402,7 @@ return
                 set     NOW_PLAYING_ALBUM_ART=%MP3OFFICIAL%\lists\winamp_now_playing.jpg
                 set     NOW_PLAYING_SONG_INFO=%MP3OFFICIAL%\lists\winamp_now_playing.txt
 
-                    :: Aliases
+                    rem Aliases
                         set MP3_BACKUP_1_DRIVE=%MP3BACKUP1DRIVE%
                         set MP3_BACKUP_2_DRIVE=%MP3BACKUP2DRIVE%
                         set MP3_BACKUP_3_DRIVE=%MP3BACKUP3DRIVE%
@@ -1396,24 +1411,24 @@ return
                         set MP3_BACKUP_3=%MP3BACKUP3%
                         set MP3_SECONDARY=%MP3BACKUP3% %+ REM we call this one secondary because it's THAILOG's old music server (2015-2022)
                         set MP3SECONDARY=%MP3_SECONDARY%
-            :: lyrics
-                :: old computer
+            rem lyrics
+                rem old computer
                     set LYRICS_OLD_THAILOG_MAIN_DRIVE=%HD512G%
                     set LYRICS_OLD_THAILOG_MAIN=%LYRICS_MAIN_DRIVE%:\program files (x86)\EvilLyrics\lyrics
-                :: new computer
+                rem new computer
                     set LYRICS_MAIN_DRIVE=%HD1T3%
                     set LYRICS_MAIN=%LYRICS_MAIN_DRIVE%:\UTIL2\EvilLyrics\EvilLyrics\lyrics
-                :: Aliases
+                rem Aliases
                     set LYRICSDRIVE=%LYRICS_MAIN_DRIVE%
                     set LYRICS_DRIVE=%LYRICS_MAIN_DRIVE%
                     set LYRICS=%LYRICS_MAIN%
-                :: Backups
+                rem Backups
                     rem LYRICS_BACKUPDRIVE=%HD1000G2%                                                %+ rem Goliath
                     rem LYRICS_BACKUP=%LYRICS_BACKUP_DRIVE%:\program files (x86)\EvilLyrics\lyrics   %+ rem Goliath
                     set LYRICS_BACKUPDRIVE=%HD2T1%
                     set LYRICS_BACKUP_DRIVE=%LYRICS_BACKUPDRIVE%
                     set LYRICS_BACKUP=%LYRICS_BACKUP_DRIVE%:\util2\EvilLyrics\EvilLyrics\lyrics
-                :: Midi, Music Videos, specials, shorts, subgenius
+                rem Midi, Music Videos, specials, shorts, subgenius
                     set                    MIDI=%MP3OFFICIAL%\MISC\MIDI
                     set        MUSICVIDEOSDRIVE=%HD6000G2%
                     set             MUSICVIDEOS=%MUSICVIDEOSDRIVE%:\MEDIA\MUSIC-VIDEOS
@@ -1449,86 +1464,90 @@ return
                     :et               FLAC_BACKUP=%FLAC_BACKUP_DRIVE%:\BACKUPS\flac.bak
                     set           TXTDRIVE=%TEXTDRIVE%
                     set                TXT=%TEXT%
-            :: here's the ones based on physical drives with a \MEDIA\ folder——for extra sanity of knowing everything is in place —— consider this when adding new harddrives 
-                                               :ET MEDIA_B=%HD4000G1%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G1  MEDIA_B
-                                               :ET MEDIA_D=%HD6000G3%:\MEDIA\ %+ gosub ValidateFolderExists HD6000G3  MEDIA_D
-                                               :ET MEDIA_E=%HD4000G2%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G2  MEDIA_E
-                 if "%HD4000G3_DOWN%"  ne "1" (SET MEDIA_F=%HD4000G3%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G3  MEDIA_F)
-                 if "%HD4000G4_DOWN%"  ne "1" (SET MEDIA_H=%HD4000G4%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G4  MEDIA_H)
-                 if "%HD4000G7_DOWN%"  ne "1" (SET MEDIA_I=%HD4000G7%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G7  MEDIA_I)
-                 if "%HD6000G2_DOWN%"  ne "1" (SET MEDIA_K=%HD6000G2%:\MEDIA\ %+ gosub ValidateFolderExists HD6000G2  MEDIA_K)
-                                               :ET MEDIA_L=%HD1500G1%:\MEDIA\ %+ gosub ValidateFolderExists HD1500G1  MEDIA_L
-                 if "%HD2000G5_DOWN%"  ne "1" (SET MEDIA_N=%HD2000G5%:\MEDIA\ %+ gosub ValidateFolderExists HD2000G5  MEDIA_N)
-                                               :ET MEDIA_O=%HD2000G1%:\MEDIA\ %+ gosub ValidateFolderExists HD2000G1  MEDIA_O :decommissioned media folder 20191002, drive itself 20210323
-                 if "%HD18T1_DOWN%"    ne "1" (SET MEDIA_O=%[HD18T1]%:\MEDIA\ %+ gosub ValidateFolderExists HD18T1    MEDIA_O)
-                 if "%HD6000G1_DOWN%"  ne "1" (SET MEDIA_Q=%HD6000G1%:\MEDIA\ %+ gosub ValidateFolderExists HD6000G1  MEDIA_Q)
-                                               :ET MEDIA_R=%HD2000G2%:\MEDIA\ %+ gosub ValidateFolderExists HD2000G2  MEDIA_R
-                 if "%HD4000G6_DOWN%"  ne "1" (SET MEDIA_S=%HD4000G6%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G6  MEDIA_S)
-                 if "%HD6000G3_DOWN%"  ne "1" (SET MEDIA_T=%HD6000G3%:\MEDIA\ %+ gosub ValidateFolderExists HD6000G3  MEDIA_T)
-                 if "%HD10000G2_DOWN%" ne "1" (SET MEDIA_U=%HD10000G2:\MEDIA\ %+ gosub ValidateFolderExists HD10000G2 MEDIA_U)
-                 if "%HD4000G5_DOWN%"  ne "1" (SET MEDIA_V=%HD4000G5%:\MEDIA\ %+ gosub ValidateFolderExists HD4000G5  MEDIA_V)
-                 if "%HD20T2_DOWN%"    ne "1" (SET MEDIA_W=%HD20000G2:\MEDIA\ %+ gosub ValidateFolderExists HD20000G2 MEDIA_W)
+            rem here's the ones based on physical drives with a \MEDIA\ folder——for extra sanity of knowing everything is in place —— consider this when adding new harddrives 
+                                               :ET MEDIA_B=%HD4000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G1  MEDIA_B
+                                               :ET MEDIA_D=%HD6000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G3  MEDIA_D
+                                               :ET MEDIA_E=%HD4000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G2  MEDIA_E
+                 if "%HD4000G3_DOWN%"  ne "1" (SET MEDIA_F=%HD4000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G3  MEDIA_F)
+                 if "%HD4000G4_DOWN%"  ne "1" (SET MEDIA_H=%HD4000G4%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G4  MEDIA_H)
+                 if "%HD4000G7_DOWN%"  ne "1" (SET MEDIA_I=%HD4000G7%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G7  MEDIA_I)
+                 if "%HD6000G2_DOWN%"  ne "1" (SET MEDIA_K=%HD6000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G2  MEDIA_K)
+                                               :ET MEDIA_L=%HD1500G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD1500G1  MEDIA_L
+                 if "%HD2000G5_DOWN%"  ne "1" (SET MEDIA_N=%HD2000G5%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G5  MEDIA_N)
+                                               :ET MEDIA_O=%HD2000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G1  MEDIA_O :decommissioned media folder 20191002, drive itself 20210323
+                 if "%HD18T1_DOWN%"    ne "1" (SET MEDIA_O=%[HD18T1]%:\MEDIA\ %+ %gosubValidateFolderExists% HD18T1    MEDIA_O)
+                 if "%HD6000G1_DOWN%"  ne "1" (SET MEDIA_Q=%HD6000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G1  MEDIA_Q)
+                                               :ET MEDIA_R=%HD2000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G2  MEDIA_R
+                 if "%HD4000G6_DOWN%"  ne "1" (SET MEDIA_S=%HD4000G6%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G6  MEDIA_S)
+                 if "%HD6000G3_DOWN%"  ne "1" (SET MEDIA_T=%HD6000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G3  MEDIA_T)
+                 if "%HD10000G2_DOWN%" ne "1" (SET MEDIA_U=%HD10000G2:\MEDIA\ %+ %gosubValidateFolderExists% HD10000G2 MEDIA_U)
+                 if "%HD4000G5_DOWN%"  ne "1" (SET MEDIA_V=%HD4000G5%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G5  MEDIA_V)
+                 if "%HD20T2_DOWN%"    ne "1" (SET MEDIA_W=%HD20000G2:\MEDIA\ %+ %gosubValidateFolderExists% HD20000G2 MEDIA_W)
+            gosub stopwatch_button magenta "      DefineRepositories [15]          " %+ 
             :Validation:
                 rem the plugin erases them if you stop, though: if not exist %NOW_PLAYING_ALBUM_ART% (call warning "NOW_PLAYING_ALBUM_ART of %NOW_PLAYING_ALBUM_ART% cannot be found" %+ pause)
                 rem the plugin erases them if you stop, though: if not exist %NOW_PLAYING_SONG_INFO% (call warning "NOW_PLAYING_SONG_INFO of %NOW_PLAYING_SONG_INFO% cannot be found" %+ pause)
 
-                gosub ValidateFolderExists               THE_LETTER_C ALL_COLLECTIONS
-                gosub ValidateFolderExists               THE_LETTER_C ALL_MEDIA_BY_DRIVE 
-                gosub ValidateFolderExists                  ANSIDRIVE ANSI 
-                gosub ValidateFolderExists            BOARDGAMESDRIVE BOARDGAMES 
-                gosub ValidateFolderExists                 BOOKSDRIVE BOOKS
-                gosub ValidateFolderExists           CELEBRITIESDRIVE CELEBRITIES
-                gosub ValidateFolderExists   CELEBRITIES_BACKUP_DRIVE CELEBRITIES_BACKUP
-                gosub ValidateFolderExists                COMEDYDRIVE COMEDY
-                gosub ValidateFolderExists        COMEDY_BACKUP_DRIVE COMEDY_BACKUP
-                gosub ValidateFolderExists                COMICSDRIVE COMICS
-                gosub ValidateFolderExists        COMICS_BACKUP_DRIVE COMICS_BACKUP
-                gosub ValidateFolderExists           COMMERCIALSDRIVE COMMERCIALS
-                gosub ValidateFolderExists   COMMERCIALS_BACKUP_DRIVE COMMERCIALS_BACKUP
-                gosub ValidateFolderExists         DOCUMENTARIESDRIVE DOCUMENTARIES
-                gosub ValidateFolderExists DOCUMENTARIES_BACKUP_DRIVE DOCUMENTARIES_BACKUP
-                gosub ValidateFolderExists             EMULATIONDRIVE EMULATION
-                gosub ValidateFolderExists       EMULATIONBACKUPDRIVE EMULATIONBACKUP
-                gosub ValidateFolderExists              EYECANDYDRIVE EYECANDY
-                gosub ValidateFolderExists        EYECANDYBACKUPDRIVE EYECANDYBACKUP
-                gosub ValidateFolderExists                 GAMESDRIVE GAMES
-                gosub ValidateFolderExists                ROOKIEDRIVE ROOKIE
-                gosub ValidateFolderExists           GAMESBACKUPDRIVE GAMESBACKUP
-                gosub ValidateFolderExists   GAME_SAVES_BACKUPS_DRIVE GAME_SAVES_BACKUPS
-                gosub ValidateFolderExists  GAMES_DEMONA_BACKUP_DRIVE GAMES_DEMONA_BACKUP
-                gosub ValidateFolderExists                 GROSSDRIVE GROSS
-                gosub ValidateFolderExists           GROSSBACKUPDRIVE GROSSBACKUP
-                gosub ValidateFolderExists                 ICONSDRIVE ICONS
-                gosub ValidateFolderExists                LYRICSDRIVE LYRICS
-                gosub ValidateFolderExists        LYRICS_BACKUP_DRIVE LYRICS_BACKUP
-                gosub ValidateFolderExists                IMAGESDRIVE IMAGES
-                gosub ValidateFolderExists        IMAGES_BACKUP_DRIVE IMAGES_BACKUP
-                gosub ValidateFolderExists                  MIDIDRIVE MIDI
-                gosub ValidateFolderExists              MISCDATADRIVE MISCDATA
-                gosub ValidateFolderExists      MISCDATA_BACKUP_DRIVE MISCDATA_BACKUP
-                gosub ValidateFolderExists           MP3OFFICIALDRIVE MP3OFFICIAL
-                gosub ValidateFolderExists            MP3BACKUP1DRIVE MP3BACKUP1 
-                gosub ValidateFolderExists            MP3BACKUP2DRIVE MP3BACKUP2 
-                gosub ValidateFolderExists            MP3BACKUP3DRIVE MP3BACKUP3 
-                gosub ValidateFolderExists          MP3AUXBACKUPDRIVE MP3AUXBACKUP
+        gosub stopwatch_button magenta "      DefineRepositories [vals b4 20]  " %+ 
+                %gosubValidateFolderExists%               THE_LETTER_C ALL_COLLECTIONS
+                %gosubValidateFolderExists%               THE_LETTER_C ALL_MEDIA_BY_DRIVE 
+                %gosubValidateFolderExists%                  ANSIDRIVE ANSI 
+                %gosubValidateFolderExists%            BOARDGAMESDRIVE BOARDGAMES 
+                %gosubValidateFolderExists%                 BOOKSDRIVE BOOKS
+                %gosubValidateFolderExists%           CELEBRITIESDRIVE CELEBRITIES
+                %gosubValidateFolderExists%   CELEBRITIES_BACKUP_DRIVE CELEBRITIES_BACKUP
+                %gosubValidateFolderExists%                COMEDYDRIVE COMEDY
+                %gosubValidateFolderExists%        COMEDY_BACKUP_DRIVE COMEDY_BACKUP
+                %gosubValidateFolderExists%                COMICSDRIVE COMICS
+                %gosubValidateFolderExists%        COMICS_BACKUP_DRIVE COMICS_BACKUP
+                %gosubValidateFolderExists%           COMMERCIALSDRIVE COMMERCIALS
+                %gosubValidateFolderExists%   COMMERCIALS_BACKUP_DRIVE COMMERCIALS_BACKUP
+                %gosubValidateFolderExists%         DOCUMENTARIESDRIVE DOCUMENTARIES
+                %gosubValidateFolderExists% DOCUMENTARIES_BACKUP_DRIVE DOCUMENTARIES_BACKUP
+                %gosubValidateFolderExists%             EMULATIONDRIVE EMULATION
+                %gosubValidateFolderExists%       EMULATIONBACKUPDRIVE EMULATIONBACKUP
+                %gosubValidateFolderExists%              EYECANDYDRIVE EYECANDY
+                %gosubValidateFolderExists%        EYECANDYBACKUPDRIVE EYECANDYBACKUP
+                %gosubValidateFolderExists%                 GAMESDRIVE GAMES
+                %gosubValidateFolderExists%                ROOKIEDRIVE ROOKIE
+                %gosubValidateFolderExists%           GAMESBACKUPDRIVE GAMESBACKUP
+                %gosubValidateFolderExists%   GAME_SAVES_BACKUPS_DRIVE GAME_SAVES_BACKUPS
+                %gosubValidateFolderExists%  GAMES_DEMONA_BACKUP_DRIVE GAMES_DEMONA_BACKUP
+                %gosubValidateFolderExists%                 GROSSDRIVE GROSS
+                %gosubValidateFolderExists%           GROSSBACKUPDRIVE GROSSBACKUP
+                %gosubValidateFolderExists%                 ICONSDRIVE ICONS
+                %gosubValidateFolderExists%                LYRICSDRIVE LYRICS
+                %gosubValidateFolderExists%        LYRICS_BACKUP_DRIVE LYRICS_BACKUP
+                %gosubValidateFolderExists%                IMAGESDRIVE IMAGES
+                %gosubValidateFolderExists%        IMAGES_BACKUP_DRIVE IMAGES_BACKUP
+                %gosubValidateFolderExists%                  MIDIDRIVE MIDI
+                %gosubValidateFolderExists%              MISCDATADRIVE MISCDATA
+                %gosubValidateFolderExists%      MISCDATA_BACKUP_DRIVE MISCDATA_BACKUP
+                %gosubValidateFolderExists%           MP3OFFICIALDRIVE MP3OFFICIAL
+                %gosubValidateFolderExists%            MP3BACKUP1DRIVE MP3BACKUP1 
+                %gosubValidateFolderExists%            MP3BACKUP2DRIVE MP3BACKUP2 
+                %gosubValidateFolderExists%            MP3BACKUP3DRIVE MP3BACKUP3 
+                %gosubValidateFolderExists%          MP3AUXBACKUPDRIVE MP3AUXBACKUP
                 :osub ValidateFolderExists          FLACOFFICIALDRIVE FLACOFFICIAL
                 :osub ValidateFolderExists          FLAC_BACKUP_DRIVE FLAC_BACKUP
-                gosub ValidateFolderExists           MUSICVIDEOSDRIVE MUSICVIDEOS
-                gosub ValidateFolderExists             SUBGENIUSDRIVE SUBGENIUS
-                gosub ValidateFolderExists     SUBGENIUS_BACKUP_DRIVE SUBGENIUS_BACKUP
-                gosub ValidateFolderExists              SPECIALSDRIVE SPECIALS
-                gosub ValidateFolderExists                SHORTSDRIVE SHORTS
-                gosub ValidateFolderExists        SHORTS_BACKUP_DRIVE SHORTS_BACKUP
-                gosub ValidateFolderExists                  TEXTDRIVE TEXT
-                gosub ValidateFolderExists          TEXT_BACKUP_DRIVE TEXT_BACKUP
+                %gosubValidateFolderExists%           MUSICVIDEOSDRIVE MUSICVIDEOS
+                %gosubValidateFolderExists%             SUBGENIUSDRIVE SUBGENIUS
+                %gosubValidateFolderExists%     SUBGENIUS_BACKUP_DRIVE SUBGENIUS_BACKUP
+                %gosubValidateFolderExists%              SPECIALSDRIVE SPECIALS
+                %gosubValidateFolderExists%                SHORTSDRIVE SHORTS
+                %gosubValidateFolderExists%        SHORTS_BACKUP_DRIVE SHORTS_BACKUP
+                %gosubValidateFolderExists%                  TEXTDRIVE TEXT
+                %gosubValidateFolderExists%          TEXT_BACKUP_DRIVE TEXT_BACKUP
 
         :Because Goliath is being shitty with N:
             if "%@UPPER[%MACHINENAME%]" ne "GOLIATH" goto :GoliathValidations_NO
-                gosub ValidateFolderExists PUBCASDRIVE       PUBCAS
-                gosub ValidateFolderExists PUBCASBACKUPDRIVE PUBCASBACKUP
-                gosub ValidateFolderExists       WWWCASDRIVE WWWCAS
-                gosub ValidateFolderExists        ANIMEDRIVE ANIME
+                %gosubValidateFolderExists% PUBCASDRIVE       PUBCAS
+                %gosubValidateFolderExists% PUBCASBACKUPDRIVE PUBCASBACKUP
+                %gosubValidateFolderExists%       WWWCASDRIVE WWWCAS
+                %gosubValidateFolderExists%        ANIMEDRIVE ANIME
             :GoliathValidations_NO
+
+        gosub stopwatch_button magenta "      DefineRepositories [20]          " %+ 
 
 		::::: PHYSICAL VIDEO REPOSITORIES:
             ::main location
@@ -1563,14 +1582,14 @@ return
                 SET VIDEOLISTDRIVE=%VIDEOLISTDIRDRIVE%
                 set VIDEOLIST=%VIDLIST%
             :Validation
-                gosub ValidateFolderExists            VIDEODRIVE VIDEO
-                gosub ValidateFolderExists        VIDEOLISTDRIVE VIDEOLIST
-                gosub ValidateFolderExists     VIDEOLISTDIRDRIVE VIDEOLISTDIR
-                gosub ValidateFolderExists VIDEOAUTOLISTDIRDRIVE VIDEOAUTOLISTDIR
-                gosub ValidateFolderExists            VIDEODRIVE VIDEOLIST_LATEST_BASELINE
-                gosub ValidateFolderExists            VIDEODRIVE VIDEOLIST_LATEST_SNAPSHOT
-                gosub ValidateFolderExists          VIDLISTDRIVE VIDLIST
-                gosub ValidateFolderExists       VIDLISTDIRDRIVE VIDLISTDIR
+                %gosubValidateFolderExists%            VIDEODRIVE VIDEO
+                %gosubValidateFolderExists%        VIDEOLISTDRIVE VIDEOLIST
+                %gosubValidateFolderExists%     VIDEOLISTDIRDRIVE VIDEOLISTDIR
+                %gosubValidateFolderExists% VIDEOAUTOLISTDIRDRIVE VIDEOAUTOLISTDIR
+                %gosubValidateFolderExists%            VIDEODRIVE VIDEOLIST_LATEST_BASELINE
+                %gosubValidateFolderExists%            VIDEODRIVE VIDEOLIST_LATEST_SNAPSHOT
+                %gosubValidateFolderExists%          VIDLISTDRIVE VIDLIST
+                %gosubValidateFolderExists%       VIDLISTDIRDRIVE VIDLISTDIR
 
 
 
@@ -1602,18 +1621,18 @@ return
                 set PYTHON_CLAIRE_BACKUP=%PYTHON_CLAIRE_DRIVE_BACKUP%:\backups\anaconda.bak.demona
                 set NUMEXPR_MAX_THREADS=25
             ::Validation
-                :: add new stuff to backup-programming.bat too
-                gosub ValidateFolderExists PROGRAMMINGDRIVE                 PROGRAMMING
-                gosub ValidateFolderExists PROGRAMMING_BACKUP_DRIVE         PROGRAMMING_BACKUP
-                gosub ValidateFolderExists PROGRAMMING_SANDBOX_DRIVE        PROGRAMMING_SANDBOX
-                gosub ValidateFolderExists PROGRAMMING_SANDBOX_DRIVE_BACKUP PROGRAMMING_SANDBOX_BACKUP
-                gosub ValidateFolderExists PYTHON_CLAIRE_DRIVE              PYTHON_CLAIRE
-                gosub ValidateFolderExists PYTHON_CLAIRE_DRIVE_BACKUP       PYTHON_CLAIRE_BACKUP
-                gosub ValidateFolderExists   PERL_CLAIRE_DRIVE              PERL_CLAIRE
-                gosub ValidateFolderExists   PERL_CLAIRE_DRIVE_BACKUP       PERL_CLAIRE_BACKUP
+                rem add new stuff to backup-programming.bat too
+                %gosubValidateFolderExists% PROGRAMMINGDRIVE                 PROGRAMMING
+                %gosubValidateFolderExists% PROGRAMMING_BACKUP_DRIVE         PROGRAMMING_BACKUP
+                %gosubValidateFolderExists% PROGRAMMING_SANDBOX_DRIVE        PROGRAMMING_SANDBOX
+                %gosubValidateFolderExists% PROGRAMMING_SANDBOX_DRIVE_BACKUP PROGRAMMING_SANDBOX_BACKUP
+                %gosubValidateFolderExists% PYTHON_CLAIRE_DRIVE              PYTHON_CLAIRE
+                %gosubValidateFolderExists% PYTHON_CLAIRE_DRIVE_BACKUP       PYTHON_CLAIRE_BACKUP
+                %gosubValidateFolderExists%   PERL_CLAIRE_DRIVE              PERL_CLAIRE
+                %gosubValidateFolderExists%   PERL_CLAIRE_DRIVE_BACKUP       PERL_CLAIRE_BACKUP
     
 		::::: FILE WORKFLOW LOCATIONS:
-            :: Pre-Incoming
+            rem Pre-Incoming
                 :TorrentTemp1
                     SET TORRENT_FIRE_TEMPDRIVE=%HD1000G%
                     SET TORRENT_FIRE_TEMP=%TORRENT_FIRE_TEMPDRIVE%:\k\new\p2p\bittorrent\
@@ -1622,19 +1641,19 @@ return
                     :ET TORRENT_GOLIATHDRIVE_OLD=%HD2000G4% %+ REM decomissioned when drive problems started 20220801
                     SET TORRENT_GOLIATHDRIVE=%HD18000G2%
                     SET TORRENT_GOLIATH=%TORRENT_GOLIATHDRIVE%:\inc\
-            :: Incoming
+            rem Incoming
                 :Incoming_From_Claire:
                     :ET NEWCLDRIVE=%HD10T2%		:2015-2022
                     SET NEWCLDRIVE=%HD18T3%
                     SET NEWCL=%NEWCLDRIVE%:\new
-                    :: Backups
+                    rem Backups
                             rem NEWCL_BACKUP_DRIVE_1=%HD4000G4%		:2015-2022
                             rem NEWCL_BACKUP_DRIVE_1=%HD10T2%       :2022-20230827
                             SET NEWCL_BACKUP_DRIVE_1=%HD20T1%
                             SET NEWCL_BACKUP_DRIVE_2=%HD4000G7%
                             SET NEWCL_BACKUP_1=%NEWCL_BACKUP_DRIVE_1%:\backups\newcl.bak
                             SET NEWCL_BACKUP_2=%NEWCL_BACKUP_DRIVE_2%:\backups\newcl.bak
-                        :: Aliases
+                        rem Aliases
                             set NEWCL_BACKUP_DRIVE=%NEWCL_BACKUP_DRIVE_1%
                             set NEWCL_BACKUP=%NEWCL_BACKUP_1%                            
                 :Incoming_From_Carolyn:
@@ -1642,10 +1661,10 @@ return
                     rem NEWCASDRIVE=%HD4000G1%
                     SET NEWCASDRIVE=%HD18T2%
                     SET NEWCAS=%NEWCASDRIVE%:\new
-                    :: Backups
+                    rem Backups
                         set NEWCAS_BACKUP_DRIVE=%HD18T3%
                         set NEWCAS_BACKUP=%NEWCAS_BACKUP_DRIVE%:\BACKUPS\newcas.bak
-            :: Pre-Burn General
+            rem Pre-Burn General
                 :PreBurn_DVD_General:
                     rem 2024 are these being used anymore? dont' think so: SET OLD_PREBURN_DVDDRIVE=%HD250G%
                     rem 2024 are these being used anymore? dont' think so: SET OLD_PREBURN_DVD=%OLD_PREBURN_DVDDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED
@@ -1665,7 +1684,7 @@ return
                     rem this drive is nearing capacity (2024/04):
                     SET PREBURN_BDR_BACKUPDRIVE=%HD4000G%
                     SET PREBURN_BDR_BACKUP=%PREBURN_BDR_BACKUPDRIVE%:\BACKUPS\ABOUT-TO-BE-BURNED
-            :: Pre-Burn Data
+            rem Pre-Burn Data
                 :PreBurn_DVD_Data:
                     set  DATADRIVE=%PREBURN_DVDDRIVE%
                     set       DATA=%PREBURN_DVD%\DATA
@@ -1675,12 +1694,12 @@ return
                     set DATA2DRIVE=%PREBURN_BDRDRIVE%
                     set      DATA2=%PREBURN_BDR%\DATA
                     set PREBURN_BDR_DATA=%DATA2%
-            :: Post-Burn Giving stuff to other people
+            rem Post-Burn Giving stuff to other people
                     SET MEDIA_FOR_OTHER_PEOPLEDRIVE=%HD6000G2%
                     SET MEDIA_FOR_OTHER_PEOPLE=%MEDIA_FOR_OTHER_PEOPLEDRIVE%:\MEDIA\FOR-OTHER-PEOPLE
                     SET MEDIA_FOR_OTHER_PEOPLE_BACKUP_DRIVE=%HD18T1%
                     SET MEDIA_FOR_OTHER_PEOPLE_BACKUP=%MEDIA_FOR_OTHER_PEOPLE_BACKUP_DRIVE%:\BACKUPS\for-other-people.bak
-			:: Aliases
+			rem Aliases
 				SET ABOUTTOBEBURNED1DRIVE=%PREBURN_DVDDRIVE%
 				SET ABOUTTOBEBURNED1=%PREBURN_DVD%
 				SET ABOUTTOBEBURNED=%ABOUTTOBEBURNED1%
@@ -1691,49 +1710,49 @@ return
 				SET NEW=%NEWCL% %+ SET NEWDRIVE=%NEWCLDRIVE%
                 set ABOUTTOBEBURNEDDVD_BACKUP=%PREBURN_DVD_BACKUP%
                 SET ABOUTTOBEBURNEDBDR_BACKUP=%PREBURN_BDR_BACKUP%
-            :: Validation                                   {try to shape like christmas tree}            [That comment is the angel!]
-                gosub ValidateFolderExists                          DATA1DRIVE DATA1
-                gosub ValidateFolderExists                          DATA2DRIVE DATA2
-                gosub ValidateFolderExists                          NEWCLDRIVE NEWCL
-                gosub ValidateFolderExists                         NEWCASDRIVE NEWCAS
-                gosub ValidateFolderExists                    PREBURN_DVDDRIVE PREBURN_DVD_CATALOG
-                gosub ValidateFolderExists                    PREBURN_BDRDRIVE PREBURN_BDR_CATALOG
-                gosub ValidateFolderExists                    PREBURN_DVDDRIVE PREBURN_DVD
-                gosub ValidateFolderExists                    PREBURN_BDRDRIVE PREBURN_BDR
-                gosub ValidateFolderExists                 NEWCAS_BACKUP_DRIVE NEWCAS_BACKUP
-                gosub ValidateFolderExists                NEWCL_BACKUP_DRIVE_1 NEWCL_BACKUP_1
-                gosub ValidateFolderExists                NEWCL_BACKUP_DRIVE_2 NEWCL_BACKUP_2
-                gosub ValidateFolderExists                TORRENT_GOLIATHDRIVE TORRENT_GOLIATH
-                gosub ValidateFolderExists             PREBURN_BDR_BACKUPDRIVE PREBURN_BDR_BACKUP
-                gosub ValidateFolderExists             PREBURN_DVD_BACKUPDRIVE PREBURN_DVD_BACKUP
+            rem Validation                                   {try to shape like christmas tree}            [That comment is the angel!]
+                %gosubValidateFolderExists%                          DATA1DRIVE DATA1
+                %gosubValidateFolderExists%                          DATA2DRIVE DATA2
+                %gosubValidateFolderExists%                          NEWCLDRIVE NEWCL
+                %gosubValidateFolderExists%                         NEWCASDRIVE NEWCAS
+                %gosubValidateFolderExists%                    PREBURN_DVDDRIVE PREBURN_DVD_CATALOG
+                %gosubValidateFolderExists%                    PREBURN_BDRDRIVE PREBURN_BDR_CATALOG
+                %gosubValidateFolderExists%                    PREBURN_DVDDRIVE PREBURN_DVD
+                %gosubValidateFolderExists%                    PREBURN_BDRDRIVE PREBURN_BDR
+                %gosubValidateFolderExists%                 NEWCAS_BACKUP_DRIVE NEWCAS_BACKUP
+                %gosubValidateFolderExists%                NEWCL_BACKUP_DRIVE_1 NEWCL_BACKUP_1
+                %gosubValidateFolderExists%                NEWCL_BACKUP_DRIVE_2 NEWCL_BACKUP_2
+                %gosubValidateFolderExists%                TORRENT_GOLIATHDRIVE TORRENT_GOLIATH
+                %gosubValidateFolderExists%             PREBURN_BDR_BACKUPDRIVE PREBURN_BDR_BACKUP
+                %gosubValidateFolderExists%             PREBURN_DVD_BACKUPDRIVE PREBURN_DVD_BACKUP
                 :osub ValidateFolderExists              TORRENT_FIRE_TEMPDRIVE TORRENT_FIRE_TEMP
                 :osub ValidateFolderExists           TORRENT_FIRE_SEEDINGDRIVE TORRENT_FIRE_SEEDING
-                gosub ValidateFolderExists         MEDIA_FOR_OTHER_PEOPLEDRIVE MEDIA_FOR_OTHER_PEOPLE
-                gosub ValidateFolderExists MEDIA_FOR_OTHER_PEOPLE_BACKUP_DRIVE MEDIA_FOR_OTHER_PEOPLE_BACKUP
+                %gosubValidateFolderExists%         MEDIA_FOR_OTHER_PEOPLEDRIVE MEDIA_FOR_OTHER_PEOPLE
+                %gosubValidateFolderExists% MEDIA_FOR_OTHER_PEOPLE_BACKUP_DRIVE MEDIA_FOR_OTHER_PEOPLE_BACKUP
 
         ::::: PORN (w:\p\, v:\p\real, c:\newcl\p) (old:o:\p)
-            :: filenames used
+            rem filenames used
                 set FILEMASK_PORN=cpld[mftc]*.*;[tfm]d[1-9mftc]*.*;[tfm][2-9]d[mftc]*.*;[mft][1-9]*.???;train-[fmt]*.*;train-cuck*.*;traincuck*.*;f[0-9]censored*.*;fcensored*.*;f1*.*
                 set FILEMASK_PRN=%FILEMASK_PORN%
-            :: Sub-Repos [1/2]
+            rem Sub-Repos [1/2]
                 REM PRN_W_DRIVE=%HD10000G% %+ set PRN_W=%PRN_W_DRIVE%:\p       %+ REM PRN_1s
                 REm PRN_V_DRIVE=%HD4000G5% %+ set PRN_V=%PRN_V_DRIVE%:\p\REAL  %+ REM PRN_2
                 REM PRN_O_DRIVE=%HD2000G1% %+ set PRN_O=%PRN_O_DRIVE%:\p       %+ REM PRN_4 
                 set PRN_O_DRIVE=%HD18T1%   %+ set PRN_O=%PRN_O_DRIVE%:\p       %+ REM PRN_1 new 18TB harddrive 20210331
                 set PRN_T_DRIVE=%HD18T3%   %+ set PRN_T=%PRN_T_DRIVE%:\new\p   %+ REM PRN_2 is contained in new
-            :: Aliases (first)
+            rem Aliases (first)
                 set PRN1=%PRN_O% %+ set PRN1_DRIVE=%PRN_O_DRIVE%                        
                 set PRN2=%PRN_T% %+ set PRN2_DRIVE=%PRN_T_DRIVE%                        
-            :: Aliases (second)                                        
+            rem Aliases (second)                                        
                 set PRN_1=%PRN1% %+ set PRN_1_DRIVE=%PRN1_DRIVE%
                 set PRN_2=%PRN2% %+ set PRN_2_DRIVE=%PRN2_DRIVE%
-            :: Aliases (third)                                                       
+            rem Aliases (third)                                                       
                 set PRN=%PRN1%   %+ set PRN_DRIVE=%PRN1_DRIVE%           
-            :: Workflow
+            rem Workflow
                 set PRN_NEW_DRIVE=%PRN2_DRIVE% %+  set PRN_NEW=%PRN2% 
                 set PRN_FINAL=%PRN%
                 set PRN_INDEXFILE=%PRN%\pindex.dat
-            :: Sub-Repos [2/2]
+            rem Sub-Repos [2/2]
                 set PRN_ACCOUNTS_DRIVE=%PRN_DRIVE%                    %+ set PRN_ACCOUNTS=%PRN%\accounts
                 :et   PRN_TUMBLR_DRIVE=%PRN_DRIVE%                    %+ set   PRN_TUMBLR=%PRN%\tumblr
                 :et   PRN_BDSMLR_DRIVE=%PRN_DRIVE%                    %+ set   PRN_BDSMLR=%PRN%\bdsmlr
@@ -1743,31 +1762,32 @@ return
                 :et       REDDIT_DRIVE=%PRN_REDDIT_DRIVE%             %+ set       REDDIT=%PRN_REDDIT%
                 set   PRNPICTURESDRIVE=%PRN_O_DRIVE
                 set        PRNPICTURES=%PRN_O\Our Pics 
-            :: Backups
+            rem Backups
                 rem PRN1_BACKUP_DRIVE=%HD4000G2%                      %+ REM This outgrew its backup dirve as of 20230521
                 rem PRN1_BACKUP_DRIVE=%HD18T3%                        %+ REM moved back to HD6000G3 when it revived
                 set PRN1_BACKUP_DRIVE=%HD20T1%
                 set PRN1_BACKUP=%PRN1_BACKUP_DRIVE%:\BACKUPS\prn1.bak
                 :PRN2 does not need backups as it's part of NEWCL
-            :: Validation
-                gosub ValidateFolderExists        PRN_DRIVE   PRN
-                gosub ValidateFolderExists        PRN1_DRIVE  PRN1
-                gosub ValidateFolderExists        PRN2_DRIVE  PRN2
+            rem Validation
+                %gosubValidateFolderExists%        PRN_DRIVE   PRN
+                %gosubValidateFolderExists%        PRN1_DRIVE  PRN1
+                %gosubValidateFolderExists%        PRN2_DRIVE  PRN2
                 REM   ValidateFolderExists        PRN3_DRIVE  PRN3
                 REM   ValidateFolderExists        PRN4_DRIVE  PRN4
-                gosub ValidateFolderExists        PRN_1_DRIVE PRN_1
-                gosub ValidateFolderExists        PRN_2_DRIVE PRN_2
+                %gosubValidateFolderExists%        PRN_1_DRIVE PRN_1
+                %gosubValidateFolderExists%        PRN_2_DRIVE PRN_2
                 REM   ValidateFolderExists        PRN_3_DRIVE PRN_3
                 REM   ValidateFolderExists        PRN_4_DRIVE PRN_4
-                gosub ValidateFolderExists      PRN_NEW_DRIVE PRN_NEW
-                gosub ValidateFolderExists  PRN1_BACKUP_DRIVE PRN1_BACKUP
-                gosub ValidateFolderExists   PRNPICTURESDRIVE PRNPICTURES
+                %gosubValidateFolderExists%      PRN_NEW_DRIVE PRN_NEW
+                %gosubValidateFolderExists%  PRN1_BACKUP_DRIVE PRN1_BACKUP
+                %gosubValidateFolderExists%   PRNPICTURESDRIVE PRNPICTURES
                 REM   ValidateFolderExists   PRN_TUMBLR_DRIVE PRN_TUMBLR
                 REM   ValidateFolderExists       TUMBLR_DRIVE     TUMBLR
                 REM   ValidateFolderExists       BDSMLR_DRIVE     BDSMLR
                 REM   ValidateFolderExists       REDDIT_DRIVE     REDDIT
-                gosub ValidateFolderExists PRN_ACCOUNTS_DRIVE     PRN_ACCOUNTS
+                %gosubValidateFolderExists% PRN_ACCOUNTS_DRIVE     PRN_ACCOUNTS
 
+        gosub stopwatch_button magenta "      DefineRepositories [30]          " %+ 
 
         ::::: IMAGE WORKFLOW LOCATIONS:
             :Automatic_Placement_Of_Uploaded_Pictures
@@ -1794,19 +1814,19 @@ return
 				SET PICTURESDRIVE=%HD18T3%
                 set PICTURESFOLDERNAME=WWWPICS
 				SET PICTURES=%PICTURESDRIVE%:\%PICTURESFOLDERNAME%
-                :: backups
+                rem backups
                     set PICTURES_BACKUP_DRIVE_1=%HD10T2%
                     set PICTURES_BACKUP_1=%PICTURES_BACKUP_DRIVE_1%:\BACKUPS\WWWPICS
                     set PICTURES_BACKUP_DRIVE_2=%HD4000G5%
                     set PICTURES_BACKUP_2=%PICTURES_BACKUP_DRIVE_2%:\BACKUPS\WWWPICS
-                    :: backup aliases
+                    rem backup aliases
                         set PICTURES_BACKUP_DRIVE=%PICTURES_BACKUP_DRIVE_1%
                         set PICTURES_BACKUP=%PICTURES_BACKUP_1%
             :Sub_Repositories (like postcards)
                 SET POSTCARDSDRIVE=%PICTURESDRIVE%
                 set POSTCARDS=%PICTURES%\MISC\art\postcards\
             :Digital_Picture_Frame_mirrors
-                :: By default, these only have images, not videos, text files, or anything else - created with ImageMagic's convert.exe
+                rem By default, these only have images, not videos, text files, or anything else - created with ImageMagic's convert.exe
                     :Resized_To_480x234_Repository
                         set PICTURES480X243FOLDERNAME=WWWPICS-480x243
                         SET PICTURES480X243=%PICTURESDRIVE%:\%PICTURES480X243FOLDERNAME%
@@ -1838,20 +1858,20 @@ return
 				SET PICSDRIVE=%PICTURESDRIVE%
 				SET PICS=%PICTURES%
             :Validation:
-                :TEST 201911 TO NO LONGER USE THIS: gosub ValidateFolderExists NEWNEWPICTURESDRIVE       NEWNEWPICTURES
-                gosub ValidateFolderExists    NEWPICTURESDRIVE          NEWPICTURES
-                gosub ValidateFolderExists    NEWPICTURESBACKUPDRIVE    NEWPICTURESBACKUP
-                gosub ValidateFolderExists       PICTURESDRIVE             PICTURES
-                gosub ValidateFolderExists       PICTURES_BACKUP_DRIVE     PICTURES_BACKUP
-                gosub ValidateFolderExists       PICTURES_BACKUP_DRIVE_1   PICTURES_BACKUP_1
-                gosub ValidateFolderExists       PICTURES_BACKUP_DRIVE_2   PICTURES_BACKUP_2
-                gosub ValidateFolderExists       PICTURESDRIVE             PICTURES480X243
-                gosub ValidateFolderExists       PICTURESDRIVE             PICTURES800x480
-                gosub ValidateFolderExists       PICTURESDRIVE             PICTURES800x600
-                gosub ValidateFolderExists       PICTURESDRIVE             PICTURES1024x600
-                gosub ValidateFolderExists       PICTURESDRIVE             PICTURES1024x768
-                gosub ValidateFolderExists       POSTCARDSDRIVE            POSTCARDS
-                gosub ValidateFolderExists     SCREENSHOTSDRIVE            SCREENSHOTS
+                :TEST 201911 TO NO LONGER USE THIS: %gosubValidateFolderExists% NEWNEWPICTURESDRIVE       NEWNEWPICTURES
+                %gosubValidateFolderExists%    NEWPICTURESDRIVE          NEWPICTURES
+                %gosubValidateFolderExists%    NEWPICTURESBACKUPDRIVE    NEWPICTURESBACKUP
+                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES
+                %gosubValidateFolderExists%       PICTURES_BACKUP_DRIVE     PICTURES_BACKUP
+                %gosubValidateFolderExists%       PICTURES_BACKUP_DRIVE_1   PICTURES_BACKUP_1
+                %gosubValidateFolderExists%       PICTURES_BACKUP_DRIVE_2   PICTURES_BACKUP_2
+                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES480X243
+                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES800x480
+                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES800x600
+                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES1024x600
+                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES1024x768
+                %gosubValidateFolderExists%       POSTCARDSDRIVE            POSTCARDS
+                %gosubValidateFolderExists%     SCREENSHOTSDRIVE            SCREENSHOTS
 
 		::::: VIDEO WORKFLOW LOCATIONS:
 			:PreBurn_Rally_Point:
@@ -1889,7 +1909,7 @@ return
                 rem EXTRAS_BACKUP_DRIVE=%HD18T3% moved back to 6T when it revived:
                 set EXTRAS_BACKUP_DRIVE=%HD6000G3%
                 set EXTRAS_BACKUP=%EXTRAS_BACKUP_DRIVE%:\BACKUPS\extras.bak
-                :: a temporary solution for when we ran out of space, no longer used:
+                rem a temporary solution for when we ran out of space, no longer used:
                     :set EXTRASARCHIVESPILLOVERDRIVE=%HD6000G1%
                     :set EXTRASARCHIVESPILLOVER=%EXTRASARCHIVESPILLOVERDRIVE%:\MEDIA\MOVIES\_EXTRAS\_WATCHED
             :Aliases:
@@ -1900,22 +1920,25 @@ return
 				SET READYTODELETEDVD=%READYTODELETE1%
 				SET READYTODELETEBDR=%READYTODELETE2%
             :Validation:
-                gosub ValidateFolderExists                     EXTRASDRIVE EXTRAS
-                gosub ValidateFolderExists             EXTRAS_BACKUP_DRIVE EXTRAS_BACKUP
-                gosub ValidateFolderExists                     REVIEWDRIVE REVIEWDIR 
-                gosub ValidateFolderExists            REVIEWDIRBACKUPDRIVE REVIEWDIRBACKUP 
-                gosub ValidateFolderExists                    DROPDIRDRIVE DROPDIR
-                gosub ValidateFolderExists                PREBURN_DVDDRIVE PREBURN_DVD
-                gosub ValidateFolderExists                PREBURN_BDRDRIVE PREBURN_BDR
-                gosub ValidateFolderExists             READYTODELETE1DRIVE READYTODELETE1
-                gosub ValidateFolderExists             READYTODELETE2DRIVE READYTODELETE2
-                gosub ValidateFolderExists             READYTODELETE2DRIVE READYTODELETE2ROOTALIAS
-                gosub ValidateFolderExists            REVIEWDIRBACKUPDRIVE REVIEWDIRBACKUP
-                gosub ValidateFolderExists        DELETEAFTERWATCHINGDRIVE DELETEAFTERWATCHING
-                gosub ValidateFolderExists  DELETEAFTERWATCHINGBACKUPDRIVE DELETEAFTERWATCHINGBACKUP
-                gosub ValidateFolderExists  DELETEAFTERWATCHINGBACKUPDRIVE DELETEAFTERWATCHINGBACKUP1
-                gosub ValidateFolderExists DELETEAFTERWATCHINGBACKUP2DRIVE DELETEAFTERWATCHINGBACKUP2
+                %gosubValidateFolderExists%                     EXTRASDRIVE EXTRAS
+                %gosubValidateFolderExists%             EXTRAS_BACKUP_DRIVE EXTRAS_BACKUP
+                %gosubValidateFolderExists%                     REVIEWDRIVE REVIEWDIR 
+                %gosubValidateFolderExists%            REVIEWDIRBACKUPDRIVE REVIEWDIRBACKUP 
+                %gosubValidateFolderExists%                    DROPDIRDRIVE DROPDIR
+                %gosubValidateFolderExists%                PREBURN_DVDDRIVE PREBURN_DVD
+                %gosubValidateFolderExists%                PREBURN_BDRDRIVE PREBURN_BDR
+                %gosubValidateFolderExists%             READYTODELETE1DRIVE READYTODELETE1
+                %gosubValidateFolderExists%             READYTODELETE2DRIVE READYTODELETE2
+                %gosubValidateFolderExists%             READYTODELETE2DRIVE READYTODELETE2ROOTALIAS
+                %gosubValidateFolderExists%            REVIEWDIRBACKUPDRIVE REVIEWDIRBACKUP
+                %gosubValidateFolderExists%        DELETEAFTERWATCHINGDRIVE DELETEAFTERWATCHING
+                %gosubValidateFolderExists%  DELETEAFTERWATCHINGBACKUPDRIVE DELETEAFTERWATCHINGBACKUP
+                %gosubValidateFolderExists%  DELETEAFTERWATCHINGBACKUPDRIVE DELETEAFTERWATCHINGBACKUP1
+                %gosubValidateFolderExists% DELETEAFTERWATCHINGBACKUP2DRIVE DELETEAFTERWATCHINGBACKUP2
                 :osub ValidateFolderExists     EXTRASARCHIVESPILLOVERDRIVE EXTRASARCHIVESPILLOVER        :::::no longer used
+
+        gosub stopwatch_button magenta "      DefineRepositories [40]          " %+ 
+
 
 		::::: MUSIC WORKFLOW LOCATIONS:
 			:OfficialMusicRepoLocation:
@@ -1964,17 +1987,18 @@ return
                 SET MP3VERSIONINGBACKUPDRIVE=%HD18000G%
                 SET MP3VERSIONINGBACKUP=%MP3VERSIONINGBACKUPDRIVE%:\mp3-git-repo
             :Validation:
-                gosub ValidateFolderExists NEWMP3DRIVE              NEWMP3            
-                gosub ValidateFolderExists MP3PREPROCESSINGDRIVE    MP3PREPROCESSING
-                gosub ValidateFolderExists WAVPROCESSINGDRIVE       WAVPROCESSING
+                %gosubValidateFolderExists% NEWMP3DRIVE              NEWMP3            
+                %gosubValidateFolderExists% MP3PREPROCESSINGDRIVE    MP3PREPROCESSING
+                %gosubValidateFolderExists% WAVPROCESSINGDRIVE       WAVPROCESSING
                 :osub ValidateFolderExists MP3TAGGINGV2DRIVE        MP3TAGGINGV2
                 :osub ValidateFolderExists MP3TAGGINGV2REVIEWDRIVE  MP3TAGGINGV2REVIEW
                 :osub ValidateFolderExists MP3EMBEDDINGDRIVE        MP3EMBEDDING
                 :osub ValidateFolderExists MP3TAGGINGV1DRIVE        MP3TAGGINGV1
                 :osub ValidateFolderExists MP3TAGGINGV1REVIEWDRIVE  MP3TAGGINGV1REVIEW
-                gosub ValidateFolderExists MP3TESTINGDRIVE          MP3TESTING
-                gosub ValidateFolderExists MP3OFFICIALDRIVE         MP3OFFICIAL 
-                gosub ValidateFolderExists MP3VERSIONINGBACKUPDRIVE MP3VERSIONINGBACKUP
+                %gosubValidateFolderExists% MP3TESTINGDRIVE          MP3TESTING
+                %gosubValidateFolderExists% MP3OFFICIALDRIVE         MP3OFFICIAL 
+                %gosubValidateFolderExists% MP3VERSIONINGBACKUPDRIVE MP3VERSIONINGBACKUP
+        gosub stopwatch_button magenta "      DefineRepositories [99] %SKULL%       " %+ 
 return
 ::::::::::::::::::::::::::::::::::::: DEFINE REPOSITORIES FOR VARIOUS... THINGS :::::::::::::::::::::::::::::::::::::
 
@@ -1991,20 +2015,20 @@ return
 
     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     :ValidateFolderExists [drive dir handler]
-        : NOTE: first 2 arguments are mandatory names of environment variables
-        :       third   argument  is  optional  name  of handler, so far only containing MAKE(=make missing folders).
+        rem NOTE: first 2 arguments are mandatory names of environment variables
+        rem       third   argument  is  optional  name  of handler, so far only containing MAKE(=make missing folders).
 
-        : Debug
+        rem Debug
             REM echo ValidateFolderExists [drive=%drive dir=%dir handler=%handler] {PERFORM_VALIDATIONS='%PERFORM_VALIDATIONS%'}
 
-        : Don't do this if we've decided not to
-            if "%PERFORM_VALIDATIONS%" ne "1" return
+        rem Don't do this if we've decided not to
+            if %PERFORM_VALIDATIONS ne 1 (return)
 
-        : Update window title
+        rem Update window title
             SET TITLETMP=%_WINTITLE
             title Validating: %dir%
 
-        : Check parameters exist
+        rem Check parameters exist
             if "%DEBUG_VALIDATIONS%" ne "1"  goto :Debug_Validations_No 
                 echo. 
                 color bright   cyan on black %+ echos * `` 
@@ -2019,12 +2043,12 @@ return
             gosub ValidateIfEnvironmentVariableIsDefined %drive%
             gosub ValidateIfEnvironmentVariableIsDefined %dir%
 
-        : Dereference parameters to transform from environment variable names to actual values:
+        rem Dereference parameters to transform from environment variable names to actual values:
             set actualDrive=%[%drive%]
             set actualDir=%[%dir%]
 
-        : Dont check if the drive isn't ready; the machine may be down or something, 
-        : we can't wait any measurable time on this:
+        rem Dont check if the drive isn't ready; the machine may be down or something, 
+        rem we can't wait any measurable time on this:
             if "%DEBUG_VALIDATIONS%" eq "1" (color yellow on black %+ echos           .............checking if drive is ready... %+ color bright yellow on black %+ echos %actualDrive%: %+ color yellow on black %+ echos ...)
             set  READY=%@READY[%actualDrive%]
             if "%DEBUG_VALIDATIONS%" ne "1" goto :Debug_Validations_No_2 
@@ -2039,7 +2063,7 @@ return
                 *color         white  on black
             :Debug_Validations_No_2
 
-        : Return if the folder exists, otherwise, handle the error:
+        rem Return if the folder exists, otherwise, handle the error:
             if "%DEBUG_VALIDATIONS%" ne "1" goto :Debug_Validations_No_3
                 *color        cyan on black %+ echos           .............checking if folder exists.... 
                 *color bright cyan on black %+ echos %actualDir% 
@@ -2094,10 +2118,10 @@ return
         set FILEMASK_IMAGE=*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large %+ REM 20160421:removed comic extensions from here, 20161226:added DICOM(*.dcm)
         set FILEMASK_COMIC_BOOK=*.cbr;*.cbz
         set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
-            :: there's a bug in TCC v19.10.45 x64 where doing a dir %FILEMASK_AUDIO crashes the command-line when 
-            :: the pathdepth is too deep/long, which is fixed by shortening FILEMASK_AUDIO, so mp3index.bat [at the very least]
-            :: has to iterate through smaller versions of this environment variable. Therefore we must break it up here for that
-            :: very purpose
+            rem there's a bug in TCC v19.10.45 x64 where doing a dir %FILEMASK_AUDIO crashes the command-line when 
+            rem the pathdepth is too deep/long, which is fixed by shortening FILEMASK_AUDIO, so mp3index.bat [at the very least]
+            rem has to iterate through smaller versions of this environment variable. Therefore we must break it up here for that
+            rem very purpose
                 set FILEMASK_AUDIO_SPLIT_1=*.mp3;*.wav;*.flac;*.mid
                 set FILEMASK_AUDIO_SPLIT_2=*.voc;*.au;*.stm;*.aac;*.ac3
                 set FILEMASK_AUDIO_SPLIT_3=*.mod;*.vqf;*.ogg;*.mpc
@@ -2105,7 +2129,7 @@ return
     
         set FILEMASK_VIDEO=*.mkv;*.avi;*.mp4;*.m4a;*.flv;*.mov;*.wmv;*.mpg;*.mpeg;*.vob;*.bdmv;*.ts;*.m2ts;*.rm;*.qt;*.asf;*.asx;*.fli;*.swf;*.m4v;*.webm;*.f4v;*.rm;*.ram;*.3gp
         :ET FILEMASK_VIRTUALREALITY=*.???   Just kidding, ha ha ha ... but seriously, new stuff needs to also be in the list below, for conversion:
-            :: same thing delimited by space instead of semicolon:
+            rem same thing delimited by space instead of semicolon:
                 for %v in (FILEMASK_APPLICATION FILEMASK_ARCHIVE FILEMASK_AUDIO FILEMASK_CODE FILEMASK_COMIC_BOOK FILEMASK_DISC FILEMASK_DISC_IMAGE FILEMASK_DISK FILEMASK_DISK_IMAGE FILEMASK_FILELIST FILEMASK_IMAGE FILEMASK_MUSIC FILEMASK_RICHTEXT FILEMASK_TEXT FILEMASK_VIDEO) (gosub CreateFileMaskWithSpaces %v %+ gosub CreateFileMaskWithExtensions %v)
                 goto :SkipSub1
                         :CreateFileMaskWithSpaces [varname]
@@ -2115,7 +2139,7 @@ return
                             set %VARNAME%_EXTENSIONS=%@replace[*,,%@replace[.,,%@replace[;, ,%[%varname%]]]]
                         return
                 :SkipSub1
-            :: aliases for common screwups:            
+            rem aliases for common screwups:            
                 set FILEMASK_DISC=%FILEMASK_DISC_IMAGE%
                 set FILEMASK_DISK=%FILEMASK_DISC_IMAGE%
                 set FILEMASK_DISK_IMAGE=%FILEMASK_DISC_IMAGE%
@@ -2248,11 +2272,11 @@ return
 
 
 :SetUsernameAndNetName
-    :: we allow a flag to be passed to skip this, because going by machinename can go against wishes when using terminal services (RDP):
+    rem we allow a flag to be passed to skip this, because going by machinename can go against wishes when using terminal services (RDP):
 	if "%ENVIRONM_BAT_DO_NOT_SET_USERNAME%"=="1" goto :set_user_name_NO
 				                                 goto :set_user_name_YES
 		:set_user_name_YES
-            :: default user
+            rem default user
                 SET   USERNAME=claire
                 SET    NETNAME_DEAD=cLInTJcl
                 SET    NETNAME_FEM=ClioCJS
@@ -2261,7 +2285,7 @@ return
                 set  KNOWNNAME=Claire          %+ set KNOWN_NAME=%KNOWNNAME%
                 set   DEADNAME=Clint           %+ set  DEAD_NAME=%DEADNAME%
 
-            :: other users set by machinename
+            rem other users set by machinename
                 REM Consider: When new computer is added
                 if "%@UPPER[%MACHINENAME%]" eq "MAGIC"   goto :Set_Carolyn
                 if "%@UPPER[%MACHINENAME%]" eq "MIST"    goto :Set_Carolyn
@@ -2275,9 +2299,9 @@ return
                                 set KNOWNNAME=Carolyn
                                 set MV_DRY_RUN_FIRST=1
                             :Set_Carolyn_DONE
-            :: Alias-ize
+            rem Alias-ize
                 set KNOWN_NAME=%KnownName%
-            :: Validate
+            rem Validate
                 :echo * Username is now %USERNAME
                 if "%USERNAME%" eq "" gosub username_not_found
 		:set_user_name_NO
@@ -2295,7 +2319,7 @@ return
          REM call redefine-the-colorblack-randomly.bat >>&>nul
 	return
 	:Initialcarolyn
-        :: Some repositories are supposed to be person-specific, so those that get redefined go here:
+        rem Some repositories are supposed to be person-specific, so those that get redefined go here:
             SET WWW=%WWWCAS% %+ set WWWDRIVE=%WWWCASDRIVE%
             SET NEW=%NEWCAS% %+ set NEWDRIVE=%NEWCASDRIVE%
             SET PUB=%PUBCAS% %+ SET PUBDRIVE=%PUBCASDRIVE%
@@ -2315,7 +2339,7 @@ return
 
 
 :SetPathAndPrompt
-    :: don't do it if we're not supposed to
+    rem don't do it if we're not supposed to
         if %ENVIRONM_BAT_DO_NOT_SET_PROMPT eq 1 (goto :DoNotSetPrompt)
 
             rem make sure required scripts are present:
@@ -2429,15 +2453,19 @@ return
 		:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-    :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     :FinalValidations
-        if "%FINAL_VALIDATIONS_RUN" eq "1" goto :FinalValidationsDone
-            if not defined STAR (set STAR=*) %+ rem Star is just a choice of asterisk. In our case we use 🌟 which is more easily noticeable in console output. This is defined in set-emoji.bat
-            call validate-environment-variables GATEWAY OS_USERNAME STAR
+        if %FINAL_VALIDATIONS_RUN eq 1 (goto :FinalValidationsDone)
+            if not defined STAR        (set STAR=*) %+ rem Star is just a choice of asterisk. In our case we use 🌟 which is more easily noticeable in console output. This is defined in set-emoji.bat
+            if not defined GATEWAY     (call error "gateway not defined in %0! run 'ipconfig /all' and look for the 'Default Gateway' with an IP4 address")
+            if not defined OS_USERNAME (set OS_USERNAME=%_winuser %+ if not defined OS_USERNAME (call error "OS_USERNAME not defined in %0!"))
             set FINAL_VALIDATIONS_RUN=1
         :FinalValidationsDone
     return
-    :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+
 
 
     ::::::::::::::::::::::::::::::::::::: ERROR SUBROUTINES: BEGIN: :::::::::::::::::::::::::::::::::::::
@@ -2481,16 +2509,21 @@ return
             goto :END
 
             :SecondaryShell
-                :: only really used to debug setting up the secondary shell, pretty much just a dummy/debug function
+                rem only really used to debug setting up the secondary shell, pretty much just a dummy/debug function
                 :echo * This is a secondary shell!
                 :pause
             goto :END
 
 
 
-    :stopwatch_button [color]
-            echos %%[ANSI_COLOR_%COLOR%] 
-            echos %[ANSI_COLOR_%COLOR%] 
+    :stopwatch_button [color reason]
+            if %PERFORMANCE_TUNING eq 0 (return)
+            set reason2=%@unquote[%reason]
+            echos %[ANSI_COLOR_%COLOR%]
+            echos %EMOJI_STOPWATCH%%EMOJI_STOPWATCH%
+            echos  %reason2%
+            echos %EMOJI_STOPWATCH%
+            echos %@ANSI_MOVE_TO_COL[100]
             timer %QUIET_TIMER_OR_NOT% /9 /s
     return
 
