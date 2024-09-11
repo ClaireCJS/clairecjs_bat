@@ -79,44 +79,44 @@ ScrollLock::
 }
 HandleKey(      KeyName   ,     KeyModeVarName,        key_up_tray_text,        key_dn_tray_text,        key_up_popup_text,        key_dn_popup_text, key_up_ansi_code_exp, key_dn_ansi_code_exp) 
 {
-    global      insert_mode          
-    global   caps_lock_mode          
-    global    num_lock_mode                                             
-    global scroll_lock_mode                                             
-    global       dummy_mode                                             
-    global insert_up_tray_text  
-    global insert_dn_tray_text  
-    global insert_up_popup_text    
-    global insert_dn_popup_text    
-    global capsLock_up_tray_text
-    global capsLock_dn_tray_text
-    global capsLock_up_popup_text  
-    global capsLock_dn_popup_text  
-    global numLock_up_tray_text 
-    global numLock_dn_tray_text 
-    global numLock_up_popup_text   
-    global numLock_dn_popup_text   
-    global scrollLock_up_tray_text 
-    global scrollLock_dn_tray_text 
+    global               dummy_mode                                             
+    global              insert_mode          
+    global           caps_lock_mode          
+    global            num_lock_mode                                             
+    global         scroll_lock_mode                                             
+    global      insert_up_tray_text  
+    global      insert_dn_tray_text  
+    global     insert_up_popup_text    
+    global     insert_dn_popup_text    
+    global    capsLock_up_tray_text
+    global    capsLock_dn_tray_text
+    global   capsLock_up_popup_text  
+    global   capsLock_dn_popup_text  
+    global     numLock_up_tray_text 
+    global     numLock_dn_tray_text 
+    global    numLock_up_popup_text   
+    global    numLock_dn_popup_text   
+    global  scrollLock_up_tray_text 
+    global  scrollLock_dn_tray_text 
     global scrollLock_up_popup_text   
     global scrollLock_dn_popup_text   
 
-    ;if WinActive("TCC")                                  ; originally the entire rest of the block here was for TCC-only to try to change the cursor shape with ANSI codes, but that was impossible
-    %KeyModeVarName% := !%KeyModeVarName%                 ; Toggle the key mode state
-    if (%KeyModeVarName%) {
-        ;ansiCode  := Chr(27) key_dn_ansi_code_exp        ; experimental, doesn't work, abandoned
-        tray_text  :=         key_dn_tray_text
-        popup_text :=         key_dn_popup_text
-    } else {
-        ;ansiCode  := Chr(27) key_up_ansi_code_exp        ; experimental, doesn't work, abandoned
-        tray_text  :=         key_up_tray_text
-        popup_text :=         key_up_popup_text
-    }
-    margin   := 50
-    x_offset := 300                                       ; higher #s == move box left — 250 is too much AT FIRST but then added others —— this one is trial and error, yuck
-    y_offset := 110                                       ; higher #s == move box up
-    if (insert_mode) {                              
-        x_offset := x_offset + 90                        ; the word 'overwrite' is longer than 'insert', so move it this much more
+    ;if WinActive("TCC")                                                 ; originally the entire rest of the block here was for TCC-only to try to change the cursor shape with ANSI codes, but that was impossible
+    %KeyModeVarName% := !%KeyModeVarName%                                ; Toggle the key mode state
+    if (%KeyModeVarName%) {                                            
+        ;ansiCode  := Chr(27) key_dn_ansi_code_exp                       ; experimental, doesn't work, abandoned
+        tray_text  :=         key_dn_tray_text                         
+        popup_text :=         key_dn_popup_text                        
+    } else {                                                           
+        ;ansiCode  := Chr(27) key_up_ansi_code_exp                       ; experimental, doesn't work, abandoned
+        tray_text  :=         key_up_tray_text                         
+        popup_text :=         key_up_popup_text                        
+    }                                                                  
+    margin   := 50                                                     
+    x_offset := 300                                                      ; higher #s == move box left — 250 is too much AT FIRST but then added others —— this one is trial and error, yuck
+    y_offset := 110                                                      ; higher #s == move box up
+    if (insert_mode) {                                                 
+        x_offset := x_offset + 90                                        ; the word 'overwrite' is longer than 'insert', so move it this much more
     }
     ToolTipOptions.Init()
     ToolTipOptions.SetFont(       "s10 norm","Consolas Bold")

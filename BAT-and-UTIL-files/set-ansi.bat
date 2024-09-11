@@ -66,6 +66,8 @@ rem ANSI: special stuff: reset
                 set ANSI_FULL_RESET=%ANSI_RESET%
                 set ANSI_COLOR_RESET=%ANSI_RESET_FG_COLOR%
                 set ANSI_RESET_COLOR=%ANSI_RESET_FG_COLOR%
+                set ANSI_NORMAL=%ANSI_RESET%
+                set ANSI_COLOR_NORMAL=%ANSI_RESET%
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -393,17 +395,23 @@ rem ANSI: colors
             rem example usage for random background: echos %@RANDBG[]
 
 
-        rem Foreground Colors
+        rem Foreground Colors —— todo bright purple
             set ANSI_BLACK=%ANSI_ESCAPE%30m
-            set ANSI_RED=%ANSI_ESCAPE%31m
-            set ANSI_GREEN=%ANSI_ESCAPE%32m
-            set ANSI_YELLOW=%ANSI_ESCAPE%33m
-            set ANSI_BLUE=%ANSI_ESCAPE%34m
-            set ANSI_MAGENTA=%ANSI_ESCAPE%35m
-            set ANSI_CYAN=%ANSI_ESCAPE%36m
-            set ANSI_WHITE=%ANSI_ESCAPE%37m
             set ANSI_GRAY=%ANSI_ESCAPE%90m
             set ANSI_GREY=%ANSI_ESCAPE%90m
+            set ANSI_WHITE=%ANSI_ESCAPE%37m
+            set ANSI_PINK=%@ANSI_RGB[215,112,123]
+            set ANSI_BRIGHT_PINK=%@ANSI_RGB[255,152,163]
+            set ANSI_RED=%ANSI_ESCAPE%31m
+            set ANSI_ORANGE=%@ANSI_RGB[235,107,0]
+            set ANSI_BRIGHT_ORANGE=%@ANSI_RGB[255,175,0]
+            set ANSI_YELLOW=%ANSI_ESCAPE%33m
+            set ANSI_GREEN=%ANSI_ESCAPE%32m
+            set ANSI_CYAN=%ANSI_ESCAPE%36m
+            set ANSI_BLUE=%ANSI_ESCAPE%34m
+            set ANSI_PURPLE=%@ANSI_RGB[128,0,128]
+            set ANSI_MAGENTA=%@ANSI_RGB[170,0,170]
+            set ANSI_MAGENTA_OFFICIAL=%ANSI_ESCAPE%35m
             set ANSI_BRIGHT_BLACK=%ANSI_GREY%
             set ANSI_BRIGHT_RED=%ANSI_ESCAPE%91m
             set ANSI_BRIGHT_GREEN=%ANSI_ESCAPE%92m
@@ -412,38 +420,48 @@ rem ANSI: colors
             set ANSI_BRIGHT_MAGENTA=%ANSI_ESCAPE%95m
             set ANSI_BRIGHT_CYAN=%ANSI_ESCAPE%96m
             set ANSI_BRIGHT_WHITE=%ANSI_ESCAPE%97m
+                set ANSI_WHITE_BRIGHT=%ANSI_ESCAPE%97m
+                set ANSI_PINK_BRIGHT=%@ANSI_BRIGHT_PINK%
                 set ANSI_RED_BRIGHT=%ANSI_ESCAPE%91m
-                set ANSI_GREEN_BRIGHT=%ANSI_ESCAPE%92m
+                set ANSI_ORANGE_BRIGHT=%ANSI_BRIGHT_ORANGE%
                 set ANSI_YELLOW_BRIGHT=%ANSI_ESCAPE%93m
+                set ANSI_GREEN_BRIGHT=%ANSI_ESCAPE%92m
+                set ANSI_CYAN_BRIGHT=%ANSI_ESCAPE%96m
                 set ANSI_BLUE_BRIGHT=%ANSI_ESCAPE%94m
                 set ANSI_MAGENTA_BRIGHT=%ANSI_ESCAPE%95m
-                set ANSI_CYAN_BRIGHT=%ANSI_ESCAPE%96m
-                set ANSI_WHITE_BRIGHT=%ANSI_ESCAPE%97m
                 set ANSI_COLOR_BLACK=%ANSI_ESCAPE%30m
-                set ANSI_COLOR_RED=%ANSI_ESCAPE%31m
-                set ANSI_COLOR_GREEN=%ANSI_ESCAPE%32m
-                set ANSI_COLOR_YELLOW=%ANSI_ESCAPE%33m
-                set ANSI_COLOR_BLUE=%ANSI_ESCAPE%34m
-                set ANSI_COLOR_MAGENTA=%ANSI_ESCAPE%35m
-                set ANSI_COLOR_CYAN=%ANSI_ESCAPE%36m
-                set ANSI_COLOR_WHITE=%ANSI_ESCAPE%37m
                 set ANSI_COLOR_GRAY=%ANSI_ESCAPE%90m
                 set ANSI_COLOR_GREY=%ANSI_ESCAPE%90m
+                set ANSI_COLOR_WHITE=%ANSI_ESCAPE%37m
+                set ANSI_COLOR_PINK=%@ANSI_PINK%
+                set ANSI_COLOR_RED=%ANSI_ESCAPE%31m
+                set ANSI_COLOR_ORANGE=%@ANSI_ORANGE%
+                set ANSI_COLOR_YELLOW=%ANSI_ESCAPE%33m
+                set ANSI_COLOR_GREEN=%ANSI_ESCAPE%32m
+                set ANSI_COLOR_CYAN=%ANSI_ESCAPE%36m
+                set ANSI_COLOR_BLUE=%ANSI_ESCAPE%34m
+                set ANSI_COLOR_PURPLE=%ANSI_PURPLE%
+                set ANSI_COLOR_MAGENTA=%ANSI_MAGENTA%
+                set ANSI_COLOR_MAGENTA_OFFICIAL=%ANSI_ESCAPE%35m
                 set ANSI_COLOR_BRIGHT_BLACK=%ANSI_COLOR_GREY%
-                set ANSI_COLOR_BRIGHT_RED=%ANSI_ESCAPE%91m
-                set ANSI_COLOR_BRIGHT_GREEN=%ANSI_ESCAPE%92m
-                set ANSI_COLOR_BRIGHT_YELLOW=%ANSI_ESCAPE%93m
-                set ANSI_COLOR_BRIGHT_BLUE=%ANSI_ESCAPE%94m
-                set ANSI_COLOR_BRIGHT_MAGENTA=%ANSI_ESCAPE%95m
-                set ANSI_COLOR_BRIGHT_CYAN=%ANSI_ESCAPE%96m
                 set ANSI_COLOR_BRIGHT_WHITE=%ANSI_ESCAPE%97m
+                set ANSI_COLOR_BRIGHT_PINK=%@ANSI_BRIGHT_PINK%
+                set ANSI_COLOR_BRIGHT_RED=%ANSI_ESCAPE%91m
+                set ANSI_COLOR_BRIGHT_ORANGE=%@ANSI_BRIGHT_ORANGE%
+                set ANSI_COLOR_BRIGHT_YELLOW=%ANSI_ESCAPE%93m
+                set ANSI_COLOR_BRIGHT_GREEN=%ANSI_ESCAPE%92m
+                set ANSI_COLOR_BRIGHT_BLUE=%ANSI_ESCAPE%94m
+                set ANSI_COLOR_BRIGHT_CYAN=%ANSI_ESCAPE%96m
+                set ANSI_COLOR_BRIGHT_MAGENTA=%ANSI_ESCAPE%95m
+                    set ANSI_COLOR_WHITE_BRIGHT=%ANSI_ESCAPE%97m
+                    set ANSI_COLOR_PINK_BRIGHT=%@ANSI_BRIGHT_PINK%
                     set ANSI_COLOR_RED_BRIGHT=%ANSI_ESCAPE%91m
-                    set ANSI_COLOR_GREEN_BRIGHT=%ANSI_ESCAPE%92m
+                    set ANSI_COLOR_ORANGE_BRIGHT=%@ANSI_BRIGHT_ORANGE%
                     set ANSI_COLOR_YELLOW_BRIGHT=%ANSI_ESCAPE%93m
+                    set ANSI_COLOR_GREEN_BRIGHT=%ANSI_ESCAPE%92m
+                    set ANSI_COLOR_CYAN_BRIGHT=%ANSI_ESCAPE%96m
                     set ANSI_COLOR_BLUE_BRIGHT=%ANSI_ESCAPE%94m
                     set ANSI_COLOR_MAGENTA_BRIGHT=%ANSI_ESCAPE%95m
-                    set ANSI_COLOR_CYAN_BRIGHT=%ANSI_ESCAPE%96m
-                    set ANSI_COLOR_WHITE_BRIGHT=%ANSI_ESCAPE%97m
         rem Background Colors
             set ANSI_BACKGROUND_BLACK=%@ANSI_BG[0,0,0]
             set ANSI_BACKGROUND_BLACK_NON_EXPERIMENTAL=%ANSI_ESCAPE%40m

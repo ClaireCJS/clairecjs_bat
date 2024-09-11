@@ -1,5 +1,6 @@
+@set PERFORMANCE_TUNING=1
+@if %PERFORMANCE_TUNING eq 1 timer /9 /q on
 @Echo off
-
 
 
 
@@ -169,26 +170,28 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 ::::::::::::::::::::::::::::::::::::: MAIN :::::::::::::::::::::::::::::::::::::
 
 
-    set RUNNING_ENVIRONM=1
+    rem Vars related to running this:
+            set RUNNING_ENVIRONM=1
+            if %PERFORMANCE_TUNING lt 1 (set QUIET_TIMER_OR_NOT=/q)
+            timer %QUIET_TIMER_OR_NOT% /9 /s
 
-    :call c:\bat\slui-killbot %+ REM this stupid slui process keeps stealing focus! Use focus-monitor.exe to debug that situation. This keeps it dead, but the monitor only lasts per-command-line window, so we need it in this CLI initialization script. But wait! It eats up CPU, so it might not actually be worth it.
-	gosub PreliminaryErrorCheck
-    REM just moved this up one on 20150518 which didn't present issue until 20230809:   
-	gosub DefineHarddrivesAndDriveMapping
-	gosub CommonEnvVarsIncludingNetworking
-	gosub Initial%MACHINENAME%
-	gosub DefineRepositories
-	gosub DefineExecutableFileExtensions
-	gosub SetUsernameAndNetName
-	gosub Initial%USERNAME%
-	gosub SetPathAndPrompt
-	gosub LoadAliases
-	gosub CheckForSyncedDevices
-	gosub OSSpecificOverrides
-	gosub SetJavaClasspath
-    gosub SetPrivateEnvVars
-    gosub Load_TCC_Plugins
-    gosub FinalValidations
+    rem gosub StartKillBots { call c:\bat\slui-killbot } { @processmonitor slui started forever (taskend /f slui) } %+ REM stupid slui process kept stealing focus around 2015...  Use focus-monitor.exe to debug that situation. This keeps it dead, but the monitor only lasts per-command-line window, so we need it in this CLI initialization script. But wait! It eats up CPU, so it might not actually be worth it.
+	gosub PreliminaryErrorCheck                           %+    gosub stopwatch_button orange
+	gosub DefineHarddrivesAndDriveMapping                 %+    gosub stopwatch_button orange
+	gosub CommonEnvVarsIncludingNetworking                %+    gosub stopwatch_button orange
+	gosub Initial%MACHINENAME%                            %+    gosub stopwatch_button orange
+	gosub DefineRepositories                              %+    gosub stopwatch_button orange
+	gosub DefineExecutableFileExtensions                  %+    gosub stopwatch_button orange
+	gosub SetUsernameAndNetName                           %+    gosub stopwatch_button orange
+	gosub Initial%USERNAME%                               %+    gosub stopwatch_button orange
+	gosub SetPathAndPrompt                                %+    gosub stopwatch_button orange
+	gosub LoadAliases                                     %+    gosub stopwatch_button orange
+	gosub CheckForSyncedDevices                           %+    gosub stopwatch_button orange
+	gosub OSSpecificOverrides                             %+    gosub stopwatch_button orange
+	gosub SetJavaClasspath                                %+    gosub stopwatch_button orange
+    gosub SetPrivateEnvVars                               %+    gosub stopwatch_button orange
+    gosub Load_TCC_Plugins                                %+    gosub stopwatch_button orange
+    gosub FinalValidations                                %+    
 	goto :END
 
 
@@ -2485,7 +2488,11 @@ return
 
 
 
-
+    :stopwatch_button [color]
+            echos %%[ANSI_COLOR_%COLOR%] 
+            echos %[ANSI_COLOR_%COLOR%] 
+            timer %QUIET_TIMER_OR_NOT% /9 /s
+    return
 
 
 
@@ -2498,16 +2505,26 @@ return
 
 
 
-
-
-
-
-
-
-
         :::::::::::::::::::::::::::::::::::::: SUBROUTINES: END :::::::::::::::::::::::::::::::::::::::
         :::::::::::::::::::::::::::::::::::::: SUBROUTINES: END :::::::::::::::::::::::::::::::::::::::
         :::::::::::::::::::::::::::::::::::::: SUBROUTINES: END :::::::::::::::::::::::::::::::::::::::
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 :END
     :Cleanup
@@ -2516,13 +2533,13 @@ return
     :The_Very_END
         SET ENVIRONM_RUN=1
         set RUNNING_ENVIRONM=0
-
-
 :POST-END
     rem Sometimes this script is passed an additional command (via 'NEXTCOMMAND' environment variable) to be run at the end:
         if "%NEXTCOMMAND%" ne "" (%NEXTCOMMAND%)
 
+    rem Performance tuning        
+        timer %QUIET_TIMER_OR_NOT% /9 off
+                        : 20240911: environm {norml} - 0.023
+                        :           environm {fresh} - 2.500
+                        :           environm  force  - 3.700
 
-
-
-rem Boop!

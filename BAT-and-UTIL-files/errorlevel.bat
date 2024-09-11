@@ -4,31 +4,35 @@
 @Echo OFF
 
 
-REM             #######  ### ###  #######          ### ### #####   #######  #####  ##   ##    ##    #######  #######
-REM             #  #  #   #   #    #    #           #   #    #     #  #  #    #     #   #      #    #  #  #   #    #
-REM                #      #   #    #                #   #    #        #       #     ## ##      #       #      #
-REM                #      #   #    #  #             #   #    #        #       #     ## ##     # #      #      #  #
-REM                #      #####    ####             #   #    #        #       #     # # #     # #      #      ####
-REM                #      #   #    #  #             #   #    #        #       #     # # #    #   #     #      #  #
-REM                #      #   #    #                #   #    #        #       #     #   #    #####     #      #
-REM                #      #   #    #    #           #   #    #   #    #       #     #   #    #   #     #      #    #
-REM               ###    ### ###  #######            ###   #######   ###    #####  ### ###  ### ###   ###    #######
-REM        
-REM        
-REM         #######  ######   ######     ###    ######               ####     ##    #######   ####   ### ###  #######  ######
-REM          #    #   #    #   #    #   #   #    #    #             #    #     #    #  #  #  #    #   #   #    #    #   #    #
-REM          #        #    #   #    #  #     #   #    #            #           #       #    #         #   #    #        #    #
-REM          #  #     #    #   #    #  #     #   #    #            #          # #      #    #         #   #    #  #     #    #
-REM          ####     #####    #####   #     #   #####             #          # #      #    #         #####    ####     #####
-REM          #  #     #  #     #  #    #     #   #  #              #         #   #     #    #         #   #    #  #     #  #
-REM          #        #  #     #  #    #     #   #  #              #         #####     #    #         #   #    #        #  #
-REM          #    #   #   #    #   #    #   #    #   #              #    #   #   #     #     #    #   #   #    #    #   #   #
-REM         #######  ###  ##  ###  ##    ###    ###  ##              ####   ### ###   ###     ####   ### ###  #######  ###  ##
+
+rem   😎😎😎😎       ███████  ███ ███  ███████         ███ ███  █████    ███████   █████   ██   ██     █    ███████  ███████          😎😎😎😎
+rem   😎😎😎😎       █  █  █   █   █    █    █          █   █     █      █  █  █     █      █   █      █    █  █  █   █    █          😎😎😎😎
+rem   😎😎😎😎          █      █   █    █               █   █     █         █        █      ██ ██     █ █      █      █               😎😎😎😎   
+rem   😎😎😎😎          █      █   █    █  █            █   █     █         █        █      ██ ██     █ █      █      █  █            😎😎😎😎
+rem   😎😎😎😎          █      █████    ████            █   █     █         █        █      █ █ █    █   █     █      ████            😎😎😎😎
+rem   😎😎😎😎          █      █   █    █  █            █   █     █         █        █      █ █ █    █   █     █      █  █            😎😎😎😎
+rem   😎😎😎😎          █      █   █    █               █   █     █         █        █      █   █    █████     █      █               😎😎😎😎
+rem   😎😎😎😎          █      █   █    █    █          █   █     █   █     █        █      █   █    █   █     █      █    █          😎😎😎😎
+rem   😎😎😎😎         ███    ███ ███  ███████          █████   ███████    ███     █████   ███ ███  ███ ███   ███    ███████          😎😎😎😎
+rem   😎😎😎😎                                                                                                                        😎😎😎😎
+rem   😎😎😎😎                                                                                                                        😎😎😎😎
+rem   😎😎😎😎    ███████  ██████   ██████     ███    ██████            ████      █    ███████    ████   ███ ███  ███████  ██████     😎😎😎😎
+rem   😎😎😎😎     █    █   █    █   █    █   █   █    █    █          █    █     █    █  █  █   █    █   █   █    █    █   █    █    😎😎😎😎
+rem   😎😎😎😎     █        █    █   █    █  █     █   █    █         █           █       █     █         █   █    █        █    █    😎😎😎😎
+rem   😎😎😎😎     █  █     █    █   █    █  █     █   █    █         █          █ █      █     █         █   █    █  █     █    █    😎😎😎😎
+rem   😎😎😎😎     ████     █████    █████   █     █   █████          █         █   █     █     █         █████    ████     █████     😎😎😎😎
+rem   😎😎😎😎     █  █     █  █     █  █    █     █   █  █           █         █   █     █     █         █   █    █  █     █  █      😎😎😎😎
+rem   😎😎😎😎     █        █  █     █  █    █     █   █  █           █         █████     █     █         █   █    █        █  █      😎😎😎😎
+rem   😎😎😎😎     █    █   █   █    █   █    █   █    █   █           █    █   █   █     █      █    █   █   █    █    █   █   █     😎😎😎😎
+rem   😎😎😎😎    ███████  ███  ██  ███  ██    ███    ███  ██           ████   ███ ███   ███      ████   ███ ███  ███████  ███  ██    😎😎😎😎
+
+
 
 
 rem      WHEN TO USE?:   * Use after any important command in any workflow, ever.
-rem                      * Not only will it halt things on error, but it will set a flag 
-rem                        that you can use to repeat your situations until errors cease                   
+rem                      * Not only will it halt things on error, but it will set a %REDO flag which one can 
+rem                        use to repeat a block of script over and over until the errors condition is fixed.
+rem                        SUPER USEFUL for complicated-workflow-where-a-single-step-might-break situations.
 
 
 
@@ -44,17 +48,18 @@ rem                      call errorlevel.bat "fail msg" "success msg" <---- if y
 
 rem      SIDE EFFECTS:   
 rem                      1) sets %REDO_BECAUSE_OF_ERRORLEVEL% to 1 so you can use that result to re-run your situation infinitely until the error goes away
-rem                      2) outputs a .BAT pattern that can be incorporated into calling scripts
+rem                      2) sets cursor color to green on success, red on failure
+rem                      3) also outputs a .BAT pattern that can be incorporated into calling scripts
 
 
 :PUBLISH:
 :DESCRIPTION: GOAT TODO
-:DEPENDENCIES: validate-in-path.bat print-if-debug.bat advice.bat print-message.bat randcolor.bat colors.bat colortool.bat settmpfile.bat important.bat fatalerror.bat fatal_error.bat car.bat nocar.bat exit-maybe.bat sed
-if 1   ne     %validated_errorlevel (
-call           validate-in-path     print-if-debug.bat advice.bat print-message.bat randcolor.bat colors.bat colortool.bat settmpfile.bat important.bat fatalerror.bat fatal_error.bat car.bat nocar.bat exit-maybe.bat sed
-call           validate-functions   ANSI_CURSOR_CHANGE_COLOR_HEX
-call           validate-env-vars    ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING ANSI_PREFERRED_CURSOR_SHAPE COLOR_ALARM_HEX COLOR_SUCCESS_HEX
-set            validated_errorlevel=1
+:DEPENDENCIES: validate-in-path.bat   echos beep sed color colors.bat colortool.bat randcolor.bat print-message.bat fatal_error.bat fatalerror.bat exit-maybe.bat important.bat advice.bat debug.bat print-if-debug.bat settmpfile.bat 
+if    1   ne  %validated_errorlevel (
+          call validate-in-path       echos beep sed color colors.bat colortool.bat randcolor.bat print-message.bat fatal_error.bat fatalerror.bat exit-maybe.bat important.bat advice.bat debug.bat print-if-debug.bat settmpfile.bat 
+          call validate-env-vars      ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING ANSI_PREFERRED_CURSOR_SHAPE ANSI_ERASE_TO_EOL ANSI_BACKGROUND_BLACK ANSI_COLOR_BRIGHT_RED COLOR_SUCCESS COLOR_SUCCESS_HEX COLOR_NORMAL COLOR_ADVICE ANSI_COLOR_WARNING COLOR_ALARM_HEX ITALICS_ON ITALICS_OFF BLINK_ON BLINK_OFF STAR
+          call validate-functions     ANSI_CURSOR_CHANGE_COLOR_HEX
+          set  validated_errorlevel=1
 )
 
 
@@ -149,7 +154,7 @@ if %OUR_ERRORLEVEL% gt 0 (
     %COLOR_ADVICE%
     echos                       ``
     echo call %0 "optional success message" "optional failure message"
-    REM having to use 64 or 128 or 256 percent signs to sextuple-escape the character is peak-lifetime-level madness
+    REM having to use 64 or 128 or 256 percent signs to sextuple-escape the character is peak-lifetime-level madness and somehow i feel a lack of setdos commands in the lineage up to this point made this unnecessarily happen... other times, I think this is a testament to just how far I'll go:
     call advice "     if %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%REDO eq 1 (goto :Redo_1)"
     echo.
     call advice "     %ITALICS_ON%(You can also use the variable 'REDO_BECAUSE_OF_ERRORLEVEL', if 'REDO' gives you fears of namespace collision. %DOUBLE_UNDERLINE_ON%Both%DOUBLE_UNDERLINE_OFF% get set.)%ITALICS_OFF%"
