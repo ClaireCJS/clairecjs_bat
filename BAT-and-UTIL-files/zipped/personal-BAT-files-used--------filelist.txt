@@ -16,7 +16,7 @@
 2019-10-01  10:25          2,618   69%  album-art-tool-for-mp3Tag.btm
 2023-04-10  17:27             85   29%  album-art.bat
 2024-02-02  20:24          3,616   58%  ALIAS.LST
-2024-09-11  21:53          5,262   67%  all-ready-drives.bat
+2024-09-21  06:33          6,016   70%  all-ready-drives.bat
 2024-03-24  19:07            238   24%  allbmp2jpg.bat
 2024-04-10  15:09          1,654   62%  allcomputers.bat
 2024-04-05  14:07          2,297   74%  allcomputersexceptself.bat
@@ -232,7 +232,7 @@
 2023-12-18  16:04             21   -9%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-08-20  05:45             50   -2%  DIST.bat
-2024-09-11  21:47         12,212   78%  distribute-bat-files-to-every-drive.bat
+2024-09-21  06:32         12,296   78%  distribute-bat-files-to-every-drive.bat
 2024-03-30  13:19             35   -5%  divider.bat
 2024-05-16  13:59             47   13%  dns-display.bat
 2024-07-28  16:32             28   -7%  do-in-each-directory.bat
@@ -259,7 +259,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-09-11  19:28        184,618   81%  environm.btm
+2024-09-21  06:09        184,617   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -627,12 +627,12 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-09-11  15:59         76,886   82%  set-ansi.bat
+2024-09-21  06:16         77,746   82%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat
 2023-06-05  23:30             68   15%  set-current_playing_song.bat
-2024-09-09  02:10            912   50%  set-cursor.bat
+2024-09-23  12:49          1,105   50%  set-cursor.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
 2024-09-09  12:20            635   44%  set-emojis.bat

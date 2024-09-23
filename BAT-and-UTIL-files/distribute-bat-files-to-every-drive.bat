@@ -73,8 +73,10 @@ return
     call less_important "Distributing just one file"
     set OPTION_SKIP_SAME_C=1
     set OPTION_ECHO_RAYRAY=1
+    set OPTION_ARD_POSTPROCESS=1
     rem no /s here:
-    call all-ready-drives "if exist DRIVE_LETTER:\bat copy /u /a: /[!.git *.bak] /r /h /z /k /g \bat\%1 DRIVE_LETTER:\bat"
+    call all-ready-drives "if exist DRIVE_LETTER:\bat *copy /Nt /RCT /k /l /u /a: /[!.git *.bak] /r /h /z /k /g \bat\%1 DRIVE_LETTER:\bat"
+    set OPTION_ARD_POSTPROCESS=0
 goto :Cleanup
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

@@ -94,7 +94,6 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
             rem 2) Secondary shells start from a different INI-specified location, using a different TCStart.bat, which sets SECONDARYSHELL=1
             rem 3) We also set ENVIRONM_RUN=1 after running, to prevent successive timewasting runs
         if "%1" eq "force" .or. "%1" eq "validate" (goto :Force_1       )
-            call set-cursor                                                                       %+ REM at least reset the cursor
             if  "1" eq "%ENVIRONM_RUN%"                                  (goto :The_Very_END  )   %+ REM added this line 2023/07/26
             if  "1" eq "%ENVIRONM_RUN%" .and. "%@UPPER[%1]" eq "TCSTART" (goto :The_Very_END  )   %+ REM so as of 2023/07/26 this line should never happen
             if  "1" eq "%SECONDARYSHELL%"                                (goto :SecondaryShell)
@@ -889,6 +888,7 @@ return
         if %EMOJIS_HAVE_BEEN_SET ne 1 .or. "%1" eq "force" (call c:\bat\set-emojis force)
         gosub stopwatch_button yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"
         if not defined MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
+        call set-cursor                                                                          %+ REM at least reset the cursor
 
 
     ::::: MACHINE-SPECIFIC EMOJI:                             ::: ALIASES:                                                                     (Consider: When new computer is added:)

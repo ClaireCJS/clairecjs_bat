@@ -177,23 +177,29 @@ rem —————————————————————————�
                 function       ANSI_CURSOR_RANDOM=`%@char[27][%@random[0,6] q`
 
         rem Cursor color:
-                    function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                
-                    function   CURSOR_COLOR_CHANGE_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function     ANSI_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function      ANSI_CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function      SET_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function          CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function           CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function             ANSI_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function              SET_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function                  CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function    ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                
+                    function      CURSOR_COLOR_CHANGE_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function        ANSI_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function         ANSI_CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function         SET_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function             CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function              CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function                ANSI_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function                 SET_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                    function                     CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
 
-                    function  ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                  %+ rem like above section but with "#" in front of color
-                    function  ANSI_CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function       CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function         ANSI_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function          SET_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function              CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function     ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                  %+ rem like above section but with "#" in front of color
+                    function     ANSI_CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function          CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function            ANSI_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function             SET_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function                 CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function  ANSI_CURSOR_CHANGE_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                  %+ rem like above section but with "#" in front of color
+                    function  ANSI_CURSOR_COLOR_CHANGE_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function       CURSOR_COLOR_CHANGE_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function         ANSI_CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function          SET_CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                    function              CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
 
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -804,7 +810,8 @@ rem This is loaded in our environm.btm as well, but we like to double-check when
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 rem We're done!
-        set COLORS_HAVE_BEEN_SET=1
+        set      COLORS_HAVE_BEEN_SET=1     %+ rem "At first we were like..."
+        set ANSI_COLORS_HAVE_BEEN_SET=1     %+ rem "....then we were like..."
         :AlreadyDone
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

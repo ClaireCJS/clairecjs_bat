@@ -3,6 +3,10 @@
 rem If we're running this outside of TCC, skip this behavior:
         if "%comspec%" == "C:\Windows\system32\cmd.exe " goto :DoNotBother
 
+
+rem Requires set-ansi to have been run:
+        if "%ANSI_COLORS_HAVE_BEEN_SET%" != "1" (call warning "Ansi should have been set before running %0... Running now" %+ call set-ansi force)
+
 rem Debug stuff:
         if "%DEBUG_DEPTH%" eq "1" (echo * se-tcursor.bat (batch=%_BATCH))
 

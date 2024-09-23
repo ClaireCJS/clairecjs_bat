@@ -72,8 +72,22 @@ goto :END
                 rem echo WOULD DO: FIXED_COMMAND=%FIXED_COMMAND%
 
                 rem Actually do it:
-                        if %OPTION_ECHO_RAYRAY eq 1 (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%)
-                        if %OPTION_ECHO_RAYRAY ne 1 (%FIXED_COMMAND%)
+                        if %OPTION_ECHO_RAYRAY eq 1 (
+                            if %OPTION_ARD_POSTPROCESS ne 1 (
+                                 echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%
+                            ) else (
+                                echos %@RANDFG_SOFT[]
+                                (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND% |& copy-move-post.py) | fast_cat
+                            )
+                        )
+                        if %OPTION_ECHO_RAYRAY ne 1 (
+                            if %OPTION_ARD_POSTPROCESS ne 1 (
+                                %FIXED_COMMAND%
+                            ) else (
+                                echos %@RANDFG_SOFT[]
+                                (%FIXED_COMMAND% |& copy-move-post.py) | fast_cat
+                            )
+                        )
             :Drive_Not_Ready
             :End_Of_For_Loop
         return
