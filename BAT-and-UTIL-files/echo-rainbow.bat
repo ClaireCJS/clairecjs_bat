@@ -1,10 +1,25 @@
 @echo off
 
+:USAGE: echo-rainbow Message to be in rainbow
+:USAGE: echo-rainbow test
+:USAGE: echo-rainbow generate 'message to set to RAINBOW_TEXT'
+
+
+
 rem *** Are we running in test mode?
         if "%*"=="test" (
             gosub :generateTestString
         ) else (
             set inputStr=%*
+        )
+
+
+rem *** Are we running in generate mode?
+        set GENERATE_MODE=0
+        if "%1"=="generate" (
+            set RAINBOW_TEXT=
+            set GENERATE_MODE=1
+            set inputStr=%2$
         )
 
 rem *** Get length of string, and use it to calculate the step size between hues
@@ -69,7 +84,14 @@ goto :eof
 
         rem echo %singleChar% @ANSI_FG_RGB[%redComponent%,%greenComponent%,%blueComponent%]%singleChar%``
         rem echo %blink%%singleChar%%blink_off%  hue=%hue% ... %@ANSI_FG_RGB[%redComponent%,%greenComponent%,%blueComponent%]%singleChar%``
-        echos %@ANSI_FG_RGB[%redComponent%,%greenComponent%,%blueComponent%]%singleChar%``
+
+        if 1 ne %GENERATE_MODE (
+                                     echos %@ANSI_FG_RGB[%redComponent%,%greenComponent%,%blueComponent%]%singleChar%``
+        ) else (
+            set RAINBOW_TEXT=%RAINBOW_TEXT%%@ANSI_FG_RGB[%redComponent%,%greenComponent%,%blueComponent%]%singleChar%``
+        )
+            
+
 
     return
 
@@ -80,9 +102,9 @@ goto :eof
         set inputStr=
         for /l %%N in (0,1,1023) do (
             set /a number=%%N
-            if %number% lss 10   (set number=000%number%)
-            if %number% lss 100  (set number=00%number%)
             if %number% lss 1000 (set number=0%number%)
+            if %number% lss 100  (set number=00%number%)
+            if %number% lss 10   (set number=000%number%)
             set inputStr=%inputStr%%number%
         )
     return
@@ -91,5 +113,9 @@ goto :eof
 :eof
 
 rem Optional: Reset ansi back (this env var is defined in set-colors.bat)
-        echos %ANSI_RESET%``
+        if 1 ne %GENERATE_MODE (
+            echos %ANSI_RESET%``
+        ) else (
+            set RAINBOW_TEXT=%RAINBOW_TEXT%%ANSI_RESET%``
+        )
 

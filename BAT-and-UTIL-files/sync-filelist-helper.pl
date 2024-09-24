@@ -179,10 +179,17 @@ foreach $file (@FILES) {
 	$COMMANDSET .= "echo.\n";
 	$COMMANDSET .= "SET LASTFILE=$file\n";
 	$COMMANDSET .= "if \%\@DISKFREE[$destinationDriveLetter:] lt \%\@FILESIZE[\"$file\"] goto :Full\n";
-	$COMMANDSET .= "color bright yellow on black\n";
-	$COMMANDSET .= "echo * Free Space: \%\@COMMA[\%\@DISKFREE[$destinationDriveLetter:]]\n";
-	$COMMANDSET .= "color green on black\n";
+
+	if (1) {
+		$COMMANDSET .= "call display-free-space-as-locked-message\n";
+	} else {
+		$COMMANDSET .= "color bright yellow on black\n";
+		$COMMANDSET .= "echo * Free Space: \%\@COMMA[\%\@DISKFREE[$destinationDriveLetter:]]\n";
+		$COMMANDSET .= "color green on black\n";
+	}
+
 	$COMMANDSET .= "if \"\%\@READY[$destinationDriveLetter:]\" eq \"0\" gosub :NotReady\n";
+
 	#TRIED, BUT WAS STUPID, BECAUSE PLAYLISTS SYNC *FIRST* IN OUR SYSTEM: I want to leave 20M free for playlists, so threshold at 25M: 	#$COMMANDSET .= "if \%\@DISKFREE[$destinationDriveLetter:] lt 26214400 goto :Full\n";
 
 	#COMMANDSET .= "if not exist \"$file\" (echo. \%+ echo * WARNING: File does not exist [but maybe you moved it]: $file)\n";

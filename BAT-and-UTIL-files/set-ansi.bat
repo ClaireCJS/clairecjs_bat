@@ -102,6 +102,7 @@ rem ANSI: cursor position movement
             function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`	                    %+ rem moves cursor to column #
             function ANSI_MOVE_TO_ROW=`%@CHAR[27][%1H`                      %+ rem unfortunately does not preserve column position! not possible! cursor request ansi code return value cannot be captured
             rem tion ANSI_MOVE_TO_COORDINATE                                %+ rem is defined in our unsupported section, as it's a replacement for an unsupported code
+            rem tion ANSI_MOVE_TO                                           %+ rem is defined in our unsupported section, as it's a replacement for an unsupported code
 
         rem Up/Down/Left/Right:
             set ANSI_MOVE_UP_1=%ESCAPE%M                                    %+ rem moves cursor one line up, scrolling if needed
@@ -652,8 +653,7 @@ REM ANSI: margin-setting / anti-scroll areas
                         function      ANSI_LOCK_TOP_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%@EVAL[%1+1];%[_rows]r%@CHAR[27]8%@CHAR[27][u`
                         function ANSI_UNLOCK_LOCKED_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
                         set      ANSI_UNLOCK_LOCKED_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
-                rem Want to unlock all locked rows for  scrolling?  echos %ANSI_UNLOCK_ROWS%       or  echos %@ANSI_UNLOCK_ROWS[]
-
+                rem Want to unlock all locked rows for  scrolling?  echos %ANSI_UNLOCK_ROWS%   or  echos %@ANSI_UNLOCK_ROWS[]
                         function        ANSI_UNLOCK_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
                         set             ANSI_UNLOCK_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
 
@@ -678,8 +678,16 @@ REM ANSI: margin-setting / anti-scroll areas
                         set             ANSI_RESET_COLS=%ANSI_CSI%?69l
                         set             ANSI_COLS_RESET=%ANSI_CSI%?69l
 
-                rem A special function that makes us end up with cordoned off columns on both sides in a random color without disturbing your cursor location very much ... Very dramatic:
-                        function ANSI_COLOR_SIDE_COLS=`%ANSI_SAVE_POSITION%%@ANSI_RANDBG[]%ANSI_CLS%%@ANSI_LOCK_COLS[%1]%ANSI_RESTORE_POSITION%%@ANSI_MOVE_UP[2]%@ANSI_MOVE_RIGHT[%1]`
+        rem Unlocking everything:
+                set ANSI_UNLOCK=%@ANSI_UNLOCK_ROWS[0,%_ROWS]%ANSI_COLS_RESET%
+                SET ANSI_UNLOCK_ALL=%ANSI_UNLOCK%
+                SET ANSI_UNLOCK_MARGINS=%ANSI_UNLOCK%
+
+        rem Cordining off an area (row_start,row_end,col_start,col_end)
+                function      CORDON=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%1;%[2]r%@CHAR[27]8%@CHAR[27][u`
+                                  rem %@CHAR[27]7%@CHAR[27][s%@CHAR[27][%@EVAL[%1+1];%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+        rem A proof-of-concept function that makes us end up with cordoned off columns on both sides in a random color without disturbing your cursor location very much ... Very dramatic:
+                function ANSI_COLOR_SIDE_COLS=`%ANSI_SAVE_POSITION%%@ANSI_RANDBG[]%ANSI_CLS%%@ANSI_LOCK_COLS[%1]%ANSI_RESTORE_POSITION%%@ANSI_MOVE_UP[2]%@ANSI_MOVE_RIGHT[%1]`
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -706,6 +714,7 @@ REM ANSI: unsupported in Windows Terminal:
         function UNSUPPORTED_SET_MARGIN_BELL_VOL=`%@CHAR[27][%1 u`              %+ rem 1=Off, 2-4=low, None,0,5-8=high
         function  ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%2H`            %+ rem Windows Terminal 2024 doesn't support this official code................
         function  ANSI_MOVE_TO_COORDINATE=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem    .........so instead, we reduce into 2 separate commands internally 😎
+        function             ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem alias
 
         set UNSUPPORTED_MAP_A_TO_Z=%ANSI_DCS%"y1/7A/7A/7A/7A/7A/7A/-%ANSI_ST%   %+ rem Windows Terminal 2024 doesn't seem to support this 😢
 

@@ -32,11 +32,21 @@
     "copyFormatting": "none",
     "copyOnSelect": false,
     "defaultProfile": "{dd3810e8-e081-487d-a281-8b3a8c934f95}",
+    "experimental.rendering.software": true,
     "initialCols": 130,
     "initialRows": 35,
+    "newTabMenu": 
+    [
+        {
+            "type": "remainingProfiles"
+        }
+    ],
     "profiles": 
     {
-        "defaults": {},
+        "defaults": 
+        {
+            "useAtlasEngine": true
+        },
         "list": 
         [
             {
@@ -54,9 +64,11 @@
                 "cursorShape": "bar",
                 "font": 
                 {
-                    "face": "Cascadia Mono",
-                    "size": 12.0
+                    "face": "Cascadia Code",
+                    "size": 12.0,
                 },
+                "goateditor.fontLigatures": "'calt', 'ss01'",
+                "goatfontLigatures": "'calt', 'ss01'",
                 "guid": "{dd3810e8-e081-487d-a281-8b3a8c934f95}",
                 "hidden": false,
                 "historySize": 9001,

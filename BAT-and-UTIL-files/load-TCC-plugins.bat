@@ -21,4 +21,7 @@
             call print-if-debug "Loading TCC plugin: %italics_on%StripAnsi%italics_off%"
             set PLUGIN_STRIPANSI_LOADED=1
             plugin /l %PLUGIN_STRIPANSI% >nul
+
+            rem Define an alias for %@STRIPANSI because of how often we incorrectly call it:
+            function STRIP_ANSI=`%@STRIPANSI[%1$]`
         )
