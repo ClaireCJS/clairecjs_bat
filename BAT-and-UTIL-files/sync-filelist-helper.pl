@@ -70,7 +70,7 @@ foreach $file (@FILES) {
 	next if $file =~ /^#EXT/;
 	chomp $file;
 	$filenum++;
-	print ":************ processing file $filenum $file ***************** \n ";
+	print "\n\nrem ************ processing file $filenum $file ***************** \n ";
 
 	if ($BACKSLASHES) { $file =~ s/\//\\/g; }			# Convert filename to backslashes, if necessary
 
@@ -176,12 +176,11 @@ foreach $file (@FILES) {
 	#Make filenames safe for command-line:
 	   $file =~ s/\%/%%/g;
 	$newfile =~ s/\%/%%/g;
-	$COMMANDSET .= "echo.\n";
 	$COMMANDSET .= "SET LASTFILE=$file\n";
 	$COMMANDSET .= "if \%\@DISKFREE[$destinationDriveLetter:] lt \%\@FILESIZE[\"$file\"] goto :Full\n";
 
 	if (1) {
-		$COMMANDSET .= "call display-free-space-as-locked-message\n";
+		my $WHATEVER = "WHATEVER!";
 	} else {
 		$COMMANDSET .= "color bright yellow on black\n";
 		$COMMANDSET .= "echo * Free Space: \%\@COMMA[\%\@DISKFREE[$destinationDriveLetter:]]\n";
@@ -193,13 +192,16 @@ foreach $file (@FILES) {
 	#TRIED, BUT WAS STUPID, BECAUSE PLAYLISTS SYNC *FIRST* IN OUR SYSTEM: I want to leave 20M free for playlists, so threshold at 25M: 	#$COMMANDSET .= "if \%\@DISKFREE[$destinationDriveLetter:] lt 26214400 goto :Full\n";
 
 	#COMMANDSET .= "if not exist \"$file\" (echo. \%+ echo * WARNING: File does not exist [but maybe you moved it]: $file)\n";
-	$COMMANDSET .= "if not exist \"$file\" (echo. \%+ echo * WARNING: File does not exist [but maybe you moved it]: \"$file\")\n";
+	$COMMANDSET .= "if not exist \"$file\" (call warning \"File does not exist [but maybe you moved it]: '$file'\")\n";
 
 
 	if (($FLAC==0) && ($file =~ /\.flac$/i)) {
+		$COMMANDSET .= "echo.\n";
 		$COMMANDSET .= "\%COLOR_WARNING\% \%+ echo NOT copying FLAC file: \"$file\" \%+ \%COLOR_NORMAL\% \n";
 	} else {
+	    $COMMANDSET .= "echos \%\@ANSI_RANDFG_SOFT[]\n";
 		$COMMANDSET .= "$COPY \"$file\" \"$newfile\"\n";
+
 	}
 
 
@@ -219,7 +221,17 @@ print "\nREM (randomizing array: begin)\n";
 my @QUEUEDCOMMANDSRANDOM =  shuffle  (@QUEUEDCOMMANDS);		#2023 ChatGPT suggestion
 
 print "\nREM (randomizing array: end)\n";
-foreach my $command (@QUEUEDCOMMANDSRANDOM) { print $command; print "\%COLOR_LESS_IMPORTANT\% \%+ echo * Files remaining: \%\@COMMA[" . $filenum-- . "] \%+ \%COLOR_NORMAL\% \n\n"; }
+my $total_files=@QUEUEDCOMMANDSRANDOM;
+my $remain=$total_files;
+my $filenum=1;
+foreach my $command (@QUEUEDCOMMANDSRANDOM) { 
+	print $command; 
+	#print "\%COLOR_LESS_IMPORTANT\% \%+ echo * Files remaining: \%\@COMMA[" . $filenum . "] \%+ \%COLOR_NORMAL\% \n\n"; 
+	$remain = $total_files - $filenum;
+	print "set  DISPLAY_FREE_SPACE_AS_LOCKED_MESSAGE_ADDITIONAL_MESSAGE= \%BLINK_ON\%\%\@CHAR[9679]\%BLINK_OFF\% \%ITALICS_ON\%" . $remain . "\%ITALICS_OFF\% files remaining\n";
+	print "call display-free-space-as-locked-message $destinationDriveLetter\n";
+	$filenum++;
+}
 
 
 print "\n\n";
