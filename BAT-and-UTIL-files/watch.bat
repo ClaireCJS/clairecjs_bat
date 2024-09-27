@@ -182,6 +182,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 		if "%PROTECTCLIPBOARD%"=="1" goto :ProtectClipboard1
             call  fixclip
 			echo %* >clip:
+            call locked-message %*
         :ProtectClipboard1
 	    :pause
 
@@ -289,6 +290,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 ::::: COPY SHOWNAME TO CLIPBOARD, FOR PASTING INTO LOG WITH EASE:
         call  fixclip
 	    echo %* >clip:
+        call locked-message %*
         
 ::::: DELETE IT IF WE ARE IN A FOLDER WHOSE NAME IMPLIES THAT WE SHOULD DELETE IT:
         %COLOR_REMOVAL%

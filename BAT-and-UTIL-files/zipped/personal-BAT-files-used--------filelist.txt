@@ -256,7 +256,7 @@
 2023-09-15  12:27          3,399   66%  editGrep.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
-2024-09-24  13:21         70,243   78%  emoji.env
+2024-09-25  04:46         70,306   78%  emoji.env
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
@@ -630,7 +630,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-09-24  11:43         78,517   82%  set-ansi.bat
+2024-09-25  04:48         78,554   82%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-05-02  18:18            878   64%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat
@@ -791,7 +791,7 @@
 2023-06-02  13:02             44   -4%  warning.bat
 2024-08-22  01:03             49    0%  warning_less.bat
 2023-06-08  21:27             49   -4%  warning_soft.bat
-2024-09-11  21:27         18,301   74%  watch.bat
+2024-09-25  03:00         18,369   74%  watch.bat
 2022-11-09  12:11          5,931   65%  wav2mp3.bat
 2019-10-01  10:28             11  -18%  wcclip.bat
 2024-04-10  13:09          1,705   71%  WCHEADER.bat
@@ -826,7 +826,7 @@
 2023-06-08  19:05             31   10%  windows-a-v2.ahk
 2024-03-29  23:30            198   37%  winkill.bat
 2024-08-20  09:31          3,359   68%  wrapper.bat
-2024-03-12  13:02          5,632   60%  ydl.bat
+2024-09-26  00:16          5,814   60%  ydl.bat
 2024-06-27  12:31             89   18%  ydm.bat
 2024-04-03  14:43            568   47%  yyyymmdd(dow).bat
 2024-04-03  14:42            438   41%  yyyymmdd.bat

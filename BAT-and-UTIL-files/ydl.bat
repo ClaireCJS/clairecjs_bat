@@ -5,7 +5,7 @@
 
 set DEBUG=0
 set OUR_LOGGING_LEVEL=None
-
+call set-cursor
 
 
 
@@ -67,6 +67,7 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         @echo on
          call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         @Echo off
+         rem we don't call errorlevel because %YDL% returns an errorlevel even when successful
          REM removed --embed-thumbnail: messes up workflow this that extra file: PLUS it made: ERROR: Postprocessing: Supported filetypes for thumbnail embedding are: mp3, mkv/mka, ogg/opus/flac, m4a/mp4/mov 
 
 
@@ -86,11 +87,13 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
     :: fix filenames
         REM this can be run in unattended mode, but we're not ready for that yet:
         call fix-unicode-filenames       
+        call errorlevel
 
     :: manual rename opportunity - also covers companion files
         if "%UNATTENDED_YOUTUBE_DOWNLOADS%" eq "1" goto :Unattended
             call rn-latest-for-youtube-dl %FILEMASK_VIDEO%
             :^^^^^^^^^^^^^^^^^^^^^^^^^^^^ side-effect: sets %FILENAME_NEW%, which we use later  ...TODO:possible bug in that it tries to rename the JSON now. same effcet but more confusing
+            call errorlevel
         :Unattended
 
     :: get json file - do this *AFTER* we do our renaming so that we can use our post-rename filename for the JSON file
@@ -120,3 +123,4 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
 
 unset /q YOUTUBE_MODE
 title Completed: youtube download
+call set-cursor
