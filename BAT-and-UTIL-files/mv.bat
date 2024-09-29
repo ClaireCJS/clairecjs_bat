@@ -16,6 +16,7 @@ REM PROTECTION FROM PASSING NO ARGS WHICH WOULD PULL OUR RECYCLE BIN INTO CURREN
 
 
 REM Automatic coloring
+        echo %ANSI_RESET%
         if "%2" eq "\recycled" (
             %COLOR_REMOVAL%
         ) else (

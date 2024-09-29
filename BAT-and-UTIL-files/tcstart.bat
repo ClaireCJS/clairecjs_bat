@@ -1,4 +1,5 @@
 @Echo off
+rem timer /7 on
 
 rem MAJOR speedup by skipping this bat file if it's a transient shell —— special thanks to the helpful folks at the JPSoft forums for this one:
         IF "%_PIPE %_TRANSIENT" != "0 0" (call c:\bat\setpath %+ QUIT)
@@ -101,3 +102,4 @@ goto :Skip
 
 
 :END
+rem timer /7 off

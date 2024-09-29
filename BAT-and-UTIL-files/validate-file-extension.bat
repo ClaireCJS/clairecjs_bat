@@ -29,9 +29,15 @@ rem MESSAGE: Message extension parameters because our filemask env vars are usua
     REM echo EXTENSION_LIST_TO_USE is '%EXTENSION_LIST_TO_USE%'
 
 rem VALIDATE: Check each extension in extension list and see if it matches our file
-    for %extension in (%EXTENSION_LIST_TO_USE) do (
-        REM if %DEBUG gt 0 (call debug "- checking if extension '%extension%' applies to file '%VALIDATION_FILE%'")
-        if "%@EXT[%VALIDATION_FILE]" eq "%extension" goto :Validated_File_Extension_Successfully
+    set VALIDATION_FILE_EXT=%@UNQUOTE[%@EXT[%VALIDATION_FILE]]
+    for %tmp_extension in (%EXTENSION_LIST_TO_USE) do (
+        if %DEBUG gt 0 (call debug "- checking if extension '%tmp_extension%' applies to file '%VALIDATION_FILE%' which has VALIDATION_FILE_EXT='%VALIDATION_FILE_EXT'-- test:if '%@EXT[%VALIDATION_FILE]' eq '%tmp_extension' goto :Validated_File_Extension_Successfully")
+        if "%VALIDATION_FILE_EXT" eq "%@UNQUOTE[%tmp_extension]" (
+            set VALIDATED_EXTENSION_LAST_VALUE=1
+            goto :Validated_File_Extension_Successfully
+        ) else (
+            set VALIDATED_EXTENSION_LAST_VALUE=0
+        )
     )
 
 rem ERROR: At this point, all checks have failed and the file is not valid!

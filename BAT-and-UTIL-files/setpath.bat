@@ -1,3 +1,6 @@
+@if %@FILEAGE[%BAT%\setpath.cmd] gt %@FILEAGE[%BAT%\setpath.bat] (call %BAT%\setpath.cmd %* %+ goto :END)
+@rem ^^^^^^ If the generated .CMD version is fresher than this bat file, it's much faster to simply run that:
+
 @Echo OFF
 :Echo ON
 
@@ -8,6 +11,9 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 	:: ASSUMES: 		%MACHINENAME% and %OS% (95,98,ME,2K,XP,7,10) has already been set in the environment
     :: ASSUMES:         %BAT%=C:\BAT\ and %UTIL%=C:\UTIL\ (and optional %UTIL2%=C:\UTIL2) copied from another Clairevironment
     ::                  Normally we would validate these with validate-environment-variables.bat but we want speediness
+
+
+
 
 ::::: First, unset the old path:
 	unset /q PATH
@@ -135,7 +141,9 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
         gosub AddFolderToPathEndOnlyIfItExists %SystemRoot%\system32\Wbem
 
 
-goto :END
+goto :Clean_Up
+
+
 
 	::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 		:::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -151,7 +159,7 @@ goto :END
 		:::::::::::::::::::::::::::::::::::::::::::::::::::
 	::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-:END
+:Clean_Up
 
 REM one last cleanup - no blank path entries - ";;" must become ";"
     PATH=%@REPLACE[;;,;,%PATH]
@@ -159,4 +167,5 @@ REM one last cleanup - no blank path entries - ";;" must become ";"
 REM * Save our dynamically-generated path as a .cmd file that can be run in other commandlines such as PowerShell & Anaconda
     path >c:\bat\setpath.cmd
 
+:END
 

@@ -248,7 +248,7 @@
 2024-04-05  17:32            846   51%  dump-environment-to-tmpfile.bat
 2024-03-13  23:19             32   -6%  dvl.bat
 2023-06-12  20:31             37   -5%  dym.bat
-2019-10-01  10:27             45   -4%  ec.bat
+2024-09-29  20:12            233   52%  ec.bat
 2024-09-24  12:17          3,864   72%  echo-rainbow.bat
 2024-08-20  09:00         29,171   69%  edit-currently-playing-attrib-helper.pl
 2024-08-20  08:59          8,960   71%  edit-currently-playing-attrib.bat
@@ -260,7 +260,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-09-24  11:46        184,620   81%  environm.btm
+2024-09-29  21:28        185,082   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -472,7 +472,7 @@
 2019-10-01  10:28             41    5%  mpc2wav.bat
 2019-10-01  10:28         30,781   70%  mtsend.py
 2024-04-10  12:57             13  -15%  music-search.bat
-2024-04-10  18:31          4,116   68%  mv.bat
+2024-09-29  07:00          4,143   68%  mv.bat
 2024-05-08  21:10             41   -4%  mydrives.bat
 2024-05-10  10:37             18  -11%  nd.bat
 2024-08-21  20:55          1,870   53%  new-computer.bat
@@ -504,6 +504,7 @@
 2024-05-07  14:16          1,870   51%  play-m3u-with-VLC.bat
 2019-10-01  10:28             36   -5%  play-m3u-with-winamp.bat
 2024-05-07  14:17          1,076   63%  play-these.bat
+2024-09-29  21:59          1,957   58%  play-WAV-file.bat
 2024-05-07  14:04             22   -9%  play.bat
 2024-05-07  14:11            508   52%  playlist.bat
 2023-06-01  22:26          1,141   58%  play_wav_file.py
@@ -659,7 +660,7 @@
 2023-04-24  09:52            255   53%  set-winamp-constants.bat
 2024-03-24  20:03             49   -4%  setDrive.bat
 2024-03-24  20:04             49   -4%  setlabel.bat
-2024-08-22  22:05          9,946   77%  SETPATH.bat
+2024-09-27  19:40         10,192   77%  SETPATH.bat
 2024-08-22  00:52             21   -9%  setprompt.bat
 2023-10-06  05:32            132    5%  settmp.bat
 2024-04-10  15:17            731   51%  setup-perl-junctions-on-new-computer.bat
@@ -761,6 +762,8 @@
 2024-03-24  19:17            300   42%  undep.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
+2024-09-28  15:09            100   18%  unlock-margins.bat
+2024-09-27  12:12             24   -8%  UNLOCK.bat
 2019-10-01  10:28            544   82%  unmap-drives.bat
 2024-05-07  14:00             25   -8%  unpause.bat
 2024-04-28  20:54            287   35%  unzip-all.bat
@@ -778,7 +781,7 @@
 2023-05-29  14:07             39   -5%  validate-env-vars.bat
 2024-09-08  22:48         14,723   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
-2024-04-19  15:48          2,082   60%  validate-file-extension.bat
+2024-09-29  21:25          2,459   62%  validate-file-extension.bat
 2024-09-08  22:52         12,147   76%  validate-function.bat
 2024-09-08  22:43            397   43%  validate-functions.bat
 2024-08-22  21:55          1,661   57%  validate-in-path.bat
@@ -826,7 +829,7 @@
 2023-06-08  19:05             31   10%  windows-a-v2.ahk
 2024-03-29  23:30            198   37%  winkill.bat
 2024-08-20  09:31          3,359   68%  wrapper.bat
-2024-09-26  00:16          5,814   60%  ydl.bat
+2024-09-27  20:10          5,959   60%  ydl.bat
 2024-06-27  12:31             89   18%  ydm.bat
 2024-04-03  14:43            568   47%  yyyymmdd(dow).bat
 2024-04-03  14:42            438   41%  yyyymmdd.bat

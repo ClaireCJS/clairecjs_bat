@@ -689,25 +689,25 @@ return
         rem Default number of CPU cores in a machine, and default number of optimal threads (usually cores * 1.5)
             set CPU_CORES=12
             set OPTIMAL_CPU_THREADS=6
-            set TABLET=0                                            %+ REM Later on, in Initial%MachineName%, set this to 1 for machinenames that are tablets (i.e. Windows tablets)
+            set TABLET=0                                                %+ rem Later on, in Initial%MachineName%, set this to 1 for machinenames that are tablets (i.e. Windows tablets)
 
     ::::: BASIC NETWORKING:
             set ISP=Cox
         rem public
-            REM PUBLIC_IP=[REDACTED into private.env]               %+ REM 20170516 - NOT our pubic static IP but our internal IP, which is DHCP'ed as of 2017
-            set DYNDNS_IP=%NETNAME%.servebeer.com                   %+ REM 20170516 - NOT our pubic static IP but our internal IP, which is DHCP'ed as of 2017
+            REM PUBLIC_IP=[REDACTED into private.env]                   %+ rem 20170516 - NOT our pubic static IP but our internal IP, which is DHCP'ed as of 2017
+            set DYNDNS_IP=%NETNAME%.servebeer.com                       %+ rem 20170516 - NOT our pubic static IP but our internal IP, which is DHCP'ed as of 2017
         rem gateway
-            :et GATEWAY_DSL=68.167.161.177        %+ REM 2006-2016 [[Silcon]]
-            :et GATEWAY_DSL=66.167.233.209        %+ REM 2016-2017 [Megapath]
-            set GATEWAY_COX=192.168.0.1           %+ REM 2017-     [[[Cox]]]] 
+            :et GATEWAY_DSL=68.167.161.177                              %+ rem 2006-2016 [[Silcon]]
+            :et GATEWAY_DSL=66.167.233.209                              %+ rem 2016-2017 [Megapath]
+            set GATEWAY_COX=192.168.0.1                                 %+ rem 2017-     [[[Cox]]]] 
             set GATEWAY=%GATEWAY_COX%
-            if "%TETHERING%" eq "1" (set GATEWAY=%GATEWAY_TETHERING%)   %+ REM later on, after path is set, we will: call validate-environment-variable GATEWAY
+            if "%TETHERING%" eq "1" (set GATEWAY=%GATEWAY_TETHERING%)   %+ rem later on, after path is set, we will: call validate-environment-variable GATEWAY
         rem wifi
-            set WAP_INTERNAL=wap                  %+ REM maintained in hosts.txt
-            set WAP_EXTERNAL=%PUBLIC_IP%
-            set WAP=%WAP_INTERNAL%                %+ if "%MACHINENAME%" eq "WORK" (set WAP=%WAP_EXTERNAL%)
-        rem IP addresses
-            :et IP_THAILOG=192.168.0.106          %+ REM but it reset in 2019/09 from .106 to .136 for some reason
+            set WAP_INTERNAL=wap                                        %+ rem maintained in hosts.txt
+            set WAP_EXTERNAL=%PUBLIC_IP%                               
+            set WAP=%WAP_INTERNAL%                                      %+ if "%MACHINENAME%" eq "WORK" (set WAP=%WAP_EXTERNAL%)
+        rem IP addresses                                               
+            :et IP_THAILOG=192.168.0.106                                %+ REM but it reset in 2019/09 from .106 to .136 for some reason
             set IP_THAILOG=192.168.0.136
             set IP_DEMONA=192.168.0.17
             set IP_DEMONA_2=192.168.1.190
@@ -730,15 +730,18 @@ return
 	::::: WHO'S THE BOSS?
         ::::: MASTER/PRIMARY MACHINE:
 			::::: CONSIDER: WHEN NEW COMPUTER IS ADDED
-            :et MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY=THAILOG                            
-            :et MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD240G2%                   
-            :et MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD512G%                    
-            set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY=DEMONA                             %+ REM 20221022
-            set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD1T3%                     %+ REM 20221022
+            rem MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY=THAILOG                            ////// 2015ish
+            set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY=DEMONA                             %+ rem 20221022
+            if "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%" == "%MACHINENAME%" (
+                    set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=C
+            ) else (
+                rem MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD240G2%                   
+                rem MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD512G%                    
+                set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD1T3%                 %+ rem 20221022
+            )
             :Aliases:
-                set MACHINEMASTER=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%                %+ REM Consider: When new computer is added
+                set MACHINEMASTER=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%                %+ rem Consider: When new computer is added
                 set MASTERMACHINE=%MACHINEMASTER%
-                set MASTER=%MACHINEMASTER%
                 set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_C_DRIVE=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%
         ::::: MUSIC SERVER(s):
             set AUDIOSCROBBLER_LOG=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
@@ -753,7 +756,7 @@ return
             SET    MUSICSERVERCDRIVE=%HD1T3%                                          
                            if "%MACHINENAME%"  eq "%MUSICSERVERMACHINENAME%" set MUSICSERVERCDRIVE=C
             SET    MUSICSERVERC_DRIVE=%MUSICSERVERCDRIVE%                                          
-            set  MUSICSERVERUSERNAME=oh                                                 %+ REM the Windows/OS-username that is logged in when the MUSICSERVER is playing music
+            set  MUSICSERVERUSERNAME=oh                                                     %+ rem the Windows/OS-username that is logged in when the MUSICSERVER is playing music
             set MUSICSERVERSTATUSURL=http://%MUSICSERVER%/main
 
             :::: KLUDGES TO UN-REGRESS REMOVAL OF DEPRECATED UPSTAIRS/DOWNSTAIRS ADDITIONAL CODE:
@@ -800,7 +803,7 @@ return
                     set IPCAM2_PORT_MEDIA=38401
                     set IPCAM2_PORT_ONVIF=36000
                     rem IPCAM2_USERNAME_ADMIN=[REDACTED into private.env]
-                    rem IPCAM2_PASSWORD_ADM[REDACTED into private.env]
+                    rem IPCAM2_PASSWORD_ADMIN=[REDACTED into private.env]
                     rem IPCAM2_USERNAME_GUEST=[REDACTED into private.env]
                     rem IPCAM2_PASSWORD_GUEST=[REDACTED into private.env]
                     set IPCAM2_DDNS_USER=n5262
@@ -2194,7 +2197,7 @@ return
          set .java=call java-handler
          set .jfif=call wrapper openimage
          set .jnlp=javaws
-         set  .wav=call wrapper VLC
+         set  .wav=call play-wav-file
          set  .jpg=call wrapper openimage
          set .jpeg=call wrapper openimage
          set  .js=node
@@ -2342,6 +2345,7 @@ return
     rem don't do it if we're not supposed to
         if %ENVIRONM_BAT_DO_NOT_SET_PROMPT eq 1 (goto :DoNotSetPrompt)
 
+            rem timer /6 on
             rem make sure required scripts are present:
                 if not exist %BAT%\setpath.bat   (call alarm-beep NO SETPATH.BAT!! %+ pause)
                 if not exist %BAT%\setprompt.bat (call alarm-beep NO SETROMPT.BAT! %+ pause)
@@ -2351,6 +2355,7 @@ return
             rem call machine-specific scripts:
                 if     exist %BAT%\%MACHINENAME\setpath.bat   call %BAT%\%MACHINENAME\setpath.bat
                 if     exist %BAT%\%MACHINENAME\setprompt.bat call %BAT%\%MACHINENAME\setprompt.bat
+            rem timer /6 off
 
             rem This doesn't quite go here but doesn't have a better place to go here and this is the best timing
             call c:\bat\detect-command-line-container

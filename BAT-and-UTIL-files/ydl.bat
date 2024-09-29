@@ -97,7 +97,7 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         :Unattended
 
     :: get json file - do this *AFTER* we do our renaming so that we can use our post-rename filename for the JSON file
-        %COLOR_IMPORTANT% %+ echos Fetching json description...
+        echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Fetching json description...
             set JSON_WANTED=%@NAME[%FILENAME_NEW%].json
             call %YDL% --dump-json "%URL%" >"%JSON_WANTED%"
             call validate-environment-variable JSON_WANTED
@@ -107,7 +107,9 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         for %%f in (*.txt;*.description) do (
             if %%~zf==0 (
                 echo. 
-                call warning "Deleting zero-byte file: %%f ????"
+                rem  warning "Deleting %italics_on%zero-byte file: %%f ????"
+                call warning "Deleting %italics_on%zero-byte%italics_off% file: '%italics_on%%%f%italics_off%' ????"
+
                 %COLOR_REMOVAL% %+ echo. %+ del /p "%%f"
             )
         )
