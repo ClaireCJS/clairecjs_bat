@@ -1,15 +1,22 @@
 @Echo off
 
-%COLOR_REMOVAL%        %+ echo Killing Chrome...    %+ kill /f Chrome*
-%COLOR_IMPORTANT_LESS% %+ echo Waiting 2 seconds... %+ call sleep 2
-%COLOR_SUCCCESS%       %+ echo Starting Chrome...   %+ rem http://www.krazydad.com/gustavog/FlickRandom.pl?user=ClioCJS
-%COLOR_RUN%            %+ call chrome
-%COLOR_IMPORTANT_LESS% %+ echo Waiting 4 seconds...
-%COLOR_NORMAL%         %+ call sleep 4
+call REMOVAL        "Killing Chrome..."    %+ kill /f Chrome*
+call important_less "Waiting 2 seconds..." %+ call sleep 2
+call succcess       "Starting Chrome..."   %+ rem http://www.krazydad.com/gustavog/FlickRandom.pl?user=ClioCJS
+%COLOR_RUN%                                %+ call chrome.bat
+call important_less "Waiting 4 seconds..." %+ call sleep 4
 
 
 
 
-:   echo Experiment: NOT doing "window restore" - does evillyrics still focus?
-:   :experiment: window restore evilly~1
+
+
+
+
+
+
+rem ———————————————————————————————————————————————————————————————————————————————————
+rem 2015ish: echo Experiment: NOT doing "window restore" - does evillyrics still focus?
+rem 2015ish:                  window restore evilly~1
+rem ———————————————————————————————————————————————————————————————————————————————————
 

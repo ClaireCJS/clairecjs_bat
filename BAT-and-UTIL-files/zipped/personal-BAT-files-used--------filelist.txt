@@ -16,7 +16,7 @@
 2019-10-01  10:25          2,618   69%  album-art-tool-for-mp3Tag.btm
 2023-04-10  17:27             85   29%  album-art.bat
 2024-02-02  20:24          3,616   58%  ALIAS.LST
-2024-09-21  06:33          6,016   70%  all-ready-drives.bat
+2024-10-04  06:00          6,028   70%  all-ready-drives.bat
 2024-03-24  19:07            238   24%  allbmp2jpg.bat
 2024-04-10  15:09          1,654   62%  allcomputers.bat
 2024-04-05  14:07          2,297   74%  allcomputersexceptself.bat
@@ -44,7 +44,7 @@
 2019-10-01  10:27             74    5%  alltif2jpg.bat
 2024-04-14  15:52            529   40%  allwav2mp3.bat
 2022-02-07  13:15             19  -10%  an.bat
-2024-09-09  18:24            137   23%  ansi-references.bat
+2024-10-02  11:38            206   25%  ansi-references.bat
 2024-09-08  22:24             21   -9%  ansi-reset.bat
 2024-09-09  01:32         13,506   74%  askYN.bat
 2024-03-18  22:08          1,047   53%  assimilate-rookie-folders.bat
@@ -109,7 +109,7 @@
 2023-10-14  02:51            452   52%  checktemp.bat
 2024-04-10  12:34            487   51%  checkusername.bat
 2023-10-06  09:42             44   -2%  chown.bat
-2024-05-11  16:42            559   51%  chrome.bat
+2024-10-03  12:23          1,325   70%  chrome.bat
 2019-10-01  10:27             33   13%  cl.bat
 2024-08-22  01:45         12,434   77%  clairevironment-install.bat
 2024-06-12  12:57          4,063   66%  clean-dbcu.bat
@@ -198,6 +198,9 @@
 2024-04-01  23:43          3,120   61%  detect-with-which.bat
 2023-10-06  07:58          2,064   58%  dice.bat
 2019-10-01  10:27            376   54%  diff.bat
+2024-10-03  22:37             18  -11%  dir-by-access-date.bat
+2024-10-03  22:38             18  -11%  dir-by-creation-date.bat
+2024-10-03  22:38             18  -11%  dir-by-modification-date.bat
 2024-03-28  02:32             18    0%  disable-windows-key.bat
 2023-04-07  11:31             50   -4%  display-bitrate.bat
 2024-03-15  00:06            399   39%  display-bluetooth-battery-levels.ps1
@@ -233,7 +236,7 @@
 2023-12-18  16:04             21   -9%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-08-20  05:45             50   -2%  DIST.bat
-2024-09-21  06:32         12,296   78%  distribute-bat-files-to-every-drive.bat
+2024-10-04  05:51         12,470   78%  distribute-bat-files-to-every-drive.bat
 2024-03-30  13:19             35   -5%  divider.bat
 2024-05-16  13:59             47   13%  dns-display.bat
 2024-07-28  16:32             28   -7%  do-in-each-directory.bat
@@ -491,7 +494,7 @@
 2019-10-01  10:28            562   43%  numbers.pl
 2024-04-03  15:05             88    6%  numfiles.bat
 2023-07-01  08:28            363   50%  okgoogle.bat
-2024-05-23  10:36            431   55%  openimage.bat
+2024-09-30  05:42            460   52%  openimage.bat
 2022-07-03  20:15          2,365   72%  opera.bat
 2024-03-28  02:16             23   -8%  paus.btm
 2024-08-20  22:44          1,127   53%  pause-alias.bat
@@ -533,7 +536,7 @@
 2024-05-11  18:10            191   33%  publish-bat-updates-to-github.bat
 2024-03-13  12:24             51   -1%  publish.bat
 2023-06-01  01:48             19  -10%  push.bat
-2024-04-07  14:30          2,888   61%  put.bat
+2024-10-04  05:39          2,930   61%  put.bat
 2023-11-15  15:32          2,229   60%  py.spec2exe.bat
 2023-05-20  00:22            146   20%  py2exe-create-spec-file.bat
 2023-11-15  13:15            583   46%  py2exe.bat
@@ -583,7 +586,7 @@
 2024-09-10  01:10          2,673   61%  reset-tab-stops.bat
 2024-09-08  22:23             79   57%  reset.ansi
 2024-09-11  01:44             62   10%  restart-ahk.bat
-2024-05-11  16:41            539   46%  restart-chrome.bat
+2024-10-03  12:15          1,047   71%  restart-chrome.bat
 2019-10-01  10:28            323   48%  restart-cpu-meter.bat
 2024-09-07  13:33             85   28%  restart-displayfusion.bat
 2024-09-07  13:33            499   46%  restart-explorer.bat

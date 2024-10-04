@@ -12,6 +12,7 @@
 ::::: ERROR CHECK:
     set SOURCE=%1
     SET TARGET=%2
+    if "%3"=="noconfirm" (set CONFIRM=0)
     if     "" eq "%2" goto :NoArg2
     if not isdir  %2  goto :NoExistArg2
 	if     isdir  %1  goto :isdir

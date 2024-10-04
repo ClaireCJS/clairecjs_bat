@@ -88,7 +88,11 @@ goto :Cleanup
     rem COPY TO ALL FOLDERS USING SCRIPT TO RUN A COMMAND ON EVERY DRIVE LETTER THAT EIXSTS:
             set OPTION_SKIP_SAME_C=1
             set OPTION_ECHO_RAYRAY=1
-            call all-ready-drives "if exist DRIVE_LETTER:\bat copy /e /w /u /s /a: /[!.git *.bak] /h /z /k /g \bat\ DRIVE_LETTER:\bat"
+            set OPTION_ARD_POSTPROCESS=1
+                    (call all-ready-drives "if exist DRIVE_LETTER:\bat (*copy /e /w /u /s /a: /[!.git *.bak] /h /z /k /g \bat\ DRIVE_LETTER:\bat)") 
+            unset OPTION_SKIP_SAME_C
+            unset OPTION_ECHO_RAYRAY
+            unset OPTION_ARD_POSTPROCESS
 
     rem DRAW A PRETTY DIVIDER:
             echo.

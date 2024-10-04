@@ -77,7 +77,7 @@ goto :END
                                  echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%
                             ) else (
                                 echos %@RANDFG_SOFT[]
-                                (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND% |& copy-move-post.py) | fast_cat
+                                (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%) |&:u8 copy-move-post.py |:u8 fast_cat
                             )
                         )
                         if %OPTION_ECHO_RAYRAY ne 1 (
@@ -85,7 +85,7 @@ goto :END
                                 %FIXED_COMMAND%
                             ) else (
                                 echos %@RANDFG_SOFT[]
-                                (%FIXED_COMMAND% |& copy-move-post.py) | fast_cat
+                                (%FIXED_COMMAND% |&:u8 copy-move-post.py) |:u8 fast_cat
                             )
                         )
             :Drive_Not_Ready
