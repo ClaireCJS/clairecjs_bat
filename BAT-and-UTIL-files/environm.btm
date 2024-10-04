@@ -182,6 +182,7 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
     rem gosub StartKillBots { call c:\bat\slui-killbot } { @processmonitor slui started forever (taskend /f slui) } %+ REM stupid slui process kept stealing focus around 2015...  Use focus-monitor.exe to debug that situation. This keeps it dead, but the monitor only lasts per-command-line window, so we need it in this CLI initialization script. But wait! It eats up CPU, so it might not actually be worth it.
 	gosub PreliminaryErrorCheck                           %+    gosub stopwatch_button orange "after PreliminaryErrorCheck           " %+ rem 0.03
+    gosub SetPrivateEnvVars                               %+    gosub stopwatch_button orange "after SetPrivateEnvVars               " %+ rem 0.015
 	gosub DefineHarddrivesAndDriveMapping                 %+    gosub stopwatch_button orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
 	gosub CommonEnvVarsIncludingNetworking                %+    gosub stopwatch_button orange "after CommonEnvVarsIncludingNetworking" %+ rem 0.04
 	gosub Initial%MACHINENAME%                            %+    gosub stopwatch_button orange "after Initial                         " %+ rem 0.11
@@ -194,7 +195,6 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 	gosub CheckForSyncedDevices                           %+    gosub stopwatch_button orange "after CheckForSyncedDevices           " %+ rem 0.01
 	gosub OSSpecificOverrides                             %+    gosub stopwatch_button orange "after OSSpecificOverrides             " %+ rem 0.05
 	gosub SetJavaClasspath                                %+    gosub stopwatch_button orange "after SetJavaClasspath                " %+ rem 0.25  25
-    gosub SetPrivateEnvVars                               %+    gosub stopwatch_button orange "after SetPrivateEnvVars               " %+ rem 0.015
     gosub Load_TCC_Plugins                                %+    gosub stopwatch_button orange "after Load_TCC_Plugins                " %+ rem 0.13
     gosub FinalValidations                                %+    gosub stopwatch_button orange "after FinalValidations                " %+ rem 0.013
 	goto :END
@@ -263,7 +263,7 @@ return
         set BEST_FREE_DRIVE_LETTER=T %+ REM   Newly-introduced concept 201507 for RAMDrive scripting. May need to per-computer it.
 
 		::HADES (2007-2016) IS DEAD - THE SSD MOVED INTO GOLIATH FOR CAROLYN'S 2017 RE-INSTALL:
-            :SET DRIVES_HADES=                         %+  SET MAPPING_HADES_IP=66.167.233.214
+            :SET DRIVES_HADES=                         %+  rem in 2024 we would set this below: SET MAPPING_HADES_IP=66.167.233.214
             :ET DRIVE_C_HADES=                         %+  SET MAPPING_HADES_USR=oh
             :ET DRIVE_C_HADES_VAR=%A%                  %+  rem MAPPING_HADES_PWD=[REDACTED into private.env]
 
@@ -275,8 +275,8 @@ return
                 SET SHARE250G=\\fire\\fire250g\            %+  SET SHARING_Q=%SHARE250G%                 %+ REM out of drive letters, but still want an environment variable for this harddrive
                 SET HD1000G=U   %+  SET U=HD1000G          %+  SET MAPPING_U=FIRE1000G
                 set HD1000G1=U  %+  SET HD1T=U             %+  SET HD1T1=U
-                SET DRIVES_FIRE=U                          %+  SET MAPPING_FIRE_IP=192.168.0.105          %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
-                SET DRIVES_FIRE=U                          %+  SET MAPPING_FIRE_IP_PUBLIC=%PUBLIC_IP%     %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
+                SET DRIVES_FIRE=U                          %+  rem in 2024 we would set this below....   %+ SET MAPPING_FIRE_IP=192.168.0.105          %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
+                SET DRIVES_FIRE=U                          %+  SET MAPPING_FIRE_IP_PUBLIC=%PUBLIC_IP%    %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
                 SET DRIVE_C_FIRE=%SHARE300G%               %+  SET MAPPING_FIRE_USR=Administrator
                 SET DRIVE_C_FIRE_VAR=%SHARE300G%           %+  REM MAPPING_FIRE_PWD=[REDACTED into private.env]
             :FireDownNoDriveDefinitions
@@ -338,6 +338,7 @@ return
             set DRIVE_C_THAILOG=D                         %+  SET MAPPING_THAILOG_IP_REMOTE=%PUBLIC_IP%
             set DRIVE_C_THAILOG_VAR=%D%                   %+  SET MAPPING_THAILOG_IP_TETHERING=%TETHERING_IP_THAILOG%   %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
                                                           %+  SET MAPPING_THAILOG_USR=share  %+ REM MAPPING_THAILOG_PWD=[REDACTED into private.env]
+
 		::DEMONA (2022)
             set  HD1000G3_DOWN=0 %+ set HD1000G3=S  %+  SET S=HD1000G3  %+  SET MAPPING_S=DEMONA1T   %+ SET     HD1T3=%HD1000G3%  %+ set DEMONA1T=%HD1000G3%    %+ set  HD1T3_PRESENCE=%HD1T3%:\__ I awaken! __
             set HD18000G3_DOWN=0 %+ set HD18000G3=T %+  SET T=HD18000G3 %+  SET MAPPING_T=DEMONA18T1 %+ SET    HD18T3=%HD18000G3% %+ set DEMONA18T1=%HD18000G3% %+ set HD18T3_PRESENCE=%HD18T3:\__ I awaken __  %+ DEMONA18T=%DEMONA18T1% 
@@ -347,8 +348,6 @@ return
             set DRIVE_C_DEMONA=S
             set DRIVE_C_DEMONA_VAR=%S%
             set MAPPING_DEMONA_USR=Claire 
-            rem   ——————————————>   CLAIRE_PRIMARY_MICROSOFT_ACCOUNT_PASSWORD is set in private.env
-            set MAPPING_DEMONA_PWD=%CLAIRE_PRIMARY_MICROSOFT_ACCOUNT_PASSWORD
 			rem call validate-environment-variables HD1T3_PRESENCE HD18T3_PRESENCE - moved to CheckForSyncedDevices because path is not yet defined
 
 		::WYVERN (2023)
@@ -707,23 +706,26 @@ return
             set WAP_EXTERNAL=%PUBLIC_IP%                               
             set WAP=%WAP_INTERNAL%                                      %+ if "%MACHINENAME%" eq "WORK" (set WAP=%WAP_EXTERNAL%)
         rem IP addresses                                               
-            :et IP_THAILOG=192.168.0.106                                %+ REM but it reset in 2019/09 from .106 to .136 for some reason
-            set IP_THAILOG=192.168.0.136
-            set IP_DEMONA=192.168.0.17
-            set IP_DEMONA_2=192.168.1.190
             SET IP_GOLIATH=192.168.0.107  
+            rem IP_THAILOG=192.168.0.106                                %+ REM but it reset in 2019/09 from .106 to .136 for some reason
+            set IP_THAILOG=192.168.0.136
+            set IP_DEMONA_GOOGLENEST=192.168.0.17
+            set IP_DEMONA_TPVRROUTER=192.168.1.190
+            set IP_DEMONA=%IP_DEMONA_TPVRROUTER%
             SET IP_WYVERN=192.168.0.97  
-        rem MAC addresses
-            set MAC_GOLIATH=BC:5F:F4:43:EC:6E
-            set MAC_THAILOG=D0:50:99:38:A5:2C
-            set MAC_DEMONA=00:15:5D:AC:EE:A7
-            set MAC_DEMONA_2=68:1C:A2:12:33:B2
-            set MAC_WYVERN=74:56:3C:B3:9B:68
-        rem drive mapping
+        rem mapping ips:
             SET MAPPING_THAILOG_IP=%IP_THAILOG%
             SET MAPPING_DEMONA_IP=%IP_DEMONA%
             SET MAPPING_GOLIATH_IP=%IP_GOLIATH%
             SET MAPPING_WYVERN_IP=%IP_WYVERN%
+        rem MAC addresses
+            set MAC_GOLIATH=BC:5F:F4:43:EC:6E
+            set MAC_THAILOG=D0:50:99:38:A5:2C
+            set MAC_DEMONA_GOOGLENEST=00:15:5D:AC:EE:A7
+            set MAC_DEMONA_TPVRROUTER=DE:53:D3:02:DB:2A
+            set MAC_DEMONA_2=68:1C:A2:12:33:B2
+            set MAC_DEMONA=%MAC_DEMONA_TPVRROUTER%
+            set MAC_WYVERN=74:56:3C:B3:9B:68
 
     gosub stopwatch_button yellow "      %STAR%[1]CommonEnvVarsIncludingNetworking"
 

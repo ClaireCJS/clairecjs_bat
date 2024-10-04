@@ -1,5 +1,5 @@
-@if %@FILEAGE[%BAT%\setpath.cmd] gt %@FILEAGE[%BAT%\setpath.bat] (call %BAT%\setpath.cmd %* %+ goto :END)
-@rem ^^^^^^ If the generated .CMD version is fresher than this bat file, it's much faster to simply run that:
+@if %@FILEAGE[c:\bat\setpath.cmd] gt %@FILEAGE[c:\bat\setpath.bat] (call c:\bat\setpath.cmd %* %+ goto :END) 
+@rem ^^^^^^ If the generated .CMD version is fresher than this bat file, it's much faster to simply run that. Hard-code c:\bat because %BAT% is not defined yet when calling this from autoexec-common
 
 @Echo OFF
 :Echo ON
@@ -9,7 +9,7 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 ::::: DOCUMENTATION:
 	:: WHAT THIS DOES: 	set PATH for all computers!
 	:: ASSUMES: 		%MACHINENAME% and %OS% (95,98,ME,2K,XP,7,10) has already been set in the environment
-    :: ASSUMES:         %BAT%=C:\BAT\ and %UTIL%=C:\UTIL\ (and optional %UTIL2%=C:\UTIL2) copied from another Clairevironment
+    :: ASSUMES:         %BAT%=C:\BAT\ and %UTIL%=C:\UTIL\ (and optional %UTIL2%=C:\UTIL2 copied from another Clairevironment)
     ::                  Normally we would validate these with validate-environment-variables.bat but we want speediness
 
 
