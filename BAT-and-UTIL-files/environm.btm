@@ -346,10 +346,10 @@ return
             set  DRIVES_DEMONA=S  T O U
             set DRIVE_C_DEMONA=S
             set DRIVE_C_DEMONA_VAR=%S%
-            SET MAPPING_DEMONA_USR=Claire
-            rem this is my microsoftlive cliocjs@gmail.com login password:
-            REM MAPPING_DEMONA_PWD=[REDACTED into private.env]
-			:call validate-environment-variables HD1T3_PRESENCE HD18T3_PRESENCE - moved to CheckForSyncedDevices because path is not yet defined
+            set MAPPING_DEMONA_USR=Claire 
+            rem   ——————————————>   CLAIRE_PRIMARY_MICROSOFT_ACCOUNT_PASSWORD is set in private.env
+            set MAPPING_DEMONA_PWD=%CLAIRE_PRIMARY_MICROSOFT_ACCOUNT_PASSWORD
+			rem call validate-environment-variables HD1T3_PRESENCE HD18T3_PRESENCE - moved to CheckForSyncedDevices because path is not yet defined
 
 		::WYVERN (2023)
 			rem HD4000G2_DOWN=0  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=WYVERN4000G2     %+  SET HD4G2=E   ... this didn't work out.. the dang'ed drive was dead——Carolyn put mounting tape on the prongs

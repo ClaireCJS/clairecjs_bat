@@ -1,4 +1,4 @@
-@Echo on
+@Echo off
 
 
 rem Only meant to be called by the various autoexec-<MACHINENAME>.BTM/.BATs
@@ -27,6 +27,11 @@ rem Start the service called "Everything" (not the abstract concept of everythin
         call start-everything %*
         gosub done_with_step
 
+rem Minimize annoying programs...
+        call less_important "Minimizing %italics_on%imUp%italics_off% window..."
+        call minimize imUp
+        gosub done_with_step
+
 rem Map drives
         call important "Mapping drives..."
         call map-drives %*
@@ -34,7 +39,7 @@ rem Map drives
 
 rem Maintainence, including rolling files:
         call less_important "Running maintanence..."
-        call                         maintanence NoWarning
+        call                         maintanence NoWarning NoBackups
         gosub done_with_step
 
 
