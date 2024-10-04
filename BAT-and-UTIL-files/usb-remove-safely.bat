@@ -1,6 +1,10 @@
-@echo off
-                   set USB_DRIVE=W
-                   if "%1" ne "" .and. "%@READY[%1]" eq "1" (set USB_DRIVE=%1)
+@Echo off
+
+set USB_DRIVE=X
+if "%1" ne "" .and. "%@READY[%1]" eq "1" (set USB_DRIVE=%1)
+
+call validate-in-path drives RemoveDrive.exe
+call validate-environment-variables COLOR_PROMPT COLOR_INPUT COLOR_NORMAL
 
 cls
 call drives

@@ -257,6 +257,8 @@
 2024-08-20  08:59          8,960   71%  edit-currently-playing-attrib.bat
 2023-06-15  11:32            976   52%  edit-windows-terminal-settings.bat
 2023-09-15  12:27          3,399   66%  editGrep.bat
+2024-10-04  11:40             32   -6%  eject-usb.bat
+2024-10-04  11:40             32   -6%  eject.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
 2024-09-25  04:46         70,306   78%  emoji.env
@@ -671,7 +673,7 @@
 2023-06-06  14:08          4,130   73%  show_current_pallete_prototype.py
 2019-10-01  10:28          5,276   63%  sizedir.pl
 2024-05-14  19:06            668   52%  sizes.bat
-2024-09-07  14:05            336   42%  sleep.bat
+2024-10-04  13:02            429   46%  sleep.bat
 2024-05-03  14:34             24   -8%  sn.bat
 2024-05-03  14:33             24   -8%  snip.bat
 2024-06-13  19:46            747   69%  snipping-tool.bat
@@ -776,7 +778,7 @@
 2019-10-01  10:28             28   -7%  uppercase.pl
 2019-10-01  10:28            232   26%  urldecode.pl
 2019-10-01  10:28            326   33%  urlencode.pl
-2019-10-01  10:28            335   40%  usb-remove-safely.bat
+2024-10-04  11:39            422   42%  usb-remove-safely.bat
 2023-06-04  11:17             40   -5%  val-env-var.bat
 2024-03-18  09:00            216   28%  validate-ahk.bat
 2024-04-10  15:12            714   51%  validate-all-perl-files.bat
@@ -813,7 +815,7 @@
 2024-04-09  23:12            463   42%  winamp-close-gracefully.bat
 2024-05-07  14:13            138   15%  winamp-next.bat
 2024-05-07  14:05          3,694   72%  winamp-pause.bat
-2024-05-07  14:03          1,307   61%  winamp-play.bat
+2024-10-04  12:08          1,269   61%  winamp-play.bat
 2024-05-07  14:14            169   16%  winamp-prev.bat
 2024-05-07  13:51          1,875   58%  winamp-randomize-playlist.bat
 2024-04-09  23:12             25   -8%  winamp-restart.bat

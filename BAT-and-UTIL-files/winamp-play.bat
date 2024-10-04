@@ -25,12 +25,10 @@ goto :END
 
 
 		:Play_YES
-			:call setTmpMusicServer.bat %*
-
 
 			if "%1"=="exit" call less_important "Attempting to start music via WinAmp WAWI web interface, using %italics_on%wget%italics_off%..."
                     %COLOR_LOGGING% 
-                    call wget32    --tries=3 --wait=1 --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS% --spider http://%WTMPMUSICSERVER/play
+                    call wget32    --tries=3 --wait=1 --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS% --spider http://%TMPMUSICSERVER/play
                     %COLOR_NORMAL%  
                     call get-winamp-state
 			if "%BOTH"=="1" call wget32    --tries=3 --wait=1 --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS% --spider http://%TMPMUSICSERVER/play
