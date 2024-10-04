@@ -1,6 +1,5 @@
-@set PERFORMANCE_TUNING=0
-@if %PERFORMANCE_TUNING eq 1 timer /9 /q on
 @Echo off
+@set PERFORMANCE_TUNING=0 %+ if %PERFORMANCE_TUNING eq 1 (timer /9 /q on)
 
 rem SPEEDUP VERDICT #1: We need to separate all our validation calls into one location, then put them in an if/else so we don't go into validation subroutines over and over
 rem SPEEDUP VERDICT #2: We need to move repositories, other environment variables, into a separate environm.env file much like private.env
@@ -107,6 +106,10 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
     rem VALIDATIONS take a full 0.5 seconds longer if you actually call the routine, vs turning the call itself into a REM statement when we're not doing them
                                         set gosubValidateFolderExists=rem gosub ValidateFolderExists
         if %PERFORM_VALIDATIONS eq 1   (set gosubValidateFolderExists=    gosub ValidateFolderExists)
+
+    rem Similar approach to reduce time-footprint of the performance tuning itself:      
+                                        set gosub_stopwatch_button=rem gosub stopwatch_button
+        if %PERFORMANCE_TUNING  eq 1   (set gosub_stopwatch_button=    gosub stopwatch_button)
 :::::::::::::::::::::::::::::::::::::::::::::::: COMMAND-LINE/ENVIRONMENT PARAMETERS :::::::::::::::::::::::::::::::::::::::::::::::::
 
 
@@ -177,26 +180,26 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
     rem Vars related to running this:
             set RUNNING_ENVIRONM=1
-            if %PERFORMANCE_TUNING lt 1 ( set   QUIET_TIMER_OR_NOT=/q)
-            if %PERFORMANCE_TUNING gt 0 (timer %QUIET_TIMER_OR_NOT% /9 /s)
+            if %PERFORMANCE_TUNING eq 0 (set QUIET_TIMER_OR_NOT=/q)
+            if %PERFORMANCE_TUNING eq 1 (set QUIET_TIMER_OR_NOT=/9 /s)
 
     rem gosub StartKillBots { call c:\bat\slui-killbot } { @processmonitor slui started forever (taskend /f slui) } %+ REM stupid slui process kept stealing focus around 2015...  Use focus-monitor.exe to debug that situation. This keeps it dead, but the monitor only lasts per-command-line window, so we need it in this CLI initialization script. But wait! It eats up CPU, so it might not actually be worth it.
-	gosub PreliminaryErrorCheck                           %+    gosub stopwatch_button orange "after PreliminaryErrorCheck           " %+ rem 0.03
-    gosub SetPrivateEnvVars                               %+    gosub stopwatch_button orange "after SetPrivateEnvVars               " %+ rem 0.015
-	gosub DefineHarddrivesAndDriveMapping                 %+    gosub stopwatch_button orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
-	gosub CommonEnvVarsIncludingNetworking                %+    gosub stopwatch_button orange "after CommonEnvVarsIncludingNetworking" %+ rem 0.04
-	gosub Initial%MACHINENAME%                            %+    gosub stopwatch_button orange "after Initial                         " %+ rem 0.11
-	gosub DefineRepositories                              %+    gosub stopwatch_button orange "after DefineRepositories              " %+ rem 1.20  !!
-	gosub DefineExecutableFileExtensions                  %+    gosub stopwatch_button orange "after DefineExecutableFileExtensions  " %+ rem 0.24 
-	gosub SetUsernameAndNetName                           %+    gosub stopwatch_button orange "after SetUsernameAndNetName           " %+ rem 0.04
-	gosub Initial%USERNAME%                               %+    gosub stopwatch_button orange "after Initial                         " %+ rem 0.01
-	gosub SetPathAndPrompt                                %+    gosub stopwatch_button orange "after SetPathAndPrompt                " %+ rem 0.29  29
-	gosub LoadAliases                                     %+    gosub stopwatch_button orange "after LoadAliases                     " %+ rem 0.02
-	gosub CheckForSyncedDevices                           %+    gosub stopwatch_button orange "after CheckForSyncedDevices           " %+ rem 0.01
-	gosub OSSpecificOverrides                             %+    gosub stopwatch_button orange "after OSSpecificOverrides             " %+ rem 0.05
-	gosub SetJavaClasspath                                %+    gosub stopwatch_button orange "after SetJavaClasspath                " %+ rem 0.25  25
-    gosub Load_TCC_Plugins                                %+    gosub stopwatch_button orange "after Load_TCC_Plugins                " %+ rem 0.13
-    gosub FinalValidations                                %+    gosub stopwatch_button orange "after FinalValidations                " %+ rem 0.013
+	gosub PreliminaryErrorCheck                           %+    %gosub_stopwatch_button% orange "after PreliminaryErrorCheck           " %+ rem 0.03
+    gosub SetPrivateEnvVars                               %+    %gosub_stopwatch_button% orange "after SetPrivateEnvVars               " %+ rem 0.015
+	gosub DefineHarddrivesAndDriveMapping                 %+    %gosub_stopwatch_button% orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
+	gosub CommonEnvVarsIncludingNetworking                %+    %gosub_stopwatch_button% orange "after CommonEnvVarsIncludingNetworking" %+ rem 0.04
+	gosub Initial%MACHINENAME%                            %+    %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.11
+	gosub DefineRepositories                              %+    %gosub_stopwatch_button% orange "after DefineRepositories              " %+ rem 1.20  !!!!!!!
+	gosub DefineExecutableFileExtensions                  %+    %gosub_stopwatch_button% orange "after DefineExecutableFileExtensions  " %+ rem 0.24 
+	gosub SetUsernameAndNetName                           %+    %gosub_stopwatch_button% orange "after SetUsernameAndNetName           " %+ rem 0.04
+	gosub Initial%USERNAME%                               %+    %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.01
+	gosub SetPathAndPrompt                                %+    %gosub_stopwatch_button% orange "after SetPathAndPrompt                " %+ rem 0.29->.21 1st/autoexec-run .005 successive runs
+	gosub LoadAliases                                     %+    %gosub_stopwatch_button% orange "after LoadAliases                     " %+ rem 0.02
+	gosub CheckForSyncedDevices                           %+    %gosub_stopwatch_button% orange "after CheckForSyncedDevices           " %+ rem 0.01
+	gosub OSSpecificOverrides                             %+    %gosub_stopwatch_button% orange "after OSSpecificOverrides             " %+ rem 0.05
+	gosub SetJavaClasspath                                %+    %gosub_stopwatch_button% orange "after SetJavaClasspath                " %+ rem 0.25  25
+    gosub Load_TCC_Plugins                                %+    %gosub_stopwatch_button% orange "after Load_TCC_Plugins                " %+ rem 0.13
+    gosub FinalValidations                                %+    %gosub_stopwatch_button% orange "after FinalValidations                " %+ rem 0.013
 	goto :END
 
 
@@ -263,9 +266,9 @@ return
         set BEST_FREE_DRIVE_LETTER=T %+ REM   Newly-introduced concept 201507 for RAMDrive scripting. May need to per-computer it.
 
 		::HADES (2007-2016) IS DEAD - THE SSD MOVED INTO GOLIATH FOR CAROLYN'S 2017 RE-INSTALL:
-            :SET DRIVES_HADES=                         %+  rem in 2024 we would set this below: SET MAPPING_HADES_IP=66.167.233.214
-            :ET DRIVE_C_HADES=                         %+  SET MAPPING_HADES_USR=oh
-            :ET DRIVE_C_HADES_VAR=%A%                  %+  rem MAPPING_HADES_PWD=[REDACTED into private.env]
+            rem DRIVES_HADES=                          %+  rem in 2024 we would set this below: SET MAPPING_HADES_IP=66.167.233.214
+            rem DRIVE_C_HADES=                         %+  rem in 2024 we sould set this below: SET MAPPING_HADES_USR=oh
+            rem DRIVE_C_HADES_VAR=%A%                  %+  rem MAPPING_HADES_PWD=[REDACTED into private.env]
 
 		::FIRE (2011)
             if "%FIRE_DOWN%" eq "1" (goto :FireDownNoDriveDefinitions)
@@ -276,15 +279,15 @@ return
                 SET HD1000G=U   %+  SET U=HD1000G          %+  SET MAPPING_U=FIRE1000G
                 set HD1000G1=U  %+  SET HD1T=U             %+  SET HD1T1=U
                 SET DRIVES_FIRE=U                          %+  rem in 2024 we would set this below....   %+ SET MAPPING_FIRE_IP=192.168.0.105          %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
-                SET DRIVES_FIRE=U                          %+  SET MAPPING_FIRE_IP_PUBLIC=%PUBLIC_IP%    %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
-                SET DRIVE_C_FIRE=%SHARE300G%               %+  SET MAPPING_FIRE_USR=Administrator
+                SET DRIVES_FIRE=U                          
+                SET DRIVE_C_FIRE=%SHARE300G%               
                 SET DRIVE_C_FIRE_VAR=%SHARE300G%           %+  REM MAPPING_FIRE_PWD=[REDACTED into private.env]
             :FireDownNoDriveDefinitions
 		::GOLIATH (2012)
-            SET HD256G_DOWN=1    %+ :ET HD256G=A         %+ :ET A=HD256G       %+  :ET MAPPING_A=GOLIATH256G   %+ REM crashed 202011
+            SET HD256G_DOWN=1    %+ rem HD256G=A         %+ rem A=HD256G       %+  rem MAPPING_A=GOLIATH256G   %+ REM crashed 202011
             rem HD18000G2_DOWN=0 %+ set HD18000G2=A      %+ SET A=HD18000G2    %+  SET MAPPING_A=GOLIATH18T2   %+ SET HD18T2=A %+ set ARCHIVEDRIVE=A - moved to wyvern 20240127
 			SET HD128G_DOWN=1    %+ rem HD128G=M         %+ SET M=HD128G       %+  SET MAPPING_M=GOLIATH128G  
-			SET HD1500G_DOWN=1   %+ set HD1500G=L(DOWN)  %+ :ET L=HD1500G      %+  SET MAPPING_L=GOLIATH1500G  %+ SET HD1500G1=%HD1500G%
+			SET HD1500G_DOWN=1   %+ set HD1500G=L(DOWN)  %+ rem L=HD1500G      %+  SET MAPPING_L=GOLIATH1500G  %+ SET HD1500G1=%HD1500G%
 			SET HD2000G4_DOWN=1  %+ set HD2000G4=G       %+ SET G=HD2000G4     %+  SET MAPPING_G=GOLIATH2000G2 %+ REM removed 20220410
 			rem HD4000G_DOWN=0   %+ set HD4000G=B        %+ SET B=HD4000G      %+  SET MAPPING_B=GOLIATH4000G  %+ SET HD4000G1=%HD4000G% - moved to Thailog 20240220
 			set HD4000G2_DOWN=1  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=GOLIATH4000G2 - moved to Wyvern 20240125ish but died fast when Carolyn put mounting tape on the fucking pins of the drive
@@ -308,7 +311,7 @@ return
             rem DRIVE_C_GOLIATH_VAR=%J%            %+  rem MAPPING_GOLIATH_PWD=[REDACTED into private.env]
 
 		::THAILOG (2015)
-			:et   HD240G_DOWN=1 %+ rem HD240G=P    %+  SET P=HD240G           %+  SET MAPPING_P=THAILOG240G                           %+ REM decomissioned 201910
+			rem   HD240G_DOWN=1 %+ rem HD240G=P    %+  SET P=HD240G           %+  SET MAPPING_P=THAILOG240G                           %+ REM decomissioned 201910
             set   HD240G_DOWN=0 %+ set HD240G2=D   %+  SET D=HD240G2          %+  SET MAPPING_D=THAILOG240G2 
 			set HD1500G2_DOWN=1 %+ rem HD1500G2=W  %+  SET W=HD1500G2         %+  SET MAPPING_W=THAILOG1500G2                         %+ REM down around post-Andrea time
             set HD1500G2_DOWN=1 %+ rem SHARE1500G2=\\thailog\\thailog1500g2\  %+  SET SHARING_W=%SHARE1500G2%                         %+ REM out of drive letters, but still want an environment variable for this harddrive
@@ -327,17 +330,16 @@ return
             set HD20T1_DOWN=0   %+ set HD20T1=R    %+  SET R=HD20T1           %+  SET MAPPING_R=THAILOG20T1   %+ set HD20T=%HD20T1%
 			rem moved 2 Goliath %+ set HD10T1=W    %+  SET W=HD10T1           %+  SET MAPPING_W=THAILOG10T1   %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1 
 			rem moved to Demona %+ set HD10T2=U    %+  SET U=HD10T2           %+  SET MAPPING_U=THAILOG10T2   %+ set HD10000G2=%HD10T2 
-            :et DRIVES_THAILOG=D      I J K O Q S T U W   %+  rem Do not use inaccessible/down/crashed drives
-            :et DRIVES_THAILOG=D      I J K O Q     U W   %+  rem Do not use inaccessible/down/crashed drives
-            :et DRIVES_THAILOG=D      I J K   Q     U W   %+  rem Do not use inaccessible/down/crashed drives
-            :et DRIVES_THAILOG=D      I   K   Q       W   %+  rem Do not use inaccessible/down/crashed drives
-            :et DRIVES_THAILOG=D      I   K   Q           %+  rem Do not use inaccessible/down/crashed drives
-            :et DRIVES_THAILOG=D      I   K P Q R         %+  rem Do not use inaccessible/down/crashed drives
+            rem DRIVES_THAILOG=D      I J K O Q S T U W   %+  rem Do not use inaccessible/down/crashed drives
+            rem DRIVES_THAILOG=D      I J K O Q     U W   %+  rem Do not use inaccessible/down/crashed drives
+            rem DRIVES_THAILOG=D      I J K   Q     U W   %+  rem Do not use inaccessible/down/crashed drives
+            rem DRIVES_THAILOG=D      I   K   Q       W   %+  rem Do not use inaccessible/down/crashed drives
+            rem DRIVES_THAILOG=D      I   K   Q           %+  rem Do not use inaccessible/down/crashed drives
+            rem DRIVES_THAILOG=D      I   K P Q R         %+  rem Do not use inaccessible/down/crashed drives
             set DRIVES_THAILOG=D    H I   K P Q R V       %+  rem Do not use inaccessible/down/crashed drives
             set DRIVES_THAILOG=D  B H I   K P Q R V       %+  rem Do not use inaccessible/down/crashed drives
-            set DRIVE_C_THAILOG=D                         %+  SET MAPPING_THAILOG_IP_REMOTE=%PUBLIC_IP%
-            set DRIVE_C_THAILOG_VAR=%D%                   %+  SET MAPPING_THAILOG_IP_TETHERING=%TETHERING_IP_THAILOG%   %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
-                                                          %+  SET MAPPING_THAILOG_USR=share  %+ REM MAPPING_THAILOG_PWD=[REDACTED into private.env]
+            set DRIVE_C_THAILOG=D                         
+            set DRIVE_C_THAILOG_VAR=%D%                   
 
 		::DEMONA (2022)
             set  HD1000G3_DOWN=0 %+ set HD1000G3=S  %+  SET S=HD1000G3  %+  SET MAPPING_S=DEMONA1T   %+ SET     HD1T3=%HD1000G3%  %+ set DEMONA1T=%HD1000G3%    %+ set  HD1T3_PRESENCE=%HD1T3%:\__ I awaken! __
@@ -347,7 +349,6 @@ return
             set  DRIVES_DEMONA=S  T O U
             set DRIVE_C_DEMONA=S
             set DRIVE_C_DEMONA_VAR=%S%
-            set MAPPING_DEMONA_USR=Claire 
 			rem call validate-environment-variables HD1T3_PRESENCE HD18T3_PRESENCE - moved to CheckForSyncedDevices because path is not yet defined
 
 		::WYVERN (2023)
@@ -358,8 +359,6 @@ return
             set  DRIVES_WYVERN=F  A W
             set DRIVE_C_WYVERN=F
             set DRIVE_C_WYVERN_VAR=%F%
-            rem MAPPING_WYVERN_USR=carol   [202311-20240403]
-            SET MAPPING_WYVERN_USR=carolyn
             rem this is Carolyn's microsoftlive carolyncasl@gmail.com login password:
             REM MAPPING_WYVERN_PWD=[REDACTED into private.env]
 
@@ -373,7 +372,7 @@ return
 			SET   HD128G_SSD=1
 			SET   HD240G_SSD=1
 			SET  HD240G2_SSD=1
-			:ET   HD256G_SSD=1
+			rem   HD256G_SSD=1
 			SET   HD512G_SSD=1
 		    SET  HD1000G_SSD=1
 		    SET HD1000G3_SSD=1
@@ -386,7 +385,7 @@ return
 
         ::::::::::::::::::: OLD STUFF ::::::::::::::::::: 
 		::Magic
-			:SET MAGIC=66.167.233.214
+			rem MAGIC=66.167.233.214
 
 	:these are the letters that the particular drive is IN IT'S MACHINE
 	:these are NOT NECESSARILY the same letters to access these harddrives
@@ -395,61 +394,61 @@ return
 	:only be C if you're on STORM (the machine the harddrive is in),
 	:otherwise it will probably be S: (first letter of storm--my convention).
 	:Deprecated in favor of variables like %REMAPSTORM?????
-        :ET HD20M=C
-        :ET HD300M=C
-        :ET HD500M=C
-        :ET HD800M=C
-        :ET HD4G=C
-		:ET HD16GREAL=C
-		:ET HD25GREAL=C
-		:ET HD40GREAL=D	:decomissioned
-		:ET HD60GREAL=C
-		:ET HD80GREAL=F
-		:ET HD80G2REAL=T
-		:ET HD80G3REAL=N
-		:ET HD120GREAL=C
-		:ET HD120GREAL=C
-		:ET HD120G2REAL=U
-		:ET HD120G3REAL=O
-		:ET HD120G4REAL=C
-		:ET HD120G5REAL=C
+        rem HD20M=C
+        rem HD300M=C
+        rem HD500M=C
+        rem HD800M=C
+        rem HD4G=C
+		rem HD16GREAL=C
+		rem HD25GREAL=C
+		rem HD40GREAL=D	:decomissioned
+		rem HD60GREAL=C
+		rem HD80GREAL=F
+		rem HD80G2REAL=T
+		rem HD80G3REAL=N
+		rem HD120GREAL=C
+		rem HD120GREAL=C
+		rem HD120G2REAL=U
+		rem HD120G3REAL=O
+		rem HD120G4REAL=C
+		rem HD120G5REAL=C
 		SET HD128GREAL=C 
-		:ET HD140GREAL=C
-		:ET HD240GREAL=P
-		:ET HD240G2REAL=C 
+		rem HD140GREAL=C
+		rem HD240GREAL=P
+		rem HD240G2REAL=C 
 		SET HD240G2REAL=D
 		SET HD250GREAL=D
-		:ET HD250G2REAL=C
-		:ET HD256GREAL=C
-		:ET HD300GREAL=C
-		:ET HD400GREAL=R
-		:ET HD500GREAL=E
-		:ET HD500G2REAL=F
+		rem HD250G2REAL=C
+		rem HD256GREAL=C
+		rem HD300GREAL=C
+		rem HD400GREAL=R
+		rem HD500GREAL=E
+		rem HD500G2REAL=F
 		SET HD512GREAL=C
-		:ET HD750GREAL=V
-		:ET HD750G2REAL=H
-		:ET HD750G3REAL=S
-		:ET HD1000GREAL=U
+		rem HD750GREAL=V
+		rem HD750G2REAL=H
+		rem HD750G3REAL=S
+		rem HD1000GREAL=U
 		SET HD10003GREAL=C
-		:ET HD1500GREAL=L
-		:ET HD1500G2REAL=W
-		:ET HD2000GREAL=C
+		rem HD1500GREAL=L
+		rem HD1500G2REAL=W
+		rem HD2000GREAL=C
         SET HD1000G2REAL=C
 		SET HD2000G2REAL=R
-		:ET HD2000G3REAL=T
-		:ET HD2000G4REAL=?
-		:ET HD2000G5REAL=?
+		rem HD2000G3REAL=T
+		rem HD2000G4REAL=?
+		rem HD2000G5REAL=?
         SET HD2T1REAL=P
 		SET HD4000GREAL=B
 		SET HD4000G2REAL=E
-		:ET HD4000G3REAL=F
+		rem HD4000G3REAL=F
 		SET HD4000G4REAL=H
 		SET HD4000G5REAL=V
-		:ET HD4000G6REAL=S
+		rem HD4000G6REAL=S
 		SET HD4000G7REAL=I
 		SET HD6000G1REAL=Q
 		SET HD6000G2REAL=K
-        :ET HD6000G3REAL=D
+        rem HD6000G3REAL=D
         SET HD6000G3REAL=p
         SET HD10T1REAL=W
         SET HD10T2REAL=U
@@ -507,7 +506,7 @@ return
 		rem :::::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD120G3 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200GB L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
 		rem :::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G 
 		rem ::::::::::::::::::::::::::::::SET REMAPSTORM=c,%HD120G4 d,%HD80G2  e,%HD60G  f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G 
-		rem ::::::::::::::::::::::::::::::ET  REMAPFIRE=c,%HD16G   d,%HD80G2  e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
+		rem :::::::::::::::::::::::::::::rem  REMAPFIRE=c,%HD16G   d,%HD80G2  e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
 		rem ::::::::::::::::::::::::::::::SET  REMAPMIST=c,%HD25G   d,%HD80G2 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
 		rem :::::::::::::::::::::::::::::SET REMAPMAGIC=c,%HD250G  d,%HD80G2 e,%HD80G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD200G L,%HD250G       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G     s,%HD120G4 t,%HD80G2 u,%HD120G4 v,%HD120G
 		rem :::::::::::::::::::::::::::::SET  REMAPHELL=c,%HD140G  d,%HD80G2 e,%HD120G2 f,%HD120G     g,%HD80G h,%HD16G i,%HD80G j,%HD60G     k,%HD250G2A L,%HD250G2B       m,%HD25G n,%HD120G3 o,%HD80G3      p,%HD140G q,%HD250G    s,%HD120G4 t,%HD80G2 u,%HD120G2 v,%HD120G 
@@ -592,32 +591,32 @@ return
 		rem :::::::::::::SET REMAPTHAILOG=b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
 		rem ::::::::::::SET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
 		rem ::::::::::::SET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2
-		rem :::::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem ::::::::::::rem   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
 		rem ::::::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
 		rem ::::::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
 		rem :::::::::::SET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%H1500023
 		rem :::::::::::SET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD150023
-		rem ::::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
+		rem :::::::::::rem   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
 		rem :::::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
 		rem :::::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD1500G2 
 		rem ::::::::::SET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
 		rem ::::::::::SET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
-		rem :::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
+		rem ::::::::::rem   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
 		rem ::::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
 		rem ::::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD1000G v,%HD4000G5% w,%HD10T1%
-		rem ::::::::::ET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::::rem    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
 		rem :::::::::sET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		rem ::::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::::rem   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
 		rem :::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
 		rem :::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD2000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		rem :::::::::ET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::::rem    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
 		rem ::::::::sET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		rem :::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem ::::::::rem   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
 		rem ::::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
 		rem ::::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD512G  d,%HD240G2  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2 L,%HD1500G m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		rem ::::::::ET    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::rem    REMAPMIST=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
 		rem :::::::sET    REMAPFIRE=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
-		rem ::::::::ET   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
+		rem :::::::rem   REMAPHADES=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
 		rem :::::::SET REMAPGOLIATH=a,%HD256G b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
 		rem :::::::SET REMAPTHAILOG=a,%HD256G b,%HD4000G c,%HD512G  d,%HD240G2  e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
 		rem ::::::SET    REMAPFIRE=b,%HD4000G c,%HD240G2 d,%HD6000G3 e,%HD4000G2 f,%HD4000G3 g,%HD2000G4 h,%HD4000G4 i,%HD4000G7% j,%HD240G k,%HD6000G2            m,%HD128G n,%HD2000G5 o,%HD2000G p,%HD240G q,%HD6000G1% r,%HD2000G2 s,%HD4000G6% t,%HD6000G3 u,%HD10T2 v,%HD4000G5% w,%HD10T1%
@@ -690,14 +689,14 @@ return
             set OPTIMAL_CPU_THREADS=6
             set TABLET=0                                                %+ rem Later on, in Initial%MachineName%, set this to 1 for machinenames that are tablets (i.e. Windows tablets)
 
-    ::::: BASIC NETWORKING:
+    ::::: LAN/WAN NETWORKING:
             set ISP=Cox
         rem public
             REM PUBLIC_IP=[REDACTED into private.env]                   %+ rem 20170516 - NOT our pubic static IP but our internal IP, which is DHCP'ed as of 2017
             set DYNDNS_IP=%NETNAME%.servebeer.com                       %+ rem 20170516 - NOT our pubic static IP but our internal IP, which is DHCP'ed as of 2017
         rem gateway
-            :et GATEWAY_DSL=68.167.161.177                              %+ rem 2006-2016 [[Silcon]]
-            :et GATEWAY_DSL=66.167.233.209                              %+ rem 2016-2017 [Megapath]
+            rem GATEWAY_DSL=68.167.161.177                              %+ rem 2006-2016 [[Silcon]]
+            rem GATEWAY_DSL=66.167.233.209                              %+ rem 2016-2017 [Megapath]
             set GATEWAY_COX=192.168.0.1                                 %+ rem 2017-     [[[Cox]]]] 
             set GATEWAY=%GATEWAY_COX%
             if "%TETHERING%" eq "1" (set GATEWAY=%GATEWAY_TETHERING%)   %+ rem later on, after path is set, we will: call validate-environment-variable GATEWAY
@@ -705,6 +704,14 @@ return
             set WAP_INTERNAL=wap                                        %+ rem maintained in hosts.txt
             set WAP_EXTERNAL=%PUBLIC_IP%                               
             set WAP=%WAP_INTERNAL%                                      %+ if "%MACHINENAME%" eq "WORK" (set WAP=%WAP_EXTERNAL%)
+        rem MAC addresses
+            set MAC_GOLIATH=BC:5F:F4:43:EC:6E
+            set MAC_THAILOG=D0:50:99:38:A5:2C
+            set MAC_DEMONA_GOOGLENEST=00:15:5D:AC:EE:A7
+            set MAC_DEMONA_TPVRROUTER=DE:53:D3:02:DB:2A
+            set MAC_DEMONA_2=68:1C:A2:12:33:B2
+            set MAC_DEMONA=%MAC_DEMONA_TPVRROUTER%
+            set MAC_WYVERN=74:56:3C:B3:9B:68
         rem IP addresses                                               
             SET IP_GOLIATH=192.168.0.107  
             rem IP_THAILOG=192.168.0.106                                %+ REM but it reset in 2019/09 from .106 to .136 for some reason
@@ -714,20 +721,21 @@ return
             set IP_DEMONA=%IP_DEMONA_TPVRROUTER%
             SET IP_WYVERN=192.168.0.97  
         rem mapping ips:
+            SET MAPPING_FIRE_IP_PUBLIC=%PUBLIC_IP%    %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
+            SET MAPPING_GOLIATH_IP=%IP_GOLIATH%
+            SET MAPPING_THAILOG_IP_REMOTE=%PUBLIC_IP%
+            SET MAPPING_THAILOG_IP_TETHERING=%TETHERING_IP_THAILOG%   %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
             SET MAPPING_THAILOG_IP=%IP_THAILOG%
             SET MAPPING_DEMONA_IP=%IP_DEMONA%
-            SET MAPPING_GOLIATH_IP=%IP_GOLIATH%
             SET MAPPING_WYVERN_IP=%IP_WYVERN%
-        rem MAC addresses
-            set MAC_GOLIATH=BC:5F:F4:43:EC:6E
-            set MAC_THAILOG=D0:50:99:38:A5:2C
-            set MAC_DEMONA_GOOGLENEST=00:15:5D:AC:EE:A7
-            set MAC_DEMONA_TPVRROUTER=DE:53:D3:02:DB:2A
-            set MAC_DEMONA_2=68:1C:A2:12:33:B2
-            set MAC_DEMONA=%MAC_DEMONA_TPVRROUTER%
-            set MAC_WYVERN=74:56:3C:B3:9B:68
+        rem mapping usernames:
+            SET MAPPING_FIRE_USR=Administrator            
+            SET MAPPING_THAILOG_USR=share  %+ REM MAPPING_THAILOG_PWD=[REDACTED into private.env]
+            set MAPPING_DEMONA_USR=Claire 
+            rem MAPPING_WYVERN_USR=carol   [202311-20240403]
+            SET MAPPING_WYVERN_USR=carolyn
 
-    gosub stopwatch_button yellow "      %STAR%[1]CommonEnvVarsIncludingNetworking"
+    %gosub_stopwatch_button% yellow "      %STAR%[1]CommonEnvVarsIncludingNetworking"
 
 	::::: WHO'S THE BOSS?
         ::::: MASTER/PRIMARY MACHINE:
@@ -753,8 +761,8 @@ return
                            if  "%MUSICSERVERMACHINENAME%" eq "%MACHINENAME%" (set MUSICSERVERIPONLY=localhost  )
                            if  "WORK"                     eq "%MACHINENAME%" (set MUSICSERVERIPONLY=%PUBLIC_IP%)
             SET          MUSICSERVER=%MUSICSERVERIPONLY%:%MUSICSERVERPORT%
-            :ET    MUSICSERVERCDRIVE=%HD240G2%                                          
-            :ET    MUSICSERVERCDRIVE=%HD512G%                                          
+            rem    MUSICSERVERCDRIVE=%HD240G2%                                          
+            rem    MUSICSERVERCDRIVE=%HD512G%                                          
             SET    MUSICSERVERCDRIVE=%HD1T3%                                          
                            if "%MACHINENAME%"  eq "%MUSICSERVERMACHINENAME%" set MUSICSERVERCDRIVE=C
             SET    MUSICSERVERC_DRIVE=%MUSICSERVERCDRIVE%                                          
@@ -778,7 +786,7 @@ return
         ::::: HOUSE STUFF:
             rem cameras        
                 rem IPcam #1 
-                    :et IPCAM1_IP=192.168.0.149
+                    rem IPCAM1_IP=192.168.0.149
 		    set IPCAM1_IP=192.168.0.151
                     set IPCAM1_MAC=54:CD:EE:00:F2:96
                     set IPCAM1_PORT_RSTP=554
@@ -798,7 +806,7 @@ return
                     set IPCAM1=%IPCAM1_STREAM%
                     set IPCAM=%IPCAM1%
                 rem IPcam #2
-                    :et IPCAM2_IP=192.168.0.116
+                    rem IPCAM2_IP=192.168.0.116
                     set IPCAM2_IP=192.168.0.121
                     set IPCAM2_MAC=54:CD:EE:00:F6:35
                     set IPCAM2_PORT_RSTP=554
@@ -887,13 +895,9 @@ return
 
 
     ::::: ANSI COLORS & EMOJI ENV VARS:
-        gosub stopwatch_button yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"
-        if %COLORS_HAVE_BEEN_SET ne 1 .or. "%1" eq "force" (call c:\bat\set-ansi   force)                
-        gosub stopwatch_button yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"
-        if %EMOJIS_HAVE_BEEN_SET ne 1 .or. "%1" eq "force" (call c:\bat\set-emojis force)
-        gosub stopwatch_button yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"
-        if not defined MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
-REM        call set-cursor                                                                          %+ REM at least reset the cursor
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"               %+ if "%COLORS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-ansi          force)                
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"   %+ if "%EMOJIS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-emojis        force)
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"           %+ if   not  defined   MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
 
 
     ::::: MACHINE-SPECIFIC EMOJI:                             ::: ALIASES:                                                                     (Consider: When new computer is added:)
@@ -963,8 +967,8 @@ return
 	:InitialThailog
         rem hardware
             set CPU_CORES=6 %+ set OPTIMAL_CPU_THREADS=9
-            :ET HD240G=C    %+ :ET C=HD240G
-            :ET HD240G2=C   %+ :ET C=HD240G2
+            rem HD240G=C    %+ rem C=HD240G
+            rem HD240G2=C   %+ rem C=HD240G2
             SET HD512G=C    %+ SET C=HD512G
             set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=13 %+ REM Network card's interface number in the "routes" command, for the network card used to reach non-tethered machines (i.e. i.e. those machines not sharing the tethered internet connection and retaining their normal broadband network configurations)
         rem software
@@ -1099,7 +1103,7 @@ return
 ::::::::::::::::::::::::::::::::::::: DEFINE REPOSITORIES FOR VARIOUS... THINGS :::::::::::::::::::::::::::::::::::::
 :DefineRepositories
     rem 🐐if exist c:\bat\environm.env (set /r c:\bat\environm.env)
-    gosub stopwatch_button magenta "      DefineRepositories [1]          " %+ rem 1.20  !!
+    %gosub_stopwatch_button% magenta "      DefineRepositories [1]          " %+ rem 1.20  !!
 
     :::::::: REMEMBER WHEN ADDING/REMOVING REPOSITORIES, BACKUP-REPOSITORIES.BAT NEEDS EDITING ::::::::
 
@@ -1115,11 +1119,11 @@ return
             :ST PUBCLDRIVE=%HD10000G1%
             SET PUBCLDRIVE=%HD18T3%
             SET PUBCL=%PUBCLDRIVE%:\pub
-            :ET PUBCLBACKUPDRIVE=%HD10000G1%
+            rem PUBCLBACKUPDRIVE=%HD10000G1%
             SET PUBCLBACKUPDRIVE=%HD20T1%
             SET PUBCLBACKUP=%PUBCLBACKUPDRIVE%:\BACKUPS\pubcl.bak
-            :ET PUBCASDRIVE=%HD2000G5%                            %+ REM /* moved from HD2T5(N) to HD4T3(F) on 20210323 */
-            :ET PUBCASDRIVE=%HD4000G5%                            %+ rem moved from V: to A: on 2024/02/20
+            rem PUBCASDRIVE=%HD2000G5%                            %+ REM /* moved from HD2T5(N) to HD4T3(F) on 20210323 */
+            rem PUBCASDRIVE=%HD4000G5%                            %+ rem moved from V: to A: on 2024/02/20
             SET PUBCASDRIVE=%HD18T2%
             SET PUBCAS=%PUBCASDRIVE:\pub
             rem PUBCASBACKUPDRIVE=%HD18T3% but then the HD6000G3 reawakened:
@@ -1133,7 +1137,7 @@ return
             set RANTS=%PUBCL%\rants
 
         ::www
-            :ET WWWCLDRIVE=%HD18TB1%
+            rem WWWCLDRIVE=%HD18TB1%
             SET WWWCLDRIVE=%HD18T1%
             SET WWWCL=%WWWCLDRIVE%:\www
             set WWWCL_BACKUP_DRIVE=%HD4000G5%
@@ -1170,13 +1174,13 @@ return
         ::installers
             SET INSTALLFILESDRIVE=%HD18T1%
             SET INSTALLFILES=%INSTALLFILESDRIVE%:\install-files
-            :et INSTALLFILESBACKUPDRIVE=%HD2000G4%
-            :et INSTALLFILESBACKUPDRIVE=%HD18T3% 2023/08 revival of 6T3 which already had install files on it so it became the backup:
+            rem INSTALLFILESBACKUPDRIVE=%HD2000G4%
+            rem INSTALLFILESBACKUPDRIVE=%HD18T3% 2023/08 revival of 6T3 which already had install files on it so it became the backup:
             set INSTALLFILESBACKUPDRIVE=%HD6000G3%
             set INSTALLFILESBACKUP=%INSTALLFILESBACKUPDRIVE%:\BACKUPS\install-files.bak
 
         ::dropbox_Claire
-            :ET DROPBOXDRIVE=%HD18T1%
+            rem DROPBOXDRIVE=%HD18T1%
             SET DROPBOXDRIVE=%HD1T3%
             SET DROPBOX=%DROPBOXDRIVE%:\Dropbox
 			SET DROPBOX_CLAIRE_DRIVE=%DROPBOXDRIVE%
@@ -1223,7 +1227,7 @@ return
             set IRCBACKUPDRIVE=%HD10T2%
             set IRCBACKUP=%IRCBACKUPDRIVE%:\BACKUPS\IRC.bak
 
-        gosub stopwatch_button magenta "      DefineRepositories [5]          " %+ rem 1.20  !!
+        %gosub_stopwatch_button% magenta "      DefineRepositories [5]          " %+ rem 1.20  !!
 
         ::programming libraries I maintain
             set PERL_OFFICIAL_DRIVE=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%
@@ -1287,10 +1291,10 @@ return
 
             :PUBCAS, WWWCAS done below
 
-        gosub stopwatch_button magenta "      DefineRepositories [10]          " %+ 
+        %gosub_stopwatch_button% magenta "      DefineRepositories [10]          " %+ 
 
         ::::: SPECIAL FILES:
-            :ET CONTACTS=%WWWCL\private\personal.htm     %+ REM moved for legal reasons
+            rem CONTACTS=%WWWCL\private\personal.htm     %+ REM moved for legal reasons
             SET CONTACTS=%DROPBOX_CLAIRE%\personal.htm
             SET LOCATIONS=%DROPBOX_CLAIRE%\locations.htm
             SET   ALBUMS=%VCR%\album.htm
@@ -1306,7 +1310,7 @@ return
                 set              TEXTDRIVE=%HD6000G1%
                 set                   TEXT=%TEXTDRIVE%:\MEDIA\TXT
                     rem Backups
-                        :et TEXT_BACKUP_DRIVE=%HD2000G4%
+                        rem TEXT_BACKUP_DRIVE=%HD2000G4%
                         set TEXT_BACKUP_DRIVE=%HD18T3%
                         set TEXT_BACKUP=%TEXT_BACKUP_DRIVE%:\backups\txt.bak
             rem here's the rest, alphabetically:
@@ -1390,7 +1394,7 @@ return
                 set                  MISCDATA=%MISCDATADRIVE%:\MEDIA\MISC-DATA
                 set                  MISCDATA_BACKUP_DRIVE=%HD10T2%                               %+ REM /* was %HD2000G3% prior to 201706ish T: crash */
                 set                  MISCDATA_BACKUP=%MISCDATA_BACKUP_DRIVE%:\BACKUPS\misc-data.bak
-                :et          MP3OFFICIALDRIVE=%HD18T1%  :THAILOG (mp3 official server for 2015-2022)
+                rem          MP3OFFICIALDRIVE=%HD18T1%  :THAILOG (mp3 official server for 2015-2022)
                 set          MP3OFFICIALDRIVE=%HD18T3%  
                 set               MP3OFFICIAL=%MP3OFFICIALDRIVE%:\mp3
                 set                    MP3AUX=%MP3OFFICIALDRIVE%:\mp3-aux %+ REM Must be on same drive as MP3OFFICIAL for reasons! This is a special repo for redundant files like .bak, .mp3 when there is a .flac, .mp3s that were .mp3.deprecated in the official repo
@@ -1453,8 +1457,8 @@ return
                     set     SUBGENIUS_BACKUP_DRIVE=%HD20T1%
                     set     SUBGENIUS_BACKUP=%SUBGENIUS_BACKUP_DRIVE%:\BACKUPS\SubGenius.bak
                 :these had to be moved down because they rely on previous values:
-                    :et      FLACOFFICIALDRIVE=%MP3OFFICIALDRIVE%
-                    :et           FLACOFFICIAL=%FLACOFFICIALDRIVE%:\flac
+                    rem      FLACOFFICIALDRIVE=%MP3OFFICIALDRIVE%
+                    rem           FLACOFFICIAL=%FLACOFFICIALDRIVE%:\flac
                 :Aliases:
                     set              AUDIO=%MP3%                                                   %+ rem //Alaises:
                     set DOCUMENTARIESDRIVE=%SPECIALSDRIVE%                                         %+ set DOCUMENTARYDRIVE=%DOCUMENTARIESDRIVE%
@@ -1464,36 +1468,36 @@ return
                     set           MP3DRIVE=%MP3OFFICIALDRIVE%
                     set                MP3=%MP3OFFICIAL%
                     set              MP3CL=%MP3OFFICIAL%
-                    :et               FLAC=%FLACOFFICIAL%
-                    :et               FLAC_BACKUP_DRIVE=%HD4000G1%
-                    :et               FLAC_BACKUP=%FLAC_BACKUP_DRIVE%:\BACKUPS\flac.bak
+                    rem               FLAC=%FLACOFFICIAL%
+                    rem               FLAC_BACKUP_DRIVE=%HD4000G1%
+                    rem               FLAC_BACKUP=%FLAC_BACKUP_DRIVE%:\BACKUPS\flac.bak
                     set           TXTDRIVE=%TEXTDRIVE%
                     set                TXT=%TEXT%
             rem here's the ones based on physical drives with a \MEDIA\ folder——for extra sanity of knowing everything is in place —— consider this when adding new harddrives 
-                                               :ET MEDIA_B=%HD4000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G1  MEDIA_B
-                                               :ET MEDIA_D=%HD6000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G3  MEDIA_D
-                                               :ET MEDIA_E=%HD4000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G2  MEDIA_E
+                                               rem MEDIA_B=%HD4000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G1  MEDIA_B
+                                               rem MEDIA_D=%HD6000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G3  MEDIA_D
+                                               rem MEDIA_E=%HD4000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G2  MEDIA_E
                  if "%HD4000G3_DOWN%"  ne "1" (SET MEDIA_F=%HD4000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G3  MEDIA_F)
                  if "%HD4000G4_DOWN%"  ne "1" (SET MEDIA_H=%HD4000G4%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G4  MEDIA_H)
                  if "%HD4000G7_DOWN%"  ne "1" (SET MEDIA_I=%HD4000G7%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G7  MEDIA_I)
                  if "%HD6000G2_DOWN%"  ne "1" (SET MEDIA_K=%HD6000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G2  MEDIA_K)
-                                               :ET MEDIA_L=%HD1500G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD1500G1  MEDIA_L
+                                               rem MEDIA_L=%HD1500G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD1500G1  MEDIA_L
                  if "%HD2000G5_DOWN%"  ne "1" (SET MEDIA_N=%HD2000G5%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G5  MEDIA_N)
-                                               :ET MEDIA_O=%HD2000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G1  MEDIA_O :decommissioned media folder 20191002, drive itself 20210323
+                                               rem MEDIA_O=%HD2000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G1  MEDIA_O :decommissioned media folder 20191002, drive itself 20210323
                  if "%HD18T1_DOWN%"    ne "1" (SET MEDIA_O=%[HD18T1]%:\MEDIA\ %+ %gosubValidateFolderExists% HD18T1    MEDIA_O)
                  if "%HD6000G1_DOWN%"  ne "1" (SET MEDIA_Q=%HD6000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G1  MEDIA_Q)
-                                               :ET MEDIA_R=%HD2000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G2  MEDIA_R
+                                               rem MEDIA_R=%HD2000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G2  MEDIA_R
                  if "%HD4000G6_DOWN%"  ne "1" (SET MEDIA_S=%HD4000G6%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G6  MEDIA_S)
                  if "%HD6000G3_DOWN%"  ne "1" (SET MEDIA_T=%HD6000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G3  MEDIA_T)
                  if "%HD10000G2_DOWN%" ne "1" (SET MEDIA_U=%HD10000G2:\MEDIA\ %+ %gosubValidateFolderExists% HD10000G2 MEDIA_U)
                  if "%HD4000G5_DOWN%"  ne "1" (SET MEDIA_V=%HD4000G5%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G5  MEDIA_V)
                  if "%HD20T2_DOWN%"    ne "1" (SET MEDIA_W=%HD20000G2:\MEDIA\ %+ %gosubValidateFolderExists% HD20000G2 MEDIA_W)
-            gosub stopwatch_button magenta "      DefineRepositories [15]          " %+ 
-            :Validation:
+            %gosub_stopwatch_button% magenta "      DefineRepositories [15]          " 
+            rem Validation:
                 rem the plugin erases them if you stop, though: if not exist %NOW_PLAYING_ALBUM_ART% (call warning "NOW_PLAYING_ALBUM_ART of %NOW_PLAYING_ALBUM_ART% cannot be found" %+ pause)
                 rem the plugin erases them if you stop, though: if not exist %NOW_PLAYING_SONG_INFO% (call warning "NOW_PLAYING_SONG_INFO of %NOW_PLAYING_SONG_INFO% cannot be found" %+ pause)
 
-        gosub stopwatch_button magenta "      DefineRepositories [vals b4 20]  " %+ 
+        %gosub_stopwatch_button% magenta "      DefineRepositories [vals b4 20]  " 
                 %gosubValidateFolderExists%               THE_LETTER_C ALL_COLLECTIONS
                 %gosubValidateFolderExists%               THE_LETTER_C ALL_MEDIA_BY_DRIVE 
                 %gosubValidateFolderExists%                  ANSIDRIVE ANSI 
@@ -1552,15 +1556,15 @@ return
                 %gosubValidateFolderExists%        ANIMEDRIVE ANIME
             :GoliathValidations_NO
 
-        gosub stopwatch_button magenta "      DefineRepositories [20]          " %+ 
+        %gosub_stopwatch_button% magenta "      DefineRepositories [20]          " 
 
-		::::: PHYSICAL VIDEO REPOSITORIES:
-            ::main location
+		rem ::::: PHYSICAL VIDEO REPOSITORIES:
+            rem ::main location
 			    SET        VIDEODRIVE=%HD18T1
 			    SET VIDEO=%VIDEODRIVE%:\MEDIA 
                 SET VIDEOLISTDIRNAME=LISTS
                 SET VIDEOLISTDIR=%VIDEO%\%VIDEOLISTDIRNAME%
-            ::for index-video
+            rem ::for index-video
                 SET VIDLISTOFFLINEONLYFILENAME=master-video-list-offline_only.txt
                 SET  VIDLISTONLINEONLYFILENAME=master-video-list-online_only.txt
                 SET            VIDLISTFILENAME=master-video-list-ALL.txt
@@ -1569,13 +1573,13 @@ return
                 SET VIDEOLIST_LATEST_BASELINE_ONLINE_ONLY=%VIDEOLISTDIR%\%VIDLISTONLINEONLYFILENAME%
                 SET VIDEOLIST_LATEST_BASELINE=%VIDEOLISTDIR%\%VIDLISTFILENAME%
                 SET VIDEOLIST_LATEST_SNAPSHOT=%VIDEOLISTDIR%\%VIDLISTSNAPSHOTFILENAME%
-            ::index-video cloud locations
+            rem ::index-video cloud locations
                 SET VIDEOLIST_LATEST_BASELINE_CLOUD_LOCATION=%DROPBOX_CLAIRE%\MEDIA\LISTS\vchk-index.baseline.m3u
                 SET VIDEOLIST_LATEST_SNAPSHOT_CLOUD_LOCATION=%DROPBOX_CLAIRE%\MEDIA\LISTS\vchk-index.snapshot.m3u
-            ::for my indexer-by-tag program
+            rem ::for my indexer-by-tag program
                 SET VIDEOAUTOLISTDIRDRIVE=%VIDEODRIVE%\auto
                 SET VIDEOAUTOLISTDIR=%VIDEOLISTDIR%\auto
-            :Alias:
+            rem :Alias:
 			    SET VID=%VIDEO%
 				SET VIDCL=%VIDEO%
                 set VIDLIST=%VIDEOLIST_LATEST_SNAPSHOT%
@@ -1586,7 +1590,7 @@ return
                 SET VIDEOLISTDIRDRIVE=%VIDEODRIVE%
                 SET VIDEOLISTDRIVE=%VIDEOLISTDIRDRIVE%
                 set VIDEOLIST=%VIDLIST%
-            :Validation
+            rem :Validation
                 %gosubValidateFolderExists%            VIDEODRIVE VIDEO
                 %gosubValidateFolderExists%        VIDEOLISTDRIVE VIDEOLIST
                 %gosubValidateFolderExists%     VIDEOLISTDIRDRIVE VIDEOLISTDIR
@@ -1598,26 +1602,26 @@ return
 
 
 
-	::::: WORKFLOW LOCATIONS:
-	    ::::: PROGRAMING WORKFLOW LOCATIONS:
-            ::Media
+	rem ::::: WORKFLOW LOCATIONS:
+	    rem ::::: PROGRAMING WORKFLOW LOCATIONS:
+            rem ::Media
                 set        PROGRAMMINGDRIVE=%HD6000G1%
                 set             PROGRAMMING=%PROGRAMMINGDRIVE%:\MEDIA\PROGRAMMING
-                :et PROGRAMMING_BACKUP_DRIVE=%HD2000G4%
+                rem PROGRAMMING_BACKUP_DRIVE=%HD2000G4%
                 set PROGRAMMING_BACKUP_DRIVE=%HD18T3%
                 set PROGRAMMING_BACKUP=%PROGRAMMING_BACKUP_DRIVE%:\BACKUPS\PROGRAMMING.bak
-            ::Sandbox
-                :et PROGRAMMING_SANDBOX_DRIVE=%HD1T3%
+            rem ::Sandbox
+                rem PROGRAMMING_SANDBOX_DRIVE=%HD1T3%
                 set PROGRAMMING_SANDBOX_DRIVE=%HD18T3%
                 set PROGRAMMING_SANDBOX=%PROGRAMMING_SANDBOX_DRIVE%:\working
                 set PROGRAMMING_SANDBOX_DRIVE_BACKUP=%HD18T3%
                 set PROGRAMMING_SANDBOX_BACKUP=%PROGRAMMING_SANDBOX_DRIVE_BACKUP%:\backups\working.bak.Demona
-            ::Perl
+            rem ::Perl
                 set PERL_CLAIRE_DRIVE=%HD1T3%
                 set PERL_CLAIRE=%PERL_CLAIRE_DRIVE%:\perl\
                 set PERL_CLAIRE_DRIVE_BACKUP=%HD18T1%
                 set PERL_CLAIRE_BACKUP=%PERL_CLAIRE_DRIVE_BACKUP%:\backups\perl.Claire.Demona.bak
-            ::Python
+            rem ::Python
                 set PYTHON_CLAIRE_DRIVE=%HD1T3%
                 REM          v--------------------------- We hardcode C: here because %ANACONDA% is to be machine-specific and a function of Python Anaconda itself, not a function of our machine or user
                 set ANACONDA=c:\ProgramData\anaconda3\
@@ -1625,7 +1629,7 @@ return
                 set PYTHON_CLAIRE_DRIVE_BACKUP=%HD18T1%
                 set PYTHON_CLAIRE_BACKUP=%PYTHON_CLAIRE_DRIVE_BACKUP%:\backups\anaconda.bak.demona
                 set NUMEXPR_MAX_THREADS=25
-            ::Validation
+            rem ::Validation
                 rem add new stuff to backup-programming.bat too
                 %gosubValidateFolderExists% PROGRAMMINGDRIVE                 PROGRAMMING
                 %gosubValidateFolderExists% PROGRAMMING_BACKUP_DRIVE         PROGRAMMING_BACKUP
@@ -1636,19 +1640,19 @@ return
                 %gosubValidateFolderExists%   PERL_CLAIRE_DRIVE              PERL_CLAIRE
                 %gosubValidateFolderExists%   PERL_CLAIRE_DRIVE_BACKUP       PERL_CLAIRE_BACKUP
     
-		::::: FILE WORKFLOW LOCATIONS:
+		rem ::::: FILE WORKFLOW LOCATIONS:
             rem Pre-Incoming
-                :TorrentTemp1
+                rem :TorrentTemp1
                     SET TORRENT_FIRE_TEMPDRIVE=%HD1000G%
                     SET TORRENT_FIRE_TEMP=%TORRENT_FIRE_TEMPDRIVE%:\k\new\p2p\bittorrent\
                     SET TORRENT_FIRE_SEEDINGDRIVE=%HD1000G%
                     SET TORRENT_FIRE_SEEDING=%TORRENT_FIRE_SEEDINGDRIVE%:\bittorrent\
-                    :ET TORRENT_GOLIATHDRIVE_OLD=%HD2000G4% %+ REM decomissioned when drive problems started 20220801
+                    rem TORRENT_GOLIATHDRIVE_OLD=%HD2000G4% %+ REM decomissioned when drive problems started 20220801
                     SET TORRENT_GOLIATHDRIVE=%HD18000G2%
                     SET TORRENT_GOLIATH=%TORRENT_GOLIATHDRIVE%:\inc\
             rem Incoming
-                :Incoming_From_Claire:
-                    :ET NEWCLDRIVE=%HD10T2%		:2015-2022
+                rem :Incoming_From_Claire:
+                    rem NEWCLDRIVE=%HD10T2%		:2015-2022
                     SET NEWCLDRIVE=%HD18T3%
                     SET NEWCL=%NEWCLDRIVE%:\new
                     rem Backups
@@ -1661,7 +1665,7 @@ return
                         rem Aliases
                             set NEWCL_BACKUP_DRIVE=%NEWCL_BACKUP_DRIVE_1%
                             set NEWCL_BACKUP=%NEWCL_BACKUP_1%                            
-                :Incoming_From_Carolyn:
+                rem :Incoming_From_Carolyn:
                     rem NEWCASDRIVE=%HD2000G5% until 20230907
                     rem NEWCASDRIVE=%HD4000G1%
                     SET NEWCASDRIVE=%HD18T2%
@@ -1670,7 +1674,7 @@ return
                         set NEWCAS_BACKUP_DRIVE=%HD18T3%
                         set NEWCAS_BACKUP=%NEWCAS_BACKUP_DRIVE%:\BACKUPS\newcas.bak
             rem Pre-Burn General
-                :PreBurn_DVD_General:
+                rem :PreBurn_DVD_General:
                     rem 2024 are these being used anymore? dont' think so: SET OLD_PREBURN_DVDDRIVE=%HD250G%
                     rem 2024 are these being used anymore? dont' think so: SET OLD_PREBURN_DVD=%OLD_PREBURN_DVDDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED
                     SET rem 2024 are these being used anymore? dont' think so: OLD_PREBURN_DVD_CATALOG=%OLD_PREBURN_DVD%\ADD-TO-OFFLINETXT.txt
@@ -1682,7 +1686,7 @@ return
                     set PREBURN_DVD_BACKUPDRIVE=%HD4000G%
                     SET PREBURN_DVD_BACKUP=%PREBURN_DVD_BACKUPDRIVE%:\BACKUPS\ABOUT-TO-BE-BURNED-DVD    
                     SET PREBURN_DVD_CATALOG=%PREBURN_DVD%\ADD-TO-OFFLINETXT.txt
-                :PreBurn_BDR_General:
+                rem :PreBurn_BDR_General:
                     SET PREBURN_BDRDRIVE=%PREBURN_DVDDRIVE%
                     SET PREBURN_BDR=%PREBURN_BDRDRIVE%:\MEDIA\ABOUT-TO-BE-BURNED
                     SET PREBURN_BDR_CATALOG=%PREBURN_BDR%\ADD_TO_CATALOG.txt
@@ -1690,12 +1694,12 @@ return
                     SET PREBURN_BDR_BACKUPDRIVE=%HD4000G%
                     SET PREBURN_BDR_BACKUP=%PREBURN_BDR_BACKUPDRIVE%:\BACKUPS\ABOUT-TO-BE-BURNED
             rem Pre-Burn Data
-                :PreBurn_DVD_Data:
+                rem :PreBurn_DVD_Data:
                     set  DATADRIVE=%PREBURN_DVDDRIVE%
                     set       DATA=%PREBURN_DVD%\DATA
                     set                   DATA1=%DATA%
                     set PREBURN_DVD_DATA=%DATA1%
-                :PreBurn_BDR_Data:
+                rem :PreBurn_BDR_Data:
                     set DATA2DRIVE=%PREBURN_BDRDRIVE%
                     set      DATA2=%PREBURN_BDR%\DATA
                     set PREBURN_BDR_DATA=%DATA2%
@@ -1730,12 +1734,12 @@ return
                 %gosubValidateFolderExists%                TORRENT_GOLIATHDRIVE TORRENT_GOLIATH
                 %gosubValidateFolderExists%             PREBURN_BDR_BACKUPDRIVE PREBURN_BDR_BACKUP
                 %gosubValidateFolderExists%             PREBURN_DVD_BACKUPDRIVE PREBURN_DVD_BACKUP
-                :osub ValidateFolderExists              TORRENT_FIRE_TEMPDRIVE TORRENT_FIRE_TEMP
-                :osub ValidateFolderExists           TORRENT_FIRE_SEEDINGDRIVE TORRENT_FIRE_SEEDING
+                rem   ValidateFolderExists%             TORRENT_FIRE_TEMPDRIVE TORRENT_FIRE_TEMP
+                rem   ValidateFolderExists%          TORRENT_FIRE_SEEDINGDRIVE TORRENT_FIRE_SEEDING
                 %gosubValidateFolderExists%         MEDIA_FOR_OTHER_PEOPLEDRIVE MEDIA_FOR_OTHER_PEOPLE
                 %gosubValidateFolderExists% MEDIA_FOR_OTHER_PEOPLE_BACKUP_DRIVE MEDIA_FOR_OTHER_PEOPLE_BACKUP
 
-        ::::: PORN (w:\p\, v:\p\real, c:\newcl\p) (old:o:\p)
+        rem PORN (w:\p\, v:\p\real, c:\newcl\p) (old:o:\p)
             rem filenames used
                 set FILEMASK_PORN=cpld[mftc]*.*;[tfm]d[1-9mftc]*.*;[tfm][2-9]d[mftc]*.*;[mft][1-9]*.???;train-[fmt]*.*;train-cuck*.*;traincuck*.*;f[0-9]censored*.*;fcensored*.*;f1*.*
                 set FILEMASK_PRN=%FILEMASK_PORN%
@@ -1759,12 +1763,12 @@ return
                 set PRN_INDEXFILE=%PRN%\pindex.dat
             rem Sub-Repos [2/2]
                 set PRN_ACCOUNTS_DRIVE=%PRN_DRIVE%                    %+ set PRN_ACCOUNTS=%PRN%\accounts
-                :et   PRN_TUMBLR_DRIVE=%PRN_DRIVE%                    %+ set   PRN_TUMBLR=%PRN%\tumblr
-                :et   PRN_BDSMLR_DRIVE=%PRN_DRIVE%                    %+ set   PRN_BDSMLR=%PRN%\bdsmlr
-                :et   PRN_REDDIT_DRIVE=%PRN_DRIVE%                    %+ set   PRN_REDDIT=%PRN%\reddit
-                :et       TUMBLR_DRIVE=%PRN_TUMBLR_DRIVE%             %+ set       TUMBLR=%PRN_TUMBLR%
-                :et       BDSMLR_DRIVE=%PRN_BDSMLR_DRIVE%             %+ set       BDSMLR=%PRN_BDSMLR%
-                :et       REDDIT_DRIVE=%PRN_REDDIT_DRIVE%             %+ set       REDDIT=%PRN_REDDIT%
+                rem   PRN_TUMBLR_DRIVE=%PRN_DRIVE%                    %+ set   PRN_TUMBLR=%PRN%\tumblr
+                rem   PRN_BDSMLR_DRIVE=%PRN_DRIVE%                    %+ set   PRN_BDSMLR=%PRN%\bdsmlr
+                rem   PRN_REDDIT_DRIVE=%PRN_DRIVE%                    %+ set   PRN_REDDIT=%PRN%\reddit
+                rem       TUMBLR_DRIVE=%PRN_TUMBLR_DRIVE%             %+ set       TUMBLR=%PRN_TUMBLR%
+                rem       BDSMLR_DRIVE=%PRN_BDSMLR_DRIVE%             %+ set       BDSMLR=%PRN_BDSMLR%
+                rem       REDDIT_DRIVE=%PRN_REDDIT_DRIVE%             %+ set       REDDIT=%PRN_REDDIT%
                 set   PRNPICTURESDRIVE=%PRN_O_DRIVE
                 set        PRNPICTURES=%PRN_O\Our Pics 
             rem Backups
@@ -1772,42 +1776,42 @@ return
                 rem PRN1_BACKUP_DRIVE=%HD18T3%                        %+ REM moved back to HD6000G3 when it revived
                 set PRN1_BACKUP_DRIVE=%HD20T1%
                 set PRN1_BACKUP=%PRN1_BACKUP_DRIVE%:\BACKUPS\prn1.bak
-                :PRN2 does not need backups as it's part of NEWCL
+                rem PRN2 does not need backups as it's part of NEWCL
             rem Validation
                 %gosubValidateFolderExists%        PRN_DRIVE   PRN
                 %gosubValidateFolderExists%        PRN1_DRIVE  PRN1
                 %gosubValidateFolderExists%        PRN2_DRIVE  PRN2
-                REM   ValidateFolderExists        PRN3_DRIVE  PRN3
-                REM   ValidateFolderExists        PRN4_DRIVE  PRN4
+                REM   ValidateFolderExists%        PRN3_DRIVE  PRN3
+                REM   ValidateFolderExists%        PRN4_DRIVE  PRN4
                 %gosubValidateFolderExists%        PRN_1_DRIVE PRN_1
                 %gosubValidateFolderExists%        PRN_2_DRIVE PRN_2
-                REM   ValidateFolderExists        PRN_3_DRIVE PRN_3
-                REM   ValidateFolderExists        PRN_4_DRIVE PRN_4
+                REM   ValidateFolderExists%        PRN_3_DRIVE PRN_3
+                REM   ValidateFolderExists%        PRN_4_DRIVE PRN_4
                 %gosubValidateFolderExists%      PRN_NEW_DRIVE PRN_NEW
                 %gosubValidateFolderExists%  PRN1_BACKUP_DRIVE PRN1_BACKUP
                 %gosubValidateFolderExists%   PRNPICTURESDRIVE PRNPICTURES
-                REM   ValidateFolderExists   PRN_TUMBLR_DRIVE PRN_TUMBLR
-                REM   ValidateFolderExists       TUMBLR_DRIVE     TUMBLR
-                REM   ValidateFolderExists       BDSMLR_DRIVE     BDSMLR
-                REM   ValidateFolderExists       REDDIT_DRIVE     REDDIT
+                REM   ValidateFolderExists%   PRN_TUMBLR_DRIVE PRN_TUMBLR
+                REM   ValidateFolderExists%       TUMBLR_DRIVE     TUMBLR
+                REM   ValidateFolderExists%       BDSMLR_DRIVE     BDSMLR
+                REM   ValidateFolderExists%       REDDIT_DRIVE     REDDIT
                 %gosubValidateFolderExists% PRN_ACCOUNTS_DRIVE     PRN_ACCOUNTS
 
-        gosub stopwatch_button magenta "      DefineRepositories [30]          " %+ 
+        %gosub_stopwatch_button% magenta "      DefineRepositories [30]          " %+ 
 
-        ::::: IMAGE WORKFLOW LOCATIONS:
-            :Automatic_Placement_Of_Uploaded_Pictures
+        rem ::::: IMAGE WORKFLOW LOCATIONS:
+            rem :Automatic_Placement_Of_Uploaded_Pictures
                 set CURRENT_YEAR_UPLOADING=2018
                 set CURRENT_DECADE_UPLOADING=2010-2019
-			:Incoming_Off_The_Cameras
-				:TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICTURESMACHINE=THAILOG
-				:TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICTURESDRIVE=%NEWPICTURESDRIVE%
-				:TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICTURES=%NEWPICS%\pics-blah
-			:Processing
+			rem :Incoming_Off_The_Cameras
+				rem :TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICTURESMACHINE=THAILOG
+				rem :TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICTURESDRIVE=%NEWPICTURESDRIVE%
+				rem :TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICTURES=%NEWPICS%\pics-blah
+			rem :Processing
                 SET NEWPICTURESMACHINE=THAILOG
 				SET NEWPICTURESDRIVE=%HD10T2%
 				SET NEWPICTURES=%NEWPICTURESDRIVE%:\NEWPICS\
-				:ET NEWPICTURESBACKUPDRIVE=%HD4000G2%   :changed 20230304
-				:ET NEWPICTURESBACKUPDRIVE=%HD18T3%     :changed 20230823 when HD6000G3 revived
+				rem NEWPICTURESBACKUPDRIVE=%HD4000G2%   :changed 20230304
+				rem NEWPICTURESBACKUPDRIVE=%HD18T3%     :changed 20230823 when HD6000G3 revived
 				SET NEWPICTURESBACKUPDRIVE=%HD6000G3%
 				SET NEWPICTURESBACKUP=%NEWPICTURESBACKUPDRIVE%:\backups\newpics.bak\
                 set SCREENSHOTSDRIVE=%NEWPICTURESDRIVE%
@@ -1850,12 +1854,12 @@ return
                     :Resized_To_1024x768_Repository
                         set PICTURES1024x768FOLDERNAME=WWWPICS-1024x768
                         SET PICTURES1024x768=%PICTURESDRIVE%:\%PICTURES1024x768FOLDERNAME%
-                    :FOR NEW REPOS, DON'T FORGET TO CREATE update-pictures-XXXXxYYY-repository.bat
-                    :                     & THEN TO MODIFY freshen-digital-picture-frame-repositories to include the new BAT
+                    rem FOR NEW REPOS, DON'T FORGET TO CREATE update-pictures-XXXXxYYY-repository.bat
+                    rem                      & THEN TO MODIFY freshen-digital-picture-frame-repositories to include the new BAT
 			:Aliases:
-				:TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICSMACHINE=%NEWNEWPICTURESMACHINE%
-				:TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICSDRIVE=%NEWNEWPICTURESDRIVE%
-				:TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICS=%NEWNEWPICTURES%
+				rem TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICSMACHINE=%NEWNEWPICTURESMACHINE%
+				rem TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICSDRIVE=%NEWNEWPICTURESDRIVE%
+				rem TEST 201911 TO NO LONGER USE THIS: SET NEWNEWPICS=%NEWNEWPICTURES%
                 SET NEWPICSMACHINE=%NEWPICTURESMACHINE%
 				SET NEWPICSDRIVE=%NEWPICTURESDRIVE%
 				SET NEWPICS=%NEWPICTURES%
@@ -1863,22 +1867,22 @@ return
 				SET PICSDRIVE=%PICTURESDRIVE%
 				SET PICS=%PICTURES%
             :Validation:
-                :TEST 201911 TO NO LONGER USE THIS: %gosubValidateFolderExists% NEWNEWPICTURESDRIVE       NEWNEWPICTURES
-                %gosubValidateFolderExists%    NEWPICTURESDRIVE          NEWPICTURES
-                %gosubValidateFolderExists%    NEWPICTURESBACKUPDRIVE    NEWPICTURESBACKUP
-                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES
-                %gosubValidateFolderExists%       PICTURES_BACKUP_DRIVE     PICTURES_BACKUP
-                %gosubValidateFolderExists%       PICTURES_BACKUP_DRIVE_1   PICTURES_BACKUP_1
-                %gosubValidateFolderExists%       PICTURES_BACKUP_DRIVE_2   PICTURES_BACKUP_2
-                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES480X243
-                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES800x480
-                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES800x600
-                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES1024x600
-                %gosubValidateFolderExists%       PICTURESDRIVE             PICTURES1024x768
-                %gosubValidateFolderExists%       POSTCARDSDRIVE            POSTCARDS
-                %gosubValidateFolderExists%     SCREENSHOTSDRIVE            SCREENSHOTS
+                rem TEST 201911 TO NO LONGER USE THIS: %gosubValidateFolderExists% NEWNEWPICTURESDRIVE       NEWNEWPICTURES
+                %gosubValidateFolderExists%    NEWPICTURESDRIVE            NEWPICTURES
+                %gosubValidateFolderExists%    NEWPICTURESBACKUPDRIVE      NEWPICTURESBACKUP
+                %gosubValidateFolderExists%       PICTURESDRIVE               PICTURES
+                %gosubValidateFolderExists%       PICTURES_BACKUP_DRIVE       PICTURES_BACKUP
+                %gosubValidateFolderExists%       PICTURES_BACKUP_DRIVE_1     PICTURES_BACKUP_1
+                %gosubValidateFolderExists%       PICTURES_BACKUP_DRIVE_2     PICTURES_BACKUP_2
+                %gosubValidateFolderExists%       PICTURESDRIVE               PICTURES480X243
+                %gosubValidateFolderExists%       PICTURESDRIVE               PICTURES800x480
+                %gosubValidateFolderExists%       PICTURESDRIVE               PICTURES800x600
+                %gosubValidateFolderExists%       PICTURESDRIVE               PICTURES1024x600
+                %gosubValidateFolderExists%       PICTURESDRIVE               PICTURES1024x768
+                %gosubValidateFolderExists%       POSTCARDSDRIVE              POSTCARDS
+                %gosubValidateFolderExists%     SCREENSHOTSDRIVE              SCREENSHOTS
 
-		::::: VIDEO WORKFLOW LOCATIONS:
+		rem ::::: VIDEO WORKFLOW LOCATIONS:
 			:PreBurn_Rally_Point:
 				set  REVIEWDRIVE=%HD18T1%
 				set    REVIEWDIR=%REVIEWDRIVE%:\MEDIA\FOR-REVIEW
@@ -1915,8 +1919,8 @@ return
                 set EXTRAS_BACKUP_DRIVE=%HD6000G3%
                 set EXTRAS_BACKUP=%EXTRAS_BACKUP_DRIVE%:\BACKUPS\extras.bak
                 rem a temporary solution for when we ran out of space, no longer used:
-                    :set EXTRASARCHIVESPILLOVERDRIVE=%HD6000G1%
-                    :set EXTRASARCHIVESPILLOVER=%EXTRASARCHIVESPILLOVERDRIVE%:\MEDIA\MOVIES\_EXTRAS\_WATCHED
+                    rem EXTRASARCHIVESPILLOVERDRIVE=%HD6000G1%
+                    rem EXTRASARCHIVESPILLOVER=%EXTRASARCHIVESPILLOVERDRIVE%:\MEDIA\MOVIES\_EXTRAS\_WATCHED
             :Aliases:
 				set         NEWVIDCL=%REVIEWDIR%
 				set           NEWVID=%NEWVIDCL%
@@ -1940,9 +1944,9 @@ return
                 %gosubValidateFolderExists%  DELETEAFTERWATCHINGBACKUPDRIVE DELETEAFTERWATCHINGBACKUP
                 %gosubValidateFolderExists%  DELETEAFTERWATCHINGBACKUPDRIVE DELETEAFTERWATCHINGBACKUP1
                 %gosubValidateFolderExists% DELETEAFTERWATCHINGBACKUP2DRIVE DELETEAFTERWATCHINGBACKUP2
-                :osub ValidateFolderExists     EXTRASARCHIVESPILLOVERDRIVE EXTRASARCHIVESPILLOVER        :::::no longer used
+                rem   ValidateFolderExists     EXTRASARCHIVESPILLOVERDRIVE EXTRASARCHIVESPILLOVER        :::::no longer used
 
-        gosub stopwatch_button magenta "      DefineRepositories [40]          " %+ 
+        %gosub_stopwatch_button% magenta "      DefineRepositories [40]          " %+ 
 
 
 		::::: MUSIC WORKFLOW LOCATIONS:
@@ -1965,26 +1969,26 @@ return
             :CurrentWavProcessingBatch:
 				SET WAVPROCESSINGBATCH=%WAVPROCESSING%\NEXT.INPROGRESS
 			:TaggingBase1_id3v2:
-				:ET MP3TAGGINGV2DRIVE=%NEWMP3BASEDRIVE%
-				:ET MP3TAGGINGV2=%NEWMP3BASEDIR%\READY-FOR-TAGGING-1-(id3v2 only)
+				rem MP3TAGGINGV2DRIVE=%NEWMP3BASEDRIVE%
+				rem MP3TAGGINGV2=%NEWMP3BASEDIR%\READY-FOR-TAGGING-1-(id3v2 only)
                 :Aliases:
-                    :et MP3TAGGINGDRIVE=%MP3TAGGINGV2DRIVE%
-                    :et MP3TAGGING=%MP3TAGGINGV2%
+                    rem MP3TAGGINGDRIVE=%MP3TAGGINGV2DRIVE%
+                    rem MP3TAGGING=%MP3TAGGINGV2%
 			:TaggingBase2_id3v2_review:
-				:ET MP3TAGGINGV2REVIEWDRIVE=%NEWMP3DRIVE%
-				:ET MP3TAGGINGV2REVIEW=%NEWMP3BASEDIR%\READY-FOR-TAGGING-2-(id3v2 review)
+				rem MP3TAGGINGV2REVIEWDRIVE=%NEWMP3DRIVE%
+				rem MP3TAGGINGV2REVIEW=%NEWMP3BASEDIR%\READY-FOR-TAGGING-2-(id3v2 review)
 			:TaggingBase3_Embedding:
-				:ET MP3EMBEDDINGDRIVE=%NEWMP3DRIVE%
-				:ET MP3EMBEDDING=%NEWMP3BASEDIR%\READY-FOR-TAGGING-3-(album art embedding)
+				rem MP3EMBEDDINGDRIVE=%NEWMP3DRIVE%
+				rem MP3EMBEDDING=%NEWMP3BASEDIR%\READY-FOR-TAGGING-3-(album art embedding)
 			:TaggingBase4_id3v1:
-				:ET MP3TAGGINGV1DRIVE=%NEWMP3BASEDRIVE%
-				:ET MP3TAGGINGV1=%NEWMP3BASEDIR%\READY-FOR-TAGGING-4-(id3v1 only)
+				rem MP3TAGGINGV1DRIVE=%NEWMP3BASEDRIVE%
+				rem MP3TAGGINGV1=%NEWMP3BASEDIR%\READY-FOR-TAGGING-4-(id3v1 only)
 			:TaggingBase5_id3v1:
-				:ET MP3TAGGINGV1REVIEWDRIVE=%NEWMP3BASEDRIVE%
-				:ET MP3TAGGINGV1REVIEW=%NEWMP3BASEDIR%\READY-FOR-TAGGING-5-(id3v1 review)
+				rem MP3TAGGINGV1REVIEWDRIVE=%NEWMP3BASEDRIVE%
+				rem MP3TAGGINGV1REVIEW=%NEWMP3BASEDIR%\READY-FOR-TAGGING-5-(id3v1 review)
 			:Testing
 				SET MP3TESTINGDRIVE=%MP3OFFICIALDRIVE%
-				:ET MP3TESTING=%MP3OFFICIAL%\_TESTING
+				rem MP3TESTING=%MP3OFFICIAL%\_TESTING
 				set MP3TESTING=%NEWMP3BASEDIR%\testing
             :Versioning
                 SET MP3VERSIONINGDRIVE=%MP3OFFICIALDRIVE%
@@ -2003,7 +2007,7 @@ return
                 %gosubValidateFolderExists% MP3TESTINGDRIVE          MP3TESTING
                 %gosubValidateFolderExists% MP3OFFICIALDRIVE         MP3OFFICIAL 
                 %gosubValidateFolderExists% MP3VERSIONINGBACKUPDRIVE MP3VERSIONINGBACKUP
-        gosub stopwatch_button magenta "      DefineRepositories [99] %SKULL%       " %+ 
+        %gosub_stopwatch_button% magenta "      DefineRepositories [99] %SKULL%       " %+ 
 return
 ::::::::::::::::::::::::::::::::::::: DEFINE REPOSITORIES FOR VARIOUS... THINGS :::::::::::::::::::::::::::::::::::::
 
@@ -2133,7 +2137,7 @@ return
                 set FILEMASK_AUDIO_SPLIT_4=*.wma;*.mp4;*.snd;*.opus
     
         set FILEMASK_VIDEO=*.mkv;*.avi;*.mp4;*.m4a;*.flv;*.mov;*.wmv;*.mpg;*.mpeg;*.vob;*.bdmv;*.ts;*.m2ts;*.rm;*.qt;*.asf;*.asx;*.fli;*.swf;*.m4v;*.webm;*.f4v;*.rm;*.ram;*.3gp
-        :ET FILEMASK_VIRTUALREALITY=*.???   Just kidding, ha ha ha ... but seriously, new stuff needs to also be in the list below, for conversion:
+        rem FILEMASK_VIRTUALREALITY=*.???   Just kidding, ha ha ha ... but seriously, new stuff needs to also be in the list below, for conversion:
             rem same thing delimited by space instead of semicolon:
                 for %v in (FILEMASK_APPLICATION FILEMASK_ARCHIVE FILEMASK_AUDIO FILEMASK_CODE FILEMASK_COMIC_BOOK FILEMASK_DISC FILEMASK_DISC_IMAGE FILEMASK_DISK FILEMASK_DISK_IMAGE FILEMASK_FILELIST FILEMASK_IMAGE FILEMASK_MUSIC FILEMASK_RICHTEXT FILEMASK_TEXT FILEMASK_VIDEO) (gosub CreateFileMaskWithSpaces %v %+ gosub CreateFileMaskWithExtensions %v)
                 goto :SkipSub1
@@ -2206,7 +2210,7 @@ return
          set  .lnk=call wrapper start
          REM Actually decided the convenience of running logfiles with more ease was quite vastly
          REM  outweighed by the inconvenience of not being able to run an EXE with the same name as the LOG as easily
-         :set  .log=tl
+         rem  .log=tl
          set  .lst=%%EDITOR
          set  .m3u=play-m3u-with-VLC
          set  .m4v=call wrapper start
@@ -2217,8 +2221,9 @@ return
          set  .mpa=call wrapper start
          set  .mpg=call wrapper VLC
          set .mpeg=call wrapper VLC
-        :set  .mp3=call winamp /add
+         rem  .mp3=call winamp /add
          set  .mp3=call vlc
+         rem  .mp3=call play-mp3-file 
          set  .mp4=call wrapper VLC
          set  .mov=call wrapper VLC
          set  .msi=call wrapper start
@@ -2499,8 +2504,7 @@ return
             goto :BEGIN_COMMON
 
             :username_not_found
-                %COLOR_ALARM% %+ Echo * FATAL ERROR: USERNAME NOT KNOWN.  YOU NEED TO ADD A :setUSERNAME subroutine to %BAT%\environm.btm 
-                call alarm-beep %+ pause
+                call FATAL_ERROR "USERNAME NOT KNOWN.  YOU NEED TO ADD A :setUSERNAME subroutine to %BAT%\environm.btm"
                 gosub SetMachineSpecificEnvironment
             return
 
@@ -2530,7 +2534,7 @@ return
             echos %EMOJI_STOPWATCH%%EMOJI_STOPWATCH%
             echos  %reason2%
             echos %EMOJI_STOPWATCH%
-            echos %@ANSI_MOVE_TO_COL[100]
+            echos %@ANSI_MOVE_TO_COL[%@EVAL[%_COLUMNS-80]]
             timer %QUIET_TIMER_OR_NOT% /9 /s
     return
 
