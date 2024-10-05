@@ -265,7 +265,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-10-04  17:46        185,735   81%  environm.btm
+2024-10-05  15:43        185,830   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -454,7 +454,7 @@
 2024-08-22  15:26             25   -8%  makefilelist.bat
 2022-02-02  02:57         36,984   67%  MAKEIMG.PL
 2019-10-01  10:28         13,723   75%  makethumbnail.pl
-2024-01-15  01:53         12,663   79%  map-drives.btm
+2024-10-05  15:38         13,179   78%  map-drives.btm
 2024-09-07  20:04             21   -9%  maximize.bat
 2024-04-03  14:35            506   36%  MCD.bat
 2024-04-03  14:46            164   18%  mcdnow.bat
@@ -769,6 +769,7 @@
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
 2024-09-28  15:09            100   18%  unlock-margins.bat
 2024-09-27  12:12             24   -8%  UNLOCK.bat
+2019-10-01  10:28             19  -10%  unmap-drive.bat
 2019-10-01  10:28            544   82%  unmap-drives.bat
 2024-05-07  14:00             25   -8%  unpause.bat
 2024-04-28  20:54            287   35%  unzip-all.bat

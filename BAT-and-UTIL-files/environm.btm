@@ -92,7 +92,7 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
             rem 1) TCSTART.BAT can pass a "TCSTART" parameter so that we can tell when this has been run and not run it repeatedly
             rem 2) Secondary shells start from a different INI-specified location, using a different TCStart.bat, which sets SECONDARYSHELL=1
             rem 3) We also set ENVIRONM_RUN=1 after running, to prevent successive timewasting runs
-        if "%1" eq "force" .or. "%1" eq "validate" (goto :Force_1       )
+        if "%1" eq "force" .or. "%1" eq "-force" .or. "%1" eq "validate" (goto :Force_1       )
             if  "1" eq "%ENVIRONM_RUN%"                                  (goto :The_Very_END  )   %+ REM added this line 2023/07/26
             if  "1" eq "%ENVIRONM_RUN%" .and. "%@UPPER[%1]" eq "TCSTART" (goto :The_Very_END  )   %+ REM so as of 2023/07/26 this line should never happen
             if  "1" eq "%SECONDARYSHELL%"                                (goto :SecondaryShell)
@@ -710,7 +710,7 @@ return
             set MAC_DEMONA_GOOGLENEST=00:15:5D:AC:EE:A7
             set MAC_DEMONA_TPVRROUTER=DE:53:D3:02:DB:2A
             set MAC_DEMONA_2=68:1C:A2:12:33:B2
-            set MAC_DEMONA=%MAC_DEMONA_TPVRROUTER%
+            set MAC_DEMONA=%MAC_DEMONA_GOOGLENEST%
             set MAC_WYVERN=74:56:3C:B3:9B:68
         rem IP addresses                                               
             SET IP_GOLIATH=192.168.0.107  
@@ -718,7 +718,7 @@ return
             set IP_THAILOG=192.168.0.136
             set IP_DEMONA_GOOGLENEST=192.168.0.17
             set IP_DEMONA_TPVRROUTER=192.168.1.190
-            set IP_DEMONA=%IP_DEMONA_TPVRROUTER%
+            set IP_DEMONA=%IP_DEMONA_GOOGLENEST%
             SET IP_WYVERN=192.168.0.97  
         rem mapping ips:
             SET MAPPING_FIRE_IP_PUBLIC=%PUBLIC_IP%    %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
@@ -728,10 +728,11 @@ return
             SET MAPPING_THAILOG_IP=%IP_THAILOG%
             SET MAPPING_DEMONA_IP=%IP_DEMONA%
             SET MAPPING_WYVERN_IP=%IP_WYVERN%
-        rem mapping usernames:
+        rem mapping usernames (passwords are in private.env):
             SET MAPPING_FIRE_USR=Administrator            
             SET MAPPING_THAILOG_USR=share  %+ REM MAPPING_THAILOG_PWD=[REDACTED into private.env]
-            set MAPPING_DEMONA_USR=Claire 
+            rem MAPPING_DEMONA_USR=Claire 
+            set MAPPING_DEMONA_USR=share
             rem MAPPING_WYVERN_USR=carol   [202311-20240403]
             SET MAPPING_WYVERN_USR=carolyn
 

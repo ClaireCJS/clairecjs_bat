@@ -141,6 +141,9 @@
                 %COLOR_SUBTLE% %+ echo y | net use %LETTER%: /delete
                 %COLOR_SUBTLE% %+ if "%DEBUG%" eq "1" .or. "%DEBUG_NET_USE_COMMANDS%" eq "1" (%COLOR_DEBUG% %+ echo net use %LETTER%: \\%TMP_IP%\%SHARENAME% %%[MAPPING_%MACHINE%_PWD] /USER:%[MAPPING_%MACHINE%_USR] /PERSISTENT:%PERSISTENT% %+ %COLOR_NORMAL%)
                 %COLOR_SUBTLE% %+ if "%DEBUG%" eq "1" .or. "%DEBUG_NET_USE_COMMANDS%" eq "1" (%COLOR_DEBUG% %+ echo net use %LETTER%: \\%TMP_IP%\%SHARENAME%  %CONCEAL_ON%%[MAPPING_%MACHINE%_PWD]%CONCEAL_OFF% /USER:%[MAPPING_%MACHINE%_USR] /PERSISTENT:%PERSISTENT% %+ %COLOR_NORMAL%)
+                rem 2024/10/05 —— huge bug in implementation of net.exe command where passwords that start with a slash are misinterpreted as a command-line option
+                rem            —— The people on StackExchange don't seem to know how to fix this problem —— or even accept that it really exists, despite multiple posts about it
+                rem            —— We tested that the password cannot be echoed via a pipe. So WTF do we do? Just not have passwords starting with slashes?
                 %COLOR_SUBTLE% %+ echo y |                                                                          net use %LETTER%: \\%TMP_IP%\%SHARENAME%  %[MAPPING_%MACHINE%_PWD] /USER:%[MAPPING_%MACHINE%_USR] /PERSISTENT:%PERSISTENT%
                 %COLOR_NORMAL%  
         return
