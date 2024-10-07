@@ -1,63 +1,64 @@
 @Echo OFF
 
 
-
-
-::::: BOOKMARKS:
-    set CALIBRATION_URL=http://www.lagom.nl/lcd-test/
-
+rem BOOKMARKS:
+        set CALIBRATION_URL=http://www.lagom.nl/lcd-test/
 
 
 
 
-::::: PRE-CHECK:
-    call checkeditor
-    call validate-environment-variables BAT MACHINENAME
-
-::::: SETUP:
-    %BAT%\
-
-::::: GET COMPUTER NAME:
-    color yellow on black %+ echo What will this computer be named? %+ color white on black 
-     set NEW_COMPUTER_NAME=?????
-    eset NEW_COMPUTER_NAME
-
-:::: SET POWERSHELL STUFF:
-    call new-computer.ps1 %+ rem this does: Set-ExecutionPolicy -ExecutionPolicy Bypass
-
-::::: EDIT BAT/ENVIRONMENT FILES:
-    cls
-    echo Opening up all the scripts with hardcoded computer names and such that need to be reviewed when new computers are added
-    pause
-    %BAT%\
-    %EDITOR% environm.btm autoexec-common.btm allcomputers.bat allcomputersexceptself.bat backup-stuff.BAT drives.bat display-drive-mapping.bat fr.bat wake-computers.bat
-
-::::: HOSTS?
-    echo. %+ call warning "Hey, we probably need to edit hosts to put this computer in." %+ pause %+ color white on black
-    call advice "It's handy sometimes to list your LAN/house computers' IPs here"
-    pause
-    call hosts
+rem PRE-CHECK:
+        call validate-environment-variables BAT MACHINENAME EDITOR CALIBRATION_URL
+        call validate-in-path new-computer.ps1 app-volume-and-device-preferences-install-button-to-taskbar.bat hosts.bat advice.bat create-all-drive-shares-(for-new-installations).bat success.bat validate-all-perl-files.bat warning.bat
 
 
-:::: SHARE WHAT WE CAN:
-    pause
-    echo Now let's try creating all our drive shares... This is untested and may not work...
-    call create-all-drive-shares-(for-new-installations).bat
+rem GET COMPUTER NAME:
+        %BAT%\
+        color yellow on black %+ echo What will this computer be named? %+ color white on black 
+         set NEW_COMPUTER_NAME=?????
+        eset NEW_COMPUTER_NAME
 
 
-::::: VALIDATE PERL SCRIPTS:
-    pause
-    %BAT%
-    echo Now we will validate every perl script for compilation error:
-    pause
-    call validate-all-perl-files
-    echo.
-    call success "Perl files validated"
-    echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. 
+rem SET POWERSHELL STUFF:
+        call new-computer.ps1 %+ rem this does: Set-ExecutionPolicy -ExecutionPolicy Bypass
+
+
+rem TRY TO INSTALL APP-VOL-PREFs BUTTON TO TASKBAR+DESKTOP:
+        call app-volume-and-device-preferences-install-button-to-taskbar.bat
+
+rem EDIT BAT/ENVIRONMENT FILES:
+        cls
+        echo Opening up all the scripts with hardcoded computer names and such that need to be reviewed when new computers are added
+        pause
+        %BAT%\
+        %EDITOR% environm.btm autoexec-common.btm allcomputers.bat allcomputersexceptself.bat backup-stuff.BAT drives.bat display-drive-mapping.bat fr.bat wake-computers.bat
+
+rem HOSTS?
+        echo. %+ call warning "Hey, we probably need to edit hosts to put this computer in." %+ pause %+ color white on black
+        call advice "It's handy sometimes to list your LAN/house computers' IPs here"
+        pause
+        call hosts
+
+
+rem SHARE WHAT WE CAN:
+        pause
+        echo Now let's try creating all our drive shares... This is untested and may not work...
+        call create-all-drive-shares-(for-new-installations).bat
+
+
+rem VALIDATE PERL SCRIPTS:
+        pause
+        %BAT%
+        echo Now we will validate every perl script for compilation error:
+        pause
+        call validate-all-perl-files
+        echo.
+        call success "Perl files validated"
+        repeat 8 echo.
 
 
 
-::::: OTHER REMINDERS:    
+rem OTHER REMINDERS:    
     pause %+ call warning "Run install-common-programs-with-winget.bat in another window now, then come back here"            
     pause
     pause %+ call warning "After installing perl to c:\perl\, run c:\bat\setup-perl-junctions-on-new-computer.bat"            
