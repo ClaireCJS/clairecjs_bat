@@ -9,7 +9,7 @@ echo Here we go!
 
 pause
 
-@copy c:\bat\app-volume-and-device-preferences.lnk "%appdata%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\app vol2.lnk"
+@copy c:\bat\app-volume-and-device-preferences.lnk "%appdata%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\app vol.lnk"
 
 @copy c:\bat\app-volume-and-device-preferences.lnk %USERPROFILE%\OneDrive\Desktop
 
