@@ -207,6 +207,7 @@
 2024-10-03  22:38             18  -11%  dir-by-creation-date.bat
 2024-10-03  22:38             18  -11%  dir-by-modification-date.bat
 2024-03-28  02:32             18    0%  disable-windows-key.bat
+2024-10-07  16:10            416   44%  display-all-@CHARs.bat
 2023-04-07  11:31             50   -4%  display-bitrate.bat
 2024-03-15  00:06            399   39%  display-bluetooth-battery-levels.ps1
 2019-10-01  10:27             19  -10%  display-connections.bat
@@ -266,7 +267,7 @@
 2024-10-04  11:40             32   -6%  eject.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
-2024-09-25  04:46         70,306   78%  emoji.env
+2024-10-07  16:20         71,628   78%  emoji.env
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
@@ -647,12 +648,12 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-09-25  04:48         78,554   82%  set-ansi.bat
+2024-10-07  18:08         79,360   82%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-10-04  07:36          1,804   70%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat
 2023-06-05  23:30             68   15%  set-current_playing_song.bat
-2024-09-23  12:49          1,105   50%  set-cursor.bat
+2024-10-07  18:24          1,214   50%  set-cursor.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
 2024-09-09  12:20            635   44%  set-emojis.bat
@@ -684,7 +685,7 @@
 2023-06-06  14:08          4,130   73%  show_current_pallete_prototype.py
 2019-10-01  10:28          5,276   63%  sizedir.pl
 2024-05-14  19:06            668   52%  sizes.bat
-2024-10-04  13:02            429   46%  sleep.bat
+2024-10-07  18:53          3,868   71%  sleep.bat
 2024-05-03  14:34             24   -8%  sn.bat
 2024-10-07  09:15             18  -11%  snd.bat
 2024-05-03  14:33             24   -8%  snip.bat

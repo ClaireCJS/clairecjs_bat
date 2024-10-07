@@ -53,9 +53,15 @@ rem ANSI: Names influenced by online references:
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-rem Utility functions:
+rem Utility functions: 
         function random_hex_char=`%@substr[0123456789ABCDEF,%@random[0,15],1]`
         function random_rgb_hex=`%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]`
+        function random_color_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
+        function  cool_digit=`%@randfg_soft[]%[cool_%1]`
+        function  cool_digit_plain=`%[cool_%1]`              %+ rem COOL_0 through COOL_9 are defined in emoji.env
+        function cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1]]]]]]]]]]`
+        function cool_number=`%@random_color_string[%@cool_number_plain[%1$]]`
+        function cool_string=`%@random_color_string[%@cool_number_plain[%1$]]`
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
