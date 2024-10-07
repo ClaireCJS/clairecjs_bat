@@ -8,7 +8,7 @@ call advice If you don't have a repo, go to http://github.com and click the '+' 
 echo.
 echo.
 call important "Input your git repository name:"
-         set GITHUB_REPO_NAME=%@NAME[%_CWP]
+         set GITHUB_REPO_NAME=%@FILENAME[%_CWP]
         eset GITHUB_REPO_NAME
 
 

@@ -11,7 +11,7 @@
         set SPECIAL_FOLDER_NAMES=%BAT%\proprietary-mp3-folder-names.txt
         call validate-environment-variable SPECIAL_FOLDER_NAMES
     :SpecialFolderNames_Defined_YES    
-    set THIS="%@UPPER[%@NAME[%_CWP]]"
+    set THIS="%@UPPER[%@FILENAME[%_CWP]]"
     if "%1" eq "force" goto :force1
     for /f "tokens=1-9999" %d in (%SPECIAL_FOLDER_NAMES%) if %THIS% eq "%@UPPER[%d]" (gosub NotTheRightKindOfFolder "%d" %+ goto :END)
     :: ^^^ TODO: ^^ DO THIS IN MP3S AFTER WE'VE RE-DONE THE MANUAL EMBEDDING IN HIGHER QUALITY. it works. it's tested.

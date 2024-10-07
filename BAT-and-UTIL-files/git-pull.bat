@@ -8,7 +8,7 @@ rem Collect parameters:
 
 rem Configuratoin:
         set GIT_OUT=git.out
-        set BASENAME=%@NAME[%_CWD]
+        set BASENAME=%@FILENAME[%_CWD]
         set MY_GITHUB_URL=https://github.com/%GITHUB_USERNAME%/%BASENAME%
 
 
@@ -32,7 +32,7 @@ rem Cosmetics:
 
 
 rem Inform regarding what we're about to do:
-        call important "About to: 'git pull %spacer%%GIT_PULL_PARAMETERS%' in %@NAME[%_CWP]"
+        call important "About to: 'git pull %spacer%%GIT_PULL_PARAMETERS%' in %emphasis%%BASENAME%%deemphasis%"
         rem I stopped wanting a pause *ALL* the time, ater awhile: if %NO_PAUSE ne 1 (pause)
         echo.
 

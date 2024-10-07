@@ -279,7 +279,7 @@
 2022-02-07  13:04            176   23%  extract-all-WAVs-from-audio-files.bat
 2022-02-07  13:04            176   23%  extract-all-WAVs-from-video-files.bat
 2022-02-07  12:46            105   39%  extract-all-WAVs.bat
-2023-08-16  12:55          6,808   76%  extract-cover_art-from-first-found-audio-file.bat
+2024-10-06  11:15          6,812   76%  extract-cover_art-from-first-found-audio-file.bat
 2022-11-25  02:18             56    2%  extract-cover_art-from-first-found-mp3.bat
 2019-11-14  07:27            211   35%  extract-jpg.bat
 2019-10-01  10:27             55    6%  extract-mp3.bat
@@ -342,15 +342,15 @@
 2023-06-14  23:22             54    4%  git-config-set-commit-preferences-to-rebase.bat
 2024-09-08  20:33            295   32%  git-fix-remote-repository.bat
 2023-10-06  06:37             18  -11%  git-history.bat
-2023-07-18  08:39          1,627   64%  git-init-remote-link-local-project-to-remote-git-repo.bat
+2024-10-06  11:15          1,631   64%  git-init-remote-link-local-project-to-remote-git-repo.bat
 2023-06-02  19:02            117   22%  git-init.bat
 2021-07-30  11:35             22   -9%  git-initvars.bat
 2023-06-04  20:42             69   14%  git-link.bat
 2021-07-30  11:30             74    2%  git-log-normal.bat
 2021-07-30  11:30             88    4%  git-log-oneline.bat
 2019-10-01  10:28             25   -8%  git-log.bat
-2024-08-27  11:17          2,322   56%  git-pull.bat
-2024-09-09  12:07          2,425   57%  git-push.bat
+2024-10-06  11:15          2,345   56%  git-pull.bat
+2024-10-06  11:14          2,448   57%  git-push.bat
 2023-06-01  02:38            102   15%  git-rename-branch.bat
 2021-07-30  11:30             89    5%  git-revisions.bat
 2024-03-19  14:37             17  -11%  git-rm.bat
@@ -398,7 +398,7 @@
 2019-10-01  10:28            120   18%  insert-after-each-line.pl
 2024-08-09  12:53          1,518   58%  insert-before-each-filename.bat
 2019-10-01  10:28            120   18%  insert-before-each-line.pl
-2024-07-26  06:11          1,617   61%  insert-foldername-into-end-of-filenames.bat
+2024-10-06  11:12          1,627   61%  insert-foldername-into-end-of-filenames.bat
 2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
 2024-05-13  12:01         14,621   75%  install-common-programs-with-winget-helper.cmd
 2024-04-06  04:37            381   36%  install-common-programs-with-winget.bat
@@ -628,6 +628,7 @@
 2024-09-09  20:51          1,374   55%  say.bat
 2024-03-23  00:42            163   21%  scream.bat
 2024-04-10  12:57             13  -15%  search-music.bat
+2024-10-06  11:36             25   -8%  see-which-songs-a-band-is-currently-playing-live.bat
 2019-10-01  10:28            831   48%  select-random-lines-from.pl
 2023-06-13  16:06             57    0%  send-keypress-alt_down.ahk
 2023-06-08  21:39             61    4%  send-keypress-alt_left.ahk
