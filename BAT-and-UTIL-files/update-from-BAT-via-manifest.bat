@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo Off
 
 
 :DESCRIPTION:  Used to package BAT/UTIL/helper files from a personal environment into a development project folder for public deployment

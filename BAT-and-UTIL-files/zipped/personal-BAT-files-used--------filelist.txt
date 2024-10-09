@@ -171,8 +171,8 @@
 2023-07-04  17:17            290   35%  crop-center-square-of-image.bat
 2024-09-06  06:18             31   -6%  cuda-clear-cache.bat
 2024-09-06  06:18             35   -5%  cuda-version.bat
-2024-09-24  19:48            214   45%  cursor-carolyn.bat
-2024-09-09  01:12            379   53%  cursor-Claire.bat
+2024-10-09  15:33          1,007   60%  cursor-Carolyn.bat
+2024-10-09  15:34          1,300   60%  cursor-Claire.bat
 2019-10-01  10:27            195   49%  cut.bat
 2024-05-23  07:12            183   26%  cygecho.bat
 2019-10-01  10:27             25   -8%  d20.bat
@@ -788,7 +788,7 @@
 2024-04-28  20:54            287   35%  unzip-all.bat
 2024-04-28  21:01          6,124   71%  unzip-gracefully.bat
 2024-08-20  09:34            443   39%  update-cygwin.bat
-2024-09-09  14:01         12,188   73%  update-from-BAT-via-manifest.bat
+2024-10-09  15:37         12,182   73%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2019-10-01  10:28            232   26%  urldecode.pl
 2019-10-01  10:28            326   33%  urlencode.pl
