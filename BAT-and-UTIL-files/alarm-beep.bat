@@ -34,14 +34,14 @@ goto :klaxon%USERNAME%
     :klaxonClaire
         beep  2000 10
         beep  1000 10
-        call sleep 1
+        call sleep 1 silent
     return
 
     :klaxonCarolyn
         beep  2666 2
         beep  1333 2
         beep  2666 2
-        call sleep 1
+        call sleep 1 silent
     return
 
     :klaxonCarolynRejected
@@ -50,7 +50,7 @@ goto :klaxon%USERNAME%
         beep  1333 1
         beep  2666 1
         beep  1333 1
-        call sleep 1
+        call sleep 1 silent
     return
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

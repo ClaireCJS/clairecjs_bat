@@ -1710,18 +1710,21 @@ return
                     SET MEDIA_FOR_OTHER_PEOPLE_BACKUP_DRIVE=%HD18T1%
                     SET MEDIA_FOR_OTHER_PEOPLE_BACKUP=%MEDIA_FOR_OTHER_PEOPLE_BACKUP_DRIVE%:\BACKUPS\for-other-people.bak
 			rem Aliases
-				SET ABOUTTOBEBURNED1DRIVE=%PREBURN_DVDDRIVE%
-				SET ABOUTTOBEBURNED1=%PREBURN_DVD%
 				SET ABOUTTOBEBURNED=%ABOUTTOBEBURNED1%
 				SET ABOUTTOBEBURNED2DRIVE=%PREBURN_BDRDRIVE%
 				SET ABOUTTOBEBURNED2=%PREBURN_BDR%
-				SET DATA1DRIVE=%DATADRIVE%
-				SET DATA1=%DATA%
+				SET ABOUTTOBEBURNED1DRIVE=%PREBURN_DVDDRIVE%
+				rem ABOUTTOBEBURNED1=%PREBURN_DVD% ——————— ceased to exist in 2024
+				rem DATA1DRIVE=%DATADRIVE% ——————————————— ceased to exist in 2024
+				rem DATA1=%DATA% ————————————————————————— ceased to exist in 2024 
+                SET ABOUTTOBEBURNED1=%PREBURN_BDR%
+				SET DATA1DRIVE=%DATA2DRIVE%
+				SET DATA1=%DATA2%
 				SET NEW=%NEWCL% %+ SET NEWDRIVE=%NEWCLDRIVE%
                 set ABOUTTOBEBURNEDDVD_BACKUP=%PREBURN_DVD_BACKUP%
                 SET ABOUTTOBEBURNEDBDR_BACKUP=%PREBURN_BDR_BACKUP%
             rem Validation                                   {try to shape like christmas tree}            [That comment is the angel!]
-                %gosubValidateFolderExists%                          DATA1DRIVE DATA1
+                rem   ValidateFolderExists%                          DATA1DRIVE DATA1
                 %gosubValidateFolderExists%                          DATA2DRIVE DATA2
                 %gosubValidateFolderExists%                          NEWCLDRIVE NEWCL
                 %gosubValidateFolderExists%                         NEWCASDRIVE NEWCAS

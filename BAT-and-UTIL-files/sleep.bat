@@ -1,5 +1,8 @@
 @Echo Off
 
+:USAGE: sleep <seconds to sleep> [silent]
+:USAGE: example: sleep 5 silent
+
 rem Before Windows  7, we used a 32-bit sleep.exe in our %UTIL% folder, but
 rem After  Windows XP, we redirect sleep commands to the internal *delay command:
         goto :%OS
@@ -30,74 +33,116 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
             rem  But if a time is specified, use that time:
                     if  "%1" !=  ""  (set SLEEP_TIME=%1)
 
-            rem Cheap way to make sure it's a number:
-                    rem NUM_SECONDS=%@EVAL[%SLEEP_TIME]
-                    set NUM_SECONDS=%SLEEP_TIME%
+            rem And if silent mode is specified, do that:
+                    set silent=1
+                    if "%2" eq "silent" (set silent=1) 
+                    if "%2" eq "clock"  (set silent=0) 
 
-            echos %ANSI_SAVE_POSITION%%ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%
+            rem And grab any optional message for clock-mode:
+                    unset   /q         SLEEP_MESSAGE
+                    if "%3" ne "" (set SLEEP_MESSAGE=%3)
 
-            do second = %num_seconds% to 0 by -1 
+            rem Temporarily change cursor to the vertical blinking bar, which is the least obtustive to the animated clock:
+                    if %silent ne 1 (echos %ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%) else (echos %ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%)
 
-                    set emoji_to_use=%emoji_stopwatch%
+            do second = %SLEEP_TIME% to 0 by -1 
 
-                    set                          last_digit=%@INSTR[%@EVAL[%@LEN[%second]-1],1,%second%]
-                                            set last2digits=%@INSTR[%@EVAL[%@LEN[%second]-1],1,%second%]
-                    if %@LEN[%second] gt 1 (set last2digits=%@INSTR[%@EVAL[%@LEN[%second]-2],2,%second%])
-                    switch %last_digit%
-                        case 0
-                            set                            emoji_to_use=%EMOJI_TWELVE_OCLOCK%
-                            if "%last2digits" == "10" (set emoji_to_use=%EMOJI_TEN_OCLOCK%)
-                        case 1
-                                                       set emoji_to_use=%EMOJI_ONE_OCLOCK%
-                            if "%last2digits" == "11" (set emoji_to_use=%EMOJI_ELEVEN_OCLOCK%)
-                        case 2
-                                                       set emoji_to_use=%EMOJI_TWO_OCLOCK%
-                            if "%last2digits" == "12" (set emoji_to_use=%EMOJI_TWELVE_OCLOCK%)
-                        case 3
-                            set emoji_to_use=%EMOJI_THREE_OCLOCK%
-                        case 4
-                            set emoji_to_use=%EMOJI_FOUR_OCLOCK%
-                        case 5
-                            set emoji_to_use=%EMOJI_FIVE_OCLOCK%
-                        case 6
-                            set emoji_to_use=%EMOJI_SIX_OCLOCK%
-                        case 7
-                            set emoji_to_use=%EMOJI_SEVEN_OCLOCK%
-                        case 8
-                            set emoji_to_use=%EMOJI_EIGHT_OCLOCK%
-                        case 9
-                            set emoji_to_use=%EMOJI_NINE_OCLOCK%
-                        default
-                            set emoji_to_use=%emoji_stopwatch%
-                    endswitch
+                    rem Animate our sleep/wait countdown:                        
+                            iff %silent ne 1 then
+                                    rem Determine which clock emoji to use at this second:
+                                            set emoji_to_use=%EMOJI_STOPWATCH%
+                                            set                          last_digit=%@INSTR[%@EVAL[%@LEN[%second]-1],1,%second%]
+                                                                    set last2digits=%@INSTR[%@EVAL[%@LEN[%second]-1],1,%second%]
+                                            if %@LEN[%second] gt 1 (set last2digits=%@INSTR[%@EVAL[%@LEN[%second]-2],2,%second%])
+                                            switch %last_digit%
+                                                case 0
+                                                    set                            emoji_to_use=%EMOJI_TWELVE_OCLOCK%
+                                                    if "%last2digits" == "10" (set emoji_to_use=%EMOJI_TEN_OCLOCK%)
+                                                case 1
+                                                                               set emoji_to_use=%EMOJI_ONE_OCLOCK%
+                                                    if "%last2digits" == "11" (set emoji_to_use=%EMOJI_ELEVEN_OCLOCK%)
+                                                case 2
+                                                                               set emoji_to_use=%EMOJI_TWO_OCLOCK%
+                                                    if "%last2digits" == "12" (set emoji_to_use=%EMOJI_TWELVE_OCLOCK%)
+                                                case 3
+                                                    set emoji_to_use=%EMOJI_THREE_OCLOCK%
+                                                case 4
+                                                    set emoji_to_use=%EMOJI_FOUR_OCLOCK%
+                                                case 5
+                                                    set emoji_to_use=%EMOJI_FIVE_OCLOCK%
+                                                case 6
+                                                    set emoji_to_use=%EMOJI_SIX_OCLOCK%
+                                                case 7
+                                                    set emoji_to_use=%EMOJI_SEVEN_OCLOCK%
+                                                case 8
+                                                    set emoji_to_use=%EMOJI_EIGHT_OCLOCK%
+                                                case 9
+                                                    set emoji_to_use=%EMOJI_NINE_OCLOCK%
+                                                default
+                                                    set emoji_to_use=%EMOJI_STOPWATCH%
+                                            endswitch
 
-                    set  line=%emoji_to_use%%italics%%@cool_number[%second%]%italics_off%
-                    echo %big_top%%line%      ``
-                    echo %big_bot%%line%      ``
-    
-                    echos %@ANSI_MOVE_UP[2]
-                    echos %@RANDOM_CURSOR_COLOR[]
-                    echos %ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%%ANSI_CURSOR_VISIBLE%
-                    title %emoji_stopwatch% Sleeping %second% seconds...
-                    if "%second" != "" (delay 1)
+                                    rem Assemble our clock + countdown + optional message:
+                                            set  line=%emoji_to_use%%italics%%@cool_number[%second%]%italics_off%
 
-                    echos %ANSI_CURSOR_INVISIBLE% %+ rem Makes cursor blink in 1 row instead of being all bouncy
+                                    rem And echo it as double-height text, along with some extra spaces to erase digits leftover when counting down to a fewer-digit number, i.e. 10->9, 100->99, 1000->999:
+                                            echo %big_top%%line%      ``
+                                            echo %big_bot%%line%      ``
+
+                                    rem Move back to the position we started at, so we can draw over ourselves to animate:
+                                            echos %@ANSI_MOVE_UP[2]
+
+                                    rem Set cursor color to be a random-colored vertical blinking bar, now visible:
+                                            echos %@RANDOM_CURSOR_COLOR[]%ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%%ANSI_CURSOR_VISIBLE%
+
+                                    rem Update window title:
+                                            title %emoji_stopwatch% Sleeping %second% seconds...
+
+                                    rem Do our actual sleep:
+                                            if "%second" != "0" (delay 1)
+
+                                    rem Turn the cursor off, which makes the blinking stay in a consistent location instead of being all bouncy:
+                                            if %silent ne 1 (echos %ANSI_CURSOR_INVISIBLE%) 
+                            else
+                                    rem Do the actual 'sleep':
+                                            echos %@RANDOM_CURSOR_COLOR[]%ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%
+                                            if "%second" != "0" (delay 1)
+                            endiff
+
+
+
 
             enddo
-            echo %CURSOR_RESET%%ANSI_RESET%%ANSI_EOL%%EMOJI_ALARM_CLOCK%%CHECK%%@ANSI_MOVE_DOWN[1]%@ANSI_MOVE_LEFT[4]%EMOJI_ALARM_CLOCK%%CHECK%
+
+            
+            rem Reset our cursor back to the user-preferred shape & color, reset all ansi status, draw our final clock, and leave us in the right place:
+                    iff %silent ne 1 then
+                        echo %CURSOR_RESET%%ANSI_RESET%%ANSI_EOL%%EMOJI_ALARM_CLOCK%%CHECK%%@ANSI_MOVE_DOWN[1]%@ANSI_MOVE_LEFT[4]%EMOJI_ALARM_CLOCK%%CHECK%)
+                    else
+                        echos %CURSOR_RESET%%ANSI_RESET%
+                    endiff
+
             goto :END
 
 
-:XP
-:2K
-:ME
-:98
-:95
-    %UTIL%\sleep %*
-goto :END
+
+
+
+
+
+rem —————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                    :XP
+                    :2K
+                    :ME
+                    :98
+                    :95
+                            %UTIL%\sleep %*
+                    goto :END
+rem —————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
 
 
 :END
-title TCC
-
+    title TCC
 

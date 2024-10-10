@@ -9,7 +9,7 @@
 2023-05-29  22:39             43   -4%  advice.bat
 2024-09-09  09:22         29,307   75%  after.bat
 2023-08-26  19:25          1,074   68%  age.bat
-2022-02-02  02:53          1,574   63%  alarm-beep.bat
+2024-10-10  09:27          1,595   63%  alarm-beep.bat
 2023-05-30  11:25             91   14%  album-art-tool-for-mp3Tag-beforeDash.bat
 2019-10-01  10:25             91   14%  album-art-tool-for-mp3Tag-beforeDash.btm
 2024-06-11  17:41          1,830   70%  album-art-tool-for-mp3Tag.bat
@@ -599,9 +599,9 @@
 2024-09-08  22:23             79   57%  reset.ansi
 2024-09-11  01:44             62   10%  restart-ahk.bat
 2024-10-10  03:59          1,167   70%  restart-chrome.bat
-2019-10-01  10:28            323   48%  restart-cpu-meter.bat
+2024-10-10  10:01            247   40%  restart-cpu-meter.bat
 2024-09-07  13:33             85   28%  restart-displayfusion.bat
-2024-09-07  13:33            499   46%  restart-explorer.bat
+2024-10-10  09:59            633   54%  restart-explorer.bat
 2024-09-07  13:31            161   25%  restart-ip-stack-(requires-reboot).bat
 2022-04-14  02:06             87   17%  restart-lastfm.bat
 2024-04-09  23:29             77   33%  restart-minilyrics.bat
@@ -738,6 +738,7 @@
 2023-06-01  14:32             43   -4%  subtle.bat
 2023-06-01  05:17            294   42%  success.bat
 2024-07-22  12:33          8,012   73%  switch-winamp-to-playlist.bat
+2024-10-10  09:20             30   -6%  symlink-create-automatic-symlinks.bat
 2023-11-23  13:46             11  -18%  symlink.bat
 2024-05-20  19:55          7,733   69%  sync-a-folder-to-somewhere.bat
 2024-08-20  06:31            325   40%  sync-bat-to-dropbox.bat
@@ -808,6 +809,7 @@
 2024-05-04  22:16            357   43%  validate-is-number.bat
 2023-04-28  14:04            627   51%  view_pickle.py
 2024-10-07  09:15             48   -4%  volume.bat
+2024-10-10  09:36            125   15%  wait.bat
 2023-06-13  18:25          1,372   57%  wake-all-drives-helper.bat
 2023-06-11  14:06             95    5%  wake-all-drives.bat
 2024-03-18  14:23          2,153   72%  wake-computers.bat
