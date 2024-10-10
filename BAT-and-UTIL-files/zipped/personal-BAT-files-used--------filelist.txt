@@ -69,7 +69,7 @@
 2024-05-08  14:41          1,886   67%  backup-game-saves.bat
 2024-09-04  14:30          7,514   70%  backup-important-files.bat
 2024-09-03  07:06          1,975   63%  backup-important-folders.bat
-2024-08-20  07:01         11,403   79%  backup-repositories.bat
+2024-10-10  05:38         11,581   79%  backup-repositories.bat
 2024-05-09  20:16          3,305   66%  backup-repository.bat
 2024-05-08  13:27            698   47%  backup-rocksmith.bat
 2024-05-21  14:40          1,068   50%  backup-Rogue_Legacy_2.bat
@@ -271,7 +271,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-10-05  15:43        185,830   81%  environm.btm
+2024-10-10  06:49        185,883   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -598,7 +598,7 @@
 2024-09-10  01:10          2,673   61%  reset-tab-stops.bat
 2024-09-08  22:23             79   57%  reset.ansi
 2024-09-11  01:44             62   10%  restart-ahk.bat
-2024-10-03  12:15          1,047   71%  restart-chrome.bat
+2024-10-10  03:59          1,167   70%  restart-chrome.bat
 2019-10-01  10:28            323   48%  restart-cpu-meter.bat
 2024-09-07  13:33             85   28%  restart-displayfusion.bat
 2024-09-07  13:33            499   46%  restart-explorer.bat
@@ -648,12 +648,12 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-10-07  18:08         79,360   82%  set-ansi.bat
+2024-10-10  06:44         81,262   82%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-10-04  07:36          1,804   70%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat
 2023-06-05  23:30             68   15%  set-current_playing_song.bat
-2024-10-07  18:24          1,214   50%  set-cursor.bat
+2024-10-10  06:47          1,234   51%  set-cursor.bat
 2024-03-24  20:01            305   44%  set-drive-related-environment-variables.bat
 2024-03-24  20:03             49   -4%  set-drive.bat
 2024-09-09  12:20            635   44%  set-emojis.bat
@@ -685,7 +685,7 @@
 2023-06-06  14:08          4,130   73%  show_current_pallete_prototype.py
 2019-10-01  10:28          5,276   63%  sizedir.pl
 2024-05-14  19:06            668   52%  sizes.bat
-2024-10-07  18:53          3,868   71%  sleep.bat
+2024-10-10  06:45          4,141   70%  sleep.bat
 2024-05-03  14:34             24   -8%  sn.bat
 2024-10-07  09:15             18  -11%  snd.bat
 2024-05-03  14:33             24   -8%  snip.bat

@@ -2349,7 +2349,7 @@ return
 
 
 
-:SetPathAndPrompt
+:SetPathAndPromptAndCursor
     rem don't do it if we're not supposed to
         if %ENVIRONM_BAT_DO_NOT_SET_PROMPT eq 1 (goto :DoNotSetPrompt)
 
@@ -2367,8 +2367,9 @@ return
 
             rem This doesn't quite go here but doesn't have a better place to go here and this is the best timing
             call c:\bat\detect-command-line-container
-
     :DoNotSetPrompt
+
+    if %CURSOR_SET% ne 1 (call set-cursor)
 return
 
 

@@ -38,3 +38,5 @@ rem If we managed to get here, just continue on and use Claire's cursor:
 :end
 
 set CURSOR_RESET=%@SET_CURSOR_COLOR_BY_HEX[%ANSI_PREFERRED_CURSOR_COLOR_HEX]%ANSI_PREFERRED_CURSOR_SHAPE%
+set CURSOR_SET=1
+

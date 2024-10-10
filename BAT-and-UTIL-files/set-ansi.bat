@@ -26,13 +26,12 @@ rem Branch by parameter:
         if  "1" == "%COLORS_HAVE_BEEN_SET%"    (goto :AlreadyDone  )
         :Force
 
-rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+rem ————————————————————————————————————————————— BASE ANSI CODES: ————————————————————————————————————————————————————————————————————————————————————————
 
 rem ANSI: Base variables used in other variables: 
         set                  ESCAPE=%@CHAR[27]
         set             ANSI_ESCAPE=%ESCAPE%[
         set ANSIESCAPE=%ANSI_ESCAPE%
-
 
 rem ANSI: esoterica to bve used in next section
         set  ANSI_APP_PROGRAM_COMMAND=%ESCAPE%_         %+ rem APC == Application Program    Command
@@ -51,19 +50,33 @@ rem ANSI: Names influenced by online references:
         set  ANSI_SOS=%ANSI_START_OF_STRING%            %+ rem SOS == Start       Of         String 
         set  ANSI_ST=%ANSI_STRING_TERMINATOR%           %+ rem  ST == String      Terminator
 
-rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+rem ————————————————————————————————————————————— UTILITY FUNCTIONS: ——————————————————————————————————————————————————————————————————————————————————————
 
 rem Utility functions: 
-        function random_hex_char=`%@substr[0123456789ABCDEF,%@random[0,15],1]`
-        function random_rgb_hex=`%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]`
-        function random_color_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
-        function  cool_digit=`%@randfg_soft[]%[cool_%1]`
-        function  cool_digit_plain=`%[cool_%1]`              %+ rem COOL_0 through COOL_9 are defined in emoji.env
-        function cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1]]]]]]]]]]`
-        function cool_number=`%@random_color_string[%@cool_number_plain[%1$]]`
-        function cool_string=`%@random_color_string[%@cool_number_plain[%1$]]`
 
-rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem Returns a single hex character, i.e. '0', '1', ..., '8', '9', 'A', 'B', ..., 'E', 'F':
+                function random_hex_char=`%@substr[0123456789ABCDEF,%@random[0,15],1]`             
+
+        rem Return a random hex rgb i.e. '47A98F', '9D3B5C':
+                function random_rgb_hex=`%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]`
+        
+        rem Change a string to have each character be in a random color:
+                function random_color_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
+
+        rem Change a single digit into the cool version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' bracket [cool_x are defined in emoji.inv]:
+                function  cool_digit_plain=`%[cool_%1]`              %+ rem COOL_0 through COOL_9 are defined in emoji.env      
+                rem Now do it in a random color also:
+                        function  cool_digit=`%@randfg_soft[]%[cool_%1]`
+
+        rem Change a full number into the cool version of each digit:
+                function cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1]]]]]]]]]]`
+                rem Now do it in a random color also:
+                        function cool_number=`%@random_color_string[%@cool_number_plain[%1$]]`
+
+        rem To coolify a non-numerical string, we simply run the same code —— but maybe we could do something else to make it interesting❓
+                        function cool_string=`%@random_color_string[%@cool_number_plain[%1$]]`
+
+rem ————————————————————————————————————————————— RESETTING: ——————————————————————————————————————————————————————————————————————————————————————————————
 
 rem ANSI: special stuff: reset
             set ANSI_RESET_FG_COLOR=%ANSI_ESCAPE%0m
@@ -74,6 +87,86 @@ rem ANSI: special stuff: reset
                 set ANSI_RESET_COLOR=%ANSI_RESET_FG_COLOR%
                 set ANSI_NORMAL=%ANSI_RESET%
                 set ANSI_COLOR_NORMAL=%ANSI_RESET%
+
+rem ————————————————————————————————————————————— CURSOR CUSTOMIZATION: ———————————————————————————————————————————————————————————————————————————————————
+
+
+ rem ANSI: cursor visibility
+        rem Cursor visibility:
+                set ANSI_CURSOR_HIDE=%ANSI_ESCAPE%?25l                          %+ rem hides the cursor
+                    set ANSI_HIDE_CURSOR=%ANSI_CURSOR_HIDE%                     %+ rem alias
+                    set ANSI_INVISIBLE_CURSOR=%ANSI_CURSOR_HIDE%                %+ rem alias
+                    set ANSI_CURSOR_INVISIBLE=%ANSI_CURSOR_HIDE%                %+ rem alias
+                set ANSI_CURSOR_SHOW=%ANSI_ESCAPE%?25h                          %+ rem shows the cursor
+                    set ANSI_SHOW_CURSOR=%ANSI_CURSOR_SHOW%                     %+ rem alias
+                    set ANSI_VISIBLE_CURSOR=%ANSI_CURSOR_SHOW%                  %+ rem alias
+                    set ANSI_CURSOR_VISIBLE=%ANSI_CURSOR_SHOW%                  %+ rem alias
+
+        rem Cursor shape:
+                rem Possible allowable shapes:
+                        set ANSI_CURSOR_CHANGE_TO_DEFAULT=%ansi_escape%0 q
+                        set ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING=%ansi_escape%1 q
+                        set ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY=%ansi_escape%2 q
+                        set ANSI_CURSOR_CHANGE_TO_UNDERLINE_BLINKING=%ansi_escape%3 q
+                        set ANSI_CURSOR_CHANGE_TO_UNDERLINE_STEADY=%ansi_escape%4 q
+                        set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING=%ansi_escape%5 q
+                        set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_STEADY=%ansi_escape%6 q
+                        rem Aliases:
+                                set ANSI_CURSOR_SHAPE_DEFAULT=%ansi_escape%0 q
+                                set ANSI_CURSOR_SHAPE_BLOCK_BLINKING=%ansi_escape%1 q
+                                set ANSI_CURSOR_SHAPE_BLOCK_STEADY=%ansi_escape%2 q
+                                set ANSI_CURSOR_SHAPE_UNDERLINE_BLINKING=%ansi_escape%3 q
+                                set ANSI_CURSOR_SHAPE_UNDERLINE_STEADY=%ansi_escape%4 q
+                                set ANSI_CURSOR_SHAPE_VERTICAL_BAR_BLINKING=%ansi_escape%5 q
+                                set ANSI_CURSOR_SHAPE_VERTICAL_BAR_STEADY=%ansi_escape%6 q
+
+                rem Random shape:
+                        function ANSI_RANDOM_CURSOR_SHAPE=`%@char[27][%@random[0,6] q`
+                        function ANSI_CURSOR_RANDOM_SHAPE=`%@char[27][%@random[0,6] q`
+                        function ANSI_CURSOR_SHAPE_RANDOM=`%@char[27][%@random[0,6] q`
+                        function      CURSOR_SHAPE_RANDOM=`%@char[27][%@random[0,6] q`
+                        function      CURSOR_SHAPE_RANDOM=`%@char[27][%@random[0,6] q`
+                        function      CURSOR_RANDOM_SHAPE=`%@char[27][%@random[0,6] q`
+                        function      RANDOM_CURSOR_SHAPE=`%@char[27][%@random[0,6] q`
+
+        rem Cursor color:
+                rem Changing color by word, i.e. 'red', 'magenta':                
+                        function    ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                
+                        function      CURSOR_COLOR_CHANGE_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                        function        ANSI_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                        function         ANSI_CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                        function         SET_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                        function             CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                        function              CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                        function                ANSI_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                        function                 SET_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                        function                     CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+
+                rem Changing color by hex, i.e. 'FF0000', 'FF00FF':
+                        function     ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                  %+ rem like above section but with "#" in front of color
+                        function     ANSI_CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                        function          CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                        function            ANSI_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                        function             SET_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                        function                 CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                        rem       ANSI_CURSOR_CHANGE_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]` —— name too long
+                        rem       ANSI_CURSOR_COLOR_CHANGE_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]` —— name too long
+                        function       CURSOR_COLOR_CHANGE_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                        function         ANSI_CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                        function          SET_CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                        function              CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+
+                rem Random color:
+                        function ANSI_CURSOR_CHANGE_COLOR_RANDOM=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
+                        rem Aliases:
+                                function RANDOM_CURSOR_COLOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
+
+                rem Random shape *AND* color:
+                        function    ANSI_CURSOR_RANDOM=`%@char[27][%@random[0,6] q%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
+                        rem Aliases:
+                                function RANDOM_CURSOR=`%@char[27][%@random[0,6] q%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
+                                function    RANDCURSOR=`%@char[27][%@random[0,6] q%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
+
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -143,73 +236,9 @@ rem ANSI: cursor position movement
             function ANSI_TAB_BACKWARD=`%@CHAR[27][%1Z`                     %+ rem Retreat the cursor to the previous column (in the same row) with a tab stop. If there are no more tab stops, move to the first column in the row. If the cursor is in the first column, don't move the cursor
 
 
-rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-
- rem ANSI: cursor visibility
-        rem Cursor visibility:
-                set ANSI_CURSOR_HIDE=%ANSI_ESCAPE%?25l                          %+ rem hides the cursor
-                    set ANSI_HIDE_CURSOR=%ANSI_CURSOR_HIDE%                     %+ rem alias
-                    set ANSI_INVISIBLE_CURSOR=%ANSI_CURSOR_HIDE%                %+ rem alias
-                    set ANSI_CURSOR_INVISIBLE=%ANSI_CURSOR_HIDE%                %+ rem alias
-                set ANSI_CURSOR_SHOW=%ANSI_ESCAPE%?25h                          %+ rem shows the cursor
-                    set ANSI_SHOW_CURSOR=%ANSI_CURSOR_SHOW%                     %+ rem alias
-                    set ANSI_VISIBLE_CURSOR=%ANSI_CURSOR_SHOW%                  %+ rem alias
-                    set ANSI_CURSOR_VISIBLE=%ANSI_CURSOR_SHOW%                  %+ rem alias
-
-        rem Cursor shape:
-                set ANSI_CURSOR_CHANGE_TO_DEFAULT=%ansi_escape%0 q
-                set ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING=%ansi_escape%1 q
-                set ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY=%ansi_escape%2 q
-                set ANSI_CURSOR_CHANGE_TO_UNDERLINE_BLINKING=%ansi_escape%3 q
-                set ANSI_CURSOR_CHANGE_TO_UNDERLINE_STEADY=%ansi_escape%4 q
-                set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING=%ansi_escape%5 q
-                set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_STEADY=%ansi_escape%6 q
-                rem Aliases:
-                        set ANSI_CURSOR_SHAPE_DEFAULT=%ansi_escape%0 q
-                        set ANSI_CURSOR_SHAPE_BLOCK_BLINKING=%ansi_escape%1 q
-                        set ANSI_CURSOR_SHAPE_BLOCK_STEADY=%ansi_escape%2 q
-                        set ANSI_CURSOR_SHAPE_UNDERLINE_BLINKING=%ansi_escape%3 q
-                        set ANSI_CURSOR_SHAPE_UNDERLINE_STEADY=%ansi_escape%4 q
-                        set ANSI_CURSOR_SHAPE_VERTICAL_BAR_BLINKING=%ansi_escape%5 q
-                        set ANSI_CURSOR_SHAPE_VERTICAL_BAR_STEADY=%ansi_escape%6 q
-
-                function ANSI_RANDOM_CURSOR_SHAPE=`%@char[27][%@random[0,6] q`
-                function ANSI_CURSOR_RANDOM_SHAPE=`%@char[27][%@random[0,6] q`
-                function ANSI_CURSOR_SHAPE_RANDOM=`%@char[27][%@random[0,6] q`
-                function      CURSOR_SHAPE_RANDOM=`%@char[27][%@random[0,6] q`
-                function      CURSOR_SHAPE_RANDOM=`%@char[27][%@random[0,6] q`
-                function      CURSOR_RANDOM_SHAPE=`%@char[27][%@random[0,6] q`
-                function      RANDOM_CURSOR_SHAPE=`%@char[27][%@random[0,6] q`
-                function       ANSI_CURSOR_RANDOM=`%@char[27][%@random[0,6] q`
-
-        rem Cursor color:
-                    function    ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                
-                    function      CURSOR_COLOR_CHANGE_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function        ANSI_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function         ANSI_CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function         SET_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function             CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function              CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function                ANSI_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function                 SET_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                    function                     CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-
-                    function     ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                  %+ rem like above section but with "#" in front of color
-                    function     ANSI_CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function          CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function            ANSI_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function             SET_CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function                 CURSOR_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function  ANSI_CURSOR_CHANGE_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                  %+ rem like above section but with "#" in front of color
-                    function  ANSI_CURSOR_COLOR_CHANGE_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function       CURSOR_COLOR_CHANGE_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function         ANSI_CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function          SET_CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-                    function              CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
-
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 
 REM ANSI: styles —— As of Windows Terminal we can now actually display italic characters
         REM 0m=reset, 1m=bold, 2m=faint, 3m=italic, 4m=underline, 5m=blink slow, 6m=blink fast, 7m=reverse, 8m=conceal, 9m=strikethrough

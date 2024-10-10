@@ -24,10 +24,18 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
     
     
     :New_Way
-            set                     SLEEP_TIME=3
-            if  "%1"  !=  ""   (set SLEEP_TIME=%1)
-            set NUM_SECONDS=%@EVAL[%SLEEP_TIME]
+            rem ⚠ Using default time of 3:
+                    set SLEEP_TIME=3
+
+            rem  But if a time is specified, use that time:
+                    if  "%1" !=  ""  (set SLEEP_TIME=%1)
+
+            rem Cheap way to make sure it's a number:
+                    rem NUM_SECONDS=%@EVAL[%SLEEP_TIME]
+                    set NUM_SECONDS=%SLEEP_TIME%
+
             echos %ANSI_SAVE_POSITION%%ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%
+
             do second = %num_seconds% to 0 by -1 
 
                     set emoji_to_use=%emoji_stopwatch%
@@ -68,6 +76,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                     echo %big_bot%%line%      ``
     
                     echos %@ANSI_MOVE_UP[2]
+                    echos %@RANDOM_CURSOR_COLOR[]
                     echos %ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%%ANSI_CURSOR_VISIBLE%
                     title %emoji_stopwatch% Sleeping %second% seconds...
                     if "%second" != "" (delay 1)

@@ -19,15 +19,23 @@
 rem SETUP:
          unset /q BACKUPREPOSTARTER
 
-rem PARAMETER PROCESSING —— allow "simultaneous" or "parallel" to quickly do them all in the same window:
-        if "%1" eq "simultaneous"  .or. "%1" eq "parallel" (  set    BACKUPREPOSTARTER=call startafter1secondpausewithexitafter %+ goto :Next_1)
-        if "%1" ne "simultaneous" .and. "%1" ne "parallel" (unset /q BACKUPREPOSTARTER                                          %+ goto     :%1)         
-        rem              call print-if-debug "BACKUPREPOSTARTER is '%BACKUPREPOSTARTER%'"
-
 
 rem VALIDATE ENVIRONMENT:
         call validate-in-path backup-repository success set-task askyn after startafter1secondpausewithexitafter
         rem this was a bad idea: `call environm validate` —— because it would cause all backups to fail if ust one repo was down
+
+
+rem PARAMETER PROCESSING —— allow "simultaneous" or "parallel" to quickly do them all in the same window:
+        set goto=Normal
+        if "%1" ne "simultaneous" .and. "%1" ne "parallel" .and. "%1" ne "" (set goto=%1)
+        if "%1" eq "simultaneous"  .or. "%1" eq "parallel" (  set    BACKUPREPOSTARTER=call startafter1secondpausewithexitafter %+ goto :%goto%)
+        if "%1" ne "simultaneous" .and. "%1" ne "parallel" (unset /q BACKUPREPOSTARTER                                          %+ goto :%goto%)         
+        rem              call print-if-debug "BACKUPREPOSTARTER is '%BACKUPREPOSTARTER%'"
+
+
+        
+rem START DOING THE BACKUP:
+        :Normal
         call set-task "Running backups..."
         timer
 
