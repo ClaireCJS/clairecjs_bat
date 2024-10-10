@@ -54,27 +54,36 @@ rem —————————————————————————�
 
 rem Utility functions: 
 
-        rem Returns a single hex character, i.e. '0', '1', ..., '8', '9', 'A', 'B', ..., 'E', 'F':
+        rem Returns a random single hex character, i.e. '0', '1', ..., '8', '9', 'A', 'B', ..., 'E', 'F':
                 function random_hex_char=`%@substr[0123456789ABCDEF,%@random[0,15],1]`             
 
         rem Return a random hex rgb i.e. '47A98F', '9D3B5C':
                 function random_rgb_hex=`%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]`
         
-        rem Change a string to have each character be in a random color:
+        rem Return a string with character in a random color:
                 function random_color_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
+                function     colorful_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
+                function            colorful=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
 
-        rem Change a single digit into the cool version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' bracket [cool_x are defined in emoji.inv]:
-                function  cool_digit_plain=`%[cool_%1]`              %+ rem COOL_0 through COOL_9 are defined in emoji.env      
+        rem Change a single digit into the cool version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' bracket cool_x are defined in emoji.inv】: 
+                function  cool_digit_plain=`%[cool_%1]`                                           %+ rem COOL_0 through COOL_9 are defined in emoji.env      
+                function  cool_char_plain=`%@if[%1==" ",%@if[defined cool_%1,%[cool_%1],%1]`      %+ rem ...but let's allow ANY character to have a 'cool' version in emoji.env, though it's questionable how useful this is with environment variable naming limitations
                 rem Now do it in a random color also:
-                        function  cool_digit=`%@randfg_soft[]%[cool_%1]`
+                        function       cool_digit=`%@randfg_soft[]%[cool_%1]`
+                        function  cool_char_plain=`%@randfg_soft[]%@if[defined cool_%1,%[cool_%1],%1]`              
 
         rem Change a full number into the cool version of each digit:
-                function cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1]]]]]]]]]]`
+                function cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1$]]]]]]]]]]`
                 rem Now do it in a random color also:
                         function cool_number=`%@random_color_string[%@cool_number_plain[%1$]]`
 
         rem To coolify a non-numerical string, we simply run the same code —— but maybe we could do something else to make it interesting❓
-                        function cool_string=`%@random_color_string[%@cool_number_plain[%1$]]`
+                        function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,Ṡ,%@REPLACE[f,ƒ,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
+                        function cool_string=`%@random_color_string[%@cool_string_plain[%1$]]`
+                        rem Alias:
+                                function cool=`%@cool_string[%1$]`
+                        rem Experimental:
+                                function cool_string_lookup_only=`%@REReplace[([^\s]),%@randFG_soFt[]%@cool_char_plain[\1],%1$]` %+ rem EXPERIMENTAL
 
 rem ————————————————————————————————————————————— RESETTING: ——————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -159,7 +168,8 @@ rem —————————————————————————�
                 rem Random color:
                         function ANSI_CURSOR_CHANGE_COLOR_RANDOM=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
                         rem Aliases:
-                                function RANDOM_CURSOR_COLOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
+                               function ANSI_CURSOR_COLOR_RANDOM=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
+                               function      RANDOM_CURSOR_COLOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
 
                 rem Random shape *AND* color:
                         function    ANSI_CURSOR_RANDOM=`%@char[27][%@random[0,6] q%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`

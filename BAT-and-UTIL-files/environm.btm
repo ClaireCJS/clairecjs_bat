@@ -193,7 +193,7 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 	gosub DefineExecutableFileExtensions                  %+    %gosub_stopwatch_button% orange "after DefineExecutableFileExtensions  " %+ rem 0.24 
 	gosub SetUsernameAndNetName                           %+    %gosub_stopwatch_button% orange "after SetUsernameAndNetName           " %+ rem 0.04
 	gosub Initial%USERNAME%                               %+    %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.01
-	gosub SetPathAndPrompt                                %+    %gosub_stopwatch_button% orange "after SetPathAndPrompt                " %+ rem 0.29->.21 1st/autoexec-run .005 successive runs
+	gosub SetPathAndPromptAndCursor                       %+    %gosub_stopwatch_button% orange "after SetPathAndPromptAndCursor       " %+ rem 0.29->.21 1st/autoexec-run .005 successive runs
 	gosub LoadAliases                                     %+    %gosub_stopwatch_button% orange "after LoadAliases                     " %+ rem 0.02
 	gosub CheckForSyncedDevices                           %+    %gosub_stopwatch_button% orange "after CheckForSyncedDevices           " %+ rem 0.01
 	gosub OSSpecificOverrides                             %+    %gosub_stopwatch_button% orange "after OSSpecificOverrides             " %+ rem 0.05

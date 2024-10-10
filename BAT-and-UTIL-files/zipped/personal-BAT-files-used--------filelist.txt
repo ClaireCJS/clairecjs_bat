@@ -267,7 +267,7 @@
 2024-10-04  11:40             32   -6%  eject.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
-2024-10-07  16:20         71,628   78%  emoji.env
+2024-10-10  08:59         71,675   78%  emoji.env
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
