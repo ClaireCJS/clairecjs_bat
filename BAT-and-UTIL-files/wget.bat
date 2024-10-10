@@ -17,7 +17,8 @@ if "%CYGWIN" ne "" (goto   :cygwin)
                         goto :end
 
                         :cygwin
-                            c:\cygwin\bin\wget.exe %*
+                            rem c:\cygwin\bin\wget.exe %*
+                            wget.exe %*
                         goto :end
 
 

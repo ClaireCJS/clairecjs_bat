@@ -46,9 +46,9 @@
 2022-02-07  13:15             19  -10%  an.bat
 2024-10-02  11:38            206   25%  ansi-references.bat
 2024-09-08  22:24             21   -9%  ansi-reset.bat
-2024-10-07  14:27             67    3%  app-volume-and-device-preferences-hotkey.bat
+2024-10-10  10:28             68    3%  app-volume-and-device-preferences-hotkey.bat
 2024-10-07  14:29            553   42%  app-volume-and-device-preferences-install-button-to-taskbar.bat
-2024-10-07  14:23             94    9%  app-volume-and-device-preferences.bat
+2024-10-10  10:28             95    8%  app-volume-and-device-preferences.bat
 1996-04-15  19:12          2,238   69%  app-volume-and-device-preferences.ico
 2024-10-07  14:28          2,115   62%  app-volume-and-device-preferences.lnk
 2024-09-09  01:32         13,506   74%  askYN.bat
@@ -823,7 +823,7 @@
 2024-04-10  13:05             19  -10%  wcnice.bat
 2024-04-10  13:08            407   37%  wcpretty.bat
 2023-07-19  19:12          2,039   62%  wedding_party.py
-2024-05-07  13:57            548   59%  wget.bat
+2024-10-10  11:25            593   61%  wget.bat
 2023-07-10  10:05            494   65%  wget32.bat
 2019-10-01  10:28             54    6%  wgetquiet.bat
 2024-05-21  10:58          2,529   59%  where.bat
