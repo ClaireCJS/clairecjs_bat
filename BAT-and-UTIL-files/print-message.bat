@@ -97,7 +97,7 @@ REM Validate parameters
         if not defined COLOR_%TYPE%  (call fatal_error "This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment")
         if not defined MESSAGE       (call fatal_error "$0 called without a message")
         call validate-in-path beep.bat 
-        call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH
+        call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_MAGNIFYING_GLASS_TILTED_LEFT
         set VALIDATED_PRINTMESSAGE_ENV=1
     )
 
@@ -147,36 +147,36 @@ REM Behavior overides and message decorators depending on the type of message?
 
 
 REM We're going to update the window title to the message. If possible, strip any ANSI color codes from it:
-    rem this became unreliable: if not "1"== "%PLUGIN_STRIPANSI_LOADED" (goto :No_Title_Stripping)
-    if not plugin stripansi (goto :No_Title_Stripping)
-        set CLEAN_MESSAGE=%@STRIPANSI[%ORIGINAL_MESSAGE]
-        goto :Set_Title_Var_Now
-    :No_Title_Stripping
-        set CLEAN_MESSAGE=%ORIGINAL_MESSAGE%
-    :Set_Title_Var_Now
-        set TITLE=%CLEAN_MESSAGE%
 
+        rem this became unreliable: if not "1"== "%PLUGIN_STRIPANSI_LOADED" (goto :No_Title_Stripping)
+        if not plugin stripansi (goto :No_Title_Stripping)
+                set CLEAN_MESSAGE=%@STRIPANSI[%ORIGINAL_MESSAGE]
+                goto :Set_Title_Var_Now
+        :No_Title_Stripping
+                set CLEAN_MESSAGE=%ORIGINAL_MESSAGE%
+        :Set_Title_Var_Now
+                set TITLE=%CLEAN_MESSAGE%
 
+        REM But first let's decorate the window title for certain message types Prior to actually updating the window title:
+                if "%TYPE%" eq          "DEBUG" (set TITLE=%EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %title% %EMOJI_MAGNIFYING_GLASS_TILTED_LEFT%)
+                if "%TYPE%" eq "LESS_IMPORTANT" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
+                if "%TYPE%" eq "IMPORTANT_LESS" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
+                if "%TYPE%" eq      "IMPORTANT" (set TITLE=%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %title% %EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%)
+                if "%TYPE%" eq          "ALARM" (set TITLE=%EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%  %title%  %EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%)
+                if "%TYPE%" eq   "WARNING_LESS" (set TITLE=%EMOJI_WARNING%%title%)
+                if "%TYPE%" eq        "WARNING" (set TITLE=%EMOJI_WARNING%%EMOJI_WARNING%%title!%EMOJI_WARNING%%EMOJI_WARNING%)
+                if "%TYPE%" eq          "ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% ERROR %endash% %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
+                if "%TYPE%" eq    "FATAL_ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% FATAL ERROR: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
 
-    REM But first let's decorate the window title for certain message types Prior to actually updating the window title:
-        if "%TYPE%" eq          "DEBUG" (set            TITLE=DEBUG: %title%)
-        if "%TYPE%" eq   "WARNING_LESS" (set          TITLE=%EMOJI_WARNING%%title%)
-        if "%TYPE%" eq        "WARNING" (set          TITLE=%EMOJI_WARNING%%EMOJI_WARNING%%title!%EMOJI_WARNING%%EMOJI_WARNING%)
-        if "%TYPE%" eq "LESS_IMPORTANT" (set                 TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
-        if "%TYPE%" eq "IMPORTANT_LESS" (set                 TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
-        if "%TYPE%" eq      "IMPORTANT" (set                TITLE=%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %title% %EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%)
-        if "%TYPE%" eq          "ALARM" (set          TITLE=%EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%  %title%  %EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%)
-        if "%TYPE%" eq          "ERROR" (set         TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% ERROR %endash% %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
-        if "%TYPE%" eq    "FATAL_ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% FATAL ERROR: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
-
-    title %title%
+        REM Then actually set the current window title to our newly-constructed window title text:        
+                title %title%
 
 
 REM Some messages will be decorated with audio:
-    if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO ne 1 (
-        if "%TYPE%" eq "DEBUG"  (call beep  lowest 1)
-        if "%TYPE%" eq "ADVICE" (call beep highest 3)
-    )
+        if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO ne 1 (
+                if "%TYPE%" eq "DEBUG"  (call beep  lowest 1)
+                if "%TYPE%" eq "ADVICE" (call beep highest 3)
+        )
 
 REM Pre-Message pause based on message type (pausable messages need a litle visual cushion):
         if %DO_PAUSE% eq 1 (echo.)           
@@ -203,79 +203,77 @@ REM Actually display the message:
         rem test:
 
         if %BIG_HEADER eq 1 (
-            SET BIG_ECHO_MSG_TO_USE=%our_ansicolortouse%****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****
-            rem There was a lot of weirdness with background color bleedthrough when doing this:
-            rem call bigecho %BIG_ECHO_MSG_TO_USE%
-            rem I opened this bug report with Windows Terminal to fix it: 
-            rem https://github.com/microsoft/terminal/issues/17771
-            rem We assemble the double-height lines manually here, without using bigecho.bat, to have the most control over that bug:
-            echo %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
-            echo %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+                SET BIG_ECHO_MSG_TO_USE=%our_ansicolortouse%****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****
+                rem There was a lot of weirdness with background color bleedthrough when doing this:
+                rem call bigecho %BIG_ECHO_MSG_TO_USE%
+                rem I opened this bug report with Windows Terminal to fix it: 
+                rem https://github.com/microsoft/terminal/issues/17771
+                rem We assemble the double-height lines manually here, without using bigecho.bat, to have the most control over that bug:
+                echo %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
+                echo %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
         )
 
         REM repeat the message the appropriate number of times
         for %msgNum in (%HOW_MANY%) do (           
-            REM handle pre-message formatting [color/blinking/reverse/italics/faint], based on what type of message and which message in the sequence of repeated messages it is
+                REM handle pre-message formatting [color/blinking/reverse/italics/faint], based on what type of message and which message in the sequence of repeated messages it is
 
-            REM Special decorators that are only for the message itself, not the header/fooder:
-            if "%TYPE%" eq "FATAL_ERROR" (echos                ``)
-            if "%TYPE%" eq       "ERROR" (echos       ``)
+                REM Special decorators that are only for the message itself, not the header/fooder:
+                %OUR_COLORTOUSE%
+                if "%TYPE%"     eq "FATAL_ERROR"      (echos                ``)
+                if "%TYPE%"     eq       "ERROR"      (echos       ``)
+                if  %BIG_HEADER eq    1               (echos %BLINK_ON%)
+                if "%TYPE%"     eq "SUBTLE"           (echos %FAINT_ON%)
+                if "%TYPE%"     eq "UNIMPORTANT"      (echos %FAINT_ON%)
+                if "%TYPE%"     eq "SUCCESS"          (echos %BOLD_ON%)
+                if "%TYPE%"     eq "CELEBRATION"  (
+                        if        %msgNum        == 1 (echos %BIG_TOP_ON%``)
+                        if        %msgNum        == 2 (echos %BIG_BOT_ON%``)
+                )
+                if "%TYPE%"     eq "ERROR"   (
+                        if %@EVAL[%msgNum mod 2] == 1 (echos %REVERSE_ON%)
+                        if %@EVAL[%msgNum mod 2] == 0 (echos %REVERSE_OFF%%BLINK_OFF%)
+                )
+                if "%TYPE%" eq "FATAL_ERROR" (
+                        if %@EVAL[%msgNum mod 3] == 0 (echos %BLINK_OFF%)
+                        if %@EVAL[%msgNum mod 2] == 1 (echos %REVERSE_OFF%)
+                        if %@EVAL[%msgNum mod 2] == 0 (echos %REVERSE_ON%)
+                        if        %msgNum        != 3 (echos %ITALICS_OFF%)
+                        if        %msgNum        == 3 (echos %ITALICS_ON%)
+                )
 
+                REM HACK: Decorators with ">" in them need to be manually outputted here at the last minute to avoid issues with ">" being the redirection character, though setdos could work around this
+                        if "%TYPE%" eq "ADVICE" (echos `----> `)
 
-            %OUR_COLORTOUSE%
-            if  %BIG_HEADER eq    1           (echos %BLINK_ON%)
-            if "%TYPE%"     eq "SUBTLE"       (echos %FAINT_ON%)
-            if "%TYPE%"     eq "UNIMPORTANT"  (echos %FAINT_ON%)
-            if "%TYPE%"     eq "SUCCESS"      (echos %BOLD_ON%)
-            if "%TYPE%"     eq "CELEBRATION"  (
-                if        %msgNum        == 1 (echos %BIG_TOP_ON%``)
-                if        %msgNum        == 2 (echos %BIG_BOT_ON%``)
-            )
-            if "%TYPE%"     eq "ERROR"   (
-                if %@EVAL[%msgNum mod 2] == 1 (echos %REVERSE_ON%)
-                if %@EVAL[%msgNum mod 2] == 0 (echos %REVERSE_OFF%%BLINK_OFF%)
-            )
-            if "%TYPE%" eq "FATAL_ERROR" (
-                if %@EVAL[%msgNum mod 3] == 0 (echos %BLINK_OFF%)
-                if %@EVAL[%msgNum mod 2] == 1 (echos %REVERSE_OFF%)
-                if %@EVAL[%msgNum mod 2] == 0 (echos %REVERSE_ON%)
-                if        %msgNum        != 3 (echos %ITALICS_OFF%)
-                if        %msgNum        == 3 (echos %ITALICS_ON%)
-            )
+                REM actually print the message:
+                        echos %DECORATED_MESSAGE%
 
-            REM HACK: Decorators with ">" in them need to be manually outputted here at the last minute to avoid issues with ">" being the redirection character, though setdos could work around this
-            if "%TYPE%" eq "ADVICE" (echos `----> `)
+                REM handle post-message formatting
+                        if "%TYPE%"     eq "SUBTLE"      (echos %FAINT_OFF%)
+                        if "%TYPE%"     eq "UNIMPORTANT" (echos %FAINT_OFF%)
+                        if "%TYPE%"     eq "SUCCESS"     (echos %BOLD_OFF%)
+                        if "%TYPE%"     eq "CELEBRATION_OLD_CODE_TODO_REMOVE" (
+                                if 1 == %msgNum% (echos     ``)
+                                if 2 == %msgNum% (echos     ``)
+                        )
+                        if "%TYPE%"     eq "CELEBRATION"  (
+                                if %msgNum == 1 (echos %BIG_TEXT_END%%ANSI_RESET%``)
+                                if %msgNum == 2 (echos %BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%``)
+                        )
+                        rem test relying on the ansi_reset below instead: 
+                                rem if  %BIG_HEADER eq    1          (echos %BLINK_OFF%)
 
-
-            REM actually print the message:
-            echos %DECORATED_MESSAGE%
-
-            REM handle post-message formatting
-            if "%TYPE%"     eq "SUBTLE"      (echos %FAINT_OFF%)
-            if "%TYPE%"     eq "UNIMPORTANT" (echos %FAINT_OFF%)
-            if "%TYPE%"     eq "SUCCESS"     (echos %BOLD_OFF%)
-            if "%TYPE%"     eq "CELEBRATION_OLD_CODE_TODO_REMOVE" (
-                if 1 == %msgNum% (echos     ``)
-                if 2 == %msgNum% (echos     ``)
-            )
-            if "%TYPE%"     eq "CELEBRATION"  (
-                if %msgNum == 1 (echos %BIG_TEXT_END%%ANSI_RESET%``)
-                if %msgNum == 2 (echos %BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%``)
-            )
-            rem test relying on the ansi_reset below instead: 
-            rem if  %BIG_HEADER eq    1          (echos %BLINK_OFF%)
-
-            REM setting color to normal (white on black) and using the erase-to-end-of-line sequence helps with the Windows Termina+TCC bug(?) where a bit of the background color is shown in the rightmost column
-            echo %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%`` 
-        )
-        REM display our closing big-header, if we are in big-header mode
-        rem if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%[DECORATOR_RIGHT]****%ANSI_RESET%%ANSI_ERASE_TO_EOL%)
-        if %BIG_HEADER eq 1 (
-            echo %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
-            echo %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+                        REM setting color to normal (white on black) and using the erase-to-end-of-line sequence helps with the Windows Termina+TCC bug(?) where a bit of the background color is shown in the rightmost column
+                                echo %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%`` 
         )
 
+        REM display our closing big-header, if we are in big-header mode:
+                rem if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%[DECORATOR_RIGHT]****%ANSI_RESET%%ANSI_ERASE_TO_EOL%)
+                if %BIG_HEADER eq 1 (
+                        echo %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
+                        echo %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+                )
 
+        
 REM Post-message delays and pauses
         setdos /x0
         set DO_DELAY=0    
@@ -289,24 +287,24 @@ REM Post-message beeps and sound effects
         if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO eq 1 (goto :No_Beeps_2)
             if "%TYPE%" eq "CELEBRATION" .or. "%TYPE%" eq "COMPLETION" (beep exclamation)
             if "%TYPE%" eq "ERROR" .or. "%TYPE%" eq "ALARM"   (
-                beep 145 1 
-                beep 120 1 
-                beep 100 1 
-                beep  80 1 
-                beep  65 1 
-                beep  50 1 
-                beep  40 1 
-                beep hand
+                    beep 145 1 
+                    beep 120 1 
+                    beep 100 1 
+                    beep  80 1 
+                    beep  65 1 
+                    beep  50 1 
+                    beep  40 1 
+                    beep hand
             )         
             if "%TYPE%" eq "WARNING" (
-                *beep 60 1 
-                *beep 69 1        
-                REM beep hand was overkil
-                beep question
+                    *beep 60 1 
+                    *beep 69 1        
+                    REM beep hand was overkil
+                    beep question
             )                                                                                                                              
             if "%TYPE%" eq "FATAL_ERROR" (
-                for %alarmNum in (1 2 3) do (beep %+ beep 145 1 %+ beep 120 1 %+ beep 100 1 %+ beep 80 1 %+ beep 65 1 %+ beep 50 1 %+ beep 40 1)
-                beep hand
+                    for %alarmNum in (1 2 3) do (beep %+ beep 145 1 %+ beep 120 1 %+ beep 100 1 %+ beep 80 1 %+ beep 65 1 %+ beep 50 1 %+ beep 40 1)
+                    beep hand
              )        
         :No_Beeps_2
 
@@ -319,9 +317,9 @@ REM For errors, give chance to gracefully exit the script (no more mashing of ct
                 set temp_title=%_wintitle
                 call askyn "Cancel all execution and return to command line?" yes
                 if %DO_IT eq 1 (
-                    set comment=CANCEL used to be here
-                    title %temp_title%
-                    goto :END
+                        set comment=CANCEL used to be here
+                        title %temp_title%
+                        goto :END
                 )
         )
 
@@ -369,9 +367,9 @@ goto :END
                 cls
                 echo.
                 if 1 ne %my_fast (
-                    call important "System print test - press N to go from one to the next --- any other key will cause tests to not complete -- if you get stuck hit enter once, then N -- if that doesn't work hit enter twice, then N"
-                    echo.
-                    pause>nul
+                        call important "System print test - press N to go from one to the next --- any other key will cause tests to not complete -- if you get stuck hit enter once, then N -- if that doesn't work hit enter twice, then N"
+                        echo.
+                        pause>nul
                 )
 
                 rem      use %MESSAGE_TYPES instead of %MESSAGE_TYPES_WITHOUT_ALIASES to test alias message types:
@@ -380,17 +378,15 @@ goto :END
                     REM if "%clr%" eq "question"    set "clr4print=%CLR%    (windows: 'Question')"
 
                     if 1 ne %my_fast (
-                        echo.
-                        cls
-                        call important  "about to test %clr4print:"
-                        echo.
-                        pause>nul
-                        cls
+                            echo.
+                            cls
+                            call important  "about to test %clr4print:"
+                            echo.
+                            pause>nul
+                            cls
                     )
-                    if 1 eq %my_fast (echo.)                    
-                    call print-message %clr "This is a %clr4print message"
-                    REM sleep 1
-                    if 1 ne %my_fast (pause>nul)
+                    if 1 eq %my_fast (echo.                ) %+ call print-message %clr "This is a %clr4print message"
+                    if 1 ne %my_fast (pause>nul            )
                     if 1 eq %my_fast (echo. %+ call divider)
                 )
         goto :END
