@@ -40,7 +40,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
 
             rem And grab any optional message for clock-mode:
                     unset   /q         SLEEP_MESSAGE
-                    if "%3" ne "" (set SLEEP_MESSAGE=%@UNQUOTE[%3])
+                    if "%3" ne "" (set SLEEP_MESSAGE=%%@randfg_soft[]%@UNQUOTE[%3$])
 
             rem Temporarily change cursor to the vertical blinking bar, which is the least obtustive to the animated clock:
                     if %silent ne 1 (echos %ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%) else (echos %ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%)
@@ -82,8 +82,12 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                                                     set emoji_to_use=%EMOJI_STOPWATCH%
                                             endswitch
 
+                                    rem Decorate our optional message:
+                                                                       set SLEEP_MESSAGE_PREFIX=
+                                            if "" != "%SLEEP_MESSAGE%" set SLEEP_MESSAGE_PREFIX=%%@randfg_soft[] ... ``
+
                                     rem Assemble our clock + countdown + optional message:
-                                            set  line=%emoji_to_use%%italics%%@cool_number[%second%]%italics_off% ... %SLEEP_MESSAGE%
+                                            set  line=%emoji_to_use%%italics%%@cool_number[%second%]%italics_off%%SLEEP_MESSAGE_PREFIX%%SLEEP_MESSAGE%
 
                                     rem And echo it as double-height text, along with some extra spaces to erase digits leftover when counting down to a fewer-digit number, i.e. 10->9, 100->99, 1000->999:
                                             echo %big_top%%line%      ``
@@ -96,7 +100,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                                             echos %@RANDOM_CURSOR_COLOR[]%ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%%ANSI_CURSOR_VISIBLE%
 
                                     rem Update window title:
-                                            title %emoji_stopwatch% Sleeping %second% seconds...
+                                            title %emoji_to_use% Wait: %second% more seconds %emoji_to_use%
 
                                     rem Do our actual sleep:
                                             if "%second" != "0" (delay 1)
@@ -104,6 +108,9 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                                     rem Turn the cursor off, which makes the blinking stay in a consistent location instead of being all bouncy:
                                             if %silent ne 1 (echos %ANSI_CURSOR_INVISIBLE%) 
                             else
+                                    rem Update window title:
+                                            title %emoji_to_use% Sleep: %second% more seconds %emoji_to_use%
+
                                     rem Do the actual 'sleep':
                                             echos %@RANDOM_CURSOR_COLOR[]%ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%
                                             if "%second" != "0" (delay 1)
