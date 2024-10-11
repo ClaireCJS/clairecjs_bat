@@ -17,8 +17,11 @@ dir c:\TCMD\
 
 
 
-
+@rem Install WinGet:
 powershell -Command "Add-AppxPackage -Path \"https://aka.ms/getwinget\""
+
+@rem Regenerate our dynamically-generated path, which should now include Winget.exe:
+call c:\bat\setpath.bat
 
 @cls
 @echo *** Validation #2: Winget needs to be in your Path for this to work ***

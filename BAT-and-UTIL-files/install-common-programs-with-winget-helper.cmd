@@ -1,12 +1,15 @@
-echo Not doing, because I keep it in my own UTIL2 folder: winget install AutoHotkey.AutoHotkey               
-echo Not doing, because I prefer to copy the foldre from another machine so the installations are consistent: winget install Cygwin.Cygwin
-echo Not doing, because I prefer to use Anaconda: winget install Python.Python.3.11
+@echo Not doing, because I keep it in my own UTIL2 folder: winget install AutoHotkey.AutoHotkey               
+@echo Not doing, because I prefer to copy the foldre from another machine so the installations are consistent: winget install Cygwin.Cygwin
+@echo Not doing, because I prefer to use Anaconda: winget install Python.Python.3.11
 
 winget install -e --id Microsoft.WindowsTerminal
 winget install BinaryFortress.DisplayFusion              
 winget install Google.Chrome                             
 winget install Opera.Opera                               
 winget install Mozilla.Firefox
+
+winget install AMD_Chipset_IODrivers                     
+
 winget install Microsoft.VCRedist.2008.x86               
 winget install Microsoft.VCRedist.2010.x64               
 winget install Microsoft.VCRedist.2010.x86               
@@ -29,12 +32,16 @@ winget install Discord.Discord
 winget install Twitch.TwitchStudio
 winget install TorProject.TorBrowser            
 
+winget install --id Microsoft.PowerToys -e
+
+winget install Crintsoft.MiniLyrics
+winget install NirSoft.NirCmd
+
 winget install 35795FlorianHeidenreich.Mp3tag_rf0p6xgxmX 
 winget install 38812MedievalSoftware.CUESplitter_qfb500X 
 winget install 6760NGPDFLab.PDFX_sbe4t8mqwq93a           
 winget install 6f4f090a-db12-53b6-ac44-9ecdb7703b4a      
 winget install 7zip.7zip                                 
-winget install AMD_Chipset_IODrivers                     
 winget install EpicGames.EpicGamesLauncher
 winget install AUDT_12_1_3                               
 winget install AirDroidCast                              
@@ -209,7 +216,7 @@ winget install Microsoft.OpenJDK.11
 winget install {FFA8F1FA-3C2C-4A94-AC0B-0DF47272C25F}    
 winget install Microsoft.WindowsSDK                      
 winget install {d92971ab-f030-43c8-8545-c66c818d0e05}    
-:no winget install Aries-Sciences-LLC.AI-Chess
+@rem no winget install ——> Aries-Sciences-LLC.AI-Chess
 winget install Steam App 1054490                         
 winget install Steam App 1086640                         
 winget install Steam App 1170970                         
@@ -260,9 +267,7 @@ winget install Steam App 743650
 winget install Steam App 744060                          
 winget install Steam App 771840                          
 winget install Steam App 9900                            
-winget install Crintsoft.MiniLyrics
 winget install mIRC.mIRC
 winget install Insecure.Nmap
-winget install NirSoft.NirCmd
 winget install Graphviz.Graphviz
 winget install Synthesia.Synthesia

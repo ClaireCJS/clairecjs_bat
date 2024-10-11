@@ -116,7 +116,7 @@
 2023-10-06  09:42             44   -2%  chown.bat
 2024-10-03  12:23          1,325   70%  chrome.bat
 2019-10-01  10:27             33   13%  cl.bat
-2024-08-22  01:45         12,434   77%  clairevironment-install.bat
+2024-10-11  10:08         12,567   77%  clairevironment-install.bat
 2024-06-12  12:57          4,063   66%  clean-dbcu.bat
 2019-10-01  10:28            122   14%  clean-dropbox.bat
 2024-06-12  12:11            536   46%  clean-rocksmith-dlc-dir.bat
@@ -408,7 +408,7 @@
 2019-10-01  10:28            120   18%  insert-before-each-line.pl
 2024-10-06  11:12          1,627   61%  insert-foldername-into-end-of-filenames.bat
 2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
-2024-05-13  12:01         14,621   75%  install-common-programs-with-winget-helper.cmd
+2024-10-11  10:08         14,688   75%  install-common-programs-with-winget-helper.cmd
 2024-04-06  04:37            381   36%  install-common-programs-with-winget.bat
 2023-04-28  22:19        527,427   80%  install-common-programs-with-winget.lst
 2024-04-06  04:37             19  -10%  install-program-with-winget.bat
