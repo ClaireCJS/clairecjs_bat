@@ -16,22 +16,22 @@ call autoexec-common %*
 
 
 REM Startup DEMONA programs:
-        call opera
-        call bsr
+        call divider
+        repeat 8 echo.
         call important "Pretty much done, just a couple more things..."
-        sleep 6
+        echo .
+        call opera
+        call wait 6 "(catching breath)"
         call TTRGB
         call OBS
+        call bsr
 
 REM backup DEMONA's BAT files:
         rem call backup-important-files
         rem call backup-important-folders
-        call bat
-        call dist full
-        call util
-        call dist full
-        call util2
-        call dist full
+        call bat   %+ call dist full
+        call util  %+ call dist full
+        call util2 %+ call dist full
 
 REM Edit this script, if so instructed:
         if %EDIT_SELF eq 1 (
@@ -43,3 +43,7 @@ REM Edit this script, if so instructed:
 REM We're done!
         call celebrate autoexec done
         unset /q AUTOEXEC
+
+REM BUt wait —— we can do more! We can run backups.bat automatically:
+        call AskYN "Run full backups next" yes 1800
+        if "%ANSWER" == "Y" ( call backups.bat )

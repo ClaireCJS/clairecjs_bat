@@ -86,21 +86,25 @@ goto :END
 rem ——————————————————————————————————————————————————————————————————————————————–——————————————————————————————–—————————————————————————————————————————————
 :END
         rem Maintainence, including rolling files:
-                call less_important "Running quick non-backup-related maintanence..."
-                call                         maintanence NoWarning NoBackups
+                repeat 3 echo.
+                call divider
+                call  less_important "Running quick non-backup-related maintanence..."
+                call  maintanence     NoWarning    NoBackups
                 gosub done_with_step
 
 
         rem Let them know we're done
+                repeat 2 echo.
                 call divider
                 call success %italics_on%%0%italics_off% done
                 call divider
+                repeat 2 echo.
 
-        rem Start Chrome:
+        rem Start primary web browser (Chrome):
                 call chrome
 
         rem Let us abort the rest, if we wish:
-                call pause-for-x-seconds 90 "* Press any key to run the rest of autoexec..."
+                call pause-for-x-seconds 90 "Press key to run rest of autoexec..."
 
 
 

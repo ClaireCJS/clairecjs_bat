@@ -97,7 +97,7 @@ REM Validate parameters
         if not defined COLOR_%TYPE%  (call fatal_error "This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment")
         if not defined MESSAGE       (call fatal_error "$0 called without a message")
         call validate-in-path beep.bat 
-        call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF
+        call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH
         set VALIDATED_PRINTMESSAGE_ENV=1
     )
 
@@ -137,7 +137,7 @@ REM Behavior overides and message decorators depending on the type of message?
     rem "%TYPE%"  eq "WARNING"        (set DECORATOR_LEFT=%EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %blink%!!%blink_off% `` %+ set DECORATOR_RIGHT= %blink%!!%blink_off% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING%)
     if  "%TYPE%"  eq "WARNING"        (set DECORATOR_LEFT=%RED_FLAG%%RED_FLAG%%RED_FLAG%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %@ANSI_BG_RGB[0,0,255]%blink%!!%blink_off% ``  %+  set DECORATOR_RIGHT= %blink%!!%blink_off%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %RED_FLAG%%RED_FLAG%%RED_FLAG%)
     if  "%TYPE%"  eq "SUCCESS"        (set DECORATOR_LEFT=%REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%BLINK_OFF%%REVERSE_OFF% ``        %+ set DECORATOR_RIGHT= %REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%REVERSE_OFF%%BLINK_OFF% %PARTY_POPPER%%EMOJI_BIRTHDAY_CAKE%)
-    if  "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%)
+    if  "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
     if  "%TYPE%"  eq "COMPLETION"     (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT=! ***)
     if  "%TYPE%"  eq "ALARM"          (set DECORATOR_LEFT=* ``          %+ set DECORATOR_RIGHT= *)
     if  "%TYPE%"  eq "REMOVAL"        (set DECORATOR_LEFT=%RED_SKULL%%SKULL%%RED_SKULL% ``        %+ set DECORATOR_RIGHT= %RED_SKULL%%SKULL%%RED_SKULL%)
@@ -156,24 +156,26 @@ REM We're going to update the window title to the message. If possible, strip an
     :Set_Title_Var_Now
         set TITLE=%CLEAN_MESSAGE%
 
+
+
     REM But first let's decorate the window title for certain message types Prior to actually updating the window title:
         if "%TYPE%" eq          "DEBUG" (set            TITLE=DEBUG: %title%)
-        if "%TYPE%" eq   "WARNING_LESS" (set          TITLE=Warning: %title%)
-        if "%TYPE%" eq        "WARNING" (set          TITLE=WARNING: %title% !)
-        if "%TYPE%" eq "LESS_IMPORTANT" (set                 TITLE=! %title% !)
-        if "%TYPE%" eq "IMPORTANT_LESS" (set                 TITLE=! %title% !)
-        if "%TYPE%" eq      "IMPORTANT" (set                TITLE=!! %title% !!)
-        if "%TYPE%" eq          "ALARM" (set          TITLE=! ALARM: %title% !)
-        if "%TYPE%" eq          "ERROR" (set         TITLE=!! ERROR: %title% !!)
-        if "%TYPE%" eq    "FATAL_ERROR" (set TITLE=!!!! FATAL ERROR: %title% !!!!)
+        if "%TYPE%" eq   "WARNING_LESS" (set          TITLE=%EMOJI_WARNING%%title%)
+        if "%TYPE%" eq        "WARNING" (set          TITLE=%EMOJI_WARNING%%EMOJI_WARNING%%title!%EMOJI_WARNING%%EMOJI_WARNING%)
+        if "%TYPE%" eq "LESS_IMPORTANT" (set                 TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
+        if "%TYPE%" eq "IMPORTANT_LESS" (set                 TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
+        if "%TYPE%" eq      "IMPORTANT" (set                TITLE=%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %title% %EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%)
+        if "%TYPE%" eq          "ALARM" (set          TITLE=%EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%  %title%  %EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%)
+        if "%TYPE%" eq          "ERROR" (set         TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% ERROR %endash% %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
+        if "%TYPE%" eq    "FATAL_ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% FATAL ERROR: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
 
     title %title%
 
 
 REM Some messages will be decorated with audio:
     if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO ne 1 (
-        if "%TYPE%" eq "DEBUG"  (beep  lowest 1)
-        if "%TYPE%" eq "ADVICE" (beep highest 3)
+        if "%TYPE%" eq "DEBUG"  (call beep  lowest 1)
+        if "%TYPE%" eq "ADVICE" (call beep highest 3)
     )
 
 REM Pre-Message pause based on message type (pausable messages need a litle visual cushion):
@@ -313,9 +315,14 @@ REM Post-message beeps and sound effects
     
 REM For errors, give chance to gracefully exit the script (no more mashing of ctrl-C / ctrl-Break)
         if "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "ERROR" (
-            set DO_IT=
-            call askyn "Cancel all execution and return to command line?" yes
-            if %DO_IT eq 1 CANCEL
+                set DO_IT=
+                set temp_title=%_wintitle
+                call askyn "Cancel all execution and return to command line?" yes
+                if %DO_IT eq 1 (
+                    set comment=CANCEL used to be here
+                    title %temp_title%
+                    goto :END
+                )
         )
 
 REM Hit user with the 'pause' prompt several times, to prevent accidental passthrough from previous key mashing
