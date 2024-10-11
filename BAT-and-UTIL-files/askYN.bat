@@ -101,14 +101,25 @@ REM Build the question prompt:
         if "%default_answer" eq "no"  .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%N%underline_off%%bold_off%                             %+ rem   capital N
                                                                set PRETTY_QUESTION=%pretty_question%%@ANSI_FG_RGB[%BRACKET_COLOR]]%EMOJI_RED_QUESTION_MARK%                                    %+ rem right bracket + ❓
                                                                set PRETTY_QUESTION_ANSWERED=%@REPLACE[%BLINK_ON%,,%PRETTY_QUESTION] %+ rem an unblinking version, so the question mark that blinks before we answer is still displayed——but stops blinking after we answer the question 
-title %@STRIPANSI[%PRETTY_QUESTION]
+
+rem Re-set a new window title:
+        set stripped=%@STRIPANSI[%@STRIPANSI[%PRETTY_QUESTION]]
+        title %stripped%
+
+rem Re-set a new window title: BUG FIX:
+        rem weird bug  where "\B" got past the stripansi function, giving us titles like "❓do it?(B [(BY/n]❓" with two "(B" 
+        rem in them that don't belong, but also using %@REREPLACE on the variable didn't work despite working on the %_WinTitle
+        rem So we incrementally set and read the wintitle to fix it that way. It's ugly, but it's not a time-pressed situation:
+        set stripped2=%@REREPLACE[\(B *\[\(B, \[,%_wintitle]
+        title %stripped2%
+        set stripped3=%@REREPLACE[\?\(B\s+\[y\/\(BN,? [y/N,%_wintitle]
+        title %stripped3%
+
 
 
 REM Which keys will we allow?
                                set ALLOWABLE_KEYS=yn[Enter]
         if %NO_ENTER_KEY eq 1 (set ALLOWABLE_KEYS=yn)
-
-
 
 
 

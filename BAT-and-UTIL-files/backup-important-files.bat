@@ -66,22 +66,24 @@ echo.
 echo.
 call less_important "Backing backups up to every available backup drive...%FAINT_ON%"
 echo.
-rem Sync important files folder
-    for %letter in (%THE_ALPHABET Done!) (
-        echos %ANSI_SAVE_POSITION%
-        if "%@LEN[%letter]" == "1" (echo  %@ANSI_MOVE_TO_COL[1]%ANSI_COLOR_WARNING%[%letter%:]%ANSI_RESET%%ANSI_EOL%)
-        echos %@ANSI_MOVE_TO_COL[5]%ANSI_MOVE_UP_1%%ANSI_GREY%
-        if 1 eq %@READY[%letter%] .and. isdir %letter%:\backups (
-            set BACKUP_TARGET_TMP=%letter%:\backups\IMPORTANT_FILES.%MACHINENAME%
-            echos %ANSI_COLOR_ALARM%%BLINK_ON%%ITALICS_ON%
-            *copy /e /w /u /s /a: /h /z /k /g /u /Nts %BACKUP_TARGET% %BACKUP_TARGET_TMP% |:u8 convert-each-line-to-a-randomly-colored-dot.pl |:u8 fast_cat
-            call errorlevel
+
+rem Sync important files folder to every available ready harddrive with a \BACKUPS\ folder in it:
+        repeat 8 echo.
+        echos %@ANSI_MOVE_UP[8]%@ANSI_MOVE_TO_COL[1]%ANSI_SAVE_POSITION%
+        for %letter in (%THE_ALPHABET Done!) (
+            if "%@LEN[%letter]" == "1" (echo  %ANSI_RESTORE_POSITION%%@ANSI_MOVE_TO_COL[1]%ANSI_COLOR_WARNING%[%letter%:]%ANSI_RESET%%ANSI_EOL%)
+            echos %@ANSI_MOVE_TO_COL[5]%ANSI_MOVE_UP_1%%ANSI_GREY%
+            if 1 eq %@READY[%letter%] .and. isdir %letter%:\backups (
+                set BACKUP_TARGET_TMP=%letter%:\backups\IMPORTANT_FILES.%MACHINENAME%
+                echos %ANSI_COLOR_ALARM%%BLINK_ON%%ITALICS_ON%
+                *copy /e /w /u /s /a: /h /z /k /g /u /Nts %BACKUP_TARGET% %BACKUP_TARGET_TMP% |:u8 convert-each-line-to-a-randomly-colored-dot.pl |:u8 fast_cat
+                call errorlevel
+            )
         )
-    )
-    rem echos %BLINK_OFF%%FAINT_OFF%%ANSI_EOL%%@ANSI_MOVE_TO_COL[1]
-    rem echos %ANSI_COLOR_BRIGHT_GREEN%%CHECKBOX% All done! %+ echo.
-    echo.
-    call success "%italics_on%%underline_on%All%italics_off%%underline_off% important files backed up to all relevant drives!"
+        rem echos %BLINK_OFF%%FAINT_OFF%%ANSI_EOL%%@ANSI_MOVE_TO_COL[1]
+        rem echos %ANSI_COLOR_BRIGHT_GREEN%%CHECKBOX% All done! %+ echo.
+        echo.
+        call success "%italics_on%%underline_on%All%italics_off%%underline_off% important files backed up to all relevant drives!"
 
 
 goto :END

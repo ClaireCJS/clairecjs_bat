@@ -40,7 +40,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
 
             rem And grab any optional message for clock-mode:
                     unset   /q         SLEEP_MESSAGE
-                    if "%3" ne "" (set SLEEP_MESSAGE=%3)
+                    if "%3" ne "" (set SLEEP_MESSAGE=%@UNQUOTE[%3])
 
             rem Temporarily change cursor to the vertical blinking bar, which is the least obtustive to the animated clock:
                     if %silent ne 1 (echos %ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%) else (echos %ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%)
@@ -83,7 +83,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                                             endswitch
 
                                     rem Assemble our clock + countdown + optional message:
-                                            set  line=%emoji_to_use%%italics%%@cool_number[%second%]%italics_off%
+                                            set  line=%emoji_to_use%%italics%%@cool_number[%second%]%italics_off% ... %SLEEP_MESSAGE%
 
                                     rem And echo it as double-height text, along with some extra spaces to erase digits leftover when counting down to a fewer-digit number, i.e. 10->9, 100->99, 1000->999:
                                             echo %big_top%%line%      ``
@@ -117,7 +117,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
             
             rem Reset our cursor back to the user-preferred shape & color, reset all ansi status, draw our final clock, and leave us in the right place:
                     iff %silent ne 1 then
-                        echo %CURSOR_RESET%%ANSI_RESET%%ANSI_EOL%%EMOJI_ALARM_CLOCK%%CHECK%%@ANSI_MOVE_DOWN[1]%@ANSI_MOVE_LEFT[4]%EMOJI_ALARM_CLOCK%%CHECK%)
+                        echo %CURSOR_RESET%%ANSI_RESET%%ANSI_EOL%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_SAVE_POSITION%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_RESTORE_POSITION%%@ANSI_MOVE_DOWN[1]%@ANSI_MOVE_LEFT[4]%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_ERASE_TO_END_OF_LINE%
                     else
                         echos %CURSOR_RESET%%ANSI_RESET%
                     endiff
