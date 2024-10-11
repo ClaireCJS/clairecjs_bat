@@ -32,7 +32,13 @@ But here are the proper instructions:
 
 1. Download TCC (Take Command command-line) from [http://www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of ```c:\TCMD\```. DON'T run it just yet.
 
-1. Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/clairevironment-install.bat), and run (double-click) it.  Follow its instructions and pay attention.
+1. Run (Windows-R) ```PowerShell``` and type in the following 2 commands:```
+        Set-ExecutionPolicy -ExecutionPolicy Bypass
+	Add-AppxPackage -Path "https://aka.ms/getwinget"```
+	The first command allows for better TCC<->PowerShell integration (particularly for my [display bluetooth battery levels](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/display-bluetooth-battery-levels.ps1) script)
+	The second  command installs winget, which is used to automate most other installation.
+
+1. Open TCC (```c:\TCMD\tcc.exe```). Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/clairevironment-install.bat), and run (double-click) it.  Follow its instructions and pay close attention.
 
 1. Add TCC to Windows Terminal and Run it: 
     Open up *Windows Terminal*, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click *Add new profile*. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to "TCC", the command line to ```c:\tcmd\tcc.exe```, the starting directory to ```c:\tcmd```, and *Run As Administrator* turned on. Go into ```Appearance``` and change the font to *Cascadia Code*, which has the proper [ligature rendering](https://github.com/microsoft/cascadia-code#font-features) that I sometimes take advantage of cosmetically.

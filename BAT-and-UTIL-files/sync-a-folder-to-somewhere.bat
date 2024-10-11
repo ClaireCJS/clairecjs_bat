@@ -151,6 +151,13 @@ pushd
 		:NoSyncTriger
 			call fatal_error "SYNCTRIGER environment variable not defined. (Yes, one 'g' in 'TRIGER'. I have reasons.)"
 		goto :END
+
+        :klaxon
+                beep 60 25 
+                beep 800 3
+        return
+
+
     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -161,11 +168,20 @@ pushd
 :END
 
 popd
-call display-free-space %SYNCTARGET%
-rem set DISKFREE=%@COMMA[%@EVAL[%@DISKFREE[%SYNCTARGET%]/1024/1024/1024]]
-rem call important "Free space now %DISKFREE%"
 
-if %@DISKFREE[%SYNCTARGET%] lt 150000000 (set NEWLINE_REPLACEMENT=0 %+ repeat 3 (beep 60 25 %+ beep 800 3) %+ call WARNING "Not much free space left on %SYNCTARGET%!" %+ call pause-for-x-seconds 3000 )
+rem Display free space:
+        call display-free-space %SYNCTARGET%
+        rem set DISKFREE=%@COMMA[%@EVAL[%@DISKFREE[%SYNCTARGET%]/1024/1024/1024]]
+        rem call important "Free space now %DISKFREE%"
+
+rem Warn if we are low on space:
+        if %@DISKFREE[%SYNCTARGET%] gt 150000000 goto :PlentyOfSpace
+            set NEWLINE_REPLACEMENT=0 
+            repeat 3 gosub klaxon
+            call WARNING "Not much free space left on %SYNCTARGET%!" 
+            call pause-for-x-seconds 3000 
+        :PlentyOfSpace
+
 
 unset /q ZIP
 %COLOR_NORMAL%
