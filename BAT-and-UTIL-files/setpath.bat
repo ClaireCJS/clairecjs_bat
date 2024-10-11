@@ -1,4 +1,4 @@
-@if %@FILEAGE[c:\bat\setpath.cmd] gt %@FILEAGE[c:\bat\setpath.bat] (call c:\bat\setpath.cmd %* %+ goto :END) 
+@if exist c:\bat\setpath.cmd (if %@FILEAGE[c:\bat\setpath.cmd] gt %@FILEAGE[c:\bat\setpath.bat] (call c:\bat\setpath.cmd %* %+ goto :END))
 @rem ^^^^^^ If the generated .CMD version is fresher than this bat file, it's much faster to simply run that. Hard-code c:\bat because %BAT% is not defined yet when calling this from autoexec-common
 
 @Echo OFF
@@ -47,6 +47,7 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\emulation\xbox
 	    :Programs_That_May_Be_Installed_That_I_Script_With_Or_Use
         gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.0.2-essentials_build\bin"
+        gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\Microsoft\WindowsApps"
 		gosub AddFolderToPathEndOnlyIfItExists "%ProgramFiles%\FastPictureViewer"
 		gosub AddFolderToPathBegOnlyIfItExists "%ProgramFiles%\ImageMagick"
 		gosub AddFolderToPathBegOnlyIfItExists "%[ProgramFiles(x86)]\ImageMagick-6.3.3-Q16"

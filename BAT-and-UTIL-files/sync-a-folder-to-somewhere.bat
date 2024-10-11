@@ -111,8 +111,8 @@ pushd
     REM actually do the copy here! fast_cat is the fastest version of cat.exe {after testing}, which is used to fix ANSI rendering problems
     rem RIGHT WAY BUT ARGH: echo rayrayray |:u8 %REDOCOMMAND% |:u8 copy-move-post
     rem WRONG WAY BUT WORKS:
-    rem echo rayrayray |:u8 *copy /e /w /u /s /r /a: /h /z /k /g /Nt "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]" |:u8 copy-move-post
-    (echo rayrayray | *copy /e /w /u /s /r /a: /h /z /k /g /Nt "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]") |:u8 copy-move-post
+    rem echo rayrayray |:u8 *copy /e /w /u /s /r /a: /h /z /k /g /Nt                             "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]"  |:u8 copy-move-post
+    (   echo rayrayray |    *copy /e /w /u /s /r /a: /h /z /k /g /Nt /[!*.bak all.m3u these.m3u] "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]") |:u8 copy-move-post
     if exist "%ZIPFULLNAMEBUG%" (%COLOR_WARNING% %+ mv "%ZIPFULLNAMEBUG%" "%ZIPFULLNAME%")
     set LASTCOMMAND=%REDOCOMMAND%
     title Sync done.

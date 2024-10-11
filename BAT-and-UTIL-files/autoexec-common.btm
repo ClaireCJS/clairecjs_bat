@@ -22,6 +22,13 @@ rem Load our autohotkey script right away since it has winamp control aspects in
         call AutoHotKey-autoexec.bat %*
         gosub done_with_step
 
+
+
+
+rem Log the reboot:
+        echo * %0 run at at %_DATETIME>>c:\logs\reboots-%MACHINENAME%.log
+
+
 rem Start the service called "Everything" (not the abstract concept of everything):
         call less_important "Initializing %italics_on%Everything%italics_off% service..."
         call start-everything %*
@@ -37,10 +44,17 @@ rem Map drives
         call map-drives %*
         gosub done_with_step
 
-rem Maintainence, including rolling files:
-        call less_important "Running maintanence..."
-        call                         maintanence NoWarning NoBackups
-        gosub done_with_step
+
+
+REM Above all else, the music must flow —— but only if it's the music server:
+        if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (
+            call winamp autoexec
+            call sleep 3
+            call fix-minilyrics-window-size-and-position
+        )
+
+
+
 
 
 rem Things for our primary machines only:
@@ -56,7 +70,8 @@ rem Things for our primary machines only:
                     gosub done_with_step
         :NoCalmon
 
-rem Maintenance including rolling logfiles:
+
+
 
 goto :END
 
@@ -64,6 +79,30 @@ goto :END
                 title AUTOEXEC
             return
 
-:END
 
-call success %italics_on%%0%italics_off% done
+
+
+
+rem ——————————————————————————————————————————————————————————————————————————————–——————————————————————————————–—————————————————————————————————————————————
+:END
+        rem Maintainence, including rolling files:
+                call less_important "Running quick non-backup-related maintanence..."
+                call                         maintanence NoWarning NoBackups
+                gosub done_with_step
+
+
+        rem Let them know we're done
+                call divider
+                call success %italics_on%%0%italics_off% done
+                call divider
+
+        rem Start Chrome:
+                call chrome
+
+        rem Let us abort the rest, if we wish:
+                call pause-for-x-seconds 90 "* Press any key to run the rest of autoexec..."
+
+
+
+
+

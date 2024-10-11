@@ -58,7 +58,7 @@
 2024-03-13  20:08          5,959   68%  audit-music-files.py
 2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
-2024-10-04  07:18          2,262   67%  autoexec-common.btm
+2024-10-11  09:48          3,475   69%  autoexec-common.btm
 2024-09-11  15:18         16,397   82%  autoexec.ahk
 2024-09-11  02:31            899   52%  AutoHotKey-autoexec.bat
 2024-09-11  02:27          1,645   58%  AutoHotKey.bat
@@ -244,7 +244,7 @@
 2023-12-18  16:04             21   -9%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-08-20  05:45             50   -2%  DIST.bat
-2024-10-04  05:51         12,470   78%  distribute-bat-files-to-every-drive.bat
+2024-10-11  09:37         12,582   78%  distribute-bat-files-to-every-drive.bat
 2024-03-30  13:19             35   -5%  divider.bat
 2024-05-16  13:59             47   13%  dns-display.bat
 2024-07-28  16:32             28   -7%  do-in-each-directory.bat
@@ -413,7 +413,7 @@
 2023-04-28  22:19        527,427   80%  install-common-programs-with-winget.lst
 2024-04-06  04:37             19  -10%  install-program-with-winget.bat
 2023-04-28  21:53             38    3%  install-program.bat
-2024-08-21  14:40             27   -7%  install-winget.bat
+2024-10-11  09:35            140   17%  install-winget.bat
 2024-05-11  16:48            117   11%  install-winget.cmd
 2024-08-21  14:55             50    0%  install-winget.ps1
 2023-07-14  09:50            278   36%  isRunning-fast.bat
@@ -683,7 +683,7 @@
 2023-04-24  09:52            255   53%  set-winamp-constants.bat
 2024-03-24  20:03             49   -4%  setDrive.bat
 2024-03-24  20:04             49   -4%  setlabel.bat
-2024-10-04  10:37         10,285   77%  SETPATH.bat
+2024-10-11  09:52         10,401   77%  SETPATH.bat
 2024-08-22  00:52             21   -9%  setprompt.bat
 2023-10-06  05:32            132    5%  settmp.bat
 2024-04-10  15:17            731   51%  setup-perl-junctions-on-new-computer.bat
@@ -747,7 +747,7 @@
 2024-07-22  12:33          8,012   73%  switch-winamp-to-playlist.bat
 2024-10-10  09:20             30   -6%  symlink-create-automatic-symlinks.bat
 2023-11-23  13:46             11  -18%  symlink.bat
-2024-10-10  17:31          7,997   69%  sync-a-folder-to-somewhere.bat
+2024-10-11  09:30          8,060   69%  sync-a-folder-to-somewhere.bat
 2024-08-20  06:31            325   40%  sync-bat-to-dropbox.bat
 2024-08-20  06:36          1,441   58%  sync-dropbox.bat
 2024-09-25  00:13         14,457   68%  sync-filelist-helper.pl
