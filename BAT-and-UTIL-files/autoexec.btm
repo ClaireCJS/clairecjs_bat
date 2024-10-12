@@ -23,7 +23,7 @@ REM Startup DEMONA programs:
         call opera
         call wait 6 "(catching breath)"
         call TTRGB
-        call OBS
+        call debug "Run OBS.bat to software-share screen to downstairs"
         call bsr
 
 REM backup DEMONA's BAT files:
@@ -43,6 +43,10 @@ REM Edit this script, if so instructed:
 REM We're done!
         call celebrate autoexec done
         unset /q AUTOEXEC
+
+REM Adviceh ere
+        call advice "Run OBS.bat to software-share screen to downstairs"
+
 
 REM BUt wait —— we can do more! We can run backups.bat automatically:
         call AskYN "Run full backups next" yes 1800

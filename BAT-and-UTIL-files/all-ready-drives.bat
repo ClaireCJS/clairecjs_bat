@@ -71,23 +71,34 @@ goto :END
                 rem call debug "cmd=%COMMAND%%NEWLINE%         fix=%FIXED_COMMAND%%NEWLINE%"                   
                 rem echo WOULD DO: FIXED_COMMAND=%FIXED_COMMAND%
 
-                rem Actually do it:
-                        if %OPTION_ECHO_RAYRAY eq 1 (
-                            if %OPTION_ARD_POSTPROCESS ne 1 (
-                                 echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%
-                            ) else (
-                                echos %@RANDFG_SOFT[]
-                                (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%) |&:u8 copy-move-post.py |:u8 fast_cat
-                            )
-                        )
-                        if %OPTION_ECHO_RAYRAY ne 1 (
-                            if %OPTION_ARD_POSTPROCESS ne 1 (
-                                %FIXED_COMMAND%
-                            ) else (
-                                echos %@RANDFG_SOFT[]
-                                (%FIXED_COMMAND% |&:u8 copy-move-post.py) |:u8 fast_cat
-                            )
-                        )
+                rem Actually do it —— a lot of experimental stuff in this section that isn't actually used:
+                        if %OPTION_ECHO_RAYRAY ne 1 (goto :NoRayRay)
+
+                                if %OPTION_ARD_POSTPROCESS eq 1 (goto :PostprocessYes)
+                                         echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%
+                                goto :PostprocessYesDone
+                                goto :PostprocessYes
+                                        echos %@RANDFG_SOFT[]
+                                        (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%) |&:u8 copy-move-post.py |:u8 fast_cat
+                                :PostprocessYesDone
+
+                        goto :NoRayRayEnd
+                                :NoRayRay
+                                if %OPTION_ECHO_RAYRAY ne 1 (
+
+                                    if %OPTION_ARD_POSTPROCESS ne 1 (goto  :NoPostProc)
+                                                                    (goto :YesPostProc)
+                                    goto :NoPostProc
+                                            %FIXED_COMMAND%
+                                            goto :Done_2
+                                    :YesPostProc
+                                            echos %@RANDFG_SOFT[]
+                                            (%FIXED_COMMAND% |&:u8 copy-move-post.py) |:u8 fast_cat
+                                            goto :Done_2
+                                    :Done_2
+
+                                )
+                        :NoRayRayEnd
             :Drive_Not_Ready
             :End_Of_For_Loop
         return
