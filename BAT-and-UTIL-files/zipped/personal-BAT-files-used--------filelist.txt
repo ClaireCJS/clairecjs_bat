@@ -244,7 +244,7 @@
 2023-12-18  16:04             21   -9%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-08-20  05:45             50   -2%  DIST.bat
-2024-10-11  09:37         12,582   78%  distribute-bat-files-to-every-drive.bat
+2024-10-13  16:03         12,768   78%  distribute-bat-files-to-every-drive.bat
 2024-03-30  13:19             35   -5%  divider.bat
 2024-05-16  13:59             47   13%  dns-display.bat
 2024-07-28  16:32             28   -7%  do-in-each-directory.bat
@@ -765,7 +765,7 @@
 2024-08-20  06:34            789   52%  sync-winamp-playlists-to-dropbox.bat
 2019-10-01  10:28            201   44%  tail.bat
 2024-05-18  21:13             47    5%  tcc-in-console-window.bat
-2024-05-11  17:17            166   43%  tee.bat
+2024-10-13  15:54            166   42%  tee.bat
 2024-08-22  17:12          2,813   71%  test-ansi-background-color-bug.bat
 2024-03-19  15:23          1,646   85%  test-askyn.bat
 2024-04-03  14:32            293   48%  test-cd.bat

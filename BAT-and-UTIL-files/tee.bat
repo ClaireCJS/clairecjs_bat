@@ -1,14 +1,14 @@
 @Echo OFF
 
 if defined TEECOLOR (
-          %TEECOLOR%
-	set    TEECOLOR=
+    %TEECOLOR%
+	unset /q TEECOLOR
 )
 
 *tee %*
 
 if defined TEEMESSAGE (
-    echo  %TEEMESSAGE%
-    set    TEEMESSAGE=
+    echo %TEEMESSAGE%
+    unset /q TEEMESSAGE
 )
 
