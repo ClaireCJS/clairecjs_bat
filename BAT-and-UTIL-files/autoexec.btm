@@ -10,7 +10,7 @@ REM refer to install-autoexec-launcher-to-startup.bat for instructions on how to
 SET  AUTOEXEC=1 
 SET  EDIT_SELF=1
 set  MACHINENAME=DEMONA
-call autoexec-common %*   
+call c:\bat\autoexec-common %*   
 
 
 
