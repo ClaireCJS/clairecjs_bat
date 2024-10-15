@@ -224,7 +224,7 @@
 2023-06-03  03:34             26   -7%  display-exif-dates.bat
 2022-11-19  16:52            242   29%  display-flac-tags.bat
 2024-09-24  20:20            140   20%  display-free-space-as-locked-message.bat
-2024-05-09  07:33          3,509   66%  display-free-space.bat
+2024-10-15  12:23          3,622   67%  display-free-space.bat
 2024-10-15  06:55          7,842   72%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-09-09  11:24            814   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
@@ -269,7 +269,7 @@
 2024-10-04  11:40             32   -6%  eject.bat
 2023-07-14  10:37             23   -8%  emoji-grep.bat
 2024-04-05  16:35          1,818   59%  emoji-search.bat
-2024-10-10  08:59         71,675   78%  emoji.env
+2024-10-15  12:10         73,060   79%  emoji.env
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
@@ -749,7 +749,7 @@
 2024-07-22  12:33          8,012   73%  switch-winamp-to-playlist.bat
 2024-10-10  09:20             30   -6%  symlink-create-automatic-symlinks.bat
 2023-11-23  13:46             11  -18%  symlink.bat
-2024-10-15  04:19          8,181   69%  sync-a-folder-to-somewhere.bat
+2024-10-15  12:19          9,617   70%  sync-a-folder-to-somewhere.bat
 2024-08-20  06:31            325   40%  sync-bat-to-dropbox.bat
 2024-08-20  06:36          1,441   58%  sync-dropbox.bat
 2024-09-25  00:13         14,457   68%  sync-filelist-helper.pl

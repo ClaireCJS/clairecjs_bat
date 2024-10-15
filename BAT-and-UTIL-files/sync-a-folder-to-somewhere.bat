@@ -16,6 +16,15 @@ pushd
 
 
 :CheckForInvocationErrors
+    ::::: 2024 ALTERNATE MORE-INTUITIVE QUICK-RUN INVOCATION:
+        if  "%SYNCSOURCE%" eq "" (set SYNCSOURCE=%1)
+        iff "%SYNCTARGET%" eq "" then
+                set SYNCTARGET=%2
+                if not isdir %SYNCTARGET% (mkdir /s %SYNCTARGET%)
+        endiff
+        if "%SYNCTRIGER%" eq "" (set SYNCTRIGER=%3)
+        if "%SYNCTRIGER%" eq "" (set SYNCTRIGER=__ sync info __)
+
     ::::: VALIDATE INVOCATION GIVEN:
         if "%SYNCSOURCE%" eq "" goto :NoSyncSource
         if "%SYNCTARGET%" eq "" goto :NoSyncTarget
@@ -34,7 +43,7 @@ pushd
 
     :: SUPPRESS ZIP FUNCTIONALITY BECAUSE INFOZIP SUCKS!
     :: WHAT DID I GET MYSELF INTO? IT DOESN'T WORK RIGHT!
-    :SET ZIP=0
+        :SET ZIP=0
 
     :AdjustForTesting
                                  set    TESTING=0
@@ -49,6 +58,8 @@ pushd
 :Determine_Command_To_Use
     ::::: LOGGING:
         echo. %+ title %SYNCSOURCE% to %SYNCTARGET%
+        set headerbg=%@ANSI_BG[0,0,64]%LOCKED_MESSAGE_COLOR_BG% %+ rem fallback value followed by set value
+        call header "Syncing: %ANSI_RESET%%headerbg%%italics_on%%faint_on%%@path[%syncsource%]%faint_off%%@name[%syncsource]%italics_off% %ansi_color_bright_red%%headerbg%%LOCKED_MESSAGE_COLOR_BG%%EMOJI_RIGHT_ARROW% %ansi_color_important%%headerbg%%italics_on%%faint_on%%@path[%syncTarget]%faint_off%%@name[%syncTarget]%italics_off% %ansi_color_bright_green%%headerbg%%DASH%%DASH%%ansi_color_important%%headerbg% {freespace}" %@drive[%syncTarget%]
         set TARGETNAME=%@NAME[%SYNCTARGET%]
 
     ::::: DETERMINE COMMAND TO USE FOR COPY BACKUPS:
@@ -126,18 +137,26 @@ pushd
 :FlagLastSync
     if "%@UPPER[%SYNCTRIGER%]" eq "NONE" goto :NoFlag
         set TRIGGER="%@UNQUOTE[%SYNCSOURCE%\%SYNCTRIGER%]"
-        %COLOR_DEBUG% %+ echo	     ``>%TRIGGER%
-        %COLOR_NORMAL %+               >%TRIGGER%
-        echo SYNC_SOURCE=%SYNCSOURCE% >>%TRIGGER%
-        echo SYNC_TARGET=%SYNCTARGET% >>%TRIGGER%
-        echo        TIME=%_DATETIME   >>%TRIGGER%
+        echo.                          >>%TRIGGER%
+        echo.                          >>%TRIGGER%
+        %COLOR_DEBUG% %+ echo	     ``>>%TRIGGER%
+        %COLOR_NORMAL %+               >>%TRIGGER%
+        echo SYNC_SOURCE=%SYNCSOURCE%  >>%TRIGGER%
+        echo SYNC_TARGET=%SYNCTARGET%  >>%TRIGGER%
+        echo        TIME=%_DATETIME    >>%TRIGGER%
+        echo.                          >>%TRIGGER%
+        echo.                          >>%TRIGGER%
 
         set TRIGGER="%@UNQUOTE[%SYNCTARGET%\%SYNCTRIGER%]"
-        %COLOR_DEBUG% %+ echo	     ``>%TRIGGER%
-        %COLOR_NORMAL %+               >%TRIGGER%
-        echo SYNC_SOURCE=%SYNCSOURCE% >>%TRIGGER%
-        echo SYNC_TARGET=%SYNCTARGET% >>%TRIGGER%
-        echo        TIME=%_DATETIME   >>%TRIGGER%
+        echo.                          >>%TRIGGER%
+        echo.                          >>%TRIGGER%
+        %COLOR_DEBUG% %+ echo	     ``>>%TRIGGER%
+        %COLOR_NORMAL %+               >>%TRIGGER%
+        echo SYNC_SOURCE=%SYNCSOURCE%  >>%TRIGGER%
+        echo SYNC_TARGET=%SYNCTARGET%  >>%TRIGGER%
+        echo        TIME=%_DATETIME    >>%TRIGGER%
+        echo.                          >>%TRIGGER%
+        echo.                          >>%TRIGGER%
 :NoFlag
 
     goto :END
@@ -175,12 +194,12 @@ pushd
 popd
 
 rem Display free space:
-        call display-free-space %SYNCTARGET%
+        call display-free-space %@drive[%SYNCTARGET%]
         rem set DISKFREE=%@COMMA[%@EVAL[%@DISKFREE[%SYNCTARGET%]/1024/1024/1024]]
         rem call important "Free space now %DISKFREE%"
 
 rem Warn if we are low on space:
-        if %@DISKFREE[%SYNCTARGET%] gt 150000000 goto :PlentyOfSpace
+        if %@DISKFREE[%@drive[%SYNCTARGET%]] gt 150000000 goto :PlentyOfSpace
             set NEWLINE_REPLACEMENT=0 
             repeat 3 gosub klaxon
             call WARNING "Not much free space left on %SYNCTARGET%!" 
@@ -188,6 +207,7 @@ rem Warn if we are low on space:
         :PlentyOfSpace
 
 
-unset /q ZIP
+unset /q ZIP syncsource synctarget synctriger
+
 %COLOR_NORMAL%
 echo.

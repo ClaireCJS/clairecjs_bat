@@ -47,6 +47,7 @@ rem Respond to command-line parameters:
 rem Set free space stuffs:
         set CWDTMP=%_CWD
         set CUSTOM_MESSAGE=0
+        set FREE_SPACE_MESSAGE_IS_USED=0
         set USE_JUST_FREE_SPACE_MESSAGE=0
         iff "%TB_PARAM_1" eq "" then
                 set USE_JUST_FREE_SPACE_MESSAGE=1
@@ -58,6 +59,7 @@ rem Set free space stuffs:
                         rem echo first[a1]%goat%
                         set CWDTMP=%TB_PARAM_1 
                         set USE_JUST_FREE_SPACE_MESSAGE=1
+                        set FREE_SPACE_MESSAGE_IS_USED=1
                         iff 0 eq %@READY[%TB_PARAM_1] then
                                 set LOCKED_MESSAGE=%ANSI_COLOR_ERROR%Drive %TB_PARAM_1: is not ready 
                                 goto :Display_Message_Now
@@ -67,6 +69,7 @@ rem Set free space stuffs:
                         rem echo second[b2]%goat%
                         set CWDTMP=%TB_PARAM_2 
                         set USE_JUST_FREE_SPACE_MESSAGE=0 %+ rem This is tricky, but it should actually be 0 because if PARAM_2 is a drive letter, we're using a custom message
+                        set FREE_SPACE_MESSAGE_IS_USED=1
                         iff 0 eq %@READY[%TB_PARAM_2] then
                                 set LOCKED_MESSAGE=%ANSI_COLOR_ERROR%Drive %TB_PARAM_2: is not ready 
                                 goto :Display_Message_Now
@@ -84,7 +87,7 @@ rem Calculate free space values:
         set FREE_TERA=%@FORMATN[.2,%@EVAL[%DF%/1024/1024/1024/1024]]
 
 rem Create message text:
-        set OUR_SLASH=%bold_on%/%bold_off%
+        set OUR_SLASH=%bold_on%%slash%%bold_off%
         SET FREE_SPACE_MESSAGE=%bold_on%%FREE_MEGS%%bold_off% %ansi_color_important_less%%LOCKED_MESSAGE_COLOR_BG%M %our_slash% %locked_message_color%%FREE_GIGS% %ansi_color_important_less%%LOCKED_MESSAGE_COLOR_BG%G
         if %FREE_GIGS gt 1000 (set FREE_SPACE_MESSAGE=%FREE_SPACE_MESSAGE%%locked_message_color% %our_slash% %FREE_tera% %ansi_color_important_less%%LOCKED_MESSAGE_COLOR_BG%T)
         set FREE_SPACE_MESSAGE=%FREE_SPACE_MESSAGE% %italics_on%free%italics_off% on %bold_on%%@UPPER[%@INSTR[0,2,%CWDTMP]]%bold_off%%LOCKED_MESSAGE_COLOR%
@@ -98,7 +101,8 @@ rem Substitute the token {freespace} with our generated free space message:
 
 rem Get message length and create side-spacers of appropriate length to center the message:
         :Display_Message_Now
-        SET LOCKED_MESSAGE_LENGTH=%@LEN[%@STRIP_ANSI[%LOCKED_MESSAGE]]
+                                             SET LOCKED_MESSAGE_LENGTH=%@LEN[%@STRIP_ANSI[%LOCKED_MESSAGE]]
+        if %FREE_SPACE_MESSAGE_IS_USED eq 1 (SET LOCKED_MESSAGE_LENGTH=%@EVAL[%LOCKED_MESSAGE_LENGTH+2])         %+ rem the slash emojis we use twice in our free space message are not correctly measured by %@LEN[] which creates a bug of wrapping the line onto the next line, unless we manually deduct the number of wide emojis {or at least, the # of wide emojis that %@LEN isn't correctly counting!} ... May take some experimentation if you change the free message format.
         set SPACER=%@REPEAT[ ,%@FLOOR[%@EVAL[(%_COLUMNS-%LOCKED_MESSAGE_LENGTH-3)/2-1]]]``
 
 rem Set up dividers:

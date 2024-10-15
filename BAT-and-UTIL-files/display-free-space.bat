@@ -43,16 +43,16 @@ rem Process paramters:
 
 
 rem Validate parameters:
-        if 0 eq %@READY[%DISPLAY_FREE_SPACE_TARGET%] (call error "Does not exist: '%italics_on%%DISPLAY_FREE_SPACE_TARGET%%italics_off%'" %+ goto :END)
+        if 0 eq %@READY[%@drive[%DISPLAY_FREE_SPACE_TARGET%]] (call error "Does not exist: '%italics_on%%DISPLAY_FREE_SPACE_TARGET%%italics_off%'" %+ goto :END)
 
 
 rem Get the free space and print it out
         set DISKFREE=%ansi_color_error%%blink%ERROR
-        set DISKFREE=%@COMMA[%@FLOOR[%@EVAL[%@DISKFREE[%DISPLAY_FREE_SPACE_TARGET%]/1024/1024/1024]]]
-        call print-message %MESSAGE_TYPE% "Free space now %@RANDBG_SOFT[]%[DISKFREE]%deemphasis%%italics%%blink_on%G%blink_off%%italics_off%"
+        set DISKFREE=%@COMMA[%@FLOOR[%@EVAL[%@DISKFREE[%@drive[%DISPLAY_FREE_SPACE_TARGET%]]/1024/1024/1024]]]
+        call print-message %MESSAGE_TYPE% "Free space on %ansi_color_bright_yellow%%@drive[%DISPLAY_FREE_SPACE_TARGET%]%ansi_color_success% now %@RANDBG_SOFT[]%[DISKFREE]%deemphasis%%italics%%blink_on%G%blink_off%%italics_off%"
 
 rem a Warning if space is low?
-        if %@DISKFREE[%DISPLAY_FREE_SPACE_TARGET%] gt 150000000 (goto :Disk_Fine)
+        if %@DISKFREE[%@drive[%DISPLAY_FREE_SPACE_TARGET%]] gt 150000000 (goto :Disk_Fine)
                 set NEWLINE_REPLACEMENT=0 
                 repeat 3 (beep 60 25 %+ beep 800 3) 
                 call WARNING "Not much free space left on %SYNCTARGET%!" 
