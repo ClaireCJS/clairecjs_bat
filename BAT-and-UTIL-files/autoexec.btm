@@ -1,4 +1,4 @@
-@Echo On
+@Echo Off
  cls
 
 
@@ -44,10 +44,10 @@ REM We're done!
         call celebrate autoexec done
         unset /q AUTOEXEC
 
-REM Adviceh ere
+REM Advice here
         call advice "Run OBS.bat to software-share screen to downstairs"
 
 
-REM BUt wait —— we can do more! We can run backups.bat automatically:
+REM But wait —— we can do more! We can run backups.bat automatically:
         call AskYN "Run full backups next" yes 1800
         if "%ANSWER" == "Y" ( call backups.bat )

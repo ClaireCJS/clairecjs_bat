@@ -189,14 +189,20 @@ REM Pre-Message determination of how many times we will display the message:
         set HOW_MANY=1 
         if "%TYPE%" eq "CELEBRATION" (set HOW_MANY=1 2)
         if "%TYPE%" eq       "ERROR" (set HOW_MANY=1 2 3)
-        if "%TYPE%" eq "FATAL_ERROR" (set HOW_MANY=1 2 3 4 5)
+        if "%TYPE%" eq "FATAL_ERROR" (set HOW_MANY=1 2 3 4 5 6 7)
 
 REM Actually display the message:
         setdos /x-6
 
-        rem Assemble our message, including resetting the color via ansi codes (%OUR_ANSICOLORTOUSE%) before adding the right decorator, in case the color was changed within the message itself
-        rem DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT% ———————————— this was the old way
-        set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%OUR_ANSICOLORTOUSE%%DECORATOR_RIGHT%
+        rem Assemble our message, including resetting the color via ansi codes (%OUR_ANSICOLORTOUSE%) before adding the right decorator
+        rem in case the color was changed within the message itself.  
+        rem ((( However, for FATAL_ERROR, we want the color to persist because we set a special color )))
+        rem ((( for one of the repeated messages and want the decorator to remain that  special color )))
+        if "%TYPE%" ne "FATAL_ERROR" (
+            set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%OUR_ANSICOLORTOUSE%%DECORATOR_RIGHT%
+        ) else (
+            set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
+        )
 
         REM display our opening big-header, if we are in big-header mode
         rem production: if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho %@ANSI_MOVE_TO_COL[0]****%DECORATOR_LEFT%%@UPPER[%TYPE%]%DECORATOR_RIGHT%****%ANSI_RESET%%ANSI_ERASE_TO_EOL%)
@@ -214,12 +220,19 @@ REM Actually display the message:
         )
 
         REM repeat the message the appropriate number of times
+                SET SPACER_FATAL_ERROR=               ``
+
+        REM Is the message too long to display in double_height?
+                set SKIP_DOUBLE_HEIGHT=0
+                set LEN=%@LEN[%@stripansi[%DECORATED_MESSAGE]]
+                if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS-16] (set SKIP_DOUBLE_HEIGHT=1)
+
         for %msgNum in (%HOW_MANY%) do (           
                 REM handle pre-message formatting [color/blinking/reverse/italics/faint], based on what type of message and which message in the sequence of repeated messages it is
 
                 REM Special decorators that are only for the message itself, not the header/fooder:
                 %OUR_COLORTOUSE%
-                if "%TYPE%"     eq "FATAL_ERROR"      (echos                ``)
+                if "%TYPE%"     eq "FATAL_ERROR"      (echos %ANSI_COLOR_FATAL_ERROR%%SPACER_FATAL_ERROR%)
                 if "%TYPE%"     eq       "ERROR"      (echos       ``)
                 if  %BIG_HEADER eq    1               (echos %BLINK_ON%)
                 if "%TYPE%"     eq "SUBTLE"           (echos %FAINT_ON%)
@@ -234,42 +247,49 @@ REM Actually display the message:
                         if %@EVAL[%msgNum mod 2] == 0 (echos %REVERSE_OFF%%BLINK_OFF%)
                 )
                 if "%TYPE%" eq "FATAL_ERROR" (
-                        if %@EVAL[%msgNum mod 3] == 0 (echos %BLINK_OFF%)
+                        if %@EVAL[%msgNum mod 3] == 0 (echos %ANSI_COLOR_FATAL_ERROR%%BLINK_OFF%)
                         if %@EVAL[%msgNum mod 2] == 1 (echos %REVERSE_OFF%)
                         if %@EVAL[%msgNum mod 2] == 0 (echos %REVERSE_ON%)
-                        if        %msgNum        != 3 (echos %ITALICS_OFF%)
-                        if        %msgNum        == 3 (echos %ITALICS_ON%)
+                        if        %msgNum        != 3 (echos %ANSI_COLOR_FATAL_ERROR%%ITALICS_OFF%)
+                        if        %msgNum        == 4 .and. 1 ne %SKIP_DOUBLE_HEIGHT% (
+                                echo %BIG_TOP%%ANSI_COLOR_FATAL_ERROR%%@ANSI_BG_RGB[128,0,0]%DECORATED_MESSAGE%%@ANSI_BG_RGB[128,0,0]
+                                echos %BIG_TEXT_LINE_2%%@ANSI_BG_RGB[128,0,0]%DECORATED_MESSAGE%%@ANSI_BG_RGB[128,0,0]
+                        ) else (
+                                echos %ANSI_COLOR_FATAL_ERROR%
+                        )
                 )
 
                 REM HACK: Decorators with ">" in them need to be manually outputted here at the last minute to avoid issues with ">" being the redirection character, though setdos could work around this
                         if "%TYPE%" eq "ADVICE" (echos `----> `)
 
-                REM actually print the message:
-                        echos %DECORATED_MESSAGE%
+                REM actually print the message, unless it's fatal error line 4 which has special double-height handling:
+                        if "%TYPE%" eq "FATAL_ERROR" .and. %msgNum == 4  .and. 1 ne %SKIP_DOUBLE_HEIGHT% (
+                                echos %ANSI_COLOR_IMPORTANT%   ``
+                         ) else (
+                                echos %DECORATED_MESSAGE%
+                         )
 
                 REM handle post-message formatting
                         if "%TYPE%"     eq "SUBTLE"      (echos %FAINT_OFF%)
                         if "%TYPE%"     eq "UNIMPORTANT" (echos %FAINT_OFF%)
                         if "%TYPE%"     eq "SUCCESS"     (echos %BOLD_OFF%)
-                        if "%TYPE%"     eq "CELEBRATION_OLD_CODE_TODO_REMOVE" (
-                                if 1 == %msgNum% (echos     ``)
-                                if 2 == %msgNum% (echos     ``)
-                        )
                         if "%TYPE%"     eq "CELEBRATION"  (
                                 if %msgNum == 1 (echos %BIG_TEXT_END%%ANSI_RESET%``)
                                 if %msgNum == 2 (echos %BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%``)
                         )
+
                         rem test relying on the ansi_reset below instead: 
                                 rem if  %BIG_HEADER eq    1          (echos %BLINK_OFF%)
-
                         REM setting color to normal (white on black) and using the erase-to-end-of-line sequence helps with the Windows Termina+TCC bug(?) where a bit of the background color is shown in the rightmost column
-                                echo %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%`` 
+                                echo %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
+                        REM But after fixing the bug, we opted to do it this way:
+                                REM echo %ANSI_EOL% 
         )
 
         REM display our closing big-header, if we are in big-header mode:
                 rem if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%[DECORATOR_RIGHT]****%ANSI_RESET%%ANSI_ERASE_TO_EOL%)
                 if %BIG_HEADER eq 1 (
-                        echo %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
+                        echo %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
                         echo %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
                 )
 

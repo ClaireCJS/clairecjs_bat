@@ -89,7 +89,7 @@ rem —————————————————————————�
 
 rem ANSI: special stuff: reset
             set ANSI_RESET_FG_COLOR=%ANSI_ESCAPE%0m
-            set ANSI_RESET=%ANSI_ESCAPE%39m%ANSI_ESCAPE%49m%ANSI_RESET_FG_COLOR%%ESCAPE%(B %+ REM added "esc(B" in case we are stuck in drawing font instead of english font
+            set ANSI_RESET=%ANSI_ESCAPE%39m%ANSI_ESCAPE%49m%ANSI_RESET_FG_COLOR% %+ REM need to add %ESCAPE%(B to the end of this —— that is, "esc(B" —— in case we are stuck in drawing mode. However, the 2023 version of @STRIPANSI (loaded from a DLL, not modifiable) doesn't properly strip the esc(b which creates some cosmetic problems for me, so I won't put it in 
                 set ANSI_RESET_FULL=%ANSI_RESET%
                 set ANSI_FULL_RESET=%ANSI_RESET%
                 set ANSI_COLOR_RESET=%ANSI_RESET_FG_COLOR%
@@ -172,10 +172,11 @@ rem —————————————————————————�
                                function      RANDOM_CURSOR_COLOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
 
                 rem Random shape *AND* color:
-                        function    ANSI_CURSOR_RANDOM=`%@char[27][%@random[0,6] q%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
-                        rem Aliases:
-                                function RANDOM_CURSOR=`%@char[27][%@random[0,6] q%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
-                                function    RANDCURSOR=`%@char[27][%@random[0,6] q%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
+                        function    ANSI_CURSOR_RANDOM=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
+                        rem Aliases:                                                                                            
+                                function RANDOM_CURSOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
+                                function    RANDCURSOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
+                                function    CURSORRAND=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
 
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

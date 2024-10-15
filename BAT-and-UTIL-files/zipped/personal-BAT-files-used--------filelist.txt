@@ -89,7 +89,7 @@
 2024-05-06  06:02             47    0%  battery.bat
 2024-08-21  22:19          4,249   71%  beep.bat
 2024-04-28  00:35         12,111   75%  before.bat
-2024-09-07  23:01          2,599   64%  bigecho.bat
+2024-10-15  07:03          3,352   63%  bigecho.bat
 2024-05-06  06:02             47    0%  bluetooth-batteries.bat
 2024-05-06  06:02             47    0%  bluetooth.bat
 2024-05-07  13:50            417   41%  bring-back-focus.bat
@@ -225,7 +225,7 @@
 2022-11-19  16:52            242   29%  display-flac-tags.bat
 2024-09-24  20:20            140   20%  display-free-space-as-locked-message.bat
 2024-05-09  07:33          3,509   66%  display-free-space.bat
-2024-09-09  06:45          7,764   72%  display-horizontal-divider.bat
+2024-10-15  06:55          7,842   72%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-09-09  11:24            814   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-03-29  20:08            128    6%  display-mp3-artists.bat
@@ -303,6 +303,7 @@
 2024-06-12  12:03            969   59%  fix-google-photo-filenames.bat
 2023-11-09  07:46             80    3%  fix-lastfm-window-size-and-position.bat
 2023-11-09  07:46             21   -9%  fix-minilyrics-window-size-and-position.bat
+2024-10-15  08:02             50   -4%  fix-MiniLyrics.bat
 2020-05-26  14:36            143   50%  fix-music-window-sizes-and-positions.bat
 2024-10-12  14:01          4,339   67%  fix-winamp.bat
 2024-04-08  15:08            560   54%  fix-window-title.bat
@@ -443,7 +444,7 @@
 2024-09-24  11:03          1,240   60%  load-tcc-plugins.bat
 2022-07-26  13:18             35   -5%  load-window-positions.bat
 2019-10-01  10:28             41    3%  lock-computer.bat
-2024-09-24  20:30          2,747   60%  locked-message.bat
+2024-10-15  04:22             21   -9%  locked-message.bat
 2023-06-15  11:38          2,114   57%  logging.bat
 2024-05-04  12:22          1,769   58%  lowercase-all-filenames.bat
 2019-10-01  10:28             28   -7%  lowercase.pl
@@ -538,7 +539,7 @@
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
 2024-03-18  11:29             13  -15%  previousdir.bat
 2023-06-09  22:02             67    6%  print-if-debug.bat
-2024-10-11  20:37         27,584   74%  print-message.bat
+2024-10-15  07:55         29,725   74%  print-message.bat
 2024-06-28  10:49         14,018   74%  process-done-torrent.btm
 2024-05-26  14:43             25   -8%  process-filelist-to-prevent-consecutive-entries-from-same-folder.bat
 2024-03-18  22:28          2,192   64%  process-rookie-folders.bat
@@ -627,7 +628,7 @@
 2022-04-19  04:29            156   20%  rn-latest.bat
 2024-09-11  21:35          5,402   72%  rn.bat
 2024-08-20  09:27            499   39%  roll-lastfm-log.bat
-2024-08-20  07:13            222   23%  roll-log-madvr.bat
+2024-10-15  05:02            230   25%  roll-log-madvr.bat
 2024-08-20  09:29          2,795   68%  roll-logs.bat
 2024-08-02  22:12            739   45%  rookie-pcvr.bat
 2022-03-13  19:26          3,560   74%  rotate-video.bat
@@ -654,7 +655,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-10-10  06:44         81,262   82%  set-ansi.bat
+2024-10-15  06:51         82,948   82%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-10-04  07:36          1,804   70%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat
@@ -747,7 +748,7 @@
 2024-07-22  12:33          8,012   73%  switch-winamp-to-playlist.bat
 2024-10-10  09:20             30   -6%  symlink-create-automatic-symlinks.bat
 2023-11-23  13:46             11  -18%  symlink.bat
-2024-10-11  09:30          8,060   69%  sync-a-folder-to-somewhere.bat
+2024-10-15  04:19          8,181   69%  sync-a-folder-to-somewhere.bat
 2024-08-20  06:31            325   40%  sync-bat-to-dropbox.bat
 2024-08-20  06:36          1,441   58%  sync-dropbox.bat
 2024-09-25  00:13         14,457   68%  sync-filelist-helper.pl
@@ -773,6 +774,8 @@
 2024-05-24  05:23            104   25%  tock.bat
 2023-08-29  05:29             49   17%  tock.py
 2024-09-09  22:48         12,060   76%  ToolTipOptions.ahk
+2024-10-15  04:33          4,226   66%  top-banner.bat
+2024-10-15  04:35             21   -9%  top-msg.bat
 2024-02-02  21:12            585   58%  touch-alias.bat
 2019-10-01  10:28            210   33%  TRIMDIR.pl
 2019-10-01  10:28             70   12%  TRIMEXT.pl
@@ -808,7 +811,7 @@
 2023-05-29  14:07             39   -5%  validate-env-vars.bat
 2024-09-08  22:48         14,723   77%  validate-environment-variable.bat
 2023-07-14  09:25            409   46%  validate-environment-variables.bat
-2024-09-29  21:25          2,459   62%  validate-file-extension.bat
+2024-10-15  07:56          3,456   66%  validate-file-extension.bat
 2024-09-08  22:52         12,147   76%  validate-function.bat
 2024-09-08  22:43            397   43%  validate-functions.bat
 2024-08-22  21:55          1,661   57%  validate-in-path.bat
@@ -823,7 +826,7 @@
 2023-06-02  13:02             44   -4%  warning.bat
 2024-08-22  01:03             49    0%  warning_less.bat
 2023-06-08  21:27             49   -4%  warning_soft.bat
-2024-09-25  03:00         18,369   74%  watch.bat
+2024-10-15  08:03         20,702   74%  watch.bat
 2022-11-09  12:11          5,931   65%  wav2mp3.bat
 2019-10-01  10:28             11  -18%  wcclip.bat
 2024-04-10  13:09          1,705   71%  WCHEADER.bat
@@ -835,7 +838,7 @@
 2019-10-01  10:28             54    6%  wgetquiet.bat
 2024-05-21  10:58          2,529   59%  where.bat
 2024-06-28  10:49          4,709   60%  whisper-faster.bat
-2023-05-29  17:47          4,116   71%  white-noise.bat
+2024-10-15  06:52          4,219   70%  white-noise.bat
 2024-04-09  23:12            463   42%  winamp-close-gracefully.bat
 2024-05-07  14:13            138   15%  winamp-next.bat
 2024-05-07  14:05          3,694   72%  winamp-pause.bat

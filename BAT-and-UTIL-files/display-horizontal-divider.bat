@@ -15,7 +15,7 @@
 
 rem CONFIGURATION:
         echos %ANSI_INVISIBLE_CURSOR%
-        call turn-off-file-redirection
+        setdos /x-6 %+ rem turn off file redirection so we can use < and >
         set DEFAULT_DIVIDER==
         rem                 ^ our default divider is '=', the equal symbol
 
@@ -96,6 +96,7 @@ rem Actually write out the divider, which is easy for normal height text:
             echos %LAST_GENERATED_DIVIDER_RIGHT%
         )
         echos %ANSI_EOL% 
+        echo.
         goto :END
 
 
@@ -126,6 +127,8 @@ rem TCC/Windows Terminal rendering bug that required a lot of ANSI fuddling to d
 
 :END
 
-call turn-on-file-redirection
+rem turn-back-on-file-redirection:
+        setdos /x0
+
 rem experimenting with not resetting this for less cursor-y progress bars: echo %ANSI_INVISIBLE_CURSOR%
 

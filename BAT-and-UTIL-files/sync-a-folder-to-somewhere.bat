@@ -106,6 +106,11 @@ pushd
     %COLOR_NORMAL%    
     echo.
 
+:Re_Validate
+    call validate-environment-variables SYNCSOURCE SYNCTARGET 
+    if %REDO eq 1 (goto :Re_Validate)
+
+
 :Do_It
     %COLOR_RUN%
     REM actually do the copy here! fast_cat is the fastest version of cat.exe {after testing}, which is used to fix ANSI rendering problems

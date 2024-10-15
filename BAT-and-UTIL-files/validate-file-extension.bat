@@ -8,15 +8,19 @@ rem EXAMPLE: call validate-file-extension %FILENAME%   "txt text rtf html"      
 rem SETUP: Get Parameters
     set VALIDATION_FILE=%1
     set  EXTENSION_LIST=%2
+    set  CUSTOM_ERR_MSG=%3
 
 rem USAGE if no parameters:
     if "%1" eq "" (
         echo.
         call important_less "USAGE: $0 {filename} {extension(s)}"
         echo.
-        %COLOR_ADVICE% %+ echo EXAMPLE: $0 %%FILENAME  txt
-        %COLOR_ADVICE% %+ echo EXAMPLE: $0 %%FILENAME "txt text rtf html"
-        %COLOR_ADVICE% %+ echo EXAMPLE: $0 %%FILENAME *.txt;*.rtf;*.html
+        %COLOR_ADVICE% 
+        echo EXAMPLE: $0 %%FILENAME  txt                %DASH% simple check of if %%FILENAME%% is a .txt file
+        echo EXAMPLE: $0 %%FILENAME *.txt "Not text!"   %DASH% can add a custom error message
+        echo EXAMPLE: $0 %%FILENAME "txt text rtf html" %DASH% can separate multiple extensions by space
+        echo EXAMPLE: $0 %%FILENAME *.txt;*.rtf;*.html  %DASH% can separate multiple extensions by semicolon
+        echo EXAMPLE: $0 %%FILENAME *.txt;*.rtf;*.html  "Manifest file must be TXT, RTF, or HTML" %DASH% can combine functionality
         goto :END
     )
 
@@ -41,7 +45,25 @@ rem VALIDATE: Check each extension in extension list and see if it matches our f
     )
 
 rem ERROR: At this point, all checks have failed and the file is not valid!
-    call error "*** Validation of file '%VALIDATION_FILE%' failed because it's extension is not one of: '%italics%%underline%%EXTENSION_LIST_TO_USE%%italics_off%%underline_off%'"
+    set VAL_FILE_EXT_ERR_MSG=*** Validation of file '%VALIDATION_FILE%' failed because it's extension is not one of: '%italics%%underline%%EXTENSION_LIST_TO_USE%%italics_off%%underline_off%'
+
+    if "%CUSTOM_ERR_MSG%" eq "" (
+            echos %ANSI_COLOR_ERROR%
+            call divider
+            repeat  10  echo %VAL_FILE_EXT_ERR_MSG%%EOL%
+            call divider
+            call fatal_error %VAL_FILE_EXT_ERR_MSG%
+            repeat 2 echo.
+    ) else (
+            echos %ANSI_COLOR_FATAL_ERROR%
+            call divider
+            echos %ANSI_COLOR_FATAL_ERROR%
+            call bigecho %VAL_FILE_EXT_ERR_MSG% 
+            echo  %ANSI_COLOR_FATAL_ERROR%
+            call divider
+            echo.
+            call fatal_error %CUSTOM_ERR_MSG%
+    )
 
 :Validated_File_Extension_Successfully
 

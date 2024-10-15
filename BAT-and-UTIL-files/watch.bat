@@ -1,47 +1,38 @@
 @Echo Off
-:Edit self [good when testing]: %EDITOR% c:\bat\watch.bat
+rem to edit self [good when testing]: %EDITOR% c:\bat\watch.bat
 
 
 rem TODO: if in \MEDIA\FOR-REVIEW\DO_LATERRRRRRRRRRRRRRRRRRRRRRR\oh set to reviewing mode
 rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfilename].* to ..\..\REVIEWED-NOT-PRENAMED\
 
 
+rem ——————————————————————————————————————————————————————————————————————————–—————————————————————————————————————–——–——–—–——————————————————————
+rem CONFIGURATION:
+        set SLAY_SLUI=0                                      %+ rem Whether to run a process that kills slui.exe every second:
+        set ROLL_MADVR_LOGS=0                                %+	rem For when the MadVR plugin is used, which we stopped using in 2015ish:
+
+        set EXE_TO_SEE_IF_RUNNING=vlc.exe                    %+ rem this exe should be what's we check to see if we are stillw atching
+        set VIDEOPLAYER_COMMAND=vlc                          %+ rem **JUST** the command, ****NO**** parameters
+        set VIDEOPLAYER_COMMAND_FULL=call vlc -f             %+ rem the **FULL** command, ***WITH*** parameters
+
+        set ALT_EXE_TO_SEE_IF_RUNNING=mpc-hc.exe             %+ rem \
+        set ALT_VIDEOPLAYER_COMMAND=mpc                      %+ rem  >——— unused alternate values for our video player
+        set ALT_VIDEOPLAYER_COMMAND_FULL=call mpc            %+ rem /
+rem ——————————————————————————————————————————————————————————————————————————–—————————————————————————————————————–——–——–—–——————————————————————
 
 
-                         ::: PRE-2014 STUFF (HAHA):
-                         :::  @Echo OFF
-                         :::  call vw nobackup
-                         :::  call after show
-                         :::  call after coincidence
-
-::::: SHORT-CIRCUITING:
-    if "%1" == ""      (goto :The_Very_End)
-    if "%1" == "askyn" (goto :askyn       )
-
-
-::::: CONFIGURATION:
-	::::: The preferred videoplayer of the moment:
-	        set VIDEOPLAYER=call vlc -f
-            set EXE_TO_SEE_IF_RUNNING=vlc.exe
-
-	::::: The 2nd-favorite videoplayer of the moment:
-	        set ALT_VIDEOPLAYER=call mpc 
-            set ALT_EXE_TO_SEE_IF_RUNNING=mpc-hc.exe
-
-
-	::::: Whether to run a process that kills slui.exe every second:
-            set SLAY_SLUI=0
-
-	::::: For when the MadVR plugin is used, which we stopped using in 2015ish:
-            set ROLL_MADVR_LOGS=0      
+rem VALIDATE ENVIRONMENT:
+        if %VLC_VALIDATED ne 1 (
+                call validate-environment-varaible BAT SMART_HOME_COMMAND_AUDIO ANSI_COLOR_FATAL_ERROR USERPROFILE LOGS 
+                call validate-in-path %VIDEOPLAYER_COMMAND% bigecho debug fix-window-title fix-winamp bring-back-focus advice fatal_error error fix-MiniLyrics  paus stop
+                set VLC_VALIDATED=1
+        )
 
 
 
-
-::::: SETUP:
-	call nocar
-    if "%ROLL_MADVR_LOGS" eq "1" (call roll-log-madvr)
-    set nopause=0
+rem INVOCATION FORKING:
+        if "%1" == ""      (echo. %+ call bigecho "%ANSI_COLOR_FATAL_ERROR%Watch what?" %+ goto :The_Very_End) %+ rem Improper invocation —— do nothing
+        if "%1" == "askyn" (         call debug   "Skipping to post-watch questions"    %+ goto :askyn       ) %+ rem jump directly to AFTER-watching questions [mostly for testing]
 
 
 
@@ -49,73 +40,51 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 
 
 
+rem PRE-VIDEO-WATCHING SETUP:
+        rem no longer necessary: call change-command-separator-character-to-normal.bat
+
+        rem If configured, copy MadVR log to %LOGS% (which is probably c:\logs)
+                if "%ROLL_MADVR_LOGS" eq "1" (
+                        set        TARGET=%USERPROFILE%\Desktop\madVR - log.txt
+                        if exist "%TARGET%" (%COLOR_SUBTLE% %+ echo ray|*copy "%TARGET" %LOGS% %+ %COLOR_NORMAL%)
+                )
+                set nopause=0
+
+        rem Copy showname to clipboard, but allow override by setting %PROTECTCLIPBOARD% to 1
+                if %PROTECTCLIPBOARD ne 1 (echo %* >clip:)
 
 
-		if "%PROTECTCLIPBOARD%"=="1" goto :ProtectClipboard2
-			echo %* >clip:
-						  :ProtectClipboard2
-	       :pause
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-::::: CHECK IF PARAMETERS ARE FILES THAT EXIST:
+rem CHECK IF PARAMETERS ARE FILES THAT EXIST: 
 	set ERROR=0
-		gosub checkiffileexists %1
-		gosub checkiffileexists %2
-		gosub checkiffileexists %3
-		gosub checkiffileexists %4
- 		gosub checkiffileexists %5
-		gosub checkiffileexists %6
-		gosub checkiffileexists %7
-		gosub checkiffileexists %8
-		gosub checkiffileexists %9
+            gosub ValidateFileForWatching %1
+            gosub ValidateFileForWatching %2
+            gosub ValidateFileForWatching %3
+            gosub ValidateFileForWatching %4
+            gosub ValidateFileForWatching %5
+            gosub ValidateFileForWatching %6
+            gosub ValidateFileForWatching %7
+            gosub ValidateFileForWatching %8
+            gosub ValidateFileForWatching %9
 	if "%ERROR%" eq "1" goto :END
 
 
-::::: CHECK IF THIS IS EVEN A FILE WE CAN PLAY:
-                                              set DONOTPLAY=0
-        if "%@REGEX[.IDX,%@UPPER[%*]]" eq "1" set DONOTPLAY=1
-	    if                         "1" eq       "%DONOTPLAY%" goto :Play_Cannot
-	                                                          goto :Play_Can
-				:Play_Cannot
-					call fatal_error "Can't play this kind of file."
-					goto :END
-				:Play_Can
 
 
-::::: MISC VALIDATIONS:
-        call validate-in-path bring-back-focus advice fml vlc
-
-
-
-
-::::: ARGUMENTS CONVERTED TO SEMICOLON-DELIMITED BECAUSE THAT'S WHAT MANY COMMANDS USE:
+rem ARGUMENTS CONVERTED TO SEMICOLON-DELIMITED BECAUSE THAT'S WHAT MANY COMMANDS USE:
        :echo set ARGSWITHSEMICOLONS=%1;%2;%3;%4;%5;%6;%7;%8;%9
              set ARGSWITHSEMICOLONS=%1;%2;%3;%4;%5;%6;%7;%8;%9
              set ARGSWITHSPACES=%@REPLACE[;, ,%ARGSWITHSEMICOLONS%]
 
 
-::::: RUN A DAEMON THAT KEEPS KILLING PROCESSES (like slui.exe) THAT TEND TO INTERRUPT OUR VIEWING BY POPPING US OUT OF FULLSCREEN MODE:
+rem RUN A DAEMON THAT KEEPS KILLING PROCESSES (like slui.exe) THAT TEND TO INTERRUPT OUR VIEWING BY POPPING US OUT OF FULLSCREEN MODE:
 	if %SLAY_SLUI eq 1 (start /min keep-killing-if-running slui slui 30 media.player.classic exitafter)
 
 
-::::: START THE AMBILIGHT IF NOT ALREADY STARTED:
+rem START THE AMBILIGHT IF NOT ALREADY STARTED:
 	REM uncomment if we ever get controllable ambilight again: if %AMBILIGHT_DOWN eq 0 (call ambilight)
 
 
-::::: CALL OTHER AFTER-WATCHING-STUFF SCRIPT:
+rem CALL OTHER AFTER-WATCHING-STUFF SCRIPT:
 	                   set MINIMIZE_AFTER=1
     if %_MONITORS gt 1 set MINIMIZE_AFTER=0
         if "%ALREADY_RAN_AFTER_SHOW%" eq "1" goto :NoAfterShow
@@ -125,7 +94,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
         :NoAfterShow
 	set MINIMIZE_AFTER=0
 
-::::: TURN OFF ANY X10 LIGHTS, IN ORDER OF ANNOYINGNESS, AND PUT BLACKLIGHTS ON:
+rem TURN OFF ANY X10 LIGHTS, IN ORDER OF ANNOYINGNESS, AND PUT BLACKLIGHTS ON:
     if "%X10_DOWN%" eq "1" goto :X10_DOWN_YES
             if "%TVLIGHTING%" eq "1" goto :TV_Lighting_Done_Already
                     :TV_Lighting_NOT_Done_Already
@@ -147,17 +116,23 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
                 call x10 a3 off
     :X10_DOWN_YES
 
-::::: PAUSE MUSIC:
-    call stop fast
+
+rem PAUSE MUSIC SPEEDILY:
+    call paus fast
+
+    
+rem TELL GOOGLE TO RUN "ok google, I'm watching TV" SMART HOME ROUTINE:
+
     if "%GOOGLE_ASSIST_TV_MODE_ON%" eq "1" goto :AlreadyOKGoogled
-        sleep 2
-        call okgoogle i'm watching tv
-        SET GOOGLE_ASSIST_TV_MODE_ON=1
+            sleep 2
+            rem we cannot 'call okgoogle.bat i'm watching tv' because the synthesized voice will only trigger house routines, and our routine is a personal routine made beforeh house routines existed"
+            call play-WAV-file "%BAT%\OK Google - I'm watching TV.wav"
+            SET GOOGLE_ASSIST_TV_MODE_ON=1
     :AlreadyOKGoogled
 	REM call paus
 
 
-::::: SAVE WINDOW POSITIONS:
+rem SAVE WINDOW POSITIONS:
 	call save-window-positions LastWatch
 
 
@@ -166,9 +141,8 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 
 
 
-::::: ACTUALLY PLAY THE FILE, WAIT (PAUSE), THEN DELETE IT IF WE ARE IN A FOLDER WHOSE NAME IMPLIES THAT WE SHOULD DELETE IT: ******************************************************
-        :all wrapper %VIDEOPLAYER% %*
-        call         %VIDEOPLAYER% %*
+rem ACTUALLY PLAY THE FILE, WAIT (PAUSE), THEN DELETE IT IF WE ARE IN A FOLDER WHOSE NAME IMPLIES THAT WE SHOULD DELETE IT: ******************************************************
+        %VIDEOPLAYER_COMMAND_FULL% %*
 
 
         REM winamp moves when vlc starts and this moves it back
@@ -191,8 +165,8 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 
 
 
-::::: DOUBLE-CHECK LIGHTS [OF ALL KINDS]:
-	::::: Only do x10-related lighting if it's not already done:
+rem DOUBLE-CHECK LIGHTS [OF ALL KINDS]:
+	rem Only do x10-related lighting if it's not already done:
         if "%X10_DOWN%" eq "1" goto :X10_DOWN_YES_2
             if "%TVLIGHTING%" eq "1" goto :TV_Lighting_Done_Already_NO2
                 :TV_Lighting_Done_Already_YES2
@@ -209,7 +183,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
                         set TVLIGHTING=1
                     goto :TV_Lighting_double_check_done
                 :TV_Lighting_Done_Already_NO2
-                        ::::: Even if the environment variable is set, let's ensure the blacklights are on anyway, no matter what:
+                        rem Even if the environment variable is set, let's ensure the blacklights are on anyway, no matter what:
                             call sleep 5
                             call x10 a6 on
                             call x10 a7 off
@@ -220,7 +194,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
                     goto :TV_Lighting_double_check_done
                 :TV_Lighting_double_check_done
         :X10_DOWN_YES_2
-	::::: Sometimes the ambilight pop-up remains when it shouldn't, so kill it one more time:
+	rem Sometimes the ambilight pop-up remains when it shouldn't, so kill it one more time:
 		:call AREPopDown
 		:::: ^^^^^^^^^^^ but the problem with doing this here is it generates a mouse click which removes focus from our player, causing confusion
 
@@ -251,10 +225,10 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 
 
 
-::::: THIS IS WHAT HAPPENS WHILE WE ARE WATCHING AFTER THE 2ND-PASS LIGHTING DOUBLE-CHECK. BASICALLY, WE WAIT:
+rem THIS IS WHAT HAPPENS WHILE WE ARE WATCHING AFTER THE 2ND-PASS LIGHTING DOUBLE-CHECK. BASICALLY, WE WAIT:
         REM winamp moves when vlc starts and this moves it back
         call sleep 3
-        call fml.bat
+        call fix-MiniLyrics.bat
         :: Check if we are still watching 
             :Still_Watching
                 call sleep 1
@@ -266,7 +240,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
             if %ISRUNNING eq 1 (goto :Still_Watching)
 
         
-::::: THIS IS WHAT HAPPENS WHEN WE'RE FINALLY DONE WATCHING:
+rem THIS IS WHAT HAPPENS WHEN WE'RE FINALLY DONE WATCHING:
         :: done watching - bring command-line window back to front:
             window restore
 			REM call fix-minilyrics-window-size-and-position
@@ -279,7 +253,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
             echo.
 
 
-::::: DISPLAY THE TIME IN CASE WE WAKE UP THE NEXT DAY WONDERING WHEN WE WENT TO SLEEP:
+rem DISPLAY THE TIME IN CASE WE WAKE UP THE NEXT DAY WONDERING WHEN WE WENT TO SLEEP:
     echo.
         %COLOR_SUCCESS%
         call qd
@@ -287,12 +261,12 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 
 
 
-::::: COPY SHOWNAME TO CLIPBOARD, FOR PASTING INTO LOG WITH EASE:
+rem COPY SHOWNAME TO CLIPBOARD, FOR PASTING INTO LOG WITH EASE:
         call  fixclip
 	    echo %* >clip:
         call locked-message %*
         
-::::: DELETE IT IF WE ARE IN A FOLDER WHOSE NAME IMPLIES THAT WE SHOULD DELETE IT:
+rem DELETE IT IF WE ARE IN A FOLDER WHOSE NAME IMPLIES THAT WE SHOULD DELETE IT:
         %COLOR_REMOVAL%
                                                                            set RENAMEIT=0
                                                                            set SMALL_VID_WATCHING=0
@@ -310,9 +284,9 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
         echos %FAINT_OFF%
 
         REM winamp moves when vlc starts and this moves it back
-        REM call fml.bat
+        REM call fix-MiniLyrics.bat
 
-::::: IF WE ARE IN A FOLDER THAT ALREADY HAS A WATCHED SUB-FOLDER, WE NEED TO FIND IT, AND (LATER) MOVE WHAT WE WATCHED THERE:
+rem IF WE ARE IN A FOLDER THAT ALREADY HAS A WATCHED SUB-FOLDER, WE NEED TO FIND IT, AND (LATER) MOVE WHAT WE WATCHED THERE:
         :Reviewing_Small_Videos_Dir_Finding_Time
             if %SMALL_VID_WATCHING eq 1 (
                 call rn %1
@@ -340,7 +314,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
                                  goto :DealWithWatchedDir_YES
             :DealWithWatchedDir_YES
 
-::::: PRIOR TO MOVING TO WATCHED FOLDER, IF IT'S IN A PRE-RENAMING PART OF THE WORKFLOW, GIVE AN OPPORTUNITY TO RENAME IT:
+rem PRIOR TO MOVING TO WATCHED FOLDER, IF IT'S IN A PRE-RENAMING PART OF THE WORKFLOW, GIVE AN OPPORTUNITY TO RENAME IT:
                 if       %@REGEX[FOR.REVIEW,%@UPPER["%_CWP"]]==1  set RENAMEIT=1
                 if %@REGEX[WATCH.BEFORE.FRA,%@UPPER["%_CWP"]]==1  set RENAMEIT=1
                 if "%RENAMEIT%" eq "0" goto :RenameIt_NO
@@ -351,7 +325,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
                             %COLOR_NORMAL% %+ for %1 in (%*)      if exist "%@UNQUOTE[%1]" call rn "%@UNQUOTE[%1]"
                         :RenameIt_NO
 
-::::: NOW THAT WE'VE RENAMED IT AND KNOW WHERE TO MOVE IT, MOVE IT:
+rem NOW THAT WE'VE RENAMED IT AND KNOW WHERE TO MOVE IT, MOVE IT:
 
                 :Move any files that match the names of any files that we played, but which have a different extension (subtitles, texts, etc):										
                 :@ECHO ON
@@ -375,7 +349,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 
 
 
-::::: WARN BEFORE WRAP-UP:
+rem WARN BEFORE WRAP-UP:
 	echo.
 	:NOT UNTIL LATER: window restore
     call fix-window-title
@@ -394,13 +368,13 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
         if %DO_IT eq 1 (call after movie)
 
 
-::::: UNPAUSE MUSIC:
+rem UNPAUSE MUSIC:
      REM call important "Lower music volume..."
      call askyn "Unpause music?" no
         if %DO_IT eq 1 (call unpause)
 
 
-::::: WAKE UP WITH SOME PARTY LIGHTS:
+rem WAKE UP WITH SOME PARTY LIGHTS:
 	REM if "%TVLIGHTING%" eq "0" goto :TV_Lighting_Done_Already_NO3
 	:TV_Lighting_Done_Already_YES3
         call askyn "Fix lights ('%italics_on%ok google I'm done watching tv%italics_off%')?" no
@@ -412,7 +386,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
             )
 	:TV_Lighting_Done_Already_NO3
  
-::::: FIX WINUAMP POSITION:
+rem FIX WINUAMP POSITION:
      REM call important "Lower music volume..."
      call askyn "Fix WinAmp position?" no
                         set FIX_WINAMP_POSITION=0
@@ -420,7 +394,7 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 
 
 
-::::: COPY SHOWNAME TO CLIPBOARD (AGAIN):
+rem COPY SHOWNAME TO CLIPBOARD (AGAIN):
 	call  fixclip
 	echo %* >clip:
     :::::TODO: refocus to editplus maybe sleep 1s first
@@ -430,34 +404,35 @@ rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfil
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-	::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-	:CheckIfFileExists   [fileToCheck]
-        if "%fileToCheck%" eq "" goto :NeverMind
-		%COLOR_IMPORTANT% %+ echos %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% Checking if file exists: '%faint%%italics%%FileToCheck%%italics_off%%faint_off%' %EMOJI_MAGNIFYING_GLASS_TILTED_LEFT%
-		if ""  eq    "%fileToCheck%" goto :NeverMind
-		if not exist  %fileToCheck%  goto :Exists_NO
-		                             goto :Exists_YES
-			:Exists_NO
-                call FATALERROR "File %FileToCheck% does not exist!"
-				set ERROR=1
-                call print-if-debug "Goto End!"
-				goto :END
-			:Exists_YES
-                %color_success %+ echo ...file exists! %PARTY_POPPER%
-	:NeverMind
-	return
-	::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :ValidateFileForWatching   [fileToCheck]
+            if "%fileToCheck%" eq "" goto :NeverMind
+            %COLOR_IMPORTANT% %+ echos %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% Checking if file exists: '%faint%%italics%%FileToCheck%%italics_off%%faint_off%' %EMOJI_MAGNIFYING_GLASS_TILTED_LEFT%
+            if ""  eq    "%fileToCheck%" goto :NeverMind
+            if not exist  %fileToCheck%  goto :Exists_NO
+                                         goto :Exists_YES
+                    :Exists_NO
+                            call FATALERROR "File %FileToCheck% does not exist!"
+                            set ERROR=1
+                            call print-if-debug "Goto End!"
+                            goto :END
+                    :Exists_YES
+                            echos %ANSI_COLOR_SUCCESS%...file exists! %PARTY_POPPER%
+                            call validate-file-extension %1 %filemask_video%
+                            echo ...and is a valid extension! %PARTY_POPPER%
+        :NeverMind
+        return
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
                          
 
 :END
-    rem call print-message logging "Ending!"
-    call fix-window-title
+        rem call print-message logging "Ending!"
+        call fix-window-title 
 
-::::: FIX WINAMP POSITION IF WE WERE ASKED:
-        if %FIX_WINAMP_POSITION eq 1 (call fw)
-
+rem FIX WINAMP POSITION IF WE WERE ASKED:
+        if %FIX_WINAMP_POSITION eq 1 (call fix-winamp)
 
 :The_Very_End
