@@ -13,6 +13,8 @@ set  MACHINENAME=DEMONA
 call c:\bat\autoexec-common %*   
 
 
+REM
+        call header "Running %@NAME[%0]..."
 
 
 REM Startup DEMONA programs:
@@ -41,6 +43,7 @@ REM Edit this script, if so instructed:
         )
 
 REM We're done!
+        callh eader unlock
         call celebrate autoexec done
         unset /q AUTOEXEC
 

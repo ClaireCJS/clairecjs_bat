@@ -588,11 +588,15 @@ REM ANSI: Custom Character Generation using ANSI & sixels —— so far just hav
             set  EMOJI_PENTAGRAM_BLINKING=%blink_on%%EMOJI_PENTAGRAM%%blink_off%%ANSI_RESET%  %+ rem Now  add blinking  to our pentagram emoji 
 
    rem Adding aliases for our custom emoji:
+            set                  PENTACLE=%EMOJI_PENTACLE%
             set                 PENTAGRAM=%EMOJI_PENTAGRAM%
             set        PENTAGRAM_BLINKING=%EMOJI_PENTAGRAM_BLINKING%
             set  EMOJI_BLINKING_PENTAGRAM=%EMOJI_PENTAGRAM_BLINKING%
             set        BLINKING_PENTAGRAM=%EMOJI_PENTAGRAM_BLINKING%
-            set                  PENTACLE=%EMOJI_PENTACLE%
+            set       UNCOLORED_PENTAGRAM=%EMOJI_PENTAGRAM_UNCOLORED%
+            set       PENTAGRAM_UNCOLORED=%EMOJI_PENTAGRAM_UNCOLORED%
+            set           PLAIN_PENTAGRAM=%EMOJI_PENTAGRAM_UNCOLORED%
+            set           PENTAGRAM_PLAIN=%EMOJI_PENTAGRAM_UNCOLORED%
             rem EMOJIPENTAGRAMBLINKINGOLD=%@ANSI_FG[160,0,00]%reverse_on%%blink_on%%EMOJI_PENTAGRAM%%blink_off%%reverse_off%
             
     rem Various experiments:

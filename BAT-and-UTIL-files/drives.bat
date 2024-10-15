@@ -42,7 +42,7 @@ goto :END
         set color_to_use=%color_warning%
         set spacer=
         set EMOJITOUSE=%EMOJI_OPTICAL_DISK%
-        set echocommand=call echobig
+        set big=1
 		if "%@REGEX[NOT READY,%DESC%]" eq "1" %COLOR_NORMAL%
 
         rem But if they are part of our system (label has "HDxxG" or "HDxxT" in it), display them with the proper color for the computer they're from:
@@ -52,12 +52,12 @@ goto :END
 				color green on black
                 set spacer=  ``
                 set FOUND=0
-				if "%@REGEX[FIRE,%DESC%]"    eq "1" (set FOUND=1 %+ %COLOR_RUN%                    %+ set echocommand=echos)
-				if "%@REGEX[HADES,%DESC%]"   eq "1" (set FOUND=1 %+  color        red     on black %+ set echocommand=echos)
-				if "%@REGEX[THAILOG,%DESC%]" eq "1" (set FOUND=1 %+  color        red     on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_SMILING_FACE_WITH_HORNS%)
-				if "%@REGEX[GOLIATH,%DESC%]" eq "1" (set FOUND=1 %+  color bright magenta on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
-				if "%@REGEX[WYVERN,%DESC%]"  eq "1" (set FOUND=1 %+  color bright magenta on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
-				if "%@REGEX[DEMONA,%DESC%]"  eq "1" (set FOUND=1 %+  color bright red     on black %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_BAT%)
+				if "%@REGEX[FIRE,%DESC%]"    eq "1" (set FOUND=1 %+ %COLOR_RUN%                    %+ set big=0 %+ set echocommand=echos)
+				if "%@REGEX[HADES,%DESC%]"   eq "1" (set FOUND=1 %+  color        red     on black %+ set big=0 %+ set echocommand=echos)
+				if "%@REGEX[THAILOG,%DESC%]" eq "1" (set FOUND=1 %+  color        red     on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_SMILING_FACE_WITH_HORNS%)
+				if "%@REGEX[GOLIATH,%DESC%]" eq "1" (set FOUND=1 %+  color bright magenta on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
+				if "%@REGEX[WYVERN,%DESC%]"  eq "1" (set FOUND=1 %+  color bright magenta on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
+				if "%@REGEX[DEMONA,%DESC%]"  eq "1" (set FOUND=1 %+  color bright red     on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_BAT%)
                 if  %FOUND eq 0 (set spacer= ``)
         ) else (
                 set spacer=
@@ -69,16 +69,26 @@ goto :END
                     set spacer=  ``
                     set desc=[%ITALICS_ON%NOT READY%ITALICS_OFF%]
                     set EMOJITOUSE=%EMOJI_WILTED_FLOWER%
+                    set EMOJITOUSE=%PLAIN_PENTAGRAM%
+                    set big=0
+                    set emoji_color=%ansi_reset%
                 )
         )
         set ToBlinkOrNotToBlink=
         set Post=
         if "%drive%" eq "%_disk:" (
             set ToBlinkOrNotToBlink=%BLINK_ON%%ITALICS_Off%%UNDERLINE_ON%%@ANSI_BG[0,42,0]
-            set Post=%UNDERLINE_OFF%%BLINK_OFF%%ANSI_RESET%%ANSI_COLOR_SUCCESS%%FAINT_ON%  `<`---- you are here%FAINT_OFF%
+            set Post=%UNDERLINE_OFF%%BLINK_OFF%%ANSI_RESET%%ANSI_COLOR_SUCCESS%%FAINT_ON%%EMOJITOUSE%%ansi_reset%  `<`---- you are here%FAINT_OFF%
+            set big=1
+            set spacer=
         )
         setdos /x-678
-		%echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
+		rem %echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
+		rem %echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_BACKGROUND_BLACK%
+
+        if %big eq 0 (%echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_BACKGROUND_BLACK)
+        if %big eq 1 (call bigecho %emoji_color%%EmojiToUse%%spacer%%ansi_color_warning%%ToBlinkOrNotToBlink%%drive% %DESC%%POST% %ANSI_BACKGROUND_BLACK%%ansi_black%)
+
         setdos /x0
         if "%echocommand%" eq "echos" (%COLOR_NORMAL%%FAINT_OFF% %+ echo.)
 	return

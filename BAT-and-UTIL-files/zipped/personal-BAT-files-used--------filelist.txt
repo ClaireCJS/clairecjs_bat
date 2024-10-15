@@ -58,7 +58,7 @@
 2024-03-13  20:08          5,959   68%  audit-music-files.py
 2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
-2024-10-11  17:57          3,598   70%  autoexec-common.btm
+2024-10-15  11:06          3,914   69%  autoexec-common.btm
 2024-09-11  15:18         16,397   82%  autoexec.ahk
 2024-09-11  02:31            899   52%  AutoHotKey-autoexec.bat
 2024-09-11  02:27          1,645   58%  AutoHotKey.bat
@@ -244,7 +244,7 @@
 2023-12-18  16:04             21   -9%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-08-20  05:45             50   -2%  DIST.bat
-2024-10-13  16:03         12,768   78%  distribute-bat-files-to-every-drive.bat
+2024-10-15  10:46         12,896   78%  distribute-bat-files-to-every-drive.bat
 2024-03-30  13:19             35   -5%  divider.bat
 2024-05-16  13:59             47   13%  dns-display.bat
 2024-07-28  16:32             28   -7%  do-in-each-directory.bat
@@ -253,14 +253,14 @@
 2024-06-27  12:31            119   23%  download-youtube-music.bat
 2023-06-09  21:26             35   -5%  download-youtube-video-with-chapters-as-an-mp3-album.bat
 2024-05-04  12:51          2,070   59%  drastically-shorten-and-standardize-filenames.bat
-2024-04-04  21:23          3,978   66%  drives.bat
+2024-10-15  09:29          4,648   68%  drives.bat
 2024-08-20  06:44          3,376   66%  dropbox-offload.bat
 2019-10-01  10:27            193   49%  du.bat
 2024-04-05  17:32            846   51%  dump-environment-to-tmpfile.bat
 2024-03-13  23:19             32   -6%  dvl.bat
 2023-06-12  20:31             37   -5%  dym.bat
 2024-09-29  20:12            233   52%  ec.bat
-2024-09-24  12:17          3,864   72%  echo-rainbow.bat
+2024-10-15  10:19          4,226   75%  echo-rainbow.bat
 2024-08-20  09:00         29,171   69%  edit-currently-playing-attrib-helper.pl
 2024-08-20  08:59          8,960   71%  edit-currently-playing-attrib.bat
 2023-06-15  11:32            976   52%  edit-windows-terminal-settings.bat
@@ -318,7 +318,7 @@
 2024-06-13  20:10          8,818   73%  FR.bat
 2024-08-20  22:23            681   52%  free-space-monitor.bat
 2024-08-20  22:53             34   -5%  free-space.bat
-2024-08-20  23:07          2,015   59%  free-up-harddrive-space.bat
+2024-10-15  11:03          2,181   60%  free-up-harddrive-space.bat
 2024-08-20  22:17             33   -6%  freemon.bat
 2024-08-21  12:42         12,920   77%  frpost-helper.pl
 2024-02-21  02:01            117    9%  frpost.bat
@@ -379,6 +379,7 @@
 2019-10-01  10:28            839   63%  handles-post.pl
 2024-08-20  09:17             36   -5%  handles.bat
 2019-10-01  10:28            204   49%  head.bat
+2024-10-15  04:35             21   -9%  header.bat
 2024-09-08  22:47             25   -8%  help-functions.bat
 2024-04-10  13:14            878   50%  helper-end.bat
 2024-05-28  00:45          1,201   55%  helper-start.btm
@@ -627,7 +628,7 @@
 2023-06-09  18:15          2,922   67%  rn-latest-for-youtube-dl.bat
 2022-04-19  04:29            156   20%  rn-latest.bat
 2024-09-11  21:35          5,402   72%  rn.bat
-2024-08-20  09:27            499   39%  roll-lastfm-log.bat
+2024-10-15  10:59            657   45%  roll-lastfm-log.bat
 2024-10-15  05:02            230   25%  roll-log-madvr.bat
 2024-08-20  09:29          2,795   68%  roll-logs.bat
 2024-08-02  22:12            739   45%  rookie-pcvr.bat
@@ -774,7 +775,8 @@
 2024-05-24  05:23            104   25%  tock.bat
 2023-08-29  05:29             49   17%  tock.py
 2024-09-09  22:48         12,060   76%  ToolTipOptions.ahk
-2024-10-15  04:33          4,226   66%  top-banner.bat
+2024-10-15  10:40          6,739   69%  top-banner.bat
+2024-10-15  04:35             21   -9%  top-message.bat
 2024-10-15  04:35             21   -9%  top-msg.bat
 2024-02-02  21:12            585   58%  touch-alias.bat
 2019-10-01  10:28            210   33%  TRIMDIR.pl

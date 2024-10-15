@@ -36,10 +36,12 @@ echos     `` %+ call less_important "%ANSI_COLOR_IMPORTANT%Free space now: %FREE
 
 goto :END
     :DelIfExists [files_param]
+        rem echos %ansi_color_important%%ansi_save_position%%@name[%files_param%]
         %COLOR_REMOVAL%
         set files="%@UNQUOTE[%files_param]"
         if not exist %files% return
         if     exist %files% (*del /e /s /a: /f /k /L /X /Y /Z %files%) >nul
+        rem echos %ansi_restore_position%%@repeat[ ,%@len[%@name[%files_param%]]]
     return
     :CreateIfGone [dir_param]
         %COLOR_SUCCESS%

@@ -16,6 +16,7 @@ rem Initialize environment:
         call environm 
         window "AUTOEXEC"
         gosub done_with_step
+        call header "Running %@NAME[%0]..."
 
 rem Load our autohotkey script right away since it has winamp control aspects in it
         call less_important "Initializing %italics_on%AutoHotKey%italics_off%..."
@@ -86,19 +87,23 @@ goto :END
 rem ——————————————————————————————————————————————————————————————————————————————–——————————————————————————————–—————————————————————————————————————————————
 :END
         rem Maintainence, including rolling files:
-                repeat 3 echo.
-                call divider
+                repeat 5 echo.
+                repeat 5 call divider %CHECK%
                 call  less_important "Running quick non-backup-related maintanence..."
                 call  maintanence     NoWarning    NoBackups
+                repeat 5 call divider %CHECK%
                 gosub done_with_step
 
 
         rem Let them know we're done
+                call header "%check%%check%%check% Done with common AutoExec! %check%%check%%check%"
                 repeat 2 echo.
                 call divider
                 call success %italics_on%%0%italics_off% done
                 call divider
                 repeat 2 echo.
+
+
 
         rem Start primary web browser (Chrome):
                 call chrome
@@ -108,5 +113,9 @@ rem —————————————————————————�
 
 
 
+
+        rem Finish up:
+                call header unlock
+                call fix-window-title
 
 

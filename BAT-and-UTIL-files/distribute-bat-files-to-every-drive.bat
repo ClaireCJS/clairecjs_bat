@@ -24,6 +24,9 @@
         rem  checkmappings.bat  ————————————— 20241013: changing back to nopause because this is run from autoexec:
              checkmappings.bat nopause 
 
+::::: NON-SCROLLABLE HEADER:
+        call header "Distributing BAT file folder to all drives..."
+
 ::::: PREPARE FOR COPY:
         pushd
         call go-to-bat-file-folder
@@ -154,7 +157,7 @@ goto :Cleanup
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :doit_for_custom_commands
-    call wake-all-drives
+   call wake-all-drives
    if "%@READY[M]" eq "1" if isdir M:\bat %Command_To_Use M:\bat\%TailCmd
    if "%@READY[K]" eq "1" if isdir K:\bat %Command_To_Use K:\bat\%TailCmd
    gosub delay
@@ -286,4 +289,5 @@ return
 
 
 :END
+        call header unlock
 
