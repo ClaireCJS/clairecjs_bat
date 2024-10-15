@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo Off
 
 :DESCRIPTION: Locks a non-scrollable banner message at the top 3 rows of our console menu. Good for keeping track of tasks, percentage complete, etc.
 
@@ -101,10 +101,30 @@ rem Substitute the token {freespace} with our generated free space message:
 
 rem Get message length and create side-spacers of appropriate length to center the message:
         :Display_Message_Now
-                                             SET LOCKED_MESSAGE_LENGTH=%@LEN[%@STRIP_ANSI[%LOCKED_MESSAGE]]
-        if %FREE_SPACE_MESSAGE_IS_USED eq 1 (SET LOCKED_MESSAGE_LENGTH=%@EVAL[%LOCKED_MESSAGE_LENGTH+2])         %+ rem the slash emojis we use twice in our free space message are not correctly measured by %@LEN[] which creates a bug of wrapping the line onto the next line, unless we manually deduct the number of wide emojis {or at least, the # of wide emojis that %@LEN isn't correctly counting!} ... May take some experimentation if you change the free message format.
+        set DECORATED_MESSAGE=%dottie% %LOCKED_MESSAGE%%LOCKED_MESSAGE_COLOR% %dottie%
+                                             SET LOCKED_MESSAGE_LENGTH=%@LEN[%@STRIP_ANSI[%DECORATED_MESSAGE]]
+        if %FREE_SPACE_MESSAGE_IS_USED eq 1 (SET LOCKED_MESSAGE_LENGTH=%@EVAL[%LOCKED_MESSAGE_LENGTH+2])         
+        rem ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the slash emojis we use twice in our free space message are not correctly measured by %@LEN[] which creates a bug of wrapping the line onto the next line, unless we manually deduct the number of wide emojis {or at least, the # of wide emojis that %@LEN isn't correctly counting!} ... May take some experimentation if you change the free message format
 
-        set SPACER=%@REPEAT[ ,%@FLOOR[%@EVAL[(%_COLUMNS-%LOCKED_MESSAGE_LENGTH-3)/2-2]]]``
+        rem NUM_SPACER=%@FLOOR[%@EVAL[(%_COLUMNS-%LOCKED_MESSAGE_LENGTH-3)/2-2]]
+        set NUM_SPACER=%@FLOOR[%@EVAL[(%_COLUMNS-%LOCKED_MESSAGE_LENGTH)/2]]
+        if %@EVAL[%num_spacer + %locked_message_length + %num_spacer] ge %@EVAL[%_columns-1] (set num_spacer=%@EVAL[%num_spacer - 1])
+        :Spacer_Calc
+        if %NUM_SPACER lt 0 (
+            set NUM_SPACER_ORIG=%NUM_SPACER%
+            rem NUM_SPACER=%@FLOOR[%@EVAL[    %_columns   mod %num_spacer%]]
+            rem NUM_SPACER=%@FLOOR[%@EVAL[    %NUM_SPACER  +  %_columns   ]]
+            set NUM_SPACER=%@FLOOR[%@EVAL[   (%NUM_SPACER  +  %_columns)/2]]
+            rem NUM_SPACER=%@FLOOR[%@EVAL[   (%NUM_SPACER  +  %_columns)]]
+            set NUM_SPACER=%@FLOOR[%@EVAL[   (((%_columns-1)*2) - %locked_message_length) / 2  ]]
+        )
+        rem if %NUM_SPACER eq -1 .or. %NUM_SPACER eq -2 (set NUM_SPACER=0)
+        rem if %NUM_SPACER lt 0 goto :Spacer_Calc
+        if %NUM_SPACER lt 0 (set NUM_SPACER=%@EVAL[-1 * %NUM_SPACER])
+        rem set NUM_SPACER=%@EVAL[%NUM_SPACER - 2]
+        rem if "%3" ne "" set num_spacer=%3
+        set SPACER=%@REPEAT[ ,%NUM_SPACER]``
+
 
 rem Set up dividers:
         set        DIVIDER_FILE=%BAT%\dividers\rainbow-%_COLUMNS.txt
@@ -116,10 +136,20 @@ rem Set up dividers:
                 set INTERNAL_DIVIDER=1
         endiff
 
+rem Was this multiline?
+        set ROWS_TO_LOCK=4
+        set MULTILINE=0
+        if %@EVAL[%_columns mod ((%num_spacer*2) + %locked_message_length)] lt %_columns goto :No_Adjustment
+                set MULTILINE=1
+                set ROWS_TO_LOCK=%@EVAL[%ROWS_TO_LOCK + 1]
+                iff %@EVAL[%locked_message_length+2] gt %@EVAL[%_COLUMNS*2] (
+                    set ROWS_TO_LOCK=%@EVAL[%ROWS_TO_LOCK + 1]
+                )
+                rem SPACER=%@REPEAT[ ,%@EVAL[%NUM_SPACER-1]]``
+                set SPACER=%@REPEAT[ ,%@EVAL[%NUM_SPACER]]``
+        :No_Adjustment
+
 rem Output the message:
-        echos %ANSI_SAVE_POSITION%%@ANSI_MOVE_TO[0,0]%LOCKED_MESSAGE_COLOR%
-        echos %DIVIDER%%LOCKED_MESSAGE_COLOR%
-        echos %SPACER%%dottie% %LOCKED_MESSAGE%%LOCKED_MESSAGE_COLOR% %dottie%%SPACER%%ANSI_EOL%%NEWLINE%
-        echos %DIVIDER%%LOCKED_MESSAGE_COLOR%
-        echos %ANSI_RESTORE_POSITION%%@CHAR[27]7%@CHAR[27][s%@CHAR[27][4;%[_rows]r%@CHAR[27]8%@CHAR[27][u
+        echos %ANSI_SAVE_POSITION%%@ANSI_MOVE_TO[0,0]%LOCKED_MESSAGE_COLOR%%DIVIDER%%LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE%%ANSI_EOL%%NEWLINE%%DIVIDER%%LOCKED_MESSAGE_COLOR%
+        echos %ANSI_RESTORE_POSITION%%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%ROWS_TO_LOCK%;%[_rows]r%@CHAR[27]8%@CHAR[27][u
 :END
