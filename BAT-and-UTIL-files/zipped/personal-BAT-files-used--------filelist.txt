@@ -17,7 +17,7 @@
 2019-10-01  10:25          2,618   69%  album-art-tool-for-mp3Tag.btm
 2023-04-10  17:27             85   29%  album-art.bat
 2024-02-02  20:24          3,616   58%  ALIAS.LST
-2024-10-12  13:55          6,732   71%  all-ready-drives.bat
+2024-10-16  01:04          6,722   71%  all-ready-drives.bat
 2024-03-24  19:07            238   24%  allbmp2jpg.bat
 2024-04-10  15:09          1,654   62%  allcomputers.bat
 2024-04-05  14:07          2,297   74%  allcomputersexceptself.bat
@@ -90,7 +90,7 @@
 2024-05-06  06:02             47    0%  battery.bat
 2024-08-21  22:19          4,249   71%  beep.bat
 2024-04-28  00:35         12,111   75%  before.bat
-2024-10-15  07:03          3,352   63%  bigecho.bat
+2024-10-16  01:09          3,363   63%  bigecho.bat
 2024-05-06  06:02             47    0%  bluetooth-batteries.bat
 2024-05-06  06:02             47    0%  bluetooth.bat
 2024-05-07  13:50            417   41%  bring-back-focus.bat
@@ -157,7 +157,7 @@
 2019-10-01  10:27             45   -4%  convert-webm-to-mp4.bat
 2023-06-02  04:02          4,440   67%  convert_midi_to_wav_with_soundfont.py
 2024-08-26  21:12            680   43%  copy-alias.bat
-2024-09-09  03:23         14,434   72%  copy-move-post.py
+2024-10-16  01:31         15,068   72%  copy-move-post.py
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
@@ -246,7 +246,7 @@
 2023-12-18  16:04             21   -9%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-08-20  05:45             50   -2%  DIST.bat
-2024-10-15  10:46         12,896   78%  distribute-bat-files-to-every-drive.bat
+2024-10-16  01:08         12,910   78%  distribute-bat-files-to-every-drive.bat
 2024-03-30  13:19             35   -5%  divider.bat
 2024-05-16  13:59             47   13%  dns-display.bat
 2024-07-28  16:32             28   -7%  do-in-each-directory.bat
@@ -599,6 +599,7 @@
 2024-05-02  23:07          1,828   58%  remove-pluses-from-filenames.bat
 2019-10-01  10:28            158   25%  remove-trailing-spaces.pl
 2024-09-09  09:04          1,683   61%  remove-x-characters-from-beginning-of-filenames.bat
+2024-10-16  01:16            150   15%  rename-file-named-nul.cmd
 2023-10-03  21:12            106   10%  rename-folders-with-hyphens-into-underscores.bat
 2023-07-10  03:06            982   61%  rename_images_to_incorporate_folder_name.py
 2024-06-05  16:58          1,886   59%  renumber-all-music-files-(to-randomize-usb-sticks).bat

@@ -22,7 +22,7 @@
         call validate-in-path               sleep checkmappings all-ready-drives wake-all-drives important divider
         rem  checkmappings.bat nopause ———— we no longer do this with the 'nopause' option, but we used to
         rem  checkmappings.bat  ————————————— 20241013: changing back to nopause because this is run from autoexec:
-             checkmappings.bat nopause 
+        call checkmappings.bat nopause 
 
 ::::: NON-SCROLLABLE HEADER:
         call header "Distributing BAT file folder to all drives..."
@@ -79,7 +79,7 @@ return
     set OPTION_ECHO_RAYRAY=1
     set OPTION_ARD_POSTPROCESS=0 %+ rem 20241013 turning this back to 0
     rem no /s here:
-    call all-ready-drives "if exist DRIVE_LETTER:\bat *copy /Nt /RCT /k /l /u /a: /[!.git *.bak] /r /h /z /k /g \bat\%1 DRIVE_LETTER:\bat"
+    call all-ready-drives "if exist DRIVE_LETTER:\bat *copy /Nt /RCT /k /l /u /a: /[!.git *.bak  setpath.cmd] /r /h /z /k /g \bat\%1 DRIVE_LETTER:\bat"
     set OPTION_ARD_POSTPROCESS=0
 goto :Cleanup
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -94,7 +94,7 @@ goto :Cleanup
             set OPTION_ECHO_RAYRAY=1
             set OPTION_ARD_POSTPROCESS=1
                     rem We don't dist setpath.cmd because it is dynamically generated per-computer:
-                    (call all-ready-drives "if exist DRIVE_LETTER:\bat (*copy /e /w /u /s /a: /[!.git *.bak setpath.cmd /h /z /k /g \bat\ DRIVE_LETTER:\bat)") 
+                    (call all-ready-drives "if exist DRIVE_LETTER:\bat (*copy /e /w /u /s /a: /[!.git *.bak setpath.cmd] /h /z /k /g \bat\ DRIVE_LETTER:\bat)") 
             unset OPTION_SKIP_SAME_C
             unset OPTION_ECHO_RAYRAY
             unset OPTION_ARD_POSTPROCESS

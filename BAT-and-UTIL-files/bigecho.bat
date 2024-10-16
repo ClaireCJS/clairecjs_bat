@@ -57,6 +57,7 @@ setdos /x-678
     if %ECHOSBIG ne 1 (echo.)
 
     echos %@ANSI_MOVE_UP[1]
+    echo.
     if %ECHOSBIG_NEWLINE_AFTER eq 1 (echo. %+ echo.)
 
 

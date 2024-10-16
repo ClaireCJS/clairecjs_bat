@@ -77,7 +77,7 @@ goto :END
                                 if %OPTION_ARD_POSTPROCESS eq 1 (goto :PostprocessYes)
                                          echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%
                                 goto :PostprocessYesDone
-                                goto :PostprocessYes
+                                :PostprocessYes
                                         echos %@RANDFG_SOFT[]
                                         (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%) |&:u8 copy-move-post.py |:u8 fast_cat
                                 :PostprocessYesDone
@@ -88,7 +88,7 @@ goto :END
 
                                     if %OPTION_ARD_POSTPROCESS ne 1 (goto  :NoPostProc)
                                                                     (goto :YesPostProc)
-                                    goto :NoPostProc
+                                    :NoPostProc
                                             %FIXED_COMMAND%
                                             goto :Done_2
                                     :YesPostProc

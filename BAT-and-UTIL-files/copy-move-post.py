@@ -54,6 +54,14 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 
 move_decorator = os.environ.get('move_decorator', '')                                                           #fetch user-specified decorator (if any)
 
+if os.environ.get('no_tick',0) == 1: TICK = True
+else                               : TICK = False
+
+if os.environ.get('no_double_lines',0) == 1: DOUBLE_LINES_ENABLED = True
+else                                       : DOUBLE_LINES_ENABLED = False
+
+
+
 def enable_vt_support():                                                                                        #this was painful to figure out
     import os
     if os.name == 'nt':
@@ -134,12 +142,14 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     i = 0
     for myline in lines_to_print:                                                                             #print our line, but do it double-height if we're supposed to
         if myline != '\n' and myline != '':
-            if not double:
+            if not double or not DOUBLE_LINES_ENABLED:
                 sys.stdout.write(f'{myline}')
             else:
-                enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838
-                sys.stdout.write(f'\033[1G')        #20240324: possible bugfix for ansi codes creeping out due to TCC error and mis-aligning our double-height lines - prepend the ansi code to move to column 1 first, prior to printing our line
-                sys.stdout.write(f'\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
+                #moving up 20241015 enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838
+                #sys.stdout.write(f'\033[1G')        #20240324: possible bugfix for ansi codes creeping out due to TCC error and mis-aligning our double-height lines - prepend the ansi code to move to column 1 first, prior to printing our line
+                #sys.stdout.write(f'\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
+                sys.stdout.write(f'\033[1G\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
+                sys.stdout.flush()
     sys.stdout.write('\n')
 
 
@@ -179,6 +189,8 @@ if len(sys.argv) > 1:
 #sys.stdout.write(f"my_mode is {my_mode}\n")
 #sys.stdout.write(f"nomoji  is {nomoji }\n")
 
+enable_vt_support()
+
 while t.is_alive() or not q.empty():
 #hile True:
     # It's tempting to process things line-by-line, but due to prompts and such, we must process things char-by-char
@@ -186,7 +198,7 @@ while t.is_alive() or not q.empty():
         char = q.get(timeout=0.008)                                                                                                     # grab the characters *this* fast!
         if char is None: break                                                                                                          # but not much faster because we're probably coming right back if no chars are in the buffer yet
 
-        claire.tick(mode=my_mode)
+        if TICK: claire.tick(mode=my_mode)
         line_buffer += char
 
         if char == '?' and not in_prompt:         #coloring for copy/move prompts, so we can make them blinky & attention-get'y
@@ -214,8 +226,17 @@ while t.is_alive() or not q.empty():
             #additional_beginning_ansi = f"\033[ q\033]" + "12;" + rgbhex + f"\007"                                                     # Reset for the next line: make cursor same color 🐐
 
     except queue.Empty:
-        claire.tick(mode=my_mode)                                                                                                       # color-cycle the default-color text using my library
-        sys.stdout.flush()
+        if TICK: claire.tick(mode=my_mode)                                                                                              # color-cycle the default-color text using my library
+        try:
+            sys.stdout.flush()
+        except:
+            pass
 
-    sys.stdout.flush()
-claire.tock()
+    try:
+        sys.stdout.flush()
+    except:
+        pass
+
+if TICK: claire.tock()
+
+
