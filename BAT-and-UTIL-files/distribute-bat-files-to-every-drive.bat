@@ -25,6 +25,8 @@
         call checkmappings.bat nopause 
 
 ::::: NON-SCROLLABLE HEADER:
+        call header unlock
+        cls
         call header "Distributing BAT file folder to all drives..."
 
 ::::: PREPARE FOR COPY:

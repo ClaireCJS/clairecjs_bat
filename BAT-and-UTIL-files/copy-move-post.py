@@ -38,14 +38,17 @@ MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                                  
 MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                                                                  #/   choose random colors from
 
 FOOTERS = [                                                                                                     #values that indicate a copy/move summary line,
-           "files copied"         , "file copied",                                                              #which we like to identify for special treatment
-           "files moved"          , "file moved" ,
-           "dirs copied"          , "dir copied" ,
-           "dirs moved"           , "dir moved"  ,
-           "files would be copied", "file would be copied",
-           "files would be moved" , "file would be moved" ,
-           "dirs would be copied" , "dir would be copied" ,
-           "dirs would be moved"  , "dir would be moved"  ,
+           "files copied"          , "file copied"           ,                                                 #which we like to identify for special treatment
+           "files moved"           , "file moved"            ,
+           "files deleted"         , "file deleted"          ,
+           "dirs copied"           , "dir copied"            ,
+           "dirs moved"            , "dir moved"             ,
+           "files would be copied" , "file would be copied"  ,
+           "files would be moved"  , "file would be moved"   ,
+           "files would be deleted", "file would be deleted" ,
+           "dirs would be copied"  , "dir would be copied"   ,
+           "dirs would be moved"   , "dir would be moved"    ,
+           "dirs would be deleted" , "dir would be deleted"  ,
           ]
 file_removals = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                         #values that indicate a file deletion/removal
 
@@ -57,9 +60,8 @@ move_decorator = os.environ.get('move_decorator', '')                           
 if os.environ.get('no_tick',0) == 1: TICK = True
 else                               : TICK = False
 
-if os.environ.get('no_double_lines',0) == 1: DOUBLE_LINES_ENABLED = True
-else                                       : DOUBLE_LINES_ENABLED = False
-
+if os.environ.get('no_double_lines',0) == 1: DOUBLE_LINES_ENABLED = False
+else                                       : DOUBLE_LINES_ENABLED = True                                        #DEBUG: print(f"DOUBLE_LINES_ENABLED={DOUBLE_LINES_ENABLED}")
 
 
 def enable_vt_support():                                                                                        #this was painful to figure out
@@ -148,7 +150,9 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 #moving up 20241015 enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838
                 #sys.stdout.write(f'\033[1G')        #20240324: possible bugfix for ansi codes creeping out due to TCC error and mis-aligning our double-height lines - prepend the ansi code to move to column 1 first, prior to printing our line
                 #sys.stdout.write(f'\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
-                sys.stdout.write(f'\033[1G\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
+                sys.stdout.write(f'\033[1G\033#3\033[38;2;{r};{g};{b}m{myline}\n')
+                sys.stdout.flush()
+                sys.stdout.write(f'\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
                 sys.stdout.flush()
     sys.stdout.write('\n')
 
