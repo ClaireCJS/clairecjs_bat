@@ -38,47 +38,20 @@
     rem call debug "param3            is %param3%"
     rem call debug "validate_multiple is %validate_multiple%"
     rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
-    if "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 (
+    iff "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 then
         call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR! ***"
         color bright white on red
         echo  We can't be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
         echo  %underline%Did you mean%underline_off%: %italics%validate-environment-variable%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
         echo                                   (with an 's' after '%italics%variable%italics_off%')  ????
+
         call exit-maybe
         
-        set VEV_COMMENT=color white on black
-        set VEV_COMMENT=beep
-        set VEV_COMMENT=beep
-        set VEV_COMMENT=beep
-        set VEV_COMMENT=beep
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
-        set VEV_COMMENT=*pause
+        set VEV_COMMENT=repeat 4 beep
+        set VEV_COMMENT=repeat 25 *pause
 
         goto :END
-    )
+    endiff
 
     if "%PARAM2%" eq "skip_validation_existence" .or. "%PARAM2%" eq "skip_existence_validation" .or. "%PARAM2%" eq "skip_validation" (
         set SKIP_VALIDATION_EXISTENCE=1 
@@ -180,6 +153,16 @@ goto :Past_The_End_Of_The_Sub-Routines
                                 
                             %COLOR_ALARM%  %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo.
                             call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR!!! ***"
+
+
+                            rem Experimental:
+                                    if defined PARAM2 .and. not defined  %PARAM2%  (
+                                        call warning                    "%PARAM2"
+                                        call bigecho %ANSI_COLOR_WARNING%%PARAM2
+                                        call warning                    "%PARAM2"
+                                    )
+
+
                             REM call alarm-beep     %+ REM was too annoying for the severity of the corresponding situations
                             call white-noise 1      %+ REM reduced to 2 seconds, then after a year or few, reduced to 1 second
                             REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
