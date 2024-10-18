@@ -23,7 +23,7 @@ rem —————————————————————————�
 
 rem VALIDATE ENVIRONMENT:
         if %VLC_VALIDATED ne 1 (
-                call validate-environment-varaible BAT SMART_HOME_COMMAND_AUDIO ANSI_COLOR_FATAL_ERROR USERPROFILE LOGS 
+                call validate-environment-variable BAT SMART_HOME_COMMAND_AUDIO ANSI_COLOR_FATAL_ERROR USERPROFILE LOGS 
                 call validate-in-path %VIDEOPLAYER_COMMAND% bigecho debug fix-window-title fix-winamp bring-back-focus advice fatal_error error fix-MiniLyrics  paus stop
                 set VLC_VALIDATED=1
         )

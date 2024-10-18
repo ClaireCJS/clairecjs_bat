@@ -66,13 +66,13 @@ gosub reset_option_variables
 goto :END
 
                 :reset_option_variables
-                    REM options expire after being used once:        
-                        if defined   MV_DECORATOR     (set   MV_DECORATOR=)
-                        if defined MOVE_DECORATOR     (set MOVE_DECORATOR=)
-                        if defined   MV_DECORATOR_ON  (set   MV_DECORATOR_ON=)
-                        if defined MOVE_DECORATOR_ON  (set MOVE_DECORATOR_ON=)
-                        if defined   MV_DECORATOR_OFF (set   MV_DECORATOR_OFF=)
-                        if defined MOVE_DECORATOR_OFF (set MOVE_DECORATOR_OFF=)
+                        REM options expire after being used once:        
+                            if defined   MV_DECORATOR     (set   MV_DECORATOR=)
+                            if defined MOVE_DECORATOR     (set MOVE_DECORATOR=)
+                            if defined   MV_DECORATOR_ON  (set   MV_DECORATOR_ON=)
+                            if defined MOVE_DECORATOR_ON  (set MOVE_DECORATOR_ON=)
+                            if defined   MV_DECORATOR_OFF (set   MV_DECORATOR_OFF=)
+                            if defined MOVE_DECORATOR_OFF (set MOVE_DECORATOR_OFF=)
                 return
 
 :END

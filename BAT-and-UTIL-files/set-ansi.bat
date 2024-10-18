@@ -8,7 +8,7 @@
 :USAGE:       call set-ansi                  - standard invocation
 :USAGE:       call set-ansi   force          - run it again, even if it's already been run (subsequent runs do nothing otherwise)
 :USAGE:       call set-ansi   test           - to see the ANSI codes in action
-:USAGE:       call set-ansi   stripansitest  - to test our %@STRIP_ANSI function, loaded from StripAnsi.dll
+:USAGE:       call set-ansi   stripansitest  - to test our %@STRIPANSI function, loaded from StripAnsi.dll
 :EFFECTS:     sets      %COLOR_{messagetype} variables —— of TCC  commands —— for all the message types we intend to have
 :EFFECTS:     sets %ANSI_COLOR_{messagetype} variables —— of ANSI env-vars —— for all the message types we intend to have
 :EFFECTS:     sets %COLOR_{messagetype}_HEX  variables —— of rgb hex codes —— for all the message types that we have so far used in situations that require hex versions of their color code, particularly custom cursor colors

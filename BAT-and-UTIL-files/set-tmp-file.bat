@@ -1,18 +1,35 @@
 @Echo OFF
 
-:: 201506 trying to get a handle of this tmp bullshit, 
-:: so i'm removing this as it came from settmp.bat: call settemp.bat %*
 
-call validate-environment-variables TEMP KNOWN_NAME
+rem Validate environment:
+        if 1 ne %SETTMPFILE_VALIDATED (
+            call validate-environment-variables TEMP KNOWN_NAME
+            set SETTMPFILE_VALIDATED=1
+        )
 
-:: components of our temp filename:
-    SET TMPFILE_DIR=%TEMP%
-    SET TMPFILE_FILE=%_DATETIME.%KNOWN_NAME%.%_PID.%@NAME[%@UNIQUE[%TEMP]]
-    :: aliases:
-        SET TMPFILE_PRE=%TMPFILE_DIR%
-        SET TMPFILE_LEFT=%TMPFILE_DIR%
-        SET TMPFILE_POST=%TMPFILE_FILE%
-        SET TMPFILE_RIGHT=%TMPFILE_FILE%
 
-:: the actual, full tmpfile:
-    SET TMPFILE=%TMPFILE_DIR%\%TMPFILE_FILE%               %+ call print-if-debug * TMPFILE is %TMPFILE%
+
+rem Generate components of our temp filename:
+        SET TMPFILE_DIR=%TEMP%
+        SET TMPFILE_FILE=%_DATETIME.%KNOWN_NAME%.%_PID.%@NAME[%@UNIQUE[%TEMP]]
+
+        rem Aliases for easier auditing:
+                SET TMPFILE_FILENAME=%TMPFILE_FILE%
+                SET TMPFILENAME=%TMPFILE_FILE%
+                SET TMP_FILENAME=%TMPFILE_FILE%
+                SET TMP_FILE_NAME=%TMPFILE_FILE%
+
+                SET TMPFILE_PRE=%TMPFILE_DIR%
+                SET TMPFILE_POST=%TMPFILE_FILE%
+
+                SET TMPFILE_LEFT=%TMPFILE_DIR%
+                SET TMPFILE_RIGHT=%TMPFILE_FILE%
+
+
+
+rem Set the actual, full tmpfile name:
+    SET TMPFILE=%TMPFILE_DIR%\%TMPFILE_FILE%               
+    if 0 ne %DEBUG (call debug "TMPFILE is '%TMPFILE%'")
+
+
+

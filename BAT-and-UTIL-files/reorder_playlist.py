@@ -4,6 +4,9 @@ import sys
 import shutil
 
 
+##### This goes through an m3u playlist file and, if it finds duplicate entries, ensures those entires are not next to each other.
+##### The algorithm is VERY basic and inefficient, so we simply go through it a maximum of 50 times before quitting.
+
 
 global VERBOSITY, FOLDER_NAMES_TO_IGNORE, SHUFFLE, LAST_COMMON, MAX_ATTEMPTS
 
@@ -96,7 +99,7 @@ def reorder_playlist(lines):
         for i in range(1, n):
             if get_common_substring(lines[i - 1], lines[i]):
                 for j in range(i + 1,      n):
-                #or j in range(i + (n/2), 2n???): want to do something like this, swap it halfway ... but would go over total.... so..... subtract length if over the total length? ... and run until ... 2n??!
+                #or j in range(i + (n/2), 2n???): want to do something like this, swap it halfway ... but would go over total.... so..... subtract length if over the total length? ... and run until ... 2n??! #TODO GOATGOAT 🐐
                     #f not get_common_substring(lines[i], lines[j]) and not get_common_substring(lines[i - 1], lines[j]):
                     if not get_common_substring(lines[i], lines[j]):
                         if VERBOSITY >= 5:

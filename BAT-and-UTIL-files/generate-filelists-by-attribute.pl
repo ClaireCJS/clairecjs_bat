@@ -55,8 +55,10 @@
 
 
 ##### CURRENT DEVELOPMENT DEBUGS:
-my $DEBUG_ATTRIBUTE_WEIGHTS      = 0;							#reserve value: 0 / other values: 1-2
-my $DEBUG_META_ATTRIBUTE_WEIGHTS = 0;							#reserve value: 0 / other values: 1
+my $DEBUG_ATTRIBUTE_WEIGHTS_STAR      = 0;							#reserve value: 0 / other values: 1-2
+my $DEBUG_ATTRIBUTE_WEIGHTS_X         = 0;							#reserve value: 0 / other values: 1-2
+my $DEBUG_META_ATTRIBUTE_WEIGHTS_STAR = 0;							#reserve value: 0 / other values: 1
+my $DEBUG_META_ATTRIBUTE_WEIGHTS_X    = 0;							#reserve value: 0 / other values: 1
 
 ##### RESERVE DEBUGS:
 my $DEBUG_BASE_ATTRIB_PRINT_EACH_LINE=0;                    #reserve value: 0
@@ -80,7 +82,7 @@ my $DEBUG_NOW=0;											#reserve value: 0
 #$DEBUG_ATTRIBWATCH_ATTRIBNAME="last6mos";
 
 ##### THIS ONE DEBUG MUST ALWAYS BE SET BECAUSE I'M LAZY... TO "TURN IT OFF" SIMPLY HAVE IT SET TO A RANDOM STRING OF CHARACTERS:
- $DEBUG_FILEWATCH_FILENAME="�qadasdfrts";  #reserve value: you have to leave this set (uncommented) when not debugging -- use random keypresses to ensure it never pops up (weak, yes) - start with a unicode character so it always mismatches right away 
+ $DEBUG_FILEWATCH_FILENAME="�qadasdfrts";  #reserve value: you have to leave this set (uncommented) when not debugging -- use random keypresses to ensure it never pops up (weak, yes) - begin with a unicode character so it always mismatches right away 
 #$DEBUG_FILEWATCH_FILENAME="postcard.*gun.*cazy";  #you have to leave this set (uncommented) when not debugging -- use random keypresses to ensure it never pops up (weak, yes)
 #$DEBUG_FILEWATCH_FILENAME="Nirvana.*live.*roma.*polly";
 #$DEBUG_FILEWATCH_FILENAME="Silent.Lucidity";
@@ -125,7 +127,7 @@ use vars qw($DATEINDEX $LONGEST_POSSIBLE_EXECUTION_OF_THIS_SCRIPT_IN_MINUTES $FO
 	$SKIP_GENRE $min $premsg $NO_FILEWRITE $TRIGGER_FILE $verbose $ATTRIBUTE_LIST $ATTRIBUTE_DB 
 	%YYYY_ENCOUNTERED %YYYYMM_ENCOUNTERED %YYYYMMDD_ENCOUNTERED %YYYYMMDDHH_ENCOUNTERED $value
 	%YYYYMMDDHHMM_ENCOUNTERED %YYYYMMDDHHMMSS_ENCOUNTERED $GATHER_INFO_ONLY $genre $artist $album 
-	$song @regexes $SKIP_SLASH_CONVERSION $program_start_time
+	$song @regexes $SKIP_SLASH_CONVERSION $program_begin_time
 	$yyyyvalue $yyyymmvalue $yyyymmddvalue $yyyymmddhhvalue $yyyymmddhhmmvalue $lookingFor 
 	$yyyymmddhhmmssvalue $tmpext $temp $tmpdate @tmpkeys @tmpkeys2 $tmp $tmpinterval $tmpname 
 	$yyyy $yyyymm $yyyymmdd $yyyymmddhh $yyyymmddhhmm $yyyymmddhhmmss $datefilelist $wday
@@ -140,8 +142,8 @@ use vars qw($DATEINDEX $LONGEST_POSSIBLE_EXECUTION_OF_THIS_SCRIPT_IN_MINUTES $FO
 	%FILEKEY_YYYYMMDDHHMMSSDATEVALUE $ACCESS_INDEX %FILES_BY_ACCESS %ATTRIBUTES_BY_ACCESS
 	@tmpfilelist $datevalue $datemode $tmpout $fileRegex $fileRegexes @attributes $ISBASE
 	$DEBUG_MAX_LISTS $SKIP_FILEMATCH_ERRORS %ATTRIBUTES $tmpBeginMM $tmpBeginDD $tmpEndMM 
-	$tmpEndDD $DEBUGMMDD $tmpBeginMMDD $tmpEndMMDD $tmptmptmptmp %ATTRIBUTE_WEIGHTS 
-	$DEBUG_FILEWATCH_FILENAME $DEBUG_FILEWATCH_META $linenum
+	%ATTRIBUTE_WEIGHTS_STAR $tmpEndDD $DEBUGMMDD $tmpBeginMMDD $tmpEndMMDD $tmptmptmptmp 
+	%ATTRIBUTE_WEIGHTS_X    $DEBUG_FILEWATCH_FILENAME $DEBUG_FILEWATCH_META $linenum
 	);
 
 
@@ -218,7 +220,7 @@ use vars qw($DATEINDEX $LONGEST_POSSIBLE_EXECUTION_OF_THIS_SCRIPT_IN_MINUTES $FO
 #### This program, by default, has an attribute called 'everything' that is every file.
 ####
 #### ** ORDER IS IMPORTANT WITH META-ATTRIBUTES **
-#### Perhaps you want to do something like, start with all cartoon files,
+#### Perhaps you want to do something like, begin with all cartoon files,
 #### subtract all mono files, but then add back all tribute files
 #### (thus, mono tributes would still exist), this could be accomplished like:
 ####      stereo cartoonmusic and tributes:+cartoonmusic,-mono,+tributes
@@ -272,7 +274,7 @@ use vars qw($DATEINDEX $LONGEST_POSSIBLE_EXECUTION_OF_THIS_SCRIPT_IN_MINUTES $FO
 ######################################################################################
 ######################################################################################
 
-##### CONFIG:											#just started this section in 2015 so it's kinda pointless
+##### CONFIG:											#just began this section in 2015 so it's kinda pointless
 my $USE_BACKSLASHES_INSTEAD_OF_SLASHES=1;
 my $LONGEST_POSSIBLE_EXECUTION_OF_THIS_SCRIPT_IN_MINUTES="6000";		#Needed to stop fatal errors due to time differences when using "DATE NOW" tags. Unfortunately, now that this has been repurposes to index our photograph collection - THAT collection takes almost 4 days to index. So the original restriction pretty much never happens now.
 my $UNIX         = 0; 
@@ -323,22 +325,23 @@ my $firstpassfilelists=0;
 my $SKIP_MONTH_TIMESLICING=0;
 my $SKIP_DAYS_AND_HOURS_TIMESLICING=0;
 my $NO_GENRE_PROCESSING_WHATSOEVER=0;
-my @TODO=();					#textual lines of stuff "todo" encountered when reading attribute lists comments
-my @files=();
-my %GENRE=();
-my %ARTIST=();
-my %ALBUM=();
-my %SONG=();
-my $genres_encountered  = 0;
-my $artists_encountered = 0;
-my $albums_encountered  = 0;
-my $songs_encountered   = 0;
-my %ALLFILES=();				#key=filename,value=2 if it's of valid extension that we are indexing, less if not (ie random other files like thumbnails, 0-byte comments, CRAP)
-local %ATTRIBUTES=();			#changed from "my" to "local" 20081123 after years if strict adherance to proper paremeter passing, but still having problems with setting new ATTRIBUTES inside of subroutines, especially when trying to make NotLast6Months work
-local %ATTRIBUTE_WEIGHTS=();	#key={$filename$delimiter$attribute},value=weight
+my @TODO=();					    #textual lines of stuff "todo" encountered when reading attribute lists comments
+my @files=();					    
+my %GENRE=();					    
+my %ARTIST=();					    
+my %ALBUM=();					    
+my %SONG=();					    
+my $genres_encountered  = 0;	    
+my $artists_encountered = 0;	    
+my $albums_encountered  = 0;	    
+my $songs_encountered   = 0;	    
+my %ALLFILES=();				    #key=filename,value=2 if it's of valid extension that we are indexing, less if not (ie random other files like thumbnails, 0-byte comments, CRAP)
+local %ATTRIBUTES=();			    #changed from "my" to "local" 20081123 after years if strict adherance to proper paremeter passing, but still having problems with setting new ATTRIBUTES inside of subroutines, especially when trying to make NotLast6Months work
+local %ATTRIBUTE_WEIGHTS_STAR=();	#key={$filename$delimiter$attribute},value=weight
+local %ATTRIBUTE_WEIGHTS_X=();	    #key={$filename$delimiter$attribute},value=weight
 my %FILES_BY_DATE=();
 my @attributelists=();
-my %FILES_BY_ACCESS=();			#key=filename,value=access_level ONLY for nondefault access levels
+my %FILES_BY_ACCESS=();			    #key=filename,value=access_level ONLY for nondefault access levels
 my %INVERSE_ATTRIBUTES=();
 my %FILES_BY_DATE_FINAL=();
 my %ATTRIBUTES_BY_ACCESS=();
@@ -355,7 +358,7 @@ my $YYYYMM_ENCOUNTERED=();
 my $YYYYMMDD_ENCOUNTERED=();
 my $YYYYMMDDHH_ENCOUNTERED=();
 #my $YYYYMMDDMMHHMM_ENCOUNTERED=();		#currently unused
-#my $YYYYMMDDMMHHMMSS_ENCOUNTERED=();		#currently unused
+#my $YYYYMMDDMMHHMMSS_ENCOUNTERED=();	#currently unused
 my $SKIP_DATE=0;
 my $SKIP_INVERSE_LIST=0;
 my $TOTAL_BYTES_INDEXED=0;
@@ -391,7 +394,7 @@ my $tmpattribute="";
 my $tmptmptmptmp="";
 my $warnings=1;
 my $SKIP_SLASH_CONVERSION=0;
-my $program_start_time=time();
+my $program_begin_time=time();
 
 
 # The first value, a number, is how many days for that filelist.
@@ -452,7 +455,7 @@ use constant SECURITY_LEVEL_DEFAULT			=> SECURITY_LEVEL_STRANGER;
 ### Initialize:
 use open ':std', ':encoding(UTF-8)';				#make STDOUT support unicode
 &gettimeinfo;										#201603 - moved from end of initialization to beginning of initialization
-&logprint("*** Indexing started at $NOWYYYYMMDDHHSS");
+&logprint("*** Indexing began at $NOWYYYYMMDDHHSS");
 &determine_delete_command;
 &determine_max_width;
 &initial_command_line_processing;
@@ -542,10 +545,10 @@ sub final_report {
 
 	
 	my $program_end_time = time();
-	my $elapsed_seconds  = $program_end_time - $program_start_time;
+	my $elapsed_seconds  = $program_end_time - $program_begin_time;
 	my $elapsed_minutes  = $elapsed_seconds / 60;
 	my $elapsed_hours    = $elapsed_minutes / 60;
-	#DEBUG: &log("program_start_time is $program_start_time\nelapsed_seconds is $elapsed_seconds\nelapsed_minutes is $elapsed_minutes\nelapsed_hours is $elapsed_hours");
+	#DEBUG: &log("program_begin_time is $program_begin_time\nelapsed_seconds is $elapsed_seconds\nelapsed_minutes is $elapsed_minutes\nelapsed_hours is $elapsed_hours");
 	my $elapsed_time_string = sprintf("Elapsed Time: %.1f minutes (%.1f hours)", $elapsed_minutes, $elapsed_hours);
 	&log("\n\n" . $elapsed_time_string .  "\n");
 
@@ -730,7 +733,7 @@ sub newattributelist {
 	my $FROMLINE="";
 	if ($ENV{"FROM"} ne "") { $FROMLINE=":from " . $ENV{FROM}; }
 	
-	#### Start writing the new attribute file:
+	#### Begin writing the new attribute file:
 	open(FILE,">$FILE") || &death("couldn't open $FILE\n");
 	binmode FILE, ":encoding(UTF-8)";
 	print FILE <<__EOF__;
@@ -1020,43 +1023,90 @@ sub create_metaattribute_filelists {   #generate_metaattribute_filelists
         $meta_attribs_generated{$metaattrib}=1;																		if ($DEBUG_META>10) { 	&log("\n========> Setting \$meta_attribs_generated{$metaattrib} to 1..."); }
 		#20081123 - wait - this seems like a major major MAJOR bug! doesn't this destroy existing hash tables? FAIL!        $ATTRIBUTES{"$metaattrib"}=1;								#
 	
-		##### Abandoned security stuff:
+		##### Abandoned security stuff from when this was used to create  photo acces lists with our year-2000 photo-database website:
         $ATTRIBUTES_BY_ACCESS{"$metaattrib"}=SECURITY_LEVEL_HIGHEST;
 
 		##### Split out [something] and go through it:
         $attriblist =~ tr/[A-Z]/[a-z]/;			
-	    my @attribs = split(/,/,"$attriblist");																		
+	    my @attribs = split(/,/,"$attriblist");					#"changer","--preferred","tolerable*2","x4",etc																
 		if ($DEBUG_META) { &log("\n[META20]\tmetaattrib=$metaattrib,tmpattrib=\"$tmpattrib\",\"attriblist\" is \"$attriblist\""); }
-		my $newtmpattrib; my $tmpWeight;
+		my $newtmpattrib; my $tmpWeightStar; my $tmpWeightX;
 		foreach my $tmpattrib (@attribs) {													#go through the list of attributes used to generate this meta-attribute
 	        if ($DEBUG_META>=6) { &log("\n[META30]\ttmpattrib=$tmpattrib"); }
             $oldmode=$mode;
 
 
-			##### DETERMINE WEIGHT OF [META]ATTRIBUTE:
-			$newtmpattrib=$tmpattrib;
-			if (($tmpattrib =~ /\*/) && ($tmpattrib !~ /caption-/i) && ($tmpattrib !~ /postcaption-/i) && ($tmpattrib !~ /^thing-/i) && ($tmpattrib !~ /^person-/i) && ($tmpattrib !~ /^activity-/i) && ($tmpattrib !~ /^place-/i)) {
-				($newtmpattrib,$tmpWeight)=split(/\*/,$tmpattrib); if ($DEBUG_ATTRIBUTE_WEIGHTS) { &log("[[[tmpweight=$tmpWeight]]]"); }
-				if (($tmpWeight !~ /^\d*\.?\d*$/) || ($tmpWeight eq "") || ($tmpWeight eq ".")) {  #validate weight
-					&log("\n\nERROR W1: WEIGHT of \"$tmpWeight\" is not valid [tmpattrib=$tmpattrib,newtmpattrib=$newtmpattrib,tmpWeight=$tmpWeight]!\n\t LINE=$line"); 
-					$newtmpattrib = $tmpattrib; $tmpWeight=1;
+			##### The next 2 sections of code deal with 2 new tag types.  
+			##### (1) The "*" tag.  If you take a song, you can "weight" it within the attribute/playlist.
+			#####     For example:   for whom the bell tolls:party*4    would put the song 'for whom the bell tolls in party.m3u/party attribute *FOUR* times.
+			#####     For example:   for whom the bell tolls:party*0.1  would put the song 'for whom the bell tolls in party.m3u/party attribute 1 out of 10 tims, and not at all the other 9.
+			##### (2) The "x" tag.  If you take a song, you can "weight" it within ALL atributes/playlists.
+			#####     For example:   for whom the bell tolls:x4    would put the song 'for whom the bell tolls in *EVERY* playlist *FOUR* times.
+			#####     For example:   for whom the bell tolls:x0.1  would put the song 'for whom the bell tolls in *EVERY* playlist 1 out of 10 tims, and not at all the other 9.
+
+			##### Because these 2 tags have similar functionality, we try to deal with them both at once..
+
+
+			##### DETERMINE WEIGHT OF [META]ATTRIBUTE ("*" tag):
+			$newtmpattrib=$tmpattrib;																		#store "*8"
+			#f ( ($tmpattrib =~ /\*/)                                 && ($tmpattrib !~ /caption-/i) && ($tmpattrib !~ /postcaption-/i) && ($tmpattrib !~ /^thing-/i) && ($tmpattrib !~ /^person-/i) && ($tmpattrib !~ /^activity-/i) && ($tmpattrib !~ /^place-/i)) 
+			#f ((($tmpattrib =~ /\*/) || ($tmpattrib =~ /\x[0-9]+$/)) && ($tmpattrib !~ /caption-/i) && ($tmpattrib !~ /postcaption-/i) && ($tmpattrib !~ /^thing-/i) && ($tmpattrib !~ /^person-/i) && ($tmpattrib !~ /^activity-/i) && ($tmpattrib !~ /^place-/i)) 
+			if ( ($tmpattrib =~ /\*/)                                 && ($tmpattrib !~ /caption-/i) && ($tmpattrib !~ /postcaption-/i) && ($tmpattrib !~ /^thing-/i) && ($tmpattrib !~ /^person-/i) && ($tmpattrib !~ /^activity-/i) && ($tmpattrib !~ /^place-/i)) {
+				($newtmpattrib,$tmpWeightStar)=split(/\*/,$tmpattrib); if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR) { &log("[[[tmpweightStar=$tmpWeightStar]]]"); }
+				if (($tmpWeightStar !~ /^\d*\.?\d*$/) || ($tmpWeightStar eq "") || ($tmpWeightStar eq ".")) {  #validate weight
+					&log("\n\nERROR W1: *-WEIGHT of \"$tmpWeightStar\" is not valid [tmpattrib=$tmpattrib,newtmpattrib=$newtmpattrib,tmpWeightStar=$tmpWeightStar]!\n\t LINE=$line"); 
+					$newtmpattrib = $tmpattrib; 
+					$tmpWeightStar=1;
 				}	
 			} else {
-				$newtmpattrib = $tmpattrib;
-				$tmpWeight=1;	#default weight
+				$newtmpattrib = $tmpattrib;																	#store "*"
+				$tmpWeightStar=1;	#default weight
 			}
-			$tmpattrib=$newtmpattrib;
+			$tmpattrib=$newtmpattrib;																		#set back to "*8"
 
-			##### STORE WEIGHT OF ATTRIBUTE, UNLESS NON-1 ATTRIBUTE ALREADY EXISTS: (2017)
-			#my %ATTRIBUTE_WEIGHTS=();		#key={$filename$delimiter$attribute},value=weight
-			if (($DEBUG_META_ATTRIBUTE_WEIGHTS) && ($tmpWeight != 1)) { &log("\n\n--------[Processing newMETAattrib=$newtmpattrib,tmpWeight=$tmpWeight]"); }
-			#f (($tmpWeight==1) && ($ATTRIBUTE_WEIGHTS{       "$tmpfile$DELIMITER$newtmpattrib"} != 1))    #non-meta version
-			if (($tmpWeight==1) && ($ATTRIBUTE_WEIGHTS{"META$metaattrib$DELIMITER$newtmpattrib"} != 1)) {  #    meta version
-				#don't store the new weight if it's "boring ol' 1", which only ever happens automatically, and should not overwrite a manually set weights	
+			##### DETERMINE WEIGHT OF [META]ATTRIBUTE ("x" tag):
+			$newtmpattrib=$tmpattrib;																		#store "x8"
+			#f ( ($tmpattrib =~ /\*/)                                  && ($tmpattrib !~ /caption-/i) && ($tmpattrib !~ /postcaption-/i) && ($tmpattrib !~ /^thing-/i) && ($tmpattrib !~ /^person-/i) && ($tmpattrib !~ /^activity-/i) && ($tmpattrib !~ /^place-/i)) 
+			if ((($tmpattrib =~ /^x/) || ($tmpattrib =~ /^\x[0-9]+$/)) && ($tmpattrib !~ /caption-/i) && ($tmpattrib !~ /postcaption-/i) && ($tmpattrib !~ /^thing-/i) && ($tmpattrib !~ /^person-/i) && ($tmpattrib !~ /^activity-/i) && ($tmpattrib !~ /^place-/i)) {
+				($newtmpattrib,$tmpWeightX)=split(/x/,$tmpattrib); if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR) { &log("[[[tmpweightX=$tmpWeightX]]]"); }
+				if (($tmpWeightX !~ /^\d*\.?\d*$/) || ($tmpWeightX eq "") || ($tmpWeightX eq ".")) {  #validate weight
+					&log("\n\nERROR W2: x-WEIGHT of \"$tmpWeightX\" is not valid [tmpattrib=$tmpattrib,newtmpattrib=$newtmpattrib,tmpWeightX=$tmpWeightX]!\n\t LINE=$line"); 
+					$newtmpattrib = $tmpattrib;
+					$tmpWeightX=1;
+				}	
 			} else {
-				$ATTRIBUTE_WEIGHTS{"META$metaattrib$DELIMITER$newtmpattrib"}=$tmpWeight;
+				$newtmpattrib = $tmpattrib;																	#store "x"
+				$tmpWeightX=1;	#default weight
 			}
-			if (($DEBUG_META_ATTRIBUTE_WEIGHTS) && ($tmpWeight != 1)) { &log(  "\n         *~*~* [MW]\$ATTRIBUTE_WEIGHTS{META$metaattrib$DELIMITER$newtmpattrib}=\$tmpWeight=".$ATTRIBUTE_WEIGHTS{"META$metaattrib$DELIMITER$newtmpattrib"}.";\n"); }
+			$tmpattrib=$newtmpattrib;																		#set back to "x8"
+
+
+
+			##### STORE WEIGHT OF star-ATTRIBUTE, UNLESS NON-1 ATTRIBUTE ALREADY EXISTS: (2017)
+			#my %ATTRIBUTE_WEIGHTS_STAR=();		#key={$filename$delimiter$attribute},value=weight
+			if (($tmpWeightStar!=1) && ($DEBUG_META_ATTRIBUTE_WEIGHTS_STAR)) { &log("\n\n--------[Processing newMETAattrib=$newtmpattrib,tmpWeightStar=$tmpWeightStar]"); }
+			#f (($tmpWeightStar==1) && ($ATTRIBUTE_WEIGHTS_STAR{       "$tmpfile$DELIMITER$newtmpattrib"} != 1))    #non-meta version
+			if (($tmpWeightStar==1) && ($ATTRIBUTE_WEIGHTS_STAR{"META$metaattrib$DELIMITER$newtmpattrib"} != 1)) {  #    meta version
+				#don't store the new weight if it's "boring ol' 1", which only ever happens automatically, and should not overwrite a manually-set weight
+			} else {
+				$ATTRIBUTE_WEIGHTS_STAR{"META$metaattrib$DELIMITER$newtmpattrib"}=$tmpWeightStar;
+			}
+			if (($DEBUG_META_ATTRIBUTE_WEIGHTS_STAR) && ($tmpWeightStar != 1)) { &log(  "\n         *~*~* [MW]\$ATTRIBUTE_WEIGHTS_STAR{META$metaattrib$DELIMITER$newtmpattrib}=\$tmpWeightStar=".$ATTRIBUTE_WEIGHTS_STAR{"META$metaattrib$DELIMITER$newtmpattrib"}.";\n"); }
+
+
+
+			##### STORE WEIGHT OF x-ATTRIBUTE, UNLESS NON-1 ATTRIBUTE ALREADY EXISTS: (2017)
+			#my %ATTRIBUTE_WEIGHTS_STAR=();		#key={$filename$delimiter$attribute},value=weight
+			if (($tmpWeightX!=1) && ($DEBUG_META_ATTRIBUTE_WEIGHTS_STAR)) { &log("\n\n--------[Processing newMETAattrib=$newtmpattrib,tmpWeightX=$tmpWeightX]"); }
+			#f (($tmpWeightX==1) && ($ATTRIBUTE_WEIGHTS_X{       "$tmpfile$DELIMITER$newtmpattrib"} != 1))    #non-meta version
+			if (($tmpWeightX==1) && ($ATTRIBUTE_WEIGHTS_X{"META$metaattrib$DELIMITER$newtmpattrib"} != 1)) {  #    meta version
+				#don't store the new weight if it's "boring ol' 1", which only ever happens automatically, and should not overwrite a manually-set weight
+			} else {
+				$ATTRIBUTE_WEIGHTS_X{"META$metaattrib$DELIMITER$newtmpattrib"}=$tmpWeightX;
+			}
+			if (($DEBUG_META_ATTRIBUTE_WEIGHTS_X) && ($tmpWeightX != 1)) { &log(  "\n         *~*~* [MW]\$ATTRIBUTE_WEIGHTS_X{META$metaattrib$DELIMITER$newtmpattrib}=\$tmpWeightX=".$ATTRIBUTE_WEIGHTS_X{"META$metaattrib$DELIMITER$newtmpattrib"}.";\n"); }
+
+
 
 
             if    ($tmpattrib =~ /^\-[^\-]/) { $mode="remove"   ; }
@@ -1081,7 +1131,9 @@ sub create_metaattribute_filelists {   #generate_metaattribute_filelists
 					}
 				}
             } else { @attribs_now_processing = ($tmpattrib); }
+
             #typically @attribs_now_processing only holds 1 attribute, unless we are using a meta attribute with "*" in it, which is quite rare ... :)
+
 	        if ($DEBUG_META>=6) { &log("\n[META50]\t\@attribs_now_processing is \"@attribs_now_processing\""); }
 			#DEBUG:print "\n\RE-TESTING (range-F - last 6 months #2):\n***** \"" . &hashdump(\%{$ATTRIBUTES{"range-F - last 6 months"}}) . "\" *****";	## . &tostr(keys(%{$ATTRIBUTES{"range-F - last 6 months"}}))	#
 			#DEBUG:print "\n\RE-TESTING (range-f - last 6 months #2):\n***** \"" . &hashdump(\%{$ATTRIBUTES{"range-f - last 6 months"}}) . "\" *****";	## . &tostr(keys(%{$ATTRIBUTES{"range-F - last 6 months"}}))	#
@@ -1118,24 +1170,28 @@ sub create_metaattribute_filelists {   #generate_metaattribute_filelists
 
 
 						##### 2015 b.s. - why was i trying to stor eit here? It's already stored from when we read it form the meta file! STORE WEIGHT OF ATTRIBUTE, UNLESS NON-1 ATTRIBUTE ALREADY EXISTS:
-						#my %ATTRIBUTE_WEIGHTS=();		#key={$filename$delimiter$attribute},value=weight
+						#my %ATTRIBUTE_WEIGHTS_STAR=();		#key={$filename$delimiter$attribute},value=weight
 	                    #if (($mode eq "add") || ($mode eq "forceadd")) {
-						#	if (($DEBUG_ATTRIBUTE_WEIGHTS>1) && ($tmpWeight != 1)) { &log("\n\n--------[Processing metaattrib=$metaattrib,tmpWeight=$tmpWeight]"); }
-						#	if (($tmpWeight==1) && ($ATTRIBUTE_WEIGHTS{"$tmpfile$DELIMITER$metaattrib"} != 1)) {
+						#	if (($DEBUG_ATTRIBUTE_WEIGHTS_STAR>1) && ($tmpWeightStar != 1)) { &log("\n\n--------[Processing metaattrib=$metaattrib,tmpWeightStar=$tmpWeightStar]"); }
+						#	if (($tmpWeightStar==1) && ($ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$metaattrib"} != 1)) {
 						#		#don't store the new weight if it's "boring ol' 1", which only ever happens automatically, and should not overwrite a manually set weights	
 						#	} else {
-						#		$ATTRIBUTE_WEIGHTS{"$tmpfile$DELIMITER$metaattrib"}=$tmpWeight;
+						#		$ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$metaattrib"}=$tmpWeightStar;
 						#	}
-						#	if (($DEBUG_ATTRIBUTE_WEIGHTS>1) && ($tmpWeight != 1)) { &log(  "\n         *!~-*-~!* \$ATTRIBUTE_WEIGHTS{$tmpfile$DELIMITER$newtmpattrib}=\$tmpWeight=".$ATTRIBUTE_WEIGHTS{"$tmpfile$DELIMITER$newtmpattrib"}.";\n"); }
+						#	if (($DEBUG_ATTRIBUTE_WEIGHTS_STAR>1) && ($tmpWeightStar != 1)) { &log(  "\n         *!~-*-~!* \$ATTRIBUTE_WEIGHTS_STAR{$tmpfile$DELIMITER$newtmpattrib}=\$tmpWeightStar=".$ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$newtmpattrib"}.";\n"); }
 						#}
 
 						##### 2017 redo
 						######### CHECK WEIGHT ########
 						##### GET WEIGHT:
-						$tmpWeight = $ATTRIBUTE_WEIGHTS{"META$DELIMITER$tmpmetaattrib"};			
-						if ($DEBUG_ATTRIBUTE_WEIGHTS) { &log("\n\t[MW3][$tmpmetaattrib][\$tmpWeight = \$ATTRIBUTE_WEIGHTS{\"META$DELIMITER$tmpmetaattrib\"}; = " . $ATTRIBUTE_WEIGHTS{"META$DELIMITER$tmpmetaattrib"} . "]"); }
-						if ($tmpWeight eq "") { $tmpWeight=1; }											
-						if ($DEBUG_ATTRIBUTE_WEIGHTS) { &log("\n\t[MW3][$tmpmetaattrib][\$tmpWeight=$tmpWeight now]"); }
+						$tmpWeightStar = $ATTRIBUTE_WEIGHTS_STAR{"META$DELIMITER$tmpmetaattrib"};			
+						$tmpWeightX    = $ATTRIBUTE_WEIGHTS_X   {"META$DELIMITER$tmpmetaattrib"};			
+						if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR) { &log("\n\t[MW3][$tmpmetaattrib][\$tmpWeightStar = \$ATTRIBUTE_WEIGHTS_STAR{\"META$DELIMITER$tmpmetaattrib\"}; = " . $ATTRIBUTE_WEIGHTS_STAR{"META$DELIMITER$tmpmetaattrib"} . "]"); }
+						if ($DEBUG_ATTRIBUTE_WEIGHTS_X   ) { &log("\n\t[MW3][$tmpmetaattrib][\$tmpWeightX    = \$ATTRIBUTE_WEIGHTS_X   {\"META$DELIMITER$tmpmetaattrib\"}; = " . $ATTRIBUTE_WEIGHTS_STAR{"META$DELIMITER$tmpmetaattrib"} . "]"); }
+						if ($tmpWeightStar eq "") { $tmpWeightStar=1; }											
+						if ($tmpWeightX    eq "") { $tmpWeightX   =1; }	
+						if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR) { &log("\n\t[MW3][$tmpmetaattrib][\$tmpWeightStar=$tmpWeightStar" . "now]"); }
+						if ($DEBUG_ATTRIBUTE_WEIGHTS_X   ) { &log("\n\t[MW3][$tmpmetaattrib][\$tmpWeightX   =$tmpWeightX"    . "now]"); }
 
 
 	                    ### We add it, as long as it hasn't been forcefully
@@ -1218,7 +1274,8 @@ sub create_metaattribute_filelists {   #generate_metaattribute_filelists
 		$num_files     = 0;																			# count if it has files or not
 		my $filesfound = 0;
 		my $timestoprint;
-		my $tmpWeight;
+		my $tmpWeightStar;
+		my $tmpWeightX   ;
 		foreach $tmpfile (@tmpkeys) { if ($ATTRIBFILEHASH{"$tmpfile"} >= 1) { $num_files++; } }	# count if it has files or not	
 		if (($num_files > 0)) {																				
 			#$tmpfilename = &clean_name_for_filenames($tmpfilename);	this was giving us filenames like "--mp3-listrs" maybe need to use that backslash flag to suppress slash conversion but no that would fuck up tags with slahes in them so don't do that
@@ -1233,28 +1290,36 @@ sub create_metaattribute_filelists {   #generate_metaattribute_filelists
 					
 					######### CHECK WEIGHT ########
 					##### GET WEIGHT:
-					$tmpWeight = $ATTRIBUTE_WEIGHTS{"$tmpfile$DELIMITER$tmpmetaattrib"};			
-					if ($DEBUG_ATTRIBUTE_WEIGHTS) { &log("\n\t[TW2][$tmpmetaattrib][\$tmpWeight = \$ATTRIBUTE_WEIGHTS{\"$tmpfile$DELIMITER$tmpmetaattrib\"}; = " . $ATTRIBUTE_WEIGHTS{"$tmpfile$DELIMITER$tmpmetaattrib"} . "]"); }
-					if ($tmpWeight eq "") { $tmpWeight=1; }											
-					if ($DEBUG_ATTRIBUTE_WEIGHTS) { &log("\n\t[TW2][$tmpmetaattrib][\$tmpWeight=$tmpWeight now]"); }
+					$tmpWeightStar = $ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$tmpmetaattrib"};			
+					$tmpWeightX    = $ATTRIBUTE_WEIGHTS_X   {"$tmpfile$DELIMITER$tmpmetaattrib"};			
+					if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR) { &log("\n\t[TW2][$tmpmetaattrib][\$tmpWeightStar = \$ATTRIBUTE_WEIGHTS_STAR{\"$tmpfile$DELIMITER$tmpmetaattrib\"}; = " . $ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$tmpmetaattrib"} . "]"); }
+					if ($DEBUG_ATTRIBUTE_WEIGHTS_X   ) { &log("\n\t[TW2][$tmpmetaattrib][\$tmpWeightX    = \$ATTRIBUTE_WEIGHTS_X   {\"$tmpfile$DELIMITER$tmpmetaattrib\"}; = " . $ATTRIBUTE_WEIGHTS_X   {"$tmpfile$DELIMITER$tmpmetaattrib"} . "]"); }
+					if ($tmpWeightStar eq "") { $tmpWeightStar=1; }											
+					if ($tmpWeightX    eq "") { $tmpWeightX   =1; }											
+					if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR) { &log("\n\t[TW2][$tmpmetaattrib][\$tmpWeightStar=$tmpWeightStar now]"); }
+					if ($DEBUG_ATTRIBUTE_WEIGHTS_X   ) { &log("\n\t[TW2][$tmpmetaattrib][\$tmpWeightX   =$tmpWeightX    now]"); }
 
 					##### MASSAGE FILENAME & KEEP TRACK OF TOTAL FILES:
 					$filesfound++;				
 					#if ($USE_BACKSLASHES_INSTEAD_OF_SLASHES) { $tmpfile =~ s/\//\\/g; } else { $tmpfile =~ s/\\/\//g; }
 
-					##### IF TMPWEIGHT>1, ACT ON IT, BUT IF IT'S <1, DO NOT ROLL, WE ALREADY ROLLED AND SAVED THAT VALUE:
+					##### TODO TMPWEIGHTX WHAT DO WE DO HERE?
+					##### IF TMPWEIGHTStar>1, ACT ON IT, BUT IF IT'S <1, DO NOT ROLL, WE ALREADY ROLLED AND SAVED THAT VALUE:
 					$timestoprint=1;										#default value in case we miss cases
-					if ($tmpWeight > 1) {
-						$timestoprint = $tmpWeight;
-						if ($tmpWeight =~ /\./) {			#5.9 would mean timestoprint is 5 + roll against 0.9
-							($before,$after)=split(/\./,$tmpWeight);
+					if ($tmpWeightStar > 1) {
+						$timestoprint = $tmpWeightStar;
+						if ($tmpWeightStar =~ /\./) {			#5.9 would mean timestoprint is 5 + roll against 0.9
+							($before,$after)=split(/\./,$tmpWeightStar);
 							$timestoprint=$before; $roll = rand(1); if ($roll <= ".$after") { $timestoprint++; } 
 						}
 					} 
-					elsif ($tmpWeight ==  0) { $timestoprint=0; }		#don't add if weight is 0	
-					elsif ($tmpWeight eq "") { $timestoprint=1; }		#no weight assigned, so just go with the default behavior, before we added weighting
-					elsif ($tmpWeight <=  1) { $timestoprint=1; }		#we already rolled in this case, and the roll result already determined whether this would be here
-					if (($DEBUG_ATTRIBUTE_WEIGHTS) && ($tmpWeight != 1)) { &log("\t[tmpWeight=$tmpWeight,roll=$roll]\n\t[**timestoprint**=$timestoprint for tmpfile=$tmpfile]\n"); }
+					elsif ($tmpWeightStar ==  0) { $timestoprint=0; }		#don't add if weight is 0	
+					elsif ($tmpWeightStar eq "") { $timestoprint=1; }		#no weight assigned, so just go with the default behavior, before we added weighting
+					elsif ($tmpWeightStar <=  1) { $timestoprint=1; }		#we already rolled in this case, and the roll result already determined whether this would be here
+					if (($DEBUG_ATTRIBUTE_WEIGHTS_STAR) && ($tmpWeightStar != 1)) { &log("\t[tmpWeightStar=$tmpWeightStar,roll=$roll]\n\t[**timestoprint**=$timestoprint for tmpfile=$tmpfile]\n"); }
+
+
+
 
 					##### PRINT TO PLAYLIST CORRECT NUMBER OF TIMES (& KEEP TRACK):
 					if ($timestoprint == 0) {
@@ -1263,7 +1328,8 @@ sub create_metaattribute_filelists {   #generate_metaattribute_filelists
 						#FOR META: JUST DO NOTHING. DON'T PRINT IT.
 					} else {
 						for ($i=1; $i<=$timestoprint; $i++) {
-							$num_written++; print METALIST $tmpfile . "\n"; if ($DEBUG_ATTRIBUTE_WEIGHTS) { &log("[printing because \$i=$i]"); }
+							$num_written++; print METALIST $tmpfile . "\n"; 
+							if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR || $DEBUG_ATTRIBUTE_WEIGHTS_X) { &log("[printing because \$i=$i]"); }
 						}#endfor
 					}#endif
 				}#endif 
@@ -2070,7 +2136,7 @@ sub write_date_range_filelists {
 
 	##### OHOH this whole section could use a rewrite, unfortunately.	 (Later: Why?)
 
-	##### Now that we have stored all these dates, start going in backwards order
+	##### Now that we have stored all these dates, begin going in backwards order
 	##### so we can keep track of $num_days_back and correctly process all of our
 	##### "last 1 day", "last 1 week", "last 1 month"-type date range filelists:
 	my $num_intervals = @TMPINTERVALS;
@@ -3207,7 +3273,7 @@ sub create_trigger_file {
 #
 #if @exists = 1
 #begin
-#	print 'File ' +  @triggerfilename + ' Exists! ... Starting DTS'
+#	print 'File ' +  @triggerfilename + ' Exists! ... Beginning DTS'
 #	set @command = 'dtsrun -S FIRE -N ' + @dts + ' -E'
 #	exec master..xp_cmdshell @command	
 #	print 'Deleting trigger file ' + @triggerfilename
@@ -3531,13 +3597,24 @@ sub process_each_attribute_list {
 sub dump_attribute_weights {
 	my $trace=$_[0];
 	##### debug stuff:
-	if ($DEBUG_ATTRIBUTE_WEIGHTS > 1) {
+	if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR > 1) {
 		&log("\n");
 		my $tmpval;
-		foreach my $key (sort keys %ATTRIBUTE_WEIGHTS) {
-			$tmpval=$ATTRIBUTE_WEIGHTS{$key};
+		foreach my $key (sort keys %ATTRIBUTE_WEIGHTS_STAR) {
+			$tmpval=$ATTRIBUTE_WEIGHTS_STAR{$key};
 			if ($tmpval != 1) {
-				&log("[$trace][ATTRIBUTE_WEIGHTS NON-1-VALUES DUMP: VALUE=".$tmpval.",\tKEY=$key]\n");
+				&log("[$trace][ATTRIBUTE_WEIGHTS_STAR NON-1-VALUES DUMP: VALUE=".$tmpval.",\tKEY=$key]\n");
+			}
+		}
+	}
+
+	if ($DEBUG_ATTRIBUTE_WEIGHTS_X > 1) {
+		&log("\n");
+		my $tmpval;
+		foreach my $key (sort keys %ATTRIBUTE_WEIGHTS_X) {
+			$tmpval=$ATTRIBUTE_WEIGHTS_X{$key};
+			if ($tmpval != 1) {
+				&log("[$trace][ATTRIBUTE_WEIGHTS_X NON-1-VALUES DUMP: VALUE=".$tmpval.",\tKEY=$key]\n");
 			}
 		}
 	}
@@ -3558,7 +3635,8 @@ sub create_attribute_filelists {            #1stpass
     my $tmpfilelist = "";
     my @tmpfilelist = ();
 	my $linesprinted;
-	my $tmpWeight;
+	my $tmpWeightStar;
+	my $tmpWeightX;
 	my $timestoprint;	
 	my $roll;
 	my $tmpval;
@@ -3611,30 +3689,33 @@ sub create_attribute_filelists {            #1stpass
 				#f (%{$ATTRIBUTES{$currentattrib}}->{$tmpfile} >= 1) 
 				if (  $ATTRIBUTES{$currentattrib} ->{$tmpfile} >= 1) {
 					##### GET WEIGHT:
-					$tmpWeight = $ATTRIBUTE_WEIGHTS{"$tmpfile$DELIMITER$currentattrib"};			if ($DEBUG_ATTRIBUTE_WEIGHTS) { &log("\n\t[TW1][$currentattrib][\$tmpWeight = \$ATTRIBUTE_WEIGHTS{\"$tmpfile$DELIMITER$currentattrib\"}; = " . $ATTRIBUTE_WEIGHTS{"$tmpfile$DELIMITER$currentattrib"} . "]"); }
-					if ($tmpWeight eq "") { $tmpWeight=1; }											if ($DEBUG_ATTRIBUTE_WEIGHTS) { &log("\n\t[TW1][$currentattrib][\$tmpWeight=$tmpWeight now]"); }
+					$tmpWeightStar = $ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$currentattrib"};			if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR) { &log("\n\t[TW1][$currentattrib][\$tmpWeightStar = \$ATTRIBUTE_WEIGHTS_STAR{\"$tmpfile$DELIMITER$currentattrib\"}; = " . $ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$currentattrib"} . "]"); }
+					$tmpWeightX    = $ATTRIBUTE_WEIGHTS_X   {"$tmpfile$DELIMITER$currentattrib"};			if ($DEBUG_ATTRIBUTE_WEIGHTS_X   ) { &log("\n\t[TW1][$currentattrib][\$tmpWeightX    = \$ATTRIBUTE_WEIGHTS_X   {\"$tmpfile$DELIMITER$currentattrib\"}; = " . $ATTRIBUTE_WEIGHTS_X   {"$tmpfile$DELIMITER$currentattrib"} . "]"); }
+					if ($tmpWeightStar eq "") { $tmpWeightStar=1; }											if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR) { &log("\n\t[TW1][$currentattrib][\$tmpWeightStar=$tmpWeightStar" . "now]"); }
+					if ($tmpWeightX    eq "") { $tmpWeightX   =1; }											if ($DEBUG_ATTRIBUTE_WEIGHTS_X   ) { &log("\n\t[TW1][$currentattrib][\$tmpWeightX   =$tmpWeightX"    . "now]"); }
 
 					##### MASSAGE FILENAME & KEEP TRACK OF TOTAL FILES:
 					$filesfound++;				
 					#if ($USE_BACKSLASHES_INSTEAD_OF_SLASHES) { $tmpfile =~ s/\//\\/g; } else { $tmpfile =~ s/\\/\//g; }
 
-					##### CALCULATE NUMBER OF TIMES WE PRINT THIS ONE: 
+					##### CALCULATE NUMBER OF TIMES WE PRINT THIS ONE:  ##### GOATGOAT _X LOGIC NEEDS TO BE ADDED TO EXISTING _STAR LOGIC
 					$timestoprint=1;
-					if  ($tmpWeight < 1) {									#say the weight is 0.1 = we want it 10% of the time = so we roll rand(1) and if it's less than .1 we do it:
+					if  ($tmpWeightStar < 1) {									#say the weight is 0.1 = we want it 10% of the time = so we roll rand(1) and if it's less than .1 we do it:
 						$roll = rand(1);
-						if ($roll > $tmpWeight) { $timestoprint=0; } 
-						else                    { $timestoprint=1; } 
-						if ($DEBUG_ATTRIBUTE_WEIGHTS) { &log("[roll of $roll for weight $tmpWeight means timesToPrint now=$timestoprint]"); }
-					} elsif ($tmpWeight > 1) {
-						$timestoprint = $tmpWeight;
-						if ($tmpWeight =~ /\./) {			#5.9 would mean timestoprint is 5 + roll against 0.9
-							($before,$after)=split(/\./,$tmpWeight);
+						if ($roll > $tmpWeightStar) { $timestoprint=0; } 
+						else                        { $timestoprint=1; } 
+						if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR) { &log("[roll of $roll for weight $tmpWeightStar means timesToPrint now=$timestoprint]"); }
+					} elsif ($tmpWeightStar > 1) {
+						$timestoprint = $tmpWeightStar;
+						if ($tmpWeightStar =~ /\./) {			#5.9 would mean timestoprint is 5 + roll against 0.9
+							($before,$after)=split(/\./,$tmpWeightStar);
 							$timestoprint=$before;
 							$roll = rand(1);
 							if ($roll <= ".$after") { $timestoprint++; } 
 						}
 					}
-					if (($DEBUG_ATTRIBUTE_WEIGHTS) && ($tmpWeight != 1)) { &log("\t[tmpWeight=$tmpWeight,roll=$roll]\n\t[*timestoprint*=$timestoprint for tmpfile=$tmpfile]\n"); }
+					if (($DEBUG_ATTRIBUTE_WEIGHTS_STAR) && ($tmpWeightStar != 1)) { &log("\t[tmpWeightStar=$tmpWeightStar,roll=$roll]\n\t[*timestoprint*=$timestoprint for tmpfile=$tmpfile]\n"); }
+					if (($DEBUG_ATTRIBUTE_WEIGHTS_X   ) && ($tmpWeightX    != 1)) { &log("\t[tmpWeightX   =$tmpWeightX   ,roll=$roll]\n\t[*timestoprint*=$timestoprint for tmpfile=$tmpfile]\n"); }
 
 					##### PRINT TO PLAYLIST CORRECT NUMBER OF TIMES (& KEEP TRACK):
 					if ($timestoprint == 0) {
@@ -3644,7 +3725,8 @@ sub create_attribute_filelists {            #1stpass
 						delete   $ATTRIBUTES{$currentattrib} ->{$tmpfile};			#DEBUG: &logprint("\n----------------------------------------------\%{\$ATTRIBUTES{$currentattrib}}->{".$tmpfile."}=0=(sanity)".%{$ATTRIBUTES{$currentattrib}}->{$tmpfile}.";--------------------------------------");#
 					} else {
 						for ($i=1; $i<=$timestoprint; $i++) {
-							print LIST $tmpfile . "\n"; $linesprinted++;            if ($DEBUG_ATTRIBUTE_WEIGHTS) { &log("[printing because \$i=$i]"); }						
+							print LIST $tmpfile . "\n"; $linesprinted++;            
+							if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR || $DEBUG_ATTRIBUTE_WEIGHTS_X) { &log("[printing because \$i=$i]"); }						
 						}
 					}
 				}#endif
@@ -3743,7 +3825,7 @@ sub clean_name_for_filenames {	#make filenames safe
 		$s =~ s/\\/--/g;
 	}
 	$s =~ s/\t/     /g;
-	$s =~ s/^\-\-//g;					#20131013 - started finding "--*.m3u" in whatever folder I started "index-mp3" in - let's see if cleaning this up here at least makes them named properly, so we can be sure this is the program creating them
+	$s =~ s/^\-\-//g;					#20131013 - began finding "--*.m3u" in whatever folder I began "index-mp3" in - let's see if cleaning this up here at least makes them named properly, so we can be sure this is the program creating them
 	$s =~ s/"/'/g;						#20160420 - person-Bob "Dobbs" was trying to create filenames with quotes in them
 	$s =~ s/�/_/g;						#20160525 - some stupid incoming mp3 has this unicode character that can't be a filename
 	$s =~ s/�/_/g;						#20160525 - some stupid incoming mp3 has this unicode character that can't be a filename
@@ -3767,7 +3849,7 @@ sub create_inverse_index {
 	##### as the meta/attribute prefix/dirs are the same, the meta files of same name
 	##### overwrite the nonmeta files, and thus the files left at the end are accurate
 	##### representations of our attribute=>filename associations.
-	##### The reason I started doing it this way was because keeping that information
+	##### The reason I began doing it this way was because keeping that information
 	##### in memory was SLOOOW.  Each filename had to be stored in a hash, but since
 	##### one file can be associated with many attributes, the attributes had to be put
 	##### in an array associated with each hash.  The number of operations, and cost of
@@ -3904,7 +3986,8 @@ sub process_attributelist {		#1st pass lists sprinkled everywhere (attrib.lst)
 	##### Initialize 'local' variables:
 	$linenum=0;
 	my $newtmpattrib="";
-	my $tmpWeight="";
+	my $tmpWeightStar="";
+	my $tmpWeightX   ="";
 
 	##### DEBUG STUFF:
 	if ($DEBUG_PROCESS_ATTRIBUTELIST_CALLS) { &log("\n\n* DEBUG: process_attributelist [list=$list,ISBASE=$ISBASE,n=$n,nn=$nn]\n"); }
@@ -4008,28 +4091,59 @@ sub process_attributelist {		#1st pass lists sprinkled everywhere (attrib.lst)
 					if ($ALLFILES{$tmpfile}!=2)	{ next; }
 					foreach $tmpattrib (@attributes) {
 
-						##### DETERMINE WEIGHT OF ATTRIBUTE:
+
+
+						##### DETERMINE STAR WEIGHT OF ATTRIBUTE:
 						if (($tmpattrib =~ /\*/) && ($tmpattrib !~ /caption-/i) && ($tmpattrib !~ /postcaption-/i) && ($tmpattrib !~ /^thing-/i) && ($tmpattrib !~ /^person-/i) && ($tmpattrib !~ /^activity-/i) && ($tmpattrib !~ /^place-/i)) {
-							#$newtmpattrib,$tmpWeight)=split(/\*/ ,$tmpattrib);	#this is proper
-							($newtmpattrib,$tmpWeight)=split(/\*+/,$tmpattrib);	#this allows double-asterisk typos to work the same
-							if (($tmpWeight !~ /^\d*\.?\d*$/) || ($tmpWeight eq "") || ($tmpWeight eq ".")) {  #validate weight
-								&log("\n\nERROR W2: WEIGHT of \"$tmpWeight\" is not valid [tmpattrib=$tmpattrib,newtmpattrib=$newtmpattrib,tmpWeight=$tmpWeight]!\n\t LINE=$line"); 
-								$newtmpattrib = $tmpattrib; $tmpWeight=1;
+							#$newtmpattrib,$tmpWeightStar)=split(/\*/ ,$tmpattrib);	#this is proper
+							($newtmpattrib,$tmpWeightStar)=split(/\*+/,$tmpattrib);	#this allows double-asterisk typos to work the same
+							if (($tmpWeightStar !~ /^\d*\.?\d*$/) || ($tmpWeightStar eq "") || ($tmpWeightStar eq ".")) {  #validate weight
+								&log("\n\nERROR W2S: WEIGHT of \"$tmpWeightStar\" is not valid [tmpattrib=$tmpattrib,newtmpattrib=$newtmpattrib,tmpWeightStar=$tmpWeightStar]!\n\t LINE=$line"); 
+								$newtmpattrib = $tmpattrib; $tmpWeightStar=1;
 							}	
 						} else {
 							$newtmpattrib = $tmpattrib;
-							$tmpWeight=1;	#default weight
+							$tmpWeightStar=1;	#default weight
 						}
 
-						##### STORE WEIGHT OF ATTRIBUTE, UNLESS NON-1 ATTRIBUTE ALREADY EXISTS:
-						#my %ATTRIBUTE_WEIGHTS=();		#key={$filename$delimiter$attribute},value=weight
-						if (($DEBUG_ATTRIBUTE_WEIGHTS) && ($tmpWeight != 1)) { &log("\n\n--------[Processing newtmpattrib=$newtmpattrib,tmpWeight=$tmpWeight]"); }
-						if (($tmpWeight==1) && ($ATTRIBUTE_WEIGHTS{"$tmpfile$DELIMITER$newtmpattrib"} != 1)) {
+						##### DETERMINE X WEIGHT OF ATTRIBUTE:
+						if (($tmpattrib =~ /\x[0-9]+/) && ($tmpattrib !~ /caption-/i) && ($tmpattrib !~ /postcaption-/i) && ($tmpattrib !~ /^thing-/i) && ($tmpattrib !~ /^person-/i) && ($tmpattrib !~ /^activity-/i) && ($tmpattrib !~ /^place-/i)) {
+							$newtmpattrib,$tmpWeightX)=split(/\x/ ,$tmpattrib);	#this is proper
+							if (($tmpWeightX  !~ /^\d*\.?\d*$/) || ($tmpWeightX  eq "") || ($tmpWeightX  eq ".")) {  #validate weight
+								&log("\n\nERROR W2X: WEIGHT of \"$tmpWeightX\" is not valid [tmpattrib=$tmpattrib,newtmpattrib=$newtmpattrib,tmpWeightX   =$tmpWeightX   ]!\n\t LINE=$line"); 
+								$newtmpattrib = $tmpattrib; 
+								$tmpWeightX   = 1;
+							}	
+						} else {
+							$newtmpattrib = $tmpattrib;
+							$tmpWeightX   = 1;	#default weight
+						}
+
+
+
+
+						##### STORE STAR WEIGHT OF ATTRIBUTE, UNLESS NON-1 ATTRIBUTE ALREADY EXISTS:
+						#my %ATTRIBUTE_WEIGHTS_STAR=();		#key={$filename$delimiter$attribute},value=weight
+						if (($DEBUG_ATTRIBUTE_WEIGHTS_STAR) && ($tmpWeightStar != 1)) { &log("\n\n--------[Processing newtmpattrib=$newtmpattrib,tmpWeightStar=$tmpWeightStar]"); }
+						if (($tmpWeightStar==1) && ($ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$newtmpattrib"} != 1)) {
 							#don't store the new weight if it's "boring ol' 1", which only ever happens automatically, and should not overwrite a manually set weights	
 						} else {
-							$ATTRIBUTE_WEIGHTS{"$tmpfile$DELIMITER$newtmpattrib"}=$tmpWeight;
+							$ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$newtmpattrib"}=$tmpWeightStar;
 						}
-						if (($DEBUG_ATTRIBUTE_WEIGHTS) && ($tmpWeight != 1)) { &log(  "\n         *~*~* \$ATTRIBUTE_WEIGHTS{$tmpfile$DELIMITER$newtmpattrib}=\$tmpWeight=".$ATTRIBUTE_WEIGHTS{"$tmpfile$DELIMITER$newtmpattrib"}.";\n"); }
+						if (($DEBUG_ATTRIBUTE_WEIGHTS_STAR) && ($tmpWeightStar != 1)) { &log(  "\n         *~*~* \$ATTRIBUTE_WEIGHTS_STAR{$tmpfile$DELIMITER$newtmpattrib}=\$tmpWeightStar=".$ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$newtmpattrib"}.";\n"); }
+
+						##### STORE X WEIGHT OF ATTRIBUTE, UNLESS NON-1 ATTRIBUTE ALREADY EXISTS:
+						#my %ATTRIBUTE_WEIGHTS_X=();		#key={$filename$delimiter$attribute},value=weight
+						if (($DEBUG_ATTRIBUTE_WEIGHTS_X) && ($tmpWeightX != 1)) { &log("\n\n--------[Processing newtmpattrib=$newtmpattrib,tmpWeightX=$tmpWeightX]"); }
+						if (($tmpWeightX==1) && ($ATTRIBUTE_WEIGHTS_X{"$tmpfile$DELIMITER$newtmpattrib"} != 1)) {
+							#don't store the new weight if it's "boring ol' 1", which only ever happens automatically, and should not overwrite a manually set weights	
+						} else {
+							$ATTRIBUTE_WEIGHTS_X{"$tmpfile$DELIMITER$newtmpattrib"}=$tmpWeightX;
+						}
+						if (($DEBUG_ATTRIBUTE_WEIGHTS_X) && ($tmpWeightX != 1)) { &log(  "\n         *~*~* \$ATTRIBUTE_WEIGHTS_X{$tmpfile$DELIMITER$newtmpattrib}=\$tmpWeightX=".$ATTRIBUTE_WEIGHTS_X{"$tmpfile$DELIMITER$newtmpattrib"}.";\n"); }
+
+
+
 
 						##### THEN DO EVERYTHING ELSE:
 						if    ($newtmpattrib =~ /^\-\-/) { $mode="removestrong"; }

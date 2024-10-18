@@ -97,12 +97,14 @@ rem Respond to environment-variable parameter to stick text AFTER free space if 
 
 rem Substitute the token {freespace} with our generated free space message:
         set LOCKED_MESSAGE=%@unquote[%@rereplace[{freespace},"%FREE_SPACE_MESSAGE%","%locked_message"]]
+        set LAST_LOCKED_MESSAGE=%LOCKED_MESSAGE%
 
 
 rem Get message length and create side-spacers of appropriate length to center the message:
         :Display_Message_Now
         set DECORATED_MESSAGE=%dottie% %LOCKED_MESSAGE%%LOCKED_MESSAGE_COLOR% %dottie%
-                                             SET LOCKED_MESSAGE_LENGTH=%@LEN[%@STRIP_ANSI[%DECORATED_MESSAGE]]
+        set LAST_DECORATED_MESSAGE=%DECORATED_MESSAGE%
+                                             SET LOCKED_MESSAGE_LENGTH=%@LEN[%@STRIPANSI[%DECORATED_MESSAGE]]
         if %FREE_SPACE_MESSAGE_IS_USED eq 1 (SET LOCKED_MESSAGE_LENGTH=%@EVAL[%LOCKED_MESSAGE_LENGTH+2])         
         rem ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the slash emojis we use twice in our free space message are not correctly measured by %@LEN[] which creates a bug of wrapping the line onto the next line, unless we manually deduct the number of wide emojis {or at least, the # of wide emojis that %@LEN isn't correctly counting!} ... May take some experimentation if you change the free message format
 
