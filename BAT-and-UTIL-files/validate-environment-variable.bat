@@ -155,11 +155,12 @@ goto :Past_The_End_Of_The_Sub-Routines
                             call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR!!! ***"
 
 
-                            rem Experimental:
-                                    if defined PARAM2 .and. not defined  %PARAM2%  (
-                                        call warning                    "%PARAM2"
-                                        call bigecho %ANSI_COLOR_WARNING%%PARAM2
-                                        call warning                    "%PARAM2"
+                            rem Optional message as 2nd parameter for validate-environment-variablE  {singular} 
+                            rem                           but NOT for validate-environment-variableS { plural }:
+                                    if defined  PARAM2    .and.    not defined     %PARAM2%  (
+                                        call warning                              "%PARAM2"
+                                        call bigecho %ANSI_COLOR_WARNING%%@unquote[%PARAM2]
+                                        call warning                              "%PARAM2"
                                     )
 
 
