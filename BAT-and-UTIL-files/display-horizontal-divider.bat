@@ -46,6 +46,15 @@ rem all while considering that double-height lines use 2 columns per character:
         set DIVIDER_LENGTH=%@LEN[%DIVIDER]
         set NUM_REPEATS=%@EVAL[%SCREEN_COLUMNS / %DIVIDER_LENGTH]
 
+
+
+set RAINBOW_DIVIDER_FILE=%bat%\dividers\rainbow-%SCREEN_COLUMNS%.txt
+iff exist %RAINBOW_DIVIDER_FILE% then
+        type %RAINBOW_DIVIDER_FILE%
+        goto :Done
+endiff
+
+
 rem Actually write out the divider, which is easy for normal height text:
         if %BIG eq 1 (goto :BIG)
         rem old: repeat %NUM_REPEATS% echos %DIVIDER% 
@@ -126,9 +135,11 @@ rem TCC/Windows Terminal rendering bug that required a lot of ANSI fuddling to d
 
 
 :END
+:Done
 
 rem turn-back-on-file-redirection:
         setdos /x0
+        echos %CURSOR_RESET%
 
 rem experimenting with not resetting this for less cursor-y progress bars: echo %ANSI_INVISIBLE_CURSOR%
 

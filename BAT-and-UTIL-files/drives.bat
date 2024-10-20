@@ -1,8 +1,8 @@
 @echo off
 
 ::::: VALIDATE ENVIRONMENT:
-    call validate-environment-variable THE_ALPHABET
-    call validate-in-path windowhide.exe
+    call validate-environment-variables THE_ALPHABET COLOR_NORMAL EMOJI_GLOWING_STAR ansi_green_bright
+    call validate-in-path               windowhide.exe
 
 
 ::::: PARAMETERS:
@@ -54,10 +54,10 @@ goto :END
                 set FOUND=0
 				if "%@REGEX[FIRE,%DESC%]"    eq "1" (set FOUND=1 %+ %COLOR_RUN%                    %+ set big=0 %+ set echocommand=echos)
 				if "%@REGEX[HADES,%DESC%]"   eq "1" (set FOUND=1 %+  color        red     on black %+ set big=0 %+ set echocommand=echos)
-				if "%@REGEX[THAILOG,%DESC%]" eq "1" (set FOUND=1 %+  color        red     on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_SMILING_FACE_WITH_HORNS%)
-				if "%@REGEX[GOLIATH,%DESC%]" eq "1" (set FOUND=1 %+  color bright magenta on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
-				if "%@REGEX[WYVERN,%DESC%]"  eq "1" (set FOUND=1 %+  color bright magenta on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_PURPLE_HEART%)
-				if "%@REGEX[DEMONA,%DESC%]"  eq "1" (set FOUND=1 %+  color bright red     on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%EMOJI_BAT%)
+				if "%@REGEX[THAILOG,%DESC%]" eq "1" (set FOUND=1 %+  color        red     on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%[machine_emoji_thailog])
+				if "%@REGEX[GOLIATH,%DESC%]" eq "1" (set FOUND=1 %+  color bright magenta on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%[machine_emoji_goliath)
+				if "%@REGEX[WYVERN,%DESC%]"  eq "1" (set FOUND=1 %+  color bright magenta on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%[machine_emoji_wyvern])
+				if "%@REGEX[DEMONA,%DESC%]"  eq "1" (set FOUND=1 %+  color bright red     on black %+ set big=0 %+ set echocommand=echos %+ set EMOJITOUSE=%[machine_emoji_demona])
                 if  %FOUND eq 0 (set spacer= ``)
         ) else (
                 set spacer=
@@ -87,7 +87,7 @@ goto :END
 		rem %echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_BACKGROUND_BLACK%
 
         if %big eq 0 (%echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_BACKGROUND_BLACK)
-        if %big eq 1 (call bigecho %emoji_color%%EmojiToUse%%spacer%%ansi_color_warning%%ToBlinkOrNotToBlink%%drive% %DESC%%POST% %ANSI_BACKGROUND_BLACK%%ansi_black%)
+        if %big eq 1 (call bigechos %emoji_color%%EmojiToUse%%spacer%%ansi_color_warning%%ToBlinkOrNotToBlink%%drive% %DESC%%POST% %ANSI_BACKGROUND_BLACK%%ansi_black%)
 
         setdos /x0
         if "%echocommand%" eq "echos" (%COLOR_NORMAL%%FAINT_OFF% %+ echo.)

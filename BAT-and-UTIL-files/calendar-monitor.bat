@@ -1,7 +1,7 @@
 @Echo OFF
 rem cls
 
-set MONITORING_SCRIPT=%BAT%\ingest_ics.py
+set MONITORING_SCRIPT=c:\bat\ingest_ics.py
 set PROCESS_REGEX=python.*ingest_ics
 set PROCESS_WINDOW_TITLE=Calendar Monitor
 

@@ -1,6 +1,7 @@
 @Echo off
 
 ::::: GET PARAMETERS:
+    set LAST_TITLE=%_TITLE
     set VEVPARAMS=%1$
     set VARNAME=%1      
     set PARAM2=%2
@@ -85,6 +86,7 @@ goto :Past_The_End_Of_The_Sub-Routines
 
     :validate_environment_variable [VARNAME]
         rem debug: echo validate_environment_variable %varname%
+        echos %@RANDCURSOR[]
         ::::: SEE IF IT IS DEFINED:
             if defined %VARNAME% (goto :Defined_YES)
             if ""  eq  %VARNAME% (goto :Defined_NO )
@@ -244,5 +246,5 @@ goto :Past_The_End_Of_The_Sub-Routines
 :ItExistsAfterall
 :DontValidateIfExists
 :END
-call fix-window-title
-
+title %LAST_TITLE%
+echos %CUSOR_RESET%
