@@ -267,7 +267,7 @@ goto :END
     http://www.yardsalesearch.com/garage-sales.html?week=0&date=0&zip=22312&r=1&q=
 	http://www.yardsalesearch.com/garage-sales.html?week=0&date=0&zip=22312&r=5&q=
 	%EDITOR "%PUBCL\journal\yard sales\yardsale-%_YEAR.html"
-	call sleep 5
+	call wait 5
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

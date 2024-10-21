@@ -34,7 +34,7 @@
     call important "Closing Winamp %italics_on%gracefully%italics_off%"
         call change-command-separator-character-to-normal
         call winamp-close-gracefully
-        call sleep 3
+        call wait 3
 
 
 
@@ -57,8 +57,8 @@ echo               We might want to change this script to have multiple modes.
     echo.
     echo.
     set SLEEP=1
-    call important "Waiting %SLEEP% seconds"
-    call sleep              %SLEEP% 
+    rem  important "Waiting %SLEEP% seconds"
+    call wait              %SLEEP% 
 
     echo.
     echo.
@@ -102,7 +102,7 @@ echo               We might want to change this script to have multiple modes.
     call important "Starting Winamp/etc"
         call nocar
         call WinAmp.bat
-        call sleep %SLEEP_TIME_AFTER_RESTARTING_WINAMP_BEFORE_CHECKING_THAT_IT_RESTARTED%
+        call wait %SLEEP_TIME_AFTER_RESTARTING_WINAMP_BEFORE_CHECKING_THAT_IT_RESTARTED%
         call isRunning winamp
 
     echo.

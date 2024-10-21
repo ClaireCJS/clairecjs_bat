@@ -101,7 +101,7 @@ rem TURN OFF ANY X10 LIGHTS, IN ORDER OF ANNOYINGNESS, AND PUT BLACKLIGHTS ON:
                             call x10 a1 on
                             call x10 a6 on
                             call x10 a4 off
-                            call  sleep  2
+                            call wait 2
                             call x10 a4 off
                            :call x10 a6 on
                             call x10 a7 off
@@ -170,11 +170,11 @@ rem DOUBLE-CHECK LIGHTS [OF ALL KINDS]:
         if "%X10_DOWN%" eq "1" goto :X10_DOWN_YES_2
             if "%TVLIGHTING%" eq "1" goto :TV_Lighting_Done_Already_NO2
                 :TV_Lighting_Done_Already_YES2
-                        call sleep 10
+                        call wait 10
                         call x10 a6 on
-                        call sleep 6
+                        call wait 6
                         call x10 a4 off
-                        call sleep 10
+                        call wait 10
                         call x10 a6 on
                         call x10 b1 on
                         call x10 a7 off
@@ -184,12 +184,12 @@ rem DOUBLE-CHECK LIGHTS [OF ALL KINDS]:
                     goto :TV_Lighting_double_check_done
                 :TV_Lighting_Done_Already_NO2
                         rem Even if the environment variable is set, let's ensure the blacklights are on anyway, no matter what:
-                            call sleep 5
+                            call wait 5
                             call x10 a6 on
                             call x10 a7 off
-                            call sleep 5
+                            call wait 5
                             call x10 a7 off
-                            call sleep 5
+                            call wait 5
                             call x10 a7 off
                     goto :TV_Lighting_double_check_done
                 :TV_Lighting_double_check_done
@@ -230,14 +230,13 @@ rem THIS IS WHAT HAPPENS WHILE WE ARE WATCHING AFTER THE 2ND-PASS LIGHTING DOUBL
         call sleep 3
         call fix-MiniLyrics.bat
         :: Check if we are still watching 
-            :Still_Watching
-                call sleep 1
-                :all isRunning mpc-hc quiet
-                :all isRunning mpc-hc 
-                call isRunningfast %EXE_TO_SEE_IF_RUNNING%
-                REM winamp moves when vlc starts and this moves it back
-
-            if %ISRUNNING eq 1 (goto :Still_Watching)
+                :Still_Watching
+                        call sleep 1
+                        rem call isRunning mpc-hc quiet
+                        rem call isRunning mpc-hc 
+                        rem call isRunningfast %EXE_TO_SEE_IF_RUNNING%
+                        rem winamp moves when vlc starts and this moves it back
+                if %ISRUNNING eq 1 (goto :Still_Watching)
 
         
 rem THIS IS WHAT HAPPENS WHEN WE'RE FINALLY DONE WATCHING:

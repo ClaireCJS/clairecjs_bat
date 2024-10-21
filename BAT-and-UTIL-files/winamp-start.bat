@@ -35,7 +35,7 @@ REM         echo ** call start-elevated %@SFN[%WINAMP]% %CLI_OPTIONS%
 			        call start-elevated       %WINAMP   %CLI_OPTIONS% 
                     :20230424 reduced this sleep from 3 to 2
                     :20230616 put it to 4 cause winamp 5.92 starts a bit slower?
-                        call sleep 4
+                        call wait 4 "(waiting for %italics_on%WinAmp%italics_off% to start)"
                     :20240417 - after downgrading to winamp 5.666 it seems MiniLyrics needs to be independently started? Huh>
                     call MiniLyrics
 

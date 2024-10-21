@@ -44,7 +44,7 @@ goto :END
 			echo * Dash Before value, yes spaces: %dashBeforeValueNoSpaces%
 
 			:pause
-			call sleep 150
+			call wait 150
 
 
 		:return_now		

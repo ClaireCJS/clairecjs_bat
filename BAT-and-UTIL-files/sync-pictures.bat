@@ -79,7 +79,9 @@
         Echo CAMERAS     COVERED: GE A1230, Fuji Finepix 2800.
         Echo CAMERAS NOT COVERED: Canon cameras - but this still works if you put the card into a card reader.
         echo. %+ %COLOR_DEBUG%
-        set WAIT=2 %+ echo - waiting %WAIT% seconds %+ %COLOR_NORMAL% %+ call sleep %WAIT%
+        set WAIT=2 
+        rem echo - waiting %WAIT% seconds %+ %COLOR_NORMAL% 
+        call wait %WAIT%
     :AlrightAlready
 
 ::::: ENVIRONMENT VALIDATION:

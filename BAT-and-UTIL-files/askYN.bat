@@ -127,15 +127,21 @@ REM Which keys will we allow?
 REM Print the question out with a spacer below to deal with pesky ANSI behavior:
         rem if %BIG_QUESTION eq 1 (SET xx=4)
         rem if %BIG_QUESTION ne 1 (SET xx=3)
-        set XX=4
+        set XX=3
+        set XX=2
+        if %big_question eq 1 (set XX=%@EVAL[%xx +1 ] )
+        rem set XX=10
         repeat %XX% echo.
         echos   %@ANSI_MOVE_LEFT[2]``
         echos %@ANSI_MOVE_UP[%@EVAL[%xx-1]]
         echos %@ANSI_MOVE_UP[1]
-        if %BIG_QUESTION eq 1 (
-            echos %BIG_TOP%%PRETTY_QUESTION%%ANSI_CLEAR_TO_END%%newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
+        iff %BIG_QUESTION eq 1 then
+            rem echos %BIG_TOP%%PRETTY_QUESTION%%ANSI_CLEAR_TO_END%%newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
+                echos %BIG_TOP%%PRETTY_QUESTION%%ANSI_CLEAR_TO_END%
+                delay /m 1
+                echos %newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
             if %WAIT_TIMER_ACTIVE eq 1 (echos %@ANSI_MOVE_UP[1])
-        )
+        endiff
             
 
 REM Load INKEY with the question, unless we've already printed it out:

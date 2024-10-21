@@ -1,7 +1,19 @@
 @Echo Off
 
-:USAGE: sleep <seconds to sleep> [silent]
-:USAGE: example: sleep 5 silent
+:USAGE: sleep <seconds to sleep> [silent/clock] [custom clock message with special substitution for {seconds}]
+
+iff "%1" eq "" then
+        repeat 10 echo.
+        call divider
+        %COLOR_ADVICE%
+        echo USAGE: sleep 60 ————————————————————————————————————————— sleeps 60 seconds
+        echo USAGE: sleep 60 clock ——————————————————————————————————— sleeps 60 seconds, displaying a clock.  The "wait" command created by wait.bat uses this.
+        echo USAGE: sleep 60 clock "wait a min" —————————————————————— sleeps 60 seconds, displaying a clock, with a custom message next to it.
+        echo USAGE: sleep 60 clock "Only {seconds} seconds left!" ———— sleeps 60 seconds, displaying a clock, with a custom message next to it, with dynamic substitution of remaining seconds replacing "{seconds}"
+        call divider
+        pause
+        goto :END
+endiff
 
 rem Before Windows  7, we used a 32-bit sleep.exe in our %UTIL% folder, but
 rem After  Windows XP, we redirect sleep commands to the internal *delay command:
@@ -86,8 +98,11 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                                                                        set SLEEP_MESSAGE_PREFIX=
                                             if "" != "%SLEEP_MESSAGE%" set SLEEP_MESSAGE_PREFIX=%%@randfg_soft[] ... ``
 
+                                    rem Perform sleep message substitutions:
+                                            set SLEEP_MESSAGE_TO_USE=%@REReplace[\{seconds\},%second%,%SLEEP_MESSAGE%]
+
                                     rem Assemble our clock + countdown + optional message:
-                                            set  line=%emoji_to_use%%italics%%@cool_number[%second%]%italics_off%%SLEEP_MESSAGE_PREFIX%%SLEEP_MESSAGE%
+                                            set  line=%emoji_to_use%%italics%%@cool_number[%second%]%italics_off%%SLEEP_MESSAGE_PREFIX%%SLEEP_MESSAGE_TO_USE%
 
                                     rem And echo it as double-height text, along with some extra spaces to erase digits leftover when counting down to a fewer-digit number, i.e. 10->9, 100->99, 1000->999:
                                             echo %big_top%%line%      ``

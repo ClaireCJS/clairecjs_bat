@@ -8,9 +8,9 @@ rem Bypassing pauses is important for automation...
 
 rem Set window title if instructed:
         if "%PAUSE_WINDOW_TITLE%" ne "" (
-            set OLD_TITLE=%@EXECSTR[title]
-            title %PAUSE_WINDOW_TITLE%
-            set PAUSE_WINDOW_TITLE=
+                set OLD_TITLE=%@EXECSTR[title]
+                title %PAUSE_WINDOW_TITLE%
+                set PAUSE_WINDOW_TITLE=
         )
 
 
@@ -26,7 +26,7 @@ rem Preface the pause with an emoji for visual processing ease:
         echos %EMOJI_PAUSE_BUTTON% %ANSI_RESET%``
 
 rem Again, clear the keyboard buffer [/C option] to prevent accidental pause-bypasses:
-        *pause /C %* 
+        *pause /C %@unquote[%*]
 
 
 rem A pause that doesn't start at the beginning of the line (due to our emoji) doesn't clear itself correctly (TCC bug), so we must do it ourselves:

@@ -48,11 +48,13 @@ rem all while considering that double-height lines use 2 columns per character:
 
 
 
-set RAINBOW_DIVIDER_FILE=%bat%\dividers\rainbow-%SCREEN_COLUMNS%.txt
-iff exist %RAINBOW_DIVIDER_FILE% then
-        type %RAINBOW_DIVIDER_FILE%
-        goto :Done
-endiff
+rem After this script was developed, pre-rendered horizontal dividers were created [for use with top-message.bat]
+rem As of 2024/10/18, we now try to use the pre-rendered dividers before drawing our own. It is ***MUCH*** faster.
+        set RAINBOW_DIVIDER_FILE=%bat%\dividers\rainbow-%@EVAL[%SCREEN_COLUMNS - 1].txt
+        iff exist %RAINBOW_DIVIDER_FILE% then
+                type %RAINBOW_DIVIDER_FILE%
+                goto :Done
+        endiff
 
 
 rem Actually write out the divider, which is easy for normal height text:

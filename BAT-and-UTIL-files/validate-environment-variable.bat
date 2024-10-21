@@ -47,6 +47,7 @@
         echo                                   (with an 's' after '%italics%variable%italics_off%')  ????
 
         call exit-maybe
+        if %FORCE_EXIT eq 1 (goto :END)
         
         set VEV_COMMENT=repeat 4 beep
         set VEV_COMMENT=repeat 25 *pause
