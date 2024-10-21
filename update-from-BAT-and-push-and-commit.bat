@@ -1,6 +1,9 @@
 @Echo OFF
 
 
+rem FOR THIS ONE FILE, MAKE SURE TO %EDITOR% %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
+
+
 REM     I actually do all my development for this in my personal live command line environment,
 REM     so for me, these files actually "live" in "c:\bat\" and need to be copied/refreshed to 
 REM     my local GIT repo beore uploading to GitHub. This script does that.
@@ -10,7 +13,7 @@ REM     my local GIT repo beore uploading to GitHub. This script does that.
 
 
 rem CONFIGURATION:
-        set COMMIT_CONFIRMATION_WAIT_TIME=5
+        set COMMIT_CONFIRMATION_WAIT_TIME=10
 
         SET MANIFEST_FILES=NONE
 
@@ -80,11 +83,16 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
 
 
 rem Update BAT files from live location to github-folder location:
+        if "%1" eq "skip-update" (goto :Skip_Update)
         call c:\bat\update-from-BAT-via-manifest
-
+        :Skip_Update
 
 
 rem Give a chance to stop here...
+        repeat 4 echo.
+        echo divider?
+        call divider
+        repeat 4 echo.
         call askYN "Continue with git add + commit + push?" yes %COMMIT_CONFIRMATION_WAIT_TIME%
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
@@ -92,6 +100,8 @@ rem Make sure they're all added —— any new extensions that we add to our pro
         call git add LICENSE README.md .gitattributes .gitignore BAT-and-UTIL-files\*.bat BAT-and-UTIL-files\*.btm BAT-and-UTIL-files\*.pl BAT-and-UTIL-files\*.py BAT-and-UTIL-files\*.exe BAT-and-UTIL-files\*.lst BAT-and-UTIL-files\*.ahk BAT-and-UTIL-files\*.ini BAT-and-UTIL-files\*.zip BAT-and-UTIL-files\*.gml BAT-and-UTIL-files\*.ansi BAT-and-UTIL-files\*.jpg BAT-and-UTIL-files\*.midi BAT-and-UTIL-files\*.wav BAT-and-UTIL-files\*.dat BAT-and-UTIL-files\*.dll BAT-and-UTIL-files\*.json BAT-and-UTIL-files\*.lnk BAT-and-UTIL-files\*.ico go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat
 
 rem Commit and Push:
+        echo.
+        call divider
         echo.
         set no_push_warning=1
         call commit-and-push.bat 
