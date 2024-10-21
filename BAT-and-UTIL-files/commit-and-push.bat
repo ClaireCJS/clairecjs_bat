@@ -15,7 +15,7 @@ rem Store pre-run variable values:
                 set NO_PUSH_WARNING=1               %+ rem decided i no longer want to default to the warning that a commit doesn't do a push {in case i forget that it's 2 steps}, because when running this script, it is already acknowledged as a two-step process in the name, "commit AND push.bat"
 
         rem 🎉🎉🎉 COMMIT *AND* PUSH, BABY! 🎉🎉🎉
-                call commit %CAP_PARAMS%            %+ repeat 3 echo. %+ call divider %emoji_fire%
+                call commit %CAP_PARAMS%            %+ repeat 3 echo. %+ call divider
                 call push   %CAP_PARAMS%         
 
 rem Restore pre-run variable values:
