@@ -903,10 +903,14 @@ return
 
 
     ::::: ANSI COLORS & EMOJI ENV VARS:
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"               
+        if "%COLORS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-ansi          force)                
         echos %@RANDCURSOR[]
-        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"               %+ if "%COLORS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-ansi          force)                
-        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"   %+ if "%EMOJIS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-emojis        force)
-        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"           %+ if   not  defined   MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"   
+        if "%EMOJIS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-emojis        force)
+        echos %@RANDCURSOR[]
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"           
+        if   not  defined   MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
 
 
     ::::: MACHINE-SPECIFIC EMOJI:                             ::: ALIASES:                                                                     (Consider: When new computer is added:)
@@ -2590,20 +2594,21 @@ return
 
 
 :END
-    :Cleanup
-        REM sunset this code because we don't use XP/2K machines anymore: if "%OS%" eq "XP" .or. "%OS%" eq "2K" (title 4NT)
-        if "%@UPPER[%1]" eq "DEBUG" (set DEBUG=%DEBUG_TMP%)
-    :The_Very_END
-        SET ENVIRONM_RUN=1
-        set RUNNING_ENVIRONM=0
+        :Cleanup
+                REM sunset this code because we don't use XP/2K machines anymore: if "%OS%" eq "XP" .or. "%OS%" eq "2K" (title 4NT)
+                if "%@UPPER[%1]" eq "DEBUG" (set DEBUG=%DEBUG_TMP%)
+        :The_Very_END
+                SET ENVIRONM_RUN=1
+                set RUNNING_ENVIRONM=0
 :POST-END
-    rem Sometimes this script is passed an additional command (via 'NEXTCOMMAND' environment variable) to be run at the end:
-        if "%NEXTCOMMAND%" ne "" (%NEXTCOMMAND%)
+        rem Sometimes this script is passed an additional command (via 'NEXTCOMMAND' environment variable) to be run at the end:
+                if "%NEXTCOMMAND%" ne "" (%NEXTCOMMAND%)
 
-    rem Performance tuning        
-        timer %QUIET_TIMER_OR_NOT% /9 off
-                        : 20240911: environm {norml} - 0.023
-                        :           environm {fresh} - 2.500
-                        :           environm  force  - 3.700
+        rem Performance tuning        
+                timer %QUIET_TIMER_OR_NOT% /9 off
+                                : 20240911: environm {norml} - 0.023
+                                :           environm {fresh} - 2.500
+                                :           environm  force  - 3.700
 
-echos %CURSOR_RESET%
+        rem Reset the cursor to normal, and ensure our custom pentagram is actually created [bugfix kludge]:
+                echos %CURSOR_RESET%%CREATE_PENTAGRAM%
