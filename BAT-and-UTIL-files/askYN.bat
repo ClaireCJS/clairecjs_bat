@@ -132,14 +132,14 @@ REM Print the question out with a spacer below to deal with pesky ANSI behavior:
         set XX=1
         if %big_question eq 1 (set XX=%@EVAL[%xx +1 ] )
         rem set XX=10
-        repeat %XX% echo.
+        rem repeat %XX% echo.
         echos   %@ANSI_MOVE_LEFT[2]``
         echos %@ANSI_MOVE_UP[%@EVAL[%xx-1]]
         echos %@ANSI_MOVE_UP[1]
         iff %BIG_QUESTION eq 1 then
             rem echos %BIG_TOP%%PRETTY_QUESTION%%ANSI_CLEAR_TO_END%%newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
                 echos %BIG_TOP%%PRETTY_QUESTION%%ANSI_CLEAR_TO_END%
-                delay /m 1
+               rem   delay /m 1
                 echos %newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
             if %WAIT_TIMER_ACTIVE eq 1 (echos %@ANSI_MOVE_UP[1])
         endiff

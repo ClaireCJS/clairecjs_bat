@@ -49,6 +49,9 @@ rem Run GIT, check for error status, and collect the output:
         :NoGitOut
 
 rem Provide easy way to check that it happened online:
+        call divider
+        echo.
+        echo.
         call advice "Your GitHub URL is: %italics_on%%MY_GITHUB_URL%%italics_off%"
         echo %MY_GITHUB_URL>%BAT%\go-url.bat
         call advice "                    (type '%italics_on%go-url%italics_off%' to go there)               %BOLD_ON%%BOLD_OFF%"

@@ -89,10 +89,9 @@ rem Update BAT files from live location to github-folder location:
 
 
 rem Give a chance to stop here...
-        repeat 4 echo.
-        echo divider?
+        repeat 2 echo.
         call divider
-        repeat 4 echo.
+        repeat 2 echo.
         call askYN "Continue with git add + commit + push?" yes %COMMIT_CONFIRMATION_WAIT_TIME%
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
