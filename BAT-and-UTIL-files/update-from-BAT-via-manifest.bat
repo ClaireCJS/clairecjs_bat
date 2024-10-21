@@ -123,7 +123,8 @@ goto :END_OF_SUBROUTINES
                                                 REM     %COLOR_REMOVAL% 
                                                 REM     %DELETE% %filetarget%
                                                 REM )
-                                        %UPDATE% %file% %TARGET_DIR%\%file%
+                                        if     exist %file% (%UPDATE%   %file%  %TARGET_DIR%\%file%)
+                                        if not exist %file% (call error "file doesn't exist: %file%")
                                     )
                                 popd
 

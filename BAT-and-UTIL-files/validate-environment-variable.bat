@@ -247,5 +247,6 @@ goto :Past_The_End_Of_The_Sub-Routines
 :ItExistsAfterall
 :DontValidateIfExists
 :END
+if "" eq "%LAST_TITLE%" (set LAST_TITLE=TCC)
 title %LAST_TITLE%
 echos %CUSOR_RESET%

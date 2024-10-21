@@ -129,6 +129,7 @@ REM Print the question out with a spacer below to deal with pesky ANSI behavior:
         rem if %BIG_QUESTION ne 1 (SET xx=3)
         set XX=3
         set XX=2
+        set XX=1
         if %big_question eq 1 (set XX=%@EVAL[%xx +1 ] )
         rem set XX=10
         repeat %XX% echo.
