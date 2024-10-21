@@ -162,6 +162,8 @@
 2023-05-29  13:58            191   35%  convert-to-mp4.bat
 2019-10-01  10:27             45   -4%  convert-webm-to-mp4.bat
 2023-06-02  04:02          4,440   67%  convert_midi_to_wav_with_soundfont.py
+2024-10-21  04:02             36   -5%  cool-header.bat
+2024-10-21  04:00             26   -7%  coolbigecho.bat
 2024-08-26  21:12            680   43%  copy-alias.bat
 2024-10-16  01:31         15,068   72%  copy-move-post.py
 2024-04-03  20:01             19  -10%  copy.bat
@@ -284,7 +286,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-10-11  11:26        186,208   81%  environm.btm
+2024-10-21  04:11        187,107   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -685,7 +687,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-10-18  04:48         83,231   82%  set-ansi.bat
+2024-10-21  04:12         83,427   82%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-10-04  07:36          1,804   70%  set-automatic-login-to-windows-ON.bat
 2024-09-09  00:14         52,950   81%  set-colors.bat
