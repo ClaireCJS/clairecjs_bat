@@ -15,7 +15,7 @@ goto :END
 
 	::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	:process [artDirty]
-		if "%artDirty" eq "" goto return_now
+		if "%artDirty" eq "" .or. "%artDirty" eq "dashbefore" goto return_now
 
 			:OLD:
 			:set         artClean=%@EXECSTR[get-meat-from-mp3-filename.pl         %artDirty%]
@@ -30,21 +30,20 @@ goto :END
 			 set        artCleanNoSpaces=%@REPLACE[ ,+,%artClean%]
 			 set dashBeforeValueNoSpaces=%@REPLACE[ ,+,%dashBeforeValue%]
 
-			                         call album-art %artCleanNoSpaces%
-			if "%DASHBEFORE%" eq "1" call album-art %dashBeforeValueNoSpaces%
+			                                                  call album-art        %artCleanNoSpaces%
+			if "%DASHBEFORE%" eq "1" .or "%3" eq "dashbefore" call album-art %dashBeforeValueNoSpaces%
 			delay /m 000
 			windowhide /top Mp3tag*
 			:meh: keystack alt-tab %+ echo - Alt-Tab! 
 
-			echo * Album art lookup:              %artDirty%
+			echo * Full parameters:               %*
+			echo * Album art current: dirty:      %artDirty%
 			echo * Album art clean, yes spaces:   %artClean%
 			echo * Album art clean, no  spaces:   %artCleanNoSpaces%
 			echo * Dash Before option:            %dashBefore%
 			echo * Dash Before value, no  spaces: %dashBeforeValue%
 			echo * Dash Before value, yes spaces: %dashBeforeValueNoSpaces%
-
-			:pause
-			call wait 150
+            call divider
 
 
 		:return_now		
@@ -56,6 +55,8 @@ goto :END
 unset /q DASHBEFORE
 
 if "%EXITAFTER%" eq "0" goto :NoExit
-   exit
+        :pause
+        call wait 150
+        exit
 :NoExit
 

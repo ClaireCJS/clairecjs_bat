@@ -254,11 +254,11 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 				- TODO: setting up the tools is tedious - finish this list?
 					#1/Ctrl-1: name: winamp.bat enqueue                           path: c:\tcmd\tcc.exe parameter: C:\bat\winamp-add.bat "%_path%"                                // check 'for all selected files': Yes
 					#2/Ctrl-2: name: enqueueue                                    path: c:\tcmd\tcc.exe parameter: c:\bat\enqueue.bat "%_path%"                                   // check 'for all selected files': Yes
-					#3/Ctrl-3: name: album-art-tool-for-mp3Tag  [using filename]  path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.btm "%_filename%"             // check 'for all selected files': Yes
-					#4/Ctrl-4: name: album-art-tool-for-mp3Tag-beforeDash         path: C:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag-beforedash.btm "%_filename%"  // check 'for all selected files': Yes
-					#5/Ctrl-5: name: album-art-tool-for-mp3Tag ARTIST+ALBUM       path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.btm "%artist%" "%album%"      // check 'for all selected files': Yes - this one is used for most album rips
-					#6/Ctrl-6: name: album-art-tool-for-mp3Tag ALBUM ONLY         path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.btm "%album%"                 // check 'for all selected files': Yes
-					#7/Ctrl-7: name: album-art-tool-for-mp3Tag artist + filename  path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.btm "%artist%"  "%_filename%" // check 'for all selected files': Yes
+					#3/Ctrl-3: name: album-art-tool-for-mp3Tag  [using filename]  path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.bat "%_filename%"             // check 'for all selected files': Yes
+					#4/Ctrl-4: name: album-art-tool-for-mp3Tag-beforeDash         path: C:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag-beforedash.bat "%_filename%"  // check 'for all selected files': Yes
+					#5/Ctrl-5: name: album-art-tool-for-mp3Tag ARTIST+ALBUM       path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.bat "%artist%" "%album%"      // check 'for all selected files': Yes - this one is used for most album rips
+					#6/Ctrl-6: name: album-art-tool-for-mp3Tag ALBUM ONLY         path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.bat "%album%"                 // check 'for all selected files': Yes
+					#7/Ctrl-7: name: album-art-tool-for-mp3Tag artist + filename  path: c:\tcmd\tcc.exe parameter: c:\bat\album-art-tool-for-mp3Tag.bat "%artist%"  "%_filename%" // check 'for all selected files': Yes
 	- RULE: only embed ONE album art image——the cover——per file. 
             - Why? multi-image embedding [i.e. back, front, inlay, etc] as this can confuse some players:
                     - multiple ones cause weird behavior in MiniLyrics
