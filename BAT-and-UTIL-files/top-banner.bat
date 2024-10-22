@@ -154,4 +154,8 @@ rem Was this multiline?
 rem Output the message:
         echos %ANSI_SAVE_POSITION%%@ANSI_MOVE_TO[0,0]%LOCKED_MESSAGE_COLOR%%DIVIDER%%LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE%%ANSI_EOL%%NEWLINE%%DIVIDER%%LOCKED_MESSAGE_COLOR%
         echos %ANSI_RESTORE_POSITION%%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%ROWS_TO_LOCK%;%[_rows]r%@CHAR[27]8%@CHAR[27][u
+
+rem Kludge for if we are near the very top and run this —— use up a couple lines:
+        echo.
+        echo %ANSI_COLOR_IMPORTANT%%DOTTIE% %* %DOTTIE%%ansi_reset%
 :END

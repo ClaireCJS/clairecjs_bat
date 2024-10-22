@@ -34,4 +34,4 @@ rem Play the wav with ffmpeg's ffplay.exe, but only outputting the line that say
 rem Cosmetics: Restore position & cursor color, overwrite duration information with success report, fix cursor
         echos %@ANSI_MOVE_TO_COL[1]%ANSI_ERASE_LINE%%ANSI_RESTORE_POSITION%%ANSI_MOVE_UP_1%%@ANSI_MOVE_TO_COL[1]%ANSI_EOL%
         echos %ANSI_COLOR_GREEN%%CHECK% Played '%italics_on%%@FILENAME[%wav_file%]%italics_off%'...%ANSI_RESET%
-        call set-cursor
+        echo %CURSOR_RESET%

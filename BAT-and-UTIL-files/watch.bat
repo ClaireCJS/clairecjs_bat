@@ -1,4 +1,5 @@
 @Echo Off
+ cls
 rem to edit self [good when testing]: %EDITOR% c:\bat\watch.bat
 
 
@@ -23,7 +24,7 @@ rem —————————————————————————�
 
 rem VALIDATE ENVIRONMENT:
         if %VLC_VALIDATED ne 1 (
-                call validate-environment-variable BAT SMART_HOME_COMMAND_AUDIO ANSI_COLOR_FATAL_ERROR USERPROFILE LOGS 
+                call validate-environment-variables BAT ANSI_COLOR_FATAL_ERROR USERPROFILE LOGS 
                 call validate-in-path %VIDEOPLAYER_COMMAND% bigecho debug fix-window-title fix-winamp bring-back-focus advice fatal_error error fix-MiniLyrics  paus stop
                 set VLC_VALIDATED=1
         )
@@ -117,8 +118,9 @@ rem TURN OFF ANY X10 LIGHTS, IN ORDER OF ANNOYINGNESS, AND PUT BLACKLIGHTS ON:
     :X10_DOWN_YES
 
 
-rem PAUSE MUSIC SPEEDILY:
-    call paus fast
+rem PAUSE MUSIC:
+    rem call paus fast —— will unpause it if it's already paused tho
+    call paus
 
     
 rem TELL GOOGLE TO RUN "ok google, I'm watching TV" SMART HOME ROUTINE:

@@ -16,9 +16,9 @@
 
 ::::: VALIDATE ENVIRONMENT:
     if "%VALIDATED_GET_WINAMP_STATE%" eq "1" goto :EnvironmentAlreadyValidated
-        call validate-environment-variables MUSICSERVERSTATUSURL MUSICSERVERMACHINENAME MACHINENAME
-        call validate-in-path               winamp-status-from-file.pl warning isRunning wget.exe
-        set VALIDATED_GET_WINAMP_STATE=1
+            call validate-environment-variables MUSICSERVERSTATUSURL MUSICSERVERMACHINENAME MACHINENAME
+            call validate-in-path               winamp-status-from-file.pl warning isRunning wget.exe
+            set VALIDATED_GET_WINAMP_STATE=1
     :EnvironmentAlreadyValidated
 
 ::::: INITIALIZE VALUES:
@@ -41,11 +41,15 @@
     if %ISRUNNING eq 0 (goto :IsNotRunning)
         ::OLD METHOD relies on unreliable LWP::Simple: set MUSICSTATE=%@EXECSTR[winamp-status-from-file.pl]
         ::NEW METHOD relies on external wget:
-        set                     WGETDIR=c:\logs\wget
-        set           WGETFILE=%WGETDIR%\main
+        rem                     WGETDIR=c:\logs\wget
+        set                     WGETDIR=%TMP%
+        set       WGETFILEBASE=main.%_DATETIME.%_PID
+        set           WGETFILE=%WGETDIR%\%WGETFILEBASE%
         if exist    "%WGETFILE%"       (*del /qy "%WGETFILE%" >nul)
-        wget.exe --quiet -t 2 -P %WGETDIR% %MUSICSERVERSTATUSURL%
-        set           WGET_RETURN_FILE=%WGETDIR%\main
+        rem wget.exe --quiet -t 2 -P %WGETDIR% %MUSICSERVERSTATUSURL%
+            wget.exe --quiet -t 2 -P %WGETDIR% -O %WGETFILE% %MUSICSERVERSTATUSURL%
+        rem set       WGET_RETURN_FILE=%WGETDIR%\main
+        set           WGET_RETURN_FILE=%WGETFILE%
         if not exist %WGET_RETURN_FILE% (call warning "WinAmp may not be running, or WAWI may not be installed, because WGET_RETURN_FILE of '%WGET_RETURN_FILE%' does not exist")
 
         if "%1" eq "fast" (goto :Fast  )
@@ -64,8 +68,8 @@
                     setdos /x0
                 goto :normal_done
                 :normal
-                    if     exist %WGET_RETURN_FILE (set MUSICSTATE=UNKNOWN)
-                    if not exist %WGET_RETURN_FILE (set MUSICSTATE=%@EXECSTR[winamp-status-from-file.pl <%WGET_RETURN_FILE%])
+                        if not exist %WGET_RETURN_FILE (set MUSICSTATE=UNKNOWN)
+                        if     exist %WGET_RETURN_FILE (set MUSICSTATE=%@EXECSTR[winamp-status-from-file.pl <%WGET_RETURN_FILE%])
                 :normal_done
 
     :IsNotRunning

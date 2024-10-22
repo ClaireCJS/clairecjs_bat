@@ -674,7 +674,18 @@ return
 :SetEnvironmentVariables
 :CommonEnvVarsIncludingNetworking
     :::::::::: Set common environment variables that we want for all machines (or are just too lazy to set it per-machine)
-    echos %@RANDCURSOR[]
+    ::::: ANSI COLORS & EMOJI ENV VARS:
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"               
+        if "%COLORS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-ansi          force)                
+        echos %@RANDCURSOR[]
+
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"   
+        if "%EMOJIS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-emojis        force)
+        echos %@RANDCURSOR[]
+
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"           
+        if   not  defined   MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
+
 
     ::::: 2024 STUFF:
             set         VALIDATE_MULTIPLE=0 %+ rem if validate-environment-variables gets aborted and this flag is set to 1, it can create a phantom error, so let's just keep it set to 0 when possible
@@ -901,17 +912,7 @@ return
     ::::: STUFF TO HELP 3RD PARTY SOFTWARE WORK THE WAY WE WANT:
         set GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
-
-    ::::: ANSI COLORS & EMOJI ENV VARS:
-        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"               
-        if "%COLORS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-ansi          force)                
-        echos %@RANDCURSOR[]
-        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"   
-        if "%EMOJIS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-emojis        force)
-        echos %@RANDCURSOR[]
-        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"           
-        if   not  defined   MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
-
+    ::::: (ansi/emoji used to be here)
 
     ::::: MACHINE-SPECIFIC EMOJI:                             ::: ALIASES:                                                                     (Consider: When new computer is added:)
         set MACHINE_EMOJI_GOLIATH=%EMOJI_BAT%            %+   set EMOJI_MACHINE_GOLIATH=%MACHINE_EMOJI_GOLIATH%

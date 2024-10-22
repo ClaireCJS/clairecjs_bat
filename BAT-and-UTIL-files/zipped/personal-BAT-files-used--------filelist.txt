@@ -52,7 +52,7 @@
 2024-10-10  10:28             95    8%  app-volume-and-device-preferences.bat
 1996-04-15  19:12          2,238   69%  app-volume-and-device-preferences.ico
 2024-10-07  14:28          2,115   62%  app-volume-and-device-preferences.lnk
-2024-10-21  13:04         14,520   73%  askYN.bat
+2024-10-22  03:57         14,543   73%  askYN.bat
 2019-10-01  10:27             19  -10%  asleep.bat
 2024-03-18  22:08          1,047   53%  assimilate-rookie-folders.bat
 2024-02-28  22:49         24,923   80%  assimilate.bat
@@ -61,7 +61,7 @@
 2024-03-13  20:08          5,959   68%  audit-music-files.py
 2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
-2024-10-15  11:06          3,914   69%  autoexec-common.btm
+2024-10-22  03:10          4,562   71%  autoexec-common.btm
 2024-09-11  15:18         16,397   82%  autoexec.ahk
 2024-09-11  02:31            899   52%  AutoHotKey-autoexec.bat
 2024-09-11  02:27          1,645   58%  AutoHotKey.bat
@@ -295,7 +295,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-10-21  14:45        187,390   81%  environm.btm
+2024-10-22  03:06        187,406   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-03-15  13:26            109   15%  eset.bat
@@ -367,7 +367,7 @@
 2024-10-10  11:49            422   49%  get-currently-playing-tracknum-from-wawi-index_html.pl
 2023-07-04  20:09            549   59%  get-image-dimensions.bat
 2024-10-18  12:53          4,561   67%  get-meat-from-mp3-filename.pl
-2024-05-08  04:59          4,389   64%  get-winamp-state.bat
+2024-10-22  04:10          4,660   65%  get-winamp-state.bat
 2023-04-26  23:53            809   54%  get_lyrics_from_audio_file_via_whisperAI.py
 2024-10-21  12:18             23   -8%  girder.bat
 2023-06-02  19:02            623   53%  git-add-every-damn-file.bat
@@ -567,7 +567,7 @@
 2024-05-07  14:16          1,870   51%  play-m3u-with-VLC.bat
 2019-10-01  10:28             36   -5%  play-m3u-with-winamp.bat
 2024-05-07  14:17          1,076   63%  play-these.bat
-2024-09-29  21:59          1,957   58%  play-WAV-file.bat
+2024-10-22  04:00          2,112   59%  play-WAV-file.bat
 2024-05-07  14:04             22   -9%  play.bat
 2024-05-07  14:11            508   52%  playlist.bat
 2023-06-01  22:26          1,141   58%  play_wav_file.py
@@ -847,7 +847,7 @@
 2024-05-24  05:23            104   25%  tock.bat
 2023-08-29  05:29             49   17%  tock.py
 2024-09-09  22:48         12,060   76%  ToolTipOptions.ahk
-2024-10-18  04:48          9,291   71%  top-banner.bat
+2024-10-22  04:18          9,464   71%  top-banner.bat
 2024-10-15  04:35             21   -9%  top-message.bat
 2024-10-15  04:35             21   -9%  top-msg.bat
 2024-02-02  21:12            585   58%  touch-alias.bat
@@ -916,7 +916,7 @@
 2023-06-02  13:02             44   -4%  warning.bat
 2024-08-22  01:03             49    0%  warning_less.bat
 2023-06-08  21:27             49   -4%  warning_soft.bat
-2024-10-21  11:36         20,751   74%  watch.bat
+2024-10-22  04:11         20,793   74%  watch.bat
 2022-11-09  12:11          5,931   65%  wav2mp3.bat
 2019-10-01  10:28             11  -18%  wcclip.bat
 2024-04-10  13:09          1,705   71%  WCHEADER.bat

@@ -132,7 +132,7 @@ REM Print the question out with a spacer below to deal with pesky ANSI behavior:
         set XX=1
         if %big_question eq 1 (set XX=%@EVAL[%xx +1 ] )
         rem set XX=10
-        rem repeat %XX% echo.
+        repeat %XX% echo.
         echos   %@ANSI_MOVE_LEFT[2]``
         echos %@ANSI_MOVE_UP[%@EVAL[%xx-1]]
         echos %@ANSI_MOVE_UP[1]
