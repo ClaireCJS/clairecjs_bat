@@ -127,7 +127,8 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                                             title %emoji_to_use% Sleep: %second% more seconds %emoji_to_use%
 
                                     rem Do the actual 'sleep':
-                                            echos %@RANDOM_CURSOR_COLOR[]%ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%
+                                            rem echos %@RANDOM_CURSOR_COLOR[]%ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%
+                                            echos %@randcursor[]
                                             if "%second" != "0" (delay 1)
                             endiff
 

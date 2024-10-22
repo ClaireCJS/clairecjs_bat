@@ -57,11 +57,12 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 
 move_decorator = os.environ.get('move_decorator', '')                                                           #fetch user-specified decorator (if any)
 
-if os.environ.get('no_tick',0) == 1: TICK = True
-else                               : TICK = False
+if os.environ.get('no_tick') == "1": TICK = False
+else                               : TICK = True
+#print(f"tick is {TICK} .. {os.environ.get('no_tick')}")
 
-if os.environ.get('no_double_lines',0) == 1: DOUBLE_LINES_ENABLED = False
-else                                       : DOUBLE_LINES_ENABLED = True                                        #DEBUG: print(f"DOUBLE_LINES_ENABLED={DOUBLE_LINES_ENABLED}")
+if os.environ.get('no_double_lines',0) == "1": DOUBLE_LINES_ENABLED = False
+else                                         : DOUBLE_LINES_ENABLED = True                                       #DEBUG: print(f"DOUBLE_LINES_ENABLED={DOUBLE_LINES_ENABLED}")
 
 
 def enable_vt_support():                                                                                        #this was painful to figure out
@@ -147,12 +148,10 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             if not double or not DOUBLE_LINES_ENABLED:
                 sys.stdout.write(f'{myline}')
             else:
-                #moving up 20241015 enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838
-                #sys.stdout.write(f'\033[1G')        #20240324: possible bugfix for ansi codes creeping out due to TCC error and mis-aligning our double-height lines - prepend the ansi code to move to column 1 first, prior to printing our line
-                #sys.stdout.write(f'\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
-                sys.stdout.write(f'\033[1G\033#3\033[38;2;{r};{g};{b}m{myline}\n')
-                sys.stdout.flush()
-                sys.stdout.write(f'\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
+                enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838
+                #sys.stdout.write(f'\033[1G')   #20240324: adding '\033[1G' as ??bugfix?? for ansi creeping out due to TCC error and mis-aligning our double-height lines - prepend the ansi code to move to column 1 first, prior to printing our line
+                #sys.stdout.write(f'\033[1G\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
+                sys.stdout.write(f'\033[1G\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
                 sys.stdout.flush()
     sys.stdout.write('\n')
 
@@ -177,13 +176,14 @@ t.start()
 line_buffer = ""
 in_prompt = False
 additional_beginning_ansi = move_decorator
-r,g,b  = get_random_color()
+r, g, b = get_random_color()
 rgbhex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
 #r_hex, g_hex, b_hex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
 #sys.stdout.write(f"rgbhex is {rgbhex}\n")
 #sys.stdout.write(f"sys.argv is {sys.argv}\n")
 
 my_mode = DEFAULT_MODE
+#sys.stdout.write(f"sys.argv is {sys.argv}\n")
 if len(sys.argv) > 1:
     #sys.stdout.write(f"sys.argv[1] is {sys.argv[1]}\n")
     if sys.argv[1] == 'bg' or sys.argv[1] == 'both': my_mode = sys.argv[1]
@@ -193,13 +193,14 @@ if len(sys.argv) > 1:
 #sys.stdout.write(f"my_mode is {my_mode}\n")
 #sys.stdout.write(f"nomoji  is {nomoji }\n")
 
-enable_vt_support()
+#enable_vt_support()
 
 while t.is_alive() or not q.empty():
 #hile True:
     # It's tempting to process things line-by-line, but due to prompts and such, we must process things char-by-char
     try:
         char = q.get(timeout=0.008)                                                                                                     # grab the characters *this* fast!
+
         if char is None: break                                                                                                          # but not much faster because we're probably coming right back if no chars are in the buffer yet
 
         if TICK: claire.tick(mode=my_mode)
@@ -210,6 +211,7 @@ while t.is_alive() or not q.empty():
             bgr, bgg, bgb = get_random_color(bg=True)                                                                                   # Reset for the next line
             r  ,   g,   b = get_random_color()                                                                                          # Reset for the next line
             rgbhex        = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
+            #ys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
             sys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m\033[ q\033]12;{rgbhex}\007{additional_beginning_ansi}❓❓   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
             #moved to end of loop: sys.stdout.flush()                                                                                   # Flush the output buffer to display the prompt immediately
             line_buffer = ""
@@ -230,7 +232,7 @@ while t.is_alive() or not q.empty():
             #additional_beginning_ansi = f"\033[ q\033]" + "12;" + rgbhex + f"\007"                                                     # Reset for the next line: make cursor same color 🐐
 
     except queue.Empty:
-        if TICK: claire.tick(mode=my_mode)                                                                                              # color-cycle the default-color text using my library
+        if TICK: claire.tick(mode=my_mode)                                                                                                          # color-cycle the default-color text using my library
         try:
             sys.stdout.flush()
         except:
