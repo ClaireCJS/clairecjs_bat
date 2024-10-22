@@ -1,3 +1,7 @@
+@Echo Off
+
+rem Also used to look up images for album art —— part of an integrated "tool" in mp3-tag, which is used as a step in part of our music intake workflow
+
 
 :DEBUG: echo * image-search-medium %* called (1=%1,2=%2,3=%3,4=%4,5=%5,6=%6,7=%7,8=%8,9=%9) %+ pause 
 
@@ -8,6 +12,8 @@
 :added resolution overlay to results by making tbs=imgo:1 instead of isz:m
 :in 2024 it seems that the way to do get large has changed and is to make tbc=isz:l and that isz:m has gone away
 
+
+rem Open 2 different attempts at once:
          https://www.google.com/search?q=%1+%2+%3+%4+%5+%6+%7+%8+%[9]&tbm=isch&source=lnt&tbs=imgo:1&sa=X&ei=xBL9VNaRArXPsQScz4HgBg&ved=0CBUQpwU&dpr=1.1&biw=1745&bih=864&safe=off
     rem  https://www.google.com/search?q=%1+%2+%3+%4+%5+%6+%7+%8+%[9]&tbm=isch&source=lnt&tbs=isz:m&&sa=X&ei=xBL9VNaRArXPsQScz4HgBg&ved=0CBUQpwU&dpr=1.1&biw=1745&bih=864&safe=off
          https://www.google.com/search?q=%1+%2+%3+%4+%5+%6+%7+%8+%[9]&tbm=isch&source=lnt&tbs=isz:l&&sa=X&ei=xBL9VNaRArXPsQScz4HgBg&ved=0CBUQpwU&dpr=1.1&biw=1745&bih=864&safe=off&udm=2

@@ -70,12 +70,14 @@ UNSET /Q GIT_OPTIONS_TEMP
 
 REM Actually commit the files
     echo.
+    call divider
+    echo.
     call important "Committing files..."
     %COLOR_SUCCESS%
     %COMMITCOMMAND%
     REM git commit returns errorlevel if nothing to commit, so this isn't helpful: call errorlevel "git commit failed?!"
     REM                                                     ..........but this is: call errorlevel "there were no files to commit"
-    call errorlevel "there were no files to commit" "%NEWLINE%%STAR% %blink_on%Commit was successful!%blink_off% %PARTY_POPPER%"
+    call errorlevel "there were no files to commit" "%NEWLINE%%STAR% %blink_on%Commit was successful!%blink_off% %PARTY_POPPER%%PARTY_POPPER%%PARTY_POPPER%"
 
 
 REM Remind that commit and push are not the same
