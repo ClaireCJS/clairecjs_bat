@@ -144,7 +144,7 @@
 2019-10-01  10:27            592   49%  colorize-by-computer-name.bat
 2023-05-26  15:16            832   62%  colors-all.bat
 2024-09-09  11:47          3,636   64%  colors.bat
-2024-10-21  14:49          1,187   56%  commit-and-push.bat
+2024-10-22  12:03          1,178   56%  commit-and-push.bat
 2019-10-01  09:27             21   -9%  commit.bat
 2024-08-21  23:40             47   -4%  completion.bat
 2023-08-20  13:47            575   43%  connections-monitor.bat
@@ -386,7 +386,7 @@
 2021-07-30  11:30             88    4%  git-log-oneline.bat
 2019-10-01  10:28             25   -8%  git-log.bat
 2024-10-06  11:15          2,345   56%  git-pull.bat
-2024-10-21  15:03          2,500   58%  git-push.bat
+2024-10-22  12:03          2,464   57%  git-push.bat
 2023-06-01  02:38            102   15%  git-rename-branch.bat
 2021-07-30  11:30             89    5%  git-revisions.bat
 2024-03-19  14:37             17  -11%  git-rm.bat

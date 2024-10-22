@@ -23,10 +23,7 @@ rem Validate environment:
 
 
 rem Cosmetics:
-        echo.
-        echo.
-        echo.
-        echo.
+        repeat 2 echo.
         set spacer=
         if "%GIT_PUSH_PARAMETERS%" ne "" (set spacer= ``)
 
