@@ -224,7 +224,11 @@ REM Actually display the message:
 
         REM Is the message too long to display in double_height?
                 set SKIP_DOUBLE_HEIGHT=0
-                set STRIPPED_MESSAGE=%@stripansi[%DECORATED_MESSAGE]
+                iff not plugin StripANSI then
+                        set STRIPPED_MESSAGE=%DECORATED_MESSAGE%
+                else
+                        set STRIPPED_MESSAGE=%@stripansi[%DECORATED_MESSAGE]
+                endiff
                 set LEN=%@LEN[%STRIPPED_MESSAGE]
                 if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS-16] (set SKIP_DOUBLE_HEIGHT=1)
 
