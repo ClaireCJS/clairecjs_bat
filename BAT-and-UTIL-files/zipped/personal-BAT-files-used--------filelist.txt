@@ -306,7 +306,7 @@
 2023-06-03  04:00             64   13%  exiflist.bat
 2024-04-05  14:06            408   50%  exit-after-command.bat
 2024-04-05  14:11             18  -11%  exit-after.bat
-2024-10-21  14:22            888   43%  exit-maybe.bat
+2024-10-23  16:08          1,021   43%  exit-maybe.bat
 2024-04-05  14:10            462   43%  exitafter.bat
 2023-07-04  19:46            352   37%  expand-image-to-square.bat
 2022-02-07  13:04            176   23%  extract-all-WAVs-from-audio-files.bat
@@ -715,7 +715,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-10-21  14:46         84,346   82%  set-ansi.bat
+2024-10-23  17:30         85,051   82%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-10-04  07:36          1,804   70%  set-automatic-login-to-windows-ON.bat
 2019-10-01  10:27            120   16%  set-background-picture-for-johnsbackgroundswitcher.bat
@@ -855,7 +855,7 @@
 2024-05-24  05:23            104   25%  tock.bat
 2023-08-29  05:29             49   17%  tock.py
 2024-09-09  22:48         12,060   76%  ToolTipOptions.ahk
-2024-10-22  04:18          9,464   71%  top-banner.bat
+2024-10-23  16:30          9,630   70%  top-banner.bat
 2024-10-15  04:35             21   -9%  top-message.bat
 2024-10-15  04:35             21   -9%  top-msg.bat
 2024-02-02  21:12            585   58%  touch-alias.bat
@@ -878,8 +878,10 @@
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
 2024-10-21  11:40            534   55%  unknown-shipper-tracking.bat
 2024-10-21  11:50             35   -5%  unknown-tracking.bat
+2024-10-23  17:32             21   -9%  unlock-header.bat
 2024-09-28  15:09            100   18%  unlock-margins.bat
-2024-09-27  12:12             24   -8%  UNLOCK.bat
+2024-10-23  17:34             84   18%  unlock-top.bat
+2024-10-23  17:31             59   26%  UNLOCK.bat
 2019-10-01  10:28             19  -10%  unmap-drive.bat
 2019-10-01  10:28            544   82%  unmap-drives.bat
 2019-10-01  10:28            449   50%  unmount-ramdisk.bat

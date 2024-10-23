@@ -687,9 +687,14 @@ REM ANSI: margin-setting / anti-scroll areas
                         set             ANSI_COLS_RESET=%ANSI_CSI%?69l
 
         rem Unlocking everything:
-                set ANSI_UNLOCK=%@ANSI_UNLOCK_ROWS[0,%_ROWS]%ANSI_COLS_RESET%
-                SET ANSI_UNLOCK_ALL=%ANSI_UNLOCK%
-                SET ANSI_UNLOCK_MARGINS=%ANSI_UNLOCK%
+                rem ANSI_UNLOCK=%@ANSI_UNLOCK_ROWS[0,%_ROWS]%ANSI_COLS_RESET% —— was not sufficient because the # of rows could be a pane that is smaller now but enlarged later, which would leave non-scrollable lines at the bottom. But 9999 also was not sufficient. Do with and without row argument to cover all bases.
+                rem ANSI_UNLOCK=%@ANSI_UNLOCK_ROWS[0,999999]%@ANSI_UNLOCK_ROWS[]%ANSI_COLS_RESET%
+                rem ANSI_UNLOCK=%ANSI_COLS_RESET%%@ANSI_UNLOCK_ROWS[]%@ANSI_UNLOCK_ROWS[0,999999]
+                set ANSI_UNLOCK=%ANSI_COLS_RESET%%@ANSI_UNLOCK_ROWS[]%@ANSI_UNLOCK_ROWS[0,999999]
+                SET ANSI_UNLOCK_TOP=%@ANSI_UNLOCK_ROWS[]
+                SET ANSI_UNLOCK_ROWS=%ANSI_UNLOCK_ROWS%
+                SET ANSI_UNLOCK_MARGINS=%ANSI_LOCK_COLUMNS_DISABLE%
+                SET ANSI_UNLOCK_ALL=%ANSI_LOCK_COLUMNS_DISABLE%%@ANSI_UNLOCK_ROWS[]
 
         rem Cordining off an area (row_start,row_end,col_start,col_end)
                 function      CORDON=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%1;%[2]r%@CHAR[27]8%@CHAR[27][u`

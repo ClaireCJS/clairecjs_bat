@@ -14,6 +14,9 @@ rem otherwise a bit of screen junk remains, so we set LEFT_MORE=1 to kludge asky
         call askyn "%MYCOLOR%%italics%%blink%%underline%Return%underline_off% to command line?%blink_off%%italics_off" yes 99999 no_enter big
         set LEFT_MORE=0
 
+title %prev_title%
+
 if %DO_IT eq 1 (title %prev_title% %+ pause %+ set FORCE_EXIT=1 %+ CANCEL)
 
-title %prev_title%
+if %DO_IT eq 1 (CANCEL) %+ rem Redundant double-cancel just-in-case {having some suspicious behavior as of 2024/10}
+
