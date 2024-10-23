@@ -15,7 +15,7 @@ goto :END
 
 	::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	:process [artDirty]
-		if "%artDirty" eq "" .or. "%artDirty" eq "dashbefore" goto return_now
+		if "%artDirty" eq "" .or. "%artDirty" eq "dashbefore" (goto :return_now)
 
 			:OLD:
 			:set         artClean=%@EXECSTR[get-meat-from-mp3-filename.pl         %artDirty%]

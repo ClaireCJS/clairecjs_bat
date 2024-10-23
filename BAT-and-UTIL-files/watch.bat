@@ -236,6 +236,7 @@ rem THIS IS WHAT HAPPENS WHILE WE ARE WATCHING AFTER THE 2ND-PASS LIGHTING DOUBL
                         call sleep 1
                         rem call isRunning mpc-hc quiet
                         rem call isRunning mpc-hc 
+                        call isRunning vlc
                         rem call isRunningfast %EXE_TO_SEE_IF_RUNNING%
                         rem winamp moves when vlc starts and this moves it back
                 if %ISRUNNING eq 1 (goto :Still_Watching)

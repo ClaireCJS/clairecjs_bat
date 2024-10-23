@@ -230,9 +230,6 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 			 than doing it all manually!  Which is what the next step will be: Doing the missed ones manually.
 
 
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 -
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐  
 
 
 - TAGGING: STEP 3: ALBUM ART: Mp3Tag - embed album art manually for all the ones missed
@@ -279,7 +276,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 
-- TAGGING: STEP 4: ALBUM ART: run-eaa-in-appropriate-subfolders (extract superior embedded artwork over inferior artwork on harddrive)
+- TAGGING: STEP 4: ALBUM ART: extract superior embedded artwork over inferior artwork on harddrive
 	- BACKGROUND: Often times, when we embedded album art into our mp3|flac files, we found ones on the internet that are much higher resolution than the cover|folder.jpg|gif|png files sitting in the folder
 		- so we need to make these superior higher resolution versions in the mp3|flac files ALSO be the one sitting in the folder as a separate file
 		- "eaa" is the command - extract album art - this extracts the cover art from the first audio file it finds, and overwrites the existing image file ONLY IF the extracted one is a larger file size
@@ -288,13 +285,49 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 				- always makes sense to run in album folders                         (easy to detect as they almost always have filenames that start with a number)
 				- never makes sense to run in MISC/ONEDIR type folders
 	- *** WHAT TO ACTUALLY DO: ***
-		"run-eaa-in-appropriate-subfolders" - this will sweep through and run "eaa" if it's an album/appropriate place to do so. Involves over 20 checks.
+		{in the root of your batch} "run-eaa-in-appropriate-subfolders test" for dry run then "run-eaa-in-appropriate-subfolders force" for real run 
+                - ^^^^^ this will sweep through and run "eaa" if it's an album/appropriate place to do so. Involves over 20 checks.
 
 
-- TAGGING: STEP 5: ALBUM ART: final review
-	- optional, but recommended: run "duplicate-files-delete-them-including-sufolder-duplicates" and ANSWER ⭐⭐⭐VERY VERY VERY⭐⭐⭐ CAREFULLY when deleting
-	- finally, go through a full directory-crawl reviewing/deleting/renaming the downloaded album art from all the previous steps so that everything is perfect
-            - THIS IS A BIG STEP! MusicBrainz Picard can leave a ton of these in each folder. This is the final review. It is slow and arduous.
+
+- TAGGING: STEP 5: ALBUM ART: duplicate removal
+	- Duplicate check!
+            - In batch base folder: run "duplicate-files-delete-them-including-sufolder-duplicates" 
+            - ANSWER ⭐⭐⭐VERY VERY VERY⭐⭐⭐ CAREFULLY when deleting duplciates!  
+                    - It doesn't give you a choice of which duplicate to delete!
+                    - So sometimes you have to answer "no" and go delete the OTHER dupe manually
+                    - our 0-byte files and attrib.m3u files could actually be duplicates of each other that we do not want to delete
+                    - a LRC lyric file could be a VALID dupe because the same lyrics can be attached to remixes, covers, etc
+                    - IN SUMMARY: Make sure to keep the better filename of the 2, and to not delete any false duplicates like 0-byte files
+                            - for example "cover (2).jpg" vs "cover.jpg" —— 1st with "(2)" is clearly automated, 2nd is clearly human and says what the image actually is
+
+
+- TAGGING: STEP 6: ALBUM ART: final review
+    	- finally, go through a full directory-crawl reviewing/deleting/renaming the downloaded album art from all the previous steps so that everything is perfect
+            - THIS IS A BIG, TIMESTAKING STEP! MusicBrainz Picard can leave a ton of these in each folder. This is the final review. It is slow and arduous.
+            - Irfanview / openimage.bat is what you want to use to look at the images, rename, delete, etc
+            - example of a properly-named file set:            
+                     back (Japan).jpg
+                     back.jpg
+                     cd inlay song list (including japanese).jpg
+                     cd inlay unfolded (inside).jpg
+                     cd inlay unfolded (outside).jpg
+                     cover (Japan).jpg
+                     disc.jpg
+                     inlay cover & back.jpg
+                     lyrics 1.jpg
+                     lyrics 2.jpg
+                     lyrics 3.jpg
+                     lyrics 4.jpg
+                     lyrics 5.jpg
+                     lyrics 6.jpg
+
+
+
+
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 -
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐  
 
 
 

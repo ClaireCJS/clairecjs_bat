@@ -14,9 +14,9 @@ rem Also used to look up images for album art —— part of an integrated "tool
 
 
 rem Open 2 different attempts at once:
-         https://www.google.com/search?q=%1+%2+%3+%4+%5+%6+%7+%8+%[9]&tbm=isch&source=lnt&tbs=imgo:1&sa=X&ei=xBL9VNaRArXPsQScz4HgBg&ved=0CBUQpwU&dpr=1.1&biw=1745&bih=864&safe=off
-    rem  https://www.google.com/search?q=%1+%2+%3+%4+%5+%6+%7+%8+%[9]&tbm=isch&source=lnt&tbs=isz:m&&sa=X&ei=xBL9VNaRArXPsQScz4HgBg&ved=0CBUQpwU&dpr=1.1&biw=1745&bih=864&safe=off
          https://www.google.com/search?q=%1+%2+%3+%4+%5+%6+%7+%8+%[9]&tbm=isch&source=lnt&tbs=isz:l&&sa=X&ei=xBL9VNaRArXPsQScz4HgBg&ved=0CBUQpwU&dpr=1.1&biw=1745&bih=864&safe=off&udm=2
+    rem  https://www.google.com/search?q=%1+%2+%3+%4+%5+%6+%7+%8+%[9]&tbm=isch&source=lnt&tbs=isz:m&&sa=X&ei=xBL9VNaRArXPsQScz4HgBg&ved=0CBUQpwU&dpr=1.1&biw=1745&bih=864&safe=off
+         https://www.google.com/search?q=%1+%2+%3+%4+%5+%6+%7+%8+%[9]&tbm=isch&source=lnt&tbs=imgo:1&sa=X&ei=xBL9VNaRArXPsQScz4HgBg&ved=0CBUQpwU&dpr=1.1&biw=1745&bih=864&safe=off
 
 
 

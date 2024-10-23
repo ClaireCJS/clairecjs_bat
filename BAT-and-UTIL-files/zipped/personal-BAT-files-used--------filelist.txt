@@ -14,9 +14,9 @@
 2019-10-01  10:27             18  -11%  alarmbeep.bat
 2023-05-30  11:25             91   14%  album-art-tool-for-mp3Tag-beforeDash.bat
 2019-10-01  10:25             91   14%  album-art-tool-for-mp3Tag-beforeDash.btm
-2024-10-22  20:36          2,003   70%  album-art-tool-for-mp3Tag.bat
+2024-10-23  06:25          2,006   70%  album-art-tool-for-mp3Tag.bat
 2019-10-01  10:25          2,618   69%  album-art-tool-for-mp3Tag.btm
-2024-10-22  19:28            255   31%  album-art.bat
+2024-10-23  06:18            265   33%  album-art.bat
 2024-02-02  20:24          3,616   58%  ALIAS.LST
 2024-10-16  01:04          6,722   71%  all-ready-drives.bat
 2024-03-24  19:07            238   24%  allbmp2jpg.bat
@@ -279,6 +279,8 @@
 2024-04-05  17:32            846   51%  dump-environment-to-tmpfile.bat
 2024-03-13  23:19             32   -6%  dvl.bat
 2023-06-12  20:31             37   -5%  dym.bat
+2024-10-23  14:58          6,742   73%  eaa-if-appropriate-for-workflow.bat
+2022-11-25  04:25             56    2%  eaa.bat
 2024-10-18  23:35            234   52%  ec.bat
 2024-10-15  10:19          4,226   75%  echo-rainbow.bat
 2024-08-20  09:00         29,171   69%  edit-currently-playing-attrib-helper.pl
@@ -310,7 +312,7 @@
 2022-02-07  13:04            176   23%  extract-all-WAVs-from-audio-files.bat
 2022-02-07  13:04            176   23%  extract-all-WAVs-from-video-files.bat
 2022-02-07  12:46            105   39%  extract-all-WAVs.bat
-2024-10-06  11:15          6,812   76%  extract-cover_art-from-first-found-audio-file.bat
+2024-10-23  14:44          7,452   76%  extract-cover_art-from-first-found-audio-file.bat
 2022-11-25  02:18             56    2%  extract-cover_art-from-first-found-mp3.bat
 2019-11-14  07:27            211   35%  extract-jpg.bat
 2019-10-01  10:27             55    6%  extract-mp3.bat
@@ -425,7 +427,7 @@
 2024-10-22  19:26             27   -7%  identify-song-by-AI.bat
 2023-06-05  15:45          1,556   61%  IE.bat
 2019-10-01  10:28             21   -9%  image-index.bat
-2024-10-22  19:31          2,484   60%  image-search-anysize.bat
+2024-10-23  06:03          2,484   60%  image-search-anysize.bat
 2024-10-22  19:31          2,701   67%  image-search-large.bat
 2024-10-22  19:30            201   22%  image-search-medium.bat
 2024-10-22  19:30            208   24%  image-search.bat
@@ -691,6 +693,7 @@
 2024-08-22  00:58             40    0%  run-clipboard-as-bat.bat
 2024-08-22  16:46          1,486   58%  run-cmd-file.bat
 2024-08-20  05:18             90   16%  run-com-file.bat
+2024-10-23  14:45          1,494   59%  run-eaa-in-appropriate-subfolders.bat
 2023-05-28  12:17             43    0%  run-first-file-in-dir.bat
 2024-08-20  17:30            778   44%  run-first-file-in-directory.bat
 2023-05-28  12:17             43    0%  run-first-file-in-folder.bat
@@ -921,7 +924,7 @@
 2023-06-02  13:02             44   -4%  warning.bat
 2024-08-22  01:03             49    0%  warning_less.bat
 2023-06-08  21:27             49   -4%  warning_soft.bat
-2024-10-22  04:11         20,793   74%  watch.bat
+2024-10-23  02:37         20,837   74%  watch.bat
 2022-11-09  12:11          5,931   65%  wav2mp3.bat
 2019-10-01  10:28             11  -18%  wcclip.bat
 2024-04-10  13:09          1,705   71%  WCHEADER.bat
