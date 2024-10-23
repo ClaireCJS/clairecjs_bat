@@ -37,7 +37,7 @@ rem Respond to command-line parameters:
         unset /q LOCKED_MESSAGE
         rem Unlock mode:
                 if "%TB_PARAM_1" eq "unlock" (
-                        echos %ANSI_UNLOCK_MARGINS%
+                        echos %ANSI_UNLOCK_MARGINS%%@ANSI_UNLOCK_ROW[]
                         repeat 2 echo.
                         goto :END
                 )

@@ -1,6 +1,6 @@
 @Echo Off
  cls
-
+REM NOTE that this file: c:\bat\DEMONA\autoexec.bat is copied to c:\clairecjs_bat\autoexec.bat and c:\bat\autoexec.bat but those are not the official location!
 
 
 REM refer to install-autoexec-launcher-to-startup.bat for instructions on how to make this run every bootup!
@@ -43,7 +43,7 @@ REM Edit this script, if so instructed:
         )
 
 REM We're done!
-        callh eader unlock
+        call header unlock
         call celebrate autoexec done
         unset /q AUTOEXEC
 
