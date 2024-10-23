@@ -52,7 +52,7 @@ REM branch based on awake/asleep value to not disturb others
                            goto :Awake
 
                 :Asleep
-                        %COLOR_ALARM%   %+ echos !                                       %+ REM "see"  silent beeps
+                        %COLOR_ALARM%   %+ echos %@randbg_soft[]%@randfg_soft[]!         %+ REM "see"  silent beeps
                         %COLOR_NORMAL%  %+ *beep 0 %DURATION% %BEEPBAT_PARAM3%           %+ REM "hear" silent beep to keep the same rhythm/duration -- makes a difference
                 goto :END
 

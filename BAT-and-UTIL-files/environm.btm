@@ -2602,9 +2602,6 @@ return
                 SET ENVIRONM_RUN=1
                 set RUNNING_ENVIRONM=0
 :POST-END
-        rem Sometimes this script is passed an additional command (via 'NEXTCOMMAND' environment variable) to be run at the end:
-                if "%NEXTCOMMAND%" ne "" (%NEXTCOMMAND%)
-
         rem Performance tuning        
                 timer %QUIET_TIMER_OR_NOT% /9 off
                                 : 20240911: environm {norml} - 0.023
@@ -2613,3 +2610,7 @@ return
 
         rem Reset the cursor to normal, and ensure our custom pentagram is actually created [bugfix kludge]:
                 echos %CURSOR_RESET%%CREATE_PENTAGRAM%
+
+        rem Sometimes this script is passed an additional command (via 'NEXTCOMMAND' environment variable) to be run at the end:
+                if "%NEXTCOMMAND%" ne "" (%NEXTCOMMAND%)
+

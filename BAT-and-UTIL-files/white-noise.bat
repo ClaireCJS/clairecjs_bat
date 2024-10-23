@@ -50,8 +50,9 @@
                                 :ReBG
                                 SET BG=%@RANDOM[0,15]
                                 if "%BG%" eq "%FG%" (goto :ReBG)
-                        rem echo debug: *beep %BEEP_FREQUENCY_TEMP% %BEEP_INTERVALL_TEMP%
-                        *beep %BEEP_FREQUENCY_TEMP% %BEEP_INTERVALL_TEMP%
+                        rem echo debug:        *beep %BEEP_FREQUENCY_TEMP% %BEEP_INTERVALL_TEMP%
+                        if %sleeping ne 1 (    *beep %BEEP_FREQUENCY_TEMP% %BEEP_INTERVALL_TEMP%)
+                        if %sleeping eq 1 (call beep %BEEP_FREQUENCY_TEMP% %BEEP_INTERVALL_TEMP%)
                 :Silence
                 echos %@randcursor[]
         if not %INTERVAL_USED% gt %INTERVAL_TO_USE% (goto :Beep_Again)
