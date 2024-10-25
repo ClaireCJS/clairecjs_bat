@@ -42,7 +42,6 @@
             set  FILENAME_NEW=%FILENAME_OLD%        
             if %END_NAME_SPECIFIED eq 1 ( set FILENAME_NEW=%2)
             if %END_NAME_SPECIFIED ne 1 (
-                    echos %@CURSOR_COLOR[yellow]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%
                     eset FILENAME_NEW
                     call set-cursor
             )

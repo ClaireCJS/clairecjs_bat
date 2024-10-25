@@ -1,6 +1,7 @@
 @Echo Off
 
-:DESCRIPTION: Used to reliably distribute BAT files to other computers [and update our GIT repo]
+:DESCRIPTION: Used to reliably distribute BAT files to other computers [and update our GIT repo] ... repliate c:\bat to d:\bat, e:\bat, to EVERY READY DRIVE LETTER that has a \bat\ folder
+
 
 :USAGE: Dist full         - recursively updates whole \BAT\ dir to all other computers' \BAT\ folder in a single window, one drive at a time
 :USAGE: Dist full fast    - recursively updates whole \BAT\ dir to all other computers' \BAT\ folder in a separate window for each drive, with less comprehensive git-add coverage and no git-commit
@@ -27,6 +28,7 @@
 ::::: NON-SCROLLABLE HEADER:
         call header unlock
         cls
+        repeat 5 echo.
         call header "Distributing BAT file folder to all drives..."
 
 ::::: PREPARE FOR COPY:
@@ -89,7 +91,7 @@ goto :Cleanup
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :full
-    cls
+    rem cls
 
     rem COPY TO ALL FOLDERS USING SCRIPT TO RUN A COMMAND ON EVERY DRIVE LETTER THAT EIXSTS:
             set OPTION_SKIP_SAME_C=1
