@@ -71,7 +71,7 @@ UNSET /Q GIT_OPTIONS_TEMP
 REM Actually commit the files
     echo.
     call divider
-    echo.
+    echo  ``
     call important "Committing files..."
     %COLOR_SUCCESS%
     %COMMITCOMMAND%

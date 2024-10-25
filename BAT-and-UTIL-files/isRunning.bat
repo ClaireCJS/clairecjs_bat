@@ -36,27 +36,33 @@
 ::::: INFORM USER:
 	if "%ISRUNNING%" eq "1" goto :IsRunning_YES
                             goto :IsRunning_NO
+
             :IsRunning_YES
-                set emoji=%EMOJI_CHECK_MARK
-                color green on black     
-                echos %@ANSI_RGB_BG[0,60,0]
-                @echos %emoji% %italics%%1%italics_off% %underline%is%underline_off% running %emoji%``     
-                %COLOR_NORMAL% 
-                echo. 
-                set LAST_ISRUNNING=1 %+ 
+                    set emoji=%EMOJI_CHECK_MARK
+                    color green on black     
+                    echos %@ANSI_RGB_BG[0,60,0]
+                    iff "%2" eq "quiet" .or. "%2" eq "silent" then
+                            rem (do nothing)
+                    else
+                            @echos %emoji% %italics%%1%italics_off% %underline%is%underline_off% running %emoji%``     
+                            %COLOR_NORMAL% 
+                            echo. 
+                    endiff
+                    set LAST_ISRUNNING=1 %+ 
             goto :IsRunning_END
+
             :IsRunning_NO
-                color bright red on blue 
-                echos %@ANSI_RGB_BG[80,0,0]
-                    if "%2" eq "quiet" .or. "%2" eq "silent" (goto :Quiet_YES)
-                            :Quiet_No
-                                @echos %emoji_stop_sign% %italics%%1%italics_off% is %double_underline%NOT%double_underline_off% running %emoji_stop_sign%`` %+ %COLOR_NORMAL% %+ echo.
-                                goto :Quiet_DONE
-                            :Quiet_YES
-                                @echos . %+ %COLOR_NORMAL% 
-                                goto :Quiet_DONE
-                        :Quiet_DONE
-                set LAST_ISRUNNING=0
+                    color bright red on blue 
+                    echos %@ANSI_RGB_BG[80,0,0]
+                            if "%2" eq "quiet" .or. "%2" eq "silent" (goto :Quiet_YES)
+                                    :Quiet_No
+                                        @echos %emoji_stop_sign% %italics%%1%italics_off% is %double_underline%NOT%double_underline_off% running %emoji_stop_sign%`` %+ %COLOR_NORMAL% %+ echo.
+                                        goto :Quiet_DONE
+                                    :Quiet_YES
+                                        @echos . %+ %COLOR_NORMAL% 
+                                        goto :Quiet_DONE
+                                :Quiet_DONE
+                    set LAST_ISRUNNING=0
             goto :IsRunning_END
     :IsRunning_END
     %COLOR_NORMAL%

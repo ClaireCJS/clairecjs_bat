@@ -53,7 +53,7 @@
 2024-10-10  10:28             95    8%  app-volume-and-device-preferences.bat
 1996-04-15  19:12          2,238   69%  app-volume-and-device-preferences.ico
 2024-10-07  14:28          2,115   62%  app-volume-and-device-preferences.lnk
-2024-10-22  03:57         14,543   73%  askYN.bat
+2024-10-24  02:41         14,709   73%  askYN.bat
 2019-10-01  10:27             19  -10%  asleep.bat
 2024-03-18  22:08          1,047   53%  assimilate-rookie-folders.bat
 2024-02-28  22:49         24,923   80%  assimilate.bat
@@ -376,7 +376,7 @@
 2023-06-02  19:02            623   53%  git-add-every-damn-file.bat
 2024-05-11  18:04            797   48%  git-add.bat
 2024-04-09  23:33            158   14%  git-commit-history.bat
-2024-10-22  12:11          4,040   61%  git-commit.bat
+2024-10-23  17:43          4,043   61%  git-commit.bat
 2024-08-22  18:29             44   -4%  git-config-set-commit-preference-to-rebase.bat
 2023-06-14  23:22             54    4%  git-config-set-commit-preferences-to-rebase.bat
 2024-09-08  20:33            295   32%  git-fix-remote-repository.bat
@@ -459,7 +459,7 @@
 2023-04-30  13:15         19,079   74%  irfanview.bat
 2023-07-14  09:50            278   36%  isRunning-fast.bat
 2023-08-26  14:54          1,084   59%  isRunning-helper.bat
-2024-09-08  16:18          2,623   63%  isRunning.bat
+2024-10-25  02:42          2,923   65%  isRunning.bat
 2023-10-20  03:38            209   23%  join-videos.bat
 2024-08-22  22:11            682   52%  jpg2png.bat
 2024-10-21  12:06          4,012   72%  kill-some-annoying-processes.bat
@@ -518,7 +518,7 @@
 2024-08-21  22:29        589,396   23%  midirandia.wav
 2023-08-09  03:17             22   -9%  Milkdrop.bat
 2024-10-10  11:52            288   60%  Milkdrop3.bat
-2023-07-14  09:09             24   -8%  minilyrics.bat
+2024-10-25  02:40            697   55%  minilyrics.bat
 2019-10-01  10:28             41   18%  mkv2avi.bat
 2024-04-03  14:42            517   46%  mmddhhmmss.bat
 2024-10-18  13:46             27   -7%  moff.bat
