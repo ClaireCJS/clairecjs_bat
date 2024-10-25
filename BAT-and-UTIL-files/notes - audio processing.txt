@@ -391,6 +391,13 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 	- run "ldg TODO" to check for any TODOs that may need to be done — This may mean back to editing audio files, as we often discover things we need to do at all steps fo the process
 
 
+- DOWNOAD LRC FILES!
+    - run LRCget (it's on github, and I should have a saved installer somewhere) on the batch folder.
+    - Make sure that the option "SKIP TRACKS THAT ALREADY HAVE LYRICS OR ARE INSTRUNENTAL" is checked
+    - Make sure that the option "TRY TO EMBED THE LYRICS TO THE TRACK FILES WHEN POSSIBLE" is NOT checked
+    - the configuration menu is where you set the folder —— if using our symlink convention, it would just be C:\B\ pointing to the batch
+    - just run it and let it download. It should only take 2-5 minutes.
+
 
 
 - FINAL PRE-ASSIMILATION CHECKS:
