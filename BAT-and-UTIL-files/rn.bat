@@ -41,7 +41,11 @@
             color bright red on black 
             set  FILENAME_NEW=%FILENAME_OLD%        
             if %END_NAME_SPECIFIED eq 1 ( set FILENAME_NEW=%2)
-            if %END_NAME_SPECIFIED ne 1 (eset FILENAME_NEW)
+            if %END_NAME_SPECIFIED ne 1 (
+                    echos %@CURSOR_COLOR[yellow]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%
+                    eset FILENAME_NEW
+                    call set-cursor
+            )
             %COLOR_RUN%
             if "%FILENAME_NEW%" eqc "%FILENAME_OLD%" (%COLOR_WARNING% %+ echos * %ITALICS_ON%No change.%ITALICS_OFF% %+ %COLOR_NORMAL% %+ echo. %+ goto :END)
             set  UNDOCOMMAND=%REN% "%FILENAME_NEW%" "%@UNQUOTE[%FILENAME_OLD%]" 
@@ -79,16 +83,17 @@
             gosub :after
         goto :END
 
-        :oops_they_meant_to_do_ren_and_not_rn
-            %COLOR_WARNING%  %+ echo * Looks like you meant to use 'ren' and not 'rn', so we'll do that instead:
-            %COLOR_RUN%      %+ ren "%@UNQUOTE[%1]" "%@UNQUOTE[%2]" 
-            set UNDOCOMMAND=    ren "%@UNQUOTE[%2]" "%@UNQUOTE[%1]" 
-            set LAST_RENAMED_TO=%@UNQUOTE[%2]
-        goto :END
 
         :DNE
-            if "%3" eq "recursive" goto :END
-            %COLOR_WARNING%  %+ echo * No action taken, because file does not exist: %1 
+                if "%3" eq "recursive" goto :END
+                call warning "No action taken, because file does not exist: %1 " 2
+        goto :END
+
+        :oops_they_meant_to_do_ren_and_not_rn
+                %COLOR_WARNING%  %+ echo * Looks like you meant to use 'ren' and not 'rn', so we'll do that instead:
+                %COLOR_RUN%      %+ ren "%@UNQUOTE[%1]" "%@UNQUOTE[%2]" 
+                set UNDOCOMMAND=    ren "%@UNQUOTE[%2]" "%@UNQUOTE[%1]" 
+                set LAST_RENAMED_TO=%@UNQUOTE[%2]
         goto :END
 
         :after

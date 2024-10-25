@@ -2,7 +2,7 @@
 
 :REQUIRES: set-colors.bat to be run first —— to define certain environment variables that represent ANSI character control sequences
 
-:USAGE: call print-message MESSAGE_TYPE "message" [0|1]               - arg1=message/colorType, arg2=message, arg3=pause (1) or not (0)
+:USAGE: call print-message MESSAGE_TYPE "message" [0|1|2]              - arg1=message/colorType, arg2=message, arg3=pause (1) or not (0), or be silent (2)
 :USAGE:                    ^^^^^^^^^^^^—— MESSAGE_TYPE must match an existing message from the MESSAGE_TYPES list
 :USAGE:                                  ^^^^^^^———— use "{PERCENT}" in your message to insert a   "%"   into your message
 :USAGE:                                  ^^^^^^^———— use     "\n"    in your message to insert a newline into your message but only if %NEWLINE_REPLACEMENT% is set to 1, which must be done EACH time you do this
@@ -47,7 +47,10 @@ REM Initialize variables:
     set TYPE=
     set DO_PAUSE=-666
     set OUR_COLORTOUSE=
-    if %SLEEPING eq 1 (set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1)
+    if %SLEEPING eq 1 .or. "%PM_PARAM3" == "2" .or. "%PM_PARAM3" == "silent" .or. "%PM_PARAM3" == "quiet" (set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1)
+    
+    rem echo %ANSI_COLOR_DEBUG%DEBUG: PRINTMESSAGE_OPT_SUPPRESS_AUDIO is %PRINTMESSAGE_OPT_SUPPRESS_AUDIO% ... PM_PARAM3 IS %PM_PARAM3 %ANSI_COLOR_NORMAL%
+
 REM Ensure correct environment
     setdos /x0
 
@@ -65,10 +68,12 @@ REM Process parameters
     rem         REM changed my mind: set DO_PAUSE=1                         we pause by default becuase calling this way means the user doesn't know what they are doing quite as well
     rem )
     set MESSAGE=Null
+    set SILENT_MESSAGE=0
     set TYPE=%PM_PARAM1%                                                       %+ REM both the color and message type, actually
                                        set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]
-    if "%PM_PARAM3%"       eq ""      (set MESSAGE=%@UNQUOTE[`%PM_PARAM2%`])
+    if "%PM_PARAM3%"       eq "1" .or. "%PM_PARAM3%" eq "2" .or. "%PM_PARAM3%" eq "3" .or. "%PM_PARAM3%" eq "" (set MESSAGE=%@UNQUOTE[`%PM_PARAM2%`])
     if "%PM_PARAM3%"       eq "1"     (set DO_PAUSE=1)
+    if "%PM_PARAM3%"       eq "2"     (set SILENT_MESSAGE=1)
     if "%PM_PARAM2%"       eq "yes"   (set DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
     if "%PM_PARAM2%"       eq "pause" (set DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
     if %DEBUG_PRINTMESSAGE eq  1      (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% )
@@ -173,7 +178,7 @@ REM We're going to update the window title to the message. If possible, strip an
 
 
 REM Some messages will be decorated with audio:
-        if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO ne 1 (
+        if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO ne 1 .and. 1 ne %PRINTMESSAGE_OPT_SUPPRESS_AUDIO (
                 if "%TYPE%" eq "DEBUG"  (call beep  lowest 1)
                 if "%TYPE%" eq "ADVICE" (call beep highest 3)
         )

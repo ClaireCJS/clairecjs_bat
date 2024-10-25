@@ -104,13 +104,13 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         call success "Succcess!"
 
     :: clean-up 0-byte description txt file
-        for %%f in (*.txt;*.description) do (
+        for %%tmpZeroByteFile in (*.txt;*.description) do (
             if %%~zf==0 (
                 echo. 
-                rem  warning "Deleting %italics_on%zero-byte file: %%f ????"
-                call warning "Deleting %italics_on%zero-byte%italics_off% file: '%italics_on%%%f%italics_off%' ????"
+                rem  warning "Deleting %italics_on%zero-byte              file:             %%tmpZeroByteFile ????"
+                call warning "Deleting %italics_on%zero-byte%italics_off% file: '%italics_on%%tmpZeroByteFile%%italics_off%' ????"
 
-                %COLOR_REMOVAL% %+ echo. %+ del /p "%%f"
+                %COLOR_REMOVAL% %+ echo. %+ del /p "%%tmpZeroByteFile"
             )
         )
 
