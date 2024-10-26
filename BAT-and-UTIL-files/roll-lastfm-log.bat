@@ -1,5 +1,10 @@
 @Echo Off
 
+iff "%MACHINENAME%" ne "%MUSICSERVERMACHINENAME%" then
+        call warning_soft "No last.fm log to backup because this machine is not %italics_on%%MUSICSERVERMACHINENAME%%italics_off%"
+        goto :END
+endiff
+
 taskend /f lastfm*
 set                                 LAST_FM_LOGDIR=%LOGS%\Last.FM
 call      ensure-directories-exist %LAST_FM_LOGDIR %LOGS% 
@@ -17,3 +22,4 @@ endiff
 
 
 
+:END

@@ -14,6 +14,7 @@ REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL
 gosub DelIfExists "%LOCALAPPDATA%\Binary Fortress Software\DisplayFusion\CrashDumps\*.dmp"
 gosub DelIfExists  %LOCALAPPDATA%\Temp\DiagOutputDir\RdClientAutoTrace\*.etl
 gosub DelIfExists  %TEMP%\*.*
+gosub DelIfExists  c:\tcmd\runonce-post-split*.bat
 gosub CreateIfGone %TEMP%
 gosub DelIfExists  %TMPDIR%\*.*
 gosub CreateIfGone %TMPDIR%

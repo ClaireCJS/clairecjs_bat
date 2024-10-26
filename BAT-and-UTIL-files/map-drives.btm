@@ -10,6 +10,7 @@
 ::::: DEBUG:
     :: echo admin is %_ADMIN %+ pause
     set DEBUG_NET_USE_COMMANDS=1
+    if defined CREATE_PENTAGRAM (echos %CREATE_PENTAGRAM%)
 
 ::::: CONFIG:
     set PERSISTENT=YES     %+ REM was no until 202308

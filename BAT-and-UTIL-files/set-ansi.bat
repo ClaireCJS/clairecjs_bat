@@ -664,6 +664,9 @@ REM ANSI: margin-setting / anti-scroll areas
                 rem Want to unlock all locked rows for  scrolling?  echos %ANSI_UNLOCK_ROWS%   or  echos %@ANSI_UNLOCK_ROWS[]
                         function        ANSI_UNLOCK_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
                         set             ANSI_UNLOCK_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                        rem aliases:
+                                function         ANSI_UNLOCK_ROW=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                                set              ANSI_UNLOCK_ROW=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
 
         rem Cordoning off columns:
                 rem Want to lock *columns* at the *sides*? That's funkier! First we have to determine the string to enable it:
@@ -692,7 +695,7 @@ REM ANSI: margin-setting / anti-scroll areas
                 rem ANSI_UNLOCK=%ANSI_COLS_RESET%%@ANSI_UNLOCK_ROWS[]%@ANSI_UNLOCK_ROWS[0,999999]
                 set ANSI_UNLOCK=%ANSI_COLS_RESET%%@ANSI_UNLOCK_ROWS[]%@ANSI_UNLOCK_ROWS[0,999999]
                 SET ANSI_UNLOCK_TOP=%@ANSI_UNLOCK_ROWS[]
-                SET ANSI_UNLOCK_ROWS=%ANSI_UNLOCK_ROWS%
+                SET ANSI_UNLOCK_ROWS=%@ANSI_UNLOCK_ROWS[]
                 SET ANSI_UNLOCK_MARGINS=%ANSI_LOCK_COLUMNS_DISABLE%
                 SET ANSI_UNLOCK_ALL=%ANSI_LOCK_COLUMNS_DISABLE%%@ANSI_UNLOCK_ROWS[]
 

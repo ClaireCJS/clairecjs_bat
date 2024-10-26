@@ -1,5 +1,10 @@
 @Echo OFF                                       
 
+iff %XENIA_INSTALLED eq 0 then
+        call warning_soft "Not backing up Xenia because it's not installed on this machine..."
+        goto :END
+endiff
+
 rem backup Xenia emulator savegames into monthly folders
 
 ::::: VALIDATE ENVIRONMENT:
@@ -7,6 +12,7 @@ rem backup Xenia emulator savegames into monthly folders
     
 :::: SET UP SYNC:
     set SYNCSOURCE=%USERPROFILE%\Documents\Xenia
+    call validate-environment-variables SYNCSOURCE "If xenia is installed on this machine and you are getting this error, please run it first!"
     set SYNCBASE=%GAME_SAVES_BACKUPS%\Xenia.%MACHINENAME%
 
     if not isdir %SYNCBASE% (md /s %SYNCBASE%)
@@ -26,3 +32,4 @@ rem ::::: DELETE TRIGGER FILE, I DON'T LIKE SEEING IT:
 rem      set DELETE=%SYNCTARGET%\%SYNCTRIGER%                        
 rem      if exist  "%DELETE%" (%COLOR_REMOVAL% %+ *del "%DELETE%" %+ %COLOR_NORMAL%)
 
+:END

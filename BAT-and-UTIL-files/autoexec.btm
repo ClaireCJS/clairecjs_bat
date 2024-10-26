@@ -46,6 +46,8 @@ REM We're done!
         call header unlock
         call celebrate autoexec done
         unset /q AUTOEXEC
+        c:
+        cd \
 
 REM Advice here
         call advice "Run OBS.bat to software-share screen to downstairs"

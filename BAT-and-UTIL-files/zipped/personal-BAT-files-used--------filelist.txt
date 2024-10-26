@@ -62,7 +62,7 @@
 2024-03-13  20:08          5,959   68%  audit-music-files.py
 2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
-2024-10-22  03:10          4,562   71%  autoexec-common.btm
+2024-10-26  17:58          4,561   71%  autoexec-common.btm
 2024-09-11  15:18         16,397   82%  autoexec.ahk
 2024-09-11  02:31            899   52%  AutoHotKey-autoexec.bat
 2024-09-11  02:27          1,645   58%  AutoHotKey.bat
@@ -72,8 +72,8 @@
 2023-06-07  19:48             18  -11%  avg.bat
 2024-10-18  13:57            211   32%  awake.bat
 2024-05-08  14:41          1,886   67%  backup-game-saves.bat
-2024-10-11  11:30          7,723   70%  backup-important-files.bat
-2024-09-03  07:06          1,975   63%  backup-important-folders.bat
+2024-10-26  18:27          8,199   70%  backup-important-files.bat
+2024-10-26  18:35          1,975   63%  backup-important-folders.bat
 2024-10-11  11:27         11,581   79%  backup-repositories.bat
 2024-05-09  20:16          3,305   66%  backup-repository.bat
 2024-05-08  13:27            698   47%  backup-rocksmith.bat
@@ -86,7 +86,7 @@
 2019-10-01  10:27            255   41%  backup-to-dvDs.bat
 2024-08-20  05:43          3,593   58%  backup-to-every-drive.bat
 2024-08-20  05:44            873   51%  backup-utorrent.bat
-2024-05-20  20:02          1,031   50%  backup-Xenia.bat
+2024-10-26  18:37          1,345   51%  backup-Xenia.bat
 2024-08-20  05:44             30   -6%  backup.bat
 2024-10-18  13:52            355   45%  backups.bat
 2024-08-20  05:47             36    0%  BAT.bat
@@ -344,7 +344,7 @@
 2024-06-13  20:10          8,818   73%  FR.bat
 2024-08-20  22:23            681   52%  free-space-monitor.bat
 2024-08-20  22:53             34   -5%  free-space.bat
-2024-10-15  11:03          2,181   60%  free-up-harddrive-space.bat
+2024-10-26  17:54          2,233   59%  free-up-harddrive-space.bat
 2024-08-20  22:17             33   -6%  freemon.bat
 2024-08-21  12:42         12,920   77%  frpost-helper.pl
 2024-02-21  02:01            117    9%  frpost.bat
@@ -447,7 +447,7 @@
 2024-08-09  12:53          1,518   58%  insert-before-each-filename.bat
 2019-10-01  10:28            120   18%  insert-before-each-line.pl
 2024-10-06  11:12          1,627   61%  insert-foldername-into-end-of-filenames.bat
-2024-03-18  02:11          1,848   56%  install-autoexec-launcher-to-startup.bat
+2024-10-26  18:13          2,081   59%  install-autoexec-launcher-to-startup.bat
 2024-10-11  10:08         14,688   75%  install-common-programs-with-winget-helper.cmd
 2024-04-06  04:37            381   36%  install-common-programs-with-winget.bat
 2023-04-28  22:19        527,427   80%  install-common-programs-with-winget.lst
@@ -508,7 +508,7 @@
 2024-08-22  15:26             25   -8%  makefilelist.bat
 2022-02-02  02:57         36,984   67%  MAKEIMG.PL
 2019-10-01  10:28         13,723   75%  makethumbnail.pl
-2024-10-05  15:38         13,179   78%  map-drives.btm
+2024-10-26  18:15         13,239   78%  map-drives.btm
 2024-09-07  20:04             21   -9%  maximize.bat
 2024-04-03  14:35            506   36%  MCD.bat
 2024-04-03  14:46            164   18%  mcdnow.bat
@@ -684,7 +684,7 @@
 2023-06-09  18:15          2,922   67%  rn-latest-for-youtube-dl.bat
 2022-04-19  04:29            156   20%  rn-latest.bat
 2024-10-25  19:53          5,579   72%  rn.bat
-2024-10-15  10:59            657   45%  roll-lastfm-log.bat
+2024-10-26  18:45            878   50%  roll-lastfm-log.bat
 2024-10-15  05:02            230   25%  roll-log-madvr.bat
 2024-08-20  09:29          2,795   68%  roll-logs.bat
 2024-08-02  22:12            739   45%  rookie-pcvr.bat
@@ -715,7 +715,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-10-23  17:30         85,051   82%  set-ansi.bat
+2024-10-26  18:30         85,365   82%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-10-04  07:36          1,804   70%  set-automatic-login-to-windows-ON.bat
 2019-10-01  10:27            120   16%  set-background-picture-for-johnsbackgroundswitcher.bat
@@ -855,7 +855,7 @@
 2024-05-24  05:23            104   25%  tock.bat
 2023-08-29  05:29             49   17%  tock.py
 2024-09-09  22:48         12,060   76%  ToolTipOptions.ahk
-2024-10-23  16:30          9,630   70%  top-banner.bat
+2024-10-26  18:28          9,650   70%  top-banner.bat
 2024-10-15  04:35             21   -9%  top-message.bat
 2024-10-15  04:35             21   -9%  top-msg.bat
 2024-02-02  21:12            585   58%  touch-alias.bat
@@ -890,7 +890,7 @@
 2024-04-28  20:54            287   35%  unzip-all.bat
 2024-04-28  21:01          6,124   71%  unzip-gracefully.bat
 2024-08-20  09:34            443   39%  update-cygwin.bat
-2024-10-23  17:35         12,311   73%  update-from-BAT-via-manifest.bat
+2024-10-25  20:47         12,334   73%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2024-10-21  11:52            569   42%  ups-tracking.bat
 2019-10-01  10:28            232   26%  urldecode.pl

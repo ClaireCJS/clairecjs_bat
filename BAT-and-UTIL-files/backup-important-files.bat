@@ -27,9 +27,14 @@ rem Let user know what we're doing
 rem Ensure backup target folders exists — auto-create the local one it if it does not
 rem ...But do NOT auto-create the dropbox one (that's too intrusive to do automatically)
         if not isdir %BACKUP_TARGET (mkdir /s %BACKUP_TARGET%)
-        call validate-environment-variables DROPBOX BACKUP_TARGET_DROPBOX CONTACTS ABOUTTOBEBURNED PREBURN_DVD_CATALOG PREBURN_BDR_CATALOG
-        call validate-in-path important less_important success error fatal_error
 
+rem Validate environment:
+        iff %BKP_IMP_FILES_VALIDATED ne 1 then
+                call validate-environment-variables DROPBOX BACKUP_TARGET_DROPBOX CONTACTS ABOUTTOBEBURNED PREBURN_DVD_CATALOG PREBURN_BDR_CATALOG ANSI_CURSOR_VISIBLE ANSI_CURSOR_INVISIBLE
+                call validate-in-path               important less_important success error fatal_error
+                call validate-is-function           randfg_soft
+                set BKP_IMP_FILES_VALIDATED=1
+        endiff
 
 rem **********************************************************************************************************************************************
 rem **********************************************************************************************************************************************
@@ -48,7 +53,7 @@ rem Back up each important file:
 
         gosub backup_file dropbox_Y "Windows Terminal settings"    %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
         gosub backup_file dropbox_Y "### file"                     %CONTACTS%
-        gosub backup_file dropbox_N "Adobe Audition settings"      %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml 
+        gosub backup_file dropbox_N "Adobe Audition settings"      %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml onlyIfExists
         gosub backup_file dropbox_N "DVD catalog offline fragment" %PREBURN_DVD_CATALOG%
         gosub backup_file dropbox_N "BDR catalog offline fragment" %PREBURN_BDR_CATALOG%
         gosub backup_file dropbox_N "eyebar captions"              %EYEBARCAPS%
@@ -69,29 +74,31 @@ echo.
 
 rem Sync important files folder to every available ready harddrive with a \BACKUPS\ folder in it:
         repeat 8 echo.
-        echos %@ANSI_MOVE_UP[8]%@ANSI_MOVE_TO_COL[1]%ANSI_SAVE_POSITION%
+        echos %@ANSI_MOVE_UP[8]%@ANSI_MOVE_TO_COL[1]%ANSI_SAVE_POSITION%%ANSI_CURSOR_INVISIBLE%
         for %letter in (%THE_ALPHABET Done!) (
-            if "%@LEN[%letter]" == "1" (echo  %ANSI_RESTORE_POSITION%%@ANSI_MOVE_TO_COL[1]%ANSI_COLOR_WARNING%[%letter%:]%ANSI_RESET%%ANSI_EOL%)
+            if "%@LEN[%letter]" == "1" (echo  %ANSI_RESTORE_POSITION%%@ANSI_MOVE_TO_COL[1]%ANSI_COLOR_WARNING%[%letter%:]%ANSI_RESET%%ANSI_ERASE_TO_END_OF_SCREEN%%ANSI_EOL%)
             echos %@ANSI_MOVE_TO_COL[5]%ANSI_MOVE_UP_1%%ANSI_GREY%
             if 1 eq %@READY[%letter%] .and. isdir %letter%:\backups (
                 set BACKUP_TARGET_TMP=%letter%:\backups\IMPORTANT_FILES.%MACHINENAME%
                 echos %ANSI_COLOR_ALARM%%BLINK_ON%%ITALICS_ON%
-                *copy /e /w /u /s /a: /h /z /k /g /u /Nts %BACKUP_TARGET% %BACKUP_TARGET_TMP% |:u8 convert-each-line-to-a-randomly-colored-dot.pl |:u8 fast_cat
+                *copy /e /w /u /s /a: /h /z /k /g /u /Nts %BACKUP_TARGET% %BACKUP_TARGET_TMP% >nul
+                echos %ANSI_RESET%%@RANDFG_SOFT[].
+                rem | convert-each-line-to-a-randomly-colored-dot.pl 
                 call errorlevel
             )
         )
         rem echos %BLINK_OFF%%FAINT_OFF%%ANSI_EOL%%@ANSI_MOVE_TO_COL[1]
         rem echos %ANSI_COLOR_BRIGHT_GREEN%%CHECKBOX% All done! %+ echo.
-        echo.
+        echo %ANSI_CURSOR_VISIBLE%
         call success "%italics_on%%underline_on%All%italics_off%%underline_off% important files backed up to all relevant drives!"
 
 
 goto :END
 
-    :backup_file [dropbox_YN desc filepath]
+    :backup_file [dropbox_YN desc filepath onlyIfExists]
         echo.
         call less_important "%ANSI_COLOR_CYAN%Backing up %italics_on%%double_underline_on%%ANSI_COLOR_BRIGHT_CYAN%%@UNQUOTE[%desc%]%italics_off%%double_underline_off% %ANSI_COLOR_BRIGHT_BLUE%(%filepath%):"
-        if not exist %filepath% (call error "file '%filename%' doesn't exist when trying to back up %desc%")
+        if not exist %filepath% .and. "onlyIfExists" != "%onlyIfExists%" (call error "file '%filename%' doesn't exist when trying to back up %desc%")
         echos %@RANDFG[]
 
         set filename=%@NAME[%filepath].%@EXT[%filepath]
