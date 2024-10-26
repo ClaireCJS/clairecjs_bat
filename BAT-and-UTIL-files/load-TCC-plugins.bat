@@ -1,12 +1,19 @@
 @Echo Off
 
- set PLUGIN_TCC_BASE=%BAT%
+iff not defined PLUGIN_TCC_BASE then
+        iff not defined BAT then
+                set PLUGIN_TCC_BASE=c:\bat\
+        else
+                set PLUGIN_TCC_BASE=%BAT%
+        endiff
+endiff
 
  rem ^^^^ If this is a folder already in our path, then we don't need this next line:
  rem path=%path%;%PLUGIN_TCC_BASE%
 
-        if not defined       PLUGIN_4WT_LOADED (set       PLUGIN_4WT_LOADED=0)
-        if not defined PLUGIN_STRIPANSI_LOADED (set PLUGIN_STRIPANSI_LOADED=0)
+        if not defined       PLUGIN_4WT_LOADED (set        PLUGIN_4WT_LOADED=0)
+        if not defined PLUGIN_STRIPANSI_LOADED (set  PLUGIN_STRIPANSI_LOADED=0)
+        if 1   ne     %PATH_GENERATED          (call        c:\bat\setpath.bat)
 
         set PLUGIN_4WT=%PLUGIN_TCC_BASE%\4wt.dll
         set PLUGIN_STRIPANSI=%PLUGIN_TCC_BASE%\StripAnsi.dll 

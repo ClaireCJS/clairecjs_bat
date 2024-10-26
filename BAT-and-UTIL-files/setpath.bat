@@ -165,6 +165,7 @@ goto :Clean_Up
 
 REM one last cleanup - no blank path entries - ";;" must become ";"
     PATH=%@REPLACE[;;,;,%PATH]
+    set PATH_GENERATED=1
 
 REM * Save our dynamically-generated path as a .cmd file that can be run in other commandlines such as PowerShell & Anaconda
     path >c:\bat\setpath.cmd

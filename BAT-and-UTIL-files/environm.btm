@@ -108,8 +108,11 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
         if %PERFORM_VALIDATIONS eq 1   (set gosubValidateFolderExists=    gosub ValidateFolderExists)
 
     rem Similar approach to reduce time-footprint of the performance tuning itself:      
+                                        set QUIET_TIMER_OR_NOT=/q
                                         set gosub_stopwatch_button=rem gosub stopwatch_button
-        if %PERFORMANCE_TUNING  eq 1   (set gosub_stopwatch_button=    gosub stopwatch_button)
+        if %PERFORMANCE_TUNING  eq 1   (set gosub_stopwatch_button=    gosub stopwatch_button
+                                        set QUIET_TIMER_OR_NOT=/9 /s)
+
 :::::::::::::::::::::::::::::::::::::::::::::::: COMMAND-LINE/ENVIRONMENT PARAMETERS :::::::::::::::::::::::::::::::::::::::::::::::::
 
 
@@ -117,6 +120,18 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
 
 
+
+   ::::: ANSI COLORS & EMOJI ENV VARS:
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"               
+        if "%COLORS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-ansi          force)                
+        echos %@RANDCURSOR[]
+
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"   
+        if "%EMOJIS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-emojis        force)
+        echos %@RANDCURSOR[]
+
+        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"           
+        if   not  defined   MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
 
 
 
@@ -181,9 +196,10 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
     rem Vars related to running this:
             set RUNNING_ENVIRONM=1
-            if %PERFORMANCE_TUNING eq 0 (set QUIET_TIMER_OR_NOT=/q)
-            if %PERFORMANCE_TUNING eq 1 (set QUIET_TIMER_OR_NOT=/9 /s)
             echos %@RANDCURSOR[]
+
+
+
 
     rem gosub StartKillBots { call c:\bat\slui-killbot } { @processmonitor slui started forever (taskend /f slui) } %+ REM stupid slui process kept stealing focus around 2015...  Use focus-monitor.exe to debug that situation. This keeps it dead, but the monitor only lasts per-command-line window, so we need it in this CLI initialization script. But wait! It eats up CPU, so it might not actually be worth it.
 	gosub PreliminaryErrorCheck                   %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after PreliminaryErrorCheck           " %+ rem 0.03
@@ -674,18 +690,7 @@ return
 :SetEnvironmentVariables
 :CommonEnvVarsIncludingNetworking
     :::::::::: Set common environment variables that we want for all machines (or are just too lazy to set it per-machine)
-    ::::: ANSI COLORS & EMOJI ENV VARS:
-        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"               
-        if "%COLORS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-ansi          force)                
-        echos %@RANDCURSOR[]
-
-        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"   
-        if "%EMOJIS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-emojis        force)
-        echos %@RANDCURSOR[]
-
-        %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"           
-        if   not  defined   MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
-
+ 
 
     ::::: 2024 STUFF:
             set         VALIDATE_MULTIPLE=0 %+ rem if validate-environment-variables gets aborted and this flag is set to 1, it can create a phantom error, so let's just keep it set to 0 when possible

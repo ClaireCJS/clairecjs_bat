@@ -298,7 +298,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-10-22  23:07        187,408   81%  environm.btm
+2024-10-26  18:56        187,414   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-10-25  20:39            917   52%  eset.bat
@@ -484,7 +484,7 @@
 2023-06-13  16:36         11,731   65%  list_scripts_to_publish_and_create_script_database.py
 2024-09-24  10:54             25   -8%  lm.bat
 2024-05-08  01:53            138   20%  load-plugins.bat
-2024-10-22  11:57          1,718   60%  load-tcc-plugins.bat
+2024-10-26  19:02          2,155   64%  load-tcc-plugins.bat
 2022-07-26  13:18             35   -5%  load-window-positions.bat
 2019-10-01  10:28             41    3%  lock-computer.bat
 2024-10-15  04:22             21   -9%  locked-message.bat
@@ -745,7 +745,7 @@
 2023-04-24  09:52            255   53%  set-winamp-constants.bat
 2024-03-24  20:03             49   -4%  setDrive.bat
 2024-03-24  20:04             49   -4%  setlabel.bat
-2024-10-25  14:52         10,460   77%  SETPATH.bat
+2024-10-26  18:59         10,486   77%  SETPATH.bat
 2024-08-22  00:52             21   -9%  setprompt.bat
 2023-10-06  05:32            132    5%  settmp.bat
 2023-10-06  05:32             21   -9%  settmpfile.bat

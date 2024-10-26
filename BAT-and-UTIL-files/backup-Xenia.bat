@@ -12,7 +12,7 @@ rem backup Xenia emulator savegames into monthly folders
     
 :::: SET UP SYNC:
     set SYNCSOURCE=%USERPROFILE%\Documents\Xenia
-    call validate-environment-variables SYNCSOURCE "If xenia is installed on this machine and you are getting this error, please run it first!"
+    call validate-environment-variables SYNCSOURCE 
     set SYNCBASE=%GAME_SAVES_BACKUPS%\Xenia.%MACHINENAME%
 
     if not isdir %SYNCBASE% (md /s %SYNCBASE%)
