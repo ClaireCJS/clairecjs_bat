@@ -46,6 +46,7 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\nmap
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\gnuplot
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\emulation\xbox
+		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\Faster-Whisper-XXL
 	    :Programs_That_May_Be_Installed_That_I_Script_With_Or_Use
         gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.0.2-essentials_build\bin"
         gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\Microsoft\WindowsApps"

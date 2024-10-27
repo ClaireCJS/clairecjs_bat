@@ -1,6 +1,9 @@
 """
         COPY/MOVE postprocessor
 
+        USAGE:  {command} | copy-move-post
+        USAGE:  {command} | copy-move-post nomoji —— doesn't add the emoji prefixes to lines
+
                     * makes each line a random color (to increase visual accessibility to boundaries between filenames)
 
                     * color cycles delimiter characters (to ease anxiety that things are hung)

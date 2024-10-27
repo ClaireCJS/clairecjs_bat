@@ -404,6 +404,11 @@ foreach my $target_file (@TARGET_FILES) {
 	}
 
 
+	$target_dir =~ s/\\$//;
+	print "set CURRENT_SONG_FILE="     . $filename_nodir                      . "\n";
+	print "set CURRENT_SONG_DIR="      . $target_dir                          . "\n";
+	print "set CURRENT_SONG_FILENAME=" . $target_dir . "\\" . $filename_nodir . "\n";
+
 	print "\n\n:targetdir is $target_dir \n";
 	print    ":targetfile is $target_file\n";
 	if (($target_dir =~ /(_*unsorted)[\\\/]*$/i) || ($target_dir =~ /(currently.judging)[\\\/]*$/i)) { 

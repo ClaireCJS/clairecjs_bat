@@ -41,8 +41,9 @@
     if %ISRUNNING eq 0 (goto :IsNotRunning)
         ::OLD METHOD relies on unreliable LWP::Simple: set MUSICSTATE=%@EXECSTR[winamp-status-from-file.pl]
         ::NEW METHOD relies on external wget:
-        rem                     WGETDIR=c:\logs\wget
-        set                     WGETDIR=%TMP%
+        rem set                 WGETDIR=c:\logs\wget
+        rem set                 WGETDIR=%TMP%
+        set                     WGETDIR=%TEMP%
         set       WGETFILEBASE=main.%_DATETIME.%_PID
         set           WGETFILE=%WGETDIR%\%WGETFILEBASE%
         if exist    "%WGETFILE%"       (*del /qy "%WGETFILE%" >nul)

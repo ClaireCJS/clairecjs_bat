@@ -77,8 +77,10 @@
         if %@FILES[/s/h,*] lt 1 (goto :Error)
         :ErrorDone
         cd ..
-        if isdir "%BASENAME%\%@NAME["%FILENAME_OLD%"]" (%COLOR_REMOVAL% %+ mv/ds  "%BASENAME%\%@NAME["%FILENAME_OLD%"]" "%BASENAME%" %+ %COLOR_NORMAL%)
-        :::::::::::::::  rem ^^^^^^^^^^^^^^^ That last line address the situation of zip files that have a folder with the ZIP's own name in them by collapsing the original name into the new name, to create a subfolder with the same name as an enclosing folder, which is stupid
+
+rem         if isdir "%BASENAME%\%@NAME["%FILENAME_OLD%"]" (%COLOR_REMOVAL% %+ mv/ds  "%BASENAME%\%@NAME["%FILENAME_OLD%"]" "%BASENAME%" %+ %COLOR_NORMAL%)
+        rem ^^^^^^^^^^^^^^^ This last line address the situation of zip files that have a folder with the ZIP's own name in them 
+        rem 2024——not sure if we still need to do this, taking it out for a bit
 
 :: cleanup:
     :Skip_To_Here_If_Extension_Is_Unknown

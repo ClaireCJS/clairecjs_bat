@@ -333,7 +333,7 @@ REM Post-message beeps and sound effects
                     beep question
             )                                                                                                                              
             if "%TYPE%" eq "FATAL_ERROR" (
-                    for %alarmNum in (1 2 3) do (beep %+ beep 145 1 %+ beep 120 1 %+ beep 100 1 %+ beep 80 1 %+ beep 65 1 %+ beep 50 1 %+ beep 40 1)
+                    for %alarmNum in (1) do (beep %+ beep 145 1 %+ beep 120 1 %+ beep 100 1 %+ beep 80 1 %+ beep 65 1 %+ beep 50 1 %+ beep 40 1)
                     beep hand
              )        
         :No_Beeps_2
@@ -347,7 +347,7 @@ REM For errors, give chance to gracefully exit the script (no more mashing of ct
                 set temp_title=%_wintitle
                 call askyn "Cancel all execution and return to command line?" yes
                 if %DO_IT eq 1 (
-                        set comment=CANCEL used to be here
+                        CANCEL 
                         title %temp_title%
                         goto :END
                 )
