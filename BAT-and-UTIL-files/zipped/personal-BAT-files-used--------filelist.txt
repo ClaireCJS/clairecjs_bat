@@ -121,7 +121,7 @@
 2024-08-20  06:40            752   41%  check-that-we-are-running-on-the-master-machine.bat
 2024-10-21  11:15          1,549   68%  checkeditor.bat
 2024-10-21  14:16            423   38%  checkmappings-daemon.bat
-2024-05-08  16:55         11,411   80%  checkmappings.bat
+2024-10-28  15:51         11,555   80%  checkmappings.bat
 2024-10-18  13:43            863   57%  checkpassword.bat
 2023-10-14  02:51            452   52%  checktemp.bat
 2024-04-10  12:34            487   51%  checkusername.bat
@@ -171,7 +171,7 @@
 2024-10-21  04:02             36   -5%  cool-header.bat
 2024-10-21  04:00             26   -7%  coolbigecho.bat
 2024-08-26  21:12            680   43%  copy-alias.bat
-2024-10-27  07:15         15,833   72%  copy-move-post.py
+2024-10-28  04:28         15,830   72%  copy-move-post.py
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
@@ -207,7 +207,7 @@
 2024-05-01  04:05            639   49%  delete-largest-file.bat
 2024-10-10  11:38            726   50%  delete-track-from-currently-playing-playlist.bat
 2023-10-06  08:29            252   28%  delete-WAVs-if-MP3s-exist.bat
-2024-10-27  02:41            738   54%  delete-zero-byte-files.bat
+2024-10-28  16:41            754   53%  delete-zero-byte-files.bat
 2024-06-13  16:43          1,065   58%  deltree.bat
 2019-10-01  10:27             23    5%  dep-all.bat
 2022-11-16  20:44            144   21%  dep-MP3s-if-FLACs-exist.bat
@@ -298,7 +298,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-10-26  18:56        187,414   81%  environm.btm
+2024-10-28  15:45        188,697   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-10-25  20:39            917   52%  eset.bat
@@ -369,6 +369,9 @@
 2019-10-01  10:28          8,414   64%  get-current-song-playing.pl
 2024-10-10  11:49            422   49%  get-currently-playing-tracknum-from-wawi-index_html.pl
 2023-07-04  20:09            549   59%  get-image-dimensions.bat
+2024-10-28  17:09          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
+2024-10-28  16:56          2,670   64%  get-lyrics-with-lyricsgenius.bat
+2024-10-28  16:46            211   28%  get-lyrics.bat
 2024-10-18  12:53          4,561   67%  get-meat-from-mp3-filename.pl
 2024-10-27  04:52          4,708   65%  get-winamp-state.bat
 2023-04-26  23:53            809   54%  get_lyrics_from_audio_file_via_whisperAI.py
@@ -543,7 +546,7 @@
 2024-08-21  20:55          1,870   53%  new-computer.bat
 2024-10-07  10:10          2,715   57%  new-computer.btm
 2024-03-15  00:03             45   29%  new-computer.ps1
-2024-05-10  17:33          4,256   60%  new-harddrive.bat
+2024-10-28  15:51          4,540   59%  new-harddrive.bat
 2024-05-07  14:13             20  -10%  next.bat
 2024-05-12  13:01          3,622   75%  nextdir.bat
 2023-09-15  03:32             55   -1%  nocar.bat
@@ -574,7 +577,7 @@
 2024-05-07  14:16          1,870   51%  play-m3u-with-VLC.bat
 2019-10-01  10:28             36   -5%  play-m3u-with-winamp.bat
 2024-05-07  14:17          1,076   63%  play-these.bat
-2024-10-22  04:00          2,112   59%  play-WAV-file.bat
+2024-10-28  04:40          2,217   61%  play-WAV-file.bat
 2024-05-07  14:04             22   -9%  play.bat
 2024-05-07  14:11            508   52%  playlist.bat
 2023-06-01  22:26          1,141   58%  play_wav_file.py
@@ -781,7 +784,7 @@
 2023-06-08  07:50             31    0%  splv.bat
 2023-06-08  07:50             91   32%  splvx.bat
 2023-06-08  04:15             90   33%  splx.bat
-2024-10-27  21:08          9,445   71%  srt_fix_from_txt.py
+2024-10-28  04:34         15,073   75%  srt_fix_from_txt.py
 2020-04-18  21:27             71   15%  start-displayFusion.bat
 2024-09-07  13:21            302   29%  start-elevated.bat
 2024-03-18  02:03            150   21%  start-everything.bat
@@ -877,6 +880,7 @@
 2024-03-24  19:17            300   42%  undep.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
+2024-10-28  15:16            826   42%  unique-lines.pl
 2024-10-21  11:40            534   55%  unknown-shipper-tracking.bat
 2024-10-21  11:50             35   -5%  unknown-tracking.bat
 2024-10-23  17:32             21   -9%  unlock-header.bat

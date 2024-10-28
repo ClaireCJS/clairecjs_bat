@@ -107,7 +107,6 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         double      = True
         summary     = True
 
-    #DEBUG: print(f"nomoji is {nomoji}")
     if nomoji is True:
         line = ""
     else:
@@ -197,6 +196,8 @@ if len(sys.argv) > 1:
 #sys.stdout.write(f"nomoji  is {nomoji }\n")
 
 #enable_vt_support()
+
+#DEBUG:print(f"nomoji is {nomoji}")
 
 while t.is_alive() or not q.empty():
 #hile True:

@@ -15,7 +15,9 @@ rem GET DRIVE LETTER:
 
 
 rem EDIT BAT/ENVIRONMENT FILES THAT MAY NEED TO REFER TO NEW HARDRIVE:
-        %EDITORBG% environm.btm map-drives.btm checkmappings.bat fr.bat index-video-helper.bat generate-filelists-by-attribute-video.ini generate-filelists-by-video.ini gather-cartoons-and-live-shows.bat
+        %EDITORBG% environm.btm checkmappings.bat fr.bat index-video-helper.bat gather-cartoons-and-live-shows.bat
+        rem        ^^^^ map-drives.btm removed in 2024 because it was so heavily abstarcted as to not need changes by 2018 or so
+        rem        ^^^^ generate-filelists-by-attribute-audio.ini generate-filelists-by-video.ini removed in 2024 because features in our script allowed us to add 'potential collections' for each drive instead of having to hardcode real ones
 
 rem EDIT FTP SERVER FILES:
     cls

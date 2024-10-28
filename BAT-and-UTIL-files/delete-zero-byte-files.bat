@@ -18,8 +18,8 @@ for %%TmpFileForZeroByteCheck in (%FILES%) do (
     )
 )
 
-%COLOR_SUCCESS%
-echo.
-if "%1" ne "silent" .and. "%2" ne "silent" .and. "%3" ne "silent" (echo * All zero-byte files have been deleted.)
+rem %COLOR_SUCCESS%
+rem echo.
+if "%1" ne "silent" .and. "%2" ne "silent" .and. "%3" ne "silent" (call success "All zero-byte files have been deleted.")
 
 
