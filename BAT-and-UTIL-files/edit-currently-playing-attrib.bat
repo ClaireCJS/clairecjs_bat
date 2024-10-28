@@ -33,9 +33,9 @@ rem Make sure LAST.FM scrobbler is running, or this won't work: (only doable on 
 		if "%ISRUNNING%" ne "1" (
                 call alarm "Last.fm scrobbler must be running! Running it now."
                 call lastfm-start                 
+                call isrunning Last.*fm
+                if "%ISRUNNING%" ne "1" (call fatal_error "could not restart Last.fm scrobbler, despite trying")
          )
-		call isrunning Last.*fm
-		if "%ISRUNNING%" ne "1" (call fatal_error "could not restart Last.fm scrobbler, despite trying")
 	)
 
 

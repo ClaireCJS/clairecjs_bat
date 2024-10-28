@@ -2,7 +2,7 @@
 
 # much like unique, except remembers if a line has been seen before, and takes a "-1" parameter to smush it all into one line
 
-# used to distill lyrics into shorted possible string to use as prompt for OpenAI Whisper transcription, which has a maximum # of tokens of 224, putting an onus to use those 224 tokens efficiently and without repetition
+# used to distill lyrics into shorted possible string to use as prompt for OpenAI Whisper transcription, which has a maximum # of tokens of 224, putting an onus to use those 224 tokens efficiently and without repetition. This is also the reason why we change " into ' 
 
 use strict;
 use warnings;
@@ -22,7 +22,10 @@ while (<STDIN>) {
 	$key =~ s/ $//ig;
 
 	$to_print = $line;
-	if ($ONE_LINE) { $to_print .=  " " }
+	if ($ONE_LINE) { 
+		$to_print =~ s/"/'/g;
+		$to_print .=  " " 
+	}
 	else           { $to_print .= "\n" }
     print $to_print unless $seen{$key}++;
 }

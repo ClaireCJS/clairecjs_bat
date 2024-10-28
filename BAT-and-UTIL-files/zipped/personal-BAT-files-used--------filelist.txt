@@ -183,6 +183,8 @@
 2023-10-06  05:56            710   50%  create-and-change-into-temp-folder.bat
 2024-10-18  13:13            243   37%  create-directory-and-recursive-playlists.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
+2024-10-27  07:02            401   43%  create-lrc-file-for-currently-playing-song.bat
+2024-10-28  21:59         20,766   71%  create-lrc-from-file.bat
 2019-10-01  10:27            336   39%  create-symlinks-by_Letter_only.bat
 2023-05-28  09:30         24,782   80%  create-symlinks.bat
 2024-04-10  12:38            459   35%  create-these_m3u-playlists.bat
@@ -284,8 +286,8 @@
 2022-11-25  04:25             56    2%  eaa.bat
 2024-10-18  23:35            234   52%  ec.bat
 2024-10-15  10:19          4,226   75%  echo-rainbow.bat
-2024-10-27  03:03         29,451   69%  edit-currently-playing-attrib-helper.pl
-2024-08-20  08:59          8,960   71%  edit-currently-playing-attrib.bat
+2024-10-28  22:00         29,529   69%  edit-currently-playing-attrib-helper.pl
+2024-10-28  21:53          8,988   71%  edit-currently-playing-attrib.bat
 2024-10-21  11:33          4,587   67%  edit-filenames-matching-regex.bat
 2023-06-15  11:32            976   52%  edit-windows-terminal-settings.bat
 2024-10-21  11:34             44   -4%  editGrep.bat
@@ -565,7 +567,7 @@
 2022-07-03  20:15          2,365   72%  opera.bat
 2024-10-21  11:49             27   -7%  package-tracking.bat
 2024-03-28  02:16             23   -8%  paus.btm
-2024-10-21  11:23          1,149   53%  pause-alias.bat
+2024-10-28  19:47          1,277   51%  pause-alias.bat
 2024-05-08  13:30            648   48%  pause-for-x-seconds.bat
 2019-10-01  10:28            127    9%  pause-wrapper.bat
 2024-05-07  13:56             23   -8%  pause.btm
@@ -882,7 +884,7 @@
 2024-03-24  19:17            300   42%  undep.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
-2024-10-28  15:16            826   42%  unique-lines.pl
+2024-10-28  21:11            907   42%  unique-lines.pl
 2024-10-21  11:40            534   55%  unknown-shipper-tracking.bat
 2024-10-21  11:50             35   -5%  unknown-tracking.bat
 2024-10-23  17:32             21   -9%  unlock-header.bat

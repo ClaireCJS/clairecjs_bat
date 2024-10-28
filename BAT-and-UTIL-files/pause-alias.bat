@@ -38,5 +38,8 @@ rem Bring color & window title back to normal:
 
 
 :END
-%COLOR_NORMAL%
+
+rem 20241028: 🐐 Having some problems Ctrl-Break'ing out of scripts, perhaps adding a slight delay here would help?
+        delay /m250
+
 
