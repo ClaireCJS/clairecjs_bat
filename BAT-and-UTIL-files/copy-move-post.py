@@ -183,17 +183,18 @@ rgbhex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
 #r_hex, g_hex, b_hex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
 #sys.stdout.write(f"rgbhex is {rgbhex}\n")
 #sys.stdout.write(f"sys.argv is {sys.argv}\n")
-
+verbose = False
 my_mode = DEFAULT_MODE
 #sys.stdout.write(f"sys.argv is {sys.argv}\n")
 if len(sys.argv) > 1:
     #sys.stdout.write(f"sys.argv[1] is {sys.argv[1]}\n")
     if sys.argv[1] == 'bg' or sys.argv[1] == 'both': my_mode = sys.argv[1]
     for arg in sys.argv[1:]:
-        if arg in ["nomoji", "no-emoji"]: nomoji = True
-        else                            : nomoji = False
-#sys.stdout.write(f"my_mode is {my_mode}\n")
-#sys.stdout.write(f"nomoji  is {nomoji }\n")
+        if arg in ["nomoji", "no-emoji"]: nomoji  = True
+    for arg in sys.argv[1:]:
+        if arg in [    "-v",  "verbose"]: verbose = True
+if verbose: sys.stdout.write(f"my_mode is {my_mode}\n")
+if verbose: sys.stdout.write(f"nomoji  is {nomoji }\n")
 
 #enable_vt_support()
 
