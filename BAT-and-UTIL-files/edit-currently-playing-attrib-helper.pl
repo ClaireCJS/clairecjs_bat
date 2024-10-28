@@ -356,7 +356,7 @@ foreach my $target_file (@TARGET_FILES) {
 	$target_dir =~ s!^[^C]:\\mp3!C:\\mp3!ig;
 	$target_dir =~ s/^(.*[\\\/])[^\\\/]*$/$1/i;
 	$target_dir =~ s/\&\&/&/g;
-	if ($ENV{EC_DO_NOT_GO_UP_1_DIR} != 1) && ($ENV{MAKING_KARAOKE} != 1) {
+	if (($ENV{EC_DO_NOT_GO_UP_1_DIR} != 1) && ($ENV{MAKING_KARAOKE} != 1)) {
 		$target_dir =  &go_up_one_level_where_appropriate($target_dir);
 	}
 	if (($METHOD eq "2011") || ($METHOD eq "2012") || ($METHOD eq "2013")) {

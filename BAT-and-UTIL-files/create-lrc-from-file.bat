@@ -305,7 +305,9 @@ rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////
 
 
 
-goto :END
+goto :Cleanup
+
+
 
             :say_if_exists [it]
                     if not defined %[it] (call error "say_if_exists called but it of '%it%' is not defined")
@@ -325,7 +327,7 @@ goto :END
 
 
 rem ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-:END
+:Cleanup
 echos %FAINT_ON%
 timer /5 off
 set MAKING_KARAOKE=0
