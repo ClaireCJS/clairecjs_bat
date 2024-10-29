@@ -18,6 +18,9 @@ rem                       set PATH_COLOR_BRACKET=0;32;33   >--- Look below for e
 rem                       set TIME_COLOR_THE_TIM=0;32;33  /
 rem                       set TIME_COLOR_BRACKET=0;32;33 /
 rem                       set USER__TYPING__COLO=0;32;33/
+rem   WAYS TO CHANGE THE PROMPT CONTENT:
+rem                       set TEXT_AT_START=Hi!
+rem                       set TEXT_BEFORE_PATH=IceCream!   <——— changes "< 8:46a> <17%> C:\Users\ClioC>" to "< 8:46a> <17%> IceCream! C:\Users\ClioC>"
 
 
 rem ///// Branched to new version of this script with Windows 10, older OSes get the older version
@@ -63,6 +66,11 @@ rem ///// BUILD THE PROMPT:
     :Reset_Cursor_To_Our_Preferred_Color_And_Shape
         rem we return diff colored cursors from programs sometimes, and this resets them
         rem Actually... Decided not to do this because it would change it upon the first prompt. I'd really only want to do this a 2nd time. Not feasible.
+    :Add_StarT_Text
+            rem echo tmpprompt=%tmpprompt%
+            iff "%TEXT_AT_START%" ne "" .and. 1 eq 1 then
+                set TMPPROMPT=%TMPPROMPT%%TEXT_AT_START% ``
+            endiff
     :Add_Time_Of_Day
         set TMPPROMPT=%TMPPROMPT%$e[%TIME_COLOR_BRACKETS%m$L
         set TMPPROMPT=%TMPPROMPT%$e[%TIME_COLOR_THE_TIME%m$M
@@ -74,6 +82,11 @@ rem ///// BUILD THE PROMPT:
             set TMPPROMPT=%TMPPROMPT%$e[%CPU_USAGE_PERCENTS%m CPUUSAGEHERE
             set TMPPROMPT=%TMPPROMPT%$e[%CPU_USAGE_BRACKETS%m$G ``
         )
+    :Add_Any_Text_We_Want_Between
+            rem echo tmpprompt=%tmpprompt%
+            iff "%TEXT_BEFORE_PATH%" ne "" .and. 1 eq 1 then
+                set TMPPROMPT=%TMPPROMPT%%TEXT_BEFORE_PATH% ``
+            endiff
     :Add_Path
         set TMPPROMPT=%TMPPROMPT%$e[%PATH_COLOR_BRACKETS%m%PATH_BRACKET_BEFORE%
         set TMPPROMPT=%TMPPROMPT%$e[%PATH_COLOR_THE_PATH%m$P
@@ -113,5 +126,6 @@ rem ///// CLEAN UP:
     unset /q TIME_COLOR_BRACKETS
     unset /q USER__TYPING__COLOR
     unset /q SUPPRESS_LESSTHAN_BEFORE_PATH
-
+    unset /q TEXT_BEFORE_PATH
+    unset /q TEXT_AT_START
 :END

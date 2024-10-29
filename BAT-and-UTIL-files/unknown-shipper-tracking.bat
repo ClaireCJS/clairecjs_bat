@@ -8,7 +8,7 @@ rem Validate invocation:
         iff "%NUMBER%" eq "" then
                 call usage "You gotta supply a tracking number!"
                 eset NUMBER
-        endif
+        endiff
 
 rem Try each package tracking service that we have a script for:
         call  usps-tracking %NUMBER% %+ call sleep 3

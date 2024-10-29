@@ -5,7 +5,7 @@ rem Validate invocation:
         iff "%NUMBER%" eq "" then
                 call usage "You gotta supply a tracking number!"
                 eset NUMBER
-        endif
+        endiff
 
 calla advice "Run 'fedex-tracking-lastpackage' if you would like to track the very last package tracked."
 echos Otherwise, 

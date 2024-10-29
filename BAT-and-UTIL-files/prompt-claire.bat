@@ -16,6 +16,14 @@ rem And also, I have my brackets in bold, same color, which is variant from comm
 rem And this!
         set ADD_THE_CPU_USAGE=1
 
+rem Let's add our pentagram character as a way to debug what keeps disabling it:
+        iff defined PENTAGRAM then
+                set TEMP_PROMPT_PENTA=$e[31m%PENTAGRAM_UNCOLORED%
+                set TEXT_BEFORE_PATH=%TEMP_PROMPT_PENTA%
+                set    TEXT_AT_START=%TEMP_PROMPT_PENTA%
+        endiff
+        rem echo text_before_path=%TEXT_BEFORE_PATH%
+        
 rem Do it
         call prompt-common
 

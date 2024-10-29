@@ -1,1 +1,9 @@
-@call get-lyrics-from-song %*
+@Echo OFF
+
+
+iff "%1" == "" then
+                    call get-lyrics-for-currently-playing-song %*
+else
+                    call get-lyrics-for-song %*
+endiff
+

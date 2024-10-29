@@ -5,7 +5,7 @@ rem Validate invocation:
         iff "%NUMBER%" eq "" then
                 call usage "You gotta supply a tracking number!"
                 eset NUMBER
-        endif
+        endiff
 
 
 set tmptmp=c:\bat\ups-tracking-lastpackage.bat
