@@ -184,7 +184,7 @@
 2024-10-18  13:13            243   37%  create-directory-and-recursive-playlists.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
 2024-10-27  07:02            401   43%  create-lrc-file-for-currently-playing-song.bat
-2024-10-28  21:59         20,766   71%  create-lrc-from-file.bat
+2024-10-29  06:05         22,446   72%  create-lrc-from-file.bat
 2019-10-01  10:27            336   39%  create-symlinks-by_Letter_only.bat
 2023-05-28  09:30         24,782   80%  create-symlinks.bat
 2024-04-10  12:38            459   35%  create-these_m3u-playlists.bat
@@ -374,7 +374,7 @@
 2023-07-04  20:09            549   59%  get-image-dimensions.bat
 2024-10-28  16:46            211   28%  get-lyrics-from-song.bat
 2024-10-28  17:09          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
-2024-10-28  16:56          2,670   64%  get-lyrics-with-lyricsgenius.bat
+2024-10-29  06:00         10,716   73%  get-lyrics-with-lyricsgenius.bat
 2024-10-28  16:46            211   28%  get-lyrics.bat
 2024-10-18  12:53          4,561   67%  get-meat-from-mp3-filename.pl
 2024-10-27  04:52          4,708   65%  get-winamp-state.bat

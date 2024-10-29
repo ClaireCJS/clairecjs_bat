@@ -1,5 +1,10 @@
 @Echo Off
 
+
+rem TODO:     ^^^ if we make a SRT file and still have this, we need to dep it
+
+
+
 rem Not sure if applicable with 2024 version: :USAGE: set SKIP_TEXTFILE_PROMPTING=1   {this is the default but pre-prompting with a companion text file can be turned off}
 rem Not sure if applicable with 2024 version: :USAGE: set SKIP_SEPARATION=1           {this is the default but separating  vocal   tracks  out  first   can be turned off}
 
@@ -26,13 +31,20 @@ REM config: 2024:
         set PROMPT_CONSIDERATION_TIME=30
         set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=4
 
-REM validate environment
+REM Pre-run cleanup:
         timer /5 on
-        unset /q LYRIC_ATTEMPT_MADE
-        rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
-        call validate-in-path %TRANSCRIBER_TO_USE% debug.bat lyricy.exe copy-move-post unique-lines.pl paste.exe divider less_important  insert-before-each-line
-        call validate-environment-variables COLORS_HAVE_BEEN_SET QUOTE FILEMASK_AUDIO emphasis deemphasis ANSI_COLOR_BRIGHT_RED ANSI_COLOR_NORMAL
         call tock %+ rem purely cosmetic
+        unset /q LYRIC_ATTEMPT_MADE
+
+REM validate environment [once]:
+        iff 1 ne %VALIDATED_CREATE_LRC_FF then
+                rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
+                call validate-in-path %TRANSCRIBER_TO_USE% debug.bat lyricy.exe copy-move-post unique-lines.pl paste.exe divider less_important  insert-before-each-line bigecho
+                call validate-environment-variables COLORS_HAVE_BEEN_SET QUOTE FILEMASK_AUDIO emphasis deemphasis ANSI_COLOR_BRIGHT_RED ANSI_COLOR_NORMAL EMOJI_FIREWORKS
+                call checkeditor
+                set VALIDATED_CREATE_LRC_FF=1
+        endiff
+
 
 REM branch on certain paramters
         if "%1" eq "last" (goto :actually_make_the_lrc)
@@ -45,8 +57,9 @@ REM branch on certain paramters
 
 
 REM values set from parameters
-        set           SONGFILE=%@UNQUOTE[%1]
-        set           SONGBASE=%@NAME[%SONGFILE]
+        set             SONGFILE=%@UNQUOTE[%1]
+        set             SONGBASE=%@NAME[%SONGFILE]
+        set POTENTIAL_LYRIC_FILE=%@UNQUOTE[%2]
         set LRC_FILE=%SONGBASE%.lrc
         set SRT_FILE=%SONGBASE%.srt
         set TXT_FILE=%SONGBASE%.txt
@@ -58,6 +71,18 @@ REM our main input and output files
         set INPUT_FILE=%SONGFILE%
         rem EXPECTED_OUTPUT_FILE=%LRC_FILE%   %+ rem //This was for the 2023 version
         SET EXPECTED_OUTPUT_FILE=%SRT_FILE%
+
+
+
+REM if 2nd parameter is lyric file, use that one:
+        iff exist "%POTENTIAL_LYRIC_FILE%" then
+                set TXT_FILE=%POTENTIAL_LYRIC_FILE%
+                call less_important "Using existing transcription file: %italics_on%%TXT_FILE%%italics_off%"
+                goto :AI_generation
+        endiff
+
+
+
 
 REM display debug info
         :Retry_Point
@@ -144,6 +169,9 @@ REM If it's an instrumental, don't bother:
 REM In terms of automation, as of 10/28/2024 we are only comfortable with FULLY automatic (i.e. going through a whole playlist) generation
 REM in the event that a txt file also exists.  To enforce this, we will only generate with a "force" parameter if the txt file does not exist.
         :check_for_txt_file
+
+
+
         iff not exist "%TXT_FILE%" .and. "%2" ne "Force" .and. 1 eq %LYRIC_ATTEMPT_MADE then
                 call warning "Failed to generate %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning% lryics do not exist and could not be downloaded! Use 'ai' option to go straight to AI generation."
                 rem call pause-for-x-seconds 20
@@ -155,7 +183,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 call advice       "Use 'force' option to override."
                 call advice       "Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!"
                 call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
-                call get-lyrics "%SONGFILE%"
+                call get-lyrics "%SONGFILE%" 
                 set LYRIC_ATTEMPT_MADE=1
                 goto :We_Have_A_Text_File_Now
         endiff
@@ -165,16 +193,22 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
 rem Mandatory review of lyrics:
         iff exist "%TXT_FILE%" then
                 call divider
-                call less_important "Review the lyrics now:"
+                call less_important "[REDUNDANT?] Review the lyrics now:"
                 call divider
+                echos %ANSI_COLOR_GREEN%
                 type "%TXT_FILE%" | insert-before-each-line "        "
                 echo.
                 call divider
                 echo.
-                call AskYn "Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                call AskYn "[REDUNDANT?] Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "%ANSWER%" eq "N" then
+                        %color_removal%
+                        ren  /q "%TXT_FILE%" "%TXT_FILE%.%_datetime.bak"
+                        %color_normal%
                         call warning "Aborting because you don't find the lyrics acceptable"
                         call advice  "To skip lyrics and transcribe using only AI: %blink_on%%0 '%1' ai %emphasis%%deeomphasis%%blink_off%"
+                        call AskYn   "Go ahead and use AI anyway" no %AI_GENERATION_ANYWAY_WAIT_TIME%
+                        if "%answer%" eq "Y" goto :Force_AI_Generation
                         goto :END
                 endiff
         else
@@ -193,9 +227,10 @@ rem Mandatory review of lyrics:
 REM if a text file of the lyrics exists, we need to engineer our AI transcription prompt with it to get better results
         rem 2023 version: set CLI_OPS=
         rem Not adding txt to output_format in case there were hand-edited lyrics that we don't want to overwrite already there
-        rem CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words True  --beep_off --check_files --sentence --standard --max_line_width 99 --ff_mdx_kim2 --verbose True
-        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words True  --beep_off --check_files --sentence --standard --max_line_width 25 --ff_mdx_kim2 --verbose True
-        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files                       --max_line_width 30 --ff_mdx_kim2 --verbose True
+        rem CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words True  --beep_off --check_files --sentence --standard       --max_line_width 99 --ff_mdx_kim2 --verbose True
+        rem CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words True  --beep_off --check_files --sentence --standard       --max_line_width 25 --ff_mdx_kim2 --verbose True
+        rem CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files                             --max_line_width 30 --ff_mdx_kim2 --verbose True
+        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files --vad_max_speech_duration 6 --max_line_width 30 --ff_mdx_kim2 --verbose True
         rem ^^^^^^^^^^^ 2024 verson
 
         rem NOTE: We also have --batch_recursive - {automatically sets --output_dir}
@@ -220,7 +255,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
                         set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | unique-lines.pl -1]]
 
                         set WHISPER_PROMPT=--initial_prompt "%OUR_LYRICS%"
-                        echo %ANSI_COLOR_DEBUG%Whisper_prompt is:%newline%%tab%%tab%%faint_on%%WHISPER_PROMPT%%faint_off%%ANSI_COLOR_NORMAL%
+                        rem echo %ANSI_COLOR_DEBUG%Whisper_prompt is:%newline%%tab%%tab%%faint_on%%WHISPER_PROMPT%%faint_off%%ANSI_COLOR_NORMAL%
                         set CLI_OPS=%CLI_OPS% %WHISPER_PROMPT%
                 setdos /x0
         :No_Text
@@ -263,7 +298,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         if exist "%SRT_FILE%" (ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak")
         
         :actually_make_the_lrc
-        echos %ANSI_COLOR_WARNING_SOFT%%blink_on%About to: %blink_off%
+        echos %STAR% %ANSI_COLOR_WARNING_SOFT%%blink_on%About to: %blink_off%
                            echo  %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"%ansi_color_reset% 
         call AskYn "Proceed with this AI generation?" yes %PROMPT_CONSIDERATION_TIME%
         iff "%answer%" eq "N" then
@@ -274,9 +309,11 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
 
         
 REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT]
-        call bigecho %ANSI_COLOR_BRIGHT_RED%AI running!%ansi_color_normal%
+        echo.
+        call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% AI running! %EMOJI_FIREWORKS%%ansi_color_normal%
         set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"    
-                                 %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"             rem    |:u8   copy-move-post nomoji
+                                 %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"             
+                                 rem    copy-move-post nomoji?
 
 REM delete zero-byte LRC files that can be created
         call delete-zero-byte-files *.lrc silent
@@ -327,12 +364,24 @@ goto :Cleanup
 
 
 rem ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 :Cleanup
+
+iff  exist "%SRT_FILE%" then
+        call success "Karaoke created at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%"
+        call askyn "Edit srt" no %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+        iff "%ANSWER" == "Y" then
+                echo %ANSI_COLOR_DEBUG%%EDITOR% "%SRT_FILE%" %ANSI_RESET%
+                %EDITOR% "%SRT_FILE%"
+        endiff
+else
+        call warning "Unfortunately, we could create the karaoke file %emphasis%%SRT_FILE%%deemphasis%"
+endiff
+
+:END
 echos %FAINT_ON%
 timer /5 off
 set MAKING_KARAOKE=0
-
-if     exist "%SRT_FILE%" (call success "Karaoke created at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%")
-if not exist "%SRT_FILE%" (call warning "Unfortunately, we could create the karaoke file %emphasis%%SRT_FILE%%deemphasis%")
-
 echos %ANSI_RESET%%CURSOR_RESET%
+
