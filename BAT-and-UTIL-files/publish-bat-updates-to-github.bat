@@ -8,5 +8,6 @@ rem Go to my development folder:
 
 rem Do the updates:
         title .
+        echo pentagram test: %pentagram% %+ pause 
         call update-from-BAT-and-push-and-commit.bat
 
