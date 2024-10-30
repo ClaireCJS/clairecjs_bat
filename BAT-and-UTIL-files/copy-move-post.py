@@ -218,9 +218,9 @@ while t.is_alive() or not q.empty():
             rgbhex        = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
             #ys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
             if nomoji:
-                sys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m\033[ q\033]12;{rgbhex}\007{additional_beginning_ansi}'    + '   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
+                sys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m\033[ q\033]12;{rgbhex}\007{additional_beginning_ansi}'    + f'   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
             else:
-                sys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m\033[ q\033]12;{rgbhex}\007{additional_beginning_ansi}❓❓' + '   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
+                sys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m\033[ q\033]12;{rgbhex}\007{additional_beginning_ansi}❓❓' + f'   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
             #moved to end of loop: sys.stdout.flush()                                                                                   # Flush the output buffer to display the prompt immediately
             line_buffer = ""
         elif in_prompt and char == '\n':          #if we hit end-of-line in a copy/move user prompt, flush the output so the user can see the prompt... promptly
@@ -229,7 +229,8 @@ while t.is_alive() or not q.empty():
             sys.stdout.flush()
             line_buffer = ""
         elif char == '\n':                        #if we hit end of line NOT in a copy/move user prompt
-            if any(substring in line_buffer for substring in FOOTERS): additional_beginning_ansi += "\033[6m"                           # make it blink
+            if not nomoji:
+                if any(substring in line_buffer for substring in FOOTERS): additional_beginning_ansi += "\033[6m"                       # make it blink
             print_line(line_buffer, r, g, b, additional_beginning_ansi)
             line_buffer               = ""                                                                                              # Reset for the next line
             additional_beginning_ansi = ""                                                                                              # Reset for the next line

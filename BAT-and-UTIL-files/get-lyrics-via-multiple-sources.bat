@@ -46,14 +46,7 @@ rem Get artist and song so we can use them to download lyrics:
 
         if "%2" eq "SetVarsOnly" (goto :SetVarsOnly_skip_to_1)
 
-rem Massage some problematic subsets of these fields:
-rem 1) Remove things in parenthesis
-rem 2) remove "The "
-        set FILE_ARTIST_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_ARTIST%]]
-        set   FILE_SONG_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_SONG%]]
-
         call debug "Retrieved:%TAB%   artist=%FILE_ARTIST%%newline%%TAB%%tab%%tab%%tab%        title=%FILE_SONG%"
-        call debug "Massaged: %TAB%   artist=%FILE_ARTIST_MASSAGED%%newline%%TAB%%tab%%tab%%tab%        title=%FILE_SONG_MASSAGED%"
 
 
 rem Set our preferred filename for our result:
@@ -205,9 +198,10 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 echo.
                 call divider
                 echo.
-                echo %ANSI_COLOR_IMPORTANT_LESS%%STAR% Searching lyrics for '%italics_on%%FILE_SONG_TO_USE%%italics_off%' by '%italics_on%%FILE_ARTIST_TO_USE%%italics_off%'%ANSI_RESET%%ANSI_COLOR_RUN%
+                echo %ANSI_COLOR_IMPORTANT_LESS%%STAR% Searching lyrics for '%italics_on%%FILE_SONG_TO_USE%%italics_off%' by '%italics_on%%FILE_ARTIST_TO_USE%%italics_off%'%ANSI_RESET%
         rem Run our command, with a 'y' answer to overwrite:
-                echo y  |  %LYRIC_RETRIEVAL_COMMAND%  |:u8 insert-before-each-line "        %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT%"
+                echos %ANSI_COLOR_RUN%
+                echo y  |  %LYRIC_RETRIEVAL_COMMAND%  |:u8 insert-before-each-line "            "
                 call errorlevel "Problem retrieving lyrics in %0"
 
         rem Get the most latest file:
@@ -271,22 +265,35 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
 
                 :skip_from_nothing_downloaded
 
-rem try again if massaged names exist (that is, if the massaged names are different than the original names):
-                echo %ANSI_COLOR_DEBUG%- DEBUG: iff 1 ne %LD1_MASSAGED_ATTEMPT_1% .and. ("%FILE_SONG_MASSAGED%" != "%FILE_SONG%" .or. "%FILE_artist_MASSAGED%" != "%FILE_artist%") then
-                call pause-for-x-seconds %paused_debug_wait_time%
-                iff "1" ne "%LD1_MASSAGED_ATTEMPT_1%" .and. ("%FILE_SONG_MASSAGED%" != "%FILE_SONG%" .or. "%FILE_artist_MASSAGED%" != "%FILE_artist%") then
-                        call warning_soft "Let's try downloading with the massaged names (%FILE_ARTIST_MASSAGED% - %FILE_SONG_MASSAGED%)..."
-                        call pause-for-x-seconds 8                                                                %+ rem 🐐hardcoded value🐐
-                        set FILE_SONG_TO_USE=%FILE_SONG_MASSAGED%
-                        set FILE_ARTIST_TO_USE=%FILE_ARTIST_MASSAGED%
-                        set LD1_MASSAGED_ATTEMPT_1=1
-                        goto :download_with_lyric_downloader_1
-                else
-                        ren /q "%PREFERRED_TEXT_FILE_NAME" "%PREFERRED_TEXT_FILE_NAME%.%_datetime.bak">nul
-                        call important_less "These lyrics have been rejected as well"
-                        rem no! goto :end_of_massage_attempt
-                        rem Continue on... We have failed so far.
-                endiff
+
+rem Get massaged names for next section's check:
+        rem Massage some problematic subsets of these fields:
+        rem 1) Remove things in parenthesis
+        rem 2) remove "The "
+                set FILE_ARTIST_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_ARTIST%]]
+                set   FILE_SONG_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_SONG%]]
+                call debug "Massaged: %TAB%   artist=%FILE_ARTIST_MASSAGED%%newline%%TAB%%tab%%tab%%tab%        title=%FILE_SONG_MASSAGED%"
+
+
+rem try again if massaged names exist (that is, if the massaged names are different than the original names):        
+        echo %ANSI_COLOR_DEBUG%- DEBUG: iff 1 ne %LD1_MASSAGED_ATTEMPT_1% .and. ("%FILE_SONG_MASSAGED%" != "%FILE_SONG_TO_USE%" .or. "%FILE_artist_MASSAGED%" != "%FILE_artist_TO_USE%") then
+        call pause-for-x-seconds %paused_debug_wait_time%
+        if 1 eq LD1_MASSAGED_ATTEMPT_1 (goto :Already_Did_Massaged)
+        iff "1" ne "%LD1_MASSAGED_ATTEMPT_1%" .and. ("%FILE_SONG_MASSAGED%" != "%FILE_SONG%" .or. "%FILE_artist_MASSAGED%" != "%FILE_artist%") then
+                call warning_soft "Let's try downloading with the massaged names (%FILE_ARTIST_MASSAGED% - %FILE_SONG_MASSAGED%)..."
+                call pause-for-x-seconds 8                                                                %+ rem 🐐hardcoded value🐐
+                set FILE_SONG_TO_USE=%FILE_SONG_MASSAGED%
+                set FILE_ARTIST_TO_USE=%FILE_ARTIST_MASSAGED%
+                set LD1_MASSAGED_ATTEMPT_1=1
+                echos %ANSI_COLOR_DEBUG%- DEBUG set LD1_MASSAGED_ATTEMPT_1 to %LD1_MASSAGED_ATTEMPT_1%
+                goto :download_with_lyric_downloader_1
+        endiff
+        :Already_Did_Massaged
+        ren /q "%PREFERRED_TEXT_FILE_NAME" "%PREFERRED_TEXT_FILE_NAME%.%_datetime.bak">nul
+        call important_less "These lyrics have been rejected as well"
+        rem no! goto :end_of_massage_attempt
+        rem Continue on... We have failed so far.
+
 
 
 rem If we still don't have anything, let us manually edit the song and artist name if we want

@@ -263,11 +263,11 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         rem some tests with Destroy Boys - Word Salad & i threw glass at my... were done with 9 & 10
         rem 9:
         set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_filter False   
-        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  -vad_threshold 0.35 --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200
-        rem 10: is better than 9!
+rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  -vad_threshold 0.35 --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200
+rem     rem 10: is better than 9 in one case, same in another
         set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200
-        rem 11:
-        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200 --vad_threshold 0.35
+rem     rem 11: worse than 9 or 10 definitely doesn't pick up on as many lyrics as prompt v9 prompt
+rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200 --vad_threshold 0.35
 
         rem Possible improvements
         rem --vad_max_speech_duration_s 5:     [default= ♾] Limits the maximum length of a speech segment to 5 seconds, forcing breaks if a segment runs too long.
@@ -355,16 +355,15 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
 
 
 REM Concurrency Consideration: Check if the encoder is already running in the process list. Don't run more than 1 at once.
-        call isRunning %TRANSCRIBER_PRNAME%
+        call isRunning %TRANSCRIBER_PRNAME% silent
         iff %isRunning eq 1 then
                 call warning_soft "%italics_on%%TRANSCRIBER_PRNAME%%italics_off is already running"
                 echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Waiting for completion of %italics_on%%TRANSCRIBER_PRNAME%%italics_off
                 :Check_If_Transcriber_Is_Running_Again
-                echos %@randfg_soft[].
-                call isRunning %TRANSCRIBER_PRNAME%
-                iff %isRunning eq 1 (goto :Check_If_Transcriber_Is_Running_Again)
+                echos %@randfg_soft[]. %+ sleep %@random[2,4]
+                call isRunning %TRANSCRIBER_PRNAME% silent
+                if %isRunning eq 1 (goto :Check_If_Transcriber_Is_Running_Again)
                 echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
-        else
         endiff
         
 REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI:
@@ -372,8 +371,8 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
         call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% AI running! %EMOJI_FIREWORKS%%ansi_color_normal%
         set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"    
                                  %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"        |:u8  copy-move-post nomoji
-                                 rem    copy-move-post nomoji?
         call errorlevel "some sort of problem with the AI generation occurred in %0 line ~336ish {'actually generate the srt file'}"
+                                 rem    copy-move-post nomoji?
 
 REM delete zero-byte LRC files that can be created
         call delete-zero-byte-files *.lrc silent

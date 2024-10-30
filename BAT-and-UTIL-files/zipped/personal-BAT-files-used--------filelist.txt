@@ -62,7 +62,7 @@
 2024-03-13  20:08          5,959   68%  audit-music-files.py
 2024-06-12  12:12          5,071   78%  auto-clean.bat
 2024-03-29  13:23         13,669   74%  auto-process.bat
-2024-10-26  17:58          4,561   71%  autoexec-common.btm
+2024-10-30  14:49          4,600   71%  autoexec-common.btm
 2024-09-11  15:18         16,397   82%  autoexec.ahk
 2024-09-11  02:31            899   52%  AutoHotKey-autoexec.bat
 2024-09-11  02:27          1,645   58%  AutoHotKey.bat
@@ -172,7 +172,7 @@
 2024-10-21  04:02             36   -5%  cool-header.bat
 2024-10-21  04:00             26   -7%  coolbigecho.bat
 2024-08-26  21:12            680   43%  copy-alias.bat
-2024-10-30  02:06         16,150   73%  copy-move-post.py
+2024-10-30  11:28         16,180   73%  copy-move-post.py
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
@@ -184,7 +184,7 @@
 2024-10-18  13:13            243   37%  create-directory-and-recursive-playlists.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
 2024-10-27  07:02            401   43%  create-lrc-file-for-currently-playing-song.bat
-2024-10-30  03:15         31,058   73%  create-lrc-from-file.bat
+2024-10-30  11:37         31,192   73%  create-lrc-from-file.bat
 2019-10-01  10:27            336   39%  create-symlinks-by_Letter_only.bat
 2023-05-28  09:30         24,782   80%  create-symlinks.bat
 2024-04-10  12:38            459   35%  create-these_m3u-playlists.bat
@@ -519,7 +519,7 @@
 2024-08-22  15:26             25   -8%  makefilelist.bat
 2022-02-02  02:57         36,984   67%  MAKEIMG.PL
 2019-10-01  10:28         13,723   75%  makethumbnail.pl
-2024-10-26  18:15         13,239   78%  map-drives.btm
+2024-10-30  14:49         13,274   78%  map-drives.btm
 2024-09-07  20:04             21   -9%  maximize.bat
 2024-04-03  14:35            506   36%  MCD.bat
 2024-04-03  14:46            164   18%  mcdnow.bat
