@@ -56,12 +56,15 @@
                     echos %@ANSI_RGB_BG[80,0,0]
                             if "%2" eq "quiet" .or. "%2" eq "silent" (goto :Quiet_YES)
                                     :Quiet_No
-                                        @echos %emoji_stop_sign% %italics%%1%italics_off% is %double_underline%NOT%double_underline_off% running %emoji_stop_sign%`` %+ %COLOR_NORMAL% %+ echo.
-                                        goto :Quiet_DONE
+                                            iff 1 eq %SLEEPING% then
+                                                    @echos . %+ %COLOR_NORMAL% 
+                                            else
+                                                    @echos %emoji_stop_sign% %italics%%1%italics_off% is %double_underline%NOT%double_underline_off% running %emoji_stop_sign%`` %+ %COLOR_NORMAL% %+ echo.
+                                            endiff
+                                            goto :Quiet_DONE
                                     :Quiet_YES
-                                        @echos . %+ %COLOR_NORMAL% 
-                                        goto :Quiet_DONE
-                                :Quiet_DONE
+                                     goto :Quiet_DONE
+                            :Quiet_DONE
                     set LAST_ISRUNNING=0
             goto :IsRunning_END
     :IsRunning_END

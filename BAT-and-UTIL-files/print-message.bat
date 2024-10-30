@@ -42,7 +42,7 @@ REM Initialize variables:
     set PM_PARAMS=%*
     set PM_PARAMS2=%2$
     set PM_PARAM1=%1
-    set PM_PARAM2=%2
+    set PM_PARAM2=%2``
     set PM_PARAM3=%3
     set TYPE=
     set DO_PAUSE=-666
@@ -55,9 +55,9 @@ REM Ensure correct environment
     setdos /x0
 
 REM Process parameters
-    if "%PM_PARAM2%" ne "fast" (set   FAST=0   )                        %+ REM used for "test fast" 
-    if "%PM_PARAM2%" eq "fast" (set   FAST=1   )                        %+ REM used for "test fast" 
-    if "%PM_PARAM1%" eq "demo" (goto :DemoSuite)
+    if "%PM_PARAM2%" ne "fast" (set   FAST=0   )                                 %+ REM used for "test fast" 
+    if "%PM_PARAM2%" eq "fast" (set   FAST=1   )                                 %+ REM used for "test fast" 
+    if "%PM_PARAM1%" eq "demo" (goto :DemoSuite)                                 
     if "%PM_PARAM1%" eq "test" (goto :TestSuite)
     if "%PM_PARAM1%" eq "none" (goto :None     )
     rem if "%PM_PARAM3%" eq ""                     (
@@ -69,15 +69,16 @@ REM Process parameters
     rem )
     set MESSAGE=Null
     set SILENT_MESSAGE=0
-    set TYPE=%PM_PARAM1%                                                       %+ REM both the color and message type, actually
-                                       set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]
+    set TYPE=%PM_PARAM1%                                                         %+ REM both the color and message type, actually
+                                        set  MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
     if "%PM_PARAM3%"       eq "1" .or. "%PM_PARAM3%" eq "2" .or. "%PM_PARAM3%" eq "3" .or. "%PM_PARAM3%" eq "" (set MESSAGE=%@UNQUOTE[`%PM_PARAM2%`])
-    if "%PM_PARAM3%"       eq "1"     (set DO_PAUSE=1)
-    if "%PM_PARAM3%"       eq "2"     (set SILENT_MESSAGE=1)
-    if "%PM_PARAM2%"       eq "yes"   (set DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
-    if "%PM_PARAM2%"       eq "pause" (set DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
-    if %DEBUG_PRINTMESSAGE eq  1      (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% )
-    if %DEBUG_PRINTMESSAGE% eq 1 (echo DEBUG: TYPE=%TYPE%,DO_PAUSE=%DO_PAUSE%,MESSAGE=%MESSAGE%)
+    if "%PM_PARAM3%"       eq "1"      (set  DO_PAUSE=1)
+    if "%PM_PARAM2%"       eq "silent" (set  SILENT_MESSAGE=1 %+ set PM_PARAM2=)
+    if "%PM_PARAM3%"       eq "2"      (set  SILENT_MESSAGE=1)
+    if "%PM_PARAM2%"       eq "yes"    (set  DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
+    if "%PM_PARAM2%"       eq "pause"  (set  DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
+    if %DEBUG_PRINTMESSAGE eq  1       (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% )
+    if %DEBUG_PRINTMESSAGE eq  1       (echo DEBUG: TYPE=%TYPE%,DO_PAUSE=%DO_PAUSE%,MESSAGE=%MESSAGE%)
 
     if defined COLOR_%TYPE% (
         set OUR_COLORTOUSE=%[COLOR_%TYPE%]
@@ -93,7 +94,7 @@ REM Process parameters
             echo     next is %[%OUR_COLORKEY%]
         )
         set OUR_COLORTOUSE=%[%OUR_COLORKEY%]
-        set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]
+        set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
     )
     if %DEBUG_PRINTMESSAGE eq 1 (echo TYPE=%TYPE% OUR_COLORTOUSE=%OUR_COLORTOUSE% DO_PAUSE=%DO_PAUSE% MESSAGE is: %MESSAGE% )
 
@@ -108,15 +109,15 @@ REM Validate parameters
 
 
 REM convert special characters
-    set MESSAGE=%@UNQUOTE[%MESSAGE]
-    set ORIGINAL_MESSAGE=%MESSAGE%
+    set MESSAGE=%@UNQUOTE[%MESSAGE]``
+    set ORIGINAL_MESSAGE=%MESSAGE%``
     REM might want to do if %NEWLINE_REPLACEMENT eq 1 instead:
     if %NEWLINE_REPLACEMENT eq 1 (
-        set MESSAGE=%@REPLACE[\n,%@CHAR[12]%@CHAR[13],%@REPLACE[\t,%@CHAR[9],%MESSAGE]]
+        set MESSAGE=%@REPLACE[\n,%@CHAR[12]%@CHAR[13],%@REPLACE[\t,%@CHAR[9],%MESSAGE]]``
         unset /q NEWLINE_REPLACEMENT
     )
     rem sixteen percent symbols is insane, but what is needed:
-    set MESSAGE=%@REPLACE[{PERCENT},%%%%%%%%%%%%%%%%,%MESSAGE]
+    set MESSAGE=%@REPLACE[{PERCENT},%%%%%%%%%%%%%%%%,%MESSAGE]``
     
 
 
@@ -142,7 +143,8 @@ REM Behavior overides and message decorators depending on the type of message?
     rem "%TYPE%"  eq "WARNING"        (set DECORATOR_LEFT=%EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %blink%!!%blink_off% `` %+ set DECORATOR_RIGHT= %blink%!!%blink_off% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING%)
     if  "%TYPE%"  eq "WARNING"        (set DECORATOR_LEFT=%RED_FLAG%%RED_FLAG%%RED_FLAG%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %@ANSI_BG_RGB[0,0,255]%blink%!!%blink_off% ``  %+  set DECORATOR_RIGHT= %blink%!!%blink_off%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %RED_FLAG%%RED_FLAG%%RED_FLAG%)
     if  "%TYPE%"  eq "SUCCESS"        (set DECORATOR_LEFT=%REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%BLINK_OFF%%REVERSE_OFF% ``        %+ set DECORATOR_RIGHT= %REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%REVERSE_OFF%%BLINK_OFF% %PARTY_POPPER%%EMOJI_BIRTHDAY_CAKE%)
-    if  "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
+    rem "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
+    if  "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF% %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
     if  "%TYPE%"  eq "COMPLETION"     (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT=! ***)
     if  "%TYPE%"  eq "ALARM"          (set DECORATOR_LEFT=* ``          %+ set DECORATOR_RIGHT= *)
     if  "%TYPE%"  eq "REMOVAL"        (set DECORATOR_LEFT=%RED_SKULL%%SKULL%%RED_SKULL% ``        %+ set DECORATOR_RIGHT= %RED_SKULL%%SKULL%%RED_SKULL%)
@@ -230,9 +232,9 @@ REM Actually display the message:
         REM Is the message too long to display in double_height?
                 set SKIP_DOUBLE_HEIGHT=0
                 iff not plugin StripANSI then
-                        set STRIPPED_MESSAGE=%DECORATED_MESSAGE%
+                        set STRIPPED_MESSAGE=%DECORATED_MESSAGE%``
                 else
-                        set STRIPPED_MESSAGE=%@stripansi[%DECORATED_MESSAGE]
+                        set STRIPPED_MESSAGE=%@stripansi[%DECORATED_MESSAGE]``
                 endiff
                 set LEN=%@LEN[%STRIPPED_MESSAGE]
                 if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS-16] (set SKIP_DOUBLE_HEIGHT=1)

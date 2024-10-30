@@ -10,26 +10,34 @@ rem set SKIP_MANUAL_SELECTION=1 to skip the manual select part
 
 rem CONFIG:
         set PROBER=ffprobe.exe
-        set LYRIC_DOWNLOADER_1=lyricsgenius.exe
-        SET LYRIC_DOWNLOADER_1_EXPECTED_EXT=JSON 
-rem CONFIG: WAIT TIMES:
-        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=60
+        set LYRIC_DOWNLOADER_1=lyricsgenius.exe               %+ rem LyricsGenius.exe is a Python package from github —— https://github.com/johnwmillr/LyricsGenius  ... There's also this website, though I'm not sure if it's the same thing: https://lyricsgenius.readthedocs.io/en/master/
+        SET LYRIC_DOWNLOADER_1_EXPECTED_EXT=JSON              %+ rem LyricsGenius.exe downloads files in JSON format. And the output filename isn't really specifiable, which creates issues. (Solution: Create temp file, run, see if latest file date-wise is the temp file you created or not, if not, then that's the output file)
+        set MOST_BYTES_THAT_LYRICS_COULD_BE=7500             
+rem CONFIG: WAIT TIMES:                                      
+        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=60           %+ rem How long to show lyrics on the screen for them to get approval or not
+        set LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=120          %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can't be done in automatic mode], before proceeding on 
+        set PAUSED_DEBUG_WAIT_TIME=5                          %+ rem how long to pause on debug statements we're particularly focusing on
+        set HAND_EDIT_ARTIST_AND_SONG_PROMPT_WAIT_TIME=30
 
 
 rem Remove any trash environment variables left over from a previously-aborted run which might interfere with the current run:
         unset /q LYRIC_RETRIEVAL_1_FAILED
         unset /q LD1_MASSAGED_ATTEMPT_1
 
-rem VALIDATE ENVIRONMENT:
-        call validate-in-path %LYRIC_DOWNLOADER_1% %PROBER% tail get-lyrics-with-lyricsgenius-json-processor.pl delete-zero-byte-files unimportant get-lyrics-with-lyricsgenius-json-processor.pl  echos success alarm
-        call validate-environment-variables FILEMASK_AUDIO ANSI_COLOR_BRIGHT_RED italics_on italics_off ANSI_COLOR_BRIGHT_YELLOW blink_on blink_off
-        call unimportant "validated: lyric downloader, audio file prober"
+rem VALIDATE ENVIRONMENT [once per session]:
+        iff 1 ne %VALIDATED_GLVMS_ENV then
+                call validate-in-path              %LYRIC_DOWNLOADER_1% %PROBER% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset
+                call unimportant        "Validated: lyric downloader, audio file prober"
+                call validate-environment-variables TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME FILEMASK_AUDIO cool_question_mark ANSI_COLOR_BRIGHT_RED italics_on italics_off ANSI_COLOR_BRIGHT_YELLOW blink_on blink_off star ANSI_COLOR_GREEN  ansi_reset bright_on bright_off   underline_on underline_off    emoji_warning check EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT
+                call validate-is-function           cool_text
 
-rem VALIDATE PARAMETERS:
+                set VALIDATED_GLVMS_ENV=1
+        endiff
+
+rem VALIDATE PARAMETERS [every time]:
         set AUDIO_FILE=%@UNQUOTE[%1]
         call validate-environment-variable   AUDIO_FILE   "First parameter must be an audio file that exists!"
         call validate-file-extension       "%AUDIO_FILE%" %FILEMASK_AUDIO%
-        call validate-in-path               %prober% %lyric_downloader_1% less_important divider debug  delete-zero-byte-files warning error fatal_error advice 
         call unimportant                    "input file exists: %1"
 
 rem Get artist and song so we can use them to download lyrics:
@@ -41,8 +49,8 @@ rem Get artist and song so we can use them to download lyrics:
 rem Massage some problematic subsets of these fields:
 rem 1) Remove things in parenthesis
 rem 2) remove "The "
-        set FILE_ARTIST_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[The ,,%FILE_ARTIST%]]
-        set   FILE_SONG_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[The ,,%FILE_SONG%]]
+        set FILE_ARTIST_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_ARTIST%]]
+        set   FILE_SONG_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_SONG%]]
 
         call debug "Retrieved:%TAB%   artist=%FILE_ARTIST%%newline%%TAB%%tab%%tab%%tab%        title=%FILE_SONG%"
         call debug "Massaged: %TAB%   artist=%FILE_ARTIST_MASSAGED%%newline%%TAB%%tab%%tab%%tab%        title=%FILE_SONG_MASSAGED%"
@@ -69,7 +77,7 @@ rem Check if we already have a TXT file in the same folder and shouldn't even be
                 echo.
                 call divider
                 echos %ANSI_COLOR_GREEN%
-                type "%PREFERRED_TEXT_FILE_NAME%" | insert-before-each-line "        "
+                type "%PREFERRED_TEXT_FILE_NAME%" |:u8 insert-before-each-line "        "
                 echo.
                 call divider
                 echo.
@@ -78,7 +86,7 @@ rem Check if we already have a TXT file in the same folder and shouldn't even be
                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                 else
                         call warning_soft "Not using them, so let's remove them and try downloading..."
-                        ren  "%PREFERRED_TEXT_FILE_NAME%" "%PREFERRED_TEXT_FILE_NAME%.%_datetime.bak"
+                        ren  /q "%PREFERRED_TEXT_FILE_NAME%" "%PREFERRED_TEXT_FILE_NAME%.%_datetime.bak"
                         goto :End_Of_Check_To_See_If_We_Already_Had_Them
                 endiff
         endiff
@@ -94,7 +102,7 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 call less_important "We found possible lyrics at %emphasis%%maybe_lyrics_1%%emphasis%!"
                 call less_important "Let's review them:"
                 call divider
-                type "%MAYBE_LYRICS_1%" | insert-before-each-line "        "
+                type "%MAYBE_LYRICS_1%" |:u8 insert-before-each-line "        "
                 echo.
                 call divider
                 echo.
@@ -114,7 +122,7 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 call less_important "We found possible lyrics at %emphasis%%maybe_lyrics_2%%emphasis%!"
                 call less_important "Let's review them:"
                 call divider
-                type "%MAYBE_LYRICS_2%" | insert-before-each-line "        "
+                type "%MAYBE_LYRICS_2%" |:u8 insert-before-each-line "        "
                 echo.
                 call divider
                 echo.
@@ -129,34 +137,51 @@ rem Check if we have one in our lyric repository already, via 2 different filena
         endiff
 
 rem If we still didn't find anything acceptable, but have potentially matching files in our lyric repository, let us select them:
-        :TrySelectingSomethingFromOurLyricsArcive
-        set TMPREVIEWFILE=%temp%\review-file.%_datetime.%_PID.txt
+        :TrySelectingSomethingFromOurLyricsArchive
+        set TRY_SELECTION_AGAIN=0
         iff exist "%MAYBE_LYRICS_1_BROAD_SEARCH%" .and. %SKIP_MANUAL_SELECTION ne 1 then
                 call debug "Checking for %MAYBE_LYRICS_1_BROAD_SEARCH%" 
                 repeat 5 echo.
+                call divider
+                echo.
                 echo %ANSI_COLOR_SUCCESS%%STAR% Potential lyric files found:
-                call pause-for-x-seconds 60 "%underline_on%Select%underline_off% the proper lyrics for '%FILE_SONG%' by '%FILE_ARTIST%' from the %italics_on%next screen%italics_off%, %underline_on%if%underline_off% any are there"
-                cls
-                echos %@RANDFG_SOFT[]
-                select *copy /Ns  ("%MAYBE_LYRICS_1_BROAD_SEARCH%") %TMPREVIEWFILE%
-                iff exist %TMPREVIEWFILE% then
-                        echo.
-                        call divider
-                        echos %ANSI_COLOR_YELLOW%
-                        type %TMPREVIEWFILE% | insert-before-each-line "        "
-                        echo.
-                        call divider
-                        echo.
-                        call AskYn "(4) Do these %italics_on%downloaded%italics_off% lyrics look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
-                        iff "%ANSWER%" eq "Y" then
-                                *copy "%TMPREVIEWFILE%" "%PREFERRED_TEXT_FILE_NAME%"
-                                goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
-                        else
-                                call warning_soft "Not using them, so let's try downloading..."
-                                goto :End_Of_Local_Lyric_Archive_Selection
+                dir /b "%MAYBE_LYRICS_1_BROAD_SEARCH%" |:u8 insert-before-each-line "        %cool_question_mark%%cool_question_mark% " 
+                call AskYn "%underline_on%Select%underline_off% from one of these files, for '%italics_on%%FILE_SONG%%italics_off%' by '%italics_on%%FILE_ARTIST%%italics_off%'" no %LYRIC_SELECT_FROM_FILELIST_WAIT_TIME% 
+                iff "%answer%" ne "Y" then
+                        call less_important "Skipping selecting from potential files..."
+                else
+                        set TMPREVIEWFILE=%temp%\review-file.%_datetime.%_PID.txt
+                        cls
+                        echos %@RANDFG_SOFT[]
+                        set tmptitle=%_title
+                        title %file_song% - %file_artist%
+                        select *copy /Ns  ("%MAYBE_LYRICS_1_BROAD_SEARCH%") %TMPREVIEWFILE%
+                        title %_title
+                        iff exist %TMPREVIEWFILE% then
+                                echo.
+                                call divider
+                                echos %ANSI_COLOR_YELLOW%
+                                type %TMPREVIEWFILE% |:u8 insert-before-each-line "        "
+                                echo.
+                                call divider
+                                echo.
+                                call AskYn "(4) Do these lyrics %italics_on%from our lyrics repository%italics_off% look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                                iff "%ANSWER%" eq "Y" then
+                                        *copy "%TMPREVIEWFILE%" "%PREFERRED_TEXT_FILE_NAME%"
+                                        goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
+                                else
+                                        call important_less "We have rejected this set of lyrics"
+                                        echo.
+                                        rem instead of this: goto :End_Of_Local_Lyric_Archive_Selection
+                                        rem if we go back to the beginning, we can allow trying of multiple 
+                                        rem                                 files before finally giving up
+                                        rem This seemed to not workgoto: TrySelectingSomethingFromOurLyricsArchive
+                                        set TRY_SELECTION_AGAIN=1
+                                endiff
                         endiff
                 endiff
         endiff
+        if "%TRY_SELECTION_AGAIN%" == "1" (goto :TrySelectingSomethingFromOurLyricsArchive)
         :End_Of_Local_Lyric_Archive_Selection
 rem ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -177,9 +202,12 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
         rem Create our command:
                 set                               LYRIC_RETRIEVAL_COMMAND=%LYRIC_DOWNLOADER_1% song "%FILE_SONG_TO_USE%" "%FILE_ARTIST_TO_USE%" --save
                 rem  %ANSI_COLOR_DEBUG- COMMAND: %LYRIC_RETRIEVAL_COMMAND%%ANSI_COLOR_NORMAL%
+                echo.
+                call divider
+                echo.
                 echo %ANSI_COLOR_IMPORTANT_LESS%%STAR% Searching lyrics for '%italics_on%%FILE_SONG_TO_USE%%italics_off%' by '%italics_on%%FILE_ARTIST_TO_USE%%italics_off%'%ANSI_RESET%%ANSI_COLOR_RUN%
         rem Run our command, with a 'y' answer to overwrite:
-                echo y  |  %LYRIC_RETRIEVAL_COMMAND%
+                echo y  |  %LYRIC_RETRIEVAL_COMMAND%  |:u8 insert-before-each-line "        %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT%"
                 call errorlevel "Problem retrieving lyrics in %0"
 
         rem Get the most latest file:
@@ -190,10 +218,9 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 if exist "%PREFERRED_LATEST_FILE_NAME%" (ren /q "%PREFERRED_LATEST_FILE_NAME%" "%PREFERRED_LATEST_FILE_NAME%.%_datetime.bak">nul)
 
         rem See if our latest file is the expected extension [which would indicate download sucess] or not:
-                set  SIZEYMCWIZEY=3000
                 set  MYSIZEY=%@FILESIZE[%LATEST_FILE]
-                iff %MYSIZEY% gt %SIZEYMCWIZEY% then  
-                        call warning "Caution! Download is %MYSIZEY%b, larger than threshold of %SIZEYMCWIZEY%b"
+                iff %MYSIZEY% gt %MOST_BYTES_THAT_LYRICS_COULD_BE% then  
+                        call warning "Caution! Download is %MYSIZEY%b, larger than threshold of %MOST_BYTES_THAT_LYRICS_COULD_BE%b"
                         call pause-for-x-seconds 8 %+ rem 🐐goat hardcode
                 endiff
                 iff "%@EXT[%LATEST_FILE]" == "%LYRIC_DOWNLOADER_1_EXPECTED_EXT%" then
@@ -229,12 +256,14 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                         echo.
                         call divider
                         echo %ANSI_COLOR_BRIGHT_YELLOW%"
-                        type "%PREFERRED_TEXT_FILE_NAME%" | insert-before-each-line "        "
+                        type "%PREFERRED_TEXT_FILE_NAME%" |:u8 insert-before-each-line "        "
                         call AskYn "(6) Do these %italics_on%downloaded%italics_off% lyrics for '%italics_on%%FILE_song_TO_USE%%italics_off%' by '%italics_on%%FILE_artist_TO_USE%%italics_off%' look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                         iff "%ANSWER%" eq "Y" then
                                 goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
+                                *del /q "%PREFERRED_TEXT_FILE_NAME%" >nul
                         else
-                                rem Continue on
+                                rem Continue on but delete the file to indicate its rejection
+                                ren  "%PREFERRED_TEXT_FILE_NAME%" "%PREFERRED_TEXT_FILE_NAME%.%_datetime.bak"
                         endiff
                         rem no? call important "TODO: INSERT LYRIC REVIEW HERE TO SUPLICATE THE REDUNDANT ONE IN CALLING SCRIPT 🐐🐐🐐"
                 endiff
@@ -244,7 +273,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
 
 rem try again if massaged names exist (that is, if the massaged names are different than the original names):
                 echo %ANSI_COLOR_DEBUG%- DEBUG: iff 1 ne %LD1_MASSAGED_ATTEMPT_1% .and. ("%FILE_SONG_MASSAGED%" != "%FILE_SONG%" .or. "%FILE_artist_MASSAGED%" != "%FILE_artist%") then
-                pause
+                call pause-for-x-seconds %paused_debug_wait_time%
                 iff "1" ne "%LD1_MASSAGED_ATTEMPT_1%" .and. ("%FILE_SONG_MASSAGED%" != "%FILE_SONG%" .or. "%FILE_artist_MASSAGED%" != "%FILE_artist%") then
                         call warning_soft "Let's try downloading with the massaged names (%FILE_ARTIST_MASSAGED% - %FILE_SONG_MASSAGED%)..."
                         call pause-for-x-seconds 8                                                                %+ rem 🐐hardcoded value🐐
@@ -260,14 +289,35 @@ rem try again if massaged names exist (that is, if the massaged names are differ
                 endiff
 
 
+rem If we still don't have anything, let us manually edit the song and artist name if we want
+        iff exist "%PREFERRED_TEXT_FILE_NAME%" (goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done)
+
+        rem rainbow divider here?
+        call AskYN "Want to try hand-editing the artist & song name" no %HAND_EDIT_ARTIST_AND_SONG_PROMPT_WAIT_TIME%
+        if "%answer%" == "N" (goto :Skip_Hand_Editing)
+
+        eset FILE_ARTIST
+        eset FILE_SONG
+
+        set FILE_SONG_TO_USE=%FILE_SONG%
+        set FILE_ARTIST_TO_USE=%FILE_ARTIST%
+
+        goto :download_with_lyric_downloader_1
+        :Skip_Hand_Editing
+
+
+
+
+
+
 
                 :end_of_lyric_downloader_1
 rem Download the lyrics using LYRIC_DOWNLOADER_1: END: —————————————————————————————————————————————————————————————————————————————————————
 
 
 rem Final cleanup
-        :Cleanup
         :have_acceptable_lyrics_now_or_at_the_very_least_are_done
+        :Cleanup
         if exist "__" (*del /q "__">nul)
         unset /q LYRIC_RETRIEVAL_1_FAILED
         unset /q LD1_MASSAGED_ATTEMPT_1
@@ -275,9 +325,17 @@ rem Final cleanup
 rem Validate we did something:
         echo %ANSI_COLOR_DEBUG%- DEBUG: iff not exist "%PREFERRED_TEXT_FILE_NAME%" 
         iff not exist "%PREFERRED_TEXT_FILE_NAME%" then
+                echo.
+                call divider
+                echo.
+                call bigecho "%emoji_warning% LYRIC FAIL %emoji_warning%"
                 call warning "Unfortunately, we could not find lyrics for %ANSI_COLOR_BRIGHT_RED%%ITALICS_On%%FILE_ARTIST% - %FILE_SONG%%ITALICS_OFF%")
+                title %emoji_warning% Lyrics not fetched %emoji_warning%
         else
+                rem  celebrate "%check% LYRIC SUCCESS %check%" 2
+                call celebrate "%ansi_background_black% %check% %@cool[LYRIC SUCCESS] %check% %@randfg[]" 2
                 call success "Lyrics downloaded to: %blink_on%%italics_on%%PREFERRED_TEXT_FILE_NAME%%ANSI_RESET%"
+                title %check% Lyrics fetched successfully! %check% 
         endiff
 
 

@@ -40,7 +40,7 @@ rem VALIDATION & SETUP:
         call validate-environment-variables MANIFEST_FILES SOURCE_DIR 
 
 rem Cosmetic kludge:
-        rem call set-ansi force
+        rem no this actually tended to break it! call set-ansi force
 
 rem TELL USER:
         cls

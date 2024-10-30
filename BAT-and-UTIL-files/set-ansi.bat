@@ -83,9 +83,11 @@ rem Utility functions:
 
         rem To coolify a non-numerical string, we simply run the same code —— but maybe we could do something else to make it interesting❓
                         function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,Ṡ,%@REPLACE[f,ƒ,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
-                        function cool_string=`%@random_color_string[%@cool_string_plain[%1$]]`
+                        function cool_string_rainbow=`%@random_color_string[%@cool_string_plain[%1$]]`
+                        function         cool_string=`%@random_color_string[%@cool_string_plain[%1$]]`
                         rem Alias:
                                 function cool=`%@cool_string[%1$]`
+                                function cool_text=`%@cool_string[%1$]`
                         rem Experimental:
                                 function cool_string_lookup_only=`%@REReplace[([^\s]),%@randFG_soFt[]%@cool_char_plain[\1],%1$]` %+ rem EXPERIMENTAL
 
@@ -920,4 +922,7 @@ rem —————————————————————————�
 
 
 REM  unexplored: Set text colour to index n in a 256-colour palette (e.g. \x1b[38;5;34m)
+
+rem Bugfix
+        if defined CREATE_PENTAGRAM echos %create_pentagram%
 

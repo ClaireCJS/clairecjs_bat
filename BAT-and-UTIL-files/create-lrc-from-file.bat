@@ -22,14 +22,15 @@ REM config: 2023:
 
 REM CONFIG: 2024: 
         set TRANSCRIBER_TO_USE=Faster-Whisper-XXL.exe                    %+ rem Command to generate/transcribe [with AI]
+        set TRANSCRIBER_PRNAME=faster-whisper-xxl                        %+ rem ^^^^^^^^^^^^^^^^^^^^ how this shows up in the process last (type "tasklist" to see) ... Generally the base name of any EXE
         set SKIP_SEPARATION=1                                            %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn't work anymore
         SET SKIP_TEXTFILE_PROMPTING=0                                    %+ rem 0=use lyric file to prompt AI, 1=go in blind
 rem CONFIG: 2024: WAIT TIMES:
-        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                     %+ rem wait time for "are these lyrics good?"-type questions
+        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=45                      %+ rem wait time for "are these lyrics good?"-type questions
         set AI_GENERATION_ANYWAY_WAIT_TIME=60                            %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
         set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=45          %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
-        set PROMPT_CONSIDERATION_TIME=30                                 %+ rem wait time for "does this AI command look sane"-type questions
-        set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=4           %+ rem wait time for "hey lyrics not found!"-type notifications/questions
+        set PROMPT_CONSIDERATION_TIME=20                                 %+ rem wait time for "does this AI command look sane"-type questions
+        set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=2           %+ rem wait time for "hey lyrics not found!"-type notifications/questions
         set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=30                      %+ rem wait time for "edit it now that we've made it?"-type questions
         rem ^^^^ TODO: automation mode where all these get shortened to quite significantly, or all to 3, or all to 1, or something 🐮
  
@@ -41,8 +42,8 @@ REM Pre-run cleanup:
 REM validate environment [once]:
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
-                call validate-in-path               %TRANSCRIBER_TO_USE%  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep
-                call validate-environment-variables COLORS_HAVE_BEEN_SET QUOTE FILEMASK_AUDIO emphasis deemphasis ANSI_COLOR_BRIGHT_RED ANSI_COLOR_NORMAL EMOJI_FIREWORKS underline_on underline_off faint_on faint_off cursor_reset ansi_reset star check
+                call validate-in-path               %TRANSCRIBER_TO_USE%  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning
+                call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning TRANSCRIBER_PRNAME
                 call checkeditor
                 set VALIDATED_CREATE_LRC_FF=1
         endiff
@@ -164,12 +165,14 @@ REM If we say "force", skip the already-exists check and contiune
                 if exist "%LRC_FILE%" (ren /q "%LRC_FILE%" "%@NAME[%LRC_FILE%].lrc.%_datetime_.bak")
                 rem do not do this, we're just skipping the check, that's all:
                 rem if exist "%SRT_FILE%" (ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak")
-                goto :attempt_to_download_LRC
-        endiff
+                rem no need to goto :attempt_to_download_LRC because that's what's next anyway
+        else
+                REM At this point, we are NOT in force mode, so:
+                REM At this point, if an LRC file already exists, we shouldn't bother generating anything...
+                        rem if exist %LRC_FILE% (call error   "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!" %+ cancel)
+                            if exist %LRC_FILE% (call warning "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!" %+ goto :END)
 
-REM if an LRC file already exists, we shouldn't bother generating anything...
-        rem if exist %LRC_FILE% (call error   "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!" %+ cancel)
-            if exist %LRC_FILE% (call warning "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!" %+ goto :END)
+        endiff
 
 
 
@@ -197,7 +200,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
         iff not exist "%TXT_FILE%" .and. "%2" ne "Force" .and. 1 eq %LYRIC_ATTEMPT_MADE then
                 call warning "Failed to generate %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning% lryics do not exist and could not be downloaded! Use 'ai' option to go straight to AI generation."
                 rem call pause-for-x-seconds 20
-                call askYN "Go straight to AI generation now" no %AI_GENERATION_ANYWAY_WAIT_TIME%
+                call askYN "Generate AI anyway" no %AI_GENERATION_ANYWAY_WAIT_TIME%
                 if "%ANSWER%" eq "Y" (goto :Force_AI_Generation)
                 goto :END
         else
@@ -253,6 +256,28 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         rem CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words True  --beep_off --check_files --sentence --standard       --max_line_width 25 --ff_mdx_kim2 --verbose True
         set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files                             --max_line_width 30 --ff_mdx_kim2 --verbose True
         rem CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files --vad_max_speech_duration 6 --max_line_width 30 --ff_mdx_kim2 --verbose True
+        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files                             --max_line_width 30 --ff_mdx_kim2 --verbose True
+        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True
+        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_threshold 0.35 --max_segment_length isn't even an option! 5
+        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_filter False   --max_segment_length isn't even an option! 5
+        rem some tests with Destroy Boys - Word Salad & i threw glass at my... were done with 9 & 10
+        rem 9:
+        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_filter False   
+        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  -vad_threshold 0.35 --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200
+        rem 10: is better than 9!
+        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200
+        rem 11:
+        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200 --vad_threshold 0.35
+
+        rem Possible improvements
+        rem --vad_max_speech_duration_s 5:     [default= ♾] Limits the maximum length of a speech segment to 5 seconds, forcing breaks if a segment runs too long.
+        rem --vad_min_speech_duration_ms 500:  [default=250] Ensures that speech segments are at least 500ms long before considering a split.
+        rem --vad_min_silence_duration_ms 300: [default=100] Splits subtitles at smaller pauses (300ms).
+        rem --vad_speech_pad_ms 200:           [default= 30] Ensures a 200ms buffer around detected speech to avoid clipping.
+
+        rem If you suspect parts of the lyrics aren’t being transcribed:
+        rem         Lower the VAD threshold to 0.35 or 0.3 to capture more detail.
+        rem         Disable VAD filtering with --vad_filter_off to ensure the whole audio is processed without aggressively skipping sections.
 
         rem NOTE: We also have --batch_recursive - {automatically sets --output_dir}
 
@@ -328,6 +353,19 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
                 goto :END
         endiff
 
+
+REM Concurrency Consideration: Check if the encoder is already running in the process list. Don't run more than 1 at once.
+        call isRunning %TRANSCRIBER_PRNAME%
+        iff %isRunning eq 1 then
+                call warning_soft "%italics_on%%TRANSCRIBER_PRNAME%%italics_off is already running"
+                echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Waiting for completion of %italics_on%%TRANSCRIBER_PRNAME%%italics_off
+                :Check_If_Transcriber_Is_Running_Again
+                echos %@randfg_soft[].
+                call isRunning %TRANSCRIBER_PRNAME%
+                iff %isRunning eq 1 (goto :Check_If_Transcriber_Is_Running_Again)
+                echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
+        else
+        endiff
         
 REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI:
         echo.
@@ -392,6 +430,7 @@ rem ////////////////////////////////////////////////////////////////////////////
 
 iff not exist "%SRT_FILE%" then
         call warning "Unfortunately, we could create the karaoke file %emphasis%%SRT_FILE%%deemphasis%"
+        title %emoji_warning% Karaoke not generated! %emoji_warning% 
 else
         rem Cleanup:
                 rem MiniLyrics will pick up a TXT file in the %lyrics% repo *instead* of a SRT file in the local folder
@@ -406,15 +445,18 @@ else
         rem Success message:
                 call divider
                 call success "Karaoke created at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%"
+                title %check% Karaoke generated successfully! %check% 
 
         rem A chance to edit:
                 call divider
-                echos %ANSI_COLOR_BRIGHT_GREEN%
-                grep -i [a-z] "%SRT_FILE%" | insert-before-each-line "        "
-                call divider
                 echo.
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check% %underline_on%SRT file contents:%underline_off%
-                call askyn "Edit srt" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME%
+                echos %ANSI_COLOR_BRIGHT_GREEN%
+                grep -i [a-z] "%SRT_FILE%" | insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        "
+                echo.
+                call divider
+                echo.
+                call askyn "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME%
                 iff "%ANSWER" == "Y" then
                         echo %ANSI_COLOR_DEBUG%%EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
                         iff not exist "%TXT_FILE%" then
@@ -426,8 +468,11 @@ else
 endiff
 
 :END
+:Cleanup
 echos %FAINT_ON%
 timer /5 off
 set MAKING_KARAOKE=0
 echos %ANSI_RESET%%CURSOR_RESET%
+
+:The_Very_END
 
