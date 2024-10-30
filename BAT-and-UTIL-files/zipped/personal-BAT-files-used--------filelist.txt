@@ -302,7 +302,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-10-28  15:45        188,697   81%  environm.btm
+2024-10-30  16:44        189,223   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-10-25  20:39            917   52%  eset.bat
@@ -800,7 +800,7 @@
 2019-10-01  10:28             71   26%  start-girder.bat
 2024-08-20  09:13            132   23%  start-lastfm.bat
 2024-09-07  13:20            785   42%  start-milkdrop-fullscreen.bat
-2024-10-21  12:11            298   53%  start-minilyrics.bat
+2024-10-30  19:26            496   54%  start-minilyrics.bat
 2024-09-07  13:22            294   29%  start-minimized.bat
 2022-08-17  11:44            135   44%  start-nonelevated.bat
 2024-09-07  13:18            525   38%  start-tagging-images.bat

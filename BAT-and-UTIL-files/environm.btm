@@ -898,6 +898,15 @@ return
         rem [REDACTED to private.env]
         ::This created problems with validation though: if isdir C:\ProgramData\Anaconda3\Lib\site-packages (set PYTHONPATH=C:\ProgramData\Anaconda3\Lib\site-packages)
 
+		::::: JAVA: AI:
+            iff defined JAVA_64BT then                                 
+                    set JAVA_WHISPERTIMESYNC=%JAVA_64BT%
+            else
+                    set JAVA_WHISPERTIMESYNC=java.exe
+            endiff
+            if exist "C:\Program Files\Java\jre-1.8\bin\java.exe" set JAVA_WHISPERTIMESYNC=C:\Program Files\Java\jre-1.8\bin\java.exe
+
+
 	::::: CLAIRE-VIRONMENT VARIABLE DEFAULT VALUES:
 		SET OS=10
 		SET OSBIT=64
@@ -1085,8 +1094,10 @@ return
 			set MY_DOMAIN_USERNAME=asdf
 			set MY_DOMAIN_PASSWORD=asdf
 		::::: JAVA:
-			if isdir "c:\Program Files\Java\jdk1.7.0_71" set JAVA_HOME=c:\Program Files\Java\jdk1.7.0_71
-			if isdir "c:\Program Files\Java\jdk1.7.0_76" set JAVA_HOME=c:\Program Files\Java\jdk1.7.0_76
+			if isdir "c:\Program Files\Java\jdk1.7.0_71"          set JAVA_HOME=c:\Program Files\Java\jdk1.7.0_71
+			if isdir "c:\Program Files\Java\jdk1.7.0_76"          set JAVA_HOME=c:\Program Files\Java\jdk1.7.0_76
+            if exist "C:\Program Files\Java\jre-1.8\bin\java.exe" set JAVA_64BT=C:\Program Files\Java\jre-1.8\bin\java.exe
+
 		::::: MAVEN:
 			set    TRUNK=c:\dharness\trunk
 			set  M2_REPO=c:\Users\jlip\.m2\repository
