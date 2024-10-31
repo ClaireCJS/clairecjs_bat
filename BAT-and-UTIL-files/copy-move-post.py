@@ -2,7 +2,8 @@
         COPY/MOVE postprocessor
 
         USAGE:  {command} | copy-move-post
-        USAGE:  {command} | copy-move-post nomoji —— doesn't add the emoji prefixes to lines
+        USAGE:  {command} | copy-move-post nomoji ————— doesn't add the emoji prefixes to lines
+        USAGE:  {command} | copy-move-post WhisperAI —— post-process WhisperAI transcription
 
                     * makes each line a random color (to increase visual accessibility to boundaries between filenames)
 
@@ -28,17 +29,42 @@ import clairecjs_utils as claire                                                
 from colorama import init
 init(autoreset=False)
 
-DEFAULT_MODE   = "fg"                                                                                           #whether to color-cycle foreground ("fg"), background ("bg"), or both ("both").
-EMOJIS_COPY    = '⭢︋📂'
-EMOJIS_PROMPT  = '❓❓ '
-EMOJIS_DELETE  = '👻⛔'
-EMOJIS_SUMMARY = '✔️ '
-EMOJIS_ERROR   = '🛑🛑'
-nomoji         = False                                                                                          #set to True to disable [some] emoji decoration of lines
-
+COLOR_QUESTION_BACKGROUNDS = True                 #whether to highlight lines with "?" with a random background character and other stuff —— originally developed for Y/N/R/A-type prompts when copying files, but annoying in other situations
+DEFAULT_COLOR_CYCLE_MODE   = "fg"                 #whether to color-cycle foreground ("fg"), background ("bg"), or both ("both").
+EMOJIS_COPY                = '⭢︋📂'
+EMOJIS_PROMPT              = '❓❓ '
+EMOJIS_DELETE              = '👻⛔'
+EMOJIS_SUMMARY             = '✔️ '
+EMOJIS_ERROR               = '🛑🛑'
+nomoji                     = False                #set to True to disable [some] emoji decoration of lines
+whisper_ai                 = False                #set to True to disable [some] emoji decoration of lines
 #Note to self: either maintain a simultaneous update of these 4 values in set-colors.bat or create env-var overrides:
 MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                                                                  #\__ range of random values we
 MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                                                                  #/   choose random colors from
+
+# ANSI codes
+BOLD_ON              = "\033[1m"
+BOLD_OFF             = "\033[22m"
+BIG_TOP              = "\033#3"
+BIG_BOT              = "\033#4"
+BIG_OFF              = "\033#0"
+BLINK_ON             = "\033[6m"
+BLINK_OFF            = "\033[25m"
+FAINT_ON             = "\033[2m"
+FAINT_OFF            = "\033[22m"
+COLOR_GREY           = "\033[90m"
+ANSI_RESET           = "\033[39m\033[49m\033[0m"
+ITALICS_ON           = "\033[3m"
+ITALICS_OFF          = "\033[23m"
+REFVERSE_ON          = "\033[7m"
+REVERSE_OFF          = "\033[27m"
+CURSOR_RESET         = "\033[ q"
+CURSOR_RESET         = ""#goat
+UNDERLINE_ON         = "\033[4m"
+UNDERLINE_OFF        = "\033[24m"
+MOVE_TO_COL_1        = "\033[1G"
+DOUBLE_UNDERLINE_OFF = "\033[24m"
+DOUBLE_UNDERLINE_ON  = "\033[21m"
 
 FOOTERS = [                                                                                                     #values that indicate a copy/move summary line,
            "files copied"          , "file copied"           ,                                                 #which we like to identify for special treatment
@@ -52,13 +78,11 @@ FOOTERS = [                                                                     
            "dirs would be copied"  , "dir would be copied"   ,
            "dirs would be moved"   , "dir would be moved"    ,
            "dirs would be deleted" , "dir would be deleted"  ,
+           "Standalone Faster-Whisper-XXL r192.3.4 running on: CUDA"
           ]
-file_removals = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                         #values that indicate a file deletion/removal
-
-
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                            #utf-8 fix
-
-move_decorator = os.environ.get('move_decorator', '')                                                           #fetch user-specified decorator (if any)
+file_removals  = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                    #values that indicate a file deletion/removal
+sys.stdout     = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                    #utf-8 fix
+move_decorator_from_environment_variable = os.environ.get('move_decorator_from_environment_variable', '')   #fetch user-specified decorator (if any)
 
 if os.environ.get('no_tick') == "1": TICK = False
 else                               : TICK = True
@@ -66,6 +90,13 @@ else                               : TICK = True
 
 if os.environ.get('no_double_lines',0) == "1": DOUBLE_LINES_ENABLED = False
 else                                         : DOUBLE_LINES_ENABLED = True                                       #DEBUG: print(f"DOUBLE_LINES_ENABLED={DOUBLE_LINES_ENABLED}")
+
+#vars
+current_processing_segment = 0
+spacer = ""
+
+
+
 
 
 def enable_vt_support():                                                                                        #this was painful to figure out
@@ -91,33 +122,43 @@ def get_random_color(bg=False, hex=False):                                      
     if hex: return convert_rgb_tuple_to_hex_string_with_hash(rand_r, rand_g, rand_b)
     else  : return            rand_r, rand_g, rand_b
 
-def enclose_numbers(line): return re.sub(r'(\d+)', r'\033[21m\1\033[24m', line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
+def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' + DOUBLE_UNDERLINE_OFF, line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
 
 
 
 def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
+    original_line_buffer = line_buffer
+    global current_processing_segment
     color_change_ansi = f'\033[38;2;{r};{g};{b}m'
-    ansi_reset = '\033[0m' + move_decorator
+    our_ansi_reset = ANSI_RESET + move_decorator_from_environment_variable
 
     double  = False
     summary = False
+
+    if whisper_ai: additional_beginning_ansi=""         #kludging a situation
 
     if any(substring in line_buffer for substring in FOOTERS):                                                  #identify if we're in a footer/summary line
         line_buffer = enclose_numbers(line_buffer)
         double      = True
         summary     = True
 
-    if nomoji is True:
+    line = ""
+    if nomoji is True:                                                                                          # Start the line off
         line = ""
     else:
-        line = move_decorator                                                                                                      #decorate with environment-var-supplied decorator if applicable
+        line = move_decorator_from_environment_variable                                                                                                      #decorate with environment-var-supplied decorator if applicable
         if   any(substring in line_buffer for substring in file_removals ): line += EMOJIS_DELETE                                  #treatment for file deletion lines
-        elif any(substring in line_buffer for substring in ["Y/N/A/R)"]  ): line += EMOJIS_PROMPT                                  #treatment for  user prompt  lines
+        elif any(substring in line_buffer for substring in ["Y/N/A/R)"]  ):
+            line += EMOJIS_PROMPT                                  #treatment for  user prompt  lines
+            #print(f"[line buffer={line_buffer}")
         elif any(substring in line_buffer for substring in ["=>","->"]   ): line += EMOJIS_COPY                                    #treatment for   file copy   lines
         elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):                                                        #treatment for error message lines
-            double = True;                                                  line += EMOJIS_ERROR + f'\033[6m\033[3m\033[4m\033[7m'
+            double = True;                                                  line += EMOJIS_ERROR + f'{BLINK_ON}{ITALICS_ON}{UNDERLINE_ON}{REVERSE_ON}'
         elif summary:                                                       line += EMOJIS_SUMMARY                                 #treatment for summary lines
         else:                                                               line += f'  '                                          #TODO figure out why this line is here
+
+    original_line  = original_line_buffer.rstrip()
+    original_line2 =          line_buffer.rstrip()
 
     if summary:                                                                                                # Handle transformation for summary lines
         pattern = "|".join(re.escape(footer) for footer in FOOTERS)
@@ -132,16 +173,46 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 line_buffer = line_buffer.replace(footer, "", 1).strip()                                       # Update line_buffer to remove the footer we just matched
         line_buffer = f'\n{EMOJIS_SUMMARY}'.join(lines)
 
-    line += f'{color_change_ansi}{additional_beginning_ansi}{line_buffer.rstrip()}\033[0m\n'
+    line += f'{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                          #make line be our random color
 
+    # postprocess line:
     if not nomoji:
-        line = line.replace(' => ' , f'{ansi_reset} => {color_change_ansi}')                                  #\
-        line = line.replace(' -> ' , f'{ansi_reset} -> {color_change_ansi}')                                  # \      Keep all these characters in the default font color, which
-        line = line.replace( '=>>' , f'{ansi_reset}↪️{   color_change_ansi}')  #this arrow looks better here   #  \     is the one succeptible to the color-cycling that we use
-        line = line.replace(   '.' , f'{ansi_reset}.{   color_change_ansi}')                                  #   >---
-        line = line.replace(   ':' , f'{ansi_reset}:{   color_change_ansi}')                                  #  /
-        line = line.replace( ' - ' , f'{ansi_reset} - { color_change_ansi}')                                  # /
-        line = line.replace(  '\\' , f'{ansi_reset}\\{  color_change_ansi}')                                  #/
+        line = line.replace(' => ' , f'{our_ansi_reset} => {color_change_ansi}')                                  #\
+        line = line.replace(' -> ' , f'{our_ansi_reset} -> {color_change_ansi}')                                  # \      Keep all these characters in the default font color, which
+        line = line.replace( '=>>' , f'{our_ansi_reset}↪️{   color_change_ansi}')  #this arrow looks better here   #  \     is the one succeptible to the color-cycling that we use
+        line = line.replace(   '.' , f'{our_ansi_reset}.{   color_change_ansi}')                                  #   >---
+        line = line.replace(   ':' , f'{our_ansi_reset}:{   color_change_ansi}')                                  #  /
+        line = line.replace( ' - ' , f'{our_ansi_reset} - { color_change_ansi}')                                  # /
+        line = line.replace(  '\\' , f'{our_ansi_reset}\\{  color_change_ansi}')                                  #/
+
+    if whisper_ai:
+            if additional_beginning_ansi: print(f"additional beginning ansi={additional_beginning_ansi.lstrip(1)}")         #🐐
+            spacer = "                "
+            spacer_less = "           "
+            if verbose: print(f"orig_line is [orig={original_line}][line={line}]")
+            if "[ctranslate2]" in line:
+                #print ("ctranslate line found!")#🐐
+                line = FAINT_ON + COLOR_GREY + spacer + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
+            if  original_line.startswith("Standalone Faster-Whisper-XXL "):
+                line = line.replace("Standalone Faster-Whisper-XXL", "\n🚀 Standalone Faster-Whisper-XXL 🚀").replace(" running on:",":")
+            if  original_line.startswith("Starting work on: "):
+                line = line.replace("Starting work on: ",f"Starting work on: {ITALICS_ON}")
+            if  original_line.startswith("Transcription speed: "):
+                line = line.replace("Transcription speed: ",f"{FAINT_ON}{COLOR_GREY}⭐Transcription speed: {ITALICS_ON}")
+            if  original_line.startswith("Subtitles are written to '"):
+                line = line.replace("Subtitles are written to '",f"✅ Subtitles are written to '{ITALICS_ON}{BOLD_ON}").replace("' directory.",f"{BOLD_OFF}{ITALICS_OFF}' directory. ✅")
+            if  original_line.startswith("  Processing segment at "):
+                current_processing_segment += 1
+                if current_processing_segment > 1: print("")
+                line = line.replace(    f"  Processing segment at ",f"{COLOR_GREY}{FAINT_ON}{spacer_less}♬ Processing segment at: {ITALICS_ON}" ) + ITALICS_OFF + FAINT_OFF
+            if  original_line.startswith("* Compression ratio threshold is not"):
+                line = line.replace(    f"* Compression ratio threshold is not",f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Compression ratio threshold is not") + FAINT_OFF
+            if  original_line.startswith("* Log probability threshold is not"):
+                line = line.replace(    f"* Log probability threshold is not"  ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Log probability threshold is not"  ) + FAINT_OFF
+            if "Reset prompt. prompt_reset_on_temperature threshold is met" in line:
+                line = line.replace("* Reset prompt. ",COLOR_GREY + FAINT_ON + spacer + "* Reset prompt. ") + FAINT_OFF
+            if " --> " in line:
+                line = f"🌟 {BLINK_ON}" + line.replace("]  ",f"]{BLINK_OFF}{ANSI_RESET}{ITALICS_ON}  ")
 
     lines_to_print = line.split('\n')                                                                         #there really shouldn't be a \n in our line, but things happen
     i = 0
@@ -151,9 +222,10 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 sys.stdout.write(f'{myline}')
             else:
                 enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838
-                #sys.stdout.write(f'\033[1G')   #20240324: adding '\033[1G' as ??bugfix?? for ansi creeping out due to TCC error and mis-aligning our double-height lines - prepend the ansi code to move to column 1 first, prior to printing our line
-                #sys.stdout.write(f'\033[1G\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
-                sys.stdout.write(f'\033[1G\033#3\033[38;2;{r};{g};{b}m{myline}\n\033#4\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
+                #ys.stdout.write(f'{MOVE_TO_COL_1}')   #20240324: adding '{MOVE_TO_COL_1}' as ??bugfix?? for ansi creeping out due to TCC error and mis-aligning our double-height lines - prepend the ansi code to move to column 1 first, prior to printing our line
+                #ys.stdout.write(f'{MOVE_TO_COL_1}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
+                sys.stdout.write(f'{MOVE_TO_COL_1}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n')
+                sys.stdout.write(               f'{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
                 sys.stdout.flush()
     sys.stdout.write('\n')
 
@@ -177,68 +249,116 @@ t.start()
 
 line_buffer = ""
 in_prompt = False
-additional_beginning_ansi = move_decorator
-r, g, b = get_random_color()
-rgbhex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
-#r_hex, g_hex, b_hex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
-#sys.stdout.write(f"rgbhex is {rgbhex}\n")
-#sys.stdout.write(f"sys.argv is {sys.argv}\n")
+additional_beginning_ansi = move_decorator_from_environment_variable
+
+# random color hex testing
+#r, g, b = get_random_color()
+#rgbhex_with_pound_sign = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
+##r_hex, g_hex, b_hex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
+##sys.stdout.write(f"rgbhex_with_pound_sign is {rgbhex_with_pound_sign}\n")
+##sys.stdout.write(f"sys.argv is {sys.argv}\n")
+
+# initialize various variables
 verbose = False
-my_mode = DEFAULT_MODE
+whisper_ai = False
+current_processing_segment = 0
+my_mode = DEFAULT_COLOR_CYCLE_MODE
+background_color_switch_maybe = ""
+r = ""
+g = ""
+b = ""
+
+
 #sys.stdout.write(f"sys.argv is {sys.argv}\n")
 if len(sys.argv) > 1:
     #sys.stdout.write(f"sys.argv[1] is {sys.argv[1]}\n")
     if sys.argv[1] == 'bg' or sys.argv[1] == 'both': my_mode = sys.argv[1]
     for arg in sys.argv[1:]:
-        if arg in ["nomoji", "no-emoji"]: nomoji  = True
+        if arg.lower() in ["n", "-n", "--n", "nomoji", "-nomoji", "--nomoji", "no-emoji", "-no-emoji", "--no-emoji"]: nomoji  = True
     for arg in sys.argv[1:]:
-        if arg in [    "-v",  "verbose"]: verbose = True
-if verbose: sys.stdout.write(f"my_mode is {my_mode}\n")
-if verbose: sys.stdout.write(f"nomoji  is {nomoji }\n")
+        if arg.lower() in ["v", "-v", "--v", "verbose", "-verbose", "--verbose"]: verbose = True
+    for arg in sys.argv[1:]:
+        if arg.lower() in ["w", "-w", "--w", "whisperai", "-whisperai", "--whisperai", "whisper", "-whisper", "--whisper"]:
+            whisper_ai = True
+            nomoji     = True
 
+if whisper_ai: COLOR_QUESTION_BACKGROUNDS = False
+
+if verbose:
+    sys.stdout.write(f"    * verbose    is {verbose                   }\n")
+    sys.stdout.write(f"    * my_mode    is {my_mode                   }\n")
+    sys.stdout.write(f"    * nomoji     is {nomoji                    }\n")
+    sys.stdout.write(f"    * whisper_ai is {whisper_ai                }\n")
+    sys.stdout.write(f"    * color ? bg is {COLOR_QUESTION_BACKGROUNDS}\n")
 #enable_vt_support()
 
-#DEBUG:print(f"nomoji is {nomoji}")
+#whether to blink text or not
+blink_maybe = BLINK_ON;
+if nomoji or whisper_ai: BLINK_ON=""
+
 
 while t.is_alive() or not q.empty():
 #hile True:
     # It's tempting to process things line-by-line, but due to prompts and such, we must process things char-by-char
     try:
         char = q.get(timeout=0.008)                                                                                                     # grab the characters *this* fast!
-
         if char is None: break                                                                                                          # but not much faster because we're probably coming right back if no chars are in the buffer yet
+        line_buffer += char
 
         if TICK: claire.tick(mode=my_mode)
-        line_buffer += char
+
+        if (char == '?' and not in_prompt) or (char == '\n' and not in_prompt):
+            r ,  g,  b = get_random_color()                                                      # Generate random colors for the branches below that need them [a refactoring]
 
         if char == '?' and not in_prompt:         #coloring for copy/move prompts, so we can make them blinky & attention-get'y
             in_prompt = True
-            bgr, bgg, bgb = get_random_color(bg=True)                                                                                   # Reset for the next line
-            r  ,   g,   b = get_random_color()                                                                                          # Reset for the next line
-            rgbhex        = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
-            #ys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
-            if nomoji:
-                sys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m\033[ q\033]12;{rgbhex}\007{additional_beginning_ansi}'    + f'   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
+
+            #color switching logic: background colors:
+            if COLOR_QUESTION_BACKGROUNDS:
+                bgr, bgg, bgb = get_random_color(bg=True)                           # Reset for the next line
+                background_color_switch_maybe = f"\033[48;2;{bgr};{bgg};{bgb}"
             else:
-                sys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m\033[ q\033]12;{rgbhex}\007{additional_beginning_ansi}❓❓' + f'   \033[6m{line_buffer} \033[0m') #\033[0m #\033[1C
+                background_color_switch_maybe = ""
+
+            #color switching logic: foreground colors:
+            #r ,  g,  b = get_random_color()                                                      # Reset for the next line
+            foreground_color_switch = f"\033[38;2;{r};{g};{b}m"
+
+            #color switching logic: cursor: Ansi code for changing cursor color to a hex rgb is: [ESCAPE][ q[ESCAPE]]12;#FF00ff[BELL]
+            rgbhex_with_pound_sign        = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
+            #ys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   {BLINK_ON}{line_buffer} {ANSI_RESET}') #\033[0m
+            cursor_color_switch_by_hex = f"{CURSOR_RESET}\033" + f"]12;{ rgbhex_with_pound_sign}\007"             #*[ q*12;#FFFFFF{beep}
+
+            #color switching logic: blinking text — moved to before this loop because it only needs to happen once
+            #blink_maybe = BLINK_ON;
+            #if nomoji: BLINK_ON=""
+
+            #spacer logic
+            line_spacer = ""
+            if not whisper_ai: line_spacer = "   "
+
+            ##### ACTUALLY PRINT OUT THE LINE:
+            sys.stdout.write(f'{background_color_switch_maybe}{foreground_color_switch}{CURSOR_RESET}{cursor_color_switch_by_hex}{additional_beginning_ansi}'    + f'{line_spacer}{blink_maybe}{line_buffer} {ANSI_RESET}') #\033[0m #\033[1C
             #moved to end of loop: sys.stdout.flush()                                                                                   # Flush the output buffer to display the prompt immediately
+            sys.stdout.flush()                    #added 2024/10/31 and unsure of necesity
             line_buffer = ""
         elif in_prompt and char == '\n':          #if we hit end-of-line in a copy/move user prompt, flush the output so the user can see the prompt... promptly
             in_prompt = False
-            sys.stdout.write(f'\033[1D{line_buffer.rstrip()}\033[0m\n')
+            #ys.stdout.write(f'\033[1D{line_buffer.rstrip()}[0m\n')
+            sys.stdout.write(f'\033[1D{line_buffer.rstrip()}{ANSI_RESET}\n')
             sys.stdout.flush()
             line_buffer = ""
         elif char == '\n':                        #if we hit end of line NOT in a copy/move user prompt
             if not nomoji:
-                if any(substring in line_buffer for substring in FOOTERS): additional_beginning_ansi += "\033[6m"                       # make it blink
+                if any(substring in line_buffer for substring in FOOTERS): additional_beginning_ansi += BLINK_ON                        # make it blink
             print_line(line_buffer, r, g, b, additional_beginning_ansi)
             line_buffer               = ""                                                                                              # Reset for the next line
             additional_beginning_ansi = ""                                                                                              # Reset for the next line
-            r, g, b = get_random_color()                                                                                                # Reset for the next line
+            #r, g, b = get_random_color()                                                                                                # Reset for the next line
 
             #REFERENCE: function ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                                 # with "#" in front of color
-            #rgbhex = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)                                                                  # Reset for the next line
-            #additional_beginning_ansi = f"\033[ q\033]" + "12;" + rgbhex + f"\007"                                                     # Reset for the next line: make cursor same color 🐐
+            #rgbhex_with_pound_sign = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)                                                                  # Reset for the next line
+            #additional_beginning_ansi = f"{CURSOR_RESET}\033]" + "12;" + rgbhex_with_pound_sign + f"\007"                                                     # Reset for the next line: make cursor same color 🐐
 
     except queue.Empty:
         if TICK: claire.tick(mode=my_mode)                                                                                                          # color-cycle the default-color text using my library

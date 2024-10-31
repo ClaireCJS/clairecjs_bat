@@ -157,7 +157,7 @@ rem —————————————————————————�
                         function                 SET_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
                         function                     CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
 
-                rem Changing color by hex, i.e. 'FF0000', 'FF00FF':
+                rem Changing color by hex, i.e. 'FF0000', 'FF00FF':   *[ q*12;#FFFFFF{beep}
                         function     ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                  %+ rem like above section but with "#" in front of color
                         function     ANSI_CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
                         function          CURSOR_COLOR_CHANGE_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`

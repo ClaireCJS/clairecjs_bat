@@ -135,7 +135,8 @@
 2024-06-12  12:11            536   46%  clean-rocksmith-dlc-dir.bat
 2023-10-06  08:03             21   -9%  clean.bat
 2019-10-01  10:27             55    0%  clear-buffered-keystrokes.bat
-2023-07-19  11:13             20    5%  clip.bat
+2024-10-31  22:24             20  -10%  clip.bat
+2024-10-31  22:25             25    4%  clipboard.bat
 2024-05-26  15:17          1,049   42%  cls.bat
 2024-04-28  12:42             55    8%  collapse-all-directories.bat
 2024-06-05  14:16          1,686   59%  collapse-all-subfolders-into-current-folder.bat
@@ -172,7 +173,7 @@
 2024-10-21  04:02             36   -5%  cool-header.bat
 2024-10-21  04:00             26   -7%  coolbigecho.bat
 2024-08-26  21:12            680   43%  copy-alias.bat
-2024-10-30  11:28         16,180   73%  copy-move-post.py
+2024-10-31  22:57         22,994   73%  copy-move-post.py
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
@@ -184,7 +185,7 @@
 2024-10-18  13:13            243   37%  create-directory-and-recursive-playlists.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
 2024-10-27  07:02            401   43%  create-lrc-file-for-currently-playing-song.bat
-2024-10-31  08:31         34,684   73%  create-lrc-from-file.bat
+2024-10-31  20:57         38,353   72%  create-lrc-from-file.bat
 2019-10-01  10:27            336   39%  create-symlinks-by_Letter_only.bat
 2023-05-28  09:30         24,782   80%  create-symlinks.bat
 2024-04-10  12:38            459   35%  create-these_m3u-playlists.bat
@@ -376,7 +377,7 @@
 2024-10-29  13:40            400   42%  get-lyrics-for-currently-playing-song.bat
 2024-10-31  08:04             45   -4%  get-lyrics-for-song.bat
 2024-10-29  13:41             30   -6%  get-lyrics-from-song.bat
-2024-10-31  08:31         24,508   75%  get-lyrics-via-multiple-sources.bat
+2024-10-31  20:58         26,926   75%  get-lyrics-via-multiple-sources.bat
 2024-10-28  17:09          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
 2024-10-29  14:10             47   -4%  get-lyrics-with-lyricsgenius.bat
 2024-10-29  14:23            168   41%  get-lyrics.bat
@@ -456,7 +457,8 @@
 2024-08-09  12:59          1,886   60%  insert-after-each-filename.bat
 2019-10-01  10:28            120   18%  insert-after-each-line.pl
 2024-08-09  12:53          1,518   58%  insert-before-each-filename.bat
-2019-10-01  10:28            120   18%  insert-before-each-line.pl
+2024-10-31  11:01            185   15%  insert-before-each-line.pl
+2024-10-31  11:12            517   39%  insert-before-each-line.py
 2024-10-06  11:12          1,627   61%  insert-foldername-into-end-of-filenames.bat
 2024-10-26  18:13          2,081   59%  install-autoexec-launcher-to-startup.bat
 2024-10-11  10:08         14,688   75%  install-common-programs-with-winget-helper.cmd
@@ -727,7 +729,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-08-20  07:37             21   -9%  set-all_colors.bat
-2024-10-30  01:51         85,626   82%  set-ansi.bat
+2024-10-31  21:57         85,650   82%  set-ansi.bat
 2024-05-02  18:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-10-04  07:36          1,804   70%  set-automatic-login-to-windows-ON.bat
 2019-10-01  10:27            120   16%  set-background-picture-for-johnsbackgroundswitcher.bat
@@ -889,7 +891,7 @@
 2024-03-24  19:17            300   42%  undep.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
-2024-10-31  08:11          4,092   58%  unique-lines.pl
+2024-10-31  21:07          4,283   58%  unique-lines.pl
 2024-10-29  14:23            535   55%  unknown-shipper-tracking.bat
 2024-10-21  11:50             35   -5%  unknown-tracking.bat
 2024-10-23  17:32             21   -9%  unlock-header.bat

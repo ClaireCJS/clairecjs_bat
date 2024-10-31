@@ -1,5 +1,7 @@
 #!/usr/local/bin/perl
 
+#### THE PYTHON VERSION IS 32% SLOWER....BUT IT HANDLES EMOJI
+
 my $line;
 
 while ($line=<STDIN>) {

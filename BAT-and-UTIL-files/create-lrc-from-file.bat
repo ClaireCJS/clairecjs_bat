@@ -1,30 +1,34 @@
-@Echo on
+@Echo off
 
+rem TODO if lyrics are approved already, don't ask about them
 
-rem Not sure if applicable with 2024 version: :USAGE: set SKIP_TEXTFILE_PROMPTING=1   {this is the default but pre-prompting with a companion text file can be turned off}
-rem Not sure if applicable with 2024 version: :USAGE: set SKIP_SEPARATION=1           {this is the default but separating  vocal   tracks  out  first   can be turned off}
+rem TODO maybe add NoLyrics mode to not consider lyrics?
 
 :USAGE: lrc.bat whatever.mp3 {force|ai} {options to pass on to whisper} ... ai=force ai regeneration, force=proceed even if LRC file is there
-rem Not sure if applicable with 2024 version: :USAGE: lrc.bat whatever.mp3 keep       {keep vocal files after separation}
-rem Not sure if applicable with 2024 version: :USAGE: lrc.bat last                    {quick retry again at the point of creating the lrc file —— separated vocal files must already exist}
 
-:REQUIRES: environment variables COLORS_HAVE_BEEN_SET (means our color-related shortcut environment variables have been defined), QUOTE (quote mark)
+:REQUIRES:     <see validators>
+:DEPENDENCIES: 2024 version: Faster-Whisper-XXL.exe delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat —— see validators for complete list
 :DEPENDENCIES: 2023 version: whisper-faster.bat delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat
-:DEPENDENCIES: 2024 version: Faster-Whisper-XXL.exe delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat
+
+
+REM OLD 2023 USAGE:
+rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat whatever.mp3 keep  {keep vocal files after separation}
+rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat last               {quick retry again at the point of creating the lrc file —— separated vocal files must already exist}
 
 REM CONFIG: 2024: 
         set TRANSCRIBER_TO_USE=Faster-Whisper-XXL.exe                    %+ rem Command to generate/transcribe [with AI]
         set TRANSCRIBER_PRNAME=faster-whisper-xxl                        %+ rem ^^^^^^^^^^^^^^^^^^^^ how this shows up in the process last (type "tasklist" to see) ... Generally the base name of any EXE
+        set OUR_LANGUAGE=en
         set LOG_PROMPTS_USED=1                                           %+ rem 1=save prompt used to create SRT into sidecar ..log file
         set SKIP_SEPARATION=1                                            %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn't work anymore
         SET SKIP_TEXTFILE_PROMPTING=0                                    %+ rem 0=use lyric file to prompt AI, 1=go in blind
 rem CONFIG: 2024: WAIT TIMES:
-        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=60                      %+ rem wait time for "are these lyrics good?"-type questions
+        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                     %+ rem wait time for "are these lyrics good?"-type questions
         set AI_GENERATION_ANYWAY_WAIT_TIME=45                            %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
         set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=45          %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
         set PROMPT_CONSIDERATION_TIME=15                                 %+ rem wait time for "does this AI command look sane"-type questions
         set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=1           %+ rem wait time for "hey lyrics not found!"-type notifications/questions
-        set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=40                      %+ rem wait time for "edit it now that we've made it?"-type questions
+        set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=300                     %+ rem wait time for "edit it now that we've made it?"-type questions ... Have decided it should probably last longer than the average song
         rem ^^^^ TODO: automation mode where all these get shortened to quite significantly, or all to 3, or all to 1, or something 🐮
 
 REM config: 2023:
@@ -43,18 +47,19 @@ REM validate environment [once]:
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
                 @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat
-                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning TRANSCRIBER_PRNAME ansi_color_warning_soft
+                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning TRANSCRIBER_PRNAME ansi_color_warning_soft ANSI_COLOR_BLUE
                 @call validate-is-function           randfg_soft
                 @call checkeditor
                 @set VALIDATED_CREATE_LRC_FF=1
         endiff
 
 
-REM branch on certain paramters
+REM branch on certain paramters, and clean up various parameters 
         set PARAM_2=%2
         if "%1" eq "last" (goto :actually_make_the_lrc)
         set FORCE_REGEN=0
-        if "%2" eq "force-regen" .or. "%2" eq "redo" (set FORCE_REGEN=1 %+ set PARAM_2=)
+        if "%2" eq "force-regen" .or. "%2" eq "redo" (set FORCE_REGEN=1 %+ set PARAM_2=) %+ rem Any %2 that is a mode needs to get "the param_2 treatment" 
+        if "%2" eq "ai" (set PARAM_2=)                                                   %+ rem Any %2 that is a mode needs to get "the param_2 treatment"
         set MAKING_KARAOKE=1
 
 
@@ -268,32 +273,49 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         rem 9:
         set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_filter False   
         set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --vad_filter False   -vad_threshold 0.35 --verbose True
+rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  -vad_threshold 0.35 --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200
+rem     rem 10v1: is better than 9 in one case, same in another
+rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 201
+rem     rem 11v2: worse than 9 or 10 definitely doesn't pick up on as many lyrics as prompt v9 prompt
+rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 202 --vad_threshold 0.35
         rem 9v3: making vad_filter false requires taking out other vad-related args or it errors out
         set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --verbose True
         rem 9v4: seeing if --sentence still works with 9v3 ... may have to remove verbose?
         set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True
         rem 9v5:  let's experiment with maxlinecount=1
         set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True %PARAM_2% %3$
-        rem 9v6:  changing to use equals between some args
-        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True 
-rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  -vad_threshold 0.35 --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200
-rem     rem 10: is better than 9 in one case, same in another
-rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 201
-rem     rem 11: worse than 9 or 10 definitely doesn't pick up on as many lyrics as prompt v9 prompt
-rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 202 --vad_threshold 0.35
-
-        rem NEW IDEAS TO TRY:
-        rem Try a 9 with --sentence
-
-        rem THE IDEA GARBAGE GAN:
-        rem Possible improvements, but in practice missedl ike 2/3rds of X-Ray Spex - Oh Bondage, Up yours! (blooper live version from 2-cd set) whereas vad_filter=false did not
+        rem THE IDEA GARBAGE CAN: 9v5:
+        rem Possible improvements, but in practice missed like 2/3rds of X-Ray Spex - Oh Bondage, Up yours! (blooper live version from 2-cd set) whereas vad_filter=false did not
         rem --vad_max_speech_duration_s 5:     [default= ♾] Limits the maximum length of a speech segment to 5 seconds, forcing breaks if a segment runs too long.
         rem --vad_min_speech_duration_ms 500:  [default=250] Ensures that speech segments are at least 500ms long before considering a split.
         rem --vad_min_silence_duration_ms 300: [default=100] Splits subtitles at smaller pauses (300ms).
         rem --vad_speech_pad_ms 200:           [default= 30] Ensures a 200ms buffer around detected speech to avoid clipping.
+        rem 9v6:  changing to use equals between some args
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True 
+        rem Alas, completely disabling VAD filter results in major major major hallucinations during silence... Let's try turning it on again, sigh.
+        rem 10v2: gave "unrecognized arguments: --vad_filter_threshold=0.2" oops it should be vad_threshold not vad_filter_threshold plus we had accidentally left vad_filter=False
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_filter_threshold=0.2 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
+        rem 10v3: 
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.2 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
 
-        rem If you suspect parts of the lyrics aren’t being transcribed:
+        rem --vad_dump 
+        rem     Enabling --vad_dump might reveal how changes to vad_window_size_samples affect VAD output and help approximate the default behavior based on responsiveness.                               
+        rem --vad_alt_method 
+        rem     Different music separation engines: [--vad_alt_method {silero_v3,silero_v4,pyannote_v3,pyannote_onnx_v3,auditok,webrtc}]
+        rem --nullify_non_speech 
+        rem     Avoiding Hallucinations: Sometimes, background noise or soft sounds may cause WhisperAI to “hallucinate” words. --nullify_non_speech helps eliminate this by focusing transcription on clearer speech.
+        rem --max_new_tokens
+        rem     Purpose: This option limits the maximum number of tokens that WhisperAI generates per segment.
+        rem     How it Works: WhisperAI’s model produces text in tokens (small chunks of words or sounds), and --max_new_tokens restricts the number of tokens generated for each detected segment. When the token limit is reached, transcription stops for that segment and moves on to the next.
+        rem     When to Use It:
+        rem     Control Segment Length: If you’re transcribing long audio files, especially ones with background noise, this option prevents overly long transcriptions for a single detected speech segment, helping keep segments manageable and aligned with the audio.
+        rem     Reduce Noise-Induced Errors: In noisy environments, background sounds may stretch a transcription segment unnecessarily. --max_new_tokens allows you to limit the impact of background noise by truncating overly long sections.
+        rem     Improve Processing Speed: Setting a lower max_new_tokens value can reduce the time spent on ambiguous or prolonged segments. This is useful if you’re prioritizing speed and only need shorter, precise snippets of audio transcribed.
+        rem --vad_window_size_samples VAD_WINDOW_SIZE_SAMPLES
+        rem     A typical starting point for vad_window_size_samples is 10 ms to 30 ms of audio data, which would correspond to sample counts based on the audio's sampling rate (for example, 441 samples for 10 ms at a 44.1 kHz sample rate). You could try values within this range to see how they affect detection sensitivity and stability.
+        rem --vad_threshold
         rem         Lower the VAD threshold to 0.35 or 0.3 to capture more detail.
+        rem --vad_filter_off
         rem         Disable VAD filtering with --vad_filter_off to ensure the whole audio is processed without aggressively skipping sections.
 
         rem NOTE: We also have --batch_recursive - {automatically sets --output_dir}
@@ -352,8 +374,6 @@ REM        :Vocal_Separation_Skipped
 rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
 
 
-
-
 REM does our input file exist?
         call validate-environment-variable  INPUT_FILE
 
@@ -367,7 +387,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         @call AskYn "Proceed with this AI generation?" yes %PROMPT_CONSIDERATION_TIME%
         iff "%answer%" eq "N" then
                 @call warning "Aborting because you changed your mind..."
-                sleep 8
+                sleep 1
                 goto :END
         endiff
 
@@ -390,7 +410,7 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
         @echo.
         @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% AI running! %EMOJI_FIREWORKS%%ansi_color_normal%
         set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"    
-                                 %TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"        |:u8  copy-move-post nomoji
+                                 %TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"        |:u8  copy-move-post whisper 
 
         
         if %LOG_PROMPTS_USED% eq 1 (@echo %_DATETIME: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>"%@NAME[%INPUT_FILE].log")
@@ -471,15 +491,13 @@ else
 
         rem A chance to edit:
                 @call divider
-                @echo.
-                @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check% %underline_on%SRT file contents:%underline_off%
+                @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%SRT file contents%underline_off%:
                 @echos %ANSI_COLOR_BRIGHT_GREEN%
                 rem fast_cat fixes ansi rendering errors ins ome situations
                 rem (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        "     |:u8 fast_cat
-                (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line  "SRT:        %CHECK%" |:u8 fast_cat
-                @echo.
+                rem (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "SRT:        %CHECK%" |:u8 fast_cat
+                (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
                 @call divider
-                @echo.
                 @call askyn "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME%
                 iff "%ANSWER" == "Y" then
                         @echo %ANSI_COLOR_DEBUG%%EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
@@ -493,7 +511,7 @@ endiff
 
 :END
 :Cleanup
-@echos %FAINT_ON%
+@echos %ANSI_COLOR_BLUE%%FAINT_ON%
 timer /5 off
 set MAKING_KARAOKE=0
 unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY

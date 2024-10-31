@@ -1,3 +1,1 @@
-@echo %*>clip:
-
-
+@call clipboard %*

@@ -52,17 +52,26 @@ while (<STDIN>) {
 	$line =~ s/\n//ig;		#get rid of newline
 
 	if ($LYRICS_MODE) {
+		#formatting
 		$line =~ s/ +$//;					#remove trailing spaces
 		$line =~ s/([a-z])$/$1,/ig;			#if line ends in letter, add comma to end of it —— to give WhisperAI a better sense of where to split lines
 		$line =~ s/^-+//;					#get rid of lines like: ---------------
+
+		#content
+		$line =~ s/\*? (\[lyrics4all\]|No|\[sing365\]) filter used//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
-        $line =~ s/\*? (\[lyrics4all\]|No) filter used//i;
 		$line =~ s/Get tickets as low as \$[\d\.]+//i;
+
+		#commas and quotes
 		$line =~ s/^, *$//;
-	    $line =~ s/"/'/g;			#for use in AI command line prompt enclosedi n quotes
+	    $line =~ s/"/'/g;			#for use in AI command line prompt enclosed in quotes
+
+		#dynamic content removals {uses environment variables set in create-lyrics bat}
 		if ($artist ne "") { $line =~ s/See $artist Live\b//i; }
+
+		#formatting: dealing with ALL CAPS LYRICS
 		#if there are >=10 all-caps letters and no lowercase letters, lowercase the line
 		if (($line =~ /[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z]/) && ($line !~ /[a-z]/)) {
 			$line = lc($line);
