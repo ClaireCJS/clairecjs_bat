@@ -184,7 +184,7 @@
 2024-10-18  13:13            243   37%  create-directory-and-recursive-playlists.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
 2024-10-27  07:02            401   43%  create-lrc-file-for-currently-playing-song.bat
-2024-10-31  02:29         33,751   73%  create-lrc-from-file.bat
+2024-10-31  08:31         34,684   73%  create-lrc-from-file.bat
 2019-10-01  10:27            336   39%  create-symlinks-by_Letter_only.bat
 2023-05-28  09:30         24,782   80%  create-symlinks.bat
 2024-04-10  12:38            459   35%  create-these_m3u-playlists.bat
@@ -374,9 +374,9 @@
 2024-10-10  11:49            422   49%  get-currently-playing-tracknum-from-wawi-index_html.pl
 2023-07-04  20:09            549   59%  get-image-dimensions.bat
 2024-10-29  13:40            400   42%  get-lyrics-for-currently-playing-song.bat
-2024-10-28  16:46            211   28%  get-lyrics-for-song.bat
+2024-10-31  08:04             45   -4%  get-lyrics-for-song.bat
 2024-10-29  13:41             30   -6%  get-lyrics-from-song.bat
-2024-10-31  02:16         24,150   75%  get-lyrics-via-multiple-sources.bat
+2024-10-31  08:31         24,508   75%  get-lyrics-via-multiple-sources.bat
 2024-10-28  17:09          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
 2024-10-29  14:10             47   -4%  get-lyrics-with-lyricsgenius.bat
 2024-10-29  14:23            168   41%  get-lyrics.bat
@@ -889,7 +889,7 @@
 2024-03-24  19:17            300   42%  undep.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
-2024-10-31  02:29          1,498   48%  unique-lines.pl
+2024-10-31  08:11          4,092   58%  unique-lines.pl
 2024-10-29  14:23            535   55%  unknown-shipper-tracking.bat
 2024-10-21  11:50             35   -5%  unknown-tracking.bat
 2024-10-23  17:32             21   -9%  unlock-header.bat

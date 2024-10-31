@@ -37,11 +37,12 @@ REM Pre-run cleanup:
         timer /5 on                     %+ rem Let's time the overall process
         @call tock                      %+ rem purely cosmetic
         unset /q LYRIC_ATTEMPT_MADE
+        unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY
 
 REM validate environment [once]:
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
-                @call validate-in-path               %TRANSCRIBER_TO_USE%  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat
+                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat
                 @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning TRANSCRIBER_PRNAME ansi_color_warning_soft
                 @call validate-is-function           randfg_soft
                 @call checkeditor
@@ -50,9 +51,10 @@ REM validate environment [once]:
 
 
 REM branch on certain paramters
+        set PARAM_2=%2
         if "%1" eq "last" (goto :actually_make_the_lrc)
         set FORCE_REGEN=0
-        if "%2" eq "force-regen" .or. "%2" eq "redo" (set FORCE_REGEN=1)
+        if "%2" eq "force-regen" .or. "%2" eq "redo" (set FORCE_REGEN=1 %+ set PARAM_2=)
         set MAKING_KARAOKE=1
 
 
@@ -109,18 +111,15 @@ REM if our input MP3/FLAC/audio file doesn't exist, we have problems:
 
 
 REM if we already have a SRT file, we have a problem:
-        iff exist "%SRT_FILE%" then
+        iff exist "%SRT_FILE%" .and. %OKAY_THAT_WE_HAVE_SRT_ALREADY ne 1 then
                 iff exist "%TXT_FILE%" then
                         @call divider
                         @call less_important "(5) Review the lyrics now:" 0
                         @call divider
                         @echos %ANSI_COLOR_BRIGHT_YELLOW%
-                        type "%TXT_FILE%" | insert-before-each-line "        "
-                        @echo.
-                        @echo.
+                        rem unique-lines -A is a bit of a misnomer because it gives ALL lines, but with -L it gives us a preview of some of the lyric massage prior to the AI prompt
+                        type "%TXT_FILE%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
                         @call divider
-                        @echo.
-                        @echo.
                 endiff
                 @call bigecho %ansi_color_warning%%emoji_warning%Already have karaoke!%emoji_warning%%ansi_color_normal%
                 @call warning "We already have a file created: %emphasis%%srt_file%%deemphasis%"
@@ -143,6 +142,7 @@ REM if we already have a SRT file, we have a problem:
                         iff exist "%SRT_FILE%" then
                                 ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak" >nul
                         endiff
+                        set OKAY_THAT_WE_HAVE_SRT_ALREADY=1
                         goto :Force_AI_Generation
                 else
                         @call warning_soft "Not generating anything, then..."
@@ -211,6 +211,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 @call advice       "Use 'force' option to override."
                 @call advice       "Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!"
                 @call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
+                :Refetch_Lyrics
                 call get-lyrics "%SONGFILE%" 
                 set LYRIC_ATTEMPT_MADE=1
                 goto :We_Have_A_Text_File_Now
@@ -218,32 +219,32 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
         :We_Have_A_Text_File_Now
 
 
-rem Mandatory review of lyrics:
+rem Mandatory review of lyrics 
         iff exist "%TXT_FILE%" then
-                @call divider
-                @call less_important "[REDUNDANT?] Review the lyrics now:"
-                @call divider
-                @echos %ANSI_COLOR_GREEN%
-                type "%TXT_FILE%" | insert-before-each-line "        "
-                @echo.
-                @call divider
-                @echo.
-                @call AskYn "[REDUNDANT?] Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
-                iff "%ANSWER%" eq "N" then
-                        %color_removal%
-                        ren  /q "%TXT_FILE%" "%TXT_FILE%.%_datetime.bak"
-                        %color_normal%
-                        @call warning "Aborting because you don't find the lyrics acceptable"
-                        @call advice  "To skip lyrics and transcribe using only AI: %blink_on%%0 '%1' ai %emphasis%%deeomphasis%%blink_off%"
-                        @call AskYn   "Go ahead and use AI anyway" no %AI_GENERATION_ANYWAY_WAIT_TIME%
-                        if "%answer%" eq "Y" goto :Force_AI_Generation
-                        goto :END
+                rem Deprecating this section which is redundant because it's done in get-lyrics:
+                iff 0 = 1 then
+                        @call divider
+                        @call less_important "[REDUNDANT?] Review the lyrics now:"
+                        @call divider
+                        @echos %ANSI_COLOR_GREEN%
+                        type "%TXT_FILE%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                        @call divider
+                        @call AskYn "[REDUNDANT?] Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                        iff "%ANSWER%" eq "N" then
+                                %color_removal%
+                                ren  /q "%TXT_FILE%" "%TXT_FILE%.%_datetime.bak"
+                                %color_normal%
+                                @call warning "Aborting because you don't find the lyrics acceptable"
+                                @call advice  "To skip lyrics and transcribe using only AI: %blink_on%%0 '%1' ai %emphasis%%deeomphasis%%blink_off%"
+                                @call AskYn   "Go ahead and use AI anyway" no %AI_GENERATION_ANYWAY_WAIT_TIME%
+                                if "%answer%" eq "Y" goto :Force_AI_Generation
+                                goto :END
+                        endiff
                 endiff
         else
                 rem This may be a bad way to deal with the situation:
                 goto :check_for_txt_file
         endiff
-
 
 
 
@@ -272,7 +273,9 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         rem 9v4: seeing if --sentence still works with 9v3 ... may have to remove verbose?
         set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True
         rem 9v5:  let's experiment with maxlinecount=1
-        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True
+        set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True %PARAM_2% %3$
+        rem 9v6:  changing to use equals between some args
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True 
 rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  -vad_threshold 0.35 --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200
 rem     rem 10: is better than 9 in one case, same in another
 rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 201
@@ -297,6 +300,7 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
 
 
         if not exist %TXT_FILE% .or. %SKIP_TEXTFILE_PROMPTING eq 1 (goto :No_Text)
+                rem the text file %TXT_FILE% does in fact exist!
                 setdos /x-1
                         rem 2023 method: set CLI_OPS=%CLI_OPS% --initial_prompt "Transcribe this audio, keeping in mind that I am providing you with an existing transcription, which may or may not have errors, as well as header and footer junk that is not in the audio you are transcribing. Lines th at say 'downloaded from' should definitely be ignored. So take this transcription lightly, but do consider it. The contents of the transcription will have each line separated by ' / '.   Here it is: ``
                         rem set CLI_OPS=%CLI_OPS% --initial_prompt "Transcribe this audio, keeping in mind that I am providing you with an existing transcription, which may or may not have errors, as well as header and footer junk that is not in the audio you are transcribing. Lines th at say 'downloaded from' should definitely be ignored. So take this transcription lightly, but do consider it. The contents of the transcription will have each line separated by ' / '.   Here it is: ``
@@ -312,7 +316,7 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
                         rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | uniq | paste.exe -sd " " -]]
                         rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" | paste.exe -sd " " -]]
                         rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" ]]
-                        set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | unique-lines.pl -1 -L]]
+                        set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" |:u8 unique-lines.pl -1 -L]]
 
                         set WHISPER_PROMPT=--initial_prompt "%OUR_LYRICS%"
                         rem @echo %ANSI_COLOR_DEBUG%Whisper_prompt is:%newline%%tab%%tab%%faint_on%%WHISPER_PROMPT%%faint_off%%ANSI_COLOR_NORMAL%
@@ -359,7 +363,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         
         :actually_make_the_lrc
         @echos %STAR% %ANSI_COLOR_WARNING_SOFT%%blink_on%About to: %blink_off%
-                           @echo  %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"%ansi_color_reset% 
+        @echo  %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"%ansi_color_reset% 
         @call AskYn "Proceed with this AI generation?" yes %PROMPT_CONSIDERATION_TIME%
         iff "%answer%" eq "N" then
                 @call warning "Aborting because you changed your mind..."
@@ -385,8 +389,8 @@ REM Concurrency Consideration: Check if the encoder is already running in the pr
 REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI:
         @echo.
         @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% AI running! %EMOJI_FIREWORKS%%ansi_color_normal%
-        set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"    
-                                 %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"        |:u8  copy-move-post nomoji
+        set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"    
+                                 %TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"        |:u8  copy-move-post nomoji
 
         
         if %LOG_PROMPTS_USED% eq 1 (@echo %_DATETIME: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>"%@NAME[%INPUT_FILE].log")
@@ -471,8 +475,8 @@ else
                 @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check% %underline_on%SRT file contents:%underline_off%
                 @echos %ANSI_COLOR_BRIGHT_GREEN%
                 rem fast_cat fixes ansi rendering errors ins ome situations
-                rem (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        " |:u8 fast_cat
-                    (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line                           "SRT:        "                                     |:u8 fast_cat
+                rem (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        "     |:u8 fast_cat
+                (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line  "SRT:        %CHECK%" |:u8 fast_cat
                 @echo.
                 @call divider
                 @echo.
@@ -482,7 +486,7 @@ else
                         iff not exist "%TXT_FILE%" then
                                 %EDITOR% "%SRT_FILE%" 
                         else
-                                %EDITOR% "%SRT_FILE%" "%TXT_FILE%"
+                                %EDITOR% "%TXT_FILE%" "%SRT_FILE%" 
                         endiff
                 endiff
 endiff
@@ -492,6 +496,7 @@ endiff
 @echos %FAINT_ON%
 timer /5 off
 set MAKING_KARAOKE=0
+unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY
 @echos %ANSI_RESET%%CURSOR_RESET%
 
 :The_Very_END
