@@ -184,7 +184,7 @@
 2023-10-06  05:56            710   50%  create-and-change-into-temp-folder.bat
 2024-10-18  13:13            243   37%  create-directory-and-recursive-playlists.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
-2024-10-27  07:02            401   43%  create-lrc-file-for-currently-playing-song.bat
+2024-10-31  23:11          1,004   50%  create-lrc-file-for-currently-playing-song.bat
 2024-10-31  20:57         38,353   72%  create-lrc-from-file.bat
 2019-10-01  10:27            336   39%  create-symlinks-by_Letter_only.bat
 2023-05-28  09:30         24,782   80%  create-symlinks.bat

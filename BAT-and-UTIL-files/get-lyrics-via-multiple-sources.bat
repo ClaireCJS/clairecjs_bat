@@ -183,7 +183,10 @@ rem If we still didn't find anything acceptable, but have potentially matching f
                                 call divider
                                 call AskYn "(4) Do these lyrics %italics_on%from our lyrics repository%italics_off% look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                                 iff "%ANSWER%" eq "Y" then
-                                        *copy "%TMPREVIEWFILE%" "%PREFERRED_TEXT_FILE_NAME%"
+                                        *copy /q "%TMPREVIEWFILE%" "%PREFERRED_TEXT_FILE_NAME%" >nul
+                                        iff not exist "%PREFERRED_TEXT_FILE_NAME%" then
+                                                call error "PREFERRED_TEXT_FILE_NAME of %PREFERRED_TEXT_FILE_NAME% doesn't exist and should"
+                                        endiff
                                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                                 else
                                         call important_less "We have rejected this set of lyrics"

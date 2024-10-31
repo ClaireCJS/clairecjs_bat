@@ -16,6 +16,7 @@ use warnings;
 my $LYRICS_MODE;
 my $ONE_LINE;
 my $ALL_LINES_MODE;
+my $to_print_last;
 
 
 # Loop through @ARGV to check for -1 and -L options
@@ -58,7 +59,7 @@ while (<STDIN>) {
 		$line =~ s/^-+//;					#get rid of lines like: ---------------
 
 		#content
-		$line =~ s/\*? (\[lyrics4all\]|No|\[sing365\]) filter used//i;
+		$line =~ s/\*? (\[lyrics4all\]|No|\[sing365\]|\[[a-z0-9]+\]) filter used//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
@@ -96,8 +97,14 @@ while (<STDIN>) {
     #print $to_print unless $seen{$key}++;
 
 	# store only if unique, postprodess later
+	$to_print_last="";
 	if (($ALL_LINES_MODE) || (!$seen{$key}++)) {
-		push @lines, $to_print;
+		if (($LYRICS_MODE==1) && ($to_print_last eq $to_print) && ($to_print !~ /[a-z0-9_-]/)) {
+			#Don't print 2 identical blank lines!
+		} else {
+			push @lines, $to_print;
+		}
+		$to_print_last = $to_print;
 	}
 
 }

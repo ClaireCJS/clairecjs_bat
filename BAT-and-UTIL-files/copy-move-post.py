@@ -59,7 +59,6 @@ ITALICS_OFF          = "\033[23m"
 REFVERSE_ON          = "\033[7m"
 REVERSE_OFF          = "\033[27m"
 CURSOR_RESET         = "\033[ q"
-CURSOR_RESET         = ""#goat
 UNDERLINE_ON         = "\033[4m"
 UNDERLINE_OFF        = "\033[24m"
 MOVE_TO_COL_1        = "\033[1G"
@@ -186,12 +185,12 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         line = line.replace(  '\\' , f'{our_ansi_reset}\\{  color_change_ansi}')                                  #/
 
     if whisper_ai:
-            if additional_beginning_ansi: print(f"additional beginning ansi={additional_beginning_ansi.lstrip(1)}")         #🐐
+            #DEBUG: if additional_beginning_ansi: print(f"additional beginning ansi={additional_beginning_ansi.lstrip(1)}")         #
             spacer = "                "
             spacer_less = "           "
             if verbose: print(f"orig_line is [orig={original_line}][line={line}]")
             if "[ctranslate2]" in line:
-                #print ("ctranslate line found!")#🐐
+                #DEBUG: print ("ctranslate line found!")#
                 line = FAINT_ON + COLOR_GREY + spacer + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
             if  original_line.startswith("Standalone Faster-Whisper-XXL "):
                 line = line.replace("Standalone Faster-Whisper-XXL", "\n🚀 Standalone Faster-Whisper-XXL 🚀").replace(" running on:",":")
@@ -354,14 +353,14 @@ while t.is_alive() or not q.empty():
             print_line(line_buffer, r, g, b, additional_beginning_ansi)
             line_buffer               = ""                                                                                              # Reset for the next line
             additional_beginning_ansi = ""                                                                                              # Reset for the next line
-            #r, g, b = get_random_color()                                                                                                # Reset for the next line
+            #r, g, b = get_random_color()                                                                                               # Reset for the next line
 
             #REFERENCE: function ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                                 # with "#" in front of color
-            #rgbhex_with_pound_sign = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)                                                                  # Reset for the next line
-            #additional_beginning_ansi = f"{CURSOR_RESET}\033]" + "12;" + rgbhex_with_pound_sign + f"\007"                                                     # Reset for the next line: make cursor same color 🐐
+            #rgbhex_with_pound_sign = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)                                                  # Reset for the next line
+            #additional_beginning_ansi = f"{CURSOR_RESET}\033]" + "12;" + rgbhex_with_pound_sign + f"\007"                              # Reset for the next line: make cursor same color
 
     except queue.Empty:
-        if TICK: claire.tick(mode=my_mode)                                                                                                          # color-cycle the default-color text using my library
+        if TICK: claire.tick(mode=my_mode)                                                                                              # color-cycle the default-color text using my library
         try:
             sys.stdout.flush()
         except:
