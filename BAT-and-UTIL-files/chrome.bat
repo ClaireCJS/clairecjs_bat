@@ -1,5 +1,6 @@
 @echo off
 
+set OUR_CHROMEARGS=--max_old_space_size=4096
  
  unset /q OUR_CHROMEARGS
 

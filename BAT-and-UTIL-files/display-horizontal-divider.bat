@@ -53,6 +53,9 @@ rem As of 2024/10/18, we now try to use the pre-rendered dividers before drawing
         set RAINBOW_DIVIDER_FILE=%bat%\dividers\rainbow-%@EVAL[%SCREEN_COLUMNS - 1].txt
         iff exist %RAINBOW_DIVIDER_FILE% then
                 type %RAINBOW_DIVIDER_FILE%
+                rem Okay this is weird. I keep getting "stuck" because the generated dividers do't have newlines at the end! So let's forceo ne
+                if not defined NEWLINE (call fatal_error "NEWLINE environment variable not defined")
+                echos %NEWLINE%
                 goto :Done
         endiff
 

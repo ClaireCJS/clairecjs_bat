@@ -6,6 +6,14 @@ rem                                   \__ mode can be:
 rem                                           1) SetVarsOnly to just set the MAYBE_LYRICS_1/2/BROAD_SEARCH environment variables
 
 
+rem TODO add askyn for if we want to hand-edit the lyrics prior
+rem TODO check if lyric file is approved [somehow--see create-lyrics for ideas]
+rem ——————————————————————————————————————————————————————————————————————————————————————————
+rem TODO add special lyric filter code to unique-lines that is specific to this situation for more aggressie filtering
+
+
+
+
 rem set SKIP_MANUAL_SELECTION=1 to skip the manual select part
 
 rem CONFIG:
@@ -32,6 +40,21 @@ rem VALIDATE ENVIRONMENT [once per session]:
                 call validate-is-function           cool_text
 
                 set VALIDATED_GLVMS_ENV=1
+        endiff
+
+rem USAGE:
+        iff "%1" == "" then
+            echo.
+            call divider
+            echo.
+            %color_advice%
+            echo USAGE: %0 {audio_file}
+            echo                 ...where audio_file is the audio file who's tags will be examined to obtain the artist name and song title
+            echo.
+            echo ALTERNATE USAGE: %0 {audio_file} SetVarsOnly —— sets the FILE_SONG and FILE_ARTIST environment variables for this song, but does nothing else
+            echo.
+            call divider
+            goto :END
         endiff
 
 rem VALIDATE PARAMETERS [every time]:
@@ -347,6 +370,7 @@ rem Validate we did something:
 
 
 
+:END
 :SetVarsOnly_skip_to_2
 :The_VERY_End
 

@@ -53,7 +53,7 @@
 2024-10-10  10:28             95    8%  app-volume-and-device-preferences.bat
 1996-04-15  19:12          2,238   69%  app-volume-and-device-preferences.ico
 2024-10-07  14:28          2,115   62%  app-volume-and-device-preferences.lnk
-2024-10-24  02:41         14,709   73%  askYN.bat
+2024-10-31  00:58         14,768   73%  askYN.bat
 2019-10-01  10:27             19  -10%  asleep.bat
 2024-03-18  22:08          1,047   53%  assimilate-rookie-folders.bat
 2024-02-28  22:49         24,923   80%  assimilate.bat
@@ -127,7 +127,7 @@
 2024-04-10  12:34            487   51%  checkusername.bat
 2024-10-28  18:15          3,293   67%  check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py
 2023-10-06  09:42             44   -2%  chown.bat
-2024-10-03  12:23          1,325   70%  chrome.bat
+2024-10-30  22:10          1,371   69%  chrome.bat
 2019-10-01  10:27             33   13%  cl.bat
 2024-10-11  10:08         12,567   77%  clairevironment-install.bat
 2024-06-12  12:57          4,063   66%  clean-dbcu.bat
@@ -184,7 +184,7 @@
 2024-10-18  13:13            243   37%  create-directory-and-recursive-playlists.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
 2024-10-27  07:02            401   43%  create-lrc-file-for-currently-playing-song.bat
-2024-10-30  11:37         31,192   73%  create-lrc-from-file.bat
+2024-10-31  02:29         33,751   73%  create-lrc-from-file.bat
 2019-10-01  10:27            336   39%  create-symlinks-by_Letter_only.bat
 2023-05-28  09:30         24,782   80%  create-symlinks.bat
 2024-04-10  12:38            459   35%  create-these_m3u-playlists.bat
@@ -247,7 +247,7 @@
 2022-11-19  16:52            242   29%  display-flac-tags.bat
 2024-09-24  20:20            140   20%  display-free-space-as-locked-message.bat
 2024-10-15  12:23          3,622   67%  display-free-space.bat
-2024-10-21  11:29          8,343   71%  display-horizontal-divider.bat
+2024-10-31  02:21          8,623   71%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-09-09  11:24            814   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-03-29  20:08            128    6%  display-mp3-artists.bat
@@ -376,7 +376,7 @@
 2024-10-29  13:40            400   42%  get-lyrics-for-currently-playing-song.bat
 2024-10-28  16:46            211   28%  get-lyrics-for-song.bat
 2024-10-29  13:41             30   -6%  get-lyrics-from-song.bat
-2024-10-30  03:22         22,855   76%  get-lyrics-via-multiple-sources.bat
+2024-10-31  02:16         24,150   75%  get-lyrics-via-multiple-sources.bat
 2024-10-28  17:09          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
 2024-10-29  14:10             47   -4%  get-lyrics-with-lyricsgenius.bat
 2024-10-29  14:23            168   41%  get-lyrics.bat
@@ -889,7 +889,7 @@
 2024-03-24  19:17            300   42%  undep.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
-2024-10-28  21:11            907   42%  unique-lines.pl
+2024-10-31  02:29          1,498   48%  unique-lines.pl
 2024-10-29  14:23            535   55%  unknown-shipper-tracking.bat
 2024-10-21  11:50             35   -5%  unknown-tracking.bat
 2024-10-23  17:32             21   -9%  unlock-header.bat

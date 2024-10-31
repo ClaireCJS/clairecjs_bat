@@ -159,6 +159,7 @@ REM Actually answer the question here —— make the windows 'question' noise f
         echos %ANSI_POSITION_SAVE%
         if %BIG_QUESTION eq 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_RESTORE%)
         if %BIG_QUESTION ne 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_SAVE%)
+        @input /c /w0 %%just_clearing_the_keyboard_buffer
         inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
         echos %BLINK_OFF%%ANSI_CURSOR_SHOW%
 
