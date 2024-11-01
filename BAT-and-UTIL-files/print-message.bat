@@ -172,7 +172,7 @@ REM We're going to update the window title to the message. If possible, strip an
                 if "%TYPE%" eq          "ALARM" (set TITLE=%EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%  %title%  %EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%)
                 if "%TYPE%" eq   "WARNING_LESS" (set TITLE=%EMOJI_WARNING%%title%)
                 if "%TYPE%" eq        "WARNING" (set TITLE=%EMOJI_WARNING%%EMOJI_WARNING%%title!%EMOJI_WARNING%%EMOJI_WARNING%)
-                if "%TYPE%" eq          "ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% ERROR %endash% %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
+                if "%TYPE%" eq          "ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% ERR0R: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
                 if "%TYPE%" eq    "FATAL_ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% FATAL ERROR: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
 
         REM Then actually set the current window title to our newly-constructed window title text:        

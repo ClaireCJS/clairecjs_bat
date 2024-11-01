@@ -23,6 +23,7 @@ REM CONFIG: 2024:
         set LOG_PROMPTS_USED=1                                       %+ rem 1=save prompt used to create SRT into sidecar ..log file
         set SKIP_SEPARATION=1                                        %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn't work anymore
         SET SKIP_TEXTFILE_PROMPTING=0                                %+ rem 0=use lyric file to prompt AI, 1=go in blind
+        set MAXIMUM_PROMPT_SIZE=3000                                 %+ rem The most TXT we will use to prime our transcription.  Since faster-whisper-xxx only supports max_tokens of 224, we only need 250 words or so. But will pad a bit extra. We just don't want to go over the command-line-length-limit!
 rem CONFIG: 2024: WAIT TIMES:
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                 %+ rem wait time for "are these lyrics good?"-type questions
         set AI_GENERATION_ANYWAY_WAIT_TIME=45                        %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
@@ -38,6 +39,16 @@ REM config: 2023:
         rem SET SKIP_TEXTFILE_PROMPTING=0  
 
  
+ rem Adjust wait times if we are in automatic mode:
+        iff 1 eq %CONSIDER_ALL_LYRICS_APPROVED then
+                set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=3                 %+ rem wait time for "are these lyrics good?"-type questions
+                set AI_GENERATION_ANYWAY_WAIT_TIME=3                       %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
+                set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=3     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
+                set PROMPT_CONSIDERATION_TIME=5                            %+ rem wait time for "does this AI command look sane"-type questions
+                set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=1     %+ rem wait time for "hey lyrics not found!"-type notifications/questions
+                set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=1                 %+ rem wait time for "edit it now that we've made it?"-type questions ... Have decided it should probably last longer than the average song
+        endiff
+
 REM Pre-run cleanup:
         timer /5 on                     %+ rem Let's time the overall process
         @call tock                      %+ rem purely cosmetic
@@ -342,8 +353,8 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
                         rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" | paste.exe -sd " " -]]
                         rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" ]]
                         set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" |:u8 unique-lines.pl -1 -L]]
-
-                        set WHISPER_PROMPT=--initial_prompt "%OUR_LYRICS%"
+                        set OUR_LYRICS_TRUNCATED=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%OUR_LYRICS%]
+                        set WHISPER_PROMPT=--initial_prompt "%OUR_LYRICS_TRUNCATED%"
                         rem @echo %ANSI_COLOR_DEBUG%Whisper_prompt is:%newline%%tab%%tab%%faint_on%%WHISPER_PROMPT%%faint_off%%ANSI_COLOR_NORMAL%
                         set CLI_OPS=%CLI_OPS% %WHISPER_PROMPT%
                 setdos /x0

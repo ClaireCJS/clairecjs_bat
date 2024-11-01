@@ -1,9 +1,11 @@
 @Echo Off
 
-REM USAGE: <this> {audio_filename} [optional mode]
-rem                                 ^^^^^^^^^^^^^^
-rem                                   \__ mode can be: 
-rem                                           1) SetVarsOnly to just set the MAYBE_LYRICS_1/2/BROAD_SEARCH environment variables
+:USAGE: USAGE: <this> {audio_filename} [optional mode]
+:USAGE:                                 ^^^^^^^^^^^^^^
+:USAGE:                                   \__ mode can be: 
+:USAGE:                                           1) SetVarsOnly to just set the MAYBE_LYRICS_1/2/BROAD_SEARCH environment variables
+:USAGE: Forms of automation:
+:USAGE:     if CONSIDER_ALL_LYRICS_APPROVED=1     //automatically approves lyrics at first prompt and reduces prompt from %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% to %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO% seconds
 
 
 rem TODO check if lyric file is approved [somehow--see create-lyrics for ideas]
@@ -11,6 +13,8 @@ rem —————————————————————————�
 rem TODO add special lyric filter code to unique-lines that is specific to this situation for more aggressie filtering
 
 
+
+call bigecho CONSIDER_ALL_LYRICS_APPROVED is %CONSIDER_ALL_LYRICS_APPROVED% 🐐
 
 
 rem set SKIP_MANUAL_SELECTION=1 to skip the manual select part
@@ -24,6 +28,7 @@ rem CONFIG:
 rem CONFIG: WAIT TIMES:                                      
         set LARGE_DOWNLOAD_WARNING_WAIT_TIME=1                        %+ rem Wait time after announcing that the lyrics downloaded seemed larger than expected [pretty uselessi n practice]
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=180                  %+ rem How long to show lyrics on the screen for them to get approval or not —— was 60 but running this while playing games made me miss the prompt so increased to 180
+        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO=5               %+ rem How long to show lyrics on the screen for them to get approval or not —— if the environment variable says they are already pre-approved
         set LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=120                  %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can't be done in automatic mode], before proceeding on 
         set WAIT_AFTER_ANNOUNCING_MASSAGED_SEARCH=2                   %+ rem How long to wait after displaying the massaged artist/title prior to searching for the (if the 1st search with non-massaged failed)
         set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=30  %+ rem how long to wait for "hand edit these lyrics?"-type questions
@@ -31,6 +36,16 @@ rem CONFIG: WAIT TIMES:
         SET ADDITIONAL_HAND_EDIT_WAIT_TIME_IF_THEY_GOOGLED=45         %+ rem Additional wait time to add on to last value in the event that they Googled the lyrics [to give time to check out the google resuls before the Yes/No prompt expires]
         set LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS=900            %+ rem give us 15 minutes to hand edit in case we get distracted
         set PAUSED_DEBUG_WAIT_TIME=5                                  %+ rem how long to pause on debug statements we're particularly focusing on
+
+rem CONFIG: WAIT TIMES: IF LYRICS ARE PRE-APPROVED:
+iff 1 eq %CONSIDER_ALL_LYRICS_APPROVED% then
+        set LARGE_DOWNLOAD_WARNING_WAIT_TIME=0                        %+ rem Wait time after announcing that the lyrics downloaded seemed larger than expected [pretty uselessi n practice]
+        set LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=1                    %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can't be done in automatic mode], before proceeding on 
+        set WAIT_AFTER_ANNOUNCING_MASSAGED_SEARCH=1                   %+ rem How long to wait after displaying the massaged artist/title prior to searching for the (if the 1st search with non-massaged failed)
+        set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=1   %+ rem how long to wait for "hand edit these lyrics?"-type questions
+        set GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME=1                      %+ rem how long to pause on "do you want to google the lyrics?"-type questions
+        SET ADDITIONAL_HAND_EDIT_WAIT_TIME_IF_THEY_GOOGLED=1          %+ rem Additional wait time to add on to last value in the event that they Googled the lyrics [to give time to check out the google resuls before the Yes/No prompt expires]
+endiff
 
 rem Remove any trash environment variables left over from a previously-aborted run which might interfere with the current run:
         unset /q LYRIC_RETRIEVAL_1_FAILED
@@ -42,7 +57,7 @@ rem VALIDATE ENVIRONMENT [once per session]:
         iff 1 ne %VALIDATED_GLVMS_ENV then
                 call validate-in-path              %LYRIC_DOWNLOADER_1% %PROBER% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat insert-before-each-line.py
                 call unimportant        "Validated: lyric downloader, audio file prober"
-                call validate-environment-variables TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME FILEMASK_AUDIO cool_question_mark ANSI_COLOR_BRIGHT_RED italics_on italics_off ANSI_COLOR_BRIGHT_YELLOW blink_on blink_off star ANSI_COLOR_GREEN  ansi_reset bright_on bright_off   underline_on underline_off    emoji_warning check EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_red_QUESTION_MARK LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS
+                call validate-environment-variables TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME FILEMASK_AUDIO cool_question_mark ANSI_COLOR_BRIGHT_RED italics_on italics_off ANSI_COLOR_BRIGHT_YELLOW blink_on blink_off star ANSI_COLOR_GREEN  ansi_reset bright_on bright_off   underline_on underline_off    emoji_warning check EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_red_QUESTION_MARK LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS ANSI_COLOR_WARNING_SOFT LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO ANSI_COLOR_DEBUG
                 call validate-is-function           cool_text
                 set  VALIDATED_GLVMS_ENV=1
         endiff
@@ -66,29 +81,37 @@ rem VALIDATE PARAMETERS [every time]:
         call validate-file-extension       "%AUDIO_FILE%" %FILEMASK_AUDIO%
 
 rem Get artist and song so we can use them to download lyrics:
+        call unimportant "Probing file"
         set  FILE_ALBUM=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=album  -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%"]
         set FILE_ARTIST=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%"]
         set   FILE_SONG=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=title  -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%"]
         set  FILE_TITLE=%FILE_SONG%
+        call unimportant "Probing done 🐐" 
         rem "Title" is better than "Song", but we are doing both for ease of remembrance
 
 rem Update window title:
+        call unimportant "setting window title to %FILE_ARTIST% – %FILE_SONG%"
         title %FILE_ARTIST% – %FILE_SONG%
+        call unimportant "Title set 🐐" 
 
 rem Back up original values of these variables because we change them as we try various different ways of searching:
+@echo on
         set FILE_ARTIST_ORIGINAL=%FILE_ARTIST%
         set  FILE_ALBUM_ORIGINAL=%FILE_ALBUM%
         set   FILE_SONG_ORIGINAL=%FILE_SONG%
         set  FILE_TITLE_ORIGINAL=%FILE_SONG%
         rem TODO get original artist, and replace the artist with that, because lyrics are more likely under the o.g. artist:
+        call unimportant "Original values saved 🐐" 
 
 
 rem If we are in the special mode where we ONLY set environment variables, go to that section:
         if "%2" eq "SetVarsOnly" (goto :SetVarsOnly_skip_to_1)
+@echo off
 
 rem Debug info:
         call unimportant                    "input file exists: %1"
         call debug "Retrieved:%TAB%   artist=%FILE_ARTIST%%newline%%TAB%%tab%%tab%%tab%        title=%FILE_SONG%%newline%%TAB%%tab%%tab%%tab%        album=%FILE_ALBUM%"
+        call unimportant "Debug info printed 🐐" 
 
 
 rem Set our preferred filename for our result:
@@ -102,6 +125,7 @@ rem NOTE: This code is copied in create-lrc-from-file so we must update it there
         set MAYBE_LYRICS_1_BROAD_SEARCH=%lyrics\%MAYBE_SUBDIR_LETTER%\%file_artist% - %@LEFT[2,%@ReReplace[',_,%file_song]]*.txt
         set              MAYBE_LYRICS_2=%lyrics\%MAYBE_SUBDIR_LETTER%\%@NAME[%AUDIO_FILE].txt
         if "%2" eq "SetVarsOnly" (goto :SetVarsOnly_skip_to_2)
+        call unimportant "Broad serach parameters generated 🐐" 
 
 
 
@@ -114,16 +138,28 @@ rem Check if we already have a TXT file in the same folder and shouldn't even be
                 echos %ANSI_COLOR_GREEN%
                 type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
                 @call divider
-                call AskYn "(1) Do these lyrics %italics_on%we already have%italics_off% look acceptable" NO  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+
+                rem If we have set CONSIDER_ALL_LYRICS_APPROVED=1, then auto-approve lyrics at this first prompt, and reduce the time-wait on that prompt:
+                        iff "1" == "%CONSIDER_ALL_LYRICS_APPROVED%" then
+                                echos %ANSI_COLOR_WARNING_SOFT%%STAR% %italics_on%Automatic%italics_off% acceptance of lyrics at prompt#1 turned %blink_on%on%blink_off% %ANSI_COLOR_NORMAL%
+                                set DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1=yes
+                                set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO%
+                        else
+                                echos %ANSI_COLOR_DEBUG%%STAR% %italics_on%Automatic%italics_off% acceptance of lyrics at prompt#1 turned %blink_on%off%blink_off% %ANSI_COLOR_NORMAL%
+                                set DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1=no
+                        endiff
+
+                call AskYn "(1) Do these lyrics %italics_on%we already have%italics_off% look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "%ANSWER%" eq "Y" then                        
                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                 else
-                        call warning_soft "Not using them, so let's remove them and try downloading..."
-                        ren  /q "%PREFERRED_TEXT_FILE_NAME%" "%PREFERRED_TEXT_FILE_NAME%.%_datetime.bak"
+                        echo %ansi_color_warning_soft%%star% Not using them, so let's remove them and try downloading...%ansi_color_normal%
+                        if exist "%PREFERRED_TEXT_FILE_NAME%" (ren  /q "%PREFERRED_TEXT_FILE_NAME%" "%PREFERRED_TEXT_FILE_NAME%.%_datetime.bak")
                         goto :End_Of_Check_To_See_If_We_Already_Had_Them
                 endiff
         endiff
         :End_Of_Check_To_See_If_We_Already_Had_Them
+        call unimportant ":End_Of_Check_To_See_If_We_Already_Had_Them 🐐" 
 rem ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
@@ -137,7 +173,8 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 @call divider
                 type "%MAYBE_LYRICS_1%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
                 call divider
-                call AskYn "(2) Do these look acceptable" no %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                call AskYn "(2) Do these look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+
                 iff "%ANSWER%" eq "Y" then
                         *copy "%MAYBE_LYRICS_1%" "%PREFERRED_TEXT_FILE_NAME%"
                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
@@ -155,7 +192,7 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 call divider
                 type "%MAYBE_LYRICS_2%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
                 call divider
-                call AskYn "(3) Do these look acceptable" no %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                call AskYn "(3) Do these look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "%ANSWER%" eq "Y" then
                         *copy "%MAYBE_LYRICS_2%" "%PREFERRED_TEXT_FILE_NAME%"
                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
@@ -173,7 +210,7 @@ rem If we still didn't find anything acceptable, but have potentially matching f
                 rem call debug "Checking for %MAYBE_LYRICS_1_BROAD_SEARCH%" 
                 repeat 5 echo.
                 call divider
-                set file_count=%@files["%MAYBE_LYRICS_1_BROAD_SEARCH%"]
+                set  file_count=%@files["%MAYBE_LYRICS_1_BROAD_SEARCH%"]
                 iff %file_count eq 1 then
                         *copy /Ns %@expand["%MAYBE_LYRICS_1_BROAD_SEARCH%"] %TMPREVIEWFILE%
                 else
@@ -201,7 +238,7 @@ rem If we still didn't find anything acceptable, but have potentially matching f
                 echos %ANSI_COLOR_YELLOW%
                 type %TMPREVIEWFILE% |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
                 call divider
-                call AskYn "(4) Do these lyrics %italics_on%from our lyrics repository%italics_off% look acceptable" no %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                call AskYn "(4) Do these lyrics %italics_on%from our lyrics repository%italics_off% look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "%ANSWER%" eq "Y" then
                         *copy /q "%TMPREVIEWFILE%" "%PREFERRED_TEXT_FILE_NAME%" >nul
                         iff not exist "%PREFERRED_TEXT_FILE_NAME%" then
@@ -307,10 +344,10 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 else
                         @call divider
                         call bigecho %star% %ansi_color_bright_white%%underline_on%Downloaded lyrics%underline_off%:
-                        echo %ANSI_COLOR_BRIGHT_YELLOW%
+                        @echo %ANSI_COLOR_BRIGHT_YELLOW%
                         type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L |:u8 insert-before-each-line.py "        "
                         @call divider
-                        @call AskYn "(6) Do these %italics_on%downloaded%italics_off% lyrics for '%italics_on%%FILE_song_TO_USE%%italics_off%' by '%italics_on%%FILE_artist_TO_USE%%italics_off%' look acceptable" no %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                        @call AskYn "(6) Do these %italics_on%downloaded%italics_off% lyrics for '%italics_on%%FILE_song_TO_USE%%italics_off%' by '%italics_on%%FILE_artist_TO_USE%%italics_off%' look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%   %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                         iff "%ANSWER%" eq "Y" then
                                 goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                                 *del /q "%PREFERRED_TEXT_FILE_NAME%" >nul
@@ -338,6 +375,7 @@ rem try again if massaged names exist (that is, if the massaged names are differ
         rem DEBUG_MASSAGED_FILENAME_CHECK: echo %ANSI_COLOR_DEBUG%- DEBUG: iff 1 ne %LD1_MASSAGED_ATTEMPT_1% .and. ("%FILE_SONG_MASSAGED%" != "%FILE_SONG_TO_USE%" .or. "%FILE_artist_MASSAGED%" != "%FILE_artist_TO_USE%") then %+ call pause-for-x-seconds %paused_debug_wait_time%
         if 1 eq LD1_MASSAGED_ATTEMPT_1 (goto :Already_Did_Massaged)
         iff "1" ne "%LD1_MASSAGED_ATTEMPT_1%" .and. ("%FILE_SONG_MASSAGED%" != "%FILE_SONG%" .or. "%FILE_artist_MASSAGED%" != "%FILE_artist%") then 
+                call divider
                 echo %ANSI_COLOR_WARNING_SOFT%%STAR% Let's try downloading with the massaged names (%ansi_color_bright_green%%italics_on%%FILE_ARTIST_MASSAGED%%italics_off%%ansi_reset% - %ansi_color_bright_cyan%%italics_on%%FILE_SONG_MASSAGED%%italics_off%)%@cool[...]%ANSI_RESET%
                 call pause-for-x-seconds %WAIT_AFTER_ANNOUNCING_MASSAGED_SEARCH%
                 set FILE_SONG_TO_USE=%FILE_SONG_MASSAGED%
@@ -349,6 +387,7 @@ rem try again if massaged names exist (that is, if the massaged names are differ
         :Already_Did_Massaged
         if exist "%PREFERRED_TEXT_FILE_NAME" (ren /q "%PREFERRED_TEXT_FILE_NAME" "%PREFERRED_TEXT_FILE_NAME%.%_datetime.bak">nul)
         call important_less "These lyrics have been rejected as well"
+        call divider
         rem no! goto :end_of_massage_attempt
         rem Continue on... We have failed so far.
 
@@ -436,7 +475,8 @@ rem Validate we did something:
                 title %emoji_warning% Lyrics not fetched %emoji_warning%
         else
                 rem  celebrate "%check% LYRIC SUCCESS %check%" 2
-                call celebrate "%ansi_background_black% %check% %@cool[LYRIC SUCCESS] %check% %@randfg[]" 2
+                rem  celebrate "%ansi_background_black% %check%  %@cool[LYRIC SUCCESS] %check% %@randfg[]" 2
+                call celebrate "%ansi_background_black% %check% %@cool[LYRIC SUCCESS] %check%  %@randfg[]" 2
                 call important_less "Lyrics downloaded to: %blink_on%%italics_on%%PREFERRED_TEXT_FILE_NAME%%ANSI_RESET%"
                 title %check% Lyrics fetched successfully! %check% 
         endiff

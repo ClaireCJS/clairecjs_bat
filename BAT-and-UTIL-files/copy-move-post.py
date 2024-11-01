@@ -194,7 +194,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 #ine = FAINT_ON + COLOR_GREY + spacer + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
                 #ine =                         spacer + COLOR_GREY + "⭐" + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
                 line =                         spacer + FAINT_ON + f"{COLOR_GREY}⭐" + line + FAINT_OFF
-                line = re.sub(r'(\[[23]\d{3}-[12]\d-[0-3]\d )', f'{COLOR_GREY}\1', line)
+                line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)
                 #DEBUG: print ("ctranslate line found!")#
             if  original_line.startswith("Standalone Faster-Whisper-XXL "):
                 line = line.replace("Standalone Faster-Whisper-XXL", "\n🚀 Standalone Faster-Whisper-XXL 🚀").replace(" running on:",":")
@@ -212,7 +212,8 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 line = line.replace(    f"* Compression ratio threshold is not",f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Compression ratio threshold is not") + FAINT_OFF
             if  original_line.startswith("* Log probability threshold is not"):
                 line = line.replace(    f"* Log probability threshold is not"  ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Log probability threshold is not"  ) + FAINT_OFF
-            if "Reset prompt. prompt_reset_on_temperature threshold is met" in line:
+            #bad syntax:                              ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"] in line:
+            if any(substring in line for substring in ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"]):
                 line = line.replace("* Reset prompt. ",COLOR_GREY + FAINT_ON + spacer + "* Reset prompt. ") + FAINT_OFF
             if " --> " in line:
                 line = f"🌟 {BLINK_ON}" + line.replace("]  ",f"]{BLINK_OFF}{ANSI_RESET}{ITALICS_ON}  ")

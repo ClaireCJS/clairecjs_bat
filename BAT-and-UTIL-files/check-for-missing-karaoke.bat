@@ -9,7 +9,7 @@ rem Make filelist to use as input:
 
 rem Check for songs missing sidecar TXT files :
         echo.
-        check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py %FILELIST% *.txt getlyricsfilewrite |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING LYRICS %ANSI_RESET% %EMOJI_WARNING% %DASH% "
+        check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py %FILELIST% *.srt createsrtfilewrite |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING LYRICS %ANSI_RESET% %EMOJI_WARNING% %DASH% "
 
 rem While we're here, do some cleanup:
         if exist *.json (del *.json)

@@ -25,6 +25,7 @@
 #      And as a side effect, it would create a file called: PLAYLIST-without lrc srt.m3u that contains these files ——
 #                       —— unless you add a NoFileWrite option at the end then it doesn't
 #                       —— unless you add a GetLyricsFileWrite then it writes a bat file to retrieve lyrics
+#                       —— unless you add a CreateSRTFileWrite thne it writes a bat file to create karaokes
 #
 #
 
@@ -34,7 +35,8 @@ import glob
 from termcolor import colored
 
 
-SCRIPT_NAME_FOR_LYRIC_RETRIEVAL="get-the-missing-lyrics-here.bat"
+SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here.bat"
+SCRIPT_NAME_FOR_KARAOKE_CREATION = "create-the-missing-karaokes-here.bat"
 
 
 def main(input_filename, extensions, options):
@@ -72,13 +74,16 @@ def main(input_filename, extensions, options):
         input_file_ext = os.path.splitext(input_filename)[1]
         output_filename = f"{os.path.splitext(input_filename)[0]}-without {' '.join(ext[2:] for ext in extensions_list)}{input_file_ext}"
         if options.lower() == "getlyricsfilewrite": output_filename = SCRIPT_NAME_FOR_LYRIC_RETRIEVAL
+        if options.lower() == "createsrtfilewrite": output_filename = SCRIPT_NAME_FOR_KARAOKE_CREATION
         if options.lower() !=        "NoFileWrite":
             print(colored(f"Writing output file: {output_filename}", 'green', attrs=['bold']))
             with open(output_filename, 'w') as output_file:
                 for missing_file in sorted(files_without_sidecars):
                     if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\"\n")
+                    if options.lower() == "createsrtfilewrite": output_file.write(f"@call create-srt \"{missing_file}\"\n")
                     else                                      : output_file.write(f"{missing_file}\n")
-                if options.lower() == "getlyricsfilewrite":     output_file.write("@echo *** ALL DONE WITH LYRIC RETRIEVAL!!! ***\n@echo yra | *del %0 >&>nul\n")
+                if options.lower() == "getlyricsfilewrite"    : output_file.write("@echo *** ALL DONE WITH LYRIC RETRIEVAL!!!! ***\n@echo yra | *del %0 >&>nul\n")
+                if options.lower() == "createsrtfilewrite"    : output_file.write("@echo *** ALL DONE WITH KARAOKE CREATION!!! ***\n@echo yra | *del %0 >&>nul\n")
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
