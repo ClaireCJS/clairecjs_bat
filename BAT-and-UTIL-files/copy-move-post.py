@@ -31,13 +31,13 @@ init(autoreset=False)
 
 COLOR_QUESTION_BACKGROUNDS = True                 #whether to highlight lines with "?" with a random background character and other stuff —— originally developed for Y/N/R/A-type prompts when copying files, but annoying in other situations
 DEFAULT_COLOR_CYCLE_MODE   = "fg"                 #whether to color-cycle foreground ("fg"), background ("bg"), or both ("both").
-EMOJIS_COPY                = '⭢︋📂'
+EMOJIS_COPY                = '⭢︋📂 '
 EMOJIS_PROMPT              = '❓❓ '
 EMOJIS_DELETE              = '👻⛔'
 EMOJIS_SUMMARY             = '✔️ '
 EMOJIS_ERROR               = '🛑🛑'
 nomoji                     = False                #set to True to disable [some] emoji decoration of lines
-whisper_ai                 = False                #set to True to disable [some] emoji decoration of lines
+whisper_ai                 = False                #set to True to run in WhisperAI mode
 #Note to self: either maintain a simultaneous update of these 4 values in set-colors.bat or create env-var overrides:
 MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                                                                  #\__ range of random values we
 MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                                                                  #/   choose random colors from
@@ -119,7 +119,7 @@ def get_random_color(bg=False, hex=False):                                      
     rand_g = random.randint(min_rgb_value,max_rgb_value)
     rand_b = random.randint(min_rgb_value,max_rgb_value)
     if hex: return convert_rgb_tuple_to_hex_string_with_hash(rand_r, rand_g, rand_b)
-    else  : return            rand_r, rand_g, rand_b
+    else  : return                                           rand_r, rand_g, rand_b
 
 def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' + DOUBLE_UNDERLINE_OFF, line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
 
@@ -172,7 +172,8 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 line_buffer = line_buffer.replace(footer, "", 1).strip()                                       # Update line_buffer to remove the footer we just matched
         line_buffer = f'\n{EMOJIS_SUMMARY}'.join(lines)
 
-    line += f'{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                          #make line be our random color
+    #line += f'{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                       #make line be our random color
+    line = f'{line}{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                       #make line be our random color
 
     # postprocess line:
     if not nomoji:
@@ -190,8 +191,11 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             spacer_less = "           "
             if verbose: print(f"orig_line is [orig={original_line}][line={line}]")
             if "[ctranslate2]" in line:
+                #ine = FAINT_ON + COLOR_GREY + spacer + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
+                #ine =                         spacer + COLOR_GREY + "⭐" + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
+                line =                         spacer + FAINT_ON + f"{COLOR_GREY}⭐" + line + FAINT_OFF
+                line = re.sub(r'(\[[23]\d{3}-[12]\d-[0-3]\d )', f'{COLOR_GREY}\1', line)
                 #DEBUG: print ("ctranslate line found!")#
-                line = FAINT_ON + COLOR_GREY + spacer + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
             if  original_line.startswith("Standalone Faster-Whisper-XXL "):
                 line = line.replace("Standalone Faster-Whisper-XXL", "\n🚀 Standalone Faster-Whisper-XXL 🚀").replace(" running on:",":")
             if  original_line.startswith("Starting work on: "):
@@ -281,7 +285,10 @@ if len(sys.argv) > 1:
             whisper_ai = True
             nomoji     = True
 
-if whisper_ai: COLOR_QUESTION_BACKGROUNDS = False
+if whisper_ai:
+    import re
+    COLOR_QUESTION_BACKGROUNDS = False
+
 
 if verbose:
     sys.stdout.write(f"    * verbose    is {verbose                   }\n")
@@ -295,12 +302,14 @@ if verbose:
 blink_maybe = BLINK_ON;
 if nomoji or whisper_ai: BLINK_ON=""
 
+char_read_time_out=0.008;                       #most of the time, read characters as fast as we can! testing gave 0.008
+if whisper_ai: char_read_time_out=0.2           #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
 
 while t.is_alive() or not q.empty():
 #hile True:
     # It's tempting to process things line-by-line, but due to prompts and such, we must process things char-by-char
     try:
-        char = q.get(timeout=0.008)                                                                                                     # grab the characters *this* fast!
+        char = q.get(timeout=char_read_time_out)                                                                                                     # grab the characters *this* fast!
         if char is None: break                                                                                                          # but not much faster because we're probably coming right back if no chars are in the buffer yet
         line_buffer += char
 
@@ -324,7 +333,7 @@ while t.is_alive() or not q.empty():
             foreground_color_switch = f"\033[38;2;{r};{g};{b}m"
 
             #color switching logic: cursor: Ansi code for changing cursor color to a hex rgb is: [ESCAPE][ q[ESCAPE]]12;#FF00ff[BELL]
-            rgbhex_with_pound_sign        = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
+            rgbhex_with_pound_sign = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
             #ys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   {BLINK_ON}{line_buffer} {ANSI_RESET}') #\033[0m
             cursor_color_switch_by_hex = f"{CURSOR_RESET}\033" + f"]12;{ rgbhex_with_pound_sign}\007"             #*[ q*12;#FFFFFF{beep}
 
@@ -371,6 +380,6 @@ while t.is_alive() or not q.empty():
     except:
         pass
 
-if TICK: claire.tock()
+#if TICK: claire.tock()
 
 

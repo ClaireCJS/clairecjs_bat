@@ -1,10 +1,10 @@
 @Echo off
 
 rem TODO if lyrics are approved already, don't ask about them
-
 rem TODO maybe add NoLyrics mode to not consider lyrics?
 
 :USAGE: lrc.bat whatever.mp3 {force|ai} {options to pass on to whisper} ... ai=force ai regeneration, force=proceed even if LRC file is there
+:USAGE: set USE_LANGUAGE=jp to encode in a different language from en, like jp
 
 :REQUIRES:     <see validators>
 :DEPENDENCIES: 2024 version: Faster-Whisper-XXL.exe delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat —— see validators for complete list
@@ -16,19 +16,20 @@ rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat whatever.mp3 ke
 rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat last               {quick retry again at the point of creating the lrc file —— separated vocal files must already exist}
 
 REM CONFIG: 2024: 
-        set TRANSCRIBER_TO_USE=Faster-Whisper-XXL.exe                    %+ rem Command to generate/transcribe [with AI]
-        set TRANSCRIBER_PRNAME=faster-whisper-xxl                        %+ rem ^^^^^^^^^^^^^^^^^^^^ how this shows up in the process last (type "tasklist" to see) ... Generally the base name of any EXE
+        set TRANSCRIBER_TO_USE=Faster-Whisper-XXL.exe                %+ rem Command to generate/transcribe [with AI]
+        set TRANSCRIBER_PDNAME=faster-whisper-xxl.exe                %+ rem probably the same as as %TRANSCRIBER_TO_USE%, but technically         it's whatever string can go into %@PID[] that returns a nonzero result if we are running a transcriber
+        rem TRANSCRIBER_PRNAME=faster-whisper-xxl                    %+ rem this may be unused now!                process last (type "tasklist" to see) ... Generally the base name of any EXE
         set OUR_LANGUAGE=en
-        set LOG_PROMPTS_USED=1                                           %+ rem 1=save prompt used to create SRT into sidecar ..log file
-        set SKIP_SEPARATION=1                                            %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn't work anymore
-        SET SKIP_TEXTFILE_PROMPTING=0                                    %+ rem 0=use lyric file to prompt AI, 1=go in blind
+        set LOG_PROMPTS_USED=1                                       %+ rem 1=save prompt used to create SRT into sidecar ..log file
+        set SKIP_SEPARATION=1                                        %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn't work anymore
+        SET SKIP_TEXTFILE_PROMPTING=0                                %+ rem 0=use lyric file to prompt AI, 1=go in blind
 rem CONFIG: 2024: WAIT TIMES:
-        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                     %+ rem wait time for "are these lyrics good?"-type questions
-        set AI_GENERATION_ANYWAY_WAIT_TIME=45                            %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
-        set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=45          %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
-        set PROMPT_CONSIDERATION_TIME=15                                 %+ rem wait time for "does this AI command look sane"-type questions
-        set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=1           %+ rem wait time for "hey lyrics not found!"-type notifications/questions
-        set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=300                     %+ rem wait time for "edit it now that we've made it?"-type questions ... Have decided it should probably last longer than the average song
+        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                 %+ rem wait time for "are these lyrics good?"-type questions
+        set AI_GENERATION_ANYWAY_WAIT_TIME=45                        %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
+        set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=45      %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
+        set PROMPT_CONSIDERATION_TIME=15                             %+ rem wait time for "does this AI command look sane"-type questions
+        set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=1       %+ rem wait time for "hey lyrics not found!"-type notifications/questions
+        set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=300                 %+ rem wait time for "edit it now that we've made it?"-type questions ... Have decided it should probably last longer than the average song
         rem ^^^^ TODO: automation mode where all these get shortened to quite significantly, or all to 3, or all to 1, or something 🐮
 
 REM config: 2023:
@@ -42,12 +43,14 @@ REM Pre-run cleanup:
         @call tock                      %+ rem purely cosmetic
         unset /q LYRIC_ATTEMPT_MADE
         unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY
+        if exist *collected_chunks*.wav (*del /q *collected_chunks*.wav)
+        if exist     *vad_original*.srt (*del /q     *vad_original*.srt)
 
 REM validate environment [once]:
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
                 @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat
-                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning TRANSCRIBER_PRNAME ansi_color_warning_soft ANSI_COLOR_BLUE
+                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning TRANSCRIBER_PDNAME ansi_color_warning_soft ANSI_COLOR_BLUE
                 @call validate-is-function           randfg_soft
                 @call checkeditor
                 @set VALIDATED_CREATE_LRC_FF=1
@@ -61,7 +64,7 @@ REM branch on certain paramters, and clean up various parameters
         if "%2" eq "force-regen" .or. "%2" eq "redo" (set FORCE_REGEN=1 %+ set PARAM_2=) %+ rem Any %2 that is a mode needs to get "the param_2 treatment" 
         if "%2" eq "ai" (set PARAM_2=)                                                   %+ rem Any %2 that is a mode needs to get "the param_2 treatment"
         set MAKING_KARAOKE=1
-
+        if defined USE_LANGUAGE (set OUR_LANGUAGE=%USE_LANGUAGE%)
 
 
 
@@ -212,7 +215,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 if "%ANSWER%" eq "Y" (goto :Force_AI_Generation)
                 goto :END
         else
-                @echo %ansi_color_warning_soft%%star%Not yet generating %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning_soft% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning_soft% does not exist!%ansi_color_normal%
+                @echo %ansi_color_warning_soft%%star% Not yet generating %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning_soft% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning_soft% does not exist!%ansi_color_normal%
                 @call advice       "Use 'force' option to override."
                 @call advice       "Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!"
                 @call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
@@ -393,17 +396,27 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
 
 
 REM Concurrency Consideration: Check if the encoder is already running in the process list. Don't run more than 1 at once.
-        call isRunning %TRANSCRIBER_PRNAME% silent
-        if "%isRunning" != "1" (goto :no_concurrency_issues)
-        @echo %ansi_color_warning_soft%%star% %italics_on%%TRANSCRIBER_PRNAME%%italics_off is already running%ansi_color_normal%
-        @echos %ANSI_COLOR_WARNING_SOFT%%STAR% Waiting for completion of %italics_on%another%italics_on% instance %italics_on%%TRANSCRIBER_PRNAME%%italics_off% to finish before starting this one...%ANSI_COLOR_NORMAL%
+        rem slower call isRunning %TRANSCRIBER_PRNAME% silent
+        rem slower if "%isRunning" != "1" (goto :no_concurrency_issues)
+        rem faster:
+        
+        echo %ANSI_COLOR_DEBUG%- DEBUG: iff @PID[TRANSCRIBER_PDNAME=%TRANSCRIBER_PDNAME%] %@PID[%TRANSCRIBER_PDNAME%] ne 0 then%ANSI_COLOR_NORMAL%
+        iff "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then
+                @echo %ansi_color_warning_soft%%star% %italics_on%%TRANSCRIBER_PDNAME%%italics_off is already running%ansi_color_normal%
+                @echos %ANSI_COLOR_WARNING_SOFT%%STAR% Waiting for completion of %italics_on%another%italics_on% instance %italics_on%%TRANSCRIBER_PDNAME%%italics_off% to finish before starting this one...%ANSI_COLOR_NORMAL%
+        else 
+                goto :no_concurrency_issues
+        endiff
+
         :Check_If_Transcriber_Is_Running_Again
-        @echos %@randfg_soft[]
-        rem Wait a random number of seconds to lower the odds of multiple waiting processes seeing an opening and all starting at the same time]:
-        sleep %@random[2,8] 
-        call isRunning %TRANSCRIBER_PRNAME% silent
-        if %isRunning eq 1 (goto :Check_If_Transcriber_Is_Running_Again)
-        @echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
+                @echos %@randfg_soft[].
+                rem Wait a random number of seconds to lower the odds of multiple waiting processes seeing an opening and all starting at the same time]:
+                sleep %@random[7,29] 
+                rem slow: call isRunning %TRANSCRIBER_PRNAME% silent
+                echo 🐐%ANSI_COLOR_DEBUG%- DEBUG: if "@PID[TRANSCRIBER_PDNAME]" (which is "@PID[%transcriber_pdname]" which is "%@PID[%TRANSCRIBER_PDNAME]") ne 0 (goto :Check_If_Transcriber_Is_Running_Again)%ANSI_COLOR_NORMAL%
+                echo 🐐if "@PID[%TRANSCRIBER_PDNAME%]" ne "0" (goto :Check_If_Transcriber_Is_Running_Again)
+                if "%@PID[%TRANSCRIBER_PDNAME%]" ne "0" (goto :Check_If_Transcriber_Is_Running_Again)
+                @echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
         :no_concurrency_issues
         
 REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI:
@@ -411,11 +424,9 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
         @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% AI running! %EMOJI_FIREWORKS%%ansi_color_normal%
         set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"    
                                  %TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"        |:u8  copy-move-post whisper 
-
         
         if %LOG_PROMPTS_USED% eq 1 (@echo %_DATETIME: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>"%@NAME[%INPUT_FILE].log")
         call errorlevel "some sort of problem with the AI generation occurred in %0 line ~336ish {'actually generate the srt file'}"
-                                 rem    copy-move-post nomoji?
 
 REM delete zero-byte LRC files that can be created
         call delete-zero-byte-files *.lrc silent
@@ -423,7 +434,7 @@ REM delete zero-byte LRC files that can be created
 
 REM did we create the LRC file?
         call validate-environment-variable EXPECTED_OUTPUT_FILE "expected output file of '%italics%%EXPECTED_OUTPUT_FILE%%italics_off%' does not exist"
-        if exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" (@echo %EXPECTED_OUTPUT_FILE%%::::%_DATETIME%::::%TRANSCRIBER_TO_USE% >>"__ contains AI-generated SRC files __")
+        if exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" (@echo %EXPECTED_OUTPUT_FILE%%::::%_DATETIME%::::%TRANSCRIBER_TO_USE% >>"__ contains AI-generated SRT files __")
 
 rem If we did, we need to rename any sidecar TXT file that might be there {from already-having-existed}, becuase 
 rem MiniLyrics will default to displaying TXT over SRC
@@ -496,7 +507,8 @@ else
                 rem fast_cat fixes ansi rendering errors ins ome situations
                 rem (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        "     |:u8 fast_cat
                 rem (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "SRT:        %CHECK%" |:u8 fast_cat
-                (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
+                    (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
+                    (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
                 @call divider
                 @call askyn "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME%
                 iff "%ANSWER" == "Y" then
@@ -516,6 +528,8 @@ timer /5 off
 set MAKING_KARAOKE=0
 unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY
 @echos %ANSI_RESET%%CURSOR_RESET%
+if exist *collected_chunks*.wav (*del /q *collected_chunks*.wav)
+if exist     *vad_original*.srt (*del /q     *vad_original*.srt)
 
 :The_Very_END
 

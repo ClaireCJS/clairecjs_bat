@@ -117,6 +117,7 @@
 2023-05-05  01:06          1,814   50%  chatgpt-query.py
 2023-04-28  21:33             16  -12%  check-for-applications-and-programs-that-can-be-upgraded.bat
 2024-04-07  20:15            189   18%  check-for-invalid-audio-files.bat
+2024-11-01  09:49            699   48%  check-for-missing-lyrics.bat
 2024-04-05  15:49            705   64%  check-if-asking-for-usage.bat
 2024-08-20  06:40            752   41%  check-that-we-are-running-on-the-master-machine.bat
 2024-10-21  11:15          1,549   68%  checkeditor.bat
@@ -125,7 +126,7 @@
 2024-10-18  13:43            863   57%  checkpassword.bat
 2023-10-14  02:51            452   52%  checktemp.bat
 2024-04-10  12:34            487   51%  checkusername.bat
-2024-10-28  18:15          3,293   67%  check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py
+2024-11-01  09:48          4,210   67%  check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py
 2023-10-06  09:42             44   -2%  chown.bat
 2024-10-30  22:10          1,371   69%  chrome.bat
 2019-10-01  10:27             33   13%  cl.bat
@@ -173,7 +174,7 @@
 2024-10-21  04:02             36   -5%  cool-header.bat
 2024-10-21  04:00             26   -7%  coolbigecho.bat
 2024-08-26  21:12            680   43%  copy-alias.bat
-2024-10-31  22:57         22,994   73%  copy-move-post.py
+2024-11-01  08:03         24,042   73%  copy-move-post.py
 2024-04-03  20:01             19  -10%  copy.bat
 2019-10-01  10:27            221   34%  counts-helper.bat
 2019-10-01  10:27             27   -7%  counts.bat
@@ -185,7 +186,8 @@
 2024-10-18  13:13            243   37%  create-directory-and-recursive-playlists.bat
 2019-10-01  10:27            474   60%  create-generic-sizes-and-counts-report.bat
 2024-10-31  23:11          1,004   50%  create-lrc-file-for-currently-playing-song.bat
-2024-10-31  20:57         38,353   72%  create-lrc-from-file.bat
+2024-11-01  09:49         39,925   72%  create-lrc-from-file.bat
+2024-10-28  14:08             31   -6%  create-srt.bat
 2019-10-01  10:27            336   39%  create-symlinks-by_Letter_only.bat
 2023-05-28  09:30         24,782   80%  create-symlinks.bat
 2024-04-10  12:38            459   35%  create-these_m3u-playlists.bat
@@ -303,7 +305,7 @@
 2024-06-12  12:08            363   36%  ensure-directories-exist.bat
 2024-04-10  12:33            179   33%  ensure-drive-is-mapped.bat
 2024-03-20  14:55            359   38%  env.bat
-2024-10-30  16:44        189,223   81%  environm.btm
+2024-11-01  08:02        189,401   81%  environm.btm
 2023-05-29  16:16             42   -4%  error.bat
 2024-09-11  15:08         12,442   75%  errorlevel.bat
 2024-10-25  20:39            917   52%  eset.bat
@@ -374,10 +376,11 @@
 2019-10-01  10:28          8,414   64%  get-current-song-playing.pl
 2024-10-10  11:49            422   49%  get-currently-playing-tracknum-from-wawi-index_html.pl
 2023-07-04  20:09            549   59%  get-image-dimensions.bat
+2024-11-01  08:41            179   34%  get-lyrics-for-all-songs-in-this-folder.bat
 2024-10-29  13:40            400   42%  get-lyrics-for-currently-playing-song.bat
 2024-10-31  08:04             45   -4%  get-lyrics-for-song.bat
 2024-10-29  13:41             30   -6%  get-lyrics-from-song.bat
-2024-10-31  20:58         26,926   75%  get-lyrics-via-multiple-sources.bat
+2024-11-01  09:45         31,405   75%  get-lyrics-via-multiple-sources.bat
 2024-10-28  17:09          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
 2024-10-29  14:10             47   -4%  get-lyrics-with-lyricsgenius.bat
 2024-10-29  14:23            168   41%  get-lyrics.bat
@@ -415,7 +418,9 @@
 2019-10-01  10:27             18  -11%  go-to-bat-file-folder.bat
 2024-05-10  10:38          3,538   62%  go-to-next-directory-generator.pl
 2019-10-01  10:28             81   31%  go-to-video-repository.bat
-2019-10-01  10:28            107   13%  google.bat
+2024-11-01  07:21            165   23%  google.bat
+2024-11-01  07:13          1,056   54%  google.pl
+2024-11-01  06:42          1,194   56%  google.py
 2019-10-01  10:28            451   48%  grab-helper.pl
 2022-11-21  13:30          1,896   57%  grab.bat
 2024-04-03  17:44            589   53%  grant-me-access-to-all-files.bat
@@ -891,7 +896,7 @@
 2024-03-24  19:17            300   42%  undep.bat
 2023-07-03  13:45             48   -4%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
-2024-10-31  21:07          4,283   58%  unique-lines.pl
+2024-11-01  09:39          4,957   57%  unique-lines.pl
 2024-10-29  14:23            535   55%  unknown-shipper-tracking.bat
 2024-10-21  11:50             35   -5%  unknown-tracking.bat
 2024-10-23  17:32             21   -9%  unlock-header.bat

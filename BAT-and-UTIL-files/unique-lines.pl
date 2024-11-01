@@ -1,3 +1,4 @@
+ #TODO deal with:
 #!/usr/bin/perl
 
 # On the surface, a general utility like uniq, except it remembers if a line has been seen before —— you don't have to pre-sort it
@@ -17,7 +18,9 @@ my $LYRICS_MODE;
 my $ONE_LINE;
 my $ALL_LINES_MODE;
 my $to_print_last;
-
+my $artist="";
+my $title="";
+my $album="";
 
 # Loop through @ARGV to check for -1 and -L options
 $LYRICS_MODE    = 0;    
@@ -41,11 +44,10 @@ my $key;
 my $to_print;
 my %seen;
 my @lines;
-my $artist;
-my $title;
 if ($LYRICS_MODE) {
-	$artist = $ENV{FILE_ARTIST};
-	$title  = $ENV{FILE_TITLE};
+	$artist = $ENV{FILE_ARTIST} || "";
+	$title  = $ENV{FILE_TITLE } || "";
+	$album  = $ENV{ALBUM      } || "";
 }
 while (<STDIN>) {
 	#massage the line
@@ -59,11 +61,21 @@ while (<STDIN>) {
 		$line =~ s/^-+//;					#get rid of lines like: ---------------
 
 		#content
-		$line =~ s/\*? (\[lyrics4all\]|No|\[sing365\]|\[[a-z0-9]+\]) filter used//i;
+		$line =~ s/\*? (\[lyrics4all\]|No|\[sing365\]|\[[a-z0-9]+ \]) filter used//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
 		$line =~ s/Get tickets as low as \$[\d\.]+//i;
+		#[Verse 2: Devi McCallion]
+		$line =~ s/\[(Intro|Verse|Pre-Chorus|Refrain|Chorus|Bridge|Interlude|Outro):* *[\w \-&'",]*\]//i;
+
+		#http://lyricstranslate.com/en/catch-me-if-you-can-catch-me-if-you-can.html
+		#Album tracklist with lyrics
+		#        Artist: Circle Jerks,
+		#        Album: Vi,
+		#        Title: Beat Me Senseless,
+
+
 
 		#commas and quotes
 		$line =~ s/^, *$//;
@@ -77,6 +89,8 @@ while (<STDIN>) {
 		if (($line =~ /[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z].*[A-Z]/) && ($line !~ /[a-z]/)) {
 			$line = lc($line);
 		}
+
+
 	}
 
 

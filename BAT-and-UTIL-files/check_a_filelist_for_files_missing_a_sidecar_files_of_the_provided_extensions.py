@@ -22,8 +22,9 @@
 #                      (For reference, the reason the extensions are "*.lrc;*.srt" format instead of "lrc,srt" format)
 #                      (is because of compatibility with some environment variables I create in my personal life.    )
 #
-#      And as a side effect, it would create a file called: PLAYLIST-without lrc srt.m3u that contains these files
-#
+#      And as a side effect, it would create a file called: PLAYLIST-without lrc srt.m3u that contains these files ——
+#                       —— unless you add a NoFileWrite option at the end then it doesn't
+#                       —— unless you add a GetLyricsFileWrite then it writes a bat file to retrieve lyrics
 #
 #
 
@@ -32,7 +33,11 @@ import sys
 import glob
 from termcolor import colored
 
-def main(input_filename, extensions):
+
+SCRIPT_NAME_FOR_LYRIC_RETRIEVAL="get-the-missing-lyrics-here.bat"
+
+
+def main(input_filename, extensions, options):
     # Check if the input file exists
     if not os.path.exists(input_filename):
         print(f"Error: The file '{input_filename}' does not exist.")
@@ -62,19 +67,28 @@ def main(input_filename, extensions):
             print(file)
 
     # Write the output file
+
     if files_without_sidecars:
         input_file_ext = os.path.splitext(input_filename)[1]
         output_filename = f"{os.path.splitext(input_filename)[0]}-without {' '.join(ext[2:] for ext in extensions_list)}{input_file_ext}"
-        print(colored(f"Writing output file: {output_filename}", 'green', attrs=['bold']))
-        with open(output_filename, 'w') as output_file:
-            for missing_file in sorted(files_without_sidecars):
-                output_file.write(f"{missing_file}\n")
+        if options.lower() == "getlyricsfilewrite": output_filename = SCRIPT_NAME_FOR_LYRIC_RETRIEVAL
+        if options.lower() !=        "NoFileWrite":
+            print(colored(f"Writing output file: {output_filename}", 'green', attrs=['bold']))
+            with open(output_filename, 'w') as output_file:
+                for missing_file in sorted(files_without_sidecars):
+                    if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\"\n")
+                    else                                      : output_file.write(f"{missing_file}\n")
+                if options.lower() == "getlyricsfilewrite":     output_file.write("@echo *** ALL DONE WITH LYRIC RETRIEVAL!!! ***\n@echo yra | *del %0 >&>nul\n")
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python script.py <input_filename> <extensions>")
         sys.exit(1)
 
-    input_filename = sys.argv[1]
-    extensions = sys.argv[2]
-    main(input_filename, extensions)
+    options=""
+    if len(sys.argv)>0:
+        input_filename = sys.argv[1]
+        extensions = sys.argv[2]
+    if len(sys.argv) >= 4:
+        options = sys.argv[3]
+    main(input_filename, extensions, options)
