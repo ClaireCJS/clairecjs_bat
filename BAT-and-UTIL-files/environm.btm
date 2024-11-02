@@ -2639,6 +2639,9 @@ return
         rem Reset the cursor to normal, and ensure our custom pentagram is actually created [bugfix kludge]:
                 echos %CURSOR_RESET%%CREATE_PENTAGRAM%
 
+        rem Reset the window title:
+                title TCC
+
         rem Sometimes this script is passed an additional command (via 'NEXTCOMMAND' environment variable) to be run at the end:
                 if "%NEXTCOMMAND%" ne "" (%NEXTCOMMAND%)
 

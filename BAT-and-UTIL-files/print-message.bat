@@ -1,4 +1,5 @@
 @Echo Off
+set print_message_running=1
 
 :REQUIRES: set-colors.bat to be run first —— to define certain environment variables that represent ANSI character control sequences
 
@@ -99,6 +100,7 @@ REM Process parameters
     if %DEBUG_PRINTMESSAGE eq 1 (echo TYPE=%TYPE% OUR_COLORTOUSE=%OUR_COLORTOUSE% DO_PAUSE=%DO_PAUSE% MESSAGE is: %MESSAGE% )
 
 REM Validate parameters
+    set print_message_running=2
     if %VALIDATED_PRINTMESSAGE_ENV ne 1 (
         if not defined COLOR_%TYPE%  (call fatal_error "This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment")
         if not defined MESSAGE       (call fatal_error "$0 called without a message")
@@ -193,6 +195,7 @@ REM Pre-Message determination of if we do a big header or not:
         if  "%TYPE%" eq "ERROR" .or. "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "ALARM" (set BIG_HEADER=1)
 
 REM Pre-Message determination of how many times we will display the message:
+        set print_message_running=5
         set HOW_MANY=1 
         if "%TYPE%" eq "CELEBRATION" (set HOW_MANY=1 2)
         if "%TYPE%" eq       "ERROR" (set HOW_MANY=1 2 3)
@@ -307,6 +310,7 @@ REM Actually display the message:
 
         
 REM Post-message delays and pauses
+        set print_message_running=10
         setdos /x0
         set DO_DELAY=0    
         REM DO_PAUSE=0 WOULD BE FATAL beause we set this from calling scripts for automation
@@ -344,6 +348,7 @@ REM Post-message beeps and sound effects
         if %DO_DELAY gt 0 (delay %DO_DELAY)
     
 REM For errors, give chance to gracefully exit the script (no more mashing of ctrl-C / ctrl-Break)
+        set print_message_running=15
         if "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "ERROR" (
                 set DO_IT=
                 set temp_title=%_wintitle
@@ -433,4 +438,7 @@ goto :END
 
 
 if defined PRINTMESSAGE_OPT_SUPPRESS_AUDIO (set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=)
+
+set print_message_running=999999999
+
 

@@ -134,12 +134,13 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     double  = False
     summary = False
 
-    if whisper_ai: additional_beginning_ansi=""         #kludging a situation
-
-    if any(substring in line_buffer for substring in FOOTERS):                                                  #identify if we're in a footer/summary line
-        line_buffer = enclose_numbers(line_buffer)
-        double      = True
-        summary     = True
+    if whisper_ai:
+        additional_beginning_ansi=""         #kludging a situation
+    else:
+        if any(substring in line_buffer for substring in FOOTERS):                                                  #identify if we're in a footer/summary line
+            line_buffer = enclose_numbers(line_buffer)
+            double      = True
+            summary     = True
 
     line = ""
     if nomoji is True:                                                                                          # Start the line off
@@ -159,18 +160,19 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     original_line  = original_line_buffer.rstrip()
     original_line2 =          line_buffer.rstrip()
 
-    if summary:                                                                                                # Handle transformation for summary lines
-        pattern = "|".join(re.escape(footer) for footer in FOOTERS)
-        segments = re.split(pattern, line_buffer)
-        segments = [seg.strip() for seg in segments if seg.strip()]                                            # Remove empty segments and strip spaces from the rest
-        lines = []
-        for segment in segments:
-            footer_match = re.search(pattern, line_buffer)
-            if footer_match:
-                footer = footer_match.group(0)
-                lines.append(f"{segment} {footer}")
-                line_buffer = line_buffer.replace(footer, "", 1).strip()                                       # Update line_buffer to remove the footer we just matched
-        line_buffer = f'\n{EMOJIS_SUMMARY}'.join(lines)
+    if not whisper_ai:
+        if summary:                                                                                                # Handle transformation for summary lines
+            pattern = "|".join(re.escape(footer) for footer in FOOTERS)
+            segments = re.split(pattern, line_buffer)
+            segments = [seg.strip() for seg in segments if seg.strip()]                                            # Remove empty segments and strip spaces from the rest
+            lines = []
+            for segment in segments:
+                footer_match = re.search(pattern, line_buffer)
+                if footer_match:
+                    footer = footer_match.group(0)
+                    lines.append(f"{segment} {footer}")
+                    line_buffer = line_buffer.replace(footer, "", 1).strip()                                       # Update line_buffer to remove the footer we just matched
+            line_buffer = f'\n{EMOJIS_SUMMARY}'.join(lines)
 
     #line += f'{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                       #make line be our random color
     line = f'{line}{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                       #make line be our random color
@@ -190,12 +192,14 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             spacer = "                "
             spacer_less = "           "
             if verbose: print(f"orig_line is [orig={original_line}][line={line}]")
-            if "[ctranslate2]" in line:
+            #if "[ctranslate2]" in line: just won't work!
+            if "[ctranslate2]" in original_line:
                 #ine = FAINT_ON + COLOR_GREY + spacer + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
                 #ine =                         spacer + COLOR_GREY + "⭐" + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
                 line =                         spacer + FAINT_ON + f"{COLOR_GREY}⭐" + line + FAINT_OFF
                 line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)
                 #DEBUG: print ("ctranslate line found!")#
+            line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)    #todo experimental: just do this, won't affecti f there isn't a match
             if  original_line.startswith("Standalone Faster-Whisper-XXL "):
                 line = line.replace("Standalone Faster-Whisper-XXL", "\n🚀 Standalone Faster-Whisper-XXL 🚀").replace(" running on:",":")
             if  original_line.startswith("Starting work on: "):
@@ -234,10 +238,8 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     sys.stdout.write('\n')
 
 
-
-## MAIN #######################################################################################################################################################
-
 def reader_thread(q):
+    global BLINK_ON
     while True:
         char = sys.stdin.read(1)
         if char:
@@ -246,13 +248,15 @@ def reader_thread(q):
             q.put(None)
             break
 
+## MAIN #######################################################################################################################################################
+
 # Create a queue and start the reader thread
 q = queue.Queue()
 t = threading.Thread(target=reader_thread, args=(q,))
 t.start()
 
-line_buffer = ""
-in_prompt = False
+line_buffer               = ""
+in_prompt                 = False
 additional_beginning_ansi = move_decorator_from_environment_variable
 
 # random color hex testing
@@ -263,14 +267,14 @@ additional_beginning_ansi = move_decorator_from_environment_variable
 ##sys.stdout.write(f"sys.argv is {sys.argv}\n")
 
 # initialize various variables
-verbose = False
-whisper_ai = False
-current_processing_segment = 0
-my_mode = DEFAULT_COLOR_CYCLE_MODE
+verbose                       = False
+whisper_ai                    = False
+current_processing_segment    = 0
+my_mode                       = DEFAULT_COLOR_CYCLE_MODE
 background_color_switch_maybe = ""
-r = ""
-g = ""
-b = ""
+r                             = ""
+g                             = ""
+b                             = ""
 
 
 #sys.stdout.write(f"sys.argv is {sys.argv}\n")
@@ -300,11 +304,14 @@ if verbose:
 #enable_vt_support()
 
 #whether to blink text or not
-blink_maybe = BLINK_ON;
-if nomoji or whisper_ai: BLINK_ON=""
+blink_maybe = BLINK_ON;                         #failed attempt to solve blinking questions in Whisper mode
+if nomoji or whisper_ai: BLINK_ON=""            #failed attempt to solve blinking questions in Whisper mode
 
 char_read_time_out=0.008;                       #most of the time, read characters as fast as we can! testing gave 0.008
-if whisper_ai: char_read_time_out=0.2           #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
+#f whisper_ai: char_read_time_out=0.2           #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
+if whisper_ai: char_read_time_out=0.064         #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
+
+
 
 while t.is_alive() or not q.empty():
 #hile True:
@@ -323,11 +330,12 @@ while t.is_alive() or not q.empty():
             in_prompt = True
 
             #color switching logic: background colors:
-            if COLOR_QUESTION_BACKGROUNDS:
-                bgr, bgg, bgb = get_random_color(bg=True)                           # Reset for the next line
-                background_color_switch_maybe = f"\033[48;2;{bgr};{bgg};{bgb}"
-            else:
-                background_color_switch_maybe = ""
+            if not whisper_ai:
+                if COLOR_QUESTION_BACKGROUNDS:                                          # (for file copies, but not for other things)
+                    bgr, bgg, bgb = get_random_color(bg=True)                           # Reset for the next line
+                    background_color_switch_maybe = f"\033[48;2;{bgr};{bgg};{bgb}"
+                else:
+                    background_color_switch_maybe = ""
 
             #color switching logic: foreground colors:
             #r ,  g,  b = get_random_color()                                                      # Reset for the next line
@@ -338,9 +346,9 @@ while t.is_alive() or not q.empty():
             #ys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   {BLINK_ON}{line_buffer} {ANSI_RESET}') #\033[0m
             cursor_color_switch_by_hex = f"{CURSOR_RESET}\033" + f"]12;{ rgbhex_with_pound_sign}\007"             #*[ q*12;#FFFFFF{beep}
 
-            #color switching logic: blinking text — moved to before this loop because it only needs to happen once
-            #blink_maybe = BLINK_ON;
-            #if nomoji: BLINK_ON=""
+            #color switching logic: blinking text — needs to happen in this loop repeatedly, not just once:
+            blink_maybe = BLINK_ON;
+            if nomoji: BLINK_ON=""
 
             #spacer logic
             line_spacer = ""
@@ -376,10 +384,21 @@ while t.is_alive() or not q.empty():
         except:
             pass
 
+    #final flush just in case ... 🐐 might not be necessary...
     try:
         sys.stdout.flush()
     except:
         pass
+
+
+# Flush any remaining content in line_buffer after the loop
+# After exiting the main loop, print any remaining line content
+if line_buffer.strip():  # Ensure any remaining line without \n is printed
+    print_line(line_buffer, r, g, b, additional_beginning_ansi)
+    sys.stdout.write(ANSI_RESET + "\n")  # Reset any leftover ANSI styles
+    sys.stdout.flush()
+
+
 
 #if TICK: claire.tock()
 

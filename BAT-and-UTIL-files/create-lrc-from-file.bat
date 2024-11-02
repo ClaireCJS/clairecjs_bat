@@ -3,7 +3,7 @@
 rem TODO if lyrics are approved already, don't ask about them
 rem TODO maybe add NoLyrics mode to not consider lyrics?
 
-:USAGE: lrc.bat whatever.mp3 {force|ai} {options to pass on to whisper} ... ai=force ai regeneration, force=proceed even if LRC file is there
+:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup} {options to pass on to whisper} ... ai=force ai regeneration, force=proceed even if LRC file is there, cleanup=clean up leftover files
 :USAGE: set USE_LANGUAGE=jp to encode in a different language from en, like jp
 
 :REQUIRES:     <see validators>
@@ -29,7 +29,7 @@ rem CONFIG: 2024: WAIT TIMES:
         set AI_GENERATION_ANYWAY_WAIT_TIME=45                        %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
         set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=45      %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
         set PROMPT_CONSIDERATION_TIME=15                             %+ rem wait time for "does this AI command look sane"-type questions
-        set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=1       %+ rem wait time for "hey lyrics not found!"-type notifications/questions
+        set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0       %+ rem wait time for "hey lyrics not found!"-type notifications/questions. Set to 0 to not pause at all.
         set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=300                 %+ rem wait time for "edit it now that we've made it?"-type questions ... Have decided it should probably last longer than the average song
         rem ^^^^ TODO: automation mode where all these get shortened to quite significantly, or all to 3, or all to 1, or something 🐮
 
@@ -56,11 +56,12 @@ REM Pre-run cleanup:
         unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY
         if exist *collected_chunks*.wav (*del /q *collected_chunks*.wav)
         if exist     *vad_original*.srt (*del /q     *vad_original*.srt)
+        call unlock-top                 %+ rem Remove any leftover banners from previous runs
 
 REM validate environment [once]:
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
-                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat
+                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top
                 @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning TRANSCRIBER_PDNAME ansi_color_warning_soft ANSI_COLOR_BLUE
                 @call validate-is-function           randfg_soft
                 @call checkeditor
@@ -74,6 +75,12 @@ REM branch on certain paramters, and clean up various parameters
         set FORCE_REGEN=0
         if "%2" eq "force-regen" .or. "%2" eq "redo" (set FORCE_REGEN=1 %+ set PARAM_2=) %+ rem Any %2 that is a mode needs to get "the param_2 treatment" 
         if "%2" eq "ai" (set PARAM_2=)                                                   %+ rem Any %2 that is a mode needs to get "the param_2 treatment"
+        set CLEANUP=0
+        iff "%2" eq "cleanup" then
+                set PARAM_2=                                                             %+ rem Any %2 that is a mode needs to get "the param_2 treatment"
+                CLEANUP=1
+                goto :just_do_the_cleanup
+        endiff
         set MAKING_KARAOKE=1
         if defined USE_LANGUAGE (set OUR_LANGUAGE=%USE_LANGUAGE%)
 
@@ -91,7 +98,13 @@ REM values set from parameters
         rem VOC_FILE=%SONGBASE%.vocals.wav
         rem LRCFILE2=%SONGBASE%.vocals.lrc
 
-REM our main input and output files
+REM Values fetched from input file:
+        call get-lyrics-via-multiple-sources "%SONGFILE%" SetVarsOnly %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc
+
+REM Determine the base text used for our window title:
+        set BASE_TITLE_TEXT=%FILE_ARTIST - %FILE_TITLE% 
+
+REM Determine our expected input and output files:
         set INPUT_FILE=%SONGFILE%
         rem EXPECTED_OUTPUT_FILE=%LRC_FILE%   %+ rem //This was for the 2023 version
         SET EXPECTED_OUTPUT_FILE=%SRT_FILE%
@@ -110,7 +123,7 @@ REM if 2nd parameter is lyric file, use that one:
 
 REM display debug info
         :Retry_Point
-        @call debug "%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE='%ITALICS_ON%%SONGBASE%%ITALICS_OFF%'%NEWLINE%%TAB%%TAB%LRC_FILE='%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%', %NEWLINE%%TAB%%TAB%TXT_FILE='%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%'%FAINT_OFF%%NEWLINE%"
+        @call debug "(8)%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE='%ITALICS_ON%%SONGBASE%%ITALICS_OFF%'%NEWLINE%%TAB%%TAB%LRC_FILE='%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%', %NEWLINE%%TAB%%TAB%TXT_FILE='%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%'%FAINT_OFF%%NEWLINE%"
         rem @echo Hello?!?!?!
         gosub say_if_exists SONGFILE
         gosub say_if_exists SRT_FILE
@@ -125,34 +138,41 @@ REM display debug info
 
 REM if our input MP3/FLAC/audio file doesn't exist, we have problems:
         call validate-environment-variable INPUT_FILE
-        call validate-file-extension     "%INPUT_FILE%" %FILEMASK_AUDIO%
+        iff "%input_file%" ne "force" .and. "%2" ne "ai" then
+                call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO%
+        endiff
 
 
 
 REM if we already have a SRT file, we have a problem:
-        iff exist "%SRT_FILE%" .and. %OKAY_THAT_WE_HAVE_SRT_ALREADY ne 1 then
+        iff exist "%SRT_FILE%" .and. %OKAY_THAT_WE_HAVE_SRT_ALREADY ne 1 .and. %2 ne "ai" then
                 iff exist "%TXT_FILE%" then
                         @call divider
-                        @call less_important "(5) Review the lyrics now:" 0
-                        @call divider
+                        rem @call less_important "(65) Review the lyrics now:" 
+                        call bigecho %STAR% %ANSI_COLOR_IMPORTANT_LESS%Review the lyrics:%ANSI_RESET%
                         @echos %ANSI_COLOR_BRIGHT_YELLOW%
                         rem unique-lines -A is a bit of a misnomer because it gives ALL lines, but with -L it gives us a preview of some of the lyric massage prior to the AI prompt
                         type "%TXT_FILE%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                        iff %@FILESIZE["%TXT_FILE%"] lt 5 then
+                            echo         %ANSI_COLOR_WARNING%Hmm. Nothing there.%ANSI_RESET%
+                        endiff
                         @call divider
                 endiff
                 @call bigecho %ansi_color_warning%%emoji_warning%Already have karaoke!%emoji_warning%%ansi_color_normal%
                 @call warning "We already have a file created: %emphasis%%srt_file%%deemphasis%"
-                @call advice "Automatically answer the next prompt as Yes by adding the parameter 'force-regen' or 'redo'"
-                iff exist "%TXT_FILE%" then
-                        @call AskYn "(5) Do the above lyrics look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
-                        iff "%answer%" eq "Y" then
-                                rem Proceed with process
-                        else
-                                ren /q "%TXT_FILE%" "%@NAME[%TXT_FILE%].txt.%_datetime.bak" >nul
-                                @call less_important "Okay, let's try fetching new lyrics"
-                                goto :Refetch_Lyrics
+                if "%2" eq "ai" goto :automatic_skip_for_ai_parameter
+                        @call advice "Automatically answer the next prompt as Yes by adding the parameter 'force-regen' or 'redo'"
+                        iff exist "%TXT_FILE%" then
+                                @call AskYn "%faint_on%(5)%faint_off% Do the above lyrics look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                                iff "%answer%" eq "Y" then
+                                        rem Proceed with process
+                                else
+                                        ren /q "%TXT_FILE%" "%@NAME[%TXT_FILE%].txt.%_datetime.bak" >nul
+                                        @call less_important "Okay, let's try fetching new lyrics"
+                                        goto :Refetch_Lyrics
+                                endiff
                         endiff
-                endiff
+                :automatic_skip_for_ai_parameter
                 rem FORCE_REGEN is %FORCE_REGEN %+ pause
                 iff %FORCE_REGEN% ne 1 then
                         @call askYN "Regenerate it anyway?" no %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME%
@@ -220,8 +240,9 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
 
 
         iff not exist "%TXT_FILE%" .and. "%2" ne "Force" .and. 1 eq %LYRIC_ATTEMPT_MADE then
-                @call warning "Failed to generate %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning% lryics do not exist and could not be downloaded! Use 'ai' option to go straight to AI generation."
-                rem @call pause-for-x-seconds 20
+                @call warning "Failed to generate %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning%" silent
+                @call warning "because the lyrics %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning% do not exist and could not be downloaded!" silent
+                @call advice  "Use 'ai' option to go straight to AI generation"
                 @call askYN "Generate AI anyway" no %AI_GENERATION_ANYWAY_WAIT_TIME%
                 if "%ANSWER%" eq "Y" (goto :Force_AI_Generation)
                 goto :END
@@ -229,10 +250,12 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 @echo %ansi_color_warning_soft%%star% Not yet generating %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning_soft% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning_soft% does not exist!%ansi_color_normal%
                 @call advice       "Use 'force' option to override."
                 @call advice       "Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!"
-                @call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
+                iff %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST gt 0 then
+                    call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
+                endiff
                 :Refetch_Lyrics
-                call get-lyrics "%SONGFILE%" 
-                set LYRIC_ATTEMPT_MADE=1
+                        call get-lyrics "%SONGFILE%" 
+                        set LYRIC_ATTEMPT_MADE=1
                 goto :We_Have_A_Text_File_Now
         endiff
         :We_Have_A_Text_File_Now
@@ -349,14 +372,21 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
                         rem )
 
                         rem Smush the lyrics into a single line (no line breaks) set of unique lines:
-                        rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | uniq | paste.exe -sd " " -]]
-                        rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" | paste.exe -sd " " -]]
-                        rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" ]]
-                        set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" |:u8 unique-lines.pl -1 -L]]
-                        set OUR_LYRICS_TRUNCATED=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%OUR_LYRICS%]
-                        set WHISPER_PROMPT=--initial_prompt "%OUR_LYRICS_TRUNCATED%"
-                        rem @echo %ANSI_COLOR_DEBUG%Whisper_prompt is:%newline%%tab%%tab%%faint_on%%WHISPER_PROMPT%%faint_off%%ANSI_COLOR_NORMAL%
-                        set CLI_OPS=%CLI_OPS% %WHISPER_PROMPT%
+                                rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | uniq | paste.exe -sd " " -]]
+                                rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" | paste.exe -sd " " -]]
+                                rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" ]] .... This was getting unruly, wrote a perl script that like 'uniq', but more for this specific situation
+                                set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" |:u8 unique-lines.pl -1 -L]] %+ rem unique-lines.pl is actually our lyric postprocessor
+                                set OUR_LYRICS_TRUNCATED=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%OUR_LYRICS%]
+
+                        rem Add the lyrics to our existing whisper prompt:
+                                set WHISPER_PROMPT=--initial_prompt "%OUR_LYRICS_TRUNCATED%"
+                                rem @echo %ANSI_COLOR_DEBUG%Whisper_prompt is:%newline%%tab%%tab%%faint_on%%WHISPER_PROMPT%%faint_off%%ANSI_COLOR_NORMAL%
+
+                        rem Leave a hint to future-self, because we definitely do "env whisper" to look into the environment to find the whisper prompt last-used, for when we want to do minor tweaks... And remembering --batch_recursive is hard 😂
+                                set WHISPER_PROMPT_ADVICE_NOTE_TO_SELF______________________________=*********** FOR RECURSIVE: do %%whisper_prompt%% but instead of the filename do --batch_recursive *.mp3
+
+                        rem Preface our whisper prompt with our hard-coded default command line options from above:
+                                set CLI_OPS=%CLI_OPS% %WHISPER_PROMPT%
                 setdos /x0
         :No_Text
 
@@ -410,11 +440,12 @@ REM Concurrency Consideration: Check if the encoder is already running in the pr
         rem slower call isRunning %TRANSCRIBER_PRNAME% silent
         rem slower if "%isRunning" != "1" (goto :no_concurrency_issues)
         rem faster:
-        
-        echo %ANSI_COLOR_DEBUG%- DEBUG: iff @PID[TRANSCRIBER_PDNAME=%TRANSCRIBER_PDNAME%] %@PID[%TRANSCRIBER_PDNAME%] ne 0 then%ANSI_COLOR_NORMAL%
+        rem echo %ANSI_COLOR_DEBUG%- DEBUG: (4) iff @PID[TRANSCRIBER_PDNAME=%TRANSCRIBER_PDNAME%] %@PID[%TRANSCRIBER_PDNAME%] ne 0 then %ANSI_COLOR_NORMAL%
+        set CONCURRENCY_WAS_TRIGGERED=0        
         iff "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then
                 @echo %ansi_color_warning_soft%%star% %italics_on%%TRANSCRIBER_PDNAME%%italics_off is already running%ansi_color_normal%
-                @echos %ANSI_COLOR_WARNING_SOFT%%STAR% Waiting for completion of %italics_on%another%italics_on% instance %italics_on%%TRANSCRIBER_PDNAME%%italics_off% to finish before starting this one...%ANSI_COLOR_NORMAL%
+                @echos %ANSI_COLOR_WARNING_SOFT%%STAR% Waiting for completion of %italics_on%another%italics_on% instance of %italics_on%%@cool[%TRANSCRIBER_PDNAME%]%italics_off% %ansi_color_warning_soft%to finish before starting this one...%ANSI_COLOR_NORMAL%
+                set CONCURRENCY_WAS_TRIGGERED=1
         else 
                 goto :no_concurrency_issues
         endiff
@@ -424,28 +455,70 @@ REM Concurrency Consideration: Check if the encoder is already running in the pr
                 rem Wait a random number of seconds to lower the odds of multiple waiting processes seeing an opening and all starting at the same time]:
                 sleep %@random[7,29] 
                 rem slow: call isRunning %TRANSCRIBER_PRNAME% silent
-                echo 🐐%ANSI_COLOR_DEBUG%- DEBUG: if "@PID[TRANSCRIBER_PDNAME]" (which is "@PID[%transcriber_pdname]" which is "%@PID[%TRANSCRIBER_PDNAME]") ne 0 (goto :Check_If_Transcriber_Is_Running_Again)%ANSI_COLOR_NORMAL%
-                echo 🐐if "@PID[%TRANSCRIBER_PDNAME%]" ne "0" (goto :Check_If_Transcriber_Is_Running_Again)
+                rem echo %ANSI_COLOR_DEBUG%- DEBUG: (55) if "@PID[TRANSCRIBER_PDNAME]" (which is "@PID[%transcriber_pdname]" which is "%@PID[%TRANSCRIBER_PDNAME]") ne 0 (goto :Check_If_Transcriber_Is_Running_Again)%ANSI_COLOR_NORMAL%
+                rem echo if "@PID[%TRANSCRIBER_PDNAME%]" ne "0" (goto :Check_If_Transcriber_Is_Running_Again)
                 if "%@PID[%TRANSCRIBER_PDNAME%]" ne "0" (goto :Check_If_Transcriber_Is_Running_Again)
                 @echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
         :no_concurrency_issues
         
+REM set a non-scrollable header on the console to keep us from getting confused about which file / what we're doing / etc
+        rem call top-message Transcribing %FILE_TITLE% by %FILE_ARTIST%
+        set LOCKED_MESSAGE_COLOR_BG=%@ANSI_BG[0,0,64]                               %+ rem copied from top-banner.bat
+        rem banner_message=%@randfg_soft[]%ALOCKED_MESSAGE_COLOR_BG%%ZZZZZZZZ%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%ZZZZZZZZ%%@cool[%FILE_ARTIST%]%%ZZZZZZZZZ%
+        iff not defined FILE_ARTIST then
+            call warning "FILE_ARTIST  is not defined here and should generally be?"
+            pause
+        endiff
+        set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
+        call top-banner "%banner_message%"
+
 REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI:
-        @echo.
-        @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% AI running! %EMOJI_FIREWORKS%%ansi_color_normal%
-        set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"    
-                                 %TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"        |:u8  copy-move-post whisper 
-        
-        if %LOG_PROMPTS_USED% eq 1 (@echo %_DATETIME: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>"%@NAME[%INPUT_FILE].log")
-        call errorlevel "some sort of problem with the AI generation occurred in %0 line ~336ish {'actually generate the srt file'}"
+        rem Cosmetics:
+            @echo.
+            @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% AI running! %EMOJI_FIREWORKS%%ansi_color_normal%
+            title waiting: %BASE_TITLE_TEXT%
+
+        rem One last concurrency check:
+                iff "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then
+                        echo %WARNING% Actually, it's still running! %WARNING%
+                        goto :Check_If_Transcriber_Is_Running_Again
+                else
+                        rem One last extra random wait in case 2 different ones get here at the same time. 
+                        rem (And only if we already had to wait before):
+                                iff %CONCURRENCY_WAS_TRIGGERED% eq 1 then
+                                        sleep %@random[7,29]                    
+                                endiff
+                endiff
+
+        rem Store command, run command, check for error response, and log command:
+                title %EMOJI_EAR%%BASE_TITLE_TEXT%
+                set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"    
+                if %LOG_PROMPTS_USED% eq 1 (@echo %_DATETIME: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>"%@NAME[%INPUT_FILE].log")
+                if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto :Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
+                %TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"  |:u8  copy-move-post whisper         
+                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                :Done_Transcribing                 %+ rem  /     If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                call errorlevel "some sort of problem with the AI generation occurred in %0 line ~336ish {'actually generate the srt file'}"
+
+        rem Cosmetics:
+                call unlock-top                             %+ rem Disable our non-scrollable header now that we are done
+                title Done: %BASE_TITLE_TEXT%
 
 REM delete zero-byte LRC files that can be created
-        call delete-zero-byte-files *.lrc silent
-        call delete-zero-byte-files *.srt silent
+        call delete-zero-byte-files *.lrc silent >nul
+        call delete-zero-byte-files *.srt silent >nul
 
 REM did we create the LRC file?
         call validate-environment-variable EXPECTED_OUTPUT_FILE "expected output file of '%italics%%EXPECTED_OUTPUT_FILE%%italics_off%' does not exist"
         if exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" (@echo %EXPECTED_OUTPUT_FILE%%::::%_DATETIME%::::%TRANSCRIBER_TO_USE% >>"__ contains AI-generated SRT files __")
+        title %CHECK%%BASE_TITLE_TEXT%
 
 rem If we did, we need to rename any sidecar TXT file that might be there {from already-having-existed}, becuase 
 rem MiniLyrics will default to displaying TXT over SRC
@@ -490,6 +563,7 @@ goto :Cleanup
 rem ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+:Finishing_Up
 :Cleanup
 
 iff not exist "%SRT_FILE%" then
@@ -501,15 +575,15 @@ else
                 rem   for sure: in the case of %lyrics%\letter\<same name as audio file>.txt  ——— MAYBE_LYRICS_2
                 rem      maybe: in the case of %lyrics%\letter\artist - title.txt             ——— MAYBE_LYRICS_1
                 rem So we must delete at least the first one, if it exists.  We use our get-lyrics script in SetVarsOnly mode:
-                call get-lyrics-via-multiple-sources "%SONGFILE%" SetVarsOnly
+                rem moved to beginning: call get-lyrics-via-multiple-sources "%SONGFILE%" SetVarsOnly
                 rem ...which sets MAYBE_LYRICS_1 and MAYBE_LYRICS_2
-                @call debug "Checking if exists: '%underline_on%%MAYBE_LYRICS_2%%underline_off%' for deprecation"
+                @call debug "(7) Checking if exists: '%underline_on%%MAYBE_LYRICS_2%%underline_off%' for deprecation"
                 if exist "%MAYBE_LYRICS_2%" (call deprecate "%MAYBE_LYRICS_2%")
 
         rem Success message:
                 @call divider
                 @call success "Karaoke created at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%"
-                title %check% Karaoke generated successfully! %check% 
+                title %check% %BASE_TITLE_TEXT% generated successfully! %check% 
 
         rem A chance to edit:
                 @call divider
@@ -521,26 +595,39 @@ else
                     (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
                     (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
                 @call divider
-                @call askyn "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME%
+                call success "'%italics_on%%BASE_TITLE_TEXT%%italics_off%' generated successfully!"
+                title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
+                @call askyn  "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME% notitle
                 iff "%ANSWER" == "Y" then
                         @echo %ANSI_COLOR_DEBUG%%EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
+                        title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
                         iff not exist "%TXT_FILE%" then
                                 %EDITOR% "%SRT_FILE%" 
                         else
                                 %EDITOR% "%TXT_FILE%" "%SRT_FILE%" 
                         endiff
                 endiff
+                title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
 endiff
 
 :END
-:Cleanup
-@echos %ANSI_COLOR_BLUE%%FAINT_ON%
+
 timer /5 off
-set MAKING_KARAOKE=0
-unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY
-@echos %ANSI_RESET%%CURSOR_RESET%
-if exist *collected_chunks*.wav (*del /q *collected_chunks*.wav)
-if exist     *vad_original*.srt (*del /q     *vad_original*.srt)
+
+:Cleanup_Only
+:just_do_the_cleanup
+        set MAKING_KARAOKE=0
+        unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY
+        if exist *collected_chunks*.wav (*del /q *collected_chunks*.wav >nul)
+        if exist     *vad_original*.srt (*del /q     *vad_original*.srt >nul)
+
+        rem This happens earlier, but we also want it to happen in cleanup, because sometimes cleanup is called from transcribed stuff *NOT* made with this script:
+                iff %CLEANUP eq 1 then
+                        call delete-zero-byte-files *.lrc silent >nul
+                        call delete-zero-byte-files *.srt silent >nul
+                endiff
 
 :The_Very_END
+        @echos %ANSI_COLOR_BLUE%%FAINT_ON%
+        @echos %ANSI_RESET%%CURSOR_RESET%
 

@@ -859,6 +859,7 @@ REM colors for our messaging system, in TCC command, ANSI_COLOR_{type} environme
         SET COLOR_UNIMPORTANT=   color        blue    on        black  %+ set ANSI_COLOR_UNIMPORTANT=%ANSI_RESET%%ANSI_BLUE%%ANSI_BACKGROUND_BLACK%                         
         rem COLOR_WARNING=       color bright yellow  on        black  %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%                    %+ rem from inception 'til 20230529
         SET COLOR_WARNING=       color bright yellow  on        blue   %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLUE%                     %+ rem 20230529-
+                                                                          set ANSI_COLOR_WARNING_BG=%ANSI_BACKGROUND_BLUE%                                                  %+ rem Remember to change this when changing the above line!
         rem COLOR_WARNING_LESS=  color        yellow  on        black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                      %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ REM inception-20230605
         SET COLOR_WARNING_LESS=  color bright yellow  on        black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%               %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ set ANSI_COLOR_WARNING_SOFT=%ANSI_COLOR_WARNING_LESS% %+ REM 2020606-
 

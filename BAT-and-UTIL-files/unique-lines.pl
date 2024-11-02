@@ -1,4 +1,3 @@
- #TODO deal with:
 #!/usr/bin/perl
 
 # On the surface, a general utility like uniq, except it remembers if a line has been seen before —— you don't have to pre-sort it
@@ -61,19 +60,26 @@ while (<STDIN>) {
 		$line =~ s/^-+//;					#get rid of lines like: ---------------
 
 		#content
-		$line =~ s/\*? (\[lyrics4all\]|No|\[sing365\]|\[[a-z0-9]+ \]) filter used//i;
+		$line =~ s/\[(Intro|Verse|Pre-Chorus|Refrain|Chorus|Instrumental Break|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*\]//i;
+		$line =~ s/\*? (No|\[(metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z]+lyrics[a-z]*|\[[a-z0-9]+ )\]) filter used//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
-        $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
 		$line =~ s/Get tickets as low as \$[\d\.]+//i;
-		#[Verse 2: Devi McCallion]
-		$line =~ s/\[(Intro|Verse|Pre-Chorus|Refrain|Chorus|Bridge|Interlude|Outro):* *[\w \-&'",]*\]//i;
 
-		#http://lyricstranslate.com/en/catch-me-if-you-can-catch-me-if-you-can.html
+
+		#TODO: deal with these:
+		#Artist: Circle Jerks,
+        #Title: Mrs. Jones,		#http://lyricstranslate.com/en/catch-me-if-you-can-catch-me-if-you-can.html
 		#Album tracklist with lyrics
 		#        Artist: Circle Jerks,
 		#        Album: Vi,
 		#        Title: Beat Me Senseless,
+		#(chorus) 
+		#4TranslationsEspañolРусский
+		#([???])
+		#
+		#
+		#
 
 
 

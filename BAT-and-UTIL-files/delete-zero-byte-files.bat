@@ -22,7 +22,7 @@ goto :Next1
                                             *del  "%qqq%"
                                             %COLOR_NORMAL%
                                             iff %DZBF_SILENT ne 1 then
-                                                    echo %COLOR_IMPORTANT_LESS%* %COLOR_REMOVAL%Deleted zero-byte file: %faint_on%%qqq%%ansi_reset%
+                                                    echo %ANSI_COLOR_IMPORTANT_LESS%* %ansi_COLOR_REMOVAL%Deleted zero-byte file: %faint_on%%qqq%%ansi_reset%
                                             endiff
                                     else
                                              rem it's fine

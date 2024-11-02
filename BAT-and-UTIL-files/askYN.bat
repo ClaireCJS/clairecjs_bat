@@ -1,5 +1,7 @@
 @echo off
 
+
+
 set                            ASK_QUESTION=%[1]
 if defined AskYN_question (set ASK_QUESTION=%AskYN_question% %+ unset /q AskYN_question)
 set DEFAULT_ANSWER=%2
@@ -9,13 +11,33 @@ set PARAM_5=%5``
 
 
 
-if "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%" eq "--help" .or. "%ASK_QUESTION%" eq "/?" .or. "%ASK_QUESTION%" eq "-?" .or. "%ASK_QUESTION%" eq "-h" (
-    %color_advice%
-    echo USAGE: askyn ["question"] ["yes" or "no"] - 1st param is question, 2nd is yes/no defult, 3rd is wait_time before expiration, 4th parameter is 'big' if it's big
-    echo USAGE: askyn test - run our test suite
+
+
+iff "%1" eq "" .or. "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%" eq "--help" .or. "%ASK_QUESTION%" eq "/?" .or. "%ASK_QUESTION%" eq "-?" .or. "%ASK_QUESTION%" eq "-h" then
+                %color_advice%
+                echo.
+                echo USAGE: call askyn "Question to ask without question mark" [yes or no] [time to wait...0 if not waiting] ["big" if you want double height, "notitle" if you don't want the title changed]
+                echo USAGE: 
+                echo USAGE: 1st param is question, 2nd is yes/no defult, 3rd is wait_time before expiration, 4th parameter is 'big' if it's big, or 'notitle' if you don't want the title changed while asking
+                echo USAGE: 
+                echo USAGE: EXAMPLES:
+                echo USAGE: 
+                echo USAGE:     call AskYN "Do you want to" yes 
+                echo USAGE:     call AskYN "Do you want to" yes 30
+                echo USAGE:     call AskYN "Do you want to" no  30 big
+                echo USAGE: 
+                echo USAGE: RESULTS:
+                echo USAGE: 
+                echo USAGE:    1) sets OUR_ANSWER to either "Y" or "N"
+                echo USAGE:    2) sets DO_IT      to either "1" or "2"
+                echo USAGE: 
+                echo USAGE: TO RUN TEST SUITE:
+                echo USAGE: 
+                echo USAGE:     call AskYn test
+                echo USAGE: 
+                %color_normal%
     goto :END
-)
-title %EMOJI_RED_QUESTION_MARK%%@UNQUOTE[%ASK_QUESTION%]%EMOJI_RED_QUESTION_MARK%
+endiff
 
 :USAGE: askyn "question" "yes|no" - 1st param is question, 2nd is yes/no defult, 3rd is wait_time before expiration (NULL for no wait time), 4th is "no_enter" do disallow enter key, 5th is "big" to make this a big-text prompt
 :SIDE-EFFECTS: sets ANSWER to Y or N, and sets DO_IT to 1 (if yes) or 0 (if no)
@@ -52,6 +74,7 @@ REM Test suite special case, including testing for the facts that higher timer v
         :Not_A_Test
 
 
+
 REM Variable setup:
         set ANSWER=
         set DO_IT=
@@ -65,8 +88,17 @@ REM Variable setup:
         if "%PARAM_5%" eq "noenter" .or. "%PARAM_5%" eq "no_enter" (set NO_ENTER_KEY=1)
         rem DEBUG: echo PARAM_4 = %PARAM_4 ... NO_ENTER_KEY is %NO_ENTER_KEY
 
-                                                           set BIG_QUESTION=0
-        if "%PARAM_4%" eq "big" .or. "%PARAM_5%" eq "big" (set BIG_QUESTION=1)
+                                                                   set BIG_QUESTION=0
+        if "%PARAM_4%" eq "big"     .or. "%PARAM_5%" eq "big"     (set BIG_QUESTION=1)
+                                                                   set NOTITLE=0
+        if "%PARAM_4%" eq "notitle" .or. "%PARAM_5%" eq "notitle" (set NOTITLE=1)
+
+
+rem Set title for waiting-for-answer state:
+        iff 1 ne %NOTITLE% then
+                rem echo setting title 1 - NOTITLE = '%NOTITLE%'
+                title %EMOJI_RED_QUESTION_MARK%%@UNQUOTE[%ASK_QUESTION%]%EMOJI_RED_QUESTION_MARK%
+        endiff
 
         
 REM Parameter validation:
@@ -102,19 +134,26 @@ REM Build the question prompt:
                                                                set PRETTY_QUESTION=%pretty_question%%@ANSI_FG_RGB[%BRACKET_COLOR]]%EMOJI_RED_QUESTION_MARK%                                    %+ rem right bracket + ❓
                                                                set PRETTY_QUESTION_ANSWERED=%@REPLACE[%BLINK_ON%,,%PRETTY_QUESTION] %+ rem an unblinking version, so the question mark that blinks before we answer is still displayed——but stops blinking after we answer the question 
 
+rem Check if we are not doing titling, and skip titling section if that is the case:
+        if 1 eq %NOTITLE% (goto :title_done)
+
 rem Re-set a new window title:
         set stripped=%@STRIPANSI[%@STRIPANSI[%PRETTY_QUESTION]]
-        title %stripped%
+        iff 1 ne %NOTITLE then
+                rem echo setting title 2 - NOTITLE = '%NOTITLE%'
+                title %stripped%
+        endiff
 
 rem Re-set a new window title: BUG FIX:
         rem weird bug  where "\B" got past the stripansi function, giving us titles like "❓do it?(B [(BY/n]❓" with two "(B" 
         rem in them that don't belong, but also using %@REREPLACE on the variable didn't work despite working on the %_WinTitle
         rem So we incrementally set and read the wintitle to fix it that way. It's ugly, but it's not a time-pressed situation:
         set stripped2=%@REREPLACE[\(B *\[\(B, \[,%_wintitle]
+        rem echo setting title 3 - NOTITLE = '%NOTITLE%'
         title %stripped2%
         set stripped3=%@REREPLACE[\?\(B\s+\[y\/\(BN,? [y/N,%_wintitle]
         title %stripped3%
-
+        :title_done
 
 
 REM Which keys will we allow?
@@ -145,7 +184,6 @@ REM Print the question out with a spacer below to deal with pesky ANSI behavior:
                 if %WAIT_TIMER_ACTIVE eq 1 (echos %@ANSI_MOVE_UP[1])
         endiff
             
-
 REM Load INKEY with the question, unless we've already printed it out:
                                     set INKEY_QUESTION=%PRETTY_QUESTION%
         if %WAIT_TIMER_ACTIVE eq 0 .and. %BIG_QUESTION eq 1 (set INKEY_QUESTION=)
@@ -159,7 +197,8 @@ REM Actually answer the question here —— make the windows 'question' noise f
         echos %ANSI_POSITION_SAVE%
         if %BIG_QUESTION eq 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_RESTORE%)
         if %BIG_QUESTION ne 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_SAVE%)
-        @input /c /w0 %%just_clearing_the_keyboard_buffer
+        rem as an experiment, let's do this 100x instead of 1x:
+        @repeat 100 input /c /w0 %%This_Line_Clears_The_Character_Buffer
         inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
         echos %BLINK_OFF%%ANSI_CURSOR_SHOW%
 
@@ -184,7 +223,10 @@ REM Process the enter key into our default answer:
 
 
 REM Title
-title %@STRIPANSI[%PRETTY_QUESTION] %A
+        iff 1 ne %NOTITLE% then
+                rem echo setting title 4 - NOTITLE = '%NOTITLE%'
+                title %@STRIPANSI[%PRETTY_QUESTION] %A
+        endiff
 
 
 REM Set our 2 major return values that are referred to from calling scripts:
@@ -196,7 +238,10 @@ REM Generate "pretty" answers & update the title:
         if "%ANSWER" eq "Y" .or. "%ANSWER" eq "yes" (set PRETTY_ANSWER=%ANSI_BRIGHT_GREEN%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%Yes%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%)
         if "%ANSWER" eq "N" .or. "%ANSWER" eq "no"  (set PRETTY_ANSWER=%ANSI_BRIGHT_RED%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%No%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%)
         call print-if-debug "our_answer is '%OUR_ANSWER', default_answer is '%DEFAULT_ANSWER%', answer is '%ANSWER%', PRETTY_ANSWER is '%PRETTY_ANSWER%'"
-        title %@REPLACE[%EMOJI_RED_QUESTION_MARK,,%@STRIPANSI[%@UNQUOTE[%ASK_QUESTION]? %EMDASH% %PRETTY_ANSWER%]]
+        if 1 eq %NOTITLE% (goto :title_done_3)        
+                rem echo setting title 4 - NOTITLE = '%NOTITLE%'
+                title %@REPLACE[%EMOJI_RED_QUESTION_MARK,,%@STRIPANSI[%@UNQUOTE[%ASK_QUESTION]? %EMDASH% %PRETTY_ANSWER%]]
+        :title_done_3
 
 
 REM Re-print "pretty" question so that the auto-question mark is no longer blinking because it has now been answered, and

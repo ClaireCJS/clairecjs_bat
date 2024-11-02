@@ -213,7 +213,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                     REM %COLOR_SUBTLE%  %+ *pause
                     REM %COLOR_NORMAL%
                 REM with messaging system
-                    call fatalerror "Environment variable '%@UPPER[%VARNAME%]' appears to be a file location that does not exist: '%VARVALUE%'"
+                    call fatal_error "Environment variable '%@UPPER[%VARNAME%]' appears to be a file location that does not exist: '%VARVALUE%'"
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

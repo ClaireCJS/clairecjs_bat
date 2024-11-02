@@ -15,6 +15,9 @@
 rem Capture parameters:
         set TB_PARAM_1=%1
         set TB_PARAM_2=%2
+        set params=%*
+
+rem call debug "TB_PARAM_1=%TB_PARAM_1%,TB_PARAM_2=%TB_PARAM_2%,params=%*"
 
 rem ENVIRONMENT: Validate the environment:
         if 1 ne %VALIDATED_LOCKED_MESSAGE_BAT% (
@@ -157,5 +160,5 @@ rem Output the message:
 
 rem Kludge for if we are near the very top and run this —— use up a couple lines to try to get us past the header, since there is no way of easily using our cursor location for branching
         echo.
-        echo %ANSI_COLOR_IMPORTANT%%DOTTIE% %LOCKED_MESSAGE% %DOTTIE%%ansi_reset% %+ rem Echo the header to the console as well.
+        echo %ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG% %DOTTIE% %LOCKED_MESSAGE% %DOTTIE% %ansi_reset% %+ rem Echo the header to the console as well.
 :END

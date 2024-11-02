@@ -9,7 +9,7 @@ call isRunning %THING% quiet
 iff %isRunning eq 1 then
         call warning_less "%THING% is already running!"
         call advice   "Run '%0 restart' if you want to kill it and restart it"
-        call askYN    "Want me to go ahead and do that?" No 4
+        call askYN    "Want me to go ahead and restart MiniLyrics?" No 4
         iff %DO_IT eq 1 then
                 taskend /f %THING%
                 call isRunning %THING% 
