@@ -82,9 +82,8 @@ REM Process parameters
     if %DEBUG_PRINTMESSAGE eq  1       (echo DEBUG: TYPE=%TYPE%,DO_PAUSE=%DO_PAUSE%,MESSAGE=%MESSAGE%)
 
     if defined COLOR_%TYPE% (
-        set OUR_COLORTOUSE=%[COLOR_%TYPE%]
+        set     OUR_COLORTOUSE=%[COLOR_%TYPE%]
         set OUR_ANSICOLORTOUSE=%[ANSI_COLOR_%TYPE%]
-        rem echo set OUR_ANSICOLORTOUSE=%%ANSI_COLOR_%TYPE%
      )
     if not defined OUR_COLORTOUSE  (
         if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG% %RED_FLAG% Oops! Let's try setting OUR_COLORTOUSE to %%COLOR_%@UPPER[%PM_PARAM1])
@@ -153,6 +152,12 @@ REM Behavior overides and message decorators depending on the type of message?
     if  "%TYPE%"  eq "ERROR"          (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT= ***)
     if  "%TYPE%"  eq "FATAL_ERROR"    (set DECORATOR_LEFT=***** !!! ``  %+ set DECORATOR_RIGHT= !!! *****)
     rem 20240419 moved to after setting COLOR_TO_USE so we can start setting that before the right decorator in case the message contents changed the color: set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
+
+
+REM We're going to change the cursor color to the cursor color associated with this message, IF one was defined in set-ansi:
+        rem set HEX=%[COLOR_%TYPE%_HEX]
+        rem echo setting cursor to %HEX%
+        if defined COLOR_%TYPE%_HEX echos %@ANSI_CURSOR_COLOR_CHANGE_HEX[%[COLOR_%TYPE%_HEX]]
 
 
 REM We're going to update the window title to the message. If possible, strip any ANSI color codes from it:
@@ -245,8 +250,13 @@ REM Actually display the message:
         for %msgNum in (%HOW_MANY%) do (           
                 REM handle pre-message formatting [color/blinking/reverse/italics/faint], based on what type of message and which message in the sequence of repeated messages it is
 
+                if "%OUR_ANSICOLORTOUSE%" ne "" echos %OUR_ANSICOLORTOUSE%
+                if "%OUR_ANSICOLORTOUSE%" eq "" %OUR_COLORTOUSE%
+
+
+
                 REM Special decorators that are only for the message itself, not the header/fooder:
-                %OUR_COLORTOUSE%
+
                 if "%TYPE%"     eq "FATAL_ERROR"      (echos %ANSI_COLOR_FATAL_ERROR%%SPACER_FATAL_ERROR%)
                 if "%TYPE%"     eq       "ERROR"      (echos       ``)
                 if  %BIG_HEADER eq    1               (echos %BLINK_ON%)

@@ -1,4 +1,4 @@
-@Echo Off
+@Echo OFF
 
 
 
@@ -183,7 +183,8 @@ rem —————————————————————————�
                                 function RANDOM_CURSOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
                                 function    RANDCURSOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
                                 function    CURSORRAND=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
-                                echos %@RANDCURSOR[]
+                                rem echos %@RANDCURSOR[]
+
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -391,7 +392,7 @@ REM ANSI: styles —— As of Windows Terminal we can now actually display itali
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 rem ANSI: colors 
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
         rem custom rgb colors for foreground/background
              set ANSI_RGB_PREFIX=%ANSI_ESCAPE%38;2;
              set ANSI_RGB_SUFFIX=m
@@ -454,7 +455,6 @@ rem ANSI: colors
             rem example usage for random foreground: echos %@RANDFG[]
             rem example usage for random background: echos %@RANDBG[]
 
-
         rem Foreground Colors —— todo bright purple
             set ANSI_BLACK=%ANSI_ESCAPE%30m
             set ANSI_GRAY=%ANSI_ESCAPE%90m
@@ -469,9 +469,6 @@ rem ANSI: colors
             set ANSI_GREEN=%ANSI_ESCAPE%32m
             set ANSI_CYAN=%ANSI_ESCAPE%36m
             set ANSI_BLUE=%ANSI_ESCAPE%34m
-            set ANSI_PURPLE=%@ANSI_RGB[128,0,128]
-            set ANSI_MAGENTA=%@ANSI_RGB[170,0,170]
-            set ANSI_MAGENTA_OFFICIAL=%ANSI_ESCAPE%35m
             set ANSI_BRIGHT_BLACK=%ANSI_GREY%
             set ANSI_BRIGHT_RED=%ANSI_ESCAPE%91m
             set ANSI_BRIGHT_GREEN=%ANSI_ESCAPE%92m
@@ -488,7 +485,6 @@ rem ANSI: colors
                 set ANSI_GREEN_BRIGHT=%ANSI_ESCAPE%92m
                 set ANSI_CYAN_BRIGHT=%ANSI_ESCAPE%96m
                 set ANSI_BLUE_BRIGHT=%ANSI_ESCAPE%94m
-                set ANSI_MAGENTA_BRIGHT=%ANSI_ESCAPE%95m
                 set ANSI_COLOR_BLACK=%ANSI_ESCAPE%30m
                 set ANSI_COLOR_GRAY=%ANSI_ESCAPE%90m
                 set ANSI_COLOR_GREY=%ANSI_ESCAPE%90m
@@ -500,9 +496,6 @@ rem ANSI: colors
                 set ANSI_COLOR_GREEN=%ANSI_ESCAPE%32m
                 set ANSI_COLOR_CYAN=%ANSI_ESCAPE%36m
                 set ANSI_COLOR_BLUE=%ANSI_ESCAPE%34m
-                set ANSI_COLOR_PURPLE=%ANSI_PURPLE%
-                set ANSI_COLOR_MAGENTA=%ANSI_MAGENTA%
-                set ANSI_COLOR_MAGENTA_OFFICIAL=%ANSI_ESCAPE%35m
                 set ANSI_COLOR_BRIGHT_BLACK=%ANSI_COLOR_GREY%
                 set ANSI_COLOR_BRIGHT_WHITE=%ANSI_ESCAPE%97m
                 set ANSI_COLOR_BRIGHT_PINK=%ANSI_BRIGHT_PINK%
@@ -522,6 +515,58 @@ rem ANSI: colors
                     set ANSI_COLOR_CYAN_BRIGHT=%ANSI_ESCAPE%96m
                     set ANSI_COLOR_BLUE_BRIGHT=%ANSI_ESCAPE%94m
                     set ANSI_COLOR_MAGENTA_BRIGHT=%ANSI_ESCAPE%95m
+        rem Shift magenta to actual magenta, and create purple:   (i have opinions 😂)
+                rem First, create purple 🟣 + bright purple 💜:
+                        set ANSI_PURPLE=%@ANSI_RGB[       128,0,128]
+                        set ANSI_PURPLE_BRIGHT=%@ANSI_RGB[255,0,255]
+                            rem Aliases:
+                                    set                   PURPLE=%ANSI_PURPLE%
+                                    set              ANSI_PURPLE=%ANSI_PURPLE%
+                                    set        ANSI_COLOR_PURPLE=%ANSI_PURPLE%
+                                    set            BRIGHT_PURPLE=%ANSI_PURPLE_BRIGHT%
+                                    set       ANSI_BRIGHT_PURPLE=%ANSI_PURPLE_BRIGHT%
+                                    set ANSI_COLOR_BRIGHT_PURPLE=%ANSI_PURPLE_BRIGHT%
+                                    set       ANSI_PURPLE_BRIGHT=%ANSI_PURPLE_BRIGHT%
+                                    set ANSI_COLOR_PURPLE_BRIGHT=%ANSI_PURPLE_BRIGHT%
+                                    set            PURPLE_BRIGHT=%ANSI_PURPLE_BRIGHT%
+
+
+                rem Then override the original/official/"real"/ANSI magenta to create a magenta that is actually a magenta
+                rem , which is supposed to look like an ACTUAL combination of red and purple 🤎🎗🪀, 
+                rem and would actually be green if not for a trick our brain pulls on us to invent a new color. 
+                rem And you can feel the difference if you have synesthesia.
+
+                rem Personal preference: I've always thought ansi magenta was purple, but not-quite-right purple, and never magenta looking
+                rem                      Particularly on current displays, but really always.  So I think I'm going to just break tradition
+                rem                      and override magneta with colors that I think look more magenta'ish:
+
+                        rem Let's keep "backups" of the official magenta:
+                                set ANSI_MAGENTA_OFFICIAL=%ANSI_ESCAPE%35m
+                                set ANSI_MAGENTA_BRIGHT_OFFICIAL=%ANSI_ESCAPE%95m
+
+                        rem And here's the new ones, which look more like real magenta to us:
+                                set  ANSI_MAGENTA_CUSTOM=%@ANSI_RGB[170,0,85]
+                                set COLOR_MAGENTA_CUSTOM_HEX=AA0055
+                                set  ANSI_MAGENTA_BRIGHT_CUSTOM=%@ANSI_RGB[255,0,170]
+                                set COLOR_MAGENTA_BRIGHT_CUSTOM_HEX=FF00AA
+
+                        rem Here's where we decide whether to use the official or new custom/better ones:
+                                rem The official: 👎🏻 booo
+                                        rem ANSI_MAGENTA_BRIGHT=%ANSI_MAGENTA_BRIGHT_OFFICIAL%
+                                        rem ANSI_MAGENTA=%ANSI_MAGENTA_BRIGHT_OFFICIAL%
+                                rem The custom: 👍🏻 woooo
+                                        set ANSI_MAGENTA_BRIGHT=%ANSI_MAGENTA_BRIGHT_CUSTOM%
+                                        set ANSI_MAGENTA=%ANSI_MAGENTA_BRIGHT_CUSTOM%
+
+                        rem And then define the aliases:
+                                set ANSI_COLOR_MAGENTA=%ANSI_MAGENTA%
+                                set ANSI_COLOR_MAGENTA_BRIGHT=%ANSI_MAGENTA_BRIGHT%
+                                set ANSI_COLOR_BRIGHT_MAGENTA=%ANSI_MAGENTA_BRIGHT%
+
+
+                    set ANSI_COLOR_MAGENTA=%ANSI_MAGENTA%
+                    set ANSI_COLOR_MAGENTA_OFFICIAL=%ANSI_ESCAPE%35m
+
         rem Background Colors
             set ANSI_BACKGROUND_BLACK=%@ANSI_BG[0,0,0]
             set ANSI_BACKGROUND_BLACK_NON_EXPERIMENTAL=%ANSI_ESCAPE%40m
@@ -565,9 +610,8 @@ rem ANSI: colors
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
-
 rem ANSI: erasing
-    echos %@RANDCURSOR[]
+    rem echos %@RANDCURSOR[]
     rem Clear Screen: \u001b[{n}J clears the screen
     rem                     n=0 clears from cursor until end of screen,
     rem                     n=1 clears from cursor to beginning of screen
@@ -657,7 +701,7 @@ REM DEC drawing font support:
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 REM ANSI: margin-setting / anti-scroll areas
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
         rem Cordoning off rows:
                 rem Want to   lock the top  5 rows from scrolling?  echos @%ANSI_LOCK_TOP_ROWS[5]
                         function      ANSI_LOCK_TOP_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%@EVAL[%1+1];%[_rows]r%@CHAR[27]8%@CHAR[27][u`
@@ -737,6 +781,7 @@ REM ANSI: unsupported in Windows Terminal:
         set UNSUPPORTED_MAP_A_TO_Z=%ANSI_DCS%"y1/7A/7A/7A/7A/7A/7A/-%ANSI_ST%   %+ rem Windows Terminal 2024 doesn't seem to support this 😢
 
 
+
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
@@ -761,7 +806,7 @@ REM ANSI: Custom Character Generation using ANSI & sixels —— so far just hav
             REM not converted to size yet echo  { !???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????@B@;?_OG[cIQaA/}@?_OJ{CAB/BMRaAAANqa/????@@AAAB@B@;aQIc[GO_??/BC{JO_?@}?/qNAAAaRMB?/AAA@@?????%ESCAPE%           
            
             set CREATE_PENTAGRAM=%@CHAR[27]P0;8;1;10;0;2;20;0{ @???~}{wo_?/[MFJp@@@@@/GCA@??????/??????????;?_ow{}~???/@@@@@pJFM[/??????@ACG/??????????;??????????/??_ogKYr}{/?_ow\\NVb`O/@B@???????;??????????/{}rYKgo_??/O`bVN\\wo_?/???????@B@;?_OGCCAaYM/}BEIQayFAA/BKO_oM`PIE/____@@AAAA@B@;YaACCGO_??/AFyaQIEB}?/IP`Mo_OKB?/AAA@@?????@B@;?_OG[cIQaA/}@?_OJ{CAB/BMRaAAANqa/????@@AAAB@B@;aQIc[GO_??/BC{JO_?@}?/qNAAAaRMB?/AAA@@?????%ESCAPE%
-            echos %create_pentagram
+            echos %create_pentagram%
             rem 🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛 BUG ALERT! Something breaks the pentagram, so we repeat this echos statement at the end of environm.btm to force it to exist in those situations where it breaks 🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛🐛
 
 
@@ -791,15 +836,41 @@ REM ANSI: Custom Character Generation using ANSI & sixels —— so far just hav
     rem Various experiments:
             REM experiment: echo %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/5#17;2;31;9;5#18;2;31;9;5#19;2;33;9;5#20;2;36;10;5#21;2;37;10;5#22;2;39;10;5#23;2;42;11;5#24;2;42;11;5#25;2;44;11;6#26;2;46;11;5#27;2;47;12;6#28;2;50;13;6#29;2;51;13;6#30;2;53;13;6#31;2;56;14;7#32;2;58;14;6#33;2;56;14;7#34;2;59;15;7#35;2;60;15;7#36;2;62;15;7#37;2;64;16;7#38;2;66;16;7#39;2;68;16;7#40;2;69;17;7#41;2;71;16;7#42;2;71;17;7#43;2;73;18;8#44;2;75;18;8#45;2;76;18;7#46;2;76;18;8#47;2;78;18;8#48;2;78;19;8#49;2;79;19;8#50;2;80;19;8#51;2;82;20;8#52;2;84;20;8#53;2;85;20;8#54;2;86;20;9#55;2;87;20;9#56;2;88;21;9#57;2;90;21;9#58;2;92;22;9#59;2;93;22;9#60;2;93;22;9#61;2;94;22;9#1~nFNFN!6BFFNFFn$#2?O#4G#22O#0G?!6C?G???O$#23??o#41_#12O!6?G#3G#15O#18O#4G_$#52!4?_#58_?o___#55O?_#45_#26O#2G$#29!5?O??G#30G#24G#36?O#32??_#7O$#59!6?_???O_$#10!6?G#21G#60OO??_$#51!6?O-#1~_#16B#60w`?A?O!4?P_#27@#0Aw$#3?O!4?O#52_!7?O#1@F$#0?F#29C#58C??@BF~F@@#17C#53C#28A#4C$#2?G#35_#53@#55GA!4?O#10O#13G#42??C#6_$#38??G#56A#25C#59@?Cg??A?_W#49_#8G$#40??O#49?A#47_!7?A#51?G#9O$#61!4?O#22G!6?O$#19!5?C#48C!6?G$#36!5?O#26_!5?C$#11!6?G#43O#57??g?A?B$#50!7?G#20???G#37_$#30!11?_$#54!11?C-#1~{ww_!6?_?ooo|~$#0?BC?O__!5?_??GA$#7??A#58@!4?@@???D#3G#2C$#22??@#18C!5?C#5_#27C?G#34?@$#44???A??@#4_#8__#46Q#16A#15O??A$#59!4?@C#28O!7?C$#19!4?G#49G!4?G#33O#55G?A$#54!4?C#52@?G?O#50?@#31A$#61!4?A#43A?O#57AA#47??@$#10!5?O#60G@??@G?A@$#13!6?A???C#56?C$#36!6?C#14C#17C#38G$#37!7?A#39G$#51!8?O-#1!8BAA!8B$#0!8?@@-%ESCAPE%\
             REM c:\cygwin\bin\printf.exe "\e( @\e[33m*(*(*(\e(B \e[36m This is an important message \e( @\e[33m)+ )+ )+ , , - - \e(B\e[m\n"
-
             rem a joke: ~DDD??~___~??~```??~KJ`??@ACWCA@??~```~??~___~
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+rem ANIS: enhanced resetting
+            rem function to reset foreground/background colros to defaults if the event they have been changed by other ANSI
+            rem ANSI_RESET      == set text color back to normal foreground/background colors
+            rem ANSI_RESET_FULL == ANSI_RESET + reset cursor color to our pref + DEFINE text color and reset fg/bg colors
+                    rem set ANSI_FULL_RESET=%@CHAR[27][ q%@CHAR[27]]12;#CF5500%@char[7]
+                    rem %@CHAR[27][1 q%@CHAR[27](B%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\
+                    rem %@CHAR[27]]11;rgb:00/00/00%@CHAR[27]\%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\
+                    rem                     %@char[27][ q%@char[27]]12;#xxxxxx%@char[7]
+                    rem set ANSI_FULL_RESET=%@char[27][ q%@char[27]]12;#CF5500%@char[7]
+                    rem set ANSI_RESET_FULL=%ANSI_FULL_RESET%
+                    rem set            TOCK=%ANSI_FULL_RESET% %+ rem Because this does the same as clairecjs_utils\claire_console.py::Tock()
+                    rem RESETTER1=%ANSI_UNLOCK_TOP%%ansi_cursor_show%%ansi_cursor_change_to_default%%ANSI_RESET%
+
+                    set RESETTER_BASIC=%ANSI_RESET%
+                    set RESETTER_CURSOR=%ansi_cursor_show%%@SET_CURSOR_COLOR_BY_HEX[%ANSI_PREFERRED_CURSOR_COLOR_HEX]%ANSI_PREFERRED_CURSOR_SHAPE%
+                    set RESETTER_DEFAULT_FG_BG_COLORS=%@ANSI_RGB_BG[0,0,0]%@ansi_RGB_FG[192,192,192]
+
+                    set ANSI_RESET_FULL=%RESETTER_BASIC%%RESETTER_CURSOR%%RESETTER_DEFAULT_FG_BG_COLORS%
+                            rem Aliases:
+                                    set ANSI_RESET_ALL=%ANSI_RESET_FULL%
+                                    set RESET_ANSI_ALL=%ANSI_RESET_FULL%
+                                    set RESET_ALL_ANSI=%ANSI_RESET_FULL%
+                                    set           TOCK=%ANSI_RESeT_FULL%
 
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
 REM ANSI: testing —— and the magic way to know whether we are in insert mode or not:
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
         set          TEST_SCREEN_ALIGNMENT=%ESCAPE%#8    %+ rem "Screen alignment display"
         set ANSI_IDENTIFY_HOST_TO_TERMINAL=%ESCAPE%Z     %+ rem for me just returns "[?61;6;7;21;22;23;24;28;32;42c"
         set      IDENTIFY_HOST_TO_TERMINAL=%ESCAPE%Z     %+ rem for me just returns "[?61;6;7;21;22;23;24;28;32;42c"
@@ -834,34 +905,107 @@ REM test strings that demonstrate all this ANSI functionality
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-REM colors for our messaging system, in TCC command, ANSI_COLOR_{type} environment varaibles, and a hex code as well if used for custom cursor colors
-        set COLOR_ADVICE=        color bright magenta on        black  %+ set ANSI_COLOR_ADVICE=%ANSI_RESET%%ANSI_BRIGHT_MAGENTA%%ANSI_BACKGROUND_BLACK%%+ 
-        SET COLOR_ALARM=         color bright white   on        red    %+ set ANSI_COLOR_ALARM=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_RED%                         %+ set COLOR_ERROR=%COLOR_ALARM% %+ set ANSI_COLOR_ERROR=%ANSI_COLOR_ALARM% %+ set COLOR_FATAL_ERROR=%COLOR_ERROR% %+ SET ANSI_COLOR_FATAL_ERROR=%ANSI_COLOR_ALARM% %+ set COLOR_ERROR_FATAL=%COLOR_FATAL_ERROR% %+ set ANSI_COLOR_ERROR_FATAL=%ANSI_COLOR_FATAL_ERROR%
-                                                                          set      COLOR_ALARM_HEX=FF0000
-        SET COLOR_COMPLETION=    color bright white   on        green  %+ set ANSI_COLOR_COMPLETION=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_GREEN%                  %+ set COLOR_CELEBRATION=%COLOR_COMPLETION% %+ set ANSI_COLOR_CELEBRATION=%ANSI_COLOR_COMPLETION%
-        SET COLOR_DEBUG=         color        green   on        black  %+ set ANSI_COLOR_DEBUG=%ANSI_RESET%%ANSI_BRIGHT_GREEN%%ANSI_BACKGROUND_BLACK%
-        SET COLOR_IMPORTANT=     color bright cyan    on        black  %+ set ANSI_COLOR_IMPORTANT=%ANSI_RESET%%ANSI_BRIGHT_CYAN%%ANSI_BACKGROUND_BLACK%
-        SET COLOR_IMPORTANT_LESS=color        cyan    on        black  %+ set ANSI_COLOR_IMPORTANT_LESS=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_BLACK%                      %+ set COLOR_LESS_IMPORTANT=%COLOR_IMPORTANT_LESS% %+ set ANSI_COLOR_LESS_IMPORTANT=%ANSI_COLOR_IMPORTANT_LESS%
-        SET COLOR_INPUT=         color bright white   on        black  %+ set ANSI_COLOR_INPUT=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_BLACK%                       %+ rem  had this set from inception til 2023
-        SET COLOR_GREP=          color bright yellow  on        green  %+ set ANSI_COLOR_GREP=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_GREEN%                      
-        rem COLOR_LOGGING=       color bright blue    on        black  %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_BRIGHT_BLUE%%ANSI_BACKGROUND_BLACK%                      %+ rem  For logging temp filenames to screen, etc.
-        SET COLOR_LOGGING=       COLOR        cyan    on        red    %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_RED%%OVERSTRIKE_ON%%ITALICS_ON%    %+ rem  For logging temp filenames to screen, etc.
-        SET COLOR_NORMAL=        color        white   on        black  %+ set ANSI_COLOR_NORMAL=%ANSI_RESET%
-        SET COLOR_PAUSE=         color        cyan    on        black  %+ set ANSI_COLOR_PAUSE=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_BLACK%
-        rem COLOR_PROMPT=        color        yellow  on        black  %+ set ANSI_COLOR_PROMPT=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                            %+ rem tried changing to bright red on 20230605
-        SET COLOR_PROMPT=        color bright red     on        black  %+ set ANSI_COLOR_PROMPT=%ANSI_RESET%%ANSI_BRIGHT_RED%%ANSI_BACKGROUND_BLACK%                        
-        set COLOR_REMOVAL=       color bright red     on        black  %+ set ANSI_COLOR_REMOVAL=%ANSI_RESET%%ANSI_BRIGHT_RED%%ANSI_BACKGROUND_BLACK%                       
-        SET COLOR_RUN=           color        yellow  on        black  %+ set ANSI_COLOR_RUN=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                               
-        SET COLOR_SUCCESS=       color bright green   on        black  %+ set ANSI_COLOR_SUCCESS=%ANSI_RESET%%ANSI_BRIGHT_GREEN%%ANSI_BACKGROUND_BLACK%                     
-                                                                          set      COLOR_SUCCESS_HEX=00FF00
-        rem COLOR_SUBTLE=        color bright black   on        black  %+ set ANSI_COLOR_SUBTLE=%ANSI_RESET%%ANSI_BRIGHT_BLACK%%ANSI_BACKGROUND_BLACK%                      
-        SET COLOR_SUBTLE=        color bright black   on        black  %+ set ANSI_COLOR_SUBTLE=%ANSI_RESET%%ANSI_BRIGHT_BLACK%                                             %+ rem 20240405 experimenting with leaving the default background collr in place for these
-        SET COLOR_UNIMPORTANT=   color        blue    on        black  %+ set ANSI_COLOR_UNIMPORTANT=%ANSI_RESET%%ANSI_BLUE%%ANSI_BACKGROUND_BLACK%                         
-        rem COLOR_WARNING=       color bright yellow  on        black  %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%                    %+ rem from inception 'til 20230529
-        SET COLOR_WARNING=       color bright yellow  on        blue   %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLUE%                     %+ rem 20230529-
-                                                                          set ANSI_COLOR_WARNING_BG=%ANSI_BACKGROUND_BLUE%                                                  %+ rem Remember to change this when changing the above line!
-        rem COLOR_WARNING_LESS=  color        yellow  on        black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                      %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ REM inception-20230605
-        SET COLOR_WARNING_LESS=  color bright yellow  on        black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%               %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ set ANSI_COLOR_WARNING_SOFT=%ANSI_COLOR_WARNING_LESS% %+ REM 2020606-
+
+
+REM ************************** COLORS FOR OUR MESSAGING SYSTEM: ***************************
+REM ************************** COLORS FOR OUR MESSAGING SYSTEM: ***************************
+REM ************************** COLORS FOR OUR MESSAGING SYSTEM: ***************************
+REM ************************** COLORS FOR OUR MESSAGING SYSTEM: ***************************
+REM ************************** COLORS FOR OUR MESSAGING SYSTEM: ***************************
+
+rem 1) Realize that we have a messaging system.
+
+rem 2) Each message has a type 
+rem                             2A) for example: warning, error, fatal_error, alarm, advice, debug, removal, 
+rem                                              success, completion, celebration, subtle, unimportant, important, importent_less
+rem                             2B) The types are tracked via the vars %MESSAGE_TYPES% and %MESSAGE_TYPES_WITHOUT_ALIASES% 
+rem                             2C) The types are defined in print-message.bat
+rem                             2D) The types can be set via "call print-messages.bat vars_only"
+
+rem 3) Each message type needs certain environment variables to function!!!
+rem
+rem
+rem
+
+rem 3) Each type needs its own set of environment variables in order to function. Most are mandatory, a few are not.
+
+rem 4) Explaination of MANDATORY variables:
+
+rem           COLOR_{MESSAGETYPE} ————— **PURPOSE*: To have an easy command to change colors for awhile     ("how do I change to warning color?")
+rem           COLOR_{MESSAGETYPE} ————— WHAT IS IT: The TCC command to set the color for this message type  
+rem           COLOR_{MESSAGETYPE} ————— AN EXAMPLE: set COLOR_WARNING=color bright yellow  on blue 
+       
+rem      ANSI_COLOR_{MESSAGETYPE} ————— **PURPOSE*: To have a way to change color in the middle of a string/message/anything
+rem      ANSI_COLOR_{MESSAGETYPE} ————— **PURPOSE*: ("how do I make a word in the middle of a warning a different color without messing up the backgoround color"?)
+rem      ANSI_COLOR_{MESSAGETYPE} ————— WHAT IS IT: ANSI characters that, when echoed to terminal, set the same color
+rem      ANSI_COLOR_{MESSAGETYPE} ————— AN EXAMPLE: set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLUE%
+
+rem 4) Explaination of OPTIONAL variables:
+
+rem   ANSI_COLOR_{MESSAGETYPE}_BG ————— **PURPOSE*: To change mid-string color of a message/anything to *just the background color* of a certain message type 
+rem   ANSI_COLOR_{MESSAGETYPE}_BG ————— **PURPOSE*: ("if i changed only the background color in the middle of a warning, how do I change it back?")
+rem   ANSI_COLOR_{MESSAGETYPE}_BG ————— WHAT IS IT: ANSI characters that, when echoed, set the same color as *just the background color* of a certain message type
+rem   ANSI_COLOR_{MESSAGETYPE}_BG ————— AN EXAMPLE: So if the message type's color was "bright white on blue" like in our warning example above, we would:
+rem   ANSI_COLOR_{MESSAGETYPE}_BG ————— AN EXAMPLE: set ANSI_COLOR_WARNING_BG=%ANSI_BACKGROUND_BLUE%  —— just the background part, not the bright white part
+     
+rem       COLOR_{MESSAGETYPE}_HEX ————— **PURPOSE*: To be able to use situations that require a HEX version of this color —— like changing the cursor color  
+rem       COLOR_{MESSAGETYPE}_HEX ————— **PURPOSE*: ("if i were to change my cursor to an appropriate color for this message type, what would the HEX value of that color be?")
+rem       COLOR_{MESSAGETYPE}_HEX ————— WHAT IS IT: hex value that is a "spiritual representation" of the original message color. Usually the foreground color of the message 
+rem       COLOR_{MESSAGETYPE}_HEX ————— WHAT IS IT: type, but not always. For example, "bright white on blue" is a warning color, becuase bright white on blue is alarming. 
+rem       COLOR_{MESSAGETYPE}_HEX ————— WHAT IS IT: But neither "white" nor "blue" look inherently like a warning color. Yellow does. 
+rem       COLOR_{MESSAGETYPE}_HEX ————— WHAT IS IT: So the "spiritual representation" of bright white on blue is bright yellow when dealing with "warnings".  
+rem       COLOR_{MESSAGETYPE}_HEX ————— WHAT IS IT: If i were to be in a warning mode, bright yellow would be a good color to chnage my cursor (or something else) to. 
+rem       COLOR_{MESSAGETYPE}_HEX ————— WHAT IS IT: Similarly, the alarm color of "bright white on red" is best "spiritually represented" as red, not bright white. 
+rem       COLOR_{MESSAGETYPE}_HEX ————— WHAT IS IT: Red is the color of alarm, a good color to change our cursor (or something else) to.
+rem       COLOR_{MESSAGETYPE}_HEX ————— AN EXAMPLE: set COLOR_WARNING_HEX=FF0000   {bright yellow!}
+rem       COLOR_{MESSAGETYPE}_HEX ————— WHERE USED: Used in the cursor_color setting functions %@CURSOR_COLOR_HEX
+
+
+        set COLOR_ADVICE=        color bright magenta on black  %+ set ANSI_COLOR_ADVICE=%ANSI_RESET%%ANSI_BRIGHT_MAGENTA%%ANSI_BACKGROUND_BLACK%%+ 
+                                                                   set      COLOR_ADVICE=FF0000
+        SET COLOR_ALARM=         color bright white   on red    %+ set ANSI_COLOR_ALARM=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_RED%                         %+ set COLOR_ERROR=%COLOR_ALARM% %+ set ANSI_COLOR_ERROR=%ANSI_COLOR_ALARM% %+ set COLOR_FATAL_ERROR=%COLOR_ERROR% %+ SET ANSI_COLOR_FATAL_ERROR=%ANSI_COLOR_ALARM% %+ set COLOR_ERROR_FATAL=%COLOR_FATAL_ERROR% %+ set ANSI_COLOR_ERROR_FATAL=%ANSI_COLOR_FATAL_ERROR%
+                                                                   set      COLOR_ALARM_HEX=FF0000
+        SET COLOR_COMPLETION=    color bright white   on green  %+ set ANSI_COLOR_COMPLETION=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_GREEN%                  %+ set COLOR_CELEBRATION=%COLOR_COMPLETION% %+ set ANSI_COLOR_CELEBRATION=%ANSI_COLOR_COMPLETION%
+                                                                   set      COLOR_COMPLETION_HEX=00FF00
+        SET COLOR_DEBUG=         color        green   on black  %+ set ANSI_COLOR_DEBUG=%ANSI_RESET%%ANSI_BRIGHT_GREEN%%ANSI_BACKGROUND_BLACK%
+                                                                   set      COLOR_DEBUG_HEX=003800
+        SET COLOR_IMPORTANT=     color bright cyan    on black  %+ set ANSI_COLOR_IMPORTANT=%ANSI_RESET%%ANSI_BRIGHT_CYAN%%ANSI_BACKGROUND_BLACK%
+                                                                   set      COLOR_IMPORTANT_HEX=00CCCC
+        SET COLOR_IMPORTANT_LESS=color        cyan    on black  %+ set ANSI_COLOR_IMPORTANT_LESS=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_BLACK%                      %+ set COLOR_LESS_IMPORTANT=%COLOR_IMPORTANT_LESS% %+ set ANSI_COLOR_LESS_IMPORTANT=%ANSI_COLOR_IMPORTANT_LESS%
+                                                                   set      COLOR_IMPORTANT_LESS_HEX=004080
+                                                                   set      COLOR_LESS_IMPORTANT_HEX=004080
+        SET COLOR_INPUT=         color bright white   on black  %+ set ANSI_COLOR_INPUT=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_BLACK%                       %+ rem  had this set from inception til 2023
+        SET COLOR_GREP=          color bright yellow  on green  %+ set ANSI_COLOR_GREP=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_GREEN%                      
+                                                                   set      COLOR_GREP_HEX=008800
+        rem COLOR_LOGGING=       color bright blue    on black  %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_BRIGHT_BLUE%%ANSI_BACKGROUND_BLACK%                      %+ rem  For logging temp filenames to screen, etc.
+        SET COLOR_LOGGING=       COLOR        cyan    on red    %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_RED%%OVERSTRIKE_ON%%ITALICS_ON%    %+ rem  For logging temp filenames to screen, etc.
+                                                                   set      COLOR_LOGGING_HEX=008080
+        SET COLOR_NORMAL=        color        white   on black  %+ set ANSI_COLOR_NORMAL=%ANSI_RESET%
+                                                                   set      COLOR_NORMAL_HEX=%ANSI_PREFERRED_CURSOR_COLOR_HEX%
+        SET COLOR_PAUSE=         color        cyan    on black  %+ set ANSI_COLOR_PAUSE=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_BLACK%
+                                                                   set      COLOR_PAUSE_HEX=FFFF00
+        rem COLOR_PROMPT=        color        yellow  on black  %+ set ANSI_COLOR_PROMPT=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                            %+ rem tried changing to bright red on 20230605
+        SET COLOR_PROMPT=        color bright red     on black  %+ set ANSI_COLOR_PROMPT=%ANSI_RESET%%ANSI_BRIGHT_RED%%ANSI_BACKGROUND_BLACK%                        
+                                                                   set      COLOR_PROMPT_HEX=FFFF00
+        set COLOR_REMOVAL=       color bright red     on black  %+ set ANSI_COLOR_REMOVAL=%ANSI_RESET%%ANSI_BRIGHT_RED%%ANSI_BACKGROUND_BLACK%                       
+                                                                   set      COLOR_REMOVAL_HEX=880000
+        SET COLOR_RUN=           color        yellow  on black  %+ set ANSI_COLOR_RUN=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                               
+                                                                   set      COLOR_RUN_HEX=787800
+        SET COLOR_SUCCESS=       color bright green   on black  %+ set ANSI_COLOR_SUCCESS=%ANSI_RESET%%ANSI_BRIGHT_GREEN%%ANSI_BACKGROUND_BLACK%                     
+                                                                   set      COLOR_SUCCESS_HEX=00FF00
+        rem COLOR_SUBTLE=        color bright black   on black  %+ set ANSI_COLOR_SUBTLE=%ANSI_RESET%%ANSI_BRIGHT_BLACK%%ANSI_BACKGROUND_BLACK%                      
+        SET COLOR_SUBTLE=        color bright black   on black  %+ set ANSI_COLOR_SUBTLE=%ANSI_RESET%%ANSI_BRIGHT_BLACK%                                             %+ rem 20240405 experimenting with leaving the default background collr in place for these
+                                                                   set      COLOR_SUBTLE_HEX=202020
+        SET COLOR_UNIMPORTANT=   color        blue    on black  %+ set ANSI_COLOR_UNIMPORTANT=%ANSI_RESET%%ANSI_BLUE%%ANSI_BACKGROUND_BLACK%                         
+                                                                   set      COLOR_UNIMPORTANT_HEX=000080
+        rem COLOR_WARNING=       color bright yellow  on black  %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%                    %+ rem from inception 'til 20230529
+        SET COLOR_WARNING=       color bright yellow  on blue   %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLUE%                     %+ rem 20230529-
+                                                                   set ANSI_COLOR_WARNING_BG=%ANSI_BACKGROUND_BLUE%                                                  %+ rem Remember to change this when changing the above line!
+                                                                   set      COLOR_WARNING_HEX=FFFF00
+        rem COLOR_WARNING_LESS=  color        yellow  on black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                      %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ REM inception-20230605
+        SET COLOR_WARNING_LESS=  color bright yellow  on black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%               %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ set ANSI_COLOR_WARNING_SOFT=%ANSI_COLOR_WARNING_LESS% %+ REM 2020606-
+                                                                   set      COLOR_WARNING_LESS_HEX=a8a800
+                                                                   set      COLOR_WARNING_SOFT_HEX=a8a800
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -899,7 +1043,7 @@ rem This is loaded in our environm.btm as well, but we like to double-check when
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 rem We're done!
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
         set      COLORS_HAVE_BEEN_SET=1     %+ rem "At first we were like..."
         set ANSI_COLORS_HAVE_BEEN_SET=1     %+ rem "....then we were like..."
         :AlreadyDone

@@ -65,7 +65,9 @@ rem ///// BUILD THE PROMPT:
         set TMPPROMPT=$e(B%TMPPROMPT%
     :Reset_Cursor_To_Our_Preferred_Color_And_Shape
         rem we return diff colored cursors from programs sometimes, and this resets them
-        rem Actually... Decided not to do this because it would change it upon the first prompt. I'd really only want to do this a 2nd time. Not feasible.
+        rem Actually... Decided not to do this because it would change it upon the first prompt. I'd really only want to do this a 2nd time, because I use cursor colors to represent errorlevels. Not feasible.
+        rem 2024/11/02 —— then again.... i sure have to reset my cursor a lot! maybe just do it as side-job:
+            call reset-cursor
     :Add_StarT_Text
             rem echo tmpprompt=%tmpprompt%
             iff "%TEXT_AT_START%" ne "" .and. 1 eq 1 then

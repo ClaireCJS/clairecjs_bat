@@ -124,11 +124,11 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
    ::::: ANSI COLORS & EMOJI ENV VARS:
         %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"               
         if "%COLORS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-ansi          force)                
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
 
         %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"   
         if "%EMOJIS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-emojis        force)
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
 
         %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"           
         if   not  defined   MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
@@ -142,7 +142,7 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::: CONFIGURATION :::::::::::::::::::::::::::::::::::::::::::::::::::: 
-    echos %@RANDCURSOR[]
+    rem echos %@RANDCURSOR[]
     :::: Command-line parsing options:
     	SET BAT=c:\bat               %+ REM for safety, just redefine this here
 
@@ -196,35 +196,31 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
     rem Vars related to running this:
             set RUNNING_ENVIRONM=1
-            echos %@RANDCURSOR[]
+            rem echos %@RANDCURSOR[]
 
 
 
 
     rem gosub StartKillBots { call c:\bat\slui-killbot } { @processmonitor slui started forever (taskend /f slui) } %+ REM stupid slui process kept stealing focus around 2015...  Use focus-monitor.exe to debug that situation. This keeps it dead, but the monitor only lasts per-command-line window, so we need it in this CLI initialization script. But wait! It eats up CPU, so it might not actually be worth it.
-	gosub PreliminaryErrorCheck                   %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after PreliminaryErrorCheck           " %+ rem 0.03
-    gosub SetPrivateEnvVars                       %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after SetPrivateEnvVars               " %+ rem 0.015
-	gosub DefineHarddrivesAndDriveMapping         %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
-	gosub CommonEnvVarsIncludingNetworking        %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after CommonEnvVarsIncludingNetworking" %+ rem 0.04
-	gosub Initial%MACHINENAME%                    %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.11
-	gosub DefineRepositories                      %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after DefineRepositories              " %+ rem 1.20  !!!!!!!
-	gosub DefineExecutableFileExtensions          %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after DefineExecutableFileExtensions  " %+ rem 0.24 
-	gosub SetUsernameAndNetName                   %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after SetUsernameAndNetName           " %+ rem 0.04
-	gosub Initial%USERNAME%                       %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.01
-	gosub SetPathAndPromptAndCursor               %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after SetPathAndPromptAndCursor       " %+ rem 0.29->.21 1st/autoexec-run .005 successive runs
-	gosub LoadAliases                             %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after LoadAliases                     " %+ rem 0.02
-	gosub CheckForSyncedDevices                   %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after CheckForSyncedDevices           " %+ rem 0.01
-	gosub OSSpecificOverrides                     %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after OSSpecificOverrides             " %+ rem 0.05
-	gosub SetJavaClasspath                        %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after SetJavaClasspath                " %+ rem 0.25  25
-    gosub Load_TCC_Plugins                        %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after Load_TCC_Plugins                " %+ rem 0.13
-    gosub FinalValidations                        %+     echos %@RANDCURSOR[]        %+    %gosub_stopwatch_button% orange "after FinalValidations                " %+ rem 0.013
+	gosub PreliminaryErrorCheck                   %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after PreliminaryErrorCheck           " %+ rem 0.03
+    rem   SetPrivateEnvVars                       %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetPrivateEnvVars               " %+ rem 0.015
+    if exist c:\bat\private.env (set /r c:\bat\private.env) %+ rem set private environment variables
+	gosub DefineHarddrivesAndDriveMapping         %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
+	gosub CommonEnvVarsIncludingNetworking        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after CommonEnvVarsIncludingNetworking" %+ rem 0.04
+	gosub Initial%MACHINENAME%                    %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.11
+	gosub DefineRepositories                      %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineRepositories              " %+ rem 1.20  !!!!!!!
+	gosub DefineExecutableFileExtensions          %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineExecutableFileExtensions  " %+ rem 0.24 
+	gosub SetUsernameAndNetName                   %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetUsernameAndNetName           " %+ rem 0.04
+	gosub Initial%USERNAME%                       %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.01
+	gosub SetPathAndPromptAndCursor               %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetPathAndPromptAndCursor       " %+ rem 0.29->.21 1st/autoexec-run .005 successive runs
+	gosub LoadAliases                             %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after LoadAliases                     " %+ rem 0.02
+	gosub CheckForSyncedDevices                   %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after CheckForSyncedDevices           " %+ rem 0.01
+	gosub OSSpecificOverrides                     %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after OSSpecificOverrides             " %+ rem 0.05
+	gosub SetJavaClasspath                        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetJavaClasspath                " %+ rem 0.25  25
+    gosub Load_TCC_Plugins                        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Load_TCC_Plugins                " %+ rem 0.13
+    gosub FinalValidations                        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after FinalValidations                " %+ rem 0.013
 	goto :END
 
-
-    :SetPrivateEnvVars
-            rem This is where all my API keys, passwords, and stuff I don't want on GitHub lives!
-            echos %@RANDCURSOR[]
-            if exist c:\bat\private.env (set /r c:\bat\private.env)
     return
 
 
@@ -400,7 +396,7 @@ return
             SET   DRIVES_SSD=%HD128G% %HD240G% %HD240G2% %HD512G% %HD1000G% %HD1000G3% %HD2T1%
 
         ::::::: FAILED IDEA
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
         rem was trying to *create* all shares for a machine with a single line along: for %d in (%drives_thailog%) echo drive=%d drivereal=%[%[%d]] mapping=%[mapping_%d]    net share %[mapping_%d]=%[%[%[%d]REAL]] GRANT:Everyone,FULL
         rem but alas, the logic and abstraction just isn't there - %C often points to the wrong drive because we don't redefine that per-computer
 
@@ -768,7 +764,7 @@ return
     %gosub_stopwatch_button% yellow "      %STAR%[1]CommonEnvVarsIncludingNetworking"
 
 	::::: WHO'S THE BOSS?
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
         ::::: MASTER/PRIMARY MACHINE:
 			::::: CONSIDER: WHEN NEW COMPUTER IS ADDED
             rem MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY=THAILOG                            ////// 2015ish
@@ -894,7 +890,7 @@ return
 
     ::::: API KEYS & PROGRAMMING STUFF - private keys are in private.env
         ::::: GITHUB/publishing:
-                echos %@RANDCURSOR[]
+                rem echos %@RANDCURSOR[]
                 set GITHUB_USERNAME=clairecjs
                 rem [REDACTED to private.env]
                 ::This created problems with validation though: if isdir C:\ProgramData\Anaconda3\Lib\site-packages (set PYTHONPATH=C:\ProgramData\Anaconda3\Lib\site-packages)
@@ -1214,7 +1210,7 @@ return
                 set HARDWARE_THAILOG_BACKUP=%HARDWARE_THAILOG_BACKUP_DRIVE%:\backups\HARDWARE.Thailog.bak
 
         ::installers
-            echos %@RANDCURSOR[]
+            rem echos %@RANDCURSOR[]
             SET INSTALLFILESDRIVE=%HD18T1%
             SET INSTALLFILES=%INSTALLFILESDRIVE%:\install-files
             rem INSTALLFILESBACKUPDRIVE=%HD2000G4%
@@ -1305,7 +1301,7 @@ return
 
 
         :Validation:
-            echos %@RANDCURSOR[]
+            rem echos %@RANDCURSOR[]
             %gosubValidateFolderExists%                      IRCDRIVE IRC
             %gosubValidateFolderExists%                     LOGSDRIVE LOGS
             %gosubValidateFolderExists%             LOGS_BACKUP_DRIVE LOGS_BACKUP
@@ -1541,7 +1537,7 @@ return
                 rem the plugin erases them if you stop, though: if not exist %NOW_PLAYING_ALBUM_ART% (call warning "NOW_PLAYING_ALBUM_ART of %NOW_PLAYING_ALBUM_ART% cannot be found" %+ pause)
                 rem the plugin erases them if you stop, though: if not exist %NOW_PLAYING_SONG_INFO% (call warning "NOW_PLAYING_SONG_INFO of %NOW_PLAYING_SONG_INFO% cannot be found" %+ pause)
 
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
         %gosub_stopwatch_button% magenta "      DefineRepositories [vals b4 20]  " 
                 %gosubValidateFolderExists%               THE_LETTER_C ALL_COLLECTIONS
                 %gosubValidateFolderExists%               THE_LETTER_C ALL_MEDIA_BY_DRIVE 
@@ -1648,7 +1644,7 @@ return
 
 
 	rem ::::: WORKFLOW LOCATIONS:
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
 	    rem ::::: PROGRAMING WORKFLOW LOCATIONS:
             rem ::Media
                 set        PROGRAMMINGDRIVE=%HD6000G1%
@@ -1848,7 +1844,7 @@ return
         %gosub_stopwatch_button% magenta "      DefineRepositories [30]          " %+ 
 
         rem ::::: IMAGE WORKFLOW LOCATIONS:
-            echos %@RANDCURSOR[]
+            rem echos %@RANDCURSOR[]
             rem :Automatic_Placement_Of_Uploaded_Pictures
                 set CURRENT_YEAR_UPLOADING=2018
                 set CURRENT_DECADE_UPLOADING=2010-2019
@@ -1997,7 +1993,7 @@ return
                 rem   ValidateFolderExists     EXTRASARCHIVESPILLOVERDRIVE EXTRASARCHIVESPILLOVER        :::::no longer used
 
         %gosub_stopwatch_button% magenta "      DefineRepositories [40]          " %+ 
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
 
 
 		::::: MUSIC WORKFLOW LOCATIONS:

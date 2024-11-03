@@ -21,8 +21,8 @@
 
 
 ::::: DEBUG STUFFS:
-    :echo %ANSI_COLOR_DEBUG% %0 called with 1=%1, 2=%2, VARNAME=%VARNAME%, VEVPARAMS=%VEVPARAMS% %ANSI_COLOR_RESET%
-    :echo on
+    rem echo %ANSI_COLOR_DEBUG% %0 called with 1=%1, 2=%2, VARNAME=%VARNAME%, VEVPARAMS=%VEVPARAMS% %ANSI_COLOR_RESET%
+    rem echo on
 
 
 ::::: CLEAR LONGTERM ERROR FLAGS:
@@ -87,7 +87,7 @@ goto :Past_The_End_Of_The_Sub-Routines
 
     :validate_environment_variable [VARNAME]
         rem debug: echo validate_environment_variable %varname%
-        echos %@RANDCURSOR[]
+        rem echos %@RANDCURSOR[]
         ::::: SEE IF IT IS DEFINED:
             if defined %VARNAME% (goto :Defined_YES)
             if ""  eq  %VARNAME% (goto :Defined_NO )
@@ -249,4 +249,5 @@ goto :Past_The_End_Of_The_Sub-Routines
 :END
 if "" eq "%LAST_TITLE%" (set LAST_TITLE=TCC)
 title %LAST_TITLE%
-echos %CUSOR_RESET%
+
+echos %CURSOR_RESET%
