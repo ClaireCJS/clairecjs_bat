@@ -24,7 +24,8 @@ rem Set variables to our preferences, wich will be used in this *and* other scri
         set ANSI_PREFERRED_CURSOR_SHAPE=%ANSI_CURSOR_SHAPE_BLOCK_BLINKING%
 
 rem Actually change the cursor to our preferred color & shape, using the function defined in set-ansi.bat:
-        echos %@SET_CURSOR_COLOR_BY_HEX[%ANSI_PREFERRED_CURSOR_COLOR_HEX]%ANSI_PREFERRED_CURSOR_SHAPE%
+        set RECREATE_CURSOR=%@SET_CURSOR_COLOR_BY_HEX[%ANSI_PREFERRED_CURSOR_COLOR_HEX]%ANSI_PREFERRED_CURSOR_SHAPE%
+                      echos %RECREATE_CURSOR%
 
 
 

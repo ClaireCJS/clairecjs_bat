@@ -152,7 +152,8 @@ REM if we already have a SRT file, we have a problem:
                         call bigecho %STAR% %ANSI_COLOR_IMPORTANT_LESS%Review the lyrics:%ANSI_RESET%
                         @echos %ANSI_COLOR_BRIGHT_YELLOW%
                         rem unique-lines -A is a bit of a misnomer because it gives ALL lines, but with -L it gives us a preview of some of the lyric massage prior to the AI prompt
-                        type "%TXT_FILE%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                        rem type "%TXT_FILE%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                           (type "%TXT_FILE%" |:u8 unique-lines -A -L |:u8)|:u8 print-with-columns
                         iff %@FILESIZE["%TXT_FILE%"] lt 5 then
                             echo         %ANSI_COLOR_WARNING%Hmm. Nothing there.%ANSI_RESET%
                         endiff
@@ -269,7 +270,8 @@ rem Mandatory review of lyrics
                         @call less_important "[REDUNDANT?] Review the lyrics now:"
                         @call divider
                         @echos %ANSI_COLOR_GREEN%
-                        type "%TXT_FILE%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                        rem  type "%TXT_FILE%" |:u8 unique-lines -A -L  |:u8 insert-before-each-line "        "
+                            (type "%TXT_FILE%" |:u8 unique-lines -A -L) |:u8 print-with-columns
                         @call divider
                         @call AskYn "[REDUNDANT?] Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                         iff "%ANSWER%" eq "N" then
@@ -590,10 +592,11 @@ else
                 @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%SRT file contents%underline_off%:
                 @echos %ANSI_COLOR_BRIGHT_GREEN%
                 rem fast_cat fixes ansi rendering errors ins ome situations
-                rem (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        "     |:u8 fast_cat
-                rem (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "SRT:        %CHECK%" |:u8 fast_cat
-                    (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
-                    (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
+                rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        "     |:u8 fast_cat
+                rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "SRT:        %CHECK%" |:u8 fast_cat
+                rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
+                rem  (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
+                    ((grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 print-with-columns 
                 @call divider
                 call success "'%italics_on%%BASE_TITLE_TEXT%%italics_off%' generated successfully!"
                 title %check% %BASE_TITLE_TEXT% generated successfully! %check%             

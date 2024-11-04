@@ -58,7 +58,7 @@ rem Remove any trash environment variables left over from a previously-aborted r
 
 rem VALIDATE ENVIRONMENT [once per session]:
         iff 1 ne %VALIDATED_GLVMS_ENV then
-                call validate-in-path              %LYRIC_DOWNLOADER_1% %PROBER% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl insert-before-each-line.py
+                call validate-in-path              %LYRIC_DOWNLOADER_1% %PROBER% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl insert-before-each-line.py newspaper.bat print_with_columns.py print-with-columns.bat
                 call unimportant        "Validated: lyric downloader, audio file prober"
                 call validate-environment-variables TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME FILEMASK_AUDIO cool_question_mark ANSI_COLOR_BRIGHT_RED italics_on italics_off ANSI_COLOR_BRIGHT_YELLOW blink_on blink_off star ANSI_COLOR_GREEN  ansi_reset bright_on bright_off   underline_on underline_off    emoji_warning check EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_red_QUESTION_MARK LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS ANSI_COLOR_WARNING_SOFT LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO ANSI_COLOR_DEBUG
                 call validate-is-function           cool_text
@@ -159,7 +159,8 @@ rem Check if we already have a TXT file in the same folder and shouldn't even be
                 @call divider
                 @call bigecho %ansi_color_bright_white%%star% %underline_on%Current lyrics%underline_off%:
                 echos %ANSI_COLOR_GREEN%
-                type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                rem type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                   (type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L)|:u8 print-with-columns
                 @call divider
 
                 call AskYn "(1) Do these lyrics %italics_on%we already have%italics_off% look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
@@ -186,7 +187,8 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 @call less_important "Let's review them:"
                 @call divider
                 @call bigecho %ANSI_COLOR_IMPORTANT_LESS%Let's review:%ANSI_RESET%
-                type "%MAYBE_LYRICS_1%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                rem type "%MAYBE_LYRICS_1%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                   (type "%MAYBE_LYRICS_1%" |:u8 unique-lines -A -L |:u8)|:u8 print-with-columns
                 call divider
                 call AskYn "(2) Do these look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
 
@@ -254,7 +256,8 @@ rem If we still didn't find anything acceptable, but have potentially matching f
                 call divider
                 call bigecho %ansi_color_bright_white%%star% %underline_on%Selected lyrics%underline_off%:
                 echos %ANSI_COLOR_YELLOW%
-                type %TMPREVIEWFILE% |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                rem type %TMPREVIEWFILE% |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                   (type %TMPREVIEWFILE% |:u8 unique-lines -A -L |:u8)|:u8 print-with-columns
                 call divider
                 call AskYn "(4) Do these lyrics %italics_on%from our lyrics repository%italics_off% look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "%ANSWER%" eq "Y" then

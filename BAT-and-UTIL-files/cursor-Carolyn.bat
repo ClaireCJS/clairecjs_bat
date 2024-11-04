@@ -16,6 +16,9 @@ rem Set variables to our preferences, wich will be used in this *and* other scri
         set ANSI_PREFERRED_CURSOR_COLOR_HEX=8000DF
 
 rem Actually change the cursor to our preferred color & shape, using the function defined in set-ansi.bat:
-        echos %ANSI_PREFERRED_CURSOR_SHAPE%%@SET_CURSOR_COLOR_BY_HEX[%ANSI_PREFERRED_CURSOR_COLOR_HEX%]
+        set RECREATE_CURSOR=%ANSI_PREFERRED_CURSOR_SHAPE%%@SET_CURSOR_COLOR_BY_HEX[%ANSI_PREFERRED_CURSOR_COLOR_HEX%]
+                      echos %RECREATE_CURSOR%
 
+
+rem i need this hex defined before we set the prompt
 

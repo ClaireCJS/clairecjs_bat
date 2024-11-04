@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo Off
 
 rem         INVOCATION:   Just run prompt-common.bat!
 rem
@@ -67,11 +67,13 @@ rem ///// BUILD THE PROMPT:
         rem we return diff colored cursors from programs sometimes, and this resets them
         rem Actually... Decided not to do this because it would change it upon the first prompt. I'd really only want to do this a 2nd time, because I use cursor colors to represent errorlevels. Not feasible.
         rem 2024/11/02 —— then again.... i sure have to reset my cursor a lot! maybe just do it as side-job:
-            call reset-cursor
+            call cursor-common.bat %+ rem although we intend to reset the cursor with the prompt, this sets variables we need
     :Add_StarT_Text
             rem echo tmpprompt=%tmpprompt%
             iff "%TEXT_AT_START%" ne "" .and. 1 eq 1 then
-                set TMPPROMPT=%TMPPROMPT%%TEXT_AT_START% ``
+                rem set TMPPROMPT=%TMPPROMPT%%TEXT_AT_START% ``
+                rem gotta overwrite gross ansi leftovers
+                set TMPPROMPT=%TMPPROMPT%%@ANSI_MOVE_TO_COL[1]%TEXT_AT_START% ``
             endiff
     :Add_Time_Of_Day
         set TMPPROMPT=%TMPPROMPT%$e[%TIME_COLOR_BRACKETS%m$L
@@ -97,7 +99,29 @@ rem ///// BUILD THE PROMPT:
         set TMPPROMPT=%TMPPROMPT%$e[%USER__TYPING__COLOR%m
 
 
-rem ///// FORMAT/SBUSTITUTE/SET THE PROMPT:
+
+
+    :Reset_FG_BG_colors_in_case_they_were_cycled
+rem        echo ANSI_PREFERRED_CURSOR_COLOR_HEX=%ANSI_PREFERRED_CURSOR_COLOR_HEX%
+rem        rem call validate-environment-variable  ANSI_RESET_FULL
+rem        rem additional_prompt=%@ReReplace[%@CHAR[27],$e,%ANSI_RESETTER_DEFAULT_FG_BG_COLORS%]
+rem        set additional_prompt=%@ReReplace[%@CHAR[27],$e,%ANSI_RESETTER_CURSOR_WITHOUT_COLOR%] %+ rem  did not fix colors only cursor shape
+rem        set additional_prompt=%@ReReplace[%@CHAR[27],$e,%ANSI_RESET_FULL_WITHOUT_CURSOR_COLOR%] %+ rem  fixed nothign?!?!
+rem        set additional_prompt=%@ReReplace[%@CHAR[27],$e,%ANSI_RESET_FULL%] %+ rem this works for getting colors back but not cursor color
+rem        set additional_prompt=%@ReReplace[%@CHAR[7],,%@ReReplace[%@CHAR[27],$e,%ANSI_RESET_FULL%]] %+ rem THIS WORKS FOR GETTING COLORS BACK BUT NOT CURSOR COLOR WHICH IS FINE
+
+            rem tmpprompt=%tmpprompt%%@ReReplace[%@CHAR[7],,%@ReReplace[%@CHAR[27],$e,%ANSI_RESET_FULL%%@char[27][ q%@char[27]]12;#%ANSI_PREFERRED_CURSOR_COLOR_HEX%%@char[7]]] %+ rem horrible wow
+            set tmpprompt=%tmpprompt%%@ReReplace[%@CHAR[7],,%@ReReplace[%@CHAR[27],$e,%ANSI_RESET_FULL%]] %+ rem THIS WORKS FOR GETTING COLORS BACK BUT NOT CURSOR COLOR WHICH IS FINE
+
+rem                
+rem        echo additional_prompt is %additional_prompt%
+rem        SET tmpprompt=%additional_prompt%%tmpprompt%
+
+
+
+
+
+rem ///// FORMAT/SBUSTITUTE PLACEHOLDER/SET THE PROMPT:
         if "%OS%" eq "2K" goto :CPU_Usage_Format_NO
         if "%OS%" eq "XP" goto :CPU_Usage_Format_NO
         if "%OS%" eq "10" goto :CPU_Usage_Format_YES_10
@@ -116,6 +140,21 @@ rem ///// FORMAT/SBUSTITUTE/SET THE PROMPT:
             :CPU_Usage_Format_NO
                  prompt=%@REPLACE[ CPUUSAGEHERE,%%%%[_CPUUsage]%%%%%%%%,%[TMPPROMPT]]
             :CPU_Usage_Format_DONE
+
+
+
+
+        rem SET tmpprompt=%@rereplace[%@CHAR[27],$e,%additional_prompt%]%tmpprompt%  
+        rem rem %%@CHAR[10084]%%@CHAR[10084]%%@CHAR[10084]%%@CHAR[10084]%%@CHAR[10084]%%@CHAR[10084]%%@CHAR[10084]%%@CHAR[10084]%%@CHAR[10084]%%@CHAR[10084]        
+        rem set additional_prompt_2=%@SET_CURSOR_COLOR_BY_HEX[%ANSI_PREFERRED_CURSOR_COLOR_HEX]
+        rem echo additional_prompt_2 is %@replace[%@char[7],[BELL],%@rereplace[%@char[27],[ESC],%additional_prompt_2%]]
+        rem rem rem rem %ANSI_RESETTER_DEFAULT_FG_BG_COLORS%
+
+        iff "%TEXT_AT_END%" ne "" .and. 1 eq 1 then
+            set TMPPROMPT=%TMPPROMPT%%TEXT_AT_END%
+        endiff
+
+
 
 
 rem ///// CLEAN UP:

@@ -19,14 +19,16 @@ rem And this!
 rem Let's add our pentagram character as a way to debug what keeps disabling it:
         iff defined PENTAGRAM then
                 set TEMP_PROMPT_PENTA=$e[31m%PENTAGRAM_UNCOLORED%
-                set TEXT_BEFORE_PATH=%TEMP_PROMPT_PENTA%
                 set    TEXT_AT_START=%TEMP_PROMPT_PENTA%
+                set TEXT_BEFORE_PATH=%TEMP_PROMPT_PENTA%
+                set      TEXT_AT_END=HA!
         endiff
         rem echo text_before_path=%TEXT_BEFORE_PATH%
         
-rem Do it
-        call prompt-common
 
 rem Also reset the cursor:
-        call cursor-Claire
+        rem moved to prompt-common
+
+rem Do it
+        call prompt-common
 

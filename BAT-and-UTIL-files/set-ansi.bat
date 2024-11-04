@@ -854,16 +854,30 @@ rem ANIS: enhanced resetting
                     rem set            TOCK=%ANSI_FULL_RESET% %+ rem Because this does the same as clairecjs_utils\claire_console.py::Tock()
                     rem RESETTER1=%ANSI_UNLOCK_TOP%%ansi_cursor_show%%ansi_cursor_change_to_default%%ANSI_RESET%
 
-                    set RESETTER_BASIC=%ANSI_RESET%
-                    set RESETTER_CURSOR=%ansi_cursor_show%%@SET_CURSOR_COLOR_BY_HEX[%ANSI_PREFERRED_CURSOR_COLOR_HEX]%ANSI_PREFERRED_CURSOR_SHAPE%
-                    set RESETTER_DEFAULT_FG_BG_COLORS=%@ANSI_RGB_BG[0,0,0]%@ansi_RGB_FG[192,192,192]
+                    rem function          SET_CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
 
-                    set ANSI_RESET_FULL=%RESETTER_BASIC%%RESETTER_CURSOR%%RESETTER_DEFAULT_FG_BG_COLORS%
+                    set ANSI_RESETTER_BASIC=%ANSI_RESET%
+                    set ANSI_RESETTER_CURSOR_VISIBILITY=%ansi_cursor_show%
+                    set ANSI_RESETTER_CURSOR_COLOR=%@SET_CURSOR_COLOR_BY_HEX[%ANSI_PREFERRED_CURSOR_COLOR_HEX]
+                    set ANSI_RESETTER_CURSOR_SHAPE=%ANSI_PREFERRED_CURSOR_SHAPE%
+                    set ANSI_RESETTER_CURSOR=%ANSI_RESETTER_CURSOR_VISIBILITY%%ANSI_RESETTER_CURSOR_COLOR%%ANSI_RESETTER_CURSOR_SHAPE%
+                    set ANSI_RESETTER_CURSOR_WITHOUT_COLOR=%ANSI_RESETTER_CURSOR_VISIBILITY%%ANSI_RESETTER_CURSOR_SHAPE%
+
+                    rem This doesn't actually work:
+                    rem RESETTER_DEFAULT_FG_BG_COLORS=%@ANSI_RGB_BG[0,0,0]%@ansi_RGB_FG[192,192,192]
+                    rem Only this works:
+                    set ANSI_RESETTER_DEFAULT_FG_BG_COLORS=%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/00/01%@CHAR[27]\%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/01/00%@CHAR[27]\
+                    rem But this seems to work to:
+                    set ANSI_RESETTER_DEFAULT_FG_BG_COLORS=%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/00/01%@CHAR[27]\%@CHAR[27]]10;rgb:c0/c0/c1%@CHAR[27]\
+
+                    set ANSI_RESET_FULL=%ANSI_RESETTER_BASIC%%ANSI_RESETTER_CURSOR%%ANSI_RESETTER_DEFAULT_FG_BG_COLORS% %+ rem WORKs!
+                    set ANSI_RESET_FULL_WITHOUT_CURSOR=%ANSI_RESETTER_BASIC%%RESETTER_DEFAULT_FG_BG_COLORS%
+                    rem ANSI_RESET_FULL_WITHOUT_CURSOR_COLOR=%ANSI_RESETTER_BASIC%%ANSI_RESETTER_CURSOR_SHAPE%%RESETTER_DEFAULT_FG_BG_COLORS%
                             rem Aliases:
                                     set ANSI_RESET_ALL=%ANSI_RESET_FULL%
                                     set RESET_ANSI_ALL=%ANSI_RESET_FULL%
                                     set RESET_ALL_ANSI=%ANSI_RESET_FULL%
-                                    set           TOCK=%ANSI_RESeT_FULL%
+                                    set           TOCK=%ANSI_RESET_FULL%
 
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

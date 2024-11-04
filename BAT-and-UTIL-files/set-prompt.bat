@@ -35,4 +35,6 @@ rem If we managed to get here, just continue on and use Claire's prompt:
             prompt=$l$t$h$h$h$g $P$G
 		goto :end
 
+
+
 :end
