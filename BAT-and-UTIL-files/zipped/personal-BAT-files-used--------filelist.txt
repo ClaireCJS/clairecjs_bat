@@ -614,7 +614,7 @@
 2023-06-09  23:02             67    6%  print-if-debug.bat
 2024-11-03  21:02         31,389   74%  print-message.bat
 2024-11-03  17:18             25   -8%  print-with-columns.bat
-2024-11-03  18:48          5,795   67%  print_with_columns.py
+2024-11-04  01:53         10,729   72%  print_with_columns.py
 2024-06-28  11:49         14,018   74%  process-done-torrent.btm
 2024-05-26  15:43             25   -8%  process-filelist-to-prevent-consecutive-entries-from-same-folder.bat
 2024-03-18  23:28          2,192   64%  process-rookie-folders.bat
@@ -778,6 +778,7 @@
 2023-10-06  06:32             21   -9%  settmpfile.bat
 2024-04-10  16:17            731   51%  setup-perl-junctions-on-new-computer.bat
 2019-10-01  11:28             21   -9%  setwidth.bat
+2024-11-04  02:16          9,781   72%  show-screen-font-information-and-character-aspect-ratio.py
 2023-06-06  15:08          4,130   73%  show_current_pallete_prototype.py
 2019-10-01  11:28          5,276   63%  sizedir.pl
 2024-05-14  20:06            668   52%  sizes.bat

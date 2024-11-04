@@ -99,19 +99,22 @@ def determine_optimal_columns(lines, console_width, divider_len, desired_max_hei
     optimal_widths = []
     optimal_aspect_diff = float('inf')
 
-    # Phase 1: Enforce height constraint by adding columns as necessary
-    reverse = False
-    while True:
-        rows_per_col = ceil(num_lines / optimal_cols)
-        column_lines = [lines[i * rows_per_col:(i + 1) * rows_per_col] for i in range(optimal_cols)]
-        column_widths = [max(len(line) for line in col) if col else 0 for col in column_lines]
-        total_width = sum(column_widths) + divider_len * (optimal_cols - 1)
-        INTERNAL_LOG += f"\tPhase 1: Trying columns={optimal_cols}: rows_per_col={rows_per_col}, \t total_width={total_width}, console_width={console_width}\n"
-        if total_width <= console_width:
-            optimal_cols += 1
-        else:
-            break
-    optimal_cols = optimal_cols - 1
+    ## Phase 1: Enforce height constraint by adding columns as necessary
+    #reverse = False
+    #while True:
+    #    rows_per_col = ceil(num_lines / optimal_cols)
+    #    column_lines = [lines[i * rows_per_col:(i + 1) * rows_per_col] for i in range(optimal_cols)]
+    #    column_widths = [max(len(line) for line in col) if col else 0 for col in column_lines]
+    #    total_width = sum(column_widths) + divider_len * (optimal_cols - 1)
+    #    INTERNAL_LOG += f"\tPhase 1: Trying columns={optimal_cols}: rows_per_col={rows_per_col}, \t total_width={total_width}, console_width={console_width}, column_lines={len(column_lines)} \n"
+    #    if total_width <= console_width:
+    #        optimal_cols += 1
+    #    else:
+    #        break
+    #optimal_cols = optimal_cols - 1
+
+    optimal_cols = 4
+    rows_per_col = ceil(num_lines / optimal_cols)
 
     INTERNAL_LOG += f"\t --> optimal_cols determined as {optimal_cols}\n"
 
@@ -129,7 +132,7 @@ def determine_optimal_columns(lines, console_width, divider_len, desired_max_hei
         tentative_column_lines = [lines[i * tentative_rows_per_col:(i + 1) * tentative_rows_per_col] for i in range(tentative_cols)]
         tentative_column_widths = [max(len(line) for line in col) if col else 0 for col in tentative_column_lines]
         tentative_total_width = sum(tentative_column_widths) + divider_len * (tentative_cols - 1)
-        INTERNAL_LOG += f"* phase 2:tentative_cols={tentative_cols} \t... tentative_total_width={tentative_total_width} ... console_wid={console_width}\n" #, reverse={reverse}\n"
+        INTERNAL_LOG += f"* phase 2:tentative_cols={tentative_cols} \t... tentative_total_width={tentative_total_width} ... console_wid={console_width}, num_lines(orig)={num_lines}\n" #, reverse={reverse}\n"
 
         # Calculate aspect ratio difference
         aspect_ratio = calculate_aspect_ratio(tentative_total_width, tentative_rows_per_col)
@@ -213,7 +216,7 @@ for line in formatted_output:
     print(line)
 
 # Debug function to display layout information
-def debug_info(columns, column_widths, width, desired_max_height, console_width, console_height, input_lines):
+def debug_info(columns, column_widths, width, desired_max_height, console_width, console_height, input_lines, formatted_output):
     total_width = sum(column_widths) + (divider_visible_length * (columns - 1))
     rows_per_col = ceil(len(input_lines) / columns) if columns > 0 else 0
     aspect_ratio = calculate_aspect_ratio(total_width, rows_per_col) if rows_per_col > 0 else float('inf')
@@ -221,7 +224,9 @@ def debug_info(columns, column_widths, width, desired_max_height, console_width,
 
     print("\n\033[38;2;187;0;0mDEBUG INFO:\033[0m")
     print(f"{INTERNAL_LOG}", end="")
-    print(f"Columns used: {columns}")
+    print(f"Rows original: {len(input_lines)}")
+    print(f"Rows after:    {len(formatted_output)}")
+    print(f"Columns used:  {columns}")
     print(f"Width of each column: {column_widths}")
     print(f"Total width: {total_width}")
     print(f"Rows per column: {rows_per_col}")
@@ -232,4 +237,4 @@ def debug_info(columns, column_widths, width, desired_max_height, console_width,
     print(f"Desired maximum rows per column: {desired_max_height}")
 
 # Run the debug function
-debug_info(columns, column_widths, width, desired_max_height, console_width, console_height, input_data)
+debug_info(columns, column_widths, width, desired_max_height, console_width, console_height, input_data, formatted_output)
