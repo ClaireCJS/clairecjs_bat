@@ -530,6 +530,20 @@ rem ANSI: colors
                                     set ANSI_COLOR_PURPLE_BRIGHT=%ANSI_PURPLE_BRIGHT%
                                     set            PURPLE_BRIGHT=%ANSI_PURPLE_BRIGHT%
 
+                rem Then, create pink pink🎗🌺 + bright pink 🎀:
+                        set ANSI_PINK=%@ANSI_RGB[       255,115,115]
+                        set ANSI_PINK_BRIGHT=%@ANSI_RGB[255,150,150]
+                            rem Aliases:
+                                    set                   PINK=%ANSI_PINK%
+                                    set              ANSI_PINK=%ANSI_PINK%
+                                    set        ANSI_COLOR_PINK=%ANSI_PINK%
+                                    set            BRIGHT_PINK=%ANSI_PINK_BRIGHT%
+                                    set       ANSI_BRIGHT_PINK=%ANSI_PINK_BRIGHT%
+                                    set ANSI_COLOR_BRIGHT_PINK=%ANSI_PINK_BRIGHT%
+                                    set       ANSI_PINK_BRIGHT=%ANSI_PINK_BRIGHT%
+                                    set ANSI_COLOR_PINK_BRIGHT=%ANSI_PINK_BRIGHT%
+                                    set            PINK_BRIGHT=%ANSI_PINK_BRIGHT%
+
 
                 rem Then override the original/official/"real"/ANSI magenta to create a magenta that is actually a magenta
                 rem , which is supposed to look like an ACTUAL combination of red and purple 🤎🎗🪀, 
@@ -556,7 +570,7 @@ rem ANSI: colors
                                         rem ANSI_MAGENTA=%ANSI_MAGENTA_BRIGHT_OFFICIAL%
                                 rem The custom: 👍🏻 woooo
                                         set ANSI_MAGENTA_BRIGHT=%ANSI_MAGENTA_BRIGHT_CUSTOM%
-                                        set ANSI_MAGENTA=%ANSI_MAGENTA_BRIGHT_CUSTOM%
+                                        set ANSI_MAGENTA=%ANSI_MAGENTA_CUSTOM%
 
                         rem And then define the aliases:
                                 set ANSI_COLOR_MAGENTA=%ANSI_MAGENTA%
