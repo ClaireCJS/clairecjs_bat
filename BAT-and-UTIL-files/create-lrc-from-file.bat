@@ -1,5 +1,8 @@
 @Echo off
 
+rem TODO                                     e
+rem TODO for flac, original artist can be under "Composer" so we should start checking for that
+
 rem TODO if lyrics are approved already, don't ask about them
 rem TODO maybe add NoLyrics mode to not consider lyrics?
 
@@ -28,7 +31,8 @@ rem CONFIG: 2024: WAIT TIMES:
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                 %+ rem wait time for "are these lyrics good?"-type questions
         set AI_GENERATION_ANYWAY_WAIT_TIME=45                        %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
         set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=45      %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
-        set PROMPT_CONSIDERATION_TIME=15                             %+ rem wait time for "does this AI command look sane"-type questions
+        set PROMPT_CONSIDERATION_TIME=20                             %+ rem wait time for "does this AI command look sane"-type questions
+        set PROMPT_EDIT_CONSIDERATION_TIME=10                        %+ rem wait time for "do you want to edit the AI prompt"-type questions
         set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0       %+ rem wait time for "hey lyrics not found!"-type notifications/questions. Set to 0 to not pause at all.
         set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=300                 %+ rem wait time for "edit it now that we've made it?"-type questions ... Have decided it should probably last longer than the average song
         rem ^^^^ TODO: automation mode where all these get shortened to quite significantly, or all to 3, or all to 1, or something 🐮
@@ -44,7 +48,8 @@ REM config: 2023:
                 set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=3                 %+ rem wait time for "are these lyrics good?"-type questions
                 set AI_GENERATION_ANYWAY_WAIT_TIME=3                       %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
                 set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=3     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
-                set PROMPT_CONSIDERATION_TIME=5                            %+ rem wait time for "does this AI command look sane"-type questions
+                set PROMPT_CONSIDERATION_TIME=4                            %+ rem wait time for "does this AI command look sane"-type questions
+                set PROMPT_EDIT_CONSIDERATION_TIME=2                       %+ rem wait time for "do you want to edit the AI prompt"-type questions
                 set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=1     %+ rem wait time for "hey lyrics not found!"-type notifications/questions
                 set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=1                 %+ rem wait time for "edit it now that we've made it?"-type questions ... Have decided it should probably last longer than the average song
         endiff
@@ -153,7 +158,7 @@ REM if we already have a SRT file, we have a problem:
                         @echos %ANSI_COLOR_BRIGHT_YELLOW%
                         rem unique-lines -A is a bit of a misnomer because it gives ALL lines, but with -L it gives us a preview of some of the lyric massage prior to the AI prompt
                         rem type "%TXT_FILE%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
-                           (type "%TXT_FILE%" |:u8 unique-lines -A -L |:u8)|:u8 print-with-columns
+                           (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
                         iff %@FILESIZE["%TXT_FILE%"] lt 5 then
                             echo         %ANSI_COLOR_WARNING%Hmm. Nothing there.%ANSI_RESET%
                         endiff
@@ -183,6 +188,14 @@ REM if we already have a SRT file, we have a problem:
                                 ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak" >nul
                         endiff
                         set OKAY_THAT_WE_HAVE_SRT_ALREADY=1
+
+                        rem TODO show lyrics again?
+                        @call AskYN "Re-get lyrics?" no %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME% %+ rem todo make unique wait time for this
+                        iff "%ANSWER%" eq "Y" then
+                                call get-lyrics "%AUDIO_FILE%"
+                        endiff
+
+
                         goto :Force_AI_Generation
                 else
                         @call warning_soft "Not generating anything, then..."
@@ -336,6 +349,10 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
         set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_filter_threshold=0.2 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
         rem 10v3: 
         set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.2 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
+        rem 10v4:  lowering vad_threshold from 0.2 to 0.1 because of metal & punk with fast/hard vocals. May increase hallucations tho
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
+        rem 11:  adding --best_of 5  and --vad_alt_method=pyannote_v3 & removed --ff_mdx_kim2
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20               --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_alt_method=pyannote_v3 --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
 
         rem --vad_dump 
         rem     Enabling --vad_dump might reveal how changes to vad_window_size_samples affect VAD output and help approximate the default behavior based on responsiveness.                               
@@ -423,19 +440,31 @@ rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////
 REM does our input file exist?
         call validate-environment-variable  INPUT_FILE
 
+REM Assemble the full command-line to transcribe the file:
+        set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"    
+
+
+
 REM Backup any existing SRT file, and ask if we are sure we want to generate AI right now:
         :backup any existing one
         if exist "%SRT_FILE%" (ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak")
         
         :actually_make_the_lrc
         @echos %STAR% %ANSI_COLOR_WARNING_SOFT%%blink_on%About to: %blink_off%
-        @echo  %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"%ansi_color_reset% 
+        @echo  %LAST_WHISPER_COMMAND%%ansi_color_reset% 
         @call AskYn "Proceed with this AI generation?" yes %PROMPT_CONSIDERATION_TIME%
         iff "%answer%" eq "N" then
                 @call warning "Aborting because you changed your mind..."
                 sleep 1
                 goto :END
         endiff
+
+
+
+REM quick chance to edit prompt:
+        @call AskYn "Edit the AI prompt?" no %PROMPT_EDIT_CONSIDERATION_TIME%
+        iff "%answer%" eq "Y" (eset LAST_WHISPER_COMMAND)
+
 
 
 REM Concurrency Consideration: Check if the encoder is already running in the process list. Don't run more than 1 at once.
@@ -474,6 +503,7 @@ REM set a non-scrollable header on the console to keep us from getting confused 
         set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
         call top-banner "%banner_message%"
 
+
 REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI:
         rem Cosmetics:
             @echo.
@@ -482,11 +512,11 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
 
         rem One last concurrency check:
                 iff "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then
-                        echo %WARNING% Actually, it's still running! %WARNING%
+                        echo %ANSI_COLOR_WARNING% Actually, it's still running! %ANSI_RESET%
                         goto :Check_If_Transcriber_Is_Running_Again
                 else
                         rem One last extra random wait in case 2 different ones get here at the same time. 
-                        rem (And only if we already had to wait before):
+                        rem (And only do this if we already had to wait before):
                                 iff %CONCURRENCY_WAS_TRIGGERED% eq 1 then
                                         sleep %@random[7,29]                    
                                 endiff
@@ -494,10 +524,13 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
 
         rem Store command, run command, check for error response, and log command:
                 title %EMOJI_EAR%%BASE_TITLE_TEXT%
-                set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"    
                 if %LOG_PROMPTS_USED% eq 1 (@echo %_DATETIME: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>"%@NAME[%INPUT_FILE].log")
+
+        rem A 3rd concurrency check became necessary in my endeavors:
                 if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto :Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
-                %TRANSCRIBER_TO_USE% %CLI_OPS% "%INPUT_FILE%"  |:u8  copy-move-post whisper         
+
+        rem ACTUALLY DO IT!!!:
+                %LAST_WHISPER_COMMAND% |:u8  copy-move-post whisper         
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
@@ -507,10 +540,11 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 :Done_Transcribing                 %+ rem  /     If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                echos %TOCK%                       %+ rem just our nickname for an extra-special ansi-reset
                 call errorlevel "some sort of problem with the AI generation occurred in %0 line ~336ish {'actually generate the srt file'}"
 
         rem Cosmetics:
-                call unlock-top                             %+ rem Disable our non-scrollable header now that we are done
+                call unlock-top                    %+ rem Disable our non-scrollable header now that we are done
                 title Done: %BASE_TITLE_TEXT%
 
 REM delete zero-byte LRC files that can be created
@@ -589,16 +623,19 @@ else
 
         rem A chance to edit:
                 @call divider
-                @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%SRT file contents%underline_off%:
-                @echos %ANSI_COLOR_BRIGHT_GREEN%
+                @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Transcription%underline_off%:
+                @echo.
+                @echos %TOCK%                       %+ rem just our nickname for an extra-special ansi-reset we sometimes call after  copy-move-post.py postprocessing
                 rem fast_cat fixes ansi rendering errors ins ome situations
                 rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        "     |:u8 fast_cat
                 rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "SRT:        %CHECK%" |:u8 fast_cat
                 rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
                 rem  (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
-                    ((grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 print-with-columns 
+                     (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 print-with-columns 
+                @echo.
+                if defined TOCK (echos %TOCK%) %+ rem nickname for fancy ansi-reset
                 @call divider
-                call success "'%italics_on%%BASE_TITLE_TEXT%%italics_off%' generated successfully!"
+                @call success "'%italics_on%%BASE_TITLE_TEXT%%italics_off%' generated successfully!"
                 title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
                 @call askyn  "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME% notitle
                 iff "%ANSWER" == "Y" then

@@ -1,3 +1,6 @@
+#TODO: deal with situation of lines that are sooo long that we'd really have to wrap them to fit
+#TODO: maybe make each column a slightly different color
+
 import sys
 import shutil
 import argparse
@@ -8,8 +11,11 @@ import textwrap
 # Define default ROW_PADDING
 DEFAULT_ROW_PADDING = 7  # Number of rows to subtract from screen height as desired maximum
 
-# Define the divider and calculate its visible length
-divider = "  \033[38;2;187;187;0m│\033[0m  "  # Divider with #BBBB00 color and additional padding
+# Define the divider and its visible length
+
+content_ansi           =  "\033[0m"
+divider_ansi           =  "\033[38;2;187;187;0m"
+divider                = f"  {divider_ansi}" + "│" + f"  {content_ansi}"  # Divider with #BBBB00 color and additional padding
 divider_visible_length = 5
 
 # Internal log
@@ -19,13 +25,15 @@ INTERNAL_LOG = ""
 parser = argparse.ArgumentParser(description="Display STDIN in a compact, multi-column format.")
 parser.add_argument('-w', '--width', type=int, help="Override console width")
 parser.add_argument('-c', '--columns', type=int, help="Number of columns (overrides automatic calculation)")
-parser.add_argument('-p', '--padding', type=int, default=DEFAULT_ROW_PADDING, help="Number of rows to subtract from screen height as desired maximum")
+parser.add_argument('-p', '--row_padding', type=int, default=DEFAULT_ROW_PADDING, help="Number of rows to subtract from screen height as desired maximum")
+parser.add_argument('-v', '--verbose', type=int, default=False, help="Verbose mode——display debug info")
 parser.add_argument('--wrap', action='store_true', help="Enable line wrapping for long lines")
-parser.add_argument('--max-line-length', type=int, default=80, help="Maximum line length before wrapping")
+parser.add_argument('--max-line-length-before-wrapping', type=int, default=80, help="Maximum line length before wrapping")
 args = parser.parse_args()
 
 # Override ROW_PADDING if specified
-ROW_PADDING = args.padding
+ROW_PADDING = args.row_padding
+VERBOSE     = args.verbose
 
 # Try to detect terminal width and height, otherwise use default values
 try:
@@ -132,11 +140,13 @@ def determine_optimal_columns(lines, console_width, divider_len, desired_max_hei
         tentative_column_lines = [lines[i * tentative_rows_per_col:(i + 1) * tentative_rows_per_col] for i in range(tentative_cols)]
         tentative_column_widths = [max(len(line) for line in col) if col else 0 for col in tentative_column_lines]
         tentative_total_width = sum(tentative_column_widths) + divider_len * (tentative_cols - 1)
-        INTERNAL_LOG += f"* phase 2:tentative_cols={tentative_cols} \t... tentative_total_width={tentative_total_width} ... console_wid={console_width}, num_lines(orig)={num_lines}\n" #, reverse={reverse}\n"
+
+
 
         # Calculate aspect ratio difference
         aspect_ratio = calculate_aspect_ratio(tentative_total_width, tentative_rows_per_col)
         aspect_diff = abs(aspect_ratio - 1.0)
+        INTERNAL_LOG += f"* phase 2:tentative_cols={tentative_cols} \t... tentative_total_width={tentative_total_width} ... console_wid={console_width}, num_lines(orig)={num_lines}, AR={aspect_ratio}\n"
 
         if aspect_diff < optimal_aspect_diff:
             # Accept the additional column for better aspect ratio
@@ -180,7 +190,7 @@ if args.columns:
     pass
 else:
     # If dynamic columns were adjusted, inform the user
-    print(f"Determined number of columns: {columns}")
+    INTERNAL_LOG = INTERNAL_LOG + f"Determined number of columns: {columns}"
 
 # Function to format text into columns
 def format_columns(lines, columns, column_widths, divider):
@@ -211,7 +221,9 @@ def format_columns(lines, columns, column_widths, divider):
 # Generate the formatted output
 formatted_output = format_columns(input_data, columns, column_widths, divider)
 
+
 # Print the formatted output
+print (content_ansi, end="");
 for line in formatted_output:
     print(line)
 
@@ -237,4 +249,5 @@ def debug_info(columns, column_widths, width, desired_max_height, console_width,
     print(f"Desired maximum rows per column: {desired_max_height}")
 
 # Run the debug function
-debug_info(columns, column_widths, width, desired_max_height, console_width, console_height, input_data, formatted_output)
+if VERBOSE: debug_info(columns, column_widths, width, desired_max_height, console_width, console_height, input_data, formatted_output)
+

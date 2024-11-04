@@ -30,7 +30,7 @@ rem CONFIG: LYRIC-GOOGLE'ING BEHAVIOR:
 
 rem CONFIG: WAIT TIMES:                                      
         SET ADDITIONAL_HAND_EDIT_WAIT_TIME_IF_THEY_GOOGLED=75         %+ rem Additional wait time to add on to last value in the event that they Googled the lyrics [to give time to check out the google resuls before the Yes/No prompt expires]
-        set LARGE_DOWNLOAD_WARNING_WAIT_TIME=1                        %+ rem Wait time after announcing that the lyrics downloaded seemed larger than expected [pretty uselessi n practice]
+        set LARGE_DOWNLOAD_WARNING_WAIT_TIME=0                        %+ rem Wait time after announcing that the lyrics downloaded seemed larger than expected [pretty uselessi n practice]
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=180                  %+ rem How long to show lyrics on the screen for them to get approval or not —— was 60 but running this while playing games made me miss the prompt so increased to 180
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO=5               %+ rem How long to show lyrics on the screen for them to get approval or not —— if the environment variable says they are already pre-approved
         set LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=120                  %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can't be done in automatic mode], before proceeding on 
@@ -110,6 +110,9 @@ rem Back up original values of these variables because we change them as we try 
         set       FILE_TITLE_ORIGINAL=%FILE_SONG%
         if %vebose gt 0 call unimportant "Original values saved" 
 
+rem Temp file we sometimes use to hold reviews to be reviewed in
+        set TMPREVIEWFILE=%temp%\review-file.%_datetime.%_PID.txt
+
 rem First things first——If it's a cover song, and we know the original artist, we should search for lyrics by the original artist
         if "%FILE_ARTIST%" ne "%FILE_ORIG_ARTIST%" .and. "" ne "%FILE_ORIG_ARTIST%" (set FILE_ARTIST=%FILE_ORIG_ARTIST%)
 
@@ -159,8 +162,8 @@ rem Check if we already have a TXT file in the same folder and shouldn't even be
                 @call divider
                 @call bigecho %ansi_color_bright_white%%star% %underline_on%Current lyrics%underline_off%:
                 echos %ANSI_COLOR_GREEN%
-                rem type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
-                   (type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L)|:u8 print-with-columns
+                rem type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L  |:u8 insert-before-each-line "        "
+                   (type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L) |:u8 print-with-columns
                 @call divider
 
                 call AskYn "(1) Do these lyrics %italics_on%we already have%italics_off% look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
@@ -184,11 +187,11 @@ rem Check if we have one in our lyric repository already, via 2 different filena
         iff exist "%MAYBE_LYRICS_1%" then
                 @call divider
                 @call less_important "Found possible lyrics at %emphasis%%maybe_lyrics_1%%emphasis%!"
-                @call less_important "Let's review them:"
+                @call less_important "%STAR% Let's review them:"
                 @call divider
-                @call bigecho %ANSI_COLOR_IMPORTANT_LESS%Let's review:%ANSI_RESET%
-                rem type "%MAYBE_LYRICS_1%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
-                   (type "%MAYBE_LYRICS_1%" |:u8 unique-lines -A -L |:u8)|:u8 print-with-columns
+                @call bigecho %ANSI_COLOR_IMPORTANT_LESS%%star% %underscore_on%Let's review:%underscore_off%%ANSI_RESET%
+                rem type "%MAYBE_LYRICS_1%" |:u8 unique-lines -A -L  |:u8 insert-before-each-line "        "
+                   (type "%MAYBE_LYRICS_1%" |:u8 unique-lines -A -L) |:u8 print-with-columns
                 call divider
                 call AskYn "(2) Do these look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
 
@@ -208,7 +211,9 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 call less_important "Found possible lyrics at %emphasis%%maybe_lyrics_2%%emphasis%!"
                 call less_important "Let's review them:"
                 call divider
-                type "%MAYBE_LYRICS_2%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
+                @call bigecho %ANSI_COLOR_IMPORTANT_LESS%Let's review:%ANSI_RESET%
+                 rem type "%MAYBE_LYRICS_2%" |:u8 unique-lines -A -L  |:u8 insert-before-each-line "        "
+                    (type "%MAYBE_LYRICS_2%" |:u8 unique-lines -A -L) |:u8 print-with-columns
                 call divider
                 call AskYn "(3) Do these look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "%ANSWER%" eq "Y" then
@@ -231,7 +236,7 @@ rem If we still didn't find anything acceptable, but have potentially matching f
                 set  file_count=%@files["%MAYBE_LYRICS_1_BROAD_SEARCH%"]
                 iff %file_count eq 1 then
                         call important_less "Copying file from our %italics_on%LYRIC%italics_off% repository..."
-                        *copy /Ns %@expand["%MAYBE_LYRICS_1_BROAD_SEARCH%"] %TMPREVIEWFILE% >nul
+                        *copy /Ns %@expand["%MAYBE_LYRICS_1_BROAD_SEARCH%"] "%TMPREVIEWFILE%" >nul
                 else
                         set tmptitle=%_title
                         call bigecho %ANSI_COLOR_SUCCESS%%STAR% %underline_on%Choose %italics_on%one%italics_off%%underline_off%?:
@@ -242,22 +247,23 @@ rem If we still didn't find anything acceptable, but have potentially matching f
                                 call less_important "Skipping selecting from potential files..."
                                 goto :End_Of_Local_Lyric_Archive_Selection
                         else
-                                set TMPREVIEWFILE=%temp%\review-file.%_datetime.%_PID.txt
+                                rem Moved this to earlier so the variable is always present: set TMPREVIEWFILE=%temp%\review-file.%_datetime.%_PID.txt
                                 cls
                                 echos %@RANDFG_SOFT[]
                                 title %file_song% - %file_artist%
-                                select *copy /Ns  ("%MAYBE_LYRICS_1_BROAD_SEARCH%") %TMPREVIEWFILE%
+                                select *copy /Ns  ("%MAYBE_LYRICS_1_BROAD_SEARCH%") "%TMPREVIEWFILE%"
                         endiff
                         title %tmptitle%
                 endiff
         endiff
 
-        iff exist %TMPREVIEWFILE% then
+        iff exist "%TMPREVIEWFILE%" then
+                call debug "TMPREVIEWFILE of size %@FILESIZE[%TMPREVIEWFILE%] exists: %TMPREVIEWFILE%"
                 call divider
                 call bigecho %ansi_color_bright_white%%star% %underline_on%Selected lyrics%underline_off%:
                 echos %ANSI_COLOR_YELLOW%
-                rem type %TMPREVIEWFILE% |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
-                   (type %TMPREVIEWFILE% |:u8 unique-lines -A -L |:u8)|:u8 print-with-columns
+                rem  type "%TMPREVIEWFILE%" |:u8 unique-lines -A -L  |:u8 insert-before-each-line "        "
+                    (type "%TMPREVIEWFILE%" |:u8 unique-lines -A -L) |:u8 print-with-columns
                 call divider
                 call AskYn "(4) Do these lyrics %italics_on%from our lyrics repository%italics_off% look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "%ANSWER%" eq "Y" then
@@ -316,7 +322,8 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
         rem Run our command, with a 'y' answer to overwrite:
                 echos %ANSI_COLOR_RUN%
                 rem ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 insert-before-each-line.py "            " |:u8 copy-move-post.py whisper)    %+ rem temporarily disabling this until we get that leak fixed
-                ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 insert-before-each-line.py "            ")
+                    ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 insert-before-each-line.py "            ")
+
                 call errorlevel "Problem retrieving lyrics in %0"
 
         rem Restore original environment variable value for PYTHONIOENCODING:            
@@ -376,7 +383,8 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                         @call divider
                         call bigecho %star% %ansi_color_bright_white%%underline_on%Downloaded lyrics%underline_off%:
                         @echo %ANSI_COLOR_BRIGHT_YELLOW%
-                        type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L |:u8 insert-before-each-line.py "        "
+                        rem (type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L) |:u8 insert-before-each-line.py "        "
+                            (type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L) |:u8 print-with-columns
                         @call divider
                         @call AskYn "%faint_on%(6)%faint_off% Do these %italics_on%downloaded%italics_off% lyrics for '%italics_on%%FILE_song_TO_USE%%italics_off%' by '%italics_on%%FILE_artist_TO_USE%%italics_off%' look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%   %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                         iff "%ANSWER%" eq "Y" then

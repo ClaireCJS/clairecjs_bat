@@ -61,14 +61,14 @@ while (<STDIN>) {
 
 		#content
 		$line =~ s/\[(Intro|Verse|Pre-Chorus|Refrain|Chorus|Instrumental Break|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*\]//i;
-		$line =~ s/\*? (No|\[(metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z]+lyrics[a-z]*|\[[a-z0-9]+ )\]) filter used//i;
+		$line =~ s/\*? (No|\[(duble|metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z\d]+lyrics[a-z\d]*|\[[a-z0-9]+ )\]) filter used//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
 		$line =~ s/Get tickets as low as \$[\d\.]+//i;
 
 
 		#TODO: deal with these:
-		#Artist: Circle Jerks,
+		#Artist: Circle Jerks, for all artists matching env var of artist which is %FILE_ARTIST%
         #Title: Mrs. Jones,		#http://lyricstranslate.com/en/catch-me-if-you-can-catch-me-if-you-can.html
 		#Album tracklist with lyrics
 		#        Artist: Circle Jerks,

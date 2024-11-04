@@ -53,7 +53,7 @@ rem                      3) also outputs a .BAT pattern that can be incorporated
 
 
 :PUBLISH:
-:DESCRIPTION: GOAT TODO
+:DESCRIPTION: TODO
 :DEPENDENCIES: validate-in-path.bat   echos beep sed color colors.bat colortool.bat randcolor.bat print-message.bat fatal_error.bat fatalerror.bat exit-maybe.bat important.bat advice.bat debug.bat print-if-debug.bat settmpfile.bat 
 if    1   ne  %validated_errorlevel (
           call validate-in-path       echos beep sed color colors.bat colortool.bat randcolor.bat print-message.bat fatal_error.bat fatalerror.bat exit-maybe.bat important.bat advice.bat debug.bat print-if-debug.bat settmpfile.bat 

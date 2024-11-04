@@ -17,7 +17,7 @@
 #
 #       The invocation would be:
 #
-#             this_script.py playlist.m3u *.lrc;*.srt
+#             this_script.py playlist.m3u *.lrc;*.srt {extra arguments}
 #
 #                      (For reference, the reason the extensions are "*.lrc;*.srt" format instead of "lrc,srt" format)
 #                      (is because of compatibility with some environment variables I create in my personal life.    )
@@ -39,7 +39,10 @@ SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here.bat"
 SCRIPT_NAME_FOR_KARAOKE_CREATION = "create-the-missing-karaokes-here.bat"
 
 
-def main(input_filename, extensions, options):
+def main(input_filename, extensions, options, extra_args):
+
+    #DEBUG: print(f"main got extra args of '{extra_args}'")
+
     # Check if the input file exists
     if not os.path.exists(input_filename):
         print(f"Error: The file '{input_filename}' does not exist.")
@@ -69,7 +72,6 @@ def main(input_filename, extensions, options):
             print(file)
 
     # Write the output file
-
     if files_without_sidecars:
         input_file_ext = os.path.splitext(input_filename)[1]
         output_filename = f"{os.path.splitext(input_filename)[0]}-without {' '.join(ext[2:] for ext in extensions_list)}{input_file_ext}"
@@ -77,17 +79,21 @@ def main(input_filename, extensions, options):
         if options.lower() == "createsrtfilewrite": output_filename = SCRIPT_NAME_FOR_KARAOKE_CREATION
         if options.lower() !=        "NoFileWrite":
             print(colored(f"Writing output file: {output_filename}", 'green', attrs=['bold']))
+            if extra_args: print(f"Using extra arguments of: {extra_args}")
+
+            # run any special postprocessing we've created, usually to create scripts to deal with files that are missing sidecar files
             with open(output_filename, 'w') as output_file:
                 for missing_file in sorted(files_without_sidecars):
-                    if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\"\n")
-                    if options.lower() == "createsrtfilewrite": output_file.write(f"@call create-srt \"{missing_file}\"\n")
+                    if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\" {extra_args}\n")
+                    if options.lower() == "createsrtfilewrite": output_file.write(f"@call create-srt \"{missing_file}\" {extra_args}\n")
                     else                                      : output_file.write(f"{missing_file}\n")
                 if options.lower() == "getlyricsfilewrite"    : output_file.write("@echo *** ALL DONE WITH LYRIC RETRIEVAL!!!! ***\n@echo yra | *del %0 >&>nul\n")
                 if options.lower() == "createsrtfilewrite"    : output_file.write("@echo *** ALL DONE WITH KARAOKE CREATION!!! ***\n@echo yra | *del %0 >&>nul\n")
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: python script.py <input_filename> <extensions>")
+        print("Usage: python check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extension.py <input_filename> <extensions> <postprocessor> {parameters to pass to created script}\n")
+        print("Postprocessors can be GetLyricsFileWrite, CreateSrtFileWrite, and they cretae scripts based on missing sidecar files\n")
         sys.exit(1)
 
     options=""
@@ -96,4 +102,10 @@ if __name__ == "__main__":
         extensions = sys.argv[2]
     if len(sys.argv) >= 4:
         options = sys.argv[3]
-    main(input_filename, extensions, options)
+    if len(sys.argv) >= 5:
+        extra_args = sys.argv[4:]
+        extra_args_str=  ' '.join(extra_args)
+
+    print(f"- DEBUG: Extra args are: '{extra_args_str}'\n")
+
+    main(input_filename, extensions, options, extra_args_str)

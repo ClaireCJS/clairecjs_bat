@@ -82,30 +82,30 @@ REM Process parameters
     if %DEBUG_PRINTMESSAGE eq  1       (echo DEBUG: TYPE=%TYPE%,DO_PAUSE=%DO_PAUSE%,MESSAGE=%MESSAGE%)
 
     if defined COLOR_%TYPE% (
-        set     OUR_COLORTOUSE=%[COLOR_%TYPE%]
-        set OUR_ANSICOLORTOUSE=%[ANSI_COLOR_%TYPE%]
+            set     OUR_COLORTOUSE=%[COLOR_%TYPE%]
+            set OUR_ANSICOLORTOUSE=%[ANSI_COLOR_%TYPE%]
      )
     if not defined OUR_COLORTOUSE  (
-        if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG% %RED_FLAG% Oops! Let's try setting OUR_COLORTOUSE to %%COLOR_%@UPPER[%PM_PARAM1])
-        set TYPE=%PM_PARAM1%
-        set OUR_COLORKEY=COLOR_%TYPE%
-        if %DEBUG_PRINTMESSAGE eq 1 (
-            echo colorkey is ``%OUR_COLORKEY%
-            echo     next is %[%OUR_COLORKEY%]
-        )
-        set OUR_COLORTOUSE=%[%OUR_COLORKEY%]
-        set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
+            if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG% %RED_FLAG% Oops! Let's try setting OUR_COLORTOUSE to %%COLOR_%@UPPER[%PM_PARAM1])
+            set TYPE=%PM_PARAM1%
+            set OUR_COLORKEY=COLOR_%TYPE%
+            if %DEBUG_PRINTMESSAGE eq 1 (
+                echo colorkey is ``%OUR_COLORKEY%
+                echo     next is %[%OUR_COLORKEY%]
+            )
+            set OUR_COLORTOUSE=%[%OUR_COLORKEY%]
+            set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
     )
     if %DEBUG_PRINTMESSAGE eq 1 (echo TYPE=%TYPE% OUR_COLORTOUSE=%OUR_COLORTOUSE% DO_PAUSE=%DO_PAUSE% MESSAGE is: %MESSAGE% )
 
 REM Validate parameters
     set print_message_running=2
     if %VALIDATED_PRINTMESSAGE_ENV ne 1 (
-        if not defined COLOR_%TYPE%  (call fatal_error "This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment")
-        if not defined MESSAGE       (call fatal_error "$0 called without a message")
-        call validate-in-path beep.bat 
-        call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_MAGNIFYING_GLASS_TILTED_LEFT
-        set VALIDATED_PRINTMESSAGE_ENV=1
+            if not defined COLOR_%TYPE%  (echo %ANSI_COLOR_fatal_error%This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment %+ *pause %+ goto :END)
+            if not defined MESSAGE       (echo %ANSI_COLOR_fatal_error%$0 called without a message %+ *pause %+ go)
+            call validate-in-path beep.bat 
+            call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_MAGNIFYING_GLASS_TILTED_LEFT
+            set VALIDATED_PRINTMESSAGE_ENV=1
     )
 
 
@@ -113,10 +113,10 @@ REM convert special characters
     set MESSAGE=%@UNQUOTE[%MESSAGE]``
     set ORIGINAL_MESSAGE=%MESSAGE%``
     REM might want to do if %NEWLINE_REPLACEMENT eq 1 instead:
-    if %NEWLINE_REPLACEMENT eq 1 (
-        set MESSAGE=%@REPLACE[\n,%@CHAR[12]%@CHAR[13],%@REPLACE[\t,%@CHAR[9],%MESSAGE]]``
-        unset /q NEWLINE_REPLACEMENT
-    )
+    iff %NEWLINE_REPLACEMENT eq 1 then
+            set MESSAGE=%@REPLACE[\n,%@CHAR[12]%@CHAR[13],%@REPLACE[\t,%@CHAR[9],%MESSAGE]]``
+            unset /q NEWLINE_REPLACEMENT
+    endiff
     rem sixteen percent symbols is insane, but what is needed:
     set MESSAGE=%@REPLACE[{PERCENT},%%%%%%%%%%%%%%%%,%MESSAGE]``
     
@@ -188,8 +188,8 @@ REM We're going to update the window title to the message. If possible, strip an
 
 REM Some messages will be decorated with audio:
         if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO ne 1 .and. 1 ne %PRINTMESSAGE_OPT_SUPPRESS_AUDIO (
-                if "%TYPE%" eq "DEBUG"  (call beep  lowest 1)
-                if "%TYPE%" eq "ADVICE" (call beep highest 3)
+                if "%TYPE%" eq "DEBUG"  (call beep.bat  lowest 1)
+                if "%TYPE%" eq "ADVICE" (call beep.bat highest 3)
         )
 
 REM Pre-Message pause based on message type (pausable messages need a litle visual cushion):
@@ -252,7 +252,6 @@ REM Actually display the message:
 
                 if "%OUR_ANSICOLORTOUSE%" ne "" echos %OUR_ANSICOLORTOUSE%
                 if "%OUR_ANSICOLORTOUSE%" eq "" %OUR_COLORTOUSE%
-
 
 
                 REM Special decorators that are only for the message itself, not the header/fooder:
@@ -414,27 +413,27 @@ goto :END
                 cls
                 echo.
                 if 1 ne %my_fast (
-                        call important "System print test - press N to go from one to the next --- any other key will cause tests to not complete -- if you get stuck hit enter once, then N -- if that doesn't work hit enter twice, then N"
+                        echo %ANSI_COLOR_IMPORTANT%System print test - press N to go from one to the next --- any other key will cause tests to not complete -- if you get stuck hit enter once, then N -- if that doesn't work hit enter twice, then N
                         echo.
                         pause>nul
                 )
 
                 rem      use %MESSAGE_TYPES instead of %MESSAGE_TYPES_WITHOUT_ALIASES to test alias message types:
                 for %clr in (%MESSAGE_TYPES_WITHOUT_ALIASES%) (   
-                    set clr4print=%clr%
-                    REM if "%clr%" eq "question"    set "clr4print=%CLR%    (windows: 'Question')"
+                        set clr4print=%clr%
+                        REM if "%clr%" eq "question"    set "clr4print=%CLR%    (windows: 'Question')"
 
-                    if 1 ne %my_fast (
-                            echo.
-                            cls
-                            call important  "about to test %clr4print:"
-                            echo.
-                            pause>nul
-                            cls
-                    )
-                    if 1 eq %my_fast (echo.                ) %+ call print-message %clr "This is a %clr4print message"
-                    if 1 ne %my_fast (pause>nul            )
-                    if 1 eq %my_fast (echo. %+ call divider)
+                        iff 1 ne %my_fast then
+                                echo.
+                                cls
+                                echo %ANSI_COLOR_IMPORTANT%about to test %clr4print:
+                                echo.
+                                pause>nul
+                                cls
+                        endiff
+                        if 1 eq %my_fast (echo.                ) %+ call print-message %clr "This is a %clr4print message"
+                        if 1 ne %my_fast (pause>nul            )
+                        if 1 eq %my_fast (echo. %+ call divider)
                 )
         goto :END
 

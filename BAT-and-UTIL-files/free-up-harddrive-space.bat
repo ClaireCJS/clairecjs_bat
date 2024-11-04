@@ -2,13 +2,20 @@
 
 
 call validate-environment-variables LOCALAPPDATA TEMP TMPDIR 
-call validate-in-path important.bat
-
-set FREE_C_BEFORE=%@DISKFREE[c]
-
-call less_important "Freeing up harddrive space..."
+call validate-in-path important.bat fast_cat
+call validate-in-path important less_important sort uniq insert-before-each-line run-piped-input-as-bat.bat fast_cat everything everything.exe everything.bat
 
 
+
+rem Start, and take note of how much was free before we started:
+        call less_important "Freeing up harddrive space..."
+        set FREE_C_BEFORE=%@DISKFREE[c]
+
+
+REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
+REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
+REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
+REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
 REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
 
 gosub DelIfExists "%LOCALAPPDATA%\Binary Fortress Software\DisplayFusion\CrashDumps\*.dmp"
@@ -21,6 +28,24 @@ gosub CreateIfGone %TMPDIR%
 gosub DelIfExists  c:\recycled\*.*
 gosub CreateIfGone c:\recycled
 
+rem Files that could be anywhere:
+
+echo.
+gosub DeleteEverywhere *._vad_collected_chunks*.wav
+gosub DeleteEverywhere *._vad_original*.srt
+    
+
+        goto :skip_1
+                :deleteEverywhere [file]
+                        rem Be goddamned sure you know what you're doing if you change this.  
+                        rem Best put an "echo " before the "*del" and test it out if you do.
+                        rem for %%GlobToDestroy in (*._vad_collected_chunks*.wav *._vad_original*.srt) 
+                        set file="%@UNQUOTE[%file]"
+                        echos         ``
+                        call less_important "looking for '%file%'"
+                        ((((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") |:u8 call run-piped-input-as-bat.bat) |:u8 fast_cat
+                return
+        :skip_1
 
 
 set FREE_C_AFTER=%@DISKFREE[c]
