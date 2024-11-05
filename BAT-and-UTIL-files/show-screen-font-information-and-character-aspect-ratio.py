@@ -173,8 +173,8 @@ def calculate_max_char_dimensions(font_path, font_size, characters):
     for char in characters:
         # Using getbbox to get the bounding box of the character
         try:
-            bbox = font.getbbox(char)
-            width = bbox[2] - bbox[0]
+            bbox   = font.getbbox(char)
+            width  = bbox[2] - bbox[0]
             height = bbox[3] - bbox[1]
         except AttributeError:
             # For Pillow versions < 10.0, fallback to getsize
@@ -210,9 +210,9 @@ def calculate_height_to_width_ratio(max_width, max_height, scaling_factor):
     """
     Calculates the height-to-width ratio after applying scaling.
     """
-    scaled_max_width = max_width * scaling_factor
+    scaled_max_width  = max_width * scaling_factor
     scaled_max_height = max_height * scaling_factor
-    ratio = scaled_max_height / scaled_max_width if scaled_max_width != 0 else 0
+    ratio             = scaled_max_height / scaled_max_width if scaled_max_width != 0 else 0
     return scaled_max_width, scaled_max_height, ratio
 
 def main():
@@ -254,9 +254,11 @@ def main():
     scaling_factor = get_windows_scaling_factor()
     scaled_max_width, scaled_max_height, ratio = calculate_height_to_width_ratio(max_width, max_height, scaling_factor)
     print(f"Height-to-Width Ratio (Scaled): {ratio:.2f}\n\n")
+    print(f"^^^but according to the windows terminal people, this is probably really 2\n\n")
+
     print(f"DPI Scaling Factor: {scaling_factor:.2f}\n")
 
-    print(f"Scaled Maximum Character Width: {scaled_max_width:.2f} pixels")
+    print(f"Scaled Maximum Character Width:  {scaled_max_width :.2f} pixels")
     print(f"Scaled Maximum Character Height: {scaled_max_height:.2f} pixels")
 
 if __name__ == "__main__":

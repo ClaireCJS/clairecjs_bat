@@ -96,7 +96,9 @@ if __name__ == "__main__":
         print("Postprocessors can be GetLyricsFileWrite, CreateSrtFileWrite, and they cretae scripts based on missing sidecar files\n")
         sys.exit(1)
 
+
     options=""
+    extra_args_str=""
     if len(sys.argv)>0:
         input_filename = sys.argv[1]
         extensions = sys.argv[2]

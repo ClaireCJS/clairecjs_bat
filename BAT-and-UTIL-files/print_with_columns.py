@@ -1,6 +1,11 @@
 #TODO: deal with situation of lines that are sooo long that we'd really have to wrap them to fit
 #TODO: maybe make each column a slightly different color
 
+#font coefficient = 1.4! that's what i got!
+#lhecker@github: Generally speaking, you can assume that fonts have roughly an aspect ratio of 2:1. It seems you measured the actual size of the glyph though which is slightly different from the cell height/width.
+
+
+
 import sys
 import shutil
 import argparse

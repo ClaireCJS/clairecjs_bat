@@ -3,9 +3,14 @@
 rem Validate Enviroment:
         call validate-environment-variable filemask_audio check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py
 
+rem Parameter stuff:
+        set PARAMS=%*
+        set DIR_PARAMS=%PARAMS%
+
 rem Make filelist to use as input:
-        set                                              FILELIST=these.m3u
-        dir /b /[!*instrumental*] %filemask_audio% >:u8 %FILELIST%
+        set FILELIST=these.m3u
+        if "%@REGEX[\/s,%dir_params%]" eq "1" (set FILELIST=all.m3u)
+        dir /b /[!*instrumental*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST%
 
 rem Check for songs missing sidecar TXT files :
         echo.

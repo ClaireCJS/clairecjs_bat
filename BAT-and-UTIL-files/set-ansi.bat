@@ -1,5 +1,7 @@
 @Echo OFF
 
+rem TODO: Are you by any chance looking for something like the "alternate screen buffer"? You can enter it by emitting \x1b[?1049h and exit it by emitting \x1b[?1049l. All versions of Windows that are still officially supported support that sequence.
+
 
 
 :——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -64,32 +66,6 @@ rem Utility functions:
         rem Return a random hex rgb i.e. '47A98F', '9D3B5C':
                 function random_rgb_hex=`%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]`
         
-        rem Return a string with character in a random color:
-                function random_color_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
-                function     colorful_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
-                function            colorful=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
-
-        rem Change a single digit into the cool version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' bracket cool_x are defined in emoji.inv】: 
-                function  cool_digit_plain=`%[cool_%1]`                                           %+ rem COOL_0 through COOL_9 are defined in emoji.env      
-                function  cool_char_plain=`%@if[%1==" ",%@if[defined cool_%1,%[cool_%1],%1]`      %+ rem ...but let's allow ANY character to have a 'cool' version in emoji.env, though it's questionable how useful this is with environment variable naming limitations
-                rem Now do it in a random color also:
-                        function       cool_digit=`%@randfg_soft[]%[cool_%1]`
-                        function  cool_char_plain=`%@randfg_soft[]%@if[defined cool_%1,%[cool_%1],%1]`              
-
-        rem Change a full number into the cool version of each digit:
-                function cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1$]]]]]]]]]]`
-                rem Now do it in a random color also:
-                        function cool_number=`%@random_color_string[%@cool_number_plain[%1$]]`
-
-        rem To coolify a non-numerical string, we simply run the same code —— but maybe we could do something else to make it interesting❓
-                        function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,Ṡ,%@REPLACE[f,ƒ,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
-                        function cool_string_rainbow=`%@random_color_string[%@cool_string_plain[%1$]]`
-                        function         cool_string=`%@random_color_string[%@cool_string_plain[%1$]]`
-                        rem Alias:
-                                function cool=`%@cool_string[%1$]`
-                                function cool_text=`%@cool_string[%1$]`
-                        rem Experimental:
-                                function cool_string_lookup_only=`%@REReplace[([^\s]),%@randFG_soFt[]%@cool_char_plain[\1],%1$]` %+ rem EXPERIMENTAL
 
 rem ————————————————————————————————————————————— RESETTING: ——————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -835,7 +811,7 @@ REM ANSI: Custom Character Generation using ANSI & sixels —— so far just hav
             set           EMOJI_PENTAGRAM=%ANSI_RED%%ESCAPE( @./%ESCAPE%(B%ANSI_RESET%        %+ rem Make a red version of our pentagram emoji 
             set  EMOJI_PENTAGRAM_BLINKING=%blink_on%%EMOJI_PENTAGRAM%%blink_off%%ANSI_RESET%  %+ rem Now  add blinking  to our pentagram emoji 
 
-   rem Adding aliases for our custom emoji:
+   rem Adding aliases for our custom emoji (this would go in emoji.env, but they aren't defined yet when we load it):
             set                  PENTACLE=%EMOJI_PENTACLE%
             set                 PENTAGRAM=%EMOJI_PENTAGRAM%
             set        PENTAGRAM_BLINKING=%EMOJI_PENTAGRAM_BLINKING%
@@ -851,6 +827,10 @@ REM ANSI: Custom Character Generation using ANSI & sixels —— so far just hav
             REM experiment: echo %ESCAPE%P0;8;1;10;0;2;20;0{ @???~}{wo_?/5#17;2;31;9;5#18;2;31;9;5#19;2;33;9;5#20;2;36;10;5#21;2;37;10;5#22;2;39;10;5#23;2;42;11;5#24;2;42;11;5#25;2;44;11;6#26;2;46;11;5#27;2;47;12;6#28;2;50;13;6#29;2;51;13;6#30;2;53;13;6#31;2;56;14;7#32;2;58;14;6#33;2;56;14;7#34;2;59;15;7#35;2;60;15;7#36;2;62;15;7#37;2;64;16;7#38;2;66;16;7#39;2;68;16;7#40;2;69;17;7#41;2;71;16;7#42;2;71;17;7#43;2;73;18;8#44;2;75;18;8#45;2;76;18;7#46;2;76;18;8#47;2;78;18;8#48;2;78;19;8#49;2;79;19;8#50;2;80;19;8#51;2;82;20;8#52;2;84;20;8#53;2;85;20;8#54;2;86;20;9#55;2;87;20;9#56;2;88;21;9#57;2;90;21;9#58;2;92;22;9#59;2;93;22;9#60;2;93;22;9#61;2;94;22;9#1~nFNFN!6BFFNFFn$#2?O#4G#22O#0G?!6C?G???O$#23??o#41_#12O!6?G#3G#15O#18O#4G_$#52!4?_#58_?o___#55O?_#45_#26O#2G$#29!5?O??G#30G#24G#36?O#32??_#7O$#59!6?_???O_$#10!6?G#21G#60OO??_$#51!6?O-#1~_#16B#60w`?A?O!4?P_#27@#0Aw$#3?O!4?O#52_!7?O#1@F$#0?F#29C#58C??@BF~F@@#17C#53C#28A#4C$#2?G#35_#53@#55GA!4?O#10O#13G#42??C#6_$#38??G#56A#25C#59@?Cg??A?_W#49_#8G$#40??O#49?A#47_!7?A#51?G#9O$#61!4?O#22G!6?O$#19!5?C#48C!6?G$#36!5?O#26_!5?C$#11!6?G#43O#57??g?A?B$#50!7?G#20???G#37_$#30!11?_$#54!11?C-#1~{ww_!6?_?ooo|~$#0?BC?O__!5?_??GA$#7??A#58@!4?@@???D#3G#2C$#22??@#18C!5?C#5_#27C?G#34?@$#44???A??@#4_#8__#46Q#16A#15O??A$#59!4?@C#28O!7?C$#19!4?G#49G!4?G#33O#55G?A$#54!4?C#52@?G?O#50?@#31A$#61!4?A#43A?O#57AA#47??@$#10!5?O#60G@??@G?A@$#13!6?A???C#56?C$#36!6?C#14C#17C#38G$#37!7?A#39G$#51!8?O-#1!8BAA!8B$#0!8?@@-%ESCAPE%\
             REM c:\cygwin\bin\printf.exe "\e( @\e[33m*(*(*(\e(B \e[36m This is an important message \e( @\e[33m)+ )+ )+ , , - - \e(B\e[m\n"
             rem a joke: ~DDD??~___~??~```??~KJ`??@ACWCA@??~```~??~___~
+
+
+            
+
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -913,25 +893,95 @@ REM ANSI: testing —— and the magic way to know whether we are in insert mode
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-REM TODO try when have a keyboard with LED lights on it:
-        rem DECKLHIM—Keyboard LED's Host Indicator Mode
-        rem DECKLHIM controls the state of the keyboard LED's host indicator mode.
-        rem Default: Reset.
-        rem CSI ? 1 1 0 h -  set: keyboard led's host indicator mode
-        rem CSI ? 1	1 0 l- Reset: keyboard LED's host indicator mode.
-        rem DECLL controls keyboard LEDs independently of any keyboard state. The use of LEDs for this purpose conflicts with their use as keyboard state indicators. DECKLHIM selects a mode of how the keyboard LEDs are to be used: as keyboard indicators; or host indicators. If host indicators is selected, then the DECLL sequence can be used to control the keyboard LEDs.
-        rem For DECLL to function, DECKLHIM must be set. See DECLL for the implications of using DECLL to control the keyboard LEDs independently of any keyboard state.
+REM keyboard LED controls [do not work]:
 
+        goto :Does_Not_Work_LED
+                rem DECLL controls keyboard LEDs independently of any keyboard state. The use of LEDs for this purpose conflicts with their use as keyboard state indicators. DECKLHIM selects a mode of how the keyboard LEDs are to be used: as keyboard indicators; or host indicators. If host indicators is selected, then the DECLL sequence can be used to control the keyboard LEDs.
+                rem For DECLL to function, DECKLHIM must be set. See DECLL for the implications of using DECLL to control the keyboard LEDs independently of any keyboard state.
+                        rem DECKLHIM—Keyboard LED's Host Indicator Mode
+                        rem CSI ? 1 1 0 h -  set: keyboard led's host indicator mode
+                                set   ANSI_SET_KEYBOARD_LED_HOST_INDICATOR_MODE=%ANSI_CST%?110h
+                        rem DECKLHIM controls the state of the keyboard LED's host indicator mode. Default: Reset.
+                        rem CSI ? 1	1 0 l- Reset: keyboard LED's host indicator mode.
+                                set ANSI_RESET_KEYBOARD_LED_HOST_INDICATOR_MODE=%ANSI_CST%?110l
+        :Does_Not_Work_LED
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-REM test strings that demonstrate all this ANSI functionality
+REM test strings that demonstrate a lot of this ANSI functionality [mostly 1st-wave stuff, movement is not tested for example]
         set ANSI_TEST_STRING=concealed:'%CONCEAL_ON%conceal%CONCEAL_off%' %ANSI_RED%R%ANSI_ORANGE%O%ANSI_YELLOW%Y%ANSI_GREEN%G%ANSI_CYAN%C%ANSI_BLUE%B%ANSI_MAGENTA%V%ANSI_WHITE% Hello, world. %BOLD%Bold!%BOLD_OFF% %FAINT%Faint%FAINT_OFF% %ITALICS%Italics%ITALIC_OFF% %UNDERLINE%underline%UNDERLINE_OFF% %OVERLINE%overline%OVERLINE_OFF% %DOUBLE_UNDERLINE%double_underline%DOUBLE_UNDERLINE_OFF% %REVERSE%reverse%REVERSE_OFF% %BLINK_SLOW%blink_slow%BLINK_SLOW_OFF% [non-blinking] %BLINK_FAST%blink_fast%BLINK_FAST_OFF% [non-blinking] %blink%blink_default%blink_off% [non-blinking] %STRIKETHROUGH%strikethrough%STRIKETHROUGH_OFF%
         set ANSI_TEST_STRING_2=%BIG_TEXT_LINE_1%big% %ANSI_RESET% Normal One%PENTAGRAM%
         set ANSI_TEST_STRING_3=%BIG_TEXT_LINE_2%big% %ANSI_RESET% Normal Two%PENTAGRAM%
         set ANSI_TEST_STRING_4=%WIDE_LINE%A wide line!%PENTAGRAM%
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+rem ************* TOYS:  *************
+rem ************* TOYS:  *************
+
+
+        rem Return a string with every character in a *tolerable* ("soft") random color:
+                function random_color_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
+                function     colorful_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
+                function            colorful=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
+
+        rem Change a single digit into the cool version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' [[[cool_1,cool_2,...,cool_9 (and some random characters, like COOL_S) are defined in emoji.env]]]: 
+                function  cool_digit_plain=`%[cool_%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
+                function  cool_char_plain=`%@if[%1==" ",%@if[defined cool_%1,%[cool_%1],%1]`      %+ rem ...but let's allow ANY character to have a 'cool' version in emoji.env, though it's questionable how useful this is with environment variable naming limitations and case insensitivity
+
+                rem Now do it in a random color also:
+                        function       cool_digit=`%@randfg_soft[]%[cool_%1]`
+                        function  cool_char_plain=`%@randfg_soft[]%@if[defined cool_%1,%[cool_%1],%1]`              
+
+        rem Change many digits into the cool version of each digit:
+                function cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1$]]]]]]]]]]`
+                rem Now do it in a random color also:
+                        function cool_number=`%@random_color_string[%@cool_number_plain[%1$]]`
+
+
+                        function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,Ṡ,%@REPLACE[f,ƒ,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
+                        function cool_string_rainbow=`%@random_color_string[%@cool_string_plain[%1$]]`
+                        function         cool_string=`%@random_color_string[%@cool_string_plain[%1$]]`
+                        rem Alias:
+                                function cool=`%@cool_string[%1$]`
+                                function cool_text=`%@cool_string[%1$]`
+                        rem Experimental:
+                                function cool_string_lookup_only=`%@REReplace[([^\s]),%@randFG_soFt[]%@cool_char_plain[\1],%1$]` %+ rem EXPERIMENTAL
+
+function  cursive_upper=`%@if[%@ASCII[%1] ge 65 .and. %@ASCII[%1] le  90,%@CHAR[55349]%@CHAR[%@EVAL[56463+%@ASCII[%1]]],%1]`
+function  cursive_lower=`%@if[%@ASCII[%1] ge 97 .and. %@ASCII[%1] le 122,%@CHAR[55349]%@CHAR[%@EVAL[56457+%@ASCII[%1]]],%1]`
+function cursive_letter=`%@if[%@ASCII[%1] ge 65 .and. %@ASCII[%1] le  90,%@CHAR[55349]%@CHAR[%@EVAL[56463+%@ASCII[%1]]],]%@if[%@ASCII[%1] ge 97 .and. %@ASCII[%1] le 122,%@CHAR[55349]%@CHAR[%@EVAL[56457+%@ASCII[%1]]],]`  %+ rem todo put %1 at end again 
+function cursive_maybe_letter=`%@if[%@ASCII[%1] ge 65 .and. %@ASCII[%1] le  90  .or.   %@ASCII[%1] ge 97 .and. %@ASCII[%1] le 122,%@CURSIVE_LETTER[%1],%1]`
+function cursive=`%@REReplace[([A-Za-z]),%%@cursive_maybe_letter[\1],%1$]`
 
 
 

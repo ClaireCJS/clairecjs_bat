@@ -1,12 +1,13 @@
 @Echo off
 
-rem TODO                                     e
+
+rem TODO afterregen anyway, we need to ask about ecc2fasdfasf.bat
 rem TODO for flac, original artist can be under "Composer" so we should start checking for that
 
 rem TODO if lyrics are approved already, don't ask about them
 rem TODO maybe add NoLyrics mode to not consider lyrics?
 
-:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup} {options to pass on to whisper} ... ai=force ai regeneration, force=proceed even if LRC file is there, cleanup=clean up leftover files
+:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last} {nolyrics or rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  "ai no lyrics"=do solely by AI even if lyric files present
 :USAGE: set USE_LANGUAGE=jp to encode in a different language from en, like jp
 
 :REQUIRES:     <see validators>
@@ -76,23 +77,44 @@ REM validate environment [once]:
 
 REM branch on certain paramters, and clean up various parameters 
         set PARAM_2=%2
-        if "%1" eq "last" (goto :actually_make_the_lrc)
-        set FORCE_REGEN=0
-        if "%2" eq "force-regen" .or. "%2" eq "redo" (set FORCE_REGEN=1 %+ set PARAM_2=) %+ rem Any %2 that is a mode needs to get "the param_2 treatment" 
-        if "%2" eq "ai" (set PARAM_2=)                                                   %+ rem Any %2 that is a mode needs to get "the param_2 treatment"
-        set CLEANUP=0
-        iff "%2" eq "cleanup" then
-                set PARAM_2=                                                             %+ rem Any %2 that is a mode needs to get "the param_2 treatment"
-                CLEANUP=1
-                goto :just_do_the_cleanup
-        endiff
-        set MAKING_KARAOKE=1
+
+        
         if defined USE_LANGUAGE (set OUR_LANGUAGE=%USE_LANGUAGE%)
 
 
+        if "%1" eq "last" (goto :actually_make_the_lrc) %+ rem to repeat the last regen
+
+        iff "%2" eq "force-regen" .or. "%2" eq "redo" then
+                set PARAM_2=%3$
+                set FORCE_REGEN=1 
+        else
+                set FORCE_REGEN=0
+        endiff
+
+        if "%2" eq "ai" (set PARAM_2=)                                                   
+
+        iff "%2" eq "ai" then
+                set PARAM_2=%3$
+                set SOLELY_BY_AI=1
+        else
+                set SOLELY_BY_AI=0
+        endiff
+
+        iff "%2" eq "cleanup" then
+                set PARAM_2=%3$                                                          
+                set CLEANUP=1
+                goto :just_do_the_cleanup
+        else
+                set CLEANUP=0
+        endiff
+
+        set MAKING_KARAOKE=1
+
+        rem todo: consider going back to the top of this section 2 or 3 times for easier simultaneous option stacking but then you gotta think about what all the combinations really mean
 
 
-REM values set from parameters
+
+REM values set from parameters:
         set             SONGFILE=%@UNQUOTE[%1]
         set             SONGBASE=%@NAME[%SONGFILE]
         set POTENTIAL_LYRIC_FILE=%@UNQUOTE[%2]
@@ -143,14 +165,16 @@ REM display debug info
 
 REM if our input MP3/FLAC/audio file doesn't exist, we have problems:
         call validate-environment-variable INPUT_FILE
-        iff "%input_file%" ne "force" .and. "%2" ne "ai" then
+        iff "%FORCE_REGEN%" eq "1" .or. "%SOLELY_BY_AI%" eq "1" then
+                rem Skip validation because we're doing things automatically
+        else
                 call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO%
         endiff
 
 
 
 REM if we already have a SRT file, we have a problem:
-        iff exist "%SRT_FILE%" .and. %OKAY_THAT_WE_HAVE_SRT_ALREADY ne 1 .and. %2 ne "ai" then
+        iff exist "%SRT_FILE%" .and. %OKAY_THAT_WE_HAVE_SRT_ALREADY ne 1 .and. %SOLELY_BY_AI ne 1 then
                 iff exist "%TXT_FILE%" then
                         @call divider
                         rem @call less_important "(65) Review the lyrics now:" 
@@ -166,7 +190,7 @@ REM if we already have a SRT file, we have a problem:
                 endiff
                 @call bigecho %ansi_color_warning%%emoji_warning%Already have karaoke!%emoji_warning%%ansi_color_normal%
                 @call warning "We already have a file created: %emphasis%%srt_file%%deemphasis%"
-                if "%2" eq "ai" goto :automatic_skip_for_ai_parameter
+                if %SOLELY_BY_AI ne 1 (goto :automatic_skip_for_ai_parameter)
                         @call advice "Automatically answer the next prompt as Yes by adding the parameter 'force-regen' or 'redo'"
                         iff exist "%TXT_FILE%" then
                                 @call AskYn "%faint_on%(5)%faint_off% Do the above lyrics look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
@@ -207,8 +231,8 @@ REM if we already have a SRT file, we have a problem:
 
 
 
-REM If we say "ai" after the command, we nuke the LRC/SRT file and go straight to AI-generating:
-        iff "%2" eq "ai" then
+REM If "%SOLELY_BY_AI%" eq "1", we nuke the LRC/SRT file and go straight to AI-generating:
+        iff "%SOLELY_BY_AI%" eq "1" then
                 @call important_less "Forcing AI generation..."
                 if exist "%LRC_FILE%" (ren /q "%LRC_FILE%" "%@NAME[%LRC_FILE%].lrc.%_datetime.bak")
                 if exist "%SRT_FILE%" (ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak")
@@ -351,8 +375,17 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
         set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.2 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
         rem 10v4:  lowering vad_threshold from 0.2 to 0.1 because of metal & punk with fast/hard vocals. May increase hallucations tho
         set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
-        rem 11:  adding --best_of 5  and --vad_alt_method=pyannote_v3 & removed --ff_mdx_kim2
+        rem 11:  adding --best_of 5  and --vad_alt_method=pyannote_v3 & removed --ff_mdx_kim2 but this clearly gave worse lyrics, terrible ones, with Wet Leg – Girlfriend
         set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20               --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_alt_method=pyannote_v3 --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
+        rem 12:  going back to original --ff_mdx_kim2 vocal separation but keeping the best_of 5 ... Looks great?
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_alt_method=pyannote_v3 --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
+        rem 12v2:  reordering
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
+        rem 13: adding --max_comma_cent 70
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70
+
+        rem 14 proposed: Purfview said add -hst 2 to stop the thing where one subtitle gets stuck on for a whollleeee solooooo —
+        rem               Kinda wanna wait til i see one to find out if this fixes it
 
         rem --vad_dump 
         rem     Enabling --vad_dump might reveal how changes to vad_window_size_samples affect VAD output and help approximate the default behavior based on responsiveness.                               
@@ -373,6 +406,8 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
         rem         Lower the VAD threshold to 0.35 or 0.3 to capture more detail.
         rem --vad_filter_off
         rem         Disable VAD filtering with --vad_filter_off to ensure the whole audio is processed without aggressively skipping sections.
+        rem --max_comma_cent 70
+        rem         Roughly, break the subtitle at a comma... I think 70 is if it's 70% through the line but i'm probably wrong
 
         rem NOTE: We also have --batch_recursive - {automatically sets --output_dir}
 
@@ -498,6 +533,8 @@ REM set a non-scrollable header on the console to keep us from getting confused 
         rem banner_message=%@randfg_soft[]%ALOCKED_MESSAGE_COLOR_BG%%ZZZZZZZZ%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%ZZZZZZZZ%%@cool[%FILE_ARTIST%]%%ZZZZZZZZZ%
         iff not defined FILE_ARTIST then
             call warning "FILE_ARTIST  is not defined here and should generally be?"
+             set FILE_ARTIST=?
+            eset FILE_ARTIST
             pause
         endiff
         set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
@@ -602,56 +639,63 @@ rem ////////////////////////////////////////////////////////////////////////////
 :Finishing_Up
 :Cleanup
 
-iff not exist "%SRT_FILE%" then
-        @call warning "Unfortunately, we could create the karaoke file %emphasis%%SRT_FILE%%deemphasis%"
-        title %emoji_warning% Karaoke not generated! %emoji_warning% 
-else
-        rem Cleanup:
-                rem MiniLyrics will pick up a TXT file in the %lyrics% repo *instead* of a SRT file in the local folder
-                rem   for sure: in the case of %lyrics%\letter\<same name as audio file>.txt  ——— MAYBE_LYRICS_2
-                rem      maybe: in the case of %lyrics%\letter\artist - title.txt             ——— MAYBE_LYRICS_1
-                rem So we must delete at least the first one, if it exists.  We use our get-lyrics script in SetVarsOnly mode:
-                rem moved to beginning: call get-lyrics-via-multiple-sources "%SONGFILE%" SetVarsOnly
-                rem ...which sets MAYBE_LYRICS_1 and MAYBE_LYRICS_2
-                @call debug "(7) Checking if exists: '%underline_on%%MAYBE_LYRICS_2%%underline_off%' for deprecation"
-                if exist "%MAYBE_LYRICS_2%" (call deprecate "%MAYBE_LYRICS_2%")
+rem Let user know if we were NOT succesful, then skip to the end:
+        iff not exist "%SRT_FILE%" then
+                @call warning "Unfortunately, we could create the karaoke file %emphasis%%SRT_FILE%%deemphasis%"
+                title %emoji_warning% Karaoke not generated! %emoji_warning% 
+                goto :nothing_generated
+        endiff
 
-        rem Success message:
-                @call divider
-                @call success "Karaoke created at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%"
-                title %check% %BASE_TITLE_TEXT% generated successfully! %check% 
 
-        rem A chance to edit:
-                @call divider
-                @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Transcription%underline_off%:
-                @echo.
-                @echos %TOCK%                       %+ rem just our nickname for an extra-special ansi-reset we sometimes call after  copy-move-post.py postprocessing
-                rem fast_cat fixes ansi rendering errors ins ome situations
-                rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        "     |:u8 fast_cat
-                rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "SRT:        %CHECK%" |:u8 fast_cat
-                rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
-                rem  (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
-                     (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 print-with-columns 
-                @echo.
-                if defined TOCK (echos %TOCK%) %+ rem nickname for fancy ansi-reset
-                @call divider
-                @call success "'%italics_on%%BASE_TITLE_TEXT%%italics_off%' generated successfully!"
+rem Cleanup:
+        rem MiniLyrics will pick up a TXT file in the %lyrics% repo *instead* of a SRT file in the local folder
+        rem   for sure: in the case of %lyrics%\letter\<same name as audio file>.txt  ——— MAYBE_LYRICS_2
+        rem      maybe: in the case of %lyrics%\letter\artist - title.txt             ——— MAYBE_LYRICS_1
+        rem So we must delete at least the first one, if it exists.  We use our get-lyrics script in SetVarsOnly mode:
+        rem moved to beginning: call get-lyrics-via-multiple-sources "%SONGFILE%" SetVarsOnly
+        rem ...which sets MAYBE_LYRICS_1 and MAYBE_LYRICS_2
+        @call debug "(7) Checking if exists: '%underline_on%%MAYBE_LYRICS_2%%underline_off%' for deprecation"
+        if exist "%MAYBE_LYRICS_2%" (call deprecate "%MAYBE_LYRICS_2%")
+
+rem Success SRT-generation message:
+        @call divider
+        @call success "Karaoke created at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%"
+        title %check% %BASE_TITLE_TEXT% generated successfully! %check% 
+        if %SOLELY_BY_AI eq 1 (call warning "ONLY AI WAS USED. Lyrics were not used for prompting" silent)
+
+rem A chance to edit:
+        @call divider
+        @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Transcription%underline_off%:
+        @echo.
+        @echos %TOCK%                       %+ rem just our nickname for an extra-special ansi-reset we sometimes call after  copy-move-post.py postprocessing
+        rem fast_cat fixes ansi rendering errors ins ome situations
+        rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        "     |:u8 fast_cat
+        rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "SRT:        %CHECK%" |:u8 fast_cat
+        rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
+        rem  (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
+             (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 print-with-columns 
+        @echo.
+        if defined TOCK (echos %TOCK%) %+ rem nickname for fancy ansi-reset
+
+rem Full-endeavor success message:
+        @call divider
+        @call success "'%italics_on%%BASE_TITLE_TEXT%%italics_off%' generated successfully!"
+        title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
+        @call askyn  "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME% notitle
+        iff "%ANSWER" == "Y" then
+                @echo %ANSI_COLOR_DEBUG%%EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
                 title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
-                @call askyn  "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME% notitle
-                iff "%ANSWER" == "Y" then
-                        @echo %ANSI_COLOR_DEBUG%%EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
-                        title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
-                        iff not exist "%TXT_FILE%" then
-                                %EDITOR% "%SRT_FILE%" 
-                        else
-                                %EDITOR% "%TXT_FILE%" "%SRT_FILE%" 
-                        endiff
+                iff not exist "%TXT_FILE%" then
+                        %EDITOR% "%SRT_FILE%" 
+                else
+                        %EDITOR% "%TXT_FILE%" "%SRT_FILE%" 
                 endiff
-                title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
-endiff
+        endiff
+        title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
+        if %SOLELY_BY_AI eq 1 (call warning "ONLY AI WAS USED. Lyrics were not used for prompting")
 
 :END
-
+:nothing_generated
 timer /5 off
 
 :Cleanup_Only

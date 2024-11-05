@@ -51,14 +51,15 @@ iff 1 eq %CONSIDER_ALL_LYRICS_APPROVED% then
 endiff
 
 rem Remove any trash environment variables left over from a previously-aborted run which might interfere with the current run:
-        unset /q LYRIC_RETRIEVAL_1_FAILED
+        rem unset /q LYRIC_RETRIEVAL_1_FAILED
         unset /q LD1_MASSAGED_ATTEMPT_1
         unset /q WE_GOOGLED
         unset /q TRY_SELECTION_AGAIN
+        unset /q ONLY_ONE_FILE_AND_IT_WAS_TRIED
 
 rem VALIDATE ENVIRONMENT [once per session]:
         iff 1 ne %VALIDATED_GLVMS_ENV then
-                call validate-in-path              %LYRIC_DOWNLOADER_1% %PROBER% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl insert-before-each-line.py newspaper.bat print_with_columns.py print-with-columns.bat
+                call validate-in-path              %LYRIC_DOWNLOADER_1% %PROBER% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset eset.bat eset-alias.bat insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl insert-before-each-line.py newspaper.bat print_with_columns.py print-with-columns.bat newspaper.bat srt2lrc.py
                 call unimportant        "Validated: lyric downloader, audio file prober"
                 call validate-environment-variables TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME FILEMASK_AUDIO cool_question_mark ANSI_COLOR_BRIGHT_RED italics_on italics_off ANSI_COLOR_BRIGHT_YELLOW blink_on blink_off star ANSI_COLOR_GREEN  ansi_reset bright_on bright_off   underline_on underline_off    emoji_warning check EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_red_QUESTION_MARK LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS ANSI_COLOR_WARNING_SOFT LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO ANSI_COLOR_DEBUG
                 call validate-is-function           cool_text
@@ -95,6 +96,8 @@ rem Get artist and song so we can use them to download lyrics:
         set       FILE_TITLE=%FILE_SONG%
         if %DEBUG gt 0 call unimportant "Probing done" 
         rem "Title" is better than "Song", but we are doing both for ease of remembrance
+        
+
 
 rem Update window title:
         if %DEBUG gt 0 call unimportant "setting window title to %FILE_ARTIST% – %FILE_SONG%"
@@ -235,8 +238,10 @@ rem If we still didn't find anything acceptable, but have potentially matching f
                 call divider
                 set  file_count=%@files["%MAYBE_LYRICS_1_BROAD_SEARCH%"]
                 iff %file_count eq 1 then
+                        if %ONLY_ONE_FILE_AND_IT_WAS_TRIED% eq 1 goto :End_Of_Local_Lyric_Archive_Selection
                         call important_less "Copying file from our %italics_on%LYRIC%italics_off% repository..."
                         *copy /Ns %@expand["%MAYBE_LYRICS_1_BROAD_SEARCH%"] "%TMPREVIEWFILE%" >nul
+                        set ONLY_ONE_FILE_AND_IT_WAS_TRIED=1
                 else
                         set tmptitle=%_title
                         call bigecho %ANSI_COLOR_SUCCESS%%STAR% %underline_on%Choose %italics_on%one%italics_off%%underline_off%?:
@@ -290,6 +295,8 @@ rem If we still didn't find anything acceptable, but have potentially matching f
                 goto :TrySelectingSomethingFromOurLyricsArchive
         endiff
         :End_Of_Local_Lyric_Archive_Selection
+        unset /q ONLY_ONE_FILE_AND_IT_WAS_TRIED
+        unset /q TRY_SELECTION_AGAIN
 rem ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
@@ -356,7 +363,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                         rem call warning "The latest file is not a JSON? It is %LATEST_FILE% .. Does this mean lyrics didn't download?"
                         @echos             ``
                         @call warning "(A) No lyrics downloaded."
-                        set LYRIC_RETRIEVAL_1_FAILED=1
+                        rem set LYRIC_RETRIEVAL_1_FAILED=1
                         rem goto :Cleanup
                         rem Actually, just continue... We will try again with different values
                         rem Actually, skip forward, but not to cleanup
@@ -378,7 +385,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 iff not exist "%PREFERRED_TEXT_FILE_NAME%" then
                         @echos             ``
                         @call warning "(B) No lyrics downloaded."
-                        set LYRIC_RETRIEVAL_1_FAILED=1
+                        rem set LYRIC_RETRIEVAL_1_FAILED=1
                 else
                         @call divider
                         call bigecho %star% %ansi_color_bright_white%%underline_on%Downloaded lyrics%underline_off%:
@@ -431,19 +438,26 @@ rem try again if massaged names exist (that is, if the massaged names are differ
         call divider
         rem no! goto :end_of_massage_attempt
         rem Continue on... We have failed so far.
+        unset /q LD1_MASSAGED_ATTEMPT_1
 
 
 
 rem If we still don't have anything, let us manually edit the song and artist name if we want
         iff exist "%PREFERRED_TEXT_FILE_NAME%" (goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done)
 
-        rem rainbow divider here?
+        rem 🌈 rainbow divider here?
         call AskYN "Want to try hand-editing the artist & song name" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME%
         if "%answer%" == "N" (goto :Skip_Hand_Editing)
 
-        eset FILE_ARTIST
-        eset FILE_SONG
-        rem  FILE_ALBUM
+
+        rem 🧹 make sure the variables are clean and ready for modification 🧹
+                if not defined FILE_ARTIST (set FILE_ARTIST=?)
+                if not defined FILE_SONG   (SET   FILE_SONG=?)
+
+        rem ✍🏻 hand-editing artist/song name: ✍🏻 
+                eset FILE_ARTIST
+                eset FILE_SONG
+                rem  FILE_ALBUM
 
         set        FILE_SONG_TO_USE=%FILE_SONG%
         set       FILE_TITLE_TO_USE=%FILE_SONG%
@@ -505,12 +519,16 @@ rem Final change to hand-edit the lyrics, but skip it if we already opted to sea
                 @input /c /w0 %%This_Line_Clears_The_Character_Buffer
                 call pause-for-x-seconds %LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS% "%ansi_color_bright_yellow%%pencil% Hit a key when done editing lyrics... %faint_on%(leave blank if none found)%faint_off% %pencil% %ansi_color_normal%"
         endiff
+        unset /q WE_GOOGLED
 
 rem TODO: Perhaps a prompt to reject the lyrics here {and delete the file}, i needed that in at least 1 case. it would have to default to o
 
 rem Start our cleanup:
         :Cleanup
         rem (moved to very end)
+
+rem Create LRCs from SRTs:
+        srt2lrc.py
 
 rem Validate we did something:
         if %DEBUG gt 0 echo %ANSI_COLOR_DEBUG%- DEBUG: (30) iff not exist "%PREFERRED_TEXT_FILE_NAME%" 
@@ -537,7 +555,8 @@ rem Validate we did something:
 
 if exist "__" (*del /q "__">nul)
 unset /q WE_GOOGLED
-unset /q LYRIC_RETRIEVAL_1_FAILED
+rem unset /q LYRIC_RETRIEVAL_1_FAILED
 unset /q LD1_MASSAGED_ATTEMPT_1
 unset /q TRY_SELECTION_AGAIN
+unset /q ONLY_ONE_FILE_AND_IT_WAS_TRIED
 
