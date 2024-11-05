@@ -2,10 +2,40 @@
 
 rem TODO: Are you by any chance looking for something like the "alternate screen buffer"? You can enter it by emitting \x1b[?1049h and exit it by emitting \x1b[?1049l. All versions of Windows that are still officially supported support that sequence.
 
+rem  //// Hi,
+rem  //// 
+rem  //// I've completely foregone TCC's colors (except when it's more efficient to use them) in favor of just using ANSI coloring.
+rem  //// 
+rem  //// I invite you to check out my set-ansi.bat:
+rem  //// https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/set-ansi.bat
+rem  //// 
+rem  //// And also my set-emoji.bat (and emoji.env emoji list):
+rem  //// https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/set-emoji.bat
+rem  //// https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/emoji.env
+rem  //// 
+rem  //// Between the two, you get pretty much 100% of all possible VT100 functionality under TCC+Windows Terminal
+
+
+rem TIPS:  To set background color: echos %ANSI_BACKGROUND_BLUE%
+rem                     To Extend background color to the end of line:   add %ANSI_EOL% 
+
+rem TIPS:  To use random colors, try out the %@rainbow_string[] function or %@randfg[]/randfg_soft[]/randbg[]/randbg_soft[] functions 
+rem TIPS:  To use specific RGB colors, try out %@ansi_rgb_fg[255,0,0] for red foreground or %@ansi_rgb_bg[0,0,255] for blue background
+rem TIPS:  To reset colors, just add %ANSI_RESET%
+rem TIPS:               If you've used obscure ansi codes to actually hardcode an RGB value for foreground and background colors or to change the cursor to a non-defualt shape or color, just add %ANSI_RESET_FULL%
+
+rem TIPS:  Use things like %UNDERLINE_ON% %italics_off%  %strikethroug_on%  etc
+
+rem TIPS:  Try out the fun %@cool[] and %@cursive[] functions for fun characters ... As well as %@bold[] but it only works for numbers
+rem TIPS:  Try out the fun cursor color/shape changing functions
+
+rem TIPS:  Try out some fun character-subtituters like:
+rem                 echo %@sans_serif_number[01234567890]=01234567890 
+rem                 echo       %@cool_number[0123467890]=𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘
+
 
 
 :——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
 :USED-BY:     this is run each time our command-line is launched, via environm.btm, which is called from TCStart.bat, which is automatically run each time a TCC command-line window/tab/pane is openened
 :DESCRIPTION: Creates a set of environment variables that can be used for messaging improvement
 :USAGE:       call set-ansi                  - standard invocation
@@ -19,6 +49,9 @@ rem TODO: Are you by any chance looking for something like the "alternate screen
 :RELATED:     redefine-the-color-black-randomly.bat (gives each command-line window a slightly different shade of black to make window edges easier to see)
 :——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+
+rem CONFIGURATION:
+        set ENABLE_STRIPANSI=1          %+ rem Certain things here require a plugin to strip ansi codes, set this to 0 if you don't want that
 
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -945,43 +978,120 @@ rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE G
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-rem ************* TOYS:  *************
-rem ************* TOYS:  *************
+rem ************* TOYS: BEGIN: *************
+rem ************* TOYS: BEGIN: *************
+rem ************* TOYS: BEGIN: *************
+rem ************* TOYS: BEGIN: *************
+rem ************* TOYS: BEGIN: *************
 
 
+        rem ——————— rainbow colored text ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+        rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩🟦 
         rem Return a string with every character in a *tolerable* ("soft") random color:
                 function random_color_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
-                function     colorful_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
-                function            colorful=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
+                function     colorful_string=`%@random_color_string[%1$]`
+                function            colorful=`%@random_color_string[%1$]`
+                function      rainbow_string=`%@random_color_string[%1$]`
+                function             rainbow=`%@random_color_string[%1$]`
 
+        rem ——————— cool digit character substitutions ———————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+        rem 𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘 
         rem Change a single digit into the cool version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' [[[cool_1,cool_2,...,cool_9 (and some random characters, like COOL_S) are defined in emoji.env]]]: 
                 function  cool_digit_plain=`%[cool_%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
                 function  cool_char_plain=`%@if[%1==" ",%@if[defined cool_%1,%[cool_%1],%1]`      %+ rem ...but let's allow ANY character to have a 'cool' version in emoji.env, though it's questionable how useful this is with environment variable naming limitations and case insensitivity
 
+                rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩
                 rem Now do it in a random color also:
                         function       cool_digit=`%@randfg_soft[]%[cool_%1]`
                         function  cool_char_plain=`%@randfg_soft[]%@if[defined cool_%1,%[cool_%1],%1]`              
 
-        rem Change many digits into the cool version of each digit:
-                function cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1$]]]]]]]]]]`
+                rem 𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘 
+                rem Change many digits into the cool version of each digit:
+                        function    cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1$]]]]]]]]]]`
+
+                rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩🟦 
                 rem Now do it in a random color also:
-                        function cool_number=`%@random_color_string[%@cool_number_plain[%1$]]`
+                function cool_number_colorful=`%@random_color_string[%@cool_number_plain[%1$]]`
+                function  cool_number_rainbow=`%@cool_number_colorful[%1$]`
+
+                rem And set our main function to the one we want:
+                function cool_number=`%@cool_number_colorful[%1$]`
 
 
-                        function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,Ṡ,%@REPLACE[f,ƒ,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
-                        function cool_string_rainbow=`%@random_color_string[%@cool_string_plain[%1$]]`
-                        function         cool_string=`%@random_color_string[%@cool_string_plain[%1$]]`
+        rem ——————— cool full-string any-character subtitutions ——————————————————————————————————————————————————————————————————————————————————————————————————
+
+        rem Replace some characters with the cooler emoji version:
+        function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,Ṡ,%@REPLACE[f,ƒ,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
+
+                        function cool_string_colorful=`%@random_color_string[%@cool_string_plain[%1$]]`
+                        function  cool_string_rainbow=`%cool_string_colorful[%1$]`
+                        function          cool_string=`%cool_string_colorful[%1$]`
                         rem Alias:
-                                function cool=`%@cool_string[%1$]`
+                                function      cool=`%@cool_string[%1$]`
                                 function cool_text=`%@cool_string[%1$]`
                         rem Experimental:
                                 function cool_string_lookup_only=`%@REReplace[([^\s]),%@randFG_soFt[]%@cool_char_plain[\1],%1$]` %+ rem EXPERIMENTAL
 
-function  cursive_upper=`%@if[%@ASCII[%1] ge 65 .and. %@ASCII[%1] le  90,%@CHAR[55349]%@CHAR[%@EVAL[56463+%@ASCII[%1]]],%1]`
-function  cursive_lower=`%@if[%@ASCII[%1] ge 97 .and. %@ASCII[%1] le 122,%@CHAR[55349]%@CHAR[%@EVAL[56457+%@ASCII[%1]]],%1]`
-function cursive_letter=`%@if[%@ASCII[%1] ge 65 .and. %@ASCII[%1] le  90,%@CHAR[55349]%@CHAR[%@EVAL[56463+%@ASCII[%1]]],]%@if[%@ASCII[%1] ge 97 .and. %@ASCII[%1] le 122,%@CHAR[55349]%@CHAR[%@EVAL[56457+%@ASCII[%1]]],]`  %+ rem todo put %1 at end again 
-function cursive_maybe_letter=`%@if[%@ASCII[%1] ge 65 .and. %@ASCII[%1] le  90  .or.   %@ASCII[%1] ge 97 .and. %@ASCII[%1] le 122,%@CURSIVE_LETTER[%1],%1]`
-function cursive=`%@REReplace[([A-Za-z]),%%@cursive_maybe_letter[\1],%1$]`
+
+        rem ——————— "sand serif bold" digits (𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬) quite different from normal (1234567890) 
+
+        rem 𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬 𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬  𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬  𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬  𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬  𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬 
+        rem Change a single digit into the "sans serif" version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' [[[sans_serif_1,sans_serif_2,...,sans_serif_9 (and possibly later some random characters, like sans_serif_S for example) are defined in emoji.env]]]: 
+                function  sans_serif_digit_plain=`%[sans_serif_%1]`                                                %+ rem sans_serif_0 through sans_serif_9 (and some random characters, like sans_serif_S) are defined in emoji.env      
+                function  sans_serif_char_plain=`%@if[%1==" ",%@if[defined sans_serif_%1,%[sans_serif_%1],%1]`      %+ rem ...but let's allow ANY character to have a 'cool' version in emoji.env, though it's questionable how useful this is with environment variable naming limitations and case insensitivity
+
+        rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩
+        rem Now do it in a random color also:
+                function  sans_serif_digit_colorful=`%@randfg_soft[]%[sans_serif_%1]`
+                function   sans_serif_digit_rainbow=`%@sans_serif_digit_colorful[%1$]`
+                function      sans_serif_char_plain=`%@if[defined sans_serif_%1,%[sans_serif_%1],%1]`              
+
+        rem 𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘 
+        rem Now do it for an entire sring:
+                function sans_serif_number_plain=`%@REPLACE[0,%@sans_serif_digit_plain[0],%@REPLACE[9,%@sans_serif_digit_plain[9],%@REPLACE[8,%@sans_serif_digit_plain[8],%@REPLACE[7,%@sans_serif_digit_plain[7],%@REPLACE[6,%@sans_serif_digit_plain[6],%@REPLACE[5,%@sans_serif_digit_plain[5],%@REPLACE[4,%@sans_serif_digit_plain[4],%@REPLACE[3,%@sans_serif_digit_plain[3],%@REPLACE[2,%@sans_serif_digit_plain[2],%@REPLACE[1,%@sans_serif_digit_plain[1],%1$]]]]]]]]]]`
+
+        rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩🟦 
+        rem Now do it in a random color also:
+                function sans_serif_number_colorful=`%@random_color_string[%@sans_serif_number_plain[%1$]]`
+                function  sans_serif_number_rainbow=`%@sans_serif_number_colorful[%1$]`
+
+        rem Now set our main function to use all of this:
+                function sans_serif_number=`%@sans_serif_number_colorful[%1$]`
+
+
+
+        rem ——————— cursive lettering! ——————————————————————————————————————————————————————————————————————————————————————————————————
+
+                rem Cursor uppercase and lowercase sets are a different distance apart from each other than the ASCII ones!
+                        rem 𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩
+                        function  cursive_upper=`%@if[%@ASCII[%1] ge 65 .and. %@ASCII[%1] le  90,%@CHAR[55349]%@CHAR[%@EVAL[56463+%@ASCII[%1]]],%1]`
+                        function  cursive_lower=`%@if[%@ASCII[%1] ge 97 .and. %@ASCII[%1] le 122,%@CHAR[55349]%@CHAR[%@EVAL[56457+%@ASCII[%1]]],%1]`
+   
+                rem Cursive *any* character —— uses cursive_upper and cursive_lower when appropriate
+                        rem 𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃           𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃          𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃
+                        function cursive_maybe_letter=`%@if[%@ASCII[%1] ge 65 .and. %@ASCII[%1] le  90  .or.   %@ASCII[%1] ge 97 .and. %@ASCII[%1] le 122,%@CURSIVE_LETTER[%1],%1]`
+
+                rem Cursive any string:
+                rem 𝓒𝓾𝓻𝓼𝓲𝓿𝓮 𝓪𝓷𝔂 𝓼𝓽𝓻𝓲𝓷𝓰:
+                rem     𝓯𝓾𝓷𝓬𝓽𝓲𝓸𝓷  𝓬𝓾𝓻𝓼𝓲𝓿𝓮_𝓼𝓽𝓻𝓲𝓷𝓰=`%@𝓡𝓮𝓡𝓮𝓹𝓵𝓪𝓬𝓮 [(𝓐-𝓩𝓪-𝔃]), %%@𝓬𝓾𝓻𝓼𝓲𝓿𝓮_𝓶𝓪𝔂𝓫𝓮_𝓵𝓮𝓽𝓽𝓮𝓻[\1],%1$]`
+                        function cursive_string=`%@REReplace[([A-Za-z]),%%@cursive_maybe_letter[\1],%1$]`
+
+                rem 🌈🌈🌈 Cursive any string, but in rainbow: 🌈🌈🌈
+                        function cursive_string_colorful=`%@colorful_string[%@cursive_string[%1$]]`
+                        function  cursive_string_rainbow=`%@cursive_string_rainbow[%1$]`
+
+                rem Set our main cursive function —— using the colorful one honestly helps distinguish the awkawrdly-kerned, non-ligatured cursive rendering:
+                        function cursive=`%@cursive_string_colorful[%1$]`
+
+rem ************* TOYS: END^ *************
+rem ************* TOYS: END^ *************
+rem ************* TOYS: END^ *************
+rem ************* TOYS: END^ *************
+rem ************* TOYS: END^ *************
+
+
 
 
 
@@ -1085,7 +1195,7 @@ rem       COLOR_{MESSAGETYPE}_HEX ————— WHERE USED: Used in the cursor
                                                                    set      COLOR_WARNING_LESS_HEX=a8a800
                                                                    set      COLOR_WARNING_SOFT_HEX=a8a800
 
-rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+rem —————— Grep coloring ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 rem 1) Custom colors for GREP   —— makes finding your matches a LOT useable
 rem 2) Custom colors for HILITE —— a separate command for grep that simply highlights matches (and shows ALL lines), super useful
@@ -1106,7 +1216,7 @@ rem —————————————————————————�
 
 rem Function to strip ansi from strings —— regex to strip ansi is '(\x9B|\x1B\[)[0-?] *[ -\/]*[@-~]' 
 rem This is loaded in our environm.btm as well, but we like to double-check when running set-ansi:
-    call c:\bat\load-TCC-plugins.bat
+    if %ENABLE_STRIPANSI eq 1 (call c:\bat\load-TCC-plugins.bat)
     rem ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ does (1): plugin /L c:\bat\4wt.dll
     rem ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ does (2): plugin /L c:\bat\StripAnsi.dll —— which is the function we sometimes need, but don't have without the DLL:
     :StripAnsiTest

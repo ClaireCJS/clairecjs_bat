@@ -411,11 +411,21 @@ rem Get massaged names for next section's check:
         rem Massage some problematic subsets of these fields:
         rem 1) Remove things in parenthesis
         rem 2) remove "The "
-                set      FILE_ARTIST_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_ARTIST%]]
-                set FILE_ORIG_ARTIST_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_ORIG_ARTIST%]]
-                set       FILE_ALBUM_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_ALBUM%]]
-                set        FILE_SONG_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_SONG%]]
-                set       FILE_TITLE_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_SONG%]]
+                rem set      FILE_ARTIST_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_ARTIST%]]
+                rem set FILE_ORIG_ARTIST_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_ORIG_ARTIST%]]
+                rem set       FILE_ALBUM_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_ALBUM%]]
+                rem set        FILE_SONG_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_SONG%]]
+                rem set       FILE_TITLE_MASSAGED=%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%FILE_SONG%]]
+                rem Let's test with functions!
+                function massageLyricGetValueOLD=`%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%1$]]`
+                function massageLyricGetValue=`%@ReReplace[^.*My Little Pony.*$,My Little Pony,%@ReReplace["\([^\)]*\)",,%@ReReplace[^The ,,%1$]]]`
+
+                set      FILE_ARTIST_MASSAGED=%@massageLyricGetValue[%FILE_ARTIST%     ]
+                set FILE_ORIG_ARTIST_MASSAGED=%@massageLyricGetValue[%FILE_ORIG_ARTIST%]
+                set       FILE_ALBUM_MASSAGED=%@massageLyricGetValue[%FILE_ALBUM%      ]
+                set        FILE_SONG_MASSAGED=%@massageLyricGetValue[%FILE_SONG%       ]
+                set       FILE_TITLE_MASSAGED=%@massageLyricGetValue[%FILE_SONG%       ]
+                
                 rem call debug "(13) Massaged: %TAB%   artist=%italics_on%%FILE_ARTIST_MASSAGED%=%italics_off%%newline%%TAB%%tab%%tab%%tab%         title=%italics_on%%FILE_SONG_MASSAGED%=%italics_off%%newline%%TAB%%tab%%tab%%tab%         album=%italics_on%%FILE_album_MASSAGED%=%italics_off%"
 
 

@@ -1,7 +1,7 @@
 @Echo OFF
 
 rem Validate Enviroment:
-        call validate-environment-variable filemask_audio check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py
+        call validate-environment-variable filemask_audio check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py fast_cat
 
 rem Parameter stuff:
         set PARAMS=%*
@@ -14,7 +14,8 @@ rem Make filelist to use as input:
 
 rem Check for songs missing sidecar TXT files :
         echo.
-        check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py %FILELIST% *.srt createsrtfilewrite %* |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING LYRICS %ANSI_RESET% %EMOJI_WARNING% %DASH% "
+        rem fast_cat fixes ANSI rendering errors between TCC/WT:
+        check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py %FILELIST% *.srt createsrtfilewrite %* |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING LYRICS %ANSI_RESET% %EMOJI_WARNING% %DASH% " |:u8 fast_cat
 
 rem While we're here, do some cleanup:
         if exist *.json (del *.json)
