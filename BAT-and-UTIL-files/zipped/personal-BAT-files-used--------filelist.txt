@@ -96,7 +96,7 @@
 2024-10-18  14:52          7,723   63%  bedtime.btm
 2024-10-23  00:58          4,249   71%  beep.bat
 2024-10-21  15:18         12,110   75%  before.bat
-2024-10-16  02:09          3,363   63%  bigecho.bat
+2024-11-06  17:33          3,419   63%  bigecho.bat
 2024-10-21  14:30             26   -7%  blacklights-off.bat
 2023-06-08  07:00            211   30%  blacklights-on.bat
 2024-05-06  07:02             47    0%  bluetooth-batteries.bat
@@ -755,7 +755,7 @@
 2023-06-08  23:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  11:10            597   52%  set-all-screens-to-black.py
 2024-08-20  08:37             21   -9%  set-all_colors.bat
-2024-11-05  19:20        115,605   82%  set-ansi.bat
+2024-11-06  17:21        118,132   82%  set-ansi.bat
 2024-05-02  19:17            667   64%  set-automatic-login-to-windows-OFF.bat
 2024-10-04  08:36          1,804   70%  set-automatic-login-to-windows-ON.bat
 2019-10-01  11:27            120   16%  set-background-picture-for-johnsbackgroundswitcher.bat
@@ -806,7 +806,7 @@
 2024-06-13  20:46            747   69%  snipping-tool.bat
 2019-10-01  11:28            949   51%  sort-by-human-readable-size.pl
 2019-10-01  11:28             71   16%  sort-by-line-length.pl
-2024-11-05  23:52             50    2%  sort-clipboard.bat
+2024-11-06  17:09            107   25%  sort-clipboard.bat
 2023-10-03  21:33          5,636   75%  sort-pictures-into-folders-helper.pl
 2023-10-14  03:49            933   54%  sort-pictures-into-folders.bat
 2023-05-30  12:07            501   44%  sort.bat
@@ -842,7 +842,7 @@
 2024-09-07  14:12             68    8%  startafter1secondpause.bat
 2024-09-07  14:12            197   31%  startafter1secondpausewithexitafter.bat
 2024-09-07  14:23            501   40%  stop-milkdrop.bat
-2024-05-23  09:07            129   38%  stop-minilyrics.bat
+2024-11-06  15:48            165   36%  stop-minilyrics.bat
 2022-07-18  16:03             44   -4%  stop-windows-11-automatic-repair-mode.bat
 2019-10-01  11:28             18  -11%  stop-windows-update-reboot-nag.bat
 2024-05-07  15:05             22   -9%  stop.bat

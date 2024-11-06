@@ -1,4 +1,5 @@
 @echo off
+echo.
 
 :DESCRIPTION: Uses DEC VT100 ANSI codes to echo a line in double-height text
 
@@ -17,10 +18,11 @@ rem Validate environment
             set BIGECHO_VALIDATED=1
         )
 
-rem If it's too wide (which arbitrarily seems to be longer than 8 wide-width chars from the edge of screen) to display without the line-split bug
-rem then simply revert back to echo'ing the command in normal/single-height lines...
+rem If it's too wide  then simply revert back to echo'ing the command in normal/single-height lines...
         set LEN=%@LEN[%@stripansi[%PARAMS]]
-        if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS-16] (echo %* %+ goto :END)
+
+rem This false positives to not-double-height on unicode/characters that are hard to measure the width of accurately and which report lenghts greater than printable length...
+        if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS]    (echo %* %+ goto :END)
 
 setdos /x-678
 

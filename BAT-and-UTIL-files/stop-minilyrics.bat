@@ -4,4 +4,5 @@
     echo.
     echo.
     call important "Killing MiniLyrics..."
-    call killIfRunning  MiniLyrics  MiniLyrics
+    rem call killIfRunning  MiniLyrics  MiniLyrics
+    kill /f minilyrics* >&>nul

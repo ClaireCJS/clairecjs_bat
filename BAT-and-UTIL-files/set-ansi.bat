@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo Off
 
 rem TODO: Are you by any chance looking for something like the "alternate screen buffer"? You can enter it by emitting \x1b[?1049h and exit it by emitting \x1b[?1049l. All versions of Windows that are still officially supported support that sequence.
 
@@ -1059,24 +1059,39 @@ rem ************* TOYS: BEGIN: *************
 
                 rem Cursor uppercase and lowercase sets are a different distance apart from each other than the ASCII ones!
                         rem 𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩
-                        function  cursive_upper=`%@if[%@ASCII[%1] ge 65 .and. %@ASCII[%1] le  90,%@CHAR[55349]%@CHAR[%@EVAL[56463+%@ASCII[%1]]],%1]`
-                        function  cursive_lower=`%@if[%@ASCII[%1] ge 97 .and. %@ASCII[%1] le 122,%@CHAR[55349]%@CHAR[%@EVAL[56457+%@ASCII[%1]]],%1]`
+                        function  cursive_upper=`%@if[%@ASCII[%@left[1,%1]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[55349]%@CHAR[%@EVAL[56463+%@ASCII[%@left[1,%1]]]],%@left[1,%1]]`
+                        function  cursive_lower=`%@if[%@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[55349]%@CHAR[%@EVAL[56457+%@ASCII[%@left[1,%1]]]],%@left[1,%1]]`
    
                 rem Cursive *any* character —— uses cursive_upper and cursive_lower when appropriate
                         rem 𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃           𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃          𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃
-                        function cursive_maybe_letter=`%@if[%@ASCII[%1] ge 65 .and. %@ASCII[%1] le  90  .or.   %@ASCII[%1] ge 97 .and. %@ASCII[%1] le 122,%@CURSIVE_LETTER[%1],%1]`
+                        function  cursive_letter_only=`%@if[%@ASCII[%@left[1,%1]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[55349]%@CHAR[%@EVAL[56463+%@ASCII[%@left[1,%1]]]],]%@if[%@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[55349]%@CHAR[%@EVAL[56457+%@ASCII[%@left[1,%1]]]],]`
+                        function       cursive_letter=`%@if[%@ASCII[%@left[1,%1]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90  .or.   %@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CURSIVE_LETTER_ONLY[%@left[1,%1]],%@left[1,%1]]`
+
 
                 rem Cursive any string:
                 rem 𝓒𝓾𝓻𝓼𝓲𝓿𝓮 𝓪𝓷𝔂 𝓼𝓽𝓻𝓲𝓷𝓰:
                 rem     𝓯𝓾𝓷𝓬𝓽𝓲𝓸𝓷  𝓬𝓾𝓻𝓼𝓲𝓿𝓮_𝓼𝓽𝓻𝓲𝓷𝓰=`%@𝓡𝓮𝓡𝓮𝓹𝓵𝓪𝓬𝓮 [(𝓐-𝓩𝓪-𝔃]), %%@𝓬𝓾𝓻𝓼𝓲𝓿𝓮_𝓶𝓪𝔂𝓫𝓮_𝓵𝓮𝓽𝓽𝓮𝓻[\1],%1$]`
-                        function cursive_string=`%@REReplace[([A-Za-z]),%%@cursive_maybe_letter[\1],%1$]`
+                        function cursive_string=`%@ReReplace[([A-Za-z]),%%@cursive_letter[\1],%1$]`
+                        function  cursive_plain=`%@cursive_string[%1$]`
 
                 rem 🌈🌈🌈 Cursive any string, but in rainbow: 🌈🌈🌈
-                        function cursive_string_colorful=`%@colorful_string[%@cursive_string[%1$]]`
-                        function  cursive_string_rainbow=`%@cursive_string_rainbow[%1$]`
+                        function cursive_string_colorful=`%@colorful_string[%@cursive_string[%1$]]%ansi_reset%`
+                        function  cursive_string_rainbow=`%@cursive_string_colorful[%1$]`
 
                 rem Set our main cursive function —— using the colorful one honestly helps distinguish the awkawrdly-kerned, non-ligatured cursive rendering:
                         function cursive=`%@cursive_string_colorful[%1$]`
+
+                rem Testing:
+                    goto :testing_skip_1
+bigecho %@cursive_lower[A] %@cursive_lower[a] %@cursive_lower[1] %@cursive_lower[Heinz 57 VARIETY]
+bigecho %@cursive_upper[A] %@cursive_upper[a] %@cursive_upper[1] str:%@cursive_upper[Heinz 57 VARIETY]
+bigecho %@cursive_letter_only[A] %@cursive_letter_only[a] %@cursive_letter_only[1] str:%@cursive_letter_only[Heinz 57 VARIETY]
+bigecho %@cursive_letter[A] %@cursive_letter[a] %@cursive_letter[1] str:%@cursive_letter[Heinz 57 VARIETY]
+bigecho %@cursive_string[A] %@cursive_string[a] %@cursive_string[1] str:%@cursive_string[Heinz 57 VARIETY]
+bigecho %@cursive_string_rainbow[A] %@cursive_string_rainbow[a] %@cursive_string_rainbow[1] str:%@cursive_string_rainbow[Heinz 57 VARIETY]
+                    goto :END
+                    :testing_skip_1
+
 
 rem ************* TOYS: END^ *************
 rem ************* TOYS: END^ *************
@@ -1255,6 +1270,24 @@ rem If we're running our tests, do them now that we are done:
                     call bigecho        "      %@cool[      cool digits: 0123456789]"
                     call bigecho "%@sans_serif_string[sans serif digits: 0123456789]"
                     call bigecho %@cursive[Cursive testing OH YEAH!!]
+
+
+                rem Cursive any string:
+                rem 𝓒𝓾𝓻𝓼𝓲𝓿𝓮 𝓪𝓷𝔂 𝓼𝓽𝓻𝓲𝓷𝓰:
+                rem     𝓯𝓾𝓷𝓬𝓽𝓲𝓸𝓷  𝓬𝓾𝓻𝓼𝓲𝓿𝓮_𝓼𝓽𝓻𝓲𝓷𝓰=`%@𝓡𝓮𝓡𝓮𝓹𝓵𝓪𝓬𝓮 [(𝓐-𝓩𝓪-𝔃]), %%@𝓬𝓾𝓻𝓼𝓲𝓿𝓮_𝓶𝓪𝔂𝓫𝓮_𝓵𝓮𝓽𝓽𝓮𝓻[\1],%1$]`
+                        function cursive_string=`%@REReplace[([A-Za-z]),%%@cursive_maybe_letter[\1],%1$]`
+                        function  cursive_plain=`%@cursive_string[%1$]`
+
+                rem 🌈🌈🌈 Cursive any string, but in rainbow: 🌈🌈🌈
+                        function cursive_string_colorful=`%@colorful_string[%@cursive_string[%1$]]`
+                        function  cursive_string_rainbow=`%@cursive_string_rainbow[%1$]`
+
+                rem Set our main cursive function —— using the colorful one honestly helps distinguish the awkawrdly-kerned, non-ligatured cursive rendering:
+                        function cursive=`%@cursive_string_colorful[%1$]`
+
+
+
+                    @echo off
                         
         endiff
 
