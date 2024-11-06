@@ -100,7 +100,7 @@ rem Give a chance to stop here...
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
 rem Make sure they're all added —— any new extensions that we add to our project, need to be added here:
-        call git add LICENSE README.md .gitattributes .gitignore BAT-and-UTIL-files\*.bat BAT-and-UTIL-files\*.btm BAT-and-UTIL-files\*.pl BAT-and-UTIL-files\*.py BAT-and-UTIL-files\*.exe BAT-and-UTIL-files\*.lst BAT-and-UTIL-files\*.ahk BAT-and-UTIL-files\*.ini BAT-and-UTIL-files\*.zip BAT-and-UTIL-files\*.gml BAT-and-UTIL-files\*.ansi BAT-and-UTIL-files\*.jpg BAT-and-UTIL-files\*.png BAT-and-UTIL-files\*.gif BAT-and-UTIL-files\*.midi BAT-and-UTIL-files\*.wav BAT-and-UTIL-files\*.dat BAT-and-UTIL-files\*.dll BAT-and-UTIL-files\*.json BAT-and-UTIL-files\*.lnk BAT-and-UTIL-files\*.ico go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat 
+        call git add LICENSE README.md .gitattributes .gitignore BAT-and-UTIL-files\*.bat BAT-and-UTIL-files\launchkey.* BAT-and-UTIL-files\*.btm BAT-and-UTIL-files\*.pl BAT-and-UTIL-files\*.py BAT-and-UTIL-files\*.exe BAT-and-UTIL-files\*.lst BAT-and-UTIL-files\*.ahk BAT-and-UTIL-files\*.ini BAT-and-UTIL-files\*.zip BAT-and-UTIL-files\*.gml BAT-and-UTIL-files\*.ansi BAT-and-UTIL-files\*.jpg BAT-and-UTIL-files\*.png BAT-and-UTIL-files\*.gif BAT-and-UTIL-files\*.midi BAT-and-UTIL-files\*.wav BAT-and-UTIL-files\*.dat BAT-and-UTIL-files\*.dll BAT-and-UTIL-files\*.json BAT-and-UTIL-files\*.lnk BAT-and-UTIL-files\*.ico go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat 
 
 rem Commit and Push:
         echo.
