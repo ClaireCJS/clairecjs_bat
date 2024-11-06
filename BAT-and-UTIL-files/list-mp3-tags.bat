@@ -1,1 +1,1 @@
-metamp3 --info *.mp3
+@call display-mp3-tags %*

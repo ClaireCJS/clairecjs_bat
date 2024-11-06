@@ -941,13 +941,6 @@ REM keyboard LED controls [do not work]:
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-REM test strings that demonstrate a lot of this ANSI functionality [mostly 1st-wave stuff, movement is not tested for example]
-        set ANSI_TEST_STRING=concealed:'%CONCEAL_ON%conceal%CONCEAL_off%' %ANSI_RED%R%ANSI_ORANGE%O%ANSI_YELLOW%Y%ANSI_GREEN%G%ANSI_CYAN%C%ANSI_BLUE%B%ANSI_MAGENTA%V%ANSI_WHITE% Hello, world. %BOLD%Bold!%BOLD_OFF% %FAINT%Faint%FAINT_OFF% %ITALICS%Italics%ITALIC_OFF% %UNDERLINE%underline%UNDERLINE_OFF% %OVERLINE%overline%OVERLINE_OFF% %DOUBLE_UNDERLINE%double_underline%DOUBLE_UNDERLINE_OFF% %REVERSE%reverse%REVERSE_OFF% %BLINK_SLOW%blink_slow%BLINK_SLOW_OFF% [non-blinking] %BLINK_FAST%blink_fast%BLINK_FAST_OFF% [non-blinking] %blink%blink_default%blink_off% [non-blinking] %STRIKETHROUGH%strikethrough%STRIKETHROUGH_OFF%
-        set ANSI_TEST_STRING_2=%BIG_TEXT_LINE_1%big% %ANSI_RESET% Normal One%PENTAGRAM%
-        set ANSI_TEST_STRING_3=%BIG_TEXT_LINE_2%big% %ANSI_RESET% Normal Two%PENTAGRAM%
-        set ANSI_TEST_STRING_4=%WIDE_LINE%A wide line!%PENTAGRAM%
-
-rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
 rem /////////////// THIS MARKS THE END OF MOST ANSI-STANDARD, STUFF.... NOW WE GO ON TO BUILD EXTRA THINGS OFF OF THAT  ////////////////
@@ -1023,16 +1016,19 @@ rem ************* TOYS: BEGIN: *************
         rem ——————— cool full-string any-character subtitutions ——————————————————————————————————————————————————————————————————————————————————————————————————
 
         rem Replace some characters with the cooler emoji version:
-        function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,Ṡ,%@REPLACE[f,ƒ,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
+            function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,Ṡ,%@REPLACE[f,ƒ,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
 
-                        function cool_string_colorful=`%@random_color_string[%@cool_string_plain[%1$]]`
-                        function  cool_string_rainbow=`%cool_string_colorful[%1$]`
-                        function          cool_string=`%cool_string_colorful[%1$]`
-                        rem Alias:
-                                function      cool=`%@cool_string[%1$]`
-                                function cool_text=`%@cool_string[%1$]`
-                        rem Experimental:
-                                function cool_string_lookup_only=`%@REReplace[([^\s]),%@randFG_soFt[]%@cool_char_plain[\1],%1$]` %+ rem EXPERIMENTAL
+        rem Colorful versions:
+            function cool_string_colorful=`%@random_color_string[%@cool_string_plain[%1$]]`
+            function  cool_string_rainbow=`%@cool_string_colorful[%1$]`
+
+        rem Set the main cool function:
+                function cool_string=`%@cool_string_colorful[%1$]`
+                function        cool=`%@cool_string[%1$]`
+                function   cool_text=`%@cool_string[%1$]`
+
+        rem Experimental:
+                function cool_string_lookup_only=`%@REReplace[([^\s]),%@randFG_soFt[]%@cool_char_plain[\1],%1$]` %+ rem EXPERIMENTAL
 
 
         rem ——————— "sand serif bold" digits (𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬) quite different from normal (1234567890) 
@@ -1042,23 +1038,20 @@ rem ************* TOYS: BEGIN: *************
                 function  sans_serif_digit_plain=`%[sans_serif_%1]`                                                %+ rem sans_serif_0 through sans_serif_9 (and some random characters, like sans_serif_S) are defined in emoji.env      
                 function  sans_serif_char_plain=`%@if[%1==" ",%@if[defined sans_serif_%1,%[sans_serif_%1],%1]`      %+ rem ...but let's allow ANY character to have a 'cool' version in emoji.env, though it's questionable how useful this is with environment variable naming limitations and case insensitivity
 
-        rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩
-        rem Now do it in a random color also:
-                function  sans_serif_digit_colorful=`%@randfg_soft[]%[sans_serif_%1]`
-                function   sans_serif_digit_rainbow=`%@sans_serif_digit_colorful[%1$]`
-                function      sans_serif_char_plain=`%@if[defined sans_serif_%1,%[sans_serif_%1],%1]`              
-
-        rem 𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘 
-        rem Now do it for an entire sring:
+        rem Now do it for an entire string:
+        rem Hello! 𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬 
                 function sans_serif_number_plain=`%@REPLACE[0,%@sans_serif_digit_plain[0],%@REPLACE[9,%@sans_serif_digit_plain[9],%@REPLACE[8,%@sans_serif_digit_plain[8],%@REPLACE[7,%@sans_serif_digit_plain[7],%@REPLACE[6,%@sans_serif_digit_plain[6],%@REPLACE[5,%@sans_serif_digit_plain[5],%@REPLACE[4,%@sans_serif_digit_plain[4],%@REPLACE[3,%@sans_serif_digit_plain[3],%@REPLACE[2,%@sans_serif_digit_plain[2],%@REPLACE[1,%@sans_serif_digit_plain[1],%1$]]]]]]]]]]`
 
-        rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩🟦 
+        rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩
         rem Now do it in a random color also:
+                function  sans_serif_digit_colorful=`%@randfg_soft[]%sans_serif_char_plain[%1]`
+                function   sans_serif_digit_rainbow=`%@sans_serif_digit_colorful[%1$]`        rem Now do it in a random color also:
                 function sans_serif_number_colorful=`%@random_color_string[%@sans_serif_number_plain[%1$]]`
                 function  sans_serif_number_rainbow=`%@sans_serif_number_colorful[%1$]`
 
         rem Now set our main function to use all of this:
-                function sans_serif_number=`%@sans_serif_number_colorful[%1$]`
+                function sans_serif_string=`%@sans_serif_number_colorful[%1$]`
+                function        sans_serif=`%@sans_serif_string[%1$]`
 
 
 
@@ -1150,7 +1143,7 @@ rem       COLOR_{MESSAGETYPE}_HEX ————— WHERE USED: Used in the cursor
 
 
         set COLOR_ADVICE=        color bright magenta on black  %+ set ANSI_COLOR_ADVICE=%ANSI_RESET%%ANSI_BRIGHT_MAGENTA%%ANSI_BACKGROUND_BLACK%%+ 
-                                                                   set      COLOR_ADVICE=FF0000
+                                                                   set      COLOR_ADVICE_HEX=FF0000
         SET COLOR_ALARM=         color bright white   on red    %+ set ANSI_COLOR_ALARM=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_RED%                         %+ set COLOR_ERROR=%COLOR_ALARM% %+ set ANSI_COLOR_ERROR=%ANSI_COLOR_ALARM% %+ set COLOR_FATAL_ERROR=%COLOR_ERROR% %+ SET ANSI_COLOR_FATAL_ERROR=%ANSI_COLOR_ALARM% %+ set COLOR_ERROR_FATAL=%COLOR_FATAL_ERROR% %+ set ANSI_COLOR_ERROR_FATAL=%ANSI_COLOR_FATAL_ERROR%
                                                                    set      COLOR_ALARM_HEX=FF0000
         SET COLOR_COMPLETION=    color bright white   on green  %+ set ANSI_COLOR_COMPLETION=%ANSI_RESET%%ANSI_BRIGHT_WHITE%%ANSI_BACKGROUND_GREEN%                  %+ set COLOR_CELEBRATION=%COLOR_COMPLETION% %+ set ANSI_COLOR_CELEBRATION=%ANSI_COLOR_COMPLETION%
@@ -1239,16 +1232,31 @@ rem We're done!
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 rem If we're running our tests, do them now that we are done:
-        if "%1" == "test" (
-            echo.
-            echo %ANSI_TEST_STRING_4%
-            echo %ANSI_TEST_STRING%
-            echo %ANSI_TEST_STRING_2%
-            echo %ANSI_TEST_STRING_3%
-            echo %newline%%newline%%emoji_nine_oclock%Normal line%ansi_reset%
-            echo %WIDE_LINE%%emoji_nine_oclock%wide line%@ANSI_BG_RGB[0,0,0]
-            call bigecho %emoji_nine_oclock%tall line
-        )
+        iff "%1" == "test" then
+
+
+            REM test strings that demonstrate a lot of this ANSI functionality [mostly 1st-wave stuff, movement is not tested for example]
+                    set ANSI_TEST_STRING_1=concealed:'%CONCEAL_ON%conceal%CONCEAL_off%' %ANSI_RED%R%ANSI_ORANGE%O%ANSI_YELLOW%Y%ANSI_GREEN%G%ANSI_CYAN%C%ANSI_BLUE%B%ANSI_MAGENTA%V%ANSI_WHITE% Hello, world. %BOLD%Bold!%BOLD_OFF% %FAINT%Faint%FAINT_OFF% %ITALICS%Italics%ITALIC_OFF% %UNDERLINE%underline%UNDERLINE_OFF% %OVERLINE%overline%OVERLINE_OFF% %DOUBLE_UNDERLINE%double_underline%DOUBLE_UNDERLINE_OFF% %REVERSE%reverse%REVERSE_OFF% %BLINK_SLOW%blink_slow%BLINK_SLOW_OFF% [non-blinking] %BLINK_FAST%blink_fast%BLINK_FAST_OFF% [non-blinking] %blink%blink_default%blink_off% [non-blinking] %STRIKETHROUGH%strikethrough%STRIKETHROUGH_OFF%
+                    set ANSI_TEST_STRING_2=%BIG_TEXT_LINE_1%big %ANSI_RESET%Normal One%PENTAGRAM% ('One' should look weird)
+                    set ANSI_TEST_STRING_3=%BIG_TEXT_LINE_2%big %ANSI_RESET%Normal Two%PENTAGRAM% ('Two' should look weird)
+                    set ANSI_TEST_STRING_4=%WIDE_LINE%A wide line!%PENTAGRAM%
+
+            REM print out our test:
+                    echo.
+                    echo %ANSI_TEST_STRING_4%
+                    echo %ANSI_TEST_STRING_1%
+                    echo %ANSI_TEST_STRING_2%
+                    echo %ANSI_TEST_STRING_3%
+                    echo %newline%%newline%%emoji_nine_oclock%Normal line%ansi_reset%
+                    echo %WIDE_LINE%%emoji_nine_oclock%wide line%@ANSI_BG_RGB[0,0,0]
+                    call bigecho %emoji_nine_oclock%tall line
+                    call bigecho                     "    normal digits: 0123456789"
+                    call bigecho   %@colorful_string["  colorful digits: 0123456789"]
+                    call bigecho        "      %@cool[      cool digits: 0123456789]"
+                    call bigecho "%@sans_serif_string[sans serif digits: 0123456789]"
+                    call bigecho %@cursive[Cursive testing OH YEAH!!]
+                        
+        endiff
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 

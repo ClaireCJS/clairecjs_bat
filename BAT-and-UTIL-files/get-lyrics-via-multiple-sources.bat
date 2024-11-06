@@ -537,8 +537,13 @@ rem Start our cleanup:
         :Cleanup
         rem (moved to very end)
 
-rem Create LRCs from SRTs:
-        srt2lrc.py
+
+
+rem While we're here, create LRCs from SRTs?:
+        rem Nah, we prefer to do this *after* making our SRT: 
+        rem srt2lrc.py
+
+
 
 rem Validate we did something:
         if %DEBUG gt 0 echo %ANSI_COLOR_DEBUG%- DEBUG: (30) iff not exist "%PREFERRED_TEXT_FILE_NAME%" 

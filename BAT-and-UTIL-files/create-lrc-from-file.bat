@@ -384,7 +384,7 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
         rem 13: adding --max_comma_cent 70
         set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70
 
-        rem 14 proposed: Purfview said add -hst 2 to stop the thing where one subtitle gets stuck on for a whollleeee solooooo —
+        rem 14 proposed: Purfview said add -hst 2 to stop the thing where one subtitle gets stuck on for a whollleeee solooooo — it is short for --hallucination_silence_threshold
         rem               Kinda wanna wait til i see one to find out if this fixes it
 
         rem --vad_dump 
