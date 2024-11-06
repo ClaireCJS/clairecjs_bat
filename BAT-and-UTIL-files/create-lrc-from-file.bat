@@ -1,9 +1,9 @@
 @Echo off
 
+rem TODO show lyrics prior to sRT for comparison! both can fit on screen now....
 
-rem TODO afterregen anyway, we need to ask about ecc2fasdfasf.bat
 rem TODO for flac, original artist can be under "Composer" so we should start checking for that
-
+rem TODO afterregen anyway, we need to ask about ecc2fasdfasf.bat
 rem TODO if lyrics are approved already, don't ask about them
 rem TODO maybe add NoLyrics mode to not consider lyrics?
 
@@ -196,6 +196,7 @@ REM if we already have a SRT file, we have a problem:
                                 @call AskYn "%faint_on%(5)%faint_off% Do the above lyrics look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                                 iff "%answer%" eq "Y" then
                                         rem Proceed with process
+                                        set LYRICS_ACCEPTABLE=1
                                 else
                                         ren /q "%TXT_FILE%" "%@NAME[%TXT_FILE%].txt.%_datetime.bak" >nul
                                         @call less_important "Okay, let's try fetching new lyrics"
@@ -664,6 +665,13 @@ rem Success SRT-generation message:
         if %SOLELY_BY_AI eq 1 (call warning "ONLY AI WAS USED. Lyrics were not used for prompting" silent)
 
 rem A chance to edit:
+        @echo.
+
+        iff 1 eq 1 then
+                @call divider
+                @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Lyrics:%underline_off%:
+                (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
+        endiff
         @call divider
         @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Transcription%underline_off%:
         @echo.
@@ -701,6 +709,7 @@ timer /5 off
 :Cleanup_Only
 :just_do_the_cleanup
         set MAKING_KARAOKE=0
+        unset /q LYRICS_ACCEPTABLE
         unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY
         if exist *collected_chunks*.wav (*del /q *collected_chunks*.wav >nul)
         if exist     *vad_original*.srt (*del /q     *vad_original*.srt >nul)

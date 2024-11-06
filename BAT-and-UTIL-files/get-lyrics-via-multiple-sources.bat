@@ -56,6 +56,7 @@ rem Remove any trash environment variables left over from a previously-aborted r
         unset /q WE_GOOGLED
         unset /q TRY_SELECTION_AGAIN
         unset /q ONLY_ONE_FILE_AND_IT_WAS_TRIED
+        set LYRICS_ACCEPTABLE=0
 
 rem VALIDATE ENVIRONMENT [once per session]:
         iff 1 ne %VALIDATED_GLVMS_ENV then
@@ -171,6 +172,7 @@ rem Check if we already have a TXT file in the same folder and shouldn't even be
 
                 call AskYn "(1) Do these lyrics %italics_on%we already have%italics_off% look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "%ANSWER%" eq "Y" then                        
+                        set LYRICS_ACCEPTABLE=1
                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                 else
                         echo %ansi_color_warning_soft%%star% Not using them, so let's remove them and try downloading...%ansi_color_normal%
@@ -201,6 +203,7 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 iff "%ANSWER%" eq "Y" then
                         *copy "%MAYBE_LYRICS_1%" "%PREFERRED_TEXT_FILE_NAME%" >nul
                         if not exist "%PREFERRED_TEXT_FILE_NAME%" (call error "Well. This shouldn't happen. #9234092340" %+ beep %+ pause %+ call exit-maybe)
+                        set LYRICS_ACCEPTABLE=1
                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                 else
                         call warning_soft "Not using them, then..."
@@ -221,6 +224,7 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 call AskYn "(3) Do these look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "%ANSWER%" eq "Y" then
                         *copy "%MAYBE_LYRICS_2%" "%PREFERRED_TEXT_FILE_NAME%"
+                        set LYRICS_ACCEPTABLE=1
                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                 else
                         call warning_soft "Not using them, then..."
@@ -276,6 +280,7 @@ rem If we still didn't find anything acceptable, but have potentially matching f
                         iff not exist "%PREFERRED_TEXT_FILE_NAME%" then
                                 call error "PREFERRED_TEXT_FILE_NAME of %PREFERRED_TEXT_FILE_NAME% doesn't exist and should"
                         endiff
+                        set LYRICS_ACCEPTABLE=1
                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                 else
                         call important_less "We have rejected this set of lyrics"
@@ -396,6 +401,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                         @call AskYn "%faint_on%(6)%faint_off% Do these %italics_on%downloaded%italics_off% lyrics for '%italics_on%%FILE_song_TO_USE%%italics_off%' by '%italics_on%%FILE_artist_TO_USE%%italics_off%' look acceptable" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%   %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                         iff "%ANSWER%" eq "Y" then
                                 rem oops this waqsn't happening and it turns out we don't need it: *del /q "%PREFERRED_TEXT_FILE_NAME%" >nul
+                                set LYRICS_ACCEPTABLE=1
                                 goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                         else
                                 rem Continue on but delete the file to indicate its rejection
@@ -528,6 +534,14 @@ rem Final change to hand-edit the lyrics, but skip it if we already opted to sea
                 %EDITOR%     "%PREFERRED_TEXT_FILE_NAME%"
                 @input /c /w0 %%This_Line_Clears_The_Character_Buffer
                 call pause-for-x-seconds %LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS% "%ansi_color_bright_yellow%%pencil% Hit a key when done editing lyrics... %faint_on%(leave blank if none found)%faint_off% %pencil% %ansi_color_normal%"
+
+                rem TODO show the lyrics again? But if we are hand-editing them, we should know what we are editing so kinda redundant
+                call AskYn "Are the post-hand-edited lyrics now acceptable"  no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME%
+                if "%answer%" eq "Y" then 
+                        set LYRICS_ACCEPTABLE=1
+                endiff
+
+
         endiff
         unset /q WE_GOOGLED
 

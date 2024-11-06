@@ -33,7 +33,7 @@ foreach my $arg (@ARGV) {
     } elsif ($arg eq '-A') {
         $ALL_LINES_MODE = 1;
     } else {
-        die "Unknown argument: $arg\n";
+        die "\n\n\nUnknown argument: $arg\n\n\nUSAGE:\n\t-1 for smushing into 1 line\n\t-A to show ALL lines not just unique lines\n\t-L for downloaded-lyric postprocessing";
 		usage();
 		exit 1;
     }
@@ -43,6 +43,10 @@ my $key;
 my $to_print;
 my %seen;
 my @lines;
+my $test;
+my $test1;
+my $test2;
+my $original_line;
 if ($LYRICS_MODE) {
 	$artist = $ENV{FILE_ARTIST} || "";
 	$title  = $ENV{FILE_TITLE } || "";
@@ -52,6 +56,7 @@ while (<STDIN>) {
 	#massage the line
     my $line = $_; 
 	$line =~ s/\n//ig;		#get rid of newline
+	my $original_line=$line;
 
 	if ($LYRICS_MODE) {
 		#formatting
@@ -60,11 +65,12 @@ while (<STDIN>) {
 		$line =~ s/^-+//;					#get rid of lines like: ---------------
 
 		#content
-		$line =~ s/\[(Intro|Verse|Pre-Chorus|Refrain|Chorus|Instrumental Break|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*\]//i;
+		$line =~ s/\[?(Intro|Verse|Pre-Chorus|Refrain|Chorus|Instrumental Break|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*\]?//i;
 		$line =~ s/\*? (No|\[(duble|metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z\d]+lyrics[a-z\d]*|\[[a-z0-9]+ )\]) filter used//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
 		$line =~ s/Get tickets as low as \$[\d\.]+//i;
+
 
 
 		#TODO: deal with these:
@@ -108,9 +114,9 @@ while (<STDIN>) {
 	#handle whether we do the new line at the end or not
 	$to_print = $line;
 	if ($ONE_LINE) { 
-		$to_print .=  " "				
+		$to_print .=  " ";
 	} else { 
-		$to_print .= "\n" 
+		$to_print .= "\n";
 	}
 
 	#print only if unique
@@ -118,9 +124,11 @@ while (<STDIN>) {
 
 	# store only if unique, postprodess later
 	$to_print_last="";
-	if (($ALL_LINES_MODE) || (!$seen{$key}++)) {
+	if ($LYRICS_MODE==1) { $test=(($ALL_LINES_MODE) || (!$seen{$key}++) || ($original_line eq "")); }
+	else                 { $test=(($ALL_LINES_MODE) || (!$seen{$key}++)); }
+	if ($test) {
 		if (($LYRICS_MODE==1) && ($to_print_last eq $to_print) && ($to_print !~ /[a-z0-9_-]/)) {
-			#Don't print 2 identical blank lines!
+			#Don't print 2 identical non-lyric lines!?
 		} else {
 			push @lines, $to_print;
 		}
@@ -131,6 +139,7 @@ while (<STDIN>) {
 
 # postprocess 
 $lines[-1] =~ s/,$// if @lines;				#Remove the comma from the last line if it exists
+my $output="";
 
 # Print all lines
 # foreach my $line (@lines) { print $line; }
@@ -144,9 +153,11 @@ if ($ONE_LINE) {
     $lines[-1] =~ s/, *$// if @lines;
     # Print all lines
     foreach my $line (@lines) {
-        print $line;
+        $output .= $line;
     }
+	#$output =~ s/\n\n\n/\n\n/g;
 }
+print $output;
 
 sub usage {
 	print "\n <command> |  unique-lines\n";
