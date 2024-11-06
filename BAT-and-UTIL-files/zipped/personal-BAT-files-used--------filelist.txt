@@ -257,6 +257,7 @@
 2024-10-15  13:23          3,622   67%  display-free-space.bat
 2024-10-31  03:21          8,623   71%  display-horizontal-divider.bat
 2019-10-01  11:25            115   14%  display-last-month.pl
+2024-11-06  01:01            476   46%  display-lyrics.bat
 2024-09-09  12:24            814   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-03-29  21:08            128    6%  display-mp3-artists.bat
 2023-05-24  11:52            732   55%  display-mp3-comment-with-eyed3-library.py
@@ -790,7 +791,9 @@
 2023-10-06  06:32             21   -9%  settmpfile.bat
 2024-04-10  16:17            731   51%  setup-perl-junctions-on-new-computer.bat
 2019-10-01  11:28             21   -9%  setwidth.bat
+2024-11-06  01:00             25   -8%  show-lyrics.bat
 2024-11-05  13:57          9,895   72%  show-screen-font-information-and-character-aspect-ratio.py
+2024-11-06  00:52             23   -8%  show-tags.bat
 2023-06-06  15:08          4,130   73%  show_current_pallete_prototype.py
 2019-10-01  11:28          5,276   63%  sizedir.pl
 2024-05-14  20:06            668   52%  sizes.bat

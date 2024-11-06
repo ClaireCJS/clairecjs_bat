@@ -63,7 +63,7 @@ rem Clear the keyboard buffer to prevent accidental pause-bypasses:
 
 rem Preface the pause with an emoji for visual processing ease and make it the color we want:
         %COLOR_PAUSE%
-        echos %EMOJI_PAUSE_BUTTON% %ANSI_RESET%``
+        echos %EMOJI_PAUSE_BUTTON% %ANSI_RESET%%@ANSI_CURSOR_CHANGE_COLOR_HEX[FFFF00]``
 
 rem Again, clear the keyboard buffer [/C option] to prevent accidental pause-bypasses:
         *pause /C %@unquote[%PARAMS%]
@@ -115,4 +115,6 @@ rem An extra countdown for those times when we really want to get in a fight wit
         rem 20241028: 🐐 Having some problems Ctrl-Break'ing out of scripts, as an experiment wondering if perhaps adding a slight delay here would help?
                 delay /m250
 
+
+        echo %CURSOR_RESET%
 

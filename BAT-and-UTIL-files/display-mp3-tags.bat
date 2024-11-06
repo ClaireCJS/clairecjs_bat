@@ -11,6 +11,4 @@ ffprobe -i %*
 
 rem nope ffprobe -v quiet -print_format json -show_entries format_tags=lyrics %*
 rem Yup:
-eyed3 %* | sed -e "s/Lyrics:/%ansi_color_important%Lyrics:/g" -e "s/UserTextFrame/%ANSI_COLOR_RESET%UserTextFrame/g"
-
-
+call display-lyrics %*
