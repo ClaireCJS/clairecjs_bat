@@ -116,6 +116,7 @@
 2023-06-01  06:18            107   10%  celebration.bat
 2024-08-06  17:10            986   59%  change-into-random-dir.bat
 2023-05-05  02:06          1,814   50%  chatgpt-query.py
+2024-11-06  19:14             95   13%  check-a-playlist-for-missing-subtitle-files.bat
 2023-04-28  22:33             16  -12%  check-for-applications-and-programs-that-can-be-upgraded.bat
 2024-04-07  21:15            189   18%  check-for-invalid-audio-files.bat
 2024-11-05  18:01            876   46%  check-for-missing-karaoke.bat
@@ -792,7 +793,7 @@
 2024-04-10  16:17            731   51%  setup-perl-junctions-on-new-computer.bat
 2019-10-01  11:28             21   -9%  setwidth.bat
 2024-11-06  01:00             25   -8%  show-lyrics.bat
-2024-11-05  13:57          9,895   72%  show-screen-font-information-and-character-aspect-ratio.py
+2024-11-06  18:51          9,781   72%  show-screen-font-information-and-character-aspect-ratio.py
 2024-11-06  00:52             23   -8%  show-tags.bat
 2023-06-06  15:08          4,130   73%  show_current_pallete_prototype.py
 2019-10-01  11:28          5,276   63%  sizedir.pl

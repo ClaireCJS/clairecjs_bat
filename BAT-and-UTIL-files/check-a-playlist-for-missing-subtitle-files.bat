@@ -1,0 +1,1 @@
+@check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py  .srt;*.lrc

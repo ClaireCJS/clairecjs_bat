@@ -1,5 +1,5 @@
 @echo off
-echo.
+
 
 :DESCRIPTION: Uses DEC VT100 ANSI codes to echo a line in double-height text
 

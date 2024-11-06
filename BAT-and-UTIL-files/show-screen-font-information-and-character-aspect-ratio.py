@@ -156,41 +156,38 @@ def find_font_file(font_face):
     sys.exit(1)
 
 def calculate_max_char_dimensions(font_path, font_size, characters):
-    """
-    Calculates the maximum width and height among the specified characters using Pillow.
-    Uses getbbox for accurate measurements.
-    """
     try:
         font = ImageFont.truetype(str(font_path), int(font_size))
     except Exception as e:
         print(f"Error loading font file: {e}")
         sys.exit(1)
 
-    max_width = 0
+    max_width  = 0
     max_height = 0
+
     print("--- Measuring Characters ---")
 
-    for char in characters:
-        # Using getbbox to get the bounding box of the character
+    for char in characters:                                 # Using getbbox to get the bounding box of the character
         try:
             bbox   = font.getbbox(char)
             width  = bbox[2] - bbox[0]
             height = bbox[3] - bbox[1]
-        except AttributeError:
-            # For Pillow versions < 10.0, fallback to getsize
+        except AttributeError:                              # For Pillow versions < 10.0, fallback to getsize
             width, height = font.getsize(char)
             print("Warning: 'getbbox' not available. Using 'getsize' instead.")
 
         print(f"Character '{char}': Width = {width} px, Height = {height} px")
 
-        if width > max_width:
-            max_width = width
-        if height > max_height:
-            max_height = height
+        if width  > max_width:  max_width  = width
+        if height > max_height: max_height = height
 
     print("-----------------------------\n")
-
     return max_width, max_height
+
+
+
+
+
 
 def get_windows_scaling_factor():
     """
@@ -210,7 +207,7 @@ def calculate_height_to_width_ratio(max_width, max_height, scaling_factor):
     """
     Calculates the height-to-width ratio after applying scaling.
     """
-    scaled_max_width  = max_width * scaling_factor
+    scaled_max_width  = max_width  * scaling_factor
     scaled_max_height = max_height * scaling_factor
     ratio             = scaled_max_height / scaled_max_width if scaled_max_width != 0 else 0
     return scaled_max_width, scaled_max_height, ratio
@@ -244,11 +241,12 @@ def main():
     # Step 5: Calculate maximum character dimensions
     # Define a set of representative characters
     #characters_to_measure = ["|", "—", "⎯", "H", 'W', 'M', 'Q', 'O', '@', '&', 'A', 'B', 'C', 'g', 'j', 'y', 'p', 'q', '!', '?', ':']
-    characters_to_measure = ["|", "⎯"]
+    characters_to_measure = ["|", "⎯", "M"]
 
     max_width, max_height = calculate_max_char_dimensions(font_file, font_size, characters_to_measure)
     print(f"Maximum Character Width: {max_width} pixels")
     print(f"Maximum Character Height: {max_height} pixels\n")
+
 
     # Step 6: Retrieve DPI scaling factor
     scaling_factor = get_windows_scaling_factor()
@@ -260,6 +258,8 @@ def main():
 
     print(f"Scaled Maximum Character Width:  {scaled_max_width :.2f} pixels")
     print(f"Scaled Maximum Character Height: {scaled_max_height:.2f} pixels")
+
+
 
 if __name__ == "__main__":
     main()

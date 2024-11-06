@@ -993,7 +993,7 @@ rem ************* TOYS: BEGIN: *************
         rem 𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘 
         rem Change a single digit into the cool version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' [[[cool_1,cool_2,...,cool_9 (and some random characters, like COOL_S) are defined in emoji.env]]]: 
                 function  cool_digit_plain=`%[cool_%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
-                function  cool_char_plain=`%@if[%1==" ",%@if[defined cool_%1,%[cool_%1],%1]`      %+ rem ...but let's allow ANY character to have a 'cool' version in emoji.env, though it's questionable how useful this is with environment variable naming limitations and case insensitivity
+                function  cool_char_plain=`%@if[%1==" ",%@if[defined cool_%1,%[cool_%1],%1]`      %+ rem VERY limited. Can't use letters. Can't use chars not valid in env var names.
 
                 rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩
                 rem Now do it in a random color also:
@@ -1016,7 +1016,9 @@ rem ************* TOYS: BEGIN: *************
         rem ——————— cool full-string any-character subtitutions ——————————————————————————————————————————————————————————————————————————————————————————————————
 
         rem Replace some characters with the cooler emoji version:
-            function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,Ṡ,%@REPLACE[f,ƒ,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
+            set cool_cap_S=%@char[7776]
+            set cool_low_f=%@char[402]
+            function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,%cool_cap_s%,%@REPLACE[f,%cool_low_f%,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
 
         rem Colorful versions:
             function cool_string_colorful=`%@random_color_string[%@cool_string_plain[%1$]]`
@@ -1272,22 +1274,8 @@ rem If we're running our tests, do them now that we are done:
                     call bigecho %@cursive[Cursive testing OH YEAH!!]
 
 
-                rem Cursive any string:
-                rem 𝓒𝓾𝓻𝓼𝓲𝓿𝓮 𝓪𝓷𝔂 𝓼𝓽𝓻𝓲𝓷𝓰:
-                rem     𝓯𝓾𝓷𝓬𝓽𝓲𝓸𝓷  𝓬𝓾𝓻𝓼𝓲𝓿𝓮_𝓼𝓽𝓻𝓲𝓷𝓰=`%@𝓡𝓮𝓡𝓮𝓹𝓵𝓪𝓬𝓮 [(𝓐-𝓩𝓪-𝔃]), %%@𝓬𝓾𝓻𝓼𝓲𝓿𝓮_𝓶𝓪𝔂𝓫𝓮_𝓵𝓮𝓽𝓽𝓮𝓻[\1],%1$]`
-                        function cursive_string=`%@REReplace[([A-Za-z]),%%@cursive_maybe_letter[\1],%1$]`
-                        function  cursive_plain=`%@cursive_string[%1$]`
-
-                rem 🌈🌈🌈 Cursive any string, but in rainbow: 🌈🌈🌈
-                        function cursive_string_colorful=`%@colorful_string[%@cursive_string[%1$]]`
-                        function  cursive_string_rainbow=`%@cursive_string_rainbow[%1$]`
-
-                rem Set our main cursive function —— using the colorful one honestly helps distinguish the awkawrdly-kerned, non-ligatured cursive rendering:
-                        function cursive=`%@cursive_string_colorful[%1$]`
 
 
-
-                    @echo off
                         
         endiff
 

@@ -1,0 +1,33 @@
+
+
+rem Cursor uppercase and lowercase sets are a different distance apart from each other than the ASCII ones!
+        rem 𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩
+        function  cursive_upper=`%@if[%@ASCII[%@left[1,%1]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[55349]%@CHAR[%@EVAL[56463+%@ASCII[%@left[1,%1]]]],%@left[1,%1]]`
+        function  cursive_lower=`%@if[%@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[55349]%@CHAR[%@EVAL[56457+%@ASCII[%@left[1,%1]]]],%@left[1,%1]]`
+
+rem Cursive *any* character —— uses cursive_upper and cursive_lower when appropriate
+        rem 𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃           𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃          𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃
+        function  cursive_letter_only=`%@if[%@ASCII[%@left[1,%1]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[55349]%@CHAR[%@EVAL[56463+%@ASCII[%@left[1,%1]]]],]%@if[%@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[55349]%@CHAR[%@EVAL[56457+%@ASCII[%@left[1,%1]]]],]`
+        function       cursive_letter=`%@if[%@ASCII[%@left[1,%1]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90  .or.   %@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CURSIVE_LETTER_ONLY[%@left[1,%1]],%@left[1,%1]]`
+
+
+rem Cursive any string:
+rem 𝓒𝓾𝓻𝓼𝓲𝓿𝓮 𝓪𝓷𝔂 𝓼𝓽𝓻𝓲𝓷𝓰:
+rem     𝓯𝓾𝓷𝓬𝓽𝓲𝓸𝓷  𝓬𝓾𝓻𝓼𝓲𝓿𝓮_𝓼𝓽𝓻𝓲𝓷𝓰=`%@𝓡𝓮𝓡𝓮𝓹𝓵𝓪𝓬𝓮 [(𝓐-𝓩𝓪-𝔃]), %%@𝓬𝓾𝓻𝓼𝓲𝓿𝓮_𝓶𝓪𝔂𝓫𝓮_𝓵𝓮𝓽𝓽𝓮𝓻[\1],%1$]`
+        function cursive_string=`%@ReReplace[([A-Za-z]),%%@cursive_letter[\1],%1$]`
+        function  cursive_plain=`%@cursive_string[%1$]`
+
+rem 🌈🌈🌈 Cursive any string, but in rainbow: 🌈🌈🌈
+        function cursive_string_colorful=`%@colorful_string[%@cursive_string[%1$]]%ansi_reset%`
+        function  cursive_string_rainbow=`%@cursive_string_colorful[%1$]`
+
+rem Set our main cursive function —— using the colorful one honestly helps distinguish the awkawrdly-kerned, non-ligatured cursive rendering:
+        function cursive=`%@cursive_string_colorful[%1$]`
+
+rem colorizing functions (copy of subset of utility functions in my set-ansi.bat which also has these functions):
+        set MIN_RGB_VALUE_FG=88
+        set MAX_RGB_VALUE_FG=255
+        function      RANDFG_SOFT=`%@CHAR[27][38;2;%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]]m`
+        function random_color_string=`%@REReplace[(.),%%@randFG_soFt[]\1,%1$]`
+        function     colorful_string=`%@random_color_string[%1$]`
+
