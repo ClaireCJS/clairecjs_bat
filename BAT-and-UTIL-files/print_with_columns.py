@@ -22,23 +22,29 @@ content_ansi           =  "\033[0m"
 divider_ansi           =  "\033[38;2;187;187;0m"
 divider                = f"  {divider_ansi}" + "│" + f"  {content_ansi}"  # Divider with #BBBB00 color and additional padding
 divider_visible_length = 5
+DEFAULT_WRAPPING       = False                                            #do we default to enabling the wrapping of long lines
 
 # Internal log
 INTERNAL_LOG = ""
 
 # Set up the argument parser
 parser = argparse.ArgumentParser(description="Display STDIN in a compact, multi-column format.")
-parser.add_argument('-w', '--width', type=int, help="Override console width")
-parser.add_argument('-c', '--columns', type=int, help="Number of columns (overrides automatic calculation)")
-parser.add_argument('-p', '--row_padding', type=int, default=DEFAULT_ROW_PADDING, help="Number of rows to subtract from screen height as desired maximum")
-parser.add_argument('-v', '--verbose', type=int, default=False, help="Verbose mode——display debug info")
-parser.add_argument('--wrap', action='store_true', help="Enable line wrapping for long lines")
-parser.add_argument('--max-line-length-before-wrapping', type=int, default=80, help="Maximum line length before wrapping")
+parser.add_argument('-w', '--width'                    , type=int,                              help="Override console width")
+parser.add_argument('-c', '--columns'                  , type=int,                              help="Number of columns (overrides automatic calculation)")
+parser.add_argument('-p', '--row_padding'              , type=int, default=DEFAULT_ROW_PADDING, help="Number of rows to subtract from screen height as desired maximum")
+parser.add_argument('-v', '--verbose'                  , action='store_true',                   help="Verbose mode——display debug info")
+parser.add_argument('--wrap'                           , action='store_true',                   help="Enable line wrapping for long lines") #makes args.wrap true
+parser.add_argument('--no_wrap'                        , action='store_true',                   help="Disable line wrapping for long lines") #makes args.wrap false
+parser.add_argument('--max-line-length-before-wrapping', type=int, default=80,                  help="Maximum line length before wrapping")
 args = parser.parse_args()
 
 # Override ROW_PADDING if specified
 ROW_PADDING = args.row_padding
 VERBOSE     = args.verbose
+
+WRAPPING = DEFAULT_WRAPPING
+if args   .wrap: WRAPPING = True
+if args.no_wrap: WRAPPING = False
 
 # Try to detect terminal width and height, otherwise use default values
 try:
@@ -58,7 +64,7 @@ if not input_lines:
     sys.exit("No input data provided.")
 
 # Implement line wrapping if enabled
-if args.wrap:
+if WRAPPING:
     wrapped_lines = []
     for line in input_lines:
         # Wrap lines longer than max_line_length
