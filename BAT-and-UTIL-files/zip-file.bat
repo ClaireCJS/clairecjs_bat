@@ -27,6 +27,16 @@ rem Do the actual ZIP'ing...
             call errorlevel "error when zipping file %file_to_zip% in %0"
             if %@FILESIZE["%TARGET_ZIP"] lt 1 (call fatal_error "created zip of '%TARGET_ZIP%' has no valid file size!" %+ goto :END)
 
+rem LEt user know it was successfully ZIP'ed so they can feel confident deleting the original file:
+        iff exist "%TARGET_ZIP%" then
+                %COLOR_SUCCESS% %+ echo. %+ echo %ANSI_COLOR_SUCCESS%%BOLD_ON%%CHECKBOX% ZIP created:%BOLD_OFF%%ANSI_COLOR_RUN%
+                dir "%TARGET_ZIP%" /km | call insert-before-each-line "        "
+        else
+                call alarm "Target ZIPfile does not exist: '%italics_on%%TARGET_ZIP%%italics_on%'"
+                goto :Zip_Was_Not_Created
+        endiff
+
+
 rem Delete the original file?
         echo.
         call askyn "%GHOST% Delete '%italics_on%%double_underline_on%%FILE_TO_ZIP%'%italics_off%%double_underline_off%" yes %TIME_TO_WAIT_BEFORE_DELETING_ORIGINAL_FILE%
@@ -47,6 +57,6 @@ rem Success output:
 
 
 
-
+:Zip_Was_Not_Created
 :END
 

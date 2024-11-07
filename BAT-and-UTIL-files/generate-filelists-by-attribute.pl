@@ -144,6 +144,7 @@ use vars qw($DATEINDEX $LONGEST_POSSIBLE_EXECUTION_OF_THIS_SCRIPT_IN_MINUTES $FO
 	$DEBUG_MAX_LISTS $SKIP_FILEMATCH_ERRORS %ATTRIBUTES $tmpBeginMM $tmpBeginDD $tmpEndMM 
 	%ATTRIBUTE_WEIGHTS_STAR $tmpEndDD $DEBUGMMDD $tmpBeginMMDD $tmpEndMMDD $tmptmptmptmp 
 	%ATTRIBUTE_WEIGHTS_X    $DEBUG_FILEWATCH_FILENAME $DEBUG_FILEWATCH_META $linenum
+	$DEBUG_X_WEIGHT
 	);
 
 
@@ -4106,13 +4107,15 @@ sub process_attributelist {		#1st pass lists sprinkled everywhere (attrib.lst)
 							$tmpWeightStar=1;	#default weight
 						}
 
-						##### DETERMINE X WEIGHT OF ATTRIBUTE:
+						##### DETERMINE X-WEIGHT OF ATTRIBUTE:												[xweight, x-weight] 
 						if (($tmpattrib =~ /\x[0-9]+/) && ($tmpattrib !~ /caption-/i) && ($tmpattrib !~ /postcaption-/i) && ($tmpattrib !~ /^thing-/i) && ($tmpattrib !~ /^person-/i) && ($tmpattrib !~ /^activity-/i) && ($tmpattrib !~ /^place-/i)) {
-							$newtmpattrib,$tmpWeightX)=split(/\x/ ,$tmpattrib);	#this is proper
+							($newtmpattrib,$tmpWeightX)=split(/\x/ ,$tmpattrib);	#this is proper
 							if (($tmpWeightX  !~ /^\d*\.?\d*$/) || ($tmpWeightX  eq "") || ($tmpWeightX  eq ".")) {  #validate weight
 								&log("\n\nERROR W2X: WEIGHT of \"$tmpWeightX\" is not valid [tmpattrib=$tmpattrib,newtmpattrib=$newtmpattrib,tmpWeightX   =$tmpWeightX   ]!\n\t LINE=$line"); 
 								$newtmpattrib = $tmpattrib; 
 								$tmpWeightX   = 1;
+							} else {
+								if ($DEBUG_ATTRIBUTE_WEIGHTS_X > 0) { &log("\n\nLOG W2X: X-WEIGHT of \"$tmpWeightX\" found![tmpattrib=$tmpattrib,newtmpattrib=$newtmpattrib,tmpWeightX   =$tmpWeightX   ]!\n\t LINE=$line");  }
 							}	
 						} else {
 							$newtmpattrib = $tmpattrib;
@@ -4132,7 +4135,7 @@ sub process_attributelist {		#1st pass lists sprinkled everywhere (attrib.lst)
 						}
 						if (($DEBUG_ATTRIBUTE_WEIGHTS_STAR) && ($tmpWeightStar != 1)) { &log(  "\n         *~*~* \$ATTRIBUTE_WEIGHTS_STAR{$tmpfile$DELIMITER$newtmpattrib}=\$tmpWeightStar=".$ATTRIBUTE_WEIGHTS_STAR{"$tmpfile$DELIMITER$newtmpattrib"}.";\n"); }
 
-						##### STORE X WEIGHT OF ATTRIBUTE, UNLESS NON-1 ATTRIBUTE ALREADY EXISTS:
+						##### STORE X-WEIGHT OF ATTRIBUTE, UNLESS NON-1 ATTRIBUTE ALREADY EXISTS:
 						#my %ATTRIBUTE_WEIGHTS_X=();		#key={$filename$delimiter$attribute},value=weight
 						if (($DEBUG_ATTRIBUTE_WEIGHTS_X) && ($tmpWeightX != 1)) { &log("\n\n--------[Processing newtmpattrib=$newtmpattrib,tmpWeightX=$tmpWeightX]"); }
 						if (($tmpWeightX==1) && ($ATTRIBUTE_WEIGHTS_X{"$tmpfile$DELIMITER$newtmpattrib"} != 1)) {

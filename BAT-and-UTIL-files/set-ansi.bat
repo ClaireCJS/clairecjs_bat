@@ -1,6 +1,6 @@
 @Echo Off
 
-rem TODO: Are you by any chance looking for something like the "alternate screen buffer"? You can enter it by emitting \x1b[?1049h and exit it by emitting \x1b[?1049l. All versions of Windows that are still officially supported support that sequence.
+
 
 rem  //// Hi,
 rem  //// 
@@ -906,6 +906,21 @@ rem ANIS: enhanced resetting
                                     set RESET_ALL_ANSI=%ANSI_RESET_FULL%
                                     set           TOCK=%ANSI_RESET_FULL%
 
+
+rem ————————— VT-220 stuff ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+rem ANSI: Alternate Screen Buffers (VT-220, supported by Windows): 
+        rem Basically, this: 1) saves the entire screen/buffer
+        rem                  2) erases it (but leaves you in the same spot, so you might wanna cls after)
+        rem                  3) switches to a mode that has no scrollback (at least in Windows Terminal 2024)
+                set ALTERNATE_SCREEN_BUFFER_ON=%ANSI_ESCAPE%?1049h 
+
+        rem And this: Restores you back out of that alternate screen (you lose it all), and restores the screen how it was:
+                set ALTERNATE_SCREEN_BUFFER_OFF=%ANSI_ESCAPE%?1049l
+
+        rem %ANSI_CSI%4h  —  insert mode
+        rem %ANSI_CSI%4l  — replace mode
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 

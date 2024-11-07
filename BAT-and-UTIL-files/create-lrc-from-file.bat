@@ -666,11 +666,15 @@ rem Success SRT-generation message:
 
 rem A chance to edit:
         @echo.
-
-        iff 1 eq 1 then
-                @call divider
-                @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Lyrics:%underline_off%:
-                (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
+        rem TODO don't do this *always*:
+        iff "%LYRICS_ACCEPTABLE%" != "0" then
+                iff not exist "%TXT_FILE%" then
+                        echo %ansi_color_warning_soft%%star% Lyrics were approved but can't find '%italics_on%%TXT_FILE%%italics_on%'%ansi_reset%
+                else
+                        @call divider
+                        @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Lyrics%underline_off%:
+                        (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
+                endif
         endiff
         @call divider
         @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Transcription%underline_off%:
