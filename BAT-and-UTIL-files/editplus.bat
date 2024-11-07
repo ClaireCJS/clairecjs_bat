@@ -30,6 +30,7 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
         )
 
 ::::: BRANCH BASED ON INSTALLED VERSION OR COMMAND-LINE:
+        IF isdir "%util2%\Editplus 6"               goto :EditPlus6InUtil2
         if isdir "%[PROGRAMFILES]%\EditPlus 5"      goto :v5
         if "%OUR_COMMAND_LINE%" == "Anaconda"       goto :AnacondaStart
         :NO MORE!: if "%MACHINENAME"=="Hades"       goto :Hades
@@ -46,7 +47,9 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
 
 
 
-
+        :EditPlus6InUtil2
+            call %DEBUG_LEVEL% "Using UTIL2\EditPlus 6..."
+            start %STARTOPTIONS% %@SFN["%UTIL2%\EditPlus 6\editplus.exe"]               %ALL_ARGS% %+ goto :END
 	:default32bitOS
             call %DEBUG_LEVEL% "Using EditPlus Default32bitOS..."
             start %STARTOPTIONS% %@SFN["%PROGRAMFILES%\EditPlus\editplus.exe"]          %ALL_ARGS% %+ goto :END

@@ -57,8 +57,9 @@ REM do we add /N to do a dry run first?
 
 REM actually do the move command:
         echos %MV_DECORATOR%%MOVE_DECORATOR%%MV_DECORATOR_ON%%MOVE_DECORATOR_ON%
-              %MOVE_COMMAND% %ARGS% |& copy-move-post.py
-        rem   %MOVE_COMMAND% %A%GS% |& copy-move-post.exe ... is 7X slower
+        rem   %MOVE_COMMAND% %A%GS%  |&    copy-move-post.exe ... is 7X slower
+        rem   %MOVE_COMMAND% %ARGS%  |&    copy-move-post.py
+             (%MOVE_COMMAND% %ARGS%) |&:u8 copy-move-post.py
         echos %MV_DECORATOR_OFF%%MOVE_DECORATOR_OFF%
 
 gosub reset_option_variables
