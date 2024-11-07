@@ -1,4 +1,5 @@
 #!/usr/local/bin/perl
+use utf8;
 use open ':std',':encoding(UTF-8)' ;
 binmode(STDIN,  ':encoding(UTF-8)');
 binmode(STDOUT, ':encoding(UTF-8)');

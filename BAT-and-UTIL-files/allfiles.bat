@@ -84,10 +84,10 @@ if "%DEBUG_SSDWARN%" eq "1" goto :END
     rem have to erase windows\temp because fuckin @UNIQUE isn't always unique!
     %COLOR_UNIMPORTANT%
     echos %ANSI_OVERSTRIKE_ON%
-    if exist c:\windows\temp\*.*          (echo yr|*del /q /e c:\windows\temp\*.*         )
-    if exist c:\windows\temp\avginfo.id	  (echo yr|*del /q /e c:\windows\temp\avginfo.id  )
-    if exist c:\windows\temp\MpCmdRun.log (echo yr|*del /q /e c:\windows\temp\MpCmdRun.log)
-    if exist c:\recycled\MpCmdRun.log	  (echo yr|*del /q /e c:\recycled\MpCmdRun.log    )
+    if exist c:\windows\temp\*.*          (echo yr |:u8 *del /q /e c:\windows\temp\*.*         )
+    if exist c:\windows\temp\avginfo.id	  (echo yr |:u8 *del /q /e c:\windows\temp\avginfo.id  )
+    if exist c:\windows\temp\MpCmdRun.log (echo yr |:u8 *del /q /e c:\windows\temp\MpCmdRun.log)
+    if exist c:\recycled\MpCmdRun.log	  (echo yr |:u8 *del /q /e c:\recycled\MpCmdRun.log    )
     set tmp=c:\recycled\
     if "%DEBUG%" eq "1" (%COLOR_DEBUG% %+ echo * tmp directory is %tmp %+ %COLOR_NORMAL%)
     SET TMP1=%@UNIQUE[%tmp]
@@ -287,7 +287,7 @@ REM added up and it's just easier to manage it all here:
     if exist %BAT (%COLOR_ERROR% %+ echo Uhoh! %BAT% already exists! %+ goto :END)
     dir /b |:u8 allfileunicode.pl >:u8 %BAT%
     call %BAT%
-    echo yr | mv %BAT% \recycled
+    echo yr  |:u8 mv %BAT% \recycled
     : This encourages development:
     : %EDITOR% %FILTERSCRIPT%
 goto :Cleanup

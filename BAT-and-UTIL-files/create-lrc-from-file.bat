@@ -674,7 +674,7 @@ rem A chance to edit:
                         @call divider
                         @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Lyrics%underline_off%:
                         (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
-                endif
+                endiff
         endiff
         @call divider
         @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Transcription%underline_off%:

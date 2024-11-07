@@ -56,9 +56,9 @@
 
 ##### CURRENT DEVELOPMENT DEBUGS:
 my $DEBUG_ATTRIBUTE_WEIGHTS_STAR      = 0;							#reserve value: 0 / other values: 1-2
-my $DEBUG_ATTRIBUTE_WEIGHTS_X         = 0;							#reserve value: 0 / other values: 1-2
+my $DEBUG_ATTRIBUTE_WEIGHTS_X         = 1;							#reserve value: 0 / other values: 1-2
 my $DEBUG_META_ATTRIBUTE_WEIGHTS_STAR = 0;							#reserve value: 0 / other values: 1
-my $DEBUG_META_ATTRIBUTE_WEIGHTS_X    = 0;							#reserve value: 0 / other values: 1
+my $DEBUG_META_ATTRIBUTE_WEIGHTS_X    = 1;							#reserve value: 0 / other values: 1
 
 ##### RESERVE DEBUGS:
 my $DEBUG_BASE_ATTRIB_PRINT_EACH_LINE=0;                    #reserve value: 0
@@ -3699,7 +3699,13 @@ sub create_attribute_filelists {            #1stpass
 					$filesfound++;				
 					#if ($USE_BACKSLASHES_INSTEAD_OF_SLASHES) { $tmpfile =~ s/\//\\/g; } else { $tmpfile =~ s/\\/\//g; }
 
-					##### CALCULATE NUMBER OF TIMES WE PRINT THIS ONE:  ##### GOATGOAT _X LOGIC NEEDS TO BE ADDED TO EXISTING _STAR LOGIC
+					##### CALCULATE NUMBER OF TIMES WE PRINT THIS ONE:
+					# We must consider the star-weight!   *0.5:attr = put in attr ½ the time, *2:attr  put in attr twice
+					# We must consider the    X-weight!   x0.5 = put in all playlists 1/2 the time, x2 = put in all playlists 2X
+					# But what if they both conflict?
+					#          We process both!
+					#          The X-weight 1st, to get a default #-of-times-to-be-in-all-playlists
+					#     then The *-weight 2nd, to get a default #-of-times-to-be-in-all-playlists
 					$timestoprint=1;
 					if  ($tmpWeightStar < 1) {									#say the weight is 0.1 = we want it 10% of the time = so we roll rand(1) and if it's less than .1 we do it:
 						$roll = rand(1);
@@ -3712,7 +3718,8 @@ sub create_attribute_filelists {            #1stpass
 							($before,$after)=split(/\./,$tmpWeightStar);
 							$timestoprint=$before;
 							$roll = rand(1);
-							if ($roll <= ".$after") { $timestoprint++; } 
+							if ($roll <= ".$after") { $timestoprint++; }   # 4th place 4th 3rd3ʳᵈ  1ˢᵗ. 2ⁿᵈ 3ʳᵈ.4th. 4th. are 22nd. are 2ⁿᵈ are 15th. are 2nd. you 2nd. you 1st. or hey11ˢᵗ. hey1ˢᵗ 11st 
+. 
 						}
 					}
 					if (($DEBUG_ATTRIBUTE_WEIGHTS_STAR) && ($tmpWeightStar != 1)) { &log("\t[tmpWeightStar=$tmpWeightStar,roll=$roll]\n\t[*timestoprint*=$timestoprint for tmpfile=$tmpfile]\n"); }

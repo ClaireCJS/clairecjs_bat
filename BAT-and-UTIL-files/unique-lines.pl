@@ -17,9 +17,6 @@ my $LYRICS_MODE;
 my $ONE_LINE;
 my $ALL_LINES_MODE;
 my $to_print_last;
-my $artist="";
-my $title="";
-my $album="";
 
 # Loop through @ARGV to check for -1 and -L options
 $LYRICS_MODE    = 0;    
@@ -46,55 +43,68 @@ my @lines;
 my $test;
 my $test1;
 my $test2;
+my $file_artist="";
+my $file_title="";
+my $file_album="";
 my $original_line;
+my $file_orig_artist;
+                  
 if ($LYRICS_MODE) {
-	$artist = $ENV{FILE_ARTIST} || "";
-	$title  = $ENV{FILE_TITLE } || "";
-	$album  = $ENV{ALBUM      } || "";
+	$file_artist      = $ENV{FILE_ARTIST}      || "";
+	$file_orig_artist = $ENV{FILE_ORIG_ARTIST} || "";
+	$file_title       = $ENV{FILE_TITLE }      || "";
+	$file_album       = $ENV{ALBUM      }      || "";
 }
+my $line_number=0;
 while (<STDIN>) {
 	#massage the line
     my $line = $_; 
 	$line =~ s/\n//ig;		#get rid of newline
+	$line_number++;
 	my $original_line=$line;
 
 	if ($LYRICS_MODE) {
-		#formatting
+		#pre-processing
 		$line =~ s/ +$//;					#remove trailing spaces
 		$line =~ s/([a-z])$/$1,/ig;			#if line ends in letter, add comma to end of it —— to give WhisperAI a better sense of where to split lines
+
+
+		#first-line-only stuff to red rid of
+		if ($line_number == 1) {
+			$line =~ s/(\d)([^\d]+)/$2/;		#remove leading digit from 1ˢᵗ line if it's just a single digit 'cause I've noticed that happens a lot
+		}
+
+		#divider lines to get rid of
 		$line =~ s/^-+//;					#get rid of lines like: ---------------
 
-		#content
-		$line =~ s/\[?(Intro|Verse|Pre-Chorus|Refrain|Chorus|Instrumental Break|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*\]?//i;
+		#song sections to get rid of
+		$line =~ s/[\[\(]?(Intro|Verse|Pre-Chorus|Refrain|Chorus|Instrumental Break|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)]?//i;
+
+
+		#website crap to get rid of
 		$line =~ s/\*? (No|\[(duble|metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z\d]+lyrics[a-z\d]*|\[[a-z0-9]+ )\]) filter used//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
+		$line =~ s/Album tracklist with lyrics//;
+
+		#advertising crap to get rid of
 		$line =~ s/Get tickets as low as \$[\d\.]+//i;
 
-
-
-		#TODO: deal with these:
-		#Artist: Circle Jerks, for all artists matching env var of artist which is %FILE_ARTIST%
-        #Title: Mrs. Jones,		#http://lyricstranslate.com/en/catch-me-if-you-can-catch-me-if-you-can.html
-		#Album tracklist with lyrics
-		#        Artist: Circle Jerks,
-		#        Album: Vi,
-		#        Title: Beat Me Senseless,
-		#(chorus) 
-		#4TranslationsEspañolРусский
-		#([???])
-		#
-		#
-		#
-
-
+		#dynamic content removals {uses environment variables set in create-lyrics bat}		
+		if ($file_artist ne "") { 
+			$line =~ s/See \Q$file_artist Live\E//i; 
+			$line =~ s/Artist: \Q$file_artist\E,?//i; 
+		}
+		if ($file_title ne "") { 
+			$line =~ s/Title: \Q$file_title\E,?//i; 
+		}
+		if ($file_album ne "") { 
+			$line =~ s/Album: \Q$file_album\E,?//i; 
+		}
 
 		#commas and quotes
-		$line =~ s/^, *$//;
-	    $line =~ s/"/'/g;			#for use in AI command line prompt enclosed in quotes
-
-		#dynamic content removals {uses environment variables set in create-lyrics bat}
-		if ($artist ne "") { $line =~ s/See $artist Live\b//i; }
+		$line =~ s/^, *$//;			#remove leading comma like ", a line of text"
+	    $line =~ s/"/'/g;			#change quotes to apostrophes so these can be used as a quoted command line argument
 
 		#formatting: dealing with ALL CAPS LYRICS
 		#if there are >=10 all-caps letters and no lowercase letters, lowercase the line
@@ -137,8 +147,9 @@ while (<STDIN>) {
 
 }
 
-# postprocess 
+# postprocessing for when lines are separate:
 $lines[-1] =~ s/,$// if @lines;				#Remove the comma from the last line if it exists
+
 my $output="";
 
 # Print all lines
@@ -149,6 +160,7 @@ if ($ONE_LINE) {
     $final_output =~ s/, *$//;  # Remove the trailing comma if it exists
     print $final_output;
 } else {
+	# postprocessing for when lines are together:
     # Remove the comma from the last line if it exists
     $lines[-1] =~ s/, *$// if @lines;
     # Print all lines

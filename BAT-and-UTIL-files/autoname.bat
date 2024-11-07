@@ -1,5 +1,7 @@
 @Echo OFF
 
+call validate-in-path fix-unicode-filenames
+
 rem ARE WE DOING THIS, OR JUST SAYING HOW TO DO IT?:
         if "%1" eq "go" (goto :Begin)
         if "%1" eq ""   (goto :Usage) %+ rem 20240324: Purposefully breaking all past invocations to this script in order to add the "go" safety in order to allow blank calls to be requests to display the usage
@@ -36,6 +38,9 @@ rem SPECIAL STUFF FOR EXIF-EXTRACTION & NEWPICS ONLY:
                             :SkipAllfilesExif
             :NotNewPics
         :NoExif
+
+rem But let's fix the unicode filenames first...
+        call fix-unicode-filenames auto
 
 rem RUN "ALLFILES MV" (with %SWEEPING% having been set to 1 to trigger automatic mode):
         set  SWEEPING_TEMP=%SWEEPING%
