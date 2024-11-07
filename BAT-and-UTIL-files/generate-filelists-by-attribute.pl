@@ -144,7 +144,7 @@ use vars qw($DATEINDEX $LONGEST_POSSIBLE_EXECUTION_OF_THIS_SCRIPT_IN_MINUTES $FO
 	$DEBUG_MAX_LISTS $SKIP_FILEMATCH_ERRORS %ATTRIBUTES $tmpBeginMM $tmpBeginDD $tmpEndMM 
 	%ATTRIBUTE_WEIGHTS_STAR $tmpEndDD $DEBUGMMDD $tmpBeginMMDD $tmpEndMMDD $tmptmptmptmp 
 	%ATTRIBUTE_WEIGHTS_X    $DEBUG_FILEWATCH_FILENAME $DEBUG_FILEWATCH_META $linenum
-	$DEBUG_X_WEIGHT
+	$DEBUG_X_WEIGHT $tmpTimesToPrint
 	);
 
 
@@ -396,7 +396,7 @@ my $tmptmptmptmp="";
 my $warnings=1;
 my $SKIP_SLASH_CONVERSION=0;
 my $program_begin_time=time();
-
+my $tmpTimesToPrint="";
 
 # The first value, a number, is how many days for that filelist.
 # The second value, a string, is what you will call this filelist.
@@ -3704,26 +3704,53 @@ sub create_attribute_filelists {            #1stpass
 					# We must consider the    X-weight!   x0.5 = put in all playlists 1/2 the time, x2 = put in all playlists 2X
 					# But what if they both conflict?
 					#          We process both!
-					#          The X-weight 1st, to get a default #-of-times-to-be-in-all-playlists
-					#     then The *-weight 2nd, to get a default #-of-times-to-be-in-all-playlists
-					$timestoprint=1;
+					#                     The X-weight 1st, to get a default #-of-times-to-be-in-all-playlists
+					#                then The *-weight 2nd, to get a default #-of-times-to-be-in-all-playlists
+					#         So if x-weight was 13, and *-weight was 3 for some attributes
+					#                x-weight of 13 would apply first, then *-weight for those attributes would end up with 13*3=39
+					#     WE DO NOT PRETEND THAT *0 OR x0 MAKE SENSE ... You should not do that.
+					#       
+	
+					## print most songs just once in the playlist
+					$timestoprint=1;											
+
+					## but if there is an x-weight, influence the # of times to print by that:
+					if  ($tmpWeightX    < 1) {									#say the weight is 0.1 = we want it 10% of the time = so we roll rand(1) and if it's less than .1 we do it:
+						$roll = rand(1);
+						if ($roll > $tmpWeightX   ) { $timestoprint=0; } 
+						else                        { $timestoprint=1; } 
+						if ($DEBUG_ATTRIBUTE_WEIGHTS_X) { &log("[roll of $roll for weight $tmpWeightX means timesToPrint now=$timestoprint]"); }
+					} elsif ($tmpWeightX    > 1) {
+						$timestoprint = $tmpWeightX;
+						if ($tmpWeightX    =~ /\./) {			#5.9 would mean timestoprint is 5 + roll against 0.9
+							($before,$after)=split(/\./,$tmpWeightX);
+							$timestoprint=$before;
+							$roll = rand(1);
+							if ($roll <= ".$after") { $timestoprint++; }     
+						}
+					}
+					if (($DEBUG_ATTRIBUTE_WEIGHTS_X   ) && ($tmpWeightX    != 1)) { &log("\t[tmpWeightX   =$tmpWeightX   ,roll=$roll]\n\t[*timestoprint*=$timestoprint for tmpfile so far=$tmpfile]\n"); }
+
 					if  ($tmpWeightStar < 1) {									#say the weight is 0.1 = we want it 10% of the time = so we roll rand(1) and if it's less than .1 we do it:
 						$roll = rand(1);
-						if ($roll > $tmpWeightStar) { $timestoprint=0; } 
-						else                        { $timestoprint=1; } 
+						if ($roll > $tmpWeightStar) { $timestoprint=0; }		#even if there's an x-weight of a bazillion, if we rolled bad dice on a 0-0.99999999 star-weight, it means it's not included, so we end up with 0!
+						#else                       { $timestoprint=1; }		#if we rolled good dice, we can't just set it to 1 like in the old days, because the x-weight may have already set it. We just leave it as is.
 						if ($DEBUG_ATTRIBUTE_WEIGHTS_STAR) { &log("[roll of $roll for weight $tmpWeightStar means timesToPrint now=$timestoprint]"); }
 					} elsif ($tmpWeightStar > 1) {
 						$timestoprint = $tmpWeightStar;
 						if ($tmpWeightStar =~ /\./) {			#5.9 would mean timestoprint is 5 + roll against 0.9
 							($before,$after)=split(/\./,$tmpWeightStar);
-							$timestoprint=$before;
+							#  $timestoprint = $before; 
+							$tmpTimesToPrint = $before;
 							$roll = rand(1);
-							if ($roll <= ".$after") { $timestoprint++; }   # 4th place 4th 3rd3ʳᵈ  1ˢᵗ. 2ⁿᵈ 3ʳᵈ.4th. 4th. are 22nd. are 2ⁿᵈ are 15th. are 2nd. you 2nd. you 1st. or hey11ˢᵗ. hey1ˢᵗ 11st 
-. 
+							#f ($roll <= ".$after") { $timestoprint++; }  
+							if ($roll <= ".$after") { $tmpTimesToPrint++; }  
+							#NEW: nowe we multiply instead of add:
+							#          if the x-weight was 5 and we have *3, it needs to be in the playlist 15 times, so we are multiplying
+							$timestoprint *= $tmpTimesToPrint;
 						}
 					}
-					if (($DEBUG_ATTRIBUTE_WEIGHTS_STAR) && ($tmpWeightStar != 1)) { &log("\t[tmpWeightStar=$tmpWeightStar,roll=$roll]\n\t[*timestoprint*=$timestoprint for tmpfile=$tmpfile]\n"); }
-					if (($DEBUG_ATTRIBUTE_WEIGHTS_X   ) && ($tmpWeightX    != 1)) { &log("\t[tmpWeightX   =$tmpWeightX   ,roll=$roll]\n\t[*timestoprint*=$timestoprint for tmpfile=$tmpfile]\n"); }
+					if (($DEBUG_ATTRIBUTE_WEIGHTS_STAR) && ($tmpWeightStar != 1)) { &log("\t[tmpWeightStar=$tmpWeightStar,roll=$roll]\n\t[*timestoprint*=$timestoprint for tmpfile is now=$tmpfile]\n"); }
 
 					##### PRINT TO PLAYLIST CORRECT NUMBER OF TIMES (& KEEP TRACK):
 					if ($timestoprint == 0) {

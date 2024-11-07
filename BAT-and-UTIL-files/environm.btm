@@ -693,6 +693,12 @@ return
 :Set_Environment_Variables
 :SetEnvironmentVariables
 :CommonEnvVarsIncludingNetworking
+
+    rem Command to turn on utf-8/unicode type output so that commands like "echo ﻿🌟>clip:" actually work:
+    rem requires updating pips in a lot of scripts tho!:
+    option //unicodeoutput=yes
+
+
     :::::::::: Set common environment variables that we want for all machines (or are just too lazy to set it per-machine)
  
 
@@ -1298,6 +1304,18 @@ return
             %gosubValidateFolderExists%         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL_SITELIB
             %gosubValidateFolderExists%         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL_SITELIB_ALL
             %gosubValidateFolderExists%         PYTHON_OFFICIAL_DRIVE PYTHON_OFFICIAL_SITELIB_CLAIRE
+
+
+        ::public sharing repositories
+            set P2P_SHARE_DRIVE=%HD18T1%
+            set P2P_SHARE_PATH=\P2P-SHARE
+
+            set P2P_SHARE=%P2P_SHARE_DRIVE%:\P2P-SHARE
+
+            set       P2PSHARE=%P2P_SHARE%
+            set SOULSEEK_SHARE=%P2P_SHAREH%
+
+            %gosubValidateFolderExists%        P2P_SHARE_DRIVE P2P_SHARE
 
 
         :Validation:
@@ -2004,6 +2022,12 @@ return
                     SET NEWMP3BASEDRIVE=%NEWMP3BASEDIRDRIVE%
                     SET NEWMP3DRIVE=%NEWMP3BASEDIRDRIVE%
                     SET NEWMP3=%NEWMP3BASEDIR%
+			:Incoming:
+                    SET INCOMINGMUSIC=%NEWCL%\MUSIC
+                            set INCOMING_MUSIC=%IncomingMusic%
+                            set   INCOMING_MP3=%IncomingMusic%
+                            set   MP3_INCOMING=%IncomingMusic%
+                    %gosubValidateFolderExists% NEWCLDRIVE INCOMING_MP3
 			:PreProcessingBase:
 				SET MP3PREPROCESSINGDRIVE=%NEWMP3BASEDRIVE%
 				SET MP3PREPROCESSING=%NEWMP3BASEDIR%\check4norm
@@ -2054,6 +2078,7 @@ return
                 %gosubValidateFolderExists% MP3TESTINGDRIVE          MP3TESTING
                 %gosubValidateFolderExists% MP3OFFICIALDRIVE         MP3OFFICIAL 
                 %gosubValidateFolderExists% MP3VERSIONINGBACKUPDRIVE MP3VERSIONINGBACKUP
+                
         %gosub_stopwatch_button% magenta "      DefineRepositories [99] %SKULL%       " %+ 
 return
 ::::::::::::::::::::::::::::::::::::: DEFINE REPOSITORIES FOR VARIOUS... THINGS :::::::::::::::::::::::::::::::::::::

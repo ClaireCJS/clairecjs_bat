@@ -17,14 +17,12 @@ rem CYGWIN BRANCHING:
                         call validate-in-path grep32
                         rem DEBUG: echo cygwin no "=%PARAM%%$"
                         rem grep32.exe can handle this:
-                                                 (set|grep32 -i "=%PARAM%%$"|grep32 -i -v real|grep32 -i HD)
-                        rem WHICHDRIVE=%@EXECSTR[(set|grep32 -i "=%PARAM%%$"|grep32 -i -v real|grep32 -i HD)]
+                                                 (set|:u8 grep32 -i "=%PARAM%%$"|:u8 grep32 -i -v real|:u8 grep32 -i HD) |:u8 fast_cat
             goto :END
 
             :cygwin_YES
                         rem cygwin's grep needed something a bit simpler;
-                                                 set|grep -i hd[0-9]*[gt]|grep -i -v real|gr "=%PARAM%"|call fast_cat
-                        rem WHICHDRIVE=%@EXECSTR[set|grep -i hd[0-9]*[gt]|grep -i -v real|gr "=%PARAM%"]
+                                                (set|:u8grep -i hd[0-9]*[gt]|:u8grep -i -v real|:u8gr "=%PARAM%"|:u8 strip-ansi)|:u8 grep --color=always -i "=%PARAM%"
             goto :END
 
 

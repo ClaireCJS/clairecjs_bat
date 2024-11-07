@@ -7,11 +7,11 @@
 
 
 import sys
-import shutil
 import argparse
 from math import ceil
 import re
 import textwrap
+from rich.console import Console                                    #shutil *and* os do *NOT* get the right console dimensions under Windows Terminal
 
 # Define default ROW_PADDING
 DEFAULT_ROW_PADDING = 7  # Number of rows to subtract from screen height as desired maximum
@@ -48,10 +48,23 @@ if args.no_wrap: WRAPPING = False
 
 # Try to detect terminal width and height, otherwise use default values
 try:
-    console_width, console_height = shutil.get_terminal_size((80, 25))
+    import shutil
+    console_width, console_height = shutil.get_terminal_size()
+    #import os
+    #console_width, console_height = os.get_terminal_size().lines, os.get_terminal_size().columns
+    #x = os.get_terminal_size().lines
+    #y = os.get_terminal_size().columns
+    #console_width, console_height = x, y
+    #from rich.console import Console
+    #console = Console(stderr=True, legacy_windows=False)
+    #print(console.size, file=sys.stderr)
+    #console_width, console_height = console.size.width, console.size.height
 except Exception:
     console_width, console_height = 80, 25
     print("Unable to detect console size. Using default width=80 and height=25.")
+
+INTERNAL_LOG = INTERNAL_LOG + f" —— Detected console  width of {console_width } ——\n"
+INTERNAL_LOG = INTERNAL_LOG + f" —— Detected console height of {console_height} ——\n"
 
 # Override with user-provided width if specified
 width = args.width or console_width
@@ -110,66 +123,35 @@ def determine_optimal_columns(lines, console_width, divider_len, desired_max_hei
 
         return optimal_cols, column_widths
 
-    # Existing dynamic calculation logic
-    # Start with initial_cols or 1
-    initial_cols = max(1, initial_cols)
-
-    optimal_cols = initial_cols
-    optimal_widths = []
-    optimal_aspect_diff = float('inf')
-
-    ## Phase 1: Enforce height constraint by adding columns as necessary
-    #reverse = False
-    #while True:
-    #    rows_per_col = ceil(num_lines / optimal_cols)
-    #    column_lines = [lines[i * rows_per_col:(i + 1) * rows_per_col] for i in range(optimal_cols)]
-    #    column_widths = [max(len(line) for line in col) if col else 0 for col in column_lines]
-    #    total_width = sum(column_widths) + divider_len * (optimal_cols - 1)
-    #    INTERNAL_LOG += f"\tPhase 1: Trying columns={optimal_cols}: rows_per_col={rows_per_col}, \t total_width={total_width}, console_width={console_width}, column_lines={len(column_lines)} \n"
-    #    if total_width <= console_width:
-    #        optimal_cols += 1
-    #    else:
-    #        break
-    #optimal_cols = optimal_cols - 1
-
-    optimal_cols = 4
-    rows_per_col = ceil(num_lines / optimal_cols)
-
-    INTERNAL_LOG += f"\t --> optimal_cols determined as {optimal_cols}\n"
 
 
-    # Update column widths after enforcing height constraint
-    column_lines = [lines[i * rows_per_col:(i + 1) * rows_per_col] for i in range(optimal_cols)]
-    column_widths = [max(len(line) for line in col) if col else 0 for col in column_lines]
-    total_width = sum(column_widths) + divider_len * (optimal_cols - 1)
+
+
 
     # Phase 2: Optimize aspect ratio by adding more columns if possible
-    tentative_total_width = 0
-    tentative_cols = optimal_cols
-    while True:
-        tentative_rows_per_col = ceil(num_lines / tentative_cols)
-        tentative_column_lines = [lines[i * tentative_rows_per_col:(i + 1) * tentative_rows_per_col] for i in range(tentative_cols)]
+    optimal_cols = 1
+    optimal_widths = []
+    record_low_aspect_ratio_difference = float('inf')
+    tentative_cols = 1
+    keep_going = True
+    while keep_going:
+        tentative_rows_per_col  = ceil(num_lines / tentative_cols)
+        tentative_column_lines  = [lines[i * tentative_rows_per_col:(i + 1) * tentative_rows_per_col] for i in range(tentative_cols)]
         tentative_column_widths = [max(len(line) for line in col) if col else 0 for col in tentative_column_lines]
-        tentative_total_width = sum(tentative_column_widths) + divider_len * (tentative_cols - 1)
-
-
-
-        # Calculate aspect ratio difference
+        tentative_total_width   = sum(tentative_column_widths) + divider_len * (tentative_cols - 1)
         aspect_ratio = calculate_aspect_ratio(tentative_total_width, tentative_rows_per_col)
         aspect_diff = abs(aspect_ratio - 1.0)
-        INTERNAL_LOG += f"* phase 2:tentative_cols={tentative_cols} \t... tentative_total_width={tentative_total_width} ... console_wid={console_width}, num_lines(orig)={num_lines}, AR={aspect_ratio}\n"
+        INTERNAL_LOG += f"* If # columns={tentative_cols}, then:\t... width?={tentative_total_width} ... console={console_width}x{console_height}, num_lines(orig)={num_lines}, AR={aspect_ratio},AR_diff={aspect_diff}\n"
 
-        if aspect_diff < optimal_aspect_diff:
-            # Accept the additional column for better aspect ratio
+        if aspect_diff < record_low_aspect_ratio_difference:                   # Accept the additional column for better aspect ratio
             optimal_cols = tentative_cols
             column_widths = tentative_column_widths
             total_width = tentative_total_width
-            optimal_aspect_diff = aspect_diff
+            record_low_aspect_ratio_difference = aspect_diff
         else:
-            # No improvement in aspect ratio; stop adding columns
-            break
+            keep_going = False                                  # No improvement in aspect ratio; stop adding columns
 
-    INTERNAL_LOG += f"* phase 2: returning optimal_cols={optimal_cols} & widths of {column_widths}\n"
+    INTERNAL_LOG += f"* phase 2:RETURNING: returning optimal_cols={optimal_cols} & widths of {column_widths}\n"
     return optimal_cols, column_widths
 
 # Determine the optimal number of columns
@@ -244,14 +226,14 @@ def debug_info(columns, column_widths, width, desired_max_height, console_width,
     rows_per_col = ceil(len(input_lines) / columns) if columns > 0 else 0
     aspect_ratio = calculate_aspect_ratio(total_width, rows_per_col) if rows_per_col > 0 else float('inf')
     aspect_diff = abs(aspect_ratio - 1.0)
-
-    print("\n\033[38;2;187;0;0mDEBUG INFO:\033[0m")
+    divider = "🌟🌟🌟🌟🌟🌟🌟🌟"
+    print(f"\n\033[38;2;187;0;0m{divider}DEBUG INFO:{divider}\033[0m")
     print(f"{INTERNAL_LOG}", end="")
-    print(f"Rows original: {len(input_lines)}")
+    print(f"\nRows original: {len(input_lines)}")
     print(f"Rows after:    {len(formatted_output)}")
     print(f"Columns used:  {columns}")
     print(f"Width of each column: {column_widths}")
-    print(f"Total width: {total_width}")
+    print(f"Total width: {total_width} (console_width:{console_width}, height:{console_height})")
     print(f"Rows per column: {rows_per_col}")
     print(f"Aspect Ratio (Width/Height): {aspect_ratio:.2f}")
     print(f"Aspect Ratio Difference from 1.0: {aspect_diff:.2f}")

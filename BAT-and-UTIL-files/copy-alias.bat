@@ -13,7 +13,7 @@ title Copying %*
 
                                  set COPYBATPARAMS=%*
 if "%OS%" eq "7" (*copy /Nt /RCT /G /R /K /L /Z %COPYBATPARAMS% %+ goto :END)
-                 (*copy /Nt /RCT /G /R /K /L /Z %COPYBATPARAMS%) |& copy-move-post.py ) | fast_cat
+                 (*copy /Nt /RCT /G /R /K /L /Z %COPYBATPARAMS%) |&:u8 copy-move-post.py ) |:u8 fast_cat
 
 
 
