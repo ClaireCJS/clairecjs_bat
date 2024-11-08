@@ -13,7 +13,7 @@ if exist *.flac goto :yes
 
 
 ::::This is faster but the output isn't as organized and it's easier to not notice a missing one:
-::metaflac --list *.flac|gr REPLAYGAIN
+::metaflac --list *.flac|:u8gr REPLAYGAIN
 
 for %tmpFile in (*.flac) do gosub processfile "%tmpFile"
    
@@ -21,7 +21,7 @@ goto :END
    
        :processFile [file]
    		%COLOR_IMPORTANT% %+ echo. %+ echo *** %file ***
-   		%COLOR_RUN%       %+ (((metaflac   --list %file) | head -%HEAD_LINES%) | *grep -a -i REPLAYGAIN)
+   		%COLOR_RUN%       %+ (((metaflac   --list %file) |:u8 head -%HEAD_LINES%) |:u8 *grep -a -i REPLAYGAIN)
        :return
    
    

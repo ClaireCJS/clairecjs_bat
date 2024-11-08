@@ -3,7 +3,7 @@
 set YOUTUBE_ID_LENGTH=10
 
 ::::: MAKE SURE THE FILE WE WANT TO RENAME ACTUALLY EXISTS:
-	set LATEST_FILENAME="%@EXECSTR[d/odt/b|grep -v \.description|tail -1]"
+	set LATEST_FILENAME="%@EXECSTR[d/odt/b|:u8grep -v \.description|:u8tail -1]"
 	call validate-environment-variable LATEST_FILENAME
 
 

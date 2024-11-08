@@ -72,7 +72,7 @@
 	::that list blindly without knowing what it is (i.e. after index).
 			          call  debug             "FULLLIST  is '%FULLLIST%'"
 	if "%BOTH"=="1" ( call  debug             "FULLLIST2 is '%FULLLIST2'")
-                     %COLOR_SUCCESS% %+ echo r|copy "%FULLLIST"   %MP3\LISTS\now-playing-playlist.m3u
+                         %COLOR_SUCCESS% %+ echo r|copy "%FULLLIST"   %MP3\LISTS\now-playing-playlist.m3u
 	if "%BOTH"=="1" (%COLOR_SUCCESS% %+ echo r|copy "%FULLLIST2" %MP32\LISTS\now-playing-playlist.m3u)
 	call debug "originallist = '%ORIGINALLIST%'"
 	:DEBUG: PAUSE

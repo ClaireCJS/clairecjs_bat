@@ -38,7 +38,7 @@ goto :END
             set PARAMS=%*
             if "%PARAMS%" eq "legacy" set PARAMS=
             call fixtmp
-            set randfile=%@EXECSTR[dir /ba:-d %PARAMS%|randline]
+            set randfile=%@EXECSTR[dir /ba:-d %PARAMS%|:u8randline]
             if not exist "%randfile" goto :nofile
             call cl %randfile
             echo "%randfile"

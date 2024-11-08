@@ -135,7 +135,7 @@ if %OUR_ERRORLEVEL% gt 0 (
     set   optional_failure_msg_in_quotes="optional failure message in quotes"
     if "%OUR_SUCCESS_MESSAGE%" ne "" (set optional_success_msg_in_quotes=%@QUOTE[%OUR_SUCCESS_MESSAGE])
     if "%OUR_FAILURE_MESSAGE%" ne "" (set optional_failure_msg_in_quotes=%@QUOTE[%OUR_FAILURE_MESSAGE]
-                                      set optional_failure_msg_in_quotes=%@EXECSTR[echo %optional_failure_msg_in_quotes|sed -r 's/ *\[errorlevel\=[0-9]+\]//'])
+                                      set optional_failure_msg_in_quotes=%@EXECSTR[echo %optional_failure_msg_in_quotes|:u8sed -r 's/ *\[errorlevel\=[0-9]+\]//'])
 
     echo.
     color bright white on blue

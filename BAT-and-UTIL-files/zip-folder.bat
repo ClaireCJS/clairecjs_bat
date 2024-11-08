@@ -74,7 +74,7 @@ if "%DEBUG%" eq "1" (dir %+ pause)
                 :Archive_Exists_After_Done_YES
                                             call success "Archive has been created."
                     :COLOR_RUN%       %+    echo * AUTO_DEL_DIR=%AUTO_DEL_DIR%       %+ %COLOR_REMOVAL%
-                    if %AUTO_DEL_DIR% eq 1 (echo r | deltree %DIR%)
+                    if %AUTO_DEL_DIR% eq 1 (echo r |:u8 deltree %DIR%)
                     rem let's stop doing this now that we're using this more: 
                     if %AUTO_DEL_DIR% ne 0 (
                         rem deltree now asks and doesn't do it blindly...
@@ -131,7 +131,7 @@ goto :end
     if %AUTO_DEL_DIR%  eq 1 (goto :AutoDel_YES)
             :AutoDel_YES
                           %COLOR_REMOVAL%
-                echo ry | del /p %WHAT_FOLDER_TO_ZIP%
+                echo ry |:u8 del /p %WHAT_FOLDER_TO_ZIP%
             goto :AutoDel_END
             :AutoDel_NO
                           %COLOR_REMOVAL%

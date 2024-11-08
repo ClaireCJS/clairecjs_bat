@@ -17,7 +17,7 @@
             if not exist %CYGWIN_BANNER% (goto :Standalone_Banner_EXE)
 
         rem Use internal %_COLUMNS var to set width of banner
-            %CYGWIN_BANNER% -cO --width=%WIDTH% %* |sed -e "s/[^ ]/█/g"
+            %CYGWIN_BANNER% -cO --width=%WIDTH% %* |:u8 sed -e "s/[^ ]/█/g"
             rem # was our character for a long time, but O is more readable
 	goto :END
 

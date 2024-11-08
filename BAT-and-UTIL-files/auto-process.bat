@@ -156,7 +156,7 @@ goto :END                                                                       
                 if %@FILES[*.txt] ge 1 (%EDITOR% *.txt)
 
             :: certain extensions, we want to load in other ways:
-                if %@FILES[*.jpg] gt 1 (set FIRST_JPG=%@EXECSTR[ffind /k /b *.jpg | head -1] %+ "%FIRST_JPG%")
+                if %@FILES[*.jpg] gt 1 (set FIRST_JPG=%@EXECSTR[ffind /k /b *.jpg |:u8 head -1] %+ "%FIRST_JPG%")
 
             :: and display our progress:
                 echo. %+ echo. %+ echo. 

@@ -19,7 +19,7 @@
 	echo * sync-filelist-helper.pl %1 %2 
 	echo * sync-filelist-helper.pl %1 %2     to %TEMPBAT
 	REM    sync-filelist-helper.pl %1 %2 |& tee %TEMPBAT
-	       sync-filelist-helper.pl %1 %2       >%TEMPBAT
+	       sync-filelist-helper.pl %1 %2    >:u8%TEMPBAT
 	call %TEMPBAT
 	call fix-window-title
 goto :END
@@ -58,7 +58,7 @@ goto :END
 
 
 :END
-	free|frpost
+	free|:u8frpost
 	unset /q TEMPBAT
 	if "%EXITAFTER"=="1" exit
 

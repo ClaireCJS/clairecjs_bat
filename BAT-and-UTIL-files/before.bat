@@ -94,7 +94,7 @@ goto :END
 :fra
     call dol
     cd ..
-    call sizes|hil gol|gr gol
+    call sizes|:u8hil gol|:u8gr gol
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

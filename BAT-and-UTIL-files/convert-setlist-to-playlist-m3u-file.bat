@@ -56,7 +56,7 @@ rem LET USER HAND-EDIT FILE:
         %COLOR_WARNING%   %+ echo Ctrl-Break now if this still does not seem like something workable. %+ pause >nul %+ %COLOR_NORMAL% %+ echo. %+ echo. %+ echo.
 
 rem CHOOSE OUTPUT FILES:
-        call set-tmp-file %+ SET    OUTPUT_PLAYLIST=%TMPFILE_DIR%\playlist-%TMPFILE_FILE.m3u                %+ >"%OUTPUT_PLAYLIST%" %+ REM zero out new file
+        call set-tmp-file %+ SET    OUTPUT_PLAYLIST=%TMPFILE_DIR%\playlist-%TMPFILE_FILE.m3u                %+ >:u8"%OUTPUT_PLAYLIST%" %+ REM zero out new file
                              SET PUBLISHED_PLAYLIST=%MP3OFFICIAL%\LISTS\setlist-converted-to-playlist.m3u
         call set-tmp-file %+ SET     TRUE_TEMP_FILE=%TMPFILE%
 
@@ -71,7 +71,7 @@ rem GO THROUGH EACH SONG AND ADD TO THE PLAYLIST:
         for /f "tokens=1-9999" %mp in (%CLIPBOARD_SAVED_TO%) gosub ProcessSong "%mp%"
 
 rem PUBLISH THE PLAYLIST, OPEN IT IN TEXT EDITOR:
-        (type "%OUTPUT_PLAYLIST%" | sort -u )> "%PUBLISHED_PLAYLIST%"
+        (type "%OUTPUT_PLAYLIST%" |:u8 sort -u )>:u8 "%PUBLISHED_PLAYLIST%"
         %EDITOR% "%PUBLISHED_PLAYLIST%"
 
 
@@ -95,15 +95,15 @@ goto :END
                     set CHECK_FOR_MP3=call mchk %[BANDNAME].*%MEAT%                    %+ %COLOR_IMPORTANT% %+ echo     CHECK_FOR_MP3=[%CHECK_FOR_MP3%] %+ %COLOR_SUBTLE%
 
             :: perform the actual check, but only to a temp file:
-                                    >"%TRUE_TEMP_FILE%"                                %+ REM zero temp file out so results are 0 in the case of %CHECK_FOR_MP3% failing
-                    %CHECK_FOR_MP3% >"%TRUE_TEMP_FILE%"
+                                    >:u8"%TRUE_TEMP_FILE%"                                %+ REM zero temp file out so results are 0 in the case of %CHECK_FOR_MP3% failing
+                    %CHECK_FOR_MP3% >:u8"%TRUE_TEMP_FILE%"
 
             :: display the results, along with a line count:
-                    type "%TRUE_TEMP_FILE%" | insert-before-each-line "        " | 80  
+                    type "%TRUE_TEMP_FILE%" |:u8 insert-before-each-line "        " |:u8 80  
                     set LINES=%@EVAL[%@LINES["%TRUE_TEMP_FILE%"]+1]                    %+ %COLOR_DEBUG      %+ echo     LINES=[%LINES%]
 
             :: concatenate the results to our output playlist:
-                    type %TRUE_TEMP_FILE%>>"%OUTPUT_PLAYLIST%"
+                    type %TRUE_TEMP_FILE%>>:u8"%OUTPUT_PLAYLIST%"
     return
     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

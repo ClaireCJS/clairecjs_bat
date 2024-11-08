@@ -391,12 +391,32 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 	- run "ldg TODO" to check for any TODOs that may need to be done — This may mean back to editing audio files, as we often discover things we need to do at all steps fo the process
 
 
-- DOWNOAD LRC FILES!
+- DOWNLOAD LRC FILES!
     - run LRCget (it's on github, and I should have a saved installer somewhere) on the batch folder.
-    - Make sure that the option "SKIP TRACKS THAT ALREADY HAVE LYRICS OR ARE INSTRUNENTAL" is checked
-    - Make sure that the option "TRY TO EMBED THE LYRICS TO THE TRACK FILES WHEN POSSIBLE" is NOT checked
-    - the configuration menu is where you set the folder —— if using our symlink convention, it would just be C:\B\ pointing to the batch
+	    - the configuration menu is where you set the folder —— if using our symlink tips from above, it would just be C:\B\ hopefully already pointing to the batch we're working on
+		    - Make sure that the option "SKIP TRACKS THAT ALREADY HAVE LYRICS OR ARE INSTRUMENTAL" is       checked
+		    - Make sure that the option "TRY TO EMBED THE LYRICS TO THE TRACK FILES WHEN POSSIBLE" is *NOT* checked
     - just run it and let it download. It should only take 2-5 minutes.
+    
+
+    
+    
+
+- AI-TRANSCRIBE FILES:	
+	*** GOAL: ***		1) To have a .SRT or .LRC (preferably .SRT *and* .LRC? Or maybe just SRT?) for every non-instrumental song
+				2) To have a .TXT lyrics for as many non-instrumental songs as possible [which happens as a side-effect of goal #1]
+	*** STEPS: ***
+		* Currently in development, stay tuned.
+		* Right now, for each folder:
+			* 1) run check-for-missing-karaoke.bat ... It generates a bat file  {maybe sweep it first?}
+			  2) run that BAT file. But you'll have to generally be paying atttention and waiting for it to generate which is suuuuuper non-optimal.
+		* Soon:			  
+			A) a step where you JUST get lyrics for as many songs as possible
+			B) a step where the AI generation is queued up, using any lyrics gathered from A
+			C) a step where the queue of AI generation is run and then deleted
+			 
+    
+    
 
 
 

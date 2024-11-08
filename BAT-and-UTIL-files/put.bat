@@ -75,7 +75,7 @@ if isdir "%TARGET" goto :TargetExists_YES
     %COLOR_DEBUG% %+  echo. %+ echo. %+ echo %STAR% Ready to: %REDOCOMMAND% %+ %COLOR_NORMAL%
 	if "%CONFIRM%" eq "1" .or. "%DEBUG%" eq "1" (%COLOR_IMPORTANT% %+ pause)
     %COLOR_SUCCESS%
-	(echo y| %REDOCOMMAND%) |& copy-move-post 
+	(echo y|:u8 %REDOCOMMAND%) |&:u8 copy-move-post 
     %COLOR_NORMAL%
 
 ::::: ENSURE ORIGINAL SOURCE IS GONE, IF NOT, TRY AGAIN AND/OR WARN:
@@ -91,5 +91,5 @@ if isdir "%TARGET" goto :TargetExists_YES
 :END
 	unset /q CONFIRM
     %COLOR_NORMAL%
-    dir "%TARGETNOQUOTES%\%TARGETDIR%" | highlight %TARGETDIR%
+    dir "%TARGETNOQUOTES%\%TARGETDIR%" |:u8 highlight %TARGETDIR%
 

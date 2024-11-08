@@ -10,7 +10,7 @@ rem Check parameters:
 
 rem Show # of processes running before we do our kills:
         %COLOR_WARNING% 
-        ps|wc -l 
+        ps|:u8wc -l 
         %COLOR_NORMAL%
 
 rem Switch to a subtle color before doing our kills
@@ -117,6 +117,6 @@ rem kill cryptocurrencies:
 :success
         rem Success! Show them the new # of processes running:
         %COLOR_SUCCESS% 
-        ps|wc 
+        ps|:u8wc 
         %COLOR_NORMAL%
 

@@ -11,7 +11,7 @@ goto :END
 
 
     :countdir [dir]
-        echos %@EXECSTR[dir /bs %dir%\*|wc -l]
+        echos %@EXECSTR[dir /bs %dir%\*|:u8wc -l]
         echo  %dir%
     return
 

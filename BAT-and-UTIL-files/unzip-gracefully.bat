@@ -53,9 +53,9 @@
         set DISPLAY_NAME='%emphasis%%TO_UNZIP%%deemphasis%'
         rem call debug "USE_7Z == %USE_7Z , USE_RAR == %USE_RAR , TO_UNZIP= %TO_UNZIP%"
         rem if %USE_7Z eq 1 .and. %USE_RAR ne 1 (echo %STAR%%@RANDFG[]7unzipping %DISPLAY_NAME%...%@RANDFG[] %+  *7unzip /E /O /P    "%TO_UNZIP%"|& copy-move-post.py ) 
-            if %USE_7Z ne 1 .and. %USE_RAR ne 1 (echo %STAR%%@RANDFG[ ]Unzipping %DISPLAY_NAME%...%@RANDFG[] %+    unzip /E /O /D /I "%TO_UNZIP%"|& copy-move-post.py )
-            if %USE_7Z eq 1 .and. %USE_RAR ne 1 (echo %STAR%%@RANDFG[]7unzipping %DISPLAY_NAME%...%@RANDFG[] %+   7z.exe x -aoa      "%TO_UNZIP%"|& copy-move-post.py ) 
-            if %USE_7Z ne 1 .and. %USE_RAR eq 1 (echo %STAR%%@RANDFG[  ]UnRARing %DISPLAY_NAME%...%@RANDFG[] %+ call rar x  -o+      "%TO_UNZIP%"|& copy-move-post.py )
+            if %USE_7Z ne 1 .and. %USE_RAR ne 1 (echo %STAR%%@RANDFG[ ]Unzipping %DISPLAY_NAME%...%@RANDFG[] %+    unzip /E /O /D /I "%TO_UNZIP%"|&:u8 copy-move-post.py )
+            if %USE_7Z eq 1 .and. %USE_RAR ne 1 (echo %STAR%%@RANDFG[]7unzipping %DISPLAY_NAME%...%@RANDFG[] %+   7z.exe x -aoa      "%TO_UNZIP%"|&:u8 copy-move-post.py ) 
+            if %USE_7Z ne 1 .and. %USE_RAR eq 1 (echo %STAR%%@RANDFG[  ]UnRARing %DISPLAY_NAME%...%@RANDFG[] %+ call rar x  -o+      "%TO_UNZIP%"|&:u8 copy-move-post.py )
         call errorlevel "problem uncompressing %DISPLAY_NAME%"
         REM -ao - set overwrite mode
         echo.

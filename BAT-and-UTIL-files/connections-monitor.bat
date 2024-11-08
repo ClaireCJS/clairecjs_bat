@@ -6,7 +6,7 @@ set HEADER=%ANSI_COLOR_IMPORTANT%%EMOJI_LAPTOP%%EMOJI_GLOBE_WITH_MERIDIANS% %FAI
 set POSITION_RESET=%ANSI_SHOW_CURSOR%%@ANSI_MOVE_UP[]%@ANSI_MOVE_UP[]%@ANSI_MOVE_TO_COL[1]
 
 :Again
-    set connections=%@EXECSTR[(netstat | wc -l) >&>nul]
+    set connections=%@EXECSTR[(netstat |:u8 wc -l) >&>nul]
     echo %POSITION_RESET%%HEADER%%BIG_TOP%%@RAND_FG[]%CONNECTIONS%   ``
     echos %HEADER%%BIG_BOT%%@RAND_FG[]%CONNECTIONS%   %ANSI_HIDE_CURSOR%``
     delay /M 500

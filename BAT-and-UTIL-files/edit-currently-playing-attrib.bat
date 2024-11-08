@@ -93,7 +93,7 @@ goto :skip_old_way
 	echo *** Getting mp3 regex...
         :grep from audioscrobbler's logfile on the correct computer, cut out the pre-filename+album part, pipe it to our perl script to remove the last parenthetical clause (including albums that have "(live)" at the end of their title -- this was DAMN DAMN tricky with a regex from hell), then convert id3 to filename regex, for example a question mark in a id3 should be .* for a grep against playlist filenames because "?" is not a valid filename character, then save that to afile
 
-        (@grep CScrobbler::OnTrackPlay "%AUDIOSCROBBLER_LOG%"|@tail -1|@cut -c75-|@remove-last-parenthetical-clause|@convert-id3-to-filenameregex) >%temp\scrobble-regex.txt
+        (@grep CScrobbler::OnTrackPlay "%AUDIOSCROBBLER_LOG%"|:u8@tail -1|:u8@cut -c75-|:u8@remove-last-parenthetical-clause|:u8@convert-id3-to-filenameregex) >:u8%temp\scrobble-regex.txt
         type %temp\scrobble-regex.txt
 	echo.
 	echo.
@@ -101,14 +101,14 @@ goto :skip_old_way
 	echo *** Getting mp3 filename...
         :Now search for that regex against the playlist everything.m3u, which holds every mp3, in the correct location, convert / to \, and that is the currently playing file 
         if %VERBOSE == 1 echo *** grep -i "%@LINE[%temp\scrobble-regex.txt,0]" %MP3CL\LISTS\everything.m3u 
-        (@grep -i "%@LINE[%temp\scrobble-regex.txt,0]" %MP3OFFICIAL\LISTS\everything.m3u | head /N1 | @convert-slashes-to-backslashes) >%temp\scrobble-file.txt
+        (@grep -i "%@LINE[%temp\scrobble-regex.txt,0]" %MP3OFFICIAL\LISTS\everything.m3u |:u8 head /N1 |:u8 @convert-slashes-to-backslashes) >:u8%temp\scrobble-file.txt
         type %temp\scrobble-file.txt
 	echo.
 	echo.
 
 	echo *** Getting mp3 folder...
         : Now strip the filename off of the currently playing file, to get the currently playing folder
-        (@type %temp\scrobble-file.txt | @trimfile ) >%temp\scrobble-dir.txt
+        (@type %temp\scrobble-file.txt |:u8 @trimfile ) >:u8%temp\scrobble-dir.txt
         type %temp\scrobble-dir.txt
         cd "%@LINE[%temp\scrobble-dir.txt,0]" 
 	echo.
@@ -116,7 +116,7 @@ goto :skip_old_way
 
 	: The attribute file will be named attrib.lst in that currently playing folder
         set ATTRIB="%@LINE[%temp\scrobble-dir.txt,0]attrib.lst"
-        echo %ATTRIB >%temp\scrobble-attrib_used_last.txt
+        echo %ATTRIB >:u8%temp\scrobble-attrib_used_last.txt
         echo Attribute file is: 
         echo %ATTRIB
 	echo.
@@ -143,12 +143,12 @@ goto :skip_old_way
 
 :2008way
 	echo  edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT%
-	      edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >%LEARNEDSCRIPT%
+	      edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
 	goto :EditIt
 
 :2009way
 	echo  edit-currently-playing-attrib-helper.pl "%TMPMUSICSERVERCDRIVE:\Documents and Settings\oh\Local Settings\Application Data\Last.fm\Client\WinampPlugin.log" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT%
-	      edit-currently-playing-attrib-helper.pl "%TMPMUSICSERVERCDRIVE:\Documents and Settings\oh\Local Settings\Application Data\Last.fm\Client\WinampPlugin.log" %MP3OFFICIAL\lists\everything.m3u %*    >%LEARNEDSCRIPT%
+	      edit-currently-playing-attrib-helper.pl "%TMPMUSICSERVERCDRIVE:\Documents and Settings\oh\Local Settings\Application Data\Last.fm\Client\WinampPlugin.log" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
 	:                                                                  T:\Documents and Settings\oh\Local Settings\Application Data\Last.fm\Client\WinampPlugin.log
 	goto :EditIt
 
@@ -157,13 +157,13 @@ goto :skip_old_way
 	if "%HADES_DOWN"=="1" goto :HadesDown
 	:HadesNotDown
 	echo edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT%
-	     edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >%LEARNEDSCRIPT%
+	     edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
 	goto :CallECTmp
 	:HadesDown
 	set AUDIOSCROBBLER_LOG=%HD128G:\Users\carolyn\AppData\Local\Last.fm\Client\Last.fm.log
 	call validate-environment-variable AUDIOSCROBBLER_LOG
 	echo edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT%
-	     edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >%LEARNEDSCRIPT%
+	     edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
 	goto :CallECTmp
 	:CallECTmp
 	goto :EditIt
@@ -178,7 +178,7 @@ goto :skip_old_way
 	:if "%HADES_DOWN"=="1" goto :HadesDown
     :    :HadesNotDown
     :    :echo edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT%
-    :          edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >%LEARNEDSCRIPT%
+    :          edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
     :    goto :CallECTmp
 	::HadesDown
 	::et LOGFILENAME=Last.fm.log
@@ -188,7 +188,7 @@ goto :skip_old_way
         set DRIVE_TO_USE=%MUSICSERVERCDRIVE%
         if "%MACHINENAME%"  eq "%MUSICSERVERMACHINENAME%" (set DRIVE_TO_USE=C)
         echo edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT% %+ %COLOR_NORMAL%
-             edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >%LEARNEDSCRIPT%
+             edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
 	goto :CallECTmp
 	:CallECTmp
 	goto :EditIt

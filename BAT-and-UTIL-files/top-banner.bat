@@ -1,5 +1,7 @@
 @Echo Off
 
+rem TODO gonna have to do this on the bottom actually, because it turns out any discontinuity of locked rows prior to the scrollback trashes any text that tries to scroll through it. Unless a locked row is BELOW the scrolling text, you lose your scrollback.
+
 :DESCRIPTION: Locks a non-scrollable banner message at the top 3 rows of our console menu. Good for keeping track of tasks, percentage complete, etc.
 
 :USAGE: top-banner unlock               - unlock any previously set top banner
@@ -9,7 +11,7 @@
 :USAGE: top-banner "Hello precious!"    - banner message is a custom message saying whatever we want
 :USAGE: top-banner "Hi! {freespace}"    - banner message is a custom message that includes our report of free space on the current drive
 :USAGE: top-banner "Hi! {freespace}" S: - banner message is a custom message that includes our report of free space on the given drive letter
-
+:USAGE: set header_noecho=1              - to not echo it to screen in addition to drawing the header 
 
 
 rem Capture parameters:
@@ -154,11 +156,13 @@ rem Was this multiline?
                 set SPACER=%@REPEAT[ ,%@EVAL[%NUM_SPACER]]``
         :No_Adjustment
 
-rem Output the message:
-        echos %ANSI_SAVE_POSITION%%@ANSI_MOVE_TO[0,0]%LOCKED_MESSAGE_COLOR%%DIVIDER%%LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE%%ANSI_EOL%%NEWLINE%%DIVIDER%%LOCKED_MESSAGE_COLOR%
-        echos %ANSI_RESTORE_POSITION%%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%ROWS_TO_LOCK%;%[_rows]r%@CHAR[27]8%@CHAR[27][u
-
+rem Output the message to the screen as well, if we're supposed to:
+                echos %ANSI_SAVE_POSITION%%@ANSI_MOVE_TO[0,0]%LOCKED_MESSAGE_COLOR%%DIVIDER%%LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE%%ANSI_EOL%%NEWLINE%%DIVIDER%%LOCKED_MESSAGE_COLOR%
+                echos %ANSI_RESTORE_POSITION%%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%ROWS_TO_LOCK%;%[_rows]r%@CHAR[27]8%@CHAR[27][u
+        
 rem Kludge for if we are near the very top and run this —— use up a couple lines to try to get us past the header, since there is no way of easily using our cursor location for branching
-        echo.
-        echo %ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG% %DOTTIE% %LOCKED_MESSAGE% %DOTTIE% %ansi_reset% %+ rem Echo the header to the console as well.
+        iff 1 ne %header_noecho then
+                echo.
+                echo %ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG% %DOTTIE% %LOCKED_MESSAGE% %DOTTIE% %ansi_reset% %+ rem Echo the header to the console as well.
+        endiff
 :END

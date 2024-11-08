@@ -18,10 +18,10 @@ rem THIS SHOULD WORK IN A PERFECT WORLD:
 
             rem but in older versions of our command line, the maximum environment variable legnth was shorter, so we USED to have to split it into 4 separate ones
             rem so it used to unfortunately look like this:
-              (dir /b   /a:-d %* %FILEMASK_AUDIO_SPLIT_1|strip-ansi )%>&>nul
-              (dir /b   /a:-d %* %FILEMASK_AUDIO_SPLIT_2|strip-ansi )%>&>nul
-              (dir /b   /a:-d %* %FILEMASK_AUDIO_SPLIT_3|strip-ansi )%>&>nul
-              (dir /b   /a:-d %* %FILEMASK_AUDIO_SPLIT_4|strip-ansi )%>&>nul
+              (dir /b   /a:-d %* %FILEMASK_AUDIO_SPLIT_1|:u8strip-ansi )%>&>nul
+              (dir /b   /a:-d %* %FILEMASK_AUDIO_SPLIT_2|:u8strip-ansi )%>&>nul
+              (dir /b   /a:-d %* %FILEMASK_AUDIO_SPLIT_3|:u8strip-ansi )%>&>nul
+              (dir /b   /a:-d %* %FILEMASK_AUDIO_SPLIT_4|:u8strip-ansi )%>&>nul
 
 
 :END

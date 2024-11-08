@@ -37,7 +37,7 @@ if not defined TMPTMP (SET TMPTMP="%@UNIQUE[%TEMP]-%*")
 
 
 :All_Ready_Drives
-    free %_DRIVES | frpost >%TMPTMP%
+    free %_DRIVES |:u8 frpost >:u8%TMPTMP%
     cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
     goto :END
 
@@ -129,7 +129,7 @@ if not defined TMPTMP (SET TMPTMP="%@UNIQUE[%TEMP]-%*")
                 if "%28" ne "" set P28=%28:
                 if "%29" ne "" set P29=%29:
 
-                    free %letter%: %P2% %P3% %P4% %P5% %P6% %P7% %P8% %P9% %P10% %P11% %P12% %P13% %P14% %P15% %P16% %P17% %P18% %P19% %P20% %P21% %P22% %P23% %P24% %P25% %P26% %P27% %P28% %P29% | frpost
+                    free %letter%: %P2% %P3% %P4% %P5% %P6% %P7% %P8% %P9% %P10% %P11% %P12% %P13% %P14% %P15% %P16% %P17% %P18% %P19% %P20% %P21% %P22% %P23% %P24% %P25% %P26% %P27% %P28% %P29% |:u8 frpost
 
                 unset /q  P2
                 unset /q  P3
@@ -180,36 +180,36 @@ if not defined TMPTMP (SET TMPTMP="%@UNIQUE[%TEMP]-%*")
         goto :end
     :Hell
         %COLOR_ALARM% %+ echo Hell's dead, baby. Hell's dead.
-        :free  %HD250G:  | frpost
+        :free  %HD250G:  |:u8 frpost
         goto :end
     :Fire
-        free   %SHARE1000G: | frpost
+        free   %SHARE1000G: |:u8 frpost
         goto :end
     :Hades
-        free %HD256GDERRRRRRRRRRP: | frpost
+        free %HD256GDERRRRRRRRRRP: |:u8 frpost
         goto :end
     :Goliath
-        rem free %HD1000G2: %HD2000G5: %HD4000G: %HD4000G2: %HD4000G5: %HD18T2: | frpost
-        call fr %DRIVES_GOLIATH% >%TMPTMP%
+        rem free %HD1000G2: %HD2000G5: %HD4000G: %HD4000G2: %HD4000G5: %HD18T2: |:u8 frpost
+        call fr %DRIVES_GOLIATH% >:u8%TMPTMP%
         cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
         goto :end
     :Thailog
-        rem free %HD240G2: %HD512G:  %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: | frpost
-        call fr %DRIVES_THAILOG% >%TMPTMP%
+        rem free %HD240G2: %HD512G:  %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: |:u8 frpost
+        call fr %DRIVES_THAILOG% >:u8%TMPTMP%
         cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
         goto :end
     :Demona
-        call fr %DRIVES_DEMONA%  >%TMPTMP%
+        call fr %DRIVES_DEMONA%  >:u8%TMPTMP%
         cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
         goto :end
     :Wyvern
-        call fr %DRIVES_WYVERN%  >%TMPTMP%
+        call fr %DRIVES_WYVERN%  >:u8%TMPTMP%
         cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
         goto :end
 
 
 :By_Alphabet_Parameter
-    free A: B: C: D: E: F: G: H: I: J: K: L: M: N: O: P: Q: R: S: T: U: V: W: X: Y: Z: | frpost
+    free A: B: C: D: E: F: G: H: I: J: K: L: M: N: O: P: Q: R: S: T: U: V: W: X: Y: Z: |:u8 frpost
     echo.
     call warning "Because every drive letter was used, any C: mapped to another drive letter would be double counted, so this total might be high"
 goto :END
@@ -220,14 +220,14 @@ goto :END
         SET TMPTMP="%@UNIQUE[%TEMP]-%*"
         goto :ALL_%USERNAME%
         :All_Claire
-            REM free %HD240G2: %HD512G%:  %HD1000G3: %HD2000G5: %HD4000G%: %HD4000G2: %HD4000G5: %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: %HD18T2: %HD18T3: %HD20T1: %HD20T2:| frpost
-            call fr %DRIVES_GOLIATH% %DRIVES_WYVERN% %DRIVES_THAILOG% %DRIVES_DEMONA% >%TMPTMP
+            REM free %HD240G2: %HD512G%:  %HD1000G3: %HD2000G5: %HD4000G%: %HD4000G2: %HD4000G5: %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: %HD18T2: %HD18T3: %HD20T1: %HD20T2:|:u8 frpost
+            call fr %DRIVES_GOLIATH% %DRIVES_WYVERN% %DRIVES_THAILOG% %DRIVES_DEMONA% >:u8%TMPTMP
             cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
 
         goto :end
         :All_Carolyn
-            REM free %HD240G2: %HD512G%: %HD1000G3:  %HD2000G5: %HD4000G%: %HD4000G2: %HD4000G5: %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: %HD18T2: %HD18T3: %HD20T1: %HD20T2: | frpost
-            call fr %DRIVES_THAILOG% %DRIVES_WYVERN% %DRIVES_DEMONA% %DRIVES_GOLIATH% >%TMPTMP
+            REM free %HD240G2: %HD512G%: %HD1000G3:  %HD2000G5: %HD4000G%: %HD4000G2: %HD4000G5: %HD4000G7: %HD6000G1: %HD6000G2: %HD10T1: %HD10T2: %HD18T1: %HD18T2: %HD18T3: %HD20T1: %HD20T2: |:u8 frpost
+            call fr %DRIVES_THAILOG% %DRIVES_WYVERN% %DRIVES_DEMONA% %DRIVES_GOLIATH% >:u8%TMPTMP
             cat %TMPTMP%                        %+ REM cat_fast isn't reliable in this situation for some reason
         goto :end
 

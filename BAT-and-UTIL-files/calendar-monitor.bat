@@ -15,7 +15,7 @@ call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Checking if %italics_on%Calendar Monit
         call isRunning %PROCESS_REGEX% quiet >NUL
         if  %isRunning eq 1 (
             unset /q PID
-            set PID=%@EXECSTR[0,tasklist /l |grep -i ingest_ics|grep -v grep|sed -e "s/^ *//ig" -e "s/ .*$//ig" -e "s/[^0-9]//ig"]
+            set PID=%@EXECSTR[0,tasklist /l |:u8grep -i ingest_ics|:u8grep -v grep|:u8sed -e "s/^ *//ig" -e "s/ .*$//ig" -e "s/[^0-9]//ig"]
             %color_removal%
             rem call debug "Calendar Monitor is already running. Killing and restarting. %faint_on%PID='%italics_on%%PID%%italics_off%'%faint_off%"
             if defined PID (

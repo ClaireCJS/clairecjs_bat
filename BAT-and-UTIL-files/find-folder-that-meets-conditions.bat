@@ -205,7 +205,7 @@ return
                     :ensureDirListRandom
                         if exist %DIRLISTRAND% return
                         gosub ensureDirListNormal
-                        (type %DIRLISTNORM% | cygsort -R) >%DIRLISTRAND% >&>nul
+                        (type %DIRLISTNORM% |:u8 cygsort -R) >:u8%DIRLISTRAND% >&>nul
                     return                        
                     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

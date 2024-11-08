@@ -64,7 +64,7 @@ rem STUFF WE CAN ONLY DO IF THE DRIVE IS ACTUALLY READY RIGHT NOW:
             rem SHARE THE DRIVE:
                 cls
                 %COLOR_PROMPT% %+ echos *** Here is the pattern of network share names: *** %+ %COLOR_NORMAL% %+ echo.
-                call env.bat|grep -i "mapping_[a-z]="|call "highlight [A-Z0-9]+$"
+                call env.bat|:u8grep -i "mapping_[a-z]="|:u8call "highlight [A-Z0-9]+$"
                 gosub question "* Share the drive now:" %+ pause
                 call MyComputer
 

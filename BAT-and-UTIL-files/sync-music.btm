@@ -505,9 +505,9 @@ return
                         %COLOR_WARNING% %+ echo * Wiping device (%DriveLetter%) partially... %+ if "%DEBUG_WIPE%" eq "1" (pause)
                         %COLOR_NORMAL%  %+ %DriveLetter:\ %+ %DriveLetter:\%BaseDir\ %+ if not isdir %DriveLetter:\%BaseDir\ (echo %DriveLetter:\%BaseDir\ doesn't exist! Let's make it! %+ pause %+ md %DriveLetter:\%BaseDir\)
                             gosub ensureFileList
-                            grep -i "[\\\/]unsorted"  filelist.txt   >%WIPELIST%  %+ REM wipes \unsorted\ files
-                            grep -i "\.[bw]a[kv]$"    filelist.txt  >>%WIPELIST%  %+ REM wipes .bak and .wav 
-                            grep -i ".flac$"          filelist.txt  >>%WIPELIST%  %+ REM wipes .flack
+                            grep -i "[\\\/]unsorted"  filelist.txt   >:u8%WIPELIST%  %+ REM wipes \unsorted\ files
+                            grep -i "\.[bw]a[kv]$"    filelist.txt  >>:u8%WIPELIST%  %+ REM wipes .bak and .wav 
+                            grep -i ".flac$"          filelist.txt  >>:u8%WIPELIST%  %+ REM wipes .flack
                         %WIPECOMMAND% @%WIPELIST%
                         %WIPECOMMAND%  %WIPELIST%
                     return		
@@ -634,11 +634,11 @@ return
                     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                     :ensureFileList
-                        if not exist filelist.txt (dir /a:-d /s /b /[!filelist.txt] >filelist.txt)
+                        if not exist filelist.txt (dir /a:-d /s /b /[!filelist.txt] >:u8filelist.txt)
                     return                        
                     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                     :ensureDirList
-                        if not exist  dirlist.txt (dir /a:d     /b                  > dirlist.txt)
+                        if not exist  dirlist.txt (dir /a:d     /b                  >:u8 dirlist.txt)
                     return                        
                     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

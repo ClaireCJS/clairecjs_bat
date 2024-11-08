@@ -593,7 +593,7 @@ REM delete zero-byte LRC files that can be created
 
 REM did we create the LRC file?
         call validate-environment-variable EXPECTED_OUTPUT_FILE "expected output file of '%italics%%EXPECTED_OUTPUT_FILE%%italics_off%' does not exist"
-        if exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" (@echo %EXPECTED_OUTPUT_FILE%%::::%_DATETIME%::::%TRANSCRIBER_TO_USE% >>"__ contains AI-generated SRT files __")
+        if exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" (@echo %EXPECTED_OUTPUT_FILE%%::::%_DATETIME%::::%TRANSCRIBER_TO_USE% >>:u8"__ contains AI-generated SRT files __")
         title %CHECK%%BASE_TITLE_TEXT%
 
 rem If we did, we need to rename any sidecar TXT file that might be there {from already-having-existed}, becuase 

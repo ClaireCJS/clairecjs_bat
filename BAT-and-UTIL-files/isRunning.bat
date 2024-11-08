@@ -1,4 +1,4 @@
-@Echo Off
+@Echo off
 
 :USAGE: isRunning {regex} ['quiet'] - sets envvar ISRUNNING to 0 or 1, depending on if a process matching regex is running
 :USAGE:                               optional param 2 of 'quiet' makes it silent mode
@@ -17,11 +17,11 @@
 ::::: CHECK IF THE PROCESS IS RUNNING:
     if %isRunning_fast eq 1 (
         set COMMENTISRUNNING=echo doing fast, %%1='%1'
-        if %@pid[%1] ne 0 (
+        iff %@pid[%1] ne 0 then
             set ISRUNNING=1
-        ) else (
+        else
             set ISRUNNING=0
-        )
+        endiff
     ) else (
         set COMMENTISRUNNING=had to remove these in 2022 when moving to Windows 10... set TASKLIST_NONEXE_OPTIONS=/l /o
         REM old command was: set OUTPUT=%@EXECSTR[taskList  %*|grep -i -v grep|grep -i -v keep-killing-if-running|grep -i -v react-after-program-closes] ADFASDFASFDASDF

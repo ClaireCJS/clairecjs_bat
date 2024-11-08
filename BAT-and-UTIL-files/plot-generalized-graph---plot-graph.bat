@@ -26,7 +26,7 @@
     if not exist "%TARGET_GRAPH_DIR%" (mkdir /s "%TARGET_GRAPH_DIR%")
 
 ::::: DISPLAY THE VALUES (our grep has grep coloring, which we like to remove)
-    (grep -i %KNOWN_NAME% "%TRACKING_FILE%"|strip-ansi)
+    (grep -i %KNOWN_NAME% "%TRACKING_FILE%"|:u8strip-ansi)
 
 ::::: CONSTANTS:
     set     TARGET=%TARGET_GRAPH_DIR%\%WHAT_WE_ARE_TRACKING%-graph-%OUR_NAME-%_DATETIME.png

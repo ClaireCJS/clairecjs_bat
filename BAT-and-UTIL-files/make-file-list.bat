@@ -19,12 +19,12 @@
 
     :quick
         :: the tricky part is that we need to exclude the name of the filelist itself from the produced list. Recursive playlists suck!
-        dir /b /s  /[!%TARGET_FILENAME%] >%TARGET_FILENAME%
+        dir /b /s  /[!%TARGET_FILENAME%] >:u8%TARGET_FILENAME%
     goto :end
 
     :slow
     :full
-        dir /b /s /a:%ATTRIBMASK% /[!%TARGET_FILENAME%] | sizedir %* | cut -c%@EVAL[%@LEN[%_CWDS] + 1]- >%TARGET_FILENAME%
+        dir /b /s /a:%ATTRIBMASK% /[!%TARGET_FILENAME%] |:u8 sizedir %* |:u8 cut -c%@EVAL[%@LEN[%_CWDS] + 1]- >:u8%TARGET_FILENAME%
     goto :end
 
 :end

@@ -2398,7 +2398,7 @@ return
 	:Initialclaire
 		:Defaults should be fine! :)
          REM (randblack.bat)
-         REM call redefine-the-colorblack-randomly.bat >>&>nul
+         REM call redefine-the-colorblack-randomly.bat >>&>:u8nul
 	return
 	:Initialcarolyn
         rem Some repositories are supposed to be person-specific, so those that get redefined go here:

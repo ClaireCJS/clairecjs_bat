@@ -11,6 +11,6 @@ rem Validate the environment once per session:
 rem Display the file sizes, but sort them by human-readable size, and align the columns:
         rem ((du -ha --max-depth=1)|sort-by-human-readable-size) :2020 had to mysteriously drop the -a from -ha for some reason
         rem ((du -h  --max-depth=1)|sort-by-human-readable-size) :2024 re-did with column alignment:
-            ((du -h  --max-depth=1)|sort-by-human-readable-size)|tr '\t' '*'|column -t -s '*'
+            ((du -h  --max-depth=1)|:u8sort-by-human-readable-size)|:u8tr '\t' '*'|:u8column -t -s '*'
 
 

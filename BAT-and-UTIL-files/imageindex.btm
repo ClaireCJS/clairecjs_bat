@@ -1,5 +1,8 @@
 @Echo OFF
 
+ rem doesn't work with unicode output:
+         option //unicodeoutput=no
+ 
 ::::: CONFIGURATION:
     setdos /X0
     set DEBUG=0
@@ -89,19 +92,19 @@ if "%DEBUG"=="1" (%COLOR_DEBUG% %+ echo * Checkpoint Alpha.  %+ %COLOR_NORMAL% %
 
     :::: TCMD v15 way:        
 :      %DIRB%       %FILEMASK_VIDEO%;%FILEMASK_IMAGE%     
-:   (((%DIRB%       %FILEMASK_VIDEO%;%FILEMASK_IMAGE%) >&>nul) >>%TMP2)
+:   (((%DIRB%       %FILEMASK_VIDEO%;%FILEMASK_IMAGE%) >&>:u8 nul) >>:u8 %TMP2)
 
     :::: TCMD v19 bug-workaround:        
     call settmpfile %+ set TMPDIRFILE=%TMPFILE% %+ call settmpfile %+ REM grab another unique tmp filename, but leave %tmpfile pointing to somethign that isn't what we just popped off - i should probably have a tmpFile factory script at this point
-    (((if exist %FILEMASK_IMAGE% %DIRB% %FILEMASK_IMAGE%) >&>nul) >>%TMPDIRFILE%)
-    (((if exist %FILEMASK_VIDEO% %DIRB% %FILEMASK_VIDEO%) >&>nul) >>%TMPDIRFILE%)
-    call sort.bat <"%TMPDIRFILE%" >%TMP2
+    (((if exist %FILEMASK_IMAGE% %DIRB% %FILEMASK_IMAGE%) >&>:u8nul) >>:u8%TMPDIRFILE%)
+    (((if exist %FILEMASK_VIDEO% %DIRB% %FILEMASK_VIDEO%) >&>:u8nul) >>:u8%TMPDIRFILE%)
+    call sort.bat <"%TMPDIRFILE%" >:u8%TMP2
 
     %COLOR_NORMAL%
     if "%DEBUG%" eq "1" (%COLOR_DEBUG% %+ echo * Checkpoint afterDIRB. %+ pause)
     goto :done_with_file_index
         :video_only
-        if exist %FILEMASK_VIDEO%  .or. "%RECURSIVE"=="1" (%DIRB% %FILEMASK_VIDEO% >&>nul >>%TMP2)
+        if exist %FILEMASK_VIDEO%  .or. "%RECURSIVE"=="1" (%DIRB% %FILEMASK_VIDEO% >&>:u8 nul >>:u8 %TMP2)
         echo well?
         if "%DEBUG%" eq "1" (%COLOR_DEBUG% %+ echo * Checkpoint after :video_only. %+ pause)
     :done_with_file_index
@@ -213,3 +216,4 @@ if "%GENERATE"=="GENERATE" goto :GENERATE2
     call fixtemp
     set      LAST_ACTION=IMAGE_INDEX
     unset /q LAST_ACTION_TYPE
+    call environm force %+ rem restore unicodeoutput settings in environm.btm

@@ -16,7 +16,7 @@ rem If it doesn't exist, or if we are forcing a re-dump, then do it:
                 
                 rem 2.2 seconds: set|sed "s/=.*$//ig" >"%TMPFILE%" 👈👈👈🏻 If you uncomment this, don't forget to add sed to the list in validate-in-path above
                 rem 0.0 seconds:
-                set|cut -d "=" -f1 >"%TMPFILE%"
+                set|:u8cut -d "=" -f1 >:u8"%TMPFILE%"
 
             rem timer /4 off
         )

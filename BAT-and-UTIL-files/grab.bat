@@ -74,4 +74,4 @@ if isdir "%TARGET" goto :TargetExists_YES
 
 :END
 	unset /q CONFIRM
-    dir | highlight %TARGET%
+    dir |:u8 highlight %TARGET%

@@ -249,7 +249,7 @@ goto :END
 	:::NO LONGER DOING THIS:
 	::Quotes feed for Gmail signatures, where the title is all that counts, and where my other info must be inserted:
 	:c:\bat\quotes-RSS-feed-generator.pl 1 <%WWW\quotes\quotes.txt >%WWW\quotes\quotes-rss-gmail-signature-test1.xml
-	echo asdf | call auto-ftp
+	echo asdf |:u8 call auto-ftp
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

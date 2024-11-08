@@ -13,7 +13,7 @@ goto %OS
 :NT
 :2K
 :XP
-        (handle.exe | handles-post.pl) >%HANDLES%
+        (handle.exe |:u8 handles-post.pl) >:u8%HANDLES%
         goto :EDIT
 :7
 :10
@@ -24,10 +24,10 @@ goto %OS
 
         :7NotAdmin
             if "%1" eq "" goto :Arg_NO
-                    (runas /profile /user:%MACHINENAME\Administrator    handle.exe | handles-post.pl ) >%HANDLES%
+                    (runas /profile /user:%MACHINENAME\Administrator    handle.exe |:u8 handles-post.pl ) >:u8%HANDLES%
                     goto :DoneWith7
                 :Arg_NO
-                     runas /profile /user:%MACHINENAME\Administrator    handle.exe | handles-post.pl | gr %1
+                     runas /profile /user:%MACHINENAME\Administrator    handle.exe |:u8 handles-post.pl |:u8 gr %1
             :DoneWith7
         goto :EDIT
 

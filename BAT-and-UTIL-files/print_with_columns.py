@@ -144,12 +144,18 @@ def determine_optimal_columns(lines, console_width, divider_len, desired_max_hei
         INTERNAL_LOG += f"* If # columns={tentative_cols}, then:\t... width?={tentative_total_width} ... console={console_width}x{console_height}, num_lines(orig)={num_lines}, AR={aspect_ratio},AR_diff={aspect_diff}\n"
 
         if aspect_diff < record_low_aspect_ratio_difference:                   # Accept the additional column for better aspect ratio
-            optimal_cols = tentative_cols
-            column_widths = tentative_column_widths
-            total_width = tentative_total_width
             record_low_aspect_ratio_difference = aspect_diff
-        else:
-            keep_going = False                                  # No improvement in aspect ratio; stop adding columns
+            pass    #todo
+            
+        #print(f"if tentative_total_width:{tentative_total_width} > console_width:{console_width}: keep_going = False")
+        if tentative_total_width > console_width: 
+            keep_going = False
+        else:                                   
+            tentative_cols += 1
+        
+        optimal_cols  = tentative_cols-1        
+        column_widths = tentative_column_widths
+        total_width   = tentative_total_width
 
     INTERNAL_LOG += f"* phase 2:RETURNING: returning optimal_cols={optimal_cols} & widths of {column_widths}\n"
     return optimal_cols, column_widths

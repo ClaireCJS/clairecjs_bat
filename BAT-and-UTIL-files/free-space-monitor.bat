@@ -17,10 +17,10 @@ if "%1" eq "" (
 )
 
 :again
-    (free %1: | frpost) >%TMPTMP%
+    (free %1: |:u8 frpost) >:u8%TMPTMP%
     cls
-    cat_fast             %TMPTMP%
-    *del /q              %TMPTMP%
+    cat_fast                   %TMPTMP%
+    *del /q                    %TMPTMP%
     sleep 3
 goto :again
 

@@ -287,7 +287,7 @@ REM Add replaygain tags
             call errorlevel "replaygain tag add problem in %0 line 276ish"
         popd  
         if exist go-to-album.bat (*del go-to-album.bat)             %+ REM now that we've used it, we don't need it  [TODO maybe change to *del]
-        *del /q _ingest.log >nul                                    %+ REM ingest log is actually copied into our target folder but a copy remains here, which we do not want
+        *del /q _ingest.log >:u8nul                                 %+ REM ingest log is actually copied into our target folder but a copy remains here, which we do not want
         call fix-unicode-filenames.bat delete_log                   %+ REM ingest can also create a fix_unicode_filenames.log file if filenames end up getting scrubbed
 
 
@@ -338,7 +338,7 @@ REM Change out of temp folder and move things back to where we started
 :END
         echo. %+ echo. %+ echo. 
         call celebration "%EMOJI_CHECK_MARK%Download complete!!!%EMOJI_CHECK_MARK%"
-        REM  celebration.bat->print-message.bat does titles automatically now so we don't need to do this anymore: title Completed:  Youtube album download
+        REM  celebration.bat->:u8print-message.bat does titles automatically now so we don't need to do this anymore: title Completed:  Youtube album download
         popd
         dir
 

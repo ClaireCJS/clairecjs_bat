@@ -45,7 +45,7 @@ REM do we add /N to do a dry run first?
             call bigecho %RED_FLAG% Dry run: %RED_FLAG%
                 echos %MV_DECORATOR%%MOVE_DECORATOR%%MV_DECORATOR_ON%%MOVE_DECORATOR_ON%
                       rem cat_fast re-rendered broken ansi correctly:
-                      %MOVE_COMMAND% /N %ARGS% |& c:\bat\copy-move-post.py | c:\util\cat_fast
+                      %MOVE_COMMAND% /N %ARGS% |&:u8 c:\bat\copy-move-post.py |:u8 c:\util\cat_fast
                 rem   %MOVE_COMMAND% /N %ARGS% |& copy-move-post.exe ... is 7X slower
                 echos %MV_DECORATOR_OFF%%MOVE_DECORATOR_OFF%
             echo.

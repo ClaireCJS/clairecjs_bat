@@ -167,8 +167,9 @@ goto :END_OF_SUBROUTINES
                                     REM set UNZIP_COMMAND=*unzip /v %OUR_ZIP%  
                                     REM call print-if-debug "Unzip command is: %UNZIP_COMMAND ... and will redirect to target: '%OUR_TXT%'"
                                     REM sort it (cygwin sort.exe) 
-                                    REM echo *unzip /v %OUR_ZIP% `|` call cygsort --ignore-case -k5 `>`"%OUR_TXT"
-                                             *unzip /v %OUR_ZIP%  |  call cygsort --ignore-case -k5  > "%OUR_TXT"
+                                    REM echo *unzip /v %OUR_ZIP% `|`    call cygsort --ignore-case -k5 `>`"%OUR_TXT"
+                                    REM      *unzip /v %OUR_ZIP%  |     call cygsort --ignore-case -k5  > "%OUR_TXT"  until 20241107
+                                             *unzip /v %OUR_ZIP%  |:u8  call cygsort --ignore-case -k5  > "%OUR_TXT"
                                     call errorlevel "Unzipping our associated %shared_type% file failed?!"
                                     call validate-environment-variable OUR_ZIP OUR_TXT
                         popd

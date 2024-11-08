@@ -17,7 +17,7 @@ goto :END
         REM echo OUTPUT is '%OUTPUT%'
         REM echo        if %INDEX[%OUTPUT,does not contain EXIF] ne 1 color bright yellow on black
         rem echo %OUTPUT% | gr -v echo.is.off
-        call exiflist "%file" | grep -i "date.*taken"
+        call exiflist "%file" |:u8 grep -i "date.*taken"
         echo.
     return
 

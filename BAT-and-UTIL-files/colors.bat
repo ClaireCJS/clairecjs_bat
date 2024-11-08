@@ -42,8 +42,8 @@ if %SILENT ne 1  (
 
 call settmpfile 
 set ALL_COLORS=
-set|grep -i color|sed "s/=.*$//ig" >"%TMPFILE%"
-:DEBUG: (set|sed "s/=.*$//ig") %+ echo TMPFILE: %+ type "%TMPFILE%" %+ pause
+set|:u8grep -i color|:u8sed "s/=.*$//ig" >:u8"%TMPFILE%"
+:DEBUG: (set|:u8sed "s/=.*$//ig") %+ echo TMPFILE: %+ type "%TMPFILE%" %+ pause
 for /f "tokens=1-999" %co in (%TMPFILE%) gosub ProcessEnvVar %co%
 
 

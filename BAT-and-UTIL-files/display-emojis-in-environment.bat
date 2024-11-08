@@ -9,7 +9,7 @@ if "%1" eq "tight"  set TIGHT=1
 call settmpfile
 call important "dumping variables"
 set|sed "s/=.*$//ig" >"%TMPFILE%"
-:DEBUG: (set|sed "s/=.*$//ig") %+ echo TMPFILE: %+ type "%TMPFILE%" %+ pause
+:DEBUG: (set|:u8sed "s/=.*$//ig") %+ echo TMPFILE: %+ type "%TMPFILE%" %+ pause
 call important "processing variables"
 for /f "tokens=1-999" %co in (%TMPFILE%) gosub ProcessEnvVar %co%
 

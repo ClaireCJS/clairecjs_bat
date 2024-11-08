@@ -1,1 +1,1 @@
-metaflac --list *.flac|gr replaygain
+metaflac --list *.flac|:u8gr replaygain
