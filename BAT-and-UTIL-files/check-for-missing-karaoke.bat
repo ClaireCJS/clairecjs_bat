@@ -20,14 +20,16 @@ rem Initialization:
 rem Parameter checking:
         rem no-parameter case:
                 iff "%1" eq ""  then
-                        call warning "Uh oh! No filelist was specified!"
-                        call AskYn   "%italics_on%instead%italics_off% use files here that match: %DEFAULT_FILEMASK% ?" yes 99999
+                        call warning "Uh oh! No filelist was specified!%" silent
+                        rem call AskYn   "%italics_on%instead%italics_off% use files here that match: %DEFAULT_FILEMASK% ?" yes 99999
+                        call warning "Using FILEMASK_AUDIO to find files instead" silent
                         set FILEMASK_TO_USE=%DEFAULT_FILEMASK%
                         dir /b %FILEMASK_TO_USE% 
 
                 endiff
         rem Use different filelist name depending on parameters:
-                if "%@REGEX[\/s,%dir_params%]" eq "1" (set FILELIST_TO_USE=all.m3u)
+                echo - DEBUG: if "%@REGEX[\/[sS],%dir_params%]" eq "1" (set FILELIST_TO_USE=all.m3u) 🐐🐐🐐
+                              if "%@REGEX[\/[sS],%dir_params%]" eq "1" (set FILELIST_TO_USE=all.m3u)
                 dir /b /[!*instrumental*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%
 
 

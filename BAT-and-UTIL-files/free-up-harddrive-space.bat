@@ -31,8 +31,10 @@ gosub CreateIfGone c:\recycled
 rem Files that could be anywhere:
 
 echo.
-gosub DeleteEverywhere *._vad_collected_chunks*.wav
-gosub DeleteEverywhere *._vad_original*.srt
+gosub DeleteEverywhere               *._vad_collected_chunks*.wav
+gosub DeleteEverywhere               *._vad_original*.srt
+gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
+gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
     
 
         goto :skip_1

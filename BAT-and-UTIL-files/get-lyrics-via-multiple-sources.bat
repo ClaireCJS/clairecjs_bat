@@ -94,6 +94,10 @@ rem Get artist and song so we can use them to download lyrics:
         set      FILE_ARTIST=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%" |:u8 change-single-quotes-to-double-apostrophes.py]
         set        FILE_SONG=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=title  -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%" |:u8 change-single-quotes-to-double-apostrophes.py]
         set FILE_ORIG_ARTIST=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=TOPE   -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%" |:u8 change-single-quotes-to-double-apostrophes.py]
+        
+        rem If we didn't get a title, use the filename after the number, i.e. "01_Time.flac" ——> "Time"
+        if "%FILE_SONG%" eq "" (set FILE_SONG=%@rereplace[[\d]+_,,%@name["%AUDIO_FILE%"]])
+        
         set       FILE_TITLE=%FILE_SONG%
         if %DEBUG gt 0 call unimportant "Probing done" 
         rem "Title" is better than "Song", but we are doing both for ease of remembrance
@@ -346,13 +350,15 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 endiff
 
         rem Get the most latest file:
-                set LATEST_FILE=%@EXECSTR[dir /b /odt | tail -1]
+                set LATEST_FILE=%@EXECSTR[dir /b /odt |:u8 tail -1]
 
         rem Generate the proper filename for our freshly-downloaded lyrics, and if it already exists, back it up:
                 set PREFERRED_LATEST_FILE_NAME=%@NAME[%AUDIO_FILE].%@EXT[%LATEST_FILE]
                 if exist "%PREFERRED_LATEST_FILE_NAME%" (ren /q "%PREFERRED_LATEST_FILE_NAME%" "%PREFERRED_LATEST_FILE_NAME%.%_datetime.bak">nul)
 
         rem See if our latest file is the expected extension [which would indicate download sucess] or not:
+                
+           echo set  MYSIZEY=%@FILESIZE[%LATEST_FILE]
                 set  MYSIZEY=%@FILESIZE[%LATEST_FILE]
                 iff %MYSIZEY% gt %MOST_BYTES_THAT_LYRICS_COULD_BE% then  
                         rem annoying because this situation ended up not as urgent as originall thought: beep 40 40
@@ -497,6 +503,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: END: ————————�
 
 rem Final chance to hand-edit the lyrics if we haven't approved them yet:
         :ask_to_hand_edit_lyrics
+        call divider
         call AskYN "%italics_on%Google%italics_off% for lyrics" no %GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME%
         iff "%answer%" eq "Y" then
                 rem These are current values: google %FILE_ARTIST_TO_USE% %FILE_SONG_TO_USE% lyrics

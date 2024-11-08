@@ -13,11 +13,15 @@ import re
 import textwrap
 from rich.console import Console                                    #shutil *and* os do *NOT* get the right console dimensions under Windows Terminal
 
+import sys
+sys.stdin .reconfigure(encoding='utf-8', errors='replace')
+sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
+
 # Define default ROW_PADDING
 DEFAULT_ROW_PADDING = 7  # Number of rows to subtract from screen height as desired maximum
 
 # Define the divider and its visible length
-
 content_ansi           =  "\033[0m"
 divider_ansi           =  "\033[38;2;187;187;0m"
 divider                = f"  {divider_ansi}" + "│" + f"  {content_ansi}"  # Divider with #BBBB00 color and additional padding
@@ -106,8 +110,7 @@ def determine_optimal_columns(lines, console_width, divider_len, desired_max_hei
     INTERNAL_LOG += f"determine_optimal_columns({len(lines)} lines, width={console_width}, div-len={divider_len}, desired_rows={desired_max_height}, strict={strict})\n"
     INTERNAL_LOG += f"\tmax_line_length is {max_line_length}\n"
 
-    if strict:
-        # Enforce the specified number of columns without adjustment
+    if strict:                      # Enforce the specified number of columns without adjustment (🐮untested)
         optimal_cols = initial_cols
         rows_per_col = ceil(num_lines / optimal_cols)
         column_lines = [lines[i * rows_per_col:(i + 1) * rows_per_col] for i in range(optimal_cols)]
@@ -121,10 +124,9 @@ def determine_optimal_columns(lines, console_width, divider_len, desired_max_hei
             print(f"Warning: Specified number of columns ({optimal_cols}) may exceed console width ({console_width}).")
             print(f"Total required width: {total_width}. Some lines may wrap or be truncated.")
 
+        if optimal_cols <= 0: optimal_cols = 1        
+        INTERNAL_LOG += f"* phase 2:RETURNING: returning optimal_cols={optimal_cols} & widths of {column_widths}\n"
         return optimal_cols, column_widths
-
-
-
 
 
 
@@ -153,9 +155,10 @@ def determine_optimal_columns(lines, console_width, divider_len, desired_max_hei
         else:                                   
             tentative_cols += 1
         
-        optimal_cols  = tentative_cols-1        
-        column_widths = tentative_column_widths
-        total_width   = tentative_total_width
+    optimal_cols  = tentative_cols-1        
+    column_widths = tentative_column_widths
+    total_width   = tentative_total_width
+    if optimal_cols <= 0: optimal_cols = 1
 
     INTERNAL_LOG += f"* phase 2:RETURNING: returning optimal_cols={optimal_cols} & widths of {column_widths}\n"
     return optimal_cols, column_widths
@@ -190,6 +193,13 @@ if args.columns:
 else:
     # If dynamic columns were adjusted, inform the user
     INTERNAL_LOG = INTERNAL_LOG + f"Determined number of columns: {columns}"
+
+
+# short-circuit if columns is 1 —— we're just printing it normally if there's just 1 column!
+if columns == 1:
+    for line in input_data: print (line)
+    exit(1)
+
 
 # Function to format text into columns
 def format_columns(lines, columns, column_widths, divider):

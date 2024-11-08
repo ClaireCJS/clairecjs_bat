@@ -14,6 +14,7 @@ rem If we didn't, then go to the currently playing song folder to process
                 goto :END
         else
                 call go-to-currently-playing-song-dir
+                call errorlevel
         endiff
 
 rem Make sure the previous script currently set %CURRENT_SONG_FILE%

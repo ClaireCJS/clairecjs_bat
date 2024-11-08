@@ -71,15 +71,17 @@ REM Process parameters
     set MESSAGE=Null
     set SILENT_MESSAGE=0
     set TYPE=%PM_PARAM1%                                                         %+ REM both the color and message type, actually
-                                        set  MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
+
+    rem moved to end of this block      set  MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
     if "%PM_PARAM3%"       eq "1" .or. "%PM_PARAM3%" eq "2" .or. "%PM_PARAM3%" eq "3" .or. "%PM_PARAM3%" eq "" (set MESSAGE=%@UNQUOTE[`%PM_PARAM2%`])
     if "%PM_PARAM3%"       eq "1"      (set  DO_PAUSE=1)
-    if "%PM_PARAM2%"       eq "silent" (set  SILENT_MESSAGE=1 %+ set PM_PARAM2=)
+    if "%PM_PARAM3%"       eq "silent" (set  SILENT_MESSAGE=1 %+ set PM_PARAM2= %+     set PM_PARAMS2=%2 %4$)
     if "%PM_PARAM3%"       eq "2"      (set  SILENT_MESSAGE=1)
     if "%PM_PARAM2%"       eq "yes"    (set  DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
     if "%PM_PARAM2%"       eq "pause"  (set  DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
     if %DEBUG_PRINTMESSAGE eq  1       (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% )
     if %DEBUG_PRINTMESSAGE eq  1       (echo DEBUG: TYPE=%TYPE%,DO_PAUSE=%DO_PAUSE%,MESSAGE=%MESSAGE%)
+                                        set  MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
 
     if defined COLOR_%TYPE% (
             set     OUR_COLORTOUSE=%[COLOR_%TYPE%]

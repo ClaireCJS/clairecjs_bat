@@ -55,11 +55,11 @@ rem                      3) also outputs a .BAT pattern that can be incorporated
 :PUBLISH:
 :DESCRIPTION: TODO
 :DEPENDENCIES: validate-in-path.bat   echos beep sed color colors.bat colortool.bat randcolor.bat print-message.bat fatal_error.bat fatalerror.bat exit-maybe.bat important.bat advice.bat debug.bat print-if-debug.bat settmpfile.bat 
-if    1   ne  %validated_errorlevel (
-          call validate-in-path       echos beep sed color colors.bat colortool.bat randcolor.bat print-message.bat fatal_error.bat fatalerror.bat exit-maybe.bat important.bat advice.bat debug.bat print-if-debug.bat settmpfile.bat 
-          call validate-env-vars      ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING ANSI_PREFERRED_CURSOR_SHAPE ANSI_ERASE_TO_EOL ANSI_BACKGROUND_BLACK ANSI_COLOR_BRIGHT_RED COLOR_SUCCESS COLOR_SUCCESS_HEX COLOR_NORMAL COLOR_ADVICE ANSI_COLOR_WARNING COLOR_ALARM_HEX ITALICS_ON ITALICS_OFF BLINK_ON BLINK_OFF STAR
-          call validate-functions     ANSI_CURSOR_CHANGE_COLOR_HEX
-          set  validated_errorlevel=1
+if   1   ne  %validated_errorlevel (
+         call validate-in-path       echos beep sed color colors.bat colortool.bat randcolor.bat print-message.bat fatal_error.bat fatalerror.bat exit-maybe.bat important.bat advice.bat debug.bat print-if-debug.bat settmpfile.bat 
+         call validate-env-vars      ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING ANSI_PREFERRED_CURSOR_SHAPE ANSI_ERASE_TO_EOL ANSI_BACKGROUND_BLACK ANSI_COLOR_BRIGHT_RED COLOR_SUCCESS COLOR_SUCCESS_HEX COLOR_NORMAL COLOR_ADVICE ANSI_COLOR_WARNING COLOR_ALARM_HEX ITALICS_ON ITALICS_OFF BLINK_ON BLINK_OFF STAR
+         call validate-functions     ANSI_CURSOR_CHANGE_COLOR_HEX
+         set  validated_errorlevel=1
 )
 
 
@@ -73,12 +73,12 @@ REM Parameters: Process: errorlevel
     set OUR_ERRORLEVEL=0
     if %DEBUG_CALLER_ERRORLEVEL gt 0 call debug "OUR_ERRORLEVEL is[A] '%OUR_ERRORLEVEL%', RECEIVED_ERRORLEVEL_1=%RECEIVED_ERRORLEVEL_1%, RECEIVED_ERRORLEVEL_2=%RECEIVED_ERRORLEVEL_2%, _callingerrorlevel='%_callingerrorlevel%', _callingerrorlevel2='%_callingerrorlevel2%', _callingfile='%_callingfile'"
 
-    if %RECEIVED_ERRORLEVEL_1 gt %OUR_ERRORLEVEL      set OUR_ERRORLEVEL=%RECEIVED_ERRORLEVEL_1
-    if %RECEIVED_ERRORLEVEL_2 gt %OUR_ERRORLEVEL      set OUR_ERRORLEVEL=%RECEIVED_ERRORLEVEL_2
-    if  %_callingerrorlevel   gt %OUR_ERRORLEVEL      set OUR_ERRORLEVEL=%_callingerrorlevel
-    if  %_callingerrorlevel2  gt %OUR_ERRORLEVEL      set OUR_ERRORLEVEL=%_callingerrorlevel2
+    if %RECEIVED_ERRORLEVEL_1   gt %OUR_ERRORLEVEL   (set OUR_ERRORLEVEL=%RECEIVED_ERRORLEVEL_1)
+    if %RECEIVED_ERRORLEVEL_2   gt %OUR_ERRORLEVEL   (set OUR_ERRORLEVEL=%RECEIVED_ERRORLEVEL_2)
+    if  %_callingerrorlevel     gt %OUR_ERRORLEVEL   (set OUR_ERRORLEVEL=%_callingerrorlevel   )
+    if  %_callingerrorlevel2    gt %OUR_ERRORLEVEL   (set OUR_ERRORLEVEL=%_callingerrorlevel2  )
     
-    if %DEBUG_CALLER_ERRORLEVEL gt 0 call debug "OUR_ERRORLEVEL is[B] '%OUR_ERRORLEVEL%', _callingerrorlevel='%_callingerrorlevel%', _callingerrorlevel2='%_callingerrorlevel2%', _callingfile='%_callingfile'"
+    if %DEBUG_CALLER_ERRORLEVEL gt 0 (call debug "OUR_ERRORLEVEL is[B] '%OUR_ERRORLEVEL%', _callingerrorlevel='%_callingerrorlevel%', _callingerrorlevel2='%_callingerrorlevel2%', _callingfile='%_callingfile'")
 
 
 REM Parameters: Process: calling file
@@ -109,9 +109,11 @@ if %OUR_ERRORLEVEL% le 0 (
     )
     set REDO_BECAUSE_OF_ERRORLEVEL=0
     set REDO=0
+    set ERRORCATCHER_ERRORLEVEL=0
 )
 
 if %OUR_ERRORLEVEL% gt 0 (   
+    set ERRORCATCHER_ERRORLEVEL=%OUR_ERRORLEVEL%
     set REDO_BECAUSE_OF_ERRORLEVEL=1
     set REDO=
 

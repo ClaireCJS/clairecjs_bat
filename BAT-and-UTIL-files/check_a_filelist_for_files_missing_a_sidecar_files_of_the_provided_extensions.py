@@ -35,8 +35,8 @@ import glob
 from termcolor import colored
 
 
-SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here.bat"
-SCRIPT_NAME_FOR_KARAOKE_CREATION = "create-the-missing-karaokes-here.bat"
+SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here-temp.bat"
+SCRIPT_NAME_FOR_KARAOKE_CREATION = "create-the-missing-karaokes-here-temp.bat"
 
 
 def main(input_filename, extensions, options, extra_args):

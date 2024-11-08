@@ -56,6 +56,7 @@ REM config: 2023:
         endiff
 
 REM Pre-run cleanup:
+        echos %ansi_color_unimportant%
         timer /5 on                     %+ rem Let's time the overall process
         @call tock                      %+ rem purely cosmetic
         unset /q LYRIC_ATTEMPT_MADE
@@ -67,7 +68,7 @@ REM Pre-run cleanup:
 REM validate environment [once]:
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
-                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top
+                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  deprecate.bat
                 @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning TRANSCRIBER_PDNAME ansi_color_warning_soft ANSI_COLOR_BLUE
                 @call validate-is-function           randfg_soft
                 @call checkeditor
@@ -150,7 +151,7 @@ REM if 2nd parameter is lyric file, use that one:
 
 REM display debug info
         :Retry_Point
-        @call debug "(8)%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE='%ITALICS_ON%%SONGBASE%%ITALICS_OFF%'%NEWLINE%%TAB%%TAB%LRC_FILE='%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%', %NEWLINE%%TAB%%TAB%TXT_FILE='%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%'%FAINT_OFF%%NEWLINE%"
+        echo %ansi_color_debug%- DEBUG: (8)%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE='%ITALICS_ON%%SONGBASE%%ITALICS_OFF%'%NEWLINE%%TAB%%TAB%LRC_FILE='%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%', %NEWLINE%%TAB%%TAB%TXT_FILE='%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%'%FAINT_OFF%%NEWLINE%%ansi_color_normal%"
         rem @echo Hello?!?!?!
         gosub say_if_exists SONGFILE
         gosub say_if_exists SRT_FILE
@@ -251,13 +252,14 @@ REM If we say "force", skip the already-exists check and contiune
                 REM At this point, we are NOT in force mode, so:
                 REM At this point, if an LRC file already exists, we shouldn't bother generating anything...
                         rem if exist %LRC_FILE% (@call error   "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!" %+ cancel)
-                            if exist %LRC_FILE% (@call warning "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!" %+ goto :END)
+                            if exist %LRC_FILE% (@call warning "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!%" silent %+ goto :END)
 
         endiff
 
 
 
-:attempt_to_download_LRC
+:attempt_to_download_LRC 
+:attempt_to_download_LRC_with_lyricy
         REM FAILED: Let's NOT try downloading a LRC with lyricy first because it gets mismatches whenever none exists, which is almost always:
                rem call get-lrc-with-lyricy "%CURRENT_SONG_FILE%"
                rem if exist %LRC_FILE% (@call success "Looks like %italics_on%lyricy%italics_off% found an LRC for us!" %+ goto :END)
@@ -657,8 +659,16 @@ rem Cleanup:
         rem So we must delete at least the first one, if it exists.  We use our get-lyrics script in SetVarsOnly mode:
         rem moved to beginning: call get-lyrics-via-multiple-sources "%SONGFILE%" SetVarsOnly
         rem ...which sets MAYBE_LYRICS_1 and MAYBE_LYRICS_2
-        @call debug "(7) Checking if exists: '%underline_on%%MAYBE_LYRICS_2%%underline_off%' for deprecation"
-        if exist "%MAYBE_LYRICS_2%" (call deprecate "%MAYBE_LYRICS_2%")
+        echo %ansi_color_debug%- DEBUG: (7) Checking if exists: '%underline_on%%MAYBE_LYRICS_2%%underline_off%' for deprecation%ansi_color_normal%
+        iff exist "%MAYBE_LYRICS_2%" then
+                rem call deprecate "%MAYBE_LYRICS_2%"
+                set NEWNAME=%@NAME[%MAYBE_LYRICS_2%].lyr
+                iff exist "%NEWNAME%" then
+                        call deprecate "%MAYBE_LYRICS_2%"
+                else
+                        ren "%MAYBE_LYRICS_2%" "%NEWNAME%"
+                endiff
+        endiff
 
 rem Success SRT-generation message:
         @call divider
@@ -710,7 +720,10 @@ rem Full-endeavor success message:
 
 :END
 :nothing_generated
+echos %ansi_color_unimportant%
 timer /5 off
+echos %ansi_color_reset%
+
 
 :Cleanup_Only
 :just_do_the_cleanup
