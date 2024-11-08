@@ -5,7 +5,7 @@ rem TODO afterregen anyway, we need to ask about ecc2fasdfasf.bat
 rem TODO if lyrics are approved already, don't ask about them
 rem TODO maybe add NoLyrics mode to not consider lyrics?
 
-:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last} {nolyrics or rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  "ai no lyrics"=do solely by AI even if lyric files present
+:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast} {nolyrics or rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  "ai no lyrics"=do solely by AI even if lyric files present
 :USAGE: set USE_LANGUAGE=jp to encode in a different language from en, like jp
 :USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 for pre-approved-lyrics mode
 
@@ -42,17 +42,6 @@ REM config: 2023:
         rem set SKIP_SEPARATION=0         
         rem SET SKIP_TEXTFILE_PROMPTING=0  
 
- 
- rem Adjust wait times if we are in automatic mode:
-        iff 1 eq %CONSIDER_ALL_LYRICS_APPROVED then
-                set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=3                 %+ rem wait time for "are these lyrics good?"-type questions
-                set AI_GENERATION_ANYWAY_WAIT_TIME=3                       %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
-                set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=2     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
-                set PROMPT_CONSIDERATION_TIME=4                            %+ rem wait time for "does this AI command look sane"-type questions
-                set PROMPT_EDIT_CONSIDERATION_TIME=2                       %+ rem wait time for "do you want to edit the AI prompt"-type questions
-                set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=1     %+ rem wait time for "hey lyrics not found!"-type notifications/questions
-                set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=1                 %+ rem wait time for "edit it now that we've made it?"-type questions ... Have decided it should probably last longer than the average song
-        endiff
 
 REM Pre-run cleanup:
         echos %ansi_color_unimportant%
@@ -74,46 +63,6 @@ REM validate environment [once]:
                 @set VALIDATED_CREATE_LRC_FF=1
         endiff
 
-
-REM branch on certain paramters, and clean up various parameters 
-        set PARAM_2=%2
-
-        
-        if defined USE_LANGUAGE (set OUR_LANGUAGE=%USE_LANGUAGE%)
-
-
-        if "%1" eq "last" (goto :actually_make_the_lrc) %+ rem to repeat the last regen
-
-        iff "%2" eq "force-regen" .or. "%2" eq "redo" then
-                set PARAM_2=%3$
-                set FORCE_REGEN=1 
-        else
-                set FORCE_REGEN=0
-        endiff
-
-        if "%2" eq "ai" (set PARAM_2=)                                                   
-
-        iff "%2" eq "ai" then
-                set PARAM_2=%3$
-                set SOLELY_BY_AI=1
-        else
-                set SOLELY_BY_AI=0
-        endiff
-
-        iff "%2" eq "cleanup" then
-                set PARAM_2=%3$                                                          
-                set CLEANUP=1
-                goto :just_do_the_cleanup
-        else
-                set CLEANUP=0
-        endiff
-
-        set MAKING_KARAOKE=1
-
-        rem todo: consider going back to the top of this section 2 or 3 times for easier simultaneous option stacking but then you gotta think about what all the combinations really mean
-
-
-
 REM values set from parameters:
         set             SONGFILE=%@UNQUOTE[%1]
         set             SONGBASE=%@NAME[%SONGFILE]
@@ -124,6 +73,79 @@ REM values set from parameters:
         set JSN_FILE=%SONGBASE%.json
         rem VOC_FILE=%SONGBASE%.vocals.wav
         rem LRCFILE2=%SONGBASE%.vocals.lrc
+
+
+
+
+REM branch on certain paramters, and clean up various parameters 
+        rem %1 "last" is a very unique situation:
+        if "%1" eq "last" (goto :actually_make_the_lrc) %+ rem to repeat the last regen
+        rem %1 was unique. Now we do the normal stuffs:
+
+
+        rem ENVIRONMENT-ONLY parameters:               
+        if defined USE_LANGUAGE (set OUR_LANGUAGE=%USE_LANGUAGE%)
+
+        rem If the next parameter is special, we must grab it and shift again so the rest properly reaches Whisper:
+        REM default modes:
+        set FAST_MODE=0 
+        set SOLELY_BY_AI=0
+        set FORCE_REGEN=0
+        set FORCE_REGEN=0 
+        set CLEANUP=0 
+        
+        echo %%1 is %1 >nul
+        echo %%2 is %2 >nul
+        echo %%3 is %3 >nul
+        echo %%4 is %4 >nul
+        echo %%* is %* >nul
+        echo %%$ is %$ >nul
+        :process_for_mode_variants
+        rem %1 is the filename, but %2+++ can be various options to pull off, while the rest is to go to Whisper/our transcriber
+        rem iff "%2" eq "ai" .or. "%2" eq "fast" .or. "%2" eq "redo" .or. "%2" eq "force-regen" .or. "%2" eq "cleanup" then
+        iff "%1" ne "" then
+                set special_parameters_possibly_present=1
+        else
+                set special_parameters_possibly_present=0
+        endiff
+        iff 1 eq %special_parameters_possibly_present% then
+                set special=%1
+                if "%special%" eq "ai"          (set SOLELY_BY_AI=1)
+                if "%special%" eq "fast"        (set FAST_MODE=1   )
+                if "%special%" eq "redo"        (set FORCE_REGEN=1 )
+                if "%special%" eq "force-regen" (set FORCE_REGEN=1 )
+                if "%special%" eq "cleanup"     (set CLEANUP=1     )
+        else
+        endiff
+        iff 1 eq %special_parameters_possibly_present% then       
+                shift 
+                rem after 'shift', %1 is now the remaining arguments (if any)
+                goto :process_for_mode_variants
+        endiff        
+        
+        if 1 eq %CLEANUP (goto :just_do_the_cleanup)
+
+        set MAKING_KARAOKE=1
+
+              
+        rem todo: consider going back to the top of this section 2 or 3 times for easier simultaneous option stacking but then you gotta think about what all the combinations really mean
+
+
+
+ 
+ rem Adjust wait times if we are in automatic mode:
+        iff 1 eq %CONSIDER_ALL_LYRICS_APPROVED .or. 1 eq %FAST_MODE% then
+                set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=3                 %+ rem wait time for "are these lyrics good?"-type questions
+                set AI_GENERATION_ANYWAY_WAIT_TIME=3                       %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
+                set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=2     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
+                set PROMPT_CONSIDERATION_TIME=4                            %+ rem wait time for "does this AI command look sane"-type questions
+                set PROMPT_EDIT_CONSIDERATION_TIME=2                       %+ rem wait time for "do you want to edit the AI prompt"-type questions
+                set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=1     %+ rem wait time for "hey lyrics not found!"-type notifications/questions
+                set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=1                 %+ rem wait time for "edit it now that we've made it?"-type questions ... Have decided it should probably last longer than the average song
+        endiff
+
+
+
 
 REM Values fetched from input file:
         call get-lyrics-via-multiple-sources "%SONGFILE%" SetVarsOnly %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc
@@ -283,7 +305,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
 
 
 
-        iff not exist "%TXT_FILE%" .and. "%2" ne "Force" .and. 1 eq %LYRIC_ATTEMPT_MADE then
+        iff not exist "%TXT_FILE%" .and. 1 ne %FORCE_REGEN% .and. 1 eq %LYRIC_ATTEMPT_MADE then
                 @call warning "Failed to generate %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning%" silent
                 @call warning "because the lyrics %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning% do not exist and could not be downloaded!" silent
                 @call advice  "Use 'ai' option to go straight to AI generation"
@@ -322,7 +344,7 @@ rem Mandatory review of lyrics
                                 ren  /q "%TXT_FILE%" "%TXT_FILE%.%_datetime.bak"
                                 %color_normal%
                                 @call warning "Aborting because you don't find the lyrics acceptable"
-                                @call advice  "To skip lyrics and transcribe using only AI: %blink_on%%0 '%1' ai %emphasis%%deeomphasis%%blink_off%"
+                                @call advice  "To skip lyrics and transcribe using only AI: %blink_on%%0 '%$' ai %emphasis%%deeomphasis%%blink_off%"
                                 @call AskYn   "Go ahead and use AI anyway" no %AI_GENERATION_ANYWAY_WAIT_TIME%
                                 if "%answer%" eq "Y" goto :Force_AI_Generation
                                 goto :END

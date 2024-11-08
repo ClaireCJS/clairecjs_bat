@@ -109,6 +109,6 @@ if __name__ == "__main__":
         extra_args = sys.argv[4:]
         extra_args_str=  ' '.join(extra_args)
 
-    #print(f"- DEBUG: Extra args are: '{extra_args_str}'")
+    print(f"- DEBUG: Extra args are: '{extra_args_str}'")
 
     main(input_filename, extensions, options, extra_args_str)
