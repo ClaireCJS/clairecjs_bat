@@ -191,6 +191,7 @@
 2019-10-01  11:27            474   60%  create-generic-sizes-and-counts-report.bat
 2024-11-08  06:05          1,037   51%  create-lrc-file-for-currently-playing-song.bat
 2024-11-08  10:06         57,241   74%  create-lrc-from-file.bat
+2024-11-08  10:12            158   32%  create-srt-for-soundclip.bat
 2024-11-01  22:35            308   41%  create-srt.bat
 2019-10-01  11:27            336   39%  create-symlinks-by_Letter_only.bat
 2023-05-28  10:30         24,782   80%  create-symlinks.bat
@@ -306,7 +307,7 @@
 2023-06-15  12:32            976   52%  edit-windows-terminal-settings.bat
 2024-10-21  12:34             44   -4%  editGrep.bat
 2024-10-21  12:19            342   34%  editor-slow.bat
-2024-11-07  21:24          6,921   71%  editplus.bat
+2024-11-08  11:27          6,997   71%  editplus.bat
 2024-10-04  12:40             32   -6%  eject-usb.bat
 2024-10-04  12:40             32   -6%  eject.bat
 2023-07-14  11:37             23   -8%  emoji-grep.bat

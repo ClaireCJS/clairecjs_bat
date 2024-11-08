@@ -1,7 +1,5 @@
 @Echo off
 
-rem TODO show lyrics prior to sRT for comparison! both can fit on screen now....
-
 rem TODO for flac, original artist can be under "Composer" so we should start checking for that
 rem TODO afterregen anyway, we need to ask about ecc2fasdfasf.bat
 rem TODO if lyrics are approved already, don't ask about them
@@ -9,6 +7,7 @@ rem TODO maybe add NoLyrics mode to not consider lyrics?
 
 :USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last} {nolyrics or rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  "ai no lyrics"=do solely by AI even if lyric files present
 :USAGE: set USE_LANGUAGE=jp to encode in a different language from en, like jp
+:USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 for pre-approved-lyrics mode
 
 :REQUIRES:     <see validators>
 :DEPENDENCIES: 2024 version: Faster-Whisper-XXL.exe delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat —— see validators for complete list
@@ -541,7 +540,7 @@ REM set a non-scrollable header on the console to keep us from getting confused 
         set LOCKED_MESSAGE_COLOR_BG=%@ANSI_BG[0,0,64]                               %+ rem copied from top-banner.bat
         rem banner_message=%@randfg_soft[]%ALOCKED_MESSAGE_COLOR_BG%%ZZZZZZZZ%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%ZZZZZZZZ%%@cool[%FILE_ARTIST%]%%ZZZZZZZZZ%
         iff not defined FILE_ARTIST .and. 1 ne %SOLELY_BY_AI then
-            call warning "FILE_ARTIST  is not defined here and should generally be?"
+            call warning "FILE_ARTIST  is not defined here and should generally be, since SOLELY_BY_AI=%SOLELY_BY_AI%"
              set FILE_ARTIST=?
             eset FILE_ARTIST
             pause

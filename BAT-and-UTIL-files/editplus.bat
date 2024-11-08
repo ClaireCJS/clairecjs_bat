@@ -49,7 +49,8 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
 
         :EditPlus6InUtil2
             call %DEBUG_LEVEL% "Using UTIL2\EditPlus 6..."
-            start %STARTOPTIONS% %@SFN["%UTIL2%\EditPlus 6\editplus.exe"]               %ALL_ARGS% %+ goto :END
+            echo start %STARTOPTIONS% "%UTIL2%\EditPlus 6\editplus.exe"  %ALL_ARGS% %+ 
+            start %STARTOPTIONS% %@SFN["%UTIL2%\EditPlus 6\editplus.exe"]  %ALL_ARGS% %+ goto :END
 	:default32bitOS
             call %DEBUG_LEVEL% "Using EditPlus Default32bitOS..."
             start %STARTOPTIONS% %@SFN["%PROGRAMFILES%\EditPlus\editplus.exe"]          %ALL_ARGS% %+ goto :END
