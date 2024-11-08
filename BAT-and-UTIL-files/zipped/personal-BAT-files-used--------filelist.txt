@@ -53,7 +53,7 @@
 2024-10-10  11:28             95    8%  app-volume-and-device-preferences.bat
 1996-04-15  20:12          2,238   69%  app-volume-and-device-preferences.ico
 2024-10-07  15:28          2,115   62%  app-volume-and-device-preferences.lnk
-2024-11-08  10:05         17,150   74%  askYN.bat
+2024-11-08  18:38         17,122   74%  askYN.bat
 2019-10-01  11:27             19  -10%  asleep.bat
 2024-03-18  23:08          1,047   53%  assimilate-rookie-folders.bat
 2024-02-28  23:49         24,923   80%  assimilate.bat
@@ -130,7 +130,7 @@
 2024-10-18  14:43            863   57%  checkpassword.bat
 2023-10-14  03:51            452   52%  checktemp.bat
 2024-04-10  13:34            487   51%  checkusername.bat
-2024-11-08  06:40          5,620   68%  check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py
+2024-11-08  15:32          5,693   69%  check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py
 2023-10-06  10:42             44   -2%  chown.bat
 2024-10-30  23:10          1,371   69%  chrome.bat
 2019-10-01  11:27             33   13%  cl.bat
@@ -139,7 +139,7 @@
 2019-10-01  11:28            122   14%  clean-dropbox.bat
 2024-06-12  13:11            536   46%  clean-rocksmith-dlc-dir.bat
 2023-10-06  09:03             21   -9%  clean.bat
-2024-11-08  09:36            368   44%  clear-buffered-keystrokes.bat
+2024-11-08  18:11            375   45%  clear-buffered-keystrokes.bat
 2024-10-31  23:24             20  -10%  clip.bat
 2024-10-31  23:25             25    4%  clipboard.bat
 2024-05-26  16:17          1,049   42%  cls.bat
@@ -791,7 +791,7 @@
 2023-04-24  10:52            255   53%  set-winamp-constants.bat
 2024-03-24  21:03             49   -4%  setDrive.bat
 2024-03-24  21:04             49   -4%  setlabel.bat
-2024-10-27  03:10         10,556   77%  SETPATH.bat
+2024-11-08  18:12         10,556   77%  SETPATH.bat
 2024-08-22  01:52             21   -9%  setprompt.bat
 2023-10-06  06:32            132    5%  settmp.bat
 2023-10-06  06:32             21   -9%  settmpfile.bat
@@ -927,7 +927,7 @@
 2024-03-24  20:17            300   42%  undep.bat
 2023-07-03  14:45             48   -4%  unimportant.bat
 2024-03-31  06:05            211   31%  uniq-relaxed.pl
-2024-11-08  09:59          6,163   59%  unique-lines.pl
+2024-11-08  16:05          6,189   59%  unique-lines.pl
 2024-10-29  15:23            535   55%  unknown-shipper-tracking.bat
 2024-10-21  12:50             35   -5%  unknown-tracking.bat
 2024-10-23  18:32             21   -9%  unlock-header.bat

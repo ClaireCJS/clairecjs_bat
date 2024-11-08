@@ -1,4 +1,3 @@
-@rem input /c /w0 %%This_Line_Clears_The_Character_Buffer
 @echo off
 
 
@@ -204,7 +203,8 @@ REM Actually answer the question here —— make the windows 'question' noise f
         if %BIG_QUESTION ne 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_SAVE%)
         rem as an experiment, let's do this 100x instead of 1x:
         @rem repeat 100 input /c /w0 %%This_Line_Clears_The_Character_Buffer
-        @call clear-buffered-keystrokes
+        rem @call clear-buffered-keystrokes is just:
+        inkey /c
         inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
         echos %BLINK_OFF%%ANSI_CURSOR_SHOW%
 

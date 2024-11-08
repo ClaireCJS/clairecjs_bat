@@ -78,7 +78,7 @@ while (<STDIN>) {
 		$line =~ s/^-+//;					#get rid of lines like: ---------------
 
 		#song sections to get rid of
-		$line =~ s/[\[\(]?(Intro|Verse|Pre-Chorus|Refrain|Chorus|Instrumental Break|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)]?//i;
+		$line =~ s/[\[\(]?(Intro|Sample|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental Break|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)]?//i;
 
 
 		#website crap to get rid of
@@ -157,7 +157,7 @@ my $output="";
 if ($ONE_LINE) {
     # Join all lines into a single string and remove the trailing comma if it exists
     my $final_output = join('', @lines);
-    $final_output =~ s/, *$//;  # Remove the trailing comma if it exists
+    $final_output =~ s/, +$//;  # Remove the last trailing comma if it exists
     print $final_output;
 } else {
 	# postprocessing for when lines are together:
