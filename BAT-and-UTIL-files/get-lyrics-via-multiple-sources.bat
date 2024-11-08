@@ -238,12 +238,12 @@ rem Check if we have one in our lyric repository already, via 2 different filena
         endiff
 
 rem If we still didn't find anything acceptable, but have potentially matching files in our lyric repository, let us select one manually:
+        repeat 3 echo.
+        call divider
         :TrySelectingSomethingFromOurLyricsArchive
         set TRY_SELECTION_AGAIN=0
         iff exist "%MAYBE_LYRICS_1_BROAD_SEARCH%" .and. %SKIP_MANUAL_SELECTION ne 1 then
                 rem call debug "(12) Checking for %MAYBE_LYRICS_1_BROAD_SEARCH%" 
-                repeat 3 echo.
-                call divider
                 set  file_count=%@files["%MAYBE_LYRICS_1_BROAD_SEARCH%"]
                 iff %file_count eq 1 then
                         if %ONLY_ONE_FILE_AND_IT_WAS_TRIED% eq 1 goto :End_Of_Local_Lyric_Archive_Selection
@@ -288,7 +288,7 @@ rem If we still didn't find anything acceptable, but have potentially matching f
                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                 else
                         call important_less "We have rejected this set of lyrics"
-                        echo.
+                        rem echo.
                         rem instead of this: goto :End_Of_Local_Lyric_Archive_Selection
                         rem if we go back to the beginning, we can allow trying of multiple 
                         rem                                 files before finally giving up

@@ -84,11 +84,12 @@ def main(input_filename, extensions, options, extra_args):
             # run any special postprocessing we've created, usually to create scripts to deal with files that are missing sidecar files
             with open(output_filename, 'w') as output_file:
                 for missing_file in sorted(files_without_sidecars):
-                    if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\" {extra_args}\n")
-                    if options.lower() == "createsrtfilewrite": output_file.write(f"@call create-srt \"{missing_file}\" {extra_args}\n")
-                    else                                      : output_file.write(f"{missing_file}\n")
-                if options.lower() == "getlyricsfilewrite"    : output_file.write("@echo *** ALL DONE WITH LYRIC RETRIEVAL!!!! ***\n@echo yra | *del %0 >&>nul\n")
-                if options.lower() == "createsrtfilewrite"    : output_file.write("@echo *** ALL DONE WITH KARAOKE CREATION!!! ***\n@echo yra | *del %0 >&>nul\n")
+                    if os.path.exists(missing_file):
+                        if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\" {extra_args}\n")
+                        if options.lower() == "createsrtfilewrite": output_file.write(f"@call create-srt \"{missing_file}\" {extra_args}\n")
+                        else                                      : output_file.write(f"{missing_file}\n")
+                if options.lower()         == "getlyricsfilewrite": output_file.write("@echo *** ALL DONE WITH LYRIC RETRIEVAL!!!! ***\n@echo yra | *del %0 >&>nul\n")
+                if options.lower()         == "createsrtfilewrite": output_file.write("@echo *** ALL DONE WITH KARAOKE CREATION!!! ***\n@echo yra | *del %0 >&>nul\n")
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:

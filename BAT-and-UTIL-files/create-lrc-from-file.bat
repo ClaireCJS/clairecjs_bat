@@ -31,7 +31,7 @@ REM CONFIG: 2024:
 rem CONFIG: 2024: WAIT TIMES:
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                 %+ rem wait time for "are these lyrics good?"-type questions
         set AI_GENERATION_ANYWAY_WAIT_TIME=45                        %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
-        set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=45      %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
+        set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=25      %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
         set PROMPT_CONSIDERATION_TIME=20                             %+ rem wait time for "does this AI command look sane"-type questions
         set PROMPT_EDIT_CONSIDERATION_TIME=10                        %+ rem wait time for "do you want to edit the AI prompt"-type questions
         set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0       %+ rem wait time for "hey lyrics not found!"-type notifications/questions. Set to 0 to not pause at all.
@@ -48,7 +48,7 @@ REM config: 2023:
         iff 1 eq %CONSIDER_ALL_LYRICS_APPROVED then
                 set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=3                 %+ rem wait time for "are these lyrics good?"-type questions
                 set AI_GENERATION_ANYWAY_WAIT_TIME=3                       %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
-                set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=3     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
+                set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=2     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
                 set PROMPT_CONSIDERATION_TIME=4                            %+ rem wait time for "does this AI command look sane"-type questions
                 set PROMPT_EDIT_CONSIDERATION_TIME=2                       %+ rem wait time for "do you want to edit the AI prompt"-type questions
                 set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=1     %+ rem wait time for "hey lyrics not found!"-type notifications/questions
@@ -138,6 +138,9 @@ REM Determine our expected input and output files:
         SET EXPECTED_OUTPUT_FILE=%SRT_FILE%
 
 
+rem If we are doing it *SOLELY* by AI, skip some of our lyric logic:
+        if 1 ne %SOLELY_BY_AI% goto :solely_by_ai_jump1
+
 
 REM if 2nd parameter is lyric file, use that one:
         iff exist "%POTENTIAL_LYRIC_FILE%" then
@@ -151,6 +154,7 @@ REM if 2nd parameter is lyric file, use that one:
 
 REM display debug info
         :Retry_Point
+        :solely_by_ai_jump1
         echo %ansi_color_debug%- DEBUG: (8)%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE='%ITALICS_ON%%SONGBASE%%ITALICS_OFF%'%NEWLINE%%TAB%%TAB%LRC_FILE='%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%', %NEWLINE%%TAB%%TAB%TXT_FILE='%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%'%FAINT_OFF%%NEWLINE%%ansi_color_normal%"
         rem @echo Hello?!?!?!
         gosub say_if_exists SONGFILE
@@ -207,7 +211,7 @@ REM if we already have a SRT file, we have a problem:
                 :automatic_skip_for_ai_parameter
                 rem FORCE_REGEN is %FORCE_REGEN %+ pause
                 iff %FORCE_REGEN% ne 1 then
-                        @call askYN "Regenerate it anyway?" no %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME%
+                        @call askYN "(22) Regenerate it anyway?" no %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME%
                 endiff
                 iff "%ANSWER%" eq "Y" .or. %FORCE_REGEN eq 1 then
                         iff exist "%SRT_FILE%" then
@@ -536,7 +540,7 @@ REM set a non-scrollable header on the console to keep us from getting confused 
         rem call top-message Transcribing %FILE_TITLE% by %FILE_ARTIST%
         set LOCKED_MESSAGE_COLOR_BG=%@ANSI_BG[0,0,64]                               %+ rem copied from top-banner.bat
         rem banner_message=%@randfg_soft[]%ALOCKED_MESSAGE_COLOR_BG%%ZZZZZZZZ%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%ZZZZZZZZ%%@cool[%FILE_ARTIST%]%%ZZZZZZZZZ%
-        iff not defined FILE_ARTIST then
+        iff not defined FILE_ARTIST .and. 1 ne %SOLELY_BY_AI then
             call warning "FILE_ARTIST  is not defined here and should generally be?"
              set FILE_ARTIST=?
             eset FILE_ARTIST

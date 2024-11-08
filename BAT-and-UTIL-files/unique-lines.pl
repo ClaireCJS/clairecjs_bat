@@ -78,7 +78,7 @@ while (<STDIN>) {
 		$line =~ s/^-+//;					#get rid of lines like: ---------------
 
 		#song sections to get rid of
-		$line =~ s/[\[\(]?(Intro|Verse|Pre-Chorus|Refrain|Chorus|Instrumental Break|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)]?//i;
+		$line =~ s/[\[\(]?(Intro|Verse|Pre-Chorus|Refrain|Chorus|Instrumental Break|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)]?//i;
 
 
 		#website crap to get rid of

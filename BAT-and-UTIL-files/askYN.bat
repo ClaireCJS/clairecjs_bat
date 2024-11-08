@@ -1,7 +1,11 @@
-@input /c /w0 %%This_Line_Clears_The_Character_Buffer
+@rem input /c /w0 %%This_Line_Clears_The_Character_Buffer
 @echo off
 
 
+iff 1 ne %VALIDATED_ASKYN% then
+        call validate-in-path clear-buffered-keystrokes echos print-if-debug important
+        set VALIDATED_ASKYN=1
+endiff
 
 set                            ASK_QUESTION=%[1]
 if defined AskYN_question (set ASK_QUESTION=%AskYN_question% %+ unset /q AskYN_question)
@@ -199,7 +203,8 @@ REM Actually answer the question here —— make the windows 'question' noise f
         if %BIG_QUESTION eq 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_RESTORE%)
         if %BIG_QUESTION ne 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_SAVE%)
         rem as an experiment, let's do this 100x instead of 1x:
-        @repeat 100 input /c /w0 %%This_Line_Clears_The_Character_Buffer
+        @rem repeat 100 input /c /w0 %%This_Line_Clears_The_Character_Buffer
+        @call clear-buffered-keystrokes
         inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
         echos %BLINK_OFF%%ANSI_CURSOR_SHOW%
 

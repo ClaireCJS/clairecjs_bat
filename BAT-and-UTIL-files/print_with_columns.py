@@ -194,7 +194,6 @@ else:
     # If dynamic columns were adjusted, inform the user
     INTERNAL_LOG = INTERNAL_LOG + f"Determined number of columns: {columns}"
 
-
 # short-circuit if columns is 1 —— we're just printing it normally if there's just 1 column!
 if columns == 1:
     for line in input_data: print (line)
