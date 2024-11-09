@@ -21,9 +21,6 @@
 ::::: VALIDATE ENVIRONMENT:
         call validate-environment-variables space
         call validate-in-path               sleep checkmappings all-ready-drives wake-all-drives important divider
-        rem  checkmappings.bat nopause ———— we no longer do this with the 'nopause' option, but we used to
-        rem  checkmappings.bat  ————————————— 20241013: changing back to nopause because this is run from autoexec:
-        call checkmappings.bat nopause 
 
 ::::: NON-SCROLLABLE HEADER:
         call header unlock
@@ -38,10 +35,17 @@
 
 ::::: BRANCH TO DIFFERENT BEHAVIORS BASED ON PARAMETERS:
         set Command_To_Use=copy /g /h /u /[!.git *.bak] %1%SPACE
-        if "%1"==""                        (goto :usage         )
-        if "%1"=="full"                    (goto :full          )
-        if "%1"=="full" .and. "%2"=="fast" (goto :full_fast     )
-        if not exist %1                    (goto :Custom_Command)
+        if "%1"==""                                   (                         goto :usage         )
+        if "%1"=="full"                               (                         goto :full          )
+        if "%1"=="full" .and. "%2"=="fast"            (set DIST_NOCHECKMAP=1 %+ goto :full_fast     )
+        if "%1"=="full" .and. "%2"=="nocheckmappings" (set DIST_NOCHECKMAP=1 %+ goto :full_fast     )
+        if not exist %1                               (                         goto :Custom_Command)
+
+::::: MAKE SURE ALL OUR DRIVES ARE MAPPED:
+        rem  checkmappings.bat nopause ———— we no longer do this with the 'nopause' option, but we used to
+        rem  checkmappings.bat  ————————————— 20241013: changing back to nopause because this is run from autoexec:
+        if 1 ne %DIST_NOCHECKMAP (call checkmappings.bat nopause)
+
 
         rem gosub :doit —— was the old/inelegant way we used for decades, we now use :doit2024:
             gosub :doit2024

@@ -96,7 +96,10 @@ rem Get artist and song so we can use them to download lyrics:
         set FILE_ORIG_ARTIST=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=TOPE   -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%" |:u8 change-single-quotes-to-double-apostrophes.py]
         
         rem If we didn't get a title, use the filename after the number, i.e. "01_Time.flac" ——> "Time"
-        if "%FILE_SONG%" eq "" (set FILE_SONG=%@rereplace[[\d]+_,,%@name["%AUDIO_FILE%"]])
+                if "" eq "%FILE_SONG%" (set FILE_SONG=%@rereplace[[\d]+_,,%@name["%AUDIO_FILE%"]])
+        rem If we didn't get an original artist, also check for the Composer tag which is the only place it would likely be in a FLAC file...
+                if "" eq "%FILE_ORIG_ARTIST%" (set FILE_ORIG_ARTIST=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=Composer -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%" |:u8 change-single-quotes-to-double-apostrophes.py])
+
         
         set       FILE_TITLE=%FILE_SONG%
         if %DEBUG gt 0 call unimportant "Probing done" 
