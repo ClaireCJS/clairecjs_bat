@@ -1,13 +1,11 @@
 @Echo off
 
-rem TODO for flac, original artist can be under "Composer" so we should start checking for that
 rem TODO afterregen anyway, we need to ask about ecc2fasdfasf.bat
 rem TODO if lyrics are approved already, don't ask about them
-rem TODO maybe add NoLyrics mode to not consider lyrics?
 
-:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast} {nolyrics or rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  "ai no lyrics"=do solely by AI even if lyric files present
-:USAGE: set USE_LANGUAGE=jp to encode in a different language from en, like jp
-:USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 for pre-approved-lyrics mode
+:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast} {rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  "ai no lyrics"=do solely by AI even if lyric files present
+:USAGE: set USE_LANGUAGE=jp                ——— to encode in a different language from en, like jp
+:USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 ——— for pre-approved-lyrics mode
 
 :REQUIRES:     <see validators>
 :DEPENDENCIES: 2024 version: Faster-Whisper-XXL.exe delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat —— see validators for complete list

@@ -48,6 +48,7 @@ my $file_title="";
 my $file_album="";
 my $original_line;
 my $file_orig_artist;
+my $i="";
                   
 if ($LYRICS_MODE) {
 	$file_artist      = $ENV{FILE_ARTIST}      || "";
@@ -78,7 +79,9 @@ while (<STDIN>) {
 		$line =~ s/^-+//;					#get rid of lines like: ---------------
 
 		#song sections to get rid of
-		$line =~ s/[\[\(]?(Intro|Sample|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental Break|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)]?//i;
+		for ($i=1; $i<=2; $i++) {			#twice to get things like "Intro/Chorus" or "Guitar Solo/Bridge", which meant changing the regex to include an ending of / where previously it just included ]
+			$line =~ s/[\[\(]?(Intro|Sample|Hook|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)\/]?//i;
+		}
 
 
 		#website crap to get rid of

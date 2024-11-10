@@ -34,7 +34,7 @@ import sys
 import glob
 from termcolor import colored
 
-
+# These leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot:
 SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here-temp.bat"
 SCRIPT_NAME_FOR_KARAOKE_CREATION = "create-the-missing-karaokes-here-temp.bat"
 
@@ -88,8 +88,8 @@ def main(input_filename, extensions, options, extra_args):
                         if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\" {extra_args}\n")
                         if options.lower() == "createsrtfilewrite": output_file.write(f"@call create-srt \"{missing_file}\" {extra_args}\n")
                         else                                      : output_file.write(f"{missing_file}\n")
-                if options.lower()         == "getlyricsfilewrite": output_file.write("@echo *** ALL DONE WITH LYRIC RETRIEVAL!!!! ***\n@echo yra | *del %0 >&>nul\n")
-                if options.lower()         == "createsrtfilewrite": output_file.write("@echo *** ALL DONE WITH KARAOKE CREATION!!! ***\n@echo yra | *del %0 >&>nul\n")
+                if options.lower()         == "getlyricsfilewrite": output_file.write("@echo *** ALL DONE WITH LYRIC RETRIEVAL!!!! ***\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
+                if options.lower()         == "createsrtfilewrite": output_file.write("@echo *** ALL DONE WITH KARAOKE CREATION!!! ***\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so tThese leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:

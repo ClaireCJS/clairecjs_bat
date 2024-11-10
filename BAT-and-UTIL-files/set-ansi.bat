@@ -156,15 +156,17 @@ rem —————————————————————————�
         rem Cursor color:
                 rem Changing color by word, i.e. 'red', 'magenta':                
                         function    ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                
-                        function      CURSOR_COLOR_CHANGE_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                        function        ANSI_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                        function         ANSI_CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                        function         SET_CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                        function             CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                        function              CURSOR_COLOR_CHANGE=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                        function                ANSI_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                        function                 SET_CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-                        function                     CURSOR_COLOR=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+                        function ANSI_CURSOR_COLOR_CHANGE_BY_WORD=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
+                        function    ANSI_SET_CURSOR_COLOR_BY_WORD=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
+                        function      CURSOR_COLOR_CHANGE_BY_WORD=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
+                        function        ANSI_CURSOR_COLOR_BY_WORD=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
+                        function         ANSI_CURSOR_COLOR_CHANGE=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
+                        function         SET_CURSOR_COLOR_BY_WORD=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
+                        function             CURSOR_COLOR_BY_WORD=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
+                        function              CURSOR_COLOR_CHANGE=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
+                        function                ANSI_CURSOR_COLOR=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
+                        function                 SET_CURSOR_COLOR=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
+                        function                     CURSOR_COLOR=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
 
                 rem Changing color by hex, i.e. 'FF0000', 'FF00FF':   *[ q*12;#FFFFFF{beep}
                         function     ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                  %+ rem like above section but with "#" in front of color

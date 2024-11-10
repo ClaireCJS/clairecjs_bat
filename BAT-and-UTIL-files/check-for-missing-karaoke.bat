@@ -45,4 +45,4 @@ rem Check for songs missing sidecar TXT files :
         check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt createsrtfilewrite %* |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING LYRICS %ANSI_RESET% %EMOJI_WARNING% %DASH% " |:u8 fast_cat
 
 rem While we're here, do some cleanup:
-        if exist *.json (del *.json)
+        if exist *.json (echo rayray|del *.json>&>nul)

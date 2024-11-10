@@ -29,7 +29,9 @@ rem Generate components of our temp filename:
 
 rem Set the actual, full tmpfile name:
     SET TMPFILE=%TMPFILE_DIR%\%TMPFILE_FILE%               
-    if 0 ne %DEBUG (call debug "TMPFILE is '%TMPFILE%'")
+    
+rem BE VERY CAREFUL WITH DEBUG OUTPUT!! It can mess up stuff when this is buried deep within cosmetic/ansi-complicated stuff
+    if 1 eq %DEBUG_TMPFILE (call debug "TMPFILE is '%TMPFILE%'")
 
 
 

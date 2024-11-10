@@ -340,14 +340,16 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
 
         rem Run our command, with a 'y' answer to overwrite:
                 echos %ANSI_COLOR_RUN%
-                rem ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 insert-before-each-line.py "            " |:u8 copy-move-post.py whisper)    %+ rem temporarily disabling this until we get that leak fixed
-                    ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 insert-before-each-line.py "            ")
+                set LAST_LYRIC_RETRIEVAL_COMMAND=%LYRIC_RETRIEVAL_COMMAND%
+                rem ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 insert-before-each-line.py "            " |:u8 copy-move-post.py whisper)    %+ rem temporarily disabling this until we get that leak fixed ... actually i don't thik it was related to that leak but making this one moment color cycle really isn't important
+                rem ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 insert-before-each-line.py "            ")
+                    ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 insert-before-each-line.py "            " |:u8 strip-ansi |:u8 highlight "Wrote \b.*.json" |:u8 gr -v q.*].*#CF5500)
 
                 call errorlevel "Problem retrieving lyrics in %0"
 
         rem Restore original environment variable value for PYTHONIOENCODING:            
-                iff defined PYTHONIOENCODING_OLD then
-                        set PYTHONIOENCODING=%PYTHONIOENCODING_OLD%
+                iff   defined    PYTHONIOENCODING_OLD then
+                          set    PYTHONIOENCODING=%PYTHONIOENCODING_OLD%
                 else
                         unset /q PYTHONIOENCODING
                 endiff
@@ -359,9 +361,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 set PREFERRED_LATEST_FILE_NAME=%@NAME[%AUDIO_FILE].%@EXT[%LATEST_FILE]
                 if exist "%PREFERRED_LATEST_FILE_NAME%" (ren /q "%PREFERRED_LATEST_FILE_NAME%" "%PREFERRED_LATEST_FILE_NAME%.%_datetime.bak">nul)
 
-        rem See if our latest file is the expected extension [which would indicate download sucess] or not:
-                
-           echo set  MYSIZEY=%@FILESIZE[%LATEST_FILE]
+        rem See if our latest file is the expected extension [which would indicate download sucess] or not:              
                 set  MYSIZEY=%@FILESIZE[%LATEST_FILE]
                 iff %MYSIZEY% gt %MOST_BYTES_THAT_LYRICS_COULD_BE% then  
                         rem annoying because this situation ended up not as urgent as originall thought: beep 40 40
@@ -470,10 +470,13 @@ rem try again if massaged names exist (that is, if the massaged names are differ
 rem If we still don't have anything, let us manually edit the song and artist name if we want
         iff exist "%PREFERRED_TEXT_FILE_NAME%" (goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done)
 
-        rem 🌈 rainbow divider here?
+
+        rem 🌈 Q: rainbow divider here? A: No, it already happens.
         call AskYN "Want to try hand-editing the artist & song name" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME%
         if "%answer%" == "N" (goto :Skip_Hand_Editing)
 
+        rem 🤔 remind us of filename
+                echo %ansi_color_important_less%%star% Filename is: %italics_on%%@NAME[%AUDIO_FILE]%italics_off%
 
         rem 🧹 make sure the variables are clean and ready for modification 🧹
                 if not defined FILE_ARTIST (set FILE_ARTIST=?)
