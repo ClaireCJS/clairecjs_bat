@@ -1,4 +1,5 @@
 @Echo Off
+  on break cancel
 
 rem Configuration:
         set DEFAULT_FILELIST_NAME_TO_USE=these.m3u

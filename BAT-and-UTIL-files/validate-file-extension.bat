@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem USAGE:   call validate-file-extension [filename]   [extension(s)]           //%FILEMASK_{type} env vars work!  "*.txt;*.bat" works. "txt bat" works too.
 rem EXAMPLE: call validate-file-extension filename.txt txt                      //example to check for one  extension

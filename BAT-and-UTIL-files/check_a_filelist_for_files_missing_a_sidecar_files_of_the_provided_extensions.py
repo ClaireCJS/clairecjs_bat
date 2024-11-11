@@ -92,7 +92,10 @@ def main(input_filename, extensions, options, extra_args):
             if extra_args: print(f"Using extra arguments of: {extra_args}")
 
             # run any special postprocessing we've created, usually to create scripts to deal with files that are missing sidecar files
-            with open(output_filename, 'w') as output_file:
+            # 🐐 don't we need to open it in utf-8?
+            #ith open(output_filename, 'w') as output_file:
+            with open(output_filename, 'w', encoding='utf-8') as output_file:
+                output_file.write(f"@on break cancel\n")
                 for missing_file in sorted(files_without_sidecars):
                     if os.path.exists(missing_file):
                         if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\" {extra_args}\n")

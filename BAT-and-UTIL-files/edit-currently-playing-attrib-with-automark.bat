@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 
 set AUTOMARK_TEMP=%AUTOMARK%
 set AUTOMARKAS_TEMP=%AUTOMARKAS%

@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 :DESCRIPTION: validates whether %EDITOR% environment variable is set.  Basically the same as "call validate-environment-variable EDITOR" but with some special behavior
 

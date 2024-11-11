@@ -1,7 +1,9 @@
 @if  AHK_VALIDATED eq 1 (goto :END)
 
 
+
 @Echo OFF
+@on break cancel
 
 set AHK_DIR=c:\util\AutoHotKey\v2\
 set AHK_EXE=%AHK_DIR%\AutoHotkey64.exe

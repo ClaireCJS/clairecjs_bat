@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 set playlistsGoto=%1
 "%1"\

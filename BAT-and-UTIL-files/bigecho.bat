@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 
 :DESCRIPTION: Uses DEC VT100 ANSI codes to echo a line in double-height text

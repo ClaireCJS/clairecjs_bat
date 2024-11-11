@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 if not exist %1 goto :DNE1
 %COLOR_IMPORTANT% %+ echo *** Validating %1: 

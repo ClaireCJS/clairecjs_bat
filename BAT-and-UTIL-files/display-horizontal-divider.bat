@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 :USAGE: "Divider"      to draw a horizontal divider using the default character repeated
 :USAGE: "Divider HII!" to draw a horizontal divider using the string  "HII!"    repeated 

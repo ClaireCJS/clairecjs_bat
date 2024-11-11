@@ -202,21 +202,22 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
 
     rem gosub StartKillBots { call c:\bat\slui-killbot } { @processmonitor slui started forever (taskend /f slui) } %+ REM stupid slui process kept stealing focus around 2015...  Use focus-monitor.exe to debug that situation. This keeps it dead, but the monitor only lasts per-command-line window, so we need it in this CLI initialization script. But wait! It eats up CPU, so it might not actually be worth it.
-	gosub PreliminaryErrorCheck                   %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after PreliminaryErrorCheck           " %+ rem 0.03
-    rem   SetPrivateEnvVars                       %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetPrivateEnvVars               " %+ rem 0.015
-    if exist c:\bat\private.env (set /r c:\bat\private.env) %+ rem set private environment variables
-	gosub DefineHarddrivesAndDriveMapping         %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
-	gosub CommonEnvVarsIncludingNetworking        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after CommonEnvVarsIncludingNetworking" %+ rem 0.04
-	gosub Initial%MACHINENAME%                    %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.11
-	gosub DefineRepositories                      %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineRepositories              " %+ rem 1.20  !!!!!!!
-	gosub DefineExecutableFileExtensions          %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineExecutableFileExtensions  " %+ rem 0.24 
-	gosub SetUsernameAndNetName                   %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetUsernameAndNetName           " %+ rem 0.04
-	gosub Initial%USERNAME%                       %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.01
-	gosub SetPathAndPromptAndCursor               %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetPathAndPromptAndCursor       " %+ rem 0.29->.21 1st/autoexec-run .005 successive runs
-	gosub LoadAliases                             %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after LoadAliases                     " %+ rem 0.02
-	gosub CheckForSyncedDevices                   %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after CheckForSyncedDevices           " %+ rem 0.01
-	gosub OSSpecificOverrides                     %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after OSSpecificOverrides             " %+ rem 0.05
-	gosub SetJavaClasspath                        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetJavaClasspath                " %+ rem 0.25  25
+	gosub PreliminaryErrorCheck               %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after PreliminaryErrorCheck           " %+ rem 0.03
+        rem   SetPrivateEnvVars deprecated        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetPrivateEnvVars               " %+ rem 0.015
+        if exist c:\bat\private.env (set /r c:\bat\private.env) %+ rem set private environment variables this way now, so this file can be published without violating personal confidentiality
+        gosub SetTCCBehaviorOptions               %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetTCCBehaviorOptions"            %+ rem never timed
+	gosub DefineHarddrivesAndDriveMapping     %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
+	gosub CommonEnvVarsIncludingNetworking    %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after CommonEnvVarsIncludingNetworking" %+ rem 0.04
+	gosub Initial%MACHINENAME%                %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.11
+	gosub DefineRepositories                  %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineRepositories              " %+ rem 1.20  !!!!!!!
+	gosub DefineExecutableFileExtensions      %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineExecutableFileExtensions  " %+ rem 0.24 
+	gosub SetUsernameAndNetName               %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetUsernameAndNetName           " %+ rem 0.04
+	gosub Initial%USERNAME%                   %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.01
+	gosub SetPathAndPromptAndCursor           %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetPathAndPromptAndCursor       " %+ rem 0.29->.21 1st/autoexec-run .005 successive runs
+	gosub LoadAliases                         %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after LoadAliases                     " %+ rem 0.02
+	gosub CheckForSyncedDevices               %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after CheckForSyncedDevices           " %+ rem 0.01
+	gosub OSSpecificOverrides                 %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after OSSpecificOverrides             " %+ rem 0.05
+	gosub SetJavaClasspath                    %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetJavaClasspath                " %+ rem 0.25  25
     gosub Load_TCC_Plugins                        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Load_TCC_Plugins                " %+ rem 0.13
     gosub FinalValidations                        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after FinalValidations                " %+ rem 0.013
 	goto :END
@@ -687,17 +688,30 @@ return
 
 
 
+:SetTCCBehaviorOptions
+        rem Make Ctrl-C/^C  and Ctrl-Break/^Break actually work!
+                on break cancel
+    
+        rem The test:
+        rem         1) run `grep "👽" <con:`         to get an emoji in the tasklist
+        rem         2) run `tasklist /L | grep grep` to see if the grep works and the emoji displays properly
 
+                rem Surprisingly, this was not how to get the result I wanted:
+                        rem option //unicodeoutput=yes
+
+                rem More surprisingly, this was:
+                        option //UnicodeOutput=no  
+                        option //UTF8Output=yes
+
+                rem And even more surprisingly, setting these options in the INI file does not work.
+return
 
 
 :Set_Environment_Variables
 :SetEnvironmentVariables
 :CommonEnvVarsIncludingNetworking
 
-    rem Command to turn on utf-8/unicode type output so that commands like "echo ﻿🌟>clip:" actually work:
-    rem requires updating pips in a lot of scripts tho!:
-    option //unicodeoutput=yes
-
+            
 
     :::::::::: Set common environment variables that we want for all machines (or are just too lazy to set it per-machine)
  

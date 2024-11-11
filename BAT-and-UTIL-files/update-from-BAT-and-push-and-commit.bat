@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 
 rem FOR THIS ONE FILE, MAKE SURE TO %EDITOR% %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!

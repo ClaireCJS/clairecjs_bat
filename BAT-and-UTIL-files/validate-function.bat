@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 ::::: GET PARAMETERS:
     set VFUNCPARAMS=%1$

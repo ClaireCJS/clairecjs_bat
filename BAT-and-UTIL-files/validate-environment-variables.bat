@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
     
 REM old, called the bat file repeatedly which created overhead

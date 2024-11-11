@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 set print_message_running=1
 
 :REQUIRES: set-colors.bat to be run first —— to define certain environment variables that represent ANSI character control sequences

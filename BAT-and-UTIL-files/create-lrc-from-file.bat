@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 rem TODO: add another srt to subtitles if the last one is not empty: combat stuck lyrics:
 rem 
@@ -142,7 +143,6 @@ REM branch on certain paramters, and clean up various parameters
                 if "%special%" eq "AutoLyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
                 if "%special%" eq "AutoLyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
         :NoSpecial
-        echo we here?
         iff 1 eq %special_parameters_possibly_present% then       
                 shift 
                 rem after 'shift', %1 is now the remaining arguments (if any)
@@ -175,6 +175,7 @@ REM branch on certain paramters, and clean up various parameters
 
 REM Values fetched from input file:
         call get-lyrics-via-multiple-sources "%SONGFILE%" SetVarsOnly %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc
+        on break cancel
 
 REM Determine the base text used for our window title:
         set BASE_TITLE_TEXT=%FILE_ARTIST - %FILE_TITLE% 
@@ -440,6 +441,8 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
         :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 -hst 2 
         rem 15: adding --max_gap 3.0 — Purfview said there is a --max_gap option -- default is 3.0 but i'm getting gaps way larger than that so I don't think it's being enforced so i'm going to explicitly add it
         set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 -hst 2 --max_gap 3.0 
+        rem 16b: adding --max_gap 3.0 — Purfview said there is a --max_gap option -- default is 3.0 but i'm getting gaps way larger than that so I don't think it's being enforced so i'm going to explicitly add it
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 3.0 
 
         rem proposed: Purfview said there is a --max_gap option -- default is 3.0
 
@@ -594,7 +597,9 @@ REM set a non-scrollable header on the console to keep us from getting confused 
             rem pause
         endiff
         set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
-        call top-banner "%banner_message%"
+        rem BRING BACK AFTER I FIX THE BANNER: call top-banner "%banner_message%"
+        rem instead do this temporarily: 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
+                call important "%banner_message%"
 
 
 REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI:

@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 :PUBLISH:
 :DESCRIPTION: validates if commands are valid

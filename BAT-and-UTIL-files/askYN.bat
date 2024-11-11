@@ -1,5 +1,5 @@
 @echo off
-
+on break cancel
 
 iff 1 ne %VALIDATED_ASKYN% then
         call validate-in-path clear-buffered-keystrokes echos print-if-debug important

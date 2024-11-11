@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 
 :USAGE: USAGE: <this> {audio_filename} [optional mode]
 :USAGE:                                 ^^^^^^^^^^^^^^
