@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo Off
 
 rem Configuration:
         set DEFAULT_FILELIST_NAME_TO_USE=these.m3u
@@ -20,11 +20,12 @@ rem Initialization:
 rem Parameter checking:
         rem no-parameter case:
                 iff "%1" eq ""  then
-                        call warning "Uh oh! No filelist was specified!%" silent
+                        echo.
+                        call unimportant "No filelist was specified" silent
                         rem call AskYn   "%italics_on%instead%italics_off% use files here that match: %DEFAULT_FILEMASK% ?" yes 99999
-                        call warning "Using FILEMASK_AUDIO to find files instead" silent
+                        call unimportant "Using FILEMASK_AUDIO to find files instead" silent
                         set FILEMASK_TO_USE=%DEFAULT_FILEMASK%
-                        dir /b %FILEMASK_TO_USE% 
+                        rem Nah! Confusing... dir /b %FILEMASK_TO_USE% 
 
                 endiff
         rem Use different filelist name depending on parameters:
@@ -41,7 +42,7 @@ rem Parameter checking:
 
 
 rem Debug info:
-        echo %ANSI_COLOR_DEBUG%- PARAMS: %PARAMS%%newline%%tab%using filelist of = %FILELIST_TO_USE%%newline%%tab%using filemask of = %FILEMASK_TO_USE%%ANSI_COLOR_NORMAL%
+        if %DEBUG gt 0 echo %ANSI_COLOR_DEBUG%- PARAMS: %PARAMS%%newline%%tab%using filelist of = %FILELIST_TO_USE%%newline%%tab%using filemask of = %FILEMASK_TO_USE%%ANSI_COLOR_NORMAL%
 
 
 rem Check for songs missing sidecar TXT files :

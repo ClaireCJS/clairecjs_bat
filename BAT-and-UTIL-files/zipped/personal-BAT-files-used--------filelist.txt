@@ -121,7 +121,7 @@
 2024-11-06  19:14             95   13%  check-a-playlist-for-missing-subtitle-files.bat
 2023-04-28  22:33             16  -12%  check-for-applications-and-programs-that-can-be-upgraded.bat
 2024-11-08  04:27            198   21%  check-for-invalid-audio-files.bat
-2024-11-10  16:14          2,773   63%  check-for-missing-karaoke.bat
+2024-11-11  05:01          2,840   63%  check-for-missing-karaoke.bat
 2024-11-01  17:22            753   48%  check-for-missing-lyrics.bat
 2024-04-05  16:49            705   64%  check-if-asking-for-usage.bat
 2024-11-11  03:07            750   41%  check-that-we-are-running-on-the-master-machine.bat
