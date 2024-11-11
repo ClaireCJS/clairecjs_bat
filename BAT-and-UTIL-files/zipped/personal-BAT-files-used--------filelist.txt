@@ -7,7 +7,7 @@
 2024-03-13  13:23          1,055   46%  add-ReplayGain-tags-to-all-mp3s.bat
 2023-07-18  20:22             97   36%  add-ReplayGain-tags.bat
 2023-05-29  23:39             43   -4%  advice.bat
-2024-11-08  04:25         29,310   75%  after.bat
+2024-11-11  03:28         29,325   75%  after.bat
 2023-08-26  20:25          1,074   68%  age.bat
 2024-07-09  22:49             68    5%  AI-song-identify.bat
 2024-10-10  10:27          1,595   63%  alarm-beep.bat
@@ -94,7 +94,7 @@
 2024-05-06  07:02             47    0%  batteries.bat
 2024-05-06  07:02             47    0%  battery.bat
 2024-10-18  14:52          7,723   63%  bedtime.btm
-2024-10-23  00:58          4,249   71%  beep.bat
+2024-11-11  03:09          4,266   71%  beep.bat
 2024-11-08  04:25         12,116   75%  before.bat
 2024-11-07  22:08          3,541   62%  bigecho.bat
 2024-10-21  14:30             26   -7%  blacklights-off.bat
@@ -107,7 +107,8 @@
 2024-11-08  04:25          1,930   63%  calendar-monitor.bat
 2024-01-28  03:00             86   13%  calibrate-monitor.bat
 2024-05-10  18:59             22   -9%  calmon.bat
-2024-10-21  14:26            509   49%  cancel-execution-if-on-music-server.bat
+2024-11-11  03:09            516   50%  cancel-execution-if-on-music-server.bat
+2024-11-11  03:02             19   32%  cancelll.bat
 2023-09-15  04:33             58   -1%  car.bat
 2023-08-28  00:36            326   43%  cat.bat
 2024-09-09  06:27          8,136   72%  cd-alias.bat
@@ -123,7 +124,7 @@
 2024-11-10  16:14          2,773   63%  check-for-missing-karaoke.bat
 2024-11-01  17:22            753   48%  check-for-missing-lyrics.bat
 2024-04-05  16:49            705   64%  check-if-asking-for-usage.bat
-2024-08-20  07:40            752   41%  check-that-we-are-running-on-the-master-machine.bat
+2024-11-11  03:07            750   41%  check-that-we-are-running-on-the-master-machine.bat
 2024-10-21  12:15          1,549   68%  checkeditor.bat
 2024-10-21  15:16            423   38%  checkmappings-daemon.bat
 2024-10-28  16:51         11,555   80%  checkmappings.bat
@@ -284,8 +285,8 @@
 2024-03-30  14:19             35   -5%  divider.bat
 2024-05-16  14:59             47   13%  dns-display.bat
 2024-07-28  17:32             28   -7%  do-in-each-directory.bat
-2024-07-28  17:43          1,223   54%  do-in-each-folder.bat
-2024-11-08  04:17         20,259   69%  download-youtube-album.bat
+2024-11-11  03:06          1,230   54%  do-in-each-folder.bat
+2024-11-11  03:06         20,266   69%  download-youtube-album.bat
 2024-06-27  13:31            119   23%  download-youtube-music.bat
 2023-06-09  22:26             35   -5%  download-youtube-video-with-chapters-as-an-mp3-album.bat
 2024-11-07  15:47             24   -8%  downloaded-lyrics-postprocesser.bat
@@ -303,7 +304,7 @@
 2024-10-28  23:00         29,529   69%  edit-currently-playing-attrib-helper.pl
 2024-10-19  00:35            234   52%  edit-currently-playing-attrib-with-automark.bat
 2024-11-08  04:13          9,039   72%  edit-currently-playing-attrib.bat
-2024-10-21  12:33          4,587   67%  edit-filenames-matching-regex.bat
+2024-11-11  03:12          4,621   67%  edit-filenames-matching-regex.bat
 2023-06-15  12:32            976   52%  edit-windows-terminal-settings.bat
 2024-10-21  12:34             44   -4%  editGrep.bat
 2024-10-21  12:19            342   34%  editor-slow.bat
@@ -328,7 +329,7 @@
 2023-06-03  05:00             64   13%  exiflist.bat
 2024-04-05  15:06            408   50%  exit-after-command.bat
 2024-04-05  15:11             18  -11%  exit-after.bat
-2024-11-10  18:29          1,318   49%  exit-maybe.bat
+2024-11-11  03:02          1,495   52%  exit-maybe.bat
 2024-04-05  15:10            462   43%  exitafter.bat
 2023-07-04  20:46            352   37%  expand-image-to-square.bat
 2022-02-07  14:04            176   23%  extract-all-WAVs-from-audio-files.bat
@@ -342,7 +343,7 @@
 2023-07-10  03:57          1,767   69%  facebook_photo_dump_renamer_looks_at_json_for_filedates_then_finds_files_and_renames_images_with_those_dates.py
 2024-02-01  14:48             16  -12%  fast_cat.bat
 2023-07-04  19:45             58    7%  fatalerror.bat
-2024-10-29  15:23            774   45%  fedex-tracking.bat
+2024-11-11  03:24            789   45%  fedex-tracking.bat
 2024-11-08  04:12            561   51%  find-first-filename-of-extension.bat
 2024-11-08  04:12         14,939   76%  find-folder-that-meets-conditions.bat
 2022-02-02  03:53            666   51%  firefox.bat
@@ -471,7 +472,7 @@
 2023-05-29  23:54             46   -4%  important.bat
 2023-06-01  06:19             51   -1%  important_less.bat
 2023-07-10  04:06            982   61%  incorporate_folder_name_into_images.py
-2024-05-14  12:26         14,056   69%  index-MP3-helper.bat
+2024-11-11  03:24         14,527   70%  index-MP3-helper.bat
 2024-04-10  14:15            701   55%  index-MP3.bat
 2024-10-18  14:11          1,529   49%  index-video-playlists.bat
 2024-04-09  15:57         11,965   68%  ingest_ics.py
@@ -548,7 +549,7 @@
 2024-09-07  21:04             21   -9%  maximize.bat
 2024-04-03  15:35            506   36%  MCD.bat
 2024-04-03  15:46            164   18%  mcdnow.bat
-2024-05-26  14:28          5,886   71%  mchk.bat
+2024-11-11  03:21          5,910   71%  mchk.bat
 2024-10-21  14:43            692   56%  metronome.bat
 2024-08-21  23:29            520   44%  midirandia.midi
 2024-08-21  23:29        589,396   23%  midirandia.wav
@@ -822,7 +823,7 @@
 2023-02-01  03:08             21   -9%  sp.bat
 2024-03-13  20:32            415   37%  speak-in-every-voice.bat
 2024-03-13  16:22          2,131   63%  speak.bat
-2023-07-17  10:39          4,725   71%  spl.bat
+2024-11-11  03:18          4,737   71%  spl.bat
 2024-03-15  01:49             31    7%  splh.bat
 2024-03-15  01:49             91   32%  splhx.bat
 2023-07-19  20:34          4,768   62%  split-mp3-by-inputted-chapter-info-helper.py
@@ -867,7 +868,7 @@
 2024-11-08  03:51          8,016   73%  switch-winamp-to-playlist.bat
 2024-10-10  10:20             30   -6%  symlink-create-automatic-symlinks.bat
 2023-11-23  14:46             11  -18%  symlink.bat
-2024-10-15  13:19          9,617   70%  sync-a-folder-to-somewhere.bat
+2024-11-11  03:18          9,671   70%  sync-a-folder-to-somewhere.bat
 2024-08-20  07:31            325   40%  sync-bat-to-dropbox.bat
 2023-05-30  12:25             22   -9%  sync-cameras.bat
 2024-08-20  07:36          1,441   58%  sync-dropbox.bat
@@ -877,7 +878,7 @@
 2022-02-02  03:56          3,404   68%  sync-mp3-playlists-to-carolyn's-mp3player.bat
 2019-10-01  11:28          3,795   80%  sync-mp3-playlists-to-location-helper.pl
 2024-10-15  13:48          6,970   76%  sync-mp3-playlists-to-location.bat
-2024-11-08  03:32         54,278   81%  sync-music.btm
+2024-11-11  03:03         54,285   81%  sync-music.btm
 2024-04-05  15:33             42   -4%  sync-perl-libraries-to-dropbox.bat
 2024-10-15  13:50             34   -5%  sync-perl-libraries-to-every-computer.bat
 2024-04-06  03:05          1,676   54%  sync-perl-libraries.bat
@@ -886,7 +887,7 @@
 2019-10-01  11:28             24   -8%  sync-photos.bat
 2019-10-01  11:28             24   -8%  sync-pics.bat
 2020-01-16  22:14             30   -6%  sync-pictures-to-drive-setup.bat
-2024-10-21  13:04         30,638   74%  sync-pictures.bat
+2024-11-11  03:06         30,645   74%  sync-pictures.bat
 2022-03-17  05:13             24   -8%  sync-playlist.bat
 2024-10-15  13:53            459   43%  sync-pub_journal-to-dropbox.bat
 2024-04-05  15:35             59   -3%  sync-python-libraries-to-dropbox.bat
@@ -946,11 +947,11 @@
 2024-08-20  10:34            443   39%  update-cygwin.bat
 2024-11-08  03:49         12,568   73%  update-from-BAT-via-manifest.bat
 2019-10-01  11:28             28   -7%  uppercase.pl
-2024-10-29  15:23            570   42%  ups-tracking.bat
+2024-11-11  03:16            579   42%  ups-tracking.bat
 2019-10-01  11:28            232   26%  urldecode.pl
 2019-10-01  11:28            326   33%  urlencode.pl
 2024-10-04  12:39            422   42%  usb-remove-safely.bat
-2024-10-29  15:22            497   43%  usps-tracking.bat
+2024-11-11  03:16            503   43%  usps-tracking.bat
 2019-10-01  11:28             23   -8%  UTIL.bat
 2024-10-20  16:53             29   -6%  utorrent-start.bat
 2024-10-20  16:53             29   -6%  utorrent.bat

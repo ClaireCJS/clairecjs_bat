@@ -365,7 +365,7 @@ REM For errors, give chance to gracefully exit the script (no more mashing of ct
                 set temp_title=%_wintitle
                 call askyn "Cancel all execution and return to command line?" yes
                 if %DO_IT eq 1 (
-                        CANCEL 
+                        call CANCELll
                         title %temp_title%
                         goto :END
                 )

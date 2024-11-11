@@ -38,9 +38,9 @@
 :BACKUP_CERTAIN_FILES
     %COLOR_REMOVAL%
 	if exist %MP3LIST% (echo ray|copy %MP3LIST% c:\recycled\latest-everything.m3u)
-	:f     exist    "%MP3LISTBAK%" (echos                 >   "%MP3LISTBAK")
-	                                echos                 >   "%MP3LISTBAK"     %+ REM Let's try just doing this always
-	:f     exist "%RECENTLISTBAK%" (echos                 >"%RECENTLISTBAK")
+	:f     exist    "%MP3LISTBAK%" (echos                 >:u8   "%MP3LISTBAK")
+	                                echos                 >:u8   "%MP3LISTBAK"     %+ REM Let's try just doing this always
+	:f     exist "%RECENTLISTBAK%" (echos                 >:u8"%RECENTLISTBAK")
 	if     exist    "%MP3LIST%"    (echo ray|*copy /q     "%MP3LIST"    "%MP3LISTBAK")
 	:f     exist "%RECENTLIST%"    (echo ray|*copy /q  "%RECENTLIST" "%RECENTLISTBAK")
     if not exist    "%MP3LISTBAK%" (call alarm "MP3LISTBAK of %MP3LISTBAK% does not exist, and should!")
@@ -55,7 +55,7 @@
 :CREATE_THESE_AND_ALL_IN_EACH_DIR
     	%MP3OFFICIAL%\
         call important "Creating %MP3OFFICIAL\LISTS\dir.txt to flush filenames into cache"
-		dir /s >%MP3OFFICIAL%\LISTS\dir.txt
+		dir /s >:u8%MP3OFFICIAL%\LISTS\dir.txt
 
 		if "%1"=="quick" (goto :quick2_YES)
             call important "Creating directory & recursive playlists..(these.m3u & all.m3u)"
@@ -128,12 +128,12 @@
 
         rem WE STOPPED BOTHERING WITH THIS:       call important "Removing extraneous playlists...          (redundant and 0-byte lists)"
         rem WE STOPPED BOTHERING WITH THIS:       %COLOR_REMOVAL%
-        rem WE STOPPED BOTHERING WITH THIS:::		echo set A=%%@FILESIZE[these.m3u]           >"%TEMP\temp-kill.bat"
-        rem WE STOPPED BOTHERING WITH THIS:::		echo set B=%%@FILESIZE[all.m3u]            >>"%TEMP\temp-kill.bat"
-        rem WE STOPPED BOTHERING WITH THIS:::		echo if "%%A"=="0"      *del /q these.m3u  >>"%TEMP\temp-kill.bat"
-        rem WE STOPPED BOTHERING WITH THIS:::		echo if "%%B"=="0"      *del /q all.m3u    >>"%TEMP\temp-kill.bat"
-        rem WE STOPPED BOTHERING WITH THIS:::		echo if "%%A"=="%%B"    *del /q all.m3u    >>"%TEMP\temp-kill.bat"
-        rem WE STOPPED BOTHERING WITH THIS:::		echo if exist delme.m3u *del /q delme.m3u  >>"%TEMP\temp-kill.bat"
+        rem WE STOPPED BOTHERING WITH THIS:::		echo set A=%%@FILESIZE[these.m3u]           >:u8"%TEMP\temp-kill.bat"
+        rem WE STOPPED BOTHERING WITH THIS:::		echo set B=%%@FILESIZE[all.m3u]            >>:u8"%TEMP\temp-kill.bat"
+        rem WE STOPPED BOTHERING WITH THIS:::		echo if "%%A"=="0"      *del /q these.m3u  >>:u8"%TEMP\temp-kill.bat"
+        rem WE STOPPED BOTHERING WITH THIS:::		echo if "%%B"=="0"      *del /q all.m3u    >>:u8"%TEMP\temp-kill.bat"
+        rem WE STOPPED BOTHERING WITH THIS:::		echo if "%%A"=="%%B"    *del /q all.m3u    >>:u8"%TEMP\temp-kill.bat"
+        rem WE STOPPED BOTHERING WITH THIS:::		echo if exist delme.m3u *del /q delme.m3u  >>:u8"%TEMP\temp-kill.bat"
         rem WE STOPPED BOTHERING WITH THIS:::		start exitafter.bat (sweep call "%TEMP\temp-kill.bat") >& nul
 
 
@@ -174,8 +174,8 @@ goto :END
 
 	:OLD:
                 if not exist "%MP3LISTBAK%" (%COLOR_ALARM %+ echo MP3LISTBAK of %MP3LISTBAK% does not exist, and should! Safe to continue, but no real diff this time! %+ beep %+ pause)
-				:diff -ni "%MP3LISTBAK%" "%MP3OFFICIAL%\LISTS\everything.m3u" >%TMP1
-            	:tail +1 %TMP1 | grep -vq "^< " | grep -iq "%MP3LISTDRIVE:" | grep -vq "%RECENTLISTFILE" | insert-before-each-line "Added/Renamed: %_date %_time: " >>%RECENTLISTBAK
+				:diff -ni "%MP3LISTBAK%" "%MP3OFFICIAL%\LISTS\everything.m3u" >:u8%TMP1
+            	:tail +1 %TMP1 | grep -vq "^< " | grep -iq "%MP3LISTDRIVE:" | grep -vq "%RECENTLISTFILE" | insert-before-each-line "Added/Renamed: %_date %_time: " >>:u8%RECENTLISTBAK
 	:201503 ADDITION:
         		:NOTE: for diff, -i makes it ignore case. That way, if we just capitalize something, it won't show up as new
                 set DIFF_OPTIONS=-i
@@ -184,7 +184,7 @@ goto :END
                 set DIFF_DIR=%MP3OFFICIAL%\LISTS\history
                 set DIFF_FULL=%DIFF_DIR%\%DIFF_NAME%
                 if not exist %DIFF_DIR% mkdir /s "%DIFF_DIR%"
-				%DIFF% "%MP3LISTBAK%" %MP3\LISTS\everything.m3u >"%DIFF_FULL%"
+				%DIFF% "%MP3LISTBAK%" %MP3\LISTS\everything.m3u >:u8"%DIFF_FULL%"
                 if %@FILESIZE["%DIFF_FULL%"] eq 0 (*del /q "%DIFF_FULL%" >nul)
                 gosub
 
@@ -192,22 +192,22 @@ if exist %TEMP\changer-diff-report.txt (%EDITOR %TEMP\changer-diff-report.txt)
 
 
 	::::: Let's see what's gone into the changer/not into it
-		rem %COLOR_IMPORTANT% %+ echo Changer changes: >%TEMP\changer-diff-report.txt %+ %COLOR_NORMAL%
-		%DIFF% %MP3OFFICIAL\LISTS\changer.m3u c:\recycled\changer.m3u >>%TEMP\changer-diff-report.txt
+		rem %COLOR_IMPORTANT% %+ echo Changer changes: >:u8%TEMP\changer-diff-report.txt %+ %COLOR_NORMAL%
+		%DIFF% %MP3OFFICIAL\LISTS\changer.m3u c:\recycled\changer.m3u >>:u8%TEMP\changer-diff-report.txt
         gosub EditIfExistsAndNonZero %TEMP\changer-diff-report.txt
 
 	::::: Let's see what's gone into the party/not into it
-		rem %COLOR_IMPORTANT% %+ echo Party changes: >%TEMP\party-diff-report.txt %+ %COLOR_NORMAL%
-		%DIFF% %MP3OFFICIAL\LISTS\party.m3u c:\recycled\party.m3u >>%TEMP\party-diff-report.txt
+		rem %COLOR_IMPORTANT% %+ echo Party changes: >:u8%TEMP\party-diff-report.txt %+ %COLOR_NORMAL%
+		%DIFF% %MP3OFFICIAL\LISTS\party.m3u c:\recycled\party.m3u >>:u8%TEMP\party-diff-report.txt
 		gosub EditIfExistsAndNonZero %TEMP\party-diff-report.txt
 
 	::::: Let's see what's gone into the best/not into it
-		rem %COLOR_IMPORTANT% %+ echo Best changes: >%TEMP\best-diff-report.txt %+ %COLOR_NORMAL%
-		%DIFF% %MP3OFFICIAL\LISTS\best.m3u c:\recycled\best.m3u >>%TEMP\best-diff-report.txt
+		rem %COLOR_IMPORTANT% %+ echo Best changes: >:u8%TEMP\best-diff-report.txt %+ %COLOR_NORMAL%
+		%DIFF% %MP3OFFICIAL\LISTS\best.m3u c:\recycled\best.m3u >>:u8%TEMP\best-diff-report.txt
 		gosub EditIfExistsAndNonZero %TEMP\best-diff-report.txt
 
 	::::: Might be good to edit the file to remove extraneous entries, but we decided to stop doing this:
-		rem tail -%NUM_RECENT_TO_KEEP "%RECENTLISTBAK"    >"%RECENTLIST"
+		rem tail -%NUM_RECENT_TO_KEEP "%RECENTLISTBAK"    >:u8"%RECENTLIST"
 		rem %EDITOR% %RECENTLIST
 return
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -230,40 +230,40 @@ return
 	:DoIt
 		set FILE=%MP3OFFICIAL\mp3-%USERNAME.htm
 		call important_less "Generating published MP3 list...          (%FILE)"
-			type    c:\bat\html-uptohead.dat               >%FILE
-			html-title.pl %USERNAME's digital audio list  >>%FILE
-			type c:\bat\html-headclosebodyopen.dat        >>%FILE
-			type c:\bat\html-h1opencenter.dat             >>%FILE
-			echo %USERNAME's Digital Audio List           >>%FILE
-			type c:\bat\html-h1close.dat                  >>%FILE
-			type c:\bat\html-h2opencenter.dat             >>%FILE
-			echo You are visitor number                   >>%FILE
-			type c:\bat\html-counter.dat                  >>%FILE
-			type c:\bat\html-h2close.dat                  >>%FILE
-			type c:\bat\html-pre.dat                      >>%FILE
-			type %MP3LIST%                                >>%FILE
-			type c:\bat\html-preclose.dat                 >>%FILE
-			type c:\bat\html-bodyhtmlclose.dat            >>%FILE
+			type    c:\bat\html-uptohead.dat               >:u8%FILE
+			html-title.pl %USERNAME's digital audio list  >>:u8%FILE
+			type c:\bat\html-headclosebodyopen.dat        >>:u8%FILE
+			type c:\bat\html-h1opencenter.dat             >>:u8%FILE
+			echo %USERNAME's Digital Audio List           >>:u8%FILE
+			type c:\bat\html-h1close.dat                  >>:u8%FILE
+			type c:\bat\html-h2opencenter.dat             >>:u8%FILE
+			echo You are visitor number                   >>:u8%FILE
+			type c:\bat\html-counter.dat                  >>:u8%FILE
+			type c:\bat\html-h2close.dat                  >>:u8%FILE
+			type c:\bat\html-pre.dat                      >>:u8%FILE
+			type %MP3LIST%                                >>:u8%FILE
+			type c:\bat\html-preclose.dat                 >>:u8%FILE
+			type c:\bat\html-bodyhtmlclose.dat            >>:u8%FILE
 		:::: Okay, we've published the full list.
 
 		call important_less "Generating published NEW audio list...    (%RECENTLISTPUB)"
-			copy /q c:\bat\html-uptohead.dat                                                      %RECENTLISTPUB
-			html-title.pl %USERNAME's last %NUM_RECENT_TO_KEEP new/renamed digital audio files  >>%RECENTLISTPUB
-			type c:\bat\html-headclosebodyopen.dat                                              >>%RECENTLISTPUB
-			type c:\bat\html-h1opencenter.dat                                                   >>%RECENTLISTPUB
-			echo %USERNAME's last %NUM_RECENT_TO_KEEP new/renamed digital audio files           >>%RECENTLISTPUB
-			type c:\bat\html-h1close.dat                                                        >>%RECENTLISTPUB
-			type c:\bat\html-h2opencenter.dat                                                   >>%RECENTLISTPUB
-			echo (Most recent files are at the bottom!!)                                        >>%RECENTLISTPUB
-			type c:\bat\html-h2close.dat                                                        >>%RECENTLISTPUB
-			type c:\bat\html-h3opencenter.dat                                                   >>%RECENTLISTPUB
-			echo You are visitor number                                                         >>%RECENTLISTPUB
-			type c:\bat\html-counter.dat                                                        >>%RECENTLISTPUB
-			type c:\bat\html-h3close.dat                                                        >>%RECENTLISTPUB
-			type c:\bat\html-pre.dat                                                            >>%RECENTLISTPUB
-			type %RECENTLIST                                                                    >>%RECENTLISTPUB
-			type c:\bat\html-preclose.dat                                                       >>%RECENTLISTPUB
-			type c:\bat\html-bodyhtmlclose.dat                                                  >>%RECENTLISTPUB
+			copy /q c:\bat\html-uptohead.dat                                                         %RECENTLISTPUB
+			html-title.pl %USERNAME's last %NUM_RECENT_TO_KEEP new/renamed digital audio files  >>:u8%RECENTLISTPUB
+			type c:\bat\html-headclosebodyopen.dat                                              >>:u8%RECENTLISTPUB
+			type c:\bat\html-h1opencenter.dat                                                   >>:u8%RECENTLISTPUB
+			echo %USERNAME's last %NUM_RECENT_TO_KEEP new/renamed digital audio files           >>:u8%RECENTLISTPUB
+			type c:\bat\html-h1close.dat                                                        >>:u8%RECENTLISTPUB
+			type c:\bat\html-h2opencenter.dat                                                   >>:u8%RECENTLISTPUB
+			echo (Most recent files are at the bottom!!)                                        >>:u8%RECENTLISTPUB
+			type c:\bat\html-h2close.dat                                                        >>:u8%RECENTLISTPUB
+			type c:\bat\html-h3opencenter.dat                                                   >>:u8%RECENTLISTPUB
+			echo You are visitor number                                                         >>:u8%RECENTLISTPUB
+			type c:\bat\html-counter.dat                                                        >>:u8%RECENTLISTPUB
+			type c:\bat\html-h3close.dat                                                        >>:u8%RECENTLISTPUB
+			type c:\bat\html-pre.dat                                                            >>:u8%RECENTLISTPUB
+			type %RECENTLIST                                                                    >>:u8%RECENTLISTPUB
+			type c:\bat\html-preclose.dat                                                       >>:u8%RECENTLISTPUB
+			type c:\bat\html-bodyhtmlclose.dat                                                  >>:u8%RECENTLISTPUB
 
 	if "%1"=="PUBLISH" goto :DONE
 return

@@ -10,7 +10,7 @@ rem Validate invocation:
 calla advice "Run 'usps-tracking-lastpackage.bat' if you would like to track the very last package tracked."
 set tmptmp=c:\bat\usps-tracking-lastpackage.bat
 
-echos http://www.framed.usps.com/cgi-bin/cttgate/ontrack.cgi?tracknbr= >%tmptmp
-echos %NUMBER% >>%tmptmp
+echos http://www.framed.usps.com/cgi-bin/cttgate/ontrack.cgi?tracknbr= >:u8%tmptmp
+echos %NUMBER% >>:u8%tmptmp
 call %tmptmp
 cls

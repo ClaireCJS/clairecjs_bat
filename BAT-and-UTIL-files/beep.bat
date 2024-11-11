@@ -39,7 +39,7 @@ REM these system sound names are valid for *beep:
 REM but also we have a value we don't want to go above based on testing our speakers/setup
 if  %SKIP_FREQ_CHECK% ne 1 .and. defined HIGHEST_BEEP .and. %FREQ_OR_SYSTEMSOUND% gt %HIGHEST_BEEP% .and. "%FREQ_OR_SYSTEMSOUND%" ne "systemsoundtest" (
     call error "Beep value of %FREQ_OR_SYSTEMSOUND% is higher than HIGHEST_BEEP of %HIGHEST_BEEP, sorry!"
-    rem CANCEL is really destructive to do right here
+    rem call CANCELll / *cancel is really destructive to do right here
     goto :The_Very_END
 )
 

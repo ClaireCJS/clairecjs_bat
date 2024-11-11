@@ -61,10 +61,10 @@ REM generate BAT file for post-split command:
     set POST_SPLIT_COMMAND_DIR=c:\TCMD\
     set POST_SPLIT_COMMAND_SCRIPT=%POST_SPLIT_COMMAND_DIR%\runonce-post-split.bat
                     
-                                         echo @Echo OFF                  >%POST_SPLIT_COMMAND_SCRIPT%
-                                         echo %_CWD\                    >>%POST_SPLIT_COMMAND_SCRIPT% %+ REM change into the same folder we issue this rom
-    if "%FULL_POST_SPLIT_COMMAND%" ne "" echo %FULL_POST_SPLIT_COMMAND% >>%POST_SPLIT_COMMAND_SCRIPT%
-    if  %EXIT_AFTER_SPLIT_IS_RUN   eq  1 echo exit                      >>%POST_SPLIT_COMMAND_SCRIPT%
+                                         echo @Echo OFF                  >:u8%POST_SPLIT_COMMAND_SCRIPT%
+                                         echo %_CWD\                    >>:u8%POST_SPLIT_COMMAND_SCRIPT% %+ REM change into the same folder we issue this rom
+    if "%FULL_POST_SPLIT_COMMAND%" ne "" echo %FULL_POST_SPLIT_COMMAND% >>:u8%POST_SPLIT_COMMAND_SCRIPT%
+    if  %EXIT_AFTER_SPLIT_IS_RUN   eq  1 echo exit                      >>:u8%POST_SPLIT_COMMAND_SCRIPT%
 
 
     REM DEBUG: type "%POST_SPLIT_COMMAND_SCRIPT%" %+ pause

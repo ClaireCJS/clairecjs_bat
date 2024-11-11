@@ -392,7 +392,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
 
         rem Create TXT file out of the JSON we downloaded, using our Perl postprocessor:
                 echos %ANSI_COLOR_RUN%
-                get-lyrics-with-lyricsgenius-json-processor.pl <"%PREFERRED_LATEST_FILE_NAME%" >"%PREFERRED_TEXT_FILE_NAME%" 
+                get-lyrics-with-lyricsgenius-json-processor.pl <"%PREFERRED_LATEST_FILE_NAME%" >:u8"%PREFERRED_TEXT_FILE_NAME%" 
 
         rem Delete zero-byte txt files, so that if we created an empty file, we don't leave useless trash laying around:
                 call delete-zero-byte-files *.txt silent >nul
@@ -555,7 +555,7 @@ rem Final change to hand-edit the lyrics, but skip it if we already opted to sea
         rem AskYN "Hand-edit the lyrics %[faint_on]['N' `=``=` lyrics %italics_on%NOT%italics_off% accepted]%faint_off%" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME%
         :reject_hand_editing_question_and_go_straight_to_hand_editing
         iff "%answer%" eq "Y" .or. ("%WE_GOOGLED%" == "1" .and. "%AUTOMATIC_HAND_EDITING_IF_GOOGLING%" == "1") then
-                if not exist "%PREFERRED_TEXT_FILE_NAME%" >"%PREFERRED_TEXT_FILE_NAME%"
+                if not exist "%PREFERRED_TEXT_FILE_NAME%" >:u8"%PREFERRED_TEXT_FILE_NAME%"
                 %EDITOR%     "%PREFERRED_TEXT_FILE_NAME%"
                 @input /c /w0 %%This_Line_Clears_The_Character_Buffer
                 call pause-for-x-seconds %LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS% "%ansi_color_bright_yellow%%pencil% Hit a key when done editing lyrics... %faint_on%(leave blank if none found)%faint_off% %pencil% %ansi_color_normal%"
@@ -587,8 +587,8 @@ rem Start our cleanup:
 
 
 
-rem While we're here, create LRCs from SRTs?:
-        rem Nah, we prefer to do this *after* making our SRT: 
+rem While we're here, create LRCs from pre-existing SRTs?:
+        rem Currently: No. We prefer to do this *after* making our SRT: 
         rem srt2lrc.py
 
 

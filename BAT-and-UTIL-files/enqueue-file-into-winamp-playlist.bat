@@ -12,10 +12,10 @@
 
 
 rem Validate environment
-    if %ENQ_ENV_VALIDATED ne 1 (
+    iff %ENQ_ENV_VALIDATED ne 1 then
         call validate-in-path EnqueueEE.exe
         set ENQ_ENV_VALIDATED=1
-    )
+    endiff
 
 
 
@@ -43,7 +43,7 @@ if exist %1 goto :File_Exists_so_lets_do_the_thing
     call unpause
     call print-if-debug "EnqueueEE.exe -a '%italics%%@UNQUOTE[%@LFN[%1]]%italics_off%'"
     echo %@ANSI_RGB_FG[255,200,200]EnqueueEE.exe -a "%@UNQUOTE[%@LFN[%1]]"
-    pause
+    rem seems tob e working well nowpause
                                    EnqueueEE.exe -a "%@UNQUOTE[%@LFN[%1]]"
 
 

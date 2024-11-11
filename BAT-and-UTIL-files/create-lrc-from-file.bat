@@ -1,5 +1,16 @@
 @Echo off
 
+rem TODO: add another srt to subtitles if the last one is not empty: combat stuck lyrics:
+rem 
+rem 17
+rem 00:02:20,060 --> 00:02:21,060
+rem This should be default functionality of srt2lrc as well — the resulting lrc should have an empty at the end too
+rem So we must postprocess before we would ever even use srt2lrc
+rem     no need to include functoinality in srt2lrc as we're not sure this will be a final part of the workflow
+rem     plus, we need to run this on pre-existing SRTs
+
+
+
 rem todo highlight name/title in prompts, return back to askyn color after, which requires askyn color abstraction
 rem TODO if we're doing lyrics, show downloaded lyrics *first* and if we found them chagne 1ˢᵗ question to 'are these better than d/l version'-type question
 rem TODO afterregen anyway, we need to ask about ecc2fasdfasf.bat
@@ -276,7 +287,7 @@ REM If we say "force", skip the already-exists check and contiune
         else
                 REM At this point, we are NOT in force mode, so:
                 REM At this point, if an LRC file already exists, we shouldn't bother generating anything...
-                        rem if exist %LRC_FILE% (@call error   "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!" %+ cancel)
+                        rem if exist %LRC_FILE% (@call error   "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!" %+ call cancelll)
                             if exist %LRC_FILE% (@call warning "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!%" silent %+ goto :END)
 
         endiff
@@ -595,7 +606,7 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
 
         rem Store command, run command, check for error response, and log command:
                 title %EMOJI_EAR%%BASE_TITLE_TEXT%
-                if %LOG_PROMPTS_USED% eq 1 (@echo %newline%%EMOJI_EAR% %_DATETIME: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>"%OUR_LOGFILE%")
+                if %LOG_PROMPTS_USED% eq 1 (@echo %newline%%EMOJI_EAR% %_DATETIME: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>:u8"%OUR_LOGFILE%")
 
         rem A 3rd concurrency check became necessary in my endeavors:
                 if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto :Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!

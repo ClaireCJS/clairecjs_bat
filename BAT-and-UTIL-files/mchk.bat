@@ -58,35 +58,35 @@ goto :theend
 		call important_less "Generating index file, Step 1 of %NUM_STEPS%. (everything.m3u/generate-audio-playlists.pl)"
         if not exist "%EVERYTHING" (call error "ERROR #1X!: '%MP3CL%\LISTS\everything.m3u' does not exist!")
         %COLOR_NORMAL%
-		    grep -v _PROCESSING "%EVERYTHING%" >"%INDEXFILE"
+		    grep -v _PROCESSING "%EVERYTHING%" >:u8"%INDEXFILE"
 
 	:step2
 		if isdir %NEWMP3% (call important_less "Generating index file, Step 2 of %NUM_STEPS%. (%NEWMP3%)")
-		if isdir %NEWMP3% (%COLOR_RUN%  %+ dir /b /s /a:-d-h %NEWMP3%\%FILEMASK_AUDIO% >>"%INDEXFILE")
+		if isdir %NEWMP3% (%COLOR_RUN%  %+ dir /b /s /a:-d-h %NEWMP3%\%FILEMASK_AUDIO% >>:u8"%INDEXFILE")
 
 	:::this step3 is no longer necessary because %WAVPROCESSING% has been moved to within %NEWMP3% so it's now automatically caught
 	::	if isdir "%WAVPROCESSING%\" (call important_less "Generating index file, Step 3 of %NUM_STEPS%. (%WAVPROCESSING%)")
-	::	if isdir "%WAVPROCESSING%\" dir /b /s /a:-d-h "%WAVPROCESSING%\*.mp3" >>"%INDEXFILE"
-	::	if isdir "%WAVPROCESSING%\" dir /b /s /a:-d-h "%WAVPROCESSING%\*.wav" >>"%INDEXFILE"
+	::	if isdir "%WAVPROCESSING%\" dir /b /s /a:-d-h "%WAVPROCESSING%\*.mp3" >>:u8"%INDEXFILE"
+	::	if isdir "%WAVPROCESSING%\" dir /b /s /a:-d-h "%WAVPROCESSING%\*.wav" >>:u8"%INDEXFILE"
 
     :step3
 		if isdir "%NEWCL%\music\" (call important_less "Generating index file, Step 3 of %NUM_STEPS%. (%NEWCL%\music\)")
-		if isdir "%NEWCL%\music\" (dir /b /s /a:-d-h %NEWCL%\music\%FILEMASK_AUDIO%  >>"%INDEXFILE")
+		if isdir "%NEWCL%\music\" (dir /b /s /a:-d-h %NEWCL%\music\%FILEMASK_AUDIO%  >>:u8"%INDEXFILE")
 
     :step4
         :we don't use filemask_audio here because this includes downloaded music videos we might want to consider
 		if isdir %reviewdir%\"TODO EXTRACT WAV THEN DELETE" (call important_less "Generating index file, Step 4 of %NUM_STEPS%. (%reviewdir%\"TODO EXTRACT WAV THEN DELETE")")
-		if isdir %reviewdir%\"TODO EXTRACT WAV THEN DELETE" (dir /b /s /a:-d-h %reviewdir%\"TODO EXTRACT WAV THEN DELETE" >>"%INDEXFILE")
+		if isdir %reviewdir%\"TODO EXTRACT WAV THEN DELETE" (dir /b /s /a:-d-h %reviewdir%\"TODO EXTRACT WAV THEN DELETE" >>:u8"%INDEXFILE")
 
     :step5
         :we don't use filemask_audio here because this includes downloaded music videos we might want to consider
 		if isdir %reviewdir%\"TODO EXTRACT WAV THEN KEEP"   (call important_less "Generating index file, Step 5 of %NUM_STEPS%. (%reviewdir%\"TODO EXTRACT WAV THEN KEEP")")
-		if isdir %reviewdir%\"TODO EXTRACT WAV THEN KEEP"   (dir /b /s /a:-d-h %reviewdir%\"TODO EXTRACT WAV THEN KEEP" >>"%INDEXFILE")
+		if isdir %reviewdir%\"TODO EXTRACT WAV THEN KEEP"   (dir /b /s /a:-d-h %reviewdir%\"TODO EXTRACT WAV THEN KEEP" >>:u8"%INDEXFILE")
 
     :step6
         rem in the past, we used to not use filemask_audio here because this includes downloaded music videos we might want to consider, but we changed our mind on that
 		if isdir %dropdir%\oh    (call important_less "Generating index file, Step 6 of %NUM_STEPS%. (%dropdir%\oh\)")
-		if isdir %dropdir%\oh    (dir /b /s /a:-d-h %dropdir%\oh\%FILEMASK_AUDIO%  >>"%INDEXFILE")
+		if isdir %dropdir%\oh    (dir /b /s /a:-d-h %dropdir%\oh\%FILEMASK_AUDIO%  >>:u8"%INDEXFILE")
 
 	:stepsDone
 		:Publish_To_Cloud

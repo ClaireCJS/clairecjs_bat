@@ -59,7 +59,7 @@
     if "%1"=="quakelive"	   (goto :quakelive)
     if "%1"=="quote"		   (goto :quote)
     if "%1"=="rocksmith"       (goto :RockSmith)
-    if "%1"=="screw"		   (call qd>clip:          %+   %EDITOR %PUBCL\journal\companies-that-screwed-me.txt	%+ goto :END )
+    if "%1"=="screw"		   (call qd>:u8clip:          %+   %EDITOR %PUBCL\journal\companies-that-screwed-me.txt	%+ goto :END )
     if "%1"=="sex"			   (goto :sexyTimes)
     if "%1"=="show"			   (set  LOGFILE_BASENAME_TO_USE=show)
     if "%1"=="tagging"		   (goto :tagging)
@@ -442,7 +442,7 @@ goto :END
 	if "%BAND"=="" set BAND=.
 	eset BAND
 	set TITLE=JOURNAL: CONCERT: %BAND
-		echo %BAND >clip:
+		echo %BAND >:u8clip:
 		echo ** Eventually we should program %BAT\blog-concert-body-template.txt to automatically import ????
 	%EDITOR     %BAT\blog-concert-body-template.txt
 	call mtblog %BAT\blog-concert-body-template.txt
@@ -475,7 +475,7 @@ return
     if "%USERNAME%" eq "claire" (set WEIGHT_NAME=claire)
     if  %WEIGHT%    lt  150     (set WEIGHT_NAME=carolyn)
 
-    echo %WEIGHT_NAME,%YYYYMMDDHHMM,%WEIGHT >>%OURFILE
+    echo %WEIGHT_NAME,%YYYYMMDDHHMM,%WEIGHT >>:u8%OURFILE
 
     :: nah %EDITOR %OURFILE
     gr %WEIGHT_NAME% %OURFILE%
@@ -493,7 +493,7 @@ goto :END
 	call yyyymmdd
 	querybox /d "Just looked at power meter!" Enter your new reading:  %%METER
 	set OURFILE=%PUBCL\house\power-meter.txt
-	echo %YYYYMMDD,%METER >>%OURFILE
+	echo %YYYYMMDD,%METER >>:u8%OURFILE
 	%EDITOR %OURFILE
 	unset /q YYYYMMDD
 	unset /q METER
@@ -509,7 +509,7 @@ goto :END
 	call yyyymmdd
 	querybox  "Just measured hair!" Enter your new hair length (in inches, decimals acceptable):  %%WEIGHT
 	set OURFILE=%PUBCL\medical\hair-tracking.txt
-	echo %USERNAME,%YYYYMMDD,%WEIGHT >>%OURFILE
+	echo %USERNAME,%YYYYMMDD,%WEIGHT >>:u8%OURFILE
 	%EDITOR %OURFILE
 	unset /q YYYYMMDD
 	unset /q WEIGHT

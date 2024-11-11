@@ -137,26 +137,26 @@ pushd
 :FlagLastSync
     if "%@UPPER[%SYNCTRIGER%]" eq "NONE" goto :NoFlag
         set TRIGGER="%@UNQUOTE[%SYNCSOURCE%\%SYNCTRIGER%]"
-        echo.                          >>%TRIGGER%
-        echo.                          >>%TRIGGER%
-        %COLOR_DEBUG% %+ echo	     ``>>%TRIGGER%
-        %COLOR_NORMAL %+               >>%TRIGGER%
-        echo SYNC_SOURCE=%SYNCSOURCE%  >>%TRIGGER%
-        echo SYNC_TARGET=%SYNCTARGET%  >>%TRIGGER%
-        echo        TIME=%_DATETIME    >>%TRIGGER%
-        echo.                          >>%TRIGGER%
-        echo.                          >>%TRIGGER%
+        echo.                          >>:u8%TRIGGER%
+        echo.                          >>:u8%TRIGGER%
+        %COLOR_DEBUG% %+ echo	     ``>>:u8%TRIGGER%
+        %COLOR_NORMAL %+               >>:u8%TRIGGER%
+        echo SYNC_SOURCE=%SYNCSOURCE%  >>:u8%TRIGGER%
+        echo SYNC_TARGET=%SYNCTARGET%  >>:u8%TRIGGER%
+        echo        TIME=%_DATETIME    >>:u8%TRIGGER%
+        echo.                          >>:u8%TRIGGER%
+        echo.                          >>:u8%TRIGGER%
 
         set TRIGGER="%@UNQUOTE[%SYNCTARGET%\%SYNCTRIGER%]"
-        echo.                          >>%TRIGGER%
-        echo.                          >>%TRIGGER%
-        %COLOR_DEBUG% %+ echo	     ``>>%TRIGGER%
-        %COLOR_NORMAL %+               >>%TRIGGER%
-        echo SYNC_SOURCE=%SYNCSOURCE%  >>%TRIGGER%
-        echo SYNC_TARGET=%SYNCTARGET%  >>%TRIGGER%
-        echo        TIME=%_DATETIME    >>%TRIGGER%
-        echo.                          >>%TRIGGER%
-        echo.                          >>%TRIGGER%
+        echo.                          >>:u8%TRIGGER%
+        echo.                          >>:u8%TRIGGER%
+        %COLOR_DEBUG% %+ echo	     ``>>:u8%TRIGGER%
+        %COLOR_NORMAL %+               >>:u8%TRIGGER%
+        echo SYNC_SOURCE=%SYNCSOURCE%  >>:u8%TRIGGER%
+        echo SYNC_TARGET=%SYNCTARGET%  >>:u8%TRIGGER%
+        echo        TIME=%_DATETIME    >>:u8%TRIGGER%
+        echo.                          >>:u8%TRIGGER%
+        echo.                          >>:u8%TRIGGER%
 :NoFlag
 
     goto :END

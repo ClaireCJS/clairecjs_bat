@@ -1,8 +1,8 @@
 @Echo Off
 
-:DESCRIPTION: Open all files matching a regular expression in the default text editor
-:USAGE:     %0 "someRegex"    *.txt  {defaults to *.bat if no file is specified}
-:USAGE: EX: %0 sleep.*[0-9]          {edits all BAT files with "sleep" followed by a digit}
+:DESCRIPTION:    Open all files matching a regular expression in the default text editor
+:USAGE:          %0 "someRegex"    *.txt  {defaults to *.bat if no file is specified}
+:USAGE:      EX: %0 sleep.*[0-9]          {edits all BAT files with "sleep" followed by a digit}
 
 rem USAGE:
         iff "%1" eq "" then
@@ -40,18 +40,18 @@ rem SET UP INTERNAL VARIABLES AND FILENAMES:
 
 rem GREP FOR OUR LIST OF MATCHING FILES, WHICH ARE SAVED TO A FILELIST:
         call less_important "Searching files '%italics_on%%FILESTOGREP%%italics_off%' for regex '%italics_on%%REGEX%%italics_off%'"
-                                          >%FILELIST%
-        grep -i -l %REGEX% %FilesToGrep% >>%FILELIST% 
+                                          >:u8%FILELIST%
+        grep -i -l %REGEX% %FilesToGrep% >>:u8%FILELIST% 
 
 
 
 rem INITIALIZE OUTPUT SCRIPT:
-        echo @Echo OFF   >%BATFILE%
+        echo @Echo OFF   >:u8%BATFILE%
 
 rem CONVERT THE FILELIST INTO A BAT FILE WHICH WILL TEXT-EDIT ALL THE MATCHED FILES:
         rem The OLD way calling %EDITOR% directly; the new way calls editor-slow.bat which delays between each file open:
-        rem OLD: fore-each-line.pl "%%%%EDITOR%%%% "   <%FILELIST% >>%BATFILE%
-        insert-before-each-line.pl "call editor-slow " <%FILELIST% >>%BATFILE%
+        rem OLD: fore-each-line.pl "%%%%EDITOR%%%% "   <%FILELIST%    >>%BATFILE%
+        insert-before-each-line.pl "call editor-slow " <%FILELIST% >>:u8%BATFILE%
 
 
 
@@ -70,7 +70,7 @@ rem THEN RUN IT!
 	call %BATFILE%
 
 rem WHEN DONE, COPY OUR REGEX TO THE CLIPBOARD SO WE CAN SEARCH IN THE FILES JUST OPENE:
-	echos %REGEX%>clip:	
+	echos %REGEX%>:u8clip:	
 
 
 
@@ -106,4 +106,4 @@ goto :END
 rem Whatever we are looking for, now is a time to have it in our clipboard, so that we
 rem can do Ctrl-F, Ctrl-V to find it in the bat files, and not have to type it again:
     call fixclip
-    echo %FILESTOGREP >clip:
+    echo %FILESTOGREP >:u8clip:

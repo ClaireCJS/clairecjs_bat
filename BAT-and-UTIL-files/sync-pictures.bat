@@ -305,7 +305,7 @@ return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             :WipeImagesOffOfDevice [DriveLetter]
-                %COLOR_ALARM%   %+ if "%driveletter%" eq "" (call alarm-beep %+ echo FATAL ERROR#0923402843 %+ cancel)
+                %COLOR_ALARM%   %+ if "%driveletter%" eq "" (call alarm-beep %+ echo FATAL ERROR#0923402843 %+ call cancelll)
                 %COLOR_DEBUG%   %+ timer /1 on
                 %COLOR_WARNING% %+ echo * Wiping all images off of %DriveLetter%
                 :COLOR_DEBUG%   %+ echo del/s%DriveLetter%:\PICS\%FILEMASK_IMAGE% %+ pause %+ REM debug

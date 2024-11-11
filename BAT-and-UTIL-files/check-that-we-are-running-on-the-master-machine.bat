@@ -14,7 +14,7 @@ rem IF WE ARE ON THE MASTER MACHINE, EXIT PEACEFULLY:
 
 rem IF WE ARE NOT, SOUND THE ALARM!
         call fatal_error "This script can only be run on %blink_on%%MASTERMACHINE%%blink_off%"
-        CANCEL          %+ REM       Stops all batch processing, even the bat file that called this one. Fatal_error should already do this, but we'll do it again here just in case.
+        call CANCELll %+ REM       Stops all batch processing, even the bat file that called this one. Fatal_error should already do this, but we'll do it again here just in case.
 
 
 

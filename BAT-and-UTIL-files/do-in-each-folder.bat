@@ -49,7 +49,7 @@ goto :END
             echo %ANSI_COLOR_ADVICE%%STAR% EXAMPLE: %0 "call delete-zero-byte-files" force
             pause
         )
-        if "%1" eq "" (cancel)
+        if "%1" eq "" (call cancelll)
     return
 :END
 

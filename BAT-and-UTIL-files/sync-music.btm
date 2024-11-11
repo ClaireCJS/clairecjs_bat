@@ -574,7 +574,7 @@ return
                         %COLOR_NORMAL %+ echo. 
                         set ERROR=1
                         call white-noise 2
-                        cancel
+                        call cancelll
                         goto :END       %+ REM This should never happen, but y'know, just in case cancel stops working somehow
                     return
                     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
