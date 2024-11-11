@@ -411,8 +411,10 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
         :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
         rem 13: adding --max_comma_cent 70
         :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70
-        rem 14: adding -hst 2 via Purview's advice to stop the thing where one subtitle gets stuck on for a whollleeee solooooo — it is short for --hallucination_silence_threshold
-        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 -hst 2 
+        rem 14: adding -hst 2 via Purview's advice to stop the thing where one subtitle gets stuck on for a whollleeee solooooo — it is short for --hallucination_silence_threshold  ... But it absolutely 100% does not solve that problem and gives output that causes concern for discarded lyrics. Have added logging the whisper output [and not just prompt] to the logfile to help track this...
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 -hst 2 
+        rem 15: adding --max_gap 3.0 — Purfview said there is a --max_gap option -- default is 3.0 but i'm getting gaps way larger than that so I don't think it's being enforced so i'm going to explicitly add it
+        set CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 -hst 2 --max_gap 3.0 
 
         rem proposed: Purfview said there is a --max_gap option -- default is 3.0
 
@@ -588,15 +590,19 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                                 endiff
                 endiff
 
+        rem Determine log file name:
+                set OUR_LOGFILE=%@NAME[%@UNQUOTE[%INPUT_FILE]].log
+
         rem Store command, run command, check for error response, and log command:
                 title %EMOJI_EAR%%BASE_TITLE_TEXT%
-                if %LOG_PROMPTS_USED% eq 1 (@echo %_DATETIME: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>"%@NAME[%INPUT_FILE].log")
+                if %LOG_PROMPTS_USED% eq 1 (@echo %newline%%EMOJI_EAR% %_DATETIME: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>"%OUR_LOGFILE%")
 
         rem A 3rd concurrency check became necessary in my endeavors:
                 if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto :Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
 
         rem ACTUALLY DO IT!!!:
-                %LAST_WHISPER_COMMAND% |:u8  copy-move-post whisper         
+                rem %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper 
+                    %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper |&:u8 tee /a "%OUR_LOGFILE%"
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.

@@ -42,9 +42,9 @@ if exist %1 goto :File_Exists_so_lets_do_the_thing
     %COLOR_NORMAL% %+ echo.
     call unpause
     call print-if-debug "EnqueueEE.exe -a '%italics%%@UNQUOTE[%@LFN[%1]]%italics_off%'"
-    echos %@ANSI_RGB_FG[255,200,200]EnqueueEE.exe -a "%@UNQUOTE[%@LFN[%1]]"
+    echo %@ANSI_RGB_FG[255,200,200]EnqueueEE.exe -a "%@UNQUOTE[%@LFN[%1]]"
     pause
-                                    EnqueueEE.exe -a "%@UNQUOTE[%@LFN[%1]]"
+                                   EnqueueEE.exe -a "%@UNQUOTE[%@LFN[%1]]"
 
 
 
