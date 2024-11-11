@@ -16,9 +16,9 @@ rem TODO if we're doing lyrics, show downloaded lyrics *first* and if we found t
 rem TODO afterregen anyway, we need to ask about ecc2fasdfasf.bat
 rem TODO if lyrics are approved already, don't ask about them
 
-:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast} {rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  "ai no lyrics"=do solely by AI even if lyric files present
+:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast|AutoLyricApproval} {rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  AutoLyricApproval=consider sidecar TXT files to be pre-approvedl yrics
 :USAGE: set USE_LANGUAGE=jp                ——— to encode in a different language from en, like jp
-:USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 ——— for pre-approved-lyrics mode
+:USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 ——— for *forced* pre-approved-lyrics mode (deprecated)
 
 :REQUIRES:     <see validators>
 :DEPENDENCIES: 2024 version: Faster-Whisper-XXL.exe delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat —— see validators for complete list
@@ -75,6 +75,7 @@ REM validate environment [once]:
         endiff
 
 REM values set from parameters:
+        set               PARAM1=%1
         set             SONGFILE=%@UNQUOTE[%1]
         set             SONGBASE=%@NAME[%SONGFILE]
         set POTENTIAL_LYRIC_FILE=%@UNQUOTE[%2]
@@ -104,6 +105,14 @@ REM branch on certain paramters, and clean up various parameters
         set FORCE_REGEN=0
         set FORCE_REGEN=0 
         set CLEANUP=0 
+        set AUTO_LYRIC_APPROVAL=0
+
+        iff %CONSIDER_ALL_LYRICS_APPROVED eq 1 then
+                set AUTO_LYRIC_APPROVAL=1
+                rem This is deprecated/testing only and we don't want it to persist:
+                unset /q CONSIDER_ALL_LYRICS_APPROVED   
+        endiff                
+
         
         echo %%1 is %1 >nul
         echo %%2 is %2 >nul
@@ -119,15 +128,21 @@ REM branch on certain paramters, and clean up various parameters
         else
                 set special_parameters_possibly_present=0
         endiff
-        iff 1 eq %special_parameters_possibly_present% then
+        if 1 ne %special_parameters_possibly_present% goto :NoSpecial
                 set special=%1
-                if "%special%" eq "ai"          (set SOLELY_BY_AI=1)
-                if "%special%" eq "fast"        (set FAST_MODE=1   )
-                if "%special%" eq "redo"        (set FORCE_REGEN=1 )
-                if "%special%" eq "force-regen" (set FORCE_REGEN=1 )
-                if "%special%" eq "cleanup"     (set CLEANUP=1     )
-        else
-        endiff
+                if "%special%" eq "ai"                 (set SOLELY_BY_AI=1       )
+                if "%special%" eq "fast"               (set FAST_MODE=1          )
+                if "%special%" eq "redo"               (set FORCE_REGEN=1        )
+                if "%special%" eq "force-regen"        (set FORCE_REGEN=1        )
+                if "%special%" eq "cleanup"            (set CLEANUP=1            )
+                if "%special%" eq                "la"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq               "ala"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq     "LyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq     "LyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq "AutoLyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq "AutoLyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
+        :NoSpecial
+        echo we here?
         iff 1 eq %special_parameters_possibly_present% then       
                 shift 
                 rem after 'shift', %1 is now the remaining arguments (if any)
@@ -144,8 +159,8 @@ REM branch on certain paramters, and clean up various parameters
 
 
  
- rem Adjust wait times if we are in automatic mode:
-        iff 1 eq %CONSIDER_ALL_LYRICS_APPROVED .or. 1 eq %FAST_MODE% then
+ rem Adjust wait times if we are in automatic mode. Also, automatic lyric approval means we're streamilined and should auto-fast it as well:
+        iff 1 eq %AUTO_LYRIC_APPROVAL .or. 1 eq %FAST_MODE% then
                 set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=3                 %+ rem wait time for "are these lyrics good?"-type questions
                 set AI_GENERATION_ANYWAY_WAIT_TIME=3                       %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
                 set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=2     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
@@ -170,8 +185,6 @@ REM Determine our expected input and output files:
         SET EXPECTED_OUTPUT_FILE=%SRT_FILE%
 
 
-rem If we are doing it *SOLELY* by AI, skip some of our lyric logic:
-        if 1 ne %SOLELY_BY_AI% goto :solely_by_ai_jump1
 
 
 REM if 2nd parameter is lyric file, use that one:
@@ -181,8 +194,8 @@ REM if 2nd parameter is lyric file, use that one:
                 goto :AI_generation
         endiff
 
-
-
+rem If we are doing it *SOLELY* by AI, skip some of our lyric logic:
+        rem this doesn't really do anything, it's the next thing: if 1 ne %SOLELY_BY_AI% goto :solely_by_ai_jump1
 
 REM display debug info
         :Retry_Point
@@ -202,11 +215,11 @@ REM display debug info
 
 REM if our input MP3/FLAC/audio file doesn't exist, we have problems:
         call validate-environment-variable INPUT_FILE
-        iff "%FORCE_REGEN%" eq "1" .or. "%SOLELY_BY_AI%" eq "1" then
-                rem Skip validation because we're doing things automatically
-        else
+        rem iff "%FORCE_REGEN%" eq "1" .or. "%SOLELY_BY_AI%" eq "1" then
+        rem         rem Skip validation because we're doing things automatically
+        rem else
                 call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO%
-        endiff
+        rem endiff
 
 
 
@@ -269,12 +282,13 @@ REM if we already have a SRT file, we have a problem:
 
 
 
-REM If "%SOLELY_BY_AI%" eq "1", we nuke the LRC/SRT file and go straight to AI-generating:
+REM If "%SOLELY_BY_AI%" eq "1", we nuke the LRC/SRT file and go straight to AI-generating, and we only use the TEXT
+REM file if it is pre-approved or we are set in AutoLyricsApproval mode:
         iff "%SOLELY_BY_AI%" eq "1" then
                 @call important_less "Forcing AI generation..."
                 if exist "%LRC_FILE%" (ren /q "%LRC_FILE%" "%@NAME[%LRC_FILE%].lrc.%_datetime.bak")
                 if exist "%SRT_FILE%" (ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak")
-                set SKIP_TEXTFILE_PROMPTING=1
+                if %AUTO_LYRIC_APPROVAL ne 1 (set SKIP_TEXTFILE_PROMPTING=1)
                 goto :AI_generation
         endiff
 
@@ -454,7 +468,7 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
         rem NOTE: We also have --batch_recursive - {automatically sets --output_dir}
 
 
-        if not exist %TXT_FILE% .or. %SKIP_TEXTFILE_PROMPTING eq 1 (goto :No_Text)
+        if not exist %TXT_FILE% .or. %SKIP_TEXTFILE_PROMPTING eq 1 .or. (1 eq %SOLELY_BY_AI .and. 1 ne %AUTO_LYRIC_APPROVAL%) (goto :No_Text)
                 rem the text file %TXT_FILE% does in fact exist!
                 setdos /x-1
                         rem 2023 method: set CLI_OPS=%CLI_OPS% --initial_prompt "Transcribe this audio, keeping in mind that I am providing you with an existing transcription, which may or may not have errors, as well as header and footer junk that is not in the audio you are transcribing. Lines th at say 'downloaded from' should definitely be ignored. So take this transcription lightly, but do consider it. The contents of the transcription will have each line separated by ' / '.   Here it is: ``

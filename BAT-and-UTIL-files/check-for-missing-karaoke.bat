@@ -5,7 +5,7 @@ rem Configuration:
         set DEFAULT_FILEMASK=%FILEMASK_AUDIO%
 
 rem Validate Enviroment:
-        call validate-in-path               check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py fast_cat 
+        call validate-in-path               check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat 
         call validate-environment-variables filemask_audio DEFAULT_FILELIST_NAME_TO_USE DEFAULT_FILEMASK
 
 
@@ -48,7 +48,7 @@ rem Debug info:
 rem Check for songs missing sidecar TXT files :
         echo.
         rem fast_cat fixes ANSI rendering errors between TCC/WT:
-        check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt createsrtfilewrite %* |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING LYRICS %ANSI_RESET% %EMOJI_WARNING% %DASH% " |:u8 fast_cat
+        (check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %* |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING LYRICS %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
 
 rem While we're here, do some cleanup:
-        if exist *.json (echo rayray|del *.json>&>nul)
+        if exist *.json (echo rayray|*del *.json>&>nul)

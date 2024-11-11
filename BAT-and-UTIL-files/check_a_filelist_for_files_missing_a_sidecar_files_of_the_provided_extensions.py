@@ -1,4 +1,13 @@
-#
+import io
+import sys
+print(f"Before reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+sys.stdout.reconfigure(encoding='utf-8')
+print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+
+
 ########################### FILELIST SIDECAR AUDITOR ###########################
 ########################### FILELIST SIDECAR AUDITOR ###########################
 ########################### FILELIST SIDECAR AUDITOR ###########################
