@@ -59,7 +59,8 @@ def main(input_filename, extensions, options, extra_args):
     files_without_sidecars = set()
 
     # Open and read the input filename (list of files)
-    with open(input_filename, 'r') as file:
+    #ith open(input_filename, 'r')                   as file:
+    with open(input_filename, 'r', encoding='utf-8') as file:
         files = [line.strip() for line in file.readlines() if line.strip()]
 
     # Check for sidecar files
