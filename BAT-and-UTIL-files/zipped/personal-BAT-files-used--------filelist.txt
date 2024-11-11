@@ -53,7 +53,7 @@
 2024-10-10  11:28             95    8%  app-volume-and-device-preferences.bat
 1996-04-15  20:12          2,238   69%  app-volume-and-device-preferences.ico
 2024-10-07  15:28          2,115   62%  app-volume-and-device-preferences.lnk
-2024-11-08  18:38         17,122   74%  askYN.bat
+2024-11-10  17:43         17,270   74%  askYN.bat
 2019-10-01  11:27             19  -10%  asleep.bat
 2024-03-18  23:08          1,047   53%  assimilate-rookie-folders.bat
 2024-02-28  23:49         24,923   80%  assimilate.bat
@@ -120,7 +120,7 @@
 2024-11-06  19:14             95   13%  check-a-playlist-for-missing-subtitle-files.bat
 2023-04-28  22:33             16  -12%  check-for-applications-and-programs-that-can-be-upgraded.bat
 2024-11-08  04:27            198   21%  check-for-invalid-audio-files.bat
-2024-11-10  03:44          2,350   61%  check-for-missing-karaoke.bat
+2024-11-10  16:14          2,773   63%  check-for-missing-karaoke.bat
 2024-11-01  17:22            753   48%  check-for-missing-lyrics.bat
 2024-04-05  16:49            705   64%  check-if-asking-for-usage.bat
 2024-08-20  07:40            752   41%  check-that-we-are-running-on-the-master-machine.bat
@@ -190,7 +190,7 @@
 2024-10-18  14:13            243   37%  create-directory-and-recursive-playlists.bat
 2019-10-01  11:27            474   60%  create-generic-sizes-and-counts-report.bat
 2024-11-08  06:05          1,037   51%  create-lrc-file-for-currently-playing-song.bat
-2024-11-09  20:43         58,311   74%  create-lrc-from-file.bat
+2024-11-10  17:07         59,158   74%  create-lrc-from-file.bat
 2024-11-08  10:12            158   32%  create-srt-for-soundclip.bat
 2024-11-01  22:35            308   41%  create-srt.bat
 2019-10-01  11:27            336   39%  create-symlinks-by_Letter_only.bat
@@ -313,6 +313,8 @@
 2023-07-14  11:37             23   -8%  emoji-grep.bat
 2024-04-05  17:35          1,818   59%  emoji-search.bat
 2024-11-05  18:54         74,653   78%  emoji.env
+2024-01-28  23:26          1,669   54%  enqueue-file-into-winamp-playlist.bat
+2024-11-11  00:23             48   -4%  enqueue.bat
 2024-06-12  13:08            363   36%  ensure-directories-exist.bat
 2024-04-10  13:33            179   33%  ensure-drive-is-mapped.bat
 2024-11-07  19:21            371   39%  env.bat
@@ -326,7 +328,7 @@
 2023-06-03  05:00             64   13%  exiflist.bat
 2024-04-05  15:06            408   50%  exit-after-command.bat
 2024-04-05  15:11             18  -11%  exit-after.bat
-2024-10-27  04:03          1,245   49%  exit-maybe.bat
+2024-11-10  18:29          1,318   49%  exit-maybe.bat
 2024-04-05  15:10            462   43%  exitafter.bat
 2023-07-04  20:46            352   37%  expand-image-to-square.bat
 2022-02-07  14:04            176   23%  extract-all-WAVs-from-audio-files.bat
@@ -393,7 +395,7 @@
 2024-10-29  14:40            400   42%  get-lyrics-for-currently-playing-song.bat
 2024-10-31  09:04             45   -4%  get-lyrics-for-song.bat
 2024-10-29  14:41             30   -6%  get-lyrics-from-song.bat
-2024-11-09  19:49         44,407   77%  get-lyrics-via-multiple-sources.bat
+2024-11-11  00:12         47,030   77%  get-lyrics-via-multiple-sources.bat
 2024-10-28  18:09          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
 2024-10-29  15:10             47   -4%  get-lyrics-with-lyricsgenius.bat
 2024-10-29  15:23            168   41%  get-lyrics.bat
@@ -625,7 +627,7 @@
 2023-05-31  11:55            117   22%  prevent-duplicate-lines.pl
 2024-03-18  12:29             13  -15%  previousdir.bat
 2023-06-09  23:02             67    6%  print-if-debug.bat
-2024-11-08  06:24         31,727   75%  print-message.bat
+2024-11-11  00:24         31,754   75%  print-message.bat
 2024-11-08  04:48             25   -8%  print-with-columns.bat
 2024-11-08  04:54         11,886   70%  print_with_columns.py
 2024-06-28  11:49         14,018   74%  process-done-torrent.btm
@@ -927,7 +929,7 @@
 2024-03-24  20:17            300   42%  undep.bat
 2023-07-03  14:45             48   -4%  unimportant.bat
 2024-03-31  06:05            211   31%  uniq-relaxed.pl
-2024-11-09  21:02          6,417   59%  unique-lines.pl
+2024-11-10  16:46          6,828   60%  unique-lines.pl
 2024-10-29  15:23            535   55%  unknown-shipper-tracking.bat
 2024-10-21  12:50             35   -5%  unknown-tracking.bat
 2024-10-23  18:32             21   -9%  unlock-header.bat

@@ -20,6 +20,9 @@ set PARAM_5=%5``
 iff "%1" eq "" .or. "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%" eq "--help" .or. "%ASK_QUESTION%" eq "/?" .or. "%ASK_QUESTION%" eq "-?" .or. "%ASK_QUESTION%" eq "-h" then
                 %color_advice%
                 echo.
+                echo USAGE: You did this: %ansi_color_warning_soft%%0 %*%ansi_color_advice%
+                %color_advice%
+                echo.
                 echo USAGE: call askyn "Question to ask without question mark" [yes or no] [time to wait...0 if not waiting] ["big" if you want double height, "notitle" if you don't want the title changed]
                 echo USAGE: 
                 echo USAGE: 1st param is question, 2nd is yes/no defult, 3rd is wait_time before expiration, 4th parameter is 'big' if it's big, or 'notitle' if you don't want the title changed while asking

@@ -72,7 +72,8 @@ while (<STDIN>) {
 
 		#first-line-only stuff to red rid of
 		if ($line_number == 1) {
-			$line =~ s/(\d)([^\d]+)/$2/;		#remove leading digit from 1ˢᵗ line if it's just a single digit 'cause I've noticed that happens a lot
+			#line =~ s/(\d)([^\d]+)/$2/;		#remove  only 1 leading digit  from 1ˢᵗ line if it's just a single digit 'cause I've noticed that happens a lot
+			$line =~ s/(\d{1-2})([^\d]+)/$2/;	#remove up to 2 leading digits from 1ˢᵗ line if it's just a single digit 'cause I've noticed that happens a lot
 		}
 
 		#divider lines to get rid of
@@ -80,7 +81,8 @@ while (<STDIN>) {
 
 		#song sections to get rid of
 		for ($i=1; $i<=2; $i++) {			#twice to get things like "Intro/Chorus" or "Guitar Solo/Bridge", which meant changing the regex to include an ending of / where previously it just included ]
-			$line =~ s/[\[\(]?(Intro|Sample|Hook|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)\/]?//i;
+			#line =~   s/[\[\(]?(Intro|Sample|Hook|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)\/]?//i;
+			$line =~ s/[\[\(]? ?(Sample|Intro|Hook|Build:? ?[a-z &]+|Verse|Pre\-Chorus|Refrain|Drop|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
 		}
 
 

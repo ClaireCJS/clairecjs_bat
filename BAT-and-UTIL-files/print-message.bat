@@ -356,7 +356,7 @@ REM Post-message beeps and sound effects
         :No_Beeps_2
 
     REM Do delay:
-        if %DO_DELAY gt 0 (delay %DO_DELAY)
+        if %DO_DELAY gt 0 .and. 1 ne %SILENT_MESSAGE (delay %DO_DELAY)
     
 REM For errors, give chance to gracefully exit the script (no more mashing of ctrl-C / ctrl-Break)
         set print_message_running=15

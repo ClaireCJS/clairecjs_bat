@@ -20,12 +20,14 @@ iff %DO_IT eq 1 then
         title %prev_title% 
         pause 
         set FORCE_EXIT=1 
-        echo %ANSI_COLOR_RED%—— Returning to command line ——%ANSI_COLOR_NORMAL%
-        CANCEL
+        echo on
+        echo %ANSI_COLOR_RED%—— Returning to command line #1 of 2 ——%ANSI_COLOR_NORMAL%
+        *CANCEL
 endiff
 
 if %DO_IT eq 1 (
-    echo %ANSI_COLOR_RED%—— Returning to command line ——%ANSI_COLOR_NORMAL%
-    CANCEL
-) %+ rem Redundant double-cancel just-in-case {having some suspicious behavior as of 2024/10}
+    echo %ANSI_COLOR_RED%—— Returning to command line #2 of 2 ——%ANSI_COLOR_NORMAL%
+    echo on
+    *CANCEL
+) %+ rem Redundant double-cancel just-in-case {having some suspicious behavior as of 2024/10, bug reported 2022/11/10}
 

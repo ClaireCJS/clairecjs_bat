@@ -32,7 +32,12 @@ rem Parameter checking:
                         echo - DEBUG: if "%@REGEX[/s,%dir_params%]" eq "1" (set FILELIST_TO_USE=all.m3u) 🐐🐐🐐
                                       if "%@REGEX[/s,%dir_params%]" eq "1" (set FILELIST_TO_USE=all.m3u)
                 endiff                                      
-                dir /b /[!*instrumental*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%
+                iff exist %filemask_audio% then
+                        rem dir /b /[!*instrumental*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%
+                           (dir /b /[!*instrumental*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%) >&>nul
+                        rem ^^^ There still might be errors here in the event of audio files being present, but 100% of them having "instrumental" in their name. Therefore, let's suppress stderr
+
+                endiff                        
 
 
 rem Debug info:
