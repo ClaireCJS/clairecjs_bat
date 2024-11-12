@@ -1,0 +1,114 @@
+
+@rem     Sets a tag to associate with a file, using Windows Alternate Data Streams for files. 
+
+@rem     These tags copy over to new locations and "live" "within" the files themselves, so moving/copying doesn't change things.
+
+
+
+@Echo OFF
+ on break cancel
+ 
+goto :init
+
+:usage
+echo.
+call divider
+%COLOR_ADVICE%
+set //UnicodeOutput=yes
+text
+:USAGE: add-ADS-tag-to-file [%filename] [tag_name] [tag_value or "read" or "remove"] ["verbose"]
+:USAGE: 
+:USAGE: WRITE MODE (3rd arg is not "read"): Sets the file's tag to the value given
+:USAGE: 
+:USAGE:         EXAMPLE: add-ADS-tag-to-file  filename.txt songlyrics.txt lyrics approved
+:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ sets the 'lyrics' tag to 'approved'
+:USAGE: READ MODE (3rd arg is "read"): Sets %%RECEIVED_VALUE%% to the file's tag's value
+:USAGE: 
+:USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt songlyrics.txt lyrics read
+:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ sets RECEIVED_VALUE=approved
+:USAGE:
+:USAGE: REMOVE MODE (3rd arg is "remove"): Deletes/Removes/blanks out tag on file
+:USAGE: 
+:USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt songlyrics.txt lyrics remove
+:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ removes the tag
+:USAGE:
+:USAGE: VERBOSE MODE: (4th arg is "verbose"):
+:USAGE:
+:USAGE:         Verifies what happens on-screen.
+endtext
+%COLOR_NORMAL%
+if not defined DefaultUnicodeOutput set DefaultUnicodeOutput=no
+set //UnicodeOutput=%DefaultUnicodeOutput%
+call divider
+return
+
+
+:init
+
+rem Get parameters:
+        set   FILE_TO_USE=%@UNQUOTE[%1]                                    %+ rem file to use 
+        set TAG_TO_MODIFY=%@UNQUOTE[%2]                                    %+ rem tag to use
+        set     TAG_VALUE=%@UNQUOTE[%3]                                    %+ rem value to set tag to, or "read" to return the value in %RETRIEVED_TAG%
+        set       PARAM_4=%4                                               %+ rem "verbose" if you want on-screen verification of what's happeneing
+
+
+rem Validate environment and parameter:
+        if "%1" EQ ""                                       (gosub :usage %+ goto :END)
+        call validate-environment-variable  File_To_Use    "1st arg must be a filename. 2nd optional arg must be a tag, 3rd arg must be 'read' or a value, 4ᵗʰ optional arg can be 'verbose'"
+        call validate-environment-variable   Tag_To_Modify "2nd argument must a tag, NOT empty"
+        call validate-environment-variable   Tag_Value     "3rd argument must a value, or 'read' ... NOT empty"
+        if "%PARAM_4%" ne "" .and. "%PARAM_4%" ne "verbose" .and. "%PARAM_4%" ne "remove" (call    fatal_error    "There shouldn't be a 4th parameter of this value beingsent to %0 {called by %_PBATCHNAME}, but you gave '%italics_on%%PARAM_4%%italics_off%'. Run without parameters to understand proper usage.")
+        call validate-environment-variables emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off
+
+rem Set default values for parameters:
+        set VERBOSE=0
+        if "%PARAM_4%"       eq "verbose" (set VERBOSE=1)         
+        if "%TAG_TO_MODIFY%" eq        "" (set TAG_TO_MODIFY=tag)
+        if "%TAG_VALUE%"     eq        "" (set TAG_TO_MODIFY=value)
+
+
+rem Read or set (depending on invocation) via windows alternate data streams:
+        iff "read" eq "%TAG_VALUE%" then
+                rem Store the result of reading the tag into the environment variable we've decided to use as convention for this situation:
+                        set RECEIVED_VALUE=%@ExecStr[type %FILE_TO_USE%:%TAG_TO_MODIFY%]
+                        
+                rem If we are in verbose mode, explain what we did:
+                        iff 1 eq %VERBOSE then
+                                echo.
+                                echo %CHECK% Verified value of: '%italics_on%%emphasis%%[RECEIVED_VALUE]%deemphasis%%italics_off%' 
+                                echo        %ansi_color_green%%normal_arrow%%ansi_color_normal%     for tag:  %ansi_color_bright_red%%bold_on%%[TAG_TO_MODIFY]%bold_off%%ansi_normal%
+                                echo        %ansi_color_green%%normal_arrow%%ansi_color_normal%   from file:  %faint_on%%[FILE_TO_USE]%faint_off%
+                        endiff                                
+                
+                rem And a few aliaes of our results, for the invokee who doesn't quite remember how to use this:
+                        set            RESULT=%RECEIVED_VALUE%
+                        set          RECEIVED=%RECEIVED_VALUE%
+                        set      RECEIVED_TAG=%RECEIVED_VALUE%
+                        set RECEIVED_METADATA=%RECEIVED_VALUE%
+        elseiff "remove" eq "%TAG_VALUE%" then
+
+                rem Delete/blank out/remove the tag from the file, but in a very safe way where we don't accidentally delete the file:
+                        iff "%TAG_TO_MODIFY%" ne "" then
+                                >%FILE_TO_USE%:%TAG_TO_MODIFY%
+                        else
+                                call fatal_error ("%TAG_TO_MODIFY is currently '%TAG_TO_MODIFY%' and absolutely should not be" %+ goto :END)
+                        endiff
+
+                rem If we are in verbose mode, explain what we did:
+                        iff 1 eq %VERBOSE then
+                                call %0 %FILE_TO_USE% %TAG_TO_MODIFY% read verbose
+                        endiff                                
+                
+        else
+                rem Associate the tag+value pair into the file:
+                        echo %TAG_VALUE%>%FILE_TO_USE%:%TAG_TO_MODIFY%
+                        
+                rem If we are in verbose mode, verify the write by reading it:
+                        iff 1 eq %VERBOSE then
+                                call %0 %FILE_TO_USE% %TAG_TO_MODIFY% read verbose
+                        endiff                                
+        endiff
+
+
+:END
+

@@ -127,7 +127,7 @@ goto :END_OF_SUBROUTINES
                                                 REM     %DELETE% %filetarget%
                                                 REM )
                                         if     exist %file% (%UPDATE%   %file%  %TARGET_DIR%\%file%)
-                                        if not exist %file% (call error "file doesn't exist: %file%")
+                                        if not exist %file% (echo. %+ call error "file doesn't exist: %file%")
                                     )
                                 popd
 

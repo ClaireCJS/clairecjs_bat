@@ -702,10 +702,16 @@ return
                 rem More surprisingly, this was:
                         set UnicodeOutputDefault=no
                         set    UTF8OutputDefault=yes
+                        
+                rem Some aliases for those variables:
+                        set DefaultUnicodeOutput=%UnicodeOutputDefault%
+                        set    DefaultUTF8Output=%UTF8OutputDefault%
+
+                rem Actually set the optins to our default values:                                
                         option //UnicodeOutput=%UnicodeOutputDefault%
                         option //UTF8Output=%UTF8OutputDefault%
 
-                rem And even more surprisingly, setting these options in the INI file does not work.
+                rem NOTE: Setting these options in the TCC INI file works, but only if you set them in the [4NT] section of the INI
 return
 
 

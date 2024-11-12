@@ -36,7 +36,7 @@
             set  FILENAME_OLD=%@UNQUOTE[%1]                             
                     :et  FILENAME_OLD_TRUENAME=%@TRUENAME["%1"]
                     set  FILENAME_OLD_TRUENAME=%@TRUENAME["%FILENAME_OLD%"]
-                    if %DEBUG gt 0 (call print-if-debug "[About to validate-env-var FILENAME_OLD_TRUENAME]")
+                    if %DEBUG gt 0 (call print-if-debug "[About to validate-env-var FILENAME_OLD_TRUENAME (%FILENAME_OLD_TRUENAME%)]")
                     call validate-environment-variable FILENAME_OLD_TRUENAME
             color bright red on black 
             set  FILENAME_NEW=%FILENAME_OLD%        

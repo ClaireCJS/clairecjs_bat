@@ -18,13 +18,14 @@ title %prev_title%
 
 if "%DO_IT%" ne 1 goto :END
 rem iff %DO_IT eq 1 then
+
         title %prev_title% 
         pause 
         set FORCE_EXIT=1 
-        echo on
         echo %ANSI_COLOR_RED%—— Returning to command line #1 of 2 ——%ANSI_COLOR_NORMAL%
         rem not *CANCELing anymore but calling BAT 
         call cancelll.bat
+        *cancel
 rem endiff
 
 rem if %DO_IT eq 1 (
@@ -32,7 +33,9 @@ rem if %DO_IT eq 1 (
     rem *CANCEL
     rem not *CANCELing anymore but calling BAT 
     call cancelll.bat
+    *cancel
 rem ) %+ rem Redundant double-cancel just-in-case {having some suspicious behavior as of 2024/10, bug reported 2022/11/10}
 
 
 :END
+if 1 eq %DO_IT (*CANCEL)
