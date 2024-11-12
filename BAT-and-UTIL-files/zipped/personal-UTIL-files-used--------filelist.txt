@@ -20,6 +20,7 @@
 2005-08-04  11:05         41,960   62%  pendmoves.exe
 2023-10-06  12:20        957,443   55%  pizza-per-square-inch-calculator.exe
 2015-02-27  22:11         92,568   52%  RemoveDrive.exe
+2024-09-09  07:22     47,482,367   76%  rg.exe
 2014-07-27  16:32         72,704   47%  speak.exe
 2011-11-18  01:33        240,192    8%  taskbar-autohide.exe
 2012-11-13  02:36          5,632   59%  wake-on-lan.exe

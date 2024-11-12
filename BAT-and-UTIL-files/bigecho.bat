@@ -15,7 +15,7 @@ rem Validate environment
         if %BIGECHO_VALIDATED ne 1 (
             if not defined BIG_TEXT_LINE_1 (call error "BIG_TEXT_LINE_1 is not defined. Try running set-colors.bat")
             if not defined BIG_TEXT_LINE_2 (call error "BIG_TEXT_LINE_2 is not defined. Try running set-colors.bat")
-            call validate-environment-variables BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 BIG_TEXT_END ANSI_RESET ANSI_COLOR_NORMAL ANSI_ERASE_TO_EOL
+            call validate-environment-variables BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 BIG_TEXT_END ANSI_RESET ANSI_COLOR_NORMAL ANSI_ERASE_TO_EOL emphasis deemphasis blink_on blink_off
             set BIGECHO_VALIDATED=1
         )
 
@@ -23,7 +23,8 @@ rem If it's too wide  then simply revert back to echo'ing the command in normal/
         set LEN=%@LEN[%@stripansi[%PARAMS]]
 
 rem This false positives to not-double-height on unicode/characters that are hard to measure the width of accurately and which report lenghts greater than printable length...
-        if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS]    (echo %* %+ goto :END)
+        set FUDGE_FACTOR=7
+        if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS-%FUDGE_FACTOR%]    (echo %STAR%%STAR%%STAR% %blink_on%%emphasis%%1$%deemphasis%%blink_off% %STAR%%STAR%%STAR% %+ goto :END)
 
 setdos /x-678
 

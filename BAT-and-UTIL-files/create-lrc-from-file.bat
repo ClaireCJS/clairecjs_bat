@@ -66,10 +66,11 @@ REM Pre-run cleanup:
         call unlock-top                 %+ rem Remove any leftover banners from previous runs
 
 REM validate environment [once]:
+        if not defined UnicodeOutputDefault (set UnicodeOutputDefault=no)
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
                 @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  deprecate.bat
-                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning TRANSCRIBER_PDNAME ansi_color_warning_soft ANSI_COLOR_BLUE
+                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning TRANSCRIBER_PDNAME ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault
                 @call validate-is-function           randfg_soft
                 @call checkeditor
                 @set VALIDATED_CREATE_LRC_FF=1
@@ -133,15 +134,25 @@ REM branch on certain paramters, and clean up various parameters
                 set special=%1
                 if "%special%" eq "ai"                 (set SOLELY_BY_AI=1       )
                 if "%special%" eq "fast"               (set FAST_MODE=1          )
-                if "%special%" eq "redo"               (set FORCE_REGEN=1        )
-                if "%special%" eq "force-regen"        (set FORCE_REGEN=1        )
                 if "%special%" eq "cleanup"            (set CLEANUP=1            )
-                if "%special%" eq                "la"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq               "ala"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq "force-regen"        (set FORCE_REGEN=1        )
+                if "%special%" eq "redo"               (set FORCE_REGEN=1        )
+                if "%special%" eq "ala"                (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq  "la"                (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq     "LyricApprove"   (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq     "LyricApproved"  (set AUTO_LYRIC_APPROVAL=1)
                 if "%special%" eq     "LyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq     "LyricsApprove"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq     "LyricsApproved" (set AUTO_LYRIC_APPROVAL=1)
                 if "%special%" eq     "LyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
                 if "%special%" eq "AutoLyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
                 if "%special%" eq "AutoLyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq "AutoLyricsApproved" (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq "AutoLyricApproved"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq "AutoLyricsApprove"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq "AutoLyricApprove"   (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq "AutoLyrics"         (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" eq "AutoLyric"          (set AUTO_LYRIC_APPROVAL=1)
         :NoSpecial
         iff 1 eq %special_parameters_possibly_present% then       
                 shift 
@@ -201,14 +212,11 @@ rem If we are doing it *SOLELY* by AI, skip some of our lyric logic:
 REM display debug info
         :Retry_Point
         :solely_by_ai_jump1
-        echo %ansi_color_debug%- DEBUG: (8)%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE='%ITALICS_ON%%SONGBASE%%ITALICS_OFF%'%NEWLINE%%TAB%%TAB%LRC_FILE='%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%', %NEWLINE%%TAB%%TAB%TXT_FILE='%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%'%FAINT_OFF%%NEWLINE%%ansi_color_normal%"
-        rem @echo Hello?!?!?!
+        if %DEBUG gt 0 echo %ansi_color_debug%- DEBUG: (8)%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%    SONGFILE='%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%':%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE='%ITALICS_ON%%SONGBASE%%ITALICS_OFF%'%NEWLINE%%TAB%%TAB%LRC_FILE='%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%', %NEWLINE%%TAB%%TAB%TXT_FILE='%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%'%FAINT_OFF%%ansi_color_normal%
         gosub say_if_exists SONGFILE
         gosub say_if_exists SRT_FILE
         gosub say_if_exists LRC_FILE
-        rem   say_if_exists LRCFILE2
         gosub say_if_exists TXT_FILE
-        rem   say_if_exists VOC_FILE
         gosub say_if_exists JSN_FILE
         @echo.
 
@@ -596,9 +604,9 @@ REM set a non-scrollable header on the console to keep us from getting confused 
             rem eset FILE_ARTIST
             rem pause
         endiff
-        set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
+        call divider %+ set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
         rem BRING BACK AFTER I FIX THE BANNER: call top-banner "%banner_message%"
-        rem instead do this temporarily: 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
+        rem instead do this temporarily: 🐐🐐
                 call important "%banner_message%"
 
 
@@ -631,8 +639,10 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto :Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
 
         rem ACTUALLY DO IT!!!:
+                option //UnicodeOutput=yes
                 rem %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper 
-                    %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper |&:u8 tee /a "%OUR_LOGFILE%"
+                rem %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper |&:u8 tee /a "%OUR_LOGFILE%"
+                    %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper |&:u8 tee.exe --append "%OUR_LOGFILE%"
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
@@ -642,6 +652,7 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 :Done_Transcribing                 %+ rem  /     If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
+                option //UnicodeOutput=%UnicodeOutputDefault%
                 echos %TOCK%                       %+ rem just our nickname for an extra-special ansi-reset
                 call errorlevel "some sort of problem with the AI generation occurred in %0 line ~336ish {'actually generate the srt file'}"
 

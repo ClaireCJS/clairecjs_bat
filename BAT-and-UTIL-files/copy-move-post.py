@@ -29,7 +29,9 @@ import clairecjs_utils as claire                                                
 from colorama import init
 init(autoreset=False)
 
-COLOR_QUESTION_BACKGROUNDS = True                 #whether to highlight lines with "?" with a random background character and other stuff —— originally developed for Y/N/R/A-type prompts when copying files, but annoying in other situations
+SPECIAL_TREATMENT_FOR_QUESTION_LINES = True       # Set to False to suppress special treatment of lines with '?'
+COLOR_QUESTION_BACKGROUNDS           = True       #whether to highlight lines with "?" with a random background character and other stuff —— originally developed for Y/N/R/A-type prompts when copying files, but annoying in other situations
+
 DEFAULT_COLOR_CYCLE_MODE   = "fg"                 #whether to color-cycle foreground ("fg"), background ("bg"), or both ("both").
 EMOJIS_COPY                = '⭢︋📂 '
 EMOJIS_PROMPT              = '❓❓ '
@@ -219,7 +221,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             #bad syntax:                              ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"] in line:
             if any(substring in line for substring in ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"]):
                 line = line.replace("* Reset prompt. ",COLOR_GREY + FAINT_ON + spacer + "* Reset prompt. ") + FAINT_OFF
-            if " --> " in line:
+            if " --> " in line: #🐐 possibly restrict this to if whisper_ai
                 line = f"🌟 {BLINK_ON}" + line.replace("]  ",f"]{BLINK_OFF}{ANSI_RESET}{ITALICS_ON}  ")
 
     lines_to_print = line.split('\n')                                                                         #there really shouldn't be a \n in our line, but things happen
@@ -256,7 +258,7 @@ t = threading.Thread(target=reader_thread, args=(q,))
 t.start()
 
 line_buffer               = ""
-in_prompt                 = False
+in_prompt                 = False               #used to determine if the script is currently processing a "propmt" (a line containing ?) in order to highhlight when copy commands ask us something in a window we aren't paying attention to. It's a 4-monitors-totallying-29-sq-ft problem...
 additional_beginning_ansi = move_decorator_from_environment_variable
 
 # random color hex testing
@@ -304,12 +306,15 @@ if verbose:
 #enable_vt_support()
 
 #whether to blink text or not
-blink_maybe = BLINK_ON;                         #failed attempt to solve blinking questions in Whisper mode
-if nomoji or whisper_ai: BLINK_ON=""            #failed attempt to solve blinking questions in Whisper mode
+blink_maybe = BLINK_ON;                          #failed attempt to solve blinking questions in Whisper mode
+if nomoji or whisper_ai: BLINK_ON=""             #failed attempt to solve blinking questions in Whisper mode
 
-char_read_time_out=0.008;                       #most of the time, read characters as fast as we can! testing gave 0.008
-#f whisper_ai: char_read_time_out=0.2           #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
-if whisper_ai: char_read_time_out=0.064         #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
+char_read_time_out=0.008;                        #most of the time, read characters as fast as we can! testing gave 0.008
+#f whisper_ai: char_read_time_out=0.2            #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
+if whisper_ai: 
+    char_read_time_out=0.064                     #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
+    SPECIAL_TREATMENT_FOR_QUESTION_LINES = False # Set to False to suppress special treatment of lines with '?'
+
 
 
 
@@ -326,7 +331,7 @@ while t.is_alive() or not q.empty():
         if (char == '?' and not in_prompt) or (char == '\n' and not in_prompt):
             r ,  g,  b = get_random_color()                                                      # Generate random colors for the branches below that need them [a refactoring]
 
-        if char == '?' and not in_prompt:         #coloring for copy/move prompts, so we can make them blinky & attention-get'y
+        if char == '?' and not in_prompt and SPECIAL_TREATMENT_FOR_QUESTION_LINES:               #coloring for copy/move prompts, so we can make them blinky & attention-get'y
             in_prompt = True
 
             #color switching logic: background colors:
@@ -344,7 +349,7 @@ while t.is_alive() or not q.empty():
             #color switching logic: cursor: Ansi code for changing cursor color to a hex rgb is: [ESCAPE][ q[ESCAPE]]12;#FF00ff[BELL]
             rgbhex_with_pound_sign = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)
             #ys.stdout.write(f'\033[48;2;{bgr};{bgg};{bgb}m\033[38;2;{r};{g};{b}m{additional_beginning_ansi}❓❓   {BLINK_ON}{line_buffer} {ANSI_RESET}') #\033[0m
-            cursor_color_switch_by_hex = f"{CURSOR_RESET}\033" + f"]12;{ rgbhex_with_pound_sign}\007"             #*[ q*12;#FFFFFF{beep}
+            cursor_color_switch_by_hex = f"{CURSOR_RESET}\033" + f"]12;{rgbhex_with_pound_sign}\007"              #*[ q*12;#FFFFFF{beep}
 
             #color switching logic: blinking text — needs to happen in this loop repeatedly, not just once:
             blink_maybe = BLINK_ON;

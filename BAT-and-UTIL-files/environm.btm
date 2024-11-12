@@ -700,8 +700,10 @@ return
                         rem option //unicodeoutput=yes
 
                 rem More surprisingly, this was:
-                        option //UnicodeOutput=no  
-                        option //UTF8Output=yes
+                        set UnicodeOutputDefault=no
+                        set    UTF8OutputDefault=yes
+                        option //UnicodeOutput=%UnicodeOutputDefault%
+                        option //UTF8Output=%UTF8OutputDefault%
 
                 rem And even more surprisingly, setting these options in the INI file does not work.
 return
