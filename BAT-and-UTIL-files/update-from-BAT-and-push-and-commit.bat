@@ -56,6 +56,7 @@ rem Only once per session, validate our environment & make sure we're running th
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #1 ——— Define the files
 
         rem Set var for each special file we copy:
+                set      PYTHON_LIBRARIES_DIR=%PYTHON_OFFICIAL_SITELIB_CLAIRE%
                 set                  TCMD_DIR=c:\TCMD
                 set                  TCMD_INI=%TCMD_DIR%\tcmd.ini                             
                 set              TCMD_ALIASES=%TCMD_DIR%\alias.lst                            
@@ -71,7 +72,7 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #1 
                 set            SAMPLES_FOLDER=%BAT%\samples
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #2 ——— Validate the files
-        call validate-environment-variables BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER
+        call validate-environment-variables BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
         set                                    COPY=*copy /u /q
@@ -89,6 +90,7 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
         %copy%   "%WINDOWS_TERMINAL_SETTINGS" %TARGET%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
         %copy_S%  %DIVIDERS_FOLDER%           %TARGET%\dividers
         %copy_S%  %SAMPLES_FOLDER%            %TARGET%\samples
+        %copy%    %PYTHON_LIBRARIES_DIR%\*.py %TARGET% 
         %copy%    %0                          %TARGET%                                        %+ rem Yes, we are copying THIS script too——it only lives in my dev folder
 
 
