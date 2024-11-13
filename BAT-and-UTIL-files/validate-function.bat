@@ -39,7 +39,7 @@
     rem call debug "validate_multiple is %validate_multiple%"
     rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VFUNCPARAMS%"
     if "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 (
-        call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR! ***"
+        call bigecho "%ANSI_COLOR_ALARM%*** user FUNCTION NOT DEFINED ERROR! ***"
         color bright white on red
         echo  We can't be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-function.bat 
         echo  %underline%Did you mean%underline_off%: %italics%validate-function%double_underline%%blink%s%blink_off%%double_underline_off% %VFUNCPARAMS%%italics_off% 
@@ -148,34 +148,34 @@ goto :Past_The_End_Of_The_Sub_Routines
                                     if          %@EVAL[%LENGTH_DIFF % 2] == 0 (set "USER_MESSAGE=%USER_MESSAGE%*" )
                                 )
 
-                                rem Output the updated ERROR_MESSAGE
-                                set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
+                                rem set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
                             :Do_It_1_Done
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo ERROR_MESSAGE[2]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
-                            call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR! ***"
+                            call bigecho "%ANSI_COLOR_ALARM%*** %italics_on%USER FUNCTION NOT DEFINED%italics_off% ERROR! ***"
                             %COLOR_ALARM%       
                             echos %ERROR_MESSAGE% 
                             %COLOR_NORMAL% 
                             echo.
+                            rem Display custom error message ("user message"), if there is one
                             if "%USER_MESSAGE%" ne "" (
                                 REM Although this is technically advice, we 
                                 REM are coloring it warning-style because 
                                 REM advice related to an error in this context
                                 REM pretty much *DOES* mean a warning in the 
                                 REM outer context of our calling script, and 
-                                REM that level of importance shoudln't be as 
+                                REM that level of importance shouldn't be as 
                                 REM easily visually discarded as the advice 
                                 REM color might usually be, because it's more
-                                REM important than simply advice -- 
-                                REM      -- it represents a system failure!!!
-                                REM ...so let's put asterisks around it, too!
+                                REM important than simply advice —— 
+                                REM      —— it represents a system failure!!!
+                                REM ...so let's put asterisks around it, too?
                                 call warning "%@UNQUOTE[%USER_MESSAGE%]"
                             )
                                 
                             %COLOR_ALARM%  %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo.
-                            call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR! ***"
-                            REM call alarm-beep     %+ REM was too annoying for the severity of the corresponding situations
-                            call white-noise 1      %+ REM reduced to 2 seconds, then after a year or few, reduced to 1 second
+                            call bigecho "%ANSI_COLOR_ALARM%*** %italics_on%USER FUNCTION NOT DEFINED%italics_off% ERROR! ***"
+                            REM call alarm-beep         %+ REM was too annoying for the severity of the corresponding situations
+                            call white-noise 1          %+ REM reduced to 2 seconds, then after a year or few, reduced to 1 second
                             REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
                             REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
                             REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%

@@ -3,10 +3,10 @@
 rem title %0 %*
 
 
-:USAGE: beep {freq} {duration}
-:USAGE: beep highest {duration}
-:USAGE: beep lowest {duration}
-:USAGE: beep systemsoundtest
+:USAGE: beep {freq}  {duration} ——— default invocation
+:USAGE: beep highest {duration} ——— uses preset highest-audible-pick {may need to be tweaked per-computer}
+:USAGE: beep lowest  {duration} ——— uses preset highest-audible-pick {may need to be tweaked per-computer}
+:USAGE: beep  systemsoundtest   ——— perform a test of all the system sounds accessible by the TCC primitive *beep command
 
 
 REM CONFIGURATION: SET THE HIGHEST BEEP ALLOWED:
