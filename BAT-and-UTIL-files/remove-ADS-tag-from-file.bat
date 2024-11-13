@@ -57,6 +57,6 @@ rem Set default values for parameters:
 
 
 rem Remove tag: 
-        call add-ADS-tag-to-file %FILE_TO_USE% %TAG_TO_REMOVE% remove %PARAM_3%
+        call add-ADS-tag-to-file "%FILE_TO_USE%" %TAG_TO_REMOVE% remove %PARAM_3% %4$
 :END
 

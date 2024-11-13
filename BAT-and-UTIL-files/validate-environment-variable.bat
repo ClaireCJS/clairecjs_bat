@@ -96,7 +96,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                     ::::: REPOND IF IT IS NOT:
                         :Defined_NO
                             set ERROR=1
-                            set ERROR_MESSAGE=*** Environment variable '%underline%%italics%%blink%%varname%%italics_off%%blink_off%%underline_off%' is %double_Underline%not%double_Underline_off% defined, and needs to be!!! ***
+                            set ERROR_MESSAGE=*** Environment variable '%underline%%italics%%blink%%varname%%italics_off%%blink_off%%underline_off%' is %double_Underline%not%double_Underline_off% defined, and needs to be, in %italics_on%%[_PBATCHNAME]%italics_off%!!! ***
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is '%USER_MESSAGE%')
                             if "%USER_MESSAGE%" ne "" goto :Do_It_1
@@ -188,9 +188,17 @@ goto :Past_The_End_Of_The_Sub-Routines
         ::::: ADDITIONALLY, VALIDATE THAT IT EXISTS, IF IT SEEMS TO BE POINTING TO A FOLDER/FILE:
             :Defined_YES
             set VARVALUE=%[%VARNAME%]``                    %+ if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
-            set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])     %+ set IS_FILE_LOCATION=0
+            set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])     
+
+            set IS_FILE_LOCATION=0
             setdos /x-5
-            if defined VARVALUE .and. "1" eq "%@REGEX[^[A-Z]:,%@UPPER[%VARVALUE%]]" (set IS_FILE_LOCATION=1)
+            iff defined VARVALUE then
+                        rem "1" eq "%@REGEX[^[A-Za-z]:,%@UPPER[%@UNQUOTEVARVALUE%]]]" then
+                        setdos /x-5
+                        if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"               set IS_FILE_LOCATION=1 %+ rem if it has "C:" or such drive letter at the beginning
+                        if "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" set IS_FILE_LOCATION=1 %+ rem if it ends with any file extension of commonly used files
+                        setdos /x0
+            endiff                            
             setdos /x0
             if  "0" eq "%IS_FILE_LOCATION%"         (goto :DontValidateIfExists)
             if  "0" eq "%@READY[%VARVALUEDRIVE%]"   (goto :DontValidateIfExists)                         %+ rem //Don't look for if drive letter doesn't exist--it's SLOWWWWW

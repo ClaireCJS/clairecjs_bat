@@ -16,8 +16,8 @@ rem                     [Solution: use regular epressions to strip things off pa
    
 rem Make sure stripansi plugin is loaded:   
         set stripansi_failed=0
-        if "%@PLUGIN[stripansi]" eq "" then call load-TCC-plugins
-        if "%@PLUGIN[stripansi]" eq "" then set stripansi_failed=1
+        if "%@PLUGIN[stripansi]" eq "" call load-TCC-plugins
+        if "%@PLUGIN[stripansi]" eq "" set stripansi_failed=1
 
 set PRIMARY_ERROR_MESSAGE_STYLING_ON=%italics_on%%blink_on%%@ANSI_BG_RGB[128,24,24]
 set PRIMARY_ERROR_MESSAGE_STYLING_OFF=%blink_off%%italics_off%%ANSI_COLOR_FATAL_ERROR%

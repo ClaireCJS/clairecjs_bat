@@ -176,8 +176,8 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
         set HD2000G2_DOWN=1                                %+ rem R: crashed (2017) 
         set HD2000G3_DOWN=1                                %+ rem T: crashed (2017) but possibly recoverable
 
-    :::: Hardware that we need to know if down:
-		set AMBILIGHT_DOWN=1
+    rem Cstom hardware status:
+	set AMBILIGHT_DOWN=1
         set       X10_DOWN=1
 ::::::::::::::::::::::::::::::::::::::::::::::::::: CONFIGURATION :::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -194,10 +194,9 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 ::::::::::::::::::::::::::::::::::::: MAIN :::::::::::::::::::::::::::::::::::::
 
 
-    rem Vars related to running this:
+    rem Var to track that we are in the middle of running this:
             set RUNNING_ENVIRONM=1
-            rem echos %@RANDCURSOR[]
-
+            
 
 
 
@@ -249,30 +248,30 @@ return
 			rem Magic collided with Mist, so generally Magic's C: is J:, D: is K:, etc.
 			rem Hell  collided with Fire, so generally  Hell's C: is P:, D: is Q:, etc.
 
-		rem     Wyvern A
+	rem     Wyvern A
         rem    Thailog B 
-		rem     System C
+	rem     System C
         rem    Thailog D
         rem     Wyvern EF
         rem       DOWN G
-		rem    Thailog HI
+	rem    Thailog HI
         rem      ????? J 	 (ssd:j) 
         rem    Thailog K                
-		rem    Goliath L
+	rem    Goliath L
         rem     Demona M 
         rem      CADDY N      (also was using W but will have to find another letter)
-		rem     Demona O          
+	rem     Demona O          
         rem    Thailog PQR
         rem     Demona STU
-		rem    Thailog V     
-		rem     Wyvern W      (was caddy)
-		rem      Thumb X	     (USB thumbdrive)
-		rem     CD/DVD YZ	 (y=read/cd,z=write/dvd)
-		rem CardReader ???    (maybe unmap drives before doing cardreader stuff)
+	rem    Thailog V     
+	rem     Wyvern W      (was caddy)
+	rem      Thumb X	     (USB thumbdrive)
+	rem     CD/DVD YZ	 (y=read/cd,z=write/dvd)
+	rem CardReader ???    (maybe unmap drives before doing cardreader stuff)
 
-		rem       reserved  C XYZ
-		rem           Fire  (K-old=%SHARE300G%,Q-old=%SHARE250G%,U-old=%HD1000G%)
-		rem        Thailog  DHIKPQRV
+	rem       reserved  C XYZ
+	rem           Fire  (K-old=%SHARE300G%,Q-old=%SHARE250G%,U-old=%HD1000G%)
+	rem        Thailog  DHIKPQRV
         rem         Demona  SMOTU
         rem         Wyvern  AEFW
         rem           Free  N?J?
@@ -281,109 +280,94 @@ return
 
         set BEST_FREE_DRIVE_LETTER=C %+ REM   Newly-introduced concept 201507 for RAMDrive scripting. May need to per-computer it. Was T but choosing C because it's often an SSD
 
-		::HADES (2007-2016) IS DEAD - THE SSD MOVED INTO GOLIATH FOR CAROLYN'S 2017 RE-INSTALL:
-            rem DRIVES_HADES=                          %+  rem in 2024 we would set this below: SET MAPPING_HADES_IP=66.167.233.214
-            rem DRIVE_C_HADES=                         %+  rem in 2024 we sould set this below: SET MAPPING_HADES_USR=oh
-            rem DRIVE_C_HADES_VAR=%A%                  %+  rem MAPPING_HADES_PWD=[REDACTED into private.env]
 
-		::FIRE (2011)
-            if "%FIRE_DOWN%" eq "1" (goto :FireDownNoDriveDefinitions)
-                ::T HD300G=K    %+  SET K=HD300G           %+  SET MAPPING_K=FIRE300G 
-                SET SHARE300G=\\fire\\fire300g\            %+  SET SHARING_K=%SHARE300G%                 %+ REM out of drive letters, but still want an environment variable for this harddrive
-                ::T HD250G=Q    %+  SET Q=HD250G           %+  SET MAPPING_Q=FIRE250G 
-                SET SHARE250G=\\fire\\fire250g\            %+  SET SHARING_Q=%SHARE250G%                 %+ REM out of drive letters, but still want an environment variable for this harddrive
-                SET HD1000G=U   %+  SET U=HD1000G          %+  SET MAPPING_U=FIRE1000G
-                set HD1000G1=U  %+  SET HD1T=U             %+  SET HD1T1=U
-                SET DRIVES_FIRE=U                          %+  rem in 2024 we would set this below....   %+ SET MAPPING_FIRE_IP=192.168.0.105          %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
-                SET DRIVES_FIRE=U                          
-                SET DRIVE_C_FIRE=%SHARE300G%               
-                SET DRIVE_C_FIRE_VAR=%SHARE300G%           %+  REM MAPPING_FIRE_PWD=[REDACTED into private.env]
-            :FireDownNoDriveDefinitions
-		::GOLIATH (2012)
-            SET HD256G_DOWN=1    %+ rem HD256G=A         %+ rem A=HD256G       %+  rem MAPPING_A=GOLIATH256G   %+ REM crashed 202011
-            rem HD18000G2_DOWN=0 %+ set HD18000G2=A      %+ SET A=HD18000G2    %+  SET MAPPING_A=GOLIATH18T2   %+ SET HD18T2=A %+ set ARCHIVEDRIVE=A - moved to wyvern 20240127
-			SET HD128G_DOWN=1    %+ rem HD128G=M         %+ SET M=HD128G       %+  SET MAPPING_M=GOLIATH128G  
-			SET HD1500G_DOWN=1   %+ set HD1500G=L(DOWN)  %+ rem L=HD1500G      %+  SET MAPPING_L=GOLIATH1500G  %+ SET HD1500G1=%HD1500G%
-			SET HD2000G4_DOWN=1  %+ set HD2000G4=G       %+ SET G=HD2000G4     %+  SET MAPPING_G=GOLIATH2000G2 %+ REM removed 20220410
-			rem HD4000G_DOWN=0   %+ set HD4000G=B        %+ SET B=HD4000G      %+  SET MAPPING_B=GOLIATH4000G  %+ SET HD4000G1=%HD4000G% - moved to Thailog 20240220
-			set HD4000G2_DOWN=1  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=GOLIATH4000G2 - moved to Wyvern 20240125ish but died fast when Carolyn put mounting tape on the fucking pins of the drive
-			SET HD4000G3_DOWN=1  %+ rem HD4000G3=F       %+ SET F=HD4000G3     %+  SET MAPPING_F=GOLIATH4000G3 
-			rem HD4000G4_DOWN=1  %+ rem HD4000G4=H       %+ SET H=HD4000G4     %+  SET MAPPING_H=GOLIATH4000G4 - moved to Thailog 20240219
-            rem HD4000G5_DOWN=0  %+ set HD4000G5=V       %+ SET V=HD4000G5     %+  SET MAPPING_V=GOLIATH4000G5 %+ REM 2024 moved to thailog
+        ::WYVERN (2023)
+                rem HD4000G2_DOWN=0  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=WYVERN4000G2     %+  SET HD4G2=E   ... this didn't work out.. the dang'ed drive was dead——Carolyn put mounting tape on the prongs
+                set     HD2T1_DOWN=0 %+ set HD2T1=F          %+ set F=HD2T1        %+  set MAPPING_F=WYVERN2T1
+                set HD18000G2_DOWN=0 %+ set HD18000G2=A      %+ SET A=HD18000G2    %+  SET MAPPING_A=WYVERN18T2       %+  SET HD18T2=A %+ set ARCHIVEDRIVE=A 
+                set HD20000G2_DOWN=0 %+ set HD20000G2=W      %+ SET W=HD20000G2    %+  SET MAPPING_W=WYVERN20T2       %+  SET HD20T2=W 
+                set  DRIVES_WYVERN=F  A W
+                set DRIVE_C_WYVERN=F
+                set DRIVE_C_WYVERN_VAR=%F%
+                rem this is Carolyn's microsoftlive carolyncasl@gmail.com login password:
+                REM MAPPING_WYVERN_PWD=[REDACTED into private.env]
 
-            REM cannot account for these as of 2024/02/20: ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-            SET HD1000G_DOWN=1   %+ set HD1000G2=L       %+ SET L=HD1000G2     %+  SET MAPPING_L=GOLIATH1000G  %+ SET HD1G2=%HD1000G2% %+ REM marked as down 2024/02/20 because cannot locate
-			SET  HD512G_DOWN=?   %+ set HD512G=J         %+ SET J=HD512G       %+  SET MAPPING_J=GOLIATH512G   %+ REM decomissioned 20230803 ????????????????????????????????????????????????
 
-            rem DRIVES_GOLIATH=A B E F H L M N V   
-            rem DRIVES_GOLIATH=A B E L N V W       
-            rem DRIVES_GOLIATH=B J L N V 
-            rem DRIVES_GOLIATH=J L N 
-            rem DRIVES_GOLIATH=J L
-            rem DRIVES_GOLIATH=L
-            UNset DRIVES_GOLIATH %+ rem Because this computer is now decomissioned and has had its drives puled
-            rem DRIVE_C_GOLIATH=L (Windows 7 era)  %+  SET MAPPING_GOLIATH_USR=Carolyn       %+ set MAPPING_GOLIATH_IP=192.168.0.177
-            rem DRIVE_C_GOLIATH=J                  %+  SET MAPPING_GOLIATH_USR=carol         %+ set MAPPING_GOLIATH_IP=192.168.0.177
-            rem DRIVE_C_GOLIATH_VAR=%J%            %+  rem MAPPING_GOLIATH_PWD=[REDACTED into private.env]
-
-		::THAILOG (2015)
-			rem   HD240G_DOWN=1 %+ rem HD240G=P    %+  SET P=HD240G           %+  SET MAPPING_P=THAILOG240G                           %+ REM decomissioned 201910
-            set   HD240G_DOWN=0 %+ set HD240G2=D   %+  SET D=HD240G2          %+  SET MAPPING_D=THAILOG240G2 
-			set HD1500G2_DOWN=1 %+ rem HD1500G2=W  %+  SET W=HD1500G2         %+  SET MAPPING_W=THAILOG1500G2                         %+ REM down around post-Andrea time
-            set HD1500G2_DOWN=1 %+ rem SHARE1500G2=\\thailog\\thailog1500g2\  %+  SET SHARING_W=%SHARE1500G2%                         %+ REM out of drive letters, but still want an environment variable for this harddrive
-            set  HD2000G_DOWN=1 %+ rem HD2000G=O   %+  SET O=HD2000G          %+  SET MAPPING_O=THAILOG2000G                          %+ SET  HD2000G1=%HD2000G%
-            rem moved to Demona %+ set HD18000G=O  %+  SET O=HD18000G         %+  SET MAPPING_O=THAILOG18T1                           %+ SET HD18000G1=%HD18000G% %+ SET HD18T=O                                                                %+ SET HD18T1=%HD18T%
-			set HD2000G2_DOWN=1 %+ rem HD2000G2=R  %+  SET R=HD2000G2         %+  SET MAPPING_R=THAILOG2000G2                         %+ REM seems to have crashed 201703ish
-            set HD2000G2_DOWN=1 %+ rem HD2000G3=T  %+  SET T=HD2000G3         %+  ::T MAPPING_T=THAILOG2000G3                         %+ REM seems to have crashed 201703ish
-			set  HD4000G_DOWN=0 %+ set HD4000G=B    %+ SET B=HD4000G          %+  SET MAPPING_B=THAILOG4000G  %+ set HD4T1=%HD4000G%  %+ SET HD4000G1=%HD4000G% 
-            set HD4000G6_DOWN=1 %+ rem HD4000G6=S  %+  SET S=HD4000G6         %+  SET MAPPING_S=THAILOG4000G6                         %+ REM todo finish decomissioning this OR it will be RMA'ed with a replacement
-			set HD4000G4_DOWN=0 %+ set HD4000G4=H  %+  SET H=HD4000G4         %+  SET MAPPING_H=THAILOG4000G4                         %+ rem moved from Goliath to Thailog 20240219
-            SET HD4000G5_DOWN=0 %+ set HD4000G5=V   %+ SET V=HD4000G5         %+  SET MAPPING_V=THAILOG4000G5 %+ set HD4T5=%HD4000G5% %+ rem moved from dead-Goliath 2024
-            set HD4000G7_DOWN=0 %+ set HD4000G7=I  %+  SET I=HD4000G7         %+  SET MAPPING_I=THAILOG4000G7 %+ set HD4T7=%HD4000G7%
-			set HD6000G1_DOWN=0 %+ set HD6000G1=Q  %+  SET Q=HD6000G1         %+  SET MAPPING_Q=THAILOG6000G1 %+ set HD6T1=%HD6000G1% %+ set HD6000G=%HD6000G1% 
-			set HD6000G2_DOWN=0 %+ set HD6000G2=K  %+  SET K=HD6000G2         %+  SET MAPPING_K=THAILOG6000G2 %+ set HD6T2=%HD6000G2%
-			set HD6000G3_DOWN=0 %+ set HD6000G3=P  %+  SET P=HD6000G3         %+  SET MAPPING_P=THAILOG6000G3 %+ set HD6T3=%HD6000G3%
-            set HD20T1_DOWN=0   %+ set HD20T1=R    %+  SET R=HD20T1           %+  SET MAPPING_R=THAILOG20T1   %+ set HD20T=%HD20T1%
-			rem moved 2 Goliath %+ set HD10T1=W    %+  SET W=HD10T1           %+  SET MAPPING_W=THAILOG10T1   %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1 
-			rem moved to Demona %+ set HD10T2=U    %+  SET U=HD10T2           %+  SET MAPPING_U=THAILOG10T2   %+ set HD10000G2=%HD10T2 
-            rem DRIVES_THAILOG=D      I J K O Q S T U W   %+  rem Do not use inaccessible/down/crashed drives
-            rem DRIVES_THAILOG=D      I J K O Q     U W   %+  rem Do not use inaccessible/down/crashed drives
-            rem DRIVES_THAILOG=D      I J K   Q     U W   %+  rem Do not use inaccessible/down/crashed drives
-            rem DRIVES_THAILOG=D      I   K   Q       W   %+  rem Do not use inaccessible/down/crashed drives
-            rem DRIVES_THAILOG=D      I   K   Q           %+  rem Do not use inaccessible/down/crashed drives
-            rem DRIVES_THAILOG=D      I   K P Q R         %+  rem Do not use inaccessible/down/crashed drives
-            set DRIVES_THAILOG=D    H I   K P Q R V       %+  rem Do not use inaccessible/down/crashed drives
-            set DRIVES_THAILOG=D  B H I   K P Q R V       %+  rem Do not use inaccessible/down/crashed drives
-            set DRIVE_C_THAILOG=D                         
-            set DRIVE_C_THAILOG_VAR=%D%                   
-
-		::DEMONA (2022)
-            set  HD1000G3_DOWN=0 %+ set HD1000G3=S  %+  SET S=HD1000G3  %+  SET MAPPING_S=DEMONA1T   %+ SET     HD1T3=%HD1000G3%  %+ set DEMONA1T=%HD1000G3%    %+ set  HD1T3_PRESENCE=%HD1T3%:\__ I awaken! __
-            set HD18000G3_DOWN=0 %+ set HD18000G3=T %+  SET T=HD18000G3 %+  SET MAPPING_T=DEMONA18T1 %+ SET    HD18T3=%HD18000G3% %+ set DEMONA18T1=%HD18000G3% %+ set HD18T3_PRESENCE=%HD18T3:\__ I awaken __  %+ DEMONA18T=%DEMONA18T1% 
-            set  HD18000G_DOWN=0 %+ set HD18000G=O  %+  SET O=HD18000G  %+  SET MAPPING_O=DEMONA18T2 %+ SET HD18000G1=%HD18000G%  %+ set HD18T=%HD18000G%       %+                                              %+ set HD18T1=%HD18T%
-			set    HD10T2_DOWN=0 %+ set HD10T2=U    %+  SET U=HD10T2    %+  SET MAPPING_U=DEMONA10T2 %+ set HD10000G2=%HD10T2 
-			set    HD22T1_DOWN=0 %+ set HD22T1=M    %+  SET M=HD22T1    %+  SET MAPPING_M=DEMONA22T1 %+ set HD22000G1=%HD22T1     %+ set HD22T=%HD22T1          %+ set HD22000G=%HD22T1
-            set  DRIVES_DEMONA=S M O T U
-            set DRIVE_C_DEMONA=S
-            set DRIVE_C_DEMONA_VAR=%S%
+        ::DEMONA (2022)
+                set  HD1000G3_DOWN=0 %+ set HD1000G3=S  %+  SET S=HD1000G3  %+  SET MAPPING_S=DEMONA1T   %+ SET     HD1T3=%HD1000G3%  %+ set DEMONA1T=%HD1000G3%    %+ set  HD1T3_PRESENCE=%HD1T3%:\__ I awaken! __
+                set HD18000G3_DOWN=0 %+ set HD18000G3=T %+  SET T=HD18000G3 %+  SET MAPPING_T=DEMONA18T1 %+ SET    HD18T3=%HD18000G3% %+ set DEMONA18T1=%HD18000G3% %+ set HD18T3_PRESENCE=%HD18T3:\__ I awaken __  %+ DEMONA18T=%DEMONA18T1% 
+                set  HD18000G_DOWN=0 %+ set HD18000G=O  %+  SET O=HD18000G  %+  SET MAPPING_O=DEMONA18T2 %+ SET HD18000G1=%HD18000G%  %+ set HD18T=%HD18000G%       %+                                              %+ set HD18T1=%HD18T%
+                set    HD10T2_DOWN=0 %+ set HD10T2=U    %+  SET U=HD10T2    %+  SET MAPPING_U=DEMONA10T2 %+ set HD10000G2=%HD10T2 
+                set    HD22T1_DOWN=0 %+ set HD22T1=M    %+  SET M=HD22T1    %+  SET MAPPING_M=DEMONA22T1 %+ set HD22000G1=%HD22T1     %+ set HD22T=%HD22T1          %+ set HD22000G=%HD22T1
+                set  DRIVES_DEMONA=S M O T U
+                set DRIVE_C_DEMONA=S
+                set DRIVE_C_DEMONA_VAR=%S%
 			rem call validate-environment-variables HD1T3_PRESENCE HD18T3_PRESENCE - moved to CheckForSyncedDevices because path is not yet defined
 
-		::WYVERN (2023)
-			rem HD4000G2_DOWN=0  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=WYVERN4000G2     %+  SET HD4G2=E   ... this didn't work out.. the dang'ed drive was dead——Carolyn put mounting tape on the prongs
-            set     HD2T1_DOWN=0 %+ set HD2T1=F          %+ set F=HD2T1        %+  set MAPPING_F=WYVERN2T1
-            set HD18000G2_DOWN=0 %+ set HD18000G2=A      %+ SET A=HD18000G2    %+  SET MAPPING_A=WYVERN18T2       %+  SET HD18T2=A %+ set ARCHIVEDRIVE=A 
-            set HD20000G2_DOWN=0 %+ set HD20000G2=W      %+ SET W=HD20000G2    %+  SET MAPPING_W=WYVERN20T2       %+  SET HD20T2=W 
-            set  DRIVES_WYVERN=F  A W
-            set DRIVE_C_WYVERN=F
-            set DRIVE_C_WYVERN_VAR=%F%
-            rem this is Carolyn's microsoftlive carolyncasl@gmail.com login password:
-            REM MAPPING_WYVERN_PWD=[REDACTED into private.env]
+        ::THAILOG (2015)
+                rem   HD240G_DOWN=1 %+ rem HD240G=P    %+  SET P=HD240G           %+  SET MAPPING_P=THAILOG240G                           %+ REM decomissioned 201910
+                set   HD240G_DOWN=0 %+ set HD240G2=D   %+  SET D=HD240G2          %+  SET MAPPING_D=THAILOG240G2 
+                set HD1500G2_DOWN=1 %+ rem HD1500G2=W  %+  SET W=HD1500G2         %+  SET MAPPING_W=THAILOG1500G2                         %+ REM down around post-Andrea time
+                set HD1500G2_DOWN=1 %+ rem SHARE1500G2=\\thailog\\thailog1500g2\  %+  SET SHARING_W=%SHARE1500G2%                         %+ REM out of drive letters, but still want an environment variable for this harddrive
+                set  HD2000G_DOWN=1 %+ rem HD2000G=O   %+  SET O=HD2000G          %+  SET MAPPING_O=THAILOG2000G                          %+ SET  HD2000G1=%HD2000G%
+                rem moved to Demona %+ set HD18000G=O  %+  SET O=HD18000G         %+  SET MAPPING_O=THAILOG18T1                           %+ SET HD18000G1=%HD18000G% %+ SET HD18T=O                                                                %+ SET HD18T1=%HD18T%
+                set HD2000G2_DOWN=1 %+ rem HD2000G2=R  %+  SET R=HD2000G2         %+  SET MAPPING_R=THAILOG2000G2                         %+ REM seems to have crashed 201703ish
+                set HD2000G2_DOWN=1 %+ rem HD2000G3=T  %+  SET T=HD2000G3         %+  ::T MAPPING_T=THAILOG2000G3                         %+ REM seems to have crashed 201703ish
+                set  HD4000G_DOWN=0 %+ set HD4000G=B    %+ SET B=HD4000G          %+  SET MAPPING_B=THAILOG4000G  %+ set HD4T1=%HD4000G%  %+ SET HD4000G1=%HD4000G% 
+                set HD4000G6_DOWN=1 %+ rem HD4000G6=S  %+  SET S=HD4000G6         %+  SET MAPPING_S=THAILOG4000G6                         %+ REM todo finish decomissioning this OR it will be RMA'ed with a replacement
+                set HD4000G4_DOWN=0 %+ set HD4000G4=H  %+  SET H=HD4000G4         %+  SET MAPPING_H=THAILOG4000G4                         %+ rem moved from Goliath to Thailog 20240219
+                SET HD4000G5_DOWN=0 %+ set HD4000G5=V   %+ SET V=HD4000G5         %+  SET MAPPING_V=THAILOG4000G5 %+ set HD4T5=%HD4000G5% %+ rem moved from dead-Goliath 2024
+                set HD4000G7_DOWN=0 %+ set HD4000G7=I  %+  SET I=HD4000G7         %+  SET MAPPING_I=THAILOG4000G7 %+ set HD4T7=%HD4000G7%
+                set HD6000G1_DOWN=0 %+ set HD6000G1=Q  %+  SET Q=HD6000G1         %+  SET MAPPING_Q=THAILOG6000G1 %+ set HD6T1=%HD6000G1% %+ set HD6000G=%HD6000G1% 
+                set HD6000G2_DOWN=0 %+ set HD6000G2=K  %+  SET K=HD6000G2         %+  SET MAPPING_K=THAILOG6000G2 %+ set HD6T2=%HD6000G2%
+                set HD6000G3_DOWN=0 %+ set HD6000G3=P  %+  SET P=HD6000G3         %+  SET MAPPING_P=THAILOG6000G3 %+ set HD6T3=%HD6000G3%
+                set HD20T1_DOWN=0   %+ set HD20T1=R    %+  SET R=HD20T1           %+  SET MAPPING_R=THAILOG20T1   %+ set HD20T=%HD20T1%
+                rem moved 2 Goliath %+ set HD10T1=W    %+  SET W=HD10T1           %+  SET MAPPING_W=THAILOG10T1   %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1 
+                rem moved to Demona %+ set HD10T2=U    %+  SET U=HD10T2           %+  SET MAPPING_U=THAILOG10T2   %+ set HD10000G2=%HD10T2 
+                rem DRIVES_THAILOG=D      I J K O Q S T U W   %+  rem Do not use inaccessible/down/crashed drives
+                rem DRIVES_THAILOG=D      I J K O Q     U W   %+  rem Do not use inaccessible/down/crashed drives
+                rem DRIVES_THAILOG=D      I J K   Q     U W   %+  rem Do not use inaccessible/down/crashed drives
+                rem DRIVES_THAILOG=D      I   K   Q       W   %+  rem Do not use inaccessible/down/crashed drives
+                rem DRIVES_THAILOG=D      I   K   Q           %+  rem Do not use inaccessible/down/crashed drives
+                rem DRIVES_THAILOG=D      I   K P Q R         %+  rem Do not use inaccessible/down/crashed drives
+                set DRIVES_THAILOG=D    H I   K P Q R V       %+  rem Do not use inaccessible/down/crashed drives
+                set DRIVES_THAILOG=D  B H I   K P Q R V       %+  rem Do not use inaccessible/down/crashed drives
+                set DRIVE_C_THAILOG=D                         
+                set DRIVE_C_THAILOG_VAR=%D%                   
 
-        ::SPARE/LIMBO
-               rem   HD10T1_DOWN=1  %+ set HD10T1=W       %+ SET W=HD10T1       %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1  %+ rem annoying 10TB drive with L-tab broken off SATA power port
-               set   HD10T1_DOWN=1  %+ set HD10T1=?NOT M? %+ SET Wold=HD10T1    %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1  %+ rem annoying 10TB drive with L-tab broken off SATA power port
-			   set HD2000G5_DOWN=1  %+ set HD2000G5=N     %+ SET N=HD2000G5     %+ SET HD2T5=%HD2000G5%  %+ REM marked as down 2024/02/20 because cannot locate
-               REM suspended: SET MAPPING_W=GOLIATH10T1   %+ SET MAPPING_N=GOLIATH2000G  
+
+        ::GOLIATH (2012)
+                SET HD256G_DOWN=1    %+ rem HD256G=A         %+ rem A=HD256G       %+  rem MAPPING_A=GOLIATH256G   %+ REM crashed 202011
+                rem HD18000G2_DOWN=0 %+ set HD18000G2=A      %+ SET A=HD18000G2    %+  SET MAPPING_A=GOLIATH18T2   %+ SET HD18T2=A %+ set ARCHIVEDRIVE=A - moved to wyvern 20240127
+                SET HD128G_DOWN=1    %+ rem HD128G=M         %+ SET M=HD128G       %+  SET MAPPING_M=GOLIATH128G  
+                SET HD1500G_DOWN=1   %+ set HD1500G=L(DOWN)  %+ rem L=HD1500G      %+  SET MAPPING_L=GOLIATH1500G  %+ SET HD1500G1=%HD1500G%
+                SET HD2000G4_DOWN=1  %+ set HD2000G4=G       %+ SET G=HD2000G4     %+  SET MAPPING_G=GOLIATH2000G2 %+ REM removed 20220410
+                rem HD4000G_DOWN=0   %+ set HD4000G=B        %+ SET B=HD4000G      %+  SET MAPPING_B=GOLIATH4000G  %+ SET HD4000G1=%HD4000G% - moved to Thailog 20240220
+                set HD4000G2_DOWN=1  %+ set HD4000G2=E       %+ SET E=HD4000G2     %+  SET MAPPING_E=GOLIATH4000G2 - moved to Wyvern 20240125ish but died fast when Carolyn put mounting tape on the fucking pins of the drive
+                SET HD4000G3_DOWN=1  %+ rem HD4000G3=F       %+ SET F=HD4000G3     %+  SET MAPPING_F=GOLIATH4000G3 
+                rem HD4000G4_DOWN=1  %+ rem HD4000G4=H       %+ SET H=HD4000G4     %+  SET MAPPING_H=GOLIATH4000G4 - moved to Thailog 20240219
+                rem HD4000G5_DOWN=0  %+ set HD4000G5=V       %+ SET V=HD4000G5     %+  SET MAPPING_V=GOLIATH4000G5 %+ REM 2024 moved to thailog
+
+                REM cannot account for these as of 2024/02/20: ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+                SET HD1000G_DOWN=1   %+ set HD1000G2=L       %+ SET L=HD1000G2     %+  SET MAPPING_L=GOLIATH1000G  %+ SET HD1G2=%HD1000G2% %+ REM marked as down 2024/02/20 because cannot locate
+                SET  HD512G_DOWN=?   %+ set HD512G=J         %+ SET J=HD512G       %+  SET MAPPING_J=GOLIATH512G   %+ REM decomissioned 20230803 ????????????????????????????????????????????????
+
+                rem DRIVES_GOLIATH=A B E F H L M N V   
+                rem DRIVES_GOLIATH=A B E L N V W       
+                rem DRIVES_GOLIATH=B J L N V 
+                rem DRIVES_GOLIATH=J L N 
+                rem DRIVES_GOLIATH=J L
+                rem DRIVES_GOLIATH=L
+                UNset DRIVES_GOLIATH %+ rem Because this computer is now decomissioned and has had its drives puled
+                rem DRIVE_C_GOLIATH=L (Windows 7 era)  %+  SET MAPPING_GOLIATH_USR=Carolyn       %+ set MAPPING_GOLIATH_IP=192.168.0.177
+                rem DRIVE_C_GOLIATH=J                  %+  SET MAPPING_GOLIATH_USR=carol         %+ set MAPPING_GOLIATH_IP=192.168.0.177
+                rem DRIVE_C_GOLIATH_VAR=%J%            %+  rem MAPPING_GOLIATH_PWD=[REDACTED into private.env]
+
+        ::SPARE/LIMBO DRIVES:
+                rem   HD10T1_DOWN=1  %+ set HD10T1=W       %+ SET W=HD10T1       %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1  %+ rem annoying 10TB drive with L-tab broken off SATA power port
+                set   HD10T1_DOWN=1  %+ set HD10T1=?NOT M? %+ SET Wold=HD10T1    %+ set HD10000G=%HD10T1  %+ set HD10000G1=%HD10T1 %+ set HD10T=%HD10T1  %+ rem annoying 10TB drive with L-tab broken off SATA power port
+                set HD2000G5_DOWN=1  %+ set HD2000G5=N     %+ SET N=HD2000G5     %+ SET HD2T5=%HD2000G5%  %+ REM marked as down 2024/02/20 because cannot locate
+                REM suspended: SET MAPPING_W=GOLIATH10T1   %+ SET MAPPING_N=GOLIATH2000G  
 
         ::MARK SSD DRIVES: 
 			SET   HD128G_SSD=1
@@ -401,9 +385,30 @@ return
         rem was trying to *create* all shares for a machine with a single line along: for %d in (%drives_thailog%) echo drive=%d drivereal=%[%[%d]] mapping=%[mapping_%d]    net share %[mapping_%d]=%[%[%[%d]REAL]] GRANT:Everyone,FULL
         rem but alas, the logic and abstraction just isn't there - %C often points to the wrong drive because we don't redefine that per-computer
 
-        ::::::::::::::::::: OLD STUFF ::::::::::::::::::: 
-		::Magic
-			rem MAGIC=66.167.233.214
+        ::::::::::::::::::: OLD COMPUTERS ::::::::::::::::::: 
+        ::FIRE  (2011)
+                        if "%FIRE_DOWN%" eq "1" (goto :FireDownNoDriveDefinitions)
+                        rem HD300G=K    %+  SET K=HD300G           %+  SET MAPPING_K=FIRE300G 
+                        SET SHARE300G=\\fire\\fire300g\            %+  SET SHARING_K=%SHARE300G%                 %+ REM out of drive letters, but still want an environment variable for this harddrive
+                        rem HD250G=Q    %+  SET Q=HD250G           %+  SET MAPPING_Q=FIRE250G 
+                        SET SHARE250G=\\fire\\fire250g\            %+  SET SHARING_Q=%SHARE250G%                 %+ REM out of drive letters, but still want an environment variable for this harddrive
+                        SET HD1000G=U   %+  SET U=HD1000G          %+  SET MAPPING_U=FIRE1000G
+                        set HD1000G1=U  %+  SET HD1T=U             %+  SET HD1T1=U
+                        SET DRIVES_FIRE=U                          %+  rem in 2024 we would set this below....   %+ SET MAPPING_FIRE_IP=192.168.0.105          %+ REM do not include %SHARExxxG% style drives in the DRIVES_machinename variable definitions
+                        SET DRIVES_FIRE=U                          
+                        SET DRIVE_C_FIRE=%SHARE300G%               
+                        SET DRIVE_C_FIRE_VAR=%SHARE300G%           %+  REM MAPPING_FIRE_PWD=[REDACTED into private.env]
+                        :FireDownNoDriveDefinitions
+        ::HADES  (2007-2016) IS DEAD - THE SSD MOVED INTO GOLIATH FOR CAROLYN'S 2017 RE-INSTALL:
+                        rem DRIVES_HADES=                          %+  rem in 2024 we would set this below: SET MAPPING_HADES_IP=66.167.233.214
+                        rem DRIVE_C_HADES=                         %+  rem in 2024 we sould set this below: SET MAPPING_HADES_USR=oh
+                        rem DRIVE_C_HADES_VAR=%A%                  %+  rem MAPPING_HADES_PWD=[REDACTED into private.env]
+        ::MAGIC  (1999-2012?)
+                        rem MAGIC=66.167.233.214
+        ::HELL   (1999-?????)
+        ::APPLE2 (1980-1998)
+        ::::::::::::::::::: OLD COMPUTERS ::::::::::::::::::: 
+                        
 
 	:these are the letters that the particular drive is IN IT'S MACHINE
 	:these are NOT NECESSARILY the same letters to access these harddrives
@@ -2229,6 +2234,10 @@ return
                 set FILEMASK_AUDIO_SPLIT_2=*.voc;*.au;*.stm;*.aac;*.ac3
                 set FILEMASK_AUDIO_SPLIT_3=*.mod;*.vqf;*.ogg;*.mpc
                 set FILEMASK_AUDIO_SPLIT_4=*.wma;*.mp4;*.snd;*.opus
+
+        
+
+    
     
         set FILEMASK_VIDEO=*.mkv;*.avi;*.mp4;*.m4a;*.flv;*.mov;*.wmv;*.mpg;*.mpeg;*.vob;*.bdmv;*.ts;*.m2ts;*.rm;*.qt;*.asf;*.asx;*.fli;*.swf;*.m4v;*.webm;*.f4v;*.rm;*.ram;*.3gp
         rem FILEMASK_VIRTUALREALITY=*.???   Just kidding, ha ha ha ... but seriously, new stuff needs to also be in the list below, for conversion:
@@ -2249,6 +2258,22 @@ return
                 set FILEMASK_PICTURE=%FILEMASK_IMAGE%
                 set FILEMASK_MUSIC=%FILEMASK_AUDIO%
                 set FILEMASK_COMICS=%FILEMASK_COMIC_BOOK%
+
+
+        rem MISC filemask mostly just used to detect which things are filenames, which aren't, for validating filename presence:
+                set FIEMASK_MISC=*.dll
+
+
+
+        rem And one filemask to rule them all:
+                set FILEMASK_ALL=%FILEMASK_FILELIST%;%FILEMASK_TXT%;%FILEMASK_RICHTEXT%;%FILEMASK_SCRIPT%;%FILEMASK_CODE%;%FILEMASK_APPLICATION%;%FILEMASK_ARCHIVE%;%FILEMASK_DISC_IMAGE%;%FILEMASK_IMAGE%;%FILEMASK_AUDIO%;%FILEMASK_VIDEO%;%FILEMASK_COMIC_BOOK%;%FIEMASK_MISC%
+                rem ^^^^^^^^^^^^ Returns something like: *.m3u;*.sfv;;*.html;*.htm;*.doc;*.rtf;*.docx;*.mht;*.pdf;*.url;*.btm;*.bat;*.cmd;*.sh;*.btm;*.bat;*.cmd;*.sh;*.pl;*.py;*.java;*.bat;*.btm;*.sql;*.asm;*.bas;*.c;*.h;*.java;*.pas;*.php;*.sql;*.vbs;*.exe;*.apk;*.msi;*.com;*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace;*.001;*.iso;*.img;*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large;*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.mkv;*.avi;*.mp4;*.m4a;*.flv;*.mov;*.wmv;*.mpg;*.mpeg;*.vob;*.bdmv;*.ts;*.m2ts;*.rm;*.qt;*.asf;*.asx;*.fli;*.swf;*.m4v;*.webm;*.f4v;*.rm;*.ram;*.3gp
+                rem set FILEMASK_ALL_DELIMITED_BY_PIPE=%@ReReplace[\*\.,,%@ReReplace[\;,,%@ReReplace[;\*\.,`|`,%filemask_all%]]]
+                rem ^^^^^^^^^^^^ Returns something like: m3u|sfv|html|htm|doc|rtf|docx|mht|pdf|url|btm|bat|cmd|sh|btm|bat|cmd|sh|pl|py|java|bat|btm|sql|asm|bas|c|h|java|pas|php|sql|vbs|exe|apk|msi|com|zip|rar|tar|gz|7z|arj|jar|r00|r01|ace|001|iso|img|jpg|jpeg|gif|png|bmp|webp|ico|tif|tiff|pcx|art|dcm|jfif|jpg_large|png_large|mp3|wav|rm|voc|au|mid|stm|mod|vqf|ogg|mpc|wma|mp4|flac|snd|aac|opus|ac3|mkv|avi|mp4|m4a|flv|mov|wmv|mpg|mpeg|vob|bdmv|ts|m2ts|rm|qt|asf|asx|fli|swf|m4v|webm|f4v|rm|ram|3gp
+                setdos /x-5
+                set TEMP_FMASK_VAR=%@ReReplace[\;,,%@ReReplace[\*\.,`|`\\.,%filemask_all%]]
+                set FILEMASK_ALL_REGEX=(%@LTrim[|,%TEMP_FMASK_VAR])
+                setdos /x0
 
     ::::: FUNCTION FOR EACH EXTENSION:
         ::::: NOTE: there is no methodology for setting a blank extension. Blank extensions are handled by UNKNOWN[command].BAT
