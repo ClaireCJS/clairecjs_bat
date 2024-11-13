@@ -1,5 +1,7 @@
 @Echo off
 @on break cancel
+@setdos /x0
+
 
 ::::: GET PARAMETERS:
     set LAST_TITLE=%_TITLE
@@ -193,12 +195,23 @@ goto :Past_The_End_Of_The_Sub-Routines
             set IS_FILE_LOCATION=0
             setdos /x-5
             iff defined VARVALUE then
-                        rem "1" eq "%@REGEX[^[A-Za-z]:,%@UPPER[%@UNQUOTEVARVALUE%]]]" then
+                rem @echo on
+                        echo VARVALUE is [%VARVALUE%], varname is %VARNAME>nul
+                        rem  ************************** "1" eq "%@REGEX[^[A-Za-z]:,%@UPPER[@UNQUOTE[%VARVALUE%]]]" then
+                        echo ************************** "1" eq "%@REGEX[^[A-Za-z]:,@UPPER[@UNQUOTE[%VARVALUE%]]]" then>nul
                         setdos /x-5
-                        if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"               set IS_FILE_LOCATION=1 %+ rem if it has "C:" or such drive letter at the beginning
-                        if "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" set IS_FILE_LOCATION=1 %+ rem if it ends with any file extension of commonly used files
+                        iff "%VARVALUE%" eq " " then
+                                set IS_FILE_LLOCATION=0
+                                goto :skippy
+                        endiff                                
+                        echo 🧟🏻‍♀️ if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"       set IS_FILE_LOCATION=1 >nul
+                        if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"               (set IS_FILE_LOCATION=1) %+ rem if it has "C:" or such drive letter at the beginning
+                        if "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" (set IS_FILE_LOCATION=1) %+ rem if it ends with any file extension of commonly used files
                         setdos /x0
-            endiff                            
+                @echo off                        
+            endiff                          
+            :skippy
+
             setdos /x0
             if  "0" eq "%IS_FILE_LOCATION%"         (goto :DontValidateIfExists)
             if  "0" eq "%@READY[%VARVALUEDRIVE%]"   (goto :DontValidateIfExists)                         %+ rem //Don't look for if drive letter doesn't exist--it's SLOWWWWW
@@ -260,3 +273,4 @@ if "" eq "%LAST_TITLE%" (set LAST_TITLE=TCC)
 title %LAST_TITLE%
 
 echos %CURSOR_RESET%
+setdos /x0

@@ -552,7 +552,7 @@
 2024-08-22  16:26             25   -8%  makefilelist.bat
 2022-02-02  03:57         36,984   67%  MAKEIMG.PL
 2019-10-01  11:28         13,723   75%  makethumbnail.pl
-2024-10-30  15:49         13,274   78%  map-drives.btm
+2024-11-13  20:01         13,297   78%  map-drives.btm
 2024-09-07  21:04             21   -9%  maximize.bat
 2024-04-03  15:35            506   36%  MCD.bat
 2024-04-03  15:46            164   18%  mcdnow.bat
@@ -644,8 +644,8 @@
 2024-05-11  17:42             29   -6%  programfiles.bat
 2024-08-20  10:15            152   25%  programfilesx86.bat
 2024-09-09  00:39          1,103   65%  prompt-Carolyn.bat
-2024-11-04  01:10          1,297   52%  prompt-Claire.bat
-2024-11-04  01:24          8,960   70%  prompt-common.bat
+2024-11-13  22:11          2,235   58%  prompt-Claire.bat
+2024-11-13  21:47         11,267   72%  prompt-common.bat
 2024-09-08  21:18            362   53%  prompt-sound.bat
 2019-10-01  11:28             33   10%  prompt-work.bat
 2024-10-29  20:32            249   37%  publish-bat-updates-to-github.bat

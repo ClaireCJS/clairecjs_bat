@@ -1,4 +1,5 @@
 @echo off
+ on break echo Break?
 
 :::::: USAGE: map-drives	      - maps all machines that get mapped by default.        retry if there are failures.
 :::::: USAGE: map-drives once	  - maps all machines that get mapped by default. do not retry if there are failures.

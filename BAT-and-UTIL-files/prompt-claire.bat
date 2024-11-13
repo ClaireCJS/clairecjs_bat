@@ -1,9 +1,14 @@
 @Echo Off
-:1988:         Prompt=$P$G
-:1990-2000ish::Prompt=$e[0;32;31m$l$e[0;1;31m$t$h$h$h$h$h$h$e[0;32;31m$g $e[0;33;32m$P$G$e[0;0;0m
-:2005:         Prompt=$e[0;32;31m$l$e[0;1;31m$t$h$h$h$e[0;32;31m$g $e[0;33;32m$P$G$e[0;0;0m
-:200x:         Prompt=$e[1;32;31m$l$e[0;1;31m$M$e[1;32;31m$g $e[1;32;32m$P$G$e[0;0;0m
-:2015:
+
+rem ............................... This has been here for a lonnnnnng time.... ............................... 
+rem :1988:         Prompt=$P$G
+rem :1990-2000ish::Prompt=$e[0;32;31m$l$e[0;1;31m$t$h$h$h$h$h$h$e[0;32;31m$g $e[0;33;32m$P$G$e[0;0;0m
+rem :2005:         Prompt=$e[0;32;31m$l$e[0;1;31m$t$h$h$h$e[0;32;31m$g $e[0;33;32m$P$G$e[0;0;0m
+rem :200x:         Prompt=$e[1;32;31m$l$e[0;1;31m$M$e[1;32;31m$g $e[1;32;32m$P$G$e[0;0;0m
+rem :2015:         Version with CPU usage
+rem :2023:         Version with pentagram prompt
+rem ............................... This has been here for a lonnnnnng time.... ............................... 
+
 
 rem QUICK-REF: 1=BOLD;30=Black,31=Red,32=Green,33=Yellow,34=Blue,35=Purp,36=Cyan,37=White
 
@@ -21,7 +26,7 @@ rem Let's add our pentagram character as a way to debug what keeps disabling it:
                 set TEMP_PROMPT_PENTA=$e[31m%PENTAGRAM_UNCOLORED%
                 set    TEXT_AT_START=%TEMP_PROMPT_PENTA%
                 set TEXT_BEFORE_PATH=%TEMP_PROMPT_PENTA%
-                set      TEXT_AT_END=HA!
+                set      TEXT_AT_END=😈
         endiff
         rem echo text_before_path=%TEXT_BEFORE_PATH%
         
@@ -31,4 +36,9 @@ rem Also reset the cursor:
 
 rem Do it
         call prompt-common
+
+rem Screw it, I just want this and can't make it with prompt-common:
+
+set prompt=$e[31m $e[1;32;31m$L$e[1;31;31m%%@sans_serif[%%@if[%%@left[2,%%@right[6,%_datetime]] gt 12,%%@eval[%%@left[2,%%@right[6,%_datetime]]-12],%%@left[2,%%@right[6,%_datetime]]]:%%@left[2,%%@right[4,%_datetime]]]%%@if[ %%@left[2,%%@right[6,%_datetime]] gt 11 ,%%@cool[p],%%@cool[a]]$e[1;32;31m$G $e[0;32;32m$L$e[0;32;33m%%@cool[%%_CPUUSAGE]٪$e[0;32;32m$G $e[31m $e[1;32;32m$e[1;32;32m$P$e[1;32;32m$G$e[0;00;00m$e[39m$e[49m$e[0m$e[?25h$e[ q$e]12;$e]10;rgb:c0/c0/c0$e\$e]11;rgb:00/00/01$e\$e]10;rgb:c0/c0/c1$e\
+
 

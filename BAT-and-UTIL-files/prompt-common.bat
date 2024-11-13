@@ -77,13 +77,17 @@ rem ///// BUILD THE PROMPT:
             endiff
     :Add_Time_Of_Day
         set TMPPROMPT=%TMPPROMPT%$e[%TIME_COLOR_BRACKETS%m$L
+        rem PRODUCTION: 
         set TMPPROMPT=%TMPPROMPT%$e[%TIME_COLOR_THE_TIME%m$M
+        set BTMPPROMPT=%TMPPROMPT%$e[%TIME_COLOR_THE_TIME%m$M[_DATETIME`]`
+        
+        rem set TMPPROMPT=%TMPPROMPT%$e[%[TIME_COLOR_THE_TIME]@sans_serif_number_plain[%%_datetime]
         set TMPPROMPT=%TMPPROMPT%$e[%TIME_COLOR_BRACKETS%m$G ``
     :Add_CPU_Usage
         REM DEBUG: call warning "`%`ADD_THE_CPU_USAGE is %ADD_THE_CPU_USAGE"
         if %ADD_THE_CPU_USAGE ne 0 (
             set TMPPROMPT=%TMPPROMPT%$e[%CPU_USAGE_BRACKETS%m$L
-            set TMPPROMPT=%TMPPROMPT%$e[%CPU_USAGE_PERCENTS%m CPUUSAGEHERE
+            set TMPPROMPT=%TMPPROMPT%$e[%CPU_USAGE_PERCENTS%m___CPUUsage
             set TMPPROMPT=%TMPPROMPT%$e[%CPU_USAGE_BRACKETS%m$G ``
         )
     :Add_Any_Text_We_Want_Between
@@ -92,9 +96,20 @@ rem ///// BUILD THE PROMPT:
                 set TMPPROMPT=%TMPPROMPT%%TEXT_BEFORE_PATH% ``
             endiff
     :Add_Path
-        set TMPPROMPT=%TMPPROMPT%$e[%PATH_COLOR_BRACKETS%m%PATH_BRACKET_BEFORE%
-        set TMPPROMPT=%TMPPROMPT%$e[%PATH_COLOR_THE_PATH%m$P
-        set TMPPROMPT=%TMPPROMPT%$e[%PATH_COLOR_BRACKETS%m$G
+        rem i *think* PATH_BRACKET_BEFORE the `<` chracter
+                set TMPPROMPT=%TMPPROMPT%$e[%PATH_COLOR_BRACKETS%m%PATH_BRACKET_BEFORE%
+        rem $P is the path:
+                set TMPPROMPT=%TMPPROMPT%$e[%PATH_COLOR_THE_PATH%m$P
+        rem $G is the `>` after the path:                
+                set TMPPROMPT=%TMPPROMPT%$e[%PATH_COLOR_BRACKETS%m$G
+        
+    :Add_Any_Text_We_Want_At_The_End        
+        iff "%TEXT_AT_END%" ne "" then
+            set TMPPROMPT=%TMPPROMPT%%TEXT_AT_END%
+        endiff
+
+        
+        
     :Add_Color_For_user_Typing
         set TMPPROMPT=%TMPPROMPT%$e[%USER__TYPING__COLOR%m
 
@@ -128,19 +143,46 @@ rem ///// FORMAT/SBUSTITUTE PLACEHOLDER/SET THE PROMPT:
         if "%OS%" eq "11" goto :CPU_Usage_Format_YES_10
                           goto :CPU_Usage_Format_YES_10 %+ REM Default behavior if %OS isn't set
 
+        :CPU_Usage_Format_BEGIN
+
+            prompt=%@REPLACE[ @,%%@,%[TMPPROMPT]]
+
+
+            :CPU_Usage_Format_NO
+                 prompt=%@REPLACE[#_CPUUsage,%%%%[_CPUUsage]%%%%%%%%,%[TMPPROMPT]]
+            :CPU_Usage_Format_DONE
+
             :CPU_Usage_Format_YES
                 rem This one worked for years, maybe 10+, up until Windows 10 came out
-                prompt=%@REPLACE[ CPUUSAGEHERE,%%%%@FORMATN[02.0,%%%%[_CPUUsage]]%%%%%%%%,%[TMPPROMPT]]
+                prompt=%@REPLACE[#_CPUUsage,%%%%@FORMATN[02.0,%%%%[_CPUUsage]]%%%%%%%%,%[TMPPROMPT]]
             goto :CPU_Usage_Format_DONE
 
             :CPU_Usage_Format_YES_10
-                prompt=%%@REPLACE[ CPUUSAGEHERE,%%_CPUUSAGE%%%%%%%%%%,%[TMPPROMPT]]
+                rem ﹪％٪ this tiny last one actually looks best in WT
+                rem production foreva' prompt=%%@REPLACE[#_CPUUsage,%%_CPUUSAGE%%%%%%%%%%,%[TMPPROMPT]]
+                rem Great! prompt=%%@REPLACE[#,%%,%%@REPLACE[#_CPUUsage,%%_CPUUSAGE%%％,%[TMPPROMPT]]]               
+                rem set set RBR=]
+                rem Amazing:                prompt=%%@REPLACE[#,%%,%@REPLACE[#{_CPUUsage},%%[_CPUUSAGE]٪,%[TMPPROMPT]]]               
+                rem prompt=%%@REPLACE[#,%%,%@REPLACE[#\{_CPUUsage\},%%[_CPUUSAGE]٪,%[TMPPROMPT]]]               
+                rem prompt=%%@REPLACE[#,%%,%@REPLACE[#{_CPUUsage},%%[_CPUUSAGE]٪,%[TMPPROMPT]]]               
+                rem prompt=%%@ReREPLACE[zzz,yyy,%TMPPROMPT]               
+                rem prompt=%@ReReplace[__,%%%%%%%,%tmpprompt%]
+                rem this example absolutely works:
+                        rem set tmpprompt=___CPUUsage __@cursive[lower]
+                        rem set prompt=%@Replace[__,%%%%,%tmpprompt%]
+                rem echo tmpprompt is %@Replace[%@CHAR[27],$e,%tmpprompt%]
+                rem set prompt=%@Replace[__,%%%%,%tmpprompt%]
+                rem set prompt=%@Replace[__,%%%%,%tmpprompt%]
+                rem set prompt=%%@REPLACE[#,%%,%@REPLACE[___CPUUsage,%%%%[_CPUUSAGE]٪,%[TMPPROMPT]]]               
+                rem echo    prompt is %@Replace[%@CHAR[27],[ESC],%prompt%]
+                set prompt=%%@REPLACE[#,%%,%%@REPLACE[___CPUUsage,%%_CPUUSAGE%%٪,%[TMPPROMPT]]]               
+                set prompt=%%@REPLACE[#,%%,%%@REPLACE[___CPUUsage,%%_CPUUSAGE%%٪,%[TMPPROMPT]]]               
+                set prompt=%%@ReREPLACE[#,%%,%%@REPLACE[___CPUUsage,%%_CPUUSAGE%%٪,%[TMPPROMPT]]]               
+                
             goto :CPU_Usage_Format_DONE
 
-            :CPU_Usage_Format_NO
-                 prompt=%@REPLACE[ CPUUSAGEHERE,%%%%[_CPUUsage]%%%%%%%%,%[TMPPROMPT]]
-            :CPU_Usage_Format_DONE
 
+        :CPU_Usage_Format_DONE
 
 
 
@@ -150,14 +192,11 @@ rem ///// FORMAT/SBUSTITUTE PLACEHOLDER/SET THE PROMPT:
         rem echo additional_prompt_2 is %@replace[%@char[7],[BELL],%@rereplace[%@char[27],[ESC],%additional_prompt_2%]]
         rem rem rem rem %ANSI_RESETTER_DEFAULT_FG_BG_COLORS%
 
-        iff "%TEXT_AT_END%" ne "" .and. 1 eq 1 then
-            set TMPPROMPT=%TMPPROMPT%%TEXT_AT_END%
-        endiff
-
 
 
 
 rem ///// CLEAN UP:
+    echo %prompt%>c:\bat\prompt.cmd
     unset /q CPU_USAGE_PERCENTS
     unset /q CPU_USAGE_BRACKETS
     unset /q PATH_BRACKET_BEFORE
