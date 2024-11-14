@@ -25,7 +25,25 @@ import threading
 import queue
 import time
 import os
-import clairecjs_utils as claire                                                                                #my library that has color-cycling-by-ANSI functionality used
+try:
+    import clairecjs_utils as claire
+except ImportError:
+    import sys
+    import os
+
+    # Get the directory where the script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Add the script directory to sys.path
+    if script_dir not in sys.path:
+        sys.path.insert(0, script_dir)
+
+    # Try to import again from the local directory
+    try:
+        import clairecjs_utils as claire
+    except ImportError:
+        raise ImportError("Cannot find 'clairecjs_utils' module in site-packages or the local directory.")
+
 from colorama import init
 init(autoreset=False)
 
