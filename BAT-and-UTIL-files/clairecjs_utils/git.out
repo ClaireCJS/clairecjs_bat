@@ -1,0 +1,7 @@
+rm 'BAT-and-UTIL-files/clairecjs_utils/__init__.yp'
+rm 'BAT-and-UTIL-files/clairecjs_utils/claire_console.yp'
+rm 'BAT-and-UTIL-files/clairecjs_utils/claire_files.yp'
+rm 'BAT-and-UTIL-files/clairecjs_utils/claire_openai.yp'
+rm 'BAT-and-UTIL-files/clairecjs_utils/claire_usb.yp'
+rm 'BAT-and-UTIL-files/clairecjs_utils/claire_vlc.yp'
+rm 'BAT-and-UTIL-files/clairecjs_utils/claire_winamp.yp'
