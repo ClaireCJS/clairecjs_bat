@@ -83,3 +83,4 @@ for %command in (%CMDTAIL%) do (
 
 rem Once more for good measure:
         unset /q validate_in_path_message
+        echo %CURSOR_RESET%

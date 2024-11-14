@@ -94,7 +94,7 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
         %copy_S%  %PYTHON_LIBRARIES_DIR%      %TARGET%\clairecjs_utils
         %copy%    %0                          %TARGET%                                        %+ rem Yes, we are copying THIS script too——it only lives in my dev folder
 
-pause
+
 
 rem Update BAT files from live location to github-folder location:
         if "%1" eq "skip-update" (goto :Skip_Update)
