@@ -25,7 +25,6 @@
 
 ::::: DEBUG STUFFS:
     rem echo %ANSI_COLOR_DEBUG% %0 called with 1=%1, 2=%2, VARNAME=%VARNAME%, VEVPARAMS=%VEVPARAMS% %ANSI_COLOR_RESET%
-    rem echo on
 
 
 ::::: CLEAR LONGTERM ERROR FLAGS:
@@ -196,15 +195,15 @@ goto :Past_The_End_Of_The_Sub-Routines
             setdos /x-5
             iff defined VARVALUE then
                 rem @echo on
-                        echo VARVALUE is [%VARVALUE%], varname is %VARNAME>nul
+                        rem  echo VARVALUE is [%VARVALUE%], varname is %VARNAME>nul
                         rem  ************************** "1" eq "%@REGEX[^[A-Za-z]:,%@UPPER[@UNQUOTE[%VARVALUE%]]]" then
                         echo ************************** "1" eq "%@REGEX[^[A-Za-z]:,@UPPER[@UNQUOTE[%VARVALUE%]]]" then>nul
                         setdos /x-5
                         iff "%VARVALUE%" eq " " then
-                                set IS_FILE_LLOCATION=0
+                                set IS_FILE_LOCATION=0
                                 goto :skippy
                         endiff                                
-                        echo 🧟🏻‍♀️ if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"       set IS_FILE_LOCATION=1 >nul
+                        rem echo 🧟🏻‍♀️ if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"       set IS_FILE_LOCATION=1 >nul
                         if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"               (set IS_FILE_LOCATION=1) %+ rem if it has "C:" or such drive letter at the beginning
                         if "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" (set IS_FILE_LOCATION=1) %+ rem if it ends with any file extension of commonly used files
                         setdos /x0
@@ -212,30 +211,44 @@ goto :Past_The_End_Of_The_Sub-Routines
             endiff                          
             :skippy
 
-            setdos /x0
-            if  "0" eq "%IS_FILE_LOCATION%"         (goto :DontValidateIfExists)
-            if  "0" eq "%@READY[%VARVALUEDRIVE%]"   (goto :DontValidateIfExists)                         %+ rem //Don't look for if drive letter doesn't exist--it's SLOWWWWW
-            if   1  eq  %SKIP_VALIDATION_EXISTENCE% (goto :DontValidateIfExists)                         %+ rem //Don't look for if we want to validate the variable only
-            if exist "%VARVALUE%"                   (                         goto :ItExistsAfterall)    %+ rem //Does it exist as a file?
-            if isdir "%VARVALUE%"                   (                         goto :ItExistsAfterall)    %+ rem //Does it exist as a folder?
-            if exist "%VARVALUE%.dep"               (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
-            if isdir "%VARVALUE%.dep"               (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
-            if exist "%VARVALUE%.deprecated"        (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
-            if isdir "%VARVALUE%.deprecated"        (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
+        setdos /x0
+        if  "0" eq "%IS_FILE_LOCATION%"         (goto :DontValidateIfExists)
+        if  "0" eq "%@READY[%VARVALUEDRIVE%]"   (goto :DontValidateIfExists)                         %+ rem //Don't look for if drive letter doesn't exist--it's SLOWWWWW
+        if   1  eq  %SKIP_VALIDATION_EXISTENCE% (goto :DontValidateIfExists)                         %+ rem //Don't look for if we want to validate the variable only
+        if exist "%VARVALUE%"                   (                         goto :ItExistsAfterall)    %+ rem //Does it exist as a file?
+        if isdir "%VARVALUE%"                   (                         goto :ItExistsAfterall)    %+ rem //Does it exist as a folder?
+        if exist "%VARVALUE%.dep"               (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
+        if isdir "%VARVALUE%.dep"               (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
+        if exist "%VARVALUE%.deprecated"        (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
+        if isdir "%VARVALUE%.deprecated"        (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
 
-            ::::: SET ERROR FLAGS (store error specifics for debugging analysis):
+        ::::: SET ERROR FLAGS (store error specifics for debugging analysis):
                 set ERROR=1
                 set ERROR_ENVIRONMENT_VALIDATION_FAILED=1
                 SET ERROR_ENVIRONMENT_VALIDATION_FAILED_NAME=%VARNAME%
                 SET ERROR_ENVIRONMENT_VALIDATION_FAILED_VALUE=%VARNVALUE%
-            ::::: LET USER KNOW OF ERROR:
+        ::::: LET USER KNOW OF ERROR:
                 REM without messaging system
                     REM %COLOR_ALARM%   %+ echos * Environment variable %@UPPER[%VARNAME%] appears to be a file location that does not exist: %VARVALUE%
                     REM %COLOR_NORMAL%  %+ echo. %+ call white-noise 1
                     REM %COLOR_SUBTLE%  %+ *pause
                     REM %COLOR_NORMAL%
                 REM with messaging system
-                    call fatal_error "Environment variable '%@UPPER[%VARNAME%]' appears to be a file location that does not exist: '%VARVALUE%'"
+                    iff "%USER_MESSAGE%" ne "" then
+                        REM Although this is technically advice, we 
+                        REM are coloring it warning-style because 
+                        REM advice related to an error in this context
+                        REM pretty much *DOES* mean a warning in the 
+                        REM outer context of our calling script, and 
+                        REM that level of importance shoudln't be as 
+                        REM easily visually discarded as the advice 
+                        REM color might usually be, because it's more
+                        REM important than simply advice -- 
+                        REM      -- it represents a system failure!!!
+                        REM ...so let's put asterisks around it, too!
+                        call warning %USER_MESSAGE%
+                    endiff
+                    call fatal_error "'%italics_on%%@UPPER[%VARNAME%]%italics_off%' location does not exist: '%VARVALUE%'...%ANSI_COLOR_WARNING%%USER_MESSAGE%%ANSI_COLOR_FATAL_ERROR%"
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

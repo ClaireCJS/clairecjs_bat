@@ -1,5 +1,8 @@
 @Echo OFF
 
+                echo DO IT YOURSELF IF YOU REALLY WANT THIS: start nircmd.exe monitor off            *OR*:
+        echo DO IT YOURSELF IF YOU REALLY WANT THIS:  echos %%@winapi[user32,SendMessage,65535,274,61808,2] `>` nul
+
 rem Validate environment:
         call validate-in-path nircmd.exe fix-window-title warning error exit-maybe
 
@@ -22,8 +25,9 @@ rem PHYSICAL CONSIDERATIONS:
 
 :rem TURN THE MONITORS OFF:
         title Running nircmd.exe monitor off
-                rem start nircmd.exe monitor off
+                echo DO IT YOURSELF IF YOU REALLY WANT THIS: start nircmd.exe monitor off
         title Nircmd done
+
 
 
 :rem ADVICE/CLEANUP:

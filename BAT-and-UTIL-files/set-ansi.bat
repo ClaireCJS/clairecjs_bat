@@ -74,7 +74,7 @@ rem ANSI: Base variables used in other variables:
         set             ANSI_ESCAPE=%ESCAPE%[
         set ANSIESCAPE=%ANSI_ESCAPE%
 
-rem ANSI: esoterica to bve used in next section
+rem ANSI: esoterica to be used in next section
         set  ANSI_APP_PROGRAM_COMMAND=%ESCAPE%_         %+ rem APC == Application Program    Command
         set  ANSI_DEVICE_CONTROL_STRING=%ESCAPE%P       %+ rem DCS == Device      Control    String
         set  ANSI_OPERATING_SYSTEM_COMMAND=%ESCAPE%]    %+ rem OSC == Operating   System     Command
@@ -753,15 +753,15 @@ REM ANSI: margin-setting / anti-scroll areas
                         function         ANSI_LOCK_COLS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
                 rem And when we want to unlock it, use the "?69l" code:                                      %+ rem EXAMPLE: echos %ANSI_UNLOCK_COLUMNS%
                         set   ANSI_LOCK_COLUMNS_DISABLE=%ANSI_CSI%?69l
-                        set ANSI_LOCKED_COLUMNS_DISABLE=%ANSI_CSI%?69l
-                        set         ANSI_UNLOCK_COLUMNS=%ANSI_CSI%?69l
-                        set         ANSI_COLUMNS_UNLOCK=%ANSI_CSI%?69l
-                        set          ANSI_RESET_COLUMNS=%ANSI_CSI%?69l
-                        set           ANSI_COLUMS_RESET=%ANSI_CSI%?69l
-                        set            ANSI_UNLOCK_COLS=%ANSI_CSI%?69l
-                        set            ANSI_COLS_UNLOCK=%ANSI_CSI%?69l
-                        set             ANSI_RESET_COLS=%ANSI_CSI%?69l
-                        set             ANSI_COLS_RESET=%ANSI_CSI%?69l
+                        set ANSI_LOCKED_COLUMNS_DISABLE=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set         ANSI_UNLOCK_COLUMNS=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set         ANSI_COLUMNS_UNLOCK=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set          ANSI_RESET_COLUMNS=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set           ANSI_COLUMS_RESET=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set            ANSI_UNLOCK_COLS=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set            ANSI_COLS_UNLOCK=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set             ANSI_RESET_COLS=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set             ANSI_COLS_RESET=%ANSI_LOCK_COLUMNS_DISABLE%
 
         rem Unlocking everything:
                 rem ANSI_UNLOCK=%@ANSI_UNLOCK_ROWS[0,%_ROWS]%ANSI_COLS_RESET% —— was not sufficient because the # of rows could be a pane that is smaller now but enlarged later, which would leave non-scrollable lines at the bottom. But 9999 also was not sufficient. Do with and without row argument to cover all bases.

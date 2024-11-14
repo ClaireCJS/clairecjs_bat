@@ -10,6 +10,11 @@
 #takes a "-1" parameter to smush it all into one line
 
 
+########### CONFIGURATION: BEGIN: ###########
+#y $ADDED_END_LINE_CHARACTER=",";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online
+my $ADDED_END_LINE_CHARACTER=".";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online
+########### CONFIGURATION: ^^^END ###########
+
 
 use strict;
 use warnings;
@@ -67,8 +72,7 @@ while (<STDIN>) {
 	if ($LYRICS_MODE) {
 		#pre-processing
 		$line =~ s/ +$//;					#remove trailing spaces
-		$line =~ s/([a-z])$/$1,/ig;			#if line ends in letter, add comma to end of it —— to give WhisperAI a better sense of where to split lines
-
+		$line =~ s/([a-z0-9])$/$1$ADDED_END_LINE_CHARACTER/ig;			#if line ends in letter, add comma to end of it —— to give WhisperAI a better sense of where to split lines
 
 		#first-line-only stuff to red rid of
 		if ($line_number == 1) {

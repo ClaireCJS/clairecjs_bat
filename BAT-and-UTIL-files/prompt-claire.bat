@@ -42,3 +42,8 @@ rem Screw it, I just want this and can't make it with prompt-common:
 set prompt=$e[31m $e[1;32;31m$L$e[1;31;31m%%@sans_serif[%%@if[%%@left[2,%%@right[6,%_datetime]] gt 12,%%@eval[%%@left[2,%%@right[6,%_datetime]]-12],%%@left[2,%%@right[6,%_datetime]]]:%%@left[2,%%@right[4,%_datetime]]]%%@if[ %%@left[2,%%@right[6,%_datetime]] gt 11 ,%%@cool[p],%%@cool[a]]$e[1;32;31m$G $e[0;32;32m$L$e[0;32;33m%%@cool[%%_CPUUSAGE]٪$e[0;32;32m$G $e[31m $e[1;32;32m$e[1;32;32m$P$e[1;32;32m$G$e[0;00;00m$e[39m$e[49m$e[0m$e[?25h$e[ q$e]12;$e]10;rgb:c0/c0/c0$e\$e]11;rgb:00/00/01$e\$e]10;rgb:c0/c0/c1$e\
 
 
+iff "%1" eq "cursive" then
+        set prompt=$e[31m $e[1;32;31m$L$e[1;31;31m%%@sans_serif[%%@if[%%@left[2,%%@right[6,%_datetime]] gt 12,%%@eval[%%@left[2,%%@right[6,%_datetime]]-12],%%@left[2,%%@right[6,%_datetime]]]:%%@left[2,%%@right[4,%_datetime]]]%%@if[ %%@left[2,%%@right[6,%_datetime]] gt 11 ,%%@cool[p],%%@cool[a]]$e[1;32;31m$G $e[0;32;32m$L$e[0;32;33m%%@cool[%%_CPUUSAGE]٪$e[0;32;32m$G $e[31m $e[1;32;32m$e[1;32;32m%%@CURSIVE[%%_CWD]$e[1;32;32m$G$e[0;00;00m$e[39m$e[49m$e[0m$e[?25h$e[ q$e]12;$e]10;rgb:c0/c0/c0$e\$e]11;rgb:00/00/01$e\$e]10;rgb:c0/c0/c1$e\
+endiff        
+
+
