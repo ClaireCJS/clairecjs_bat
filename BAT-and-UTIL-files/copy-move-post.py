@@ -28,17 +28,8 @@ import os
 try:
     import clairecjs_utils as claire
 except ImportError:
-    import sys
-    import os
-
-    # Get the directory where the script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Add the script directory to sys.path
-    if script_dir not in sys.path:
-        sys.path.insert(0, script_dir)
-
-    # Try to import again from the local directory
+    if script_dir not in sys.path: sys.path.insert(0, script_dir)
     try:
         import clairecjs_utils as claire
     except ImportError:
