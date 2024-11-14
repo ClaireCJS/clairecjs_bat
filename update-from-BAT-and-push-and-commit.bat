@@ -90,11 +90,11 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
         %copy%   "%WINDOWS_TERMINAL_SETTINGS" %TARGET%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
         %copy_S%  %DIVIDERS_FOLDER%           %TARGET%\dividers
         %copy_S%  %SAMPLES_FOLDER%            %TARGET%\samples
-        %copy_S%  %PYTHON_LIBRARIES_DIR%\*.py   c:\bat\clairecjs_utils
-        %copy_S%  %PYTHON_LIBRARIES_DIR%\*.py %TARGET%\clairecjs_utils
+        %copy_S%  %PYTHON_LIBRARIES_DIR%        c:\bat\clairecjs_utils
+        %copy_S%  %PYTHON_LIBRARIES_DIR%      %TARGET%\clairecjs_utils
         %copy%    %0                          %TARGET%                                        %+ rem Yes, we are copying THIS script too——it only lives in my dev folder
 
-
+pause
 
 rem Update BAT files from live location to github-folder location:
         if "%1" eq "skip-update" (goto :Skip_Update)
