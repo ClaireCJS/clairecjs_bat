@@ -66,7 +66,7 @@ for %command in (%CMDTAIL%) do (
         set search_results=%@SEARCH[%clean_command]
         if not isalias %clean_command .and. not isInternal %clean_command .and. "%search_results%" eq "" (
                 set my_message=%PRIMARY_ERROR_MESSAGE_STYLING_ON%%clean_command%%PRIMARY_ERROR_MESSAGE_STYLING_OFF% is %italics_on%not%italics_off% in your path, and needs to be. %validate_in_path_message%
-                echo unset /q validate_in_path_message
+                rem echo unset /q validate_in_path_message
                 unset /q validate_in_path_message
                 call fatal_error "%my_message%"
                 call advice      "We will try setting the path again just in case"
@@ -83,4 +83,5 @@ for %command in (%CMDTAIL%) do (
 
 rem Once more for good measure:
         unset /q validate_in_path_message
-        echo %CURSOR_RESET%
+        echos %CURSOR_RESET%
+        

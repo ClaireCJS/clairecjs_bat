@@ -11,13 +11,29 @@ rem
 
 title Copying %*
 
-                                 set COPYBATPARAMS=%*
-if "%OS%" eq "7" (*copy /Nt /RCT /G /R /K /L /Z %COPYBATPARAMS% %+ goto :END)
-                 (*copy /Nt /RCT /G /R /K /L /Z %COPYBATPARAMS%) |&:u8 copy-move-post.py ) |:u8 fast_cat
+rem New option coming down the pipeline:
+                               set RCT=
+        if "%_VerMajor" gt 31 (set RTC=/RTC ``)
 
+rem Grab the passed parameters:
+         set COPYBATPARAMS=%*
+         
+rem Generate the copy command:
+        set LAST_COPY_COMMAND=*copy /Nt %RTC% /G /R /K /L /Z %COPYBATPARAMS%
+
+rem Prettify with our post-processor, unless it's an older computer with an older OS:
+        iff "%OS%" eq "7" .or. "%OS%" eq "2K" then
+                %LAST_COPY_COMMAND%                     
+        else
+                if 1 ne %VALIDATED_CP% then
+                        call validate-in-path copy-move-post.py fast_cat
+                        set VALIDATED_CP=1
+                endiff
+                (%LAST_COPY_COMMAND% |&:u8 copy-move-post.py) |:u8 fast_cat
+        endiff        
 
 
 :END
 
-title Done copying %*
+title %CHECK%Copied %*
 

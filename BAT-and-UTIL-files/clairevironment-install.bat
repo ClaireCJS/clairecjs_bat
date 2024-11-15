@@ -1,34 +1,30 @@
+@Echo OFF
 @rem ****************************** Claire-vironment install script ******************************
+ on break cancel
 
-
-@cls
-@echo *** Validation #1: TCC (JPSoft's TakeCommand) needs to be in c:\TCMD\ for this script to work ***
-@echo .
-@echo *** If TCC is properly installed, hitting a key should produce a list of files in c:\TCMD\: ***
-@pause
-@cls
-dir c:\TCMD\
-@echo .
-@echo .
-@echo *** Is there a list of files in c:\TCMD\ above? ***
-@echo *** If not, you need to go to http://www.JPsoft.com and install TCC to the NON-DEFAULT location of c:\TCMD\ ***
-@echo *** If there was a list of files in c:\TCMD\ and no error, then: ***
-@pause
 
 
 
 @rem Install WinGet:
+@echo .
+@echo *** Attempting to install WinGet using powershell's Add-AppxPackage command: ***
+@echo .
 powershell -Command "Add-AppxPackage -Path \"https://aka.ms/getwinget\""
 
-@rem Regenerate our dynamically-generated path, which should now include Winget.exe:
-call c:\bat\setpath.bat
+
+
+
+@rem Add winget to our path so it works at the command line:
+@echo .
+@echo *** Attempting to add WinGet to the path: ***
+@echo .
+path=%path%;"%LOCALAPPDATA%\Microsoft\WindowsApps\";c:\bat\;c:\util;c:\windows\system32;c:\cygwin\bin;c:\cygwin64\bin;c:\MinGW\bin;C:\UTIL\sysinternals;C:\Windows;C:\Windows\system32;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH;c:\TCMD;C:\Windows\system32\Wbem;c:\TCMD29;c:\TCMD30;c:\TCMD32
 
 @cls
-@echo *** Validation #2: Winget needs to be in your Path for this to work ***
+@echo *** Validation #1: Winget needs to be in your Path for this to work ***
 @echo .
 @echo *** If winget is in your path, hitting a key should produce output: ***
 @pause
-@cls
 winget
 @echo .
 @echo .
@@ -36,6 +32,51 @@ winget
 @echo *** If there was an error, you need to get winget installed such that 'winget' works. ***
 @echo *** If there was winget usage output and no error, then: ***
 @pause
+
+
+
+
+
+@cls
+@echo .
+@echo *** Attempting to install JPSoft's TCC/TakeCommand command line using winget: ***
+@echo .
+winget install JPSoft.tcmd
+@echo .
+pause
+@echo .
+echo  * Attempting to create junction at c:\TCMD\ pointing to  "c:\Program Files\JPSoft\TCMD33"
+echo    (Not applicable if you installed it manually to C:\TCMD)
+c:\bat\junction.exe c:\TCMD\ "c:\Program Files\JPSoft\TCMD33"
+@echo .
+@echo .
+@echo .
+@echo *** Validation #1: TCC (JPSoft's TakeCommand) needs to be in c:\TCMD\ for this script to work ***
+@echo .
+@echo *** If TCC is properly installed, hitting a key should produce a list of files in c:\TCMD\: ***
+@pause
+@cls
+if not isdir 
+@echo .
+@echo .
+@echo *** Is there a list of files in c:\TCMD\ above? ***
+echo.
+@echo *** Or perhaps issue a c:\bat\junction.exe c:\tcmd\ c:\WHEREVER_IT_ENDED_UP_BEING_INSTALLED ***
+echo.
+echo *** Please break out of this script if that is the case; nothing else will work ***
+echo *** Please break out of this script if that is the case; nothing else will work ***
+echo *** Please break out of this script if that is the case; nothing else will work ***
+echo *** Please break out of this script if that is the case; nothing else will work ***
+echo *** Please break out of this script if that is the case; nothing else will work ***
+echo *** Please break out of this script if that is the case; nothing else will work ***
+echo *** Please break out of this script if that is the case; nothing else will work ***
+echo *** Please break out of this script if that is the case; nothing else will work ***
+echo *** Please break out of this script if that is the case; nothing else will work ***
+echo.
+@echo *** If there was a list of files in c:\TCMD\ and no error, then: ***
+@pause
+
+
 
 
 

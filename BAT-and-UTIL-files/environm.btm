@@ -1,6 +1,7 @@
 @Echo off
 @set PERFORMANCE_TUNING=0 %+ if %PERFORMANCE_TUNING eq 1 (timer /9 /q on)
-
+@set rgb_index=1
+@gosub :set_next_cursor_color_in_rainbow_sequence
 rem SPEEDUP VERDICT #1: We need to separate all our validation calls into one location, then put them in an if/else so we don't go into validation subroutines over and over
 rem SPEEDUP VERDICT #2: We need to move repositories, other environment variables, into a separate environm.env file much like private.env
 
@@ -20,17 +21,8 @@ rem SPEEDUP VERDICT #2: We need to move repositories, other environment variable
 
 
 
+
 rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Parameter from "&" back to "$" which is the value it's supposed to have. "&" was for 4DOS compatibility
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -74,29 +66,18 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 :::::::::::::::::::::::::::::::::::::::::::::::: COMMAND-LINE/ENVIRONMENT PARAMETERS: ::::::::::::::::::::::::::::::::::::::::::::::::
-    rem Ways to keep this script from being run too often:
-            rem 1) TCSTART.BAT can pass a "TCSTART" parameter so that we can tell when this has been run and not run it repeatedly
-            rem 2) Secondary shells start from a different INI-specified location, using a different TCStart.bat, which sets SECONDARYSHELL=1
-            rem 3) We also set ENVIRONM_RUN=1 after running, to prevent successive timewasting runs
-        if "%1" eq "force" .or. "%1" eq "-force" .or. "%1" eq "validate" (goto :Force_1       )
+        rem Ways to keep this script from being run too often:
+                rem 1) TCSTART.BAT can pass a "TCSTART" parameter so that we can tell when this has been run and not run it repeatedly
+                rem 2) Secondary shells start from a different INI-specified location, using a different TCStart.bat, which sets SECONDARYSHELL=1
+                rem 3) We also set ENVIRONM_RUN=1 after running, to prevent successive timewasting runs
+        iff "%1" eq "force" .or. "%1" eq "-force" .or. "%1" eq "validate" then
+                rem We are in force mode! Skip these particular validations!
+        else                
             if  "1" eq "%ENVIRONM_RUN%"                                  (goto :The_Very_END  )   %+ REM added this line 2023/07/26
             if  "1" eq "%ENVIRONM_RUN%" .and. "%@UPPER[%1]" eq "TCSTART" (goto :The_Very_END  )   %+ REM so as of 2023/07/26 this line should never happen
             if  "1" eq "%SECONDARYSHELL%"                                (goto :SecondaryShell)
-        :Force_1
+        endiff
 
     rem DEBUG & VALIDATIONS can be turned on with these:
         if "%@UPPER[%1]" eq "VALIDATE" (set PERFORM_VALIDATIONS=1 %+ set DEBUG_VALIDATIONS=1 %+ call wake-all-drives)
@@ -124,15 +105,16 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
    ::::: ANSI COLORS & EMOJI ENV VARS:
         %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"               
         if "%COLORS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-ansi          force)                
-        rem echos %@RANDCURSOR[]
+        rem 2024/11/15: this is the point at which bug disappearing pentagrams come back. Just wanted to verify that this fixes it.
+        gosub :set_next_cursor_color_in_rainbow_sequence
 
         %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"   
         if "%EMOJIS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-emojis        force)
-        rem echos %@RANDCURSOR[]
+        gosub :set_next_cursor_color_in_rainbow_sequence
 
         %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"           
         if   not  defined   MESSAGE_TYPES                       (call c:\bat\print-message vars_only) %+ rem some variables that this sets, which we sometimes want before it is ever run
-
+        gosub :set_next_cursor_color_in_rainbow_sequence
 
 
 
@@ -198,27 +180,28 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
             set RUNNING_ENVIRONM=1
             
 
+        gosub :set_next_cursor_color_in_rainbow_sequence
 
 
     rem gosub StartKillBots { call c:\bat\slui-killbot } { @processmonitor slui started forever (taskend /f slui) } %+ REM stupid slui process kept stealing focus around 2015...  Use focus-monitor.exe to debug that situation. This keeps it dead, but the monitor only lasts per-command-line window, so we need it in this CLI initialization script. But wait! It eats up CPU, so it might not actually be worth it.
-	gosub PreliminaryErrorCheck               %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after PreliminaryErrorCheck           " %+ rem 0.03
-        rem   SetPrivateEnvVars deprecated        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetPrivateEnvVars               " %+ rem 0.015
-        if exist c:\bat\private.env (set /r c:\bat\private.env) %+ rem set private environment variables this way now, so this file can be published without violating personal confidentiality
-        gosub SetTCCBehaviorOptions               %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetTCCBehaviorOptions"            %+ rem never timed
-	gosub DefineHarddrivesAndDriveMapping     %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
-	gosub CommonEnvVarsIncludingNetworking    %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after CommonEnvVarsIncludingNetworking" %+ rem 0.04
-	gosub Initial%MACHINENAME%                %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.11
-	gosub DefineRepositories                  %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineRepositories              " %+ rem 1.20  !!!!!!!
-	gosub DefineExecutableFileExtensions      %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after DefineExecutableFileExtensions  " %+ rem 0.24 
-	gosub SetUsernameAndNetName               %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetUsernameAndNetName           " %+ rem 0.04
-	gosub Initial%USERNAME%                   %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.01
-	gosub SetPathAndPromptAndCursor           %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetPathAndPromptAndCursor       " %+ rem 0.29->.21 1st/autoexec-run .005 successive runs
-	gosub LoadAliases                         %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after LoadAliases                     " %+ rem 0.02
-	gosub CheckForSyncedDevices               %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after CheckForSyncedDevices           " %+ rem 0.01
-	gosub OSSpecificOverrides                 %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after OSSpecificOverrides             " %+ rem 0.05
-	gosub SetJavaClasspath                    %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after SetJavaClasspath                " %+ rem 0.25  25
-    gosub Load_TCC_Plugins                        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after Load_TCC_Plugins                " %+ rem 0.13
-    gosub FinalValidations                        %+      set trash=RANDCURSOR[]      %+      %gosub_stopwatch_button% orange "after FinalValidations                " %+ rem 0.013
+	gosub PreliminaryErrorCheck               %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after PreliminaryErrorCheck           " %+ rem 0.03
+        rem   SetPrivateEnvVars deprecated        %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetPrivateEnvVars               " %+ rem 0.015
+        if exist c:\bat\private.env (set /r c:\bat\private.env)    %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetPrivateEnvVars               " %+ rem ?.???                                                                                                                                                        %+ rem set private environment variables this way now, so this file can be published without violating personal confidentiality
+        gosub SetTCCBehaviorOptions               %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetTCCBehaviorOptions"            %+ rem never timed
+	gosub DefineHarddrivesAndDriveMapping     %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
+	gosub CommonEnvVarsIncludingNetworking    %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after CommonEnvVarsIncludingNetworking" %+ rem 0.04
+	gosub Initial%MACHINENAME%                %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.11
+	gosub DefineRepositories                  %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after DefineRepositories              " %+ rem 1.20  !!!!!!!
+	gosub DefineExecutableFileExtensions      %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after DefineExecutableFileExtensions  " %+ rem 0.24 
+	gosub SetUsernameAndNetName               %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetUsernameAndNetName           " %+ rem 0.04
+	gosub Initial%USERNAME%                   %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.01
+	gosub SetPathAndPromptAndCursor           %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetPathAndPromptAndCursor       " %+ rem 0.29->.21 1st/autoexec-run .005 successive runs
+	gosub LoadAliases                         %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after LoadAliases                     " %+ rem 0.02
+	gosub CheckForSyncedDevices               %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after CheckForSyncedDevices           " %+ rem 0.01
+	gosub OSSpecificOverrides                 %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after OSSpecificOverrides             " %+ rem 0.05
+	gosub SetJavaClasspath                    %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetJavaClasspath                " %+ rem 0.25  25
+        gosub Load_TCC_Plugins                    %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after Load_TCC_Plugins                " %+ rem 0.13
+        gosub FinalValidations                    %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after FinalValidations                " %+ rem 0.013
 	goto :END
 
     return
@@ -2189,7 +2172,7 @@ return
                             md %actualDir%
                         goto :Handle_DONE
                 :Handle_DONE
-            pause
+            rem pause
     :returnNow
     title %TITLETMP%
     return
@@ -2473,8 +2456,8 @@ return
 
             rem timer /6 on
             rem make sure required scripts are present:
-                if not exist %BAT%\setpath.bat   (call alarm-beep NO SETPATH.BAT!! %+ pause)
-                if not exist %BAT%\setprompt.bat (call alarm-beep NO SETROMPT.BAT! %+ pause)
+                if not exist %BAT%\setpath.bat   (call alarm-beep NO SETPATH.BAT!! %+ pause /# 10)
+                if not exist %BAT%\setprompt.bat (call alarm-beep NO SETROMPT.BAT! %+ pause /# 10)
             rem call required scripts:
                 call         %BAT%\setpath.bat
                 call         %BAT%\setprompt.bat
@@ -2547,54 +2530,86 @@ return
 return
 
 
-    ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    :SetJavaClasspath
-        unset /q CLASSPATH
-        unset /q CLASSPATHTEMP
-        :Java_Versions (do newer ones on top so they appear first in the classpath when we have multiple versions)
-            gosub AddFolderToClassPathEndOnlyIfItExists "%ProgramFiles%\Java\jdk1.7.0_71\lib"
-            gosub AddFolderToClassPathEndOnlyIfItExists "%ProgramFiles%\Java\jdk1.7.0_25\lib"
-            gosub AddFolderToClassPathEndOnlyIfItExists "%ProgramFiles%\Java\jdk1.6.0_35\lib"
-        if "%TRUNK%" eq "" goto :NoTrunk1
-            gosub AddFolderToClassPathEndOnlyIfItExists  %TRUNK%\maven-diss\diss\diss-jvs-datadictionary\target\test-classes
-            gosub AddFolderToClassPathEndOnlyIfItExists  %TRUNK%\maven-diss\diss\diss-jvs-datadictionary\target\classes
-        :NoTrunk1
-        if "%M2_REPO%" eq "" goto :NoM2Repo
-            gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\javax\javaee-web-api\6.0\javaee-web-api-6.0.jar
-            gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\log4j\log4j\1.2.16\log4j-1.2.16.jar
-            gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\junit\junit\4.0\junit-4.0.jar
-            gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\com\oracle\ojdbc6\11.1.0\ojdbc6-11.1.0.jar
-        :NoM2Repo
-            gosub AddFolderToClassPathEndOnlyIfItExists  C:\eclipse2\configuration\org.eclipse.osgi\bundles\346\2\.cp
-            gosub AddFolderToClassPathEndOnlyIfItExists  C:\eclipse2\configuration\org.eclipse.osgi\bundles\345\2\.cp
-        :echo classpathtemp is %classpathtemp% %+ echo. %+ echo.
-        set CLASSPATH=%CLASSPATHTEMP%
-    return
-    ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-		:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-		:AddFolderToClassPathEndOnlyIfItExists [folder]
-			if isdir %folder% set CLASSPATHTEMP=%CLASSPATHTEMP%;%folder%
-			:echo * classpathtemp is now %CLASSPATHTEMP%
-		return
-		:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-		:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-		:AddFileToClassPathEndOnlyIfItExists [file]
-			if exist  %file%  set CLASSPATHTEMP=%CLASSPATHTEMP%;%file%
-			:echo * classpathtemp is now %CLASSPATHTEMP%
-		return
-		:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+:———————————————————————————————————————————————————————————————— SUBROUTINES BEGIN ————————————————————————————————————————————————————————————————
+
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :SetJavaClasspath
+                unset /q CLASSPATH
+                unset /q CLASSPATHTEMP
+                :Java_Versions (do newer ones on top so they appear first in the classpath when we have multiple versions)
+                gosub AddFolderToClassPathEndOnlyIfItExists "%ProgramFiles%\Java\jdk1.7.0_71\lib"
+                gosub AddFolderToClassPathEndOnlyIfItExists "%ProgramFiles%\Java\jdk1.7.0_25\lib"
+                gosub AddFolderToClassPathEndOnlyIfItExists "%ProgramFiles%\Java\jdk1.6.0_35\lib"
+                if "%TRUNK%" eq "" goto :NoTrunk1
+                        gosub AddFolderToClassPathEndOnlyIfItExists  %TRUNK%\maven-diss\diss\diss-jvs-datadictionary\target\test-classes
+                        gosub AddFolderToClassPathEndOnlyIfItExists  %TRUNK%\maven-diss\diss\diss-jvs-datadictionary\target\classes
+                :NoTrunk1
+                if "%M2_REPO%" eq "" goto :NoM2Repo
+                        gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\javax\javaee-web-api\6.0\javaee-web-api-6.0.jar
+                        gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\log4j\log4j\1.2.16\log4j-1.2.16.jar
+                        gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\junit\junit\4.0\junit-4.0.jar
+                        gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\com\oracle\ojdbc6\11.1.0\ojdbc6-11.1.0.jar
+                :NoM2Repo
+                        gosub AddFolderToClassPathEndOnlyIfItExists  C:\eclipse2\configuration\org.eclipse.osgi\bundles\346\2\.cp
+                        gosub AddFolderToClassPathEndOnlyIfItExists  C:\eclipse2\configuration\org.eclipse.osgi\bundles\345\2\.cp
+                :echo classpathtemp is %classpathtemp% %+ echo. %+ echo.
+                set CLASSPATH=%CLASSPATHTEMP%
+        return
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    
+    
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :AddFolderToClassPathEndOnlyIfItExists [folder]
+                if isdir %folder% set CLASSPATHTEMP=%CLASSPATHTEMP%;%folder%
+                rem echo * classpathtemp is now %CLASSPATHTEMP%
+        return
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :AddFileToClassPathEndOnlyIfItExists [file]
+                if exist  %file%  set CLASSPATHTEMP=%CLASSPATHTEMP%;%file%
+                rem echo * classpathtemp is now %CLASSPATHTEMP%
+        return
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-    :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    :FinalValidations
-        if %FINAL_VALIDATIONS_RUN eq 1 (goto :FinalValidationsDone)
-            if not defined STAR        (set STAR=*) %+ rem Star is just a choice of asterisk. In our case we use 🌟 which is more easily noticeable in console output. This is defined in set-emoji.bat
-            if not defined GATEWAY     (call error "gateway not defined in %0! run 'ipconfig /all' and look for the 'Default Gateway' with an IP4 address")
-            if not defined OS_USERNAME (set OS_USERNAME=%_winuser %+ if not defined OS_USERNAME (call error "OS_USERNAME not defined in %0!"))
-            set FINAL_VALIDATIONS_RUN=1
-        :FinalValidationsDone
-    return
-    :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :FinalValidations
+                if %FINAL_VALIDATIONS_RUN eq 1 (goto :FinalValidationsDone)
+                        if not defined STAR        (set  STAR=*) %+ rem Star is just a choice of asterisk. In our case we use 🌟 which is more easily noticeable in console output. This is defined in set-emoji.bat
+                        if not defined GATEWAY     (call error "gateway not defined in %0! run 'ipconfig /all' and look for the 'Default Gateway' with an IP4 address")
+                        if not defined OS_USERNAME (set  OS_USERNAME=%_winuser %+ if not defined OS_USERNAME (call error "OS_USERNAME not defined in %0!"))
+                        set FINAL_VALIDATIONS_RUN=1
+                :FinalValidationsDone
+        return
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 
@@ -2604,32 +2619,33 @@ return
     ::::::::::::::::::::::::::::::::::::: ERROR SUBROUTINES: BEGIN: :::::::::::::::::::::::::::::::::::::
     ::::::::::::::::::::::::::::::::::::: ERROR SUBROUTINES: BEGIN: :::::::::::::::::::::::::::::::::::::
 
-            :ValidateIfEnvironmentVariableIsDefined [varName]
-                set VALUE=%%%varName%%%
-                if "%value%" eq "" goto :Defined_NO
-                           goto :Defined_YES
-                    :Defined_NO
-                        set MSG=* ERROR! %varName% is not defined!
-                        %COLOR_ALARM% %+ echo %MSG% %+ %COLOR_NORMAL%
-                        title %MSG%
-                        beep %+ beep  %+ pause
-                    :Defined_YES
-            return
+        :ValidateIfEnvironmentVariableIsDefined [varName]
+                set   VALUE=%%%varName%%%
+                iff "%value%" eq "" then
+                        set MSG=* ERROR! %italics_on%%blink_on%%varName%%blink_off%%italics_off% is not defined!
+                        %COLOR_ALARM% 
+                                         echo %MSG% 
+                                        title %MSG%
+                        %COLOR_NORMAL%
+                        repeat 2 
+                        pause
+                endiff                
+        return
 
-            :NoMachineName
+        :NoMachineName
                 %COLOR_ALARM% %+ Echo you must have MACHINENAME set!! %+ echo.  %+ %COLOR_WARNING%
                 echo !!!!!!!!!!!!!!!ALL COOL STUFF WILL BE BROKEN!!!!!!!!!!!!!! %+ echo !!!!!!!!!!!!!!!ALL COOL STUFF WILL BE BROKEN!!!!!!!!!!!!!!
                 echo !!!!!!!!!!!!!!!ALL COOL STUFF WILL BE BROKEN!!!!!!!!!!!!!! %+ echo !!!!!!!!!!!!!!!ALL COOL STUFF WILL BE BROKEN!!!!!!!!!!!!!!
                 call alarmbeep %+ pause
-            goto :BEGIN_COMMON
+        goto :BEGIN_COMMON
 
-            :username_not_found
+        :username_not_found
                 call FATAL_ERROR "USERNAME NOT KNOWN.  YOU NEED TO ADD A :setUSERNAME subroutine to %BAT%\environm.btm"
                 gosub SetMachineSpecificEnvironment
-            return
+        return
 
-            :setMachinenameSubroutineNotFound
-                                   call alarm-beep
+        :setMachinenameSubroutineNotFound
+                call                      alarm-beep
                 %COLOR_ALARM%   %+ echo * FATAL ERROR: MISSING MACHINE-SPECIFIC INITIALIZER FUNCTION.
                 %COLOR_WARNING% %+ echo You need a subroutine in %BAT%\environm.btm that has the name setMachinename, 
                                    echo where Machinename is the same as the %%MACHINENAME%% environment variable.  
@@ -2637,35 +2653,119 @@ return
                                    echo You probably just need to make a blank entry if you really don't 
                                    echo have any environment variables *unique* to this machine.  
                 %COLOR_PAUSE%   %+ pause
-            goto :END
+        goto :END
+        
+        ::::::::::::::::::::::::::::::::::::: ERROR SUBROUTINES: END :::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::: ERROR SUBROUTINES: END :::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::: ERROR SUBROUTINES: END :::::::::::::::::::::::::::::::::::::
+        
 
-            :SecondaryShell
+        :SecondaryShell
                 rem only really used to debug setting up the secondary shell, pretty much just a dummy/debug function
                 :echo * This is a secondary shell!
                 :pause
-            goto :END
+        goto :END
+
+        :stopwatch_button [color reason]
+                if %PERFORMANCE_TUNING eq 0 (return)
+                set reason2=%@unquote[%reason]
+                echos %[ANSI_COLOR_%COLOR%]
+                echos %EMOJI_STOPWATCH%%EMOJI_STOPWATCH%
+                echos  %reason2%
+                echos %EMOJI_STOPWATCH%
+                echos %@ANSI_MOVE_TO_COL[%@EVAL[%_COLUMNS-80]]
+                timer %QUIET_TIMER_OR_NOT% /9 /s
+        return
+
+        :Load_TCC_Plugins
+                set           plugin_loader=c:\bat\load-TCC-plugins.bat
+                if not exist %plugin_loader% (call error "plugin loader '%italics_on%%plugin_loader%%italics_off%' does not exist")
+                call         %plugin_loader%
+        return
 
 
+        rem 🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈 BEGIN ⤵
+        rem ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ rainbow-cursor-color progress-indicator cosmetics ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ 
+        rem 🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈
 
-    :stopwatch_button [color reason]
-            if %PERFORMANCE_TUNING eq 0 (return)
-            set reason2=%@unquote[%reason]
-            echos %[ANSI_COLOR_%COLOR%]
-            echos %EMOJI_STOPWATCH%%EMOJI_STOPWATCH%
-            echos  %reason2%
-            echos %EMOJI_STOPWATCH%
-            echos %@ANSI_MOVE_TO_COL[%@EVAL[%_COLUMNS-80]]
-            timer %QUIET_TIMER_OR_NOT% /9 /s
-    return
+                rem Sample: change cursor color to red: echos %@CHAR[27][ q%@CHAR[27]]12;red%@CHAR[7] 
+                
+                :set_next_cursor_color_in_rainbow_sequence
+                
+                
+                        rem Initialize the array and counter — we will use the fact that number_of_rgb_colorsteps is defined as the litmus test of needing to define it or not ... Unless we're in 
+                        if defined number_of_rgb_colorsteps .and. "%1" ne "force" goto :RGB_Array_Has_Been_Set_Already
+                        iff "%@ARRAYINFO[rgb_steps_hex]" ne "-1" then
+                                set array_exists=1
+                        else 
+                                set array_exists=0
+                        endiff                
+                        rem echo array exists=%array_exists%
+                        iff "%1" eq "force" .and. %array_exists eq 1 then
+                                UnsetArray /q rgb_steps_hex
+                        endiff                                
+                        rem echo %reverse_on%set_next_cursor_color_in_rainbow_sequence called, rgb_index is %rgb_index%%reverse_off% array_exists=%array_exists%
+rem                     if %array_exists eq 1 .or. "%1" ne "force" (goto :RGB_Array_Has_Been_Set_Already) ///NO!
+                        if %array_exists eq 1                      (goto :RGB_Array_Has_Been_Set_Already)
+                                set number_of_rgb_colorsteps=21
+                                SetArray  rgb_steps_hex[%number_of_rgb_colorsteps%]
+                                rem rray  rgb_steps_rgb[%number_of_rgb_colorsteps%]
+                                set       rgb_steps_hex[00]=FF0000          %+ rem set rgb_steps_rgb[20]=255,0,255          %+ rem oops backwards
+                                set       rgb_steps_hex[01]=FF3F00          %+ rem set rgb_steps_rgb[19]=191,0,255          %+ rem oops backwards
+                                set       rgb_steps_hex[02]=FF7F00          %+ rem set rgb_steps_rgb[18]=127,0,255          %+ rem oops backwards
+                                set       rgb_steps_hex[03]=FFBF00          %+ rem set rgb_steps_rgb[17]=63,0,255           %+ rem oops backwards
+                                set       rgb_steps_hex[04]=FFFF00          %+ rem set rgb_steps_rgb[16]=0,0,255            %+ rem oops backwards
+                                set       rgb_steps_hex[05]=BFFF00          %+ rem set rgb_steps_rgb[15]=0,63,255           %+ rem oops backwards
+                                set       rgb_steps_hex[06]=7FFF00          %+ rem set rgb_steps_rgb[14]=0,127,255          %+ rem oops backwards
+                                set       rgb_steps_hex[07]=3FFF00          %+ rem set rgb_steps_rgb[13]=0,191,255          %+ rem oops backwards
+                                set       rgb_steps_hex[08]=00FF00          %+ rem set rgb_steps_rgb[12]=0,255,255          %+ rem oops backwards
+                                set       rgb_steps_hex[09]=00FF3F          %+ rem set rgb_steps_rgb[11]=0,255,191          %+ rem oops backwards
+                                set       rgb_steps_hex[10]=00FF7F          %+ rem set rgb_steps_rgb[10]=0,255,127          %+ rem oops backwards
+                                set       rgb_steps_hex[11]=00FFBF          %+ rem set rgb_steps_rgb[09]=0,255,63           %+ rem oops backwards
+                                set       rgb_steps_hex[12]=00FFFF          %+ rem set rgb_steps_rgb[08]=0,255,0            %+ rem oops backwards
+                                set       rgb_steps_hex[13]=00BFFF          %+ rem set rgb_steps_rgb[07]=63,255,0           %+ rem oops backwards
+                                set       rgb_steps_hex[14]=007FFF          %+ rem set rgb_steps_rgb[06]=127,255,0          %+ rem oops backwards
+                                set       rgb_steps_hex[15]=003FFF          %+ rem set rgb_steps_rgb[05]=191,255,0          %+ rem oops backwards
+                                set       rgb_steps_hex[16]=0000FF          %+ rem set rgb_steps_rgb[04]=255,255,0          %+ rem oops backwards
+                                set       rgb_steps_hex[17]=3F00FF          %+ rem set rgb_steps_rgb[03]=255,191,0          %+ rem oops backwards
+                                set       rgb_steps_hex[18]=7F00FF          %+ rem set rgb_steps_rgb[02]=255,127,0          %+ rem oops backwards
+                                set       rgb_steps_hex[19]=BF00FF          %+ rem set rgb_steps_rgb[01]=255,63,0           %+ rem oops backwards
+                                set       rgb_steps_hex[20]=FF00FF          %+ rem set rgb_steps_rgb[00]=255,0,0            %+ rem oops backwards
+                                if "%1" ne "force" (set rgb_index=0)
+                                rem set   DEBUG_CURSOR=2
+                        :RGB_Array_Has_Been_Set_Already
 
-
-
-    :Load_TCC_Plugins
-        set           plugin_loader=c:\bat\load-TCC-plugins.bat
-        if not exist %plugin_loader% (call error "plugin loader '%italics_on%%plugin_loader%%italics_off%' does not exist")
-        call         %plugin_loader%
-    return
-
+                        iff %rgb_index% eq %number_of_rgb_colorsteps% then
+                                set rgb_index=1
+                        endiff                        
+                        iff %rgb_index% LE %number_of_rgb_colorsteps% then
+                                set color=%rgb_steps_hex[%rgb_index]
+                                rem debug: set color_setter= @ANSI_CURSOR_COLOR_BY_HEX[%color] %@ANSI_CURSOR_COLOR_BY_HEX[%color]
+                                rem color_setter=%@ANSI_CURSOR_COLOR_BY_HEX[%color]
+                                set color_setter=%@char[27][ q%@CHAR[27]]12;#%[color]%@CHAR[7]
+                                rem Get individual R,G,B values:
+                                        set r=%@word[0,%color%,,] 
+                                        set g=%@word[1,%color%,,] 
+                                        set b=%@word[2,%color%,,]
+                                iff %DEBUG_CURSOR% GT 1 then
+                                        echo %color_setter%%@format[2,%rgb_index%] TEST - This: color=%@format[11,%color%] / r=%@format[3,%r], g=%@format[3,%g], b=%@format[3,%b] / %%@CHAR[27][38;2;%r%;%g%;%b%m%color%@CHAR[27][0m%%@CHAR[7] - 
+                                        rem *pause>nul
+                                        delay /m 250
+                                else
+                                        echos %color_setter%
+                                        rem                                         *pause>nul
+                                endiff
+                                set /a rgb_index=%rgb_index%+1
+                                return
+                        else
+                                rem echo All values processed.
+                                return
+                        endiff
+                :return
+                
+        rem 🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈 END ↖
+        rem ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ rainbow-cursor-color progress-indicator cosmetics ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ 
+        rem 🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈
 
 
 
@@ -2691,25 +2791,28 @@ return
 
 
 :END
-        :Cleanup
+:Cleanup
                 REM sunset this code because we don't use XP/2K machines anymore: if "%OS%" eq "XP" .or. "%OS%" eq "2K" (title 4NT)
                 if "%@UPPER[%1]" eq "DEBUG" (set DEBUG=%DEBUG_TMP%)
-        :The_Very_END
+:The_Very_END
                 SET ENVIRONM_RUN=1
                 set RUNNING_ENVIRONM=0
-:POST-END
+
+:POST_end
         rem Performance tuning        
                 timer %QUIET_TIMER_OR_NOT% /9 off
                                 : 20240911: environm {norml} - 0.023
                                 :           environm {fresh} - 2.500
                                 :           environm  force  - 3.700
 
-        rem Reset the cursor to normal, and ensure our custom pentagram is actually created [bugfix kludge]:
+        rem Reset the cursor to normal, and possibly ensure our custom pentagram is actually created [bugfix kludge]:
+        rem 2024/11/15: set-ansi force definitely fixes the disappearing pentagram issue, but aborting environm.btm mid-way leaves it broken *after*, so whatever is breaking it can and is still fixed by echo'ing our %create_pentagram% string
                 echos %CURSOR_RESET%%CREATE_PENTAGRAM%
-
+                    
         rem Reset the window title:
                 title TCC
 
+:Possibly_Run_Next_Command
         rem Sometimes this script is passed an additional command (via 'NEXTCOMMAND' environment variable) to be run at the end:
                 if "%NEXTCOMMAND%" ne "" (%NEXTCOMMAND%)
 

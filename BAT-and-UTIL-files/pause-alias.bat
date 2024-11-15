@@ -79,7 +79,7 @@ rem An extra countdown for those times when we really want to get in a fight wit
                 echo %@ANSI_MOVE_TO_COL[1]%pause% %PARAMS%
                 rem first_number=%@EVAL[%EXTRA_PAUSE_NUMBER_OF_PAUSES%-1]
                 set first_number=%@EVAL[%EXTRA_PAUSE_NUMBER_OF_PAUSES%]
-                do pauseNum = %EXTRA_PAUSE_NUMBER_OF_PAUSES% to 1 by -1
+                do pauseNum = %@EVAL[%EXTRA_PAUSE_NUMBER_OF_PAUSES%-1] to 1 by -1
                         set numdis=%@EVAL[%pauseNum-1]
                         set spacer_len=%@EVAL[%@LEN[%@EVAL[%first_number]]-%@LEN[%numdis]]
                         iff %spacer_len gt -1 then
