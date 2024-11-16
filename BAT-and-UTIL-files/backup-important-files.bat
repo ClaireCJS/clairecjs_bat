@@ -84,7 +84,7 @@ rem Sync important files folder to every available ready harddrive with a \BACKU
                 *copy /e /w /u /s /a: /h /z /k /g /u /Nts %BACKUP_TARGET% %BACKUP_TARGET_TMP% >nul
                 echos %ANSI_RESET%%@RANDFG_SOFT[].
                 rem | convert-each-line-to-a-randomly-colored-dot.pl 
-                call errorlevel
+                rem Don't want to do this, it's too sensitive to things like full hadrrives and such: call errorlevel
             )
         )
         rem echos %BLINK_OFF%%FAINT_OFF%%ANSI_EOL%%@ANSI_MOVE_TO_COL[1]

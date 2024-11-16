@@ -149,7 +149,7 @@ iff %OUR_ERRORLEVEL% gt 0 then
         echo %STAR% %OUR_FAILURE_MESSAGE%%ANSI_ERASE_TO_EOL%
         echo %STAR% Calling BAT: %ITALICS_ON%%blink_on%%ANSI_COLOR_BRIGHT_RED%%ANSI_BACKGROUND_BLACK% %[_PBATCHNAME]%ITALICS_OFF%%blink_off% %ANSI_COLOR_WARNING%%ANSI_ERASE_TO_EOL%
         %COLOR_NORMAL% 
-        repea 3 echo.
+        repeat 3 echo.
         call advice "* You can put code like this in your script:"
         call advice "     :Redo_1"
         if "%OUR_COMMAND%" ne "%CALLING_FILE_UNKNOWN%" (call advice "                         %OUR_COMMAND%" )
