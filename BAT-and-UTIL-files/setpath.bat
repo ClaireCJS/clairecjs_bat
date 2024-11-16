@@ -111,6 +111,7 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 	gosub AddFolderToPathBegOnlyIfItExists C:\BAT\%OS%
 	gosub AddFolderToPathBegOnlyIfItExists C:\BAT\%MACHINENAME%
 	gosub AddFolderToPathBegOnlyIfItExists C:\BAT\beta
+	gosub AddFolderToPathBegOnlyIfItExists %UTIL2%\git
 
 ::::: WORK-MACHINE STUFF THAT PRECEDES OUR NORMAL PATH:
 	rem if %@UPPER["%MACHINENAME"] eq "WORK" gosub AddFolderToPathBegOnlyIfItExists  %DROPBOX%\work\bat

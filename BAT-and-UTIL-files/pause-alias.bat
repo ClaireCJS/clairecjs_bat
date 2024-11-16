@@ -63,7 +63,7 @@ rem Clear the keyboard buffer to prevent accidental pause-bypasses:
 
 rem Preface the pause with an emoji for visual processing ease and make it the color we want:
         %COLOR_PAUSE%
-        echos %EMOJI_PAUSE_BUTTON% %ANSI_RESET%%@ANSI_CURSOR_CHANGE_COLOR_HEX[FFFF00]``
+        echos %EMOJI_PAUSE_BUTTON% %ANSI_RESET%%@char[27][ q%@char[27]]12;#FFFF00%@char[7]
 
 rem Again, clear the keyboard buffer [/C option] to prevent accidental pause-bypasses:
         *pause /C %@unquote[%PARAMS%]
