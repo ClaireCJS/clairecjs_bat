@@ -1,4 +1,6 @@
 @Echo off
+ on error break
+ goto :begin
 
 
 rem
@@ -9,31 +11,42 @@ rem     2) adding /Nt to not update JPSTREE.IDX because we don't feel that's wor
 rem     3) adding /RCT [new 2024 option] to compress over SMB shares for faster copies
 rem
 
-title Copying %*
+
+:begin
+title Copying %*                                               %+ rem  Set Window Title
 
 rem New option coming down the pipeline:
-                               set RCT=
-        if "%_VerMajor" gt 31 (set RTC=/RTC ``)
+rem                             unset /q   RCT
+rem        if "%_VerMajor" gt 31 (set RTC=/RTC ``)
 
 rem Grab the passed parameters:
          set COPYBATPARAMS=%*
-         
+                  
 rem Generate the copy command:
         set LAST_COPY_COMMAND=*copy /Nt %RTC% /G /R /K /L /Z %COPYBATPARAMS%
 
-rem Prettify with our post-processor, unless it's an older computer with an older OS:
-        iff "%OS%" eq "7" .or. "%OS%" eq "2K" then
-                %LAST_COPY_COMMAND%                     
-        else
-                if 1 ne %VALIDATED_CP% then
-                        call validate-in-path copy-move-post.py fast_cat
-                        set VALIDATED_CP=1
-                endiff
-                (%LAST_COPY_COMMAND% |&:u8 copy-move-post.py) |:u8 fast_cat
-        endiff        
+rem Decide if doing old/simple or new/colorful copy method:
+        if "%OS%" eq "10"                     (goto :default)
+        if "%OS%" eq "11"                     (goto :default)
+        if "%OS%" ne "7" .and. "%OS%" ne "2K" (goto :default)
+        
+        :the_simple_way
+                %LAST_COPY_COMMAND%               
+        
+        :default
+        :the_modern_way
+                rem Make sure we have what we need:
+                        iff not defined VALIDATED_CP then                                            %+ rem speed optimization to not check value
+                                call    validate-in-path copy-move-post.py       fast_cat
+                                set     VALIDATED_CP=1
+                        endiff
+
+                rem Prettify with our post-processor, unless it's an older computer with an older OS:
+                        (%LAST_COPY_COMMAND%    |&:u8    copy-move-post.py) |:u8 fast_cat
 
 
 :END
 
-title %CHECK%Copied %*
+rem Update title:
+        title %CHECK%Copied %*
 

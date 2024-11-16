@@ -4,41 +4,38 @@
 
 :Define_Stuff
 
-    :: wget32quiet was good during the Win95/98/ME/XP/2K days but by 7 wget32 was better
-    :: so make wget32 (not wget32quiet) be the default from here on out:
-    COMMAND=wget32
-	if "%OS%"=="95" (set COMMAND=wget32quiet)
-	if "%OS%"=="98" (set COMMAND=wget32quiet)
-	if "%OS%"=="ME" (set COMMAND=wget32quiet)
-	if "%OS%"=="XP" (set COMMAND=wget32quiet)
-	if "%OS%"=="2K" (set COMMAND=wget32quiet)
-	if "%OS%"=="7"  (set COMMAND=wget32)
-	if "%OS%"=="10" (set COMMAND=wget32)
-    call validate-in-path %COMMAND%
+        rem wget32quiet was good during the Win95/98/ME/XP/2K days but by Win7 wget32 was better
+        rem so make wget32 (not wget32quiet) be the default from here on out:
+                              COMMAND=wget32
+	if "%OS%"=="95" (set  COMMAND=wget32quiet)
+	if "%OS%"=="98" (set  COMMAND=wget32quiet)
+	if "%OS%"=="ME" (set  COMMAND=wget32quiet)
+	if "%OS%"=="XP" (set  COMMAND=wget32quiet)
+	if "%OS%"=="2K" (set  COMMAND=wget32quiet)
+	if "%OS%"=="7"  (set  COMMAND=wget32)
+	if "%OS%"=="10" (set  COMMAND=wget32)
+        call validate-in-path %COMMAND%
 
-	::::: Add-on to allow controlling of multiple rooms:
-	:	call setMUSICSERVER.bat %*
+	rem Old code from the 2003–2005 addition-construction days when we 
+        rem had multiple separate music areas in our house due to construction:
+	        rem call setMUSICSERVER.bat %*
 
-:	set DEBUG=1
+:	rem set DEBUG=0
 	call advice "Does %1 exist?"
-		if exist %1 goto          :exists
-		            goto :does_not_exist
-		:exists
+		iff exist %1 then
 			call debug "Yes: Precise full filename given."
 			set FULLLIST=%@STRIP[%=",%1]
 			set FULLLIST2=%FULLLIST
-			:set PLAYLIST=%@STRIP[%=",%@NAME[%1].m3u]
+			rem PLAYLIST=%@STRIP[%=",%@NAME[%1].m3u]
 			set PLAYLIST=%@REPLACE[.m3u.m3u,.m3u,%@STRIP[%=",%@NAME[%1].m3u]]
-		goto :done_defining
+		endiff
 
-		:does_not_exist
         call debug "No: Base filename given."
 		echo.
-
 		set  PLAYLIST=%@REPLACE[.m3u.m3u,.m3u,%@STRIP[%=",%1.m3u]]
 		call important "echo PLAYLIST set to '%emphasis%%PLAYLIST%%deemphasis%'"
 
-        pause
+        call pause-for-x-seconds 100 "Everything look good?"
 
 			              set  FULLLIST=%@STRIP[%=",%MP3\LISTS\%PLAYLIST]
 		if "%BOTH"=="1" ( set FULLLIST2=%@STRIP[%=",%MP32\LISTS\%PLAYLIST])
@@ -47,20 +44,20 @@
 
 		set ORIGINALLIST=%FULLLIST
 		set ORIGINALLIST2=%FULLLIST2
-				         call debug "ORIGINALLIST  set to '%ORIGINALLIST%'"
+				 call debug "ORIGINALLIST  set to '%ORIGINALLIST%'"
 		if "%BOTH"=="1" (call debug "ORIGINALLIST2 set to '%ORIGINALLIST2'")
 
         call debug "* 1) Checking if %FULLLIST exists"       
         if exist %FULLLIST% goto :done_defining
 
-				        if not exist %FULLLIST  (set  FULLLIST=%MP3\LISTS\by-attribute\%PLAYLIST %+ set PLAYLIST=by-attribute\%PLAYLIST)
-		if "%BOTH"=="1" if not exist %FULLLIST2 (set FULLLIST2=%MP3\LISTS\by-attribute\%PLAYLIST %+ set PLAYLIST=by-attribute\%PLAYLIST)
+		                if not exist %FULLLIST  (set   FULLLIST=%MP3\LISTS\by-attribute\%PLAYLIST %+ set PLAYLIST=by-attribute\%PLAYLIST)
+		if "%BOTH"=="1" if not exist %FULLLIST2 (set  FULLLIST2=%MP3\LISTS\by-attribute\%PLAYLIST %+ set PLAYLIST=by-attribute\%PLAYLIST)
 
         call debug "* 2) Checking if %FULLLIST exists"
-                        if     exist %FULLLIST% goto :done_defining
-				        if not exist %FULLLIST  (call FATAL_ERROR "Could not find '%FULLLIST%' in LISTS or LISTS\by-attribute!")
+                if not exist %FULLLIST% then
+                if                 not exist %FULLLIST  (call FATAL_ERROR "Could not find '%FULLLIST%' in LISTS or LISTS\by-attribute!")
 		if "%BOTH"=="1" if not exist %FULLLIST2 (call FATAL_ERROR "Could not find '%FULLLIST2' in LISTS or LISTS\by-attribute!")
-		goto :done_defining
+		endiff
 
 
 :done_defining

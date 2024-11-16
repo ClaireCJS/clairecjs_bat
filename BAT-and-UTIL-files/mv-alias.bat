@@ -1,12 +1,17 @@
 @Echo Off
+ on break cancel
  set ARGS=%*
 
 :USAGE: mv like mv, but also you can set env-var MV_DRY_RUN_FIRST=1 to simulate the move first (with configurable timeout via env-var DRY_RUN_WAIT_TIME_BEFORE_PROCEEDING), and you can also set MV_DECORATOR to be a string before each line of the move, or MV_DECORATOR_ON & MV_DECORATOR_OFF to be more granular in decorating your mvs
 
 
+REM Title
+        title %@CHAR[55357]%@CHAR[56986]Moving: %*
 
 REM CONFIGURATION:
         set DRY_RUN_WAIT_TIME_BEFORE_PROCEEDING=60
+
+
 
 
 REM PROTECTION FROM PASSING NO ARGS WHICH WOULD PULL OUR RECYCLE BIN INTO CURRENT FOLDER WHICH IS A NASTY CLEANUP:
@@ -17,11 +22,11 @@ REM PROTECTION FROM PASSING NO ARGS WHICH WOULD PULL OUR RECYCLE BIN INTO CURREN
 
 REM Automatic coloring
         echo %ANSI_RESET%
-        if "%2" eq "\recycled" (
+        iff "%2" eq "\recycled" then
             %COLOR_REMOVAL%
-        ) else (
+        else
             %COLOR_RUN%
-        )
+        endiff
 
 
 REM special decorator invocation
@@ -59,7 +64,8 @@ REM actually do the move command:
         echos %MV_DECORATOR%%MOVE_DECORATOR%%MV_DECORATOR_ON%%MOVE_DECORATOR_ON%
         rem   %MOVE_COMMAND% %A%GS%  |&    copy-move-post.exe ... is 7X slower
         rem   %MOVE_COMMAND% %ARGS%  |&    copy-move-post.py
-             (%MOVE_COMMAND% %ARGS%) |&:u8 copy-move-post.py
+        rem echo (%MOVE_COMMAND% %ARGS%) {PIPE} copy-move-post.py
+                 (%MOVE_COMMAND% %ARGS%) |&:u8  copy-move-post.py
         echos %MV_DECORATOR_OFF%%MOVE_DECORATOR_OFF%
 
 gosub reset_option_variables
@@ -77,3 +83,7 @@ goto :END
                 return
 
 :END
+
+rem Done window title:
+        title %CHECK%Done: mv %*
+

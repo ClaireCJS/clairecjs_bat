@@ -177,7 +177,7 @@ PS8=(tasklist /o /l %1$ |:u8  call 80)
 ;;;;;;;;;;;;; UNIX ALIASES: ;;;;;;;;;;;;;
 
 awk=gawk
-cp=copy/r /g /RTC
+cp=copy/r /g
 ;du handled above
 ;mv handled above
 ps=psl

@@ -80,16 +80,18 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
 
 
         rem Output the filtered output from our captured file for a more meaningful/processed set of output...
-        if     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (
+        iff     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 then
                 color bright blue on black
                 echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
                 echo.
                 echos %@ANSI_RGB[0,205,0]
-                if not exist %GIT_OUT% (goto :NoGitOutToGrep)
+                iff exist %GIT_OUT% then
                     rem piping to cat_fast fixes TCC+WT ansi rendering errors:
-                    (cat %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
-                :NoGitOutToGrep
-        ) 
+                    rem (cat  %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
+                    rem 2024/11/25 change from cat to type                    
+                        (type %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
+                endiff
+        endiff
         
         if exist %GIT_OUT% (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT%>nul)
         call errorlevel "a git error!?! how can this be?!?! Command line was: %0 %*"
