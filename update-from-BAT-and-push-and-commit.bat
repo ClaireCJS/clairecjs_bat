@@ -115,8 +115,8 @@ rem Give a chance to stop here...
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
 rem Make sure they're all added —— any new extensions that we add to our project, need to be added here:
-        call git add BAT-and-UTIL-files\*.HLP  BAT-and-UTIL-files\*.cnt BAT-and-UTIL-files\*.lst BAT-and-UTIL-files\*.gml BAT-and-UTIL-files\*.jpg BAT-and-UTIL-files\*.png BAT-and-UTIL-files\*.lnk  BAT-and-UTIL-files\*.ico 
-        for %%tmpfolder in (BAT-and-UTIL-files BAT-and-UTIL-files-continued-2) do (call git add LICENSE README.md .gitattributes .gitignore %tmpFolder%\*.bat %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl %tmpFolder%\*.py %tmpFolder%\*.exe %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip  %tmpFolder%\*.ansi   %tmpFolder%\*.midi %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat )
+        call git add BAT-and-UTIL-files-1\*.HLP  BAT-and-UTIL-files-1\*.cnt BAT-and-UTIL-files-1\*.lst BAT-and-UTIL-files-1\*.gml BAT-and-UTIL-files-1\*.jpg BAT-and-UTIL-files-1\*.png BAT-and-UTIL-files-1\*.lnk  BAT-and-UTIL-files-1\*.ico 
+        for %%tmpfolder in (BAT-and-UTIL-files-1 BAT-and-UTIL-files-2) do (call git add LICENSE README.md .gitattributes .gitignore %tmpFolder%\*.bat %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl %tmpFolder%\*.py %tmpFolder%\*.exe %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip  %tmpFolder%\*.ansi   %tmpFolder%\*.midi %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat )
 
 rem Commit and Push:
         echo.
