@@ -1,0 +1,4 @@
+@Echo OFF
+
+call spl    %*
+

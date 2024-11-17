@@ -1,0 +1,131 @@
+#!/usr/bin/env perl                                                                                    # Specify the script interpreter
+use strict;                                                                                            # Enforce strict variable declaration rules
+use warnings;                                                                                          # Display warnings for potential errors
+use File::Copy qw(move);                                                                               # Import move() for replacing files
+
+# —————————————————————————————————————————————————————————————————————————————————————————————————————
+# Parse command-line arguments to determine the mode of execution.
+# ——words or -w enables "words mode", which processes exceptions for abbreviations, ellipses, etc.
+# Other options like ——help provide usage information.
+# —————————————————————————————————————————————————————————————————————————————————————————————————————
+
+my $use_words_mode = 0;                                                                                # Default: do not use words mode
+my $filename;                                                                                          # Variable to hold the input file name
+
+foreach my $arg (@ARGV) {                                                                              # Iterate over command-line arguments
+    if ($arg eq '--words' || $arg eq '-w') {                                                           # Check if ——words or -w is passed
+        $use_words_mode = 1;                                                                           # Enable words mode if it was
+    # elsif ($arg =~ /^\-?\-?h$|^\?$|\/\?$|^help$/i) {                                                 # Match common help flags
+    } elsif ($arg =~ /^(\-\-?|\/?)he?l?p?$/i) {                                                        # Match common help flags
+        print <<'USAGE';                                                                               # Print usage instructions and exit
+Usage: perl remove_periods.pl [options] <file>
+Options:
+  --words, -w   Enable advanced mode with exceptions for titles, abbreviations, etc.
+  --help, -h, ?, /?, help
+                Display this help message.
+Description:
+  Default mode:
+    Removes exactly one period from the end of each line, no exceptions.
+  Advanced mode (--words, -w):
+    Preserves periods in common abbreviations (e.g., "Mr.", "Dr.") and ellipses ("...").
+  The script modifies the file inline.
+USAGE
+        exit;                                                                                          # Exit after showing usage information
+    } elsif (!$filename) {                                                                             # Treat the first non-flag argument as the file name
+        $filename = $arg;                                                                              # Set the file name
+    }
+}
+
+# —————————————————————————————————————————————————————————————————————————————————————————————————————
+# Validate the input file.
+# —————————————————————————————————————————————————————————————————————————————————————————————————————
+
+if (!$filename) {                                                                                      # Ensure a file name was provided
+    die "Error: No file specified.\nUse --help for usage instructions.\n";                             # Exit with error if no file is specified
+}
+if (!-e $filename) {                                                                                   # Check if the file exists
+    die "Error: File '$filename' does not exist.\n";                                                   # Exit with error if the file does not exist
+}
+
+# —————————————————————————————————————————————————————————————————————————————————————————————————————
+# Execute the program logic based on the selected mode.
+# If words mode is active, load an exception list and handle advanced cases.
+# Otherwise, perform a simple end-of-line period removal.
+# The modifications are written back to the file inline.
+# —————————————————————————————————————————————————————————————————————————————————————————————————————
+
+open my $in, '<:encoding(UTF-8)', $filename or die "Error: Cannot open '$filename': $!\n";             # Open the file for reading with UTF-8 encoding
+my $tempfile = "$filename.tmp";                                                                        # Temporary file to write modifications
+open my $out, '>:encoding(UTF-8)', $tempfile or die "Error: Cannot create temporary file: $!\n";       # Open the temporary file for writing with UTF-8 encoding
+
+if ($use_words_mode) {                                                                                 # If words mode is enabled
+    # Define a list of common exceptions where periods are preserved                                 
+    my @exceptions = qw(                                                                             
+        Mr Dr Jr Sr Ms Mrs Mx Prof St Fr etc vs v. e.g i.e viz Hon Gen Col Capt Adm Sen              
+        Rev Gov Pres Lt Cmdr Sgt Pvt Maj Ave Blvd Rd Hwy Pk Pl Sq Ln Ct                              
+        Inc Corp Ltd Co LLP Intl Assoc Org Co. Mt Ft    Vol Ch Sec Div Dep Dept                      
+        U.S U.K U.N U.A.E E.U A.T.M I.M.F W.H.O N.A.S.A                                              
+        Ph.D M.D B.A M.A D.D.S J.D D.V.M B.Sc M.B.A B.F.A M.F.A                                      
+        A.D B.C BCE CE C.E B.P T.P R.C A.C a.m p.m A.M P.M                                           
+        St. N.Y. L.A. D.C. Chi. S.F. B.K.                                                            
+        approx esp fig min     std var coeff corr dep est lim val eq dif exp                         
+        opp alt gen rel abs simp conv coeff asym diag geom alg trig calc                             
+        vol chap pg sec ex exs     ref       fig     sup eqn prop cor sol prob                       
+        adj adv     aux cl     conj det exclam intj n. nn np vb prn pron                             
+    );
+#       Mr Dr Jr Sr Ms Mrs Mx Prof St Fr etc vs v. e.g i.e viz Hon Gen Col Capt Adm Sen                # Titles and general abbreviations
+#       Rev Gov Pres Lt Cmdr Sgt Pvt Maj Ave Blvd Rd Hwy Pk Pl Sq Ln Ct                                # Street, road, and location abbreviations
+#       Inc Corp Ltd Co LLP Intl Assoc Org Co. Mt Ft No Vol Ch Sec Div Dep Dept                        # Corporate and geographic terms
+#       Inc Corp Ltd Co LLP Intl Assoc Org Co. Mt Ft    Vol Ch Sec Div Dep Dept                      
+#       U.S U.K U.N U.A.E E.U A.T.M I.M.F W.H.O N.A.S.A                                                # Country and organizational abbreviations
+#       Ph.D M.D B.A M.A D.D.S J.D D.V.M B.Sc M.B.A B.F.A M.F.A                                        # Academic and professional degrees
+#       A.D B.C BCE CE C.E B.P T.P R.C A.C a.m p.m A.M P.M                                             # Historical and time-related terms
+#       St. N.Y. L.A. D.C. Chi. S.F. B.K.                                                              # Common city/state abbreviations
+#       approx esp fig min     std var coeff corr dep est lim val eq dif exp                           # Scientific and statistical abbreviations: removed some
+#       opp alt gen rel abs simp conv coeff asym diag geom alg trig calc                               # Mathematical and geometric terms
+#       vol chap pg sec ex exs     ref       fig     sup eqn prop cor sol prob                         # Book and academic citations: removed some
+#       adj adv     aux cl     conj det exclam intj n. nn np vb prn pron                               # Grammatical and linguistic abbreviations: removed some
+#      #approx esp fig min max std var coeff corr dep est lim val eq dif exp                           # Scientific and statistical abbreviations
+#      #vol chap pg sec ex exs add ref trans fig app sup eqn prop cor sol prob                         # Book and academic citations
+#      #adj adv art aux cl con conj det exclam intj n. nn np vb prn pron pro                           # Grammatical and linguistic abbreviations
+
+
+    my $exceptions_regex = join '|', map { quotemeta } @exceptions;                                    # Build a regex from exceptions, escaping special characters
+
+    # —————————————————————————————————————————————————————————————————————————————————————————————————
+    # Words mode processing loop:
+    # - Preserve ellipses ("...")
+    # - Preserve periods in exceptions
+    # - Remove other end-of-line periods
+    # —————————————————————————————————————————————————————————————————————————————————————————————————
+
+    while (<$in>) {                                                                                    # Read the file line by line
+        chomp;                                                                                         # Remove the newline for safer processing
+        if (/\.\.\.\s*$/) {                                                                            # Check if line ends with ellipses ("...")
+            print $out "$_\n";                                                                         # if so, print the line as-is to the output file
+            next;                                                                                      # and then skip further processing for this line
+        }																						 	   
+        if (/(\b(?:$exceptions_regex))\.\s*$/i) {                                                      # Check if the line ends with a recognized exception ("Ms.")
+            print $out "$_\n";                                                                         # if so, Print the line as-is to the output file
+            next;                                                                                      # and skip further processing for this line
+        }																						 	   
+        s/\.\s*$//;                                                                                    # Remove a single trailing period (and spaces)
+        print $out "$_\n";                                                                             # Print the modified line to the output file
+    }																							 	   
+} else {                                                                                               # Default mode: blind period removal
+    # —————————————————————————————————————————————————————————————————————————————————————————————————
+    # Simple mode processing loop:
+    # - Remove exactly one period from the end of the line
+    # - Does not check for ellipses or exceptions
+    # —————————————————————————————————————————————————————————————————————————————————————————————————
+
+    while (<$in>) {                                                                                    # Read the file line by line
+        chomp;                                                                                         # Remove the newline for safer processing
+        s/\.$//;                                                                                       # Remove exactly one trailing period
+        print $out "$_\n";                                                                             # Print the modified line to the output file
+    }
+}
+
+close $in  or die "Error: Cannot close input file: "     . "$!\n";                                     # Close the input file
+close $out or die "Error: Cannot close temporary file: " . "$!\n";                                     # Close the temporary file
+move $tempfile, $filename or die "Error: Cannot overwrite original file: $!\n";                        # Replace the original file with the temporary file

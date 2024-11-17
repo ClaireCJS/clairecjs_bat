@@ -1,0 +1,1 @@
+@call create-symlinks.bat %*
