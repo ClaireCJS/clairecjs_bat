@@ -58,7 +58,6 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 echo Anaconda
                 %GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% 
             goto :END
-    
 
     :TCC    
         call git-setvars
@@ -78,7 +77,6 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo None!)
         echo.
 
-
         rem Output the filtered output from our captured file for a more meaningful/processed set of output...
         iff     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 then
                 color bright blue on black
@@ -86,10 +84,10 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 echo.
                 echos %@ANSI_RGB[0,205,0]
                 iff exist %GIT_OUT% then
-                    rem piping to cat_fast fixes TCC+WT ansi rendering errors:
-                    rem (cat  %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
-                    rem 2024/11/25 change from cat to type                    
-                        (type %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
+                        rem piping to cat_fast fixes TCC+WT ansi rendering errors:
+                        rem (cat  %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
+                        rem 2024/11/25 change from cat to type                    
+                        ((type %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager') |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
                 endiff
         endiff
         

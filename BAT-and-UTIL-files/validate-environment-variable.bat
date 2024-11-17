@@ -204,8 +204,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                                 goto :skippy
                         endiff                                
                         rem echo 🧟🏻‍♀️ if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"       set IS_FILE_LOCATION=1 >nul
-                        if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"               (set IS_FILE_LOCATION=1) %+ rem if it has "C:" or such drive letter at the beginning
-                        if "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" (set IS_FILE_LOCATION=1) %+ rem if it ends with any file extension of commonly used files
+                        if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"  .or.  "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" (set IS_FILE_LOCATION=1) %+ rem if it ends with any file extension of commonly used files
                         setdos /x0
                 @echo off                        
             endiff                          

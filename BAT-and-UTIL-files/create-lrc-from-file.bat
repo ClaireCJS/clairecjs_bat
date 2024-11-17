@@ -69,8 +69,8 @@ REM validate environment [once]:
         if not defined UnicodeOutputDefault (set UnicodeOutputDefault=no)
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
-                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat
-                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault
+                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl
+                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off
                 @call validate-environment-variables TRANSCRIBER_PDNAME skip_validation_existence
                 @call validate-is-function           randfg_soft
                 @call checkeditor
@@ -668,6 +668,13 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
 REM delete zero-byte LRC files that can be created
         call delete-zero-byte-files *.lrc silent >nul
         call delete-zero-byte-files *.srt silent >nul
+        
+REM Post-process the SRT file:
+rem Remove periods from the end of each line in the SRT, but preserve them if at the end of a common word like "Mr.", "Ms.", or if "...":
+        echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%LRC%italics_off% and %italics_on%SRT%italics_off% files...
+        if exist "%LRC_FILE%" (remove-period-at-ends-of-lines.pl -w "%LRC_FILE%")
+        if exist "%SRT_FILE%" (remove-period-at-ends-of-lines.pl -w "%SRT_FILE%")
+        echo ...%CHECK% %ANSI_COLOR_GREEN%Success%BOLD_ON%!%BOLD_OFF%%ANSI_COLOR_NORMAL%
 
 REM did we create the LRC file?
         call validate-environment-variable EXPECTED_OUTPUT_FILE "expected output file of '%italics%%EXPECTED_OUTPUT_FILE%%italics_off%' does not exist"
@@ -746,12 +753,17 @@ rem Cleanup:
                         ren "%MAYBE_LYRICS_2%" "%NEWNAME%"
                 endiff
         endiff
+        
+
+
 
 rem Success SRT-generation message:
         @call divider
         @call success "Karaoke created at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%"
         title %check% %BASE_TITLE_TEXT% generated successfully! %check% 
         if %SOLELY_BY_AI eq 1 (call warning "ONLY AI WAS USED. Lyrics were not used for prompting" silent)
+
+
 
 rem A chance to edit:
         @echo.

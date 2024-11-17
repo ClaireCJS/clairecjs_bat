@@ -2808,6 +2808,7 @@ rem                     if %array_exists eq 1 .or. "%1" ne "force" (goto :RGB_Ar
         rem Reset the cursor to normal, and possibly ensure our custom pentagram is actually created [bugfix kludge]:
         rem 2024/11/15: set-ansi force definitely fixes the disappearing pentagram issue, but aborting environm.btm mid-way leaves it broken *after*, so whatever is breaking it can and is still fixed by echo'ing our %create_pentagram% string
                 echos %CURSOR_RESET%%CREATE_PENTAGRAM%
+
                     
         rem Reset the window title:
                 title TCC
