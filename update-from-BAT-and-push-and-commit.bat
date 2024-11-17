@@ -103,6 +103,10 @@ rem Update BAT files from live location to github-folder location:
         :Skip_Update
 
 
+rem Update our BAT-1 folder to our BAT-2 folder so get past GitHub's 1,000 file display limit
+        copy /u  BAT-and-UTIL-files\[m-z]* BAT-and-UTIL-files-continued-2
+
+
 rem Give a chance to stop here...
         repeat 2 echo.
         call divider
