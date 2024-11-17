@@ -103,6 +103,10 @@ rem Update BAT files from live location to github-folder location:
         :Skip_Update
 
 
+rem Update our BAT-1 folder to our BAT-2 folder so get past GitHub's 1,000 file display limit
+        copy /u  BAT-and-UTIL-files\[m-z]* BAT-and-UTIL-files-continued-2
+
+
 rem Give a chance to stop here...
         repeat 2 echo.
         call divider
@@ -111,7 +115,7 @@ rem Give a chance to stop here...
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
 rem Make sure they're all added —— any new extensions that we add to our project, need to be added here:
-        call git add LICENSE README.md .gitattributes .gitignore BAT-and-UTIL-files\*.bat BAT-and-UTIL-files\LaunchKey.* BAT-and-UTIL-files\*.HLP BAT-and-UTIL-files\*.cnt BAT-and-UTIL-files\*.btm BAT-and-UTIL-files\*.pl BAT-and-UTIL-files\*.py BAT-and-UTIL-files\*.exe BAT-and-UTIL-files\*.lst BAT-and-UTIL-files\*.ahk BAT-and-UTIL-files\*.ini BAT-and-UTIL-files\*.zip BAT-and-UTIL-files\*.gml BAT-and-UTIL-files\*.ansi BAT-and-UTIL-files\*.jpg BAT-and-UTIL-files\*.png BAT-and-UTIL-files\*.gif BAT-and-UTIL-files\*.midi BAT-and-UTIL-files\*.wav BAT-and-UTIL-files\*.dat BAT-and-UTIL-files\*.dll BAT-and-UTIL-files\*.json BAT-and-UTIL-files\*.lnk BAT-and-UTIL-files\*.ico go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat 
+        for %%tmpfolder in (BAT-and-UTIL-files BAT-and-UTIL-files-continued-2) do call git add LICENSE README.md .gitattributes .gitignore %tmpFolder%\*.bat %tmpFolder%\LaunchKey.* %tmpFolder%\*.HLP %tmpFolder%\*.cnt %tmpFolder%\*.btm %tmpFolder%\*.pl %tmpFolder%\*.py %tmpFolder%\*.exe %tmpFolder%\*.lst %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.gml %tmpFolder%\*.ansi %tmpFolder%\*.jpg %tmpFolder%\*.png %tmpFolder%\*.gif %tmpFolder%\*.midi %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json %tmpFolder%\*.lnk %tmpFolder%\*.ico go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat 
 
 rem Commit and Push:
         echo.
