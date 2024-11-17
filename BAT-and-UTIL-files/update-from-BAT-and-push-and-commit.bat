@@ -115,7 +115,8 @@ rem Give a chance to stop here...
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
 rem Make sure they're all added —— any new extensions that we add to our project, need to be added here:
-        for %%tmpfolder in (BAT-and-UTIL-files BAT-and-UTIL-files-continued-2) do call git add LICENSE README.md .gitattributes .gitignore %tmpFolder%\*.bat %tmpFolder%\LaunchKey.* %tmpFolder%\*.HLP %tmpFolder%\*.cnt %tmpFolder%\*.btm %tmpFolder%\*.pl %tmpFolder%\*.py %tmpFolder%\*.exe %tmpFolder%\*.lst %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.gml %tmpFolder%\*.ansi %tmpFolder%\*.jpg %tmpFolder%\*.png %tmpFolder%\*.gif %tmpFolder%\*.midi %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json %tmpFolder%\*.lnk %tmpFolder%\*.ico go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat 
+        call git add BAT-and-UTIL-files \*.HLP 
+        for %%tmpfolder in (BAT-and-UTIL-files BAT-and-UTIL-files-continued-2) do (call git add LICENSE README.md .gitattributes .gitignore %tmpFolder%\*.bat %tmpFolder%\*.exe %tmpFolder%\*.cnt %tmpFolder%\*.btm %tmpFolder%\*.pl %tmpFolder%\*.py %tmpFolder%\*.exe %tmpFolder%\*.lst %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.gml %tmpFolder%\*.ansi %tmpFolder%\*.jpg %tmpFolder%\*.png  %tmpFolder%\*.midi %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json %tmpFolder%\*.lnk %tmpFolder%\*.ico go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat )
 
 rem Commit and Push:
         echo.
