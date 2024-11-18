@@ -1,1 +1,0 @@
-@call milkdrop3.bat %*

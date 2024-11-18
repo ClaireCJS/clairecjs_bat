@@ -1,1 +1,0 @@
-@call copy-alias %*

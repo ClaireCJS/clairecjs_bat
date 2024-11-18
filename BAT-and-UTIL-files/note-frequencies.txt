@@ -1,1 +1,0 @@
-note-frequencies.dat is a list of values that are the pitch, in Hz, for each key on a piano

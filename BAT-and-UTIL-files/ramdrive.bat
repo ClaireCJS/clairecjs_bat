@@ -1,1 +1,0 @@
-@imdisk.exe %*

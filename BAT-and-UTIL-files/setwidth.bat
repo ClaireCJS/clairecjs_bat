@@ -1,1 +1,0 @@
-set WIDTH=%_XPIXELS
