@@ -1,0 +1,2 @@
+@Echo OFF
+speak %*

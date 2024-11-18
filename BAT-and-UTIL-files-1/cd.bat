@@ -1,0 +1,1 @@
+@call cd-alias.bat %*

@@ -1,0 +1,32 @@
+
+                           ANSI->HTML (ans2html.exe)
+                              by Claire Jane Sawyer 1995ish
+
+USAGE:  ans2html <infile >outfile
+
+PURPOSE:  To convert ANSI color changes (but not animation) to an HTML-compatible color scheme.
+
+SIDE-EFFECTS:  Also converts most high ASCII to an appropriate HTML equivalent.
+
+POSTPROCESSING:  Search for "ERROR!".  If found, remove that tag.
+                 Also, many times it changes to a color then immediately
+                 changes to another.  These extraneous tags can also be
+                 removed if you are so inclined.  I definitely could have
+                 programmed this a LOT better.
+
+COPYRIGHT:  Don't sell my program.  But feel free to fix up the code and mail
+            it back to me.  I'll give you credit and put the new version up
+            in its place.
+
+COMMENTS:  I do not claim for the code to be elegant.  It produces HTML source
+           that is over twice the size of the ANSI using many unneccesary tags.
+           It also doesn't work 100% of the time.  But it at least gets most
+           of the job done, and I needed to convert 800k of ANSI at the time
+           I wrote this program.
+
+COMPILER:  Turbo C 3.0, DOS (had 3 warnings when last compiled)
+
+Converted to 64-bit EXE using MSDOS-Player in 2023.
+
+
+

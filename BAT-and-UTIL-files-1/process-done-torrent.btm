@@ -1,0 +1,374 @@
+@Echo Off
+
+
+
+
+
+::::: DOCUMENTATION:
+    rem PASTE THIS INTO UTORRENT CLIENT: c:\tcmd\tcc.exe C:\bat\process-done-torrent.btm "%F" "%D" "%N" "%P" "%L" "%T" "%M" "%S" %K "%I"
+
+
+
+::::: MOVE TO CORRECT MONITOR:
+    if "%MACHINENAME%" eq "DEMONA" (call move-current-TCC-window-to-top-left-screen.bat)
+
+
+::::: CONFIGURATION:
+    SET TARGETDIR=%DROPDIR%\oh
+    if "%MACHINENAME%" eq "GOLIATH" (set TARGETDIR=%TORRENT_GOLIATH%\oh)
+    if "%MACHINENAME%" eq "THAILOG" (call validate-environment-variable DROPDIR    )
+    if "%MACHINENAME%" eq "THAILOG" (set                     TARGETDIR=%DROPDIR%\oh %+ if not exist "%TARGETDIR%" mkdir /s "%TARGETDIR%")
+    call validate-environment-variable TARGETDIR
+
+
+::::: ENVIRONMENT VALIDATION:
+    call validate-environment-variable FILEMASK_VIDEO
+
+
+::::: UTORRENT INTEGRATION / SAVING OUR COMMAND:
+SET HOWABOUTTHIS=%0 %*
+%COLOR_LOGGING%
+echo UTORRENT CALL: %HOWABOUTTHIS%
+SET  CALL="%COMSPEC%" C:\bat\process-done-torrent.btm "%F" "%D" "%N" "%P" "%L" "%T" "%M" "%S" %K "%I"
+if "%RERUN%"=="" SET RERUN="%COMSPEC%" C:\bat\process-done-torrent.btm  %F"  %D   %N   %P   %L   %T   %M   %S  %K  %I 
+%COLOR_DEBUG%
+ECHO CALL  = %CALL%
+ECHO RERUN = %RERUN%
+%COLOR_ADVICE%
+echo use %%RERUN%% to re-run but it won't work
+
+
+
+::::: 
+::::: You can use the following parameters:
+::::: 
+:::::      %F - Name of downloaded file (for single file torrents)
+:::::      %D - Directory where files are saved
+:::::      %N - Title of torrent
+:::::      %P - Previous state of torrent
+:::::      %L - Label
+:::::      %T - Tracker
+:::::      %M - Status message string (same as status column)
+:::::      %I - hex encoded info-hash
+:::::      %S - State of torrent
+:::::      %K - kind of torrent (single|multi)
+::::: 
+::::: ...Where State is one of: Error - 1 Checked - 2 Paused - 3 Super seeding - 4 Seeding - 5 Downloading - 6 Super seed [F] - 7 Seeding [F] - 8 Downloading [F] - 9 Queued seed - 10 Finished - 11 Queued - 12 Stopped - 13
+
+
+SET F=%1
+SET D=%2
+SET N=%3
+SET P=%4
+SET L=%5
+SET T=%6
+SET M=%7
+SET S=%8
+SET K=%9
+:Not gonna bother with I
+:ET I=%10%
+title * %N%
+
+%COLOR_DEBUG%
+echo received %%F of %F - Name of downloaded file (for single file torrents)
+echo received %%D of %D - Directory where files are saved
+echo received %%N of %N - Title of torrent
+echo received %%P of %P - Previous state of torrent
+echo received %%L of %L - Label
+echo received %%T of %T - Tracker
+echo received %%M of %M - Status message string (same as status column)
+:we do not get this one: cho received %%I of %I - hex encoded info-hash
+echo received %%S of %S - State of torrent
+echo received %%K of %K - kind of torrent (single or multi)
+%COLOR_WARNING%
+    echo %%_CWD is %_CWD
+%COLOR_NORMAL%
+echo.
+echo.
+echo.
+echo.
+echo.
+echo.
+echo.
+echo.
+echo.
+echo.
+echo.
+echo.
+echo.
+echo.
+echo.
+:echo Temporarily, we will pause here, so we can hit any key to see the action happen:
+
+
+
+
+
+:::::: Figure out if it is a single-file or multi-file torrent:
+:RedeterminationOfSingleOrMulti
+if "%K%"=="multi"  goto :ProcessMulti
+if "%K%"=="single" goto :ProcessSingle
+%COLOR_ALARM%  %+ echos ERROR! %%K must equal "multi" or "single", but it does not. 
+%COLOR_NORMAL% %+ echo.
+if "%K%"=="" set K=multi
+%COLOR_INPUT%  %+ eset K
+%CoLOR_NORMAL%
+goto :RedeterminationOfSingleOrMulti
+
+
+
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:ProcessSingle
+    %COLOR_IMPORTANT% %+ echo. %+ echo ***** Processing single-file torrent...
+    %COLOR_NORMAL%
+		:gosub editthisscript
+
+	:Change to incoming folder
+        %D\
+        if "%MACHINENAME%" eq "THAILOG" (K:  %+ %D\)
+		if "%MACHINENAME%" eq "FIRE"    (U:  %+ %D\)
+
+	%COLOR_DEBUG% %+ echo CWD=%_CWD %+ %COLOR_NORMAL%
+
+	set EXTENSION=%@EXT[%N]
+		%COLOR_DEBUG% %+ echo * EXTENSION=%EXTENSION% %+ %COLOR_NORMAL%
+	if not isdir %TARGETDIR% md %TARGETDIR%
+		if "%EXTENSION%" eq "cbr" set TARGETDIR=%TARGETDIR%\COMICS
+		if "%EXTENSION%" eq "cbz" set TARGETDIR=%TARGETDIR%\COMICS
+		if "%EXTENSION%" eq "apk" set TARGETDIR=%TARGETDIR%\APK
+	if not isdir %TARGETDIR% (md %TARGETDIR%)
+
+	:echo r | cp    %N %TARGETDIR%
+	 echo r | cp /r %F %TARGETDIR%
+            %COLOR_WARNING% %+ echo. %+ echo ...Did it copy?
+            %COLOR_NORMAL%  %+ echo.
+goto :END
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:ProcessMulti
+    %COLOR_IMPORTANT% %+ echo. %+ echo ***** Processing multi-file torrent...
+    %COLOR_NORMAL%
+    :Change to incoming folder
+	U:
+	if not isdir %D (%COLOR_ALARM% %+ echos * ERROR: folder of %D does not exist! %+ echo This may be because you've unselected all files on a brand-new torrent. %+ %COLOR_NORMAL% %+ pause )
+	%D\
+    %COLOR_DEBUG% %+ echo * CWD=%_CWD
+	:pause
+	set    THISDIR=%@STRIP[%=",%~n]
+	echo * THISDIR=%THISDIR%
+
+	echo * Total file size: %@filesize["*"]
+	if   %@filesize["*"] gt 100000000 echo more than 100M
+	if   %@filesize["*"] lt 100000000 echo less than 100M
+    %COLOR_NORMAL%
+	dir /s
+
+
+::::: Branch for dvds:
+	set ISDVD=0
+	if isdir VIDEO_TS     set ISDVD=1
+	if exist VIDEO_TS.VOB set ISDVD=1
+	%COLOR_DEBUG% %+ echo ISDVD=%ISDVD% %+ %COLOR_NORMAL%
+	if "%ISDVD%"=="1" goto :ProcessDVD
+
+::::: Branch for Android apps:
+	set ISANDROID=0
+	sweep if exist *.apk set ISANDROID=1
+	%COLOR_DEBUG% %+ echo ISANDROID=%ISANDROID% %+ %COLOR_NORMAL%
+	if "%ISANDROID%"=="1" goto :ProcessAndroid
+
+::::: Branch for comics:
+	set ISCOMICS=0
+	sweep if exist *.cbr  set ISCOMICS=1
+	sweep if exist *.cbz  set ISCOMICS=1
+	%COLOR_DEBUG% %+ echo ISCOMICS=%ISCOMICS% %+ %COLOR_NORMAL%
+	if "%ISCOMICS%"=="1" goto :ProcessComics
+
+::::: Branch for music:
+	sweep if exist *.flac set ISMUSIC=1
+	sweep if exist *.mp3  set ISMUSIC=1
+	      if exist *.wav  set ISMUSIC=1
+	%COLOR_DEBUG% %+ echo ISMUSIC=%ISMUSIC% %+ %COLOR_NORMAL%
+	if "%ISMUSIC%"=="1" goto :ProcessMusic
+
+
+::::: Files with names like "README.txt" that really need to be renamed 
+	:Gosub ProcessShittyFileNames    eve.nfo
+	:Gosub ProcessShittyFileNames    nfo.nfo
+	 Gosub ProcessShittyFileNames      *.nfo
+	 Gosub ProcessShittyFileNames README.txt
+
+
+::::: Uncompress things, if need be:
+	global /q if exist *.rar         call rar  x    *      %TARGETDIR%
+	global /q if exist *.001         call rar  x    *.001  %TARGETDIR%
+	global /q if exist *.zip         wzunzip  -d -e *.zip  %TARGETDIR%
+	global /q if isdir  subs (echo a|call rar  x    subs\* %TARGETDIR%)
+
+
+::::: Branch for Android apps a 2nd time, in case they weren't detectable before, because the APK was on in a RAR:
+	set ISANDROID=0
+	if exist *.apk set ISANDROID=1
+	%COLOR_DEBUG% %+ echo ISANDROID=%ISANDROID% %+ %COLOR_NORMAL%
+	if "%ISANDROID%"=="1" goto :ProcessAndroid
+
+::::: Or just copy things, if need be:
+::	gosub JustCopyIt *.mp4
+::	gosub JustCopyIt *.mkv
+::	gosub JustCopyIt *.m4v
+::	gosub JustCopyIt *.avi
+::	gosub JustCopyIt *.wmv
+::	gosub JustCopyIt *.apk
+::	gosub JustCopyIt *.txt
+::	gosub JustCopyIt *.nfo
+::	gosub JustCopyIt *.srt
+::	gosub JustCopyIt *.idx
+:   gosub JustCopyIt %FILEMASK_VIDEO%
+:   gosub JustCopyIt %FILEMASK_IMAGE%
+:   gosub JustCopyIt %FILEMASK_TEXT%
+    for %1 in (%@replace[*, ,%@replace[;, ,%filemask_text%]])  gosub JustCopyIt *%1
+    for %1 in (%@replace[*, ,%@replace[;, ,%filemask_image%]]) gosub JustCopyIt *%1
+    for %1 in (%@replace[*, ,%@replace[;, ,%filemask_video%]]) gosub JustCopyIt *%1
+
+goto :END
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:ProcessMusic
+	color bright red on black
+	%COLOR_IMPORTANT% %+ echo *** This is music! %+ %COLOR_NORMAL%
+	color white on black
+	SET           TARGETREPO=%TARGETDIR%\music\
+	if not isdir %TARGETREPO% md %TARGETREPO%
+	set  MUSICTARGET=%TARGETREPO%\%THISDIR%.%@EXT[%shittyFileName]
+	%COLOR_DEBUG% %+ echo MUSICTARGET [0] is %MUSICTARGET%+ %COLOR_NORMAL%
+	if %@FILES[*.flac,/s] ge %@FILES[*.mp3,/s] goto :Flac
+	                                           goto :MP3
+		:Flac
+			set  MUSICTARGET=%@REPLACE[.flac,,%@REPLACE[(flac),,%MUSICTARGET%]] %+ %COLOR_DEBUG% %+ echo MUSICTARGET [1] is %MUSICTARGET%+ %COLOR_NORMAL%
+			set  MUSICTARGET=%@REPLACE[..flac,.flac,%MUSICTARGET%]              %+ %COLOR_DEBUG% %+ echo MUSICTARGET [2] is %MUSICTARGET%+ %COLOR_NORMAL%
+			set  MUSICTARGET=%@REPLACE[ - ,\,%MUSICTARGET%]                     %+ %COLOR_DEBUG% %+ echo MUSICTARGET [3] is %MUSICTARGET%+ %COLOR_NORMAL%
+			set  MUSICTARGET=%MUSICTARGET%.flac                                 %+ %COLOR_DEBUG% %+ echo MUSICTARGET [4] is %MUSICTARGET%+ %COLOR_NORMAL%
+		:MP3
+:	gosub EditThisScript
+	%COLOR_NORMAL%    %+ echo. %+ echo.
+    %COLOR_IMPORTANT% %+ echo About to copy this folder to %MUSICTARGET%, but you can change the name here.
+    %COLOR_PROMPT%    %+ eset MUSICTARGET
+    %COLOR_NORMAL%    %+ mkdir   /s       "%MUSICTARGET%"
+    %COLOR_SUCCESS%   %+ copy /g /s /a: . "%MUSICTARGET%"	
+    %COLOR_ADVICE%    %+ echo The main thing will be - double-check that it was copied to prevent false sense of security
+goto :END
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:ProcessDVD
+	%COLOR_DEBUG% %+ echo *** This is a dvd! %+ %COLOR_NORMAL%
+	set  TARGET=%TARGETDIR%\DVDs
+	%COLOR_DEBUG% %+ echo target=%TARGET %+ %COLOR_NORMAL%
+	:pause
+	gosub CopyTheWholeFolder
+goto :END
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:ProcessAndroid
+	%COLOR_DEBUG% %+ echo *** This is Android software! %+ %COLOR_NORMAL%
+	set  TARGET=%TARGETDIR%\APK
+	if not isdir %TARGET% md %TARGET%
+	gosub CopyTheWholeFolder
+goto :END
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:ProcessComics
+	%COLOR_DEBUG% %+ echo *** This is comics!                  %+ %COLOR_NORMAL%
+	set  TARGET=%TARGETDIR%\COMICS
+	%COLOR_DEBUG% %+ echo if not isdir %TARGET% (md %TARGET%)  %+ %COLOR_NORMAL%
+	                      if not isdir %TARGET% (md %TARGET%)
+	gosub CopyTheWholeFolder
+goto :END
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::
+:CopyTheWholeFolder
+	%COLOR_DEBUG% %+ echo * CWD     = %CWD %+ %COLOR_NORMAL%
+	%COLOR_DEBUG% %+ echo * TARGET  = %TARGET% %+ %COLOR_NORMAL%
+	%COLOR_DEBUG% %+ ECHO * THISDIR = %THISDIR% %+ %COLOR_NORMAL%
+	if not isdir %TARGET md %TARGET
+	%COLOR_DEBUG% %+ echo * copy /g /s /r . "%TARGET\%THISDIR%" %+ %COLOR_NORMAL%
+	               echo r | copy /g /s /r . "%TARGET\%THISDIR%"
+return
+::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:EditThisScript
+	%EDITOR% %BAT\process-done-torrent.btm
+return
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+::::::::::::::::::::::::::::::::
+:JustCopyIt [it]
+	      set TARGET=%TARGETDIR%
+	      :OLD: if exist %it% cp %it% %TARGETDIR%
+          %COLOR_SUCCESS%
+          if exist %it% (echo r | copy /a: /e /h /r /g %it% %TARGETDIR%)
+          %COLOR_NORMAL%
+return
+::::::::::::::::::::::::::::::::
+
+
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:ProcessShittyFileNames [shittyFileName]
+                      set TEMP_TARGET="%@UNQUOTE[%TARGETDIR%\%THISDIR%.%@EXT[%shittyFileName]]"
+    %COLOR_DEBUG%  %+ echo ****** ProcessShittyFileNames %shittyFileName%
+    %COLOR_DEBUG%  %+ echo *      temp_target=%TEMP_TARGET% // thisdir=%thisdir%
+    %COLOR_DEBUG%  %+ echo * if exist %shittyFileName% (if not exist %TEMP_TARGET% (echo r copy /g /r %shittyFileName% %TEMP_TARGET%))
+    %COLOR_NORMAL% %+	     if exist %shittyFileName% (if not exist %TEMP_TARGET% (echo r|copy /g /r %shittyFileName% %TEMP_TARGET%))
+return
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+:END
+:CLEANUP
+
+:Minimize window:
+:: let's not do this anymore window /min
+:Pause at the very end...
+echo.
+echo.
+
+
+
+		:FinalCheckBegin
+		    if "%K%"=="multi" goto :MultiFinalCheck
+				      goto :SingleFinalCheck
+
+			    :MultiFinalCheck
+                    %COLOR_WARNING% %+ echo * Hit a key to check for anything that may have been missed...        %+ pause>nul
+                    %COLOR_NORMAL%  %+ dir /p %+ %COLOR_WARNING% %+ echo * Hit a key to look in the target dir... %+ pause>nul
+                    %COLOR_NORMAL%  %+ dir /p %TARGETDIR%                                                         %+ pause>nul
+			    goto :FinalCheckDone
+
+			    :SingleFinalCheck
+                    pause
+			    goto :FinalCheckDone
+		:FinalCheckDone
+
+
+
+:THE_VERY_END
+	title .
+    call inc
+    if isdir oh (cd oh)
+
+:CleanOutEnvironmentVariablesNoLongerNeeded
+	unset /q ISANDROID
+	unset /q ISMUSIC
+	unset /q ISDVD
+	unset /q THISDIR
+	unset /q TARGET
+	unset /q TARGETREPO
