@@ -1,0 +1,1 @@
+@call bigecho DNS: %_IPDNSSERVER %_IPDNSOTHER

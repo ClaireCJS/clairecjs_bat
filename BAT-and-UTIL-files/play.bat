@@ -1,0 +1,1 @@
+@call winamp-play %*

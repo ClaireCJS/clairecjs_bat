@@ -1,0 +1,1 @@
+@call reset-cursor %*

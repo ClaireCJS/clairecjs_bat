@@ -1,0 +1,1 @@
+@cut -c1-%@EVAL[%_COLUMNS - 1]

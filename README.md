@@ -30,29 +30,38 @@ The abridged instructions are: Install TCC, run *clairevironment-install.bat*, a
 
 But here are the proper instructions:
 
-1. Download TCC (Take Command command-line) from [http://www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of ```c:\TCMD\```. DON'T run it just yet.
 
-
-1. Open TCC (```c:\TCMD\tcc.exe```). Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/clairevironment-install.bat), and run (double-click) it.  Follow its instructions and pay close attention.
-
-1. Add TCC to Windows Terminal and Run it: 
-    Open up *Windows Terminal*, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click *Add new profile*. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to "TCC", the command line to ```c:\tcmd\tcc.exe```, the starting directory to ```c:\tcmd```, and *Run As Administrator* turned on. Go into ```Appearance``` and change the font to *Cascadia Code*, which has the proper [ligature rendering](https://github.com/microsoft/cascadia-code#font-features) that I sometimes take advantage of cosmetically.
-    Now run it.
-
-1. At your freshly-run TCC command-line, type ```option```, and switch to the *"Advanced"* tab.  In the upper-left is a section called *"Special Characters"*.  Change the separator to "^" (the [caret character](https://en.wikipedia.org/wiki/Caret)). 
-    This is actually a deviation from how most people do things, due to the isolation of learning this command-line in the 1980s and 1990s. It creates complications that I've mostly mitigated—but not completely. Any mitigations I missed will cause failures unless you do this.
 
 1. Run (Windows-R) ```PowerShell``` and type in the following 2 commands:```
         Set-ExecutionPolicy -ExecutionPolicy Bypass
 	Add-AppxPackage -Path "https://aka.ms/getwinget"```
 	The first command allows for better TCC<->PowerShell integration (particularly for my [display bluetooth battery levels](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/display-bluetooth-battery-levels.ps1) script)
-	The second command installs winget, which is used to automate most other installation.
+	The second  command installs winget, which is used to automate most other installation.
+
+1. Install TCC: The automatic way:  Simply run: ```winget install JPSoft.tcmd```
+
+1. Install TCC: The manual way: 
+   Download TCC (Take Command command-line) from [http://www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of ```c:\TCMD\```. DON'T run it just yet.  
+
+1. Install TCC: Another way:
+   As above, but download with ```curl```:
+```
+curl.exe -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0" -O https://jpsoft.com/downloads/v33/tcmd.exe
+```
+
+1. Open TCC (```c:\TCMD\tcc.exe```). Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/clairevironment-install.bat), and run it inside of TCC.  Follow its instructions and pay close close close attention. You may have to abort it and fix things along the way. This part hasn't been tested.
+
+1. Add TCC to Windows Terminal and Run it: 
+    Open up *Windows Terminal*, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click *Add new profile*. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to "TCC", the command line to ```c:\tcmd\tcc.exe```, the starting directory to ```c:\tcmd```, and *Run As Administrator* turned on. Go into ```Appearance``` and change the font to *Cascadia Code*, which has the proper [ligature rendering](https://github.com/microsoft/cascadia-code#font-features) that I sometimes take advantage of cosmetically.
+    Now run it.
+    A good test for if things worked is typing ```echo %PENTAGRAM%```. Do you see a pentagram character?  If not, you can always try copying my [windows terminal settings file](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json) into your *Windows Terminal* folder.
+
+1. At your freshly-run TCC command-line, type ```option```, and switch to the *"Advanced"* tab.  In the upper-left is a section called *"Special Characters"*.  Change the separator to "^" (the [caret character](https://en.wikipedia.org/wiki/Caret)). 
+    This is actually a deviation from how most people do things, due to the isolation of learning this command-line in the 1980s and 1990s. It creates complications that I've mostly mitigated—but not completely. Any mitigations I missed will cause failures unless you do this.
+
 
 # At this point, everything is installed!!! 
 ### The only problems you have at this point should be mostly-false error messages related to configuration.
-
-A good test for if things worked is typing ```echo %PENTAGRAM%```. Do you see a pentagram character?  If not, you can always try copying my [windows terminal settings file](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json) into your *Windows Terminal* folder.
-
 
 1. To deal with mostly-false error messages, and to get our extra functionality working, you will need to edit ```c:\bat\environm.btm```. The goal is for it to produce *no* output when it runs. This is where E-V-E-R-Y-T-H-I-N-G is managed (a bit like unix .init/.rc files on steroids).<BR>
 	Examples of some things defined in this central script are harddrive variables to eradicate hard-coded paths, drive-to-machine mappings to make every harddrive in the house/lan accessible to every other computer in the house/lan, repository locations for validating and backing up all your various collections. <BR>

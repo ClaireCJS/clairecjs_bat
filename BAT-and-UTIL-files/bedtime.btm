@@ -1,0 +1,215 @@
+@Echo OFF
+
+
+rem        Bedtime-maintainance script!
+rem
+rem  1) Index video 100% of the time —— or 10% of the time
+rem  2) Index music 100% of the time —— or on Sun/Mon/Fri
+rem  3) Moves files through workflows
+rem  4) Runs backups
+rem  5) Makes lots of manual bedtime reminders
+rem  6) sets us up to run morning.bat with a keystroke
+rem
+rem
+
+
+
+::::: CONFIGURATION:
+    set INDEX_VIDEO=0           %+ rem       0=Run index-video on 10% of nights ———————————————————— 1=Run index-video on 100% of nights
+    set INDEX_MUSIC=2           %+ rem       0=never, 1=on Sundays/Mondays/Fridays, 2=always ——————— depends on where I am with music listening habits
+
+
+
+::::: START-UP:
+	set NOPAUSE=1
+	set NOEXITAFTER=1
+	timer /3 on
+    call asleep
+
+
+::::: MAKE SURE WE'RE WILLING AND ABLE:
+	call checkmappings once nopause
+	call checkpassword.bat
+	:echo Are you sure you're actually going to go to bed?
+	:echo I will be re-index mp3s and running backup-stuff, among other things.
+	:echo.
+	:echo Hit Ctrl-Break to abort.
+	:pause
+	:pause
+
+
+::::: PHYSICAL CONSIDERATIONS FIRST:
+    call blon      %+ REM  Turn blacklights on
+    %COLOR_PROMPT% %+ echo Stereo turned down to a reasonable level (~28)??? %+ pause
+	if "%_MONTH%" eq  "1" .or. "%_MONTH%" eq  "2" goto :Physical_Winter_YES
+	if "%_MONTH%" eq "11" .or. "%_MONTH%" eq "12" goto :Physical_Winter_YES
+	                                              goto :Physical_Winter_NO
+            :Physical_Winter_YES
+                %COLOR_IMPORTANT% %+ echos * It is a cold month: ``
+                %COLOR_ADVICE%    %+  echo Set temperature to no more than 67 if big-room is closed, ``
+                %COLOR_WARNING%   %+  echo   or heat will runaway all night.                 %+ pause
+            	%COLOR_PROMPT%    %+  echo Infrared heater set well????????????????????????? %+ pause
+            :Physical_Winter_NO
+
+	%COLOR_PROMPT% %+ echo Is the mouse with the bright lifhts left upside-down??????????????????????????? %+ pause
+
+::::: SAVE WINDOW POSITIONS:
+    call save-window-positions 
+    call sayspeak Screens off now!
+
+::::: KEEP MUSIC ON:
+	call get-winamp-state
+	if "%MUSICSTATE%" eq "PLAYING" goto :MusicState_PLAYING
+	                               goto :MusicState_Default
+		:MusicState_Default
+			call unpause
+			call next
+		:MusicState_PLAYING
+
+
+
+::::: TURN OFF AMBILIGHT & LIGHTS:
+	:: blacklight turnon:
+		call a6 on
+		:all a6 on
+
+	:: ambilight turnoff:
+		call aoff
+
+	:: x-10 lights turnoff:
+        set NO6=1
+            call loff no6
+        set NO6=0
+
+	:: watch.bat relies on this being accurately set to control lights properly:
+		set TVLIGHTING=0
+
+    :: advice
+        %COLOR_ADVICE% %+ echo * Blacklights really should be on right now.
+        %COLOR_NORMAL% %+ sleep 5
+
+::::: SOFT-TURNOFF MONITORS:
+    call moff
+
+::::: GIVE TIME TO GET TO BED, THEN TURN BLACKLIGHTS OFF:
+    call a6 on
+    sleep 5
+    call b7 off
+    call a3 off
+    call a4 off
+    %color_important% %+ echo * Waiting 2 minutes... %+ %color_normal%
+    sleep 120
+    call bloff
+    call bloff
+    call  loff
+    call  loff
+    call b7 off
+
+
+::::: BACKUP/SYNC THINGS:
+	call sync-dropbox.bat NOPAUSE
+	call sync-perl-libraries nopause
+	call bat.bat  %+ call dist full nopause
+	call util.bat %+ call dist full nopause
+
+
+::::: KEEP ANOTHER REDUNDANT BACKUP OF OUR BAT FILES:
+	:NAH LET'S NOT DO THIS call wzzip -r -p -u %WWWCL\private\bat.zip %BAT\*.*
+
+::::: OLD CAROLYN STUFF:
+	:Carolyn puts stuff for review in i:\zz\f-r that needs to go to review area
+	:not anymore! call izr.bat
+
+::::: INDEX MUSIC BEFORE/AFTER WORK-WEEK:
+	if "%INDEX_MUSIC%" eq   0   goto :IndexMP3_NO
+	if "%INDEX_MUSIC%" eq   2   goto :IndexMP3_YES
+    if "%_DOW"         eq "Sun" goto :IndexMP3_YES
+    if "%_DOW"         eq "Mon" goto :IndexMP3_YES
+    if "%_DOW"         eq "Fri" goto :IndexMP3_YES
+        :IndexMP3_YES
+			%COLOR_IMPORTANT% %+ echo Waiting 5 minutes before indexing music... %+ call sleep 300
+			%COLOR_IMPORTANT% %+ echo Starting to index music...  %+ %COLOR_RUN% %+ call index-mp3
+			%COLOR_IMPORTANT% %+ echo Waiting 30 minutes after indexing music... %+ call sleep 1800
+        :IndexMP3_NO
+
+
+
+::: ::::: UPLOAD FRESHLY GENERATED PLAYLISTS: ---- stopped doing this because \DROPBOX\MEDIA\MP3\PLAYLISTS\ is the new place for this type of stuff.
+	::: call upload-mp3-playlists.bat
+	::: :Not necessary because upload-mp3-playlists does this:
+	::: :echo Synchronizing personal webpage...
+	::: :call auto-ftp.btm nopause
+
+
+::::: MOVE FILES AROUND AS NEEDED:
+    %COLOR_REMOVAL%
+    call asleep
+	:AssimilateBurnedCDStuff
+		call rtd.bat
+		echo ryryryryryryryryryryryryryryryryryryryryryryryryry | call assimilate.bat nopause
+	:GrabIncomingStuff 
+		:don't do this now, it's a more interactive process now
+		:call inc
+		:cd oh
+		:cho ryryryryryryryryryryryryryryryryryryryryryryryryry | call r *
+	:MoveFreshlyReviewedStuff
+		echo ryryryryryryryryryryryryryryryryryryryryryryryryry | call fra.bat
+	:AssimilateThings
+        gosub MaybeRunAssimilateIn %HD10T1%:\MEDIA\MOVIES
+        gosub MaybeRunAssimilateIn %HD10T2%:\MEDIA\MOVIES
+        gosub MaybeRunAssimilateIn %HD18T1%:\MEDIA\MOVIES
+        gosub MaybeRunAssimilateIn %HD4000G6:\MEDIA\MOVIES
+
+
+
+::::: INDEX OUR VIDEO REPOSITORIES:
+    if "%INDEX_VIDEO%" eq "0" .and. %@RANDOM[1,10] gt 1 goto :NoIndexVideo
+        %COLOR_IMPORTANT% %+ echo Starting to index video...
+        %COLOR_RUN%       %+ call index-video-helper.bat nopause
+        :echo Waiting 10 minutes...
+        :call sleep 600
+    :NoIndexVideo
+
+
+::::: RUN BACKUPS:
+	:backups:
+		%COLOR_IMPORTANT% %+ echo Backing up DELETE-AFTER-WATCHING...              %+ call backup-delete_after_watching
+		rem OR_IMPORTANT% %+ echo Backing up important files (backup-stuff.bat)... %+ call backup-stuff
+		REM OR_IMPORTANT% %+ echo Backing up important files (backup-stuff.bat)... %+ call backup-important-files
+		rem OR_IMPORTANT% %+ echo Starting Karen's Replicator...                   %+ call replicate
+		%COLOR_IMPORTANT% %+ echo Running full backups (backups.bat)...            %+ start BACKUPS.bat
+
+goto :END
+
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+            ::::::::::::::::::::::::::::::::::::::::::::::::::
+            :MaybeRunAssimilateIn [source]
+                if not isdir %SOURCE% return
+                %SOURCE%\
+                if exist assimilate.bat call assimilate.bat
+            return
+            ::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+:END
+
+	unset /q NOPAUSE
+	unset /q NOEXITAFTER
+	call fix-window-title
+        echo.
+        echo.
+        echo.
+    window restore
+    cls
+
+
+::::: WE'LL PROBABLY WAKE UP AFTER GOING TO BED, SO LET'S REDUCE THAT PROCESS TO A FEW KEYSTROKES:
+    echo.  %+ echo .       %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo.
+    window maximize        %+ REM try to leave this window on top of whatever mess is created when screens turn off and are disappeared from windows
+    %COLOR_IMPORTANT_LESS% %+ echo. %+ call qd %+ echo.
+    %COLOR_SUCCESS%        %+ echo *** BEDTIME SCRIPT DONE! ***   %+ echo. %+ echo. %+ pause 
+    %COLOR_IMPORTANT%      %+ timer /3 off    %+ REM how long did we sleep?
+    %COLOR_WARNING%        %+ echo * About to set SLEEPING=0....  %+ pause %+ call awake
+    %COLOR_WARNING%        %+ echo * About to run morning.bat, but ensure DisplayPort screens are turned on first!!...  %+ pause %+ call morning
+
+
