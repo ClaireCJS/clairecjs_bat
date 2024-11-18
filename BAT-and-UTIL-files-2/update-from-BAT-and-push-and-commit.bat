@@ -14,6 +14,8 @@ REM     my local GIT repo beore uploading to GitHub. This script does that.
 
 
 rem CONFIGURATION:
+        set TARGET_MAIN=BAT-and-UTIL-files-1
+        set TARGET_2=BAT-and-UTIL-files-2
         set COMMIT_CONFIRMATION_WAIT_TIME=10
 
         SET MANIFEST_FILES=NONE
@@ -78,33 +80,32 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #2 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
         set                                    COPY=*copy /u /q
         set                                  COPY_S=*copy /u /q /s
-        set                                  TARGET=BAT-and-UTIL-files
-        %copy%    %TCMD_ALIASES%              %TARGET%\alias.lst
-        %copy%    %TCMD_INI%                  %TARGET%\tcmd.ini
-        %copy%    %GIRDER_CONFIGURATION%      %TARGET%\girder.gml
-        %copy%    %TCMD_START_SCRIPT%         %TARGET%\tcstart.bat
-        %copy%    %PRIMARY_AUTOEXEC_BAT%      %TARGET%\autoexec.btm
-        %copy%    %COLORTOOL_EXE%             %TARGET%\ColorTool.exe
-        %copy%    %WINAMP_SETUP_NOTES%        %TARGET%\winamp-setup-notes.txt
-        %copy%    %PERL_SITELIB_ZIP%          %TARGET%\perl-sitelib-Clio.zip
-        %copy%    %AUDIO_PROCESSING_NOTES%   "%TARGET%\notes - audio processing.txt"
-        %copy%   "%WINDOWS_TERMINAL_SETTINGS" %TARGET%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
-        %copy_S%  %DIVIDERS_FOLDER%           %TARGET%\dividers
-        %copy_S%  %SAMPLES_FOLDER%            %TARGET%\samples
+        %copy%    %TCMD_ALIASES%              %TARGET_MAIN%\alias.lst
+        %copy%    %TCMD_INI%                  %TARGET_MAIN%\tcmd.ini
+        %copy%    %GIRDER_CONFIGURATION%      %TARGET_MAIN%\girder.gml
+        %copy%    %TCMD_START_SCRIPT%         %TARGET_MAIN%\tcstart.bat
+        %copy%    %PRIMARY_AUTOEXEC_BAT%      %TARGET_MAIN%\autoexec.btm
+        %copy%    %COLORTOOL_EXE%             %TARGET_MAIN%\ColorTool.exe
+        %copy%    %WINAMP_SETUP_NOTES%        %TARGET_MAIN%\winamp-setup-notes.txt
+        %copy%    %PERL_SITELIB_ZIP%          %TARGET_MAIN%\perl-sitelib-Clio.zip
+        %copy%    %AUDIO_PROCESSING_NOTES%   "%TARGET_MAIN%\notes - audio processing.txt"
+        %copy%   "%WINDOWS_TERMINAL_SETTINGS" %TARGET_MAIN%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
+        %copy_S%  %DIVIDERS_FOLDER%           %TARGET_MAIN%\dividers
+        %copy_S%  %SAMPLES_FOLDER%            %TARGET_MAIN%\samples
         %copy_S%  %PYTHON_LIBRARIES_DIR%        c:\bat\clairecjs_utils
-        %copy_S%  %PYTHON_LIBRARIES_DIR%      %TARGET%\clairecjs_utils
-        %copy%    %0                          %TARGET%                                        %+ rem Yes, we are copying THIS script too——it only lives in my dev folder
+        %copy_S%  %PYTHON_LIBRARIES_DIR%      %TARGET_MAIN%\clairecjs_utils
+        %copy%    %0                          %TARGET_MAIN%                                        %+ rem Yes, we are copying THIS script too——it only lives in my dev folder
 
 
 
 rem Update BAT files from live location to github-folder location:
         if "%1" eq "skip-update" (goto :Skip_Update)
-        call c:\bat\update-from-BAT-via-manifest
+        call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN%
         :Skip_Update
 
 
 rem Update our BAT-1 folder to our BAT-2 folder so get past GitHub's 1,000 file display limit
-        copy /u  BAT-and-UTIL-files\[m-z]* BAT-and-UTIL-files-continued-2
+        copy /u  %TARGET_MAIN%\[m-z]* %TARGET_2%
 
 
 rem Give a chance to stop here...
@@ -115,8 +116,8 @@ rem Give a chance to stop here...
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
 rem Make sure they're all added —— any new extensions that we add to our project, need to be added here:
-        call git add BAT-and-UTIL-files \*.HLP 
-        for %%tmpfolder in (BAT-and-UTIL-files BAT-and-UTIL-files-continued-2) do (call git add LICENSE README.md .gitattributes .gitignore %tmpFolder%\*.bat %tmpFolder%\*.exe %tmpFolder%\*.cnt %tmpFolder%\*.btm %tmpFolder%\*.pl %tmpFolder%\*.py %tmpFolder%\*.exe %tmpFolder%\*.lst %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.gml %tmpFolder%\*.ansi %tmpFolder%\*.jpg %tmpFolder%\*.png  %tmpFolder%\*.midi %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json %tmpFolder%\*.lnk %tmpFolder%\*.ico go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat )
+        call git add %TARGET_MAIN%\*.HLP  %TARGET_MAIN%\*.cnt %TARGET_MAIN%\*.lst %TARGET_MAIN%\*.gml %TARGET_MAIN%\*.jpg %TARGET_MAIN%\*.png %TARGET_MAIN%\*.lnk  %TARGET_MAIN%\*.ico 
+        for %%tmpfolder in (%TARGET_MAIN% %TARGET_2%) do (call git add LICENSE README.md .gitattributes .gitignore %tmpFolder%\*.bat %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl %tmpFolder%\*.py %tmpFolder%\*.exe %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip  %tmpFolder%\*.ansi   %tmpFolder%\*.midi %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat )
 
 rem Commit and Push:
         echo.
@@ -124,7 +125,7 @@ rem Commit and Push:
         echo.
         set no_push_warning=1
         call commit-and-push.bat 
-        echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/BAT-and-UTIL-files  >go-to-individual-BAT-files-on-GitHub.bat
+        echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/%TARGET%  >go-to-individual-BAT-files-on-GitHub.bat
 
 rem Cleanup:
         :Skip_TheRest
