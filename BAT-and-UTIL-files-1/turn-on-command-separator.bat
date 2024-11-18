@@ -1,1 +1,0 @@
-setdos /x0

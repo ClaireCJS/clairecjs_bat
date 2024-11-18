@@ -1,1 +1,0 @@
-@call ai-song-identify %*

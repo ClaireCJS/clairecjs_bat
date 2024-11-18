@@ -1,1 +1,0 @@
-@call echo-rainbow %*

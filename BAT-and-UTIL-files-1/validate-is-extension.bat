@@ -1,1 +1,0 @@
-@call validate-file-extension %*

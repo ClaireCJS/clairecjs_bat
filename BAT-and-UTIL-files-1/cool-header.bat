@@ -1,1 +1,0 @@
-@call header "%@cool[%@unquote[%*]]"

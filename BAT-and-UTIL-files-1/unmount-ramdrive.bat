@@ -1,1 +1,0 @@
-@call unmount-ramdisk.bat %*

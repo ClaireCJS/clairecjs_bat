@@ -1,1 +1,0 @@
-@call splx.bat *

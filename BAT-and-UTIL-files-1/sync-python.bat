@@ -1,1 +1,0 @@
-@call sync-python-libraries %*

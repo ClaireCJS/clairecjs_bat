@@ -1,1 +1,0 @@
-@call auto-clean %*

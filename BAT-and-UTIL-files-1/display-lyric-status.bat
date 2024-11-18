@@ -1,1 +1,0 @@
-@call display-lyric-status-for-file %*

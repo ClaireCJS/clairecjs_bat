@@ -1,1 +1,0 @@
-@windowhide /show %*

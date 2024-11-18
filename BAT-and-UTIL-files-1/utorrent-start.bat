@@ -1,1 +1,0 @@
-@call start-utorrent.bat %*
