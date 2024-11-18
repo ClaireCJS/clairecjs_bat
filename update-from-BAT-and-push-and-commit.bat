@@ -14,6 +14,7 @@ REM     my local GIT repo beore uploading to GitHub. This script does that.
 
 
 rem CONFIGURATION:
+        set TARGET=BAT-and-UTIL-files-1
         set COMMIT_CONFIRMATION_WAIT_TIME=10
 
         SET MANIFEST_FILES=NONE
@@ -78,7 +79,6 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #2 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
         set                                    COPY=*copy /u /q
         set                                  COPY_S=*copy /u /q /s
-        set                                  TARGET=BAT-and-UTIL-files
         %copy%    %TCMD_ALIASES%              %TARGET%\alias.lst
         %copy%    %TCMD_INI%                  %TARGET%\tcmd.ini
         %copy%    %GIRDER_CONFIGURATION%      %TARGET%\girder.gml
@@ -104,7 +104,7 @@ rem Update BAT files from live location to github-folder location:
 
 
 rem Update our BAT-1 folder to our BAT-2 folder so get past GitHub's 1,000 file display limit
-        copy /u  BAT-and-UTIL-files\[m-z]* BAT-and-UTIL-files-continued-2
+        copy /u  %TARGET%\[m-z]* BAT-and-UTIL-files-continued-2
 
 
 rem Give a chance to stop here...
@@ -115,8 +115,8 @@ rem Give a chance to stop here...
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
 rem Make sure they're all added —— any new extensions that we add to our project, need to be added here:
-        call git add BAT-and-UTIL-files-1\*.HLP  BAT-and-UTIL-files-1\*.cnt BAT-and-UTIL-files-1\*.lst BAT-and-UTIL-files-1\*.gml BAT-and-UTIL-files-1\*.jpg BAT-and-UTIL-files-1\*.png BAT-and-UTIL-files-1\*.lnk  BAT-and-UTIL-files-1\*.ico 
-        for %%tmpfolder in (BAT-and-UTIL-files-1 BAT-and-UTIL-files-2) do (call git add LICENSE README.md .gitattributes .gitignore %tmpFolder%\*.bat %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl %tmpFolder%\*.py %tmpFolder%\*.exe %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip  %tmpFolder%\*.ansi   %tmpFolder%\*.midi %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat )
+        call git add %TARGET%\*.HLP  %TARGET%\*.cnt %TARGET%\*.lst %TARGET%\*.gml %TARGET%\*.jpg %TARGET%\*.png %TARGET%\*.lnk  %TARGET%\*.ico 
+        for %%tmpfolder in (%TARGET% BAT-and-UTIL-files-2) do (call git add LICENSE README.md .gitattributes .gitignore %tmpFolder%\*.bat %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl %tmpFolder%\*.py %tmpFolder%\*.exe %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip  %tmpFolder%\*.ansi   %tmpFolder%\*.midi %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat )
 
 rem Commit and Push:
         echo.
