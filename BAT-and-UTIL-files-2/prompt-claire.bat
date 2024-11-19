@@ -45,7 +45,7 @@ set prompt=$e[31m $e[1;32;31m$L$e[1;31;31m%%@sans_serif[%%@if[%%@left[2,%%
 
 rem Trying this as default:
 iff 1 eq 1 .or. "%1" eq "ampm" .or. "%1" eq "pmam" then
-        set prompt=$e[31m $e[1;32;31m$L$e[1;31;31m%%@sans_serif[%%@if[%%@left[2,%%@right[6,%%_datetime]] gt 12,%%@eval[%%@left[2,%%@right[6,%%_datetime]]-12],%%@left[2,%%@right[6,%%_datetime]]]:%%@left[2,%%@right[4,%%_datetime]]]%%@if[ %%@left[2,%%@right[6,%%_datetime]] gt 11 ,%%@char[13272],%%@char[13250]]$e[1;32;31m$G $e[0;32;32m$L$e[0;32;33m%%@cool[%%_CPUUSAGE]٪$e[0;32;32m$G $e[31m $e[1;32;32m$e[1;32;32m$P$e[1;32;32m$G$e[0;00;00m$e[39m$e[49m$e[0m$e[?25h$e[ q$e]12;$e]10;rgb:c0/c0/c0$e\$e]11;rgb:00/00/01$e\$e]10;rgb:c0/c0/c1$e\
+        set prompt=$e[31m $e[1;32;31m$L$e[1;31;31m%%@sans_serif[%%@if[(%%@left[2,%%@right[6,%%_datetime]] gt 12 .or. %%@left[2,%%@right[6,%%_datetime]] lt 1),%%@abs[%%@eval[%%@left[2,%%@right[6,%%_datetime]]-12]],%%@left[2,%%@right[6,%%_datetime]]]:%%@left[2,%%@right[4,%%_datetime]]]%%@if[ %%@left[2,%%@right[6,%%_datetime]] gt 11 ,%%@char[13272],%%@char[13250]]$e[1;32;31m$G $e[0;32;32m$L$e[0;32;33m%%@cool[%%_CPUUSAGE]٪$e[0;32;32m$G $e[31m $e[1;32;32m$e[1;32;32m$P$e[1;32;32m$G$e[0;00;00m$e[39m$e[49m$e[0m$e[?25h$e[ q$e]12;$e]10;rgb:c0/c0/c0$e\$e]11;rgb:00/00/01$e\$e]10;rgb:c0/c0/c1$e\
 endiff
 
 iff "%1" eq "cursive" then
