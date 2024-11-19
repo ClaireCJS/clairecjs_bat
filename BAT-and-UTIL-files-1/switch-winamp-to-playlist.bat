@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 :::::::::::::::::::::::: Due to problems with c:\mp3\ junction on hades, there are some u:\mp3\'s hard-coded in the code below, where things used to be c:\mp3\. And WAWI is configured for U:\mp3\
 

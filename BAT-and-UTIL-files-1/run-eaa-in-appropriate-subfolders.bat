@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 rem AUDIO PROCESING WORKFLOW: Tool used to extract album art from the first file in a folder, 
 rem                           compare it to existing cover.jpg files, and if it is a larger resolution, 

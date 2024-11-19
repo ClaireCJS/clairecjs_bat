@@ -36,6 +36,7 @@ if ($METHOD eq "2009") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = ": Sent Start for "   
 if ($METHOD eq "2011") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "Failed to extract MBID for"                     ; $AUDIOSCROBBLER_LOG_SEARCH_FOR2 = "Starting query FP for"; $AUDIOSCROBBLER_LOG_SEARCH_FOR3 = "DISABELEDEvent::TrackChanged"; }	
 if ($METHOD eq "2012") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "Line received: START c=.*&a=.*&t=.*"            ; }	
 if ($METHOD eq "2013") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "PlayerCommandParser::PlayerCommandParser.*START"; }	
+if ($METHOD eq "2014") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "";                                                }	
 
 
 
@@ -139,7 +140,7 @@ if ($REGEX eq "") {
 
 		$last_found =~ /Starting new track \'() \? ()\'/i;
 		if ($1 ne "") { $song="$1 - $2"; }
-	} else {#if ($METHOD eq "2012", 2013) {
+	} else {	#if ($METHOD eq "2012", 2013) {
 		$last_found =~ /START c=.*&a=.*&t=.*p=(.*)$/i;
 		if ($1 ne "") { 
 			$FOUND_FULL_PATH=$1; 

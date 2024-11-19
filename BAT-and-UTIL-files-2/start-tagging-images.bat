@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 rem Used to accelerate personal image tagging workflow 
 

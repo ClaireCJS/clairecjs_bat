@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 call validate-in-path removal important_less success sleep chrome.bat
 call validate-environment-variable color_run 

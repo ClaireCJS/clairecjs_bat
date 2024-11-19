@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 rem SET UP FOLDER LOCATIONS:
         if ""  ==    "%LOGPARENTDIR" (set  LOGPARENTDIR="c:\backups\logs")

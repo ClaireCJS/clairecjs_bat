@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 ::::: VALIDATE PARAMETERS:
     if  ""  eq   "%1" (gosub :NoArg "first"     %+ goto :END)

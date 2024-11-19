@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 set        MZBFN_PARAM1=%@UNQUOTE[%1]

@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 :DESCRIPTION: aliased intercept for the 'window' command
 :DESCRIPTION:       1) so that we can warn user that it is not appliable under Windows Terminal

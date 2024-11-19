@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 pushd .
 
 if "%1"=="old" goto :old

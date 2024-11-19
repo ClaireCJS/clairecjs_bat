@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 set YOUTUBE_ID_LENGTH=10
 

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 if "%1" == "cleanup" goto :cleanup
 set USER=%1
 

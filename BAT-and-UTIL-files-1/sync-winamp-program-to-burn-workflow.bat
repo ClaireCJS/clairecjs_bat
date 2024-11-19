@@ -1,4 +1,5 @@
 @Echo OFF                                       
+@on break cancel
 
 set   SYNCSOURCE=%util2%\WinAmp repo\WinAmp
 set   SYNCTARGET=%PREBURN_BDR_DATA%\BACKUPS

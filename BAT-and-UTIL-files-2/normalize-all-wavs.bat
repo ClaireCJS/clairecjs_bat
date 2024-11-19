@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 if not exist *.wav (call warning "No wavs to normalize! Aborting!" %+ goto :end)
 

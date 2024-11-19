@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 
 rem TODO gonna have to do this on the bottom actually, because it turns out any discontinuity of locked rows prior to the scrollback trashes any text that tries to scroll through it. Unless a locked row is BELOW the scrolling text, you lose your scrollback.
 

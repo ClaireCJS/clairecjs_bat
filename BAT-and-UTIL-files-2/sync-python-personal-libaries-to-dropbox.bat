@@ -1,4 +1,5 @@
 @Echo OFF                                       
+@on break cancel
 
 ::::: VALIDATE ENVIRONMENT:
     call validate-environment-variables DROPBOX_CLAIRE PYTHON_OFFICIAL_SITELIB_CLAIRE

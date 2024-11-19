@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 set NUM_VOICES=%@EXECSTR[wsay -l|wc -l]
 

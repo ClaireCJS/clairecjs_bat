@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 if "%SLEEPING%" eq "1" goto :Asleep              %+ REM don't speak loud words if spouse is asleep!
                        goto :Awake

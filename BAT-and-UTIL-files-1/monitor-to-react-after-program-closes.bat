@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 :::: USAGE:  monitor-to-react-after-program-closes videolan.vlc "call unpause"
 ::::         ...would run the command "call unpause" once the process VLCPlayer is no longer running

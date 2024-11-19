@@ -1,4 +1,5 @@
 REM @Echo OFF
+@on break cancel
 
 set ORIG_TITLE=%_WINTITLE
 set PID=%_PID

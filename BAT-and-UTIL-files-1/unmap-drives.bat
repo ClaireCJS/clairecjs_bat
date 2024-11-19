@@ -1,3 +1,4 @@
+@on break cancel
 net use a: /delete
 net use b: /delete
 net use c: /delete

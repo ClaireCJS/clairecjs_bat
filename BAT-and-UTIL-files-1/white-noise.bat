@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 :::: CONFIG:
         set    DEFAULT_SECONDS=1

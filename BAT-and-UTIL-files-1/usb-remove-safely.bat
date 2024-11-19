@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 set USB_DRIVE=X
 if "%1" ne "" .and. "%@READY[%1]" eq "1" (set USB_DRIVE=%1)

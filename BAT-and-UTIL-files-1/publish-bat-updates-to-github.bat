@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
  cls
 
 rem Go to my development folder:

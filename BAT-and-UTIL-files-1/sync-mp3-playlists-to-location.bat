@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 :::: USAGE: sync-mp3-playlists-to-location.bat [ORIGINAL_PLAYLIST_FOLDER] [NEW_PLAYLIST_FOLDER] [NEW_MUSIC_FOLDER] [LOCAL_TRIGGER_FILE]
 :::: USAGE: sync-mp3-playlists-to-location.bat C:\MP3\LISTS                J:\MUSIC\PLAYLIST     J:\MUSIC           %MP3OFFICIAL\LISTS\TRIGGER-CASMP3.TRG

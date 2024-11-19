@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem TTRGB is the program that controls our computer's cases lights
 

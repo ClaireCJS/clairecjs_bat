@@ -1,3 +1,4 @@
+@on break cancel
 @echo off
 call important "Generating recursive playlist"
 call mp3index /s>all.m3u

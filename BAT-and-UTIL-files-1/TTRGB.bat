@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem Check if it's running already:
         call isRunning ttrgb quiet

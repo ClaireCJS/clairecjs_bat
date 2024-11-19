@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 set RFFID_PARAMS=%*
 call validate-in-path set-first-file
 call                  set-first-file %*>nul

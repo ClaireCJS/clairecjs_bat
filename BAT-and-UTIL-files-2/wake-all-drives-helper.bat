@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 ::::: PARAMETERS:
     if "%@UPPER[%2]"      eq "HIDDEN"    (set HIDDEN=1    %+ set MINIMIZE_FIRST=1)

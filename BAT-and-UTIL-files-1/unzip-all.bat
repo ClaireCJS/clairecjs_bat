@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 if %FILEMASK_ARCHIVE_VALIDATED ne 1 (call validate-environment-variable FILEMASK_ARCHIVE)
 

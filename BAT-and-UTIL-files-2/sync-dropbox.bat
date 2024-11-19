@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 ::::: VALIDATE ENVIRONMENT:
         call validate-environment-variables PUBCL WINDIR DROPBOX 

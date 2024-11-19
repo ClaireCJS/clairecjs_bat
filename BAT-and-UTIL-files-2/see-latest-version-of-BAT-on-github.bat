@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 iff exist "c:\bat\%@UNQUOTE[%1]" then
         https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/%@UNQUOTE[%1]

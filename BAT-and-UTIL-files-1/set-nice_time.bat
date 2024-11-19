@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 set timestr=%@DATEFMT[*,%%r]
 

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem BREAK IF NOT CALLED CORECTLY:
         if "%1" eq "" (goto :Usage)

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 :DESCRIPTION: To put the current date in mmddhhmmss format into the environment as %MMDDHHMMSS.
 :DESCRIPTION: EXAMPLE: run this, then echo %MMDDHHMMSS would output 12312359 if that was that moment in time [lat second of the year]

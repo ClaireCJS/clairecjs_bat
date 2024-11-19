@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
                 set search_for=.
 if "%1" ne "" ( set search_for=%*)
 

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem Validate the environment
         call validate-environment-variables PERL_OFFICIAL_SITELIB_ALL PERL_OFFICIAL_SITELIB_ALL_PATH 

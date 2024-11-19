@@ -797,6 +797,9 @@ return
                 set MASTERMACHINE=%MACHINEMASTER%
                 set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_C_DRIVE=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%
         ::::: MUSIC SERVER(s):
+                rem: Winamp's Now-Playing plugin creates this file (and a jpg):
+            set WINAMP_NOW_PLAYING_TXT=%MP3OFFICIAL%\lists\winamp_now_playing.txt
+            set WINAMP_NOW_PLAYING_ART=%MP3OFFICIAL%\lists\winamp_now_playing.jpg
             set AUDIOSCROBBLER_LOG=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
             SET MUSICSERVERMACHINENAME=DEMONA
             SET MUSICSERVERIPONLY=%IP_DEMONA%
@@ -812,7 +815,7 @@ return
             set  MUSICSERVERUSERNAME=oh                                                     %+ rem the Windows/OS-username that is logged in when the MUSICSERVER is playing music
             set MUSICSERVERSTATUSURL=http://%MUSICSERVER%/main
 
-            :::: KLUDGES TO UN-REGRESS REMOVAL OF DEPRECATED UPSTAIRS/DOWNSTAIRS ADDITIONAL CODE:
+            :::: KLUDGES TO SMOOTH OVER 2007 REMOVAL OF DEPRECATED UPSTAIRS/DOWNSTAIRS MULTI-MUSIC-SERVER / HOUSE-CONSTRUCTION CODE:
                 SET TMPMUSICSERVERCDRIVE=%MUSICSERVERCDRIVE%
                 SET       TMPMUSICSERVER=%MUSICSERVER%
             :::: STUFF TO RUN *ONLY* ON THE MUSIC SERVER:
@@ -822,6 +825,8 @@ return
                     SET WAWILOGS=%WAWILOGSDRIVE%:\logs\wawi
                     %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
                     %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
+                    %gosubValidateFolderExists% MP3OFFICIALDRIVE WINAMP_NOW_PLAYING_TXT
+                    %gosubValidateFolderExists% MP3OFFICIALDRIVE WINAMP_NOW_PLAYING_JPG
                 :NotMusicServer
 
         ::::: SERVER THAT CONTROLS THE IMAGES THAT ARE ON THE BACKGROUNDS OF OUR SCREENS:

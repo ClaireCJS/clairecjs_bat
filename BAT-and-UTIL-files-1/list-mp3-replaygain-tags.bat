@@ -1,3 +1,4 @@
+@on break cancel
 @echo off
 
 for %tmpFile in (*.mp3) do gosub processfile "%tmpFile"

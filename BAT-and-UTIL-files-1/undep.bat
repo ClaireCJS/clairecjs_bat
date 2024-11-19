@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 :DESCRIPTION: For un-doing something being marked as deprecated via deprecated.bat
 

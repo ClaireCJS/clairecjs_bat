@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 set LARGESTFILENAME=%@EXECSTR[d/os/b|:u8tail -1]
 set LARGESTFILE=%LARGESTFILENAME%

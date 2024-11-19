@@ -1,4 +1,5 @@
 @echo on
+@on break cancel
 
 rem Validate environment:
         call validate-in-path restart-taskbar-autohide LaunchKey sleep

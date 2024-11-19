@@ -1,4 +1,5 @@
 @Echo OFF                                       
+@on break cancel
 
 ::::: VALIDATE ENVIRONMENT:
         call validate-environment-variableS DROPBOX_CLAIRE PERL_OFFICIAL_SITELIB_ALL

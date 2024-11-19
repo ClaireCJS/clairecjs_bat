@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 :USAGE: zip <whatever>   - use default zip behavior

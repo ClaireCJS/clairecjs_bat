@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 %COLOR_SUBTLE%
     if     defined WGET_DECORATOR            echos %WGET_DECORATOR
     if     defined WGET_DECORATOR_ON         echos %WGET_DECORATOR_ON

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem Go to currently playing song's folder:
         call go-to-currently-playing-song-dir

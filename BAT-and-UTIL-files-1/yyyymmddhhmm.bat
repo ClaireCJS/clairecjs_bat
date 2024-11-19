@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 :#PURPOSE: To put the current date in yyyymmddhh format into the environment as %YYYYMMDDHH.
 :#EXAMPLE: run this, then echo %YYYYMMDDHH would output 200312312359 (Dec 12th 2003 11:59PM Happy New Year's!) if that was today's date
 

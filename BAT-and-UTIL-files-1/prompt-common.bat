@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 
 rem         INVOCATION:   Just run prompt-common.bat!
 rem

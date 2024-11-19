@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 :USAGE: set UNATTENDED_YOUTUBE_DOWNLOADS=1   to skip the RN part
 

@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 call removal "Killing explorer to run move command without explorer's interference"
         kill /f explorer

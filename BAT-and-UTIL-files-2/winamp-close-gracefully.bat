@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 if     %WINAMP_CLOSE_GRACEFULLY_VALIDATED ne 1 (
     set WINAMP_CLOSE_GRACEFULLY_VALIDATED=1

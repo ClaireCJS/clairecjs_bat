@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 call validate-in-path cmd.exe
 set FILE=%1
 cmd.exe /c %FILE%

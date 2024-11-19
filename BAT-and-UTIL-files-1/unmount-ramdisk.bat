@@ -1,4 +1,8 @@
+@Echo OFF
+ on break cancel
+
 set RAMDISK_DRIVE=%1
+
 if "%@READY[%RAMDISK_DRIVE%]" eq "0" (color bright green on blue %+ echo * WARNING: DRIVE %RAMDISK_DRIVE%: IS NOT ACTUALLY READY?!?! %+ color white on black)
         
         call imdisk.bat -d -m %RAMDISK_DRIVE%:

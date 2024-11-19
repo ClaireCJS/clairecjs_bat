@@ -1,3 +1,4 @@
+@on break cancel
 @echo off
 
 ::::: This was 200 but it wasn't high enough! We were getting false negatives because 

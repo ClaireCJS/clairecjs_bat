@@ -1,10 +1,12 @@
-:: Created by: Shawn Brink
-:: Created on: April 27th 2015
-:: Updated on: October 11th 2018
-:: Tutorial: https://www.tenforums.com/tutorials/5645-rebuild-icon-cache-windows-10-a.html
-
-
 @echo off
+@on break cancel
+
+rem Created by: Shawn Brink
+rem Created on: April 27th 2015
+rem Updated on: October 11th 2018
+rem Tutorial: https://www.tenforums.com/tutorials/5645-rebuild-icon-cache-windows-10-a.html
+
+
 set iconcache=%localappdata%\IconCache.db
 set iconcache_x=%localappdata%\Microsoft\Windows\Explorer\iconcache*
 

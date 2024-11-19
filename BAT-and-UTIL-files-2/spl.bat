@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 set DEBUG=0
 set OUR_LOGGING_LEVEL=NONE
 

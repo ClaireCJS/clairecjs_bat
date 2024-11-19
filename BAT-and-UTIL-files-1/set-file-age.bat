@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 REM ***************** Get/Validate parameters *****************
         set  FILE=%1

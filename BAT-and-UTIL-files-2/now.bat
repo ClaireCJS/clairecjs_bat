@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 
 :DESCRIPTION: sets various environment variables to the current day/moment in time
 

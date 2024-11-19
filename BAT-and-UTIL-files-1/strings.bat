@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 rem Just which version of strings.exe are we currently using?
 rem Definitely not the one we used in the 1980s DOS days! 😁

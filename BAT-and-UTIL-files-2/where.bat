@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 
 :DESCRIPTION: searches (greps) file set in %LOCATIONS% ... This is basically our textual database of where we put objects in our house so we don't lose them!

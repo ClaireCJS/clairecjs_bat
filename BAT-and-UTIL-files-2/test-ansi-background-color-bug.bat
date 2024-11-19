@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 rem Used to submit following bug report to Microsoft Terminal: https://github.com/microsoft/terminal/issues/17771
 

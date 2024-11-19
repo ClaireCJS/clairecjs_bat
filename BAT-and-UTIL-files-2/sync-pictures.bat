@@ -1,5 +1,5 @@
 @Echo OFF
- Echo ON
+@on break cancel
 
 :goto :CheckPoint1
 :goto :LumixContinueDebug1

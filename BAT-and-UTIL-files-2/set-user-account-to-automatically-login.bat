@@ -1,4 +1,5 @@
-t@Echo OFF
+@Echo OFF
+@on break cancel
 
 start netplwiz
 

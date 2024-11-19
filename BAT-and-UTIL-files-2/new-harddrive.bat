@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem PRE-CHECK:
         call checkeditor

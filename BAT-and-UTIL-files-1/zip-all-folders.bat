@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 call print-if-debug *** zip-all-folders.bat %*
 

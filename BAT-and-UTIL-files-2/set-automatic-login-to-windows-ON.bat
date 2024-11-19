@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
  cls
 
 call validate-environment-variables MAPPING_DEMONA_PWD MAPPING_DEMONA_USR invisible_on invisible_off blink_on blink_off

@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 call switch-winamp-to-playlist.bat %*
 call less_important "echo Waiting 2 seconds before randomizing"
 call sleep 2

@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
 :DESCRIPTION: To combine md/mkdir and cd/chdir into one command, since we often change into folders we just made.

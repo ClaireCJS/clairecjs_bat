@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 call askyn "Have you seen the muffin man (hit ENT)?" yes  0
 call askyn "Have you seen the muffin man (hit  Y )?" yes  0

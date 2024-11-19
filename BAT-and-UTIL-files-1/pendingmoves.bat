@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 set  validate_in_path_message="pendmoves needs to be installed to your path, or C:\UTIL -- it's part of the SysInternals"
 call validate-in-path pendmoves.exe
 set  validate_in_path_message=

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 call warning "About to turn automatic login off! [5]"
 call warning "About to turn automatic login off! [4]"

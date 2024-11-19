@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 set DEBUG_CALLER_ERRORLEVEL=1
 
 set CATCHER=call errorlevel "my fail msg" "my success msg"   %+ cls    %+ color yellow on black 

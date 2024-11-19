@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 :DESCRIPTION: Puts us in sleeping mode, so noises are visual instead of audio, to not wake up spouse! Use 'awake' to undo.
  

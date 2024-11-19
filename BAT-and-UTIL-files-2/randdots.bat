@@ -1,1 +1,1 @@
-@CALL random-infinite-dots %*
+@call random-infinite-dots %*

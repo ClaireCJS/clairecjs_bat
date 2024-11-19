@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
 rem personal note: mchkold is a hard-coded 'mchk' of the pre-2002-crash filelist

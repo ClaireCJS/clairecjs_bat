@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 if "%fixed_quant"=="" set fixed_quant=9
 

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 ::::: VALIDATE ENVIRONMENT
     call validate-in-path frpost settemp sync-filelist-helper.pl fix-window-title fatal_error 

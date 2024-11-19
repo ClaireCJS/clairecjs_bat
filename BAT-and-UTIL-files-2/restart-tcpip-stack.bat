@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 %color_warning%
     echo wait this doesn't do anything. well it does. but you have to reboot before it happens.

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem Validate the environment
         call validate-environment-variables PYTHON_OFFICIAL_PATH PYTHON_OFFICIAL_SITELIB_ALL PYTHON_OFFICIAL_SITELIB_CLAIRE PYTHON_OFFICIAL_SITELIB_CLAIRE_PATH

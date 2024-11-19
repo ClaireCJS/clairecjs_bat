@@ -1,4 +1,5 @@
 @Echo OFF                                       
+@on break cancel
 
 
 rem   Backup my c:\pub\journal\ folder to dropbox

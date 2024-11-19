@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 iff defined CURSOR_RESET then
         echos %CURSOR_RESET%

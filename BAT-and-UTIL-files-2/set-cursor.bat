@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem If we're running this outside of TCC, skip this behavior:
         if "%comspec%" == "C:\Windows\system32\cmd.exe " goto :DoNotBother

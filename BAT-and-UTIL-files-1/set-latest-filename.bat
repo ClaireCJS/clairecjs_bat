@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 set FOR_OPTIONS=
 set DIR_MODE=0

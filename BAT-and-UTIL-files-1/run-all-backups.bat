@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 
 call validate-in-path important backup-important-files backup-non-repositories backup-repositories backup-stuff

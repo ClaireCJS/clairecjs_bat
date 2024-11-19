@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 :DESCRIPTION: This is more or less a glorified "dir /b *.mp3", execpt it works for all audio file types
 :USAGE:       call mp3index

@@ -2,6 +2,7 @@
 @rem ^^^^^^ If the generated .CMD version is fresher than this bat file, it's much faster to simply run that. Hard-code c:\bat because %BAT% is not defined yet when calling this from autoexec-common
 
 @Echo OFF
+@on break cancel
 :Echo ON
 
 if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)

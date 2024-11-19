@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 if  %validated_random_cursor_color ne 1 (
     call validate-functions ANSI_CURSOR_COLOR_HEX RANDOM_RGB_HEX 
     call validate-env-vars  ANSI_PREFERRED_CURSOR_SHAPE

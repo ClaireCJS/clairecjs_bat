@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 rem Validate environment:
         call validate-in-path usps-tracking ups-tracking fedex-tracking sleep

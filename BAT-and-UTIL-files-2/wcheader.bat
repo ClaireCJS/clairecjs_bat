@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 :DESCRIPTION: This is a cosmetic assistant to wc (unix wordcount util) that prints a header over the numbers, so that we know what they are
 :DESCRIPTION: It takes the same command-line option as wc

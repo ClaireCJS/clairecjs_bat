@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 ::::: INITIAL DEPLOYMENT SETUP ONLY:
     set WHAT_WE_ARE_TRACKING=something

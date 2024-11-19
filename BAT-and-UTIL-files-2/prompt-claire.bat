@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 
 rem ............................... This has been here for a lonnnnnng time.... ............................... 
 rem :1988:         Prompt=$P$G

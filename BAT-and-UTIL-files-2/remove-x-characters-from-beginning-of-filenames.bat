@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 
 :USAGE: %0 [force] {num_chars_to_remove} {wildcard}

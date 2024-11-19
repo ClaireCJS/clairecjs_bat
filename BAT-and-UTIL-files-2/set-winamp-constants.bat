@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
     SET REGEX_TASKLIST_WINAMP=Winamp
     SET REGEX_KILLPROC_WINAMP=winamp*

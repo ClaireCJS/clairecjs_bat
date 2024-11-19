@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 if defined emoji_play_button (%COLOR_SUCCESS% %+ echo %big_top%%emoji_play_button% %+ echo %big_bot%%emoji_play_button%)
 

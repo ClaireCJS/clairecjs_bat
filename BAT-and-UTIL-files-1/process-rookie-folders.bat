@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 
 call validate-environment-variable FILEMASK_ARCHIVE
 set FILEMASK_ARCHIVE_VALIDATED=1

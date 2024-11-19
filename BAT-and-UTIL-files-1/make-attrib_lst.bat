@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
 call unimportant "Generating and editing %emphasis%attrib.lst%deemphasis% in %_CWP"

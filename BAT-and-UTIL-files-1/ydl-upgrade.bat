@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 call validate-in-path youtube-dl important pause wait echo mv advice
 call validate-environment-variables UTIL color_important

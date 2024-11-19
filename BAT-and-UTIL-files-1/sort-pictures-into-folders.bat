@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 SET RECYCLEDBAT=c:\recycled\latest-sort-pictures-into-folders.bat
 

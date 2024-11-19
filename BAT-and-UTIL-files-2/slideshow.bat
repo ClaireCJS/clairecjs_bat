@@ -1,4 +1,5 @@
 @Echo ON
+@on break cancel
 
 
 rem Script for command-line running a slideshow. Used around 2010 and ran some tests in 2020 but not really used in 2024. Here more as an example.

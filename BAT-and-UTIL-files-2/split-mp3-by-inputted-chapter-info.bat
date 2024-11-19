@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 REM validate environment
     call validate-in-path set-largest-filename less_important  split-mp3-by-inputted-chapter-info-helper.py 

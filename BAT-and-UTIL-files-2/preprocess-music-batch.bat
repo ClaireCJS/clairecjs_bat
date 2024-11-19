@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem Remove any empty folders (file locking can leave these laying around)
         repeat 6 sweep rd *

@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 rem USAGE CHECK:
         if "%1"=="" goto :oops

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
                 echo DO IT YOURSELF IF YOU REALLY WANT THIS: start nircmd.exe monitor off            *OR*:
         echo DO IT YOURSELF IF YOU REALLY WANT THIS:  echos %%@winapi[user32,SendMessage,65535,274,61808,2] `>` nul

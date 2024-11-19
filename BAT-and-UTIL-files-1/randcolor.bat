@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 set FGOLD=%_FG
 set BGOLD=%_BG
 :ReBG

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 
 call validate-environment-variables FILEMASK_VIDEO FILEMASK_AUDIO

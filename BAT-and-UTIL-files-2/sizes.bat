@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 
 rem Validate the environment once per session:

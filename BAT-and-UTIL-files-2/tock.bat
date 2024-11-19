@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 
 rem OLD: echo %ANSI_RESET%

@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem Configure defaults:
         set                OUR_TAB_WIDTH_TO_USE=%DEFAULT_TAB_STOP_WIDTH%

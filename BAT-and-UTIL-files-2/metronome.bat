@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
 rem Go to the internet metronome unless a number is given:

@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 if "%1" eq "quick" .or. "%1" eq "quickly" (set PAUSE_QUICKLY=1 %+ goto :Pause_Quickly)
 

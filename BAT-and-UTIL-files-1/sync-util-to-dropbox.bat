@@ -1,4 +1,5 @@
 @Echo on
+@on break cancel
 
 call validate-environment-variables UTIL DROPBOX
 

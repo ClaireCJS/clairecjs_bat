@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 
 REM IMAGE_OPENER=start

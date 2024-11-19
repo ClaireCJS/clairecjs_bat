@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 :DESCRIPTION: runs the *PIPED INPUT* as a bat file
 

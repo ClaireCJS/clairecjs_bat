@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 
 :DESCRIPTION: Tries to use Winamp's WAWI web interface to reload a playlist, for the case of a playlist modified after load

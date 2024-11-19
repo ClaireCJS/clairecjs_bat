@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 call validate-in-path isrunning winkill.exe
 call isRunning WinKill 
 if %IS_RUNNING eq 1 (goto         :END)

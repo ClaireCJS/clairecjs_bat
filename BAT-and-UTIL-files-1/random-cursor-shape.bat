@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 if  %validated_random_cursor_shape ne 1 (
     call validate-functions RANDOM_CURSOR_SHAPE

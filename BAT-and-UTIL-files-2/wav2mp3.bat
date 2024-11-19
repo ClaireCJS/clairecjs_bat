@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 ::::: PARAMETERS:
     set SOURCE_WAV=%1

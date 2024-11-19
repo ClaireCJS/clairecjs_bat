@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 :::1990-2000ish:
 :Prompt=$e[0;32;31m$l$e[0;1;31m$t$h$h$h$h$h$h$e[0;32;31m$g $e[0;33;32m$P$G$e[0;0;0m
 :::2005: haha:

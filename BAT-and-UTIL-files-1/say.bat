@@ -1,4 +1,5 @@
 @Echo off 
+@on break cancel
 
 :::::: Determine if we are using Cygwin's banner.exe, 
 :::::: or standalone banner.exe from 2010ish,

@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 
 call validate-environment-variables COLOR_NORMAL COLOR_LOGGING
 call validate-in-path setTmpFile move ren copy important

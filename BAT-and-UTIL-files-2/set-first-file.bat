@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 REM USAGE: $0 {filemask to seach for first file from}
 
 set VERBOSITY=1 %+ REM 0=silent, 1=announce conclusions, 2=announce some debug, 3=announce every filename

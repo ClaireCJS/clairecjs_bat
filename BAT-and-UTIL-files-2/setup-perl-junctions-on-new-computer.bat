@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem Strawberrry perl likes to install to c:\strawberry\, but I like to install it to c:\perl\, which is misleading compared to most peoples' structures,
 rem so I create junctions to make cure \perl\bin, \perl\site, and \perl\lib are valid, even though it's really \perl\perl\bin, \perl\perl\ite, and \perl\perl\lib

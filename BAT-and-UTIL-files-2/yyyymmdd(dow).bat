@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 :DESCRIPTION: To put the current date in yyyymmdd format into the environment as %YYYYMMDDDOW.
 :DESCRIPTION: Much like yyyymmdd.bat except adding the day of week to the end.

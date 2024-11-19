@@ -1,4 +1,5 @@
 @Echo Off 
+@on break cancel
 
 REM TODO: may want to force %1's extention to be .spec if %@FILES[*.spec] ge 1 but force a .py 
 

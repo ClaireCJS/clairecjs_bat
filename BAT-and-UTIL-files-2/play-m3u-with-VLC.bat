@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 call warning "About to play %1 with vlcplayer"
 pause
 

@@ -1,3 +1,4 @@
+@on break cancel
 @echo off
 set  sure=0
 call warning "Are you really sure? If so, change SURE to 1!"

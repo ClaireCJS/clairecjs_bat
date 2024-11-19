@@ -1,1 +1,3 @@
-windowhide /list
+@on break cancel
+@windowhide /list
+

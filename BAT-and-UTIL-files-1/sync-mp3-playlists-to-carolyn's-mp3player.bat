@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 :::: DEPRECATED! replaced by sync-mp3-playlists-to-location.bat (sync.bat NOT run in carolyn's mp3 player playlist folder)
 

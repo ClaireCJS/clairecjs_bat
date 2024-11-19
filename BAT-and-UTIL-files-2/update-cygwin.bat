@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 call warning "This BAT file $0 is neutered because it's been tried, and turned out to be so incredibly damaging to cygwin without regression testing"
 call warning "and regression testing it all is beyond my personal scope!"

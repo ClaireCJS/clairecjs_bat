@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 if defined emoji_stop_button (%COLOR_REMOVAL% %+ echo %big_top%%emoji_stop_button% %+ echo %big_bot%%emoji_stop_button%)
 

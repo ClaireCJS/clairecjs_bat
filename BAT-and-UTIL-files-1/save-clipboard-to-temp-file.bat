@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 ::::: VALIDATE ENVIRONMENT:
         call validate-environment-variables COLOR_LOGGING COLOR_NORMAL

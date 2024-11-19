@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 cls
 echo.
 call validate-environment-variable ROOKIE

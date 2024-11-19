@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 
 set WHAT_FOLDER_TO_ZIP=%1

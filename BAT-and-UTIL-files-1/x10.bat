@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 :original bat moved to x10-index.bat
 
 ::::: DOCUMENTATION:

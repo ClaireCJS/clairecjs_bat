@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 rem Quick short circuit if our time-wait is 0 (for whatever reason):
         if "%1" eq "0" goto :Abort

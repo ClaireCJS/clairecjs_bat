@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 :DESCRIPTION: Copies the logfile from the MadVR renderer into c:\logs\ with the rest of our logfiles
 

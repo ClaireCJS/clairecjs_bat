@@ -1,4 +1,5 @@
 @echo off
+@on break cancel
 
 ::::: DEBUG:
     SET DEBUG_SORT=0

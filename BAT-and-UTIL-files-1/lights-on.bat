@@ -1,3 +1,4 @@
+@on break cancel
 @Echo on 
 if "%NO7%" ne "1" (call x10 a7 on )
 if "%NO6%" ne "1" (call x10 a6 on  %+ set TVLIGHTING=1) 

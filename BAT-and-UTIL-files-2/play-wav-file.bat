@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem Validate environment:
         if 1 ne %validated_play_wav_file (

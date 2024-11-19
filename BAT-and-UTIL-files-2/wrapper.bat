@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 :PUBLISH:
 :DESCRIPTION: prefix any command line with wrapper to make it autowrap long filenames into short filenames, for backwards compatibility with old DOS programs such as your favorite text editors

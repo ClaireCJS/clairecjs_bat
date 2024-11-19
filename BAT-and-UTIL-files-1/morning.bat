@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 
 rem call validate-in-path restore-window-positions asleep deal-with-finished-torrents hi-morning hi-afternoon
 

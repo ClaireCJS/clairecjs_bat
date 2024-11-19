@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 rem To mount an ISO in windows 10, you just open it with explorer!
 rem So just validate that things are what we seem, then open it!

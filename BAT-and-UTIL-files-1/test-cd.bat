@@ -1,4 +1,5 @@
 @Echo on
+@on break cancel
 
 call  mcd test-cd
 

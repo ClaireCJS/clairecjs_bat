@@ -1,4 +1,5 @@
 @echo on
+@on break cancel
 
 ::::: MUST BE MANUALLY CONFIGURED HERE, EACH TIME WE MAKE A NEW SET OF GRAPHING SCRIPTS:
     set WHAT_WE_ARE_TRACKING=something

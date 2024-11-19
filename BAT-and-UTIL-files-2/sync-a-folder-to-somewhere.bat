@@ -1,4 +1,5 @@
 @echo OFF
+@on break cancel
 pushd
 
 

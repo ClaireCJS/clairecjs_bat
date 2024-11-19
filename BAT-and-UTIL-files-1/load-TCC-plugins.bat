@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 rem Make sure %BAT% is defined, in case we are manually running this early:

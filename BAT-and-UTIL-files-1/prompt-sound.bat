@@ -1,4 +1,5 @@
 @Echo off
+@on break cancel
 
 if "%1" eq ""       (  set    PROMPT_VOICE_MESSAGE=Input requested)
 if "%1" ne ""       (  set    PROMPT_VOICE_MESSAGE=%1             )

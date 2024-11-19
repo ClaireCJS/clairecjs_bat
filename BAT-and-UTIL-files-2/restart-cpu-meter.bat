@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 call removal "Killing tray CPU-meter"
         call killIfRunning taskmgr taskmgr 

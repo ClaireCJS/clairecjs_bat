@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 : EXAMPLE:
 :    C:\new>mcgetmac goliath

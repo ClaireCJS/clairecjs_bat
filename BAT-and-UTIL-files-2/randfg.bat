@@ -1,4 +1,5 @@
 @Echo OFF
+@on break cancel
 
 
 :REQUIRES: set-colors.bat (to create RANDFG function) to have been run

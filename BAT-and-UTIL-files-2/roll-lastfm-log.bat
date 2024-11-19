@@ -1,4 +1,5 @@
 @Echo Off
+@on break cancel
 
 iff "%MACHINENAME%" ne "%MUSICSERVERMACHINENAME%" then
         call warning_soft "No last.fm log to backup because this machine is not %italics_on%%MUSICSERVERMACHINENAME%%italics_off%"
