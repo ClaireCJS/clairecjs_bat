@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 if "%1" eq ""             (call error      "Need to pass a drive letter to %0!")

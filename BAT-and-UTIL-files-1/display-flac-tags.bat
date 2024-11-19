@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 rem Config:

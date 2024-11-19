@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
 :USAGE: isRunning {regex} ['quiet'] - sets envvar ISRUNNING to 0 or 1, depending on if a process matching regex is running

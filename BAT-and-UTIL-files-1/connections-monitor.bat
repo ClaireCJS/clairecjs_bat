@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
  cls %+ echo.
 
 set HEADER=%ANSI_COLOR_IMPORTANT%%EMOJI_LAPTOP%%EMOJI_GLOBE_WITH_MERIDIANS% %FAINT_ON%%ITALICS_ON%Connections:%FAINT_OFF%%ITALICS_OFF% ``

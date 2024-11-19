@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 set OUTPUT_VIDEO_FILENAME="%@UNQUOTE[%@NAME[%1].mkv]"
 

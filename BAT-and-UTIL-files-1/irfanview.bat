@@ -1,3 +1,4 @@
+@on break cancel
 @echo off
 
 set IRFANVIEW="%UTIL2%\IRFANVIEWPORTABLE\App\IrfanView64\i_view64.exe"

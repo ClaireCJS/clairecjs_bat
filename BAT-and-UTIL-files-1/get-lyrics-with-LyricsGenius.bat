@@ -1,1 +1,2 @@
- @call get-lyrics-via-multiple-sources.bat %*
+@on break cancel
+@call get-lyrics-via-multiple-sources.bat %*

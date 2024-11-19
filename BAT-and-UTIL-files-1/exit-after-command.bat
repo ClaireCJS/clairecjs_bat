@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 :DESCRIPTION: For running a command and exiting after

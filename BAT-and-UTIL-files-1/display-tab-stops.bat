@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 rem Display 100, or however many we ask:

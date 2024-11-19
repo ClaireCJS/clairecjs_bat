@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
 :DESCRIPTION:  To search emoji environment variables (set by set-emoji.bat) using a regular expression [i.e. "grep my emojis"]

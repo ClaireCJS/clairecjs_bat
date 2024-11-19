@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 echo * Think about your fixed_quant setting:
 echo ...... 1-3=very little degredation/huge files
 echo ...... 4-5=good for high qual vid

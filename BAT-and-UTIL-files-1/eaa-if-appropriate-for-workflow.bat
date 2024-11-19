@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 rem ::: - BACKGROUND: Often times, when we embedded album art into our mp3|flac files, we found ones 
 rem :::         on the internet that are of much higher resolution than the cover|folder.jpg|gif|png 

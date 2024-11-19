@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
  echo.
 
 

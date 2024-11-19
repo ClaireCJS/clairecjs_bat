@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 for /o:a %%tmpmp3 in (*.mp3) (

@@ -1,5 +1,5 @@
 @Echo OFF
-@Echo off
+ on break cancel
 
 REM This is actually the same logic as resizing the image to be square, except instead we crop it
 

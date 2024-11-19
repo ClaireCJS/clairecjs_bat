@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
 call validate-environment-variables OSBIT UTIL

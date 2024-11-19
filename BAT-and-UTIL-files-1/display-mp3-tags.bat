@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 if %VALIDATED_DISPLAYMP3TAGS ne 1 (call validate-in-path metamp3 ffprobe eyed3 sed)

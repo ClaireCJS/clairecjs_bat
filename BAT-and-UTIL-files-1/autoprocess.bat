@@ -1,1 +1,3 @@
-@call auto-process %*
+ @on break cancel
+ @call auto-process %*
+

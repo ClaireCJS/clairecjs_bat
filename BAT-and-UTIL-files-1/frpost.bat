@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
  REM we must pipe the output through cat to get ANSI rendered correctl

@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 iff     "%username%" eq "claire"  then
         call cursor-Claire.bat

@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 call checkeditor
 "%SystemRoot%\system32\drivers\etc\"

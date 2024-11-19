@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 call environm
 
 :::::    PURPOSE: To list all environment variables representing color change commands.

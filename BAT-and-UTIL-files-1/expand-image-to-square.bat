@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 REM This is actually the same logic as resizing the image to be square, except we expand the image's canvas with black lines at top/bottom rather than stretching it

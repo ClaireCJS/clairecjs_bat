@@ -1,3 +1,4 @@
+@on break cancel
 @echo off
 
 set IMAGEINDEX_QUICK=1 %+ call imageindex %*

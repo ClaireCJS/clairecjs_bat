@@ -1,3 +1,4 @@
+@on break cancel
 @echo off
 
 if "%1" ne "" (set PARAM=%1 %+ goto :Params)

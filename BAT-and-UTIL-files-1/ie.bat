@@ -1,3 +1,4 @@
+@on break cancel
 @echo off
 
 REM NO :PUBLISH:

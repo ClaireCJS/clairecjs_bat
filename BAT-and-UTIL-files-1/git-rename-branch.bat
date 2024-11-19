@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 call warning about to rename branch %1 to %2
 pause

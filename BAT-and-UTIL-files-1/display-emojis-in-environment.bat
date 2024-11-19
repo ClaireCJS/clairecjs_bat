@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 
 :cls
@@ -15,6 +16,7 @@ for /f "tokens=1-999" %co in (%TMPFILE%) gosub ProcessEnvVar %co%
 
 
 goto :END
+
     :ProcessEnvVar [var]
         REM if  "%VAR%" eq "LAST_RANDCOLOR" set ADD_TO_ALL_COLORS=0 %+ REM  don't add this one to our ALL_COLORS list because it's an audit color not one of our messaging colors .. any LAST_.*COLOR really would be, but this is the only one bothering us
         REM echo processing %var

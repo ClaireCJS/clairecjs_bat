@@ -1,4 +1,5 @@
- @Echo off
+@on break cancel
+@Echo off
   rem WARNING: Do NOT turn echo on if %DEBUG% is 1, because this won't work if we do that. In general, this script can be problematic with echo on
 
 

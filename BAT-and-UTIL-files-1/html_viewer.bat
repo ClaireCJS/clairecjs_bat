@@ -1,3 +1,4 @@
+@on break cancel
 :::: 20151014 - decided it's annoying when it goes to a new window and you DON'T want that. And when you DO, you can just drag it out.
 :::: 2008-20151013: @call chrome --new-window %*
 

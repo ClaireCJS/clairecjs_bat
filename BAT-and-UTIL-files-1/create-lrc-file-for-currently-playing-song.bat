@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 rem Capture parameters we will use later:
         set PARAM_ONE=%@UNQUOTE[%1]

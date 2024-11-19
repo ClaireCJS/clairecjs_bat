@@ -1,3 +1,4 @@
+@on break cancel
 @echo on
 
     set SEARCHFOR1=%*

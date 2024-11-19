@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 set THIS_DIR=%@NAME[%_CWD]

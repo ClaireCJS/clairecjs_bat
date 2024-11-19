@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 rem Both should work, but perl one may require CPAN installation of Browser::Open:

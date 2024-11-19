@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 call validate-environment-variable TEMP
 
 if "%temp"=="" goto Error

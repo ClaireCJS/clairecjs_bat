@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
 :DESCRIPTION: Generate all audio playlists. This is a wrapper around our generate-filelists-by-attribute.pl script. 

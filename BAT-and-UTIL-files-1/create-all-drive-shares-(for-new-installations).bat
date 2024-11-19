@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 cls
 call warning "This is untested but might just work"

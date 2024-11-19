@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 
 for /a:d %1 in (. [@#$&_+=a-z0-9]*) gosub countdir "%1"

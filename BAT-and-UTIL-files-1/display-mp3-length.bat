@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 call validate-in-path               validate-environment-variable validate-file-extension display-mp3-tags grep sed

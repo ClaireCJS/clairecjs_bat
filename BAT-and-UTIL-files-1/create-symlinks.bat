@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 ::::: PARAMETERS:
     if "%@UPPER[%1]" eq "TEST" goto :Test

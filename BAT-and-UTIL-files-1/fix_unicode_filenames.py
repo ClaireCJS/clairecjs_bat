@@ -108,6 +108,10 @@ from unidecode import unidecode
 from colorama import Fore, Back, Style, just_fix_windows_console
 #init()
 just_fix_windows_console()
+
+#script_dir = os.path.dirname(os.path.abspath(__file__))
+#if script_dir not in sys.path: sys.path.insert(0, script_dir)
+
 import clairecjs_utils as claire
 import fix_unicode_filenames_every_char as everychar
 original_print = print                                                      #Store the original print function before any potential overriding

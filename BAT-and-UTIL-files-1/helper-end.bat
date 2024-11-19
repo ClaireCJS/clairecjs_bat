@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
 :DECRIPTION: This is just a generic BAT that we like to call at the end of "helper BATs", which for us, are typically launched in another window/pane

@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 rem Validate environment:
         call validate-environment-variable EMOJI_FIRE "run %italics_on%set-emoji.bat%italics_off% to define emojis"

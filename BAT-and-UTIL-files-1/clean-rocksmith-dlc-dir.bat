@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 rem This cleans files in the rocksmith DLC/song folder, to prevent Rocksmith startup crashes:
 rem         1) we    delete duplicate Rocksmith songs (files with [1], [2], [3], [4] in them)

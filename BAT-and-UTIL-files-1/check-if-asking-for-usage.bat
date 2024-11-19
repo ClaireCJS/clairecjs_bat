@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 :USAGE: call check-if-asking-for-usage %*
 :DESCRIPTION: Set the flag ASKING_FOR_USAGE=1 if they are passing any parameter that seems to ask for usage

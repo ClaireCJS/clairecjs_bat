@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 :DESCRIPTION: This a wrapper to launch the REAL indexer (index-mp3-helper.bat) in a separate window/pane

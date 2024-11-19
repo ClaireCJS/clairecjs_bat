@@ -1,5 +1,6 @@
 @Echo off
- on error break
+ rem on error break
+ on break cancel
  goto :begin
 
 
@@ -49,4 +50,5 @@ rem Decide if doing old/simple or new/colorful copy method:
 
 rem Update title:
         title %CHECK%Copied %*
+
 

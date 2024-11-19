@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 set  validate_in_path_message=You need to install ffmpeg. Try this command: winget install Gyan.FFmpeg --verbose ... or download a build at https://www.gyan.dev/ffmpeg/builds/

@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 :DESCRIPTION: Breaks execution of all scripting if we are not on our master machine. Used to control authority and script distribution.
 

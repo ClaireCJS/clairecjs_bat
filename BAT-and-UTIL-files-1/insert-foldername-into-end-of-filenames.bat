@@ -1,3 +1,4 @@
+@on break cancel
 @Echo Off
 on break goto :breaker
 

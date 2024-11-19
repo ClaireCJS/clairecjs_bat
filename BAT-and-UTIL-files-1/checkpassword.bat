@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 
 rem This is the equivalent of "call validate-environment-variable PASSWORD" except with an option to hand-edit the variable value

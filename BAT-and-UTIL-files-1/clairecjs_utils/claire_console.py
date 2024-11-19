@@ -160,8 +160,9 @@ class ColorControl:
             rgb_hex1 = convert_rgb_tuple_to_hex_string_with_hash(r1,g1,b1)
             if code != "both":
                 #sys.stdout.write(f'\n [{code};rgb:{r1:x}/{g1:x}/{b1:x}]')
-                sys .stdout.write(f'\x1b]{code};rgb:{r1:x}/{g1:x}/{b1:x}\x1b\\')
-                sys .stdout.write(f'\x1b[ q\x1b]12;{rgb_hex1}\x07')
+		
+                sys .stdout.write(f'\x1b]{code};rgb:{r1:x}/{g1:x}/{b1:x}\x1b\\')	#change main color
+                sys .stdout.write(f'\x1b[ q\x1b]12;{rgb_hex1}\x07')			#cursor cursor color to match
                 #sys.stdout.write( f'\x1b]1;rgb:{r1:x}/{g1:x}/{b1:x}\x07\x1b\\')
                 #sys.stdout.write( f'\x1b]2;rgb:{r1:x}/{g1:x}/{b1:x}\x07\x1b\\')
                 #sys.stdout.write( f'\x1b]3;rgb:{r1:x}/{g1:x}/{b1:x}\x07\x1b\\')
@@ -233,8 +234,8 @@ class ColorControl:
         if     PRODUCTION == False: print("TOCK!")      
         method     = "hard"                 #hard-coded method? or just reset them with our code       
         if method == "hard":
-            sys.stdout.write("\x1b]10;rgb:c0/c0/c0\x1b\\"); sys.stdout.flush()
-            sys.stdout.write("\x1b]11;rgb:00/00/00\x1b\\"); sys.stdout.flush()
+            sys.stdout.write("\x1b]10;rgb:c0/c0/c0\x1b\\"); #sys.stdout.flush()
+            sys.stdout.write("\x1b]11;rgb:00/00/00\x1b\\");  sys.stdout.flush()
         else:            
             for color_code, rgb_values in enumerate(default_rgb_for_color_code):
                 r, g, b = default_rgb_for_color_code[color_code]

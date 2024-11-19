@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 :USAGE: echo-rainbow Message to be in rainbow
 :USAGE: echo-rainbow test

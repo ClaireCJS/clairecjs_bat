@@ -1,3 +1,4 @@
+@on break cancel
 @echo off
 
 REM this is like isRunning except instead of using a regular expression for a relaxed call

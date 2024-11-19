@@ -1,3 +1,4 @@
+@on break cancel
 call git-initvars
 echo USAGE: %0 {date} {file}
 echo        - DATE should be YYYY-MM-DD

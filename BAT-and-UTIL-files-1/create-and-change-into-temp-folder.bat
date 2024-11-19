@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 
 REM  USAGE: call %0 PURPOSE

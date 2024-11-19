@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 :DESCRIPTION: Creates a "these.m3u" playlist file in any single folder that has audio in it
 :DESCRIPTION: See also: create-all_m3u-playlists.bat, which create "all.m3u" playlist files for whole folder trees

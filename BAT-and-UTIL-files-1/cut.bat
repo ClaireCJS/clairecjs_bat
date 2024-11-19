@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 if "%CYGWIN"=="0" goto :nocygwin
 if "%CYGWIN" ne ""  goto :cygwin
 goto :nocygwin

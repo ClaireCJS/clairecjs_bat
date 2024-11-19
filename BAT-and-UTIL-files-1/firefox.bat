@@ -1,3 +1,4 @@
+@on break cancel
 :@Echo OFF
 
 if "%1"=="exitafter" (goto :noarg)

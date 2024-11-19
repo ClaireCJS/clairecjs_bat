@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 :DESCRIPTION: To be run after a fresh Windows install, to automatically install useful programs

@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 :DESCRIPTION: A *very very very* experimental script to change a playlist pasted from setlist.fm into a playlist in our internal system.
 
@@ -14,6 +15,7 @@
 ::     Guest List 
 ::     Supermarket Fantasy 
 ::     My Right 
+
 ::     I Wrote Holden Caulfield 
 ::     Totally 
 ::     Friday Night Nation 

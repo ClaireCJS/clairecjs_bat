@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 rem Validate Enviroment:
         call validate-environment-variable filemask_audio check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py

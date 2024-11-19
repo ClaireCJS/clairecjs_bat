@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
  set  REVISION=%1
  set  FILE=%2

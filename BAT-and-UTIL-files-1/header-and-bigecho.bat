@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 set  HABPARAMS=%STAR% %@UNQUOTE[%*]
 set  header_noecho=1

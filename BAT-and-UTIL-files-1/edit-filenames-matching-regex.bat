@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 :DESCRIPTION:    Open all files matching a regular expression in the default text editor
 :USAGE:          %0 "someRegex"    *.txt  {defaults to *.bat if no file is specified}

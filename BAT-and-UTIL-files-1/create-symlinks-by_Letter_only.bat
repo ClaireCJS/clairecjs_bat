@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 call validate-environment-variable ALL_MEDIA_BY_DRIVE 
 rd   %ALL_MEDIA_BY_DRIVE%\*  >&>nul

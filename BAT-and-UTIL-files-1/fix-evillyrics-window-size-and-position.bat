@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 set WHAT_WE_ARE_MOVING=EvilLyrics

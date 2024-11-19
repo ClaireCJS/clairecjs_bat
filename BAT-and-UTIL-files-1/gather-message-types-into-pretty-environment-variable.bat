@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 :DECRIPTOIN: assumes print-message has already been run to define MESSAGE_TYPES_WITHOUT_ALIASES -- that could be better in environm.btm but that makes things less portable

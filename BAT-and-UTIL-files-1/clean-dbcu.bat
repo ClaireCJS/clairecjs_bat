@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 rem My personal script for cleaning out my "Dropbox\camera uploads" ['dbcu'] folder
 

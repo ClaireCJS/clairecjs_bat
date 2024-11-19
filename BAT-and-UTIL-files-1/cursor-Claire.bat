@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 :REQUIRES: set-ansi.bat (which must have been run prior to this)
 

@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 set SLEEPING=0
 

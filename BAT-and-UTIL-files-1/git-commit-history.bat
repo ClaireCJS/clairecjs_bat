@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 call validate-environment-variable GITHUB_USERNAME

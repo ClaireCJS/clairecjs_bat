@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 REM Validate that we have a list of message types used in print-message.bat (this var is set in print-message.bat):

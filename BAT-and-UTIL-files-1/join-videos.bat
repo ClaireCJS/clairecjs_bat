@@ -1,3 +1,4 @@
+@on break cancel
 @echo off
 call advice 'USAGE: join-videos *.avi'
 pause

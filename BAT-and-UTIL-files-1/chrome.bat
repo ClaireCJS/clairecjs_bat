@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 set OUR_CHROMEARGS=--max_old_space_size=4096
  

@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 REM sleep 1
 set MYCOLOR=%@ANSI_BG[40,0,0]

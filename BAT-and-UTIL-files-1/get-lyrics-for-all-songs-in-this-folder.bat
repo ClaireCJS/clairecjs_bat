@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 call  validate-in-path               get-lyrics

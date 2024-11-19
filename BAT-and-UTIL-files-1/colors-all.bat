@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 
 for %%fg in (0 8 4 12) (for /L %%bg in (0,1,15) (gosub cell %bg% %fg% %+ gosub cell %bg% %@EVAL[%fg%+1] %+ gosub cell %bg% %@EVAL[%fg%+2] %+ gosub cell %bg% %@EVAL[%fg%+3]%+ echo.) %+ echo.)

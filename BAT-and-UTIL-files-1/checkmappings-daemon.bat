@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 rem Check the drive mappings:
         call checkmappings nopause

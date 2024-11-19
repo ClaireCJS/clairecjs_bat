@@ -1,3 +1,4 @@
+@on break cancel
 @Echo off
 
 REM AutoIt (freeware tool) can find these correct coordinates

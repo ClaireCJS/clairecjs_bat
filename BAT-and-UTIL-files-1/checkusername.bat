@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 :Restart
 if "%USERNAME"=="" goto :bad

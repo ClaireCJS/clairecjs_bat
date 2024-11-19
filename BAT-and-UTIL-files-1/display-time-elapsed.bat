@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 :::::::::: THIS IS NOT MEANT TO BE CALLED DIRECTLY!

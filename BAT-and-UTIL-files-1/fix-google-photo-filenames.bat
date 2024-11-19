@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 rem   This adds the hyphens back into the filenames & reformats filenames so we get "YYYY-MM-DD HHMM - " formatted filenames

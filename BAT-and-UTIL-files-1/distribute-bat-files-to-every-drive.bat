@@ -1,3 +1,4 @@
+@on break cancel
 @Echo Off
 
 :DESCRIPTION: Used to reliably distribute BAT files to other computers [and update our GIT repo] ... repliate c:\bat to d:\bat, e:\bat, to EVERY READY DRIVE LETTER that has a \bat\ folder

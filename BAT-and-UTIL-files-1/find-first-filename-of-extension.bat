@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF 
 
 unset /q FIRST_FILE_FOUND            %+ REM   do not leave results left over from previous searches!

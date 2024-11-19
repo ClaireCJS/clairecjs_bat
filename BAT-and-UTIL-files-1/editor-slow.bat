@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 :DESCRIPTION: Loads files into text editor with a 1 second delay. Useful for automation of loading files into text editors that hang if you throw 50 file-load command lines at them at once.

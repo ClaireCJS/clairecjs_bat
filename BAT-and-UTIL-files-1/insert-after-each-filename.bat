@@ -1,3 +1,4 @@
+@on break cancel
 @Echo Off
 
 set INSERT_TEXT=%1

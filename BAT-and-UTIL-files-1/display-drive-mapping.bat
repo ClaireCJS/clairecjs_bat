@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 echo.
 
 :DESCRIPTION: Post-processor for the "net use" command.  See display-drive-mapping.jpg for sample.

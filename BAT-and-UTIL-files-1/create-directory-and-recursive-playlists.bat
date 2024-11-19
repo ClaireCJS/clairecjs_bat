@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
     call warning "This is superceded by the much faster python implementation at generate_thesem3u_and_allm3u_playlists_in_folder.py"
     pause

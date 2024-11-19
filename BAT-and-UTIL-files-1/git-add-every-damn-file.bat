@@ -1,3 +1,4 @@
+@on break cancel
 @Echo OFF
 
 :: sweep thru subdirs first, before conquering main:
