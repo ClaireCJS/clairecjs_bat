@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 ::::: SETUP:
         :ASSUME 'gr' is an alias for grep

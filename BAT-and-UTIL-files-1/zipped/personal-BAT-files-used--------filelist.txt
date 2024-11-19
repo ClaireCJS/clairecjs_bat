@@ -8,7 +8,7 @@
 2024-03-13  13:29          1,091   47%  add-ReplayGain-tags-to-all-mp3s.bat
 2023-07-18  19:22             97   36%  add-ReplayGain-tags.bat
 2023-05-29  22:39             43   -4%  advice.bat
-2024-11-11  03:28         29,325   75%  after.bat
+2024-11-18  18:58         29,343   75%  after.bat
 2023-08-26  19:25          1,074   68%  age.bat
 2024-07-09  21:49             68    5%  AI-song-identify.bat
 2024-10-10  09:27          1,595   63%  alarm-beep.bat
@@ -712,7 +712,7 @@
 2024-09-10  01:05            144   28%  reset-ansi.bat
 2024-11-02  22:35            260   47%  reset-cursor.bat
 2024-09-10  01:10          2,673   61%  reset-tab-stops.bat
-2024-11-03  23:35             76   58%  reset.ansi
+2024-11-18  17:16             38   22%  reset.ansi
 2024-11-04  05:28             38   -5%  resrt.bat
 2024-09-11  01:44             62   10%  restart-ahk.bat
 2024-10-10  03:59          1,167   70%  restart-chrome.bat

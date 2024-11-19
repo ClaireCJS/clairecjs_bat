@@ -1,11 +1,12 @@
 #import clairecjs_utils as claire
 
 
-#TODO sed-ansi-test-TODO.bat for proper color reset
 
-#TODO start with whatever precomputed value is closest to our current rgb value of color based on our internal mapping table rather than the start of our computed rgb value matrix
+#TODO incorporate proper full ansi_full_reset string
 
-#TODO adaptive algorithm on how often we check elapsed time to reduce loop slowdowns when included in intensive loops
+#IDEA: start with whatever precomputed value is closest to our current rgb value of color based on our internal mapping table rather than the start of our computed rgb value matrix
+
+#IDEA: adaptive algorithm on how often we check elapsed time to reduce loop slowdowns when included in intensive loops ... of course, one could just... NOT CALL IT TOO OFTEN to fix that problem
 
 #MAYBE new rainbow precomputed values for other color slide variations?
 
@@ -208,6 +209,7 @@ class ColorControl:
         sys.stdout.write(f'RESTORE code={self.current_color_code};rgb:{r:x}/{g:x}/{b:x}\x1b\\')
         sys.stdout.write(f'\x1b]{self.current_color_code};rgb:{r:x}/{g:x}/{b:x}\x1b\\')
         screen_color_reset()                                                        # generic console reset function to start with
+        
 
     def tick(self, sleep=None, mode=None, testing=False, test_name="None", j=None, count=1, color_step=1):
         now = time.time()
@@ -227,17 +229,20 @@ class ColorControl:
         screen_color_reset()  # Reset the console color
 
     def tock(self):
-        global PRODUCTION
-        if PRODUCTION == False:
-            print("TOCK!")
+        global PRODUCTION      
+        if     PRODUCTION == False: print("TOCK!")      
+        method     = "hard"                 #hard-coded method? or just reset them with our code       
+        if method == "hard":
+            sys.stdout.write("\x1b]10;rgb:c0/c0/c0\x1b\\"); sys.stdout.flush()
+            sys.stdout.write("\x1b]11;rgb:00/00/00\x1b\\"); sys.stdout.flush()
+        else:            
             for color_code, rgb_values in enumerate(default_rgb_for_color_code):
                 r, g, b = default_rgb_for_color_code[color_code]
                 #color_code = mapping_console_color_to_ansi_color.get(color_code, color_code)
                 sys.stdout.write(f"\ncolor_code_tock={color_code:>2}, rgb_values={r:2x}{g:2x}{b:2x}    ")
                 sys.stdout.write(f'\\x1b]{color_code}; \trgb:{r:0x}/{g:0x}/{b:0x}\\x1b\\') #rem escaped the 2 escapes and put \t before rgb:
                 sys.stdout.write( f'\x1b]{color_code};rgb:{r:x}/{g:x}/{b:x}\x1b\\')  #normal
-            print("\n")
-
+                #print("\n")
 
         #FOR MORE INFO: https://stackoverflow.com/questions/27159322/rgb-values-of-the-colors-in-the-ansi-extended-colors-index-17-255
 
@@ -253,8 +258,8 @@ class ColorControl:
         #2024/11/02 — for whatever reasons these are now leaking out where they shouldn't, let's try taking this reset out
         #sys.stdout.write(f'\x1b]10;rgb:c0/c0/c0\x1b\\')
         #sys.stdout.write(f'\x1b]11;rgb:00/00/00\x1b\\')
-
         #screen_color_reset()  # Reset the console color
+        #2024/11/18 — put this back in, but above
 
 
 #              vvv---- this is the default mode if we lazily call claire.tick() from somewhere external
@@ -262,7 +267,7 @@ def tick(mode="fg", testing=False,test_name="None",sleep=None, j=None, count=1, 
 def tock():                                                                                     color_control.tock()
 
 
-default_rgb_for_color_code = [
+default_rgb_for_color_code = [          # tried to get the "official" versions of the colors here, but this WON'T be what some people might want, if they use alternate colors!
     #colors_front = [Fore.BLACK, Fore.RED, Fore.GREEN, Fore.YELLOW, Fore.BLUE, Fore.MAGENTA, Fore.CYAN, Fore.WHITE, Fore.LIGHTBLACK_EX, Fore.LIGHTRED_EX, Fore.LIGHTGREEN_EX, Fore.LIGHTYELLOW_EX, Fore.LIGHTBLUE_EX, Fore.LIGHTMAGENTA_EX, Fore.LIGHTCYAN_EX, Fore.LIGHTWHITE_EX]
     (  0,   0,   0),                    # Color code  0 - Black
     (128,   0,   0),                    # Color code  1 - Red
@@ -282,9 +287,9 @@ default_rgb_for_color_code = [
     (255, 255, 255),                    # Color code 15 - White
 ]
 
-mapping_console_color_to_ansi_color = {
-    10: 7,
-    11: 0
+mapping_console_color_to_ansi_color = {         
+    10: 7,                              #voodoo
+    11: 0                               #voodoo
 }
 
 color_control = ColorControl()
@@ -316,16 +321,7 @@ if __name__ == "__main__":
     print_all_ansi_colors()
 
 
-    #crashy crashy after installing windows terminal
-    #fg = get_color_via_subprocess_ansi_echo_which_is_not_a_very_good_way_to_do_things_at_all_and_should_be_avoided(10)
-    #bg = get_color_via_subprocess_ansi_echo_which_is_not_a_very_good_way_to_do_things_at_all_and_should_be_avoided(11)
-    #print(f"according to ansi?: Foreground: {fg}")
-    #print(f"according to ansi?: Background: {bg}")
-
-
     #for i in range(16): print(f"{i:2}: " + get_color_via_subprocess_ansi_echo_which_is_not_a_very_good_way_to_do_things_at_all_and_should_be_avoided(i))
-
-
 
     print(f"Current foreground color: {fg_color}, rgb={get_rgb_values(fg_color)}")
     print(f"Current background color: {bg_color}, rgb={get_rgb_values(bg_color)}")
@@ -335,6 +331,8 @@ if __name__ == "__main__":
     #color_control.color_cycle(testing=True,count=50000          ,prevent_machine_slowdown=True)   #set prevent_machine_slowdown = False so that it just runs through the loop without the more-complicated time-based-cpu-overload-prevention code happening
     #color_control.color_cycle(testing=True,count=400 ,sleep=.001,prevent_machine_slowdown=False)   #set prevent_machine_slowdown = False so that it just runs through the loop without the more-complicated time-based-cpu-overload-prevention code happening
     screen_color_reset()
+
+
 
 
 #function aliases so people with bad memories aren't wrong as often

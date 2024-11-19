@@ -117,7 +117,7 @@ goto :END_OF_SUBROUTINES
                                     call validate-environment-variable  TARGET_DIR
                                     echos                  ``
                         REM copy each file
-                                        echo %ansi_color_warning%our_filelist is %our_filelist%%ansi_color_normal%
+                                    rem echo %ansi_color_warning%our_filelist is %our_filelist%%ansi_color_normal% 🐮
                                     for %file in (%OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4% %OUR_FILELIST_5% %OUR_FILELIST_6% %OUR_FILELIST_7% %OUR_FILELIST_8% %OUR_FILELIST_9% %OUR_FILELIST_10%) do (
                                         rem echos %newline%%tab%%arrow%Checking file '%file%'
                                         echos %@random_cursor_color[]%@randfg[].

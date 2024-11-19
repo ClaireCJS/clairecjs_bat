@@ -33,6 +33,7 @@ rem CONFIGURATION:
 
 
 
+
 rem Only once per session, validate our environment & make sure we're running this on the correct machine:
         iff %GITHUB_UPDATER_VALIDATED ne 1 then
             call validate-environment-variables MACHINENAME MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY
@@ -82,13 +83,16 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
 
 
 
+
+
+
 rem Update BAT files from live location to github-folder location:
         if "%1" eq "skip-update" (goto :Skip_Update)
         call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN%
         :Skip_Update
 
 
-rem Update our BAT-1 folder to our BAT-2 folder so get past GitHub's 1,000 file display limit
+rem Update our BAT-1 folder to our BAT-2 folder to get past GitHub's 1,000 file display limit:
         copy /u  %TARGET_MAIN%\[m-z]* %TARGET_2%
 
 
