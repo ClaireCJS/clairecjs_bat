@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 set OUR_LOGGING_LEVEL=None
 

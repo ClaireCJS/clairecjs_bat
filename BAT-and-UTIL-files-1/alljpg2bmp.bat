@@ -1,3 +1,5 @@
+
+ on break cancel
 for %%1 in (*.jpg) (convert -quality 100 -verbose "%%1" "%@NAME[%%1].bmp")
 for %%1 in (*.jpg) (if exist "%@NAME[%%1].bmp" call dep "%%1")
 

@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 :: OBSOLETE:
 	:: set tmpeditor=%EDITOR

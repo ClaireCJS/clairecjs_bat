@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 set ASSIMILATION_TARGET=%GAMES%\VR\Rookie PSVR
 

@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 
 rem Make sure Adobe Audition is closed:

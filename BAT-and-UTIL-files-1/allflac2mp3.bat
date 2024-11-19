@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 :: Loop through all the flac files in the current directory
     do f in *.flac

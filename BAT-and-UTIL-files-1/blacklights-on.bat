@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
                           set OPT=on
 if "%@UPPER[%1]" eq "OFF" set OPT=off

@@ -1,4 +1,5 @@
 @echo off 
+ on break cancel
 
 if not exist *.mp3 (%COLOR_IMPORTANT_LESS% %+ echo 🚫 No mp3s exist here. %+ goto :END)
 

@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 
 call validate-in-path magick.exe    "You need ImageMagick's %italics_n%magic.exe%italics_off%, which can be done with the command: %italics_on%winget install ImageMagick.ImageMagick%italics_off%"

@@ -1,4 +1,5 @@
 @echo off 
+ on break cancel
 
 call randcolor
 if not exist *.flac (%COLOR_IMPORTANT_LESS% %+ echo 🚫 No flacs exist here. %+ goto :END)

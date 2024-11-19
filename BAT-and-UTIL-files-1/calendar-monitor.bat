@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 rem cls
 
 set MONITORING_SCRIPT=c:\bat\ingest_ics.py

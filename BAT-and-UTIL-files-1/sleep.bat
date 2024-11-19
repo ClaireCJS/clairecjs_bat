@@ -1,6 +1,10 @@
 @Echo Off
+ on break cancel
 
 :USAGE: sleep <seconds to sleep> [silent/clock] [custom clock message with special substitution for {seconds}]
+
+
+pause
 
 iff "%1" eq "" then
         repeat 10 echo.
@@ -34,8 +38,10 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                             echo %ANSI_COLOR_DEBUG%%EMOJI_STOPWATCH%%ZZZZZZ%%FAINT_ON% delay %* %FAINT_OFF%%ANSI_RESET%
                     :silent_1
 
-            rem Do the actual sleep using the TCC internal DELAY command —- experimenting with new methods:
-                    *delay %*
+            rem Do the actual sleep using the TCC internal DELAY command —— experimenting with new methods:
+                     on break cancel
+                     rem 2024/11/18 experiment: adding /f /b to flush keyboard buffer and abort if any keystroke
+                    *delay /F /B %*
     
     
     :New_Way

@@ -1,4 +1,5 @@
 @Echo On
+ on break cancel
 
 call advice "Can run '%double_underline_on%%0 music%double_underline_off%' to force music-autoprocessing mode"
 

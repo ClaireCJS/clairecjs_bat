@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 :DESCRIPTION: Backs a file up to every \BACKUPS\ folder on every drive!  C:\BACKUPS, D:\BACKUPS, E:\BACKUPS, etc
 :USAGE:       set PARALLEL_BACKUP=1 if you want 1 to open a window for each drive and run all copies in parallel

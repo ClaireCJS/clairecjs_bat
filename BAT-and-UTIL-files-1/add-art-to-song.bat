@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 SET ART=%1
 SET SONG=%2
 call validate-environment-variables ART SONG

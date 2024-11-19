@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 rem title %0 %*
 

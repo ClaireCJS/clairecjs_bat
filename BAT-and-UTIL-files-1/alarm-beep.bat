@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 ::::: SETUP:
     if not defined USERNAME (echo *** FATAL ERROR: USERNAME NOT DEFINED! %+ pause +% goto :END)

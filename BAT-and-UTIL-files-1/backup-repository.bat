@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 rem Capture and validate parameters:
         set SOURCE=%1

@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 call set-ansi force
 

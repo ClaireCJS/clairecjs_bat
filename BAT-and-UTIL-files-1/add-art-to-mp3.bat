@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 REM set this to 1 to use TagEdit.exe in the event that eyeD3.ee fails:
 set USE_FALLBACK_EMBEDDING_METHOD=0

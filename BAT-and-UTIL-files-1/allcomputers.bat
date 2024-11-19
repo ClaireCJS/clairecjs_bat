@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 :DESCRIPTION:  will do the following command, for each machine in our environment: a <machinename> b c d e
 

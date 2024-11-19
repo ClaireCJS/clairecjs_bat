@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 ::: This is for playing m3u winamp playlists.
 ::: These may have absolute-path filenames, i.e. d:\mp3\Metallica\Sucks.mp3

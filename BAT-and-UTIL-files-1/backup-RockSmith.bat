@@ -1,4 +1,5 @@
 @Echo OFF                                       
+ on break cancel
 
 ::::: SET ENV VAR FOR BACKUP:
     set RSBACKUPS=%GAMESBACKUP%\RHYTHM & MUSIC\ROCKSMITH

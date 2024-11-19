@@ -1,4 +1,5 @@
 @Echo OFF                                       
+ on break cancel
 
 iff %XENIA_INSTALLED eq 0 then
         call warning_soft "Not backing up Xenia because it's not installed on this machine..."

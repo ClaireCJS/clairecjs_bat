@@ -164,7 +164,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                             rem                           but NOT for validate-environment-variableS { plural }:
                                     if defined  PARAM2    .and.    not defined     %PARAM2%  (
                                         call warning                              "%PARAM2"
-                                        call bigecho %ANSI_COLOR_WARNING%%@unquote[%PARAM2]
+                                        call bigecho %ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!
                                         call warning                              "%PARAM2"
                                     )
 
@@ -191,6 +191,7 @@ goto :Past_The_End_Of_The_Sub-Routines
             set VARVALUE=%[%VARNAME%]``                    %+ if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
             set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])     
 
+
             set IS_FILE_LOCATION=0
             setdos /x-5
             iff defined VARVALUE then
@@ -204,7 +205,12 @@ goto :Past_The_End_Of_The_Sub-Routines
                                 goto :skippy
                         endiff                                
                         rem echo 🧟🏻‍♀️ if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"       set IS_FILE_LOCATION=1 >nul
-                        if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"  .or.  "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" (set IS_FILE_LOCATION=1) %+ rem if it ends with any file extension of commonly used files
+                        iff "%VARNAME%" eq "newline" .or. "%VARNAME%" eq "tab" then
+                                rem It's not something we want in regexes, so skip this next part
+                                rem Idea: we *could* skip any string which doesn't have a . in it. Safe but slightly destructive.
+                        else                                
+                                if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"  .or.  "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" (set IS_FILE_LOCATION=1) %+ rem if it ends with any file extension of commonly used files
+                        endiff       
                         setdos /x0
                 @echo off                        
             endiff                          

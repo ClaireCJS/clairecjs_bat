@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 rem Loop through all the WAV files in the current directory and encode them to mp3
 rem (note that ffmpeg.bat is simply ffmpeg.exe)

@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 rem Kill old autohokey if it's running
         taskend /f autohotkey64* >nul

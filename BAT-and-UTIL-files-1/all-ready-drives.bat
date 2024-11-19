@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 rem Check invocation
         if "%1" eq "" (

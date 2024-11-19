@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 ::::: CHECK USAGE:
     if "%1" eq "" .or. "%2" eq "" (gosub :Usage %+ goto :END)

@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 if exist c:\cygwin\bin\cat.exe (goto :cygwin)
 

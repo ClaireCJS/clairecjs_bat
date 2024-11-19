@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 ::::: CONFIGURATION:
     call validate-environment-variable MOVIE_WATCHED_OVERFLOW_DRIVE

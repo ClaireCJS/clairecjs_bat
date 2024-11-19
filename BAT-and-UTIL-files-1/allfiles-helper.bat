@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 @REM turning echo on is a great way to debug development of new ones
 
 setdos /X0

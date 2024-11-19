@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 	gosub process %1
 	gosub process %2

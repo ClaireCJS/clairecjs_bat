@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 ::::: ENVIRONMENT VALIDATION:
     call validate-environment-variables TEMP MACHINENAME

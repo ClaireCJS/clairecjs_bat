@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 cls
 echo Trying to install button to go directly to app-volume-preferences ... to the QuickLaunchBar

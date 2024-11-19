@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 if exist %1 goto :fine
 if not isdir "%1" goto :nodir
 

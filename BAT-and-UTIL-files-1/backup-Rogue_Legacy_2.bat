@@ -1,4 +1,5 @@
 @Echo OFF                                       
+ on break cancel
 
 rem backup rogue legacy 2 savegame into monthly folders
 

@@ -1,4 +1,5 @@
 @Echo on
+ on break cancel
 
 
 rem TODO! This needs to be abstracted using our machinename environment variables

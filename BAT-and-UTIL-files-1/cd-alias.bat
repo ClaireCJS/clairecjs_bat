@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 :DESCRIPTION: "cd" but with file-number-tracking and a tiny bit of file maintenance
 :DESCRIPTION:

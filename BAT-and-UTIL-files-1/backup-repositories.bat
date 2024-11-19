@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 :DESCRIPTION: Backup management script to ensure that all repositories are properly backed up
 

@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 rem Stop user from doing this if it's our music server!
 
