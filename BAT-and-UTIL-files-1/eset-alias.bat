@@ -1,3 +1,4 @@
+@on break cancel
 @Echo Off
 
 rem 🔍Validate environment, but only once:

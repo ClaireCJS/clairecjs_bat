@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 call validate-in-path isRunning.bat warning_less.bat askYN.bat taskend important_less.bat start-minilyrics.bat
 

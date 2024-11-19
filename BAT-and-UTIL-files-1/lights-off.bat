@@ -1,4 +1,5 @@
- @Echo OFF
+@on break cancel
+@Echo OFF
 if "%NO7%" ne  "1" (call x10 a7 off)
 if "%NO6%" eq  "1" (goto :No6)
 if  "NO6"  eq "%1" (goto :No6)
