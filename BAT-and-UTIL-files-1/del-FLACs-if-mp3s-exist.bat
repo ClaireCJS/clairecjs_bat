@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 ::::: purely cosmetic:
     if %1 eq "randcolor" (call randfg)

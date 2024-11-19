@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 REM set logging=None
 REM call logging "%0 %*"
 

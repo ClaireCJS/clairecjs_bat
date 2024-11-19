@@ -1,5 +1,6 @@
-@Echo OFF
+  @Echo OFF
 
+ on break cancel
 ::::: USAGE:                             dice.bat <num_dice_sides> - roll a die with as many sides as the command-line parameter specifies
 ::::: USAGE:   set NUM_DICE_SIDES=xxx %+ dice.bat                  - roll a die with as many sides as the environment  variable  specifies
 ::::: USAGE:                             dice.bat [no arguments]   - interactively prompts for number of dice sides, with default value of 6

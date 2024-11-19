@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 rem UPDATES TO THIS need to also go into remove-currently-playing-song-from-playlist.bat ... for dumb reasons of avoiding maximum batch nesting limits:
         rem TMPPAGE=c:\recycled\wawi-index-%_DATETIME-%_PID.html

@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 REM /SHA1 is slightly faster but potentially insecure
 REM /Nj  isn't working right dammit

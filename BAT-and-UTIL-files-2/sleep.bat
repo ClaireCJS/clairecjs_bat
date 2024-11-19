@@ -3,9 +3,6 @@
 
 :USAGE: sleep <seconds to sleep> [silent/clock] [custom clock message with special substitution for {seconds}]
 
-
-pause
-
 iff "%1" eq "" then
         repeat 10 echo.
         call divider
@@ -38,10 +35,8 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                             echo %ANSI_COLOR_DEBUG%%EMOJI_STOPWATCH%%ZZZZZZ%%FAINT_ON% delay %* %FAINT_OFF%%ANSI_RESET%
                     :silent_1
 
-            rem Do the actual sleep using the TCC internal DELAY command —— experimenting with new methods:
-                     on break cancel
-                     rem 2024/11/18 experiment: adding /f /b to flush keyboard buffer and abort if any keystroke
-                    *delay /F /B %*
+            rem Do the actual sleep using the TCC internal DELAY command —- experimenting with new methods:
+                    *delay %*
     
     
     :New_Way
@@ -124,7 +119,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                                             title %emoji_to_use% Wait: %second% more seconds %emoji_to_use%
 
                                     rem Do our actual sleep:
-                                            if "%second" != "0" (delay 1)
+                                            if "%second" != "0" (*delay 1)
 
                                     rem Turn the cursor off, which makes the blinking stay in a consistent location instead of being all bouncy:
                                             if %silent ne 1 (echos %ANSI_CURSOR_INVISIBLE%) 
@@ -135,7 +130,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                                     rem Do the actual 'sleep':
                                             rem echos %@RANDOM_CURSOR_COLOR[]%ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%
                                             echos %@randcursor[]
-                                            if "%second" != "0" (delay 1)
+                                            if "%second" != "0" (*delay 1)
                             endiff
 
 

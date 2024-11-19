@@ -1,4 +1,5 @@
 @Echo off
+ on break cancel
 
 :DESCRIPTION: Detects command line and sets OUR_COMMAND_LINE to one of the following values: CMD PowerShell Anaconda bash TCC.
 rem           This one was tough to write, because it needs to run in all those command lines as well. Nigh impossible, but this is close.

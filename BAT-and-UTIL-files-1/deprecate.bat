@@ -1,4 +1,5 @@
 @Echo Off
+ on break cancel
 
 :USAGE: To mark a folder or file as deprecated
 

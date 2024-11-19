@@ -1,4 +1,5 @@
 @echo off
+ on break cancel
 
 :USAGE: delete-zero-byte-files           - deletes all zero byte files
 :USAGE: delete-zero-byte-files *.lrc     - deletes all zero byte files with the LRC extension

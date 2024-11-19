@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 :DESCRIPTION: Delete a WAV if a companion MP3 exists 
 :DESCRIPTION: Most probable use case is: the wav was converted to mp3 and is no longer needed

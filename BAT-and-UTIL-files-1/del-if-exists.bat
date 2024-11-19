@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 iff exist %* then
     rem Make it pretty:
             echos %@randfg_soft[]  ``

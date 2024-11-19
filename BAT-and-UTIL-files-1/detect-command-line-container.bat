@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 if "%CONTAINER%" ne "" goto :Detected_Already
                        REM we used to set container= but it had some problems with some pop-up situations and I didn't feel like investigating it

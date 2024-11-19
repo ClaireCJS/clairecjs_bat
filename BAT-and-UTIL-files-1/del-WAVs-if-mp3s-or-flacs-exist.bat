@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 rem For purely cosmetic reasons, we want each file to be a different color:
         if %1 eq "randcolor" (call randfg)

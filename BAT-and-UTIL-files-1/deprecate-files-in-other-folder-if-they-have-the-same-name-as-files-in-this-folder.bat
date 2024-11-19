@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 rem Get paramters:
         if "%1" eq "" (goto :usage)

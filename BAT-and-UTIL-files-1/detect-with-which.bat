@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 :PUBLISH:
 :DESCRIPTION:   detects the fully expanded filename of a command 
 :DESCRIPTION:   if the command if it is an alias it just returns it back unexpanded (for reasons, we do not expand)

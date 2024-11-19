@@ -1,4 +1,5 @@
 @Echo OFF
+ on break cancel
 
 set maxSize=0
 set largestFile=
