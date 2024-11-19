@@ -1,15 +1,16 @@
-of clubs,♣
+Autotext,Phrase content
+of clubs,♣,♣
 of diamonds,♦
 of heart,♥
 of spades,♠
 ~=,≈
 approximately equal,≈
 ===,≡
-+-,±
+ +- ,±
 plus or minus,±
--+,∓
+ -+ ,∓
 multiplied by,×
-/,÷
+ // ,÷
 divided by,÷
 cbrt,∛
 cube root,∛
@@ -29,17 +30,6 @@ pi,π
 infinity,∞
 approximately,≈
 approx,≈
-1st,1ˢᵗ
-2nd,2ⁿᵈ
-3rd,3ʳᵈ
-4th,4ᵗʰ
-5th,5ᵗʰ
-6th,6ᵗʰ
-7th,7ᵗʰ
-8th,8ᵗʰ
-9th,9ᵗʰ
-10th,10ᵗʰ
-^0,⁰
 ^1,¹
 ^2,²
 ^3,³
