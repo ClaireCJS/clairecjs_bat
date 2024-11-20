@@ -16,6 +16,8 @@ rem Check invocation
             call scream
             goto :END
         )
+        set FIXED_COMMAND=N/A
+
 
 rem get command, which may be enclosed in quotes (so we can in theory use multiple commands) or not (so we can use commands that use quote)
                        set COMMAND=%*
@@ -60,7 +62,6 @@ goto :END
                 echo.
                 goto :End_Of_For_Loop
             :Not_Skipped
-
 
             if "%@READY[%letter%]" ne "1" goto :Drive_Not_Ready
                 rem no yes
