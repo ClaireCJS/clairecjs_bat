@@ -115,4 +115,4 @@ if __name__ == "__main__":                                                      
             output_file = re.sub(r'\.[^.]+$', EXTENSION, input_file)                               # Replace input file's extension with EXTENSION
 
         srt_to_txt(input_file, output_file)                                                        # Call the main function with input and output files
-        print(f"✔ {output_file} generated")                                                       # Display success message
+        print(f"✔  Generated: {output_file} generated")                                           # Display success message

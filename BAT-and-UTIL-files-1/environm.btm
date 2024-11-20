@@ -779,55 +779,162 @@ return
 
     %gosub_stopwatch_button% yellow "      %STAR%[1]CommonEnvVarsIncludingNetworking"
 
-	::::: WHO'S THE BOSS?
-        rem echos %@RANDCURSOR[]
-        ::::: MASTER/PRIMARY MACHINE:
-			::::: CONSIDER: WHEN NEW COMPUTER IS ADDED
-            rem MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY=THAILOG                            ////// 2015ish
-            set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY=DEMONA                             %+ rem 20221022
-            if "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%" == "%MACHINENAME%" (
-                    set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=C
-            ) else (
-                rem MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD240G2%                   
-                rem MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD512G%                    
-                set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD1T3%                 %+ rem 20221022
-            )
-            :Aliases:
-                set MACHINEMASTER=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%                %+ rem Consider: When new computer is added
-                set MASTERMACHINE=%MACHINEMASTER%
-                set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_C_DRIVE=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%
-        ::::: MUSIC SERVER(s):
-                rem: Winamp's Now-Playing plugin creates this file (and a jpg):
-            set WINAMP_NOW_PLAYING_TXT=%MP3OFFICIAL%\lists\winamp_now_playing.txt
-            set WINAMP_NOW_PLAYING_ART=%MP3OFFICIAL%\lists\winamp_now_playing.jpg
-            set AUDIOSCROBBLER_LOG=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
-            SET MUSICSERVERMACHINENAME=DEMONA
-            SET MUSICSERVERIPONLY=%IP_DEMONA%
-            set   MUSICSERVERPORT=666
-                           if  "%MUSICSERVERMACHINENAME%" eq "%MACHINENAME%" (set MUSICSERVERIPONLY=localhost  )
-                           if  "WORK"                     eq "%MACHINENAME%" (set MUSICSERVERIPONLY=%PUBLIC_IP%)
-            SET          MUSICSERVER=%MUSICSERVERIPONLY%:%MUSICSERVERPORT%
-            rem    MUSICSERVERCDRIVE=%HD240G2%                                          
-            rem    MUSICSERVERCDRIVE=%HD512G%                                          
-            SET    MUSICSERVERCDRIVE=%HD1T3%                                          
-                           if "%MACHINENAME%"  eq "%MUSICSERVERMACHINENAME%" set MUSICSERVERCDRIVE=C
-            SET    MUSICSERVERC_DRIVE=%MUSICSERVERCDRIVE%                                          
-            set  MUSICSERVERUSERNAME=oh                                                     %+ rem the Windows/OS-username that is logged in when the MUSICSERVER is playing music
-            set MUSICSERVERSTATUSURL=http://%MUSICSERVER%/main
 
-            :::: KLUDGES TO SMOOTH OVER 2007 REMOVAL OF DEPRECATED UPSTAIRS/DOWNSTAIRS MULTI-MUSIC-SERVER / HOUSE-CONSTRUCTION CODE:
-                SET TMPMUSICSERVERCDRIVE=%MUSICSERVERCDRIVE%
-                SET       TMPMUSICSERVER=%MUSICSERVER%
-            :::: STUFF TO RUN *ONLY* ON THE MUSIC SERVER:
-                if "%MACHINENAME%" ne "%MUSICSERVERMACHINENAME%" goto :NotMusicServer
-                    SET TMPMUSICSERVERCDRIVE=C
-                    SET WAWILOGSDRIVE=C
-                    SET WAWILOGS=%WAWILOGSDRIVE%:\logs\wawi
-                    %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
-                    %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
-                    %gosubValidateFolderExists% MP3OFFICIALDRIVE WINAMP_NOW_PLAYING_TXT
-                    %gosubValidateFolderExists% MP3OFFICIALDRIVE WINAMP_NOW_PLAYING_JPG
-                :NotMusicServer
+
+
+
+
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ SERVER(s) DELINEATION: BEGIN: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                rem WHO'S THE BOSS?
+                rem echos %@RANDCURSOR[]
+                rem MASTER/PRIMARY MACHINE:
+                    rem CONSIDER THIS: WHEN NEW COMPUTER IS ADDED
+                    rem MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY=THAILOG                            %+ rem 2015ish
+                    set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY=DEMONA                             %+ rem 20221022
+                    iff "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%" == "%MACHINENAME%" then
+                            set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=C
+                    else
+                        rem MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD240G2%                   
+                        rem MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD512G%                    
+                        set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE=%HD1T3%                 %+ rem 20221022
+                    endiff
+                    rem Alias values:
+                        set MACHINEMASTER=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%                %+ rem Consider: When new computer is added
+                        set MASTERMACHINE=%MACHINEMASTER%
+                        set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_C_DRIVE=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ SERVER(s) DELINEATION: END ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+
+
+
+
+
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ MUSIC SERVER(s) & COLLECTION: BEGIN: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                rem MUSIC SERVER STUFF:
+                
+                        rem Set which machine is our Music Server, and what it's IP address is:
+                                SET   MUSICSERVERMACHINENAME=DEMONA
+                                SET   MUSICSERVERIPONLY=%IP_DEMONA%
+                                if  "%MUSICSERVERMACHINENAME%" eq "%MACHINENAME%" (set MUSICSERVERIPONLY=localhost  )
+                                if  "WORK"                     eq "%MACHINENAME%" (set MUSICSERVERIPONLY=%PUBLIC_IP%)
+                                
+                        rem Music server stuff: Set the port of the music server web interface, and 'MUSICSERVER' which is a [badly-named] URL-base:                        
+                                set MUSICSERVERPORT=666
+                                SET MUSICSERVER=%MUSICSERVERIPONLY%:%MUSICSERVERPORT%
+                                set MUSICSERVERSTATUSURL=http://%MUSICSERVER%/main
+                                
+                        rem Music server stuff: Which drive is the C: drive of the music server?
+                                iff "%MUSICSERVERMACHINENAME%" eq "%MACHINENAME%" then
+                                        set MUSICSERVERCDRIVE=C
+                                else                                
+                                        rem MUSICSERVERCDRIVE=%HD240G2%                                          
+                                        rem MUSICSERVERCDRIVE=%HD512G%                                          
+                                        SET MUSICSERVERCDRIVE=%HD1T3%                                          
+                                endiff                  
+                                set MUSICSERVERC_DRIVE=%MUSICSERVERCDRIVE%                               %+ rem just an alias
+
+                        rem Music server: WinAmp Status file:
+                                set WINAMP_NOW_PLAYING_TXT=%MP3OFFICIAL%\lists\winamp_now_playing.txt
+                                set WINAMP_NOW_PLAYING_ART=%MP3OFFICIAL%\lists\winamp_now_playing.jpg
+                                
+                        rem Music server: General status file: [which is just the WinAmp status file]:
+                                set NOW_PLAYING_ALBUM_ART=%WINAMP_NOW_PLAYING_ART%
+                                set       NOW_PLAYING_ART=%WINAMP_NOW_PLAYING_ART%
+                                set NOW_PLAYING_SONG_INFO=%WINAMP_NOW_PLAYING_TXT%
+                                set       NOW_PLAYING_TXT=%WINAMP_NOW_PLAYING_TXT%
+
+                rem MUSIC COLLECTION STUFF:
+                        rem music collection location:
+                                rem MP3OFFICIALDRIVE=%HD18T1%  :THAILOG (mp3 official server for 2015-2022)
+                                set MP3OFFICIALDRIVE=%HD18T3%  
+                                set      MP3OFFICIAL=%MP3OFFICIALDRIVE%:\mp3
+                                set     MP3_OFFICIAL=%MP3OFFICIAL%
+                                set              MP3=%MP3OFFICIAL%
+                                
+                        rem music collection's 3 backup locations:
+                                rem MP3BACKUP1DRIVE=%HD4000G2% %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3
+                                rem MP3BACKUP2DRIVE=%HD10000G2 %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3
+                                set MP3BACKUP1DRIVE=%HD18T2%   %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3 %+ rem Wyvern  copy
+                                set MP3BACKUP2DRIVE=%HD20T1    %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3 %+ rem Thailog copy
+                                set MP3BACKUP3DRIVE=%HD18000G% %+ set MP3BACKUP3=%MP3BACKUP3DRIVE%:\mp3         %+ rem Demona  copy
+                                rem Aliases:
+                                        set MP3_BACKUP_1_DRIVE=%MP3BACKUP1DRIVE%
+                                        set MP3_BACKUP_2_DRIVE=%MP3BACKUP2DRIVE%
+                                        set MP3_BACKUP_3_DRIVE=%MP3BACKUP3DRIVE%
+                                        set MP3_BACKUP_1=%MP3BACKUP1%
+                                        set MP3_BACKUP_2=%MP3BACKUP2%
+                                        set MP3_BACKUP_3=%MP3BACKUP3%
+                                        set MP3_SECONDARY=%MP3BACKUP3% %+ REM we call this one secondary because it's THAILOG's old music server (2015-2022)
+                                        set MP3SECONDARY=%MP3_SECONDARY%
+                                
+                        rem music collection's Auxilary collection (where mp3s go when replaced by FLACs, among other things), and it's backup:
+                                set            MP3AUX=%MP3OFFICIALDRIVE%:\mp3-aux %+ REM Must be on same drive as MP3OFFICIAL for reasons! This is a special repo for redundant files like .bak, .mp3 when there is a .flac, .mp3s that were .mp3.deprecated in the official repo
+                                set MP3AUXBACKUPDRIVE=%MP3BACKUP1DRIVE% %+ set MP3AUXBACKUP=%MP3AUXBACKUPDRIVE%:\BACKUPS\mp3-aux
+                                
+                        rem music collection's version control repo:
+                                SET MP3VERSIONINGDRIVE=%MP3OFFICIALDRIVE%
+                                SET MP3VERSIONING=%MP3VERSIONINGDRIVE%:\mp3-git-repo
+                                SET MP3VERSIONINGBACKUPDRIVE=%HD18000G%
+                                SET MP3VERSIONINGBACKUP=%MP3VERSIONINGBACKUPDRIVE%:\mp3-git-repo
+                                rem Aliases (used in some old scripts):
+                                        set MP3_SVN_REPO_DIR=%MP3VERSIONING%
+                                        set MP3_SVN_REPO_URL=file:///%MP3_SVN_REPO_DIR%
+                       
+                rem VALIDATIONS:
+                        rem Not sure where this gets set, so not validating it: %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
+                        rem Not sure where this gets set, so not validating it: %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
+                        %gosubValidateFolderExists% MP3OFFICIALDRIVE   NOW_PLAYING_TXT
+                        %gosubValidateFolderExists% MP3OFFICIALDRIVE   NOW_PLAYING_ART
+                        %gosubValidateFolderExists% MP3VERSIONINGDRIVE MP3VERSIONING
+                        %gosubValidateFolderExists% MP3BACKUP1DRIVE    MP3_BACKUP_1
+                        %gosubValidateFolderExists% MP3BACKUP2DRIVE    MP3_BACKUP_2
+                        %gosubValidateFolderExists% MP3BACKUP3DRIVE    MP3_BACKUP_3
+                        %gosubValidateFolderExists% MP3OFFICIALDRIVE   MP3OFFICIAL
+                        %gosubValidateFolderExists% MP3AUXBACKUPDRIVE  MP3AUX
+                        
+                rem DEPRECATED STUFF:
+                        rem Deprecated: 2024: Last.FM's logfile creates this file:                        
+                                set AUDIOSCROBBLER_LOG=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
+
+                        rem Deprecated 2022ish/most-likely-unused value: the Windows username logged into the music server when music is playing
+                                set  MUSICSERVERUSERNAME=cliocjs                        %+ rem 2024: This doesn't seem to be used as it's been wrong for years. #the Windows/OS-username that is logged in when the MUSICSERVER is playing music
+                        
+                        rem Deprecated 2007ish:
+                                rem kludges to smooth over 2007 removal of deprecated upstairs/downstairs multi-music-server / house-construction code:
+                                        SET TMPMUSICSERVERCDRIVE=%MUSICSERVERCDRIVE%
+                                        SET       TMPMUSICSERVER=%MUSICSERVER%
+                                        
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ MUSIC SERVER(s) & COLLECTION: END: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+
+
+
 
         ::::: SERVER THAT CONTROLS THE IMAGES THAT ARE ON THE BACKGROUNDS OF OUR SCREENS:
             SET SERVER_OF_SCREEN_BACKGROUNDS=THAILOG
@@ -1467,32 +1574,12 @@ return
                 set                  MISCDATA=%MISCDATADRIVE%:\MEDIA\MISC-DATA
                 set                  MISCDATA_BACKUP_DRIVE=%HD10T2%                               %+ REM /* was %HD2000G3% prior to 201706ish T: crash */
                 set                  MISCDATA_BACKUP=%MISCDATA_BACKUP_DRIVE%:\BACKUPS\misc-data.bak
-                rem          MP3OFFICIALDRIVE=%HD18T1%  :THAILOG (mp3 official server for 2015-2022)
-                set          MP3OFFICIALDRIVE=%HD18T3%  
-                set               MP3OFFICIAL=%MP3OFFICIALDRIVE%:\mp3
-                set                    MP3AUX=%MP3OFFICIALDRIVE%:\mp3-aux %+ REM Must be on same drive as MP3OFFICIAL for reasons! This is a special repo for redundant files like .bak, .mp3 when there is a .flac, .mp3s that were .mp3.deprecated in the official repo
-                set              MP3_OFFICIAL=%MP3OFFICIAL%
-                set          MP3_SVN_REPO_DIR=%MP3OFFICIALDRIVE%:/mp3-svn-repo
-                set          MP3_SVN_REPO_URL=file:///%MP3_SVN_REPO_DIR%
-                rem           MP3BACKUP1DRIVE=%HD4000G2% %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3
-                rem           MP3BACKUP2DRIVE=%HD10000G2 %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3
-                set           MP3BACKUP1DRIVE=%HD18T2%   %+ set MP3BACKUP1=%MP3BACKUP1DRIVE%:\BACKUPS\mp3 %+ rem Wyvern  copy
-                set           MP3BACKUP2DRIVE=%HD20T1    %+ set MP3BACKUP2=%MP3BACKUP2DRIVE%:\BACKUPS\mp3 %+ rem Thailog copy
-                set           MP3BACKUP3DRIVE=%HD18000G% %+ set MP3BACKUP3=%MP3BACKUP3DRIVE%:\mp3         %+ rem Demona  copy
-                set         MP3AUXBACKUPDRIVE=%MP3BACKUP1DRIVE% %+ set MP3AUXBACKUP=%MP3AUXBACKUPDRIVE%:\BACKUPS\mp3-aux
-                                                                        :^^^^ not in \BACKUPS\ folder because this is THAILOG/our old music server
-                set     NOW_PLAYING_ALBUM_ART=%MP3OFFICIAL%\lists\winamp_now_playing.jpg
-                set     NOW_PLAYING_SONG_INFO=%MP3OFFICIAL%\lists\winamp_now_playing.txt
 
-                    rem Aliases
-                        set MP3_BACKUP_1_DRIVE=%MP3BACKUP1DRIVE%
-                        set MP3_BACKUP_2_DRIVE=%MP3BACKUP2DRIVE%
-                        set MP3_BACKUP_3_DRIVE=%MP3BACKUP3DRIVE%
-                        set MP3_BACKUP_1=%MP3BACKUP1%
-                        set MP3_BACKUP_2=%MP3BACKUP2%
-                        set MP3_BACKUP_3=%MP3BACKUP3%
-                        set MP3_SECONDARY=%MP3BACKUP3% %+ REM we call this one secondary because it's THAILOG's old music server (2015-2022)
-                        set MP3SECONDARY=%MP3_SECONDARY%
+                rem (section of music-server related stuff moved to music server section above)
+                rem (included MP3OFFICIAL MP3_SVN_REPO MP3BACKUP NOW_PLAYING_ALBUM_ART ETC)
+                
+
+
             rem lyrics
                 rem old computer
                     set LYRICS_OLD_THAILOG_MAIN_DRIVE=%HD512G%
@@ -1529,21 +1616,12 @@ return
                     rem     SUBGENIUS_BACKUP_DRIVE=%HD4000G2%
                     set     SUBGENIUS_BACKUP_DRIVE=%HD20T1%
                     set     SUBGENIUS_BACKUP=%SUBGENIUS_BACKUP_DRIVE%:\BACKUPS\SubGenius.bak
-                :these had to be moved down because they rely on previous values:
-                    rem      FLACOFFICIALDRIVE=%MP3OFFICIALDRIVE%
-                    rem           FLACOFFICIAL=%FLACOFFICIALDRIVE%:\flac
                 :Aliases:
                     set              AUDIO=%MP3%                                                   %+ rem //Alaises:
                     set DOCUMENTARIESDRIVE=%SPECIALSDRIVE%                                         %+ set DOCUMENTARYDRIVE=%DOCUMENTARIESDRIVE%
                     set      DOCUMENTARIES=%DOCUMENTARIESDRIVE%:\MEDIA\SPECIALS-AND-DOCUMENTARIES  %+ set DOCUMENTARY=%DOCUMENTARIES%
                     set      DOCUMENTARIES_BACKUP_DRIVE=%HD4000G5%
                     set      DOCUMENTARIES_BACKUP=%DOCUMENTARIES_BACKUP_DRIVE%:\backups\specials-and-docs.bak
-                    set           MP3DRIVE=%MP3OFFICIALDRIVE%
-                    set                MP3=%MP3OFFICIAL%
-                    set              MP3CL=%MP3OFFICIAL%
-                    rem               FLAC=%FLACOFFICIAL%
-                    rem               FLAC_BACKUP_DRIVE=%HD4000G1%
-                    rem               FLAC_BACKUP=%FLAC_BACKUP_DRIVE%:\BACKUPS\flac.bak
                     set           TXTDRIVE=%TEXTDRIVE%
                     set                TXT=%TEXT%
             rem here's the ones based on physical drives with a \MEDIA\ folder——for extra sanity of knowing everything is in place —— consider this when adding new harddrives 
@@ -1606,13 +1684,6 @@ return
                 %gosubValidateFolderExists%                  MIDIDRIVE MIDI
                 %gosubValidateFolderExists%              MISCDATADRIVE MISCDATA
                 %gosubValidateFolderExists%      MISCDATA_BACKUP_DRIVE MISCDATA_BACKUP
-                %gosubValidateFolderExists%           MP3OFFICIALDRIVE MP3OFFICIAL
-                %gosubValidateFolderExists%            MP3BACKUP1DRIVE MP3BACKUP1 
-                %gosubValidateFolderExists%            MP3BACKUP2DRIVE MP3BACKUP2 
-                %gosubValidateFolderExists%            MP3BACKUP3DRIVE MP3BACKUP3 
-                %gosubValidateFolderExists%          MP3AUXBACKUPDRIVE MP3AUXBACKUP
-                :osub ValidateFolderExists          FLACOFFICIALDRIVE FLACOFFICIAL
-                :osub ValidateFolderExists          FLAC_BACKUP_DRIVE FLAC_BACKUP
                 %gosubValidateFolderExists%           MUSICVIDEOSDRIVE MUSICVIDEOS
                 %gosubValidateFolderExists%             SUBGENIUSDRIVE SUBGENIUS
                 %gosubValidateFolderExists%     SUBGENIUS_BACKUP_DRIVE SUBGENIUS_BACKUP
@@ -2076,11 +2147,6 @@ return
 				SET MP3TESTINGDRIVE=%MP3OFFICIALDRIVE%
 				rem MP3TESTING=%MP3OFFICIAL%\_TESTING
 				set MP3TESTING=%NEWMP3BASEDIR%\testing
-            :Versioning
-                SET MP3VERSIONINGDRIVE=%MP3OFFICIALDRIVE%
-                SET MP3VERSIONING=%MP3VERSIONINGDRIVE%:\mp3-git-repo
-                SET MP3VERSIONINGBACKUPDRIVE=%HD18000G%
-                SET MP3VERSIONINGBACKUP=%MP3VERSIONINGBACKUPDRIVE%:\mp3-git-repo
             :Validation:
                 %gosubValidateFolderExists% NEWMP3DRIVE              NEWMP3            
                 %gosubValidateFolderExists% MP3PREPROCESSINGDRIVE    MP3PREPROCESSING
@@ -2091,7 +2157,6 @@ return
                 :osub ValidateFolderExists MP3TAGGINGV1DRIVE        MP3TAGGINGV1
                 :osub ValidateFolderExists MP3TAGGINGV1REVIEWDRIVE  MP3TAGGINGV1REVIEW
                 %gosubValidateFolderExists% MP3TESTINGDRIVE          MP3TESTING
-                %gosubValidateFolderExists% MP3OFFICIALDRIVE         MP3OFFICIAL 
                 %gosubValidateFolderExists% MP3VERSIONINGBACKUPDRIVE MP3VERSIONINGBACKUP
                 
         %gosub_stopwatch_button% magenta "      DefineRepositories [99] %SKULL%       " %+ 
@@ -2342,7 +2407,7 @@ return
          rem  .pdf=call wrapper start      #buggy in 2023/2024
          set  .pdf=call wrapper explorer
          REM   as of 20230602perl is now a bat file so we alias perl=call perl.bat
-         set   .pl=perl.exe
+         set   .pl=call perl.bat
          set  .php=php        
          set  .png=call wrapper openimage
          set  .ps1=pshell

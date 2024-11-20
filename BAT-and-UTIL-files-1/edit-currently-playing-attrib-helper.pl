@@ -1,6 +1,8 @@
 #!perl
 #delete this line when you forget what it means - ### 8_Wandering Heart.mp3 ==> learned ==> on 2022-02-07 at 08:55:58
-
+use utf8;
+binmode(STDIN,  ':encoding(UTF-8)');
+binmode(STDOUT, ':encoding(UTF-8)');
 
 
 ########## WHAT THIS DOES:
@@ -22,7 +24,7 @@ my $DEBUG                            = 0;			#set to 0,1,2,3 for more verbose out
 my $DEBUG_FIND_IN_AUDIOSCROBBLER_LOG = 0;			#set to 0,1,2   for more verbose output
 my $DEBUG_CLIPBOARD_TEXT             = 0;           #set to   1     for more debug info about what gets copied to the clipboard
 
-print ":debug     is $DEBUG    \n:debug_bat is $DEBUG_BAT\n";
+#print "rem :debug     is $DEBUG    \nrem :debug_bat is $DEBUG_BAT\n";
 
 
 ##### CONSTANT:
@@ -30,13 +32,13 @@ my $ATTRIB_LST = "attrib.lst";
 
 
 ##### NEAR-CONSTANT:
-my $METHOD   = "2013";		#Last.fm likes to change their logfile format. Remember, this method affects code below too, so search for $METHOD to update those pieces of code as well
-if ($METHOD eq "2008") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "CScrobbler::OnTrackPlay"                        ; }
-if ($METHOD eq "2009") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = ": Sent Start for "                              ; }
-if ($METHOD eq "2011") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "Failed to extract MBID for"                     ; $AUDIOSCROBBLER_LOG_SEARCH_FOR2 = "Starting query FP for"; $AUDIOSCROBBLER_LOG_SEARCH_FOR3 = "DISABELEDEvent::TrackChanged"; }	
-if ($METHOD eq "2012") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "Line received: START c=.*&a=.*&t=.*"            ; }	
-if ($METHOD eq "2013") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "PlayerCommandParser::PlayerCommandParser.*START"; }	
-if ($METHOD eq "2014") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "";                                                }	
+my $METHOD   = "2024";		#Last.fm likes to change their logfile format. Remember, this method affects code below too, so search for $METHOD to update those pieces of code as well
+if ($METHOD eq "2008") { $MUSIC_LOG_SEARCH_FOR = "CScrobbler::OnTrackPlay"                        ; }
+if ($METHOD eq "2009") { $MUSIC_LOG_SEARCH_FOR = ": Sent Start for "                              ; }
+if ($METHOD eq "2011") { $MUSIC_LOG_SEARCH_FOR = "Failed to extract MBID for"                     ; $MUSIC_LOG_SEARCH_FOR2 = "Starting query FP for"; $MUSIC_LOG_SEARCH_FOR3 = "DISABELEDEvent::TrackChanged"; }	
+if ($METHOD eq "2012") { $MUSIC_LOG_SEARCH_FOR = "Line received: START c=.*&a=.*&t=.*"            ; }	
+if ($METHOD eq "2013") { $MUSIC_LOG_SEARCH_FOR = "PlayerCommandParser::PlayerCommandParser.*START"; }	
+if ($METHOD eq "2024") { $MUSIC_LOG_SEARCH_FOR = "";                                                }	#2024 method does not involve searching through a logfile because we're moving from using Last.FM's log as we have for 16 years, to moving the now-playing.txt file NOW_PLAYING_TXT created by WinAmp's now-playing plugin
 
 
 
@@ -67,19 +69,79 @@ if ($ENV{"AUTOMARK"} ne "") {
 
 
 ##### COMMAND-LINE ARGUMENTS:
-my $AUDIOSCROBBLER_LOG = $ARGV[0];
-my $ALL_SONGS_LIST     = $ARGV[1];
-my $REGEX              = $ARGV[2];						#we can also pass it a regex, to edit the status of songs that AREN'T currently playing
-my $COMMENT            = $ENV{"LEARNED_COMMENT"};		#20240702 —— changed this from 'comment' to 'learned_comment' to avoid scope collisions
-if ($AUDIOSCROBBLER_LOG eq "") { print "echo * FATAL ERROR 1: First argument must specify filename of AUDIOSCROBBLER LOG!!\n"; exit(); }
-if (!-e $AUDIOSCROBBLER_LOG)   { print "echo * FATAL ERROR 2: AUDIOSCROBBLER_LOG OF \"$AUDIOSCROBBLER_LOG\" DOES NOT EXIST!!\n"; exit; }
+my $MUSIC_LOG      = $ARGV[0];
+my $ALL_SONGS_LIST = $ARGV[1];
+my $REGEX          = $ARGV[2];						#we can also pass it a regex, to edit the status of songs that AREN'T currently playing
+my $COMMENT        = $ENV{"LEARNED_COMMENT"};		#20240702 —— changed this from 'comment' to 'learned_comment' to avoid scope collisions
+if ("" eq $MUSIC_LOG) { print "echo * FATAL ERROR 1: First argument must specify filename of MUSIC LOG!!\n"; exit(); }
+if ( !-e  $MUSIC_LOG) { print "echo * FATAL ERROR 2: music log OF \"$MUSIC_LOG\" DOES NOT EXIST!!\n"       ; exit(); }
 if (($METHOD eq "2008") || ($METHOD eq "2009")) {
-	if ($ALL_SONGS_LIST     eq "") { print "FATAL ERROR 3: Second argument must specify filename of ALL SONGS LIST!!\n"; exit(); }
-	if (!-e $ALL_SONGS_LIST)       { print "FATAL ERROR 4: $ALL_SONGS_LIST DOES NOT EXIST!!\n"; exit; }
+	if ("" eq $ALL_SONGS_LIST) { print "FATAL ERROR 3: Second argument must specify filename of ALL SONGS LIST!!\n"; exit(); }
+	if ( !-e  $ALL_SONGS_LIST) { print "FATAL ERROR 4: $ALL_SONGS_LIST DOES NOT EXIST!!\n"                         ; exit(); }
 }
 
 
 ##### BEGIN:
+
+
+
+
+if ($METHOD eq "2024") {
+	#print ("Method 2024 oooh, log is $MUSIC_LOG\n");
+	use strict;
+	use warnings;
+	use Data::Dumper;
+
+	# Open the file and read its contents
+	open(my $fh, '<:encoding(UTF-8)', $MUSIC_LOG) or die "Cannot open file '$MUSIC_LOG': $!";
+	my @lines = <$fh>;
+	close($fh);
+	chomp @lines;  # Remove newline characters from each line
+	
+	# Extract the first two special variables
+	my $display_title = shift @lines;
+	my $filename = shift @lines;
+
+	# Initialize the hash table
+	my %metadata;
+	my $i = 0;
+	while ($i < @lines) {
+		my $line = $lines[$i];
+
+		if ($line =~ /^(\w+)=([\s\S]*)$/) {
+			my $field = $1;
+			my $value = $2;
+
+			# Check if the next line is end_<field>=1
+			if ($i + 1 < @lines && $lines[$i + 1] =~ /^end_${field}=1$/) {
+				# Handle multi-line field
+				$metadata{$field} = $value;
+				$i += 2;  # Skip the end_<field>=1 line
+			} else {
+				# Handle single-line field
+				$metadata{$field} = $value;
+				$i += 1;
+			}
+		} else {
+			$i += 1;  # Skip any lines that don't match the pattern
+		}
+	}
+
+	# Print the first two special variables
+	print "✨Display Title: $display_title\n";
+	print "✴Filename: $filename\n";
+
+	# Print the entire hash table for debugging
+	print "♐Metadata Hash Table:\n";
+	print Dumper(\%metadata);
+	
+}
+
+
+
+
+
+
 my $song_regex="";
 my $line="";
 my $song_found="";
@@ -98,14 +160,14 @@ my $REGEX_GIVEN_AT_COMMAND_LINE=0;
 my $path2use="";
 if ($REGEX eq "") {
 	##### OPEN AUDIOSCROBBLER LOGFILE TO GET LATEST TRACK PLAYED:
-	open(LOG,"$AUDIOSCROBBLER_LOG") || die("FATAL ERROR 5: COULD NOT OPEN $AUDIOSCROBBLER_LOG, despite it existing!");
-	if ($DEBUG>2)   { print ":searchfor is $AUDIOSCROBBLER_LOG_SEARCH_FOR \n"; }
+	open(LOG,"$MUSIC_LOG") || die("FATAL ERROR 5: COULD NOT OPEN $MUSIC_LOG, despite it existing!");
+	if ($DEBUG>2)   { print ":searchfor is $MUSIC_LOG_SEARCH_FOR \n"; }
 	while ($line=<LOG>) {
 		if ($DEBUG_FIND_IN_AUDIOSCROBBLER_LOG>1) { print ":as.log line is $line\n"; }
 		if (
-			($line =~ /($AUDIOSCROBBLER_LOG_SEARCH_FOR)/) 
+			($line =~ /($MUSIC_LOG_SEARCH_FOR)/) 
 			|| 
-			(($METHOD eq "2011") && (($line =~ /($AUDIOSCROBBLER_LOG_SEARCH_FOR2)/) || ($line =~ /($AUDIOSCROBBLER_LOG_SEARCH_FOR3)/)))
+			(($METHOD eq "2011") && (($line =~ /($MUSIC_LOG_SEARCH_FOR2)/) || ($line =~ /($MUSIC_LOG_SEARCH_FOR3)/)))
 		) {
 			if ($DEBUG>2)   { print ":found searchfor in line: $line"; }
 			$FOUND_IN_AUDIOSCROBBLER_LOG=1;
@@ -117,7 +179,7 @@ if ($REGEX eq "") {
 	if ($DEBUG_FIND_IN_AUDIOSCROBBLER_LOG) { print ":\$FOUND_IN_AUDIOSCROBBLER_LOG = $FOUND_IN_AUDIOSCROBBLER_LOG\n"; }
 	if ($DEBUG)                            { 
 		if ($FOUND_IN_AUDIOSCROBBLER_LOG)  { print ":last_found found line is: \"$last_found\"\n"; }
-		else                               { print ":searchfor of $AUDIOSCROBBLER_LOG_SEARCH_FOR was never found!\n"; }
+		else                               { print ":searchfor of $MUSIC_LOG_SEARCH_FOR was never found!\n"; }
 	}
 
 	
@@ -325,7 +387,7 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 ##### THE NEW 2011 METHOD IS WAY EASIER THAN ALL OF THE ABOVE!
 } elsif (($METHOD eq "2011") || ($METHOD eq "2012") || ($METHOD eq "2013")) {
 
-	if ($DEBUG>0) { print ":DEBUG: pushing onto \@TARGET_FILES: \"$song\"\n"; }
+	if ($DEBUG>0) { print "REM :DEBUG: pushing onto \@TARGET_FILES: \"$song\"\n"; }
 	push(@TARGET_FILES,$song);			#SEE HOW EASY THAT WAS?
 
 }
@@ -578,7 +640,7 @@ sub go_up_one_level_where_appropriate {
 	##### But now that it's beginning to be done in the MIDDLE of the path, it's not always safe to remove.  
 
 	#### We need to check that the folder actualy exists before returning it now!
-	print ":DEBUG: go_up_one_level_where_appropriate(".$_[0].")==$target_dir\n";
+	print "rem :DEBUG: go_up_one_level_where_appropriate(".$_[0].")==$target_dir\n";
 	if (!-d $target_dir) { return($_[0]); }
 	return ($target_dir);
 }
