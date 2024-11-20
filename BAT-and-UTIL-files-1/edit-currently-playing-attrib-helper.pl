@@ -20,7 +20,7 @@ binmode(STDOUT, ':encoding(UTF-8)');
 
 ##### DEBUG STATUS / INFORM THE USER:
 my $DEBUG_BAT                        = 0;			#set to   1     for pauses in the actual batfile which is generated, 0 else
-my $DEBUG                            = 0;			#set to 0,1,2,3 for more verbose output, like every line found in audioscrobbler log
+my $DEBUG                            = 0;			#set to 0,1,2,3 for more verbose output, like every line found in audioscrobbler log ... But won't generally work correctly unless set to 0
 my $DEBUG_FIND_IN_AUDIOSCROBBLER_LOG = 0;			#set to 0,1,2   for more verbose output
 my $DEBUG_CLIPBOARD_TEXT             = 0;           #set to   1     for more debug info about what gets copied to the clipboard
 
@@ -32,13 +32,15 @@ my $ATTRIB_LST = "attrib.lst";
 
 
 ##### NEAR-CONSTANT:
+#y $METHOD   = "2013";		
 my $METHOD   = "2024";		#Last.fm likes to change their logfile format. Remember, this method affects code below too, so search for $METHOD to update those pieces of code as well
+my $crawl_log=1;
 if ($METHOD eq "2008") { $MUSIC_LOG_SEARCH_FOR = "CScrobbler::OnTrackPlay"                        ; }
 if ($METHOD eq "2009") { $MUSIC_LOG_SEARCH_FOR = ": Sent Start for "                              ; }
 if ($METHOD eq "2011") { $MUSIC_LOG_SEARCH_FOR = "Failed to extract MBID for"                     ; $MUSIC_LOG_SEARCH_FOR2 = "Starting query FP for"; $MUSIC_LOG_SEARCH_FOR3 = "DISABELEDEvent::TrackChanged"; }	
 if ($METHOD eq "2012") { $MUSIC_LOG_SEARCH_FOR = "Line received: START c=.*&a=.*&t=.*"            ; }	
 if ($METHOD eq "2013") { $MUSIC_LOG_SEARCH_FOR = "PlayerCommandParser::PlayerCommandParser.*START"; }	
-if ($METHOD eq "2024") { $MUSIC_LOG_SEARCH_FOR = "";                                                }	#2024 method does not involve searching through a logfile because we're moving from using Last.FM's log as we have for 16 years, to moving the now-playing.txt file NOW_PLAYING_TXT created by WinAmp's now-playing plugin
+if ($METHOD eq "2024") { $MUSIC_LOG_SEARCH_FOR = ""; $crawl_log=0;                                  }	#2024 method does not involve searching through a logfile because we're moving from using Last.FM's log as we have for 16 years, to moving the now-playing.txt file NOW_PLAYING_TXT created by WinAmp's now-playing plugin
 
 
 
@@ -47,7 +49,7 @@ if ($METHOD eq "2024") { $MUSIC_LOG_SEARCH_FOR = "";                            
 my $MACHINE_NAME       =               $ENV{"MACHINENAME"};
 my $REMAPENVVAR        =              "REMAP$MACHINE_NAME";
 my $REMAP              =         $ENV{$REMAPENVVAR};
-my @REMAPS             = split(/\s+/,"$REMAP");
+my @REMAPS             = split(/\s+/,"$REMAP");						#one of the few places that actually uses our REMAP environment variables
 #print "echo name=$MACHINE_NAME, \$REMAPENVVAR=$REMAPENVVAR         REMAP=$REMAP\n\n";
 
 ##### SET MODE:
@@ -65,12 +67,12 @@ if ($ENV{"AUTOMARK"} ne "") {
 		die($msg);
 	}
 }
-#DEBUG: die "mode is $MODE";
+if ($DEBUG) { print "mode is $MODE\n"; }
 
 
 ##### COMMAND-LINE ARGUMENTS:
 my $MUSIC_LOG      = $ARGV[0];
-my $ALL_SONGS_LIST = $ARGV[1];
+my $ALL_SONGS_LIST = $ARGV[1];						#for 2008/2009 years
 my $REGEX          = $ARGV[2];						#we can also pass it a regex, to edit the status of songs that AREN'T currently playing
 my $COMMENT        = $ENV{"LEARNED_COMMENT"};		#20240702 —— changed this from 'comment' to 'learned_comment' to avoid scope collisions
 if ("" eq $MUSIC_LOG) { print "echo * FATAL ERROR 1: First argument must specify filename of MUSIC LOG!!\n"; exit(); }
@@ -84,42 +86,36 @@ if (($METHOD eq "2008") || ($METHOD eq "2009")) {
 ##### BEGIN:
 
 
+if ($DEBUG) { print "rem Method is $METHOD\n"; }
+
+my $display_title = "";
+my $filename      = "";
+my %metadata=();	
 
 
 if ($METHOD eq "2024") {
-	#print ("Method 2024 oooh, log is $MUSIC_LOG\n");
+	#print ("Method 2024 oooh, log is $MUSIC_LOG ... regex='$REGEX'\n");
 	use strict;
 	use warnings;
-	use Data::Dumper;
-
-	# Open the file and read its contents
-	open(my $fh, '<:encoding(UTF-8)', $MUSIC_LOG) or die "Cannot open file '$MUSIC_LOG': $!";
-	my @lines = <$fh>;
-	close($fh);
-	chomp @lines;  # Remove newline characters from each line
-	
-	# Extract the first two special variables
-	my $display_title = shift @lines;
-	my $filename = shift @lines;
-
-	# Initialize the hash table
-	my %metadata;
-	my $i = 0;
-	while ($i < @lines) {
-		my $line = $lines[$i];
-
-		if ($line =~ /^(\w+)=([\s\S]*)$/) {
-			my $field = $1;
-			my $value = $2;
-
-			# Check if the next line is end_<field>=1
-			if ($i + 1 < @lines && $lines[$i + 1] =~ /^end_${field}=1$/) {
-				# Handle multi-line field
-				$metadata{$field} = $value;
-				$i += 2;  # Skip the end_<field>=1 line
-			} else {
-				# Handle single-line field
-				$metadata{$field} = $value;
+	use Data::Dumper;																		    
+	#pen(my $fh, '<:encoding(UTF-8)', $MUSIC_LOG) or die "Cannot open file '$MUSIC_LOG': $!";	 	# Open the file and read its contents
+	open(my $fh,                      $MUSIC_LOG) or die "Cannot open file '$MUSIC_LOG': $!";	 	# Open the file and read its contents
+	my @lines = <$fh>;																		    
+	close($fh);																				    
+	chomp @lines;																					# Remove newline characters from each line
+	$display_title = shift @lines;																 	# Extract the first two special variables
+	$filename      = shift @lines;																 	# Extract the first two special variables
+	my $i = 0;																				    
+	while ($i < @lines) {																	    
+		my $line = $lines[$i];																    
+		if ($line =~ /^(\w+)=([\s\S]*)$/) {													    
+			my $field = $1;																	    
+			my $value = $2;																	    
+			if ($i + 1 < @lines && $lines[$i + 1] =~ /^end_${field}=1$/) {						 	# Check if the next line is end_<field>=1
+				$metadata{$field} = $value;														 	# Handle multi-line field
+				$i += 2;																		 	# Skip the end_<field>=1 line
+			} else {																			 	# Handle single-line field
+				$metadata{$field} = $value;													    
 				$i += 1;
 			}
 		} else {
@@ -127,15 +123,15 @@ if ($METHOD eq "2024") {
 		}
 	}
 
-	# Print the first two special variables
-	print "✨Display Title: $display_title\n";
-	print "✴Filename: $filename\n";
-
-	# Print the entire hash table for debugging
-	print "♐Metadata Hash Table:\n";
-	print Dumper(\%metadata);
+	if ($DEBUG>0) {
+		print "echo * Display Title: $display_title\n";				# Print the first two special variables
+		print "echo * Filename: $filename\n";
+		print "echo * Metadata Hash Table:\n";						# Print the entire hash table for debugging
+		print Dumper(\%metadata);
+	}
 	
 }
+
 
 
 
@@ -158,7 +154,16 @@ my @TARGET_FILES=();
 my $text_to_copy_to_clipboard__usually_tracknum="";
 my $REGEX_GIVEN_AT_COMMAND_LINE=0;
 my $path2use="";
-if ($REGEX eq "") {
+
+if ($DEBUG) { print "[A] REGEX is '$REGEX', RGACL=$REGEX_GIVEN_AT_COMMAND_LINE\n"; }
+
+
+if ($METHOD ne "2024") {
+	#do nothing! We are forking away from all this legacy code
+} elsif (($REGEX ne "") || ($crawl_log==1)) {
+	$song_regex = $REGEX;
+	$REGEX_GIVEN_AT_COMMAND_LINE=1;
+} else {
 	##### OPEN AUDIOSCROBBLER LOGFILE TO GET LATEST TRACK PLAYED:
 	open(LOG,"$MUSIC_LOG") || die("FATAL ERROR 5: COULD NOT OPEN $MUSIC_LOG, despite it existing!");
 	if ($DEBUG>2)   { print ":searchfor is $MUSIC_LOG_SEARCH_FOR \n"; }
@@ -213,7 +218,7 @@ if ($REGEX eq "") {
 		if ($DEBUG) { print ":******* FOUND FULL PATH: $FOUND_FULL_PATH (\$1=$1)\n"; }
 	}
 
-	if ($DEBUG) { print "\n:song is [1] $song!\n:FOUND_FULL_PATH=$FOUND_FULL_PATH\n"; }
+	if ($DEBUG) { print "\n:song is [1] '$song'!\n:FOUND_FULL_PATH=$FOUND_FULL_PATH\n"; }
 
 
 	if (($METHOD eq "2008") || ($METHOD eq "2009")) {
@@ -259,10 +264,9 @@ if ($REGEX eq "") {
 		##### CONVERT SONG INTO A REGULAR EXPRESSION FOR 'GREPPING':
 		$song_regex = $song;
 	}
-} else {
-	$song_regex = $REGEX;
-	$REGEX_GIVEN_AT_COMMAND_LINE=1;
 }
+
+if ($DEBUG) { print "[B] REGEX is '$REGEX', RGACL=$REGEX_GIVEN_AT_COMMAND_LINE\n"; }
 
 if ($DEBUG>0) { print ":Song regex is now[A5]: $song_regex (RGACL=$REGEX_GIVEN_AT_COMMAND_LINE)\n"; }
 
@@ -306,8 +310,8 @@ if ($DEBUG>0) { print ":Song regex is now[B5]: $song_regex (RGACL=$REGEX_GIVEN_A
 
 
 ##### THE OLD METHOD: LOOK THROUGH OUR SONGS LIST TO FIND THE SONG.  The 2011 last.fm improved logfile format makes this totally unnecessary. UNLESS we're not using that!
-if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE ==1)) {
-	open(PLAYLIST,"$ALL_SONGS_LIST") || die("FATAL ERROR 6: COULD NOT OPEN $ALL_SONGS_LIST, despite it existing!");
+if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE==1)) {
+	open(PLAYLIST,"$ALL_SONGS_LIST") || die("FATAL ERROR 6: COULD NOT OPEN \"$ALL_SONGS_LIST\", despite it existing!");
 	while ($line=<PLAYLIST>) {
 		chomp $line; if ($line =~ /$song_regex/i) { $song_found .= "$line\n"; $found++;	$found_regex=$song_regex;	if ($DEBUG>1) { print ":found song $line\n"; } }
 	}
@@ -382,8 +386,6 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 	}
 
 
-
-
 ##### THE NEW 2011 METHOD IS WAY EASIER THAN ALL OF THE ABOVE!
 } elsif (($METHOD eq "2011") || ($METHOD eq "2012") || ($METHOD eq "2013")) {
 
@@ -393,8 +395,17 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 }
 
 
+#### POST LAST.FM STUFF IS SO MUCH EAISER:
+if ($METHOD >= 2024) {
+	if ($DEBUG>0) { print "{{{{post-last.fm methodology}}}} [method=$METHOD] [filename=$filename]\n"; }
+	my $tmp_whatchamacallit = $filename;
+	push(@TARGET_FILES,$tmp_whatchamacallit);
+}	
+
+
 
 if ($DEBUG>0) { print ":Song regix is now[C5]: $song_regex (RGACL=$REGEX_GIVEN_AT_COMMAND_LINE)\n"; }
+if ($DEBUG>0) { print "\n!!!! target_file [original] is '$target_attrib_file'\n"; }
 
 
 #### Will use this later:
@@ -406,28 +417,28 @@ my $target_dir="";
 my $filename_nodir="";
 my %folder_dealt_with={};
 my $actual_tracknum="";
-foreach my $target_file (@TARGET_FILES) {
+foreach my $target_attrib_file (@TARGET_FILES) {
 	##### FILE / DIRECTORY:
-	if ($DEBUG>0) { print "\n:target_file [orignal] is $target_file\npause\n\n"; }
-	if (!-e $target_file) {	$target_file = &remap($target_file);}
-	if ($DEBUG>0) { print "\n:target_file [remappd] is $target_file\npause\n\n"; }
+	if ($DEBUG>0) { print "\n:target_file [orignal] is $target_attrib_file\npause\n\n"; }
+	if (!-e $target_attrib_file) {	$target_attrib_file = &remap($target_attrib_file);}
+	if ($DEBUG>0) { print "\n:target_file [remappd] is $target_attrib_file\npause\n\n"; }
 	if (($METHOD eq "2008") || ($METHOD eq "2009")) {
-		$target_file = &go_up_one_level_where_appropriate($target_file);
+		$target_attrib_file = &go_up_one_level_where_appropriate($target_attrib_file);
 	}
-	$filename_nodir = $target_file;
-	$target_dir =  $target_file;
+	$filename_nodir = $target_attrib_file;
+	$target_dir =  $target_attrib_file;
 	$target_dir =~ s!^[^C]:\\mp3!C:\\mp3!ig;
 	$target_dir =~ s/^(.*[\\\/])[^\\\/]*$/$1/i;
 	$target_dir =~ s/\&\&/&/g;
 	if (($ENV{EC_DO_NOT_GO_UP_1_DIR} != 1) && ($ENV{MAKING_KARAOKE} != 1)) {
 		$target_dir =  &go_up_one_level_where_appropriate($target_dir);
 	}
-	if (($METHOD eq "2011") || ($METHOD eq "2012") || ($METHOD eq "2013")) {
-		$target_file = $target_dir . $ATTRIB_LST;
+	if (($METHOD eq "2011") || ($METHOD eq "2012") || ($METHOD >= "2013")) {
+		$target_attrib_file = $target_dir . $ATTRIB_LST;
 	}
 
 	if ($DEBUG>0) { print "\n:target_dir  [1] is $target_dir \npause\n"  ; }
-	if ($DEBUG>0) { print "\n:target_file [1] is $target_file\npause\n\n"; }
+	if ($DEBUG>0) { print "\n:target_file [1] is $target_attrib_file\npause\n\n"; }
 
 	##### FILENAME:
 	$filename_nodir =~ s/"//g;
@@ -460,10 +471,8 @@ foreach my $target_file (@TARGET_FILES) {
 
 
 	##### GIVE AN INDICATION THAT THE SONG WE'RE LOOKING FOR IS HERE:
-	if (($METHOD eq "2011") || ($METHOD eq "2012") || ($METHOD eq "2013")) {
-		if ($filename_nodir ne "") {
-			print "dir /s /k /m /b /f \"$filename_nodir\"\n";
-		}
+	if (($METHOD eq "2011") || ($METHOD eq "2012") || ($METHOD >= "2013")) {
+		if ($filename_nodir ne "") { print "dir /s /k /m /b /f \"$filename_nodir\"\n"; }
 	} else {
 		print "dir /s /k /m /b /f \| grep -i \"$found_regex\"\n";				#thd old way
 	}
@@ -475,20 +484,20 @@ foreach my $target_file (@TARGET_FILES) {
 	print "set CURRENT_SONG_FILENAME=" . $target_dir . "\\" . $filename_nodir . "\n";
 
 	print "\n\n:targetdir is $target_dir \n";
-	print    ":targetfile is $target_file\n";
+	print    ":targetfile is $target_attrib_file\n";
 	if (($target_dir =~ /(_*unsorted)[\\\/]*$/i) || ($target_dir =~ /(currently.judging)[\\\/]*$/i)) { 
 		my $tmp=$1;
 		print "cd..\n"; 
-		$target_file =~ s/[\\\/]$tmp//i;
+		$target_attrib_file =~ s/[\\\/]$tmp//i;
 	} 
 
 
 	##### OPEN UP $ATTRIB_LST WITH EDITOR:
 	if (($MODE eq $MODE_NORMAL) && ($ENV{EC_OPT_NOEDITOR} ne "1")) {
 		print "\%COLOR_IMPORTANT_LESS%\n";
-		print "echo \%EDITOR\% \"" . $target_file . "\"\n";
+		print "echo \%EDITOR\% \"" . $target_attrib_file . "\"\n";
 		print "\%COLOR_WARNING%\n";
-		print "     \%EDITOR\% \"" . $target_file . "\"\n";
+		print "     \%EDITOR\% \"" . $target_attrib_file . "\"\n";
 	} else {
 		#If it's in $MODE_AUTOMARK, do not open the editor
 	}
@@ -537,10 +546,6 @@ foreach my $target_file (@TARGET_FILES) {
 		$text_to_copy_to_clipboard__usually_tracknum =~ s/\.mid$//gi;
 		$text_to_copy_to_clipboard__usually_tracknum =~ s/\.wav$//gi;
 		if ($DEBUG_CLIPBOARD_TEXT) {  print "echo [D] it's $text_to_copy_to_clipboard__usually_tracknum!\n"; }
-#		$text_to_copy_to_clipboard__usually_tracknum =~ s///gi;
-#		$text_to_copy_to_clipboard__usually_tracknum =~ s///gi;
-#		$text_to_copy_to_clipboard__usually_tracknum =~ s///gi;
-#		$text_to_copy_to_clipboard__usually_tracknum =~ s///gi;
 #		$text_to_copy_to_clipboard__usually_tracknum =~ s///gi;
 
 		#PRE-FINAL:

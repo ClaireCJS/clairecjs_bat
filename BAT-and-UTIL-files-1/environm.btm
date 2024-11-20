@@ -829,40 +829,8 @@ return
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-                rem MUSIC SERVER STUFF:
+                rem 💿***** MUSIC COLLECTION STUFF: ***** 
                 
-                        rem Set which machine is our Music Server, and what it's IP address is:
-                                SET   MUSICSERVERMACHINENAME=DEMONA
-                                SET   MUSICSERVERIPONLY=%IP_DEMONA%
-                                if  "%MUSICSERVERMACHINENAME%" eq "%MACHINENAME%" (set MUSICSERVERIPONLY=localhost  )
-                                if  "WORK"                     eq "%MACHINENAME%" (set MUSICSERVERIPONLY=%PUBLIC_IP%)
-                                
-                        rem Music server stuff: Set the port of the music server web interface, and 'MUSICSERVER' which is a [badly-named] URL-base:                        
-                                set MUSICSERVERPORT=666
-                                SET MUSICSERVER=%MUSICSERVERIPONLY%:%MUSICSERVERPORT%
-                                set MUSICSERVERSTATUSURL=http://%MUSICSERVER%/main
-                                
-                        rem Music server stuff: Which drive is the C: drive of the music server?
-                                iff "%MUSICSERVERMACHINENAME%" eq "%MACHINENAME%" then
-                                        set MUSICSERVERCDRIVE=C
-                                else                                
-                                        rem MUSICSERVERCDRIVE=%HD240G2%                                          
-                                        rem MUSICSERVERCDRIVE=%HD512G%                                          
-                                        SET MUSICSERVERCDRIVE=%HD1T3%                                          
-                                endiff                  
-                                set MUSICSERVERC_DRIVE=%MUSICSERVERCDRIVE%                               %+ rem just an alias
-
-                        rem Music server: WinAmp Status file:
-                                set WINAMP_NOW_PLAYING_TXT=%MP3OFFICIAL%\lists\winamp_now_playing.txt
-                                set WINAMP_NOW_PLAYING_ART=%MP3OFFICIAL%\lists\winamp_now_playing.jpg
-                                
-                        rem Music server: General status file: [which is just the WinAmp status file]:
-                                set NOW_PLAYING_ALBUM_ART=%WINAMP_NOW_PLAYING_ART%
-                                set       NOW_PLAYING_ART=%WINAMP_NOW_PLAYING_ART%
-                                set NOW_PLAYING_SONG_INFO=%WINAMP_NOW_PLAYING_TXT%
-                                set       NOW_PLAYING_TXT=%WINAMP_NOW_PLAYING_TXT%
-
-                rem MUSIC COLLECTION STUFF:
                         rem music collection location:
                                 rem MP3OFFICIALDRIVE=%HD18T1%  :THAILOG (mp3 official server for 2015-2022)
                                 set MP3OFFICIALDRIVE=%HD18T3%  
@@ -898,8 +866,43 @@ return
                                 rem Aliases (used in some old scripts):
                                         set MP3_SVN_REPO_DIR=%MP3VERSIONING%
                                         set MP3_SVN_REPO_URL=file:///%MP3_SVN_REPO_DIR%
+
+
+                rem 💻***** MUSIC SERVER STUFF: ***** 
+                
+                        rem Set which machine is our Music Server, and what it's IP address is:
+                                SET   MUSICSERVERMACHINENAME=DEMONA
+                                SET   MUSICSERVERIPONLY=%IP_DEMONA%
+                                if  "%MUSICSERVERMACHINENAME%" eq "%MACHINENAME%" (set MUSICSERVERIPONLY=localhost  )
+                                if  "WORK"                     eq "%MACHINENAME%" (set MUSICSERVERIPONLY=%PUBLIC_IP%)
+                                
+                        rem Music server stuff: Set the port of the music server web interface, and 'MUSICSERVER' which is a [badly-named] URL-base:                        
+                                set MUSICSERVERPORT=666
+                                SET MUSICSERVER=%MUSICSERVERIPONLY%:%MUSICSERVERPORT%
+                                set MUSICSERVERSTATUSURL=http://%MUSICSERVER%/main
+                                
+                        rem Music server stuff: Which drive is the C: drive of the music server?
+                                iff "%MUSICSERVERMACHINENAME%" eq "%MACHINENAME%" then
+                                        set MUSICSERVERCDRIVE=C
+                                else                                
+                                        rem MUSICSERVERCDRIVE=%HD240G2%                                          
+                                        rem MUSICSERVERCDRIVE=%HD512G%                                          
+                                        SET MUSICSERVERCDRIVE=%HD1T3%                                          
+                                endiff                  
+                                set MUSICSERVERC_DRIVE=%MUSICSERVERCDRIVE%                               %+ rem just an alias
+
+                        rem Music server: WinAmp Status file:
+                                set WINAMP_NOW_PLAYING_TXT=%MP3OFFICIAL%\lists\winamp_now_playing.txt
+                                set WINAMP_NOW_PLAYING_ART=%MP3OFFICIAL%\lists\winamp_now_playing.jpg
+                                
+                        rem Music server: General status file: [which is just the WinAmp status file]:
+                                set NOW_PLAYING_ALBUM_ART=%WINAMP_NOW_PLAYING_ART%
+                                set       NOW_PLAYING_ART=%WINAMP_NOW_PLAYING_ART%
+                                set NOW_PLAYING_SONG_INFO=%WINAMP_NOW_PLAYING_TXT%
+                                set       NOW_PLAYING_TXT=%WINAMP_NOW_PLAYING_TXT%
+
                        
-                rem VALIDATIONS:
+                rem ✔***** VALIDATIONS: ***** 
                         rem Not sure where this gets set, so not validating it: %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
                         rem Not sure where this gets set, so not validating it: %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
                         %gosubValidateFolderExists% MP3OFFICIALDRIVE   NOW_PLAYING_TXT
@@ -911,7 +914,7 @@ return
                         %gosubValidateFolderExists% MP3OFFICIALDRIVE   MP3OFFICIAL
                         %gosubValidateFolderExists% MP3AUXBACKUPDRIVE  MP3AUX
                         
-                rem DEPRECATED STUFF:
+                rem ❌*****  DEPRECATED STUFF: ***** 
                         rem Deprecated: 2024: Last.FM's logfile creates this file:                        
                                 set AUDIOSCROBBLER_LOG=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%:\Users\ClioC\AppData\Local\Last.fm\Last.fm Scrobbler.log
 
@@ -921,8 +924,7 @@ return
                         rem Deprecated 2007ish:
                                 rem kludges to smooth over 2007 removal of deprecated upstairs/downstairs multi-music-server / house-construction code:
                                         SET TMPMUSICSERVERCDRIVE=%MUSICSERVERCDRIVE%
-                                        SET       TMPMUSICSERVER=%MUSICSERVER%
-                                        
+                                        SET       TMPMUSICSERVER=%MUSICSERVER%                                        
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

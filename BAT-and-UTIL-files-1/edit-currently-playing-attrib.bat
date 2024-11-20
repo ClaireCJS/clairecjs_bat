@@ -21,23 +21,26 @@ rem CLIPBOARD FIX + FIGURE OUT OUR FILENAME:
             set  ECCHECKPASSED=1
             rem CREATE FILENAME FOR SCRIPT TO RUN:
                 call  yyyymmdd
-                set   LEARNEDSCRIPT=%temp\ec-tmp-%_PID%-%YYYYMMDDHHMMSS%.bat                  
-            rem DEGBUG: :echo LEARNEDSCRIPT is %LEARNEDSCRIPT% %+ pause
+                set   SCRIPT_TO_RUN=%temp\ec-tmp-%_PID%-%YYYYMMDDHHMMSS%.bat                  
+            rem DEGBUG: :echo SCRIPT_TO_RUN is %SCRIPT_TO_RUN% %+ pause
         :eccheckpassed
 
 
 
-rem Make sure LAST.FM scrobbler is running, or this won't work: (only doable on the same machine):
-	if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME" (
-		call isrunning Last.*fm
-        call print-if-debug "ISRUNNING='%ISRUNNING%'" %+ if %DEBUG eq 1 (pause)
-		if "%ISRUNNING%" ne "1" (
-                call alarm "Last.fm scrobbler must be running! Running it now."
-                call lastfm-start                 
-                call isrunning Last.*fm
-                if "%ISRUNNING%" ne "1" (call fatal_error "could not restart Last.fm scrobbler, despite trying")
-         )
-	)
+rem 2008–2024: Make sure LAST.FM scrobbler is running, or this won't work: (only doable on the same machine):
+rem 2024–Present: skip this
+        goto :skip_old_lastfm_code_1
+                iff "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME" then
+                        call isrunning Last.*fm
+                        call print-if-debug "ISRUNNING='%ISRUNNING%'" %+ if %DEBUG eq 1 (pause)
+                        iff "%ISRUNNING%" ne "1" then
+                                call alarm "Last.fm scrobbler must be running! Running it now."
+                                call lastfm-start                 
+                                call isrunning Last.*fm
+                                if "%ISRUNNING%" ne "1" (call fatal_error "could not restart Last.fm scrobbler, despite trying")
+                        endiff
+                endiff
+        :skip_old_lastfm_code_1
 
 
 
@@ -143,31 +146,31 @@ goto :skip_old_way
 
 
 :2008way
-	echo  edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT%
-	      edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
-	goto :EditIt
+	echo  edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%SCRIPT_TO_RUN%
+	      edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%SCRIPT_TO_RUN%
+	goto :Run_Generated_Script
 
 :2009way
-	echo  edit-currently-playing-attrib-helper.pl "%TMPMUSICSERVERCDRIVE:\Documents and Settings\oh\Local Settings\Application Data\Last.fm\Client\WinampPlugin.log" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT%
-	      edit-currently-playing-attrib-helper.pl "%TMPMUSICSERVERCDRIVE:\Documents and Settings\oh\Local Settings\Application Data\Last.fm\Client\WinampPlugin.log" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
+	echo  edit-currently-playing-attrib-helper.pl "%TMPMUSICSERVERCDRIVE:\Documents and Settings\oh\Local Settings\Application Data\Last.fm\Client\WinampPlugin.log" %MP3OFFICIAL\lists\everything.m3u %* {GT}%SCRIPT_TO_RUN%
+	      edit-currently-playing-attrib-helper.pl "%TMPMUSICSERVERCDRIVE:\Documents and Settings\oh\Local Settings\Application Data\Last.fm\Client\WinampPlugin.log" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%SCRIPT_TO_RUN%
 	:                                                                  T:\Documents and Settings\oh\Local Settings\Application Data\Last.fm\Client\WinampPlugin.log
-	goto :EditIt
+	goto :Run_Generated_Script
 
 
 :2011way
 	if "%HADES_DOWN"=="1" goto :HadesDown
 	:HadesNotDown
-	echo edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT%
-	     edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
+	echo edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%SCRIPT_TO_RUN%
+	     edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%SCRIPT_TO_RUN%
 	goto :CallECTmp
 	:HadesDown
 	set AUDIOSCROBBLER_LOG=%HD128G:\Users\carolyn\AppData\Local\Last.fm\Client\Last.fm.log
 	call validate-environment-variable AUDIOSCROBBLER_LOG
-	echo edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT%
-	     edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
+	echo edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%SCRIPT_TO_RUN%
+	     edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%SCRIPT_TO_RUN%
 	goto :CallECTmp
 	:CallECTmp
-	goto :EditIt
+	goto :Run_Generated_Script
 
 
 
@@ -176,32 +179,43 @@ goto :skip_old_way
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :2013way
-	:if "%HADES_DOWN"=="1" goto :HadesDown
-    :    :HadesNotDown
-    :    :echo edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT%
-    :          edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
-    :    goto :CallECTmp
-	::HadesDown
-	::et LOGFILENAME=Last.fm.log
-	:et LOGFILENAME=WinampPlugin.log
-	set LOGFILENAME=Last.fm Scrobbler.log
-        %COLOR_DEBUG%
-        set DRIVE_TO_USE=%MUSICSERVERCDRIVE%
-        if "%MACHINENAME%"  eq "%MUSICSERVERMACHINENAME%" (set DRIVE_TO_USE=C)
-        echo edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %* {GT}%LEARNEDSCRIPT% %+ %COLOR_NORMAL%
-             edit-currently-playing-attrib-helper.pl "%AUDIOSCROBBLER_LOG%" %MP3OFFICIAL\lists\everything.m3u %*    >:u8%LEARNEDSCRIPT%
-	goto :CallECTmp
-	:CallECTmp
-	goto :EditIt
+:2024_new_way_uses_this_also
 
-	:EditIt
-	call %LEARNEDSCRIPT%
+        rem Set drive letter to use:
+                set DRIVE_TO_USE=%MUSICSERVERCDRIVE%
+                if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (set DRIVE_TO_USE=C)
+        
+        rem Set log file to use:
+                rem 2008–2024: last.fm logfile parsing method
+                        set LOG_TO_USE=%AUDIOSCROBBLER_LOG%       
+                        
+                rem 2024 update! Getting rid of last.fm dependency!
+                        set LOG_TO_USE=%NOW_PLAYING_TXT%
+        
+        rem Set all-songs-list file to use:        
+                set ALL_SONGS_PLAYLIST=%MP3OFFICIAL\lists\everything.m3u
+
+        rem A bit of debug output:
+                echos %ansi_color_debug%
+                echo edit-currently-playing-attrib-helper.pl "%LOG_TO_USE%" %ALL_SONGS_PLAYLIST% %*  `>`:u8%SCRIPT_TO_RUN% %ansi_color_normal%
+
+        rem Generate our script using our helper program:                
+                     edit-currently-playing-attrib-helper.pl "%LOG_TO_USE%" %ALL_SONGS_PLAYLIST% %*    >:u8%SCRIPT_TO_RUN%
+
+goto :Run_Generated_Script
+
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 
 
+rem Run our generated "SCRIPT_TO_RUN"
+rem Now that we have the filename of the attrib.lst, let's edit it, assuming that's what the generated SCRIPT_TO_RUN does
+rem originally that was all it did, but now it does some other things like going into the folder WITHOUT opening attrib.lst,
+rem and automarking attrib.lst without opening it.
 
+:Run_Generated_Script
+        call %SCRIPT_TO_RUN%
 
 
 
