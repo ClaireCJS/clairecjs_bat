@@ -127,7 +127,9 @@ if ($METHOD eq "2024") {
 		print "echo * Display Title: $display_title\n";				# Print the first two special variables
 		print "echo * Filename: $filename\n";
 		print "echo * Metadata Hash Table:\n";						# Print the entire hash table for debugging
-		print Dumper(\%metadata);
+		my $meta=Dumper(\%metadata);
+		$meta =~ s/^/echo /ig;
+		print $meta . "\n";
 	}
 	
 }
@@ -474,12 +476,13 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 	if (($METHOD eq "2011") || ($METHOD eq "2012") || ($METHOD >= "2013")) {
 		if ($filename_nodir ne "") { print "dir /s /k /m /b /f \"$filename_nodir\"\n"; }
 	} else {
-		print "dir /s /k /m /b /f \| grep -i \"$found_regex\"\n";				#thd old way
+		print "dir /s /k /m /b /f \| grep -i \"$found_regex\"\n";				#the old way
 	}
 
 
 	$target_dir =~ s/\\$//;
-	print "set CURRENT_SONG_FILE="     . $filename_nodir                      . "\n";
+	print "set CURRENT_SONG_FILE="     . $filename_nodir                      . "\n";	
+	print "echoerr \%star\% CURRENT_SONG_FILE=\%CURRENT_SONG_FILE\%"          . "\n";
 	print "set CURRENT_SONG_DIR="      . $target_dir                          . "\n";
 	print "set CURRENT_SONG_FILENAME=" . $target_dir . "\\" . $filename_nodir . "\n";
 

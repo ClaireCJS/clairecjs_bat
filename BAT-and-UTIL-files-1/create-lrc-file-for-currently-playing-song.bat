@@ -6,7 +6,6 @@ rem Capture parameters we will use later:
 
 
 rem If we passed a filename, this isn't the script we actually wanted.
-rem If we didn't, then go to the currently playing song folder to process
         iff exist "%PARAM_ONE%" then
                 call warning "You actually meant to run %emphasis%create-lrc-from-file%deemphasis%%ansi_color_warning% ... Running that next."
                 call pause-for-x-seconds 120
@@ -14,6 +13,7 @@ rem If we didn't, then go to the currently playing song folder to process
                 create-lrc-from-file %* 
                 goto :END
         else
+rem If we didn't, then go to the currently playing song folder to process
                 call go-to-currently-playing-song-dir
                 call errorlevel
         endiff

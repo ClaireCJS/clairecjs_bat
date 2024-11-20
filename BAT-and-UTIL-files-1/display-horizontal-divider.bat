@@ -53,9 +53,17 @@ rem After this script was developed, pre-rendered horizontal dividers were creat
 rem As of 2024/10/18, we now try to use the pre-rendered dividers before drawing our own. It is ***MUCH*** faster.
         set RAINBOW_DIVIDER_FILE=%bat%\dividers\rainbow-%@EVAL[%SCREEN_COLUMNS - 1].txt
         iff exist %RAINBOW_DIVIDER_FILE% then
+                iff 1 ne %validated_divider_env then
+                        if "" eq "%@FUNCTION[ansi_move_to_col]" (function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`)
+                        if not defined NEWLINE                  (set NEWLINE=%@char[12]%@char[13])
+                        set validated_divider_env=1
+                endiff
+
+                rem First, move to column 0... Yes, this means we will overwrite things. This is by design.
+                echos %@ANSI_MOVE_TO_COL[1]
                 type %RAINBOW_DIVIDER_FILE%
-                rem Okay this is weird. I keep getting "stuck" because the generated dividers do't have newlines at the end! So let's forceo ne
-                if not defined NEWLINE (call fatal_error "NEWLINE environment variable not defined")
+                rem   Okay this is weird. I keep getting "stuck" because the generated 
+                rem   dividers don't have newlines at the end! So let's force one:
                 echos %NEWLINE%
                 goto :Done
         endiff

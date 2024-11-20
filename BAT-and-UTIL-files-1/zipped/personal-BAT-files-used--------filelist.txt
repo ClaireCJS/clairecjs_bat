@@ -53,6 +53,7 @@
 2024-10-07  14:28          2,115   62%  app-volume-and-device-preferences.lnk
 2024-11-14  03:46          1,039   50%  approve-lyric-file.bat
 2024-11-19  07:37             51   -3%  approve-lyrics.bat
+2024-11-20  16:34             52    4%  ascii.bat
 2024-11-11  16:01         17,285   74%  askYN.bat
 2024-11-19  07:37             37   -5%  asleep.bat
 2024-11-19  02:23          1,065   53%  assimilate-rookie-folders.bat
@@ -191,8 +192,8 @@
 2024-11-19  07:35            728   49%  create-and-change-into-temp-folder.bat
 2024-11-19  07:35            261   38%  create-directory-and-recursive-playlists.bat
 2024-11-19  07:35            492   59%  create-generic-sizes-and-counts-report.bat
-2024-11-19  07:35          1,055   51%  create-lrc-file-for-currently-playing-song.bat
-2024-11-18  16:42         65,509   75%  create-lrc-from-file.bat
+2024-11-20  13:00          1,055   51%  create-lrc-file-for-currently-playing-song.bat
+2024-11-20  21:13         67,206   75%  create-lrc-from-file.bat
 2024-11-19  21:35            194   36%  create-srt-for-soundclip.bat
 2024-11-19  07:35            354   45%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
@@ -263,7 +264,7 @@
 2024-11-19  07:47          1,045   54%  display-flac-tags.bat
 2024-11-19  07:47            162   23%  display-free-space-as-locked-message.bat
 2024-11-19  07:47          3,640   67%  display-free-space.bat
-2024-11-11  16:32          8,641   71%  display-horizontal-divider.bat
+2024-11-20  15:53          9,064   71%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-11-13  15:32            895   55%  display-lyric-status-for-file.bat
 2024-11-19  07:47             56   -3%  display-lyric-status.bat
@@ -291,6 +292,7 @@
 2024-11-19  07:47             65   10%  dns-display.bat
 2024-11-19  07:47             46   -4%  do-in-each-directory.bat
 2024-11-19  07:47          1,248   54%  do-in-each-folder.bat
+2024-11-20  13:11             46   -4%  download-4WT-plugin.bat
 2024-11-19  07:47         20,284   69%  download-youtube-album.bat
 2024-11-19  07:47            137   24%  download-youtube-music.bat
 2024-11-19  07:47             53   -3%  download-youtube-video-with-chapters-as-an-mp3-album.bat
@@ -307,7 +309,7 @@
 2024-11-19  07:21             80    5%  ec.bat
 2024-11-19  07:21          4,244   74%  echo-rainbow.bat
 2024-11-19  07:41          1,807   64%  edit-all-BAT-files-that-do-not-contain-a-string.bat
-2024-11-20  00:39         31,128   69%  edit-currently-playing-attrib-helper.pl
+2024-11-20  13:05         32,590   69%  edit-currently-playing-attrib-helper.pl
 2024-11-11  16:33            252   49%  edit-currently-playing-attrib-with-automark.bat
 2024-11-20  02:31          9,923   70%  edit-currently-playing-attrib.bat
 2024-11-19  07:33          4,639   67%  edit-filenames-matching-regex.bat
@@ -404,7 +406,7 @@
 2024-11-11  16:33            418   42%  get-lyrics-for-currently-playing-song.bat
 2024-11-11  16:34             65   -3%  get-lyrics-for-song.bat
 2024-11-19  07:47             48   -4%  get-lyrics-from-song.bat
-2024-11-12  17:29         47,190   77%  get-lyrics-via-multiple-sources.bat
+2024-11-20  20:54         59,482   78%  get-lyrics-via-multiple-sources.bat
 2024-10-28  18:54          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
 2024-11-19  07:47             64   -3%  get-lyrics-with-lyricsgenius.bat
 2024-11-11  16:33            186   39%  get-lyrics.bat
@@ -740,7 +742,7 @@
 2024-11-19  21:35             45   -4%  review-karaokes.bat
 2024-11-19  21:35             45   -4%  review-LRCs.bat
 2024-11-19  21:35             45   -4%  review-SRTs.bat
-2024-11-12  02:45          1,014   50%  review-subtitles.bat
+2024-11-20  18:12          1,413   55%  review-subtitles.bat
 2024-11-19  21:35             30   -6%  ripGrep.bat
 2024-11-19  15:16            544   46%  rn-currently-playing-song.bat
 2024-11-19  15:16          2,946   67%  rn-latest-for-youtube-dl.bat
@@ -778,7 +780,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-11-19  21:35             39   -5%  set-all_colors.bat
-2024-11-18  16:42        119,683   82%  set-ansi.bat
+2024-11-20  13:52        119,818   82%  set-ansi.bat
 2024-11-19  15:17            685   63%  set-automatic-login-to-windows-OFF.bat
 2024-11-19  15:17          1,810   69%  set-automatic-login-to-windows-ON.bat
 2024-11-19  21:35            138   16%  set-background-picture-for-johnsbackgroundswitcher.bat
@@ -937,6 +939,8 @@
 2019-10-01  10:28            244   32%  trimextonly.pl
 2019-10-01  10:28            214   34%  trimfile.pl
 2024-11-19  15:03            710   52%  ttrgb.bat
+2024-11-20  15:42             18  -11%  turn-ansi-off.bat
+2024-11-20  15:42             19  -10%  turn-ansi-on.bat
 2024-11-19  15:03          1,411   54%  turn-monitor-off.bat
 2024-11-19  21:34            157   18%  turn-nested-variable-expansion-off.bat
 2024-11-19  21:34            157   18%  turn-nested-variable-expansion-on.bat
