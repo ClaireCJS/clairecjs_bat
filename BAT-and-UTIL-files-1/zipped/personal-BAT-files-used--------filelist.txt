@@ -44,6 +44,8 @@
 2024-11-19  02:23             95    4%  alltif2jpg.bat
 2024-11-19  02:23            547   40%  allwav2mp3.bat
 2024-11-19  07:36             37   -5%  an.bat
+2024-11-20  15:42             18  -11%  ansi-off.bat
+2024-11-20  15:42             19  -10%  ansi-on.bat
 2024-11-19  07:37            224   25%  ansi-references.bat
 2024-11-19  07:37             39   -5%  ansi-reset.bat
 2024-11-19  02:23             86    4%  app-volume-and-device-preferences-hotkey.bat
