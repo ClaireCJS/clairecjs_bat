@@ -126,38 +126,38 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 :::::::::::::::::::::::::::::::::::::::::::::::::::::: CONFIGURATION :::::::::::::::::::::::::::::::::::::::::::::::::::: 
     rem echos %@RANDCURSOR[]
     :::: Command-line parsing options:
-    	SET BAT=c:\bat               %+ REM for safety, just redefine this here
+    	SET BAT=c:\bat                                                 %+ REM for safety, just redefine this here
 
     :::: Internet Cellphone Tethering options:        
-        set TETHERING=0	             %+ REM Connectivity toggle, for when internet is down and we tether to a cell-phone. 
+        set TETHERING=0	                                               %+ REM Connectivity toggle, for when internet is down and we tether to a cell-phone. 
         SET TETHERING_IP_GOLIATH=192.168.0.115
         SET TETHERING_IP_THAILOG=192.168.0.86
         SET GATEWAY_TETHERING=%TETHERING_IP_GOLIATH%
         set MACHINENAMES_NOT_REACHABLE_DURING_TETHERING=HADES FIRE     %+ REM Consider: When new computer is added
 
 	:::: We need to know which computers exist, so stuff hard-coded to a specific machine behaves properly:
-        SET ALL_COMPUTERS=   THAILOG GOLIATH DEMONA WYVERN              %+ rem DO NOT ADD "WORK" TO THIS LIST!! - only computers that currently physically exist
-        SET ALL_COMPUTERS_UP=THAILOG         DEMONA WYVERN              %+ rem I am in the bad habit of iterating through ALL_COMPUTERS instead of ALL_COMPUTERS_UP. Just remember this one exists too, future-Claire!
-        set MAX_MACHINENAME_LENGTH=7                       %+ rem Consider: When new computer is added
+        SET ALL_COMPUTERS=   DEMONA WYVERN THAILOG GOLIATH             %+ rem DO NOT ADD "WORK" TO THIS LIST!! - only computers that currently physically exist
+        SET ALL_COMPUTERS_UP=DEMONA WYVERN THAILOG                     %+ rem I am in the bad habit of iterating through ALL_COMPUTERS instead of ALL_COMPUTERS_UP. Just remember this one exists too, future-Claire!
+        set MAX_MACHINENAME_LENGTH=7                                   %+ rem Consider: When new computer is added
         set  WYVERN_DOWN=0
-		set  DEMONA_DOWN=0
-		set THAILOG_DOWN=0
-		set GOLIATH_DOWN=1 %+ rem R.I.P. Goliath 2012-2023/10
-		set   MAGIC_DOWN=1
-		set    FIRE_DOWN=1
-		set   HADES_DOWN=1
+        set  DEMONA_DOWN=0
+        set THAILOG_DOWN=0
+        set GOLIATH_DOWN=1                                             %+ rem R.I.P. Goliath 2012-2023/10
+        set   MAGIC_DOWN=1
+        set    FIRE_DOWN=1
+        set   HADES_DOWN=1
         set    HELL_DOWN=1
-		set   CHAOS_DOWN=1
-		set   STORM_DOWN=1
+        set   CHAOS_DOWN=1
+        set   STORM_DOWN=1
         set    FIRE_DOWN=1
 
-    :::: Harddrives currently down:
-        set HD1500G2_DOWN=1                                %+ rem W: currently down/inaccessible (2016ish) until Thailog gets a drive controller // 201706: i dunno, is this drive still here?
-        set HD2000G_DOWN=1                                 %+ rem O: decomisioned (20210323) 
-        set HD2000G1_DOWN=1                                %+ rem O: decomisioned (20210323) 
-        set HD2000G2_DOWN=1                                %+ rem R: crashed (2017) 
-        set HD2000G3_DOWN=1                                %+ rem T: crashed (2017) but possibly recoverable
-
+    :::: Harddrives currently down:                              
+        set HD1500G2_DOWN=1                                            %+ rem W: currently down/inaccessible (2016ish) until Thailog gets a drive controller // 201706: i dunno, is this drive still here?
+        set HD2000G_DOWN=1                                             %+ rem O: decomisioned (20210323) 
+        set HD2000G1_DOWN=1                                            %+ rem O: decomisioned (20210323) 
+        set HD2000G2_DOWN=1                                            %+ rem R: crashed (2017) 
+        set HD2000G3_DOWN=1                                            %+ rem T: crashed (2017) but possibly recoverable
+                                                                 
     rem Cstom hardware status:
 	set AMBILIGHT_DOWN=1
         set       X10_DOWN=1
@@ -836,6 +836,7 @@ return
                                 set MP3OFFICIALDRIVE=%HD18T3%  
                                 set      MP3OFFICIAL=%MP3OFFICIALDRIVE%:\mp3
                                 set     MP3_OFFICIAL=%MP3OFFICIAL%
+                                set            MP3CL=%MP3OFFICIAL%
                                 set              MP3=%MP3OFFICIAL%
                                 
                         rem music collection's 3 backup locations:

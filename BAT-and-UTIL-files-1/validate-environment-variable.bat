@@ -253,6 +253,9 @@ goto :Past_The_End_Of_The_Sub-Routines
                         REM ...so let's put asterisks around it, too!
                         call warning %USER_MESSAGE%
                     endiff
+                    call     warning  " Called by: %_pbatchname"
+                    call     warning  "Parameters: %italics_on%%VEVPARAMS%%italics_off%"
+                    call     warning  "       CWP: %_CWP"
                     call fatal_error "'%italics_on%%@UPPER[%VARNAME%]%italics_off%' location does not exist: '%VARVALUE%'...%ANSI_COLOR_WARNING%%USER_MESSAGE%%ANSI_COLOR_FATAL_ERROR%"
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

@@ -44,7 +44,7 @@ COLOR_QUESTION_BACKGROUNDS           = True       #whether to highlight lines wi
 DEFAULT_COLOR_CYCLE_MODE   = "fg"                 #whether to color-cycle foreground ("fg"), background ("bg"), or both ("both").
 EMOJIS_COPY                = '⭢︋📂 '
 EMOJIS_PROMPT              = '❓❓ '
-EMOJIS_DELETE              = '👻⛔'
+EMOJIS_DELETE              = '👻⛔'               #"ghost" + "no" = dead file? no more file? File is now a ghost?
 EMOJIS_SUMMARY             = '✔️ '
 EMOJIS_ERROR               = '🛑🛑'
 nomoji                     = False                #set to True to disable [some] emoji decoration of lines
@@ -99,7 +99,7 @@ else                               : TICK = True
 #print(f"tick is {TICK} .. {os.environ.get('no_tick')}")
 
 if os.environ.get('no_double_lines',0) == "1": DOUBLE_LINES_ENABLED = False
-else                                         : DOUBLE_LINES_ENABLED = True                                       #DEBUG: print(f"DOUBLE_LINES_ENABLED={DOUBLE_LINES_ENABLED}")
+else                                         : DOUBLE_LINES_ENABLED = True                                  #DEBUG: print(f"DOUBLE_LINES_ENABLED={DOUBLE_LINES_ENABLED}")
 
 #vars
 current_processing_segment = 0
@@ -137,6 +137,8 @@ def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' +
 
 
 def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
+    #sys.stderr.write(f"DEBUG: called print_line({line_buffer}, {r}, {g}, {b}, {additional_beginning_ansi})\n")
+    
     original_line_buffer = line_buffer
     global current_processing_segment
     color_change_ansi = f'\033[38;2;{r};{g};{b}m'
@@ -368,7 +370,11 @@ while t.is_alive() or not q.empty():
             line_spacer = ""
             if not whisper_ai: line_spacer = "   "
 
-            ##### ACTUALLY PRINT OUT THE LINE:
+            ##### ACTUALLY PRINT OUT THE LINE: 
+            if   any(substring in line_buffer for substring in file_removals): line_spacer = EMOJIS_DELETE                                 #treatment for file deletion lines
+            elif any(substring in line_buffer for substring in ["Y/N/A/R)"] ): line_spacer = EMOJIS_PROMPT                                  #treatment for  user prompt  lines
+            elif any(substring in line_buffer for substring in ["=>","->"]  ): line_spacer = EMOJIS_COPY                                    #treatment for   file copy   lines
+
             sys.stdout.write(f'{background_color_switch_maybe}{foreground_color_switch}{CURSOR_RESET}{cursor_color_switch_by_hex}{additional_beginning_ansi}'    + f'{line_spacer}{blink_maybe}{line_buffer} {ANSI_RESET}') #\033[0m #\033[1C
             #moved to end of loop: sys.stdout.flush()                                                                                   # Flush the output buffer to display the prompt immediately
             sys.stdout.flush()                    #added 2024/10/31 and unsure of necesity
@@ -409,11 +415,14 @@ while t.is_alive() or not q.empty():
 # After exiting the main loop, print any remaining line content
 if line_buffer.strip():  # Ensure any remaining line without \n is printed
     print_line(line_buffer, r, g, b, additional_beginning_ansi)
-    sys.stdout.write(ANSI_RESET + "\n")  # Reset any leftover ANSI styles
-    sys.stdout.flush()
+    
+    
+# Reset the ansi? #kind of equivalent of: if TICK: claire.tock()
+sys.stdout.write(ANSI_RESET + "\n")  # Reset any leftover ANSI styles
+
+# Final flush?
+sys.stdout.flush()
 
 
-
-#if TICK: claire.tock()
 
 

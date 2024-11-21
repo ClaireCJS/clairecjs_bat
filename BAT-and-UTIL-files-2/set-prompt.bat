@@ -1,3 +1,4 @@
+@rem ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ This is a speedup function to use a generated prompt rather than regenerating it.
 @Echo OFF
 @on break cancel
 
@@ -10,7 +11,7 @@ rem Debug stuff:
 
 
 rem Machine-specific exceptions can go here:
-        :if "%1" eq "BROADWAY" .or. "%@UPPER[%MACHINENAME%]" eq "BROADWAY" (goto :NoAnsiPrompt)
+        rem if "%1" eq "BROADWAY" .or. "%@UPPER[%MACHINENAME%]" eq "BROADWAY" (goto :NoAnsiPrompt)
         if "%@UPPER[%MACHINENAME%]" eq "WORK"                              (goto :work)
 
 
@@ -39,3 +40,22 @@ rem If we managed to get here, just continue on and use Claire's prompt:
 
 
 :end
+
+
+
+rem Create a simpler .CMD version of the generated prompt, which can be used in CMD.EXE and other shells,
+rem but which unfortunately has any realtime-generated values like CPU usage or time of day statically frozen:
+        set SETPROMPT_CMD=c:\bat\setprompt.cmd
+        set THIS_SCRIPT=c:\bat\%0.bat
+        if not exist %SETPROMPT_CMD% (
+                echo %@CHAR[55356]%@CHAR[57119] Creating setprompt.cmd cause it doesn't exist
+                echo prompt %prompt%>%SETPROMPT_CMD%
+        ) else (
+                set age_diff=%@EVAL[%@FILEAGE[%THIS_SCRIPT%] - %@FILEAGE[%SETPROMPT_CMD%]]
+                if %@FILEAGE[%THIS_SCRIPT%] gt %@FILEAGE[%SETPROMPT_CMD%]  (
+                        echo %@CHAR[55356]%@CHAR[57119] Creating setprompt.cmd cause setprompt.bat is newer than setprompt.cmd [age_diff=%age_diff%]
+                        echo @prompt %prompt%>%SETPROMPT_CMD%
+                )
+        )
+        
+

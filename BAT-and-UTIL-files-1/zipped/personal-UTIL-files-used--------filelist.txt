@@ -3,6 +3,7 @@
 2021-11-25  11:04         39,743   60%  cat_fast.exe
 2007-06-16  00:29      1,232,896   88%  exiflist.exe
 2014-03-16  23:48          7,680   53%  focus-monitor.exe
+2005-08-04  10:00        169,812   57%  gawk.exe
 2005-08-04  06:03         54,432   63%  girder-internet-event-client.exe
 2005-08-04  10:01         38,278   50%  grep32.exe
 2011-05-17  16:48        423,288   51%  handle.exe

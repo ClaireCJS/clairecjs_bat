@@ -18,7 +18,8 @@ rem personal note: mchkold is a hard-coded 'mchk' of the pre-2002-crash filelist
 	set EVERYTHING=%MP3CL\LISTS\everything.m3u
 
 ::::: Verify proper steup:
-	call validate-environment-variables DROPBOX NEWMP3 MP3CL WAVPROCESSING INDEXFILE EVERYTHING FILEMASK_AUDIO REVIEWDIR INDEXFILE_DROPBOX
+	call validate-environment-variables DROPBOX NEWMP3 MP3CL WAVPROCESSING INDEXFILE EVERYTHING  REVIEWDIR INDEXFILE_DROPBOX
+        call validate-environment-variables FILEMASK_AUDIO skip_validation_existence
 
 
 

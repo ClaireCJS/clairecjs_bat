@@ -1,8 +1,36 @@
-@on break cancel
 @echo off
+@on break cancel
 
 :PUBLISH:
-:DESCRIPTION: A way to highlight text.  Basically a grep-like functionality. Great for doing secondary greps on already grepped blocks of text that you *do* want to see. can be done with grep, but we prefer using sed.
+:DESCRIPTION: A way to highlight text.  Basically a grep-like functionality. 
+:DESCRIPTION: Great for doing secondary greps on already grepped blocks of text 
+:DESCRIPTION: that you *do* want to see. can be done with grep, but we prefer using sed.
+
+
+
+
+rem Broke, started from scratch:
+
+
+
+set GREP_COLORS=%GREP_COLORS_HILITE% 
+
+
+setdos /c~  >&>nul %+ set COMMAND_SEPARATOR=TILDE
+
+rem sed "/%*/,${s//\x1b[1;33;41m&\x1b[0m/g;b};$q5"  
+(gawk.exe "{IGNORECASE=1; gsub(/%*/, \"\033[1;33;41m&\033[0m\"); print}") |:u8 fast_cat
+rem perl -pe 's/%*/\e[1;33;41m$&\e[0m/gi' inputfile
+
+setdos /c^  >&>nul %+ set COMMAND_SEPARATOR=CARET
+
+set  GREP_COLOR=%GREP_COLOR_NORMAL%
+set GREP_COLORS=%GREP_COLORS_NORMAL%
+
+goto :END
+
+
+
 
     REM call debug "parameters are %*"
     call change-command-separator-character-to-tilde silent
@@ -21,11 +49,11 @@
 
 
 ::::: ENVIRONMENT VALIDATION:
-    if "%ENVIRONMENT_VALIDATION_HIGHLIGHT_ALREADY%" eq "1" goto :AlreadyValidated
+    if 1 ne %ENVIRONMENT_VALIDATION_HIGHLIGHT_ALREADY then
         call validate-environment-variables GREP_COLOR_NORMAL GREP_COLORS_NORMAL GREP_COLOR_HILITE GREP_COLORS_HILITE
         call validate-in-path sed
         set ENVIRONMENT_VALIDATION_HIGHLIGHT_ALREADY=1
-    :AlreadyValidated
+    enhdiff
 
 ::::: STORE ORIGINAL GREP-COLOR AND ESCAPE KEY, SWAP OUT FOR HILIGHT-SPECIFIC GREP-COLOR:
     set GREP_COLORS=%GREP_COLORS_HILITE% 
@@ -58,4 +86,7 @@ REM doesn't dsplay the damn ansi when typed almost seems like gawk kills ansi em
 rem RESTORE ORIGINAL GREP-COLORS AND ESCAPE CHARACTER:
     set  GREP_COLOR=%GREP_COLOR_NORMAL%
     set GREP_COLORS=%GREP_COLORS_NORMAL%
+
+
+:END
 
