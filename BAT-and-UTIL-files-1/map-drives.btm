@@ -17,12 +17,13 @@
     set PERSISTENT=YES     %+ REM was no until 202308
 
 ::::: SETUP:
-    :: How will we run just parts of this functionality without running it all?
-        if   "%@LEN[%1]" eq "1"          (gosub :mapSingleLetter %1                           %+ goto :END)
-        if "%@UPPER[%1]" eq "ALL"        (gosub :doAll                                        %+ goto :END)
-        if "%@UPPER[%1]" eq "EVERY"      (gosub :doAll	                                      %+ goto :END)
-        if "%@UPPER[%1]" eq "SYMLINKS"   (call error "SYMLINKS IS MOVED! STAHP!"    %+ pause  %+ goto :END)
-        if "%@UPPER[%1]" eq "LINKS_ONLY" (call error "SYMLINKS IS MOVED! STAHP!"    %+ pause  %+ goto :END)
+    :: How will we run just parts of this functionality without running it all? 
+        if   "%@LEN[%1]" eq "1"                              (gosub :mapSingleLetter %1                           %+ goto :END) %+ rem for "map-drives d"  if you want to just map d:
+        if   "%@LEN[%1]" eq "2" .and. "%RIGHT[1,%1]" eq ":"  (echo asdfasdf! %+ gosub :mapSingleLetter %@LEFT[1,%1]                 %+ goto :END) %+ rem for "map-drives d:" if you want to just map d: and refuse to remember proper invocation
+        if "%@UPPER[%1]" eq "ALL"                            (gosub :doAll                                        %+ goto :END)
+        if "%@UPPER[%1]" eq "EVERY"                          (gosub :doAll	                                  %+ goto :END)
+        if "%@UPPER[%1]" eq "SYMLINKS"                       (call error "SYMLINKS IS MOVED! STAHP!"    %+ pause  %+ goto :END)
+        if "%@UPPER[%1]" eq "LINKS_ONLY"                     (call error "SYMLINKS IS MOVED! STAHP!"    %+ pause  %+ goto :END)
 
 
     :: Validate environment, environment variables

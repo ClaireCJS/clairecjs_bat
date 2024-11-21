@@ -206,7 +206,7 @@
 2024-11-19  07:37             53   -3%  cuda-version.bat
 2024-11-19  07:35          1,142   60%  cursor-Carolyn.bat
 2024-11-19  07:35          1,385   60%  cursor-Claire.bat
-2024-11-19  07:35            227   41%  cursor-common.bat
+2024-11-21  05:11            227   41%  cursor-common.bat
 2024-11-19  07:37             41   -4%  cursor-reset.bat
 2024-11-19  07:37             48   -4%  cut-to-width.bat
 2024-11-19  07:35            213   45%  cut.bat
@@ -555,7 +555,7 @@
 2024-11-19  07:56             43   -4%  makefilelist.bat
 2022-02-02  02:57         36,984   67%  MAKEIMG.pl
 2019-10-01  10:28         13,723   75%  makethumbnail.pl
-2024-11-13  20:01         13,297   78%  map-drives.btm
+2024-11-21  05:18         13,690   78%  map-drives.btm
 2024-11-19  07:56             39   -5%  maximize.bat
 2024-11-19  07:56            474   35%  MCD.bat
 2024-11-19  07:56            182   20%  mcdnow.bat
