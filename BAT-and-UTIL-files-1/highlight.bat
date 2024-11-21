@@ -18,8 +18,10 @@ set GREP_COLORS=%GREP_COLORS_HILITE%
 
 setdos /c~  >&>nul %+ set COMMAND_SEPARATOR=TILDE
 
+set params=%@UNQUOTE[%*]
+
 rem sed "/%*/,${s//\x1b[1;33;41m&\x1b[0m/g;b};$q5"  
-(gawk.exe "{IGNORECASE=1; gsub(/%*/, \"\033[1;33;41m&\033[0m\"); print}") |:u8 fast_cat
+(gawk.exe "{IGNORECASE=1; gsub(/%PARAMS%/, \"\033[1;33;41m&\033[0m\"); print}") |:u8 fast_cat
 rem perl -pe 's/%*/\e[1;33;41m$&\e[0m/gi' inputfile
 
 setdos /c^  >&>nul %+ set COMMAND_SEPARATOR=CARET
