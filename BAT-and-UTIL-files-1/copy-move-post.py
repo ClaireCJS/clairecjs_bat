@@ -418,10 +418,10 @@ if line_buffer.strip():  # Ensure any remaining line without \n is printed
     
     
 # Reset the ansi? #kind of equivalent of: if TICK: claire.tock()
-sys.stdout.write(ANSI_RESET + "\n")  # Reset any leftover ANSI styles
+#sys.stdout.write(ANSI_RESET + "\n")  # Reset any leftover ANSI styles
 
 # Final flush?
-sys.stdout.flush()
+#sys.stdout.flush()
 
 
 

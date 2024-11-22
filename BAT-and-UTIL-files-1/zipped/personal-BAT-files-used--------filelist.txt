@@ -185,7 +185,7 @@
 2024-11-19  07:37             54   -3%  cool-header.bat
 2024-11-19  07:37             44   -4%  coolbigecho.bat
 2024-11-19  07:35          1,913   57%  copy-alias.bat
-2024-11-21  09:15         27,656   73%  copy-move-post.py
+2024-11-22  14:15         27,658   73%  copy-move-post.py
 2024-11-19  07:37             37   -5%  copy.bat
 2024-11-19  07:35            242   31%  counts-helper.bat
 2024-11-19  07:35             52   -3%  counts.bat
@@ -197,7 +197,7 @@
 2024-11-19  07:35            261   38%  create-directory-and-recursive-playlists.bat
 2024-11-19  07:35            492   59%  create-generic-sizes-and-counts-report.bat
 2024-11-20  13:00          1,055   51%  create-lrc-file-for-currently-playing-song.bat
-2024-11-20  21:13         67,206   75%  create-lrc-from-file.bat
+2024-11-22  14:06         67,238   75%  create-lrc-from-file.bat
 2024-11-19  21:35            194   36%  create-srt-for-soundclip.bat
 2024-11-19  07:35            354   45%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
@@ -290,7 +290,7 @@
 2024-11-19  07:47             39   -5%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-11-19  07:47             68   -1%  DIST.bat
-2024-11-19  07:47         13,411   77%  distribute-bat-files-to-every-drive.bat
+2024-11-22  14:27         13,411   77%  distribute-bat-files-to-every-drive.bat
 2024-11-19  07:47             36   -5%  div.bat
 2024-11-11  16:32             55   -3%  divider.bat
 2024-11-19  07:47             65   10%  dns-display.bat

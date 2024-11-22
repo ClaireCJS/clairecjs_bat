@@ -24,10 +24,10 @@
         call validate-in-path               sleep checkmappings all-ready-drives wake-all-drives important divider
 
 ::::: NON-SCROLLABLE HEADER:
-        call header unlock
+        call footer unlock
         cls
         repeat 5 echo.
-        call header "Distributing BAT file folder to all drives..."
+        call footer "Distributing BAT file folder to all drives..."
 
 ::::: PREPARE FOR COPY:
         pushd
@@ -298,5 +298,5 @@ return
 
 
 :END
-        call header unlock
+        call footer unlock
 

@@ -86,6 +86,7 @@ clear_screen = cls
 
 def set_screen_rgb(r,g,b,code="11",testing=False, mode="something", count=1):
     sys.stdout.write(f'\x1b]{code};rgb_value:{r:x}/{g:x}/{b:x}\x1b\\')
+    sys.stdout.flush()
     if testing: sys.stdout.write(   f'\r* New {mode} r: {r:3}/{g:3}/{b:3} count={count}')
     sys.stdout.flush()
 set_rgb = set_screen_rgb
@@ -234,7 +235,7 @@ class ColorControl:
         if     PRODUCTION == False: print("TOCK!")      
         method     = "hard"                 #hard-coded method? or just reset them with our code       
         if method == "hard":
-            sys.stdout.write("\x1b]10;rgb:c0/c0/c0\x1b\\"); #sys.stdout.flush()
+            sys.stdout.write("\x1b]10;rgb:c0/c0/c0\x1b\\");  sys.stdout.flush()
             sys.stdout.write("\x1b]11;rgb:00/00/00\x1b\\");  sys.stdout.flush()
         else:            
             for color_code, rgb_values in enumerate(default_rgb_for_color_code):
@@ -243,6 +244,7 @@ class ColorControl:
                 sys.stdout.write(f"\ncolor_code_tock={color_code:>2}, rgb_values={r:2x}{g:2x}{b:2x}    ")
                 sys.stdout.write(f'\\x1b]{color_code}; \trgb:{r:0x}/{g:0x}/{b:0x}\\x1b\\') #rem escaped the 2 escapes and put \t before rgb:
                 sys.stdout.write( f'\x1b]{color_code};rgb:{r:x}/{g:x}/{b:x}\x1b\\')  #normal
+                sys.stdout.flush()
                 #print("\n")
 
         #FOR MORE INFO: https://stackoverflow.com/questions/27159322/rgb-values-of-the-colors-in-the-ansi-extended-colors-index-17-255

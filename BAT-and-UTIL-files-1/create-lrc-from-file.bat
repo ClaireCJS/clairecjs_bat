@@ -67,8 +67,8 @@ REM Cosmetics:
         rem Remove any leftover banners from previous runs, then
                 rem Hurts actually: echos %@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;36r%@CHAR[27]8%@CHAR[27][u               
 
-        rem Fix any custom rgb recolorings of the default character color:
-                echos %@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/00/00%@CHAR[27]\
+        rem Fix cursor color, and any custom rgb recolorings of the default character color:
+                echos %CURSOR_RESET%%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/00/00%@CHAR[27]\
 
 REM validate environment [once]:
         if not defined UnicodeOutputDefault (set UnicodeOutputDefault=no)
