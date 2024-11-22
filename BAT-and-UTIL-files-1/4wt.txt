@@ -1,0 +1,189 @@
+CENTER
+
+Center WT's window on the closest monitor
+
+********************************
+
+CLEAR
+
+scroll to empty viewport
+
+********************************
+
+CURSOR
+
+CURSOR [OFF] [ON] [SAVE] [RESTORE] [CLREOL] [UP [N]] [DOWN [N]] [ROW [N]] ...
+
+[COL [N]] [RIGHT [N]] [LEFT [N]] [PREV [N]] [NEXT [N]] [BOL] [EOL] [BOC] [EOC] ...
+
+[TO [<row column>]] [WRITE[S] string] [WAITM ms] [WAITS s] [more actions]
+
+
+Multiple actions occur in the order in which they appear
+
+N defaults to 1; <row column> defaults to <1 1> (the upper ieft cell of the viewport)
+
+PREV/NEXT - like UP/DOWN but to column 1
+
+BOL EOL BOC EOC - beginning or end of current row or column
+
+WRITE changes the cursor position; WRITES does not
+
+"Quote" string if it contains whitespace; escape (\") significant quotes in string
+
+********************************
+
+EMIT
+
+EMIT text - WriteConsole to the CONOUT$ handle; good for ANSI escape sequences; strips surrounding whitespace
+
+********************************
+
+FCLS
+
+Clear viewport and scrollback
+
+********************************
+
+FOCUSWT
+
+Try to bring Windows Terminal to the foreground
+
+********************************
+
+TABS
+
+TABS -width    - set evenly-spaced tabstops; e.g., TABS -4
+
+TABS N1 N2 ... - set tabstops at columns N1, N2, ... (1-based)
+
+both clear previously set tabs; also clear with TABS 0
+
+********************************
+
+THEME
+
+THEME /L(ist) | index (0~11)
+
+********************************
+
+VBEEP
+
+VBEEP [/D duration] [/N times] [beep_arguments]
+duration unit: 1/18 sec; default duration 4; max 90 (5 sec); default 1 time
+if beep_arguments are specified, VBEEP will call BEEP (first, once)
+
+********************************
+
+WTHELP
+
+WTHELP LIST | ITEM_NAME | KEYS | VERBOSE
+
+
+********************************
+
+WTWINDOW
+
+WTWINDOW NORMAL | MIN | MAX | HIDE
+
+********************************
+
+_ATMOUSE
+
+X,Y,R,G,B of pixel at mouse pointer
+
+********************************
+
+_CONPARENT
+
+HWND of console window's parent
+
+********************************
+
+_CURCHAR
+
+character at the cursor
+
+********************************
+
+_HWNDCON
+
+from GetConsoleWindow()
+
+********************************
+
+_HWNDWT
+
+handle of WindowsTerminal's Cascadia window
+
+********************************
+
+_LTRB
+
+left, top, right, bottom of Cascadia window
+
+********************************
+
+_PREVIEW
+
+1 if WT is preview, 0 otherwise
+
+********************************
+
+_RULER
+
+....+....1 and so on
+
+********************************
+
+_VT
+
+1 if virtual terminal precessing enabled, else 0
+
+********************************
+
+_WINSTATE
+
+one of NORMAL, MINIMIZED, MAXIMIZED, HIDDEN
+
+********************************
+
+_WTEXE
+
+fully-qualified name of WT.EXE
+
+********************************
+
+_WTPID
+
+PID of WindowsTerminal.exe
+
+********************************
+
+_WTTITLE
+
+Caption of CASCADIA window
+
+********************************
+
+_WTVER
+
+Windows Terminal version
+
+********************************
+
+@CHARAT
+
+@CHARAT[row,column] = character at row,column (1-based) of viewport
+
+********************************
+
+*KEYHANDLER
+
+Alt-Del - clear the viewport from the bottom up, one line at a time
+Ctrl-R  - show the ruler; move it with <Up>/<Down>; <Esc> to erase it
+Ctrl-N  - print line numbers; <Esc> erases them
+
+
+********************************
+
