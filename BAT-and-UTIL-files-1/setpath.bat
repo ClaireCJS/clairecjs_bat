@@ -1,7 +1,7 @@
 @if exist c:\bat\setpath.cmd (if %@FILEAGE[c:\bat\setpath.cmd] gt %@FILEAGE[c:\bat\setpath.bat] (call c:\bat\setpath.cmd %* %+ goto :END))
 @rem ^^^^^^ If the generated .CMD version is fresher than this bat file, it's much faster to simply run that. Hard-code c:\bat because %BAT% is not defined yet when calling this from autoexec-common
 
-rem @Echo OFF
+@Echo OFF
 @on break cancel
 :Echo ON
 
@@ -32,12 +32,12 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 	:Base_Clairevironment_Related_2
 		gosub AddFolderToPathEndOnlyIfItExists  c:\perl\bin
         ::: Changed these 3 from AddToPathBeg to AddToPathEnd on 20230503:
-            gosub AddFolderToPathBegOnlyIfItExists  C:\perl\c\bin
-            :osub AddFolderToPathEndOnlyIfItExists  C:\perl\c\bin
-            gosub AddFolderToPathBegOnlyIfItExists  c:\perl\perl\bin
-            :osub AddFolderToPathEndOnlyIfItExists  c:\perl\perl\bin
-            gosub AddFolderToPathBegOnlyIfItExists  c:\perl\perl\site\bin
-            :osub AddFolderToPathEndOnlyIfItExists  c:\perl\perl\site\bin
+                gosub AddFolderToPathBegOnlyIfItExists  C:\perl\c\bin
+                :osub AddFolderToPathEndOnlyIfItExists  C:\perl\c\bin
+                gosub AddFolderToPathBegOnlyIfItExists  c:\perl\perl\bin
+                :osub AddFolderToPathEndOnlyIfItExists  c:\perl\perl\bin
+                gosub AddFolderToPathBegOnlyIfItExists  c:\perl\perl\site\bin
+                :osub AddFolderToPathEndOnlyIfItExists  c:\perl\perl\site\bin
 		gosub AddFolderToPathEndOnlyIfItExists  c:\python23
 		gosub AddFolderToPathEndOnlyIfItExists  c:\python
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL%\sysinternals
@@ -49,8 +49,8 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\emulation\xbox
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\Faster-Whisper-XXL
 	    :Programs_That_May_Be_Installed_That_I_Script_With_Or_Use
-        gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.0.2-essentials_build\bin"
-        gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\Microsoft\WindowsApps"
+                gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.0.2-essentials_build\bin"
+                gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\Microsoft\WindowsApps"
 		gosub AddFolderToPathEndOnlyIfItExists "%ProgramFiles%\FastPictureViewer"
 		gosub AddFolderToPathBegOnlyIfItExists "%ProgramFiles%\ImageMagick"
 		gosub AddFolderToPathBegOnlyIfItExists "%[ProgramFiles(x86)]\ImageMagick-6.3.3-Q16"
@@ -79,7 +79,7 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 	:Work_Related_2
 		gosub AddFolderToPathEndOnlyIfItExists "C:\perl\instantclient"
 	:Stuff_We_Want_At_The_Very_End
-        gosub AddFolderToPathEndOnlyIfItExists "C:\Program Filnes\Git\bin"
+                gosub AddFolderToPathEndOnlyIfItExists "C:\Program Filnes\Git\bin"
     :2023
         :Anaconda.MiniConda//conda.exe stuff
             gosub AddFolderToPathEndOnlyIfItExists  C:\ProgramData\anaconda3\condabin\
@@ -167,8 +167,9 @@ goto :Clean_Up
 :Clean_Up
 
 REM one last cleanup - no blank path entries - ";;" must become ";"
-    PATH=%@REPLACE[;;,;,%PATH]
+    set PATH=%@REPLACE[;;,;,%PATH]
     set PATH_GENERATED=1
+   
 
 REM * Save our dynamically-generated path as a .cmd file that can be run in other commandlines such as PowerShell & Anaconda
     path >c:\bat\setpath.cmd

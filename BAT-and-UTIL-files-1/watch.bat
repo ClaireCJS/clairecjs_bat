@@ -439,3 +439,4 @@ rem FIX WINAMP POSITION IF WE WERE ASKED:
         if %FIX_WINAMP_POSITION eq 1 (call fix-winamp)
 
 :The_Very_End
+call unlock
