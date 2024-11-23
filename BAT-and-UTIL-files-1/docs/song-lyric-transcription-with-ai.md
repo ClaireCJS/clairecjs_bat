@@ -61,7 +61,7 @@ Displays a list of files in the current folder which are missing karaoke files
 Create all missing karaokes in the current folder
 
 
-### [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../review-subtitles.bat] 
+### [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../review-subtitles.bat)
 
 Reviews all karaoke files in current folder, using ```print-with-columns``` so eliminate most scrolling up.
 
@@ -70,12 +70,12 @@ ________________________________________________________________________________
 # Auditing Commands
 
 
-### [karaoke auditor](../check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py)
+### [karaoke auditor](../check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
 
 Audits a filelist to see which files in that filelist do not have karaoke files associated with them.  Is used by ```check-for-missing-karaoke-files```, but can be used for other purposes via:
 
 ```
-check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py PlayList.m3u *.srt;*.lrc createsrtfilewrite
+check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py PlayList.m3u *.srt;*.lrc createsrtfilewrite
 ```
 
 This example goes through the filelist file ```PlayList.m3u``` and checks for all files that do not have ```*.srt``` or ```*.lrc``` sidecar files. When ```createsrtfilewrite``` option is used, it generates a script to create the missing karaoke.  This is what ```create-missing-karaoke-files``` uses to create it script.

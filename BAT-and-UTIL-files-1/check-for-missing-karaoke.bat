@@ -16,7 +16,7 @@ rem Configuration:
 
 rem Validate Enviroment:
         iff 1 ne %validated_cfmk then
-                call validate-in-path               check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index
+                call validate-in-path               check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index
                 call validate-environment-variables filemask_audio skip_validation_existence
                 call validate-environment-variables DEFAULT_FILEMASK skip_validation_existence
                 set validated_cfmk=1
@@ -68,7 +68,7 @@ rem If the filelist doesn't exist...
 rem Check for songs missing sidecar TXT files :
         rem echo.
         rem fast_cat fixes ANSI rendering errors between TCC/WT:
-        (check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite  |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
+        (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite  |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
 
 rem While we're here, do some cleanup:
         iff exist *.json then
