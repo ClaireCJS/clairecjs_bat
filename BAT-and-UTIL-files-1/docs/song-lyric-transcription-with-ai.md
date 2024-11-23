@@ -195,7 +195,7 @@ Validates whether environment variables (and the files they point to!) exist.
 
 Validates whether commands (be they internal, alias, or not) are in the path
 
-### [validate-is-function {list of commands}](../validate-function.bat)
+### [validate-is-function {list of functions}](../validate-function.bat)
 
 Validates whether TCC user %@functions are defined or not
 
@@ -207,7 +207,7 @@ Echos, but in double-height text.
 
 Sets all the ansi codes we know to exist.
 
-### [set-emoji.bat](../set-emoji.bat)
+### [set-emojis.bat](../set-emojis.bat)
 
 Sets all the emoji we care to set, using the [emoji.env](../emoji.env) file to add new emoji.
 
