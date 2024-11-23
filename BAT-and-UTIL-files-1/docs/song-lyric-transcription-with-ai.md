@@ -63,14 +63,14 @@ Create all missing karaokes in the current folder
 
 ### [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../review-subtitles.bat)
 
-Reviews all karaoke files in current folder, using ```print-with-columns``` so eliminate most scrolling up.
+Reviews all karaoke files in current folder, using ```print-with-columns``` to eliminate most scrolling up.
 
 ____________________________________________________________________________________________________________
 
 # Auditing Commands
 
 
-### [karaoke auditor](../check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
+### [karaoke auditor - CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
 
 Audits a filelist to see which files in that filelist do not have karaoke files associated with them.  Is used by ```check-for-missing-karaoke-files```, but can be used for other purposes via:
 
