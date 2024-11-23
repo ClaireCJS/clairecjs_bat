@@ -147,9 +147,9 @@ A *single-file* SRT-file to TXT-file converter
 
 Various commands that are already a part of my "Clairevironment".
 
-## [AskYn.bat](../AskYn.bat)
+## [AskYN.bat](../AskYN.bat)
 
-The prompting system
+The Yes/No prompting system with prompt timeouts.
 
 ## [print-message.bat](../print-message.bat)
 
@@ -198,6 +198,20 @@ Validates whether commands (be they internal, alias, or not) are in the path
 ### [validate-is-function {list of commands}](../validate-is-function.bat)
 
 Validates whether TCC user %@functions are defined or not
+
+### [bigecho.bat](../bigecho.bat)
+
+Echos, but in double-height text.
+
+### [set-ansi.bat](../set-ansi.bat)
+
+Sets all the ansi codes we know to exist.
+
+### [set-emoji.bat](../set-emoji.bat)
+
+Sets all the emoji we care to set, using the [emoji.env](../emoji.env) file to add new emoji.
+
+
 
 
 
