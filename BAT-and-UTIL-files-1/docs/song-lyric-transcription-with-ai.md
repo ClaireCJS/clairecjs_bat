@@ -36,7 +36,7 @@ ________________________________________________________________________________
 
 Obtains the lyrics for a particular song, to foster proper AI transcription. These transcriptions work much better when you have a lyric set. This checks local sidecar files, local lyric repository, Genius, and Google, to obtain lyric files with as muche ase as possible.
 
-### [approve-lyrics {lyric_file}](../approve-lyrics.bat) / [disapprove-lyrics {lyric_file}]{../disapprove-lyrics.bat}
+### [approve-lyrics / approve-lyric-file {lyric_file}](../approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../disapprove-lyric-file.bat)
 
 Mark lyric file with approval/disapproval so that we can pre-approve lyric files in advance of transcription process. Uses [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs) to store approval tags in a database-less, file-less way.
 
