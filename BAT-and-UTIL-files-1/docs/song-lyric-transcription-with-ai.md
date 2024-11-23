@@ -56,7 +56,7 @@ Run without parameters to see various options, including but not limited to  "ai
 
 Displays a list of files in the current folder which are missing karaoke files
 
-### cmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../create-missing-karaoke-files.bat)
+### cmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../create-missing-karaoke-files-here.bat)
 
 Create all missing karaokes in the current folder
 
