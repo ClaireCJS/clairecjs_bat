@@ -1,1 +1,1 @@
-https://github.com/ClaireCJS/clairecjs_bat/tree/main/outtakes
+https://github.com/ClaireCJS/clairecjs_bat/tree/main/
