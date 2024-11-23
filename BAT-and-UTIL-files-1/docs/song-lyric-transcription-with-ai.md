@@ -34,7 +34,7 @@ ________________________________________________________________________________
 
 ### [get-lyrics {songfile} / get-lyrics-for-song {songfile} / get-lyrics-via-multiple-sources {songfile}](../get-lyrics-via-multiple-sources.bat)
 
-Obtains the lyrics for a particular song, to foster proper AI transcription. These transcriptions work much better when you have a lyric set. This checks local sidecar files, local lyric repository, Genius, and Google, to obtain lyric files with as muche ase as possible.
+Obtains the lyrics for a particular song, to foster proper AI transcription. These transcriptions work much better when you have a lyric set. This checks local sidecar files, local lyric repository, Genius, and Google, to obtain lyric files with as much ease possible.
 
 ### [approve-lyrics / approve-lyric-file {lyric_file}](../approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../disapprove-lyric-file.bat)
 
