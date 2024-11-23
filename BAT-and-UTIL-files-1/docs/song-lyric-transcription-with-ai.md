@@ -86,19 +86,17 @@ This example goes through the filelist file ```PlayList.m3u``` and checks for al
 In certain very rare situations, MiniLyrics does not auto-import the generated SRT file.  Because MiniLyrics primarily uses LRC instead of SRT, it can sometimes miss an SRT. When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the MiniLyrics lyric window manually. This script handles that by detecting the current song playing, converting it's SRT to LRC, copying it to the clipboard, and automatically opening MiniLyrics's lyric editor window. All the user has to do is paste and save.
 
 
-## Utility commands
+## Adjunct commands
+
+
+# srt2lrc.py
+
+A *batch* SRT-file to LRC-file converter.
 
 # srt2txt.py
 
-A SRT-file to TXT-file converter
+A *single-file* SRT-file to TXT-file converter
 
-# [google.py](..\google.py)
-
-Invokes a google search in primary browser, all while properly preserving quotes. Way harder to pull off than it sounds.
-
-# insert-[before|after]-each-line.py
-
-Inserts text before or after each line of STDIN. Used for script generation. 
 
 # unique-lines.pl
 
@@ -107,6 +105,20 @@ A lyric postprocessor that removes tons of junk from downloaded lyrics, only sho
 
 # remote-period-at-ends-of-lines.pl
 
-Postprocessor Perl script to remove periods from end of each line in a subtitle. Preserves periods for words like "Mr."
+A subtitle postprocessor that removes periods from end of each line in a subtitle. Preserves periods for words like "Mr."
 We add "invisible" periods to the end of each line of lyrics so that WhisperAI's ```--sentence`` option works better. We then remove these periods (making them "invisible") afterward, because they are ugly.  Also has a side effect of de-censoring some curse words, which can be suppressed with the ```--leave-censorship``` or ```-L``` option.
+
+## Important Utility commands
+
+# print_with_columns.py
+
+Displays text in column ("newspaper") format so that lyric/karaoke review does not involve constantly scrolling up.
+
+# [google.py](../google.py)
+
+Invokes a google search in primary browser, all while properly preserving quotes. Way harder to pull off than it sounds.
+
+# insert-before-each-line.py / insert-after-each-line.py
+
+Inserts text before or after each line of STDIN. Used for script generation. 
 
