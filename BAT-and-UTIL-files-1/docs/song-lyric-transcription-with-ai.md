@@ -160,6 +160,8 @@ The messaging system (used by [warning.bat](../warning.bat), [debug.bat](../debu
 
 A cosmetic postprocessor which employes ANSI color-cycling to inbue a psychedelic effect onto text by cycling the colors of the primary text color through the visible spectrum. Originally written to postprocess the output to the ```move``` and ```copy``` commands, with a mode added explicitly for postprocessing Whisper's output into something waaaay more visually interesting.
 
+Uses my [claire_cosole.py](../clairecjs_util/claire_cosole.py) library to achieve the color-cycling.
+
 
 ## [cat_fast.exe](../cat_fast.exe)
 
