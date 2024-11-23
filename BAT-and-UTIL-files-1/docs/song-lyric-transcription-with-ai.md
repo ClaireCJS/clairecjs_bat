@@ -161,7 +161,7 @@ The messaging system (used by [warning.bat](../warning.bat), [debug.bat](../debu
 A cosmetic postprocessor which employes ANSI color-cycling to inbue a psychedelic effect onto text by cycling the colors of the primary text color through the visible spectrum. Originally written to postprocess the output to the ```move``` and ```copy``` commands, with a mode added explicitly for postprocessing Whisper's output into something waaaay more visually interesting.
 
 
-## [fast_cat.exe](../fast_cat.exe)
+## [cat_fast.exe](../cat_fast.exe)
 
 Version of ```cat.exe``` deemed to be the fastest. I have several versions of the unix ```cat``` command, but this is the one I use for speediness.
 
@@ -181,19 +181,19 @@ Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us ha
 
 Text conversion offloaded into python script to avoid command-line complications with quote symbols. 
 
-## [add-ADS-tag-to-file.bat](../add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../remove-ADS-tag-from-file.bat)
+### [add-ADS-tag-to-file.bat](../add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../remove-ADS-tag-from-file.bat)
 
 Basic utility for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs).
 
-## [validate-environment-variables {list of env-var names}](../validate-environment-variable.bat)
+### [validate-environment-variables {list of env-var names}](../validate-environment-variable.bat)
 
 Validates whether environment variables (and the files they point to!) exist.
 
-## [validate-in-path {list of commands}](../validate-in-path.bat)
+### [validate-in-path {list of commands}](../validate-in-path.bat)
 
 Validates whether commands (be they internal, alias, or not) are in the path
 
-## [validate-is-function {list of commands}](../validate-is-function.bat)
+### [validate-is-function {list of commands}](../validate-is-function.bat)
 
 Validates whether TCC user %@functions are defined or not
 
