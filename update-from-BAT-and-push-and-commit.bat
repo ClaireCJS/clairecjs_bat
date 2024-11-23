@@ -64,24 +64,24 @@ rem Validate the above (and other) values that we will be using here:
         call validate-environment-variables BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE DOCS_FOLDER
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
-        set                                    COPY=*copy /u /q
-        set                                  COPY_S=*copy /u /q /s
-        %copy%    %TCMD_ALIASES%              %TARGET_MAIN%\alias.lst
-        %copy%    %TCMD_INI%                  %TARGET_MAIN%\tcmd.ini
-        %copy%    %GIRDER_CONFIGURATION%      %TARGET_MAIN%\girder.gml
-        %copy%    %TCMD_START_SCRIPT%         %TARGET_MAIN%\tcstart.bat
-        %copy%    %PRIMARY_AUTOEXEC_BAT%      %TARGET_MAIN%\autoexec.btm
-        %copy%    %COLORTOOL_EXE%             %TARGET_MAIN%\ColorTool.exe
-        %copy%    %WINAMP_SETUP_NOTES%        %TARGET_MAIN%\winamp-setup-notes.txt
-        %copy%    %PERL_SITELIB_ZIP%          %TARGET_MAIN%\perl-sitelib-Clio.zip
-        %copy%    %AUDIO_PROCESSING_NOTES%   "%TARGET_MAIN%\notes - audio processing.txt"
-        %copy%   "%WINDOWS_TERMINAL_SETTINGS" %TARGET_MAIN%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
-        %copy_S%  %DIVIDERS_FOLDER%           %TARGET_MAIN%\dividers
-        %copy_S%  %SAMPLES_FOLDER%            %TARGET_MAIN%\samples
-        %copy_S%  %DOCS_FOLDER%               %TARGET_MAIN%\docs
-        %copy_S%  %PYTHON_LIBRARIES_DIR%             c:\bat\clairecjs_utils
-        %copy_S%  %PYTHON_LIBRARIES_DIR%      %TARGET_MAIN%\clairecjs_utils
-        %copy%    %0                          %TARGET_MAIN%                                        %+ rem Yes, we are copying THIS script too——it only lives in my dev folder
+        set            COPY=*copy /u /q
+        set          COPY_S=*copy /u /q /s
+        %copy%      %TCMD_ALIASES%              %TARGET_MAIN%\alias.lst
+        %copy%      %TCMD_INI%                  %TARGET_MAIN%\tcmd.ini
+        %copy%      %GIRDER_CONFIGURATION%      %TARGET_MAIN%\girder.gml
+        %copy%      %TCMD_START_SCRIPT%         %TARGET_MAIN%\tcstart.bat
+        %copy%      %PRIMARY_AUTOEXEC_BAT%      %TARGET_MAIN%\autoexec.btm
+        %copy%      %COLORTOOL_EXE%             %TARGET_MAIN%\ColorTool.exe
+        %copy%      %WINAMP_SETUP_NOTES%        %TARGET_MAIN%\winamp-setup-notes.txt
+        %copy%      %PERL_SITELIB_ZIP%          %TARGET_MAIN%\perl-sitelib-Clio.zip
+        %copy%      %AUDIO_PROCESSING_NOTES%   "%TARGET_MAIN%\notes - audio processing.txt"
+        %copy%     "%WINDOWS_TERMINAL_SETTINGS" %TARGET_MAIN%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
+        %copy_S%    %DIVIDERS_FOLDER%           %TARGET_MAIN%\dividers
+        %copy_S%    %SAMPLES_FOLDER%            %TARGET_MAIN%\samples
+        %copy_S%    %DOCS_FOLDER%               %TARGET_MAIN%\docs
+        %copy_S% /E %PYTHON_LIBRARIES_DIR%             c:\bat\clairecjs_utils
+        %copy_S% /E %PYTHON_LIBRARIES_DIR%      %TARGET_MAIN%\clairecjs_utils
+        %copy%      %0                          %TARGET_MAIN%                                        %+ rem Yes, we are copying THIS script too——it only lives in my dev folder
 
 
 
@@ -107,9 +107,9 @@ rem Give a chance to stop here...
 
 rem Make sure they're all added —— any new extensions that we add to our project, need to be added here:
         rem make sure subfolders are added
-                call git add     docs\*
-                call git add  samples\*
-                call git add dividers\*
+                call git add %TARGET_MAIN%\docs\*
+                call git add %TARGET_MAIN%\samples\*
+                call git add %TARGET_MAIN%\dividers\*
                 
         rem extensions that only appear in [a-l]*.*
                 call git add %TARGET_MAIN%\*.HLP  %TARGET_MAIN%\*.cnt %TARGET_MAIN%\*.lst %TARGET_MAIN%\*.gml %TARGET_MAIN%\*.jpg %TARGET_MAIN%\*.png %TARGET_MAIN%\*.lnk  %TARGET_MAIN%\*.ico 
