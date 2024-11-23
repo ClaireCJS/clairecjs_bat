@@ -1,9 +1,18 @@
 @Echo Off
   on break cancel
 
+
+iff not defined filemask_audio then
+        set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
+endiff
+
+
+
 rem Configuration:
         set DEFAULT_FILELIST_NAME_TO_USE=these.m3u
         set DEFAULT_FILEMASK=%FILEMASK_AUDIO%
+
+
 
 rem Validate Enviroment:
         iff 1 ne %validated_cfmk then

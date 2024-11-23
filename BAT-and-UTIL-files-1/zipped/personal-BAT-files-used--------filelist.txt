@@ -201,7 +201,7 @@
 2024-11-11  16:22            134   33%  create-missing-karaoke-files.bat
 2024-11-20  13:00          1,055   51%  create-srt-file-for-currently-playing-song.bat
 2024-11-19  21:35            194   36%  create-srt-for-soundclip.bat
-2024-11-23  00:12         67,245   75%  create-srt-from-file.bat
+2024-11-23  13:04         67,431   75%  create-srt-from-file.bat
 2024-11-23  12:01            354   45%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
 2024-11-19  07:35         24,800   80%  create-symlinks.bat
@@ -413,8 +413,8 @@
 2024-11-11  16:33            418   42%  get-lyrics-for-currently-playing-song.bat
 2024-11-11  16:34             65   -3%  get-lyrics-for-song.bat
 2024-11-19  07:47             48   -4%  get-lyrics-from-song.bat
-2024-11-22  23:01         59,927   78%  get-lyrics-via-multiple-sources.bat
-2024-10-28  18:54          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
+2024-11-23  12:52         59,968   78%  get-lyrics-via-multiple-sources.bat
+2024-11-23  12:45          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
 2024-11-19  07:47             64   -3%  get-lyrics-with-lyricsgenius.bat
 2024-11-11  16:33            186   39%  get-lyrics.bat
 2024-10-18  12:53          4,561   67%  get-meat-from-mp3-filename.pl

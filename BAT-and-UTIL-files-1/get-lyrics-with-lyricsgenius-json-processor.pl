@@ -21,8 +21,8 @@ my $lyrics = $data->{"lyrics"};
 my $title = $data->{"title"};
 
 # Apply transformations
-$lyrics =~ s/\\n/\n/ig;                      # Replace \n with actual newlines
-$lyrics =~ s/[0-9] contributors?//ig;          # Remove "X contributors" at the beginning
+$lyrics =~ s/\\n/\n/ig;                       # Replace \n with actual newlines
+$lyrics =~ s/[0-9] contributors?//ig;         # Remove "X contributors" at the beginning
 $lyrics =~ s/\Q$title\E\s+lyrics//ig;         # Remove "{title} lyrics" from the beginning
 $lyrics =~ s/You might also like//ig;
 my $thing;
