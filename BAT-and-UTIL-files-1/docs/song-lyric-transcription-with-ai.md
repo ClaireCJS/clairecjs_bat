@@ -26,15 +26,17 @@ Sidecar Files: A file of the same name, but different extension. For example, "f
 
 ____________________________________________________________________________________________________________
 
+# NOTE: Many commands have several different aliases, for convenience-of-remembering.
+____________________________________________________________________________________________________________
+
 # Lyric Commands:
 
-## Many commands have several different aliases, for convenience-of-remembering.
 
 ### [get-lyrics {songfile} / get-lyrics-for-song {songfile} / get-lyrics-via-multiple-sources {songfile}](../get-lyrics-via-multiple-sources.bat)
 
 Obtains the lyrics for a particular song, to foster proper AI transcription. These transcriptions work much better when you have a lyric set. This checks local sidecar files, local lyric repository, Genius, and Google, to obtain lyric files with as muche ase as possible.
 
-### (approve-lyrics {lyric_file})[../approve-lyrics.bat] / (disapprove-lyrics {lyric_file})[../disapprove-lyrics.bat]
+### [approve-lyrics {lyric_file}](../approve-lyrics.bat) / [disapprove-lyrics {lyric_file}]{../disapprove-lyrics.bat}
 
 Mark lyric file with approval/disapproval so that we can pre-approve lyric files in advance of transcription process. Uses [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs) to store approval tags in a database-less, file-less way.
 
