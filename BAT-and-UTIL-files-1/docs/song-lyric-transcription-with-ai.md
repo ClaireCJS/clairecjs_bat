@@ -173,7 +173,7 @@ Technically should be called "audio_file_index.bat". Prints to STDOUT a list of 
 
 Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us having to check EVERY file for non-zero-ness.
 
-## [divider.bat](../divider.bat)
+## [divider.bat](../display-horizontal-divider.bat)
 
 [Pretty rainbow-ized horizontal dividers](../dividers/) to separate out output into sections.
 
