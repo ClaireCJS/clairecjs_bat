@@ -205,6 +205,7 @@
 2024-11-23  12:01            354   45%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
 2024-11-19  07:35         24,800   80%  create-symlinks.bat
+2024-11-23  13:03          1,507   57%  create-the-missing-karaokes-here.bat
 2024-11-19  07:35            477   35%  create-these_m3u-playlists.bat
 2024-11-19  07:35            297   35%  crop-center-square-of-image.bat
 2024-11-19  07:37             49   -4%  cuda-clear-cache.bat
