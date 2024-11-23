@@ -147,7 +147,7 @@ A *single-file* SRT-file to TXT-file converter
 
 Various commands that are already a part of my "Clairevironment".
 
-### [AskYN.bat](../AskYN.bat)
+### [askYN.bat](../askYN.bat)
 
 The Yes/No prompting system with prompt timeouts.
 
