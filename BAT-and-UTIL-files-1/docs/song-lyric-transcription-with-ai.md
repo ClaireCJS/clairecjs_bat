@@ -194,9 +194,9 @@ Validates whether environment variables (and the files they point to!) exist.
 
 Validates whether commands (be they internal, alias, or not) are in the path
 
-## [validate-in-path {list of commands}](../validate-in-path.bat)
+## [validate-is-function {list of commands}](../validate-is-function.bat)
 
-Validates whether commands (be they internal, alias, or not) are in the path
+Validates whether TCC user %@functions are defined or not
 
 
 
