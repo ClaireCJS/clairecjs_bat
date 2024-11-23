@@ -1,18 +1,18 @@
 # AI Lyric Transcription System For Windows
 
-## Goal
+## Goal:
 
 General goal: To automate AI transcription of music such that lyrics are displayed as they are sung
 
 Specific goal: To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
 
-## Terminology
+## Terminology:
 
 Karaoke Files: We generally call the files we generate "karaoke file", which is shorthand for "file capable of displaying the lyrics as they are sung". This includes LRC files and SRT files.  This system generates SRT files, but post-converts them to LRC in some situations.
 
 Sidecar Files: A file of the same name, but different extension. For example, "filename.txt" is a TXT sidecar file to "filename.mp3".
 
-## Requirements
+## Requirements:
 
 1. The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL). 
     The command ``faster-whisper-xxl.exe`` must be in your path.
@@ -29,12 +29,11 @@ Sidecar Files: A file of the same name, but different extension. For example, "f
 
 Many commands have several different aliases, for convenience-of-remembering.
 
-# get-lyrics {songfile} / [get-lyrics-for-song  {songfile} / get-lyrics-via-multiple-sources {songfile}](../get-lyrics-via-multiple-sources.bat)
+### [get-lyrics {songfile} / get-lyrics-for-song {songfile} / get-lyrics-via-multiple-sources {songfile}](../get-lyrics-via-multiple-sources.bat)
 
 Obtains the lyrics for a particular song, to foster proper AI transcription. These transcriptions work much better when you have a lyric set. This checks local sidecar files, local lyric repository, Genius, and Google, to obtain lyric files with as muche ase as possible.
 
-
-### (approve-lyrics {lyric_file})[../approve-lyrics.bat] / (disapprove-lyrics  {lyric_file})[../disapprove-lyrics.bat]
+### (approve-lyrics {lyric_file})[../approve-lyrics.bat] / (disapprove-lyrics {lyric_file})[../disapprove-lyrics.bat]
 
 Mark lyric file with approval/disapproval so that we can pre-approve lyric files in advance of transcription process. Uses [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs) to store approval tags in a database-less, file-less way.
 

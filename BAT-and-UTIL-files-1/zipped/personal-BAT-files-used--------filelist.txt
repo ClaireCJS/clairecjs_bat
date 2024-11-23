@@ -314,6 +314,7 @@
 2024-11-19  07:21          6,760   72%  eaa-if-appropriate-for-workflow.bat
 2024-11-19  07:21             78    4%  eaa.bat
 2024-11-19  07:21             80    5%  ec.bat
+2024-11-22  01:05          2,678   61%  eccsrt2lrc2clip.bat
 2024-11-19  07:21          4,244   74%  echo-rainbow.bat
 2024-11-19  07:41          1,807   64%  edit-all-BAT-files-that-do-not-contain-a-string.bat
 2024-11-20  13:05         32,590   69%  edit-currently-playing-attrib-helper.pl
