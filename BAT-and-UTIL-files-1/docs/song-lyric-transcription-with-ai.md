@@ -153,7 +153,7 @@ The prompting system
 
 ## [print-message.bat](../print-message.bat)
 
-The messaging system (used by [warning.bat](../warning.bat), [debug.bat](../debug.bat), [error.bat](../error.bat), [fatal_error.bat](../fatal_error.bat), [success.bat](../success.bat), [celebration.bat](../celebration.bat), [important.bat](../important.bat), [important_less.bat](../important_less.bat, [advice](../advice.bat), [unimportant](../unimportant.bat), etc)
+The messaging system (used by [warning.bat](../warning.bat), [debug.bat](../debug.bat), [error.bat](../error.bat), [fatal_error.bat](../fatalerror.bat), [success.bat](../success.bat), [celebration.bat](../celebration.bat), [important.bat](../important.bat), [important_less.bat](../important_less.bat), [advice](../advice.bat), [unimportant](../unimportant.bat), etc)
 
 
 ## [copy-move-post.py](../copy-move-post.py)
