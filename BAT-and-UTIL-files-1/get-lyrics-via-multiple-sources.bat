@@ -1,3 +1,13 @@
+rem TODO: if cover song search fails, try with *current* artist instead of original artist
+rem       this will also help with songs that AREN'T covers but have composers.
+rem  So we will have to make a using_original flag that says if we flipped from artist to composer, and then if 
+rem the lyrics are rejected and that flag exists, go back to where we started. 
+rem where we started, we look at the using_original flag. 
+rem at this point, we are BEFORE where it was originally set -- very important
+rem if it's already set, we DON'T bother changing the artist at all! and unset it!.
+rem basically gaslight our script like it never happened. then go on with our life.
+
+
 @rem ————————————————————————————————————————————————————————————————————————————————————————————————————
 @rem ————————————————————————————————————————————————————————————————————————————————————————————————————
 @rem ————————————————————                                    ██                    ——————————————————————
@@ -16,7 +26,6 @@
 @Echo Off
 @on break cancel
 
-rem TODO: if cover song search files, try with *current* artist instead of original artist
 
 :USAGE: USAGE: <this> {audio_filename} [optional mode]
 :USAGE:                                 ^^^^^^^^^^^^^^
@@ -320,6 +329,7 @@ rem Check if we already have a TXT file in the same folder and shouldn't even be
                 else
                         echo %ansi_color_warning_soft%%star% Not using them, so let's remove them and try downloading...%ansi_color_normal%
                         if exist "%PREFERRED_TEXT_FILE_NAME%" (ren  /q "%PREFERRED_TEXT_FILE_NAME%" "%PREFERRED_TEXT_FILE_NAME%.%_datetime.bak")
+                        call divider
                         goto :End_Of_Check_To_See_If_We_Already_Had_Them
                 endiff
         endiff
@@ -331,7 +341,7 @@ rem —————————————————————————�
 
 rem ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 rem Check if we have one in our lyric repository already, via 2 different filenames, and then manual selection:
-        call debug "(10) Checking for %MAYBE_LYRICS_1%" 
+        call debug "(10) Checking for %MAYBE_LYRICS_1%" silent
         iff exist "%MAYBE_LYRICS_1%" .and. %@FILESIZE["%MAYBE_LYRICS_1%"] gt 0 then
                 @call divider
                 @call less_important "Found possible lyrics at %emphasis%%maybe_lyrics_1%%emphasis%!"
@@ -354,7 +364,7 @@ rem Check if we have one in our lyric repository already, via 2 different filena
         endiff
 
         :MaybeLyrics2
-        call debug "(11) Checking for %MAYBE_LYRICS_2%" 
+        call debug "(11) Checking for %MAYBE_LYRICS_2%" silent
         iff exist "%MAYBE_LYRICS_2%" .and. %@FILESIZE["%MAYBE_LYRICS_2%"] gt 0 then
                 call less_important "Found possible lyrics at %emphasis%%maybe_lyrics_2%%emphasis%!"
                 call less_important "Let's review them:"

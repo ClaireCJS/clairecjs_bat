@@ -57,12 +57,12 @@
         goto :END
     endiff
 
-    if "%PARAM2%" eq "skip_validation_existence" .or. "%PARAM2%" eq "skip_existence_validation" .or. "%PARAM2%" eq "skip_validation" (
+    iff "%PARAM2%" eq "skip_validation_existence" .or. "%PARAM2%" eq "skip_existence_validation" .or. "%PARAM2%" eq "skip_validation" then
         set SKIP_VALIDATION_EXISTENCE=1 
         set USER_MESSAGE=%3$
-    ) else (
+    else
         set SKIP_VALIDATION_EXISTENCE=0
-    )
+    endiff
     if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: PARAM2: '%PARAM2%')
 
 

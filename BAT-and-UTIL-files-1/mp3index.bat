@@ -6,10 +6,14 @@
 :USAGE:       call mp3index /s
 
 
-@if %FILEMASK_AUDIO_VALIDATED ne 1 (
-    call validate-environment-variableS FILEMASK_AUDIO FILEMASK_AUDIO_SPLIT_1 FILEMASK_AUDIO_SPLIT_2 FILEMASK_AUDIO_SPLIT_3 FILEMASK_AUDIO_SPLIT_4
-    set FILEMASK_AUDIO_VALIDATED=1
-)
+iff %FILEMASK_AUDIO_VALIDATED ne 1 then
+        call validate-environment-variable FILEMASK_AUDIO         skip_validation_existence
+        call validate-environment-variable FILEMASK_AUDIO_SPLIT_1 skip_validation_existence
+        call validate-environment-variable FILEMASK_AUDIO_SPLIT_2 skip_validation_existence
+        call validate-environment-variable FILEMASK_AUDIO_SPLIT_3 skip_validation_existence
+        call validate-environment-variable FILEMASK_AUDIO_SPLIT_4 skip_validation_existence
+        set FILEMASK_AUDIO_VALIDATED=1
+endiff
 
 
 rem THIS SHOULD WORK IN A PERFECT WORLD:

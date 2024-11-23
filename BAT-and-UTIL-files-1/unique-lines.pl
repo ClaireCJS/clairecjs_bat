@@ -77,7 +77,7 @@ while (<STDIN>) {
 		#first-line-only stuff to red rid of
 		if ($line_number == 1) {
 			#line =~ s/(\d)([^\d]+)/$2/;		#remove  only 1 leading digit  from 1ˢᵗ line if it's just a single digit 'cause I've noticed that happens a lot
-			$line =~ s/(\d{1-2})([^\d]+)/$2/;	#remove up to 2 leading digits from 1ˢᵗ line if it's just a single digit 'cause I've noticed that happens a lot
+			$line =~ s/(\d{1-3})([^\d]+)/$2/;	#remove up to 3 leading digits from 1ˢᵗ line [2 weren't enough!]
 		}
 
 		#divider lines to get rid of

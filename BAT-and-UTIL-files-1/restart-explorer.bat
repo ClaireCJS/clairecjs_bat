@@ -18,7 +18,7 @@ rem call less_important "Wait 3 seconds..."
         call wait 3 "(waiting 3 seconds)"
 
 call less_important "Starting explorer..."
-        start explorer
+        *start explorer
 
 :restart the cpu meter in our tray:
         call restart-cpu-meter

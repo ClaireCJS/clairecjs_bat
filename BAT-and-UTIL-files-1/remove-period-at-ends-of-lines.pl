@@ -1,3 +1,6 @@
+#NOTE: We've snuck out-of-scope functionality into this script. Just a little bit so far, but a de-censoring of a bad word is done in addition to removing periods :)
+
+
 #!/usr/bin/env perl                                                                                    # Specify the script interpreter
 use strict;                                                                                            # Enforce strict variable declaration rules
 use warnings;                                                                                          # Display warnings for potential errors
@@ -9,20 +12,23 @@ use File::Copy qw(move);                                                        
 # Other options like ——help provide usage information.
 # —————————————————————————————————————————————————————————————————————————————————————————————————————
 
+my $leave_censorship = 0;
 my $use_words_mode = 0;                                                                                # Default: do not use words mode
 my $filename;                                                                                          # Variable to hold the input file name
+my $tmpLine;
 
 foreach my $arg (@ARGV) {                                                                              # Iterate over command-line arguments
     if ($arg eq '--words' || $arg eq '-w') {                                                           # Check if ——words or -w is passed
         $use_words_mode = 1;                                                                           # Enable words mode if it was
-    # elsif ($arg =~ /^\-?\-?h$|^\?$|\/\?$|^help$/i) {                                                 # Match common help flags
+    } elsif ($arg eq '-l' || $arg eq '--leave_censorship' ) {                                          # Check if ——words or -w is passed
+        $leave_censorship = 1;                                                                         # Enable words mode if it was
     } elsif ($arg =~ /^(\-\-?|\/?)he?l?p?$/i) {                                                        # Match common help flags
         print <<'USAGE';                                                                               # Print usage instructions and exit
 Usage: perl remove_periods.pl [options] <file>
 Options:
-  --words, -w   Enable advanced mode with exceptions for titles, abbreviations, etc.
-  --help, -h, ?, /?, help
-                Display this help message.
+  --words, -w               Enable advanced mode with exceptions for titles, abbreviations, etc.
+  --leave_censorship, -L    Disable the uncensoring of censored words
+  --help, -h, ?, /?, help   Display this help message.
 Description:
   Default mode:
     Removes exactly one period from the end of each line, no exceptions.
@@ -101,16 +107,21 @@ if ($use_words_mode) {                                                          
 
     while (<$in>) {                                                                                    # Read the file line by line
         chomp;                                                                                         # Remove the newline for safer processing
-        if (/\.\.\.\s*$/) {                                                                            # Check if line ends with ellipses ("...")
-            print $out "$_\n";                                                                         # if so, print the line as-is to the output file
+		if ($leave_censorship) {
+			$tmpLine = $_;
+		} else {
+			$tmpLine = &global_postprocess($_);
+		}
+        if ($tmpLine =~ /\.\.\.\s*$/) {                                                                # Check if line ends with ellipses ("...")
+            print $out "$tmpLine\n";                                                                   # if so, print the line as-is to the output file
             next;                                                                                      # and then skip further processing for this line
         }																						 	   
-        if (/(\b(?:$exceptions_regex))\.\s*$/i) {                                                      # Check if the line ends with a recognized exception ("Ms.")
-            print $out "$_\n";                                                                         # if so, Print the line as-is to the output file
+        if ($tmpLine =~ /(\b(?:$exceptions_regex))\.\s*$/i) {                                          # Check if the line ends with a recognized exception ("Ms.")
+            print $out "$tmpLine\n";                                                                   # if so, Print the line as-is to the output file
             next;                                                                                      # and skip further processing for this line
         }																						 	   
-        s/\.\s*$//;                                                                                    # Remove a single trailing period (and spaces)
-        print $out "$_\n";                                                                             # Print the modified line to the output file
+        $tmpLine =~ s/\.\s*$//;                                                                                    # Remove a single trailing period (and spaces)
+        print $out  "$tmpLine\n";                                                                             # Print the modified line to the output file
     }																							 	   
 } else {                                                                                               # Default mode: blind period removal
     # —————————————————————————————————————————————————————————————————————————————————————————————————
@@ -122,10 +133,42 @@ if ($use_words_mode) {                                                          
     while (<$in>) {                                                                                    # Read the file line by line
         chomp;                                                                                         # Remove the newline for safer processing
         s/\.$//;                                                                                       # Remove exactly one trailing period
-        print $out "$_\n";                                                                             # Print the modified line to the output file
+		if ($leave_censorship) {
+			$tmpLine = $_;
+		} else {
+			$tmpLine = &global_postprocess($_);
+		}
+        print $out "$tmpLine\n";                                                                       # Print the modified line to the output file
     }
 }
 
 close $in  or die "Error: Cannot close input file: "     . "$!\n";                                     # Close the input file
 close $out or die "Error: Cannot close temporary file: " . "$!\n";                                     # Close the temporary file
 move $tempfile, $filename or die "Error: Cannot overwrite original file: $!\n";                        # Replace the original file with the temporary file
+
+
+
+sub global_postprocess {
+	my $s=$_[0];
+	
+	#un-f**k:
+	$s =~ s/\b(f)(\*)(\*)(\*)/$1uck/gi;	#f***
+	$s =~ s/\b(\*)(u)(\*)(\*)/f$1ck/gi;	#*u**
+	$s =~ s/\b(\*)(\*)(c)(\*)/fu$1k/gi;	#**c*
+	$s =~ s/\b(\*)(\*)(\*)(k)/fuc$1/gi;	#***k
+
+	$s =~ s/\b(\*)(\*)(c)(k)/fu$1$2/gi;	#**ck
+	$s =~ s/\b(\*)(u)(\*)(k)/f$1c$2/gi;	#*u*k
+	$s =~ s/\b(\*)(u)(c)(\*)/f$1$2k/gi;	#*uc*
+	$s =~ s/\b(f)(\*)(\*)(k)/$1uc$2/gi;	#f**k
+	$s =~ s/\b(f)(\*)(c)(\*)/$1u$2k/gi;	#f*c*
+	$s =~ s/\b(f)(u)(\*)(\*)/$1$2ck/gi;	#fu**
+	
+	$s =~ s/\b(\*)(u)(c)(k)/f$1$2$3/gi;	#*uck
+	$s =~ s/\b(f)(\*)(c)(k)/$1u$2$3/gi;	#f*ck
+	$s =~ s/\b(f)(u)(\*)(k)/$1$2c$3/gi;	#fu*k
+	$s =~ s/\b(f)(u)(c)(\*)/$1$2$3k/gi;	#fuc*
+
+
+	return($s);
+}

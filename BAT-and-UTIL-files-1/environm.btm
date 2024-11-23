@@ -1,7 +1,9 @@
 @Echo off
 @set PERFORMANCE_TUNING=0 %+ if %PERFORMANCE_TUNING eq 1 (timer /9 /q on)
 @set rgb_index=1
-@gosub :set_next_cursor_color_in_rainbow_sequence
+echos %@CHAR[27][2 %+ rem Cursor=steady
+echos %@CHAR[27][ q%@CHAR[27]]12;#550000%@CHAR[7] %+ rem Cusor=dark red
+rem @gosub :set_next_cursor_color_in_rainbow_sequence
 rem SPEEDUP VERDICT #1: We need to separate all our validation calls into one location, then put them in an if/else so we don't go into validation subroutines over and over
 rem SPEEDUP VERDICT #2: We need to move repositories, other environment variables, into a separate environm.env file much like private.env
 
@@ -197,11 +199,11 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 	gosub Initial%USERNAME%                   %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after Initial                         " %+ rem 0.01
 	gosub SetPathAndPromptAndCursor           %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetPathAndPromptAndCursor       " %+ rem 0.29->.21 1st/autoexec-run .005 successive runs
 	gosub LoadAliases                         %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after LoadAliases                     " %+ rem 0.02
-	gosub CheckForSyncedDevices               %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after CheckForSyncedDevices           " %+ rem 0.01
+	gosub CheckForSyncedDevices               %+               %+ set nope=t_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after CheckForSyncedDevices           " %+ rem 0.01
 	gosub OSSpecificOverrides                 %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after OSSpecificOverrides             " %+ rem 0.05
-	gosub SetJavaClasspath                    %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetJavaClasspath                " %+ rem 0.25  25
+	gosub SetJavaClasspath                    %+               %+ set nope=t_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetJavaClasspath                " %+ rem 0.25  25
         gosub Load_TCC_Plugins                    %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after Load_TCC_Plugins                " %+ rem 0.13
-        gosub FinalValidations                    %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after FinalValidations                " %+ rem 0.013
+        gosub FinalValidations                    %+               %+ set nope=t_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after FinalValidations                " %+ rem 0.013
 	goto :END
 
     return
@@ -2826,7 +2828,7 @@ rem                     if %array_exists eq 1 .or. "%1" ne "force" (goto :RGB_Ar
                                         delay /m 250
                                 else
                                         echos %color_setter%
-                                        rem                                         *pause>nul
+                                        rem echo {%rgb_index} ^ *pause>nul
                                 endiff
                                 set /a rgb_index=%rgb_index%+1
                                 return

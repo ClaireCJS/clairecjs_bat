@@ -1,11 +1,11 @@
 import io
 import sys
-print(f"Before reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+import chardet
+#print(f"Before reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
 sys.stdout.reconfigure(encoding='utf-8')
-print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
-
+#print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+#print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
 
 
 ########################### FILELIST SIDECAR AUDITOR ###########################
@@ -44,13 +44,25 @@ import glob
 from termcolor import colored
 
 # These leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot:
-SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here-temp.bat"
-SCRIPT_NAME_FOR_KARAOKE_CREATION = "create-the-missing-karaokes-here-temp.bat"
+SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here-temp.bat"           #don't change without changing in accompanying BAT files
+SCRIPT_NAME_FOR_KARAOKE_CREATION = "create-the-missing-karaokes-here-temp.bat"      #don't change without changing in accompanying BAT files
+
+
+def detect_encoding(filename):
+    with open(filename, 'rb') as file:
+        raw_data = file.read(1024)  # Read a portion of the file for analysis
+    return chardet.detect(raw_data)['encoding']
 
 
 def main(input_filename, extensions, options, extra_args):
 
     #DEBUG: print(f"main got extra args of '{extra_args}'")
+
+    # Detect encoding of the input file
+    encoding = detect_encoding(input_filename)
+    if not encoding:
+        print(f"Error: Unable to detect encoding for file '{input_filename}'.")
+        sys.exit(1)
 
     # Check if the input file exists
     if not os.path.exists(input_filename):
@@ -69,13 +81,28 @@ def main(input_filename, extensions, options, extra_args):
 
     # Open and read the input filename (list of files)
     #ith open(input_filename, 'r')                   as file:
-    with open(input_filename, 'r', encoding='utf-8') as file:
-        files = [line.strip() for line in file.readlines() if line.strip()]
+    #with open(input_filename, 'r', encoding='utf-8') as file:
+    #    files = [line.strip() for line in file.readlines() if line.strip()]
+    try:
+            with open(input_filename, 'r', encoding=encoding) as file:
+                files = [line.strip() for line in file.readlines() if line.strip()]
+    except UnicodeDecodeError:
+        print(f"Error: Unable to read file '{input_filename}' with detected encoding '{encoding}'.")
+        sys.exit(1)
+    
 
-    # Check for sidecar files
+    # Check each file for sidecar files
     for file in files:
+        
+        # Skip files containing "(instrumental)" or "[instrumental]"
+        if "(instrumental)" in file.lower() or "[instrumental]" in file.lower(): continue
+                
         base_filename, _ = os.path.splitext(file)
-        has_sidecar = any(glob.glob(f"{base_filename}{ext[1:]}") for ext in extensions_list)
+        
+        #use glob.escape so it works with filenames that have brakcets in them too:
+        has_sidecar = any(glob.glob(f"{glob.escape(base_filename)}{ext[1:]}") for ext in extensions_list)
+        
+        #print(f"has_sidecar is {has_sidecar} for file {file}")
 
         if not has_sidecar:
             files_without_sidecars.add(file)
@@ -88,7 +115,10 @@ def main(input_filename, extensions, options, extra_args):
         if options.lower() == "getlyricsfilewrite": output_filename = SCRIPT_NAME_FOR_LYRIC_RETRIEVAL
         if options.lower() == "createsrtfilewrite": output_filename = SCRIPT_NAME_FOR_KARAOKE_CREATION
         if options.lower() !=        "NoFileWrite":
-            print(colored(f"Writing output file: {output_filename}", 'green', attrs=['bold']))
+            #print          (colored(f"✏ Writing output file: {output_filename} ✏"  , 'green', attrs=['bold']))
+            #print          (colored(f"✏ Writing output file: {output_filename} ✏"  , 'green', attrs=['bold']), file=sys.stderr)
+            sys.stderr.write(colored(f"✏ Writing output file: {output_filename} ✏\n", 'green', attrs=['bold']))
+
             if extra_args: print(f"Using extra arguments of: {extra_args}")
 
             # run any special postprocessing we've created, usually to create scripts to deal with files that are missing sidecar files
@@ -101,8 +131,8 @@ def main(input_filename, extensions, options, extra_args):
                         if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\" {extra_args}\n")
                         if options.lower() == "createsrtfilewrite": output_file.write(f"@call create-srt \"{missing_file}\" {extra_args}\n")
                         else                                      : output_file.write(f"{missing_file}\n")
-                if options.lower()         == "getlyricsfilewrite": output_file.write("@echo *** ALL DONE WITH LYRIC RETRIEVAL!!!! ***\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
-                if options.lower()         == "createsrtfilewrite": output_file.write("@echo *** ALL DONE WITH KARAOKE CREATION!!! ***\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so tThese leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
+                if options.lower()         == "getlyricsfilewrite": output_file.write("@call success \"ALL DONE WITH LYRIC RETRIEVAL!!!! ***\"\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
+                if options.lower()         == "createsrtfilewrite": output_file.write("@call success \"ALL DONE WITH KARAOKE CREATION!!! ***\"\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:

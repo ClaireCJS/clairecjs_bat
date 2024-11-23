@@ -127,7 +127,7 @@
 2024-11-19  07:37            113   17%  check-a-playlist-for-missing-subtitle-files.bat
 2024-11-19  07:37             34   -5%  check-for-applications-and-programs-that-can-be-upgraded.bat
 2024-11-19  07:33            216   22%  check-for-invalid-audio-files.bat
-2024-11-11  16:03          2,869   63%  check-for-missing-karaoke.bat
+2024-11-23  10:54          4,081   65%  check-for-missing-karaoke.bat
 2024-11-19  07:33            771   47%  check-for-missing-lyrics.bat
 2024-11-19  07:29            723   64%  check-if-asking-for-usage.bat
 2024-11-19  07:29            768   41%  check-that-we-are-running-on-the-master-machine.bat
@@ -137,7 +137,7 @@
 2024-11-19  07:29            881   56%  checkpassword.bat
 2024-11-19  07:29            470   52%  checktemp.bat
 2024-11-19  07:29            505   51%  checkusername.bat
-2024-11-11  16:35          6,859   70%  check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py
+2024-11-23  10:57          8,425   70%  check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extensions.py
 2024-11-19  07:48             62   -1%  chown.bat
 2024-11-19  07:29          1,389   68%  chrome.bat
 2024-11-19  07:48             51   14%  cl.bat
@@ -197,7 +197,7 @@
 2024-11-19  07:35            261   38%  create-directory-and-recursive-playlists.bat
 2024-11-19  07:35            492   59%  create-generic-sizes-and-counts-report.bat
 2024-11-20  13:00          1,055   51%  create-lrc-file-for-currently-playing-song.bat
-2024-11-22  14:06         67,238   75%  create-lrc-from-file.bat
+2024-11-23  00:12         67,245   75%  create-lrc-from-file.bat
 2024-11-19  21:35            194   36%  create-srt-for-soundclip.bat
 2024-11-19  07:35            354   45%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
@@ -334,7 +334,7 @@
 2024-11-19  07:47             93   13%  env-internal.bat
 2024-11-19  07:47            389   38%  env.bat
 2019-10-01  10:25            172   20%  env.pl
-2024-11-21  09:35        230,447   83%  environm.btm
+2024-11-22  20:41        230,545   83%  environm.btm
 2024-11-19  07:47             60   -3%  error.bat
 2024-11-19  07:47         13,214   75%  errorlevel.bat
 2024-11-04  02:30              1 -200%  escape.txt
@@ -366,7 +366,7 @@
 2024-11-19  07:47         14,355   82%  fix-file-dates-using-filenames.bat
 2024-11-19  07:47            987   59%  fix-google-photo-filenames.bat
 2024-11-19  07:47             98    9%  fix-lastfm-window-size-and-position.bat
-2024-11-19  07:47             39   -5%  fix-minilyrics-window-size-and-position.bat
+2024-11-22  14:41            126   12%  fix-minilyrics-window-size-and-position.bat
 2024-11-19  07:47             68   -1%  fix-MiniLyrics.bat
 2024-11-19  07:47            161   48%  fix-music-window-sizes-and-positions.bat
 2024-11-19  07:47          4,357   67%  fix-winamp.bat
@@ -410,7 +410,7 @@
 2024-11-11  16:33            418   42%  get-lyrics-for-currently-playing-song.bat
 2024-11-11  16:34             65   -3%  get-lyrics-for-song.bat
 2024-11-19  07:47             48   -4%  get-lyrics-from-song.bat
-2024-11-21  07:24         59,287   78%  get-lyrics-via-multiple-sources.bat
+2024-11-22  23:01         59,927   78%  get-lyrics-via-multiple-sources.bat
 2024-10-28  18:54          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
 2024-11-19  07:47             64   -3%  get-lyrics-with-lyricsgenius.bat
 2024-11-11  16:33            186   39%  get-lyrics.bat
@@ -579,7 +579,7 @@
 2024-11-19  15:13            510   40%  move-current-TCC-window-to-top-left-screen.bat
 2023-07-14  13:35            693   57%  move-winamp.ahk
 2023-07-14  13:31            684   55%  move-window-by-class-name.ahk
-2024-11-19  15:13          1,087   56%  MP3INDEX.bat
+2024-11-23  00:07          1,416   65%  MP3INDEX.bat
 2024-11-19  15:13            206   18%  mp42gif.bat
 2024-11-19  21:35             46    0%  mp42wav.bat
 2024-11-19  15:13             59    4%  mpc2wav.bat
@@ -706,7 +706,7 @@
 2024-11-19  15:15          1,955   66%  remove-currently-playing-song-from-winamp-playlist.bat
 2024-11-19  15:15          3,175   63%  remove-filename-characters-invalid-for-xbox360.bat
 2024-11-19  15:15          2,275   59%  remove-percents-from-filenames.bat
-2024-11-17  00:22         14,010   80%  remove-period-at-ends-of-lines.pl
+2024-11-22  23:48         15,366   79%  remove-period-at-ends-of-lines.pl
 2024-11-19  15:15          1,846   58%  remove-pluses-from-filenames.bat
 2019-10-01  10:28            158   25%  remove-trailing-spaces.pl
 2024-11-19  15:15          1,701   60%  remove-x-characters-from-beginning-of-filenames.bat
@@ -726,10 +726,10 @@
 2024-11-19  15:16          1,185   69%  restart-chrome.bat
 2024-11-19  15:16            290   41%  restart-cpu-meter.bat
 2024-11-19  15:16            103   24%  restart-displayfusion.bat
-2024-11-19  15:16            864   56%  restart-explorer.bat
+2024-11-23  10:45            865   56%  restart-explorer.bat
 2024-11-19  15:16            179   26%  restart-ip-stack-(requires-reboot).bat
 2024-11-19  15:16            105   14%  restart-lastfm.bat
-2024-11-19  15:16             95   27%  restart-minilyrics.bat
+2024-11-22  14:34             95   27%  restart-minilyrics.bat
 2024-11-19  15:16          3,979   70%  restart-process.bat
 2024-11-19  15:16            168   20%  restart-taskbar-autohide.bat
 2024-11-19  15:16            323   44%  restart-tcpip-stack.bat
@@ -958,7 +958,7 @@
 2024-11-19  15:03            318   42%  undep.bat
 2024-11-19  15:03             66   -3%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
-2024-11-14  03:52          7,289   61%  unique-lines.pl
+2024-11-22  23:54          7,242   60%  unique-lines.pl
 2024-11-19  15:03            553   54%  unknown-shipper-tracking.bat
 2024-11-19  21:34             53   -3%  unknown-tracking.bat
 2024-11-19  21:34             39   -5%  unlock-header.bat
@@ -988,7 +988,7 @@
 2024-11-16  19:00            732   51%  validate-all-perl-files.bat
 2024-11-16  19:00             58   -3%  validate-env-var.bat
 2024-11-16  19:00             57   -3%  validate-env-vars.bat
-2024-11-21  18:08         17,465   76%  validate-environment-variable.bat
+2024-11-23  00:06         17,470   76%  validate-environment-variable.bat
 2024-11-16  19:00            427   45%  validate-environment-variables.bat
 2024-11-19  15:02             54   -1%  validate-extension.bat
 2024-11-16  19:00          3,869   67%  validate-file-extension.bat
