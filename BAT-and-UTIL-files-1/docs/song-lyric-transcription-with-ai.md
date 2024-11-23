@@ -177,7 +177,7 @@ Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us ha
 
 [Pretty rainbow-ized horizontal dividers](../dividers/) to separate out output into sections.
 
-## [change-single-quotes-to-double-apostrophes.py](../change-single-quotes-to-double-apostrophes.py]
+## [change-single-quotes-to-double-apostrophes.py](../change-single-quotes-to-double-apostrophes.py)
 
 Text conversion offloaded into python script to avoid command-line complications with quote symbols. 
 
