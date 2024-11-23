@@ -3,8 +3,8 @@
 
 ::::: CONFIGURATION:
 	SET CONFIRM=1
-    SET MOVE_FOLDER=move /a: /ds /g /h /e
-    SET MOVE_FILE=  move /a:     /g /h
+    SET MOVE_FOLDER=*move /a: /ds /g /h /e
+    SET MOVE_FILE=  *move /a:     /g /h
 
 ::::: SETUP:
 	call fixclip

@@ -115,9 +115,9 @@ def main(input_filename, extensions, options, extra_args):
         if options.lower() == "getlyricsfilewrite": output_filename = SCRIPT_NAME_FOR_LYRIC_RETRIEVAL
         if options.lower() == "createsrtfilewrite": output_filename = SCRIPT_NAME_FOR_KARAOKE_CREATION
         if options.lower() !=        "NoFileWrite":
-            #print          (colored(f"✏ Writing output file: {output_filename} ✏"  , 'green', attrs=['bold']))
-            #print          (colored(f"✏ Writing output file: {output_filename} ✏"  , 'green', attrs=['bold']), file=sys.stderr)
-            sys.stderr.write(colored(f"✏ Writing output file: {output_filename} ✏\n", 'green', attrs=['bold']))
+            #print          (colored(f"✏✏✏  Writing output file: {output_filename} ✏✏✏"  , 'green', attrs=['bold']))
+            #print          (colored(f"✏✏✏  Writing output file: {output_filename} ✏✏✏"  , 'green', attrs=['bold']), file=sys.stderr)
+            sys.stderr.write(colored(f"✏ ✏ ✏  Writing output file: {output_filename} ✏✏✏\n", 'green', attrs=['bold']))
 
             if extra_args: print(f"Using extra arguments of: {extra_args}")
 

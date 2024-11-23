@@ -235,8 +235,11 @@ class ColorControl:
         if     PRODUCTION == False: print("TOCK!")      
         method     = "hard"                 #hard-coded method? or just reset them with our code       
         if method == "hard":
-            sys.stdout.write("\x1b]10;rgb:c0/c0/c0\x1b\\");  sys.stdout.flush()
-            sys.stdout.write("\x1b]11;rgb:00/00/00\x1b\\");  sys.stdout.flush()
+            #goatgoat let's try skipping this for now 2024/11/23
+            #sys.stdout.write("\x1b]10;rgb:c0/c0/c0\x1b\\");  sys.stdout.flush()
+            #sys.stdout.write("\x1b]11;rgb:00/00/00\x1b\\");  sys.stdout.flush()
+            #sys.stdout.write("hello!")
+            pass
         else:            
             for color_code, rgb_values in enumerate(default_rgb_for_color_code):
                 r, g, b = default_rgb_for_color_code[color_code]

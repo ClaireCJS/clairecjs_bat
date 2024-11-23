@@ -372,7 +372,7 @@ while t.is_alive() or not q.empty():
 
             ##### ACTUALLY PRINT OUT THE LINE: 
             if   any(substring in line_buffer for substring in file_removals): line_spacer = EMOJIS_DELETE                                 #treatment for file deletion lines
-            elif any(substring in line_buffer for substring in ["Y/N/A/R)"] ): line_spacer = EMOJIS_PROMPT                                  #treatment for  user prompt  lines
+            elif any(substring in line_buffer for substring in ["Y/N/A/R)"," (Y/N)"] ): line_spacer = EMOJIS_PROMPT                                  #treatment for  user prompt  lines
             elif any(substring in line_buffer for substring in ["=>","->"]  ): line_spacer = EMOJIS_COPY                                    #treatment for   file copy   lines
 
             sys.stdout.write(f'{background_color_switch_maybe}{foreground_color_switch}{CURSOR_RESET}{cursor_color_switch_by_hex}{additional_beginning_ansi}'    + f'{line_spacer}{blink_maybe}{line_buffer} {ANSI_RESET}') #\033[0m #\033[1C

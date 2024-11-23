@@ -54,12 +54,12 @@ if isdir "%TARGET" goto :TargetExists_YES
 	set SOURCENOQUOTES=%@STRIP[%=",%SOURCE]
     %COLOR_DEBUG%
     echo.
-    set     UNDOCOMMAND=move /a: /ds /g /h /e "%TARGET" %SOURCE% 
-    set     REDOCOMMAND=move /a: /ds /g /h /e %SOURCE% "%TARGET"
+    set     UNDOCOMMAND=*move /a: /ds /g /h /e "%TARGET" %SOURCE% 
+    set     REDOCOMMAND=*move /a: /ds /g /h /e %SOURCE% "%TARGET"
 	echo * Ready to: %REDOCOMMAND%
     %COLOR_IMPORTANT%
 	if "%CONFIRM"=="1" pause
-    %COLOR_SUCCESS%
+    %COLOR_RUN%
 	echo y|%REDOCOMMAND%
     %COLOR_NORMAL%
 

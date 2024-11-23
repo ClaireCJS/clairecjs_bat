@@ -1,6 +1,7 @@
 @Echo Off
  on break cancel
 
+
 rem Check invocation
         if "%1" eq "" (
             %COLOR_ERROR%
@@ -80,26 +81,21 @@ goto :END
                                          echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%
                                 goto :PostprocessYesDone
                                 :PostprocessYes
+                                        echo echo FIXED_COMMAND is %FIXED_COMMAND%
                                         echos %@RANDFG_SOFT[]
                                         (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%) |&:u8 copy-move-post.py |:u8 fast_cat
                                 :PostprocessYesDone
 
                         goto :NoRayRayEnd
                                 :NoRayRay
-                                if %OPTION_ECHO_RAYRAY ne 1 (
-
-                                    if %OPTION_ARD_POSTPROCESS ne 1 (goto  :NoPostProc)
-                                                                    (goto :YesPostProc)
-                                    :NoPostProc
+                                iff %OPTION_ECHO_RAYRAY ne 1 then
+                                    iff %OPTION_ARD_POSTPROCESS ne 1 then
                                             %FIXED_COMMAND%
-                                            goto :Done_2
-                                    :YesPostProc
+                                    else
                                             echos %@RANDFG_SOFT[]
                                             (%FIXED_COMMAND% |&:u8 copy-move-post.py) |:u8 fast_cat
-                                            goto :Done_2
-                                    :Done_2
-
-                                )
+                                    endiff
+                                endiff
                         :NoRayRayEnd
             :Drive_Not_Ready
             :End_Of_For_Loop

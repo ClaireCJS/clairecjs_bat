@@ -35,7 +35,7 @@
         if exist *.bak (*del /q *.bak)
 
 ::::: BRANCH TO DIFFERENT BEHAVIORS BASED ON PARAMETERS:
-        set Command_To_Use=copy /g /h /u /[!.git *.bak] %1%SPACE
+        set Command_To_Use=*copy /g /h /u /[!.git *.bak] %1%SPACE
         if "%1"==""                                   (                         goto :usage         )
         if "%1"=="full"                               (                         goto :full          )
         if "%1"=="full" .and. "%2"=="fast"            (set DIST_NOCHECKMAP=1 %+ goto :full_fast     )

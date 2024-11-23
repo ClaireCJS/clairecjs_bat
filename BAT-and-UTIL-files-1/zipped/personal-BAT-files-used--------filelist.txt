@@ -18,7 +18,7 @@
 2024-11-19  02:24            109   12%  album-art-tool-for-mp3Tag-beforeDash.bat
 2024-11-19  02:24          2,024   69%  album-art-tool-for-mp3Tag.bat
 2024-11-19  02:24            283   33%  album-art.bat
-2024-11-20  02:47          6,771   71%  all-ready-drives.bat
+2024-11-23  11:45          6,585   70%  all-ready-drives.bat
 2024-11-19  02:24            978   49%  allbmp2jpg.bat
 2024-11-19  02:24          1,672   61%  allcomputers.bat
 2024-11-19  02:24          2,315   74%  allcomputersexceptself.bat
@@ -185,7 +185,7 @@
 2024-11-19  07:37             54   -3%  cool-header.bat
 2024-11-19  07:37             44   -4%  coolbigecho.bat
 2024-11-19  07:35          1,913   57%  copy-alias.bat
-2024-11-22  14:15         27,658   73%  copy-move-post.py
+2024-11-23  11:05         27,667   73%  copy-move-post.py
 2024-11-19  07:37             37   -5%  copy.bat
 2024-11-19  07:35            242   31%  counts-helper.bat
 2024-11-19  07:35             52   -3%  counts.bat
@@ -196,10 +196,13 @@
 2024-11-19  07:35            728   49%  create-and-change-into-temp-folder.bat
 2024-11-19  07:35            261   38%  create-directory-and-recursive-playlists.bat
 2024-11-19  07:35            492   59%  create-generic-sizes-and-counts-report.bat
-2024-11-20  13:00          1,055   51%  create-lrc-file-for-currently-playing-song.bat
-2024-11-23  00:12         67,245   75%  create-lrc-from-file.bat
+2024-11-23  12:02             58   -3%  create-lrc-file-for-currently-playing-song.bat
+2024-11-23  12:01             31   -6%  create-lrc-from-file.bat
+2024-11-11  16:22            134   33%  create-missing-karaoke-files.bat
+2024-11-20  13:00          1,055   51%  create-srt-file-for-currently-playing-song.bat
 2024-11-19  21:35            194   36%  create-srt-for-soundclip.bat
-2024-11-19  07:35            354   45%  create-srt.bat
+2024-11-23  00:12         67,245   75%  create-srt-from-file.bat
+2024-11-23  12:01            354   45%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
 2024-11-19  07:35         24,800   80%  create-symlinks.bat
 2024-11-19  07:35            477   35%  create-these_m3u-playlists.bat
@@ -290,7 +293,7 @@
 2024-11-19  07:47             39   -5%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-11-19  07:47             68   -1%  DIST.bat
-2024-11-22  14:27         13,411   77%  distribute-bat-files-to-every-drive.bat
+2024-11-23  11:35         13,412   77%  distribute-bat-files-to-every-drive.bat
 2024-11-19  07:47             36   -5%  div.bat
 2024-11-11  16:32             55   -3%  divider.bat
 2024-11-19  07:47             65   10%  dns-display.bat
@@ -453,7 +456,7 @@
 2024-11-01  07:13          1,056   54%  google.pl
 2024-11-01  06:42          1,194   56%  google.py
 2019-10-01  10:28            451   48%  grab-helper.pl
-2024-11-19  07:50          1,917   57%  grab.bat
+2024-11-23  11:07          1,915   57%  grab.bat
 2024-11-19  07:49            607   52%  grant-me-access-to-all-files.bat
 2024-11-19  07:50             62   -3%  grepEdit.bat
 2019-10-01  10:28            839   63%  handles-post.pl
@@ -655,7 +658,7 @@
 2024-11-19  15:18            271   37%  publish-bat-updates-to-github.bat
 2024-11-19  15:18             69   -1%  publish.bat
 2024-11-19  21:35             37   -5%  push.bat
-2024-11-19  21:35          2,955   60%  put.bat
+2024-11-23  11:06          2,957   60%  put.bat
 2024-11-19  15:14          2,247   60%  py.spec2exe.bat
 2024-11-19  15:14            164   19%  py2exe-create-spec-file.bat
 2024-11-19  15:14            601   46%  py2exe.bat
@@ -856,6 +859,7 @@
 2024-11-19  15:19            109   27%  splvx.bat
 2024-11-19  15:19            108   27%  splx.bat
 2024-11-19  22:32         11,346   77%  srt2txt.py
+2024-11-23  12:04             57   -3%  srtthis.bat
 2024-10-28  04:34         15,073   75%  srt_fix_from_txt.py
 2024-11-19  21:35             91   11%  start-displayFusion.bat
 2024-11-19  15:19            320   30%  start-elevated.bat
