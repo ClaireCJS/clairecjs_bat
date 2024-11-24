@@ -82,13 +82,17 @@ ________________________________________________________________________________
 
 ### [karaoke auditor - CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
 
-Looks through a playlist to see which files do not have karaoke, then generates a new playlist of those files. Can also optionally generate a script to make karaoke for the files  Is used by ```check-for-missing-karaoke-files.bat```.
+Looks through a playlist and generates a new playlist of *JUST* the files that do not have karaoke.
 
 EXAMPLE:
 ```
 check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py PlayList.m3u *.srt;*.lrc ``CreateSRTFileWrite
 ```
-^^^ This example goes through the file ```PlayList.m3u```, checks for all files that do not have karaoke files (i.e. no ```*.srt``` or ```*.lrc``` sidecar file), and (because the `````CreateSRTFileWrite``` option was used) generates a script to create the missing karaoke. files.  One can alternately use the ``GetLyricsFileWrite``` option instead of ``CreateSRTFileWrite`` used, and the generated script focus only on obataining lyrics for the files in question.  
+^^^ This example goes through the file ```PlayList.m3u```, checks for all files that do not have karaoke files (i.e. no ```*.srt``` or ```*.lrc``` sidecar file), creates a ```PlayList-without lrc srt.m3u``` consisting of those files.  Bbecause the `````CreateSRTFileWrite``` option was used, it also generates a script to actually create the missing karaoke files.  The ``GetLyricsFileWrite``` option can instead be used to *ONLY* obataining lyrics, and save the karaoke generation for later.
+
+### TODO create-karaoke-automatically-from-approved-lyrics.bat {folder to recurse through]
+
+Looks through a folder tree for *approved* lyric files that do not have a karaoke, then generates the karaoke automatically. This way one can focus solely on lyric alignment, then run this at bedtime to find all the alignedl yrics and automatically make the karaoke files.
 
 ____________________________________________________________________________________________________________
 
