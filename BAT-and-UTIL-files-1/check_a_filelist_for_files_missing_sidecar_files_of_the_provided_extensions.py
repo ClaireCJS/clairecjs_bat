@@ -1,11 +1,10 @@
 import io
 import sys
 import chardet
-#print(f"Before reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
-sys.stdout.reconfigure(encoding='utf-8')
-#print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-#print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+import os
+import glob
+from termcolor import colored
+
 
 
 ########################### FILELIST SIDECAR AUDITOR ###########################
@@ -38,10 +37,13 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 #
 #
 
-import os
-import sys
-import glob
-from termcolor import colored
+
+# compensate for utf-8 files
+#print(f"Before reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+sys.stdout.reconfigure(encoding='utf-8')
+#print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+#print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
 
 # These leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot:
 SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here-temp.bat"           #don't change without changing in accompanying BAT files
