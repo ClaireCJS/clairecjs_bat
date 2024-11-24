@@ -60,7 +60,7 @@ int GetPlayingTrack() {
 
 
 void enqueueFile(char* filepath) {
-	// perhaps extend this to include playlists :) - but wait, Enqueueue already works with playlists! Is this an obsolte comment?
+	// perhaps extend this to include playlists :) - but wait, Enqueueue already works with playlists! Is this an obsolete comment?
 	hwndWinamp = FindWindow("Winamp v1.x",NULL);
 	COPYDATASTRUCT cds;
 	cds.dwData = IPC_PLAYFILE;
