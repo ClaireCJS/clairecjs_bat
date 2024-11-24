@@ -1,14 +1,10 @@
+@Echo Off
+on break cancel
+goto :init
+
 
 @rem     Sets a tag to associate with a file, using Windows Alternate Data Streams for files. 
-
 @rem     These tags copy over to new locations and "live" "within" the files themselves, so moving/copying doesn't change things.
-
-
-
-@Echo Off
- on break cancel
- 
-goto :init
 
 :usage
 echo.
@@ -16,33 +12,39 @@ call divider
 %COLOR_ADVICE%
 set //UnicodeOutput=yes
 text
-:USAGE: add-ADS-tag-to-file {%filename} {tag_name} {tag_value or "read" or "remove"} ["verbose"] [verb]
+:USAGE: add-ADS-tag-to-file {%filename} {tag_name} {tag_value or "read" or "remove"} ["verbose" or "brief" or "lyrics"] [verb]
+:USAGE: 
+:USAGE: 1st arg is the filename we are operating on
+:USAGE: 2nd arg is the tag name we want to read/write/delete
 :USAGE: 
 :USAGE: WRITE MODE (3rd arg is not "read"): Sets the file's tag to the value given
 :USAGE: 
-:USAGE:         EXAMPLE: add-ADS-tag-to-file  filename.txt songlyrics.txt lyrics approved
-:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ sets the 'lyrics' tag to 'approved'
+:USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt songlyrics.txt lyrics approved
+:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ sets the 'lyrics' tag to 'approved'
 :USAGE: READ MODE (3rd arg is "read"): Sets %%RECEIVED_VALUE%% to the file's tag's value
 :USAGE: 
 :USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt songlyrics.txt lyrics read
-:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ sets RECEIVED_VALUE=approved
+:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Sets RECEIVED_VALUE=approved, i.e. the value that was read for the tag 'lyrics'
 :USAGE:
 :USAGE: REMOVE MODE (3rd arg is "remove"): Deletes/Removes/blanks out tag on file
 :USAGE: 
 :USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt songlyrics.txt lyrics remove
-:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ removes the tag
+:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ removes the 'lyrics' tag from the file
 :USAGE:
-:USAGE: VERBOSE MODE: (4th arg is "verbose"):
+:USAGE: VERBOSE/BRIEF/LYRICS MODE: (4th arg is "verbose" or "brief" or "lyrics"):
 :USAGE:
-:USAGE:         Verifies what happens on-screen.
+:USAGE:         "verbose" —— Verifies what happens on-screen in a 3-line verbose way
+:USAGE:         "brief" ———— Verifies what happens on-screen in a 1-line brief way
+:USAGE:         "lyrics" ——— Verifies what happens on-screen in a 1-line brief way customized for lyric-file approval/disapproval
 :USAGE:
-:USAGE: VERBOSE MODE: (5th arg is provided):
+:USAGE: VERBOSE MODE: (5th arg is ... a verb, direct object, and preposition):
 :USAGE:
-:USAGE:         Verifies what happens on-screen, using the verb clausse of the 5th arg
-:USAGE:                   i.e. "Verified value of", "set value of", "removed value of", "set lyric status to", etc'
+:USAGE:         Sets the verb clause of how we express the tag being set.
+:USAGE:                   i.e. "Verified value of", "set value of", "removed value of", "set lyric status to", etc
+:USAGE:         Has no effect in brief/lyrics mode.
 :USAGE:
-:USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt songlyrics.txt lyrics remove verbose "begrudgingly removed"
-:USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt songlyrics.txt lyrics approved verbose "Lyric approvel set to:"
+:USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt lyrics.txt lyrics  remove  verbose "begrudgingly removed"
+:USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt lyrics.txt lyrics approved verbose "At %_datetime, Lyric approval set to:"
 :USAGE:
 endtext
 %COLOR_NORMAL%
@@ -57,7 +59,7 @@ return
 
 
 rem Get parameters:
-        set   FILE_TO_USE=%@FULL[%@UNQUOTE[%1]]                        %+ rem file to use 
+        set   FILE_TO_USE=%@unquote[%@trueNAME[%@UNQUOTE[%1]]]             %+ rem file to use 
         set TAG_TO_MODIFY=%@UNQUOTE[%2]                                    %+ rem tag to use
         set     TAG_VALUE=%@UNQUOTE[%3]                                    %+ rem value to set tag to, or "read" to return the value in %RETRIEVED_TAG%
         set       PARAM_4=%4                                               %+ rem "verbose" if you want on-screen verification of what's happeneing
@@ -67,7 +69,7 @@ rem Get parameters:
 
 rem Validate environment once:
         iff 1 ne %validated_add_ads_tag_to_file% then
-                call validate-environment-variables emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off
+                call validate-environment-variables emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off check EMOJI_CROSS_MARK ansi_color_alarm ansi_color_celebration
                 call validate-in-path                fatal_error warning 
                 set  validated_add_ads_tag_to_file=1
         endiff
@@ -77,14 +79,19 @@ rem Validate parameters every time:
         call validate-environment-variable  File_To_Use    "1st arg to %0 must be a filename. 2nd optional arg must be a tag, 3rd arg must be 'read' or a value, 4th optional arg can be 'verbose'"
         call validate-environment-variable   Tag_To_Modify "2nd argument to %0 must a tag, NOT empty"
         call validate-environment-variable   Tag_Value     "3rd argument to %0 must a value, or 'read' ... NOT empty"
-        if "%PARAM_4%" ne "" .and. "%PARAM_4%" ne "verbose" .and. "%PARAM_4%" ne "remove" (call    fatal_error    "There shouldn't be a 4th parameter of this value being sent to %0 {called by %_PBATCHNAME}, but you gave '%italics_on%%PARAM_4%%italics_off%'. Run without parameters to understand proper usage.")
+        if "%PARAM_4%" ne "" .and. "%PARAM_4%" ne "verbose" .and. "%PARAM_4%" ne "remove" .and. "%PARAM_4%" ne "brief" .and. "%PARAM_4%" ne "lyrics" .and. "%PARAM_4%" ne "lyric" (call fatal_error "There shouldn't be a 4th parameter of this value being sent to %0 {called by %_PBATCHNAME}, but you gave '%italics_on%%PARAM_4%%italics_off%'. Run without parameters to understand proper usage.")
 
 
 rem Set default values for parameters:
         set VERBOSE=0
-        if "%PARAM_4%"       eq "verbose" (set VERBOSE=1)         
-        if "%TAG_TO_MODIFY%" eq        "" (set TAG_TO_MODIFY=tag)               %+ rem setting dummy value in case of failure
+        set BRIEF_MODE=0
+        set LYRIC_MODE=0
+        if "%PARAM_4%"       eq "lyric"   (set LYRIC_MODE=1)                    
+        if "%PARAM_4%"       eq "lyrics"  (set LYRIC_MODE=1)                    
+        if "%PARAM_4%"       eq "brief"   (set BRIEF_MODE=1)           
+        if "%PARAM_4%"       eq "verbose" (set    VERBOSE=1)         
         if "%TAG_VALUE%"     eq        "" (set TAG_TO_MODIFY=value)             %+ rem setting dummy value in case of failure
+        if "%TAG_TO_MODIFY%" eq        "" (set TAG_TO_MODIFY=tag  )             %+ rem setting dummy value in case of failure
         
 rem Determine verb clause to use —— looks best if they are >8 chars each though!
         set VERB=Set value to:
@@ -149,11 +156,29 @@ goto :END
 
         :explain
                 rem If we are in verbose mode, explain what we did:
+                        set tmp_value=%[value_to_display_in_verbose_mode]
+                        set tmp_tag=%[TAG_TO_MODIFY]
+                        set tmp_file2use=%[FILE_TO_USE]
+                        set tmp_emoji2use=%CHECK%           
+
                         iff 1 eq %VERBOSE then
-                                echo %CHECK% %VERB% %italics_on%%emphasis%%[value_to_display_in_verbose_mode]%deemphasis%%italics_off% 
-                                echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%for%faint_off% tag: %ansi_color_bright_red%%bold_on%%[TAG_TO_MODIFY]%bold_off%%ansi_normal%
-                                echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%in%faint_off% file: %@ANSI_FG_RGB[168,210,104]%[FILE_TO_USE]%ansi_color_normal%
-                        endiff                                
+                                echo %tmp_emoji2use% %VERB% %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% 
+                                echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%for%faint_off% tag: %ansi_color_bright_red%%bold_on%%tmp_tag%%bold_off%%ansi_normal%
+                                echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%in%faint_off% file: %@ANSI_FG_RGB[168,210,104]%tmp_file2use%%ansi_color_normal%
+                        endiff                              
+                        iff 1 eq %BRIEF_MODE then
+                                echo %tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                        endiff
+                        iff 1 eq %LYRIC_MODE then
+                                iff "%tmp_value%" == "NOT_APPROVED" .or. "%tmp_value%" == "NOT APPROVED" then
+                                        set tmp_emoji2use=%EMOJI_CROSS_MARK%
+                                        set tmp_color=%ansi_color_alarm%
+                                else                                        
+                                        set tmp_emoji2use=%CHECK%           
+                                        set tmp_color=%ansi_color_celebration%
+                                endiff
+                                echo %tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                        endiff
         return
 
 :END

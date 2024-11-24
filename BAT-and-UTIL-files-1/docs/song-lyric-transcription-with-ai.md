@@ -175,9 +175,11 @@ ________________________________________________________________________________
 
 Various commands that are already a part of my "Clairevironment".
 
+
 ### [askYN.bat](../askYN.bat)
 
 The Yes/No prompting system with prompt timeouts.
+
 
 ### [print-message.bat](../print-message.bat)
 
@@ -201,9 +203,9 @@ Uses my [claire_console.py](../clairecjs_utils/claire_console.py) library to ach
 Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us having to check EVERY file for non-zero-ness.
 
 
-### [add-ADS-tag-to-file.bat](../add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../remove-ADS-tag-from-file.bat)
+### [add-ADS-tag-to-file.bat](../add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../remove-ADS-tag-from-file.bat) / [display-ADS-tag-from-file.bat](../display-ADS-tag-from-file.bat)
 
-Basic utility for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs).
+Commands for displaying tags, and for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs). Used for lyric [dis]approval.
 
 
 ### [run-piped-input-as-bat.bat](../run-piped-input-as-bat.bat)
@@ -221,9 +223,14 @@ Validates whether environment variables (and the files they point to!) exist.
 Validates whether commands (be they internal, alias, or not) are in the path
 
 
+### [validate-is-extension {filename} {list of extensions}](../validate-is-extension.bat)
+
+Validates whether a file has an acceptable file extension.  
+
+
 ### [validate-is-function {list of functions}](../validate-function.bat)
 
-Validates whether TCC user %@functions are defined or not
+Validates whether a TCC user %@function is defined or not
 
 
 ### [bigecho.bat](../bigecho.bat)

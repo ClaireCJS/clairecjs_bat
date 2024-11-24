@@ -22,9 +22,6 @@ rem TODO if lyrics are approved already, don't ask about them
 :DEPENDENCIES: 2024 version: Faster-Whisper-XXL.exe delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat —— see validators for complete list
 :DEPENDENCIES: 2023 version: whisper-faster.bat delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat
 
-iff not defined filemask_audio then
-        set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
-endiff
 
 
 
@@ -57,6 +54,7 @@ REM config: 2023:
         rem SET SKIP_TEXTFILE_PROMPTING=0  
 
 
+
 REM Pre-run cleanup:
         echos %ansi_color_unimportant%
         timer /5 on                     %+ rem Let's time the overall process
@@ -71,6 +69,11 @@ REM Cosmetics:
 
         rem Fix cursor color, and any custom rgb recolorings of the default character color:
                 echos %CURSOR_RESET%%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/00/00%@CHAR[27]\
+
+rem Set filemask to match audio files:
+        iff not defined filemask_audio then
+                set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
+        endiff
 
 REM validate environment [once]:
         if not defined UnicodeOutputDefault (set UnicodeOutputDefault=no)

@@ -14,4 +14,4 @@ rem Validate parameters every time
         call validate-is-extension         Lyric_File_To_Disapprove *.txt
 
 rem Set via windows alternate data streams:
-        @call add-ads-tag-to-file "%LYRIC_FILE_TO_DISAPPROVE%" lyrics NOT_APPROVED verbose
+        @call add-ads-tag-to-file "%LYRIC_FILE_TO_DISAPPROVE%" lyrics NOT_APPROVED lyrics
