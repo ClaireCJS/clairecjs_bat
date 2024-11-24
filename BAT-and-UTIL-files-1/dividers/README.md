@@ -11,5 +11,7 @@ If using the TCC command-line, you can generate a divider that is the proper wid
 If you don't like this, you could always append a newline to all 1,000 files. 
 If you do, [lmk](mailto:cliocjs@gmail.com)! I'd like a copy just to be helpful!
 
+![image](https://github.com/user-attachments/assets/a8c8b2d2-016e-42c0-a013-55571e491f54)
+
 ![image](https://github.com/user-attachments/assets/fcaf5b47-07aa-4fab-a237-7f5b441c10d2)
 
