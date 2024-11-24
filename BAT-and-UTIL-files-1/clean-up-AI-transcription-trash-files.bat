@@ -1,42 +1,24 @@
 @on break cancel
 @echo off
 
-
-call validate-environment-variables LOCALAPPDATA TEMP TMPDIR 
 call validate-in-path important.bat fast_cat
-call validate-in-path important less_important sort uniq insert-before-each-line run-piped-input-as-bat.bat fast_cat everything everything.exe everything.bat clean-up-AI-transcription-trash-files.bat
-
+call validate-in-path important less_important sort uniq insert-before-each-line run-piped-input-as-bat.bat fast_cat everything everything.exe everything.bat
 
 
 rem Start, and take note of how much was free before we started:
-        call less_important "Freeing up harddrive space..."
+        call less_important "Erasing trash AI transcription files..."
         set FREE_C_BEFORE=%@DISKFREE[c]
 
 
 REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
-REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
-REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
-REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
-REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
-
-gosub DelIfExists "%LOCALAPPDATA%\Binary Fortress Software\DisplayFusion\CrashDumps\*.dmp"
-gosub DelIfExists  %LOCALAPPDATA%\Temp\DiagOutputDir\RdClientAutoTrace\*.etl
-gosub DelIfExists  %TEMP%\*.*
-gosub DelIfExists  c:\tcmd\runonce-post-split*.bat
-gosub CreateIfGone %TEMP%
-gosub DelIfExists  %TMPDIR%\*.*
-gosub CreateIfGone %TMPDIR%
-gosub DelIfExists  c:\recycled\*.*
-gosub CreateIfGone c:\recycled
 
 rem Files that could be anywhere:
 
-call clean-up-AI-transcription-trash-files.bat
-rem moved to separate AI-trash-cleanup bat: echo.
-rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere               *._vad_collected_chunks*.wav
-rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere               *._vad_original*.srt
-rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
-rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
+echo.
+gosub DeleteEverywhere               *._vad_collected_chunks*.wav
+gosub DeleteEverywhere               *._vad_original*.srt
+gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
+gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
     
 
         goto :skip_1
@@ -46,7 +28,7 @@ rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere       get-the
                         rem for %%GlobToDestroy in (*._vad_collected_chunks*.wav *._vad_original*.srt) 
                         set file="%@UNQUOTE[%file]"
                         echos         ``
-                        call less_important "looking for '%file%'"
+                        call less_important "looking for '%italics_on%%file%%italics_off%'"
                         ((((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") |:u8 call run-piped-input-as-bat.bat) |:u8 fast_cat
                 return
         :skip_1

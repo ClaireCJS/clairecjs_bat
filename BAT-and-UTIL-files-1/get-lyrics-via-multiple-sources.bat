@@ -38,7 +38,18 @@ rem basically gaslight our script like it never happened. then go on with our li
 rem TODO check if lyric file is approved [somehow--see create-lyrics for ideas]
 rem ——————————————————————————————————————————————————————————————————————————————————————————
 
-
+rem USAGE:
+        iff "%1" == "" then
+                echo.
+                call divider
+                %color_advice%
+                echo USAGE: %0 {audio_file}
+                echo                 ...where audio_file is the audio file who's tags will be examined to obtain the artist name and song title
+                echo.
+                echo ALTERNATE USAGE: %0 {audio_file} SetVarsOnly —— sets the FILE_SONG and FILE_ARTIST / album / orig_artist environment variables for this song, but does nothing else
+                call divider
+                goto :END
+        endiff
 
 rem call bigecho CONSIDER_ALL_LYRICS_APPROVED is %CONSIDER_ALL_LYRICS_APPROVED% 
 rem set SKIP_MANUAL_SELECTION=1 to skip the manual select part
@@ -96,18 +107,7 @@ rem VALIDATE ENVIRONMENT [once per session]:
                 set  VALIDATED_GLVMS_ENV=1
         endiff
 
-rem USAGE:
-        iff "%1" == "" then
-                echo.
-                call divider
-                %color_advice%
-                echo USAGE: %0 {audio_file}
-                echo                 ...where audio_file is the audio file who's tags will be examined to obtain the artist name and song title
-                echo.
-                echo ALTERNATE USAGE: %0 {audio_file} SetVarsOnly —— sets the FILE_SONG and FILE_ARTIST / album / orig_artist environment variables for this song, but does nothing else
-                call divider
-                goto :END
-        endiff
+
 
 rem VALIDATE PARAMETERS [every time]:
         set  AUDIO_FILE=%@UNQUOTE[%1]

@@ -22,6 +22,10 @@ Sidecar Files: A file of the same name, but different extension. For example, "f
 
 1. My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.
 
+1. Cygwin or other version of ```sort``` and ```uniq``` utilities
+
+1. For automatic file-trash cleanup across an entire computer, you will need the ```everything``` service. (Use ```start-everything.bat``` to start it)
+
 1. For WinAmp integration: the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in WinAmp, allowing us to have commands that operate on "whatever song we are currently listening to".
 
 ____________________________________________________________________________________________________________
@@ -64,6 +68,12 @@ Create all missing karaokes in the current folder
 ### [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../review-subtitles.bat)
 
 Reviews all karaoke files in current folder, using ```print-with-columns``` to eliminate most scrolling up.
+
+![image](https://github.com/user-attachments/assets/9b579cf2-ca93-4684-aec5-35df8c793143)
+
+### [clean-up-AI-transcription-trash-files.bat](../clean-up-AI-transcription-trash-files.bat)
+
+Cleans up all the trash files that are leftover from your entire computer in one fell swoop.
 
 ____________________________________________________________________________________________________________
 
@@ -214,6 +224,10 @@ Validates whether TCC user %@functions are defined or not
 
 Echos, but in double-height text.
 
+### [del-if-exists.bat](../del-if-exists.bat)
+
+Delete a file, but only if it exists.
+
 ### [set-ansi.bat](../set-ansi.bat)
 
 Sets all the ansi codes we know to exist.
@@ -222,7 +236,9 @@ Sets all the ansi codes we know to exist.
 
 Sets all the emoji we care to set, using the [emoji.env](../emoji.env) file to add new emoji.
 
+### [run-piped-input-as-bat.bat](../run-piped-input-as-bat.bat)
 
+Receives piped input and runs it as if it were a BAT file. Dangerous stuff!
 
 
 

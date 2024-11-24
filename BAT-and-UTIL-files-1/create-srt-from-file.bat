@@ -17,9 +17,6 @@ rem TODO if we're doing lyrics, show downloaded lyrics *first* and if we found t
 rem TODO afterregen anyway, we need to ask about ecc2fasdfasf.bat
 rem TODO if lyrics are approved already, don't ask about them
 
-:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast|AutoLyricApproval} {rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  AutoLyricApproval=consider sidecar TXT files to be pre-approvedl yrics
-:USAGE: set USE_LANGUAGE=jp                ——— to encode in a different language from en, like jp
-:USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 ——— for *forced* pre-approved-lyrics mode (deprecated)
 
 :REQUIRES:     <see validators>
 :DEPENDENCIES: 2024 version: Faster-Whisper-XXL.exe delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat —— see validators for complete list
@@ -172,7 +169,21 @@ REM branch on certain paramters, and clean up various parameters
                 rem  after 'shift',  %1$ is now the remaining arguments (if any)
                 rem echo %reverse_on%after 'shift', %%1$ is now: %1$%reverse_off% >nul
                 goto :process_for_mode_variants
-        endiff        
+        endiff    
+
+
+:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast|AutoLyricApproval} {rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  AutoLyricApproval=consider sidecar TXT files to be pre-approvedl yrics
+:USAGE: set USE_LANGUAGE=jp                ——— to encode in a different language from en, like jp
+:USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 ——— for *forced* pre-approved-lyrics mode (deprecated)
+        
+        :usage
+                echo USAGE:
+                echo        $0 ai  ——————————— use AI only; no lyrics
+                echo        $0 ai  ——————————— use AI only; no lyrics
+                echo        $0 force ————————— generate even if SRT/LRC already exists
+                echo        $0 cleanup ——————— clean up trash after transcription —— free-up-harddrive-space.bat also cleans these
+                
+        return
         
         if 1 eq %CLEANUP (goto :just_do_the_cleanup)
 

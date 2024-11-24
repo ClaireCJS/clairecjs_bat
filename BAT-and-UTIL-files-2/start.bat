@@ -1,4 +1,4 @@
-@Echo Off
+@Echo On
  on break cancel
 REM set logging=None
 REM call logging "%0 %*"
@@ -16,8 +16,9 @@ REM 2023: protect us from improper invocation changes due to window 10 changes
 
 
 REM This is the command that we would be using, after Windows 10 but prior to beginning to use Windows Terminal:
-        set START_COMMAND=*start "" %COMMAND_TAIL
-        call print-if-debug "start_command is '%START_COMMAND%'" %+ call pause-if-debug
+        set START_COMMAND=*start `""` %COMMAND_TAIL
+        rem if %DEBUG gt 0 
+        echo %ANSI_COLOR_DEBUG%start_command is '%START_COMMAND%'%ANSI_COLOR_NORMAL%
 
 REM 2023 Windows Terminal introduced window panes, and we start using these for more "start" cases
         call detect-command-line-container
@@ -26,9 +27,11 @@ REM 2023 Windows Terminal introduced window panes, and we start using these for 
         REM if there are parameters, we probably have *start-specific behavior and probably shouldn't split to a new pane:
         if "%1" eq "/inv" set use_start=1
 
-        REM if it's an EXE, it probably won't have a lot of console output, so probably shoudln't split to a new pane:
+        REM if it's an EXE, it probably won't have a lot of console output, so probably shouldn't split to a new pane:
+        REM (if something just opens a bunch of windows splits instead of what it should do, try adding its extension here)
         if "%@UPPER[%@EXT[%1]]" eq "EXE" set use_start=1
         if "%@UPPER[%@EXT[%1]]" eq "ZIP" set use_start=1
+        if "%@UPPER[%@EXT[%1]]" eq "MSI" set use_start=1
         if "%@UPPER[%@EXT[%1]]" eq "7Z"  set use_start=1
         REM TODO it may be that if it's not a bat/btm then we should not split!
 

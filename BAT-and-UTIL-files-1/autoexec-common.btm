@@ -13,12 +13,14 @@ rem Set cosmetics:
         gosub done_with_step
 
 rem Set path:
-        echo %STAR% %ANSI_COLOR_LESS_IMPORTANT%Setting path...%ANSI_COLOR_NORMAL%
+        rem call c:\bat\less_important "Setting path..."
+        echo * Setting path...
         call c:\bat\setpath.bat %*
         gosub done_with_step
 
 rem Initialize environment:
-        call less_important "Initializing environment..."
+        rem call less_important "Initializing environment..."
+        echo * Initializing environment...
         call environm 
         window "AUTOEXEC"
         gosub done_with_step
@@ -49,7 +51,7 @@ rem Minimize annoying programs...
 rem Map drives
         call important "Mapping drives..."
         if isfunction randcursor (echos %@RANDCURSOR[])
-        *start /min c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
+        start /min c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
         gosub done_with_step
 
 

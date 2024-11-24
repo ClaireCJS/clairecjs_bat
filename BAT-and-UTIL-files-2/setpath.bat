@@ -1,4 +1,4 @@
-@if exist c:\bat\setpath.cmd (if %@FILEAGE[c:\bat\setpath.cmd] gt %@FILEAGE[c:\bat\setpath.bat] (call c:\bat\setpath.cmd %* %+ goto :END))
+rem @if exist c:\bat\setpath.cmd (if %@FILEAGE[c:\bat\setpath.cmd] gt %@FILEAGE[c:\bat\setpath.bat] (call c:\bat\setpath.cmd %* %+ goto :END))
 @rem ^^^^^^ If the generated .CMD version is fresher than this bat file, it's much faster to simply run that. Hard-code c:\bat because %BAT% is not defined yet when calling this from autoexec-common
 
 @Echo OFF
@@ -23,9 +23,6 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 	:Base_Clairevironment_Related_1
 		gosub AddFolderToPathEndOnlyIfItExists  c:\util\e
 		gosub AddFolderToPathEndOnlyIfItExists  c:\util\aspell\bin
-		gosub AddFolderToPathEndOnlyIfItExists  c:\cygwin\bin
-		gosub AddFolderToPathEndOnlyIfItExists  c:\cygwin64\bin
-		gosub AddFolderToPathEndOnlyIfItExists  c:\MinGW\bin
 	:Work_Related_1
 		:osub AddFolderToPathEndOnlyIfItExists  %DROPBOX%\work\bat\
 		gosub AddFolderToPathEndOnlyIfItExists  C:\bat\work
@@ -40,6 +37,11 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
                 :osub AddFolderToPathEndOnlyIfItExists  c:\perl\perl\site\bin
 		gosub AddFolderToPathEndOnlyIfItExists  c:\python23
 		gosub AddFolderToPathEndOnlyIfItExists  c:\python
+        rem Unixy stuff                
+		gosub AddFolderToPathEndOnlyIfItExists  c:\cygwin\bin
+		gosub AddFolderToPathEndOnlyIfItExists  c:\cygwin64\bin
+		gosub AddFolderToPathEndOnlyIfItExists  c:\MinGW\bin
+        rem UTIL1/2 subfolder stuff:
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL%\sysinternals
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL%\xml
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\git\bin
