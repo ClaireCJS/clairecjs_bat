@@ -17,14 +17,13 @@ Sidecar Files: A file of the same name, but different extension. For example, "f
 1. The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL). 
     The command ``faster-whisper-xxl.exe`` must be in your path.
 
-1. [TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html). 
-    Can also install with Winget with the command: ```winget install JPSoft.tcmd```.
+1. [TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html), which can also be installed with Winget via the command: ```winget install JPSoft.tcmd```.
 
-1. My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.
+1. My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.  ```git.exe -clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\```
 
-1. Cygwin or other version of ```sort``` and ```uniq``` utilities
+1. Cygwin or other comparable version of ```sort``` and ```uniq``` utilities
 
-1. For automatic file-trash cleanup across an entire computer, you will need the ```everything``` service. (Use ```start-everything.bat``` to start it)
+1. For automatic file-trash cleanup across an entire computer, you will need the ```everything``` service to track files. (Use ```start-everything.bat``` to start it)
 
 1. For WinAmp integration: the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in WinAmp, allowing us to have commands that operate on "whatever song we are currently listening to".
 
@@ -33,7 +32,7 @@ ________________________________________________________________________________
 # NOTE: Many commands have several different aliases, for convenience-of-remembering.
 ____________________________________________________________________________________________________________
 
-# Lyric Commands:
+# Lyric Alignment Commands:
 
 
 ### [get-lyrics {songfile} / get-lyrics-for-song {songfile} / get-lyrics-via-multiple-sources {songfile}](../get-lyrics-via-multiple-sources.bat)
@@ -44,10 +43,14 @@ Obtains the lyrics for a particular song, to foster proper AI transcription. The
 
 Mark lyric file with approval/disapproval so that we can pre-approve lyric files in advance of transcription process. Uses [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs) to store approval tags in a database-less, file-less way.
 
+### TODO [get-lyrics-for-playlist.bat](../get-lyrics-for-playlist.bat)
+
+Obtain lyrics for all songs in a playlist that do not have them — Traverses a playlist, running ```get-lyrics``` on every file in the playlist. (In random order, to prevent alphabetical bias.)
+
 ____________________________________________________________________________________________________________
 
 
-# Karaoke Commands:
+# Karaoke Creation Commands:
 
 
 ### create-srt {songfile} / [create-srt-from-file {songfile}](../create-srt-from-file.bat)
@@ -56,14 +59,23 @@ Performs the AI transcription process for a single song file.
 Run without parameters to see various options, including but not limited to  "ai" (skips lyrics process), "fast" (shortens prompt timer lengths), and "force" (generate it even thoughi t already exists).
 
 
-### cfmk / [check-for-missing-karaoke](../check-for-missing-karaoke.bat)
-
-Displays a list of files in the current folder which are missing karaoke files
-
 ### cmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../create-the-missing-karaokes-here.bat)
 
-Create all missing karaokes in the current folder
+Create karaoke files for all songs *in the current folder* that do not have them
 
+### TODO [get-karaoke-for-playlist.bat](../get-lyrics-for-playlist.bat)
+
+Create karaoke files for all songs *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. (In random order, to prevent alphabetical bias.)
+
+### TODO create-karaoke-automatically-from-approved-lyrics.bat {folder to recurse through]
+
+Create karaoke files for all songs in a *folder tree* that do not have them, as long as their lyric file has been previously approved. This is intended so one can spend 100% of time aligning/approving lyrics (i.e. with ```get-lyrics-for-playlist.bat```), then go to bed and run this to generate everything that has pre-approved lyrics, saving the karaoke generation for another time (like when you are asleep). 
+
+
+
+____________________________________________________________________________________________________________
+
+# Karaoke Auditing Commands
 
 ### [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../review-subtitles.bat)
 
@@ -71,18 +83,15 @@ Reviews all karaoke files in current folder, using ```print-with-columns``` to e
 
 ![image](https://github.com/user-attachments/assets/9b579cf2-ca93-4684-aec5-35df8c793143)
 
-### [clean-up-AI-transcription-trash-files.bat](../clean-up-AI-transcription-trash-files.bat)
 
-Cleans up all the trash files that are leftover from your entire computer in one fell swoop.
+### cfmk / [check-for-missing-karaoke](../check-for-missing-karaoke.bat)
 
-____________________________________________________________________________________________________________
-
-# Auditing Commands
+Displays a list of files in the current folder which are missing karaoke files
 
 
 ### [karaoke auditor - CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
 
-Looks through a playlist and generates a new playlist of *JUST* the files that do not have karaoke.
+Creates a list of files *in a playlist* which are missing their karaoke files.
 
 EXAMPLE:
 ```
@@ -90,9 +99,6 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 ```
 ^^^ This example goes through the file ```PlayList.m3u```, checks for all files that do not have karaoke files (i.e. no ```*.srt``` or ```*.lrc``` sidecar file), creates a ```PlayList-without lrc srt.m3u``` consisting of those files.  Bbecause the `````CreateSRTFileWrite``` option was used, it also generates a script to actually create the missing karaoke files.  The ``GetLyricsFileWrite``` option can instead be used to *ONLY* obataining lyrics, and save the karaoke generation for later.
 
-### TODO create-karaoke-automatically-from-approved-lyrics.bat {folder to recurse through]
-
-Looks through a folder tree for *approved* lyric files that do not have a karaoke, then generates the karaoke automatically. This way one can focus solely on lyric alignment, then run this at bedtime to find all the alignedl yrics and automatically make the karaoke files.
 
 ____________________________________________________________________________________________________________
 
@@ -136,7 +142,7 @@ We add "invisible" periods to the end of each line of lyrics so that WhisperAI's
 
 _________________________________________
 
-# Critical Utility commands
+# Other Critical Utility commands
 
 ### [print_with_columns.py](../print_with_columns.py) / [newspaper.bat](../newspaper.bat)
 
@@ -150,21 +156,18 @@ Invokes a google search in primary browser, all while properly preserving quotes
 
 Inserts text before or after each line of STDIN. Used for script generation. 
 
+### [srt2lrc.py](../srt2lrc.py)
+
+A *batch* SRT-file to LRC-file converter. Used by [eccsrt2lrc2clip.bat](../eccsrt2lrc2clip.bat)
 
 ____________________________________________________________________________________________________________
 
 
 # Adjunct Utility commands
 
-
-### [srt2lrc.py](../srt2lrc.py)
-
-A *batch* SRT-file to LRC-file converter. Used by ```[eccsrt2lrc2clip.bat](../eccsrt2lrc2clip.bat)```
-
 ### [srt2txt.py](../srt2txt.py)
 
 A *single-file* SRT-file to TXT-file converter
-
 
 ____________________________________________________________________________________________________________
 
@@ -188,61 +191,75 @@ A cosmetic postprocessor which employes ANSI color-cycling to inbue a psychedeli
 Uses my [claire_console.py](../clairecjs_utils/claire_console.py) library to achieve the color-cycling.
 
 
-### [cat_fast.exe](../cat_fast.exe)
+### [divider.bat](../display-horizontal-divider.bat)
 
-Version of ```cat.exe``` deemed to be the fastest. I have several versions of the unix ```cat``` command, but this is the one I use for speediness.
+[Pretty rainbow-ized horizontal dividers](../dividers/) to separate out output into sections.
 
-### [mp3index.bat](../mp3index.bat)
-
-Technically should be called "audio_file_index.bat". Prints to STDOUT a list of all songfiles (mp3, flac, wav, etc).
 
 ### [delete-zero-byte-files.bat](../delete-zero-byte-files.bat) {filemask} 
 
 Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us having to check EVERY file for non-zero-ness.
 
-### [divider.bat](../display-horizontal-divider.bat)
-
-[Pretty rainbow-ized horizontal dividers](../dividers/) to separate out output into sections.
-
-### [change-single-quotes-to-double-apostrophes.py](../change-single-quotes-to-double-apostrophes.py)
-
-Text conversion offloaded into python script to avoid command-line complications with quote symbols. 
 
 ### [add-ADS-tag-to-file.bat](../add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../remove-ADS-tag-from-file.bat)
 
 Basic utility for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs).
 
+
+### [run-piped-input-as-bat.bat](../run-piped-input-as-bat.bat)
+
+Receives piped input and runs it as if it were a BAT file. Dangerous stuff!
+
+
 ### [validate-environment-variables {list of env-var names}](../validate-environment-variable.bat)
 
 Validates whether environment variables (and the files they point to!) exist.
+
 
 ### [validate-in-path {list of commands}](../validate-in-path.bat)
 
 Validates whether commands (be they internal, alias, or not) are in the path
 
+
 ### [validate-is-function {list of functions}](../validate-function.bat)
 
 Validates whether TCC user %@functions are defined or not
 
+
 ### [bigecho.bat](../bigecho.bat)
 
-Echos, but in double-height text.
+Echos, but in VT100-double-heighttext.
 
-### [del-if-exists.bat](../del-if-exists.bat)
-
-Delete a file, but only if it exists.
 
 ### [set-ansi.bat](../set-ansi.bat)
 
 Sets all the ansi codes we know to exist.
 
+
 ### [set-emojis.bat](../set-emojis.bat)
 
 Sets all the emoji we care to set, using the [emoji.env](../emoji.env) file to add new emoji.
 
-### [run-piped-input-as-bat.bat](../run-piped-input-as-bat.bat)
 
-Receives piped input and runs it as if it were a BAT file. Dangerous stuff!
+### [mp3index.bat](../mp3index.bat)
+
+Technically should be called "audio_file_index.bat". Prints to STDOUT a list of all songfiles (mp3, flac, wav, etc).
+
+
+### [cat_fast.exe](../cat_fast.exe)
+
+Version of ```cat.exe``` deemed to be the fastest. I have several versions of the unix ```cat``` command, but this is the one I use for speediness.
+
+
+### [change-single-quotes-to-double-apostrophes.py](../change-single-quotes-to-double-apostrophes.py)
+
+Quote conversion offloaded into python script to avoid command-line complications with quote symbols. 
+
+
+### [del-if-exists.bat](../del-if-exists.bat)
+
+Delete a file, but only if it exists.
+
 
 
 
