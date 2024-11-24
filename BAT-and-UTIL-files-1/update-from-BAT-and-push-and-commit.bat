@@ -26,7 +26,7 @@ rem CONFIGURATION:
         rem 2022/11/23: trying to deprecate this one: start.bat 
 
         rem Only add files that live in C:\UTIL\ to this list:        
-        set SECONDARY_UTIL_FILES=mencoder.exe wget.exe wget32.exe focus-monitor.exe handle.exe hstart.exe hstart64.exe normalize.exe RemoveDrive.exe exiflist.exe speak.exe wsay.exe ansi2html.exe ansi2html.txt pizza-per-square-inch-calculator.exe wake-on-lan.exe windowhide.exe cat_fast.exe winkill.exe winkillhook.dll LaunchKey.exe girder-internet-event-client.exe msdos-player.exe taskbar-autohide.exe msdos.exe junction.exe pendmoves.exe imdisk.exe nircmd.exe x10cmd.exe grep32.exe LRCget.exe rg.exe gawk.exe
+        set SECONDARY_UTIL_FILES=mencoder.exe wget.exe wget32.exe focus-monitor.exe handle.exe hstart.exe hstart64.exe normalize.exe RemoveDrive.exe exiflist.exe speak.exe wsay.exe ansi2html.exe ansi2html.txt pizza-per-square-inch-calculator.exe wake-on-lan.exe windowhide.exe cat_fast.exe winkill.exe winkillhook.dll LaunchKey.exe girder-internet-event-client.exe msdos-player.exe taskbar-autohide.exe msdos.exe junction.exe pendmoves.exe imdisk.exe nircmd.exe x10cmd.exe grep32.exe LRCget.exe rg.exe gawk.exe Enqueueee-make.bat Enqueueee.cpp Enqueueee.cpp.original.txt enqueueee.exe Enqueueee.cpp-uses-winamp.h.txt winamp.h winamp.h-is-used-by-enqueueee.txt
         rem DECIDED AGAINST: metaflac.exe metamp3.exe metamp3.txt  lyricy.exe
 
 
@@ -107,13 +107,8 @@ rem Give a chance to stop here...
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
 rem Make sure they're all added —— any new extensions that we add to our project, need to be added here:
-        rem make sure subfolders are added
-                call git add %TARGET_MAIN%\docs\*
-                call git add %TARGET_MAIN%\samples\*
-                call git add %TARGET_MAIN%\dividers\*
-                
         rem extensions that only appear in [a-l]*.*
-                call git add %TARGET_MAIN%\*.HLP  %TARGET_MAIN%\*.cnt %TARGET_MAIN%\*.lst %TARGET_MAIN%\*.gml %TARGET_MAIN%\*.jpg %TARGET_MAIN%\*.png %TARGET_MAIN%\*.lnk  %TARGET_MAIN%\*.ico 
+                call git add %TARGET_MAIN%\docs\* %TARGET_MAIN%\samples\* %TARGET_MAIN%\dividers\* %TARGET_MAIN%\*.HLP  %TARGET_MAIN%\*.cnt %TARGET_MAIN%\*.lst %TARGET_MAIN%\*.gml %TARGET_MAIN%\*.jpg %TARGET_MAIN%\*.png %TARGET_MAIN%\*.lnk  %TARGET_MAIN%\*.ico 
         rem extensions that appear in [m-z]*.*
                 for %%tmpfolder in (%TARGET_MAIN% %TARGET_2%) do (call git add %tmpFolder%\*.bat %tmpFolder%\*.csv LICENSE README.md .gitattributes .gitignore %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl %tmpFolder%\*.py %tmpFolder%\*.exe %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip  %tmpFolder%\*.ansi   %tmpFolder%\*.midi %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat )
 
