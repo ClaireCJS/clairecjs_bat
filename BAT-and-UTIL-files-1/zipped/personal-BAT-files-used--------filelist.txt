@@ -117,7 +117,7 @@
 2024-11-19  07:48             37   17%  cancelll.bat
 2024-11-19  07:48             76    6%  car.bat
 2024-11-19  02:21            344   42%  cat.bat
-2024-11-19  02:21          8,154   72%  cd-alias.bat
+2024-11-25  21:24         11,181   75%  cd-alias.bat
 2024-11-19  07:48             41   -4%  cd.bat
 2024-11-25  13:10             29   -6%  cdisplay.bat
 2024-11-19  07:37             38    3%  celebrate.bat
@@ -202,7 +202,7 @@
 2024-11-23  23:44             58   -3%  create-lrc-file-for-currently-playing-song.bat
 2024-11-23  23:44             31   -6%  create-lrc-from-file.bat
 2024-11-23  23:44            134   33%  create-missing-karaoke-files.bat
-2024-11-23  23:44          1,055   51%  create-srt-file-for-currently-playing-song.bat
+2024-11-25  18:46          1,092   51%  create-srt-file-for-currently-playing-song.bat
 2024-11-23  23:44            194   36%  create-srt-for-soundclip.bat
 2024-11-25  03:39         70,140   75%  create-srt-from-file.bat
 2024-11-25  14:20            972   52%  create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat
@@ -336,7 +336,7 @@
 2024-11-19  07:47             50   -4%  eject.bat
 2024-11-19  07:47             41   -4%  emoji-grep.bat
 2024-11-19  07:47          1,836   59%  emoji-search.bat
-2024-11-24  21:46         76,561   78%  emoji.env
+2024-11-25  18:52         76,707   78%  emoji.env
 2024-11-19  07:47          1,726   53%  enqueue-file-into-winamp-playlist.bat
 2024-11-19  07:47             66   -3%  enqueue.bat
 2024-11-19  07:47            381   35%  ensure-directories-exist.bat

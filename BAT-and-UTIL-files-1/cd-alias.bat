@@ -1,10 +1,12 @@
 @Echo Off
  on break cancel
 
-:DESCRIPTION: "cd" but with file-number-tracking and a tiny bit of file maintenance
+:DESCRIPTION: "cd" but with file-number-tracking, a tiny bit of file maintenance, and autoruns
 :DESCRIPTION:
 :DESCRIPTION: NOTE: Uses a bunch of fancy environment variables for stylization —— see set-colors.bat for those.
 :DESCRIPTION:                                                                      (Not required, but nice to have.)
+
+
 
 
 rem Capture parameters & keep track of the last folder we're in —— this is done automatically in other ways but we want our own:
@@ -14,45 +16,96 @@ rem Capture parameters & keep track of the last folder we're in —— this is d
         set CD_PARAM3=%3
         set CD_PARAM4=%4
         set CD_PARAM5=%5
+        
+        
+        
+        
+        
+        
+rem ............ Big gap here so that the most common error is on line 69. Just for style points .........................
+        
+        
+        
+        
+        
+rem ............ Big gap here so that the most common error is on line 69. Just for style points .........................
+        
+        
+        
+        
+        
+rem ............ Big gap here so that the most common error is on line 69. Just for style points .........................
+        
+        
+        
+        
+        
+rem ............ Big gap here so that the most common error is on line 69. Just for style points .........................
+        
+        
+        
+        
+        
+rem ............ Big gap here so that the most common error is on line 69. Just for style points .........................
+       
+        
+        
+        
 
-rem Does the folder exist?
+rem ❌❌❌ Handle if the folder doesn't exist: ❌❌❌
         rem call debug "CD COMMAND IS cd %*"
-        if "-" ne "%CD_PARAM1%" .and. not isdir "%CD_PARAMS%" .and. not isdir "%CD_PARAM1%" .and. not isdir "%CD_PARAM2%" .and. not isdir %CD_PARAM1% .and. not isdir %CD_PARAM2% .and. not isdir %CD_PARAM3% .and. not isdir %CD_PARAM4% .and. not isdir %CD_PARAM5% (
-            call error "Folder does not exist: %italics_on%%CD_PARAMS%%italics_off%"
-            rem But try anyway in case we're wrong:
-            *cd %*
-            goto :END
-        )
+        iff "-" ne "%CD_PARAM1%" .and. not isdir "%CD_PARAMS%" .and. not isdir "%CD_PARAM1%" .and. not isdir "%CD_PARAM2%" .and. not isdir %CD_PARAM1% .and. not isdir %CD_PARAM2% .and. not isdir %CD_PARAM3% .and. not isdir %CD_PARAM4% .and. not isdir %CD_PARAM5% then
+                echo.
+                iff defined BIG_TOP then
+                        set MSG=%ANSI_COLOR_ERROR% %SKULL_AND_CROSSBONES% Doesn't exist! %SKULL_AND_CROSSBONES%  %ANSI_COLOR_NORMAL%
+                        echo %BIG_TOP%%MSG%
+                        echo %BIG_BOT%%MSG%%ansi_eol%
+                        rem ECHOS %BIG_OFF%
+                endiff
+                echos.
+                echo %ANSI_COLOR_ERROR%  %no%%no%  %ansi_color_bright_yellow%Folder does not exist: '%italics_on%%CD_PARAMS%%italics_off%' %NO%%NO%  %ANSI_COLOR_NORMAL%%ansi_color_yellow%%italics_on%%faint_on%
+                echo.
+                rem But try anyway in case we're wrong: And make sure this next line is line #69 (nice):
+                *cd %*
+                echos %BLINK_OFF%%ANSI_COLOR_NORMAL%
+                cancel
+                goto :END
+        endiff
 
-rem Change into the folder —— the actual thing we mean to do 😂 —— and count the files:
+
+rem Count the number of files the current folder as we leave it:
         set NUM_FILES_NOW_2=%@FILES[.,-d]
-
                                       set FILE_COUNT_LAST=%[FILE_COUNT_%[_CWD]_EXITED]
         if "%FILE_COUNT_LAST%" eq "" (set FILE_COUNT_LAST=%[FILE_COUNT_%[_CWD]_ENTERED]) %+ rem if no exit  value, get entered value
         if "%FILE_COUNT_LAST%" eq "" (set FILE_COUNT_LAST=%[FILE_COUNT_%[_CWD]]        ) %+ rem if no enter value, get generic value [this shouldn't happen and is just added as a foolproof mechanism]
 
+rem Store what the last folder was:
         set FILE_COUNT_%[_CWD]_EXITED=%NUM_FILES_NOW_2%
         set LAST_FOLDER=%_CWD
 
+rem Actually do our cd command —— Change into the folder:
         *cd %CD_PARAMS%
 
+
+rem Count the files in the new folder as we enter it:
         set NUM_FILES_NOW=%@FILES[.,-d]
         set FILE_COUNT_%[_CWD]_ENTERED=%NUM_FILES_NOW%   %+ rem the new value of this variable  is the number of files there now
-
         rem How do we set the files that were in the folder prior? By looking at *both* FILE_COUNT_%_CWD_ENTERED & FILE_COUNT_%_CWD_EXITED
         rem NUM_FILES_THEN=%[FILE_COUNT_%[_CWD]_ENTERED] %+ rem the old value of this variable was the number of files in this folder LAST time we entered it
-                                    set NUM_FILES_THEN=%[FILE_COUNT_%[_CWD]_EXITED]  %+ rem the old value of this variable was the number of files in this folder LAST time we entered it
+                                     set NUM_FILES_THEN=%[FILE_COUNT_%[_CWD]_EXITED]      %+ rem the old value of this variable was the number of files in this folder LAST time we entered it
         if "%NUM_FILES_THEN%" eq "" (set NUM_FILES_THEN=%[FILE_COUNT_%[_CWD]_ENTERED])
-        set FILE_COUNT_%[_CWD]_ENTERED=%NUM_FILES_NOW%   %+ rem the new value of this variable  is the number of files there now
-        set FILE_COUNT_%[_CWD]=%NUM_FILES_NOW%           %+ rem We also maintain a "current count of files" var which is the last value regardless of entering or existing
+        set FILE_COUNT_%[_CWD]_ENTERED=%NUM_FILES_NOW%                                    %+ rem the new value of this variable  is the number of files there now
+        set FILE_COUNT_%[_CWD]=%NUM_FILES_NOW%                                            %+ rem We also maintain a "current count of files" var which is the last value regardless of entering or existing
 
 
-rem Change the window title to the folder, while keeping track of the last couple titles:
+rem Set the window title to the folder name, while keeping track of the last couple titles:
         if "%CD_PARAMS%" ne "" (
             if defined LAST_TITLE (set LAST_TITLE_2=%LAST_TITLE%)
             set        LAST_TITLE=%_wintitle
             title %CD_PARAMS%
         )
+
+
 
 rem If there were a different number of files now than when we last entered this folder, let us know either/both:
         set NUM_FILES_THEN_2=%FILE_COUNT_LAST%
@@ -83,29 +136,49 @@ rem If there were a different number of files when we entered our new folder tha
         echo %STAR% %ANSI_COLOR_LESS_IMPORTANT%%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]%%%faint_on%) %faint_on%since last check in %faint_off%%italics_on%%[_cwd]%italics_off%%faint_off%%ANSI_RESET%%ANSI_EOL%
         :skip_saying_2
 
-rem Stuff we don't normally do is coming up —— so color it a warning color to some extent
+
+
+rem Stuff we don't normally do is coming up —— so color it a warning color 
         %COLOR_WARNING%
 
-rem Rename extensions we don't ever want to exist:
+rem Rename extensions we don't ever want to ever exist:
             if exist *.jpg_large (ren /E *.jpg_large *.jpg >&nul)
             if exist *.jpg!d     (ren /E *.jpg!d     *.jpg >&nul)
 
 rem Delete files we don't ever want to exist:
-            if exist  thumbs.db  (                     *del /z  thumbs.db ) %+ rem cruft: Windows 
-            if exist desktop.ini (                     *del /z desktop.ini) %+ rem cruft: Windows 
-            if exist       a.out (                     *del /z       a.out) %+ rem cruft: Unix
-            if exist       *.pkf (                     *del /z       *.pkf) %+ rem cruft: CoolEdit/Audition 
-            if exist       *.mta (sweep if exist *.mta *del /z       *.mta) %+ rem cruft: Samsung Allshare 
-            rem cruft: wget calls to WinAmp's wawi plugin leaves file named 'clear' that we've found repeatedly:
-            if exist   clear     (                                          
+            if  exist  thumbs.db  (                     *del /z  thumbs.db ) %+ rem cruft: Windows 
+            if  exist desktop.ini (                     *del /z desktop.ini) %+ rem cruft: Windows 
+            if  exist       a.out (                     *del /z       a.out) %+ rem cruft: Unix
+            if  exist       *.pkf (                     *del /z       *.pkf) %+ rem cruft: CoolEdit/Audition 
+            if  exist       *.mta (sweep if exist *.mta *del /z       *.mta) %+ rem cruft: Samsung Allshare 
+            iff exist clear then                                             %+ rem cruft: wget calls to WinAmp's wawi plugin leaves file named 'clear' that we've found repeatedly:
                     echos %ANSI_COLOR_WARNING% 'clear' file found %DASH% this should probably be deleted! %ANSI_COLOR_NORMAL%
-                    echo  %ANSI_COLOR_MAGENTA%             %+   call divider 
+                    echo %[ANSI_COLOR_MAGENTA]             %+   call divider 
                     echos %[ANSI_COLOR_YELLOW]%BLINK_ON%   %+   type  clear 
                     echos %ANSI_COLOR_MAGENTA%%BLINK_OFF   %+   call divider 
                     echos %ANSI_COLOR_BRIGHT_RED%%ANSI_BLINK_ON%%EMOJI_RED_QUESTION_MARK%
                     *del /p clear
-            )                                                
+            endiff                                 
+
+
+
+
+rem Automatically run autorun.bat, or if one doesn't exist, one from the parent folder, and so forth:
+        %COLOR_NORMAL%
+        set AUTO_RUN_BAT=
+        if exist ..\..\..\..\..\..\..\..\autorun.bat set AUTO_RUN_BAT=..\..\..\..\..\..\..\..\autorun.bat
+        if exist    ..\..\..\..\..\..\..\autorun.bat set AUTO_RUN_BAT=   ..\..\..\..\..\..\..\autorun.bat
+        if exist       ..\..\..\..\..\..\autorun.bat set AUTO_RUN_BAT=      ..\..\..\..\..\..\autorun.bat
+        if exist          ..\..\..\..\..\autorun.bat set AUTO_RUN_BAT=         ..\..\..\..\..\autorun.bat
+        if exist             ..\..\..\..\autorun.bat set AUTO_RUN_BAT=            ..\..\..\..\autorun.bat
+        if exist                ..\..\..\autorun.bat set AUTO_RUN_BAT=               ..\..\..\autorun.bat
+        if exist                   ..\..\autorun.bat set AUTO_RUN_BAT=                  ..\..\autorun.bat
+        if exist                      ..\autorun.bat set AUTO_RUN_BAT=                     ..\autorun.bat
+        if exist                         autorun.bat set AUTO_RUN_BAT=                        autorun.bat
+        if "" ne "%AUTO_RUN_BAT" (call %AUTO_RUN_BAT%)
+        
 
 
 :END
 %COLOR_NORMAL%
+

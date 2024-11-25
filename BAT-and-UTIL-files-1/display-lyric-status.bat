@@ -18,6 +18,7 @@ iff exist %FILEMASK_TEMP% then
         )                
         set USE_SPACER=0
 else
+        echo.
         call warning "No lyric files here." silent
 endiff
 
