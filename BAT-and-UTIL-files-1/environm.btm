@@ -897,6 +897,7 @@ return
                         rem Music server: WinAmp Status file:
                                 set WINAMP_NOW_PLAYING_TXT=%MP3OFFICIAL%\lists\winamp_now_playing.txt
                                 set WINAMP_NOW_PLAYING_ART=%MP3OFFICIAL%\lists\winamp_now_playing.jpg
+                                set     ALL_SONGS_FILELIST=%MP3OFFICIAL%\lists\everything.m3u            %+ rem a list of all the songs in your music collection! basically, dir /s /b c:\mp3\%FILEMASK_AUDIO%
                                 
                         rem Music server: General status file: [which is just the WinAmp status file]:
                                 set NOW_PLAYING_ALBUM_ART=%WINAMP_NOW_PLAYING_ART%
@@ -910,6 +911,7 @@ return
                         rem Not sure where this gets set, so not validating it: %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS
                         %gosubValidateFolderExists% MP3OFFICIALDRIVE   NOW_PLAYING_TXT
                         %gosubValidateFolderExists% MP3OFFICIALDRIVE   NOW_PLAYING_ART
+                        %gosubValidateFolderExists% MP3OFFICIALDRIVE   ALL_SONGS_FILELIST
                         %gosubValidateFolderExists% MP3VERSIONINGDRIVE MP3VERSIONING
                         %gosubValidateFolderExists% MP3BACKUP1DRIVE    MP3_BACKUP_1
                         %gosubValidateFolderExists% MP3BACKUP2DRIVE    MP3_BACKUP_2
