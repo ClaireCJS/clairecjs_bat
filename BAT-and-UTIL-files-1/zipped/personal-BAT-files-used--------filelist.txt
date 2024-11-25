@@ -320,7 +320,7 @@
 2024-11-22  01:05          2,678   61%  eccsrt2lrc2clip.bat
 2024-11-19  07:21          4,244   74%  echo-rainbow.bat
 2024-11-19  07:41          1,807   64%  edit-all-BAT-files-that-do-not-contain-a-string.bat
-2024-11-24  01:21         32,590   69%  edit-currently-playing-attrib-helper.pl
+2024-11-25  02:59         34,696   69%  edit-currently-playing-attrib-helper.pl
 2024-11-11  16:33            252   49%  edit-currently-playing-attrib-with-automark.bat
 2024-11-25  02:32         18,173   80%  edit-currently-playing-attrib.bat
 2024-11-19  07:33          4,639   67%  edit-filenames-matching-regex.bat

@@ -898,6 +898,7 @@ return
                                 set WINAMP_NOW_PLAYING_TXT=%MP3OFFICIAL%\lists\winamp_now_playing.txt
                                 set WINAMP_NOW_PLAYING_ART=%MP3OFFICIAL%\lists\winamp_now_playing.jpg
                                 set     ALL_SONGS_FILELIST=%MP3OFFICIAL%\lists\everything.m3u            %+ rem a list of all the songs in your music collection! basically, dir /s /b c:\mp3\%FILEMASK_AUDIO%
+                                set     ALL_SONGS_PLAYLIST=%ALL_SONGS_FILELIST%                          %+ rem an alias so we can be sloppy in remembering things. It is both a filelist and a playlist 😉
                                 
                         rem Music server: General status file: [which is just the WinAmp status file]:
                                 set NOW_PLAYING_ALBUM_ART=%WINAMP_NOW_PLAYING_ART%

@@ -1,37 +1,44 @@
 #!perl
-#delete this line when you forget what it means - ### 8_Wandering Heart.mp3 ==> learned ==> on 2022-02-07 at 08:55:58
-use utf8;
-binmode(STDIN,  ':encoding(UTF-8)');
-binmode(STDOUT, ':encoding(UTF-8)');
 
-
+##########
+##########
+########## HOW TO USE:
+##########
+##########			1) Generate script using this:    edit-currently-playing-attrib-helper.pl %NOW_PLAYING_TXT% %ALL_SONGS_PLAYLIST% %*  {optional regular expression} >:u8 %SCRIPT_TO_RUN%
+##########			   If the optional regular expression is provided, it will instead operate on songs in our  %ALL_SONGS_PLAYLIST% which match the regex. In this way, we can operate in batch. However, this functoinality isn't super-well-tested and is not the usual use-case.
+##########          2) Run the generated script:      call %SCRIPT_TO_RUN%                          
+##########          3) Delete it when we are done:    *del %SCRIPT_TO_RUN%       
+##########
+##########
 ########## WHAT THIS DOES:
-##########	1) Opens up the last.fm log (which can be hardcoded) and determines the song playing.
+##########
+##########	1)      2024: Opens up the file named in the environemnt variable NOW_PLAYING_TXT, which is a winamp_now_playing.txt (or similarly named) file created by the WinampNowPlayingToFile plugin obtained from https://github.com/Aldaviva/WinampNowPlayingToFile. The 2ⁿᵈ line of the output file must be set to the full filename of the currently playing song.
+##########     2008–2023: Opens up the last.fm log (which can be hardcoded) to determine the song playing.
 ##########	2) Determines the folder the song is playing in
-##########	3) Opens up (using editor defined in %EDITOR environment variable) a file (defined in $ATTRIB_LST below) in the same folder as the mp3 playing
-##########	4) Copies the track number of the mp3 to the clipboard
+##########	3) Generates script which, when run, does the following:
+##########        (1) changes into the folder that contains the song we are currently listening to
+##########        (2) optionally opens up the attribute file in our text editor 
+##########                       [1] set env-var EC_OPT_NOEDITOR=1 to suppress opening up the file
+##########                       [2] attribute filename is defined in $ATTRIB_LST below
+##########                       [3] text editor is defined via the %EDITOR% environment variable
+##########        (3) optionally adds an attribute to the attribute file without opening it
+##########                       [1] set env-var AUTOMARKAS=<the name of the attribute we want to add, such as "learned" or "party">
+##########                       [2] set env-var LEARNED_COMMENT=the text of the comment you want added to the attribute file above our tag
+##########	      (4) Copies the track number of the mp3/songfile to the clipboard
+##########
+########## Can also set env-var EC_DO_NOT_GO_UP_1_DIR=1 to skip going up a folder when in special subfolder names
+########## Can also set env-var MAKING_KARAOKE=1        to run when generating karaoke transcription files with AI [create-srt-from-file.bat]
+##########
+##########
+
+###########  GENERAL NOTE: Prior to 2024 this would fail if a song is not tagged, but as of 2011 that could be fixed with some effort.
+########### PERSONAL NOTE: Some of the legacy functionality may be duplicated in get-current-song-playing.pl ... Updates here may need to go there as well.
 
 
-###########  GENERAL NOTE: This fails if a song is not tagged, but as of 2011 that could be fixed with some effort.
-########### PERSONAL NOTE: A lot of this functionality is dupliated in get-current-song-playing.pl ... Updates here may need to go there as well.
+##### CONFIGURATION: ATTRIBUTE FILE NAME:
+my $ATTRIB_LST = "attrib.lst";						#the name of our attribute file —— generally 'attrib.lst'
 
-
-
-
-##### DEBUG STATUS / INFORM THE USER:
-my $DEBUG_BAT                        = 0;			#set to   1     for pauses in the actual batfile which is generated, 0 else
-my $DEBUG                            = 0;			#set to 0,1,2,3 for more verbose output, like every line found in audioscrobbler log ... But won't generally work correctly unless set to 0
-my $DEBUG_FIND_IN_AUDIOSCROBBLER_LOG = 0;			#set to 0,1,2   for more verbose output
-my $DEBUG_CLIPBOARD_TEXT             = 0;           #set to   1     for more debug info about what gets copied to the clipboard
-
-#print "rem :debug     is $DEBUG    \nrem :debug_bat is $DEBUG_BAT\n";
-
-
-##### CONSTANT:
-my $ATTRIB_LST = "attrib.lst";
-
-
-##### NEAR-CONSTANT:
+##### CONFIGURATION: METHOD TO USE:
 #y $METHOD   = "2013";		
 my $METHOD   = "2024";		#Last.fm likes to change their logfile format. Remember, this method affects code below too, so search for $METHOD to update those pieces of code as well
 my $crawl_log=1;
@@ -42,17 +49,31 @@ if ($METHOD eq "2012") { $MUSIC_LOG_SEARCH_FOR = "Line received: START c=.*&a=.*
 if ($METHOD eq "2013") { $MUSIC_LOG_SEARCH_FOR = "PlayerCommandParser::PlayerCommandParser.*START"; }	
 if ($METHOD eq "2024") { $MUSIC_LOG_SEARCH_FOR = ""; $crawl_log=0;                                  }	#2024 method does not involve searching through a logfile because we're moving from using Last.FM's log as we have for 16 years, to moving the now-playing.txt file NOW_PLAYING_TXT created by WinAmp's now-playing plugin
 
+##### CONFIGURATION: DEBUG STATUS:
+my $DEBUG_BAT                        = 0;			#set to   1     for pauses in the actual batfile which is generated, 0 else
+my $DEBUG                            = 0;			#set to 0,1,2,3 for more verbose output, like every line found in audioscrobbler log ... But won't generally work correctly unless set to 0
+my $DEBUG_FIND_IN_AUDIOSCROBBLER_LOG = 0;			#set to 0,1,2   for more verbose output
+my $DEBUG_CLIPBOARD_TEXT             = 0;           #set to   1     for more debug info about what gets copied to the clipboard
+#print "rem :debug     is $DEBUG    \nrem :debug_bat is $DEBUG_BAT\n";
 
 
 
-##### DRIVE-LETTER REMAPPING STUFF:
+##### DRIVE-LETTER REMAPPING STUFF THAT PROABLY ONLY APPLIES TO THE PRE-2024 METHODS:
 my $MACHINE_NAME       =               $ENV{"MACHINENAME"};
 my $REMAPENVVAR        =              "REMAP$MACHINE_NAME";
 my $REMAP              =         $ENV{$REMAPENVVAR};
 my @REMAPS             = split(/\s+/,"$REMAP");						#one of the few places that actually uses our REMAP environment variables
 #print "echo name=$MACHINE_NAME, \$REMAPENVVAR=$REMAPENVVAR         REMAP=$REMAP\n\n";
 
-##### SET MODE:
+
+##### EMOJI COMPATIBILITY:
+use utf8;
+binmode(STDIN,  ':encoding(UTF-8)');
+binmode(STDOUT, ':encoding(UTF-8)');
+
+
+
+##### SET MODE, INCLUDING LISTENING TO ENVIRONMENT VARIABLES THAT MAY SET THE MODE EXTERNALLY:
 my $MODE_NORMAL   = "NORMAL"     ;
 my $MODE_AUTOMARK = "AUTOMARK"   ; 
 my $DEFAULT_MODE  = $MODE_NORMAL ;
@@ -83,7 +104,14 @@ if (($METHOD eq "2008") || ($METHOD eq "2009")) {
 }
 
 
-##### BEGIN:
+
+
+
+##### ##### ##### ##### ##### ##### ##### BEGIN: ##### ##### ##### ##### ##### ##### ##### 
+##### ##### ##### ##### ##### ##### ##### BEGIN: ##### ##### ##### ##### ##### ##### ##### 
+##### ##### ##### ##### ##### ##### ##### BEGIN: ##### ##### ##### ##### ##### ##### ##### 
+##### ##### ##### ##### ##### ##### ##### BEGIN: ##### ##### ##### ##### ##### ##### ##### 
+##### ##### ##### ##### ##### ##### ##### BEGIN: ##### ##### ##### ##### ##### ##### ##### 
 
 
 if ($DEBUG) { print "rem Method is $METHOD\n"; }
@@ -137,9 +165,6 @@ if ($METHOD eq "2024") {
 
 
 
-
-
-
 my $song_regex="";
 my $line="";
 my $song_found="";
@@ -158,7 +183,6 @@ my $REGEX_GIVEN_AT_COMMAND_LINE=0;
 my $path2use="";
 
 if ($DEBUG) { print "[A] REGEX is '$REGEX', RGACL=$REGEX_GIVEN_AT_COMMAND_LINE\n"; }
-
 
 if ($METHOD ne "2024") {
 	#do nothing! We are forking away from all this legacy code
@@ -188,7 +212,6 @@ if ($METHOD ne "2024") {
 		if ($FOUND_IN_AUDIOSCROBBLER_LOG)  { print ":last_found found line is: \"$last_found\"\n"; }
 		else                               { print ":searchfor of $MUSIC_LOG_SEARCH_FOR was never found!\n"; }
 	}
-
 	
 	##### TAKE LINE CONTAINING LAST TRACK PLAYED, FIX IT UP:
 	if      ($METHOD eq "2008") {
@@ -200,13 +223,10 @@ if ($METHOD ne "2024") {
 	} elsif (($METHOD eq "2011") || ($METHOD eq "2011")) {			#this ws 2011 or 2012; temporarily forking 2012 to its own section but leaving this wonky like this as a reminder in case I revert and change my mind years down the line
 		$last_found =~ /Sent Start for (.*)$/i;
 		if ($1 ne "") { $song=$1; }
-
 		$last_found =~ /Failed to extract MBID for: (.*)$/i;
 		if ($1 ne "") { $song=$1; }
-
 		$last_found =~ /Starting query FP for: *\"(.*)\"/i;
 		if ($1 ne "") { $song=$1; }
-
 		$last_found =~ /Starting new track \'() \? ()\'/i;
 		if ($1 ne "") { $song="$1 - $2"; }
 	} else {	#if ($METHOD eq "2012", 2013) {
@@ -219,9 +239,7 @@ if ($METHOD ne "2024") {
 		}
 		if ($DEBUG) { print ":******* FOUND FULL PATH: $FOUND_FULL_PATH (\$1=$1)\n"; }
 	}
-
 	if ($DEBUG) { print "\n:song is [1] '$song'!\n:FOUND_FULL_PATH=$FOUND_FULL_PATH\n"; }
-
 
 	if (($METHOD eq "2008") || ($METHOD eq "2009")) {
 		##### Because I remove move things in parenthesis, anything that this is a mistake for must be preserved for later. This is a feature added in 2009:
@@ -237,75 +255,54 @@ if ($METHOD ne "2024") {
 			#$parenthetical_title_to_save =~ s/\)/\\\)/;	#unnecessary, becuase this is done later									##  LOGFILE
 			if ($DEBUG) { print ":$parenthetical_title_to_save is [AA] $parenthetical_title_to_save!\n"; }								## AMBIGUITY
 		}
-
-
-		######from remove-last-parenthetical-clause.pl
-		#TODO: BREAKS HERE!: FIX IT:
-		#:song is Dr. Dirty (John Valby) - Greensleeves (Herniated Jingle Balls)!
-		#:song is now "Dr. Dirty"!
-		#^todo GET THAT BUG
-		#I see the problem here. If there are mlutiple parenthesis, I want to remove the last, but have only coded for multiple NESTED parenthesis.
-		#When there are two parenthesis that are NOT nested, I should remove 1 or the other, but ****NOT**** everything in between ****BOTH****
-		#^^^ so... Is this still a todo, or did I leave that in here as information for myself?
-
 		if    ($song =~ /\)\)$/)          { $song =~ s/\([^\(\)]*\([^\(\)]*\)\)$//; }		#nested parnethesis
 		elsif ($song =~ /\(.*\).*\(.*\)/) { $song =~ s/(\(.*\).*)(\(.*\))/$1/; }			#may catch 3-parentehsis songs - MAY HAVE TO UPDATE IN THE FUTURE
 		else                              { $song =~ s/\(.*\)//; }							#if only one parenthesis take it out - MAY HAVE TO UPDATE TO ONLY DO THIS IF IT'S AT THE *END* OF THE LINE
-
 		#$song =~ s/\([\(\).]*\)//;
 		$song =~ s/\s+$//;
 		$song =~ s/^\s+//;
 		if ($DEBUG) { print "\n:song is now [2] \"$song\"!\n"; }
 
-		
 		##### If there was parenthtical stuff we saved from before (remixes, for example), they were stripped, so now we add it back on:
 		$song .= " $parenthetical_title_to_save";
-
-
 
 		##### CONVERT SONG INTO A REGULAR EXPRESSION FOR 'GREPPING':
 		$song_regex = $song;
 	}
 }
 
-if ($DEBUG) { print "[B] REGEX is '$REGEX', RGACL=$REGEX_GIVEN_AT_COMMAND_LINE\n"; }
-
+if ($DEBUG>0) { print "[B] REGEX is '$REGEX', RGACL=$REGEX_GIVEN_AT_COMMAND_LINE\n"               ; }
 if ($DEBUG>0) { print ":Song regex is now[A5]: $song_regex (RGACL=$REGEX_GIVEN_AT_COMMAND_LINE)\n"; }
 
 
 if (($METHOD eq "2008") || ($METHOD eq "2009")) {				# || ($REGEX_GIVEN_AT_COMMAND_LINE ==1) meh
 	if ($DEBUG>0) { print ": intial song_regex is \"$song_regex\" \n"; }
 	if ($song_regex eq "- ") { print "\n\n\n:ERROR! No info in regex! Is the song not tagged??\n"; die("regex of \"$song_regex\" is not substantive... Is the song untagged?"); }
-
 	#FROM convert-id3-to-filenameregex
-	#### The magic happens here:
-	#worked: $song_regex =~ s/ - /.*/g;
-	#200912: 
 	$song_regex =~ s/(.*) - (.*)/$1.*$2/g;
 	$left=$1; $right=$2;
 	print ": Right=$right,left=$left\n";
 	$song_regex =~ s/\+/\\+/g;					#turn + to \+ for regexification
 	$song_regex =~ s/\s*--\s*/.*/g;
-	$song_regex =~ s/\?/.*/g;	#they are usually _ in a filename, but if i put it ina  tag and not a filename, searching would make it fail, so let's not search for an _, let's just search for nothing if ther eis a ?
+	$song_regex =~ s/\?/.*/g;					#they are usually _ in a filename, but if i put it ina  tag and not a filename, searching would make it fail, so let's not search for an _, let's just search for nothing if ther eis a ?
 	$song_regex =~ s/\s*\/\s*/.*/g;
 
 	#### The kludges happen here:
-	$song_regex =~ s/^[\-\s]+//;			#the cut point in the audioscrobbler logfile isn't always the smae ... sometimes we get a "- " at the beginning .. so we need to remove that  or the grep we do with that in the future will fail
+	$song_regex =~ s/^[\-\s]+//;				#the cut point in the audioscrobbler logfile isn't always the smae ... sometimes we get a "- " at the beginning .. so we need to remove that  or the grep we do with that in the future will fail
 
-	#### Also, for example, "The Bangles" really is "Bangles, The". We should just remove "The".
-	$song_regex =~ s/^The //i;
+	$song_regex =~ s/^The //i;					#### Also, for example, "The Bangles" really is "Bangles, The". We should just remove "The".
 
 	#### Other good ideas to do while we're here:
-	$song_regex =~ s/^\s*//;			#also remove leading  spaces...seems like a harmless side-effect
-	$song_regex =~ s/\s*$//;			#also remove trailing spaces...seems like a harmless side-effect
+	$song_regex =~ s/^\s*//;					#also remove leading  spaces...seems like a harmless side-effect
+	$song_regex =~ s/\s*$//;					#also remove trailing spaces...seems like a harmless side-effect
 	#$song_regex =~ s/\'/\\'/g;
 	#parentehsis need to be real parens now; spaces into .
 	$song_regex =~ s/\(/\\(/g;
 	$song_regex =~ s/\)/\\)/g;
-	$song_regex =~ s/ /.*/g;		#was just . but broke on "Sabbat - A Cautionary Tale  (demo)" due to extra space before demo that's not supposed to be there
+	$song_regex =~ s/ /.*/g;					#was just . but broke on "Sabbat - A Cautionary Tale  (demo)" due to extra space before demo that's not supposed to be there
 	
 	##### INFORM REGEX FOR DEBUG:
-	print "echo regex [A] was $song_regex\necho.\necho.\n";													#OBSOLETE: if ($DEBUG) { print "\n:song_regex is now \"$song_regex\"!\n\n"; }
+	print "echo regex [A] was $song_regex\necho.\necho.\n";			#OBSOLETE: if ($DEBUG) { print "\n:song_regex is now \"$song_regex\"!\n\n"; }
 }
 
 if ($DEBUG>0) { print ":Song regex is now[B5]: $song_regex (RGACL=$REGEX_GIVEN_AT_COMMAND_LINE)\n"; }
@@ -325,7 +322,6 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 	while (($found==0) && ($method <= $num_methods)) {
 		my $try_regex;
 		$try_regex = $song_regex;
-
 		if    ( $method == 1) {	$try_regex =~ s/^(.*)(\.\*)(.*)$/$3$2$1/i; }
 		elsif ( $method == 2) {	$try_regex =~ s/^(.*)(\.\*)(.*)(\.\*)(.*)$/$1$2$5/i; }
 		elsif ( $method == 3) {	$try_regex =~ s/^(.*)\.\*(.*)\.\*(.*)$/$2.*$3.*$1/i; }
@@ -358,7 +354,6 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 	}
 	chomp $song_found;
 	$song_found =~ s/\//\\/g;
-
 
 	##### THE SONG MAY HAVE MULTIPLE RESULTS, SO GO THROUGH THEM:
 	my @songs_found = split(/\n/,"$song_found");
