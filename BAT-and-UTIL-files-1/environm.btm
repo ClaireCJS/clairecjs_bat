@@ -2891,6 +2891,7 @@ rem                     if %array_exists eq 1 .or. "%1" ne "force" (goto :RGB_Ar
         rem Reset the window title:
                 title TCC
 
+
 :Possibly_Run_Next_Command
         rem Sometimes this script is passed an additional command (via 'NEXTCOMMAND' environment variable) to be run at the end:
                 if "%NEXTCOMMAND%" ne "" (%NEXTCOMMAND%)
