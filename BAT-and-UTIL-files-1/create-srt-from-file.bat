@@ -22,6 +22,35 @@ rem TODO if lyrics are approved already, don't ask about them
 :DEPENDENCIES: 2024 version: Faster-Whisper-XXL.exe delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat —— see validators for complete list
 :DEPENDENCIES: 2023 version: whisper-faster.bat delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat
 
+:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast|AutoLyricApproval} {rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  AutoLyricApproval=consider sidecar TXT files to be pre-approvedl yrics
+:USAGE: set USE_LANGUAGE=jp                ——— to encode in a different language from en, like jp
+:USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 ——— for *forced* pre-approved-lyrics mode (deprecated)
+
+
+rem ———————————————————————————————————————————————— USAGE: ———————————————————————————————————————————
+iff "%1" eq "" then 
+        gosub usage
+        goto :The_Very_END
+endiff
+goto :subroutine_definitions_end
+     :subroutine_definitions_begin
+        :usage
+                %color_advice%
+                echo USAGE:
+                echo        $0 ai  ————————————————— use AI only; no lyrics; with   normal  prompt wait times
+                echo        $0 fast ———————————————— normal execution but with shortenedp rompt wait times
+                echo        $0 ai fast ————————————— use AI only; no lyrics; with shortened prompt wait times
+                echo        $0 last ———————————————— redo the prevoius generation again [in case it was interrupted]
+                echo        $0 force ——————————————— generate even if SRT/LRC already exists
+                echo        $0 cleanup ————————————— clean up trash after transcription —— clean-up-AI-transcription-trash-files.bat also cleans these
+                echo        $0 AutoLyricApproval ——— consider all lyric files to be in APPROVED status, even if they are not marked as such                
+                echo.
+                echo ENVIRONMENT VARIABLE PARAMETERS:
+                echo        set USE_LANGUAGE=jp ——————————————————— to change the default language, for example if it's a Rammstein album, set to de
+                echo        set CONSIDER_ALL_LYRICS_APPROVED=1  ——— another way to trigger AutoLyricApproval mode
+        return
+    :subroutine_definitions_end
+
 
 
 
@@ -150,6 +179,7 @@ REM branch on certain paramters, and clean up various parameters
                 if "%special%" eq "ai"                 (set SOLELY_BY_AI=1       )
                 if "%special%" eq "fast"               (set FAST_MODE=1          )
                 if "%special%" eq "cleanup"            (set CLEANUP=1            )
+                if "%special%" eq "force"              (set FORCE_REGEN=1        )
                 if "%special%" eq "force-regen"        (set FORCE_REGEN=1        )
                 if "%special%" eq "redo"               (set FORCE_REGEN=1        )
                 if "%special%" eq "ala"                (set AUTO_LYRIC_APPROVAL=1)
@@ -175,18 +205,6 @@ REM branch on certain paramters, and clean up various parameters
         endiff    
 
 
-:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast|AutoLyricApproval} {rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  AutoLyricApproval=consider sidecar TXT files to be pre-approvedl yrics
-:USAGE: set USE_LANGUAGE=jp                ——— to encode in a different language from en, like jp
-:USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 ——— for *forced* pre-approved-lyrics mode (deprecated)
-        
-        :usage
-                echo USAGE:
-                echo        $0 ai  ——————————— use AI only; no lyrics
-                echo        $0 ai  ——————————— use AI only; no lyrics
-                echo        $0 force ————————— generate even if SRT/LRC already exists
-                echo        $0 cleanup ——————— clean up trash after transcription —— free-up-harddrive-space.bat also cleans these
-                
-        return
         
         if 1 eq %CLEANUP (goto :just_do_the_cleanup)
 
