@@ -32,16 +32,12 @@ ________________________________________________________________________________
 # NOTE: Many commands have several different aliases, for convenience-of-remembering.
 ____________________________________________________________________________________________________________
 
-# Lyric Alignment Commands:
-
+# Step 1 (optional): Lyric Alignment:
 
 ### [get-lyrics {songfile} / get-lyrics-for-song {songfile} / get-lyrics-via-multiple-sources {songfile}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat)
 
 Obtains the lyrics for a particular song, to foster proper AI transcription. These transcriptions work much better when you have a lyric set. This checks local sidecar files, local lyric repository, Genius, and Google, to obtain lyric files with as much ease possible.
 
-### [approve-lyrics / approve-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/disapprove-lyric-file.bat)
-
-Mark lyric file with approval/disapproval so that we can pre-approve lyric files in advance of transcription process. Uses [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs) to store approval tags in a database-less, file-less way.
 
 ### TODO [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat)
 
@@ -50,7 +46,7 @@ Obtain lyrics for all songs in a playlist that do not have them — Traverses a 
 ____________________________________________________________________________________________________________
 
 
-# Karaoke Creation Commands:
+# Step 2: Creating The Karaoke Files:
 
 
 ### create-srt {songfile} / [create-srt-from-file {songfile}](../BAT-and-UTIL-files-1/create-srt-from-file.bat)
@@ -75,7 +71,7 @@ Create karaoke files for all songs in a *folder tree* that do not have them, as 
 
 ____________________________________________________________________________________________________________
 
-# Karaoke Auditing Commands
+# Audit The Karaoke Files
 
 ### [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../BAT-and-UTIL-files-1/review-subtitles.bat)
 
@@ -91,7 +87,7 @@ Displays a list of files in the current folder which are missing karaoke files
 
 ### [karaoke auditor - CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
 
-Creates a list of files *in a playlist* which are missing their karaoke files.
+Processes a playlist to create a new playlist consisting of only the songs missing karaoke files.
 
 EXAMPLE:
 ```
@@ -143,6 +139,10 @@ We add "invisible" periods to the end of each line of lyrics so that WhisperAI's
 _________________________________________
 
 # Other Critical Utility commands
+
+### [approve-lyrics / approve-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/disapprove-lyric-file.bat)
+
+Marks lyric file with approval/disapproval so that we can pre-approve lyric files in advance of transcription process. Uses [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs) to store approval tags in a database-less, file-less way.
 
 ### [print_with_columns.py](../BAT-and-UTIL-files-1/print_with_columns.py) / [newspaper.bat](../BAT-and-UTIL-files-1/newspaper.bat)
 
