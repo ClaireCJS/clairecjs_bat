@@ -26,7 +26,7 @@ rem CONFIGURATION:
         rem 2022/11/23: trying to deprecate this one: start.bat 
 
         rem Only add files that live in C:\UTIL\ to this list:        
-        set SECONDARY_UTIL_FILES=mencoder.exe wget.exe wget32.exe focus-monitor.exe handle.exe hstart.exe hstart64.exe normalize.exe RemoveDrive.exe exiflist.exe speak.exe wsay.exe ansi2html.exe ansi2html.txt pizza-per-square-inch-calculator.exe wake-on-lan.exe windowhide.exe cat_fast.exe winkill.exe winkillhook.dll LaunchKey.exe girder-internet-event-client.exe msdos-player.exe taskbar-autohide.exe msdos.exe junction.exe pendmoves.exe imdisk.exe nircmd.exe x10cmd.exe grep32.exe LRCget.exe rg.exe gawk.exe Enqueueee-make.bat Enqueueee.cpp Enqueueee.cpp.original.txt enqueueee.exe Enqueueee.cpp-uses-winamp.h.txt winamp.h winamp.h-is-used-by-enqueueee.txt enqueueee2024.zip
+        set SECONDARY_UTIL_FILES=mencoder.exe wget.exe wget32.exe focus-monitor.exe handle.exe hstart.exe hstart64.exe normalize.exe RemoveDrive.exe exiflist.exe speak.exe wsay.exe ansi2html.exe ansi2html.txt pizza-per-square-inch-calculator.exe wake-on-lan.exe windowhide.exe cat_fast.exe winkill.exe winkillhook.dll LaunchKey.exe LaunchKey.cnt LaunchKey.hlp LaunchKey.txt girder-internet-event-client.exe msdos-player.exe taskbar-autohide.exe msdos.exe junction.exe pendmoves.exe imdisk.exe nircmd.exe x10cmd.exe grep32.exe LRCget.exe rg.exe gawk.exe Enqueueee-make.bat Enqueueee.cpp Enqueueee.cpp.original.txt enqueueee.exe Enqueueee.cpp-uses-winamp.h.txt winamp.h winamp.h-is-used-by-enqueueee.txt enqueueee2024.zip
         rem DECIDED AGAINST: metaflac.exe metamp3.exe metamp3.txt  lyricy.exe
 
 
