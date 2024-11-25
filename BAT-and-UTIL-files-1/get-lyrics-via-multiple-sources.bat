@@ -702,6 +702,7 @@ rem Final chance to hand-edit the lyrics if we haven't approved them yet:
 
 :have_acceptable_lyrics_now_or_at_the_very_least_are_done
 
+
 rem Final change to hand-edit the lyrics, but skip it if we already opted to search Google to save us the hassle:
         if "%WE_GOOGLED%" == "1" .and. "%AUTOMATIC_HAND_EDITING_IF_GOOGLING%" == "1" (goto :reject_hand_editing_question_and_go_straight_to_hand_editing)
         call AskYN "Hand-edit the lyrics" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME%
@@ -732,7 +733,13 @@ rem Final change to hand-edit the lyrics, but skip it if we already opted to sea
         endiff
         unset /q WE_GOOGLED
 
-rem TODO: Perhaps a prompt to reject the lyrics here {and delete the file}, i needed that in at least 1 case. it would have to default to o
+rem TODO: Perhaps a prompt to reject the lyrics here {and delete the file}, i needed that in at least 1 case. it would have to default to 0
+
+
+rem Mark the lyric file as approved/disapproved, using windows Alternate Data Streams:
+        if 1 eq %LYRICS_ACCEPTABLE call    approve-lyrics %AUDIO_FILE%
+        if 1 ne %LYRICS_ACCEPTABLE call disapprove-lyrics %AUDIO_FILE%
+
 
 rem Start our cleanup:
         :Cleanup

@@ -4,7 +4,7 @@
 
 It is a command-line song enqueue'er for WinAmp.  It adds an mp3/songfile to your current winamp playlist, as the next song after the one currently playing.
 
-Because it came with its [CPP source](../enqueueee.cpp), I was able to modify it to behave the way I wanted, which isn't the way the author wanted.  
+Because it came with its [CPP source](../BAT-and-UTIL-files-1/enqueueee.cpp), I was able to modify it to behave the way I wanted, which isn't the way the author wanted.  
 
 The original author wanted "enqueue and play immediately".  Enque'ing a song would end the current song and move to the enque'd song.
 

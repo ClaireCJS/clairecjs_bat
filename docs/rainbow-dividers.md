@@ -4,7 +4,7 @@
 
 Whether your console display is 1 column wide (what are you, a vertically-oriented electronic billboard!?!?), 40 columns wide (what are you, an Apple 2?!?), 80 columns wide (what are you, a DOS machine?!?!), or 1000 columns wide (what are you, a movie theatre screen?!), or anything in between, a divider of your width is waiting for you.
 
-If using the TCC command-line, you can generate a divider that is the proper width of your console with [divider.bat](../BAT-and-UTIL-files-1/divider.bat)
+If using the TCC command-line, you can generate a divider that is the proper width of your console with [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat)
 
 ## NOTE: You have to generate your own newline after the divider!  
 
