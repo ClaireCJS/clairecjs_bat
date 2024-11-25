@@ -1,3 +1,4 @@
+@Echo Off
 rem TODO: if cover song search fails, try with *current* artist instead of original artist
 rem       this will also help with songs that AREN'T covers but have composers.
 rem  So we will have to make a using_original flag that says if we flipped from artist to composer, and then if 
@@ -23,7 +24,6 @@ rem basically gaslight our script like it never happened. then go on with our li
 @rem ————————————————————     ████                                 ██              ——————————————————————
 @rem ————————————————————————————————————————————————————————————————————————————————————————————————————
 @rem ————————————————————————————————————————————————————————————————————————————————————————————————————
-@Echo Off
 @on break cancel
 
 
@@ -737,8 +737,11 @@ rem TODO: Perhaps a prompt to reject the lyrics here {and delete the file}, i ne
 
 
 rem Mark the lyric file as approved/disapproved, using windows Alternate Data Streams:
-        if 1 eq %LYRICS_ACCEPTABLE call    approve-lyrics %AUDIO_FILE%
-        if 1 ne %LYRICS_ACCEPTABLE call disapprove-lyrics %AUDIO_FILE%
+
+        iff exist "%PREFERRED_TEXT_FILE_NAME%" then
+                if 1 eq %LYRICS_ACCEPTABLE call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%"
+                if 1 ne %LYRICS_ACCEPTABLE call disapprove-lyrics "%PREFERRED_TEXT_FILE_NAME%"
+        endiff
 
 
 rem Start our cleanup:

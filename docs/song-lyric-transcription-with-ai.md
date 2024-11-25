@@ -12,9 +12,9 @@
 
 ## Terminology:
 
-Karaoke Files: We generally call the files we generate "karaoke file", which is shorthand for "file capable of displaying the lyrics as they are sung". This includes LRC files and SRT files.  This system generates SRT files, but post-converts them to LRC in some situations.
+*Karaoke Files*: We generally call the files we generate "karaoke file", which is shorthand for "file capable of displaying the lyrics as they are sung". This includes LRC files and SRT files.  This system generates SRT files, but post-converts them to LRC in some situations.
 
-Sidecar Files: A file of the same name, but different extension. For example, "filename.txt" is a TXT sidecar file to "filename.mp3".
+*Sidecar Files*: A file of the same name, but different extension. For example, "filename.txt" is a TXT sidecar file to "filename.mp3".
 
 ## Requirements:
 
@@ -23,13 +23,13 @@ Sidecar Files: A file of the same name, but different extension. For example, "f
 
 1. [TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html), which can also be installed with Winget via the command: ```winget install JPSoft.tcmd```.
 
-1. My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.  ```git.exe -clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` .... Technically you probably only need about 30 of these files, but detangling things is a lot of effort.
+1. My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.  ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` .... Technically you probably only need about 30 of these files, but detangling things is a lot of effort.
 
-1. Cygwin or other comparable version of ```sort``` and ```uniq``` utilities
+1. Cygwin or other comparable version of ```sort.exe``` and ```uniq.exe``` utilities
 
-1. For automatic file-trash cleanup across an entire computer, you will need the ```everything``` service to track files. (Use ```start-everything.bat``` to start it, if it doesn't start automatically.)
+1. Optoinal: For automatic file-trash cleanup across an entire computer, you will need the ```everything``` service to track files. (Use ```start-everything.bat``` to start it, if it doesn't start automatically.)
 
-1. For WinAmp integration: the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in WinAmp, allowing us to have commands that operate on "whatever song we are currently listening to".
+1. Optional: For WinAmp integration: the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in WinAmp, allowing us to have commands that operate on "whatever song we are currently listening to".
 
 ____________________________________________________________________________________________________________
 

@@ -86,7 +86,7 @@ while (<STDIN>) {
 		#song sections to get rid of
 		for ($i=1; $i<=2; $i++) {			#twice to get things like "Intro/Chorus" or "Guitar Solo/Bridge", which meant changing the regex to include an ending of / where previously it just included ]
 			#line =~   s/[\[\(]?(Intro|Sample|Hook|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)\/]?//i;
-			$line =~ s/[\[\(]? ?(Sample|Intro|Hook|Build:? ?[a-z &]+|Verse|Pre\-Chorus|Refrain|Drop|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
+			$line =~ s/[\[\(]? ?(Sample|Intro|Hook|Build:? ?[a-z &]+|Verse|Pre\-Chorus|Refrain|Drop|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Instrumental Interlude|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
 		}
 
 

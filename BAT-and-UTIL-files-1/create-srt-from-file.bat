@@ -205,6 +205,7 @@ REM branch on certain paramters, and clean up various parameters
         endiff    
 
 
+        rem echo AUTO_LYRIC_APPROVAL is %AUTO_LYRIC_APPROVAL% 🐐 %+ pause
         
         if 1 eq %CLEANUP (goto :just_do_the_cleanup)
 
@@ -212,7 +213,6 @@ REM branch on certain paramters, and clean up various parameters
 
               
         rem todo: consider going back to the top of this section 2 or 3 times for easier simultaneous option stacking but then you gotta think about what all the combinations really mean
-
 
 
  
@@ -332,8 +332,11 @@ REM if we already have a SRT file, we have a problem:
                         set OKAY_THAT_WE_HAVE_SRT_ALREADY=1
 
                         rem TODO show lyrics again?
-                        @call AskYN "Use either existing or new lyrics?" no %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME% %+ rem todo make unique wait time for this
-                        iff "%ANSWER%" eq "Y" then
+                        
+                        set DEFAULT_ANSWER_FOR_THIS=no
+                        if 1 eq %AUTO_LYRIC_APPROVAL% (set DEFAULT_ANSWER_FOR_THIS=yes)
+                        @call AskYN "Use either existing or new lyrics?" %DEFAULT_ANSWER_FOR_THIS% %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME% %+ rem todo make unique wait time for this
+                        iff "%ANSWER%" eq "Y" .and. 1 ne %AUTO_LYRIC_APPROVAL then
                                 call get-lyrics "%AUDIO_FILE%"
                         endiff
                         set GOTO_FORCE_AI_GEN=1
@@ -351,7 +354,7 @@ REM if we already have a SRT file, we have a problem:
 
 REM If "%SOLELY_BY_AI%" eq "1", we nuke the LRC/SRT file and go straight to AI-generating, and we only use the TEXT
 REM file if it is pre-approved or we are set in AutoLyricsApproval mode:
-        iff "%SOLELY_BY_AI%" eq "1" then
+        iff 1 eq %SOLELY_BY_AI% .and. 1 ne %AUTO_LYRIC_APPROVAL% then
                 @call important_less "Forcing AI generation..."
                 if exist "%LRC_FILE%" (ren /q "%LRC_FILE%" "%@NAME[%LRC_FILE%].lrc.%_datetime.bak")
                 if exist "%SRT_FILE%" (ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak")
@@ -360,7 +363,8 @@ REM file if it is pre-approved or we are set in AutoLyricsApproval mode:
         endiff
 
 REM If we say "force", skip the already-exists check and contiune
-        iff "%2" eq "force" then
+        rem or. 1 eq %AUTO_LYRIC_APPROVAL
+        iff 1 eq %FORCE_REGEN then
                 if exist "%LRC_FILE%" (ren /q "%LRC_FILE%" "%@NAME[%LRC_FILE%].lrc.%_datetime_.bak")
                 rem do not do this, we're just skipping the check, that's all:
                 rem if exist "%SRT_FILE%" (ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak")
@@ -369,7 +373,7 @@ REM If we say "force", skip the already-exists check and contiune
                 REM At this point, we are NOT in force mode, so:
                 REM At this point, if an LRC file already exists, we shouldn't bother generating anything...
                         rem if exist %LRC_FILE% (@call error   "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!" %+ call cancelll)
-                            if exist %LRC_FILE% (@call warning "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!%" silent %+ goto :END)
+                            if exist %LRC_FILE% .and. goatgoat (@call warning "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!%" silent %+ goto :END)
 
         endiff
 
@@ -408,8 +412,8 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 goto :END
         else
                 @echo %ansi_color_warning_soft%%star% Not yet generating %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning_soft% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning_soft% does not exist!%ansi_color_normal%
-                @echo %ansi_color_advice%`---->` Use '%italics_on%force%italics_off%' option to override.
-                @echo %ansi_color_advice%`---->` Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!
+                rem Let's save this for our usage response: @echo %ansi_color_advice%`---->` Use '%italics_on%force%italics_off%' option to override.
+                rem Let's save this for our usage response: @echo %ansi_color_advice%`---->` Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!
                 iff %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST gt 0 then
                     call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
                 endiff
@@ -545,7 +549,9 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
         rem NOTE: We also have --batch_recursive - {automatically sets --output_dir}
 
 
+        if 1 eq %AUTO_LYRIC_APPROVAL goto :use_text
         if not exist %TXT_FILE% .or. %SKIP_TEXTFILE_PROMPTING eq 1 .or. (1 eq %SOLELY_BY_AI .and. 1 ne %AUTO_LYRIC_APPROVAL%) (goto :No_Text)
+                :use_text
                 rem the text file %TXT_FILE% does in fact exist!
                 setdos /x-1
                         rem 2023 method: set CLI_OPS=%CLI_OPS% --initial_prompt "Transcribe this audio, keeping in mind that I am providing you with an existing transcription, which may or may not have errors, as well as header and footer junk that is not in the audio you are transcribing. Lines th at say 'downloaded from' should definitely be ignored. So take this transcription lightly, but do consider it. The contents of the transcription will have each line separated by ' / '.   Here it is: ``
@@ -732,7 +738,8 @@ REM delete zero-byte LRC files that can be created
         
 REM Post-process the SRT file:
 rem Remove periods from the end of each line in the SRT, but preserve them if at the end of a common word like "Mr.", "Ms.", or if "...":
-        echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%LRC%italics_off% and %italics_on%SRT%italics_off% files...
+        call divider
+        echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%SRT%italics_off% and %italics_on%LRC%italics_off% files...
         if exist "%LRC_FILE%" (remove-period-at-ends-of-lines.pl -w "%LRC_FILE%")
         if exist "%SRT_FILE%" (remove-period-at-ends-of-lines.pl -w "%SRT_FILE%")
         echo ...%CHECK% %ANSI_COLOR_GREEN%Success%BOLD_ON%!%BOLD_OFF%%ANSI_COLOR_NORMAL%
@@ -803,7 +810,7 @@ rem Cleanup:
         rem So we must delete at least the first one, if it exists.  We use our get-lyrics script in SetVarsOnly mode:
         rem moved to beginning: call get-lyrics-via-multiple-sources "%SONGFILE%" SetVarsOnly
         rem ...which sets MAYBE_LYRICS_1 and MAYBE_LYRICS_2
-        echo %ansi_color_debug%- DEBUG: (7) Checking if exists: '%underline_on%%MAYBE_LYRICS_2%%underline_off%' for deprecation%ansi_color_normal%
+        rem echo %ansi_color_debug%- DEBUG: (7) Checking if exists: '%underline_on%%MAYBE_LYRICS_2%%underline_off%' for deprecation%ansi_color_normal%
         iff exist "%MAYBE_LYRICS_2%" then
                 rem call deprecate "%MAYBE_LYRICS_2%"
                 set NEWNAME=%@NAME[%MAYBE_LYRICS_2%].lyr
@@ -827,7 +834,7 @@ rem Success SRT-generation message:
 
 
 rem A chance to edit:
-        @echo.
+        rem @echo.
         rem TODO don't do this *always*:
         iff "%LYRICS_ACCEPTABLE%" != "0" then
                 iff not exist "%TXT_FILE%" .or. %@FILESIZE["%TXT_FILE%"] eq 0 then
@@ -853,19 +860,19 @@ rem A chance to edit:
 
 rem Full-endeavor success message:
         @call divider
-        @call success "'%italics_on%%BASE_TITLE_TEXT%%italics_off%' generated successfully!"
-        title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
+        @call success "'%italics_on%%SRT_FILE%%italics_off%' generated successfully!"
+        title %CHECK% %SRT_FILE% generated successfully! %check%             
         @call askyn  "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME% notitle
         iff "%ANSWER" == "Y" then
                 @echo %ANSI_COLOR_DEBUG%%EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
-                title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
+                title %check% %SRT_FILE% generated successfully! %check%             
                 iff not exist "%TXT_FILE%" then
                         %EDITOR% "%SRT_FILE%" 
                 else
                         %EDITOR% "%TXT_FILE%" "%SRT_FILE%" 
                 endiff
         endiff
-        title %check% %BASE_TITLE_TEXT% generated successfully! %check%             
+        title %CHECK% %SRT_FILE% generated successfully! %check%             
         if %SOLELY_BY_AI eq 1 (call warning "ONLY AI WAS USED. Lyrics were not used for prompting")
 
 :END

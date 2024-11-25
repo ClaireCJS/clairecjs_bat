@@ -55,7 +55,7 @@
 2024-11-19  02:23            113    8%  app-volume-and-device-preferences.bat
 1996-04-15  19:12          2,238   69%  app-volume-and-device-preferences.ico
 2024-10-07  14:28          2,115   62%  app-volume-and-device-preferences.lnk
-2024-11-24  21:12          1,038   50%  approve-lyric-file.bat
+2024-11-25  03:41          1,041   51%  approve-lyric-file.bat
 2024-11-19  07:37             51   -3%  approve-lyrics.bat
 2024-11-20  16:34             52    4%  ascii.bat
 2024-11-11  16:01         17,285   74%  askYN.bat
@@ -203,7 +203,7 @@
 2024-11-23  23:44            134   33%  create-missing-karaoke-files.bat
 2024-11-23  23:44          1,055   51%  create-srt-file-for-currently-playing-song.bat
 2024-11-23  23:44            194   36%  create-srt-for-soundclip.bat
-2024-11-24  20:49         68,030   75%  create-srt-from-file.bat
+2024-11-25  03:39         70,140   75%  create-srt-from-file.bat
 2024-11-23  23:44            354   45%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
 2024-11-19  07:35         24,800   80%  create-symlinks.bat
@@ -255,7 +255,7 @@
 2024-11-19  07:36             36   -5%  dir-by-creation-date.bat
 2024-11-19  07:36             36   -5%  dir-by-modification-date.bat
 2024-11-19  07:36             36    0%  disable-windows-key.bat
-2024-11-24  21:10            920   52%  disapprove-lyric-file.bat
+2024-11-25  03:40          1,043   52%  disapprove-lyric-file.bat
 2024-11-19  07:36             53   -3%  disapprove-lyrics.bat
 2024-11-12  17:27          2,445   58%  display-ADS-tag-from-file.bat
 2024-11-19  07:36            434   44%  display-all-@CHARs.bat
@@ -969,7 +969,7 @@
 2024-11-19  15:03            318   42%  undep.bat
 2024-11-19  15:03             66   -3%  unimportant.bat
 2024-03-31  05:05            211   31%  uniq-relaxed.pl
-2024-11-22  23:54          7,242   60%  unique-lines.pl
+2024-11-25  03:36          7,265   60%  unique-lines.pl
 2024-11-19  15:03            553   54%  unknown-shipper-tracking.bat
 2024-11-19  21:34             53   -3%  unknown-tracking.bat
 2024-11-19  21:34             39   -5%  unlock-header.bat
@@ -1002,7 +1002,7 @@
 2024-11-23  00:06         17,470   76%  validate-environment-variable.bat
 2024-11-16  19:00            427   45%  validate-environment-variables.bat
 2024-11-19  15:02             54   -1%  validate-extension.bat
-2024-11-16  19:00          3,869   67%  validate-file-extension.bat
+2024-11-25  03:28          4,038   67%  validate-file-extension.bat
 2024-11-16  19:00            547   60%  validate-filelist.bat
 2024-11-16  19:00            636   47%  validate-filelist.pl
 2024-11-23  23:44         12,315   76%  validate-function.bat
