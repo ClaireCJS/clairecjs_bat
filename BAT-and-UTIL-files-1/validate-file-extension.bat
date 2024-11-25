@@ -53,9 +53,10 @@ rem VALIDATE: Check each extension in extension list and see if it matches our f
 rem ERROR: At this point, all checks have failed and the file is not valid!
         set VAL_FILE_EXT_ERR_MSG=*** Validation of file '%VALIDATION_FILE%' failed because it's extension is not one of: '%italics%%underline%%EXTENSION_LIST_TO_USE%%italics_off%%underline_off%'
 
-        call warning "calling file = %_PBATCHNAME"
-        call warning "Parameters: %italics_on%%VEVPARAMS%%italics_off%"
-        call warning "       CWP: %_CWP"
+        call divider
+        call warning "Calling File: %_PBATCHNAME"                         silent
+        call warning "  Parameters: %italics_on%%VEVPARAMS%%italics_off%" silent
+        call warning "         CWD: %_CWD"                                silent
 
         iff "%CUSTOM_ERR_MSG%" eq "" then
                 echos %ANSI_COLOR_ERROR%
@@ -65,14 +66,15 @@ rem ERROR: At this point, all checks have failed and the file is not valid!
                 call fatal_error %VAL_FILE_EXT_ERR_MSG%
                 repeat 2 echo.
         else
-                echos %ANSI_COLOR_FATAL_ERROR%
+                rem echos %ANSI_COLOR_FATAL_ERROR%
                 call divider
-                echos %ANSI_COLOR_FATAL_ERROR%
-                call bigecho %VAL_FILE_EXT_ERR_MSG% 
-                echo  %ANSI_COLOR_FATAL_ERROR%
+                rem echos %ANSI_COLOR_FATAL_ERROR%
+                call bigecho %ANSI_COLOR_FATAL_ERROR%%VAL_FILE_EXT_ERR_MSG%%ANSI_COLOR_NORMAL%
+                rem echo  %ANSI_COLOR_FATAL_ERROR%
                 call divider
-                echo.
                 call fatal_error %CUSTOM_ERR_MSG%
+                goto :END
+                cancel
         endiff
 
 :Validated_File_Extension_Successfully

@@ -47,6 +47,10 @@ Obtains the lyrics for a particular song, to foster proper AI transcription. The
 
 Obtain lyrics for all songs in a playlist that do not have them — Traverses a playlist, running ```get-lyrics``` on every file in the playlist. (In random order, to prevent alphabetical bias.)
 
+### dls / [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat)
+
+Displays the lyric status (approved, unapproved, or unset) for all lyric files in current folder.
+
 ____________________________________________________________________________________________________________
 
 
@@ -72,6 +76,9 @@ Create karaoke files for all songs *in a playlist* that do not have them — Tra
 Create karaoke files for all songs in a *folder tree* that do not have them, as long as their lyric file has been previously approved. This is intended so one can spend 100% of time aligning/approving lyrics (i.e. with ```get-lyrics-for-playlist.bat```), then go to bed and run this to generate everything that has pre-approved lyrics, saving the karaoke generation for another time (like when you are asleep). 
 
 
+### [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat)
+
+Create karaoke files for all songs in a *folder tree* without using lyric files or voice detection (VAD). This is useful for folders of sound clips and small samples, where you just want to get a lot done with very little scrutiny.
 
 ____________________________________________________________________________________________________________
 

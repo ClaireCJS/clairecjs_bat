@@ -715,9 +715,21 @@ return
  
 
     ::::: 2024 STUFF:
-            set         VALIDATE_MULTIPLE=0 %+ rem if validate-environment-variables gets aborted and this flag is set to 1, it can create a phantom error, so let's just keep it set to 0 when possible
-            set WINDOWS_TERMINAL_SETTINGS=%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
-            set    DEFAULT_TAB_STOP_WIDTH=4
+        rem Maintanance for cleaning up after common scripts:
+                rem Clean up after an aborted validate-environment-variable[s].bat:
+                    set VALIDATE_MULTIPLE=0         
+        rem codepage: To maintain sanity when changing it, let's not forget what it's been for decades
+                    set CODEPAGE_WE_USED_FOR_DECADES=437
+                    set CODEPAGE_WE_THINK_WE_MIGHT_WANT_TO_START_USING=65001
+                    set DEFAULT_CODEPAGE=%CODEPAGE_WE_USED_FOR_DECADES%
+                    set PERL_CODEPAGE=%CODEPAGE_WE_THINK_WE_MIGHT_WANT_TO_START_USING%
+        rem Windows Terminal stuff:
+                rem Windows Terminal settings file location:
+                    set WINDOWS_TERMINAL_SETTINGS=%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+                     %gosubValidateFolderExists% %@left[1,%_windir] WINDOWS_TERMINAL_SETTINGS 
+                rem The default tab-stop width for our display —— this is NOT the tab width for your text editor, but for ANSI!
+                rem Should almost definitely be kept at 4, and is only meant for experimentation and fixing programs that rely on assumed tab stop widths that aren't 4 (like colortoool.exe)
+                    set DEFAULT_TAB_STOP_WIDTH=4
 
     ::::: 2023 STUFF:
             set MAXIMUM_TIME_FOR_TCC_TO_START=4
@@ -1101,6 +1113,7 @@ return
 		::::: 1990s STUFF:
 			SET DIRCMD=/e/j
 			SET PERL4=c:\util\perl4.exe
+                        rem set PERL_CODEPAGE=%CODEPAGE_WE_THINK_WE_MIGHT_WANT_TO_START_USING% is done in the "2024" section above
 		::::: 2010s STUFF:
             ::::: ALPHABET/LETTER HARD-CODINGS, FOR REASONS:
                 SET THE_ALPHABET=A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
@@ -1405,6 +1418,7 @@ return
         %gosub_stopwatch_button% magenta "      DefineRepositories [5]          " %+ rem 1.20  !!
 
         ::programming libraries I maintain
+            rem set PERL_CODEPAGE= is done in the "2024" section above
             set PERL_OFFICIAL_DRIVE=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%
             set PERL_OFFICIAL_PATH=\perl\perl
             set PERL_OFFICIAL=%PERL_OFFICIAL_DRIVE%:%PERL_OFFICIAL_PATH%
@@ -1771,6 +1785,7 @@ return
                 set PROGRAMMING_SANDBOX_DRIVE_BACKUP=%HD18T3%
                 set PROGRAMMING_SANDBOX_BACKUP=%PROGRAMMING_SANDBOX_DRIVE_BACKUP%:\backups\working.bak.Demona
             rem ::Perl
+                rem set PERL_CODEPAGE= is done in the "2024" section above
                 set PERL_CLAIRE_DRIVE=%HD1T3%
                 set PERL_CLAIRE=%PERL_CLAIRE_DRIVE%:\perl\
                 set PERL_CLAIRE_DRIVE_BACKUP=%HD18T1%

@@ -239,13 +239,15 @@ rem ANSI: cursor position movement
             set ANSI_MOVE_UP_1=%ESCAPE%M                                    %+ rem moves cursor one line up, scrolling if needed
                 set ANSI_MOVE_UP_ONE=%ANSI_MOVE_UP_1%                       %+ rem alias
             function ANSI_MOVE_UP=`%@CHAR[27][%1A`                          %+ rem moves cursor up # lines
-                function ANSI_UP=`%@CHAR[27][%1A`	                        %+ rem alias
+                function ANSI_UP=`%@CHAR[27][%1A`	                    %+ rem alias
             function ANSI_MOVE_DOWN=`%@CHAR[27][%1B`	                    %+ rem moves cursor down # lines
                 function ANSI_DOWN=`%@CHAR[27][%1B`                         %+ rem alias
-            function ANSI_MOVE_RIGHT=`%@CHAR[27][%1C`	                    %+ rem moves cursor right # columns
-                function ANSI_RIGHT=`%@CHAR[27][%1C`	                    %+ rem alias
-            function ANSI_MOVE_LEFT=`%@CHAR[27][%1D`	                    %+ rem moves cursor left # columns
-                function ANSI_LEFT=`%@CHAR[27][%1D`                         %+ rem alias
+            function         ANSI_MOVE_RIGHT=`%@CHAR[27][%1C`	            %+ rem moves cursor right # columns
+                function          ANSI_RIGHT=`%@ANSI_MOVE_RIGHT[%1$]`       %+ rem alias
+                function  ANSI_MOVE_TO_RIGHT=`%@ANSI_MOVE_RIGHT[%1$]`	    %+ rem moves cursor left # columns
+            function          ANSI_MOVE_LEFT=`%@CHAR[27][%1D`	            %+ rem moves cursor left # columns
+                function           ANSI_LEFT=`%@ANSI_MOVE_LEFT[%1$]`        %+ rem alias
+                function   ANSI_MOVE_TO_LEFT=`%@ANSI_MOVE_LEFT[%1$]`	    %+ rem moves cursor left # columns
 
         rem Line-based:
             function   ANSI_MOVE_LINES_UP=`%@CHAR[27][%1F`                  %+ rem moves cursor to beginning of previous line, # lines up
