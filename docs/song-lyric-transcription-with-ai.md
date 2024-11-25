@@ -2,9 +2,13 @@
 
 ## Goal:
 
-General goal: To automate AI transcription of music such that lyrics are displayed as they are sung
+*General goal*: To see the lyrics to music highlighted as they are sung
 
-Specific goal: To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
+*Technical goal*: To automate AI transcription of music into karaoke files
+
+*Specific technical goal*: To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
+
+*Practical technical goal*: To obtain accurate lyrics for songs, which are then used as a prompt to transcribe songs into karaoke files.
 
 ## Terminology:
 
@@ -19,11 +23,11 @@ Sidecar Files: A file of the same name, but different extension. For example, "f
 
 1. [TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html), which can also be installed with Winget via the command: ```winget install JPSoft.tcmd```.
 
-1. My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.  ```git.exe -clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\```
+1. My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.  ```git.exe -clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` .... Technically you probably only need about 30 of these files, but detangling things is a lot of effort.
 
 1. Cygwin or other comparable version of ```sort``` and ```uniq``` utilities
 
-1. For automatic file-trash cleanup across an entire computer, you will need the ```everything``` service to track files. (Use ```start-everything.bat``` to start it)
+1. For automatic file-trash cleanup across an entire computer, you will need the ```everything``` service to track files. (Use ```start-everything.bat``` to start it, if it doesn't start automatically.)
 
 1. For WinAmp integration: the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in WinAmp, allowing us to have commands that operate on "whatever song we are currently listening to".
 
@@ -71,7 +75,7 @@ Create karaoke files for all songs in a *folder tree* that do not have them, as 
 
 ____________________________________________________________________________________________________________
 
-# Audit The Karaoke Files
+# Audit The Karaoke Files / Find Music That Needs Karaoke
 
 ### [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../BAT-and-UTIL-files-1/review-subtitles.bat)
 
@@ -99,7 +103,7 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 ____________________________________________________________________________________________________________
 
 
-# WinAmp Integration Commands
+# WinAmp Integration Commands / Ability To Operate On Song Currently Being Listened To
 
 ### [get-lyrics-for-currently-playing-song ](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat)
 
