@@ -748,7 +748,8 @@ rem Start our cleanup:
 
 
 rem While we're here, create LRCs from pre-existing SRTs?:
-        rem Currently: No. We prefer to do this *after* making our SRT: 
+        rem Currently: No. We prefer to do this *after* making our SRT:
+        rem ❓ or perhaps even only if we absolutely have to (for eccsrt2lrc2clip.bat) ❓
         rem srt2lrc.py
 
 
@@ -776,11 +777,15 @@ rem Validate we did something:
 :SetVarsOnly_skip_to_2
 :The_VERY_End
 
-if exist "__" (*del /q "__">nul)
-unset /q WE_GOOGLED
-rem unset /q LYRIC_RETRIEVAL_1_FAILED
-unset /q LD1_MASSAGED_ATTEMPT_1
-unset /q TRY_SELECTION_AGAIN
-unset /q ONLY_ONE_FILE_AND_IT_WAS_TRIED
-unset /q cover_original_attempt
+rem Clean our temporary file:
+        if exist "__" (*del /q "__">nul)
+        
+rem Unset various envirnment variables that we realllllllly want unset:        
+        unset /q WE_GOOGLED
+        unset /q TRY_SELECTION_AGAIN
+        unset /q COVER_ORIGINAL_ATTEMPT
+        unset /q LD1_MASSAGED_ATTEMPT_1
+        unset /q ONLY_ONE_FILE_AND_IT_WAS_TRIED
+    rem unset /q LYRIC_RETRIEVAL_1_FAILED       //leave this one for auditing
+
 

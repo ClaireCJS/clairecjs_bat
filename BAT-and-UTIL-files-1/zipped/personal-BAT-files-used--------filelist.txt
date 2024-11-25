@@ -454,6 +454,7 @@
 2024-11-19  07:49          6,395   61%  git.bat
 2024-11-19  07:49            246   24%  github.bat
 2024-11-19  07:49             36   -5%  go-to-bat-file-folder.bat
+2024-11-25  02:12          1,265   60%  go-to-currently-playing-song-dir.bat
 2024-05-10  10:38          3,538   62%  go-to-next-directory-generator.pl
 2024-11-19  07:49             99   26%  go-to-video-repository.bat
 2024-11-19  07:49            183   25%  google.bat
