@@ -79,7 +79,7 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
         %copy%     "%WINDOWS_TERMINAL_SETTINGS" %TARGET_MAIN%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
         %copy_S%    %DIVIDERS_FOLDER%           %TARGET_MAIN%\dividers
         %copy_S%    %SAMPLES_FOLDER%            %TARGET_MAIN%\samples
-        %copy_S%    %DOCS_FOLDER%               %TARGET_MAIN%\docs
+        %copy_S%    %DOCS_FOLDER%                           .\docs
         %copy_S% /E %PYTHON_LIBRARIES_DIR%             c:\bat\clairecjs_utils
         %copy_S% /E %PYTHON_LIBRARIES_DIR%      %TARGET_MAIN%\clairecjs_utils
         %copy%      %0                          %TARGET_MAIN%                                        %+ rem Yes, we are copying THIS script too——it only lives in my dev folder
