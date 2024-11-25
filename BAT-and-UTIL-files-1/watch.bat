@@ -79,7 +79,7 @@ rem ARGUMENTS CONVERTED TO SEMICOLON-DELIMITED BECAUSE THAT'S WHAT MANY COMMANDS
 
 
 rem RUN A DAEMON THAT KEEPS KILLING PROCESSES (like slui.exe) THAT TEND TO INTERRUPT OUR VIEWING BY POPPING US OUT OF FULLSCREEN MODE:
-	if %SLAY_SLUI eq 1 (start /min keep-killing-if-running slui slui 30 media.player.classic exitafter)
+	if %SLAY_SLUI eq 1 (start "slui-killer" /min keep-killing-if-running slui slui 30 media.player.classic exitafter)
 
 
 rem START THE AMBILIGHT IF NOT ALREADY STARTED:

@@ -1,2 +1,2 @@
 @on break cancel
-start %APPDATA%\uTorrent\uTorrent.exe
+start "" %APPDATA%\uTorrent\uTorrent.exe

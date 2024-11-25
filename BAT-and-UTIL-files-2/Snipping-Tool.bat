@@ -7,5 +7,5 @@ call killIfRunning SnippingTool SnippingTool
 if not exist "%SNIPPING_TOOL%" .and. exist %LOCALAPPDATA%\Microsoft\WindowsApps\SnippingTool.exe (set SNIPPING_TOOL=%LOCALAPPDATA%\Microsoft\WindowsApps\SnippingTool.exe)
                                                                    call validate-environment-variable SNIPPING_TOOL
                                                                    call less_important       "Running Snipping tool..."
-                                                                                              start "%SNIPPING_TOOL%"
+                                                                                              start "snip" "%SNIPPING_TOOL%"
 

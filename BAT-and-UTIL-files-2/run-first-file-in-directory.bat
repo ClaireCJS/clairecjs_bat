@@ -12,7 +12,7 @@ if %ERROR eq 1 goto :Nope
                       set MY_START=
 if %RFFID_START eq 1 (set MY_START=start)
 
-%MY_START% "%FIRST_FILE%"  %+ REM we usually don't use 'start' here because we want our command-line handlers to override our GUI-handlers because there are programs that can permanently screw up a windows install if you run them in a GUI and associate it as the default program by accident. I'm looking at you, Irfanview
+%MY_START% "%FIRST_FILE%" "%FIRST_FILE%"  %+ REM we usually don't use 'start' here because we want our command-line handlers to override our GUI-handlers because there are programs that can permanently screw up a windows install if you run them in a GUI and associate it as the default program by accident. I'm looking at you, Irfanview
 
 
 

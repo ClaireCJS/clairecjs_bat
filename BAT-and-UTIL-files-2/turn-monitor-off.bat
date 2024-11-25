@@ -26,7 +26,7 @@ rem PHYSICAL CONSIDERATIONS:
 
 :rem TURN THE MONITORS OFF:
         title Running nircmd.exe monitor off
-                echo DO IT YOURSELF IF YOU REALLY WANT THIS: start nircmd.exe monitor off
+                echo DO IT YOURSELF IF YOU REALLY WANT THIS: start "" nircmd.exe monitor off
         title Nircmd done
 
 

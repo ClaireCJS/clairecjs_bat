@@ -14,7 +14,7 @@ rem Validate environment:
 rem Run TTRGB:
         pushd .
                 "%DIR%\"
-                start %EXE%
+                *start "" %EXE%
                 call wait 12 "(waiting for %italics_on%TTRGB%italics_off% to start)"
                 activate "TT RGB Plus" tray
         popd

@@ -140,7 +140,7 @@ goto :END
     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     :unmount
         :first we do the graceful, then we do the forceful:
-        start unmount-ramdisk %DRIVE_TO_SYNC_TO% exitafter
+        start "" unmount-ramdisk %DRIVE_TO_SYNC_TO% exitafter
         delay 3
     return
     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

@@ -41,8 +41,8 @@ goto :END
                             :-m2 = second monitor
                             :-[ar]:3000 advance/random 3000 ms
                             "C:\Program Files\FastPictureViewer\"
-                            echo  FastPictureViewer.exe -c "%DIR%" -k -m:2 -a:3000 
-                            start FastPictureViewer.exe -c "%DIR%" -k -m:2 -a:3000 
+                            echo     FastPictureViewer.exe -c "%DIR%" -k -m:2 -a:3000 
+                            start "" FastPictureViewer.exe -c "%DIR%" -k -m:2 -a:3000 
                             call sleep 2
                             LaunchKey "+a"
                         popd

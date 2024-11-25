@@ -66,6 +66,11 @@ REM Above all else, the music must flow —— but only if it's the music server
 
 
 
+rem Girder?
+        if     isdir c:\girder (call start-girder)
+        if not isdir c:\girder (call warning "not starting girder")
+                
+        
 
 
 rem Things for our primary machines only:

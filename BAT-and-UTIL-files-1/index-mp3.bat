@@ -13,7 +13,7 @@ goto %OS
 	:Windows_NT
     :10
     :11
-        call validate-in-path      splv
+                call validate-in-path      splv
 		call splv                 %INDEXER%         %*
 		goto :END
 

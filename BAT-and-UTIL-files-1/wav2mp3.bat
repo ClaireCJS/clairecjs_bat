@@ -54,10 +54,11 @@
 
 
 ::::: DO THE ACTUAL ENCODE:
-    :20140623 - we dropped the -k option, for some reason
-    :20150716 - we dropped the -m j (stereo) default option in favor of the perl generator (allfilew2m.pl) adding either "-m j" or "-m m", so that mono stuff is encoded in mono (once again, in a post-Xing environment)
-    color   red on black %+ echo *** %START% %UTIL%\lame.exe -V %QUALITY% %CHANNELS% %ARTWORKOPTIONS% %OTHEROPTIONS% %MIN -h "%@UNQUOTE[%SOURCE_WAV%]" %TARGET_MP3% %5 %6 %7 %8 %9
-    color white on black %+          %START% %UTIL%\lame.exe -V %QUALITY% %CHANNELS% %ARTWORKOPTIONS% %OTHEROPTIONS% %MIN -h "%@UNQUOTE[%SOURCE_WAV%]" %TARGET_MP3% %5 %6 %7 %8 %9
+    rem :20140623 - we dropped the -k option, for some reason
+    rem :20150716 - we dropped the -m j (stereo) default option in favor of the perl generator (allfilew2m.pl) adding either "-m j" or "-m m", so that mono stuff is encoded in mono (once again, in a post-Xing environment)
+    rem :20241125 - added "" to start command to update to current proper invocation and stop using our bat file that promoted incorrect invocation
+    color   red on black %+ echo *** %START% "" %UTIL%\lame.exe -V %QUALITY% %CHANNELS% %ARTWORKOPTIONS% %OTHEROPTIONS% %MIN -h "%@UNQUOTE[%SOURCE_WAV%]" %TARGET_MP3% %5 %6 %7 %8 %9
+    color white on black %+          %START% "" %UTIL%\lame.exe -V %QUALITY% %CHANNELS% %ARTWORKOPTIONS% %OTHEROPTIONS% %MIN -h "%@UNQUOTE[%SOURCE_WAV%]" %TARGET_MP3% %5 %6 %7 %8 %9
 
 ::::: SOME OLD NOTES:
         ::: quality 9   is about    32kbps        vbr [GUESSING]

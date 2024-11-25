@@ -139,7 +139,7 @@ goto :Cleanup
     set NO_GIT_ADD_PAUSE=0
                                                                                                    unset /q MIN 
     if "%1" eq "MINIMIZE" .or. "%2" eq "MINIMIZE" .or. "%3" eq "MINIMIZE" .or. "%4" eq "MINIMIZE" (  set    MIN=/min)
-    set Command_To_Use=start %MIN% if isdir c:\bat exitcopy /s /e /u /w /a: /[!.git *.bak] c:\bat
+    set Command_To_Use=start "Dist'ing..." %MIN% if isdir c:\bat exitcopy /s /e /u /w /a: /[!.git *.bak] c:\bat
     gosub :doit
     rem Create a file as a way to timestamp the last time this was done:
     >"__ last dist __"
