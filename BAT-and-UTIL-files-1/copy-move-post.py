@@ -88,7 +88,7 @@ FOOTERS = [                                                                     
            "dirs would be copied"  , "dir would be copied"   ,
            "dirs would be moved"   , "dir would be moved"    ,
            "dirs would be deleted" , "dir would be deleted"  ,
-           "Standalone Faster-Whisper-XXL r192.3.4 running on: CUDA"
+           "Standalone Faster-Whisper-XXL r"
           ]
 file_removals  = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                    #values that indicate a file deletion/removal
 sys.stdout     = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                    #utf-8 fix
@@ -150,6 +150,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     if whisper_ai:
         additional_beginning_ansi=""         #kludging a situation
     else:
+        #🐐🐄could add translate like a footer but with faint or indent or something and only in whisperai mode
         if any(substring in line_buffer for substring in FOOTERS):                                                  #identify if we're in a footer/summary line
             line_buffer = enclose_numbers(line_buffer)
             double      = True

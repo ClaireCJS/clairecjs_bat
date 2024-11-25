@@ -81,7 +81,7 @@ goto :END
                                          echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%
                                 goto :PostprocessYesDone
                                 :PostprocessYes
-                                        echo echo FIXED_COMMAND is %FIXED_COMMAND%
+                                        rem echo %ansi_color_debug%- DEBUG: FIXED_COMMAND is: %FIXED_COMMAND% %ansi_color_normal%
                                         echos %@RANDFG_SOFT[]
                                         (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%) |&:u8 copy-move-post.py |:u8 fast_cat
                                 :PostprocessYesDone

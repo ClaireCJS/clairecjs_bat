@@ -739,9 +739,11 @@ rem TODO: Perhaps a prompt to reject the lyrics here {and delete the file}, i ne
 rem Mark the lyric file as approved/disapproved, using windows Alternate Data Streams:
 
         iff exist "%PREFERRED_TEXT_FILE_NAME%" then
+                call divider
                 if 1 eq %LYRICS_ACCEPTABLE call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%"
                 if 1 ne %LYRICS_ACCEPTABLE call disapprove-lyrics "%PREFERRED_TEXT_FILE_NAME%"
         endiff
+        call divider
 
 
 rem Start our cleanup:

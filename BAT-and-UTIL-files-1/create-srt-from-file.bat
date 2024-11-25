@@ -300,7 +300,7 @@ REM if we already have a SRT file, we have a problem:
                         endiff
                         @call divider
                 endiff
-                @call bigecho %ansi_color_warning%%emoji_warning%Already have karaoke!%emoji_warning%%ansi_color_normal%
+                @call bigecho %ansi_color_warning% %emoji_warning% Already have karaoke! %emoji_warning% %ansi_color_normal%
                 @call warning "We already have a file created: %emphasis%%srt_file%%deemphasis%"
                 call review-subtitles "%srt_file%"
                 call divider
@@ -373,7 +373,7 @@ REM If we say "force", skip the already-exists check and contiune
                 REM At this point, we are NOT in force mode, so:
                 REM At this point, if an LRC file already exists, we shouldn't bother generating anything...
                         rem if exist %LRC_FILE% (@call error   "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!" %+ call cancelll)
-                            if exist %LRC_FILE% .and. goatgoat (@call warning "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!%" silent %+ goto :END)
+                            if exist %LRC_FILE% (@call warning "Sorry, but %bold%LRC%bold_off% file '%italics%%LRC_FILE%%italics_off%' %underline%already%underline_off% exists!%" silent %+ goto :END)
 
         endiff
 
@@ -685,7 +685,7 @@ REM set a non-scrollable header on the console to keep us from getting confused 
 REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI:
         rem Cosmetics:
             @echo.
-            @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% AI running! %EMOJI_FIREWORKS%%ansi_color_normal%
+            @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% Launching AI! %EMOJI_FIREWORKS%%ansi_color_normal%
             title waiting: %BASE_TITLE_TEXT%
 
         rem One last concurrency check:
@@ -711,6 +711,7 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto :Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
 
         rem ACTUALLY DO IT!!!:
+                echo. %+ rem this is the blank line after 'launching ai'
                 option //UnicodeOutput=yes
                 rem %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper 
                 rem %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper |&:u8 tee /a "%OUR_LOGFILE%"
@@ -827,7 +828,7 @@ rem Cleanup:
 
 rem Success SRT-generation message:
         @call divider
-        @call success "Karaoke created at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%"
+        @call success "%blink_on%Karaoke created%blink_off% at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%"
         title %check% %BASE_TITLE_TEXT% generated successfully! %check% 
         if %SOLELY_BY_AI eq 1 (call warning "ONLY AI WAS USED. Lyrics were not used for prompting" silent)
 
@@ -864,7 +865,7 @@ rem Full-endeavor success message:
         title %CHECK% %SRT_FILE% generated successfully! %check%             
         @call askyn  "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME% notitle
         iff "%ANSWER" == "Y" then
-                @echo %ANSI_COLOR_DEBUG%%EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
+                rem @echo %ANSI_COLOR_DEBUG%- DEBUG: %EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
                 title %check% %SRT_FILE% generated successfully! %check%             
                 iff not exist "%TXT_FILE%" then
                         %EDITOR% "%SRT_FILE%" 
