@@ -3,7 +3,7 @@
 
 :: OBSOLETE:
 	:: set tmpeditor=%EDITOR
-	:: if %tempeditor=="" set tmpeditor=start editpad
+	:: if %tempeditor=="" set tmpeditor=start "" editpad
 	:: if not isdir %PUBCL (echo Environment variable %%PUBCL must be set to use this. %+ goto :END)
 :: NEW:
 	call checkeditor
@@ -176,7 +176,7 @@ goto :END
 :quake3
 	echo Disabling Windows key...
 	:"d:\program files\I Hate This Key\IHateThisKey.exe"
-	start /min IHateThisKey-helper.bat
+	start "" /min IHateThisKey-helper.bat
 	echo.
 	echo Killing Setpoint to stop annoying caps lock OSD...
 	kill /f setpoint
@@ -195,9 +195,9 @@ goto :END
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :quakelive
-		echo Disabling Windows key isn't as necessary in QuakeLive as with Quake 3...skipping!
-		:start /min IHateThisKey-helper.bat
-		echo.
+        echo Disabling Windows key isn't as necessary in QuakeLive as with Quake 3...skipping!
+                rem start "" /min IHateThisKey-helper.bat
+                echo.
 
 	echo Killing Setpoint isn't as necessary in QuakeLive as with Quake 3 either...skipping!
 		:kill /f setpoint

@@ -35,7 +35,8 @@ rem BACK UP THE FILE TO EACH DRIVE LETTER:
 
             rem We can set environment variables to do these in parallel (multi-window) or sequential (same-window)
                                                     unset /q COMMANDPREFIX
-                    if   "%PARALLEL_BACKUP%" eq "1"  (set    COMMANDPREFIX=start /POS=-1000,-1000,0,0 exitafter)
+                    rem  "%PARALLEL_BACKUP%" eq "1"  (set    COMMANDPREFIX=start                   /POS=-1000,-1000,0,0 exitafter)
+                    if   "%PARALLEL_BACKUP%" eq "1"  (set    COMMANDPREFIX=start "parallel backup" /POS=-1000,-1000,0,0 exitafter)
                     if "%SEQUENTIAL_BACKUP%" eq "1"  (set    COMMANDPREFIX=)
 
             rem Give each file a random color, and pipe it to fast_cat to fix TCC+WT ansi rendering failures:

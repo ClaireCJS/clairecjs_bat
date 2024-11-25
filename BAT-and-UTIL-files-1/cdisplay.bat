@@ -1,0 +1,1 @@
+@call display-comic-book %*

@@ -13,7 +13,7 @@
 2024-11-19  02:30         29,343   75%  after.bat
 2024-11-19  02:24          1,092   68%  age.bat
 2024-11-19  07:36             86    9%  AI-song-identify.bat
-2024-11-19  02:24          1,613   62%  alarm-beep.bat
+2024-11-25  13:15          1,619   62%  alarm-beep.bat
 2024-11-19  07:36             36   -5%  alarmbeep.bat
 2024-11-19  02:24            109   12%  album-art-tool-for-mp3Tag-beforeDash.bat
 2024-11-19  02:24          2,024   69%  album-art-tool-for-mp3Tag.bat
@@ -21,7 +21,7 @@
 2024-11-25  04:05          6,632   70%  all-ready-drives.bat
 2024-11-19  02:24            978   49%  allbmp2jpg.bat
 2024-11-19  02:24          1,672   61%  allcomputers.bat
-2024-11-19  02:24          2,315   74%  allcomputersexceptself.bat
+2024-11-25  13:15          2,479   73%  allcomputersexceptself.bat
 2024-03-24  20:48          5,494   61%  allfile2.pl
 2023-05-19  13:46            657   47%  allfilea2w.pl
 2023-10-03  20:28         10,985   64%  allfileexif.pl
@@ -89,7 +89,7 @@
 2024-11-19  02:22            301   43%  backup-to-bdrs.bat
 2024-11-19  02:22            272   38%  backup-to-CDs.bat
 2024-11-19  02:22            273   40%  backup-to-dvDs.bat
-2024-11-19  02:22          3,611   58%  backup-to-every-drive.bat
+2024-11-25  13:13          3,761   59%  backup-to-every-drive.bat
 2024-11-19  02:22            891   51%  backup-utorrent.bat
 2024-11-19  02:22          1,271   51%  backup-Xenia.bat
 2024-11-19  21:35             48   -4%  backup.bat
@@ -100,7 +100,7 @@
 2024-11-19  21:35             65    0%  battery.bat
 2024-10-18  13:52          7,723   63%  bedtime.btm
 2024-11-19  02:22          4,576   70%  beep.bat
-2024-11-19  02:22         12,134   75%  before.bat
+2024-11-25  13:13         12,180   75%  before.bat
 2024-11-19  07:28            126   27%  bigecho-cool-cursive.bat
 2024-11-13  00:22         13,819   76%  bigecho.bat
 2024-11-19  21:35             44   -2%  blacklights-off.bat
@@ -119,6 +119,7 @@
 2024-11-19  02:21            344   42%  cat.bat
 2024-11-19  02:21          8,154   72%  cd-alias.bat
 2024-11-19  07:48             41   -4%  cd.bat
+2024-11-25  13:10             29   -6%  cdisplay.bat
 2024-11-19  07:37             38    3%  celebrate.bat
 2024-11-19  07:29            125   12%  celebration.bat
 2024-11-19  07:29          1,004   58%  change-into-random-dir.bat
@@ -261,6 +262,7 @@
 2024-11-19  07:36            434   44%  display-all-@CHARs.bat
 2024-11-19  07:36             71   -2%  display-bitrate.bat
 2024-03-15  00:06            399   39%  display-bluetooth-battery-levels.ps1
+2024-11-25  13:12            251   35%  display-comic-book.bat
 2024-11-19  07:36             37   -2%  display-connections.bat
 2024-11-19  07:36             67   11%  display-cuda-version.bat
 2019-10-01  10:25             71   10%  display-current-month.pl
