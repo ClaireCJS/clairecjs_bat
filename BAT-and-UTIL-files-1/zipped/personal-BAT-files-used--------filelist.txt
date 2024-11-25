@@ -1,6 +1,6 @@
 2024-11-23  23:44        149,504   49%  4wt.dll
 2024-11-23  23:44          3,433   60%  4wt.txt
-2024-11-24  21:34         11,450   73%  add-ADS-tag-to-file.bat
+2024-11-25  18:10         14,063   74%  add-ADS-tag-to-file.bat
 2024-11-19  02:22          2,595   63%  add-art-to-flac-helper.bat
 2024-11-19  02:22            799   54%  add-art-to-flac.bat
 2024-11-19  02:22          3,835   69%  add-art-to-mp3.bat
@@ -205,6 +205,7 @@
 2024-11-23  23:44          1,055   51%  create-srt-file-for-currently-playing-song.bat
 2024-11-23  23:44            194   36%  create-srt-for-soundclip.bat
 2024-11-25  03:39         70,140   75%  create-srt-from-file.bat
+2024-11-25  14:20            972   52%  create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat
 2024-11-23  23:44            354   45%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
 2024-11-19  07:35         24,800   80%  create-symlinks.bat
@@ -278,8 +279,8 @@
 2024-11-19  07:47          3,640   67%  display-free-space.bat
 2024-11-20  15:53          9,064   71%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
-2024-11-13  15:32            895   55%  display-lyric-status-for-file.bat
-2024-11-19  07:47             56   -3%  display-lyric-status.bat
+2024-11-25  17:45            916   55%  display-lyric-status-for-file.bat
+2024-11-25  18:14            543   46%  display-lyric-status.bat
 2024-11-19  07:47          3,314   63%  display-lyrics.bat
 2024-11-19  07:47            832   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-11-19  07:47            149    9%  display-mp3-artists.bat
@@ -301,6 +302,7 @@
 2024-11-25  12:41         13,426   77%  distribute-bat-files-to-every-drive.bat
 2024-11-19  07:47             36   -5%  div.bat
 2024-11-11  16:32             55   -3%  divider.bat
+2024-11-25  18:20             31   -6%  dls.bat
 2024-11-19  07:47             65   10%  dns-display.bat
 2024-11-19  07:47             46   -4%  do-in-each-directory.bat
 2024-11-19  07:47          1,248   54%  do-in-each-folder.bat
@@ -412,14 +414,14 @@
 2023-06-02  08:51          8,693   74%  generate_midi_randomly.py
 2024-05-14  13:13          7,600   72%  generate_thesem3u_and_allm3u_playlists_in_folder.py
 2024-11-19  07:47             52   -3%  get-command-line.bat
-2019-10-01  10:28          8,414   64%  get-current-song-playing.pl
+2024-11-25  15:56         11,948   67%  get-current-song-playing.pl
 2024-10-10  11:49            422   49%  get-currently-playing-tracknum-from-wawi-index_html.pl
 2024-11-19  07:47            567   58%  get-image-dimensions.bat
 2024-11-19  07:47            197   35%  get-lyrics-for-all-songs-in-this-folder.bat
 2024-11-11  16:33            418   42%  get-lyrics-for-currently-playing-song.bat
 2024-11-11  16:34             65   -3%  get-lyrics-for-song.bat
 2024-11-19  07:47             48   -4%  get-lyrics-from-song.bat
-2024-11-25  01:33         60,208   78%  get-lyrics-via-multiple-sources.bat
+2024-11-25  17:35         60,691   78%  get-lyrics-via-multiple-sources.bat
 2024-11-23  23:44          1,359   55%  get-lyrics-with-lyricsgenius-json-processor.pl
 2024-11-23  23:44             64   -3%  get-lyrics-with-lyricsgenius.bat
 2024-11-11  16:33            186   39%  get-lyrics.bat
@@ -504,7 +506,7 @@
 2024-11-04  21:51            200   26%  insert-after-each-line.pl
 2024-11-04  22:15            697   42%  insert-after-each-line.py
 2024-11-19  07:51          1,383   57%  insert-before-each-filename.bat
-2024-11-04  21:51            265   24%  insert-before-each-line.pl
+2024-11-25  17:08            623   38%  insert-before-each-line.pl
 2024-11-04  22:16            690   42%  insert-before-each-line.py
 2024-11-19  07:51          1,973   62%  insert-foldername-into-end-of-filenames.bat
 2024-11-19  07:51          2,099   59%  install-autoexec-launcher-to-startup.bat
@@ -702,7 +704,7 @@
 2024-11-19  21:35             47    3%  realias.bat
 2024-11-19  15:15          1,368   56%  Rebuild_Icon_Cache.bat
 2024-11-19  15:15          3,023   66%  reddit-user-download.bat
-2024-11-19  15:15            158   31%  redo-last-SRT-creation.bat
+2024-11-25  14:24            163   31%  redo-last-SRT-creation.bat
 2024-11-19  21:35             56   -1%  redo-last-srt.bat
 2024-11-19  21:35             56   -1%  redo-srt.bat
 2024-11-19  15:15             68   14%  reload-playlist-and-play.bat
@@ -795,7 +797,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-11-19  21:35             39   -5%  set-all_colors.bat
-2024-11-20  13:52        119,818   82%  set-ansi.bat
+2024-11-25  18:04        120,037   82%  set-ansi.bat
 2024-11-19  15:17            685   63%  set-automatic-login-to-windows-OFF.bat
 2024-11-19  15:17          1,810   69%  set-automatic-login-to-windows-ON.bat
 2024-11-19  21:35            138   16%  set-background-picture-for-johnsbackgroundswitcher.bat
@@ -986,7 +988,7 @@
 2024-11-19  15:02            305   34%  unzip-all.bat
 2024-11-19  15:02          6,094   70%  unzip-gracefully.bat
 2024-11-19  15:02            461   39%  update-cygwin.bat
-2024-11-19  21:28         12,218   72%  update-from-BAT-via-manifest.bat
+2024-11-25  18:25         12,218   72%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2024-11-19  15:02            597   42%  ups-tracking.bat
 2019-10-01  10:28            232   26%  urldecode.pl
@@ -1004,7 +1006,7 @@
 2024-11-23  00:06         17,470   76%  validate-environment-variable.bat
 2024-11-16  19:00            427   45%  validate-environment-variables.bat
 2024-11-19  15:02             54   -1%  validate-extension.bat
-2024-11-25  03:28          4,038   67%  validate-file-extension.bat
+2024-11-25  18:18          4,221   67%  validate-file-extension.bat
 2024-11-16  19:00            547   60%  validate-filelist.bat
 2024-11-16  19:00            636   47%  validate-filelist.pl
 2024-11-23  23:44         12,315   76%  validate-function.bat

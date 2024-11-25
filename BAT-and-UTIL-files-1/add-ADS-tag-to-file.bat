@@ -46,6 +46,13 @@ text
 :USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt lyrics.txt lyrics  remove  verbose "begrudgingly removed"
 :USAGE:         EXAMPLE: add-ADS-tag-to-file filename.txt lyrics.txt lyrics approved verbose "At %_datetime, Lyric approval set to:"
 :USAGE:
+:USAGE: SPACER MODE: set USE_SPACER=1              [make sure to set to 0 when done!!!]
+:USAGE:
+:USAGE:         For lyrics mode only. 
+:USAGE:         Performs cosmetic spacing around lyric status so they line up when displaying for multiple files
+:USAGE:
+
+
 endtext
 %COLOR_NORMAL%
 if not defined DefaultUnicodeOutput set DefaultUnicodeOutput=no
@@ -66,26 +73,29 @@ rem Get parameters:
         set       PARAM_5=%@UNQUOTE[%5]                                    %+ rem  Verb to use in verbose output ("set", "deleted", "marked", "read", etc)
 
 
-
 rem Validate environment once:
         iff 1 ne %validated_add_ads_tag_to_file% then
-                call validate-environment-variables emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off check EMOJI_CROSS_MARK ansi_color_alarm ansi_color_celebration
+                call validate-environment-variables  emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off check EMOJI_CROSS_MARK ansi_color_alarm ansi_color_celebration ansi_color_warning_soft EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_RED_QUESTION_MARK
                 call validate-in-path                fatal_error warning 
                 set  validated_add_ads_tag_to_file=1
         endiff
 
 rem Validate parameters every time:
+        iff "%@RegEx[[\*\?],%FILE_TO_USE%]" eq "1" then
+                call warning "Cannot use %0 on wildcards for 1ˢᵗ parameter!"
+                goto :END
+        endiff
         if "%1" EQ ""                                       (gosub :usage %+ goto :END)
         call validate-environment-variable  File_To_Use    "1st arg to %0 must be a filename. 2nd optional arg must be a tag, 3rd arg must be 'read' or a value, 4th optional arg can be 'verbose'"
         call validate-environment-variable   Tag_To_Modify "2nd argument to %0 must a tag, NOT empty"
         call validate-environment-variable   Tag_Value     "3rd argument to %0 must a value, or 'read' ... NOT empty"
         if "%PARAM_4%" ne "" .and. "%PARAM_4%" ne "verbose" .and. "%PARAM_4%" ne "remove" .and. "%PARAM_4%" ne "brief" .and. "%PARAM_4%" ne "lyrics" .and. "%PARAM_4%" ne "lyric" (call fatal_error "There shouldn't be a 4th parameter of this value being sent to %0 {called by %_PBATCHNAME}, but you gave '%italics_on%%PARAM_4%%italics_off%'. Run without parameters to understand proper usage.")
 
-
 rem Set default values for parameters:
         set VERBOSE=0
         set BRIEF_MODE=0
         set LYRIC_MODE=0
+        rem echo tail=%*
         if "%PARAM_4%"       eq "lyric"   (set LYRIC_MODE=1)                    
         if "%PARAM_4%"       eq "lyrics"  (set LYRIC_MODE=1)                    
         if "%PARAM_4%"       eq "brief"   (set BRIEF_MODE=1)           
@@ -104,10 +114,10 @@ rem Determine verb clause to use —— looks best if they are >8 chars each tho
 
 rem Read or set (depending on invocation) via windows alternate data streams:
         iff "read" eq "%TAG_VALUE%" then
-        
                 echo —————————————————— READ THE TAG  —————————————————— >nul
+                set OPERATIONAL_MODE=READ
                 rem Store the result of reading the tag into the environment variable we've decided to use as convention for this situation:
-                        set RECEIVED_VALUE=%@ExecStr[type <"%FILE_TO_USE%:%TAG_TO_MODIFY%"]
+                        set RECEIVED_VALUE=%@ExecStr[type <"%FILE_TO_USE%:%TAG_TO_MODIFY%" >&>nul]
                         set value_to_display_in_verbose_mode=%RECEIVED_VALUE%
                 
                 rem And a few aliaes of our results, for the invokee who doesn't quite remember how to use this:
@@ -122,6 +132,7 @@ rem Read or set (depending on invocation) via windows alternate data streams:
         elseiff "remove" eq "%TAG_VALUE%" then
         
                 echo —————————————————— DELETE THE TAG  —————————————————— >nul
+                set OPERATIONAL_MODE=DELETE
                 rem Grab the value so we can say it was removed:
                         set  OLD_VALUE=%@ExecStr[type "%FILE_TO_USE%:%TAG_TO_MODIFY%"]
                         if "%OLD_VALUE%" eq ""       (set OLD_VALUE=%ansi_color_normal%%ansi_color_red%%@Repeat[%@CHAR[10875],3]%faint_on% none %faint_off%%@Repeat[%@CHAR[10876],3]%ansi_color_normal%)
@@ -140,6 +151,7 @@ rem Read or set (depending on invocation) via windows alternate data streams:
         else
         
                 echo —————————————————— SET THE TAG  —————————————————— >nul
+                set OPERATIONAL_MODE=SET
                 rem Associate the tag+value pair into the file:
                         echo %TAG_VALUE%>"%FILE_TO_USE%:%TAG_TO_MODIFY%"
 
@@ -157,10 +169,13 @@ goto :END
         :explain
                 rem If we are in verbose mode, explain what we did:
                         set tmp_value=%[value_to_display_in_verbose_mode]
+                        if "" eq "%tmp_value%" (set tmp_value=%italics_on%%blink_on%(unset)%blink_off%%italics_off%)
                         set tmp_tag=%[TAG_TO_MODIFY]
                         set tmp_file2use=%[FILE_TO_USE]
                         set tmp_emoji2use=%CHECK%           
 
+                        rem echo [verbose=%verbose,brief_mode=%brief_mode%,lyric_mode=%lyric_mode%]
+                        
                         iff 1 eq %VERBOSE then
                                 echo %tmp_emoji2use% %VERB% %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% 
                                 echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%for%faint_off% tag: %ansi_color_bright_red%%bold_on%%tmp_tag%%bold_off%%ansi_normal%
@@ -170,14 +185,34 @@ goto :END
                                 echo %tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
                         endiff
                         iff 1 eq %LYRIC_MODE then
+                                set value_spacer=
+                                set value_spacer_post=
+                                set voodoo_spacer=
                                 iff "%tmp_value%" == "NOT_APPROVED" .or. "%tmp_value%" == "NOT APPROVED" then
                                         set tmp_emoji2use=%EMOJI_CROSS_MARK%
                                         set tmp_color=%ansi_color_alarm%
-                                else                                        
+                                elseiff "%tmp_value%" == "APPROVED" then
+                                        if 1 eq %USE_SPACER (set value_spacer=    ``)
                                         set tmp_emoji2use=%CHECK%           
                                         set tmp_color=%ansi_color_celebration%
+                                else                                        
+                                        iff 1 eq %USE_SPACER then
+                                                set value_spacer=      ``
+                                                set value_spacer_post=``
+                                                rem voodoo_spacer=%@ANSI_MOVE_LEFT[1]
+                                                set voodoo_spacer= ``
+                                        else                                                
+                                                set value_spacer= ``
+                                                set voodoo_spacer= ``
+                                        endiff                                                
+                                        set tmp_color=%ansi_color_warning_soft%
+                                        set tmp_emoji2use=%EMOJI_EXCLAMATION_QUESTION_MARK%          
                                 endiff
-                                echo %tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                                iff "%OPERATIONAL_MODE%" ne "READ" then
+                                        echo %tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                                else
+                                        echo %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% Lyrics are %value_spacer%%tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use% %value_spacer_post% for: %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                                endiff
                         endiff
         return
 

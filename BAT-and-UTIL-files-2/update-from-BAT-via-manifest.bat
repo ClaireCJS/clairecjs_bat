@@ -51,7 +51,7 @@ rem TELL USER:
         echo.
         call important "Updating: '%PROJECT_NAME%' files: " %+ %COLOR_IMPORTANT% 
               echo                  To: %[PROJECT_DIR]%ANSI_COLOR_IMPORTANT_LESS%
-              echo                  Manifest Files: %MANIFEST_FILES%
+              rem too big!          Manifest Files: %MANIFEST_FILES%
 
 
 

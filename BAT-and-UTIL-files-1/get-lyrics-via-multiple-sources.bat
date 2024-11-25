@@ -741,9 +741,8 @@ rem Mark the lyric file as approved/disapproved, using windows Alternate Data St
         iff exist "%PREFERRED_TEXT_FILE_NAME%" then
                 call divider
                 if 1 eq %LYRICS_ACCEPTABLE call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%"
-                if 1 ne %LYRICS_ACCEPTABLE call disapprove-lyrics "%PREFERRED_TEXT_FILE_NAME%"
+                if 0 ne %LYRICS_ACCEPTABLE call disapprove-lyrics "%PREFERRED_TEXT_FILE_NAME%"
         endiff
-        call divider
 
 
 rem Start our cleanup:
@@ -769,6 +768,7 @@ rem Validate we did something:
                 call warning "Unfortunately, we could not find lyrics for %ANSI_COLOR_BRIGHT_RED%%ITALICS_On%%FILE_ARTIST% - %FILE_SONG%%ITALICS_OFF%" silent
                 title %emoji_warning% Lyrics not fetched %emoji_warning%
         else
+                call divider
                 rem  celebrate "%check% LYRIC SUCCESS %check%" 2
                 rem  celebrate "%ansi_background_black% %check%  %@cool[LYRIC SUCCESS] %check% %@randfg[]" 2
                 call celebrate "%ansi_background_black% %check% %@rainbow_string[LYRIC SUCCESS] %check%  %@randfg[]" 

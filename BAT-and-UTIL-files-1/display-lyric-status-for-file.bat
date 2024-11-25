@@ -13,6 +13,7 @@ rem Validate environment and parameter:
         endiff                
 
 rem Set via windows alternate data streams:
-        @call add-ads-tag-to-file %LYRIC_FILE_TO_DISPLAY_STATUS_OF% lyrics read verbose %+ rem sets RECEIVED_VALUE for return value
+        rem @echo on 
+        call add-ads-tag-to-file %LYRIC_FILE_TO_DISPLAY_STATUS_OF% lyrics read lyrics %+ rem sets RECEIVED_VALUE for return value
 
         
