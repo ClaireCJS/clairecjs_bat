@@ -41,7 +41,7 @@ ________________________________________________________________________________
 
 ## Several types of commands for this system:
 
-  1. Lyric alignment commands ([get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
+  1. Lyric alignment commands ([get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
   1. Karaoke generation commands ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
   1. Auditing commands (to find files that do not have lyrics or karaoke)
   1. WinAmp integration commands (to work with the song that is currently playing in WinAmp)
@@ -49,29 +49,39 @@ ________________________________________________________________________________
 
 ____________________________________________________________________________________________________________
 
-# Step 1 (optional): Lyric Alignment:
+# Lyric Alignment commands:
+
+These commands manage the lyric files that are used to improve prompt accuracy.
+
+### 🌟 [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat)
+
+Gets lyrics for all the files *in a playlist* that do not have *approved* lyric files, in random order to avoid alphabetical bias.  
+(Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
+
+### 🌟 [gml](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gmlh](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [get-missing-lyrics-here](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat)
+
+Gets lyrics for all the files *in the current folder* that do not have *approved* lyric files.
+(Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
+
 
 ### [get-lyrics {songfile} / get-lyrics-for-song {songfile} / get-lyrics-via-multiple-sources {songfile}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat)
 
 Obtains the lyrics for a particular song, to foster proper AI transcription. These transcriptions work much better when you have a lyric set. This checks local sidecar files, local lyric repository, Genius, and Google, to obtain lyric files with as much ease possible.
+
 
 ### dls / [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat)
 
 Displays the lyric status (approved, unapproved, or unset) for all lyric files in current folder. 
 To have this happen automatically when changing into a folder, simply Alias the ```cd``` command into ```call ```[cd-alias.bat](../BAT-and-UTIL-files-1/cd-alias) — and then create a file called ```autorun.bat``` in the base folder of your music collection, containing the command ```@if exist *.txt (call display-lyric-status)```.
 
-### [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat)
-
-Gets lyrics for all the files in a playlist that do not have *approved* lyric files, in random order to avoid alphabetical bias.
-
-### gml / gmlh / [get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [get-missing-lyrics-here](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat)
 
 
 ____________________________________________________________________________________________________________
 
 
-# Step 2: Creating The Karaoke Files:
+# Karaoke Generation commands:
 
+These commands creates the karaoke files that are the primary goal of this project!
 
 ### create-srt {songfile} / [create-srt-from-file {songfile}](../BAT-and-UTIL-files-1/create-srt-from-file.bat)
 
@@ -97,7 +107,9 @@ Rarely used, but: Creates karaoke files for all songs in a *folder tree* without
 
 ____________________________________________________________________________________________________________
 
-# Audit The Karaoke/Lyric Files / Finding Music That Needs Karaoke/Lyrics
+# Auditing Commands:
+
+These commands find &Y obtain missing karaoke & lyric files.
 
 ### [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../BAT-and-UTIL-files-1/review-subtitles.bat)
 
@@ -133,7 +145,9 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 ____________________________________________________________________________________________________________
 
 
-# WinAmp Integration Commands / Ability To Operate On Song Currently Being Listened To
+# WinAmp Integration Commands:
+
+These commands allows us to operate on "the song we are currently listening to" rather than a specific file or playlist.
 
 ### [get-lyrics-for-currently-playing-song ](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat)
 
@@ -150,29 +164,12 @@ Runs ```create-srt``` on the song currently being played in WinAmp.
 In certain very rare situations, MiniLyrics does not auto-import the generated SRT file.  Because MiniLyrics primarily uses LRC instead of SRT, it can sometimes miss an SRT. When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the MiniLyrics lyric window manually. This script handles that by detecting the current song playing, converting it's SRT to LRC, copying it to the clipboard, and automatically opening MiniLyrics's lyric editor window. All the user has to do is paste and save.
 
 
-____________________________________________________________________________________________________________
-
-
-# Pre/Post-Processor Utility Commands:
-
-### [get-lyrics-with-lyricsgenius-json-processor.pl](../BAT-and-UTIL-files-1/get-lyrics-with-lyricsgenius-json-processor.pl)
-
-Extracts lyrics from our freshly-downloaded-from-Genius.com JSON files, with minimal preprocessing.
-
-
-### [unique-lines.pl](../BAT-and-UTIL-files-1/unique-lines.pl)
-
-A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI's 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a version of ``uniq``` that doesn't require file sorting, and grew into full-fledged lyric preprocessor.
-
-
-### [remove-period-at-ends-of-lines.pl](../BAT-and-UTIL-files-1/remove-period-at-ends-of-lines.pl)
-
-A subtitle postprocessor that removes periods from end of each line in a subtitle. Preserves periods for words like "Mr."
-We add "invisible" periods to the end of each line of lyrics so that WhisperAI's ```--sentence``` option works better. We then remove these periods (making them "invisible") afterward, because they are ugly.  Also has a side effect of de-censoring some curse words, which can be suppressed with the ```--leave-censorship``` or ```-L``` option.
 
 _________________________________________
 
-# Other Critical Utility commands
+# Under-The-Hood: Critical Utility commands
+
+Other important commands deveoped for this project.
 
 ### [approve-lyrics / approve-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/disapprove-lyric-file.bat)
 
@@ -196,8 +193,7 @@ A *batch* SRT-file to LRC-file converter. Used by [eccsrt2lrc2clip.bat](../BAT-a
 
 ____________________________________________________________________________________________________________
 
-
-# Adjunct Utility commands
+# Under-The-Hood: Adjunct Utility commands
 
 ### [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py)
 
@@ -205,10 +201,31 @@ A *single-file* SRT-file to TXT-file converter
 
 ____________________________________________________________________________________________________________
 
-# Existing commands also used by this system:
+
+# Under-The-Hood: Pre/Post-Processor Utility Commands:
+
+Pre/Postprocessors developed for this project.
+
+### [get-lyrics-with-lyricsgenius-json-processor.pl](../BAT-and-UTIL-files-1/get-lyrics-with-lyricsgenius-json-processor.pl)
+
+Extracts lyrics from our freshly-downloaded-from-Genius.com JSON files, with minimal preprocessing.
+
+
+### [unique-lines.pl](../BAT-and-UTIL-files-1/unique-lines.pl)
+
+A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI's 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a version of ``uniq``` that doesn't require file sorting, and grew into full-fledged lyric preprocessor.
+
+
+### [remove-period-at-ends-of-lines.pl](../BAT-and-UTIL-files-1/remove-period-at-ends-of-lines.pl)
+
+A subtitle postprocessor that removes periods from end of each line in a subtitle. Preserves periods for words like "Mr."
+We add "invisible" periods to the end of each line of lyrics so that WhisperAI's ```--sentence``` option works better. We then remove these periods (making them "invisible") afterward, because they are ugly.  Also has a side effect of de-censoring some curse words, which can be suppressed with the ```--leave-censorship``` or ```-L``` option.
+
+____________________________________________________________________________________________________________
+
+# Under-The-Hood: Existing commands also used by this system:
 
 Various commands that are already a part of my "Clairevironment".
-
 
 ### [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat)
 
