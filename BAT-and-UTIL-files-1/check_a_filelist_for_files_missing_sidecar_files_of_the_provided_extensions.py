@@ -108,7 +108,7 @@ def main(input_filename, extensions, options, extra_args):
 
         if not has_sidecar:
             files_without_sidecars.add(file)
-            print(file)
+            #print(file)
 
     # Write the output file
     if files_without_sidecars:
