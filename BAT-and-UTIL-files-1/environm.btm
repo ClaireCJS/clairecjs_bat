@@ -2339,8 +2339,6 @@ return
         rem MISC filemask mostly just used to detect which things are filenames, which aren't, for validating filename presence:
                 set FIEMASK_MISC=*.dll
 
-
-
         rem And one filemask to rule them all:
                 set FILEMASK_ALL=%FILEMASK_FILELIST%;%FILEMASK_TXT%;%FILEMASK_RICHTEXT%;%FILEMASK_SCRIPT%;%FILEMASK_CODE%;%FILEMASK_APPLICATION%;%FILEMASK_ARCHIVE%;%FILEMASK_DISC_IMAGE%;%FILEMASK_IMAGE%;%FILEMASK_AUDIO%;%FILEMASK_VIDEO%;%FILEMASK_COMIC_BOOK%;%FIEMASK_MISC%
                 rem ^^^^^^^^^^^^ Returns something like: *.m3u;*.sfv;;*.html;*.htm;*.doc;*.rtf;*.docx;*.mht;*.pdf;*.url;*.btm;*.bat;*.cmd;*.sh;*.btm;*.bat;*.cmd;*.sh;*.pl;*.py;*.java;*.bat;*.btm;*.sql;*.asm;*.bas;*.c;*.h;*.java;*.pas;*.php;*.sql;*.vbs;*.exe;*.apk;*.msi;*.com;*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace;*.001;*.iso;*.img;*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large;*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.mkv;*.avi;*.mp4;*.m4a;*.flv;*.mov;*.wmv;*.mpg;*.mpeg;*.vob;*.bdmv;*.ts;*.m2ts;*.rm;*.qt;*.asf;*.asx;*.fli;*.swf;*.m4v;*.webm;*.f4v;*.rm;*.ram;*.3gp
@@ -2350,6 +2348,9 @@ return
                 set TEMP_FMASK_VAR=%@ReReplace[\;,,%@ReReplace[\*\.,`|`\\.,%filemask_all%]]
                 set FILEMASK_ALL_REGEX=(%@LTrim[|,%TEMP_FMASK_VAR])
                 setdos /x0
+
+        rem And a flag to indicate our filemasks have been set:
+                set FILEMASKS_HAVE_BEEN_SET=1
 
     ::::: FUNCTION FOR EACH EXTENSION:
         ::::: NOTE: there is no methodology for setting a blank extension. Blank extensions are handled by UNKNOWN[command].BAT

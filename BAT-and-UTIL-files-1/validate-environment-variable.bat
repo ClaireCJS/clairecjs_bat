@@ -14,7 +14,7 @@
     set LAST_TITLE=%_WINTITLE
     title %0
 
-:USAGE:  call validate-environment-variable VARNAME_NO_PERCENT "some error message" or "skip_validation_existence"
+:USAGE:  call validate-environment-variable VARNAME_NO_PERCENT [a custom error message] or "skip_validation_existence"
 :USAGE:       where option can be:
 :USAGE:                             "skip_validation_existence" to skip existence validation
 :USAGE:                             "some error message"        to be additional information provided to user if there is an error
@@ -42,7 +42,7 @@
     rem call debug "validate_multiple is %validate_multiple%"
     rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
     iff "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 then
-        call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR! ***"
+        call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
         color bright white on red
         echo  We can't be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
         echo  %underline%Did you mean%underline_off%: %italics%validate-environment-variable%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
@@ -57,26 +57,25 @@
         goto :END
     endiff
 
-    iff "%PARAM2%" eq "skip_validation_existence" .or. "%PARAM2%" eq "skip_existence_validation" .or. "%PARAM2%" eq "skip_validation" then
+    set SKIP_VALIDATION_EXISTENCE=0
+    if "%PARAM2%" eq "skip_validation_existence" .or. "%PARAM2%" eq "skip_existence_validation" .or. "%PARAM2%" eq "skip_validation" (
         set SKIP_VALIDATION_EXISTENCE=1 
         set USER_MESSAGE=%3$
-    else
-        set SKIP_VALIDATION_EXISTENCE=0
-    endiff
-    if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: PARAM2: '%PARAM2%')
+    )
+    if %DEBUG_NORMALIZE_MESSAGE eq 1 (echo %ansi_color_debug%- DEBUG: PARAM2: '%PARAM2%'%ansi_color_normal%)
 
 
-    if %VALIDATE_MULTIPLE ne 1 (
+    iff %VALIDATE_MULTIPLE ne 1 then
         gosub validate_environment_variable %VARNAME%
 
         rem If this script gets aborted, leaving this flag set can create false errors:
-        unset /q VALIDATE_MULTIPLE 
-    ) else (
+                unset /q VALIDATE_MULTIPLE 
+    else 
         set USER_MESSAGE=
         do i = 1 to %# (
                  gosub validate_environment_variable  %[%i]
         )
-    )
+    endiff
 
 
 
@@ -97,7 +96,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                     ::::: REPOND IF IT IS NOT:
                         :Defined_NO
                             set ERROR=1
-                            set ERROR_MESSAGE=*** Environment variable '%underline%%italics%%blink%%varname%%italics_off%%blink_off%%underline_off%' is %double_Underline%not%double_Underline_off% defined, and needs to be, in %italics_on%%[_PBATCHNAME]%italics_off%!!! ***
+                            set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Environment variable '%underline%%italics%%blink%%varname%%italics_off%%blink_off%%underline_off%' is %double_Underline%not%double_Underline_off% defined, and needs to be, in %italics_on%'%[_PBATCHNAME]'%italics_off%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is '%USER_MESSAGE%')
                             if "%USER_MESSAGE%" ne "" goto :Do_It_1
@@ -120,25 +119,25 @@ goto :Past_The_End_Of_The_Sub-Routines
                                 REM set NORMALIZED_ERROR_MESSAGE=%@REPLACE[!!!,%EXCLAMATION_MARKS%,%ERROR_MESSAGE%]
                                 REM set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
 
-                                if %LENGTH_DIFF% lss 0 (
+                                iff %LENGTH_DIFF% lss 0 then
                                     set /a "LENGTH_DIFF=-%LENGTH_DIFF% / 2"
-                                )
-                                if %LENGTH_DIFF% lss 0 (
+                                endiff
+                                iff %LENGTH_DIFF% lss 0 then
                                     rem If USER_MESSAGE is longer
                                     for /L %%i in (1,1,%LENGTH_DIFF%)    do   (set "ERROR_MESSAGE=*%ERROR_MESSAGE%*")
                                     if          %@EVAL[%LENGTH_DIFF % 2] == 0 (set "ERROR_MESSAGE=%ERROR_MESSAGE%*" )
-                                ) else (
+                                else
                                     rem If ERROR_MESSAGE is longer
                                     for /L %%i in (1,1,%LENGTH_DIFF%)    do   (set "USER_MESSAGE=*%USER_MESSAGE%*")
                                     if          %@EVAL[%LENGTH_DIFF % 2] == 0 (set "USER_MESSAGE=%USER_MESSAGE%*" )
-                                )
+                                endiff
 
                             :Do_It_1_Done
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo ERROR_MESSAGE[2]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
-                            call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR!! ***"
+                            call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%ansi_color_normal%"
                             rem Output the updated ERROR_MESSAGE
                             %COLOR_ALARM%       
-                            echos %ERROR_MESSAGE% 
+                            echos %ERROR_MESSAGE%  %+ rem The warning right before 
                             %COLOR_NORMAL% 
                             echo.
                             if "%USER_MESSAGE%" ne "" (
@@ -156,17 +155,18 @@ goto :Past_The_End_Of_The_Sub-Routines
                                 call warning "%@UNQUOTE[%USER_MESSAGE%]"
                             )
                                 
-                            %COLOR_ALARM%  %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo.
-                            call bigecho "%ANSI_COLOR_ALARM%*** ENV VAR ERROR!!! ***"
+                            %COLOR_ALARM%  %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo. %+ rem right after
+                            call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%ansi_color_normal%"
 
 
                             rem Optional message as 2nd parameter for validate-environment-variablE  {singular} 
                             rem                           but NOT for validate-environment-variableS { plural }:
-                                    if defined  PARAM2    .and.    not defined     %PARAM2%  (
-                                        call warning                              "%PARAM2"
-                                        call bigecho %ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!
-                                        call warning                              "%PARAM2"
-                                    )
+                                    iff  defined  PARAM2  .and.  not defined  %PARAM2%  then
+                                        call warning "%PARAM2"
+                                        echo about to bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!"
+                                        call          bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!"
+                                        call warning "%PARAM2"
+                                    endiff
 
 
                             REM call alarm-beep     %+ REM was too annoying for the severity of the corresponding situations
@@ -270,7 +270,7 @@ goto :Past_The_End_Of_The_Sub-Routines
 
             echo. %+ echo. %+ echo.
             %COLOR_ADVICE%
-                echo * Environment variable %@UPPER[%VARNAME%] points deprecated file:
+                echo %@CHAR[11088]%@CHAR[0] Environment variable %@UPPER[%VARNAME%] points deprecated file:
                 echo            "%VARVALUE%"
             %COLOR_NORMAL%
 

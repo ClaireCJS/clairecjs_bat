@@ -1,14 +1,14 @@
 # AI Lyric Transcription System For Windows
 
-## Goal:
+## 💠Goal:
 
-💠 *General goal*: To see the lyrics to music highlighted as they are sung
+🥅 *General goal*: To see the lyrics to music highlighted as they are sung
 
-💠 *Technical goal*: To automate AI transcription of music into karaoke files
+🥅 *Technical goal*: To automate AI transcription of music into karaoke files
 
-💠 *Specific technical goal*: To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
+🥅 *Specific technical goal*: To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
 
-💠 *Detailed goal*: To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI's transcription of audio files into karaoke/subtitle files.
+🥅 *Detailed goal*: To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI's transcription of audio files into karaoke/subtitle files.
 
 ## Terminology:
 
@@ -47,6 +47,7 @@ ________________________________________________________________________________
   1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
   1. ⚙️ Subordinate commands (under the hood stuff not generally invokved directly)
 
+____________________________________________________________________________________________________________
 ____________________________________________________________________________________________________________
 
 # Lyric Alignment commands:

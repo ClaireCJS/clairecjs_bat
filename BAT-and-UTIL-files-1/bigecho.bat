@@ -1,3 +1,4 @@
+@echo bigecho called with %*
 @Echo off
 @on break cancel
 
@@ -17,6 +18,10 @@ rem —————————————————————————�
 
 rem Get parameters:
         set PARAMS=%@UNQUOTE[%*]
+        set PARAMS2=%@UNQUOTE[%1$]
+        echo    %%1$ is %1$
+        echo params  is %params%
+        echo params2 is %params2%
 
 
 rem Validate environment
@@ -30,13 +35,15 @@ rem Validate environment
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————        
 
 rem If it's too wide  then simply revert back to echo'ing the command in normal/single-height lines...
-        set            STRIPPED_MESSAGE=%@stripansi[%PARAMS]
+        set            STRIPPED_MESSAGE=%@stripansi[%@UNQUOTE[%PARAMS]]
         set LEN=%@LEN[%STRIPPED_MESSAGE%]
         SET MESSAGE_WIDTH_NORMAL=%LEN%
         SET MESSAGE_WIDTH_DOUBLE=%@EVAL[%LEN * 2] %+ rem because we're dealing with double-height text
 
-rem 🐄🐄🐄 TODO: properly get length of things when they have unicode characters. may need external utility.
+rem 🐄🐄🐄 TODO: properly get length of things when they have unicode characters. may need external utility. or it may get fixed in future versions without me doing anything.
 rem Until then, this false positives to not-double-height on unicode/characters that are hard to measure the width of accurately and which report lenghts greater than printable length...
+        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-0]
+        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-4]
         set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-1]
 
 rem Now do the special handling if the message it too long
@@ -161,8 +168,16 @@ setdos /x-678
     
     rem echos %BIG_TEXT_LINE_1%%PARAMS%%ANSI_EOL%%NEWLINE%%BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_EOL%
     %COLOR_TO_USE% 
-    echo %BIG_TEXT_LINE_1%%PARAMS%%ANSI_EOL%
-    echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_EOL%
+    
+    rem Production for a long long time:
+            echo %BIG_TEXT_LINE_1%%PARAMS%%ANSI_EOL%
+            echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_EOL%
+    rem beta:            
+            echo %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%
+            echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%
+    rem beta:            
+            echo %BIG_TEXT_LINE_1%%PARAMS%
+            echo %BIG_TEXT_LINE_2%%PARAMS%
    
     rem deprecated: if %ECHOSBIG_SAVE_POS_AT_END_OF_BOT_LINE eq 1 (echos %ANSI_SAVE_POSITION%)  
     rem echo.
