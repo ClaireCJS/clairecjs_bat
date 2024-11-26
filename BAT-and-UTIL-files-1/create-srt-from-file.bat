@@ -39,11 +39,15 @@ goto :subroutine_definitions_end
                 echo USAGE:
                 echo        $0 ai  ————————————————— use AI only; no lyrics; with   normal  prompt wait times
                 echo        $0 fast ———————————————— normal execution but with shortenedp rompt wait times
-                echo        $0 ai fast ————————————— use AI only; no lyrics; with shortened prompt wait times
                 echo        $0 last ———————————————— redo the prevoius generation again [in case it was interrupted]
                 echo        $0 force ——————————————— generate even if SRT/LRC already exists
                 echo        $0 cleanup ————————————— clean up trash after transcription —— clean-up-AI-transcription-trash-files.bat also cleans these
-                echo        $0 AutoLyricApproval ——— consider all lyric files to be in APPROVED status, even if they are not marked as such                
+                echo        $0 AutoLyricApproval ——— long  way to: consider all lyric files to be in APPROVED status, even if they are not marked as such                
+                echo        $0 la —————————————————— short way to: consider all lyric files to be in APPROVED status, even if they are not marked as such                
+                echo.
+                echo COMMON USE CASES:
+                echo        $0 ai fast ————————————— to quickly do a folder w/o lyrics, using AI only, with short prompt times.
+                echo        $0 la force ———————————— regenerate a new SRT with the existing lyric
                 echo.
                 echo ENVIRONMENT VARIABLE PARAMETERS:
                 echo        set USE_LANGUAGE=jp ——————————————————— to change the default language, for example if it's a Rammstein album, set to de
@@ -205,7 +209,7 @@ REM branch on certain paramters, and clean up various parameters
         endiff    
 
 
-        rem echo AUTO_LYRIC_APPROVAL is %AUTO_LYRIC_APPROVAL% 🐐 %+ pause
+        rem echo AUTO_LYRIC_APPROVAL is %AUTO_LYRIC_APPROVAL%  %+ pause
         
         if 1 eq %CLEANUP (goto :just_do_the_cleanup)
 
@@ -678,7 +682,7 @@ REM set a non-scrollable header on the console to keep us from getting confused 
         endiff
         call divider %+ set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%'%italics_on%%FILE_TITLE%%italics_off%' %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
         rem BRING BACK AFTER I FIX THE BANNER: call top-banner "%banner_message%"
-        rem instead do this temporarily: 🐐🐐
+        rem instead do this temporarily: 🐐
                 call important "%banner_message%"
 
 

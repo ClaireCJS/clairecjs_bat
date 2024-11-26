@@ -1,2 +1,5 @@
+@Echo OFF
 @on break cancel
-@call unapprove-lyric-file.bat %*
+for %%tmpFile in (%*) do (
+        @call unapprove-lyric-file.bat "%@unquote[%tmpFile]"
+)        

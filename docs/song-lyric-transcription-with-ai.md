@@ -32,8 +32,21 @@
 1. Optional: For *WinAmp* integration: the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in WinAmp, allowing us to have commands that operate on "whatever song we are currently listening to".
 
 ____________________________________________________________________________________________________________
+____________________________________________________________________________________________________________
 
-# NOTE: Many commands have several different aliases, for convenience-of-remembering.
+
+# SYSTEM COMMANDS
+
+### NOTE: Many commands have several different aliases, for convenience-of-remembering.
+
+## Several types of commands for this sy stem:
+
+	1. Lyric alignment commands ([get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
+	1. Karaoke generation commands ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
+	1. Auditing commands (to find files that do not have lyrics or karaoke)
+	1. WinAmp integration commands (to work with the song that is currently playing in WinAmp)
+	1. Subordinate commands (under the hood stuff not generally invokved directly)
+
 ____________________________________________________________________________________________________________
 
 # Step 1 (optional): Lyric Alignment:
@@ -42,16 +55,17 @@ ________________________________________________________________________________
 
 Obtains the lyrics for a particular song, to foster proper AI transcription. These transcriptions work much better when you have a lyric set. This checks local sidecar files, local lyric repository, Genius, and Google, to obtain lyric files with as much ease possible.
 
-
-### TODO [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat)
-
-Obtain and approve lyrics for a *playlists*'s songs. Traverses a playlist, running ```get-lyrics``` on every file in the playlist that doesn't already have approved lyrics. (In random order, to prevent alphabetical bias.)
-
 ### dls / [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat)
 
 Displays the lyric status (approved, unapproved, or unset) for all lyric files in current folder. 
-
 To have this happen automatically when changing into a folder, simply Alias the ```cd``` command into ```call ```[cd-alias.bat](../BAT-and-UTIL-files-1/cd-alias) — and then create a file called ```autorun.bat``` in the base folder of your music collection, containing the command ```@if exist *.txt (call display-lyric-status)```.
+
+### [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat)
+
+Gets lyrics for all the files in a playlist that do not have *approved* lyric files, in random order to avoid alphabetical bias.
+
+### gml / gmlh / [get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [get-missing-lyrics-here](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat)
+
 
 ____________________________________________________________________________________________________________
 
@@ -69,7 +83,7 @@ Run without parameters to see various options, including but not limited to  "ai
 
 Create karaoke files for all songs *in the current folder* that do not have them
 
-### TODO [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat)
+### TODO [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat)
 
 Create karaoke files for all songs *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. (In random order, to prevent alphabetical bias.)
 
@@ -77,14 +91,13 @@ Create karaoke files for all songs *in a playlist* that do not have them — Tra
 
 Create karaoke files for all songs in a *folder tree* that do not have them, as long as their lyric file has been previously approved. This is intended so one can spend 100% of time aligning/approving lyrics (i.e. with ```get-lyrics-for-playlist.bat```), then go to bed and run this to generate everything that has pre-approved lyrics, saving the karaoke generation for another time (like when you are asleep). 
 
-
 ### [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat)
 
-Create karaoke files for all songs in a *folder tree* without using lyric files or voice detection (VAD). This is useful for folders of sound clips and small samples, where you just want to get a lot done with very little scrutiny.
+Rarely used, but: Creates karaoke files for all songs in a *folder tree* without using lyric files or voice detection (VAD). This is useful for folders of sound clips and small samples, where you just want to get a lot done without the extra overhead of lyrics and without the extra time delay of loading the VAD model.
 
 ____________________________________________________________________________________________________________
 
-# Audit The Karaoke Files / Find Music That Needs Karaoke
+# Audit The Karaoke/Lyric Files / Finding Music That Needs Karaoke/Lyrics
 
 ### [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../BAT-and-UTIL-files-1/review-subtitles.bat)
 
@@ -95,10 +108,18 @@ Reviews all karaoke files in current folder, using ```print-with-columns``` to e
 
 ### cfmk / [check-for-missing-karaoke](../BAT-and-UTIL-files-1/check-for-missing-karaoke.bat)
 
-Displays a list of files in the current folder which are missing karaoke files
+Displays a list of files in the *current folder* which are missing *karaoke* files
+
+### cfml / cmlf / [check-for-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat)
+
+Displays a list of files in the *current folder* which are missing *approved lyric* files
+
+### Lyric Auditor: cpfml / cpmlf / [check-playlist-for-missing-lyrics](../BAT-and-UTIL-files-1/get-playlist-for-missing-lyrics.bat)
+
+Displays a list of files in a *playlist* which are missing *approved lyric* files.
 
 
-### [karaoke auditor - CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
+### Karaoke Auditor: [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
 
 Processes a playlist to create a new playlist consisting of only the songs missing karaoke files.
 

@@ -46,7 +46,7 @@ rem Parameter checking:
                 endiff
         rem Use different filelist name depending on parameters:
                 iff "%dir_params%" ne "" then
-                        echo - DEBUG: if "%@REGEX[/s,%dir_params%]" eq "1" (set FILELIST_TO_USE=all.m3u) 🐐🐐🐐
+                    rem echo - DEBUG: if "%@REGEX[/s,%dir_params%]" eq "1" (set FILELIST_TO_USE=all.m3u) 🐐🐐🐐
                                       if "%@REGEX[/s,%dir_params%]" eq "1" (set FILELIST_TO_USE=all.m3u)
                 endiff                                      
                 iff exist %filemask_audio% then

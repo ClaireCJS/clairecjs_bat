@@ -138,7 +138,7 @@ def main(input_filename, extensions, options, extra_args):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: python check_a_filelist_for_files_missing_a_sidecar_files_of_the_provided_extension.py <input_filename> <extensions> <postprocessor> {parameters to pass to created script}\n")
+        print("Usage: python check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extension.py <input_filename> <extensions> <postprocessor> {parameters to pass to created script}\n")
         print("Postprocessors can be GetLyricsFileWrite, CreateSrtFileWrite, and they cretae scripts based on missing sidecar files\n")
         sys.exit(1)
 
