@@ -73,6 +73,7 @@ CURSOR_RESET         = "\033[ q"
 UNDERLINE_ON         = "\033[4m"
 UNDERLINE_OFF        = "\033[24m"
 MOVE_TO_COL_1        = "\033[1G"
+CR                   = "\015"
 DOUBLE_UNDERLINE_OFF = "\033[24m"
 DOUBLE_UNDERLINE_ON  = "\033[21m"
 
@@ -246,8 +247,13 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838
                 #ys.stdout.write(f'{MOVE_TO_COL_1}')   #20240324: adding '{MOVE_TO_COL_1}' as ??bugfix?? for ansi creeping out due to TCC error and mis-aligning our double-height lines - prepend the ansi code to move to column 1 first, prior to printing our line
                 #ys.stdout.write(f'{MOVE_TO_COL_1}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
-                sys.stdout.write(f'{MOVE_TO_COL_1}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n')
-                sys.stdout.write(               f'{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
+
+                #prod long time but leaky
+                #sys.stdout.write(f'{MOVE_TO_COL_1}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n')
+                #sys.stdout.write(               f'{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
+                #still leaky but more likely for summary lines to be in correct column?
+                sys.stdout.write(f'           {CR}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n')
+                sys.stdout.write(           f'{CR}{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
                 sys.stdout.flush()
     sys.stdout.write('\n')
 

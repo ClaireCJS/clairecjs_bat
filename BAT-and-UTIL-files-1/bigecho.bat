@@ -39,12 +39,9 @@ rem If it's too wide  then simply revert back to echo'ing the command in normal/
         SET MESSAGE_WIDTH_NORMAL=%LEN%
         SET MESSAGE_WIDTH_DOUBLE=%@EVAL[%LEN * 2] %+ rem because we're dealing with double-height text
 
-rem 🐄🐄🐄 TODO: properly get length of things when they have unicode characters. may need external utility. or it may get fixed in future versions without me doing anything.
-rem Until then, this false positives to not-double-height on unicode/characters that are hard to measure the width of accurately and which report lenghts greater than printable length...
-        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-0]
-        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-1]
-        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-8]
-        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-16] %+ rem fudge factor of 16 got past the windows terminal bug who's report i filed at https://github.com/microsoft/terminal/issues/18250
+rem Get the maximum desired width (in normal size, not double size):
+        rem MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-16] %+ rem fudge factor of 16 got past the windows terminal bug who's report i filed at https://github.com/microsoft/terminal/issues/18250
+        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS]    %+ rem But then the bug got fixed!
 
 rem Now do the special handling if the message it too long
         rem OLD: iff not %MESSAGE_WIDTH_DOUBLE% lt %MAXIMUM_DESIRED_NORMAL_WIDTH%   then
@@ -65,7 +62,6 @@ rem                     echo MAXIMUM_DESIRED_NORMAL_WIDTH = %MAXIMUM_DESIRED_NOR
 
                 REM Loop until the entire string has been processed
                 :begin_loop
-                        rem TODO 🐄🐄🐄 still need accurate way to measure width
                         set string_length_normal_size=%@len[%STR]
                         set string_length_double_size=%@EVAL[%@len[%STR] * 2]         %+ rem *2 because we're dealing with double-height text
 rem                     echo STRING_LENGTH_NORMAL_SIZE = %STRING_LENGTH_NORMAL_SIZE% 🐈
@@ -105,8 +101,8 @@ rem                                    echo   KEEP_AMOUNT_DOUBLE = %keep_amount_
                                 rem DEBUG: echo keep_amount_normal=%keep_amount_normal%
 
                                 REM Actually set the line that we are going to echo
-rem                                echo SET LINE=!@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] 🐈
-                                        SET LINE=%@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] %+ rem TODO 🐐 If we can get an accurate reading of PRINTABLE length and an actual LEFT/RIGHT of PRINTABLE length that doesn't include ANSI codes, we'd get more accurate results
+rem                                echo SET LINE=!@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] 
+                                        SET LINE=%@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] 
 rem                                echo LINE is [%LINE] 🐈
 
                                 REM Then deal with *the rest* of what remains of this line:

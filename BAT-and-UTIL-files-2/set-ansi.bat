@@ -1019,6 +1019,7 @@ rem ************* TOYS: BEGIN: *************
         rem 𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘 
         rem Change a single digit into the cool version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' [[[cool_1,cool_2,...,cool_9 (and some random characters, like COOL_S) are defined in emoji.env]]]: 
                 function  cool_digit_plain=`%[cool_%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
+                function  cool_digit_plain=`%@if[defined %[cool_%1],%[cool_%1],%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
                 function  cool_char_plain=`%@if[%1==" ",%@if[defined cool_%1,%[cool_%1],%1]`      %+ rem VERY limited. Can't use letters. Can't use chars not valid in env var names.
 
                 rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩

@@ -1,4 +1,4 @@
-rem @if exist c:\bat\setpath.cmd (if %@FILEAGE[c:\bat\setpath.cmd] gt %@FILEAGE[c:\bat\setpath.bat] (call c:\bat\setpath.cmd %* %+ goto :END))
+@rem @if exist c:\bat\setpath.cmd (if %@FILEAGE[c:\bat\setpath.cmd] gt %@FILEAGE[c:\bat\setpath.bat] (call c:\bat\setpath.cmd %* %+ goto :END))
 @rem ^^^^^^ If the generated .CMD version is fresher than this bat file, it's much faster to simply run that. Hard-code c:\bat because %BAT% is not defined yet when calling this from autoexec-common
 
 @Echo OFF
@@ -43,6 +43,7 @@ if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 		gosub AddFolderToPathEndOnlyIfItExists  c:\MinGW\bin
         rem UTIL1/2 subfolder stuff:
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL%\sysinternals
+		gosub AddFolderToPathEndOnlyIfItExists  %UTIL%\rktoolks2k3                
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL%\xml
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\git\bin
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%

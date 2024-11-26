@@ -163,7 +163,7 @@ class ColorControl:
                 #sys.stdout.write(f'\n [{code};rgb:{r1:x}/{g1:x}/{b1:x}]')
 		
                 sys .stdout.write(f'\x1b]{code};rgb:{r1:x}/{g1:x}/{b1:x}\x1b\\')	#change main color
-                sys .stdout.write(f'\x1b[ q\x1b]12;{rgb_hex1}\x07')			#cursor cursor color to match
+                #2022/11/26 removing: sys .stdout.write(f'\x1b[ q\x1b]12;{rgb_hex1}\x07')			#cursor cursor color to match
                 #sys.stdout.write( f'\x1b]1;rgb:{r1:x}/{g1:x}/{b1:x}\x07\x1b\\')
                 #sys.stdout.write( f'\x1b]2;rgb:{r1:x}/{g1:x}/{b1:x}\x07\x1b\\')
                 #sys.stdout.write( f'\x1b]3;rgb:{r1:x}/{g1:x}/{b1:x}\x07\x1b\\')

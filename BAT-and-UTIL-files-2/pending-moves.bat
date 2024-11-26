@@ -1,2 +1,3 @@
+@Echo OFF
 @on break cancel
-@call pending-moves %*
+pendmoves

@@ -60,7 +60,7 @@ pushd
     ::::: LOGGING:
         echo. %+ title %SYNCSOURCE% to %SYNCTARGET%
         set headerbg=%@ANSI_BG[0,0,64]%LOCKED_MESSAGE_COLOR_BG% %+ rem fallback value followed by set value
-        call header "Syncing: %ANSI_RESET%%headerbg%%italics_on%%faint_on%%@path[%syncsource%]%faint_off%%@name[%syncsource]%italics_off% %ansi_color_bright_red%%headerbg%%LOCKED_MESSAGE_COLOR_BG%%EMOJI_RIGHT_ARROW% %ansi_color_important%%headerbg%%italics_on%%faint_on%%@path[%syncTarget]%faint_off%%@name[%syncTarget]%italics_off% %ansi_color_bright_green%%headerbg%%DASH%%DASH%%ansi_color_important%%headerbg% {freespace}" %@drive[%syncTarget%]
+        call footer "Syncing: %ANSI_RESET%%headerbg%%italics_on%%faint_on%%@path[%syncsource%]%faint_off%%@name[%syncsource]%italics_off% %ansi_color_bright_red%%headerbg%%LOCKED_MESSAGE_COLOR_BG%%EMOJI_RIGHT_ARROW% %ansi_color_important%%headerbg%%italics_on%%faint_on%%@path[%syncTarget]%faint_off%%@name[%syncTarget]%italics_off% %ansi_color_bright_green%%headerbg%%DASH%%DASH%%ansi_color_important%%headerbg% {freespace}" %@drive[%syncTarget%]
         set TARGETNAME=%@NAME[%SYNCTARGET%]
 
     ::::: DETERMINE COMMAND TO USE FOR COPY BACKUPS:
@@ -128,8 +128,9 @@ pushd
     REM actually do the copy here! fast_cat is the fastest version of cat.exe {after testing}, which is used to fix ANSI rendering problems
     rem RIGHT WAY BUT ARGH: echo rayrayray |:u8 %REDOCOMMAND% |:u8 copy-move-post
     rem WRONG WAY BUT WORKS:
-    rem echo rayrayray |:u8 *copy /e /w /u /s /r /a: /h /z /k /g /Nt                             "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]"  |:u8 copy-move-post
-    (   echo rayrayray |    *copy /e /w /u /s /r /a: /h /z /k /g /Nt /[!*.bak all.m3u these.m3u] "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]") |:u8 copy-move-post
+    rem    echo rayrayray |:u8 *copy /e /w /u /s /r /a: /h /z /k /g /Nt                             "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]"  |:u8 copy-move-post
+    rem (  echo rayrayray |    *copy /e /w /u /s /r /a: /h /z /k /g /Nt /[!*.bak all.m3u these.m3u] "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]") |:u8 copy-move-post
+      ((  echo rayrayray |    *copy /e /w /u /s /r /a: /h /z /k /g /Nt /[!*.bak all.m3u these.m3u] "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]" |:u8 copy-move-post) |:u8 fast_cat)
     if exist "%ZIPFULLNAMEBUG%" (%COLOR_WARNING% %+ mv "%ZIPFULLNAMEBUG%" "%ZIPFULLNAME%")
     set LASTCOMMAND=%REDOCOMMAND%
     title Sync done.
