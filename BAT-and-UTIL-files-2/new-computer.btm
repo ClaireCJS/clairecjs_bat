@@ -31,7 +31,7 @@ rem EDIT BAT/ENVIRONMENT FILES:
         echo Opening up all the scripts with hardcoded computer names and such that need to be reviewed when new computers are added
         pause
         %BAT%\
-        %EDITOR% environm.btm autoexec-common.btm allcomputers.bat allcomputersexceptself.bat backup-stuff.BAT drives.bat display-drive-mapping.bat fr.bat wake-computers.bat
+         %EDITOR% environm.btm autoexec-common.btm backup-stuff.BAT drives.bat display-drive-mapping.bat fr.bat 
 
 rem HOSTS?
         echo. %+ call warning "Hey, we probably need to edit hosts to put this computer in." %+ pause %+ color white on black

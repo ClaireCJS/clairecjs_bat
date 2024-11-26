@@ -1,6 +1,6 @@
 # AI Lyric Transcription System For Windows
 
-## 💠Goal:
+## ✨ �Goals:
 
 🥅 *General goal*: To see the lyrics to music highlighted as they are sung
 

@@ -1,4 +1,3 @@
-@echo bigecho called with %*
 @Echo off
 @on break cancel
 
@@ -19,9 +18,9 @@ rem —————————————————————————�
 rem Get parameters:
         set PARAMS=%@UNQUOTE[%*]
         set PARAMS2=%@UNQUOTE[%1$]
-        echo    %%1$ is %1$
-        echo params  is %params%
-        echo params2 is %params2%
+        rem DEBUG: echo    %%1$ is %1$
+        rem DEBUG: echo params  is %params%
+        rem DEBUG: echo params2 is %params2%
 
 
 rem Validate environment
@@ -43,8 +42,9 @@ rem If it's too wide  then simply revert back to echo'ing the command in normal/
 rem 🐄🐄🐄 TODO: properly get length of things when they have unicode characters. may need external utility. or it may get fixed in future versions without me doing anything.
 rem Until then, this false positives to not-double-height on unicode/characters that are hard to measure the width of accurately and which report lenghts greater than printable length...
         set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-0]
-        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-4]
         set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-1]
+        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-8]
+        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-16] %+ rem fudge factor of 16 got past the windows terminal bug who's report i filed at https://github.com/microsoft/terminal/issues/18250
 
 rem Now do the special handling if the message it too long
         rem OLD: iff not %MESSAGE_WIDTH_DOUBLE% lt %MAXIMUM_DESIRED_NORMAL_WIDTH%   then
@@ -99,6 +99,10 @@ rem                                    echo REMOVE_AMOUNT_NORMAL = %remove_amoun
 rem                                    echo REMOVE_AMOUNT_DOUBLE = %remove_amount_double 🐈
 rem                                    echo   KEEP_AMOUNT_NORMAL = %keep_amount_normal 🐈 [N/A]
 rem                                    echo   KEEP_AMOUNT_DOUBLE = %keep_amount_double 🐈 [N/A]�
+
+                                
+                                rem DEBUG: echo  string_length_double_size=%string_length_double_size% not LE MAXIMUM_DESIRED_NORMAL_WIDTH=%MAXIMUM_DESIRED_NORMAL_WIDTH% 
+                                rem DEBUG: echo keep_amount_normal=%keep_amount_normal%
 
                                 REM Actually set the line that we are going to echo
 rem                                echo SET LINE=!@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] 🐈
@@ -172,15 +176,16 @@ setdos /x-678
     rem Production for a long long time:
             echo %BIG_TEXT_LINE_1%%PARAMS%%ANSI_EOL%
             echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_EOL%
-    rem beta:            
-            echo %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%
-            echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%
-    rem beta:            
-            echo %BIG_TEXT_LINE_1%%PARAMS%
-            echo %BIG_TEXT_LINE_2%%PARAMS%
+    rem also seems to work fine:
+            rem echo %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%
+            rem echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%
+    rem also seems to work fine:
+            rem echo %BIG_TEXT_LINE_1%%PARAMS%
+            rem echo %BIG_TEXT_LINE_2%%PARAMS%
    
-    rem deprecated: if %ECHOSBIG_SAVE_POS_AT_END_OF_BOT_LINE eq 1 (echos %ANSI_SAVE_POSITION%)  
-    rem echo.
+    rem deprecated: 
+            rem if %ECHOSBIG_SAVE_POS_AT_END_OF_BOT_LINE eq 1 (echos %ANSI_SAVE_POSITION%)  
+            rem echo.
 
     echos %ANSI_RESET%
     if %ECHOSBIG ne 1 (echo.)

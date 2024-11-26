@@ -1,4 +1,4 @@
-@Echo On
+@Echo Off
  on break cancel
 
 rem EXAMPLE:
@@ -9,9 +9,9 @@ rem           Ethernet MAC address: BC:5F:F4:43:EC:6E
 
 rem Validate environment:
         iff 1 ne %validated_wakecomp% then
-                call validate-environment-variable ALL_COMPUTERS_UP  "1ˢᵗ parameter to %italics_on%%0.bat%italics_off% must be set ALL_COMPUTERS_UP to a list of computer names in our system, for example, set '%italics_on%ALL_COMPUTERS_UP'%italics_off% TO '%italics_On%GOLIATH THAILOG DEMONA WYVERN%italics_off%'"
-                call validate-environment-variable ANSI_HAS_BEEN_SET "ANSI codes have not been defined. Please run: %blink_on%%italics_on%set-ansi force%italics_off%%blink_off%"
-                call validate-in-path              wake-on-lan.exe   "the Wake-On-Lan utility %italics_on%wake-on-lan.exe%italics_off% needs to be in the path"
+                call validate-environment-variable ALL_COMPUTERS_UP          "1ˢᵗ parameter to %italics_on%%0.bat%italics_off% must be set ALL_COMPUTERS_UP to a list of computer names in our system, for example, set '%italics_on%ALL_COMPUTERS_UP'%italics_off% TO '%italics_On%GOLIATH THAILOG DEMONA WYVERN%italics_off%'"
+                call validate-in-path              wake-on-lan.exe           "the Wake-On-Lan utility %italics_on%wake-on-lan.exe%italics_off% needs to be in the path"
+                call validate-environment-variable ANSI_COLORS_HAVE_BEEN_SET "ANSI codes have not been defined. Please run: %blink_on%%italics_on%set-ansi force%italics_off%%blink_off%"
                 set validated_wakecomp=1
         endiff                
 
@@ -22,7 +22,7 @@ rem Validate that each computer in our system has its IP address and MAC address
                         if not defined MAC_%TmpMachineName (call error "%italics_on%MAC_%TmpMachineName%%italics_off% is not defined for machine %italics_on%%TmpMachineName%%italics_off%")
                         gosub wake_up_by_computer_name %TmpMachineName
                 )
-        rem Old code that reuqired maintanance:
+        rem Old code that required maintanance:
                 rem call validate-environment-variables  IP_WYVERN  IP_THAILOG  IP_DEMONA  IP_GOLIATH 
                 rem call validate-environment-variables MAC_WYVERN MAC_THAILOG MAC_DEMONA MAC_GOLIATH 
                 rem gosub wake_up_by_computer_name                     Wyvern                                    
