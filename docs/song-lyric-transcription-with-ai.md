@@ -2,34 +2,34 @@
 
 ## Goal:
 
-*General goal*: To see the lyrics to music highlighted as they are sung
+💠 *General goal*: To see the lyrics to music highlighted as they are sung
 
-*Technical goal*: To automate AI transcription of music into karaoke files
+💠 *Technical goal*: To automate AI transcription of music into karaoke files
 
-*Specific technical goal*: To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
+💠 *Specific technical goal*: To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
 
-*Detailed goal*: To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI's transcription of audio files into karaoke/subtitle files.
+💠 *Detailed goal*: To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI's transcription of audio files into karaoke/subtitle files.
 
 ## Terminology:
 
-*Karaoke Files*: We generally call both ```SRT files``` and ```LRC files``` "karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates SRT files, but includes a batch converter that converts SRT to LRC.
+📑 *Karaoke Files*: We generally call both ```SRT files``` and ```LRC files``` "karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates SRT files, but includes a batch converter that converts SRT to LRC.
 
-*Sidecar Files*: A file of the same name, but different extension. For example, "filename.txt" is a TXT sidecar file to "filename.mp3", which would be a lyric file. And "tilename.jpg" is a JPG sidecar to "filename.mp3", which would generally be cover art.
+🏎 *Sidecar Files*: A file of the same name, but different extension. For example, "filename.txt" is a TXT sidecar file to "filename.mp3", which would be a lyric file. And "tilename.jpg" is a JPG sidecar to "filename.mp3", which would generally be cover art.
 
 ## Requirements:
 
-1. The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL). 
+1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL). 
     The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your path.
 
-1. [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html), which can also be installed with Winget via the command: ```winget install JPSoft.tcmd```.
+1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html), which can also be installed with Winget via the command: ```winget install JPSoft.tcmd```.
 
-1. My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.  ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` .... Technically you probably only need about 30 of these files, but detangling things is a lot of effort.
+1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.  ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` .... Technically you probably only need about 30 of these files, but detangling things is a lot of effort.
 
-1. Cygwin or other comparable version of ```sort.exe``` and ```uniq.exe``` and ```cat.exe``` utilities. (You might need to ```copy cat.exe fast_cat.exe``` if you don't have a fast_cat in your path.)
+1. 💾 Cygwin or other comparable version of ```sort.exe``` and ```uniq.exe``` and ```cat.exe``` utilities. (You might need to ```copy cat.exe fast_cat.exe``` if you don't have a fast_cat in your path.)
 
-1. Optoinal: For automatic file-trash cleanup across an entire computer, you will need the ```Everything``` service to track files. It comes with TakeCommand (TCC). (Use ```start-everything.bat``` to start it, if it doesn't start automatically.)
+1. ☯️ Optional: For automatic file-trash cleanup across an entire computer, you will need the ```Everything``` service to track files. It comes with TakeCommand (TCC). (Use ```start-everything.bat``` to start it, if it doesn't start automatically.)
 
-1. Optional: For *WinAmp* integration: the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in WinAmp, allowing us to have commands that operate on "whatever song we are currently listening to".
+1. ⚡️ Optional: For 🦙 *WinAmp* 🦙 integration: The [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in WinAmp, allowing us to have commands that operate on "whatever song we are currently listening to". 🦙
 
 ____________________________________________________________________________________________________________
 ____________________________________________________________________________________________________________
@@ -41,11 +41,11 @@ ________________________________________________________________________________
 
 ## Several types of commands for this system:
 
-  1. Lyric alignment commands ([get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
-  1. Karaoke generation commands ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
-  1. Auditing commands (to find files that do not have lyrics or karaoke)
-  1. WinAmp integration commands (to work with the song that is currently playing in WinAmp)
-  1. Subordinate commands (under the hood stuff not generally invokved directly)
+  1. 🎤️ Lyric alignment commands ([get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
+  1. 🧏 Karaoke generation commands ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
+  1. 🕵 Auditing commands (to find files that do not have lyrics or karaoke)
+  1. ⚡ WinAmp � integration commands (to work with the song that is currently playing in WinAmp)
+  1. ⚙️ Subordinate commands (under the hood stuff not generally invokved directly)
 
 ____________________________________________________________________________________________________________
 
