@@ -27,7 +27,7 @@
 
 1. 💾 [Cygwin](https://www.cygwin.com) or other comparable version of ```sort.exe``` and ```uniq.exe```. 
 
-1. ☯️ Optional: For automatic file-trash cleanup across an entire computer, you will need the ```Everything``` service to track files. It comes with TakeCommand (TCC). (Use ```start-everything.bat``` to start it, if it doesn't start automatically.)
+1. ☯️ Optional: For [automatic file-trash cleanup across an entire computer](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files.bat), you will need the ```Everything``` service to track files. It comes with TakeCommand (TCC). (Use ```start-everything.bat``` to start it, if it doesn't start automatically.)
 
 1. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration: The [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on "whatever song we are currently listening to". 🦙
 
