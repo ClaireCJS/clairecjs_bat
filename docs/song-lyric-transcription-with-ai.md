@@ -7,11 +7,15 @@
   1. 🥅 *Specific technical goal*: 🥅 To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
   1. 🥅 *Detailed technical goal*: 🥅 To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI's transcription of audio files into karaoke/subtitle files.
 
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
 ## 📓 Terminology:
 
 📑 *Karaoke Files*: We generally call both ```SRT files``` and ```LRC files``` "karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates SRT files, but includes a batch converter that converts SRT to LRC.
 
 🏎 *Sidecar Files*: A file of the *same* name, but *different* extension. For example, ```filename.mp3``` might have a sidecar file named ```filename.txt```, which would typically be lyrics for a song, and a sidecar file named ```filename.jpg```, which would ```filename.mp3``` that would tpically be the cover art to the song.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 ## ⚙️ Requirements:
 
@@ -28,8 +32,8 @@
 
 1. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration: The [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on "whatever song we are currently listening to". 🦙
 
-____________________________________________________________________________________________________________
-____________________________________________________________________________________________________________
+-----------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 
 # SYSTEM COMMANDS
@@ -44,8 +48,8 @@ ________________________________________________________________________________
   1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
   1. ⚙️ Subordinate commands (under the hood stuff not generally invokved directly)
 
-____________________________________________________________________________________________________________
-____________________________________________________________________________________________________________
+-----------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 # Lyric Alignment commands:
 
@@ -74,7 +78,7 @@ To have this happen automatically when changing into a folder, simply Alias the 
 
 
 
-____________________________________________________________________________________________________________
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 
 # Karaoke Generation commands:
@@ -103,7 +107,7 @@ Create karaoke files for all songs in a *folder tree* that do not have them, as 
 
 Rarely used, but: Creates karaoke files for all songs in a *folder tree* without using lyric files or voice detection (VAD). This is useful for folders of sound clips and small samples, where you just want to get a lot done without the extra overhead of lyrics and without the extra time delay of loading the VAD model.
 
-____________________________________________________________________________________________________________
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 # Auditing Commands:
 
@@ -140,7 +144,7 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 ^^^ This example goes through the file ```PlayList.m3u```, checks for all files that do not have karaoke files (i.e. no ```*.srt``` or ```*.lrc``` sidecar file), creates a ```PlayList-without lrc srt.m3u``` consisting of those files.  Bbecause the `````CreateSRTFileWrite``` option was used, it also generates a script to actually create the missing karaoke files.  The ``GetLyricsFileWrite``` option can instead be used to *ONLY* obataining lyrics, and save the karaoke generation for later.
 
 
-____________________________________________________________________________________________________________
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 
 # ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 Integration Commands:
@@ -163,7 +167,7 @@ In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com
 
 
 
-_________________________________________
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 # Under-The-Hood: Critical Utility commands
 
@@ -189,7 +193,7 @@ Inserts text before or after each line of STDIN. Used for script generation.
 
 A *batch* SRT-file to LRC-file converter. Used by [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat)
 
-____________________________________________________________________________________________________________
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 # Under-The-Hood: Adjunct Utility commands
 
@@ -197,7 +201,7 @@ ________________________________________________________________________________
 
 A *single-file* SRT-file to TXT-file converter
 
-____________________________________________________________________________________________________________
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 
 # Under-The-Hood: Pre/Post-Processor Utility Commands:
@@ -219,7 +223,7 @@ A lyric postprocessor that removes tons of junk from downloaded lyrics, only sho
 A subtitle postprocessor that removes periods from end of each line in a subtitle. Preserves periods for words like "Mr."
 We add "invisible" periods to the end of each line of lyrics so that WhisperAI's ```--sentence``` option works better. We then remove these periods (making them "invisible") afterward, because they are ugly.  Also has a side effect of de-censoring some curse words, which can be suppressed with the ```--leave-censorship``` or ```-L``` option.
 
-____________________________________________________________________________________________________________
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 # Under-The-Hood: Existing commands also used by this system:
 
