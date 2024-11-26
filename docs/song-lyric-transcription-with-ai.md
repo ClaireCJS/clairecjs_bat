@@ -10,13 +10,13 @@
 
 🥅 *Detailed technical goal*: To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI's transcription of audio files into karaoke/subtitle files.
 
-## Terminology:
+## 📓 Terminology:
 
 📑 *Karaoke Files*: We generally call both ```SRT files``` and ```LRC files``` "karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates SRT files, but includes a batch converter that converts SRT to LRC.
 
 🏎 *Sidecar Files*: A file of the *same* name, but *different* extension. For example, ```filename.mp3``` might have a sidecar file named ```filename.txt```, which would typically be lyrics for a song, and a sidecar file named ```filename.jpg```, which would ```filename.mp3``` that would tpically be the cover art to the song.
 
-## Requirements:
+## ⚙️ Requirements:
 
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL). 
     The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your path.
