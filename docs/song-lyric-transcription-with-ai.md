@@ -14,18 +14,18 @@
 
 📑 *Karaoke Files*: We generally call both ```SRT files``` and ```LRC files``` "karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates SRT files, but includes a batch converter that converts SRT to LRC.
 
-🏎 *Sidecar Files*: A file of the same name, but different extension. For example, "filename.txt" is a TXT sidecar file to "filename.mp3", which would be a lyric file. And "tilename.jpg" is a JPG sidecar to "filename.mp3", which would generally be cover art.
+🏎 *Sidecar Files*: A file of the *same* name, but *different* extension. For example, ```filename.mp3``` might have a sidecar file named ```filename.txt```, which would typically be lyrics for a song, and a sidecar file named ```filename.jpg```, which would ```filename.mp3``` that would tpically be the cover art to the song.
 
 ## Requirements:
 
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL). 
     The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your path.
 
-1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html), which can also be installed with Winget via the command: ```winget install JPSoft.tcmd```.
+1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html), installable with Winget via the command: ```winget install JPSoft.tcmd```.  (If not installed to ```c:\tcmd```, you may need to ```mklink c:\TCMD "c:\Program Files\TCMD31"```, substituting in the folder where TCC was installed.)
 
-1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.  ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` .... Technically you probably only need about 30 of these files, but detangling things is a lot of effort.
+1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.  ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` .... Technically you probably only need about 40 of these files, but detangling things is a lot of effort.
 
-1. 💾 Cygwin or other comparable version of ```sort.exe``` and ```uniq.exe``` and ```cat.exe``` utilities. (You might need to ```copy cat.exe fast_cat.exe``` if you don't have a fast_cat in your path.)
+1. 💾 [Cygwin](https://www.cygwin.com) or other comparable version of ```sort.exe``` and ```uniq.exe```. 
 
 1. ☯️ Optional: For automatic file-trash cleanup across an entire computer, you will need the ```Everything``` service to track files. It comes with TakeCommand (TCC). (Use ```start-everything.bat``` to start it, if it doesn't start automatically.)
 
@@ -161,7 +161,7 @@ Runs ```create-srt``` on the song currently being played in ⚡️ [WinAmp](http
 
 ### 🌟 Karaoke insertion fudger - [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat)
 
-In certain very rare situations, MiniLyrics does not auto-import the generated SRT file.  Because MiniLyrics primarily uses LRC instead of SRT, it can sometimes miss an SRT. When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the MiniLyrics lyric window manually. This script handles that by detecting the current song playing, converting it's SRT to LRC, copying it to the clipboard, and automatically opening MiniLyrics's lyric editor window. All the user has to do is paste and save.
+In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com/) does not auto-import the generated SRT file.  Because [MiniLyrics](https://minilyrics.en.softonic.com/) primarily uses LRC instead of SRT, it can sometimes miss an SRT. When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the [MiniLyrics](https://minilyrics.en.softonic.com/) lyric window manually. This script handles that by detecting the current song playing, converting it's SRT to LRC, copying it to the clipboard, and automatically opening [MiniLyrics](https://minilyrics.en.softonic.com/)'s lyric editor window. All the user has to do is paste and save.
 
 
 
