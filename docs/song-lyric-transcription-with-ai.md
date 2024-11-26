@@ -9,7 +9,7 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-## 📓 Terminology:
+## 📓 Terminology: 📓
 
 📑 *Karaoke Files*: We generally call both ```SRT files``` and ```LRC files``` "karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates SRT files, but includes a batch converter that converts SRT to LRC.
 
@@ -17,7 +17,7 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-## ⚙️ Requirements:
+## ⚙️ Requirements: ⚙️
 
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL). 
     The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your path.
