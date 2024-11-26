@@ -39,13 +39,13 @@ ________________________________________________________________________________
 
 ### NOTE: Many commands have several different aliases, for convenience-of-remembering.
 
-## Several types of commands for this sy stem:
+## Several types of commands for this system:
 
-	1. Lyric alignment commands ([get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
-	1. Karaoke generation commands ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
-	1. Auditing commands (to find files that do not have lyrics or karaoke)
-	1. WinAmp integration commands (to work with the song that is currently playing in WinAmp)
-	1. Subordinate commands (under the hood stuff not generally invokved directly)
+  1. Lyric alignment commands ([get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
+  1. Karaoke generation commands ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
+  1. Auditing commands (to find files that do not have lyrics or karaoke)
+  1. WinAmp integration commands (to work with the song that is currently playing in WinAmp)
+  1. Subordinate commands (under the hood stuff not generally invokved directly)
 
 ____________________________________________________________________________________________________________
 
