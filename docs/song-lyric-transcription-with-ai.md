@@ -2,10 +2,10 @@
 
 ## ✨ Goals: ✨
 
-  1. 🥅 *General goal*: 🥅 To see the lyrics to music highlighted as they are sung
-  1. 🥅 *Technical goal*: 🥅 To automate AI transcription of music into karaoke files
-  1. 🥅 *Specific technical goal*: 🥅 To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
-  1. 🥅 *Detailed technical goal*: 🥅 To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI's transcription of audio files into karaoke/subtitle files.
+  1. 🥅 *General*: 🥅 To see the lyrics 📄 to music 🎵 highlighted 👆 as they are sung 🎤
+  1. 🥅 *Technical*: 🥅 To automate AI transcription of music into karaoke files
+  1. 🥅 *Specific*: 🥅 To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
+  1. 🥅 *Detailed*: 🥅 To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI's transcription of audio files into karaoke/subtitle files.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
