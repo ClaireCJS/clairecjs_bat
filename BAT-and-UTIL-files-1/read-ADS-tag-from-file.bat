@@ -1,4 +1,3 @@
-
 @rem     Reads a tag associated with a file into %RECEIVED_VALUE%, using Windows Alternate Data Streams for files. 
 
 @rem     These tags copy over to new locations and "live" "within" the files themselves, so moving/copying doesn't change things.
