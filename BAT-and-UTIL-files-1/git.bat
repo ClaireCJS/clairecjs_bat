@@ -1,5 +1,5 @@
 @on break cancel
-l@Echo ON
+@Echo OFF
 
 rem *** CONFIGURATION: ***
 

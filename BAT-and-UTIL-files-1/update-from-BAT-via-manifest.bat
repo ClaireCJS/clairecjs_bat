@@ -1,5 +1,5 @@
 @REM                              Edit this one only in c:\bat\
-@Echo ON
+@Echo OFF
  on break cancel
 
 echo caller to %0 in %_CWD: %_PBATCHNAME %+ pause

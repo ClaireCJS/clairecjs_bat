@@ -1,4 +1,4 @@
-@Echo ON
+@Echo OFF
 @on break cancel
 
 echo caller for %0 in %_CWD: %_PBATCHNAME %+ pause
@@ -66,7 +66,7 @@ rem Make sure none of our files are set as read-only, so that we can successfull
                                 attrib %attrib_to_use% %TARGET_1%\*.*        >nul     
                                 attrib %attrib_to_use% %TARGET_1%\docs\*.*   >nul     
                                 attrib %attrib_to_use%            docs\*.*   >nul
-                        :return
+                        return
                 :end_of_subroutines
 
 rem Manually-selected copies from locations other than C:\BAT\ ——— Step #1 ——— Define variables for each of the files/folders:
