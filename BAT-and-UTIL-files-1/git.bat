@@ -70,7 +70,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Raw%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
                 rem color blue on black
                 rem color cyan on black
-                echos %@ANSI_FG[10,250,175]
+                echos %@ANSI_FG[20,200,125]
                 echo.
         
         rem Set up TEE:
@@ -90,7 +90,10 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
 
         rem Size warning:
                 rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
-                if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo %@ANSI_MOVE_UP[2]%ANSI_ERASE_TO_EOL%)
+                iff not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 then
+                        echos %@ANSI_MOVE_UP[2]%ANSI_ERASE_TO_EOL%%@ANSI_MOVE_UP[1]%ANSI_ERASE_TO_EOL%%@ANSI_MOVE_TO_COL[1]
+                        if "%@NAME[%_PBATCHNAME]" eq "git-add" (echos %@ANSI_MOVE_UP[1]%ANSI_ERASE_TO_EOL%%@ANSI_MOVE_TO_COL[1])
+                endiff
 
         rem Potentially output the filtered output from our captured file for a more meaningful/processed set of output...
                 iff     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 then

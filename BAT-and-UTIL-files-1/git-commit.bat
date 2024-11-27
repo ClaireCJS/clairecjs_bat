@@ -80,7 +80,10 @@ REM Actually commit the files
     REM                                                     ..........but this is: call errorlevel "there were no files to commit"
     REM  errorlevel "there were no files to commit" "%NEWLINE%%STAR% %blink_on%Commit was successful!%blink_off% %PARTY_POPPER%%PARTY_POPPER%%PARTY_POPPER%"
     call errorlevel "there were no files to commit"  %+ rem sets REDO=1 if error is encountered
-    if %REDO eq 0 call success "%italics_on%Commit%italics_off% was successful!"
+    iff %REDO eq 0 then
+        echo.
+        call success "%italics_on%Commit%italics_off% was successful!"
+    endiff
 
 
 REM Remind that commit and push are not the same

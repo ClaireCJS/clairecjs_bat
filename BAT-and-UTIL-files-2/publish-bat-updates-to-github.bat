@@ -1,6 +1,8 @@
 @Echo OFF
 @on break cancel
  cls
+ call say.bat "Here we go!" | copy-move-post
+ 
 
 rem Capture parameters:
         set pbutg_params=%*
@@ -9,7 +11,7 @@ rem Go to my development folder:
         call dev
         set  dir=clairecjs_bat
         call validate-environment-variable dir
-        cd   %dir%
+        *cd  %dir%
 
 
 rem Do the updates:
