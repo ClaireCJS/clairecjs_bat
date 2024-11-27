@@ -64,15 +64,25 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         call git-setvars
         %COLOR_RUN%         
 
-        color bright blue on black
-        echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Un-filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
-        color blue on black
-        echo.
-        rem Output the unfiltered output while capturing it to a file via tee:
-        set TEECOLOR=%COLOR_UNIMPORTANT%
-        %TEECOLOR%
-        if "%1" ne "status" ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                                             |&:u8 tee %GIT_OUT%) |:u8 cat_fast)
-        if "%1" eq "status" ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |:u8 call highlight "^ *M.*$" |:u8 call highlight "^A *.*$" |&:u8 tee %GIT_OUT%) |:u8 cat_fast)
+        rem Output header:
+                color bright blue on black
+                echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Un-filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
+                color blue on black
+                echo.
+        
+        rem Set up TEE:
+                set TEE=*tee
+                if exist   c:\cygwin\bin\tee.exe (set   TEE=c:\cygwin\bin\tee.exe)
+                if exist c:\cygwin64\bin\tee.exe (set TEE=c:\cygwin64\bin\tee.exe)
+                set TEECOLOR=%COLOR_UNIMPORTANT%
+                %TEECOLOR%
+                
+        iff "%1" eq "status" then
+                ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |:u8 call highlight "^ *M.*$" |:u8 call highlight "^A *.*$" |&:u8 %tee% %GIT_OUT%) |:u8 cat_fast)
+        else
+                ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                                             |&:u8 %tee% %GIT_OUT%) |:u8 cat_fast)
+        endiff
+|& tee %GIT_OUT%
 
         rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
         if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo None!)
