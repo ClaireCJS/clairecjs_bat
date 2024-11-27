@@ -91,8 +91,11 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         rem Size warning:
                 rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
                 iff not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 then
+                        set last_git_was_null=1
                         echos %@ANSI_MOVE_UP[2]%ANSI_ERASE_TO_EOL%%@ANSI_MOVE_UP[1]%ANSI_ERASE_TO_EOL%%@ANSI_MOVE_TO_COL[1]
                         if "%@NAME[%_PBATCHNAME]" eq "git-add" (echos %@ANSI_MOVE_UP[1]%ANSI_ERASE_TO_EOL%%@ANSI_MOVE_TO_COL[1])
+                else                        
+                        set last_git_was_null=0
                 endiff
 
         rem Potentially output the filtered output from our captured file for a more meaningful/processed set of output...
