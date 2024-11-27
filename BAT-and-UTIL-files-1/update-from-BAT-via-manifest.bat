@@ -72,7 +72,7 @@ rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
                     rem color bright black on black
                     (%COPY% /u %SOURCE_DIR%\%myFile% . )            
                 )
-                call debug "setting files to +r in %_CWD"               
+                rem call debug "setting files to +r in %_CWD"               
         :Manifest_File_Update_Complete
 
 
@@ -172,7 +172,9 @@ goto :END_OF_SUBROUTINES
                                 rem call unimportant    "            CWD: %_CWD%"
                         REM choose your zip output strategy:
                             REM %COLOR_ERRROR% %+ %ZIP_COMMAND% >nul
-                                %COLOR_SUCCESS %+ %ZIP_COMMAND% >zip.out %+ call errorlevel "Zipping our associated %shared_type% filfailed?!"
+                                %COLOR_SUCCESS 
+                                %ZIP_COMMAND% >:u8 zip.out 
+                                call errorlevel "Zipping our associated %shared_type% filfailed?!"
                                 type zip.out |:u8 insert-before-each-line "           "
                         REM ensure zip generated
                                 if exist zip.out (%COLOR_REMOVAL% %+ echo ray|del /q /r zip.out%>nul)

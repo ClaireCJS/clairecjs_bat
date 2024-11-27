@@ -67,8 +67,10 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
 
         rem Output header:
                 color bright blue on black
-                echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Un-filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
-                color blue on black
+                echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Raw%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
+                rem color blue on black
+                rem color cyan on black
+                echos %@ANSI_FG[10,250,175]
                 echo.
         
         rem Set up TEE:
@@ -76,7 +78,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 if exist   c:\cygwin\bin\tee.exe (set   TEE=c:\cygwin\bin\tee.exe)
                 if exist c:\cygwin64\bin\tee.exe (set TEE=c:\cygwin64\bin\tee.exe)
                 set TEECOLOR=%COLOR_UNIMPORTANT%
-                %TEECOLOR%
+                rem NO! %TEECOLOR%
                 
         rem Add --no-pager to git status commands, and display them our own way:
                 iff "%1" eq "status" then
@@ -92,7 +94,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
 
         rem Potentially output the filtered output from our captured file for a more meaningful/processed set of output...
                 iff     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 then
-                        ((type %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager') |:u8 grep -v 'https:..aka.ms.gcm.rename') >:u8 >%GIT_OUT_FILTERED%
+                        ((type %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager') |:u8 grep -v 'https:..aka.ms.gcm.rename') >:u8%GIT_OUT_FILTERED%
                         
                         iff %@FILESIZE[%GIT_OUT%] eq %@FILESIZE[%GIT_OUT_FILTERED%] then                
                                 rem Do nothing! We already displayed the unfiltered...
@@ -102,8 +104,10 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                                 color bright blue on black
                                 echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
                                 echo.
-                                echos %@ANSI_RGB[0,205,0]
-                                if exist %GIT_OUT% (type %GIT_OUT_FILTERED% |:u8 fast_cat)
+                                iff exist %GIT_OUT_FILTERED% then
+                                        echos %@ANSI_RGB[0,205,0]
+                                        (type %GIT_OUT_FILTERED% |:u8 fast_cat)
+                                endiff                                        
                                         rem piping to cat_fast fixes TCC+WT ansi rendering errors:
                                         rem (cat  %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
                                         rem 2024/11/25 change from cat to type                    
@@ -115,7 +119,8 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 endiff
         
         :git_status_skip_here
-        if exist %GIT_OUT% (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT%>nul)
+        rem if exist %GIT_OUT%          (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT%         >nul)
+        rem if exist %GIT_OUT_FILTERED% (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT_FILTERED%>nul)
         call errorlevel "a git error!?! how can this be?!?! Command line was: %0 %*"
     goto :END
 
