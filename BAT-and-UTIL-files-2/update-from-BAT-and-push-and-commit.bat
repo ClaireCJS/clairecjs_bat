@@ -17,7 +17,7 @@ REM     my local GIT repo beore uploading to GitHub. This script does that.
 rem CONFIGURATION:
         set TARGET_MAIN=BAT-and-UTIL-files-1
         set TARGET_2=BAT-and-UTIL-files-2
-        set COMMIT_CONFIRMATION_WAIT_TIME=10
+        set COMMIT_CONFIRMATION_WAIT_TIME=5
 
         SET MANIFEST_FILES=NONE
 
