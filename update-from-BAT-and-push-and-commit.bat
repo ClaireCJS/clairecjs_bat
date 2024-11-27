@@ -161,10 +161,10 @@ rem Commit and Push:
         echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/%TARGET%  >go-to-individual-BAT-files-on-GitHub.bat
 
 rem Set files to be read-only so we don't accidentally edit them in the wrong place:
-        attrib +r %TARGET_2%\* 
-        attrib +r %TARGET_1%\* 
-        attrib +r %TARGET_1%\docs\* 
-        attrib +r            docs\* 
+        attrib +r %TARGET_2%\*          >nul
+        attrib +r %TARGET_1%\*          >nul
+        attrib +r %TARGET_1%\docs\*     >nul
+        attrib +r            docs\*     >nul
 
 
 rem Cleanup:
