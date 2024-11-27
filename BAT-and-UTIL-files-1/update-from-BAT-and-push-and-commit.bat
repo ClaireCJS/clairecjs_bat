@@ -47,7 +47,6 @@ rem Only once per session, validate our environment & make sure we're running th
             call validate-in-path               c:\bat\update-from-BAT-via-manifest copy-move-post.py fast_cat divider AskYN git.bat commit-and-push.bat error error.bat print-message.bat
             if "%MACHINENAME%" ne "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%" (call error "This script is only meant to be run on our primary machine named '%italics_on%%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%%italics_on%', but this machine is named '%italics_on%%MACHINENAME%%italics_on%'" %+ goto :END)
             set GITHUB_UPDATER_VALIDATED=1
-
         endiff
 
 
@@ -202,3 +201,4 @@ rem Cleanup:
                 unset /q SECONDARY_BAT_FILES_5   
         :END
 
+echo %ansi_color_removal%👻 leaving %0 in %_CWD tha was called by %_PBATCHNAME%ansi_color_normal% %+ pause

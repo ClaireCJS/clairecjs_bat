@@ -81,7 +81,7 @@ rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
 
 rem DO SECONDARY FILES, OR SKIP THEM IF WE SAID TO:
         if "%1" eq "skip" .or. "%1" eq "fast" .or. "%1" eq "quick" (shift %+ goto :Skip)
-        if "%2" eq "skip" .or. "%2" eq "fast" .or. "%2" eq "quick" (shift %+ goto :Skip)
+        if "%2" eq "skip" .or. "%2" eq "fast" .or. "%2" eq "quick" (         goto :Skip)
 
                     rem SHARE REQUIRED BAT, UTIL FILES THAT WE USE, FOR FURTHER SUPPORT, TO SECONDARY PROJECT FOLDER:
                             set SECONDARY_SUBFOLDER_FOLDERNAME=%1
@@ -229,3 +229,6 @@ rem reset our values so they don't accidentally get re-used, and CELEBRATE:
         %PROJECT_DIR%\
 
 
+
+
+echo %ansi_color_removal%👻 leaving %0 in %_CWD tha was called by %_PBATCHNAME%ansi_color_normal% %+ pause
