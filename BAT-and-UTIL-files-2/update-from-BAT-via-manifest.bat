@@ -132,8 +132,8 @@ goto :END_OF_SUBROUTINES
                                     rem echo %ansi_color_warning%our_filelist is %our_filelist%%ansi_color_normal% 🐮
                                     rem set remark=echos %newline%%tab%%arrow%Checking file '%file%'
                                     for %file in (%OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4% %OUR_FILELIST_5% %OUR_FILELIST_6% %OUR_FILELIST_7% %OUR_FILELIST_8% %OUR_FILELIST_9% %OUR_FILELIST_10%) do (
-                                                echos %@random_cursor_color[]%@randfg[].
                                                 if     exist %file% (
+                                                        echos %@random_cursor_color[]%@randfg[].
                                                         %UPDATE%   %file%  %TARGET_DIR%\%file%
                                                 ) else (
                                                         call error "file doesn't exist: %file%"
