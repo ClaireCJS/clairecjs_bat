@@ -68,7 +68,8 @@ rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
                     rem color bright black on black
                     (%COPY% /u %SOURCE_DIR%\%myFile% . )            
                 )
-            attrib +r * 
+                call debug "setting files to +r in %_CWD"               
+                attrib +r * 
         :Manifest_File_Update_Complete
 
 
