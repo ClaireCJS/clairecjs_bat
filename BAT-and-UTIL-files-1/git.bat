@@ -12,6 +12,7 @@ rem *** CONFIGURATION: ***
         set GIT_PYTHON_GIT_EXECUTABLE=%GIT%
         rem GIT_OUT=git.%_PID.%_DATETIME.out would be an ideal filename but these files are used elsewhere and we don't want to guess or store their name so let's just stick with git.out:
         set GIT_OUT=git.out
+        set GIT_OUT_FILTERED=git2.out
 
 rem *** GET USAGE: ***
     rem git init
@@ -77,30 +78,43 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 set TEECOLOR=%COLOR_UNIMPORTANT%
                 %TEECOLOR%
                 
-        iff "%1" eq "status" then
-                ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |:u8 call highlight "^ *M.*$" |:u8 call highlight "^A *.*$" |&:u8 %tee% %GIT_OUT%) |:u8 cat_fast)
-        else
-                ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                                             |&:u8 %tee% %GIT_OUT%) |:u8 cat_fast)
-        endiff
-
-        rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
-        if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo None!)
-
-        rem Output the filtered output from our captured file for a more meaningful/processed set of output...
-        iff     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 then
-                echo.
-                color bright blue on black
-                echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
-                echo.
-                echos %@ANSI_RGB[0,205,0]
-                iff exist %GIT_OUT% then
-                        rem piping to cat_fast fixes TCC+WT ansi rendering errors:
-                        rem (cat  %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
-                        rem 2024/11/25 change from cat to type                    
-                        ((type %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager') |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
+        rem Add --no-pager to git status commands, and display them our own way:
+                iff "%1" eq "status" then
+                        ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |:u8 call highlight "^ *M.*$" |:u8 call highlight "^A *.*$" |&:u8 %tee% %GIT_OUT%) |:u8 cat_fast)
+                        goto :git_status_skip_here
+                else
+                        ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                                             |&:u8 %tee% %GIT_OUT%) |:u8 cat_fast)
                 endiff
-        endiff
+
+        rem Size warning:
+                rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
+                if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo None!)
+
+        rem Potentially output the filtered output from our captured file for a more meaningful/processed set of output...
+                iff     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 then
+                        ((type %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager') |:u8 grep -v 'https:..aka.ms.gcm.rename') >:u8 >%GIT_OUT_FILTERED%
+                        
+                        iff %@FILESIZE[%GIT_OUT%] eq %@FILESIZE[%GIT_OUT_FILTERED%] then                
+                                rem Do nothing! We already displayed the unfiltered...
+                        else
+                                rem Filtered vs Non-filtered display:
+                                echo.
+                                color bright blue on black
+                                echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
+                                echo.
+                                echos %@ANSI_RGB[0,205,0]
+                                if exist %GIT_OUT% (type %GIT_OUT_FILTERED% |:u8 fast_cat)
+                                        rem piping to cat_fast fixes TCC+WT ansi rendering errors:
+                                        rem (cat  %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
+                                        rem 2024/11/25 change from cat to type                    
+                                        rem ((type %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager') |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
+                                        rem 2024/11/27 change to send to file, and moving upstream to diff first to see if we should bother with filter vs unfiltered {i.e. if both are the same}:
+                                        rem endiff
+                        else
+                        endiff
+                endiff
         
+        :git_status_skip_here
         if exist %GIT_OUT% (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT%>nul)
         call errorlevel "a git error!?! how can this be?!?! Command line was: %0 %*"
     goto :END

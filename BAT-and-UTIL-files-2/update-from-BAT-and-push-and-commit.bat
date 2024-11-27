@@ -1,6 +1,7 @@
 @Echo OFF
 @on break cancel
 
+
 rem FOR THIS ONE FILE, MAKE SURE TO %EDITOR% %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
 
 
@@ -56,8 +57,6 @@ rem Make sure none of our files are set as read-only, so that we can successfull
                 goto :end_of_subroutines
                         :setAttribs    [attrib_to_set]
                                  set    attrib_to_use=%@unquote[%attrib_to_set]
-                                 echo %_CWD:                                 attrib %attrib_to_use% %TARGET_1%\*.*        
-
                                 attrib %attrib_to_use% %TARGET_2%\*.*        >nul
                                 attrib %attrib_to_use% %TARGET_1%\*.*        >nul     
                                 attrib %attrib_to_use% %TARGET_1%\docs\*.*   >nul     
@@ -143,14 +142,15 @@ rem Update BAT files from live location to github-folder location:
 
 rem Update our copy of BAT-1 folder's later-letters to our BAT-2 folder to get past GitHub's 1,000 file 
 rem display limit so that bat files starting with Z can actually be browsed to:
-        call less_important "Updating BAT-2 from BAT-1)
-        (((echo yryr|*copy /u /r /Ns %TARGET_MAIN%\[m-z]* %TARGET_2%) |:u8 copy-move-post.py) |:u8 fast_cat)
+        echo.
+        call less_important "Updating %italics_on%BAT-2%italics_off% from %italics_on%BAT-1%italics_off%"
+        (((echo yryr|*copy /u /r /Ns %TARGET_MAIN%\[m-z]* %TARGET_2% ) |:u8 copy-move-post.py) |:u8 fast_cat)
 
 
 rem Give a chance to stop here...
-        repeat 1 echo.
+        echo.
         call divider
-        repeat 2 echo.
+        echo.
         call askYN "Continue with git add + commit + push?" yes %COMMIT_CONFIRMATION_WAIT_TIME%
         if %DO_IT eq 0 (goto :Skip_TheRest)
 

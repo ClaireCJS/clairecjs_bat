@@ -194,7 +194,7 @@
 2023-06-02  04:02          4,440   67%  convert_midi_to_wav_with_soundfont.py
 2024-11-19  07:37             54   -3%  cool-header.bat
 2024-11-19  07:37             44   -4%  coolbigecho.bat
-2024-11-19  07:35          1,913   57%  copy-alias.bat
+2024-11-27  20:32          2,243   58%  copy-alias.bat
 2024-11-27  14:57         28,228   73%  copy-move-post.py
 2024-11-19  07:37             37   -5%  copy.bat
 2024-11-19  07:35            242   31%  counts-helper.bat
@@ -335,7 +335,7 @@
 2024-11-22  01:05          2,678   61%  eccsrt2lrc2clip.bat
 2024-11-19  07:21          4,244   74%  echo-rainbow.bat
 2024-11-19  07:41          1,807   64%  edit-all-BAT-files-that-do-not-contain-a-string.bat
-2024-11-27  14:56         34,779   69%  edit-currently-playing-attrib-helper.pl
+2024-11-27  20:34         34,781   69%  edit-currently-playing-attrib-helper.pl
 2024-11-11  16:33            252   49%  edit-currently-playing-attrib-with-automark.bat
 2024-11-25  02:32         18,173   80%  edit-currently-playing-attrib.bat
 2024-11-19  07:33          4,639   67%  edit-filenames-matching-regex.bat
@@ -360,7 +360,7 @@
 2019-10-01  10:25            172   20%  env.pl
 2024-11-26  12:21        232,376   82%  environm.btm
 2024-11-19  07:47             60   -3%  error.bat
-2024-11-19  07:47         13,214   75%  errorlevel.bat
+2024-11-27  17:33         13,284   75%  errorlevel.bat
 2024-11-04  02:30              1 -200%  escape.txt
 2024-11-19  07:47          2,920   63%  eset-alias.bat
 2024-11-19  07:47             39   -5%  eset.bat
@@ -448,7 +448,7 @@
 2024-11-19  07:48            641   52%  git-add-every-damn-file.bat
 2024-11-19  07:48            815   47%  git-add.bat
 2024-11-19  07:48            176   16%  git-commit-history.bat
-2024-11-19  07:48          4,061   61%  git-commit.bat
+2024-11-27  18:06          4,287   61%  git-commit.bat
 2024-11-19  07:48             62    2%  git-config-set-commit-preference-to-rebase.bat
 2024-11-19  07:48             72    6%  git-config-set-commit-preferences-to-rebase.bat
 2024-11-19  07:48            393   44%  git-fix-remote-repository.bat
@@ -461,7 +461,7 @@
 2024-11-19  07:50            106    6%  git-log-oneline.bat
 2024-11-19  07:48             43   -4%  git-log.bat
 2024-11-19  07:48          2,363   56%  git-pull.bat
-2024-11-19  07:49          2,643   57%  git-push.bat
+2024-11-27  17:39          2,629   57%  git-push.bat
 2024-11-19  07:49            120   20%  git-rename-branch.bat
 2024-11-19  07:49            107    7%  git-revisions.bat
 2024-11-19  07:49             35   -5%  git-rm.bat
@@ -682,8 +682,8 @@
 2024-11-19  15:18         11,285   72%  prompt-common.bat
 2024-11-19  15:18            380   52%  prompt-sound.bat
 2024-11-19  21:35             51    6%  prompt-work.bat
-2024-11-19  15:18            271   37%  publish-bat-updates-to-github.bat
-2024-11-19  15:18             69   -1%  publish.bat
+2024-11-27  18:16            481   47%  publish-bat-updates-to-github.bat
+2024-11-27  18:11             76    2%  publish.bat
 2024-11-19  21:35             37   -5%  push.bat
 2024-11-23  11:06          2,957   60%  put.bat
 2024-11-19  15:14          2,247   60%  py.spec2exe.bat
@@ -781,6 +781,7 @@
 2024-11-27  16:07             22   -9%  review-srt.bat
 2024-11-27  13:58             50   -4%  review-SRTs.bat
 2024-11-20  18:12          1,413   55%  review-subtitles.bat
+2024-11-27  16:07             23   -8%  review-txt.bat
 2024-11-27  13:58             44   -4%  review-TXTs.bat
 2024-11-19  21:35             30   -6%  ripGrep.bat
 2024-11-19  15:16            544   46%  rn-currently-playing-song.bat
