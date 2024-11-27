@@ -84,7 +84,8 @@ if ($ENV{"AUTOMARK"} ne "") {
 	$AUTOMARK_AS  = $ENV{"AUTOMARKAS"};
 	if ($AUTOMARK_AS eq "") {
 		my $msg = "FATAL ERROR! Cannot automark without knowing what to mark it as. Environment variable AUTOMARKAS must be set to something!";
-		print     "echo $msg\n beep\n pause\n pause\n";
+		print     "echo $msg\n beep\n";
+		#pause\n pause\n";
 		die($msg);
 	}
 }
@@ -342,6 +343,7 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 		open(PLAYLIST,"$ALL_SONGS_LIST") || die("FATAL ERROR 7: COULD NOT OPEN $ALL_SONGS_LIST, despite it existing!");
 		while ($line=<PLAYLIST>) {
 			chomp $line; 
+			next if $try_regex == ".*";
 			if ($line =~ /$try_regex/i) { 
 				$song_found .= "$line\n"; 
 				$found++;	

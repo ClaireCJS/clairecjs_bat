@@ -76,6 +76,7 @@ Obtains the lyrics for a particular song, to foster proper AI transcription. The
 Displays the lyric status (approved, unapproved, or unset) for all lyric files in current folder. 
 To have this happen automatically when changing into a folder, simply Alias the ```cd``` command into ```call ```[cd-alias.bat](../BAT-and-UTIL-files-1/cd-alias) — and then create a file called ```autorun.bat``` in the base folder of your music collection, containing the command ```@if exist *.txt (call display-lyric-status)```.
 
+![image](https://github.com/user-attachments/assets/0ccdebd6-7e26-4a2b-91ee-c3e0cfe9f147)
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -124,6 +125,9 @@ Reviews all karaoke files in current folder, using ```print-with-columns``` to e
 
 Displays a list of files in the *current folder* which are missing *karaoke* files
 
+![image](https://github.com/user-attachments/assets/61e1f155-a798-4668-945a-7d7dd2ac06dc)
+
+
 ### 🌟 cfml / cmlf / [check-for-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat)
 
 Displays a list of files in the *current folder* which are missing *approved lyric* files
@@ -132,6 +136,8 @@ Displays a list of files in the *current folder* which are missing *approved lyr
 
 Displays a list of files in a *playlist* which are missing *approved lyric* files.
 
+![image](https://github.com/user-attachments/assets/42fb6e4e-2cea-48e1-bbc8-499454c201ae)
+
 
 ### 🌟 Karaoke Auditor: [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
 
@@ -139,10 +145,11 @@ Processes a playlist to create a new playlist consisting of only the songs missi
 
 EXAMPLE:
 ```
-check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py PlayList.m3u *.srt;*.lrc CreateSRTFileWrite
+check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py PlayList.m3u *.srt;*.lrc ``CreateSRTFileWrite
 ```
 ^^^ This example goes through the file ```PlayList.m3u```, checks for all files that do not have karaoke files (i.e. no ```*.srt``` or ```*.lrc``` sidecar file), creates a ```PlayList-without lrc srt.m3u``` consisting of those files.  Bbecause the `````CreateSRTFileWrite``` option was used, it also generates a script to actually create the missing karaoke files.  The ``GetLyricsFileWrite``` option can instead be used to *ONLY* obataining lyrics, and save the karaoke generation for later.
 
+![image](https://github.com/user-attachments/assets/5b368467-b23b-4039-b3df-c4dc85e90ad5)
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -176,6 +183,9 @@ Other important commands deveoped for this project.
 ### 🌟 [approve-lyrics / approve-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/disapprove-lyric-file.bat)
 
 Marks lyric file with approval/disapproval so that we can pre-approve lyric files in advance of transcription process. Uses [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs) to store approval tags in a database-less, file-less way.
+
+![image](https://github.com/user-attachments/assets/c48e2ed3-c1fb-4760-8ba8-c9accf691178)
+
 
 ### 🌟 [print_with_columns.py](../BAT-and-UTIL-files-1/print_with_columns.py) / [newspaper.bat](../BAT-and-UTIL-files-1/newspaper.bat)
 

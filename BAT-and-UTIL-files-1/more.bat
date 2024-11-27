@@ -2,5 +2,5 @@
 @on break cancel
 
 REM         c:\util\less.exe %*
-      c:\cygwin\bin\less.exe %*
-
+REM   c:\cygwin\bin\less.exe %*
+more.com %*

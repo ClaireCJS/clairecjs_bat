@@ -1,5 +1,10 @@
 #import clairecjs_utils as claire
 
+#ANSI_ESCAPE = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~]|\][^\x07]*\x07|P[^\\]*\\)')
+#def strip_ansi(text):
+#    global ANSI_ESCAPE
+#    return ANSI_ESCAPE.sub('', text)
+
 
 
 #TODO incorporate proper full ansi_full_reset string

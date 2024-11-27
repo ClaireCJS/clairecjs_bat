@@ -4,6 +4,7 @@ import chardet
 import os
 import glob
 from termcolor import colored
+import random
 
 
 
@@ -49,6 +50,8 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here-temp.bat"           #don't change without changing in accompanying BAT files
 SCRIPT_NAME_FOR_KARAOKE_CREATION = "create-the-missing-karaokes-here-temp.bat"      #don't change without changing in accompanying BAT files
 
+without_sidecar_count=0
+total_file_count=0
 
 def detect_encoding(filename):
     with open(filename, 'rb') as file:
@@ -57,6 +60,10 @@ def detect_encoding(filename):
 
 
 def main(input_filename, extensions, options, extra_args):
+
+    global without_sidecar_count
+    global total_file_count
+
 
     #DEBUG: print(f"main got extra args of '{extra_args}'")
 
@@ -93,8 +100,10 @@ def main(input_filename, extensions, options, extra_args):
         sys.exit(1)
     
 
+
     # Check each file for sidecar files
-    for file in files:
+    for file in            files:
+        total_file_count = total_file_count + 1
         
         # Skip files containing "(instrumental)" or "[instrumental]"
         if "(instrumental)" in file.lower() or "[instrumental]" in file.lower(): continue
@@ -107,7 +116,9 @@ def main(input_filename, extensions, options, extra_args):
         #print(f"has_sidecar is {has_sidecar} for file {file}")
 
         if not has_sidecar:
+            without_sidecar_count = without_sidecar_count + 1
             files_without_sidecars.add(file)
+            #TODO need an option to display the missing ones i think! I like them displayed in folder mode, but not in playlist mode?            
             #print(file)
 
     # Write the output file
@@ -119,16 +130,28 @@ def main(input_filename, extensions, options, extra_args):
         if options.lower() !=        "NoFileWrite":
             #print          (colored(f"✏✏✏  Writing output file: {output_filename} ✏✏✏"  , 'green', attrs=['bold']))
             #print          (colored(f"✏✏✏  Writing output file: {output_filename} ✏✏✏"  , 'green', attrs=['bold']), file=sys.stderr)
-            sys.stderr.write(colored(f"✏ ✏ ✏  Writing output file: {output_filename} ✏✏✏\n", 'green', attrs=['bold']))
+            sys.stderr.write(colored(f"✏ ✏ ✏  Writing output file ✏ ✏ ✏\n", 'green', attrs=['bold']))
+            sys.stderr.write(colored(f"       Files processed:  {total_file_count} \n"     , 'green', attrs=['bold']))
+            sys.stderr.write(colored(f"       Without sidecar:  {without_sidecar_count} \n", 'green', attrs=['bold']))
+            sys.stderr.write(colored(f"       To fix, run:      {output_filename} \n", 'green', attrs=['bold']))
 
             if extra_args: print(f"Using extra arguments of: {extra_args}")
+
 
             # run any special postprocessing we've created, usually to create scripts to deal with files that are missing sidecar files
             # 🐐 don't we need to open it in utf-8?
             #ith open(output_filename, 'w') as output_file:
             with open(output_filename, 'w', encoding='utf-8') as output_file:
                 output_file.write(f"@on break cancel\n")
-                for missing_file in sorted(files_without_sidecars):
+
+                # Convert set to list
+                files_without_sidecars_list = list(files_without_sidecars)
+
+                # Shuffle the list
+                random.shuffle(files_without_sidecars_list)
+
+                #or missing_file in sorted(files_without_sidecars)    :
+                for missing_file in        files_without_sidecars_list:
                     if os.path.exists(missing_file):
                         if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\" {extra_args}\n")
                         if options.lower() == "createsrtfilewrite": output_file.write(f"@call create-srt \"{missing_file}\" {extra_args}\n")
