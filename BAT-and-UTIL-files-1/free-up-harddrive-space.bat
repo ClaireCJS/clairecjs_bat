@@ -31,7 +31,7 @@ gosub CreateIfGone c:\recycled
 
 rem Files that could be anywhere:
 
-call clean-up-AI-transcription-trash-files.bat
+call clean-up-AI-transcription-trash-files-everywhere.bat
 rem moved to separate AI-trash-cleanup bat: echo.
 rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere               *._vad_collected_chunks*.wav
 rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere               *._vad_original*.srt

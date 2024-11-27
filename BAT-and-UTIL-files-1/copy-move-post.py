@@ -17,6 +17,8 @@
 
 """
 
+##TODO POSSIBLY STILL LEAKS CHARACTERS WHEN IT SHOULDN'T SOMETIMES, BUT NOT SURE
+
 import random
 import sys
 import re

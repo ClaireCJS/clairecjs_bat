@@ -1,3 +1,4 @@
+#TODO FIX REGEX MODE FOR POST-LASTFM METHOD
 #!perl
 
 ##########
