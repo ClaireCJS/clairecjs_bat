@@ -14,6 +14,7 @@ REM     my local GIT repo beore uploading to GitHub. This script does that.
 
 rem CONFIGURATION:
         set TARGET_MAIN=BAT-and-UTIL-files-1
+        set TARGET_1=%TARGET_MAIN%
         set TARGET_2=BAT-and-UTIL-files-2
         set COMMIT_CONFIRMATION_WAIT_TIME=5
 
@@ -145,7 +146,7 @@ rem Make sure they're all added —— any new extensions that we add to our pro
                 call git.bat add docs\* %TARGET_MAIN%\samples\* %TARGET_MAIN%\dividers\* %TARGET_MAIN%\*.hlp  %TARGET_MAIN%\*.cnt %TARGET_MAIN%\*.lst %TARGET_MAIN%\*.gml %TARGET_MAIN%\*.jpg %TARGET_MAIN%\*.png %TARGET_MAIN%\*.lnk  %TARGET_MAIN%\*.ico 
                 
         rem extensions that appear in [m-z]*.*
-                for %%tmpfolder in (%TARGET_MAIN% %TARGET_2%) do (call git add %tmpFolder%\*.bat %tmpFolder%\*.csv LICENSE *.md .gitattributes .gitignore %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl  %tmpFolder%\*.py   %tmpFolder%\*.exe   %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.ansi %tmpFolder%\*.midi  %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat !!*)
+                for %%tmpfolder in (%TARGET_MAIN% %TARGET_2%) do (call git add %tmpFolder%\*.bat %tmpFolder%\*.csv LICENSE *.md .gitattributes .gitignore %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl  %tmpFolder%\*.py   %tmpFolder%\*.exe   %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.ansi %tmpFolder%\*.midi  %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat)
                 
         rem This secondary folder seems to be having troubles sometimes... Re-add just to be sure.
                 call git.bat add %TARGET_2%\*.bat
@@ -157,6 +158,12 @@ rem Commit and Push:
         set  no_push_warning=1
         call commit-and-push.bat 
         echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/%TARGET%  >go-to-individual-BAT-files-on-GitHub.bat
+
+rem Set files to be read-only so we don't accidentally edit them in the wrong place:
+        attrib +r %TARGET_2%\* 
+        attrib +r %TARGET_1%\* 
+        attrib +r %TARGET_1%\docs\* 
+        attrib +r            docs\* 
 
 
 rem Cleanup:

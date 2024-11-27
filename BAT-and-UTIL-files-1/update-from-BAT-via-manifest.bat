@@ -73,7 +73,6 @@ rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
                     (%COPY% /u %SOURCE_DIR%\%myFile% . )            
                 )
                 call debug "setting files to +r in %_CWD"               
-                attrib +r * 
         :Manifest_File_Update_Complete
 
 
@@ -81,12 +80,9 @@ rem DO SECONDARY FILES, OR SKIP THEM IF WE SAID TO:
         if "%1" eq "skip" .or. "%1" eq "fast" .or. "%1" eq "quick" (shift %+ goto :Skip)
         if "%2" eq "skip" .or. "%2" eq "fast" .or. "%2" eq "quick" (shift %+ goto :Skip)
 
-
-
-
-            rem SHARE REQUIRED BAT, UTIL FILES THAT WE USE, FOR FURTHER SUPPORT, TO SECONDARY PROJECT FOLDER:
-                    set SECONDARY_SUBFOLDER_FOLDERNAME=%1
-                    for %shared_type in (BAT UTIL) do (gosub process_type %shared_type)
+                    rem SHARE REQUIRED BAT, UTIL FILES THAT WE USE, FOR FURTHER SUPPORT, TO SECONDARY PROJECT FOLDER:
+                            set SECONDARY_SUBFOLDER_FOLDERNAME=%1
+                            for %shared_type in (BAT UTIL) do (gosub process_type %shared_type)
 
         :Skip
 
