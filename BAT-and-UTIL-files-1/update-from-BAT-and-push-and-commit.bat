@@ -1,6 +1,8 @@
 @Echo OFF
 @on break cancel
 
+echo caller for %0 in %_CWD: %_PBATCHNAME %+ pause
+
 
 
 rem                      edit this file only as %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!

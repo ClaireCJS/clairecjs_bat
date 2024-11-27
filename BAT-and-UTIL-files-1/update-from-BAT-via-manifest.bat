@@ -2,8 +2,7 @@
 @Echo OFF
  on break cancel
 
-echo caller: %_PBATCHNAME
-pause
+echo caller to %0 in %_CWD: %_PBATCHNAME %+ pause
 
 
 :DESCRIPTION:  Used to package BAT/UTIL/helper files from a personal environment into a development project folder for public deployment
