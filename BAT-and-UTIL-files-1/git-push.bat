@@ -1,5 +1,5 @@
 @on break cancel
-@Echo ON
+@Echo OFF
 
 
 rem Collect parameters:

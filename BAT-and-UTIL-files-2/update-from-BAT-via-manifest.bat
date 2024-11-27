@@ -1,6 +1,9 @@
 @REM                              Edit this one only in c:\bat\
-@Echo ON
+@Echo OFF
  on break cancel
+
+echo caller: %_PBATCHNAME
+pause
 
 
 :DESCRIPTION:  Used to package BAT/UTIL/helper files from a personal environment into a development project folder for public deployment
