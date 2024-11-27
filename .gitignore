@@ -159,3 +159,23 @@ hold2/
 hold2/
 *.tmp
 *.log
+git.out
+*README_md*
+README_md-copy-to-dotdot-docs-rainbow-dividers.md-if-updated
+__ last synced from*
+__pycache/*
+__pycache/
+__pycache.deprecated/
+__pycache.deprecated/*
+__pycache.dep/
+__pycache.dep/*
+*.pyc
+test/*
+test
+delme
+delme*
+__ Python personal libraries last backed up*
+
+
+
+
