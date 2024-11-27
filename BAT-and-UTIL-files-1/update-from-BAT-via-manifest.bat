@@ -22,7 +22,11 @@ REM     local GIT repo beore doing anything significant.  Or really, before doin
 rem Must have parameter!
         set which_file=
         if "%1" eq "" (call fatal_error "%0 must have 1ˢᵗ parameter of target folder for example BAT-and-UTIL-files-1")
-        if "%2" ne "" (set which_file=%@UNQUOTE[%2])
+        iff "%2" ne "" then
+                set  which_file=%@UNQUOTE[%2]
+                rem if "%1" 
+
+        endiff
 
 rem VALIDATION & SETUP:
         set SOURCE_DIR=%BAT%
@@ -50,8 +54,8 @@ rem Cosmetic kludge:
 rem TELL USER:
         cls
         echo.
-        call important "Updating: '%PROJECT_NAME%' files: " %+ %COLOR_IMPORTANT% 
-              echo                  To: %[PROJECT_DIR]%ANSI_COLOR_IMPORTANT_LESS%
+        call important "Updating: '%PROJECT_NAME%' files: " 
+              echo %ANSI_COLOR_IMPORTANT%                 To: %[PROJECT_DIR]%ANSI_COLOR_IMPORTANT_LESS%
               rem too big!          Manifest Files: %MANIFEST_FILES%
 
 
@@ -74,8 +78,8 @@ rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
 
 
 rem DO SECONDARY FILES, OR SKIP THEM IF WE SAID TO:
-        if "%1" eq "skip" .or. "%1" eq "fast" .or. "%1" eq "quick" (goto :Skip)
-        if "%2" eq "skip" .or. "%2" eq "fast" .or. "%2" eq "quick" (goto :Skip)
+        if "%1" eq "skip" .or. "%1" eq "fast" .or. "%1" eq "quick" (shift %+ goto :Skip)
+        if "%2" eq "skip" .or. "%2" eq "fast" .or. "%2" eq "quick" (shift %+ goto :Skip)
 
 
 
@@ -115,6 +119,8 @@ goto :END_OF_SUBROUTINES
                         set OUR_FILELIST_8=
                         set OUR_FILELIST_9=
                         set OUR_FILELIST_10=
+                        
+                        if "%which_file%" eq "docs" (set OUR_FILELIST=docs\*.md docs\outtakes\*
                 endiff
 
 

@@ -1,16 +1,14 @@
 @Echo OFF
 @on break cancel
 
-
-if "%1" eq "git" goto :git_yes
-
-
 rem FOR THIS ONE FILE, MAKE SURE TO %EDITOR% %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
 
 
 REM     I actually do all my development for this in my personal live command line environment,
 REM     so for me, these files actually "live" in "c:\bat\" and need to be copied/refreshed to 
 REM     my local GIT repo beore uploading to GitHub. This script does that.
+
+
 
 
 
@@ -50,46 +48,73 @@ rem Only once per session, validate our environment & make sure we're running th
         endiff
 
 
-rem Manually-selected files from locations other than C:\BAT\ ——— Step #1 ——— Define the files
-        rem Set var for each special file we copy:
-                set      PYTHON_LIBRARIES_DIR=%PYTHON_OFFICIAL_SITELIB_CLAIRE%
-                set                  TCMD_DIR=c:\TCMD
-                set                  TCMD_INI=%TCMD_DIR%\tcmd.ini                             
-                set              TCMD_ALIASES=%TCMD_DIR%\alias.lst                            
-                set         TCMD_START_SCRIPT=%TCMD_DIR%\tcstart.bat                          
-                rem WINDOWS_TERMINAL_SETTINGS=is done in environm.btm
-                set        WINAMP_SETUP_NOTES=%NOTES%\winamp-notes.txt
-                set          PERL_SITELIB_ZIP=%PUBCL%\dev\Perl\Clio.zip
-                set             COLORTOOL_EXE=%UTIL%\ColorTool\ColorTool.exe
-                set    AUDIO_PROCESSING_NOTES=%NOTES%\audio-processing-batch-NOTES.txt
-                set      GIRDER_CONFIGURATION="c:\girder\claire's girder files\Demona.gml"
-                set      PRIMARY_AUTOEXEC_BAT=%BAT%\%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%\autoexec.btm
-                set           DIVIDERS_FOLDER=%BAT%\dividers
-                set            SAMPLES_FOLDER=%BAT%\samples
-                set               DOCS_FOLDER=%BAT%\docs
+rem shortcut to go straigh to git-commit:
+        if "%1" eq "git" (shift %+ goto :git_yes)                                       
 
+
+rem Manually-selected copies from locations other than C:\BAT\ ——— Step #1 ——— Define variables for each of the files/folders:
+        rem TCC files needed for compatibiity: TODO add notes about these in docs?
+                set          TCMD_DIR=c:\TCMD
+                set          TCMD_INI=%TCMD_DIR%\tcmd.ini                             
+                set      TCMD_ALIASES=%TCMD_DIR%\alias.lst                            
+                set TCMD_START_SCRIPT=%TCMD_DIR%\tcstart.bat                          
+        rem Programming [Python+Perl] libraries needed for compatibility:
+                set    PERL_SITELIB_CLAIRE_ZIP=%PUBCL%\dev\Perl\Clio.zip
+                set      PERL_SITELIB_FULL_ZIP=%PUBCL%\dev\Perl\perl-site-lib.zip        
+                set       PYTHON_LIBRARIES_DIR=%PYTHON_OFFICIAL_SITELIB_CLAIRE%                
+        rem Configuration files that might help with compatibility:
+                rem Our Windows Terminal configuration:
+                        rem WINDOWS_TERMINAL_SETTINGS should be set in environm.btm, but just in case, let's try here:
+                        iff not defined WINDOWS_TERMINAL_SETTINGS then
+                                set WINDOWS_TERMINAL_SETTINGS=%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+                                call validate-environment-variable WINDOWS_TERMINAL_SETTINGS 
+                        endiff                                                
+        rem Deprecated: Our Girder configuratoin, which becomes less relevant as the years go by:                        
+                set GIRDER_CONFIGURATION="c:\girder\claire's girder files\%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%.gml"                                
+        rem Notes that we'd like to share for fun:
+                set     WINAMP_SETUP_NOTES=%NOTES%\winamp-notes.txt
+                set AUDIO_PROCESSING_NOTES=%NOTES%\audio-processing-batch-NOTES.txt                        
+        rem Set vars for files & folders in subfolders that we want to publish:                
+                set PRIMARY_AUTOEXEC_BAT=%BAT%\%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%\autoexec.btm
+                set        COLORTOOL_EXE=%UTIL%\ColorTool\ColorTool.exe
+                set      DIVIDERS_FOLDER=%BAT%\dividers
+                set       SAMPLES_FOLDER=%BAT%\samples
+                set          DOCS_FOLDER=%BAT%\docs
+                    
 rem Validate the above (and other) values that we will be using here:
-        call validate-environment-variables BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE DOCS_FOLDER
+        call validate-environment-variables BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_CLAIRE_ZIP PERL_SITELIB_FULL_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE DOCS_FOLDER
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
-        set            COPY=*copy /u /q
-        set          COPY_S=*copy /u /q /s
-        %copy%      %TCMD_ALIASES%              %TARGET_MAIN%\alias.lst
-        %copy%      %TCMD_INI%                  %TARGET_MAIN%\tcmd.ini
-        %copy%      %GIRDER_CONFIGURATION%      %TARGET_MAIN%\girder.gml
-        %copy%      %TCMD_START_SCRIPT%         %TARGET_MAIN%\tcstart.bat
-        %copy%      %PRIMARY_AUTOEXEC_BAT%      %TARGET_MAIN%\autoexec.btm
-        %copy%      %COLORTOOL_EXE%             %TARGET_MAIN%\ColorTool.exe
-        %copy%      %WINAMP_SETUP_NOTES%        %TARGET_MAIN%\winamp-setup-notes.txt
-        %copy%      %PERL_SITELIB_ZIP%          %TARGET_MAIN%\perl-sitelib-Clio.zip
-        %copy%      %AUDIO_PROCESSING_NOTES%   "%TARGET_MAIN%\notes - audio processing.txt"
-        %copy%     "%WINDOWS_TERMINAL_SETTINGS" %TARGET_MAIN%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
-        %copy_S%    %DIVIDERS_FOLDER%           %TARGET_MAIN%\dividers
-        %copy_S%    %SAMPLES_FOLDER%            %TARGET_MAIN%\samples
-        %copy_S%    %DOCS_FOLDER%                           .\docs
-        %copy_S% /E %PYTHON_LIBRARIES_DIR%             c:\bat\clairecjs_utils
-        %copy_S% /E %PYTHON_LIBRARIES_DIR%      %TARGET_MAIN%\clairecjs_utils
-        %copy%      %0                          %TARGET_MAIN%                                        %+ rem Yes, we are copying THIS script too——it only lives in my dev folder
+        rem Set our copy commands:
+                set   COPY=*copy /u /q
+                set COPY_S=*copy /u /q /s
+        rem Files that don't normally live in C:\BAT\ but which we copy there for distribution, to keep things simple:        
+                %copy%  %TCMD_ALIASES%                %TARGET_MAIN%\alias.lst
+                %copy%  %TCMD_INI%                    %TARGET_MAIN%\tcmd.ini
+                %copy%  %GIRDER_CONFIGURATION%        %TARGET_MAIN%\girder.gml
+                %copy%  %TCMD_START_SCRIPT%           %TARGET_MAIN%\tcstart.bat
+                %copy%  %PRIMARY_AUTOEXEC_BAT%        %TARGET_MAIN%\autoexec.btm
+                %copy%  %COLORTOOL_EXE%               %TARGET_MAIN%\ColorTool.exe
+        rem Some things we want to copy into a different filename than the original filename:
+                %copy%  %PERL_SITELIB_CLAIRE_ZIP%     %TARGET_MAIN%\perl-sitelib-Clio.zip
+                %copy%  %WINAMP_SETUP_NOTES%          %TARGET_MAIN%\winamp-setup-notes.txt
+                %copy%  %AUDIO_PROCESSING_NOTES%     "%TARGET_MAIN%\notes - audio processing.txt"
+                %copy% "%WINDOWS_TERMINAL_SETTINGS%"  %TARGET_MAIN%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
+        rem Also, put this script (this one that you're reading these words from right now!) into the target for completionism:
+                %copy% %0 %TARGET_MAIN%                                        
+        rem Update programming libraries:                
+                rem Update python libraries to the copy that lives in our BAT folder: both the 'living' one, and the copy here:
+                        %copy_S% /E %PYTHON_LIBRARIES_DIR%         c:\bat\clairecjs_utils
+                        %copy_S% /E %PYTHON_LIBRARIES_DIR%  %TARGET_MAIN%\clairecjs_utils
+                rem Update perl libraries:
+                        %copy%  %PERL_SITELIB_FULL_ZIP%  %TARGET_MAIN%                
+        rem Subfolders we want to publich will need to be explicitly added:
+                rem Subfolders that need to be copied once:
+                        %copy_S%  %DIVIDERS_FOLDER%  %TARGET_MAIN%\dividers
+                        %copy_S%  %SAMPLES_FOLDER%   %TARGET_MAIN%\samples
+                rem Subfolders that need to be copied twice:
+                        %copy_S%  %DOCS_FOLDER%  %TARGET_MAIN%\docs
+                        %copy_S%  %DOCS_FOLDER%  %TARGET_MAIN%\..\docs
 
 
 
@@ -97,12 +122,13 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
 
 
 rem Update BAT files from live location to github-folder location:
-        if "%1" eq "skip-update" (goto :Skip_Update)
-        call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN%
+        if "%1" eq "skip-update" (shift %+ goto :Skip_Update)
+        call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN% %*
         :Skip_Update
 
 
-rem Update our BAT-1 folder to our BAT-2 folder to get past GitHub's 1,000 file display limit:
+rem Update our copy of BAT-1 folder's later-letters to our BAT-2 folder to get past GitHub's 1,000 file 
+rem display limit so that bat files starting with Z can actually be browsed to:
         (((echo yryr|*copy /u /r  %TARGET_MAIN%\[m-z]* %TARGET_2%) |:u8 copy-move-post.py) |:u8 fast_cat)
 
 
