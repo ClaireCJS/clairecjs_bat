@@ -78,7 +78,9 @@ REM Actually commit the files
     %COMMITCOMMAND%
     REM git commit returns errorlevel if nothing to commit, so this isn't helpful: call errorlevel "git commit failed?!"
     REM                                                     ..........but this is: call errorlevel "there were no files to commit"
-    call errorlevel "there were no files to commit" "%NEWLINE%%STAR% %blink_on%Commit was successful!%blink_off% %PARTY_POPPER%%PARTY_POPPER%%PARTY_POPPER%"
+    REM  errorlevel "there were no files to commit" "%NEWLINE%%STAR% %blink_on%Commit was successful!%blink_off% %PARTY_POPPER%%PARTY_POPPER%%PARTY_POPPER%"
+    call errorlevel "there were no files to commit"  %+ rem sets REDO=1 if error is encountered
+    if %REDO eq 0 call success "%italics_on%Commit%italics_off% was successful!"
 
 
 REM Remind that commit and push are not the same

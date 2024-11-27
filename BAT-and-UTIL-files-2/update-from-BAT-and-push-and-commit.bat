@@ -109,7 +109,7 @@ rem Update our BAT-1 folder to our BAT-2 folder to get past GitHub's 1,000 file 
 rem Give a chance to stop here...
         repeat 1 echo.
         call divider
-        repeat 3 echo.
+        repeat 2 echo.
         call askYN "Continue with git add + commit + push?" yes %COMMIT_CONFIRMATION_WAIT_TIME%
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
