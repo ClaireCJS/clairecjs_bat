@@ -35,10 +35,6 @@ rem CONFIGURATION:
 
 
 
-
-
-
-
 rem Only once per session, validate our environment & make sure we're running this on the correct machine:
         iff %GITHUB_UPDATER_VALIDATED ne 1 then
             call validate-environment-variables MACHINENAME MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY italics_on italics_off PYTHON_OFFICIAL_SITELIB_CLAIRE
@@ -52,6 +48,22 @@ rem Only once per session, validate our environment & make sure we're running th
 rem shortcut to go straigh to git-commit:
         if "%1" eq "git" (shift %+ goto :git_yes)                                       
 
+
+
+rem Make sure none of our files are set as read-only, so that we can successfully update from our source files:
+        gosub setAttribs "-r"
+        
+                goto :end_of_subroutines
+                        :setAttribs    [attrib_to_set]
+                                 set    attrib_to_use=%@unquote[%attrib_to_set]
+                                 echo %_CWD:                                 attrib %attrib_to_use% %TARGET_1%\*.*        
+
+                                attrib %attrib_to_use% %TARGET_2%\*.*        >nul
+                                attrib %attrib_to_use% %TARGET_1%\*.*        >nul     
+                                attrib %attrib_to_use% %TARGET_1%\docs\*.*   >nul     
+                                attrib %attrib_to_use%            docs\*.*   >nul
+                        :return
+                :end_of_subroutines
 
 rem Manually-selected copies from locations other than C:\BAT\ ——— Step #1 ——— Define variables for each of the files/folders:
         rem TCC files needed for compatibiity: TODO add notes about these in docs?
@@ -82,6 +94,7 @@ rem Manually-selected copies from locations other than C:\BAT\ ——— Step #1
                 set       SAMPLES_FOLDER=%BAT%\samples
                 set          DOCS_FOLDER=%BAT%\docs
                     
+
 rem Validate the above (and other) values that we will be using here:
         call validate-environment-variables BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_CLAIRE_ZIP PERL_SITELIB_FULL_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE DOCS_FOLDER
 
@@ -102,7 +115,7 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
                 %copy%  %AUDIO_PROCESSING_NOTES%     "%TARGET_MAIN%\notes - audio processing.txt"
                 %copy% "%WINDOWS_TERMINAL_SETTINGS%"  %TARGET_MAIN%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
         rem Also, put this script (this one that you're reading these words from right now!) into the target for completionism:
-                %copy% %0 %TARGET_MAIN%                                        
+                %copy% %0 %TARGET_MAIN%                 
         rem Update programming libraries:                
                 rem Update python libraries to the copy that lives in our BAT folder: both the 'living' one, and the copy here:
                         %copy_S% /E %PYTHON_LIBRARIES_DIR%         c:\bat\clairecjs_utils
@@ -160,14 +173,12 @@ rem Commit and Push:
         call commit-and-push.bat 
         echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/%TARGET%  >go-to-individual-BAT-files-on-GitHub.bat
 
-rem Set files to be read-only so we don't accidentally edit them in the wrong place:
-        attrib +r %TARGET_2%\*          >nul
-        attrib +r %TARGET_1%\*          >nul
-        attrib +r %TARGET_1%\docs\*     >nul
-        attrib +r            docs\*     >nul
 
 
 rem Cleanup:
+        rem Set files to be read-only so we don't accidentally edit them in the wrong place:
+                gosub setAttribs "+r"
+                
         :Skip_TheRest
                 unset /q SECONDARY_BAT_FILES
                 unset /q SECONDARY_BAT_FILES_2

@@ -43,7 +43,10 @@ rem Decide if doing old/simple or new/colorful copy method:
                         endiff
 
                 rem Prettify with our post-processor, unless it's an older computer with an older OS:
-                        (%LAST_COPY_COMMAND%    |&:u8    copy-move-post.py) |:u8 fast_cat
+                        rem ((%LAST_COPY_COMMAND%)    |&:u8    copy-move-post.py |:u8 fast_cat)
+                        rem Piping to fast_cat to fix ANSI errors seems to need to be performed *outside* of this BAT to not
+                        rem have ansi errors on the generated double-height lines. Not sure why that started happening:
+                                 %LAST_COPY_COMMAND% |:u8 copy-move-post.py
 
 
 :END
