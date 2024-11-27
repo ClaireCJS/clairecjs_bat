@@ -82,14 +82,13 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         else
                 ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                                             |&:u8 %tee% %GIT_OUT%) |:u8 cat_fast)
         endiff
-|& tee %GIT_OUT%
 
         rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
         if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo None!)
-        echo.
 
         rem Output the filtered output from our captured file for a more meaningful/processed set of output...
         iff     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 then
+                echo.
                 color bright blue on black
                 echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
                 echo.

@@ -1,8 +1,8 @@
-@on break cancel
 @set RECEIVED_ERRORLEVEL_2=%?
 @set RECEIVED_ERRORLEVEL_1=%_?
 @REM keep those in "2,1" order!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! —— _? contains the exit code of the last internal command. You must use or save this value immediately, because it is set by every internal command, including the one used to save it. Result codes: 0 command successful,1=usage error occurred,2=another TCC error occurred         
 @Echo OFF
+@on break cancel
 
 
 
@@ -117,26 +117,25 @@ iff %OUR_ERRORLEVEL% le 0 then
 endiff
 
 iff %OUR_ERRORLEVEL% gt 0 then
-    set ERRORCATCHER_ERRORLEVEL=%OUR_ERRORLEVEL%
-    set REDO_BECAUSE_OF_ERRORLEVEL=1
-    set REDO=
+        set ERRORCATCHER_ERRORLEVEL=%OUR_ERRORLEVEL%
+        set REDO_BECAUSE_OF_ERRORLEVEL=1
+        set REDO=
 
-    rem Change cursor to angry: BIG BLINKING RED BLOCK:
-    if not defined ANSI_PREFERRED_CURSOR_SHAPE (SET ANSI_PREFERRED_CURSOR_SHAPE=%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%)
-    echos %@ANSI_CURSOR_CHANGE_COLOR_HEX[%color_alarm_hex]%ANSI_PREFERRED_CURSOR_SHAPE%
+        rem Change cursor to angry: BIG BLINKING RED BLOCK:
+                if not defined ANSI_PREFERRED_CURSOR_SHAPE (SET ANSI_PREFERRED_CURSOR_SHAPE=%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%)
+                echos %@ANSI_CURSOR_CHANGE_COLOR_HEX[%color_alarm_hex]%ANSI_PREFERRED_CURSOR_SHAPE%
 
-    iff "%OUR_FAILURE_MESSAGE%" eq "" then
-        set OUR_FAILURE_MESSAGE=An ERRORLEVEL of %OUR_ERRORLEVEL% (bad) was returned, which is greater than 0 (good)!
-    else
-        set OUR_FAILURE_MESSAGE=%OUR_FAILURE_MESSAGE%   [errorlevel=%OUR_ERRORLEVEL%]
-    endiff
-    REM call  print-if-debug * ARGV is: %*
+        iff "%OUR_FAILURE_MESSAGE%" eq "" then
+                set OUR_FAILURE_MESSAGE=An ERRORLEVEL of %OUR_ERRORLEVEL% (bad) was returned, which is greater than 0 (good)!
+        else
+                set OUR_FAILURE_MESSAGE=%OUR_FAILURE_MESSAGE%   [errorlevel=%OUR_ERRORLEVEL%]
+        endiff
+        REM call  print-if-debug * ARGV is: %*
 
 
         set OUR_COMMAND=that_thing_you_did[.exe/.bat/etc]
         if "%OUR_CALLING_FILE%"   ne "" (set OUR_COMMAND=%OUR_CALLING_FILE%)
         if "%OUR_CALLING_FILE_2%" ne "" (set OUR_COMMAND_2=%OUR_CALLING_FILE_2%)
-
 
         set   optional_success_msg_in_quotes="optional success message in quotes"
         set   optional_failure_msg_in_quotes="optional failure message in quotes"
