@@ -52,13 +52,12 @@ rem Run GIT, check for error status, and collect the output:
 rem Provide easy way to check that it happened online:
         call divider
         echo.
-        echo.
         call advice "Your GitHub URL is: %italics_on%%MY_GITHUB_URL%%italics_off%"
         echo %MY_GITHUB_URL>%BAT%\go-url.bat
         call advice "                    (type '%italics_on%go-url%italics_off%' to go there)               %BOLD_ON%%BOLD_OFF%"
 
 rem Be happy that we were successful!
         echo.
-        call celebration "%BLINK_ON%%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed%BLINK_OFF%"
+        call celebration "%BLINK_ON%%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed!%BLINK_OFF%"
 
 
