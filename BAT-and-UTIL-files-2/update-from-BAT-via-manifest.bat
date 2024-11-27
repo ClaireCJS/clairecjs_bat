@@ -60,18 +60,13 @@ rem TELL USER:
 rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
         if "%MANIFEST_FILES%" eq "NONE" (goto :Manifest_File_Update_Complete)               
                 for %myFileFull in (%MANIFEST_FILES%) (
-                    echo %blink_on%[LOOP] myFileFull is currently=%myFileFull%%blink_off%
-                    echos %@RANDFG[]*
                     set myFile=%@UNQUOTE[%myFileFull]
-                    if not exist %SOURCE_DIR%\%myFile% (call error "Uh oh! Project source file %myFile% doesn't seem to exist in %SOURCE_DIR%")
-                    rem  Taking this out for a speedup:
-                        if exist %myFile% (%COLOR_WARNING %+ attrib -r  %myFile% >nul) %+ REM is this really necessary?
-                        if exist %myFile% (%COLOR_REMOVAL %+ %DELETE% %myFile%)
-                    color bright black on black
-                    (%COPY% %SOURCE_DIR%\%myFile% . )            %+ REM this messed up the coloring even tho it was better alignment: | call insert-before-each-line "%ANSI_GRAY%    "
-                    rem speeding up by not doing this even though I kinda want to: call errorlevel
-                    rem speeding up by not doing this even though I kinda want to: color bright black on black
-                    rem if exist %myFile% (attrib +r %myFile% >nul) %+ REM prevent us from editing files in the wrong location later
+                    rem echo %blink_on%[LOOP] myFileFull is currently=%myFileFull%%blink_off%
+                    echos %@RANDFG[]*
+                    if not exist "%SOURCE_DIR%\%myFile%" (call error "Uh oh! Project source file '%italics_on%%myFile%%italics_off%' doesn't seem to exist in %SOURCE_DIR%")
+                    rem  Taking this out for a speedup: if exist %myFileFull% (%COLOR_WARNING %+ attrib -r  %myFile% >nul %+ %DELETE% %myFile%)
+                    rem color bright black on black
+                    (%COPY% /u %SOURCE_DIR%\%myFile% . )            
                 )
             attrib +r * 
         :Manifest_File_Update_Complete

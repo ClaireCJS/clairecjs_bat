@@ -42,9 +42,11 @@ rem CONFIGURATION:
 
 rem Only once per session, validate our environment & make sure we're running this on the correct machine:
         iff %GITHUB_UPDATER_VALIDATED ne 1 then
-            call validate-environment-variables MACHINENAME MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY
+            call validate-environment-variables MACHINENAME MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY italics_on italics_off PYTHON_OFFICIAL_SITELIB_CLAIRE
+            call validate-in-path               c:\bat\update-from-BAT-via-manifest copy-move-post.py fast_cat divider AskYN git.bat commit-and-push.bat error error.bat print-message.bat
             if "%MACHINENAME%" ne "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%" (call error "This script is only meant to be run on our primary machine named '%italics_on%%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%%italics_on%', but this machine is named '%italics_on%%MACHINENAME%%italics_on%'" %+ goto :END)
             set GITHUB_UPDATER_VALIDATED=1
+
         endiff
 
 
@@ -101,7 +103,7 @@ rem Update BAT files from live location to github-folder location:
 
 
 rem Update our BAT-1 folder to our BAT-2 folder to get past GitHub's 1,000 file display limit:
-        ((echo yryr|*copy /u /r  %TARGET_MAIN%\[m-z]* %TARGET_2%) |:u8 fast_cat)
+        (((echo yryr|*copy /u /r  %TARGET_MAIN%\[m-z]* %TARGET_2%) |:u8 copy-move-post.py) |:u8 fast_cat)
 
 
 rem Give a chance to stop here...
@@ -115,23 +117,36 @@ rem Make sure they're all added —— any new extensions that we add to our pro
         :git_yes
         rem extensions that only appear in [a-l]*.*
                 call git.bat add docs\* %TARGET_MAIN%\samples\* %TARGET_MAIN%\dividers\* %TARGET_MAIN%\*.hlp  %TARGET_MAIN%\*.cnt %TARGET_MAIN%\*.lst %TARGET_MAIN%\*.gml %TARGET_MAIN%\*.jpg %TARGET_MAIN%\*.png %TARGET_MAIN%\*.lnk  %TARGET_MAIN%\*.ico 
+                
         rem extensions that appear in [m-z]*.*
                 for %%tmpfolder in (%TARGET_MAIN% %TARGET_2%) do (echo call git add %tmpFolder%\*.bat %tmpFolder%\*.csv LICENSE *.md .gitattributes .gitignore %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl  %tmpFolder%\*.py   %tmpFolder%\*.exe   %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.ansi %tmpFolder%\*.midi  %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat !!*)
-        rem This folder seems to be having troubles sometimes...
+                
+        rem This secondary folder seems to be having troubles sometimes... Re-add just to be sure.
                 call git.bat add %TARGET_2%\*.bat
 
 rem Commit and Push:
         echo.
         call divider
         echo.
-        set no_push_warning=1
+        set  no_push_warning=1
         call commit-and-push.bat 
         echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/%TARGET%  >go-to-individual-BAT-files-on-GitHub.bat
 
+
 rem Cleanup:
         :Skip_TheRest
-            unset /q SECONDARY_BAT_FILES
-            unset /q SECONDARY_BAT_FILES_2
-            unset /q SECONDARY_UTIL_FILES_2
+                unset /q SECONDARY_BAT_FILES
+                unset /q SECONDARY_BAT_FILES_2
+                unset /q SECONDARY_BAT_FILES_3
+                unset /q SECONDARY_BAT_FILES_4
+                unset /q SECONDARY_BAT_FILES_5
+                unset /q SECONDARY_BAT_FILES_6
+                unset /q SECONDARY_BAT_FILES_7
+                unset /q SECONDARY_BAT_FILES_8
+                unset /q SECONDARY_BAT_FILES_9
+                unset /q SECONDARY_BAT_FILES_2
+                unset /q SECONDARY_BAT_FILES_3
+                unset /q SECONDARY_BAT_FILES_4
+                unset /q SECONDARY_BAT_FILES_5   
         :END
 
