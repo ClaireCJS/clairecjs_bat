@@ -1,2 +1,2 @@
 @on break cancel
-@call review-subtitles %*
+@call review-files *.srt;*.lrc

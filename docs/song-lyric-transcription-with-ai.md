@@ -46,7 +46,8 @@
 
   1. 🎤️ Lyric alignment commands ([get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
   1. 🧏 Karaoke generation commands ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
-  1. 🕵 Auditing commands (to find files that do not have lyrics or karaoke)
+  1. 🕵 Auditing commands for lyrics  (to find files that do not have approved lyrics)
+  1. 🕵 Auditing commands for karaoke (to find files that do not have approved karaoke/subtitle files)
   1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
   1. ⚙️ Subordinate commands (under the hood stuff not generally invokved directly)
 
@@ -112,9 +113,31 @@ Rarely used, but: Creates karaoke files for all songs in a *folder tree* without
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# Auditing Commands:
+# Auditing Commands for Lyrics:
 
-These commands find &Y obtain missing karaoke & lyric files.
+These commands find & obtain missing lyric files.
+
+### 🌟 [review-lyrics / review-all-TXTs / review-TXTs.bat](../BAT-and-UTIL-files-1/review-files.bat)
+
+Reviews all lyric files in current folder, using ```print-with-columns``` to reduce scrolling up.
+
+### 🌟 cfml / cmlf / [check-for-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat)
+
+Displays a list of files in the *current folder* which are missing *approved lyric* files
+
+### 🌟 Lyric Auditor: cpfml / cpmlf / [check-playlist-for-missing-lyrics](../BAT-and-UTIL-files-1/get-playlist-for-missing-lyrics.bat)
+
+Displays a list of files in a *playlist* which are missing *approved lyric* files.
+
+![image](https://github.com/user-attachments/assets/42fb6e4e-2cea-48e1-bbc8-499454c201ae)
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+# Auditing Commands for Karaoke:
+
+These commands find & obtain missing karaoke files.
 
 ### 🌟 [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../BAT-and-UTIL-files-1/review-subtitles.bat)
 
@@ -130,18 +153,8 @@ Displays a list of files in the *current folder* which are missing *karaoke* fil
 ![image](https://github.com/user-attachments/assets/61e1f155-a798-4668-945a-7d7dd2ac06dc)
 
 
-### 🌟 cfml / cmlf / [check-for-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat)
 
-Displays a list of files in the *current folder* which are missing *approved lyric* files
-
-### 🌟 Lyric Auditor: cpfml / cpmlf / [check-playlist-for-missing-lyrics](../BAT-and-UTIL-files-1/get-playlist-for-missing-lyrics.bat)
-
-Displays a list of files in a *playlist* which are missing *approved lyric* files.
-
-![image](https://github.com/user-attachments/assets/42fb6e4e-2cea-48e1-bbc8-499454c201ae)
-
-
-### 🌟 Karaoke Auditor: [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
+### 🌟 Playlist Auditor: [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py)
 
 Processes a playlist to create a new playlist consisting of only the songs missing karaoke files.
 
@@ -152,6 +165,8 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 ^^^ This example goes through the file ```PlayList.m3u```, checks for all files that do not have karaoke files (i.e. no ```*.srt``` or ```*.lrc``` sidecar file), creates a ```PlayList-without lrc srt.m3u``` consisting of those files.  Bbecause the `````CreateSRTFileWrite``` option was used, it also generates a script to actually create the missing karaoke files.  The ``GetLyricsFileWrite``` option can instead be used to *ONLY* obataining lyrics, and save the karaoke generation for later.
 
 ![image](https://github.com/user-attachments/assets/5b368467-b23b-4039-b3df-c4dc85e90ad5)
+
+
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
