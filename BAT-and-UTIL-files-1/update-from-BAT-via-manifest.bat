@@ -1,8 +1,7 @@
 @REM                              Edit this one only in c:\bat\
 @Echo OFF
- on break cancel
-
-echo caller to %0 in %_CWD: %_PBATCHNAME %+ pause
+on break cancel
+rem echo caller to %0 in %_CWD: %_PBATCHNAME %+ pause
 
 
 :DESCRIPTION:  Used to package BAT/UTIL/helper files from a personal environment into a development project folder for public deployment
@@ -231,4 +230,4 @@ rem reset our values so they don't accidentally get re-used, and CELEBRATE:
 
 
 
-echo %ansi_color_removal%👻 leaving %0 in %_CWD tha was called by %_PBATCHNAME%ansi_color_normal% %+ pause
+rem echo %ansi_color_removal%👻 leaving %0 in %_CWD tha was called by %_PBATCHNAME%ansi_color_normal% %+ pause

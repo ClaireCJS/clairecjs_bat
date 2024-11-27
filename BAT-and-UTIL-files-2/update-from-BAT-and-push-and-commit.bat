@@ -1,7 +1,6 @@
 @Echo OFF
 @on break cancel
-
-echo caller for %0 in %_CWD: %_PBATCHNAME %+ pause
+rem echo caller for %0 in %_CWD: %_PBATCHNAME %+ pause
 
 
 
@@ -201,4 +200,4 @@ rem Cleanup:
                 unset /q SECONDARY_BAT_FILES_5   
         :END
 
-echo %ansi_color_removal%👻 leaving %0 in %_CWD tha was called by %_PBATCHNAME%ansi_color_normal% %+ pause
+rem echo %ansi_color_removal%👻 leaving %0 in %_CWD tha was called by %_PBATCHNAME%ansi_color_normal% %+ pause
