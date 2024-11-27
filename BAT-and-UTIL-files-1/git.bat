@@ -90,7 +90,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
 
         rem Size warning:
                 rem if exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 (echo Some!)
-                if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo None!)
+                if not exist %GIT_OUT% .or.  %@FILESIZE[%GIT_OUT] eq 0 (echo %@ANSI_MOVE_UP[2]%ANSI_ERASE_TO_EOL%)
 
         rem Potentially output the filtered output from our captured file for a more meaningful/processed set of output...
                 iff     exist %GIT_OUT% .and. %@FILESIZE[%GIT_OUT] gt 0 then

@@ -173,6 +173,7 @@ goto :END_OF_SUBROUTINES
                         REM choose your zip output strategy:
                             REM %COLOR_ERRROR% %+ %ZIP_COMMAND% >nul
                                 %COLOR_SUCCESS 
+                                echo %ZIP_COMMAND% `>`:u8 zip.out 
                                 %ZIP_COMMAND% >:u8 zip.out 
                                 call errorlevel "Zipping our associated %shared_type% filfailed?!"
                                 type zip.out |:u8 insert-before-each-line "           "
