@@ -71,8 +71,9 @@ rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
                     (%COPY% %SOURCE_DIR%\%myFile% . )            %+ REM this messed up the coloring even tho it was better alignment: | call insert-before-each-line "%ANSI_GRAY%    "
                     rem speeding up by not doing this even though I kinda want to: call errorlevel
                     rem speeding up by not doing this even though I kinda want to: color bright black on black
-                    if exist %myFile% (attrib +r %myFile% >nul) %+ REM prevent us from editing files in the wrong locatoin later
+                    rem if exist %myFile% (attrib +r %myFile% >nul) %+ REM prevent us from editing files in the wrong location later
                 )
+            attrib +r * 
         :Manifest_File_Update_Complete
 
 
