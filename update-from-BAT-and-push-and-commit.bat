@@ -130,7 +130,8 @@ rem Update BAT files from live location to github-folder location:
 
 rem Update our copy of BAT-1 folder's later-letters to our BAT-2 folder to get past GitHub's 1,000 file 
 rem display limit so that bat files starting with Z can actually be browsed to:
-        (((echo yryr|*copy /u /r  %TARGET_MAIN%\[m-z]* %TARGET_2%) |:u8 copy-move-post.py) |:u8 fast_cat)
+        call less_important "Updating BAT-2 from BAT-1)
+        (((echo yryr|*copy /u /r /Ns %TARGET_MAIN%\[m-z]* %TARGET_2%) |:u8 copy-move-post.py) |:u8 fast_cat)
 
 
 rem Give a chance to stop here...
