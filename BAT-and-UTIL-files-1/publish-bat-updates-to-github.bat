@@ -17,7 +17,7 @@ rem Go to my development folder:
 rem Do the updates:
         title .
         rem echo pentagram test: %pentagram% %+ pause 
-        set torun=update-from-BAT-and-push-and-commit.bat
+        set torun=.\update-from-BAT-and-push-and-commit.bat
         call validate-in-path %torun% 
         call %torun% %pbutg_params%
 

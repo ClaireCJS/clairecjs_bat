@@ -148,6 +148,7 @@ rem Update our copy of BAT-1 folder's later-letters to our BAT-2 folder to get p
 rem display limit so that bat files starting with Z can actually be browsed to:
         if 1 ne %last_git_was_null% (echo.)
         call less_important "Updating %italics_on%BAT-2%italics_off% from %italics_on%BAT-1%italics_off%"
+        echo.
         (((echo yryr|*copy /u /r /Ns %TARGET_MAIN%\[m-z]* %TARGET_2% ) |:u8 copy-move-post.py) |:u8 fast_cat)
 
 
