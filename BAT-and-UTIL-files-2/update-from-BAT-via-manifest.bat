@@ -1,3 +1,4 @@
+@REM                              Edit this one only in c:\bat\
 @Echo Off
  on break cancel
 
@@ -163,7 +164,7 @@ goto :END_OF_SUBROUTINES
                         REM freshen if existing zip, otherwise add to new zip
                                 set ZIP_OPTIONS=/P /F /U
                                 if not exist %OUR_ZIP% set ZIP_OPTIONS=/A
-                                set ZIP_COMMAND=*zip %ZIP_OPTIONS% %OUR_ZIP% %OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4%OUR_FILELIST_5% %OUR_FILELIST_6% %OUR_FILELIST_7% %OUR_FILELIST_8% %OUR_FILELIST_9% %OUR_FILELIST_10% 
+                                set ZIP_COMMAND=*zip %ZIP_OPTIONS% %OUR_ZIP% %OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4% %OUR_FILELIST_5% %OUR_FILELIST_6% %OUR_FILELIST_7% %OUR_FILELIST_8% %OUR_FILELIST_9% %OUR_FILELIST_10% 
                         REM suppress stdout, any output now would be stderr so color it as such
                                 echos %@ANSI_MOVE_TO_COL[1]%ANSI_EOL%
                                 echo.

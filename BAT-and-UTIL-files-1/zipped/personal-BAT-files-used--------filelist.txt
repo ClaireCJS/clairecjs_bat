@@ -442,6 +442,7 @@
 2024-11-11  16:33            186   39%  get-lyrics.bat
 2024-10-18  12:53          4,561   67%  get-meat-from-mp3-filename.pl
 2024-11-26  00:19             34   -5%  get-missing-lyrics-here.bat
+2024-11-27  18:06             34   -5%  get-missing-lyrics.bat
 2024-11-19  07:47          4,726   65%  get-winamp-state.bat
 2023-04-26  23:53            809   54%  get_lyrics_from_audio_file_via_whisperAI.py
 2024-11-19  07:47             41   -4%  girder.bat

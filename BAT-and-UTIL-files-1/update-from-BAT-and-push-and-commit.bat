@@ -2,16 +2,16 @@
 @on break cancel
 
 
-rem FOR THIS ONE FILE, MAKE SURE TO %EDITOR% %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
 
-
-REM     I actually do all my development for this in my personal live command line environment,
-REM     so for me, these files actually "live" in "c:\bat\" and need to be copied/refreshed to 
-REM     my local GIT repo beore uploading to GitHub. This script does that.
+rem                      edit this file only as %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
 
 
 
 
+rem WHAT IS THIS?
+        rem     I actually do all my development for this in my personal live command line environment,
+        rem     so for me, these files actually "live" in "c:\bat\" and need to be copied/refreshed to 
+        rem     my local GIT repo beore uploading to GitHub. This script does that.
 
 rem CONFIGURATION:
         set TARGET_MAIN=BAT-and-UTIL-files-1
