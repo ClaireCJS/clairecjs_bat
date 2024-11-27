@@ -1,5 +1,5 @@
 @on break cancel
-@Echo OFF
+@Echo ON
 
 
 rem Collect parameters:
@@ -14,11 +14,11 @@ rem Configuratoin:
 
 
 rem Validate environment:
-        if %VALIDATED_GITPUSH ne 1 (
+        iff %VALIDATED_GITPUSH ne 1 then
             call validate-in-path               git.bat errorlevel advice important celebration
             call validate-environment-variables GITHUB_USERNAME BAT BASENAME MY_GITHUB_URL GITHUB_USERNAME
             set VALIDATED_GITPUSH=1
-        )
+        endiff
 
 
 
@@ -60,4 +60,5 @@ rem Be happy that we were successful!
         echo.
         call celebration " %BLINK_ON%%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed!!%BLINK_OFF%"
 
+:END
 

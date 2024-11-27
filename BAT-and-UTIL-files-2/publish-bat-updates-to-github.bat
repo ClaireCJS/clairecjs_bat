@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo ON
 @on break cancel
  cls
  call say.bat "Here we go!" | copy-move-post
@@ -17,7 +17,9 @@ rem Go to my development folder:
 rem Do the updates:
         title .
         rem echo pentagram test: %pentagram% %+ pause 
-        set torun=.\update-from-BAT-and-push-and-commit.bat
+        set torun=update-from-BAT-and-push-and-commit.bat
         call validate-in-path %torun% 
+        
+rem Actually do it:        
         call %torun% %pbutg_params%
 

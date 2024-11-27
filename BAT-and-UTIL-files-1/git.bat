@@ -1,5 +1,5 @@
 @on break cancel
-@Echo OFF
+l@Echo ON
 
 rem *** CONFIGURATION: ***
 
@@ -46,7 +46,7 @@ rem ADVICE: Give it when appropriate
     rem"%ARGV1" eq "push" (call subtle "If a pop-up comes up for credentials, choose manager-core twice")
     if "%ARGV1" eq "push" (call advice "If a pop-up comes up for credentials, choose manager-core twice")
     echo.
-    if %DEBUG_GIT_COMMANDS eq 1 call subtle "%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%"
+    if %DEBUG_GIT_COMMANDS eq 1 (call subtle "%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%")
 
 
 
@@ -83,7 +83,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
         rem Add --no-pager to git status commands, and display them our own way:
                 iff "%1" eq "status" then
                         ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS% |:u8 call highlight "^ *M.*$" |:u8 call highlight "^A *.*$" |&:u8 %tee% %GIT_OUT%) |:u8 cat_fast)
-                        goto :git_status_skip_here
+                        rem goto :git_status_skip_here
                 else
                         ((%GIT_EXE% --no-pager %GIT_OPTIONS_TEMP% %ARGS%                                                             |&:u8 %tee% %GIT_OUT%) |:u8 cat_fast)
                 endiff
@@ -134,6 +134,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
 
 :Done_With_Git
 :END
-    set TERM=%TERM_TEMP%
+
+set TERM=%TERM_TEMP%
 
 

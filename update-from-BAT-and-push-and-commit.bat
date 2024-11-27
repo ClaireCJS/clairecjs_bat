@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo ON
 @on break cancel
 
 echo caller for %0 in %_CWD: %_PBATCHNAME %+ pause
