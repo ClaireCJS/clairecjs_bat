@@ -2,13 +2,20 @@
 @on break cancel
  cls
 
+rem Capture parameters:
+        set pbutg_params=%*
+
 rem Go to my development folder:
         call dev
-        cd   clairecjs_bat
+        set  dir=clairecjs_bat
+        call validate-environment-variable dir
+        cd   %dir%
 
 
 rem Do the updates:
         title .
         rem echo pentagram test: %pentagram% %+ pause 
-        call update-from-BAT-and-push-and-commit.bat
+        set torun=update-from-BAT-and-push-and-commit.bat
+        call validate-in-path %torun% 
+        call %torun% %pbutg_params%
 

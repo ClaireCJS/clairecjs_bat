@@ -12,7 +12,7 @@ REM run any pre-commit scripts
     
 
 REM Show modified/uncommitted files
-    rem looks worse when run via publish.bat: echo.
+    rem looks worse when run via publish.bat: echo.     
     call important "Here is the current status of our files:"
     call git.bat status --short 
     call errorlevel
