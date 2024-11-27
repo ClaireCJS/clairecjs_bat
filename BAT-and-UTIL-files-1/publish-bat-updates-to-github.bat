@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo ON
 @on break cancel
  cls
  call say.bat "Here we go!" | copy-move-post

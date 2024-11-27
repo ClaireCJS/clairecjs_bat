@@ -1,5 +1,5 @@
 @on break cancel
-@Echo OFF
+@Echo ON
 
 
 rem Collect parameters:
@@ -58,6 +58,6 @@ rem Provide easy way to check that it happened online:
 
 rem Be happy that we were successful!
         echo.
-        call celebration "%BLINK_ON%%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed!%BLINK_OFF%"
+        call celebration " %BLINK_ON%%DOUBLE_UNDERLINE%Push%DOUBLE_UNDERLINE_OFF% completed!!%BLINK_OFF%"
 
 

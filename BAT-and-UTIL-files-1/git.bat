@@ -1,5 +1,5 @@
 @on break cancel
-@Echo OFF
+@Echo ON
 
 rem *** CONFIGURATION: ***
 
@@ -67,7 +67,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
 
         rem Output header:
                 color bright blue on black
-                echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Raw%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
+                echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%%ITALICS_OFF%GIT output%UNDERLINE_OFF%:
                 rem color blue on black
                 rem color cyan on black
                 echos %@ANSI_FG[20,200,125]

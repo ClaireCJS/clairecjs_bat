@@ -1,4 +1,4 @@
-@echo off
+@Echo ON
  on break cancel
 
 rem Validate environment:

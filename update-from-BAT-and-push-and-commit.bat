@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo ON
 @on break cancel
 
 

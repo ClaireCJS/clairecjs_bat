@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo ON
 @on break cancel
 
 
@@ -57,7 +57,8 @@ rem shortcut to go straigh to git-commit:
 rem Make sure none of our files are set as read-only, so that we can successfully update from our source files:
         gosub setAttribs "-r"
         
-                goto :end_of_subroutines
+                goto <:end_of_subroutines></:end_of_subroutines>
+                        call less_important "Setting file attributes to %italics_on%%attrib_to_set%%italics_off%                        
                         :setAttribs    [attrib_to_set]
                                  set    attrib_to_use=%@unquote[%attrib_to_set]
                                 attrib %attrib_to_use% %TARGET_2%\*.*        >nul

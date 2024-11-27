@@ -1,7 +1,7 @@
 @set RECEIVED_ERRORLEVEL_2=%?
 @set RECEIVED_ERRORLEVEL_1=%_?
 @REM keep those in "2,1" order!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! —— _? contains the exit code of the last internal command. You must use or save this value immediately, because it is set by every internal command, including the one used to save it. Result codes: 0 command successful,1=usage error occurred,2=another TCC error occurred         
-@Echo OFF
+@Echo ON
 @on break cancel
 
 
@@ -104,7 +104,7 @@ REM Parameters: Process: calling file
 iff %OUR_ERRORLEVEL% le 0 then
         echos %@ANSI_CURSOR_CHANGE_COLOR_HEX[%color_success_hex]%ANSI_PREFERRED_CURSOR_SHAPE%
         iff defined OUR_SUCCESS_MESSAGE then
-                @Echo OFF
+                @Echo ON
                 %COLOR_SUCCESS%
                 echo %OUR_SUCCESS_MESSAGE%
                 %COLOR_NORMAL%

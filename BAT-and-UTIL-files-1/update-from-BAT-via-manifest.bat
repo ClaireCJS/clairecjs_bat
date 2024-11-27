@@ -1,5 +1,5 @@
 @REM                              Edit this one only in c:\bat\
-@Echo Off
+@Echo ON
  on break cancel
 
 
@@ -146,7 +146,7 @@ goto :END_OF_SUBROUTINES
 
                 REM Create zip distribution files of our BATs, UTILs, as needed
                         rem Only do the zip SOME of the time:
-                                rem 🐐 temporary suspension to debug: if %@RANDOM[0,10] ne 0 goto :not_this_time
+                                if %@RANDOM[0,10] ne 0 (goto :not_this_time)
                         
                         REM make zip folder
                                 set           ZIP_FOLDER=%PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%\zipped
@@ -174,7 +174,7 @@ goto :END_OF_SUBROUTINES
                         REM choose your zip output strategy:
                             REM %COLOR_ERRROR% %+ %ZIP_COMMAND% >nul
                                 %COLOR_SUCCESS 
-                                echo %blink_on%DEBUG: %ZIP_COMMAND% `>`:u8 zip.out %blink_off%🐐
+                                rem echo %blink_on%DEBUG: %ZIP_COMMAND% `>`:u8 zip.out %blink_off%🐐
                                 %ZIP_COMMAND% >:u8 zip.out 
                                 call errorlevel "Zipping our associated %shared_type% filfailed?!"
                                 type zip.out |:u8 insert-before-each-line "           "

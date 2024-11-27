@@ -1,5 +1,5 @@
 @on break cancel
-@Echo OFF
+@Echo ON
 
 set ARGS=%*
 set NO_GIT_ADD_PAUSE=0

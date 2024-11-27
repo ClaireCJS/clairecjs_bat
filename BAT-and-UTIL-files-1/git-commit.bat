@@ -1,5 +1,5 @@
 @on break cancel
-@Echo OFF
+@Echo ON
 
 :20230307 seemed to work in t:\mp3-git-repo
 
