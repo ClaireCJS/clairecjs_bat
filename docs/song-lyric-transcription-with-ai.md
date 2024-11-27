@@ -19,18 +19,20 @@
 
 ## ⚙️ Requirements: ⚙️
 
+<details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
+  
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL). 
     The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your path.
 
 1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html), installable with Winget via the command: ```winget install JPSoft.tcmd```.  (If not installed to ```c:\tcmd```, you may need to ```mklink c:\TCMD "c:\Program Files\TCMD31"```, substituting in the folder where TCC was installed.)
 
-1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (this project). It is built on top of my own personal environment layer and cannot exist outside of it.  ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` .... Technically you probably only need about 40 of these files, but detangling things is a lot of effort.
+1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project). ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` and make sure that comes first in your ```path```, possibly by running ```c:\bat\setpath.bat``` .... Technically you probably only need about 50 of these files, but detangling things to that level is a future project.  The folder also has it's own versions of ```sort``` and ```uniq``` (from [Cygwin](https://www.cygwin.com)) to ensure runtime consistency
 
-1. 💾 [Cygwin](https://www.cygwin.com) or other comparable version of ```sort.exe``` and ```uniq.exe```. 
-
-1. ☯️ Optional: For [automatic file-trash cleanup across an entire computer](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files.bat), you will need the ```Everything``` service to track files. It comes with TakeCommand (TCC). (Use ```start-everything.bat``` to start it, if it doesn't start automatically.)
+1. ☯️ Optional: For [automatic cleanup of leftover AI files across an entire computer](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files.bat), you will need to be running the ```Everything``` service to track files. It comes with TakeCommand (TCC). (Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn't start automatically.)
 
 1. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration: The [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on "whatever song we are currently listening to". 🦙
+
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -74,8 +76,8 @@ Obtains the lyrics for a particular song, to foster proper AI transcription. The
 ### 🌟 dls / [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat)
 
 Displays the lyric status (approved, unapproved, or unset) for all lyric files in current folder. 
-To have this happen automatically when changing into a folder, simply Alias the ```cd``` command into ```call ```[cd-alias.bat](../BAT-and-UTIL-files-1/cd-alias) — and then create a file called ```autorun.bat``` in the base folder of your music collection, containing the command ```@if exist *.txt (call display-lyric-status)```.
-
+To have this happen automatically when changing into a folder,  ```alias cd=call cd-alias.bat```,  then create ```autorun.bat``` in the base of your collection, containing the command:
+```@if exist *.txt (call display-lyric-status)```
 ![image](https://github.com/user-attachments/assets/0ccdebd6-7e26-4a2b-91ee-c3e0cfe9f147)
 
 
