@@ -133,7 +133,7 @@ goto :END_OF_SUBROUTINES
                         REM copy each file
                                     rem echo %ansi_color_warning%our_filelist is %our_filelist%%ansi_color_normal% 🐮
                                     rem set remark=echos %newline%%tab%%arrow%Checking file '%file%'
-                                    for %file in (%OUR_FILELIST% %OUR_FILELIST_2% %OUR_FILELIST_3% %OUR_FILELIST_4% %OUR_FILELIST_5% %OUR_FILELIST_6% %OUR_FILELIST_7% %OUR_FILELIST_8% %OUR_FILELIST_9% %OUR_FILELIST_10%) do (
+                                    for %file in (%OUR_FILELIST%  %OUR_FILELIST_2%  %OUR_FILELIST_3%  %OUR_FILELIST_4%  %OUR_FILELIST_5%  %OUR_FILELIST_6%  %OUR_FILELIST_7%  %OUR_FILELIST_8%  %OUR_FILELIST_9%  %OUR_FILELIST_10%) do (
                                                 if     exist %file% (
                                                         echos %@random_cursor_color[]%@randfg[].
                                                         %UPDATE%   %file%  %TARGET_DIR%\%file%
@@ -145,7 +145,7 @@ goto :END_OF_SUBROUTINES
 
                 REM Create zip distribution files of our BATs, UTILs, as needed
                         rem Only do the zip SOME of the time:
-                                if %@RANDOM[0,10] ne 0 goto :not_this_time
+                                rem 🐐 temporary suspension to debug: if %@RANDOM[0,10] ne 0 goto :not_this_time
                         
                         REM make zip folder
                                 set           ZIP_FOLDER=%PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%\zipped
