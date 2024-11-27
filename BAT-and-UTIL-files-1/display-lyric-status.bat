@@ -1,3 +1,4 @@
+@echo TODO: make display-lyric-status only do it if they have a sidecar audio! file %+ call sleep 3
 @Echo OFF
 @on break cancel
 

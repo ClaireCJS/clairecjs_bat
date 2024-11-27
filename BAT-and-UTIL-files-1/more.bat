@@ -3,4 +3,5 @@
 
 REM         c:\util\less.exe %*
 REM   c:\cygwin\bin\less.exe %*
-more.com %*
+rem                 more.com %* %+ rem Why yes, in 2024 windows has a 64-bit .com executable
+      c:\cygwin\bin\more.exe %*
