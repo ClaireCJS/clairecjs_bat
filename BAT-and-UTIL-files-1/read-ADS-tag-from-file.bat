@@ -1,3 +1,4 @@
+
 @rem     Reads a tag associated with a file into %RECEIVED_VALUE%, using Windows Alternate Data Streams for files. 
 
 @rem     These tags copy over to new locations and "live" "within" the files themselves, so moving/copying doesn't change things.
@@ -41,6 +42,7 @@ rem Get parameters:
         set FILE_TO_USE=%@UNQUOTE[%1]                                           %+ rem file to use 
         set TAG_TO_READ=%@UNQUOTE[%2]                                           %+ rem ads tag to display
         set               PARAM_3=%3                                            %+ rem "verbose" if you want MORE on-screen verification of what's happeneing
+        set              PARAMS_3=%3$                                           %+ rem rest of the command tail
 
 rem Validate environment (once):
         iff 1 ne %validated_read_ads_tag_from_file% then
@@ -57,11 +59,12 @@ rem Set default values for parameters:
         if "%TAG_TO_READ%" eq ""  (set TAG_TO_READ=tag)
 
 
-rem Remove tag: 
-        iff "%PARAM_3%" ne "verbose" then
-                call add-ADS-tag-to-file %FILE_TO_USE% %TAG_TO_READ% read
-        else
-                call add-ADS-tag-to-file %FILE_TO_USE% %TAG_TO_READ% read verbose
-        endiff
+rem Read tag: 
+        call add-ADS-tag-to-file "%FILE_TO_USE%" "%TAG_TO_READ%" read %PARAMS_3%
+        rem iff "%PARAM_3%" ne "verbose" then
+        rem         echo call add-ADS-tag-to-file "%FILE_TO_USE%" %TAG_TO_READ% read %PARAM_3%
+        rem else
+        rem         echo call add-ADS-tag-to-file "%FILE_TO_USE%" %TAG_TO_READ% read verbose
+        rem endiff
 :END
 

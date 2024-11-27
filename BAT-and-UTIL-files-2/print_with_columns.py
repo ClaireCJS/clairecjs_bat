@@ -36,6 +36,7 @@ DEFAULT_WRAPPING       = False                                            #do we
 INTERNAL_LOG = ""
 WRAPPING = DEFAULT_WRAPPING
 VERBOSE = False
+FORCE_COLUMNS = False
 args = None
 parser = None
 
@@ -44,7 +45,7 @@ console_height=None
 columns=0
 
 def parse_arguments():
-    global WRAPPING, VERBOSE, args, console_width, console_height
+    global WRAPPING, VERBOSE, FORCE_COLUMNS, args, console_width, console_height
     """
     Parse command-line arguments.
     """
@@ -57,8 +58,9 @@ def parse_arguments():
     parser.add_argument('--no_wrap', action='store_true', help="Disable line wrapping for long lines")
     parser.add_argument('--max-line-length-before-wrapping', type=int, default=80, help="Maximum line length before wrapping")
     args = parser.parse_args()
-    ROW_PADDING = args.row_padding
-    VERBOSE     = args.verbose
+    ROW_PADDING   = args.row_padding
+    VERBOSE       = args.verbose
+    FORCE_COLUMNS = args.columns
     return parser.parse_args()
 
 
@@ -112,6 +114,7 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
     Starts with the maximum possible columns and decreases until a fit is found.
     """
     if not lines:
+        print(f"No lines?!?!?!?!?!?!?!?!??!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!?!??!!?")
         return 1  # Default to 1 column if no lines
 
     max_line_length = max(len(line) for line in lines)
@@ -131,7 +134,8 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
             if verbose:
                 print(f"Optimal columns determined: {cols} with {rows} rows per column")
             return cols
-    return 1  # Fallback to 1 column
+    #eturn 1  # Fallback to 1 column
+    return 2  # Fallback to 2 columns
 
 
 
@@ -311,7 +315,7 @@ def format_columns(lines, columns, column_widths, divider):
         line = divider.join(line_parts)
 
         #NTERNAL_LOG = INTERNAL_LOG + f"line_parts={line_parts}\n"
-        #dummy__is_to_wide__dummy, internal_log_fragment = log_line_parts([line], row, column_widths, "")
+        #dummy__is_to_wide__dummy, internal_log_fragment = log_line_parts_and_process_them_too([line], row, column_widths, "")
         output.append(line)
     return output
 
@@ -342,7 +346,7 @@ def calculate_column_widths(columns_data):
         column_widths.append(max_width)
     return column_widths
 
-def log_line_parts(line_parts, row_num, column_widths, rendered_row):
+def log_line_parts_and_process_them_too(line_parts, row_num, column_widths, rendered_row):
     global INTERNAL_LOG
     INTERNAL_LOG_LOCAL = ""
     """
@@ -357,13 +361,15 @@ def log_line_parts(line_parts, row_num, column_widths, rendered_row):
         str: Updated INTERNAL_LOG_LOCAL with the new entries.
     """
     too_wide = False
+    max_row_width = 0
     for col_num, (part, width) in enumerate(zip(line_parts, column_widths), start=1):
         col_width    = column_widths[col_num-1]
         stripped_row = strip_ansi(rendered_row)
         len2         =        len(stripped_row)
+        len2
         if col_num == 1:
             #print(f"INTERNAL_LOG_LOCAL = {INTERNAL_LOG_LOCAL}")
-            tmpstr = f"\nRow {row_num}: Length={len(rendered_row):3}: length2={len2:3}  (cols:{console_width}):" + f"\n{rendered_row}\n{stripped_row}\n"            
+            tmpstr = f"\nRow {row_num}: Length={len2:3}: length2={len2:3}  (cols:{console_width}):" + f"\n{rendered_row}\n{stripped_row}\n"            
             INTERNAL_LOG_LOCAL = INTERNAL_LOG_LOCAL + tmpstr
         INTERNAL_LOG_LOCAL     = INTERNAL_LOG_LOCAL + f"\tColumn {col_num}={col_width} {len(part):2}=Length: {part.ljust(width)} \n"
         #GOAT should this be ≥ and not >?
@@ -371,7 +377,7 @@ def log_line_parts(line_parts, row_num, column_widths, rendered_row):
             too_wide = True
             if VERBOSE: print(f"{columns} columns causes overflow on row {row_num} because len2:{len2} > col_width={console_width}!\n{stripped_row}\n{rendered_row}")
         if too_wide: break        
-    if VERBOSE: print(f" ------> log_line_parts return {too_wide}, INTERNAL_LOG_LOCAL")
+    if VERBOSE: print(f" ------> log_line_parts_and_process_them_too return {too_wide}, INTERNAL_LOG_LOCAL")
     return too_wide, INTERNAL_LOG_LOCAL
     
     
@@ -461,7 +467,7 @@ def debug_info(columns,                width, desired_max_height, console_width,
 
 
 def main():
-    global INTERNAL_LOG, console_width, console_height, columns
+    global INTERNAL_LOG, VERBOSE, WRAPPING, FORCE_COLUMNS, console_width, console_height, columns
     our_args = parse_arguments()
     INTERNAL_LOG=""
 
@@ -513,12 +519,12 @@ def main():
 
     # Determine the number of columns
     if our_args.columns:
-        if args.columns < 1:
+        if our_args.columns < 1:
             print("Error: Number of columns must be at least 1.")
             sys.exit(1)
-        columns = args.columns
+        columns = our_args.columns
         rows_per_col = ceil(len(input_data) / columns)  #redundant
-        if args.verbose:
+        if our_args.verbose or VERBOSE or True:
             print(f"Using user-specified columns: {columns}")
             print(f"Rows per column: {rows_per_col}")
     else:
@@ -534,19 +540,22 @@ def main():
         is_too_wide = False
         output = ""
         
-        if not force_num_columns:
-                columns       = determine_optimal_columns(input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
-        rows_per_col  = ceil(len(input_data) / columns)        
+        if not force_num_columns and not FORCE_COLUMNS:
+                columns = determine_optimal_columns(input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
+        if columns == 0: rows_per_col  = 1
+        else:            rows_per_col  = ceil(len(input_data) / columns)        
         columns_data  = distribute_lines_into_columns(input_data, columns, rows_per_col)      
         column_widths = calculate_column_widths(columns_data)
         rendered_rows = render_columns(columns_data, column_widths, divider)
         if args.verbose: print(f"Column widths: {column_widths}")
         
+        #DEBUG: print(f"🦈 in the end, columns were {columns}")
+        
         for row_num, rendered_row in enumerate(rendered_rows, start=1):
             INTERNAL_LOG_FRAGMENT=""
-            line_parts = rendered_row.split(divider)                    # Split the rendered row back into parts based on the divider
+            line_parts = rendered_row.split(divider)                      # Split the rendered row back into parts based on the divider
             line_parts = [part.strip() for part in line_parts]            # Trim any extra spaces
-            is_too_wide, INTERNAL_LOG_FRAGMENT = log_line_parts(line_parts, row_num, column_widths, rendered_row)
+            is_too_wide, INTERNAL_LOG_FRAGMENT = log_line_parts_and_process_them_too(line_parts, row_num, column_widths, rendered_row)
             if VERBOSE: print(f"🐾🐾 row_num {row_num}... is_too_wide={is_too_wide}")
             if is_too_wide: 
                 if VERBOSE: print(f"🐾🐾 breaking")
@@ -554,16 +563,16 @@ def main():
             INTERNAL_LOG = INTERNAL_LOG + INTERNAL_LOG_FRAGMENT
             output += rendered_row + "\n"
         if VERBOSE: print(f"🤬🤬 row_num {row_num}... is_too_wide={is_too_wide}")
-        keep_looping = False                    #only keep looking if things required a redo
+        keep_looping = False                                             #only keep looking if things required a redo
         force_num_columns = False               
-        if is_too_wide: 
+        if is_too_wide and not FORCE_COLUMNS: 
             if VERBOSE: print(f"🤬🤬 ACTING ON IT")
-            keep_looping = True                 #keep looping, but with a lower number of coumns
+            keep_looping = True                                          #keep looping, but with a lower number of coumns
             columns = columns - 1
             force_num_columns = True
             if columns == 1: keep_looping = False
         
-        
+    #DEBUG: print(f"🦈 in the end, columns were {columns}")
     print(output)
     
     # Optionally, print the internal log

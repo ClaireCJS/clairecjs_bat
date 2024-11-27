@@ -13,6 +13,9 @@ rem Validate environment and parameter:
         endiff                
 
 rem Set via windows alternate data streams:
-        call add-ads-tag-to-file %LYRIC_FILE_TO_DISPLAY_STATUS_OF% lyrics read lyrics %+ rem sets RECEIVED_VALUE for return value
-        rem echo received_value='%received_value%'
-        
+        iff 0 ne %LYRIC_JUSTIFICATION% then
+                call read-ads-tag-from-file %LYRIC_FILE_TO_DISPLAY_STATUS_OF% lyrics lyrics %+ rem sets RECEIVED_VALUE for return value (one parameter is specificying the lyrics tag, the other is specifying that we run in lyrics mode with custom lyric-specific output)
+                rem echo received_value='%received_value%'
+        else
+                call read-ads-tag-from-file %LYRIC_FILE_TO_DISPLAY_STATUS_OF% lyrics lyrics 
+        endiff

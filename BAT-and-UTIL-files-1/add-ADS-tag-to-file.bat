@@ -211,7 +211,7 @@ goto :END
                                 iff "%OPERATIONAL_MODE%" ne "READ" then
                                         echo %tmp_emoji2use% Set %bold_on%%italics_on%%tmp_tag%%italics_off%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
                                 else
-                                        echo %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% Lyrics are %value_spacer%%tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use% %value_spacer_post% for: %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                                        echo %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% Lyrics are  %value_spacer%%tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use% %value_spacer_post% for: %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
                                 endiff
                         endiff
         return

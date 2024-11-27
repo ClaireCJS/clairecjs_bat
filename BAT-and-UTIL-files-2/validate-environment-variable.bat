@@ -163,7 +163,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                             rem                           but NOT for validate-environment-variableS { plural }:
                                     iff  defined  PARAM2  .and.  not defined  %PARAM2%  then
                                         call warning "%PARAM2"
-                                        echo about to bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!"
+                                        rem  about to bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!"
                                         call          bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!"
                                         call warning "%PARAM2"
                                     endiff

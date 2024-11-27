@@ -81,7 +81,7 @@ rem If there was nothing to do, let user know:
                 set LAST_FOLDER_HAD_NO_KARAOKE_OR_LYRICS_TO_GENERATE=1
                 echo.
                 iff not exist %FILEMASK_AUDIO% then
-                        call success "Nothing to transcribe!"
+                        call success "Nothing here to transcribe!"
                 else
                         call success "Nothing left to transcribe!"
                 endiff
