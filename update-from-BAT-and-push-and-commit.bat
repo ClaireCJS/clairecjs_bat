@@ -117,11 +117,7 @@ rem Validate the above (and other) values that we will be using here:
         ) else (                
                 set to_validate=BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_CLAIRE_ZIP PERL_SITELIB_FULL_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE DOCS_FOLDER
         )           
-        
-ECHO HI?
-        echo call validate-environment-variables %to_validate%
-             call validate-environment-variables %to_validate%
-echo we here?
+        call validate-environment-variables %to_validate%
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
         rem Adjustment for special modes:
@@ -197,6 +193,9 @@ rem Make sure they're all added —— any new extensions that we add to our pro
         rem This secondary folder seems to be having troubles sometimes... Re-add just to be sure.
                 call git.bat add %TARGET_2%\*.bat
 
+rem Make file readonly again:
+        gosub setAttribs "+r"
+        
 rem Commit and Push:
         echo.
         call divider
@@ -209,7 +208,6 @@ rem Commit and Push:
 
 rem Cleanup:
         rem Set files to be read-only so we don't accidentally edit them in the wrong place:
-                gosub setAttribs "+r"
                 
         :Skip_TheRest
                 unset /q SECONDARY_BAT_FILES
