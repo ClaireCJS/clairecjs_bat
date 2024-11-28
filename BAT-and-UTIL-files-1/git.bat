@@ -1,5 +1,5 @@
 @on break cancel
-@Echo On
+@Echo Off
 
 rem *** CONFIGURATION: ***
 
@@ -128,5 +128,9 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
 :END
 
 set TERM=%TERM_TEMP%
+
+
+echo Ending git.bat ... pbatchname=%_PBATCHNAME ... tail=%*
+pause
 
 

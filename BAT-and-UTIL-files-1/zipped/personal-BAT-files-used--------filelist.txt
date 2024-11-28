@@ -1,3 +1,4 @@
+c:\cygwin\bin\sort.exe --ignore-case -k5
 2024-11-23  23:44        149,504   49%  4wt.dll
 2024-11-23  23:44          3,433   60%  4wt.txt
 2024-11-27  16:41         14,089   74%  add-ADS-tag-to-file.bat
@@ -287,7 +288,7 @@
 2024-11-19  07:47          1,045   54%  display-flac-tags.bat
 2024-11-19  07:47            162   23%  display-free-space-as-locked-message.bat
 2024-11-19  07:47          3,640   67%  display-free-space.bat
-2024-11-20  15:53          9,064   71%  display-horizontal-divider.bat
+2024-11-28  00:16          9,085   71%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-11-27  16:42          1,249   58%  display-lyric-status-for-file.bat
 2024-11-27  17:03          3,921   68%  display-lyric-status.bat
@@ -310,7 +311,7 @@
 2024-11-19  07:47             39   -5%  display-window-names.bat
 2023-05-24  10:52            732   55%  display_mp3_comment_with_eyed3_library_proof_of_concept_does_not_work_well.py
 2024-11-19  07:47             68   -1%  DIST.bat
-2024-11-25  12:41         13,426   77%  distribute-bat-files-to-every-drive.bat
+2024-11-28  00:21         14,070   77%  distribute-bat-files-to-every-drive.bat
 2024-11-19  07:47             36   -5%  div.bat
 2024-11-11  16:32             55   -3%  divider.bat
 2024-11-25  18:20             31   -6%  dls.bat
@@ -349,7 +350,7 @@
 2024-11-19  07:47             41   -4%  emoji-grep.bat
 2024-11-26  04:48             26   -7%  emoji-search-online.bat
 2024-11-26  04:48          1,836   59%  emoji-search.bat
-2024-11-26  13:02         77,062   78%  emoji.env
+2024-11-28  00:40         77,199   78%  emoji.env
 2024-11-19  07:47          1,726   53%  enqueue-file-into-winamp-playlist.bat
 2024-11-19  07:47             66   -3%  enqueue.bat
 2024-11-19  07:47            381   35%  ensure-directories-exist.bat
@@ -472,7 +473,7 @@
 2024-11-19  07:49             59    0%  git-suppress-CRLF-warning.bat
 2024-11-19  07:49            198   25%  git-timecapsule.bat
 2024-11-19  07:49             57    0%  git-win.bat
-2024-11-27  17:25          6,705   62%  git.bat
+2024-11-28  01:24          7,960   64%  git.bat
 2024-11-19  07:49            246   24%  github.bat
 2024-11-19  07:49             36   -5%  go-to-bat-file-folder.bat
 2024-11-25  02:12          1,265   60%  go-to-currently-playing-song-dir.bat
@@ -683,8 +684,8 @@
 2024-11-19  15:18         11,285   72%  prompt-common.bat
 2024-11-19  15:18            380   52%  prompt-sound.bat
 2024-11-19  21:35             51    6%  prompt-work.bat
-2024-11-27  18:16            481   47%  publish-bat-updates-to-github.bat
-2024-11-27  18:11             76    2%  publish.bat
+2024-11-28  01:21            573   46%  publish-bat-updates-to-github.bat
+2024-11-28  01:21             75    2%  publish.bat
 2024-11-19  21:35             37   -5%  push.bat
 2024-11-23  11:06          2,957   60%  put.bat
 2024-11-19  15:14          2,247   60%  py.spec2exe.bat
@@ -1014,7 +1015,7 @@
 2024-11-19  15:02            305   34%  unzip-all.bat
 2024-11-19  15:02          6,094   70%  unzip-gracefully.bat
 2024-11-19  15:02            461   39%  update-cygwin.bat
-2024-11-27  17:17         12,681   72%  update-from-BAT-via-manifest.bat
+2024-11-28  01:21         13,549   72%  update-from-BAT-via-manifest.bat
 2019-10-01  10:28             28   -7%  uppercase.pl
 2024-11-19  15:02            597   42%  ups-tracking.bat
 2019-10-01  10:28            232   26%  urldecode.pl
