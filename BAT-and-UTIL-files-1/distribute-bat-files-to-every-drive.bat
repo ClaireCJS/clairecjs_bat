@@ -26,7 +26,7 @@
 ::::: NON-SCROLLABLE HEADER:
         call footer unlock
         cls
-        repeat 5 echo.
+        repeat 1 echo.
         call footer "Distributing BAT file folder to all drives..."
 
 ::::: PREPARE FOR COPY:
@@ -89,21 +89,13 @@ return
     set OPTION_ARD_POSTPROCESS=0 %+ rem 20241013 turning this back to 0
     rem no /s here:
     
-    rem ‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼
-    rem WE USED TO DO THIS:
-    rem          call all-ready-drives "if exist DRIVE_LETTER:\bat *copy /Nt /RCT /k /l /u /a: /[!.git *.bak  setpath.cmd] /r /h /z /k /g \bat\%1 DRIVE_LETTER:\bat"
-    rem But the problem with calling all-ready-drives is that it couldn't copy itself in this situation.
-    rem ‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼‼
-    rem So let's copy it here...
-    rem        call wake-all-drives
-    rem    echo.
-    rem    for %%tmpletter in (%OUR_ALPHABET_TO_USE%) gosub doLetter %tmpletter  %+ rem copy doLetter from all-ready-drives
-
-    set TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME=c:\recycled\all-ready-drives-temp-%_DATETIME.bat
-
-    echo ray | *copy /q /r c:\bat\all-ready-drives.bat %TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME%
-    call validate-environment-variable TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME
-    call %TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME% "if exist DRIVE_LETTER:\bat *copy /Nt /RCT /k /l /u /a: /[!.git *.bak  setpath.cmd] /r /h /z /k /g \bat\%1 DRIVE_LETTER:\bat"
+    rem all-ready-drives sometimes has trouble copying itself when open, so we'll copy it to \recycled\ and run the copy instead:
+            set TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME=c:\recycled\all-ready-drives-temp-%_DATETIME.bat %+ rem make name
+            echo ray | *copy /q /r c:\bat\all-ready-drives.bat %TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME% %+ rem copy it to name
+            call validate-environment-variable TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME                   %+ rem make sure it copied, then run it:
+            
+    rem ACTUALLY DISTRIBUTE THE BAT FILES TO EVERY DRIVE:                    
+            call %TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME% "if exist DRIVE_LETTER:\bat *copy /Nt /RCT /k /l /u /a: /[!.git *.bak  setpath.cmd] /r /h /z /k /g \bat\%1 DRIVE_LETTER:\bat"
 
     set OPTION_ARD_POSTPROCESS=0
 goto :Cleanup

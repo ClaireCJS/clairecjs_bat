@@ -1,7 +1,7 @@
-@Echo OFF
+@Echo On
 rem                      edit this file only as %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
 @on break cancel
-
+cls
 
 :DESCRIPTION:  WHAT IS THIS?
 :DESCRIPTION:                I actually do all my development for this in my personal live command line environment,
@@ -45,20 +45,22 @@ rem Parameters:
         :initialize_params
                 set GO_STRAIGHT_TO_GIT=0
                 set        SKIP_UPDATE=0
+                set          DOCS_ONLY=0
         :check_params
                 set PARAM_FOUND=0
                 if "%1" eq "git"         (set PARAM_FOUND=1 %+ set GO_STRAIGHT_TO_GIT=1)                                       
                 if "%1" eq "skip-update" (set PARAM_FOUND=1 %+ set        SKIP_UPDATE=1)                                       
-                if   1  eq %PARAM_FOUND% (shift %+ goto :check_params)
-                if "%1" ne ""            (call error "don't know what this 1ˢᵗ parameter of '%1' is supposed to mean")
+                if "%1" eq "docs"        (set PARAM_FOUND=1 %+ set          DOCS_ONLY=1)                                       
+                if   1  eq %PARAM_FOUND% (shift             %+ goto       :check_params)
+                if "%1" ne ""            (call print-message error "don't know what this %[1st] parameter of '%italics_on%%1%italics_off`%' is supposed to mean")
 
 
 rem Only once per session, validate our environment & make sure we're running this on the correct machine:
         iff %GITHUB_UPDATER_VALIDATED ne 1 then
-            call validate-environment-variables MACHINENAME MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY italics_on italics_off PYTHON_OFFICIAL_SITELIB_CLAIRE
-            call validate-in-path               c:\bat\update-from-BAT-via-manifest copy-move-post.py fast_cat divider AskYN git.bat commit-and-push.bat error error.bat print-message.bat
-            if "%MACHINENAME%" ne "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%" (call error "This script is only meant to be run on our primary machine named '%italics_on%%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%%italics_on%', but this machine is named '%italics_on%%MACHINENAME%%italics_on%'" %+ goto :END)
-            set GITHUB_UPDATER_VALIDATED=1
+                call validate-environment-variables MACHINENAME MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY italics_on italics_off PYTHON_OFFICIAL_SITELIB_CLAIRE 1st
+                call validate-in-path               c:\bat\update-from-BAT-via-manifest copy-move-post.py fast_cat divider AskYN git.bat commit-and-push.bat error error.bat print-message.bat
+                if "%MACHINENAME%" ne "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%" (call error "This script is only meant to be run on our primary machine named '%italics_on%%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%%italics_on%', but this machine is named '%italics_on%%MACHINENAME%%italics_on%'" %+ goto :END)
+                set GITHUB_UPDATER_VALIDATED=1
         endiff
 
 
@@ -66,17 +68,18 @@ rem Only once per session, validate our environment & make sure we're running th
 
 rem Make sure none of our files are set as read-only, so that we can successfully update from our source files:
         gosub setAttribs "-r"
-        
-                goto :end_of_subroutines
-                        call less_important "Setting file attributes to %italics_on%%attrib_to_set%%italics_off%                        
-                        :setAttribs    [attrib_to_set]
-                                 set    attrib_to_use=%@unquote[%attrib_to_set]
-                                attrib %attrib_to_use% %TARGET_2%\*.*        >nul
-                                attrib %attrib_to_use% %TARGET_1%\*.*        >nul     
-                                attrib %attrib_to_use% %TARGET_1%\docs\*.*   >nul     
-                                attrib %attrib_to_use%            docs\*.*   >nul
-                        return
-                :end_of_subroutines
+        rem   setAttribs is right here:  
+                        goto :end_of_subroutines
+                                :setAttribs    [attrib_to_set]
+                                        rem This subroutine also gets called when we are done, but with "+r" instead of "-r"
+                                        call    less_important "Setting file attributes to %italics_on%%attrib_to_set%%italics_off%                        
+                                        set     attrib_to_use=%@unquote[%attrib_to_set]
+                                        attrib %attrib_to_use% %TARGET_2%\*.*      >nul
+                                        attrib %attrib_to_use% %TARGET_1%\*.*      >nul     
+                                        attrib %attrib_to_use% %TARGET_1%\docs\*.* >nul     
+                                        attrib %attrib_to_use%            docs\*.* >nul
+                                return
+                        :end_of_subroutines
 
 rem Manually-selected copies from locations other than C:\BAT\ ——— Step #1 ——— Define variables for each of the files/folders:
         rem TCC files needed for compatibiity: TODO add notes about these in docs?
@@ -109,9 +112,16 @@ rem Manually-selected copies from locations other than C:\BAT\ ——— Step #1
                     
 
 rem Validate the above (and other) values that we will be using here:
-        call validate-environment-variables BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_CLAIRE_ZIP PERL_SITELIB_FULL_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE DOCS_FOLDER
+        if 1 eq %DOCS_ONLY (
+                set to_validate=DOCS_FOLDER
+        ) else (                
+                set to_validate=BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_CLAIRE_ZIP PERL_SITELIB_FULL_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE DOCS_FOLDER
+        )           
+        call validate-environment-variables %to_validate%
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
+        rem Adjustment for special modes:
+                if 1 eq %DOCS_ONLY goto :docs_only_goto_1
         rem Set our copy commands:
                 set   COPY=*copy /u /q
                 set COPY_S=*copy /u /q /s
@@ -140,18 +150,21 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
                         %copy_S%  %DIVIDERS_FOLDER%  %TARGET_MAIN%\dividers
                         %copy_S%  %SAMPLES_FOLDER%   %TARGET_MAIN%\samples
                 rem Subfolders that need to be copied twice:
+                        :docs_only_goto_1
                         %copy_S%  %DOCS_FOLDER%  %TARGET_MAIN%\docs
                         %copy_S%  %DOCS_FOLDER%  %TARGET_MAIN%\..\docs
-
+                        rem If this ever gets moved to anything but the last section here, we will have to have another iff-goto to skip over the rest
 
 
 
 
 
 rem Update BAT files from live location to github-folder location:
-        if "%1" eq "skip-update" (shift %+ goto :Skip_Update)
-        call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN% %*
-        :Skip_Update
+        iff 1 eq %SKIP_UPDATE .or. 1 eq %DOCS_ONLY then
+                set comment=Skip it!
+        else
+                call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN% %*
+        endiff
 
 
 rem Update our copy of BAT-1 folder's later-letters to our BAT-2 folder to get past GitHub's 1,000 file 
@@ -180,6 +193,9 @@ rem Make sure they're all added —— any new extensions that we add to our pro
         rem This secondary folder seems to be having troubles sometimes... Re-add just to be sure.
                 call git.bat add %TARGET_2%\*.bat
 
+rem Make file readonly again:
+        gosub setAttribs "+r"
+        
 rem Commit and Push:
         echo.
         call divider
@@ -192,7 +208,6 @@ rem Commit and Push:
 
 rem Cleanup:
         rem Set files to be read-only so we don't accidentally edit them in the wrong place:
-                gosub setAttribs "+r"
                 
         :Skip_TheRest
                 unset /q SECONDARY_BAT_FILES

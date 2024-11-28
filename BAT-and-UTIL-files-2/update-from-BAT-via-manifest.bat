@@ -1,5 +1,5 @@
 @REM                              Edit this one only in c:\bat\
-@Echo OFF
+@Echo On
 on break cancel
 rem echo caller to %0 in %_CWD: %_PBATCHNAME %+ pause
 
@@ -26,8 +26,6 @@ rem Must have parameter!
         if "%1" eq "" (call fatal_error "%0 must have 1ˢᵗ parameter of target folder for example BAT-and-UTIL-files-1")
         iff "%2" ne "" then
                 set  which_file=%@UNQUOTE[%2]
-                rem if "%1" 
-
         endiff
 
 rem VALIDATION & SETUP:
@@ -54,7 +52,7 @@ rem Cosmetic kludge:
         rem no this actually tended to break it! call set-ansi force
 
 rem TELL USER:
-        cls
+        rem cls
         echo.
         call important "Updating: '%PROJECT_NAME%' files: " 
               echo %ANSI_COLOR_IMPORTANT%                 To: %[PROJECT_DIR]%ANSI_COLOR_IMPORTANT_LESS%
@@ -67,11 +65,11 @@ rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
         if "%MANIFEST_FILES%" eq "NONE" (goto :Manifest_File_Update_Complete)               
                 for %myFileFull in (%MANIFEST_FILES%) (
                     set myFile=%@UNQUOTE[%myFileFull]
-                    rem echo %blink_on%[LOOP] myFileFull is currently=%myFileFull%%blink_off%
+                    set COMMENT=`rem echo %blink_on%[LOOP] myFileFull is currently=%myFileFull%%blink_off%`
                     echos %@RANDFG[]*
                     if not exist "%SOURCE_DIR%\%myFile%" (call error "Uh oh! Project source file '%italics_on%%myFile%%italics_off%' doesn't seem to exist in %SOURCE_DIR%")
-                    rem  Taking this out for a speedup: if exist %myFileFull% (%COLOR_WARNING %+ attrib -r  %myFile% >nul %+ %DELETE% %myFile%)
-                    rem color bright black on black
+                    set COMMENT=`rem  Taking this out for a speedup: if exist %myFileFull% (%COLOR_WARNING %+ attrib -r  %myFile% >nul %+ %DELETE% %myFile%)`
+                    set COMMENT=`rem color bright black on black`
                     (%COPY% /u %SOURCE_DIR%\%myFile% . )            
                 )
                 rem call debug "setting files to +r in %_CWD"               
@@ -118,7 +116,7 @@ goto :END_OF_SUBROUTINES
                         set OUR_FILELIST_9=
                         set OUR_FILELIST_10=
                         
-                        if "%which_file%" eq "docs" (set OUR_FILELIST=docs\*.md docs\outtakes\*
+                        if "%which_file%" eq "docs" (set OUR_FILELIST=docs\*.md docs\outtakes\*)
                 endiff
 
 
