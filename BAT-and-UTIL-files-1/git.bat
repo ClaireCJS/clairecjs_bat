@@ -125,8 +125,8 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                 endiff
         
         :git_status_skip_here
-        rem if exist %GIT_OUT%          (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT%         >nul)
-        rem if exist %GIT_OUT_FILTERED% (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT_FILTERED%>nul)
+         if exist %GIT_OUT%          (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT%         >nul)
+         if exist %GIT_OUT_FILTERED% (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT_FILTERED%>nul)
         call errorlevel "a git error!?! how can this be?!?! Command line was: %0 %*"
     goto :END
 

@@ -1,18 +1,20 @@
 @Echo OFF
-@on break cancel
-rem echo caller for %0 in %_CWD: %_PBATCHNAME %+ pause
-
-
-
 rem                      edit this file only as %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
+@on break cancel
+
+
+:DESCRIPTION:  WHAT IS THIS?
+:DESCRIPTION:                I actually do all my development for this in my personal live command line environment,
+:DESCRIPTION:                so for me, these files actually "live" in "c:\bat\" and need to be copied/refreshed to 
+:DESCRIPTION:                my local GIT repo beore uploading to GitHub. This script does that.
+
+
+:USAGE: update-from-BAT-and-push-and-commit [git] [skip-update] 
+:USAGE:                                     ^^^^^^^^^^^^^^^^^^^ extra args have to be given in that order
 
 
 
 
-rem WHAT IS THIS?
-        rem     I actually do all my development for this in my personal live command line environment,
-        rem     so for me, these files actually "live" in "c:\bat\" and need to be copied/refreshed to 
-        rem     my local GIT repo beore uploading to GitHub. This script does that.
 
 rem CONFIGURATION:
         set TARGET_MAIN=BAT-and-UTIL-files-1
@@ -39,6 +41,17 @@ rem CONFIGURATION:
         rem DECIDED AGAINST: metaflac.exe metamp3.exe metamp3.txt  lyricy.exe
 
 
+rem Parameters:
+        :initialize_params
+                set GO_STRAIGHT_TO_GIT=0
+                set        SKIP_UPDATE=0
+        :check_params
+                set PARAM_FOUND=0
+                if "%1" eq "git"         (set PARAM_FOUND=1 %+ set GO_STRAIGHT_TO_GIT=1)                                       
+                if "%1" eq "skip-update" (set PARAM_FOUND=1 %+ set        SKIP_UPDATE=1)                                       
+                if   1  eq %PARAM_FOUND% (shift %+ goto :check_params)
+                if "%1" ne ""            (call error "don't know what this 1ˢᵗ parameter of '%1' is supposed to mean")
+
 
 rem Only once per session, validate our environment & make sure we're running this on the correct machine:
         iff %GITHUB_UPDATER_VALIDATED ne 1 then
@@ -48,9 +61,6 @@ rem Only once per session, validate our environment & make sure we're running th
             set GITHUB_UPDATER_VALIDATED=1
         endiff
 
-
-rem shortcut to go straigh to git-commit:
-        if "%1" eq "git" (shift %+ goto :git_yes)                                       
 
 
 
@@ -147,7 +157,7 @@ rem Update BAT files from live location to github-folder location:
 rem Update our copy of BAT-1 folder's later-letters to our BAT-2 folder to get past GitHub's 1,000 file 
 rem display limit so that bat files starting with Z can actually be browsed to:
         if 1 ne %last_git_was_null% (echo.)
-        call less_important "Updating %italics_on%BAT-2%italics_off% from %italics_on%BAT-1%italics_off%"
+        call less_important "Updating %italics_on%BAT-2%italics_off% from %italics_on%BAT-1%italics_off%..."
         echo.
         (((echo yryr|*copy /u /r /Ns %TARGET_MAIN%\[m-z]* %TARGET_2% ) |:u8 copy-move-post.py) |:u8 fast_cat)
 
