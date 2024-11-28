@@ -64,7 +64,7 @@ rem As of 2024/10/18, we now try to use the pre-rendered dividers before drawing
                 type %RAINBOW_DIVIDER_FILE%
                 rem   Okay this is weird. I keep getting "stuck" because the generated 
                 rem   dividers don't have newlines at the end! So let's force one:
-                echos %NEWLINE%
+                echos %NEWLINE%%@ANSI_MOVE_TO_COL[1]
                 goto :Done
         endiff
 
