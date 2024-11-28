@@ -1,13 +1,13 @@
 @on break cancel
-@Echo OFF
+@Echo On
 
 set ARGS=%*
 set NO_GIT_ADD_PAUSE=0
 
-if "%2" eq "nopause" .eq 1 (
+iff "%2" eq "nopause"  then
     set NO_GIT_ADD_PAUSE=1
     ARGS=%1 %3$
-)
+endiff
 
 REM Skip validation if we're told, but only this once
     if %SKIP_GIT_ADD_VALIDATION ne 1 (call validate-environment-variable ARGS)

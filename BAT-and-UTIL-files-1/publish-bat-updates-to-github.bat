@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo On
 @on break cancel
 
  cls

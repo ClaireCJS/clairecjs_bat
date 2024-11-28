@@ -104,30 +104,22 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                         
                         iff %@FILESIZE[%GIT_OUT%] eq %@FILESIZE[%GIT_OUT_FILTERED%] then                
                                 rem Do nothing! We already displayed the unfiltered...
-                        else
-                                rem Filtered vs Non-filtered display:
+                        else                                rem Filtered vs Non-filtered display:
                                 echo.
                                 color bright blue on black
                                 echo %STAR% %DOUBLE_UNDERLINE%%ITALICS%%ANSI_BRIGHT_BLUE%Filtered%ITALICS_OFF% GIT output%UNDERLINE_OFF%:
                                 echo.
-                                iff exist %GIT_OUT_FILTERED% then
+                                if exist %GIT_OUT_FILTERED% (
                                         echos %@ANSI_RGB[0,205,0]
                                         (type %GIT_OUT_FILTERED% |:u8 fast_cat)
-                                endiff                                        
-                                        rem piping to cat_fast fixes TCC+WT ansi rendering errors:
-                                        rem (cat  %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager' |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
-                                        rem 2024/11/25 change from cat to type                    
-                                        rem ((type %GIT_OUT% |:u8 grep -v 'git-credential-manager-core was renamed to git-credential-manager') |:u8 grep -v 'https:..aka.ms.gcm.rename') |:u8 cat_fast
-                                        rem 2024/11/27 change to send to file, and moving upstream to diff first to see if we should bother with filter vs unfiltered {i.e. if both are the same}:
-                                        rem endiff
-                        else
+                                )                 
                         endiff
                 endiff
         
         :git_status_skip_here
-         if exist %GIT_OUT%          (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT%         >nul)
-         if exist %GIT_OUT_FILTERED% (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT_FILTERED%>nul)
-        call errorlevel "a git error!?! how can this be?!?! Command line was: %0 %*"
+                 if exist %GIT_OUT%          (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT%         >nul)
+                 if exist %GIT_OUT_FILTERED% (%COLOR_REMOVAL% %+ echo ray|del /q /r %GIT_OUT_FILTERED%>nul)
+                 call errorlevel "a git error!?! how can this be?!?! Command line was: %0 %*"
     goto :END
 
 
