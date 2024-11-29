@@ -1,4 +1,4 @@
-@Echo On
+@Echo Off
 rem                      edit this file only as %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
 @on break cancel
 cls
@@ -197,6 +197,7 @@ rem Make sure they're all added —— any new extensions that we add to our pro
                 call git.bat add %TARGET_2%\*.bat
 
 rem Make file readonly again:
+        echo 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
         gosub setAttribs "+r"
         
 rem Commit and Push:

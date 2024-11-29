@@ -12,7 +12,7 @@ readalias=realias
 ;;;;;;;;;;;;; UNKNOWN COMMAND STUFF: ;;;;;;;;;;;;;
 ;;;;;;;;;;;;; UNKNOWN COMMAND STUFF: ;;;;;;;;;;;;;
 
-UNKNOWN_CMD=set PAUSE_WINDOW_TITLE=UNKNOWN COMMAND: %1$ %+ echo 🚩 %ANSI_COLOR_ERROR% Unknown command: '%italics%%ANSI_YELLOW%%1$%ANSI_COLOR_ERROR%%italics_off%' %ANSI_RESET% 🚩 %+ beep %+ call pause-alias  
+UNKNOWN_CMD=set PAUSE_WINDOW_TITLE=❌❌❌ %1$ ❌❌❌%+ echo 🚩 %ANSI_COLOR_ERROR% Unknown command: '%italics%%ANSI_YELLOW%%1$%ANSI_COLOR_ERROR%%italics_off%' %ANSI_RESET% 🚩 %+ beep %+ call pause-alias  
 
 
 

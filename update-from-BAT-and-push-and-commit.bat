@@ -1,4 +1,4 @@
-@Echo On
+@Echo Off
 rem                      edit this file only as %PUBCL%\DEV\py\clairecjs_bat\update-from-BAT-and-push-and-commit.bat and not the copy in c:\bat\!
 @on break cancel
 cls
