@@ -121,7 +121,7 @@ goto :END_OF_SUBROUTINES
 
                 REM Create individual distribution files of our BATs, UTILs, as needed
                         REM Change into source folder to copy our files
-                                    pushd.
+                                    pushd .
                                     %SOURCE_DIR%\
                         REM make target folder
                                     rem call print-if-debug "need to make individual distribution of OUR_FILELIST='%OUR_FILELIST%'"
@@ -131,13 +131,13 @@ goto :END_OF_SUBROUTINES
                                     echos                  ``
                         REM copy each file
                                     rem echo %ansi_color_warning%our_filelist is %our_filelist%%ansi_color_normal% 🐮
-                                    rem set remark=echos %newline%%tab%%arrow%Checking file '%file%'
-                                    echo our_filelist = %ansi_color_orange%%our_filelist% %+ pause
-                                    echo our_filelists = %ansi_color_yellow%%our_filelist%(%OUR_FILELIST%  %OUR_FILELIST_2%  %OUR_FILELIST_3%  %OUR_FILELIST_4%  %OUR_FILELIST_5%  %OUR_FILELIST_6%  %OUR_FILELIST_7%  %OUR_FILELIST_8%  %OUR_FILELIST_9%  %OUR_FILELIST_10%) %+ pause
+                                    rem echos %newline%%tab%%arrow%Checking file '%file%'
+                                    rem echo our_filelist = %ansi_color_orange%%our_filelist% %+ pause
+                                    rem echo our_filelists = %ansi_color_yellow%%our_filelist%(%OUR_FILELIST%  %OUR_FILELIST_2%  %OUR_FILELIST_3%  %OUR_FILELIST_4%  %OUR_FILELIST_5%  %OUR_FILELIST_6%  %OUR_FILELIST_7%  %OUR_FILELIST_8%  %OUR_FILELIST_9%  %OUR_FILELIST_10%) %+ pause
                                     for %%tmp_script_file in (%OUR_FILELIST%  %OUR_FILELIST_2%  %OUR_FILELIST_3%  %OUR_FILELIST_4%  %OUR_FILELIST_5%  %OUR_FILELIST_6%  %OUR_FILELIST_7%  %OUR_FILELIST_8%  %OUR_FILELIST_9%  %OUR_FILELIST_10%) do (gosub UpdateScriptFile "%@UNQUOTE[%tmp_script_file%]")
                                     popd
 
-                        REM Subroutine:
+                        REM file-copying subroutine:
                                     goto :EOS_1
                                     :UpdateScriptFile [file]
                                                 set file=%@UNQUOTE[%file]
