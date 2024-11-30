@@ -1,3 +1,6 @@
+
+
+
 """
         COPY/MOVE postprocessor
 
@@ -23,6 +26,7 @@ import random
 import sys
 import re
 import io
+from io import StringIO
 import threading
 import queue
 import time
@@ -66,6 +70,9 @@ BLINK_OFF            = "\033[25m"
 FAINT_ON             = "\033[2m"
 FAINT_OFF            = "\033[22m"
 COLOR_GREY           = "\033[90m"
+MOVE_TO_COL_1        = "\033[1G"
+MOVE_UP_1            = "\033M"
+COLOR_BRIGHT_GREEN   = "\033[92m"
 ANSI_RESET           = "\033[39m\033[49m\033[0m"
 ITALICS_ON           = "\033[3m"
 ITALICS_OFF          = "\033[23m"
@@ -94,7 +101,7 @@ FOOTERS = [                                                                     
            "Standalone Faster-Whisper-XXL r"
           ]
 file_removals  = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                    #values that indicate a file deletion/removal
-sys.stdout     = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                    #utf-8 fix
+#sys.stdout     = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                    #utf-8 fix
 move_decorator_from_environment_variable = os.environ.get('move_decorator_from_environment_variable', '')   #fetch user-specified decorator (if any)
 
 if os.environ.get('no_tick') == "1": TICK = False
@@ -110,6 +117,68 @@ spacer = ""
 
 
 
+#class CapturingStdout:
+#    def __init__(self):
+#        self.buffer = StringIO()
+#        self.original_stdout = sys.stdout
+#
+#    def write(self, data):
+#        self.buffer.write(data)  # Capture the data
+#        self.original_stdout.write(data)  # Forward it to the original stdout
+#
+#    def flush(self):
+#        self.original_stdout.flush()  # Flush the original stdout
+#
+## Replace sys.stdout
+#sys.stdout = CapturingStdout()
+
+
+class BufferedStdout:
+    def __init__(self):
+        self.buffer = StringIO()
+        self.last_buffer = ""
+        self.original_stdout = sys.stdout
+
+    def write(self, data):
+        self.buffer.write(data)  # Capture the data
+        self.original_stdout.write(data)  # Forward it to the original stdout
+
+    def flush(self):
+        buffer = self.buffer.getvalue()
+        if len(buffer) > 200 and buffer != self.last_buffer:  # Check buffer length and avoid duplicates
+            #buffer = buffer.replace("Faster","Asshole") #this worked
+            #print(f"Buffered data: {buffer}")
+            self.last_buffer = buffer
+        self.original_stdout.flush()  # Flush the original stdout
+        
+    def get_buffer_value(self):
+        """Expose the current buffer value."""
+        return self.buffer.getvalue()        
+
+    def set_buffer_value(self, new_value):
+        """Replace the buffer's content with a new value."""
+        self.buffer = StringIO(new_value)
+
+    def string_in_buffer(self, search_string):
+        """Check if a string is in the buffer."""
+        return search_string in self.buffer.getvalue()
+# Replace sys.stdout with our custom class
+sys.stdout = BufferedStdout()
+
+def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' + DOUBLE_UNDERLINE_OFF, line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
+
+#last_buffer="";
+#def flush():
+#    global last_buffer
+#    if True:
+#            buffer = sys.stdout.buffer.getvalue()
+#            if len(buffer) > 200 and buffer !=  last_buffer: 
+#                print(f"Buffered data: {sys.stdout.buffer.getvalue()}")     # Inspect buffered data
+#                last_buffer = buffer;
+#    sys.stdout.flush()
+
+def flush():
+    sys.stdout.flush()
 
 
 def enable_vt_support():                                                                                        #this was painful to figure out
@@ -135,9 +204,7 @@ def get_random_color(bg=False, hex=False):                                      
     if hex: return convert_rgb_tuple_to_hex_string_with_hash(rand_r, rand_g, rand_b)
     else  : return                                           rand_r, rand_g, rand_b
 
-def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' + DOUBLE_UNDERLINE_OFF, line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
-
-
+    
 
 def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     #sys.stderr.write(f"DEBUG: called print_line({line_buffer}, {r}, {g}, {b}, {additional_beginning_ansi})\n")
@@ -205,39 +272,61 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         line = line.replace(  '\\' , f'{our_ansi_reset}\\{  color_change_ansi}')                                  #/
 
     if whisper_ai:
-            #DEBUG: if additional_beginning_ansi: print(f"additional beginning ansi={additional_beginning_ansi.lstrip(1)}")         #
-            spacer = "                "
-            spacer_less = "           "
-            if verbose: print(f"orig_line is [orig={original_line}][line={line}]")
-            #if "[ctranslate2]" in line: just won't work!
-            if "[ctranslate2]" in original_line:
-                #ine = FAINT_ON + COLOR_GREY + spacer + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
-                #ine =                         spacer + COLOR_GREY + "⭐" + line.replace("[",f"{COLOR_GREY}[") + FAINT_OFF
-                line =                         spacer + FAINT_ON + f"{COLOR_GREY}⭐" + line + FAINT_OFF
-                line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)
-                #DEBUG: print ("ctranslate line found!")#
-            line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)    #todo experimental: just do this, won't affecti f there isn't a match
-            if  original_line.startswith("Standalone Faster-Whisper-XXL "):
-                line = line.replace("Standalone Faster-Whisper-XXL", "\n🚀 Standalone Faster-Whisper-XXL 🚀").replace(" running on:",":")
-            if  original_line.startswith("Starting work on: "):
-                line = line.replace("Starting work on: ",f"Starting work on: {ITALICS_ON}")
-            if  original_line.startswith("Transcription speed: "):
-                line = line.replace("Transcription speed: ",f"{FAINT_ON}{COLOR_GREY}⭐Transcription speed: {ITALICS_ON}")
-            if  original_line.startswith("Subtitles are written to '"):
-                line = line.replace("Subtitles are written to '",f"✅ Subtitles are written to '{ITALICS_ON}{BOLD_ON}").replace("' directory.",f"{BOLD_OFF}{ITALICS_OFF}' directory. ✅")
-            if  original_line.startswith("  Processing segment at "):
-                current_processing_segment += 1
-                if current_processing_segment > 1: print("")
-                line = line.replace(    f"  Processing segment at ",f"{COLOR_GREY}{FAINT_ON}{spacer_less}♬ Processing segment at: {ITALICS_ON}" ) + ITALICS_OFF + FAINT_OFF
-            if  original_line.startswith("* Compression ratio threshold is not"):
-                line = line.replace(    f"* Compression ratio threshold is not",f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Compression ratio threshold is not") + FAINT_OFF
-            if  original_line.startswith("* Log probability threshold is not"):
-                line = line.replace(    f"* Log probability threshold is not"  ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Log probability threshold is not"  ) + FAINT_OFF
-            #bad syntax:                              ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"] in line:
-            if any(substring in line for substring in ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"]):
-                line = line.replace("* Reset prompt. ",COLOR_GREY + FAINT_ON + spacer + "* Reset prompt. ") + FAINT_OFF
-            if " --> " in line: #🐐 possibly restrict this to if whisper_ai
-                line = f"🌟 {BLINK_ON}" + line.replace("]  ",f"]{BLINK_OFF}{ANSI_RESET}{ITALICS_ON}  ")
+        decorator_title = "🚀🚀🚀"
+        #DEBUG: if additional_beginning_ansi: print(f"additional beginning ansi={additional_beginning_ansi.lstrip(1)}")         #
+        spacer = "                              "
+        spacer_less = "           "
+        spacer_even_less =    "   "
+        if verbose: print(f"orig_line is [orig={original_line}][line={line}]")
+        #f "[ctranslate2]" in line: just won't work!
+        #f "[ctranslate2]" in original_line:
+        #if sys.stdout.string_in_buffer("ctranslate"):
+        #    #this fails to find it!!!!! #sys.stdout.print(f"FOUND IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ")
+        #    pass
+
+        if "ctranslate" in original_line:
+            #ine = spacer + FAINT_ON   + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[")        + FAINT_OFF
+            #ine = spacer + COLOR_GREY + "⭐" +              line.replace("[",f"{COLOR_GREY}[")        + FAINT_OFF
+            line = spacer + FAINT_ON   +                                     f"{COLOR_GREY}⭐"  + line + FAINT_OFF + "HEYOOOOOOOOOOO"
+            line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)
+            #DEBUG: print ("ctranslate line found!")#
+        line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)    #todo experimental: just do this, won't affecti f there isn't a match
+        if  original_line.startswith("Standalone Faster-Whisper-XXL "):
+            #### = line.replace("Standalone Faster-Whisper-XXL", "\n\n🚀 Standalone Faster-Whisper-XXL 🚀\n").replace(" running on:",":")
+            line = decorator_title + " " + line.rstrip('\n').replace(" running on:"," —— on") + " " + decorator_title
+            #sys.stdout.write(f"\n{BIG_TOP}{line}\n{BIG_BOT}{line}");
+            #sys.stdout.write(f"\n\n");
+            sys.stdout.write(f"\n{BIG_TOP}{line}\n{BIG_BOT}{line}\n\n");
+            flush()
+            line=""; 
+
+        # not working:
+        line = line.replace("MDX Kim_Vocal_2" ,f"MDX Kim-Vocal 2") 
+        # patterned substitutions: (in alphabetical order):                   
+        line = line.replace("Audio filtering finished in: "                 ,f"⏱ Audio filtering finished in: {ITALICS_ON}")
+        line = line.replace("* Compression ratio threshold is not"          ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Compression ratio threshold is not") + FAINT_OFF
+        line = line.replace("* Log probability threshold is not"            ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Log probability threshold is not"  ) + FAINT_OFF
+        line = line.replace("Audio filtering is in progress"                ,f"{MOVE_UP_1}🔊 {COLOR_BRIGHT_GREEN}Audio filtering is {ANSI_RESET}{ITALICS_ON}in progress{ITALICS_OFF}{COLOR_BRIGHT_GREEN}")
+        line = line.replace("Model loaded in: "                             ,f"💾 Model loaded in: {ITALICS_ON}") + "\n"
+        line = line.replace("Operation finished in: "                       ,f"{MOVE_UP_1}{MOVE_UP_1}🏁 Operation finished in: {ITALICS_ON}")
+        line = line.replace("Subtitles are written to '"                    ,f"✅ Subtitles are written to '{ITALICS_ON}{BOLD_ON}").replace("' directory.",f"{BOLD_OFF}{ITALICS_OFF}' directory. ✅")
+        line = line.replace("Starting work on: "                            ,f"👂 Starting transcription work on: {ITALICS_ON}")
+        line = line.replace("Transcription speed: "                         ,f"{FAINT_ON}{COLOR_GREY}⏱  Transcription speed: {ITALICS_ON}")
+        line = line.replace("CUDA"                                          ,f"{ITALICS_ON}CUDA{ITALICS_OFF}")
+        line = line.replace("VAD filter removed "                           ,f"✔  VAD filter removed: {ITALICS_ON}")
+        line = line.replace("VAD filter kept the following audio segments: ",f"✔️  VAD filter kept the following audio segments: {FAINT_ON}")
+        line = line.replace("VAD finished in: "                             ,f"{MOVE_UP_1}{MOVE_TO_COL_1}🏁 VAD finished in: {ITALICS_ON}")
+        line = line.replace("VAD timestamps are dumped to "                 ,f"{MOVE_UP_1}✍  VAD timestamps are dumped to: {ITALICS_ON}")
+       
+        # unique substitutions: multi-line:
+        if  original_line.startswith("  Processing segment at "):
+            current_processing_segment += 1
+            #f current_processing_segment > 1: print("")
+            if current_processing_segment > 1: pass
+            line = line.replace(f"  Processing segment at ",f"{COLOR_GREY}{FAINT_ON}{spacer_even_less}♬♬ Processing segment at:  {ITALICS_ON}") + ITALICS_OFF + FAINT_OFF
+        # unique substitutions: oneliners:
+        if " --> " in line:line = f"🌟 {BLINK_ON}" + line.replace("]  ",f"]{BLINK_OFF}{ANSI_RESET}{ITALICS_ON}  ")
+        if any(substring in line for substring in ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"]):                line = line.replace("* Reset prompt. ",COLOR_GREY + FAINT_ON + spacer + "* Reset prompt. ") + FAINT_OFF            #bad syntax:                              ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"] in line:
 
     lines_to_print = line.split('\n')                                                                         #there really shouldn't be a \n in our line, but things happen
     i = 0
@@ -256,7 +345,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 #still leaky but more likely for summary lines to be in correct column?
                 sys.stdout.write(f'           {CR}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n')
                 sys.stdout.write(           f'{CR}{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
-                sys.stdout.flush()
+                flush()
     sys.stdout.write('\n')
 
 
@@ -386,13 +475,13 @@ while t.is_alive() or not q.empty():
 
             sys.stdout.write(f'{background_color_switch_maybe}{foreground_color_switch}{CURSOR_RESET}{cursor_color_switch_by_hex}{additional_beginning_ansi}'    + f'{line_spacer}{blink_maybe}{line_buffer} {ANSI_RESET}') #\033[0m #\033[1C
             #moved to end of loop: sys.stdout.flush()                                                                                   # Flush the output buffer to display the prompt immediately
-            sys.stdout.flush()                    #added 2024/10/31 and unsure of necesity
+            flush()                    #added 2024/10/31 and unsure of necesity
             line_buffer = ""
         elif in_prompt and char == '\n':          #if we hit end-of-line in a copy/move user prompt, flush the output so the user can see the prompt... promptly
             in_prompt = False
             #ys.stdout.write(f'\033[1D{line_buffer.rstrip()}[0m\n')
             sys.stdout.write(f'\033[1D{line_buffer.rstrip()}{ANSI_RESET}\n')
-            sys.stdout.flush()
+            flush()
             line_buffer = ""
         elif char == '\n':                        #if we hit end of line NOT in a copy/move user prompt
             if not nomoji:
@@ -409,13 +498,13 @@ while t.is_alive() or not q.empty():
     except queue.Empty:
         if TICK: claire.tick(mode=my_mode)                                                                                              # color-cycle the default-color text using my library
         try:
-            sys.stdout.flush()
+            flush()
         except:
             pass
 
     #final flush just in case ... 🐐 might not be necessary...
     try:
-        sys.stdout.flush()
+        flush()
     except:
         pass
 
@@ -430,8 +519,10 @@ if line_buffer.strip():  # Ensure any remaining line without \n is printed
 #sys.stdout.write(ANSI_RESET + "\n")  # Reset any leftover ANSI styles
 
 # Final flush?
-#sys.stdout.flush()
+#flush()
 
+# Restore sys.stdout if needed
+sys.stdout = sys.stdout.original_stdout
 
 
 

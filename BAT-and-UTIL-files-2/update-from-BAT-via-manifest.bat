@@ -1,5 +1,5 @@
 @REM                              Edit this one only in c:\bat\
-@Echo On
+@Echo Off
 on break cancel
 rem echo caller to %0 in %_CWD: %_PBATCHNAME %+ pause
 
@@ -115,14 +115,13 @@ goto :END_OF_SUBROUTINES
                         set OUR_FILELIST_8=
                         set OUR_FILELIST_9=
                         set OUR_FILELIST_10=
-                        
                         if "%which_file%" eq "docs" (set OUR_FILELIST=docs\*.md docs\outtakes\*)
                 endiff
 
 
                 REM Create individual distribution files of our BATs, UTILs, as needed
                         REM Change into source folder to copy our files
-                                pushd.
+                                    pushd.
                                     %SOURCE_DIR%\
                         REM make target folder
                                     rem call print-if-debug "need to make individual distribution of OUR_FILELIST='%OUR_FILELIST%'"
@@ -133,15 +132,24 @@ goto :END_OF_SUBROUTINES
                         REM copy each file
                                     rem echo %ansi_color_warning%our_filelist is %our_filelist%%ansi_color_normal% 🐮
                                     rem set remark=echos %newline%%tab%%arrow%Checking file '%file%'
-                                    for %file in (%OUR_FILELIST%  %OUR_FILELIST_2%  %OUR_FILELIST_3%  %OUR_FILELIST_4%  %OUR_FILELIST_5%  %OUR_FILELIST_6%  %OUR_FILELIST_7%  %OUR_FILELIST_8%  %OUR_FILELIST_9%  %OUR_FILELIST_10%) do (
-                                                if     exist %file% (
+                                    echo our_filelist = %ansi_color_orange%%our_filelist% %+ pause
+                                    echo our_filelists = %ansi_color_yellow%%our_filelist%(%OUR_FILELIST%  %OUR_FILELIST_2%  %OUR_FILELIST_3%  %OUR_FILELIST_4%  %OUR_FILELIST_5%  %OUR_FILELIST_6%  %OUR_FILELIST_7%  %OUR_FILELIST_8%  %OUR_FILELIST_9%  %OUR_FILELIST_10%) %+ pause
+                                    for %%tmp_script_file in (%OUR_FILELIST%  %OUR_FILELIST_2%  %OUR_FILELIST_3%  %OUR_FILELIST_4%  %OUR_FILELIST_5%  %OUR_FILELIST_6%  %OUR_FILELIST_7%  %OUR_FILELIST_8%  %OUR_FILELIST_9%  %OUR_FILELIST_10%) do (gosub UpdateScriptFile "%@UNQUOTE[%tmp_script_file%]")
+                                    popd
+
+                        REM Subroutine:
+                                    goto :EOS_1
+                                    :UpdateScriptFile [file]
+                                                set file=%@UNQUOTE[%file]
+                                                rem echo iff exist "%file%" then
+                                                iff exist "%file%" then
                                                         echos %@random_cursor_color[]%@randfg[].
-                                                        %UPDATE%   %file%  %TARGET_DIR%\%file%
-                                                ) else (
-                                                        call error "file doesn't exist: %file%"
-                                                )
-                                    )
-                                popd
+                                                        %UPDATE%   "%file%"   "%TARGET_DIR%\%file%"
+                                                else
+                                                        call error "file doesn't exist: '%italics_on%%file%%italics_off%'"
+                                                endiff
+                                    return
+                                    :EOS_1                                    
 
                 REM Create zip distribution files of our BATs, UTILs, as needed
                         rem Only do the zip SOME of the time:
@@ -202,7 +210,7 @@ goto :END_OF_SUBROUTINES
                                 set SKIP_GIT_ADD_VALIDATION=1
                                 echo.
                                 echo.
-                                call print-if-debug "git add %PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%\*.*"
+                                rem call print-if-debug "git add %PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%\*.*"
                                                      git add %PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%\*.* 
                                 set SKIP_GIT_ADD_VALIDATION=%SKIP_GIT_ADD_VALIDATION_OLD%
                                 
