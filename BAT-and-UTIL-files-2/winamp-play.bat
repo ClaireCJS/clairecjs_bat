@@ -1,7 +1,16 @@
 @Echo off
  on break cancel
 
-if defined emoji_play_button (%COLOR_SUCCESS% %+ echo %big_top%%emoji_play_button% %+ echo %big_bot%%emoji_play_button%)
+::::: DISPLAY A PLAY BUTTON:
+        :retry_1
+        iff defined emoji_play_button .and. 1 ne retried_pb_already then
+                echo %ANSI_COLOR_SUCCESS%%big_top%%emoji_play_button% %+ echo %big_bot%%emoji_play_button%
+        else
+                call set-emoji force
+                call set-ansi  force
+                set  retried_pb_already=1
+                goto :retry_1
+        endiff
 
 ::::: SETUP:
 	call get-winamp-state
@@ -28,9 +37,9 @@ goto :END
 		:Play_YES
 
 			if "%1"=="exit" call less_important "Attempting to start music via WinAmp WAWI web interface, using %italics_on%wget%italics_off%..."
-                    %COLOR_LOGGING% 
+                    echos %ansi_COLOR_LOGGING% 
                     call wget32    --tries=3 --wait=1 --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS% --spider http://%TMPMUSICSERVER/play
-                    %COLOR_NORMAL%  
+                    echos %ansi_COLOR_NORMAL%%ANSI_ERASE_TO_EOL%
                     call get-winamp-state
 			if "%BOTH"=="1" call wget32    --tries=3 --wait=1 --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS% --spider http://%TMPMUSICSERVER/play
 

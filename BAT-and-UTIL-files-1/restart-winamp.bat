@@ -89,7 +89,7 @@ echo               We might want to change this script to have multiple modes.
         REM goat not sure if this will continue to work after changing winamp back to 5.666 but it was an install-over-5.92 install so maybe it will
         call appdata 
         cd winamp
-
+        call warning_soft "MatrixMixer configuration re-copied" silent
         echo ry | cp /z out_mixer.ini.official out_mixer.ini    
     popd
 
@@ -132,3 +132,9 @@ echo               We might want to change this script to have multiple modes.
     echo Not randomizing or next'ing
     REM call randomize
     REM call next
+
+
+    rem But play it if it isn't already:
+        call winamp-play
+    
+    

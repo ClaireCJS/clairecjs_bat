@@ -60,8 +60,9 @@ rem Run the new modified command line:
 
             ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             :ChangeToShort [varname tmpArg]
-                if "%tmparg" eq "" goto :Nope
+                if "%@UNQUOTE[%tmparg]" eq "" goto :Nope
                     call print-if-debug "varname is %varname ... tmparg is %tmpArg .. SFN[%tmpArg]=%@SFN[%tmpArg]"
+                    if %@len[%tmpArg] eq 2 goto :Nevermind_Its_Just_Empty_Quotes
                     iff exist %tmpArg .or. exist "%tmpArg%" .and. "%@INDEX[%tmpArg,*]"=="-1" .and. "%@INDEX[%tmpArg,?]"=="-1" .and. ("%OS%" ne "7" .and."%OS%" ne "ME" .and. "%OS%" ne "98" .and. "%OS%" ne "95") then
                         set %varname="%@UNQUOTE[%@SFN[%tmpArg]]"
                         call print-if-debug "%wide%shortening %tmparg"
@@ -69,6 +70,7 @@ rem Run the new modified command line:
                         set %varname=%tmpArg
                         call print-if-debug "%wide%not shortening %tmparg"
                     endiff
+                    :Nevermind_Its_Just_Empty_Quotes
                     call print-if-debug "varname is now '%varname%'"
                 :Nope
             return

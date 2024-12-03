@@ -45,31 +45,31 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
 
 ::::: IF NO BRANCH, WARN THAT WE ARE * Using THE DEFAULT:
         call warning "Using default editplus..."
-
+        goto :default
 
 
         :EditPlus6InUtil2
             rem call %DEBUG_LEVEL% "Using UTIL2\EditPlus 6..."
             rem   start %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% %+ 
-                  start %STARTOPTIONS% %@SFN["%UTIL2%\EditPlus 6\editplus.exe"]  -e %ALL_ARGS% 
+                  start "" %STARTOPTIONS% %@SFN["%UTIL2%\EditPlus 6\editplus.exe"]  -e %ALL_ARGS% 
                   goto :END
 	:default32bitOS
             call %DEBUG_LEVEL% "Using EditPlus Default32bitOS..."
-            start %STARTOPTIONS% %@SFN["%PROGRAMFILES%\EditPlus\editplus.exe"]          %ALL_ARGS% %+ goto :END
+            start "" %STARTOPTIONS% %@SFN["%PROGRAMFILES%\EditPlus\editplus.exe"]          %ALL_ARGS% %+ goto :END
 	:v2
             call %DEBUG_LEVEL% "Using EditPlus 2..."
-            start %STARTOPTIONS% %@SFN["%PROGRAMFILES%\EditPlus 2\editplus.exe"]        %ALL_ARGS% %+ goto :END
+            start "" %STARTOPTIONS% %@SFN["%PROGRAMFILES%\EditPlus 2\editplus.exe"]        %ALL_ARGS% %+ goto :END
 	:v3
             call %DEBUG_LEVEL% "Using EditPlus 3..."
-            :tart %STARTOPTIONS% %@SFN["%PROGRAMFILES%\EditPlus 3\editplus.exe"]        %ALL_ARGS% %+ goto :END
-            call wrapper start %STARTOPTIONS% "%PROGRAMFILES%\EditPlus 3\editplus.exe"  %ALL_ARGS% %+ goto :END
+            :tart "" %STARTOPTIONS% %@SFN["%PROGRAMFILES%\EditPlus 3\editplus.exe"]        %ALL_ARGS% %+ goto :END
+            call wrapper start "" %STARTOPTIONS% "%PROGRAMFILES%\EditPlus 3\editplus.exe"  %ALL_ARGS% %+ goto :END
 	:v3b
             call %DEBUG_LEVEL% "Using EditPlus 3B..."                                                      
-            start %STARTOPTIONS% %@SFN["%[PROGRAMFILES(x86)]%\EditPlus 3\editplus.exe"] %ALL_ARGS% %+ goto :END
+            start "" %STARTOPTIONS% %@SFN["%[PROGRAMFILES(x86)]%\EditPlus 3\editplus.exe"] %ALL_ARGS% %+ goto :END
 	:v4
             call sleep 1
             call %DEBUG_LEVEL% "Using EditPlus 4..."                                                      
-            start %STARTOPTIONS% %@SFN["%[PROGRAMFILES(x86)]%\EditPlus 4\editplus.exe"] %ALL_ARGS% %+ goto :END
+            start "" %STARTOPTIONS% %@SFN["%[PROGRAMFILES(x86)]%\EditPlus 4\editplus.exe"] %ALL_ARGS% %+ goto :END
 	:v5
             call %DEBUG_LEVEL% "Using EditPlus 5..."                                                      
             :tart %STARTOPTIONS% %@SFN["%[PROGRAMFILES]%\EditPlus 5\editplus.exe"]      %ALL_ARGS% %+ goto :END
@@ -108,11 +108,12 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
             goto :END
 	:vX
             call %DEBUG_LEVEL% "Using EditPlus X..."
-            start %STARTOPTIONS% %@SFN["%[PROGRAMFILES(x86)]%\EditPlus\editplus.exe"]   %ALL_ARGS% %+ goto :END
+            start "" %STARTOPTIONS% %@SFN["%[PROGRAMFILES(x86)]%\EditPlus\editplus.exe"]   %ALL_ARGS% %+ goto :END
 	:Hades
             call %DEBUG_LEVEL% "Using EditPlus Hades..."
-            start %STARTOPTIONS% %@SFN["%[PROGRAMFILES(x86)]%%\EditPlus\editplus.exe"]  %ALL_ARGS% %+ goto :END
+            start "" %STARTOPTIONS% %@SFN["%[PROGRAMFILES(x86)]%%\EditPlus\editplus.exe"]  %ALL_ARGS% %+ goto :END
 	:Demona
+        :Default
             set EDITPLUSEXE=%@SFN["%PROGRAMFILES%\EditPlus 3\editplus.exe"]             
             call %DEBUG_LEVEL% Using EditPlus for Demona... %EDITPLUSEXE% %+ %COLOR_NORMAL%
             :call wrapper start %STARTOPTIONS% "%PROGRAMFILES%\EditPlus 3\editplus.exe" 

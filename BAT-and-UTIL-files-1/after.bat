@@ -15,7 +15,7 @@
 ::::: PARAMETER BRANCHING:
     if "%1"=="aftershock"	    goto :earthquake
     if "%1"=="application"	    goto :jobapplication
-    if "%1"=="book"			   (set  LOGFILE_BASENAME_TO_USE=book)
+    if "%1"=="book"		   (set  LOGFILE_BASENAME_TO_USE=book)
     if "%1"=="camera"		   (gosub :AfterCamera)
     if "%1"=="censor"		   (call after-censor %+ goto :END)
     if "%1"=="censored"		   (call after-censor %+ goto :END)
@@ -26,19 +26,19 @@
     if "%1"=="disagreement"	   (goto :Disagreement)
     if "%1"=="divorce"		   (goto wedding)
     if "%1"=="earthquake"	    goto :earthquake
-    if "%1"=="electro"	        goto :hairRemoval
+    if "%1"=="electro"              goto :hairRemoval
     if "%1"=="electrolysis"	    goto :hairRemoval
     if "%1"=="electrolisis"	    goto :hairRemoval
-    if "%1"=="laser"	        goto :hairRemoval
-    if "%1"=="laserhairremoval"	goto :hairRemoval
-    if "%1"=="funeral"	        goto :funeral
-    if "%1"=="game"			   (set  LOGFILE_BASENAME_TO_USE=game)
-    if "%1"=="gun"			   (goto :Guns)
-    if "%1"=="guns"			   (goto :Guns)
-    if "%1"=="hair"			   (goto :hair)
-    if "%1"=="hitomi"     	   (goto :hitomi)
-    if "%1"=="inject"	        goto :injection
-    if "%1"=="injection"        goto :injection
+    if "%1"=="laser"	            goto :hairRemoval
+    if "%1"=="laserhairremoval"	    goto :hairRemoval
+    if "%1"=="funeral"	            goto :funeral
+    if "%1"=="game"		   (set   LOGFILE_BASENAME_TO_USE=game)
+    if "%1"=="gun"		   (goto :Guns)
+    if "%1"=="guns"		   (goto :Guns)
+    if "%1"=="hair"		   (goto :hair)
+    if "%1"=="hitomi"              (goto :hitomi)
+    if "%1"=="inject"	            goto :injection
+    if "%1"=="injection"            goto :injection
 
     if "%1"=="internetoutage"  (goto :InternetOutage)
     if "%1"=="inventory"       (goto :Inventory)

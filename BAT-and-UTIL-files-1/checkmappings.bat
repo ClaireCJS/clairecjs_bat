@@ -109,32 +109,32 @@
     )
 
 ::: THAILOG:
-	title Checking Thailog mapping...
-:   if "%@READY[%HD240G:]"   eq "0"  (call warning "ERROR! HD240G   [%HD240G%:]   not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD240G)
-:   if "%@READY[%HD240G2:]"  eq "0"  (call warning "ERROR! HD240G2  [%HD240G2%:]  not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD240G2)
-:   if "%@READY[%HD1500G2:]" eq "0"  (call warning "ERROR! HD1500G2 [%HD1500G2%:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD1500G2)
-:   if "%@READY[%HD2000G:]"  eq "0"  (call warning "ERROR! HD2000G  [%HD2000G%:]  not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD2000G)
-:   if "%@READY[%HD2000G2:]" eq "0"  (call warning "ERROR! HD2000G2 [%HD2000G2%:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD2000G2)
-:	if "%@READY[%HD2000G3:]" eq "0"  (call warning "ERROR! HD2000G3 [%HD2000G3%:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD2000G3)
+     title Checking Thailog mapping...
+        if 1 ne %HD240G_DOWN%   if "%@READY[%HD240G:]"   eq "0"  (call warning "ERROR! HD240G   [%HD240G%:]   not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD240G)
+        if 1 ne %HD240G2_DOWN%  if "%@READY[%HD240G2:]"  eq "0"  (call warning "ERROR! HD240G2  [%HD240G2%:]  not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD240G2)
+        if 1 ne %HD1500G2_DOWN  if "%@READY[%HD1500G2:]" eq "0"  (call warning "ERROR! HD1500G2 [%HD1500G2%:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD1500G2)
+        if 1 ne %HD2000G_DOWN%  if "%@READY[%HD2000G:]"  eq "0"  (call warning "ERROR! HD2000G  [%HD2000G%:]  not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD2000G)
+        if 1 ne %HD2000G2_DOWN  if "%@READY[%HD2000G2:]" eq "0"  (call warning "ERROR! HD2000G2 [%HD2000G2%:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD2000G2)
+        if 1 ne %HD2000G3_DOWN  if "%@READY[%HD2000G3:]" eq "0"  (call warning "ERROR! HD2000G3 [%HD2000G3%:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD2000G3)
 
-    if "%HD4000G6_DOWN%"     eq "1"  goto :HD4000G6_DOWN_1
-    	if "%@READY[%HD4000G6:]" eq "0"  (call warning "ERROR! HD4000G6 [%HD4000G6%:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD4000G6)
+    if "%HD4000G6_DOWN%" eq "1"  goto :HD4000G6_DOWN_1
+    	if 1 ne %HD4000G6_DOWN  if "%@READY[%HD4000G6:]" eq "0"  (call warning "ERROR! HD4000G6 [%HD4000G6%:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD4000G6)
     :HD4000G6_DOWN_1
 
-	if "%@READY[%HD4000G7:]" eq "0"  (call warning "ERROR! HD4000G7 [%HD4000G7:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD4000G7)
-	if "%@READY[%HD6000G2:]" eq "0"  (call warning "ERROR! HD6000G2 [%HD6000G2:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD6000G2)
-	if "%@READY[%HD10T2:]"   eq "0"  (call warning "ERROR! HD10T2   [%HD10T2%:]  not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD10T2)
-	if "%@READY[%HD18T1:]"   eq "0"  (call warning "ERROR! HD18T1   [%HD18T1%:]  not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD18T1)
+	if 1 ne %HD4000G7_DOWN  if "%@READY[%HD4000G7:]" eq "0"  (call warning "ERROR! HD4000G7 [%HD4000G7:] not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD4000G7)
+	if 1 ne %HD6000G2_DOWN  if "%@READY[%HD6000G2:]" eq "0"  (call warning "ERROR! HD6000G2 [%HD6000G2:] not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD6000G2)
+	if 1 ne %HD10T2_DOWN%   if "%@READY[%HD10T2:]"   eq "0"  (call warning "ERROR! HD10T2   [%HD10T2%:]  not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD10T2)
+	if 1 ne %HD18T1_DOWN%   if "%@READY[%HD18T1:]"   eq "0"  (call warning "ERROR! HD18T1   [%HD18T1%:]  not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD18T1)
 
 ::: DEMONA:
-	if "%@READY[%HD1000G3:]" eq "0"  (call warning "ERROR! HD1000G3 [%HD1000G3:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% %HD1000G3)
-	if "%@READY[%HD18T3:]"   eq "0"  (call warning "ERROR! HD18T3   [%HD18T3%:]  not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD18T3)
-	if "%@READY[%HD22T1:]"   eq "0"  (call warning "ERROR! HD22T1   [%HD22T1%:]  not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD22T1)
+	if 1 ne %HD1000G3_DOWN% if "%@READY[%HD1000G3:]" eq "0"  (call warning "ERROR! HD1000G3 [%HD1000G3:] not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% %HD1000G3)
+	if 1 ne   %HD18T3_DOWN% if "%@READY[%HD18T3:]"   eq "0"  (call warning "ERROR! HD18T3   [%HD18T3%:]  not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD18T3)
+	if 1 ne   %HD22T1_DOWN% if "%@READY[%HD22T1:]"   eq "0"  (call warning "ERROR! HD22T1   [%HD22T1%:]  not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD22T1)
 
 ::: WYVERN:
-	if "%@READY[%HD2T1%:]"   eq "0"  (call warning "ERROR! HD2T1  [%HD2T1%:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD2T1)
-	if "%@READY[%HD18T1:]"   eq "0"  (call warning "ERROR! HD18T1 [%HD18T1:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD18T1)
-    if "%@READY[%HD20T2:]"   eq "0"  (call warning "ERROR! HD20T2 [%HD20T2:] not mapped!" %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD20T2)
+	if 1 ne  %HD2T1_DOWN    if "%@READY[%HD2T1%:]"   eq "0"  (call warning "ERROR! HD2T1  [%HD2T1%:] not mapped!"      %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD2T1)
+	if 1 ne %HD18T1_DOWN    if "%@READY[%HD18T1:]"   eq "0"  (call warning "ERROR! HD18T1 [%HD18T1:] not mapped!"      %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD18T1)
+        if 1 ne %HD20T2_DOWN    if "%@READY[%HD20T2:]"   eq "0"  (call warning "ERROR! HD20T2 [%HD20T2:] not mapped!"      %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD20T2)
 
 
 ::::: CHECK TO SEE IF THERE WERE ANY ERRORS:

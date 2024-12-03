@@ -4,8 +4,14 @@
 rem to edit self [good when testing]: %EDITOR% c:\bat\watch.bat
 
 
+
+
+
 rem TODO: if in \MEDIA\FOR-REVIEW\DO_LATERRRRRRRRRRRRRRRRRRRRRRR\oh set to reviewing mode
-rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfilename].* to ..\..\REVIEWED-NOT-PRENAMED\
+rem if \MEDIA\FOR-REVIEW\DO_LATERRRRRRRRRRRRRRRRRRRRRRR\oh set to reviewing mode
+
+
+rem TODO: if in reviewing mode, after watching, rn %it, then move %@NAME[%newfilename].* to ..\..\_REVIEWED-NOT-PRENAMED\
 
 
 rem ——————————————————————————————————————————————————————————————————————————–—————————————————————————————————————–——–——–—–——————————————————————
@@ -33,6 +39,7 @@ rem VALIDATE ENVIRONMENT:
 
 
 rem INVOCATION FORKING:
+        set CMD_TAIL=%*
         if "%1" == ""      (echo. %+ call bigecho "%ANSI_COLOR_FATAL_ERROR%Watch what?" %+ goto :The_Very_End) %+ rem Improper invocation —— do nothing
         if "%1" == "askyn" (         call debug   "Skipping to post-watch questions"    %+ goto :askyn       ) %+ rem jump directly to AFTER-watching questions [mostly for testing]
 
@@ -135,13 +142,9 @@ rem TELL GOOGLE TO RUN "ok google, I'm watching TV" SMART HOME ROUTINE:
 	REM call paus
 
 
+
 rem SAVE WINDOW POSITIONS:
 	call save-window-positions LastWatch
-
-
-
-
-
 
 
 rem ACTUALLY PLAY THE FILE, WAIT (PAUSE), THEN DELETE IT IF WE ARE IN A FOLDER WHOSE NAME IMPLIES THAT WE SHOULD DELETE IT: ******************************************************
@@ -149,19 +152,19 @@ rem ACTUALLY PLAY THE FILE, WAIT (PAUSE), THEN DELETE IT IF WE ARE IN A FOLDER W
 
 
         REM winamp moves when vlc starts and this moves it back
-        call advice "NOT doing: '%italics_on%call fml.bat%italics_off%' to fix minilyrics/winamp %faint_on%[commented out 20240101]%faint_off%"
+        call advice "NOT doing: '%italics_on%call fml.bat%italics_off%' to fix minilyrics/winamp %faint_on%[commented out 20240101]%faint_off%" silent
 
 
 
 
 
 
-		if "%PROTECTCLIPBOARD%"=="1" goto :ProtectClipboard1
-            call  fixclip
-			echo %* >clip:
-            call locked-message %*
+        if "%PROTECTCLIPBOARD%"=="1" goto :ProtectClipboard1
+                call  fixclip
+                echo %* >clip:
+                call footer %*
         :ProtectClipboard1
-	    :pause
+        :pause
 
 
 
@@ -209,12 +212,12 @@ rem DOUBLE-CHECK LIGHTS [OF ALL KINDS]:
 
 
 
-
-		if "%PROTECTCLIPBOARD%"=="1" goto :ProtectClipboard2
-            call  fixclip
-			echo %* >clip:
+rem Clipboard voodoo
+        if "%PROTECTCLIPBOARD%"=="1" goto :ProtectClipboard2
+                call  fixclip
+                echo %* >clip:
         :ProtectClipboard2
-	    :pause
+        :pause
 
 
 
@@ -257,16 +260,16 @@ rem THIS IS WHAT HAPPENS WHEN WE'RE FINALLY DONE WATCHING:
 
 
 rem DISPLAY THE TIME IN CASE WE WAKE UP THE NEXT DAY WONDERING WHEN WE WENT TO SLEEP:
-    echo.
-        %COLOR_SUCCESS%
-        call qd
-    echo.
+        echo.
+                %COLOR_SUCCESS%
+                call qd
+        echo.
 
 
 
 rem COPY SHOWNAME TO CLIPBOARD, FOR PASTING INTO LOG WITH EASE:
         call  fixclip
-	    echo %* >clip:
+        echo %* >clip:
         call locked-message %*
         
 rem DELETE IT IF WE ARE IN A FOLDER WHOSE NAME IMPLIES THAT WE SHOULD DELETE IT:
@@ -360,38 +363,55 @@ rem WARN BEFORE WRAP-UP:
     :askyn
     echo. %+ echo. %+ echo. %+ echo. %+ echo. 
 
-    call askyn "Run '%italics_on%after show%italics_off%'?" no
-    	set MINIMIZE_AFTER=0
-        if %DO_IT eq 1 (call after show)
 
-    REM todo check if we are in a movie folder?
+rem Ask about moving it to reviwed location
+        rem debug: echo if "%_CWD" == "%DROPDIR%" .or "%@UPPER[%_CWD]" eq "%DROPDIR%\OH" %+ pause
+        if "%_CWD" == "%DROPDIR%" .or. "%@UPPER[%_CWD]" eq "%DROPDIR%\OH" .or. "%@UPPER[%_CWD]" eq "%DROPDIR%\OH\HOLD" (
+                set  MoveTo=%ReviewDir%\_reviewed-not-prenamed
+                call validate-environment-variable MoveTo
+                call askyn "Move to '%italics_on%%moveto%%italics_off%'" no
+                set  TO_PROCESS=%CMD_TAIL%
+                set  comment="call rn" has a side-effect of setting %FILENAME_NEW% as the new name we've chosen
+                for %%tmpfile in (%to_process) (call rn "%@unquote[%tmpfile]" %+ set to_process=%to_process% "%@NAME[%@unquote[%FILENAME_NEW%]].*")
+                iff %DO_IT eq 1 (
+                        for %%tmpfile in (%to_process) (echos %@randfg_soft[] %+ *move "%@unquote[%tmpfile]" %MoveTo%)
+                )
+        )
 
-    call askyn "Run '%italics_on%after movie%italics_off%'?" no
-    	set MINIMIZE_AFTER=0
-        if %DO_IT eq 1 (call after movie)
+
+rem Ask if we want to run 'after show'
+        call askyn "Run '%italics_on%after show%italics_off%'" no
+                set MINIMIZE_AFTER=0
+                if %DO_IT eq 1 (call after show)
+
+
+REM todo check if we are in a movie folder?
+        call askyn "Run '%italics_on%after movie%italics_off%'" no
+                set MINIMIZE_AFTER=0
+                if %DO_IT eq 1 (call after movie)
 
 
 rem UNPAUSE MUSIC:
-     REM call important "Lower music volume..."
-     call askyn "Unpause music?" no
-        if %DO_IT eq 1 (call unpause)
+        REM call important "Lower music volume..."
+        call askyn "Unpause music?" no
+                if %DO_IT eq 1 (call unpause)
 
 
 rem WAKE UP WITH SOME PARTY LIGHTS:
 	REM if "%TVLIGHTING%" eq "0" goto :TV_Lighting_Done_Already_NO3
 	:TV_Lighting_Done_Already_YES3
-        call askyn "Fix lights ('%italics_on%ok google I'm done watching tv%italics_off%')?" no
-    		if %DO_IT eq 1 (
-                rem call exit-maybe
-                call okgoogle I'm done watching TV
-                set TVLIGHTING=0
-                if %X10_DOWN ne 1 (for %x10_code in (a7 a3 a4 a2 a1 a6) do (call x10 %x10_code on))
-            )
+        call askyn "Fix lights ('%italics_on%ok google I'm done watching tv%italics_off%')" no
+                if %DO_IT eq 1 (
+                        rem call exit-maybe
+                        call okgoogle I'm done watching TV
+                        set TVLIGHTING=0
+                        if %X10_DOWN ne 1 (for %x10_code in (a7 a3 a4 a2 a1 a6) do (call x10 %x10_code on))
+                )
 	:TV_Lighting_Done_Already_NO3
  
-rem FIX WINUAMP POSITION:
+rem FIX WINAMP POSITION:
      REM call important "Lower music volume..."
-     call askyn "Fix WinAmp position?" no
+     call askyn "Fix WinAmp position" no
                         set FIX_WINAMP_POSITION=0
         if %DO_IT eq 1 (set FIX_WINAMP_POSITION=1)
 

@@ -39,11 +39,18 @@ rem 💄Purely cosmetic:
 rem ✏Emojify✏ & 🏳‍🌈colorfy🏳 the prompt, and change the cursor⬜ to the largest blinkiest bright yellow🟨 —— to grab user attention:
         echos %EMOJI_PENCIL%%@CURSOR_COLOR[yellow]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%%ANSI_COLOR_PROMPT% ``
 
+rem 📴Turn ANSI rendering off or things will get crazy:
+        call ansi-off
+
 rem 🔨Do the actual eset command:
         :actual_eset
         *eset %CMD_TAIL%
 
- rem 📰Remind user of our extra options:
+rem 🔛Turn ANSI rendering back on:
+        call ansi-on
+
+
+rem 📰Remind user of our extra options:
         iff "%1" eq "" .or. "%1" eq "/?" then
                                 call divider
                                         echos %ansi_color_important%
@@ -54,7 +61,6 @@ rem 🔨Do the actual eset command:
                                 call divider
                 %color_normal%
         endiff
-
 
 rem ✅Reset the color & cursor back to normal:
         echos %ANSI_COLOR_NORMAL%%CURSOR_RESET%

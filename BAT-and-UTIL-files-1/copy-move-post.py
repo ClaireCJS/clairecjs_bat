@@ -1,6 +1,3 @@
-
-
-
 """
         COPY/MOVE postprocessor
 
