@@ -51,17 +51,17 @@ REM         echo ** call start-elevated %@SFN[%WINAMP]% %CLI_OPTIONS%
 goto :End
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :Appdata
-    call appdata
-    cd winamp
-    cls
-    dir
-    echo.
-    call advice "WinampMatrixMixer settings are in out_mixer.ini"
-    call advice "There is also another winamp folder - type 'nd' to go there"
+        call appdata
+        cd   winamp
+        cls
+        dir
+        echo.
+        call advice "WinampMatrixMixer settings are in out_mixer.ini" silent
+        rem  advice "There is also another winamp folder - type 'nd' to go there" 
 goto :END
-::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :Plugins

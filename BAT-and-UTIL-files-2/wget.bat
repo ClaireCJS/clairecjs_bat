@@ -6,6 +6,7 @@
 :TOO SLOW: call validate-environment-variable UTIL
 :TOO SLOW: if not exist c:\cygwin\bin\wget.exe (goto :nocygwin)
 
+echos %ANSI_COLOR_LOGGING%
     
 if "%CYGWIN" =="0" (goto :nocygwin)
 if "%CYGWIN" ne "" (goto   :cygwin)
@@ -26,3 +27,4 @@ if "%CYGWIN" ne "" (goto   :cygwin)
 
 :END
     %COLOR_NORMAL%
+    echos %ANSI_COLOR_NORMAL%

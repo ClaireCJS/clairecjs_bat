@@ -49,7 +49,9 @@ rem ::::: FETCH WINAMP STATE IF APPLICABLE:
         set           WGETFILE=%WGETDIR%\%WGETFILEBASE%
         if exist    "%WGETFILE%"       (*del /qy "%WGETFILE%" >nul)
         rem wget.exe --quiet -t 2 -P %WGETDIR% %MUSICSERVERSTATUSURL%
+        echos %ansi_color_logging%
             wget.exe --quiet -t 2 -P %WGETDIR% -O %WGETFILE% %MUSICSERVERSTATUSURL%
+        echos %ansi_color_normal%
         rem set       WGET_RETURN_FILE=%WGETDIR%\main
         set           WGET_RETURN_FILE=%WGETFILE%
         if not exist %WGET_RETURN_FILE% (call warning "WinAmp may not be running, or WAWI may not be installed, because WGET_RETURN_FILE of '%WGET_RETURN_FILE%' does not exist")

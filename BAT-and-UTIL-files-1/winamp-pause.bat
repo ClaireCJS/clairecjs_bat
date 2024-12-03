@@ -6,7 +6,7 @@ if "%1" eq "quick" .or. "%1" eq "quickly" (set PAUSE_QUICKLY=1 %+ goto :Pause_Qu
 if defined emoji_pause_button (%COLOR_NORMAL% %+ echo %big_top%%emoji_pause_button% %+ echo %big_bot%%emoji_pause_button%)
 
 if "%MUSIC_AND_GIRDER_SEVERS_VALIDATED" eq "1" (goto :Skip_Music_and_Girder_Server_Validation)
-    call validate-environment-variables MUSICSERVERIPONLY TMPMUSICSERVER GIRDERPORT GIRDERPASSWORD WAWI_USERNAME WAWI_PASSWORD
+        call validate-environment-variables MUSICSERVERIPONLY TMPMUSICSERVER GIRDERPORT GIRDERPASSWORD WAWI_USERNAME WAWI_PASSWORD
 :Skip_Music_and_Girder_Server_Validation
 
 

@@ -1203,8 +1203,11 @@ rem       COLOR_{MESSAGETYPE}_HEX ————— WHERE USED: Used in the cursor
         SET COLOR_GREP=          color bright yellow  on green  %+ set ANSI_COLOR_GREP=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_GREEN%                      
                                                                    set      COLOR_GREP_HEX=008800
         rem COLOR_LOGGING=       color bright blue    on black  %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_BRIGHT_BLUE%%ANSI_BACKGROUND_BLACK%                      %+ rem  For logging temp filenames to screen, etc.
-        SET COLOR_LOGGING=       COLOR        cyan    on red    %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_RED%%OVERSTRIKE_ON%%ITALICS_ON%    %+ rem  For logging temp filenames to screen, etc.
-                                                                   set      COLOR_LOGGING_HEX=008080
+        rem COLOR_LOGGING=       color        cyan    on red    %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_RED%%OVERSTRIKE_ON%%ITALICS_ON%    %+ rem  For logging temp filenames to screen, etc.
+        rem                                                        set      COLOR_LOGGING_HEX=008080
+        rem 2024/12/03 — Got sick of the white-on-red "don't read me" color horror, going to a dark, striked through, italicized logging color:                                                                        
+        SET COLOR_LOGGING=       color bright black   on black  %+ set ANSI_COLOR_LOGGING=%ANSI_RESET%%ANSI_COLOR_GREY%%ANSI_STRIKETHROUGH_ON%%ITALICS_ON%%FAINT_ON%
+                                                                   set      COLOR_LOGGING_HEX=404040 %+ rem %@ANSI_RGB[64,64,64]
         SET COLOR_NORMAL=        color        white   on black  %+ set ANSI_COLOR_NORMAL=%ANSI_RESET%
                                                                    set      COLOR_NORMAL_HEX=%ANSI_PREFERRED_CURSOR_COLOR_HEX%
         SET COLOR_PAUSE=         color        cyan    on black  %+ set ANSI_COLOR_PAUSE=%ANSI_RESET%%ANSI_CYAN%%ANSI_BACKGROUND_BLACK%
