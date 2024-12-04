@@ -13,7 +13,7 @@ rem If we passed a filename, this isn't the script we actually wanted.
                 create-lrc-from-file %* 
                 goto :END
                 cancel
-n        else
+        else
 rem If we didn't, then go to the currently playing song folder to process
                 call go-to-currently-playing-song-dir
                 call errorlevel

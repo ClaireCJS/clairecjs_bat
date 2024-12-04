@@ -628,6 +628,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         if exist "%SRT_FILE%" (ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak")
         
         :actually_make_the_lrc
+        call divider
         @echos %STAR% %ANSI_COLOR_WARNING_SOFT%%blink_on%About to: %blink_off%
         @echo  %LAST_WHISPER_COMMAND%%ansi_color_reset% 
         @call AskYn "Proceed with this AI generation?" yes %PROMPT_CONSIDERATION_TIME%

@@ -16,11 +16,13 @@
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————        
 
 rem Get parameters:
+        setdos /x-5
         set PARAMS=%@UNQUOTE[%*]
         set PARAMS2=%@UNQUOTE[%1$]
         rem DEBUG: echo    %%1$ is %1$
         rem DEBUG: echo params  is %params%
         rem DEBUG: echo params2 is %params2%
+        setdos /x0
 
 
 rem Validate environment
@@ -34,14 +36,18 @@ rem Validate environment
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————        
 
 rem If it's too wide  then simply revert back to echo'ing the command in normal/single-height lines...
+        setdos /x-5
         set            STRIPPED_MESSAGE=%@stripansi[%@UNQUOTE[%PARAMS]]
         set LEN=%@LEN[%STRIPPED_MESSAGE%]
+        setdos /x0
         SET MESSAGE_WIDTH_NORMAL=%LEN%
-        SET MESSAGE_WIDTH_DOUBLE=%@EVAL[%LEN * 2] %+ rem because we're dealing with double-height text
+        SET MESSAGE_WIDTH_DOUBLE=%@EVAL[%LEN * 2] 
+        rem because we're dealing with double-height text
 
 rem Get the maximum desired width (in normal size, not double size):
         rem MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-16] %+ rem fudge factor of 16 got past the windows terminal bug who's report i filed at https://github.com/microsoft/terminal/issues/18250
         set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS]    %+ rem But then the bug got fixed!
+        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS]    %+ rem 
 
 rem Now do the special handling if the message it too long
         rem OLD: iff not %MESSAGE_WIDTH_DOUBLE% lt %MAXIMUM_DESIRED_NORMAL_WIDTH%   then
@@ -55,7 +61,9 @@ rem Now do the special handling if the message it too long
                 rem 🛑 🛑 🛑 🛑 🛑 🛑 We must break it up into lines! 🛑 🛑 🛑 🛑 🛑 🛑 
 
                 REM Initialize the string to process
+                        setdos /x-5
                         SET STR=%STRIPPED_MESSAGE%
+                        setdos /x0
 rem                     echo MESSAGE_WIDTH_DOUBLE = %MESSAGE_WIDTH_DOUBLE%
 rem                     echo COLUMNS = %_COLUMNS 🐈
 rem                     echo MAXIMUM_DESIRED_NORMAL_WIDTH = %MAXIMUM_DESIRED_NORMAL_WIDTH% 🐈
@@ -63,7 +71,8 @@ rem                     echo MAXIMUM_DESIRED_NORMAL_WIDTH = %MAXIMUM_DESIRED_NOR
                 REM Loop until the entire string has been processed
                 :begin_loop
                         set string_length_normal_size=%@len[%STR]
-                        set string_length_double_size=%@EVAL[%@len[%STR] * 2]         %+ rem *2 because we're dealing with double-height text
+                        rem *2 because we're dealing with double-height text:
+                        set string_length_double_size=%@EVAL[%@len[%STR] * 2]         
 rem                     echo STRING_LENGTH_NORMAL_SIZE = %STRING_LENGTH_NORMAL_SIZE% 🐈
 rem                     echo STRING_LENGTH_DOUBLE_SIZE = %STRING_LENGTH_DOUBLE_SIZE% 🐈
                         
@@ -72,7 +81,8 @@ rem                     echo STRING_LENGTH_DOUBLE_SIZE = %STRING_LENGTH_DOUBLE_S
                         iff %string_length_double_size% LE %MAXIMUM_DESIRED_NORMAL_WIDTH% then
                                 REM If the remaining string is shorter than desired, output normally by exiting this loop
                                         goto :done_with_too_long_messages
-                        else                                                      %+ rem Else string length actual is GT maximum desired width
+                        rem Else string length actual is GT maximum desired width:
+                        else                                                      
                                 REM How far over length are we? By actual/normal width subtracted by normal desired width
                                         set OVERRUN_NORMAL_WIDTH=%@EVAL[%string_length_double_size - %MAXIMUM_DESIRED_NORMAL_WIDTH]
                                         set OVERRUN_DOUBLE_WIDTH=%@FLOOR[%@EVAL[%OVERRUN_NORMAL_WIDTH / 2 + 0.9999999999]]
@@ -101,9 +111,11 @@ rem                                    echo   KEEP_AMOUNT_DOUBLE = %keep_amount_
                                 rem DEBUG: echo keep_amount_normal=%keep_amount_normal%
 
                                 REM Actually set the line that we are going to echo
+                                        setdos /x-5
 rem                                echo SET LINE=!@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] 
                                         SET LINE=%@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] 
 rem                                echo LINE is [%LINE] 🐈
+                                        setdos /x0
 
                                 REM Then deal with *the rest* of what remains of this line:
                                 REM Remove the first %Desired_Max_msg_width characters from left of STR
@@ -153,7 +165,10 @@ setdos /x-678
     rem https://github.com/microsoft/terminal/issues/17771
     rem But it turned out to not be a bug, and this is just what we have to do:
 
-    if %ECHOSBIG_NEWLINE_AFTER eq 1 (set XX=2 %+ echos %@ANSI_MOVE_DOWN[%xx]%@ANSI_MOVE_UP[%@EVAL[%xx-1]]%@ANSI_MOVE_TO_COL[1])
+    if %ECHOSBIG_NEWLINE_AFTER eq 1 (
+        set XX=2 
+        echos %@ANSI_MOVE_DOWN[%xx]%@ANSI_MOVE_UP[%@EVAL[%xx-1]]%@ANSI_MOVE_TO_COL[1]
+    )
 
 
 
@@ -170,8 +185,10 @@ setdos /x-678
     %COLOR_TO_USE% 
     
     rem Production for a long long time:
+            setdos /x-5
             echo %BIG_TEXT_LINE_1%%PARAMS%%ANSI_EOL%
             echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_EOL%
+            setdos /x0
     rem also seems to work fine:
             rem echo %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%
             rem echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%

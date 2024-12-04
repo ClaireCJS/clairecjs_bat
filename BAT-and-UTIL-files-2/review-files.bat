@@ -1,11 +1,14 @@
 @Echo off
- on break cancel
+rem on break cancel
+rem set onbreak=goto:END
 
 rem Config:
         set our_filemask=*.srt;*.lrc
 
 rem Only review a single file, if [what is hopefully] a filename is provided:
+        setdos /x-5
         if "%1" ne "" set our_filemask=%1
+        setdos /x0
 
 
 rem Validate environment:
@@ -15,10 +18,13 @@ rem Validate environment:
         endiff
         
 rem Check if SRT files are actually here:
+        setdos /x-5
         iff not exist %our_filemask% then
-                call warning "No %@upper[%@%@REReplace[;,/,%@REReplace[\*\.,,%our_filemask%]]] files present" silent
+                echo %ANSI_COLOR_WARNING%%WARNING% No %@upper[%@%@REReplace[;,/,%@REReplace[\*\.,,%our_filemask%]]] files present %WARNING%%ANSI_COLOR_NORMAL%
+                setdos /x0
                 goto :END
         endiff
+        setdos /x0
 
 rem Go through each one and review it:
         rem for less: set lc_all=en_US.UTF-8
@@ -26,12 +32,29 @@ rem Go through each one and review it:
         rem for less: set LESSCHARSET=utf-8
         rem for less: set columns=%_columns
         
-        for %tmpfile in (%our_filemask%) do (
-                rem call debug tmpfile=%tmpfile%
+        call set-tmp-file
+        set tmp_file_1=%tmpfile%
+
+        call set-tmp-file
+        set tmp_file_2=%tmpfile%
+        
+        echo off
+        
+        for %%tmpfileouter in (%our_filemask%) do gosub do_it "%tmpfileouter%"
+        goto :do_it_end
+        :do_it [tmpfile] 
                 call divider 
-                call bigecho %STAR% %@randfg_soft[]%underline_on%%@name[%tmpfile%]%underline_off%:
-                (type "%@UNQUOTE[%tmpfile%]" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" )  |:u8 print-with-columns 
-        )
+                setdos /x0
+                call bigecho "%STAR% %@randfg_soft[]%underline_on%%@name[%tmpfile%]%underline_off%:"
+                setdos /x0
+                rem (type "%@UNQUOTE[%tmpfile%]" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" )  |:u8 print-with-columns 
+                setdos /x-5
+                type %tmpfile% >:u8%tmp_file_1%
+                setdos /x0
+                grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" %tmp_file_1% >:u8%tmp_file_2%
+                call print-with-columns <%tmp_file_2 
+        return
+        :do_it_end
         
         rem was a nice idea but no: |:u8 less -R
 
@@ -40,3 +63,4 @@ rem Go through each one and review it:
 
 :END
 
+ setdos /x0
