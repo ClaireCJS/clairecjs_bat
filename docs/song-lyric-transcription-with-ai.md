@@ -27,14 +27,14 @@
 &nbsp;    
 
 1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
-    1. Install TCC
-      - from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
-      - Via *WinGet*: ```winget install JPSoft.tcmd```.  
-        - install *WinGet* via *PowerShell* with command ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` 
-        - or with command ```Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe```
+    1. Install TCC:
+        - from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
+        - Via *WinGet*: ```winget install JPSoft.tcmd```.  
+          - install *WinGet* via *PowerShell* with command ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` 
+          - or with command ```Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe```
     2. Make ```c:\TCMD``` point to our TCC installation via the command:
-        - ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
-	- The folder ```TCMD31``` may vary depending on what version of TCC is current.
+          - ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
+	  - The folder ```TCMD31``` may vary depending on what version of TCC is current.
 &nbsp;
 
 1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
