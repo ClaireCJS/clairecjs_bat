@@ -368,11 +368,12 @@ A lyric postprocessor that removes tons of junk from downloaded lyrics, only sho
 ### 🌟 [remove-period-at-ends-of-lines.pl](../BAT-and-UTIL-files-1/remove-period-at-ends-of-lines.pl):
 
 The final subtitle postprocessor, which removes periods from end of each line in a subtitle. 
+Preserves periods for words like "Mr.", "Dr.", "approx", etc
 
-Thep eriods
+**Rationale:** We add "invisible" periods to the end of each line of lyrics, so that WhisperAI's ```--sentence``` option is influenced by where lyric posters post the line breaks in their lyrics. It absolutely helped. A lot. Hours were spent determiing this and, and it was obvious from the first [of many] tests.   We then remove these periods (making them "invisible") afterward, because they are ugly and often not even gramatically correct — just correct for *timing* purposes.  
 
-Preserves periods for words like "Mr."
-We add "invisible" periods to the end of each line of lyrics so that WhisperAI's ```--sentence``` option works better. We then remove these periods (making them "invisible") afterward, because they are ugly.  Also has a side effect of de-censoring some curse words, which can be suppressed with the ```--leave-censorship``` or ```-L``` option.
+This also also has some extra functionality slipped in to de-censoring some curse words that WhisperAI censors.
+This functoinality can be suppressed with the ```--leave-censorship``` or ```-L``` options.
 
 </details>
 
@@ -479,11 +480,6 @@ Echos, but in VT100-double-heighttext. Requires ```set-ansi```.
 
 &nbsp;
 
-### 🌟 [mp3index.bat](../BAT-and-UTIL-files-1/mp3index.bat):
-
-Technically should be called "audio_file_index.bat". Prints to STDOUT a list of all songfiles (mp3, flac, wav, etc).
-
-&nbsp;
 
 ### 🌟 [cat_fast.exe](../BAT-and-UTIL-files-1/cat_fast.exe):
 
@@ -496,6 +492,11 @@ Version of ```cat.exe``` deemed to be the fastest. I have several versions of th
 Quote conversion offloaded into python script to avoid command-line complications with quote symbols. 
 
 &nbsp;
+
+### 🌟 [mp3index.bat](../BAT-and-UTIL-files-1/mp3index.bat):
+
+Prints to STDOUT a list of all songfiles (mp3, flac, wav, etc).
+Technically should be called "audio_file_index.bat". 
 
 
 &nbsp;
@@ -511,7 +512,8 @@ This method was used becuase API calls would limit us to only using this on the 
 
 
 
-🏁🏁🏁🔚
+🏁🏁🏁�
+�
 ![image](https://github.com/user-attachments/assets/9abdb1a5-c50a-424c-b151-144046fedd93)
 
 
