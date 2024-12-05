@@ -350,9 +350,9 @@ Display each *unique* line in a file. Much like the ```uniq``` command except th
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# 👉👉 *Under-The-Hood*: Pre/Post-Processor Utility Commands:
+# 👉👉 *Under-The-Hood*: Pre/Post-Processor/Fetch Utility Commands:
 
-Pre/Postprocessors developed for this project.
+Preprocessors / Postprocessors  developed for this project.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
