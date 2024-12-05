@@ -21,12 +21,20 @@
 
 <details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
   
-1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL). 
-    The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your path.
+1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL).
+  - The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your path.
 
-1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html), installable with Winget via the command: ```winget install JPSoft.tcmd```.  (If not installed to ```c:\tcmd```, you may need to ```mklink c:\TCMD "c:\Program Files\TCMD31"```, substituting in the folder where TCC was installed.)
+1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
+  - You want to ```mklink c:\TCMD "c:\Program Files\TCMD31"``` or whatever folder you installed TCC/TCMD into — So that ```c:\TCMD``` points to your installation.
+  - You can also install TCC in a more automated fashion with Winget via the command: 
+    - ```winget install JPSoft.tcmd```.  
+  - If you don't have WinGet, try grabbing WinGet with the command:
+    - ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` run from within *PowerShell*.  
+  - Or if that doesn't work:
+    - ```Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe```.
 
-1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project). ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` and make sure that comes first in your ```path```, possibly by running ```c:\bat\setpath.bat``` .... Technically you probably only need about 50 of these files, but detangling things to that level is a future project.  The folder also has it's own versions of ```sort``` and ```uniq``` (from [Cygwin](https://www.cygwin.com)) to ensure runtime consistency
+1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project). ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` then move the BAT-file folder (#1, not #2) into ```c:\bat\``` and make sure that ```c:\bat\``` comes first in your ```path```, possibly by running ```c:\bat\setpath.bat``` and definitely by running ```set path=%path%;c:\bat\``` 
+Technically you probably only need about 50 of these files, but detangling things to that level is a future project.  This folder also has it's own versions of ```sort``` and ```uniq``` (from [Cygwin](https://www.cygwin.com)) to ensure consistency
 
 1. ☯️ Optional: For [automatic cleanup of leftover AI files across an entire computer](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files), you will need to be running  the ```Everything``` service. It comes with TakeCommand (TCC). (Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn't start automatically. Recommended best practice is to do this in your ```autoexec.bat``` or equivalent post-bootup script.)
 

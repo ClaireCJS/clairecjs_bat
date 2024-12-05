@@ -190,7 +190,6 @@ rem Make sure they're all added —— any new extensions that we add to our pro
                 
         rem extensions that appear in [m-z]*.*
                 for %%tmpfolder in (%TARGET_MAIN% %TARGET_2%) do (
-                        echo tmpfolder=%%tmpfolder
                         call git add %tmpFolder%\*.bat %tmpFolder%\*.csv LICENSE *.md .gitattributes .gitignore %tmpFolder%\*.exe %tmpFolder%\*.btm %tmpFolder%\*.pl  %tmpFolder%\*.py   %tmpFolder%\*.exe   %tmpFolder%\*.ahk %tmpFolder%\*.ini %tmpFolder%\*.zip %tmpFolder%\*.ansi %tmpFolder%\*.midi  %tmpFolder%\*.wav %tmpFolder%\*.dat %tmpFolder%\*.dll %tmpFolder%\*.json go-to-individual-BAT-files-on-GitHub.bat update-from-BAT-and-push-and-commit.bat
                 )
                 
