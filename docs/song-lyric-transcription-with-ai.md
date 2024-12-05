@@ -466,8 +466,7 @@ Validates whether a TCC user %@function is defined or not
 
 ### 🌟 [set-ansi.bat](../BAT-and-UTIL-files-1/set-ansi.bat):
 
-Sets all the ansi codes we know to exist.
-
+Sets envirionment variables (or user functions) for all the ansi codes we know to exist, as well as for our messaging system ([print-message.bat](../BAT-and-UTIL-files-1/print-message.bat)).
 
 ### 🌟 [set-emojis.bat](../BAT-and-UTIL-files-1/set-emojis.bat):
 
