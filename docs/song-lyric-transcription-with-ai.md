@@ -25,7 +25,8 @@
 
   &nbsp; 
   
-1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL).
+1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL)
+
     - The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your ```path```.
 
 &nbsp;    
@@ -39,7 +40,8 @@
     - Make ```c:\TCMD``` point to our [TCC](https://jpsoft.com/all-downloads/all-downloads.html) installation:
       - via the command: ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
       - The folder ```TCMD31``` may vary depending on what version of [TCC](https://jpsoft.com/all-downloads/all-downloads.html) is current.
-      &nbsp;
+
+&nbsp;
 
 3. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
     - Technically you probably only need about 100 of these files.  
@@ -51,6 +53,8 @@ set path=%path%;c:\bat\
 copy c:\bat\tcmd.ini.bat c:\tcmd\tcmd.ini
 copy c:\bat\tcstart.bat  c:\tcmd\tcstart.bat
 copy c:\bat\alias.lst    c:\tcmd\alias.lst``` 
+
+&nbsp;
 
 4. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
     - Always be running  the ```Everything``` service, which comes with TakeCommand ([TCC](https://jpsoft.com/all-downloads/all-downloads.html))
@@ -72,7 +76,7 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst```
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# SYSTEM COMMANDS
+# ⚙️ SYSTEM COMMANDS ⚙️
 
 ### 🌟 NOTE: Many commands have several different aliases, for convenience-of-remembering.
 
