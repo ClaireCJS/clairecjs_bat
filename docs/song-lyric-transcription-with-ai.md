@@ -106,7 +106,7 @@ Generally speaking, it will be: ```create-srt audio_file.mp3``` or ```create-mis
   1. 🕵 Lyric   Auditing ([review-lyrics](../BAT-and-UTIL-files-1/review-files.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
   1. 🕵 Karaoke Auditing ([review-subtitles](../BAT-and-UTIL-files-1/review-subtitles.bat), [check-for-missing-karaoke](../BAT-and-UTIL-files-1/check-for-missing-karaoke.bat), etc)
   
-Two lesser types of commands exist for this system:
+🍀 Two lesser types of commands exist for this system:
 
   1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
   1. ⚙️ Subordinate commands (under-the-hood stuff not generally invoked directly)
@@ -115,7 +115,7 @@ Two lesser types of commands exist for this system:
 
 # 👉👉👉 *Lyric Alignment* commands:
 
-These commands manage the lyric files which we download to improve transcription accuracy.
+#### These commands manage the lyric files which we download to improve transcription accuracy.
 
 
 <details><summary>Click here to view command list & descriptions.</summary>  
@@ -152,7 +152,7 @@ Gets lyrics for all the files *in a playlist* that do not have *approved* lyric 
 
 # 👉👉👉 *Karaoke Generation* commands:
 
-These commands creates the karaoke files that are the primary goal of this project! 🎈
+#### These commands creates the karaoke files that are the primary goal of this project! 🎈
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
@@ -170,23 +170,23 @@ If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/30666
 
 ### 🌟 cmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../BAT-and-UTIL-files-1/create-the-missing-karaokes-here.bat):
 
-Create karaoke files for all songs *in the current folder* that do not have them
+Create karaoke files for **all songs** *in the current folder* that do not have them
 
 
 ### 🌟 ❗TODO❗ [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat):
 
-Create karaoke files for all songs *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. (In random order, to prevent alphabetical bias.)
+Create karaoke files for **all songs** *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. (In random order, to prevent alphabetical bias.)
 
 
 ### 🌟 ❗TODO❗ create-karaoke-automatically-from-approved-lyrics.bat {folder to recurse through]:
 
-Create karaoke files for all songs in a *folder tree* that do not have them, as long as their lyric file has been previously approved. This is intended so one can spend 100% of time aligning/approving lyrics (i.e. with ```get-lyrics-for-playlist.bat```), then go to bed and run this to generate everything that has pre-approved lyrics, saving the karaoke generation for another time (like when you are asleep). 
+Create karaoke files for **all songs** in a *folder tree* that do not have them, as long as their lyric file has been previously approved. This is intended so one can spend 100% of time aligning/approving lyrics (i.e. with ```get-lyrics-for-playlist.bat```), then go to bed and run this to generate everything that has pre-approved lyrics, saving the karaoke generation for another time (like when you are asleep). 
 
 
 
 ### 🌟 [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat):
 
-Rarely used side-utility: Creates karaoke files for all songs in a *folder tree* without using lyric files or voice detection (VAD). This is useful for folders of hundreds sound clips and small samples, where you just want to get a lot done without the extra overhead of lyrics and without the extra time delay of loading the VAD model.
+Rarely used side-utility: Creates karaoke files for **all songs** in a *folder tree* without using lyric files or voice detection (VAD). This is useful for folders of hundreds sound clips and small samples, where you just want to get a lot done without the extra overhead of lyrics and without the extra time delay of loading the VAD model.
 
 </details>
 
@@ -194,7 +194,7 @@ Rarely used side-utility: Creates karaoke files for all songs in a *folder tree*
 
 # 👉👉👉 *Auditing Commands* for *Lyrics*:
 
-These commands find & obtain missing lyric files.
+#### These commands find & obtain missing lyric files.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
@@ -229,7 +229,7 @@ Displays a list of files in a *playlist* which are missing *approved lyric* file
 
 # 👉👉👉 *Auditing Commands* for *Karaoke*:
 
-These commands find & obtain missing karaoke files.
+#### These commands find & obtain missing karaoke files.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
@@ -266,7 +266,7 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 
 # 👉👉👉 ⚡️ *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 Integration* Commands:
 
-These commands allows us to operate on "the song we are currently listening to" rather than a specific file or playlist.
+#### These commands allows us to operate on "the song we are currently listening to" rather than a specific file or playlist.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
