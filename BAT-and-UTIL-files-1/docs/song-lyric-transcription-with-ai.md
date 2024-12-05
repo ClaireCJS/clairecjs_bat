@@ -352,18 +352,17 @@ Display each *unique* line in a file. Much like the ```uniq``` command except th
 
 # 👉👉 *Under-The-Hood*: Pre/Post-Processor/Fetch Utility Commands:
 
-Preprocessors / Postprocessors  developed for this project.
+Preprocessors / Postprocessors developed for this project.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
 ### 🌟 [get-lyrics-with-lyricsgenius-json-processor.pl](../BAT-and-UTIL-files-1/get-lyrics-with-lyricsgenius-json-processor.pl):
 
-Extracts lyrics from our freshly-downloaded-from-Genius.com JSON files, with minimal preprocessing.
-
+The lyric downloader we use for Genius saves lyrics as a ```JSON file```. This extracts the actual lyrics from that file, with minimal preprocessing.
 
 ### 🌟 [unique-lines.pl](../BAT-and-UTIL-files-1/unique-lines.pl):
 
-A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI's 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a version of ``uniq``` that doesn't require file sorting, and grew into full-fledged lyric preprocessor.
+A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI's 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a spiritual fork of ``uniq``` that doesn't require file sorting, and grew into full-fledged lyric preprocessor.
 
 
 ### 🌟 [remove-period-at-ends-of-lines.pl](../BAT-and-UTIL-files-1/remove-period-at-ends-of-lines.pl):
