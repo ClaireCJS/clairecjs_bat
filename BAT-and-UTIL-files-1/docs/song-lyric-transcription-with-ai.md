@@ -76,7 +76,9 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 # ⚙️ HOW TO USE ⚙️
 
-From a running TCC command line, use whate
+From a running TCC command line, use whatever system commands you'd like from the list below.
+
+Generally, speaking, it will be: ```create-srt audio_file.mp3``` or 
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -127,6 +129,14 @@ To have this happen automatically when changing into a folder,  ```alias cd=call
 ![image](https://github.com/user-attachments/assets/0ccdebd6-7e26-4a2b-91ee-c3e0cfe9f147)
 
 
+
+### 🌟 [get-lyrics-for-currently-playing-song ](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
+
+🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, runs ```get-lyrics``` on the song currently being played in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
+
+
+
+
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -158,6 +168,11 @@ Create karaoke files for all songs in a *folder tree* that do not have them, as 
 ### 🌟 [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat):
 
 Rarely used, but: Creates karaoke files for all songs in a *folder tree* without using lyric files or voice detection (VAD). This is useful for folders of sound clips and small samples, where you just want to get a lot done without the extra overhead of lyrics and without the extra time delay of loading the VAD model.
+
+### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/create-srt-file-for-currently-playing-song.bat):
+
+Runs ```create-srt``` on the song currently being played in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
+
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
