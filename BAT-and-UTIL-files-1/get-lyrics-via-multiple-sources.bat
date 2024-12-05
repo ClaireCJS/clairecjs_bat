@@ -305,7 +305,7 @@ rem If we have set CONSIDER_ALL_LYRICS_APPROVED=1, then auto-approve lyrics at t
                 echo - %italics_on%Automatic%italics_off% acceptance of lyrics at prompt#1 turned %blink_on%on%blink_off% %ANSI_COLOR_NORMAL%
                 set DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1=yes
                 set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO%
-                set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME_TO_USE=%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO%
+                set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO%
         else
                 echo %ANSI_COLOR_DEBUG%%STAR% %italics_on%Automatic%italics_off% acceptance of lyrics at prompt#1 turned %blink_on%off%blink_off% %ANSI_COLOR_NORMAL%
                 set DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1=no
