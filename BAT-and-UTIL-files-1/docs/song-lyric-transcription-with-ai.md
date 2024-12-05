@@ -99,10 +99,10 @@ Generally, speaking, it will be: ```create-srt audio_file.mp3``` or
 
 ## Several types of commands for this system:
 
-  1. 🎤️ Lyric alignment  ([get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
+  1. 🎤️ Lyric alignment  ([get--yrics](../BAT-and-UTIL-files-1/get-lyrics.bat),  [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat) etc)
   1. 🧏 Karaoke generation  ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
-  1. 🕵 Lyric Auditing (to find missing lyrics)
-  1. 🕵 Karaoke Auditing (to find miss)
+  1. 🕵 Lyric Auditing (to find missing lyrics) ([get-missing-lyrics.bat](../BAT-and-UTIL-files-1/get-missing-lyrics.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
+  1. 🕵 Karaoke Auditing (to find missing karaoke)
   1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
   1. ⚙️ Subordinate commands (under the hood stuff not generally invoked directly)
 
