@@ -118,6 +118,7 @@ rem VALIDATE PARAMETERS [every time]:
         call validate-file-extension       "%AUDIO_FILE%" %FILEMASK_AUDIO%
 
 rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        echo d goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
 
 rem Get artist and song so we can use them to download lyrics:
         if %DEBUG gt 0 call unimportant "Probing file"
@@ -168,6 +169,7 @@ rem Get artist and song so we can use them to download lyrics:
                         rem ffprobe.exe -v quiet -of compact=p=0:nk=1 -show_entries format_tags     -select_entries format_tags=title,format_tags=artist     -print_format "%artist%|%title%" 
                         rem ffprobe.exe -v quiet -of csv=p=0:s="|":q=0:x=1     -show_entries format_tags=title,artist,album,original_artist,composer     "01_Seas Of Cheese (24bit 5.1 version).flac"
 
+        echo c goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
 
                         set last_file_probed=%AUDIO_FILE%
 
@@ -239,6 +241,8 @@ rem Get artist and song so we can use them to download lyrics:
         rem If we didn't get a title, use the filename after the number, i.e. "01_Time.flac" ——> "Time"
                 if "" eq "%FILE_SONG%" (set FILE_SONG=%@rereplace[[\d]+_,,%@name["%AUDIO_FILE%"]])
                 
+        echo b goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
+
         rem If we didn't get an original artist, also check for the Composer tag which is the only place it would likely be in a FLAC file...
                 rem NO! ffprobe does some voodoo behind the scenes making this unnecessary: if "" eq "%FILE_ORIG_ARTIST%" (set FILE_ORIG_ARTIST=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=Composer -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%" |:u8 change-single-quotes-to-double-apostrophes.py])
 
@@ -263,6 +267,8 @@ rem Back up original values of these variables because we change them as we try 
         set        FILE_SONG_ORIGINAL=%FILE_SONG%
         set       FILE_TITLE_ORIGINAL=%FILE_SONG%
         if %vebose gt 0 call unimportant "Original values saved" 
+
+        echo a goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
 
 rem Temp file we sometimes use to hold reviews to be reviewed in
         set TMPREVIEWFILE=%temp%\review-file.%_datetime.%_PID.txt
@@ -482,6 +488,7 @@ rem If we still didn't find anything acceptable, but have potentially matching f
         unset /q ONLY_ONE_FILE_AND_IT_WAS_TRIED
         unset /q TRY_SELECTION_AGAIN
 rem ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        echo 8 goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
 
 
 
@@ -526,6 +533,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 else
                         unset /q PYTHONIOENCODING
                 endiff
+        echo 7 goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
 
         rem Get the most latest file:
                 set LATEST_FILE=%@EXECSTR[dir /b /odt |:u8 tail -1]
@@ -600,6 +608,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 :end_of_massage_attempt
 
                 :skip_from_nothing_downloaded
+        echo 6 goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
 
 
 rem Get massaged names for next section's check:
@@ -623,6 +632,7 @@ rem Get massaged names for next section's check:
                 
                 rem call debug "(13) Massaged: %TAB%   artist=%italics_on%%FILE_ARTIST_MASSAGED%=%italics_off%%newline%%TAB%%tab%%tab%%tab%         title=%italics_on%%FILE_SONG_MASSAGED%=%italics_off%%newline%%TAB%%tab%%tab%%tab%         album=%italics_on%%FILE_album_MASSAGED%=%italics_off%"
 
+        echo 5 goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
 
 rem try again if massaged names exist (that is, if the massaged names are different than the original names):        
         rem DEBUG_MASSAGED_FILENAME_CHECK: echo %ANSI_COLOR_DEBUG%- DEBUG: (1) iff 1 ne %LD1_MASSAGED_ATTEMPT_1% .and. ("%FILE_SONG_MASSAGED%" != "%FILE_SONG_TO_USE%" .or. "%FILE_artist_MASSAGED%" != "%FILE_artist_TO_USE%") then %+ call pause-for-x-seconds %paused_debug_wait_time%
@@ -649,6 +659,7 @@ rem try again if massaged names exist (that is, if the massaged names are differ
         rem no! goto :end_of_massage_attempt
         rem Continue on... We have failed so far.
         unset /q LD1_MASSAGED_ATTEMPT_1
+        echo 4 goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
 
 
 
@@ -696,6 +707,7 @@ rem If we still don't have a downloaded file, let us manually edit the song and 
         :end_of_lyric_downloader_1
 rem Download the lyrics using LYRIC_DOWNLOADER_1: END: —————————————————————————————————————————————————————————————————————————————————————
 
+        echo 3 goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
 
 
 rem Ask to Google the lyrics if we haven't approved them yet:
@@ -741,6 +753,8 @@ rem Final change to hand-edit the lyrics, but skip it if we already opted to sea
                 @input /c /w0 %%This_Line_Clears_The_Character_Buffer
                 call pause-for-x-seconds %LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS% "%ansi_color_bright_yellow%%pencil% Hit a key when done editing lyrics... %faint_on%(leave blank if none found)%faint_off% %pencil% %ansi_color_normal%"
 
+        echo 2 goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
+
                 rem TODO show the lyrics again? But if we are hand-editing them, we should know what we are editing so kinda redundant
                 call AskYn "Are the post-hand-edited lyrics now acceptable" yes %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME%
                         iff "%answer%" eq "Y" then 
@@ -765,9 +779,10 @@ rem TODO: Perhaps a prompt to reject the lyrics here {and delete the file}, i ne
 
 rem Mark the lyric file as approved/disapproved, using windows Alternate Data Streams:
 
+        echo goat  call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%" ??? %+ pause
+
         iff exist "%PREFERRED_TEXT_FILE_NAME%" then
                 call divider
-                pause
                 if 1 eq %LYRICS_ACCEPTABLE call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%"
                 if 0 eq %LYRICS_ACCEPTABLE call disapprove-lyrics "%PREFERRED_TEXT_FILE_NAME%"
         endiff
