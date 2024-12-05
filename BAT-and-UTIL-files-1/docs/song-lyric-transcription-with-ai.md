@@ -45,7 +45,8 @@
     - Technically you probably only need about 100 of these files.  
     - This folder has it's own ```sort``` and ```uniq``` executables (from [Cygwin](https://www.cygwin.com)) to ensure consistency
     - To install: 
-```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/
+```
+git.exe clone https://github.com/ClaireCJS/clairecjs_bat/
 mv BAT-and-UTIL-files-1 c:\bat\
 set path=%path%;c:\bat\
 copy c:\bat\tcmd.ini.bat c:\tcmd\tcmd.ini
@@ -72,6 +73,12 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 </details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
+
+# ⚙️ HOW TO USE ⚙️
+
+From a running TCC command line, use whate
+
+
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
