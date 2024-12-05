@@ -767,6 +767,7 @@ rem Mark the lyric file as approved/disapproved, using windows Alternate Data St
 
         iff exist "%PREFERRED_TEXT_FILE_NAME%" then
                 call divider
+                pause
                 if 1 eq %LYRICS_ACCEPTABLE call    approve-lyrics "%PREFERRED_TEXT_FILE_NAME%"
                 if 0 eq %LYRICS_ACCEPTABLE call disapprove-lyrics "%PREFERRED_TEXT_FILE_NAME%"
         endiff
