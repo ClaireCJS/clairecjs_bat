@@ -28,13 +28,13 @@
 
 1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
     - Install TCC:
-        - from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
-        - Via *WinGet*: ```winget install JPSoft.tcmd```.  
+        - either from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
+        - or via *WinGet* with the command ```winget install JPSoft.tcmd```.  
           - install *WinGet* via *PowerShell* with command ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` 
           - or with command ```Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe```
     - Make ```c:\TCMD``` point to our TCC installation via the command:
           - ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
-	  - The folder ```TCMD31``` may vary depending on what version of TCC is current.
+	  - The folder ```TCMD31``` may vary depending on what version of [TCC](https://jpsoft.com/all-downloads/all-downloads.html) is current.
 &nbsp;
 
 1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
@@ -49,7 +49,7 @@ copy c:\bat\tcstart.bat  c:\tcmd\tcstart.bat
 copy c:\bat\alias.lst    c:\tcmd\alias.lst``` 
 
 1. ☯️ Optional: For [automatic cleanup of leftover AI files across an entire computer](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files)
-    - Always be running  the ```Everything``` service, which comes with TakeCommand (TCC)
+    - Always be running  the ```Everything``` service, which comes with TakeCommand ([TCC](https://jpsoft.com/all-downloads/all-downloads.html))
     - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn't start automatically. 
 
 &nbsp;
