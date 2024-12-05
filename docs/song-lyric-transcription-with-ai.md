@@ -128,7 +128,7 @@ Obtains the lyrics for a particular song file.
 
 ### 🌟 [get-lyrics-for-currently-playing-song ](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
 
-If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, get lyrics for the song currently being played.
+If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, get lyrics for *the song currently being played*.
 
 
 ### 🌟 [get-missing-lyrics-here.bat](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gmlh](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gml](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) /:
@@ -160,12 +160,12 @@ Gets lyrics for all the files *in a playlist* that do not have *approved* lyric 
 
 **Create karaoke for one audio file.**
 Performs the AI transcription process for a single song file.
-Run without parameters to see various options, including but not limited to  ```ai``` (skips the lyrics component), ```fast``` (shortens prompt timer lengths), ```force``` (generate it even if it already exists), and ```LyricsApproved``` (consider all lyric files to be pre-approved even if not explicitly marked as such).
+Run without parameters to see various options, including but not limited to  ```ai``` (skips the lyrics component), ```fast``` (shortens prompt timer lengths), ```force``` (generate it even if it already exists), and ```LyricsApproved``` (consider all lyric files to be *pre-approved* even if not explicitly marked as such).
 
 
 ### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/create-srt-file-for-currently-playing-song.bat):
 
-If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, creates karaoke file for the song currently being played.
+If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, creates karaoke file for *the song currently being played*.
 
 
 ### 🌟 cmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../BAT-and-UTIL-files-1/create-the-missing-karaokes-here.bat):
@@ -272,12 +272,12 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 
 ### 🌟 [get-lyrics-for-currently-playing-song ](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
 
-Runs ```get-lyrics``` on the song currently being played in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
+Runs ```get-lyrics``` on *the song currently being played* in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
 
 
 ### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/create-srt-file-for-currently-playing-song.bat):
 
-Runs ```create-srt``` on the song currently being played in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
+Runs ```create-srt``` on *the song currently being played* in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
 
 
 ### 🌟 Karaoke insertion fudger - [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat):
