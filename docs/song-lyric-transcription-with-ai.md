@@ -52,7 +52,8 @@ mv BAT-and-UTIL-files-1 c:\bat\
 set path=%path%;c:\bat\
 copy c:\bat\tcmd.ini.bat c:\tcmd\tcmd.ini
 copy c:\bat\tcstart.bat  c:\tcmd\tcstart.bat
-copy c:\bat\alias.lst    c:\tcmd\alias.lst``` 
+copy c:\bat\alias.lst    c:\tcmd\alias.lst
+```
 
 &nbsp;
 
@@ -179,7 +180,7 @@ Displays a list of files in a *playlist* which are missing *approved lyric* file
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# *Auditing Commands* for *Karaoke:
+# *Auditing Commands* for *Karaoke*:
 
 These commands find & obtain missing karaoke files.
 
@@ -213,7 +214,7 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 Integration Commands:
+# ⚡️ *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 Integration* Commands:
 
 These commands allows us to operate on "the song we are currently listening to" rather than a specific file or playlist.
 
@@ -235,7 +236,7 @@ In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# Under-The-Hood: Project-specific Utility Commands 
+# *Under-The-Hood*: Project-Specific Utility Commands 
 
 Other important commands specific to this project.
 
