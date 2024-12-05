@@ -1,6 +1,6 @@
 @Echo off
 rem on break cancel
-rem set onbreak=goto:END
+set onbreak=goto:END
 
 rem Config:
         set our_filemask=*.srt;*.lrc
@@ -20,7 +20,7 @@ rem Validate environment:
 rem Check if SRT files are actually here:
         setdos /x-5
         iff not exist %our_filemask% then
-                echo %ANSI_COLOR_WARNING%%WARNING% No %@upper[%@%@REReplace[;,/,%@REReplace[\*\.,,%our_filemask%]]] files present %WARNING%%ANSI_COLOR_NORMAL%
+                echo %ANSI_COLOR_WARNING_soft%%EMOJI_WARNING% No %@upper[%@%@REReplace[;,/,%@REReplace[\*\.,,%our_filemask%]]] files present %EMOJI_WARNING%%ANSI_COLOR_NORMAL%
                 setdos /x0
                 goto :END
         endiff
@@ -45,6 +45,8 @@ rem Go through each one and review it:
         :do_it [tmpfile] 
                 call divider 
                 setdos /x0
+                rem title %@CHAR[55357]%@CHAR[56403] %@name[%tmpfile]
+                title %emoji_palm_tree%%@name[%tmpfile]
                 call bigecho "%STAR% %@randfg_soft[]%underline_on%%@name[%tmpfile%]%underline_off%:"
                 setdos /x0
                 rem (type "%@UNQUOTE[%tmpfile%]" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" )  |:u8 print-with-columns 

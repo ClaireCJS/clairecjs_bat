@@ -52,6 +52,7 @@ EMOJIS_SUMMARY             = '✔️ '
 EMOJIS_ERROR               = '🛑🛑'
 nomoji                     = False                #set to True to disable [some] emoji decoration of lines
 whisper_ai                 = False                #set to True to run in WhisperAI mode
+whisper_decorator_title    = "🚀🚀🚀"             #decorator for Whisper title 
 #Note to self: either maintain a simultaneous update of these 4 values in set-colors.bat or create env-var overrides:
 MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                                                                  #\__ range of random values we
 MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                                                                  #/   choose random colors from
@@ -97,8 +98,9 @@ FOOTERS = [                                                                     
            "dirs would be deleted" , "dir would be deleted"  ,
            "Standalone Faster-Whisper-XXL r"
           ]
+          
 file_removals  = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                    #values that indicate a file deletion/removal
-#sys.stdout     = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                    #utf-8 fix
+
 move_decorator_from_environment_variable = os.environ.get('move_decorator_from_environment_variable', '')   #fetch user-specified decorator (if any)
 
 if os.environ.get('no_tick') == "1": TICK = False
@@ -108,26 +110,9 @@ else                               : TICK = True
 if os.environ.get('no_double_lines',0) == "1": DOUBLE_LINES_ENABLED = False
 else                                         : DOUBLE_LINES_ENABLED = True                                  #DEBUG: print(f"DOUBLE_LINES_ENABLED={DOUBLE_LINES_ENABLED}")
 
-#vars
 current_processing_segment = 0
 spacer = ""
 
-
-
-#class CapturingStdout:
-#    def __init__(self):
-#        self.buffer = StringIO()
-#        self.original_stdout = sys.stdout
-#
-#    def write(self, data):
-#        self.buffer.write(data)  # Capture the data
-#        self.original_stdout.write(data)  # Forward it to the original stdout
-#
-#    def flush(self):
-#        self.original_stdout.flush()  # Flush the original stdout
-#
-## Replace sys.stdout
-#sys.stdout = CapturingStdout()
 
 
 class BufferedStdout:
@@ -164,19 +149,8 @@ sys.stdout = BufferedStdout()
 
 def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' + DOUBLE_UNDERLINE_OFF, line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
 
-#last_buffer="";
-#def flush():
-#    global last_buffer
-#    if True:
-#            buffer = sys.stdout.buffer.getvalue()
-#            if len(buffer) > 200 and buffer !=  last_buffer: 
-#                print(f"Buffered data: {sys.stdout.buffer.getvalue()}")     # Inspect buffered data
-#                last_buffer = buffer;
-#    sys.stdout.flush()
-
 def flush():
     sys.stdout.flush()
-
 
 def enable_vt_support():                                                                                        #this was painful to figure out
     import os
@@ -201,15 +175,15 @@ def get_random_color(bg=False, hex=False):                                      
     if hex: return convert_rgb_tuple_to_hex_string_with_hash(rand_r, rand_g, rand_b)
     else  : return                                           rand_r, rand_g, rand_b
 
-    
-
 def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     #sys.stderr.write(f"DEBUG: called print_line({line_buffer}, {r}, {g}, {b}, {additional_beginning_ansi})\n")
     
     original_line_buffer = line_buffer
-    global current_processing_segment
+    global current_processing_segment, whisper_decorator_title 
+  
+    #todo speedopt globalize:
     color_change_ansi = f'\033[38;2;{r};{g};{b}m'
-    our_ansi_reset = ANSI_RESET + move_decorator_from_environment_variable
+    our_ansi_reset    = ANSI_RESET + move_decorator_from_environment_variable
 
     double  = False
     summary = False
@@ -269,7 +243,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         line = line.replace(  '\\' , f'{our_ansi_reset}\\{  color_change_ansi}')                                  #/
 
     if whisper_ai:
-        decorator_title = "🚀🚀🚀"
+        decorator_title = whisper_decorator_title
         #DEBUG: if additional_beginning_ansi: print(f"additional beginning ansi={additional_beginning_ansi.lstrip(1)}")         #
         spacer = "                              "
         spacer_less = "           "
@@ -277,14 +251,15 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         if verbose: print(f"orig_line is [orig={original_line}][line={line}]")
         #f "[ctranslate2]" in line: just won't work!
         #f "[ctranslate2]" in original_line:
-        #if sys.stdout.string_in_buffer("ctranslate"):
-        #    #this fails to find it!!!!! #sys.stdout.print(f"FOUND IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ")
-        #    pass
-
+        if sys.stdout.string_in_buffer("ctranslate"):
+            #this fails to find it!!!!! 
+            sys.stdout.print(f"FOUND IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ")
+            #pass
+            
         if "ctranslate" in original_line:
             #ine = spacer + FAINT_ON   + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[")        + FAINT_OFF
             #ine = spacer + COLOR_GREY + "⭐" +              line.replace("[",f"{COLOR_GREY}[")        + FAINT_OFF
-            line = spacer + FAINT_ON   +                                     f"{COLOR_GREY}⭐"  + line + FAINT_OFF + "HEYOOOOOOOOOOO"
+            line = spacer + FAINT_ON   + COLOR_GREY + "⭐" + line + FAINT_OFF + "HEYOOOOOOOOOOO"
             line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)
             #DEBUG: print ("ctranslate line found!")#
         line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)    #todo experimental: just do this, won't affecti f there isn't a match
@@ -311,7 +286,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         line = line.replace("Transcription speed: "                         ,f"{FAINT_ON}{COLOR_GREY}⏱  Transcription speed: {ITALICS_ON}")
         line = line.replace("CUDA"                                          ,f"{ITALICS_ON}CUDA{ITALICS_OFF}")
         line = line.replace("VAD filter removed "                           ,f"✔  VAD filter removed: {ITALICS_ON}")
-        line = line.replace("VAD filter kept the following audio segments: ",f"✔️  VAD filter kept the following audio segments: {FAINT_ON}")
+        line = line.replace("VAD filter kept the following audio segments: ",f"✔️ VAD filter kept the following audio segments: {FAINT_ON}")
         line = line.replace("VAD finished in: "                             ,f"{MOVE_UP_1}{MOVE_TO_COL_1}🏁 VAD finished in: {ITALICS_ON}")
         line = line.replace("VAD timestamps are dumped to "                 ,f"{MOVE_UP_1}✍  VAD timestamps are dumped to: {ITALICS_ON}")
        

@@ -197,9 +197,19 @@ In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# Under-The-Hood: Critical Utility commands
+# Under-The-Hood: Project-specific Utility Commands 
 
-Other important commands deveoped for this project.
+Other important commands specific to this project.
+
+### 🌟 [srt2lrc.py](../BAT-and-UTIL-files-1/srt2lrc.py):
+
+A *batch* SRT-file to LRC-file converter. Used by [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat)
+
+
+### 🌟 [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py):
+
+A *single-file* SRT-file to TXT-file converter. 
+
 
 ### 🌟 [approve-lyrics / approve-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/disapprove-lyric-file.bat):
 
@@ -207,33 +217,37 @@ Marks lyric file with approval/disapproval so that we can pre-approve lyric file
 
 ![image](https://github.com/user-attachments/assets/c48e2ed3-c1fb-4760-8ba8-c9accf691178)
 
+### 🌟 [approve-subtitles / approve-subtitle-file {subtitle_file}](../BAT-and-UTIL-files-1/approve-subtitle-file.bat) / [disapprove-subtitles / disapprove-subtitle-file {subtitle_file}](../BAT-and-UTIL-files-1/disapprove-subtitle-file.bat):
+
+Same as above but for karaoke files.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+# Under-The-Hood: Non-Project-Specific utility commands:
 
 ### 🌟 [print_with_columns.py](../BAT-and-UTIL-files-1/print_with_columns.py) / [newspaper.bat](../BAT-and-UTIL-files-1/newspaper.bat):
 
-Displays text in column ("newspaper") format so that lyric/karaoke review does not involve constantly scrolling up.
+Created to review lyrics & karaoke for this project without the interruption of having to scroll up!
+
+Displays text in column ("newspaper") format with columns.
+A useful replacement for the ```type``` command.
 
 
 ### 🌟 [google.py](../BAT-and-UTIL-files-1/google.py):
 
-Invokes a google search in primary browser, all while properly preserving quotes. Way harder to pull off than it sounds.
-
+Invokes a google search in primary browser, all while properly preserving the quotes given at the command line. 
+Way harder to do than it should be.
 
 ### 🌟 [insert-before-each-line.py](../BAT-and-UTIL-files-1/insert-before-each-line.py) / [insert-after-each-line.py](../BAT-and-UTIL-files-1/insert-after-each-line.py):
 
-Inserts text before or after each line of STDIN. Used for script generation. 
+Inserts text before/after each line of STDIN. Used for script generation.   
+Put ```{{{{QUOTE}}}}``` in the argument to turn it into a quote mark in the final output.
 
+### 🌟 [unique-lines.pl](../BAT-and-UTIL-files-1/unique-lines.pl):
 
-### 🌟 [srt2lrc.py](../BAT-and-UTIL-files-1/srt2lrc.py):
+Display each *unique* line in a file. Much like the ```uniq``` command except that no pre-sorting is required.
+[Also has postprocessor functionality listed below]
 
-A *batch* SRT-file to LRC-file converter. Used by [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat)
-
------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Under-The-Hood: Adjunct Utility commands
-
-### 🌟 [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py):
-
-A *single-file* SRT-file to TXT-file converter
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -261,17 +275,7 @@ We add "invisible" periods to the end of each line of lyrics so that WhisperAI's
 
 # Under-The-Hood: Existing commands also used by this system:
 
-Various commands that are already a part of my "Clairevironment".
-
-
-### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
-
-The Yes/No prompting system with prompt timeouts.
-
-
-### 🌟 [print-message.bat](../BAT-and-UTIL-files-1/print-message.bat):
-
-The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat), [debug.bat](../BAT-and-UTIL-files-1/debug.bat), [error.bat](../BAT-and-UTIL-files-1/error.bat), [fatal_error.bat](../BAT-and-UTIL-files-1/fatalerror.bat), [success.bat](../BAT-and-UTIL-files-1/success.bat), [celebration.bat](../BAT-and-UTIL-files-1/celebration.bat), [important.bat](../BAT-and-UTIL-files-1/important.bat), [important_less.bat](../BAT-and-UTIL-files-1/important_less.bat), [advice](../BAT-and-UTIL-files-1/advice.bat), [unimportant](../BAT-and-UTIL-files-1/unimportant.bat), etc)
+Various commands that were already a part of my "Clairevironment".
 
 
 ### 🌟 [copy-move-post.py](../BAT-and-UTIL-files-1/copy-move-post.py):
@@ -281,9 +285,24 @@ A cosmetic postprocessor which employes ANSI color-cycling to inbue a psychedeli
 Uses my [claire_console.py](../BAT-and-UTIL-files-1/clairecjs_utils/claire_console.py) library to achieve the color-cycling.
 
 
+
+### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
+
+The Yes/No prompting system with automatic-default-answer prompt timeouts.
+
+
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
-[Pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/dividers/) to separate out output into sections.
+Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/dividers/) to separate out output into sections.
+
+### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):
+
+Receives piped input and runs it as if it were typed to the command line. Dangerous stuff!
+
+
+### 🌟 [randomize-file.pl](../BAT-and-UTIL-files-1/randomize-file.pl.bat):
+
+Scrambles the lines of STDIN.  One could think of it as shuffling/randomizing a playlist/filelist.  Used to do things in random orders.
 
 
 ### 🌟 [delete-zero-byte-files.bat](../BAT-and-UTIL-files-1/delete-zero-byte-files.bat) {filemask} :
@@ -291,14 +310,16 @@ Uses my [claire_console.py](../BAT-and-UTIL-files-1/clairecjs_utils/claire_conso
 Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us having to check EVERY file for non-zero-ness.
 
 
+
+### 🌟 [print-message.bat](../BAT-and-UTIL-files-1/print-message.bat):
+
+The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat), [debug.bat](../BAT-and-UTIL-files-1/debug.bat), [error.bat](../BAT-and-UTIL-files-1/error.bat), [fatal_error.bat](../BAT-and-UTIL-files-1/fatalerror.bat), [success.bat](../BAT-and-UTIL-files-1/success.bat), [celebration.bat](../BAT-and-UTIL-files-1/celebration.bat), [important.bat](../BAT-and-UTIL-files-1/important.bat), [important_less.bat](../BAT-and-UTIL-files-1/important_less.bat), [advice](../BAT-and-UTIL-files-1/advice.bat), [unimportant](../BAT-and-UTIL-files-1/unimportant.bat), etc)
+
+
 ### 🌟 [add-ADS-tag-to-file.bat](../BAT-and-UTIL-files-1/add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/remove-ADS-tag-from-file.bat) / [display-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/display-ADS-tag-from-file.bat):
 
 Commands for displaying tags, and for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs). Used for lyric [dis]approval.
 
-
-### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):
-
-Receives piped input and runs it as if it were a BAT file. Dangerous stuff!
 
 
 ### 🌟 [validate-environment-variables {list of env-var names}](../BAT-and-UTIL-files-1/validate-environment-variable.bat):
@@ -363,18 +384,15 @@ Delete a file, but only if it exists.
 &nbsp;
 ### 🌟 [edit-currently-playing-attrib-helper.pl](../BAT-and-UTIL-files-1/edit-currently-playing-attrib-helper.pl):
 
-Used by ```go-to-currently-playing-song-dir.bat``` to determine the folder of the current song playing. Processes the ```winamp_now_playing.txt``` file generated by the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) to determine this information. (API calls would limit us to only using this on the same computer as [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), which is a restriction we do not want).  This is a very ad-hoc organic spaghetti script that isn'at all nice-looking, but the 2024 update branches past the ugly legacy 2008, 2009, 2012, and 2013 updates, which were all designed to work with the [Last.FM](https://www.last.fm/user/ClioCJS) logfile.
+For [winamp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) integration only.  Used by ```go-to-currently-playing-song-dir.bat``` to determine the folder of the current song playing. Processes the ```winamp_now_playing.txt``` file generated by the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) to determine this information. (API calls would limit us to only using this on the same computer as [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), which is a restriction we do not want).  This is a very ad-hoc organic spaghetti script that isn'at all nice-looking, but the 2024 update branches past the ugly legacy 2008, 2009, 2012, and 2013 updates, which were all designed to work with the [Last.FM](https://www.last.fm/user/ClioCJS) logfile.
 
 
 &nbsp;
 ### 🌟 [go-to-currently-playing-song-dir.bat](../BAT-and-UTIL-files-1/go-to-currently-playing-song-dir.bat):
 
-For [winamp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) integration, changes current folder to same folder that the song we are listening to is in.  (The change-folder script is actually generated by [edit-currently-playing-attrib.bat](../BAT-and-UTIL-files-1/edit-currently-playing-attrib.bat))
+For [winamp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) integration only. Changes current folder to same folder that the song we are listening to is in.  (The change-folder script is actually generated by [edit-currently-playing-attrib.bat](../BAT-and-UTIL-files-1/edit-currently-playing-attrib.bat))
 
 &nbsp;
-### 🌟 [randomize-file.pl](../BAT-and-UTIL-files-1/randomize-file.pl.bat):
-
-Scrambles the lines of STDIN.  One could think of it as shuffling/randomizing a playlist/filelist.  Used to do things in random orders.
 
 
 🏁🔚

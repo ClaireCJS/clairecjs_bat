@@ -6,7 +6,7 @@ rem Get parameters:
 
 rem Validate environment once:
         iff 1 ne %VALIDATE_LYRIC_APPROVE_DISAPPROVE% then
-                call validate-in-path              add-ads-tag-to-file
+                call validate-in-path add-ads-tag-to-file
                 set  VALIDATE_LYRIC_APPROVE_DISAPPROVE=1
         endiff                
 rem Validate parameters every time
