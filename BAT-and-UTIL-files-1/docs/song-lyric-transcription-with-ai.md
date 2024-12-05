@@ -138,20 +138,17 @@ To have this happen automatically when changing into a folder,  ```alias cd=call
 
 
 
-
-
-
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
 # *Karaoke Generation* commands:
 
-These commands creates the karaoke files that are the primary goal of this project!
+These commands creates the karaoke files that are the primary goal of this project! 🎈
 
 ### 🌟 create-srt {songfile} / [create-srt-from-file {songfile}](../BAT-and-UTIL-files-1/create-srt-from-file.bat):
 
-Performs the AI transcription process for a single song file.
-Run without parameters to see various options, including but not limited to  "ai" (skips lyrics process), "fast" (shortens prompt timer lengths), and "force" (generate it even thoughi t already exists).
+Create karaoke for one audio file. Performs the AI transcription process for a single song file.
+Run without parameters to see various options, including but not limited to  ```ai``` (skips the lyrics component), ```fast``` (shortens prompt timer lengths), ```force``` (generate it even if it already exists), and ```Lyricsapproved.
 
 
 ### 🌟 cmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../BAT-and-UTIL-files-1/create-the-missing-karaokes-here.bat):
