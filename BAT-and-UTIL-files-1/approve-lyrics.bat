@@ -2,5 +2,5 @@
  @on break cancel
  
 for %%tmpfile in (%.txt) do (
-       @call approve-lyric-file.bat "%@unquote[%tmpfile]"
+       echo @call approve-lyric-file.bat "%@unquote[%tmpfile]"
 )
