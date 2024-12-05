@@ -102,12 +102,14 @@ Generally, speaking, it will be: ```create-srt audio_file.mp3``` or
 
 # *Lyric Alignment* commands:
 
-These commands manage the lyric files that are used to improve prompt accuracy.
+These commands manage the lyric files which we download to improve transcription accuracy.
 
-### 🌟 [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat):
 
-Gets lyrics for all the files *in a playlist* that do not have *approved* lyric files, in random order to avoid alphabetical bias.  
-(Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
+### 🌟 [get-lyrics {songfile} / get-lyrics-for-song {songfile} / get-lyrics-via-multiple-sources {songfile}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
+
+Obtains the lyrics for a particular song file. 
+- These transcriptions work **much** better when you have a lyric set. 
+- This checks local sidecar files, local lyric repository, Genius, and Google — to obtain lyric files with as much ease possible.
 
 
 ### 🌟 [get-missing-lyrics-here.bat](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gmlh](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gml](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) /:
@@ -116,9 +118,15 @@ Gets lyrics for all the files *in the current folder* that do not have *approved
 (Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
 
 
-### 🌟 [get-lyrics {songfile} / get-lyrics-for-song {songfile} / get-lyrics-via-multiple-sources {songfile}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
+### 🌟 [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat):
 
-Obtains the lyrics for a particular song, to foster proper AI transcription. These transcriptions work much better when you have a lyric set. This checks local sidecar files, local lyric repository, Genius, and Google, to obtain lyric files with as much ease possible.
+Gets lyrics for all the files *in a playlist* that do not have *approved* lyric files, in random order to avoid alphabetical bias.  
+(Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
+
+
+### 🌟 [get-lyrics-for-currently-playing-song ](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
+
+If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, get lyrics for the song currently being played.
 
 
 ### 🌟 dls / [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat):
@@ -129,10 +137,6 @@ To have this happen automatically when changing into a folder,  ```alias cd=call
 ![image](https://github.com/user-attachments/assets/0ccdebd6-7e26-4a2b-91ee-c3e0cfe9f147)
 
 
-
-### 🌟 [get-lyrics-for-currently-playing-song ](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
-
-If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, runs ```get-lyrics``` on the song currently being played.
 
 
 
