@@ -87,7 +87,7 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 From a running TCC command line, use whatever system commands you'd like from the list below.
 
-Generally speaking, it will be: ```create-srt audio_file.mp3``` or ```create-missing-karaoke``` or ```get-lyrics``.
+Generally speaking, it will be: ```create-srt audio_file.mp3``` or ```create-missing-karaoke``` or ```get-lyrics```.
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -153,6 +153,7 @@ To have this happen automatically when changing into a folder,  ```alias cd=call
 ![image](https://github.com/user-attachments/assets/0ccdebd6-7e26-4a2b-91ee-c3e0cfe9f147)
 
 
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -195,6 +196,8 @@ Create karaoke files for all songs in a *folder tree* that do not have them, as 
 
 Rarely used side-utility: Creates karaoke files for all songs in a *folder tree* without using lyric files or voice detection (VAD). This is useful for folders of hundreds sound clips and small samples, where you just want to get a lot done without the extra overhead of lyrics and without the extra time delay of loading the VAD model.
 
+</details>
+
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 # 👉👉👉 *Auditing Commands* for *Lyrics*:
@@ -219,7 +222,7 @@ Displays a list of files in a *playlist* which are missing *approved lyric* file
 
 ![image](https://github.com/user-attachments/assets/42fb6e4e-2cea-48e1-bbc8-499454c201ae)
 
-
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -255,6 +258,7 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 
 ![image](https://github.com/user-attachments/assets/5b368467-b23b-4039-b3df-c4dc85e90ad5)
 
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -279,7 +283,7 @@ Runs ```create-srt``` on the song currently being played in ⚡️ [WinAmp](http
 
 In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com/) does not auto-import the generated SRT file.  Because [MiniLyrics](https://minilyrics.en.softonic.com/) primarily uses LRC instead of SRT, it can sometimes miss an SRT. When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the [MiniLyrics](https://minilyrics.en.softonic.com/) lyric window manually. This script handles that by detecting the current song playing, converting it's SRT to LRC, copying it to the clipboard, and automatically opening [MiniLyrics](https://minilyrics.en.softonic.com/)'s lyric editor window. All the user has to do is paste and save.
 
-
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -308,6 +312,8 @@ Marks lyric file with approval/disapproval so that we can pre-approve lyric file
 ### 🌟 [approve-subtitles / approve-subtitle-file {subtitle_file}](../BAT-and-UTIL-files-1/approve-subtitle-file.bat) / [disapprove-subtitles / disapprove-subtitle-file {subtitle_file}](../BAT-and-UTIL-files-1/disapprove-subtitle-file.bat):
 
 Same as above but for karaoke files.
+
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -338,6 +344,7 @@ Put ```{{{{QUOTE}}}}``` in the argument to turn it into a quote mark in the fina
 Display each *unique* line in a file. Much like the ```uniq``` command except that no pre-sorting is required.
 [Also has postprocessor functionality listed below]
 
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -362,6 +369,8 @@ A lyric postprocessor that removes tons of junk from downloaded lyrics, only sho
 
 A subtitle postprocessor that removes periods from end of each line in a subtitle. Preserves periods for words like "Mr."
 We add "invisible" periods to the end of each line of lyrics so that WhisperAI's ```--sentence``` option works better. We then remove these periods (making them "invisible") afterward, because they are ugly.  Also has a side effect of de-censoring some curse words, which can be suppressed with the ```--leave-censorship``` or ```-L``` option.
+
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -490,7 +499,7 @@ For [winamp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-win
 For [winamp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) integration only. Changes current folder to same folder that the song we are listening to is in.  (The change-folder script is actually generated by [edit-currently-playing-attrib.bat](../BAT-and-UTIL-files-1/edit-currently-playing-attrib.bat))
 
 &nbsp;
-<
+</details>
 
 🏁🏁🏁🔚
 
