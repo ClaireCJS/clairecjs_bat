@@ -17,6 +17,8 @@
 
 📑 *Karaoke Files*: 📑 We generally call both ```SRT files``` and ```LRC files``` "karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates ```SRT``` files, but includes a batch converter that converts ```SRT``` to ```LRC```.
 
+&nbsp;
+
 🏎 *Sidecar Files*: 🏎 A file of the *same* name, but *different* extension.
 
 For example, ```filename.mp3``` might have a sidecar file named ```filename.txt```, which would typically be lyrics for a song, and a sidecar file named ```filename.jpg```, which would typically be the cover art to the song.  
@@ -499,6 +501,10 @@ For [winamp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-win
 
 &nbsp;
 </details>
+
+
+
+![image](https://github.com/user-attachments/assets/9abdb1a5-c50a-424c-b151-144046fedd93)
 
 🏁🏁🏁🔚
 
