@@ -45,9 +45,9 @@
 git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` 
 mv BAT-and-UTIL-files-1 c:\bat\
 set path=%path%;c:\bat\
-copy c:\bat\tcstart.bat c:\tcmd\tcstart.bat
-copy c:\bat\alias.lst   c:\tcmd\alias.lst
-
+copy c:\bat\tcmd.ini.bat c:\tcmd\tcmd.ini
+copy c:\bat\tcstart.bat  c:\tcmd\tcstart.bat
+copy c:\bat\alias.lst    c:\tcmd\alias.lst
 ``` 
 &nbsp;
 
