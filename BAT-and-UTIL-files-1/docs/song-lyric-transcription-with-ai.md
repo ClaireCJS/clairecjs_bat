@@ -21,7 +21,9 @@
 
 <details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
   
-&nbsp;  
+ &nbsp; 
+
+  &nbsp; 
   
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL).
     - The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your ```path```.
@@ -42,14 +44,15 @@
 3. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
     - Technically you probably only need about 100 of these files.  
     - This folder has it's own ```sort``` and ```uniq``` executables (from [Cygwin](https://www.cygwin.com)) to ensure consistency
-    - To install: ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/
+    - To install: 
+```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/
 mv BAT-and-UTIL-files-1 c:\bat\
 set path=%path%;c:\bat\
 copy c:\bat\tcmd.ini.bat c:\tcmd\tcmd.ini
 copy c:\bat\tcstart.bat  c:\tcmd\tcstart.bat
 copy c:\bat\alias.lst    c:\tcmd\alias.lst``` 
 
-4. ☯️ Optional: For [automatic cleanup of leftover AI files across an entire computer](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files)
+4. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
     - Always be running  the ```Everything``` service, which comes with TakeCommand ([TCC](https://jpsoft.com/all-downloads/all-downloads.html))
     - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn't start automatically. 
 
