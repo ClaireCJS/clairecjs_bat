@@ -435,6 +435,7 @@
 2024-11-25  15:56         11,948   67%  get-current-song-playing.pl
 2024-10-10  11:49            422   49%  get-currently-playing-tracknum-from-wawi-index_html.pl
 2024-11-19  07:47            567   58%  get-image-dimensions.bat
+2024-12-05  21:26             48   -4%  get-karaoke.bat
 2024-11-19  07:47            197   35%  get-lyrics-for-all-songs-in-this-folder.bat
 2024-11-11  16:33            418   42%  get-lyrics-for-currently-playing-song.bat
 2024-11-25  23:39            932   52%  get-lyrics-for-playlist.bat
@@ -445,6 +446,7 @@
 2024-11-23  23:44             64   -3%  get-lyrics-with-lyricsgenius.bat
 2024-11-11  16:33            186   39%  get-lyrics.bat
 2024-10-18  12:53          4,561   67%  get-meat-from-mp3-filename.pl
+2024-12-05  21:26             48   -4%  get-missing-karaoke.bat
 2024-11-26  00:19             34   -5%  get-missing-lyrics-here.bat
 2024-11-27  18:06             34   -5%  get-missing-lyrics.bat
 2024-12-03  14:13          4,795   65%  get-winamp-state.bat
