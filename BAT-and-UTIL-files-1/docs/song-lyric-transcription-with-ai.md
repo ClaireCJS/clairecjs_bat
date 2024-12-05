@@ -29,10 +29,10 @@
 1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
     - Install TCC:
         - either from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
-        - or via *WinGet* with the command ```winget install JPSoft.tcmd```.  
-          - install *WinGet* via *PowerShell* with command ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` 
+        - or via *WinGet* with the command ```winget install JPSoft.tcmd```
+          - No *WinGet*? Install it in *PowerShell* with the command ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` 
           - or with command ```Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe```
-    - Make ```c:\TCMD``` point to our TCC installation via the command:
+    - Make ```c:\TCMD``` point to our [TCC](https://jpsoft.com/all-downloads/all-downloads.html) installation via the command:
           - ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
 	  - The folder ```TCMD31``` may vary depending on what version of [TCC](https://jpsoft.com/all-downloads/all-downloads.html) is current.
 &nbsp;
