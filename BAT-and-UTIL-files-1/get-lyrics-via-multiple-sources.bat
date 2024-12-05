@@ -1,4 +1,7 @@
-@Echo Off
+@Echo On
+
+rem TODO "DO these lyrics we already have look acceptable" should not be asked if they are already approved.
+
 rem TODO: if cover song search fails, try with *current* artist instead of original artist
 rem       this will also help with songs that AREN'T covers but have composers.
 rem  So we will have to make a using_original flag that says if we flipped from artist to composer, and then if 
