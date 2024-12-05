@@ -19,7 +19,7 @@
 
 ## ⚙️ Requirements: ⚙️
 
-<details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
+<!--<details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>   -->
   
   
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL).
@@ -65,7 +65,7 @@ set path=%path%;c:\bat\
 
 &nbsp;
 
-</details>
+<!-- </details> -->
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------
