@@ -109,7 +109,7 @@ Generally speaking, it will be: ```create-srt audio_file.mp3``` or ```create-mis
 🍀 Two lesser types of commands exist for this system:
 
   1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
-  1. ⚙️ Subordinate commands (under-the-hood stuff not generally invoked directly)
+  1. ⚙️ Subordinate commands (*under-the-hood* stuff not generally invoked directly)
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -318,7 +318,7 @@ Same as above but for karaoke files.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# 👉👉 Under-The-Hood: Non-Project-Specific utility commands:
+# 👉👉 *Under-The-Hood*: Non-Project-Specific utility commands:
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
@@ -350,7 +350,7 @@ Display each *unique* line in a file. Much like the ```uniq``` command except th
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# 👉👉 Under-The-Hood: Pre/Post-Processor Utility Commands:
+# 👉👉 *Under-The-Hood*: Pre/Post-Processor Utility Commands:
 
 Pre/Postprocessors developed for this project.
 
@@ -375,7 +375,7 @@ We add "invisible" periods to the end of each line of lyrics so that WhisperAI's
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# 👉👉 Under-The-Hood: Existing commands also used by this system:
+# 👉👉 *Under-The-Hood*: Existing commands also used by this system:
 
 Various commands that were already a part of my "Clairevironment".
 
