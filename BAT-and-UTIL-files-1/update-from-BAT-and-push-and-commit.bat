@@ -198,6 +198,7 @@ rem Make sure they're all added —— any new extensions that we add to our pro
 
 rem Make file readonly again:
         rem echo 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        echo.
         gosub setAttribs "+r"
         
 rem Commit and Push:

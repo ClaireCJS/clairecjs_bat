@@ -19,7 +19,7 @@
 
 ## ⚙️ Requirements: ⚙️
 
-<!--<details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>   -->
+<details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
   
   
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL).
@@ -27,8 +27,6 @@
 &nbsp;    
 
 1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
-<details>
-<summary>[Detailed TCC install instructions]</summary>
     1. Install TCC
       - from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
       - Via *WinGet*: ```winget install JPSoft.tcmd```.  
@@ -37,7 +35,6 @@
     2. Make ```c:\TCMD``` point to our TCC installation via the command:
         - ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
 	- The folder ```TCMD31``` may vary depending on what version of TCC is current.
-</details>	
 &nbsp;
 
 1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
@@ -48,6 +45,9 @@
 git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` 
 mv BAT-and-UTIL-files-1 c:\bat\
 set path=%path%;c:\bat\
+copy c:\bat\tcstart.bat c:\tcmd\tcstart.bat
+copy c:\bat\alias.lst   c:\tcmd\alias.lst
+
 ``` 
 &nbsp;
 
@@ -60,12 +60,12 @@ set path=%path%;c:\bat\
 
 1. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration:
     - install the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile)
-    - configured the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. 
+    - configure the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. 
     - This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on "whatever song we are currently listening to". 🦙
 
 &nbsp;
 
-<!-- </details> -->
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------
