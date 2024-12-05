@@ -114,7 +114,7 @@ Generally, speaking, it will be: ```create-srt audio_file.mp3``` or
 These commands manage the lyric files which we download to improve transcription accuracy.
 
 
-### 🌟 [get-lyrics {songfile} / get-lyrics-for-song {songfile} / get-lyrics-via-multiple-sources {songfile}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
+### 🌟 [get-lyrics {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
 
 Obtains the lyrics for a particular song file. 
 - These transcriptions work **much** better when you have a lyric set. 
@@ -156,7 +156,7 @@ To have this happen automatically when changing into a folder,  ```alias cd=call
 
 These commands creates the karaoke files that are the primary goal of this project! 🎈
 
-### 🌟 create-srt {songfile} / [create-srt-from-file {songfile}](../BAT-and-UTIL-files-1/create-srt-from-file.bat):
+### 🌟 create-srt {*songfile*} / [create-srt-from-file {*songfile*}](../BAT-and-UTIL-files-1/create-srt-from-file.bat):
 
 Create karaoke for one audio file. 
 Performs the AI transcription process for a single song file.
