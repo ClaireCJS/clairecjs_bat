@@ -352,6 +352,8 @@ rem Check if we already have a TXT file in the same folder and shouldn't even be
                            (type "%PREFERRED_TEXT_FILE_NAME%" |:u8 unique-lines -A -L) |:u8 print-with-columns
                         @call divider
 
+                rem Check if the lyrics have been pre-approved already:
+
                 rem Ask if the lyrics are good:
                         call AskYn "%conceal_on%1%conceal_off%Do these lyrics %italics_on%we already have%italics_off% look acceptable" %LRYIC_ACCEPTANCE_PROMPT_TO_USE%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_TO_USE%
                         
