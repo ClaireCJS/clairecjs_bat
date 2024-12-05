@@ -11,13 +11,16 @@
 
 ## 📓 Terminology: 📓
 
+<details><summary>Click here to view full definitions of *karaoke files* and *sidecar files*</summary>  
+
 📑 *Karaoke Files*: 📑 We generally call both ```SRT files``` and ```LRC files``` "karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates ```SRT``` files, but includes a batch converter that converts ```SRT``` to ```LRC```.
 
 🏎 *Sidecar Files*: 🏎 A file of the *same* name, but *different* extension. For example, ```filename.mp3``` might have a sidecar file named ```filename.txt```, which would typically be lyrics for a song, and a sidecar file named ```filename.jpg```, which would typically be the cover art to the song.  Another example is when a program like ```whatever.exe``` has a ```whatever.ini`` *INI file* for its settings; That *INI* file is a sidecar file the *EXE* file. 
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# ⚙️ Requirements: ⚙️
+# [ ] ⚙️ Requirements: ⚙️
 
 <details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
   
