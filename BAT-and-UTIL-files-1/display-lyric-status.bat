@@ -5,21 +5,23 @@ rem Set our lyric filemask:
         set FILEMASK_LYRICS_TEMP=*.txt
 
 rem If we passed a parameter, we are operating on a single file:
+        iff "%1" eq "/?" then
+                %color_advice%
+                echo %ansi_color_advice%
+                echo    display-lyric-status {lyric_file.txt}        - displays lyric status for 1 file
+                echo    display-lyric-status {lyric_file.txt} silent - displays lyric status for 1 file silently 
+                echo                                                   `^^^^^^^^^^^^^^^^^^^^^` sets LYRIC_STATUS={status value} as a return value
+                echo    display-lyric-status     {*frog*.txt}        - displays lyric status for files matching filecard
+                echo    display-lyric-status                         - displays lyric status for all files
+                %color_normal%
+                echos %ansi_reset%
+                goto :END
+        endiff
         iff "%1" ne "" then
                 rem When operating on a single file, make sure it is the correct extension prior to displaying the lyrics:
                         call validate-is-extension %1 %FILEMASK_LYRICS_TEMP% "1ˢᵗ arg must be a file that matches '%italics_on%%FILEMASK_LYRICS_TEMP%%italics_off%'"
                         call display-lyric-status-for-file %*
                         goto :END
-        endiff
-        iff "%1" eq "/?" then
-                %color_advice%
-                echos %ansi_color_advice%
-                echo    display-lyric-status {lyric_file.txt}        - displays lyric status for 1 file
-                echo    display-lyric-status {lyric_file.txt} silent - displays lyric status for 1 file
-                echo    display-lyric-status     {*frog*.txt}        - displays lyric status for files matching filecard
-                echo    display-lyric-status                         - displays lyric status for all files
-                %color_normal%
-                echos %ansi_reset%
         endiff
 
 rem Make sure some important environment variables actually exist:
