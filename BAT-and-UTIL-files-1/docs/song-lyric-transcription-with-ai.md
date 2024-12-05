@@ -362,12 +362,16 @@ The lyric downloader we use for Genius saves lyrics as a ```JSON file```. This e
 
 ### 🌟 [unique-lines.pl](../BAT-and-UTIL-files-1/unique-lines.pl):
 
-A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI's 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a spiritual fork of ``uniq``` that doesn't require file sorting, and grew into full-fledged lyric preprocessor.
+A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI's 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a spiritual fork of ``uniq``` that doesn't require file sorting (to avoid using up the 224 max tokens for WhisperAI with repeating lyrics), and grew into full-fledged lyric preprocessor that does much lyric massaging. Including putting a period at the end of each line, which is later removed by our subtitle postprocessor.
 
 
 ### 🌟 [remove-period-at-ends-of-lines.pl](../BAT-and-UTIL-files-1/remove-period-at-ends-of-lines.pl):
 
-A subtitle postprocessor that removes periods from end of each line in a subtitle. Preserves periods for words like "Mr."
+The final subtitle postprocessor, which removes periods from end of each line in a subtitle. 
+
+Thep eriods
+
+Preserves periods for words like "Mr."
 We add "invisible" periods to the end of each line of lyrics so that WhisperAI's ```--sentence``` option works better. We then remove these periods (making them "invisible") afterward, because they are ugly.  Also has a side effect of de-censoring some curse words, which can be suppressed with the ```--leave-censorship``` or ```-L``` option.
 
 </details>
