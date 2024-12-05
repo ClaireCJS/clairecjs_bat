@@ -21,11 +21,14 @@
 
 <details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
   
+  
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL).
     - The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your ```path```.
 &nbsp;    
 
 1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
+<details>
+<summary>[Detailed TCC install instructions]</summary>
     1. Install TCC
       - from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
       - Via *WinGet*: ```winget install JPSoft.tcmd```.  
@@ -34,6 +37,7 @@
     2. Make ```c:\TCMD``` point to our TCC installation via the command:
         - ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
 	- The folder ```TCMD31``` may vary depending on what version of TCC is current.
+</details>	
 &nbsp;
 
 1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
