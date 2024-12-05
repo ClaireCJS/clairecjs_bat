@@ -21,13 +21,14 @@
 
 <details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
   
+&nbsp;  
   
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL).
     - The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your ```path```.
 
 &nbsp;    
 
-1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
+2. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
     - Install TCC:
         - either from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
         - or via *WinGet* with the command ```winget install JPSoft.tcmd```
@@ -38,7 +39,7 @@
       - The folder ```TCMD31``` may vary depending on what version of [TCC](https://jpsoft.com/all-downloads/all-downloads.html) is current.
       &nbsp;
 
-1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
+3. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
     - Technically you probably only need about 100 of these files.  
     - This folder has it's own ```sort``` and ```uniq``` executables (from [Cygwin](https://www.cygwin.com)) to ensure consistency
     - To install: ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/
@@ -48,13 +49,13 @@ copy c:\bat\tcmd.ini.bat c:\tcmd\tcmd.ini
 copy c:\bat\tcstart.bat  c:\tcmd\tcstart.bat
 copy c:\bat\alias.lst    c:\tcmd\alias.lst``` 
 
-1. ☯️ Optional: For [automatic cleanup of leftover AI files across an entire computer](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files)
+4. ☯️ Optional: For [automatic cleanup of leftover AI files across an entire computer](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files)
     - Always be running  the ```Everything``` service, which comes with TakeCommand ([TCC](https://jpsoft.com/all-downloads/all-downloads.html))
     - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn't start automatically. 
 
 &nbsp;
 
-1. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration:
+5. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration:
     - Install the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile)
     - Configure the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. 
     - This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on "whatever song we are currently listening to" from any computer in the household. 🦙
