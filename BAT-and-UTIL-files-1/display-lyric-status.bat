@@ -11,12 +11,14 @@ rem If we passed a parameter, we are operating on a single file:
                         call display-lyric-status-for-file %*
                         goto :END
         endiff
-        if "%1" eq "" then
-                text
-                        display-lyric-status {lyric_file.txt} —— displays lyric status for 1 file
-                        display-lyric-status     {*frog*.txt} —— displays lyric status for files matching filecard
-                        display-lyric-status                  —— displays lyric status for all files
-                endtext
+        iff "%1" eq "/?" then
+                %color_advice%
+                echos %ansi_color_advice%
+                echo    display-lyric-status {lyric_file.txt} -- displays lyric status for 1 file
+                echo    display-lyric-status     {*frog*.txt} -- displays lyric status for files matching filecard
+                echo    display-lyric-status                  -- displays lyric status for all files
+                %color_normal%
+                echos %ansi_reset%
         endiff
 
 rem Make sure some important environment variables actually exist:
