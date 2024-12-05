@@ -22,35 +22,42 @@
 <details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
   
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL).
-    - The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your path.
+    - The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your ```path```.
 &nbsp;    
 
 1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
-    - You want to ```mklink c:\TCMD "c:\Program Files\TCMD31"``` or whatever folder you installed TCC/TCMD into — So that ```c:\TCMD``` points to your installation.
-    - You can also install TCC in a more automated fashion with Winget via the command: 
-      - ```winget install JPSoft.tcmd```.  
-    - If you don't have WinGet, try grabbing WinGet with the command:
-      - ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` run from within *PowerShell*.  
-    - Or if that doesn't work:
-      - ```Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe```.
+    1. Install TCC
+      - from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
+      - Via *WinGet*: ```winget install JPSoft.tcmd```.  
+        - install *WinGet* via *PowerShell* with command ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` 
+        - or with command ```Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe```
+    2. Make ```c:\TCMD``` point to our TCC installation via the command:
+        - ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
+	- The folder ```TCMD31``` may vary depending on what version of TCC is current.
 &nbsp;
 
 1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
     - Technically you probably only need about 100 of these files.  
     - This folder has it's own ```sort``` and ```uniq``` executables (from [Cygwin](https://www.cygwin.com)) to ensure consistency
     - To install:
-      - ```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` 
-      - Move the ```BAT-and-UTIL-files``` folder (#1, not #2) into ```c:\bat\``` 
-      - Ensure that ```c:\bat\``` comes first in your ```path```
-        -   possibly by running ```c:\bat\setpath.bat``` 
-        - definitely by running ```set path=%path%;c:\bat\``` 
+```    
+git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` 
+mv BAT-and-UTIL-files-1 c:\bat\
+set path=%path%;c:\bat\
+``` 
 &nbsp;
 
-1. ☯️ Optional: For [automatic cleanup of leftover AI files across an entire computer](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files), you will need to be running  the ```Everything``` service. It comes with TakeCommand (TCC). (Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn't start automatically. Recommended best practice is to do this in your ```autoexec.bat``` or equivalent post-bootup script.)
+1. ☯️ Optional: For [automatic cleanup of leftover AI files across an entire computer](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files)
+    - Always be running  the ```Everything``` service
+    - It comes with TakeCommand (TCC)
+    - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn't start automatically. 
 
 &nbsp;
 
-1. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration: The [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile), configured so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on "whatever song we are currently listening to". 🦙
+1. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration:
+    - install the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile)
+    - configured the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. 
+    - This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on "whatever song we are currently listening to". 🦙
 
 &nbsp;
 
