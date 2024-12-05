@@ -109,7 +109,7 @@ Generally, speaking, it will be: ```create-srt audio_file.mp3``` or
 -----------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# *Lyric Alignment* commands:
+# 👉👉👉 *Lyric Alignment* commands:
 
 These commands manage the lyric files which we download to improve transcription accuracy.
 
@@ -152,7 +152,7 @@ To have this happen automatically when changing into a folder,  ```alias cd=call
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# *Karaoke Generation* commands:
+# 👉👉👉 *Karaoke Generation* commands:
 
 These commands creates the karaoke files that are the primary goal of this project! 🎈
 
@@ -190,7 +190,7 @@ Rarely used side-utility: Creates karaoke files for all songs in a *folder tree*
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# *Auditing Commands* for *Lyrics*:
+# 👉👉👉 *Auditing Commands* for *Lyrics*:
 
 These commands find & obtain missing lyric files.
 
@@ -214,7 +214,7 @@ Displays a list of files in a *playlist* which are missing *approved lyric* file
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# *Auditing Commands* for *Karaoke*:
+# 👉👉👉 *Auditing Commands* for *Karaoke*:
 
 These commands find & obtain missing karaoke files.
 
@@ -248,7 +248,7 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# ⚡️ *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 Integration* Commands:
+# 👉👉👉 ⚡️ *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 Integration* Commands:
 
 These commands allows us to operate on "the song we are currently listening to" rather than a specific file or playlist.
 
@@ -270,7 +270,7 @@ In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# *Under-The-Hood*: Project-Specific Utility Commands 
+# 👉👉 *Under-The-Hood*: Project-Specific Utility Commands 
 
 Other important commands specific to this project.
 
@@ -296,7 +296,7 @@ Same as above but for karaoke files.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# Under-The-Hood: Non-Project-Specific utility commands:
+# 👉👉 Under-The-Hood: Non-Project-Specific utility commands:
 
 ### 🌟 [print_with_columns.py](../BAT-and-UTIL-files-1/print_with_columns.py) / [newspaper.bat](../BAT-and-UTIL-files-1/newspaper.bat):
 
@@ -325,7 +325,7 @@ Display each *unique* line in a file. Much like the ```uniq``` command except th
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# Under-The-Hood: Pre/Post-Processor Utility Commands:
+# 👉👉 Under-The-Hood: Pre/Post-Processor Utility Commands:
 
 Pre/Postprocessors developed for this project.
 
@@ -346,7 +346,7 @@ We add "invisible" periods to the end of each line of lyrics so that WhisperAI's
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# Under-The-Hood: Existing commands also used by this system:
+# 👉👉 Under-The-Hood: Existing commands also used by this system:
 
 Various commands that were already a part of my "Clairevironment".
 
@@ -356,7 +356,6 @@ Various commands that were already a part of my "Clairevironment".
 A cosmetic postprocessor which employes ANSI color-cycling to inbue a psychedelic effect onto text by cycling the colors of the primary text color through the visible spectrum. Originally written to postprocess the output to the ```move``` and ```copy``` commands, with a mode added explicitly for postprocessing Whisper's output into something waaaay more visually interesting.
 
 Uses my [claire_console.py](../BAT-and-UTIL-files-1/clairecjs_utils/claire_console.py) library to achieve the color-cycling.
-
 
 
 ### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
@@ -383,7 +382,6 @@ Scrambles the lines of STDIN.  One could think of it as shuffling/randomizing a 
 Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us having to check EVERY file for non-zero-ness.
 
 
-
 ### 🌟 [print-message.bat](../BAT-and-UTIL-files-1/print-message.bat):
 
 The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat), [debug.bat](../BAT-and-UTIL-files-1/debug.bat), [error.bat](../BAT-and-UTIL-files-1/error.bat), [fatal_error.bat](../BAT-and-UTIL-files-1/fatalerror.bat), [success.bat](../BAT-and-UTIL-files-1/success.bat), [celebration.bat](../BAT-and-UTIL-files-1/celebration.bat), [important.bat](../BAT-and-UTIL-files-1/important.bat), [important_less.bat](../BAT-and-UTIL-files-1/important_less.bat), [advice](../BAT-and-UTIL-files-1/advice.bat), [unimportant](../BAT-and-UTIL-files-1/unimportant.bat), etc)
@@ -392,7 +390,6 @@ The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat)
 ### 🌟 [add-ADS-tag-to-file.bat](../BAT-and-UTIL-files-1/add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/remove-ADS-tag-from-file.bat) / [display-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/display-ADS-tag-from-file.bat):
 
 Commands for displaying tags, and for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs). Used for lyric [dis]approval.
-
 
 
 ### 🌟 [validate-environment-variables {list of env-var names}](../BAT-and-UTIL-files-1/validate-environment-variable.bat):
