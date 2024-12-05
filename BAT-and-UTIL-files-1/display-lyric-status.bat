@@ -10,6 +10,10 @@ rem If we passed a parameter, we are operating on a single file:
                         call validate-is-extension %1 %FILEMASK_LYRICS_TEMP% "1ˢᵗ arg must be a file that matches '%italics_on%%FILEMASK_LYRICS_TEMP%%italics_off%'"
                         call display-lyric-status-for-file %*
                         goto :END
+        else
+        text
+                display-lyric-status {lyric_file.txt} ——
+        endtext
         endiff
 
 rem Make sure some important environment variables actually exist:
