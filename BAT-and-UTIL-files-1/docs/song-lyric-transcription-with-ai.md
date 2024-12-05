@@ -87,12 +87,12 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst```
   1. 🕵 Auditing commands for lyrics  (to find files that do not have approved lyrics)
   1. 🕵 Auditing commands for karaoke (to find files that do not have approved karaoke/subtitle files)
   1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
-  1. ⚙️ Subordinate commands (under the hood stuff not generally invokved directly)
+  1. ⚙️ Subordinate commands (under the hood stuff not generally invoked directly)
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# Lyric Alignment commands:
+# *Lyric Alignment* commands:
 
 These commands manage the lyric files that are used to improve prompt accuracy.
 
@@ -124,7 +124,7 @@ To have this happen automatically when changing into a folder,  ```alias cd=call
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# Karaoke Generation commands:
+# *Karaoke Generation* commands:
 
 These commands creates the karaoke files that are the primary goal of this project!
 
@@ -155,7 +155,7 @@ Rarely used, but: Creates karaoke files for all songs in a *folder tree* without
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# Auditing Commands for Lyrics:
+# *Auditing Commands* for *Lyrics*:
 
 These commands find & obtain missing lyric files.
 
@@ -179,7 +179,7 @@ Displays a list of files in a *playlist* which are missing *approved lyric* file
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# Auditing Commands for Karaoke:
+# *Auditing Commands* for *Karaoke:
 
 These commands find & obtain missing karaoke files.
 
