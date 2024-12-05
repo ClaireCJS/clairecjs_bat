@@ -26,7 +26,7 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# [ ] ✔️ Requirements: ✔️
+# ✔️ Requirements: ✔️
 
 <details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
   
@@ -357,15 +357,18 @@ A cosmetic postprocessor which employes ANSI color-cycling to inbue a psychedeli
 
 Uses my [claire_console.py](../BAT-and-UTIL-files-1/clairecjs_utils/claire_console.py) library to achieve the color-cycling.
 
-
-### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
-
-The Yes/No prompting system with automatic-default-answer prompt timeouts.
+&nbsp;
 
 
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
 Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/dividers/) to separate out output into sections.
+
+
+### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
+
+The Yes/No prompting system with automatic-default-answer prompt timeouts.
+
 
 ### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):
 
@@ -381,21 +384,24 @@ Scrambles the lines of STDIN.  One could think of it as shuffling/randomizing a 
 
 Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us having to check EVERY file for non-zero-ness.
 
+&nbsp;
 
 ### 🌟 [print-message.bat](../BAT-and-UTIL-files-1/print-message.bat):
 
 The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat), [debug.bat](../BAT-and-UTIL-files-1/debug.bat), [error.bat](../BAT-and-UTIL-files-1/error.bat), [fatal_error.bat](../BAT-and-UTIL-files-1/fatalerror.bat), [success.bat](../BAT-and-UTIL-files-1/success.bat), [celebration.bat](../BAT-and-UTIL-files-1/celebration.bat), [important.bat](../BAT-and-UTIL-files-1/important.bat), [important_less.bat](../BAT-and-UTIL-files-1/important_less.bat), [advice](../BAT-and-UTIL-files-1/advice.bat), [unimportant](../BAT-and-UTIL-files-1/unimportant.bat), etc)
+
+&nbsp;
 
 
 ### 🌟 [add-ADS-tag-to-file.bat](../BAT-and-UTIL-files-1/add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/remove-ADS-tag-from-file.bat) / [display-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/display-ADS-tag-from-file.bat):
 
 Commands for displaying tags, and for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs). Used for lyric [dis]approval.
 
+&nbsp;
 
 ### 🌟 [validate-environment-variables {list of env-var names}](../BAT-and-UTIL-files-1/validate-environment-variable.bat):
 
 Validates whether environment variables (and the files they point to!) exist.
-
 
 ### 🌟 [validate-in-path {list of commands}](../BAT-and-UTIL-files-1/validate-in-path.bat):
 
@@ -411,11 +417,7 @@ Validates whether a file has an acceptable file extension.
 
 Validates whether a TCC user %@function is defined or not
 
-
-### 🌟 [bigecho.bat](../BAT-and-UTIL-files-1/bigecho.bat):
-
-Echos, but in VT100-double-heighttext.
-
+&nbsp;
 
 ### 🌟 [set-ansi.bat](../BAT-and-UTIL-files-1/set-ansi.bat):
 
@@ -425,6 +427,11 @@ Sets all the ansi codes we know to exist.
 ### 🌟 [set-emojis.bat](../BAT-and-UTIL-files-1/set-emojis.bat):
 
 Sets all the emoji we care to set, using the [emoji.env](../BAT-and-UTIL-files-1/emoji.env) file to add new emoji.
+
+### 🌟 [bigecho.bat](../BAT-and-UTIL-files-1/bigecho.bat):
+
+Echos, but in VT100-double-heighttext. Requires ```set-ansi```.
+
 
 &nbsp;
 
@@ -465,5 +472,5 @@ For [winamp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-win
 &nbsp;
 
 
-🏁🔚
+🏁🏁🏁🔚
 
