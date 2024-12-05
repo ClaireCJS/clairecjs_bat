@@ -173,12 +173,12 @@ If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/30666
 Create karaoke files for all songs *in the current folder* that do not have them
 
 
-### 🌟 TODO [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat):
+### 🌟 ❗TODO❗ [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat):
 
 Create karaoke files for all songs *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. (In random order, to prevent alphabetical bias.)
 
 
-### 🌟 TODO create-karaoke-automatically-from-approved-lyrics.bat {folder to recurse through]:
+### 🌟 ❗TODO❗ create-karaoke-automatically-from-approved-lyrics.bat {folder to recurse through]:
 
 Create karaoke files for all songs in a *folder tree* that do not have them, as long as their lyric file has been previously approved. This is intended so one can spend 100% of time aligning/approving lyrics (i.e. with ```get-lyrics-for-playlist.bat```), then go to bed and run this to generate everything that has pre-approved lyrics, saving the karaoke generation for another time (like when you are asleep). 
 
