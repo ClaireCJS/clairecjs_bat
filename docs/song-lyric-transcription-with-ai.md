@@ -158,7 +158,7 @@ These commands creates the karaoke files that are the primary goal of this proje
 
 ### 🌟 create-srt {*songfile*} / [create-srt-from-file {*songfile*}](../BAT-and-UTIL-files-1/create-srt-from-file.bat):
 
-Create karaoke for one audio file. 
+**Create karaoke for one audio file.**
 Performs the AI transcription process for a single song file.
 Run without parameters to see various options, including but not limited to  ```ai``` (skips the lyrics component), ```fast``` (shortens prompt timer lengths), ```force``` (generate it even if it already exists), and ```LyricsApproved``` (consider all lyric files to be pre-approved even if not explicitly marked as such).
 
