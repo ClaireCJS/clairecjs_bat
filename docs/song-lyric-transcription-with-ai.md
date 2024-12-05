@@ -24,6 +24,7 @@
   
 1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL).
     - The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your ```path```.
+
 &nbsp;    
 
 1. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
@@ -33,14 +34,16 @@
           - No *WinGet*? Install it in *PowerShell* with the command ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` 
           - or with command ```Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe```
     - Make ```c:\TCMD``` point to our [TCC](https://jpsoft.com/all-downloads/all-downloads.html) installation:
-      - via the command ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
+      - via the command: ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
       - The folder ```TCMD31``` may vary depending on what version of [TCC](https://jpsoft.com/all-downloads/all-downloads.html) is current.
+      
 &nbsp;
 
 1. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
     - Technically you probably only need about 100 of these files.  
     - This folder has it's own ```sort``` and ```uniq``` executables (from [Cygwin](https://www.cygwin.com)) to ensure consistency
-    - To install:```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` 
+    - To install:
+```git.exe clone https://github.com/ClaireCJS/clairecjs_bat/``` 
 mv BAT-and-UTIL-files-1 c:\bat\
 set path=%path%;c:\bat\
 copy c:\bat\tcmd.ini.bat c:\tcmd\tcmd.ini
