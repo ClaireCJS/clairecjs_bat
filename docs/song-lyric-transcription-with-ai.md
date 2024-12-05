@@ -87,7 +87,7 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 From a running TCC command line, use whatever system commands you'd like from the list below.
 
-Generally, speaking, it will be: ```create-srt audio_file.mp3``` or 
+Generally speaking, it will be: ```create-srt audio_file.mp3``` or ```create-missing-karaoke``` or ```get-lyrics``.
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
