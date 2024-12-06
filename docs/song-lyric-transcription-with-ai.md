@@ -406,7 +406,7 @@ Used in this project for ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/win
 </details>
 
 
-<details><summary>Pre-rende.</summary>  
+<details><summary>horizontal dividers, pre-rendered beautiful rainbow</summary>  
 
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
