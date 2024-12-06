@@ -1,3 +1,14 @@
+<style>
+  .hover-zoom {
+    display: inline-block;
+    width: 40%;
+    transition: transform 0.3s ease;
+  }
+  .hover-zoom:hover {
+    transform: scale(2.5); /* Scale to original size */
+  }
+</style>
+
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
 ## ✨ Goals: ✨
@@ -579,6 +590,7 @@ Quote conversion offloaded into python script to avoid command-line complication
 Prints a list of all audio files (mp3, flac, wav, etc).
 Technically should be called “```audio_file_index.bat```”. 
 ![image](https://github.com/user-attachments/assets/7a1262a5-66bf-445d-b611-cd936035b93b)
+<img src="https://github.com/user-attachments/assets/7a1262a5-66bf-445d-b611-cd936035b93b" class="hover-zoom">
 &nbsp;
 
 </details>
