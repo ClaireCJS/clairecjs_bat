@@ -38,16 +38,10 @@ But here are the proper instructions:
 	The first command allows for better TCC<->PowerShell integration (particularly for my [display bluetooth battery levels](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/display-bluetooth-battery-levels.ps1) script)
 	The second  command installs winget, which is used to automate most other installation.
 
-1. Install TCC: The automatic way:  Simply run: ```winget install JPSoft.tcmd```
-
-1. Install TCC: The manual way: 
-   Download TCC (Take Command command-line) from [http://www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of ```c:\TCMD\```. DON'T run it just yet.  
-
-1. Install TCC: Another way:
-   As above, but download with ```curl```:
-```
-curl.exe -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0" -O https://jpsoft.com/downloads/v33/tcmd.exe
-```
+1. Install TCC: 
+    - The automatic way:  Simply run: ```winget install JPSoft.tcmd```
+    - The manual way: Download TCC (Take Command command-line) from [http://www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of ```c:\TCMD\```. DON'T run it just yet.  
+    - The worst way: ```url.exe -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0" -O https://jpsoft.com/downloads/v33/tcmd.exe```
 
 1. Open TCC (```c:\TCMD\tcc.exe```). Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/clairevironment-install.bat), and run it inside of TCC.  Follow its instructions and pay close close close attention. You may have to abort it and fix things along the way. This part hasn't been tested.
 
