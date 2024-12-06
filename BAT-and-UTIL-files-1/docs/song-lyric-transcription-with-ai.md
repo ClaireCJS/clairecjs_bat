@@ -444,14 +444,13 @@ This method was used becuase API calls would limit us to only using this on the 
 <span style="color:red;">═</span><span style="color:orange;">═</span><span style="color:yellow;">═</span><span style="color:green;">═</span><span style="color:blue;">═</span><span style="color:purple;">═</span><span style="color:magenta;">═</span>
 
 $\textcolor{red}{\textsf{Red}}$ 
-$\textcolor{red}{\textsf{Orange}}$ 
-$\textcolor{red}{\textsf{Red}}$ 
+$\textcolor{orange}{\textsf{Orange}}$ 
+$\textcolor{Yellow}{\textsf{Yellow}}$ 
 
 $${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
 
-$${\color{red}Welcome \color{lightblue}To \color{orange}Stackoverflow}$$
 
-${\color{red}Welcome \color{lightblue}To \color{orange}Stackoverflow}$
+═
 
 Highlights information that users should take into account, even when skimming.
 
