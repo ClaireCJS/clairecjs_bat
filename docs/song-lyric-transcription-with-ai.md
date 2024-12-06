@@ -442,7 +442,7 @@ This method was used becuase API calls would limit us to only using this on the 
 
 
 
-$\textcolor{red}{\textsf{pre}}$%$\textcolor{orange}{\textsf{-re}}$%
+$\textcolor{red}{\textsf{pre}}$$\textcolor{orange}{\textsf{-re}}$%
 $\textcolor{yellow}{\textsf{nde}}$%
 $\textcolor{lime}{\textsf{red}}$%
 $\textcolor{green}{\textsf{ rai}}$
