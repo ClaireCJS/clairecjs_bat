@@ -481,23 +481,31 @@ Validates whether a TCC user %@function is defined or not
 
 
 
-<details><summary>Visual Layer (ansi / űńîçődĕ / emoji functions)</summary>  
+<details><summary>Visual Layer (ansi / űńîçőḑѐ / emoji functions)</summary>  
+
+### 🌟 [bigecho.bat](../BAT-and-UTIL-files-1/bigecho.bat):
+
+Echos text in double-height (using VT100 double-height ANSI codes). Requires ```set-ansi```.
+
 ### 🌟 [set-ansi.bat](../BAT-and-UTIL-files-1/set-ansi.bat):
 
-Sets envirionment variables (or user functions) for all the ansi codes we know to exist, as well as for our messaging system ([print-message.bat](../BAT-and-UTIL-files-1/print-message.bat)).
+Sets envirionment variables (or user functions) for all the ansi codes we know to exist, as well as for our messaging system ([print-message.bat](../BAT-and-UTIL-files-1/print-message.bat)). Read the VT100 and VT220 manuals all the way through for this.
 
 ### 🌟 [set-emojis.bat](../BAT-and-UTIL-files-1/set-emojis.bat):
 
 Sets all the emoji we care to set, using the [emoji.env](../BAT-and-UTIL-files-1/emoji.env) file to add new emoji.
 
-### 🌟 [bigecho.bat](../BAT-and-UTIL-files-1/bigecho.bat):
+### 🌟 [cat_fast.exe](../BAT-and-UTIL-files-1/cat_fast.exe):
 
-Echos, but in VT100-double-heighttext. Requires ```set-ansi```.
+Version of ```cat.exe``` deemed to be the fastest. I have several versions of the unix ```cat``` command, but this is the one I use for speediness. Piping things to ```cat_fast``` (which I usually express as ```fast_cat``` through a bat file)
 
 
 &nbsp;
 
 </details>
+
+
+
 
 
 <details><summary>Alternate Data Stream file tag editor</summary>  
@@ -531,14 +539,6 @@ Delete a file, but only if it exists.
 
 
 
-
-
-
-
-
-### 🌟 [cat_fast.exe](../BAT-and-UTIL-files-1/cat_fast.exe):
-
-Version of ```cat.exe``` deemed to be the fastest. I have several versions of the unix ```cat``` command, but this is the one I use for speediness.
 
 &nbsp;
 
