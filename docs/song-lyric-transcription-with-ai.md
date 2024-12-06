@@ -415,12 +415,20 @@ Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/d
 </details>
 
 
-<details><summary>Click here to view the remaining command list & descriptions.</summary>  
+<details><summary>Prompting System with automatic default-answer timeouts</summary>  
 
 ### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
 
 The Yes/No prompting system with automatic-default-answer prompt timeouts.
+</details>
 
+<details><summary>Messaging System for warnings/errors/success/debug/etc</summary>  
+
+### 🌟 [print-message.bat](../BAT-and-UTIL-files-1/print-message.bat):
+
+The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat), [debug.bat](../BAT-and-UTIL-files-1/debug.bat), [error.bat](../BAT-and-UTIL-files-1/error.bat), [fatal_error.bat](../BAT-and-UTIL-files-1/fatalerror.bat), [success.bat](../BAT-and-UTIL-files-1/success.bat), [celebration.bat](../BAT-and-UTIL-files-1/celebration.bat), [important.bat](../BAT-and-UTIL-files-1/important.bat), [important_less.bat](../BAT-and-UTIL-files-1/important_less.bat), [advice](../BAT-and-UTIL-files-1/advice.bat), [unimportant](../BAT-and-UTIL-files-1/unimportant.bat), etc)
+
+&nbsp;
 
 ### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):
 
@@ -446,11 +454,7 @@ Delete a file, but only if it exists.
 
 <details><summary>Click here to view the remaining command list & descriptions.</summary>  
 
-### 🌟 [print-message.bat](../BAT-and-UTIL-files-1/print-message.bat):
 
-The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat), [debug.bat](../BAT-and-UTIL-files-1/debug.bat), [error.bat](../BAT-and-UTIL-files-1/error.bat), [fatal_error.bat](../BAT-and-UTIL-files-1/fatalerror.bat), [success.bat](../BAT-and-UTIL-files-1/success.bat), [celebration.bat](../BAT-and-UTIL-files-1/celebration.bat), [important.bat](../BAT-and-UTIL-files-1/important.bat), [important_less.bat](../BAT-and-UTIL-files-1/important_less.bat), [advice](../BAT-and-UTIL-files-1/advice.bat), [unimportant](../BAT-and-UTIL-files-1/unimportant.bat), etc)
-
-&nbsp;
 
 
 ### 🌟 [add-ADS-tag-to-file.bat](../BAT-and-UTIL-files-1/add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/remove-ADS-tag-from-file.bat) / [display-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/display-ADS-tag-from-file.bat):
