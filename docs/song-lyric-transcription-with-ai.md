@@ -438,20 +438,7 @@ This method was used becuase API calls would limit us to only using this on the 
 &nbsp;
 </details>
 
-<details><summary>$\textcolor{red}{\textsf{Red}}$  horizontal dividers, pre-rendered beautiful rainbow</summary>  
-
-hi!
-
-\textsf{%$\textcolor{red}{p}\textcolor{orange}{r}\textcolor{yellow}{e}\textcolor{lime}{-}\textcolor{green}{r}\textcolor{teal}{e}\textcolor{cyan}{n}\textcolor{blue}{d}\textcolor{violet}{e}\textcolor{magenta}{r}\textcolor{pink}{e}\textcolor{red}{d}\textcolor{orange}{ }\textcolor{yellow}{r}\textcolor{lime}{a}\textcolor{green}{i}\textcolor{teal}{n}\textcolor{cyan}{b}\textcolor{blue}{o}\textcolor{violet}{w}\textcolor{magenta}{ }\textcolor{pink}{h}\textcolor{red}{o}\textcolor{orange}{r}\textcolor{yellow}{i}\textcolor{lime}{z}\textcolor{green}{o}\textcolor{teal}{n}\textcolor{cyan}{t}\textcolor{blue}{a}\textcolor{violet}{l}\textcolor{magenta}{ }\textcolor{pink}{d}\textcolor{red}{i}\textcolor{orange}{v}\textcolor{yellow}{i}\textcolor{lime}{d}\textcolor{green}{e}\textcolor{teal}{r}\textcolor{cyan}{s}$%}
-
-hi2!
-
-
-
-
-$\textcolor{orange}{\textsf{Orange}}$ 
-$\textcolor{Yellow}{\textsf{Yellow}}$ 
-
+<details><summary>pre-rendered beautiful rainbow horizontal dividers</summary>  
 
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
