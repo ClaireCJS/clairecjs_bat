@@ -21,7 +21,7 @@ rem CONFIGURATION:
         set TARGET_1=%TARGET_MAIN%
         set TARGET_2=BAT-and-UTIL-files-2
         set COMMIT_CONFIRMATION_WAIT_TIME=5
-        rem COMMIT_CONFIRMATION_WAIT_TIME=2
+        set COMMIT_CONFIRMATION_WAIT_TIME=4
 
         SET MANIFEST_FILES=NONE
 
@@ -167,8 +167,12 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
 
 
 rem Update BAT files from live location to github-folder location:
+        unset /q COMMIT_WITH_AUTOMATIC_REASON
+        unset /q GIT_SKIP_COMMIT_REASON_EDIT
         iff 1 eq %SKIP_UPDATE .or. 1 eq %DOCS_ONLY then
                 set comment=Skip it!
+                set GIT_SKIP_COMMIT_REASON_EDIT=1
+                set COMMIT_WITH_AUTOMATIC_REASON=1
         else
                 call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN% %*
         endiff

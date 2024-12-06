@@ -22,7 +22,7 @@ REM Show modified/uncommitted files
 REM Get reason to commit
     set REASON=%1 
     :Get_Reason
-    if "%REASON%" eq "" .or. "%REASON%" eq "--verbose" (
+    if "%REASON%" eq "" .or. "%REASON%" eq "--verbose" .or. 1 eq %COMMIT_WITH_AUTOMATIC_REASON% (
         rem I liked this one:
                 REM generate a very nice commit comment akin to "update on 2023/06/01 -- 5:14:10 PM -- Thursday /// README.md"
                 REM call set-date-verynice
