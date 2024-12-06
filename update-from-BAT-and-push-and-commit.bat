@@ -218,7 +218,8 @@ rem Commit and Push:
         call divider
         echo.
         set  no_push_warning=1
-        call commit-and-push.bat %*
+        rem  commit-and-push.bat %* is a BAD call , do NOT pass %*
+        call commit-and-push.bat 
         echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/%TARGET%  >go-to-individual-BAT-files-on-GitHub.bat
 
 

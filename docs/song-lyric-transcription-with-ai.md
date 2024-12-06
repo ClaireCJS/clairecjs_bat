@@ -438,7 +438,6 @@ This method was used becuase API calls would limit us to only using this on the 
 &nbsp;
 </details>
 
-
 <details><summary>horizontal dividers, pre-rendered beautiful rainbow</summary>  
 
 $\textcolor{red}{\textsf{Red}}$ 
