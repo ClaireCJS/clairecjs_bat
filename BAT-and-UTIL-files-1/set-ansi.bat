@@ -908,12 +908,16 @@ rem ANIS: enhanced resetting
                     set ANSI_RESETTER_CURSOR=%ANSI_RESETTER_CURSOR_VISIBILITY%%ANSI_RESETTER_CURSOR_COLOR%%ANSI_RESETTER_CURSOR_SHAPE%
                     set ANSI_RESETTER_CURSOR_WITHOUT_COLOR=%ANSI_RESETTER_CURSOR_VISIBILITY%%ANSI_RESETTER_CURSOR_SHAPE%
 
-                    rem This doesn't actually work:
+                    rem 1) This doesn't actually work:
                     rem RESETTER_DEFAULT_FG_BG_COLORS=%@ANSI_RGB_BG[0,0,0]%@ansi_RGB_FG[192,192,192]
-                    rem Only this works:
+                    rem 2) Only this works:
                     set ANSI_RESETTER_DEFAULT_FG_BG_COLORS=%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/00/01%@CHAR[27]\%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/01/00%@CHAR[27]\
-                    rem But this seems to work to:
+                    rem 3) But this seems to work to:
                     set ANSI_RESETTER_DEFAULT_FG_BG_COLORS=%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/00/01%@CHAR[27]\%@CHAR[27]]10;rgb:c0/c0/c1%@CHAR[27]\
+                    rem 4) But as of Windows Terminal Preview v1.22.2702.0 (2024), “RIS (ESC c) will now return the color scheme to your preferred default if the application has modified it”
+                    rem Changing this on 2024/12/06:
+                    set ANSI_RESETTER_DEFAULT_FG_BG_COLORS=%@CHAR[27]c
+                    
 
                     set ANSI_RESET_FULL=%ANSI_RESETTER_BASIC%%ANSI_RESETTER_CURSOR%%ANSI_RESETTER_DEFAULT_FG_BG_COLORS% %+ rem WORKs!
                     set ANSI_RESET_FULL_WITHOUT_CURSOR=%ANSI_RESETTER_BASIC%%RESETTER_DEFAULT_FG_BG_COLORS%
