@@ -118,12 +118,12 @@ rem Read or set (depending on invocation) via windows alternate data streams:
                 set OPERATIONAL_MODE=READ
                 rem Store the result of reading the tag into the environment variable we've decided to use as convention for this situation:
                         set RECEIVED_VALUE=%@ExecStr[type <"%FILE_TO_USE%:%TAG_TO_MODIFY%" >&>nul]
+                        set   RECEIVED_TAG=%TAG_TO_MODIFY%
                         set value_to_display_in_verbose_mode=%RECEIVED_VALUE%
                 
-                rem And a few aliaes of our results, for the invokee who doesn't quite remember how to use this:
+                rem And a few aliases of our results, for the invokee who doesn't quite remember how to use this:
                         set            RESULT=%RECEIVED_VALUE%
                         set          RECEIVED=%RECEIVED_VALUE%
-                        set      RECEIVED_TAG=%RECEIVED_VALUE%
                         set RECEIVED_METADATA=%RECEIVED_VALUE%
 
                 rem If we are in verbose mode, explain what we did:                                                 

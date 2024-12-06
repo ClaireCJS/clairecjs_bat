@@ -54,7 +54,7 @@ rem Parameters:
                 if "%1" eq "docs"        (set PARAM_FOUND=1 %+ set          DOCS_ONLY=1)                                       
                 if   1  eq %PARAM_FOUND% (shift             %+ goto       :check_params)
                 if "%1" ne ""            (call print-message error "don't know what this %[1st] parameter of '%italics_on%%1%italics_off`%' is supposed to mean")
-        set 
+
 
 
 rem Only once per session, validate our environment & make sure we're running this on the correct machine:

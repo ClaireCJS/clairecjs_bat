@@ -54,8 +54,8 @@ nomoji                     = False                #set to True to disable [some]
 whisper_ai                 = False                #set to True to run in WhisperAI mode
 whisper_decorator_title    = "🚀🚀🚀"             #decorator for Whisper title 
 #Note to self: either maintain a simultaneous update of these 4 values in set-colors.bat or create env-var overrides:
-MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                                                                  #\__ range of random values we
-MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                                                                  #/   choose random colors from
+MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                #\__ range of random values we
+MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                #/   choose random colors from
 
 # ANSI codes
 BOLD_ON              = "\033[1m"
@@ -230,7 +230,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             line_buffer = f'\n{EMOJIS_SUMMARY}'.join(lines)
 
     #line += f'{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                       #make line be our random color
-    line = f'{line}{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                       #make line be our random color
+    line = f'{line}{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                   #make line be our random color
 
     # postprocess line:
     if not nomoji:
@@ -270,7 +270,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             #sys.stdout.write(f"\n\n");
             sys.stdout.write(f"\n{BIG_TOP}{line}\n{BIG_BOT}{line}\n\n");
             flush()
-            line=""; 
+            line=""
 
         # not working:
         line = line.replace("MDX Kim_Vocal_2" ,f"MDX Kim-Vocal 2") 

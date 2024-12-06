@@ -297,8 +297,7 @@ REM if we already have a SRT file, we have a problem:
                         call bigecho %STAR% %ANSI_COLOR_IMPORTANT_LESS%Review the lyrics:%ANSI_RESET%
                         @echos %ANSI_COLOR_BRIGHT_YELLOW%
                         rem unique-lines -A is a bit of a misnomer because it gives ALL lines, but with -L it gives us a preview of some of the lyric massage prior to the AI prompt
-                        rem type "%TXT_FILE%" |:u8 unique-lines -A -L |:u8 insert-before-each-line "        "
-                           (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
+                        (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
                         iff %@FILESIZE["%TXT_FILE%"] lt 5 then
                             echo         %ANSI_COLOR_WARNING%Hmm. Nothing there.%ANSI_RESET%
                         endiff
@@ -338,7 +337,8 @@ REM if we already have a SRT file, we have a problem:
                         rem TODO show lyrics again?
                         
                         set DEFAULT_ANSWER_FOR_THIS=no
-                        if 1 eq %AUTO_LYRIC_APPROVAL% (set DEFAULT_ANSWER_FOR_THIS=yes)
+                        call get-lyric-status "%TXT_FILE%"
+                        if 1 eq %AUTO_LYRIC_APPROVAL% .or. "%LYRIC_STATUS%" eq "APPROVED" (set DEFAULT_ANSWER_FOR_THIS=yes)
                         @call AskYN "Use either existing or new lyrics?" %DEFAULT_ANSWER_FOR_THIS% %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME% %+ rem todo make unique wait time for this
                         iff "%ANSWER%" eq "Y" .and. 1 ne %AUTO_LYRIC_APPROVAL then
                                 call get-lyrics "%AUDIO_FILE%"
@@ -438,8 +438,7 @@ rem Mandatory review of lyrics
                         @call less_important "[REDUNDANT?] Review the lyrics now:"
                         @call divider
                         @echos %ANSI_COLOR_GREEN%
-                        rem  type "%TXT_FILE%" |:u8 unique-lines -A -L  |:u8 insert-before-each-line "        "
-                            (type "%TXT_FILE%" |:u8 unique-lines -A -L) |:u8 print-with-columns
+                        (type "%TXT_FILE%" |:u8 unique-lines -A -L) |:u8 print-with-columns
                         @call divider
                         @call AskYn "[REDUNDANT?] Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                         iff "%ANSWER%" eq "N" then
@@ -716,11 +715,16 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto :Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
 
         rem ACTUALLY DO IT!!!:
+                if defined CURSOR_RESET echos %CURSOR_RESET%
                 echo. %+ rem this is the blank line after 'launching ai'
                 option //UnicodeOutput=yes
-                rem %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper 
-                rem %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper |&:u8 tee /a "%OUR_LOGFILE%"
-                    %LAST_WHISPER_COMMAND% |:u8 copy-move-post whisper |&:u8 tee.exe --append "%OUR_LOGFILE%"
+                rem  %LAST_WHISPER_COMMAND%                             |:u8 copy-move-post whisper 
+                rem  %LAST_WHISPER_COMMAND%                             |:u8 copy-move-post whisper  |&:u8 tee      /a      "%OUR_LOGFILE%"
+                rem  %LAST_WHISPER_COMMAND%                             |:u8 copy-move-post whisper  |&:u8 tee.exe --append "%OUR_LOGFILE%"
+                rem  %LAST_WHISPER_COMMAND% |&:u8  grep -v ctranslate   |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"
+                rem  (%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"
+                rem ((%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper) |:u8  tee.exe --append "%OUR_LOGFILE%"
+                    ((%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper |:u8  tee.exe --append "%OUR_LOGFILE%" )
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
@@ -731,7 +735,8 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 :Done_Transcribing                 %+ rem  /     If this seems ridiculous, it is because we want to make sure we don't lose our place in this script if the script has been modified during running. It's probably a hopeless endeavor to recover from that.
                 option //UnicodeOutput=%UnicodeOutputDefault%
-                echos %TOCK%                       %+ rem just our nickname for an extra-special ansi-reset
+                if defined TOCK echos %TOCK%       %+ rem just our nickname for an extra-special ansi-reset
+                if defined CURSOR_RESET echos %CURSOR_RESET%
                 call errorlevel "some sort of problem with the AI generation occurred in %0 line ~336ish {'actually generate the srt file'}"
 
         rem Cosmetics:

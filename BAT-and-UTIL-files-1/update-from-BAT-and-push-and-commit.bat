@@ -56,6 +56,7 @@ rem Parameters:
                 if "%1" ne ""            (call print-message error "don't know what this %[1st] parameter of '%italics_on%%1%italics_off`%' is supposed to mean")
 
 
+
 rem Only once per session, validate our environment & make sure we're running this on the correct machine:
         iff %GITHUB_UPDATER_VALIDATED ne 1 then
                 call validate-environment-variables MACHINENAME MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY italics_on italics_off PYTHON_OFFICIAL_SITELIB_CLAIRE 1st

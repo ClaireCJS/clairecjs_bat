@@ -8,9 +8,8 @@ rem Capture parameters we will use later:
 rem If we passed a filename, this isn't the script we actually wanted.
         iff exist "%PARAM_ONE%" then
                 call warning "You actually meant to run %emphasis%create-lrc-from-file%deemphasis%%ansi_color_warning% ... Running that next."
-                call pause-for-x-seconds 2
-                rem Transfer control to new script (so deliberately do not use `call`):
-                create-lrc-from-file %* 
+                call pause-for-x-seconds 1
+                call create-lrc-from-file %* 
                 goto :END
                 cancel
         else
