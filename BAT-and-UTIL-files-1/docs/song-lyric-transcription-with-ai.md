@@ -438,15 +438,12 @@ This method was used becuase API calls would limit us to only using this on the 
 &nbsp;
 </details>
 
-<details><summary>horizontal dividers, pre-rendered beautiful rainbow</summary>  
+<details><summary>$\textcolor{red}{\textsf{Red}}$  horizontal dividers, pre-rendered beautiful rainbow</summary>  
 
-$\textcolor{red}{\textsf{Red}}$ 
+
 $\textcolor{orange}{\textsf{Orange}}$ 
 $\textcolor{Yellow}{\textsf{Yellow}}$ 
 
-
-$${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
-$${\color{red}═ \color{orange}═ \color{yellow}═ \color{green}═ \color{blue}═\color{purple}═\color{magenta}═}$$
 
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
