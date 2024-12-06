@@ -590,13 +590,9 @@ Delete a file, but only if it exists.
 &nbsp;
 
 
-
-
-&nbsp;
-
 ### 🌟 [change-single-quotes-to-double-apostrophes.py](../BAT-and-UTIL-files-1/change-single-quotes-to-double-apostrophes.py):
 
-Quote conversion offloaded into python script to avoid command-line complications with quote symbols. 
+Changes single quotes (```"```) into double-apostrophes Quote conversion offloaded into python script to avoid command-line complications with quote symbols. 
 
 &nbsp;
 
