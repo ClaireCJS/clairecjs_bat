@@ -542,33 +542,7 @@ Version of ```cat.exe``` deemed to be the fastest. I have several versions of th
 
 
 
-
-		  
-<details><summary></summary>  
-
-&nbsp;
-</details>
-<details><summary></summary>  
-
-&nbsp;
-</details>
-<details><summary></summary>  
-
-&nbsp;
-</details>
-
-&nbsp;
-<details><summary></summary>  
-
-
-
-<details><summary>Click here to view the remaining command list & descriptions.</summary>  
-
-
-### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):
-
-Receives piped input and runs it as if it were typed to the command line. Dangerous stuff!
-
+<details><summary>Conditional Deletion</summary>  
 
 
 ### 🌟 [delete-zero-byte-files.bat](../BAT-and-UTIL-files-1/delete-zero-byte-files.bat) {filemask}:
@@ -579,8 +553,18 @@ Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us ha
 
 Delete a file, but only if it exists.
 
-
 &nbsp;
+
+</details>
+
+
+
+<details><summary>Miscellaneous</summary>  
+
+
+### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):
+
+Receives piped input and runs it as if it were typed to the command line. Dangerous stuff!
 
 
 ### 🌟 [change-single-quotes-to-double-apostrophes.py](../BAT-and-UTIL-files-1/change-single-quotes-to-double-apostrophes.py):
@@ -595,11 +579,8 @@ Quote conversion offloaded into python script to avoid command-line complication
 Prints a list of all audio files (mp3, flac, wav, etc).
 Technically should be called “```audio_file_index.bat```”. 
 
-
-
-
-
 &nbsp;
+
 </details>
 
 
