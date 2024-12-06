@@ -407,9 +407,9 @@ This functoinality can be suppressed with the ```--leave-censorship``` or ```-L`
 
 # 👉👉 *Under-The-Hood*: Existing commands also used by this system:
 
-Various commands that were already a part of my “Clairevironment”.
+## Various commands that were already a part of my “Clairevironment”.
 
-Click to expand:
+### Click to expand:
 
 <details><summary>🌈Psychedelic color-cycler with 👂WhisperAI-specific postprocessing</summary>  
 
