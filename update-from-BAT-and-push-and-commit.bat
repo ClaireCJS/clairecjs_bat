@@ -21,7 +21,7 @@ rem CONFIGURATION:
         set TARGET_1=%TARGET_MAIN%
         set TARGET_2=BAT-and-UTIL-files-2
         set COMMIT_CONFIRMATION_WAIT_TIME=5
-        set COMMIT_CONFIRMATION_WAIT_TIME=2
+        rem COMMIT_CONFIRMATION_WAIT_TIME=2
 
         SET MANIFEST_FILES=NONE
 
@@ -48,15 +48,16 @@ rem Parameters:
                 set GO_STRAIGHT_TO_GIT=0
                 set        SKIP_UPDATE=0
                 set          DOCS_ONLY=0
+                set             FASTER=0
         :check_params
                 set PARAM_FOUND=0
-                set FASTER=0
                 if "%1" eq "git"         (set PARAM_FOUND=1 %+ set GO_STRAIGHT_TO_GIT=1)                                       
                 if "%1" eq "skip-update" (set PARAM_FOUND=1 %+ set        SKIP_UPDATE=1)                                       
-                if "%1" eq "docs"        (set PARAM_FOUND=1 %+ set          DOCS_ONLY=1 %+ set FASTER=1)                                       
+                if "%1" eq "docs"        (set PARAM_FOUND=1 %+ set          DOCS_ONLY=1 %+ set FASTER=1)
                 if   1  eq %PARAM_FOUND% (shift             %+ goto       :check_params)
                 if "%1" ne ""            (call print-message error "don't know what this %[1st] parameter of '%italics_on%%1%italics_off`%' is supposed to mean")
 
+        rem DEBUG: echo [A]faster is %FASTER% , param_found is %PARAM_FOUND%, docs_only is %DOCS_ONLY% %+ pause
 
 
 rem Only once per session, validate our environment & make sure we're running this on the correct machine:
@@ -184,12 +185,12 @@ rem display limit so that bat files starting with Z can actually be browsed to:
 rem Give a chance to stop here...
         echo.
         call divider
+        if 1 eq %FASTER goto :git_add_done
         echo.
         call askYN "Continue with git add + commit + push?" yes %COMMIT_CONFIRMATION_WAIT_TIME%
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
 rem Make sure they're all added —— any new extensions that we add to our project, need to be added here:
-        if 1 eq %FASTER goto :git_add_done
         :git_yes
         rem extensions that only appear in [a-l]*.*
                 call git.bat add docs\* %TARGET_MAIN%\samples\* %TARGET_MAIN%\dividers\* %TARGET_MAIN%\*.hlp  %TARGET_MAIN%\*.cnt %TARGET_MAIN%\*.lst %TARGET_MAIN%\*.gml %TARGET_MAIN%\*.jpg %TARGET_MAIN%\*.png %TARGET_MAIN%\*.lnk  %TARGET_MAIN%\*.ico 
