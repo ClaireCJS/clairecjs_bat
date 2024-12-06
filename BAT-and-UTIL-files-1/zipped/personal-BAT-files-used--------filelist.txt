@@ -1,6 +1,6 @@
 2024-11-23  23:44        149,504   49%  4wt.dll
 2024-11-23  23:44          3,433   60%  4wt.txt
-2024-11-27  16:41         14,089   74%  add-ADS-tag-to-file.bat
+2024-12-05  23:23         14,086   74%  add-ADS-tag-to-file.bat
 2024-11-19  02:22          2,595   63%  add-art-to-flac-helper.bat
 2024-11-19  02:22            799   54%  add-art-to-flac.bat
 2024-11-19  02:22          3,835   69%  add-art-to-mp3.bat
@@ -56,9 +56,9 @@
 1996-04-15  19:12          2,238   69%  app-volume-and-device-preferences.ico
 2024-10-07  14:28          2,115   62%  app-volume-and-device-preferences.lnk
 2024-12-05  16:00          1,050   51%  approve-lyric-file.bat
-2024-12-05  16:02            126   12%  approve-lyrics.bat
+2024-12-06  00:21            390   51%  approve-lyrics.bat
 2024-12-05  16:01             29   -6%  approve-subtitle-file.bat
-2024-12-05  16:02            132   12%  approve-subtitles.bat
+2024-12-05  23:27            311   51%  approve-subtitles.bat
 2024-11-20  16:34             52    4%  ascii.bat
 2024-11-11  16:01         17,285   74%  askYN.bat
 2024-11-19  07:37             37   -5%  asleep.bat
@@ -70,7 +70,7 @@
 2024-11-19  02:23          5,089   78%  auto-clean.bat
 2024-11-19  02:23         13,922   75%  auto-process.bat
 2024-11-25  12:56          4,847   71%  autoexec-common.btm
-2024-09-11  15:18         16,397   82%  autoexec.ahk
+2024-12-06  14:32         16,721   82%  autoexec.ahk
 2024-11-19  02:23            917   52%  AutoHotKey-autoexec.bat
 2024-11-19  02:23          1,889   60%  AutoHotKey.bat
 2024-11-19  02:23          3,252   60%  autoname.bat
@@ -197,7 +197,7 @@
 2024-11-19  07:37             54   -3%  cool-header.bat
 2024-11-19  07:37             44   -4%  coolbigecho.bat
 2024-11-30  23:24          2,322   59%  copy-alias.bat
-2024-12-05  00:40         31,671   73%  copy-move-post.py
+2024-12-06  00:24         31,565   73%  copy-move-post.py
 2024-11-19  07:37             37   -5%  copy.bat
 2024-11-19  07:35            242   31%  counts-helper.bat
 2024-11-19  07:35             52   -3%  counts.bat
@@ -213,9 +213,9 @@
 2024-11-23  23:44             58   -3%  create-lrc-file-for-currently-playing-song.bat
 2024-11-23  23:44             31   -6%  create-lrc-from-file.bat
 2024-11-23  23:44            134   33%  create-missing-karaoke-files.bat
-2024-12-03  17:18          1,091   52%  create-srt-file-for-currently-playing-song.bat
+2024-12-05  23:51          1,007   52%  create-srt-file-for-currently-playing-song.bat
 2024-11-23  23:44            194   36%  create-srt-for-soundclip.bat
-2024-12-05  03:03         70,682   75%  create-srt-from-file.bat
+2024-12-06  00:44         71,335   75%  create-srt-from-file.bat
 2024-11-25  14:20            972   52%  create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat
 2024-11-23  23:44            354   45%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
@@ -270,9 +270,9 @@
 2024-11-19  07:36             36   -5%  dir-by-modification-date.bat
 2024-11-19  07:36             36    0%  disable-windows-key.bat
 2024-12-05  16:04          1,030   51%  disapprove-lyric-file.bat
-2024-12-05  16:04            133   16%  disapprove-lyrics.bat
+2024-12-06  00:21            397   50%  disapprove-lyrics.bat
 2024-12-05  16:03             32   -6%  disapprove-subtitle-file.bat
-2024-12-05  16:04            142   17%  disapprove-subtitles.bat
+2024-12-05  23:27            310   50%  disapprove-subtitles.bat
 2024-11-12  17:27          2,445   58%  display-ADS-tag-from-file.bat
 2024-11-19  07:36            434   44%  display-all-@CHARs.bat
 2024-11-19  07:36             71   -2%  display-bitrate.bat
@@ -294,7 +294,7 @@
 2024-11-28  00:16          9,085   71%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-11-27  16:42          1,249   58%  display-lyric-status-for-file.bat
-2024-11-27  17:03          3,921   68%  display-lyric-status.bat
+2024-12-05  23:18          4,593   70%  display-lyric-status.bat
 2024-11-19  07:47          3,314   63%  display-lyrics.bat
 2024-11-19  07:47            832   50%  display-message_type_environment-variables-and-corresponding-ansi-color-environment-variables.bat
 2024-11-19  07:47            149    9%  display-mp3-artists.bat
@@ -724,7 +724,7 @@
 2024-11-19  15:14            326   38%  rar.bat
 2024-11-19  15:14            849   47%  rd-alias.bat
 2024-11-19  21:35             56   -1%  re-srt.bat
-2024-11-27  16:21          2,715   59%  read-ADS-tag-from-file.bat
+2024-12-06  00:00          2,715   59%  read-ADS-tag-from-file.bat
 2024-11-19  21:35             47    3%  realias.bat
 2024-11-19  15:15          1,368   56%  Rebuild_Icon_Cache.bat
 2024-11-19  15:15          3,023   66%  reddit-user-download.bat
@@ -760,6 +760,7 @@
 2024-11-18  17:16             38   22%  reset.ansi
 2024-11-19  21:35             56   -1%  resrt.bat
 2024-11-19  15:16             80    8%  restart-ahk.bat
+2024-12-06  14:19             30    0%  restart-AutoHotKey.bat
 2024-11-19  15:16          1,185   69%  restart-chrome.bat
 2024-11-25  12:59            293   41%  restart-cpu-meter.bat
 2024-11-19  15:16            103   24%  restart-displayfusion.bat
@@ -828,7 +829,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-11-19  21:35             39   -5%  set-all_colors.bat
-2024-12-03  15:08        120,781   82%  set-ansi.bat
+2024-12-06  15:16        121,460   81%  set-ansi.bat
 2024-11-19  15:17            685   63%  set-automatic-login-to-windows-OFF.bat
 2024-11-19  15:17          1,810   69%  set-automatic-login-to-windows-ON.bat
 2024-11-19  21:35            138   16%  set-background-picture-for-johnsbackgroundswitcher.bat
@@ -1038,7 +1039,7 @@
 2024-11-16  19:00            732   51%  validate-all-perl-files.bat
 2024-11-16  19:00             58   -3%  validate-env-var.bat
 2024-11-16  19:00             57   -3%  validate-env-vars.bat
-2024-11-27  16:12         18,217   77%  validate-environment-variable.bat
+2024-12-05  22:53         18,245   77%  validate-environment-variable.bat
 2024-11-16  19:00            427   45%  validate-environment-variables.bat
 2024-11-19  15:02             54   -1%  validate-extension.bat
 2024-11-25  18:18          4,221   67%  validate-file-extension.bat

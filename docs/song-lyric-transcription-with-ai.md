@@ -11,11 +11,11 @@
 
 ## 📓 Terminology: 📓
 
-<details><summary>Click here to view full definitions of "karaoke files" and "sidecar files"</summary>  
+<details><summary>Click here to view full definitions of “karaoke files" and “sidecar files"</summary>  
 
 &nbsp;
 
-📑 *Karaoke Files*: 📑 We generally call both ```SRT files``` and ```LRC files``` "karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates ```SRT``` files, but includes a batch converter that converts ```SRT``` to ```LRC```.
+📑 *Karaoke Files*: 📑 We generally call both ```SRT files``` and ```LRC files``` “karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates ```SRT``` files, but includes a batch converter that converts ```SRT``` to ```LRC```.
 
 &nbsp;
 
@@ -51,7 +51,9 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
       - The folder ```TCMD31``` may vary depending on what version of [TCC](https://jpsoft.com/all-downloads/all-downloads.html) is current.
     - Update TCC to be compatible with my scripts:
        - Open **TCC/TCMD** 
-       - type ```option``` at the comma d line
+       - type ```option``` at the command line
+       - In the upper-left is a section called *“Special Characters”*
+       - Change the separator to “^” (the [caret character](https://en.wikipedia.org/wiki/Caret))
 
 &nbsp;
 
