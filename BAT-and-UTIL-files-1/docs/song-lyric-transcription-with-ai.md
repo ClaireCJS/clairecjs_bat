@@ -56,6 +56,7 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
     - Install Windows Terminal:
       - either from [GitHub](https://github.com/microsoft/terminal/releases/)
       - or via *WinGet* with the command: ```winget install -e --id Microsoft.WindowsTerminal```
+      - or from the Microsoft Store
 &nbsp;    
 
 
