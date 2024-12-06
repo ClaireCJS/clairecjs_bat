@@ -441,6 +441,18 @@ This method was used becuase API calls would limit us to only using this on the 
 <details><summary>$\textcolor{red}{\textsf{Red}}$  horizontal dividers, pre-rendered beautiful rainbow</summary>  
 
 
+$\textcolor{red}{\textsf{pre}}$$\textcolor{orange}{\textsf{-re}}$%\textcolor{yellow}{\textsf{nde}}$%
+$\textcolor{lime}{\textsf{red}}$%
+$\textcolor{green}{\textsf{ rai}}$%
+$\textcolor{teal}{\textsf{nbow}}$%
+$\textcolor{cyan}{\textsf{ hor}}$%
+$\textcolor{blue}{\textsf{izon}}$%
+$\textcolor{violet}{\textsf{tal}}$%
+$\textcolor{magenta}{\textsf{ div}}$%
+$\textcolor{pink}{\textsf{iders}}$
+
+
+
 $\textcolor{red}{\textsf{pre}}$%
 $\textcolor{orange}{\textsf{-re}}$%
 $\textcolor{yellow}{\textsf{nde}}$%
