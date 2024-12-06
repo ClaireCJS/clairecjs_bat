@@ -52,6 +52,13 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 
 &nbsp;
 
+3. 🖥 [Windows Terminal](https://jpsoft.com/all-downloads/all-downloads.html).  
+    - Install Windows Terminal:
+        - either from 
+	-
+&nbsp;    
+
+
 3. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
     - Technically you probably only need about 100 of these files.  
     - This folder has it's own ```sort``` and ```uniq``` executables (from [Cygwin](https://www.cygwin.com)) to ensure consistency
