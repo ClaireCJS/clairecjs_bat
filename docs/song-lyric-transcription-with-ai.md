@@ -1,14 +1,3 @@
-<style>
-  .hover-zoom {
-    display: inline-block;
-    width: 40%;
-    transition: transform 0.3s ease;
-  }
-  .hover-zoom:hover {
-    transform: scale(2.5); /* Scale to original size */
-  }
-</style>
-
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
 ## ✨ Goals: ✨
@@ -475,6 +464,7 @@ The Yes/No prompting system with automatic-default-answer prompt timeouts.
 ### 🌟 [print-message.bat](../BAT-and-UTIL-files-1/print-message.bat):
 
 The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat), [debug.bat](../BAT-and-UTIL-files-1/debug.bat), [error.bat](../BAT-and-UTIL-files-1/error.bat), [fatal_error.bat](../BAT-and-UTIL-files-1/fatalerror.bat), [success.bat](../BAT-and-UTIL-files-1/success.bat), [celebration.bat](../BAT-and-UTIL-files-1/celebration.bat), [important.bat](../BAT-and-UTIL-files-1/important.bat), [important_less.bat](../BAT-and-UTIL-files-1/important_less.bat), [advice](../BAT-and-UTIL-files-1/advice.bat), [unimportant](../BAT-and-UTIL-files-1/unimportant.bat), etc)
+
 ![image](https://github.com/user-attachments/assets/a3335d4e-9359-4584-a4ba-2a306907cb30)
 
 &nbsp;
