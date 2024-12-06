@@ -411,7 +411,7 @@ Various commands that were already a part of my “Clairevironment”.
 
 Click to expand:
 
-<details><summary>Psychedelic color-cycler with WhisperAI-specific postprocessing</summary>  
+<details><summary>🌈Psychedelic color-cycler with 👂WhisperAI-specific postprocessing</summary>  
 
 ### 🌟 [copy-move-post.py](../BAT-and-UTIL-files-1/copy-move-post.py):
 
