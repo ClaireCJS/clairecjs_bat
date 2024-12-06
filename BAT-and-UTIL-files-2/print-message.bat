@@ -423,21 +423,23 @@ goto :END
                 )
 
                 rem      use %MESSAGE_TYPES instead of %MESSAGE_TYPES_WITHOUT_ALIASES to test alias message types:
-                for %clr in (%MESSAGE_TYPES_WITHOUT_ALIASES%) (   
+                call divider
+                for %%clr in (%MESSAGE_TYPES_WITHOUT_ALIASES%) (   
                         set clr4print=%clr%
-                        REM if "%clr%" eq "question"    set "clr4print=%CLR%    (windows: 'Question')"
-
-                        iff 1 ne %my_fast then
+                        if 1 ne %my_fast (
                                 echo.
                                 cls
                                 echo %ANSI_COLOR_IMPORTANT%about to test %clr4print:
                                 echo.
                                 pause>nul
                                 cls
-                        endiff
-                        if 1 eq %my_fast (echo.                ) %+ call print-message %clr "This is a %clr4print message"
-                        if 1 ne %my_fast (pause>nul            )
-                        if 1 eq %my_fast (echo. %+ call divider)
+                                call print-message %clr "This is a %clr4print message"
+                                pause>nul
+                        ) else (
+                                rem pause
+                                call print-message %clr "This is a %clr4print message"
+                                call divider
+                        )
                 )
         goto :END
 

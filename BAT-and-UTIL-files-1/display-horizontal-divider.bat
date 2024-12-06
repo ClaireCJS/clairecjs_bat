@@ -42,8 +42,9 @@ rem Respond to parameters [if any]:
 rem Our divider could be any length, and our screen could have any number of columns,
 rem so we must determine how many times we must repeat our divider to fill the line,
 rem all while considering that double-height lines use 2 columns per character:
-                      set SCREEN_COLUMNS=%_COLUMNS
-        if %BIG eq 1 (set SCREEN_COLUMNS=%@EVAL[%SCREEN_COLUMNS / 2])
+                       set SCREEN_COLUMNS=%_COLUMNS
+        if "%1" ne "" (set SCREEN_COLUMNS=%1)        
+        if %BIG eq  1 (set SCREEN_COLUMNS=%@EVAL[%SCREEN_COLUMNS / 2])
         set DIVIDER_LENGTH=%@LEN[%DIVIDER]
         set NUM_REPEATS=%@EVAL[%SCREEN_COLUMNS / %DIVIDER_LENGTH]
 

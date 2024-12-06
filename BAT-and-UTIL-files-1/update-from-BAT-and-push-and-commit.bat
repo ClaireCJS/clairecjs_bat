@@ -168,8 +168,10 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
 
 rem Update BAT files from live location to github-folder location:
         unset /q COMMIT_WITH_AUTOMATIC_REASON
+        unset /q GIT_SKIP_COMMIT_REASON_EDIT
         iff 1 eq %SKIP_UPDATE .or. 1 eq %DOCS_ONLY then
                 set comment=Skip it!
+                set GIT_SKIP_COMMIT_REASON_EDIT=1
                 set COMMIT_WITH_AUTOMATIC_REASON=1
         else
                 call c:\bat\update-from-BAT-via-manifest %TARGET_MAIN% %*
@@ -216,7 +218,8 @@ rem Commit and Push:
         call divider
         echo.
         set  no_push_warning=1
-        call commit-and-push.bat %*
+        rem  commit-and-push.bat %* is a BAD call , do NOT pass %*
+        call commit-and-push.bat 
         echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/%TARGET%  >go-to-individual-BAT-files-on-GitHub.bat
 
 

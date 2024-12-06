@@ -376,6 +376,7 @@ Way harder to do than it should be.
 
 Inserts text before/after each line of STDIN. Used for script generation.   
 Put ```{{{{QUOTE}}}}``` in the argument to turn it into a quote mark in the final output.
+![image](https://github.com/user-attachments/assets/e3423665-783c-45e2-b275-7837d93d5ad9)
 
 ### 🌟 [unique-lines.pl](../BAT-and-UTIL-files-1/unique-lines.pl):
 
@@ -410,7 +411,7 @@ Preserves periods for words like “Mr.”, “Dr.”, “approx”, etc
 **Rationale:** We add “invisible” periods to the end of each line of lyrics, so that WhisperAI's ```--sentence``` option is influenced by where lyric posters post the line breaks in their lyrics. It absolutely helped. A lot. Hours were spent determiing this and, and it was obvious from the first [of many] tests.   We then remove these periods (making them “invisible”) afterward, because they are ugly and often not even gramatically correct — just correct for *timing* purposes.  
 
 This also also has some extra functionality slipped in to de-censoring some curse words that WhisperAI censors.
-This functoinality can be suppressed with the ```--leave-censorship``` or ```-L``` options.
+This functionality can be suppressed with the ```--leave-censorship``` or ```-L``` options.
 
 </details>
 
@@ -454,6 +455,7 @@ This method was used becuase API calls would limit us to only using this on the 
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
 Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/dividers/) to separate out output into sections.
+![image](https://github.com/user-attachments/assets/ca684639-3df9-4f9c-9e82-17af0a5bb320)
 
 &nbsp;
 </details>
@@ -463,6 +465,7 @@ Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/d
 ### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
 
 The Yes/No prompting system with automatic-default-answer prompt timeouts.
+![image](https://github.com/user-attachments/assets/fbff4fcd-f9da-4395-bfa1-bc95b85a7b18)
 
 &nbsp;
 </details>
@@ -472,6 +475,7 @@ The Yes/No prompting system with automatic-default-answer prompt timeouts.
 ### 🌟 [print-message.bat](../BAT-and-UTIL-files-1/print-message.bat):
 
 The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat), [debug.bat](../BAT-and-UTIL-files-1/debug.bat), [error.bat](../BAT-and-UTIL-files-1/error.bat), [fatal_error.bat](../BAT-and-UTIL-files-1/fatalerror.bat), [success.bat](../BAT-and-UTIL-files-1/success.bat), [celebration.bat](../BAT-and-UTIL-files-1/celebration.bat), [important.bat](../BAT-and-UTIL-files-1/important.bat), [important_less.bat](../BAT-and-UTIL-files-1/important_less.bat), [advice](../BAT-and-UTIL-files-1/advice.bat), [unimportant](../BAT-and-UTIL-files-1/unimportant.bat), etc)
+![image](https://github.com/user-attachments/assets/a3335d4e-9359-4584-a4ba-2a306907cb30)
 
 &nbsp;
 </details>
@@ -481,6 +485,7 @@ The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat)
 ### 🌟 [randomize-file.pl](../BAT-and-UTIL-files-1/randomize-file.pl.bat):
 
 Scrambles the lines of STDIN.  One could think of it as shuffling/randomizing a playlist/filelist.  Used to do things in random orders.
+![image](https://github.com/user-attachments/assets/e64933d7-c8e9-4b9c-a128-1bd40bc53116)
 
 &nbsp;
 </details>
@@ -490,6 +495,7 @@ Scrambles the lines of STDIN.  One could think of it as shuffling/randomizing a 
 ### 🌟 [add-ADS-tag-to-file.bat](../BAT-and-UTIL-files-1/add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/remove-ADS-tag-from-file.bat) / [display-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/display-ADS-tag-from-file.bat):
 
 Commands for displaying tags, and for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs). Used for lyric [dis]approval.
+![image](https://github.com/user-attachments/assets/d21f1af0-b2bf-479c-940f-7f62252ef6ce)
 
 &nbsp;
 </details>
@@ -503,18 +509,22 @@ Commands for displaying tags, and for adding/removing tags to files using [Alter
 ### 🌟 [validate-environment-variables {list of env-var names}](../BAT-and-UTIL-files-1/validate-environment-variable.bat):
 
 Validates whether environment variables (and the files they point to!) exist.
+![image](https://github.com/user-attachments/assets/837b847e-9562-4adf-a981-1ad67497b2f7)
 
 ### 🌟 [validate-in-path {list of commands}](../BAT-and-UTIL-files-1/validate-in-path.bat):
 
 Validates whether commands (be they internal, alias, or not) are in the path
+![image](https://github.com/user-attachments/assets/e05721d4-617c-456e-ab35-19b6b81be036)
 
 ### 🌟 [validate-is-extension {filename} {list of extensions}](../BAT-and-UTIL-files-1/validate-is-extension.bat):
 
 Validates whether a file has an acceptable file extension.  
+![image](https://github.com/user-attachments/assets/36358ff3-f956-444e-b106-dc7014ee9e7d)
 
 ### 🌟 [validate-is-function {list of functions}](../BAT-and-UTIL-files-1/validate-function.bat):
 
 Validates whether a TCC user %@function is defined or not
+![image](https://github.com/user-attachments/assets/b877db1e-d797-4f26-b36e-f83f57933469)
 
 &nbsp;
 
@@ -533,6 +543,7 @@ Validates whether a TCC user %@function is defined or not
 ### 🌟 [bigecho.bat](../BAT-and-UTIL-files-1/bigecho.bat):
 
 Echos text in double-height (using VT100 double-height ANSI codes). Requires ```set-ansi```.
+![image](https://github.com/user-attachments/assets/9cde5587-3033-4fb1-917a-2a82986c6fa8)
 
 ### 🌟 [set-ansi.bat](../BAT-and-UTIL-files-1/set-ansi.bat):
 
@@ -559,10 +570,13 @@ Version of ```cat.exe``` deemed to be the fastest. I have several versions of th
 ### 🌟 [delete-zero-byte-files.bat](../BAT-and-UTIL-files-1/delete-zero-byte-files.bat) {filemask}:
 
 Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us having to check EVERY file for non-zero-ness.
+![image](https://github.com/user-attachments/assets/d77d8e9c-af57-42f6-95b8-4dc94205c370)
 
 ### 🌟 [del-if-exists.bat](../BAT-and-UTIL-files-1/del-if-exists.bat):
 
 Delete a file, but only if it exists.
+
+![image](https://github.com/user-attachments/assets/cad43e13-7a44-4a70-89ec-fc1304ecfab8)
 
 &nbsp;
 
@@ -582,6 +596,7 @@ Receives piped input and runs it as if it were typed to the command line. Danger
 
 Changes single quotes (```"```) into double-apostrophes (```''```). 
 Quote conversion offloaded into python script to avoid command-line complications with varoius quote symbols.
+![image](https://github.com/user-attachments/assets/64a42984-11c3-4207-99db-502f8f1b169a)
 
 &nbsp;
 

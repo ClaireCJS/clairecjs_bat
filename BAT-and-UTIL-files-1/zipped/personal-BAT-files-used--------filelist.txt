@@ -171,7 +171,7 @@
 2024-11-19  07:33            610   49%  colorize-by-computer-name.bat
 2024-11-19  07:34            850   61%  colors-all.bat
 2024-11-19  07:33          4,231   65%  colors.bat
-2024-11-27  21:43          1,196   56%  commit-and-push.bat
+2024-12-06  16:21          1,373   58%  commit-and-push.bat
 2024-11-19  07:37             39   -5%  commit.bat
 2024-11-19  07:34             65   -1%  completion.bat
 2024-11-19  07:34            596   42%  connections-monitor.bat
@@ -248,7 +248,7 @@
 2024-11-19  02:50            657   49%  delete-largest-file.bat
 2024-11-19  02:50            744   49%  delete-track-from-currently-playing-playlist.bat
 2024-11-19  02:50            270   27%  delete-WAVs-if-MP3s-exist.bat
-2024-11-19  02:50          1,639   66%  delete-zero-byte-files.bat
+2024-12-06  17:23          1,998   68%  delete-zero-byte-files.bat
 2024-11-19  02:50          1,083   58%  deltree.bat
 2024-11-19  07:36             41    3%  dep-all.bat
 2024-11-19  02:50            162   21%  dep-MP3s-if-FLACs-exist.bat
@@ -273,7 +273,7 @@
 2024-12-06  00:21            397   50%  disapprove-lyrics.bat
 2024-12-05  16:03             32   -6%  disapprove-subtitle-file.bat
 2024-12-05  23:27            310   50%  disapprove-subtitles.bat
-2024-11-12  17:27          2,445   58%  display-ADS-tag-from-file.bat
+2024-12-06  17:37          2,634   60%  display-ADS-tag-from-file.bat
 2024-11-19  07:36            434   44%  display-all-@CHARs.bat
 2024-11-19  07:36             71   -2%  display-bitrate.bat
 2024-03-15  00:06            399   39%  display-bluetooth-battery-levels.ps1
@@ -291,7 +291,7 @@
 2024-11-19  07:47          1,045   54%  display-flac-tags.bat
 2024-11-19  07:47            162   23%  display-free-space-as-locked-message.bat
 2024-11-19  07:47          3,640   67%  display-free-space.bat
-2024-11-28  00:16          9,085   71%  display-horizontal-divider.bat
+2024-12-06  17:57          9,142   71%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-11-27  16:42          1,249   58%  display-lyric-status-for-file.bat
 2024-12-05  23:18          4,593   70%  display-lyric-status.bat
@@ -455,7 +455,7 @@
 2024-11-19  07:48            641   52%  git-add-every-damn-file.bat
 2024-11-30  23:28            819   47%  git-add.bat
 2024-11-19  07:48            176   16%  git-commit-history.bat
-2024-11-27  18:06          4,287   61%  git-commit.bat
+2024-12-06  16:29          4,370   61%  git-commit.bat
 2024-11-19  07:48             62    2%  git-config-set-commit-preference-to-rebase.bat
 2024-11-19  07:48             72    6%  git-config-set-commit-preferences-to-rebase.bat
 2024-11-19  07:48            393   44%  git-fix-remote-repository.bat
@@ -527,7 +527,7 @@
 2023-07-21  07:55         30,151   74%  ingest_youtube_album.py
 2024-11-19  07:51          1,904   59%  insert-after-each-filename.bat
 2024-11-04  21:51            200   26%  insert-after-each-line.pl
-2024-11-04  22:15            697   42%  insert-after-each-line.py
+2024-12-06  18:01            695   42%  insert-after-each-line.py
 2024-11-19  07:51          1,383   57%  insert-before-each-filename.bat
 2024-11-25  17:08            623   38%  insert-before-each-line.pl
 2024-11-04  22:16            690   42%  insert-before-each-line.py
@@ -676,7 +676,7 @@
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
 2024-11-19  21:35             31   -6%  previousdir.bat
 2024-11-19  21:35             85    5%  print-if-debug.bat
-2024-12-03  14:04         31,884   75%  print-message.bat
+2024-12-06  17:52         31,886   75%  print-message.bat
 2024-12-04  04:41             25   -8%  print-with-columns.bat
 2024-12-04  04:18         38,952   79%  print_with_columns.py
 2024-11-21  19:47         16,004   75%  process-done-torrent.btm

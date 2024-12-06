@@ -20,10 +20,14 @@ goto :Next1
                                     rem  checking %qqq filesize .. %@FILESIZE["%qqq"] eq 0
                                     iff %@FILESIZE["%qqq"] eq 0 then
                                             %COLOR_REMOVAL%
-                                            *del  "%qqq%"
+                                            *del /a: /f /q "%qqq%" >&>nul
                                             %COLOR_NORMAL%
                                             iff %DZBF_SILENT ne 1 then
-                                                    echo %ANSI_COLOR_IMPORTANT_LESS%* %ansi_COLOR_REMOVAL%Deleted zero-byte file: %faint_on%%qqq%%ansi_reset%
+                                                iff not exist "%qqq%" then
+                                                        echo %ANSI_COLOR_IMPORTANT_LESS%* %ansi_COLOR_REMOVAL%Deleted zero-byte file: %faint_on%%qqq%%ansi_reset%
+                                                else    
+                                                        call warning "Could not delete zero-byte file: '%italics_on%%qqq%%italics_off%'%ansi_reset%
+                                                endiff
                                             endiff
                                     else
                                              rem it's fine

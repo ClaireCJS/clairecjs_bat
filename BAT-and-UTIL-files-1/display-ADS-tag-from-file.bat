@@ -59,7 +59,11 @@ rem Set default values for parameters:
 rem Remove tag: 
         iff "%PARAM_3%" ne "verbose" then
                 call add-ADS-tag-to-file %FILE_TO_USE% %TAG_TO_DISPLAY% read
-                echo %RECEIVED_VALUE%
+                iff "%RECEIVED_VALUE%" ne "" then
+                        echo %RECEIVED_VALUE%
+                else
+                        echo %emphasis%%italics_on%(null)%italics_off%%deemphasis%
+                endiff
         else
                 call add-ADS-tag-to-file %FILE_TO_USE% %TAG_TO_DISPLAY% read verbose
         endiff
