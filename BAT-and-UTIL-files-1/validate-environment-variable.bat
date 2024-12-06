@@ -137,7 +137,8 @@ goto :Past_The_End_Of_The_Sub-Routines
                             call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%ansi_color_normal%"
                             rem Output the updated ERROR_MESSAGE
                             %COLOR_ALARM%       
-                            echos %ERROR_MESSAGE%  %+ rem The warning right before 
+                            rem The warning right before 
+                            echos %ERROR_MESSAGE%  
                             %COLOR_NORMAL% 
                             echo.
                             if "%USER_MESSAGE%" ne "" (
@@ -188,7 +189,8 @@ goto :Past_The_End_Of_The_Sub-Routines
 
         ::::: ADDITIONALLY, VALIDATE THAT IT EXISTS, IF IT SEEMS TO BE POINTING TO A FOLDER/FILE:
             :Defined_YES
-            set VARVALUE=%[%VARNAME%]``                    %+ if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
+            set VARVALUE=%[%VARNAME%]``                    
+            if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
             set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])     
 
 

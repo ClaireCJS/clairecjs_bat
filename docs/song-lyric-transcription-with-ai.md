@@ -408,7 +408,7 @@ This functionality can be suppressed with the ```--leave-censorship``` or ```-L`
 
 # 👉👉 *Under-The-Hood*: Existing commands also used by this system:
 
-## Various commands that were already a part of my “Clairevironment”.
+## Various commands that were already a part of my “Clairevironment”:
 
 ### Click to expand:
 
@@ -416,7 +416,7 @@ This functionality can be suppressed with the ```--leave-censorship``` or ```-L`
 
 ### 🌟 [copy-move-post.py](../BAT-and-UTIL-files-1/copy-move-post.py):
 
-A cosmetic postprocessor which employes ANSI color-cycling to inbue a psychedelic effect onto text by cycling the colors of the primary text color through the visible spectrum. Originally written to combat “hangxiety” — anxiety over whether your code has hung — by affecting screenoutput without actually generating any “real” output. Then enhanced to postprocess the output to the ```move``` and ```copy``` commands with emoji, color, italics, double-height text for summaries, and more. Finally, enhanced again with explicit postprocessing for WhisperAI's transcription output.
+Inspired by ```glow.com``` in the 1980s DOS era, a cosmetic postprocessor which employs ANSI color-cycling to inbue a psychedelic effect onto text by cycling the colors of the primary text color through the visible spectrum. Originally written to combat “hangxiety” — anxiety over whether your code has hung — by affecting screenoutput without actually generating any “real” output. Then enhanced to postprocess the output to the ```move``` and ```copy``` commands with emoji, color, italics, double-height text for summaries, and more. Finally, enhanced again with explicit postprocessing for WhisperAI's transcription output.
 
 Uses my [claire_console.py](../BAT-and-UTIL-files-1/clairecjs_utils/claire_console.py) library to achieve the color-cycling.
 
@@ -439,7 +439,7 @@ This method was used becuase API calls would limit us to only using this on the 
 &nbsp;
 </details>
 
-<details><summary>pre-rendered beautiful rainbow horizontal dividers</summary>  
+<details><summary>pre-rendered beautiful rainbow 🌈 horizontal dividers</summary>  
 
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
@@ -575,6 +575,11 @@ Delete a file, but only if it exists.
 
 
 <details><summary>Miscellaneous</summary>  
+
+
+### 🌟 [environm.bat](../BAT-and-UTIL-files-1/environm.bat):
+
+An absolute mess, but this is the command line initialization script that is run every time our command line is opened. Most anything I create won't work without this being run.
 
 
 ### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):

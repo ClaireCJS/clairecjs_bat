@@ -102,8 +102,9 @@ rem Utility functions:
                 function random_rgb_hex=`%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]`
                 
         rem Returns the width of a string (length is # of chars, width is how wide it *displays*, i.e. NOT counting ANSI):
-                function width=`%@len[%@stripansi[%1$]]`
-                function wid=`%@width[%1$]`
+                function string_width=`%@len[%@stripansi[%1$]]`
+                function width=`%@string_width[%1$]`
+                function wid=`%@string_width[%1$]`
 
         rem Alias for our len functoin:
                 function length=`%@len[%1$]`
