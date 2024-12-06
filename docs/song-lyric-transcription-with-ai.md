@@ -436,23 +436,29 @@ Used in this project for ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/win
 
 <span style="color:red;">═</span><span style="color:orange;">═</span><span style="color:yellow;">═</span><span style="color:green;">═</span><span style="color:blue;">═</span><span style="color:purple;">═</span><span style="color:magenta;">═</span>
 
- #### $\textcolor{red}{\textsf{Color didnt work .}}$ 
+$\textcolor{red}{\textsf{Red}}$ 
+$\textcolor{red}{\textsf{Orange}}$ 
+$\textcolor{red}{\textsf{Red}}$ 
 
 $${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
-> [!NOTE]
-> Highlights information that users should take into account, even when skimming.
 
-> [!TIP]
-> Optional information to help a user be more successful.
+$${\color{red}Welcome \color{lightblue}To \color{orange}Stackoverflow}$$
 
-> [!IMPORTANT]
-> Crucial information necessary for users to succeed.
+${\color{red}Welcome \color{lightblue}To \color{orange}Stackoverflow}$
 
-> [!WARNING]
-> Critical content demanding immediate user attention due to potential risks.
+Highlights information that users should take into account, even when skimming.
 
-> [!CAUTION]
-> Negative potential consequences of an action.
+[!TIP]
+Optional information to help a user be more successful.
+
+[!IMPORTANT]
+Crucial information necessary for users to succeed.
+
+[!WARNING]
+Critical content demanding immediate user attention due to potential risks.
+
+[!CAUTION]
+Negative potential consequences of an action.
 
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
