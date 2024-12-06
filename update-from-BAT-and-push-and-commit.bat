@@ -125,13 +125,13 @@ rem Validate the above (and other) values that we will be using here:
         call validate-environment-variables %to_validate%
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
+        rem Set our copy commands:
+                set   COPY=*copy /u /q
+                set COPY_S=*copy /u /q /s
         rem Adjustment for special modes:
                 iff 1 eq %DOCS_ONLY then
                         goto :docs_only_goto_1
                 endiff                        
-        rem Set our copy commands:
-                set   COPY=*copy /u /q
-                set COPY_S=*copy /u /q /s
         rem Files that don't normally live in C:\BAT\ but which we copy there for distribution, to keep things simple:        
                 %copy%  %TCMD_ALIASES%                %TARGET_MAIN%\alias.lst
                 %copy%  %TCMD_INI%                    %TARGET_MAIN%\tcmd.ini
@@ -214,7 +214,7 @@ rem Commit and Push:
         call divider
         echo.
         set  no_push_warning=1
-        call commit-and-push.bat 
+        call commit-and-push.bat %*
         echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/%TARGET%  >go-to-individual-BAT-files-on-GitHub.bat
 
 

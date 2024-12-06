@@ -20,8 +20,8 @@ rem CONFIGURATION:
         set TARGET_MAIN=BAT-and-UTIL-files-1
         set TARGET_1=%TARGET_MAIN%
         set TARGET_2=BAT-and-UTIL-files-2
-        rem COMMIT_CONFIRMATION_WAIT_TIME=5
-        set COMMIT_CONFIRMATION_WAIT_TIME=2
+        set COMMIT_CONFIRMATION_WAIT_TIME=5
+        rem COMMIT_CONFIRMATION_WAIT_TIME=2
 
         SET MANIFEST_FILES=NONE
 
@@ -48,14 +48,16 @@ rem Parameters:
                 set GO_STRAIGHT_TO_GIT=0
                 set        SKIP_UPDATE=0
                 set          DOCS_ONLY=0
+                set             FASTER=0
         :check_params
                 set PARAM_FOUND=0
                 if "%1" eq "git"         (set PARAM_FOUND=1 %+ set GO_STRAIGHT_TO_GIT=1)                                       
                 if "%1" eq "skip-update" (set PARAM_FOUND=1 %+ set        SKIP_UPDATE=1)                                       
-                if "%1" eq "docs"        (set PARAM_FOUND=1 %+ set          DOCS_ONLY=1)                                       
+                if "%1" eq "docs"        (set PARAM_FOUND=1 %+ set          DOCS_ONLY=1 %+ set FASTER=1)
                 if   1  eq %PARAM_FOUND% (shift             %+ goto       :check_params)
                 if "%1" ne ""            (call print-message error "don't know what this %[1st] parameter of '%italics_on%%1%italics_off`%' is supposed to mean")
 
+        rem DEBUG: echo [A]faster is %FASTER% , param_found is %PARAM_FOUND%, docs_only is %DOCS_ONLY% %+ pause
 
 
 rem Only once per session, validate our environment & make sure we're running this on the correct machine:
@@ -123,13 +125,13 @@ rem Validate the above (and other) values that we will be using here:
         call validate-environment-variables %to_validate%
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
+        rem Set our copy commands:
+                set   COPY=*copy /u /q
+                set COPY_S=*copy /u /q /s
         rem Adjustment for special modes:
                 iff 1 eq %DOCS_ONLY then
                         goto :docs_only_goto_1
                 endiff                        
-        rem Set our copy commands:
-                set   COPY=*copy /u /q
-                set COPY_S=*copy /u /q /s
         rem Files that don't normally live in C:\BAT\ but which we copy there for distribution, to keep things simple:        
                 %copy%  %TCMD_ALIASES%                %TARGET_MAIN%\alias.lst
                 %copy%  %TCMD_INI%                    %TARGET_MAIN%\tcmd.ini
@@ -183,6 +185,7 @@ rem display limit so that bat files starting with Z can actually be browsed to:
 rem Give a chance to stop here...
         echo.
         call divider
+        if 1 eq %FASTER goto :git_add_done
         echo.
         call askYN "Continue with git add + commit + push?" yes %COMMIT_CONFIRMATION_WAIT_TIME%
         if %DO_IT eq 0 (goto :Skip_TheRest)
@@ -199,6 +202,7 @@ rem Make sure they're all added —— any new extensions that we add to our pro
                 
         rem This secondary folder seems to be having troubles sometimes... Re-add just to be sure.
                 call git.bat add %TARGET_2%\*.bat
+        :git_add_done                
 
 rem Make file readonly again:
         rem echo 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
@@ -210,7 +214,7 @@ rem Commit and Push:
         call divider
         echo.
         set  no_push_warning=1
-        call commit-and-push.bat 
+        call commit-and-push.bat %*
         echo https://github.com/ClaireCJS/clairecjs_bat/tree/main/%TARGET%  >go-to-individual-BAT-files-on-GitHub.bat
 
 

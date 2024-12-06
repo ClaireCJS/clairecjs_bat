@@ -790,6 +790,11 @@ REM ANSI: margin-setting / anti-scroll areas
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+REM ANSI: newly-unsupported in Windows Terminal, 2024ish:
+        rem OSC 2 command to set title, but never bothered here because TCC has a 'title' command
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 REM ANSI: unsupported in Windows Terminal:
         set      UNSUPPORTED_SET_UNDERLINE_COLOR=%ANSI_CSI%58;2;255,0,0m %+ REM set underline color to red
         set               UNSUPPORTED_NUMLOCK_ON=%ANSI_CSI%?108h
