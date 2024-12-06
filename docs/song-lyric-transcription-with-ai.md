@@ -495,9 +495,9 @@ Sets envirionment variables (or user functions) for all the ansi codes we know t
 
 Sets all the emoji we care to set, using the [emoji.env](../BAT-and-UTIL-files-1/emoji.env) file to add new emoji.
 
-### 🌟 [cat_fast.exe](../BAT-and-UTIL-files-1/cat_fast.exe):
+### 🌟 [fast_cat.exe](../BAT-and-UTIL-files-1/cat_fast.exe):
 
-Version of ```cat.exe``` deemed to be the fastest. I have several versions of the unix ```cat``` command, but this is the one I use for speediness. Piping things to ```cat_fast``` (which I usually express as ```fast_cat``` through a bat file)
+Version of ```cat.exe``` deemed to be the fastest. I have several versions of the unix ```cat``` command, but this is the one I use for speediness. Piping things to ```fast_cat``` or ```cat_fast``` fixes ANSI rendering errors and is a required step for modern color rendering if you use [TCC](https://jpsoft.com/all-downloads/all-downloads.html) in conjunction with Windows Terminal.
 
 
 &nbsp;
