@@ -58,7 +58,17 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
       - either from [GitHub](https://github.com/microsoft/terminal/releases/)
       - or via *WinGet* with the command: ```winget install -e --id Microsoft.WindowsTerminal```
       - or from the Microsoft Store
-    - Add *TCC* to your *Windows Terminal*
+    - Add *TCC* to your *Windows Terminal*:
+      - Open up *Windows Terminal*
+      - Hit Ctrl-, (yes, control-comma) to go into settings
+      - Scroll to the bottom of the left pane and click *Add new profile*
+      - Duplicate the PowerShell profile
+      - Change the name to "TCC"
+      - Change the command line to ```c:\tcmd\tcc.exe```
+      - Change the starting directory to ```c:\tcmd```
+      - Ensure *Run As Administrator* is turned on. 
+      - Go into ```Appearance``` and change the font to *Cascadia Code*, which has the proper [ligature rendering](https://github.com/microsoft/cascadia-code#font-features) that I take advantage of cosmetically.
+
 &nbsp;    
 
 
