@@ -396,9 +396,7 @@ Uses my [claire_console.py](../BAT-and-UTIL-files-1/clairecjs_utils/claire_conso
 &nbsp;
 </details>
 
-<details><summary>Psychedelic color-cycler with WhisperAI-specific postprocessing</summary>  
-
-<details><summary>⚡ WinAmp 🦙 integration</summary>  
+<details><summary>⚡ WinAmp 🦙 integration to operate on “song currently playing”</summary>  
 
 ### 🌟 [go-to-currently-playing-song-dir.bat](../BAT-and-UTIL-files-1/go-to-currently-playing-song-dir.bat):
 
@@ -406,6 +404,9 @@ Used in this project for ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/win
 
 &nbsp;
 </details>
+
+
+<details><summary>Pre-rende.</summary>  
 
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
@@ -442,6 +443,8 @@ Delete a file, but only if it exists.
 
 
 &nbsp;
+
+<details><summary>Click here to view the remaining command list & descriptions.</summary>  
 
 ### 🌟 [print-message.bat](../BAT-and-UTIL-files-1/print-message.bat):
 
