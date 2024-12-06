@@ -441,14 +441,12 @@ This method was used becuase API calls would limit us to only using this on the 
 
 <details><summary>horizontal dividers, pre-rendered beautiful rainbow</summary>  
 
-<span style="color:red;">═</span><span style="color:orange;">═</span><span style="color:yellow;">═</span><span style="color:green;">═</span><span style="color:blue;">═</span><span style="color:purple;">═</span><span style="color:magenta;">═</span>
-
 $\textcolor{red}{\textsf{Red}}$ 
 $\textcolor{orange}{\textsf{Orange}}$ 
 $\textcolor{Yellow}{\textsf{Yellow}}$ 
 
 $${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
-$${\color{red}═\color{orange}═\color{yellow}═\color{green}═\color{blue}═\color{purple}═\color{magenta}═}$$
+$${\color{red}═ \color{orange}═ \color{yellow}═ \color{green}═ \color{blue}═ \color{purple}═ \color{magenta}═}$$
 
 
 ═
