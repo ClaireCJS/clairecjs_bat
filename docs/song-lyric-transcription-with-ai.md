@@ -54,14 +54,15 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 
 3. 🖥 [Windows Terminal](https://jpsoft.com/all-downloads/all-downloads.html).  
     - Needed to support our colorful presentation
-    - Install Windows Terminal:
+    - Install *Windows Terminal*:
       - either from [GitHub](https://github.com/microsoft/terminal/releases/)
       - or via *WinGet* with the command: ```winget install -e --id Microsoft.WindowsTerminal```
       - or from the Microsoft Store
+    - Add *TCC* to your *Windows Terminal*
 &nbsp;    
 
 
-3. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
+4. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
     - Technically you probably only need about 100 of these files.  
     - This folder has it's own ```sort``` and ```uniq``` executables (from [Cygwin](https://www.cygwin.com)) to ensure consistency
     - To install: 
@@ -76,7 +77,7 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 &nbsp;
 
-4. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
+5. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
     - Always be running  the ```Everything``` service, which comes with TakeCommand ([TCC](https://jpsoft.com/all-downloads/all-downloads.html))
     - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn't start automatically. 
 
