@@ -461,7 +461,7 @@ $\textcolor{Yellow}{\textsf{Yellow}}$
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
 Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/dividers/) to separate out output into sections.
-
+&nbsp;
 </details>
 
 <details><summary>Prompting System with automatic default-answer timeouts</summary>  
@@ -469,6 +469,7 @@ Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/d
 ### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
 
 The Yes/No prompting system with automatic-default-answer prompt timeouts.
+&nbsp;
 </details>
 
 <details><summary>Messaging System for warnings/errors/success/debug/etc</summary>  
@@ -556,14 +557,19 @@ Version of ```cat.exe``` deemed to be the fastest. I have several versions of th
 
 
 
+		  
+<details><summary></summary>  
+&nbsp;
+</details>
+<details><summary></summary>  
+&nbsp;
+</details>
+<details><summary></summary>  
+&nbsp;
+</details>
+&nbsp;
+<details><summary></summary>  
 
-<details><summary>Alternate Data Stream file tag editor</summary>  
-</details>
-<details><summary>Alternate Data Stream file tag editor</summary>  
-</details>
-<details><summary>Alternate Data Stream file tag editor</summary>  
-</details>
-<details><summary>Alternate Data Stream file tag editor</summary>  
 
 
 <details><summary>Click here to view the remaining command list & descriptions.</summary>  
