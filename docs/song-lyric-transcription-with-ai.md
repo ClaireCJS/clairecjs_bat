@@ -448,30 +448,6 @@ hi2!
 
 
 
-$\textcolor{red}{\textsf{pre}}$$\textcolor{orange}{\textsf{-re}}$%
-$\textcolor{yellow}{\textsf{nde}}$%
-$\textcolor{lime}{\textsf{red}}$%
-$\textcolor{green}{\textsf{ rai}}$$\textcolor{teal}{\textsf{nbow}}$
-$\textcolor{cyan}{\textsf{ hor}}$%
-$\textcolor{blue}{\textsf{izon}}$%
-$\textcolor{violet}{\textsf{tal}}$%
-$\textcolor{magenta}{\textsf{ div}}$%
-$\textcolor{pink}{\textsf{iders}}$
-
-
-
-$\textcolor{red}{\textsf{pre}}$%
-$\textcolor{orange}{\textsf{-re}}$%
-$\textcolor{yellow}{\textsf{nde}}$%
-$\textcolor{lime}{\textsf{red}}$%
-$\textcolor{green}{\textsf{ rai}}$%
-$\textcolor{teal}{\textsf{nbow}}$%
-$\textcolor{cyan}{\textsf{ hor}}$%
-$\textcolor{blue}{\textsf{izon}}$%
-$\textcolor{violet}{\textsf{tal}}$%
-$\textcolor{magenta}{\textsf{ div}}$%
-$\textcolor{pink}{\textsf{iders}}$
-
 
 $\textcolor{orange}{\textsf{Orange}}$ 
 $\textcolor{Yellow}{\textsf{Yellow}}$ 
