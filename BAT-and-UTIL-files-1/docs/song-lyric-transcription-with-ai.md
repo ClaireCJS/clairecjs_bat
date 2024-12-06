@@ -430,16 +430,54 @@ The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat)
 
 &nbsp;
 
-### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):
+</details>
 
-Receives piped input and runs it as if it were typed to the command line. Dangerous stuff!
-
-
+<details><summary>File Randomizer / Shuffler</summary>  
 ### 🌟 [randomize-file.pl](../BAT-and-UTIL-files-1/randomize-file.pl.bat):
 
 Scrambles the lines of STDIN.  One could think of it as shuffling/randomizing a playlist/filelist.  Used to do things in random orders.
 
 &nbsp;
+</details>
+<details><summary>Alternate Data Stream file tag editor</summary>  
+
+### 🌟 [add-ADS-tag-to-file.bat](../BAT-and-UTIL-files-1/add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/remove-ADS-tag-from-file.bat) / [display-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/display-ADS-tag-from-file.bat):
+
+Commands for displaying tags, and for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs). Used for lyric [dis]approval.
+
+&nbsp;
+</details>
+<details><summary>Alternate Data Stream file tag editor</summary>  
+
+
+
+
+
+
+
+
+
+
+</details>
+<details><summary>Alternate Data Stream file tag editor</summary>  
+</details>
+<details><summary>Alternate Data Stream file tag editor</summary>  
+</details>
+<details><summary>Alternate Data Stream file tag editor</summary>  
+</details>
+<details><summary>Alternate Data Stream file tag editor</summary>  
+</details>
+<details><summary>Alternate Data Stream file tag editor</summary>  
+
+
+<details><summary>Click here to view the remaining command list & descriptions.</summary>  
+
+
+### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):
+
+Receives piped input and runs it as if it were typed to the command line. Dangerous stuff!
+
+
 
 ### 🌟 [delete-zero-byte-files.bat](../BAT-and-UTIL-files-1/delete-zero-byte-files.bat) {filemask}:
 
@@ -452,16 +490,9 @@ Delete a file, but only if it exists.
 
 &nbsp;
 
-<details><summary>Click here to view the remaining command list & descriptions.</summary>  
 
 
 
-
-### 🌟 [add-ADS-tag-to-file.bat](../BAT-and-UTIL-files-1/add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/remove-ADS-tag-from-file.bat) / [display-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/display-ADS-tag-from-file.bat):
-
-Commands for displaying tags, and for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs). Used for lyric [dis]approval.
-
-&nbsp;
 
 ### 🌟 [validate-environment-variables {list of env-var names}](../BAT-and-UTIL-files-1/validate-environment-variable.bat):
 
