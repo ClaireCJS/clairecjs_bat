@@ -43,7 +43,7 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 2. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
     - Install TCC:
         - either from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
-        - or via *WinGet* with the command ```winget install JPSoft.tcmd```
+        - or via *WinGet* with the command: ```winget install JPSoft.tcmd```
           - No *WinGet*? Install it in *PowerShell* with the command ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` 
           - or with command ```Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe```
     - Make ```c:\TCMD``` point to our [TCC](https://jpsoft.com/all-downloads/all-downloads.html) installation:
@@ -54,8 +54,8 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 
 3. 🖥 [Windows Terminal](https://jpsoft.com/all-downloads/all-downloads.html).  
     - Install Windows Terminal:
-        - either from 
-	-
+      - either from [GitHub](https://github.com/microsoft/terminal/releases/)
+      - or via *WinGet* with the command: ```winget install -e --id Microsoft.WindowsTerminal```
 &nbsp;    
 
 
