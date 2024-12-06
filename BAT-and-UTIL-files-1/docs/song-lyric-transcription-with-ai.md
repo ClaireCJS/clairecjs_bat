@@ -443,6 +443,7 @@ This method was used becuase API calls would limit us to only using this on the 
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
 Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/dividers/) to separate out output into sections.
+
 &nbsp;
 </details>
 
@@ -451,6 +452,7 @@ Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/d
 ### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
 
 The Yes/No prompting system with automatic-default-answer prompt timeouts.
+
 &nbsp;
 </details>
 
@@ -461,7 +463,6 @@ The Yes/No prompting system with automatic-default-answer prompt timeouts.
 The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat), [debug.bat](../BAT-and-UTIL-files-1/debug.bat), [error.bat](../BAT-and-UTIL-files-1/error.bat), [fatal_error.bat](../BAT-and-UTIL-files-1/fatalerror.bat), [success.bat](../BAT-and-UTIL-files-1/success.bat), [celebration.bat](../BAT-and-UTIL-files-1/celebration.bat), [important.bat](../BAT-and-UTIL-files-1/important.bat), [important_less.bat](../BAT-and-UTIL-files-1/important_less.bat), [advice](../BAT-and-UTIL-files-1/advice.bat), [unimportant](../BAT-and-UTIL-files-1/unimportant.bat), etc)
 
 &nbsp;
-
 </details>
 
 <details><summary>File Randomizer / Shuffler</summary>  
@@ -503,6 +504,7 @@ Validates whether a file has an acceptable file extension.
 Validates whether a TCC user %@function is defined or not
 
 &nbsp;
+
 </details>
 
 
@@ -541,14 +543,18 @@ Version of ```cat.exe``` deemed to be the fastest. I have several versions of th
 
 		  
 <details><summary></summary>  
+
 &nbsp;
 </details>
 <details><summary></summary>  
+
 &nbsp;
 </details>
 <details><summary></summary>  
+
 &nbsp;
 </details>
+
 &nbsp;
 <details><summary></summary>  
 
