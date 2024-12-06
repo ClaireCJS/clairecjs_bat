@@ -436,6 +436,9 @@ Used in this project for ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/win
 
 <span style="color:red;">═</span><span style="color:orange;">═</span><span style="color:yellow;">═</span><span style="color:green;">═</span><span style="color:blue;">═</span><span style="color:purple;">═</span><span style="color:magenta;">═</span>
 
+ #### $\textcolor{red}{\textsf{Color didint work .}}$ 
+
+
 ### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
 
 Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/dividers/) to separate out output into sections.
