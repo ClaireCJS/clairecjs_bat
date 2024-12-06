@@ -115,6 +115,8 @@ rem Manually-selected copies from locations other than C:\BAT\ ——— Step #1
 
 rem Validate the above (and other) values that we will be using here:
         if 1 eq %DOCS_ONLY (
+                echo docs only mode
+                pause
                 set to_validate=DOCS_FOLDER
         ) else (                
                 set to_validate=BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_CLAIRE_ZIP PERL_SITELIB_FULL_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE DOCS_FOLDER

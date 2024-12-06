@@ -123,7 +123,9 @@ rem Validate the above (and other) values that we will be using here:
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
         rem Adjustment for special modes:
-                if 1 eq %DOCS_ONLY goto :docs_only_goto_1
+                iff 1 eq %DOCS_ONLY then
+                        goto :docs_only_goto_1
+                endiff                        
         rem Set our copy commands:
                 set   COPY=*copy /u /q
                 set COPY_S=*copy /u /q /s
