@@ -131,7 +131,7 @@ Obtains the lyrics for a particular song file.
 If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, get lyrics for *the song currently being played*.
 
 
-### 🌟 [get-missing-lyrics-here.bat](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gmlh](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gml](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) /:
+### 🌟 [get-missing-lyrics-here.bat](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gmlh](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gml](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat):
 
 Gets lyrics for all the files *in the current folder* that do not have *approved* lyric files.
 (Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
@@ -421,7 +421,7 @@ Scrambles the lines of STDIN.  One could think of it as shuffling/randomizing a 
 
 &nbsp;
 
-### 🌟 [delete-zero-byte-files.bat](../BAT-and-UTIL-files-1/delete-zero-byte-files.bat) {filemask} :
+### 🌟 [delete-zero-byte-files.bat](../BAT-and-UTIL-files-1/delete-zero-byte-files.bat) {filemask}:
 
 Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us having to check EVERY file for non-zero-ness.
 
@@ -515,8 +515,7 @@ This method was used becuase API calls would limit us to only using this on the 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-🏁🏁🏁�
-�
+🏁🏁🏁 🔚 
 ![image](https://github.com/user-attachments/assets/9abdb1a5-c50a-424c-b151-144046fedd93)
 
 

@@ -179,8 +179,7 @@ Pause::
 #C::
 {
     if not WinExist("ahk_class Winamp v1.x")
-        return
-    ; Otherwise, the above has set the "last found" window for use below.
+        return           ; Otherwise, the above has set the "last found" window for use below.
         ControlSend "c"  ; Pause/Unpause
 }
 
@@ -205,12 +204,16 @@ Pause::
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;
-^?::Send "❔" ; Ctrl+? for ❔ [white]
-!?::Send "❓" ;  Alt+? for ❓ [red]
-^8::Send "⭐" ; Ctrl+8 for ⭐
+^?::Send "❔"  ; Ctrl+? for ❔ [white]
+!?::Send "❓"  ;  Alt+? for ❓ [red]
+^8::Send "⭐"  ; Ctrl+8 for ⭐
 !8::Send "🌟" ;  Alt+8 for 🌟
-^-::Send "–" ; Ctrl+Hyphen for en dash 
-!-::Send "—" ;  Alt+Hyphen for em dash
+^-::Send "–"  ; Ctrl+Hyphen for en dash (ranges, quotations)
+!-::Send "—"  ;  Alt+Hyphen for em dash (interruptions)
+^'::Send "‘’" ; Ctrl+apostrophe for smart apostrophe-ish single quotes
+!'::Send "‘’" ;  Alt+apostrophe for smart apostrophe-ish single quotes
+^"::Send "“”" ; Ctrl+quote for smart double/normal quotes
+!"::Send "“”" ;  Alt+quote for smart double/normal quotes
 ;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
