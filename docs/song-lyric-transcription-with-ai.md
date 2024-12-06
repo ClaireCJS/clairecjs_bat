@@ -578,7 +578,7 @@ Quote conversion offloaded into python script to avoid command-line complication
 
 Prints a list of all audio files (mp3, flac, wav, etc).
 Technically should be called “```audio_file_index.bat```”. 
-
+![image](https://github.com/user-attachments/assets/7a1262a5-66bf-445d-b611-cd936035b93b)
 &nbsp;
 
 </details>
