@@ -481,9 +481,25 @@ Validates whether a TCC user %@function is defined or not
 
 
 
-<details><summary>Alternate Data Stream file tag editor</summary>  
+<details><summary>Visual Layer (ansi / űńîçődĕ / emoji functions)</summary>  
+### 🌟 [set-ansi.bat](../BAT-and-UTIL-files-1/set-ansi.bat):
+
+Sets envirionment variables (or user functions) for all the ansi codes we know to exist, as well as for our messaging system ([print-message.bat](../BAT-and-UTIL-files-1/print-message.bat)).
+
+### 🌟 [set-emojis.bat](../BAT-and-UTIL-files-1/set-emojis.bat):
+
+Sets all the emoji we care to set, using the [emoji.env](../BAT-and-UTIL-files-1/emoji.env) file to add new emoji.
+
+### 🌟 [bigecho.bat](../BAT-and-UTIL-files-1/bigecho.bat):
+
+Echos, but in VT100-double-heighttext. Requires ```set-ansi```.
+
+
+&nbsp;
 
 </details>
+
+
 <details><summary>Alternate Data Stream file tag editor</summary>  
 </details>
 <details><summary>Alternate Data Stream file tag editor</summary>  
