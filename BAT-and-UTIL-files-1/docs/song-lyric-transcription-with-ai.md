@@ -412,10 +412,10 @@ Used in this project for ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/win
 
 Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/dividers/) to separate out output into sections.
 
+</details>
+
 
 <details><summary>Click here to view the remaining command list & descriptions.</summary>  
-<details><summary>Click here to view the remaining command list & descriptions.</summary>  
-
 
 ### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
 
