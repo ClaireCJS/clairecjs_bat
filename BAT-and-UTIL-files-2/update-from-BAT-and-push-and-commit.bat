@@ -20,7 +20,8 @@ rem CONFIGURATION:
         set TARGET_MAIN=BAT-and-UTIL-files-1
         set TARGET_1=%TARGET_MAIN%
         set TARGET_2=BAT-and-UTIL-files-2
-        set COMMIT_CONFIRMATION_WAIT_TIME=5
+        rem COMMIT_CONFIRMATION_WAIT_TIME=5
+        set COMMIT_CONFIRMATION_WAIT_TIME=2
 
         SET MANIFEST_FILES=NONE
 
@@ -115,8 +116,6 @@ rem Manually-selected copies from locations other than C:\BAT\ ——— Step #1
 
 rem Validate the above (and other) values that we will be using here:
         if 1 eq %DOCS_ONLY (
-                echo docs only mode
-                pause
                 set to_validate=DOCS_FOLDER
         ) else (                
                 set to_validate=BAT UTIL PUBCL NOTES GIRDER_CONFIGURATION AUDIO_PROCESSING_NOTES PERL_SITELIB_CLAIRE_ZIP PERL_SITELIB_FULL_ZIP COLORTOOL_EXE PRIMARY_AUTOEXEC_BAT TCMD_ALIASES TCMD_INI TCMD_START_SCRIPT WINAMP_SETUP_NOTES WINDOWS_TERMINAL_SETTINGS DIVIDERS_FOLDER SAMPLES_FOLDER PYTHON_OFFICIAL_SITELIB_CLAIRE DOCS_FOLDER
@@ -125,7 +124,9 @@ rem Validate the above (and other) values that we will be using here:
 
 rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 ——— Copy the files:
         rem Adjustment for special modes:
-                if 1 eq %DOCS_ONLY goto :docs_only_goto_1
+                iff 1 eq %DOCS_ONLY then
+                        goto :docs_only_goto_1
+                endiff                        
         rem Set our copy commands:
                 set   COPY=*copy /u /q
                 set COPY_S=*copy /u /q /s
