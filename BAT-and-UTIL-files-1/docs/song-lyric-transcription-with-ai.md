@@ -53,6 +53,7 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 &nbsp;
 
 3. 🖥 [Windows Terminal](https://jpsoft.com/all-downloads/all-downloads.html).  
+    - Needed to support our colorful presentation
     - Install Windows Terminal:
       - either from [GitHub](https://github.com/microsoft/terminal/releases/)
       - or via *WinGet* with the command: ```winget install -e --id Microsoft.WindowsTerminal```
