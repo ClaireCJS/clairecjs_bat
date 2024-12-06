@@ -447,19 +447,42 @@ Commands for displaying tags, and for adding/removing tags to files using [Alter
 
 &nbsp;
 </details>
-<details><summary>Alternate Data Stream file tag editor</summary>  
 
 
 
 
 
+<details><summary>Validators (for variables, commands, functions, & file extensions)</summary>  
 
+### 🌟 [validate-environment-variables {list of env-var names}](../BAT-and-UTIL-files-1/validate-environment-variable.bat):
 
+Validates whether environment variables (and the files they point to!) exist.
 
+### 🌟 [validate-in-path {list of commands}](../BAT-and-UTIL-files-1/validate-in-path.bat):
 
+Validates whether commands (be they internal, alias, or not) are in the path
 
+### 🌟 [validate-is-extension {filename} {list of extensions}](../BAT-and-UTIL-files-1/validate-is-extension.bat):
+
+Validates whether a file has an acceptable file extension.  
+
+### 🌟 [validate-is-function {list of functions}](../BAT-and-UTIL-files-1/validate-function.bat):
+
+Validates whether a TCC user %@function is defined or not
+
+&nbsp;
 </details>
+
+
+
+
+
+
+
+
+
 <details><summary>Alternate Data Stream file tag editor</summary>  
+
 </details>
 <details><summary>Alternate Data Stream file tag editor</summary>  
 </details>
@@ -494,40 +517,7 @@ Delete a file, but only if it exists.
 
 
 
-### 🌟 [validate-environment-variables {list of env-var names}](../BAT-and-UTIL-files-1/validate-environment-variable.bat):
 
-Validates whether environment variables (and the files they point to!) exist.
-
-### 🌟 [validate-in-path {list of commands}](../BAT-and-UTIL-files-1/validate-in-path.bat):
-
-Validates whether commands (be they internal, alias, or not) are in the path
-
-
-### 🌟 [validate-is-extension {filename} {list of extensions}](../BAT-and-UTIL-files-1/validate-is-extension.bat):
-
-Validates whether a file has an acceptable file extension.  
-
-
-### 🌟 [validate-is-function {list of functions}](../BAT-and-UTIL-files-1/validate-function.bat):
-
-Validates whether a TCC user %@function is defined or not
-
-&nbsp;
-
-### 🌟 [set-ansi.bat](../BAT-and-UTIL-files-1/set-ansi.bat):
-
-Sets envirionment variables (or user functions) for all the ansi codes we know to exist, as well as for our messaging system ([print-message.bat](../BAT-and-UTIL-files-1/print-message.bat)).
-
-### 🌟 [set-emojis.bat](../BAT-and-UTIL-files-1/set-emojis.bat):
-
-Sets all the emoji we care to set, using the [emoji.env](../BAT-and-UTIL-files-1/emoji.env) file to add new emoji.
-
-### 🌟 [bigecho.bat](../BAT-and-UTIL-files-1/bigecho.bat):
-
-Echos, but in VT100-double-heighttext. Requires ```set-ansi```.
-
-
-&nbsp;
 
 
 ### 🌟 [cat_fast.exe](../BAT-and-UTIL-files-1/cat_fast.exe):
