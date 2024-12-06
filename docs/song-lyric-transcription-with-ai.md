@@ -49,6 +49,9 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
     - Make ```c:\TCMD``` point to our [TCC](https://jpsoft.com/all-downloads/all-downloads.html) installation:
       - via the command: ```mklink c:\TCMD "c:\Program Files\TCMD31"``` 
       - The folder ```TCMD31``` may vary depending on what version of [TCC](https://jpsoft.com/all-downloads/all-downloads.html) is current.
+    - Update TCC to be compatible with my scripts:
+       - Open **TCC/TCMD** 
+       - type ```option``` at the comma d line
 
 &nbsp;
 
@@ -68,6 +71,7 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
       - Change the starting directory to ```c:\tcmd```
       - Ensure *Run As Administrator* is turned on. 
       - Go into ```Appearance``` and change the font to *Cascadia Code*, which has the proper [ligature rendering](https://github.com/microsoft/cascadia-code#font-features) that I take advantage of cosmetically.
+      
 
 &nbsp;    
 
