@@ -11,11 +11,11 @@
 
 ## 📓 Terminology: 📓
 
-<details><summary>Click here to view full definitions of “karaoke files" and “sidecar files"</summary>  
+<details><summary>Click here to view full definitions of “karaoke files” and “sidecar files”</summary>  
 
 &nbsp;
 
-📑 *Karaoke Files*: 📑 We generally call both ```SRT files``` and ```LRC files``` “karaoke files", which is a colloquial shorthand for "files capable of displaying the lyrics *as* they are sung". This system generates ```SRT``` files, but includes a batch converter that converts ```SRT``` to ```LRC```.
+📑 *Karaoke Files*: 📑 We generally call both ```SRT files``` and ```LRC files``` “karaoke files”, which is a colloquial shorthand for “files capable of displaying the lyrics *as* they are sung”. This system generates ```SRT``` files, but includes a batch converter that converts ```SRT``` to ```LRC```.
 
 &nbsp;
 
@@ -68,7 +68,7 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
       - Hit Ctrl-, (yes, control-comma) to go into settings
       - Scroll to the bottom of the left pane and click *Add new profile*
       - Duplicate the PowerShell profile
-      - Change the name to "TCC"
+      - Change the name to “TCC”
       - Change the command line to ```c:\tcmd\tcc.exe```
       - Change the starting directory to ```c:\tcmd```
       - Ensure *Run As Administrator* is turned on. 
@@ -102,7 +102,7 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 5. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration:
     - Install the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile)
     - Configure the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. 
-    - This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on "whatever song we are currently listening to" from any computer in the household. 🦙
+    - This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on “whatever song we are currently listening to” from any computer in the household. 🦙
       - Currently doesn't work if the music is paused, but a future update to the WinAmpNowPlayingToFile plugin is headed down the pipeline
 
 &nbsp;
@@ -292,7 +292,7 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 
 # 👉👉👉 ⚡️ *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 Integration* Commands:
 
-#### These commands allows us to operate on "the song we are currently listening to" rather than a specific file or playlist.
+#### These commands allows us to operate on “the song we are currently listening to” rather than a specific file or playlist.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
@@ -352,7 +352,7 @@ Same as above but for karaoke files.
 
 Created to review lyrics & karaoke for this project without the interruption of having to scroll up!
 
-Displays text in column ("newspaper") format with columns.
+Displays text in column (“newspaper”) format with columns.
 A useful replacement for the ```type``` command.
 
 
@@ -394,9 +394,9 @@ A lyric postprocessor that removes tons of junk from downloaded lyrics, only sho
 ### 🌟 [remove-period-at-ends-of-lines.pl](../BAT-and-UTIL-files-1/remove-period-at-ends-of-lines.pl):
 
 The final subtitle postprocessor, which removes periods from end of each line in a subtitle. 
-Preserves periods for words like "Mr.", "Dr.", "approx", etc
+Preserves periods for words like “Mr.”, “Dr.”, “approx”, etc
 
-**Rationale:** We add "invisible" periods to the end of each line of lyrics, so that WhisperAI's ```--sentence``` option is influenced by where lyric posters post the line breaks in their lyrics. It absolutely helped. A lot. Hours were spent determiing this and, and it was obvious from the first [of many] tests.   We then remove these periods (making them "invisible") afterward, because they are ugly and often not even gramatically correct — just correct for *timing* purposes.  
+**Rationale:** We add “invisible” periods to the end of each line of lyrics, so that WhisperAI's ```--sentence``` option is influenced by where lyric posters post the line breaks in their lyrics. It absolutely helped. A lot. Hours were spent determiing this and, and it was obvious from the first [of many] tests.   We then remove these periods (making them “invisible”) afterward, because they are ugly and often not even gramatically correct — just correct for *timing* purposes.  
 
 This also also has some extra functionality slipped in to de-censoring some curse words that WhisperAI censors.
 This functoinality can be suppressed with the ```--leave-censorship``` or ```-L``` options.
@@ -407,7 +407,7 @@ This functoinality can be suppressed with the ```--leave-censorship``` or ```-L`
 
 # 👉👉 *Under-The-Hood*: Existing commands also used by this system:
 
-Various commands that were already a part of my "Clairevironment".
+Various commands that were already a part of my “Clairevironment”.
 
 Click to expand:
 
@@ -415,7 +415,7 @@ Click to expand:
 
 ### 🌟 [copy-move-post.py](../BAT-and-UTIL-files-1/copy-move-post.py):
 
-A cosmetic postprocessor which employes ANSI color-cycling to inbue a psychedelic effect onto text by cycling the colors of the primary text color through the visible spectrum. Originally written to combat "hangxiety" — anxiety over whether your code has hung — by affecting screenoutput without actually generating any “real” output. Then enhanced to postprocess the output to the ```move``` and ```copy``` commands with emoji, color, italics, double-height text for summaries, and more. Finally, enhanced again with explicit postprocessing for WhisperAI's transcription output.
+A cosmetic postprocessor which employes ANSI color-cycling to inbue a psychedelic effect onto text by cycling the colors of the primary text color through the visible spectrum. Originally written to combat “hangxiety” — anxiety over whether your code has hung — by affecting screenoutput without actually generating any “real” output. Then enhanced to postprocess the output to the ```move``` and ```copy``` commands with emoji, color, italics, double-height text for summaries, and more. Finally, enhanced again with explicit postprocessing for WhisperAI's transcription output.
 
 Uses my [claire_console.py](../BAT-and-UTIL-files-1/clairecjs_utils/claire_console.py) library to achieve the color-cycling.
 
@@ -577,7 +577,7 @@ Quote conversion offloaded into python script to avoid command-line complication
 ### 🌟 [mp3index.bat](../BAT-and-UTIL-files-1/mp3index.bat):
 
 Prints to STDOUT a list of all songfiles (mp3, flac, wav, etc).
-Technically should be called "audio_file_index.bat". 
+Technically should be called “audio_file_index.bat”. 
 
 
 &nbsp;
