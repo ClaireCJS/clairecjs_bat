@@ -184,12 +184,14 @@ setdos /x-678
     rem echos %BIG_TEXT_LINE_1%%PARAMS%%ANSI_EOL%%NEWLINE%%BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_EOL%
     %COLOR_TO_USE% 
     
-    rem Production for a long long time:
+    rem Actually do it:
             setdos /x-5
-            echo %BIG_TEXT_LINE_1%%PARAMS%%ANSI_EOL%
-            echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_EOL%
+            rem  didn't quite line up for some reason?!?: echo %BIG_TEXT_LINE_1%%PARAMS%%ANSI_EOL%
+            rem  didn't quite line up for some reason?!?: echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%%ANSI_EOL%
+            echo %BIG_TEXT_LINE_1%%PARAMS%%ANSI_ERASE_TO_EOL%
+            echo %BIG_TEXT_LINE_2%%PARAMS%%ANSI_ERASE_TO_EOL%
             setdos /x0
-    rem also seems to work fine:
+    rem also seems to work fine:n
             rem echo %BIG_TEXT_LINE_1%%PARAMS%%BIG_TEXT_END%
             rem echo %BIG_TEXT_LINE_2%%PARAMS%%BIG_TEXT_END%
     rem also seems to work fine:

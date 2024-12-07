@@ -13,7 +13,7 @@ if "%OS%" eq "95" (goto %OS%)
 :95
 :98
 :ME
-    *start c:\4dos\4dos.com c:\4dos %&
+    *start "" c:\4dos\4dos.com c:\4dos %&
 goto :END
 
 
@@ -30,24 +30,19 @@ goto :END
     if "%INVISIBLE" == "1" set INV=/inv
     if "%TITLE"     != ""  set TIT=%TITLE
     if "%TITLE"     == ""  set TIT=%@NAME["%&"]
-    if "%POS%"     eq ""  .and. "%BIG%" ne "1" set POS=/POS=-1000,-1000,0,0
+    if "%POS%"      eq "" .and. "%BIG%" ne "1" set POS=/POS=-1000,-1000,0,0
     
     
     :20150716 - noticed /c side-effects a maximize that is very annoying
     :20150811 - added POS with defualt value to launch on left screen on Thailog, will see if it impacts other computers
+    :20241207 - changes to deal with the new start syntax that came out a few years ago
     :old  *start %POS% "%TIT%" %MAX% %MIN%       %LAUNCHER% %* 
     %color_debug%
     rem echo     *start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
     %color_run%
-                 *start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
+                 *start "%TIT%" %MAX% %MIN% %INV% %POS% %LAUNCHER% %*
 
 
 :END
-    unset /q TIT
-    unset /q TITLE
-    unset /q MAXIMIZE
-    unset /q MINIMIZE
-    unset /q MAX
-    unset /q MIN
-    unset /q INV
+    unset /q TIT TITLE MAXIMIZE MINIMIZE MAX MIN INV
     %COLOR_NORMAL%

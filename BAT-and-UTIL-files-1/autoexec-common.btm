@@ -24,7 +24,7 @@ rem Initialize environment:
         call environm 
         window "AUTOEXEC"
         gosub done_with_step
-        call header "Running %@NAME[%0]..."
+        call footer "Running %@NAME[%0]..."
 
 rem Load our autohotkey script right away since it has winamp control aspects in it
         call less_important "Initializing %italics_on%AutoHotKey%italics_off%..."

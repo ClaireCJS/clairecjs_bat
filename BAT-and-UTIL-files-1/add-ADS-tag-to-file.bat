@@ -66,7 +66,7 @@ return
 
 
 rem Get parameters:
-        set   FILE_TO_USE=%@unquote[%@trueNAME[%@UNQUOTE[%1]]]             %+ rem file to use 
+        set   File_To_Change_Tag_Of=%@unquote[%@trueNAME[%@UNQUOTE[%1]]]             %+ rem file to use 
         set TAG_TO_MODIFY=%@UNQUOTE[%2]                                    %+ rem tag to use
         set     TAG_VALUE=%@UNQUOTE[%3]                                    %+ rem value to set tag to, or "read" to return the value in %RETRIEVED_TAG%
         set       PARAM_4=%4                                               %+ rem "verbose" if you want on-screen verification of what's happeneing
@@ -81,12 +81,12 @@ rem Validate environment once:
         endiff
 
 rem Validate parameters every time:
-        iff "%@RegEx[[\*\?],%FILE_TO_USE%]" eq "1" then
+        iff "%@RegEx[[\*\?],%File_To_Change_Tag_Of%]" eq "1" then
                 call warning "Cannot use %0 on wildcards for 1ˢᵗ parameter!"
                 goto :END
         endiff
         if "%1" EQ ""                                       (gosub :usage %+ goto :END)
-        call validate-environment-variable  File_To_Use    "1st arg to %0 must be a filename. 2nd optional arg must be a tag, 3rd arg must be 'read' or a value, 4th optional arg can be 'verbose'"
+        call validate-environment-variable  File_To_Change_Tag_Of    "1st arg to %@unquote[%0] of '%emphasis%%@unquote[%1]%demphasis%%ansi_color_warning%' must be a filename that actually exists.%ansi_reset%%newline%%ansi_color_warning%2nd optional arg must be a tag, 3rd arg must be 'read' or a value, 4th optional arg can be 'verbose'"
         call validate-environment-variable   Tag_To_Modify "2nd argument to %0 must a tag, NOT empty"
         call validate-environment-variable   Tag_Value     "3rd argument to %0 must a value, or 'read' ... NOT empty"
         if "%PARAM_4%" ne "" .and. "%PARAM_4%" ne "verbose" .and. "%PARAM_4%" ne "remove" .and. "%PARAM_4%" ne "brief" .and. "%PARAM_4%" ne "lyrics" .and. "%PARAM_4%" ne "lyric" (call fatal_error "There shouldn't be a 4th parameter of this value being sent to %0 {called by %_PBATCHNAME}, but you gave '%italics_on%%PARAM_4%%italics_off%'. Run without parameters to understand proper usage.")
@@ -117,7 +117,7 @@ rem Read or set (depending on invocation) via windows alternate data streams:
                 echo —————————————————— READ THE TAG  —————————————————— >nul
                 set OPERATIONAL_MODE=READ
                 rem Store the result of reading the tag into the environment variable we've decided to use as convention for this situation:
-                        set RECEIVED_VALUE=%@ExecStr[type <"%FILE_TO_USE%:%TAG_TO_MODIFY%" >&>nul]
+                        set RECEIVED_VALUE=%@ExecStr[type <"%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%" >&>nul]
                         set   RECEIVED_TAG=%TAG_TO_MODIFY%
                         set value_to_display_in_verbose_mode=%RECEIVED_VALUE%
                 
@@ -134,13 +134,13 @@ rem Read or set (depending on invocation) via windows alternate data streams:
                 echo —————————————————— DELETE THE TAG  —————————————————— >nul
                 set OPERATIONAL_MODE=DELETE
                 rem Grab the value so we can say it was removed:
-                        set  OLD_VALUE=%@ExecStr[type "%FILE_TO_USE%:%TAG_TO_MODIFY%"]
+                        set  OLD_VALUE=%@ExecStr[type "%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%"]
                         if "%OLD_VALUE%" eq ""       (set OLD_VALUE=%ansi_color_normal%%ansi_color_red%%@Repeat[%@CHAR[10875],3]%faint_on% none %faint_off%%@Repeat[%@CHAR[10876],3]%ansi_color_normal%)
                         if "%TAG_VALUE%" eq "remove" (set value_to_display_in_verbose_mode=%OLD_VALUE%)
 
                 rem Delete/blank out/remove the tag from the file, but in a very safe way where we don't accidentally delete the file:
                         iff "%TAG_TO_MODIFY%" ne "" then
-                                >"%FILE_TO_USE%:%TAG_TO_MODIFY%"
+                                >"%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%"
                         else
                                 call fatal_error ("%TAG_TO_MODIFY is currently '%TAG_TO_MODIFY%' and absolutely should not be" %+ goto :END)
                         endiff
@@ -153,10 +153,10 @@ rem Read or set (depending on invocation) via windows alternate data streams:
                 echo —————————————————— SET THE TAG  —————————————————— >nul
                 set OPERATIONAL_MODE=SET
                 rem Associate the tag+value pair into the file:
-                        echo %TAG_VALUE%>"%FILE_TO_USE%:%TAG_TO_MODIFY%"
+                        echo %TAG_VALUE%>"%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%"
 
                 rem Grab it right back out so our verbose output says the true value:
-                        set value_to_display_in_verbose_mode=%@ExecStr[type <"%FILE_TO_USE%:%TAG_TO_MODIFY%"]
+                        set value_to_display_in_verbose_mode=%@ExecStr[type <"%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%"]
                         
                 rem If we are in verbose mode, verify the write by reading it:
                         gosub explain
@@ -171,7 +171,7 @@ goto :END
                         set tmp_value=%[value_to_display_in_verbose_mode]
                         if "" eq "%tmp_value%" (set tmp_value=%italics_on%%blink_on%(unset)%blink_off%%italics_off%)
                         set tmp_tag=%[TAG_TO_MODIFY]
-                        set tmp_file2use=%[FILE_TO_USE]
+                        set tmp_file2use=%[File_To_Change_Tag_Of]
                         set tmp_emoji2use=%CHECK%           
 
                         rem echo [verbose=%verbose,brief_mode=%brief_mode%,lyric_mode=%lyric_mode%]

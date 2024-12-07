@@ -1,8 +1,7 @@
 @Echo Off
  rem on break cancel
 
-:DESCRIPTION: System-wide deletion of trash files left by AI transcription file.  
-:USED-BY:     Called by "free-up-harddrive-space.bat", which is called by "maintanance.bat", which is called by "autoxec.bat" on startup
+:DESCRIPTION: Checks for files that are missing *approved* lyric files.
 :USAGE: check-for-missing-lyrics ————————————————————— checks files in current folder, and displays songs missing lyrics
 :USAGE: check-for-missing-lyrics get ————————————————— checks files in current folder, and  gets all  the missing lyrics
 :USAGE: check-for-missing-lyrics playlist.m3u get ———— checks files in   playlist.m3u, and displays songs missing lyrics
@@ -99,7 +98,7 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
                      iff 1 eq %BAD% then
                              set ANY_BAD=1
                              echo %EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%%@unquote[%AudioFile%] %+ rem currently has quotes
-                             echo call get-lyrics "%@UNQUOTE[%AudioFile%]" >>"%tmpfile%"
+                             echo cls `%`+ call get-lyrics "%@UNQUOTE[%AudioFile%]" >>"%tmpfile%"
                      endiff                        
                      rem DEBUG: echo %ansi_color_normal%* Checking %faint_on%%AudioFile%%faint_off% %@ansi_move_to_col[65] textfile=%faint_on%%textfile%%faint_off% %tab% %@ANSI_MOVE_TO_COL[125]%coloring%EXISTS=%txt_exists%%ansi_color_normal%   %coloring2%APPROVED=%LYRIC_APPROVAL_VALUE%
              return

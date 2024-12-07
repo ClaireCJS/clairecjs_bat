@@ -255,10 +255,14 @@ goto :Past_The_End_Of_The_Sub-Routines
                         REM ...so let's put asterisks around it, too!
                         call warning %USER_MESSAGE%
                     endiff
-                    call     warning  " Called by: %_pbatchname" silent
+                    set old=%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%
+                    set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
+                    call     warning  " Called by: %_pbatchname"                         silent
                     call     warning  "Parameters: %italics_on%%VEVPARAMS%%italics_off%" silent
-                    call     warning  "       CWP: %_CWP" silent
-                    call fatal_error "'%italics_on%%@UPPER[%VARNAME%]%italics_off%' location does not exist: '%VARVALUE%'...%ANSI_COLOR_WARNING%%USER_MESSAGE%%ANSI_COLOR_FATAL_ERROR%" silent
+                    call     warning  "       CWP: %_CWP"                                silent
+                    set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=%old%
+                    set USER_MESSAGE_TO_USE=%NEWLINE%%USER_MESSAGE%
+                    call fatal_error "'%italics_on%%@UPPER[%VARNAME%]%italics_off%' location does not exist: '%VARVALUE%'...%ANSI_COLOR_WARNING%%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%" 
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

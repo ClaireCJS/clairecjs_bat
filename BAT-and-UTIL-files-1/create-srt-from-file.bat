@@ -1,8 +1,11 @@
 @Echo off
  on break cancel
 
-rem TODO: add another srt to subtitles if the last one is not empty: combat stuck lyrics:
-rem 
+
+rem TODO if we're doing lyrics, show downloaded lyrics *first* and if we found them change 1ˢᵗ question to 'are these better than d/l version'-type question
+
+
+rem TODO: add another srt to subtitles if the last one is not empty to combat stuck lyrics:
 rem 17
 rem 00:02:20,060 --> 00:02:21,060
 rem This should be default functionality of srt2lrc as well — the resulting lrc should have an empty at the end too
@@ -10,12 +13,7 @@ rem So we must postprocess before we would ever even use srt2lrc
 rem     no need to include functoinality in srt2lrc as we're not sure this will be a final part of the workflow
 rem     plus, we need to run this on pre-existing SRTs
 
-
-
-rem todo highlight name/title in prompts, return back to askyn color after, which requires askyn color abstraction
-rem TODO if we're doing lyrics, show downloaded lyrics *first* and if we found them chagne 1ˢᵗ question to 'are these better than d/l version'-type question
-rem TODO afterregen anyway, we need to ask about ecc2fasdfasf.bat
-rem TODO if lyrics are approved already, don't ask about them
+rem TODO afterregen anyway, do we need to ask about ecc2fasdfasf.bat?
 
 
 :REQUIRES:     <see validators>

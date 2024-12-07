@@ -152,12 +152,12 @@ Obtains the lyrics for a particular song file.
 - These transcriptions work **much** better when you have a lyric set. 
 - This checks local sidecar files, local lyric repository, Genius, and Google — to obtain lyric files with as much ease possible.
 
-### 🌟 [get-lyrics-for-currently-playing-song ](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
+### 🌟 [get-lyrics-for-currently-playing-song](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
 
 If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, get lyrics for *the song currently being played*.
 
 
-### 🌟 [get-missing-lyrics-here.bat](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [get-missing-lyrics](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gmlh](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat) / [gml](../BAT-and-UTIL-files-1/get-missing-lyrics-here.bat):
+### 🌟 [get-missing-lyrics-here.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [gmlh](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [gml](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat):
 
 Gets lyrics for all the files *in the current folder* that do not have *approved* lyric files.
 (Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
