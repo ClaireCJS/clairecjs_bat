@@ -158,7 +158,7 @@ def calculate_aspect_ratio(total_width, total_rows):
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 def determine_optimal_columns(lines, console_width, divider_length, desired_max_height, verbose=False):
-    global avg_line_width, columns
+    global avg_line_width, columns, INTERNAL_LOG
     """
     Determine the optimal number of columns based on console width and desired max height.
     Starts with the maximum possible columns and decreases until a fit is found.
@@ -561,8 +561,14 @@ def main():
             columns = columns - 1                                                  #next time, try with 1 fewer columns
             force_num_columns = True                                               #internally, we are now forcing the number of columns to be the 1 fewer that we set in the previous line
             if columns == 1: keep_looping = False                                  #if we are down to 1 column, there's no more to check, so stop
-            if VERBOSE: print(f"🤬🤬 ACTING ON IT ——> columns is now {columns}")   #debug
+            if columns == 0:                                                       #if we are down to 0 columns, go back to 1 and quit
+                columns = 1
+                keep_looping = False                                  
+            if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬 ACTING ON IT ——> columns is now {columns}"
         
+
+    if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬🤬🤬 FINAL_COLUMNS ——> columns is now {columns}"   #debug
+
     # kludge to fix bug, really shouldn't happen anymore:
     if (output==""): 
         print("\n".join(input_data))

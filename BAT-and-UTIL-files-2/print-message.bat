@@ -225,6 +225,8 @@ REM Actually display the message:
             set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
         )
 
+        if defined %[ANSI_COLOR_%type%] set OUR_ANSICOLORTOUSE=%[ANSI_COLOR_%type%]
+
         set DECORATED_MESSAGE=%@Replace[%NEWLINE%,%DECORATOR_RIGHT%%NEWLINE%%[ANSI_COLOR_%type%]%DECORATOR_LEFT%,%DECORATED_MESSAGE%]
 
 
@@ -259,14 +261,17 @@ REM Actually display the message:
         for %msgNum in (%HOW_MANY%) do (           
                 REM handle pre-message formatting [color/blinking/reverse/italics/faint], based on what type of message and which message in the sequence of repeated messages it is
 
-                if "%OUR_ANSICOLORTOUSE%" ne "" echos %OUR_ANSICOLORTOUSE%
-                if "%OUR_ANSICOLORTOUSE%" eq "" %OUR_COLORTOUSE%
+                if "%OUR_ANSICOLORTOUSE%" eq "" ( 
+                        %OUR_COLORTOUSE% 
+                ) else (
+                        echos %OUR_ANSICOLORTOUSE%
+                )                        
 
 
                 REM Special decorators that are only for the message itself, not the header/fooder:
 
                 if "%TYPE%"     eq "FATAL_ERROR"      (echos %ANSI_COLOR_FATAL_ERROR%%SPACER_FATAL_ERROR%)
-                if "%TYPE%"     eq       "ERROR"      (echos       ``)
+                if "%TYPE%"     eq       "ERROR"      (echos     ``)
                 if  %BIG_HEADER eq    1               (echos %BLINK_ON%)
                 if "%TYPE%"     eq "SUBTLE"           (echos %FAINT_ON%)
                 if "%TYPE%"     eq "UNIMPORTANT"      (echos %FAINT_ON%)
@@ -278,6 +283,9 @@ REM Actually display the message:
                 if "%TYPE%"     eq "ERROR"   (
                         if %@EVAL[%msgNum mod 2] == 1 (echos %REVERSE_ON%)
                         if %@EVAL[%msgNum mod 2] == 0 (echos %REVERSE_OFF%%BLINK_OFF%)
+                )
+                if "%TYPE%" eq "WARNING" (
+                        echos %ANSI_COLOR_WARNING%
                 )
                 if "%TYPE%" eq "FATAL_ERROR" (
                         if %@EVAL[%msgNum mod 3] == 0 (echos %ANSI_COLOR_FATAL_ERROR%%BLINK_OFF%)

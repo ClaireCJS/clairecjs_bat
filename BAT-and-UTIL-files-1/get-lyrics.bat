@@ -1,6 +1,8 @@
 @Echo OFF
 @on break cancel
 
+REM TODO if a srt exists without lyrics, consider converting that instead of downloading lyrics
+
 :USAGE: get-lyrics
 
 iff "%1" == "" then

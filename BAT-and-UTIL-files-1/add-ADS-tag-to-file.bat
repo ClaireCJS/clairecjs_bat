@@ -86,9 +86,9 @@ rem Validate parameters every time:
                 goto :END
         endiff
         if "%1" EQ ""                                       (gosub :usage %+ goto :END)
-        call validate-environment-variable  File_To_Change_Tag_Of    "1st arg to %@unquote[%0] of '%emphasis%%@unquote[%1]%demphasis%%ansi_color_warning%' must be a filename that actually exists.%ansi_reset%%newline%%ansi_color_warning%2nd optional arg must be a tag, 3rd arg must be 'read' or a value, 4th optional arg can be 'verbose'"
-        call validate-environment-variable   Tag_To_Modify "2nd argument to %0 must a tag, NOT empty"
-        call validate-environment-variable   Tag_Value     "3rd argument to %0 must a value, or 'read' ... NOT empty"
+        call validate-environment-variable File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
+        call validate-environment-variable Tag_To_Modify          "2ⁿᵈ argument to %0 must a tag, NOT empty"
+        call validate-environment-variable Tag_Value              "3ʳᵈ argument to %0 must a value, or 'read' ... NOT empty"
         if "%PARAM_4%" ne "" .and. "%PARAM_4%" ne "verbose" .and. "%PARAM_4%" ne "remove" .and. "%PARAM_4%" ne "brief" .and. "%PARAM_4%" ne "lyrics" .and. "%PARAM_4%" ne "lyric" (call fatal_error "There shouldn't be a 4th parameter of this value being sent to %0 {called by %_PBATCHNAME}, but you gave '%italics_on%%PARAM_4%%italics_off%'. Run without parameters to understand proper usage.")
 
 rem Set default values for parameters:

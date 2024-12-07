@@ -1,5 +1,6 @@
 @Echo off
  on break cancel
+ set PARAMS=%*
 
 rem Get parameters:
         set LYRIC_FILE_TO_APPROVE=%@UNQUOTE[%1]                                              %+ rem Lyric file to use 

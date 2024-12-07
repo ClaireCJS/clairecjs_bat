@@ -1,4 +1,5 @@
 @Echo Off
+rem on break cancel - removed
 
 
 rem Is this still applicable?
@@ -27,7 +28,6 @@ rem Is this still applicable?
 @rem ————————————————————     ████                                 ██              ——————————————————————
 @rem ————————————————————————————————————————————————————————————————————————————————————————————————————
 @rem ————————————————————————————————————————————————————————————————————————————————————————————————————
-@on break cancel
 
 
 :USAGE: USAGE: <this> {audio_filename} [optional mode]
@@ -128,7 +128,7 @@ rem —————————————————————————�
 rem Set our preferred filename for our result and Check if the lyrics are already approved...
         set  LYRIC_FILE=%@NAME[%AUDIO_FILE].txt
         if not exist "%LYRIC_FILE%" goto :start_lyric_download_process
-        call get-lyric-status "%LYRIC_FILE%"
+        call get-lyric-status "%LYRIC_FILE%" silent
         iff "%LYRIC_STATUS%" eq "APPROVED" then
                 echo.
                 call success "Lyrics already approved for '%italics_on%%@name[%audio_file%]%italics_off%'!"
@@ -336,10 +336,11 @@ rem —————————————————————————�
 rem Check if we already have a TXT file in the same folder and shouldn't even be running this:
         iff exist "%LYRIC_FILE%" .and. %@FILESIZE["%LYRIC_FILE%"] gt 0 then
                 rem Warn that lyrics already exist:
-                        @call warning_soft "Lyrics already exist for %emphasis%%audio_file%%deemphasis%"
+                        echos  ``
+                        @call warning_soft "Lyrics already exist for: '%emphasis%%audio_file%%deemphasis%'"
                 
                 rem Get lyric pre-approval status
-                        call get-lyric-status "%LYRIC_FILE%"
+                        call get-lyric-status "%LYRIC_FILE%" silent
                         iff "%LYRIC_STATUS%" eq "APPROVED" then 
                                 call divider
                                 call success "Lyrics are already approved!"
@@ -363,7 +364,7 @@ rem Check if we already have a TXT file in the same folder and shouldn't even be
 
                 rem Get lyric approval status:
                         unset /q lyric_status
-                        call get-lyric-status "%LYRIC_FILE%"
+                        call get-lyric-status "%LYRIC_FILE%" silent
                         iff    "%lyric_status%" == "APPROVED" then
                                 set LYRICS_ACCEPTABLE=1
                                 set LYRICS_FOUND_TO_HAVE_BEEN_PREAPPROVED=1
@@ -378,7 +379,7 @@ rem Check if we already have a TXT file in the same folder and shouldn't even be
                 rem If the lyrics are good, set them as so. if they are not, warn:                        
                         iff "%ANSWER%" eq "Y" then                        
                                 set LYRICS_ACCEPTABLE=1
-                                call get-lyric-status "%LYRIC_FILE%"
+                                call get-lyric-status "%LYRIC_FILE%" silent
                                 if "%LYRIC_STATUS%" ne "APPROVED" call approve-lyrics "%LYRIC_FILE%"
                                 goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
                         else
@@ -715,7 +716,6 @@ rem —————————————————————————�
 rem Ask to Google the lyrics if we haven't approved them yet:
         :ask_to_hand_edit_lyrics
         call divider
-echo on %+ rem goat
         call AskYN "%[italics_on]Google%[italics_off] for lyrics" no %GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME%
         iff "%answer%" eq "Y" then
                 rem TODO: remove (live).*$ from as well!
@@ -743,7 +743,7 @@ rem —————————————————————————�
 :have_acceptable_lyrics_now_or_at_the_very_least_are_done
 
 iff 1 eq %LYRICS_ACCEPTABLE .or. 1 eq %LYRICS_FOUND_TO_HAVE_BEEN_PREAPPROVED then
-        call get-lyric-status "%LYRIC_FILE%"
+        call get-lyric-status "%LYRIC_FILE%" silent
         iff "%LYRIC_STATUS%" ne "APPROVED" then
                 call approve-lyrics "%LYRIC_FILE%"
                 set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=8 %+ rem hard-coded value warning
