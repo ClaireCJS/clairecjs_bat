@@ -253,7 +253,6 @@ To have this happen automatically when changing into a folder, ```alias cd=call 
 ![image](https://github.com/user-attachments/assets/0ccdebd6-7e26-4a2b-91ee-c3e0cfe9f147)
 
 
-
 ### 🌟 cfml / cmlf / [check-for-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat):
 
 Displays a list of files in the *current folder* which are missing *approved lyric* files 
@@ -271,7 +270,15 @@ Does not display songs that have been pre-approved to be in “lyriclessness” 
 
 ### 🌟 [display-lyriclessness-status.bat](../BAT-and-UTIL-files-1/display-lyriclessness-status.bat):
 
-Displays the “lyriclessness” status of a songfile. A song is in “lyriclessness approved” state if we have approved the fact that we cannot find lyrics for it the internet. The approval allows the AI to transcribe our songs *without* a text file prompt when running in automatic mode.
+Displays the “lyric*lessness*” status of a songfile. A song is in “lyriclessness approved” state if we have officially given up on our lyric search. The “lyriclessness approved” state allows the AI to transcribe our songs *without* a text file prompt, when running in automatic mode. 
+
+In other words: For our transcribe-while-sleeping process to work with songs we can’t find lyrics for, we need to approve the fact that there will be no lyrics. This displays whether that has been done or not.
+
+
+### 🌟 [display-lyriclessness-status-for-file.bat](../BAT-and-UTIL-files-1/display-lyriclessness-status-for-file.bat):
+
+Displays the lyric*lessness* status of a song.  This is to track whether we’ve officially given up on our lyric search for a song.  
+
 
 
 </details>
@@ -298,7 +305,7 @@ Displays a list of files in the *current folder* which are missing *karaoke* fil
 ![image](https://github.com/user-attachments/assets/61e1f155-a798-4668-945a-7d7dd2ac06dc)
 
 
-### TODO
+### TODO check-for-missing-karaokes-in-playlist {playlist}
 
 Displays a list of files in *a playlist* which are missing *karaoke* files
 [when this is developed, playlist auditor can be moved into utility documentation]

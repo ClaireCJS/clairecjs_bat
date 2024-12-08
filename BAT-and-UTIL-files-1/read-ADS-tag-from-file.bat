@@ -16,16 +16,21 @@ echo.
 call divider
 %COLOR_ADVICE%
 set //UnicodeOutput=yes
-text
-:USAGE: read-ADS-tag-from-file [filename] [tag_name]  [verbose]
-:USAGE: 
-:USAGE:         EXAMPLE: remove-ADS-tag-to-file filename.txt songlyrics.txt lyrics 
-:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Sets %%RECEIVED_VALUE%% to the file’s “lyric” tag’s value
-
-:USAGE: VERBOSE MODE: ( 2ⁿᵈ arg is "verbose"):
-:USAGE:
-:USAGE:         Displays it afterward
-endtext
+echo.
+echo :USAGE: %ansi_color_bright_yellow%read-ADS-tag-from-file%ansi_color_yellow% [filename] [tag_name] [“verbose” `|` “lyrics” `|` “lyriclessness”]%ansi_color_advice%
+echo :USAGE: 
+echo :USAGE:         EXAMPLE: remove-ADS-tag-to-file filename.txt songlyrics.txt tagname 
+echo :USAGE:                  `^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^` Sets %%RECEIVED_VALUE%% to the file’s “tagname” tag’s value
+echo. 
+echo :USAGE: VERBOSE MODE: ( 3ʳᵈ arg is "verbose"):
+echo :USAGE:
+echo :USAGE:         Displays it afterward
+echo.
+echo :USAGE: LYRICS MODE: ( 3ʳᵈ arg is "lyrics"):
+echo :USAGE:
+echo :USAGE:         Mode catered to lyric files
+echo. 
+echo.
 %COLOR_NORMAL%
 call divider
 if not defined DefaultUnicodeOutput set DefaultUnicodeOutput=no

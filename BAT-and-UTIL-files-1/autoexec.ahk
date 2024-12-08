@@ -212,9 +212,9 @@ Pause::
 
 ^-::Send  "–"       ; Ctrl+Hyphen for en dash (ranges, quotations)
 !-::Send  "—"       ;  Alt+Hyphen for em dash (interruptions)
-
-'::Send   "’"       ;          apostrophe for right smart single quote / smart apostrphe
-!'::Send  "{U+0027}";      Alt+apostrophe for dumb/original apostrophe/foot symbol
+!'::Send "{U+0027}" ;      Alt+apostrophe for dumb/original apostrophe/foot symbol
+'::Send   "’"       ;          apostrophe for right smart single quote / smart apostrophe
+  
 ^'::Send  "‘"       ;     Ctrl+apostrophe for  left smart single quote 
 ^!'::Send "‘’"      ; Ctrl-Alt+apostrophe for  both smart single quotes
 

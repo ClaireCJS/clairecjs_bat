@@ -210,7 +210,7 @@ REM Pre-Message determination of how many times we will display the message:
         set HOW_MANY=1 
         if "%TYPE%" eq "CELEBRATION" (set HOW_MANY=1 2)
         if "%TYPE%" eq       "ERROR" (set HOW_MANY=1 2 3)
-        if "%TYPE%" eq "FATAL_ERROR" (set HOW_MANY=1)
+        if "%TYPE%" eq "FATAL_ERROR" (set HOW_MANY=1 2 3)
 
 REM Actually display the message:
         setdos /x-6
@@ -246,7 +246,7 @@ REM Actually display the message:
         )
 
         REM repeat the message the appropriate number of times
-                SET SPACER_FATAL_ERROR=               ``
+                SET SPACER_FATAL_ERROR=                 ``
 
         REM Is the message too long to display in double_height?
                 set SKIP_DOUBLE_HEIGHT=0
@@ -270,7 +270,7 @@ REM Actually display the message:
 
                 REM Special decorators that are only for the message itself, not the header/fooder:
 
-                if "%TYPE%"     eq "FATAL_ERROR"      (echos %ANSI_COLOR_FATAL_ERROR%%SPACER_FATAL_ERROR%)
+                if "%TYPE%"     eq "FATAL_ERROR"      (echos %ANSI_RESET%%SPACER_FATAL_ERROR%%ANSI_COLOR_FATAL_ERROR%``)
                 if "%TYPE%"     eq       "ERROR"      (echos     ``)
                 if  %BIG_HEADER eq    1               (echos %BLINK_ON%)
                 if "%TYPE%"     eq "SUBTLE"           (echos %FAINT_ON%)
@@ -289,14 +289,15 @@ REM Actually display the message:
                 )
                 if "%TYPE%" eq "FATAL_ERROR" (
                         if %@EVAL[%msgNum mod 3] == 0 (echos %ANSI_COLOR_FATAL_ERROR%%BLINK_OFF%)
-                        if %@EVAL[%msgNum mod 2] == 1 (echos %REVERSE_OFF%)
+                        rem @EVAL[%msgNum mod 2] == 1 (echos %REVERSE_OFF%)
+                        if        %msgNum        == 2 (echos %BLINK_ON%)
                         if %@EVAL[%msgNum mod 2] == 0 (echos %REVERSE_ON%)
                         if        %msgNum        != 3 (echos %ANSI_COLOR_FATAL_ERROR%%ITALICS_OFF%)
                         if        %msgNum        == 4 .and. 1 ne %SKIP_DOUBLE_HEIGHT% (
                                 echo %BIG_TOP%%ANSI_COLOR_FATAL_ERROR%%@ANSI_BG_RGB[128,0,0]%DECORATED_MESSAGE%%@ANSI_BG_RGB[128,0,0]
                                 echos %BIG_TEXT_LINE_2%%@ANSI_BG_RGB[128,0,0]%DECORATED_MESSAGE%%@ANSI_BG_RGB[128,0,0]
                         ) else (
-                                echos %ANSI_COLOR_FATAL_ERROR%
+                                rem echos %ANSI_COLOR_FATAL_ERROR%
                         )
                 )
 
@@ -307,6 +308,7 @@ REM Actually display the message:
                         if "%TYPE%" eq "FATAL_ERROR" .and. %msgNum == 4  .and. 1 ne %SKIP_DOUBLE_HEIGHT% (
                                 echos %ANSI_COLOR_IMPORTANT%   ``
                          ) else (
+                                if %msgNum == 2 (echos %blink_on%)
                                 echos %DECORATED_MESSAGE%
                          )
 

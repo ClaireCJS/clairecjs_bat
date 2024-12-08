@@ -7,3 +7,5 @@ cd \girder
 start girder.exe
 popd
 popd
+windowHide /min Girder*
+

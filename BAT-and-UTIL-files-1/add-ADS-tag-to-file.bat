@@ -52,7 +52,6 @@ text
 :USAGE:         Performs cosmetic spacing around lyric status so they line up when displaying for multiple files
 :USAGE:
 
-
 endtext
 %COLOR_NORMAL%
 if not defined DefaultUnicodeOutput set DefaultUnicodeOutput=no
@@ -66,7 +65,7 @@ return
 
 
 rem Get parameters:
-        set   File_To_Change_Tag_Of=%@unquote[%@trueNAME[%@UNQUOTE[%1]]]             %+ rem file to use 
+        set   File_To_Change_Tag_Of=%@unquote[%@trueNAME[%@UNQUOTE[%1]]]   %+ rem file to use 
         set TAG_TO_MODIFY=%@UNQUOTE[%2]                                    %+ rem tag to use
         set     TAG_VALUE=%@UNQUOTE[%3]                                    %+ rem value to set tag to, or "read" to return the value in %RETRIEVED_TAG%
         set       PARAM_4=%4                                               %+ rem "verbose" if you want on-screen verification of what's happeneing
@@ -96,18 +95,20 @@ rem Set default values for parameters:
         set BRIEF_MODE=0
         set LYRIC_MODE=0
         rem echo tail=%*
-        if "%PARAM_4%"       eq "lyric"   (set LYRIC_MODE=1)                    
-        if "%PARAM_4%"       eq "lyrics"  (set LYRIC_MODE=1)                    
-        if "%PARAM_4%"       eq "brief"   (set BRIEF_MODE=1)           
-        if "%PARAM_4%"       eq "verbose" (set    VERBOSE=1)         
-        if "%TAG_VALUE%"     eq        "" (set TAG_TO_MODIFY=value)             %+ rem setting dummy value in case of failure
-        if "%TAG_TO_MODIFY%" eq        "" (set TAG_TO_MODIFY=tag  )             %+ rem setting dummy value in case of failure
+        if "%PARAM_4%"       eq "lyriclessness"  (set LYRIC_MODE=1)                    
+        if "%PARAM_4%"       eq "lyricslessness" (set LYRIC_MODE=1)                    
+        if "%PARAM_4%"       eq "lyric"          (set LYRIC_MODE=1)                    
+        if "%PARAM_4%"       eq "lyrics"         (set LYRIC_MODE=1)                    
+        if "%PARAM_4%"       eq "brief"          (set BRIEF_MODE=1)           
+        if "%PARAM_4%"       eq "verbose"        (set    VERBOSE=1)         
+        if "%TAG_VALUE%"     eq        ""        (set TAG_TO_MODIFY=value)             %+ rem setting dummy value in case of failure
+        if "%TAG_TO_MODIFY%" eq        ""        (set TAG_TO_MODIFY=tag  )             %+ rem setting dummy value in case of failure
         
 rem Determine verb clause to use —— looks best if they are >8 chars each though!
         set VERB=Set value to:
         if "read"      eq "%TAG_VALUE%"          (set VERB=Retrieved value %faint_on%of%faint_off%:)
         if "remove"    eq "%TAG_VALUE%"          (set VERB=Removed value %faint_on%of%faint_off%:)
-        if "%PARAM_5%" ne "" .and. 1 eq %VERBOSE (set VERB=%PARAM_5%)           %+ rem Fetch alternate-verb for verbose mode
+        if "%PARAM_5%" ne "" .and. 1 eq %VERBOSE (set VERB=%PARAM_5%)                 %+ rem Fetch alternate-verb for verbose mode
         set VERB_LEN=%@LEN[%@STRIPANSI[%VERB%]]
         set SPACER=%@REPEAT[ ,%@ABS[%@EVAL[%VERB_LEN%-8]]]``
 
@@ -169,7 +170,13 @@ goto :END
         :explain
                 rem If we are in verbose mode, explain what we did:
                         set tmp_value=%[value_to_display_in_verbose_mode]
-                        if "" eq "%tmp_value%" (set tmp_value=%italics_on%%blink_on%(unset)%blink_off%%italics_off%)
+                        iff "" eq "%tmp_value%" then
+                                set tmp_value=%italics_on%%blink_on%(unset)%blink_off%%italics_off%
+                                set was_null=1
+                        else
+                                set was_null=0
+                        endiff                                
+                        
                         set tmp_tag=%[TAG_TO_MODIFY]
                         set tmp_file2use=%[File_To_Change_Tag_Of]
                         set tmp_emoji2use=%CHECK%           
@@ -185,14 +192,17 @@ goto :END
                                 echo %tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
                         endiff
                         iff 1 eq %LYRIC_MODE then
-                                set value_spacer=
-                                set value_spacer_post=
+                                set  value_spacer=
+                                set  value_spacer_post=
                                 set voodoo_spacer=
-                                iff "%tmp_value%" == "NOT_APPROVED" .or. "%tmp_value%" == "NOT APPROVED" then
+                                if 1 eq %WAS_NULL set tmp_value=NOT_APPROVED
+
+                                iff "%tmp_value%" == "NOT_APPROVED" .or. "%tmp_value%" == "NOT APPROVED" .or. "%tmp_value%" == "" .or. 1 eq %WAS_NULL% then
                                         set tmp_emoji2use=%EMOJI_CROSS_MARK%
                                         set tmp_color=%ansi_color_alarm%
                                 elseiff "%tmp_value%" == "APPROVED" then
                                         if 1 eq %USE_SPACER (set value_spacer=    ``)
+                                        set tmp_value=%dot% APPROVED %dot%``
                                         set tmp_emoji2use=%CHECK%           
                                         set tmp_color=%ansi_color_celebration%
                                 else                                        
@@ -208,10 +218,20 @@ goto :END
                                         set tmp_color=%ansi_color_warning_soft%
                                         set tmp_emoji2use=%EMOJI_EXCLAMATION_QUESTION_MARK%          
                                 endiff
+                                
                                 iff "%OPERATIONAL_MODE%" ne "READ" then
                                         echo %tmp_emoji2use% Set %bold_on%%italics_on%%tmp_tag%%italics_off%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
-                                else
-                                        echo %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% Lyrics are  %value_spacer%%tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use% %value_spacer_post% for: %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                                        
+                                else %+ rem it is a lyric mode:
+                                rem echo tag_to_modify=%tag_to_modify%
+                                        iff "%tag_to_modify%" eq "lyriclessness" .or. "%tag_to_modify%" eq "lyricslessness" then
+                                                set EXTRA=%ansi_color_red%No lyrics.%ansi_color_normal% Lyriclessness is
+                                                set value_spacer=``
+                                        else
+                                                set EXTRA=%ansi_color_green%Lyrics exist%ansi_color_normal% ... Lyrics are 
+                                                set value_spacer=``
+                                        endiff
+                                        echo %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %EXTRA% %value_spacer%%tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use% %value_spacer_post% for: %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
                                 endiff
                         endiff
         return
