@@ -210,8 +210,8 @@ Pause::
 !8::Send "🌟" ;  Alt+8 for 🌟
 ^-::Send "–"  ; Ctrl+Hyphen for en dash (ranges, quotations)
 !-::Send "—"  ;  Alt+Hyphen for em dash (interruptions)
-^'::Send "‘’" ; Ctrl+apostrophe for smart apostrophe-ish single quotes
-!'::Send "‘’" ;  Alt+apostrophe for smart apostrophe-ish single quotes
+^'::Send "’"  ; Ctrl+apostrophe for a single smart apostrphe
+!'::Send "‘’" ;  Alt+apostrophe for smart single quotes
 ^"::Send "“”" ; Ctrl+quote for smart double/normal quotes
 !"::Send "“”" ;  Alt+quote for smart double/normal quotes
 ;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;

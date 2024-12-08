@@ -5,9 +5,18 @@
 :DESCRIPTION:
 :DESCRIPTION: NOTE: Uses a bunch of fancy environment variables for stylization —— see set-colors.bat for those.
 :DESCRIPTION:                                                                      (Not required, but nice to have.)
+:DESCRIPTION:
+:DESCRIPTION: NOTE: Uses, but does *NOT* require the %@WIDTH[] function in set-ansi (which itself requires the StripANSI plugin)
 
-
-
+rem Validate Environemnt: Check if we have the width function, which requires the stripansi plugin:
+        iff 1 ne %validated_cd_haveWidth then
+                iff "%@function[width]" ne "" .and. "%@plugin[stripansi]" ne "" then 
+                        set HAVE_WIDTH_FUNCTION=1
+                else
+                        set HAVE_WIDTH_FUNCTION=0
+                endiff
+                set validated_cd_haveWidth=1
+        endiff
 
 rem Capture parameters & keep track of the last folder we're in —— this is done automatically in other ways but we want our own:
         set CD_PARAMS=%*
@@ -17,57 +26,49 @@ rem Capture parameters & keep track of the last folder we're in —— this is d
         set CD_PARAM4=%4
         set CD_PARAM5=%5
         
-        
-        
-        
-        
-        
-rem ............ Big gap here so that the most common error is on line 69. Just for style points .........................
-        
-        
-        
-        
-        
-rem ............ Big gap here so that the most common error is on line 69. Just for style points .........................
-        
-        
-        
-        
-        
-rem ............ Big gap here so that the most common error is on line 69. Just for style points .........................
-        
-        
-        
-        
-        
-rem ............ Big gap here so that the most common error is on line 69. Just for style points .........................
-        
-        
-        
-        
-        
-rem ............ Big gap here so that the most common error is on line 69. Just for style points .........................
-       
-        
-        
-        
-
 rem ❌❌❌ Handle if the folder doesn't exist: ❌❌❌
         rem call debug "CD COMMAND IS cd %*"
         iff "-" ne "%CD_PARAM1%" .and. not isdir "%CD_PARAMS%" .and. not isdir "%CD_PARAM1%" .and. not isdir "%CD_PARAM2%" .and. not isdir %CD_PARAM1% .and. not isdir %CD_PARAM2% .and. not isdir %CD_PARAM3% .and. not isdir %CD_PARAM4% .and. not isdir %CD_PARAM5% then
-                echo.
-                iff defined BIG_TOP then
-                        set MSG=%ANSI_COLOR_ERROR% %SKULL_AND_CROSSBONES% Doesn't exist! %SKULL_AND_CROSSBONES%  %ANSI_COLOR_NORMAL%
-                        echo %BIG_TOP%%MSG%
-                        echo %BIG_BOT%%MSG%%ansi_eol%
-                        rem ECHOS %BIG_OFF%
-                endiff
-                echos.
-                echo %ANSI_COLOR_ERROR%  %no%%no%  %ansi_color_bright_yellow%Folder does not exist: '%italics_on%%CD_PARAMS%%italics_off%' %NO%%NO%  %ANSI_COLOR_NORMAL%%ansi_color_yellow%%italics_on%%faint_on%
-                echo.
-                rem But try anyway in case we're wrong: And make sure this next line is line #69 (nice):
+                rem Blank line:
+                        echo.
+                        
+                rem big error / top line error / simple errorr:
+                        set MSG=%ANSI_COLOR_ERROR% %SKULL_AND_CROSSBONES%  “%@ansi_rgb[192,255,192]%@UNQUOTE[%CD_PARAMS%]%ansi_color_alarm%” doesn’t exist! %SKULL_AND_CROSSBONES%  %ANSI_COLOR_NORMAL%
+                        
+                        iff 1 eq %HAVE_WIDTH_FUNCTION% then
+                                set top_width=%@width[%msg]
+                        else                                
+                                set top_width=%@len[%msg]
+                        endiff                                
+                        
+                        iff defined BIG_TOP then                        
+                                echo %BIG_TOP%%MSG%
+                                echo %BIG_BOT%%MSG%%ansi_eol%
+                                set top_width=%@eval[%top_width * 2]
+                        else                        
+                                echo %MSG%%ansi_eol%
+                        endiff
+                        
+                        echos.
+
+                rem small error / bottom line error / explained error:
+                                set SECOND_LINE=%ANSI_COLOR_ERROR%  %no%%no%  %ansi_color_bright_yellow%Folder does not exist: “%italics_on%%blink_on%%@unquote[%CD_PARAMS%]%blink_off%%italics_off%” %NO%%NO%  %ANSI_COLOR_NORMAL%%ansi_color_yellow%%italics_on%%faint_on%
+
+                                iff 1 eq %HAVE_WIDTH_FUNCTION% then
+                                        set bottom_width=%@width[%second_line]
+                                else                                
+                                        set bottom_width=%@len[%second_line]
+                                endiff                       
+                                
+                                set spaces=%@FLOOR[%@EVAL[(top_width - bottom_width) / 2]]
+                                echo %@repeat[ ,%spaces%]%second_line
+
+                                echo.
+                
+                rem But try anyway in case we're wrong: And make sure this next line is line #69 (nice): 
                 *cd %*
-                echos %BLINK_OFF%%ANSI_COLOR_NORMAL%
+                
+                echos %BLINK_OFF%%ANSI_COLOR_NORMAL%``
                 cancel
                 goto :END
         endiff

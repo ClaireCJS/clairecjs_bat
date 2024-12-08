@@ -1,3 +1,4 @@
+
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
 ## ✨ Goals: ✨
@@ -149,8 +150,12 @@ Generally speaking, it will be: ```create-srt audio_file.mp3``` or ```create-mis
 ### 🌟 [get-lyrics {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
 
 Obtains the lyrics for a particular song file. 
-- These transcriptions work **much** better when you have a lyric set. 
-- This checks local sidecar files, local lyric repository, Genius, and Google — to obtain lyric files with as much ease possible.
+- transcriptions work **much** better with lyrics
+- This checks local sidecar files, local lyric repository, Genius, and Google
+- gives an option to hand-edit lyrics after download
+- can approve lyrics for later use
+- can approve lyriclessness for later use 
+
 
 ### 🌟 [get-lyrics-for-currently-playing-song](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
 
@@ -193,20 +198,25 @@ Run without parameters to see various options, including but not limited to  ```
 
 If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, creates karaoke file for *the song currently being played*.
 
+If lyrics (or lyriclessness) are pre-approved, creation is automatic.
+
 
 ### 🌟 cmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../BAT-and-UTIL-files-1/create-the-missing-karaokes-here.bat):
 
 Create karaoke files for **all songs** *in the current folder* that do not have them
+[TODO: add comment about what happens to songs with pre-approved lyrics]   
 
 
 ### 🌟 ❗TODO❗ [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat):
 
 Create karaoke files for **all songs** *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. (In random order, to prevent alphabetical bias.)
+[TODO: during batch transcription, a lyricless file won't have txt]
 
 
 ### 🌟 ❗TODO❗ create-karaoke-automatically-from-approved-lyrics.bat {folder to recurse through]:
 
 Create karaoke files for **all songs** in a *folder tree* that do not have them, as long as their lyric file has been previously approved. This is intended so one can spend 100% of time aligning/approving lyrics (i.e. with ```get-lyrics-for-playlist.bat```), then go to bed and run this to generate everything that has pre-approved lyrics, saving the karaoke generation for another time (like when you are asleep). 
+[TODO: during batch transcription, a lyricless file won't have txt]
 
 
 
@@ -229,23 +239,27 @@ Rarely used side-utility: Creates karaoke files for **all songs** in a *folder t
 Reviews all lyric files in current folder, using ```print-with-columns``` to reduce scrolling up.
 
 
+
+
 ### 🌟 dls / [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat):
 
 Displays the lyric status (approved, unapproved, or unset) for all lyric files in current folder. 
 To have this happen automatically when changing into a folder,  ```alias cd=call cd-alias.bat```,  then create ```autorun.bat``` in the base of your collection, containing the command:
 ```@if exist *.txt (call display-lyric-status)```
 ![image](https://github.com/user-attachments/assets/0ccdebd6-7e26-4a2b-91ee-c3e0cfe9f147)
-
+TODO: Add status of songs that are approved for lyricless encode
 
 
 ### 🌟 cfml / cmlf / [check-for-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat):
 
 Displays a list of files in the *current folder* which are missing *approved lyric* files
+TODO: Add status of songs that are approved for lyricless encode
 
 
 ### 🌟 Lyric Auditor: cpfml / cpmlf / [check-playlist-for-missing-lyrics](../BAT-and-UTIL-files-1/get-playlist-for-missing-lyrics.bat):
 
 Displays a list of files in a *playlist* which are missing *approved lyric* files.
+TODO: Add status of songs that are approved for lyricless encode [may happen automatically]
 
 ![image](https://github.com/user-attachments/assets/42fb6e4e-2cea-48e1-bbc8-499454c201ae)
 
@@ -273,9 +287,15 @@ Displays a list of files in the *current folder* which are missing *karaoke* fil
 ![image](https://github.com/user-attachments/assets/61e1f155-a798-4668-945a-7d7dd2ac06dc)
 
 
-### 🌟 Playlist Auditor: [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py):
+### TODO
 
-Processes a playlist to create a new playlist consisting of only the songs missing karaoke files.
+Displays a list of files in *a playlist* which are missing *karaoke* files
+[when this is developed, playlist auditor can be moved into utility documentation]
+
+
+### 🌟 Playlist Auditor / Sidecar-File Auditor: [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py):
+
+Processes a playlist (or filelist) to create a new playlist (or filelist) consisting of ONLY the songs that do not have karaoke files.
 
 EXAMPLE:
 ```
@@ -320,16 +340,6 @@ Other important commands specific to this project.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 [srt2lrc.py](../BAT-and-UTIL-files-1/srt2lrc.py):
-
-A *batch* SRT-file to LRC-file converter. Used by [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat)
-
-
-### 🌟 [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py):
-
-A *single-file* SRT-file to TXT-file converter. 
-
-
 ### 🌟 [approve-lyrics / approve-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/disapprove-lyric-file.bat):
 
 Marks lyric file with approval/disapproval so that we can pre-approve lyric files in advance of transcription process. Uses [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs) to store approval tags in a database-less, file-less way.
@@ -338,7 +348,28 @@ Marks lyric file with approval/disapproval so that we can pre-approve lyric file
 
 ### 🌟 [approve-subtitles / approve-subtitle-file {subtitle_file}](../BAT-and-UTIL-files-1/approve-subtitle-file.bat) / [disapprove-subtitles / disapprove-subtitle-file {subtitle_file}](../BAT-and-UTIL-files-1/disapprove-subtitle-file.bat):
 
-Same as above but for karaoke files.
+Same as above but for karaoke files. Not particularly used by this system.
+
+### 🌟 [approve-lyriclessness {song_file}](../BAT-and-UTIL-files-1/approve-lyriclessness.bat) / [disapprove-lyriclessness {song_file}](../BAT-and-UTIL-files-1/disapprove-lyriclessness.bat) 
+
+**Remember:** The only way to batch transcribe in this system is to pre-approve lyric files.
+
+This script marks a *song file* with approval/disapproval so that we can pre-approve the fact that LYRICS FOR THIS SONG CAN'T BE FOUND.  
+
+This allows us to also pre-approve songs that we have *given up* finding lyrics for, so they can be batch-transcribed as well. 
+
+
+
+
+
+### 🌟 [srt2lrc.py](../BAT-and-UTIL-files-1/srt2lrc.py):
+
+A *batch* SRT-file to LRC-file converter that's better than others. Used by [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat) in the very rare event of [MiniLyrics](https://minilyrics.en.softonic.com/) not properly importing an ```SRT``` file.
+
+### 🌟 [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py):
+
+A *single-file* ```SRT``` to ```TXT```. Used when we already have SRT files for a song (say, from a download), and *really* want a TXT version of the lyrics.
+
 
 </details>
 
