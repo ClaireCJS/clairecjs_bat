@@ -10,7 +10,7 @@
 ::::: Change arguments into short filenames:
 
     REM   This is ugly, okay?  
-    REM   It was written in the 1990s and works and I just don't feel like fixing it.
+    REM   It was written in the 1990s and works and I just don’t feel like fixing it.
 
     GoSub ChangeToShort ARGV2   %1
     GoSub ChangeToShort ARGV2   %2
@@ -71,7 +71,7 @@ rem Run the new modified command line:
                         call print-if-debug "%wide%not shortening %tmparg"
                     endiff
                     :Nevermind_Its_Just_Empty_Quotes
-                    call print-if-debug "varname is now '%varname%'"
+                    call print-if-debug "varname is now “%varname%”"
                 :Nope
             return
             ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

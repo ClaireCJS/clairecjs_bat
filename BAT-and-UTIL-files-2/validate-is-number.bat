@@ -18,7 +18,7 @@ if "%VALUE%" ne "" goto :IsSomething
 if "%@REGEX[\D,%VALUE%]" eq "0" goto :IsNumber
 
     SET ERROR=1
-    call fatal_error "'%italics_on%%VALUE%%italics_on%' is not a number!!"
+    call fatal_error "“%italics_on%%VALUE%%italics_on%” is not a number!!"
 
 :IsNumber
 

@@ -44,7 +44,7 @@ rem Process paramters:
 
 
 rem Validate parameters:
-        if 0 eq %@READY[%@drive[%DISPLAY_FREE_SPACE_TARGET%]] (call error "Does not exist: '%italics_on%%DISPLAY_FREE_SPACE_TARGET%%italics_off%'" %+ goto :END)
+        if 0 eq %@READY[%@drive[%DISPLAY_FREE_SPACE_TARGET%]] (call error "Does not exist: “%italics_on%%DISPLAY_FREE_SPACE_TARGET%%italics_off%”" %+ goto :END)
 
 
 rem Get the free space and print it out

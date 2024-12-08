@@ -41,9 +41,9 @@
     if "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 (
         call bigecho "%ANSI_COLOR_ALARM%*** user FUNCTION NOT DEFINED ERROR! ***"
         color bright white on red
-        echo  We can't be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-function.bat 
+        echo  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-function.bat 
         echo  %underline%Did you mean%underline_off%: %italics%validate-function%double_underline%%blink%s%blink_off%%double_underline_off% %VFUNCPARAMS%%italics_off% 
-        echo                                   (with an 's' after '%italics%variable%italics_off%')  ????
+        echo                                   (with an “s” after “%italics%variable%italics_off%”)  ????
         call exit-maybe
         
         set VFUNC_COMMENT=color white on black
@@ -81,7 +81,7 @@
     )
 
     set SKIP_VALIDATION_EXISTENCE=0
-    if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: PARAM2: '%PARAM2%')
+    if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: PARAM2: “%PARAM2%”)
 
 
     if %VALIDATE_MULTIPLE ne 1 (
@@ -113,9 +113,9 @@ goto :Past_The_End_Of_The_Sub_Routines
                     ::::: RESPOND IF IT IS NOT:
                         :Defined_NO
                             set ERROR=1
-                            set ERROR_MESSAGE=*** Function '%underline%%italics%%blink%%FUNCNAME%%italics_off%%blink_off%%underline_off%' is %double_Underline%not%double_Underline_off% defined, and needs to be!!! ***
+                            set ERROR_MESSAGE=*** Function “%underline%%italics%%blink%%FUNCNAME%%italics_off%%blink_off%%underline_off%” is %double_Underline%not%double_Underline_off% defined, and needs to be!!! ***
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
-                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is '%USER_MESSAGE%')
+                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is “%USER_MESSAGE%”)
                             if "%USER_MESSAGE%" ne "" goto :Do_It_1
                                                       goto :Do_It_1_Done
                             :Do_It_1
@@ -132,7 +132,7 @@ goto :Past_The_End_Of_The_Sub_Routines
                                 REM for /L %%i in (1,1,%LENGTH_DIFF%) do (set EXCLAMATION_MARKS=%EXCLAMATION_MARKS%!)
                                 REM 
                                 REM rem Substitute the final sequence of exclamation marks in ERROR_MESSAGE
-                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: EXCLAMATION_MARKS is '%EXCLAMATION_MARKS%')
+                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: EXCLAMATION_MARKS is “%EXCLAMATION_MARKS%”)
                                 REM set NORMALIZED_ERROR_MESSAGE=%@REPLACE[!!!,%EXCLAMATION_MARKS%,%ERROR_MESSAGE%]
 
                                 if %LENGTH_DIFF% lss 0 (
@@ -163,12 +163,12 @@ goto :Past_The_End_Of_The_Sub_Routines
                                 REM advice related to an error in this context
                                 REM pretty much *DOES* mean a warning in the 
                                 REM outer context of our calling script, and 
-                                REM that level of importance shouldn't be as 
+                                REM that level of importance shouldn’t be as 
                                 REM easily visually discarded as the advice 
-                                REM color might usually be, because it's more
+                                REM color might usually be, because it’s more
                                 REM important than simply advice —— 
                                 REM      —— it represents a system failure!!!
-                                REM ...so let's put asterisks around it, too?
+                                REM ...so let’s put asterisks around it, too?
                                 call warning "%@UNQUOTE[%USER_MESSAGE%]"
                             )
                                 
@@ -204,9 +204,9 @@ goto :Past_The_End_Of_The_Sub_Routines
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :ItIsDeprecated
             rem //Internal kludge for the way I do workflows.
-            rem //WHICH IS: If "a.dep" or "a.deprecated" then I consider "a" to exist even if it doesn't. Don't ask.
+            rem //WHICH IS: If "a.dep" or "a.deprecated" then I consider "a" to exist even if it doesn’t. Don’t ask.
             rem //When this happens, we display notification, with a custom sound effect,
-            rem //but in a pleasant color, and less harsh sound effect, because this isn't an error,
+            rem //but in a pleasant color, and less harsh sound effect, because this isn’t an error,
             rem //just something that we want to pay extra attention to vs business-as-usual.
 
             echo. %+ echo. %+ echo.

@@ -1,10 +1,10 @@
 @on break cancel
 @Echo off
-  rem WARNING: Do NOT turn echo on if %DEBUG% is 1, because this won't work if we do that. In general, this script can be problematic with echo on
+  rem WARNING: Do NOT turn echo on if %DEBUG% is 1, because this won’t work if we do that. In general, this script can be problematic with echo on
 
 
 rem REQUIRED CONFIGURATION:
-        set SONGLIST_FILE_TO_USE=%ALL_SONGS_PLAYLIST%   %+ rem File that is a list of all the songs in your music collectoin. Used when we do regex-specific searches. c:\mp3\lists\everything.m3u or even c:\mp3\filelist.txt (run 'makefilelist' to make one of those) will suffice
+        set SONGLIST_FILE_TO_USE=%ALL_SONGS_PLAYLIST%   %+ rem File that is a list of all the songs in your music collectoin. Used when we do regex-specific searches. c:\mp3\lists\everything.m3u or even c:\mp3\filelist.txt (run “makefilelist” to make one of those) will suffice
 
 rem DEBUG CONFIGURATION:
 	set VERBOSE=0                                   %+ rem Setting this to 1 will make the greps be put on the screen
@@ -61,7 +61,7 @@ goto :Run_Generated_Script
 
      :Run_Generated_Script
                 rem Run our generated "SCRIPT_TO_RUN"
-                rem Now that we have the filename of the attrib.lst, let's edit it, assuming that's what the generated SCRIPT_TO_RUN does
+                rem Now that we have the filename of the attrib.lst, let’s edit it, assuming that’s what the generated SCRIPT_TO_RUN does
                 rem originally that was all it did, but now it does some other things like going into the folder WITHOUT opening attrib.lst,
                 rem and automarking attrib.lst without opening it.
 
@@ -94,12 +94,12 @@ rem —————————————————————————�
 rem ———————————————————————————————————————— DEPRECATED CODE BELOW ————————————————————————————————————————
 rem ———————————————————————————————————————— DEPRECATED CODE BELOW ————————————————————————————————————————
 
-rem 2008–2024: Make sure LAST.FM scrobbler is running, or this won't work: (only doable on the same machine):
+rem 2008–2024: Make sure LAST.FM scrobbler is running, or this won’t work: (only doable on the same machine):
 rem 2024–Present: skip this!
                                                 goto :skip_old_lastfm_code_1
                                                         iff "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME" then
                                                                 call isrunning Last.*fm
-                                                                call print-if-debug "ISRUNNING='%ISRUNNING%'" %+ if %DEBUG eq 1 (pause)
+                                                                call print-if-debug "ISRUNNING=“%ISRUNNING%”" %+ if %DEBUG eq 1 (pause)
                                                                 iff "%ISRUNNING%" ne "1" then
                                                                         call alarm "Last.fm scrobbler must be running! Running it now."
                                                                         call lastfm-start                 
@@ -114,7 +114,7 @@ rem 2024–Present: skip this!
                                                         goto :2013way
 
 
-                                        :Don't think this happens anymore:
+                                        :Don’t think this happens anymore:
                                         :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                                         : echo *** Doing things the new way...
                                         : Lessons learned: it truly is best to grep against everything.m3u and not preferred.m3u
@@ -125,7 +125,7 @@ rem 2024–Present: skip this!
                                         goto :skip_old_way
 
                                         echo *** Getting mp3 regex...
-                                        :grep from audioscrobbler's logfile on the correct computer, cut out the pre-filename+album part, pipe it to our perl script to remove the last parenthetical clause (including albums that have "(live)" at the end of their title -- this was DAMN DAMN tricky with a regex from hell), then convert id3 to filename regex, for example a question mark in a id3 should be .* for a grep against playlist filenames because "?" is not a valid filename character, then save that to afile
+                                        :grep from audioscrobbler’s logfile on the correct computer, cut out the pre-filename+album part, pipe it to our perl script to remove the last parenthetical clause (including albums that have "(live)" at the end of their title -- this was DAMN DAMN tricky with a regex from hell), then convert id3 to filename regex, for example a question mark in a id3 should be .* for a grep against playlist filenames because "?" is not a valid filename character, then save that to afile
 
                                         (@grep CScrobbler::OnTrackPlay "%AUDIOSCROBBLER_LOG%"|:u8@tail -1|:u8@cut -c75-|:u8@remove-last-parenthetical-clause|:u8@convert-id3-to-filenameregex) >:u8%temp\scrobble-regex.txt
                                         type %temp\scrobble-regex.txt

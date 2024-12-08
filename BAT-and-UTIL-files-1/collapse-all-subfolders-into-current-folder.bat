@@ -21,7 +21,7 @@
         echo.
         call warning        "There is no going back"
         echo.
-        call advice         "Directory tree will be saved in '%DIRECTORY_TREE_BACKUP%'"
+        call advice         "Directory tree will be saved in “%DIRECTORY_TREE_BACKUP%”"
         pause
 
 

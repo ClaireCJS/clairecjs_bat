@@ -8,7 +8,7 @@
 
 if "%@UPPER[%1]" eq "NOW" (call mcdnow %& %+ goto :END)  
 
-if     isdir %1 (call warning "folder '%1' %blink_on%already exists%blink_off%!'")
+if     isdir %1 (call warning "folder “%1” %blink_on%already exists%blink_off%!")
 if not isdir %1 (*md %1)
                   cd %1
 

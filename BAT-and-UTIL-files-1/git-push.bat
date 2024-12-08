@@ -29,24 +29,24 @@ rem Cosmetics:
         if "%GIT_PUSH_PARAMETERS%" ne "" (set spacer= ``)
 
 
-rem Inform regarding what we're about to do:
-        call important "About to: 'git push origin main%spacer%%GIT_PUSH_PARAMETERS%' in %emphasis%%BASENAME%%deemphasis%"
+rem Inform regarding what we’re about to do:
+        call important "About to: “git push origin main%spacer%%GIT_PUSH_PARAMETERS%” in %emphasis%%BASENAME%%deemphasis%"
         rem I stopped wanting a pause *ALL* the time, ater awhile: if %NO_PAUSE ne 1 (pause)
         echo.
 
-rem If there's a fix-remote.bat, run it — just a thing I do if the remote repo values get messedu p:
+rem If there’s a fix-remote.bat, run it — just a thing I do if the remote repo values get messedu p:
         if exist fix-remote.bat (call fix-remote.bat)
 
 rem Run GIT, check for error status, and collect the output:
         rem old: call unimportant "[Unfiltered GIT output followed by filtered GIT output]..."
-        REM old, but now git.bat has it's own TEE to git.out internally: 
+        REM old, but now git.bat has it’s own TEE to git.out internally: 
             REM set TEECOLOR=%COLOR_UNIMPORTANT%
             REM call git.bat push origin main %GIT_PUSH_PARAMETERS% |& tee %GIT_OUT%
                 call git.bat push origin main %GIT_PUSH_PARAMETERS% 
-                call errorlevel "Advice: for 'updates were rejected because the remote contains work that you do not have locally', you may need to 'git pull origin main' to merge and then try again" 
+                call errorlevel "Advice: for “updates were rejected because the remote contains work that you do not have locally”, you may need to “git pull origin main” to merge and then try again" 
         echo.
         if not exist %GIT_OUT% (goto :NoGitOut)
-        if "%@EXECSTR[grep Updates.were.rejected.because.the.remote.contains.work.that.you.do git.out]" ne "" (call warning "You probably need to do 'git pull origin main'" %+ pause)
+        if "%@EXECSTR[grep Updates.were.rejected.because.the.remote.contains.work.that.you.do git.out]" ne "" (call warning "You probably need to do “git pull origin main”" %+ pause)
         :NoGitOut
 
 rem Provide easy way to check that it happened online:
@@ -54,7 +54,7 @@ rem Provide easy way to check that it happened online:
         echo.
         call advice "Your GitHub URL is: %italics_on%%MY_GITHUB_URL%%italics_off%"
         echo %MY_GITHUB_URL>%BAT%\go-url.bat
-        call advice "                    (type '%italics_on%go-url%italics_off%' to go there)               %BOLD_ON%%BOLD_OFF%"
+        call advice "                    (type “%italics_on%go-url%italics_off%” to go there)               %BOLD_ON%%BOLD_OFF%"
 
 rem Be happy that we were successful!
         echo.

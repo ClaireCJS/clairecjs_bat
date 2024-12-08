@@ -6,7 +6,7 @@
   1. 🥅 *General*: 🥅 To see the lyrics 📄 to music 🎵 highlighted ↔ as they are sung 🎤
   1. 🥅 *Technical*: 🥅 To automate AI transcription of music into karaoke files
   1. 🥅 *Specific*: 🥅 To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
-  1. 🥅 *Detailed*: 🥅 To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI's transcription of audio files into karaoke/subtitle files.
+  1. 🥅 *Detailed*: 🥅 To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI’s transcription of audio files into karaoke/subtitle files.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -25,6 +25,11 @@
 For example, ```filename.mp3``` might have a sidecar file named ```filename.txt```, which would typically be lyrics for a song, and a sidecar file named ```filename.jpg```, which would typically be the cover art to the song.  
 
 Another example is when a program like ```whatever.exe``` has a ```whatever.ini`` *INI file* for its settings; That *INI* file is a sidecar file the *EXE* file. 
+
+
+😢 *Lyriclessness*: This meaning is specific to this project: Lyriclessness is a state in which a song’s lyrics cannot be found on the internet. At this point of giving up on our lyrics search, we can “approve” the lyriclessness state to mark our task as complete.
+
+
 </details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -41,7 +46,7 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 
 &nbsp;    
 
-2. 💻 [JPSoft's TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
+2. 💻 [JPSoft’s TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
     - Install TCC:
         - either from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
         - or via *WinGet* with the command: ```winget install JPSoft.tcmd```
@@ -81,7 +86,7 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 
 4. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
     - Technically you probably only need about 100 of these files.  
-    - This folder has it's own ```sort``` and ```uniq``` executables (from [Cygwin](https://www.cygwin.com)) to ensure consistency
+    - This folder has it’s own ```sort``` and ```uniq``` executables (from [Cygwin](https://www.cygwin.com)) to ensure consistency
     - To install: 
 ```
 git.exe clone https://github.com/ClaireCJS/clairecjs_bat/
@@ -96,7 +101,7 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 5. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
     - Always be running  the ```Everything``` service, which comes with TakeCommand ([TCC](https://jpsoft.com/all-downloads/all-downloads.html))
-    - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn't start automatically. 
+    - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn’t start automatically. 
 
 &nbsp;
 
@@ -104,7 +109,7 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
     - Install the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile)
     - Configure the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. 
     - This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on “whatever song we are currently listening to” from any computer in the household. 🦙
-      - Currently doesn't work if the music is paused, but a future update to the WinAmpNowPlayingToFile plugin is headed down the pipeline
+      - Currently doesn’t work if the music is paused, but a future update to the WinAmpNowPlayingToFile plugin is headed down the pipeline
 
 &nbsp;
 
@@ -114,7 +119,7 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 # ⚙️ HOW TO USE ⚙️
 
-From a running TCC command line, use whatever system commands you'd like from the list below.
+From a running TCC command line, use whatever system commands you’d like from the list below.
 
 Generally speaking, it will be: ```create-srt audio_file.mp3``` or ```create-missing-karaoke``` or ```get-lyrics```.
 
@@ -204,19 +209,17 @@ If lyrics (or lyriclessness) are pre-approved, creation is automatic.
 ### 🌟 cmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../BAT-and-UTIL-files-1/create-the-missing-karaokes-here.bat):
 
 Create karaoke files for **all songs** *in the current folder* that do not have them
-[TODO: add comment about what happens to songs with pre-approved lyrics]   
+Songs that have pre-approved lyrics go through the process automatically.
 
 
 ### 🌟 ❗TODO❗ [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat):
 
-Create karaoke files for **all songs** *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. (In random order, to prevent alphabetical bias.)
-[TODO: during batch transcription, a lyricless file won't have txt]
+Create karaoke files for **all songs** *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. Files are run in random order, to prevent alphabetical bias, and transcriptions are done automatically if lyrics are pre-approved (or if lyriclessness is pre-approved).
 
 
 ### 🌟 ❗TODO❗ create-karaoke-automatically-from-approved-lyrics.bat {folder to recurse through]:
 
 Create karaoke files for **all songs** in a *folder tree* that do not have them, as long as their lyric file has been previously approved. This is intended so one can spend 100% of time aligning/approving lyrics (i.e. with ```get-lyrics-for-playlist.bat```), then go to bed and run this to generate everything that has pre-approved lyrics, saving the karaoke generation for another time (like when you are asleep). 
-[TODO: during batch transcription, a lyricless file won't have txt]
 
 
 
@@ -244,24 +247,32 @@ Reviews all lyric files in current folder, using ```print-with-columns``` to red
 ### 🌟 dls / [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat):
 
 Displays the lyric status (approved, unapproved, or unset) for all lyric files in current folder. 
-To have this happen automatically when changing into a folder,  ```alias cd=call cd-alias.bat```,  then create ```autorun.bat``` in the base of your collection, containing the command:
+
+To have this happen automatically when changing into a folder, ```alias cd=call cd-alias.bat```,  then create ```autorun.bat``` in the *base folder* of your music collection, containing the command:
 ```@if exist *.txt (call display-lyric-status)```
 ![image](https://github.com/user-attachments/assets/0ccdebd6-7e26-4a2b-91ee-c3e0cfe9f147)
-TODO: Add status of songs that are approved for lyricless encode
+
 
 
 ### 🌟 cfml / cmlf / [check-for-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat):
 
-Displays a list of files in the *current folder* which are missing *approved lyric* files
-TODO: Add status of songs that are approved for lyricless encode
+Displays a list of files in the *current folder* which are missing *approved lyric* files 
+
+(Does not display files that have been pre-approved to be lyricless aka “lyriclessness approved” state)
 
 
 ### 🌟 Lyric Auditor: cpfml / cpmlf / [check-playlist-for-missing-lyrics](../BAT-and-UTIL-files-1/get-playlist-for-missing-lyrics.bat):
 
 Displays a list of files in a *playlist* which are missing *approved lyric* files.
-TODO: Add status of songs that are approved for lyricless encode [may happen automatically]
+
+Does not display songs that have been pre-approved to be in “lyriclessness” state. These are songs we’ve given up our serach on. (todo: verify through testing that pre-approved lyricless songs do not show up here)
 
 ![image](https://github.com/user-attachments/assets/42fb6e4e-2cea-48e1-bbc8-499454c201ae)
+
+### 🌟 [display-lyriclessness-status.bat](../BAT-and-UTIL-files-1/display-lyriclessness-status.bat):
+
+Displays the “lyriclessness” status of a songfile. A song is in “lyriclessness approved” state if we have approved the fact that we cannot find lyrics for it the internet. The approval allows the AI to transcribe our songs *without* a text file prompt when running in automatic mode.
+
 
 </details>
 
@@ -328,7 +339,7 @@ Runs ```create-srt``` on *the song currently being played* in ⚡️ [WinAmp](ht
 
 ### 🌟 Karaoke insertion fudger - [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat):
 
-In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com/) does not auto-import the generated SRT file.  Because [MiniLyrics](https://minilyrics.en.softonic.com/) primarily uses LRC instead of SRT, it can sometimes miss an SRT. When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the [MiniLyrics](https://minilyrics.en.softonic.com/) lyric window manually. This script handles that by detecting the current song playing, converting it's SRT to LRC, copying it to the clipboard, and automatically opening [MiniLyrics](https://minilyrics.en.softonic.com/)'s lyric editor window. All the user has to do is paste and save.
+In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com/) does not auto-import the generated SRT file.  Because [MiniLyrics](https://minilyrics.en.softonic.com/) primarily uses LRC instead of SRT, it can sometimes miss an SRT. When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the [MiniLyrics](https://minilyrics.en.softonic.com/) lyric window manually. This script handles that by detecting the current song playing, converting it’s SRT to LRC, copying it to the clipboard, and automatically opening [MiniLyrics](https://minilyrics.en.softonic.com/)’s lyric editor window. All the user has to do is paste and save.
 
 </details>
 
@@ -350,11 +361,17 @@ Marks lyric file with approval/disapproval so that we can pre-approve lyric file
 
 Same as above but for karaoke files. Not particularly used by this system.
 
+### 🌟 [approve-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) / [disapprove-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat):
+
+Same as above, but marks the *SONG* file as being [un]approved for *lyriclessness*, the state in which we have approved the fact that we have given up on our lyric search. This approval allows automatic AI transcription to continue despite a “missing” lyric file.
+
+
+
 ### 🌟 [approve-lyriclessness {song_file}](../BAT-and-UTIL-files-1/approve-lyriclessness.bat) / [disapprove-lyriclessness {song_file}](../BAT-and-UTIL-files-1/disapprove-lyriclessness.bat) 
 
 **Remember:** The only way to batch transcribe in this system is to pre-approve lyric files.
 
-This script marks a *song file* with approval/disapproval so that we can pre-approve the fact that LYRICS FOR THIS SONG CAN'T BE FOUND.  
+This script marks a *song file* with approval/disapproval so that we can pre-approve the fact that LYRICS FOR THIS SONG CAN’T BE FOUND.  
 
 This allows us to also pre-approve songs that we have *given up* finding lyrics for, so they can be batch-transcribed as well. 
 
@@ -364,7 +381,7 @@ This allows us to also pre-approve songs that we have *given up* finding lyrics 
 
 ### 🌟 [srt2lrc.py](../BAT-and-UTIL-files-1/srt2lrc.py):
 
-A *batch* SRT-file to LRC-file converter that's better than others. Used by [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat) in the very rare event of [MiniLyrics](https://minilyrics.en.softonic.com/) not properly importing an ```SRT``` file.
+A *batch* SRT-file to LRC-file converter that’s better than others. Used by [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat) in the very rare event of [MiniLyrics](https://minilyrics.en.softonic.com/) not properly importing an ```SRT``` file.
 
 ### 🌟 [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py):
 
@@ -420,7 +437,7 @@ The lyric downloader we use for Genius saves lyrics as a ```JSON file```. This e
 
 ### 🌟 [unique-lines.pl](../BAT-and-UTIL-files-1/unique-lines.pl):
 
-A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI's 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a spiritual fork of ``uniq``` that doesn't require file sorting (to avoid using up the 224 max tokens for WhisperAI with repeating lyrics), and grew into full-fledged lyric preprocessor that does much lyric massaging. Including putting a period at the end of each line, which is later removed by our subtitle postprocessor.
+A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI’s 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a spiritual fork of ``uniq``` that doesn’t require file sorting (to avoid using up the 224 max tokens for WhisperAI with repeating lyrics), and grew into full-fledged lyric preprocessor that does much lyric massaging. Including putting a period at the end of each line, which is later removed by our subtitle postprocessor.
 
 
 ### 🌟 [remove-period-at-ends-of-lines.pl](../BAT-and-UTIL-files-1/remove-period-at-ends-of-lines.pl):
@@ -428,7 +445,7 @@ A lyric postprocessor that removes tons of junk from downloaded lyrics, only sho
 The final subtitle postprocessor, which removes periods from end of each line in a subtitle. 
 Preserves periods for words like “Mr.”, “Dr.”, “approx”, etc
 
-**Rationale:** We add “invisible” periods to the end of each line of lyrics, so that WhisperAI's ```--sentence``` option is influenced by where lyric posters post the line breaks in their lyrics. It absolutely helped. A lot. Hours were spent determiing this and, and it was obvious from the first [of many] tests.   We then remove these periods (making them “invisible”) afterward, because they are ugly and often not even gramatically correct — just correct for *timing* purposes.  
+**Rationale:** We add “invisible” periods to the end of each line of lyrics, so that WhisperAI’s ```--sentence``` option is influenced by where lyric posters post the line breaks in their lyrics. It absolutely helped. A lot. Hours were spent determiing this and, and it was obvious from the first [of many] tests.   We then remove these periods (making them “invisible”) afterward, because they are ugly and often not even gramatically correct — just correct for *timing* purposes.  
 
 This also also has some extra functionality slipped in to de-censoring some curse words that WhisperAI censors.
 This functionality can be suppressed with the ```--leave-censorship``` or ```-L``` options.
@@ -447,7 +464,7 @@ This functionality can be suppressed with the ```--leave-censorship``` or ```-L`
 
 ### 🌟 [copy-move-post.py](../BAT-and-UTIL-files-1/copy-move-post.py):
 
-Inspired by ```glow.com``` in the 1980s DOS era, a cosmetic postprocessor which employs ANSI color-cycling to inbue a psychedelic effect onto text by cycling the colors of the primary text color through the visible spectrum. Originally written to combat “hangxiety” — anxiety over whether your code has hung — by affecting screenoutput without actually generating any “real” output. Then enhanced to postprocess the output to the ```move``` and ```copy``` commands with emoji, color, italics, double-height text for summaries, and more. Finally, enhanced again with explicit postprocessing for WhisperAI's transcription output.
+Inspired by ```glow.com``` in the 1980s DOS era, a cosmetic postprocessor which employs ANSI color-cycling to inbue a psychedelic effect onto text by cycling the colors of the primary text color through the visible spectrum. Originally written to combat “hangxiety” — anxiety over whether your code has hung — by affecting screenoutput without actually generating any “real” output. Then enhanced to postprocess the output to the ```move``` and ```copy``` commands with emoji, color, italics, double-height text for summaries, and more. Finally, enhanced again with explicit postprocessing for WhisperAI’s transcription output.
 
 Uses my [claire_console.py](../BAT-and-UTIL-files-1/clairecjs_utils/claire_console.py) library to achieve the color-cycling.
 
@@ -464,7 +481,7 @@ Used in this project for ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/win
 ### 🌟 [edit-currently-playing-attrib-helper.pl](../BAT-and-UTIL-files-1/edit-currently-playing-attrib-helper.pl):
 
 Used in this project for 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration only, by ```go-to-currently-playing-song-dir.bat``` to determine the folder of the current song playing. Processes the ```winamp_now_playing.txt``` file generated by the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) to determine this information. 
-This method was used becuase API calls would limit us to only using this on the same computer that is running [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), and we want to be able to run this from *other* computers in the household, without having to poke through any kind of security. This is a very ad-hoc organic spaghetti script that isn't at all nice-looking, but was fixedu p a lot in 2024 to branch past all the horribly ugly legacy 2008, 2009, 2012, and 2013 code, which all worked with the [Last.FM](https://www.last.fm/user/ClioCJS) logfile, an approach we have discontinued because it would create a big hassle every time Last.FM updated their logfile format.
+This method was used becuase API calls would limit us to only using this on the same computer that is running [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), and we want to be able to run this from *other* computers in the household, without having to poke through any kind of security. This is a very ad-hoc organic spaghetti script that isn’t at all nice-looking, but was fixedu p a lot in 2024 to branch past all the horribly ugly legacy 2008, 2009, 2012, and 2013 code, which all worked with the [Last.FM](https://www.last.fm/user/ClioCJS) logfile, an approach we have discontinued because it would create a big hassle every time Last.FM updated their logfile format.
 
 
 &nbsp;
@@ -610,7 +627,7 @@ Delete a file, but only if it exists.
 
 ### 🌟 [environm.bat](../BAT-and-UTIL-files-1/environm.bat):
 
-An absolute mess, but this is the command line initialization script that is run every time our command line is opened. Most anything I create won't work without this being run.
+An absolute mess, but this is the command line initialization script that is run every time our command line is opened. Most anything I create won’t work without this being run.
 
 
 ### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):

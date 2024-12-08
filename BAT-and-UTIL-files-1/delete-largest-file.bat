@@ -17,7 +17,7 @@ if "%largestFile%"=="" (%COLOR_ERROR% %+ echo Largest file not found! %+ goto :E
 
 echo.
 echo.
-call important "The largest file is: '%emphasis%%largestFile%%deemphasis%'"
+call important "The largest file is: “%emphasis%%largestFile%%deemphasis%”"
 call warning "Delete the largest file?"
 %COLOR_REMOVAL%   
 if exist "\recycled\%largestFile%" (%COLOR_UNIMPORTANT %+ *del "\recycled\%largestFile%" %+ %COLOR_REMOVAL%)

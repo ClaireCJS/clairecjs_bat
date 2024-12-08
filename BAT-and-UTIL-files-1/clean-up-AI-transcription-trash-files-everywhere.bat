@@ -26,10 +26,10 @@ rem Delete files that could be anywhere:
                         rem Let us know which filename we are on the hunt for:
                                 set file="%@UNQUOTE[%file]"                                             %+ rem Strip quotes off filename
                                 echos         ``                                                        %+ rem Indent this part
-                                call less_important "looking for '%italics_on%%file%%italics_off%'"     %+ rem Indented "looking for {filename}" message
+                                call less_important "looking for “%italics_on%%file%%italics_off%”"     %+ rem Indented "looking for {filename}" message
                         
                         rem Find all instances of the file [found via everything] we are deleting, pipe to sort-and-uniq to dedupe it, then insert "del-if-exists" [and a quote] before it, a quote after it, then pipe *all that* directly to the command line, then pipe it to fast_cat to fix ansi rendering errors:
-                        rem Be damn sure you know what you're doing if you change this. Best put an "echo " before the "*del" and test it out if you do.
+                        rem Be damn sure you know what you’re doing if you change this. Best put an "echo " before the "*del" and test it out if you do.
 
                                 ((((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") |:u8 call run-piped-input-as-bat.bat) |:u8 fast_cat
                 return
@@ -69,7 +69,7 @@ rem —————————————————————————�
                 :CreateIfGone [dir_param]
                         set dir="%@UNQUOTE[%dir_param]"
                         if not isdir %dir% (mkdir /s %dir%)
-                        if not isdir %dir% (call error.bat "Problem when creating '%italics_on%%dir%%italics_off%'!")
+                        if not isdir %dir% (call error.bat "Problem when creating “%italics_on%%dir%%italics_off%”!")
                 return
 rem ———————————————————————————————————————————————— SUBROUTINES: END —————————————————————————————————————————————————
 

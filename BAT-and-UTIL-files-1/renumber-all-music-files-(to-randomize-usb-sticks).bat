@@ -22,7 +22,7 @@
         echo.
         call warning        "There is no going back"
         echo.
-        call advice         "Old filenames will be saved in '%OLD_NAMES_BACKUP%'"
+        call advice         "Old filenames will be saved in “%OLD_NAMES_BACKUP%”"
         pause
 
 
@@ -33,7 +33,7 @@
     echo.
     pause
     color bright yellow on black
-    rem COPY NERF'ED DO_IT SECTION FROM BELOW TO HERE:
+    rem COPY NERF’ED DO_IT SECTION FROM BELOW TO HERE:
     echo.
     pause
 

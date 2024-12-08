@@ -26,15 +26,15 @@ REM Validate parameters
         call validate-in-path         sed.exe
         set OUR_LOGGING_LEVEL=None
 
-REM cleanse parameter: pull everything the / off of it in case it's something like "dir/s" or "d/s"
+REM cleanse parameter: pull everything the / off of it in case it’s something like "dir/s" or "d/s"
         set clean_param=%PARAM%
         if "%PARAM%" eq "" goto :NoParam
         if "%@REGEXSUB[1,(.*)/(.*),%PARAM]" ne "" (set clean_param=%@REGEXSUB[1,"(.*)/(.*)",%param])
         :NoParam
-        call logging "param='%param%', clean_param is '%clean_param%'"
+        call logging "param=“%param%”, clean_param is “%clean_param%”"
 
 
-REM while it's possible to expand the alias, it's dangerous - 
+REM while it’s possible to expand the alias, it’s dangerous - 
 REM if the alias contains command separator %+ then echoing it makes the part after %+ actually execute
 REM so we will leave this as a do-nothing section in case this changes in the future
         if isAlias     %clean_param% (
@@ -57,7 +57,7 @@ REM execute the `which` command and  scrub our results:
 REM synonyms for results:
         :IsAlias
         :IsInternal
-        call logging "result for $0 with parameters='%PARAM' is '%RESULT', tmp_which='%tmp_which'"
+        call logging "result for $0 with parameters=“%PARAM” is “%RESULT”, tmp_which=“%tmp_which”"
         set DETECTED=%RESULT%
         set    WHICH=%RESULT%
         set    FOUND=%RESULT%

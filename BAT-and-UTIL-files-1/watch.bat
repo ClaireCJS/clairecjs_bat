@@ -19,7 +19,7 @@ rem CONFIGURATION:
         set SLAY_SLUI=0                                      %+ rem Whether to run a process that kills slui.exe every second:
         set ROLL_MADVR_LOGS=0                                %+	rem For when the MadVR plugin is used, which we stopped using in 2015ish:
 
-        set EXE_TO_SEE_IF_RUNNING=vlc.exe                    %+ rem this exe should be what's we check to see if we are stillw atching
+        set EXE_TO_SEE_IF_RUNNING=vlc.exe                    %+ rem this exe should be what’s we check to see if we are stillw atching
         set VIDEOPLAYER_COMMAND=vlc                          %+ rem **JUST** the command, ****NO**** parameters
         set VIDEOPLAYER_COMMAND_FULL=call vlc -f             %+ rem the **FULL** command, ***WITH*** parameters
 
@@ -79,7 +79,7 @@ rem CHECK IF PARAMETERS ARE FILES THAT EXIST:
 
 
 
-rem ARGUMENTS CONVERTED TO SEMICOLON-DELIMITED BECAUSE THAT'S WHAT MANY COMMANDS USE:
+rem ARGUMENTS CONVERTED TO SEMICOLON-DELIMITED BECAUSE THAT’S WHAT MANY COMMANDS USE:
        :echo set ARGSWITHSEMICOLONS=%1;%2;%3;%4;%5;%6;%7;%8;%9
              set ARGSWITHSEMICOLONS=%1;%2;%3;%4;%5;%6;%7;%8;%9
              set ARGSWITHSPACES=%@REPLACE[;, ,%ARGSWITHSEMICOLONS%]
@@ -127,15 +127,15 @@ rem TURN OFF ANY X10 LIGHTS, IN ORDER OF ANNOYINGNESS, AND PUT BLACKLIGHTS ON:
 
 
 rem PAUSE MUSIC:
-    rem call paus fast —— will unpause it if it's already paused tho
+    rem call paus fast —— will unpause it if it’s already paused tho
     call paus
 
     
-rem TELL GOOGLE TO RUN "ok google, I'm watching TV" SMART HOME ROUTINE:
+rem TELL GOOGLE TO RUN "ok google, I’m watching TV" SMART HOME ROUTINE:
 
     if "%GOOGLE_ASSIST_TV_MODE_ON%" eq "1" goto :AlreadyOKGoogled
             sleep 2
-            rem we cannot 'call okgoogle.bat i'm watching tv' because the synthesized voice will only trigger house routines, and our routine is a personal routine made beforeh house routines existed"
+            rem we cannot “call okgoogle.bat i’m watching tv” because the synthesized voice will only trigger house routines, and our routine is a personal routine made beforeh house routines existed"
             call play-WAV-file "%BAT%\OK Google - I'm watching TV.wav"
             SET GOOGLE_ASSIST_TV_MODE_ON=1
     :AlreadyOKGoogled
@@ -152,7 +152,7 @@ rem ACTUALLY PLAY THE FILE, WAIT (PAUSE), THEN DELETE IT IF WE ARE IN A FOLDER W
 
 
         REM winamp moves when vlc starts and this moves it back
-        call advice "NOT doing: '%italics_on%call fml.bat%italics_off%' to fix minilyrics/winamp %faint_on%[commented out 20240101]%faint_off%" silent
+        call advice "NOT doing: “%italics_on%call fml.bat%italics_off%” to fix minilyrics/winamp %faint_on%[commented out 20240101]%faint_off%" silent
 
 
 
@@ -172,7 +172,7 @@ rem ACTUALLY PLAY THE FILE, WAIT (PAUSE), THEN DELETE IT IF WE ARE IN A FOLDER W
 
 
 rem DOUBLE-CHECK LIGHTS [OF ALL KINDS]:
-	rem Only do x10-related lighting if it's not already done:
+	rem Only do x10-related lighting if it’s not already done:
         if "%X10_DOWN%" eq "1" goto :X10_DOWN_YES_2
             if "%TVLIGHTING%" eq "1" goto :TV_Lighting_Done_Already_NO2
                 :TV_Lighting_Done_Already_YES2
@@ -189,7 +189,7 @@ rem DOUBLE-CHECK LIGHTS [OF ALL KINDS]:
                         set TVLIGHTING=1
                     goto :TV_Lighting_double_check_done
                 :TV_Lighting_Done_Already_NO2
-                        rem Even if the environment variable is set, let's ensure the blacklights are on anyway, no matter what:
+                        rem Even if the environment variable is set, let’s ensure the blacklights are on anyway, no matter what:
                             call wait 5
                             call x10 a6 on
                             call x10 a7 off
@@ -200,7 +200,7 @@ rem DOUBLE-CHECK LIGHTS [OF ALL KINDS]:
                     goto :TV_Lighting_double_check_done
                 :TV_Lighting_double_check_done
         :X10_DOWN_YES_2
-	rem Sometimes the ambilight pop-up remains when it shouldn't, so kill it one more time:
+	rem Sometimes the ambilight pop-up remains when it shouldn’t, so kill it one more time:
 		:call AREPopDown
 		:::: ^^^^^^^^^^^ but the problem with doing this here is it generates a mouse click which removes focus from our player, causing confusion
 
@@ -246,12 +246,12 @@ rem THIS IS WHAT HAPPENS WHILE WE ARE WATCHING AFTER THE 2ND-PASS LIGHTING DOUBL
                 if %ISRUNNING eq 1 (goto :Still_Watching)
 
         
-rem THIS IS WHAT HAPPENS WHEN WE'RE FINALLY DONE WATCHING:
+rem THIS IS WHAT HAPPENS WHEN WE’RE FINALLY DONE WATCHING:
         :: done watching - bring command-line window back to front:
             window restore
 			REM call fix-minilyrics-window-size-and-position
         	:202007: NOPE SO SICK OF THIS NOW!!! call restore-window-positions
-            REM call advice "Type 'rwp' to restore the window positions (if they got messed up by watching this video)."
+            REM call advice "Type “rwp” to restore the window positions (if they got messed up by watching this video)."
             call sleep 1
             window restore
             call bring-back-focus
@@ -320,7 +320,7 @@ rem IF WE ARE IN A FOLDER THAT ALREADY HAS A WATCHED SUB-FOLDER, WE NEED TO FIND
                                  goto :DealWithWatchedDir_YES
             :DealWithWatchedDir_YES
 
-rem PRIOR TO MOVING TO WATCHED FOLDER, IF IT'S IN A PRE-RENAMING PART OF THE WORKFLOW, GIVE AN OPPORTUNITY TO RENAME IT:
+rem PRIOR TO MOVING TO WATCHED FOLDER, IF IT’S IN A PRE-RENAMING PART OF THE WORKFLOW, GIVE AN OPPORTUNITY TO RENAME IT:
                 if       %@REGEX[FOR.REVIEW,%@UPPER["%_CWP"]]==1  set RENAMEIT=1
                 if %@REGEX[WATCH.BEFORE.FRA,%@UPPER["%_CWP"]]==1  set RENAMEIT=1
                 if "%RENAMEIT%" eq "0" goto :RenameIt_NO
@@ -331,7 +331,7 @@ rem PRIOR TO MOVING TO WATCHED FOLDER, IF IT'S IN A PRE-RENAMING PART OF THE WOR
                             %COLOR_NORMAL% %+ for %1 in (%*)      if exist "%@UNQUOTE[%1]" call rn "%@UNQUOTE[%1]"
                         :RenameIt_NO
 
-rem NOW THAT WE'VE RENAMED IT AND KNOW WHERE TO MOVE IT, MOVE IT:
+rem NOW THAT WE’VE RENAMED IT AND KNOW WHERE TO MOVE IT, MOVE IT:
 
                 :Move any files that match the names of any files that we played, but which have a different extension (subtitles, texts, etc):										
                 :@ECHO ON
@@ -369,9 +369,9 @@ rem Ask about moving it to reviwed location
         if "%_CWD" == "%DROPDIR%" .or. "%@UPPER[%_CWD]" eq "%DROPDIR%\OH" .or. "%@UPPER[%_CWD]" eq "%DROPDIR%\OH\HOLD" (
                 set  MoveTo=%ReviewDir%\_reviewed-not-prenamed
                 call validate-environment-variable MoveTo
-                call askyn "Move to '%italics_on%%moveto%%italics_off%'" no
+                call askyn "Move to “%italics_on%%moveto%%italics_off%”" no
                 set  TO_PROCESS=%CMD_TAIL%
-                set  comment="call rn" has a side-effect of setting %FILENAME_NEW% as the new name we've chosen
+                set  comment="call rn" has a side-effect of setting %FILENAME_NEW% as the new name we’ve chosen
                 for %%tmpfile in (%to_process) (call rn "%@unquote[%tmpfile]" %+ set to_process=%to_process% "%@NAME[%@unquote[%FILENAME_NEW%]].*")
                 iff %DO_IT eq 1 (
                         for %%tmpfile in (%to_process) (echos %@randfg_soft[] %+ *move "%@unquote[%tmpfile]" %MoveTo%)
@@ -379,14 +379,14 @@ rem Ask about moving it to reviwed location
         )
 
 
-rem Ask if we want to run 'after show'
-        call askyn "Run '%italics_on%after show%italics_off%'" no
+rem Ask if we want to run “after show”
+        call askyn "Run “%italics_on%after show%italics_off%”" no
                 set MINIMIZE_AFTER=0
                 if %DO_IT eq 1 (call after show)
 
 
 REM todo check if we are in a movie folder?
-        call askyn "Run '%italics_on%after movie%italics_off%'" no
+        call askyn "Run “%italics_on%after movie%italics_off%”" no
                 set MINIMIZE_AFTER=0
                 if %DO_IT eq 1 (call after movie)
 
@@ -400,7 +400,7 @@ rem UNPAUSE MUSIC:
 rem WAKE UP WITH SOME PARTY LIGHTS:
 	REM if "%TVLIGHTING%" eq "0" goto :TV_Lighting_Done_Already_NO3
 	:TV_Lighting_Done_Already_YES3
-        call askyn "Fix lights ('%italics_on%ok google I'm done watching tv%italics_off%')" no
+        call askyn "Fix lights (“%italics_on%ok google I’m done watching tv%italics_off%”)" no
                 if %DO_IT eq 1 (
                         rem call exit-maybe
                         call okgoogle I'm done watching TV
@@ -430,7 +430,7 @@ rem COPY SHOWNAME TO CLIPBOARD (AGAIN):
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :ValidateFileForWatching   [fileToCheck]
             if "%fileToCheck%" eq "" goto :NeverMind
-            %COLOR_IMPORTANT% %+ echos %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% Checking if file exists: '%faint%%italics%%FileToCheck%%italics_off%%faint_off%' %EMOJI_MAGNIFYING_GLASS_TILTED_LEFT%
+            %COLOR_IMPORTANT% %+ echos %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% Checking if file exists: “%faint%%italics%%FileToCheck%%italics_off%%faint_off%” %EMOJI_MAGNIFYING_GLASS_TILTED_LEFT%
             if ""  eq    "%fileToCheck%" goto :NeverMind
             if not exist  %fileToCheck%  goto :Exists_NO
                                          goto :Exists_YES

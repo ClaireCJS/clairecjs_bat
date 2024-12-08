@@ -7,7 +7,7 @@ rem ZIP_OPTIONS=%2 %3 %4 %5 %6 %7 %8 %9
 set ZIP_OPTIONS=%2$
 
 
-call print-if-debug "*** CALLED: zip.bat %* from CWD=%_CWD and WHAT_FOLDER_TO_ZIP is '%WHAT_FOLDER_TO_ZIP%'"
+call print-if-debug "*** CALLED: zip.bat %* from CWD=%_CWD and WHAT_FOLDER_TO_ZIP is “%WHAT_FOLDER_TO_ZIP%”"
 if "%DEBUG%" eq "1" (dir %+ pause)
 
 
@@ -29,7 +29,7 @@ if "%DEBUG%" eq "1" (dir %+ pause)
 
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::::: If it's a folder, we need to come up with a ZIP name:
+::::: If it’s a folder, we need to come up with a ZIP name:
 :itsadir
     set     DIR="%@STRIP[%=",%WHAT_FOLDER_TO_ZIP%]"
     set ARCHIVE="%@STRIP[%="\,%WHAT_FOLDER_TO_ZIP%].zip"
@@ -76,16 +76,16 @@ if "%DEBUG%" eq "1" (dir %+ pause)
                                             call success "Archive has been created."
                     :COLOR_RUN%       %+    echo * AUTO_DEL_DIR=%AUTO_DEL_DIR%       %+ %COLOR_REMOVAL%
                     if %AUTO_DEL_DIR% eq 1 (echo r |:u8 deltree %DIR%)
-                    rem let's stop doing this now that we're using this more: 
+                    rem let’s stop doing this now that we’re using this more: 
                     if %AUTO_DEL_DIR% ne 0 (
-                        rem deltree now asks and doesn't do it blindly...
+                        rem deltree now asks and doesn’t do it blindly...
                         deltree %DIR%
                         if %DELTREE_PERFORMED eq 1 (call removal "%CHECK% Original folder has been deleted")
                     )
                     %COLOR_SUCCESS% 
                 goto :Archive_Step_DONE
                 :Archive_Exists_After_Done_NO
-                    call ERROR "Archive does not exist: '%ARCHIVE%'"
+                    call ERROR "Archive does not exist: “%ARCHIVE%”"
                     pause
                 goto :Archive_Step_DONE
         :Archive_Step_DONE
@@ -101,7 +101,7 @@ goto :end
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :itsafile_OLD
-    call error "zip-folder called on file '%WHAT_FOLDER_TO_ZIP%'"
+    call error "zip-folder called on file “%WHAT_FOLDER_TO_ZIP%”"
     goto :END
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -153,7 +153,7 @@ goto :end
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :itsnothing
     %COLOR_ERROR%
-    call error "Sorry, %WHAT_FOLDER_TO_ZIP% doesn't exist!"
+    call error "Sorry, %WHAT_FOLDER_TO_ZIP% doesn’t exist!"
     pause
 goto :end
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

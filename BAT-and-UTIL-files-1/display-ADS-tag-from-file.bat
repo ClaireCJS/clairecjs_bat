@@ -1,7 +1,7 @@
 
 @rem     Displays a tag associated with a file, using Windows Alternate Data Streams for files. 
 
-@rem     These tags copy over to new locations and "live" "within" the files themselves, so moving/copying doesn't change things.
+@rem     These tags copy over to new locations and "live" "within" the files themselves, so moving/copying doesn’t change things.
 
 
 
@@ -19,7 +19,7 @@ text
 :USAGE: display-ADS-tag-from-file filename.txt  [tag_name]  [verbose]
 :USAGE: 
 :USAGE:         EXAMPLE: remove-ADS-tag-to-file filename.txt songlyrics.txt lyrics 
-:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ displays the 'lyrics' tag 
+:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ displays the "lyrics” tag 
 :USAGE: VERBOSE MODE: ( 2ⁿᵈ arg is "verbose"):
 :USAGE:
 :USAGE:         Displays it HARDER 😂
@@ -39,7 +39,7 @@ rem Usage:
 rem Get parameters:
         set    FILE_TO_USE=%@UNQUOTE[%1]                                           %+ rem file to use 
         set TAG_TO_DISPLAY=%@UNQUOTE[%2]                                           %+ rem ads tag to display
-        set                  PARAM_3=%3                                            %+ rem "verbose" if you want MORE on-screen verification of what's happeneing
+        set                  PARAM_3=%3                                            %+ rem "verbose" if you want MORE on-screen verification of what’s happeneing
 
 rem Validate environment (once):
         iff 1 ne %validated_disp_ads_tag_from_file% then
@@ -48,7 +48,7 @@ rem Validate environment (once):
         endiff
 
 rem Validate parameters (every time):
-        call validate-environment-variable File_To_Use    "1ˢᵗ arg must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg can be 'verbose'"
+        call validate-environment-variable File_To_Use    "1ˢᵗ arg must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg can be “verbose”"
         call validate-environment-variable Tag_To_Display "2ⁿᵈ argument must be a tag to remove, NOT empty"
 
 rem Set default values for parameters:

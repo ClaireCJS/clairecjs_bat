@@ -41,12 +41,12 @@ rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere       get-the
 
         goto :skip_1
                 :deleteEverywhere [file]
-                        rem Be goddamned sure you know what you're doing if you change this.  
+                        rem Be goddamned sure you know what you’re doing if you change this.  
                         rem Best put an "echo " before the "*del" and test it out if you do.
                         rem for %%GlobToDestroy in (*._vad_collected_chunks*.wav *._vad_original*.srt) 
                         set file="%@UNQUOTE[%file]"
                         echos         ``
-                        call less_important "looking for '%file%'"
+                        call less_important "looking for “%file%”"
                         ((((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") |:u8 call run-piped-input-as-bat.bat) |:u8 fast_cat
                 return
         :skip_1
@@ -77,7 +77,7 @@ goto :END
         %COLOR_SUCCESS%
         set dir="%@UNQUOTE[%dir_param]"
         if not isdir %dir% (mkdir /s %dir%)
-        if not isdir %dir% (call error.bat "There's still a problem when Creating %dir%!")
+        if not isdir %dir% (call error.bat "There’s still a problem when Creating %dir%!")
     return
 :END
 %COLOR_NORMAL%

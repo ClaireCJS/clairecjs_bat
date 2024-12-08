@@ -7,7 +7,7 @@
         echo.
         echo USAGE: %0 metallica*.txt    —— to disapprove matching subtitles in the folder (using  wildcards)
         echo USAGE: %0 a_single_file.txt —— to disapprove ALL .txt subtitles in the folder (using a filename)
-        echo USAGE: %0 all               —— to disapprove ALL .txt subtitles in the folder (using 'all' mode)
+        echo USAGE: %0 all               —— to disapprove ALL .txt subtitles in the folder (using ’all’ mode)
         %color_normal%
         goto :END
 endiff
@@ -30,7 +30,7 @@ for %%tmpfile in (%PARAMS%) do (
         if exist %file% (
                 call disapprove-subtitle-file.bat %file%
         ) else (
-                call error "File '%italics_on%%file%%italics_off%' does not exist"
+                call error "File “%italics_on%%file%%italics_off%” does not exist"
         )
 )        
 

@@ -55,11 +55,11 @@ rem Display depending on extension: flac vs mp3 vs image vs video
                 endiff
         endiff
 
-rem Mention if it was a file extension we don't know how to display tags of:
+rem Mention if it was a file extension we don’t know how to display tags of:
         iff 0 eq %FOUND% then
                 set silent=``
                 if 1 eq %DISPLAY_TAGS_PREFIX_NAME% (set silent=silent)
-                call warning           "%BAT%\%0 %EMDASH% Don't have a way to tag %italics_on%%blink_on%%EXT%%blink_off%%italics_off% files like '%italics_on%%file%%italics_off%'" %silent%
+                call warning           "%BAT%\%0 %EMDASH% Don’t have a way to tag %italics_on%%blink_on%%EXT%%blink_off%%italics_off% files like “%italics_on%%file%%italics_off%”" %silent%
                 iff 1 ne %DISPLAY_TAGS_PREFIX_NAME% then
                         pause /# 10
                 endiff                

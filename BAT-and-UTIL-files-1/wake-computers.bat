@@ -9,7 +9,7 @@ rem           Ethernet MAC address: BC:5F:F4:43:EC:6E
 
 rem Validate environment:
         iff 1 ne %validated_wakecomp% then
-                call validate-environment-variable ALL_COMPUTERS_UP          "1ˢᵗ parameter to %italics_on%%0.bat%italics_off% must be set ALL_COMPUTERS_UP to a list of computer names in our system, for example, set '%italics_on%ALL_COMPUTERS_UP'%italics_off% TO '%italics_On%GOLIATH THAILOG DEMONA WYVERN%italics_off%'"
+                call validate-environment-variable ALL_COMPUTERS_UP          "1ˢᵗ parameter to %italics_on%%0.bat%italics_off% must be set ALL_COMPUTERS_UP to a list of computer names in our system, for example, set “%italics_on%ALL_COMPUTERS_UP”%italics_off% TO “%italics_On%GOLIATH THAILOG DEMONA WYVERN%italics_off%”"
                 call validate-in-path              wake-on-lan.exe           "the Wake-On-Lan utility %italics_on%wake-on-lan.exe%italics_off% needs to be in the path"
                 call validate-environment-variable ANSI_COLORS_HAVE_BEEN_SET "ANSI codes have not been defined. Please run: %blink_on%%italics_on%set-ansi force%italics_off%%blink_off%"
                 set validated_wakecomp=1
@@ -31,7 +31,7 @@ rem Validate that each computer in our system has its IP address and MAC address
                 rem gosub wake_up_by_computer_name                                                       Goliath 
 
 
-rem Annd we're done!
+rem Annd we’re done!
         goto :END
         
         
@@ -40,7 +40,7 @@ rem Annd we're done!
                         set tmp_ip=%[ip_%name%]
                         set tmp_emoji=%[emoji_machine_%name%]
                 
-                rem check if MACHINANAME_DOWN=1 has been set in environm.btm. If so, the machine is down, so don't try to wake it:
+                rem check if MACHINANAME_DOWN=1 has been set in environm.btm. If so, the machine is down, so don’t try to wake it:
                         set down=%[%name%_down]                             
                         if %down eq 1 (%COLOR_REMOVAL% %+ echo %NO% Skip:  %tmp_emoji% %name% %tmp_emoji%%tab% — because it is currently down %+ return)
 
@@ -53,7 +53,7 @@ rem Annd we're done!
                         set tmp_mac_6=%[mac_%name%_6]
                         set tmp_mac_7=%[mac_%name%_7]
 
-                rem For each mac address that we know of, attempt a wakeup through it's enterference:
+                rem For each mac address that we know of, attempt a wakeup through it’s enterference:
                         if defined tmp_mac_1 gosub wake_up_by_MAC_address %name% %tmp_mac_1 %tmp_ip %tmp_emoji %down
                         if defined tmp_mac_2 gosub wake_up_by_MAC_address %name% %tmp_mac_2 %tmp_ip %tmp_emoji %down
                         if defined tmp_mac_3 gosub wake_up_by_MAC_address %name% %tmp_mac_2 %tmp_ip %tmp_emoji %down

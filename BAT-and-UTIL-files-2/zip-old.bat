@@ -55,7 +55,7 @@ rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs
 rem DEPRECATED - zip-file.bat should handle file, zip-dir.bat should handle dirs, this should not really be used anymore
 
 
-call warning "zip-old is deprecated and shouldn't be called anymore but is being called by %_callingfile"
+call warning "zip-old is deprecated and shouldn’t be called anymore but is being called by “%_callingfile”"
 pause
 
 
@@ -63,7 +63,7 @@ set WHAT_TO_ZIP=%1
 set ZIP_OPTIONS=%2 %3 %4 %5 %6 %7 %8 %9
 
 
-call print-if-debug "*** CALLED: zip.bat %* from CWD=%_CWD and WHAT_TO_ZIP is '%WHAT_TO_ZIP%'"
+call print-if-debug "*** CALLED: zip.bat %* from CWD=%_CWD and WHAT_TO_ZIP is “%WHAT_TO_ZIP%”"
 if "%DEBUG%" eq "1" (dir %+ pause)
 
 
@@ -86,7 +86,7 @@ if "%DEBUG%" eq "1" (dir %+ pause)
 
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-::::: If it's a folder, we need to come up with a ZIP name:
+::::: If it’s a folder, we need to come up with a ZIP name:
 :itsadir
     set     DIR="%@STRIP[%=",%WHAT_TO_ZIP%]"
     set ARCHIVE="%@STRIP[%="\,%WHAT_TO_ZIP%].zip"
@@ -133,7 +133,7 @@ if "%DEBUG%" eq "1" (dir %+ pause)
                     %COLOR_SUCCESS    %+    call removal "Original folder has been deleted"
                 goto :Archive_Step_DONE
                 :Archive_Exists_After_Done_NO
-                    call ERROR "Archive does not exist: '%ARCHIVE%'"
+                    call ERROR "Archive does not exist: “%ARCHIVE%”"
                     pause
                 goto :Archive_Step_DONE
         :Archive_Step_DONE
@@ -193,7 +193,7 @@ goto :end
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :itsnothing
     %COLOR_ERROR%
-    echo sorry, %WHAT_TO_ZIP% doesn't exist!
+    echo sorry, %WHAT_TO_ZIP% doesn’t exist!
     pause
 goto :end
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

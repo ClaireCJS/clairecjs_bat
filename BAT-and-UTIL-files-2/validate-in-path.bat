@@ -73,7 +73,7 @@ for %command in (%CMDTAIL%) do (
                 call setpath 
                 iff not isalias %clean_command .and. not isInternal %clean_command .and. "%search_results%" eq "" then
                         %COLOR_WARNING% 
-                        echo it didn't seem to work?
+                        echo it didn’t seem to work?
                  else
                         %COLOR_SUCCESS%
                         echo it seemed to work?

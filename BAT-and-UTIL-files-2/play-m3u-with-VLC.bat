@@ -7,7 +7,7 @@ pause
 
 
 rem OVERRIDE: If we run this in our *OFFICIAL* playlists folder, override to our PLAYLIST.bat instead:
-if "%@TRUENAME[.]" eq "%MP3OFFICIAL%\lists" (playlist.bat %*) %+ REM no "call" - we're passing control directly over to this BAT instead!
+if "%@TRUENAME[.]" eq "%MP3OFFICIAL%\lists" (playlist.bat %*) %+ REM no "call" - we’re passing control directly over to this BAT instead!
 
 
 
@@ -33,7 +33,7 @@ if "%@TRUENAME[.]" eq "%MP3OFFICIAL%\lists" (playlist.bat %*) %+ REM no "call" -
 ::::: SETUP:
     call checktemp
     set OLDPLAYLIST="%@FILENAME[%1]"                     
-    call less_important "OLDPLAYLIST IS '%OLDPLAYLIST%', NEWPLAYLIST IS '%NEWPLAYLIST%'"
+    call less_important "OLDPLAYLIST IS “%OLDPLAYLIST%”, NEWPLAYLIST IS “%NEWPLAYLIST%”"
     set NEWPLAYLIST="%@STRIP[%=",%TEMP\%OLDPLAYLIST]"
     (type %OLDPLAYLIST% |:u8 remap.pl) >%NEWPLAYLIST
 

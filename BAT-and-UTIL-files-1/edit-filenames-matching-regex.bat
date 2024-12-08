@@ -40,7 +40,7 @@ rem SET UP INTERNAL VARIABLES AND FILENAMES:
 
 
 rem GREP FOR OUR LIST OF MATCHING FILES, WHICH ARE SAVED TO A FILELIST:
-        call less_important "Searching files '%italics_on%%FILESTOGREP%%italics_off%' for regex '%italics_on%%REGEX%%italics_off%'"
+        call less_important "Searching files “%italics_on%%FILESTOGREP%%italics_off%” for regex “%italics_on%%REGEX%%italics_off%”"
                                           >:u8%FILELIST%
         grep -i -l %REGEX% %FilesToGrep% >>:u8%FILELIST% 
 
@@ -96,7 +96,7 @@ goto :END
 	:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	:usage
             %COLOR_ADVICE%
-            echo USAGE: grepEdit someRegex [optional wildcard like *.java; default is '%FILESTOGREP_DEFAULT%']
+            echo USAGE: grepEdit someRegex [optional wildcard like *.java; default is “%FILESTOGREP_DEFAULT%”]
 	return
 	:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

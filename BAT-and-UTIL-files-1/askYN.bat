@@ -23,9 +23,9 @@ iff "%1" eq "" .or. "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%" eq "--help"
                 echo USAGE: You did this: %ansi_color_warning_soft%%0 %*%ansi_color_advice%
                 %color_advice%
                 echo.
-                echo USAGE: call askyn "Question to ask without question mark" [yes or no] [time to wait...0 if not waiting] ["big" if you want double height, "notitle" if you don't want the title changed]
+                echo USAGE: call askyn "Question to ask without question mark" [yes or no] [time to wait...0 if not waiting] ["big" if you want double height, "notitle" if you don’t want the title changed]
                 echo USAGE: 
-                echo USAGE: 1st param is question, 2nd is yes/no defult, 3rd is wait_time before expiration, 4th parameter is 'big' if it's big, or 'notitle' if you don't want the title changed while asking
+                echo USAGE: 1ˢᵗ param is question, 2ⁿᵈ is yes/no defult, 3ʳᵈ is wait_time before expiration, 4ᵗʰ parameter is “big” if it’s big, or “notitle” if you don’t want the title changed while asking
                 echo USAGE: 
                 echo USAGE: EXAMPLES:
                 echo USAGE: 
@@ -103,16 +103,16 @@ REM Variable setup:
 
 rem Set title for waiting-for-answer state:
         iff 1 ne %NOTITLE% then
-                rem echo setting title 1 - NOTITLE = '%NOTITLE%'
+                rem echo setting title 1 - NOTITLE = “%NOTITLE%”
                 title %EMOJI_RED_QUESTION_MARK%%@UNQUOTE[%ASK_QUESTION%]%EMOJI_RED_QUESTION_MARK%
         endiff
 
         
 REM Parameter validation:
-        rem Let's not dip into all this for something used so often: call validate-environment-variable question skip_validation_existence
-        if not defined ask_question (call fatal_error "$0 called without a question being passed as the 1st parameter (also, 'yes'/'no' must be a 2nd parameter)")
+        rem Let’s not dip into all this for something used so often: call validate-environment-variable question skip_validation_existence
+        if not defined ask_question (call fatal_error "$0 called without a question being passed as the 1st parameter (also, “yes”/“no” must be 2ⁿᵈ parameter)")
         if "%default_answer" ne "" .and. "%default_answer%" ne "yes" .and. "%default_answer%" ne "no" .and. "%default_answer%" ne "y" .and. "%default_answer%" ne "n" (
-           call fatal_error "2nd parameter to %0 can only be 'yes', 'no', 'y', or 'n' but was '%DEFAULT_ANSWER%'"
+           call fatal_error "2nd parameter to %0 can only be “yes”, “no”, “y”, or “n” but was “%DEFAULT_ANSWER%”"
         )
         if "%DEFAULT_ANSWER%" eq "" (
             set default_answer=no
@@ -130,9 +130,9 @@ REM Build the question prompt:
         if "%OS%" eq "7" (  set    WIN7DECORATOR=*** ``)
         set BRACKET_COLOR=224,0,0
         set PRETTY_QUESTION=%@UNQUOTE[%ASK_QUESTION]
-        rem echo "pretty question is '%pretty_question%'"
+        rem echo "pretty question is “%pretty_question%”"
         rem pause
-                                                               set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK%%ANSI_COLOR_BRIGHT_RED%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%?%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
+                                                               set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK%%ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%?%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
         if "%default_answer" eq "yes" .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%Y%underline_off%%bold_off%                             %+ rem   capital Y
         if "%default_answer" eq "no"  .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%y%faint_off%                                                                        %+ rem lowercase Y
                                                                set PRETTY_QUESTION=%pretty_question%%italics_off%%bold_off%%underline_off%%double_underline_off%%@ANSI_FG_RGB[%BRACKET_COLOR]/ %+ rem           slash
@@ -147,16 +147,16 @@ rem Check if we are not doing titling, and skip titling section if that is the c
 rem Re-set a new window title:
         set stripped=%@STRIPANSI[%@STRIPANSI[%PRETTY_QUESTION]]
         iff 1 ne %NOTITLE then
-                rem echo setting title 2 - NOTITLE = '%NOTITLE%'
+                rem echo setting title 2 - NOTITLE = “%NOTITLE%”
                 title %stripped%
         endiff
 
 rem Re-set a new window title: BUG FIX:
         rem weird bug  where "\B" got past the stripansi function, giving us titles like "❓do it?(B [(BY/n]❓" with two "(B" 
-        rem in them that don't belong, but also using %@REREPLACE on the variable didn't work despite working on the %_WinTitle
-        rem So we incrementally set and read the wintitle to fix it that way. It's ugly, but it's not a time-pressed situation:
+        rem in them that don’t belong, but also using %@REREPLACE on the variable didn’t work despite working on the %_WinTitle
+        rem So we incrementally set and read the wintitle to fix it that way. It’s ugly, but it’s not a time-pressed situation:
         set stripped2=%@REREPLACE[\(B *\[\(B, \[,%_wintitle]
-        rem echo setting title 3 - NOTITLE = '%NOTITLE%'
+        rem echo setting title 3 - NOTITLE = “%NOTITLE%”
         title %stripped2%
         set stripped3=%@REREPLACE[\?\(B\s+\[y\/\(BN,? [y/N,%_wintitle]
         title %stripped3%
@@ -191,12 +191,12 @@ REM Print the question out with a spacer below to deal with pesky ANSI behavior:
                 if %WAIT_TIMER_ACTIVE eq 1 (echos %@ANSI_MOVE_UP[1])
         endiff
             
-REM Load INKEY with the question, unless we've already printed it out:
+REM Load INKEY with the question, unless we’ve already printed it out:
                                     set INKEY_QUESTION=%PRETTY_QUESTION%
         if %WAIT_TIMER_ACTIVE eq 0 .and. %BIG_QUESTION eq 1 (set INKEY_QUESTION=)
 
 
-REM Actually answer the question here —— make the windows 'question' noise first, then get the user input:
+REM Actually answer the question here —— make the windows “question” noise first, then get the user input:
         echos %ANSI_CURSOR_SHOW%
         *beep question    
         unset /q SLASH_X
@@ -204,7 +204,7 @@ REM Actually answer the question here —— make the windows 'question' noise f
         echos %ANSI_POSITION_SAVE%
         if %BIG_QUESTION eq 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_RESTORE%)
         if %BIG_QUESTION ne 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_SAVE%)
-        rem as an experiment, let's do this 100x instead of 1x:
+        rem as an experiment, let’s do this 100x instead of 1x:
         @rem repeat 100 input /c /w0 %%This_Line_Clears_The_Character_Buffer
         rem @call clear-buffered-keystrokes is just:
         inkey /c
@@ -214,7 +214,7 @@ REM Actually answer the question here —— make the windows 'question' noise f
 REM set default answer if we hit ENTER, or timed out (which should only happen if WAIT_OPS exists):
         if "%WAIT_OPS%" ne "" .and. ("%OUR_ANSWER%" eq "" .or. "%OUR_ANSWER%" eq "@28") (
             set OUR_ANSWER=%default_answer%
-            call print-if-debug "timed out, OUR_ANSWER set to '%OUR_ANSWER%'"
+            call print-if-debug "timed out, OUR_ANSWER set to “%OUR_ANSWER%”"
         )        
 
 REM Make sure we have an answer, and initialize our return values
@@ -227,13 +227,13 @@ REM Process the enter key into our default answer:
             if  "%default_answer%" eq "no"  ( set DO_IT=0 %+ set ANSWER=N )
             if  "%default_answer%" eq "yes" ( set DO_IT=1 %+ set ANSWER=Y )                  
             echos  ``
-            call print-if-debug "enter key processing, answer is now '%ANSWER%'"
+            call print-if-debug "enter key processing, answer is now “%ANSWER%”"
         ) 
 
 
 REM Title
         iff 1 ne %NOTITLE% then
-                rem echo setting title 4 - NOTITLE = '%NOTITLE%'
+                rem echo setting title 4 - NOTITLE = “%NOTITLE%”
                 title %@STRIPANSI[%PRETTY_QUESTION] %A
         endiff
 
@@ -246,9 +246,9 @@ REM Set our 2 major return values that are referred to from calling scripts:
 REM Generate "pretty" answers & update the title:
         if "%ANSWER" eq "Y" .or. "%ANSWER" eq "yes" (set PRETTY_ANSWER=%ANSI_BRIGHT_GREEN%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%Yes%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%)
         if "%ANSWER" eq "N" .or. "%ANSWER" eq "no"  (set PRETTY_ANSWER=%ANSI_BRIGHT_RED%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%No%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%)
-        call print-if-debug "our_answer is '%OUR_ANSWER', default_answer is '%DEFAULT_ANSWER%', answer is '%ANSWER%', PRETTY_ANSWER is '%PRETTY_ANSWER%'"
+        call print-if-debug "our_answer is “%OUR_ANSWER”, default_answer is “%DEFAULT_ANSWER%”, answer is “%ANSWER%”, PRETTY_ANSWER is “%PRETTY_ANSWER%”"
         if 1 eq %NOTITLE% (goto :title_done_3)        
-                rem echo setting title 4 - NOTITLE = '%NOTITLE%'
+                rem echo setting title 4 - NOTITLE = “%NOTITLE%”
                 title %@REPLACE[%EMOJI_RED_QUESTION_MARK,,%@STRIPANSI[%@UNQUOTE[%ASK_QUESTION]? %EMDASH% %PRETTY_ANSWER%]]
         :title_done_3
 
@@ -268,7 +268,7 @@ REM print our "pretty" answers in the right spots (challenging with double-heigh
                 if %WAIT_TIME gt 100000  (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
                 if %WAIT_TIME gt 1000000 (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
                 if %LEFT_MORE gt 0       (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + %LEFT_MORE])
-                rem LEFT_MORE is a secret kludge in case the cursor doesn't quite move to the left enough
+                rem LEFT_MORE is a secret kludge in case the cursor doesn’t quite move to the left enough
                 echos %@ANSI_MOVE_LEFT[%MOVE_LEFT_BY]
             )
             rem DEBUG: echos %ANSI_POSITION_RESTORE%[RESTORE HERE] %+ *pause>nul
@@ -286,7 +286,7 @@ REM print our "pretty" answers in the right spots (challenging with double-heigh
 goto :END
 
                 :Oops
-                    call fatal_error "That was not a valid way to call %0 ... You need a 2nd parameter of 'yes' or 'no' to set a default_answer for when ENTER is pressed"
+                    call fatal_error "That was not a valid way to call “%0” ... You need a 2ⁿᵈ parameter of “yes” or “no” to set a default_answer for when ENTER is pressed"
                  goto :END
 
 

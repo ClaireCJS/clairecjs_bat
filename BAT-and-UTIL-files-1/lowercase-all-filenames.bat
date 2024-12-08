@@ -22,7 +22,7 @@
         echo.
         call warning        "There is no going back... You lose that capitalization information forever"
         echo.
-        call advice         "Original filenames will be saved in '%DIRECTORY_BACKUP%'"
+        call advice         "Original filenames will be saved in “%DIRECTORY_BACKUP%”"
         pause
 
 

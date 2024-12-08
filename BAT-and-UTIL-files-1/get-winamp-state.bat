@@ -33,7 +33,7 @@ rem ::::: GET PARAMETERS:
                              set SILENT=0
     if "%PARAM%" eq "silent" set SILENT=1
 
-rem ::::: CHECK IF IT IS RUNNING (BUT ONLY IF IT'S ON THE SAME MACHINE) PRIOR TO ATTEMPT -- but why? This is slow?
+rem ::::: CHECK IF IT IS RUNNING (BUT ONLY IF IT’S ON THE SAME MACHINE) PRIOR TO ATTEMPT -- but why? This is slow?
     if "%SKIP_CHECKING_IF_IT_IS_RUNNING_BUT_ONLY_IF_ON_THE_ESRVER_ITSELF" eq "1" goto :Nevermind_1
         if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (call isRunning WinAmp)
     :Nevermind_1
@@ -54,7 +54,7 @@ rem ::::: FETCH WINAMP STATE IF APPLICABLE:
         echos %ansi_color_normal%
         rem set       WGET_RETURN_FILE=%WGETDIR%\main
         set           WGET_RETURN_FILE=%WGETFILE%
-        if not exist %WGET_RETURN_FILE% (call warning "WinAmp may not be running, or WAWI may not be installed, because WGET_RETURN_FILE of '%WGET_RETURN_FILE%' does not exist")
+        if not exist %WGET_RETURN_FILE% (call warning "WinAmp may not be running, or WAWI may not be installed, because WGET_RETURN_FILE of “%WGET_RETURN_FILE%” does not exist")
 
         if "%1" eq "fast" (goto :Fast  )
         if "%1" ne "fast" (goto :normal)
@@ -62,7 +62,7 @@ rem ::::: FETCH WINAMP STATE IF APPLICABLE:
                 :fast
                     setdos /x-126
                         DO line IN @%WGET_RETURN_FILE (
-                            REM echo "%ANSI_MAGENTA%line is '%line'"
+                            REM echo "%ANSI_MAGENTA%line is “%line”"
                             if "%line" ne "" (
                                 if    "%@REGEX[Playing track,%line]" eq "1" (set MUSICSTATE=PLAYING)
                                 if  "%@REGEX[Paused in track,%line]" eq "1" (set MUSICSTATE=PAUSED)

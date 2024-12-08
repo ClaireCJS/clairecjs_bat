@@ -13,14 +13,14 @@ set print_message_running=1
 :USAGE: call print-message TEST      ————— to run internal test suite
 :USAGE: call print-message TEST fast ————— to run internal test suite without a pause for keystroke in between each one
 :USAGE:                                           
-:USAGE: call print-message message without quotes —— WRONG!! —— no 3rd arg of 0|1 will cause the whole line to be treated as a message without a message type. This is really only meant for processing malformed calls in a non-execution-breaking way. We're NOT supposed to do it this way.
+:USAGE: call print-message message without quotes —— WRONG!! —— no 3rd arg of 0|1 will cause the whole line to be treated as a message without a message type. This is really only meant for processing malformed calls in a non-execution-breaking way. We’re NOT supposed to do it this way.
 :USAGE:
 :USAGE: ENVIRONMENT: set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1 to suppress audio effects. DOES INDEED need to be set each call.
 :USAGE: ENVIRONMENT: set                        SLEEPING=1 to suppress audio effects. DOES  *NOT* need to be set each call.
 :USAGE: ENVIRONMENT: set             NEWLINE_REPLACEMENT=1 to replace \n w/ newlines. DOES INDEED need to be set each call.
 :USAGE:
-:USAGE: NOTE: 'hand' and 'question' windows system sounds are currently used 
-:USAGE:           —— hear them with the 'beep hand' & 'beep question' commands
+:USAGE: NOTE: “hand” and “question” windows system sounds are currently used 
+:USAGE:           —— hear them with the “beep hand” & “beep question” commands
 :USAGE:           ——  set them with the Control Panel->Sounds menu
 
 
@@ -65,9 +65,9 @@ REM Process parameters
     rem if "%PM_PARAM3%" eq ""                     (
     rem         set MESSAGE=%@UNQUOTE[`%PM_PARAMS`]``
     rem         if %DEBUG_PRINTMESSAGE eq 1 (%COLOR_DEBUG% %+ echo debug branch 2: message is now %MESSAGE %+ %COLOR_NORMAL%)
-    rem         REM set TYPE=NORMAL                                         making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer's-proof things around here.
-    rem         REM set OUR_COLORTOUSE=%COLOR_NORMAL%                       making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer's-proof things around here.
-    rem         REM changed my mind: set DO_PAUSE=1                         we pause by default becuase calling this way means the user doesn't know what they are doing quite as well
+    rem         REM set TYPE=NORMAL                                         making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer’s-proof things around here.
+    rem         REM set OUR_COLORTOUSE=%COLOR_NORMAL%                       making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer’s-proof things around here.
+    rem         REM changed my mind: set DO_PAUSE=1                         we pause by default becuase calling this way means the user doesn’t know what they are doing quite as well
     rem )
     set MESSAGE=Null
     set SILENT_MESSAGE=0
@@ -90,7 +90,7 @@ REM Process parameters
             set OUR_ANSICOLORTOUSE=%[ANSI_COLOR_%TYPE%]
      )
     if not defined OUR_COLORTOUSE  (
-            if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG% %RED_FLAG% Oops! Let's try setting OUR_COLORTOUSE to %%COLOR_%@UPPER[%PM_PARAM1])
+            if %DEBUG_PRINTMESSAGE% eq 1 (echo %ANSI_COLOR_DEBUG% %RED_FLAG% Oops! Let’s try setting OUR_COLORTOUSE to %%COLOR_%@UPPER[%PM_PARAM1])
             set TYPE=%PM_PARAM1%
             set OUR_COLORKEY=COLOR_%TYPE%
             if %DEBUG_PRINTMESSAGE eq 1 (
@@ -135,13 +135,13 @@ REM Type alias/synonym handling
 REM Behavior overides and message decorators depending on the type of message?
                                        set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=
     if  "%TYPE%"  eq "UNIMPORTANT"    (set DECORATOR_LEFT=...           %+ set DECORATOR_RIGHT=)
-    REM to avoid issues with the redirection character, ADVICE's left-decorator needs to be inserted at runtime if it contains a '>' character. Could proably avoid this with setdos
+    REM to avoid issues with the redirection character, ADVICE’s left-decorator needs to be inserted at runtime if it contains a “>” character. Could proably avoid this with setdos
     REM "%TYPE%"  eq "ADVICE"         (set DECORATOR_LEFT=`-->`         %+ set DECORATOR_RIGHT=) 
     if  "%TYPE%"  eq "ADVICE"         (set DECORATOR_LEFT=%EMOJI_BACKHAND_INDEX_POINTING_RIGHT% `` %+ set DECORATOR_RIGHT= %EMOJI_BACKHAND_INDEX_POINTING_LEFT%) 
     if  "%TYPE%"  eq "NORMAL"         (set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=) 
     if  "%TYPE%"  eq "DEBUG"          (set DECORATOR_LEFT=- DEBUG: ``   %+ set DECORATOR_RIGHT=)
-    rem "%TYPE%"  eq "LESS_IMPORTANT" .or. "%TYPE%" eq "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR% %ANSI_COLOR_IMPORTANT_LESS%``     %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that's not how this is designed to be used
-    if  "%TYPE%"  eq "LESS_IMPORTANT" .or. "%TYPE%" eq "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR2% %ANSI_COLOR_IMPORTANT_LESS%``     %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that's not how this is designed to be used
+    rem "%TYPE%"  eq "LESS_IMPORTANT" .or. "%TYPE%" eq "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR% %ANSI_COLOR_IMPORTANT_LESS%``  %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
+    if  "%TYPE%"  eq "LESS_IMPORTANT" .or. "%TYPE%" eq "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR2% %ANSI_COLOR_IMPORTANT_LESS%`` %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
     rem "%TYPE%"  eq "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT% `` %+ set DECORATOR_RIGHT= %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
     rem "%TYPE%"  eq "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %DOUBLE_UNDERLINE_ON%`` %+ set DECORATOR_RIGHT=%DOUBLE_UNDERLINE_OFF% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
     if  "%TYPE%"  eq "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  `` %+ set DECORATOR_RIGHT=  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
@@ -159,13 +159,13 @@ REM Behavior overides and message decorators depending on the type of message?
     rem 20240419 moved to after setting COLOR_TO_USE so we can start setting that before the right decorator in case the message contents changed the color: set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
 
 
-REM We're going to change the cursor color to the cursor color associated with this message, IF one was defined in set-ansi:
+REM We’re going to change the cursor color to the cursor color associated with this message, IF one was defined in set-ansi:
         rem set HEX=%[COLOR_%TYPE%_HEX]
         rem echo setting cursor to %HEX%
         if defined COLOR_%TYPE%_HEX echos %@ANSI_CURSOR_COLOR_CHANGE_HEX[%[COLOR_%TYPE%_HEX]]
 
 
-REM We're going to update the window title to the message. If possible, strip any ANSI color codes from it:
+REM We’re going to update the window title to the message. If possible, strip any ANSI color codes from it:
 
         rem this became unreliable: if not "1"== "%PLUGIN_STRIPANSI_LOADED" (goto :No_Title_Stripping)
         if not plugin stripansi (goto :No_Title_Stripping)
@@ -177,7 +177,7 @@ REM We're going to update the window title to the message. If possible, strip an
         :Set_Title_Var_Now
                 set TITLE=%CLEAN_MESSAGE%
 
-        REM But first let's decorate the window title for certain message types Prior to actually updating the window title:
+        REM But first let’s decorate the window title for certain message types Prior to actually updating the window title:
                 if "%TYPE%" eq          "DEBUG" (set TITLE=%EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %title% %EMOJI_MAGNIFYING_GLASS_TILTED_LEFT%)
                 if "%TYPE%" eq "LESS_IMPORTANT" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
                 if "%TYPE%" eq "IMPORTANT_LESS" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
@@ -303,7 +303,7 @@ REM Actually display the message:
                 REM HACK: Decorators with ">" in them need to be manually outputted here at the last minute to avoid issues with ">" being the redirection character, though setdos could work around this
                         if "%TYPE%" eq "ADVICE" (echos `----> `)
 
-                REM actually print the message, unless it's fatal error line 4 which has special double-height handling:
+                REM actually print the message, unless it’s fatal error line 4 which has special double-height handling:
                         if "%TYPE%" eq "FATAL_ERROR" .and. %msgNum == 4  .and. 1 ne %SKIP_DOUBLE_HEIGHT% (
                                 echos %ANSI_COLOR_IMPORTANT%   ``
                          ) else (
@@ -386,7 +386,7 @@ REM For errors, give chance to gracefully exit the script (no more mashing of ct
                 )
         )
 
-REM Hit user with the 'pause' prompt several times, to prevent accidental passthrough from previous key mashing
+REM Hit user with the “pause” prompt several times, to prevent accidental passthrough from previous key mashing
         unset /q loop
         if %DO_PAUSE gt 0 (set           loop=4 3 2 1 0)
         if %DO_PAUSE gt 1 (set loop=9 8 7 6 5 4 3 2 1 0)
@@ -400,7 +400,7 @@ goto :END
         :DemoSuite
                 cls
                 echo.
-                call fatal_error    "We're DONE! There is NO HOPE! STOP!!!"
+                call fatal_error    "We’re DONE! There is NO HOPE! STOP!!!"
                 call error          "Uh-oh! This might be broken!"
                 call alarm          "Take notice! We need attention!"
                 call warning        "This may do a bad thing!"
@@ -410,16 +410,16 @@ goto :END
                 call important      "narration of main tasks"
                 call important_less "narration of subtasks"
                 call unimportant    "not sure if we need to bother saying this anymore"
-                call subtle         "pretty sure i don't need to say this anymore"
+                call subtle         "pretty sure i don’t need to say this anymore"
                 echo.
                 call advice         "some good advice to take into consideration right now"
                 call debug          "the value for %foo[1] is 4329.9342093 right now"
                 echo.
                 call completion     "subtask completed"
                 call success        "main task successful"
-                call celebration    "entire script is done, let's have cake!"
+                call celebration    "entire script is done, let’s have cake!"
                 echo.
-                call normal         "we don't use this one"
+                call normal         "we don’t use this one"
                 echo.
         goto :END
 
@@ -430,7 +430,7 @@ goto :END
                 cls
                 echo.
                 if 1 ne %my_fast (
-                        echo %ANSI_COLOR_IMPORTANT%System print test - press N to go from one to the next --- any other key will cause tests to not complete -- if you get stuck hit enter once, then N -- if that doesn't work hit enter twice, then N
+                        echo %ANSI_COLOR_IMPORTANT%System print test - press N to go from one to the next --- any other key will cause tests to not complete -- if you get stuck hit enter once, then N -- if that doesn’t work hit enter twice, then N
                         echo.
                         pause>nul
                 )

@@ -4,7 +4,7 @@
  setdos /x-0
 
 
-rem set NOPAUSE=1 when automating this through folder trees——calls to 'divider.bat' slow things down so some of that is prevented too
+rem set NOPAUSE=1 when automating this through folder trees——calls to “divider.bat” slow things down so some of that is prevented too
 
 ::::: VALIDATE ENVIRONMENT:
         if 1 ne %VALIDATED_XBOX360_FILENAME_FIXER  (
@@ -26,7 +26,7 @@ rem set NOPAUSE=1 when automating this through folder trees——calls to 'divid
         echo.
         call warning        "There is no going back... You lose a lot of the filenames"
         echo.
-        call advice         "Directory tree will be saved in '%DIRECTORY_TREE_BACKUP%'"
+        call advice         "Directory tree will be saved in “%DIRECTORY_TREE_BACKUP%”"
         pause
         :NoPause_1
 
@@ -37,7 +37,7 @@ rem set NOPAUSE=1 when automating this through folder trees——calls to 'divid
     title %_CWP
     echo.
     color bright red on black
-    echo [removing percentages from filenames not listed as it's part of a subordinate script]
+    echo [removing percentages from filenames not listed as it’s part of a subordinate script]
     for /h %filename in ("*%*") do ( echo ren "%filename" "%@REPLACE[%%,,%filename]"  )
     setdos /x-0
     color bright yellow on black

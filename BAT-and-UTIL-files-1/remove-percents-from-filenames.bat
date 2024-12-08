@@ -3,7 +3,7 @@
  title %_CWP
 
 
-rem set NOPAUSE=1 when automating this through folder trees——calls to 'divider.bat' slow things down so some of that is prevented too
+rem set NOPAUSE=1 when automating this through folder trees——calls to “divider.bat” slow things down so some of that is prevented too
 
 ::::: VALIDATE ENVIRONMENT:
         if 1 ne %VALIDATED_PERCENT_REMOVAL_FROM_FILENAMES (
@@ -25,7 +25,7 @@ rem set NOPAUSE=1 when automating this through folder trees——calls to 'divid
         echo.
         call warning        "There is no going back... You lose a lot of the filenames"
         echo.
-        call advice         "Directory tree will be saved in '%DIRECTORY_TREE_BACKUP%'"
+        call advice         "Directory tree will be saved in “%DIRECTORY_TREE_BACKUP%”"
         pause
         :NoPause_1
 

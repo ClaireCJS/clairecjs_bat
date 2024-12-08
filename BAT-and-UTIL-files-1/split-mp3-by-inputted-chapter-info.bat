@@ -14,7 +14,7 @@ REM If any pre-existing generated splitter .bat exists, get rid of it:
 REM Actually generate a new splitter .bat and run it on the largest file, which sould be the unsplit album:
     call set-largest-filename
 
-    call less_important "Splitting largest file: '%largest_file%'"
+    call less_important "Splitting largest file: “%largest_file%”"
     split-mp3-by-inputted-chapter-info-helper.py 
 
 
@@ -32,14 +32,14 @@ REM Now that we have our splitter.bat, run it:
     %COLOR_RUN%     %+                call %SPLITTING_SCRIPT% "%largest_file%"
 
 
-REM Check if we've run it successfully or not:
+REM Check if we’ve run it successfully or not:
     REM this thing returns 2 which kinda makes our errorlevelcatcher not so great: call errorlevel "but sometimes we see an errorlevel of 2 which seems to be not so bad in this situation?" 
     if %REDO% eq 1 goto :Redo
     %COLOR_REMOVAL% 
     del %SPLITTING_SCRIPT% "%largest_file%"
 
 
-REM Hopefully there is just 1 of each of these files, but that's what should be the case if we're here!
+REM Hopefully there is just 1 of each of these files, but that’s what should be the case if we’re here!
     ren *.json   info.json
     ren *.txt  README.txt
     ren *.webp  cover.webp

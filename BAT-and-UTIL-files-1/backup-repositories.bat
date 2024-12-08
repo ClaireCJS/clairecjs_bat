@@ -9,7 +9,7 @@
 :USAGE:
 :USAGE:       2) backup-repositories parallel —— backs up all repositories quickly, all at the same time, in many windows
 :USAGE:
-:USAGE:       3) backup-repositories {label}  —— attempts a 'goto' command to specified label within this script, which may or may not exist
+:USAGE:       3) backup-repositories {label}  —— attempts a “goto” command to specified label within this script, which may or may not exist
 :USAGE:                                       —— example: "backup-repositories mp3" jumps to the :mp3 label added right before backing up mp3s
 :USAGE:                                       ——————— This feature is used for both impatience, and debugging ——————————
 
@@ -31,7 +31,7 @@ rem PARAMETER PROCESSING —— allow "simultaneous" or "parallel" to quickly do
         if "%1" ne "simultaneous" .and. "%1" ne "parallel" .and. "%1" ne "" (set goto=%1)
         if "%1" eq "simultaneous"  .or. "%1" eq "parallel" (  set    BACKUPREPOSTARTER=call startafter1secondpausewithexitafter %+ goto :%goto%)
         if "%1" ne "simultaneous" .and. "%1" ne "parallel" (unset /q BACKUPREPOSTARTER                                          %+ goto :%goto%)         
-        rem              call print-if-debug "BACKUPREPOSTARTER is '%BACKUPREPOSTARTER%'"
+        rem              call print-if-debug "BACKUPREPOSTARTER is “%BACKUPREPOSTARTER%”"
 
 
         
@@ -95,7 +95,7 @@ set BACKING_UP_MULTIPLE_REPOSITORIES=1
 rem  UPREPOSTARTER% call backup-repository HARDWARE_GOLIATH             HARDWARE_GOLIATH_BACKUP            %+ REM 2022/03/18 - this repo is already contained in the PUBCAS repo, so this is unnecessary!
 %BACKUPREPOSTARTER% call backup-repository EXTRAS                                 EXTRAS_BACKUP
 %BACKUPREPOSTARTER% call backup-repository PRN1                                     PRN1_BACKUP            %+ REM 2022/03/17 - 2.2TB 
-rem  UPREPOSTARTER% call backup-repository PRN2                              [IS PART OF NEWCL]            %+ REM 2022/03/18 - no need to backup as it's part of %NEWCL%
+rem  UPREPOSTARTER% call backup-repository PRN2                              [IS PART OF NEWCL]            %+ REM 2022/03/18 - no need to backup as it’s part of %NEWCL%
 rem  UPREPOSTARTER% call backup-repository FTP                                       FTP_BACKUP            %+ REM 2024/03/19 - moved this to be within the PUBCL repo, so it no longer needs own backup job
 %BACKUPREPOSTARTER% call backup-repository TEXT                                     TEXT_BACKUP 
 %BACKUPREPOSTARTER% call backup-repository COMMERCIALS                       COMMERCIALS_BACKUP
@@ -107,7 +107,7 @@ rem  UPREPOSTARTER% call backup-repository FTP                                  
 %BACKUPREPOSTARTER% call backup-repository CELEBRITIES                       CELEBRITIES_BACKUP
 %BACKUPREPOSTARTER% call backup-repository MEDIA_FOR_OTHER_PEOPLE MEDIA_FOR_OTHER_PEOPLE_BACKUP
 %BACKUPREPOSTARTER% call backup-repository DOCUMENTARIES                   DOCUMENTARIES_BACKUP            %+ REM %SPECIALS% and %DOCUMENTARIES% are the same repo
-rem KUPREPOSTARTER% call backup-repository ANIME                                   ANIME_BACKUP            %+ REM don't have the space for this
+rem KUPREPOSTARTER% call backup-repository ANIME                                   ANIME_BACKUP            %+ REM don’t have the space for this
 rem —————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
                      
 

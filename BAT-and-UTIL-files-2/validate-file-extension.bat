@@ -32,16 +32,16 @@ rem INIT: See if 1ˢᵗ parameter is environment variable or not:
 
 rem INIT: Validate parameters
         call validate-env-var VALIDATION_FILE skip_validation_existence
-        if not defined EXTENSION_LIST (call error "your second parameter to %0 needs to be an extension or list of extensions but was instead '%EXTENSION_LIST%'")
+        if not defined EXTENSION_LIST (call error "your second parameter to %0 needs to be an extension or list of extensions but was instead “%EXTENSION_LIST%”")
 
 rem MESSAGE: Message extension parameters because our filemask env vars are usually "*.txt;*.lst" and we need "txt lst"
         set  EXTENSION_LIST_TO_USE=%@REPLACE[*.,,%@REPLACE[;, ,%EXTENSION_LIST%]]
-        REM echo EXTENSION_LIST_TO_USE is '%EXTENSION_LIST_TO_USE%'
+        REM echo EXTENSION_LIST_TO_USE is “%EXTENSION_LIST_TO_USE%”
 
 rem VALIDATE: Check each extension in extension list and see if it matches our file
         set VALIDATION_FILE_EXT=%@UNQUOTE[%@EXT[%VALIDATION_FILE]]
         for %tmp_extension in (%EXTENSION_LIST_TO_USE) do (
-                if %DEBUG gt 0 (call debug "- checking if extension '%tmp_extension%' applies to file '%VALIDATION_FILE%' which has VALIDATION_FILE_EXT='%VALIDATION_FILE_EXT'-- test:if '%@EXT[%VALIDATION_FILE]' eq '%tmp_extension' goto :Validated_File_Extension_Successfully")
+                if %DEBUG gt 0 (call debug "- checking if extension “%tmp_extension%” applies to file “%VALIDATION_FILE%” which has VALIDATION_FILE_EXT=“%VALIDATION_FILE_EXT”-- test:if “%@EXT[%VALIDATION_FILE]” eq “%tmp_extension” goto :Validated_File_Extension_Successfully")
                 if "%VALIDATION_FILE_EXT" eq "%@UNQUOTE[%tmp_extension]" (
                         set VALIDATED_EXTENSION_LAST_VALUE=1
                         goto :Validated_File_Extension_Successfully
@@ -51,7 +51,7 @@ rem VALIDATE: Check each extension in extension list and see if it matches our f
         )
 
 rem ERROR: At this point, all checks have failed and the file is not valid!
-        set VAL_FILE_EXT_ERR_MSG=*** Validation of file '%VALIDATION_FILE%' failed because it's extension is not one of: '%italics%%underline%%EXTENSION_LIST_TO_USE%%italics_off%%underline_off%'
+        set VAL_FILE_EXT_ERR_MSG=*** Validation of file “%VALIDATION_FILE%” failed because its extension is not one of: “%italics%%underline%%EXTENSION_LIST_TO_USE%%italics_off%%underline_off%”
 
         call divider
         call warning "Calling File: %_PBATCHNAME"                         silent

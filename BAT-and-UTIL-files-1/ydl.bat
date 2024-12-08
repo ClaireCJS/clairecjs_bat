@@ -27,7 +27,7 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         SET ALL="%*"
         set NOEXT=0 
         set YOUTUBE_MODE=1 
-        call print-if-debug "URL is '%URL%'"
+        call print-if-debug "URL is “%URL%”"
         
 
 
@@ -42,17 +42,17 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         REM REDOCOMMAND=call %YDL%     -o "%@UNQUOTE[%OUTPUTNAME%]"     "%URL%"
         set REDOCOMMAND=call %YDL%                                      "%URL%"
         *md %TMPDIR%
-        if not exist %TMPDIR% (call warning "tnmpdir %TMPDIR% doesn't seem to exist" %+ pause %+ pause %+ pause %+ pause)
+        if not exist %TMPDIR% (call warning "tmpdir “%TMPDIR%” doesn’t seem to exist" %+ pause %+ pause %+ pause %+ pause)
         *cd %TMPDIR%
 
         :: how to stop unicode b.s. characters though?  
         :: --no-restrict-filenames - allow unicode characters, &, and spaces ---
-        :: --windows-filenames doesn't stop them
+        :: --windows-filenames doesn’t stop them
         :: --restrict-filenames stops too much, makes every space a nunderscore, etc
         :: -o without any other options - "yt-dlp.exe: err;or: you must provide at least one URL"
         :: --replace-in-metadata '“:'':”:'':‘:' <video-url>
         :: someone says --compat-options filename-sanitization
-        :: Alternatively you can use --compat-options filename-sanitization to mimic youtube-dl's behavior which doesn't do this
+        :: Alternatively you can use --compat-options filename-sanitization to mimic youtube-dl’s behavior which doesn’t do this
         
         ::: OKAY HERE IS THE SOLUTION! But also add each newly fixed item to allfileunicode.pl too!
         :: yt-dlp --replace-in-metadata '“:":”:":‘:' <video-url>
@@ -68,7 +68,7 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         @echo on
          call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         @Echo off
-         rem we don't call errorlevel because %YDL% returns an errorlevel even when successful
+         rem we don’t call errorlevel because %YDL% returns an errorlevel even when successful
          REM removed --embed-thumbnail: messes up workflow this that extra file: PLUS it made: ERROR: Postprocessing: Supported filetypes for thumbnail embedding are: mp3, mkv/mka, ogg/opus/flac, m4a/mp4/mov 
 
 
@@ -76,7 +76,7 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
 
 
     ::::: VALIDATION:
-        REM we don't track output names anymore....: if defined OUTPUTNAME if not exist %OUTPUTNAME% (call WARNING "Output file does not exist: '%OUTPUTNAME%'")
+        REM we don’t track output names anymore....: if defined OUTPUTNAME if not exist %OUTPUTNAME% (call WARNING "Output file does not exist: “%OUTPUTNAME%”")
         
 
 :END
@@ -86,7 +86,7 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
 
 ::::: CLEANUP:
     :: fix filenames
-        REM this can be run in unattended mode, but we're not ready for that yet:
+        REM this can be run in unattended mode, but we’re not ready for that yet:
         call fix-unicode-filenames       
         call errorlevel
 
@@ -109,20 +109,20 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
             if %%~zf==0 (
                 echo. 
                 rem  warning "Deleting %italics_on%zero-byte              file:             %%tmpZeroByteFile ????"
-                call warning "Deleting %italics_on%zero-byte%italics_off% file: '%italics_on%%tmpZeroByteFile%%italics_off%' ????"
+                call warning "Deleting %italics_on%zero-byte%italics_off% file: “%italics_on%%tmpZeroByteFile%%italics_off%” ????"
 
                 %COLOR_REMOVAL% %+ echo. %+ del /p "%%tmpZeroByteFile"
             )
         )
 
-    :: multiple-file downloads is janky and .description files don't all get turned into .txt correctly
+    :: multiple-file downloads is janky and .description files don’t all get turned into .txt correctly
         if exist *.description (ren *.description *.txt)
 
     :: move files back into original folder we started in
         :dangerous: mv * ..
         cd ..
         if isdir %TMPDIR% (%COLOR_SUBTLE% %+ mv/ds %TMPDIR% .)
-        if isdir %TMPDIR% (call ERROR "Couldn't remove '%TMPDIR%'! Are you sure you aren't in this folder in another window?")
+        if isdir %TMPDIR% (call ERROR "Couldn’t remove “%TMPDIR%”! Are you sure you aren’t in this folder in another window?")
 
 unset /q YOUTUBE_MODE
 title Completed: youtube download

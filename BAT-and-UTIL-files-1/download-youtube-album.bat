@@ -4,7 +4,7 @@
 
 
 :PUBLISH:
-:DESCRIPTION:  Download a "youtube album" (album posted as a youtube video) to separate mp3s (per chapter in the youtube video, if there are any), tagged, renamed, ReplayGain'ed, and moved to proper folder structure.  It can also do single songs, but that wasn't its original purpose.
+:DESCRIPTION:  Download a "youtube album" (album posted as a youtube video) to separate mp3s (per chapter in the youtube video, if there are any), tagged, renamed, ReplayGain’ed, and moved to proper folder structure.  It can also do single songs, but that wasn’t its original purpose.
 :USAGE:        download-youtube-video-as-mp3-album https://www.youtube.com/watch?v=6w8dVVf6UnY
 :USAGE:        download-youtube-video-as-mp3-album ingest         - re-run starting at the the python ingest script
 :USAGE:        download-youtube-video-as-mp3-album after_ingest   - re-run starting AFTER  the python ingest script
@@ -58,7 +58,7 @@ REM Ask where to place our downloads...
         set            NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN=.
         REM eset       NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN
         if not isdir "%NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN%" (md "%NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN%")
-        if not isdir "%NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN%" (call error "wtf couldn't make dir" %+ goto :END)
+        if not isdir "%NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN%" (call error "wtf couldn’t make dir" %+ goto :END)
         cd           "%NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN%" 
 
 
@@ -95,10 +95,10 @@ REM do everything in a temp folder!
     REM -o "%%(album_artist,artist,creator,uploader|)s/%%(release_year,release_date,upload_date|)s%%(release_year,release_date,upload_date& - |)s%%(album,title|)s/%%{id&FULL ALBUM|}s%%{title|}s
     REM GOLD: "%%(album_artist,artist,creator,uploader|)s/%%(release_year,release_date,upload_date|)s%%(release_year,release_date,upload_date& - |)s%%(album,title|)s"
 
-    REM template won't affect chapters, may as well make it "full album"
+    REM template won’t affect chapters, may as well make it "full album"
     REM --parse-metadata "album:goat"
     rem --postprocessor-args "-metadata album='%%(title)s'" definitely set it! to the string %(title)s haha
-    rem --postprocessor-args "-metadata album=%(title)s"  did not work with 1-4,8 slashes - and isn't even supported (chatgpt hallucination)
+    rem --postprocessor-args "-metadata album=%(title)s"  did not work with 1-4,8 slashes - and isn’t even supported (chatgpt hallucination)
     REM --replace-in-metadata FIELDS REGEX REPLACE
     rem one % = "0s" two % = "%(title)s"  three % = "0s" four % = 0s eight %=
     REM bad for chapter splitting, no way to get chapter number or title -o "chapter:%%(autonumber)s_%%(title)s.%%(ext)s"  
@@ -123,9 +123,9 @@ REM do everything in a temp folder!
 
     REM        :: %(title)s: The video title.
     REM        :: %(id)s: The video identifier.
-    REM        :: %(uploader)s: The uploader's name.
-    REM        :: %(uploader_id)s: The uploader's identifier.
-    REM        :: %(uploader_url)s: The URL to the uploader's YouTube channel.
+    REM        :: %(uploader)s: The uploader’s name.
+    REM        :: %(uploader_id)s: The uploader’s identifier.
+    REM        :: %(uploader_url)s: The URL to the uploader’s YouTube channel.
     REM        :: %(channel)s: The full name of the channel.
     REM        :: %(channel_id)s: The channel identifier.
     REM        :: %(upload_date)s: The date when the video was uploaded in the format YYYYMMDD.
@@ -153,7 +153,7 @@ REM do everything in a temp folder!
     REM        :: %(fps)s: The frame rate.
 
 
-REM Let's capture the filename as it is after downloading, to remind us later
+REM Let’s capture the filename as it is after downloading, to remind us later
         call set-latest-filename %EXTENSIONS_WE_ARE_POSSIBLY_DOWNLOADING%
         set FILENAME_AFTER_DOWNLOADING=%latestFilename%
 
@@ -169,12 +169,12 @@ REM rename files to the filenames we like
         set TEXT_INFO=README.txt
         set JSON_INFO=info.json
         echo. %+ echo. %+ echo. %+ echo. 
-        call important_less "%EMOJI_CHECK_BOX_WITH_CHECK%Successfully downloaded %NUM_DOWNLOADED% files matching extensions '%EXTENSIONS_WE_ARE_POSSIBLY_DOWNLOADING%'"
+        call important_less "%EMOJI_CHECK_BOX_WITH_CHECK%Successfully downloaded %NUM_DOWNLOADED% files matching extensions “%EXTENSIONS_WE_ARE_POSSIBLY_DOWNLOADING%”"
         if %NUM_DOWNLOADED% GT 1 (
             set DOWNLOADS=many
             if exist *.description (ren *.description    %TEXT_INFO%)           %+ REM typically README.txt
             if exist *.json        (ren *.json           %JSON_INFO%)           %+ REM typically info.json
-            for %%G in (%filemask_image%) do (if exist "*%%G" set COVER_ART=cover.%@LOWER[%@EXT[%%G]] %+ %COLOR_RUN %+ ren "%%G" "%COVER_ART%" %+ %COLOR_IMPORTANT %+ call less_important "%EMOJI_ARTIST_PALETTE%Cover art renamed to '%COVER_ART%'" )
+            for %%G in (%filemask_image%) do (if exist "*%%G" set COVER_ART=cover.%@LOWER[%@EXT[%%G]] %+ %COLOR_RUN %+ ren "%%G" "%COVER_ART%" %+ %COLOR_IMPORTANT %+ call less_important "%EMOJI_ARTIST_PALETTE%Cover art renamed to “%COVER_ART%”" )
             call validate-environment-variables TEXT_INFO JSON_INFO COVER_ART
         )
         if %NUM_DOWNLOADED% EQ 1 (
@@ -204,13 +204,13 @@ REM                 \-- it may need resized  in order to become square (720x720 
             call   set-latest-filename %filemask_image%
             set image=%latest_filename%
 
-        REM let user know what's going on
+        REM let user know what’s going on
             echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. 
             call bigecho %EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%
             set NEWLINE_REPLACEMENT=1
             call warning_soft "About to open image - %italics_on%Remember%italics_off%: our goal is to make it %underline_on%%italics_on%square%italics_off%%underline_off% for album cover embedding\nBut first, just take a look at the image"
             call bigecho %EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%
-            call unimportant "Image filename = '%italics%%image%%italics_off%', CWP='%italics%%_CWP%%italics_off%'"
+            call unimportant "Image filename = “%italics%%image%%italics_off%”, CWP=“%italics%%_CWP%%italics_off%”"
             pause %+ REM this pause is important to keep buffered keystrokes from answering the next questions
 
         REM display image
@@ -230,9 +230,9 @@ REM                 \-- it may need resized  in order to become square (720x720 
             :embed_again
             if %image_was_changed eq 1 (
                 if %auto_embed ne 1    (call openimage  "%image%")
-                if not exist "%image%" (call error       "image of '%image%' doesn't exist")
+                if not exist "%image%" (call error       "image of "%image%” doesn’t exist")
                 call askyn "Are we satisfied with the new image?" yes 0
-                if %DO_IT eq 0 (call warning "Returning to command line..." %+ call advice "Run '%0 img' to return to this point" %+ call cancelll)
+                if %DO_IT eq 0 (call warning "Returning to command line..." %+ call advice "Run "%0 img” to return to this point" %+ call cancelll)
                 set DONT_DELETE_ART_AFTER_EMBEDDING=1
 
                 call important "%EMOJI_INPUT_NUMBERS%Embedding..."
@@ -250,7 +250,7 @@ REM                 \-- it may need resized  in order to become square (720x720 
 
 
 REM Tag and move the files with our assistant python script:
-        set AUTOMATIC_UNICODE_CLEANING=1 %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ REM \_____the environment variable didn't seem to work 
+        set AUTOMATIC_UNICODE_CLEANING=1 %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ REM \_____the environment variable didn’t seem to work 
         :Redo_fuf
         echo. %+ echo. %+ echo. 
         call important "%EMOJI_HAMMER% About to run %italics_on%fix-unicode-filenames%italics_off% %faint_on%(to cleanse files of any unicode/bad characters)%faint_off%..."
@@ -287,7 +287,7 @@ REM Add replaygain tags
             call add-ReplayGain-tags  
             call errorlevel "replaygain tag add problem in %0 line 276ish"
         popd  
-        if exist go-to-album.bat (*del go-to-album.bat)             %+ REM now that we've used it, we don't need it  [TODO maybe change to *del]
+        if exist go-to-album.bat (*del go-to-album.bat)             %+ REM now that we’ve used it, we don’t need it  [TODO maybe change to *del]
         *del /q _ingest.log >:u8nul                                 %+ REM ingest log is actually copied into our target folder but a copy remains here, which we do not want
         call fix-unicode-filenames.bat delete_log                   %+ REM ingest can also create a fix_unicode_filenames.log file if filenames end up getting scrubbed
 
@@ -339,7 +339,7 @@ REM Change out of temp folder and move things back to where we started
 :END
         echo. %+ echo. %+ echo. 
         call celebration "%EMOJI_CHECK_MARK%Download complete!!!%EMOJI_CHECK_MARK%"
-        REM  celebration.bat->:u8print-message.bat does titles automatically now so we don't need to do this anymore: title Completed:  Youtube album download
+        REM  celebration.bat->:u8print-message.bat does titles automatically now so we don’t need to do this anymore: title Completed:  Youtube album download
         popd
         dir
 

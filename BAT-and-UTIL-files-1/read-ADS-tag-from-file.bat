@@ -1,7 +1,7 @@
 
 @rem     Reads a tag associated with a file into %RECEIVED_VALUE%, using Windows Alternate Data Streams for files. 
 
-@rem     These tags copy over to new locations and "live" "within" the files themselves, so moving/copying doesn't change things.
+@rem     These tags copy over to new locations and "live" "within" the files themselves, so moving/copying doesn’t change things.
 
 
 @rem    basically a copy of display-ads-tags-from-bat with different defaults 
@@ -20,7 +20,7 @@ text
 :USAGE: read-ADS-tag-from-file [filename] [tag_name]  [verbose]
 :USAGE: 
 :USAGE:         EXAMPLE: remove-ADS-tag-to-file filename.txt songlyrics.txt lyrics 
-:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Sets %%RECEIVED_VALUE%% to the file's "lyric" tag's value
+:USAGE:                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Sets %%RECEIVED_VALUE%% to the file’s “lyric” tag’s value
 
 :USAGE: VERBOSE MODE: ( 2ⁿᵈ arg is "verbose"):
 :USAGE:
@@ -41,7 +41,7 @@ rem Usage:
 rem Get parameters:
         set FILE_TO_USE=%@UNQUOTE[%1]                                           %+ rem file to use 
         set TAG_TO_READ=%@UNQUOTE[%2]                                           %+ rem ads tag to display
-        set               PARAM_3=%3                                            %+ rem "verbose" if you want MORE on-screen verification of what's happeneing
+        set               PARAM_3=%3                                            %+ rem "verbose" if you want MORE on-screen verification of what’s happeneing
         set              PARAMS_3=%3$                                           %+ rem rest of the command tail
 
 rem Validate environment (once):
@@ -51,7 +51,7 @@ rem Validate environment (once):
         endiff
 
 rem Validate parameters (every time):
-        call validate-environment-variable File_To_Use "1ˢᵗ arg must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg arg can be 'verbose'"
+        call validate-environment-variable File_To_Use "1ˢᵗ arg must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg arg can be “verbose”"
         call validate-environment-variable Tag_To_Read "2ⁿᵈ argument must be a tag to read, NOT empty"
 
 rem Set default values for parameters:

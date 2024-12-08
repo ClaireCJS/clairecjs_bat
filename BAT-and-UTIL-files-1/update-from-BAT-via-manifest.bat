@@ -54,7 +54,7 @@ rem Cosmetic kludge:
 rem TELL USER:
         rem cls
         echo.
-        call important "Updating: '%PROJECT_NAME%' files: " 
+        call important "Updating: “%PROJECT_NAME%” files: " 
               echo %ANSI_COLOR_IMPORTANT%                 To: %[PROJECT_DIR]%ANSI_COLOR_IMPORTANT_LESS%
               rem too big!          Manifest Files: %MANIFEST_FILES%
 
@@ -67,7 +67,7 @@ rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
                     set myFile=%@UNQUOTE[%myFileFull]
                     set COMMENT=`rem echo %blink_on%[LOOP] myFileFull is currently=%myFileFull%%blink_off%`
                     echos %@RANDFG[]*
-                    if not exist "%SOURCE_DIR%\%myFile%" (call error "Uh oh! Project source file '%italics_on%%myFile%%italics_off%' doesn't seem to exist in %SOURCE_DIR%")
+                    if not exist "%SOURCE_DIR%\%myFile%" (call error "Uh oh! Project source file “%italics_on%%myFile%%italics_off%” doesn’t seem to exist in %SOURCE_DIR%")
                     set COMMENT=`rem  Taking this out for a speedup: if exist %myFileFull% (%COLOR_WARNING %+ attrib -r  %myFile% >nul %+ %DELETE% %myFile%)`
                     set COMMENT=`rem color bright black on black`
                     (%COPY% /u %SOURCE_DIR%\%myFile% . )            
@@ -90,7 +90,7 @@ rem DO SECONDARY FILES, OR SKIP THEM IF WE SAID TO:
 goto :END_OF_SUBROUTINES
 
         :process_type [shared_type]
-            call print-if-debug "Doing shared_type='%shared_type%'"
+            call print-if-debug "Doing shared_type=“%shared_type%”"
             if not defined SECONDARY_%shared_type%_FILES goto :No_Files_Of_This_Type
                 set                                SOURCE_DIR=c:\%shared_type\
                 call validate-environment-variable SOURCE_DIR
@@ -124,14 +124,14 @@ goto :END_OF_SUBROUTINES
                                     pushd .
                                     %SOURCE_DIR%\
                         REM make target folder
-                                    rem call print-if-debug "need to make individual distribution of OUR_FILELIST='%OUR_FILELIST%'"
+                                    rem call print-if-debug "need to make individual distribution of OUR_FILELIST=“%OUR_FILELIST%”"
                                     set TARGET_DIR=%PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%
                                     if not exist %TARGET_DIR% mkdir /s %TARGET_DIR%
                                     call validate-environment-variable  TARGET_DIR
                                     echos                  ``
                         REM copy each file
                                     rem echo %ansi_color_warning%our_filelist is %our_filelist%%ansi_color_normal% 🐮
-                                    rem echos %newline%%tab%%arrow%Checking file '%file%'
+                                    rem echos %newline%%tab%%arrow%Checking file "%file%”
                                     rem echo our_filelist = %ansi_color_orange%%our_filelist% %+ pause
                                     rem echo our_filelists = %ansi_color_yellow%%our_filelist%(%OUR_FILELIST%  %OUR_FILELIST_2%  %OUR_FILELIST_3%  %OUR_FILELIST_4%  %OUR_FILELIST_5%  %OUR_FILELIST_6%  %OUR_FILELIST_7%  %OUR_FILELIST_8%  %OUR_FILELIST_9%  %OUR_FILELIST_10%) %+ pause
                                     for %%tmp_script_file in (%OUR_FILELIST%  %OUR_FILELIST_2%  %OUR_FILELIST_3%  %OUR_FILELIST_4%  %OUR_FILELIST_5%  %OUR_FILELIST_6%  %OUR_FILELIST_7%  %OUR_FILELIST_8%  %OUR_FILELIST_9%  %OUR_FILELIST_10%) do (gosub UpdateScriptFile "%@UNQUOTE[%tmp_script_file%]")
@@ -146,7 +146,7 @@ goto :END_OF_SUBROUTINES
                                                         echos %@random_cursor_color[]%@randfg[].
                                                         %UPDATE%   "%file%"   "%TARGET_DIR%\%file%"
                                                 else
-                                                        call error "file doesn't exist: '%italics_on%%file%%italics_off%'"
+                                                        call error "file doesn’t exist: “%italics_on%%file%%italics_off%”"
                                                 endiff
                                     return
                                     :EOS_1                                    
@@ -158,11 +158,11 @@ goto :END_OF_SUBROUTINES
                         REM make zip folder
                                 set           ZIP_FOLDER=%PROJECT_DIR%\%SECONDARY_SUBFOLDER_FOLDERNAME%\zipped
                                 if not isdir %ZIP_FOLDER% mkdir /s %ZIP_FOLDER%
-                                call validate-environment-variable  ZIP_FOLDER "%0 couldn't ake zip folder of '%ZIP_FOLDER%'"
+                                call validate-environment-variable  ZIP_FOLDER "%0 couldn’t ake zip folder of “%ZIP_FOLDER%”"
                         REM make zip+zip manifest filenames
                                 set OUR_ZIP=%ZIP_FOLDER\personal-%shared_type%-files-used-in-this-project.zip
                                 set OUR_TXT=%ZIP_FOLDER\personal-%shared_type%-files-used--------filelist.txt
-                        REM delete zip and/or manifest if already there, if we want (i don't)
+                        REM delete zip and/or manifest if already there, if we want (i don’t)
                                 rem if exist %OUR_ZIP% %DELETE% %OUR_ZIP% 
                                 rem if exist %OUR_TXT% %DELETE% %OUR_TXT% 
                                 pushd
@@ -190,9 +190,9 @@ goto :END_OF_SUBROUTINES
                                 echo.>& nul
                                 REM moved later for speedup:
                                 rem call validate-environment-variable OUR_ZIP
-                        REM create manifest file of what's in the ZIP and make sure it exists
+                        REM create manifest file of what’s in the ZIP and make sure it exists
                                 REM set UNZIP_COMMAND=*unzip /v %OUR_ZIP%  
-                                REM call print-if-debug "Unzip command is: %UNZIP_COMMAND ... and will redirect to target: '%OUR_TXT%'"
+                                REM call print-if-debug "Unzip command is: %UNZIP_COMMAND ... and will redirect to target: “%OUR_TXT%”"
                                 REM sort it (cygwin sort.exe) 
                                 REM echo *unzip /v %OUR_ZIP% `|`    call cygsort --ignore-case -k5 `>`"%OUR_TXT"
                                 REM      *unzip /v %OUR_ZIP%  |     call cygsort --ignore-case -k5  > "%OUR_TXT"  until 20241107
@@ -202,7 +202,7 @@ goto :END_OF_SUBROUTINES
                         rem Finish up by returning from whence we came:
                                 popd
 
-                        rem Place we jump to if we didn't ZIP anything this time:
+                        rem Place we jump to if we didn’t ZIP anything this time:
                                 :not_this_time
                                 
                         REM make sure we add everything to the repo
@@ -225,11 +225,11 @@ goto :END_OF_SUBROUTINES
 
 
 
-rem reset our values so they don't accidentally get re-used, and CELEBRATE:
+rem reset our values so they don’t accidentally get re-used, and CELEBRATE:
         set  MANIFEST_FILES=
         set  SECONDARY_BAT_FILES=
         set  SECONDARY_UTIL_FILES=
-        call success "Successfully updated from personal to '%ITALICS%%PROJECT_NAME%%ITALICS_OFF%'"
+        call success "Successfully updated from personal to “%ITALICS%%PROJECT_NAME%%ITALICS_OFF%”"
         echo.
         %PROJECT_DIR%\
 

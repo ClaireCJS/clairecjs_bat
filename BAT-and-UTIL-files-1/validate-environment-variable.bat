@@ -44,9 +44,9 @@
     iff "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 then
         call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
         color bright white on red
-        echo  We can't be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
+        echo  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
         echo  %underline%Did you mean%underline_off%: %italics%validate-environment-variable%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
-        echo                                   (with an 's' after '%italics%variable%italics_off%')  ????
+        echo                                   (with an “s” after “%italics%variable%italics_off%”)  ????
 
         call exit-maybe
         if %FORCE_EXIT eq 1 (goto :END)
@@ -62,7 +62,7 @@
         set SKIP_VALIDATION_EXISTENCE=1 
         set USER_MESSAGE=%3$
     )
-    if %DEBUG_NORMALIZE_MESSAGE eq 1 (echo %ansi_color_debug%- DEBUG: PARAM2: '%PARAM2%'%ansi_color_normal%)
+    if %DEBUG_NORMALIZE_MESSAGE eq 1 (echo %ansi_color_debug%- DEBUG: PARAM2: “%PARAM2%”%ansi_color_normal%)
 
 
     iff %VALIDATE_MULTIPLE ne 1 then
@@ -96,9 +96,9 @@ goto :Past_The_End_Of_The_Sub-Routines
                     ::::: REPOND IF IT IS NOT:
                         :Defined_NO
                             set ERROR=1
-                            set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Environment variable '%underline%%italics%%blink%%varname%%italics_off%%blink_off%%underline_off%' is %double_Underline%not%double_Underline_off% defined, and needs to be, in %italics_on%'%[_PBATCHNAME]'%italics_off%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
+                            set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Environment variable “%underline%%italics%%blink%%varname%%italics_off%%blink_off%%underline_off%” is %double_Underline%not%double_Underline_off% defined, and needs to be, in %italics_on%“%[_PBATCHNAME]”%italics_off%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
-                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is '%USER_MESSAGE%')
+                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is “%USER_MESSAGE%”)
                             if "%USER_MESSAGE%" ne "" goto :Do_It_1
                                                       goto :Do_It_1_Done
                             :Do_It_1
@@ -115,7 +115,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                                 REM for /L %%i in (1,1,%LENGTH_DIFF%) do (set EXCLAMATION_MARKS=%EXCLAMATION_MARKS%!)
                                 REM 
                                 REM rem Substitute the final sequence of exclamation marks in ERROR_MESSAGE
-                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: EXCLAMATION_MARKS is '%EXCLAMATION_MARKS%')
+                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: EXCLAMATION_MARKS is “%EXCLAMATION_MARKS%”)
                                 REM set NORMALIZED_ERROR_MESSAGE=%@REPLACE[!!!,%EXCLAMATION_MARKS%,%ERROR_MESSAGE%]
                                 REM set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
 
@@ -147,12 +147,12 @@ goto :Past_The_End_Of_The_Sub-Routines
                                 REM advice related to an error in this context
                                 REM pretty much *DOES* mean a warning in the 
                                 REM outer context of our calling script, and 
-                                REM that level of importance shoudln't be as 
+                                REM that level of importance shoudln’t be as 
                                 REM easily visually discarded as the advice 
-                                REM color might usually be, because it's more
+                                REM color might usually be, because it’s more
                                 REM important than simply advice -- 
                                 REM      -- it represents a system failure!!!
-                                REM ...so let's put asterisks around it, too!
+                                REM ...so let’s put asterisks around it, too!
                                 call warning "%@UNQUOTE[%USER_MESSAGE%]"
                             )
                                 
@@ -208,8 +208,8 @@ goto :Past_The_End_Of_The_Sub-Routines
                         endiff                                
                         rem echo 🧟🏻‍♀️ if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"       set IS_FILE_LOCATION=1 >nul
                         iff "%VARNAME%" eq "newline" .or. "%VARNAME%" eq "tab" then
-                                rem It's not something we want in regexes, so skip this next part
-                                rem Idea: we *could* skip any string which doesn't have a . in it. Safe but slightly destructive.
+                                rem It’s not something we want in regexes, so skip this next part
+                                rem Idea: we *could* skip any string which doesn’t have a . in it. Safe but slightly destructive.
                         else                                
                                 if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"  .or.  "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" (set IS_FILE_LOCATION=1) %+ rem if it ends with any file extension of commonly used files
                         endiff       
@@ -220,8 +220,8 @@ goto :Past_The_End_Of_The_Sub-Routines
 
         setdos /x0
         if  "0" eq "%IS_FILE_LOCATION%"         (goto :DontValidateIfExists)
-        if  "0" eq "%@READY[%VARVALUEDRIVE%]"   (goto :DontValidateIfExists)                         %+ rem //Don't look for if drive letter doesn't exist--it's SLOWWWWW
-        if   1  eq  %SKIP_VALIDATION_EXISTENCE% (goto :DontValidateIfExists)                         %+ rem //Don't look for if we want to validate the variable only
+        if  "0" eq "%@READY[%VARVALUEDRIVE%]"   (goto :DontValidateIfExists)                         %+ rem //Don’t look for if drive letter doesn’t exist--it’s SLOWWWWW
+        if   1  eq  %SKIP_VALIDATION_EXISTENCE% (goto :DontValidateIfExists)                         %+ rem //Don’t look for if we want to validate the variable only
         if exist "%VARVALUE%"                   (                         goto :ItExistsAfterall)    %+ rem //Does it exist as a file?
         if isdir "%VARVALUE%"                   (                         goto :ItExistsAfterall)    %+ rem //Does it exist as a folder?
         if exist "%VARVALUE%.dep"               (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
@@ -247,12 +247,12 @@ goto :Past_The_End_Of_The_Sub-Routines
                         REM advice related to an error in this context
                         REM pretty much *DOES* mean a warning in the 
                         REM outer context of our calling script, and 
-                        REM that level of importance shoudln't be as 
+                        REM that level of importance shoudln’t be as 
                         REM easily visually discarded as the advice 
-                        REM color might usually be, because it's more
+                        REM color might usually be, because it’s more
                         REM important than simply advice -- 
                         REM      -- it represents a system failure!!!
-                        REM ...so let's put asterisks around it, too!
+                        REM ...so let’s put asterisks around it, too!
                         call warning %USER_MESSAGE%
                     endiff
                     set old=%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%
@@ -262,16 +262,16 @@ goto :Past_The_End_Of_The_Sub-Routines
                     call     warning  "    %@CHAR[55357]%@CHAR[56542] Parameters: %italics_on%%italics_on%%VEVPARAMS%%italics_off%%italics_off%" 
                     set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=%old%
                     set USER_MESSAGE_TO_USE=%NEWLINE%%USER_MESSAGE%
-                    call fatal_error "'%italics_on%%@UPPER[%VARNAME%]%italics_off%' location does not exist: '%VARVALUE%'...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%" 
+                    call fatal_error "“%italics_on%%@UPPER[%VARNAME%]%italics_off%” location does not exist: “%VARVALUE%”...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%" 
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :ItIsDeprecated
             rem //Internal kludge for the way I do workflows.
-            rem //WHICH IS: If "a.dep" or "a.deprecated" then I consider "a" to exist even if it doesn't. Don't ask.
+            rem //WHICH IS: If "a.dep" or "a.deprecated" then I consider "a" to exist even if it doesn’t. Don’t ask.
             rem //When this happens, we display notification, with a custom sound effect,
-            rem //but in a pleasant color, and less harsh sound effect, because this isn't an error,
+            rem //but in a pleasant color, and less harsh sound effect, because this isn’t an error,
             rem //just something that we want to pay extra attention to vs business-as-usual.
 
             echo. %+ echo. %+ echo.

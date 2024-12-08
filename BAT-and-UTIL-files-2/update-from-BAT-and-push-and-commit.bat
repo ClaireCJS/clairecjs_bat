@@ -33,9 +33,8 @@ rem CONFIGURATION:
 
 
         rem Ones specific to AI transcription system:
-        set SECONDARY_BAT_FILES_5=add-ADS-tag-to-file.bat approve-lyric-file.bat approve-lyrics.bat approve-subtitle-file.bat approve-subtitles.bat change-single-quotes-to-double-apostrophes.py check-for-missing-karaoke.bat check-for-missing-lyrics.bat check-playlist-for-missing-lyrics.bat check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py clean-up-AI-transcription-trash-files-everywhere.bat clean-up-AI-transcription-trash-files-here.bat clean-up-AI-transcription-trash-files.bat cmkh.bat cmlf.bat cpfml.bat cpmlf.bat create-lrc-file-for-currently-playing-song.bat create-lrc-from-file.bat create-missing-karaoke-files.bat create-srt-file-for-currently-playing-song.bat create-srt-for-soundclip.bat create-srt-from-file.bat create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat create-srt.bat create-the-missing-karaokes-here.bat disapprove-lyric-file.bat disapprove-lyrics.bat disapprove-subtitle-file.bat disapprove-subtitles.bat display-ADS-tag-from-file.bat display-lyric-status-for-file.bat display-lyric-status.bat downloaded-lyrics-postprocesser.bat eccsrt2lrc2clip.bat get-karaoke.bat get-lyrics-for-all-songs-in-this-folder.bat get-lyrics-for-playlist.bat get-lyrics-from-song.bat get-lyrics-with-lyricsgenius-json-processor.pl get-lyrics-with-LyricsGenius.bat get-lyrics.bat get-missing-karaoke.bat get-missing-lyrics-here.bat get-missing-lyrics.bat go-to-currently-playing-song-dir.bat google.py insert-after-each-line.py lrc.bat re-srt.bat read-ADS-tag-from-file.bat redo-last-SRT-creation.bat redo-last-srt.bat redo-srt.bat remove-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl resrt.bat review-all-SRTs.bat review-all-TXTs.bat review-file.bat review-files.bat review-karaokes.bat review-LRCs.bat review-lyrics.bat review-srt.bat review-SRTs.bat review-subtitles.bat review-txt.bat review-TXTs.bat show-lyric-status.bat show-lyric-status.bat srt2lrc.py srt2txt.py srtthis.bat unapprove-lyric-file.bat unapprove-lyric-file.bat unapprove-lyrics.bat unapprove-subtitle-file.bat unapprove-subtitles.bat 
-
-        set SECONDARY_BAT_FILES_5=
+        set SECONDARY_BAT_FILES_5=add-ADS-tag-to-file.bat approve-lyric-file.bat approve-lyrics.bat approve-subtitle-file.bat approve-subtitles.bat change-single-quotes-to-double-apostrophes.py check-for-missing-karaoke.bat check-for-missing-lyrics.bat check-playlist-for-missing-lyrics.bat check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py clean-up-AI-transcription-trash-files-everywhere.bat clean-up-AI-transcription-trash-files-here.bat clean-up-AI-transcription-trash-files.bat cmkh.bat cmlf.bat cpfml.bat cpmlf.bat create-lrc-file-for-currently-playing-song.bat create-lrc-from-file.bat create-missing-karaoke-files.bat create-srt-file-for-currently-playing-song.bat create-srt-for-soundclip.bat create-srt-from-file.bat create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat create-srt.bat create-the-missing-karaokes-here.bat disapprove-lyric-file.bat disapprove-lyrics.bat disapprove-subtitle-file.bat disapprove-subtitles.bat display-ADS-tag-from-file.bat display-lyric-status-for-file.bat display-lyric-status.bat downloaded-lyrics-postprocesser.bat eccsrt2lrc2clip.bat get-karaoke.bat get-lyrics-for-all-songs-in-this-folder.bat get-lyrics-for-playlist.bat get-lyrics-from-song.bat get-lyrics-with-lyricsgenius-json-processor.pl get-lyrics-with-LyricsGenius.bat get-lyrics.bat get-missing-karaoke.bat get-missing-lyrics-here.bat get-missing-lyrics.bat go-to-currently-playing-song-dir.bat google.py insert-after-each-line.py lrc.bat re-srt.bat read-ADS-tag-from-file.bat redo-last-SRT-creation.bat redo-last-srt.bat redo-srt.bat remove-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl resrt.bat review-all-SRTs.bat review-all-TXTs.bat review-file.bat review-files.bat review-karaokes.bat review-LRCs.bat review-lyrics.bat review-srt.bat review-SRTs.bat review-subtitles.bat review-txt.bat review-TXTs.bat show-lyric-status.bat show-lyric-status.bat srt2lrc.py srt2txt.py srtthis.bat unapprove-lyric-file.bat unapprove-lyric-file.bat unapprove-lyrics.bat unapprove-subtitle-file.bat unapprove-subtitles.bat approve-lyriclessness.bat disapprove-lyriclessness.bat unapprove-lyriclessness.bat approve-lyriclessness-for-file.bat disapprove-lyriclessness-for-file.bat unapprove-lyriclessness-for-file.bat get-lyriclessness-status.bat
+        
         set SECONDARY_BAT_FILES_6=
         set SECONDARY_BAT_FILES_7=
 
@@ -59,16 +58,16 @@ rem Parameters:
                 if "%1" eq "skip-update" (set PARAM_FOUND=1 %+ set        SKIP_UPDATE=1)                                       
                 if "%1" eq "docs"        (set PARAM_FOUND=1 %+ set          DOCS_ONLY=1 %+ set FASTER=1)
                 if   1  eq %PARAM_FOUND% (shift             %+ goto       :check_params)
-                if "%1" ne ""            (call print-message error "don't know what this %[1st] parameter of '%italics_on%%1%italics_off`%' is supposed to mean")
+                if "%1" ne ""            (call print-message error "don’t know what this %[1st] parameter of “%italics_on%%1%italics_off`%” is supposed to mean")
 
         rem DEBUG: echo [A]faster is %FASTER% , param_found is %PARAM_FOUND%, docs_only is %DOCS_ONLY% %+ pause
 
 
-rem Only once per session, validate our environment & make sure we're running this on the correct machine:
+rem Only once per session, validate our environment & make sure we’re running this on the correct machine:
         iff %GITHUB_UPDATER_VALIDATED ne 1 then
                 call validate-environment-variables MACHINENAME MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY italics_on italics_off PYTHON_OFFICIAL_SITELIB_CLAIRE 1st
                 call validate-in-path               c:\bat\update-from-BAT-via-manifest copy-move-post.py fast_cat divider AskYN git.bat commit-and-push.bat error error.bat print-message.bat
-                if "%MACHINENAME%" ne "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%" (call error "This script is only meant to be run on our primary machine named '%italics_on%%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%%italics_on%', but this machine is named '%italics_on%%MACHINENAME%%italics_on%'" %+ goto :END)
+                if "%MACHINENAME%" ne "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%" (call error "This script is only meant to be run on our primary machine named “%italics_on%%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%%italics_on%”, but this machine is named “%italics_on%%MACHINENAME%%italics_on%”" %+ goto :END)
                 set GITHUB_UPDATER_VALIDATED=1
         endiff
 
@@ -102,14 +101,14 @@ rem Manually-selected copies from locations other than C:\BAT\ ——— Step #1
                 set       PYTHON_LIBRARIES_DIR=%PYTHON_OFFICIAL_SITELIB_CLAIRE%                
         rem Configuration files that might help with compatibility:
                 rem Our Windows Terminal configuration:
-                        rem WINDOWS_TERMINAL_SETTINGS should be set in environm.btm, but just in case, let's try here:
+                        rem WINDOWS_TERMINAL_SETTINGS should be set in environm.btm, but just in case, let’s try here:
                         iff not defined WINDOWS_TERMINAL_SETTINGS then
                                 set WINDOWS_TERMINAL_SETTINGS=%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
                                 call validate-environment-variable WINDOWS_TERMINAL_SETTINGS 
                         endiff                                                
         rem Deprecated: Our Girder configuratoin, which becomes less relevant as the years go by:                        
                 set GIRDER_CONFIGURATION="c:\girder\claire's girder files\%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%.gml"                                
-        rem Notes that we'd like to share for fun:
+        rem Notes that we’d like to share for fun:
                 set     WINAMP_SETUP_NOTES=%NOTES%\winamp-notes.txt
                 set AUDIO_PROCESSING_NOTES=%NOTES%\audio-processing-batch-NOTES.txt                        
         rem Set vars for files & folders in subfolders that we want to publish:                
@@ -136,7 +135,7 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
                 iff 1 eq %DOCS_ONLY then
                         goto :docs_only_goto_1
                 endiff                        
-        rem Files that don't normally live in C:\BAT\ but which we copy there for distribution, to keep things simple:        
+        rem Files that don’t normally live in C:\BAT\ but which we copy there for distribution, to keep things simple:        
                 %copy%  %TCMD_ALIASES%                %TARGET_MAIN%\alias.lst
                 %copy%  %TCMD_INI%                    %TARGET_MAIN%\tcmd.ini
                 %copy%  %GIRDER_CONFIGURATION%        %TARGET_MAIN%\girder.gml
@@ -148,10 +147,10 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
                 %copy%  %WINAMP_SETUP_NOTES%          %TARGET_MAIN%\winamp-setup-notes.txt
                 %copy%  %AUDIO_PROCESSING_NOTES%     "%TARGET_MAIN%\notes - audio processing.txt"
                 %copy% "%WINDOWS_TERMINAL_SETTINGS%"  %TARGET_MAIN%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
-        rem Also, put this script (this one that you're reading these words from right now!) into the target for completionism:
+        rem Also, put this script (this one that you’re reading these words from right now!) into the target for completionism:
                 %copy% %0 %TARGET_MAIN%                 
         rem Update programming libraries:                
-                rem Update python libraries to the copy that lives in our BAT folder: both the 'living' one, and the copy here:
+                rem Update python libraries to the copy that lives in our BAT folder: both the ’living’ one, and the copy here:
                         %copy_S% /E %PYTHON_LIBRARIES_DIR%         c:\bat\clairecjs_utils
                         %copy_S% /E %PYTHON_LIBRARIES_DIR%  %TARGET_MAIN%\clairecjs_utils
                 rem Update perl libraries:
@@ -182,7 +181,7 @@ rem Update BAT files from live location to github-folder location:
         endiff
 
 
-rem Update our copy of BAT-1 folder's later-letters to our BAT-2 folder to get past GitHub's 1000 1,000 file 
+rem Update our copy of BAT-1 folder’s later-letters to our BAT-2 folder to get past GitHub’s 1000 1,000 file 
 rem display limit so that bat files starting with Z can actually be browsed to:
         if 1 ne %last_git_was_null% (echo.)
         call less_important "Updating %italics_on%BAT-2%italics_off% from %italics_on%BAT-1%italics_off%..."
@@ -198,7 +197,7 @@ rem Give a chance to stop here...
         call askYN "Continue with git add + commit + push?" yes %COMMIT_CONFIRMATION_WAIT_TIME%
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
-rem Make sure they're all added —— any new extensions that we add to our project, need to be added here:
+rem Make sure they’re all added —— any new extensions that we add to our project, need to be added here:
         :git_yes
         rem extensions that only appear in [a-l]*.*
                 call git.bat add docs\* %TARGET_MAIN%\samples\* %TARGET_MAIN%\dividers\* %TARGET_MAIN%\*.hlp  %TARGET_MAIN%\*.cnt %TARGET_MAIN%\*.lst %TARGET_MAIN%\*.gml %TARGET_MAIN%\*.jpg %TARGET_MAIN%\*.png %TARGET_MAIN%\*.lnk  %TARGET_MAIN%\*.ico 
@@ -229,7 +228,7 @@ rem Commit and Push:
 
 
 rem Cleanup:
-        rem Set files to be read-only so we don't accidentally edit them in the wrong place:
+        rem Set files to be read-only so we don’t accidentally edit them in the wrong place:
                 
         :Skip_TheRest
                 unset /q SECONDARY_BAT_FILES

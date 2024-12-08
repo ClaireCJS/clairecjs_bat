@@ -203,18 +203,36 @@ Pause::
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;
-^?::Send "❔"  ; Ctrl+? for ❔ [white]
-!?::Send "❓"  ;  Alt+? for ❓ [red]
-^8::Send "⭐"  ; Ctrl+8 for ⭐
-!8::Send "🌟" ;  Alt+8 for 🌟
-^-::Send "–"  ; Ctrl+Hyphen for en dash (ranges, quotations)
-!-::Send "—"  ;  Alt+Hyphen for em dash (interruptions)
-^'::Send "’"  ; Ctrl+apostrophe for a single smart apostrphe
-!'::Send "‘’" ;  Alt+apostrophe for smart single quotes
-^"::Send "“”" ; Ctrl+quote for smart double/normal quotes
-!"::Send "“”" ;  Alt+quote for smart double/normal quotes
-;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+^?::Send  "❔"       ; Ctrl+? for ❔ [white]
+!?::Send  "❓"       ;  Alt+? for ❓ [red]
+
+^8::Send  "⭐"       ; Ctrl+8 for ⭐
+!8::Send  "🌟"      ;  Alt+8 for 🌟
+
+^-::Send  "–"       ; Ctrl+Hyphen for en dash (ranges, quotations)
+!-::Send  "—"       ;  Alt+Hyphen for em dash (interruptions)
+
+'::Send   "’"       ;          apostrophe for right smart single quote / smart apostrphe
+!'::Send  "{U+0027}";      Alt+apostrophe for dumb/original apostrophe/foot symbol
+^'::Send  "‘"       ;     Ctrl+apostrophe for  left smart single quote 
+^!'::Send "‘’"      ; Ctrl-Alt+apostrophe for  both smart single quotes
+
+^"::Send  "“"       ;     Ctrl+quote for smart double/normal quotes
+!"::Send  "”"       ;      Alt+quote for smart double/normal quotes
+^!"::Send "“”"      ; Ctrl+Alt+quote for smart double/normal quotes
+
+^!0::Send "⁰"       ; Ctrl+Alt+0 for superscript number
+^!1::Send "¹"       ; Ctrl+Alt+1 for superscript number
+^!2::Send "²"       ; Ctrl+Alt+2 for superscript number
+^!3::Send "³"       ; Ctrl+Alt+3 for superscript number
+^!4::Send "⁴"       ; Ctrl+Alt+4 for superscript number
+^!5::Send "⁵"       ; Ctrl+Alt+5 for superscript number
+^!6::Send "⁶"       ; Ctrl+Alt+6 for superscript number
+^!7::Send "⁷"       ; Ctrl+Alt+7 for superscript number
+^!8::Send "⁸"       ; Ctrl+Alt+8 for superscript number
+^!9::Send "⁹"       ; Ctrl+Alt+9 for superscript number
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;; INITIAL STATE FOR TRACKED KEYS ;;;;;;;;;;;;;;;;
