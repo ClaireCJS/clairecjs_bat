@@ -236,7 +236,7 @@ rem Cleanup:
                 unset /q SECONDARY_BAT_FILES_2
                 unset /q SECONDARY_BAT_FILES_3
                 unset /q SECONDARY_BAT_FILES_4
-                unset /q SECONDARY_BAT_FILES_5
+                rem unset /q SECONDARY_BAT_FILES_5
                 unset /q SECONDARY_BAT_FILES_6
                 unset /q SECONDARY_BAT_FILES_7
                 unset /q SECONDARY_BAT_FILES_8
