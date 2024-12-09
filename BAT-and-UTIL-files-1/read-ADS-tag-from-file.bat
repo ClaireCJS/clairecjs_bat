@@ -56,9 +56,11 @@ rem Validate environment (once):
         endiff
 
 rem Validate parameters (every time):
-        call validate-environment-variable File_To_Use "1ˢᵗ arg must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg arg can be “verbose”"
-        call validate-environment-variable Tag_To_Read "2ⁿᵈ argument must be a tag to read, NOT empty"
-
+        iff "%4" ne "skip_validations" then
+                call validate-environment-variable File_To_Use "1ˢᵗ arg must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg arg can be “verbose”"
+                call validate-environment-variable Tag_To_Read "2ⁿᵈ argument must be a tag to read, NOT empty"
+        endiff
+        
 rem Set default values for parameters:
         set VERBOSE=0
         if "%TAG_TO_READ%" eq ""  (set TAG_TO_READ=tag)

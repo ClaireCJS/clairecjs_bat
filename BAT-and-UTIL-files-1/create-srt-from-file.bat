@@ -290,14 +290,13 @@ REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
 REM if we already have a SRT file, we have a problem:
         iff exist "%SRT_FILE%" .and. %OKAY_THAT_WE_HAVE_SRT_ALREADY ne 1 .and. %SOLELY_BY_AI ne 1 then
                 iff exist "%TXT_FILE%" .and. %@FILESIZE["%TXT_FILE%"] gt 0 then
-                        @call divider
-                        rem @call less_important "(65) Review the lyrics now:" 
-                        call bigecho %STAR% %ANSI_COLOR_IMPORTANT_LESS%Review the lyrics:%ANSI_RESET%
-                        @echos %ANSI_COLOR_BRIGHT_YELLOW%
-                        rem unique-lines -A is a bit of a misnomer because it gives ALL lines, but with -L it gives us a preview of some of the lyric massage prior to the AI prompt
-                        (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
+                        rem @call divider
+                        rem call bigecho %STAR% %ANSI_COLOR_IMPORTANT_LESS%Review the lyrics:%ANSI_RESET%
+                        rem @echos %ANSI_COLOR_BRIGHT_YELLOW%
+                        rem (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
+                        call review-file "%TXT_FILE%" "Review the lyrics"
                         iff %@FILESIZE["%TXT_FILE%"] lt 5 then
-                            echo         %ANSI_COLOR_WARNING%Hmm. Nothing there.%ANSI_RESET%
+                                echo         %ANSI_COLOR_WARNING%Hmm. Nothing there.%ANSI_RESET%
                         endiff
                         @call divider
                 endiff
@@ -433,11 +432,12 @@ rem Mandatory review of lyrics
         iff exist "%TXT_FILE%" .and. %@FILESIZE["%TXT_FILE%"] gt 0 then
                 rem Deprecating this section which is redundant because it’s done in get-lyrics:
                 iff 0 = 1 then
-                        @call divider
-                        @call less_important "[REDUNDANT?] Review the lyrics now:"
-                        @call divider
-                        @echos %ANSI_COLOR_GREEN%
-                        (type "%TXT_FILE%" |:u8 unique-lines -A -L) |:u8 print-with-columns
+                        rem @call divider
+                        rem @call less_important "[REDUNDANT?] Review the lyrics now:"
+                        rem @call divider
+                        rem @echos %ANSI_COLOR_GREEN%
+                        rem (type "%TXT_FILE%" |:u8 unique-lines -A -L) |:u8 print-with-columns
+                        call review-file "%TXT_FILE%" "Review the lyrics now"
                         @call divider
                         @call AskYn "[REDUNDANT?] Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                         iff "%ANSWER%" eq "N" then
@@ -681,8 +681,9 @@ REM set a non-scrollable header on the console to keep us from getting confused 
         endiff
         call divider %+ set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%“%italics_on%%FILE_TITLE%%italics_off%” %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
         rem BRING BACK AFTER I FIX THE BANNER: call top-banner "%banner_message%"
-        rem instead do this temporarily: 🐐
-                call important "%banner_message%"
+        rem instead do this temporarily: call important "%banner_message%"
+        rem It’s looking more like THIS is what you want:
+        call footer "%banner_message%"
 
 
 REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI:
@@ -717,13 +718,17 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 if defined CURSOR_RESET echos %CURSOR_RESET%
                 echo. %+ rem this is the blank line after “launching ai”
                 option //UnicodeOutput=yes
-                rem  %LAST_WHISPER_COMMAND%                             |:u8 copy-move-post whisper 
-                rem  %LAST_WHISPER_COMMAND%                             |:u8 copy-move-post whisper  |&:u8 tee      /a      "%OUR_LOGFILE%"
-                rem  %LAST_WHISPER_COMMAND%                             |:u8 copy-move-post whisper  |&:u8 tee.exe --append "%OUR_LOGFILE%"
-                rem  %LAST_WHISPER_COMMAND% |&:u8  grep -v ctranslate   |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"
+                rem   %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper 
+                rem   %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper  |&:u8 tee      /a      "%OUR_LOGFILE%"
+                rem   %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper  |&:u8 tee.exe --append "%OUR_LOGFILE%"
+                rem   %LAST_WHISPER_COMMAND% |&:u8  grep -v ctranslate  |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"
                 rem  (%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"
                 rem ((%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper) |:u8  tee.exe --append "%OUR_LOGFILE%"
-                    ((%LAST_WHISPER_COMMAND%                ) |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%" )
+                rem ((%LAST_WHISPER_COMMAND%                          ) |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%")
+                rem  ((%LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper) |&:u8 tee.exe --append "%OUR_LOGFILE%")
+                rem   (%LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |&:u8 tee.exe --append "%OUR_LOGFILE%")
+                rem    %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper                                          %+ rem works great....but no log
+                       %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
@@ -736,25 +741,31 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 option //UnicodeOutput=%UnicodeOutputDefault%
                 if defined TOCK echos %TOCK%       %+ rem just our nickname for an extra-special ansi-reset
                 if defined CURSOR_RESET echos %CURSOR_RESET%
-                call errorlevel "some sort of problem with the AI generation occurred in %0 line ~336ish {“actually generate the srt file”}"
+                call errorlevel "some sort of problem with the AI generation occurred in create-srt-from-file line 744ish"
 
         rem Cosmetics:
-                call unlock-top                    %+ rem Disable our non-scrollable header now that we are done
+                rem call unlock-top                    %+ rem Disable our non-scrollable header now that we are done
                 title Done: %BASE_TITLE_TEXT%
 
 REM delete zero-byte LRC files that can be created
+        rem echo "About to delete zero byte files " %+ pause
         call delete-zero-byte-files *.lrc silent >nul
         call delete-zero-byte-files *.srt silent >nul
         
 REM Post-process the SRT file:
 rem Remove periods from the end of each line in the SRT, but preserve them if at the end of a common word like "Mr.", "Ms.", or if "...":
+        rem echo "About to remove invisible periods" %+ pause
         call divider
         echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%SRT%italics_off% and %italics_on%LRC%italics_off% files...
         if exist "%LRC_FILE%" (remove-period-at-ends-of-lines.pl -w "%LRC_FILE%")
         if exist "%SRT_FILE%" (remove-period-at-ends-of-lines.pl -w "%SRT_FILE%")
         echo ...%CHECK% %ANSI_COLOR_GREEN%Success%BOLD_ON%!%BOLD_OFF%%ANSI_COLOR_NORMAL%
 
+
+
+
 REM did we create the LRC file?
+        rem echo "About to check if we created the lrc file" %+ pause
         call validate-environment-variable EXPECTED_OUTPUT_FILE "expected output file of “%italics%%EXPECTED_OUTPUT_FILE%%italics_off%” does not exist"
         if exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" (@echo %EXPECTED_OUTPUT_FILE%%::::%_DATETIME%::::%TRANSCRIBER_TO_USE% >>:u8"__ contains AI-generated SRT files __")
         title %CHECK%%BASE_TITLE_TEXT%
@@ -805,6 +816,8 @@ rem ////////////////////////////////////////////////////////////////////////////
 :Finishing_Up
 :Cleanup
 
+rem echo "About to cleanup" %+ pause
+
 rem Let user know if we were NOT succesful, then skip to the end:
         iff not exist "%SRT_FILE%" then
                 @call warning "Unfortunately, we could create the karaoke file %emphasis%%SRT_FILE%%deemphasis%"
@@ -850,8 +863,9 @@ rem A chance to edit:
                 iff not exist "%TXT_FILE%" .or. %@FILESIZE["%TXT_FILE%"] eq 0 then
                         echo %ansi_color_warning_soft%%star% Lyrics were approved but can’t find “%italics_on%%TXT_FILE%%italics_on%”%ansi_reset%
                 else
-                        @call divider
-                        @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Lyrics%underline_off%:
+                        rem @call divider
+                        rem @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Lyrics%underline_off%:
+                        rem (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
                         (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
                 endiff
         endiff
@@ -859,7 +873,7 @@ rem A chance to edit:
         @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Transcription%underline_off%:
         @echo.
         @echos %TOCK%                       %+ rem just our nickname for an extra-special ansi-reset we sometimes call after  copy-move-post.py postprocessing
-        rem fast_cat fixes ansi rendering errors ins ome situations
+        rem fast_cat fixes ansi rendering errors in some situations
         rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line "%faint_on%%ansi_color_red%SRT:%faint_off%%ansi_color_bright_Green%        "     |:u8 fast_cat
         rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "SRT:        %CHECK%" |:u8 fast_cat
         rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%

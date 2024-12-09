@@ -921,8 +921,10 @@ rem ANIS: enhanced resetting
                     rem 3) But this seems to work to:
                     set ANSI_RESETTER_DEFAULT_FG_BG_COLORS=%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/00/01%@CHAR[27]\%@CHAR[27]]10;rgb:c0/c0/c1%@CHAR[27]\
                     rem 4) But as of Windows Terminal Preview v1.22.2702.0 (2024), “RIS (ESC c) will now return the color scheme to your preferred default if the application has modified it”
-                    rem Changing this on 2024/12/06:
-                    set ANSI_RESETTER_DEFAULT_FG_BG_COLORS=%@CHAR[27]c
+
+                    rem Tried this on 2024/12/06 but it also clears the screen!
+                    ANSI_COLOR_RESETTER_BETA=%@CHAR[27]c
+                    rem ANSI_RESETTER_DEFAULT_FG_BG_COLORS=%ANSI_RESETTER_DEFAULT_FG_BG_COLORS%%ANSI_COLOR_RESETTER_BETA%
                     
 
                     set ANSI_RESET_FULL=%ANSI_RESETTER_BASIC%%ANSI_RESETTER_CURSOR%%ANSI_RESETTER_DEFAULT_FG_BG_COLORS% %+ rem WORKs!

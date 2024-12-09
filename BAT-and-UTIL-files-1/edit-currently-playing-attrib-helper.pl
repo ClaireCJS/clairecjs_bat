@@ -438,8 +438,8 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 		$target_attrib_file = $target_dir . $ATTRIB_LST;
 	}
 
-	if ($DEBUG>0) { print "\n:target_dir  [1] is $target_dir \npause\n"  ; }
-	if ($DEBUG>0) { print "\n:target_file [1] is $target_attrib_file\npause\n\n"; }
+	if ($DEBUG>0) { print "\nrem 🐈:target_dir  [1] is $target_dir \npause\n"  ; }
+	if ($DEBUG>0) { print "\nrem 🐈:target_file [1] is $target_attrib_file\npause\n\n"; }
 
 	##### FILENAME:
 	$filename_nodir =~ s/"//g;
@@ -481,13 +481,13 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 
 	$target_dir =~ s/\\$//;
 	print "set CURRENT_SONG_FILE="     . $filename_nodir                      . "\n";	
-	print "echoerr \%star\% CURRENT_SONG_FILE=\%CURRENT_SONG_FILE\%"          . "\n";
+	#rint "echoerr \%star\% \%ansi_color_green\%CURRENT_SONG_FILE=\%CURRENT_SONG_FILE\%"          . "\n";
 	print "set CURRENT_SONG_DIR="      . $target_dir                          . "\n";
 	print "set CURRENT_SONG_FILENAME=" . $target_dir . "\\" . $filename_nodir . "\n";
 
-	print "\n\n:targetdir is $target_dir \n";
-	print    ":targetfile is $target_attrib_file\n";
-	if (($target_dir =~ /(_*unsorted)[\\\/]*$/i) || ($target_dir =~ /(currently.judging)[\\\/]*$/i)) { 
+	print "\n\nrem 😹 targetdir is $target_dir \n";
+	print     "rem 😹 targetfile is $target_attrib_file\n";
+	if (($ENV{EC_DO_NOT_GO_UP_1_DIR} ne 1) && ((($target_dir =~ /(_*unsorted)[\\\/]*$/i) || ($target_dir =~ /(currently.judging)[\\\/]*$/i)))) { 
 		my $tmp=$1;
 		print "cd..\n"; 
 		$target_attrib_file =~ s/[\\\/]$tmp//i;

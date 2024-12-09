@@ -82,7 +82,9 @@ rem Go through each file, displaying it’s lyric status *if* it is a sidecar fi
         goto    :process_done
                 :process [tmptmpfile]
                         set tmpfile=%@unquote[%tmptmpfile%]
-                        if %@regex[%@ext[%tmpfile],%filemask_audio%] eq 0 goto :nevermind_on_the_processing
+                        rem echo %ansi_color_bright_yellow% tmpfile is %tmpfile% %ansi_reset%
+                        if ""  eq         "%@ext[%tmpfile]"                   goto :nevermind_on_the_processing
+                        if "0" eq "%@regex[%@ext[%tmpfile],%filemask_audio%]" goto :nevermind_on_the_processing
                         set "dls_processed_%tmpfile%=1"
                         set BASENAME=%@name[%tmpFile%]
                         set TMP_LYRIC_OR_SONG_SIDECAR_FILE=
@@ -99,10 +101,10 @@ rem Go through each file, displaying it’s lyric status *if* it is a sidecar fi
 
                         rem Display the lyric status if a sidecar file was found, or another message if one was not:
                                 if 1 eq %FOUND% (
-                                        call display-lyric-status-for-file "%TMP_LYRIC_OR_SONG_SIDECAR_FILE%"
+                                        call display-lyric-status-for-file "%TMP_LYRIC_OR_SONG_SIDECAR_FILE%" skip_validations
                                 ) else (                                
                                         rem The old way, before lyriclessness was approveable: if 1 eq %USE_SPACER% ( echo %@CHAR[55357]%@CHAR[56590] %@CHAR[27][38;2;98;108;22m%red_x% No corresponding lyric file for: %@CHAR[27][38;2;68;78;15m%italics_on%%@FULL[%tmpFile%]%italics_off%%faint_off% ) else ( echo %@CHAR[55357]%@CHAR[56590] %@CHAR[27][38;2;98;108;22mNo corresponding lyric for: %@CHAR[27][38;2;68;78;15m%italics_on%%@FULL[%tmpFile%]%italics_off%%faint_off% )
-                                        call display-lyric-status-for-file "%tmpfile%" lyriclessness
+                                        call display-lyric-status-for-file "%tmpfile%" lyriclessness skip_validations
                                 )       
                                 
                         :nevermind_on_the_processing                                

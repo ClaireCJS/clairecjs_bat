@@ -6,8 +6,10 @@ rem Config:
         set our_filemask=*.srt;*.lrc
 
 rem Only review a single file, if [what is hopefully] a filename is provided:
+        set replacement_text=
         setdos /x-5
         if "%1" ne "" set our_filemask=%1
+        if "%2" ne "" set replacement_text=%2
         setdos /x0
 
 
@@ -37,23 +39,27 @@ rem Go through each one and review it:
 
         call set-tmp-file
         set tmp_file_2=%tmpfile%
-        
-        echo off
-        
-        for %%tmpfileouter in (%our_filemask%) do gosub do_it "%tmpfileouter%"
+               
+        for %%tmpfileouter in (%our_filemask%) do gosub do_it "%@unquote[%tmpfileouter%]"
         goto :do_it_end
         :do_it [tmpfile] 
                 call divider 
                 setdos /x0
                 rem title %@CHAR[55357]%@CHAR[56403] %@name[%tmpfile]
                 title %emoji_palm_tree%%@name[%tmpfile]
-                call bigecho "%STAR% %@randfg_soft[]%underline_on%%@name[%tmpfile%]%underline_off%:"
+                iff "%replacement_text%" ne "" then 
+                        set our_msg=%replacement_text%
+                else
+                        set our_msg=%@name[%tmpfile%]
+                endiff
+                call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"
                 setdos /x0
                 rem (type "%@UNQUOTE[%tmpfile%]" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" )  |:u8 print-with-columns 
                 setdos /x-5
-                type %tmpfile% >:u8%tmp_file_1%
+                type "%@unquote[%tmpfile%]" >:u8"%tmp_file_1%"
                 setdos /x0
-                grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" %tmp_file_1% >:u8%tmp_file_2%
+                grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%tmp_file_1%" >:u8"%tmp_file_2%"
+                echos %ansi_reset%
                 call print-with-columns <%tmp_file_2 
         return
         :do_it_end

@@ -363,7 +363,8 @@ def render_columns(columns_data, column_widths, divider):
         list of strings: Each string represents a formatted row.
     """
     
-    rows_per_col = max(len(col) for col in columns_data)   
+    if columns_data: rows_per_col = max(len(col) for col in columns_data)   
+    else:            rows_per_col = 1
     if VERBOSE: print(f"😷😷😷😷😷 Recalculated rows per column as: {rows_per_col}")
      
     rendered_rows = []

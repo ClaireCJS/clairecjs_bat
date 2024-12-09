@@ -12,7 +12,7 @@ call divider
 %COLOR_ADVICE%
 set //UnicodeOutput=yes
 text
-:USAGE: add-ADS-tag-to-file {%filename} {tag_name} {tag_value or "read" or "remove"} ["verbose" or "brief" or "lyrics"] [verb]
+:USAGE: add-ADS-tag-to-file {%filename} {tag_name} {tag_value or "read" or "remove"} ["verbose" or "brief" or "lyrics"] [verb or "skip_validations"]
 :USAGE: 
 :USAGE: 1st arg is the filename we are operating on
 :USAGE: 2nd arg is the tag name we want to read/write/delete
@@ -84,12 +84,15 @@ rem Validate parameters every time:
                 call warning "Cannot use %0 on wildcards for 1ˢᵗ parameter!"
                 goto :END
         endiff
-        if "%1" EQ ""                                       (gosub :usage %+ goto :END)
+        if "%1" EQ "" (gosub :usage %+ goto :END)
+        rem add-ADS-tag-to-file "2_08_Ikon - The Ballad Of Gilligan's Island.txt" "lyrics" read lyrics skip_validatoins
+        if "%5" eq "skip_validations" (goto :skip_validations_1)
         call validate-environment-variable File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
         call validate-environment-variable Tag_To_Modify          "2ⁿᵈ argument to %0 must a tag, NOT empty"
         call validate-environment-variable Tag_Value              "3ʳᵈ argument to %0 must a value, or 'read' ... NOT empty"
+        :skip_validations_1
         if "%PARAM_4%" ne "" .and. "%PARAM_4%" ne "verbose" .and. "%PARAM_4%" ne "remove" .and. "%PARAM_4%" ne "brief" .and. "%PARAM_4%" ne "lyrics" .and. "%PARAM_4%" ne "lyric" (call fatal_error "There shouldn't be a 4th parameter of this value being sent to %0 {called by %_PBATCHNAME}, but you gave '%italics_on%%PARAM_4%%italics_off%'. Run without parameters to understand proper usage.")
-
+        
 rem Set default values for parameters:
         set VERBOSE=0
         set BRIEF_MODE=0

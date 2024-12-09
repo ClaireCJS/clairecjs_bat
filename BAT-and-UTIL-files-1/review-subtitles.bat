@@ -29,7 +29,8 @@ rem Go through each one and review it:
         for %tmpfile in (%our_filemask%) do (
                 rem call debug tmpfile=%tmpfile%
                 call divider 
-                call bigecho %STAR% %@randfg_soft[]%underline_on%%@name[%tmpfile%]%underline_off%:
+                rem  bigecho %STAR% %@randfg_soft[]%underline_on%%@name[%tmpfile%]%underline_off%:
+                call bigecho %STAR% %@randfg_soft[]%underline_on%%tmpfile%%underline_off%:
                 (type "%@UNQUOTE[%tmpfile%]" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" )  |:u8 print-with-columns 
         )
         

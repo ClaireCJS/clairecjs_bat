@@ -52,7 +52,7 @@ rem Create the script to run:
 
         rem A bit of debug output:
                 echos %ansi_color_debug%
-                echo edit-currently-playing-attrib-helper.pl "%LOG_TO_USE%" %ALL_SONGS_PLAYLIST% %*  `>`:u8%SCRIPT_TO_RUN% %ansi_color_normal%
+                echo %faint_on%%ansi_color_bright_black%* edit-currently-playing-attrib-helper.pl "%LOG_TO_USE%" %ALL_SONGS_PLAYLIST% %*  `>`:u8%SCRIPT_TO_RUN% %ansi_color_normal%
 
         rem Generate our script using our helper program:                
                      edit-currently-playing-attrib-helper.pl "%LOG_TO_USE%" %ALL_SONGS_PLAYLIST% %*    >:u8%SCRIPT_TO_RUN%
