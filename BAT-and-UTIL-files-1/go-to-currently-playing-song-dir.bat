@@ -19,7 +19,8 @@ rem Disable moving up the folder tree if in a playlist-determinant-specific or a
 
 
 rem Actually edit the currently-playing attrib.lst and/or [depending on options] just go to the folder of the currently-playing song:
-        call edit-currently-playing-attrib-with-automark %* 
+        rem call edit-currently-playing-attrib-with-automark %* 
+        call edit-currently-playing-attrib %*
 
 
 

@@ -145,7 +145,7 @@ class BufferedStdout:
         """Check if a string is in the buffer."""
         return search_string in self.buffer.getvalue()
 # Replace sys.stdout with our custom class
-sys.stdout = BufferedStdout()
+#sys.stdout = BufferedStdout()
 
 def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' + DOUBLE_UNDERLINE_OFF, line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
 
@@ -251,15 +251,16 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         if verbose: print(f"orig_line is [orig={original_line}][line={line}]")
         #f "[ctranslate2]" in line: just won't work!
         #f "[ctranslate2]" in original_line:
-        if sys.stdout.string_in_buffer("ctranslate"):
-            #this fails to find it!!!!! 
-            sys.stdout.print(f"FOUND IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ")
-            #pass
+            
+        #if sys.stdout.string_in_buffer("ctranslate"):
+        #    #this fails to find it!!!!! 
+        #    sys.stdout.print(f"FOUND IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ")
+        #   #pass
             
         if "ctranslate" in original_line:
             #ine = spacer + FAINT_ON   + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[")        + FAINT_OFF
             #ine = spacer + COLOR_GREY + "⭐" +              line.replace("[",f"{COLOR_GREY}[")        + FAINT_OFF
-            line = spacer + FAINT_ON   + COLOR_GREY + "⭐" + line + FAINT_OFF + "HEYOOOOOOOOOOO"
+            line = spacer + FAINT_ON   + COLOR_GREY + "⭐" + line + FAINT_OFF #+ "HEYOOOOOOOOOOO"
             line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)
             #DEBUG: print ("ctranslate line found!")#
         line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)    #todo experimental: just do this, won't affecti f there isn't a match
@@ -273,7 +274,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             line=""
 
         # not working:
-        line = line.replace("MDX Kim_Vocal_2" ,f"MDX Kim-Vocal 2") 
+        line = line.replace("MDX Kim_Vocal_2" ,f"{MOVE_UP_1}MDX Kim-Vocal 2") 
         # patterned substitutions: (in alphabetical order):                   
         line = line.replace("Audio filtering finished in: "                 ,f"⏱ Audio filtering finished in: {ITALICS_ON}")
         line = line.replace("* Compression ratio threshold is not"          ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Compression ratio threshold is not") + FAINT_OFF
@@ -297,7 +298,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             if current_processing_segment > 1: pass
             line = line.replace(f"  Processing segment at ",f"{COLOR_GREY}{FAINT_ON}{spacer_even_less}♬♬ Processing segment at:  {ITALICS_ON}") + ITALICS_OFF + FAINT_OFF
         # unique substitutions: oneliners:
-        if " --> " in line:line = f"🌟 {BLINK_ON}" + line.replace("]  ",f"]{BLINK_OFF}{ANSI_RESET}{ITALICS_ON}  ")
+        if " --> " in line:line = f"✨ {BLINK_ON}" + line.replace("]  ",f"]{BLINK_OFF}{ANSI_RESET}{ITALICS_ON}  ")
         if any(substring in line for substring in ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"]):                line = line.replace("* Reset prompt. ",COLOR_GREY + FAINT_ON + spacer + "* Reset prompt. ") + FAINT_OFF            #bad syntax:                              ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"] in line:
 
     lines_to_print = line.split('\n')                                                                         #there really shouldn't be a \n in our line, but things happen
@@ -494,7 +495,7 @@ if line_buffer.strip():  # Ensure any remaining line without \n is printed
 #flush()
 
 # Restore sys.stdout if needed
-sys.stdout = sys.stdout.original_stdout
+#sys.stdout = sys.stdout.original_stdout
 
 
 

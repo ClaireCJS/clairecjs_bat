@@ -723,7 +723,7 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 rem  %LAST_WHISPER_COMMAND% |&:u8  grep -v ctranslate   |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"
                 rem  (%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"
                 rem ((%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper) |:u8  tee.exe --append "%OUR_LOGFILE%"
-                    ((%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper |:u8  tee.exe --append "%OUR_LOGFILE%" )
+                    ((%LAST_WHISPER_COMMAND%                ) |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%" )
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.

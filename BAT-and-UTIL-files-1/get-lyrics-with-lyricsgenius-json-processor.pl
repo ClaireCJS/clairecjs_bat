@@ -9,6 +9,7 @@ binmode STDOUT, ":encoding(UTF-8)";                         # Set STDOUT to hand
 my $json_text;                                              # downloaded .JSON file as string
 my $data;                                                   # just the section of the JSON called “data” 
 my $lyrics;                                                 # just the section of the data called “lyrics” 
+my $title;                                                  # just the section of the data called “title” 
 
 # Get our data:                                             # Retrieve our input data from a JSON file
 $json_text = do { local $/; <STDIN> };                      # Read JSON input from STDIN
@@ -16,8 +17,8 @@ $json_text = Encode::decode('UTF-8', $json_text);           # Decode the JSON te
 $data = decode_json($json_text);                            # Parse JSON data
 
 # Extract values:                                           # Extract lyrics and title
-my $lyrics = $data->{"lyrics"};                             # Extract lyrics and title
-my $title  = $data->{"title" };                             # Extract lyrics and title
+$lyrics = $data->{"lyrics"};                                # Extract lyrics and title
+$title  = $data->{"title" };                                # Extract lyrics and title
 
 # Apply transformations:                                    # Apply transformations:    
 $lyrics =~ s/\\n/\n/ig;                                     # Replace “\n” with actual newlines

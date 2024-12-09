@@ -423,7 +423,7 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 	if ($DEBUG>0) { print "\n:target_file [orignal] is $target_attrib_file\npause\n\n"; }
 	if (!-e $target_attrib_file) {	$target_attrib_file = &remap($target_attrib_file);}
 	if ($DEBUG>0) { print "\n:target_file [remappd] is $target_attrib_file\npause\n\n"; }
-	if (($METHOD eq "2008") || ($METHOD eq "2009")) {
+	if ((($METHOD eq "2008") || ($METHOD eq "2009"))  && ($ENV{EC_DO_NOT_GO_UP_1_DIR} != 1)) {
 		$target_attrib_file = &go_up_one_level_where_appropriate($target_attrib_file);
 	}
 	$filename_nodir = $target_attrib_file;

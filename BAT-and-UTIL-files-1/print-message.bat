@@ -150,7 +150,7 @@ REM Behavior overides and message decorators depending on the type of message?
     if  "%TYPE%"  eq "WARNING_LESS"   (set DECORATOR_LEFT=%STAR% ``     %+ set DECORATOR_RIGHT= %STAR%) 
     if  "%TYPE%"  eq "SUCCESS"        (set DECORATOR_LEFT=%REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%BLINK_OFF%%REVERSE_OFF% ``        %+ set DECORATOR_RIGHT= %REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%REVERSE_OFF%%BLINK_OFF% %PARTY_POPPER%%EMOJI_BIRTHDAY_CAKE%)
     rem "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
-    if  "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF% %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
+    if  "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%blink_off%%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF% %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
     if  "%TYPE%"  eq "COMPLETION"     (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT=! ***)
     if  "%TYPE%"  eq "ALARM"          (set DECORATOR_LEFT=* ``          %+ set DECORATOR_RIGHT= *)
     if  "%TYPE%"  eq "REMOVAL"        (set DECORATOR_LEFT=%RED_SKULL%%SKULL%%RED_SKULL% ``        %+ set DECORATOR_RIGHT= %RED_SKULL%%SKULL%%RED_SKULL%)
