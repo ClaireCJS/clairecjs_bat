@@ -16,6 +16,7 @@ rem Validate parameters every time:
         call validate-is-extension         "%Lyric_File_To_Approve%" *.txt;*.srt;*.lrc            %+ rem We will also sneak subtitles in, in case we decide to add approval for those down the road
         
 rem Set via windows alternate data streams:
-        call add-ads-tag-to-file "%LYRIC_FILE_TO_APPROVE%" lyrics APPROVED lyrics
+        rem echo call add-ads-tag-to-file "%LYRIC_FILE_TO_APPROVE%" lyrics APPROVED lyrics
+                 call add-ads-tag-to-file "%LYRIC_FILE_TO_APPROVE%" lyrics APPROVED lyrics
 
 

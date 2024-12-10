@@ -1,1 +1,2 @@
-https://emojifinder.com/
+@Echo OFF
+https://emojifinder.com/%1

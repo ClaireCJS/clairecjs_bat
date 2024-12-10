@@ -2,6 +2,13 @@
 @on break cancel
 
 :USAGE: "Divider"      to draw a horizontal divider using the default character repeated
+:USAGE: "Divider 50 nonewline"   ^^^^ same as above, but leave us dangling right at the last drawn character; no newline or moving back to column 0
+:USAGE:
+:USAGE:
+:USAGE: .... Everything else below is likely broken....
+:USAGE:
+:USAGE:
+:USAGE: "Divider 50"   ^^^^ same as above, but only 50 columns wide
 :USAGE: "Divider HII!" to draw a horizontal divider using the string  "HII!"    repeated 
 :USAGE: "Divider 😂"   to draw a horizontal divider using the laugh-emoji (😂)  repeated
 :USAGE: "Divider -"    to draw a horizontal divider using the   '-'   character repeated
@@ -21,8 +28,36 @@ rem CONFIGURATION:
         rem                 ^ our default divider is '=', the equal symbol
 
 
+
+
+rem After this script was developed, pre-rendered horizontal dividers were created [for use with top-message.bat]
+rem As of 2024/10/18, we now try to use the pre-rendered dividers before drawing our own. It is ***MUCH*** faster.
+        set WIDTH_TO_USE=%@EVAL[%_columns - 1]
+        if "" != "%1" .and. %1 lt 999999 set WIDTH_TO_USE=%1
+        set RAINBOW_DIVIDER_FILE=%bat%\dividers\rainbow-%WIDTH_TO_USE%.txt
+        iff exist %RAINBOW_DIVIDER_FILE% then
+                iff 1 ne %validated_divider_env then
+                        if "" eq "%@FUNCTION[ansi_move_to_col]" (function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`)
+                        if not defined NEWLINE                  (set NEWLINE=%@char[12]%@char[13])
+                        set validated_divider_env=1
+                endiff
+
+                rem First, move to column 0... Yes, this means we will overwrite things. This is by design.
+                echos %@ANSI_MOVE_TO_COL[1]
+                type %RAINBOW_DIVIDER_FILE%
+                rem   Okay this is weird. I keep getting "stuck" because the generated 
+                rem   dividers don't have newlines at the end! So let's force one:
+                if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                goto :Done
+        endiff
+
+
+
+
+
+
 rem Respond to parameters [if any]:
-        set DIVIDER_PARAM1=%1
+        if "%1" ne "NoNewLine" set DIVIDER_PARAM1=%1
         if defined USE_THIS_DIVIDER (
             set DIVIDER_PARAM1=%USE_THIS_DIVIDER%
             unset /q USE_THIS_DIVIDER
@@ -39,6 +74,9 @@ rem Respond to parameters [if any]:
         if "%2" eq "big" .or. "%DIVIDER_PARAM1%" eq "big" (set BIG=1)
 
 
+
+
+
 rem Our divider could be any length, and our screen could have any number of columns,
 rem so we must determine how many times we must repeat our divider to fill the line,
 rem all while considering that double-height lines use 2 columns per character:
@@ -46,28 +84,10 @@ rem all while considering that double-height lines use 2 columns per character:
         if "%1" ne "" (set SCREEN_COLUMNS=%1)        
         if %BIG eq  1 (set SCREEN_COLUMNS=%@EVAL[%SCREEN_COLUMNS / 2])
         set DIVIDER_LENGTH=%@LEN[%DIVIDER]
+        rem echo sc=%screen_columns% divid_len=%divider_length% divider=“%divider%”
         set NUM_REPEATS=%@EVAL[%SCREEN_COLUMNS / %DIVIDER_LENGTH]
 
 
-
-rem After this script was developed, pre-rendered horizontal dividers were created [for use with top-message.bat]
-rem As of 2024/10/18, we now try to use the pre-rendered dividers before drawing our own. It is ***MUCH*** faster.
-        set RAINBOW_DIVIDER_FILE=%bat%\dividers\rainbow-%@EVAL[%SCREEN_COLUMNS - 1].txt
-        iff exist %RAINBOW_DIVIDER_FILE% then
-                iff 1 ne %validated_divider_env then
-                        if "" eq "%@FUNCTION[ansi_move_to_col]" (function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`)
-                        if not defined NEWLINE                  (set NEWLINE=%@char[12]%@char[13])
-                        set validated_divider_env=1
-                endiff
-
-                rem First, move to column 0... Yes, this means we will overwrite things. This is by design.
-                echos %@ANSI_MOVE_TO_COL[1]
-                type %RAINBOW_DIVIDER_FILE%
-                rem   Okay this is weird. I keep getting "stuck" because the generated 
-                rem   dividers don't have newlines at the end! So let's force one:
-                echos %NEWLINE%%@ANSI_MOVE_TO_COL[1]
-                goto :Done
-        endiff
 
 
 rem Actually write out the divider, which is easy for normal height text:

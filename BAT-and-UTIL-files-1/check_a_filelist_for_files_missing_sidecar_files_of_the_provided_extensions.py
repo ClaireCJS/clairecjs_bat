@@ -75,7 +75,7 @@ def main(input_filename, extensions, options, extra_args):
 
     # Check if the input file exists
     if not os.path.exists(input_filename):
-        print(f"Error: The file '{input_filename}' does not exist.")
+        print(f"Error: The file '{input_filename}' does not exist." )
         sys.exit(1)
 
     # Parse the extensions
@@ -135,7 +135,7 @@ def main(input_filename, extensions, options, extra_args):
             sys.stderr.write(colored(f"       Without sidecar:  {without_sidecar_count} \n", 'green', attrs=['bold']))
             sys.stderr.write(colored(f"       To fix, run:      {output_filename} \n", 'green', attrs=['bold']))
 
-            if extra_args: print(f"Using extra arguments of: {extra_args}")
+            #DEBUG: if extra_args: print(f"Using extra arguments of: {extra_args}")
 
 
             # run any special postprocessing we've created, usually to create scripts to deal with files that are missing sidecar files
@@ -177,6 +177,6 @@ if __name__ == "__main__":
         extra_args = sys.argv[4:]
         extra_args_str=  ' '.join(extra_args)
 
-    #print(f"- DEBUG: Extra args are: '{extra_args_str}'")
+    #    print(f"- DEBUG: Extra args are: '{extra_args_str}'") #🐐
 
     main(input_filename, extensions, options, extra_args_str)

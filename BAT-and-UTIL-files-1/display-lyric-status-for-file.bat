@@ -5,7 +5,7 @@ rem Get parameters:
         set Lyric_File_To_Display_Status_Of=%@unquote[%1]                                               %+ rem Lyric file to use 
         set PARAM_2=%2
         set PARAM_3=%3
-        iff "%PARAM_3%" eq "skip_validations" then
+        iff "%PARAM_3%" eq "skip_validations"  .or. "%PARAM_2%" eq "skip_validations" then
                 set skip_dlsff_validations=1
                 set validation_argument_to_use=skip_validations
         else
@@ -23,11 +23,11 @@ rem Validate environment:
 rem Validate parameters:
         if not exist "%Lyric_File_To_Display_Status_Of%" (call fatal_error  "1ˢᵗ arg to %italics_on%display-lyric-status%italics_off% must be a lyric file that exists and was “%lyric_file_to_display_status_of%”. 2ⁿᵈ optional arg can be “%italics_on%verbose%italics_off%”." %+ rem 3ʳᵈ  optional arg can be “%italics_on%lyriclessness%italics_off%”)
         
-        iff "%PARAM_2" eq "lyriclessness" then    %+ rem ...then we’re actually operating on a song file
-                if 1 ne %skip_dlsff_validations% call validate-is-extension "%Lyric_File_To_Display_Status_Of%" %FILEMASK_AUDIO% "Extension of the audio file must be one of “%FILEMASK_AUDIO%”%newline%[cmdline was “%0 %@unquote[%*]”]"
+        iff "%PARAM_2" eq "lyriclessness"  then    %+ rem ...then we’re actually operating on a song file
+                if 1 ne %skip_dlsff_validations% call validate-is-extension "%Lyric_File_To_Display_Status_Of%"  %FILEMASK_AUDIO% "Extension of the audio file must be one of “%FILEMASK_AUDIO%”%newline%[cmdline was “%0 %@unquote[%*]”]"
                 set  tag=lyriclessness
         else                
-                if 1 ne %skip_dlsff_validations% call validate-is-extension "%Lyric_File_To_Display_Status_Of%" *.txt            "Extension of the lyric file must be “.txt”%newline%%zzzzzzzzzzzzzzzzz%[cmdline was “%0 %@unquote[%*]”]"
+                if 1 ne %skip_dlsff_validations% call validate-is-extension "%Lyric_File_To_Display_Status_Of%" *.txt;*.srt;*.lrc;%FILEMASK_AUDIO% "Extension of the lyric file must be “.txt”%newline%%zzzzzzzzzzzzzzzzz%[cmdline was “%0 %@unquote[%*]”]"
                 set  tag=lyrics
         endiff                
 

@@ -47,7 +47,7 @@ rem If it's too wide  then simply revert back to echo'ing the command in normal/
 rem Get the maximum desired width (in normal size, not double size):
         rem MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-16] %+ rem fudge factor of 16 got past the windows terminal bug who's report i filed at https://github.com/microsoft/terminal/issues/18250
         set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS]    %+ rem But then the bug got fixed!
-        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS]    %+ rem 
+        set MAXIMUM_DESIRED_NORMAL_WIDTH=%@EVAL[%_COLUMNS-1]  %+ rem but then 2024/12/9 i noticed a linewrap on one that was 1 too long
 
 rem Now do the special handling if the message it too long
         rem OLD: iff not %MESSAGE_WIDTH_DOUBLE% lt %MAXIMUM_DESIRED_NORMAL_WIDTH%   then

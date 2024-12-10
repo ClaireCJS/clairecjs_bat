@@ -12,26 +12,26 @@
     set WIDTH=%@EVAL[%_COLUMNS - 1]
 
 	:CygWin_Banner_EXE
-        rem Double check that the EXE is actually there, since 
-        rem it isn't necessarily in a default cygwin installation:
-            set CYGWIN_BANNER=c:\cygwin\bin\banner.exe
-            if not exist %CYGWIN_BANNER% (goto :Standalone_Banner_EXE)
+                rem Double check that the EXE is actually there, since 
+                rem it isn't necessarily in a default cygwin installation:
+                    set CYGWIN_BANNER=c:\cygwin\bin\banner.exe
+                    if not exist %CYGWIN_BANNER% (goto :Standalone_Banner_EXE)
 
-        rem Use internal %_COLUMNS var to set width of banner
-            %CYGWIN_BANNER% -cO --width=%WIDTH% %* |:u8 sed -e "s/[^ ]/█/g"
-            rem # was our character for a long time, but O is more readable
+                rem Use internal %_COLUMNS var to set width of banner
+                    %CYGWIN_BANNER% -cO --width=%WIDTH% %* |:u8 sed -e "s/[^ ]/█/g" |:u8 copy-move-post
+                    rem # was our character for a long time, but O is more readable
 	goto :END
 
 	:Standalone_Banner_EXE
-        set                                 STANDALONE_BANNER=%UTIL%\banner.exe 
-        call validate-environment-variables STANDALONE_BANNER  UTIL  WIDTH
-        %STANDALONE_BANNER% -cO --w %WIDTH% %*
+                set                                 STANDALONE_BANNER=%UTIL%\banner.exe 
+                call validate-environment-variables STANDALONE_BANNER  UTIL  WIDTH
+                %STANDALONE_BANNER% -cO --w %WIDTH% %* | copy-move-post
 	goto :END
 
 	:DOS_Version
-        call warning "this doesn't work anymore"
-        %UTIL%\sayold.com %*
-        pause
+                call warning "this doesn't work anymore, including the sayold64.exe conversion in util2\obsolete"
+                %UTIL%\sayold.com %*
+                pause
 	goto :END
 
 :END

@@ -258,10 +258,14 @@ goto :Past_The_End_Of_The_Sub-Routines
                     set old=%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%
                     set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
                     call     warning  "    %@CHAR[55357]%@CHAR[56542]  Called By: %italics_on%%[_pbatchname]%italics_off%"      
-                    call     warning  "    %@CHAR[55357]%@CHAR[56542] Dir/Folder: %italics_on%%_CWD%italics_off%"              
+                    call     warning  "    %@CHAR[55357]%@CHAR[56542] Dir/Folder: %italics_on%%[_CWD]%italics_off%"              
                     call     warning  "    %@CHAR[55357]%@CHAR[56542] Parameters: %italics_on%%italics_on%%VEVPARAMS%%italics_off%%italics_off%" 
                     set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=%old%
-                    set USER_MESSAGE_TO_USE=%NEWLINE%%USER_MESSAGE%
+                    iff "%USER_MESSAGE%" ne "" then
+                        set USER_MESSAGE_TO_USE=%NEWLINE%%USER_MESSAGE%
+                    else
+                        set USER_MESSAGE_TO_USE=
+                    endiff
                     call fatal_error "“%italics_on%%@UPPER[%VARNAME%]%italics_off%” location does not exist: “%VARVALUE%”...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%" 
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

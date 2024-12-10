@@ -1,6 +1,7 @@
 @Echo off
  on break cancel
 
+rem TODO check lyric repository for LRC file (remember, “'” in title becomes “_”) ... if one exists copy over as sidecar file and auto approve it
 
 rem TODO if we’re doing lyrics, show downloaded lyrics *first* and if we found them change 1ˢᵗ question to “are these better than d/l version”-type question
 
@@ -10,7 +11,7 @@ rem 17
 rem 00:02:20,060 --> 00:02:21,060
 rem This should be default functionality of srt2lrc as well — the resulting lrc should have an empty at the end too
 rem So we must postprocess before we would ever even use srt2lrc
-rem     no need to include functoinality in srt2lrc as we’re not sure this will be a final part of the workflow
+rem     no need to include functionality in srt2lrc as we’re not sure this will be a final part of the workflow
 rem     plus, we need to run this on pre-existing SRTs
 
 rem TODO afterregen anyway, do we need to ask about ecc2fasdfasf.bat?
@@ -110,7 +111,7 @@ REM validate environment [once]:
         if not defined UnicodeOutputDefault (set UnicodeOutputDefault=no)
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
-                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl review-subtitles.bat  
+                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl review-subtitles.bat  error.bat print-message.bat
                 @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off
                 @call validate-environment-variables TRANSCRIBER_PDNAME skip_validation_existence
                 @call validate-is-function           randfg_soft
@@ -250,9 +251,6 @@ REM Determine our expected input and output files:
         rem EXPECTED_OUTPUT_FILE=%LRC_FILE%   %+ rem //This was for the 2023 version
         SET EXPECTED_OUTPUT_FILE=%SRT_FILE%
 
-
-
-
 REM if 2nd parameter is lyric file, use that one:
         iff exist "%POTENTIAL_LYRIC_FILE%" then
                 set TXT_FILE=%POTENTIAL_LYRIC_FILE%
@@ -272,9 +270,32 @@ REM display debug info
         gosub say_if_exists LRC_FILE
         gosub say_if_exists TXT_FILE
         gosub say_if_exists JSN_FILE
-        @echo.
+        gosub say_if_exists MAYBE_SRT_1
+        gosub say_if_exists MAYBE_SRT_2
 
 
+REM Earlier, we retrieved the values for MAYBE_SRT_[1|2] via probing the AUDIO_FILE via the shared probe code in get-lyrics-for-song.bat
+REM Now, let’s check these values:
+        iff exist "%@UNQUOTE[%MAYBE_SRT_1%]" .or. exist "%@UNQUOTE[%MAYBE_SRT_2%]" then
+                if exist "%@UNQUOTE[%MAYBE_SRT_2%]" set found_subtitle_file=%@UNQUOTE[%MAYBE_SRT_2%]
+                if exist "%@UNQUOTE[%MAYBE_SRT_1%]" set found_subtitle_file=%@UNQUOTE[%MAYBE_SRT_1%]
+                call divider
+                call bigecho      "%ansi_color_warning_soft%%star2%Already have!%ansi_reset%"
+                call warning_soft "Pre-existing subtitles found in lyric repository at: “%emphasis%%italics_on%%found_subtitle_file%%deemphasis%%italics_off%”" silent
+                call advice       "Copy this file to the local folder to remove it from our lyric transcription “todo” list" silent
+                call askYN        "Copy repository version to local folder as sidecar file?" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                iff "Y" == "%answer%" then
+                        set target=%@path[%@full[%songfile%]]%@name[%SONGFILE%].%@ext[%found_subtitle_file%]
+                        *copy /q "%found_subtitle_file%" "%target%" >&>nul
+                        if not exist "%target%" (call error "target of “%target%” should exist now, in create-srt-from-file line 289ish")
+                        call approve-subtitle-file "%target%"
+                        set srt_file=%target%
+                        @call success "“%italics_on%%SRT_FILE%%italics_off%” retrieved successfully!"
+                        title %CHECK% %SRT_FILE% retrieved successfully! %check%             
+                        goto :END
+                endiff
+        endiff
+rem e
 
 REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
         call validate-environment-variable INPUT_FILE
@@ -803,8 +824,8 @@ goto :Cleanup
                     endiff
                     %COLOR_IMPORTANT_LESS%
                             if %BOOL_DOES eq 0 (set DECORATOR_ON=  %strikethrough% %+ set DECORATOR_OFF=%strikethrough_off%)
-                            if %BOOL_DOES eq 1 (set DECORATOR_ON=%PARTY_POPPER%    %+ set DECORATOR_OFF=%PARTY_POPPER%     )
-                            @echos * %it% %does% exist%does_punctuation% %FAINT%%decorator_on%%filename%%decorator_off%%FAINT_OFF%
+                            if %BOOL_DOES eq 1 (set DECORATOR_ON=%PARTY_POPPER%%faint_off%    %+ set DECORATOR_OFF=%PARTY_POPPER%     )
+                            @echos * %@FORMAT[11,%it%] %does% exist%does_punctuation% %FAINT%%decorator_on% %filename% %decorator_off%%FAINT_OFF%
                     %COLOR_NORMAL%
                     @echo.
             return
@@ -828,15 +849,17 @@ rem Let user know if we were NOT succesful, then skip to the end:
 
 rem Cleanup:
         rem MiniLyrics will pick up a TXT file in the %lyrics% repo *instead* of a SRT file in the local folder
-        rem   for sure: in the case of %lyrics%\letter\<same name as audio file>.txt  ——— MAYBE_LYRICS_2
+        rem   for sure: in the case of %lyrics%\<first letter of artist name?>\<same name as audio file>.txt  ——— MAYBE_LYRICS_2
         rem      maybe: in the case of %lyrics%\letter\artist - title.txt             ——— MAYBE_LYRICS_1
         rem So we must delete at least the first one, if it exists.  We use our get-lyrics script in SetVarsOnly mode:
         rem moved to beginning: call get-lyrics-via-multiple-sources "%SONGFILE%" SetVarsOnly
         rem ...which sets MAYBE_LYRICS_1 and MAYBE_LYRICS_2
         rem echo %ansi_color_debug%- DEBUG: (7) Checking if exists: “%underline_on%%MAYBE_LYRICS_2%%underline_off%” for deprecation%ansi_color_normal%
+        set MAYBE_SRT_2=%@PATH[%maybe_lyrics_2]%@NAME[%MAYBE_LYRICS_2].lrc
+
         iff exist "%MAYBE_LYRICS_2%" then
                 rem call deprecate "%MAYBE_LYRICS_2%"
-                set NEWNAME=%@NAME[%MAYBE_LYRICS_2%].lyr
+                set NEWNAME=%@NAME[%MAYBE_LYRICS_2%].txt
                 iff exist "%NEWNAME%" then
                         call deprecate "%MAYBE_LYRICS_2%"
                         rem  deprecate changes the extension to ".dep"/".deprecated" and is just a way of almost-deleting files
@@ -866,7 +889,7 @@ rem A chance to edit:
                         rem @call divider
                         rem @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Lyrics%underline_off%:
                         rem (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
-                        (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
+                        call review-file "%TXT_FILE%" "Lyrics"
                 endiff
         endiff
         @call divider
@@ -896,7 +919,8 @@ rem Full-endeavor success message:
                         %EDITOR% "%TXT_FILE%" "%SRT_FILE%" 
                 endiff
         endiff
-        title %CHECK% %SRT_FILE% generated successfully! %check%             
+        title %CHECK% %SRT_FILE% generated successfully! %check%      
+        call approve-subtitle-file "%SRT_FILE%"
         if %SOLELY_BY_AI eq 1 (call warning "ONLY AI WAS USED. Lyrics were not used for prompting")
 
 :END

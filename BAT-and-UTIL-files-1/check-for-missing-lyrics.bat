@@ -38,25 +38,27 @@ rem If we were supplied a filename, process it as a list of files:              
                 if "%1" eq "get" .or. "%2" eq "get" (set GET=1)                                    %+ rem if "get" was passed, we are actually going to run the script that this script generates. Adjust the flag for that               
                 iff "%1" eq "get" then                                                             %+ rem if "get" was passed without a filename, we are actually NOT in filelist mode
                         if "%1" eq "get" (set FILELIST_MODE=0)                                     %+ rem if "get" was passed without a filename, we are actually NOT in filelist mode 
-                        if "%1" eq "get" (set FILELIST_TO_USE=)                                    %+ rem if "get" was passed without a filename, we are actually NOT in filelist mode 
+                        if "%1" eq "get" (set Filelist_to_Check_for_Missing_Lyrics_in=)            %+ rem if "get" was passed without a filename, we are actually NOT in filelist mode 
                 else                                                                               %+ rem if "get" was passed  *WITH* a filename...
                         set  FILELIST_MODE=1                                                       %+ rem       ...set our operational mode flag appropriately...
-                        set  FILELIST_TO_USE=%1                                                    %+ rem       ...store the filename parameter for later...
-                        call validate-environment-variable FILELIST_TO_USE                         %+ rem       ...and make sure the filename is a file that actually exists
+                        set  Filelist_to_Check_for_Missing_Lyrics_in=%@UNQUOTE[%1]                 %+ rem       ...store the filename parameter for later...
+                        call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
                 endiff                
         else                                                                                       %+ rem If run without parameters...
-                set  FILELIST_TO_USE=                                                              %+ rem       ...we are not using a fileist, so make sure that variable is empty
+                set  Filelist_to_Check_for_Missing_Lyrics_in=                                      %+ rem       ...we are not using a fileist, so make sure that variable is empty
                 set  FILELIST_MODE=0                                                               %+ rem       ...we are not using a fileist, so make sure the proper operational flag is set
         endiff                       
-        rem DEBUG: echo filelist_to_use=%filelist_to_use% filelist_mode=%filelist_mode%            %+ rem Debug
+        rem DEBUG: echo Filelist_to_Check_for_Missing_Lyrics_in=%Filelist_to_Check_for_Missing_Lyrics_in% filelist_mode=%filelist_mode% %+ pause   %+ rem Debug
         
         
 rem Go through each audio file, seeing if it lacks approved lyrics:
         set ANY_BAD=0                                                                              %+ rem Track if we found *any* bad files at all
         call set-tmpfile                                                                           %+ rem Sets temporary file to %tmpFile
         iff 0 eq %FILELIST_MODE% then 
-                for %%AudioFile in (  %FILEMASK_AUDIO%  ) do (gosub process_file "%AudioFile%")    %+ rem If we are processing the current folder, look there for audio files, and add lines generating the missing lyrics (if any found) to %tmpFile
-        else    for %%AudioFile in (@"%FILELIST_TO_USE%") do (gosub process_file "%AudioFile%")    %+ rem If we are processing a playlist, look  through  it  for audio files, and add lines generating the missing lyrics (if any found) to %tmpFile
+                for %%AudioFile in (  %FILEMASK_AUDIO%                          ) do (gosub process_file "%AudioFile%")    %+ rem If we are processing the current folder, look there for audio files, and add lines generating the missing lyrics (if any found) to %tmpFile
+        else    
+                rem Why am I not using my sidecar checker? This is what it’s made for: TODO: 🐐
+                for %%AudioFile in (@"%Filelist_to_Check_for_Missing_Lyrics_in%") do (gosub process_file "%AudioFile%")    %+ rem If we are processing a playlist, look  through  it  for audio files, and add lines generating the missing lyrics (if any found) to %tmpFile
         endiff
         
         iff 1 eq %ANY_BAD% then                                                                    %+ rem We generate a script to find the missing ones, but if and only if some missing ("bad") ones were found
@@ -74,8 +76,13 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
                 endiff
         endiff
         
+        
+        
+rem ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        
         goto :process_file_end                                                                     %+ rem Skip over subroutines
              :process_file [AudioFile]
+                     if "%@LEFT[8,%@UNQUOTE[%AudioFile%]]" == "#EXTINF:" return
                      set textfile=%@UNQUOTE[%@name[%@UNQUOTE[%AudioFile%]].txt]                    %+ rem Create the filename of the lyric file that we will be looking for
                      set BAD=1                                                                     %+ rem Song is considered "bad" [does not have approved lyrics], until we find the accompanying files and mark it as "good"
                      iff exist "%textfile%" then                                                   %+ rem If the lyric file exists, we must check if it is approved
@@ -98,12 +105,13 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
                      iff 1 eq %BAD% then
                              set ANY_BAD=1
                              echo %EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%%@unquote[%AudioFile%] %+ rem currently has quotes
-                             echo repeat 20 echo. `%`+ call get-lyrics "%@UNQUOTE[%AudioFile%]" >>"%tmpfile%"
+                             echo repeat 20 echo. `%`+ call get-lyrics "%@UNQUOTE[%AudioFile%]" >>:u8"%tmpfile%"
                      endiff                        
                      rem DEBUG: echo %ansi_color_normal%* Checking %faint_on%%AudioFile%%faint_off% %@ansi_move_to_col[65] textfile=%faint_on%%textfile%%faint_off% %tab% %@ANSI_MOVE_TO_COL[125]%coloring%EXISTS=%txt_exists%%ansi_color_normal%   %coloring2%APPROVED=%LYRIC_APPROVAL_VALUE%
              return
         :process_file_end
 
+rem ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
 :END

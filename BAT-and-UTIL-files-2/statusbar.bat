@@ -1,0 +1,1 @@
+@call status-bar.bat %*

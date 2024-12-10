@@ -2,6 +2,15 @@
 rem on break cancel
 set onbreak=goto:END
 
+
+
+:DESCRIPTION: This is not intended as a general file reviewer:
+:DESCRIPTION:           It does things. 
+:DESCRIPTION:           It removes lines from SRT files so that you are reviewing ONLY the subtitles.
+:DESCRIPTION:           This could cause unintended results when used for general file reviewing.
+
+
+
 rem Config:
         set our_filemask=*.srt;*.lrc
 

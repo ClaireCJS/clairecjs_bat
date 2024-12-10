@@ -74,7 +74,7 @@ rem Get parameters:
 
 rem Validate environment once:
         iff 1 ne %validated_add_ads_tag_to_file% then
-                call validate-environment-variables  emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off check EMOJI_CROSS_MARK ansi_color_alarm ansi_color_celebration ansi_color_warning_soft EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_RED_QUESTION_MARK
+                call validate-environment-variables  emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off check EMOJI_CROSS_MARK ansi_color_alarm ansi_color_celebration ansi_color_warning_soft EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_RED_QUESTION_MARK ansi_conceal_on ansi_conceal_off
                 call validate-in-path                fatal_error warning 
                 set  validated_add_ads_tag_to_file=1
         endiff
@@ -87,14 +87,16 @@ rem Validate parameters every time:
         if "%1" EQ "" (gosub :usage %+ goto :END)
         rem add-ADS-tag-to-file "2_08_Ikon - The Ballad Of Gilligan's Island.txt" "lyrics" read lyrics skip_validatoins
         if "%5" eq "skip_validations" (goto :skip_validations_1)
-        call validate-environment-variable File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
-        call validate-environment-variable Tag_To_Modify          "2ⁿᵈ argument to %0 must a tag, NOT empty"
-        call validate-environment-variable Tag_Value              "3ʳᵈ argument to %0 must a value, or 'read' ... NOT empty"
+        call validate-environment-variable  File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
+        call validate-environment-variables Tag_To_Modify          Tag_Value              
+        rem call validate-environment-variable Tag_To_Modify          "2ⁿᵈ argument to %0 must a tag, NOT empty"
+        rem call validate-environment-variable Tag_Value              "3ʳᵈ argument to %0 must a value, or 'read' ... NOT empty"
         :skip_validations_1
         if "%PARAM_4%" ne "" .and. "%PARAM_4%" ne "verbose" .and. "%PARAM_4%" ne "remove" .and. "%PARAM_4%" ne "brief" .and. "%PARAM_4%" ne "lyrics" .and. "%PARAM_4%" ne "lyric" (call fatal_error "There shouldn't be a 4th parameter of this value being sent to %0 {called by %_PBATCHNAME}, but you gave '%italics_on%%PARAM_4%%italics_off%'. Run without parameters to understand proper usage.")
         
 rem Set default values for parameters:
-        set VERBOSE=0
+        set EXT=%@EXT[%File_To_Change_Tag_Of]
+                set VERBOSE=0
         set BRIEF_MODE=0
         set LYRIC_MODE=0
         rem echo tail=%*
@@ -102,10 +104,24 @@ rem Set default values for parameters:
         if "%PARAM_4%"       eq "lyricslessness" (set LYRIC_MODE=1)                    
         if "%PARAM_4%"       eq "lyric"          (set LYRIC_MODE=1)                    
         if "%PARAM_4%"       eq "lyrics"         (set LYRIC_MODE=1)                    
+        rem DEBUG: echo lyric_mode=%lyric_mode% %emoji_cat%
         if "%PARAM_4%"       eq "brief"          (set BRIEF_MODE=1)           
         if "%PARAM_4%"       eq "verbose"        (set    VERBOSE=1)         
         if "%TAG_VALUE%"     eq        ""        (set TAG_TO_MODIFY=value)             %+ rem setting dummy value in case of failure
         if "%TAG_TO_MODIFY%" eq        ""        (set TAG_TO_MODIFY=tag  )             %+ rem setting dummy value in case of failure
+        
+        rem Lyric mode stuff:
+                set ENTITY=Lyrics
+                set VERB2=are
+                if "%EXT%" == "lrc"  (set VERB2=is  %+ set ENTITY=Karaoke)
+                if "%EXT%" == "srt"  (set VERB2=are %+ set ENTITY=Subtitles)
+                if "%EXT%" == "txt"  (set VERB2=are %+ set ENTITY=Lyrics)
+                if "%EXT%" == "mp3"  (set VERB2=is  %+ set ENTITY=Audio)
+                if "%EXT%" == "flac" (set VERB2=is  %+ set ENTITY=Audio)
+                if "%EXT%" == "wav"  (set VERB2=is  %+ set ENTITY=Audio)
+                set emj1=%@CHAR[55357]%@CHAR[56546]
+                set emj2=%@CHAR[55357]%@CHAR[56541]
+        
         
 rem Determine verb clause to use —— looks best if they are >8 chars each though!
         set VERB=Set value to:
@@ -171,6 +187,9 @@ rem Read or set (depending on invocation) via windows alternate data streams:
 goto :END
 
         :explain
+                rem DEBUG:
+                        rem echo [OPERATIONAL_MODE=%OPERATIONAL_MODE%, lyric_mode=%lyric_mode%]
+                
                 rem If we are in verbose mode, explain what we did:
                         set tmp_value=%[value_to_display_in_verbose_mode]
                         iff "" eq "%tmp_value%" then
@@ -179,21 +198,28 @@ goto :END
                         else
                                 set was_null=0
                         endiff                                
-                        
+
+                rem Initialize values                        
                         set tmp_tag=%[TAG_TO_MODIFY]
                         set tmp_file2use=%[File_To_Change_Tag_Of]
+                        set ext2=%@EXT[%tmp_file2use]
                         set tmp_emoji2use=%CHECK%           
 
-                        rem echo [verbose=%verbose,brief_mode=%brief_mode%,lyric_mode=%lyric_mode%]
+                rem DEBUG: echo [verbose=%verbose,brief_mode=%brief_mode%,lyric_mode=%lyric_mode%]
                         
+                rem Verbose mode output:                        
                         iff 1 eq %VERBOSE then
                                 echo %tmp_emoji2use% %VERB% %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% 
                                 echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%for%faint_off% tag: %ansi_color_bright_red%%bold_on%%tmp_tag%%bold_off%%ansi_normal%
                                 echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%in%faint_off% file: %@ANSI_FG_RGB[168,210,104]%tmp_file2use%%ansi_color_normal%
                         endiff                              
+
+                rem Brief mode output:                        
                         iff 1 eq %BRIEF_MODE then
-                                echo %tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                                echo %ansi_color_green%%tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
                         endiff
+                        
+                rem Lyrics mode output:                        
                         iff 1 eq %LYRIC_MODE then
                                 set  value_spacer=
                                 set  value_spacer_post=
@@ -222,19 +248,68 @@ goto :END
                                         set tmp_emoji2use=%EMOJI_EXCLAMATION_QUESTION_MARK%          
                                 endiff
                                 
-                                iff "%OPERATIONAL_MODE%" ne "READ" then
-                                        echo %tmp_emoji2use% Set %bold_on%%italics_on%%tmp_tag%%italics_off%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
-                                        
+                                rem if "%ext2%" eq "lrc" .or. "%ext2%" eq "srt" (
+                                rem         set ENTITY=Karaoke 
+                                rem         set VERB2=is
+                                rem ) else (
+                                rem         if "%EXT2%" eq "txt" (                                                        
+                                rem                 set ENTITY=Lyrics
+                                rem         )                                                                
+                                rem )
+
+                                rem echo HERE! %tmp_value OPERATIONAL_MODE=%OPERATIONAL_MODE% ext2=%ext2% entity==%entity% LYRIC_MODE=%LYRIC_MODE%
+
+                                rem "%OPERATIONAL_MODE%" ne "READ"                           then
+                                iff "%OPERATIONAL_MODE%" ne "READ" .and. 1 ne %LYRIC_MODE% then
+                                        echo %tmp_emoji2use% Set %bold_on%%italics_on%%tmp_tag%%italics_off%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%                                        
                                 else %+ rem it is a lyric mode:
-                                rem echo tag_to_modify=%tag_to_modify%
+
+                                
+                                        rem echo tag_to_modify=%tag_to_modify%
+                                        set hide_status=0
                                         iff "%tag_to_modify%" eq "lyriclessness" .or. "%tag_to_modify%" eq "lyricslessness" then
-                                                set EXTRA=%ansi_color_red%No lyrics.%ansi_color_normal% Lyriclessness is
+                                                set our_maybe_subtitle_1=%@NAME[%tmp_file2use].lrc
+                                                set our_maybe_subtitle_2=%@NAME[%tmp_file2use].srt
+                                                set our_maybe_lyrics=%@NAME[%tmp_file2use].txt
+                                                iff     exist "%our_maybe_subtitle_1%" .or. exist "%our_maybe_subtitle_2%" then
+                                                        set EXTRA=%ansi_color_bright_green%Has karaoke! %ansi_color_normal%
+                                                        set hide_status=1
+                                                elseiff exist "%our_maybe_lyrics%" then                                                
+                                                        set hide_status=1
+                                                        set EXTRA=%ansi_color_bright_YELLOW%Has lyrics!%ansi_color_normal%%faint_on%..%faint_off%
+                                                else
+                                                        set hide_status=0
+                                                        set EXTRA=%ansi_color_red%No lyrics!...%ansi_color_normal%
+                                                endiff                                                        
                                                 set value_spacer=``
+                                                set EXTRA=%EXTRA% Lyriclessness is
                                         else
-                                                set EXTRA=%ansi_color_green%Lyrics exist%ansi_color_normal% ... Lyrics are 
+                                                rem echo [ext2=%ext2%]
+                                                if "%ext2%" eq "lrc" .or. "%ext2%" eq "srt" (
+                                                        set ENTITY=Karaoke 
+                                                        set VERB2=is
+                                                        set EXTRA=%@ansi_move_left[3]%ansi_color_green%%emj1% %ENTITY% %emj1% file.... %ansi_color_normal%
+                                                ) else (
+                                                        if "%EXT2%" eq "txt" (                                                        
+                                                                set ENTITY=Lyrics
+                                                                set EXTRA=%@ansi_move_left[3]%ansi_color_green%%emj2% %ENTITY% %emj2% file..... %ansi_color_normal%
+                                                        ) else (
+                                                                set EXTRA=%ansi_color_green%%ENTITY% exist
+                                                                if "is" eq "%VERB2%" set EXTRA=%EXTRA%s
+                                                                set EXTRA=%EXTRA%%ansi_color_normal%...
+                                                        )                                                                
+                                                )
+                                                set EXTRA=%EXTRA%%ENTITY% %VERB2% 
                                                 set value_spacer=``
                                         endiff
-                                        echo %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %EXTRA% %value_spacer%%tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use% %value_spacer_post% for: %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                                        
+                                        echos %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %EXTRA% %value_spacer%
+                                        iff 1 ne %HIDE_STATUS then
+                                                echos  %tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use%
+                                        else                                                
+                                                echos %@ANSI_MOVE_LEFT[18]%faint_on%....................................%faint_off%``
+                                        endiff
+                                        echo %value_spacer_post% for: %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
                                 endiff
                         endiff
         return

@@ -1,4 +1,4 @@
-##IDEA: a maximum threshold where if it's less than that, the next line is considered part of the previous line.
+###🤔IDEA: a maximum threshold where if it's less than that, the next line is considered part of the previous line.
 #Basically, make the resultant TXT file not be limited to the width of the SRT file, which is often 20-25 chars.
 
 import sys                                                                                         # Import sys module for system-specific parameters

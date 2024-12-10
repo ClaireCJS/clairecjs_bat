@@ -62,13 +62,15 @@ rem Debug info:
 
 
 rem If the filelist doesn't exist...
-        call mp3index   >:u8these.m3u
-        call mp3index/s >:u8all.m3u
+        if not exist these.m3u call mp3index   >:u8these.m3u
+        if not exist   all.m3u call mp3index/s   >:u8all.m3u
 
 rem Check for songs missing sidecar TXT files :
         rem echo.
         rem fast_cat fixes ANSI rendering errors between TCC/WT:
-        (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite  |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
+        rem (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite  |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
+        rem Trying to pass on “ai” parameter:
+        (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
 
 rem While we're here, do some cleanup:
         iff exist *.json then

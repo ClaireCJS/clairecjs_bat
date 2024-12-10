@@ -11,17 +11,17 @@ rem USAGE:
         endiff
 
 rem VALIDATE ENVIRONMENT:
-        iff 1 ne %VALIDATED_GLFP then
+        iff 1 ne    %validated_glfp then
                 call validate-in-path check-for-missing-lyrics.bat
-                set  VALIDATED_GLFP=1
+                set  validated_glfp=1
         endiff
         
 rem GRAB + VALIDATE PARAMETER IS A M3U/TXT file:
-        set FILELIST_TO_USE=%1
-        call validate-environment-variable FILELIST_TO_USE
-        call validate-is-extension       "%FILELIST_TO_USE%" *.m3u;*.txt  "1ˢᵗ parameter to %0 must be of .m3u or .txt extension"
+        set                                 FILELIST_TO_USE=%@unquote[%1]
+        call validate-environment-variable  FILELIST_TO_USE
+        call validate-is-extension        "%FILELIST_TO_USE%" *.m3u;*.txt  "1ˢᵗ parameter to %0 must be of .%underline_on%m3u%underline_off% or .%underline_on%txt%underline_off% extension"
  
  rem Go through the file and check for missing lyrics:
-        call check-for-missing-lyrics.bat %FILELIST_TO_USE% get
+        call check-for-missing-lyrics.bat "%FILELIST_TO_USE%"   get
          
 :END        

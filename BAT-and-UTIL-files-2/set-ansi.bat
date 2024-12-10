@@ -738,10 +738,49 @@ REM DEC drawing font support:
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+REM ANSI: newly-unsupported in Windows Terminal, 2024ish:
+        rem OSC 2 command to set title, but never bothered here because TCC has a 'title' command
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+REM ANSI: unsupported in Windows Terminal:
+        set      UNSUPPORTED_SET_UNDERLINE_COLOR=%ANSI_CSI%58;2;255,0,0m %+ REM set underline color to red
+        set               UNSUPPORTED_NUMLOCK_ON=%ANSI_CSI%?108h
+        set              UNSUPPORTED_NUMLOCK_OFF=%ANSI_CSI%?108l
+        set             UNSUPORTED_RUN_ALL_TESTS=%ANSI_CSI%4;0y
+        set        UNSUPPORTED_ANSI_DEFAULT_FONT=%ANSI_CSI%10m
+        set          UNSUPPORTED_ANSI_ALT_FONT_1=%ANSI_CSI%11m
+        set          UNSUPPORTED_ANSI_ALT_FONT_2=%ANSI_CSI%12m
+        set          UNSUPPORTED_ANSI_ALT_FONT_3=%ANSI_CSI%13m
+        set          UNSUPPORTED_ANSI_ALT_FONT_4=%ANSI_CSI%14m
+        set          UNSUPPORTED_ANSI_ALT_FONT_5=%ANSI_CSI%15m
+        set          UNSUPPORTED_ANSI_ALT_FONT_6=%ANSI_CSI%16m
+        set          UNSUPPORTED_ANSI_ALT_FONT_7=%ANSI_CSI%17m
+        set          UNSUPPORTED_ANSI_ALT_FONT_8=%ANSI_CSI%18m
+        set          UNSUPPORTED_ANSI_ALT_FONT_9=%ANSI_CSI%19m
+        set              UNSUPPORTED_ANSI_GOTHIC=%ANSI_CSI%20m
+        set                   UNSUPPORTED_FRAMED=%ANSI_CSI%51m
+        set                UNSUPPORTED_ENCIRCLED=%ANSI_CSI%52m
+        set       UNSUPPORTED_FRAME_ENCIRCLE_OFF=%ANSI_CSI%54m
+        function   UNSUPPORTED_SET_WARN_BELL_VOL=`%@CHAR[27][%1 t`              %+ rem 1/0/None=Off, 2-4=low, 5-8=high
+        function UNSUPPORTED_SET_MARGIN_BELL_VOL=`%@CHAR[27][%1 u`              %+ rem 1=Off, 2-4=low, None,0,5-8=high
+        function  ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%2H`            %+ rem Windows Terminal 2024 doesn't support this official code................
+        function  ANSI_MOVE_TO_COORDINATE=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem    .........so instead, we reduce into 2 separate commands internally 😎
+        function             ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem alias
+
+        set UNSUPPORTED_MAP_A_TO_Z=%ANSI_DCS%"y1/7A/7A/7A/7A/7A/7A/-%ANSI_ST%   %+ rem Windows Terminal 2024 doesn't seem to support this 😢
+
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
 REM ANSI: margin-setting / anti-scroll areas
         rem echos %@RANDCURSOR[]
         rem Cordoning off rows:
                 rem Want to   lock the top  5 rows from scrolling?  echos @%ANSI_LOCK_TOP_ROWS[5]
+                        function       ANSI_LOCK_BOT_ROW=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][1;1r%@CHAR[27]8%@CHAR[27][u`
+                        
+rem echo %ANSI_POSITION_SAVE%%@ANSI_MOVE_TO[666,1]*** %_DATETIME *** %ANSI_POSITION_RESTORE% And we’re back at %_DATETIME...%@CHAR[27]7%@CHAR[27][s%@CHAR[27][1;2r%@CHAR[27]8%@CHAR[27][u
+                             
                         function      ANSI_LOCK_TOP_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%@EVAL[%1+1];%[_rows]r%@CHAR[27]8%@CHAR[27][u`
                         function ANSI_UNLOCK_LOCKED_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
                         set      ANSI_UNLOCK_LOCKED_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
@@ -788,40 +827,6 @@ REM ANSI: margin-setting / anti-scroll areas
                                   rem %@CHAR[27]7%@CHAR[27][s%@CHAR[27][%@EVAL[%1+1];%[_rows]r%@CHAR[27]8%@CHAR[27][u`
         rem A proof-of-concept function that makes us end up with cordoned off columns on both sides in a random color without disturbing your cursor location very much ... Very dramatic:
                 function ANSI_COLOR_SIDE_COLS=`%ANSI_SAVE_POSITION%%@ANSI_RANDBG[]%ANSI_CLS%%@ANSI_LOCK_COLS[%1]%ANSI_RESTORE_POSITION%%@ANSI_MOVE_UP[2]%@ANSI_MOVE_RIGHT[%1]`
-
-rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-REM ANSI: newly-unsupported in Windows Terminal, 2024ish:
-        rem OSC 2 command to set title, but never bothered here because TCC has a 'title' command
-
-rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-REM ANSI: unsupported in Windows Terminal:
-        set      UNSUPPORTED_SET_UNDERLINE_COLOR=%ANSI_CSI%58;2;255,0,0m %+ REM set underline color to red
-        set               UNSUPPORTED_NUMLOCK_ON=%ANSI_CSI%?108h
-        set              UNSUPPORTED_NUMLOCK_OFF=%ANSI_CSI%?108l
-        set             UNSUPORTED_RUN_ALL_TESTS=%ANSI_CSI%4;0y
-        set        UNSUPPORTED_ANSI_DEFAULT_FONT=%ANSI_CSI%10m
-        set          UNSUPPORTED_ANSI_ALT_FONT_1=%ANSI_CSI%11m
-        set          UNSUPPORTED_ANSI_ALT_FONT_2=%ANSI_CSI%12m
-        set          UNSUPPORTED_ANSI_ALT_FONT_3=%ANSI_CSI%13m
-        set          UNSUPPORTED_ANSI_ALT_FONT_4=%ANSI_CSI%14m
-        set          UNSUPPORTED_ANSI_ALT_FONT_5=%ANSI_CSI%15m
-        set          UNSUPPORTED_ANSI_ALT_FONT_6=%ANSI_CSI%16m
-        set          UNSUPPORTED_ANSI_ALT_FONT_7=%ANSI_CSI%17m
-        set          UNSUPPORTED_ANSI_ALT_FONT_8=%ANSI_CSI%18m
-        set          UNSUPPORTED_ANSI_ALT_FONT_9=%ANSI_CSI%19m
-        set              UNSUPPORTED_ANSI_GOTHIC=%ANSI_CSI%20m
-        set                   UNSUPPORTED_FRAMED=%ANSI_CSI%51m
-        set                UNSUPPORTED_ENCIRCLED=%ANSI_CSI%52m
-        set       UNSUPPORTED_FRAME_ENCIRCLE_OFF=%ANSI_CSI%54m
-        function   UNSUPPORTED_SET_WARN_BELL_VOL=`%@CHAR[27][%1 t`              %+ rem 1/0/None=Off, 2-4=low, 5-8=high
-        function UNSUPPORTED_SET_MARGIN_BELL_VOL=`%@CHAR[27][%1 u`              %+ rem 1=Off, 2-4=low, None,0,5-8=high
-        function  ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%2H`            %+ rem Windows Terminal 2024 doesn't support this official code................
-        function  ANSI_MOVE_TO_COORDINATE=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem    .........so instead, we reduce into 2 separate commands internally 😎
-        function             ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem alias
-
-        set UNSUPPORTED_MAP_A_TO_Z=%ANSI_DCS%"y1/7A/7A/7A/7A/7A/7A/-%ANSI_ST%   %+ rem Windows Terminal 2024 doesn't seem to support this 😢
 
 
 
@@ -922,8 +927,8 @@ rem ANIS: enhanced resetting
                     set ANSI_RESETTER_DEFAULT_FG_BG_COLORS=%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/00/01%@CHAR[27]\%@CHAR[27]]10;rgb:c0/c0/c1%@CHAR[27]\
                     rem 4) But as of Windows Terminal Preview v1.22.2702.0 (2024), “RIS (ESC c) will now return the color scheme to your preferred default if the application has modified it”
 
-                    rem Tried this on 2024/12/06 but it also clears the screen!
-                    ANSI_COLOR_RESETTER_BETA=%@CHAR[27]c
+                    ANSI_HARD_TERMINAL_RESET=%@CHAR[27]c   %+ rem clears the screen, scrollback buffer, everything
+                    ANSI_SOFT_TERMINAL_RESET=%@CHAR[27][!p %+ rem 
                     rem ANSI_RESETTER_DEFAULT_FG_BG_COLORS=%ANSI_RESETTER_DEFAULT_FG_BG_COLORS%%ANSI_COLOR_RESETTER_BETA%
                     
 
@@ -1037,14 +1042,14 @@ rem ************* TOYS: BEGIN: *************
 
         rem 𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘 
         rem Change a single digit into the cool version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' [[[cool_1,cool_2,...,cool_9 (and some random characters, like COOL_S) are defined in emoji.env]]]: 
-                function  cool_digit_plain=`%[cool_%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
-                function  cool_digit_plain=`%@if[defined %[cool_%1],%[cool_%1],%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
-                function  cool_char_plain=`%@if[%1==" ",%@if[defined cool_%1,%[cool_%1],%1]`      %+ rem VERY limited. Can't use letters. Can't use chars not valid in env var names.
+                rem tion  cool_digit_plain=`%[cool_%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
+                function  cool_digit_plain=`%@if["" != %[cool_%1],%[cool_%1],%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
+                function  cool_char_plain=`%@if[%1==" ",%@if["" != cool_%1,%[cool_%1],%1]`      %+ rem VERY limited. Can't use letters. Can't use chars not valid in env var names.
 
                 rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩
                 rem Now do it in a random color also:
                         function       cool_digit=`%@randfg_soft[]%[cool_%1]`
-                        function  cool_char_plain=`%@randfg_soft[]%@if[defined cool_%1,%[cool_%1],%1]`              
+                        function  cool_char_plain=`%@randfg_soft[]%@if["" != cool_%1,%[cool_%1],%1]`              
 
                 rem 𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘 
                 rem Change many digits into the cool version of each digit:
@@ -1084,7 +1089,7 @@ rem ************* TOYS: BEGIN: *************
         rem 𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬 𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬  𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬  𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬  𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬  𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬 
         rem Change a single digit into the "sans serif" version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' [[[sans_serif_1,sans_serif_2,...,sans_serif_9 (and possibly later some random characters, like sans_serif_S for example) are defined in emoji.env]]]: 
                 function  sans_serif_digit_plain=`%[sans_serif_%1]`                                                %+ rem sans_serif_0 through sans_serif_9 (and some random characters, like sans_serif_S) are defined in emoji.env      
-                function  sans_serif_char_plain=`%@if[%1==" ",%@if[defined sans_serif_%1,%[sans_serif_%1],%1]`      %+ rem ...but let's allow ANY character to have a 'cool' version in emoji.env, though it's questionable how useful this is with environment variable naming limitations and case insensitivity
+                function  sans_serif_char_plain=`%@if[%1==" ",%@if["" != sans_serif_%1,%[sans_serif_%1],%1]`      %+ rem ...but let's allow ANY character to have a 'cool' version in emoji.env, though it's questionable how useful this is with environment variable naming limitations and case insensitivity
 
         rem Now do it for an entire string:
         rem Hello! 𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬 
@@ -1123,20 +1128,20 @@ rem ************* TOYS: BEGIN: *************
                         function  cursive_plain=`%@cursive_string[%1$]`
 
                 rem 🌈🌈🌈 Cursive any string, but in rainbow: 🌈🌈🌈
-                        function cursive_string_colorful=`%@colorful_string[%@cursive_string[%1$]]%ansi_reset%`
+                        function cursive_string_colorful=`%@colorful_string[%@cursive_string[%@UNQUOTE[%1$]]]%ansi_reset%`
                         function  cursive_string_rainbow=`%@cursive_string_colorful[%1$]`
 
                 rem Set our main cursive function —— using the colorful one honestly helps distinguish the awkawrdly-kerned, non-ligatured cursive rendering:
-                        function cursive=`%@cursive_string_colorful[%1$]`
+                        function cursive=`%@cursive_string_colorful[%@unquote[%1$]]`
 
                 rem Testing:
                     goto :testing_skip_1
-bigecho %@cursive_lower[A] %@cursive_lower[a] %@cursive_lower[1] %@cursive_lower[Heinz 57 VARIETY]
-bigecho %@cursive_upper[A] %@cursive_upper[a] %@cursive_upper[1] str:%@cursive_upper[Heinz 57 VARIETY]
-bigecho %@cursive_letter_only[A] %@cursive_letter_only[a] %@cursive_letter_only[1] str:%@cursive_letter_only[Heinz 57 VARIETY]
-bigecho %@cursive_letter[A] %@cursive_letter[a] %@cursive_letter[1] str:%@cursive_letter[Heinz 57 VARIETY]
-bigecho %@cursive_string[A] %@cursive_string[a] %@cursive_string[1] str:%@cursive_string[Heinz 57 VARIETY]
-bigecho %@cursive_string_rainbow[A] %@cursive_string_rainbow[a] %@cursive_string_rainbow[1] str:%@cursive_string_rainbow[Heinz 57 VARIETY]
+                        bigecho %@cursive_lower[A] %@cursive_lower[a] %@cursive_lower[1] %@cursive_lower[Heinz 57 VARIETY]
+                        bigecho %@cursive_upper[A] %@cursive_upper[a] %@cursive_upper[1] str:%@cursive_upper[Heinz 57 VARIETY]
+                        bigecho %@cursive_letter_only[A] %@cursive_letter_only[a] %@cursive_letter_only[1] str:%@cursive_letter_only[Heinz 57 VARIETY]
+                        bigecho %@cursive_letter[A] %@cursive_letter[a] %@cursive_letter[1] str:%@cursive_letter[Heinz 57 VARIETY]
+                        bigecho %@cursive_string[A] %@cursive_string[a] %@cursive_string[1] str:%@cursive_string[Heinz 57 VARIETY]
+                        bigecho %@cursive_string_rainbow[A] %@cursive_string_rainbow[a] %@cursive_string_rainbow[1] str:%@cursive_string_rainbow[Heinz 57 VARIETY]
                     goto :END
                     :testing_skip_1
 
