@@ -36,19 +36,6 @@ def srt_block_to_irc(block):
     return {'start': time_start, 'end': time_end, 'content': content_massaged.strip()}
 
 
-def filter_blocks_fail_01(blocks):
-    filtered_blocks = []
-    for i, block in enumerate(blocks):
-        if not block:
-            continue
-        if block['content'] == "" and i + 1 < len(blocks):
-            next_block = blocks[i + 1]
-            if next_block and next_block['start'] == block['start']:
-                continue  # Skip blank line with the same timestamp
-            if time_difference(block['start'], next_block['start']) <= 1.5:
-                continue  # Skip blank line within 1.5 seconds of the next line
-        filtered_blocks.append(block)
-    return filtered_blocks
 
 def filter_blocks(blocks):
     filtered_blocks = []

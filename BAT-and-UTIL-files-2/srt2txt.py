@@ -7,9 +7,12 @@ import os                                                                       
 import datetime                                                                                    # Import datetime module for handling date and time
 import glob                                                                                        # Import glob module for pathname pattern expansion
 import argparse                                                                                    # Import argparse module for parsing command-line options
+from colorama import Fore, Back, Style, init                                                       # Import ANSI color module
+init()                                                                                             # Enable ANSI output
 
 EXTENSION = '.txt'                                                                                 # Hardcoded extension for output files
-THRESHOLD_SECONDS = 3.0                                                                            # Threshold in seconds to insert extra blank line
+MAX_TIME_BETWEEN_SUBTITLES_TO_JOIN_TOGETHER       = 0.3     #if one subtitle begins less than this much time after the last ends, consider it the same line of text in the output file
+MIN_TIME_BETWEEN_SUBTITLES_TO_GENERATE_BLANK_LINE = 1.5     #if one subtitle begins MORE than this much time after the last subtitle, insert a fully blank line  into  the output file
 
 def parse_timecode(time_str):                                                                      # Define function to parse timecode strings
     """
@@ -35,6 +38,7 @@ def srt_to_txt(input_file, output_file):                                        
     subtitles = []                                                                                 # Initialize a list to store subtitles
     subtitle = []                                                                                  # Initialize a list to store lines of the current subtitle
 
+    previous_line = None
     for line in lines:                                                                             # Iterate over each line
         line = line.rstrip('\n')                                                                   # Remove trailing newline character
         if line.strip() == '':                                                                     # If the line is empty
@@ -69,13 +73,19 @@ def srt_to_txt(input_file, output_file):                                        
 
         # Remove any blank lines in content
         content = [line for line in content_lines if line.strip() != '']                           # Filter out empty lines in content
+        
         if content:
             # Non-blank subtitle
             if last_non_blank_end_time is not None:
                 time_diff = start_time - last_non_blank_end_time                                   # Calculate time difference from last non-blank subtitle
-                if time_diff > THRESHOLD_SECONDS:
+                if time_diff > MIN_TIME_BETWEEN_SUBTITLES_TO_GENERATE_BLANK_LINE:
                     text_lines.append('')                                                          # Insert extra blank line
-
+                elif time_diff < MAX_TIME_BETWEEN_SUBTITLES_TO_JOIN_TOGETHER:
+                    if text_lines and text_lines[-1]:  # If there's existing text, append the current subtitle's content
+                        text_lines[-1] += ' ' + ' '.join(content)  # Join lines by adding a space
+                        content=""
+                    else:
+                        text_lines.append(' '.join(content))  # If no previous line, just add this one as is
             text_lines.extend(content)                                                             # Append content lines to text_lines
             last_non_blank_end_time = end_time                                                     # Update last non-blank end time
         else:

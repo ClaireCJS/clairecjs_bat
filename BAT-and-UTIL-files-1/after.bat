@@ -428,30 +428,36 @@ goto :END
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :concert
-		echo Add concert to diary too...
+        call validate-environment-variables WWWCL username
+        call validate-in-path               al.bat divider.bat as.bat 
+	pause "Add concert to diary"
+	        call as claire diary
 		pause
-	call as claire diary
-		pause
-	http://www.songkick.com/
-	%EDITOR %WWWCL\media\concerts.htm
-		echo Fix concertnext band (after pressing a key)...
-		pause>nul
-	call al.bat
-	set categories=People,Carolyn,Claire,Media,Audio,Music,Journal,Concerts,Reviews
+                call divider
+        pause "Fix concertnext band in base attribute list (after pressing a key)"
+	        call al.bat
+                pause
+        pause "Edit concert journal"
+        	%EDITOR %WWWCL\media\concerts.htm
+                http://www.songkick.com/
+                pause
+        pause "Make blog post?"                
+        	set categories=People,Carolyn,Claire,Media,Audio,Music,Journal,Concerts,Reviews
+                set template=%BAT\blog-concert-body-template.txt
+                call validate-environment-variable template
 		echo.
 		echo Enter band name:
-	if "%BAND"=="" set BAND=.
-	eset BAND
-	set TITLE=JOURNAL: CONCERT: %BAND
-		echo %BAND >:u8clip:
+                        if "%BAND"=="" set BAND=.
+                        eset BAND
+        	set TITLE=JOURNAL: CONCERT: %BAND
+        		echo %BAND >:u8clip:
 		echo ** Eventually we should program %BAT\blog-concert-body-template.txt to automatically import ????
-	%EDITOR     %BAT\blog-concert-body-template.txt
-	call mtblog %BAT\blog-concert-body-template.txt
-		unset /q title
-		unset /q categories
-	::NAH, this will copy the header crap: type %BAT\mtsend-last-blog-sent.bak >clip:
-	echo Copy the review to your clipboard - paste into concert.htm if you want...
-	:seems to be done in mtblog.bat: http://4jcl.wordpress.com
+        	%EDITOR     %BAT\blog-concert-body-template.txt
+        	call mtblog %BAT\blog-concert-body-template.txt
+                pause
+		rem unset /q title
+		rem unset /q categories
+                rem :NAH, this will copy the header crap: type %BAT\mtsend-last-blog-sent.bak >clip:
 return
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

@@ -1,7 +1,4 @@
 #### USER CONFIGURATION:
-    
-    
-    
 DEFAULT_ROW_PADDING = 7                             # SUGGESTED: 7. Number of rows to subtract from screen height as desired maximum output height before adding columns. May not currently do anything.
 content_ansi        =  "\033[0m"
 divider_ansi        =  "\033[38;2;187;187;0m"
@@ -14,6 +11,10 @@ divider             = f"  {divider_ansi}" + "│" + f"  {content_ansi}"  # Divid
 
 #font coefficient = 1.4! that's what i got!
 #lhecker@github: Generally speaking, you can assume that fonts have roughly an aspect ratio of 2:1. It seems you measured the actual size of the glyph though which is slightly different from the cell height/width.
+
+
+
+
 
 
 ##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -72,13 +73,17 @@ def parse_arguments():
     Parse command-line arguments.
     """
     parser = argparse.ArgumentParser(description="Display STDIN in a compact, multi-column format.")
-    parser.add_argument('-w', '--width', type=int, help="Override output width to something other than console width")
+
+    # Optional positional argument for the filename
+    parser.add_argument('optional_filename'     , nargs='?', type=str, help="Optional filename to process. If not provided, input is from STDIN.")
+
+    parser.add_argument( '-w', '--width'        , type=int, help="Override output width to something other than console width")
     parser.add_argument('-cw', '--console_width', type=int, help="Override detected console width")
-    parser.add_argument('-c', '--columns', type=int, help="Override number of columns calculation")
-    parser.add_argument('-p', '--row_padding', type=int, default=7, help="Number of rows to subtract from screen height as desired maximum")
-    parser.add_argument('-v', '--verbose', action='store_true', help="Verbose mode—display debug info and internal logs")
-    parser.add_argument('--wrap', action='store_true', help="Enable line wrapping for long lines")
-    parser.add_argument('--no_wrap', action='store_true', help="Disable line wrapping for long lines")
+    parser.add_argument( '-c', '--columns'      , type=int, help="Override number of columns calculation")
+    parser.add_argument( '-p', '--row_padding'  , type=int, default=7, help="Number of rows to subtract from screen height as desired maximum")
+    parser.add_argument( '-v', '--verbose'      , action='store_true', help="Verbose mode—display debug info and internal logs")
+    parser.add_argument('--wrap'                , action='store_true', help="Enable line wrapping for long lines")
+    parser.add_argument('--no_wrap'             , action='store_true', help="Disable line wrapping for long lines")
     parser.add_argument('--max_line_length_before_wrapping', type=int, default=80, help="Maximum line length before wrapping")
     args = parser.parse_args()
     ROW_PADDING   = args.row_padding
@@ -204,7 +209,25 @@ def read_input(wrapping, max_width):
     """
     Read input lines from STDIN and optionally wrap them.
     """
-    input_lines = sys.stdin.read().strip().splitlines()
+    #input_lines = sys.stdin.read().strip().splitlines()
+    
+    input_lines=[]
+    
+
+    # Check if an optional filename is provided and exists
+    if args.optional_filename:
+        import os
+        if os.path.exists(args.optional_filename):
+            with open(args.optional_filename, 'r', encoding='utf-8') as file:
+                input_lines.extend(file.readlines())  # Read lines from the file
+        else:
+            print(f"❗❗❗❗❗❗ Error: The file “{args.optional_filename}” does not exist. ❗❗❗❗❗❗❗")
+            sys.exit(1)  # Exit with error code if file does not exist
+    else:
+        # Read from stdin if no filename is provided    
+        for line in sys.stdin:
+            input_lines.append(line)
+    
     if not input_lines:
         sys.exit("No input data provided.")
 

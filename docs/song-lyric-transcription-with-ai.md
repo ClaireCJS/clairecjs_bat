@@ -370,29 +370,28 @@ Same as above but for karaoke files. Not particularly used by this system.
 
 ### 🌟 [approve-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) / [disapprove-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat):
 
-Same as above, but marks the *SONG* file as being [un]approved for *lyriclessness*, the state in which we have approved the fact that we have given up on our lyric search. This approval allows automatic AI transcription to continue despite a “missing” lyric file.
+**Remember:** The only way to batch transcribe in an unattended fashion (“encode while you sleep”) is to pre-approve lyric files.
+
+But what if lyrics can’t be found and we still want to proceed with batch encode?  
+
+In that case, we must pre-approve that the *song* is *lyricless* — in a state of “**lyriclessness**” — because there is no lyric file to approve.
+
+This script marks a *song file* with *lyriclessness* approval/disapproval so that we can do that.
 
 
+&nbsp;
 
-### 🌟 [approve-lyriclessness {song_file}](../BAT-and-UTIL-files-1/approve-lyriclessness.bat) / [disapprove-lyriclessness {song_file}](../BAT-and-UTIL-files-1/disapprove-lyriclessness.bat) 
+### 🌟 converter: [srt2lrc.py](../BAT-and-UTIL-files-1/srt2lrc.py):
 
-**Remember:** The only way to batch transcribe in this system is to pre-approve lyric files.
+A *batch* SRT-file to LRC-file converter that’s better than all the other ones on the internet. Used by [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat) in the very rare event of [MiniLyrics](https://minilyrics.en.softonic.com/) not properly importing an ```SRT``` file.
 
-This script marks a *song file* with approval/disapproval so that we can pre-approve the fact that LYRICS FOR THIS SONG CAN’T BE FOUND.  
+### 🌟 converter: [srt2txt.bat](../BAT-and-UTIL-files-1/srt2txt.bat) / [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py):
 
-This allows us to also pre-approve songs that we have *given up* finding lyrics for, so they can be batch-transcribed as well. 
+A *single-file* ```SRT``` to ```TXT```. Used when we already have SRT files for a song (say, from a download), and *really* want a TXT version of the lyrics. Configurable thresholds for joining subtitle lines together into 1 text line (if they are really close together in time, i.e. under ≈0.5 seconds), or for adding a blank line between lyrics (if the subtitles are really far in time from each other, i.e. over ≈3 seconds)
 
+### 🌟 converter: [lrc2txt.bat](../BAT-and-UTIL-files-1/lrc2txt.bat)/ [lrc2txt.py](../BAT-and-UTIL-files-1/lrc2txt.py):
 
-
-
-
-### 🌟 [srt2lrc.py](../BAT-and-UTIL-files-1/srt2lrc.py):
-
-A *batch* SRT-file to LRC-file converter that’s better than others. Used by [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat) in the very rare event of [MiniLyrics](https://minilyrics.en.softonic.com/) not properly importing an ```SRT``` file.
-
-### 🌟 [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py):
-
-A *single-file* ```SRT``` to ```TXT```. Used when we already have SRT files for a song (say, from a download), and *really* want a TXT version of the lyrics.
+A *single-file* ```LRC``` to ```TXT```. Used when we already have SRT files for a song (say, from a download), and *really* want a TXT version of the lyrics. Correctly converts lines that are a timestamp with no text to blank lines in the output file.
 
 
 </details>

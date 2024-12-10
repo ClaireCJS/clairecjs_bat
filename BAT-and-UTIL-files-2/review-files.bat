@@ -17,10 +17,34 @@ rem Config:
 rem Only review a single file, if [what is hopefully] a filename is provided:
         set replacement_text=
         setdos /x-5
-        if "%1" ne "" set our_filemask=%1
-        if "%2" ne "" set replacement_text=%2
+        iff "%1" ne "" .and. "%2" eq "" then        
+                set our_filemask=%1
+                set replacement_text=
+                gosub check_for_filemask
+        endiff                
+        iff "%2" ne "" then
+                iff not exist "%@unquote[%2]" then 
+                        set our_filemask=%1
+                        set replacement_text=%@UNQUOTE[%2]
+                        gosub check_for_filemask 
+                else
+                        set our_filemask=%*
+                        set replacement_text=
+                endiff
+        endiff                
         setdos /x0
 
+              goto :skip_check_for_filemask
+                        :check_for_filemask 
+                                setdos /x-5
+                                iff not exist %our_filemask% then
+                                        echo %ANSI_COLOR_WARNING_soft%%EMOJI_WARNING% No %@upper[%@%@REReplace[;,/,%@REReplace[\*\.,,%our_filemask%]]] files present %EMOJI_WARNING%%ANSI_COLOR_NORMAL%
+                                        setdos /x0
+                                        goto :END
+                                endiff
+                                setdos /x0
+                        return                
+              :skip_check_for_filemask
 
 rem Validate environment:
         iff 1 ne %validated_review_subtitles% then
@@ -29,13 +53,6 @@ rem Validate environment:
         endiff
         
 rem Check if SRT files are actually here:
-        setdos /x-5
-        iff not exist %our_filemask% then
-                echo %ANSI_COLOR_WARNING_soft%%EMOJI_WARNING% No %@upper[%@%@REReplace[;,/,%@REReplace[\*\.,,%our_filemask%]]] files present %EMOJI_WARNING%%ANSI_COLOR_NORMAL%
-                setdos /x0
-                goto :END
-        endiff
-        setdos /x0
 
 rem Go through each one and review it:
         rem for less: set lc_all=en_US.UTF-8
@@ -48,18 +65,20 @@ rem Go through each one and review it:
 
         call set-tmp-file
         set tmp_file_2=%tmpfile%
-               
-        for %%tmpfileouter in (%our_filemask%) do gosub do_it "%@unquote[%tmpfileouter%]"
+
+        for %%File_To_Check  in (%our_filemask%) do if not exist "%File_To_Check%" (call fatal_error "File to review of %left_quote%%italics_on%%File_To_Check%%italics_on%%right_quote% does not exist")               
+        for %%File_To_Review in (%our_filemask%) do gosub do_it "%@unquote[%File_To_Review%]"
         goto :do_it_end
         :do_it [tmpfile] 
                 call divider 
+                rem echo %blink_on%reviewing file %tmpfile%%blink_off% %warning% our_filemask=%our_filemask%
                 setdos /x0
                 rem title %@CHAR[55357]%@CHAR[56403] %@name[%tmpfile]
                 title %emoji_palm_tree%%@name[%tmpfile]
                 iff "%replacement_text%" ne "" then 
                         set our_msg=%replacement_text%
                 else
-                        set our_msg=%@name[%tmpfile%]
+                        set our_msg=%@name[%tmpfile%].%@ext[%tmpfile%]
                 endiff
                 call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"
                 setdos /x0
@@ -69,7 +88,8 @@ rem Go through each one and review it:
                 setdos /x0
                 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%tmp_file_1%" >:u8"%tmp_file_2%"
                 echos %ansi_reset%
-                call print-with-columns <%tmp_file_2 
+                rem call print-with-columns <%tmp_file_2 
+                type %tmp_file_2 |:u8 call print-with-columns 
         return
         :do_it_end
         
