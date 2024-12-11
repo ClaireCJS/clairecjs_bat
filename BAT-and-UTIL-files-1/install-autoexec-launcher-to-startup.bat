@@ -57,6 +57,7 @@ goto :END
     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     :Already
         beep
+        %color_alarm%
         echo.
         echo * We already did this! Add "force" as a parameter to force it.
         echo.
