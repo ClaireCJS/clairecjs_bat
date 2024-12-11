@@ -288,7 +288,7 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
 1. [dist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/dist.bat) / [distribute-bat-files-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/distribute-bat-files-to-every-drive.bat) — Updates the ```c:\bat\``` on every single drive letter that has a ```c:\bat\```
 
-1. [backup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup.bat) {*filename*} / [backup-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup-to-every-drive) {*filename*} — Backs up file to the ```c:\backups\``` folder on every single drive letter that has a ```c:\backups\```
+1. [backup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup.bat) {*filename*} / [backup-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup-to-every-drive.bat) {*filename*} — Backs up file to the ```c:\backups\``` folder on every single drive letter that has a ```c:\backups\```
 
 1. [run-piped-input-as-bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/run-piped-input-as-bat.bat)
 1. insert-before|after-each-line.py/.pl - Both perl (25% faster) and python (emoji-capable) versions of utilities to insert text before and after each line. Substitutes ```{{{{QUOTE}}}}``` into quote marks. Used to generate-on-the-fly scripts which may also be piped to ```run-piped-input-as-bat```
@@ -305,11 +305,14 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
 ## Fun trinkets:
 
-1. Never forget someone’s age with ```age.bat```.  “How old is your mom?”  “She’s 77.389”
+1. Never forget someone’s age with [age.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/age.bat).  “How old is your mom?”  “She’s 77.389”
 ![image](https://github.com/user-attachments/assets/325d90a4-2ddb-444c-a09f-e6c917acf04b)
 
+1. [echo-rainbow.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/echo-rainbow.bat) / 
+[rainbow-echo.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/rainbow-echo.bat) — Displays a string with each character gradually changing in colors in a progression through the visible spectrum
 
-1. rainbow-echo TODO
+1. [divider.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/divider.bat) / 
+[display-horizontal-divider.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/display-horizontal-divider.bat) — Displays a horizontal divider that progresses through the colors of the visible spectrum. See [The Rainbow Dividers Project](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/dividers/) for more details.
 
 ---------------------------------
 
