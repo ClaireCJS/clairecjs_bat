@@ -1,16 +1,13 @@
 use strict; 
 use warnings; 
-#use LWP::Simple;
-
-
 my $DEBUG=0;
 
  
 #my $url  = "http://" . $ENV{"MUSICSERVER"} . "/main";			print_if_debug("* url is $url\n");
 #   $url  = "http://" . $ENV{"MUSICSERVER"} . "/winamp?page=main";	
-
 #my $data = <>;										    print_if_debug("* Retrieved " . length($data) . " bytes of data.\n"); print_if_debug("* data is: $data\n");
 #die "couldn't get \$data" unless defined $data;
+
 my $mode = "UNKNOWN";
 foreach my $line (<STDIN>) {
 	if ($DEBUG) { print "*** line is $line"; }

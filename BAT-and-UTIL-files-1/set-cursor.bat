@@ -42,7 +42,7 @@ rem This should adjust to the %ANSI_PREFERRED_CURSOR_COLOR_HEX% & %ANSI_PREFERRE
         set CURSOR_RESET=%@SET_CURSOR_COLOR_BY_HEX[%ANSI_PREFERRED_CURSOR_COLOR_HEX]%ANSI_PREFERRED_CURSOR_SHAPE%
 
 rem But this is hard-coded to Claire's personal colors as a backup...
-        set CUROSR_RESET_CLAIRE_HARDCODED=%@CHAR[27][ q%@CHAR[27]]12;#CF5500%@char[7]%@CHAR[27][1 q
+        set UNUSED_CURSOR_RESET_CLAIRE_HARDCODED=%@CHAR[27][ q%@CHAR[27]]12;#CF5500%@char[7]%@CHAR[27][1 q
 
 
 rem Keep track that we've already set our cursor:

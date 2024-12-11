@@ -2,7 +2,7 @@
  on break cancel
 
 iff %XENIA_INSTALLED eq 0 then
-        call warning_soft "Not backing up Xenia because it's not installed on this machine..."
+        call warning_soft "Not backing up Xenia because it's not installed on this machine...set XENIA_INSTALLED=1 in environm.btm under this particular machine’s settings if you’ve installed it on this machine"
         goto :END
 endiff
 

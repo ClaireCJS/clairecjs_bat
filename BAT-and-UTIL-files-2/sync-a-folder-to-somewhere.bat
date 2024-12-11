@@ -201,13 +201,14 @@ rem Display free space:
         rem call important "Free space now %DISKFREE%"
 
 rem Warn if we are low on space:
-        if %@DISKFREE[%@drive[%SYNCTARGET%]] gt 150000000 goto :PlentyOfSpace
-            set NEWLINE_REPLACEMENT=0 
-            repeat 3 gosub klaxon
-            call WARNING "Not much free space left on %SYNCTARGET%!" 
-            call pause-for-x-seconds 3000 
-        :PlentyOfSpace
-
+        iff exist "%@unquote[%synctarget%]" then
+                if %@DISKFREE[%@drive[%SYNCTARGET%]] gt 150000000 goto :PlentyOfSpace
+                    set NEWLINE_REPLACEMENT=0 
+                    repeat 3 gosub klaxon
+                    call WARNING "Not much free space left on %SYNCTARGET%!" 
+                    call pause-for-x-seconds 3000 
+                :PlentyOfSpace
+        endiff
 
 unset /q ZIP syncsource synctarget synctriger
 

@@ -1,4 +1,4 @@
-@Echo on
+@Echo off
 
 
 rem Only meant to be called by the various autoexec-<MACHINENAME>.BTM/.BATs

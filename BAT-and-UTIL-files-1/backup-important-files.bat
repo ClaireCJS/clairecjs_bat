@@ -59,14 +59,18 @@ if "%PARAM_1%" eq "winamp" (goto winamp)
 
 rem Back up each important file:
 
-        gosub backup_file dropbox_Y "Windows Terminal settings"    %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
-        gosub backup_file dropbox_Y "### file"                     %CONTACTS%
-        gosub backup_file dropbox_N "Adobe Audition settings"      %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml onlyIfExists
+        iff "%USERNAME%" eq "claire" then
+                gosub backup_file dropbox_Y "Windows Terminal settings"    %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+                gosub backup_file dropbox_Y "### file"                     %CONTACTS%
+                gosub backup_file dropbox_N "Adobe Audition settings"      %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml onlyIfExists
+                gosub backup_file dropbox_N "eyebar captions"              %EYEBARCAPS%
+        endiff
+        :winamp        
+        iff "%USERNAME%" eq "claire" then
+                gosub backup_file dropbox_N "Winamp.ini"                   %WINAMP_INI%
+        endiff                
         gosub backup_file dropbox_N "DVD catalog offline fragment" %PREBURN_DVD_CATALOG%
         gosub backup_file dropbox_N "BDR catalog offline fragment" %PREBURN_BDR_CATALOG%
-        gosub backup_file dropbox_N "eyebar captions"              %EYEBARCAPS%
-:winamp        
-        gosub backup_file dropbox_N "Winamp.ini"                   %WINAMP_INI%
 
 rem **********************************************************************************************************************************************
 rem **********************************************************************************************************************************************

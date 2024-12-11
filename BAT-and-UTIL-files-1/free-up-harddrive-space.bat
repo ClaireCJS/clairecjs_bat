@@ -31,12 +31,13 @@ gosub CreateIfGone c:\recycled
 
 rem Files that could be anywhere:
 
-call clean-up-AI-transcription-trash-files-everywhere.bat
-rem moved to separate AI-trash-cleanup bat: echo.
-rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere               *._vad_collected_chunks*.wav
-rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere               *._vad_original*.srt
-rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
-rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
+        rem AI lyric transcription:
+                rem moved to separate AI-trash-cleanup bat: echo.
+                rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere               *._vad_collected_chunks*.wav
+                rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere               *._vad_original*.srt
+                rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
+                rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
+                if "%USERNAME%" eq "Claire" call clean-up-AI-transcription-trash-files-everywhere.bat
     
 
         goto :skip_1

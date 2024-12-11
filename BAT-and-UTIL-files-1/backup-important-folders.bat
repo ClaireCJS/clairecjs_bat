@@ -19,8 +19,10 @@ rem START BANNER:
 rem MAIN:
         gosub backup_script  backup-Rogue_Legacy_2  "Rogue Legacy savegame"
         gosub backup_script  backup-Xenia           "Xenia emulator savegames"
-        gosub backup_script  backup-clairecjs_utils "Python utility functions"
-        gosub backup_script  backup-perl-libraries  "Perl %italics_on%site/lib%italics_off% libraries"
+        iff "%username%" eq "claire" then
+                gosub backup_script  backup-clairecjs_utils "Python utility functions"
+                gosub backup_script  backup-perl-libraries  "Perl %italics_on%site/lib%italics_off% libraries"
+        endiff                
         rem b backup_script  backup-Rocksmith       "RockSmith savegame"      not implemented yet because Rocksmith is not created on DEMONA yet [get savegame from old 2019 backup when we do, THEN figure out this situation]
 
 

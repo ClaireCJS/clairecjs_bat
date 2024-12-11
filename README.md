@@ -26,7 +26,7 @@ I would love to know how this works out for somebody who has never done it. Nobo
 
 # INSTALLATION INSTRUCTIONS
 
-The abridged instructions are: Install TCC, run *clairevironment-install.bat*, add TCC to Windows Terminal, run it and change the command separator character, and you're ready to run my environment!
+The abridged instructions are: Install TCC, run *[clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/clairevironment-install.bat)*, add TCC to Windows Terminal, run it and change the command separator character, and you're ready to run my environment!
 
 But here are the proper instructions:
 
@@ -42,6 +42,8 @@ But here are the proper instructions:
     - The automatic way:  Simply run: ```winget install JPSoft.tcmd```
     - The manual way: Download TCC (Take Command command-line) from [http://www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of ```c:\TCMD\```. DON'T run it just yet.  
     - The worst way: ```url.exe -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0" -O https://jpsoft.com/downloads/v33/tcmd.exe```
+    
+1. Browse to ```c:\TCMD\```, right-click ```tcc.exe```, go to the *Compatibility* tab, and select ```Run as administrator".
 
 1. Open TCC (```c:\TCMD\tcc.exe```). Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/clairevironment-install.bat), and run it inside of TCC.  Follow its instructions and pay close close close attention. You may have to abort it and fix things along the way. This part hasn't been tested.
 
@@ -55,7 +57,15 @@ But here are the proper instructions:
 
 
 # At this point, everything is installed!!! 
-### The only problems you have at this point should be mostly-false error messages related to configuration.
+
+### Post-Boot Script configuration (like ‘autoexec.bat’):
+
+1. To have a startup-upon-reboot script akin to the ```autoexec.bat``` of yore, look at [autoexed-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/autoexec-comomn.btm), which is called by my [autoexed-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/autoexec.btm). Install these as a startup script to your current Windows installation with [install-autoexec-launcher-to-startup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/install-autoexec-launcher-to-startup.bat.btm)
+
+
+### [environm.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/environm.btm) (like ‘.bashrc’):
+
+When TCC opens, it runs [tcstart.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/tcstart.btm) (which should be placed in the ```c:\TCMD``` folder and is only in my BAT-files folder for packaging purposes).  ```tcstart.btm``` then runs [environm.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/environm.btm), which is our main startup script for each command line instance.
 
 1. To deal with mostly-false error messages, and to get our extra functionality working, you will need to edit ```c:\bat\environm.btm```. The goal is for it to produce *no* output when it runs. This is where E-V-E-R-Y-T-H-I-N-G is managed (a bit like unix .init/.rc files on steroids).<BR>
 	Examples of some things defined in this central script are harddrive variables to eradicate hard-coded paths, drive-to-machine mappings to make every harddrive in the house/lan accessible to every other computer in the house/lan, repository locations for validating and backing up all your various collections. <BR>
@@ -85,55 +95,30 @@ But here are the proper instructions:
     * This will allow you to use our computer-related scripts, including: all-computers, all-computers-except-self, colorize-by-computer-name, highlight-by-computer-name, display-drives-by-computer.  Various computers are associated with various colors and emoji, which allows a faster visual summary of what's going on.
 
 
-### Things you sould do when you get around to it:
+### Things you should do when you get around to it:
 
-1. Edit ```setpath.bat```to convert your path-setting to dynamically-generated PATHs (also accessible from PowerShell/CMD). Take note of the various functions that can add folders path if the foldrese exist, but not if they don't exist. Tthere can be machine-specific paths, paths that depend on, well. Anything really. And paths defined this way survive to all future machines, so adding them here is adding them for life.
+1. Edit [setpath.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/setpath.bat)  to convert your path-setting to dynamically-generated PATHs (also accessible from PowerShell/CMD). Take note of the various functions that can add folders path if the foldres exist, but not if they don't exist. Tthere can be machine-specific paths, paths that depend on, well. Anything really. And paths defined this way survive to all future machines, so adding them here is adding them for life.
 
 1. Validate that your collections (repositories) haven't disappeared, and are fully accessible:
     * Edit ```c:\bat\environm.btm``` and search for "```DEFINE REPOSITORIES```".  For me, it's literally 35 screens of information about various repositories and workflows. Ignore or comment out what doesn't apply to you. Change what does apply to you. If you add anything, make sure to also add a validation for it. Follow the existing patterns in the file.
     * Run  ```c:\bat\environm.btm validate``` to validate all repository locations across all harddrives across all machines sharing this environment in the current house/LAN.  At first, it will be errors galore, because you are not me, and do not have my collections.  But after you edit *environm.btm* to properly reflect the locations of your collections/repositories (just follow the examples therein), you'll be able to use the *backup-repositories.bat* and *backups.bat* scripts, as well as validate that they are all still there. For me, with 20+ harddrives, this is often how I find out about a crashed drive.
 
 1. Create a reliable backup plan for your collections/repositories:
-    * Edit ```backup-repositories.bat``` to match the repositories you want backed up. IT'S REALLY EASY. If ```environm validate``` produces no errors, you likely can edit this without any knowledge and experience, and then run ```backup-repositories.bat``` to start running your backups. They may error out the first time, if the destination folder doesn't exist. But once you fix that, it should be smooth backup sailing for life.
+    * Edit [backup-repositories.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/backup-repositories.bat) to match the repositories you want backed up. IT'S REALLY EASY. If ```environm validate``` produces no errors, you likely can edit this without any knowledge and experience, and then run ```backup-repositories.bat``` to start running your backups. They may error out the first time, if the destination folder doesn't exist. But once you fix that, it should be smooth backup sailing for life.
 
 1. Create a reliable backup plan for important individual files:
-    * Edit ```backup-important-files.bat``` to reference important files you want backed up. Search for ```MAIN: BEGIN``` and follow the patterns within. For the dropbox functionality to work, you must have your dropbox-related variables defined properly in ```environm.btm```.
+    * Edit [backup-important-files.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/backup-important-files.bat) to reference important files you want backed up. Search for ```MAIN: BEGIN``` and follow the patterns within. For the dropbox functionality to work, you must have your dropbox-related variables defined properly in ```environm.btm```.
 
 1. Create a reliable backup plan for important individual folders:
-    * Edit ```backup-important-folders.bat``` to reference important folders you want backed up. Search for ```MAIN:``` and follow the patterns within. This one calls an individual BAT file for each important-individual-folder that you want to backup. Three examples already exist in the file for *Rogue Legacy 2*, *Xenia*, and *Rocksmith*. Follow the pattern to add more.
+    * Edit [backup-important-folders.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/backup-important-folders.bat) ` to reference important folders you want backed up. Search for ```MAIN:``` and follow the patterns within. This one calls an individual BAT file for each important-individual-folder that you want to backup. Three examples already exist in the file for *Rogue Legacy 2*, *Xenia*, and *Rocksmith*. Follow the pattern to add more.
 
 1. TODO
 
+## Visual customizations you may want
 
----------------------------------
+1. Change your cursor color and shape by editing [set-cursor.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/set-cursor.bat) to create your own defaults such as [cursor-claire.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/cursor-Claire.bat) or [cursor-claire.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/cursor-Carolyn.bat).
 
-# Enhanced Scripting Functionality
-
-Now that we have an environment, and our file are backed up, and we can relax.... What else can we do?
-
-
-### Best practices for scripting, that reduce script brittleness, increase script longevity, and reduce the time that passes before realizing things are set up wrong:
-
-
-1. Eradicating hard-coded paths: By having environment variables for each harddrive (and for common locations) all centrally defined in ```environm.btm```, we can reference locations in a dynamic way that changes over time [less brittle, more reliable].
-
-1. Validating environment variables: ```call validate-environment-variable VARNAME``` validates that an environment variable exists. And if the variable is a file/folder location, it will then validate it actually exists. Always validate environment variables before using them.
-
-1. Validating commands: ```call validate-in-path whatever``` to validate if a command (internal, EXE, BAT, whatever) is valid. Always validate commands before using them. 
-
-1. Validating successful runs: ```call errorlevel.bat "{optional custom error message in quotes}"``` will halt execution if any form of errorlevel is returned by the previous command (whether internal, executable, or script).   
-  Always validate after running any kind of step that can fail.  
-  (It uses visual and audio alarms that are defined in ```print-messages.bat```, and sets a ```%REDO%``` environment variable that can be used for automatic retries.) 
-
-1. Automatically re-running things that fail: ```errorlevel.bat``` sets an environment variable called ```%REDO%``` to 1, which can be used to re-try sections of script over and over and over until they succeed. SUPER-USEFUL when a single peice of a long complicated workflow fails, and you find yourself having to manually run a step in the middle of a long script. This allows you to fix the situation, then press any key to retry without losing your place in your script. 
-    In the event of error, it gives a timed prompt allowing a gracefully return to the command line in a more reliable way than ``Ctrl-C``` or ```Ctrl-Break``` (or rapidly alternating between those 2 keys, which unfortunately works worse in Windows Terminal).
-
-    
-1. Improving presentation with ANSI cursor position manipulation. For example, a prompt can be blinking and red to draw attention to it, but once answered, green without the blinking once you answer it.  ```set-colors.bat``` defines various cursor functions like ```%ANSI_POSITION_SAVE%```, ```%ANSI_POSITION_RESTOR%```, ```%@ANSI_MOVE_UP[1]```, and such.  We also stick ```%ANSI_EOL%``` at the end of lines a lot in order to fix the bug where background colors bleed over to the rightmost column of the screen.
-
-
-
-### Accessibility / mental fatigue / emotional improvements:
+1. Change your prompt (per-person/username, even) and its colors by looking at [prompt-common.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/prompt-common.bat), which is called by [setprompt.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/setprompt.bat). Also look at [prompt-Claire.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/prompt-Claire.bat) for an examle prompt that current CPU usage (which was insanity to implement).  
 
 1. Reduce crash/hang/glitch anxiety by adding ```text color-cycling``` to slow scripts. Increases rainbow beauty and LOOKS REALLY COOL.
     * Integrated into our ```copy``` (cp) and ```move``` (mv) and ```unzip-gracefully``` (uzg) commands. (Notice how all the backslashes color-cycle when copying?)
@@ -146,12 +131,42 @@ call very-slow-bat | copy-move-post
 very-slow-commmand | copy-move-post
 ```
 
+---------------------------------
+
+# Enhanced Scripting Functionality To Start Using
+
+Now that we have an environment, and our file are backed up, and we can relax.... What else can we do?
+
+
+### Best practices for scripting, that reduce script brittleness, increase script longevity, and reduce the time that passes before realizing things are set up wrong:
+
+
+1. Validating environment variables with [validate-environment-variable.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/validate-environment-variable.bat) and [validate-environment-variables.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/validate-environment-variables.bat): ```call validate-environment-variable VARNAME``` validates that an environment variable exists. And if the variable is a file/folder location, it will then validate it actually exists. Always validate environment variables before using them.
+
+1. Validating commands’ validity with [validate-in-path.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/validate-in-path.bat): ```call validate-in-path whatever``` to validate if a command (internal, EXE, BAT, whatever) is valid. Always validate commands before using them. 
+
+1. Validating user functions with [validate-function.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/validate-function.bat) and [validate-functions.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/validate-functions.bat): ```call validate-functions functionname1 functionname2 functionname3``` to validate if a user function  has been defined. For example, to see if  %@cursive[] has been defined, run ```validate-functions cursive```
+
+1. Validating extensions with [validate-is-extension.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/validate-is-extension.bat): ```call validate-is-extension "filename" *.txt;*.lrc;*.src``` to validate if a filename has one of the listed extensions. Note that for this one, we pass a string, not an environment variable. So while we may ```validate-environment-variable INPUT_FILE``` to check an input file’s existence, to check its extensions, the call would look more like: ```validate-is-extension "%INPUT_FILE%" *.wav;*.mp3;*.flac```
+
+1. Validating successful runs with [errorlevel.bat: The Great ErrorLevel Checker](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/errorlevel.bat): ```call errorlevel.bat "{optional custom error message in quotes}"``` will *OPTIONALLY* ½ execution if any form of errorlevel is returned by the previous command (whether internal, executable, or script). Always run this after running any kind of step that can fail.  It uses visual and audio alarms that are defined in [print-messages.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/print-messages.bat), and sets a ```%REDO%``` environment variable to 1, which can be used by the calling script to automatically retry failed commands.
+
+1. Automatically re-running things that fail: ```errorlevel.bat``` sets an environment variable called ```%REDO%``` to 1 when any kind of failure is encountered. This can be used by the calling script to re-try sections of script over and over and over until they succeed. SUPER-USEFUL when a single piece of a long complicated workflow fails, and you don’t want to have to run your way back up to that point again. This allows you to attempt a fix, press a key to test it, and repeat until you succeed.
+ 
+1. Improving presentation with ANSI cursor position manipulation. For example, a prompt can be blinking and red to draw attention to it, but once answered, green without the blinking once you answer it.  [set-ansi.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/set-ansi.bat) defines various ANSI strings  like ```%ANSI_POSITION_SAVE%```, ```%ANSI_POSITION_RESTORE%```; as well as ANSI user functions like ```%@ANSI_MOVE_UP[1]``` and ```%@ANSI_CURSOR_COLOR_CHANGE_BY_HEX[]```.  There are 100+. We also stick ```%ANSI_EOL%``` at the end of lines a lot in order to fix the bug where background colors bleed over to the rightmost column of the screen.
+
+1. Improving presentation with emoji 🎂 and unicode ⨝.  [set-emoji.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/set-emoji.bat) instantiates all the emoji listed in [emoji.env](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/emoji.env).  Emoji are listed as ```EMOJI_{EMOJINAME}``` environment variables, and a few common ones like ```%STAR%``` and ```%ARROW%``` are defined at the bottom.  This is also where our ```%NEWLINE%``` and ```%TAB%``` variables get set.
+
+1. Improve presentation by drawing attention to important messages using blinking (```%BLINK_ON%``` and ```%BLINK_OFF%```, both defined in ```set-ansi.bat```). Draw attention to the most important messages using double-height text ([bigecho.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/bigecho.bat))
+
+
+
+## Visual best practices
+
 1. Reduce mental fatigue be adding emoji to your scripts, particularly in the first column. It allows quicker understanding of what's going on, often saving having to read. 
     1400+ emoji are defined as enironment variables in ```set-emojis.bat```, as well as custom pentacle & pentagram & trumpet emoji created by [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) after hand-drawing and converting to [sixels](https://en.wikipedia.org/wiki/Sixel).
 
 1. Accelerate visual understanding of what's going on by adding color to your scripts, including consistent colors for consistent types of things, and random colors where applicable. For example, use ```%ANSI_COLOR_ADVICE%``` for advice, ```%ANSI_COLOR_WARNING%``` for warnings, ```%ANSI_COLOR_ERROR%``` for errors, ```%ANSI_COLOR_DEBUG%``` for debug info, etc. But for a huge list of long filenames, you would want each line to be a unique random color, which really helps when filenames get several lines long and you have trouble knowing where one ends and another begin. A random-colored emphasis can be added with ```%EMPHASIS%``` and ```%DEEMPHASIS%```.   All these environment variables are defined in ```set-colors.bat```, including the functions for custom-RGB foreground/background colors, random colors, and almost every kind of supported ANSI formatting in existence.
-
-1. Improve misdirected attention by adding blinking and double-height text (```set-colors.bat```)
 
 1. Improving  legibility by adding as much formatting as possible to scripts: bold & faint text, italicized & underscored text, reverse text, and strikethrough text. Environment variables defined in ```set-colors.bat``` make it very easy. For example:
 ```
@@ -202,8 +217,6 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
 1. Use ```env ansi_``` to display all the ANSI variables that we have defined.<BR>Use ```functions|grep -i ansi_``` to display all the ANSI functions that we have defined 
 
-1. Change your prompt (per-person/username, even) and its colors oby looking at ```prompt-common.bat``` and ```set-prompt.bat``` and ```prompt-Claire.bat```. The prompt includes current CPU usage (which was insanity to implement).  Do the same thing for cursor colors with ``set-cursor.bat`` and a variation of ``cursor-Claire.bat``
-
 1. Use [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) in conjunction with [sixels](https://en.wikipedia.org/wiki/Sixel) to create brand new characters that don't exist.  To see some of the ones I created:
 ```echo %EMOJI_TRUMPET_COLORABLE% %PENTAGRAM% %PENTACLE% %EMOJI_TRUMPET_FLIPPED%```
     In this example, the pentagram is red a secondary environment variable was created that includes chaging the color to red *before* the pentagram, and changing the color to default/white *after* the pentagram. 
@@ -237,22 +250,35 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 1. Tagging music: Embedding album art and *ReplayGain* tags into music files
 
 1. Controlling *Winamp*: Music control, playlist management, and extracting the current song playing:
-	* ```winamp-setup-notes.txt``` — My personal guide on how to build WinAmp my way. 
-	* ```stop.bat```, ```play.bat```, ```paus.bat``` (without an e, as that's a reserved command), ```unpause.bat```, ```next.bat```, ```prev.bat``` — basic winamp stop/play/pause/unpase/next-track/previous-track functionality.
-	* ```winamp-randomize-randomize.bat``` aka ```randomize``` — randomizes winamp's playlist
-	* ```winamp-start.bat``` — launches and initializes WinAmp. Moves windows to specific positions via 
-	* ```winamp-restart.bat``` — kills winamp/etc with ```winamp-close-gracefully.bat```, then if that doesn't work, via less gradceful methods.  Then re-launches WinAmp with ```winamp-start```, which uses ```fix-winamp.bat```to move all winedows to specific, hard-coded locations
-	* ```switch-winamp-to-playlist.bat``` and ```add-m3u-to-winamp-playlist.bat``` — Replace or append to existing winamp plalylist
-	* ```get-winamp-state.bat``` — retrives winamp state, prints it out, and assigns it to the ```%WINAMP_STATE%``` varaible
-	* ```winamp_monitor.py``` — logs tracks playing to the screen, to test Python-Winamp functoinality
-
-1. TODO
-
+	* [winamp-setup-notes.txt](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/winamp-setup-notes.txt) — My personal guide on how to build WinAmp my way. 
+	* [winamp-start.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/winamp-start.bat) — launches and initializes WinAmp. Moves windows to specific positions via [fix-winamp.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/fix-winamp.bat)
+	* [winamp-stop.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/winamp-stop.bat) — kills winamp/etc with [winamp-close-gracefully.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/winamp-close-gracefully.bat), then if that doesn't work, via less gradceful methods.  Then re-launches WinAmp with [winamp-start.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/winamp-start.bat), which sometimes uses [fix-winamp.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/fix-winamp.bat) to move all windows to specific, hard-coded locations
+	* [get-winamp-state.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/get-winamp-state.bat) — retrives winamp state, prints it out, and assigns it to the ```%WINAMP_STATE%``` varaible
+	* [stop.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/stop.bat), [play.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/play.bat), [paus.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/paus.bat) (without an e, as ```pause``` is a reserved command), [unpause.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/unpause.bat), [next.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/next.bat), [prev.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/prev.bat) — basic winamp stop/play/pause/unpase/next-track/previous-track functionality.
+	* [winamp-randomize-playlist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/winamp-randomize-playlist.bat)
+	aka [randomize.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/randomize.bat) — randomizes winamp's playlist
+	* [switch-winamp-to-playlist.bat[unpause.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/switch-winamp-to-playlist.bat) aka [playlist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/playlist.bat)  Replace existing Winamp plalylist
+	* [add-m3u-to-winamp-playlist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/add-m3u-to-winamp-playlist.bat) and [enqueue-regex-to-winamp.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/enqueue-regex-to-winamp.bat) and [enqueue-file-into-winamp-playlist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/enqueue-file-into-winamp-playlist.bat.bat) — Append files to the WinAmp playlist
+	* [remove-currently-playing-song-from-winamp-playlist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/remove-currently-playing-song-from-winamp-playlist.bat) – Removes current song from WinAmp playlist.
+	* [sync-winamp-playlists-to-dropbox.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/sync-winamp-playlists-to-dropbox.bat) — Backup WinAmp playlists to dropbox. Useful if you have music collections in several locations (i.e. home & work) and want playlist changes to propagate
+	* [go-to-currently-playing-song-dir.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/go-to-currently-playing-song-dir.bat) – Changes into the folder of the currently-playing song by using the poorly-named 	[edit-currently-playing-attrib.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/edit-currently-playing-attrib.bat)
+	and [edit-currently-playing-attrib-helper.pl](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/edit-currently-playing-attrib-helper.pl)
+	* [nowplaying.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/nowplaying.bat) – Displays the current song playing, using [get-current-song-playing.pl](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/get-current-song-playing.pl) (which really should be called ```display-current-song-playing.pl```, sorry)
+	* [winamp-status-from-file.pl](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/winamp-status-from-file.pl) – Deprecated alternate method to detect currently playing song (and WinAmp state) by scraping the [WAWI webserver’s](https://www.arcadecab.com/Projects/Wireless_jukebox.htm) home page	
+	* [set-current_playing_song.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/set-current_playing_song.bat) — Sets environment variable ```%CURRENTLY_PLAYING_SONG%``` to be equal to the song currently playing. Uses [get-current-song-playing.pl](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/get-current-song-playing.pl)
+	* [rn-currently-playing-song.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/rn-currently-playing-song.bat) — Renames the file of the currently playing song using our interactive renamer [rn.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/rn.bat).  Don’t hit enter until the next song is playing! 🤓
+	* [get-lyrics-for-currently-playing-song.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/get-lyrics-for-currently-playing-song.bat) – Obtains lyrics for current song, to be saved as a sidecar file.
+	* [create-srt-file-for-currently-playing-song.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/create-srt-file-for-currently-playing-song.bat) – Uses the WhisperAI to [transcribe a SRT karaoke file for the currently playing song, so that lyrics can be read and highlighted as a song is played](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/docs/song-lyric-transcriptoi-with-ai.md). Read more about it at [song-lyric-transcriptoi-with-ai.md](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/docs/song-lyric-transcriptoi-with-ai.md).
+	* [remove-leading-0s-from-music-filenames.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/remove-leading-0s-from-music-filenames.bat) – For an album with fewer than 10 tracks, remove the leading ```0``` from the beginning of each filename. [TODO: this really is more of a music-management command than a winamp command]
+	* **NOT REALLY USED:** [winamp_monitor.py(https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/winamp_monitor.py) — logs tracks playing to the screen, to test Python-Winamp functionality
 
 
 ### Some scripts that drastically increase scripting power now exist:
 
-1. ```all-ready-drives.bat``` can run a command on every single harddrive in your house/LAN
+1. [all-ready-drives.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/all-ready-drives.bat) can run a command on every single harddrive in your house/LAN
+
+1. [run-piped-input-as-bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/run-piped-input-as-bat.bat)
+1. insert-before|after-each-line.py/.pl - Both perl (25% faster) and python (emoji-capable) versions of utilities to insert text before and after each line. Substitutes ```{{{{QUOTE}}}}``` into quote marks. Used to generate-on-the-fly scripts which may also be piped to ```run-piped-input-as-bat```
 
 1. git wrappers todo
 1. ```dist.bat``` todo
@@ -414,12 +440,13 @@ Here are the old, deprecated, manual instructions, in case *clairevironment-inst
    (A better way might be to go into advanced settings under Windows and edit it there.)<BR>
    (Impatient? Just run c:\bat\setpath.bat or c:\bat\setpath.cmd)
 
-1. Configure *c:\tcmd\tcstart.bat*:    This is the minimal script that is run every time TCC is opened, transient or not.<BR>
+1. Configure *[c:\tcmd\tcstart.bat(https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/tcstart.bat)*:    This is the minimal script that is run every time TCC is opened, transient or not.<BR> 
+   It belongs in ```C:\TCMD\```! Move it there!
    Open it up in a text editor and change the values for OS and MACHINENAME:<BR>
    <em>set OS=11</em><BR> — Valid values are: 95/98/XP/ME/2K/7/10/11 — for whichever version of windows you use
    <em>SET MACHINENAME=DEMONA</em> — Change this to your machinename! Or just use the same name as me 😅<BR>
 
-1. Run TCC.exe your first time, ignoring any errors.  But not directly!  You want to open it in Windows Terminal!   So open up Windows Terminal, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click <em>'Add new profile'</em>. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to "TCC", the command line to "c:\tcmd\tcc.exe", the starting directory to "c:\tcmd", and run as administrator turned on.
+1. Run TCC.exe your first time, ignoring any errors.  But not directly!  You want to open it in Windows Terminal!   So open up Windows Terminal, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click <em>‘Add new profile’</em>. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to ```TCC```, the command line to ```c:\tcmd\tcc.exe```, the starting directory to ```c:\tcmd```, and run as administrator turned on.
    Now run it.
  
 1. At your freshly-run TCC command-line, type ```option```, and switch to the "Advanced" tab.  In the upper-left is a section called *Special Characters*.  Change the separator to "^" (the [caret character](https://en.wikipedia.org/wiki/Caret)). This is actually a deviation from how most people do things, and it creates complications that I've mostly mitigated. However, if I missed any of those, this will be required for backward compatibility with bad decisions I made in the 1990s.
@@ -455,7 +482,7 @@ Here are the old, deprecated, manual instructions, in case *clairevironment-inst
 
 
 1. ENJOY THE CLARIEVIRONMENT!  There's soooooooo much stuff in here. In the future, I will add more reference to this page about them. For the most part, you just have to explore. Most stuff is fairly heavily documented/commented.<BGR>
-   Remember: *c:\bat\setpath.bat* can be run to set your path, if you wind up in a situation where commands aren't in your path.<BR>
+   Remember: *[setpath.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/setpath.bat)* can be run to set your path, if you wind up in a situation where commands aren't in your path.<BR>
    Setpath.bat also generates a *setpath.cmd* so that if you go into PowerShell or other shells, you can use the same generated path.
 
 
