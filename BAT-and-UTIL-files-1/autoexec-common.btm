@@ -70,7 +70,7 @@ rem Girder?
         if     isdir c:\girder (call start-girder)
         if not isdir c:\girder (call warning "not starting girder")
                 
-        
+
 
 
 rem Things for our primary machines only:
@@ -91,6 +91,8 @@ rem Things for our primary machines only:
         :NoCalmon
 
 
+rem Minimize Girder:
+        if     isdir c:\girder (windowHide /min Girder*)
 
 
 goto :END

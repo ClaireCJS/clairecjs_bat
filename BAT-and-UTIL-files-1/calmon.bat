@@ -1,2 +1,2 @@
 @on break cancel
-@calendar-monitor %*
+@call calendar-monitor %*
