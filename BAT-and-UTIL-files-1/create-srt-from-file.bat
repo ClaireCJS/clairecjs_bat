@@ -776,9 +776,8 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 call errorlevel "some sort of problem with the AI generation occurred in create-srt-from-file line 744ish"
 
         rem Cosmetics:
-                echo 🐐 call unlock-bot 
                 call unlock-bot                    %+ rem Disable our status bar
-                title Done: %BASE_TITLE_TEXT%
+                title Done: %BASE_TITLE_TEXT%      %+ rem Update the window title
 
 REM delete zero-byte LRC files that can be created
         rem echo "About to delete zero byte files " %+ pause
