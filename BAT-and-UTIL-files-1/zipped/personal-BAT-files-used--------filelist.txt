@@ -14,6 +14,7 @@
 2024-11-19  02:24          1,092   68%  age.bat
 2024-11-19  07:36             86    9%  AI-song-identify.bat
 2024-11-25  13:15          1,619   62%  alarm-beep.bat
+2019-10-01  10:27             74   48%  alarm-charge.bat
 2024-11-19  07:36             36   -5%  alarmbeep.bat
 2024-11-19  02:24            109   12%  album-art-tool-for-mp3Tag-beforeDash.bat
 2024-11-19  02:24          2,024   69%  album-art-tool-for-mp3Tag.bat
@@ -116,6 +117,7 @@
 2024-12-10  04:50             15  -13%  bot-message.bat
 2024-11-19  02:21            435   41%  bring-back-focus.bat
 2024-11-19  21:35             45   -2%  bring-focus-back.bat
+2024-11-25  13:12            145   18%  cacophony.bat
 2024-11-19  02:21             97    6%  calendar-monitor-helper.bat
 2024-12-11  15:51          1,947   63%  calendar-monitor.bat
 2024-11-19  02:21            104   12%  calibrate-monitor.bat
@@ -132,6 +134,7 @@
 2024-11-25  21:44             39   -5%  cfml.bat
 2024-11-19  07:29          1,004   58%  change-into-random-dir.bat
 2024-11-06  22:52            305   30%  change-single-quotes-to-double-apostrophes.py
+2019-12-23  05:05             23   -8%  charge.bat
 2023-05-05  01:06          1,814   50%  chatgpt-query.py
 2024-11-23  23:44            111   18%  check-a-playlist-for-missing-subtitle-files.bat
 2024-11-19  07:37             34   -5%  check-for-applications-and-programs-that-can-be-upgraded.bat
@@ -548,7 +551,7 @@
 2024-11-25  17:08            623   38%  insert-before-each-line.pl
 2024-11-04  22:16            690   42%  insert-before-each-line.py
 2024-11-19  07:51          1,973   62%  insert-foldername-into-end-of-filenames.bat
-2024-11-19  07:51          2,099   59%  install-autoexec-launcher-to-startup.bat
+2024-12-11  18:12          2,122   59%  install-autoexec-launcher-to-startup.bat
 2024-10-11  10:08         14,688   75%  install-common-programs-with-winget-helper.cmd
 2024-11-19  07:51            399   37%  install-common-programs-with-winget.bat
 2023-04-28  22:19        527,427   80%  install-common-programs-with-winget.lst
@@ -711,7 +714,7 @@
 2024-11-19  15:18         11,285   72%  prompt-common.bat
 2024-11-19  15:18            380   52%  prompt-sound.bat
 2024-11-19  21:35             51    6%  prompt-work.bat
-2024-11-28  01:21            573   46%  publish-bat-updates-to-github.bat
+2024-12-11  18:36            579   47%  publish-bat-updates-to-github.bat
 2024-11-28  01:21             75    2%  publish.bat
 2024-11-19  21:35             37   -5%  push.bat
 2024-11-23  11:06          2,957   60%  put.bat
@@ -733,6 +736,7 @@
 2024-11-19  21:35             55   -3%  randir.bat
 2024-11-19  15:14             77   19%  randline.bat
 2024-04-05  06:00            369   29%  randline.pl
+2024-08-21  22:23            144   28%  randmidi.bat
 2024-11-19  15:15            322   42%  random-cursor-color.bat
 2024-11-19  15:15            202   30%  random-cursor-shape.bat
 2024-11-19  15:15             91   26%  random-cursor.bat
@@ -764,6 +768,7 @@
 2024-11-19  21:35             79    4%  remove-currently-playing-song-from-playlist.bat
 2024-11-19  15:15          1,955   66%  remove-currently-playing-song-from-winamp-playlist.bat
 2024-12-08  18:12          3,185   63%  remove-filename-characters-invalid-for-xbox360.bat
+2022-09-14  17:37            345   38%  remove-leading-0s-from-music-filenames.bat
 2024-12-08  18:12          2,283   59%  remove-percents-from-filenames.bat
 2024-11-22  23:48         15,366   79%  remove-period-at-ends-of-lines.pl
 2024-12-08  18:11          1,850   57%  remove-pluses-from-filenames.bat
@@ -1065,6 +1070,7 @@
 2024-11-19  21:34             58   -3%  val-env-var.bat
 2024-11-16  19:00            236   28%  validate-ahk.bat
 2024-12-08  17:01            740   50%  validate-all-perl-files.bat
+2024-12-11  18:18             29   -6%  validate-all-repositories-are-reachable.bat
 2024-11-16  19:00             58   -3%  validate-env-var.bat
 2024-11-16  19:00             57   -3%  validate-env-vars.bat
 2024-12-10  04:31         18,919   77%  validate-environment-variable.bat
