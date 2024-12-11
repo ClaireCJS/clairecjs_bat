@@ -286,11 +286,16 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
 1. [all-ready-drives.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/all-ready-drives.bat) can run a command on every single harddrive in your house/LAN
 
+1. [dist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/dist.bat) / [distribute-bat-files-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/distribute-bat-files-to-every-drive.bat) — Updates the ```c:\bat\``` on every single drive letter that has a ```c:\bat\```
+
+1. [backup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup.bat) {*filename*} / [backup-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup-to-every-drive) {*filename*} — Backs up file to the ```c:\backups\``` folder on every single drive letter that has a ```c:\backups\```
+
 1. [run-piped-input-as-bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/run-piped-input-as-bat.bat)
 1. insert-before|after-each-line.py/.pl - Both perl (25% faster) and python (emoji-capable) versions of utilities to insert text before and after each line. Substitutes ```{{{{QUOTE}}}}``` into quote marks. Used to generate-on-the-fly scripts which may also be piped to ```run-piped-input-as-bat```
 
 1. git wrappers todo
-1. ```dist.bat``` todo
+
+1. 
 1. ```.bat``` 
 1. ```.bat``` 
 1. ```.bat``` 
