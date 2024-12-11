@@ -222,7 +222,7 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 ```echo %EMOJI_TRUMPET_COLORABLE% %PENTAGRAM% %PENTACLE% %EMOJI_TRUMPET_FLIPPED%```
     In this example, the pentagram is red a secondary environment variable was created that includes chaging the color to red *before* the pentagram, and changing the color to default/white *after* the pentagram. 
 
-### Audio things you can do:
+### 🔊 Audio things you can do: 🔊
 
 * Use [speak.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/speak.bat) to speak with a human voice
 * Use [okgoogle.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/okgoogle.bat) and [play-wav-file.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/play-wav-file.bat) with recordings of your voice to control your smart home from the command line
@@ -238,17 +238,33 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
   step5.exe   $+   call audio-countdown-noise 5 5
 ```
 
-* Use ```white-noise.bat``` to create random white noise.
-* Use ```cacophony.bat```   to create audio unpleasantness
+* Use [white-noise.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/white-noise.bat) to create random white noise. Use [asleep-noise.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/asleep.bat) and [awake-noise.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/awake.bat) to change into nighttime mode and create visual white noise instead of audio white noise.
 
-* Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line.<BR>Change them in the Windows control panel.
+* Use [cacophony.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/cacophony.bat)   to create audio unpleasantness
 
-* Use ```charge.bat```      to rally the troops
+* Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line with our [beep.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/beep.bat)  (which we have aliased the internal command ```beep``` to call).<BR>Change these sounds in the Windows control panel.
+
+* Use [charge.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/charge.bat) to jokingly rally the troops via [alarm-charge.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/alarm-charge.bat)
 
 
 ### More esoteric things you can do:
 
 1. Tagging music: Embedding album art and *ReplayGain* tags into music files
+[add-ReplayGain-tags-to-all-FLACs.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/add-ReplayGain-tags-to-all-FLACs.bat)
+[add-ReplayGain-tags-to-all-mp3s.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/add-ReplayGain-tags-to-all-mp3s.bat)
+[add-ReplayGain-tags.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/add-ReplayGain-tags.bat)
+[album-art-tool-for-mp3Tag-beforeDash.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/album-art-tool-for-mp3Tag-beforeDash.bat)
+[album-art-tool-for-mp3Tag.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/album-art-tool-for-mp3Tag.bat)
+[display-flac-tags.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/display-flac-tags.bat)
+[display-mp3-tags.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/display-mp3-tags.bat)
+[display-tags.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/display-tags.bat)
+[list-all-mp3-tags.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/list-all-mp3-tags.bat)
+[list-flac-replaygain-tags.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/list-flac-replaygain-tags.bat)
+[list-flac-tags.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/list-flac-tags.bat)
+[list-mp3-replaygain-tags.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/list-mp3-replaygain-tags.bat)
+[list-mp3-tags.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/list-mp3-tags.bat)
+[list-replaygain-tags-in-all-flac-files.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/list-replaygain-tags-in-all-flac-files.bat)
+[list-replaygain-tags.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/list-replaygain-tags.bat)
 
 1. Controlling *Winamp*: Music control, playlist management, and extracting the current song playing:
 	* [winamp-setup-notes.txt](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/winamp-setup-notes.txt) — My personal guide on how to build WinAmp my way. 
