@@ -227,7 +227,7 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 * Use [speak.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/speak.bat) to speak with a human voice
 * Use [okgoogle.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/okgoogle.bat) and [play-wav-file.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/play-wav-file.bat) with recordings of your voice to control your smart home from the command line
 
-* Use [randmidi.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/randmidi.bat)    to create and play 15 seconds of random midi “music”
+* Use [randmidi.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/randmidi.bat) to create and play 15 seconds of random midi “music”. The end-result of a fun little project of mine called (Midirandia)[https://github.com/ClaireCJS/midirandia].
 
 * Track the progress of minimized scripts by adding audio countdowns! As the beeps get lower and lower, you know your job is closer and closer to being done. For example, you can track a 5-step process this way:
 ```
@@ -238,9 +238,9 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
   step5.exe   $+   call audio-countdown-noise 5 5
 ```
 
-* Use [white-noise.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/white-noise.bat) to create random white noise. Use [asleep-noise.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/asleep.bat) and [awake-noise.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/awake.bat) to change into nighttime mode and create visual white noise instead of audio white noise.
+* Use [white-noise.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/white-noise.bat) to create random white noise. Use [sleeping.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/sleeping.bat)/[asleep](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/asleep.bat) and [awake-noise.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/awake.bat) to change into nighttime mode and create visual white noise instead of audio white noise.
 
-* Use [cacophony.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/cacophony.bat)   to create audio unpleasantness
+* Use [cacophony.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/cacophony.bat)   to create audio unpleasantness. You’ll be sorry.
 
 * Use ```beep.bat test```   to preview all the Windows system sounds we can access from our command line with our [beep.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/beep.bat)  (which we have aliased the internal command ```beep``` to call).<BR>Change these sounds in the Windows control panel.
 
