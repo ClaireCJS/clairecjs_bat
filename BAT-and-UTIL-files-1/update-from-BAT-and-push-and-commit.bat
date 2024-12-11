@@ -65,7 +65,7 @@ rem Parameters:
 rem Only once per session, validate our environment & make sure we’re running this on the correct machine:
         iff %GITHUB_UPDATER_VALIDATED ne 1 then
                 call validate-environment-variables MACHINENAME MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY italics_on italics_off PYTHON_OFFICIAL_SITELIB_CLAIRE 1st
-                call validate-in-path               c:\bat\update-from-BAT-via-manifest copy-move-post.py fast_cat divider AskYN git.bat commit-and-push.bat error error.bat print-message.bat
+                call validate-in-path               c:\bat\update-from-BAT-via-manifest copy-move-post.py fast_cat divider AskYN git.bat commit-and-push.bat error error.bat print-message.bat update-autoexec-btm-to-publishing-locations.bat
                 if "%MACHINENAME%" ne "%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%" (call error "This script is only meant to be run on our primary machine named “%italics_on%%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%%italics_on%”, but this machine is named “%italics_on%%MACHINENAME%%italics_on%”" %+ goto :END)
                 set GITHUB_UPDATER_VALIDATED=1
         endiff
@@ -89,6 +89,8 @@ rem Make sure none of our files are set as read-only, so that we can successfull
                         :end_of_subroutines
 
 rem Manually-selected copies from locations other than C:\BAT\ ——— Step #1 ——— Define variables for each of the files/folders:                                 ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ ‼ 
+        rem Autoexed stuffs:
+                call update-autoexec-btm-to-publishing-locations.bat
         rem TCC files needed for compatibiity: TODO add notes about these in docs?
                 set          TCMD_DIR=c:\TCMD
                 set          TCMD_INI=%TCMD_DIR%\tcmd.ini                             

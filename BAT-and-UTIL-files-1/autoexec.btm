@@ -3,9 +3,8 @@
 REM NOTE that this file: c:\bat\DEMONA\autoexec.bat is copied to c:\clairecjs_bat\autoexec.bat and c:\bat\autoexec.bat but those are not the official location!
 
 
+
 REM refer to install-autoexec-launcher-to-startup.bat for instructions on how to make this run every bootup!
-
-
 
 SET  AUTOEXEC=1 
 SET  EDIT_SELF=1
@@ -15,6 +14,7 @@ call c:\bat\autoexec-common %*
 
 REM
         call header "Running %@NAME[%0]..."
+        
 
 
 REM Startup DEMONA programs:

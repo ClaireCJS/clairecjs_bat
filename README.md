@@ -58,12 +58,12 @@ But here are the proper instructions:
 
 # At this point, everything is installed!!! 
 
-### Post-Boot Script configuration (like ‘autoexec.bat’):
+### Post-Boot Script configuration: like ‘autoexec.bat’):
 
-1. To have a startup-upon-reboot script akin to the ```autoexec.bat``` of yore, look at [autoexed-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/autoexec-comomn.btm), which is called by my [autoexed-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/autoexec.btm). Install these as a startup script to your current Windows installation with [install-autoexec-launcher-to-startup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/install-autoexec-launcher-to-startup.bat.btm)
+1. To have a startup-upon-reboot script akin to the ```autoexec.bat``` of yore, look at [autoexec-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/autoexec-comomn.btm), which is called by my [autoexec-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/autoexec.btm). Install these as a startup script to your current Windows installation with [install-autoexec-launcher-to-startup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/install-autoexec-launcher-to-startup.bat.btm)
 
 
-### [environm.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/environm.btm) (like ‘.bashrc’):
+### Command Line Startup Script: [environm.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/environm.btm) (like ‘.bashrc’):
 
 When TCC opens, it runs [tcstart.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/tcstart.btm) (which should be placed in the ```c:\TCMD``` folder and is only in my BAT-files folder for packaging purposes).  ```tcstart.btm``` then runs [environm.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/environm.btm), which is our main startup script for each command line instance.
 
@@ -272,7 +272,7 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 	* [get-lyrics-for-currently-playing-song.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/get-lyrics-for-currently-playing-song.bat) – Obtains lyrics for current song, to be saved as a sidecar file.
 	* [create-srt-file-for-currently-playing-song.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/create-srt-file-for-currently-playing-song.bat) – Uses the WhisperAI to [transcribe a SRT karaoke file for the currently playing song, so that lyrics can be read and highlighted as a song is played](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/docs/song-lyric-transcriptoi-with-ai.md). Read more about it at [song-lyric-transcriptoi-with-ai.md](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/docs/song-lyric-transcriptoi-with-ai.md).
 	* [remove-leading-0s-from-music-filenames.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/remove-leading-0s-from-music-filenames.bat) – For an album with fewer than 10 tracks, remove the leading ```0``` from the beginning of each filename. [TODO: this really is more of a music-management command than a winamp command]
-	* **NOT REALLY USED:** [winamp_monitor.py(https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/winamp_monitor.py) — logs tracks playing to the screen, to test Python-Winamp functionality
+	* **NOT REALLY USED:** [winamp_monitor.py](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/winamp_monitor.py) — logs tracks playing to the screen, to test Python-Winamp functionality
 
 
 ### Some scripts that drastically increase scripting power now exist:
