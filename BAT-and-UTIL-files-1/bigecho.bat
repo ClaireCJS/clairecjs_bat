@@ -38,7 +38,7 @@ rem —————————————————————————�
 rem If it's too wide  then simply revert back to echo'ing the command in normal/single-height lines...
         setdos /x-5
         set            STRIPPED_MESSAGE=%@stripansi[%@UNQUOTE[%PARAMS]]
-        set LEN=%@LEN[%STRIPPED_MESSAGE%]
+        set LEN=%@width[%STRIPPED_MESSAGE%]
         setdos /x0
         SET MESSAGE_WIDTH_NORMAL=%LEN%
         SET MESSAGE_WIDTH_DOUBLE=%@EVAL[%LEN * 2] 
@@ -70,9 +70,9 @@ rem                     echo MAXIMUM_DESIRED_NORMAL_WIDTH = %MAXIMUM_DESIRED_NOR
 
                 REM Loop until the entire string has been processed
                 :begin_loop
-                        set string_length_normal_size=%@len[%STR]
+                        set string_length_normal_size=%@width[%STR]
                         rem *2 because we're dealing with double-height text:
-                        set string_length_double_size=%@EVAL[%@len[%STR] * 2]         
+                        set string_length_double_size=%@EVAL[%@width[%STR] * 2]         
 rem                     echo STRING_LENGTH_NORMAL_SIZE = %STRING_LENGTH_NORMAL_SIZE% 🐈
 rem                     echo STRING_LENGTH_DOUBLE_SIZE = %STRING_LENGTH_DOUBLE_SIZE% 🐈
                         

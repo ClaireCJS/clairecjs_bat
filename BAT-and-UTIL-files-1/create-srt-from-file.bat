@@ -62,23 +62,24 @@ rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat whatever.mp3 ke
 rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat last               {quick retry again at the point of creating the lrc file —— separated vocal files must already exist}
 
 REM CONFIG: 2024: 
-        set TRANSCRIBER_TO_USE=Faster-Whisper-XXL.exe                %+ rem Command to generate/transcribe [with AI]
-        set TRANSCRIBER_PDNAME=faster-whisper-xxl.exe                %+ rem probably the same as as %TRANSCRIBER_TO_USE%, but technically         it’s whatever string can go into %@PID[] that returns a nonzero result if we are running a transcriber
-        rem TRANSCRIBER_PRNAME=faster-whisper-xxl                    %+ rem this may be unused now!                process last (type "tasklist" to see) ... Generally the base name of any EXE
+        set TRANSCRIBER_TO_USE=Faster-Whisper-XXL.exe                            %+ rem Command to generate/transcribe [with AI]
+        set TRANSCRIBER_PDNAME=faster-whisper-xxl.exe                            %+ rem probably the same as as %TRANSCRIBER_TO_USE%, but technically         it’s whatever string can go into %@PID[] that returns a nonzero result if we are running a transcriber
+        rem TRANSCRIBER_PRNAME=faster-whisper-xxl                                %+ rem this may be unused now!                process last (type "tasklist" to see) ... Generally the base name of any EXE
         set OUR_LANGUAGE=en
-        set LOG_PROMPTS_USED=1                                       %+ rem 1=save prompt used to create SRT into sidecar ..log file
-        set SKIP_SEPARATION=1                                        %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn’t work anymore
-        SET SKIP_TEXTFILE_PROMPTING=0                                %+ rem 0=use lyric file to prompt AI, 1=go in blind
-        set MAXIMUM_PROMPT_SIZE=3000                                 %+ rem The most TXT we will use to prime our transcription.  Since faster-whisper-xxx only supports max_tokens of 224, we only need 250 words or so. But will pad a bit extra. We just don’t want to go over the command-line-length-limit!
+        set LOG_PROMPTS_USED=1                                                   %+ rem 1=save prompt used to create SRT into sidecar ..log file
+        set SKIP_SEPARATION=1                                                    %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn’t work anymore
+        SET SKIP_TEXTFILE_PROMPTING=0                                            %+ rem 0=use lyric file to prompt AI, 1=go in blind
+        set MAXIMUM_PROMPT_SIZE=3000                                             %+ rem The most TXT we will use to prime our transcription.  Since faster-whisper-xxx only supports max_tokens of 224, we only need 250 words or so. But will pad a bit extra. We just don’t want to go over the command-line-length-limit!
 rem CONFIG: 2024: WAIT TIMES:
-        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                 %+ rem wait time for "are these lyrics good?"-type questions
-        set AI_GENERATION_ANYWAY_WAIT_TIME=45                        %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
-        set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=25      %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
-        set PROMPT_CONSIDERATION_TIME=20                             %+ rem wait time for "does this AI command look sane"-type questions
-        set PROMPT_EDIT_CONSIDERATION_TIME=10                        %+ rem wait time for "do you want to edit the AI prompt"-type questions
-        set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0       %+ rem wait time for "hey lyrics not found!"-type notifications/questions. Set to 0 to not pause at all.
-        set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=300                 %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
-        rem ^^^^ TODO: automation mode where all these get shortened to quite significantly, or all to 3, or all to 1, or something 🐮
+        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                             %+ rem wait time for "are these lyrics good?"-type questions
+        set AI_GENERATION_ANYWAY_WAIT_TIME=45                                    %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
+        set AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES=5    %+ rem wait time for "no lyrics, gen with AI anyway"-type questions *IF WE HAVE APPROVED LYRICLESSNESS STATUS* for the song
+        set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=25                  %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
+        set PROMPT_CONSIDERATION_TIME=20                                         %+ rem wait time for "does this AI command look sane"-type questions
+        set PROMPT_EDIT_CONSIDERATION_TIME=10                                    %+ rem wait time for "do you want to edit the AI prompt"-type questions
+        set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0                   %+ rem wait time for "hey lyrics not found!"-type notifications/questions. Set to 0 to not pause at all.
+        set EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME=300                             %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
+        rem ^^^^ TODO?: automation mode where all these get shortened to quite significantly, or all to 3, or all to 1, or something 🐮
 
 REM config: 2023:
         rem set TRANSCRIBER_TO_USE=call whisper-faster.bat 
@@ -180,7 +181,6 @@ REM branch on certain paramters, and clean up various parameters
                 set special=%TMP_PARAM_1%
                 rem echo checking special=“%special%” ... %%1=“%1” %+ pause
                 if "%special%" eq "ai"                 (set SOLELY_BY_AI=1       )
-                if "%special%" eq "fast"               (set FAST_MODE=1          )
                 if "%special%" eq "cleanup"            (set CLEANUP=1            )
                 if "%special%" eq "force"              (set FORCE_REGEN=1        )
                 if "%special%" eq "force-regen"        (set FORCE_REGEN=1        )
@@ -426,10 +426,20 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
 
 
         iff not exist "%TXT_FILE%" .and. 1 ne %FORCE_REGEN% .and. 1 eq %LYRIC_ATTEMPT_MADE then
-                @echo %ANSI_COLOR_WARNING%%EMOJI_WARNING%Failed to generate %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning% %ansi_color_normal%
-                @echo %ANSI_COLOR_WARNING%%EMOJI_WARNING%because the lyrics %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning% do not exist!! %ansi_color_normal%
-                @call advice  "Use “ai” option to go straight to AI generation"
-                @call askYN "Generate AI anyway" no %AI_GENERATION_ANYWAY_WAIT_TIME%
+                @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Failed to generate %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning%                %emoji_warning% %ansi_color_normal%
+                @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% because the lyrics %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning% do not exist!! %emoji_warning% %ansi_color_normal%
+                rem @call advice  "Use “ai” option to go straight to AI generation"
+                
+                rem If we are approved for lyriclessness, we’ve already decided we don’t want lyrics, so
+                rem reduce the AI_GENERATION_ANYWAY_WAIT_TIME prompt time
+                iff 1 eq %JUST_APPROVED_LYRICLESSNESS% then
+                        set AI_GENERATION_ANYWAY_WAIT_TIME=%AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES%
+                        set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=yes
+                else                        
+                        set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=no
+                endiff
+                
+                @call askYN "Generate AI anyway" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME%
                 if "%ANSWER%" eq "Y" (goto :Force_AI_Generation)
                 goto :END
         else
@@ -700,7 +710,8 @@ REM set a non-scrollable header on the console to keep us from getting confused 
             rem eset FILE_ARTIST
             rem pause
         endiff
-        call divider %+ set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%“%italics_on%%FILE_TITLE%%italics_off%” %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
+        rem note: %@ANSI_BG[0,0,64] is copied from status-bar.bat to match the background color used there
+        call divider %+ set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%%ansi_color_normal%%%@ANSI_BG[0,0,64]%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%“%italics_on%%FILE_TITLE%%italics_off%” %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
         rem BRING BACK AFTER I FIX THE BANNER: call top-banner "%banner_message%"
         rem instead do this temporarily: call important "%banner_message%"
         rem It’s looking more like THIS is what you want:
@@ -765,7 +776,8 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 call errorlevel "some sort of problem with the AI generation occurred in create-srt-from-file line 744ish"
 
         rem Cosmetics:
-                rem call unlock-top                    %+ rem Disable our non-scrollable header now that we are done
+                echo 🐐 call unlock-bot 
+                call unlock-bot                    %+ rem Disable our status bar
                 title Done: %BASE_TITLE_TEXT%
 
 REM delete zero-byte LRC files that can be created
@@ -776,7 +788,18 @@ REM delete zero-byte LRC files that can be created
 REM Post-process the SRT file:
 rem Remove periods from the end of each line in the SRT, but preserve them if at the end of a common word like "Mr.", "Ms.", or if "...":
         rem echo "About to remove invisible periods" %+ pause
-        call divider
+        
+        rem When we had headers, we needed to do this:
+                rem call divider
+        rem But now that we switched to status-bar/footers, i noticed that we end up on the 3ʳᵈ  line of the footer
+        rem after footer unlock. The way I noticed this was that calling ’divider’ up above overwrote the status bar
+        rem divider with our own, which had an incongruent background color, which made me realize the bottom divider
+        rem line of the status-bar was being overrwritten with our “call divider” from above.  So we changedi t
+        rem and instead of calling divider, we simply move one line down. The divider is already there.
+        rem NOTE: that this may change after we update unlock-bot to clean off the footer after unlocking.
+        rem NOTE:      Currently, this implementation is slated to be a temporary cosmetic fix that will likely breka later
+                echo.
+                
         echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%SRT%italics_off% and %italics_on%LRC%italics_off% files...
         if exist "%LRC_FILE%" (remove-period-at-ends-of-lines.pl -w "%LRC_FILE%")
         if exist "%SRT_FILE%" (remove-period-at-ends-of-lines.pl -w "%SRT_FILE%")
@@ -873,7 +896,7 @@ rem Cleanup:
 
 rem Success SRT-generation message:
         @call divider
-        @call success "%blink_on%Karaoke created%blink_off% at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%"
+        @call success "%blink_on%Karaoke created%blink_off% at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%" 
         title %check% %BASE_TITLE_TEXT% generated successfully! %check% 
         if %SOLELY_BY_AI eq 1 (call warning "ONLY AI WAS USED. Lyrics were not used for prompting" silent)
 
@@ -907,7 +930,7 @@ rem A chance to edit:
 
 rem Full-endeavor success message:
         @call divider
-        @call success "“%italics_on%%SRT_FILE%%italics_off%” generated successfully!"
+        @call success "“%italics_on%%SRT_FILE%%italics_off%” generated successfully!" big
         title %CHECK% %SRT_FILE% generated successfully! %check%             
         @call askyn  "Edit SRT file [in case there were mistakes above]" no %EDIT_KRAOKE_AFTER_CREATION_WAIT_TIME% notitle
         iff "%ANSWER" == "Y" then

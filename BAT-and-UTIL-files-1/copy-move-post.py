@@ -55,9 +55,10 @@ EMOJIS_SUMMARY             = '✔️ '
 EMOJIS_ERROR               = '🛑🛑'
 nomoji                     = False                #set to True to disable [some] emoji decoration of lines
 whisper_ai                 = False                #set to True to run in WhisperAI mode
+whisper_decorator_title    = "🚀🚀🚀"             #decorator for Whisper title 
 #Note to self: either maintain a simultaneous update of these 4 values in set-colors.bat or create env-var overrides:
-MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                                                                  #\__ range of random values we
-MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                                                                  #/   choose random colors from
+MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                     #\__ range of random values we
+MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                     #/   choose random colors from
 
 # ANSI codes
 BOLD_ON              = "\033[1m"
@@ -100,6 +101,7 @@ FOOTERS = [                                                                     
            "dirs would be deleted" , "dir would be deleted"  ,
            "Standalone Faster-Whisper-XXL r"
           ]
+
 file_removals  = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                    #values that indicate a file deletion/removal
 sys.stdout     = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                    #utf-8 fix
 move_decorator_from_environment_variable = os.environ.get('move_decorator_from_environment_variable', '')   #fetch user-specified decorator (if any)
@@ -116,10 +118,10 @@ current_processing_segment = 0
 spacer = ""
 
 
-
 class CapturingStdout:
     def __init__(self):
         self.buffer = StringIO()
+        self.last_buffer = ""
         self.original_stdout = sys.stdout
 
     def write(self, data):
@@ -129,11 +131,33 @@ class CapturingStdout:
     def flush(self):
         self.original_stdout.flush()  # Flush the original stdout
 
-# Replace sys.stdout
+    def flush_nope(self):
+        buffer = self.buffer.getvalue()
+        if len(buffer) > 200 and buffer != self.last_buffer:  # Check buffer length and avoid duplicates
+            #buffer = buffer.replace("Faster","Asshole") #this worked
+            #print(f"Buffered data: {buffer}")
+            self.last_buffer = buffer
+        self.original_stdout.flush()  # Flush the original stdout
+
+    def get_buffer_value(self):
+        """Expose the current buffer value."""
+        return self.buffer.getvalue()        
+
+    def set_buffer_value(self, new_value):
+        """Replace the buffer's content with a new value."""
+        self.buffer = StringIO(new_value)
+
+    def string_in_buffer(self, search_string):
+        """Check if a string is in the buffer."""
+        return search_string in self.buffer.getvalue()
+
+# Replace sys.stdout with our custom class
 sys.stdout = CapturingStdout()
 
+def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' + DOUBLE_UNDERLINE_OFF, line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
 
-
+def flush():
+    sys.stdout.flush()
 
 def enable_vt_support():                                                                                        #this was painful to figure out
     import os
@@ -249,9 +273,8 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             if  original_line.startswith("Standalone Faster-Whisper-XXL "):
                 #### = line.replace("Standalone Faster-Whisper-XXL", "\n\n🚀 Standalone Faster-Whisper-XXL 🚀\n").replace(" running on:",":")
                 line = decorator_title + " " + line.rstrip('\n').replace(" running on:"," —— on") + " " + decorator_title
-                #sys.stdout.write(f"\n{BIG_TOP}{line}\n{BIG_BOT}{line}");
-                #sys.stdout.write(f"\n\n");
-                sys.stdout.write(f"\n{BIG_TOP}{line}\n{BIG_BOT}{line}\n\n");
+                #ys.stdout.write(f"\n{BIG_TOP}{line}\n{BIG_BOT}{line}\n\n");
+                sys.stdout.write(f"\n{BIG_TOP}{line}\n{BIG_BOT}{line}\n");
                 flush()
                 line=""; 
 

@@ -4,7 +4,7 @@ set print_message_running=1
 
 :REQUIRES: set-colors.bat to be run first —— to define certain environment variables that represent ANSI character control sequences
 
-:USAGE: call print-message MESSAGE_TYPE "message" [0|1|2]              - arg1=message/colorType, arg2=message, arg3=pause (1) or not (0), or be silent (2)
+:USAGE: call print-message MESSAGE_TYPE "message" [0|1|2|silent|3|big]              - arg1=message/colorType, arg2=message, arg3=pause (1) or not (0), or be silent (2), or display in big mode (3)
 :USAGE:                    ^^^^^^^^^^^^—— MESSAGE_TYPE must match an existing message from the MESSAGE_TYPES list
 :USAGE:                                  ^^^^^^^———— use "{PERCENT}" in your message to insert a   "%"   into your message
 :USAGE:                                  ^^^^^^^———— use     "\n"    in your message to insert a newline into your message but only if %NEWLINE_REPLACEMENT% is set to 1, which must be done EACH time you do this
@@ -57,6 +57,7 @@ REM Ensure correct environment
     setdos /x0
 
 REM Process parameters
+                                  set FAST=0
     if "%PM_PARAM2%" ne "fast" (set   FAST=0   )                                 %+ REM used for "test fast" 
     if "%PM_PARAM2%" eq "fast" (set   FAST=1   )                                 %+ REM used for "test fast" 
     if "%PM_PARAM1%" eq "demo" (goto :DemoSuite)                                 
@@ -74,16 +75,16 @@ REM Process parameters
     set TYPE=%PM_PARAM1%                                                         %+ REM both the color and message type, actually
 
     rem moved to end of this block      set  MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
-    if "%PM_PARAM3%"       eq "1" .or. "%PM_PARAM3%" eq "2" .or. "%PM_PARAM3%" eq "3" .or. "%PM_PARAM3%" eq "" (set MESSAGE=%@UNQUOTE[`%PM_PARAM2%`])
-    if "%PM_PARAM3%"       eq "1"      (set  DO_PAUSE=1)
-    if "%PM_PARAM3%"       eq "silent" (set  SILENT_MESSAGE=1 %+ set PM_PARAM2= %+     set PM_PARAMS2=%2 %4$)
-    if "%PM_PARAM3%"       eq "2"      (set  SILENT_MESSAGE=1)
-    if "%PM_PARAM2%"       eq "yes"    (set  DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
-    if "%PM_PARAM2%"       eq "pause"  (set  DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
-    if %DEBUG_PRINTMESSAGE eq  1       (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% )
-    if %DEBUG_PRINTMESSAGE eq  1       (echo DEBUG: TYPE=%TYPE%,DO_PAUSE=%DO_PAUSE%,MESSAGE=%MESSAGE%)
-                                        set  MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
-    if 1 eq %PRINTMESSAGE_OPT_SUPPRESS_AUDIO (set SILENT_MESSAGE=1)
+    set BIG_MESSAGE=0
+    if "%PM_PARAM3%"       eq "1" .or. "%PM_PARAM3%" eq "2" .or. "%PM_PARAM3%" eq "3" .or. "%PM_PARAM3%" eq "4" .or. "%PM_PARAM3%" eq "" (set MESSAGE=%@UNQUOTE[`%PM_PARAM2%`])
+    if "%PM_PARAM3%"       eq "1"                                (set  DO_PAUSE=1)
+    if "%PM_PARAM2%"       eq "yes"                              (set  DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
+    if "%PM_PARAM2%"       eq "pause"                            (set  DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
+    if 1 eq %PRINTMESSAGE_OPT_SUPPRESS_AUDIO                     (set  SILENT_MESSAGE=1)
+    if "%PM_PARAM3%"       eq "2" .ro. "%PM_PARAM3%" eq "silent" (set  SILENT_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
+    if "%PM_PARAM3%"       eq "3" .or. "%PM_PARAM3%" eq "big"    (set     BIG_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
+    if %DEBUG_PRINTMESSAGE eq  1                                 (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% %+ echo DEBUG: TYPE=%TYPE%,DO_PAUSE=%DO_PAUSE%,MESSAGE=%MESSAGE%)
+    set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
 
     if defined COLOR_%TYPE% (
             set     OUR_COLORTOUSE=%[COLOR_%TYPE%]
@@ -108,7 +109,7 @@ REM Validate parameters
             if not defined COLOR_%TYPE%  (echo %ANSI_COLOR_fatal_error%This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment %+ *pause %+ goto :END)
             if not defined MESSAGE       (echo %ANSI_COLOR_fatal_error%$0 called without a message %+ *pause %+ go)
             call validate-in-path beep.bat 
-            call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING BIG_TOP_ON BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR STAR STAR2 EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_MAGNIFYING_GLASS_TILTED_LEFT
+            call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING big_top BIG_TOP_ON big_bot BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR STAR STAR2 EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_MAGNIFYING_GLASS_TILTED_LEFT
             set VALIDATED_PRINTMESSAGE_ENV=1
     )
 
@@ -212,8 +213,21 @@ REM Pre-Message determination of how many times we will display the message:
         if "%TYPE%" eq       "ERROR" (set HOW_MANY=1 2 3)
         if "%TYPE%" eq "FATAL_ERROR" (set HOW_MANY=1 2 3)
 
+
+
 REM Actually display the message:
+        set FIRST=0
+        set SECOND=0
+        :actually_display-the_message
         setdos /x-6
+
+        iff 1 eq %BIG_MESSAGE% then
+                iff     0 eq %FIRST% then
+                                          set FIRST=1
+                elseiff 1 eq %FIRST% then
+                                          set SECOND=1
+                endiff                        
+        endiff
 
         rem Assemble our message, including resetting the color via ansi codes (%OUR_ANSICOLORTOUSE%) before adding the right decorator
         rem in case the color was changed within the message itself.  
@@ -267,6 +281,9 @@ REM Actually display the message:
                         echos %OUR_ANSICOLORTOUSE%
                 )                        
 
+                REM handle big mode
+                if "1" == "%BIG_MESSAGE%" .and. "1" == "%FIRST%" .and. "1" !=  "%SECOND%" (echos %big_top%)
+                if "1" == "%BIG_MESSAGE%" .and. "1" == "%FIRST%" .and. "1" ==  "%SECOND%" (echos %big_bot%)
 
                 REM Special decorators that are only for the message itself, not the header/fooder:
 
@@ -335,6 +352,9 @@ REM Actually display the message:
                         echo %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
                         echo %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
                 )
+
+        REM If big mode, go back to print the 2ⁿᵈ/lower-½ line:
+                if "1" == "%BIG_MESSAGE%" .and. "1" !=  "%SECOND%" goto :actually_display-the_message
 
         
 REM Post-message delays and pauses

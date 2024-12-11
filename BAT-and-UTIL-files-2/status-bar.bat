@@ -16,21 +16,25 @@ rem TODO gonna have to do this on the bottom actually, because it turns out any 
 
 
 rem Capture parameters:
-        set TB_PARAM_1=%1
-        set TB_PARAM_2=%2
-        set params=%*
+        set       TB_PARAM_1=%1
+        set       TB_PARAM_2=%2
+        set          PARAMS=%*
+        set ORIGINAL_PARAMS=%*
 
 rem call debug "TB_PARAM_1=%TB_PARAM_1%,TB_PARAM_2=%TB_PARAM_2%,params=%*"
 
 rem ENVIRONMENT: Validate the environment:
         if 1 ne %VALIDATED_LOCKED_MESSAGE_BAT% (
                 call validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_UNLOCK_MARGINS ANSI_SAVE_POSITION ANSI_RESTORE_POSITION ANSI_EOL NEWLINE CONNECTING_EQUALS BLINK_ON BLINK_OFF DOT ANSI_COLOR_ERROR ANSI_UNLOCK_MARGINS
+                call validate-function              ANSI_MOVE_UP 
+                call validate-function              ANSI_BG 
+                call validate-function              ANSI_UNLOCK_ROWS 
                 set VALIDATED_LOCKED_MESSAGE_BAT=1
         )
 
 
 rem CONFIG: Set message background color & divider:
-        set LOCKED_MESSAGE_COLOR_BG=%@ANSI_BG[0,0,64]
+        set LOCKED_MESSAGE_COLOR_BG=%@ANSI_BG[0,0,64] %+ rem if this is changed, need to change hard-coding in create-srt--from-file.bat
         set LOCKED_MESSAGE_COLOR=%ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG%
         rem DIVIDER_FILE=%BAT%\dividers\rainbow-%_COLUMNS.txt is defined when it happens later
         rem DIVIDER=%@REPEAT[%CONNECTING_EQUALS,%@EVAL[%_COLUMNS]] is only defined if needed
@@ -148,6 +152,26 @@ rem Was this multiline?
 
 rem New code: 
         set rows_to_lock=3
+        
+        rem The problem with locking rows at the bottom of the screen is
+        rem that we lock our cursor INTO the locked area accidentally.     
+        rem
+        rem One way to deal with this is to clear the screen first, but we don’t 
+        rem want to have to pay such a steep toll just to create a status bar.  
+        rem
+        rem Instead, it was found through experimentation that for a 3 row status bar, 
+        rem sending the ansi_move_up code 4 times (num_locked_rows + 1) would ensure
+        rem that the cursor is high enough to not get caught within the locked area.
+        rem
+        rem However, this introduces another problem: Moving up 4 lines means overwriting
+        rem whatever was up there prior.  
+        rem
+        rem So, to eliminate THAT, we echo 4 blank lines before moving up 4 lines.
+        
+        set                    adjustment_value=%@EVAL[%rows_to_lock+1]
+        repeat                %adjustment_value% echo.
+        echos  %@ANSI_MOVE_UP[%adjustment_value%]
+        
         echos %ANSI_SAVE_POSITION%%@CHAR[27][r%@ANSI_MOVE_TO_ROW[%@EVAL[%_rows-%rows_to_lock+1]]
                echos %LOCKED_MESSAGE_COLOR% %+ call divider %_columns NoNewline
                                         echos %@ANSI_MOVE_TO_COL[0]
