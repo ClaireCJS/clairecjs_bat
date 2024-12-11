@@ -59,8 +59,8 @@ pushd
 :Determine_Command_To_Use
     ::::: LOGGING:
         echo. %+ title %SYNCSOURCE% to %SYNCTARGET%
-        set headerbg=%@ANSI_BG[0,0,64]%LOCKED_MESSAGE_COLOR_BG% %+ rem fallback value followed by set value
-        call footer "Syncing: %ANSI_RESET%%headerbg%%italics_on%%faint_on%%@path[%syncsource%]%faint_off%%@name[%syncsource]%italics_off% %ansi_color_bright_red%%headerbg%%LOCKED_MESSAGE_COLOR_BG%%EMOJI_RIGHT_ARROW% %ansi_color_important%%headerbg%%italics_on%%faint_on%%@path[%syncTarget]%faint_off%%@name[%syncTarget]%italics_off% %ansi_color_bright_green%%headerbg%%DASH%%DASH%%ansi_color_important%%headerbg% {freespace}" %@drive[%syncTarget%]
+        set footerbg=%@ANSI_BG[0,0,64]%LOCKED_MESSAGE_COLOR_BG% %+ rem fallback value followed by set value
+        call footer "Syncing: %ANSI_RESET%%footerbg%%italics_on%%faint_on%%@path[%syncsource%]%faint_off%%@name[%syncsource]%italics_off% %ansi_color_bright_red%%footerbg%%LOCKED_MESSAGE_COLOR_BG%%EMOJI_RIGHT_ARROW% %ansi_color_important%%footerbg%%italics_on%%faint_on%%@path[%syncTarget]%faint_off%%@name[%syncTarget]%italics_off% %ansi_color_bright_green%%footerbg%%DASH%%DASH%%ansi_color_important%%footerbg% {freespace}" %@drive[%syncTarget%]
         set TARGETNAME=%@NAME[%SYNCTARGET%]
 
     ::::: DETERMINE COMMAND TO USE FOR COPY BACKUPS:

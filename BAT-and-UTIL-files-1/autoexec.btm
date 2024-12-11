@@ -13,7 +13,7 @@ call c:\bat\autoexec-common %*
 
 
 REM
-        call header "Running %@NAME[%0]..."
+        call footer "Running %@NAME[%0]..."
         
 
 
@@ -43,7 +43,7 @@ REM Edit this script, if so instructed:
         )
 
 REM We're done!
-        call header unlock
+        call unlock-bot
         call celebrate autoexec done
         unset /q AUTOEXEC
         c:

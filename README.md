@@ -60,7 +60,7 @@ But here are the proper instructions:
 
 ### Post-Boot Script configuration: like ‘autoexec.bat’):
 
-1. To have a startup-upon-reboot script akin to the ```autoexec.bat``` of yore, look at [autoexec-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/autoexec-comomn.btm), which is called by my [autoexec-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/autoexec.btm). Install these as a startup script to your current Windows installation with [install-autoexec-launcher-to-startup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/install-autoexec-launcher-to-startup.bat.btm)
+1. To have a startup-upon-reboot script akin to the ```autoexec.bat``` of yore, look at [autoexec-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/autoexec-comomn.btm), which is called by my [autoexec-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/autoexec.btm). Install these as a startup script to your current Windows installation with [install-autoexec-launcher-to-startup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/install-autoexec-launcher-to-startup.bat)
 
 
 ### Command Line Startup Script: [environm.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files/environm.btm) (like ‘.bashrc’):
