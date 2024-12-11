@@ -174,10 +174,10 @@ Now that we have an environment, and our file are backed up, and we can relax...
 	echo %@RANDCOLOR_FG[]This randomly-colored text has %BOLD_ON%bold%BOLD_OFF% and %ITALICS_ON%italics%ITALICS_OFF% text, and %@ANSI_RGB_FG[0,155,0] I really like this shade of green, %@ANSI_RGB_FG[0,0,50] especially with a slightly blue background to it.
 ```
 
-1. Always use our internal message-printing system for consistency of presentation compliance. 
+1. Always use our [internal message printing system](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/print-message.bat) for consistency of presentation compliance. 
     * Messages are displayed with ```print-message.bat {message_type} {"message in quotes"}```
     * To see a test of every message type, run ```print-message.bat test fast```
-    * Message decorators and audio effects can be changed in ```print-message.bat```
+    * Message decorators and audio effects can be changed in [print-message.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/print-message.bat)
     * Environment variable ```%MESSAGE_TYPES_WITHOUT_ALIASES%``` contains all the different types of messages
     * Message types have each etheir own dedicated BAT files of the same name. 
     * Here are examples of messages of each types, in approximate order of drama:
@@ -214,7 +214,7 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
 ## Visual things you can do:
 
-1. Use ```emoji-grep.bat``` to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
+1. Use [emoji-search.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/emoji-search.bat) to search for emojis we have defined (about 1,400 are defined, and boy was it a pain!).
 
 1. Use ```env ansi_``` to display all the ANSI variables that we have defined.<BR>Use ```functions|grep -i ansi_``` to display all the ANSI functions that we have defined 
 
@@ -224,10 +224,10 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
 ### Audio things you can do:
 
-* Use ```speak.bat```       to speak with a human voice
-* Use ```okgoogle.bat```    to control your smart home with a human voice
+* Use [speak.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/speak.bat) to speak with a human voice
+* Use [okgoogle.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/okgoogle.bat) and [play-wav-file.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/play-wav-file.bat) with recordings of your voice to control your smart home from the command line
 
-* Use ```randmidi.bat```    to create and play 15 seconds of random midi “music”
+* Use [randmidi.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/randmidi.bat)    to create and play 15 seconds of random midi “music”
 
 * Track the progress of minimized scripts by adding audio countdowns! As the beeps get lower and lower, you know your job is closer and closer to being done. For example, you can track a 5-step process this way:
 ```

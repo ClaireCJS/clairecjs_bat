@@ -2,7 +2,8 @@
 @on break cancel
 
  cls
- 
+*cls
+
  call say.bat "Here we go!" | copy-move-post
  
 
