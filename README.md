@@ -118,17 +118,18 @@ When [TCC](http:///www.jpsoft.com) opens, it runs [tcstart.bat](https://github.c
 
 1. Change your cursor color and shape by editing [set-cursor.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/set-cursor.bat) to create your own defaults such as [cursor-claire.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/cursor-Claire.bat) or [cursor-claire.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/cursor-Carolyn.bat).
 
-1. Change your prompt (per-person/username, even) and its colors by looking at [prompt-common.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/prompt-common.bat), which is called by [setprompt.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/setprompt.bat). Also look at [prompt-Claire.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/prompt-Claire.bat) for an examle prompt that current CPU usage (which was insanity to implement).  
+1. Change your prompt (per-person/username, even) and its colors by looking at [prompt-common.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/prompt-common.bat), which is called by [set-prompt.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/set-prompt.bat). Also look at [prompt-claire.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/prompt-claire.bat) for an examle prompt that current CPU usage (which was insanity to implement).  
 
-1. Reduce crash/hang/glitch anxiety by adding ```text color-cycling``` to slow scripts. Increases rainbow beauty and LOOKS REALLY COOL.
+1. [copy-move-post.py](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/copy-move-post.py): Reduce crash/glitch/hang anxiety (“*hangxiety*”) by adding ```text color-cycling``` to scripts.  Make stuff look beautifully trippy.  Increases the 🏳‍🌈 rainbow 🌈 factor 🏳‍🌈 and LOOKS REALLY COOL. Uses my . [claire_console.py](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/clairecjs_utils\claire_console.py) library to handle the actual color cycling calculations.  Add the ```tick()``` function from that library to any Python program to achieve the same effect in Python — also useful for alleviating hanxiety.
     * Integrated into our ```copy``` (cp) and ```move``` (mv) and ```unzip-gracefully``` (uzg) commands. (Notice how all the backslashes color-cycle when copying?)
     * Do this by by piping any slow steps to ```copy-move-post.py```
     * What’s going on in the background for that is a lot of tight ANSI-voodoo loops and math calculations, along with using adaptive throttling with precision timers to preserve cpu resource
     * Some examples of how to do this are:
 ```
-     very-slow.exe | copy-move-post
-call very-slow-bat | copy-move-post
-very-slow-commmand | copy-move-post
+     very-slow.exe       | copy-move-post
+call very-slow-bat       | copy-move-post
+very-slow-commmand       | copy-move-post
+whisper AI transcription | copy-move-post WhisperAI     [hidden feature]
 ```
 
 ---------------------------------
