@@ -47,9 +47,11 @@ rem Respond to command-line parameters:
         unset /q LOCKED_MESSAGE
         rem Unlock mode:
                 if "%TB_PARAM_1" eq "unlock" (
-                        echos %ANSI_UNLOCK_MARGINS%%@ANSI_UNLOCK_ROWS[]
-                        repeat 2 echo.
-                        goto :END
+                        set STATUSBAR_LOCKED=0
+                        echos %@ANSI_UNLOCK_ROWS[]
+                        repeat 4 (echo %ANSI_ERASE_TO_EOL%)
+                        repeat 4 (echos %ANSI_MOVE_UP_1%)
+                        if "%TB_PARAM_1" eq "unlock" goto :END
                 )
 
 
@@ -152,6 +154,9 @@ rem Was this multiline?
 
 rem New code: 
         set rows_to_lock=3
+
+        
+        echos %ANSI_CURSOR_INVISIBLE%
         
         rem The problem with locking rows at the bottom of the screen is
         rem that we lock our cursor INTO the locked area accidentally.     
@@ -166,33 +171,43 @@ rem New code:
         rem However, this introduces another problem: Moving up 4 lines means overwriting
         rem whatever was up there prior.  
         rem
-        rem So, to eliminate THAT, we echo 4 blank lines before moving up 4 lines.
-        
-        set                    adjustment_value=%@EVAL[%rows_to_lock+1]
+        rem So, to eliminate THAT, we echo 4 blank lines before moving up 4 lines.               vv---- but now we’re trying 5 instead of 4       
+        set                    adjustment_value=%@EVAL[%rows_to_lock+1                           +1]
         repeat                %adjustment_value% echo.
         echos  %@ANSI_MOVE_UP[%adjustment_value%]
         
-        echos %ANSI_SAVE_POSITION%%@CHAR[27][r%@ANSI_MOVE_TO_ROW[%@EVAL[%_rows-%rows_to_lock+1]]
-               echos %LOCKED_MESSAGE_COLOR% %+ call divider %_columns NoNewline
+        echos %ANSI_SAVE_POSITION%
+        echos %@CHAR[27][r%@ANSI_MOVE_TO_ROW[%@EVAL[%_rows-%rows_to_lock+1]]
+              if 1 eq 1 .or. 1 ne %STATUSBAR_LOCKED ( echos %LOCKED_MESSAGE_COLOR% %+ call divider %_columns NoNewline )
                                         echos %@ANSI_MOVE_TO_COL[0]
-                                        rem works: echos %*
-                                        echos %LOCKED_MESSAGE%
-                                        rem echos 😈%LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE🎅
-                                        echo %ANSI_ERASE_TO_EOL%%ansi_color_normal%
-               echos %LOCKED_MESSAGE_COLOR% %+ call divider NoNewline
-        echos %@char[27][%[_COLUMNS]G%locked_message_color%%@CHAR[27][38;2;255;0;5m%connecting_equals%        
+                                        rem rem works: echos %*
+                                        rem echos %LOCKED_MESSAGE%
+                                        rem rem echos 😈%LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE🎅
+                                        rem echo %ANSI_ERASE_TO_EOL%
+                                        echo %ansi_color_normal%
+               
+               if 1 eq 1 .or. 1 ne %STATUSBAR_LOCKED ( 
+                        echos %LOCKED_MESSAGE_COLOR%  
+                        call divider NoNewline 
+                        echos %@char[27][%[_COLUMNS]G%locked_message_color%%@CHAR[27][38;2;255;0;5m%connecting_equals%        
+               )
         echos %@CHAR[27][1;%@EVAL[%_rows-%rows_to_lock%]r%ANSI_RESTORE_POSITION%
 
 
 rem Output the message to the screen as well, if we're supposed to:
+        
                 echos %ANSI_SAVE_POSITION%
                 rem OLD: echos %@ANSI_MOVE_TO[0,0]
-                         echos %@ANSI_MOVE_TO[%@EVAL[%_ROWS-1],0]
+                echos %@ANSI_MOVE_TO[%@EVAL[%_ROWS-1],0]
                 echos %LOCKED_MESSAGE_COLOR%
-                echos %DIVIDER%%LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE%%ANSI_EOL%%NEWLINE%
+                rem echos %ANSI_ERASE_TO_EOL%
+                echos %DIVIDER%%LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE%
+                rem echos %ANSI_ERASE_TO_EOL%
+                echos %ANSI_EOL%%NEWLINE%
                 echos %DIVIDER%%LOCKED_MESSAGE_COLOR%
                 echos %ANSI_RESTORE_POSITION%
                 rem echos %@CHAR[27]7%@CHAR[27][s%@CHAR[27][%ROWS_TO_LOCK%;%[_rows]r%@CHAR[27]8%@CHAR[27][u
+                set STATUSBAR_LOCKED=1
 
         goto :END
 
@@ -203,3 +218,4 @@ rem Kludge for if we are near the very top and run this —— use up a couple l
                 echo %ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG% %DOTTIE% %LOCKED_MESSAGE% %DOTTIE% %ansi_reset% %+ rem Echo the header to the console as well.
         endiff
 :END
+        echos %ANSI_CURSOR_VISIBLE%

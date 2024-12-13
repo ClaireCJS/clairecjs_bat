@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo Off
 @on break cancel
 
 REM TODO if a srt exists without lyrics, consider converting that instead of downloading lyrics
@@ -28,6 +28,8 @@ iff "%1" == "nowplaying" .or. "%1" == "now" .or. "%1" == "np" .or. "%1" == "wina
 elseiff "%1" == "here"  then
         rem  process current folder:
         call check-for-missing-lyrics get
+elseiff not exist %1 then
+        call fatal_error "get-lyrics can’t do anything with “%1” because it doesn’t exist!"
 elseiff exist %1 then
         set ext=%@ext[%1]
         rem echo ext is %ext

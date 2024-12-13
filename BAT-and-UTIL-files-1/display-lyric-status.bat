@@ -12,14 +12,15 @@ rem If we passed a parameter, we are operating on a single file:
                 echo    display-lyric-status {lyric_file.txt} - displays lyric status for 1 file
                 echo                                            `^^^^^^^^^^^^^^^^^^^^^` sets LYRIC_STATUS={status value} as a return value
                 echo    display-lyric-status     {*frog*.txt} - displays lyric status for files matching filecard
-                echo    display-lyric-status     all          - displays lyric status for all files
+                echo    display-lyric-status     all          - displays lyric status for allllllll files
+                echo    display-lyric-status     audio        - displays lyric status for all audio files
                 echo.
                 echo  NOTE: Can also be run on an audiofile to display its lyric%italics_on%lessness%italics_off% status
                 %color_normal%
                 echos %ansi_reset%
                 goto :END
         endiff
-        iff "%1" ne "" .and. "%1" ne "all" .and. "1" ne "%@RegEx[[\*\?],%1]"  then
+        iff "%1" ne "" .and. "%1" ne "all" .and. "%1" ne "audio" .and. "1" ne "%@RegEx[[\*\?],%1]"  then
                 rem When operating on a single file, make sure it is the correct extension prior to displaying the lyrics:
                         if "%2" ne "skip_validations" call validate-is-extension "%@UNQUOTE[%1]" %FILEMASK_LYRICS_TEMP% "Slow down, partner! The 1ˢᵗ arg must be a file that matches “%italics_on%%FILEMASK_LYRICS_TEMP%%italics_off%”"
                         call display-lyric-status-for-file %*
@@ -81,7 +82,11 @@ rem Go through each file, displaying it’s lyric status:
         iff "1" ne "%@RegEx[[\*\?],%1]" then
                 set masks=%FILEMASK_AUDIO%;*.srt;*.lrc;*.txt
                 set masks=*
-                if "%1" ne "all" set masks=%1
+                if "%1" eq "audio" (
+                        set masks=%filemask_audio%
+                ) else (
+                        if "%1" ne "all" set masks=%1
+                )                        
         endiff
         
         rem call debug "🎭 masks=%masks%" %+ pause

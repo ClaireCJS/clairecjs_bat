@@ -1,13 +1,8 @@
 @Echo off
 rem on break cancel
 set onbreak=goto:END
+setdos /x0
 
-
-
-:DESCRIPTION: This is not intended as a general file reviewer:
-:DESCRIPTION:           It does things. 
-:DESCRIPTION:           It removes lines from SRT files so that you are reviewing ONLY the subtitles.
-:DESCRIPTION:           This could cause unintended results when used for general file reviewing.
 
 
 
@@ -75,10 +70,11 @@ rem Go through each one and review it:
                 setdos /x0
                 rem title %@CHAR[55357]%@CHAR[56403] %@name[%tmpfile]
                 title %emoji_palm_tree%%@name[%tmpfile]
+                set ext=%@ext[%tmpfile%]
                 iff "%replacement_text%" ne "" then 
                         set our_msg=%replacement_text%
                 else
-                        set our_msg=%@name[%tmpfile%].%@ext[%tmpfile%]
+                        set our_msg=%@name[%tmpfile%].%ext%
                 endiff
                 call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"
                 setdos /x0
@@ -86,7 +82,12 @@ rem Go through each one and review it:
                 setdos /x-5
                 type "%@unquote[%tmpfile%]" >:u8"%tmp_file_1%"
                 setdos /x0
-                grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%tmp_file_1%" >:u8"%tmp_file_2%"
+                rem echo %ansi_color_debug%- DEBUG: %left_quote%%%ext%%%right_quote% is %left_quote%%ext%%right_quote% %warning%CP2309234%warning%
+                if "%ext%" == "srt" (
+                         grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%tmp_file_1%" >:u8"%tmp_file_2%"
+                ) else (
+                         (echo raw|(*copy /q /r "%tmp_file_1%" "%tmp_file_2%" >&nul))
+                )
                 echos %ansi_reset%
                 rem call print-with-columns <%tmp_file_2 
                 type %tmp_file_2 |:u8 call print-with-columns 

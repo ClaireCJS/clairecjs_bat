@@ -4,8 +4,10 @@
 
 ## BAT files created for [JPsoft’s TCC/TCMD command-line](http://www.JPSoft.com)... 🤓
 
-### ...arguably the most sophisticated 64-bit command-line in existence, in constant development for over 35 years... 
+### ...arguably the most schway 64-bit command-line in existence, in constant development for over 35 years... 
 ### ...And this is the result of me using it for over 35 years...
+
+1200+ files.... Each individually reviewed.
 
 This is basically a full layer of scripts built on top of [TCC](http:///www.jpsoft.com)’s functionality for 35 years, to add all kinds of functionality and improvement. Rich color, ANSI stylization, audio effects where appropriate, validators to prevent script brittleness, workflow management, repository validation, backups, maintenance, unix commands, all kinds of stuff that is hard for me to describe because I’ve been working on this environment for 35 years. There’s at least 800 scripts in this repo, though a lot are oneliners that call others and it’s really probably only 400 significant scripts.
 

@@ -12,12 +12,13 @@ REM parameter processing
         call validate-environment-variables STAR PARAM BIG_TOP BIG_BOT
 
 REM dump environment to tmp%file
-        call dump-environment-to-tmpfile.bat
+        call dump-environment-to-tmpfile.bat %+ rem sets env_dump_tmpfile
+        call validate-environment-variable env_dump_tmpfile "something went wrong with dump-environment-to-tmpfile.bat"
 
 REM go through each enviroment variable
         echo.
         set EMOJI_GREP_RESULTS=
-        for /f "tokens=1-999" %co in (%TMPFILE%) gosub ProcessEnvVar %co%
+        for /f "tokens=1-999" %co in (%env_dump_tmpfile%) gosub ProcessEnvVar %co%
 
         iF "%EMOJI_GREP_RESULTS%" eq "" (
             call warning "Found no emoji with '%italics%%PARAM%%italics_off%' in its name"

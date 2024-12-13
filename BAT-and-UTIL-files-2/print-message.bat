@@ -47,7 +47,7 @@ REM Initialize variables:
     set PM_PARAM2=%2``
     set PM_PARAM3=%3
     set TYPE=
-    set DO_PAUSE=-666
+    set EXECUTE_PROTECTION_PAUSES=-666
     set OUR_COLORTOUSE=
     if %SLEEPING eq 1 .or. "%PM_PARAM3" == "2" .or. "%PM_PARAM3" == "silent" .or. "%PM_PARAM3" == "quiet" (set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1)
     
@@ -68,7 +68,7 @@ REM Process parameters
     rem         if %DEBUG_PRINTMESSAGE eq 1 (%COLOR_DEBUG% %+ echo debug branch 2: message is now %MESSAGE %+ %COLOR_NORMAL%)
     rem         REM set TYPE=NORMAL                                         making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer’s-proof things around here.
     rem         REM set OUR_COLORTOUSE=%COLOR_NORMAL%                       making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer’s-proof things around here.
-    rem         REM changed my mind: set DO_PAUSE=1                         we pause by default becuase calling this way means the user doesn’t know what they are doing quite as well
+    rem         REM changed my mind: set EXECUTE_PROTECTION_PAUSES=1                         we pause by default becuase calling this way means the user doesn’t know what they are doing quite as well
     rem )
     set MESSAGE=Null
     set SILENT_MESSAGE=0
@@ -77,13 +77,13 @@ REM Process parameters
     rem moved to end of this block      set  MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
     set BIG_MESSAGE=0
     if "%PM_PARAM3%"       eq "1" .or. "%PM_PARAM3%" eq "2" .or. "%PM_PARAM3%" eq "3" .or. "%PM_PARAM3%" eq "4" .or. "%PM_PARAM3%" eq "" (set MESSAGE=%@UNQUOTE[`%PM_PARAM2%`])
-    if "%PM_PARAM3%"       eq "1"                                (set  DO_PAUSE=1)
-    if "%PM_PARAM2%"       eq "yes"                              (set  DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
-    if "%PM_PARAM2%"       eq "pause"                            (set  DO_PAUSE=1)                         %+ REM capture a few potential call mistakes
+    if "%PM_PARAM3%"       eq "1"                                (set  EXECUTE_PROTECTION_PAUSES=1)
+    if "%PM_PARAM2%"       eq "yes"                              (set  EXECUTE_PROTECTION_PAUSES=1)                         %+ REM capture a few potential call mistakes
+    if "%PM_PARAM2%"       eq "pause"                            (set  EXECUTE_PROTECTION_PAUSES=1)                         %+ REM capture a few potential call mistakes
     if 1 eq %PRINTMESSAGE_OPT_SUPPRESS_AUDIO                     (set  SILENT_MESSAGE=1)
-    if "%PM_PARAM3%"       eq "2" .ro. "%PM_PARAM3%" eq "silent" (set  SILENT_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
+    if "%PM_PARAM3%"       eq "2" .or. "%PM_PARAM3%" eq "silent" (set  SILENT_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
     if "%PM_PARAM3%"       eq "3" .or. "%PM_PARAM3%" eq "big"    (set     BIG_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
-    if %DEBUG_PRINTMESSAGE eq  1                                 (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% %+ echo DEBUG: TYPE=%TYPE%,DO_PAUSE=%DO_PAUSE%,MESSAGE=%MESSAGE%)
+    if %DEBUG_PRINTMESSAGE eq  1                                 (echo %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% %+ echo DEBUG: TYPE=%TYPE%,EXECUTE_PROTECTION_PAUSES=%EXECUTE_PROTECTION_PAUSES%,MESSAGE=%MESSAGE%)
     set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
 
     if defined COLOR_%TYPE% (
@@ -101,7 +101,7 @@ REM Process parameters
             set OUR_COLORTOUSE=%[%OUR_COLORKEY%]
             set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
     )
-    if %DEBUG_PRINTMESSAGE eq 1 (echo TYPE=%TYPE% OUR_COLORTOUSE=%OUR_COLORTOUSE% DO_PAUSE=%DO_PAUSE% MESSAGE is: %MESSAGE% )
+    if %DEBUG_PRINTMESSAGE eq 1 (echo TYPE=%TYPE% OUR_COLORTOUSE=%OUR_COLORTOUSE% EXECUTE_PROTECTION_PAUSES=%EXECUTE_PROTECTION_PAUSES% MESSAGE is: %MESSAGE% )
 
 REM Validate parameters
     set print_message_running=2
@@ -109,7 +109,7 @@ REM Validate parameters
             if not defined COLOR_%TYPE%  (echo %ANSI_COLOR_fatal_error%This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment %+ *pause %+ goto :END)
             if not defined MESSAGE       (echo %ANSI_COLOR_fatal_error%$0 called without a message %+ *pause %+ go)
             call validate-in-path beep.bat 
-            call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE DO_PAUSE EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING big_top BIG_TOP_ON big_bot BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR STAR STAR2 EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_MAGNIFYING_GLASS_TILTED_LEFT
+            call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE EXECUTE_PROTECTION_PAUSES EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING big_top BIG_TOP_ON big_bot BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR STAR STAR2 EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_MAGNIFYING_GLASS_TILTED_LEFT
             set VALIDATED_PRINTMESSAGE_ENV=1
     )
 
@@ -200,7 +200,7 @@ REM Some messages will be decorated with audio:
         )
 
 REM Pre-Message pause based on message type (pausable messages need a litle visual cushion):
-        if %DO_PAUSE% eq 1 (echo.)           
+        if %EXECUTE_PROTECTION_PAUSES% eq 1 (echo.)           
 
 REM Pre-Message determination of if we do a big header or not:
                                                                                          set BIG_HEADER=0
@@ -361,11 +361,11 @@ REM Post-message delays and pauses
         set print_message_running=10
         setdos /x0
         set DO_DELAY=0    
-        REM DO_PAUSE=0 WOULD BE FATAL beause we set this from calling scripts for automation
-        if "%TYPE%" eq "WARNING"                        (set DO_DELAY=1)
-        if "%TYPE%" eq "FATAL_ERROR"                    (set DO_DELAY=2)
-        if "%TYPE%" eq "ERROR" .or. "%TYPE%" eq "ALARM" (set DO_PAUSE=1)
-        if "%TYPE%" eq "FATAL_ERROR"                    (set DO_PAUSE=2)
+        REM EXECUTE_PROTECTION_PAUSES=0 WOULD BE FATAL beause we set this from calling scripts for automation
+        if "%TYPE%" eq "WARNING"                                   (set DO_DELAY=1)
+        if "%TYPE%" eq "ERROR"       .or. "%TYPE%" eq "ALARM"      (set EXECUTE_PROTECTION_PAUSES=1)
+        if "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "FATALERROR" (set DO_DELAY=2)
+        if "%TYPE%" eq "FATAL_ERROR"                               (set EXECUTE_PROTECTION_PAUSES=2)
 
 REM Post-message beeps and sound effects
         if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO eq 1 (goto :No_Beeps_2)
@@ -397,12 +397,14 @@ REM Post-message beeps and sound effects
     
 REM For errors, give chance to gracefully exit the script (no more mashing of ctrl-C / ctrl-Break)
         set print_message_running=15
-        if "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "ERROR" (
+        rem echo type=%type%        
+        if "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "FATALERROR" .or. "%TYPE%" eq "ERROR" (
                 set DO_IT=
                 set temp_title=%_wintitle
                 call askyn "Cancel all execution and return to command line?" yes
+                rem yes, CANCELL with 2 L’s. Complex reasons for this:
                 if %DO_IT eq 1 (
-                        call CANCELll
+                        call CANCELLL.bat
                         title %temp_title%
                         goto :END
                 )
@@ -410,8 +412,8 @@ REM For errors, give chance to gracefully exit the script (no more mashing of ct
 
 REM Hit user with the “pause” prompt several times, to prevent accidental passthrough from previous key mashing
         unset /q loop
-        if %DO_PAUSE gt 0 (set           loop=4 3 2 1 0)
-        if %DO_PAUSE gt 1 (set loop=9 8 7 6 5 4 3 2 1 0)
+        if %EXECUTE_PROTECTION_PAUSES gt 0 (set           loop=4 3 2 1 0)
+        if %EXECUTE_PROTECTION_PAUSES gt 1 (set loop=9 8 7 6 5 4 3 2 1 0)
         if defined loop (for %pauseNum in (%loop%) do (echos    %pause% %ANSI_RESET%%blink_on%%ansi_red%%ansi_save_position%[%ansi_bright_red%%pauseNum%%ansi_red%]%blink_off% %@ANSI_RANDFG_SOFT[]%@ANSI_RANDBG_SOFT[]`` %+ echos Press any key when ready... %+ *pause /c >nul %+ echo %@ansi_move_left[3] %CHECK%%@ansi_move_up[1]%@ansi_move_left[31]%ansi_restore_positon%%@ansi_move_down[1]%ansi_reset%%ansi_color_green%%faint_on%[%pauseNum%]%ansi_reset%%@ansi_move_right[28]))
 
 

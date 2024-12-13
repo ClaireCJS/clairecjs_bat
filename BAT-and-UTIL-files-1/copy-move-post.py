@@ -31,6 +31,9 @@ import threading
 import queue
 import time
 import os
+import signal
+import struct
+import ctypes
 try:
     import clairecjs_utils as claire
 except ImportError:
@@ -44,13 +47,19 @@ except ImportError:
 from colorama import init
 init(autoreset=False)
 
+#screen_columns, screen_rows = os.get_terminal_size()
+
+import shutil
+screen_columns, screen_rows = shutil.get_terminal_size()
+
 SPECIAL_TREATMENT_FOR_QUESTION_LINES = True       # Set to False to suppress special treatment of lines with '?'
 COLOR_QUESTION_BACKGROUNDS           = True       #whether to highlight lines with "?" with a random background character and other stuff —— originally developed for Y/N/R/A-type prompts when copying files, but annoying in other situations
 
 DEFAULT_COLOR_CYCLE_MODE   = "fg"                 #whether to color-cycle foreground ("fg"), background ("bg"), or both ("both").
 EMOJIS_COPY                = '⭢︋📂 '
 EMOJIS_PROMPT              = '❓❓ '
-EMOJIS_DELETE              = '👻⛔'               #"ghost" + "no" = dead file? no more file? File is now a ghost?
+#MOJIS_DELETE              = '👻⛔'               #"ghost" + "no" = dead file? no more file? File is now a ghost?
+EMOJIS_DELETE              = '👻⛔ '              #"ghost" + "no" = dead file? no more file? File is now a ghost?
 EMOJIS_SUMMARY             = '✔️ '
 EMOJIS_ERROR               = '🛑🛑'
 nomoji                     = False                #set to True to disable [some] emoji decoration of lines
@@ -60,7 +69,9 @@ whisper_decorator_title    = "🚀🚀🚀"             #decorator for Whisper t
 MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                     #\__ range of random values we
 MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                     #/   choose random colors from
 
+
 # ANSI codes
+ANSI_RESET           = "\033[39m\033[49m\033[0m"
 BOLD_ON              = "\033[1m"
 BOLD_OFF             = "\033[22m"
 BIG_TOP              = "\033#3"
@@ -68,24 +79,32 @@ BIG_BOT              = "\033#4"
 BIG_OFF              = "\033#0"
 BLINK_ON             = "\033[6m"
 BLINK_OFF            = "\033[25m"
-FAINT_ON             = "\033[2m"
-FAINT_OFF            = "\033[22m"
 COLOR_GREY           = "\033[90m"
-MOVE_TO_COL_1        = "\033[1G"
-MOVE_UP_1            = "\033M"
 COLOR_BRIGHT_GREEN   = "\033[92m"
-ANSI_RESET           = "\033[39m\033[49m\033[0m"
-ITALICS_ON           = "\033[3m"
-ITALICS_OFF          = "\033[23m"
-REVERSE_ON           = "\033[7m"
-REVERSE_OFF          = "\033[27m"
-CURSOR_RESET         = "\033[ q"
-UNDERLINE_ON         = "\033[4m"
-UNDERLINE_OFF        = "\033[24m"
-MOVE_TO_COL_1        = "\033[1G"
+CONCEAL_ON           = "\033[8m"
+CONCEAL_OFF          = "\033[28m"
 CR                   = "\015"
+CURSOR_INVISIBLE     = "\033[?25l"
+CURSOR_VISIBLE       = "\033[?25h"
+CURSOR_RESET         = "\033[ q"
 DOUBLE_UNDERLINE_OFF = "\033[24m"
 DOUBLE_UNDERLINE_ON  = "\033[21m"
+ERASE_TO_EOL         = "\033[0K"
+FAINT_ON             = "\033[2m"
+FAINT_OFF            = "\033[22m"
+ITALICS_ON           = "\033[3m"
+ITALICS_OFF          = "\033[23m"
+#OVE_TO_COL_1        = "\033[1G"
+MOVE_TO_COL_1        = "\r"
+MOVE_TO_COL_1        = "\033[1G"
+MOVE_UP_1            = "\033M"
+REVERSE_ON           = "\033[7m"
+REVERSE_OFF          = "\033[27m"
+UNDERLINE_ON         = "\033[4m"
+UNDERLINE_OFF        = "\033[24m"
+
+PRENEWLINE = ERASE_TO_EOL
+
 
 FOOTERS = [                                                                                                     #values that indicate a copy/move summary line,
            "files copied"          , "file copied"           ,                                                 #which we like to identify for special treatment
@@ -103,7 +122,7 @@ FOOTERS = [                                                                     
           ]
 
 file_removals  = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                    #values that indicate a file deletion/removal
-sys.stdout     = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                    #utf-8 fix
+#sys.stdout     = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                    #utf-8 fix
 move_decorator_from_environment_variable = os.environ.get('move_decorator_from_environment_variable', '')   #fetch user-specified decorator (if any)
 
 if os.environ.get('no_tick') == "1": TICK = False
@@ -117,9 +136,73 @@ else                                         : DOUBLE_LINES_ENABLED = True      
 current_processing_segment = 0
 spacer = ""
 
-def flush():
-    #print(f"Buffered data: {sys.stdout.buffer.getvalue()}")     # Inspect buffered data
+#————————————————
+
+def hide_cursor():
+    sys.stdout.write("\033[?25l")
     sys.stdout.flush()
+
+def show_cursor():
+    sys.stdout.write("\033[?25h")
+    sys.stdout.flush()
+
+signal.signal(signal.SIGINT , lambda *args: (show_cursor(), enable_vt_support(), sys.exit(0)))
+signal.signal(signal.SIGTERM, lambda *args: (show_cursor(), enable_vt_support(), sys.exit(0)))
+
+def set_cursor_position(x, y):
+    h = ctypes.windll.kernel32.GetStdHandle(-11)  # STD_OUTPUT_HANDLE
+    pos = (y << 16) | x  # Combine x and y into a single integer
+    ctypes.windll.kernel32.SetConsoleCursorPosition(h, pos)
+
+    # Example: Move to column 1, row 0
+    #set_cursor_position(0, 0)
+
+def set_cursor_column_helper(x):
+    # Define necessary structures and constants
+    class COORD(ctypes.Structure):
+        _fields_ = [("X", ctypes.c_short), ("Y", ctypes.c_short)]
+
+    class CONSOLE_SCREEN_BUFFER_INFO(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", COORD),
+            ("dwCursorPosition", COORD),
+            ("wAttributes", ctypes.c_ushort),
+            ("srWindow", ctypes.c_short * 4),
+            ("dwMaximumWindowSize", COORD),
+        ]
+
+    h = ctypes.windll.kernel32.GetStdHandle(-11)  # STD_OUTPUT_HANDLE
+
+    # Get current screen buffer info
+    csbi = CONSOLE_SCREEN_BUFFER_INFO()
+    if not ctypes.windll.kernel32.GetConsoleScreenBufferInfo(h, ctypes.byref(csbi)):
+        raise ctypes.WinError()
+
+    # Set the cursor to the desired column and keep the current row
+    #x = x - 1
+    new_position = COORD(x, csbi.dwCursorPosition.Y)
+    if not ctypes.windll.kernel32.SetConsoleCursorPosition(h, new_position):
+        raise ctypes.WinError()
+
+def set_cursor_column_unsafe(x):
+    # Example: Move to column 0, keeping the current row
+    try:
+        set_cursor_column_helper(0)
+        #print("Cursor moved to column 0 without changing the row!")
+    except Exception as e:
+        print(f"Error: {e}")
+
+cursor_mutex = threading.Lock()
+output_mutex = threading.Lock()
+
+def set_cursor_column(x):
+    with cursor_mutex:
+        set_cursor_column_unsafe(x)
+
+
+#def flush():
+#    #print(f"Buffered data: {sys.stdout.buffer.getvalue()}")     # Inspect buffered data
+#    sys.stdout.flush()
    
 
 class CapturingStdout:
@@ -156,17 +239,18 @@ class CapturingStdout:
         return search_string in self.buffer.getvalue()
 
 # Replace sys.stdout with our custom class
-sys.stdout = CapturingStdout()
+#sys.stdout = CapturingStdout()
 
 def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' + DOUBLE_UNDERLINE_OFF, line)                                 #ansi-stylize numbers - italics + we choose double-underline in this example
 
 def flush():
-    sys.stdout.flush()
+    #sys.stdout.flush()    
+    #with output_mutex: sys.stdout.flush()
+    sys.stdout.flush()    
 
 def enable_vt_support():                                                                                        #this was painful to figure out
     import os
     if os.name == 'nt':
-        import ctypes
         hOut = ctypes.windll.kernel32.GetStdHandle(-11)
         out_modes = ctypes.c_uint32()
         ENABLE_VT_PROCESSING = ctypes.c_uint32(0x0004)
@@ -192,7 +276,7 @@ def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' +
 our_ansi_reset = ANSI_RESET + move_decorator_from_environment_variable
 
 def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
-    #sys.stderr.write(f"DEBUG: called print_line({line_buffer}, {r}, {g}, {b}, {additional_beginning_ansi})\n")
+    #sys.stderr.write(f"DEBUG: called print_line({line_buffer}, {r}, {g}, {b}, {additional_beginning_ansi}){PRENEWLINE}\n")
     color_change_ansi = f'\033[38;2;{r};{g};{b}m'
     
     original_line_buffer = line_buffer
@@ -209,14 +293,20 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             double      = True
             summary     = True
 
-    line = ""
+    line = ""  
+    #as of TCC v33 the copy /G now outputs to screen directly which leaves detritus that we WANT until we don’t want it
+    #so now we have to move to column 1
     if nomoji is True:                                                                                          # Start the line off
-        line = ""
+        line = MOVE_TO_COL_1
     else:
-        line = move_decorator_from_environment_variable                                                                                                      #decorate with environment-var-supplied decorator if applicable
+        line = line + MOVE_TO_COL_1 + move_decorator_from_environment_variable                                                                                                      #decorate with environment-var-supplied decorator if applicable
         if   any(substring in line_buffer for substring in file_removals ): line += EMOJIS_DELETE                                  #treatment for file deletion lines
         elif any(substring in line_buffer for substring in ["Y/N/A/R)"]  ):
-            line += EMOJIS_PROMPT                                  #treatment for  user prompt  lines
+            line += EMOJIS_PROMPT + CURSOR_VISIBLE                                  #treatment for  user prompt  lines
+            with output_mutex: 
+                enable_vt_support()
+                sys.stdout.write(CURSOR_VISIBLE)    #timing
+                flush()
             #print(f"[line buffer={line_buffer}")
         elif any(substring in line_buffer for substring in ["=>","->"]   ): line += EMOJIS_COPY                                    #treatment for   file copy   lines
         elif any(substring in line_buffer for substring in ["TCC: (Sys)"]):                                                        #treatment for error message lines
@@ -239,10 +329,10 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                     footer = footer_match.group(0)
                     lines.append(f"{segment} {footer}")
                     line_buffer = line_buffer.replace(footer, "", 1).strip()                                       # Update line_buffer to remove the footer we just matched
-            line_buffer = f'\n{EMOJIS_SUMMARY}'.join(lines)
+            line_buffer = f'{ERASE_TO_EOL}{PRENEWLINE}\n{EMOJIS_SUMMARY}'.join(lines)
 
-    #line += f'{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                       #make line be our random color
-    line = f'{line}{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}\n'                   #make line be our random color
+    #line     += f'{color_change_ansi}{additional_beginning_ansi}{original_line}{ANSI_RESET}{PRENEWLINE}\n'                   #make line be our random color
+    line = f'{line}{color_change_ansi}{additional_beginning_ansi}{original_line}{ERASE_TO_EOL}{ANSI_RESET}\n'                   #make line be our random color
 
     # postprocess line:
     if not nomoji:
@@ -263,13 +353,19 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         spacer_even_less =    "   "
         if verbose: print(f"orig_line is [orig={original_line}][line={line}]")
         
-        #f "[ctranslate2]" in line: just won't work!y
+        #f "[ctranslate2]" in line: just won't work!
         #f "[ctranslate2]" in original_line:
             
+        #if sys.stdout.string_in_buffer("ctranslate"):
+        #    #this fails to find it!!!!! 
+        #    sys.stdout.print(f"FOUND IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ")
+        #   #pass
+
         if  "ctranslate"   in original_line:
             #ine = spacer + FAINT_ON   + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[")        + FAINT_OFF
             #ine = spacer + COLOR_GREY + "⭐" +              line.replace("[",f"{COLOR_GREY}[")        + FAINT_OFF
-            line = spacer + FAINT_ON   +                                     f"{COLOR_GREY}⭐"  + line + FAINT_OFF + "HEYOOOOOOOOOOO"
+            #ine = spacer + FAINT_ON   +                                     f"{COLOR_GREY}⭐"  + line + FAINT_OFF + "HEYOOOOOOOOOOO"
+            line = spacer + FAINT_ON   + COLOR_GREY + "⭐" + line + FAINT_OFF #+ "HEYOOOOOOOOOOO"
             line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)
             #DEBUG: print ("ctranslate line found!")#
         line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)    #todo experimental: just do this, won't affecti f there isn't a match
@@ -277,28 +373,36 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             #### = line.replace("Standalone Faster-Whisper-XXL", "\n\n🚀 Standalone Faster-Whisper-XXL 🚀\n").replace(" running on:",":")
             line = decorator_title + " " + line.rstrip('\n').replace(" running on:"," —— on") + " " + decorator_title
             #ys.stdout.write(f"\n{BIG_TOP}{line}\n{BIG_BOT}{line}\n\n");
-            sys.stdout.write(f"\n{BIG_TOP}{line}\n{BIG_BOT}{line}\n");
-            flush()
+            with output_mutex: 
+                sys.stdout.write(f"\n{BIG_TOP}{line}{ERASE_TO_EOL}{PRENEWLINE}\n{BIG_BOT}{line}{ERASE_TO_EOL}{PRENEWLINE}\n");
+                flush()
             line=""
+
 
         # not working:
         line = line.replace("MDX Kim_Vocal_2" ,f"MDX Kim-Vocal 2") 
+        #ine = line.replace("MDX Kim_Vocal_2" ,f"{MOVE_UP_1}MDX Kim-Vocal 2")  #was needed for a bit, but not now
         # patterned substitutions: (in alphabetical order):                   
-        line = line.replace("Audio filtering finished in: "                 ,f"⏱ Audio filtering finished in: {ITALICS_ON}")
-        line = line.replace("* Compression ratio threshold is not"          ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Compression ratio threshold is not") + FAINT_OFF
-        line = line.replace("* Log probability threshold is not"            ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Log probability threshold is not"  ) + FAINT_OFF
-        line = line.replace("Audio filtering is in progress"                ,f"{MOVE_UP_1}🔊 {COLOR_BRIGHT_GREEN}Audio filtering is {ANSI_RESET}{ITALICS_ON}in progress{ITALICS_OFF}{COLOR_BRIGHT_GREEN}")
-        line = line.replace("Model loaded in: "                             ,f"💾 Model loaded in: {ITALICS_ON}") + "\n"
-        line = line.replace("Operation finished in: "                       ,f"{MOVE_UP_1}{MOVE_UP_1}🏁 Operation finished in: {ITALICS_ON}")
-        line = line.replace("Subtitles are written to '"                    ,f"✅ Subtitles are written to '{ITALICS_ON}{BOLD_ON}").replace("' directory.",f"{BOLD_OFF}{ITALICS_OFF}' directory. ✅")
-        line = line.replace("Starting work on: "                            ,f"👂 Starting transcription work on: {ITALICS_ON}")
-        line = line.replace("Transcription speed: "                         ,f"{FAINT_ON}{COLOR_GREY}⏱  Transcription speed: {ITALICS_ON}")
-        line = line.replace("CUDA"                                          ,f"{ITALICS_ON}CUDA{ITALICS_OFF}")
-        line = line.replace("VAD filter removed "                           ,f"✔  VAD filter removed: {ITALICS_ON}")
-        line = line.replace("VAD filter kept the following audio segments: ",f"✔️  VAD filter kept the following audio segments: {FAINT_ON}")
-        line = line.replace("VAD finished in: "                             ,f"{MOVE_UP_1}{MOVE_TO_COL_1}🏁 VAD finished in: {ITALICS_ON}")
-        line = line.replace("VAD timestamps are dumped to "                 ,f"{MOVE_UP_1}✍  VAD timestamps are dumped to: {ITALICS_ON}")
-       
+        line = line.replace("Starting work on: "                                      ,f"🎤 Starting transcription work on: {ITALICS_ON}")             
+        line = line.replace("* Compression ratio threshold is not"                    ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Compression ratio threshold is not") + FAINT_OFF
+        line = line.replace("* Log probability threshold is not"                      ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Log probability threshold is not"  ) + FAINT_OFF
+        line = line.replace("* No speech threshold is met"                            ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ No speech threshold is met")         + FAINT_OFF
+        line = line.replace("Audio filtering finished in: "                           ,f"⏱  Audio filtering finished in: {ITALICS_ON}")
+        line = line.replace("Audio filtering is in progress"                          ,f"{MOVE_UP_1}🔊 {COLOR_BRIGHT_GREEN}Audio filtering is {ANSI_RESET}{ITALICS_ON}in progress{ITALICS_OFF}{COLOR_BRIGHT_GREEN}") + "\n"
+        line = line.replace("CUDA"                                                    ,f"{ITALICS_ON}CUDA{ITALICS_OFF}")
+        line = line.replace("Estimating duration from bitrate, this may be inaccurate",f"🤔 Estimating duration from bitrate {FAINT_ON}(may be inaccurate){FAINT_OFF}") + "\n"
+        line = line.replace("Model loaded in: "                                       ,f"💾 Model loaded in: {ITALICS_ON}") + "\n"
+        line = line.replace("Number of visible GPU devices: "                         ,f"🖥️ Number of visible GPU devices: {ITALICS_ON}") + "\n"
+        line = line.replace("Operation finished in: "                                 ,f"{MOVE_UP_1}{MOVE_UP_1}🏁 Operation finished in: {ITALICS_ON}")
+        line = line.replace("Processing audio with duration"                          ,f"👂 Processing audio with duration{ITALICS_ON}") + "\n"
+        line = line.replace("Subtitles are written to '"                              ,f"✅ Subtitles are written to '{ITALICS_ON}{BOLD_ON}").replace("' directory.",f"{BOLD_OFF}{ITALICS_OFF}' directory. ✅")
+        line = line.replace("Supported compute types by GPU:"                         ,f"🖥️ Supported compute types by GPU: {ITALICS_ON}") + "\n"
+        line = line.replace("Transcription speed: "                                   ,f"{FAINT_ON}{COLOR_GREY}⏱  Transcription speed: {ITALICS_ON}")
+        line = line.replace("VAD filter removed "                                     ,f"✔  VAD filter audio removal duration: {ITALICS_ON}").replace("of audio","")
+        line = line.replace("VAD filter kept the following audio segments: "          ,f"✔️ VAD filter kept the following audio segments: {FAINT_ON}") #for some reason this needs 1 less space before “VAD” ... not a mistake
+        line = line.replace("VAD finished in: "                                       ,f"{MOVE_UP_1}{MOVE_TO_COL_1}🏁 VAD finished in: {ITALICS_ON}")
+        line = line.replace("VAD timestamps are dumped to "                           ,f"{MOVE_UP_1}✍  VAD timestamps are dumped to: {ITALICS_ON}")
+                                                                                      
         # unique substitutions: multi-line:
         if  original_line.startswith("  Processing segment at "):
             current_processing_segment += 1
@@ -309,14 +413,26 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         if " --> " in line:line = f"🌟 {BLINK_ON}" + line.replace("]  ",f"]{BLINK_OFF}{ANSI_RESET}{ITALICS_ON}  ")
         if any(substring in line for substring in ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"]):                line = line.replace("* Reset prompt. ",COLOR_GREY + FAINT_ON + spacer + "⭐  Reset prompt. ") + FAINT_OFF            #bad syntax:                              ["Reset prompt. prompt_reset_on_temperature threshold is met", "Reset prompt. prompt_reset_on_no_end is triggered"] in line:
 
-    lines_to_print = line.split('\n')                                                                         #there really shouldn't be a \n in our line, but things happen
+        #moving this one later because it seemed to be hitting other things:
+            
+
+    lines_to_print = line.split(f'\n')                                                             #there really shouldn't be a \n in our line, but things happen
     i = 0
     for myline in lines_to_print:                                                                             #print our line, but do it double-height if we're supposed to
         if myline != '\n' and myline != '':
             if not double or not DOUBLE_LINES_ENABLED:
-                sys.stdout.write(f'{myline}')
+                #TCC v32: sys.stdout.write(f'{myline}')
+                #TCC v33:
+                #sg = MOVE_TO_COL_1 + myline 
+                msg =  myline
+                set_cursor_column(0)
+                with output_mutex: 
+                    #sys.stdout.write(MOVE_TO_COL_1 + myline)
+                    column_target = screen_columns - 5
+                    sys.stdout.write(msg + f"\033[{column_target}G     \b\b\b\b\b{CONCEAL_ON}")
+                    flush()
             else:
-                enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838
+                enable_vt_support()                                                                            #suggestion from https://github.com/microsoft/terminal/issues/15838 to fix double height lines sometimes not rendering
                 #ys.stdout.write(f'{MOVE_TO_COL_1}')   #20240324: adding '{MOVE_TO_COL_1}' as ??bugfix?? for ansi creeping out due to TCC error and mis-aligning our double-height lines - prepend the ansi code to move to column 1 first, prior to printing our line
                 #ys.stdout.write(f'{MOVE_TO_COL_1}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
 
@@ -324,10 +440,19 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
                 #sys.stdout.write(f'{MOVE_TO_COL_1}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n')
                 #sys.stdout.write(               f'{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
                 #still leaky but more likely for summary lines to be in correct column?
-                sys.stdout.write(f'           {CR}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n')
-                sys.stdout.write(           f'{CR}{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}\n')
-                flush()
-    sys.stdout.write('\n')
+                #ys.stdout.write(f'           {CR}{BIG_TOP}\033[38;2;{r};{g};{b}m{myline}\n')
+                ###sys.stdout.write(f'           {CR}{BIG_TOP}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}{ERASE_TO_EOL}\n')    #2024/12/12 — not sure why we weren’t inserting additional-begining-ansi into the top-line... but this section had to be updated anyway because TCC v33 “fixes” the /G option on the copy command so that it outputs, which leaves screen destritus, so we have to  add ansi-clear-to-eol at the end of these 2 lines:
+                #2024/12/12^^^^^^^^^^^^^^^^^^^^^^^^^ I forget why those spaces were in there, but as of TCCv33 with the /G in copy “fixed”, things seem to be working fine without the spaces here.. in fact better
+                #2024/12/12 — not sure why we weren’t inserting additional-begining-ansi into the top-line... but this section had to be updated anyway because TCC v33 “fixes” the /G option on the copy command so that it outputs, which leaves screen destritus, so we have to  add ansi-clear-to-eol at the end of these 2 lines.. then we made them 1 line of code
+                with output_mutex: 
+                    set_cursor_column(0)
+                    sys.stdout.write(f'{CR}{MOVE_TO_COL_1}{BIG_TOP}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}{ERASE_TO_EOL}{PRENEWLINE}\n{CR}{MOVE_TO_COL_1}{BIG_BOT}\033[38;2;{r};{g};{b}m{additional_beginning_ansi}{myline}{ERASE_TO_EOL}{PRENEWLINE}\n')
+                    set_cursor_column(0)
+                    flush()
+    with output_mutex: 
+        sys.stdout.write(f'\n')
+        #set_cursor_column(0)
+        flush()
 
 
 def reader_thread(q):
@@ -341,6 +466,9 @@ def reader_thread(q):
             break
 
 ## MAIN #######################################################################################################################################################
+
+print(CURSOR_INVISIBLE,end="")
+
 
 # Create a queue and start the reader thread
 q = queue.Queue()
@@ -407,7 +535,6 @@ if whisper_ai:
 
 
 
-
 while t.is_alive() or not q.empty():
 #hile True:
     # It's tempting to process things line-by-line, but due to prompts and such, we must process things char-by-char
@@ -423,7 +550,7 @@ while t.is_alive() or not q.empty():
 
         if char == '?' and not in_prompt and SPECIAL_TREATMENT_FOR_QUESTION_LINES:               #coloring for copy/move prompts, so we can make them blinky & attention-get'y
             in_prompt = True
-
+            sys.stdout.write(CURSOR_VISIBLE)
             #color switching logic: background colors:
             if not whisper_ai:
                 if COLOR_QUESTION_BACKGROUNDS:                                          # (for file copies, but not for other things)
@@ -461,8 +588,9 @@ while t.is_alive() or not q.empty():
         elif in_prompt and char == '\n':          #if we hit end-of-line in a copy/move user prompt, flush the output so the user can see the prompt... promptly
             in_prompt = False
             #ys.stdout.write(f'\033[1D{line_buffer.rstrip()}[0m\n')
-            sys.stdout.write(f'\033[1D{line_buffer.rstrip()}{ANSI_RESET}\n')
-            flush()
+            with output_mutex: 
+                sys.stdout.write(f'\033[1D{line_buffer.rstrip()}{ANSI_RESET}{PRENEWLINE}{CURSOR_INVISIBLE}\n')  #2024/12/12 added cursor_invisible to deal with TCCv33 /g
+                flush()
             line_buffer = ""
         elif char == '\n':                        #if we hit end of line NOT in a copy/move user prompt
             if not nomoji:
@@ -503,7 +631,8 @@ if line_buffer.strip():  # Ensure any remaining line without \n is printed
 #flush()
 
 # Restore sys.stdout if needed
-sys.stdout = sys.stdout.original_stdout
+#sys.stdout = sys.stdout.original_stdout
 
 
 
+print(CURSOR_VISIBLE + ANSI_RESET,end="")

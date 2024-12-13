@@ -7,7 +7,7 @@ rem Get parameters:
 rem Validate environment once:
         iff 1 ne %VALIDATE_SONG_APPROVE_DISAPPROVE% then
                 call validate-in-path              add-ads-tag-to-file validate-environment-variable validate-is-extension
-                call validate-environment-variable filemask_audio                
+                call validate-environment-variable filemask_audio skip_validation_existence
                 set  VALIDATE_SONG_APPROVE_DISAPPROVE=1
         endiff                
         

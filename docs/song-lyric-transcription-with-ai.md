@@ -291,7 +291,7 @@ Displays the lyric*lessness* status of a song.  This is to track whether we’ve
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 [review-subtitles / review-all-SRTs / review-SRTs.bat / review-LRCs.bat](../BAT-and-UTIL-files-1/review-subtitles.bat):
+### 🌟 [review-subtitles.bat / review-all-SRTs / review-all-subtitles / review-SRTs / review-LRCs](../BAT-and-UTIL-files-1/review-subtitles.bat):
 
 Reviews all karaoke files in current folder, using ```print-with-columns``` to eliminate most scrolling up.
 

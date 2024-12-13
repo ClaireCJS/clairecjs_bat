@@ -102,7 +102,8 @@ if __name__ == "__main__":                                                      
         if args.output: output_file = args.output                                                             # If output filename is specified, use the specified output filename                                                                                                                 
         else:           output_file = re.sub(r'\.[^.]+$', EXTENSION_TO_PRODUCE, input_file)                   # If no output filename is provided, replace input file's extension with EXTENSION                                                                                                                                                                                               
         lrc_to_txt(input_file, output_file)                                                                   # Call the main function with input and output files            
-        print(f"✔  Generated: {output_file}")                                                                # Display success message                                       
+        #rint(f'✔  Generated lyrics: "{output_file}"')                                                       # Display success message                                       
+        print(f'✔  Lyric generation success: "{output_file}"')                                               # Display success message                                       
 
     #—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————                                                                                                                                                                              
 

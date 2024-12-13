@@ -303,6 +303,7 @@ goto :Cleanup
     %COLOR_UNIMPORTANT% %+      *copy                       %TMP1% c:\recycled\latest-allfiles-filelist-just-before-filterscript.txt
     %COLOR_UNIMPORTANT% %+      *copy                       %TMP1%                                %TMP3%   %+ REM copy file before filtering it, so if filter hangs and is aborted, this can continue with unfiltered version of output
     %COLOR_DEBUG%       %+ echo %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9 %=>:u8 %TMP3% [is the filter command]
+echo %emoji_goat%      %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9   >:u8 %TMP3%
     %COLOR_UNIMPORTANT% %+      %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9   >:u8 %TMP3%
     call errorlevel
     if "%NO_PRESCRUB%" eq "1"   *copy                       %TMP1%                                %TMP3%

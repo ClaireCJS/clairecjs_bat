@@ -1070,15 +1070,16 @@ rem ************* TOYS: BEGIN: *************
             set cool_cap_S=%@char[7776]
             set cool_low_f=%@char[402]
             function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,%cool_cap_s%,%@REPLACE[f,%cool_low_f%,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
+            function cool_plain=`%@cool_string_plain[%1$]`
 
         rem Colorful versions:
-            function cool_string_colorful=`%@random_color_string[%@cool_string_plain[%1$]]`
-            function  cool_string_rainbow=`%@cool_string_colorful[%1$]`
-
+                function cool_string_colorful=`%@random_color_string[%@cool_string_plain[%1$]]`
+                function  cool_string_rainbow=`%@cool_string_colorful[%1$]`
+                function          cool_string=`%@cool_string_colorful[%1$]`
+                function            cool_text=`%@cool_string_colorful[%1$]`
+                
         rem Set the main cool function:
-                function cool_string=`%@cool_string_colorful[%1$]`
-                function        cool=`%@cool_string[%1$]`
-                function   cool_text=`%@cool_string[%1$]`
+                function                cool=`%@cool_string_colorful[%1$]`
 
         rem Experimental:
                 function cool_string_lookup_only=`%@REReplace[([^\s]),%@randFG_soFt[]%@cool_char_plain[\1],%1$]` %+ rem EXPERIMENTAL

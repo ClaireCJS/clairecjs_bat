@@ -1,3 +1,5 @@
+####NOTE TO SELF: do not edit version in \bat\clairecjs_util\, do edit the version in anadonda/lib/site-dir
+
 #import clairecjs_utils as claire
 
 #ANSI_ESCAPE = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~]|\][^\x07]*\x07|P[^\\]*\\)')
@@ -22,6 +24,7 @@ import sys
 import time
 import atexit
 import ctypes
+import signal
 import colorsys
 import subprocess
 import msvcrt
@@ -35,6 +38,9 @@ DEBUG_CLAIRE_CONSOLE = False
 
 blink_on             = "\033[6m"
 blink_off            = "\033[25m"
+
+signal.signal(signal.SIGINT , lambda *args: (show_cursor(), sys.exit(0)))
+signal.signal(signal.SIGTERM, lambda *args: (show_cursor(), sys.exit(0)))
 
 
 
@@ -304,7 +310,10 @@ mapping_console_color_to_ansi_color = {
 }
 
 color_control = ColorControl()
+
 atexit.register(color_control.tock)     # Register tock() function with atexit so it automatically runs when the program ends
+signal.signal(signal.SIGINT , lambda *args: (color_control.tock, sys.exit(0)))
+signal.signal(signal.SIGTERM, lambda *args: (color_control.tock, sys.exit(0)))
 
 
 

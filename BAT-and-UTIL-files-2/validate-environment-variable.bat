@@ -41,12 +41,13 @@
     rem call debug "param3            is %param3%"
     rem call debug "validate_multiple is %validate_multiple%"
     rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
+    if "%_PBATCHNAME" eq "validate-environemnt-variables.bat" set VALIDATE_MULTIPLE=1
     iff "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 then
         call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
         color bright white on red
         echo  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
         echo  %underline%Did you mean%underline_off%: %italics%validate-environment-variable%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
-        echo                                   (with an “s” after “%italics%variable%italics_off%”)  ????
+        echo                                   (with an %left_quote%s%right_quote% after %left_quote%%italics%variable%italics_off%%right_quote%)  ????
 
         call exit-maybe
         if %FORCE_EXIT eq 1 (goto :END)
@@ -257,7 +258,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                     endiff
                     set old=%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%
                     set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
-                    call     warning  "    %@CHAR[55357]%@CHAR[56542]  Called By: %italics_on%%[_pbatchname]%italics_off%"      
+                    call     warning  "    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%[_pbatchname]%italics_off%%blink_off%"      
                     call     warning  "    %@CHAR[55357]%@CHAR[56542] Dir/Folder: %italics_on%%[_CWD]%italics_off%"              
                     call     warning  "    %@CHAR[55357]%@CHAR[56542] Parameters: %italics_on%%italics_on%%VEVPARAMS%%italics_off%%italics_off%" 
                     set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=%old%
@@ -266,7 +267,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                     else
                         set USER_MESSAGE_TO_USE=
                     endiff
-                    call fatal_error "“%italics_on%%@UPPER[%VARNAME%]%italics_off%” location does not exist: “%VARVALUE%”...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%" 
+                    call fatal_error "%left_quote%%italics_on%%@UPPER[%VARNAME%]%italics_off%%right_quote% location does not exist: %left_quote%%VARVALUE%%right_quote%...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%" 
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

@@ -15,6 +15,7 @@ rem Take note of how much was free before we started:
 
 rem Delete files that could be anywhere:
         gosub DeleteEverywhere               *._vad_collected_chunks*.wav
+        gosub DeleteEverywhere               *._vad_collected_chunks*.srt
         gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
         gosub DeleteEverywhere               *._vad_original*.srt
         gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat

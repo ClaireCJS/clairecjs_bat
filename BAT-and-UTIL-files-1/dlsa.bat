@@ -1,1 +1,1 @@
-@call dls all
+@call display-lyric-status audio

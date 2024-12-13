@@ -15,7 +15,8 @@ endiff
 
 iff "%1" eq "all" .or. "%1" eq "*.*" .or. "%1" eq "*" .or. "%1" eq "*.txt" then
         call warning_soft "About to approve ALL lyrics %italics_on%(*.txt)%italics_off% in folder..."
-        call pause-for-x-seconds 5 You sure?
+        call AskYN        "You sure" no 10
+        if "%answer%" != "y" goto :end
         for %%tmpfile in (*.txt) do (
                @call approve-lyric-file.bat "%@unquote[%tmpfile]"
         )

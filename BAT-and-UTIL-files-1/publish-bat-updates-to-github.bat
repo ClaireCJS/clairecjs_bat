@@ -4,7 +4,7 @@
  cls
 *cls
 
- call say.bat "Here we go!" | copy-move-post
+ call say.bat "Here we go!" 
  
 
 rem Capture parameters:

@@ -39,15 +39,15 @@ rem ✏Emojify✏ & 🏳‍🌈colorfy🏳 the prompt, and change the cursor⬜ 
         echos %EMOJI_PENCIL%%@CURSOR_COLOR[yellow]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%%ANSI_COLOR_PROMPT% ``
 
 rem 📴Turn ANSI rendering off or things will get crazy:
-        call ansi-off
-
 rem 🔨Do the actual eset command:
         :actual_eset
+        on break call ansi-on.bat
+        call ansi-off
         *eset %CMD_TAIL%
-
-rem 🔛Turn ANSI rendering back on:
         call ansi-on
 
+rem 🔛Turn ANSI rendering back on:
+        on break cancel
 
 rem 📰Remind user of our extra options:
         iff "%1" eq "" .or. "%1" eq "/?" then
