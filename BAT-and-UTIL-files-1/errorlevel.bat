@@ -159,9 +159,10 @@ iff %OUR_ERRORLEVEL% gt 0 then
         echos                       ``
         echo call %0 "optional success message" "optional failure message"
         REM having to use 64 or 128 or 256 percent signs to sextuple-escape the character is peak-lifetime-level madness and somehow i feel a lack of setdos commands in the lineage up to this point made this unnecessarily happen... other times, I think this is a testament to just how far I'll go:
-        call advice "     if %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%REDO eq 1 (goto :Redo_1)"
+        rem call advice "     if %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%REDO eq 1 (goto :Redo_1)"
+        call advice "     if %cool_percent%REDO eq 1 (goto :Redo_1)"
         echo.
-        call advice "     %ITALICS_ON%(You can also use the variable 'REDO_BECAUSE_OF_ERRORLEVEL', if 'REDO' gives you fears of namespace collision. %DOUBLE_UNDERLINE_ON%Both%DOUBLE_UNDERLINE_OFF% get set.)%ITALICS_OFF%"
+        call advice "     %ITALICS_ON%(You can also use the variable %left_quote%REDO_BECAUSE_OF_ERRORLEVEL%right_quote%, if %left_quote%REDO%right_quote% gives you fears of namespace collision. %DOUBLE_UNDERLINE_ON%Both%DOUBLE_UNDERLINE_OFF% get set.)%ITALICS_OFF%"
         echo.
         beep
         setlocal

@@ -6,22 +6,56 @@ on break cancel
 :SIDE-EFFECTS: sets ANSWER to Y or N, and sets DO_IT to 1 (if yes) or 0 (if no)
 :DEPENDENCIES: {see validate-in-path section}
 
+:USAGE: NOTE: Braced    arguments are required,
+:USAGE: NOTE: Bracketed arguments are optional:
+:USAGE:
+:USAGE: call askyn {question} {“yes” or “no” or “None”} [wait_time] [modes of operation] [extra allowable keys] [extra key meanings]
+:USAGE:
+:USAGE: RETURN VALUES: 1) sets %OUR_ANSWER to either “Y” or “N” ..... or one of our additional allowed keystrokes
+:USAGE: RETURN VALUES: 2) sets %DO_IT      to either “1” or “0” (don’t use if using additional allowed keystrokes)
+:USAGE:
+:USAGE: 1ˢᵗ param: the question you want to ask WITHOUT question mark at the end
+:USAGE: 2ⁿᵈ param: the default answer of “yes” or “no” ...or “None” for no default
+:USAGE: 3ʳᵈ param: the wait time in seconds before using the default answer. Use “0” to wait forever.
+:USAGE:
+:USAGE: 4ᵗʰ-6ᵗʰ params: Modes of operation:
+:USAGE:            1) can be   “big”    to make it a double-height question
+:USAGE:            2) can be “no_title” if you don’t want the window title changed while asking
+:USAGE:            3) can be “no_enter” if you don’t want the ENTER key to select the default option
+:USAGE:
+:USAGE: Next (5ᵗʰ/6ᵗʰ/7ᵗʰ++) params: a list of additional keystrokes allowed:
+:USAGE:                      For example: To allow Y or N:           AskYn "Ovewrite file" no 0
+:USAGE:                      For example: To allow Y or N or A or R: AskYn "Ovewrite file" no 0 AR
+:USAGE:
+:USAGE: Next parameters: An optional list of additional letter meanings for any additional keystrokes allowed:
+:USAGE:                  EXAMPLE: To give letter meanings for A and R: AskYn "Overwrite file" no 0 AR A:Abort,R:Retry
+:USAGE:                           Note that underscores in the meanings are converted to spaces
+:USAGE:
+:USAGE: GENERAL EXAMPLE #1: call AskYN "Do you want to" yes
+:USAGE: GENERAL EXAMPLE #2: call AskYN "Do you want to" yes 30
+:USAGE: GENERAL EXAMPLE #3: call AskYN "Do you want to" no  30 big MN N:Not_Sure,M:Maybe_I_Do
+:USAGE:
+:USAGE: TO RUN TEST SUITE: call AskYn test
+:USAGE:
+
 rem Validate environment once:
         iff 1 ne %VALIDATED_ASKYN% then
-                call validate-in-path echos print-if-debug important.bat fatal_error.bat warning.bat repeat if set color_alarm_hex color_success_hex
-                call validate-functions CURSOR_COLOR_BY_WORD CURSOR_COLOR_BY_HEX 
-
+                call validate-plugin                stripansi
+                call validate-in-path               echos print-if-debug important.bat fatal_error.bat warning.bat repeat if set color_alarm_hex color_success_hex
+                call validate-functions             CURSOR_COLOR_BY_WORD CURSOR_COLOR_BY_HEX 
+                call validate-environment-variables CURSOR_RESET ANSI_COLORS_HAVE_BEEN_SET
                 set VALIDATED_ASKYN=1
         endiff
 
 
 rem Set default flags:                                                                    
-        set NO_ENTER_KEY=0
-        set BIG_QUESTION=0
         set NOTITLE=0
+        set BIG_QUESTION=0
+        set NO_ENTER_KEY=0
         set RUNNING_TESTS=0
-        set WAIT_OPS=
         SET WAIT_TIMER_ACTIVE=0
+        set WAIT_OPS=
+        unset /q last_key_meaning_* 
 
 
 rem Get positional required parameters:
@@ -55,71 +89,79 @@ rem Get non-positional parameters:
                 if "%1" eq "notitle" .or. "%1" eq "no_title" (shift %+ set NOTITLE=1      %+ goto :grab_next_param)
         :done_grabbing_params
 
-rem Get positional-at-end parameter for expanded answer meanings (“what does ‘A’ equal?”-type questions):
+rem Get positional-at-end parameter for expanded answer key meanings (“what does ‘A’ equal?”-type questions):
         iff "%1%" ne "" then
                 set ADDITIONAL_KEYS=%1
                 shift
                 iff "%1" ne "" then
                         rem echo we gotta figure this out: “%1$”
-                        set meanings=%1$
-                        for %%tmpLetterForMeaning in (%1$) do ( gosub processLetterMeaning "%tmpLetterForMeaning%")
+                        set key_meanings=%1$
+                        for %%tmpLetterForKeyMeaning in (%1$) do ( gosub processLetterKeyMeaning "%tmpLetterForKeyMeaning%")
                 endiff
         endiff                
 
 rem cancel %+ 🐐
 
-                        goto :DoneWithMeaning
-                                :processLetterMeaning                         
-                                        rem echo tmpLetterForMeaning  = %tmpLetterForMeaning%
-                                        if "1" ne "%@RegEx[:,%tmpLetterForMeaning%]" (
-                                                call fatal_error "%left_quote%%tmpLetterForMeaning%%right_quote% makes no sense. This parameter should have been in the forumat of %left_quote%{%italics_on%letter%italics_off%}:{%italics_on%meaning%italics_off%}%right_quote%, where %left_quote%letter%right_quote% is a letter found in our additional allowable keys %faint_on%(currently set to %left_quote%additional_keys%%right_quote%)%faint_off%"
+                        goto :DoneWithKeyMeaning
+                                :processLetterKeyMeaning                         
+                                        rem echo tmpLetterForKeyMeaning  = %tmpLetterForKeyMeaning%
+                                        if "1" ne "%@RegEx[:,%tmpLetterForKeyMeaning%]" (
+                                                call fatal_error "%left_quote%%tmpLetterForKeyMeaning%%right_quote% makes no sense. This parameter should have been in the forumat of %left_quote%{%italics_on%letter%italics_off%}:{%italics_on%Key_Meaning%italics_off%}%right_quote%, where %left_quote%letter%right_quote% is a letter found in our additional allowable keys %faint_on%(currently set to %left_quote%additional_keys%%right_quote%)%faint_off%"
                                         )
-                                        set tmp_meaning_letter=%@LEFT[1,%tmpLetterForMeaning%]
-                                        set tmp_meaning_expand=%@RIGHT[%@EVAL[%@LEN[%tmpLetterForMeaning]-2],%tmpLetterForMeaning%]
-                                        echo %left_apostrophe%%tmp_meaning_letter%%right_apostrophe% means %left_apostrophe%%tmp_meaning_expand%%right_apostrophe%
+                                        set tmp_key_meaning_letter=%@LEFT[1,%tmpLetterForKeyMeaning%]
+                                        set tmp_key_meaning_expand=%@RIGHT[%@EVAL[%@LEN[%tmpLetterForKeyMeaning]-2],%tmpLetterForKeyMeaning%]
+                                        rem echo DEBUG: %left_apostrophe%%tmp_key_meaning_letter%%right_apostrophe% means %left_apostrophe%%tmp_key_meaning_expand%%right_apostrophe%
+                                        set key_meaning_%tmp_key_meaning_letter%=%tmp_key_meaning_expand%
                                 return
-                        :DoneWithMeaning                        
+                        :DoneWithKeyMeaning                        
 
 
 
 iff "%ASK_QUESTION%" eq "" .or. "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%" eq "--help" .or. "%ASK_QUESTION%" eq "/?" .or. "%ASK_QUESTION%" eq "-?" .or. "%ASK_QUESTION%" eq "-h" then
+                iff not defined ansi_color_orange then 
+                        call set-ansi force
+                endiff                        
                 %color_advice%
                 echo.
-                echo USAGE: You did this: %ansi_color_warning_soft%%0 %*%ansi_color_advice%
-                %color_advice%
+                echo USAGE: NOTE: %ANSI_COLOR_MAGENTA%%italics_on%Braced%italics_off%    arguments are %italics_on%%ansi_color_red%required%italics_off%%ansi_color_advice%%ansi_color_advice%,
+                echo USAGE: NOTE: %ANSI_COLOR_MAGENTA%%italics_on%Bracketed%italics_off% arguments are %italics_on%%ansi_color_red%optional%italics_off%%ansi_color_advice%%ansi_color_advice%:
+                echo USAGE:                
+                rem echo USAGE: You did this: %ansi_color_warning_soft%%0 %*%ansi_color_advice%
+                echos USAGE: %ansi_color_bright_yellow%call askyn ``
+                echos %ansi_color_orange%{%ansi_color_yellow%%italics_on%%ansi_color_magenta%question%italics_off%%ansi_color_orange%} %ansi_color_orange%{“%ansi_color_bright_yellow%yes%ansi_color_orange%” %italics_on%%ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%”%ansi_color_magneta%%italics_on% %ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%”%ansi_color_yellow%%ansi_color_orange%}                
+                echos  %ansi_color_orange%[%ansi_color_yellow%%italics_on%%ansi_color_magenta%wait_time%ansi_color_orange%%italics_off%] 
+                rem echos  %ansi_color_orange%[%ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange% 
+                rem echos  %ansi_color_yellow%%italics_on%or%italics_off% %ansi_color_orange%“%ansi_color_bright_bright_yellow%notitle%ansi_color_orange%%ansi_color_yellow%%italics_off%%ansi_color_orange%”]
+                echos  %ansi_color_orange%[%ansi_color_magenta%%italics_on%modes of operation%italics_off%%ansi_color_orange%] 
+                echos  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra allowable keys%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
+                echos  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra key meanings%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
                 echo.
-                echo USAGE: call askyn "Question to ask without question mark" [yes or no] [time to wait...0 if not waiting] ["big" if you want double height, "notitle" if you don’t want the title changed]
                 echo USAGE: 
-                echo USAGE: 1ˢᵗ param: the question you want to ask WITHOUT question mark at the end
-                echo USAGE: 2ⁿᵈ param: default answer of “yes” or “no” or “None” to not have a default [or possiby of another available response letter, but this is untested]
-                echo USAGE: 3ʳᵈ param: is wait_time before expiration, at which point the default answer is selected. Use “0” to wait forever.
-                echo USAGE: 4ᵗʰ-6ᵗʰ params: 
-                echo USAGE:            1) can be   “big”   to make it a double-height question
-                echo USAGE:            2) can be “no_title” if you don’t want the window title changed while asking
-                echo USAGE:            2) can be “no_enter” if you don’t want the ENTER key to select the default optoin
+                echo USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%1) sets %ansi_color_yellow%%italics_on%`%`OUR_ANSWER%italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%Y%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%N%ansi_color_orange%”%ansi_color_advice% ..... or one of our additional allowed keystrokes
+                echo USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%2) sets %ansi_color_yellow%%italics_on%`%`DO_IT     %italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%1%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%”%ansi_color_advice% (don’t use if using additional allowed keystrokes)
+                echo %ANSI_COLOR_ADVICE%USAGE: 
+                echo USAGE: %ansi_color_orange%1ˢᵗ param: %ansi_color_magenta%the %ansi_color_yellow%question%ansi_color_magenta% you want to ask %ansi_color_advice%%italics_on%%blink_on%%double_underline_on%WITHOUT%underline_off%%blink_off%%italics_off% question mark at the end%ansi_color_advice%
+                echo USAGE: %ansi_color_orange%2ⁿᵈ param: %ansi_color_magenta%the %ansi_color_yellow%default answer%ansi_color_magenta% of %ansi_color_orange%“%ansi_color_bright_yellow%yes%ansi_color_orange%” %ansi_color_magenta%or %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%” %ansi_color_magenta%...or %ansi_color_orange%%ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%” %ansi_color_magenta%for no default%ansi_color_advice%
+                echo USAGE: %ansi_color_orange%3ʳᵈ param: %ansi_color_magenta%the %ansi_color_yellow%wait time in seconds%ansi_color_magenta% before using the %ansi_color_yellow%default answer%ansi_color_advice%. Use %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%” %ansi_color_advice%to wait forever.
                 echo USAGE: 
-                echo USAGE: Next(5ᵗʰ/6ᵗʰ/7ᵗʰ)  param: a list of additional keystrokes allowed 
-                echo USAGE                      For example:   This allows Y or N          : “AskYn "Ovewrite file" no 0” 
-                echo USAGE                      For example:   This allows Y or N or A or R: “AskYn "Ovewrite file" no 0 AR” 
+                echo USAGE: %ansi_color_orange%4ᵗʰ-6ᵗʰ params: %ansi_color_magenta%Modes of operation:%ansi_color_advice%
+                echo USAGE:            %ansi_color_advice%1) can be   %ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange%”    %ansi_color_advice%to make it a %ansi_color_yellow%double-height %ansi_color_advice%question%ansi_color_advice%
+                echo USAGE:            %ansi_color_advice%2) can be %ansi_color_orange%“%ansi_color_bright_yellow%no_title%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%window title%underline_off%%ansi_color_advice% changed while asking%ansi_color_advice%
+                echo USAGE:            %ansi_color_advice%3) can be %ansi_color_orange%“%ansi_color_bright_yellow%no_enter%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%%double_underline_on%%italics_on%ENTER%italics_off%%underline_off%%ansi_color_advice% key to select the default option%ansi_color_advice%
+                echo USAGE: 
+                echo USAGE: %ansi_color_orange%Next (5ᵗʰ/6ᵗʰ/7ᵗʰ++) params: %ansi_color_magenta%a list of %ansi_color_yellow%additional keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
+                echo USAGE:                      For example: To allow %ansi_color_bright_yellow%Y%ansi_color_advice% or %ansi_color_bright_yellow%N%ansi_color_advice%:           %ansi_color_bright_yellow%AskYn "Ovewrite file" no 0%ansi_color_advice% 
+                echo USAGE:                      For example: To allow %ansi_color_bright_yellow%Y%ansi_color_advice% or %ansi_color_bright_yellow%N%ansi_color_advice% or %ansi_color_bright_yellow%A%ansi_color_advice% or %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Ovewrite file" no 0 %double_underline_on%AR%underline_off%%ansi_color_advice% 
                 echo USAGE:              
-                echo USAGE: Next parameters: an optional list of what each of the additional letters means in our special format:
+                echo USAGE: %ansi_color_orange%Next parameters: %ansi_color_magenta%An optional list of %ansi_color_yellow%additional letter meanings%ansi_color_magenta% for any additional keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
+                echo USAGE:                  EXAMPLE: To give %ansi_color_yellow%letter meanings%ansi_color_advice% for %ansi_color_bright_yellow%A%ansi_color_advice% and %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Overwite file" no 0 AR %double_underline_on%A:Abort,R:Retry
+                echo USAGE:                           Note that %ialics_on%underscores%ialics_off% in the meanings are converted to %ialics_on%spaces %ialics_off%
+                echo USAGE:
+                echo USAGE: %ansi_color_orange%GENERAL EXAMPLE #1: %ansi_color_bright_yellow%call AskYN "Do you want to" yes %ansi_color_advice%
+                echo USAGE: %ansi_color_orange%GENERAL EXAMPLE #2: %ansi_color_bright_yellow%call AskYN "Do you want to" yes 30%ansi_color_advice%
+                echo USAGE: %ansi_color_orange%GENERAL EXAMPLE #3: %ansi_color_bright_yellow%call AskYN "Do you want to" no  30 big MN N:Not_Sure,M:Maybe_I_Do%ansi_color_advice%
                 echo USAGE: 
-                echo USAGE                      For example:   This allows Y or N or A or R: “AskYn "Ovewrite file" no 0 AR A:Abort,R:Retry” 
-                echo USAGE: 
-                echo USAGE: EXAMPLES:
-                echo USAGE: 
-                echo USAGE:     call AskYN "Do you want to" yes 
-                echo USAGE:     call AskYN "Do you want to" yes 30
-                echo USAGE:     call AskYN "Do you want to" no  30 big
-                echo USAGE: 
-                echo USAGE: RESULTS:
-                echo USAGE: 
-                echo USAGE:    1) sets OUR_ANSWER to either "Y" or "N"
-                echo USAGE:    2) sets DO_IT      to either "1" or "2"
-                echo USAGE: 
-                echo USAGE: TO RUN TEST SUITE:
-                echo USAGE: 
-                echo USAGE:     call AskYn test
+                echo USAGE: %ansi_color_orange%TO RUN TEST SUITE: %ansi_color_bright_yellow%call AskYn test%ansi_color_advice%
                 echo USAGE: 
                 %color_normal%
     goto :END
@@ -153,6 +195,8 @@ REM Test suite special case, including testing for the facts that higher timer v
                 call AskYN "Generic timed question defaulting to  no"      no      9
                 call AskYN "Generic TIMED question defaulting to yes"     yes   9999
                 call AskYN "Generic TIMED question defaulting to  no"      no   9999
+                call AskYN "Generic TIMED question defaulting to  no with extra allowable keys"      no   9999  ABCD A:Apple,B:Banana,C:Carrot,D:Durian
+                
                 goto :END
         :Not_A_Test
 
@@ -200,12 +244,19 @@ REM Build the question prompt:
                                                            rem set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK%%ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%?%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
                                                            rem set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK% %ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%?%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
                                                            rem 2024/12/12 NOPE DON’T LIKE IT, go back to original:
-                                                               set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK%%ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%?%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
+                                                               set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK% %ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%? %italics_off%%emoji_red_question_mark%%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
         if "%default_answer" eq "yes" .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%Y%underline_off%%bold_off%                             %+ rem   capital Y
         if "%default_answer" eq "no"  .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%y%faint_off%                                                                        %+ rem lowercase Y
                                                                set PRETTY_QUESTION=%pretty_question%%italics_off%%bold_off%%underline_off%%double_underline_off%%@ANSI_FG_RGB[%BRACKET_COLOR]/ %+ rem           slash
         if "%default_answer" eq "yes" .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%n%faint_off%                                                                        %+ rem lowercase N
         if "%default_answer" eq "no"  .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%N%underline_off%%bold_off%                             %+ rem   capital N
+                                                rem TODO extra allowable keys go here, with a slash first:
+                                                        set  spread=%@ReReplace[(.),\1 ,%additional_keys%]
+                                                        for %%tmpKey in (%spread%) do (
+                                                               set PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%tmpKey%%faint_off%
+                                                               set      key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
+                                                               set last_key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
+                                                        )
                                                                set PRETTY_QUESTION=%pretty_question%%@ANSI_FG_RGB[%BRACKET_COLOR]]%EMOJI_RED_QUESTION_MARK%                                    %+ rem right bracket + ❓
                                                                set PRETTY_QUESTION_ANSWERED=%@REPLACE[%BLINK_ON%,,%PRETTY_QUESTION] %+ rem an unblinking version, so the question mark that blinks before we answer is still displayed——but stops blinking after we answer the question 
 
@@ -213,7 +264,8 @@ rem Check if we are not doing titling, and skip titling section if that is the c
         if 1 eq %NOTITLE% (goto :title_done)
 
 rem Re-set a new window title:
-        set stripped=%@STRIPANSI[%@STRIPANSI[%PRETTY_QUESTION]]
+        rem stripped=%@STRIPANSI[%@STRIPANSI[%PRETTY_QUESTION]] %+ rem why were we doing this twice? 
+        set stripped=%@STRIPANSI[%PRETTY_QUESTION]
         iff 1 ne %NOTITLE then
                 rem echo setting title 2 - NOTITLE = “%NOTITLE%”
                 title %stripped%
@@ -320,8 +372,13 @@ REM Generate "pretty" answers & update the title:
                 set PRETTY_ANSWER= %ANSI_BRIGHT_RED%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%No%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%
                 echos %@CURSOR_COLOR_BY_HEX[%color_alarm_hex%]
         else                
-                set PRETTY_ANSWER= %ANSI_BRIGHT_GREEN%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%%@UPPER[%ANSWER%]%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%
-                echos %@CURSOR_COLOR_BY_WORD[magenta]
+                iff "" ne "%[key_meaning_%answer%]" then
+                        set VALUE_TO_USE=%[key_meaning_%ANSWER%]
+                else
+                        set VALUE_TO_USE=%@UPPER[%ANSWER%]
+                endiff
+                set PRETTY_ANSWER= %ANSI_BRIGHT_GREEN%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%%VALUE_TO_USE%%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%
+                echos %CURSOR_RESET%
         endiff                
         call print-if-debug "our_answer is “%OUR_ANSWER”, default_answer is “%DEFAULT_ANSWER%”, answer is “%ANSWER%”, PRETTY_ANSWER is “%PRETTY_ANSWER%”"
         if 1 eq %NOTITLE% (goto :title_done_3)        
@@ -368,4 +425,6 @@ goto :END
 
 
 :END
+
+unset key_meaning_* tmp_key_meaning_*
 

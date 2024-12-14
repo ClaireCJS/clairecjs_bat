@@ -68,7 +68,7 @@ REM CONFIG: 2024:
         set OUR_LANGUAGE=en
         set LOG_PROMPTS_USED=1                                                   %+ rem 1=save prompt used to create SRT into sidecar ..log file
         set SKIP_SEPARATION=1                                                    %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn’t work anymore
-        SET SKIP_TXTFILE_PROMPTING=0                                            %+ rem 0=use lyric file to prompt AI, 1=go in blind
+        SET SKIP_TXTFILE_PROMPTING=0                                             %+ rem 0=use lyric file to prompt AI, 1=go in blind
         set MAXIMUM_PROMPT_SIZE=3000                                             %+ rem The most TXT we will use to prime our transcription.  Since faster-whisper-xxx only supports max_tokens of 224, we only need 250 words or so. But will pad a bit extra. We just don’t want to go over the command-line-length-limit!
 rem CONFIG: 2024: WAIT TIMES:
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                             %+ rem wait time for "are these lyrics good?"-type questions
@@ -78,7 +78,7 @@ rem CONFIG: 2024: WAIT TIMES:
         set PROMPT_CONSIDERATION_TIME=20                                         %+ rem wait time for "does this AI command look sane"-type questions
         set PROMPT_EDIT_CONSIDERATION_TIME=10                                    %+ rem wait time for "do you want to edit the AI prompt"-type questions
         set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0                   %+ rem wait time for "hey lyrics not found!"-type notifications/questions. Set to 0 to not pause at all.
-        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=300                             %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
+        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=300                            %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
         rem ^^^^ TODO?: automation mode where all these get shortened to quite significantly, or all to 3, or all to 1, or something 🐮
 
 REM config: 2023:
@@ -135,9 +135,10 @@ REM validate environment [once]:
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
                 @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-song.bat
-                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off
+                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check red_x ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off ansi_color_blue
                 @call validate-environment-variables TRANSCRIBER_PDNAME skip_validation_existence
-                @call validate-is-function           randfg_soft
+                @call validate-is-function           ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD
+                
                 @call checkeditor
                 @set VALIDATED_CREATE_LRC_FF=1
                 rem Default values to help portability:
@@ -150,7 +151,11 @@ REM validate environment [once]:
                         if not defined ANSI_CURSOR_CHANGE_TO_UNDERLINE_STEADY      set ANSI_CURSOR_CHANGE_TO_UNDERLINE_STEADY=%ansi_escape%4 q
                         if not defined ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING=%ansi_escape%5 q
                         if not defined ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_STEADY   set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_STEADY=%ansi_escape%6 q
+                        rem ansi_color_blue
+
         endiff
+
+                        
 
 
 
@@ -306,16 +311,30 @@ REM Now, let’s check these values:
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
                 call bigecho      "%ansi_color_warning_soft%%star2%Already have!%ansi_reset%"
                 call warning_soft "Pre-existing subtitles found in lyric repository at: “%emphasis%%italics_on%%found_subtitle_file%%deemphasis%%italics_off%”" silent
-                call advice       "Copy this file to the local folder to remove it from our lyric transcription “todo” list" silent
+                echo %STAR% %ANSI_COLOR_ADVICE%Copy this file %italics_on%from our local repo%italics_off% into this folder, as a sidecar file for %@NAME[%SONGFILE%]%ansi-color_normal%
                 call askYN        "Copy repository version to local folder as sidecar file?" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "Y" == "%answer%" then
                         set target=%@path[%@full[%songfile%]]%@name[%SONGFILE%].%@ext[%found_subtitle_file%]
-                        *copy /q "%found_subtitle_file%" "%target%" >&>nul
-                        if not exist "%target%" (call error "target of “%target%” should exist now, in create-srt-from-file line 289ish")
-                        call approve-subtitle-file "%target%"
                         set srt_file=%target%
-                        @call success "“%italics_on%%SRT_FILE%%italics_off%” retrieved successfully!"
-                        title %CHECK% %SRT_FILE% retrieved successfully! %check%             
+                        *copy /q "%found_subtitle_file%" "%target%" >&>nul
+                        if not exist "%target%" (call error "target of “%target%” should exist now, in create-srt-from-file line 289ish" %+ call warning "...not sure if we want to abort right now or not..." )
+
+                        call review-file "%target%"
+                        call askYN "Do these still look acceptible?" yes 20 %+ rem hardcoded value warning
+
+                        iff "%ANSWER%" == "N" then
+                                call disapprove-subtitle-file "%target%"
+                                call askYN "Delete “%target%”" yes 30 %+ rem hardcoded value warning
+                                iff "%ANSWER%" == "N" then
+                                        del /q "%target%" >nul
+                                endiff                                        
+                                title %red_x% %SRT_FILE% %blink_on%NOT%blink_off% retrieved successfully! %red_x%             
+                        endiff                                
+                        iff  "%ANSWER%" == "Y" then
+                                call approve-subtitle-file "%target%"
+                                @call success "“%italics_on%%SRT_FILE%%italics_off%” retrieved successfully!"
+                                title %CHECK% %SRT_FILE% retrieved successfully! %check%             
+                        endiff                                
                         goto :END
                 endiff
         endiff
@@ -393,7 +412,7 @@ REM if we already have a SRT file, we have a problem:
                         
                         set DEFAULT_ANSWER_FOR_THIS=no
                         call get-lyric-status "%TXT_FILE%"
-                        if 1 eq %AUTO_LYRIC_APPROVAL% .or. "%LYRIC_STATUS%" eq "APPROVED" (set DEFAULT_ANSWER_FOR_THIS=yes)
+                        if 1 eq %AUTO_LYRIC_APPROVAL% .or. "%LYRIC_STATUS%" eq "APPROVED" (set DEFAULT_ANSWER_FOR_THIS=no)
                         @call AskYN "Get new lyrics?" %DEFAULT_ANSWER_FOR_THIS% %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME% %+ rem todo make unique wait time for this
                         iff "%ANSWER%" eq "Y" .and. 1 ne %AUTO_LYRIC_APPROVAL then
                                 call get-lyrics-for-song "%songfile%"
@@ -767,10 +786,11 @@ REM set a non-scrollable header on the console to keep us from getting confused 
         call footer "%banner_message%"
 
 
-REM actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI:
+REM ✨ ✨ ✨ ✨ ✨ Actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI: ✨ ✨ ✨ ✨ ✨
         rem Cosmetics:
             @echo.
             @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% Launching AI! %EMOJI_FIREWORKS%%ansi_color_normal%
+            rem that firework emoji was so much cooler in emoji11/win10 than emoji13/win11
             echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[magenta]%ANSI_CURSOR_CHANGE_TO_vertical_bar_BLINKING%   
             title waiting: %BASE_TITLE_TEXT%
 
@@ -811,7 +831,9 @@ REM actually generate the SRT file [used to be LRC but we have now coded specifi
                 rem  ((%LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper) |&:u8 tee.exe --append "%OUR_LOGFILE%")
                 rem   (%LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |&:u8 tee.exe --append "%OUR_LOGFILE%")
                 rem    %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper                                          %+ rem works great....but no log
-                       %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
+rem                    %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
+rem temporary cosmetic feature removal while working out TCC v33 issues:
+                       %LAST_WHISPER_COMMAND%                                                        |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.

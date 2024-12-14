@@ -41,7 +41,7 @@
     rem call debug "param3            is %param3%"
     rem call debug "validate_multiple is %validate_multiple%"
     rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
-    if "%_PBATCHNAME" eq "validate-environemnt-variables.bat" set VALIDATE_MULTIPLE=1
+    if "%_PBATCHNAME" eq "validate-environment-variables.bat" set VALIDATE_MULTIPLE=1
     iff "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 then
         call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
         color bright white on red

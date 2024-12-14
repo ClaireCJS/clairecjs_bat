@@ -25,7 +25,8 @@ rem call debug "TB_PARAM_1=%TB_PARAM_1%,TB_PARAM_2=%TB_PARAM_2%,params=%*"
 rem ENVIRONMENT: Validate the environment:
         if 1 ne %VALIDATED_LOCKED_MESSAGE_BAT% (
                 call validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_UNLOCK_MARGINS ANSI_SAVE_POSITION ANSI_RESTORE_POSITION ANSI_EOL NEWLINE CONNECTING_EQUALS BLINK_ON BLINK_OFF DOT ANSI_COLOR_ERROR ANSI_UNLOCK_MARGINS
-                set VALIDATED_LOCKED_MESSAGE_BAT=1
+                call validate-plugin StripANSI
+                set  VALIDATED_LOCKED_MESSAGE_BAT=1
         )
 
 

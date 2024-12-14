@@ -1,6 +1,6 @@
 @Echo Off
  cls
-REM NOTE that this file: c:\bat\DEMONA\autoexec.bat is copied to c:\clairecjs_bat\autoexec.bat and c:\bat\autoexec.bat but those are not the official location!
+REM NOTE that this file: c:\bat\DEMONA\autoexec.btm is copied to c:\clairecjs_bat\autoexec.btm and c:\bat\autoexec.btm but those are not the official location!
 
 
 

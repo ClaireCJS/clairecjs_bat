@@ -206,22 +206,26 @@ Pause::
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ^?::Send  "❔"       ; Ctrl+? for ❔ [white]
 !?::Send  "❓"       ;  Alt+? for ❓ [red]
-
+		      
 ^8::Send  "⭐"       ; Ctrl+8 for ⭐
 !8::Send  "🌟"      ;  Alt+8 for 🌟
-
-^-::Send  "–"       ; Ctrl+Hyphen for en dash (ranges, quotations)
-!-::Send  "—"       ;  Alt+Hyphen for em dash (interruptions)
-!'::Send "{U+0027}" ;      Alt+apostrophe for dumb/original apostrophe/foot symbol
-'::Send   "’"       ;          apostrophe for right smart single quote / smart apostrophe
-  
-^'::Send  "‘"       ;     Ctrl+apostrophe for  left smart single quote 
-^!'::Send "‘’"      ; Ctrl-Alt+apostrophe for  both smart single quotes
-
-^"::Send  "“"       ;     Ctrl+quote for smart double/normal quotes
-!"::Send  "”"       ;      Alt+quote for smart double/normal quotes
-^!"::Send "“”"      ; Ctrl+Alt+quote for smart double/normal quotes
-
+		      
+;-------   "-"      ;           Hyphen --------- for normal default hyphen                     (compound words, words interrupted by line break)
+^-::Send   "–"      ;      Ctrl+Hyphen ––––––––– for en dash                                   (ranges,    quotations)
+!-::Send   "—"      ;       Alt+Hyphen ————————— for em dash                                   (interruptions, breaks)
+;;;;;;;;;  "─"      ;                  ───────── for unicode box drawing light horizontal      (      dividers       ) WHICH LOOKS SAME AS ENDASH usually
+^!-::Send  "━"      ;  Ctrl-Alt+Hyphen ━━━━━━━━━ for unicode box drawing heavy horizontal line (      dividers       )
+		      
+!'::Send  "{U+0027}";      Alt+apostrophe for '  default original dumb apostrophe / feet symbol
+'::Send   "’"       ;          apostrophe for ’  smart single quote: right           ; the *correct* apostrophe we should be using, i.e. “can’t”
+^'::Send  "‘"       ;     Ctrl+apostrophe for ‘  smart single quote: left
+^!'::Send "‘’"      ; Ctrl-Alt+apostrophe for ‘’ smart single quotes: both
+		      
+^"::Send  "“"       ;     Ctrl+quote for “  smart double/normal quotes: left
+!"::Send  "”"       ;      Alt+quote for ”  smart double/normal quotes: right
+^!"::Send "“”"      ; Ctrl+Alt+quote for “” smart double/normal quotes: both
+;(normal quote key) ;          quote for "  default original dumb quote / inches symble
+		      
 ^!0::Send "⁰"       ; Ctrl+Alt+0 for superscript number
 ^!1::Send "¹"       ; Ctrl+Alt+1 for superscript number
 ^!2::Send "²"       ; Ctrl+Alt+2 for superscript number

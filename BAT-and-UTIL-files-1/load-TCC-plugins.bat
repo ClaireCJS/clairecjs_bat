@@ -32,6 +32,7 @@ rem Set our plugin file locations:
 
 rem Verify the plugin files exist:
         call validate-environment-variables PLUGIN_TCC_BASE PLUGIN_4WT PLUGIN_STRIPANSI
+        call validate-plugin StripANSI
 
 
 

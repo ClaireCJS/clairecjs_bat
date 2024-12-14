@@ -86,7 +86,7 @@ rem ARGUMENTS CONVERTED TO SEMICOLON-DELIMITED BECAUSE THAT’S WHAT MANY COMMAN
 
 
 rem RUN A DAEMON THAT KEEPS KILLING PROCESSES (like slui.exe) THAT TEND TO INTERRUPT OUR VIEWING BY POPPING US OUT OF FULLSCREEN MODE:
-	if %SLAY_SLUI eq 1 (start "slui-killer" /min keep-killing-if-running slui slui 30 media.player.classic exitafter)
+	if %SLAY_SLUI eq 1 (*start "slui-killer" /min keep-killing-if-running slui slui 30 media.player.classic exitafter)
 
 
 rem START THE AMBILIGHT IF NOT ALREADY STARTED:
@@ -366,7 +366,7 @@ rem WARN BEFORE WRAP-UP:
 
 rem Ask about moving it to reviwed location
         rem debug: echo if "%_CWD" == "%DROPDIR%" .or "%@UPPER[%_CWD]" eq "%DROPDIR%\OH" %+ pause
-        if "%_CWD" == "%DROPDIR%" .or. "%@UPPER[%_CWD]" eq "%DROPDIR%\OH" .or. "%@UPPER[%_CWD]" eq "%DROPDIR%\OH\HOLD" (
+        iff "%_CWD" == "%DROPDIR%" .or. "%@UPPER[%_CWD]" eq "%DROPDIR%\OH" .or. "%@UPPER[%_CWD]" eq "%DROPDIR%\OH\HOLD" then
                 set  MoveTo=%ReviewDir%\_reviewed-not-prenamed
                 call validate-environment-variable MoveTo
                 call askyn "Move to “%italics_on%%moveto%%italics_off%”" no
@@ -376,7 +376,7 @@ rem Ask about moving it to reviwed location
                 iff %DO_IT eq 1 (
                         for %%tmpfile in (%to_process) (echos %@randfg_soft[] %+ *move "%@unquote[%tmpfile]" %MoveTo%)
                 )
-        )
+        endiff
 
 
 rem Ask if we want to run “after show”

@@ -83,7 +83,8 @@ goto :END
                                 :PostprocessYes
                                         rem echo %ansi_color_debug%- DEBUG: FIXED_COMMAND is: %FIXED_COMMAND% %ansi_color_normal%
                                         echos %@RANDFG_SOFT[]
-                                        (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%) |&:u8 copy-move-post.py |:u8 fast_cat
+                                        rem (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%) |&:u8 copy-move-post.py |:u8 fast_cat until 20241212 can no longer |:u8 fast_cat due to tcc v33 updates
+                                            (echo rayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayrayray|%FIXED_COMMAND%) |&:u8 copy-move-post.py
                                 :PostprocessYesDone
 
                         goto :NoRayRayEnd
@@ -93,7 +94,8 @@ goto :END
                                             %FIXED_COMMAND%
                                     else
                                             echos %@RANDFG_SOFT[]
-                                            (%FIXED_COMMAND% |&:u8 copy-move-post.py) |:u8 fast_cat
+                                            rem (%FIXED_COMMAND% |&:u8 copy-move-post.py) |:u8 fast_cat until 20241212 tcc v33 
+                                                (%FIXED_COMMAND% |&:u8 copy-move-post.py) 
                                     endiff
                                 endiff
                         :NoRayRayEnd

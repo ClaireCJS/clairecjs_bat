@@ -60,11 +60,28 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
        - type ```option``` at the command line
        - In the upper-left is a section called *“Special Characters”*
        - Change the separator to “^” (the [caret character](https://en.wikipedia.org/wiki/Caret))
+       
+&nbsp;
+
+3. 🐍 Python 
+    - Install Python Anaconda ... That one specifically. [TODO link this]
+    - install the *LyricsGenius* package: 
+      - install: ```pip install git+https://github.com/johnwillmr/LyricsGenius.git```
+      - upgrade: ```pip install -U lyricsgenius```
+      - ensure that ```lyricsgenius``` is in your path and works as a command
 
 &nbsp;
 
-3. 🖥 [Windows Terminal](https://jpsoft.com/all-downloads/all-downloads.html).  
+4. 🦪 Perl
+    - Install Strawberry Perl [TODO link this]
+    - install my Perl libraries
+      - ```Unzip perl-sitelib-Clio.zip``` into ```c:\Strawberry\perl\site\lib\Clio```
+
+&nbsp;
+
+5. 🖥 [Windows Terminal](https://jpsoft.com/all-downloads/all-downloads.html).  
     - Needed to support our colorful presentation
+    - Will look nonsensical otherwise
     - Install *Windows Terminal*:
       - either from [GitHub](https://github.com/microsoft/terminal/releases/)
       - or via *WinGet* with the command: ```winget install -e --id Microsoft.WindowsTerminal```

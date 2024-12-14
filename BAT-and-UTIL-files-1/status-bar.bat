@@ -29,6 +29,7 @@ rem ENVIRONMENT: Validate the environment:
                 call validate-function              ANSI_MOVE_UP 
                 call validate-function              ANSI_BG 
                 call validate-function              ANSI_UNLOCK_ROWS 
+                call validate-plugin                StripANSI
                 set VALIDATED_LOCKED_MESSAGE_BAT=1
         )
 

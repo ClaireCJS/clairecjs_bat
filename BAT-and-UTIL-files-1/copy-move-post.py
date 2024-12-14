@@ -47,11 +47,16 @@ except ImportError:
 from colorama import init
 init(autoreset=False)
 
+
+#————————————————————————————————————————————————————————————————————
 #screen_columns, screen_rows = os.get_terminal_size()
-
 import shutil
-screen_columns, screen_rows = shutil.get_terminal_size()
-
+try:
+    screen_columns, screen_rows = shutil.get_terminal_size()
+except Exception:
+    print(f"Error: {e}")
+#————————————————————————————————————————————————————————————————————
+#────────────────────────────────────────────────────────────────────
 SPECIAL_TREATMENT_FOR_QUESTION_LINES = True       # Set to False to suppress special treatment of lines with '?'
 COLOR_QUESTION_BACKGROUNDS           = True       #whether to highlight lines with "?" with a random background character and other stuff —— originally developed for Y/N/R/A-type prompts when copying files, but annoying in other situations
 
