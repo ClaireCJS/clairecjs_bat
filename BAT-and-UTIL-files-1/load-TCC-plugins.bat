@@ -32,7 +32,6 @@ rem Set our plugin file locations:
 
 rem Verify the plugin files exist:
         call validate-environment-variables PLUGIN_TCC_BASE PLUGIN_4WT PLUGIN_STRIPANSI
-        call validate-plugin StripANSI
 
 
 
@@ -59,7 +58,7 @@ rem                 But if it's not, we unload it
 rem                 And the, finally, do we actually do what this whole script is about: Loading the plugin.
 
 
-        rem 4WT plugin:
+        rem 1) 4WT plugin:
                 iff "%_HWNDWT" == ""  .or. "%1" == "force" then
                     call print-if-debug "Loading TCC plugin: %italics_on%4WT%italics_off%"
                     set PLUGIN_4WT_LOADED=1
@@ -69,7 +68,7 @@ rem                 And the, finally, do we actually do what this whole script i
 
 
         
-        rem StripAnsi plugin:
+        rem 2) StripAnsi plugin:
                 iff not plugin stripansi .or. "%1" == "force" then
                     call print-if-debug "Loading TCC plugin: %italics_on%StripAnsi%italics_off%"
                     set PLUGIN_STRIPANSI_LOADED=1
@@ -82,3 +81,9 @@ rem                 And the, finally, do we actually do what this whole script i
                     rem So instead, let's warn them that this is wrong:
                             function STRIP_ANSI=`echo ERROR: @STRIP_ANSI CALLED WITH %1$ -- NEED TO USE @STRIPANSI[%1$] without underscore instead %+ *pause`
                 endiff
+
+
+rem Double check things worked out:
+        call validate-plugin 4WT StripANSI
+        
+

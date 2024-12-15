@@ -62,7 +62,7 @@
     rem    set SKIP_VALIDATION_EXISTENCE=1 
     rem    set USER_MESSAGE=%3$
     rem )
-    if %DEBUG_NORMALIZE_MESSAGE eq 1 (echo %ansi_color_debug%- DEBUG: PARAM2: “%PARAM2%”%ansi_color_normal%)
+    if %DEBUG_NORMALIZE_MESSAGE eq 1 (echo %left_quote%%ansi_color_debug%%right_quote%- DEBUG: PARAM2: %left_quote%%PARAM2%%left_quote%%ansi_color_normal%right_quote%)
 
 
     iff %VALIDATE_MULTIPLE_PLUGINS ne 1 then
@@ -83,7 +83,7 @@
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-goto :Past_The_End_Of_The_Sub-Routines
+goto :Past_The_End_Of_The_SubRoutines
 
 
     :validate_plugin [PLUGIN_NAME]
@@ -219,7 +219,7 @@ goto :Past_The_End_Of_The_Sub-Routines
 
 
 
-:Past_The_End_Of_The_Sub-Routines
+:Past_The_End_Of_The_SubRoutines
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :END

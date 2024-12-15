@@ -1,6 +1,6 @@
 2024-11-23  23:44        149,504   49%  4wt.dll
 2024-11-23  23:44          3,433   60%  4wt.txt
-2024-12-09  23:54         21,429   78%  add-ADS-tag-to-file.bat
+2024-12-14  17:22         21,493   78%  add-ADS-tag-to-file.bat
 2024-12-08  18:19          2,625   63%  add-art-to-flac-helper.bat
 2024-11-19  02:22            799   54%  add-art-to-flac.bat
 2024-11-19  02:22          3,835   69%  add-art-to-mp3.bat
@@ -19,7 +19,7 @@
 2024-11-19  02:24            109   12%  album-art-tool-for-mp3Tag-beforeDash.bat
 2024-11-19  02:24          2,024   69%  album-art-tool-for-mp3Tag.bat
 2024-11-19  02:24            283   33%  album-art.bat
-2024-11-25  04:05          6,632   70%  all-ready-drives.bat
+2024-12-13  04:22          7,002   71%  all-ready-drives.bat
 2024-11-19  02:24            978   49%  allbmp2jpg.bat
 2024-11-26  14:30          3,396   67%  allcomputers.bat
 2024-11-26  14:33            123   27%  allcomputersexceptself.bat
@@ -34,7 +34,7 @@
 2024-11-19  02:24            636   49%  allfiles-helper.bat
 2024-11-07  14:19            996   51%  allfiles-prescript-template.pl
 2024-11-19  07:36            132   44%  allfiles-snoop.bat
-2024-11-19  02:24         25,822   74%  ALLFILES.bat
+2024-12-12  22:13         25,919   74%  ALLFILES.bat
 2024-11-07  14:20            406   39%  allfilesHyphenswap.pl
 2024-08-19  17:19        118,371   71%  allfilesmv.pl
 2023-05-19  15:39          1,218   55%  allfileunicode.pl
@@ -57,13 +57,13 @@
 1996-04-15  19:12          2,238   69%  app-volume-and-device-preferences.ico
 2024-10-07  14:28          2,115   62%  app-volume-and-device-preferences.lnk
 2024-12-09  23:33          1,167   54%  approve-lyric-file.bat
-2024-12-08  17:24          1,098   56%  approve-lyriclessness-for-file.bat
+2024-12-12  12:18          1,108   55%  approve-lyriclessness-for-file.bat
 2024-12-08  17:14             45    0%  approve-lyriclessness.bat
-2024-12-09  23:32          1,156   60%  approve-lyrics.bat
+2024-12-12  00:26          1,194   61%  approve-lyrics.bat
 2024-12-05  16:01             29   -6%  approve-subtitle-file.bat
 2024-12-07  21:19          1,205   60%  approve-subtitles.bat
 2024-11-20  16:34             52    4%  ascii.bat
-2024-12-08  17:05         17,447   73%  askYN.bat
+2024-12-14  16:39         31,144   77%  askYN.bat
 2024-11-19  07:37             37   -5%  asleep.bat
 2024-11-19  02:23          1,065   53%  assimilate-rookie-folders.bat
 2024-11-19  02:23         24,941   80%  assimilate.bat
@@ -73,7 +73,7 @@
 2024-11-19  02:23          5,089   78%  auto-clean.bat
 2024-11-19  02:23         13,922   75%  auto-process.bat
 2024-12-11  16:04          4,920   71%  autoexec-common.btm
-2024-12-08  18:12         17,663   82%  autoexec.ahk
+2024-12-15  19:05         18,547   81%  autoexec.ahk
 2024-11-19  02:23            917   52%  AutoHotKey-autoexec.bat
 2024-12-08  18:15          1,901   60%  AutoHotKey.bat
 2024-11-19  02:23          3,252   60%  autoname.bat
@@ -82,6 +82,7 @@
 2024-11-19  07:41             36   -5%  avg.bat
 2024-11-19  07:28            470   63%  awake.bat
 2024-11-26  15:59          1,268   53%  backup-clairecjs_utils.bat
+2019-10-01  10:27             16  -12%  backup-folder.bat
 2024-11-19  07:28          1,904   66%  backup-game-saves.bat
 2024-12-11  16:03         10,226   72%  backup-important-files.bat
 2024-12-11  16:03          2,178   63%  backup-important-folders.bat
@@ -109,7 +110,7 @@
 2024-11-19  02:22          4,576   70%  beep.bat
 2024-11-25  13:13         12,180   75%  before.bat
 2024-11-19  07:28            126   27%  bigecho-cool-cursive.bat
-2024-12-10  18:24         15,133   77%  bigecho.bat
+2024-12-14  17:22         15,370   77%  bigecho.bat
 2024-11-19  21:35             44   -2%  blacklights-off.bat
 2024-11-19  02:22            229   30%  blacklights-on.bat
 2024-11-19  21:35             65    0%  bluetooth-batteries.bat
@@ -140,7 +141,7 @@
 2024-11-19  07:37             34   -5%  check-for-applications-and-programs-that-can-be-upgraded.bat
 2024-11-19  07:33            216   22%  check-for-invalid-audio-files.bat
 2024-12-09  16:34          4,663   66%  check-for-missing-karaoke.bat
-2024-12-10  04:47         13,724   77%  check-for-missing-lyrics.bat
+2024-12-13  00:21         22,363   78%  check-for-missing-lyrics.bat
 2024-11-19  07:29            723   64%  check-if-asking-for-usage.bat
 2024-11-25  23:52            195   29%  check-playlist-for-missing-lyrics.bat
 2024-11-19  07:29            768   41%  check-that-we-are-running-on-the-master-machine.bat
@@ -159,14 +160,14 @@
 2024-11-19  07:29          4,081   65%  clean-dbcu.bat
 2024-11-19  07:29            140   15%  clean-dropbox.bat
 2024-11-19  07:29            554   46%  clean-rocksmith-dlc-dir.bat
-2024-12-08  18:19          5,168   68%  clean-up-AI-transcription-trash-files-everywhere.bat
+2024-12-12  12:44          5,243   69%  clean-up-AI-transcription-trash-files-everywhere.bat
 2024-11-27  14:31            459   66%  clean-up-AI-transcription-trash-files-here.bat
 2024-11-27  14:46          1,033   71%  clean-up-AI-transcription-trash-files.bat
 2024-11-19  07:48             39   -5%  clean.bat
 2024-11-19  07:33            393   45%  clear-buffered-keystrokes.bat
 2024-11-19  07:37             38   -5%  clip.bat
 2024-11-19  07:37             43    3%  clipboard.bat
-2024-12-10  04:59          1,219   42%  cls.bat
+2024-12-12  10:29          1,346   44%  cls.bat
 2024-12-08  16:15             43   -4%  cmkh.bat
 2024-11-25  22:08             39   -5%  cmlf.bat
 2024-11-19  07:37             75   10%  collapse-all-directories.bat
@@ -204,7 +205,7 @@
 2024-11-19  07:37             54   -3%  cool-header.bat
 2024-11-19  07:37             44   -4%  coolbigecho.bat
 2024-11-30  23:24          2,322   59%  copy-alias.bat
-2024-12-11  14:09         31,815   73%  copy-move-post.py
+2024-12-13  15:49         39,724   74%  copy-move-post.py
 2024-11-19  07:37             37   -5%  copy.bat
 2024-11-19  07:35            242   31%  counts-helper.bat
 2024-11-19  07:35             52   -3%  counts.bat
@@ -222,7 +223,7 @@
 2024-11-23  23:44            134   33%  create-missing-karaoke-files.bat
 2024-12-10  17:07          1,293   58%  create-srt-file-for-currently-playing-song.bat
 2024-11-23  23:44            194   36%  create-srt-for-soundclip.bat
-2024-12-11  14:08         76,786   75%  create-srt-from-file.bat
+2024-12-14  03:22         84,302   75%  create-srt-from-file.bat
 2024-11-25  14:20            972   52%  create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat
 2024-11-23  23:44            354   45%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
@@ -277,7 +278,7 @@
 2024-11-19  07:36             36   -5%  dir-by-modification-date.bat
 2024-11-19  07:36             36    0%  disable-windows-key.bat
 2024-12-07  21:16          1,046   52%  disapprove-lyric-file.bat
-2024-12-08  17:23          1,120   56%  disapprove-lyriclessness-for-file.bat
+2024-12-12  12:19          1,130   55%  disapprove-lyriclessness-for-file.bat
 2024-12-08  17:15             48    0%  disapprove-lyriclessness.bat
 2024-12-08  16:51          1,194   60%  disapprove-lyrics.bat
 2024-12-05  16:03             32   -6%  disapprove-subtitle-file.bat
@@ -303,7 +304,7 @@
 2024-12-09  18:40          9,838   70%  display-horizontal-divider.bat
 2019-10-01  10:25            115   14%  display-last-month.pl
 2024-12-09  23:58          2,469   63%  display-lyric-status-for-file.bat
-2024-12-09  23:57          9,889   74%  display-lyric-status.bat
+2024-12-11  21:49         10,191   74%  display-lyric-status.bat
 2024-12-08  22:01            310   33%  display-lyriclessness-status-for-file.bat
 2024-12-08  21:32             52    0%  display-lyriclessness-status.bat
 2024-11-19  07:47          3,314   63%  display-lyrics.bat
@@ -329,7 +330,7 @@
 2024-11-19  07:47             36   -5%  div.bat
 2024-11-11  16:32             55   -3%  divider.bat
 2024-11-25  18:20             31   -6%  dls.bat
-2024-12-09  23:03             15    0%  dlsa.bat
+2024-12-11  21:50             34   -5%  dlsa.bat
 2024-11-19  07:47             65   10%  dns-display.bat
 2024-11-19  07:47             46   -4%  do-in-each-directory.bat
 2024-11-19  07:47          1,248   54%  do-in-each-folder.bat
@@ -343,7 +344,7 @@
 2024-11-19  07:47          4,743   68%  drives.bat
 2024-11-19  07:47          3,394   66%  dropbox-offload.bat
 2024-11-19  07:47            211   45%  du.bat
-2024-11-19  07:47            870   50%  dump-environment-to-tmpfile.bat
+2024-12-12  18:41          1,099   55%  dump-environment-to-tmpfile.bat
 2024-11-19  07:47             50   -4%  dvl.bat
 2024-11-19  07:47             55   -3%  dym.bat
 2024-11-19  07:21          6,760   72%  eaa-if-appropriate-for-workflow.bat
@@ -365,8 +366,8 @@
 2024-12-09  15:35             34   -5%  emoji-character-search.bat
 2024-11-19  07:47             41   -4%  emoji-grep.bat
 2024-12-09  15:35             39   -5%  emoji-search-online.bat
-2024-11-26  04:48          1,836   59%  emoji-search.bat
-2024-12-10  14:45         83,832   78%  emoji.env
+2024-12-12  17:36          1,995   60%  emoji-search.bat
+2024-12-12  16:44         84,176   78%  emoji.env
 2024-12-08  18:22          1,734   53%  enqueue-file-into-winamp-playlist.bat
 2024-12-11  17:04             80   15%  enqueue-regex-to-winamp.bat
 2024-11-19  07:47             66   -3%  enqueue.bat
@@ -376,12 +377,12 @@
 2024-11-19  07:47             93   13%  env-internal.bat
 2024-11-19  07:47            389   38%  env.bat
 2019-10-01  10:25            172   20%  env.pl
-2024-11-30  23:31        232,376   82%  environm.btm
+2024-12-15  20:28        232,535   82%  environm.btm
 2024-11-19  07:47             60   -3%  error.bat
-2024-12-09  02:21         13,287   75%  errorlevel.bat
+2024-12-13  05:54         13,407   75%  errorlevel.bat
 2024-11-04  02:30              1 -200%  escape.txt
-2024-12-08  23:50          3,047   63%  eset-alias.bat
-2024-11-19  07:47             39   -5%  eset.bat
+2024-12-12  22:23          3,103   63%  eset-alias.bat
+2024-12-12  22:21             21   -9%  eset.bat
 2019-10-01  10:25            831   58%  EvilLyrics-Milkdrop2.ahk
 2024-11-19  07:47             82   11%  exiflist.bat
 2024-11-19  07:47            426   48%  exit-after-command.bat
@@ -461,7 +462,7 @@
 2024-12-05  22:49         62,796   78%  get-lyrics-via-multiple-sources.bat
 2024-12-08  23:59          2,466   72%  get-lyrics-with-lyricsgenius-json-processor.pl
 2024-11-23  23:44             64   -3%  get-lyrics-with-lyricsgenius.bat
-2024-12-07  22:07          1,732   66%  get-lyrics.bat
+2024-12-12  17:07          1,860   65%  get-lyrics.bat
 2024-10-18  12:53          4,561   67%  get-meat-from-mp3-filename.pl
 2024-12-05  21:26             48   -4%  get-missing-karaoke.bat
 2024-11-26  00:19             34   -5%  get-missing-lyrics-here.bat
@@ -496,7 +497,7 @@
 2024-11-19  07:49            198   25%  git-timecapsule.bat
 2024-11-19  07:49             57    0%  git-win.bat
 2024-11-30  19:30          7,967   64%  git.bat
-2024-11-19  07:49            246   24%  github.bat
+2024-12-15  18:59            437   41%  github.bat
 2024-11-19  07:49             36   -5%  go-to-bat-file-folder.bat
 2024-12-09  00:18          1,316   61%  go-to-currently-playing-song-dir.bat
 2024-05-10  10:38          3,538   62%  go-to-next-directory-generator.pl
@@ -588,7 +589,7 @@
 2024-11-27  14:59         12,075   65%  list_scripts_to_publish_and_create_script_database.py
 2024-11-19  07:56             43   -4%  lm.bat
 2024-12-08  18:21            160   18%  load-plugins.bat
-2024-11-19  07:56          4,210   67%  load-tcc-plugins.bat
+2024-12-15  20:28          4,313   67%  load-tcc-plugins.bat
 2024-11-19  07:56             53   -3%  load-window-positions.bat
 2024-11-19  07:56             59    2%  lock-computer.bat
 2024-11-19  07:55             39   -5%  locked-message.bat
@@ -597,7 +598,7 @@
 2019-10-01  10:28             28   -7%  lowercase.pl
 2024-11-19  07:55             53   -1%  lrc.bat
 2024-12-10  16:17            374   45%  lrc2txt.bat
-2024-12-10  16:02         11,463   81%  lrc2txt.py
+2024-12-14  00:24         16,032   79%  lrc2txt.py
 2024-11-19  07:56            448   37%  make-attrib_lst.bat
 2024-11-25  13:04          7,683   68%  make-CD-ISO-based-on-playlists.bat
 2024-11-19  07:56            199   24%  make-directory-matching-drive-label-on-every-drive.bat
@@ -672,7 +673,7 @@
 2024-11-19  21:35             45   -4%  package-tracking.bat
 2024-03-28  02:16             23   -8%  paus.btm
 2024-11-19  15:14          5,500   67%  pause-alias.bat
-2024-11-19  15:14            974   47%  pause-for-x-seconds.bat
+2024-12-12  16:55            994   47%  pause-for-x-seconds.bat
 2024-05-07  13:56             23   -8%  pause.btm
 2024-11-19  21:35             34   -5%  pd.bat
 2024-11-26  15:18             38   -5%  pending-file-moves.bat
@@ -701,20 +702,20 @@
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
 2024-11-19  21:35             31   -6%  previousdir.bat
 2024-11-19  21:35             85    5%  print-if-debug.bat
-2024-12-10  18:06         33,813   75%  print-message.bat
+2024-12-14  17:21         34,320   75%  print-message.bat
 2024-12-04  04:41             25   -8%  print-with-columns.bat
-2024-12-10  16:11         40,368   79%  print_with_columns.py
+2024-12-13  03:18         40,368   79%  print_with_columns.py
 2024-11-21  19:47         16,004   75%  process-done-torrent.btm
 2024-11-19  21:35             43   -4%  process-filelist-to-prevent-consecutive-entries-from-same-folder.bat
 2024-11-19  15:18          2,210   64%  process-rookie-folders.bat
 2024-11-19  15:18             47   -4%  programfiles.bat
 2024-11-19  15:18            170   24%  programfilesx86.bat
 2024-11-19  15:18          1,064   66%  prompt-Carolyn.bat
-2024-11-19  15:18          3,603   69%  prompt-Claire.bat
+2024-12-12  19:36          4,169   73%  prompt-Claire.bat
 2024-11-19  15:18         11,285   72%  prompt-common.bat
 2024-11-19  15:18            380   52%  prompt-sound.bat
 2024-11-19  21:35             51    6%  prompt-work.bat
-2024-12-11  18:36            579   47%  publish-bat-updates-to-github.bat
+2024-12-13  03:21            563   47%  publish-bat-updates-to-github.bat
 2024-11-28  01:21             75    2%  publish.bat
 2024-11-19  21:35             37   -5%  push.bat
 2024-11-23  11:06          2,957   60%  put.bat
@@ -808,9 +809,10 @@
 2023-06-02  18:26            306   33%  return-a-1.py
 2019-10-01  10:28             40    5%  reverse.pl
 2024-11-19  21:35             45   -4%  review-all-SRTs.bat
+2024-12-11  21:51             26   -7%  review-all-subtitles.bat
 2024-11-27  13:58             44   -4%  review-all-TXTs.bat
 2024-12-04  05:08             21   -9%  review-file.bat
-2024-12-10  15:34          4,247   69%  review-files.bat
+2024-12-11  22:13          4,306   70%  review-files.bat
 2024-11-19  21:35             45   -4%  review-karaokes.bat
 2024-11-19  21:35             45   -4%  review-LRCs.bat
 2024-11-27  13:58             44   -4%  review-lyrics.bat
@@ -846,7 +848,7 @@
 2024-11-19  15:17            181   23%  scream.bat
 2024-11-19  15:17            578   51%  search-for-steam_etc-coupons-for-games.bat
 2024-11-19  21:35             31   -6%  search-music.bat
-2024-11-19  15:17            290   37%  see-latest-version-of-BAT-on-github.bat
+2024-12-15  18:59            331   39%  see-latest-version-of-BAT-on-github.bat
 2024-11-19  21:35             43   -4%  see-which-songs-a-band-is-currently-playing-live.bat
 2019-10-01  10:28            831   48%  select-random-lines-from.pl
 2023-06-13  16:06             57    0%  send-keypress-alt_down.ahk
@@ -856,7 +858,7 @@
 2023-06-08  22:38             69    2%  send-keypress-ctrl_alt_left.ahk
 2023-09-08  10:10            597   52%  set-all-screens-to-black.py
 2024-11-19  21:35             39   -5%  set-all_colors.bat
-2024-12-10  18:15        122,860   81%  set-ansi.bat
+2024-12-15  20:28        122,988   82%  set-ansi.bat
 2024-11-19  15:17            685   63%  set-automatic-login-to-windows-OFF.bat
 2024-11-19  15:17          1,810   69%  set-automatic-login-to-windows-ON.bat
 2024-11-19  21:35            138   16%  set-background-picture-for-johnsbackgroundswitcher.bat
@@ -881,7 +883,7 @@
 2024-11-19  21:35             44   -4%  set-randomfile.bat
 2024-11-19  15:18            141   10%  set-task.bat
 2024-12-08  18:19            322   34%  set-temp-folder.bat
-2024-11-19  15:18          1,135   59%  set-tmp-file.bat
+2024-12-12  12:29          1,611   69%  set-tmp-file.bat
 2024-11-19  21:35             41   -4%  set-tmpfile.bat
 2024-11-19  15:18          1,218   50%  set-user-account-to-automatically-login.bat
 2024-11-19  15:18            273   50%  set-winamp-constants.bat
@@ -933,6 +935,7 @@
 2024-12-10  16:40         12,356   76%  srt2txt.py
 2024-11-23  23:44             57   -3%  srtthis.bat
 2024-10-28  04:34         15,073   75%  srt_fix_from_txt.py
+2024-12-12  15:48             17  -11%  start-ahk.bat
 2024-11-19  21:35             91   11%  start-displayFusion.bat
 2024-11-19  15:19            320   30%  start-elevated.bat
 2024-11-25  12:57            208   29%  start-everything.bat
@@ -949,7 +952,7 @@
 2024-11-24  01:02          2,693   62%  start.bat
 2024-11-25  12:54             91    9%  startafter1secondpause.bat
 2024-11-25  12:54            220   31%  startafter1secondpausewithexitafter.bat
-2024-12-10  18:16         12,384   70%  status-bar.bat
+2024-12-14  17:21         13,177   70%  status-bar.bat
 2024-12-09  19:36             25   -8%  statusbar.bat
 2024-11-19  15:19            519   39%  stop-milkdrop.bat
 2024-11-19  15:19            183   33%  stop-minilyrics.bat
@@ -1011,7 +1014,7 @@
 2024-11-19  15:04            122   22%  tock.bat
 2024-11-27  14:59            395   49%  tock.py
 2024-09-09  22:48         12,060   76%  ToolTipOptions.ahk
-2024-11-19  15:04         10,297   70%  top-banner.bat
+2024-12-14  17:21         10,346   70%  top-banner.bat
 2024-11-19  21:34             39   -5%  top-message.bat
 2024-11-19  21:34             39   -5%  top-msg.bat
 2024-11-19  15:03            603   58%  touch-alias.bat
@@ -1073,7 +1076,7 @@
 2024-12-11  18:18             29   -6%  validate-all-repositories-are-reachable.bat
 2024-11-16  19:00             58   -3%  validate-env-var.bat
 2024-11-16  19:00             57   -3%  validate-env-vars.bat
-2024-12-10  04:31         18,919   77%  validate-environment-variable.bat
+2024-12-14  16:02         19,103   77%  validate-environment-variable.bat
 2024-11-16  19:00            427   45%  validate-environment-variables.bat
 2024-11-19  15:02             54   -1%  validate-extension.bat
 2024-12-08  22:56             43   -4%  validate-file-extension.bat
@@ -1087,6 +1090,8 @@
 2024-12-08  23:18          4,265   67%  validate-is-extension.bat
 2024-11-16  19:00             47   -4%  validate-is-function.bat
 2024-12-08  17:03            379   40%  validate-is-number.bat
+2024-12-15  20:28         13,256   76%  validate-plugin.bat
+2024-12-14  16:01            429   43%  validate-plugins.bat
 2023-04-28  14:04            627   51%  view_pickle.py
 2024-11-19  15:02             66   -1%  volume.bat
 2024-11-19  15:01            147   20%  wait.bat
@@ -1096,7 +1101,7 @@
 2024-11-19  15:01             62   -3%  warning.bat
 2024-11-19  15:01             67    0%  warning_less.bat
 2024-11-19  15:01             67   -2%  warning_soft.bat
-2024-12-08  18:26         22,256   74%  watch.bat
+2024-12-13  15:42         22,266   74%  watch.bat
 2024-11-25  12:50          6,112   65%  wav2mp3.bat
 2024-11-19  21:34             29   -6%  wcclip.bat
 2024-11-19  15:01          1,723   71%  WCHEADER.bat
@@ -1121,7 +1126,7 @@
 2024-11-19  15:01            187   18%  winamp-prev.bat
 2024-11-19  15:01          1,893   58%  winamp-randomize-playlist.bat
 2024-12-03  15:12             54   -1%  winamp-restart.bat
-2024-12-03  15:11          3,088   68%  winamp-start.bat
+2024-12-13  06:42          3,172   68%  winamp-start.bat
 2024-12-11  17:23            993   52%  winamp-status-from-file.pl
 2024-08-22  06:52            979   52%  winamp-status.pl
 2024-11-19  15:01          1,269   66%  winamp-stop.bat
