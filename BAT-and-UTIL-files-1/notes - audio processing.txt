@@ -342,47 +342,34 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 	- may not work with songs (esp flac) that have a percent in their name! May have to temp-rename (esp flacs) to work at command line! 
 		- will not find this out until the review later, just something being mentioned
         - this is a good reason to still avoid percent-signs in music in 2024.  If we were not unicode-phobic in filenames I would recommend a unicode % that is different than the ascii %
-
-
-
-
-
-
+	- OLD: manually review ReplayGain tags —— now happens automatically, but here are the instructions for historical purposes:
+			* Step 1: run: audit-music-files.py  ----------- requires working python with a lot of installed packages tho
+			* Step 2: if RG_fix.bat is generated (or RG_yes.dat is non-zero), we havef problems — run RG_fix.bat to fix them (hopefully it does), then repeat Step 1
+					  If repeating leaves some stragglers (RG_no.dat is nonzero in size) you may have to refer to "SOME SONGS WILL HAVE FAILED" in the deprecated instructions below
+			* Step Z: There is no step Z! THESE ARE JUST DEPRECATED OLD INSTRUCTIONS TO KEEP AROUND:
+					- walk the folder tree manually, typing "lr" [list-replaygain-tags] at command line in each folder
+						- use "nd" to go to next folder for ease
+						- use "nd" only after being done with any subfolders -- don't forget "cheese", or "ORIGINAL-VERSIONS", or *any* subfolders
+					- SOME SONGS WILL HAVE FAILED! That's why we're doing the review!
+						- be vigilant about keeping an eye out for songs that have a % symbol in them, they (esp flac) may have failed
+						- the command line tool only works with 2-channel songs, so all 5.1 songs will fail
+						- occasionally some files will fail randomly because metaflac/metamp3 isn't perfect at reading/writing the tags
+						- *** for all of these various failures, you can open the file in Foobar media player, and rightclick the files to add ReplayGain tags with Foobar ***
+							- when you notice one that's missing, use "cthis.bat" to make c:\c\ point to the folder you are in
+							- open Foobar 
+							- file->add file->browse to "c:\c" if it's not there already->add the file to foobar
+							- right click the file(s)s -> ReplayGain -> scan as invidual track/album (depending on which is appropriate) -> update file tags
+							- then do "lr" again to verify that it worked
+								- sometimes EVEN AFTER THAT, they still won't be viewable at the command line ("lr" will fail).  
+									- it's extremely rare
+									- open them in WinAmp to verify the ReplayGain tags were successfully added
+									- if they still aren't viewable, WE HAVE A PROBLEM. It may behoove us to manually normalize the audio in Adobe Audition if we notice problems.
 
 
 
 
 - Inside the batch, run: preprocess-audio-tagging-batch 
 		- this deletes some junk files
-		- Now, we are ready to go to tagging!!!!
-
-
-
-
-
-- manually review ReplayGain tags 
-	- WE DO IT AUTOMATICALLY NOW!!!!!!!!!!!!!!!!!!! YAYYY!!!!
-		* Step 1: run: audit-music-files.py  ----------- requires working python with a lot of installed packages tho
-		* Step 2: if RG_fix.bat is generated (or RG_yes.dat is non-zero), we havef problems — run RG_fix.bat to fix them (hopefully it does), then repeat Step 1
-				  If repeating leaves some stragglers (RG_no.dat is nonzero in size) you may have to refer to "SOME SONGS WILL HAVE FAILED" in the deprecated instructions below
-		* Step Z: There is no step Z! THESE ARE JUST DEPRECATED OLD INSTRUCTIONS TO KEEP AROUND:
-				- walk the folder tree manually, typing "lr" [list-replaygain-tags] at command line in each folder
-					- use "nd" to go to next folder for ease
-					- use "nd" only after being done with any subfolders -- don't forget "cheese", or "ORIGINAL-VERSIONS", or *any* subfolders
-				- SOME SONGS WILL HAVE FAILED! That's why we're doing the review!
-					- be vigilant about keeping an eye out for songs that have a % symbol in them, they (esp flac) may have failed
-					- the command line tool only works with 2-channel songs, so all 5.1 songs will fail
-					- occasionally some files will fail randomly because metaflac/metamp3 isn't perfect at reading/writing the tags
-					- *** for all of these various failures, you can open the file in Foobar media player, and rightclick the files to add ReplayGain tags with Foobar ***
-						- when you notice one that's missing, use "cthis.bat" to make c:\c\ point to the folder you are in
-						- open Foobar 
-						- file->add file->browse to "c:\c" if it's not there already->add the file to foobar
-						- right click the file(s)s -> ReplayGain -> scan as invidual track/album (depending on which is appropriate) -> update file tags
-						- then do "lr" again to verify that it worked
-							- sometimes EVEN AFTER THAT, they still won't be viewable at the command line ("lr" will fail).  
-								- it's extremely rare
-								- open them in WinAmp to verify the ReplayGain tags were successfully added
-								- if they still aren't viewable, WE HAVE A PROBLEM. It may behoove us to manually normalize the audio in Adobe Audition if we notice problems.
 
 
 
@@ -391,11 +378,14 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 	- run "ldg TODO" to check for any TODOs that may need to be done — This may mean back to editing audio files, as we often discover things we need to do at all steps fo the process
 
 
+
+
+
 - DOWNLOAD LRC FILES!
     - run LRCget (it's on github, and I should have a saved installer somewhere) on the batch folder.
 	    - the configuration menu is where you set the folder —— if using our symlink tips from above, it would just be C:\B\ hopefully already pointing to the batch we're working on
-		    - Make sure that the option "SKIP TRACKS THAT ALREADY HAVE LYRICS OR ARE INSTRUMENTAL" is       checked
-		    - Make sure that the option "TRY TO EMBED THE LYRICS TO THE TRACK FILES WHEN POSSIBLE" is *NOT* checked
+		    - Make sure that the option "SKIP TRACKS THAT ALREADY HAVE LYRICS OR ARE INSTRUMENTAL" is       checked !!!!!!!!!!!!!
+		    - Make sure that the option "TRY TO EMBED THE LYRICS TO THE TRACK FILES WHEN POSSIBLE" is *NOT* checkedV 
     - just run it and let it download. It should only take 2-5 minutes.
     
 
@@ -407,14 +397,11 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 				2) To have a .TXT lyrics for as many non-instrumental songs as possible [which happens as a side-effect of goal #1]
 	*** STEPS: ***
 		* Currently in development, stay tuned.
-		* Right now, for each folder:
-			* 1) run check-for-missing-karaoke.bat ... It generates a bat file  {maybe sweep it first?}
-			  2) run that BAT file. But you'll have to generally be paying atttention and waiting for it to generate which is suuuuuper non-optimal.
-		* Soon:			  
-			A) a step where you JUST get lyrics for as many songs as possible
-			B) a step where the AI generation is queued up, using any lyrics gathered from A
-			C) a step where the queue of AI generation is run and then deleted
+			* sweep get-missing-lyrics-here     will send you through the arduous process of gathering lyrics or marking a song’s “lyriclessness”
+			* sweep create-missing-karaoke-here will generate the transcriptions of those files already approved in the previous step
 			 
+    
+
     
     
 
