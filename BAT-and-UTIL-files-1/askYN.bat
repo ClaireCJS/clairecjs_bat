@@ -250,10 +250,11 @@ REM Build the question prompt:
                                                                set PRETTY_QUESTION=%pretty_question%%italics_off%%bold_off%%underline_off%%double_underline_off%%@ANSI_FG_RGB[%BRACKET_COLOR]/ %+ rem           slash
         if "%default_answer" eq "yes" .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%n%faint_off%                                                                        %+ rem lowercase N
         if "%default_answer" eq "no"  .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%N%underline_off%%bold_off%                             %+ rem   capital N
-                                                rem TODO extra allowable keys go here, with a slash first:
+                                                rem extra allowable keys go here, with a slash first:
                                                         set  spread=%@ReReplace[(.),\1 ,%additional_keys%]
                                                         for %%tmpKey in (%spread%) do (
-                                                               set PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%tmpKey%%faint_off%
+                                                               rem PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%@LOWER[%tmpKey%]%faint_off%
+                                                               set PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%@UPPER[%tmpKey%]%faint_off%
                                                                set      key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
                                                                set last_key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
                                                         )
@@ -373,7 +374,8 @@ REM Generate "pretty" answers & update the title:
                 echos %@CURSOR_COLOR_BY_HEX[%color_alarm_hex%]
         else                
                 iff "" ne "%[key_meaning_%answer%]" then
-                        set VALUE_TO_USE=%[key_meaning_%ANSWER%]
+                        rem (Make sure to change underscores to spaces)
+                        set VALUE_TO_USE=%@ReReplace[\_, ,%[key_meaning_%ANSWER%]]
                 else
                         set VALUE_TO_USE=%@UPPER[%ANSWER%]
                 endiff

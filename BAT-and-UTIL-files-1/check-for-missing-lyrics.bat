@@ -148,11 +148,11 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
                 type %tmpfile_cfml_1% |:u8 randomize-file.pl   >>:u8 "%TARGET_SCRIPT"              %+ rem get-missing-lyrics script: randomize the order of our script to eliminate alphabetical bias
                 
                 iff 1 eq %GET then                                                                 %+ rem If we have decided to auto-run the script, the let’s do that
+                        rem title "Fetching lyrics!"
                         repeat 5 echo.
                         call divider
                         call pause-for-x-seconds 30 "%ansi_color_green%Going to find those missing lyrics now!%ansi_color_normal%"
                         call divider
-                        title "Fetching lyrics!"
                         rem echo type "%TARGET_SCRIPT%" ^ type "%TARGET_SCRIPT%"                   %+ rem Debug
                         rem echo call "%TARGET_SCRIPT%"                                            %+ rem Debug
                                  call "%TARGET_SCRIPT%"                                            %+ rem run the generated script

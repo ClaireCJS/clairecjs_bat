@@ -6,7 +6,9 @@ set output_file=%@NAME[%lrc_file].txt
 call validate-environment-variable   LRC_file 
 call validate-is-extension         "%LRC_file%"  *.lrc
 
-if exist "%Output_file%" call deprecate "%output_file%" >&>nul
+if exist "%Output_file%" (call deprecate "%output_file%" >&>nul)
+
+call divider
 lrc2txt.py %*
 
 call validate-environment-variable output_file

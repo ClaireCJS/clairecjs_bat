@@ -1,1 +1,1 @@
-https://github.com/ClaireCJS/clairecjs_bat/tree/main/minilyrics*
+https://github.com/ClaireCJS/clairecjs_bat/tree/main/

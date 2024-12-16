@@ -831,9 +831,9 @@ REM ✨ ✨ ✨ ✨ ✨ Actually generate the SRT file [used to be LRC but we ha
                 rem  ((%LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper) |&:u8 tee.exe --append "%OUR_LOGFILE%")
                 rem   (%LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |&:u8 tee.exe --append "%OUR_LOGFILE%")
                 rem    %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper                                          %+ rem works great....but no log
-rem                    %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
+                       %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
 rem temporary cosmetic feature removal while working out TCC v33 issues:
-                       %LAST_WHISPER_COMMAND%                                                        |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
+rem                    %LAST_WHISPER_COMMAND%                                                        |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
