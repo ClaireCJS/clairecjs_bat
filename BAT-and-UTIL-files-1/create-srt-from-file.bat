@@ -293,13 +293,13 @@ REM display debug info
         :solely_by_ai_jump1
         if %DEBUG gt 0 echo %ansi_color_debug%- DEBUG: (8)%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE=“%ITALICS_ON%%SONGBASE%%ITALICS_OFF%”%NEWLINE%%TAB%%TAB%LRC_FILE=“%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%”, %NEWLINE%%TAB%%TAB%TXT_FILE=“%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%”%FAINT_OFF%%ansi_color_normal%
         call  divider
-        gosub say_if_exists SONGFILE
-        gosub say_if_exists SRT_FILE
-        gosub say_if_exists LRC_FILE
-        gosub say_if_exists TXT_FILE
-        gosub say_if_exists JSN_FILE
-        gosub say_if_exists MAYBE_SRT_1
-        gosub say_if_exists MAYBE_SRT_2
+                               gosub say_if_exists SONGFILE
+                               gosub say_if_exists SRT_FILE
+                               gosub say_if_exists LRC_FILE
+                               gosub say_if_exists TXT_FILE
+                               gosub say_if_exists JSN_FILE
+        if defined MAYBE_SRT_1 gosub say_if_exists MAYBE_SRT_1
+        if defined MAYBE_SRT_2 gosub say_if_exists MAYBE_SRT_2
 
 
 REM Earlier, we retrieved the values for MAYBE_SRT_[1|2] via probing the songfile via the shared probe code in get-lyrics-for-song.bat
@@ -831,9 +831,13 @@ REM ✨ ✨ ✨ ✨ ✨ Actually generate the SRT file [used to be LRC but we ha
                 rem  ((%LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper) |&:u8 tee.exe --append "%OUR_LOGFILE%")
                 rem   (%LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |&:u8 tee.exe --append "%OUR_LOGFILE%")
                 rem    %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper                                          %+ rem works great....but no log
-                       %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
-rem temporary cosmetic feature removal while working out TCC v33 issues:
+                rem    %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
+rem temporary cosmetic feature removal while working out copy-move-post.py post-TCCv33 modifications is to remove the postprocessor:
 rem                    %LAST_WHISPER_COMMAND%                                                        |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
+rem but y’know rather than using tee, i could maybe use copy-move-post ITSELF to write the  logfile and escape these complications entirely!                       
+                       %LAST_WHISPER_COMMAND%                           |:u8 copy-move-post whisper -t"%OUR_LOGFILE%"  
+                       
+                       
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
@@ -916,7 +920,7 @@ goto :Cleanup
 
 
             :say_if_exists [it]
-                    if not defined %[it] (@call error "say_if_exists called but it of “%it%” is not defined")
+                    if not defined %[it] (@call error "say_if_exists called but “%it%” is not defined")
                     set filename=%[%[it]]
                     iff exist %filename then
                             set BOOL_DOES=1 %+ set does_punctuation=: %+ set does=%BOLD%%UNDERLINE%%italics%does%italics_off%%UNDERLINE_OFF%%BOLD_OFF%    ``

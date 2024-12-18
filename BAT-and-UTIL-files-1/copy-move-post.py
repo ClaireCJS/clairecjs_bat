@@ -1,12 +1,17 @@
-
-
-
 """
         COPY/MOVE postprocessor
 
         USAGE:  {command} | copy-move-post
-        USAGE:  {command} | copy-move-post nomoji ————— doesn't add the emoji prefixes to lines
-        USAGE:  {command} | copy-move-post WhisperAI —— post-process WhisperAI transcription
+        USAGE:  {command} | copy-move-post -n or “nomoji” ————— doesn't add the emoji prefixes to lines
+        USAGE:  {command} | copy-move-post -tFilename.txt ————— save output to Filename.txt —— saving the trouble of ever using the tee command
+        USAGE:  {command} | copy-move-post -v or “verbose” ———— verbose mode
+        USAGE:  {command} | copy-move-post -w or “WhisperAI” —— post-process WhisperAI transcription
+
+        [Note: Use “|:u8” instead of “|” in TCC, for best unicode/emoji support]
+
+        POSSIBLE FUTURE MODES:
+
+        USAGE:  {command} |copy-move-post -c123 —————————————— assume screen console width of 123
 
                     * makes each line a random color (to increase visual accessibility to boundaries between filenames)
 
@@ -19,9 +24,6 @@
                     * double-heightens summaries (to increase visual accessibility to the part that matters more than the details)
 
 """
-
-##TODO POSSIBLY STILL LEAKS CHARACTERS WHEN IT SHOULDN'T SOMETIMES, BUT NOT SURE
-
 import random
 import sys
 import re
@@ -31,9 +33,14 @@ import threading
 import queue
 import time
 import os
-import signal
 import struct
 import ctypes
+import logging
+
+import signal
+signal.signal(signal.SIGINT , lambda *args: (show_cursor(), enable_vt_support(), sys.exit(0)))
+signal.signal(signal.SIGTERM, lambda *args: (show_cursor(), enable_vt_support(), sys.exit(0)))
+
 try:
     import clairecjs_utils as claire
 except ImportError:
@@ -67,12 +74,13 @@ EMOJIS_PROMPT              = '❓❓ '
 EMOJIS_DELETE              = '👻⛔ '              #"ghost" + "no" = dead file? no more file? File is now a ghost?
 EMOJIS_SUMMARY             = '✔️ '
 EMOJIS_ERROR               = '🛑🛑'
+tee                        = False                #set to True to disable [some] emoji decoration of lines
 nomoji                     = False                #set to True to disable [some] emoji decoration of lines
 whisper_ai                 = False                #set to True to run in WhisperAI mode
 whisper_decorator_title    = "🚀🚀🚀"             #decorator for Whisper title 
 #Note to self: either maintain a simultaneous update of these 4 values in set-colors.bat or create env-var overrides:
-MIN_RGB_VALUE_FG = 88;   MIN_RGB_VALUE_BG = 12                     #\__ range of random values we
-MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40                     #/   choose random colors from
+MIN_RGB_VALUE_FG =  88;  MIN_RGB_VALUE_BG = 12    #\__ range of random values we
+MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40    #/   choose random colors from
 
 
 # ANSI codes
@@ -143,6 +151,42 @@ spacer = ""
 
 #————————————————
 
+# Set up logging to both console and file
+def setup_logging():
+    global tee, output_file
+    if tee:
+        # Configure logging: Log to both file (append mode) and console
+        print(f" 🌔 output_file is {output_file}")
+        logging.basicConfig(
+            level=logging.INFO,
+            #format='%(asctime)s - %(message)s',
+            format='%(message)s',
+            handlers=[
+                logging.FileHandler(output_file, mode='a'),  # Append mode
+                #NO loggging.StreamHandler(sys.stdout)  # Also print to console
+            ]
+        )
+        
+class DualOutput:
+    def __init__(self, file_name):
+        self.file = open(file_name, "a", encoding='utf-8')  # Open file in append mode
+        self.stdout = sys.stdout  # Save the original stdout
+
+    def write(self, message):
+        self.file.write(message)  # Write to the log file
+        self.stdout.write(message)  # Write to the console
+
+    def flush(self):
+        self.file.flush()  # Ensure data is written to the file
+        self.stdout.flush()  # Ensure data is written to the console        
+        
+        
+# Redirect STDOUT
+def setup_output():
+    global tee, output_file
+    if tee and output_file:
+        sys.stdout = DualOutput(output_file)        
+
 def hide_cursor():
     sys.stdout.write("\033[?25l")
     sys.stdout.flush()
@@ -151,8 +195,18 @@ def show_cursor():
     sys.stdout.write("\033[?25h")
     sys.stdout.flush()
 
-signal.signal(signal.SIGINT , lambda *args: (show_cursor(), enable_vt_support(), sys.exit(0)))
-signal.signal(signal.SIGTERM, lambda *args: (show_cursor(), enable_vt_support(), sys.exit(0)))
+
+def is_console_output():
+    """
+    Check if the standard output is attached to a console screen buffer.
+    """
+    h = ctypes.windll.kernel32.GetStdHandle(-11)  # STD_OUTPUT_HANDLE
+    # Use GetFileType to check the type of the handle
+    FILE_TYPE_CHAR = 0x0002
+    FILE_TYPE_PIPE = 0x0003
+    file_type = ctypes.windll.kernel32.GetFileType(h)
+    return file_type == FILE_TYPE_CHAR
+
 
 def set_cursor_position(x, y):
     h = ctypes.windll.kernel32.GetStdHandle(-11)  # STD_OUTPUT_HANDLE
@@ -190,20 +244,26 @@ def set_cursor_column_helper(x):
         raise ctypes.WinError()
 
 def set_cursor_column_unsafe(x):
-    # Example: Move to column 0, keeping the current row
-    try:
-        set_cursor_column_helper(0)
-        #print("Cursor moved to column 0 without changing the row!")
-    except Exception as e:
-        print(f"Error: {e}")
+    """
+    Example: Move to column 0, keeping the current row
+    """
+    if is_console_output():
+        try:
+            #print("Moving cursor to column 0 without changing the row!")
+            set_cursor_column_helper(0)
+        except Exception as e:
+            print(f"Error: {e}")
+    else:
+        #print("output is not console, skipping cursor manipulation")
+        pass
 
 cursor_mutex = threading.Lock()
 output_mutex = threading.Lock()
 
 def set_cursor_column(x):
     with cursor_mutex:
+        #TODO: can also do the ansi move to col[x] here! 🐐
         set_cursor_column_unsafe(x)
-
 
 #def flush():
 #    #print(f"Buffered data: {sys.stdout.buffer.getvalue()}")     # Inspect buffered data
@@ -425,7 +485,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     i = 0
     for myline in lines_to_print:                                                                             #print our line, but do it double-height if we're supposed to
         if myline != '\n' and myline != '':
-            if not double or not DOUBLE_LINES_ENABLED:
+            if not double or not DOUBLE_LINES_ENABLED or not whisper_ai:
                 #TCC v32: sys.stdout.write(f'{myline}')
                 #TCC v33:
                 #sg = MOVE_TO_COL_1 + myline 
@@ -492,41 +552,72 @@ additional_beginning_ansi = move_decorator_from_environment_variable
 ##sys.stdout.write(f"sys.argv is {sys.argv}\n")
 
 # initialize various variables
-verbose                       = False
-whisper_ai                    = False
+verbose                       = False                                   #whether we are in verbose mode or not
+whisper_ai                    = False                                   #whether we are in WhisperAi postprocessing mode or not
+tee                           = False                                   
 current_processing_segment    = 0
 my_mode                       = DEFAULT_COLOR_CYCLE_MODE
 background_color_switch_maybe = ""
 r                             = ""
 g                             = ""
 b                             = ""
+tee                           = False       # for -t option
+output_file                   = None        # for -t option
 
 
 #sys.stdout.write(f"sys.argv is {sys.argv}\n")
-if len(sys.argv) > 1:
-    #sys.stdout.write(f"sys.argv[1] is {sys.argv[1]}\n")
-    if sys.argv[1] == 'bg' or sys.argv[1] == 'both': my_mode = sys.argv[1]
-    for arg in sys.argv[1:]:
-        if arg.lower() in ["n", "-n", "--n", "nomoji", "-nomoji", "--nomoji", "no-emoji", "-no-emoji", "--no-emoji"]: nomoji  = True
-    for arg in sys.argv[1:]:
-        if arg.lower() in ["v", "-v", "--v", "verbose", "-verbose", "--verbose"]: verbose = True
-    for arg in sys.argv[1:]:
-        if arg.lower() in ["w", "-w", "--w", "whisperai", "-whisperai", "--whisperai", "whisper", "-whisper", "--whisper"]:
-            whisper_ai = True
-            nomoji     = True
 
-if whisper_ai:
-    import re
-    COLOR_QUESTION_BACKGROUNDS = False
+#if len(sys.argv) > 1:
+#    #sys.stdout.write(f"sys.argv[1] is {sys.argv[1]}\n")
+#    if sys.argv[1] == 'bg' or sys.argv[1] == 'both': my_mode = sys.argv[1]
+#    for arg in sys.argv[1:]:
+#        if arg.lower() in ["n", "-n", "--n", "nomoji", "-nomoji", "--nomoji", "no-emoji", "-no-emoji", "--no-emoji"]: nomoji  = True
+#    for arg in sys.argv[1:]:
+#        if arg.lower() in ["v", "-v", "--v", "verbose", "-verbose", "--verbose"]: verbose = True
+#    for arg in sys.argv[1:]:
+#        if arg.lower() in ["w", "-w", "--w", "whisperai", "-whisperai", "--whisperai", "whisper", "-whisper", "--whisper"]:
+#            whisper_ai = True
+#            nomoji     = True
+
+
+if len(sys.argv) > 1:
+    if sys.argv[1] in ['bg', 'both']:
+        my_mode = sys.argv[1]
+    
+    for arg in sys.argv[1:]:
+        arg_lower = arg.lower()
+        if   arg_lower in ["n", "-n", "--n", "nomoji", "-nomoji", "--nomoji", "no-emoji", "-no-emoji", "--no-emoji"]:
+            nomoji = True
+        elif arg_lower in ["v", "-v", "--v", "verbose", "-verbose", "--verbose"]:
+            verbose = True
+        elif arg_lower in ["w", "-w", "--w", "whisperai", "-whisperai", "--whisperai", "whisper", "-whisper", "--whisper"]:
+            whisper_ai = True
+            nomoji = True
+        elif arg.startswith('-t'):  # Detect -t with attached value
+            tee = True
+            output_file = arg[2:]   # Extract the value after -t
+
+
+if tee and output_file: 
+    #setup_logging()
+    setup_output()
+
+
 
 
 if verbose:
     sys.stdout.write(f"    * verbose    is {verbose                   }\n")
+    sys.stdout.write(f"    * tee        is {tee                       }\n")
+    sys.stdout.write(f"    * custom_fil is {output_file               }\n") #if tee = True, anyway
     sys.stdout.write(f"    * my_mode    is {my_mode                   }\n")
     sys.stdout.write(f"    * nomoji     is {nomoji                    }\n")
     sys.stdout.write(f"    * whisper_ai is {whisper_ai                }\n")
-    sys.stdout.write(f"    * color ? bg is {COLOR_QUESTION_BACKGROUNDS}\n")
+    sys.stdout.write(f"    * color ? bg is {COLOR_QUESTION_BACKGROUNDS}\n") #if whisper_ai = True, anyway
+    
 #enable_vt_support()
+
+
+COLOR_QUESTION_BACKGROUNDS = False
 
 #whether to blink text or not
 blink_maybe = BLINK_ON;                          #failed attempt to solve blinking questions in Whisper mode
@@ -535,6 +626,8 @@ if nomoji or whisper_ai: BLINK_ON=""             #failed attempt to solve blinki
 char_read_time_out=0.008;                        #most of the time, read characters as fast as we can! testing gave 0.008
 #f whisper_ai: char_read_time_out=0.2            #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
 if whisper_ai: 
+    CONCEAL_ON  = ""
+    CONCEAL_OFF = ""
     char_read_time_out=0.064                     #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
     SPECIAL_TREATMENT_FOR_QUESTION_LINES = False # Set to False to suppress special treatment of lines with '?'
 

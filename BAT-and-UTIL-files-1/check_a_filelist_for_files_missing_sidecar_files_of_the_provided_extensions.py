@@ -5,6 +5,8 @@ import os
 import glob
 from termcolor import colored
 import random
+from colorama import init
+init(autoreset=False)
 
 
 

@@ -24,7 +24,7 @@ rem iff %DO_IT eq 1 then
         pause 
         set FORCE_EXIT=1 
         echo %ANSI_COLOR_RED%—— Returning to command line #1 of 2 ——%ANSI_COLOR_NORMAL%
-        rem not *CANCELing anymore but calling BAT 
+        rem not *CANCELing anymore but calling BAT for VERY SPECIFIC REASONS related to minutae in the way TCC operates
         call cancelll.bat
         *cancel
 rem endiff

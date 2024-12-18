@@ -46,11 +46,12 @@ if "%1" eq "" .or. "%1" eq "alt" .or. "%1" eq "normal" (goto :%MachineName%)
         REM activate "minilyrics" POS=-907,-1085,700,670
         REM winamp 5.9.2:
             rem activate "minilyrics"             pos=-1117,-1085,0700,670   -- went bad around 2023/08/10
-                activate "minilyrics"             pos=-1059,-1085,0700,670
-                :ctivate "Floating Lyrics"        pos=00820,-1065,1500,250
-                activate "Floating Lyrics"        pos=00830,-1065,1560,250
-                activate "Winamp Playlist Editor" pos=-0130,-1072,0600,600
-                activate "album art"              pos=01941,-0695,0450,450
+                rem 20241217: all these MiniLyrics-related ones are part of fix-minilyrics.bat now
+                rem activate "minilyrics"             pos=-1059,-1085,0700,670
+                rem :ctivate "Floating Lyrics"        pos=00820,-1065,1500,250
+                rem activate "Floating Lyrics"        pos=00830,-1065,1560,250
+                    activate "Winamp Playlist Editor" pos=-0130,-1072,0600,600
+                    activate "album art"              pos=01941,-0695,0450,450
 
         rem vvvvvvvvvvvvvvvvvvvvvvvv *** normal album art ***
         rem if "alt" ne "%FIX_WINAMP_MODE%"                   (activate "album art" pos=1430,-800,410,410) %+ rem *** normal ***

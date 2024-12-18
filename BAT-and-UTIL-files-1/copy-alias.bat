@@ -47,7 +47,11 @@ rem Decide if doing old/simple or new/colorful copy method:
                         rem Piping to fast_cat to fix ANSI errors seems to need to be performed *outside* of this BAT to not
                         rem have ansi errors on the generated double-height lines. Not sure why that started happening:
                             rem  %LAST_COPY_COMMAND% |:u8  copy-move-post.py
+                            iff 1 eq 1 then                            
                                  %LAST_COPY_COMMAND% |&:u8 copy-move-post.py
+                            else                                 
+                                 %LAST_COPY_COMMAND% |&:u8 copy-move-post.py) |:u8 fast_cat
+                            endiff                                 
 
 
 :END
