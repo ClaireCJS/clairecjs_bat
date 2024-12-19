@@ -26,10 +26,11 @@ rem Environment variable backups —— these should all already be defined alre
                 endiff                
         rem Are our required ansi values set?
                 iff 1 ne %ANSI_COLORS_HAVE_BEEN_SET% .and. 1 ne %validated_cfml_ansi% then
-                        if not defined ANSI_COLOR_BRIGHT_PURPLE set ANSI_COLOR_BRIGHT_PURPLE=%@CHAR[27][38;2;255;0;255m
-                        if not defined ANSI_COLOR_BRIGHT_RED    set ANSI_COLOR_BRIGHT_RED=%@CHAR[27][91m
                         if not defined            BRIGHT_RED    set            BRIGHT_RED=%@CHAR[27][91m
+                        if not defined ANSI_COLOR_BRIGHT_RED    set ANSI_COLOR_BRIGHT_RED=%@CHAR[27][91m
+                        if not defined ANSI_COLOR_BRIGHT_PURPLE set ANSI_COLOR_BRIGHT_PURPLE=%@CHAR[27][38;2;255;0;255m
                         if not defined ANSI_COLOR_MAGENTA       set ANSI_COLOR_MAGENTA=%@CHAR[27][38;2;170;0;85m
+                        if not defined BLINK_ON                 set BLINK_ON=%@CHAR[27][6m
                         set validated_cfml_ansi=1
                 endiff
 
@@ -135,9 +136,9 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
                 ) else (
                         set clean_formatted_percent=%formatted_percent%
                 )
-                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%  Processed:  %italics_on%%NUM_PROCESSED%%italics_off% songs 
-                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located:  %ansi_color_red%%@FORMAT[%@LEN[%num_processed],%NUM_BAD%]%ansi_color_bright_green% songs needing lyric attention
-                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK% Compliance: %@ANSI_RGB[%our_r%,%our_g%,%our_b%]%clean_formatted_percent%%cool_percent%
+                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%  Processed: %italics_on%%@FORMATn[3.0,%NUM_PROCESSED%]%italics_off% songs 
+                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located: %ansi_color_red%%@FORMATn[3.0,%NUM_BAD%]%ansi_color_bright_green% songs needing lyric attention
+                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK% Compliance: %@ANSI_RGB[%our_r%,%our_g%,%our_b%]%@formatn[3.1,%clean_formatted_percent%]%cool_percent%
         endiff
 
         iff 1 eq %ANY_BAD% then                                                                    %+ rem We generate a script to find the missing ones, but if and only if some missing ("bad") ones were found
@@ -151,8 +152,10 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
                         rem title "Fetching lyrics!"
                         repeat 5 echo.
                         call divider
-                        call pause-for-x-seconds 30 "%ansi_color_green%Going to find those missing lyrics now!%ansi_color_normal%"
+                        echo.
                         call divider
+                        echos %@ANSI_MOVE_UP[2]
+                        call pause-for-x-seconds 30 "%ansi_color_green%Going to find those missing lyrics now!%ansi_color_normal%%ansi_color_bright_Red%%blink_on%"
                         rem echo type "%TARGET_SCRIPT%" ^ type "%TARGET_SCRIPT%"                   %+ rem Debug
                         rem echo call "%TARGET_SCRIPT%"                                            %+ rem Debug
                                  call "%TARGET_SCRIPT%"                                            %+ rem run the generated script
@@ -202,12 +205,12 @@ rem —————————————————————————�
                      rem else                                                
                      rem         echo %ansi_color_magenta%%check% karaoke DOESN’T exist:         %lrcfile% 
                      rem endiff                             
-                     for %tmp_cfml_loop_file in ("%srtfile%" "%lrcfile%") do (
-                             if exist %tmp_cfml_loop_file% (
-                                     echo %ansi_color_cyan% %EMOJI_CHECK_MARK% karaoke  already exists:       %faint_on%%@UNQUOTE[%tmp_cfml_loop_file%]%faint_off%``
+                     for %tmp_potential_subtitle_file in ("%srtfile%" "%lrcfile%") do (
+                             if exist %tmp_potential_subtitle_file% (
+                                     echo %ansi_color_cyan% %EMOJI_CHECK_MARK% karaoke  already exists:       %faint_on%%@UNQUOTE[%tmp_potential_subtitle_file%]%faint_off%``
                                      set BAD=0                                   
                              ) else (                          
-                                     rem echo %ansi_color_magenta% %check% karaoke DOESN%[smart_apostrophe]T exist:         %@UNQUOTE[%tmp_cfml_loop_file%]``
+                                     rem echo %ansi_color_magenta% %check% karaoke DOESN%[smart_apostrophe]T exist:         %@UNQUOTE[%tmp_potential_subtitle_file%]``
                              )                                            
                      )
                      
@@ -227,6 +230,7 @@ rem —————————————————————————�
                              set coloring=%ansi_color_bright_black%
                              set coloring2=%ansi_color_bright_black%
                              set LYRIC_APPROVAL_VALUE=%NO%                                         %+ rem    ...set a meaningful display value like "🚫"
+set BAD=1 
                      endiff              
                      set NUM_PROCESSED=%@EVAL[%NUM_PROCESSED + 1]
                      iff 1 eq %BAD% then
@@ -237,7 +241,7 @@ rem —————————————————————————�
                              rem   *pause>nul
                              set ANY_BAD=1
                              echo %EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%%unquoted_audio_file% 
-                             echo repeat 20 echo. `%`+ call get-lyrics "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
+                             echo repeat 13 echo. `%`+ call get-lyrics "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
                              set NUM_BAD=%@EVAL[NUM_BAD + 1]
                              rem echo now %NUM_BAD% bad ones
                      endiff                        

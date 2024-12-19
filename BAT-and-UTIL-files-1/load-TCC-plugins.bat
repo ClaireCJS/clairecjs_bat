@@ -30,8 +30,9 @@ rem Set our plugin file locations:
         set PLUGIN_4WT=%PLUGIN_TCC_BASE%\4wt.dll
         set PLUGIN_STRIPANSI=%PLUGIN_TCC_BASE%\StripAnsi.dll 
 
-rem Verify the plugin files exist:
-        call validate-environment-variables PLUGIN_TCC_BASE PLUGIN_4WT PLUGIN_STRIPANSI
+rem Verify the plugin files exist —— do not use ‘validate-environment-variable’ because this is run before the environment is properly established to support validate-environment-variable.bat:
+        if not exist %PLUGIN_4WT       (beep %+ beep %+ beep %+ echo ERROR: PLUGIN_TCC_BASE of %PLUGIN_4WT% is not a valid location! %+ pause %+ pause %+ pause %+ goto :END)
+        if not exist %PLUGIN_STRIPANSI (beep %+ beep %+ beep %+ echo ERROR: PLUGIN_TCC_BASE of %PLUGIN_STRIPANSI is not a valid location! %+ pause %+ pause %+ pause %+ goto :END)
 
 
 
@@ -60,7 +61,7 @@ rem                 And the, finally, do we actually do what this whole script i
 
         rem 1) 4WT plugin:
                 iff "%_HWNDWT" == ""  .or. "%1" == "force" then
-                    call print-if-debug "Loading TCC plugin: %italics_on%4WT%italics_off%"
+                    if %DEBUG gt 0 call print-if-debug "Loading TCC plugin: %italics_on%4WT%italics_off%"
                     set PLUGIN_4WT_LOADED=1
                     if isplugin 4WT .or. "%1" == "force" (plugin /u %PLUGIN_4WT% >&>nul)
                                                           plugin /l %PLUGIN_4WT% >&>nul
@@ -70,7 +71,7 @@ rem                 And the, finally, do we actually do what this whole script i
         
         rem 2) StripAnsi plugin:
                 iff not plugin stripansi .or. "%1" == "force" then
-                    call print-if-debug "Loading TCC plugin: %italics_on%StripAnsi%italics_off%"
+                    if %DEBUG gt 0 call print-if-debug "Loading TCC plugin: %italics_on%StripAnsi%italics_off%"
                     set PLUGIN_STRIPANSI_LOADED=1
                     if isplugin stripansi .or. "%1" == "force" (plugin /u %PLUGIN_STRIPANSI% >nul)
                                                                 plugin /l %PLUGIN_STRIPANSI% >nul
@@ -87,3 +88,4 @@ rem Double check things worked out:
         call validate-plugin 4WT StripANSI
         
 
+:END

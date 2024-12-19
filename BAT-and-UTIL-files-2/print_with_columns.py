@@ -457,6 +457,31 @@ def debug_info(columns, width, desired_max_height, console_width, console_height
 
 
 
+# ═════════════════════════════════════════════════════════════════════════════════
+def remove_trailing_blank_line(output):
+    # Split into lines, remove trailing empty lines, and rejoin
+    lines = output.splitlines()
+    while lines and lines[-1] == "":
+        lines.pop()
+    retval = "\n".join(lines) + "\n"  # Add back a single newline at the end
+    print(f"return value is:\n[[[[[{retval}]]]]]")
+    return retval
+# ═════════════════════════════════════════════════════════════════════════════════
+
+# ═════════════════════════════════════════════════════════════════════════════════
+def remove_trailing_blank_lines(output):
+    # Normalize line endings for consistent processing
+    normalized_output = output.replace("\r\n", "\n")
+    # Split into lines
+    lines = normalized_output.splitlines()
+    # Remove all trailing blank lines
+    while lines and lines[-1].strip() == "":
+        lines.pop()
+    # Join lines back with original Windows-style line endings
+    return "\r\n".join(lines) + "\r\n" if lines else ""
+# ═════════════════════════════════════════════════════════════════════════════════
+
+
 
 
 
@@ -598,7 +623,10 @@ def main():
         print("\n".join(input_data))
         if VERBOSE: print("❕‼ OUTPUT WAS EMPTY, so we joined input_data manually ❕‼")
     else: 
-        print(output)
+        #print(output)
+        trimmed_output = remove_trailing_blank_lines(output)
+        print(trimmed_output,end="")
+
     
     # Optionally, print the internal log
     if VERBOSE:

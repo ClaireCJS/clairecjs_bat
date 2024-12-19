@@ -95,7 +95,7 @@ def srt_to_txt(input_file, output_file):                                        
 
     with open(output_file, 'w', encoding='utf-8') as f_out:                                        # Open the output file for writing with UTF-8 encoding
         for line in text_lines:                                                                    # Iterate over the collected text lines
-            f_out.write(line + '\n')                                                               # Write each line followed by a newline character
+            f_out.write(line.lstrip() + '\n')                                                      # Write each line followed by a newline character
 
 if __name__ == "__main__":                                                                         # Entry point of the script
     parser = argparse.ArgumentParser(description='Converts SRT files to TXT files.')               # Create ArgumentParser object with description
@@ -126,4 +126,5 @@ if __name__ == "__main__":                                                      
             output_file = re.sub(r'\.[^.]+$', EXTENSION, input_file)                               # Replace input file's extension with EXTENSION
 
         srt_to_txt(input_file, output_file)                                                        # Call the main function with input and output files
-        print(f"✔  Generated: {output_file} generated")                                           # Display success message
+        #rint(f"✔  Generated: {output_file} generated")                                           # Display success message
+        print(f'✔  Converted  SRT file to TXT: ‘{output_file}’ successfully!')                    # Display success message                                       

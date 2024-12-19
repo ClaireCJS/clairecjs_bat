@@ -62,12 +62,11 @@ def detect_encoding(filename):
 
 
 def main(input_filename, extensions, options, extra_args):
+    #DEBUG: print(f"main got extra args of '{extra_args}'")
 
     global without_sidecar_count
     global total_file_count
 
-
-    #DEBUG: print(f"main got extra args of '{extra_args}'")
 
     # Detect encoding of the input file
     encoding = detect_encoding(input_filename)
@@ -81,8 +80,9 @@ def main(input_filename, extensions, options, extra_args):
         sys.exit(1)
 
     # Parse the extensions
-    extensions_list = extensions.split(';')
-    extensions_list = [ext.strip() for ext in extensions_list if ext.strip().startswith('*.')]
+    extensions_list1 = extensions.split(';')
+    extensions_list2 = [ext.strip()[2:] for ext in extensions_list1 if ext.startswith('*.')]        #DEBUG: print(f"extensions_list1='{extensions_list1}'\nextensions_list2='{extensions_list2}'")
+    extensions_list=extensions_list2;
     if not extensions_list:
         print("Error: No valid extensions provided.")
         sys.exit(1)
@@ -136,7 +136,6 @@ def main(input_filename, extensions, options, extra_args):
             sys.stderr.write(colored(f"       Files processed:  {total_file_count} \n"     , 'green', attrs=['bold']))
             sys.stderr.write(colored(f"       Without sidecar:  {without_sidecar_count} \n", 'green', attrs=['bold']))
             sys.stderr.write(colored(f"       To fix, run:      {output_filename} \n", 'green', attrs=['bold']))
-
             #DEBUG: if extra_args: print(f"Using extra arguments of: {extra_args}")
 
 
@@ -179,6 +178,7 @@ if __name__ == "__main__":
         extra_args = sys.argv[4:]
         extra_args_str=  ' '.join(extra_args)
 
-    #    print(f"- DEBUG: Extra args are: '{extra_args_str}'") #🐐
+    #print(f"- DEBUG: Extra args are: '{extra_args_str}'") #
+    #print(f"- DEBUG: Extensions are: '{extensions    }'") #
 
     main(input_filename, extensions, options, extra_args_str)

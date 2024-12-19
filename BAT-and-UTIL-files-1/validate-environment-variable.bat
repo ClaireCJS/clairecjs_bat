@@ -36,6 +36,17 @@
     set ENVIRONMENT_VALIDATION_FAILED_NAME=
     set ENVIRONMENT_VALIDATION_FAILED_VALUE=
     set DEBUGPREFIX=- {validate-environment-variable} * ``
+    
+    
+::::: VALIDATE ENVIRONMENT:
+        iff not defined FILEMASK_ALL_REGEX then
+                %color_warning%
+                echo WARNING in validate-environment-variable.bat when called by %_PBATCHNAME: FILEMASK_ALL_REGEX not defined!
+                if defined PBATCH2 echo       grandparent BAT = %PBATCH2%
+                pause
+                goto :END
+        endiff
+
 
 ::::: VALIDATE PARAMETERS STRICTLY
     rem call debug "param3            is %param3%"
@@ -63,7 +74,7 @@
         set SKIP_VALIDATION_EXISTENCE=1 
         set USER_MESSAGE=%3$
     )
-    if %DEBUG_NORMALIZE_MESSAGE eq 1 (echo %ansi_color_debug%- DEBUG: PARAM2: “%PARAM2%”%ansi_color_normal%)
+    if %DEBUG_NORMALIZE_MESSAGE eq 1 (echo %ansi_color_debug%- DEBUG: PARAM2: %left_quotes%%PARAM2%%right_quotes%%ansi_color_normal%)
 
 
     iff %VALIDATE_MULTIPLE ne 1 then
@@ -84,7 +95,7 @@
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-goto :Past_The_End_Of_The_Sub-Routines
+goto :Past_The_End_Of_The_Subroutines
 
 
     :validate_environment_variable [VARNAME]
@@ -94,12 +105,14 @@ goto :Past_The_End_Of_The_Sub-Routines
             if defined %VARNAME% (goto :Defined_YES)
             if ""  eq  %VARNAME% (goto :Defined_NO )
 
-                    ::::: REPOND IF IT IS NOT:
+                    ::::: RESPOND IF IT IS NOT DEFINED/EXISTING:
                         :Defined_NO
                             set ERROR=1
-                            set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Environment variable “%underline%%italics%%blink%%varname%%italics_off%%blink_off%%underline_off%” is %double_Underline%not%double_Underline_off% defined, and needs to be, in %italics_on%“%[_PBATCHNAME]”%italics_off%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
+                            set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Environment variable %left_quote%%underline%%italics%%blink%%varname%%italics_off%%blink_off%%underline_off%%right_quote% is %double_Underline%not%double_Underline_off% defined, and needs to be
+                            if "" !=  "%[_PBATCHNAME]" set ERROR_MESSAGE=%ERROR_MESSAGE%, in %italics_on%%left_quotes%%[_PBATCHNAME]%right_quote%%italics_off%
+                            set ERROR_MESSAGE=%ERROR_MESSAGE%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
-                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is “%USER_MESSAGE%”)
+                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is %left_quotes%%USER_MESSAGE%%right_quotes%)
                             if "%USER_MESSAGE%" ne "" goto :Do_It_1
                                                       goto :Do_It_1_Done
                             :Do_It_1
@@ -116,7 +129,7 @@ goto :Past_The_End_Of_The_Sub-Routines
                                 REM for /L %%i in (1,1,%LENGTH_DIFF%) do (set EXCLAMATION_MARKS=%EXCLAMATION_MARKS%!)
                                 REM 
                                 REM rem Substitute the final sequence of exclamation marks in ERROR_MESSAGE
-                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: EXCLAMATION_MARKS is “%EXCLAMATION_MARKS%”)
+                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: EXCLAMATION_MARKS is %left_quotes%%EXCLAMATION_MARKS%%right_quotes%)
                                 REM set NORMALIZED_ERROR_MESSAGE=%@REPLACE[!!!,%EXCLAMATION_MARKS%,%ERROR_MESSAGE%]
                                 REM set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
 
@@ -188,86 +201,99 @@ goto :Past_The_End_Of_The_Sub-Routines
                             REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
                         goto :END
 
+
         ::::: ADDITIONALLY, VALIDATE THAT IT EXISTS, IF IT SEEMS TO BE POINTING TO A FOLDER/FILE:
-            :Defined_YES
-            set VARVALUE=%[%VARNAME%]``                    
-            if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
-            set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])     
+                :Defined_YES
+                set VARVALUE=%[%VARNAME%]``                    
+                if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
+                set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])     
 
 
-            set IS_FILE_LOCATION=0
-            setdos /x-5
-            iff defined VARVALUE then
-                rem @echo on
+                set IS_FILE_LOCATION=0
+                setdos /x-5
+                iff defined VARVALUE then
+                                                    
                         rem  echo VARVALUE is [%VARVALUE%], varname is %VARNAME>nul
-                        rem  ************************** "1" eq "%@REGEX[^[A-Za-z]:,%@UPPER[@UNQUOTE[%VARVALUE%]]]" then
-                        echo ************************** "1" eq "%@REGEX[^[A-Za-z]:,@UPPER[@UNQUOTE[%VARVALUE%]]]" then>nul
+                        
+                        rem It’s definitely not a file location if:
+                        rem     1) The variable’s  name is “newline” or “tab”
+                        rem     2) The variable’s value is “ ”
+                        rem     3) The variable’s value does not contain a “.”
+
+                        rem It definitely IS a file location if:
+                        rem     1) The filename has “c:\” or some other drive letter at the beginning
+                        rem     1) The filename ends in one of the extensions mentioned in FILEMASK_ALL_REGEX
+
+                        
                         setdos /x-5
-                        iff "%VARVALUE%" eq " " then
+                        iff "%VARNAME%" eq "newline" .or. "%VARNAME%" eq "tab" .or. "%VARVALUE%" eq " " .or. "%@RegEx[\.,%varvalue%]" ne "1" then
                                 set IS_FILE_LOCATION=0
-                                goto :skippy
-                        endiff                                
-                        rem echo 🧟🏻‍♀️ if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"       set IS_FILE_LOCATION=1 >nul
-                        iff "%VARNAME%" eq "newline" .or. "%VARNAME%" eq "tab" then
-                                rem It’s not something we want in regexes, so skip this next part
-                                rem Idea: we *could* skip any string which doesn’t have a . in it. Safe but slightly destructive.
+                        elseiff "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"  .or.  "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" then
+                                rem if it ends with any file extension of commonly used files:
+                                set IS_FILE_LOCATION=1
                         else                                
-                                if "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"  .or.  "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" (set IS_FILE_LOCATION=1) %+ rem if it ends with any file extension of commonly used files
+                                set IS_FILE_LOCATION=0
                         endiff       
                         setdos /x0
-                @echo off                        
             endiff                          
             :skippy
 
         setdos /x0
-        if  "0" eq "%IS_FILE_LOCATION%"         (goto :DontValidateIfExists)
-        if  "0" eq "%@READY[%VARVALUEDRIVE%]"   (goto :DontValidateIfExists)                         %+ rem //Don’t look for if drive letter doesn’t exist--it’s SLOWWWWW
-        if   1  eq  %SKIP_VALIDATION_EXISTENCE% (goto :DontValidateIfExists)                         %+ rem //Don’t look for if we want to validate the variable only
-        if exist "%VARVALUE%"                   (                         goto :ItExistsAfterall)    %+ rem //Does it exist as a file?
-        if isdir "%VARVALUE%"                   (                         goto :ItExistsAfterall)    %+ rem //Does it exist as a folder?
-        if exist "%VARVALUE%.dep"               (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
-        if isdir "%VARVALUE%.dep"               (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
-        if exist "%VARVALUE%.deprecated"        (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
-        if isdir "%VARVALUE%.deprecated"        (gosub :ItIsDeprecated %+ goto :ItExistsAfterall)    %+ rem //Internal kludge for the way I do workflows
+        if "0" eq "%IS_FILE_LOCATION%" .or. "0" eq "%@READY[%VARVALUEDRIVE%]" .or. 1 eq  %SKIP_VALIDATION_EXISTENCE%                      (goto :DontValidateIfExists)                         %+ rem //Don’t look for if we want to validate the variable only
+        if exist "%VARVALUE%"          .or. isdir "%VARVALUE%"                                                                            (goto :ItExistsAfterall)                             %+ rem //Does it exist as a file or folder?
+        if exist "%VARVALUE%.dep"      .or. isdir "%VARVALUE%.dep"  .or. exist "%VARVALUE%.deprecated" .or. isdir "%VARVALUE%.deprecated" (goto :ItExistsAfterall %+ gosub :ItIsDeprecated)    %+ rem //Internal kludge for the way I do workflows
 
         ::::: SET ERROR FLAGS (store error specifics for debugging analysis):
                 set ERROR=1
                 set ERROR_ENVIRONMENT_VALIDATION_FAILED=1
                 SET ERROR_ENVIRONMENT_VALIDATION_FAILED_NAME=%VARNAME%
                 SET ERROR_ENVIRONMENT_VALIDATION_FAILED_VALUE=%VARNVALUE%
+                
         ::::: LET USER KNOW OF ERROR:
-                REM without messaging system
+                REM without messaging system:
                     REM %COLOR_ALARM%   %+ echos * Environment variable %@UPPER[%VARNAME%] appears to be a file location that does not exist: %VARVALUE%
                     REM %COLOR_NORMAL%  %+ echo. %+ call white-noise 1
                     REM %COLOR_SUBTLE%  %+ *pause
                     REM %COLOR_NORMAL%
-                REM with messaging system
-                    iff "%USER_MESSAGE%" ne "" then
-                        REM Although this is technically advice, we 
-                        REM are coloring it warning-style because 
-                        REM advice related to an error in this context
-                        REM pretty much *DOES* mean a warning in the 
-                        REM outer context of our calling script, and 
-                        REM that level of importance shoudln’t be as 
-                        REM easily visually discarded as the advice 
-                        REM color might usually be, because it’s more
-                        REM important than simply advice -- 
-                        REM      -- it represents a system failure!!!
-                        REM ...so let’s put asterisks around it, too!
-                        call warning %USER_MESSAGE%
-                    endiff
-                    set old=%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%
-                    set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
-                    call     warning  "    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%[_pbatchname]%italics_off%%blink_off%"      
-                    call     warning  "    %@CHAR[55357]%@CHAR[56542] Dir/Folder: %italics_on%%[_CWD]%italics_off%"              
-                    call     warning  "    %@CHAR[55357]%@CHAR[56542] Parameters: %italics_on%%italics_on%%VEVPARAMS%%italics_off%%italics_off%" 
-                    set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=%old%
-                    iff "%USER_MESSAGE%" ne "" then
+                    
+                REM with messaging system:
+                iff "%USER_MESSAGE%" ne "" then
+                                REM Although this is technically advice, we 
+                                REM are coloring it warning-style because 
+                                REM advice related to an error in this context
+                                REM pretty much *DOES* mean a warning in the 
+                                REM outer context of our calling script, and 
+                                REM that level of importance shoudln’t be as 
+                                REM easily visually discarded as the advice 
+                                REM color might usually be, because it’s more
+                                REM important than simply advice -- 
+                                REM      -- it represents a system failure!!!
+                                REM ...so let’s put asterisks around it, too!
+                                call warning %USER_MESSAGE%
+                endiff
+                    
+                set old=%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%
+                set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
+
+                set pbatchname=%_pbatchname                    
+                if "" ne "%[_pbatchname]" call   warning  "    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%[_pbatchname]%italics_off%%blink_off%"      
+
+                call warning "  dir/folder: %italics_on%%[_CWD]%italics_off%"              
+
+                rem TCCv33 introduced a new command. We tried it out like this:
+                rem SET OUR_CALLER=%@execSTR[caller]
+                rem if "" ne "%OUR_CALLER%" call warning "%@CHAR[55357]%@CHAR[56542] Called by: %OUR_CALLER%"
+                rem But it typically just told us that validate-environment-variable was being called by validate-environment-variables....not very useful
+
+                rem Not very useful since it’s the params to this folder: call     warning  "    %@CHAR[55357]%@CHAR[56542] Parameters: %italics_on%%italics_on%%VEVPARAMS%%italics_off%%italics_off%" 
+
+                set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=%old%
+                iff "" ne "%USER_MESSAGE%" then
                         set USER_MESSAGE_TO_USE=%NEWLINE%%USER_MESSAGE%
-                    else
+                else
                         set USER_MESSAGE_TO_USE=
-                    endiff
-                    call fatal_error "%left_quote%%italics_on%%@UPPER[%VARNAME%]%italics_off%%right_quote% location does not exist: %left_quote%%VARVALUE%%right_quote%...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%" 
+                endiff
+                call fatal_error "%left_quote%%italics_on%%@UPPER[%VARNAME%]%italics_off%%right_quote% location does not exist: %left_quote%%VARVALUE%%right_quote%...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%" 
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -295,7 +321,7 @@ goto :Past_The_End_Of_The_Sub-Routines
 
 
 
-:Past_The_End_Of_The_Sub-Routines
+:Past_The_End_Of_The_Subroutines
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :ItExistsAfterall

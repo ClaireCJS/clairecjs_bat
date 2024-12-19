@@ -3,14 +3,20 @@
 
 
 
+rem Validate environment (once):
+        iff 1 ne %validated_restart_winamp% then
+                call validate-in-path set-winamp-constants fix-minilyrics-window-size-and-position.bat save-window-positions important change-command-separator-character-to-normal winamp-close-gracefully wait stop-minilyrics     killIfRunning winamp-play next randomize lastfm-start isrunning winamp nocar warning warning_soft appdata sleep
+                set validated_restart_winamp=1
+        endiff
 
-::::: FOR GOOGLE HOME VOICE-ACTIVATED INVOCATION THAT SHOULD BE INVISIBLE:
+
+rem FOR GOOGLE HOME VOICE-ACTIVATED INVOCATION THAT SHOULD BE INVISIBLE:
     if "%WINDOW_MINIMIZE%" eq  "1" (window min )
     if  "WINDOW_MINIMIZE"  eq "%1" (window min )
     if "%WINDOW_HIDE%"     eq  "1" (window hide)
     if  "WINDOW_HIDE"      eq "%1" (window hide)
 
-::::: CONFIGURATION:
+rem CONFIGURATION:
     :was 2 for many years, setting to 1 for Thailog:
     SET SLEEP_TIME_AFTER_RESTARTING_WINAMP_BEFORE_CHECKING_THAT_IT_RESTARTED=1
 
@@ -23,7 +29,7 @@
         :SET REGEX_KILLPROC_LYRICS=MiniLyrics
 
 
-::::: CLOSE WINAMP:
+rem CLOSE WINAMP:
     echo.
     echo.
         REM call save-window-positions 
@@ -84,7 +90,7 @@ echo               We might want to change this script to have multiple modes.
 
 
 
-::::: COPY OUR MATRIXMIXER CONFIG:
+rem COPY OUR MATRIXMIXER CONFIG:
     pushd
         REM goat not sure if this will continue to work after changing winamp back to 5.666 but it was an install-over-5.92 install so maybe it will
         call appdata 
@@ -97,7 +103,7 @@ echo               We might want to change this script to have multiple modes.
 
 
 
-::::: REOPEN WINAMP (et al):
+rem REOPEN WINAMP (et al):
     echo.
     echo.
     call important "Starting Winamp/etc"
@@ -138,3 +144,5 @@ echo               We might want to change this script to have multiple modes.
         call winamp-play
     
     
+    rem fix minilyrics positoin
+        call fix-minilyrics-window-size-and-position.bat

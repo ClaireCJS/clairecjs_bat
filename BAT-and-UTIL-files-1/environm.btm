@@ -2283,67 +2283,28 @@ return
 
 
 
-:::::::::::::::::::::::::::::::::::::::::::::::::::: EXECUTABLE FILE EXTENSIONS ::::::::::::::::::::::::::::::::::::::::::::::::::::
+:::::::::::::::::::::::::::::::::::::::::::::::::::: EXECUTABLE FILE EXTENSIONS (AND FILE MASKS) ::::::::::::::::::::::::::::::::::::::::::::::::::::
 :DefineExecutableFileExtensions
 
-    ::::: AUTOCOMPLETE BEHAVIOR MODIFICATIONS:
-        set filecompletion=zip:*;
-
-    ::::: FUNCTIONAL GROUPINGS OF EXTENSIONS:
-        set FILEMASK_FILELIST=*.m3u;*.sfv
-        set FILEMASK_TEXT=*.txt;*.log;*.ini;*.cfg;*.lst;*.msg;*.mesg;*.m3u;*.nfo;*.srt;*.sub;*.idx;*.ans;*.asc;*.diz;*.faq
-        set FILEMASK_RICHTEXT=*.html;*.htm;*.doc;*.rtf;*.docx;*.mht;*.pdf;*.url
-        set FILEMASK_SCRIPT=*.btm;*.bat;*.cmd;*.sh
-        rem Not sure if including FILEMASK_SCRIPT in FILEMASK_CODE makes sense, but we'll do this for now:
-        set FILEMASK_CODE=%FILEMASK_SCRIPT%;*.pl;*.py;*.java;*.bat;*.btm;*.sql;*.asm;*.bas;*.c;*.h;*.java;*.pas;*.php;*.sql;*.vbs
-        set FILEMASK_APPLICATION=*.exe;*.apk;*.msi;*.com
-        set FILEMASK_ARCHIVE=*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace;*.001 %+ rem 20240121: added *.001 because of .7z.001 files ... this is currently only used in unzip-gracefully.bat
-        set FILEMASK_DISC_IMAGE=*.iso;*.img
-        set FILEMASK_IMAGE=*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large %+ REM 20160421:removed comic extensions from here, 20161226:added DICOM(*.dcm)
-        set FILEMASK_COMIC_BOOK=*.cbr;*.cbz
-        set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
-            rem there's a bug in TCC v19.10.45 x64 where doing a dir %FILEMASK_AUDIO crashes the command-line when 
-            rem the pathdepth is too deep/long, which is fixed by shortening FILEMASK_AUDIO, so mp3index.bat [at the very least]
-            rem has to iterate through smaller versions of this environment variable. Therefore we must break it up here for that
-            rem very purpose
-                set FILEMASK_AUDIO_SPLIT_1=*.mp3;*.wav;*.flac;*.mid
-                set FILEMASK_AUDIO_SPLIT_2=*.voc;*.au;*.stm;*.aac;*.ac3
-                set FILEMASK_AUDIO_SPLIT_3=*.mod;*.vqf;*.ogg;*.mpc
-                set FILEMASK_AUDIO_SPLIT_4=*.wma;*.mp4;*.snd;*.opus
-
+        rem Read everything we can from a file for speed:
+                if exist c:\bat\extensions.env (set /r c:\bat\extensions.env)    %+ rem faster to read from file
         
-
-    
-    
-        set FILEMASK_VIDEO=*.mkv;*.avi;*.mp4;*.m4a;*.flv;*.mov;*.wmv;*.mpg;*.mpeg;*.vob;*.bdmv;*.ts;*.m2ts;*.rm;*.qt;*.asf;*.asx;*.fli;*.swf;*.m4v;*.webm;*.f4v;*.rm;*.ram;*.3gp
-        rem FILEMASK_VIRTUALREALITY=*.???   Just kidding, ha ha ha ... but seriously, new stuff needs to also be in the list below, for conversion:
-            rem same thing delimited by space instead of semicolon:
+        rem Dynamically generate the same thing with spaces instead of semicoluns:
+                    rem same thing delimited by space instead of semicolon:
                 for %v in (FILEMASK_APPLICATION FILEMASK_ARCHIVE FILEMASK_AUDIO FILEMASK_CODE FILEMASK_COMIC_BOOK FILEMASK_DISC FILEMASK_DISC_IMAGE FILEMASK_DISK FILEMASK_DISK_IMAGE FILEMASK_FILELIST FILEMASK_IMAGE FILEMASK_MUSIC FILEMASK_RICHTEXT FILEMASK_TEXT FILEMASK_VIDEO) (gosub CreateFileMaskWithSpaces %v %+ gosub CreateFileMaskWithExtensions %v)
                 goto :SkipSub1
                         :CreateFileMaskWithSpaces [varname]
-                            set %VARNAME%_W_SPACES=%@replace[;, ,%[%varname%]]
+                            if not defined %VARNAME%_W_SPACES set %VARNAME%_W_SPACES=%@replace[;, ,%[%varname%]]
                         return
                         :CreateFileMaskWithExtensions [varname]
-                            set %VARNAME%_EXTENSIONS=%@replace[*,,%@replace[.,,%@replace[;, ,%[%varname%]]]]
+                            if not defined %VARNAME%_EXTENSIONS set %VARNAME%_EXTENSIONS=%@replace[*,,%@replace[.,,%@replace[;, ,%[%varname%]]]]
                         return
                 :SkipSub1
-            rem aliases for common screwups:            
-                set FILEMASK_DISC=%FILEMASK_DISC_IMAGE%
-                set FILEMASK_DISK=%FILEMASK_DISC_IMAGE%
-                set FILEMASK_DISK_IMAGE=%FILEMASK_DISC_IMAGE%
-                set FILEMASK_PICTURE=%FILEMASK_IMAGE%
-                set FILEMASK_MUSIC=%FILEMASK_AUDIO%
-                set FILEMASK_COMICS=%FILEMASK_COMIC_BOOK%
 
 
-        rem MISC filemask mostly just used to detect which things are filenames, which aren't, for validating filename presence:
-                set FIEMASK_MISC=*.dll
-
-        rem And one filemask to rule them all:
-                set FILEMASK_ALL=%FILEMASK_FILELIST%;%FILEMASK_TXT%;%FILEMASK_RICHTEXT%;%FILEMASK_SCRIPT%;%FILEMASK_CODE%;%FILEMASK_APPLICATION%;%FILEMASK_ARCHIVE%;%FILEMASK_DISC_IMAGE%;%FILEMASK_IMAGE%;%FILEMASK_AUDIO%;%FILEMASK_VIDEO%;%FILEMASK_COMIC_BOOK%;%FIEMASK_MISC%
-                rem ^^^^^^^^^^^^ Returns something like: *.m3u;*.sfv;;*.html;*.htm;*.doc;*.rtf;*.docx;*.mht;*.pdf;*.url;*.btm;*.bat;*.cmd;*.sh;*.btm;*.bat;*.cmd;*.sh;*.pl;*.py;*.java;*.bat;*.btm;*.sql;*.asm;*.bas;*.c;*.h;*.java;*.pas;*.php;*.sql;*.vbs;*.exe;*.apk;*.msi;*.com;*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace;*.001;*.iso;*.img;*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large;*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.mkv;*.avi;*.mp4;*.m4a;*.flv;*.mov;*.wmv;*.mpg;*.mpeg;*.vob;*.bdmv;*.ts;*.m2ts;*.rm;*.qt;*.asf;*.asx;*.fli;*.swf;*.m4v;*.webm;*.f4v;*.rm;*.ram;*.3gp
-                rem set FILEMASK_ALL_DELIMITED_BY_PIPE=%@ReReplace[\*\.,,%@ReReplace[\;,,%@ReReplace[;\*\.,`|`,%filemask_all%]]]
-                rem ^^^^^^^^^^^^ Returns something like: m3u|sfv|html|htm|doc|rtf|docx|mht|pdf|url|btm|bat|cmd|sh|btm|bat|cmd|sh|pl|py|java|bat|btm|sql|asm|bas|c|h|java|pas|php|sql|vbs|exe|apk|msi|com|zip|rar|tar|gz|7z|arj|jar|r00|r01|ace|001|iso|img|jpg|jpeg|gif|png|bmp|webp|ico|tif|tiff|pcx|art|dcm|jfif|jpg_large|png_large|mp3|wav|rm|voc|au|mid|stm|mod|vqf|ogg|mpc|wma|mp4|flac|snd|aac|opus|ac3|mkv|avi|mp4|m4a|flv|mov|wmv|mpg|mpeg|vob|bdmv|ts|m2ts|rm|qt|asf|asx|fli|swf|m4v|webm|f4v|rm|ram|3gp
+        rem And one filemask to rule them all (FILEMASK_ALL, FILEMASK_ALL_REGEX):
+                set FILEMASK_ALL=%FILEMASK_FILELIST%;%FILEMASK_TXT%;%FILEMASK_RICHTEXT%;%FILEMASK_SCRIPT%;%FILEMASK_CODE%;%FILEMASK_APPLICATION%;%FILEMASK_ARCHIVE%;%FILEMASK_DISC_IMAGE%;%FILEMASK_IMAGE%;%FILEMASK_AUDIO%;%FILEMASK_VIDEO%;%FILEMASK_COMIC_BOOK%;%FIEMASK_MISC% %+ rem Returns something like: *.m3u;*.sfv;;*.html;*.htm;*.doc;*.rtf;*.docx;*.mht;*.pdf;*.url;*.btm;*.bat;*.cmd;*.sh;*.btm;*.bat;*.cmd;*.sh;*.pl;*.py;*.java;*.bat;*.btm;*.sql;*.asm;*.bas;*.c;*.h;*.java;*.pas;*.php;*.sql;*.vbs;*.exe;*.apk;*.msi;*.com;*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace;*.001;*.iso;*.img;*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large;*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.mkv;*.avi;*.mp4;*.m4a;*.flv;*.mov;*.wmv;*.mpg;*.mpeg;*.vob;*.bdmv;*.ts;*.m2ts;*.rm;*.qt;*.asf;*.asx;*.fli;*.swf;*.m4v;*.webm;*.f4v;*.rm;*.ram;*.3gp
+                rem set FILEMASK_ALL_DELIMITED_BY_PIPE=%@ReReplace[\*\.,,%@ReReplace[\;,,%@ReReplace[;\*\.,`|`,%filemask_all%]]] %M rem Returns something like: m3u|sfv|html|htm|doc|rtf|docx|mht|pdf|url|btm|bat|cmd|sh|btm|bat|cmd|sh|pl|py|java|bat|btm|sql|asm|bas|c|h|java|pas|php|sql|vbs|exe|apk|msi|com|zip|rar|tar|gz|7z|arj|jar|r00|r01|ace|001|iso|img|jpg|jpeg|gif|png|bmp|webp|ico|tif|tiff|pcx|art|dcm|jfif|jpg_large|png_large|mp3|wav|rm|voc|au|mid|stm|mod|vqf|ogg|mpc|wma|mp4|flac|snd|aac|opus|ac3|mkv|avi|mp4|m4a|flv|mov|wmv|mpg|mpeg|vob|bdmv|ts|m2ts|rm|qt|asf|asx|fli|swf|m4v|webm|f4v|rm|ram|3gp
                 setdos /x-5
                 set TEMP_FMASK_VAR=%@ReReplace[\;,,%@ReReplace[\*\.,`|`\\.,%filemask_all%]]
                 set FILEMASK_ALL_REGEX=(%@LTrim[|,%TEMP_FMASK_VAR])
@@ -2352,122 +2313,188 @@ return
         rem And a flag to indicate our filemasks have been set:
                 set FILEMASKS_HAVE_BEEN_SET=1
 
-    ::::: FUNCTION FOR EACH EXTENSION:
-        ::::: NOTE: there is no methodology for setting a blank extension. Blank extensions are handled by UNKNOWN[command].BAT
-         set  .001=call wrapper start
-         set   .7z=call wrapper winrar
-         set  .ahk=call AutoHotKey
-         set  .ans=type
-         set  .arj=call wrapper start
-         set  .asc=notepad
-         set  .asm=notepad
-         set  .au=call  wrapper start
-         set  .au3=call au3
-         set  .asf=call wrapper start
-         set  .asx=call wrapper start
-         set  .avi=call wrapper VLC
-         set  .m4a=call wrapper mpc
-         set  .mkv=call wrapper mpc
-         set  .vob=call wrapper VLC
-         set  .bas=notepad
-         set  .bmp=call wrapper openimage
-         set    .c=e
-         set  .cbr=cdisplay
-         set  .cbz=cdisplay
-         set  .cfg=notepad
-         set  .chm=call wrapper start
-         set  .cmd=call run-cmd-file
-         set  .com=call run-com-file
-         set  .cpl=call wrapper start
-         set  .diz=type
-         set  .doc=call wrapper start
-         set .docx=call wrapper start
-         set  .faq=notepad
-         set  .flac=call vlc
-         set  .fli=fli
-         set  .flv=call vlc
-         set  .gif=call wrapper openimage
-         set   .gz=call wrapper start
-         set    .h=notepad
-         set  .hlp=call wrapper start
-         set  .htm=call wrapper start
-         set .html=call wrapper start
-         set  .ico=call wrapper start
-         set  .iso=call handle-iso
-         set  .iff=p
-         set  .jar=java -jar
-         set .java=call java-handler
-         set .jfif=call wrapper openimage
-         set .jnlp=javaws
-         set  .wav=call play-wav-file
-         set  .jpg=call wrapper openimage
-         set .jpeg=call wrapper openimage
-         set  .js=node
-         set  .lnk=call wrapper start
-         REM Actually decided the convenience of running logfiles with more ease was quite vastly
-         REM  outweighed by the inconvenience of not being able to run an EXE with the same name as the LOG as easily
-         rem  .log=tl
-         set  .lst=%%EDITOR
-         set  .m3u=play-m3u-with-VLC
-         set  .m4v=call wrapper start
-         set  .mht=call wrapper ie
-         set  .mid=call winamp /add
-         set .midi=call winamp /add
-         set  .mod=call winamp /add
-         set  .mpa=call wrapper start
-         set  .mpg=call wrapper VLC
-         set .mpeg=call wrapper VLC
-         rem  .mp3=call winamp /add
-         set  .mp3=call vlc
-         rem  .mp3=call play-mp3-file 
-         set  .mp4=call wrapper VLC
-         set  .mov=call wrapper VLC
-         set  .msi=call wrapper start
-         set  .nfo=notepad
-         set  .ogg=call winamp /add
-         set  .par=call wrapper start
-         set  .pas=notepad
-         set  .pcx=call wrapper openimage
-         rem  .pdf=call wrapper start      #buggy in 2023/2024
-         set  .pdf=call wrapper explorer
-         REM   as of 20230602perl is now a bat file so we alias perl=call perl.bat
-         set   .pl=call perl.bat
-         set  .php=php        
-         set  .png=call wrapper openimage
-         set  .ps1=pshell
-         set   .py=python
-         set   .qt=call wrapper start
-         set  .rar=call winrar
-         set  .r00=call wrapper start
-         set  .ace=call wrapper start
-         set   .ra=call wrapper start
-         set  .ram=call wrapper start
-         set  .reg=call wrapper start
-         set   .rm=call wrapper start
-         set  .rtf=call wrapper start
-         set  .sfv=call wrapper start
-         set  .snd=call wrapper start
-         set  .sql=call sqlhandler
-         set  .stm=call winamp /add
-         set  .swf=call wrapper start
+return
+:::::::::::::::::::::::::::::::::::::::::::::::::::: EXECUTABLE FILE EXTENSIONS (AND FILE MASKS) ::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+rem     ::::: AUTOCOMPLETE BEHAVIOR MODIFICATIONS:
+rem         set filecompletion=zip:*;
+rem 
+rem     ::::: FUNCTIONAL GROUPINGS OF EXTENSIONS:
+rem         set FILEMASK_FILELIST=*.m3u;*.sfv
+rem         set FILEMASK_TEXT=*.txt;*.log;*.ini;*.cfg;*.lst;*.msg;*.mesg;*.m3u;*.nfo;*.srt;*.sub;*.idx;*.ans;*.asc;*.diz;*.faq
+rem         set FILEMASK_RICHTEXT=*.html;*.htm;*.doc;*.rtf;*.docx;*.mht;*.pdf;*.url
+rem         set FILEMASK_SCRIPT=*.btm;*.bat;*.cmd;*.sh
+rem         rem Not sure if including FILEMASK_SCRIPT in FILEMASK_CODE makes sense, but we'll do this for now:
+rem         set FILEMASK_CODE=%FILEMASK_SCRIPT%;*.pl;*.py;*.java;*.bat;*.btm;*.sql;*.asm;*.bas;*.c;*.h;*.java;*.pas;*.php;*.sql;*.vbs
+rem         set FILEMASK_APPLICATION=*.exe;*.apk;*.msi;*.com
+rem         set FILEMASK_ARCHIVE=*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace;*.001 %+ rem 20240121: added *.001 because of .7z.001 files ... this is currently only used in unzip-gracefully.bat
+rem         set FILEMASK_DISC_IMAGE=*.iso;*.img
+rem         set FILEMASK_IMAGE=*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large %+ REM 20160421:removed comic extensions from here, 20161226:added DICOM(*.dcm)
+rem         set FILEMASK_COMIC_BOOK=*.cbr;*.cbz
+rem         set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
+rem             rem there's a bug in TCC v19.10.45 x64 where doing a dir %FILEMASK_AUDIO crashes the command-line when 
+rem             rem the pathdepth is too deep/long, which is fixed by shortening FILEMASK_AUDIO, so mp3index.bat [at the very least]
+rem             rem has to iterate through smaller versions of this environment variable. Therefore we must break it up here for that
+rem             rem very purpose
+rem                 set FILEMASK_AUDIO_SPLIT_1=*.mp3;*.wav;*.flac;*.mid
+rem                 set FILEMASK_AUDIO_SPLIT_2=*.voc;*.au;*.stm;*.aac;*.ac3
+rem                 set FILEMASK_AUDIO_SPLIT_3=*.mod;*.vqf;*.ogg;*.mpc
+rem                 set FILEMASK_AUDIO_SPLIT_4=*.wma;*.mp4;*.snd;*.opus
+rem 
+rem     
+rem         set FILEMASK_VIDEO=*.mkv;*.avi;*.mp4;*.m4a;*.flv;*.mov;*.wmv;*.mpg;*.mpeg;*.vob;*.bdmv;*.ts;*.m2ts;*.rm;*.qt;*.asf;*.asx;*.fli;*.swf;*.m4v;*.webm;*.f4v;*.rm;*.ram;*.3gp
+rem         rem FILEMASK_VIRTUALREALITY=*.???   Just kidding, ha ha ha ... but seriously, new stuff needs to also be in the list below, for conversion:
+rem             rem same thing delimited by space instead of semicolon:
+rem                 for %v in (FILEMASK_APPLICATION FILEMASK_ARCHIVE FILEMASK_AUDIO FILEMASK_CODE FILEMASK_COMIC_BOOK FILEMASK_DISC FILEMASK_DISC_IMAGE FILEMASK_DISK FILEMASK_DISK_IMAGE FILEMASK_FILELIST FILEMASK_IMAGE FILEMASK_MUSIC FILEMASK_RICHTEXT FILEMASK_TEXT FILEMASK_VIDEO) (gosub CreateFileMaskWithSpaces %v %+ gosub CreateFileMaskWithExtensions %v)
+rem                 goto :SkipSub1
+rem                         :CreateFileMaskWithSpaces [varname]
+rem                             set %VARNAME%_W_SPACES=%@replace[;, ,%[%varname%]]
+rem                         return
+rem                         :CreateFileMaskWithExtensions [varname]
+rem                             set %VARNAME%_EXTENSIONS=%@replace[*,,%@replace[.,,%@replace[;, ,%[%varname%]]]]
+rem                         return
+rem                 :SkipSub1
+rem             rem aliases for common screwups:            
+rem                 set FILEMASK_DISC=%FILEMASK_DISC_IMAGE%
+rem                 set FILEMASK_DISK=%FILEMASK_DISC_IMAGE%
+rem                 set FILEMASK_DISK_IMAGE=%FILEMASK_DISC_IMAGE%
+rem                 set FILEMASK_PICTURE=%FILEMASK_IMAGE%
+rem                 set FILEMASK_MUSIC=%FILEMASK_AUDIO%
+rem                 set FILEMASK_COMICS=%FILEMASK_COMIC_BOOK%
+rem 
+rem 
+rem         rem MISC filemask mostly just used to detect which things are filenames, which aren't, for validating filename presence:
+rem                 set FIEMASK_MISC=*.dll
+rem 
+rem         rem And one filemask to rule them all:
+rem                 set FILEMASK_ALL=%FILEMASK_FILELIST%;%FILEMASK_TXT%;%FILEMASK_RICHTEXT%;%FILEMASK_SCRIPT%;%FILEMASK_CODE%;%FILEMASK_APPLICATION%;%FILEMASK_ARCHIVE%;%FILEMASK_DISC_IMAGE%;%FILEMASK_IMAGE%;%FILEMASK_AUDIO%;%FILEMASK_VIDEO%;%FILEMASK_COMIC_BOOK%;%FIEMASK_MISC%
+rem                 rem ^^^^^^^^^^^^ Returns something like: *.m3u;*.sfv;;*.html;*.htm;*.doc;*.rtf;*.docx;*.mht;*.pdf;*.url;*.btm;*.bat;*.cmd;*.sh;*.btm;*.bat;*.cmd;*.sh;*.pl;*.py;*.java;*.bat;*.btm;*.sql;*.asm;*.bas;*.c;*.h;*.java;*.pas;*.php;*.sql;*.vbs;*.exe;*.apk;*.msi;*.com;*.zip;*.rar;*.tar;*.gz;*.7z;*.arj;*.jar;*.r00;*.r01;*.ace;*.001;*.iso;*.img;*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.webp;*.ico;*.tif;*.tiff;*.pcx;*.art;*.dcm;*.jfif;*.jpg_large;*.png_large;*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.mkv;*.avi;*.mp4;*.m4a;*.flv;*.mov;*.wmv;*.mpg;*.mpeg;*.vob;*.bdmv;*.ts;*.m2ts;*.rm;*.qt;*.asf;*.asx;*.fli;*.swf;*.m4v;*.webm;*.f4v;*.rm;*.ram;*.3gp
+rem                 rem set FILEMASK_ALL_DELIMITED_BY_PIPE=%@ReReplace[\*\.,,%@ReReplace[\;,,%@ReReplace[;\*\.,`|`,%filemask_all%]]]
+rem                 rem ^^^^^^^^^^^^ Returns something like: m3u|sfv|html|htm|doc|rtf|docx|mht|pdf|url|btm|bat|cmd|sh|btm|bat|cmd|sh|pl|py|java|bat|btm|sql|asm|bas|c|h|java|pas|php|sql|vbs|exe|apk|msi|com|zip|rar|tar|gz|7z|arj|jar|r00|r01|ace|001|iso|img|jpg|jpeg|gif|png|bmp|webp|ico|tif|tiff|pcx|art|dcm|jfif|jpg_large|png_large|mp3|wav|rm|voc|au|mid|stm|mod|vqf|ogg|mpc|wma|mp4|flac|snd|aac|opus|ac3|mkv|avi|mp4|m4a|flv|mov|wmv|mpg|mpeg|vob|bdmv|ts|m2ts|rm|qt|asf|asx|fli|swf|m4v|webm|f4v|rm|ram|3gp
+rem                 setdos /x-5
+rem                 set TEMP_FMASK_VAR=%@ReReplace[\;,,%@ReReplace[\*\.,`|`\\.,%filemask_all%]]
+rem                 set FILEMASK_ALL_REGEX=(%@LTrim[|,%TEMP_FMASK_VAR])
+rem                 setdos /x0
+rem 
+rem         rem And a flag to indicate our filemasks have been set:
+rem                 set FILEMASKS_HAVE_BEEN_SET=1
+rem 
+rem     ::::: FUNCTION FOR EACH EXTENSION:
+rem         ::::: NOTE: there is no methodology for setting a blank extension. Blank extensions are handled by UNKNOWN[command].BAT
+rem          set  .001=call wrapper start
+rem          set   .7z=call wrapper winrar
+rem          set  .ahk=call AutoHotKey
+rem          set  .ans=type
+rem          set  .arj=call wrapper start
+rem          set  .asc=notepad
+rem          set  .asm=notepad
+rem          set  .au=call  wrapper start
+rem          set  .au3=call au3
+rem          set  .asf=call wrapper start
+rem          set  .asx=call wrapper start
+rem          set  .avi=call wrapper VLC
+rem          set  .m4a=call wrapper mpc
+rem          set  .mkv=call wrapper mpc
+rem          set  .vob=call wrapper VLC
+rem          set  .bas=notepad
+rem          set  .bmp=call wrapper openimage
+rem          set    .c=e
+rem          set  .cbr=cdisplay
+rem          set  .cbz=cdisplay
+rem          set  .cfg=notepad
+rem          set  .chm=call wrapper start
+rem          set  .cmd=call run-cmd-file
+rem          set  .com=call run-com-file
+rem          set  .cpl=call wrapper start
+rem          set  .diz=type
+rem          set  .doc=call wrapper start
+rem          set .docx=call wrapper start
+rem          set  .faq=notepad
+rem          set  .flac=call vlc
+rem          set  .fli=fli
+rem          set  .flv=call vlc
+rem          set  .gif=call wrapper openimage
+rem          set   .gz=call wrapper start
+rem          set    .h=notepad
+rem          set  .hlp=call wrapper start
+rem          set  .htm=call wrapper start
+rem          set .html=call wrapper start
+rem          set  .ico=call wrapper start
+rem          set  .iso=call handle-iso
+rem          set  .iff=p
+rem          set  .jar=java -jar
+rem          set .java=call java-handler
+rem          set .jfif=call wrapper openimage
+rem          set .jnlp=javaws
+rem          set  .wav=call play-wav-file
+rem          set  .jpg=call wrapper openimage
+rem          set .jpeg=call wrapper openimage
+rem          set  .js=node
+rem          set  .lnk=call wrapper start
+rem          REM Actually decided the convenience of running logfiles with more ease was quite vastly
+rem          REM  outweighed by the inconvenience of not being able to run an EXE with the same name as the LOG as easily
+rem          rem  .log=tl
+rem          set  .lst=%%EDITOR
+rem          set  .m3u=play-m3u-with-VLC
+rem          set  .m4v=call wrapper start
+rem          set  .mht=call wrapper ie
+rem          set  .mid=call winamp /add
+rem          set .midi=call winamp /add
+rem          set  .mod=call winamp /add
+rem          set  .mpa=call wrapper start
+rem          set  .mpg=call wrapper VLC
+rem          set .mpeg=call wrapper VLC
+rem          rem  .mp3=call winamp /add
+rem          set  .mp3=call vlc
+rem          rem  .mp3=call play-mp3-file 
+rem          set  .mp4=call wrapper VLC
+rem          set  .mov=call wrapper VLC
+rem          set  .msi=call wrapper start
+rem          set  .nfo=notepad
+rem          set  .ogg=call winamp /add
+rem          set  .par=call wrapper start
+rem          set  .pas=notepad
+rem          set  .pcx=call wrapper openimage
+rem          rem  .pdf=call wrapper start      #buggy in 2023/2024
+rem          set  .pdf=call wrapper explorer
+rem          REM   as of 20230602perl is now a bat file so we alias perl=call perl.bat
+rem          set   .pl=call perl.bat
+rem          set  .php=php        
+rem          set  .png=call wrapper openimage
+rem          set  .ps1=pshell
+rem          set   .py=python
+rem          set   .qt=call wrapper start
+rem          set  .rar=call winrar
+rem          set  .r00=call wrapper start
+rem          set  .ace=call wrapper start
+rem          set   .ra=call wrapper start
+rem          set  .ram=call wrapper start
+rem          set  .reg=call wrapper start
+rem          set   .rm=call wrapper start
+rem          set  .rtf=call wrapper start
+rem          set  .sfv=call wrapper start
+rem          set  .snd=call wrapper start
+rem          set  .sql=call sqlhandler
+rem          set  .stm=call winamp /add
+rem          set  .swf=call wrapper start
          set  .svg=call wrapper openimage
          set  .tar=call wrapper start
-         set  .tif=call wrapper openimage
-         :changing %EDITOR to %%EDITOR makes this line work even if EDITOR hasn't yet been defined!
-         set  .txt=%%EDITOR
-         set  .vbs=wscript
-         set  .voc=p
-         set  .url=ie-url
-         set .webp=call wrapper openimage
-         set .webm=call wrapper openvideo
-         set  .wma=call wrapper start
-         set  .wmv=mplayer2
-         set  .xml=call wrapper start
-         set  .xls=call wrapper start
-         set .xlsx=call wrapper start
-         set  .zip=call wrapper start
-return
-:::::::::::::::::::::::::::::::::::::::::::::::::::: EXECUTABLE FILE EXTENSIONS ::::::::::::::::::::::::::::::::::::::::::::::::::::
+rem          set  .tif=call wrapper openimage
+rem          :changing %EDITOR to %%EDITOR makes this line work even if EDITOR hasn't yet been defined!
+rem          set  .txt=%%EDITOR
+rem          set  .vbs=wscript
+rem          set  .voc=p
+rem          set  .url=ie-url
+rem          set .webp=call wrapper openimage
+rem          set .webm=call wrapper openvideo
+rem          set  .wma=call wrapper start
+rem          set  .wmv=mplayer2
+rem          set  .xml=call wrapper start
+rem          set  .xls=call wrapper start
+rem          set .xlsx=call wrapper start
+rem          set  .zip=call wrapper start
+rem return
+:::::::::::::::::::::::::::::::::::::::::::::::::::: EXECUTABLE FILE EXTENSIONS (AND FILE MASKS) ::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 

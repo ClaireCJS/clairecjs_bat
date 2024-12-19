@@ -51,10 +51,18 @@ goto :subroutine_definitions_end
                 echo ENVIRONMENT VARIABLE PARAMETERS:
                 echo        set USE_LANGUAGE=jp ——————————————————— to change the default language, for example if it’s a Rammstein album, set to de
                 echo        set CONSIDER_ALL_LYRICS_APPROVED=1  ——— another way to trigger AutoLyricApproval mode
+                echo 
+                echo INTERNAL-ONLY USAGE:
+                echo        %0 postprocess_lrc_srt_files ———— just run the postprocess_lrc_srt_files function
         return
     :subroutine_definitions_end
 
 
+rem MAJOR BRANCHING:
+        iff "%1" eq "postprocess_lrc_srt_files" then
+                gosub postprocess_lrc_srt_files
+                goto :EOF
+        endiff
 
 
 REM OLD 2023 USAGE:
@@ -107,7 +115,7 @@ REM values set from parameters:
 
 REM Pre-run announce:
         call  divider
-        call  bigecho "%STAR% Creating karaoke for “%@ansi_rgb[170,170,244]%italics_on%%songfile%%italics_off%%ansi_color_normal%”"
+        call  bigecho "%STAR% Creating karaoke for %left_quotes%%@ansi_rgb[170,170,244]%italics_on%%songfile%%italics_off%%ansi_color_normal%”"
 
 REM Pre-run header:
         rem got 2 in a row so removed this 2024/12/11: call  divider
@@ -317,7 +325,7 @@ REM Now, let’s check these values:
                         set target=%@path[%@full[%songfile%]]%@name[%SONGFILE%].%@ext[%found_subtitle_file%]
                         set srt_file=%target%
                         *copy /q "%found_subtitle_file%" "%target%" >&>nul
-                        if not exist "%target%" (call error "target of “%target%” should exist now, in create-srt-from-file line 289ish" %+ call warning "...not sure if we want to abort right now or not..." )
+                        if not exist "%target%" (call error "target of %left_quote%%target%%right_quote% should exist now, in %left_apostrophe%%italics_on%create-srt-from-file%italics_off%%right_apostrophe% line 320ish" %+ call warning "...not sure if we want to abort right now or not..." )
 
                         call review-file "%target%"
                         call askYN "Do these still look acceptible?" yes 20 %+ rem hardcoded value warning
@@ -878,14 +886,22 @@ rem Remove periods from the end of each line in the SRT, but preserve them if at
         rem NOTE: that this may change after we update unlock-bot to clean off the footer after unlocking.
         rem NOTE:      Currently, this implementation is slated to be a temporary cosmetic fix that will likely breka later
                 echo.
-                
-        echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[purple]%ANSI_CURSOR_CHANGE_TO_BLOCK_steady%                
-        echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%SRT%italics_off% and %italics_on%LRC%italics_off% files...
-        if exist "%LRC_FILE%" (remove-period-at-ends-of-lines.pl -w "%LRC_FILE%")
-        if exist "%SRT_FILE%" (remove-period-at-ends-of-lines.pl -w "%SRT_FILE%")
-        echo ...%CHECK% %ANSI_COLOR_GREEN%Success%BOLD_ON%!%BOLD_OFF%%ANSI_COLOR_NORMAL%
-        echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%                
 
+        gosub :postprocess_lrc_srt_files
+
+        
+        goto :skip_sub_5       
+                :postprocess_lrc_srt_files
+                        echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[purple]%ANSI_CURSOR_CHANGE_TO_BLOCK_steady%                
+                        if     exist "%LRC_FILE%" .and.     exist "%SRT_FILE%"  echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%SRT%italics_off% and %italics_on%LRC%italics_off% files...
+                        if     exist "%LRC_FILE%" .and. not exist "%SRT_FILE%"  echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%LRC%italics_off% file...
+                        if not exist "%LRC_FILE%" .and.     exist "%SRT_FILE%"  echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%SRT%italics_off% file...
+                        if exist "%LRC_FILE%" (remove-period-at-ends-of-lines.pl -w "%LRC_FILE%")
+                        if exist "%SRT_FILE%" (remove-period-at-ends-of-lines.pl -w "%SRT_FILE%")
+                        echo ...%CHECK% %ANSI_COLOR_GREEN%Success%BOLD_ON%!%BOLD_OFF%%ANSI_COLOR_NORMAL%
+                        echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%                
+                return
+        :skip_sub_5
 
 
 
@@ -1054,6 +1070,9 @@ echos %ansi_color_reset%
 
 :The_Very_END
         @echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[orange]%ANSI_CURSOR_CHANGE_TO_DEFAULT%                
-        @echos %ANSI_COLOR_BLUE%%FAINT_ON%
+        rem @echos %ANSI_COLOR_BLUE%%FAINT_ON%
+    
+        
         @echos %ANSI_RESET%%CURSOR_RESET%
 
+:EOF

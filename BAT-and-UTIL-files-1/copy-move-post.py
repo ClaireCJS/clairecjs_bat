@@ -149,43 +149,43 @@ else                                         : DOUBLE_LINES_ENABLED = True      
 current_processing_segment = 0
 spacer = ""
 
-#————————————————
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-# Set up logging to both console and file
-def setup_logging():
-    global tee, output_file
-    if tee:
-        # Configure logging: Log to both file (append mode) and console
-        print(f" 🌔 output_file is {output_file}")
-        logging.basicConfig(
-            level=logging.INFO,
-            #format='%(asctime)s - %(message)s',
-            format='%(message)s',
-            handlers=[
-                logging.FileHandler(output_file, mode='a'),  # Append mode
-                #NO loggging.StreamHandler(sys.stdout)  # Also print to console
-            ]
-        )
+## Set up logging to both console and file
+#def setup_logging():                                                                        #DEPRECATED 🤠
+#    global tee, output_file
+#    if tee:
+#        #print(f" 🌔 output_file is {output_file}")
+#        logging.basicConfig(
+#            level=logging.INFO,
+#            format='%(message)s',
+#            handlers=[
+#                logging.FileHandler(output_file, mode='a'),  # Append mode
+#                #NO loggging.StreamHandler(sys.stdout)  # Also print to console
+#            ]
+#        )
         
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 class DualOutput:
     def __init__(self, file_name):
-        self.file = open(file_name, "a", encoding='utf-8')  # Open file in append mode
+        self.file = open(file_name, "a", encoding='utf-8', newline="")  # Open file in append mode, prevent extra newlines
         self.stdout = sys.stdout  # Save the original stdout
 
     def write(self, message):
-        self.file.write(message)  # Write to the log file
+        self.file  .write(message)  # Write to the log file
         self.stdout.write(message)  # Write to the console
 
     def flush(self):
-        self.file.flush()  # Ensure data is written to the file
-        self.stdout.flush()  # Ensure data is written to the console        
+        #self.file  .flush()  # Ensure data is written to the file
+        self.stdout.flush()  # Ensure data is written to the console               
         
-        
-# Redirect STDOUT
 def setup_output():
     global tee, output_file
     if tee and output_file:
         sys.stdout = DualOutput(output_file)        
+
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def hide_cursor():
     sys.stdout.write("\033[?25l")
@@ -426,7 +426,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         #    sys.stdout.print(f"FOUND IT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ")
         #   #pass
 
-        if  "ctranslate"   in original_line:
+        if  "ctranslate" in original_line:
             #ine = spacer + FAINT_ON   + "⭐" + COLOR_GREY + line.replace("[",f"{COLOR_GREY}[")        + FAINT_OFF
             #ine = spacer + COLOR_GREY + "⭐" +              line.replace("[",f"{COLOR_GREY}[")        + FAINT_OFF
             #ine = spacer + FAINT_ON   +                                     f"{COLOR_GREY}⭐"  + line + FAINT_OFF + "HEYOOOOOOOOOOO"
@@ -438,6 +438,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             #### = line.replace("Standalone Faster-Whisper-XXL", "\n\n🚀 Standalone Faster-Whisper-XXL 🚀\n").replace(" running on:",":")
             line = decorator_title + " " + line.rstrip('\n').replace(" running on:"," —— on") + " " + decorator_title
             #ys.stdout.write(f"\n{BIG_TOP}{line}\n{BIG_BOT}{line}\n\n");
+            enable_vt_support()
             with output_mutex: 
                 sys.stdout.write(f"\n{BIG_TOP}{line}{ERASE_TO_EOL}{PRENEWLINE}\n{BIG_BOT}{line}{ERASE_TO_EOL}{PRENEWLINE}\n");
                 flush()
@@ -486,13 +487,9 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
     for myline in lines_to_print:                                                                             #print our line, but do it double-height if we're supposed to
         if myline != '\n' and myline != '':
             if not double or not DOUBLE_LINES_ENABLED or not whisper_ai:
-                #TCC v32: sys.stdout.write(f'{myline}')
-                #TCC v33:
-                #sg = MOVE_TO_COL_1 + myline 
-                msg =  myline
+                msg = myline
                 set_cursor_column(0)
                 with output_mutex: 
-                    #sys.stdout.write(MOVE_TO_COL_1 + myline)
                     column_target = screen_columns - 5
                     sys.stdout.write(msg + f"\033[{column_target}G     \b\b\b\b\b{CONCEAL_ON}")
                     flush()
@@ -624,7 +621,7 @@ blink_maybe = BLINK_ON;                          #failed attempt to solve blinki
 if nomoji or whisper_ai: BLINK_ON=""             #failed attempt to solve blinking questions in Whisper mode
 
 char_read_time_out=0.008;                        #most of the time, read characters as fast as we can! testing gave 0.008
-#f whisper_ai: char_read_time_out=0.2            #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
+if whisper_ai: char_read_time_out=0.05          #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
 if whisper_ai: 
     CONCEAL_ON  = ""
     CONCEAL_OFF = ""
@@ -670,14 +667,13 @@ while t.is_alive() or not q.empty():
             blink_maybe = BLINK_ON;
             if nomoji: BLINK_ON=""
 
-            #spacer logic
-            line_spacer = ""
-            if not whisper_ai: line_spacer = "   "
+            if not whisper_ai: line_spacer = "   "                          #spacer logic
+            else:              line_spacer = ""
 
             ##### ACTUALLY PRINT OUT THE LINE: 
-            if   any(substring in line_buffer for substring in file_removals): line_spacer = EMOJIS_DELETE                                 #treatment for file deletion lines
+            if   any(substring in line_buffer for substring in file_removals         ): line_spacer = EMOJIS_DELETE                                 #treatment for file deletion lines
             elif any(substring in line_buffer for substring in ["Y/N/A/R)"," (Y/N)"] ): line_spacer = EMOJIS_PROMPT                                  #treatment for  user prompt  lines
-            elif any(substring in line_buffer for substring in ["=>","->"]  ): line_spacer = EMOJIS_COPY                                    #treatment for   file copy   lines
+            elif any(substring in line_buffer for substring in ["=>","->"]           ): line_spacer = EMOJIS_COPY                                    #treatment for   file copy   lines
 
             sys.stdout.write(f'{background_color_switch_maybe}{foreground_color_switch}{CURSOR_RESET}{cursor_color_switch_by_hex}{additional_beginning_ansi}'    + f'{line_spacer}{blink_maybe}{line_buffer} {ANSI_RESET}') #\033[0m #\033[1C
             #moved to end of loop: sys.stdout.flush()                                                                                   # Flush the output buffer to display the prompt immediately
@@ -701,11 +697,15 @@ while t.is_alive() or not q.empty():
             #REFERENCE: function ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                                 # with "#" in front of color
             #rgbhex_with_pound_sign = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)                                                  # Reset for the next line
             #additional_beginning_ansi = f"{CURSOR_RESET}\033]" + "12;" + rgbhex_with_pound_sign + f"\007"                              # Reset for the next line: make cursor same color
+        else:
+            flush()                 #didn’t seem to fix what i wanted it to, but didn’t seem to hurt (2024/12/19)
+
 
     except queue.Empty:
         if TICK: claire.tick(mode=my_mode)                                                                                              # color-cycle the default-color text using my library
         try:
             flush()
+            
         except:
             pass
 

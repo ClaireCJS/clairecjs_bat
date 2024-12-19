@@ -8,7 +8,7 @@ rem Redundant environment variable creation in case this is being run without it
 
 rem Validate environment (once):
         iff 1 ne %validated_ctmkh then
-                call validate-in-path               less_important check-for-missing-karaoke
+                call validate-in-path               less_important check-for-missing-karaoke clean-up-AI-transcription-trash-files-here
                 call validate-environment-variables filemask_audio ansi_color_warning_soft star
                 set  validated_ctmkh=1
         endiff
@@ -20,6 +20,10 @@ rem Filename for our script to create the missing karaokes (if we decide to do t
        
 rem Make sure we have the files we need:
         if not exist %filemask_audio% (echos %ansi_color_warning_soft%%star% No files in %_CWP %+ goto :end)
+
+
+rem Clean up any trash so we don’t try to make karaokes for the trash files:
+        call clean-up-AI-transcription-trash-files-here.bat
 
 
 rem Generate the script, but check if it’s here already first:
