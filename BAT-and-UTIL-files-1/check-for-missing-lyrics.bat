@@ -30,6 +30,7 @@ rem Environment variable backups —— these should all already be defined alre
                         if not defined ANSI_COLOR_BRIGHT_RED    set ANSI_COLOR_BRIGHT_RED=%@CHAR[27][91m
                         if not defined ANSI_COLOR_BRIGHT_PURPLE set ANSI_COLOR_BRIGHT_PURPLE=%@CHAR[27][38;2;255;0;255m
                         if not defined ANSI_COLOR_MAGENTA       set ANSI_COLOR_MAGENTA=%@CHAR[27][38;2;170;0;85m
+                        if not defined ANSI_CURSOR_VISIBLE      set ANSI_CURSOR_VISIBLE=%@CHAR[27][?25h
                         if not defined BLINK_ON                 set BLINK_ON=%@CHAR[27][6m
                         set validated_cfml_ansi=1
                 endiff
@@ -72,14 +73,6 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
         
         rem echo tmpfile  is %tmpfile_cfml_1%%newline%tmpfile2 is %tmpfile2% %+ pause
 
-        rem iff 0 eq %FILELIST_MODE% then 
-        rem         for %%AudioFile in (  %FILEMASK_AUDIO%                          ) do (gosub process_file "%AudioFile%")    %+ rem If we are processing the current folder, look there for audio files, and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_1
-        rem else    
-        rem         rem Why am I not using my sidecar checker? This is what it’s made for: TODO: 🐐
-        rem         for %%AudioFile in (@"%Filelist_to_Check_for_Missing_Lyrics_in%") do (gosub process_file "%AudioFile%" %+ echo NUM_BAD=%NUM_BAD%)    %+ rem If we are processing a playlist, look  through  it  for audio files, and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_1
-        rem endiff
-
-
         iff 0 eq %FILELIST_MODE% then 
                 set ENTITY_TO_USE=%FILEMASK_AUDIO%
                 set LIMIT=9999
@@ -92,11 +85,11 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
         
         set remaining=%limit%
 
-        rem If we are processing a playlist OR a wildcard set of files, look through it for audio files, 
-        rem and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_1:
+rem If we are processing a playlist OR a wildcard set of files, look through it for audio files, 
+rem and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_1:
         set limit_reached=0
-        for %%AudioFile in (%ENTITY_TO_USE%) do (
-                gosub process_file "%AudioFile%" 
+        for %%CFML_AudioFile in (%ENTITY_TO_USE%) do (
+                gosub process_file "%CFML_AudioFile%" 
                 rem echo NUM_BAD=%NUM_BAD%
                 if %NUM_BAD ge %LIMIT (
                         set limit_reached=1
@@ -111,16 +104,17 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
         echos %ansi_restore_position%
         
         
-        
+rem If we have reached our limit, stop processing        
         if %ANY_BAD gt 0 repeat 5 echo.
-
         iff 1 eq %limit_reached then
                 repeat 4 call beep.bat highest
                 call bigecho "%ansi_color_warning_soft%%check%   Limit of: %italics_on%%blink_on%%@formatn[3.0,%LIMIT%]%blink_off%%%italics_off% files %ansi_color_success%reached%ansi_color_normal%"
         else                
                 repeat 1 call beep.bat highest
         endiff
+
         
+rem Display post-processing statistics:
         iff %num_processed eq 0 then
                 call warning "No files were processed here!"
         else
@@ -141,6 +135,8 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK% Compliance: %@ANSI_RGB[%our_r%,%our_g%,%our_b%]%@formatn[3.1,%clean_formatted_percent%]%cool_percent%
         endiff
 
+
+rem Create the fix-script, if there are any to fix:
         iff 1 eq %ANY_BAD% then                                                                    %+ rem We generate a script to find the missing ones, but if and only if some missing ("bad") ones were found
                 set TARGET_SCRIPT=get-the-missing-lyrics-here-temp.bat                             %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places
                 echo @Echo OFF                                  >:u8 "%TARGET_SCRIPT"              %+ rem get-missing-lyrics script: initialize: turn echo off
@@ -148,19 +144,21 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
                 echo.                                          >>:u8 "%TARGET_SCRIPT"              %+ rem get-missing-lyrics script: cosmetics:  script starts with a blank line
                 type %tmpfile_cfml_1% |:u8 randomize-file.pl   >>:u8 "%TARGET_SCRIPT"              %+ rem get-missing-lyrics script: randomize the order of our script to eliminate alphabetical bias
                 
+rem Run the fix-script, if we have decided to:
                 iff 1 eq %GET then                                                                 %+ rem If we have decided to auto-run the script, the let’s do that
                         rem title "Fetching lyrics!"
                         repeat 5 echo.
                         call divider
                         echo.
                         call divider
-                        echos %@ANSI_MOVE_UP[2]
+                        echos %@ANSI_MOVE_UP[2]%ANSI_CURSOR_VISIBLE%
                         call pause-for-x-seconds 30 "%ansi_color_green%Going to find those missing lyrics now!%ansi_color_normal%%ansi_color_bright_Red%%blink_on%"
+                        echos %blink_off%
                         rem echo type "%TARGET_SCRIPT%" ^ type "%TARGET_SCRIPT%"                   %+ rem Debug
                         rem echo call "%TARGET_SCRIPT%"                                            %+ rem Debug
                                  call "%TARGET_SCRIPT%"                                            %+ rem run the generated script
                         call errorlevel                                                            %+ rem check for errorlevel //rem DEBUG: echo our_errorlevel is %our_errorlevel% 
-                        title %original_title%
+                        if "" != "%original-title%" title %original_title%
                 endiff
         endiff
         
@@ -169,83 +167,130 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
 rem ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         
         goto :process_file_end                                                                     %+ rem Skip over subroutines
-             :process_file [AudioFile]
-                     set unquoted_audio_file=%@UNQUOTE[%AudioFile%]
-                     if "%@LEFT[8,%unquoted_audio_file%]" == "#EXTINF:" return
-                     iff not exist %AudioFile% then
-                             echo %ansi_color_yellow% %EMOJI_CROSS_MARK% songfile doesn’t exist:        %faint_on%%@UNQUOTE[%AudioFile%]%faint_off%``                        
-                     endiff
-                     if "%@LEFT[4,%unquoted_audio_file%]" == "\\?\" set unquoted_audio_file=%@RIGHT[%@len[%unquoted_audio_file%-4],%unquoted_audio_file%]
-                     set unquoted_audio_file_full=%@full[%unquoted_audio_file%]
-                     set audio_file_path=%@path[%unquoted_audio_file_full%]
-                     set audio_file_name=%@name[%unquoted_audio_file_full%]
-                     set txtfile=%audio_file_path%%audio_file_name%.txt                            %+ rem Create the filename of the lyric file that we will be looking for
-                     set srtfile=%audio_file_path%%audio_file_name%.srt                            %+ rem Create the filename of the  srt  file that may exist
-                     set lrcfile=%audio_file_path%%audio_file_name%.lrc                            %+ rem Create the filename of the  lrc  file that may exist
-                     set BAD=1                                                                     %+ rem Song is considered "bad" [does not have approved lyrics], until we find the accompanying files and mark it as "good"
-                     rem iff 0 eq 1 then                                                               %+ rem debug
-                     rem         echo 🌈 unquoted_audio_file     =%unquoted_audio_file%
-                     rem         echo 🌈 unquoted_audio_file_full=%unquoted_audio_file_full%
-                     rem         echo    audio_file_path         =%audio_file_path%
-                     rem         echo    audio_file_name         =%audio_file_name%
-                     rem         echo 🌈 txtfile=%txtfile%
-                     rem         echo 🌈 lrcfile=%lrcfile%
-                     rem         echo 🌈 srtfile=%srtfile%
-                     rem endiff                             
+             :process_file [CFML_AudioFile]
+                        rem echo %ANSI_COLOR_DEBUG%- DEBUG: Processing file: %CFML_AudioFile% %ANSI_COLOR_NORMAL% 🐞                     
+                        
+                        rem Get our filenames (pretty messed up what you have to do to get a file like “whatever .mp3” with a space before the extension to work!):
+                                set unquoted_audio_file=%@UNQUOTE[%CFML_AudioFile%]``
+                                if "%@LEFT[4,%unquoted_audio_file%]" == "\\?\" set unquoted_audio_file=%@RIGHT[%@len[%unquoted_audio_file%-4],%unquoted_audio_file%]  %+ rem Fix filename if it begins with "\\?\" which is a network thingamabob:                                
+                                set unquoted_audio_file_full=%@unquote[%@full[%CFML_audiofile%]``]``                                                                    %+ rem do NOT use full on unquoted_audio_file!
+                                set audio_file_name=%@unquote[%@name[%unquoted_audio_file_full%``]``]``
+                                set audio_file_path=%@unquote[%@path[%unquoted_audio_file_full%``]``]``
 
-                     rem iff exist "%srtfile%" then                                                    %+ rem If the  srt  file exists, skip this one 🦒 todo?: make this an option
-                     rem         echo %ansi_color_blue%%check% karaoke already exists:        %srtfile%
-                     rem         set BAD=0                                   
-                     rem else                                                
-                     rem         echo %ansi_color_magenta%%check% karaoke DOESN’T exist:         %srtfile%
-                     rem endiff                                              
-                     rem iff exist "%lrcfile%" then                                                    %+ rem If the  lrc  file exists, skip this one 🦒 todo?: make this an option
-                     rem         echo %ansi_color_blue%%check% karaoke already exists:        %lrcfile% 
-                     rem         set BAD=0                                   
-                     rem else                                                
-                     rem         echo %ansi_color_magenta%%check% karaoke DOESN’T exist:         %lrcfile% 
-                     rem endiff                             
-                     for %tmp_potential_subtitle_file in ("%srtfile%" "%lrcfile%") do (
-                             if exist %tmp_potential_subtitle_file% (
-                                     echo %ansi_color_cyan% %EMOJI_CHECK_MARK% karaoke  already exists:       %faint_on%%@UNQUOTE[%tmp_potential_subtitle_file%]%faint_off%``
-                                     set BAD=0                                   
-                             ) else (                          
-                                     rem echo %ansi_color_magenta% %check% karaoke DOESN%[smart_apostrophe]T exist:         %@UNQUOTE[%tmp_potential_subtitle_file%]``
-                             )                                            
-                     )
-                     
-                     iff exist "%txtfile%" then                                                    %+ rem If the lyric file exists, we must check if it is approved
-                             set TXT_EXISTS=1                                                      %+ rem If the lyric file exists, flag the situation as such
-                             set coloring=%ansi_color_bright_green%                                %+ rem If the lyric file exists, draw debug info in green
-                             set LYRIC_APPROVAL_VALUE=%@ExecStr[TYPE <"%txtfile%:lyrics" >&>nul]   %+ rem If the lyric file exists, get it’s approval status
-                             iff "APPROVED" eq "%LYRIC_APPROVAL_VALUE%" then                       %+ rem If the lyrics are approved...
-                                     set coloring2=%coloring%                                      %+ rem    ...use the same success color for the text file
-                                     set BAD=0                                                     %+ rem Mark it as "good" [having approved lyrics] by un-setting "bad"
-                             else                                                                  %+ rem If the lyrics are NOT approved...
-                                     set LYRIC_APPROVAL_VALUE=%bright_red%Nope%ansi_color_normal%  %+ rem    ...set a meaningful display value like "Nope"
-                                     set coloring2=%ansi_color_bright_red%                         %+ rem    ...set the color to an alarming "angry" color
-                             endiff
-                     else                                                                          %+ rem If the lyrics don’t exist at all,
-                             set TXT_EXISTS=0                                                      %+ rem    ...set a flag storing this fact
-                             set coloring=%ansi_color_bright_black%
-                             set coloring2=%ansi_color_bright_black%
-                             set LYRIC_APPROVAL_VALUE=%NO%                                         %+ rem    ...set a meaningful display value like "🚫"
-set BAD=1 
-                     endiff              
-                     set NUM_PROCESSED=%@EVAL[%NUM_PROCESSED + 1]
-                     iff 1 eq %BAD% then
-                             title %EMOJI_WRENCH% Processed: %NUM_PROCESSED%
-                             set remaining=%@EVAL[%remaining - 1]
-                             set msg=%emoji_gear% Remaining:%italics_on%%@sans_serif[%remaining%]%italics_off% %emoji_gear%
-                             call status-bar "%msg%"
-                             rem   *pause>nul
-                             set ANY_BAD=1
-                             echo %EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%%unquoted_audio_file% 
-                             echo repeat 13 echo. `%`+ call get-lyrics "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
-                             set NUM_BAD=%@EVAL[NUM_BAD + 1]
-                             rem echo now %NUM_BAD% bad ones
-                     endiff                        
-                     rem DEBUG: echo %ansi_color_normal%* Checking %faint_on%%AudioFile%%faint_off% %@ansi_move_to_col[65] txtfile=%faint_on%%txtfile%%faint_off% %tab% %@ANSI_MOVE_TO_COL[125]%coloring%EXISTS=%txt_exists%%ansi_color_normal%   %coloring2%APPROVED=%LYRIC_APPROVAL_VALUE%
+                        rem Debug stuff:
+                                rem echo 🐞 %ansi_color_purple%CFML_AudioFile          =%CFML_AudioFile%%ansi_color_normal% 🐞 
+                                rem echo 🐞 %ansi_color_purple%unquoted_audio_file     =“%unquoted_audio_file%”%ansi_color_normal% 🐞 
+                                rem echo 🐞 %ansi_color_purple%unquoted_audio_file_full=“%unquoted_audio_file_full%”%ansi_color_normal% 🐞 
+                                rem echo 🐞 %ansi_color_purple%audio_file_name         =“%audio_file_name%”%ansi_color_normal% 🐞 
+                                rem echo 🐞 %ansi_color_purple%audio_file_path         =“%audio_file_path%”%ansi_color_normal% 🐞 
+
+                        rem Reject if it’s an m3u-specific comment-line in the filelist:
+                                if "%@LEFT[8,%unquoted_audio_file%]" == "#EXTINF:" return
+
+                        rem Reject if the file doesn’t exist at all:                                
+                                iff not exist %CFML_AudioFile% then
+                                     echo %ansi_color_yellow% %EMOJI_CROSS_MARK% songfile doesn’t exist:        %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                endiff
+
+                        rem If the song is marked for approved-lyriclessness, the file is good:                                
+                                set LYRICLESSNESS_APPROVAL_VALUE=%@ExecStr[TYPE <"%unquoted_audio_file_full%:lyriclessness" >&>nul]         %+ rem get the song’s lyriclessness approval status
+                                iff "APPROVED" eq "%LYRICLESSNESS_APPROVAL_VALUE%" then
+                                        set BAD=0
+                                        goto :done_processing_this_file
+                                endiff                                        
+
+                        rem Special instrumental handling?
+                                rem iff 1 eq %@RegEx[\(instrumental\),%@UNQUOTE[%CFML_AudioFile%]] then
+                                rem endiff                     
+                                
+                        rem Determine filenames for lyric/karaoke files (which may or may not exist):                                
+                                set txtfile=%audio_file_path%%audio_file_name%.txt                            %+ rem Create the filename of the lyric file that we will be looking for
+                                set srtfile=%audio_file_path%%audio_file_name%.srt                            %+ rem Create the filename of the  srt  file that may exist
+                                set lrcfile=%audio_file_path%%audio_file_name%.lrc                            %+ rem Create the filename of the  lrc  file that may exist
+
+
+                        rem Debug stuff:
+                                rem echo 🐞 %ansi_color_purple%CFML_audiofile=%CFML_audiofile%%ansi_color_normal% 🐞 
+                                rem echo 🐞 %ansi_color_purple%audio_file_path=%audio_file_path%%ansi_color_normal% 🐞 
+                                rem echo 🐞 %ansi_color_purple%srtfile        =%srtfile% %ansi_color_normal% 🐞 
+                                rem echo 🐞 %ansi_color_purple%lrcfile        =%lrcfile% %ansi_color_normal% 🐞 
+                                rem echo 🐞 %ansi_color_purple%audio_file     =%audio_file%%ansi_color_normal% 🐞 
+                                rem echo 🐞 %ansi_color_purple%txtfile        =%txtfile% %ansi_color_normal% 🐞 
+
+                                
+                        rem Song is considered "bad" [does not have approved lyrics], until we find the accompanying files and mark it as "good"
+                                set BAD=1                                                                     
+
+
+                        rem Check if the potential karaoke files exist, and if they do, the file is good:
+                                for %tmp_potential_subtitle_file in ("%srtfile%" "%lrcfile%") do (
+                                        rem DEBUG:  echo checking if exist %tmp_potential_subtitle_file% 
+                                        if exist %tmp_potential_subtitle_file% (
+                                                rem 2024/12/22 found this annoying so suspending this and seeing how I feel: echo %ansi_color_cyan% %EMOJI_CHECK_MARK% karaoke  already exists:       %faint_on%%@UNQUOTE[%tmp_potential_subtitle_file%]%faint_off%``
+                                                set BAD=0                                   
+                                        ) else (                          
+                                                rem echo %ansi_color_magenta% %check% karaoke DOESN%[smart_apostrophe]T exist:         %@UNQUOTE[%tmp_potential_subtitle_file%]``
+                                        )                                            
+                                )
+
+                                     
+                        rem Check if the lyrics files already exists, and if so, then check if it is pre-approved:
+                                iff exist "%txtfile%" then                                                                                          %+ rem If the lyric file exists, we must check if it is approved
+                                        rem DEBUG: call debug "Textfile %txtfile% already exists"
+                                        set TXT_EXISTS=1                                                                                            %+ rem If the lyric file exists, flag the situation as such
+                                        set coloring=%ansi_color_bright_green%                                                                      %+ rem If the lyric file exists, draw debug info in green
+                                        set         LYRIC_APPROVAL_VALUE=%@ExecStr[TYPE                  <"%txtfile%:lyrics"        >&>nul]         %+ rem If the lyric file exists, get it’s approval status
+                                        iff "APPROVED" eq "%LYRIC_APPROVAL_VALUE%" .or. "APPROVED" eq "%LYRICLESSNESS_APPROVAL_VALUE%" then         %+ rem If the lyrics are approved...
+                                                set coloring2=%coloring%                                                                            %+ rem    ...use the same success color for the text file
+                                                set BAD=0                                                                                           %+ rem Mark it as "good" [having approved lyrics] by un-setting "bad"
+                                        else                                                                                                        %+ rem If the lyrics are NOT approved...
+                                                set LYRIC_APPROVAL_VALUE=%bright_red%Nope%ansi_color_normal%                                        %+ rem    ...set a meaningful display value like "Nope"
+                                                set coloring2=%ansi_color_bright_red%                                                               %+ rem    ...set the color to an alarming "angry" color
+                                        endiff                                                                                                      
+                                else                                                                                                                %+ rem If the lyrics don’t exist at all,
+                                        rem DEBUG: call debug "Textfile “%txtfile%” DOES NOT EXIST🐐"                                                        
+                                        set TXT_EXISTS=0                                                                                            %+ rem    ...set a flag storing this fact
+                                        set coloring=%ansi_color_bright_black%                                                                      
+                                        set coloring2=%ansi_color_bright_black%                                                                     
+                                        set LYRIC_APPROVAL_VALUE=%NO%                                                                               %+ rem    ...set a meaningful display value like "🚫"
+                                        set BAD=1 
+                                endiff              
+
+                        rem Debug:
+                                rem DEBUG: echo   bad is %BAD% for %txtfile%
+                        
+                        rem Keep track of how many files we’ve processed in total:
+                                :done_processing_this_file
+                                set NUM_PROCESSED=%@EVAL[%NUM_PROCESSED + 1]
+                                
+                                
+                        rem If this file is bad, deal with that:
+                                iff 1 eq %BAD% then
+                                
+                                        rem Display the # processed (which only applies to bad files):
+                                                title %EMOJI_WRENCH% Processed: %NUM_PROCESSED%
+                                                
+                                        rem Display the # remaining as a status bar at the bottom of the screen:
+                                                set remaining=%@EVAL[%remaining - 1]
+                                                set msg=%emoji_gear% Remaining:%italics_on%%@sans_serif[%remaining%]%italics_off% %emoji_gear%
+                                                call status-bar "%msg%"
+                                                rem   *pause>nul
+                                        
+                                        rem Keep track of if/how many bad files there were:
+                                                set ANY_BAD=1
+                                                set NUM_BAD=%@EVAL[NUM_BAD + 1]
+                                                rem echo now %NUM_BAD% bad ones
+
+                                        rem Warn of missing lyrics:
+                                                echo %EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%%unquoted_audio_file%                                         
+                                                
+                                        rem Add lyric-retrieval command to our autorun script:
+                                                rem echo repeat 13 echo. `%`+ call divider `%`+ call get-lyrics "%unquoted_audio_file%"                   >>:u8"%tmpfile_cfml_1%"
+                                                rem echo repeat 13 echo.                   `%`+ call get-lyrics "%unquoted_audio_file%"                   >>:u8"%tmpfile_cfml_1%"
+                                                    echo repeat 13 echo.                   `%`+ call get-lyrics "%unquoted_audio_file%" `%`+ call divider >>:u8"%tmpfile_cfml_1%"
+                                                    
+                                endiff                        
+                                rem DEBUG: echo %ansi_color_normal%* Checking %faint_on%%CFML_AudioFile%%faint_off% %@ansi_move_to_col[65] txtfile=%faint_on%%txtfile%%faint_off% %tab% %@ANSI_MOVE_TO_COL[125]%coloring%EXISTS=%txt_exists%%ansi_color_normal%   %coloring2%APPROVED=%LYRIC_APPROVAL_VALUE%
              return
         :process_file_end
 

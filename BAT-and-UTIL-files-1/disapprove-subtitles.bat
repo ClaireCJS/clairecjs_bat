@@ -5,20 +5,20 @@
  iff "%1" eq "" then
         %color_advice%
         echo.
-        echo USAGE: %0 metallica*.txt    —— to disapprove matching subtitles in the folder (using  wildcards)
-        echo USAGE: %0 a_single_file.txt —— to disapprove ALL .txt subtitles in the folder (using a filename)
-        echo USAGE: %0 all               —— to disapprove ALL .txt subtitles in the folder (using ’all’ mode)
+        echo USAGE: %0 metallica*.txt    —— to disapprove many subtitles in the folder (using  wildcards)
+        echo USAGE: %0 a_single_file.txt —— to disapprove one  subtitle  in the folder (using a filename)
+        echo USAGE: %0 all               —— to disapprove ALL  subtitles in the folder (using ’all’ mode)
         %color_normal%
         goto :END
 endiff
 
 
+iff "%1" eq "all" .or. "%1" eq "*.*" .or. "%1" eq "*" .or. "%1" eq "*.srt" .or. "%1" eq "*.lrc" then
+        call warning_soft "About to disapprove ALL subtitles %italics_on%(*.srt,*.lrc)%italics_off% in folder..."
+        call AskYN        "You sure" no 10
+        if "%answer%" != "y" goto :end
 
-
-iff "%1" eq "all" .or. "%1" eq "*.*" .or. "%1" eq "*" .or. "%1" eq "*.txt"  then
-        call warning_soft "About to approve ALL subtitles %italics_on%(*.txt)%italics_off% in folder..."
-        call pause-for-x-seconds 5 You sure?
-        for %%tmpfile in (*.txt;*.lrc) do (
+        for %%tmpfile in (*.srt;*.lrc) do (
                @call disapprove-subtitle-file.bat "%@unquote[%tmpfile]"
         )
         goto :END

@@ -1,4 +1,4 @@
-@echo off
+@Echo OFF
 on break cancel
 
 
@@ -60,10 +60,10 @@ rem Set default flags:
 
 rem Get positional required parameters:
         iff defined AskYN_question then
-                set ASK_QUESTION=%AskYN_question% 
+                set ASK_QUESTION=%@UNQUOTE[%AskYN_question% ]
                 unset /q AskYN_question
         else
-                set ASK_QUESTION=%[1]
+                set ASK_QUESTION=%@UNQUOTE[%[1]]
                 shift
         endiff
 
@@ -118,9 +118,7 @@ rem cancel %+ 🐐
 
 
 iff "%ASK_QUESTION%" eq "" .or. "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%" eq "--help" .or. "%ASK_QUESTION%" eq "/?" .or. "%ASK_QUESTION%" eq "-?" .or. "%ASK_QUESTION%" eq "-h" then
-                iff not defined ansi_color_orange then 
-                        call set-ansi force
-                endiff                        
+                if not defined ansi_color_orange call set-ansi force
                 %color_advice%
                 echo.
                 echo USAGE: NOTE: %ANSI_COLOR_MAGENTA%%italics_on%Braced%italics_off%    arguments are %italics_on%%ansi_color_red%required%italics_off%%ansi_color_advice%%ansi_color_advice%,
@@ -154,7 +152,7 @@ iff "%ASK_QUESTION%" eq "" .or. "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%"
                 echo USAGE:                      For example: To allow %ansi_color_bright_yellow%Y%ansi_color_advice% or %ansi_color_bright_yellow%N%ansi_color_advice% or %ansi_color_bright_yellow%A%ansi_color_advice% or %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Ovewrite file" no 0 %double_underline_on%AR%underline_off%%ansi_color_advice% 
                 echo USAGE:              
                 echo USAGE: %ansi_color_orange%Next parameters: %ansi_color_magenta%An optional list of %ansi_color_yellow%additional letter meanings%ansi_color_magenta% for any additional keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
-                echo USAGE:                  EXAMPLE: To give %ansi_color_yellow%letter meanings%ansi_color_advice% for %ansi_color_bright_yellow%A%ansi_color_advice% and %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Overwite file" no 0 AR %double_underline_on%A:Abort,R:Retry
+                echo USAGE:                  EXAMPLE: To give %ansi_color_yellow%letter meanings%ansi_color_advice% for %ansi_color_bright_yellow%A%ansi_color_advice% and %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Overwite file" no 0 AR %double_underline_on%A:Abort,R:Retry%underline_off%%ansi_color_advice%
                 echo USAGE:                           Note that %ialics_on%underscores%ialics_off% in the meanings are converted to %ialics_on%spaces %ialics_off%
                 echo USAGE:
                 echo USAGE: %ansi_color_orange%GENERAL EXAMPLE #1: %ansi_color_bright_yellow%call AskYN "Do you want to" yes %ansi_color_advice%

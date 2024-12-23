@@ -26,13 +26,36 @@ def parse_timecode(time_str):                                                   
     except ValueError:
         return None                                                                                # Return None if parsing fails
 
+def replace_smart_quotes(line):
+    """
+    Define patterns for identifying opening and closing quotes
+    
+    Example usage:
+        text = '''"Hello," he said. "Is this your book?"'''
+        result = replace_smart_quotes(text)
+        print(result)
+
+    """
+    
+    # Replace the first occurrence of " with a left quote (opening quote)
+    line = re.sub(r'(^|[\s\(\[\{.,!?;])"', r'\1“', line, count=1)
+    
+    # Replace the last occurrence of " with a right quote (closing quote)
+    line = re.sub(r'"([\s.,!?;:\)\]\}])', r'”\1', line[::-1], count=1)[::-1]
+
+    return line
+
 def srt_to_txt(input_file, output_file):                                                           # Define the main function
     if os.path.exists(output_file):                                                                # Check if output file already exists
         timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')                               # Get current timestamp in yyyymmddHHMMSS format
         backup_filename = f"{output_file}.bak.{timestamp}.bak"                                     # Construct backup filename
         os.rename(output_file, backup_filename)                                                    # Rename existing output file to backup filename
 
-    with open(input_file, 'r', encoding='utf-8') as f_in:                                          # Open the input file with UTF-8 encoding
+    # open file *safely*
+    with open(input_file, 'rb') as raw_file:                                                       #fix for real-world files that have varied encoding
+        result = chardet.detect(raw_file.read(1000))    # Detect encoding based on a sample        #fix for real-world files that have varied encoding
+        encoding = result['encoding']                                                              #fix for real-world files that have varied encoding
+    with open(input_file, 'r', encoding=encoding, errors='replace') as f_in:                       # Open the input file with UTF-8 encoding
         lines = f_in.readlines()                                                                   # Read all lines from the input file
 
     subtitles = []                                                                                 # Initialize a list to store subtitles
@@ -95,6 +118,8 @@ def srt_to_txt(input_file, output_file):                                        
 
     with open(output_file, 'w', encoding='utf-8') as f_out:                                        # Open the output file for writing with UTF-8 encoding
         for line in text_lines:                                                                    # Iterate over the collected text lines
+            line = replace_smart_quotes(line)                                                      # change " to “ and ”
+            line = line.replace("'","’")                                                           # change ' to ’
             f_out.write(line.lstrip() + '\n')                                                      # Write each line followed by a newline character
 
 if __name__ == "__main__":                                                                         # Entry point of the script
@@ -127,4 +152,5 @@ if __name__ == "__main__":                                                      
 
         srt_to_txt(input_file, output_file)                                                        # Call the main function with input and output files
         #rint(f"✔  Generated: {output_file} generated")                                           # Display success message
-        print(f'✔  Converted  SRT file to TXT: ‘{output_file}’ successfully!')                    # Display success message                                       
+        print(f'✔  Karaoke conversion success: “{output_file}”')                                   # Display success message
+        #rint(f'✔  Converted  SRT file to TXT: “{output_file}” successfully!')                    # Display success message                                       

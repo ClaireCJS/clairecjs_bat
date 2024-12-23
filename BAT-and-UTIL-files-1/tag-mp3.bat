@@ -1,0 +1,1 @@
+@call tag-mp3s %*

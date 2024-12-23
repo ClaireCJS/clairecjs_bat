@@ -99,7 +99,7 @@ REM values set from parameters:
         set               PARAM1=%1
         set               PARAM=%1
         set             SONGFILE=%@UNQUOTE[%1]
-        set             SONGBASE=%@UNQUOTE[%@NAME[%SONGFILE]] %+ rem this might not work anymore 🐮
+        set             SONGBASE=%@UNQUOTE[%@NAME[%SONGFILE]]`` %+ rem this might not work anymore 🐮
         if "%@EXT[%2]" eq "txt" (
                 set POTENTIAL_LYRIC_FILE=%@UNQUOTE[%2]
         ) else (                
@@ -322,11 +322,10 @@ REM Now, let’s check these values:
                 echo %STAR% %ANSI_COLOR_ADVICE%Copy this file %italics_on%from our local repo%italics_off% into this folder, as a sidecar file for %@NAME[%SONGFILE%]%ansi-color_normal%
                 call askYN        "Copy repository version to local folder as sidecar file?" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "Y" == "%answer%" then
-                        set target=%@path[%@full[%songfile%]]%@name[%SONGFILE%].%@ext[%found_subtitle_file%]
+                        set target=%@path[%@full[%songfile%]]%@name[%SONGFILE%].%@ext[%found_subtitle_file%]``
                         set srt_file=%target%
                         *copy /q "%found_subtitle_file%" "%target%" >&>nul
                         if not exist "%target%" (call error "target of %left_quote%%target%%right_quote% should exist now, in %left_apostrophe%%italics_on%create-srt-from-file%italics_off%%right_apostrophe% line 320ish" %+ call warning "...not sure if we want to abort right now or not..." )
-
                         call review-file "%target%"
                         call askYN "Do these still look acceptible?" yes 20 %+ rem hardcoded value warning
 
