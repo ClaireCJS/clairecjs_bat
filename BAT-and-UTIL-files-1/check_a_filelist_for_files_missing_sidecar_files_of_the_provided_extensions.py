@@ -179,8 +179,8 @@ def main_guts(input_filename, extensions, options, extra_args):
                 #or missing_file in sorted(files_without_sidecars)    :
                 for missing_file in        files_without_sidecars_list:
                     if os.path.exists(missing_file):
-                        if options.lower() == "getlyricsfilewrite": output_file.write(f"repeat 13 echo. %+ @call get-lyrics \"{missing_file}\" {extra_args} %+ @call divider\n")
-                        if options.lower() == "createsrtfilewrite": output_file.write(f"repeat 13 echo. %+ @call create-srt \"{missing_file}\" {extra_args} %+ @call divider\n")
+                        if options.lower() == "getlyricsfilewrite": output_file.write(f"@repeat 13 echo. %+ @call get-lyrics \"{missing_file}\" {extra_args} %+ @call divider\n")
+                        if options.lower() == "createsrtfilewrite": output_file.write(f"@repeat 13 echo. %+ @call create-srt \"{missing_file}\" {extra_args} %+ @call divider\n")
                         else                                      : output_file.write(f"{missing_file}\n")
                 if options.lower()         == "getlyricsfilewrite": output_file.write("@call divider\n@call celebration \"ALL DONE WITH LYRIC RETRIEVAL!!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
                 if options.lower()         == "createsrtfilewrite": output_file.write("@call divider\n@call celebration \"ALL DONE WITH KARAOKE CREATION!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
