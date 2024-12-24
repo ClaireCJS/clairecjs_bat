@@ -1,3 +1,4 @@
+import unittest
 """
 
     LRC to TXT converter
@@ -37,6 +38,265 @@ init()                                                                          
 
 import re
 
+class TestSmartQuotes(unittest.TestCase):
+    def test_smart_quotes(self):
+        test_cases = [                              # Test data: (input, expected_output)
+            # Single quote
+            ('"',
+             '“'),
+            ('This "is a test sentence with 1 quote, an opening quote, but no closer.',
+             'This “is a test sentence with 1 quote, an opening quote, but no closer.'),
+            ('This  is a test sentence with 1 quote, a  closing quote, but no" opener.',
+             'This  is a test sentence with 1 quote, a  closing quote, but no” opener.'),
+            # Two quotes 
+            ('""',
+             '“”'),
+            (' " " ',
+             ' ” “ '),  #changed our mind and decided it makes more sense for these to be parts of 2 quotes that have no punctuation between them, than a single-space quoted. Might be a bad choice if this was processing code instead of lyrics....
+            ('"This is a test sentence with two opening quotes "and no closers.',
+             '“This is a test sentence with two opening quotes “and no closers.'),
+            ('This is a test sentence with properly "paired" quotes.',
+             'This is a test sentence with properly “paired” quotes.'),
+            ('This is a test sentence with a closing quote first" and an "opening quote after that *****.',
+             'This is a test sentence with a closing quote first” and an “opening quote after that *****.'),
+            ('This is a test sentence 👽 with two closing quotes" like Arizona."',
+             'This is a test sentence 👽 with two closing quotes” like Arizona.”'),
+            
+            # Three quotes (9 combinations)
+            ('This is a test sentence with "three "opening "quotes.',
+             'This is a test sentence with “three “opening “quotes.'),
+            ('This is a test sentence with three" closing" quotes".',
+             'This is a test sentence with three” closing” quotes”.'),
+            ('"three "opening "quotes',
+             '“three “opening “quotes'),
+            ('three" closing" quotes"',
+             'three” closing” quotes”'),
+             
+            ('"This is test sentence 1 with 3 quotes, a single opener next to a "proper pair".',
+             '“This is test sentence 1 with 3 quotes, a single opener next to a “proper pair”.'),
+            ('This "is test sentence 2 with 3 quotes, a single opener next to a "proper pair"',
+             'This “is test sentence 2 with 3 quotes, a single opener next to a “proper pair”'),
+             
+            #('"This is a test sentence" with mismatched "quotes.',
+            # '“This is a test sentence” with mismatched “quotes.'),
+            #('"This is a test sentence" with two closing quotes."',
+            # '“This is a test sentence” with two closing quotes.”'),
+            #('This" is "a test sentence "with mismatched quotes.',
+            # 'This” is “a test sentence “with mismatched quotes.'),
+            #('This" is "a test sentence" with mixed quotes.',
+            # 'This” is “a test sentence” with mixed quotes.'),
+            #('This" is a test sentence" with mismatched "quotes.',
+            # 'This” is a test sentence” with mismatched “quotes.'),
+            #('This" is a test sentence" with three closing quotes."',
+            # 'This” is a test sentence” with three closing quotes.”'),
+            
+            # Four quotes (16 combinations)
+            #('"This is "a test sentence "with "four opening quotes.',
+            # '“This is “a test sentence “with “four opening quotes.'),
+            #('"This is "a test sentence "with mixed "quotes."',
+            # '“This is “a test sentence “with mixed “quotes.”'),
+            #('"This is "a test sentence" with "varied quotes.',
+            # '“This is “a test sentence” with “varied quotes.'),
+            #('"This is "a test sentence" with properly "paired quotes."',
+            # '“This is “a test sentence” with properly “paired quotes.”'),
+            #('"This is a test sentence" with "some mismatched "quotes.',
+            # '“This is a test sentence” with “some mismatched “quotes.'),
+            #('"This is a test sentence" with "properly matched "quotes."',
+            # '“This is a test sentence” with “properly matched “quotes.”'),
+            #('"This is a test sentence" with mismatched "quotes" like this.',
+            # '“This is a test sentence” with mismatched “quotes” like this.'),
+            #('"This is a test sentence" with mixed "quotes" and a closer."',
+            # '“This is a test sentence” with mixed “quotes” and a closer.”'),
+            #('This" is "a test sentence "with "varied quotes.',
+            # 'This” is “a test sentence “with “varied quotes.'),
+            #('This" is "a test sentence "with proper "pairing."',
+            # 'This” is “a test sentence “with proper “pairing.”'),
+            #('This" is "a test sentence" with mixed "quotes.',
+            # 'This” is “a test sentence” with mixed “quotes.'),
+            #('This" is "a test sentence" with paired "quotes."',
+            # 'This” is “a test sentence” with paired “quotes.”'),
+            #('This" is a test sentence" with mismatched "quotes "like this.',
+            # 'This” is a test sentence” with mismatched “quotes “like this.'),
+            #('This" is a test sentence" with mixed "quotes "properly."',
+            # 'This” is a test sentence” with mixed “quotes “properly.”'),
+            #('This" is a test sentence" with mismatched "quotes."',
+            # 'This” is a test sentence” with mismatched “quotes.”'),
+            ('This is a test sentence "with "four "opening "quotes.',
+             'This is a test sentence “with “four “opening “quotes.'),
+            ('This is a test sentence with" four" closing" quotes".',
+             'This is a test sentence with” four” closing” quotes”.'),
+            ('"with "four "opening "quotes.',
+             '“with “four “opening “quotes.'),
+            ('with" four" closing" quotes"',
+             'with” four” closing” quotes”'),
+            ('lone quote " to be opening or closing? we say opening',
+             'lone quote “ to be opening or closing? we say opening'),
+
+            # No quotes
+            ("This is a test sentence without any quotes.", 
+             "This is a test sentence without any quotes."),
+             
+            #More lone quotes
+            #('',
+            #''),
+            ('a lone quote, " what he said ".',
+             'a lone quote, “ what he said ”.'),
+            ('a lone quote, " what he said "',
+             'a lone quote, “ what he said ”'),
+            ('"a lone quote, what he said.',
+             '“a lone quote, what he said.'),
+            ('a " " z',
+             'a ” “ z'),        #wouldn’t make sense to have “ ” with nothing in between them, this must be part of a larger set of 2 quotes improperly punctuated between
+            
+            
+            
+        ]
+        print(f"There are {len(test_cases)} test cases")
+
+        i = 0
+        success = 0
+        failures = 0
+        for input_text, expected_output in test_cases:
+            i = i + 1
+            #print(f"Test #" + {i:2} + f": Original: " + input_text     )
+            #print(f"      " + "  "  + f"  Expected: " + expected_output)
+            with self.subTest(input_text=input_text):
+                print(f"\nTest #{i:2}: " + "  in: " + input_text)
+                print(   "          "    + "want: " + expected_output)
+                print(   "          "    + " got: " + replace_smart_quotes(input_text))
+                if replace_smart_quotes(input_text) == expected_output:
+                    print( "            "    + "✅")
+                    success = success + 1
+                else:                    
+                    print( "            "    + "🧨")
+                    failures = failures + 1
+                self.assertEqual(replace_smart_quotes(input_text), expected_output )
+                
+        print(f"\n🎂 {success} out of {i} tests successful!")
+        if failures: print(f"🛑 {failures} failures 😢")
+
+def test_suite():
+    print(f"This is the test suite. Let us test some quotes.")
+    unittest.main(argv=[''], exit=False)
+    exit()
+
+
+
+
+def is_punctuation(c):
+    return c in string.punctuation
+   
+def is_punctuation_except_quotes(c):
+    if c in string.punctuation:
+        if c == '"': return False
+        else       : return True
+    return False
+
+def replace_smart_quotes(text):
+    """
+    Replace straight quotes with curly quotes based on context.
+    """
+    
+    DEBUG_CHAR_HANDLING = False #
+    if DEBUG_CHAR_HANDLING: print(f"all-but-last char of text is [" + text[:-1] + "]")
+
+    if   text == ""  : return ""
+    elif text == '"' : return "“"
+    elif text == '""': return "“”"                             # the one exception to our rule that 2 quotes should be considered opening, then closing, and not vice versa, absent other contextual clues
+    else:
+        if text[-1] == '"': text = text[:-1] + '”'             # Replace closing quote
+        if text[ 0] == '"': text =             '“' + text[1:]  # Replace opening quote
+
+    result = []
+    in_quotes = False
+    last_non_space_char = ""
+    prev_prev_char = ""
+    prev_char = ""
+    next_char = ""
+    for i, char in enumerate(text):
+        if DEBUG_CHAR_HANDLING: print(f"🐐 Handling char: {Fore.YELLOW}{char}{Fore.WHITE} ... " , end="")
+
+        if char == '“': in_quotes = True
+        if char == '”': in_quotes = False       
+        if char == '"':
+            prev_char      = text[i-1] if i > 0           else ''
+            prev_prev_char = text[i-2] if i > 1           else ''
+            next_char      = text[i+1] if i < len(text)-1 else ''
+            next_next_char = text[i+2] if i < len(text)-2 else ''
+            
+            
+            # Rule 1: 
+            if prev_char in [" ",""] and next_char in [" ",""]:
+                if DEBUG_CHAR_HANDLING: print(f"got here 🌵 with char [{char}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")# ... last_non_space_char.isalpha()={last_non_space_char.isalpha()},next_next_char.isalpha()={next_next_char.isalpha()})")
+                
+                if last_non_space_char == "”":
+                    result.append("“")
+                    char_used =   '“'
+                    in_quotes=True
+                elif last_non_space_char == "“":
+                    result.append('”')
+                    char_used =   '”'
+                    in_quotes=True
+                
+                elif (is_punctuation(last_non_space_char) and last_non_space_char not in ['“'] and next_next_char.isalpha()) \
+                   or             (last_non_space_char.isalpha()                             and next_next_char.isalpha()):
+                    if DEBUG_CHAR_HANDLING: print(f"got here 🍒 with char [{char}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")                
+                    result.append('“')
+                    char_used =   '“'
+                    in_quotes = True
+                else:                   
+                    result.append('”')
+                    char_used =   '”'
+                    in_quotes = True
+                
+            # Rule 2: 
+            elif prev_char == " " and next_char.isalpha() and last_non_space_char != ".":
+                if DEBUG_CHAR_HANDLING: print(f"got here 🦋 with char [{char}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")                
+                result.append('“')
+                char_used =   '“'
+                in_quotes = True
+            
+            # Rule 3: Quotes at the end of words, after punctuation, or at the end of sentences
+            elif  (is_punctuation_except_quotes(prev_char) or prev_char.isalpha()):
+                if DEBUG_CHAR_HANDLING: print(f"got here 🍌 with char [{char}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")                
+                result.append('”')
+                char_used =   '”'
+                in_quotes = False
+                
+            # Rule 4: Quotes at the beginning of words or after punctuation
+            elif (prev_char == '' or is_punctuation_except_quotes(prev_char)) and last_non_space_char !=  "“":
+                if DEBUG_CHAR_HANDLING: print(f"got here ⚠  with char [{Fore.YELLOW}{char}{Fore.WHITE}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")
+                result.append('“')
+                char_used =   '“'
+                in_quotes = True
+                
+            # Rule 5: parse leftovers ones as if they are pairs?                
+            else:
+                if DEBUG_CHAR_HANDLING: print(f"got here 🎯 with char [{char}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")
+                # Handling odd/even quotes when there are spaces around
+                if not in_quotes:
+                        result.append('“')
+                        char_used =   '”'
+                        in_quotes = True
+                else:
+                        result.append('”')
+                        char_used =   '”'
+                        in_quotes = False
+
+        # Most characters will fall into the “else” part here:
+        else:
+            if DEBUG_CHAR_HANDLING: print(f"got here 👻 with char [{char}] ... prev_char=[{prev_char:1}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}], next_char=[{next_char}]")
+            result.append(char)
+            char_used =   char
+            
+        # store last non-space char
+        if char !=  " ": 
+            if char_used == "“" or char_used == "”": last_non_space_char = char_used
+            else                                   : last_non_space_char = char
+
+    return ''.join(result)
+    
+    
 def expand_and_sort_timestamps(lines):
     """
     Expands timestamps for lyrics, ensuring each timestamp is linked correctly to its lyrics.
@@ -64,32 +324,6 @@ def expand_and_sort_timestamps(lines):
     
     # Sort by timestamps
     return sorted(expanded_lines, key=lambda x: x[0])
-
-
-
-
-
-def expand_and_sort_timestamps_v2(lines):
-    expanded_lines = []
-
-    for line in lines:                                                  # Find all timestamps in the line
-        timestamps = re.findall(r'\[(\d+):(\d+)\.(\d+)\]', line)        # Extract all timestamps
-        text_match = re.search (r'\](.*)'                , line)        # Extract the text after the last timestamp
-        if timestamps and text_match:
-            text = text_match.group(1).strip()
-            seen = set()  # Track unique timestamps
-            for minutes, seconds, centiseconds in timestamps:
-                total_seconds = int(minutes) * 60 + int(seconds) + int(centiseconds) / 100
-                #expanded_lines.append((total_seconds, text))                                
-                if total_seconds not in seen:                           # Skip duplicate timestamps
-                    seen.add(total_seconds)
-                    expanded_lines.append((total_seconds, text))
-
-    expanded_lines.sort(key=lambda x: x[0])                             # Sort by time
-    return expanded_lines
-
-
-
 
 
 
@@ -123,28 +357,6 @@ def parse_timecode_lrc(line):
     return None, line
 
 
-import re
-
-def replace_smart_quotes(line):
-    """
-    Define patterns for identifying opening and closing quotes
-    
-    Example usage:
-        text = '''"Hello," he said. "Is this your book?"'''
-        result = replace_smart_quotes(text)
-        print(result)
-
-    """
-    
-    ### Replace the first occurrence of " with a left quote (opening quote)
-    #ine = re.sub(r'(^|[\s\(\[\{.,!?;])"', r'\1“', line, count=1)
-    line = re.sub(r'(^|[\s\(\[\{,!?;])"' , r'\1“', line, count=1)
-    
-    ### Replace the last occurrence of " with a right quote (closing quote)
-    #ine = re.sub(r'"([\s.,!?;:\)\]\}])', r'”\1', line[::-1], count=1)[::-1]
-    line = re.sub(r'"([\s.,!?;:\)\.\]\}])', r'”\1', line[::-1], count=1)[::-1]
-
-    return line
 
 
 def lrc_to_txt(input_file, output_file):
@@ -157,9 +369,6 @@ def lrc_to_txt(input_file, output_file):
         timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')                                    # generate string for this moment in time
         backup_filename = f"{output_file}.bak.{timestamp}.bak"                                          # generate unique backup filename
         os.rename(output_file, backup_filename)                                                         # rename the old file to our newly-generated backup filename
-
-    #with open(input_file, 'r', encoding='utf-8') as f_in:
-    #   lines = f_in.readlines()
 
     # open file *safely*
     with open(input_file, 'rb') as raw_file:                                                            #fix for real-world files that have varied encoding
@@ -234,43 +443,79 @@ def lrc_to_txt(input_file, output_file):
     # output our finialized file with final massage of values
     with open(output_file, 'w', encoding='utf-8') as f_out:
         for line in cleaned_output_lines:
-            line = replace_smart_quotes(line)                                                                 # change " to “ and ”
-            line = line.replace("'","’")                                                                      # change ' to ’
-            f_out.write(line.lstrip() + "\n")
-                                                                                                                                                                              
+            line = replace_smart_quotes(line)      # change " to “ and ”
+            line = line.replace("'","’")           # change ' to ’
+            f_out.write(line.lstrip() + "\n")      # output the cleaned line
+                                                                                
+def test_string_asdf():
+    import shlex
+    s = ' '.join(args.s)
+    print(s)
+    exit()
+
+def get_raw_command_tail():
+    import ctypes
+    GetCommandLineW              = ctypes.windll.kernel32.GetCommandLineW
+    GetCommandLineW.restype      = ctypes.c_wchar_p
+    raw_cmd                      = GetCommandLineW()
+    script_name                  = sys.argv[0]                                                  # Get the script name from sys.argv[0]
+    script_name_in_cmd           = script_name                                                  # Find the position where the arguments start
+    if ' ' in script_name:         script_name_in_cmd = f'"{script_name}"'                      # If the script name contains spaces, it will be quoted in the command line
+    args_start                   = raw_cmd.find(script_name_in_cmd) + len(script_name_in_cmd)
+    #rgs_that_may_contain_quotes = raw_cmd[args_start:].strip()                                 # construct our verbatim original command line
+    args_that_may_contain_quotes = raw_cmd[args_start:]                                         # construct our verbatim original command line
+    return args_that_may_contain_quotes
+    
+    
+def test_string():
+    s = get_raw_command_tail()                                      # get raw command tail, which requirse ctypes
+    if s.startswith(' -s '): s = s[4:]                              # remove “-s ” from the beginning, which was used to get here
+    q = replace_smart_quotes(s)
+    print(f"⭐ Original: {Fore.RED}[{Fore.WHITE}" + s + f"{Fore.RED}]{Fore.WHITE}")
+    print(f"⭐ Replaced: {Fore.RED}[{Fore.WHITE}" + q + f"{Fore.RED}]{Fore.WHITE}")
+    exit()    
+
 #—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————                                                                                                                                                                              
 
-if __name__ == "__main__":                                                                                    # Entry point of the script                                                                                                                                                                                                                                                                 
-    parser = argparse.ArgumentParser(description='Converts LRC files to TXT files.')                          # Create ArgumentParser object with description                 
-    parser.add_argument('input_files', nargs='+', help='Input LRC files [supports wildcards]')                # Add positional argument for input files    
-    parser.add_argument('-o', '--output', help='Output file name [only valid with single input file]')        # Add   optional argument for output file                         
-    args = parser.parse_args()                                                                                # Parse the command-line arguments                              
+if __name__ == "__main__":                                                                                             # Entry point of the script                                                                                                                                                                                                                                                                 
+    parser = argparse.ArgumentParser(description='Converts LRC files to TXT files.')                                   # Create ArgumentParser object with description                 
+    #arser.add_argument('input_files', nargs='+', help='Input LRC files [supports wildcards]')                         # Add positional argument for input files    
+    parser.add_argument('input_files', nargs='*', help='Input LRC files [supports wildcards]')                         # Positional argument for input files (optional for initial parsing because not applicable when using -t for tests)    
+    parser.add_argument('-o', '--output', help='Output file name [only valid with single input file]')                 # Add   optional argument for output file                         
+    parser.add_argument('-t', action='store_true', help='Run tests')                                                   # Add   optional argument for testing
+    parser.add_argument('-s', nargs=argparse.REMAINDER, help='Test on a string [the remainder of the command line]')   # Optional argument for capturing a single string with quotes preserved  
+    args = parser.parse_args()                                                                                         # Parse the command-line arguments with the argparse library
+    if not args.input_files and not args.s and not args.t: parser.error("No input files provided")                     # Enforce semi-mandatory args that are mandatory if we aren’t using one of the testing (-s, -t) args    
+    if args.t: test_suite()                                                                                            # “-t” runs test suite
+    if args.s: test_string()                                                                                           # “-s” to test a string that is whatever is after the “-s”
                                                                                                                                                                               
-    input_files = []                                                                                          # Initialize list to hold all input files                       
-    for pattern in args.input_files:                                                                          # Iterate over input file patterns                              
-        escaped_pattern = glob.escape(pattern)                                                                # wow, glob is stupid... Let us use parens and brackets without complication, we don’t always want regex! geeze.
-        matched_files = glob.glob(pattern)                                                                    # Expand wildcards and get matching files                       
-        if not matched_files:                                                                                 # If no files matched the pattern                               
-            print(f"No files matched pattern: {pattern}")                                                     # Display a warning message                                     
-        input_files.extend(matched_files)                                                                     # Add matched files to input_files list                         
-                                                                                                                                                                              
-    if not input_files:                                                                                       # If no input files were found                                  
-        print("No input files to process.")                                                                   # Display error message                                         
-        sys.exit(1)                                                                                           # Exit with error code 1                                        
-                                                                                                                                                                              
-    if args.output and len(input_files) > 1:                                                                  # If output file is specified with multiple input files         
-        print("Error: Cannot specify an output file when multiple input files are provided.")                 # Display error message                                         
-        sys.exit(1)                                                                                           # Exit with error code 1                                                                                        
+    input_files = []                                                                                                   # Initialize list to hold all input files                       
+    for pattern in args.input_files:                                                                                   # Iterate over input file patterns                              
+        escaped_pattern = glob.escape(pattern)                                                                         # wow, glob is stupid... Let us use parens and brackets without complication, we don’t always want regex! geeze.
+        matched_files   = glob.  glob(pattern)                                                                         # Expand wildcards and get matching files                       
+        if not matched_files:                                                                                          # If no files matched the pattern                               
+            print(f"No files matched pattern: {pattern}")                                                              # Display a warning message                                     
+        input_files.extend(matched_files)                                                                              # Add matched files to input_files list                         
+                                                                                                                                                                                       
+    if not input_files:                                                                                                # If no input files were found                                  
+        print("No input files to process.")                                                                            # Display error message                                         
+        sys.exit(1)                                                                                                    # Exit with error code 1                                        
+                                                                                                                                                                                       
+    if args.output and len(input_files) > 1:                                                                           # If output file is specified with multiple input files         
+        print("Error: Cannot specify an output file when multiple input files are provided.")                          # Display error message                                         
+        sys.exit(1)                                                                                                    # Exit with error code 1                                                                                        
         
     #—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————                                                                                                                                                                              
     
-    for input_file in input_files:                                                                            # Iterate over each input file                                  
-        if args.output: output_file = args.output                                                             # If output filename is specified, use the specified output filename                                                                                                                 
-        else:           output_file = re.sub(r'\.[^.]+$', EXTENSION_TO_PRODUCE, input_file)                   # If no output filename is provided, replace input file's extension with EXTENSION                                                                                                                                                                                               
-        lrc_to_txt(input_file, output_file)                                                                   # Call the main function with input and output files            
-        #rint(f'✔  Generated lyrics: "{output_file}"')                                                       # Display success message                                       
-        print(f'✔  Karaoke conversion success: “{output_file}”')                                             # Display success message
-        #rint(f'✔  Converted  LRC file to TXT: “{output_file}” successfully!')                               # Display success message 🐐
+    for input_file in input_files:                                                                                     # Iterate over each input file                                  
+        if args.output: output_file = args.output                                                                      # If output filename is specified, use the specified output filename                                                                                                                 
+        else:           output_file = re.sub(r'\.[^.]+$', EXTENSION_TO_PRODUCE, input_file)                            # If no output filename is provided, replace input file's extension with EXTENSION                                                                                                                                                                                               
+        lrc_to_txt(input_file, output_file)                                                                            # Call the main function with input and output files            
+        #rint(f'✔  Generated lyrics: "{output_file}"')                                                                # Display success message                                       
+        print(f'✔  Karaoke conversion success: “{output_file}”')                                                      # Display success message
+        #rint(f'✔  Converted  LRC file to TXT: “{output_file}” successfully!')                                        # Display success message 🐐
 
     #—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————                                                                                                                                                                              
+
+
 

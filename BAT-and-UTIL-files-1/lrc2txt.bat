@@ -9,9 +9,11 @@ rem Validate environment (once):
 
 rem Usage:
         iff "%1" eq "" then
-                text
-                        :USAGE: lrc2txt whatever.lrc [silent] —— generates whatever.txt, if "silent" is 2nd option, then does so without post-review
-                endtext
+                repeat 2 echo.
+                echo USAGE: lrc2txt whatever.lrc [silent] ━━ generates whatever.txt, if “silent” is 2nd option, then does so without post-review
+                repeat 2 echo.
+                echo USAGE: lrc2txt -t                    ━━ run testing suite (which is just about quote conversion right now)  
+                repeat 1 echo.
                 goto :END
         endiff
 

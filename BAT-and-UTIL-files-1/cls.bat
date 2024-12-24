@@ -1,5 +1,6 @@
 @Echo OFF
  on break cancel
+ setdos /x0
 
 :DESCRIPTION: Replacement for the 'cls' command, necessary due to bugs in the interaction between TCC & Windows Terminal
 

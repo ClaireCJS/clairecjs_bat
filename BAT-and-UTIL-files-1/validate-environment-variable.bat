@@ -37,11 +37,15 @@
     set ENVIRONMENT_VALIDATION_FAILED_VALUE=
     set DEBUGPREFIX=- {validate-environment-variable} * ``
     
+::::: GET CALLING-BAT-FILE INFO, INCLUDING THAT MANUALLY PASSED FROM GRANDPARENT BATCH FILE:
+        set OUR_CALLER=%_PBATCHNAME
+        if "%_PBATCHNAME" == "%bat%\validate-environment-variables.bat" .and. defined PBATCH2 (set OUR_CALLER=%PBATCH2%)
+        set OUR_CALLER=%@NAME[%our_caller].%@EXT[%our_caller]
     
 ::::: VALIDATE ENVIRONMENT:
         iff not defined FILEMASK_ALL_REGEX then
                 %color_warning%
-                echo WARNING in validate-environment-variable.bat when called by %_PBATCHNAME: FILEMASK_ALL_REGEX not defined!
+                echo WARNING in validate-environment-variable.bat when called by %OUR_CALLER%: FILEMASK_ALL_REGEX not defined!
                 if defined PBATCH2 echo       grandparent BAT = %PBATCH2%
                 pause
                 goto :END
@@ -52,7 +56,7 @@
     rem call debug "param3            is %param3%"
     rem call debug "validate_multiple is %validate_multiple%"
     rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
-    if "%_PBATCHNAME" eq "validate-environment-variables.bat" set VALIDATE_MULTIPLE=1
+    if "%@NAME[%OUR_CALLER%]" eq "validate-environment-variables" set VALIDATE_MULTIPLE=1
     iff "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 then
         call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
         color bright white on red
@@ -109,7 +113,7 @@ goto :Past_The_End_Of_The_Subroutines
                         :Defined_NO
                             set ERROR=1
                             set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Environment variable %left_quote%%underline%%italics%%blink%%varname%%italics_off%%blink_off%%underline_off%%right_quote% is %double_Underline%not%double_Underline_off% defined, and needs to be
-                            if "" !=  "%[_PBATCHNAME]" set ERROR_MESSAGE=%ERROR_MESSAGE%, in %italics_on%%left_quotes%%[_PBATCHNAME]%right_quote%%italics_off%
+                            if "" !=  "%OUR_CALLER%" set ERROR_MESSAGE=%ERROR_MESSAGE%, in %italics_on%%left_quotes%%@name[%our_caller%].%@ext[%our_caller%]%right_quote%%italics_off%
                             set ERROR_MESSAGE=%ERROR_MESSAGE%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is %left_quotes%%USER_MESSAGE%%right_quotes%)
@@ -275,8 +279,7 @@ goto :Past_The_End_Of_The_Subroutines
                 set old=%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%
                 set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
 
-                set pbatchname=%_pbatchname                    
-                if "" ne "%[_pbatchname]" call   warning  "    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%[_pbatchname]%italics_off%%blink_off%"      
+                if "" ne "%our_caller%" call   warning  "    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%@NAME[%our_caller%].%@EXT[%our_caller%]%italics_off%%blink_off%"      
 
                 call warning "  dir/folder: %italics_on%%[_CWD]%italics_off%"              
 

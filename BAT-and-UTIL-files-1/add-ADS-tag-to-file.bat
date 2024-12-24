@@ -138,7 +138,7 @@ rem Read or set (depending on invocation) via windows alternate data streams:
                 echo —————————————————— READ THE TAG  —————————————————— >nul
                 set OPERATIONAL_MODE=READ
                 rem Store the result of reading the tag into the environment variable we've decided to use as convention for this situation:
-                        set RECEIVED_VALUE=%@ExecStr[type <"%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%" >&>nul]
+                        set RECEIVED_VALUE=%@ExecStr[type "%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%" >&>nul]
                         set   RECEIVED_TAG=%TAG_TO_MODIFY%
                         set value_to_display_in_verbose_mode=%RECEIVED_VALUE%
                 
@@ -177,7 +177,7 @@ rem Read or set (depending on invocation) via windows alternate data streams:
                         echo %TAG_VALUE%>"%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%"
 
                 rem Grab it right back out so our verbose output says the true value:
-                        set value_to_display_in_verbose_mode=%@ExecStr[type <"%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%"]
+                        set value_to_display_in_verbose_mode=%@ExecStr[type "%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%"]
                         
                 rem If we are in verbose mode, verify the write by reading it:
                         gosub explain
@@ -211,13 +211,13 @@ goto :END
                 rem Verbose mode output:                        
                         iff 1 eq %VERBOSE then
                                 echo %tmp_emoji2use% %VERB% %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% 
-                                echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%for%faint_off% tag: %ansi_color_bright_red%%bold_on%%tmp_tag%%bold_off%%ansi_normal%
-                                echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%in%faint_off% file: %@ANSI_FG_RGB[168,210,104]%tmp_file2use%%ansi_color_normal%
+                                echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%for%faint_off% tag: %ansi_color_bright_red%%bold_on%%tmp_tag%%bold_off%%ansi_normal%%conceal_on%red42%conceal_off%
+                                echo %SPACER%%ansi_color_green%%normal_arrow%%ansi_color_normal%  %faint_on%in%faint_off% file: %@ANSI_FG_RGB[168,210,104]%tmp_file2use%%ansi_color_normal%%conceal_on%red43%conceal_off%
                         endiff                              
 
                 rem Brief mode output:                        
                         iff 1 eq %BRIEF_MODE then
-                                echo %ansi_color_green%%tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                                echo %ansi_color_green%%tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%%conceal_on%red44%conceal_off%
                         endiff
                         
                 rem Lyrics mode output:                        
@@ -310,7 +310,7 @@ goto :END
                                         else                                                
                                                 echos %@ANSI_MOVE_LEFT[18]%faint_on%....................................%faint_off%``
                                         endiff
-                                        echo %value_spacer_post% for: %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                                        echo %value_spacer_post% for: %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%%conceal_on%orange42%conceal_off%
                                 endiff
                         endiff
         return

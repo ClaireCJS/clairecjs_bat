@@ -17,6 +17,7 @@ rem Set up the pause text
 rem Set the colors (two redundant methods):
                    %COLOR_PAUSE%
         echos %ANSI_COLOR_PAUSE%
+        echos %@CHAR[27][ q%@CHAR[27]]12;yellow%@CHAR[7]
 
 rem Clear the character buffer so we don't end up hitting a key BEFORE the prompt and have it be counted as after:
         repeat 100 @input /c /w0 %%This_Line_Clears_The_Character_Buffer

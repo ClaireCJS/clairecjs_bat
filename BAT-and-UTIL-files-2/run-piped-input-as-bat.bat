@@ -9,7 +9,7 @@ type    >:u8  "%tempfile%"
 if not exist  "%tempfile%"       goto :NeverMind
 if %@FILESIZE["%tempfile%"] eq 0 goto :NeverMind
 call          "%tempfile%"
-(del    /q    "%tempfile%")      >&>nul
+(*del    /q   "%tempfile%")      >&>nul
 
 :NeverMind
 

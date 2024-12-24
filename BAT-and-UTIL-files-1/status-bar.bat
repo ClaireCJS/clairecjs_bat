@@ -6,6 +6,7 @@ rem TODO gonna have to do this on the bottom actually, because it turns out any 
 :DESCRIPTION: Locks a non-scrollable banner message at the top 3 rows of our console menu. Good for keeping track of tasks, percentage complete, etc.
 
 :USAGE: status-bar unlock               - unlock any previously set top banner
+:USAGE: status-bar unlock no_erase      - unlock any previously set top banner WITHOUT erasing it
                                         
 :USAGE: status-bar {no arguments}       - banner message is a report of free space on the current drive
 :USAGE: status-bar  C:                  - banner message is a report of free space on the given drive letter
@@ -16,6 +17,7 @@ rem TODO gonna have to do this on the bottom actually, because it turns out any 
 
 
 rem Capture parameters:
+        unset /q  TB_PARAM_1
         set       TB_PARAM_1=%1
         set       TB_PARAM_2=%2
         set          PARAMS=%*
@@ -41,6 +43,8 @@ rem CONFIG: Set message background color & divider:
         rem DIVIDER=%@REPEAT[%CONNECTING_EQUALS,%@EVAL[%_COLUMNS]] is only defined if needed
         set DOTTIE=%BLINK_ON%%DOT%%BLINK_OFF%
         rem TOO SLOW: call echo-rainbow generate %DIVIDER% %+ set DIVIDER=%RAINBOW_TEXT%
+        set DEFAULT_ROWS_TO_LOCK=3                                                              %+ rem the height of our default status bars
+        set ROWS_TO_LOCK=%DEFAULT_ROWS_TO_LOCK%
 
 
 
@@ -50,9 +54,19 @@ rem Respond to command-line parameters:
                 if "%TB_PARAM_1" eq "unlock" (
                         set STATUSBAR_LOCKED=0
                         echos %@ANSI_UNLOCK_ROWS[]
-                        repeat 4 (echo %ANSI_ERASE_TO_EOL%)
-                        repeat 4 (echos %ANSI_MOVE_UP_1%)
-                        if "%TB_PARAM_1" eq "unlock" goto :END
+                        rem repeat 4 (echo %ANSI_ERASE_TO_EOL%)
+                        rem repeat 4 (echos %ANSI_MOVE_UP_1%)
+                        if "%TB_PARAM_2" ne "no_erase" (                        
+                                set NN=%ROWS_TO_LOCK%
+                                if defined LAST_ROWS_TO_LOCK set NN=%LAST_ROWS_TO_LOCK%
+                                echo %ansi_save_position%%@CHAR[27][%@EVAL[%_rows - %NN% + 1]H%ansi_reset%%ansi_erase_to_eol%
+                                echo %ansi_erase_to_eol%
+                                set repeats=%@EVAL[%nn - %DEFAULT_ROWS_TO_LOCK%]
+                                if %repeats% gt 0 repeat %repeats% echo %ansi_erase_to_eol%
+                                echos %ansi_erase_to_eol%%ansi_restore_position%
+
+                        )                        
+                        goto :END
                 )
 
 
@@ -121,7 +135,7 @@ rem Get message length and create side-spacers of appropriate length to center t
         if %FREE_SPACE_MESSAGE_IS_USED eq 1 (SET LOCKED_MESSAGE_LENGTH=%@EVAL[%LOCKED_MESSAGE_LENGTH+2])         
         rem ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the slash emojis we use twice in our free space message are not correctly measured by %@LEN[] which creates a bug of wrapping the line onto the next line, unless we manually deduct the number of wide emojis {or at least, the # of wide emojis that %@LEN isn't correctly counting!} ... May take some experimentation if you change the free message format
 
-        rem NUM_SPACER=%@FLOOR[%@EVAL[(%_COLUMNS-%LOCKED_MESSAGE_LENGTH-3)/2-2]]
+        rem NUM_SPACER=%@FLOOR[%@EVAL[(%_COLUMNS-%LOCKED_MESSAGE_LENGTH-%DEFAULT_ROWS_TO_LOCK%)/2-2]]
         set NUM_SPACER=%@FLOOR[%@EVAL[(%_COLUMNS-%LOCKED_MESSAGE_LENGTH)/2]]
         if %@EVAL[%num_spacer + %locked_message_length + %num_spacer] ge %@EVAL[%_columns-1] (set num_spacer=%@EVAL[%num_spacer - 1])
         :Spacer_Calc
@@ -154,7 +168,6 @@ rem Was this multiline?
 
 
 rem New code: 
-        set rows_to_lock=3
 
         
         echos %ANSI_CURSOR_INVISIBLE%
@@ -220,3 +233,4 @@ rem Kludge for if we are near the very top and run this —— use up a couple l
         endiff
 :END
         echos %ANSI_CURSOR_VISIBLE%
+        set LAST_ROWS_TO_LOCK=%ROWS_TO_LOCK%

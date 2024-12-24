@@ -1,10 +1,11 @@
 import sys
 import urllib.parse
 import webbrowser
-import ctypes
+
 
 def main():
     # Use ctypes to get the raw command line with quotes preserved
+    import ctypes
     GetCommandLineW = ctypes.windll.kernel32.GetCommandLineW
     GetCommandLineW.restype = ctypes.c_wchar_p
     raw_cmd = GetCommandLineW()
@@ -18,15 +19,15 @@ def main():
         # If the script name contains spaces, it will be quoted in the command line
         script_name_in_cmd = f'"{script_name}"'
 
-    args_start       = raw_cmd.find(script_name_in_cmd) + len(script_name_in_cmd)
-    args_with_quotes = raw_cmd[args_start:].strip()
+    args_start                   = raw_cmd.find(script_name_in_cmd) + len(script_name_in_cmd)
+    args_that_may_contain_quotes = raw_cmd[args_start:].strip()
 
-    if not args_with_quotes:
+    if not args_that_may_contain_quotes:
         print("Please provide a search query.")
         sys.exit(1)
 
     # URL-encode the query, preserving quotes
-    encoded_query = urllib.parse.quote(args_with_quotes)
+    encoded_query = urllib.parse.quote(args_that_may_contain_quotes)
 
     # Construct the full Google search URL
     url = 'http://www.google.com/search?q=' + encoded_query

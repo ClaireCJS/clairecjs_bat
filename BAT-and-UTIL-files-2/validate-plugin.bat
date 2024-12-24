@@ -1,7 +1,7 @@
+@if %DEBUG_TCASE gt 0 @echo %0 called by %_PBATCHNAME
 @Echo off
 @on break cancel
 @setdos /x0
-
 
 ::::: GET PARAMETERS:
     set LAST_TITLE=%_TITLE
@@ -10,7 +10,7 @@
     set PARAM2=%2
     set PARAM3=%3
     set USER_MESSAGE=%2$
-    if %DEBUG_VALIDATE_PLUGIN% eq 1 (echo %DEBUGPREFIX% if defined %PLUGIN_NAME% goto :Loaded_YES)
+    if %DEBUG_VALIDATE_PLUGIN% eq 1 (echoerr %DEBUGPREFIX% if defined %PLUGIN_NAME% goto :Loaded_YES)
     set LAST_TITLE=%_WINTITLE
     title %0
 
@@ -23,7 +23,7 @@
 
 
 ::::: DEBUG STUFFS:
-    rem echo %ANSI_COLOR_DEBUG% %0 called with 1=%1, 2=%2, PLUGIN_NAME=%PLUGIN_NAME%, VEVPARAMS=%VEVPARAMS% %ANSI_COLOR_RESET%
+    rem echoerr %ANSI_COLOR_DEBUG% %0 called with 1=%1, 2=%2, PLUGIN_NAME=%PLUGIN_NAME%, VEVPARAMS=%VEVPARAMS% %ANSI_COLOR_RESET%
 
 
 ::::: CLEAR LONGTERM ERROR FLAGS:
@@ -44,9 +44,9 @@
     iff "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE_PLUGINS ne 1 then
         call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] PLUGIN ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
         color bright white on red
-        echo  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to %0
-        echo  %underline%Did you mean%underline_off%: %italics%%0%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
-        echo                                   (with an %left_quote%s%right_quote% after %left_quote%%italics%plugin%italics_off%%right_quote%)  ????
+        echoerr  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to %0
+        echoerr  %underline%Did you mean%underline_off%: %italics%%0%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
+        echoerr                                   (with an %left_quote%s%right_quote% after %left_quote%%italics%plugin%italics_off%%right_quote%)  ????
 
         call exit-maybe
         if %FORCE_EXIT eq 1 (goto :END)
@@ -62,7 +62,7 @@
     rem    set SKIP_VALIDATION_EXISTENCE=1 
     rem    set USER_MESSAGE=%3$
     rem )
-    if %DEBUG_NORMALIZE_MESSAGE eq 1 (echo %left_quote%%ansi_color_debug%%right_quote%- DEBUG: PARAM2: %left_quote%%PARAM2%%left_quote%%ansi_color_normal%right_quote%)
+    if %DEBUG_NORMALIZE_MESSAGE eq 1 (echoerr %left_quote%%ansi_color_debug%%right_quote%- DEBUG: PARAM2: %left_quote%%PARAM2%%left_quote%%ansi_color_normal%right_quote%)
 
 
     iff %VALIDATE_MULTIPLE_PLUGINS ne 1 then
@@ -87,8 +87,8 @@ goto :Past_The_End_Of_The_SubRoutines
 
 
     :validate_plugin [PLUGIN_NAME]
-        rem debug: echo validate_plugin %PLUGIN_NAME%
-        rem echos %@RANDCURSOR[]
+        rem debug: echoerr validate_plugin %PLUGIN_NAME%
+        rem echoserr %@RANDCURSOR[]
         ::::: ACTUALLY SEE IF IT THE PLUGIN IS LOADED:
             if "" ne "%@PLUGIN[%PLUGIN_NAME%]" (goto :Loaded_YES)
             if "" eq          "%PLUGIN_NAME%"  (goto :Loaded_NO )
@@ -97,13 +97,13 @@ goto :Past_The_End_Of_The_SubRoutines
                         :Loaded_NO
                             set ERROR=1
                             set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Plugin “%underline%%italics%%blink%%PLUGIN_NAME%%italics_off%%blink_off%%underline_off%” is %double_Underline%not%double_Underline_off% loaded, and needs to be, in %italics_on%“%[_PBATCHNAME]”%italics_off%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
-                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
-                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is “%USER_MESSAGE%”)
+                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
+                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: `%`USER_MESSAGE`%` is “%USER_MESSAGE%”)
                             if "%USER_MESSAGE%" ne "" goto :Do_It_1
                                                       goto :Do_It_1_Done
                             :Do_It_1
                                 REM Normalize width of ERROR_MESSAGE to be same width as USER_MESSAGE
-                                if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: User message found)
+                                if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: User message found)
 
                                 rem Get the length of both
                                 set "ERROR_LENGTH=%@LEN[%ERROR_MESSAGE]"
@@ -115,7 +115,7 @@ goto :Past_The_End_Of_The_SubRoutines
                                 REM for /L %%i in (1,1,%LENGTH_DIFF%) do (set EXCLAMATION_MARKS=%EXCLAMATION_MARKS%!)
                                 REM 
                                 REM rem Substitute the final sequence of exclamation marks in ERROR_MESSAGE
-                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: EXCLAMATION_MARKS is “%EXCLAMATION_MARKS%”)
+                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: EXCLAMATION_MARKS is “%EXCLAMATION_MARKS%”)
                                 REM set NORMALIZED_ERROR_MESSAGE=%@REPLACE[!!!,%EXCLAMATION_MARKS%,%ERROR_MESSAGE%]
                                 REM set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
 
@@ -133,14 +133,14 @@ goto :Past_The_End_Of_The_SubRoutines
                                 endiff
 
                             :Do_It_1_Done
-                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo ERROR_MESSAGE[2]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
+                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr ERROR_MESSAGE[2]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
                             call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] PLUGIN ERROR!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%ansi_color_normal%"
                             rem Output the updated ERROR_MESSAGE
                             %COLOR_ALARM%       
                             rem The warning right before 
-                            echos %ERROR_MESSAGE%  
+                            echoserr %ERROR_MESSAGE%  
                             %COLOR_NORMAL% 
-                            echo.
+                            echoerr.
                             if "%USER_MESSAGE%" ne "" (
                                 REM Although this is technically advice, we 
                                 REM are coloring it warning-style because 
@@ -156,7 +156,7 @@ goto :Past_The_End_Of_The_SubRoutines
                                 call warning "%@UNQUOTE[%USER_MESSAGE%]"
                             )
                                 
-                            %COLOR_ALARM%  %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo. %+ rem right after
+                            %COLOR_ALARM%  %+ echoserr %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echoerr. %+ rem right after
                             call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] PLUGIN ERROR!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%ansi_color_normal%"
 
 

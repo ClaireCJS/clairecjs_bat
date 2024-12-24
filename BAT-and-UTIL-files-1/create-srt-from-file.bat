@@ -1,5 +1,6 @@
 @Echo off
- on break cancel
+@setdos /x0
+@on break cancel
 
 rem TODO check lyric repository for LRC file (remember, “'” in title becomes “_”) ... if one exists copy over as sidecar file and auto approve it
 
@@ -96,15 +97,20 @@ REM config: 2023:
 
 
 REM values set from parameters:
-        set               PARAM1=%1
-        set               PARAM=%1
-        set             SONGFILE=%@UNQUOTE[%1]
-        set             SONGBASE=%@UNQUOTE[%@NAME[%SONGFILE]]`` %+ rem this might not work anymore 🐮
+        setdos /x-4
+        set SONGFILE=%@UNQUOTE[%1]
+        set SONGBASE=%@UNQUOTE[%@NAME[%SONGFILE]]`` %+ rem this might not work anymore 🐮
+        set SONGDIR=%@PATH[%SONGFILE]`` 
+        setdos /x0
+        pushd %SONGDIR%
+        rem echo SONGDIR is “%SONGDIR%” %+ pause
+        setdos /x-4
         if "%@EXT[%2]" eq "txt" (
                 set POTENTIAL_LYRIC_FILE=%@UNQUOTE[%2]
         ) else (                
                 set POTENTIAL_LYRIC_FILE=
         )
+        setdos /x0
         set LRC_FILE=%SONGBASE%.lrc
         set SRT_FILE=%SONGBASE%.srt
         set TXT_FILE=%SONGBASE%.txt
@@ -320,14 +326,14 @@ REM Now, let’s check these values:
                 call bigecho      "%ansi_color_warning_soft%%star2%Already have!%ansi_reset%"
                 call warning_soft "Pre-existing subtitles found in lyric repository at: “%emphasis%%italics_on%%found_subtitle_file%%deemphasis%%italics_off%”" silent
                 echo %STAR% %ANSI_COLOR_ADVICE%Copy this file %italics_on%from our local repo%italics_off% into this folder, as a sidecar file for %@NAME[%SONGFILE%]%ansi-color_normal%
-                call askYN        "Copy repository version to local folder as sidecar file?" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                call askYN        "Copy repository version to local folder as sidecar file" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "Y" == "%answer%" then
                         set target=%@path[%@full[%songfile%]]%@name[%SONGFILE%].%@ext[%found_subtitle_file%]``
                         set srt_file=%target%
                         *copy /q "%found_subtitle_file%" "%target%" >&>nul
                         if not exist "%target%" (call error "target of %left_quote%%target%%right_quote% should exist now, in %left_apostrophe%%italics_on%create-srt-from-file%italics_off%%right_apostrophe% line 320ish" %+ call warning "...not sure if we want to abort right now or not..." )
                         call review-file "%target%"
-                        call askYN "Do these still look acceptible?" yes 20 %+ rem hardcoded value warning
+                        call askYN "Do these still look acceptible" yes 20 %+ rem hardcoded value warning
 
                         iff "%ANSWER%" == "N" then
                                 call disapprove-subtitle-file "%target%"
@@ -420,7 +426,7 @@ REM if we already have a SRT file, we have a problem:
                         set DEFAULT_ANSWER_FOR_THIS=no
                         call get-lyric-status "%TXT_FILE%"
                         if 1 eq %AUTO_LYRIC_APPROVAL% .or. "%LYRIC_STATUS%" eq "APPROVED" (set DEFAULT_ANSWER_FOR_THIS=no)
-                        @call AskYN "Get new lyrics?" %DEFAULT_ANSWER_FOR_THIS% %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME% %+ rem todo make unique wait time for this
+                        @call AskYN "Get new lyrics" %DEFAULT_ANSWER_FOR_THIS% %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME% %+ rem todo make unique wait time for this
                         iff "%ANSWER%" eq "Y" .and. 1 ne %AUTO_LYRIC_APPROVAL then
                                 call get-lyrics-for-song "%songfile%"
                         endiff                                
@@ -735,7 +741,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         call divider
         @echos %STAR% %ANSI_COLOR_WARNING_SOFT%%blink_on%About to: %blink_off%
         @echo  %LAST_WHISPER_COMMAND%%ansi_color_reset% 
-        @call AskYn "Proceed with this AI generation?" yes %PROMPT_CONSIDERATION_TIME%
+        @call AskYn "Proceed with this AI generation" yes %PROMPT_CONSIDERATION_TIME%
         iff "%answer%" eq "N" then
                 @call warning "Aborting because you changed your mind..."
                 sleep 1
@@ -745,7 +751,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
 
 
 REM quick chance to edit prompt:
-        @call AskYn "Edit the AI prompt?" no %PROMPT_EDIT_CONSIDERATION_TIME%
+        @call AskYn "Edit the AI prompt" no %PROMPT_EDIT_CONSIDERATION_TIME%
         iff "%answer%" eq "Y" (eset LAST_WHISPER_COMMAND)
 
 
@@ -1075,3 +1081,9 @@ echos %ansi_color_reset%
         @echos %ANSI_RESET%%CURSOR_RESET%
 
 :EOF
+
+:PopD
+        if %@DirStack[] gt 0 popd                                    %+ rem If we pushd’ed to another folder, popd back
+        if %@DirStack[] gt 0 goto :PopD
+
+

@@ -1,5 +1,5 @@
-@on break cancel
 @Echo off
+@on break cancel
 REM sleep 1
 set MYCOLOR=%@ANSI_BG[40,0,0]
 set MYCOLOR=
@@ -12,7 +12,8 @@ rem some weird bug where we need to move left 1 more column than expected when c
 rem otherwise a bit of screen junk remains, so we set LEFT_MORE=1 to kludge askyn.bat:
         set LEFT_MORE=1
         rem came here thinking there was a bug in askyn but it turned out it was just the 'no_enter' option here deliberately making enter not work... 😂 2024/09/08
-        call askyn "%MYCOLOR%%italics%%blink%%underline%Return%underline_off% to command line?%blink_off%%italics_off" yes 99999 no_enter big
+        rem  askyn "%MYCOLOR%%italics%%blink%%underline%Return%underline_off% to command line?%blink_off%%italics_off" yes 99999 no_enter big
+        call askyn "%MYCOLOR%%italics%%blink%%underline%Return%underline_off% to command line?%blink_off%%italics_off" yes 99999 no_enter 0
         set LEFT_MORE=0
 
 title %prev_title%
@@ -23,14 +24,14 @@ rem iff %DO_IT eq 1 then
         title %prev_title% 
         pause 
         set FORCE_EXIT=1 
-        echo %ANSI_COLOR_RED%—— Returning to command line #1 of 2 ——%ANSI_COLOR_NORMAL%
+        echoerr %ANSI_COLOR_RED%—— Returning to command line #1 of 2 ——%ANSI_COLOR_NORMAL%
         rem not *CANCELing anymore but calling BAT for VERY SPECIFIC REASONS related to minutae in the way TCC operates
         call cancelll.bat
         *cancel
 rem endiff
 
 rem if %DO_IT eq 1 (
-    echo %ANSI_COLOR_RED%—— Returning to command line #2 of 2 ——%ANSI_COLOR_NORMAL%
+    echoerr %ANSI_COLOR_RED%—— Returning to command line #2 of 2 ——%ANSI_COLOR_NORMAL%
     rem *CANCEL
     rem not *CANCELing anymore but calling BAT 
     call cancelll.bat

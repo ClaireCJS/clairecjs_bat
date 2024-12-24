@@ -200,7 +200,7 @@ rem Give a chance to stop here...
         call divider
         if 1 eq %FASTER goto :git_add_done
         echo.
-        call askYN "Continue with git add + commit + push?" yes %COMMIT_CONFIRMATION_WAIT_TIME%
+        call askYN "Continue with git add + commit + push" yes %COMMIT_CONFIRMATION_WAIT_TIME%
         if %DO_IT eq 0 (goto :Skip_TheRest)
 
 rem Make sure they’re all added —— any new extensions that we add to our project, need to be added here:

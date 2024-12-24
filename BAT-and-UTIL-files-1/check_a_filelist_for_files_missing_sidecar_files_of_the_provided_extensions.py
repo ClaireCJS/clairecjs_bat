@@ -1,3 +1,5 @@
+DEBUG_DETECT_ENCODING = False
+DEBUG_SIDECAR_SEARCH  = False
 import io
 import sys
 import chardet
@@ -41,19 +43,16 @@ init(autoreset=False)
 #
 
 
-# compensate for utf-8 files
-#print(f"Before reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
-sys.stdout.reconfigure(encoding='utf-8')
-#print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-#print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+# compensate for utf-8 files                                                            #print(f"Before reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+sys.stdout.reconfigure(encoding='utf-8')                                                #print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')                      #print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
 
 # These leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot:
 SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here-temp.bat"           #don't change without changing in accompanying BAT files
 SCRIPT_NAME_FOR_KARAOKE_CREATION = "create-the-missing-karaokes-here-temp.bat"      #don't change without changing in accompanying BAT files
 
-without_sidecar_count=0
-total_file_count=0
+without_sidecar_count = 0
+total_file_count      = 0
 
 def detect_encoding(filename):
     with open(filename, 'rb') as file:
@@ -61,7 +60,7 @@ def detect_encoding(filename):
     return chardet.detect(raw_data)['encoding']
 
 
-def main(input_filename, extensions, options, extra_args):
+def main_guts(input_filename, extensions, options, extra_args):
     #DEBUG: print(f"main got extra args of '{extra_args}'")
 
     global without_sidecar_count
@@ -73,6 +72,8 @@ def main(input_filename, extensions, options, extra_args):
     if not encoding:
         print(f"Error: Unable to detect encoding for file '{input_filename}'.")
         sys.exit(1)
+    else:
+        if DEBUG_DETECT_ENCODING: print(f"Detected encoding for {input_filename} of {encoding}")
 
     # Check if the input file exists
     if not os.path.exists(input_filename):
@@ -95,11 +96,16 @@ def main(input_filename, extensions, options, extra_args):
     #with open(input_filename, 'r', encoding='utf-8') as file:
     #    files = [line.strip() for line in file.readlines() if line.strip()]
     try:
-            with open(input_filename, 'r', encoding=encoding) as file:
-                files = [line.strip() for line in file.readlines() if line.strip()]
+        with open(input_filename, 'r', encoding=encoding) as file:
+            files = [line.strip() for line in file.readlines() if line.strip()]
     except UnicodeDecodeError:
-        print(f"Error: Unable to read file '{input_filename}' with detected encoding '{encoding}'.")
-        sys.exit(1)
+        try:
+            if DEBUG_DETECT_ENCODING: print(f"Warning: failed to read file '{input_filename}' with detected encoding of '{encoding}'... trying UTF-8")
+            with open(input_filename, 'r', encoding='UTF-8') as file:
+                files = [line.strip() for line in file.readlines() if line.strip()]
+        except UnicodeDecodeError:
+            print(f"Error: Unable to read file '{input_filename}' with detected encoding '{encoding}'.")
+            sys.exit(1)
     
 
 
@@ -110,12 +116,26 @@ def main(input_filename, extensions, options, extra_args):
         # Skip files containing "(instrumental)" or "[instrumental]"
         if "(instrumental)" in file.lower() or "[instrumental]" in file.lower(): continue
                 
+        file_path = os.path.abspath(file)  # Get absolute path for consistency
+        directory = os.path.dirname(file_path)
         base_filename, _ = os.path.splitext(file)
+        base_filename, _ = os.path.splitext(os.path.basename(file))
+        #if DEBUG_SIDECAR_SEARCH: print(f"found file {file_path} ... base_filename={base_filename} ... for file={file}")
         
         #use glob.escape so it works with filenames that have brakcets in them too:
-        has_sidecar = any(glob.glob(f"{glob.escape(base_filename)}{ext[1:]}") for ext in extensions_list)
+        #works for these.m3u but not all.m3u: has_sidecar = any(glob.glob(                                     f"{glob.escape(base_filename)}{ext[1:]}")  for ext in extensions_list)
+        #failed fix: has_sidecar = any(glob.glob(os.path.join(glob.escape(directory), f"{glob.escape(base_filename)}{ext[1:]}")) for ext in extensions_list)
+        #Let’s just expand it to a more traditional loop:
+        # Check for sidecar files explicitly with a debug-friendly loop
+        has_sidecar = False  # Assume no sidecar file initially
+        for ext in extensions_list:
+            potential_sidecar = os.path.join(directory, f"{base_filename}.{ext}")
+            if DEBUG_SIDECAR_SEARCH: print(f"DEBUG: Looking for sidecar file: {potential_sidecar}")
+            if os.path.exists(potential_sidecar):
+                if DEBUG_SIDECAR_SEARCH: print(f"DEBUG: Found sidecar file: {potential_sidecar}")
+                has_sidecar = True
         
-        #print(f"has_sidecar is {has_sidecar} for file {file}")
+        if DEBUG_SIDECAR_SEARCH: print(f"has_sidecar is {has_sidecar} for file {file}\n")
 
         if not has_sidecar:
             without_sidecar_count = without_sidecar_count + 1
@@ -132,15 +152,20 @@ def main(input_filename, extensions, options, extra_args):
         if options.lower() !=        "NoFileWrite":
             #print          (colored(f"✏✏✏  Writing output file: {output_filename} ✏✏✏"  , 'green', attrs=['bold']))
             #print          (colored(f"✏✏✏  Writing output file: {output_filename} ✏✏✏"  , 'green', attrs=['bold']), file=sys.stderr)
-            sys.stderr.write(colored(f"✏ ✏ ✏  Writing output file ✏ ✏ ✏\n", 'green', attrs=['bold']))
-            sys.stderr.write(colored(f"       Files processed:  {total_file_count} \n"     , 'green', attrs=['bold']))
-            sys.stderr.write(colored(f"       Without sidecar:  {without_sidecar_count} \n", 'green', attrs=['bold']))
-            sys.stderr.write(colored(f"       To fix, run:      {output_filename} \n", 'green', attrs=['bold']))
+            #ys.stderr.write(colored(f"✏ ✏ ✏  Writing output file ✏ ✏ ✏\n", 'green', attrs=['bold']))
+            #ys.stderr.write(colored(f"       Files processed:  {total_file_count} \n"     , 'green', attrs=['bold']))
+            #ys.stderr.write(colored(f"       Without sidecar:  {without_sidecar_count} \n", 'green', attrs=['bold']))
+            #ys.stderr.write(colored(f"       To fix, run:      {output_filename} \n", 'green', attrs=['bold']))
+            sys.stderr.write(        f"✏ ✏ ✏  Writing output file ✏ ✏ ✏\n")
+            sys.stderr.write(        f"       Files processed:  {total_file_count} \n")
+            sys.stderr.write(        f"       Without sidecar:  {without_sidecar_count} \n")
+            sys.stderr.write(        f"       To fix, run:      {output_filename} \n")
             #DEBUG: if extra_args: print(f"Using extra arguments of: {extra_args}")
 
 
+            if extra_args == "/s": extra_args=""
+
             # run any special postprocessing we've created, usually to create scripts to deal with files that are missing sidecar files
-            # 🐐 don't we need to open it in utf-8?
             #ith open(output_filename, 'w') as output_file:
             with open(output_filename, 'w', encoding='utf-8') as output_file:
                 output_file.write(f"@on break cancel\n")
@@ -154,8 +179,8 @@ def main(input_filename, extensions, options, extra_args):
                 #or missing_file in sorted(files_without_sidecars)    :
                 for missing_file in        files_without_sidecars_list:
                     if os.path.exists(missing_file):
-                        if options.lower() == "getlyricsfilewrite": output_file.write(f"@call get-lyrics \"{missing_file}\" {extra_args}\n")
-                        if options.lower() == "createsrtfilewrite": output_file.write(f"@call create-srt \"{missing_file}\" {extra_args}\n")
+                        if options.lower() == "getlyricsfilewrite": output_file.write(f"repeat 13 echo. %+ @call get-lyrics \"{missing_file}\" {extra_args} %+ @call divider\n")
+                        if options.lower() == "createsrtfilewrite": output_file.write(f"repeat 13 echo. %+ @call create-srt \"{missing_file}\" {extra_args} %+ @call divider\n")
                         else                                      : output_file.write(f"{missing_file}\n")
                 if options.lower()         == "getlyricsfilewrite": output_file.write("@call divider\n@call celebration \"ALL DONE WITH LYRIC RETRIEVAL!!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
                 if options.lower()         == "createsrtfilewrite": output_file.write("@call divider\n@call celebration \"ALL DONE WITH KARAOKE CREATION!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
@@ -181,4 +206,4 @@ if __name__ == "__main__":
     #print(f"- DEBUG: Extra args are: '{extra_args_str}'") #
     #print(f"- DEBUG: Extensions are: '{extensions    }'") #
 
-    main(input_filename, extensions, options, extra_args_str)
+    main_guts(input_filename, extensions, options, extra_args_str)

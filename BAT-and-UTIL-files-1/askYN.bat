@@ -41,7 +41,7 @@ on break cancel
 rem Validate environment once:
         iff 1 ne %VALIDATED_ASKYN% then
                 call validate-plugin                stripansi
-                call validate-in-path               echos print-if-debug important.bat fatal_error.bat warning.bat repeat if set color_alarm_hex color_success_hex
+                call validate-in-path               echos echoerr echoserr print-if-debug important.bat fatal_error.bat warning.bat repeat if set color_alarm_hex color_success_hex
                 call validate-functions             CURSOR_COLOR_BY_WORD CURSOR_COLOR_BY_HEX 
                 call validate-environment-variables CURSOR_RESET ANSI_COLORS_HAVE_BEEN_SET
                 set VALIDATED_ASKYN=1
@@ -94,7 +94,7 @@ rem Get positional-at-end parameter for expanded answer key meanings (“what do
                 set ADDITIONAL_KEYS=%1
                 shift
                 iff "%1" ne "" then
-                        rem echo we gotta figure this out: “%1$”
+                        rem echoerr we gotta figure this out: “%1$”
                         set key_meanings=%1$
                         for %%tmpLetterForKeyMeaning in (%1$) do ( gosub processLetterKeyMeaning "%tmpLetterForKeyMeaning%")
                 endiff
@@ -104,13 +104,13 @@ rem cancel %+ 🐐
 
                         goto :DoneWithKeyMeaning
                                 :processLetterKeyMeaning                         
-                                        rem echo tmpLetterForKeyMeaning  = %tmpLetterForKeyMeaning%
+                                        rem echoerr tmpLetterForKeyMeaning  = %tmpLetterForKeyMeaning%
                                         if "1" ne "%@RegEx[:,%tmpLetterForKeyMeaning%]" (
                                                 call fatal_error "%left_quote%%tmpLetterForKeyMeaning%%right_quote% makes no sense. This parameter should have been in the forumat of %left_quote%{%italics_on%letter%italics_off%}:{%italics_on%Key_Meaning%italics_off%}%right_quote%, where %left_quote%letter%right_quote% is a letter found in our additional allowable keys %faint_on%(currently set to %left_quote%additional_keys%%right_quote%)%faint_off%"
                                         )
                                         set tmp_key_meaning_letter=%@LEFT[1,%tmpLetterForKeyMeaning%]
                                         set tmp_key_meaning_expand=%@RIGHT[%@EVAL[%@LEN[%tmpLetterForKeyMeaning]-2],%tmpLetterForKeyMeaning%]
-                                        rem echo DEBUG: %left_apostrophe%%tmp_key_meaning_letter%%right_apostrophe% means %left_apostrophe%%tmp_key_meaning_expand%%right_apostrophe%
+                                        rem echoerr DEBUG: %left_apostrophe%%tmp_key_meaning_letter%%right_apostrophe% means %left_apostrophe%%tmp_key_meaning_expand%%right_apostrophe%
                                         set key_meaning_%tmp_key_meaning_letter%=%tmp_key_meaning_expand%
                                 return
                         :DoneWithKeyMeaning                        
@@ -120,47 +120,47 @@ rem cancel %+ 🐐
 iff "%ASK_QUESTION%" eq "" .or. "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%" eq "--help" .or. "%ASK_QUESTION%" eq "/?" .or. "%ASK_QUESTION%" eq "-?" .or. "%ASK_QUESTION%" eq "-h" then
                 if not defined ansi_color_orange call set-ansi force
                 %color_advice%
-                echo.
-                echo USAGE: NOTE: %ANSI_COLOR_MAGENTA%%italics_on%Braced%italics_off%    arguments are %italics_on%%ansi_color_red%required%italics_off%%ansi_color_advice%%ansi_color_advice%,
-                echo USAGE: NOTE: %ANSI_COLOR_MAGENTA%%italics_on%Bracketed%italics_off% arguments are %italics_on%%ansi_color_red%optional%italics_off%%ansi_color_advice%%ansi_color_advice%:
-                echo USAGE:                
-                rem echo USAGE: You did this: %ansi_color_warning_soft%%0 %*%ansi_color_advice%
-                echos USAGE: %ansi_color_bright_yellow%call askyn ``
-                echos %ansi_color_orange%{%ansi_color_yellow%%italics_on%%ansi_color_magenta%question%italics_off%%ansi_color_orange%} %ansi_color_orange%{“%ansi_color_bright_yellow%yes%ansi_color_orange%” %italics_on%%ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%”%ansi_color_magneta%%italics_on% %ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%”%ansi_color_yellow%%ansi_color_orange%}                
-                echos  %ansi_color_orange%[%ansi_color_yellow%%italics_on%%ansi_color_magenta%wait_time%ansi_color_orange%%italics_off%] 
-                rem echos  %ansi_color_orange%[%ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange% 
-                rem echos  %ansi_color_yellow%%italics_on%or%italics_off% %ansi_color_orange%“%ansi_color_bright_bright_yellow%notitle%ansi_color_orange%%ansi_color_yellow%%italics_off%%ansi_color_orange%”]
-                echos  %ansi_color_orange%[%ansi_color_magenta%%italics_on%modes of operation%italics_off%%ansi_color_orange%] 
-                echos  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra allowable keys%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
-                echos  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra key meanings%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
-                echo.
-                echo USAGE: 
-                echo USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%1) sets %ansi_color_yellow%%italics_on%`%`OUR_ANSWER%italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%Y%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%N%ansi_color_orange%”%ansi_color_advice% ..... or one of our additional allowed keystrokes
-                echo USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%2) sets %ansi_color_yellow%%italics_on%`%`DO_IT     %italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%1%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%”%ansi_color_advice% (don’t use if using additional allowed keystrokes)
-                echo %ANSI_COLOR_ADVICE%USAGE: 
-                echo USAGE: %ansi_color_orange%1ˢᵗ param: %ansi_color_magenta%the %ansi_color_yellow%question%ansi_color_magenta% you want to ask %ansi_color_advice%%italics_on%%blink_on%%double_underline_on%WITHOUT%underline_off%%blink_off%%italics_off% question mark at the end%ansi_color_advice%
-                echo USAGE: %ansi_color_orange%2ⁿᵈ param: %ansi_color_magenta%the %ansi_color_yellow%default answer%ansi_color_magenta% of %ansi_color_orange%“%ansi_color_bright_yellow%yes%ansi_color_orange%” %ansi_color_magenta%or %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%” %ansi_color_magenta%...or %ansi_color_orange%%ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%” %ansi_color_magenta%for no default%ansi_color_advice%
-                echo USAGE: %ansi_color_orange%3ʳᵈ param: %ansi_color_magenta%the %ansi_color_yellow%wait time in seconds%ansi_color_magenta% before using the %ansi_color_yellow%default answer%ansi_color_advice%. Use %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%” %ansi_color_advice%to wait forever.
-                echo USAGE: 
-                echo USAGE: %ansi_color_orange%4ᵗʰ-6ᵗʰ params: %ansi_color_magenta%Modes of operation:%ansi_color_advice%
-                echo USAGE:            %ansi_color_advice%1) can be   %ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange%”    %ansi_color_advice%to make it a %ansi_color_yellow%double-height %ansi_color_advice%question%ansi_color_advice%
-                echo USAGE:            %ansi_color_advice%2) can be %ansi_color_orange%“%ansi_color_bright_yellow%no_title%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%window title%underline_off%%ansi_color_advice% changed while asking%ansi_color_advice%
-                echo USAGE:            %ansi_color_advice%3) can be %ansi_color_orange%“%ansi_color_bright_yellow%no_enter%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%%double_underline_on%%italics_on%ENTER%italics_off%%underline_off%%ansi_color_advice% key to select the default option%ansi_color_advice%
-                echo USAGE: 
-                echo USAGE: %ansi_color_orange%Next (5ᵗʰ/6ᵗʰ/7ᵗʰ++) params: %ansi_color_magenta%a list of %ansi_color_yellow%additional keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
-                echo USAGE:                      For example: To allow %ansi_color_bright_yellow%Y%ansi_color_advice% or %ansi_color_bright_yellow%N%ansi_color_advice%:           %ansi_color_bright_yellow%AskYn "Ovewrite file" no 0%ansi_color_advice% 
-                echo USAGE:                      For example: To allow %ansi_color_bright_yellow%Y%ansi_color_advice% or %ansi_color_bright_yellow%N%ansi_color_advice% or %ansi_color_bright_yellow%A%ansi_color_advice% or %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Ovewrite file" no 0 %double_underline_on%AR%underline_off%%ansi_color_advice% 
-                echo USAGE:              
-                echo USAGE: %ansi_color_orange%Next parameters: %ansi_color_magenta%An optional list of %ansi_color_yellow%additional letter meanings%ansi_color_magenta% for any additional keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
-                echo USAGE:                  EXAMPLE: To give %ansi_color_yellow%letter meanings%ansi_color_advice% for %ansi_color_bright_yellow%A%ansi_color_advice% and %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Overwite file" no 0 AR %double_underline_on%A:Abort,R:Retry%underline_off%%ansi_color_advice%
-                echo USAGE:                           Note that %ialics_on%underscores%ialics_off% in the meanings are converted to %ialics_on%spaces %ialics_off%
-                echo USAGE:
-                echo USAGE: %ansi_color_orange%GENERAL EXAMPLE #1: %ansi_color_bright_yellow%call AskYN "Do you want to" yes %ansi_color_advice%
-                echo USAGE: %ansi_color_orange%GENERAL EXAMPLE #2: %ansi_color_bright_yellow%call AskYN "Do you want to" yes 30%ansi_color_advice%
-                echo USAGE: %ansi_color_orange%GENERAL EXAMPLE #3: %ansi_color_bright_yellow%call AskYN "Do you want to" no  30 big MN N:Not_Sure,M:Maybe_I_Do%ansi_color_advice%
-                echo USAGE: 
-                echo USAGE: %ansi_color_orange%TO RUN TEST SUITE: %ansi_color_bright_yellow%call AskYn test%ansi_color_advice%
-                echo USAGE: 
+                echoerr.
+                echoerr USAGE: NOTE: %ANSI_COLOR_MAGENTA%%italics_on%Braced%italics_off%    arguments are %italics_on%%ansi_color_red%required%italics_off%%ansi_color_advice%%ansi_color_advice%,
+                echoerr USAGE: NOTE: %ANSI_COLOR_MAGENTA%%italics_on%Bracketed%italics_off% arguments are %italics_on%%ansi_color_red%optional%italics_off%%ansi_color_advice%%ansi_color_advice%:
+                echoerr USAGE:                
+                rem echoerr USAGE: You did this: %ansi_color_warning_soft%%0 %*%ansi_color_advice%
+                echoerrs USAGE: %ansi_color_bright_yellow%call askyn ``
+                echoerrs %ansi_color_orange%{%ansi_color_yellow%%italics_on%%ansi_color_magenta%question%italics_off%%ansi_color_orange%} %ansi_color_orange%{“%ansi_color_bright_yellow%yes%ansi_color_orange%” %italics_on%%ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%”%ansi_color_magneta%%italics_on% %ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%”%ansi_color_yellow%%ansi_color_orange%}                
+                echoerrs  %ansi_color_orange%[%ansi_color_yellow%%italics_on%%ansi_color_magenta%wait_time%ansi_color_orange%%italics_off%] 
+                rem echoerrs  %ansi_color_orange%[%ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange% 
+                rem echoerrs  %ansi_color_yellow%%italics_on%or%italics_off% %ansi_color_orange%“%ansi_color_bright_bright_yellow%notitle%ansi_color_orange%%ansi_color_yellow%%italics_off%%ansi_color_orange%”]
+                echoerrs  %ansi_color_orange%[%ansi_color_magenta%%italics_on%modes of operation%italics_off%%ansi_color_orange%] 
+                echoerrs  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra allowable keys%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
+                echoerrs  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra key meanings%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
+                echoerr.
+                echoerr USAGE: 
+                echoerr USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%1) sets %ansi_color_yellow%%italics_on%`%`OUR_ANSWER%italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%Y%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%N%ansi_color_orange%”%ansi_color_advice% ..... or one of our additional allowed keystrokes
+                echoerr USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%2) sets %ansi_color_yellow%%italics_on%`%`DO_IT     %italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%1%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%”%ansi_color_advice% (don’t use if using additional allowed keystrokes)
+                echoerr %ANSI_COLOR_ADVICE%USAGE: 
+                echoerr USAGE: %ansi_color_orange%1ˢᵗ param: %ansi_color_magenta%the %ansi_color_yellow%question%ansi_color_magenta% you want to ask %ansi_color_advice%%italics_on%%blink_on%%double_underline_on%WITHOUT%underline_off%%blink_off%%italics_off% question mark at the end%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%2ⁿᵈ param: %ansi_color_magenta%the %ansi_color_yellow%default answer%ansi_color_magenta% of %ansi_color_orange%“%ansi_color_bright_yellow%yes%ansi_color_orange%” %ansi_color_magenta%or %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%” %ansi_color_magenta%...or %ansi_color_orange%%ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%” %ansi_color_magenta%for no default%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%3ʳᵈ param: %ansi_color_magenta%the %ansi_color_yellow%wait time in seconds%ansi_color_magenta% before using the %ansi_color_yellow%default answer%ansi_color_advice%. Use %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%” %ansi_color_advice%to wait forever.
+                echoerr USAGE: 
+                echoerr USAGE: %ansi_color_orange%4ᵗʰ-6ᵗʰ params: %ansi_color_magenta%Modes of operation:%ansi_color_advice%
+                echoerr USAGE:            %ansi_color_advice%1) can be   %ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange%”    %ansi_color_advice%to make it a %ansi_color_yellow%double-height %ansi_color_advice%question%ansi_color_advice%
+                echoerr USAGE:            %ansi_color_advice%2) can be %ansi_color_orange%“%ansi_color_bright_yellow%no_title%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%window title%underline_off%%ansi_color_advice% changed while asking%ansi_color_advice%
+                echoerr USAGE:            %ansi_color_advice%3) can be %ansi_color_orange%“%ansi_color_bright_yellow%no_enter%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%%double_underline_on%%italics_on%ENTER%italics_off%%underline_off%%ansi_color_advice% key to select the default option%ansi_color_advice%
+                echoerr USAGE: 
+                echoerr USAGE: %ansi_color_orange%Next (5ᵗʰ/6ᵗʰ/7ᵗʰ++) params: %ansi_color_magenta%a list of %ansi_color_yellow%additional keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
+                echoerr USAGE:                      For example: To allow %ansi_color_bright_yellow%Y%ansi_color_advice% or %ansi_color_bright_yellow%N%ansi_color_advice%:           %ansi_color_bright_yellow%AskYn "Ovewrite file" no 0%ansi_color_advice% 
+                echoerr USAGE:                      For example: To allow %ansi_color_bright_yellow%Y%ansi_color_advice% or %ansi_color_bright_yellow%N%ansi_color_advice% or %ansi_color_bright_yellow%A%ansi_color_advice% or %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Ovewrite file" no 0 %double_underline_on%AR%underline_off%%ansi_color_advice% 
+                echoerr USAGE:              
+                echoerr USAGE: %ansi_color_orange%Next parameters: %ansi_color_magenta%An optional list of %ansi_color_yellow%additional letter meanings%ansi_color_magenta% for any additional keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
+                echoerr USAGE:                  EXAMPLE: To give %ansi_color_yellow%letter meanings%ansi_color_advice% for %ansi_color_bright_yellow%A%ansi_color_advice% and %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Overwite file" no 0 AR %double_underline_on%A:Abort,R:Retry%underline_off%%ansi_color_advice%
+                echoerr USAGE:                           Note that %ialics_on%underscores%ialics_off% in the meanings are converted to %ialics_on%spaces %ialics_off%
+                echoerr USAGE:
+                echoerr USAGE: %ansi_color_orange%GENERAL EXAMPLE #1: %ansi_color_bright_yellow%call AskYN "Do you want to" yes %ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%GENERAL EXAMPLE #2: %ansi_color_bright_yellow%call AskYN "Do you want to" yes 30%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%GENERAL EXAMPLE #3: %ansi_color_bright_yellow%call AskYN "Do you want to" no  30 big MN N:Not_Sure,M:Maybe_I_Do%ansi_color_advice%
+                echoerr USAGE: 
+                echoerr USAGE: %ansi_color_orange%TO RUN TEST SUITE: %ansi_color_bright_yellow%call AskYn test%ansi_color_advice%
+                echoerr USAGE: 
                 %color_normal%
     goto :END
 endiff
@@ -208,7 +208,7 @@ REM Variable setup:
 
 rem Set title for waiting-for-answer state:
         iff 1 ne %NOTITLE% then
-                rem echo setting title 1 - NOTITLE = “%NOTITLE%”
+                rem echoerr setting title 1 - NOTITLE = “%NOTITLE%”
                 title %EMOJI_RED_QUESTION_MARK%%@UNQUOTE[%ASK_QUESTION%]%EMOJI_RED_QUESTION_MARK%
         endiff
 
@@ -236,13 +236,15 @@ REM Build the question prompt:
         if "%OS%" eq "7" (  set    WIN7DECORATOR=*** ``)
         set BRACKET_COLOR=224,0,0
         set PRETTY_QUESTION=%@UNQUOTE[%ASK_QUESTION]
-        rem echo "pretty question is “%pretty_question%”"
+        rem echoerr "pretty question is “%pretty_question%”"
         rem pause
                                                            rem 2024/12/12 added this space here -----------v not sure how i feel about it
                                                            rem set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK%%ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%?%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
                                                            rem set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK% %ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%?%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
-                                                           rem 2024/12/12 NOPE DON’T LIKE IT, go back to original:
-                                                               set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK%%ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%? %italics_off%%emoji_red_question_mark%%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
+                                                           rem 2024/12/12 NOPE DON’T LIKE IT, go back to original: ...
+                                                           rem set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK%%ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%? %italics_off%%emoji_red_question_mark%%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
+                                                           rem 2024/12/24 but why?!?! I don’t like this either .. putting the space back in again haha ... Keep it!!
+                                                               set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK% %ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%?%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
         if "%default_answer" eq "yes" .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%Y%underline_off%%bold_off%                             %+ rem   capital Y
         if "%default_answer" eq "no"  .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%y%faint_off%                                                                        %+ rem lowercase Y
                                                                set PRETTY_QUESTION=%pretty_question%%italics_off%%bold_off%%underline_off%%double_underline_off%%@ANSI_FG_RGB[%BRACKET_COLOR]/ %+ rem           slash
@@ -266,7 +268,7 @@ rem Re-set a new window title:
         rem stripped=%@STRIPANSI[%@STRIPANSI[%PRETTY_QUESTION]] %+ rem why were we doing this twice? 
         set stripped=%@STRIPANSI[%PRETTY_QUESTION]
         iff 1 ne %NOTITLE then
-                rem echo setting title 2 - NOTITLE = “%NOTITLE%”
+                rem echoerr setting title 2 - NOTITLE = “%NOTITLE%”
                 title %stripped%
         endiff
 
@@ -275,7 +277,7 @@ rem Re-set a new window title: BUG FIX:
         rem in them that don’t belong, but also using %@REREPLACE on the variable didn’t work despite working on the %_WinTitle
         rem So we incrementally set and read the wintitle to fix it that way. It’s ugly, but it’s not a time-pressed situation:
         set stripped2=%@REREPLACE[\(B *\[\(B, \[,%_wintitle]
-        rem echo setting title 3 - NOTITLE = “%NOTITLE%”
+        rem echoerr setting title 3 - NOTITLE = “%NOTITLE%”
         title %stripped2%
         set stripped3=%@REREPLACE[\?\(B\s+\[y\/\(BN,? [y/N,%_wintitle]
         title %stripped3%
@@ -297,37 +299,40 @@ REM Print the question out with a spacer below to deal with pesky ANSI behavior:
         set XX=1
         if %big_question eq 1 (set XX=%@EVAL[%xx +1 ] )
         rem set XX=10
-        repeat %XX% echo.
-        echos   %@ANSI_MOVE_LEFT[2]``
-        if %xx gt 0 (echos %@ANSI_MOVE_UP[%@EVAL[%xx-1]])
-        rem sechos %@ANSI_MOVE_UP[1] %+ rem this seems to be too much for normal-size but TODO not sure about large size
+        repeat %XX% echoerr.
+        echoserr   %@ANSI_MOVE_LEFT[2]``
+        if %xx gt 0 (echoserr %@ANSI_MOVE_UP[%@EVAL[%xx-1]])
+        rem echoserr %@ANSI_MOVE_UP[1] %+ rem this seems to be too much for normal-size but TODO not sure about large size
         iff %BIG_QUESTION eq 1 then
-                echos %@ANSI_MOVE_DOWN[1]
-                rem echos %BIG_TOP%%PRETTY_QUESTION%%ANSI_CLEAR_TO_END%%newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
-                    echos %BIG_TOP%%PRETTY_QUESTION%%ANSI_CLEAR_TO_END%
+                echoserr %@ANSI_MOVE_DOWN[1]
+                rem echoserr %BIG_TOP%%PRETTY_QUESTION%%ANSI_CLEAR_TO_END%%newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
+                    echoserr %BIG_TOP%%PRETTY_QUESTION%%ANSI_CLEAR_TO_END%
                    rem   delay /m 1
-                    echos %newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
-                if %WAIT_TIMER_ACTIVE eq 1 (echos %@ANSI_MOVE_UP[1])
+                    echoserr %newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
+                if %WAIT_TIMER_ACTIVE eq 1 (echoserr %@ANSI_MOVE_UP[1])
         endiff
             
 REM Load INKEY with the question, unless we’ve already printed it out:
-        echos %@CURSOR_COLOR_BY_WORD[PURPLE]
+        echoserr %@CURSOR_COLOR_BY_WORD[PURPLE]
                                     set INKEY_QUESTION=%PRETTY_QUESTION%
         if %WAIT_TIMER_ACTIVE eq 0 .and. %BIG_QUESTION eq 1 (set INKEY_QUESTION=)
 
 
 REM Actually answer the question here —— make the windows “question” noise first, then get the user input:
-        echos %ANSI_CURSOR_SHOW%
+        echoserr %ANSI_CURSOR_SHOW%
         *beep question    
         unset /q SLASH_X
         if  %BIG_QUESTION eq 1 .and. %WAIT_TIMER_ACTIVE eq 1 (set SLASH_X=/x)
-        echos %ANSI_POSITION_SAVE%
+        echoserr %ANSI_POSITION_SAVE%
         if %BIG_QUESTION eq 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_RESTORE%)
         if %BIG_QUESTION ne 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_SAVE%)
         rem as an experiment, let’s do this 100x instead of 1x:
         @rem repeat 100 input /c /w0 %%This_Line_Clears_The_Character_Buffer
         rem @call clear-buffered-keystrokes is just:
         inkey /c
+        rem The " >&:u8 con " is so it shows up to the console even if the entire thing is wrapped in something redirecting STDOUT to nul ... This is a case where we want to “pop out” of STDERR *into* STDOUT / have both combined into STDOUT, so that we see it and can answer the prompt:
+        rem Alas, this causes our unicode characters to be munged because so much of TCC’s internal workings don’t support modern characters
+        rem (inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER) >:u8&:u8 con
         inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
         echos %BLINK_OFF%%ANSI_CURSOR_SHOW%
 
@@ -346,14 +351,14 @@ REM Process the enter key into our default answer:
         if %OUR_ANSWER% eq "@28" .or. "%@ASCII[%OUR_ANSWER]"=="64 50 56" (
             if  "%default_answer%" eq "no"  ( set DO_IT=0 %+ set ANSWER=N )
             if  "%default_answer%" eq "yes" ( set DO_IT=1 %+ set ANSWER=Y )                  
-            echos  ``
+            echoserr  ``
             call print-if-debug "enter key processing, answer is now “%ANSWER%”"
         ) 
 
 
 REM Title
         iff 1 ne %NOTITLE% then
-                rem echo setting title 4 - NOTITLE = “%NOTITLE%”
+                rem echoerr setting title 4 - NOTITLE = “%NOTITLE%”
                 title %@STRIPANSI[%PRETTY_QUESTION] %A
         endiff
 
@@ -366,10 +371,10 @@ REM Set our 2 major return values that are referred to from calling scripts:
 REM Generate "pretty" answers & update the title:
         iff "%ANSWER" eq "Y" .or. "%ANSWER" eq "yes" then
                 set PRETTY_ANSWER= %ANSI_BRIGHT_GREEN%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%Yes%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%
-                echos %@CURSOR_COLOR_BY_HEX[%color_success_hex%]
+                echoserr %@CURSOR_COLOR_BY_HEX[%color_success_hex%]
         elseiff "%ANSWER" eq "N" .or. "%ANSWER" eq "no" then 
                 set PRETTY_ANSWER= %ANSI_BRIGHT_RED%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%No%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%
-                echos %@CURSOR_COLOR_BY_HEX[%color_alarm_hex%]
+                echoserr %@CURSOR_COLOR_BY_HEX[%color_alarm_hex%]
         else                
                 iff "" ne "%[key_meaning_%answer%]" then
                         rem (Make sure to change underscores to spaces)
@@ -378,11 +383,11 @@ REM Generate "pretty" answers & update the title:
                         set VALUE_TO_USE=%@UPPER[%ANSWER%]
                 endiff
                 set PRETTY_ANSWER= %ANSI_BRIGHT_GREEN%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%%VALUE_TO_USE%%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%
-                echos %CURSOR_RESET%
+                echoserr %CURSOR_RESET%
         endiff                
         call print-if-debug "our_answer is “%OUR_ANSWER”, default_answer is “%DEFAULT_ANSWER%”, answer is “%ANSWER%”, PRETTY_ANSWER is “%PRETTY_ANSWER%”"
         if 1 eq %NOTITLE% (goto :title_done_3)        
-                rem echo setting title 4 - NOTITLE = “%NOTITLE%”
+                rem echoerr setting title 4 - NOTITLE = “%NOTITLE%”
                 title %@REPLACE[%EMOJI_RED_QUESTION_MARK,,%@STRIPANSI[%@UNQUOTE[%ASK_QUESTION]? %EMDASH% %PRETTY_ANSWER%]]
         :title_done_3
 
@@ -390,8 +395,8 @@ REM Generate "pretty" answers & update the title:
 REM Re-print "pretty" question so that the auto-question mark is no longer blinking because it has now been answered, and
 REM print our "pretty" answers in the right spots (challenging with double-height), erasing any timer leftovers:
         if %BIG_QUESTION ne 1 (
-            if %WAIT_TIMER_ACTIVE eq 0 (echo %ANSI_POSITION_RESTORE%%PRETTY_ANSWER_ANSWERED%%@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED%%PRETTY_ANSWER%)  
-            if %WAIT_TIMER_ACTIVE eq 1 (echo %ANSI_POSITION_RESTORE%%ZZZZZZZZZZZZZZZZZZZZZZ%%@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED%%PRETTY_ANSWER%      %ANSI_CLEAR_TO_END%``)
+            if %WAIT_TIMER_ACTIVE eq 0 (echoerr %ANSI_POSITION_RESTORE%%PRETTY_ANSWER_ANSWERED%%@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED%%PRETTY_ANSWER%)  
+            if %WAIT_TIMER_ACTIVE eq 1 (echoerr %ANSI_POSITION_RESTORE%%ZZZZZZZZZZZZZZZZZZZZZZ%%@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED%%PRETTY_ANSWER%      %ANSI_CLEAR_TO_END%``)
         )
         if %BIG_QUESTION eq 1 (           set MOVE_LEFT_BY=1
             if  %WAIT_TIMER_ACTIVE eq 1  (set MOVE_LEFT_BY=4
@@ -403,17 +408,17 @@ REM print our "pretty" answers in the right spots (challenging with double-heigh
                 if %WAIT_TIME gt 1000000 (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + 1])
                 if %LEFT_MORE gt 0       (set MOVE_LEFT_BY=%@eval[%MOVE_LEFT_BY + %LEFT_MORE])
                 rem LEFT_MORE is a secret kludge in case the cursor doesn’t quite move to the left enough
-                echos %@ANSI_MOVE_LEFT[%MOVE_LEFT_BY]
+                echoserr %@ANSI_MOVE_LEFT[%MOVE_LEFT_BY]
             )
-            rem DEBUG: echos %ANSI_POSITION_RESTORE%[RESTORE HERE] %+ *pause>nul
+            rem DEBUG: echoserr %ANSI_POSITION_RESTORE%[RESTORE HERE] %+ *pause>nul
 
             unset /q SPACER
             if %WAIT_TIMER_ACTIVE ne 1 (set SPACER=%@ANSI_MOVE_UP[1]) 
 
-            echos %ANSI_POSITION_RESTORE%%SPACER%%ZZZZZZZZZZZZZZZZZ%%BIG_TOP%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_CURSOR_SHOW%%ANSI_ERASE_TO_END_OF_LINE%
-            echos %ANSI_POSITION_RESTORE%%SPACER%%@ANSI_MOVE_DOWN[1]%BIG_BOT%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_CURSOR_SHOW%%ANSI_ERASE_TO_END_OF_LINE%
+            echoserr %ANSI_POSITION_RESTORE%%SPACER%%ZZZZZZZZZZZZZZZZZ%%BIG_TOP%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_CURSOR_SHOW%%ANSI_ERASE_TO_END_OF_LINE%
+            echoserr %ANSI_POSITION_RESTORE%%SPACER%%@ANSI_MOVE_DOWN[1]%BIG_BOT%%BLINK_ON%%PRETTY_ANSWER%%BLINK_OFF%%ANSI_CURSOR_SHOW%%ANSI_ERASE_TO_END_OF_LINE%
 
-            repeat 1 echo.
+            repeat 1 echoerr.
         )
 
 

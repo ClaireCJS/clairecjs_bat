@@ -60,7 +60,7 @@
                 ],
                 "closeOnExit": "automatic",
                 "colorScheme": "Campbell",
-                "commandline": "c:\\tcmd31\\tcc.exe",
+                "commandline": "c:\\tcmd\\tcc.exe",
                 "cursorShape": "filledBox",
                 "elevate": true,
                 "font": 

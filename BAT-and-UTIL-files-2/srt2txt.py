@@ -14,6 +14,122 @@ EXTENSION = '.txt'                                                              
 MAX_TIME_BETWEEN_SUBTITLES_TO_JOIN_TOGETHER       = 0.3     #if one subtitle begins less than this much time after the last ends, consider it the same line of text in the output file
 MIN_TIME_BETWEEN_SUBTITLES_TO_GENERATE_BLANK_LINE = 1.5     #if one subtitle begins MORE than this much time after the last subtitle, insert a fully blank line  into  the output file
 
+
+
+
+def is_punctuation(c):
+    return c in string.punctuation
+   
+def is_punctuation_except_quotes(c):
+    if c in string.punctuation:
+        if c == '"': return False
+        else       : return True
+    return False
+
+def replace_smart_quotes(text):
+    """
+    Replace straight quotes with curly quotes based on context.
+    """
+    
+    DEBUG_CHAR_HANDLING = False #
+    if DEBUG_CHAR_HANDLING: print(f"all-but-last char of text is [" + text[:-1] + "]")
+
+    if   text == '"' : return "“"
+    elif text == '""': return "“”"
+    else:
+        if text[-1] == '"': text = text[:-1] + '”'             # Replace closing quote
+        if text[ 0] == '"': text =             '“' + text[1:]  # Replace opening quote
+
+    result = []
+    in_quotes = False
+    last_non_space_char = ""
+    prev_prev_char = ""
+    prev_char = ""
+    next_char = ""
+    for i, char in enumerate(text):
+        if DEBUG_CHAR_HANDLING: print(f"🐐 Handling char: {Fore.YELLOW}{char}{Fore.WHITE} ... " , end="")
+
+        if char == '“': in_quotes = True
+        if char == '”': in_quotes = False       
+        if char == '"':
+            prev_char      = text[i-1] if i > 0           else ''
+            prev_prev_char = text[i-2] if i > 1           else ''
+            next_char      = text[i+1] if i < len(text)-1 else ''
+            next_next_char = text[i+2] if i < len(text)-2 else ''
+                       
+            # Rule 1: 
+            if prev_char in [" ",""] and next_char in [" ",""]:
+                if DEBUG_CHAR_HANDLING: print(f"got here 🌵 with char [{char}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")# ... last_non_space_char.isalpha()={last_non_space_char.isalpha()},next_next_char.isalpha()={next_next_char.isalpha()})")
+                
+                if last_non_space_char == "”":
+                    result.append("“")
+                    char_used =   '“'
+                    in_quotes=True
+                elif last_non_space_char == "“":
+                    result.append('”')
+                    char_used =   '”'
+                    in_quotes=True
+                
+                elif (is_punctuation(last_non_space_char) and last_non_space_char not in ['“'] and next_next_char.isalpha()) \
+                   or             (last_non_space_char.isalpha()                             and next_next_char.isalpha()):
+                    if DEBUG_CHAR_HANDLING: print(f"got here 🍒 with char [{char}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")                
+                    result.append('“')
+                    char_used =   '“'
+                    in_quotes = True
+                else:                   
+                    result.append('”')
+                    char_used =   '”'
+                    in_quotes = True
+                
+            # Rule 2: 
+            elif prev_char == " " and next_char.isalpha() and last_non_space_char != ".":
+                if DEBUG_CHAR_HANDLING: print(f"got here 🦋 with char [{char}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")                
+                result.append('“')
+                char_used =   '“'
+                in_quotes = True
+            
+            # Rule 3: Quotes at the end of words, after punctuation, or at the end of sentences
+            elif  (is_punctuation_except_quotes(prev_char) or prev_char.isalpha()):
+                if DEBUG_CHAR_HANDLING: print(f"got here 🍌 with char [{char}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")                
+                result.append('”')
+                char_used =   '”'
+                in_quotes = False
+                
+            # Rule 4: Quotes at the beginning of words or after punctuation
+            elif (prev_char == '' or is_punctuation_except_quotes(prev_char)) and last_non_space_char !=  "“":
+                if DEBUG_CHAR_HANDLING: print(f"got here ⚠  with char [{Fore.YELLOW}{char}{Fore.WHITE}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")
+                result.append('“')
+                char_used =   '“'
+                in_quotes = True
+                
+            # Rule 5: parse leftovers ones as if they are pairs?                
+            else:
+                if DEBUG_CHAR_HANDLING: print(f"got here 🎯 with char [{char}] ... prev_char=[{prev_char}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}]")
+                # Handling odd/even quotes when there are spaces around
+                if not in_quotes:
+                        result.append('“')
+                        char_used =   '”'
+                        in_quotes = True
+                else:
+                        result.append('”')
+                        char_used =   '”'
+                        in_quotes = False
+
+        # Most characters will fall into the “else” part here:
+        else:
+            if DEBUG_CHAR_HANDLING: print(f"got here 👻 with char [{char}] ... prev_char=[{prev_char:1}], last_non_space_char=[{Fore.CYAN}{last_non_space_char}{Fore.WHITE}], next_char=[{next_char}]")
+            result.append(char)
+            char_used =   char
+            
+        # store last non-space char
+        if char !=  " ": 
+            if char_used == "“" or char_used == "”": last_non_space_char = char_used
+            else                                   : last_non_space_char = char
+
+    return ''.join(result)
+
+
+
 def parse_timecode(time_str):                                                                      # Define function to parse timecode strings
     """
     Parse a timecode string 'HH:MM:SS,mmm' and return the time in seconds as a float.
@@ -26,24 +142,6 @@ def parse_timecode(time_str):                                                   
     except ValueError:
         return None                                                                                # Return None if parsing fails
 
-def replace_smart_quotes(line):
-    """
-    Define patterns for identifying opening and closing quotes
-    
-    Example usage:
-        text = '''"Hello," he said. "Is this your book?"'''
-        result = replace_smart_quotes(text)
-        print(result)
-
-    """
-    
-    # Replace the first occurrence of " with a left quote (opening quote)
-    line = re.sub(r'(^|[\s\(\[\{.,!?;])"', r'\1“', line, count=1)
-    
-    # Replace the last occurrence of " with a right quote (closing quote)
-    line = re.sub(r'"([\s.,!?;:\)\]\}])', r'”\1', line[::-1], count=1)[::-1]
-
-    return line
 
 def srt_to_txt(input_file, output_file):                                                           # Define the main function
     if os.path.exists(output_file):                                                                # Check if output file already exists
