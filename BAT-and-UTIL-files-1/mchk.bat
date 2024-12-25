@@ -17,11 +17,13 @@ rem personal note: mchkold is a hard-coded 'mchk' of the pre-2002-crash filelist
 ::::: Define the "everything.m3u" file location, used in step 1:
 	set EVERYTHING=%MP3CL\LISTS\everything.m3u
 
-::::: Verify proper steup:
-	call validate-environment-variables DROPBOX NEWMP3 MP3CL WAVPROCESSING INDEXFILE EVERYTHING  REVIEWDIR INDEXFILE_DROPBOX
-        call validate-environment-variables FILEMASK_AUDIO skip_validation_existence
-
-
+::::: Verify proper setups:
+        iff 1 ne %validated_mchk% then
+                call validate-environment-variables DROPBOX NEWMP3 MP3CL WAVPROCESSING INDEXFILE EVERYTHING  REVIEWDIR INDEXFILE_DROPBOX
+                call validate-environment-variables FILEMASK_AUDIO skip_validation_existence
+                callv alidate-in-path               grep cygwin-sort.exe sed.exe advice important_less
+                set  validated_mchk=1
+        endiff
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::::: Generate the index file if asked, or if it doesn't exist, or if it's too old:
@@ -39,10 +41,26 @@ goto :theend
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :checkindexfile
 	rem 2001-2009: if exist %HD80G2:\mp3-new\filelist.txt gr "%*" %HD80G2:\mp3-new\filelist.txt
-    rem 2014:      *grep      -i "%*" "%INDEXFILE"|remap|sort|uniq
-    rem 2015: removing remap becuase we now symlink c:\mp3\ and it should just be c:\mp3\ everywhere on a properly-vetted machine
-	rem 2024: removing quotes around parameter  OLD:    gr "%*" "%INDEXFILE"|sort -u|sed 's/\//\\\/ig'
-	gr  %*  "%INDEXFILE" |:u8 sort -u |:u8 sed 's/\//\\\/ig'
+        
+        rem 2014:      *grep      -i "%*" "%INDEXFILE"|remap|sort|uniq
+        
+        rem 2015: removing remap because we now symlink c:\mp3\ and it should just be c:\mp3\ everywhere on a properly-vetted machine
+        rem            *grep      -i "%*" "%INDEXFILE"|      sort|uniq
+    
+	rem 2024: removing quotes around parameter:
+        rem gr  %*  "%INDEXFILE" |    sort -u |    sed 's/\//\\\/ig'
+
+	rem 2024: adding emoji/utf-8 support
+        rem gr  %*  "%INDEXFILE" |:u8 sort -u |:u8 sed 's/\//\\\/ig'
+        
+        rem 2025: possibly–TCC-v33–related beeps introduced by the last sed substitution, switched it up:
+        rem Now explicitly use cygwin’s sort.exe, ignoring case
+        rem set grep_color=%grep_color_highlight%
+        rem set grep_colors=%grep_colors_highlight%
+	(grep -i  %*  "%INDEXFILE" |:u8 cygwin-sort.exe -u --ignore-case |:u8 sed 's/\//\\\/ig' ) |:u8 grep -i --text --color=always -d skip %*
+
+        rem set grep_color=%grep_color_normal%
+        rem set grep_colors=%grep_colors_normal%
 
 goto :theend
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -54,7 +72,7 @@ goto :theend
         call important "Generating mchk index file %INDEXFILE"
 		call advice    "If this filename isn't in the default mp3 collection then you may need to update mchk.bat"
 
-    set NUM_STEPS=6
+        set NUM_STEPS=6
 
 	:step1
 		call important_less "Generating index file, Step 1 of %NUM_STEPS%. (everything.m3u/generate-audio-playlists.pl)"
