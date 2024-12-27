@@ -13,7 +13,7 @@ rem Usage:
                 echo USAGE: lrc2txt whatever.lrc [silent] ━━ generates whatever.txt, if “silent” is 2nd option, then does so without post-review
                 repeat 2 echo.
                 echo USAGE: lrc2txt -t                    ━━ run testing suite (which is just about quote conversion right now)  
-                repeat 1 echo.
+                echo.
                 goto :END
         endiff
 
@@ -22,8 +22,10 @@ rem Parameter fetch:
         set output_file=%@NAME[%lrc_file].txt
 
 rem Parameter validate:
-        call validate-environment-variable   LRC_file 
-        call validate-is-extension         "%LRC_file%"  *.lrc
+        iff "%lrc_file%" != "all" then
+                call validate-environment-variable   LRC_file 
+                call validate-is-extension         "%LRC_file%"  *.lrc
+        endiff
 
 rem Prevent file collision:
         if exist "%Output_file%" (call deprecate "%output_file%" >nul lr>&>nul)
@@ -36,7 +38,10 @@ rem Perform the actual conversion:
 
 rem Validate output:
         call ErrorLevel
+        iff "%LRC_FILE%" == "all" then
+                set FILE_TO_REVIEW=*.txt
+        endiff
         call validate-environment-variable output_file
-        if "%2" ne "silent" call review-files "%LRC_FILE%" "%output_file%"
+        if "%2" ne "silent" call review-files "%FILE_TO_REVIEW%" "%output_file%"
 
 :END

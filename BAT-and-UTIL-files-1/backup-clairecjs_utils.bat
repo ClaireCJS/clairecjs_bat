@@ -1,4 +1,4 @@
-@Echo OFF                                       
+@Echo off
 
 rem backup Xenia emulator savegames into monthly folders
 

@@ -1,6 +1,8 @@
 @Echo Off
   on break cancel
-
+  setdos /x0
+                if exist   all.m3u (*del /q   all.m3u >nul)
+                if exist these.m3u (*del /q these.m3u >nul)
 
 rem Usage:
         iff "%1" == "/h" .or. "%1" == "-h" .or. "%1" == "--help" .or. "%1" == "/help" .or. "%1" == "help" .or. "%1" == "?" .or. "%1" == "/?" .or. "%1" == "-?" .or. "%1" == "--?" then

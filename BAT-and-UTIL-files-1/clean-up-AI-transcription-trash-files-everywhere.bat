@@ -12,15 +12,15 @@ rem Validate environemnt once per session:
 rem Take note of how much was free before we started:
         set FREE_C_BEFORE=%@DISKFREE[c]
 
-
+_vad_pyannote_v3.txt
 rem Delete files that could be anywhere:
         gosub DeleteEverywhere               *._vad_collected_chunks*.wav
         gosub DeleteEverywhere               *._vad_collected_chunks*.srt
-        gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
         gosub DeleteEverywhere               *._vad_original*.srt
+        gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
+        gosub DeleteEverywhere               *._vad_pyannote_v3.txt
         gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
         gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
-    
 
         goto :skip_1
                 :deleteEverywhere [file]

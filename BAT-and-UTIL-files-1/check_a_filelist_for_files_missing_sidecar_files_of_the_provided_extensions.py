@@ -70,8 +70,9 @@ def main_guts(input_filename, extensions, options, extra_args):
     # Detect encoding of the input file
     encoding = detect_encoding(input_filename)
     if not encoding:
-        print(f"Error: Unable to detect encoding for file '{input_filename}'.")
-        sys.exit(1)
+        encoding = "utf-8"
+        print(f"Warning: Unable to detect encoding for file '{input_filename}' but trying utf-8.")
+        #sys.exit(1)
     else:
         if DEBUG_DETECT_ENCODING: print(f"Detected encoding for {input_filename} of {encoding}")
 
@@ -179,8 +180,8 @@ def main_guts(input_filename, extensions, options, extra_args):
                 #or missing_file in sorted(files_without_sidecars)    :
                 for missing_file in        files_without_sidecars_list:
                     if os.path.exists(missing_file):
-                        if options.lower() == "getlyricsfilewrite": output_file.write(f"@repeat 13 echo. %+ @call get-lyrics \"{missing_file}\" {extra_args} %+ @call divider\n %+ rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py")
-                        if options.lower() == "createsrtfilewrite": output_file.write(f"@repeat 13 echo. %+ @call create-srt \"{missing_file}\" {extra_args} %+ @call divider\n %+ rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py")
+                        if options.lower() == "getlyricsfilewrite": output_file.write(f"@repeat 13 echo. %+ @call get-lyrics \"{missing_file}\" {extra_args} %+ @call divider %+ rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py\n")
+                        if options.lower() == "createsrtfilewrite": output_file.write(f"@repeat 13 echo. %+ @call create-srt \"{missing_file}\" {extra_args} %+ @call divider %+ rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py\n")
                         else                                      : output_file.write(f"{missing_file}\n")
                 if options.lower()         == "getlyricsfilewrite": output_file.write("@call divider\n@call celebration \"ALL DONE WITH LYRIC RETRIEVAL!!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
                 if options.lower()         == "createsrtfilewrite": output_file.write("@call divider\n@call celebration \"ALL DONE WITH KARAOKE CREATION!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot

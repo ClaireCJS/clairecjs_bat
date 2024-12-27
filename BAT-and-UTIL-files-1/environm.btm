@@ -183,7 +183,6 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
     rem gosub StartKillBots { call c:\bat\slui-killbot } { @processmonitor slui started forever (taskend /f slui) } %+ REM stupid slui process kept stealing focus around 2015...  Use focus-monitor.exe to debug that situation. This keeps it dead, but the monitor only lasts per-command-line window, so we need it in this CLI initialization script. But wait! It eats up CPU, so it might not actually be worth it.
         gosub PreliminaryErrorCheck               %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after PreliminaryErrorCheck           " %+ rem 0.03
-        rem   SetPrivateEnvVars deprecated        %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetPrivateEnvVars               " %+ rem 0.015
         if exist c:\bat\private.env (set /r c:\bat\private.env)    %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetPrivateEnvVars               " %+ rem ?.???                                                                                                                                                        %+ rem set private environment variables this way now, so this file can be published without violating personal confidentiality
         gosub SetTCCBehaviorOptions               %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after SetTCCBehaviorOptions"            %+ rem never timed
         gosub DefineHarddrivesAndDriveMapping     %+               %+ gosub :set_next_cursor_color_in_rainbow_sequence    %+      %gosub_stopwatch_button% orange "after DefineHarddrivesAndDriveMapping " %+ rem 0.59  59
@@ -698,26 +697,39 @@ return
     ::::: 2024 STUFF:
         rem Maintanance for cleaning up after common scripts:
                 rem Clean up after an aborted validate-environment-variable[s].bat:
-                    set VALIDATE_MULTIPLE=0         
+                        set VALIDATE_MULTIPLE=0         
         rem codepage: To maintain sanity when changing it, let's not forget what it's been for decades
-                    set CODEPAGE_WE_USED_FOR_DECADES=437
-                    set CODEPAGE_WE_THINK_WE_MIGHT_WANT_TO_START_USING=65001
-                    set DEFAULT_CODEPAGE=%CODEPAGE_WE_USED_FOR_DECADES%
-                    set PERL_CODEPAGE=%CODEPAGE_WE_THINK_WE_MIGHT_WANT_TO_START_USING%
+                        set CODEPAGE_WE_USED_FOR_DECADES=437
+                        set CODEPAGE_WE_THINK_WE_MIGHT_WANT_TO_START_USING=65001
+                        set DEFAULT_CODEPAGE=%CODEPAGE_WE_USED_FOR_DECADES%
+                        set PERL_CODEPAGE=%CODEPAGE_WE_THINK_WE_MIGHT_WANT_TO_START_USING%
         rem Windows Terminal stuff:
                 rem Windows Terminal settings file location:
-                    set WINDOWS_TERMINAL_SETTINGS=%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
-                     %gosubValidateFolderExists% %@left[1,%_windir] WINDOWS_TERMINAL_SETTINGS 
+                        set WINDOWS_TERMINAL_SETTINGS=%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+                        %gosubValidateFolderExists% %@left[1,%_windir] WINDOWS_TERMINAL_SETTINGS 
                 rem The default tab-stop width for our display —— this is NOT the tab width for your text editor, but for ANSI!
                 rem Should almost definitely be kept at 4, and is only meant for experimentation and fixing programs that rely on assumed tab stop widths that aren't 4 (like colortoool.exe)
-                    set DEFAULT_TAB_STOP_WIDTH=4
+                        set DEFAULT_TAB_STOP_WIDTH=4
+        rem Something I should have been keeping track of since the 1990’s:                    
+
 
     ::::: 2023 STUFF:
+        rem Delay value used for the various “split” bat files that start new TCC panes. They don’t work right without a delay:
             set MAXIMUM_TIME_FOR_TCC_TO_START=4
 
-    ::::: COMMAND-LINE OPTIONS SYNCED WITH "OPTION" COMMAND IN TCC OPTIONS -- FOR SOME REASON WON'T WORK UNLESS IN SEPARATE BAT:
-            setdos /X0
-            call c:\bat\set-escape-character-and-command-separator-character
+    ::::: MANUALLY SETTING WHAT IS SUPPOSED TO ALREADY BE SET IN THE “OPTION” DIALOG:
+                setdos /X0
+                setdos /X-8
+                        set ESCAPE_CHARACTER=`±`
+                        set ESCAPECHARACTER=`±`
+                        set ESCAPE_CHAR=`±`
+                        set ESCAPECHAR=`±`
+                setdos /X0
+                setdos /X-5
+                        set DEFAULT_COMMAND_SEPARATOR_CHARACTER=^
+                        set COMMAND_SEPARATOR_CHARACTER=^
+                        set COMMAND_SEPARATOR=CARET
+                setdos /X0
 
     ::::: BASIC HARDWARE:
         rem Default number of CPU cores in a machine, and default number of optimal threads (usually cores * 1.5)
@@ -2458,8 +2470,8 @@ rem          set  .snd=call wrapper start
 rem          set  .sql=call sqlhandler
 rem          set  .stm=call winamp /add
 rem          set  .swf=call wrapper start
-         set  .svg=call wrapper openimage
-         set  .tar=call wrapper start
+rem         set  .svg=call wrapper openimage
+rem         set  .tar=call wrapper start
 rem          set  .tif=call wrapper openimage
 rem          :changing %EDITOR to %%EDITOR makes this line work even if EDITOR hasn't yet been defined!
 rem          set  .txt=%%EDITOR

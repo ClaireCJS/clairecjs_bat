@@ -1,25 +1,29 @@
 @Echo OFF
 @on break cancel
+setdos /x-5
+rem setdos /c^
+setdos /c%default_command_separator_character%
+setdos /x0
 
-:USAGE: "Divider"      to draw a horizontal divider using the default character repeated
-:USAGE: "Divider 50 nonewline"   ^^^^ same as above, but leave us dangling right at the last drawn character; no newline or moving back to column 0
-:USAGE:
-:USAGE:
-:USAGE: .... Everything else below is likely broken....
-:USAGE:
-:USAGE:
-:USAGE: "Divider 50"   ^^^^ same as above, but only 50 columns wide
-:USAGE: "Divider HII!" to draw a horizontal divider using the string  "HII!"    repeated 
-:USAGE: "Divider 😂"   to draw a horizontal divider using the laugh-emoji (😂)  repeated
-:USAGE: "Divider -"    to draw a horizontal divider using the   '-'   character repeated
-:USAGE: "Divider - 50"             to draw a horizontal divider with indication of 50% progress via decorating the divider —— cannot choose characters for this one so "-" option is ignored
-:USAGE: "Divider - 50 rand_middle" to draw a horizontal divider with indication of 50% progress via decorating the divider where it's default color for the left, random color for the right
-:USAGE: "Divider - 50 reverse" ^^^^ same as above, but for decorating our progress, using reverse  text
-:USAGE: "Divider - 50 blink"   ^^^^ same as above, but for decorating our progress, using blinking text
-:USAGE: "Divider - 50 randbg"  ^^^^ same as above, but for decorating our progress, applying a subtle random background color
-:USAGE: "Divider - 50 faint"   ^^^^ same as above, but for decorating our progress, using faint    text —— looks good
-:USAGE: "Divider - 50 bold"    ^^^^ same as above, but for decorating our progress, using bold     text —— NOT very visible 😡
-:USAGE: OPTION:        Add "big" as a 2nd parameter to use double-height text
+rem :USAGE: "Divider"      to draw a horizontal divider using the default character repeated
+rem :USAGE: "Divider 50 nonewline"   ^^^^ same as above, but leave us dangling right at the last drawn character; no newline or moving back to column 0
+rem :USAGE:
+rem :USAGE:
+rem :USAGE: .... Everything else below is likely broken....
+rem :USAGE:
+rem :USAGE:
+rem :USAGE: "Divider 50"   ^^^^ same as above, but only 50 columns wide
+rem :USAGE: "Divider HII!" to draw a horizontal divider using the string  "HII!"    repeated 
+rem :USAGE: "Divider 😂"   to draw a horizontal divider using the laugh-emoji (😂)  repeated
+rem :USAGE: "Divider -"    to draw a horizontal divider using the   '-'   character repeated
+rem :USAGE: "Divider - 50"             to draw a horizontal divider with indication of 50% progress via decorating the divider —— cannot choose characters for this one so "-" option is ignored
+rem :USAGE: "Divider - 50 rand_middle" to draw a horizontal divider with indication of 50% progress via decorating the divider where it's default color for the left, random color for the right
+rem :USAGE: "Divider - 50 reverse" ^^^^ same as above, but for decorating our progress, using reverse  text
+rem :USAGE: "Divider - 50 blink"   ^^^^ same as above, but for decorating our progress, using blinking text
+rem :USAGE: "Divider - 50 randbg"  ^^^^ same as above, but for decorating our progress, applying a subtle random background color
+rem :USAGE: "Divider - 50 faint"   ^^^^ same as above, but for decorating our progress, using faint    text —— looks good
+rem :USAGE: "Divider - 50 bold"    ^^^^ same as above, but for decorating our progress, using bold     text —— NOT very visible 😡
+rem :USAGE: OPTION:        Add "big" as a 2nd parameter to use double-height text
 
 rem CONFIGURATION:
         echos %ANSI_INVISIBLE_CURSOR%

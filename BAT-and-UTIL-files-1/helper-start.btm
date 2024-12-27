@@ -29,8 +29,8 @@ goto :END
     if "%MINIMIZE"  == "1" set MIN=/min
     if "%INVISIBLE" == "1" set INV=/inv
     if "%TITLE"     != ""  set TIT=%TITLE
-    if "%TITLE"     == ""  set TIT=%@NAME["%&"]
-    if "%POS%"      eq "" .and. "%BIG%" ne "1" set POS=/POS=-1000,-1000,0,0
+    if "%TITLE"     == ""  set TIT=%@NAME["%*"]
+    if "%POS%"      == "" .and. "%BIG%" != "1" set POS=/POS=-1000,-1000,0,0
     
     
     :20150716 - noticed /c side-effects a maximize that is very annoying
@@ -38,9 +38,9 @@ goto :END
     :20241207 - changes to deal with the new start syntax that came out a few years ago
     :old  *start %POS% "%TIT%" %MAX% %MIN%       %LAUNCHER% %* 
     %color_debug%
-    rem echo     *start %POS% "%TIT%" %MAX% %MIN% %INV% %LAUNCHER% %*
+echo                 *start "%TIT%" %INV% %MAX% %MIN% %POS% %LAUNCHER% %*
     %color_run%
-                 *start "%TIT%" %MAX% %MIN% %INV% %POS% %LAUNCHER% %*
+                 *start "%TIT%" %INV% %MAX% %MIN% %POS% %LAUNCHER% %*
 
 
 :END

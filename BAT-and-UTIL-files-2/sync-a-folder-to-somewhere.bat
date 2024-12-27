@@ -1,4 +1,4 @@
-@echo OFF
+@echo Off
 @on break cancel
 pushd
 
@@ -130,7 +130,7 @@ pushd
     rem WRONG WAY BUT WORKS:
     rem    echo rayrayray |:u8 *copy /e /w /u /s /r /a: /h /z /k /g /Nt                             "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]"  |:u8 copy-move-post
     rem (  echo rayrayray |    *copy /e /w /u /s /r /a: /h /z /k /g /Nt /[!*.bak all.m3u these.m3u] "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]") |:u8 copy-move-post
-      ((  echo rayrayray |    *copy /e /w /u /s /r /a: /h /z /k /g /Nt /[!*.bak all.m3u these.m3u] "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]" |:u8 copy-move-post) |:u8 fast_cat)
+       ((  echo rayrayray |    *copy /e /w /u /s /r /a: /h /z /k /g /Nt /[!*.bak all.m3u these.m3u] "%@UNQUOTE[%SYNCSOURCE%]" "%@UNQUOTE[%SYNCTARGET%]"  |:u8 copy-move-post) |:u8 fast_cat)
     if exist "%ZIPFULLNAMEBUG%" (%COLOR_WARNING% %+ mv "%ZIPFULLNAMEBUG%" "%ZIPFULLNAME%")
     set LASTCOMMAND=%REDOCOMMAND%
     title Sync done.
@@ -202,12 +202,12 @@ rem Display free space:
 
 rem Warn if we are low on space:
         iff exist "%@unquote[%synctarget%]" then
-                if %@DISKFREE[%@drive[%SYNCTARGET%]] gt 150000000 goto :PlentyOfSpace
+                iff %@DISKFREE[%@drive[%SYNCTARGET%]] lt 150000000 then
                     set NEWLINE_REPLACEMENT=0 
                     repeat 3 gosub klaxon
                     call WARNING "Not much free space left on %SYNCTARGET%!" 
                     call pause-for-x-seconds 3000 
-                :PlentyOfSpace
+                endiff
         endiff
 
 unset /q ZIP syncsource synctarget synctriger

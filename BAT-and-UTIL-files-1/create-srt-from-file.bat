@@ -1,6 +1,8 @@
-@Echo off
+@Echo on
 @setdos /x0
 @on break cancel
+
+if not defined Default_command_Separator_Character set Default_command_Separator_Character=`^`
 
 rem TODO check lyric repository for LRC file (remember, “'” in title becomes “_”) ... if one exists copy over as sidecar file and auto approve it
 
@@ -100,10 +102,10 @@ REM values set from parameters:
         setdos /x-4
         set SONGFILE=%@UNQUOTE[%1]
         set SONGBASE=%@UNQUOTE[%@NAME[%SONGFILE]]`` %+ rem this might not work anymore 🐮
-        set SONGDIR=%@PATH[%SONGFILE]`` 
+        set SONGDIR=%@PATH[%@full[%SONGFILE]]`` 
         setdos /x0
-        pushd %SONGDIR%
-        rem echo SONGDIR is “%SONGDIR%” %+ pause
+        if "%_CWD\" != "%SONGDIR%" pushd %SONGDIR%
+        rem DEBUG:echo SONGDIR is “%SONGDIR%” , cwd=“%_CWD” %+ pause
         setdos /x-4
         if "%@EXT[%2]" eq "txt" (
                 set POTENTIAL_LYRIC_FILE=%@UNQUOTE[%2]
@@ -664,7 +666,9 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
 
 
         if 1 eq %AUTO_LYRIC_APPROVAL goto :use_text
-        if not exist %TXT_FILE% .or. %SKIP_TXTFILE_PROMPTING eq 1 .or. (1 eq %SOLELY_BY_AI .and. 1 ne %AUTO_LYRIC_APPROVAL%) (goto :No_Text)
+        iff not exist %TXT_FILE% .or. %SKIP_TXTFILE_PROMPTING eq 1 .or. (1 eq %SOLELY_BY_AI .and. 1 ne %AUTO_LYRIC_APPROVAL%) then
+                goto :No_Text
+        else                
                 :use_text
                 rem the text file %TXT_FILE% does in fact exist!
                 setdos /x-1
@@ -678,11 +682,14 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
                         rem         REM @echo %faint%adding line to prompt: %italics%%line%%italics_off%%faint_off%
                         rem )
 
-                        rem Smush the lyrics into a single line (no line breaks) set of unique lines:
+                        rem Smush the lyrics into a single line (no line breaks) set of unique lines ... unique-lines.pl is actually our lyric postprocessor
                                 rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | uniq | paste.exe -sd " " -]]
                                 rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" | paste.exe -sd " " -]]
                                 rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" ]] .... This was getting unruly, wrote a perl script that like “uniq”, but more for this specific situation
-                                set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" |:u8 unique-lines.pl -1 -L]] %+ rem unique-lines.pl is actually our lyric postprocessor
+
+                                rem Essentially make it so there is no command separator character. CHAR[1] should NOT come up in any lyrics
+                                setdos /c%@CHAR[1] 
+                                set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" |:u8 unique-lines.pl -1 -L]] 
                                 set OUR_LYRICS_TRUNCATED=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%OUR_LYRICS%]
 
                         rem Add the lyrics to our existing whisper prompt:
@@ -695,6 +702,7 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
                         rem Preface our whisper prompt with our hard-coded default command line options from above:
                                 set CLI_OPS=%CLI_OPS% %WHISPER_PROMPT%
                 setdos /x0
+        endiff                
         :No_Text
 
 
@@ -1054,6 +1062,7 @@ rem Full-endeavor success message:
 
 :END
 :nothing_generated
+setdos /x0
 echos %ansi_color_unimportant%
 timer /5 off
 echos %ansi_color_reset%
@@ -1061,6 +1070,7 @@ echos %ansi_color_reset%
 
 :Cleanup_Only
 :just_do_the_cleanup
+        setdos /x0
         set MAKING_KARAOKE=0
         unset /q LYRICS_ACCEPTABLE
         unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY
@@ -1074,6 +1084,7 @@ echos %ansi_color_reset%
                 endiff
 
 :The_Very_END
+        setdos /x0
         @echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[orange]%ANSI_CURSOR_CHANGE_TO_DEFAULT%                
         rem @echos %ANSI_COLOR_BLUE%%FAINT_ON%
     
@@ -1083,7 +1094,12 @@ echos %ansi_color_reset%
 :EOF
 
 :PopD
+        setdos /x0
         if %@DirStack[] gt 0 popd                                    %+ rem If we pushd’ed to another folder, popd back
         if %@DirStack[] gt 0 goto :PopD
 
+:Fix_Command_Separator
+        setdos /x-5
+        setdos /c%default_command_separator_character%
+        setdos /x0
 

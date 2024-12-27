@@ -84,8 +84,11 @@ MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40    #/   choose random colors from
 
 
 # ANSI codes
+CURSOR_RESET         = "\033[ q"
 ANSI_RESET           = "\033[39m\033[49m\033[0m"
-ANSI_RESET_FULL      = "\033[39m\033[49m\033[0m\033[?25h\033[ q\033]12;#\033]10;rgb:c0/c0/c0\033\\\033]11;rgb:00/00/01\033\\\033]10;rgb:c0/c0/c1\033\\"             #more thorough version that sets default color back to white on black
+ANSI_COLORDEF_RESET  = "]10;rgb:c0/c0/c0\\]11;rgb:00/00/00\\"
+#NSI_RESET_FULL      = "\033[39m\033[49m\033[0m\033[?25h\033[ q\033]12;#\033]10;rgb:c0/c0/c0\033\\\033]11;rgb:00/00/01\033\\\033]10;rgb:c0/c0/c1\033\\"             #this got too unmangeable
+ANSI_RESET_FULL      = CURSOR_RESET + ANSI_RESET + ANSI_COLORDEF_RESET         #more thorough version 
 BOLD_ON              = "\033[1m"
 BOLD_OFF             = "\033[22m"
 BIG_TOP              = "\033#3"
@@ -100,7 +103,6 @@ CONCEAL_OFF          = "\033[28m"
 CR                   = "\015"
 CURSOR_INVISIBLE     = "\033[?25l"
 CURSOR_VISIBLE       = "\033[?25h"
-CURSOR_RESET         = "\033[ q"
 DOUBLE_UNDERLINE_OFF = "\033[24m"
 DOUBLE_UNDERLINE_ON  = "\033[21m"
 ERASE_TO_EOL         = "\033[0K"

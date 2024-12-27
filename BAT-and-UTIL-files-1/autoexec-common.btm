@@ -51,7 +51,9 @@ rem Minimize annoying programs...
 rem Map drives
         call important "Mapping drives..."
         if isfunction randcursor (echos %@RANDCURSOR[])
-        start /min c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
+        rem 🚫 *start "" /min c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
+        REM call helper-start c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
+        call map-drives once
         gosub done_with_step
 
 

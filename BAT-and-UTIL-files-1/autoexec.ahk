@@ -24,26 +24,31 @@ global   caps_lock_mode         := 0
 global scroll_lock_mode         := 0
 global       dummy_mode         := 0  ;used to avoid passing caps lock mode because we manage that in the outer layer, but the other 2 in the inner layer
                                 
-global insert_up_tray_text      := " ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— "
-global insert_dn_tray_text      := " —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— "
-global insert_up_popup_text     := "      ███                                              █                       `n     █   █                                                    █                `n    █     █                                                   █                `n    █     █ ███ ███  █████  ███ ██  ███ ███ ███ ██   ███     ████    █████     `n    █     █  █   █  █     █   ██  █  █   █    ██  █    █      █     █     █    `n    █     █  █   █  ███████   █      █ █ █    █        █      █     ███████    `n    █     █   █ █   █         █      █ █ █    █        █      █     █          `n     █   █    █ █   █     █   █       █ █     █        █      █  █  █     █    `n      ███      █     █████  █████     █ █   █████    █████     ██    █████     `n"
-global insert_dn_popup_text     := "    ████                                            `n      █                                      █       `n      █                                      █       `n      █    ██ ██    █████   █████  ███ ██   ████     `n      █     ██  █  █     █ █     █   ██  █   █       `n      █     █   █   ███    ███████   █       █       `n      █     █   █      ██  █         █       █       `n      █     █   █  █     █ █     █   █       █  █    `n    █████  ███ ███  █████   █████  █████      ██     `n"
+;TODO 🐐 finish the large renderings of the other ones haha
 
-global numLock_up_tray_text     := " —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— "
-global numLock_dn_tray_text     := " —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— "
-global numLock_up_popup_text    := " —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— "
-global numLock_dn_popup_text    := " —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— "
-global numLock_dn_popup_text    := "    ██  ███                 █████                   ██                ███              `n     █   █                    █                      █               █   █             `n     ██  █                    █                      █              █     █            `n     ██  █  ██  ██  ███ █     █      █████   █████   █  ██          █     █ ██ ██      `n     █ █ █   █   █   █ █ █    █     █     █ █     █  █  █           █     █  ██  █     `n     █  ██   █   █   █ █ █    █     █     █ █        █ █            █     █  █   █     `n     █  ██   █   █   █ █ █    █     █     █ █        ███            █     █  █   █     `n     █   █   █  ██   █ █ █    █   █ █     █ █     █  █  █            █   █   █   █     `n    ███  █    ██ ██ ██ █ ██ ███████  █████   █████  ██   ██           ███   ███ ███    `n"                                
+global insert_up_tray_text        := " ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— `n ———— OVERWRITE mode ————— "
+global insert_dn_tray_text        := " —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— `n —————— INSERT mode —————— "
+global insert_up_popup_text       := "      ███                                              █                       `n     █   █                                                    █                `n    █     █                                                   █                `n    █     █ ███ ███  █████  ███ ██  ███ ███ ███ ██   ███     ████    █████     `n    █     █  █   █  █     █   ██  █  █   █    ██  █    █      █     █     █    `n    █     █  █   █  ███████   █      █ █ █    █        █      █     ███████    `n    █     █   █ █   █         █      █ █ █    █        █      █     █          `n     █   █    █ █   █     █   █       █ █     █        █      █  █  █     █    `n      ███      █     █████  █████     █ █   █████    █████     ██    █████     `n"
+global insert_dn_popup_text       := "    ████                                            `n      █                                      █       `n      █                                      █       `n      █    ██ ██    █████   █████  ███ ██   ████     `n      █     ██  █  █     █ █     █   ██  █   █       `n      █     █   █   ███    ███████   █       █       `n      █     █   █      ██  █         █       █       `n      █     █   █  █     █ █     █   █       █  █    `n    █████  ███ ███  █████   █████  █████      ██     `n"
 
-global capsLock_up_tray_text    := " ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— "
-global capsLock_dn_tray_text    := " —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— "
-global capsLock_up_popup_text   := " ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— "
-global capsLock_dn_popup_text   := " —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— "
+global numLock_up_tray_text       := " —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— "
+global numLock_dn_tray_text       := " —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— "
+global numLock_up_popup_text_OLD  := " —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— `n —————— NUM LOCK OFF —————— "
+global numLock_up_popup_text      := "    ██  ███                █████                   ██                ███      ███    ███    `n     █   █                   █                      █               █   █    █      █       `n     ██  █                   █                      █              █     █   █      █       `n     ██  █ ██  ██  ███ █     █      █████   █████   █  ██          █     █  ████   ████     `n     █ █ █  █   █   █ █ █    █     █     █ █     █  █  █           █     █   █      █       `n     █  ██  █   █   █ █ █    █     █     █ █        █ █            █     █   █      █       `n     █  ██  █   █   █ █ █    █     █     █ █        ███            █     █   █      █       `n     █   █  █  ██   █ █ █    █   █ █     █ █     █  █  █            █   █    █      █       `n    ███  █   ██ ██ ██ █ ██ ███████  █████   █████  ██   ██           ███    ████   ████     `n"
+global numLock_dn_popup_text_OLD  := " —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— `n —————— NUM LOCK ON ——————— "
+global numLock_dn_popup_text      := "    ██  ███                 █████                   ██                ███              `n     █   █                    █                      █               █   █             `n     ██  █                    █                      █              █     █            `n     ██  █  ██  ██  ███ █     █      █████   █████   █  ██          █     █ ██ ██      `n     █ █ █   █   █   █ █ █    █     █     █ █     █  █  █           █     █  ██  █     `n     █  ██   █   █   █ █ █    █     █     █ █        █ █            █     █  █   █     `n     █  ██   █   █   █ █ █    █     █     █ █        ███            █     █  █   █     `n     █   █   █  ██   █ █ █    █   █ █     █ █     █  █  █            █   █   █   █     `n    ███  █    ██ ██ ██ █ ██ ███████  █████   █████  ██   ██           ███   ███ ███    `n"                                
 
-global scrollLock_up_tray_text  := " ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— "
-global scrollLock_dn_tray_text  := " ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— "
-global scrollLock_up_popup_text := " ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———  scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— "
-global scrollLock_dn_popup_text := " ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— "
+global capsLock_up_tray_text      := " ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— "
+global capsLock_dn_tray_text      := " —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— "
+global capsLock_up_popup_text_OLD := " ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— `n ————— caps lock off —————— "
+global capsLock_up_popup_text     := "                                              ██                    ██                         ██      ██    `n                                               █                     █                        █       █	     `n                                               █                     █                        █       █	     `n     █████   ████   ██████   █████             █     █████   █████   █  ██           █████   ████    ████    `n    █     █      █   █    █ █     █            █    █     █ █     █  █  █           █     █   █       █	     `n    █        █████   █    █  ███               █    █     █ █        █ █            █     █   █       █	     `n    █       █    █   █    █     ██             █    █     █ █        ███            █     █   █       █	     `n    █     █ █    █   █    █ █     █            █    █     █ █     █  █  █           █     █   █       █	     `n     █████   ████ █  █████   █████           █████   █████   █████  ██   ██          █████   ████    ████    `n                     █											     `n                    ███											     `n		   											     `n"
+global capsLock_dn_popup_text_OLD := " —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— `n —————— CAPS LOCK ON —————— "
+global capsLock_dn_popup_text     := "      ████    ██    ██████   █████          █████     ███     ████  ███  ██           ███   ██  ███    `n     █    █    █     █    █ █     █           █      █   █   █    █  █   █           █   █   █   █     `n    █          █     █    █ █                 █     █     █ █        █  █           █     █  ██  █     `n    █         █ █    █    █ █                 █     █     █ █        █  █           █     █  ██  █     `n    █         █ █    █████   █████            █     █     █ █        █ █            █     █  █ █ █     `n    █        █   █   █            █           █     █     █ █        ███            █     █  █  ██     `n    █        █████   █            █           █     █     █ █        █  █           █     █  █  ██     `n     █    █  █   █   █      █     █           █   █  █   █   █    █  █   █           █   █   █   █     `n      ████  ███ ███ ████     █████          ███████   ███     ████  ███  ██           ███   ███  █     `n"
+
+global scrollLock_up_tray_text    := " ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— "
+global scrollLock_dn_tray_text    := " ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— "
+global scrollLock_up_popup_text   := " ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— `n ———  scroll lock off ————— `n ———— scroll lock off ————— `n ———— scroll lock off ————— "
+global scrollLock_dn_popup_text   := " ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— `n ————— scroll lock on ————— "
 
 Insert::   
 { 
@@ -204,11 +209,15 @@ Pause::
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-^?::Send  "❔"        ; Ctrl+? for ❔ [white]
-!?::Send  "❓"        ;  Alt+? for ❓ [red]
+;^?::Send  "❔"        ;	Ctrl+? for ❔ [white]
+;!?::Send  "❓"        ;	 Alt+? for ❓ [red]
+
+;can't figure out Ctrl-Alt-! though ...      ^!!:Send  "‼️";
+^!::Send  "❕"        ;	    Ctrl+! for ❕ [white]
+!!::Send  "❗"        ;	     Alt+! for ❗ [red]
 		      
-^8::Send  "⭐"        ; Ctrl+8 for ⭐
-!8::Send  "🌟"       ;  Alt+8 for 🌟
+^8::Send  "⭐"        ;	Ctrl+8 for ⭐
+!8::Send  "🌟"       ;	Alt+8 for 🌟
 		      
 ;-------   "-"       ;           Hyphen --------- for normal default hyphen                     (compound words, words interrupted by line break)
 ^-::Send   "–"       ;      Ctrl+Hyphen ––––––––– for en dash                                   (ranges,    quotations)
@@ -224,7 +233,7 @@ Pause::
 ^"::Send  "“"        ;     Ctrl+quote for “  smart double/normal quotes: left
 !"::Send  "”"        ;      Alt+quote for ”  smart double/normal quotes: right
 ^!"::Send "“”"       ; Ctrl+Alt+quote for “” smart double/normal quotes: both
-;(normal quote key)  ;          quote for "  default original dumb quote / inches symble
+;(normal quote key)  ;          quote for "  default original dumb quote / inches symbol
 		      
 ^!0::Send "⁰"        ; Ctrl+Alt+0 for superscript number
 ^!1::Send "¹"        ; Ctrl+Alt+1 for superscript number

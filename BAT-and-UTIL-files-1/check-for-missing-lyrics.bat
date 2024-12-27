@@ -1,4 +1,4 @@
-@Echo On
+@Echo Off
 @setdos /x0
 rem @on break cancel
 rem @setlocal
@@ -253,11 +253,13 @@ rem —————————————————————————�
 
                         rem Check if the potential karaoke files exist, and if they do, the file is good:
                                 for %tmp_potential_subtitle_file in ("%srtfile%" "%lrcfile%") do (
-                                        rem DEBUG:  echo checking if exist %tmp_potential_subtitle_file% 
+                                        set comment1=rem DEBUG: 
                                         if exist %tmp_potential_subtitle_file% (
+                                                rem echo checking if exist %tmp_potential_subtitle_file% and it does GOAT
                                                 set COMMENT=2024/12/22 found this annoying so suspending this and seeing how I feel: echo %ansi_color_cyan% %EMOJI_CHECK_MARK% karaoke  already exists:       %faint_on%%@UNQUOTE[%tmp_potential_subtitle_file%]%faint_off%``
                                                 set BAD=0                                   
                                         ) else (                          
+                                                rem echo checking if exist %tmp_potential_subtitle_file% and it doesn't GOAT
                                                 set COMMENT=echo %ansi_color_magenta% %check% karaoke DOESN%[smart_apostrophe]T exist:         %@UNQUOTE[%tmp_potential_subtitle_file%]``
                                         )                                            
                                 )
@@ -286,7 +288,8 @@ rem —————————————————————————�
                                 endiff              
 
                         rem Debug:
-                                rem DEBUG: echo   bad is %BAD% for %txtfile%
+                                rem DEBUG: 
+                                echo   bad is %BAD% for %txtfile% ... txt_exists=%txt_exists% 🐐
                         
                         rem Keep track of how many files we’ve processed in total:
                                 :done_processing_this_file

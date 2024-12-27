@@ -32,11 +32,11 @@ call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Checking if %italics_on%Calendar Monit
         :break_recheck
 
 call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Starting %italics_on%Calendar Monitor%italics_off%...
-call helper-start /INV calendar-monitor-helper %*
+*start "Calendar Monitor" /MIN c:\bat\calendar-monitor-helper.bat %*
 
-call sleep 2
-call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Minimizing %italics_on%Calendar Monitor%italics_off% to %italics_on%tray%italics_off%...
-activate "Calendar Monitor*" tray
+rem call sleep 2
+rem call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Minimizing %italics_on%Calendar Monitor%italics_off% to %italics_on%tray%italics_off%...
+rem activate "Calendar Monitor*" tray
 
 call bigecho "%STAR% %ANSI_COLOR_ADVICE%Drop ICS files into:"
 call bigecho    "    %ANSI_COLOR_ADVICE%    %italics_on%%faint_on%c:\Calendar\%faint_off%%italics_off% or %italics_on%%faint_on%c:\Cal\%faint_off%%italics_off%..."
