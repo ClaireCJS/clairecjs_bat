@@ -21,7 +21,7 @@ rem personal note: mchkold is a hard-coded 'mchk' of the pre-2002-crash filelist
         iff 1 ne %validated_mchk% then
                 call validate-environment-variables DROPBOX NEWMP3 MP3CL WAVPROCESSING INDEXFILE EVERYTHING  REVIEWDIR INDEXFILE_DROPBOX
                 call validate-environment-variables FILEMASK_AUDIO skip_validation_existence
-                callv alidate-in-path               grep cygwin-sort.exe sed.exe advice important_less
+                call validate-in-path               grep cygwin-sort.exe sed.exe advice important_less
                 set  validated_mchk=1
         endiff
 

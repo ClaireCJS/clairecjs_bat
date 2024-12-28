@@ -88,8 +88,8 @@ rem Validate parameters every time:
         if "%1" EQ "" (gosub :usage %+ goto :END)
         rem add-ADS-tag-to-file "2_08_Ikon - The Ballad Of Gilligan's Island.txt" "lyrics" read lyrics skip_validatoins
         if "%5" eq "skip_validations" (goto :skip_validations_1)
-        call validate-environment-variable  File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
-        call validate-environment-variables Tag_To_Modify          Tag_Value              
+        if not exist "%@UNQUOTE[%File_To_Change_Tag_Of%]" call validate-environment-variable  File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
+        call validate-environment-variables Tag_To_Modify Tag_Value              
         rem call validate-environment-variable Tag_To_Modify          "2ⁿᵈ argument to %0 must a tag, NOT empty"
         rem call validate-environment-variable Tag_Value              "3ʳᵈ argument to %0 must a value, or 'read' ... NOT empty"
         :skip_validations_1

@@ -130,7 +130,7 @@ rem                                     echo SET STR=!@RIGHT[%REMOVE_AMOUNT_NORM
 rem                                     ECHO REMAINING_STR = %REMAINING_STR% 🐈
 
                                 REM Spit out what we got, but assign it to a VERY unique variable name out of ridiculously [probably unnecessary] scope paranoia: 
-                                        set                UNIQUE_VAR_NAME=UNIQUE_VAR_NAME_%@RANDOM[0,999999999999999]
+                                        set                UNIQUE_VAR_NAME=UNIQUE_VAR_NAME_%@RANDOM[0,999999999999999]_%@RANDOM[0,999999999999999]_%@RANDOM[0,999999999999999]
                                         set              %[UNIQUE_VAR_NAME]="%@UNQUOTE[%LINE%]"
                                         rem setdos /x-678
 rem                                     echo @call  bigecho %[%[UNIQUE_VAR_NAME]]
@@ -203,7 +203,7 @@ setdos /x-678
             rem if %ECHOSBIG_SAVE_POS_AT_END_OF_BOT_LINE eq 1 (echos %ANSI_SAVE_POSITION%)  
             rem echo.
 
-    echos %ANSI_RESET%
+    rem 2024/12/27 — Let’s try not resetting so that line-wrapped bigechos retain their color: echos %ANSI_RESET% ... Hopefully this doesn’t mess up many other situations
     if %ECHOSBIG ne 1 (echo.)
 
     echos %@ANSI_MOVE_UP[2]
