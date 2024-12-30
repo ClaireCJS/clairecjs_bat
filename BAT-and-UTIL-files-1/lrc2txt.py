@@ -12,8 +12,10 @@ import unittest
 
 #### CONFIGURATION: DEBUG:
 DEBUG_TIME                    = False   
-DEBUG_INSERT_TIME_DIFFERENCES = True
+DEBUG_TIME                    = True   
 DEBUG_INSERT_TIME_DIFFERENCES = False
+DEBUG_INSERT_TIME_DIFFERENCES = True
+DEBUG_ENCOUNTERED_LINES       = True
 
 ##### CONFIGURATION: THRESHOLDS:
 MERGE_LINES_LESS_THAN_THESE_MANY_SECONDS_APART_INTO_1_LINE      = 0.65                             # (various experiments)->0.15->1.50->1.00->0.75->0.65
@@ -297,6 +299,12 @@ def replace_smart_quotes(text):
     return ''.join(result)
     
     
+    
+    
+    
+    
+    
+    
 def expand_and_sort_timestamps(lines):
     """
     Expands timestamps for lyrics, ensuring each timestamp is linked correctly to its lyrics.
@@ -312,18 +320,30 @@ def expand_and_sort_timestamps(lines):
     for line in lines:
         # Find all timestamps
         timestamps = re.findall(r'\[(\d+:\d+\.\d+)\]', line)
+        if not timestamps:                 #in the wild, ran into malformed LRCs that only went to the second-precision instead of to the centisecond-precision, i.e. “[00:14]” instead of “[00:14.01]”
+            timestamps = re.findall(r'\[(\d+:\d+)\]', line) 
+            timestamps = [f"[{ts}.00]" for ts in timestamps]  # Append ".00" to each timestamp
+            
         # Extract the lyric (everything after the last timestamp)
         lyric = re.split(r'\[\d+:\d+\.\d+\]', line)[-1].strip()
+        if DEBUG_ENCOUNTERED_LINES: print(f"--?--> lyric=“{lyric}” ... timestamps=“{timestamps}”")
         
-        if lyric:  # Only process if there are lyrics
+        if not lyric:  # Only process if there are lyrics
+            if DEBUG_ENCOUNTERED_LINES: print(f"⚠ No lyrics for line [{line}]")
+        else:        
             for timestamp in timestamps:
                 # Convert timestamp to seconds for sorting
                 minutes, seconds = map(float, timestamp.split(":"))
                 total_seconds = minutes * 60 + seconds
+                
+                # Add the converted line to the output:
                 expanded_lines.append((total_seconds, lyric))
     
     # Sort by timestamps
-    return sorted(expanded_lines, key=lambda x: x[0])
+    #return sorted(expanded_lines, key=lambda x: x[0])
+    retval = sorted(expanded_lines, key=lambda x: x[0])
+    if DEBUG_ENCOUNTERED_LINES: print(f"---> sorted lines=🍠🍠🍠🍠“{retval}”🍠🍠🍠🍠")
+    return retval
 
 
 
