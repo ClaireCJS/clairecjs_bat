@@ -9,6 +9,7 @@ from termcolor import colored
 import random
 from colorama import init
 init(autoreset=False)
+import gc
 
 
 
@@ -107,9 +108,10 @@ def main_guts(input_filename, extensions, options, extra_args):
         except UnicodeDecodeError:
             print(f"Error: Unable to read file '{input_filename}' with detected encoding '{encoding}'.")
             sys.exit(1)
-    
+   
+    gc.collect
 
-
+   
     # Check each file for sidecar files
     for file in            files:
         total_file_count = total_file_count + 1
@@ -163,7 +165,6 @@ def main_guts(input_filename, extensions, options, extra_args):
             sys.stderr.write(        f"       To fix, run:      {output_filename} \n")
             #DEBUG: if extra_args: print(f"Using extra arguments of: {extra_args}")
 
-
             if extra_args == "/s": extra_args=""
 
             # run any special postprocessing we've created, usually to create scripts to deal with files that are missing sidecar files
@@ -208,3 +209,5 @@ if __name__ == "__main__":
     #print(f"- DEBUG: Extensions are: '{extensions    }'") #
 
     main_guts(input_filename, extensions, options, extra_args_str)
+    
+

@@ -177,7 +177,7 @@ rem Run the fix-script, if we have decided to:
                         call divider
                         echos %@ANSI_MOVE_UP[2]%ANSI_CURSOR_VISIBLE%
                         echos %@ANSI_CURSOR_COLOR_BY_WORD[yellow]                                  %+ rem Impotent because cursor color is set in pause-for-x-seconds anyway!
-                        call pause-for-x-seconds 30 "%ansi_color_green%Going to find those missing lyrics now!%ansi_color_bright_Red%%blink_on%"
+                        call pause-for-x-seconds 20 "%ansi_color_green%Going to find those missing lyrics now!%ansi_color_bright_Red%%blink_on%"
                         echos %CURSOR_RESET%
                         echos %blink_off%
                         rem echo type "%TARGET_SCRIPT%" ^ type "%TARGET_SCRIPT%"                   %+ rem Debug
@@ -205,13 +205,13 @@ rem —————————————————————————�
                                 set audio_file_path=%@unquote[%@path[%unquoted_audio_file_full%``]``]``
 
                         rem Debug stuff:
-                                goto :nope
+                                goto :nope_1
                                         echo 🐞 %ansi_color_purple%CFML_AudioFile          =%CFML_AudioFile%%ansi_color_normal% 🐞 
                                         echo 🐞 %ansi_color_purple%unquoted_audio_file     =“%unquoted_audio_file%”%ansi_color_normal% 🐞 
                                         echo 🐞 %ansi_color_purple%unquoted_audio_file_full=“%unquoted_audio_file_full%”%ansi_color_normal% 🐞 
                                         echo 🐞 %ansi_color_purple%audio_file_name         =“%audio_file_name%”%ansi_color_normal% 🐞 
                                         echo 🐞 %ansi_color_purple%audio_file_path         =“%audio_file_path%”%ansi_color_normal% 🐞 
-                                :nope
+                                :nope_1
 
                         rem Reject if it’s an m3u-specific comment-line in the filelist:
                                 if "%@LEFT[8,%unquoted_audio_file%]" == "#EXTINF:" return
@@ -239,13 +239,14 @@ rem —————————————————————————�
 
 
                         rem Debug stuff:
-                                echo 🐞 %ansi_color_purple%CFML_audiofile=%CFML_audiofile%%ansi_color_normal% 🐞 
-                                echo 🐞 %ansi_color_purple%audio_file_path=%audio_file_path%%ansi_color_normal% 🐞 
-                                echo 🐞 %ansi_color_purple%srtfile        =%srtfile% %ansi_color_normal% 🐞 
-                                echo 🐞 %ansi_color_purple%lrcfile        =%lrcfile% %ansi_color_normal% 🐞 
-                                echo 🐞 %ansi_color_purple%audio_file     =%audio_file%%ansi_color_normal% 🐞 
-                                echo 🐞 %ansi_color_purple%txtfile        =%txtfile% %ansi_color_normal% 🐞 
-
+                                goto :nope_2
+                                        echo 🐞 %ansi_color_purple%CFML_audiofile=%CFML_audiofile%%ansi_color_normal% 🐞 
+                                        echo 🐞 %ansi_color_purple%audio_file_path=%audio_file_path%%ansi_color_normal% 🐞 
+                                        echo 🐞 %ansi_color_purple%srtfile        =%srtfile% %ansi_color_normal% 🐞 
+                                        echo 🐞 %ansi_color_purple%lrcfile        =%lrcfile% %ansi_color_normal% 🐞 
+                                        echo 🐞 %ansi_color_purple%audio_file     =%audio_file%%ansi_color_normal% 🐞 
+                                        echo 🐞 %ansi_color_purple%txtfile        =%txtfile% %ansi_color_normal% 🐞 
+                                :nope_2
                                 
                         rem Song is considered "bad" [does not have approved lyrics], until we find the accompanying files and mark it as "good"
                                 set BAD=1                                                                     
@@ -288,8 +289,7 @@ rem —————————————————————————�
                                 endiff              
 
                         rem Debug:
-                                rem DEBUG: 
-                                echo   bad is %BAD% for %txtfile% ... txt_exists=%txt_exists% 🐐
+                                rem DEBUG: echo   bad is %BAD% for %txtfile% ... txt_exists=%txt_exists% 🐐
                         
                         rem Keep track of how many files we’ve processed in total:
                                 :done_processing_this_file
@@ -300,7 +300,7 @@ rem —————————————————————————�
                                 iff 1 eq %BAD% then
                                 
                                         rem Display the # processed (which only applies to bad files):
-                                                title %EMOJI_WRENCH% Processed: %NUM_PROCESSED%
+                                                title Processed: %NUM_PROCESSED%
                                                 
                                         rem Display the # remaining as a status bar at the bottom of the screen:
                                                 setdos /x0
@@ -330,7 +330,7 @@ rem —————————————————————————�
                                 rem DEBUG: echo %ansi_color_normal%* Checking %faint_on%%CFML_AudioFile%%faint_off% %@ansi_move_to_col[65] txtfile=%faint_on%%txtfile%%faint_off% %tab% %@ANSI_MOVE_TO_COL[125]%coloring%EXISTS=%txt_exists%%ansi_color_normal%   %coloring2%APPROVED=%LYRIC_APPROVAL_VALUE%
              setdos /x0
              
-             call debug "Done with loop!"
+             rem call debug "Done with loop!"
              
              return
         :process_file_end

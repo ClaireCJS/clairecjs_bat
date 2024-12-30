@@ -101,7 +101,7 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 &nbsp;    
 
 
-4. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
+6. ⌨️ My full [Clairevironment](https://github.com/ClaireCJS/clairecjs_bat/) (a big ball of stuff which includes this project).
     - Technically you probably only need about 100 of these files.  
     - This folder has it’s own ```sort``` and ```uniq``` executables (from [Cygwin](https://www.cygwin.com)) to ensure consistency
     - To install: 
@@ -116,13 +116,19 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 &nbsp;
 
-5. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
+7. 📜 Recommended: To use the “local lyric repository search” functionality, set an environment variable named ```LYRICS``` to point to your lyric repository.  For example, ```set LYRICS=c:\lyrics```.
+This is a repository of saved lyrics, possibly from past [MiniLyrics](https://minilyrics.en.softonic.com/)/[EvilLyrics](https://www.evillabs.sk/evillyrics/) use.   
+The structure of the repository is assumed to be subfolders for the 1ˢᵗ letter of the artist, with filenames that are “*Artist* - *Title*.txt”, for example ```c:\Lyrics\M\Metallica - Enter Sandman.txt```, with the possibility of apostrophes being substituted into underscores. 
+
+&nbsp;
+
+8. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
     - Always be running  the ```Everything``` service, which comes with TakeCommand ([TCC](https://jpsoft.com/all-downloads/all-downloads.html))
     - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn’t start automatically. 
 
 &nbsp;
 
-5. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration:
+9. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration:
     - Install the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile)
     - Configure the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. 
     - This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on “whatever song we are currently listening to” from any computer in the household. 🦙
@@ -175,8 +181,8 @@ Obtains the lyrics for a particular song file.
 - transcriptions work **much** better with lyrics
 - This checks local sidecar files, local lyric repository, Genius, and Google
 - gives an option to hand-edit lyrics after download
-- can approve lyrics for later use
-- can approve lyriclessness for later use 
+- can approve lyrics for later use (to allow the option of ONLY focusing on obtaining lyrics) [karaoke can be generated while sleeping]
+- can approve lyric*less*ness for later use to “give up” on a lyric search (to allow automatic AI-generation to happen even though no lyrics were found)
 
 
 ### 🌟 [get-lyrics-for-currently-playing-song](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
@@ -196,6 +202,13 @@ Gets lyrics for all the files *in a playlist* that do not have *approved* lyric 
 (Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
 
 
+### 🌟 cmt / gmt / [create-txt-lyrics-from-karaoke-files.bat](../BAT-and-UTIL-files-1create-txt-lyrics-from-karaoke-files.bat.bat):
+create-txt-lyrics-from-karaoke-files.bat
+
+In the current folder, convert all karaoke sidecar files into text sidecar files (unless they already exist).
+That is: If an MP3/FLAC has a corresponding LRC/SRT but not TXT version, convert the LRC/SRT to TXT.
+
+It’s good to prep your entire collection with this, by running it in every folder of your music collection. Do this by going to the base folder of your music collection and running: ```global /i create-txt-lyrics-from-karaoke-files.bat```
 
 
 </details>
@@ -223,7 +236,7 @@ If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/30666
 If lyrics (or lyriclessness) are pre-approved, creation is automatic.
 
 
-### 🌟 cmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../BAT-and-UTIL-files-1/create-the-missing-karaokes-here.bat):
+### 🌟 cmk / gmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../BAT-and-UTIL-files-1/create-the-missing-karaokes-here.bat):
 
 Create karaoke files for **all songs** *in the current folder* that do not have them
 Songs that have pre-approved lyrics go through the process automatically.
@@ -261,12 +274,15 @@ Reviews all lyric files in current folder, using ```print-with-columns``` to red
 
 
 
-### 🌟 dls / [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat):
+### 🌟 dlsa / dls / [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat) {*lyric_filename* or “all” or “audio” or “*”}:
 
-Displays the lyric status (approved, unapproved, or unset) for all lyric files in current folder. 
+Displays the lyric/lyriclessness status (approved, unapproved, or unset) for all lyric/audio files in current folder. 
 
 To have this happen automatically when changing into a folder, ```alias cd=call cd-alias.bat```,  then create ```autorun.bat``` in the *base folder* of your music collection, containing the command:
 ```@if exist *.txt (call display-lyric-status)```
+or
+```@if exist *.txt;*.mp3;*.flac;*.wav (call display-lyric-status all)```
+![image](https://github.com/user-attachments/assets/350dbe7c-5649-40ca-a355-ec73a8e34030)
 ![image](https://github.com/user-attachments/assets/0ccdebd6-7e26-4a2b-91ee-c3e0cfe9f147)
 
 

@@ -80,15 +80,22 @@ rem If we will be displaying more than 1 file, use justification so the values l
 
 rem Go through each file, displaying it’s lyric status:
         iff "1" ne "%@RegEx[[\*\?],%1]" then
+                set ADSTAG_DISPLAY_FOR_PATH=0
                 set masks=%FILEMASK_AUDIO%;*.srt;*.lrc;*.txt
                 set masks=*
                 if "%1" eq "audio" (
                         set masks=%filemask_audio%
+                        set ADSTAG_DISPLAY_FOR_PATH=0
                 ) else (
                         if "%1" ne "all" set masks=%1
+                        set ADSTAG_DISPLAY_FOR_PATH=0
                 )                        
         endiff
-        
+
+        rem TODO playlist func!
+        rem if playlist: set ADSTAG_DISPLAY_FOR_PATH=0
+
+
         rem call debug "🎭 masks=%masks%" %+ pause
         for %%tmptmpfile in (%masks%) do gosub process "%tmptmpfile%"
 
@@ -125,29 +132,39 @@ rem Go through each file, displaying it’s lyric status:
                                 set SIDECAR_FOUND=0
                                 set MASK_TO_CHECK=%FILEMASK_LYRICS_TEMP%
                                 for %%E in (%MASK_TO_CHECK%) do (
-                                    if exist "%BASENAME%%%~xE" (
-                                        set comment=echo Found sidecar file: %BASENAME%%%~xE
-                                        set TMP_LYRIC_OR_SONG_SIDECAR_FILE=%@UNQUOTE[%BASENAME%%%~xE]
-                                        set SIDECAR_FOUND=1
-                                    )
+                                        set proposed_sidecar=%BASENAME%%%~xE
+                                        if "%proposed_sidecar%" != "%tmpfile%" .and. exist "%proposed_sidecar%"  (
+                                                echo Found sidecar file for file "%tmpfile%": "%proposed_sidecar%" >nul
+                                                set TMP_LYRIC_OR_SONG_SIDECAR_FILE=%@UNQUOTE[%proposed_sidecar%]
+                                                set SIDECAR_FOUND=1
+                                                leavefor
+                                        )
                                 )
                                 rem call debug "     is_karaoke=%is_karaoke% 🍤 tmpfile=%tmpfile% 🍟 SIDECAR_FOUND=%SIDECAR_FOUND% and is %TMP_LYRIC_OR_SONG_SIDECAR_FILE%" silent
+
 
                         rem Display the lyric status if a sidecar file was found, or another message if one was not:
                                 if 1 eq %IS_KARAOKE (
                                                 rem echos is_karaoke: ``
                                                 call display-lyric-status-for-file "%tmpfile%" skip_validations
                                 ) else (
-                                        rem if 1 eq %SIDECAR_FOUND%  (
-                                        rem         call display-lyric-status-for-file "%TMP_LYRIC_OR_SONG_SIDECAR_FILE%" skip_validations
-                                        rem ) else (                                
-                                        rem         rem The old way, before lyriclessness was approveable: if 1 eq %USE_SPACER% ( echo %@CHAR[55357]%@CHAR[56590] %@CHAR[27][38;2;98;108;22m%red_x% No corresponding lyric file for: %@CHAR[27][38;2;68;78;15m%italics_on%%@FULL[%tmpFile%]%italics_off%%faint_off% ) else ( echo %@CHAR[55357]%@CHAR[56590] %@CHAR[27][38;2;98;108;22mNo corresponding lyric for: %@CHAR[27][38;2;68;78;15m%italics_on%%@FULL[%tmpFile%]%italics_off%%faint_off% )
-                                        rem         call display-lyric-status-for-file "%tmpfile%" lyriclessness skip_validations
-                                        rem )       
+                                        set comment=rem if 1 eq %SIDECAR_FOUND%  (
+                                        set comment=rem         call display-lyric-status-for-file "%TMP_LYRIC_OR_SONG_SIDECAR_FILE%" skip_validations
+                                        set comment=rem ) else (                                
+                                        set comment=rem         rem The old way, before lyriclessness was approveable: if 1 eq %USE_SPACER% ( echo %@CHAR[55357]%@CHAR[56590] %@CHAR[27][38;2;98;108;22m%red_x% No corresponding lyric file for: %@CHAR[27][38;2;68;78;15m%italics_on%%@FULL[%tmpFile%]%italics_off%%faint_off% ) else ( echo %@CHAR[55357]%@CHAR[56590] %@CHAR[27][38;2;98;108;22mNo corresponding lyric for: %@CHAR[27][38;2;68;78;15m%italics_on%%@FULL[%tmpFile%]%italics_off%%faint_off% )
+                                        set comment=rem         call display-lyric-status-for-file "%tmpfile%" lyriclessness skip_validations
+                                        set comment=rem )       
                                         if 1 eq %IS_LYRICS% (
                                                 call display-lyric-status-for-file "%tmpfile%" lyrics        skip_validations
                                         ) else (
-                                                call display-lyric-status-for-file "%tmpfile%" lyriclessness skip_validations
+                                                set comment=rem If we’re displaying both karaoke *AND* audio files, and a karaoke file exists, 
+                                                set comment=rem    then there is no need to mention the audio file, as we don’t generally have
+                                                set comment=rem    karaoke files just hanging around without an attached song.  
+                                                iff 0 eq %SIDECAR_FOUND then
+                                                        call display-lyric-status-for-file "%tmpfile%" lyriclessness skip_validations
+                                                else
+                                                        set COMMENT=doing nothing
+                                                endiff
                                         )
                                 )
                                 

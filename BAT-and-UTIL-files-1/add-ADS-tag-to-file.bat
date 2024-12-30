@@ -305,12 +305,14 @@ goto :END
                                         endiff
                                         
                                         echos %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %EXTRA% %value_spacer%
-                                        iff 1 ne %HIDE_STATUS then
-                                                echos  %tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use%
-                                        else                                                
+                                        iff 1 eq %HIDE_STATUS then
                                                 echos %@ANSI_MOVE_LEFT[18]%faint_on%....................................%faint_off%``
+                                        else                                                
+                                                echos  %tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use%
                                         endiff
-                                        echo %value_spacer_post% for: %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%%conceal_on%orange42%conceal_off%
+                                        echos %value_spacer_post% for %@ansi_fg_rgb[182,118,182]%@ext[%tmp_file2use%]%ansi_color_reset%: %faint_on%%italics_on%
+                                        if 0 ne %ADSTAG_DISPLAY_FOR_PATH% echos %@path[%tmp_file2use%]
+                                        echo %@name[%tmp_file2use%].%faint_off%%italics_off%%@ansi_fg[124,124,124]%@ext[%tmp_file2use%]%faint_off%%italics_off%%conceal_on%orange42%conceal_off%
                                 endiff
                         endiff
         return

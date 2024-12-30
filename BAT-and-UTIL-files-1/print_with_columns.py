@@ -599,7 +599,7 @@ def main():
             INTERNAL_LOG = INTERNAL_LOG + INTERNAL_LOG_FRAGMENT
             
             #add our rendered row to our output:
-            output += rendered_row + "\n"
+            output += rendered_row.replace("Æ","’") + "\n"                         #mis-encoded apostrpohe fox ... This is very untenable
             #🐱🐱🐱 if VERBOSE: print(f"🤬🤬 row_num {row_num}... is_too_wide={is_too_wide}\n⚙ ⚙ ⚙ OUTPUT SO FAR:\n{BLINK_ON}{COLOR_GREY}{output}{BLINK_OFF}{ANSI_RESET}⚙ ⚙ ⚙ That's it!")
             
         #now that we have rendered our row, figure out if we are done or not:

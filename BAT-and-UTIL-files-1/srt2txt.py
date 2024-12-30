@@ -15,7 +15,11 @@ EXTENSION = '.txt'                                          # Hardcoded extensio
 MAX_TIME_BETWEEN_SUBTITLES_TO_JOIN_TOGETHER       = 0.3     #if one subtitle begins less than this much time after the last ends, consider it the same line of text in the output file
 MAX_TIME_BETWEEN_SUBTITLES_TO_JOIN_TOGETHER       = 0.05    #if one subtitle begins less than this much time after the last ends, consider it the same line of text in the output file
 MIN_TIME_BETWEEN_SUBTITLES_TO_GENERATE_BLANK_LINE = 1.5     #if one subtitle begins MORE than this much time after the last subtitle, insert a fully blank line  into  the output file
+MIN_TIME_BETWEEN_SUBTITLES_TO_GENERATE_BLANK_LINE = 1.25    #if one subtitle begins MORE than this much time after the last subtitle, insert a fully blank line  into  the output file
 
+DEBUG_ENCOUNTERED_LINES = False
+DEBUG_SMART_QUOTES      = False
+DEBUG_SHOW_INPUT_FILES  = False
 
 
 
@@ -33,7 +37,6 @@ def replace_smart_quotes(text):
     Replace straight quotes with curly quotes based on context.
     """
     
-    DEBUG_SMART_QUOTES = False #🐐🐮
     if DEBUG_SMART_QUOTES: print(f"all-but-last char of text is [" + text[:-1] + "]")
 
     if   text == ''  : return ""
@@ -217,7 +220,7 @@ def srt_to_txt(input_file, output_file):                                        
                                                                                                       
     with open(output_file, 'w', encoding='utf-8') as f_out:                                             # Open the output file for writing with UTF-8 encoding
         for line in text_lines:                                                                         # Iterate over the collected text lines
-            print(f"Encountered line: [{line}]")                                                      
+            if DEBUG_ENCOUNTERED_LINES: print(f"Encountered line: [{line}]")                            # DEBUG: print out each encountered line
             line = replace_smart_quotes(line)                                                           # change " to “ and ”
             line = line.replace("'","’")                                                                # change ' to ’
             f_out.write(line.lstrip() + '\n')                                                           # Write each line followed by a newline character
@@ -231,7 +234,7 @@ if __name__ == "__main__":                                                      
     input_files = []                                                                                    # Initialize list to hold all input files
     if args.input_files == ['all']:                                                                     # to operate on all the SRT files at once
         input_files = glob.glob("*.srt")                                                                # Get all .srt files in the current directory 
-        print(f"input files are {input_files}")                     
+        if DEBUG_SHOW_INPUT_FILES: print(f"input files are {input_files}")                              # DEBUG: list out our input files
         if not input_files:                                                                             # If there are no SRT files in the whole folder...
             print("No .srt files found in the current directory.")                                      # Display error message
             import sys                                                                                  # Load sys module to be able to exit program with sys.exit(1)

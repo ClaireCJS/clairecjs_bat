@@ -1,4 +1,7 @@
 @Echo off
+rem  ---------------------- MP3INDEX.BAT ----------------------
+rem  ---------------------- MP3INDEX.BAT ----------------------
+rem  ---------------------- MP3INDEX.BAT ----------------------
 @on break cancel
 
 :DESCRIPTION: This is more or less a glorified "dir /b *.mp3", execpt it works for all audio file types
@@ -13,9 +16,12 @@ endiff
 
 rem THIS SHOULD WORK IN A PERFECT WORLD:
     iff "%1" ne "/s" then
+        rem 🐈🐈🐈🐈🐈🐈 We did NOT chose /s
         iff exist %FILEMASK_AUDIO% .or. %@FILES[/s/h,%FILEMASK_AUDIO] gt 0 then
                 iff exist %FILEMASK_AUDIO% then
-                        *dir /b /a:-d    %* %FILEMASK_AUDIO% >:u8these.m3u
+                        rem if exist these.m3u (*del /q these.m3u >nul)
+                        (*dir /b /a:-d    %* %FILEMASK_AUDIO%) >:u8these.m3u
+                        rem call handles
                 else
                         if exist these.m3u (*del /q these.m3u >nul)
                 endiff
@@ -25,13 +31,14 @@ rem THIS SHOULD WORK IN A PERFECT WORLD:
                 if exist all.m3u (*del /q all.m3u >nul)
         endiff
     elseiff "%1" eq "/s" then
+        rem 🐈🐈🐈🐈🐈🐈 We chose /s
         iff %@FILES[/s/h,%FILEMASK_AUDIO] gt 0 then
                 *dir /b /a:-d /s %* %FILEMASK_AUDIO%
                 call advice "call mp3index without any arguments to create all.m3u and these.m3u automatically"
         else
                 call warning_soft "No audio files in: %faint_on%%_CWD%%faint_off%, or any of its subfolders"
-                if exist these.m3u (*del /q these.m3u >nul)
-                if exist   all.m3u (*del /q   all.m3u >nul)
+                rem if exist these.m3u (*del /q these.m3u >nul)
+                rem if exist   all.m3u (*del /q   all.m3u >nul)
         endiff
     endiff
     goto :END

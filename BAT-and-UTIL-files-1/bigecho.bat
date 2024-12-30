@@ -39,7 +39,8 @@ rem —————————————————————————�
 rem If it's too wide  then simply revert back to echo'ing the command in normal/single-height lines...
         setdos /x-5
         set            STRIPPED_MESSAGE=%@stripansi[%@UNQUOTE[%PARAMS]]
-        set LEN=%@width[%STRIPPED_MESSAGE%]
+        rem LEN=%@width[%STRIPPED_MESSAGE%]
+        set LEN=%@width["%STRIPPED_MESSAGE%"]
         setdos /x0
         SET MESSAGE_WIDTH_NORMAL=%LEN%
         SET MESSAGE_WIDTH_DOUBLE=%@EVAL[%LEN * 2] 
@@ -71,79 +72,93 @@ rem                     echo MAXIMUM_DESIRED_NORMAL_WIDTH = %MAXIMUM_DESIRED_NOR
 
                 REM Loop until the entire string has been processed
                 :begin_loop
-                        set string_length_normal_size=%@width[%STR]
+                        set  widthStr=%@width[%STR]
+rem                     echo widthStr(1) is [%widthStr%] for %ansi_color_red%[%ansi_color_normal%%STR%%ansi_color_red%]%ansi_color_normal% 🐱 %+ pause
+                        set  widthStr=%@EVAL[%@width["%STR"]-2]                    %+ rem Have to enclose it in quotes to not be vulnerable to text with “]” in it, and then subtract 2 for the quotes we added
+rem                     echo widthStr(2) is [%widthStr%] for %ansi_color_red%[%ansi_color_normal%%STR%%ansi_color_red%]%ansi_color_normal% 🐱 %+ pause
+                        set string_length_normal_size=%widthStr%
                         rem *2 because we're dealing with double-height text:
-                        set string_length_double_size=%@EVAL[%@width[%STR] * 2]         
+                        set string_length_double_size=%@EVAL[%widthStr% * 2]         
 rem                     echo STRING_LENGTH_NORMAL_SIZE = %STRING_LENGTH_NORMAL_SIZE% 🐈
 rem                     echo STRING_LENGTH_DOUBLE_SIZE = %STRING_LENGTH_DOUBLE_SIZE% 🐈
                         
                         if %string_length_normal_size% == 0 GOTO :done_with_too_long_messages
                         
+rem                     iff %string_length_double_size% LE %MAXIMUM_DESIRED_NORMAL_WIDTH% then GOTO DONE WITH TOO LONG MESSAGES OTHERWISE STR LEN ACTUAL IS gt MAX DESIRED WIDTH
                         iff %string_length_double_size% LE %MAXIMUM_DESIRED_NORMAL_WIDTH% then
                                 REM If the remaining string is shorter than desired, output normally by exiting this loop
                                         goto :done_with_too_long_messages
-                        rem Else string length actual is GT maximum desired width:
-                        else                                                      
-                                REM How far over length are we? By actual/normal width subtracted by normal desired width
-                                        set OVERRUN_NORMAL_WIDTH=%@EVAL[%string_length_double_size - %MAXIMUM_DESIRED_NORMAL_WIDTH]
-                                        set OVERRUN_DOUBLE_WIDTH=%@FLOOR[%@EVAL[%OVERRUN_NORMAL_WIDTH / 2 + 0.9999999999]]
-rem                                    echo OVERRUN_NORMAL_WIDTH = %OVERRUN_NORMAL_WIDTH% 🐈
-rem                                    echo OVERRUN_DOUBLE_WIDTH = %OVERRUN_DOUBLE_WIDTH% 🐈
-                                        
-                                REM To round up our number add almost-1 to it. I.E.: we really need to strip off 5, so 4.1 + 0.09999999999 = 5.09999999999 floored = 5.0  But 4.0 will remain 4
-                                        rem REMOVE_AMOUNT=%@EVAL[2 * %@FLOOR[%@EVAL[(%string_length% - %MAXIMUM_DESIRED_NORMAL_WIDTH% + 0.9999999999999999999999)]]] %+ rem double for double-width chars
-                                        rem OVE_AMOUNT_NORMAL=%OVERRUN_NORMAL_WIDTH%
-                                        rem REMOVE_AMOUNT_DOUBLE=%@FLOOR[%@EVAL[(%OVERRUN_NORMAL_WIDTH% * 2) + 0.9999999999]]
-                                        rem   KEEP_AMOUNT_NORMAL=%@EVAL[%MESSAGE_WIDTH_DOUBLE% - %OVERRUN_NORMAL_WIDTH% ]
-                                        rem   KEEP_AMOUNT_DOUBLE=%@EVAL[%MESSAGE_WIDTH_DOUBLE% - %REMOVE_AMOUNT_DOUBLE% ]
-                                        rem   KEEP_AMOUNT_DOUBLE=%@EVAL[%KEEP_AMOUNT_NORMAL% * 2]
-                                        rem REMOVE_AMOUNT_NORMAL=%@FLOOR[%@EVAL[(%REMOVE_AMOUNT_DOUBLE% / 2) + 0.999999999]]
-                                        rem   KEEP_AMOUNT_DOUBLE=%@EVAL[%KEEP_AMOUNT_NORMAL% * 2]
-                                        set REMOVE_AMOUNT_NORMAL=%OVERRUN_DOUBLE_WIDTH%
-                                        rem   KEEP_AMOUNT_NORMAL=%@EVAL[%MESSAGE_WIDTH_DOUBLE% - %REMOVE_AMOUNT_NORMAL% ]
-                                        set   KEEP_AMOUNT_NORMAL=%@EVAL[%MESSAGE_WIDTH_NORMAL% - %REMOVE_AMOUNT_NORMAL% ]
-rem                                    echo REMOVE_AMOUNT_NORMAL = %remove_amount_normal 🐈
-rem                                    echo REMOVE_AMOUNT_DOUBLE = %remove_amount_double 🐈
-rem                                    echo   KEEP_AMOUNT_NORMAL = %keep_amount_normal 🐈 [N/A]
-rem                                    echo   KEEP_AMOUNT_DOUBLE = %keep_amount_double 🐈 [N/A]�
-
-                                
-                                rem DEBUG: echo  string_length_double_size=%string_length_double_size% not LE MAXIMUM_DESIRED_NORMAL_WIDTH=%MAXIMUM_DESIRED_NORMAL_WIDTH% 
-                                rem DEBUG: echo keep_amount_normal=%keep_amount_normal%
-
-                                REM Actually set the line that we are going to echo
-                                        setdos /x-5
-rem                                echo SET LINE=!@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] 
-                                        SET LINE=%@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] 
-rem                                echo LINE is [%LINE] 🐈
-                                        setdos /x0
-
-                                REM Then deal with *the rest* of what remains of this line:
-                                REM Remove the first %Desired_Max_msg_width characters from left of STR
-                                REM        via removing the precalculated-from-before remove_amount:
-rem                                     echo SET STR=!@RIGHT[%REMOVE_AMOUNT_NORMAL%,%STR] 🐈
-                                        SET STR=%@RIGHT[%REMOVE_AMOUNT_NORMAL%,%STR]                                        
-                                        
-                                rem Set this value aside because STR will be redefined when we recursively call this                                        
-                                rem And also remove any leading spaces off of it (at this point, length doesn't matter):
-                                        SET REMAINING_STR=%@TRIM[%STR%]
-rem                                     ECHO REMAINING_STR = %REMAINING_STR% 🐈
-
-                                REM Spit out what we got, but assign it to a VERY unique variable name out of ridiculously [probably unnecessary] scope paranoia: 
-                                        set                UNIQUE_VAR_NAME=UNIQUE_VAR_NAME_%@RANDOM[0,999999999999999]_%@RANDOM[0,999999999999999]_%@RANDOM[0,999999999999999]
-                                        set              %[UNIQUE_VAR_NAME]="%@UNQUOTE[%LINE%]"
-                                        rem setdos /x-678
-rem                                     echo @call  bigecho %[%[UNIQUE_VAR_NAME]]
-                                        @call       bigecho %[%[UNIQUE_VAR_NAME]]
-                                        rem setdos /x0
-                                        unset  /q        %[UNIQUE_VAR_NAME]
-                                        
-                                REM Set STR for next message
-                                        set STR=%REMAINING_STR%
-rem                                     echo %ansi_color_red%remaining_str is '%REMAINING_STR%'%ansi_normal% ... setting for rest of script 🐈
-                                        set PARAMS=%STR%
-                                        
+                        else
+                                rem Else string length actual is GT maximum desired width:
                         endiff
+
+
+                         REM How far over length are we? By actual/normal width subtracted by normal desired width
+                         set OVERRUN_NORMAL_WIDTH=%@EVAL[%string_length_double_size - %MAXIMUM_DESIRED_NORMAL_WIDTH]
+                         set OVERRUN_DOUBLE_WIDTH=%@FLOOR[%@EVAL[%OVERRUN_NORMAL_WIDTH / 2 + 0.9999999999]]
+rem                     echo OVERRUN_NORMAL_WIDTH = %OVERRUN_NORMAL_WIDTH% 🐈
+rem                     echo OVERRUN_DOUBLE_WIDTH = %OVERRUN_DOUBLE_WIDTH% 🐈
+                                
+                        REM To round up our number add almost-1 to it. I.E.: we really need to strip off 5, so 4.1 + 0.09999999999 = 5.09999999999 floored = 5.0  But 4.0 will remain 4
+                                rem REMOVE_AMOUNT=%@EVAL[2 * %@FLOOR[%@EVAL[(%string_length% - %MAXIMUM_DESIRED_NORMAL_WIDTH% + 0.9999999999999999999999)]]] %+ rem double for double-width chars
+                                rem OVE_AMOUNT_NORMAL=%OVERRUN_NORMAL_WIDTH%
+                                rem REMOVE_AMOUNT_DOUBLE=%@FLOOR[%@EVAL[(%OVERRUN_NORMAL_WIDTH% * 2) + 0.9999999999]]
+                                rem   KEEP_AMOUNT_NORMAL=%@EVAL[%MESSAGE_WIDTH_DOUBLE% - %OVERRUN_NORMAL_WIDTH% ]
+                                rem   KEEP_AMOUNT_DOUBLE=%@EVAL[%MESSAGE_WIDTH_DOUBLE% - %REMOVE_AMOUNT_DOUBLE% ]
+                                rem   KEEP_AMOUNT_DOUBLE=%@EVAL[%KEEP_AMOUNT_NORMAL% * 2]
+                                rem REMOVE_AMOUNT_NORMAL=%@FLOOR[%@EVAL[(%REMOVE_AMOUNT_DOUBLE% / 2) + 0.999999999]]
+                                rem   KEEP_AMOUNT_DOUBLE=%@EVAL[%KEEP_AMOUNT_NORMAL% * 2]
+rem                            echo MESSAGE_WIDTH_NORMAL = %MESSAGE_WIDTH_NORMAL%
+                                set REMOVE_AMOUNT_NORMAL=%OVERRUN_DOUBLE_WIDTH%
+                                rem   KEEP_AMOUNT_NORMAL=%@EVAL[%MESSAGE_WIDTH_DOUBLE% - %REMOVE_AMOUNT_NORMAL% ]
+                                set   KEEP_AMOUNT_NORMAL=%@EVAL[%MESSAGE_WIDTH_NORMAL% - %REMOVE_AMOUNT_NORMAL% ]
+rem                            echo REMOVE_AMOUNT_NORMAL = %remove_amount_normal 🐈
+                                rem REMOVE_AMOUNT_DOUBLE = %remove_amount_double isn’t a thing anymore
+rem                            echo   KEEP_AMOUNT_NORMAL = %keep_amount_normal 🐈 [N/A]
+                                rem   KEEP_AMOUNT_DOUBLE = %keep_amount_double   isn’t a thing anymore
+
+                        
+                        rem DEBUG: echo  string_length_double_size=%string_length_double_size% not LE MAXIMUM_DESIRED_NORMAL_WIDTH=%MAXIMUM_DESIRED_NORMAL_WIDTH% 
+                        rem DEBUG: echo keep_amount_normal=%keep_amount_normal%
+
+                        REM Actually set the line that we are going to echo
+                                setdos /x-5
+rem                        echo SET LINE=!@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] 
+                                rem LINE=%@LEFT[%KEEP_AMOUNT_NORMAL%,%STR] 
+                                set left_amount=%@EVAL[%KEEP_AMOUNT_NORMAL%-1]
+                                SET LINE=%@UNQUOTE[%@LEFT[%left_amount%,"%STR%"]]
+rem                        echo 👈LEFT  (%left_amount%) is: %ansi_color_red%[%ansi_normal%%LINE%%ansi_color_red%]%ansi_normal% 🐈
+                                setdos /x0
+
+                        REM Then deal with *the rest* of what remains of this line:
+                        REM Remove the first %Desired_Max_msg_width characters from left of STR
+                        REM        via removing the precalculated-from-before remove_amount:
+rem                            echo SET STR=!@RIGHT[%REMOVE_AMOUNT_NORMAL%,%STR] 🐈
+rem                            echo STR 99999 is %ansi_color_red%[%ansi_normal%%STR%%ansi_color_red%]%ansi_normal% 🐱
+                                rem STR=%@RIGHT[%REMOVE_AMOUNT_NORMAL%,%STR]                                        
+                                rem right_amount=%@EVAL[%KEEP_AMOUNT_NORMAL%-1]
+                                set right_amount=%@EVAL[%REMOVE_AMOUNT_NORMAL%+1]
+                                SET STR=%@UNQUOTE[%@RIGHT[%right_amount%,"%STR%"]]
+rem                            echo 👉RIGHT (%right_amount%) is %ansi_color_red%[%ansi_normal%%STR%%ansi_color_red%]%ansi_normal% 🐱
+                        rem Set this value aside because STR will be redefined when we recursively call this                                        
+                        rem And also remove any leading spaces off of it (at this point, length doesn't matter) :
+                                SET  REMAINING_STR=%@TRIM[%STR%]
+rem                             echo REMAINING_STR = %ansi_color_red%[%ansi_color_normal%%REMAINING_STR%%ansi_color_red%]%ansi_color_normal% 🐈
+
+                        REM Spit out what we got, but assign it to a VERY unique variable name out of ridiculously [probably unnecessary] scope paranoia: 
+                                set                UNIQUE_VAR_NAME=UNIQUE_VAR_NAME_%@RANDOM[0,999999999999999]
+                                set              %[UNIQUE_VAR_NAME]="%@UNQUOTE[%LINE%]"
+                                rem setdos /x-678
+rem                             echo @call  bigecho %[%[UNIQUE_VAR_NAME]] ---------------------- %newline%
+                                @call       bigecho %[%[UNIQUE_VAR_NAME]]
+                                rem setdos /x0
+                                unset  /q        %[UNIQUE_VAR_NAME]
+                                
+                        REM Set STR for next message
+                                set STR=%REMAINING_STR%
+rem                             echo %ansi_color_red%remaining_str is '%REMAINING_STR%'%ansi_normal% ... setting for rest of script 🐈
+                                set PARAMS=%STR%
+                                
                 goto :begin_loop
                 :end_loop
         endiff          
@@ -203,7 +218,7 @@ setdos /x-678
             rem if %ECHOSBIG_SAVE_POS_AT_END_OF_BOT_LINE eq 1 (echos %ANSI_SAVE_POSITION%)  
             rem echo.
 
-    rem 2024/12/27 — Let’s try not resetting so that line-wrapped bigechos retain their color: echos %ANSI_RESET% ... Hopefully this doesn’t mess up many other situations
+    echos %ANSI_RESET%
     if %ECHOSBIG ne 1 (echo.)
 
     echos %@ANSI_MOVE_UP[2]

@@ -389,6 +389,7 @@ def lrc_to_txt(input_file, output_file):
     last_text                  = ""
     last_time                  = 0
     time_difference            = 0
+    inserted                   = 0
     current_output_line        = ""
     for line in lines:       
         # separate out timestamps from text:
@@ -400,15 +401,18 @@ def lrc_to_txt(input_file, output_file):
         time_difference = time - last_time if last_time else -666        # get time difference
 
         # **DO** merge lines if they *ARE* close enough ***************************************************************************************************************************
-        if 0 < time_difference < MERGE_LINES_LESS_THAN_THESE_MANY_SECONDS_APART_INTO_1_LINE:
+        if 0 < time_difference < MERGE_LINES_LESS_THAN_THESE_MANY_SECONDS_APART_INTO_1_LINE and inserted > 0:
             if DEBUG_INSERT_TIME_DIFFERENCES: text = f"🍌 {time_difference:5.1f} 🍌 " + text.strip()
             text = text.strip()
             if current_output_line and current_output_line[-1] not in string.punctuation: joined_line_divider = ", " 
             else:                                                                         joined_line_divider = " "
             current_output_line += joined_line_divider + text.lstrip()
+            inserted = inserted + 1
 
         # DON’T merge lines if they aren’t close enough ***************************************************************************************************************************
         else:
+            inserted = 0
+            
             # Finalizing merged content:
             if current_output_line:
                 merged_output_lines.append(current_output_line)

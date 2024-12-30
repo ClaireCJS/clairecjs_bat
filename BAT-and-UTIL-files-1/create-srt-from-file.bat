@@ -1,4 +1,4 @@
-@Echo on
+@Echo off
 @setdos /x0
 @on break cancel
 
@@ -396,7 +396,7 @@ REM if we already have a SRT file, we have a problem:
                 @call warning "We already have a file created: %emphasis%%srt_file%%deemphasis%"
                 call review-subtitles "%srt_file%"
                 call divider
-                if %SOLELY_BY_AI ne 1 goto :automatic_skip_for_ai_parameter
+                iff %SOLELY_BY_AI eq 1 then
                         @call advice "Automatically answer the next prompt as Yes by adding the parameter “force-regen” or “redo”"
                         iff exist "%TXT_FILE%" then
                                 @call AskYn "%conceal_on%5%conceal_off%Do the above lyrics look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME
@@ -409,6 +409,7 @@ REM if we already have a SRT file, we have a problem:
                                         goto :Refetch_Lyrics
                                 endiff
                         endiff
+                endiff
                 :automatic_skip_for_ai_parameter
                 rem FORCE_REGEN is %FORCE_REGEN %+ pause
                 iff %FORCE_REGEN% ne 1 then
@@ -439,8 +440,12 @@ REM if we already have a SRT file, we have a problem:
                         if exist "%SRT_FILE%" call approve-subtitles "%SRT_FILE%"
                         set GOTO_END=1
                 endiff
-                if 1 eq %GOTO_FORCE_AI_GEN goto :Force_AI_Generation
+                if 1 eq %GOTO_FORCE_AI_GEN set goto_Force_AI_Generation=1
                 if 1 eq %GOTO_END          goto :END
+        endiff
+        iff 1 eq %goto_Force_AI_Generation then 
+                unset /q goto_Force_AI_Generation=1
+                goto :Force_AI_Generation
         endiff
 
 
@@ -543,7 +548,7 @@ rem Mandatory review of lyrics
         :mandatory_review_of_lyrics
         iff exist "%TXT_FILE%" .and. %@FILESIZE["%TXT_FILE%"] gt 0 then
                 rem Deprecating this section which is redundant because it’s done in get-lyrics:
-                iff 0 = 1 then
+                iff 0 == 1 then
                         rem @call divider
                         rem @call less_important "[REDUNDANT?] Review the lyrics now:"
                         rem @call divider

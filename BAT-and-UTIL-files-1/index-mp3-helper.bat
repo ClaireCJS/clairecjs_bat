@@ -16,7 +16,7 @@
             call     validate-environment-variables  MP3OFFICIALDRIVE   MP3OFFICIAL 
             call     ensure-drive-is-mapped         %MP3OFFICIALDRIVE%
             rem OLD: validate-in-path                mchk mp3index generate-audio-playlists generate-filelists-by-attribute.pl create-all_m3u-playlists create-these_m3u-playlists 
-            call     validate-in-path                mchk mp3index generate-audio-playlists generate-filelists-by-attribute.pl generate_thesem3u_and_allm3u_playlists_in_folder.py
+            call     validate-in-path                mchk          generate-audio-playlists generate-filelists-by-attribute.pl generate_thesem3u_and_allm3u_playlists_in_folder.py
             call     checkusername
             cls
             timer /3 on

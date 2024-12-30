@@ -253,6 +253,7 @@ rem THIS IS WHAT HAPPENS WHEN WE’RE FINALLY DONE WATCHING:
         	:202007: NOPE SO SICK OF THIS NOW!!! call restore-window-positions
             REM call advice "Type “rwp” to restore the window positions (if they got messed up by watching this video)."
             call sleep 1
+            call unlock
             window restore
             call bring-back-focus
             window /flash=2
@@ -270,7 +271,9 @@ rem DISPLAY THE TIME IN CASE WE WAKE UP THE NEXT DAY WONDERING WHEN WE WENT TO S
 rem COPY SHOWNAME TO CLIPBOARD, FOR PASTING INTO LOG WITH EASE:
         call  fixclip
         echo %* >clip:
-        call locked-message %*
+        rem call locked-message %*
+        call unlock-top
+        call status-bar  %*
         
 rem DELETE IT IF WE ARE IN A FOLDER WHOSE NAME IMPLIES THAT WE SHOULD DELETE IT:
         %COLOR_REMOVAL%

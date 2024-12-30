@@ -209,8 +209,9 @@ Pause::
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;^?::Send  "❔"        ;	Ctrl+? for ❔ [white]
-;!?::Send  "❓"        ;	 Alt+? for ❓ [red]
+^?::Send  "❔"        ;	    Ctrl+? for ❔ [white]
+!?::Send  "❓"        ;	     Alt+? for ❓ [red]
+^!?::Send "⁉️"        ;	Ctrl-Alt+? for ⁉️ 
 
 ;can't figure out Ctrl-Alt-! though ...      ^!!:Send  "‼️";
 ^!::Send  "❕"        ;	    Ctrl+! for ❕ [white]

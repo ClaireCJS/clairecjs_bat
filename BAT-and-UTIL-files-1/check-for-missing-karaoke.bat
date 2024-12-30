@@ -1,8 +1,6 @@
 @Echo Off
-  on break cancel
-  setdos /x0
-                if exist   all.m3u (*del /q   all.m3u >nul)
-                if exist these.m3u (*del /q these.m3u >nul)
+ rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
+ call bat-init
 
 rem Usage:
         iff "%1" == "/h" .or. "%1" == "-h" .or. "%1" == "--help" .or. "%1" == "/help" .or. "%1" == "help" .or. "%1" == "?" .or. "%1" == "/?" .or. "%1" == "-?" .or. "%1" == "--?" then
@@ -31,6 +29,7 @@ rem Validate Enviroment:
                 call validate-environment-variable DEFAULT_FILEMASK skip_validation_existence
                 call validate-environment-variable ANSI_COLORS_HAVE_BEEN_SET
                 set  validated_cfmk=1
+                rem  CHECK-FOR-MISSING-KARAOKE ENVIRONMENT SUCCESSFULLY VALIDATED!!!!!!!!!!!!!!!!
         endiff
         
 
@@ -51,7 +50,8 @@ rem Debug:
         rem echo recurse_cfmk is %RECURSE_CFMK% 
 
 rem Initialization:
-        set FILELIST_TO_USE=%DEFAULT_FILELIST_NAME_TO_USE%
+        set  FILELIST_TO_USE=%DEFAULT_FILELIST_NAME_TO_USE%
+        echo FILELIST_TO_USE is “%FILELIST_TO_USE%” 🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱>nul
 
 
 rem Parameter checking:
@@ -66,7 +66,6 @@ rem Parameter checking:
                         rem NEW: Just say nothing. This is how it's designed, we don't need to warn ourselves anymore.
                         
                         set FILEMASK_TO_USE=%DEFAULT_FILEMASK%
-
                 endiff
         rem Use different filelist name depending on parameters:
                 iff "%dir_params%" ne "" then
@@ -87,12 +86,12 @@ rem Debug info:
 
 rem If the filelist doesn't exist...
         iff 1 eq %RECURSE_CFMK% then
-                if exist all.m3u *del /q all.m3u >nul
-                call mp3index/s                         >:u8all.m3u
+                rem call mp3index/s                         >:u8all.m3u
+                call mp3index
                 if not exist all.m3u   .or. 0 eq %@FILESIZE[all.m3u]  goto :END
         else                
-                if exist these.m3u *del /q these.m3u >nul
-                call mp3index                           >:u8these.m3u
+                call mp3index
+                rem call mp3index                           >:u8these.m3u
                 if not exist these.m3u .or. 0 eq %@FILESIZE[these.m3u] goto :END
         endiff                
 

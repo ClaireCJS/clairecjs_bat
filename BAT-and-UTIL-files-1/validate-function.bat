@@ -48,33 +48,6 @@
         
         set VFUNC_COMMENT=color white on black
         set VFUNC_COMMENT=beep
-        set VFUNC_COMMENT=beep
-        set VFUNC_COMMENT=beep
-        set VFUNC_COMMENT=beep
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
-        set VFUNC_COMMENT=*pause
         set VFUNC_COMMENT=*pause
 
         goto :END
