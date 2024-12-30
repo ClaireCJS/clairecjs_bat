@@ -45,7 +45,7 @@
 ::::: MAKE SURE ALL OUR DRIVES ARE MAPPED:
         rem  checkmappings.bat nopause ———— we no longer do this with the 'nopause' option, but we used to
         rem  checkmappings.bat  ————————————— 20241013: changing back to nopause because this is run from autoexec:
-        if 1 ne %DIST_NOCHECKMAP (call checkmappings.bat nopause)
+        if 1 ne %DIST_NOCHECKMAP (call checkmappings.bat once nopause) %+ rem 2024/12/30: once only currently works with “once nopause” but not “nopause once”
 
 
         rem gosub :doit —— was the old/inelegant way we used for decades, we now use :doit2024:

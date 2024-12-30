@@ -495,10 +495,10 @@ if __name__ == "__main__":                                                      
                                                                                                                                                                               
     input_files = []                                                                                                   # Initialize list to hold all input files                       
     for pattern in args.input_files:                                                                                   # Iterate over input file patterns                              
-        escaped_pattern = glob.escape(pattern)                                                                         # wow, glob is stupid... Let us use parens and brackets without complication, we don’t always want regex! geeze.
-        matched_files   = glob.  glob(pattern)                                                                         # Expand wildcards and get matching files                       
+        escaped_pattern = glob.escape(        pattern)                                                                 # wow, glob is stupid... Let us use parens and brackets without complication, we don’t always want regex! geeze.
+        matched_files   = glob.  glob(escaped_pattern)                                                                 # Expand wildcards and get matching files                       
         if not matched_files:                                                                                          # If no files matched the pattern                               
-            print(f"No files matched pattern: {pattern}")                                                              # Display a warning message                                     
+            print(f"?! No files matched pattern: {pattern}")                                                              # Display a warning message                                     
         input_files.extend(matched_files)                                                                              # Add matched files to input_files list                         
                                                                                                                                                                                        
     if not input_files:                                                                                                # If no input files were found                                  

@@ -6,6 +6,8 @@ rem Check invocation
         if "%1" eq "" (
             %COLOR_ERROR%
             echo :USAGE:          call all-ready-drives "command to run on each drive with DRIVE_LETTER as a string that will get auto-substituted"
+            echo :USAGE:          call all-ready-drives [silent] "command to run on each drive with DRIVE_LETTER as a string that will get auto-substituted"
+            echo :USAGE:                                 silent mode doesn’t display the "Doing drive letter A:" type messages
             echo :USAGE: example: call all-ready-drives "md DRIVE_LETTER:\BACKUPS" will make a backups on every ready drive, c:\backups, d:\backups, etc
             echo :USAGE:    Also: can set DRIVE_LETTERS_TO_USE=L M N O P    .... in order to only use certain letters or control the order. Must set it each call.
             echo :USAGE:                                                    .... [But you don't generally need to worry about this because it uses %%THE_ALPHABET_BY_DRIVE_PRIORITY%% internally]
@@ -19,9 +21,16 @@ rem Check invocation
         )
         set FIXED_COMMAND=N/A
 
+rem Check for silent mode:
+        iff "%1" eq "silent" then
+                shift
+                set ard_silent=1
+        else
+                set ard_silent=0
+        endiff
 
 rem get command, which may be enclosed in quotes (so we can in theory use multiple commands) or not (so we can use commands that use quote)
-                       set COMMAND=%*
+                       set COMMAND=%1$
         if "%2" eq "" (set COMMAND=%@UNQUOTE[%1%])
         rem echo %ANSI_COLOR_DEBUG% command is %COMMAND%%ANSI_RESET%
 
@@ -34,7 +43,7 @@ rem get command, which may be enclosed in quotes (so we can in theory use multip
         
 rem Go through each ready drive, and substitute DRIVE_LETTER into the proper letter:
         call wake-all-drives
-        echo.
+        if 1 ne %ard_silent% echo.
         for %%tmpletter in (%OUR_ALPHABET_TO_USE%) gosub doLetter %tmpletter
 
 goto :END
@@ -55,21 +64,27 @@ goto :END
             rem same for %letter% is %same%
             if  not  defined     OPTION_SKIP_SAME_C       (goto :Not_Skipped)
             if %SAME eq 0 .and. %OPTION_SKIP_SAME_C eq 1  (goto :Not_Skipped)
-                echo.
-                rem echos %STAR% ``
-                rem echo %ANSI_COLOR_RED%Skipping drive %DRIVE_LETTER_PRETTY% %ANSI_COLOR_RED%because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]... %ANSI_RESET%
-                call bigecho %STAR% %ANSI_COLOR_RED%Skipping drive %DRIVE_LETTER_PRETTY%
-                echo       %ITALICS_ON%%ANSI_COLOR_RED%(because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]...)%ITALICS_OFF%%ANSI_RESET%
-                echo.
+                iff 1 ne %ard_silent%  then
+                        echo.
+                        rem echos %STAR% ``
+                        rem echo %ANSI_COLOR_RED%Skipping drive %DRIVE_LETTER_PRETTY% %ANSI_COLOR_RED%because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]... %ANSI_RESET%
+                        call bigecho %STAR% %ANSI_COLOR_RED%Skipping drive %DRIVE_LETTER_PRETTY%
+                        echo       %ITALICS_ON%%ANSI_COLOR_RED%(because it's the same as C: for %[EMOJI_MACHINE_%MACHINENAME%]%MACHINENAME%%[EMOJI_MACHINE_%MACHINENAME%]...)%ITALICS_OFF%%ANSI_RESET%
+                        echo.
+                endiff
                 goto :End_Of_For_Loop
             :Not_Skipped
 
             if "%@READY[%letter%]" ne "1" goto :Drive_Not_Ready
                 rem no yes
-                echo.
-                call bigecho %STAR% Doing drive letter %DRIVE_LETTER_PRETTY%... 
+                if 1 eq %ard_silent% echos %@randfg_soft[].
+                if 1 ne %ard_silent% echo.
+                if 1 ne %ard_silent% call bigecho %STAR% Doing drive letter %DRIVE_LETTER_PRETTY%... 
                 set FIXED_COMMAND=%@REPLACE[DRIVE_LETTER,%letter,%COMMAND]
                 title Doing %letter%: -- %FIXED_COMMAND% 
+
+                rem 2024/12/30: Let’s just force-randomize the color always:
+                        echos %@RANDFG_SOFT[]
 
                 rem call debug "cmd=%COMMAND%%NEWLINE%         fix=%FIXED_COMMAND%%NEWLINE%"                   
                 rem echo WOULD DO: FIXED_COMMAND=%FIXED_COMMAND%
@@ -110,4 +125,5 @@ rem Cleanup
         if defined DRIVE_LETTERS_TO_USE (unset /q DRIVE_LETTERS_TO_USE)
         if defined OPTION_SKIP_SAME_C   (unset /q OPTION_SKIP_SAME_C  )
         call fix-window-title
+        if 1 eq %ard_silent% echos %@ansi_move_to_col[0]%ansi_erase_to_eol%%check%%@ansi_move_to_col[0]
         echos %ANSI_RESET%

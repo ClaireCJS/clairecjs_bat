@@ -18,13 +18,13 @@ rem Usage:
         endiff
 
 rem Parameter fetch:
-        set OPTION=%@LOWER[%1]
+        set OPTION=%@UNQUOTE[%@LOWER["%1"]]
         set PROCESS_ALL=0
         iff "%OPTION%" == "-a"  .or. "%OPTION%" == "-all" .or. "%OPTION%" == "all"  .or. "%OPTION%" == "*"  .or. "%OPTION%" == "*.lrc" then            %+ rem Check for the “all” option
                 set PROCESS_ALL=1
         else
                 set LRC_file=%@UNQUOTE[%1]
-                set output_file=%@NAME[%lrc_file].txt
+                set output_file=%@UNQUOTE[%@NAME["%lrc_file"]].txt
         endiff
 
 rem Parameter validate:
@@ -52,7 +52,7 @@ rem Perform the actual conversion:
                         rem echo Processing: "%Ffff"
                         lrc2txt.py       "%Ffff"
                         call ErrorLevel
-                        set  expected_output_file=%@NAME[%FFFF].txt
+                        set  expected_output_file=%@UNQUOTE[%@NAME["%FFFF"]].txt
                         echo expected_output_file="%expected_output_file%">nul
                         set FILE_OR_FILES_TO_REVIEW=%FILE_OR_FILES_TO_REVIEW% "%expected_output_file%"
                 )
@@ -60,6 +60,7 @@ rem Perform the actual conversion:
         else
                 set  FILE_OR_FILES_TO_REVIEW="%OUTPUT_FILE%"
                 lrc2txt.py "%LRC_file%"
+                if %@filesize["%@unquote["%output_file%"]"] eq 0 (echo %ansi_color_warning%Zero-byte file generated!%ansi_reset% %+ *del /q "%OUTPUT_FILE%" >nul)
                 call ErrorLevel
                 call validate-environment-variable FILE_OR_FILES_TO_REVIEW
         endiff
@@ -77,10 +78,10 @@ rem Review output:
                         )
 
                         rem Review generated file(s):proved, except sometimes:         
-                                call review-files   "%@UNQUOTE[%tmp_review_file%]"                        
+                                call review-files   "%@UNQUOTE["%tmp_review_file%"]"                        
 
                         rem Mark generated file as approved, except sometimes:         
-                                if "%Approve_Generated_Lyrics_CTLFKF%" ne "False" call approve-lyrics "%@UNQUOTE[%tmp_review_file%]"                        
+                                if "%Approve_Generated_Lyrics_CTLFKF%" ne "False" call approve-lyrics "%@UNQUOTE["%tmp_review_file%"]"
                 )
         endiff
 
