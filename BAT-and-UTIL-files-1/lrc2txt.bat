@@ -1,15 +1,17 @@
 @Echo off
  call init-bat
 
+
 rem Validate environment (once):
+        if not defined FILEEXT_AUDIO set FILEEXT_AUDIO=mp3   wav   rm   voc   au   mid   stm   mod   vqf   ogg   mpc   wma   mp4   flac   snd   aac   opus   ac3
         iff 1 ne %validated_lrc2txt_env% then
-                call validate-environment-variables EMOJIS_HAVE_BEEN_SET ANSI_COLORS_HAVE_BEEN_SET
-                call validate-in-path               errorlevel.bat  lrc2txt.py  review-files.bat  approve-lyrics.bat python
+                call validate-environment-variables FILEEXT_AUDIO EMOJIS_HAVE_BEEN_SET ANSI_COLORS_HAVE_BEEN_SET
+                call validate-in-path               errorlevel.bat lrc2txt.py review-files.bat approve-lyrics.bat python approve-lyriclessness.bat 
                 set  validated_lrc2txt_env=1
         endiff
 
 rem Usage:
-        iff "%1" eq "" then
+        iff "%1" == "" then
                 repeat 2 echo. %+ echo USAGE: lrc2txt whatever.lrc [silent]      %zzzzzz%   ━━   generates whatever.txt, if “silent” is 2nd option, then does so without post-review
                 repeat 2 echo. %+ echo USAGE: lrc2txt -t                         %zzzzzz%   ━━   run testing suite (which is just about quote conversion right now)  
                 repeat 2 echo. %+ echo USAGE: lrc2txt -a `|` -all `|` all `|` * `|` *.lrc   ━━   process all LRC files in the current directory
@@ -27,6 +29,7 @@ rem Parameter fetch:
                 set output_file=%@UNQUOTE[%@NAME["%lrc_file"]].txt
         endiff
 
+
 rem Parameter validate:
         iff 0 eq %PROCESS_ALL% then 
 
@@ -43,25 +46,44 @@ rem Parameter validate:
         
 
 rem Cosmetics:
-        if "%2" ne "silent" call divider
+        if "%2" != "silent" call divider
         
+
 rem Perform the actual conversion:        
         rem lrc2txt.py "%LRC_file%"
         iff 1 eq %PROCESS_ALL% then
                 for %%Ffff in (*.lrc) do (
                         rem echo Processing: "%Ffff"
-                        lrc2txt.py       "%Ffff"
+                        lrc2txt.py           "%Ffff"
                         call ErrorLevel
                         set  expected_output_file=%@UNQUOTE[%@NAME["%FFFF"]].txt
                         echo expected_output_file="%expected_output_file%">nul
                         set FILE_OR_FILES_TO_REVIEW=%FILE_OR_FILES_TO_REVIEW% "%expected_output_file%"
                 )
-                rem set  FILE_OR_FILES_TO_REVIEW=*.txt
         else
                 set  FILE_OR_FILES_TO_REVIEW="%OUTPUT_FILE%"
                 lrc2txt.py "%LRC_file%"
-                if %@filesize["%@unquote["%output_file%"]"] eq 0 (echo %ansi_color_warning%Zero-byte file generated!%ansi_reset% %+ *del /q "%OUTPUT_FILE%" >nul)
                 call ErrorLevel
+                iff %@filesize["%@unquote["%output_file%"]"] eq 0 then
+                        *del /q "%OUTPUT_FILE%" >nul
+                        echo %ansi_color_warning%%emoji_warning Zero-byte file generated! %emoji_warning%%ansi_reset% 
+                        echo %ansi_color_less_important%%star% Reviewing the source LRC...%ansi_reset% 
+                        call review-file "%LRC_FILE%"
+                        call AskYN "Delete the LRC file" no 5
+                        if "Y" == "%ANSWER" (*del /q "%LRC_FILE%" >nul)
+                        call AskYN "Mark corresponding audio as lyric%underline_on%less%underline_off%" yes 8
+                        for %%tmpMask in (%fileext_audio%) do (
+                                set proposed_audio_file=%@unquote[%@name["%lrc_file%"]].%tmpMask
+                                set rem=echo Checking if exist "%proposed_audio_file%"
+                                if exist "%proposed_audio_file%" (
+                                        echo Approving lyriclessness for "%proposed_audio_file%"
+                                        call approve-lyriclessness "%proposed_audio_file%"
+                                ) else (
+                                        set rem=echo       ...It does not.
+                                )
+                        )
+                        goto :END
+                endiff
                 call validate-environment-variable FILE_OR_FILES_TO_REVIEW
         endiff
 
@@ -74,14 +96,12 @@ rem Review output:
                         if 1 eq %first_file% (
                                 set first_file=2
                         ) else (
-                                pause
+                                echo Major confusion when running %0
+                                repeat 5 pause
                         )
 
-                        rem Review generated file(s):proved, except sometimes:         
-                                call review-files   "%@UNQUOTE["%tmp_review_file%"]"                        
-
-                        rem Mark generated file as approved, except sometimes:         
-                                if "%Approve_Generated_Lyrics_CTLFKF%" ne "False" call approve-lyrics "%@UNQUOTE["%tmp_review_file%"]"
+                        call review-files  "%@UNQUOTE["%tmp_review_file%"]"                        
+                        if "%Approve_Generated_Lyrics_CTLFKF%" != "False" (call approve-lyrics "%@UNQUOTE["%tmp_review_file%"]")
                 )
         endiff
 

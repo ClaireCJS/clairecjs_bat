@@ -32,5 +32,6 @@ rem Validate parameters:
         endiff                
 
 rem Set via windows alternate data streams:
+        rem  read-ads-tag-from-file "%Lyric_File_To_Display_Status_Of%" %tag% lyrics %validation_argument_to_use%  🐐
         call read-ads-tag-from-file "%Lyric_File_To_Display_Status_Of%" %tag% lyrics %validation_argument_to_use%  %+ rem sets RECEIVED_VALUE for return value (one parameter is specificying the lyrics tag, the other is specifying that we run in lyrics mode with custom lyric-specific output)
         rem echo received_value=“%received_value%”

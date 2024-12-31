@@ -4,6 +4,7 @@
 
 rem Get parameters:
         set LYRIC_FILE_TO_APPROVE=%@UNQUOTE[%1]                                              %+ rem Lyric file to use 
+        rem echo LYRIC_FILE_TO_APPROVE=%LYRIC_FILE_TO_APPROVE% 🐐
 
 rem Validate environment once:
         iff 1 ne %VALIDATE_LYRIC_APPROVE_DISAPPROVE% then

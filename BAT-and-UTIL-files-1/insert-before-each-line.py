@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-#### THE PERL VERSION IS 25% FASTER! BUT THIS ONE HANDLES EMOJI! ...
+#### THE PERL VERSION IS 25% FASTER! BUT THIS ONE HANDLES EMOJI! ... [and has the percent substitution] ...
 
-### substitutes {{{{QUOTE}}}} into "
+### substitutes {{{{QUOTE}}}}   into "
+### substitutes {{{{PERCENT}}}} into %
 
 import sys
-sys.stdin.reconfigure(encoding='utf-8', errors='replace')
+sys.stdin .reconfigure(encoding='utf-8', errors='replace')
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 def main():
@@ -14,7 +15,10 @@ def main():
         sys.exit(1)
     prefix = sys.argv[1]
 
-    prefix = prefix.replace("{{{{QUOTE}}}}", '"')
+    prefix = prefix.replace("{{{{QUOTE}}}}"  , r'"')
+    prefix = prefix.replace("{{{{QUOTES}}}}" , r'"')
+    prefix = prefix.replace("{{{{PERCENT}}}}", r'%')
+    prefix = prefix.replace("{{{{PCT}}}}"    , r'%')
 
     for line in sys.stdin:
         line = line.rstrip('\n')

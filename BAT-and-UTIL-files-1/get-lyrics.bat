@@ -29,14 +29,14 @@ rem Validate environment once:
 setdos /x0
 iff "%1" == "nowplaying" .or. "%1" == "now" .or. "%1" == "np" .or. "%1" == "winamp" .or. "%1" == "this" then
         setdos /x0
-        call get-lyrics-for-currently-playing-song %*
+        call get-lyrics-for-currently-playing-song %2$
         goto :next_step
 endiff         
 
 iff "%1" == "here"  then
         rem  process current folder:
         setdos /x0
-        call check-for-missing-lyrics get
+        call check-for-missing-lyrics get %2$
         goto :next_step
 endiff
 
@@ -56,8 +56,8 @@ iff exist %1 then
         setdos /x0
         set ext=%@ext[%1]
         rem echo ext is %ext
-        iff "m3u" eq "%ext%" then
-                call get-lyrics-for-playlist %*
+        iff "m3u" == "%ext%" then
+                call get-lyrics-for-playlist %1$
         else
                 call get-lyrics-for-song %*        
         endiff       
@@ -68,10 +68,11 @@ else
 endiff
 setdos /x0
 
+
+
 :next_step
-setdos /x0
+        setdos /x0
 
 
 :END
-
-setdos /x0
+        setdos /x0

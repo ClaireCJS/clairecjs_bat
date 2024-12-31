@@ -12,15 +12,18 @@ rem Config:
 rem Only review a single file, if [what is hopefully] a filename is provided:
         set replacement_text=
         setdos /x-5
-        iff "%1" ne "" .and. "%2" eq "" then        
+        iff "%@UNQUOTE[%1]" != "" .and. "%2" == "" then        
                 set our_filemask=%1
                 set replacement_text=
+                rem echo Tracking 1>nul
                 gosub check_for_filemask
-        endiff                
-        iff "%2" ne "" then
+        endiff              
+        echo Checkpoint alpha ----------━━━━━━━━━━━━━━━━━━━━━━━━━━━>nul
+        iff "%@UNQUOTE[%2]" != "" then
                 iff not exist "%@unquote[%2]" then 
                         set our_filemask=%1
                         set replacement_text=%@UNQUOTE[%2]
+                        rem echo Tracking 2>nul
                         gosub check_for_filemask 
                 else
                         set our_filemask=%*
@@ -34,10 +37,11 @@ rem Only review a single file, if [what is hopefully] a filename is provided:
                                 setdos /x-5
                                 iff not exist %our_filemask% then
                                         echo %ANSI_COLOR_WARNING_soft%%EMOJI_WARNING% No %@upper[%@%@REReplace[;,/,%@REReplace[\*\.,,%our_filemask%]]] files present %EMOJI_WARNING%%ANSI_COLOR_NORMAL%
-                                        setdos /x0
                                         goto :END
+                                else
+                                        echo It exists...>nul
                                 endiff
-                                setdos /x0
+                                setdos   /x0
                         return                
               :skip_check_for_filemask
 
@@ -71,7 +75,7 @@ rem Go through each one and review it:
                 rem title %@CHAR[55357]%@CHAR[56403] %@name[%tmpfile]
                 title %emoji_palm_tree%%@name[%tmpfile]
                 set ext=%@ext[%tmpfile%]
-                iff "%replacement_text%" ne "" then 
+                iff "%replacement_text%" != "" then 
                         set our_msg=%replacement_text%
                 else
                         set our_msg=%@name[%tmpfile%].%ext%

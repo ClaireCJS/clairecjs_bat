@@ -8,6 +8,7 @@ import datetime                                                                 
 import glob                                                                                        # Import glob       module for pathname pattern expansion
 import argparse                                                                                    # Import argparse   module for parsing command-line options
 import chardet                                                                                     # Import chardet    module for sampling files to determine their character encoding, so that they can be properly opened and read
+import string                                                                                      # Import string     module
 from colorama import Fore, Back, Style, init                                                       # Import ANSI color module for creating output in color
 init()                                                                                             # Enable ANSI output
 
@@ -257,7 +258,7 @@ if __name__ == "__main__":                                                      
         import sys                                                                                      # Load sys module to be able to exit program with sys.exit(1)
         sys.exit(1)                                                                                     # Exit with error code 1
                      
-    print(f"input files are {input_files}")                     
+    if DEBUG_SHOW_INPUT_FILES: print(f"input files are {input_files}")                     
                                                                                                       
     for input_file in input_files:                                                                      # Iterate over each input file
         #if args.output:                                                                                # If output filename is specified

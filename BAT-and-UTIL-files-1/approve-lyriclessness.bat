@@ -7,7 +7,7 @@ rem CONFIGURE DEFAULTS:
         set are_you_sure_wait=10
 
 rem Usage:
-        iff "%1" eq "" then
+        iff "%1" == "" then
                 %color_advice%
                 echo.
                 echo USAGE: %0 metallica*.txt    —— to    approve many audio files for lyriclessness in the folder (using wildcards)
@@ -19,7 +19,7 @@ rem Usage:
  
 
 rem Deal “all” / “*.*” / “*” / “*.mp3” / “*.flac”  invocations:
-        iff "%1" eq "all" .or. "%1" eq "*.*" .or. "%1" eq "*" .or. "%1" eq "*.mp3" .or. "%1" eq "*.flac" then
+        iff "%1" == "all" .or. "%1" == "*.*" .or. "%1" == "*" .or. "%1" == "*.mp3" .or. "%1" == "*.flac" then
                 call warning_soft "About to approve multiple songs for lyric%italics_on%lessness%italics_off% in folder..."
                 call AskYN        "You sure" %are_you_sure_answer% %are_you_sure_wait%
                 if "%answer%" != "y" goto :end

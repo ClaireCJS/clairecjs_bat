@@ -26,7 +26,7 @@ rem Capture parameters & keep track of the last folder we're in —— this is d
         set CD_PARAM4=%4
         set CD_PARAM5=%5
         
-rem ❌❌❌ Handle if the folder doesn't exist: ❌❌❌
+rem Handle if the folder doesn't exist: 
         rem call debug "CD COMMAND IS cd %*"
         iff "-" ne "%CD_PARAM1%" .and. not isdir "%CD_PARAMS%" .and. not isdir "%CD_PARAM1%" .and. not isdir "%CD_PARAM2%" .and. not isdir %CD_PARAM1% .and. not isdir %CD_PARAM2% .and. not isdir %CD_PARAM3% .and. not isdir %CD_PARAM4% .and. not isdir %CD_PARAM5% then
                 rem Blank line:

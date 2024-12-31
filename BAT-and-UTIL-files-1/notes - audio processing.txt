@@ -389,6 +389,10 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
     - just run it and let it download. It should only take 2-5 minutes.
     
 
+- LRC->TXT CONVERSION:
+	At the base folder of the batch of music that we are processing, run: 
+                sweep cmt
+	...which means “create missing text” which runs “create-txt-lyrics-from-karaoke-files.bat”
     
     
 

@@ -2,7 +2,7 @@
  @on break cancel
  set PARAMS=%*
  
-iff "%1" eq "" then
+iff "%1" == "" then
         %color_advice%
         echo.
         echo USAGE: %0 metallica*.txt    —— to disapprove many audio files for lyriclessness in the folder (using wildcards)
@@ -13,7 +13,7 @@ iff "%1" eq "" then
 endiff
  
 
-iff "%1" eq "all" .or. "%1" eq "*.*" .or. "%1" eq "*" .or. "%1" eq "*.mp3" .or. "%1" eq "*.flac" then
+iff "%1" == "all" .or. "%1" == "*.*" .or. "%1" == "*" .or. "%1" == "*.mp3" .or. "%1" == "*.flac" then
         call warning_soft "About to disapprove multiple songs for lyric%italics_on%lessness%italics_off% in folder..."
         call AskYN        "You sure" no 10
         if "%answer%" != "y" goto :end

@@ -9,14 +9,6 @@ import unittest
 
 """
 
-
-#### CONFIGURATION: DEBUG:
-DEBUG_TIME                    = False   
-DEBUG_TIME                    = True   
-DEBUG_INSERT_TIME_DIFFERENCES = False
-DEBUG_INSERT_TIME_DIFFERENCES = True
-DEBUG_ENCOUNTERED_LINES       = True
-
 ##### CONFIGURATION: THRESHOLDS:
 MERGE_LINES_LESS_THAN_THESE_MANY_SECONDS_APART_INTO_1_LINE      = 0.65                             # (various experiments)->0.15->1.50->1.00->0.75->0.65
 ADD_A_BLANK_LINE_IF_MORE_THAN_THESE_MANY_SECONDS_PAST_LAST_LINE = 4.75                             # (various experiments)->4.75
@@ -24,6 +16,11 @@ ADD_A_BLANK_LINE_IF_MORE_THAN_THESE_MANY_SECONDS_PAST_LAST_LINE = 4.75          
 #### CONFIGURATION: OUTPUT FILE:
 EXTENSION_TO_PRODUCE          = '.txt'
 
+#### CONFIGURATION: DEBUG:
+DEBUG_CHAR_HANDLING           = False
+DEBUG_ENCOUNTERED_LINES       = False
+DEBUG_INSERT_TIME_DIFFERENCES = False
+DEBUG_TIME                    = False   
 
 
 import sys                                                                                         # Import sys        module for system-specific parameters
@@ -37,8 +34,6 @@ import string                                                                   
 from colorama import Fore, Back, Style, init                                                       # Import ANSI color module for ANSI coloration`
 init()                                                                                             # Enable ANSI output
 
-
-import re
 
 class TestSmartQuotes(unittest.TestCase):
     def test_smart_quotes(self):
@@ -148,10 +143,7 @@ class TestSmartQuotes(unittest.TestCase):
             ('"a lone quote, what he said.',
              '“a lone quote, what he said.'),
             ('a " " z',
-             'a ” “ z'),        #wouldn’t make sense to have “ ” with nothing in between them, this must be part of a larger set of 2 quotes improperly punctuated between
-            
-            
-            
+             'a ” “ z'),        #wouldn’t make sense to have “ ” with nothing in between them, this must be part of a larger set of 2 quotes improperly punctuated between            
         ]
         print(f"There are {len(test_cases)} test cases")
 
@@ -159,9 +151,7 @@ class TestSmartQuotes(unittest.TestCase):
         success = 0
         failures = 0
         for input_text, expected_output in test_cases:
-            i = i + 1
-            #print(f"Test #" + {i:2} + f": Original: " + input_text     )
-            #print(f"      " + "  "  + f"  Expected: " + expected_output)
+            i = i + 1                                                                                                           #print(f"Test #" + {i:2} + f": Original: " + input_text + "      " + "  "  + f"  Expected: " + expected_output)
             with self.subTest(input_text=input_text):
                 print(f"\nTest #{i:2}: " + "  in: " + input_text)
                 print(   "          "    + "want: " + expected_output)
@@ -184,7 +174,6 @@ def test_suite():
 
 
 
-
 def is_punctuation(c):
     return c in string.punctuation
    
@@ -199,7 +188,6 @@ def replace_smart_quotes(text):
     Replace straight quotes with curly quotes based on context.
     """
     
-    DEBUG_CHAR_HANDLING = False #
     if DEBUG_CHAR_HANDLING: print(f"all-but-last char of text is [" + text[:-1] + "]")
 
     if   text == ""  : return ""
@@ -318,29 +306,28 @@ def expand_and_sort_timestamps(lines):
     expanded_lines = []
 
     for line in lines:
-        # Find all timestamps
-        timestamps = re.findall(r'\[(\d+:\d+\.\d+)\]', line)
-        if not timestamps:                 #in the wild, ran into malformed LRCs that only went to the second-precision instead of to the centisecond-precision, i.e. “[00:14]” instead of “[00:14.01]”
-            timestamps = re.findall(r'\[(\d+:\d+)\]', line) 
-            timestamps = [f"[{ts}.00]" for ts in timestamps]  # Append ".00" to each timestamp
-            
+        timestamps =                             re.findall(r'\[(\d+:\d+\.\d+)\]', line)        # Find all timestamps
+        if not timestamps:                      #re.findall(r'\[(\d+:\d+\.\d+)\]', line)        # This was not sufficient in the wild, because we ran into malformed LRCs that only went to the second-precision instead of to the centisecond-precision, i.e. “[00:14]” instead of “[00:14.01]”
+            timestamps =                         re.findall(r'\[(\d+:\d+)\]'     , line)        # Find all malformed “seconds-only–precision” timestamps
+            timestamps = [ts if re.search(r'\.\d{2}$', ts) else ts + ".00" for ts in timestamps]
+
         # Extract the lyric (everything after the last timestamp)
-        lyric = re.split(r'\[\d+:\d+\.\d+\]', line)[-1].strip()
+        lyric = re.split(r'\[\d+:\d+\.?\d*\]', line)[-1].strip()
         if DEBUG_ENCOUNTERED_LINES: print(f"--?--> lyric=“{lyric}” ... timestamps=“{timestamps}”")
         
         if not lyric:  # Only process if there are lyrics
-            if DEBUG_ENCOUNTERED_LINES: print(f"⚠ No lyrics for line [{line}]")
+            if DEBUG_ENCOUNTERED_LINES: print(f"⚠ ⚠ ⚠  No lyrics for line [{line}]")
         else:        
             for timestamp in timestamps:
                 # Convert timestamp to seconds for sorting
                 minutes, seconds = map(float, timestamp.split(":"))
                 total_seconds = minutes * 60 + seconds
+                if DEBUG_ENCOUNTERED_LINES: print(f"\t\ttimestamp=“{timestamp}” minutes=“{minutes}” seconds=“{seconds}” total_s={total_seconds}")
                 
                 # Add the converted line to the output:
                 expanded_lines.append((total_seconds, lyric))
     
     # Sort by timestamps
-    #return sorted(expanded_lines, key=lambda x: x[0])
     retval = sorted(expanded_lines, key=lambda x: x[0])
     if DEBUG_ENCOUNTERED_LINES: print(f"---> sorted lines=🍠🍠🍠🍠“{retval}”🍠🍠🍠🍠")
     return retval
@@ -364,16 +351,11 @@ def parse_timecode_lrc(line):
         match         = re.match(r'\[(\d+):(\d+)\.(\d+)\]\s*(.*)', line)
         pass
         
-    #f         match:                              #no! this doesn’t match blank lines
     if partial_match:
-        #print(f"partial match for {line} !")
-        #try:
         minutes, seconds, centiseconds = partial_match.groups()
         _, _, _, text                  =         match.groups()
         total_seconds = int(minutes) * 60 + int(seconds) + int(centiseconds) / 100
         return total_seconds, text.strip()
-        #except ValueError:
-        #    return None, line                                                                           # Return None if parsing fails
     return None, line
 
 
@@ -401,7 +383,7 @@ def lrc_to_txt(input_file, output_file):
     original_lines = lines
     lines          = expand_and_sort_timestamps(lines)
     
-    #print(f"\n\n\n\nexpanded lines is now:\n{lines}\n\n\n\n")
+    if DEBUG_ENCOUNTERED_LINES: print(f"\n\n\n\noriginal lines  was: :\n“““““{original_lines}”””””\n\n\nexpanded lines is now:\n“““““{         lines}”””””\n\n\n\n")
 
     merged_output_lines        = []
     cleaned_output_lines       = []
@@ -411,11 +393,8 @@ def lrc_to_txt(input_file, output_file):
     time_difference            = 0
     inserted                   = 0
     current_output_line        = ""
-    for line in lines:       
-        # separate out timestamps from text:
-        #ime, text = parse_timecode_lrc(line)                                                   #if DEBUG_TIME: print(f"\n* looping: time={time},text==>'{text.strip()}'",end="\n")       
-        time, text = line                                                                       #if DEBUG_TIME: print(f"\n* looping: time={time},text==>'{text.strip()}'",end="\n")       
-        
+    for line in lines:               
+        time, text = line                                                # separate out timestamps from text:                       #if DEBUG_TIME: print(f"\n* looping: time={time},text==>'{text.strip()}'",end="\n")               
         if time is None: continue                                        # skip lines without timestampes
         text = text if text else "\n"                                    # massage text
         time_difference = time - last_time if last_time else -666        # get time difference
@@ -433,29 +412,21 @@ def lrc_to_txt(input_file, output_file):
         else:
             inserted = 0
             
-            # Finalizing merged content:
-            if current_output_line:
+            if current_output_line:                                                                     # Finalizing merged content
                 merged_output_lines.append(current_output_line)
                 current_output_line=""
                 
-            # Append a blank line for large gaps
-            if time_difference > ADD_A_BLANK_LINE_IF_MORE_THAN_THESE_MANY_SECONDS_PAST_LAST_LINE:
-                #merged_output_lines.append("🐐")
+            if time_difference > ADD_A_BLANK_LINE_IF_MORE_THAN_THESE_MANY_SECONDS_PAST_LAST_LINE:       # Append a blank line for large gaps
                 merged_output_lines.append("")
             
-            # Append the current text
-            if DEBUG_INSERT_TIME_DIFFERENCES: text = f"⏱ {time_difference:5.1f} ⏱ " + text.strip()
-            text = text.strip()
-            #merged_output_lines.append(text)
-            #current_output_line = ""            
+            if DEBUG_INSERT_TIME_DIFFERENCES: text = f"⏱ {time_difference:5.1f} ⏱ " + text.strip()     
+            text = text.strip()                                                                         # Append the current text
             current_output_line = text
             
         last_time = time                           
     #end for line in lines
         
-    #if text != "":
-    if current_output_line:
-            merged_output_lines.append(current_output_line)
+    if current_output_line: merged_output_lines.append(current_output_line)
 
     # clean successive blank lines
     last_line=""
@@ -471,12 +442,6 @@ def lrc_to_txt(input_file, output_file):
             line = line.replace("'","’")           # change ' to ’
             f_out.write(line.lstrip() + "\n")      # output the cleaned line
                                                                                 
-def test_string_asdf():
-    import shlex
-    s = ' '.join(args.s)
-    print(s)
-    exit()
-
 def get_raw_command_tail():
     import ctypes
     GetCommandLineW              = ctypes.windll.kernel32.GetCommandLineW
@@ -486,7 +451,6 @@ def get_raw_command_tail():
     script_name_in_cmd           = script_name                                                  # Find the position where the arguments start
     if ' ' in script_name:         script_name_in_cmd = f'"{script_name}"'                      # If the script name contains spaces, it will be quoted in the command line
     args_start                   = raw_cmd.find(script_name_in_cmd) + len(script_name_in_cmd)
-    #rgs_that_may_contain_quotes = raw_cmd[args_start:].strip()                                 # construct our verbatim original command line
     args_that_may_contain_quotes = raw_cmd[args_start:]                                         # construct our verbatim original command line
     return args_that_may_contain_quotes
     
@@ -535,11 +499,7 @@ if __name__ == "__main__":                                                      
         if args.output: output_file = args.output                                                                      # If output filename is specified, use the specified output filename                                                                                                                 
         else:           output_file = re.sub(r'\.[^.]+$', EXTENSION_TO_PRODUCE, input_file)                            # If no output filename is provided, replace input file's extension with EXTENSION                                                                                                                                                                                               
         lrc_to_txt(input_file, output_file)                                                                            # Call the main function with input and output files            
-        #rint(f'✔  Generated lyrics: "{output_file}"')                                                                # Display success message                                       
         print(f'✔  Karaoke conversion success: “{output_file}”')                                                      # Display success message
-        #rint(f'✔  Converted  LRC file to TXT: “{output_file}” successfully!')                                        # Display success message 🐐
 
     #—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————                                                                                                                                                                              
-
-
 

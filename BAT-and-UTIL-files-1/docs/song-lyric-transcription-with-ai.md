@@ -34,7 +34,7 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# ✔️ Requirements: ✔️
+# ✔️ Setup/Requirements: ✔️
 
 <details><summary>Click here to view the full requirements, which are primarily: Whisper, TCC, my scripts, and an optional WinAmp plugin</summary>  
   
@@ -116,6 +116,16 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 &nbsp;
 
+
+8. 📂 Filename requirements: Don’t have any audio files with percents or carets in them!
+    - Unicode characters should be fine
+    - Emoji   characters should be fine, but may be risky
+    - DON’T USE “```%```” (the percent character)! It’s technically not even valid, but Windows allows it. Use the unicode ```％``` instead!
+    - DON’T USE “```^```” (the [caret character](https://en.wikipedia.org/wiki/Caret))!  Sorry!  Caret is my personal command separator. Spent a lot of time making this system work with caret-filenames, and it mostly does, but with some errant error messages. In the end, I recommend not using carets in music collection filenames. I was using them to represent exponents in quirky song titles that have mathematical equations in their title, such as those by *Type O Negative* and *Man Or Astro Man?*.  It turns out that the superscript characters ¹²³⁴⁵⁶⁷⁸⁹⁰ are easier to live with... Use ```²``` instead of ```^2``` to represent the mathematical concept of “squared”.
+    
+
+&nbsp;
+
 7. 📜 Recommended: To use the “local lyric repository search” functionality, set an environment variable named ```LYRICS``` to point to your lyric repository.  For example, ```set LYRICS=c:\lyrics```.
 This is a repository of saved lyrics, possibly from past [MiniLyrics](https://minilyrics.en.softonic.com/)/[EvilLyrics](https://www.evillabs.sk/evillyrics/) use.   
 The structure of the repository is assumed to be subfolders for the 1ˢᵗ letter of the artist, with filenames that are “*Artist* - *Title*.txt”, for example ```c:\Lyrics\M\Metallica - Enter Sandman.txt```, with the possibility of apostrophes being substituted into underscores. 
@@ -125,6 +135,7 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 8. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
     - Always be running  the ```Everything``` service, which comes with TakeCommand ([TCC](https://jpsoft.com/all-downloads/all-downloads.html))
     - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn’t start automatically. 
+    - ```clean-up-AI-transcription-trash-files``` is the command to clean up our trash.  Insert it into your startup/autoexec.bat equivalent and this system won’t leave any trash anywhere.
 
 &nbsp;
 
@@ -251,6 +262,10 @@ Create karaoke files for **all songs** *in a playlist* that do not have them —
 
 Create karaoke files for **all songs** in a *folder tree* that do not have them, as long as their lyric file has been previously approved. This is intended so one can spend 100% of time aligning/approving lyrics (i.e. with ```get-lyrics-for-playlist.bat```), then go to bed and run this to generate everything that has pre-approved lyrics, saving the karaoke generation for another time (like when you are asleep). 
 
+
+### 🌟 [delete-bad-ai-transcriptions](../BAT-and-UTIL-files-1/delete-bad-ai-transcriptions):
+
+Automatically run after creating karaoke files, this searches for bad karaoke transriptions (i.e. WhisperAI failures) & deletes them.
 
 
 ### 🌟 [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat):

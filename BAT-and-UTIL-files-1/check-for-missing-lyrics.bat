@@ -9,10 +9,13 @@ rem CONFIGURATION:
 
 
 :DESCRIPTION: Checks for files that are missing *approved* lyric files.
-:USAGE: check-for-missing-lyrics ————————————————————— checks files in current folder, and displays songs missing lyrics
-:USAGE: check-for-missing-lyrics get ————————————————— checks files in current folder, and  gets all  the missing lyrics
-:USAGE: check-for-missing-lyrics playlist.m3u get ———— checks files in   playlist.m3u, and displays songs missing lyrics
-:USAGE: check-for-missing-lyrics playlist.m3u ———————— checks files in   playlist.m3u, and  gets all  the missing lyrics
+:USAGE: check-for-missing-lyrics playlist.m3u {etc} ———————— checks files in   playlist.m3u, and displays songs missing lyrics
+:USAGE: check-for-missing-lyrics {etc} ————————————————————— checks files in current folder, and displays songs missing lyrics
+:USAGE: check-for-missing-lyrics get {etc} ————————————————— checks files in current folder, and  gets all  the missing lyrics
+:USAGE: check-for-missing-lyrics get playlist.m3u {etc} ———— checks files in   playlist.m3u, and  gets all  the missing lyrics
+:USAGE: 
+:USAGE:  ... where {etc} are options that will be passed directly to get-lyrics.bat, such as “genius” or ““force”
+
 
 
 rem Environment variable backups —— these should all already be defined already, but if not, define them here:
@@ -49,17 +52,23 @@ rem Validate environment once per session:
 
 rem If we were supplied a filename, process it as a list of files:                                 %+ rem This script can run in a couple different modes, so we need to deal with that
         set GET=0                                                                                  %+ rem Our default mode is GET=0, which means we will not be running the generated script afterward
-        iff "%1" ne "" then                                                                        %+ rem If an argument was given, it should be "get", a filename, or a filename followed by "get"
-                if "%1" eq "get" .or. "%2" eq "get" (set GET=1)                                    %+ rem if "get" was passed, we are actually going to run the script that this script generates. Adjust the flag for that               
-                iff "%1" eq "get" then                                                             %+ rem if "get" was passed without a filename, we are actually NOT in filelist mode
-                        if "%1" eq "get" (set FILELIST_MODE=0)                                     %+ rem if "get" was passed without a filename, we are actually NOT in filelist mode 
-                        if "%1" eq "get" (set Filelist_to_Check_for_Missing_Lyrics_in=)            %+ rem if "get" was passed without a filename, we are actually NOT in filelist mode 
+        set ETC=0                                                                                  %+ rem Extra options to be passed directly to get-lyrics.bat, such as “genius” or “force”
+        rem echo processing... %%* is %*, %%1 is %1,  %%1$ is %1$
+        iff "%1" != "" then                                                                        %+ rem If an argument was given, it should be "get", a filename, or a filename followed by "get"
+                iff "%1" == "get" then                                                             %+ rem if "get" was passed, we are actually going to run the script that this script generates. Adjust the flag for that               
+                        set GET=1 
+                        set FILELIST_MODE=0
+                        set Filelist_to_Check_for_Missing_Lyrics_in=
+                        shift
                 else                                                                               %+ rem if "get" was passed  *WITH* a filename...
                         set  FILELIST_MODE=1                                                       %+ rem       ...set our operational mode flag appropriately...
-                        set  Filelist_to_Check_for_Missing_Lyrics_in=%@UNQUOTE[%1]                 %+ rem       ...store the filename parameter for later...
+                        set  Filelist_to_Check_for_Missing_Lyrics_in=%@UNQUOTE["%1"]               %+ rem       ...store the filename parameter for later...
+                        shift
                         call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
                         call less_important "Finding songs with missing lyrics in playlist: %italics_on%“%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%italics_off%”"
                 endiff                
+                set ETC=%1$
+                rem echo ETC is “%ETC%”
         else                                                                                       %+ rem If run without parameters...
                 set  Filelist_to_Check_for_Missing_Lyrics_in=                                      %+ rem       ...we are not using a fileist, so make sure that variable is empty
                 set  FILELIST_MODE=0                                                               %+ rem       ...we are not using a fileist, so make sure the proper operational flag is set
@@ -223,7 +232,7 @@ rem —————————————————————————�
 
                         rem If the song is marked for approved-lyriclessness, the file is good:                                
                                 set LYRICLESSNESS_APPROVAL_VALUE=%@ExecStr[TYPE "%unquoted_audio_file_full%:lyriclessness" >&>nul]         %+ rem get the song’s lyriclessness approval status
-                                iff "APPROVED" eq "%LYRICLESSNESS_APPROVAL_VALUE%" then
+                                iff "APPROVED" == "%LYRICLESSNESS_APPROVAL_VALUE%" then
                                         set BAD=0
                                         goto :done_processing_this_file
                                 endiff                                        
@@ -272,7 +281,7 @@ rem —————————————————————————�
                                         set TXT_EXISTS=1                                                                                            %+ rem If the lyric file exists, flag the situation as such
                                         set coloring=%ansi_color_bright_green%                                                                      %+ rem If the lyric file exists, draw debug info in green
                                         set         LYRIC_APPROVAL_VALUE=%@ExecStr[TYPE                  <"%txtfile%:lyrics"        >&>nul]         %+ rem If the lyric file exists, get it’s approval status
-                                        iff "APPROVED" eq "%LYRIC_APPROVAL_VALUE%" .or. "APPROVED" eq "%LYRICLESSNESS_APPROVAL_VALUE%" then         %+ rem If the lyrics are approved...
+                                        iff "APPROVED" == "%LYRIC_APPROVAL_VALUE%" .or. "APPROVED" == "%LYRICLESSNESS_APPROVAL_VALUE%" then         %+ rem If the lyrics are approved...
                                                 set coloring2=%coloring%                                                                            %+ rem    ...use the same success color for the text file
                                                 set BAD=0                                                                                           %+ rem Mark it as "good" [having approved lyrics] by un-setting "bad"
                                         else                                                                                                        %+ rem If the lyrics are NOT approved...
@@ -323,7 +332,7 @@ rem —————————————————————————�
                                         rem Add lyric-retrieval command to our autorun script:
                                               rem echo gosub process "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
                                               setdos /x-4
-                                              echo repeat 13 echo. `%`+ call get-lyrics "%unquoted_audio_file%" `%`+ call divider >>:u8"%tmpfile_cfml_1%"
+                                              echo repeat 13 echo. `%`+ call get-lyrics "%unquoted_audio_file%" %ETC% `%`+ call divider >>:u8"%tmpfile_cfml_1%"
                                               setdos /x0
                                                     
                                 endiff                        

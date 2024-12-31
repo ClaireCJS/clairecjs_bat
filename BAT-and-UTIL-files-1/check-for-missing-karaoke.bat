@@ -23,7 +23,7 @@ rem Configuration:
 
 
 rem Validate Enviroment:
-        iff 1 ne    %validated_cfmk then
+        iff  1  ne  %validated_cfmk then
                 call validate-in-path              check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index
                 call validate-environment-variable filemask_audio   skip_validation_existence
                 call validate-environment-variable DEFAULT_FILEMASK skip_validation_existence
@@ -41,7 +41,7 @@ rem Parameter processing:
         set RECURSE_CFMK=0
         :Again
         if  "%1" == "/s" set RECURSE_CFMK=1
-        iff "%2" ne "" then
+        iff "%2" != "" then
                 shift
                 goto :Again
         endiff                
@@ -56,7 +56,7 @@ rem Initialization:
 
 rem Parameter checking:
         rem no-parameter case:
-                iff "%1" eq ""  then
+                iff "%1" == ""  then
                         rem echo.
                         rem OLDER: ASK: call AskYn   "%italics_on%instead%italics_off% use files here that match: %DEFAULT_FILEMASK% ?" yes 99999
                         rem OLD: NOTIFY:
@@ -68,9 +68,9 @@ rem Parameter checking:
                         set FILEMASK_TO_USE=%DEFAULT_FILEMASK%
                 endiff
         rem Use different filelist name depending on parameters:
-                iff "%dir_params%" ne "" then
-                    rem echo - DEBUG: if "%@REGEX[/s,%dir_params%]" eq "1" (set FILELIST_TO_USE=all.m3u) 
-                                      if "%@REGEX[/s,%dir_params%]" eq "1" (set FILELIST_TO_USE=all.m3u)
+                iff "%dir_params%" != "" then
+                    rem echo - DEBUG: if "%@REGEX[/s,%dir_params%]" == "1" (set FILELIST_TO_USE=all.m3u) 
+                                      if "%@REGEX[/s,%dir_params%]" == "1" (set FILELIST_TO_USE=all.m3u)
                 endiff                                      
                 iff exist %filemask_audio% then
                         rem dir /b /[!*instrumental*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%

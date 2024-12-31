@@ -67,6 +67,7 @@ rem Set default values for parameters:
 
 
 rem Read tag: 
+        rem  add-ADS-tag-to-file "%FILE_TO_USE%" "%TAG_TO_READ%" read %PARAMS_3% 🐐
         call add-ADS-tag-to-file "%FILE_TO_USE%" "%TAG_TO_READ%" read %PARAMS_3%
         rem iff "%PARAM_3%" ne "verbose" then
         rem         echo call add-ADS-tag-to-file "%FILE_TO_USE%" %TAG_TO_READ% read %PARAM_3%

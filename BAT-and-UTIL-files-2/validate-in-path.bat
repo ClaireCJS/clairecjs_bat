@@ -19,14 +19,22 @@ rem Make sure stripansi plugin is loaded:
         if "%@PLUGIN[stripansi]" eq "" call load-TCC-plugins
         if "%@PLUGIN[stripansi]" eq "" set stripansi_failed=1
 
-set PRIMARY_ERROR_MESSAGE_STYLING_ON=%italics_on%%blink_on%%@CHAR[27][48;2;128;24;24m
-set PRIMARY_ERROR_MESSAGE_STYLING_OFF=%blink_off%%italics_off%%ANSI_COLOR_FATAL_ERROR%
+rem Message styling experimentation:
+        set PRIMARY_ERROR_MESSAGE_STYLING_ON=%italics_on%%blink_on%%@CHAR[27][48;2;128;24;24m
+        set PRIMARY_ERROR_MESSAGE_STYLING_OFF=%blink_off%%italics_off%%ANSI_COLOR_FATAL_ERROR%
 
 
-   
-iff "%validate_in_path_message%" ne "" then
-        set validate_in_path_message=%PRIMARY_ERROR_MESSAGE_STYLING_ON%%validate_in_path_message%%PRIMARY_ERROR_MESSAGE_STYLING_OFF%
-endiff
+rem Custom error message:   
+        iff "%validate_in_path_message%" ne "" then
+                set validate_in_path_message=%PRIMARY_ERROR_MESSAGE_STYLING_ON%%validate_in_path_message%%PRIMARY_ERROR_MESSAGE_STYLING_OFF%
+        endiff
+
+
+
+
+rem Now start validating!
+
+
    
 set OUR_LOGGING_LEVEL=None
 set PARAM2_WAS_A_MESSAGE=0

@@ -12,7 +12,6 @@ rem Validate environemnt once per session:
 rem Take note of how much was free before we started:
         set FREE_C_BEFORE=%@DISKFREE[c]
 
-_vad_pyannote_v3.txt
 rem Delete files that could be anywhere:
         gosub DeleteEverywhere               *._vad_collected_chunks*.wav
         gosub DeleteEverywhere               *._vad_collected_chunks*.srt
@@ -26,13 +25,15 @@ rem Delete files that could be anywhere:
                 :deleteEverywhere [file]
                         rem Let us know which filename we are on the hunt for:
                                 set file="%@UNQUOTE[%file]"                                             %+ rem Strip quotes off filename
-                                echos         ``                                                        %+ rem Indent this part
+                                echos         %ANSI_RESET%``                                            %+ rem Indent this part
                                 call less_important "looking for “%italics_on%%file%%italics_off%”"     %+ rem Indented "looking for {filename}" message
+                                echos %@randfg_soft[]%@randcursor[]
                         
                         rem Find all instances of the file [found via everything] we are deleting, pipe to sort-and-uniq to dedupe it, then insert "del-if-exists" [and a quote] before it, a quote after it, then pipe *all that* directly to the command line, then pipe it to fast_cat to fix ansi rendering errors:
                         rem Be damn sure you know what you’re doing if you change this. Best put an "echo " before the "*del" and test it out if you do.
 
                                 ((((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") |:u8 call run-piped-input-as-bat.bat) |:u8 fast_cat
+                                echos %@randfg_soft[]%@randcursor[]
                 return
         :skip_1
 
@@ -44,7 +45,10 @@ rem Calculate and display how much space we saved:
         rem In Megs:
                 set SPACE_SAVED_MEGS=%@FORMATN[01.0,%@EVAL[(%FREE_C_AFTER - %FREE_C_BEFORE)/1000000]]
                 set SPACE_SAVED_MEGS_PRETTY=%@COMMA[%SPACE_SAVED_MEGS]
-                echos     `` %+ call less_important.bat "Saved %bold%%SPACE_SAVED_MEGS_PRETTY%%bold_off% megs"
+                iff "%@NAME[%_PBATCHNAME]" != "free-up-harddrive-space" then        
+                        echos     `` 
+                        call less_important.bat "Saved %bold%%SPACE_SAVED_MEGS_PRETTY%%bold_off% megs"
+                endiff
         rem In Gigs:        
                 rem SPACE_SAVED_GIGS=%@FORMATN[01.0,%@EVAL[(%FREE_C_AFTER - %FREE_C_BEFORE)/1000000000]]
                 rem SPACE_SAVED_GIGS_PRETTY=%@COMMA[%SPACE_SAVED_GIGS]
@@ -54,8 +58,10 @@ rem Calculate and display how much free space is left overall:
         rem In Gigabytes and Terabites:
                 set FREE_GIGABYTES=%@FORMATN[1.1,%@EVAL[%@DISKFREE[c]/1000000000]]
                 set FREE_TERABYTES=%@FORMATN[1.2,%@EVAL[%@DISKFREE[c]/1000000000000]]
-                echos     `` %+ call less_important "%ANSI_COLOR_IMPORTANT%Free space now: %FREE_TERABYTES%%blink_on%T%blink_off% (%FREE_GIGABYTES%%blink_on%G%blink_off%)"
-
+                iff "%@NAME[%_PBATCHNAME]" != "free-up-harddrive-space" then        
+                        echos     `` 
+                        call less_important "%ANSI_COLOR_IMPORTANT%Free space now: %FREE_TERABYTES%%blink_on%T%blink_off% (%FREE_GIGABYTES%%blink_on%G%blink_off%)"
+                endiff
 goto :END
 
 rem ———————————————————————————————————————————————— SUBROUTINES: BEGIN ————————————————————————————————————————————————

@@ -24,9 +24,7 @@ REM     local GIT repo beore doing anything significant.  Or really, before doin
 rem Must have parameter!
         set which_file=
         if "%1" eq "" (call fatal_error "%0 must have 1ˢᵗ parameter of target folder for example BAT-and-UTIL-files-1")
-        iff "%2" ne "" then
-                set  which_file=%@UNQUOTE[%2]
-        endiff
+        if "%2" ne "" (set  which_file=%@UNQUOTE[%2])
 
 rem VALIDATION & SETUP:
         set SOURCE_DIR=%BAT%

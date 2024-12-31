@@ -320,7 +320,7 @@ REM Load INKEY with the question, unless we’ve already printed it out:
 
 REM Actually answer the question here —— make the windows “question” noise first, then get the user input:
         echoserr %ANSI_CURSOR_SHOW%
-        *beep question    
+        if 1 ne %SLEEPING *beep question    
         unset /q SLASH_X
         if  %BIG_QUESTION eq 1 .and. %WAIT_TIMER_ACTIVE eq 1 (set SLASH_X=/x)
         echoserr %ANSI_POSITION_SAVE%

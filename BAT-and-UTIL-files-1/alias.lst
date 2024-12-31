@@ -12,7 +12,7 @@ readalias=realias
 ;;;;;;;;;;;;; UNKNOWN COMMAND STUFF: ;;;;;;;;;;;;;
 ;;;;;;;;;;;;; UNKNOWN COMMAND STUFF: ;;;;;;;;;;;;;
 
-UNKNOWN_CMD=set PAUSE_WINDOW_TITLE=❌❌❌ %1$ ❌❌❌%+ echo 🚩 %ANSI_COLOR_ERROR% Unknown command: '%italics%%ANSI_YELLOW%%1$%ANSI_COLOR_ERROR%%italics_off%' %ANSI_RESET% 🚩 %+ beep %+ call pause-alias  
+UNKNOWN_CMD=set PAUSE_WINDOW_TITLE=❌❌❌ cd %1$ error ❌❌❌%+ echoerr 🚩 %ANSI_COLOR_ERROR% Unknown command: '%italics%%ANSI_YELLOW%%1$%ANSI_COLOR_ERROR%%italics_off%' %ANSI_RESET% 🚩 %+ beep %+ call pause-alias  
 
 
 
@@ -58,8 +58,7 @@ kill=      @call         kill.bat
 label=     @call        label.bat
 more=      @call         more.bat
 mv=        @call     mv-alias.bat
-pause=     @call  pause-alias.bat
-perl=      @call         perl.bat
+pause =    @call  pause-alias.bat
 python=    @call       python.bat
 rd=        @call     rd-alias.bat 
 say=       @call          say.bat 

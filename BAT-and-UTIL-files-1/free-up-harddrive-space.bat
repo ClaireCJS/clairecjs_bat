@@ -1,11 +1,13 @@
-@on break cancel
-@echo off
+@Echo off
+@call bat-init
 
 
-call validate-environment-variables LOCALAPPDATA TEMP TMPDIR 
-call validate-in-path important.bat fast_cat
-call validate-in-path important less_important sort uniq insert-before-each-line run-piped-input-as-bat.bat fast_cat everything everything.exe everything.bat clean-up-AI-transcription-trash-files.bat
-
+rem Validate environment (once):
+        iff 1 ne %validated_freeuphdspace% then
+                call validate-environment-variables LOCALAPPDATA TEMP TMPDIR 
+                call validate-in-path important.bat fast_cat less_important sort uniq insert-before-each-line run-piped-input-as-bat.bat fast_cat everything everything.exe everything.bat clean-up-AI-transcription-trash-files.bat
+                call validated_freeuphdspace=1
+        endiff
 
 
 rem Start, and take note of how much was free before we started:
@@ -19,10 +21,10 @@ REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL
 REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
 REM If you use a *.* filemask you need to also call CreateIfGone because IT WILL REMOVE THE FOLDER TOO if you use *.*
 
+gosub DelIfExists  c:\tcmd\runonce-post-split*.bat
 gosub DelIfExists "%LOCALAPPDATA%\Binary Fortress Software\DisplayFusion\CrashDumps\*.dmp"
 gosub DelIfExists  %LOCALAPPDATA%\Temp\DiagOutputDir\RdClientAutoTrace\*.etl
 gosub DelIfExists  %TEMP%\*.*
-gosub DelIfExists  c:\tcmd\runonce-post-split*.bat
 gosub CreateIfGone %TEMP%
 gosub DelIfExists  %TMPDIR%\*.*
 gosub CreateIfGone %TMPDIR%
@@ -32,12 +34,11 @@ gosub CreateIfGone c:\recycled
 rem Files that could be anywhere:
 
         rem AI lyric transcription:
-                rem moved to separate AI-trash-cleanup bat: echo.
                 rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere               *._vad_collected_chunks*.wav
                 rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere               *._vad_original*.srt
                 rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
                 rem moved to separate AI-trash-cleanup bat: gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
-                if "%USERNAME%" eq "Claire" call clean-up-AI-transcription-trash-files-everywhere.bat
+                if "%USERNAME%" == "Claire" call clean-up-AI-transcription-trash-files-everywhere.bat
     
 
         goto :skip_1

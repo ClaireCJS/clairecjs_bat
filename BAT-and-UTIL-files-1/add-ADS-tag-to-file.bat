@@ -266,17 +266,17 @@ goto :END
                                 else %+ rem it is a lyric mode:
 
                                 
-                                        rem echo tag_to_modify=%tag_to_modify%
+                                        rem tag_to_modify=%tag_to_modify% 🐐
                                         set hide_status=0
-                                        iff "%tag_to_modify%" eq "lyriclessness" .or. "%tag_to_modify%" eq "lyricslessness" then
+                                        iff "%tag_to_modify%" eq "lyriclessness" then
                                                 set our_maybe_subtitle_1=%@NAME[%tmp_file2use].lrc
                                                 set our_maybe_subtitle_2=%@NAME[%tmp_file2use].srt
                                                 set our_maybe_lyrics=%@NAME[%tmp_file2use].txt
                                                 iff     exist "%our_maybe_subtitle_1%" .or. exist "%our_maybe_subtitle_2%" then
                                                         set EXTRA=%ansi_color_bright_green%Has karaoke! %ansi_color_normal%
-                                                        set hide_status=1
+                                                        set hide_status=0
                                                 elseiff exist "%our_maybe_lyrics%" then                                                
-                                                        set hide_status=1
+                                                        set hide_status=0
                                                         set EXTRA=%ansi_color_bright_YELLOW%Has lyrics!%ansi_color_normal%%faint_on%..%faint_off%
                                                 else
                                                         set hide_status=0
@@ -310,7 +310,7 @@ goto :END
                                         else                                                
                                                 echos  %tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use%
                                         endiff
-                                        echos %value_spacer_post% for %@ansi_fg_rgb[182,118,182]%@ext[%tmp_file2use%]%ansi_color_reset%: %faint_on%%italics_on%
+                                        echos %value_spacer_post% for %@ansi_fg_rgb[182,118,182]%@ext[%tmp_file2use%]%ansi_color_reset%: %@IF[%@len[%@ext[%tmp_file2use%]] lt 4, ,]%faint_on%%italics_on%
                                         if 0 ne %ADSTAG_DISPLAY_FOR_PATH% echos %@path[%tmp_file2use%]
                                         echo %@name[%tmp_file2use%].%faint_off%%italics_off%%@ansi_fg[124,124,124]%@ext[%tmp_file2use%]%faint_off%%italics_off%%conceal_on%orange42%conceal_off%
                                 endiff

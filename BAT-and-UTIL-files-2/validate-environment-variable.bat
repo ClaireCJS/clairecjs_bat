@@ -56,8 +56,8 @@
     rem call debug "param3            is %param3%"
     rem call debug "validate_multiple is %validate_multiple%"
     rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
-    if "%@NAME[%OUR_CALLER%]" eq "validate-environment-variables" set VALIDATE_MULTIPLE=1
-    iff "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE ne 1 then
+    if "%@NAME[%OUR_CALLER%]" == "validate-environment-variables" set VALIDATE_MULTIPLE=1
+    iff "%PARAM3%" != "" .and. %VALIDATE_MULTIPLE ne 1 then
         call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
         color bright white on red
         echo  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
@@ -74,7 +74,7 @@
     endiff
 
     set SKIP_VALIDATION_EXISTENCE=0
-    if "%PARAM2%" eq "skip_validation_existence" .or. "%PARAM2%" eq "skip_existence_validation" .or. "%PARAM2%" eq "skip_validation" (
+    if "%PARAM2%" == "skip_validation_existence" .or. "%PARAM2%" == "skip_existence_validation" .or. "%PARAM2%" == "skip_validation" (
         set SKIP_VALIDATION_EXISTENCE=1 
         set USER_MESSAGE=%3$
     )
@@ -107,7 +107,7 @@ goto :Past_The_End_Of_The_Subroutines
         rem echos %@RANDCURSOR[]
         ::::: SEE IF IT IS DEFINED:
             if defined %VARNAME% (goto :Defined_YES)
-            if ""  eq  %VARNAME% (goto :Defined_NO )
+            if ""  ==  %VARNAME% (goto :Defined_NO )
 
                     ::::: RESPOND IF IT IS NOT DEFINED/EXISTING:
                         :Defined_NO
@@ -117,7 +117,7 @@ goto :Past_The_End_Of_The_Subroutines
                             set ERROR_MESSAGE=%ERROR_MESSAGE%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: `%`USER_MESSAGE`%` is %left_quotes%%USER_MESSAGE%%right_quotes%)
-                            if "%USER_MESSAGE%" ne "" goto :Do_It_1
+                            if "%USER_MESSAGE%" != "" goto :Do_It_1
                                                       goto :Do_It_1_Done
                             :Do_It_1
                                 REM Normalize width of ERROR_MESSAGE to be same width as USER_MESSAGE
@@ -159,7 +159,7 @@ goto :Past_The_End_Of_The_Subroutines
                             echos %ERROR_MESSAGE%  
                             %COLOR_NORMAL% 
                             echo.
-                            if "%USER_MESSAGE%" ne "" (
+                            if "%USER_MESSAGE%" != "" (
                                 REM Although this is technically advice, we 
                                 REM are coloring it warning-style because 
                                 REM advice related to an error in this context
@@ -230,9 +230,9 @@ goto :Past_The_End_Of_The_Subroutines
 
                         
                         setdos /x-5
-                        iff "%VARNAME%" eq "newline" .or. "%VARNAME%" eq "tab" .or. "%VARVALUE%" eq " " .or. "%@RegEx[\.,%varvalue%]" ne "1" then
+                        iff "%VARNAME%" == "newline" .or. "%VARNAME%" == "tab" .or. "%VARVALUE%" == " " .or. "%@RegEx[\.,%varvalue%]" != "1" then
                                 set IS_FILE_LOCATION=0
-                        elseiff "1" eq "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"  .or.  "1" eq "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" then
+                        elseiff "1" == "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"  .or.  "1" == "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" then
                                 rem if it ends with any file extension of commonly used files:
                                 set IS_FILE_LOCATION=1
                         else                                
@@ -243,7 +243,7 @@ goto :Past_The_End_Of_The_Subroutines
             :skippy
 
         setdos /x0
-        if "0" eq "%IS_FILE_LOCATION%" .or. "0" eq "%@READY[%VARVALUEDRIVE%]" .or. 1 eq  %SKIP_VALIDATION_EXISTENCE%                      (goto :DontValidateIfExists)                         %+ rem //Don’t look for if we want to validate the variable only
+        if "0" == "%IS_FILE_LOCATION%" .or. "0" == "%@READY[%VARVALUEDRIVE%]" .or. 1 eq  %SKIP_VALIDATION_EXISTENCE%                      (goto :DontValidateIfExists)                         %+ rem //Don’t look for if we want to validate the variable only
         if exist "%VARVALUE%"          .or. isdir "%VARVALUE%"                                                                            (goto :ItExistsAfterall)                             %+ rem //Does it exist as a file or folder?
         if exist "%VARVALUE%.dep"      .or. isdir "%VARVALUE%.dep"  .or. exist "%VARVALUE%.deprecated" .or. isdir "%VARVALUE%.deprecated" (goto :ItExistsAfterall %+ gosub :ItIsDeprecated)    %+ rem //Internal kludge for the way I do workflows
 
@@ -261,7 +261,7 @@ goto :Past_The_End_Of_The_Subroutines
                     REM %COLOR_NORMAL%
                     
                 REM with messaging system:
-                iff "%USER_MESSAGE%" ne "" then
+                iff "%USER_MESSAGE%" != "" then
                                 REM Although this is technically advice, we 
                                 REM are coloring it warning-style because 
                                 REM advice related to an error in this context
@@ -279,19 +279,19 @@ goto :Past_The_End_Of_The_Subroutines
                 set old=%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%
                 set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
 
-                if "" ne "%our_caller%" call   warning  "    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%@NAME[%our_caller%].%@EXT[%our_caller%]%italics_off%%blink_off%"      
+                if "" != "%our_caller%" call   warning  "    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%@NAME[%our_caller%].%@EXT[%our_caller%]%italics_off%%blink_off%"      
 
                 call warning "  dir/folder: %italics_on%%[_CWD]%italics_off%"              
 
                 rem TCCv33 introduced a new command. We tried it out like this:
                 rem SET OUR_CALLER=%@execSTR[caller]
-                rem if "" ne "%OUR_CALLER%" call warning "%@CHAR[55357]%@CHAR[56542] Called by: %OUR_CALLER%"
+                rem if "" != "%OUR_CALLER%" call warning "%@CHAR[55357]%@CHAR[56542] Called by: %OUR_CALLER%"
                 rem But it typically just told us that validate-environment-variable was being called by validate-environment-variables....not very useful
 
                 rem Not very useful since it’s the params to this folder: call     warning  "    %@CHAR[55357]%@CHAR[56542] Parameters: %italics_on%%italics_on%%VEVPARAMS%%italics_off%%italics_off%" 
 
                 set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=%old%
-                iff "" ne "%USER_MESSAGE%" then
+                iff "" != "%USER_MESSAGE%" then
                         set USER_MESSAGE_TO_USE=%NEWLINE%%USER_MESSAGE%
                 else
                         set USER_MESSAGE_TO_USE=
@@ -330,7 +330,7 @@ goto :Past_The_End_Of_The_Subroutines
 :ItExistsAfterall
 :DontValidateIfExists
 :END
-if "" eq "%LAST_TITLE%" (set LAST_TITLE=TCC)
+if "" == "%LAST_TITLE%" (set LAST_TITLE=TCC)
 title %LAST_TITLE%
 
 echos %CURSOR_RESET%

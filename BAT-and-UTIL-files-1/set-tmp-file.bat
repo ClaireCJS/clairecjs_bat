@@ -13,8 +13,8 @@ rem Validate environment:
 rem Generate components of our temp filename:
         SET  TMPFILE_DIR=%TEMP%
         SET TMP_FILE_DIR=%TEMP%
-        SET TMP_FILE_FILE=%_DATETIME.%KNOWN_NAME%.%_PID.%@NAME[%@UNIQUE[%TEMP]]
-        SET  TMPFILE_FILE=%_DATETIME.%KNOWN_NAME%.%_PID.%@NAME[%@UNIQUE[%TEMP]]
+        SET TMP_FILE_FILE=%_DATETIME.%KNOWN_NAME%.%_PID.%@NAME[%@UNIQUEx[%TEMP%\]]
+        SET  TMPFILE_FILE=%_DATETIME.%KNOWN_NAME%.%_PID.%@NAME[%@UNIQUEx[%TEMP%\]]
 
         rem Aliases for easier auditing:
                 SET TMPFILE_FILENAME=%TMPFILE_FILE%

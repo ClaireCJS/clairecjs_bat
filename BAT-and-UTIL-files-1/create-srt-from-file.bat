@@ -30,7 +30,7 @@ rem TODO afterregen anyway, do we need to ask about ecc2fasdfasf.bat?
 
 
 rem ———————————————————————————————————————————————— USAGE: ———————————————————————————————————————————
-iff "%1" eq "" then 
+iff "%1" == "" then 
         gosub usage
         goto :The_Very_END
 endiff
@@ -62,7 +62,7 @@ goto :subroutine_definitions_end
 
 
 rem MAJOR BRANCHING:
-        iff "%1" eq "postprocess_lrc_srt_files" then
+        iff "%1" == "postprocess_lrc_srt_files" then
                 gosub postprocess_lrc_srt_files
                 goto :EOF
         endiff
@@ -107,7 +107,7 @@ REM values set from parameters:
         if "%_CWD\" != "%SONGDIR%" pushd %SONGDIR%
         rem DEBUG:echo SONGDIR is “%SONGDIR%” , cwd=“%_CWD” %+ pause
         setdos /x-4
-        if "%@EXT[%2]" eq "txt" (
+        if "%@EXT[%2]" == "txt" (
                 set POTENTIAL_LYRIC_FILE=%@UNQUOTE[%2]
         ) else (                
                 set POTENTIAL_LYRIC_FILE=
@@ -150,7 +150,7 @@ REM validate environment [once]:
         if not defined UnicodeOutputDefault (set UnicodeOutputDefault=no)
         iff 1 ne %VALIDATED_CREATE_LRC_FF then
                 rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
-                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-song.bat
+                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-song.bat delete-bad-ai-transcriptions.bat
                 @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check red_x ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off ansi_color_blue
                 @call validate-environment-variables TRANSCRIBER_PDNAME skip_validation_existence
                 @call validate-is-function           ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD
@@ -179,9 +179,9 @@ REM validate environment [once]:
 
 REM branch on certain paramters, and clean up various parameters 
         rem %1 "last" is a very unique situation:
-        echo %ansi_color_red% if "%@UNQUOTE[%1]" eq "last" (goto :actually_make_the_lrc) >nul
+        echo %ansi_color_red% if "%@UNQUOTE[%1]" == "last" (goto :actually_make_the_lrc) >nul
         echo %@ansi_randfg_soft[][AAA1] %%1$ is %1$ >nul
-        if "%1" eq "last" (goto :actually_make_the_lrc) %+ rem to repeat the last regen
+        if "%1" == "last" (goto :actually_make_the_lrc) %+ rem to repeat the last regen
         rem %1 was unique. Now we do the normal stuffs:
 
 
@@ -207,13 +207,13 @@ REM branch on certain paramters, and clean up various parameters
         
         :process_for_mode_variants
         rem %1 is the filename, but %2+++ can be various options to pull off, while the rest is to go to Whisper/our transcriber
-        rem iff "%2" eq "ai" .or. "%2" eq "fast" .or. "%2" eq "redo" .or. "%2" eq "force-regen" .or. "%2" eq "cleanup" then
+        rem iff "%2" == "ai" .or. "%2" == "fast" .or. "%2" == "redo" .or. "%2" == "force-regen" .or. "%2" == "cleanup" then
         echos %ANSI_COLOR_MAGENTA%
         rem echo tail is %1$
         rem echo  one is %1
         set TMP_PARAM_1=%1
         rem echo TMP_PARAM_1 is “%TMP_PARAM_1%”
-        iff "%TMP_PARAM_1%" ne "" then
+        iff "%TMP_PARAM_1%" != "" then
                 set special_parameters_possibly_present=1
                 rem echo special params present! %1$
         else
@@ -222,28 +222,28 @@ REM branch on certain paramters, and clean up various parameters
         iff 1 eq %special_parameters_possibly_present% then
                 set special=%TMP_PARAM_1%
                 rem echo checking special=“%special%” ... %%1=“%1” %+ pause
-                if "%special%" eq "ai"                 (set SOLELY_BY_AI=1       )
-                if "%special%" eq "cleanup"            (set CLEANUP=1            )
-                if "%special%" eq "force"              (set FORCE_REGEN=1        )
-                if "%special%" eq "lyriclessness"      (set NEVERMIND_THIS_ONE=42) %+ rem If this gets snuck in as 2ⁿᵈ argument, ignore it
-                if "%special%" eq "force-regen"        (set FORCE_REGEN=1        )
-                if "%special%" eq "redo"               (set FORCE_REGEN=1        )
-                if "%special%" eq "ala"                (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq  "la"                (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq     "LyricApprove"   (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq     "LyricApproved"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq     "LyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq     "LyricsApprove"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq     "LyricsApproved" (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq     "LyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq "AutoLyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq "AutoLyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq "AutoLyricsApproved" (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq "AutoLyricApproved"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq "AutoLyricsApprove"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq "AutoLyricApprove"   (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq "AutoLyrics"         (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" eq "AutoLyric"          (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "ai"                 (set SOLELY_BY_AI=1       )
+                if "%special%" == "cleanup"            (set CLEANUP=1            )
+                if "%special%" == "force"              (set FORCE_REGEN=1        )
+                if "%special%" == "lyriclessness"      (set NEVERMIND_THIS_ONE=42) %+ rem If this gets snuck in as 2ⁿᵈ argument, ignore it
+                if "%special%" == "force-regen"        (set FORCE_REGEN=1        )
+                if "%special%" == "redo"               (set FORCE_REGEN=1        )
+                if "%special%" == "ala"                (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==  "la"                (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricApprove"   (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricApproved"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricsApprove"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricsApproved" (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricsApproved" (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricApproved"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricsApprove"  (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricApprove"   (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyrics"         (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyric"          (set AUTO_LYRIC_APPROVAL=1)
                 shift 
                 rem  after “shift”,  %1$ is now the remaining arguments (if any)
                 rem echo %reverse_on%after “shift”, %%1$ is now: %1$%reverse_off% >nul
@@ -357,7 +357,7 @@ rem e
 
 REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
         call validate-environment-variable INPUT_FILE
-        rem iff "%FORCE_REGEN%" eq "1" .or. "%SOLELY_BY_AI%" eq "1" then
+        rem iff "%FORCE_REGEN%" == "1" .or. "%SOLELY_BY_AI%" == "1" then
         rem         rem Skip validation because we’re doing things automatically
         rem else
                 rem TODO: refactor this internally for speedup
@@ -367,7 +367,7 @@ REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
 
 REM If our input file is lyricless and we’ve approved its lyriclessness, then we’ve decided to transcribe without a lyrics file
         call get-lyriclessness-status "%INPUT_FILE%"
-        iff "%LYRICLESSNESS_STATUS%" eq "APPROVED" then 
+        iff "%LYRICLESSNESS_STATUS%" == "APPROVED" then 
                 call success "%italics_on%Lyric%underline_on%less%underline_off%ness%italics_off% already approved! Using AI only!"
                 set SOLELY_BY_AI=1
                 set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=10                                           %+ rem 🐮 hard-coded value warning
@@ -400,7 +400,7 @@ REM if we already have a SRT file, we have a problem:
                         @call advice "Automatically answer the next prompt as Yes by adding the parameter “force-regen” or “redo”"
                         iff exist "%TXT_FILE%" then
                                 @call AskYn "%conceal_on%5%conceal_off%Do the above lyrics look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME
-                                iff "%answer%" eq "Y" then
+                                iff "%answer%" == "Y" then
                                         rem Proceed with process
                                         set LYRICS_ACCEPTABLE=1
                                 else
@@ -418,7 +418,7 @@ REM if we already have a SRT file, we have a problem:
                 set GOTO_END=0
                 set GOTO_FORCE_AI_GEN=0
                 
-                iff "%ANSWER%" eq "Y" .or. %FORCE_REGEN eq 1 then
+                iff "%ANSWER%" == "Y" .or. %FORCE_REGEN eq 1 then
                         iff exist "%SRT_FILE%" then
                                 ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak" >nul
                         endiff
@@ -428,9 +428,9 @@ REM if we already have a SRT file, we have a problem:
                         
                         set DEFAULT_ANSWER_FOR_THIS=no
                         call get-lyric-status "%TXT_FILE%"
-                        if 1 eq %AUTO_LYRIC_APPROVAL% .or. "%LYRIC_STATUS%" eq "APPROVED" (set DEFAULT_ANSWER_FOR_THIS=no)
+                        if 1 eq %AUTO_LYRIC_APPROVAL% .or. "%LYRIC_STATUS%" == "APPROVED" (set DEFAULT_ANSWER_FOR_THIS=no)
                         @call AskYN "Get new lyrics" %DEFAULT_ANSWER_FOR_THIS% %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME% %+ rem todo make unique wait time for this
-                        iff "%ANSWER%" eq "Y" .and. 1 ne %AUTO_LYRIC_APPROVAL then
+                        iff "%ANSWER%" == "Y" .and. 1 ne %AUTO_LYRIC_APPROVAL then
                                 call get-lyrics-for-song "%songfile%"
                         endiff                                
                         
@@ -452,7 +452,7 @@ REM if we already have a SRT file, we have a problem:
 
 
 
-REM If "%SOLELY_BY_AI%" eq "1", we nuke the LRC/SRT file and go straight to AI-generating, and we only use the TEXT
+REM If "%SOLELY_BY_AI%" == "1", we nuke the LRC/SRT file and go straight to AI-generating, and we only use the TEXT
 REM file if it is pre-approved or we are set in AutoLyricsApproval mode:
         :forcing_ai_generation
         iff 1 eq %SOLELY_BY_AI% .and. 1 ne %AUTO_LYRIC_APPROVAL% then
@@ -495,7 +495,7 @@ REM If we say "force", skip the already-exists check and contiune
 
 
 REM If it’s an instrumental, don’t bother:
-        if "%@REGEX[instrumental,%INPUT_FILE%]" eq "1" (@call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent %+ goto :END)
+        if "%@REGEX[instrumental,%INPUT_FILE%]" == "1" (@call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent %+ goto :END)
 
 
 
@@ -526,7 +526,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 endiff
                 
                 @call askYN "Generate AI anyway" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME%
-                if "%ANSWER%" eq "Y" (goto :Force_AI_Generation)
+                if "%ANSWER%" == "Y" (goto :Force_AI_Generation)
                 goto :END
         else
                 call divider
@@ -557,14 +557,14 @@ rem Mandatory review of lyrics
                         call review-file "%TXT_FILE%" "Review the lyrics now"
                         @call divider
                         @call AskYn "[REDUNDANT?] Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
-                        iff "%ANSWER%" eq "N" then
+                        iff "%ANSWER%" == "N" then
                                 %color_removal%
                                 ren  /q "%TXT_FILE%" "%TXT_FILE%.%_datetime.bak"
                                 %color_normal%
                                 @call warning "Aborting because you don’t find the lyrics acceptable"
                                 @call advice  "To skip lyrics and transcribe using only AI: %blink_on%%0 “%$ ai”%blink_off%"
                                 @call AskYn   "Go ahead and use AI anyway" no %AI_GENERATION_ANYWAY_WAIT_TIME%
-                                if "%answer%" eq "Y" goto :Force_AI_Generation
+                                if "%answer%" == "Y" goto :Force_AI_Generation
                                 goto :END
                         endiff
                 endiff
@@ -737,6 +737,9 @@ REM                                            set INPUT_FILE=%VOC_FILE% %+  SET
 REM        :Vocal_Separation_Skipped
 rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
 
+REM Use this tool to kill bad transcriptions that just say “and we’re back”
+        call delete-bad-ai-transcriptions
+
 
 REM does our input file exist?
         call validate-environment-variable  INPUT_FILE
@@ -755,7 +758,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         @echos %STAR% %ANSI_COLOR_WARNING_SOFT%%blink_on%About to: %blink_off%
         @echo  %LAST_WHISPER_COMMAND%%ansi_color_reset% 
         @call AskYn "Proceed with this AI generation" yes %PROMPT_CONSIDERATION_TIME%
-        iff "%answer%" eq "N" then
+        iff "%answer%" == "N" then
                 @call warning "Aborting because you changed your mind..."
                 sleep 1
                 goto :END
@@ -765,7 +768,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
 
 REM quick chance to edit prompt:
         @call AskYn "Edit the AI prompt" no %PROMPT_EDIT_CONSIDERATION_TIME%
-        iff "%answer%" eq "Y" (eset LAST_WHISPER_COMMAND)
+        iff "%answer%" == "Y" (eset LAST_WHISPER_COMMAND)
 
 
 
@@ -789,8 +792,8 @@ REM Concurrency Consideration: Check if the encoder is already running in the pr
                 sleep %@random[7,29] 
                 rem slow: call isRunning %TRANSCRIBER_PRNAME% silent
                 rem echo %ANSI_COLOR_DEBUG%- DEBUG: (55) if "@PID[TRANSCRIBER_PDNAME]" (which is "@PID[%transcriber_pdname]" which is "%@PID[%TRANSCRIBER_PDNAME]") ne 0 (goto :Check_If_Transcriber_Is_Running_Again)%ANSI_COLOR_NORMAL%
-                rem echo if "@PID[%TRANSCRIBER_PDNAME%]" ne "0" (goto :Check_If_Transcriber_Is_Running_Again)
-                if "%@PID[%TRANSCRIBER_PDNAME%]" ne "0" (goto :Check_If_Transcriber_Is_Running_Again)
+                rem echo if "@PID[%TRANSCRIBER_PDNAME%]" != "0" (goto :Check_If_Transcriber_Is_Running_Again)
+                if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (goto :Check_If_Transcriber_Is_Running_Again)
                 @echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
         :no_concurrency_issues
         
@@ -938,12 +941,12 @@ rem MiniLyrics will default to displaying TXT over SRC
 rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
 iff 1 eq %USE_2023_LOGIC then
                         REM rename the file & delete the vocal-split wav file
-                            iff "%EXPECTED_OUTPUT_FILE%" ne "%LRC_FILE%" then
+                            iff "%EXPECTED_OUTPUT_FILE%" != "%LRC_FILE%" then
                                 set MOVE_DECORATOR=%ANSI_GREEN%%FAINT%%ITALICS% 
                                 mv "%EXPECTED_OUTPUT_FILE%" "%LRC_FILE%"
                             endiff
                             call validate-environment-variable LRC_FILE "LRC file not found around line 123ish"
-                            if exist "%LRC_FILE%" .and. "%2" ne "keep" (*del /q /r "%VOC_FILE%")
+                            if exist "%LRC_FILE%" .and. "%2" != "keep" (*del /q /r "%VOC_FILE%")
 endiff
 rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
 
