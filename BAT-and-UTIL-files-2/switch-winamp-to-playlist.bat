@@ -15,6 +15,7 @@
 	if "%OS%"=="2K" (set  COMMAND=wget32quiet)
 	if "%OS%"=="7"  (set  COMMAND=wget32)
 	if "%OS%"=="10" (set  COMMAND=wget32)
+	if "%OS%"=="11" (set  COMMAND=wget32)
         call validate-in-path %COMMAND%
 
 	rem Old code from the 2003–2005 addition-construction days when we 
@@ -24,7 +25,7 @@
 :	rem set DEBUG=0
 	call advice "Does %1 exist?"
 		iff exist %1 then
-			call debug "Yes: Precise full filename given."
+			call debug "Yes: Precise full filename given." silent
 			set FULLLIST=%@STRIP[%=",%1]
 			set FULLLIST2=%FULLLIST
 			rem PLAYLIST=%@STRIP[%=",%@NAME[%1].m3u]
@@ -45,12 +46,11 @@
 
 		set ORIGINALLIST=%FULLLIST
 		set ORIGINALLIST2=%FULLLIST2
-				 call debug "ORIGINALLIST  set to “%ORIGINALLIST%”"
-		if "%BOTH"=="1" (call debug "ORIGINALLIST2 set to “%ORIGINALLIST2”")
+				 call debug "ORIGINALLIST  set to “%ORIGINALLIST%”" silent
+		if "%BOTH"=="1" (call debug "ORIGINALLIST2 set to “%ORIGINALLIST2”" silent)
 
-        call debug "* 1) Checking if %FULLLIST exists"       
+        call debug "* 1) Checking if %FULLLIST exists"       silent
         if exist %FULLLIST% goto :done_defining
-
 		                if not exist %FULLLIST  (set   FULLLIST=%MP3\LISTS\by-attribute\%PLAYLIST %+ set PLAYLIST=by-attribute\%PLAYLIST)
 		if "%BOTH"=="1" if not exist %FULLLIST2 (set  FULLLIST2=%MP3\LISTS\by-attribute\%PLAYLIST %+ set PLAYLIST=by-attribute\%PLAYLIST)
 
@@ -86,9 +86,9 @@
 
 :DO_IT
 	call debug "MUSICSERVER is “%MUSICSERVER%”"
-    call debug "%COMMAND --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS%  http://%MUSICSERVER/clear"
+        call debug "%COMMAND --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS%  http://%MUSICSERVER/clear"
 	if "%BOTH"=="1" (call debug "%COMMAND --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS% http://%MUSICSERVER2/clear")
-    %COLOR_RUN%   %+ call %COMMAND --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS%  http://%MUSICSERVER/clear
+        %COLOR_RUN%   %+ call %COMMAND --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS%  http://%MUSICSERVER/clear
 	if "%BOTH"=="1"  call %COMMAND --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS% http://%MUSICSERVER2/clear
 
 	::OLD:

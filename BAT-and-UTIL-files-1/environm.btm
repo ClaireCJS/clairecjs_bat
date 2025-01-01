@@ -840,6 +840,7 @@ return
                         rem music collection location:
                                 rem MP3OFFICIALDRIVE=%HD18T1%  :THAILOG (mp3 official server for 2015-2022)
                                 set MP3OFFICIALDRIVE=%HD18T3%  
+                                set         MP3DRIVE=%HD18T3%  
                                 set      MP3OFFICIAL=%MP3OFFICIALDRIVE%:\mp3
                                 set     MP3_OFFICIAL=%MP3OFFICIAL%
                                 set            MP3CL=%MP3OFFICIAL%
@@ -1583,7 +1584,7 @@ return
                 set                    IMAGES_BACKUP=%IMAGES_BACKUP_DRIVE%:\BACKUPS\images.bak
                 set                ICONSDRIVE=%IMAGESDRIVE%
                 set                     ICONS=%IMAGES%\ICONS
-                set                 MIDIDRIVE=%MP3DRIVE%
+                set                 MIDIDRIVE=%MP3OFFICIALDRIVE%
                 set             MISCDATADRIVE=%HD6000G2%                                          %+ REM /* was %HD2000G3% prior to 201706ish T: crash */
                 set                  MISCDATA=%MISCDATADRIVE%:\MEDIA\MISC-DATA
                 set                  MISCDATA_BACKUP_DRIVE=%HD10T2%                               %+ REM /* was %HD2000G3% prior to 201706ish T: crash */
