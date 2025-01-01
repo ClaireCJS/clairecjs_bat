@@ -66,15 +66,19 @@ rem If we were supplied a filename, process it as a list of files:              
                         shift
                         call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
                         call less_important "Finding songs with missing lyrics in playlist: %italics_on%“%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%italics_off%”"
+                        iff "%1" == "get" then                                                    
+                                set GET=1                                                         
+                                shift                                                             
+                        endiff
                 endiff                
                 set ETC=%1$
-                rem echo ETC is “%ETC%”
         else                                                                                       %+ rem If run without parameters...
                 set  Filelist_to_Check_for_Missing_Lyrics_in=                                      %+ rem       ...we are not using a fileist, so make sure that variable is empty
                 set  FILELIST_MODE=0                                                               %+ rem       ...we are not using a fileist, so make sure the proper operational flag is set
         endiff                       
         rem DEBUG: echo Filelist_to_Check_for_Missing_Lyrics_in=%Filelist_to_Check_for_Missing_Lyrics_in% filelist_mode=%filelist_mode% %+ pause   %+ rem Debug
         
+echo ETC is “%ETC%”, GET=“%GET%”
 
 rem Go through each audio file, seeing if it lacks approved lyrics:
         set ANY_BAD=0                                                                              %+ rem Track if we found *any* bad files at all
@@ -332,7 +336,7 @@ rem —————————————————————————�
                                         rem Add lyric-retrieval command to our autorun script:
                                               rem echo gosub process "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
                                               setdos /x-4
-                                              echo repeat 13 echo. `%`+ call get-lyrics "%unquoted_audio_file%" %ETC% `%`+ call divider >>:u8"%tmpfile_cfml_1%"
+                                              echo repeat 9 echo. `%`+ call get-lyrics "%unquoted_audio_file%" %ETC% `%`+ call divider >>:u8"%tmpfile_cfml_1%"
                                               setdos /x0
                                                     
                                 endiff                        

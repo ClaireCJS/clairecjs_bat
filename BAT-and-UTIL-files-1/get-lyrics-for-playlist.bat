@@ -22,6 +22,6 @@ rem GRAB + VALIDATE PARAMETER IS A M3U/TXT file:
         call validate-is-extension        "%FILELIST_TO_USE%" *.m3u;*.txt  "1ˢᵗ parameter to %0 must be of .%underline_on%m3u%underline_off% or .%underline_on%txt%underline_off% extension"
  
  rem Go through the file and check for missing lyrics:
-        call check-for-missing-lyrics.bat "%FILELIST_TO_USE%" get %2$
+echo        call check-for-missing-lyrics.bat "%FILELIST_TO_USE%" get %2$
          
 :END        

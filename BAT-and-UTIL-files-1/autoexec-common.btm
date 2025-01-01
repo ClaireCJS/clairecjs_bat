@@ -43,9 +43,16 @@ rem Start the service called "Everything" (not the abstract concept of everythin
         call start-everything %*
         gosub done_with_step
 
+rem Girder?
+        if     isdir c:\girder (call start-girder)
+        if not isdir c:\girder (call warning "not starting girder")
+                
+
+
 rem Minimize annoying programs...
         call less_important "Minimizing %italics_on%imUp%italics_off% window..."
         call minimize imUp
+        call minimize girder
         gosub done_with_step
 
 rem Map drives
@@ -55,6 +62,7 @@ rem Map drives
         REM call helper-start c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
         call map-drives once
         gosub done_with_step
+
 
 
 
@@ -68,10 +76,11 @@ REM Above all else, the music must flow —— but only if it's the music server
 
 
 
-rem Girder?
-        if     isdir c:\girder (call start-girder)
-        if not isdir c:\girder (call warning "not starting girder")
-                
+REM Common programs to start before we do our backups:
+        call chrome
+        call opera
+
+
 
 
 

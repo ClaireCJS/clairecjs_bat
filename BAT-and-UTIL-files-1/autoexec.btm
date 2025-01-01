@@ -22,7 +22,6 @@ REM Startup DEMONA programs:
         repeat 8 echo.
         call important "Pretty much done, just a couple more things..."
         echo .
-        call opera
         call wait 6 "(catching breath)"
         call TTRGB
         call debug "Run OBS.bat to software-share screen to downstairs"
