@@ -1,23 +1,28 @@
-@echo off
+@Echo OFF
 @on break cancel
 
-::::: DEBUG:
+rem DEBUG:
     SET DEBUG_SORT=0
 
-::::: CYGWIN BRANCHING:
+rem CYGWIN BRANCHING:
     if "%CYGWIN%" == "0" goto :nocygwin
     if "%CYGWIN%" ne ""  goto   :cygwin
                          goto :nocygwin
 
-::::: DO IT:
+rem DO IT:
+
 	:nocygwin
 		%Windir%\System32\sort.exe %*
 	goto :END
 
+
 	:cygwin
-        call validate-environment-variable OPTIMAL_CPU_THREADS
+                iff not defined OPTIMAL_CPU_THREADS then
+                        call warning "OPTIMAL_CPU_THREADS should have already been defined in environm.btm ... setting to 12"
+                        set OPTIMAL_CPU_THREADS=12
+                endiff
 		c:\cygwin\bin\sort.exe -f --parallel=%OPTIMAL_CPU_THREADS% %*
-        :NOTE: cygsort --k=1.21 is equivalent to winsort /+22 
+                rem :NOTE: cygsort --k=1.21 is equivalent to winsort /+22 
 	goto :END
 
 

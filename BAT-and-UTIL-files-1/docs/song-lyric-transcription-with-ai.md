@@ -147,6 +147,8 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 
 &nbsp;
 
+10. Optional: To speed up the workflow, pre-download the lyrics for every folder in your music collection by changing to the base folder of your music collection and issuing the command: ```predownload-all-lyrics-in-all-subfolders```.  This process marks files so that they are not retried a 2ⁿᵈ time — So if you want to retry a 2ⁿᵈ time, you will have to run [reset-genius-search-status-for-all-audio-files.bat](../BAT-and-UTIL-files-1/reset-genius-search-status-for-all-audio-files.bat) first.  Uses the subordinate script [predownload-lyrics-here.bat](../BAT-and-UTIL-files-1/predownload-lyrics-here.bat)
+
 </details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -222,6 +224,16 @@ That is: If an MP3/FLAC has a corresponding LRC/SRT but not TXT version, convert
 It’s good to prep your entire collection with this, by running it in every folder of your music collection. Do this by going to the base folder of your music collection and running: ```global /i create-txt-lyrics-from-karaoke-files.bat```
 
 
+TODO: predownload-all-lyrics-in-all-subfolders.bat
+
+Runs an initial pass of downloading lyrics in a completely unattended fashion, for later review
+
+TODO: review-all-lyrics-in-all-subfolders.bat
+
+Randomly walks a folder tree, obtaining/reviewing lyrics, with the intent of approving lyrics for later automatic AI transcription.  
+(It is reviewing lyrics in the case of predownload-all-lyrics-in-all-subfolders.bat having already downloaded some lyrics. And it is obtaining lyrics in the case of those lyrics not existing or not being sufficient.)
+
+
 </details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -265,7 +277,7 @@ Create karaoke files for **all songs** in a *folder tree* that do not have them,
 
 ### 🌟 [delete-bad-ai-transcriptions](../BAT-and-UTIL-files-1/delete-bad-ai-transcriptions):
 
-Automatically run after creating karaoke files, this searches for bad karaoke transriptions (i.e. WhisperAI failures) & deletes them.
+Automatically run after creating karaoke files, this searches for bad karaoke transriptions (i.e. WhisperAI failures) & deletes them. There are a few key phrases that Whisper hallucinates. Experience dictates the mere presence of these phrases means the entire transcription is suspect.
 
 
 ### 🌟 [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat):
@@ -416,7 +428,7 @@ Marks lyric file with approval/disapproval so that we can pre-approve lyric file
 
 Same as above but for karaoke files. Not particularly used by this system.
 
-### 🌟 [approve-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) / [disapprove-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat):
+### 🌟 [approve-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) / [disapprove-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) {force}:
 
 **Remember:** The only way to batch transcribe in an unattended fashion (“encode while you sleep”) is to pre-approve lyric files.
 

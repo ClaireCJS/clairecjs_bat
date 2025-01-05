@@ -1,26 +1,7 @@
-#!perl
-
-my @LINES=();
-my @OUTPUT=();
-my $line="";
-my $original_line="";
-my $linenum=0;
-while ($line=<STDIN>) {	
-	$linenum++;
-	$LINES[$linenum]=$line; 
+my @lines     = <STDIN>;											# Read all lines into an array
+my $num_lines = scalar @lines;
+for (my $i = $num_lines - 1; $i > 0; $i--) {						# Fisher-Yates shuffle
+    my $j = int(rand($i + 1));										# Random index between 0 and $i
+    ($lines[$i], $lines[$j]) = ($lines[$j], $lines[$i]);		    # Swap lines[$i] and lines[$j]
 }
-my $NUM_LINES = $linenum;
-my $FOUND=0;
-for (my $currentLine=1; $currentLine<=$NUM_LINES; $currentLine++) {
-	$FOUND=0;
-	while ($FOUND==0) {
-		$testIndex = int(rand($NUM_LINES)) + 1;
-		if ($OUTPUT[$testIndex] eq "") { 
-			$FOUND=1; 
-			$OUTPUT[$testIndex]=$LINES[$currentLine]; 
-		}
-	}
-}
-for (my $currentLine=1; $currentLine<=$NUM_LINES; $currentLine++) { 
-	print $OUTPUT[$currentLine]; 
-}
+print @lines;														# Print shuffled lines

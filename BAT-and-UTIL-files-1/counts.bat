@@ -1,2 +1,2 @@
- @on break cancel
- @call counts-helper|:u8sort -n
+@Echo Off
+(call counts-helper) |:u8 sort -n

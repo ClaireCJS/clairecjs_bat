@@ -27,52 +27,59 @@ rem Validate environment once:
 
 
 setdos /x0
-iff "%1" == "nowplaying" .or. "%1" == "now" .or. "%1" == "np" .or. "%1" == "winamp" .or. "%1" == "this" then
-        setdos /x0
-        call get-lyrics-for-currently-playing-song %2$
-        goto :next_step
-endiff         
 
-iff "%1" == "here"  then
-        rem  process current folder:
-        setdos /x0
-        call check-for-missing-lyrics get %2$
-        goto :next_step
-endiff
+rem Process currently-playing song:
+        iff "%1" == "nowplaying" .or. "%1" == "now" .or. "%1" == "np" .or. "%1" == "winamp" .or. "%1" == "this" then
+                setdos /x0
+                call get-lyrics-for-currently-playing-song %2$
+                goto :next_step
+        endiff         
+
+rem Process current folder:
+        iff "%1" == "here"  then
+                setdos /x0
+                call check-for-missing-lyrics get %2$
+                goto :next_step
+        endiff
 
 
 rem DEBUG: setdos /x-4 %+ echo param1 is %1 %+ pause
 
-setdos /x-4
-iff not exist %1 then
-        call fatal_error "get-lyrics can’t do anything with “%1” because it doesn’t exist!"
-        setdos /x0
-        goto :END
-endiff
-setdos /x0
-
-setdos /x-4
-iff exist %1 then
-        setdos /x0
-        set ext=%@ext[%1]
-        rem echo ext is %ext
-        iff "m3u" == "%ext%" then
-                call get-lyrics-for-playlist %1$
-        else
-                call get-lyrics-for-song %*        
-        endiff       
-else 
-        setdos /x0
-        call alarm "%0 reached point of confusion"
-        pause
-endiff
-setdos /x0
-
-
-
-:next_step
+rem Error out if a parameter is given that doesn’t exist:
+        setdos /x-4
+        iff not exist %1 then
+                call fatal_error "get-lyrics can’t do anything with “%1” because it doesn’t exist!"
+                setdos /x0
+                goto :END
+        endiff
         setdos /x0
 
+rem Process playlists / audio files:
+        setdos /x-4
+        iff exist %1 then
+                setdos /x0
+                set ext=%@ext[%1]
+                rem echo ext is %ext
 
-:END
+
+                rem Process either a playlist or an individual song:
+                        iff "m3u" == "%ext%" then
+                                rem echo 🍕🍕🍕
+                                call get-lyrics-for-playlist %1$       %+ rem Process individual playlist
+                        else
+                                call get-lyrics-for-song     %1$       %+ rem Process individual audiofile
+                        endiff       
+        else 
+                setdos /x0
+                call alarm "%0 reached point of confusion"
+                pause
+        endiff
         setdos /x0
+
+
+
+rem Clean up & finish:
+        :next_step
+                setdos /x0
+        :END
+                setdos /x0

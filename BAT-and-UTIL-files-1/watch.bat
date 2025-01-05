@@ -367,6 +367,9 @@ rem WARN BEFORE WRAP-UP:
     echo. %+ echo. %+ echo. %+ echo. %+ echo. 
 
 
+rem Unlock status bar
+        call status-bar unlock
+
 rem Ask about moving it to reviwed location
         rem debug: echo if "%_CWD" == "%DROPDIR%" .or "%@UPPER[%_CWD]" eq "%DROPDIR%\OH" %+ pause
         iff "%_CWD" == "%DROPDIR%" .or. "%@UPPER[%_CWD]" eq "%DROPDIR%\OH" .or. "%@UPPER[%_CWD]" eq "%DROPDIR%\OH\HOLD" then

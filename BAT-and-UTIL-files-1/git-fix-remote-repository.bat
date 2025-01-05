@@ -1,7 +1,9 @@
 @on break cancel
 @Echo OFF
 
-set THIS_DIR=%@NAME[%_CWD]
+rem THIS_DIR=%@NAME[%_CWD]
+set THIS_DIR=%@NAME["%_CWD"].%@EXT["%_CWD"]
+
 call validate-environment-variables GITHUB_USERNAME THIS_DIR
 call validate-in-path git
 

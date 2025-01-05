@@ -1,5 +1,5 @@
 @Echo off
- call init-bat
+ on break cancel
 
 
 rem Validate environment (once):
@@ -20,13 +20,13 @@ rem Usage:
         endiff
 
 rem Parameter fetch:
-        set OPTION=%@UNQUOTE[%@LOWER["%1"]]
+        set OPTION=%@UNQUOTE["%@LOWER["%1"]"]
         set PROCESS_ALL=0
         iff "%OPTION%" == "-a"  .or. "%OPTION%" == "-all" .or. "%OPTION%" == "all"  .or. "%OPTION%" == "*"  .or. "%OPTION%" == "*.lrc" then            %+ rem Check for the “all” option
                 set PROCESS_ALL=1
         else
-                set LRC_file=%@UNQUOTE[%1]
-                set output_file=%@UNQUOTE[%@NAME["%lrc_file"]].txt
+                set LRC_file=%@UNQUOTE["%1"]
+                set output_file=%@UNQUOTE["%@NAME["%lrc_file"]"].txt
         endiff
 
 
@@ -56,7 +56,7 @@ rem Perform the actual conversion:
                         rem echo Processing: "%Ffff"
                         lrc2txt.py           "%Ffff"
                         call ErrorLevel
-                        set  expected_output_file=%@UNQUOTE[%@NAME["%FFFF"]].txt
+                        set  expected_output_file=%@UNQUOTE["%@NAME["%FFFF"]"].txt
                         echo expected_output_file="%expected_output_file%">nul
                         set FILE_OR_FILES_TO_REVIEW=%FILE_OR_FILES_TO_REVIEW% "%expected_output_file%"
                 )
@@ -73,7 +73,7 @@ rem Perform the actual conversion:
                         if "Y" == "%ANSWER" (*del /q "%LRC_FILE%" >nul)
                         call AskYN "Mark corresponding audio as lyric%underline_on%less%underline_off%" yes 8
                         for %%tmpMask in (%fileext_audio%) do (
-                                set proposed_audio_file=%@unquote[%@name["%lrc_file%"]].%tmpMask
+                                set proposed_audio_file=%@unquote["%@name["%lrc_file%"]"].%tmpMask
                                 set rem=echo Checking if exist "%proposed_audio_file%"
                                 if exist "%proposed_audio_file%" (
                                         echo Approving lyriclessness for "%proposed_audio_file%"

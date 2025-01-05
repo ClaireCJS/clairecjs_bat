@@ -1,12 +1,8 @@
-@Echo off
+@Echo Off
 @setdos /x0
 @on break cancel
-
+echo **** create-srt-from-file.bat called **** 🌭🌭🌭 GOAT
 if not defined Default_command_Separator_Character set Default_command_Separator_Character=`^`
-
-rem TODO check lyric repository for LRC file (remember, “'” in title becomes “_”) ... if one exists copy over as sidecar file and auto approve it
-
-rem TODO if we’re doing lyrics, show downloaded lyrics *first* and if we found them change 1ˢᵗ question to “are these better than d/l version”-type question
 
 
 rem TODO: add another srt to subtitles if the last one is not empty to combat stuck lyrics:
@@ -56,21 +52,22 @@ goto :subroutine_definitions_end
                 echo        set CONSIDER_ALL_LYRICS_APPROVED=1  ——— another way to trigger AutoLyricApproval mode
                 echo 
                 echo INTERNAL-ONLY USAGE:
-                echo        %0 postprocess_lrc_srt_files ———— just run the postprocess_lrc_srt_files function
+                echo        %0 postprocess_lrc_srt_files —————————— just run the postprocess_lrc_srt_files function
+                %color_normal%
         return
     :subroutine_definitions_end
 
 
 rem MAJOR BRANCHING:
-        iff "%1" == "postprocess_lrc_srt_files" then
+        iff "%1" ==  "postprocess_lrc_srt_files" then
                 gosub postprocess_lrc_srt_files
                 goto :EOF
         endiff
 
 
 REM OLD 2023 USAGE:
-rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat whatever.mp3 keep  {keep vocal files after separation}
-rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat last               {quick retry again at the point of creating the lrc file —— separated vocal files must already exist}
+        rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat whatever.mp3 keep  {keep vocal files after separation}
+        rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat last               {quick retry again at the point of creating the lrc file —— separated vocal files must already exist}
 
 REM CONFIG: 2024: 
         set TRANSCRIBER_TO_USE=Faster-Whisper-XXL.exe                            %+ rem Command to generate/transcribe [with AI]
@@ -100,12 +97,15 @@ REM config: 2023:
 
 REM values set from parameters:
         setdos /x-4
-        set SONGFILE=%@UNQUOTE[%1]
-        set SONGBASE=%@UNQUOTE[%@NAME[%SONGFILE]]`` %+ rem this might not work anymore 🐮
-        set SONGDIR=%@PATH[%@full[%SONGFILE]]`` 
+        set SONGFILE=%@UNQUOTE["%1"]
+        set SONGBASE=%@UNQUOTE["%@NAME["%SONGFILE%"]"]`` %+ rem this might not work anymore 🐮
+        set SONGDIR=%@UNQUOTE["%@PATH["%@UNQUOTE["%@FULL["%SONGFILE%"]"]"]"]
         setdos /x0
+
         if "%_CWD\" != "%SONGDIR%" pushd %SONGDIR%
-        rem DEBUG:echo SONGDIR is “%SONGDIR%” , cwd=“%_CWD” %+ pause
+
+        rem DEBUG: echo SONGDIR is “%SONGDIR%” , cwd=“%_CWD” , SONGBASE=“%SONGBASE%”, songfile=“%SONGFILE%” %+ *pause
+
         setdos /x-4
         if "%@EXT[%2]" == "txt" (
                 set POTENTIAL_LYRIC_FILE=%@UNQUOTE[%2]
@@ -113,12 +113,12 @@ REM values set from parameters:
                 set POTENTIAL_LYRIC_FILE=
         )
         setdos /x0
-        set LRC_FILE=%SONGBASE%.lrc
-        set SRT_FILE=%SONGBASE%.srt
-        set TXT_FILE=%SONGBASE%.txt
-        set JSN_FILE=%SONGBASE%.json
-        rem VOC_FILE=%SONGBASE%.vocals.wav
-        rem LRCFILE2=%SONGBASE%.vocals.lrc
+        set LRC_FILE=%SONGDIR%%SONGBASE%.lrc
+        set SRT_FILE=%SONGDIR%%SONGBASE%.srt
+        set TXT_FILE=%SONGDIR%%SONGBASE%.txt
+        set JSN_FILE=%SONGDIR%%SONGBASE%.json
+        rem VOC_FILE=%SONGDIR%%SONGBASE%.vocals.wav
+        rem LRCFILE2=%SONGDIR%%SONGBASE%.vocals.lrc
 
 
 REM Pre-run announce:
@@ -131,6 +131,7 @@ REM Pre-run header:
         timer /5 on >nul                     %+ rem Let’s time the overall process
         unset /q LYRIC_ATTEMPT_MADE
         unset /q OKAY_THAT_WE_HAVE_SRT_ALREADY
+        unset /q ANSWER
         if exist *collected_chunks*.wav (*del /q *collected_chunks*.wav)
         if exist     *vad_original*.srt (*del /q     *vad_original*.srt)
         
@@ -153,8 +154,7 @@ REM validate environment [once]:
                 @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-song.bat delete-bad-ai-transcriptions.bat
                 @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check red_x ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off ansi_color_blue
                 @call validate-environment-variables TRANSCRIBER_PDNAME skip_validation_existence
-                @call validate-is-function           ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD
-                
+                @call validate-is-function           ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD                
                 @call checkeditor
                 @set VALIDATED_CREATE_LRC_FF=1
                 rem Default values to help portability:
@@ -183,7 +183,6 @@ REM branch on certain paramters, and clean up various parameters
         echo %@ansi_randfg_soft[][AAA1] %%1$ is %1$ >nul
         if "%1" == "last" (goto :actually_make_the_lrc) %+ rem to repeat the last regen
         rem %1 was unique. Now we do the normal stuffs:
-
 
         rem ENVIRONMENT-ONLY parameters:               
         if defined USE_LANGUAGE (set OUR_LANGUAGE=%USE_LANGUAGE%)
@@ -225,7 +224,7 @@ REM branch on certain paramters, and clean up various parameters
                 if "%special%" == "ai"                 (set SOLELY_BY_AI=1       )
                 if "%special%" == "cleanup"            (set CLEANUP=1            )
                 if "%special%" == "force"              (set FORCE_REGEN=1        )
-                if "%special%" == "lyriclessness"      (set NEVERMIND_THIS_ONE=42) %+ rem If this gets snuck in as 2ⁿᵈ argument, ignore it
+                if "%special%" == "lyriclessness"      (set NEVERMIND_THIS_ONE=42) %+ rem If this gets snuck in as 2ⁿᵈ argument, ignore it...for reasons
                 if "%special%" == "force-regen"        (set FORCE_REGEN=1        )
                 if "%special%" == "redo"               (set FORCE_REGEN=1        )
                 if "%special%" == "ala"                (set AUTO_LYRIC_APPROVAL=1)
@@ -296,7 +295,7 @@ REM Determine our expected input and output files:
 
 REM if 2nd parameter is lyric file, use that one:
         iff exist "%POTENTIAL_LYRIC_FILE%" then
-                set TXT_FILE=%@UNQUOTE[%POTENTIAL_LYRIC_FILE%]
+                set TXT_FILE=%@UNQUOTE["%POTENTIAL_LYRIC_FILE%"]
                 @call less_important "Using existing transcription file: %italics_on%%TXT_FILE%%italics_off%"
                 goto :AI_generation
         endiff
@@ -321,8 +320,8 @@ REM display debug info
 REM Earlier, we retrieved the values for MAYBE_SRT_[1|2] via probing the songfile via the shared probe code in get-lyrics-for-song.bat
 REM Now, let’s check these values:
         iff exist "%@UNQUOTE[%MAYBE_SRT_1%]" .or. exist "%@UNQUOTE[%MAYBE_SRT_2%]" then
-                if exist "%@UNQUOTE[%MAYBE_SRT_2%]" set found_subtitle_file=%@UNQUOTE[%MAYBE_SRT_2%]
-                if exist "%@UNQUOTE[%MAYBE_SRT_1%]" set found_subtitle_file=%@UNQUOTE[%MAYBE_SRT_1%]
+                if exist "%@UNQUOTE[%MAYBE_SRT_2%]" set found_subtitle_file=%@UNQUOTE["%MAYBE_SRT_2%"]
+                if exist "%@UNQUOTE[%MAYBE_SRT_1%]" set found_subtitle_file=%@UNQUOTE["%MAYBE_SRT_1%"]
                 call divider
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
                 call bigecho      "%ansi_color_warning_soft%%star2%Already have!%ansi_reset%"
@@ -330,7 +329,10 @@ REM Now, let’s check these values:
                 echo %STAR% %ANSI_COLOR_ADVICE%Copy this file %italics_on%from our local repo%italics_off% into this folder, as a sidecar file for %@NAME[%SONGFILE%]%ansi-color_normal%
                 call askYN        "Copy repository version to local folder as sidecar file" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "Y" == "%answer%" then
-                        set target=%@path[%@full[%songfile%]]%@name[%SONGFILE%].%@ext[%found_subtitle_file%]``
+                        set target_old=%@path[%@full[%songfile%]]%@name[%SONGFILE%].%@ext[%found_subtitle_file%]``
+                        set target=%@path["%@UNQUOTE["%@full["%songfile%"]"]"]%@name["%SONGFILE%"].%@ext[%found_subtitle_file%]``
+                        echo target_old = %target_old% >nul
+                        echo target     = %target%     >nul
                         set srt_file=%target%
                         *copy /q "%found_subtitle_file%" "%target%" >&>nul
                         if not exist "%target%" (call error "target of %left_quote%%target%%right_quote% should exist now, in %left_apostrophe%%italics_on%create-srt-from-file%italics_off%%right_apostrophe% line 320ish" %+ call warning "...not sure if we want to abort right now or not..." )
@@ -529,10 +531,10 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 if "%ANSWER%" == "Y" (goto :Force_AI_Generation)
                 goto :END
         else
-                call divider
                 rem This seems inapplicable now (2024/12/11): @echo %ansi_color_warning_soft%%star% Not yet generating %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning_soft% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning_soft% does not exist!%ansi_color_normal%
                 rem Let’s save this for our usage response: @echo %ansi_color_advice%`---->` Use “%italics_on%force%italics_off%” option to override.
                 rem Let’s save this for our usage response: @echo %ansi_color_advice%`---->` Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!
+                rem Don’t need this (2025/01/04) because get-lyrics-for-song calls its own divider: call divider
                 iff %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST gt 0 then
                     call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
                 endiff
@@ -681,7 +683,7 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
                         rem set CLI_OPS=%CLI_OPS% --initial_prompt "Transcribe this audio, keeping in mind that I am providing you with an existing transcription, which may or may not have errors, as well as header and footer junk that is not in the audio you are transcribing. Lines th at say “downloaded from” should definitely be ignored. So take this transcription lightly, but do consider it. The contents of the transcription will have each line separated by “ / ”.   Here it is: ``
                         rem 2024: have learned prompt is limited to 224 tokens and should really just be a transcription
                         rem set WHISPER_PROMPT=--initial_prompt "
-                        rem @Echo off
+                        rem @Echo OFF
                         rem DO line IN @%TXT_FILE (
                         rem         set WHISPER_PROMPT=%WHISPER_PROMPT% %@REPLACE[%QUOTE%,',%line]
                         rem         REM @echo %faint%adding line to prompt: %italics%%line%%italics_off%%faint_off%
@@ -728,7 +730,7 @@ REM                                        @call unimportant "Checking to see if
 REM                                        REM mdx_extra model is way slower but in tneory slightly more accurate to use default, just set model= -- lack of parameter will use default Demucs 3 (Model B) may be best (9.92) which apparently mdx_extra is model b whereas mdx_extra_q is model b quantized faster but less accurate. but it’s fast enough already!
 REM                                            set MODEL_OPT= %+  set MODEL_OPT=-n mdx_extra 
 REM                                        REM actually demux the vocals out here
-REM                                            %color_run% %+ @Echo ON %+ demucs.exe --filename "%_CWD\%VOC_FILE%" %MODEL_OPT% --verbose --device cuda --float32 --clip-mode rescale   "%SONGFILE%" %+ @Echo OFF
+REM                                            %color_run% %+ demucs.exe --filename "%_CWD\%VOC_FILE%" %MODEL_OPT% --verbose --device cuda --float32 --clip-mode rescale   "%SONGFILE%" %+ @Echo OFF
 REM                                            CALL errorlevel "Something went wrong with demucs.exe"
 REM                                    REM validate if the vocal file was created, and remove demucs cruft           
 REM                                        call validate-environment-variable VOC_FILE "demucs separation did not produce the expected file of “%VOC_FILE%”"
@@ -779,7 +781,7 @@ REM Concurrency Consideration: Check if the encoder is already running in the pr
         rem echo %ANSI_COLOR_DEBUG%- DEBUG: (4) iff @PID[TRANSCRIBER_PDNAME=%TRANSCRIBER_PDNAME%] %@PID[%TRANSCRIBER_PDNAME%] ne 0 then %ANSI_COLOR_NORMAL%
         set CONCURRENCY_WAS_TRIGGERED=0        
         iff "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then
-                @echo %ansi_color_warning_soft%%star% %italics_on%%TRANSCRIBER_PDNAME%%italics_off is already running%ansi_color_normal%
+                @echo %ansi_color_warning_soft%%star% %italics_on%%TRANSCRIBER_PDNAME%%italics_off% is already running%ansi_color_normal%
                 @echos %ANSI_COLOR_WARNING_SOFT%%STAR% Waiting for completion of %italics_on%another%italics_on% instance of %italics_on%%@cool[%TRANSCRIBER_PDNAME%]%italics_off% %ansi_color_warning_soft%to finish before starting this one...%ANSI_COLOR_NORMAL%
                 set CONCURRENCY_WAS_TRIGGERED=1
         else 
@@ -1044,6 +1046,7 @@ rem A chance to edit:
         rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "SRT:        %CHECK%" |:u8 fast_cat
         rem  (grep -i [a-z] "%SRT_FILE%") |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
         rem  (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 insert-before-each-line.py  "%check%%ansi_color_green% SRT: %@cool[-------->] %ANSI_COLOR_bright_yellow%
+
              (grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%SRT_FILE%")  |:u8 print-with-columns 
         rem @echo.
         if defined TOCK (echos %TOCK%) %+ rem nickname for fancy ansi-reset

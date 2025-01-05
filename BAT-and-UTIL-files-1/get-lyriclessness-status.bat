@@ -1,4 +1,4 @@
-@Echo Off
+@Echo OFF
  on break cancel
 
 
@@ -12,7 +12,10 @@ rem Usage:
                 %color_normal%
                 goto :END
         endiff
- 
+
+rem Clear return value:
+        unset /q LYRICLESSNESS_STATUS 
+
 
 rem Get parameters:
         set SONG_TO_GET_STATUS_OF=%@UNQUOTE[%1]

@@ -19,6 +19,7 @@ def main():
     prefix = prefix.replace("{{{{QUOTES}}}}" , r'"')
     prefix = prefix.replace("{{{{PERCENT}}}}", r'%')
     prefix = prefix.replace("{{{{PCT}}}}"    , r'%')
+    prefix = prefix.replace("{{{{PIPE}}}}"   , r'|')
 
     for line in sys.stdin:
         line = line.rstrip('\n')

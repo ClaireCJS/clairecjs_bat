@@ -174,9 +174,10 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
         print(f"⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ No lines❓❓❓ ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠")
         return 1  
 
-    #ensure global var has been calculaed
-    if not avg_line_width: print(f"⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ Why is avg_line_width == '{avg_line_width}' ???? ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠")
-    elif   VERBOSE       : print(f"Avg line width: {avg_line_width}")                                   
+    #ensure global var has been calculated
+    if avg_line_width == 0: avg_line_width = 1      
+    if not avg_line_width and avg_line_width !=  0: print(f"⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ Why is avg_line_width == '{avg_line_width}' ???? ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠")
+    elif   VERBOSE                                : print(f"Avg line width: {avg_line_width}")                                   
 
     #get max line length
     max_line_length = max(wcsarraywidth(line) for line in lines)

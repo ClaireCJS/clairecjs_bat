@@ -3,15 +3,14 @@
 
 @Echo OFF
 @on break cancel
-:Echo ON
 
 if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 
-::::: DOCUMENTATION:
-	:: WHAT THIS DOES: 	set PATH for all computers!
-	:: ASSUMES: 		%MACHINENAME% and %OS% (95,98,ME,2K,XP,7,10) has already been set in the environment
-    :: ASSUMES:         %BAT%=C:\BAT\ and %UTIL%=C:\UTIL\ (and optional %UTIL2%=C:\UTIL2 copied from another Clairevironment)
-    ::                  Normally we would validate these with validate-environment-variables.bat but we want speediness
+rem DOCUMENTATION:
+        rem WHAT THIS DOES:  set PATH for all computers!
+        rem ASSUMES:         %MACHINENAME% and %OS% (95,98,ME,2K,XP,7,10) has already been set in the environment
+        rem ASSUMES:         %BAT%=C:\BAT\ and %UTIL%=C:\UTIL\ (and optional %UTIL2%=C:\UTIL2 copied from another Clairevironment)
+        rem                  Normally we would validate these with validate-environment-variables.bat but we want speediness
 
 
 
@@ -175,7 +174,11 @@ REM one last cleanup - no blank path entries - ";;" must become ";"
    
 
 REM * Save our dynamically-generated path as a .cmd file that can be run in other commandlines such as PowerShell & Anaconda
-    path >c:\bat\setpath.cmd
+        rem echos %conceal_on%%ansi_save_position%
+        path >c:\bat\setpath.cmd >&>nul
+        rem echos %ansi_restore_position%%conceal_off%
+
+
 
 :END
 

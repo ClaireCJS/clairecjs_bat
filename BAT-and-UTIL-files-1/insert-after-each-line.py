@@ -19,6 +19,7 @@ def main():
     postfix = postfix.replace("{{{{QUOTES}}}}" , r'"')
     postfix = postfix.replace("{{{{PERCENT}}}}", r'%')
     postfix = postfix.replace("{{{{PCT}}}}"    , r'%')
+    postfix = postfix.replace("{{{{PIPE}}}}"   , r'|')
 
     for line in sys.stdin:
         line = line.rstrip('\n')

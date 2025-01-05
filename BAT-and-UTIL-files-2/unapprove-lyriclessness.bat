@@ -1,1 +1,1 @@
-@call unapprove-lyriclessness-for-file.bat %*
+@call disapprove-lyriclessness %*

@@ -381,29 +381,31 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 
-- DOWNLOAD LRC FILES!
+
+- KARAOKE COMPLIANCE: 	*** GOAL: ***		
+	1) To have a .SRT or .LRC (preferably .SRT *and* .LRC? Or maybe just SRT?) for every non-instrumental song
+	2) To have a .TXT lyrics for as many non-instrumental songs as possible [which happens as a side-effect of goal #1]
+
+- KARAOKE COMPLIANCE: INITIAL KARAOKE DOWNLOAD:
     - run LRCget (it's on github, and I should have a saved installer somewhere) on the batch folder.
-	    - the configuration menu is where you set the folder —— if using our symlink tips from above, it would just be C:\B\ hopefully already pointing to the batch we're working on
+	    - the configuration menu is where you set the folder —— 
+	            - if using our symlink tips from above, it would hopefully already be set to C:\B\ 
 		    - Make sure that the option "SKIP TRACKS THAT ALREADY HAVE LYRICS OR ARE INSTRUMENTAL" is       checked !!!!!!!!!!!!!
-		    - Make sure that the option "TRY TO EMBED THE LYRICS TO THE TRACK FILES WHEN POSSIBLE" is *NOT* checkedV 
+		    - Make sure that the option "TRY TO EMBED THE LYRICS TO THE TRACK FILES WHEN POSSIBLE" is *NOT* checked !!!!!!!!!!!!!
     - just run it and let it download. It should only take 2-5 minutes.
     
-
-- LRC->TXT CONVERSION:
+- KARAOKE COMPLIANCE: INITIAL LYRIC DOWNLOAD:
 	At the base folder of the batch of music that we are processing, run: 
-                sweep cmt
-	...which means “create missing text” which runs “create-txt-lyrics-from-karaoke-files.bat”
-    
-    
+                predownload-all-lyrics-in-all-subfolders.bat
 
-- AI-TRANSCRIBE FILES:	
-	*** GOAL: ***		1) To have a .SRT or .LRC (preferably .SRT *and* .LRC? Or maybe just SRT?) for every non-instrumental song
-				2) To have a .TXT lyrics for as many non-instrumental songs as possible [which happens as a side-effect of goal #1]
+- KARAOKE COMPLIANCE: LYRIC REVIEW (this will require attention and time):
+	At the base folder of the batch of music that we are processing, run: 
+		review-all-lyrics-in-all-subfolders.bat
+    
+- KARAOKE COMPLIANCE: AI KARAOKE CREATION:
 	*** STEPS: ***
 		* Currently in development, stay tuned.
-			* sweep get-missing-lyrics-here     will send you through the arduous process of gathering lyrics or marking a song’s “lyriclessness”
 			* sweep create-missing-karaoke-here will generate the transcriptions of those files already approved in the previous step
-			 
     
 
     

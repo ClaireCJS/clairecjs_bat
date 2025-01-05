@@ -9,7 +9,9 @@ rem Collect parameters:
 
 rem Configuratoin:
         set GIT_OUT=git.out
-        set BASENAME=%@FILENAME[%_CWD]
+        rem BASENAME=%@FILENAME[%_CWD]
+        set BASNEAME=%@UNQUOTE["%@NAME["%_CWD"].%@EXT["%_CWD"]"]
+
         set MY_GITHUB_URL=https://github.com/%GITHUB_USERNAME%/%BASENAME%
 
 

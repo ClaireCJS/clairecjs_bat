@@ -196,7 +196,7 @@ rem Cosmetics: Spacing:
                 if %DIFFERENCE%  gt      6       set ADDITIONAL_JUNK=%ADDITIONAL_JUNK%%TIM_EMO_TO_USE%
                 if %DIFFERENCE%  gt     10       set ADDITIONAL_JUNK=%ADDITIONAL_JUNK%%TIM_EMO_TO_USE%
         endiff
-        call debug "len=%len, difference=%difference%"
+        rem call debug "len=%len, difference=%difference%"
 
 rem Finish assembling date line:
         set MSG=%MSG%%@ANSI_MOVE_TO_COL[%RIGHT_COLUMN%]%CAL_EMO_TO_USE%%ANSI_RESET%

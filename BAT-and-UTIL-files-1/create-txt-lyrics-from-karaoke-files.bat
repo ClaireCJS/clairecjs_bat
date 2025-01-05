@@ -24,7 +24,7 @@ rem For each audio file, processi t:
 rem End:
         goto :END
 
-rem ━━━━ SUBROUTINES: BEGIN: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━ SUBROUTINES: BEGIN: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
         :process_file [infile]
                 rem Could check %infile% for lyriclessness == "APPROVED" and return because      %+ rem Nothing to do if the song is already marked for lyriclssness
@@ -33,12 +33,15 @@ rem ━━━━ SUBROUTINES: BEGIN: ━━━━━━━━━━━━━━�
                 set           lrc=%base%.lrc                                                     %+ rem filename of sidecar lrc file
                 set           srt=%base%.srt                                                     %+ rem filename of sidecar srt file                                                                  
                 set           txt=%base%.txt                                                     %+ rem filename of sidecar txt file
-                if     exist %txt%                          return                               %+ rem Nothing to do if the TXT exists already
-                if not exist %lrc% .and. not exist %srt%    return                               %+ rem Nothing to do if no LRC/SRT file to convert
-                if 1   eq    %@RegEx[instrumental,"%base%"] return                               %+ rem Nothing to do if it’s an instrumental file
-                if     exist "__ instrumentals __"          return                               %+ rem Nothing to do if it’s an instrumental folder [where individual files might not be marked, but where the folder may be marked with this marker file]
+                if 0 eq %@FILESIZE["%txt%"] *del /q "%TXT%" >nul                                 %+ rem erase 0-byte TXT if it’s there
+                if 0 eq %@FILESIZE["%lrc%"] *del /q "%LRC%" >nul                                 %+ rem Nothing to do if no LRC/SRT file to convert
+                if 0 eq %@FILESIZE["%srt%"] *del /q "%SRT%" >nul                                 %+ rem Nothing to do if no LRC/SRT file to convert
+                if     exist %txt%                                         return                %+ rem Nothing to do if the TXT exists already
+                if not exist %lrc% .and. not exist %srt%                   return                %+ rem Nothing to do if no LRC/SRT file to convert
+                if 1   eq    %@RegEx[instrumental,"%base%"]                return                %+ rem Nothing to do if it’s an instrumental file
+                if     exist "__ instrumentals __"                         return                %+ rem Nothing to do if it’s an instrumental folder [where individual files might not be marked, but where the folder may be marked with this marker file]
                 set LYRICLESSNESS=%@ExecStr[TYPE "%@UNQUOTE["%infile%"]:lyriclessness" >&>nul]   %+ rem Read lyriclessness status
-                if "APPROVED" == "%LYRICLESSNESS%"          return                               %+ rem Nothing to do if we’ve already approved the fact that this file does not have lyrics, i.e. “a state of ‘lyriclessness’”
+                if "APPROVED" == "%LYRICLESSNESS%"                         return                %+ rem Nothing to do if we’ve already approved the fact that this file does not have lyrics, i.e. “a state of ‘lyriclessness’”
                 iff    exist %lrc% (set to_convert=%lrc% %+ set converter=lrc2txt)               %+ rem \_____At least one of SRT/LRC exists now, 
                 iff    exist %srt% (set to_convert=%srt% %+ set converter=srt2txt)               %+ rem /     ...but we will prefer SRT over LRC. (Although it should be worth mentioning that for organic reasons, srt2txt actually does all the srt in the whole folder and will preclude any other srt conversion from happening within the framework of *this* script, because srt2txt.py itself traverses all files in a folder, quite different from lrc2txt which only works for a single file)
                 call %converter% "%to_convert%"                                                  %+ rem Perform our conversion
@@ -46,6 +49,6 @@ rem ━━━━ SUBROUTINES: BEGIN: ━━━━━━━━━━━━━━�
                 rem echo file is %file% %@ansi_move_to_col[40] base=%base% %@ansi_move_to_col[70] srt=%srt%%@ansi_move_to_col[100] cvt=%convert%
         return
 
-rem ━━━━ SUBROUTINES: END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━ SUBROUTINES: END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 :END

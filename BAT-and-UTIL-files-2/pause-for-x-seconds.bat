@@ -1,4 +1,4 @@
-@echo off
+@Echo ON
 @on break cancel
 setlocal
 
@@ -20,7 +20,10 @@ rem Set the colors (two redundant methods):
         echos %@CHAR[27][ q%@CHAR[27]]12;yellow%@CHAR[7]
 
 rem Clear the character buffer so we don't end up hitting a key BEFORE the prompt and have it be counted as after:
-        repeat 100 @input /c /w0 %%This_Line_Clears_The_Character_Buffer
+        rem repeat 100 
+        @input /c /w0 %%This_Line_Clears_The_Character_Buffer
+
+        rem 🐐🐐GOATGOAT🐐🐐 i think this results in false pauses somehow!!! Scripts get caught up here! This isn’t reliable for workflows!
 
 rem Do the actual pause:
         *pause /W%SECONDS% /T %PAUSE% %PAUSE_MESSAGE% 

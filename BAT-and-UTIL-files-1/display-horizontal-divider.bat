@@ -47,7 +47,11 @@ rem As of 2024/10/18, we now try to use the pre-rendered dividers before drawing
                 endiff
 
                 rem First, move to column 0... Yes, this means we will overwrite things. This is by design.
-                echos %@ANSI_MOVE_TO_COL[1]
+                echos %@ANSI_MOVE_TO_COL[1]%ANSI_ERASE_TO_EOL%
+                iff "%2" == "lmc" .and. defined LOCKED_MESSAGE_COLOR then 
+                        color cyan on blue
+                        echos %LOCKED_MESSAGE_COLOR%%ANSI_ERASE_TO_EOL%
+                endiff
                 type %RAINBOW_DIVIDER_FILE%
                 rem   Okay this is weird. I keep getting "stuck" because the generated 
                 rem   dividers don't have newlines at the end! So let's force one:

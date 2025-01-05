@@ -6,7 +6,7 @@ rem Set our lyric filemask:
         set FILEMASK_LYRICS_TEMP=*.txt;*.lrc;*.srt;%FILEMASK_AUDIO%
 
 rem If we passed a parameter, we are operating on a single file:
-        iff "%1" eq "/?"  .or. "%1" eq "" then
+        iff "%1" == "/?"  .or. "%1" == "" then
                 %color_advice%
                 echo %ansi_color_advice%
                 echo    display-lyric-status {lyric_file.txt} - displays lyric status for 1 file
@@ -20,9 +20,9 @@ rem If we passed a parameter, we are operating on a single file:
                 echos %ansi_reset%
                 goto :END
         endiff
-        iff "%1" ne "" .and. "%1" ne "all" .and. "%1" ne "audio" .and. "1" ne "%@RegEx[[\*\?],%1]"  then
+        iff "%1" ne "" .and. "%1" != "all" .and. "%1" != "audio" .and. "1" != "%@RegEx[[\*\?],%1]"  then
                 rem When operating on a single file, make sure it is the correct extension prior to displaying the lyrics:
-                        if "%2" ne "skip_validations" call validate-is-extension "%@UNQUOTE[%1]" %FILEMASK_LYRICS_TEMP% "Slow down, partner! The 1ˢᵗ arg must be a file that matches “%italics_on%%FILEMASK_LYRICS_TEMP%%italics_off%”"
+                        if "%2" != "skip_validations" call validate-is-extension "%@UNQUOTE[%1]" %FILEMASK_LYRICS_TEMP% "Slow down, partner! The 1ˢᵗ arg must be a file that matches “%italics_on%%FILEMASK_LYRICS_TEMP%%italics_off%”"
                         call display-lyric-status-for-file %*
                         goto :END
         endiff
@@ -66,7 +66,7 @@ rem Count how many files we will be displaying the status of:
                         set FOUND=0
                         for %%E in (%FILEMASK_AUDIO%) do (if exist "%BASENAME%%%~xE" (set FOUND=1))
                 rem If it does, then increase our file count by 1:
-                        if %FOUND% != 0 (set NUM_LYRICS_FOUND=%@EVAL[%NUM_LYRICS_FOUND + 1])       
+                        if %FOUND% ne 0 (set NUM_LYRICS_FOUND=%@EVAL[%NUM_LYRICS_FOUND + 1])       
         )
 
 rem If we will be displaying more than 1 file, use justification so the values line up nicely:
@@ -83,11 +83,11 @@ rem Go through each file, displaying it’s lyric status:
                 set ADSTAG_DISPLAY_FOR_PATH=0
                 set masks=%FILEMASK_AUDIO%;*.srt;*.lrc;*.txt
                 set masks=*
-                if "%1" eq "audio" (
+                if "%1" == "audio" (
                         set masks=%filemask_audio%
                         set ADSTAG_DISPLAY_FOR_PATH=0
                 ) else (
-                        if "%1" ne "all" set masks=%1
+                        if "%1" != "all" set masks=%1
                         set ADSTAG_DISPLAY_FOR_PATH=0
                 )                        
         endiff
@@ -109,16 +109,16 @@ rem Go through each file, displaying it’s lyric status:
                                 set ext=%@ext[%tmpfile%]
                                 
                         rem Skip if the file has no extension, or if the extension is not valid:
-                                if ""  eq         "%@ext[%tmpfile]"                                     goto :nevermind_on_the_processing
-                                if "0" eq "%@regex[%@ext[%tmpfile],%filemask_audio%;*.srt;*.lrc;*.txt]" goto :nevermind_on_the_processing
-                                if "%@LEFT[21,%tmpfile%]" eq "normalization-report-"                    goto :nevermind_on_the_processing %+ rem Skip our internal normalization reports
-                                if "%@LEFT[ 6,%tmpfile%]" eq "README"                                   goto :nevermind_on_the_processing %+ rem Skip README files
+                                if ""  ==         "%@ext[%tmpfile]"                                     goto :nevermind_on_the_processing
+                                if "0" == "%@regex[%@ext[%tmpfile],%filemask_audio%;*.srt;*.lrc;*.txt]" goto :nevermind_on_the_processing
+                                if "%@LEFT[21,%tmpfile%]" == "normalization-report-"                    goto :nevermind_on_the_processing %+ rem Skip our internal normalization reports
+                                if "%@LEFT[ 6,%tmpfile%]" == "README"                                   goto :nevermind_on_the_processing %+ rem Skip README files
         
                         rem Determine statuses based on parameters:
-                                set NOT_LYRICS=0          %+ if "%EXT%" ne "txt"                         (set NOT_LYRICS=1         )
-                                set  IS_LYRICS=0          %+ if "%EXT%" eq "txt"                         (set  IS_LYRICS=1         )
-                                set  IS_KARAOKE=0         %+ if "%EXT%" eq "srt" .or.  "%EXT%" eq "lrc"  (set  IS_KARAOKE=1        )
-                                set NOT_KARAOKE=0         %+ if "%EXT%" ne "srt" .and. "%EXT%" ne "lrc"  (set NOT_KARAOKE=1        )
+                                set NOT_LYRICS=0          %+ if "%EXT%" != "txt"                         (set NOT_LYRICS=1         )
+                                set  IS_LYRICS=0          %+ if "%EXT%" == "txt"                         (set  IS_LYRICS=1         )
+                                set  IS_KARAOKE=0         %+ if "%EXT%" == "srt" .or.  "%EXT%" eq "lrc"  (set  IS_KARAOKE=1        )
+                                set NOT_KARAOKE=0         %+ if "%EXT%" != "srt" .and. "%EXT%" ne "lrc"  (set NOT_KARAOKE=1        )
                                 set PROBABLY_AUDIO_FILE=0 %+ if 1 eq %NOT_LYRICS .and. 1 eq %NOT_KARAOKE (set PROBABLY_AUDIO_FILE=1)
 
                         rem Debug info:
@@ -167,11 +167,8 @@ rem Go through each file, displaying it’s lyric status:
                                                 endiff
                                         )
                                 )
-                                
-                        :nevermind_on_the_processing                                
-                return                                
+                        :nevermind_on_the_processing
+                return  
         :process_done
-
 :END
-
 unset /q USE_SPACER

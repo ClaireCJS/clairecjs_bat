@@ -171,7 +171,7 @@ rem Start with our status bar:
                echo %@ANSI_MOVE_TO_COL[0]%ansi_color_normal%               
                if 1 ne %STATUSBAR_LOCKED ( 
                         echos %LOCKED_MESSAGE_COLOR%  
-                        call divider NoNewline 
+                        call divider NoNewline lmc
                         echos %@char[27][%[_COLUMNS]G%locked_message_color%%@CHAR[27][38;2;255;0;5m%connecting_equals%        
                )
         echos %@CHAR[27][1;%@EVAL[%_rows-%rows_to_lock%]r%ANSI_RESTORE_POSITION%
@@ -180,7 +180,7 @@ rem Start with our status bar:
 rem Output the message to the screen as well, if we're supposed to:        
         echos %ANSI_SAVE_POSITION%%@ANSI_MOVE_TO[%@EVAL[%_ROWS-1],0]%LOCKED_MESSAGE_COLOR%%DIVIDER%
         echos %LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE%%ANSI_EOL%%NEWLINE%
-        echos %DIVIDER%%LOCKED_MESSAGE_COLOR%%ANSI_RESTORE_POSITION%
+        echos %LOCKED_MESSAGE_COLOR%%DIVIDER%%LOCKED_MESSAGE_COLOR%%ANSI_RESTORE_POSITION%
         set STATUSBAR_LOCKED=1
 
 goto :END

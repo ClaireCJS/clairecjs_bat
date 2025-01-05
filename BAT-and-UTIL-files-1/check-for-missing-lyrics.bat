@@ -5,14 +5,17 @@ rem @setlocal
 
 
 rem CONFIGURATION:
-        set most_songs_from_playlist_to_process_at_a_time=10 %+ rem 🐐
+        set most_songs_from_playlist_to_process_at_a_time=100 %+ rem 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
 
 
 :DESCRIPTION: Checks for files that are missing *approved* lyric files.
-:USAGE: check-for-missing-lyrics playlist.m3u {etc} ———————— checks files in   playlist.m3u, and displays songs missing lyrics
 :USAGE: check-for-missing-lyrics {etc} ————————————————————— checks files in current folder, and displays songs missing lyrics
 :USAGE: check-for-missing-lyrics get {etc} ————————————————— checks files in current folder, and  gets all  the missing lyrics
+:USAGE:
+:USAGE: check-for-missing-lyrics playlist.m3u {etc} ———————— checks files in   playlist.m3u, and displays songs missing lyrics
 :USAGE: check-for-missing-lyrics get playlist.m3u {etc} ———— checks files in   playlist.m3u, and  gets all  the missing lyrics
+:USAGE: 
+:USAGE: check-for-missing-lyrics karaoke playlist.m3u {etc} ———— checks files in   playlist.m3u, and  gets all  the missing karaoke
 :USAGE: 
 :USAGE:  ... where {etc} are options that will be passed directly to get-lyrics.bat, such as “genius” or ““force”
 
@@ -45,27 +48,42 @@ rem Environment variable backups —— these should all already be defined alre
 rem Validate environment once per session:
         iff 1 ne %VALIDATED_CFMLB% then
                 call validate-is-function ANSI_MOVE_UP ANSI_CURSOR_COLOR_BY_WORD                   %+ rem would be more portable to bring these definitions into this file
-                call validate-in-path set-tmpfile get-lyrics perl randomize-file.pl errorlevel pause-for-x-seconds divider beep.bat set-tmp-file.bat
+                call validate-in-path set-tmpfile get-lyrics.bat get-karaoke.bat perl randomize-file.pl errorlevel pause-for-x-seconds divider beep.bat set-tmp-file.bat status-bar.bat
                 set  VALIDATED_CFMLB=1                                                             
         endiff                
 
 
 rem If we were supplied a filename, process it as a list of files:                                 %+ rem This script can run in a couple different modes, so we need to deal with that
+        set PARENT=%@UNQUOTE[%@NAME["%_PBATCHNAME"]]
         set GET=0                                                                                  %+ rem Our default mode is GET=0, which means we will not be running the generated script afterward
         set ETC=0                                                                                  %+ rem Extra options to be passed directly to get-lyrics.bat, such as “genius” or “force”
-        rem echo processing... %%* is %*, %%1 is %1,  %%1$ is %1$
+        rem echo processing... %%0=“%0”, %%* is “%*”, %%1 is “%1”, %%2 is “%2”, %%1$ is “%1$” %+ pause
         iff "%1" != "" then                                                                        %+ rem If an argument was given, it should be "get", a filename, or a filename followed by "get"
-                iff "%1" == "get" then                                                             %+ rem if "get" was passed, we are actually going to run the script that this script generates. Adjust the flag for that               
-                        set GET=1 
+                iff "%1" == "get" .or. "%1" == "karaoke" then                                      %+ rem if "get" was passed, we are actually going to run the script that this script generates. Adjust the flag for that               
+                        if "%1" != "get"     set GET=0
+                        if "%1" == "get"     set GET=1
+                        if "%1" != "karaoke" set GET_KARAOKE=0
+                        if "%1" == "karaoke" set GET_KARAOKE=1
                         set FILELIST_MODE=0
                         set Filelist_to_Check_for_Missing_Lyrics_in=
                         shift
+
+                        iff "%@EXT[%@UNQUOTE["%1"]]" == "m3u" then
+                                rem echo it’s an m3u! limit=%limit%
+                                set most_songs_from_playlist_to_process_at_a_time=10000
+                                set FILELIST_MODE=1
+                                set Filelist_to_Check_for_Missing_Lyrics_in=%@UNQUOTE["%1"]
+                                call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
+                                call less_important "Finding songs with missing %findNature% in playlist: %italics_on%“%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%italics_off%”%conceal_on%1111%conceal_off%"
+                                shift
+                        endiff
+
                 else                                                                               %+ rem if "get" was passed  *WITH* a filename...
                         set  FILELIST_MODE=1                                                       %+ rem       ...set our operational mode flag appropriately...
                         set  Filelist_to_Check_for_Missing_Lyrics_in=%@UNQUOTE["%1"]               %+ rem       ...store the filename parameter for later...
                         shift
                         call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
-                        call less_important "Finding songs with missing lyrics in playlist: %italics_on%“%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%italics_off%”"
+                        call less_important "Finding songs with missing %findNature% in playlist: %italics_on%“%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%italics_off%”%conceal_on%2222%conceal_off%"
                         iff "%1" == "get" then                                                    
                                 set GET=1                                                         
                                 shift                                                             
@@ -77,8 +95,19 @@ rem If we were supplied a filename, process it as a list of files:              
                 set  FILELIST_MODE=0                                                               %+ rem       ...we are not using a fileist, so make sure the proper operational flag is set
         endiff                       
         rem DEBUG: echo Filelist_to_Check_for_Missing_Lyrics_in=%Filelist_to_Check_for_Missing_Lyrics_in% filelist_mode=%filelist_mode% %+ pause   %+ rem Debug
-        
-echo ETC is “%ETC%”, GET=“%GET%”
+        rem DEBUG:
+
+rem Set our getter, depending on whether we’re in lyric mode, or “hidden” karaoke mode:
+        iff 1 ne %GET_KARAOKE then
+                set GETTER=get-lyrics
+                set findNature=lyrics
+        else
+                set GETTER=create-srt
+                set findNature=karaoke
+        endiff
+
+        rem DEBUG: echo ETC is “%ETC%”, GET=“%GET%”, GET_KARAOKE=“%GET_KARAOKE%”, GETTER=“%GETTER%”, NATURE=“%findNature”, flielist_mode=“%flielist_mode%” %+ pause
+
 
 rem Go through each audio file, seeing if it lacks approved lyrics:
         set ANY_BAD=0                                                                              %+ rem Track if we found *any* bad files at all
@@ -89,7 +118,9 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
         call set-tmpfile                                                                           %+ rem Sets temporary file to %tmpFile
         set tmpfile_cfml_1=%tmpfile%
         
-        rem echo tmpfile  is %tmpfile_cfml_1%%newline%tmpfile2 is %tmpfile2% %+ pause
+        rem DEBUG: echo tmpfile  is %tmpfile_cfml_1%%newline%tmpfile2 is %tmpfile2% %+ pause
+
+
 
         iff 0 eq %FILELIST_MODE% then 
                 set ENTITY_TO_USE=%FILEMASK_AUDIO%
@@ -116,7 +147,7 @@ rem and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_
                 )
         )    
         setdos /x0
-        call status-bar unlock
+        rem not always! (2025/01/04) call status-bar unlock
         echos %ansi_save_position%
         for %%offset in (-1) do (
                echos %@ansi_move[%@EVAL[%_rows-%offset],0]%ansi_erase_to_eol%
@@ -128,7 +159,7 @@ rem If we have reached our limit, stop processing
         if %ANY_BAD gt 0 repeat 5 echo.
         iff 1 eq %limit_reached then
                 repeat 4 call beep.bat highest
-                call bigecho "%ansi_color_warning_soft%%check%   Limit of: %italics_on%%blink_on%%@formatn[3.0,%LIMIT%]%blink_off%%%italics_off% files %ansi_color_success%reached%ansi_color_normal%"
+                call bigecho "%ansi_color_warning_soft%%check%   Limit of: %italics_on%%blink_on%%@formatn[3.0,%LIMIT%]%blink_off%%italics_off% files %ansi_color_success%reached%ansi_color_normal%"
         else                
                 repeat 1 call beep.bat highest
         endiff
@@ -136,7 +167,11 @@ rem If we have reached our limit, stop processing
         
 rem Display post-processing statistics:
         iff %num_processed eq 0 then
+                echo.
+                echo.
                 call warning "No files were processed here!"
+                echo.
+                echo.
         else
                 set       fail_rate=%@EVAL[ %num_bad                  /%num_processed]
                 set compliance_rate=%@EVAL[(%num_processed - %num_bad)/%num_processed]
@@ -151,16 +186,17 @@ rem Display post-processing statistics:
                         set clean_formatted_percent=%formatted_percent%
                 )
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%  Processed: %italics_on%%@FORMATn[3.0,%NUM_PROCESSED%]%italics_off% songs 
-                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located: %ansi_color_red%%@FORMATn[3.0,%NUM_BAD%]%ansi_color_bright_green% songs needing lyric attention
+                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located: %ansi_color_red%%@FORMATn[3.0,%NUM_BAD%]%ansi_color_bright_green% songs needing %findNature% attention
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK% Compliance: %@ANSI_RGB[%our_r%,%our_g%,%our_b%]%@formatn[3.1,%clean_formatted_percent%]%cool_percent%
+                echo.
         endiff
 
 
 rem Create the fix-script, if there are any to fix:
         setdos /x0
         iff 1 eq %ANY_BAD% then                                                                    %+ rem We generate a script to find the missing ones, but if and only if some missing ("bad") ones were found
-                set TARGET_SCRIPT=get-the-missing-lyrics-here-temp.bat                             %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places
-                echo @Echo off                                          >:u8 "%TARGET_SCRIPT"      %+ rem get-missing-lyrics script: initialize: turn echo off
+                set TARGET_SCRIPT=get-the-missing-lyrics-here-temp.bat                             %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
+                echo @Echo OFF                                          >:u8 "%TARGET_SCRIPT"       %+ rem get-missing-lyrics script: initialize: turn Echo OFF
                 echo @setdos /x-4                                      >>:u8 "%TARGET_SCRIPT"
                 rem Rexx says try x-3 here
                 rem echo @on break cancel                              >>:u8 "%TARGET_SCRIPT"      %+ rem get-missing-lyrics script: initialize: make ^C/^Break work better
@@ -181,23 +217,25 @@ rem Create the fix-script, if there are any to fix:
                 echo :END                                              >>:u8 "%TARGET_SCRIPT"
                 
 rem Run the fix-script, if we have decided to:
-                iff 1 eq %GET then                                                                 %+ rem If we have decided to auto-run the script, the let’s do that
+                iff 1 eq %GET .or. 1 eq %GET_KARAOKE then                                          %+ rem If we have decided to auto-run the script, the let’s do that
                         rem title "Fetching lyrics!"
-                        echos %@CHAR[27][%[_rows]H  %+ rem Move to bottom of screen
-                        repeat 5 echo.
+                        echos %@CHAR[27][%[_rows]H %+ rem Move to bottom of screen
+                        repeat 3 echo.
                         call divider
                         echo.
                         call divider
-                        echos %@ANSI_MOVE_UP[2]%ANSI_CURSOR_VISIBLE%
+                        echo.
+                        echos %@ANSI_MOVE_UP[3]%ANSI_CURSOR_VISIBLE%
                         echos %@ANSI_CURSOR_COLOR_BY_WORD[yellow]                                  %+ rem Impotent because cursor color is set in pause-for-x-seconds anyway!
-                        call pause-for-x-seconds 20 "%ansi_color_green%Going to find those missing lyrics now!%ansi_color_bright_Red%%blink_on%"
+                        echos %ansi_color_green%Going to find those missing %findNature% now!%ansi_color_bright_Red%%blink_on%
+                        sleep 4
                         echos %CURSOR_RESET%
                         echos %blink_off%
-                        rem echo type "%TARGET_SCRIPT%" ^ type "%TARGET_SCRIPT%"                   %+ rem Debug
-                        rem echo call "%TARGET_SCRIPT%"                                            %+ rem Debug
-                                 call "%TARGET_SCRIPT%"                                            %+ rem run the generated script
-                        call errorlevel                                                            %+ rem check for errorlevel //rem DEBUG: echo our_errorlevel is %our_errorlevel% 
-                        if "" != "%original_title%" *title %original_title%
+                        rem echo type "%TARGET_SCRIPT%" %+ type "%TARGET_SCRIPT%"                  %+ rem Debug
+                                 call "%TARGET_SCRIPT%"                                            %+ rem run the generated script !X--X!
+                        call   errorlevel                                                          %+ rem check for errorlevel //rem DEBUG: echo our_errorlevel is %our_errorlevel% 
+                        if "" != "%original_title%" (*title %original_title%)                
+                        rem echo pbatchmame_check-for-missing-lyrics_bat=%_PBATCHNAME >
                 endiff
         endiff
         
@@ -266,41 +304,37 @@ rem —————————————————————————�
 
 
                         rem Check if the potential karaoke files exist, and if they do, the file is good:
-                                for %tmp_potential_subtitle_file in ("%srtfile%" "%lrcfile%") do (
-                                        set comment1=rem DEBUG: 
-                                        if exist %tmp_potential_subtitle_file% (
-                                                rem echo checking if exist %tmp_potential_subtitle_file% and it does GOAT
-                                                set COMMENT=2024/12/22 found this annoying so suspending this and seeing how I feel: echo %ansi_color_cyan% %EMOJI_CHECK_MARK% karaoke  already exists:       %faint_on%%@UNQUOTE[%tmp_potential_subtitle_file%]%faint_off%``
-                                                set BAD=0                                   
-                                        ) else (                          
-                                                rem echo checking if exist %tmp_potential_subtitle_file% and it doesn't GOAT
-                                                set COMMENT=echo %ansi_color_magenta% %check% karaoke DOESN%[smart_apostrophe]T exist:         %@UNQUOTE[%tmp_potential_subtitle_file%]``
-                                        )                                            
+                                if exist "%SRTfile%" .or. exist "%LRCfile%" (
+                                        set BAD=0
+                                ) else (
+                                        set BAD=1
                                 )
 
                                      
                         rem Check if the lyrics files already exists, and if so, then check if it is pre-approved:
-                                iff exist "%txtfile%" then                                                                                          %+ rem If the lyric file exists, we must check if it is approved
-                                        rem DEBUG: call debug "Textfile %txtfile% already exists"
-                                        set TXT_EXISTS=1                                                                                            %+ rem If the lyric file exists, flag the situation as such
-                                        set coloring=%ansi_color_bright_green%                                                                      %+ rem If the lyric file exists, draw debug info in green
-                                        set         LYRIC_APPROVAL_VALUE=%@ExecStr[TYPE                  <"%txtfile%:lyrics"        >&>nul]         %+ rem If the lyric file exists, get it’s approval status
-                                        iff "APPROVED" == "%LYRIC_APPROVAL_VALUE%" .or. "APPROVED" == "%LYRICLESSNESS_APPROVAL_VALUE%" then         %+ rem If the lyrics are approved...
-                                                set coloring2=%coloring%                                                                            %+ rem    ...use the same success color for the text file
-                                                set BAD=0                                                                                           %+ rem Mark it as "good" [having approved lyrics] by un-setting "bad"
-                                        else                                                                                                        %+ rem If the lyrics are NOT approved...
-                                                set LYRIC_APPROVAL_VALUE=%bright_red%Nope%ansi_color_normal%                                        %+ rem    ...set a meaningful display value like "Nope"
-                                                set coloring2=%ansi_color_bright_red%                                                               %+ rem    ...set the color to an alarming "angry" color
-                                        endiff                                                                                                      
-                                else                                                                                                                %+ rem If the lyrics don’t exist at all,
-                                        rem DEBUG: call debug "Textfile “%txtfile%” DOES NOT EXIST"                                                        
-                                        set TXT_EXISTS=0                                                                                            %+ rem    ...set a flag storing this fact
-                                        set coloring=%ansi_color_bright_black%                                                                      
-                                        set coloring2=%ansi_color_bright_black%                                                                     
-                                        set LYRIC_APPROVAL_VALUE=%NO%                                                                               %+ rem    ...set a meaningful display value like "🚫"
-                                        set BAD=1 
-                                endiff              
-
+                        rem (Unless we are in karaoke mode, then we don’t care about the lyric files)
+                                iff 1 ne %GET_KARAOKE then
+                                        iff exist "%txtfile%" then                                                                                          %+ rem If the lyric file exists, we must check if it is approved
+                                                rem DEBUG: call debug "Textfile %txtfile% already exists"
+                                                set TXT_EXISTS=1                                                                                            %+ rem If the lyric file exists, flag the situation as such
+                                                set coloring=%ansi_color_bright_green%                                                                      %+ rem If the lyric file exists, draw debug info in green
+                                                set         LYRIC_APPROVAL_VALUE=%@ExecStr[TYPE  <"%txtfile%:lyrics"  >&>nul]                               %+ rem If the lyric file exists, get it’s approval status
+                                                iff "APPROVED" == "%LYRIC_APPROVAL_VALUE%" .or. "APPROVED" == "%LYRICLESSNESS_APPROVAL_VALUE%" then         %+ rem If the lyrics are approved...
+                                                        set coloring2=%coloring%                                                                            %+ rem    ...use the same success color for the text file
+                                                        set BAD=0                                                                                           %+ rem Mark it as "good" [having approved lyrics] by un-setting "bad"
+                                                else                                                                                                        %+ rem If the lyrics are NOT approved...
+                                                        set LYRIC_APPROVAL_VALUE=%bright_red%Nope%ansi_color_normal%                                        %+ rem    ...set a meaningful display value like "Nope"
+                                                        set coloring2=%ansi_color_bright_red%                                                               %+ rem    ...set the color to an alarming "angry" color
+                                                endiff                                                                                                      
+                                        else                                                                                                                %+ rem If the lyrics don’t exist at all,
+                                                rem DEBUG: call debug "Textfile “%txtfile%” DOES NOT EXIST"                                                        
+                                                set TXT_EXISTS=0                                                                                            %+ rem    ...set a flag storing this fact
+                                                set coloring=%ansi_color_bright_black%                                                                      
+                                                set coloring2=%ansi_color_bright_black%                                                                     
+                                                set LYRIC_APPROVAL_VALUE=%NO%                                                                               %+ rem    ...set a meaningful display value like "🚫"
+                                                set BAD=1 
+                                        endiff            
+                                endiff
                         rem Debug:
                                 rem DEBUG: echo   bad is %BAD% for %txtfile% ... txt_exists=%txt_exists% 🐐
                         
@@ -308,18 +342,17 @@ rem —————————————————————————�
                                 :done_processing_this_file
                                 set NUM_PROCESSED=%@EVAL[%NUM_PROCESSED + 1]
                                 
+                        rem Display the # processed (which only applies to bad files):
+                                title Processed: %NUM_PROCESSED%
                                 
                         rem If this file is bad, deal with that:
                                 iff 1 eq %BAD% then
-                                
-                                        rem Display the # processed (which only applies to bad files):
-                                                title Processed: %NUM_PROCESSED%
-                                                
+                                                                               
                                         rem Display the # remaining as a status bar at the bottom of the screen:
                                                 setdos /x0
                                                 set remaining=%@EVAL[%remaining - 1]
                                                 set msg=%emoji_gear% Remaining:%italics_on%%@sans_serif[%remaining%]%italics_off% %emoji_gear%
-                                                call status-bar "%msg%"
+                                                if 1 ne %DONT_MESS_WITH_MY_STATUS_BAR% call status-bar "%msg%"
                                                 rem   *pause>nul
                                         
                                         rem Keep track of if/how many bad files there were:
@@ -328,15 +361,16 @@ rem —————————————————————————�
                                                 rem echo now %NUM_BAD% bad ones
 
                                         rem Warn of missing lyrics:                                        
-                                                echos %EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%
+                                                echos %@ANSI_MOVE_TO_COL[1]%EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%
                                                       setdos /x-4
-                                                      echo %unquoted_audio_file%                      
-                                                      setdos /x0                 
+                                                      echo %unquoted_audio_file%
+                                                      setdos /x0
                                                 
                                         rem Add lyric-retrieval command to our autorun script:
                                               rem echo gosub process "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
                                               setdos /x-4
-                                              echo repeat 9 echo. `%`+ call get-lyrics "%unquoted_audio_file%" %ETC% `%`+ call divider >>:u8"%tmpfile_cfml_1%"
+                        
+                                              echo repeat 9 echo. `%`+ if exist "%unquoted_audio_file%" call %GETTER% "%unquoted_audio_file%" %ETC% `%`+ call divider >>:u8"%tmpfile_cfml_1%"
                                               setdos /x0
                                                     
                                 endiff                        

@@ -104,7 +104,7 @@ REM Parameters: Process: calling file
 iff %OUR_ERRORLEVEL% le 0 then
         echos %@ANSI_CURSOR_CHANGE_COLOR_HEX[%color_success_hex]%ANSI_PREFERRED_CURSOR_SHAPE%
         iff defined OUR_SUCCESS_MESSAGE then
-                rem @Echo ON
+                rem @Echo OFF
                 %COLOR_SUCCESS%
                 echo %OUR_SUCCESS_MESSAGE%
                 %COLOR_NORMAL%
