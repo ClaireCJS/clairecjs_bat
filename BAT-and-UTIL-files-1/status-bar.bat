@@ -197,3 +197,4 @@ rem END by restoring the cursor and saving the # of rows we unlocked to the envi
         :END
         if defined ANSI_CURSOR_VISIBLE echos %ANSI_CURSOR_VISIBLE%
         set LAST_ROWS_TO_LOCK=%ROWS_TO_LOCK%
+

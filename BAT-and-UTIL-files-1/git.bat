@@ -111,7 +111,7 @@ rem EXECUTE: Run our GIT command which won't work right without TERM=msys, filte
                                 echo.
                                 if exist %GIT_OUT_FILTERED% (
                                         echos %@ANSI_RGB[0,205,0]
-                                        (type %GIT_OUT_FILTERED% |:u8 fast_cat)
+                                        (((type %GIT_OUT_FILTERED%) |:u8 fast_cat) |:u8 fast_cat)
                                 )                 
                         endiff
                 endiff

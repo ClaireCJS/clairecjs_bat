@@ -212,8 +212,7 @@ goto :END                                                                       
             rem 
             rem :: create burn target dir
             rem     cd ..
-            rem     set BAND_NAME_BASE="%@NAME[%_CWD]"
-            rem     set BAND_NAME_BASE=%@NAME["%_CWD"].%@EXT["%_CWD"]
+            rem     set BAND_NAME_BASE=see how we did this in other programs - %@FILENAME method is best
             rem     set MUSIC_BURN_DESTINATION_BASE=%DATA2%\MUSIC
             rem     set MUSIC_BURN_DESTINATION_BAND="%@UNQUOTE[%MUSIC_BURN_DESTINATION_BASE%]\%@UNQUOTE[%BAND_NAME_BASE%]"
             rem     if not isdir "%MUSIC_BURN_DESTINATION_BASE%" md /s "%@UNQUOTE[%MUSIC_BURN_DESTINATION_BASE%]"

@@ -10,7 +10,7 @@ rem Validate environemnt (once):
 
 
 rem Variables to use:
-        set tmpname=%@UNQUOTE["%@NAME["%_CWD"].%@EXT["%_CWD"]"]
+        set tmpname=%@UNQUOTE[%@FILENAME["%_CWD"]]
 
 
 rem Convert any LRC/SRT w/o TXT first:
