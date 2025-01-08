@@ -1067,6 +1067,7 @@ rem ************* TOYS: BEGIN: *************
         rem ——————— cool full-string any-character subtitutions ——————————————————————————————————————————————————————————————————————————————————————————————————
 
         rem Replace some characters with the cooler emoji version:
+                rem TODO fix up with other cool chars from emoji.env
             set cool_cap_S=%@char[7776]
             set cool_low_f=%@char[402]
             function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,%cool_cap_s%,%@REPLACE[f,%cool_low_f%,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`

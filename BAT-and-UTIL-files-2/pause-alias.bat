@@ -13,12 +13,12 @@ rem Parameter passing:
 
         :Param_Fetch
         set PARAMS=%$
-        SET PARAM_1=%1
-        SET PARAM_2=%2
-        SET PARAM_3=%3
-        SET PARAM_4=%4
-        SET PARAM_5=%5
-        SET PARAM_6=%6
+        SET PARAM_1=%@UNQUOTE[%1]
+        SET PARAM_2=%@UNQUOTE[%2]
+        SET PARAM_3=%@UNQUOTE[%3]
+        SET PARAM_4=%@UNQUOTE[%4]
+        SET PARAM_5=%@UNQUOTE[%5]
+        SET PARAM_6=%@UNQUOTE[%6]
 
         rem Help parameter:
                 iff "%PARAM_1" eq "/?" .or. "%PARAM_1" eq "-?" .or. "%PARAM_1" eq "/h" .or. "%PARAM_1" eq "-h" .or. "%PARAM_1" eq "--help" .or. "%PARAM_1" eq "?" .or. "%PARAM_1" eq "help" .or. "%PARAM_1" eq "--h" .or. "%PARAM_1" eq "-?" .or. "%PARAM_1" eq "--?" then
@@ -91,7 +91,7 @@ rem An extra countdown for those times when we really want to get in a fight wit
                         echos      %pause% %ANSI_RESET%%blink_on%%ansi_red%%ansi_save_position%
                         echos %spacer%[%ansi_bright_red%%numdis%%ansi_red%]%blink_off% %@ANSI_RANDFG_SOFT[]%@ANSI_RANDBG_SOFT[]%blink_on%`` 
                         echos Press any key when ready... 
-                        *pause /c >nul 
+                        (*pause /c) >nul 
                         echos %blink_off%%@ansi_move_left[3] %CHECK%%@ansi_move_up[1]%@ansi_move_left[%@EVAL[33-%@LEN[%@EVAL[%@LEN[%spacer]]]]]
                         echos %ansi_restore_positon%%@ansi_move_down[1]%ansi_reset%%ansi_color_green%%blink_off%
                         echos %spacer%%@ANSI_MOVE_LEFT[%@EVAL[%@LEN[%first_number]-2]]%@IF[%@LEN[%first_number%] le 2, ,]``

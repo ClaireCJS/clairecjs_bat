@@ -1,4 +1,4 @@
-@Echo ON
+@Echo Off
 @on break cancel
 setlocal
 

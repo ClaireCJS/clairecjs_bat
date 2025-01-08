@@ -339,31 +339,52 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 - TAGGING: STEP 7: add ReplayGain tags - "sweep argt" - to all (flac/mp3) files
-	- may not work with songs (esp flac) that have a percent in their name! May have to temp-rename (esp flacs) to work at command line! 
-		- will not find this out until the review later, just something being mentioned
-        - this is a good reason to still avoid percent-signs in music in 2024.  If we were not unicode-phobic in filenames I would recommend a unicode % that is different than the ascii %
+	- may not work with songs (esp flac) that have a percent in their name! But in 2024 we have resolved to use the unicode percent (“％”) instead of the real %. That helps. That’s better than our previous solution of having to temp-rename (esp flacs) those files!
+
+
+
+TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really need to do anymore, but let’s try?
+
+	* Step 1: run: "audit-music-files.py" ————— requires working python with a lot of installed packages tho
+		- This may output to the screen various filenames that cannot be read, i.e. “can’t sync to MPEG frame”
+				- Copy and yellow filename that is a problem into the clipboard
+				- Open it up in Adobe Audition! It’s probably corrupt and need action!
+				- If you open them up and no song is there, clearly there’s nothing to save!
+				- run "rn  <paste that filename at the command line>"
+					- remove “.mp3” or “.flac” or whatever from the end
+					- replace with “ —— CORRUPTED”
+				- 
+						     This will also mention any files taht don’t have replaygain tags like they should!
+						     The extended instructions are below:
+
+        - OLD/EXTENDED INSTRUCTIONS:
 	- OLD: manually review ReplayGain tags —— now happens automatically, but here are the instructions for historical purposes:
-			* Step 1: run: audit-music-files.py  ----------- requires working python with a lot of installed packages tho
-			* Step 2: if RG_fix.bat is generated (or RG_yes.dat is non-zero), we havef problems — run RG_fix.bat to fix them (hopefully it does), then repeat Step 1
-					  If repeating leaves some stragglers (RG_no.dat is nonzero in size) you may have to refer to "SOME SONGS WILL HAVE FAILED" in the deprecated instructions below
+			* Step 1: run: "audit-music-files.py" —————— requires working python with a lot of installed packages tho
+			* Step 2: run: "RG_fix.bat" ——————————————— if it was generated (i.e. if “RG_yes.dat” is non-zero)
+			* Step 3: Goto Step 1 and try aain!
+				If repeating leaves some stragglers (RG_no.dat is nonzero in size) maybe something isn’t getting properly picked up. You may have to refer to “SOME SONGS WILL HAVE FAILED” in the deprecated instructions below?
+				
 			* Step Z: There is no step Z! THESE ARE JUST DEPRECATED OLD INSTRUCTIONS TO KEEP AROUND:
 					- walk the folder tree manually, typing "lr" [list-replaygain-tags] at command line in each folder
 						- use "nd" to go to next folder for ease
-						- use "nd" only after being done with any subfolders -- don't forget "cheese", or "ORIGINAL-VERSIONS", or *any* subfolders
-					- SOME SONGS WILL HAVE FAILED! That's why we're doing the review!
-						- be vigilant about keeping an eye out for songs that have a % symbol in them, they (esp flac) may have failed
+							- use “nd” only after being done with any subfolders 
+							- don’t forget “cheese”
+							- don’t forget “ORIGINAL-VERSIONS”
+							- don’t forget *any* subfolders
+					- SOME SONGS WILL HAVE FAILED! That’s why we’re doing the review!
 						- the command line tool only works with 2-channel songs, so all 5.1 songs will fail
-						- occasionally some files will fail randomly because metaflac/metamp3 isn't perfect at reading/writing the tags
-						- *** for all of these various failures, you can open the file in Foobar media player, and rightclick the files to add ReplayGain tags with Foobar ***
-							- when you notice one that's missing, use "cthis.bat" to make c:\c\ point to the folder you are in
+						- be vigilant about keeping an eye out for songs that have a % symbol in them, they (esp flac) may have failed
+						- occasionally some files will fail randomly because metaflac/metamp3 isn’t perfect at reading/writing the tags
+						- *** for all of these various failures, if things JUST WON’T WORK, you can MANUALLY add ReplayGain tags by opening the file in Foobar media player, and rightclick the files to add ReplayGain tags with Foobar ***
+							- when you notice one that’s missing, use "cthis.bat" to make c:\c\ point to the folder you are in
 							- open Foobar 
-							- file->add file->browse to "c:\c" if it's not there already->add the file to foobar
+							- file->add file->browse to "c:\c" if it’s not there already->add the file to foobar
 							- right click the file(s)s -> ReplayGain -> scan as invidual track/album (depending on which is appropriate) -> update file tags
 							- then do "lr" again to verify that it worked
-								- sometimes EVEN AFTER THAT, they still won't be viewable at the command line ("lr" will fail).  
+								- sometimes EVEN AFTER THAT, they still won’t be viewable at the command line ("lr" will fail).  
 									- it's extremely rare
 									- open them in WinAmp to verify the ReplayGain tags were successfully added
-									- if they still aren't viewable, WE HAVE A PROBLEM. It may behoove us to manually normalize the audio in Adobe Audition if we notice problems.
+									- if they still aren’t viewable, WE HAVE A PROBLEM. It may behoove us to manually normalize the audio in Adobe Audition if we notice problems.
 
 
 

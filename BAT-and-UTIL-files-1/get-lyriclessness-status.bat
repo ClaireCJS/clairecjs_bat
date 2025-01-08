@@ -18,7 +18,7 @@ rem Clear return value:
 
 
 rem Get parameters:
-        set SONG_TO_GET_STATUS_OF=%@UNQUOTE[%1]
+        set SONG_TO_GET_STATUS_OF=%@UNQUOTE["%1"]
         iff "%2" eq "silent" then
                 set SILENT_GETLYRICLESSNESSSTATUS=1
         else                
@@ -42,7 +42,8 @@ rem Clear recepticle variables:
 
 rem Read the lyriclessness status:
         iff exist "%SONG_TO_GET_STATUS_OF%" then
-                call read-ADS-tag-from-file "%SONG_TO_GET_STATUS_OF%" lyriclessness
+                rem call read-ADS-tag-from-file "%SONG_TO_GET_STATUS_OF%" lyriclessness ➕➕➕➕➕➕➕➕ >nul
+                    call read-ADS-tag-from-file "%SONG_TO_GET_STATUS_OF%" lyriclessness
         else
                 if 1 ne %SILENT_GETLYRICLESSNESSSTATUS% call warning_soft "File “%italics_on%%emphasis%%SONG_TO_GET_STATUS_OF%%deemphasis%%italics_off%” does not exist"
         endiff

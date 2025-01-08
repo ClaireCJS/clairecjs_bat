@@ -147,7 +147,11 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 
 &nbsp;
 
-10. Optional: To speed up the workflow, pre-download the lyrics for every folder in your music collection by changing to the base folder of your music collection and issuing the command: ```predownload-all-lyrics-in-all-subfolders```.  This process marks files so that they are not retried a 2ⁿᵈ time — So if you want to retry a 2ⁿᵈ time, you will have to run [reset-genius-search-status-for-all-audio-files.bat](../BAT-and-UTIL-files-1/reset-genius-search-status-for-all-audio-files.bat) first.  Uses the subordinate script [predownload-lyrics-here.bat](../BAT-and-UTIL-files-1/predownload-lyrics-here.bat)
+10. Optional: To speed up the workflow, pre-download lyrics for your entire music collection before even starting to look at individual albums/songs.  
+    - Start with: [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat), which runs [predownload-lyrics-here.bat](../BAT-and-UTIL-files-1/predownload-lyrics-here.bat) on random subfolders in a random order.  
+    - The predownloader marks files so that they are never retried in pre-download mode ever again. 
+    - If you would like to erase those markings, run [reset-genius-search-status-for-all-audio-files.bat](../BAT-and-UTIL-files-1/reset-genius-search-status-for-all-audio-files.bat) in a folder. 
+    - If you would like to check your progress, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat)
 
 </details>
 
@@ -223,15 +227,19 @@ That is: If an MP3/FLAC has a corresponding LRC/SRT but not TXT version, convert
 
 It’s good to prep your entire collection with this, by running it in every folder of your music collection. Do this by going to the base folder of your music collection and running: ```global /i create-txt-lyrics-from-karaoke-files.bat```
 
-
+###
 TODO: predownload-all-lyrics-in-all-subfolders.bat
 
 Runs an initial pass of downloading lyrics in a completely unattended fashion, for later review
 
+###
 TODO: review-all-lyrics-in-all-subfolders.bat
 
 Randomly walks a folder tree, obtaining/reviewing lyrics, with the intent of approving lyrics for later automatic AI transcription.  
 (It is reviewing lyrics in the case of predownload-all-lyrics-in-all-subfolders.bat having already downloaded some lyrics. And it is obtaining lyrics in the case of those lyrics not existing or not being sufficient.)
+
+###
+TODO: If you would like to check your progress, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat). It does generate a log file (```lyric-subtitle-compliance.log```) if you are curious to track your progress over time.
 
 
 </details>
@@ -324,7 +332,7 @@ Displays a list of files in the *current folder* which are missing *approved lyr
 
 Displays a list of files in a *playlist* which are missing *approved lyric* files.
 
-Does not display songs that have been pre-approved to be in “lyriclessness” state. These are songs we’ve given up our serach on. (todo: verify through testing that pre-approved lyricless songs do not show up here)
+Does not display songs that have been pre-approved to be in “lyriclessness” state. These are songs we’ve given up our search on. (todo: verify through testing that pre-approved lyricless songs do not show up here)
 
 ![image](https://github.com/user-attachments/assets/42fb6e4e-2cea-48e1-bbc8-499454c201ae)
 
@@ -339,6 +347,9 @@ In other words: For our transcribe-while-sleeping process to work with songs we 
 
 Displays the lyric*lessness* status of a song.  This is to track whether we’ve officially given up on our lyric search for a song.  
 
+
+###
+TODO: If you would like to check your progress, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat). It does generate a log file (```lyric-subtitle-compliance.log```) if you are curious to track your progress over time.
 
 
 </details>

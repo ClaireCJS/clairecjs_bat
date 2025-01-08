@@ -1,11 +1,10 @@
 @Echo off
 @on break cancel
 
-call less_important "Erasing trash AI transcription files..."
 
-rem Validate environemnt once per session:
+rem Validate environment once per session:
         iff 1 ne %validated_claitrfi% then
-                call validate-in-path fast_cat important less_important sort uniq insert-before-each-line run-piped-input-as-bat.bat everything 
+                call validate-in-path fast_cat important less_important sort uniq insert-before-each-line.py insert-after-each-line.py run-piped-input-as-bat.bat everything 
                 set validated_claitrfi=1
         endiff
 
@@ -13,30 +12,41 @@ rem Take note of how much was free before we started:
         set FREE_C_BEFORE=%@DISKFREE[c]
 
 rem Delete files that could be anywhere:
-        gosub DeleteEverywhere               *._vad_collected_chunks*.wav
-        gosub DeleteEverywhere               *._vad_collected_chunks*.srt
-        gosub DeleteEverywhere               *._vad_original*.srt
-        gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
-        gosub DeleteEverywhere               *._vad_pyannote_v3.txt
-        gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
-        gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
 
-        goto :skip_1
-                :deleteEverywhere [file]
-                        rem Let us know which filename we are on the hunt for:
-                                set file="%@UNQUOTE[%file]"                                             %+ rem Strip quotes off filename
-                                echos         %ANSI_RESET%``                                            %+ rem Indent this part
-                                call less_important "looking for “%italics_on%%file%%italics_off%”"     %+ rem Indented "looking for {filename}" message
-                                echos %@randfg_soft[]%@randcursor[]
-                        
-                        rem Find all instances of the file [found via everything] we are deleting, pipe to sort-and-uniq to dedupe it, then insert "del-if-exists" [and a quote] before it, a quote after it, then pipe *all that* directly to the command line, then pipe it to fast_cat to fix ansi rendering errors:
-                        rem Be damn sure you know what you’re doing if you change this. Best put an "echo " before the "*del" and test it out if you do.
+        rem If we are mis-using this script for things outside it’s original intention❟ branch to that...
+        rem .....Otherwise❟ do what this script was made for: Cleaning up AI-transcription trash files!
+                if "%1" ne "" goto :unrelated_overloaded_functionality
+                        call less_important "Erasing trash AI transcription files..."
+                        gosub DeleteEverywhere               *._vad_collected_chunks*.wav
+                        gosub DeleteEverywhere               *._vad_collected_chunks*.srt
+                        gosub DeleteEverywhere               *._vad_original*.srt
+                        gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
+                        gosub DeleteEverywhere               *._vad_pyannote_v3.txt
+                        gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
+                        gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
+                if "%1" eq "" goto :DoneDeletingBecauseThisIsANormalInvocation
 
-                                ((((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") |:u8 call run-piped-input-as-bat.bat) |:u8 fast_cat
-                                echos %@randfg_soft[]%@randcursor[]
-                return
-        :skip_1
 
+        rem Here is where we started adding unrelated tasks to this script in an ugly-but-convenient fashion:
+                :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                :unrelated_overloaded_functionality
+
+                
+                        rem Detritus from audit-music-files.py:
+                                if "%1" == "audit-music-files" (
+                                        gosub DeleteEverywhere  RG_fix.bat
+                                        gosub DeleteEverywhere  RG_no.dat
+                                        gosub DeleteEverywhere  RG_no.dat.bak.*
+                                        gosub DeleteEverywhere  RG_yes.dat
+                                        gosub DeleteEverywhere  RG_yes.dat.bak.*
+                                )
+
+                :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
+rem Now❟ back to business as usual:
+        :DoneDeletingBecauseThisIsANormalInvocation
 
 rem Take note of how much was free after we started finished — though these scripts are small, so "megabytes" is too big of a unit for this situation:
         set FREE_C_AFTER=%@DISKFREE[c]
@@ -78,6 +88,22 @@ rem —————————————————————————�
                         if not isdir %dir% (mkdir /s %dir%)
                         if not isdir %dir% (call error.bat "Problem when creating “%italics_on%%dir%%italics_off%”!")
                 return
+
+        rem Delete a file no matter where it exists on all of our harddrives:
+                :deleteEverywhere [file]
+                        rem Let us know which filename we are on the hunt for:
+                                set file="%@UNQUOTE[%file]"                                             %+ rem Strip quotes off filename
+                                echos         %ANSI_RESET%``                                            %+ rem Indent this part
+                                call less_important "looking for “%italics_on%%file%%italics_off%”"     %+ rem Indented "looking for {filename}" message
+                                echos %@randfg_soft[]%@randcursor[]
+                        
+                        rem Find all instances of the file [found via everything] we are deleting, pipe to sort-and-uniq to dedupe it, then insert "del-if-exists" [and a quote] before it, a quote after it, then pipe *all that* directly to the command line, then pipe it to fast_cat to fix ansi rendering errors:
+                        rem Be damn sure you know what you’re doing if you change this. Best put an "echo " before the "*del" and test it out if you do.
+
+                                ((((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") |:u8 call run-piped-input-as-bat.bat) |:u8 fast_cat
+                                echos %@randfg_soft[]%@randcursor[]
+                return
+        :skip_subroutine_definitions
 rem ———————————————————————————————————————————————— SUBROUTINES: END —————————————————————————————————————————————————
 
 :END
@@ -85,5 +111,7 @@ rem —————————————————————————�
 rem Cosmetic resets:
         %COLOR_NORMAL%
         call fix-window-title
+
+
 
 

@@ -235,6 +235,11 @@ Pause::
 !"::Send  "”"        ;      Alt+quote for ”  smart double/normal quotes: right
 ^!"::Send "“”"       ; Ctrl+Alt+quote for “” smart double/normal quotes: both
 ;(normal quote key)  ;          quote for "  default original dumb quote / inches symbol
+
+,::Send   "❟"		;          Comma for “❟” smart comma / fancy unicode comma
+^,::Send  "{U+2C}"	;     Ctrl-Comma for “,” dumb comma / original/normal comma but Windows Terminal overrides this
+!,::Send  "{U+2C}"	;      Alt-Comma for “,” dumb comma / original/normal comma
+^!,::Send "{U+2C}"	; Ctrl-Alt-Comma for “,” dumb comma / original/normal comma
 		      
 ^!0::Send "⁰"        ; Ctrl+Alt+0 for superscript number
 ^!1::Send "¹"        ; Ctrl+Alt+1 for superscript number

@@ -1,5 +1,10 @@
-@Echo Off
+@echo Off
+@set DISABLE_STATUS_BAR=1 %+ rem goatgoatgoatgoat temporary
+@if "1" == "%DISABLE_STATUS_BAR%" goto :The_Very_End
 @on break cancel
+
+
+goto :skip_stuff_1
 
 :DESCRIPTION: Locks a non-scrollable banner message at the top 3 rows of our console menu. Good for keeping track of tasks, percentage complete, etc.
 
@@ -12,6 +17,7 @@
 :USAGE: status-bar "Hi! {freespace}" S: - banner message is a custom message that includes our report of free space on the given drive letter
 :USAGE: set header_noecho=1              - to not echo it to screen in addition to drawing the header 
 
+:skip_stuff_1
 
 rem Capture parameters:
         unset /q        TB_PARAM_1
@@ -35,6 +41,7 @@ rem ENVIRONMENT: Validate the environment:
 
 rem CONFIG: Set message background color & divider:
         set LOCKED_MESSAGE_COLOR_BG=%@ANSI_BG[0,0,64] %+ rem if this is changed, need to change hard-coding in create-srt--from-file.bat
+        echo %@ANSI_BG[0,0,0]>nul
         set LOCKED_MESSAGE_COLOR=%ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG%
         set DOTTIE=%BLINK_ON%%DOT%%BLINK_OFF%
         set DEFAULT_ROWS_TO_LOCK=3                                                              %+ rem the height of our default status bars
@@ -44,11 +51,12 @@ rem CONFIG: Set message background color & divider:
 
 rem Respond to command-line parameters:
         unset /q LOCKED_MESSAGE
+        echos %ANSI_RESET% >nul
         rem Unlock mode:
-                if "%TB_PARAM_1" eq "unlock" (
+                if "%TB_PARAM_1" == "unlock" .or. "1" == "%DISABLE_STATUS_BAR%" (
                         set STATUSBAR_LOCKED=0
                         echos %@ANSI_UNLOCK_ROWS[]
-                        if "%TB_PARAM_2" ne "no_erase" (                        
+                        if "%TB_PARAM_2" ne "no_erase" .and. 1 ne %DISABLE_STATUS_BAR%  (                        
                                 set NN=%ROWS_TO_LOCK%
                                 if defined LAST_ROWS_TO_LOCK set NN=%LAST_ROWS_TO_LOCK%
                                 echo %ansi_save_position%%@CHAR[27][%@EVAL[%_rows - %NN% + 1]H%ansi_reset%%ansi_erase_to_eol%
@@ -56,7 +64,6 @@ rem Respond to command-line parameters:
                                 set repeats=%@EVAL[%nn - %DEFAULT_ROWS_TO_LOCK%]
                                 if %repeats% gt 0 repeat %repeats% echo %ansi_erase_to_eol%
                                 echos %ansi_erase_to_eol%%ansi_restore_position%
-
                         )                        
                         goto :END
                 )
@@ -68,25 +75,27 @@ rem Set free space stuffs:
         set CUSTOM_MESSAGE=0
         set FREE_SPACE_MESSAGE_IS_USED=0
         set USE_JUST_FREE_SPACE_MESSAGE=0
-        iff "%TB_PARAM_1" eq "" then
+        iff "%TB_PARAM_1%" == "" then
                 set USE_JUST_FREE_SPACE_MESSAGE=1
         else
                 set LOCKED_MESSAGE=%@UNQUOTE[%TB_PARAM_1]
                 set CUSTOM_MESSAGE=1
-                iff %@LEN[%TB_PARAM_1] eq 2 .and. "%@INSTR[1,1,%TB_PARAM_1]" eq ":" then
+                rem  %@LEN[%TB_PARAM_1]  eq  2  .and. "%@INSTR[1,1,%TB_PARAM_1]"    eq ":" then
+                iff "%@LEN[%TB_PARAM_1]" == "2" .and. "%@INSTR[2,1,"%TB_PARAM_1%"]" == ":" then
                         set CWDTMP=%TB_PARAM_1 
                         set USE_JUST_FREE_SPACE_MESSAGE=1
                         set FREE_SPACE_MESSAGE_IS_USED=1
-                        iff 0 eq %@READY[%TB_PARAM_1] then
+                        iff "0" == "%@READY[%TB_PARAM_1]" then
                                 set LOCKED_MESSAGE=%ANSI_COLOR_ERROR%Drive %TB_PARAM_1: is not ready 
                                 goto :Display_Message_Now
                         endiff
                 endiff
-                iff %@LEN[%TB_PARAM_2] eq 2 .and. "%@INSTR[1,1,%TB_PARAM_2]" eq ":" then
+                rem  %@LEN[%TB_PARAM_2]     eq  2  .and. "%@INSTR[1,1,%TB_PARAM_2]"   eq ":" then
+                iff "%@LEN["%TB_PARAM_2%"]" == "4" .and. "%@INSTR[2,1,"%TB_PARAM_2"]" == ":" then
                         set CWDTMP=%TB_PARAM_2 
                         set USE_JUST_FREE_SPACE_MESSAGE=0 %+ rem This is tricky, but it should actually be 0 because if PARAM_2 is a drive letter, we're using a custom message
                         set FREE_SPACE_MESSAGE_IS_USED=1
-                        iff 0 eq %@READY[%TB_PARAM_2] then
+                        iff "0" == "%@READY[%TB_PARAM_2]" then
                                 set LOCKED_MESSAGE=%ANSI_COLOR_ERROR%Drive %TB_PARAM_2: is not ready 
                                 goto :Display_Message_Now
                         endiff
@@ -118,8 +127,8 @@ rem Get message length and create side-spacers of appropriate length to center t
         :Display_Message_Now
         set DECORATED_MESSAGE=%dottie% %LOCKED_MESSAGE%%LOCKED_MESSAGE_COLOR% %dottie%
         set LAST_DECORATED_MESSAGE=%DECORATED_MESSAGE%
-                                             SET LOCKED_MESSAGE_LENGTH=%@LEN[%@STRIPANSI[%DECORATED_MESSAGE]]
-        if %FREE_SPACE_MESSAGE_IS_USED eq 1 (SET LOCKED_MESSAGE_LENGTH=%@EVAL[%LOCKED_MESSAGE_LENGTH+2])         
+                                                 SET LOCKED_MESSAGE_LENGTH=%@LEN[%@STRIPANSI[%DECORATED_MESSAGE]]
+        if "%FREE_SPACE_MESSAGE_IS_USED" == "1" (SET LOCKED_MESSAGE_LENGTH=%@EVAL[%LOCKED_MESSAGE_LENGTH+2])         
         rem ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the slash emojis we use twice in our free space message are not correctly measured by %@LEN[] which creates a bug of wrapping the line onto the next line, unless we manually deduct the number of wide emojis {or at least, the # of wide emojis that %@LEN isn't correctly counting!} ... May take some experimentation if you change the free message format
         set NUM_SPACER=%@FLOOR[%@EVAL[(%_COLUMNS-%LOCKED_MESSAGE_LENGTH)/2]]
         if %@EVAL[%num_spacer + %locked_message_length + %num_spacer] ge %@EVAL[%_columns-1] (set num_spacer=%@EVAL[%num_spacer - 1])
@@ -147,6 +156,7 @@ rem Was this multiline?
 
 rem Make cursor invisible:
         if defined ANSI_CURSOR_INVISIBLE echos %ANSI_CURSOR_INVISIBLE%
+        goto :skip_rems_1
         
 
 rem Start with our status bar:
@@ -164,6 +174,7 @@ rem Start with our status bar:
         rem whatever was up there prior.  
         rem
         rem So, to eliminate THAT, we echo 4 blank lines before moving up 4 lines.               vv---- but now we’re trying 5 instead of 4       
+        :skip_rems_1
         set                    adjustment_value=%@EVAL[%rows_to_lock+1                           +1]
         repeat                %adjustment_value% echo.
         echos  %@ANSI_MOVE_UP[%adjustment_value%]%ANSI_SAVE_POSITION%%@CHAR[27][r%@ANSI_MOVE_TO_ROW[%@EVAL[%_rows-%rows_to_lock+1]]
@@ -198,3 +209,19 @@ rem END by restoring the cursor and saving the # of rows we unlocked to the envi
         if defined ANSI_CURSOR_VISIBLE echos %ANSI_CURSOR_VISIBLE%
         set LAST_ROWS_TO_LOCK=%ROWS_TO_LOCK%
 
+
+goto :skip_subroutines
+        :divider []
+                rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
+                set wd=%@EVAL[%_columns - 1]
+                set nm=%bat%\dividers\rainbow-%wd%.txt
+                iff exist %nm% then
+                        *type %nm%
+                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                else
+                        echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                endiff
+        return
+:skip_subroutines
+
+:The_Very_End

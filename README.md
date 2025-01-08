@@ -34,38 +34,38 @@ But here are the proper instructions:
 
 
 
-1. Run (Windows-R) ```PowerShell``` and type in the following 2 commands:```
-        Set-ExecutionPolicy -ExecutionPolicy Bypass
+1. Run (Windows-R) ```PowerShell``` and type in the following 2 commands:
+```        Set-ExecutionPolicy -ExecutionPolicy Bypass
 	Add-AppxPackage -Path "https://aka.ms/getwinget"```
-	The first command allows for better [TCC](http:///www.jpsoft.com)↔PowerShell integration (particularly for my [display bluetooth battery levels](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/display-bluetooth-battery-levels.ps1) script)
-	The second  command installs winget, which is used to automate most other installation.
+	The 1ˢᵗ command allows for better [TCC](http:///www.jpsoft.com)↔PowerShell integration (particularly for my [display bluetooth battery levels](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/display-bluetooth-battery-levels.ps1) script)
+	The 2ⁿᵈ command installs winget, which is used to automate most of the rest of this installation.
 
 1. Install [TCC](http:///www.jpsoft.com): 
     - The automatic way:  Simply run: ```winget install JPSoft.tcmd```
     - The manual way: Download [TCC](http:///www.jpsoft.com) (Take Command command-line) from [http://www.jpsoft.com](http:///www.jpsoft.com) and install it to the NON-DEFAULT location of ```c:\TCMD\```. DON’T run it just yet.  
-    - The worst way: ```url.exe -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0" -O https://jpsoft.com/downloads/v33/tcmd.exe```
+    - The weirdo way: ```url.exe -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0" -O https://jpsoft.com/downloads/v33/tcmd.exe``` (make sure to edit the “v33” in that URL to be the desired version❟ you weirdo)
     
 1. Browse to ```c:\TCMD\```, right-click ```tcc.exe```, go to the *Compatibility* tab, and select ```Run as administrator```.
 
-1. Open [TCC](http:///www.jpsoft.com) (```c:\TCMD\tcc.exe```). Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/clairevironment-install.bat), and run it inside of [TCC](http:///www.jpsoft.com).  Follow its instructions and pay close close close attention. You may have to abort it and fix things along the way. This part hasn’t been tested.
+1. Open [TCC](http:///www.jpsoft.com) (```c:\TCMD\tcc.exe```). Grab [clairevironment-install.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/clairevironment-install.bat), and run it inside of [TCC](http:///www.jpsoft.com).  Follow its instructions and pay close close close attention. You may have to abort it and fix things along the way. This part hasn’t been tested by a 3ʳᵈ party (as of 2025/01/01).
 
 1. Add [TCC](http:///www.jpsoft.com) to Windows Terminal and Run it: 
-    Open up *Windows Terminal*, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click *Add new profile*. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to “[TCC](http:///www.jpsoft.com)”, the command line to ```c:\tcmd\tcc.exe```, the starting directory to ```c:\tcmd```, and *Run As Administrator* turned on. Go into ```Appearance``` and change the font to *Cascadia Code*, which has the proper [ligature rendering](https://github.com/microsoft/cascadia-code#font-features) that I sometimes take advantage of cosmetically.
-    Now run it.
-    A good test for if things worked is typing ```echo %PENTAGRAM%```. Do you see a pentagram character?  If not, you can always try copying my [windows terminal settings file](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json) into your *Windows Terminal* folder.
+    Open up *Windows Terminal*, hit Ctrl-, (yes, control-comma) to go into settings. Scroll to the bottom of the left pane and click *Add new profile*. You can duplicate the PowerShell profile or start a new one.  All you need to do is change the name to “[TCC](http:///www.jpsoft.com)”, the command line to ```c:\tcmd\tcc.exe```, the starting directory to ```c:\tcmd```, and *Run As Administrator* turned on. Go into ```Appearance``` and change the font to *Cascadia Code*, which has the proper [ligature rendering](https://github.com/microsoft/cascadia-code#font-features) that is required to match the desired cosmetics of these scripts.
+    Now run TCC!
+    A good test for if things worked is typing ```echo %PENTAGRAM%```. Do you see a pentagram character?  If not, you can always try copying my [windows terminal settings file](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json) into your *Windows Terminal* folder and seeing what happens. 
 
 1. At your freshly-run [TCC](http:///www.jpsoft.com) command-line, type ```option```, and switch to the *“Advanced”* tab.  In the upper-left is a section called *“Special Characters”*.  Change the separator to “```^```” (the [caret character](https://en.wikipedia.org/wiki/Caret)). 
-    This is actually a deviation from how most people do things, due to the isolation of learning this command-line in the 1980s and 1990s. It creates complications that I’ve mostly mitigated—but not completely. Any mitigations I missed will cause failures unless you do this.
+    This is actually a deviation from how most people do things, due to the isolation of learning this command-line in the 1980s and 1990s. This created past complications that have been mostly mitigated in the present. However❟ any mitigations I missed will cause failures unless you change this one option.
 
 
 # At this point, everything is installed!!! 
 
-### Post-Boot Script configuration: like ‘autoexec.bat’):
+### OPTIONAL: Post-Boot Script configuration: like ‘autoexec.bat’):
 
 1. To have a startup-upon-reboot script akin to the ```autoexec.bat``` of yore, look at [autoexec-common.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/autoexec-common.btm), which is called by my [autoexec.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/autoexec.btm). Install these as a startup script to your current Windows installation with [install-autoexec-launcher-to-startup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/install-autoexec-launcher-to-startup.bat)
 
 
-### Command Line Startup Script: [environm.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/environm.btm) (like ‘.bashrc’):
+### OPTIONAL: Command Line Startup Script: [environm.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/environm.btm) (like ‘.bashrc’):
 
 When [TCC](http:///www.jpsoft.com) opens, it runs [tcstart.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/tcstart.bat) (which should be placed in the ```c:\TCMD``` folder and is only in my BAT-files folder for packaging purposes).  ```tcstart.bat``` then runs [environm.btm](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/environm.btm), which is our main startup script for each command line instance.
 
@@ -114,7 +114,7 @@ When [TCC](http:///www.jpsoft.com) opens, it runs [tcstart.bat](https://github.c
 1. Create a reliable backup plan for important individual folders:
     * Edit [backup-important-folders.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup-important-folders.bat) ` to reference important folders you want backed up. Search for ```MAIN:``` and follow the patterns within. This one calls an individual BAT file for each important-individual-folder that you want to backup. Three examples already exist in the file for *Rogue Legacy 2*, *Xenia*, and *Rocksmith*. Follow the pattern to add more.
 
-1. TODO
+1. TODO? expand this list?
 
 ## Visual customizations you may want
 
@@ -248,8 +248,26 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
 * Use [charge.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/charge.bat) to jokingly rally the troops via [alarm-charge.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/alarm-charge.bat)
 
+### Some scripts that drastically increase scripting power now exist:
+
+1. [all-ready-drives.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/all-ready-drives.bat) can run a command on every single harddrive in your house/LAN
+
+1. [dist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/dist.bat) / [distribute-bat-files-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/distribute-bat-files-to-every-drive.bat) — Updates the ```c:\bat\``` on every single drive letter that has a ```c:\bat\```
+
+1. [backup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup.bat) {*filename*} / [backup-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup-to-every-drive.bat) {*filename*} — Backs up file to the ```c:\backups\``` folder on every single drive letter that has a ```c:\backups\```
+
+1. [run-piped-input-as-bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/run-piped-input-as-bat.bat)
+
+1. insert-before|after-each-line.py/.pl - Utilities to insert text before and after each line. Used to generate-on-the-fly scripts which may also be piped to ```run-piped-input-as-bat```. Substitutes ```{{{{QUOTE}}}}``` into quote marks❟ as well as ```{{{{PIPE}}}}``` to ```|``` and ```{{{{PERCENT}}}}```` to ```%```.  Perl version is 25% faster than Python version❟ but with no emoji capability. Python version is 33% slower than Perl version❟ but is emoji-capable.
+
+1. git wrappers for easier github 
+
+1. 
+
 
 ### More esoteric things you can do:
+
+
 
 1. Tagging music: Displaying & embedding tags (including *album art* and *ReplayGain*) in audio files:
 	* Dipslaying *Tagged Lyrics*: [display-lyrics.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/display-lyrics.bat)
@@ -284,25 +302,6 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 	* **NOT REALLY USED:** [winamp_monitor.py](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/winamp_monitor.py) — logs tracks playing to the screen, to test Python-Winamp functionality
 
 
-### Some scripts that drastically increase scripting power now exist:
-
-1. [all-ready-drives.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/all-ready-drives.bat) can run a command on every single harddrive in your house/LAN
-
-1. [dist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/dist.bat) / [distribute-bat-files-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/distribute-bat-files-to-every-drive.bat) — Updates the ```c:\bat\``` on every single drive letter that has a ```c:\bat\```
-
-1. [backup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup.bat) {*filename*} / [backup-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup-to-every-drive.bat) {*filename*} — Backs up file to the ```c:\backups\``` folder on every single drive letter that has a ```c:\backups\```
-
-1. [run-piped-input-as-bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/run-piped-input-as-bat.bat)
-1. insert-before|after-each-line.py/.pl - Both perl (25% faster) and python (emoji-capable) versions of utilities to insert text before and after each line. Substitutes ```{{{{QUOTE}}}}``` into quote marks. Used to generate-on-the-fly scripts which may also be piped to ```run-piped-input-as-bat```
-
-1. git wrappers todo
-
-1. 
-1. ```.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
-1. ```.bat``` 
 
 
 ## Fun trinkets:

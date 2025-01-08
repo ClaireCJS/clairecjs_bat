@@ -14,4 +14,5 @@ rem Make sure Ctrl-Break actually does something:
 
 rem Unlock any ANSI-locked rows or columns:
         echos %ANSI_UNLOCK_MARGINS%%@ANSI_UNLOCK_ROWS[]
+        rem crates nonzero screen output: call unlock
  

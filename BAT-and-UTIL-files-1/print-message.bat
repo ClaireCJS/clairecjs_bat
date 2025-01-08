@@ -1,3 +1,6 @@
+@rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — BEGIN ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — BEGIN ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — BEGIN ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @Echo Off
 @on break cancel
 set print_message_running=1
@@ -105,14 +108,14 @@ REM Process parameters
 
 REM Validate parameters
     set print_message_running=2
-    if %VALIDATED_PRINTMESSAGE_ENV ne 1 (
+    iff 1 ne %VALIDATED_PRINTMESSAGE_ENV  then
             if not defined COLOR_%TYPE%  (echoerr %ANSI_COLOR_fatal_error%This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment %+ *pause %+ goto :END)
             if not defined MESSAGE       (echoerr %ANSI_COLOR_fatal_error%$0 called without a message %+ *pause %+ go)
             call validate-in-path beep.bat 
             call validate-plugin StripANSI
             call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE EXECUTE_PROTECTION_PAUSES EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING big_top BIG_TOP_ON big_bot BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR STAR STAR2 EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_MAGNIFYING_GLASS_TILTED_LEFT
             set  VALIDATED_PRINTMESSAGE_ENV=1
-    )
+    endiff
 
 
 REM convert special characters
@@ -274,7 +277,7 @@ REM Actually display the message:
                 if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS-16] (set SKIP_DOUBLE_HEIGHT=1)
 
         for %msgNum in (%HOW_MANY%) do (           
-                REM handle pre-message formatting [color/blinking/reverse/italics/faint], based on what type of message and which message in the sequence of repeated messages it is
+                set REM=handle pre-message formatting [color/blinking/reverse/italics/faint], based on what type of message and which message in the sequence of repeated messages it is
 
                 if "%OUR_ANSICOLORTOUSE%" eq "" ( 
                         %OUR_COLORTOUSE% 
@@ -282,11 +285,11 @@ REM Actually display the message:
                         echoserr %OUR_ANSICOLORTOUSE%
                 )                        
 
-                REM handle big mode
+                set REM=handle big mode
                 if "1" == "%BIG_MESSAGE%" .and. "1" == "%FIRST%" .and. "1" !=  "%SECOND%" (echoserr %big_top%)
                 if "1" == "%BIG_MESSAGE%" .and. "1" == "%FIRST%" .and. "1" ==  "%SECOND%" (echoserr %big_bot%)
 
-                REM Special decorators that are only for the message itself, not the header/fooder:
+                set REM=Special decorators that are only for the message itself, not the header/fooder:
 
                 if "%TYPE%"     eq "FATAL_ERROR"      (echoserr %ANSI_RESET%%SPACER_FATAL_ERROR%%ANSI_COLOR_FATAL_ERROR%``)
                 if "%TYPE%"     eq       "ERROR"      (echoserr     ``)
@@ -319,10 +322,10 @@ REM Actually display the message:
                         )
                 )
 
-                REM HACK: Decorators with ">" in them need to be manually outputted here at the last minute to avoid issues with ">" being the redirection character, though setdos could work around this
+                set REM=HACK: Decorators with ">" in them need to be manually outputted here at the last minute to avoid issues with ">" being the redirection character, though setdos could work around this
                         if "%TYPE%" eq "ADVICE" (echoserr `----> `)
 
-                REM actually print the message, unless it’s fatal error line 4 which has special double-height handling:
+                set REM=actually print the message, unless it’s fatal error line 4 which has special double-height handling:
                         if "%TYPE%" eq "FATAL_ERROR" .and. %msgNum == 4  .and. 1 ne %SKIP_DOUBLE_HEIGHT% (
                                 echoserr %ANSI_COLOR_IMPORTANT%   ``
                          ) else (
@@ -330,7 +333,7 @@ REM Actually display the message:
                                 echoserr %DECORATED_MESSAGE%
                          )
 
-                REM handle post-message formatting
+                set REM=handle post-message formatting
                         if "%TYPE%"     eq "SUBTLE"      (echoserr %FAINT_OFF%)
                         if "%TYPE%"     eq "UNIMPORTANT" (echoserr %FAINT_OFF%)
                         if "%TYPE%"     eq "SUCCESS"     (echoserr %BOLD_OFF%)
@@ -339,20 +342,16 @@ REM Actually display the message:
                                 if %msgNum == 2 (echoserr %BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%``)
                         )
 
-                        rem test relying on the ansi_reset below instead: 
-                                rem if  %BIG_HEADER eq    1          (echoserr %BLINK_OFF%)
-                        REM setting color to normal (white on black) and using the erase-to-end-of-line sequence helps with the Windows Termina+TCC bug(?) where a bit of the background color is shown in the rightmost column
-                                echoerr %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
-                        REM But after fixing the bug, we opted to do it this way:
-                                REM echoerr %ANSI_EOL% 
+                        echoerr %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
+                        set REM=are we here? ⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉
         )
 
         REM display our closing big-header, if we are in big-header mode:
                 rem if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%[DECORATOR_RIGHT]****%ANSI_RESET%%ANSI_ERASE_TO_EOL%)
-                if %BIG_HEADER eq 1 (
+                iff %BIG_HEADER eq 1 then
                         echoerr %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
                         echoerr %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
-                )
+                endiff
 
         REM If big mode, go back to print the 2ⁿᵈ/lower-½ line:
                 if "1" == "%BIG_MESSAGE%" .and. "1" !=  "%SECOND%" goto :actually_display-the_message
@@ -429,6 +428,21 @@ REM Hit user with the “pause” prompt several times, to prevent accidental pa
 goto :END
 
 
+goto :skip_subroutines
+        :divider []
+                rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
+                set wd=%@EVAL[%_columns - 1]
+                set nm=%bat%\dividers\rainbow-%wd%.txt
+                iff exist %nm% then
+                        *type %nm%
+                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                else
+                        echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                endiff
+        return
+:skip_subroutines
+
+
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :DemoSuite
                 cls
@@ -469,7 +483,7 @@ goto :END
                 )
 
                 rem      use %MESSAGE_TYPES instead of %MESSAGE_TYPES_WITHOUT_ALIASES to test alias message types:
-                call divider
+                gosub divider
                 for %%clr in (%MESSAGE_TYPES_WITHOUT_ALIASES%) (   
                         set clr4print=%clr%
                         if 1 ne %my_fast (
@@ -484,7 +498,7 @@ goto :END
                         ) else (
                                 rem pause
                                 call print-message %clr "This is a %clr4print message"
-                                call divider
+                                gosub divider                   
                         )
                 )
         goto :END
@@ -503,3 +517,8 @@ if defined PRINTMESSAGE_OPT_SUPPRESS_AUDIO (set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=
 set print_message_running=999999999
 
 
+echo %ANSI_RESET% >nul %+ rem reset the color if we are in echo-on mode
+
+@rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

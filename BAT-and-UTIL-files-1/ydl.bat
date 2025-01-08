@@ -65,8 +65,9 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
      REM BACKUP 20230526 WHILE BUGESTING:
      REM call %YDL% -vU --verbose --write-description --compat-options filename-sanitization -f bestaudio --audio-quality best --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
      REM call %YDL% -vU --verbose --write-description                                                                                           --add-metadata --embed-metadata                                --sub-langs en "%URL%"
+     rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt         --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         @echo on
-         call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
+         call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser opera     --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         @Echo off
          rem we don’t call errorlevel because %YDL% returns an errorlevel even when successful
          REM removed --embed-thumbnail: messes up workflow this that extra file: PLUS it made: ERROR: Postprocessing: Supported filetypes for thumbnail embedding are: mp3, mkv/mka, ogg/opus/flac, m4a/mp4/mov 

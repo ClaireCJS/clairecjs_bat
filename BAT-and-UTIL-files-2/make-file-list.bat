@@ -1,9 +1,9 @@
 @on break cancel
-@Echo off
+@Echo Off
 
 
     rem LET USER KNOW:
-        call less_important "Making file list..."
+        echo %@ansi_move_to_col[0]%ansi_color_important%%star% Making file list..
 
 
     rem ::::: DECIDE IF SLOW OR QUICK OR DIR:

@@ -8,7 +8,7 @@ goto :init
 
 :usage
 echo.
-call divider
+gosub divider
 %COLOR_ADVICE%
 set //UnicodeOutput=yes
 text
@@ -56,7 +56,7 @@ endtext
 %COLOR_NORMAL%
 if not defined DefaultUnicodeOutput set DefaultUnicodeOutput=no
 set //UnicodeOutput=%DefaultUnicodeOutput%
-call divider
+gosub divider
 return
 
 
@@ -65,11 +65,16 @@ return
 
 
 rem Get parameters:
-        set   File_To_Change_Tag_Of=%@unquote[%@trueNAME[%@UNQUOTE[%1]]]   %+ rem file to use 
-        set TAG_TO_MODIFY=%@UNQUOTE[%2]                                    %+ rem tag to use
-        set     TAG_VALUE=%@UNQUOTE[%3]                                    %+ rem value to set tag to, or "read" to return the value in %RETRIEVED_TAG%
-        set       PARAM_4=%4                                               %+ rem "verbose" if you want on-screen verification of what's happeneing
-        set       PARAM_5=%@UNQUOTE[%5]                                    %+ rem  Verb to use in verbose output ("set", "deleted", "marked", "read", etc)
+        set   File_To_Change_TagOOF=%@unquote[%@trueNAME["%@UNQUOTE["%1"]"]]               %+ rem file to use but %@TRUENAME[] fails on ;
+        set   File_To_Change_Tag_Of=%@unquote[%@truename["%@replace[;,%%%%@char[59],%1]"]] %+ rem file to use that works with ; 
+
+        set TAG_TO_MODIFY=%@UNQUOTE["%2"]                                      %+ rem tag to use
+        set     TAG_VALUE=%@UNQUOTE["%3"]                                      %+ rem value to set tag to, or "read" to return the value in %RETRIEVED_TAG%
+        set       PARAM_4=%4                                                   %+ rem "verbose" if you want on-screen verification of what's happeneing
+        set       PARAM_5=%@UNQUOTE["%5"]                                      %+ rem  Verb to use in verbose output ("set", "deleted", "marked", "read", etc)
+
+        rem   File_To_Change_Tag_Of  is “%File_To_Change_Tag_Of%” 
+        rem   File_To_Change_Tag_Of2 is “%File_To_Change_Tag_Of2%” 
 
 
 rem Validate environment once:
@@ -81,14 +86,15 @@ rem Validate environment once:
         endiff
 
 rem Validate parameters every time:
-        iff "%@RegEx[[\*\?],%File_To_Change_Tag_Of%]" eq "1" then
+        iff "%@RegEx[[\*\?],"%@unquote["%File_To_Change_Tag_Of%"]"]" eq "1" then
                 call warning "Cannot use %0 on wildcards for 1ˢᵗ parameter!"
                 goto :END
         endiff
         if "%1" EQ "" (gosub :usage %+ goto :END)
         rem add-ADS-tag-to-file "2_08_Ikon - The Ballad Of Gilligan's Island.txt" "lyrics" read lyrics skip_validatoins
         if "%5" eq "skip_validations" (goto :skip_validations_1)
-        if not exist "%@UNQUOTE[%File_To_Change_Tag_Of%]" call validate-environment-variable  File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
+        rem if not exist "%@UNQUOTE["%File_To_Change_Tag_Of%"]" call validate-environment-variable  File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
+        if not exist "%@UNQUOTE["%File_To_Change_Tag_Of%"]" call validate-environment-variable  File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
         call validate-environment-variables Tag_To_Modify Tag_Value              
         rem call validate-environment-variable Tag_To_Modify          "2ⁿᵈ argument to %0 must a tag, NOT empty"
         rem call validate-environment-variable Tag_Value              "3ʳᵈ argument to %0 must a value, or 'read' ... NOT empty"
@@ -203,7 +209,7 @@ goto :END
                 rem Initialize values                        
                         set tmp_tag=%[TAG_TO_MODIFY]
                         set tmp_file2use=%[File_To_Change_Tag_Of]
-                        set ext2=%@EXT[%tmp_file2use]
+                        set ext2=%@unquote[%@EXT["%tmp_file2use"]]
                         set tmp_emoji2use=%CHECK%           
 
                 rem DEBUG: echo [verbose=%verbose,brief_mode=%brief_mode%,lyric_mode=%lyric_mode%]
@@ -269,9 +275,9 @@ goto :END
                                         rem tag_to_modify=%tag_to_modify% 🐐
                                         set hide_status=0
                                         iff "%tag_to_modify%" eq "lyriclessness" then
-                                                set our_maybe_subtitle_1=%@NAME[%tmp_file2use].lrc
-                                                set our_maybe_subtitle_2=%@NAME[%tmp_file2use].srt
-                                                set our_maybe_lyrics=%@NAME[%tmp_file2use].txt
+                                                set our_maybe_subtitle_1=%@unquote[%@NAME["%tmp_file2use%"]].lrc
+                                                set our_maybe_subtitle_2=%@unquote[%@NAME["%tmp_file2use%"]].srt
+                                                set our_maybe_lyrics=%@unquote[%@NAME["%tmp_file2use%"]].txt
                                                 iff     exist "%our_maybe_subtitle_1%" .or. exist "%our_maybe_subtitle_2%" then
                                                         set EXTRA=%ansi_color_bright_green%Has karaoke! %ansi_color_normal%
                                                         set hide_status=0
@@ -310,12 +316,28 @@ goto :END
                                         else                                                
                                                 echos  %tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use%
                                         endiff
-                                        echos %value_spacer_post% for %@ansi_fg_rgb[182,118,182]%@ext[%tmp_file2use%]%ansi_color_reset%: %@IF[%@len[%@ext[%tmp_file2use%]] lt 4, ,]%faint_on%%italics_on%
+                                        echos %value_spacer_post% for %@ansi_fg_rgb[182,118,182]
+                                        echos %@ext["%tmp_file2use%"]
+                                        echos %ansi_color_reset%: %@IF[%@len[%@ext[%tmp_file2use%]] lt 4, ,]%faint_on%%italics_on%
                                         if 0 ne %ADSTAG_DISPLAY_FOR_PATH% echos %@path[%tmp_file2use%]
-                                        echo %@name[%tmp_file2use%].%faint_off%%italics_off%%@ansi_fg[124,124,124]%@ext[%tmp_file2use%]%faint_off%%italics_off%%conceal_on%orange42%conceal_off%
+                                        echos %@unquote[%@name["%tmp_file2use%"]]
+                                        echo .%faint_off%%italics_off%%@ansi_fg[124,124,124]%@ext[%tmp_file2use%]%faint_off%%italics_off%%conceal_on%orange42%conceal_off%
                                 endiff
                         endiff
         return
 
 :END
 
+goto :skip_subroutines
+        :divider []
+                rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
+                set wd=%@EVAL[%_columns - 1]
+                set nm=%bat%\dividers\rainbow-%wd%.txt
+                iff exist %nm% then
+                        *type %nm%
+                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                else
+                        echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                endiff
+        return
+:skip_subroutines

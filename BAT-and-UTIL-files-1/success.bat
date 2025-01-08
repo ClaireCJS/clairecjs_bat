@@ -1,10 +1,10 @@
 @Echo OFF
 @on break cancel
 
-set MSG=%*
-if "%1" eq "" set MSG=*** Success!!! ***
+set MSG=%@UNQUOTE[%*]
+if "%1" == "" set MSG=*** Success!!! ***
 
-call print-message success %MSG%
+call print-message success "%MSG%"
 goto :END
 
             :LEGACY

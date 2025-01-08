@@ -1,4 +1,4 @@
-@Echo Off
+@Echo OFF
 @on break cancel
 
 :USAGE: get-karaoke {songfile}

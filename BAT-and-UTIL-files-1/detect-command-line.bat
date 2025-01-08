@@ -5,6 +5,7 @@
 rem           This one was tough to write, because it needs to run in all those command lines as well. Nigh impossible, but this is close.
 
 
+setdos /x0
 
 set ECHO=REM
 

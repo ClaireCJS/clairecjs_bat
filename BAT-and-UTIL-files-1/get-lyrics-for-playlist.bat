@@ -25,3 +25,17 @@ rem GRAB + VALIDATE PARAMETER IS A M3U/TXT file:
         call check-for-missing-lyrics.bat "%FILELIST_TO_USE%" get %2$
          
 :END        
+
+goto :skip_subroutines
+        :divider []
+                rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
+                set wd=%@EVAL[%_columns - 1]
+                set nm=%bat%\dividers\rainbow-%wd%.txt
+                iff exist %nm% then
+                        *type %nm%
+                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                else
+                        echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                endiff
+        return
+:skip_subroutines

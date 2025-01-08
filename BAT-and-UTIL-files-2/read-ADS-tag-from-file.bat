@@ -13,7 +13,7 @@ goto :init
 
 :usage
 echo.
-call divider
+gosub divider
 %COLOR_ADVICE%
 set //UnicodeOutput=yes
 echo.
@@ -32,7 +32,7 @@ echo :USAGE:         Mode catered to lyric files
 echo. 
 echo.
 %COLOR_NORMAL%
-call divider
+gosub divider
 if not defined DefaultUnicodeOutput set DefaultUnicodeOutput=no
 set //UnicodeOutput=%DefaultUnicodeOutput%
 return
@@ -44,8 +44,8 @@ rem Usage:
         if "%1" EQ "" (gosub :usage %+ goto :END)
 
 rem Get parameters:
-        set FILE_TO_USE=%@UNQUOTE[%1]                                           %+ rem file to use 
-        set TAG_TO_READ=%@UNQUOTE[%2]                                           %+ rem ads tag to display
+        set FILE_TO_USE=%@UNQUOTE["%1"]                                         %+ rem file to use 
+        set TAG_TO_READ=%@UNQUOTE["%2"]                                         %+ rem ads tag to display
         set               PARAM_3=%3                                            %+ rem "verbose" if you want MORE on-screen verification of what’s happeneing
         set              PARAMS_3=%3$                                           %+ rem rest of the command tail
 
@@ -76,3 +76,16 @@ rem Read tag:
         rem endiff
 :END
 
+goto :skip_subroutines
+        :divider []
+                rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
+                set wd=%@EVAL[%_columns - 1]
+                set nm=%bat%\dividers\rainbow-%wd%.txt
+                iff exist %nm% then
+                        *type %nm%
+                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                else
+                        echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                endiff
+        return
+:skip_subroutines

@@ -1,4 +1,4 @@
-@Echo Off
+@Echo OFF
 @setdos /x0
 rem @on break cancel
 rem @setlocal
@@ -156,9 +156,9 @@ rem and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_
         
         
 rem If we have reached our limit, stop processing        
-        if %ANY_BAD gt 0 repeat 5 echo.
+        if %ANY_BAD gt 0 repeat 4 echo.
         iff 1 eq %limit_reached then
-                repeat 4 call beep.bat highest
+                repeat 1 call beep.bat highest
                 call bigecho "%ansi_color_warning_soft%%check%   Limit of: %italics_on%%blink_on%%@formatn[3.0,%LIMIT%]%blink_off%%italics_off% files %ansi_color_success%reached%ansi_color_normal%"
         else                
                 repeat 1 call beep.bat highest
@@ -169,7 +169,8 @@ rem Display post-processing statistics:
         iff %num_processed eq 0 then
                 echo.
                 echo.
-                call warning "No files were processed here!"
+                call warning "No files were processed here!" silent
+                echo %ansi_reset% >nul
                 echo.
                 echo.
         else
@@ -185,6 +186,7 @@ rem Display post-processing statistics:
                 ) else (
                         set clean_formatted_percent=%formatted_percent%
                 )
+                echo ━━━━━━━━━━━━━━━━━━ Current dir is %_CWD ━━━━━━━━━━━━ >nul
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%  Processed: %italics_on%%@FORMATn[3.0,%NUM_PROCESSED%]%italics_off% songs 
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located: %ansi_color_red%%@FORMATn[3.0,%NUM_BAD%]%ansi_color_bright_green% songs needing %findNature% attention
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK% Compliance: %@ANSI_RGB[%our_r%,%our_g%,%our_b%]%@formatn[3.1,%clean_formatted_percent%]%cool_percent%
@@ -206,11 +208,11 @@ rem Create the fix-script, if there are any to fix:
                 echo.                                                  >>:u8 "%TARGET_SCRIPT"      %+ rem get-missing-lyrics script: cosmetics:  script starts with a blank line
                 rem echo goto :skip_subs                               >>:u8 "%TARGET_SCRIPT"
                 rem echo         :process [file]                       >>:u8 "%TARGET_SCRIPT"
-                rem echo                 repeat 13 echo.               >>:u8 "%TARGET_SCRIPT"
+                rem echo                 repeat 8  echo.               >>:u8 "%TARGET_SCRIPT"
                 rem echo                 setdos /x-4                   >>:u8 "%TARGET_SCRIPT"
                 rem echo                 echo call get-lyrics %%file%% >>:u8 "%TARGET_SCRIPT"
                 rem echo                 setdos /x0                    >>:u8 "%TARGET_SCRIPT"
-                rem echo                 call divider                  >>:u8 "%TARGET_SCRIPT"
+                rem echo                 call  divider                 >>:u8 "%TARGET_SCRIPT"
                 rem echo         return                                >>:u8 "%TARGET_SCRIPT"
                 rem echo :skip_subs                                    >>:u8 "%TARGET_SCRIPT"
                 echo @setdos /x0                                       >>:u8 "%TARGET_SCRIPT"
@@ -221,14 +223,14 @@ rem Run the fix-script, if we have decided to:
                         rem title "Fetching lyrics!"
                         echos %@CHAR[27][%[_rows]H %+ rem Move to bottom of screen
                         repeat 3 echo.
-                        call divider
+                        gosub divider
                         echo.
-                        call divider
+                        gosub divider
                         echo.
                         echos %@ANSI_MOVE_UP[3]%ANSI_CURSOR_VISIBLE%
                         echos %@ANSI_CURSOR_COLOR_BY_WORD[yellow]                                  %+ rem Impotent because cursor color is set in pause-for-x-seconds anyway!
                         echos %ansi_color_green%Going to find those missing %findNature% now!%ansi_color_bright_Red%%blink_on%
-                        sleep 4
+                        sleep 1
                         echos %CURSOR_RESET%
                         echos %blink_off%
                         rem echo type "%TARGET_SCRIPT%" %+ type "%TARGET_SCRIPT%"                  %+ rem Debug
@@ -245,8 +247,9 @@ rem —————————————————————————�
         
         goto :process_file_end                                                                     %+ rem Skip over subroutines
              :process_file [CFML_AudioFile]
-                        rem echo %ANSI_COLOR_DEBUG%- DEBUG: Processing file: %CFML_AudioFile% %ANSI_COLOR_NORMAL% 🐞                     
-                        
+                        rem “Processing file: ”
+                                rem @echo %ANSI_COLOR_DEBUG%- DEBUG: Processing file: “%CFML_AudioFile%” %ANSI_COLOR_NORMAL% 🐞 
+
                         rem Get our filenames (pretty messed up what you have to do to get a file like “whatever .mp3” with a space before the extension to work!):
                                 setdos /x-4
                                 set unquoted_audio_file=%@UNQUOTE[%CFML_AudioFile%]``
@@ -255,6 +258,13 @@ rem —————————————————————————�
                                 set audio_file_name=%@unquote[%@name[%unquoted_audio_file_full%``]``]``
                                 set audio_file_path=%@unquote[%@path[%unquoted_audio_file_full%``]``]``
 
+                        rem Return if the file doesn’t exist:
+                                iff not exist "%unquoted_audio_file%" then
+                                        echo %ansi_color_alarm%%blink_on% file doesn’t exist: “%unquoted_audio_file%”%ansi_color_normal%%blink_off%
+                                        setdos /x0
+                                        return
+                                endiff
+                        
                         rem Debug stuff:
                                 goto :nope_1
                                         echo 🐞 %ansi_color_purple%CFML_AudioFile          =%CFML_AudioFile%%ansi_color_normal% 🐞 
@@ -314,8 +324,8 @@ rem —————————————————————————�
                         rem Check if the lyrics files already exists, and if so, then check if it is pre-approved:
                         rem (Unless we are in karaoke mode, then we don’t care about the lyric files)
                                 iff 1 ne %GET_KARAOKE then
-                                        iff exist "%txtfile%" then                                                                                          %+ rem If the lyric file exists, we must check if it is approved
-                                                rem DEBUG: call debug "Textfile %txtfile% already exists"
+                                        iff exist "%[txtfile]" then                                                                                         %+ rem If the lyric file exists, we must check if it is approved
+                                                set rem=DEBUG: call debug "Textfile %txtfile% already exists"
                                                 set TXT_EXISTS=1                                                                                            %+ rem If the lyric file exists, flag the situation as such
                                                 set coloring=%ansi_color_bright_green%                                                                      %+ rem If the lyric file exists, draw debug info in green
                                                 set         LYRIC_APPROVAL_VALUE=%@ExecStr[TYPE  <"%txtfile%:lyrics"  >&>nul]                               %+ rem If the lyric file exists, get it’s approval status
@@ -327,7 +337,7 @@ rem —————————————————————————�
                                                         set coloring2=%ansi_color_bright_red%                                                               %+ rem    ...set the color to an alarming "angry" color
                                                 endiff                                                                                                      
                                         else                                                                                                                %+ rem If the lyrics don’t exist at all,
-                                                rem DEBUG: call debug "Textfile “%txtfile%” DOES NOT EXIST"                                                        
+                                                set rem=DEBUG: call debug "Textfile “%txtfile%” DOES NOT EXIST"                                                        
                                                 set TXT_EXISTS=0                                                                                            %+ rem    ...set a flag storing this fact
                                                 set coloring=%ansi_color_bright_black%                                                                      
                                                 set coloring2=%ansi_color_bright_black%                                                                     
@@ -370,7 +380,8 @@ rem —————————————————————————�
                                               rem echo gosub process "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
                                               setdos /x-4
                         
-                                              echo repeat 9 echo. `%`+ if exist "%unquoted_audio_file%" call %GETTER% "%unquoted_audio_file%" %ETC% `%`+ call divider >>:u8"%tmpfile_cfml_1%"
+                                              echo repeat 7 echo. `%`+ if exist "%unquoted_audio_file%" .and. not exist "%@unquote[%@name["%unquoted_audio_file%"]].txt" call %GETTER% "%unquoted_audio_file%" %ETC% `%`+ call  divider >>:u8"%tmpfile_cfml_1%"
+                                              rem we added the and not exist part right here --------------------^^^^^^^^ for genius mode, TODO consider whether that should also be there during normal mode or not. After we do our full-collection genius-only download, this should emergently become more apparant
                                               setdos /x0
                                                     
                                 endiff                        
@@ -391,3 +402,15 @@ rem —————————————————————————�
         rem endlocal        
 
 
+        goto :skip_subs_cfml
+                :divider []
+                        set wd=%@EVAL[%_columns - 1]
+                        set nm=%bat%\dividers\rainbow-%wd%.txt
+                        iff exist %nm% then
+                                *type %nm%
+                                if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                        else
+                                echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                        endiff
+                return
+        :skip_subs_cfml

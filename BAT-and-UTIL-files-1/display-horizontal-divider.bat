@@ -5,6 +5,13 @@ rem setdos /c^
 setdos /c%default_command_separator_character%
 setdos /x0
 
+
+rem QUICK VERSION:        :divider []
+rem QUICK VERSION:                *type %bat%\dividers\rainbow-%@EVAL[%_columns - 1].txt
+rem QUICK VERSION:        return
+
+
+
 rem :USAGE: "Divider"      to draw a horizontal divider using the default character repeated
 rem :USAGE: "Divider 50 nonewline"   ^^^^ same as above, but leave us dangling right at the last drawn character; no newline or moving back to column 0
 rem :USAGE:
@@ -31,6 +38,8 @@ rem CONFIGURATION:
         set DEFAULT_DIVIDER==
         rem                 ^ our default divider is '=', the equal symbol
 
+
+rem quick: type %bat%\dividers\rainbow-%@EVAL[%_columns - 1].txt
 
 
 

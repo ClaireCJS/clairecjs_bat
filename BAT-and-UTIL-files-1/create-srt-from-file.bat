@@ -1,4 +1,4 @@
-@Echo Off
+@Echo OFF
 @setdos /x0
 @on break cancel
 echo **** create-srt-from-file.bat called **** 🌭🌭🌭 GOAT
@@ -122,11 +122,11 @@ REM values set from parameters:
 
 
 REM Pre-run announce:
-        call  divider
+        gosub divider
         call  bigecho "%STAR% Creating karaoke for %left_quotes%%@ansi_rgb[170,170,244]%italics_on%%songfile%%italics_off%%ansi_color_normal%”"
 
 REM Pre-run header:
-        rem got 2 in a row so removed this 2024/12/11: call  divider
+        rem got 2 in a row so removed this 2024/12/11: gosub divider
         echos %ansi_color_unimportant%
         timer /5 on >nul                     %+ rem Let’s time the overall process
         unset /q LYRIC_ATTEMPT_MADE
@@ -307,7 +307,7 @@ REM display debug info
         :Retry_Point
         :solely_by_ai_jump1
         if %DEBUG gt 0 echo %ansi_color_debug%- DEBUG: (8)%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE=“%ITALICS_ON%%SONGBASE%%ITALICS_OFF%”%NEWLINE%%TAB%%TAB%LRC_FILE=“%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%”, %NEWLINE%%TAB%%TAB%TXT_FILE=“%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%”%FAINT_OFF%%ansi_color_normal%
-        call  divider
+        gosub divider
                                gosub say_if_exists SONGFILE
                                gosub say_if_exists SRT_FILE
                                gosub say_if_exists LRC_FILE
@@ -322,7 +322,7 @@ REM Now, let’s check these values:
         iff exist "%@UNQUOTE[%MAYBE_SRT_1%]" .or. exist "%@UNQUOTE[%MAYBE_SRT_2%]" then
                 if exist "%@UNQUOTE[%MAYBE_SRT_2%]" set found_subtitle_file=%@UNQUOTE["%MAYBE_SRT_2%"]
                 if exist "%@UNQUOTE[%MAYBE_SRT_1%]" set found_subtitle_file=%@UNQUOTE["%MAYBE_SRT_1%"]
-                call divider
+                gosub divider
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
                 call bigecho      "%ansi_color_warning_soft%%star2%Already have!%ansi_reset%"
                 call warning_soft "Pre-existing subtitles found in lyric repository at: “%emphasis%%italics_on%%found_subtitle_file%%deemphasis%%italics_off%”" silent
@@ -383,7 +383,7 @@ REM If our input file is lyricless and we’ve approved its lyriclessness, then 
 REM if we already have a SRT file, we have a problem:
         iff exist "%SRT_FILE%" .and. %OKAY_THAT_WE_HAVE_SRT_ALREADY ne 1 .and. %SOLELY_BY_AI ne 1 then
                 iff exist "%TXT_FILE%" .and. %@FILESIZE["%TXT_FILE%"] gt 0 then
-                        rem @call divider
+                        rem @gosub divider
                         rem call bigecho %STAR% %ANSI_COLOR_IMPORTANT_LESS%Review the lyrics:%ANSI_RESET%
                         rem @echos %ANSI_COLOR_BRIGHT_YELLOW%
                         rem (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
@@ -391,13 +391,13 @@ REM if we already have a SRT file, we have a problem:
                         iff %@FILESIZE["%TXT_FILE%"] lt 5 then
                                 echo         %ANSI_COLOR_WARNING%Hmm. Nothing there.%ANSI_RESET%
                         endiff
-                        @call divider
+                        @gosub divider
                 endiff
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
                 @call bigecho %ansi_color_warning% %emoji_warning% Already have karaoke! %emoji_warning% %ansi_color_normal%
                 @call warning "We already have a file created: %emphasis%%srt_file%%deemphasis%"
                 call review-subtitles "%srt_file%"
-                call divider
+                gosub divider
                 iff %SOLELY_BY_AI eq 1 then
                         @call advice "Automatically answer the next prompt as Yes by adding the parameter “force-regen” or “redo”"
                         iff exist "%TXT_FILE%" then
@@ -534,7 +534,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 rem This seems inapplicable now (2024/12/11): @echo %ansi_color_warning_soft%%star% Not yet generating %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning_soft% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning_soft% does not exist!%ansi_color_normal%
                 rem Let’s save this for our usage response: @echo %ansi_color_advice%`---->` Use “%italics_on%force%italics_off%” option to override.
                 rem Let’s save this for our usage response: @echo %ansi_color_advice%`---->` Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!
-                rem Don’t need this (2025/01/04) because get-lyrics-for-song calls its own divider: call divider
+                rem Don’t need this (2025/01/04) because get-lyrics-for-song calls its own divider: gosub divider
                 iff %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST gt 0 then
                     call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
                 endiff
@@ -551,13 +551,13 @@ rem Mandatory review of lyrics
         iff exist "%TXT_FILE%" .and. %@FILESIZE["%TXT_FILE%"] gt 0 then
                 rem Deprecating this section which is redundant because it’s done in get-lyrics:
                 iff 0 == 1 then
-                        rem @call divider
+                        rem @gosub divider
                         rem @call less_important "[REDUNDANT?] Review the lyrics now:"
-                        rem @call divider
+                        rem @gosub divider
                         rem @echos %ANSI_COLOR_GREEN%
                         rem (type "%TXT_FILE%" |:u8 unique-lines -A -L) |:u8 print-with-columns
                         call review-file "%TXT_FILE%" "Review the lyrics now"
-                        @call divider
+                        @gosub divider
                         @call AskYn "[REDUNDANT?] Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                         iff "%ANSWER%" == "N" then
                                 %color_removal%
@@ -756,7 +756,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         if exist "%SRT_FILE%" (ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak")
         
         :actually_make_the_lrc
-        call divider
+        gosub divider
         @echos %STAR% %ANSI_COLOR_WARNING_SOFT%%blink_on%About to: %blink_off%
         @echo  %LAST_WHISPER_COMMAND%%ansi_color_reset% 
         @call AskYn "Proceed with this AI generation" yes %PROMPT_CONSIDERATION_TIME%
@@ -810,7 +810,7 @@ REM set a non-scrollable header on the console to keep us from getting confused 
             rem pause
         endiff
         rem note: %@ANSI_BG[0,0,64] is copied from status-bar.bat to match the background color used there
-        call divider %+ set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%%ansi_color_normal%%@ANSI_BG[0,0,64]AI–Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%“%italics_on%%FILE_TITLE%%italics_off%” %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
+        gosub divider %+ set banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%%ansi_color_normal%%@ANSI_BG[0,0,64]AI–Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%“%italics_on%%FILE_TITLE%%italics_off%” %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%
         rem BRING BACK AFTER I FIX THE BANNER: call top-banner "%banner_message%"
         rem instead do this temporarily: call important "%banner_message%"
         rem It’s looking more like THIS is what you want:
@@ -900,11 +900,11 @@ rem Remove periods from the end of each line in the SRT, but preserve them if at
         rem echo "About to remove invisible periods" %+ pause
         
         rem When we had headers, we needed to do this:
-                rem call divider
+                rem gosub divider
         rem But now that we switched to status-bar/footers, i noticed that we end up on the 3ʳᵈ  line of the footer
-        rem after footer unlock. The way I noticed this was that calling ’divider’ up above overwrote the status bar
+        rem after footer unlock. The way I noticed this was that gosub'ing ’divider’ up above overwrote the status bar
         rem divider with our own, which had an incongruent background color, which made me realize the bottom divider
-        rem line of the status-bar was being overrwritten with our “call divider” from above.  So we changedi t
+        rem line of the status-bar was being overrwritten with our “call  divider” from above.  So we changedi t
         rem and instead of calling divider, we simply move one line down. The divider is already there.
         rem NOTE: that this may change after we update unlock-bot to clean off the footer after unlocking.
         rem NOTE:      Currently, this implementation is slated to be a temporary cosmetic fix that will likely breka later
@@ -957,22 +957,36 @@ rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////
 goto :Cleanup
 
 
+rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
 
-            :say_if_exists [it]
-                    if not defined %[it] (@call error "say_if_exists called but “%it%” is not defined")
-                    set filename=%[%[it]]
-                    iff exist %filename then
-                            set BOOL_DOES=1 %+ set does_punctuation=: %+ set does=%BOLD%%UNDERLINE%%italics%does%italics_off%%UNDERLINE_OFF%%BOLD_OFF%    ``
-                    else
-                            set BOOL_DOES=0 %+ set does_punctuation=: %+ set does=does %FAINT%%ITALICS%%blink%not%blink_off%%ITALICS_OFF%%FAINT_OFF%
-                    endiff
-                    %COLOR_IMPORTANT_LESS%
-                            if %BOOL_DOES eq 0 (set DECORATOR_ON=  %strikethrough% %+ set DECORATOR_OFF=%strikethrough_off%)
-                            if %BOOL_DOES eq 1 (set DECORATOR_ON=%PARTY_POPPER%%faint_off%    %+ set DECORATOR_OFF=%PARTY_POPPER%     )
-                            @echos * %@FORMAT[11,%it%] %does% exist%does_punctuation% %FAINT%%decorator_on% %filename% %decorator_off%%FAINT_OFF%
-                    %COLOR_NORMAL%
-                    @echo.
-            return
+        :say_if_exists [it]
+                if not defined %[it] (@call error "say_if_exists called but “%it%” is not defined")
+                set filename=%[%[it]]
+                iff exist %filename then
+                        set BOOL_DOES=1 %+ set does_punctuation=: %+ set does=%BOLD%%UNDERLINE%%italics%does%italics_off%%UNDERLINE_OFF%%BOLD_OFF%    ``
+                else
+                        set BOOL_DOES=0 %+ set does_punctuation=: %+ set does=does %FAINT%%ITALICS%%blink%not%blink_off%%ITALICS_OFF%%FAINT_OFF%
+                endiff
+                %COLOR_IMPORTANT_LESS%
+                        if %BOOL_DOES eq 0 (set DECORATOR_ON=  %strikethrough% %+ set DECORATOR_OFF=%strikethrough_off%)
+                        if %BOOL_DOES eq 1 (set DECORATOR_ON=%PARTY_POPPER%%faint_off%    %+ set DECORATOR_OFF=%PARTY_POPPER%     )
+                        @echos * %@FORMAT[11,%it%] %does% exist%does_punctuation% %FAINT%%decorator_on% %filename% %decorator_off%%FAINT_OFF%
+                %COLOR_NORMAL%
+                @echo.
+        return
+
+
+        :divider []
+                rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
+                set wd=%@EVAL[%_columns - 1]
+                set nm=%bat%\dividers\rainbow-%wd%.txt
+                iff exist %nm% then
+                        *type %nm%
+                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                else
+                        echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                endiff
+        return
 
 
 rem ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1016,7 +1030,7 @@ rem Cleanup:
 
 
 rem Success SRT-generation message:
-        @call divider
+        @gosub divider
         @call success "%blink_on%Karaoke created%blink_off% at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%" 
         title %check% %BASE_TITLE_TEXT% generated successfully! %check% 
         if %SOLELY_BY_AI eq 1 (call warning_soft "%double_underline_on%%italics_on%ONLY%italics_off%%double_underline_off% AI was used. Lyrics were %underline_on%%italics_on%not%italics_off%%underline_off% used for transcription prompting." silent)
@@ -1030,13 +1044,13 @@ rem A chance to edit:
                 iff not exist "%TXT_FILE%" .or. %@FILESIZE["%TXT_FILE%"] eq 0 then
                         echo %ansi_color_warning_soft%%star% Lyrics were approved but can’t find “%italics_on%%TXT_FILE%%italics_on%”%ansi_reset%
                 else
-                        rem @call divider
+                        rem @gosub divider
                         rem @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Lyrics%underline_off%:
                         rem (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns
                         call review-file "%TXT_FILE%" "Lyrics"
                 endiff
         endiff
-        @call divider
+        @gosub divider
         @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Transcription%underline_off%:
         echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]
         rem dislike doing this, but it’s for consistency with print_with_columns.py not having a blank there: @echo. %+ rem .... i just REALLY want one on this and the one before just this time haha
@@ -1052,12 +1066,12 @@ rem A chance to edit:
         if defined TOCK (echos %TOCK%) %+ rem nickname for fancy ansi-reset
 
 rem Full-endeavor success message:
-        @call divider
+        @gosub divider
         call approve-subtitle-file "%SRT_FILE%"
-        @call divider
+        @gosub divider
         @call success "%bold_on%“%bold_off%%italics_on%%SRT_FILE%%italics_off%” generated successfully!" big
         title %CHECK% %SRT_FILE% generated successfully! %check%             
-        @call divider
+        @gosub divider
         @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case there were mistakes above]%faint_off%" no %EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME% notitle
         iff "%ANSWER" == "Y" then
                 rem @echo %ANSI_COLOR_DEBUG%- DEBUG: %EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%

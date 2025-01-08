@@ -12,7 +12,7 @@ readalias=realias
 ;;;;;;;;;;;;; UNKNOWN COMMAND STUFF: ;;;;;;;;;;;;;
 ;;;;;;;;;;;;; UNKNOWN COMMAND STUFF: ;;;;;;;;;;;;;
 
-UNKNOWN_CMD=set PAUSE_WINDOW_TITLE=❌ ERR: %0$ %1$ ❌ %+ echoerr 🚩 %ANSI_COLOR_ERROR% Unknown command: '%italics%%ANSI_YELLOW%%*$%ANSI_COLOR_ERROR%%italics_off%' %@unquote[%@IF[""!= "%_PBACtHNAME","[PARENT=“%_PBATCHNAME”]",]] %ANSI_RESET% 🚩 %+ beep %+ call pause-alias  
+UNKNOWN_CMD=call unknown_cmd.bat %*
 
 
 
@@ -52,6 +52,7 @@ DEL=       @mv    %1$   \recycled
 du=        @call           du.bat
 diff=      @call         diff.bat
 eset=      @call   eset-alias.bat
+egrep=     @call  egrep-alias.bat
 everything=@call   everything.bat
 head=      @call         head.bat
 kill=      @call         kill.bat
