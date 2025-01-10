@@ -1,4 +1,6 @@
 
+
+
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
 ## ✨ Goals: ✨

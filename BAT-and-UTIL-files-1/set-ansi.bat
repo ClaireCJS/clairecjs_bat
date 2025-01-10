@@ -1042,35 +1042,32 @@ rem ************* TOYS: BEGIN: *************
 
         rem 𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘  𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘 
         rem Change a single digit into the cool version of digits (unicode) that we found, i.e. changing a single character from '1' to '𝟙' [[[cool_1,cool_2,...,cool_9 (and some random characters, like COOL_S) are defined in emoji.env]]]: 
-                rem tion  cool_digit_plain=`%[cool_%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
-                function  cool_digit_plain=`%@if["" != %[cool_%1],%[cool_%1],%1]`                                           %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
+                function  cool_digit_plain=`%[cool_%1]`                                         %+ rem COOL_0 through COOL_9 (and some random characters, like COOL_S) are defined in emoji.env      
+                rem       cool_digit_plain=`%@if["" != %[cool_%1],%[cool_%1],%1]`               %+ rem this very much breaks everything
                 function  cool_char_plain=`%@if[%1==" ",%@if["" != cool_%1,%[cool_%1],%1]`      %+ rem VERY limited. Can't use letters. Can't use chars not valid in env var names.
 
-                rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩
-                rem Now do it in a random color also:
-                        function       cool_digit=`%@randfg_soft[]%[cool_%1]`
-                        function  cool_char_plain=`%@randfg_soft[]%@if["" != cool_%1,%[cool_%1],%1]`              
+        rem Change many digits into the cool version of each digit:
+                function  cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1$]]]]]]]]]]`
 
-                rem 𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡𝟘 
-                rem Change many digits into the cool version of each digit:
-                        function    cool_number_plain=`%@REPLACE[0,%@cool_digit_plain[0],%@REPLACE[9,%@cool_digit_plain[9],%@REPLACE[8,%@cool_digit_plain[8],%@REPLACE[7,%@cool_digit_plain[7],%@REPLACE[6,%@cool_digit_plain[6],%@REPLACE[5,%@cool_digit_plain[5],%@REPLACE[4,%@cool_digit_plain[4],%@REPLACE[3,%@cool_digit_plain[3],%@REPLACE[2,%@cool_digit_plain[2],%@REPLACE[1,%@cool_digit_plain[1],%1$]]]]]]]]]]`
+        rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩
+        rem Now do it in a random color also:
+                function       cool_digit=`%@randfg_soft[]%[cool_%1]`
+                function  cool_char_plain=`%@randfg_soft[]%@if["" != cool_%1,%[cool_%1],%1]`              
 
-                rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩🟦 
-                rem Now do it in a random color also:
+        rem 🟦🟪🟩🟧🟥🟨🟦⬛ 🟫🟦🟩🟦 
+        rem Now do it in a random color also:
                 function cool_number_colorful=`%@random_color_string[%@cool_number_plain[%1$]]`
                 function  cool_number_rainbow=`%@cool_number_colorful[%1$]`
 
-                rem And set our main function to the one we want:
+        rem And set our main function to the one we want:
                 function cool_number=`%@cool_number_colorful[%1$]`
-
 
         rem ——————— cool full-string any-character subtitutions ——————————————————————————————————————————————————————————————————————————————————————————————————
 
         rem Replace some characters with the cooler emoji version:
-                rem TODO fix up with other cool chars from emoji.env
             set cool_cap_S=%@char[7776]
             set cool_low_f=%@char[402]
-            function cool_string_plain=`%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,%cool_cap_s%,%@REPLACE[f,%cool_low_f%,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]`
+            function cool_string_plain=`%@ReReplace[m,%COOL_LOWER_M%,%@ReReplace[y,%COOL_LOWER_Y%,%@REReplace[\!,%EMOJI_RED_EXCLAMATION_MARK%,%@REREPLACE[\?,%EMOJI_RED_QUESTION_MARK%,%@REPLACE[S,%cool_cap_s%,%@REPLACE[f,%cool_lower_f%,%@REREPLACE[\?\!,%emoji_exclamation_question_mark%,%@cool_number_plain[%1$]]]]]]]]`
             function cool_plain=`%@cool_string_plain[%1$]`
 
         rem Colorful versions:
@@ -1080,6 +1077,8 @@ rem ************* TOYS: BEGIN: *************
                 function            cool_text=`%@cool_string_colorful[%1$]`
                 
         rem Set the main cool function:
+                rem function                cool=`%@cool_number[%1$]`
+                rem this worked for a long time:
                 function                cool=`%@cool_string_colorful[%1$]`
 
         rem Experimental:

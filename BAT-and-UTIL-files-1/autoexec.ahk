@@ -209,48 +209,55 @@ Pause::
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-^?::Send  "❔"        ;	    Ctrl+? for ❔ [white]
-!?::Send  "❓"        ;	     Alt+? for ❓ [red]
-^!?::Send "⁉️"        ;	Ctrl-Alt+? for ⁉️ 
+^?::Send  "❔"		;	    Ctrl+? for ❔ [white]
+!?::Send  "❓"		;	     Alt+? for ❓ [red]
+^!?::Send "⁉️"		;	Ctrl-Alt+? for ⁉️ 
 
 ;can't figure out Ctrl-Alt-! though ...      ^!!:Send  "‼️";
-^!::Send  "❕"        ;	    Ctrl+! for ❕ [white]
-!!::Send  "❗"        ;	     Alt+! for ❗ [red]
-		      
-^8::Send  "⭐"        ;	Ctrl+8 for ⭐
-!8::Send  "🌟"       ;	Alt+8 for 🌟
-		      
-;-------   "-"       ;           Hyphen --------- for normal default hyphen                     (compound words, words interrupted by line break)
-^-::Send   "–"       ;      Ctrl+Hyphen ––––––––– for en dash                                   (ranges,    quotations)
-!-::Send   "—"       ;       Alt+Hyphen ————————— for em dash                                   (interruptions, breaks)
-;;;;;;;;;  "─"       ;                  ───────── for unicode box drawing light horizontal      (      dividers       ) WHICH LOOKS SAME AS ENDASH usually
-^!-::Send  "━"       ;  Ctrl-Alt+Hyphen ━━━━━━━━━ for unicode box drawing heavy horizontal line (      dividers       )
+^!::Send  "❕"		;	    Ctrl+! for ❕ [white]
+!!::Send  "❗"		;	     Alt+! for ❗ [red]
+		         
+^8::Send  "⭐"		;	Ctrl+8 for ⭐
+!8::Send  "🌟"		;	Alt+8 for 🌟
+		         
+;-------   "-"          ;           Hyphen --------- for normal default hyphen                     (compound words, words interrupted by line break)
+^-::Send   "–"          ;      Ctrl+Hyphen ––––––––– for en dash                                   (ranges,    quotations)
+!-::Send   "—"          ;       Alt+Hyphen ————————— for em dash                                   (interruptions, breaks)
+;;;;;;;;;  "─"          ;                  ───────── for unicode box drawing light horizontal      (      dividers       ) WHICH LOOKS SAME AS ENDASH usually
+^!-::Send  "━"          ;  Ctrl-Alt+Hyphen ━━━━━━━━━ for unicode box drawing heavy horizontal line (      dividers       )
       
-!'::Send  "{U+0027}" ;      Alt+apostrophe for    default original dumb apostrophe / feet symbol
-'::Send   "’"        ;          apostrophe for ’  smart single quote: right           ; the *correct* apostrophe we should be using, i.e. “can’t”
-^'::Send  "‘"        ;     Ctrl+apostrophe for ‘  smart single quote: left
-^!'::Send "‘’"       ; Ctrl-Alt+apostrophe for ‘’ smart single quotes: both
-		      
-^"::Send  "“"        ;     Ctrl+quote for “  smart double/normal quotes: left
-!"::Send  "”"        ;      Alt+quote for ”  smart double/normal quotes: right
-^!"::Send "“”"       ; Ctrl+Alt+quote for “” smart double/normal quotes: both
-;(normal quote key)  ;          quote for "  default original dumb quote / inches symbol
+!'::Send  "{U+0027}"    ;      Alt+apostrophe for    default original dumb apostrophe / feet symbol
+'::Send   "’"           ;          apostrophe for ’  smart single quote: right           ; the *correct* apostrophe we should be using, i.e. “can’t”
+^'::Send  "‘"           ;     Ctrl+apostrophe for ‘  smart single quote: left
+^!'::Send "‘’"          ; Ctrl-Alt+apostrophe for ‘’ smart single quotes: both
+		         
+^"::Send  "“"           ;     Ctrl+quote for “  smart double/normal quotes: left
+!"::Send  "”"           ;      Alt+quote for ”  smart double/normal quotes: right
+^!"::Send "“”"          ; Ctrl+Alt+quote for “” smart double/normal quotes: both
+;(normal quote key)     ;          quote for "  default original dumb quote / inches symbol
 
-,::Send   "❟"		;          Comma for “❟” smart comma / fancy unicode comma
-^,::Send  "{U+2C}"	;     Ctrl-Comma for “,” dumb comma / original/normal comma but Windows Terminal overrides this
-!,::Send  "{U+2C}"	;      Alt-Comma for “,” dumb comma / original/normal comma
-^!,::Send "{U+2C}"	; Ctrl-Alt-Comma for “,” dumb comma / original/normal comma
+; ,::Send   "❟"		;          Comma for “❟” smart comma / fancy unicode comma [in editplus, it looks “dumber” (“❟”) than the “dumb” comma (“,”)
+;^,::Send  "{U+2C}"	;     Ctrl-Comma for “,” dumb comma / original/normal comma but Windows Terminal overrides this
+;!,::Send  "{U+2C}"	;      Alt-Comma for “,” dumb comma / original/normal comma
+;^!,::Send "{U+2C}"	; Ctrl-Alt-Comma for “,” dumb comma / original/normal comma
+
+;,::Send  ","		;          Comma for “,” the normal comma key we’re all used —— the “dumb” comma / original comma / “normal” comma 
+^,::Send  "❟"		;     Ctrl-Comma for “,” smart comma /	fancy unicode comma —— but Windows Terminal overrides this
+!,::Send  "❟"		;      Alt-Comma for “❟”  smart comma /	fancy unicode comma [in editplus, it looks “dumber” (“❟”) than the “dumb” comma (“,”)
+^!,::Send "❟"		; Ctrl-Alt-Comma for “❟”  smart comma /	fancy unicode comma [in editplus, it looks “dumber” (“❟”) than the “dumb” comma (“,”)
+
+
 		      
-^!0::Send "⁰"        ; Ctrl+Alt+0 for superscript number
-^!1::Send "¹"        ; Ctrl+Alt+1 for superscript number
-^!2::Send "²"        ; Ctrl+Alt+2 for superscript number
-^!3::Send "³"        ; Ctrl+Alt+3 for superscript number
-^!4::Send "⁴"        ; Ctrl+Alt+4 for superscript number
-^!5::Send "⁵"        ; Ctrl+Alt+5 for superscript number
-^!6::Send "⁶"        ; Ctrl+Alt+6 for superscript number
-^!7::Send "⁷"        ; Ctrl+Alt+7 for superscript number
-^!8::Send "⁸"        ; Ctrl+Alt+8 for superscript number
-^!9::Send "⁹"        ; Ctrl+Alt+9 for superscript number
+^!0::Send "⁰"           ; Ctrl+Alt+0 for superscript number
+^!1::Send "¹"           ; Ctrl+Alt+1 for superscript number
+^!2::Send "²"           ; Ctrl+Alt+2 for superscript number
+^!3::Send "³"           ; Ctrl+Alt+3 for superscript number
+^!4::Send "⁴"           ; Ctrl+Alt+4 for superscript number
+^!5::Send "⁵"           ; Ctrl+Alt+5 for superscript number
+^!6::Send "⁶"           ; Ctrl+Alt+6 for superscript number
+^!7::Send "⁷"           ; Ctrl+Alt+7 for superscript number
+^!8::Send "⁸"           ; Ctrl+Alt+8 for superscript number
+^!9::Send "⁹"           ; Ctrl+Alt+9 for superscript number
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

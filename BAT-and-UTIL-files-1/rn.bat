@@ -10,6 +10,12 @@ rem Do nothing when passed these arguments:
     if "%@UNQUOTE["%1"]" eq ".." goto :END
     if not exist  %1             goto :DNE
 
+rem Validate environment (once):
+        iff 1 ne %validated_rn_1% then
+                call validate-is-function CURSOR_COLOR_BY_WORD
+                set  validated_rn_1=1
+        endiff
+
 rem Get/react to arguments:
     rem OLD ne "" .and. "%1" ne "recursive" .and. "%2" ne "recursive" goto :oops_they_meant_to_do_ren_and_not_rn
                                                                        set END_NAME_SPECIFIED=0
