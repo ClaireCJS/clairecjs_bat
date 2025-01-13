@@ -14,7 +14,7 @@ endiff
 
 
 iff "%1" == "all" .or. "%1" == "*.*" .or. "%1" == "*" .or. "%1" == "*.txt" then
-        call warning_soft "About to approve multiple lyrics %italics_on%(*.txt)%italics_off% in folder..."
+        call warning_soft "About to disapprove multiple lyrics %italics_on%(*.txt)%italics_off% in folder..."
         call AskYN        "You sure" no 10
         if "%answer%" != "y" goto :end
         
@@ -30,7 +30,7 @@ for %%tmpfile in (%PARAMS%) do (
         if exist %file% (
                 call disapprove-lyric-file.bat %file%
         ) else (
-                call error "File “%italics_on%%file%%italics_off%” does not exist"
+                call error "File '%italics_on%%file%%italics_off%' does not exist"
         )
 )        
 

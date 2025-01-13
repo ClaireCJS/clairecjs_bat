@@ -35,14 +35,14 @@
     call %TARGET_TEMP_SCRIPT%
 
 ::::: Take a file along with us, if one is given: part 2 of 2:
-    if "%FILE_TO_MOVE%" eq "" goto :NoFileToMove
+    if "%FILE_TO_MOVE%" == "" goto :NoFileToMove
         mv "%FILE_TO_MOVE%" .
         set FILE_THAT_WAS_MOVED=%FILE_TO_MOVE%
         unset /Q FILE_TO_MOVE
     :NoFileToMove
 
 ::::: Take a file along with us, automatically:
-    if "%ACTIVITY%" eq "TAGGING" .or. "%@REGEX[NEW.*PICT*U*R*E*S,%@UPPER[%_CWD]]" eq "1" goto :Move_YES
+    if "%ACTIVITY%" == "TAGGING" .or. "%@REGEX[NEW.*PICT*U*R*E*S,%@UPPER[%_CWD]]" == "1" goto :Move_YES
     goto :Move_NO
         :Move_YES
             :DEBUG STUFF: echo move yes %+ pause %+ echo on

@@ -147,7 +147,7 @@ goto :END
 		h/f
 
     ::::: Lighting:
-        if "%SLEEPING%" eq "1" goto :NoLightsBeforeGuestsBecauseSleeping
+        if "%SLEEPING%" == "1" goto :NoLightsBeforeGuestsBecauseSleeping
             ::::: Turn on party lights:
                 call pon
                 echo.
@@ -160,8 +160,8 @@ goto :END
         :NoLightsBeforeGuestsBecauseSleeping
 
     ::::: Programs we'd like running:
-        call isRunning EvilLyrics %+ if "%ISRUNNING%" eq "0" (call EvilLyrics)
-        call isRunning LastFM     %+ if "%ISRUNNING%" eq "0" (call LastFM    )
+        call isRunning EvilLyrics %+ if "%ISRUNNING%" == "0" (call EvilLyrics)
+        call isRunning LastFM     %+ if "%ISRUNNING%" == "0" (call LastFM    )
 
     ::::: Manual reminders:
         %COLOR_IMPORTANT% %+ echo Make sure things you want closed... are closed!        %+ pause

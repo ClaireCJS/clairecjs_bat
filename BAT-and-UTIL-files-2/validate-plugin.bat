@@ -40,8 +40,8 @@
     rem call debug "param3            is %param3%"
     rem call debug "validate_multiple_plugins is %validate_multiple_plugins%"
     rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE_PLUGINS [%VALIDATE_MULTIPLE_PLUGINS] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
-    if "%_PBATCHNAME" eq "validate-plugins.bat" set VALIDATE_MULTIPLE_PLUGINS=1
-    iff "%PARAM3%" ne "" .and. %VALIDATE_MULTIPLE_PLUGINS ne 1 then
+    if "%_PBATCHNAME" == "validate-plugins.bat" set VALIDATE_MULTIPLE_PLUGINS=1
+    iff "%PARAM3%" != "" .and. %VALIDATE_MULTIPLE_PLUGINS ne 1 then
         call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] PLUGIN ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
         color bright white on red
         echoerr  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to %0
@@ -58,7 +58,7 @@
     endiff
 
     rem set SKIP_VALIDATION_EXISTENCE=0
-    rem if "%PARAM2%" eq "skip_validation_existence" .or. "%PARAM2%" eq "skip_existence_validation" .or. "%PARAM2%" eq "skip_validation" (
+    rem if "%PARAM2%" == "skip_validation_existence" .or. "%PARAM2%" == "skip_existence_validation" .or. "%PARAM2%" == "skip_validation" (
     rem    set SKIP_VALIDATION_EXISTENCE=1 
     rem    set USER_MESSAGE=%3$
     rem )
@@ -90,8 +90,8 @@ goto :Past_The_End_Of_The_SubRoutines
         rem debug: echoerr validate_plugin %PLUGIN_NAME%
         rem echoserr %@RANDCURSOR[]
         ::::: ACTUALLY SEE IF IT THE PLUGIN IS LOADED:
-            if "" ne "%@PLUGIN[%PLUGIN_NAME%]" (goto :Loaded_YES)
-            if "" eq          "%PLUGIN_NAME%"  (goto :Loaded_NO )
+            if "" != "%@PLUGIN[%PLUGIN_NAME%]" (goto :Loaded_YES)
+            if "" ==          "%PLUGIN_NAME%"  (goto :Loaded_NO )
 
                     ::::: REPOND IF IT IS NOT:
                         :Loaded_NO
@@ -99,7 +99,7 @@ goto :Past_The_End_Of_The_SubRoutines
                             set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Plugin “%underline%%italics%%blink%%PLUGIN_NAME%%italics_off%%blink_off%%underline_off%” is %double_Underline%not%double_Underline_off% loaded, and needs to be, in %italics_on%“%[_PBATCHNAME]”%italics_off%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: `%`USER_MESSAGE`%` is “%USER_MESSAGE%”)
-                            if "%USER_MESSAGE%" ne "" goto :Do_It_1
+                            if "%USER_MESSAGE%" != "" goto :Do_It_1
                                                       goto :Do_It_1_Done
                             :Do_It_1
                                 REM Normalize width of ERROR_MESSAGE to be same width as USER_MESSAGE
@@ -141,7 +141,7 @@ goto :Past_The_End_Of_The_SubRoutines
                             echoserr %ERROR_MESSAGE%  
                             %COLOR_NORMAL% 
                             echoerr.
-                            if "%USER_MESSAGE%" ne "" (
+                            if "%USER_MESSAGE%" != "" (
                                 REM Although this is technically advice, we 
                                 REM are coloring it warning-style because 
                                 REM advice related to an error in this context
@@ -188,7 +188,7 @@ goto :Past_The_End_Of_The_SubRoutines
                 
         ::::: LET USER KNOW OF ERROR:
                 REM with messaging system
-                    iff "%USER_MESSAGE%" ne "" then
+                    iff "%USER_MESSAGE%" != "" then
                         REM Although this is technically advice, we 
                         REM are coloring it warning-style because 
                         REM advice related to an error in this context
@@ -208,7 +208,7 @@ goto :Past_The_End_Of_The_SubRoutines
                     call     warning  "    %@CHAR[55357]%@CHAR[56542] Dir/Folder: %italics_on%%[_CWD]%italics_off%"              
                     call     warning  "    %@CHAR[55357]%@CHAR[56542] Parameters: %italics_on%%italics_on%%VEVPARAMS%%italics_off%%italics_off%" 
                     set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=%old%
-                    iff "%USER_MESSAGE%" ne "" then
+                    iff "%USER_MESSAGE%" != "" then
                         set USER_MESSAGE_TO_USE=%NEWLINE%%USER_MESSAGE%
                     else
                         set USER_MESSAGE_TO_USE=
@@ -224,7 +224,7 @@ goto :Past_The_End_Of_The_SubRoutines
 
 :END
 :Loaded_YES
-if "" eq "%LAST_TITLE%" (set LAST_TITLE=TCC)
+if "" == "%LAST_TITLE%" (set LAST_TITLE=TCC)
 title %LAST_TITLE%
 
 echos %CURSOR_RESET%

@@ -12,7 +12,7 @@ goto :END
                 echo.
                 echo %ANSI_COLOR_DEBUG%%STAR% Processing file %emphasis%%file_quoted%%deemphasis%...
 
-                if "%@INSTR[0,%@LEN[%insert_text],%file_unquoted]" eq "%@UNQUOTE[%insert_text%]" (
+                if "%@INSTR[0,%@LEN[%insert_text],%file_unquoted]" == "%@UNQUOTE[%insert_text%]" (
                         echos      %ANSI_COLOR_WARNING%Skipping file '%file_unquoted%'...``%ANSI_COLOR_NORMAL%
                         goto :Skip
                 )

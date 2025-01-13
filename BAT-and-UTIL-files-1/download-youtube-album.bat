@@ -25,7 +25,7 @@ REM DEBUGGY stuff
         call set-task "downloading youtube albums"
 
 REM check parameters & environment
-        if "%1"    eq "" .or. "%URL%" eq "" (call error "Need URL!" %+ goto :END)
+        if "%1"    == "" .or. "%URL%" == "" (call error "Need URL!" %+ goto :END)
         call validate-in-path               ingest_youtube_album.py delete-zero-byte-files important important_less errorlevel delete-largest-file warning error print-if-debug set-task metamp3 metaflac yt-dlp set-latest-filename openimage get-image-dimensions askyn crop-center-square-of-image make-image-square celebration change-into-temp-folder expand-image-to-square
         call validate-environment-variables ANSI_BRIGHT_CYAN faint_on faint_off italics_on italics_off underline_on underline_off filemask_image filemask_audio %+ REM most of these are set by set-colors.bat:
 
@@ -36,21 +36,21 @@ REM Extensions that we may be downloading:
 
 
 REM secret command line options
-        if "%1" eq "already"                          (goto :Already_Downloaded)
-        if "%1" eq        "ingest"                    (goto :befor_ingest      )
-        if "%1" eq  "befor_ingest"                    (goto :befor_ingest      )
-        if "%1" eq "before_ingest"                    (goto :befor_ingest      )
-        if "%1" eq "before"   .and. "%2" eq "ingest"  (goto :befor_ingest      )
-        if "%1" eq "after"    .and. "%2" eq "ingest"  (goto :after_ingest      )
-        if "%1" eq "after_ingest"                     (goto :after_ingest      )
-        if "%1" eq "replaygain"                       (goto :after_ingest      )
-        if "%1" eq "rename"                           (goto :rename_files      )
-        if "%1" eq "rename_files"                     (goto :rename_files      )
-        if "%1" eq "rename"   .and. "%2" eq   "files" (goto :rename_files      )
-        if "%1" eq "fix_image" .or. "%1" eq "fix_img" (goto :fix_image         )
-        if "%1" eq  "fiximage" .or. "%1" eq  "fiximg" (goto :fix_image         )
-        if "%1" eq     "image" .or. "%1" eq     "img" (goto :fix_image         )
-        if "%1" eq     "embed" .or. "%1" eq "reembed" (set image_was_changed=1 %+ goto :embed_again)
+        if "%1" == "already"                          (goto :Already_Downloaded)
+        if "%1" ==        "ingest"                    (goto :befor_ingest      )
+        if "%1" ==  "befor_ingest"                    (goto :befor_ingest      )
+        if "%1" == "before_ingest"                    (goto :befor_ingest      )
+        if "%1" == "before"   .and. "%2" == "ingest"  (goto :befor_ingest      )
+        if "%1" == "after"    .and. "%2" == "ingest"  (goto :after_ingest      )
+        if "%1" == "after_ingest"                     (goto :after_ingest      )
+        if "%1" == "replaygain"                       (goto :after_ingest      )
+        if "%1" == "rename"                           (goto :rename_files      )
+        if "%1" == "rename_files"                     (goto :rename_files      )
+        if "%1" == "rename"   .and. "%2" ==   "files" (goto :rename_files      )
+        if "%1" == "fix_image" .or. "%1" == "fix_img" (goto :fix_image         )
+        if "%1" ==  "fiximage" .or. "%1" ==  "fiximg" (goto :fix_image         )
+        if "%1" ==     "image" .or. "%1" ==     "img" (goto :fix_image         )
+        if "%1" ==     "embed" .or. "%1" == "reembed" (set image_was_changed=1 %+ goto :embed_again)
        :if "%1" != ""                                 (goto :%1                )                     %+ REM goto a specific label
 
 REM Ask where to place our downloads...
@@ -276,7 +276,7 @@ REM Add replaygain tags
         :add_replaygain_tags
         pushd 
             REM ingest-youtube-album.py creates go-to-album.bat as a return value to change into the folder it created to moves the album into   
-            if "%DOWNLOADS%" eq "many" (
+            if "%DOWNLOADS%" == "many" (
                 set                                INGEST_RETURN_SCRIPT=go-to-album.bat
                 call validate-environment-variable INGEST_RETURN_SCRIPT "ingest return script not found in %0"
                 call                              %INGEST_RETURN_SCRIPT%

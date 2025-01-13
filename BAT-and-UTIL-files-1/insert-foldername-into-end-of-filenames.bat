@@ -4,7 +4,7 @@ on break goto :breaker
 
 set parent_folder_name=%@FILENAME[%_CWP]
 set inserttrigger=__ folder names inserted at end of filenames __
-if "%1" eq "SetVarsOnly" (goto :END)
+if "%1" == "SetVarsOnly" (goto :END)
 
 if exist "%inserttrigger%" (
     call warning "Already did this folder. Aborting. (inserttrigger file of %inserttrigger% exists)"
@@ -21,7 +21,7 @@ goto :Cleanup
                 *cls
                 echo %NEWLINE%%ANSI_COLOR_DEBUG%%STAR% Processing file %emphasis%%file_unquoted%%deemphasis%...
 
-                iff "%file_unquoted" eq "%inserttrigger%" .or. %@REGEX[%parent_folder_name,%file_unquoted] eq 1 .or. %@REGEX[%inserttrigger,%file_unquoted] eq 1 then
+                iff "%file_unquoted" == "%inserttrigger%" .or. %@REGEX[%parent_folder_name,%file_unquoted] eq 1 .or. %@REGEX[%inserttrigger,%file_unquoted] eq 1 then
                         echos %ANSI_COLOR_WARNING%Skipping file '%file_unquoted%'...``
                         goto :Skipe
                 endiff

@@ -23,8 +23,8 @@ REM     local GIT repo beore doing anything significant.  Or really, before doin
 
 rem Must have parameter!
         set which_file=
-        if "%1" eq "" (call fatal_error "%0 must have 1ˢᵗ parameter of target folder for example BAT-and-UTIL-files-1")
-        if "%2" ne "" (set  which_file=%@UNQUOTE[%2])
+        if "%1" == "" (call fatal_error "%0 must have 1ˢᵗ parameter of target folder for example BAT-and-UTIL-files-1")
+        if "%2" != "" (set  which_file=%@UNQUOTE[%2])
 
 rem VALIDATION & SETUP:
         set SOURCE_DIR=%BAT%
@@ -60,7 +60,7 @@ rem TELL USER:
 
 
 rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
-        if "%MANIFEST_FILES%" eq "NONE" (goto :Manifest_File_Update_Complete)               
+        if "%MANIFEST_FILES%" == "NONE" (goto :Manifest_File_Update_Complete)               
                 for %myFileFull in (%MANIFEST_FILES%) (
                     set myFile=%@UNQUOTE[%myFileFull]
                     set COMMENT=`rem echo %blink_on%[LOOP] myFileFull is currently=%myFileFull%%blink_off%`
@@ -75,8 +75,8 @@ rem DO COPIES OF PRIMARY FILES TO PRIMARY PROJECT FOLDER:
 
 
 rem DO SECONDARY FILES, OR SKIP THEM IF WE SAID TO:
-        if "%1" eq "skip" .or. "%1" eq "fast" .or. "%1" eq "quick" (shift %+ goto :Skip)
-        if "%2" eq "skip" .or. "%2" eq "fast" .or. "%2" eq "quick" (         goto :Skip)
+        if "%1" == "skip" .or. "%1" == "fast" .or. "%1" == "quick" (shift %+ goto :Skip)
+        if "%2" == "skip" .or. "%2" == "fast" .or. "%2" == "quick" (         goto :Skip)
 
                     rem SHARE REQUIRED BAT, UTIL FILES THAT WE USE, FOR FURTHER SUPPORT, TO SECONDARY PROJECT FOLDER:
                             set SECONDARY_SUBFOLDER_FOLDERNAME=%1
@@ -102,7 +102,7 @@ goto :END_OF_SUBROUTINES
                 set  OUR_FILELIST_8=%[SECONDARY_%shared_type%_FILES_8]
                 set  OUR_FILELIST_9=%[SECONDARY_%shared_type%_FILES_9]
                 set OUR_FILELIST_10=%[SECONDARY_%shared_type%_FILES_10]
-                iff "" ne "%which_file%" then
+                iff "" != "%which_file%" then
                         set OUR_FILELIST=%which_file%
                         set OUR_FILELIST_2=
                         set OUR_FILELIST_3=
@@ -113,7 +113,7 @@ goto :END_OF_SUBROUTINES
                         set OUR_FILELIST_8=
                         set OUR_FILELIST_9=
                         set OUR_FILELIST_10=
-                        if "%which_file%" eq "docs" (set OUR_FILELIST=docs\*.md docs\outtakes\*)
+                        if "%which_file%" == "docs" (set OUR_FILELIST=docs\*.md docs\outtakes\*)
                 endiff
 
 

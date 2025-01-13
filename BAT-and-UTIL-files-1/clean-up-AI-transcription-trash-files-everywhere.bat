@@ -15,7 +15,7 @@ rem Delete files that could be anywhere:
 
         rem If we are mis-using this script for things outside it’s original intention❟ branch to that...
         rem .....Otherwise❟ do what this script was made for: Cleaning up AI-transcription trash files!
-                if "%1" ne "" goto :unrelated_overloaded_functionality
+                if "%1" != "" goto :unrelated_overloaded_functionality
                         call less_important "Erasing trash AI transcription files..."
                         gosub DeleteEverywhere               *._vad_collected_chunks*.wav
                         gosub DeleteEverywhere               *._vad_collected_chunks*.srt
@@ -24,7 +24,7 @@ rem Delete files that could be anywhere:
                         gosub DeleteEverywhere               *._vad_pyannote_v3.txt
                         gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
                         gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
-                if "%1" eq "" goto :DoneDeletingBecauseThisIsANormalInvocation
+                if "%1" == "" goto :DoneDeletingBecauseThisIsANormalInvocation
 
 
         rem Here is where we started adding unrelated tasks to this script in an ugly-but-convenient fashion:

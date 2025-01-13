@@ -31,7 +31,7 @@ set print_message_running=1
 rem MESSAGE TYPES LIST: PLEASE ADD ANY NEW MESSAGE TYPES TO THIS LIST BEFORE IMPLEMENTING THEM!!!!!!!!!!!!!!!!!!!!!!!!!!!
     set                 MESSAGE_TYPES=WARNING WARNING_LESS WARNING_SOFT ALARM REMOVAL IMPORTANT IMPORTANT_LESS LESS_IMPORTANT ADVICE NORMAL DEBUG UNIMPORTANT SUBTLE COMPLETION SUCCESS CELEBRATION FATAL_ERROR ERROR_FATAL ERROR 
     set MESSAGE_TYPES_WITHOUT_ALIASES=WARNING WARNING_LESS              ALARM REMOVAL IMPORTANT IMPORTANT_LESS                ADVICE NORMAL DEBUG UNIMPORTANT SUBTLE COMPLETION SUCCESS CELEBRATION FATAL_ERROR             ERROR 
-    if "%1" eq "vars_only" (goto :END) %+ rem we like to grab these 2 env varibles when environm is run, even before print-message is ever run, via this call: if not defined MESSAGE_TYPES (call print-message vars_only)
+    if "%1" == "vars_only" (goto :END) %+ rem we like to grab these 2 env varibles when environm is run, even before print-message is ever run, via this call: if not defined MESSAGE_TYPES (call print-message vars_only)
     rem ^^^ Gther all these into a nice looking environment variable where they are each appropriately ansi-colored with: gather-message-types-into-pretty-environment-variable.bat
 
 
@@ -61,12 +61,12 @@ REM Ensure correct environment
 
 REM Process parameters
                                   set FAST=0
-    if "%PM_PARAM2%" ne "fast" (set   FAST=0   )                                 %+ REM used for "test fast" 
-    if "%PM_PARAM2%" eq "fast" (set   FAST=1   )                                 %+ REM used for "test fast" 
-    if "%PM_PARAM1%" eq "demo" (goto :DemoSuite)                                 
-    if "%PM_PARAM1%" eq "test" (goto :TestSuite)
-    if "%PM_PARAM1%" eq "none" (goto :None     )
-    rem if "%PM_PARAM3%" eq ""                     (
+    if "%PM_PARAM2%" != "fast" (set   FAST=0   )                                 %+ REM used for "test fast" 
+    if "%PM_PARAM2%" == "fast" (set   FAST=1   )                                 %+ REM used for "test fast" 
+    if "%PM_PARAM1%" == "demo" (goto :DemoSuite)                                 
+    if "%PM_PARAM1%" == "test" (goto :TestSuite)
+    if "%PM_PARAM1%" == "none" (goto :None     )
+    rem if "%PM_PARAM3%" == ""                     (
     rem         set MESSAGE=%@UNQUOTE[`%PM_PARAMS`]``
     rem         if %DEBUG_PRINTMESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr debug branch 2: message is now %MESSAGE %+ %COLOR_NORMAL%)
     rem         REM set TYPE=NORMAL                                         making this assumption hurts flexibility for misshappen calls to this script. We like to alzheimer’s-proof things around here.
@@ -79,13 +79,13 @@ REM Process parameters
 
     rem moved to end of this block      set  MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
     set BIG_MESSAGE=0
-    if "%PM_PARAM3%"       eq "1" .or. "%PM_PARAM3%" eq "2" .or. "%PM_PARAM3%" eq "3" .or. "%PM_PARAM3%" eq "4" .or. "%PM_PARAM3%" eq "" (set MESSAGE=%@UNQUOTE[`%PM_PARAM2%`])
-    if "%PM_PARAM3%"       eq "1"                                (set  EXECUTE_PROTECTION_PAUSES=1)
-    if "%PM_PARAM2%"       eq "yes"                              (set  EXECUTE_PROTECTION_PAUSES=1)                         %+ REM capture a few potential call mistakes
-    if "%PM_PARAM2%"       eq "pause"                            (set  EXECUTE_PROTECTION_PAUSES=1)                         %+ REM capture a few potential call mistakes
+    if "%PM_PARAM3%"       == "1" .or. "%PM_PARAM3%" == "2" .or. "%PM_PARAM3%" == "3" .or. "%PM_PARAM3%" == "4" .or. "%PM_PARAM3%" == "" (set MESSAGE=%@UNQUOTE[`%PM_PARAM2%`])
+    if "%PM_PARAM3%"       == "1"                                (set  EXECUTE_PROTECTION_PAUSES=1)
+    if "%PM_PARAM2%"       == "yes"                              (set  EXECUTE_PROTECTION_PAUSES=1)                         %+ REM capture a few potential call mistakes
+    if "%PM_PARAM2%"       == "pause"                            (set  EXECUTE_PROTECTION_PAUSES=1)                         %+ REM capture a few potential call mistakes
     if 1 eq %PRINTMESSAGE_OPT_SUPPRESS_AUDIO                     (set  SILENT_MESSAGE=1)
-    if "%PM_PARAM3%"       eq "2" .or. "%PM_PARAM3%" eq "silent" (set  SILENT_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
-    if "%PM_PARAM3%"       eq "3" .or. "%PM_PARAM3%" eq "big"    (set     BIG_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
+    if "%PM_PARAM3%"       == "2" .or. "%PM_PARAM3%" == "silent" (set  SILENT_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
+    if "%PM_PARAM3%"       == "3" .or. "%PM_PARAM3%" == "big"    (set     BIG_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
     if %DEBUG_PRINTMESSAGE eq  1                                 (echoerr %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% %+ echoerr DEBUG: TYPE=%TYPE%,EXECUTE_PROTECTION_PAUSES=%EXECUTE_PROTECTION_PAUSES%,MESSAGE=%MESSAGE%)
     set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
 
@@ -132,35 +132,36 @@ REM convert special characters
 
 
 REM Type alias/synonym handling
-    if "%TYPE%" eq "ERROR_FATAL"    (set TYPE=FATAL_ERROR)
-    if "%TYPE%" eq "IMPORTANT_LESS" (set TYPE=LESS_IMPORTANT)
-    if "%TYPE%" eq "WARNING_SOFT"   (set TYPE=WARNING_LESS)
+    if "%TYPE%" == "ERROR_FATAL"    (set TYPE=FATAL_ERROR)
+    if "%TYPE%" == "IMPORTANT_LESS" (set TYPE=LESS_IMPORTANT)
+    if "%TYPE%" == "WARNING_SOFT"   (set TYPE=WARNING_LESS)
 
 
 REM Behavior overides and message decorators depending on the type of message?
                                        set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=
-    if  "%TYPE%"  eq "UNIMPORTANT"    (set DECORATOR_LEFT=...           %+ set DECORATOR_RIGHT=)
+    if  "%TYPE%"  == "UNIMPORTANT"    (set DECORATOR_LEFT=...           %+ set DECORATOR_RIGHT=)
     REM to avoid issues with the redirection character, ADVICE’s left-decorator needs to be inserted at runtime if it contains a “>” character. Could proably avoid this with setdos
-    REM "%TYPE%"  eq "ADVICE"         (set DECORATOR_LEFT=`-->`         %+ set DECORATOR_RIGHT=) 
-    if  "%TYPE%"  eq "ADVICE"         (set DECORATOR_LEFT=%EMOJI_BACKHAND_INDEX_POINTING_RIGHT% `` %+ set DECORATOR_RIGHT= %EMOJI_BACKHAND_INDEX_POINTING_LEFT%) 
-    if  "%TYPE%"  eq "NORMAL"         (set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=) 
-    if  "%TYPE%"  eq "DEBUG"          (set DECORATOR_LEFT=- DEBUG: ``   %+ set DECORATOR_RIGHT=)
-    rem "%TYPE%"  eq "LESS_IMPORTANT" .or. "%TYPE%" eq "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR% %ANSI_COLOR_IMPORTANT_LESS%``  %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
-    if  "%TYPE%"  eq "LESS_IMPORTANT" .or. "%TYPE%" eq "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR2% %ANSI_COLOR_IMPORTANT_LESS%`` %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
-    rem "%TYPE%"  eq "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT% `` %+ set DECORATOR_RIGHT= %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
-    rem "%TYPE%"  eq "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %DOUBLE_UNDERLINE_ON%`` %+ set DECORATOR_RIGHT=%DOUBLE_UNDERLINE_OFF% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
-    if  "%TYPE%"  eq "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  `` %+ set DECORATOR_RIGHT=  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
-    rem "%TYPE%"  eq "WARNING"        (set DECORATOR_LEFT=%EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %blink%!!%blink_off% `` %+ set DECORATOR_RIGHT= %blink%!!%blink_off% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING%)
-    if  "%TYPE%"  eq "WARNING"        (set DECORATOR_LEFT=%RED_FLAG%%RED_FLAG%%RED_FLAG%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %@ANSI_BG_RGB[0,0,255]%blink%!!%blink_off% ``  %+  set DECORATOR_RIGHT= %blink%!!%blink_off%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %RED_FLAG%%RED_FLAG%%RED_FLAG%)
-    if  "%TYPE%"  eq "WARNING_LESS"   (set DECORATOR_LEFT=%STAR% ``     %+ set DECORATOR_RIGHT= %STAR%) 
-    if  "%TYPE%"  eq "SUCCESS"        (set DECORATOR_LEFT=%REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%BLINK_OFF%%REVERSE_OFF% ``        %+ set DECORATOR_RIGHT= %REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%REVERSE_OFF%%BLINK_OFF% %PARTY_POPPER%%EMOJI_BIRTHDAY_CAKE%)
-    rem "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
-    if  "%TYPE%"  eq "CELEBRATION"    (set DECORATOR_LEFT=%blink_off%%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF% %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
-    if  "%TYPE%"  eq "COMPLETION"     (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT=! ***)
-    if  "%TYPE%"  eq "ALARM"          (set DECORATOR_LEFT=* ``          %+ set DECORATOR_RIGHT= *)
-    if  "%TYPE%"  eq "REMOVAL"        (set DECORATOR_LEFT=%RED_SKULL%%SKULL%%RED_SKULL% ``        %+ set DECORATOR_RIGHT= %RED_SKULL%%SKULL%%RED_SKULL%)
-    if  "%TYPE%"  eq "ERROR"          (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT= ***)
-    if  "%TYPE%"  eq "FATAL_ERROR"    (set DECORATOR_LEFT=***** !!! ``  %+ set DECORATOR_RIGHT= !!! *****)
+    REM "%TYPE%"  == "ADVICE"         (set DECORATOR_LEFT=`-->`         %+ set DECORATOR_RIGHT=) 
+    if  "%TYPE%"  == "ADVICE"         (set DECORATOR_LEFT=%EMOJI_BACKHAND_INDEX_POINTING_RIGHT% `` %+ set DECORATOR_RIGHT= %EMOJI_BACKHAND_INDEX_POINTING_LEFT%) 
+    if  "%TYPE%"  == "NORMAL"         (set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=) 
+    if  "%TYPE%"  == "DEBUG"          (set DECORATOR_LEFT=- DEBUG: ``   %+ set DECORATOR_RIGHT=)
+    rem "%TYPE%"  == "LESS_IMPORTANT" .or. "%TYPE%" == "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR% %ANSI_COLOR_IMPORTANT_LESS%``  %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
+    if  "%TYPE%"  == "LESS_IMPORTANT" .or. "%TYPE%" == "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR2% %ANSI_COLOR_IMPORTANT_LESS%`` %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
+    if  "%TYPE%"  == "LESS_IMPORTANT" .or. "%TYPE%" == "IMPORTANT_LESS" (set DECORATOR_LEFT=%ansi_color_important%%UPSIDE_DOWN_STAR% %ANSI_COLOR_IMPORTANT_LESS% `` %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
+    rem "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT% `` %+ set DECORATOR_RIGHT= %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
+    rem "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %DOUBLE_UNDERLINE_ON%`` %+ set DECORATOR_RIGHT=%DOUBLE_UNDERLINE_OFF% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
+    if  "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  `` %+ set DECORATOR_RIGHT=  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
+    rem "%TYPE%"  == "WARNING"        (set DECORATOR_LEFT=%EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %blink%!!%blink_off% `` %+ set DECORATOR_RIGHT= %blink%!!%blink_off% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING%)
+    if  "%TYPE%"  == "WARNING"        (set DECORATOR_LEFT=%RED_FLAG%%RED_FLAG%%RED_FLAG%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %@ANSI_BG_RGB[0,0,255]%blink%!!%blink_off% ``  %+  set DECORATOR_RIGHT= %blink%!!%blink_off%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %RED_FLAG%%RED_FLAG%%RED_FLAG%)
+    if  "%TYPE%"  == "WARNING_LESS"   (set DECORATOR_LEFT=%STAR% ``     %+ set DECORATOR_RIGHT= %STAR%) 
+    if  "%TYPE%"  == "SUCCESS"        (set DECORATOR_LEFT=%REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%BLINK_OFF%%REVERSE_OFF% ``        %+ set DECORATOR_RIGHT= %REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%REVERSE_OFF%%BLINK_OFF% %PARTY_POPPER%%EMOJI_BIRTHDAY_CAKE%)
+    rem "%TYPE%"  == "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
+    if  "%TYPE%"  == "CELEBRATION"    (set DECORATOR_LEFT=%blink_off%%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF% %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
+    if  "%TYPE%"  == "COMPLETION"     (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT=! ***)
+    if  "%TYPE%"  == "ALARM"          (set DECORATOR_LEFT=* ``          %+ set DECORATOR_RIGHT= *)
+    if  "%TYPE%"  == "REMOVAL"        (set DECORATOR_LEFT=%RED_SKULL%%SKULL%%RED_SKULL% ``        %+ set DECORATOR_RIGHT= %RED_SKULL%%SKULL%%RED_SKULL%)
+    if  "%TYPE%"  == "ERROR"          (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT= ***)
+    if  "%TYPE%"  == "FATAL_ERROR"    (set DECORATOR_LEFT=***** !!! ``  %+ set DECORATOR_RIGHT= !!! *****)
     rem 20240419 moved to after setting COLOR_TO_USE so we can start setting that before the right decorator in case the message contents changed the color: set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
 
 
@@ -183,15 +184,15 @@ REM We’re going to update the window title to the message. If possible, strip 
                 set TITLE=%CLEAN_MESSAGE%
 
         REM But first let’s decorate the window title for certain message types Prior to actually updating the window title:
-                if "%TYPE%" eq          "DEBUG" (set TITLE=%EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %title% %EMOJI_MAGNIFYING_GLASS_TILTED_LEFT%)
-                if "%TYPE%" eq "LESS_IMPORTANT" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
-                if "%TYPE%" eq "IMPORTANT_LESS" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
-                if "%TYPE%" eq      "IMPORTANT" (set TITLE=%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %title% %EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%)
-                if "%TYPE%" eq          "ALARM" (set TITLE=%EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%  %title%  %EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%)
-                if "%TYPE%" eq   "WARNING_LESS" (set TITLE=%EMOJI_WARNING%%title%)
-                if "%TYPE%" eq        "WARNING" (set TITLE=%EMOJI_WARNING%%EMOJI_WARNING%%title!%EMOJI_WARNING%%EMOJI_WARNING%)
-                if "%TYPE%" eq          "ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% ERR0R: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
-                if "%TYPE%" eq    "FATAL_ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% FATAL ERROR: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
+                if "%TYPE%" ==          "DEBUG" (set TITLE=%EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %title% %EMOJI_MAGNIFYING_GLASS_TILTED_LEFT%)
+                if "%TYPE%" == "LESS_IMPORTANT" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
+                if "%TYPE%" == "IMPORTANT_LESS" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
+                if "%TYPE%" ==      "IMPORTANT" (set TITLE=%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %title% %EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%)
+                if "%TYPE%" ==          "ALARM" (set TITLE=%EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%  %title%  %EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%)
+                if "%TYPE%" ==   "WARNING_LESS" (set TITLE=%EMOJI_WARNING%%title%)
+                if "%TYPE%" ==        "WARNING" (set TITLE=%EMOJI_WARNING%%EMOJI_WARNING%%title!%EMOJI_WARNING%%EMOJI_WARNING%)
+                if "%TYPE%" ==          "ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% ERR0R: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
+                if "%TYPE%" ==    "FATAL_ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% FATAL ERROR: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
 
         REM Then actually set the current window title to our newly-constructed window title text:        
                 title %title%
@@ -199,8 +200,8 @@ REM We’re going to update the window title to the message. If possible, strip 
 
 REM Some messages will be decorated with audio:
         if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO ne 1 .and. 1 ne %PRINTMESSAGE_OPT_SUPPRESS_AUDIO (
-                if "%TYPE%" eq "DEBUG"  (call beep.bat  lowest 1)
-                if "%TYPE%" eq "ADVICE" (call beep.bat highest 3)
+                if "%TYPE%" == "DEBUG"  (call beep.bat  lowest 1)
+                if "%TYPE%" == "ADVICE" (call beep.bat highest 3)
         )
 
 REM Pre-Message pause based on message type (pausable messages need a litle visual cushion):
@@ -208,14 +209,14 @@ REM Pre-Message pause based on message type (pausable messages need a litle visu
 
 REM Pre-Message determination of if we do a big header or not:
                                                                                          set BIG_HEADER=0
-        if  "%TYPE%" eq "ERROR" .or. "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "ALARM" (set BIG_HEADER=1)
+        if  "%TYPE%" == "ERROR" .or. "%TYPE%" == "FATAL_ERROR" .or. "%TYPE%" == "ALARM" (set BIG_HEADER=1)
 
 REM Pre-Message determination of how many times we will display the message:
         set print_message_running=5
         set HOW_MANY=1 
-        if "%TYPE%" eq "CELEBRATION" (set HOW_MANY=1 2)
-        if "%TYPE%" eq       "ERROR" (set HOW_MANY=1 2 3)
-        if "%TYPE%" eq "FATAL_ERROR" (set HOW_MANY=1 2 3)
+        if "%TYPE%" == "CELEBRATION" (set HOW_MANY=1 2)
+        if "%TYPE%" ==       "ERROR" (set HOW_MANY=1 2 3)
+        if "%TYPE%" == "FATAL_ERROR" (set HOW_MANY=1 2 3)
 
 
 
@@ -237,7 +238,7 @@ REM Actually display the message:
         rem in case the color was changed within the message itself.  
         rem ((( However, for FATAL_ERROR, we want the color to persist because we set a special color )))
         rem ((( for one of the repeated messages and want the decorator to remain that  special color )))
-        if "%TYPE%" ne "FATAL_ERROR" (
+        if "%TYPE%" != "FATAL_ERROR" (
             set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%OUR_ANSICOLORTOUSE%%DECORATOR_RIGHT%
         ) else (
             set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
@@ -279,7 +280,7 @@ REM Actually display the message:
         for %msgNum in (%HOW_MANY%) do (           
                 set REM=handle pre-message formatting [color/blinking/reverse/italics/faint], based on what type of message and which message in the sequence of repeated messages it is
 
-                if "%OUR_ANSICOLORTOUSE%" eq "" ( 
+                if "%OUR_ANSICOLORTOUSE%" == "" ( 
                         %OUR_COLORTOUSE% 
                 ) else (
                         echoserr %OUR_ANSICOLORTOUSE%
@@ -291,24 +292,24 @@ REM Actually display the message:
 
                 set REM=Special decorators that are only for the message itself, not the header/fooder:
 
-                if "%TYPE%"     eq "FATAL_ERROR"      (echoserr %ANSI_RESET%%SPACER_FATAL_ERROR%%ANSI_COLOR_FATAL_ERROR%``)
-                if "%TYPE%"     eq       "ERROR"      (echoserr     ``)
-                if  %BIG_HEADER eq    1               (echoserr %BLINK_ON%)
-                if "%TYPE%"     eq "SUBTLE"           (echoserr %FAINT_ON%)
-                if "%TYPE%"     eq "UNIMPORTANT"      (echoserr %FAINT_ON%)
-                if "%TYPE%"     eq "SUCCESS"          (echoserr %BOLD_ON%)
-                if "%TYPE%"     eq "CELEBRATION"  (
+                if "%TYPE%"     == "FATAL_ERROR"      (echoserr %ANSI_RESET%%SPACER_FATAL_ERROR%%ANSI_COLOR_FATAL_ERROR%``)
+                if "%TYPE%"     ==       "ERROR"      (echoserr     ``)
+                if  %BIG_HEADER ==    1               (echoserr %BLINK_ON%)
+                if "%TYPE%"     == "SUBTLE"           (echoserr %FAINT_ON%)
+                if "%TYPE%"     == "UNIMPORTANT"      (echoserr %FAINT_ON%)
+                if "%TYPE%"     == "SUCCESS"          (echoserr %BOLD_ON%)
+                if "%TYPE%"     == "CELEBRATION"  (
                         if        %msgNum        == 1 (echoserr %BIG_TOP_ON%``)
                         if        %msgNum        == 2 (echoserr %BIG_BOT_ON%``)
                 )
-                if "%TYPE%"     eq "ERROR"   (
+                if "%TYPE%"     == "ERROR"   (
                         if %@EVAL[%msgNum mod 2] == 1 (echoserr %REVERSE_ON%)
                         if %@EVAL[%msgNum mod 2] == 0 (echoserr %REVERSE_OFF%%BLINK_OFF%)
                 )
-                if "%TYPE%" eq "WARNING" (
+                if "%TYPE%" == "WARNING" (
                         echoserr %ANSI_COLOR_WARNING%
                 )
-                if "%TYPE%" eq "FATAL_ERROR" (
+                if "%TYPE%" == "FATAL_ERROR" (
                         if %@EVAL[%msgNum mod 3] == 0 (echoserr %ANSI_COLOR_FATAL_ERROR%%BLINK_OFF%)
                         rem @EVAL[%msgNum mod 2] == 1 (echoserr %REVERSE_OFF%)
                         if        %msgNum        == 2 (echoserr %BLINK_ON%)
@@ -323,10 +324,10 @@ REM Actually display the message:
                 )
 
                 set REM=HACK: Decorators with ">" in them need to be manually outputted here at the last minute to avoid issues with ">" being the redirection character, though setdos could work around this
-                        if "%TYPE%" eq "ADVICE" (echoserr `----> `)
+                        if "%TYPE%" == "ADVICE" (echoserr `----> `)
 
                 set REM=actually print the message, unless it’s fatal error line 4 which has special double-height handling:
-                        if "%TYPE%" eq "FATAL_ERROR" .and. %msgNum == 4  .and. 1 ne %SKIP_DOUBLE_HEIGHT% (
+                        if "%TYPE%" == "FATAL_ERROR" .and. %msgNum == 4  .and. 1 ne %SKIP_DOUBLE_HEIGHT% (
                                 echoserr %ANSI_COLOR_IMPORTANT%   ``
                          ) else (
                                 if %msgNum == 2 (echoserr %blink_on%)
@@ -334,10 +335,10 @@ REM Actually display the message:
                          )
 
                 set REM=handle post-message formatting
-                        if "%TYPE%"     eq "SUBTLE"      (echoserr %FAINT_OFF%)
-                        if "%TYPE%"     eq "UNIMPORTANT" (echoserr %FAINT_OFF%)
-                        if "%TYPE%"     eq "SUCCESS"     (echoserr %BOLD_OFF%)
-                        if "%TYPE%"     eq "CELEBRATION"  (
+                        if "%TYPE%"     == "SUBTLE"      (echoserr %FAINT_OFF%)
+                        if "%TYPE%"     == "UNIMPORTANT" (echoserr %FAINT_OFF%)
+                        if "%TYPE%"     == "SUCCESS"     (echoserr %BOLD_OFF%)
+                        if "%TYPE%"     == "CELEBRATION"  (
                                 if %msgNum == 1 (echoserr %BIG_TEXT_END%%ANSI_RESET%``)
                                 if %msgNum == 2 (echoserr %BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%``)
                         )
@@ -362,15 +363,15 @@ REM Post-message delays and pauses
         setdos /x0
         set DO_DELAY=0    
         REM EXECUTE_PROTECTION_PAUSES=0 WOULD BE FATAL beause we set this from calling scripts for automation
-        if "%TYPE%" eq "WARNING"                                   (set DO_DELAY=1)
-        if "%TYPE%" eq "ERROR"       .or. "%TYPE%" eq "ALARM"      (set EXECUTE_PROTECTION_PAUSES=1)
-        if "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "FATALERROR" (set DO_DELAY=2)
-        if "%TYPE%" eq "FATAL_ERROR"                               (set EXECUTE_PROTECTION_PAUSES=2)
+        if "%TYPE%" == "WARNING"                                   (set DO_DELAY=1)
+        if "%TYPE%" == "ERROR"       .or. "%TYPE%" == "ALARM"      (set EXECUTE_PROTECTION_PAUSES=1)
+        if "%TYPE%" == "FATAL_ERROR" .or. "%TYPE%" == "FATALERROR" (set DO_DELAY=2)
+        if "%TYPE%" == "FATAL_ERROR"                               (set EXECUTE_PROTECTION_PAUSES=2)
 
 REM Post-message beeps and sound effects
         if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO eq 1 (goto :No_Beeps_2)
-            if "%TYPE%" eq "CELEBRATION" .or. "%TYPE%" eq "COMPLETION" (beep exclamation)
-            if "%TYPE%" eq "ERROR" .or. "%TYPE%" eq "ALARM"   (
+            if "%TYPE%" == "CELEBRATION" .or. "%TYPE%" == "COMPLETION" (beep exclamation)
+            if "%TYPE%" == "ERROR" .or. "%TYPE%" == "ALARM"   (
                     beep 145 1 
                     beep 120 1 
                     beep 100 1 
@@ -380,13 +381,13 @@ REM Post-message beeps and sound effects
                     beep  40 1 
                     beep hand
             )         
-            if "%TYPE%" eq "WARNING" (
+            if "%TYPE%" == "WARNING" (
                     *beep 60 1 
                     *beep 69 1        
                     REM beep hand was overkil
                     beep question
             )                                                                                                                              
-            if "%TYPE%" eq "FATAL_ERROR" (
+            if "%TYPE%" == "FATAL_ERROR" (
                     for %alarmNum in (1) do (beep %+ beep 145 1 %+ beep 120 1 %+ beep 100 1 %+ beep 80 1 %+ beep 65 1 %+ beep 50 1 %+ beep 40 1)
                     beep hand
              )        
@@ -396,7 +397,7 @@ REM Post-message beeps and sound effects
         if %DO_DELAY gt 0 .and. 1 ne %SILENT_MESSAGE (delay %DO_DELAY)
     
 REM Logging
-        iff "%TYPE%" eq "FATAL_ERROR" then
+        iff "%TYPE%" == "FATAL_ERROR" then
                 if not defined   LOGS   set        logs=c:\logs
                 if not isdir   "%LOGS%" mkdir /s "%LOGS%"
                 set    log_file=%LOGS%\%TYPE%.log
@@ -406,7 +407,7 @@ REM Logging
 REM For errors, give chance to gracefully exit the script (no more mashing of ctrl-C / ctrl-Break)
         set print_message_running=15
         rem echoerr type=%type%        
-        if "%TYPE%" eq "FATAL_ERROR" .or. "%TYPE%" eq "FATALERROR" .or. "%TYPE%" eq "ERROR" (
+        if "%TYPE%" == "FATAL_ERROR" .or. "%TYPE%" == "FATALERROR" .or. "%TYPE%" == "ERROR" (
                 set DO_IT=
                 set temp_title=%_wintitle
                 call askyn "Cancel all execution and return to command line?" yes
@@ -435,7 +436,7 @@ goto :skip_subroutines
                 set nm=%bat%\dividers\rainbow-%wd%.txt
                 iff exist %nm% then
                         *type %nm%
-                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                        if "%1" != "NoNewline" .and. "%2" != "NoNewline" .and. "%3" != "NoNewline" .and. "%4" != "NoNewline" .and. "%5" != "NoNewline"  .and. "%6" != "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
                 else
                         echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
                 endiff

@@ -26,7 +26,7 @@ rem                       set TEXT_BEFORE_PATH=IceCream!   <——— changes "<
 
 rem ///// Branched to new version of this script with Windows 10, older OSes get the older version
     REM DEBUG: echo [DEBUG] prompt-common: os is %OS
-    if "%OS" eq "95" .or. "%OS" eq "98" .or. "%OS" eq "ME" .or. "%OS" eq "2K" .or. "%OS" eq "7" (call prompt-common-pre-win10-fork.bat %* %+ goto :END)
+    if "%OS" == "95" .or. "%OS" == "98" .or. "%OS" == "ME" .or. "%OS" == "2K" .or. "%OS" == "7" (call prompt-common-pre-win10-fork.bat %* %+ goto :END)
 
 rem ///// ANSI CONSTANTS (probably malformed, but work, so I never fixed them):
     :: QUICK-REF: 1=BOLD;30=Black,31=Red,32=Green,33=Yellow,34=Blue,35=Purp,36=Cyan,37=White
@@ -56,7 +56,7 @@ rem ///// DEFAULT COLORS THAT CAN BE OVERRIDDEN:
 
 rem ///// DEFAULT BEHAVIOR THAT CAN BE OVERRIDDEN:
     if not defined ADD_THE_CPU_USAGE   set ADD_THE_CPU_USAGE=1
-    if "%SUPPRESS_LESSTHAN_BEFORE_PATH%" ne "1" if not defined PATH_BRACKET_BEFORE set PATH_BRACKET_BEFORE=$l
+    if "%SUPPRESS_LESSTHAN_BEFORE_PATH%" != "1" if not defined PATH_BRACKET_BEFORE set PATH_BRACKET_BEFORE=$l
 
 rem ///// BUILD THE PROMPT:
     :Setup
@@ -71,7 +71,7 @@ rem ///// BUILD THE PROMPT:
             call cursor-common.bat %+ rem although we intend to reset the cursor with the prompt, this sets variables we need
     :Add_StarT_Text
             rem echo tmpprompt=%tmpprompt%
-            iff "%TEXT_AT_START%" ne "" .and. 1 eq 1 then
+            iff "%TEXT_AT_START%" != "" .and. 1 eq 1 then
                 rem set TMPPROMPT=%TMPPROMPT%%TEXT_AT_START% ``
                 rem gotta overwrite gross ansi leftovers
                 set TMPPROMPT=%TMPPROMPT%%@ANSI_MOVE_TO_COL[1]%TEXT_AT_START% ``
@@ -93,7 +93,7 @@ rem ///// BUILD THE PROMPT:
         )
     :Add_Any_Text_We_Want_Between
             rem echo tmpprompt=%tmpprompt%
-            iff "%TEXT_BEFORE_PATH%" ne "" .and. 1 eq 1 then
+            iff "%TEXT_BEFORE_PATH%" != "" .and. 1 eq 1 then
                 set TMPPROMPT=%TMPPROMPT%%TEXT_BEFORE_PATH% ``
             endiff
     :Add_Path
@@ -105,7 +105,7 @@ rem ///// BUILD THE PROMPT:
                 set TMPPROMPT=%TMPPROMPT%$e[%PATH_COLOR_BRACKETS%m$G
         
     :Add_Any_Text_We_Want_At_The_End        
-        iff "%TEXT_AT_END%" ne "" then
+        iff "%TEXT_AT_END%" != "" then
             set TMPPROMPT=%TMPPROMPT%%TEXT_AT_END%
         endiff
 
@@ -138,10 +138,10 @@ rem        SET tmpprompt=%additional_prompt%%tmpprompt%
 
 
 rem ///// FORMAT/SBUSTITUTE PLACEHOLDER/SET THE PROMPT:
-        if "%OS%" eq "2K" goto :CPU_Usage_Format_NO
-        if "%OS%" eq "XP" goto :CPU_Usage_Format_NO
-        if "%OS%" eq "10" goto :CPU_Usage_Format_YES_10
-        if "%OS%" eq "11" goto :CPU_Usage_Format_YES_10
+        if "%OS%" == "2K" goto :CPU_Usage_Format_NO
+        if "%OS%" == "XP" goto :CPU_Usage_Format_NO
+        if "%OS%" == "10" goto :CPU_Usage_Format_YES_10
+        if "%OS%" == "11" goto :CPU_Usage_Format_YES_10
                           goto :CPU_Usage_Format_YES_10 %+ REM Default behavior if %OS isn't set
 
         :CPU_Usage_Format_BEGIN

@@ -9,7 +9,7 @@
     timer /2 on
 
 rem NO LONGER NECESSARY: ::::: PROCESS COMMAND-LINE OPTIONS:
-rem NO LONGER NECESSARY:     if "%1" eq "/Q" .or. "%1" eq "quick" .or. "%1" eq "/quick" (goto :Quick)
+rem NO LONGER NECESSARY:     if "%1" == "/Q" .or. "%1" == "quick" .or. "%1" == "/quick" (goto :Quick)
 rem NO LONGER NECESSARY: 
 rem NO LONGER NECESSARY: ::::: FLUSH FILENAMES:
 rem NO LONGER NECESSARY:     :COLOR_IMPORTANT% %+ echo Flushing mp3 collection 1 filenames...        :done in index-mp3-helper nowadays

@@ -8,7 +8,7 @@ rem Validate environment (once):
 
 rem Get parameters:
         set COMMAND=%1
-        iff "%1" eq "" then
+        iff "%1" == "" then
                 %color_advice%
                 echo USAGE: Put the command you want to sweep in quotes, i.e.: 
                 echo        %0 "dir" 

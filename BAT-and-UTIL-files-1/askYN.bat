@@ -67,7 +67,7 @@ rem Get positional required parameters:
                 shift
         endiff
 
-        iff "%1" eq "test" then
+        iff "%1" == "test" then
                 set RUNNING_TESTS=1
         else        
                 set RUNNING_TESTS=0
@@ -76,24 +76,24 @@ rem Get positional required parameters:
         set DEFAULT_ANSWER=%1 %+ shift
         set WAIT_TIME=%1      %+ shift
 
-        if "%WAIT_TIME%" ne "" .and. "%WAIT_TIME%" ne "NULL" .and. "%WAIT_TIME%" ne "0" (set WAIT_OPS=/T /W%wait_time% %+ set WAIT_TIMER_ACTIVE=1)
+        if "%WAIT_TIME%" != "" .and. "%WAIT_TIME%" != "NULL" .and. "%WAIT_TIME%" != "0" (set WAIT_OPS=/T /W%wait_time% %+ set WAIT_TIMER_ACTIVE=1)
         
 
 rem Get non-positional parameters:
         set ADDITIONAL_KEYS=
 
         :grab_next_param
-                if "%1" eq "" (goto :done_grabbing_params)
-                if "%1" eq "noenter" .or. "%1" eq "no_enter" (shift %+ set NO_ENTER_KEY=1 %+ goto :grab_next_param)
-                if "%1" eq "big"     .or. "%1" eq "big"      (shift %+ set BIG_QUESTION=1 %+ goto :grab_next_param)
-                if "%1" eq "notitle" .or. "%1" eq "no_title" (shift %+ set NOTITLE=1      %+ goto :grab_next_param)
+                if "%1" == "" (goto :done_grabbing_params)
+                if "%1" == "noenter" .or. "%1" == "no_enter" (shift %+ set NO_ENTER_KEY=1 %+ goto :grab_next_param)
+                if "%1" == "big"     .or. "%1" == "big"      (shift %+ set BIG_QUESTION=1 %+ goto :grab_next_param)
+                if "%1" == "notitle" .or. "%1" == "no_title" (shift %+ set NOTITLE=1      %+ goto :grab_next_param)
         :done_grabbing_params
 
 rem Get positional-at-end parameter for expanded answer key meanings (“what does ‘A’ equal?”-type questions):
-        iff "%1%" ne "" then
+        iff "%1%" != "" then
                 set ADDITIONAL_KEYS=%1
                 shift
-                iff "%1" ne "" then
+                iff "%1" != "" then
                         rem echoerr we gotta figure this out: “%1$”
                         set key_meanings=%1$
                         for %%tmpLetterForKeyMeaning in (%1$) do ( gosub processLetterKeyMeaning "%tmpLetterForKeyMeaning%")
@@ -105,7 +105,7 @@ rem cancel %+ 🐐
                         goto :DoneWithKeyMeaning
                                 :processLetterKeyMeaning                         
                                         rem echoerr tmpLetterForKeyMeaning  = %tmpLetterForKeyMeaning%
-                                        if "1" ne "%@RegEx[:,%tmpLetterForKeyMeaning%]" (
+                                        if "1" != "%@RegEx[:,%tmpLetterForKeyMeaning%]" (
                                                 call fatal_error "%left_quote%%tmpLetterForKeyMeaning%%right_quote% makes no sense. This parameter should have been in the forumat of %left_quote%{%italics_on%letter%italics_off%}:{%italics_on%Key_Meaning%italics_off%}%right_quote%, where %left_quote%letter%right_quote% is a letter found in our additional allowable keys %faint_on%(currently set to %left_quote%additional_keys%%right_quote%)%faint_off%"
                                         )
                                         set tmp_key_meaning_letter=%@LEFT[1,%tmpLetterForKeyMeaning%]
@@ -117,7 +117,7 @@ rem cancel %+ 🐐
 
 
 
-iff "%ASK_QUESTION%" eq "" .or. "%ASK_QUESTION%" eq "help" .or. "%ASK_QUESTION%" eq "--help" .or. "%ASK_QUESTION%" eq "/?" .or. "%ASK_QUESTION%" eq "-?" .or. "%ASK_QUESTION%" eq "-h" then
+iff "%ASK_QUESTION%" == "" .or. "%ASK_QUESTION%" == "help" .or. "%ASK_QUESTION%" == "--help" .or. "%ASK_QUESTION%" == "/?" .or. "%ASK_QUESTION%" == "-?" .or. "%ASK_QUESTION%" == "-h" then
                 if not defined ansi_color_orange call set-ansi force
                 %color_advice%
                 echoerr.
@@ -216,24 +216,24 @@ rem Set title for waiting-for-answer state:
 REM Parameter validation:
         rem Let’s not dip into all this for something used so often: call validate-environment-variable question skip_validation_existence
         if not defined ask_question (call fatal_error "$0 called without a question being passed as the 1st parameter (also, “yes”/“no” must be 2ⁿᵈ parameter)")
-        iff "%default_answer" ne "" .and. "%default_answer%" ne "yes" .and. "%default_answer%" ne "no" .and. "%default_answer%" ne "y" .and. "%default_answer%" ne "n" then
+        iff "%default_answer" != "" .and. "%default_answer%" != "yes" .and. "%default_answer%" != "no" .and. "%default_answer%" != "y" .and. "%default_answer%" != "n" then
            call fatal_error "2nd parameter to %0 can only be “yes”, “no”, “y”, or “n” but was “%DEFAULT_ANSWER%”"
            rem TODO expand this to allow other letters if they were passed as available letters
         endiff
-        iff "%DEFAULT_ANSWER%" eq "" then
+        iff "%DEFAULT_ANSWER%" == "" then
             set default_answer=no
             call warning "Answer is defaulting to %default_answer% because 2nd parameter was not passed"
         endiff
 
 
 REM Parameter massaging:
-        if "%default_answer%" eq "y" (set default_answer=yes)
-        if "%default_answer%" eq "n" (set default_answer=no)
+        if "%default_answer%" == "y" (set default_answer=yes)
+        if "%default_answer%" == "n" (set default_answer=no)
 
 
 REM Build the question prompt:
                           unset /q WIN7DECORATOR
-        if "%OS%" eq "7" (  set    WIN7DECORATOR=*** ``)
+        if "%OS%" == "7" (  set    WIN7DECORATOR=*** ``)
         set BRACKET_COLOR=224,0,0
         set PRETTY_QUESTION=%@UNQUOTE[%ASK_QUESTION]
         rem echoerr "pretty question is “%pretty_question%”"
@@ -245,11 +245,11 @@ REM Build the question prompt:
                                                            rem set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK%%ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%? %italics_off%%emoji_red_question_mark%%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
                                                            rem 2024/12/24 but why?!?! I don’t like this either .. putting the space back in again haha ... Keep it!!
                                                                set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK% %ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%%italics_off%%@CHAR[65311]%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
-        if "%default_answer" eq "yes" .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%Y%underline_off%%bold_off%                             %+ rem   capital Y
-        if "%default_answer" eq "no"  .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%y%faint_off%                                                                        %+ rem lowercase Y
+        if "%default_answer" == "yes" .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%Y%underline_off%%bold_off%                             %+ rem   capital Y
+        if "%default_answer" == "no"  .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%y%faint_off%                                                                        %+ rem lowercase Y
                                                                set PRETTY_QUESTION=%pretty_question%%italics_off%%bold_off%%underline_off%%double_underline_off%%@ANSI_FG_RGB[%BRACKET_COLOR]/ %+ rem           slash
-        if "%default_answer" eq "yes" .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%n%faint_off%                                                                        %+ rem lowercase N
-        if "%default_answer" eq "no"  .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%N%underline_off%%bold_off%                             %+ rem   capital N
+        if "%default_answer" == "yes" .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%n%faint_off%                                                                        %+ rem lowercase N
+        if "%default_answer" == "no"  .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%N%underline_off%%bold_off%                             %+ rem   capital N
                                                 rem extra allowable keys go here, with a slash first:
                                                         set  spread=%@ReReplace[(.),\1 ,%additional_keys%]
                                                         for %%tmpKey in (%spread%) do (
@@ -337,7 +337,7 @@ REM Actually answer the question here —— make the windows “question” noi
         echos %BLINK_OFF%%ANSI_CURSOR_SHOW%
 
 REM set default answer if we hit ENTER, or timed out (which should only happen if WAIT_OPS exists):
-        if "%WAIT_OPS%" ne "" .and. ("%OUR_ANSWER%" eq "" .or. "%OUR_ANSWER%" eq "@28") (
+        if "%WAIT_OPS%" != "" .and. ("%OUR_ANSWER%" == "" .or. "%OUR_ANSWER%" == "@28") (
             set OUR_ANSWER=%default_answer%
             call print-if-debug "timed out, OUR_ANSWER set to “%OUR_ANSWER%”"
         )        
@@ -348,9 +348,9 @@ REM Make sure we have an answer, and initialize our return values
         set ANSWER=%OUR_ANSWER%
 
 REM Process the enter key into our default answer:
-        if %OUR_ANSWER% eq "@28" .or. "%@ASCII[%OUR_ANSWER]"=="64 50 56" (
-            if  "%default_answer%" eq "no"  ( set DO_IT=0 %+ set ANSWER=N )
-            if  "%default_answer%" eq "yes" ( set DO_IT=1 %+ set ANSWER=Y )                  
+        if %OUR_ANSWER% == "@28" .or. "%@ASCII[%OUR_ANSWER]"=="64 50 56" (
+            if  "%default_answer%" == "no"  ( set DO_IT=0 %+ set ANSWER=N )
+            if  "%default_answer%" == "yes" ( set DO_IT=1 %+ set ANSWER=Y )                  
             echoserr  ``
             call print-if-debug "enter key processing, answer is now “%ANSWER%”"
         ) 
@@ -364,19 +364,19 @@ REM Title
 
 
 REM Set our 2 major return values that are referred to from calling scripts:
-        if "%OUR_ANSWER%" eq "Y" .or. "%OUR_ANSWER%" eq "yes" (set DO_IT=1 %+ set ANSWER=Y)
-        if "%OUR_ANSWER%" eq "N" .or. "%OUR_ANSWER%" eq "no"  (set DO_IT=0 %+ set ANSWER=N) 
+        if "%OUR_ANSWER%" == "Y" .or. "%OUR_ANSWER%" == "yes" (set DO_IT=1 %+ set ANSWER=Y)
+        if "%OUR_ANSWER%" == "N" .or. "%OUR_ANSWER%" == "no"  (set DO_IT=0 %+ set ANSWER=N) 
 
 
 REM Generate "pretty" answers & update the title:
-        iff "%ANSWER" eq "Y" .or. "%ANSWER" eq "yes" then
+        iff "%ANSWER" == "Y" .or. "%ANSWER" == "yes" then
                 set PRETTY_ANSWER= %ANSI_BRIGHT_GREEN%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%Yes%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%
                 echoserr %@CURSOR_COLOR_BY_HEX[%color_success_hex%]
-        elseiff "%ANSWER" eq "N" .or. "%ANSWER" eq "no" then 
+        elseiff "%ANSWER" == "N" .or. "%ANSWER" == "no" then 
                 set PRETTY_ANSWER= %ANSI_BRIGHT_RED%%ITALICS_ON%%DOUBLE_UNDERLINE_ON%No%DOUBLE_UNDERLINE_OFF%%BLINK_ON%!%BLINK_OFF%%ITALICS_OFF%
                 echoserr %@CURSOR_COLOR_BY_HEX[%color_alarm_hex%]
         else                
-                iff "" ne "%[key_meaning_%answer%]" then
+                iff "" != "%[key_meaning_%answer%]" then
                         rem (Make sure to change underscores to spaces)
                         set VALUE_TO_USE=%@ReReplace[\_, ,%[key_meaning_%ANSWER%]]
                 else

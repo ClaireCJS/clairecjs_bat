@@ -17,7 +17,7 @@ rem VALIDATE ENVIRONMENT:
         endiff
         
 rem GRAB + VALIDATE PARAMETER IS A M3U/TXT file:
-        set                                 FILELIST_TO_USE=%@unquote[%1]
+        set                                 FILELIST_TO_USE=%@unquote["%1"]
         call validate-environment-variable  FILELIST_TO_USE
         call validate-is-extension        "%FILELIST_TO_USE%" *.m3u;*.txt  "1ˢᵗ parameter to %0 must be of .%underline_on%m3u%underline_off% or .%underline_on%txt%underline_off% extension"
  
@@ -26,16 +26,3 @@ rem GRAB + VALIDATE PARAMETER IS A M3U/TXT file:
          
 :END        
 
-goto :skip_subroutines
-        :divider []
-                rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
-                set wd=%@EVAL[%_columns - 1]
-                set nm=%bat%\dividers\rainbow-%wd%.txt
-                iff exist %nm% then
-                        *type %nm%
-                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
-                else
-                        echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
-                endiff
-        return
-:skip_subroutines

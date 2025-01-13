@@ -8,7 +8,7 @@ REM check parameters
 SET ART=%1
 SET MUSIC=%2
 SET THREE=%@UPPER[%3]
-if "%THREE%" eq "ALT" .or. "%THREE%" eq "ALTERNATE" (goto :Alt_Yes)
+if "%THREE%" == "ALT" .or. "%THREE%" == "ALTERNATE" (goto :Alt_Yes)
 
 
 REM embed the art into the song

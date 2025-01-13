@@ -3,9 +3,9 @@
 
 REM call debug "Setting emojis..."
 
-if "%1" eq "force"               (goto :Main_Branch)
-if  "1" eq %EMOJIS_HAVE_BEEN_SET (goto :Already_Set)
-if "%1" eq "generate"            (fix_unicode_filenames.py script|:u8sort|:u8uniq >:u8%bat%\emoji.env.generated.on.%_ISODATE.dont.forget.to.move.manual.stuff.at.end.of.previous.versions)
+if "%1" == "force"                  (goto :Main_Branch)
+if  "1" == "%EMOJIS_HAVE_BEEN_SET%" (goto :Already_Set)
+if "%1" == "generate"               (fix_unicode_filenames.py script|:u8sort|:u8uniq >:u8%bat%\emoji.env.generated.on.%_ISODATE.dont.forget.to.move.manual.stuff.at.end.of.previous.versions)
 
 :Main_Branch
 

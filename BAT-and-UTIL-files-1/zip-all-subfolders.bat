@@ -17,14 +17,14 @@ goto :END
             call print-if-debug - ZipAllFoldersInADir %dirdir%     (withoutQuotes=%dirdirWithoutQuotes%)
 
         :: quit if it's a bullshit folder like "", ".", "..", or the one we're actually in (forget why):
-            if "%dir%" eq "" .or. "%dir%" eq "." .or. "%dir%" eq ".." goto :return
+            if "%dir%" != "" .or. "%dir%" != "." .or. "%dir%" != ".." goto :return
 
         :: change into folder:
             cd %dirdir%
 
             :: do something in that folder:
-                call print-if-debug * current folder = %_CWP    %+ if "%DEBUG%" eq "1" pause
-                call zip-all-folders %*                     %+ if "%DEBUG%" eq "1" pause
+                call print-if-debug * current folder = %_CWP   %+ if "%DEBUG%" != "1" pause
+                call zip-all-folders %*                        %+ if "%DEBUG%" != "1" pause
 
         :: change back from folder:
             cd ..

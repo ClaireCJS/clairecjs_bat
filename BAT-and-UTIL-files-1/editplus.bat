@@ -20,11 +20,11 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
         set ALL_ARGS=%*
         set ARGV1=%@UNQUOTE[%1]
         REM echo %DEBUG_LEVEL%: %0: all-args is %ALL_ARGS, %%ARGV1 is %ARGV1
-        REM echo if "%ARGV1%" eq "USE EDITPLUS VERSION 3" 
+        REM echo if "%ARGV1%" == "USE EDITPLUS VERSION 3" 
         set NEW_INSTANCE=0
-        if "%ARGV1%" eq "new" .or. "%ARGV1%" eq "new instance" set NEW_INSTANCE=1
+        if "%ARGV1%" == "new" .or. "%ARGV1%" == "new instance" set NEW_INSTANCE=1
         
-        if "%ARGV1%" eq "USE EDITPLUS VERSION 3" (
+        if "%ARGV1%" == "USE EDITPLUS VERSION 3" (
             REM echo %DEBUG_LEVEL%: $0: editplus 3 override flagged
             set ALL_ARGS=%2$
             goto :v3
@@ -35,8 +35,8 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
         if isdir "%[PROGRAMFILES]%\EditPlus 5"      goto :v5
         if "%OUR_COMMAND_LINE%" == "Anaconda"       goto :AnacondaStart
         :NO MORE!: if "%MACHINENAME"=="Hades"       goto :Hades
-    REM if "%MACHINENAME%" eq "DEMONA"              goto :Demona
-        if "%FOUR%" eq "YES" goto :v4
+    REM if "%MACHINENAME%" == "DEMONA"              goto :Demona
+        if "%FOUR%" == "YES" goto :v4
         if isdir "%[PROGRAMFILES(x86)]%\EditPlus 4" goto :v4
         if isdir  "%PROGRAMFILES%\EditPlus 2"       goto :v2
         if isdir  "%PROGRAMFILES%\EditPlus 3"       goto :v3
@@ -83,7 +83,7 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
                     start /ELEVATED "%EDITPLUS_EXE%" 
             )
 
-            if "%ALL_ARGS%" eq "" (
+            if "%ALL_ARGS%" == "" (
                 REM If you run editplus.exe at the command line, it doesn't return the console unless you use the start command
 
                 REM But if you use the start command, it creates multiple instances —— EVEN IF THAT FEATURE IS DISALLOWED IN EDTPLUS OPTIONS ——
@@ -131,7 +131,7 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
 :END
 
 rem CLEANUP:
-        if "%MINIMIZE_AFTER" eq "1" windowhide.exe /min *EditPlus
+        if "%MINIMIZE_AFTER" == "1" windowhide.exe /min *EditPlus
         unset /q STARTOPTIONS
 
 :Anaconda_END

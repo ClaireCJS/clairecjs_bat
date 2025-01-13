@@ -34,8 +34,8 @@
 ::::: CONSTANTS:
     set DIRLISTRAND=dirlist-random-%_YEAR.bak
     set DIRLISTNORM=dirlist-normal-%_YEAR.bak
-    if "%@UPPER[%USERNAME%]" eq "CLAIRE" goto :IsClio
-    if "%@UPPER[%USERNAME%]" eq "CLIO"   goto :IsClio
+    if "%@UPPER[%USERNAME%]" == "CLAIRE" goto :IsClio
+    if "%@UPPER[%USERNAME%]" == "CLIO"   goto :IsClio
         set DIRLISTRAND=%DIRLISTRAND%-%USERNAME%.bak
         set DIRLISTNORM=%DIRLISTNORM%-%USERNAME%.bak
     :IsClio
@@ -47,7 +47,7 @@
     call validate-environment-variable FILE_TO_CHECK_FOR
     call validate-environment-variable DIRLISTRAND
     call validate-environment-variable DIRLISTNORM  
-    :: BAD IDEA, SHOULD BE A PARAMETER: if "%FIND_FOLDER_GENERAL_MAPPINGS_CHECKED%" ne "1" (call checkmappings %+ set FIND_FOLDER_GENERAL_MAPPINGS_CHECKED=1)
+    :: BAD IDEA, SHOULD BE A PARAMETER: if "%FIND_FOLDER_GENERAL_MAPPINGS_CHECKED%" != "1" (call checkmappings %+ set FIND_FOLDER_GENERAL_MAPPINGS_CHECKED=1)
 
 
 :::: TRASH EXPIRED INDEXES:
@@ -64,7 +64,7 @@
                 SET      CURRENT_DELTA_SEC=%@EVAL[%CURRENT_DELTA_VAL% /   %TIMESTAMP_PER_SECOND%]
                 SET      CURRENT_DELTA_MIN=%@EVAL[%CURRENT_DELTA_SEC% /     %SECONDS_PER_MINUTE%]
                 SET                  DO_IT=%@EVAL[%CURRENT_DELTA_MIN% > %MINUTES_BEFORE_REFRESH%]
-                if "%DO_IT%" eq "1" .and. exist "%FILE_TO_CHECK%"  (echo * Deleting %FILE_TO_CHECK% for being more than %MINUTES_BEFORE_REFRESH% minutes old %+ *del %FILE_TO_CHECK%)
+                if "%DO_IT%" == "1" .and. exist "%FILE_TO_CHECK%"  (echo * Deleting %FILE_TO_CHECK% for being more than %MINUTES_BEFORE_REFRESH% minutes old %+ *del %FILE_TO_CHECK%)
     :: delete %DIRLISTNORM% if it's more than 24hrs (1440min) old
             SET FILE_TO_CHECK=%DIRLISTNORM%
             SET MINUTES_BEFORE_REFRESH=%MINUTES_BEFORE_TRASHING_CURRENT_DIRECTORY_LIST%
@@ -77,24 +77,24 @@
                 SET      CURRENT_DELTA_SEC=%@EVAL[%CURRENT_DELTA_VAL% /   %TIMESTAMP_PER_SECOND%]
                 SET      CURRENT_DELTA_MIN=%@EVAL[%CURRENT_DELTA_SEC% /     %SECONDS_PER_MINUTE%]
                 SET                  DO_IT=%@EVAL[%CURRENT_DELTA_MIN% > %MINUTES_BEFORE_REFRESH%]
-                if "%DO_IT%" eq "1"  (echo * Deleting %FILE_TO_CHECK% for being more than %MINUTES_BEFORE_REFRESH% minutes old %+ *del %FILE_TO_CHECK%)
+                if "%DO_IT%" == "1"  (echo * Deleting %FILE_TO_CHECK% for being more than %MINUTES_BEFORE_REFRESH% minutes old %+ *del %FILE_TO_CHECK%)
 
 :::: CHECK ALL FOLDERS FOR UPLOAD SCRIPT:
     set ALREADY_FOUND=0
 
     :: determine whether we go through our dir list in sequential or random order:
-        if "%RANDOM_DIR_WALKING%" ne "1" (gosub ensureDirListNormal %+ set DIRLIST_TO_USE=%DIRLISTNORM%)
-        if "%RANDOM_DIR_WALKING%" eq "1" (gosub ensureDirListRandom %+ set DIRLIST_TO_USE=%DIRLISTRAND%)
+        if "%RANDOM_DIR_WALKING%" != "1" (gosub ensureDirListNormal %+ set DIRLIST_TO_USE=%DIRLISTNORM%)
+        if "%RANDOM_DIR_WALKING%" == "1" (gosub ensureDirListRandom %+ set DIRLIST_TO_USE=%DIRLISTRAND%)
 
     :: go through our dir list, checking for the situation:
         for /a:d %1 in (@%DIRLIST_TO_USE%) do gosub processdir "%1"
 
 :::: THE SCRIPT ENDS ITSELF IF WE GET TO ONE THAT DOESN'T HAVE IT, SO IF WE GET HERE, WE NEVER FOUND IT.
-    unset /q NOT %+ if "%ALREADY_FOUND%" ne "1" set NOT= NOT
+    unset /q NOT %+ if "%ALREADY_FOUND%" != "1" set NOT= NOT
     %COLOR_ALARM% %+ echos *** Got to the end. Did%NOT% find a folder that meets these conditions. 
     %COLOR_DEBUG% %+ echo     (ALREADY_FOUND=%ALREADY_FOUND% and should always be 0 here)
-                     if "%ALREADY_FOUND%" eq "1" call alarm-charge
-                     if "%ALREADY_FOUND%" eq "0" call white-noise 1
+                     if "%ALREADY_FOUND%" == "1" call alarm-charge
+                     if "%ALREADY_FOUND%" == "0" call white-noise 1
                      pause
     goto :END
 
@@ -106,9 +106,9 @@
         ::echo * Checking folder %dirwithquotes%
 
     ::::: We have to run through every folder, so if we've already found it, we do nothing:
-        if "%ALREADY_FOUND%" eq "1" (goto :Nevermind)
+        if "%ALREADY_FOUND%" == "1" (goto :Nevermind)
         set dir=%@STRIP[%=",%dirwithquotes]
-        if "%dir%" eq "" .or. "%dir%" eq "." .or. "%dir%" eq ".." goto :Nevermind
+        if "%dir%" == "" .or. "%dir%" == "." .or. "%dir%" == ".." goto :Nevermind
 
     ::::: If we're here, we're *actually* checking a folder. Change into it:
         echo. %+ %COLOR_IMPORTANT% %+ echos * Checking folder "%dir%"... %+ %COLOR_NORMAL%
@@ -117,20 +117,20 @@
         :Deciding to do this later, after recursing: if defined CRUMBS if exist "%CRUMBS%" (color bright blue on black %+ echos ...crumbs found... %+ color white on black %+ goto :FoundIt_NO_NoCrumbs)
 
     ::::: Recurse folders:
-        if "%RANDOM_DIR_WALKING%" eq "1" goto :Random_YES
-        if "%RANDOM_DIR_WALKING%" eq "0" goto :Random_NO
+        if "%RANDOM_DIR_WALKING%" == "1" goto :Random_YES
+        if "%RANDOM_DIR_WALKING%" == "0" goto :Random_NO
                                          goto :Random_NO
             :Random_YES
                 color cyan on black %+ echos ...Ensuring random dirlist... %+ color white on black
                 gosub ensureDirListRandom 
                 for /a:d %1 in (@%DIRLISTRAND%) do gosub processdir "%1"
-                if "%ALREADY_FOUND%" eq "1" goto :Nevermind
+                if "%ALREADY_FOUND%" == "1" goto :Nevermind
                 goto :Recurse_Done
             :Random_NO
                 color bright blue on black %+ echos ...Ensuring non-random dirlist... %+ color white on black
                 gosub ensureDirListNormal
                 for /a:d %1 in (@%DIRLISTNORM%) do gosub processdir "%1"
-                if "%ALREADY_FOUND%" eq "1" goto :Nevermind
+                if "%ALREADY_FOUND%" == "1" goto :Nevermind
                 goto :Recurse_Done
             :Recurse_Done
 
@@ -222,7 +222,7 @@ return
 
     :: stack any keys we're told to stack:
         :DEBUG: echo ALREADY_FOUND is %ALREADY_FOUND%, keystack=%KEYSTACK%
-        if "%ALREADY_FOUND%" eq "0" goto :NoKeystack
+        if "%ALREADY_FOUND%" == "0" goto :NoKeystack
             if not defined KEYSTACK goto :NoKeystack
             keystack %KEYSTACK%
         :NoKeystack

@@ -2,7 +2,7 @@
 @Echo Off
 
 set INSERT_TEXT=%1
-if "%1" eq "SetVarsOnly" (goto :END)
+if "%1" == "SetVarsOnly" (goto :END)
 
 call validate-environment-variable INSERT_TEXT
 
@@ -20,7 +20,7 @@ goto :Cleanup
                 echo.
                 echo %ANSI_COLOR_DEBUG%%STAR% Processing file %emphasis%%file_quoted%%deemphasis%...
 
-                rem if "%@INSTR[0,%@LEN[%insert_text],%file_unquoted]" eq "%@UNQUOTE[%insert_text%]" 
+                rem if "%@INSTR[0,%@LEN[%insert_text],%file_unquoted]" == "%@UNQUOTE[%insert_text%]" 
                 if %@REGEX[%insert_text,%file_unquoted] eq 1 (
                         echos      %ANSI_COLOR_WARNING%Skipping file '%file_unquoted%'...``%ANSI_COLOR_NORMAL%
                         echos          ...Though this may be an invalid skip due to finding %INSERT_TEXT% anywhere in the filename... we're doing a lazy check because this won't happen very often

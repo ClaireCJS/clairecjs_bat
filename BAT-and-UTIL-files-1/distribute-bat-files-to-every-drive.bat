@@ -75,7 +75,7 @@ goto :Cleanup
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :Delay
-    if "%DIST_DELAY%" ne "" (%COLOR_DEBUG% %+ echo %EMOJI_STOPWATCH%%EMOJI_STOPWATCH% (waiting %DIST_DELAY% seconds) %EMOJI_STOPWATCH%%EMOJI_STOPWATCH% %+ %COLOR_NORMAL% %+ sleep %DIST_DELAY%)
+    if "%DIST_DELAY%" != "" (%COLOR_DEBUG% %+ echo %EMOJI_STOPWATCH%%EMOJI_STOPWATCH% (waiting %DIST_DELAY% seconds) %EMOJI_STOPWATCH%%EMOJI_STOPWATCH% %+ %COLOR_NORMAL% %+ sleep %DIST_DELAY%)
 return
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -146,7 +146,7 @@ goto :Cleanup
     call git-commit nopause
     set NO_GIT_ADD_PAUSE=0
                                                                                                    unset /q MIN 
-    if "%1" eq "MINIMIZE" .or. "%2" eq "MINIMIZE" .or. "%3" eq "MINIMIZE" .or. "%4" eq "MINIMIZE" (  set    MIN=/min)
+    if "%1" == "MINIMIZE" .or. "%2" == "MINIMIZE" .or. "%3" == "MINIMIZE" .or. "%4" == "MINIMIZE" (  set    MIN=/min)
     set Command_To_Use=start "Dist'ing..." %MIN% if isdir c:\bat exitcopy /s /e /u /w /a: /[!.git *.bak] c:\bat
     gosub :doit
     rem Create a file as a way to timestamp the last time this was done:
@@ -175,37 +175,37 @@ goto :Cleanup
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :doit_for_custom_commands
    call wake-all-drives
-   if "%@READY[M]" eq "1" if isdir M:\bat %Command_To_Use M:\bat\%TailCmd
-   if "%@READY[K]" eq "1" if isdir K:\bat %Command_To_Use K:\bat\%TailCmd
+   if "%@READY[M]" == "1" if isdir M:\bat %Command_To_Use M:\bat\%TailCmd
+   if "%@READY[K]" == "1" if isdir K:\bat %Command_To_Use K:\bat\%TailCmd
    gosub delay
-   if "%@READY[A]" eq "1" if isdir A:\bat %Command_To_Use A:\bat\%TailCmd
-   if "%@READY[B]" eq "1" if isdir B:\bat %Command_To_Use B:\bat\%TailCmd
-   if "%@READY[C]" eq "1" if isdir C:\bat %Command_To_Use C:\bat\%TailCmd
+   if "%@READY[A]" == "1" if isdir A:\bat %Command_To_Use A:\bat\%TailCmd
+   if "%@READY[B]" == "1" if isdir B:\bat %Command_To_Use B:\bat\%TailCmd
+   if "%@READY[C]" == "1" if isdir C:\bat %Command_To_Use C:\bat\%TailCmd
    gosub delay
-   if "%@READY[D]" eq "1" if isdir D:\bat %Command_To_Use D:\bat\%TailCmd
-   if "%@READY[E]" eq "1" if isdir E:\bat %Command_To_Use E:\bat\%TailCmd
-   if "%@READY[F]" eq "1" if isdir F:\bat %Command_To_Use F:\bat\%TailCmd
-   if "%@READY[G]" eq "1" if isdir G:\bat %Command_To_Use G:\bat\%TailCmd
+   if "%@READY[D]" == "1" if isdir D:\bat %Command_To_Use D:\bat\%TailCmd
+   if "%@READY[E]" == "1" if isdir E:\bat %Command_To_Use E:\bat\%TailCmd
+   if "%@READY[F]" == "1" if isdir F:\bat %Command_To_Use F:\bat\%TailCmd
+   if "%@READY[G]" == "1" if isdir G:\bat %Command_To_Use G:\bat\%TailCmd
    gosub delay
-   if "%@READY[H]" eq "1" if isdir H:\bat %Command_To_Use H:\bat\%TailCmd
-   if "%@READY[I]" eq "1" if isdir I:\bat %Command_To_Use I:\bat\%TailCmd
-   if "%@READY[J]" eq "1" if isdir J:\bat %Command_To_Use J:\bat\%TailCmd
-   if "%@READY[L]" eq "1" if isdir L:\bat %Command_To_Use L:\bat\%TailCmd
-   if "%@READY[N]" eq "1" if isdir N:\bat %Command_To_Use N:\bat\%TailCmd
+   if "%@READY[H]" == "1" if isdir H:\bat %Command_To_Use H:\bat\%TailCmd
+   if "%@READY[I]" == "1" if isdir I:\bat %Command_To_Use I:\bat\%TailCmd
+   if "%@READY[J]" == "1" if isdir J:\bat %Command_To_Use J:\bat\%TailCmd
+   if "%@READY[L]" == "1" if isdir L:\bat %Command_To_Use L:\bat\%TailCmd
+   if "%@READY[N]" == "1" if isdir N:\bat %Command_To_Use N:\bat\%TailCmd
    gosub delay
-   if "%@READY[O]" eq "1" if isdir O:\bat %Command_To_Use O:\bat\%TailCmd
-   if "%@READY[P]" eq "1" if isdir P:\bat %Command_To_Use P:\bat\%TailCmd
-   if "%@READY[Q]" eq "1" if isdir Q:\bat %Command_To_Use Q:\bat\%TailCmd
-   if "%@READY[R]" eq "1" if isdir R:\bat %Command_To_Use R:\bat\%TailCmd
-   if "%@READY[S]" eq "1" if isdir S:\bat %Command_To_Use S:\bat\%TailCmd
-   if "%@READY[T]" eq "1" if isdir T:\bat %Command_To_Use T:\bat\%TailCmd
+   if "%@READY[O]" == "1" if isdir O:\bat %Command_To_Use O:\bat\%TailCmd
+   if "%@READY[P]" == "1" if isdir P:\bat %Command_To_Use P:\bat\%TailCmd
+   if "%@READY[Q]" == "1" if isdir Q:\bat %Command_To_Use Q:\bat\%TailCmd
+   if "%@READY[R]" == "1" if isdir R:\bat %Command_To_Use R:\bat\%TailCmd
+   if "%@READY[S]" == "1" if isdir S:\bat %Command_To_Use S:\bat\%TailCmd
+   if "%@READY[T]" == "1" if isdir T:\bat %Command_To_Use T:\bat\%TailCmd
    gosub delay
-   if "%@READY[U]" eq "1" if isdir U:\bat %Command_To_Use U:\bat\%TailCmd
-   if "%@READY[V]" eq "1" if isdir V:\bat %Command_To_Use V:\bat\%TailCmd
-   if "%@READY[W]" eq "1" if isdir W:\bat %Command_To_Use W:\bat\%TailCmd
-   if "%@READY[X]" eq "1" if isdir X:\bat %Command_To_Use X:\bat\%TailCmd
-   if "%@READY[Y]" eq "1" if isdir Y:\bat %Command_To_Use Y:\bat\%TailCmd
-   if "%@READY[Z]" eq "1" if isdir Z:\bat %Command_To_Use Z:\bat\%TailCmd
+   if "%@READY[U]" == "1" if isdir U:\bat %Command_To_Use U:\bat\%TailCmd
+   if "%@READY[V]" == "1" if isdir V:\bat %Command_To_Use V:\bat\%TailCmd
+   if "%@READY[W]" == "1" if isdir W:\bat %Command_To_Use W:\bat\%TailCmd
+   if "%@READY[X]" == "1" if isdir X:\bat %Command_To_Use X:\bat\%TailCmd
+   if "%@READY[Y]" == "1" if isdir Y:\bat %Command_To_Use Y:\bat\%TailCmd
+   if "%@READY[Z]" == "1" if isdir Z:\bat %Command_To_Use Z:\bat\%TailCmd
 
     if "%2"== "noWAN"   (return)
     if ""  != "%HDWORK" (%Command_To_Use %HDWORK:\bat\%TailCmd)
@@ -250,37 +250,37 @@ return
     REM THIS IS THE OLD DEPRECATED HARDCODED WAYS THAT WERE REFACTORED AND NO LONGER USED:
 
     call wake-all-drives
-       if "%@READY[A]" eq "1" if isdir A:\bat %Command_To_Use A:\bat
-       if "%@READY[K]" eq "1" if isdir K:\bat %Command_To_Use K:\bat
+       if "%@READY[A]" == "1" if isdir A:\bat %Command_To_Use A:\bat
+       if "%@READY[K]" == "1" if isdir K:\bat %Command_To_Use K:\bat
            gosub delay
-       if "%@READY[M]" eq "1" if isdir M:\bat %Command_To_Use M:\bat
-       if "%@READY[B]" eq "1" if isdir B:\bat %Command_To_Use B:\bat
-       if "%@READY[C]" eq "1" if isdir C:\bat %Command_To_Use C:\bat
-       if "%@READY[D]" eq "1" if isdir D:\bat %Command_To_Use D:\bat
+       if "%@READY[M]" == "1" if isdir M:\bat %Command_To_Use M:\bat
+       if "%@READY[B]" == "1" if isdir B:\bat %Command_To_Use B:\bat
+       if "%@READY[C]" == "1" if isdir C:\bat %Command_To_Use C:\bat
+       if "%@READY[D]" == "1" if isdir D:\bat %Command_To_Use D:\bat
            gosub delay
-       if "%@READY[E]" eq "1" if isdir E:\bat %Command_To_Use E:\bat
-       if "%@READY[F]" eq "1" if isdir F:\bat %Command_To_Use F:\bat
-       if "%@READY[G]" eq "1" if isdir G:\bat %Command_To_Use G:\bat
-       if "%@READY[H]" eq "1" if isdir H:\bat %Command_To_Use H:\bat
-       if "%@READY[I]" eq "1" if isdir I:\bat %Command_To_Use I:\bat
+       if "%@READY[E]" == "1" if isdir E:\bat %Command_To_Use E:\bat
+       if "%@READY[F]" == "1" if isdir F:\bat %Command_To_Use F:\bat
+       if "%@READY[G]" == "1" if isdir G:\bat %Command_To_Use G:\bat
+       if "%@READY[H]" == "1" if isdir H:\bat %Command_To_Use H:\bat
+       if "%@READY[I]" == "1" if isdir I:\bat %Command_To_Use I:\bat
            gosub delay
-       if "%@READY[J]" eq "1" if isdir J:\bat %Command_To_Use J:\bat
-       if "%@READY[L]" eq "1" if isdir L:\bat %Command_To_Use L:\bat
-       if "%@READY[N]" eq "1" if isdir N:\bat %Command_To_Use N:\bat
-       if "%@READY[O]" eq "1" if isdir O:\bat %Command_To_Use O:\bat
-       if "%@READY[P]" eq "1" if isdir P:\bat %Command_To_Use P:\bat
+       if "%@READY[J]" == "1" if isdir J:\bat %Command_To_Use J:\bat
+       if "%@READY[L]" == "1" if isdir L:\bat %Command_To_Use L:\bat
+       if "%@READY[N]" == "1" if isdir N:\bat %Command_To_Use N:\bat
+       if "%@READY[O]" == "1" if isdir O:\bat %Command_To_Use O:\bat
+       if "%@READY[P]" == "1" if isdir P:\bat %Command_To_Use P:\bat
            gosub delay
-       if "%@READY[Q]" eq "1" if isdir Q:\bat %Command_To_Use Q:\bat
-       if "%@READY[R]" eq "1" if isdir R:\bat %Command_To_Use R:\bat
-       if "%@READY[S]" eq "1" if isdir S:\bat %Command_To_Use S:\bat
-       if "%@READY[T]" eq "1" if isdir T:\bat %Command_To_Use T:\bat
-       if "%@READY[U]" eq "1" if isdir U:\bat %Command_To_Use U:\bat
+       if "%@READY[Q]" == "1" if isdir Q:\bat %Command_To_Use Q:\bat
+       if "%@READY[R]" == "1" if isdir R:\bat %Command_To_Use R:\bat
+       if "%@READY[S]" == "1" if isdir S:\bat %Command_To_Use S:\bat
+       if "%@READY[T]" == "1" if isdir T:\bat %Command_To_Use T:\bat
+       if "%@READY[U]" == "1" if isdir U:\bat %Command_To_Use U:\bat
            gosub delay
-       if "%@READY[V]" eq "1" if isdir V:\bat %Command_To_Use V:\bat
-       if "%@READY[W]" eq "1" if isdir W:\bat %Command_To_Use W:\bat
-       if "%@READY[X]" eq "1" if isdir X:\bat %Command_To_Use X:\bat
-       if "%@READY[Y]" eq "1" if isdir Y:\bat %Command_To_Use Y:\bat
-       if "%@READY[Z]" eq "1" if isdir Z:\bat %Command_To_Use Z:\bat
+       if "%@READY[V]" == "1" if isdir V:\bat %Command_To_Use V:\bat
+       if "%@READY[W]" == "1" if isdir W:\bat %Command_To_Use W:\bat
+       if "%@READY[X]" == "1" if isdir X:\bat %Command_To_Use X:\bat
+       if "%@READY[Y]" == "1" if isdir Y:\bat %Command_To_Use Y:\bat
+       if "%@READY[Z]" == "1" if isdir Z:\bat %Command_To_Use Z:\bat
 
         if "%2" == "noWAN"   (return)
         if ""   != "%HDWORK" (%Command_To_Use %HDWORK:\bat)

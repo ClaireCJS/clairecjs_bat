@@ -11,17 +11,17 @@
         set COLOR_ALARM_ORIGINAL=%COLOR_ALARM%                                   %+ REM  Store, becuase we will be changing it.
 
 :::: PARAMETERS:
-         if      "%1"        ne "" (set SECONDS=%1)
-         if      "%SECONDS%" eq "" (set SECONDS=%DEFAULT_SECONDS%)
+         if      "%1"        != "" (set SECONDS=%1)
+         if      "%SECONDS%" == "" (set SECONDS=%DEFAULT_SECONDS%)
          if %@LEN[%SECONDS%] gt  2 (set SECONDS=%DEFAULT_SECONDS%)               %+ REM annoyance protection from more than 99 seconds!
-         if "%@UPPER[%1]" eq "EXITAFTER" .or. "%@UPPER[%2]" eq "EXITAFTER" (set EXITAFTER_WN=1)
+         if "%@UPPER[%1]" == "EXITAFTER" .or. "%@UPPER[%2]" == "EXITAFTER" (set EXITAFTER_WN=1)
 
 ::::: SET INTERVAL VALUE, WHICH IS NUM_SECONDS * 18:
         set INTERVAL_TO_USE=%@EVAL[%SECONDS% * 17]                               %+ REM Is actually 18, but allowing for overhead.
         if not defined INTERVAL_TO_USE (set INTERVAL_TO_USE=17)                  %+ REM in case our eval fails for some reason
 
 :::: MINIMIZE IN THIS SITUATION::
-        if "%EXITAFTER_WN%" eq "1" (window minimize)
+        if "%EXITAFTER_WN%" == "1" (window minimize)
 
 :::: NOISE!!:
         set INTERVAL_USED=0
@@ -50,7 +50,7 @@
                                 SET FG=%@RANDOM[0,15] 
                                 :ReBG
                                 SET BG=%@RANDOM[0,15]
-                                if "%BG%" eq "%FG%" (goto :ReBG)
+                                if "%BG%" == "%FG%" (goto :ReBG)
                         rem echo debug:        *beep %BEEP_FREQUENCY_TEMP% %BEEP_INTERVALL_TEMP%
                         if %sleeping ne 1 (    *beep %BEEP_FREQUENCY_TEMP% %BEEP_INTERVALL_TEMP%)
                         if %sleeping eq 1 (call beep %BEEP_FREQUENCY_TEMP% %BEEP_INTERVALL_TEMP%)
@@ -59,6 +59,6 @@
         if not %INTERVAL_USED% gt %INTERVAL_TO_USE% (goto :Beep_Again)
 
 :::: CLEANUP:
-        if "%SLEEPING%"     eq "1" (echo.                             )
-        if "%EXITAFTER_WN%" eq "1" (echo (no longer: endlocal) %+ exit)
+        if "%SLEEPING%"     == "1" (echo.                             )
+        if "%EXITAFTER_WN%" == "1" (echo (no longer: endlocal) %+ exit)
         echos %CURSOR_RESET%

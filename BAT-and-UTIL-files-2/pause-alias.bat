@@ -21,7 +21,7 @@ rem Parameter passing:
         SET PARAM_6=%@UNQUOTE[%6]
 
         rem Help parameter:
-                iff "%PARAM_1" eq "/?" .or. "%PARAM_1" eq "-?" .or. "%PARAM_1" eq "/h" .or. "%PARAM_1" eq "-h" .or. "%PARAM_1" eq "--help" .or. "%PARAM_1" eq "?" .or. "%PARAM_1" eq "help" .or. "%PARAM_1" eq "--h" .or. "%PARAM_1" eq "-?" .or. "%PARAM_1" eq "--?" then
+                iff "%PARAM_1" == "/?" .or. "%PARAM_1" == "-?" .or. "%PARAM_1" == "/h" .or. "%PARAM_1" == "-h" .or. "%PARAM_1" == "--help" .or. "%PARAM_1" == "?" .or. "%PARAM_1" == "help" .or. "%PARAM_1" == "--h" .or. "%PARAM_1" == "-?" .or. "%PARAM_1" == "--?" then
                     :Usage
                     %COLOR_ADVICE%
                                     echo.
@@ -33,10 +33,10 @@ rem Parameter passing:
 
 :@echo on
         rem Extra-pause mode:
-                :@echo iff          "%PARAM_1%"  eq "/#" then {param_2=%param_2%}
+                :@echo iff          "%PARAM_1%"  == "/#" then {param_2=%param_2%}
                 if %EXTRA_PAUSE_MODE eq 1 goto :ExtraPauseModeDone
-                iff          "%PARAM_1%"  eq "/#" then
-                          if "%PARAM_2%"  eq   "" goto :Usage
+                iff          "%PARAM_1%"  == "/#" then
+                          if "%PARAM_2%"  ==   "" goto :Usage
                           set    EXTRA_PAUSE_MODE=1
                           set    EXTRA_PAUSE_NUMBER_OF_PAUSES=%PARAM_2%
                           shift 2
@@ -50,7 +50,7 @@ rem Parameter passing:
 
 
 rem Set window title if instructed:
-        iff "%PAUSE_WINDOW_TITLE%" ne "" then
+        iff "%PAUSE_WINDOW_TITLE%" != "" then
                 set OLD_TITLE=%@EXECSTR[title]
                 title %PAUSE_WINDOW_TITLE%
                 set PAUSE_WINDOW_TITLE=
@@ -75,8 +75,8 @@ rem But we use it to our advantage to leave it if we have additional pauses, bec
 
 
 rem An extra countdown for those times when we really want to get in a fight with our future selves:
-        iff defined EXTRA_PAUSE_NUMBER_OF_PAUSES .and. "%EXTRA_PAUSE_MODE%" eq "1" .and. %ANSI_COLORS_HAVE_BEEN_SET eq 1 then
-                if "%PARAMS%" eq "" set PARAMS=Press any key when ready!  ``
+        iff defined EXTRA_PAUSE_NUMBER_OF_PAUSES .and. "%EXTRA_PAUSE_MODE%" == "1" .and. %ANSI_COLORS_HAVE_BEEN_SET eq 1 then
+                if "%PARAMS%" == "" set PARAMS=Press any key when ready!  ``
                 echo %@ANSI_MOVE_TO_COL[1]%pause% %PARAMS%
                 rem first_number=%@EVAL[%EXTRA_PAUSE_NUMBER_OF_PAUSES%-1]
                 set first_number=%@EVAL[%EXTRA_PAUSE_NUMBER_OF_PAUSES%]
@@ -107,7 +107,7 @@ rem An extra countdown for those times when we really want to get in a fight wit
 
 :Cleanup
         rem Window title back to previous:
-                if "%PAUSE_WINDOW_TITLE%" ne "" (set PAUSE_WINDOW_TITLE= %+ title %OLD_TITLE%)
+                if "%PAUSE_WINDOW_TITLE%" != "" (set PAUSE_WINDOW_TITLE= %+ title %OLD_TITLE%)
 
         rem Don't leave trash:
                 unset /q adsfEXTRA_PAUSE_MODE

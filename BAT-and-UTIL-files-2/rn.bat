@@ -5,9 +5,9 @@ rem %COLOR_DEBUG% %+ echo * EXTRA_NAME is %EXTRA_NAME% ... YOUTUBE_MODE=%YOUTUBE
 rem %COLOR_DEBUG% %+ echo ARGS: %*
 
 rem Do nothing when passed these arguments:
-    if             "%1"  eq ""   goto :END
-    if "%@UNQUOTE["%1"]" eq "."  goto :END
-    if "%@UNQUOTE["%1"]" eq ".." goto :END
+    if             "%1"  == ""   goto :END
+    if "%@UNQUOTE["%1"]" == "."  goto :END
+    if "%@UNQUOTE["%1"]" == ".." goto :END
     if not exist  %1             goto :DNE
 
 rem Validate environment (once):
@@ -17,9 +17,9 @@ rem Validate environment (once):
         endiff
 
 rem Get/react to arguments:
-    rem OLD ne "" .and. "%1" ne "recursive" .and. "%2" ne "recursive" goto :oops_they_meant_to_do_ren_and_not_rn
+    rem OLD != "" .and. "%1" != "recursive" .and. "%2" != "recursive" goto :oops_they_meant_to_do_ren_and_not_rn
                                                                        set END_NAME_SPECIFIED=0
-    if "%2" ne "" .and. "%1" ne "recursive" .and. "%2" ne "recursive" (set END_NAME_SPECIFIED=1)
+    if "%2" != "" .and. "%1" != "recursive" .and. "%2" != "recursive" (set END_NAME_SPECIFIED=1)
     set FILES=%@FILES["%@UNQUOTE[%1]"]                                                                                                              %+ call print-if-debug * FILES is %FILES%
     set ISDIR=0
     if  isdir    %1 goto :IsDir
@@ -38,7 +38,7 @@ rem Get/react to arguments:
             set REN=*ren /Nts
             if %ISDIR eq 1 (
                                    set REN=  mv /ds /Ns
-                if "%3" eq "fast" (set REN=*move/ds /Ns)
+                if "%3" == "fast" (set REN=*move/ds /Ns)
             )
             set  FILENAME_OLD=%@UNQUOTE["%1"]                             
                     :et  FILENAME_OLD_TRUENAME=%@TRUENAME["%1"]
@@ -53,9 +53,9 @@ rem Get/react to arguments:
                     call set-cursor
             )
             %COLOR_RUN%
-            if "%FILENAME_NEW%" eqc "%FILENAME_OLD%" (%COLOR_WARNING% %+ echos * %ITALICS_ON%No change.%ITALICS_OFF% %+ %COLOR_NORMAL% %+ echo. %+ goto :END)
+            if "%FILENAME_NEW%" == "%FILENAME_OLD%" (%COLOR_WARNING% %+ echos * %ITALICS_ON%No change.%ITALICS_OFF% %+ %COLOR_NORMAL% %+ echo. %+ goto :END)
             set  UNDOCOMMAND=%REN% "%FILENAME_NEW%" "%@UNQUOTE[%FILENAME_OLD%]" 
-            set  REDOCOMMAND=%REN% "%FILENAME_OLD%" "%@UNQUOTE[%FILENAME_NEW%]"      %+ if "%DEBUG%" eq "1" (echo [DEBUG] About to: %REDOCOMMAND% %+ pause)
+            set  REDOCOMMAND=%REN% "%FILENAME_OLD%" "%@UNQUOTE[%FILENAME_NEW%]"      %+ if "%DEBUG%" == "1" (echo [DEBUG] About to: %REDOCOMMAND% %+ pause)
                                  set LAST_RENAMED_TO=%@UNQUOTE["%FILENAME_NEW%"]
 
                 %COLOR_SUCCCESS%
@@ -91,7 +91,7 @@ rem Get/react to arguments:
 
 
         :DNE
-                if "%3" eq "recursive" goto :END
+                if "%3" == "recursive" goto :END
                 call warning "No action taken, because file does not exist: %1 " 2
         goto :END
 
@@ -103,7 +103,7 @@ rem Get/react to arguments:
         goto :END
 
         :after
-            if "%AFTER_PRE%" eq ""  .and. "%AFTER_POST%" eq "" goto :NoAfter
+            if "%AFTER_PRE%" == ""  .and. "%AFTER_POST%" == "" goto :NoAfter
                 %AFTER_PRE% %NEW_FILENAME% %AFTER_POST%
                 set LAST_RN_AFTER_PRE=%LAST_AFTER_PRE%
                 set LAST_RN_AFTER_POST=%LAST_AFTER_POST%

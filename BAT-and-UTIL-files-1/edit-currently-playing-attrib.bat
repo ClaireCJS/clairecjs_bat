@@ -37,7 +37,7 @@ rem Create the script to run:
 
         rem Set drive letter to use:
                 set DRIVE_TO_USE=%MUSICSERVERCDRIVE%
-                if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (set DRIVE_TO_USE=C)
+                if "%MACHINENAME%" == "%MUSICSERVERMACHINENAME%" (set DRIVE_TO_USE=C)
         
         rem Set log file to use:
                 rem //rem 2008–2024: last.fm logfile parsing method
@@ -97,14 +97,14 @@ rem —————————————————————————�
 rem 2008–2024: Make sure LAST.FM scrobbler is running, or this won’t work: (only doable on the same machine):
 rem 2024–Present: skip this!
                                                 goto :skip_old_lastfm_code_1
-                                                        iff "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME" then
+                                                        iff "%MACHINENAME%" == "%MUSICSERVERMACHINENAME" then
                                                                 call isrunning Last.*fm
                                                                 call print-if-debug "ISRUNNING=“%ISRUNNING%”" %+ if %DEBUG eq 1 (pause)
-                                                                iff "%ISRUNNING%" ne "1" then
+                                                                iff "%ISRUNNING%" != "1" then
                                                                         call alarm "Last.fm scrobbler must be running! Running it now."
                                                                         call lastfm-start                 
                                                                         call isrunning Last.*fm
-                                                                        if "%ISRUNNING%" ne "1" (call fatal_error "could not restart Last.fm scrobbler, despite trying")
+                                                                        if "%ISRUNNING%" != "1" (call fatal_error "could not restart Last.fm scrobbler, despite trying")
                                                                 endiff
                                                         endiff
                                                 :skip_old_lastfm_code_1
@@ -161,7 +161,7 @@ rem 2024–Present: skip this!
 
                                         : Edit attrib.lst in whatever folder our mp3 is playing in
                                         REM echo EC_OPT_NOEDITOR is %EC_OPT_NOEDITOR%
-                                        if %EC_OPT_NOEDITOR eq 1 .or. "noedit" eq ec"%1" (unset /q EC_OPT_NOEDITOR %+ goto :NoEditor1)
+                                        if %EC_OPT_NOEDITOR == 1 .or. "noedit" == "%1" (unset /q EC_OPT_NOEDITOR %+ goto :NoEditor1)
                                                 :%EDITOR %ATTRIB
                                                 %EDITOR attrib.lst
                                         :NoEditor1

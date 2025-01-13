@@ -33,7 +33,7 @@ rem CHECK VALIDITY OF LOGGING LEVEL, OR IF WE DO NOT HAVE A SCRIPT TO LOG AT THA
 
 
 rem IF LOGGING LEVEL IS DEBUG, SET OUR DEBUG FLAG - this will turn on other "if %DEBUG%" statements that we can convert to our new messaging system
-        if "%OUR_LOGGING_LEVEL%" eq "debug" (if not defined DEBUG .or. %DEBUG eq 0 set DEBUG=1)
+        if "%OUR_LOGGING_LEVEL%" == "debug" (if not defined DEBUG .or. %DEBUG eq 0 set DEBUG=1)
 
 rem ATUALLY DO THE LOGGING
         %LOGGER_SCRIPT% %*

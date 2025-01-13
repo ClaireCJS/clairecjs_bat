@@ -9,11 +9,11 @@ rem Requires set-ansi to have been run:
         if "%ANSI_COLORS_HAVE_BEEN_SET%" != "1" (call warning "Ansi should have been set before running %0... Running now" %+ call set-ansi force)
 
 rem Debug stuff:
-        if "%DEBUG_DEPTH%" eq "1" (echo * se-tcursor.bat (batch=%_BATCH))
+        if "%DEBUG_DEPTH%" == "1" (echo * se-tcursor.bat (batch=%_BATCH))
 
 rem Machine-specific exceptions can go here:
-        rem %1" eq "BROADWAY" .or. "%@UPPER[%MACHINENAME%]" eq "BROADWAY" (goto :DoNotBother)
-        if  "%@UPPER[%MACHINENAME%]" eq "WORK"                            (goto :work       )
+        rem %1" == "BROADWAY" .or. "%@UPPER[%MACHINENAME%]" == "BROADWAY" (goto :DoNotBother)
+        if  "%@UPPER[%MACHINENAME%]" == "WORK"                            (goto :work       )
 
 rem Branch to the current user's custom cursor:
         if defined USERNAME (goto %USERNAME%)

@@ -215,10 +215,9 @@ Gets lyrics for all the files *in the current folder* that do not have *approved
 (Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
 
 
-### 🌟 [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat):
+### 🌟 [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat) {limit}:
 
-Gets lyrics for all the files *in a playlist* that do not have *approved* lyric files, in random order to avoid alphabetical bias.  
-(Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
+Gets lyrics for all the files *in a playlist* that do not have *approved* lyric files, in random order to avoid alphabetical bias. Can specify an optional *limit*  so that it stops after finding a few.   (Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat))
 
 
 ### 🌟 cmt / gmt / [create-txt-lyrics-from-karaoke-files.bat](../BAT-and-UTIL-files-1create-txt-lyrics-from-karaoke-files.bat.bat):

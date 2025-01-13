@@ -368,6 +368,7 @@ REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
 
 
 REM If our input file is lyricless and we’ve approved its lyriclessness, then we’ve decided to transcribe without a lyrics file
+        rem echo 🐐2  call get-lyriclessness-status "%INPUT_FILE%" 
         call get-lyriclessness-status "%INPUT_FILE%"
         iff "%LYRICLESSNESS_STATUS%" == "APPROVED" then 
                 call success "%italics_on%Lyric%underline_on%less%underline_off%ness%italics_off% already approved! Using AI only!"
@@ -406,7 +407,7 @@ REM if we already have a SRT file, we have a problem:
                                         rem Proceed with process
                                         set LYRICS_ACCEPTABLE=1
                                 else
-                                        ren /q "%TXT_FILE%" "%@NAME[%TXT_FILE%].txt.%_datetime.bak" >nul
+                                        ren /q "%TXT_FILE%" "%@NAME[%TXT_FILE%].txt.lyr.%_datetime.bak" >nul
                                         @call less_important "Okay, let’s try fetching new lyrics"
                                         goto :Refetch_Lyrics
                                 endiff
@@ -735,7 +736,7 @@ REM                                            CALL errorlevel "Something went w
 REM                                    REM validate if the vocal file was created, and remove demucs cruft           
 REM                                        call validate-environment-variable VOC_FILE "demucs separation did not produce the expected file of “%VOC_FILE%”"
 REM                                        :Vocal_Separation_Done
-REM                                            set INPUT_FILE=%VOC_FILE% %+  SET EXPECTED_OUTPUT_FILE=%LRCFILE2% %+ if "%2" ne "keep" .and. isdir separated (rd /s /q separated)
+REM                                            set INPUT_FILE=%VOC_FILE% %+  SET EXPECTED_OUTPUT_FILE=%LRCFILE2% %+ if "%2" != "keep" .and. isdir separated (rd /s /q separated)
 REM        :Vocal_Separation_Skipped
 rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
 
@@ -982,7 +983,7 @@ rem ////////////////////////////////////////////////////////////////////////////
                 set nm=%bat%\dividers\rainbow-%wd%.txt
                 iff exist %nm% then
                         *type %nm%
-                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                        if "%1" != "NoNewline" .and. "%2" != "NoNewline" .and. "%3" != "NoNewline" .and. "%4" != "NoNewline" .and. "%5" != "NoNewline"  .and. "%6" != "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
                 else
                         echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
                 endiff

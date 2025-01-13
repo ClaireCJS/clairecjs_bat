@@ -12,15 +12,15 @@ if defined emoji_play_button (%COLOR_SUCCESS% %+ echo %big_top%%emoji_play_butto
 
 
 ::::: CHECK WINAMP STATE TO REACT, OR SKIP THAT STUFF:
-    if "%1" eq "quick" .or. "%1" eq "quickly" (set UNPAUSE_QUICKLY=1 %+ goto :Unpause_Quickly)
+    if "%1" == "quick" .or. "%1" == "quickly" (set UNPAUSE_QUICKLY=1 %+ goto :Unpause_Quickly)
     call get-winamp-state
 
 
 ::::: BRANCHING:
-	if "%MUSICSTATE%" eq "PLAYING" goto :DoNothing
-	if "%MUSICSTATE%" eq "STOPPED" goto :Play_YES
-	if "%MUSICSTATE%" eq  "PAUSED" goto :Unpause_YES
-	if "%MUSICSTATE%" eq "UNKNOWN" goto :Unpause_YES
+	if "%MUSICSTATE%" == "PLAYING" goto :DoNothing
+	if "%MUSICSTATE%" == "STOPPED" goto :Play_YES
+	if "%MUSICSTATE%" ==  "PAUSED" goto :Unpause_YES
+	if "%MUSICSTATE%" == "UNKNOWN" goto :Unpause_YES
 	                               goto :Unpause_YES
 
 goto :END

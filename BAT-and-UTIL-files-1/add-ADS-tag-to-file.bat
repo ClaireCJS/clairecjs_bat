@@ -86,20 +86,20 @@ rem Validate environment once:
         endiff
 
 rem Validate parameters every time:
-        iff "%@RegEx[[\*\?],"%@unquote["%File_To_Change_Tag_Of%"]"]" eq "1" then
+        iff "%@RegEx[[\*\?],"%@unquote["%File_To_Change_Tag_Of%"]"]" == "1" then
                 call warning "Cannot use %0 on wildcards for 1ˢᵗ parameter!"
                 goto :END
         endiff
-        if "%1" EQ "" (gosub :usage %+ goto :END)
+        if "%1" == "" (gosub :usage %+ goto :END)
         rem add-ADS-tag-to-file "2_08_Ikon - The Ballad Of Gilligan's Island.txt" "lyrics" read lyrics skip_validatoins
-        if "%5" eq "skip_validations" (goto :skip_validations_1)
+        if "%5" == "skip_validations" (goto :skip_validations_1)
         rem if not exist "%@UNQUOTE["%File_To_Change_Tag_Of%"]" call validate-environment-variable  File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
         if not exist "%@UNQUOTE["%File_To_Change_Tag_Of%"]" call validate-environment-variable  File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
         call validate-environment-variables Tag_To_Modify Tag_Value              
         rem call validate-environment-variable Tag_To_Modify          "2ⁿᵈ argument to %0 must a tag, NOT empty"
         rem call validate-environment-variable Tag_Value              "3ʳᵈ argument to %0 must a value, or 'read' ... NOT empty"
         :skip_validations_1
-        if "%PARAM_4%" ne "" .and. "%PARAM_4%" ne "verbose" .and. "%PARAM_4%" ne "remove" .and. "%PARAM_4%" ne "brief" .and. "%PARAM_4%" ne "lyrics" .and. "%PARAM_4%" ne "lyric" (call fatal_error "There shouldn't be a 4th parameter of this value being sent to %0 {called by %_PBATCHNAME}, but you gave '%italics_on%%PARAM_4%%italics_off%'. Run without parameters to understand proper usage.")
+        if "%PARAM_4%" != "" .and. "%PARAM_4%" != "verbose" .and. "%PARAM_4%" != "remove" .and. "%PARAM_4%" != "brief" .and. "%PARAM_4%" != "lyrics" .and. "%PARAM_4%" != "lyric" (call fatal_error "There shouldn't be a 4th parameter of this value being sent to %0 {called by %_PBATCHNAME}, but you gave '%italics_on%%PARAM_4%%italics_off%'. Run without parameters to understand proper usage.")
         
 rem Set default values for parameters:
         set EXT=%@EXT[%File_To_Change_Tag_Of]
@@ -107,15 +107,15 @@ rem Set default values for parameters:
         set BRIEF_MODE=0
         set LYRIC_MODE=0
         rem echo tail=%*
-        if "%PARAM_4%"       eq "lyriclessness"  (set LYRIC_MODE=1)                    
-        if "%PARAM_4%"       eq "lyricslessness" (set LYRIC_MODE=1)                    
-        if "%PARAM_4%"       eq "lyric"          (set LYRIC_MODE=1)                    
-        if "%PARAM_4%"       eq "lyrics"         (set LYRIC_MODE=1)                    
+        if "%PARAM_4%"       == "lyriclessness"  (set LYRIC_MODE=1)                    
+        if "%PARAM_4%"       == "lyricslessness" (set LYRIC_MODE=1)                    
+        if "%PARAM_4%"       == "lyric"          (set LYRIC_MODE=1)                    
+        if "%PARAM_4%"       == "lyrics"         (set LYRIC_MODE=1)                    
         rem DEBUG: echo lyric_mode=%lyric_mode% %emoji_cat%
-        if "%PARAM_4%"       eq "brief"          (set BRIEF_MODE=1)           
-        if "%PARAM_4%"       eq "verbose"        (set    VERBOSE=1)         
-        if "%TAG_VALUE%"     eq        ""        (set TAG_TO_MODIFY=value)             %+ rem setting dummy value in case of failure
-        if "%TAG_TO_MODIFY%" eq        ""        (set TAG_TO_MODIFY=tag  )             %+ rem setting dummy value in case of failure
+        if "%PARAM_4%"       == "brief"          (set BRIEF_MODE=1)           
+        if "%PARAM_4%"       == "verbose"        (set    VERBOSE=1)         
+        if "%TAG_VALUE%"     ==        ""        (set TAG_TO_MODIFY=value)             %+ rem setting dummy value in case of failure
+        if "%TAG_TO_MODIFY%" ==        ""        (set TAG_TO_MODIFY=tag  )             %+ rem setting dummy value in case of failure
         
         rem Lyric mode stuff:
                 set ENTITY=Lyrics
@@ -132,15 +132,15 @@ rem Set default values for parameters:
         
 rem Determine verb clause to use —— looks best if they are >8 chars each though!
         set VERB=Set value to:
-        if "read"      eq "%TAG_VALUE%"          (set VERB=Retrieved value %faint_on%of%faint_off%:)
-        if "remove"    eq "%TAG_VALUE%"          (set VERB=Removed value %faint_on%of%faint_off%:)
-        if "%PARAM_5%" ne "" .and. 1 eq %VERBOSE (set VERB=%PARAM_5%)                 %+ rem Fetch alternate-verb for verbose mode
+        if "read"      == "%TAG_VALUE%"          (set VERB=Retrieved value %faint_on%of%faint_off%:)
+        if "remove"    == "%TAG_VALUE%"          (set VERB=Removed value %faint_on%of%faint_off%:)
+        if "%PARAM_5%" != "" .and. 1 eq %VERBOSE (set VERB=%PARAM_5%)                 %+ rem Fetch alternate-verb for verbose mode
         set VERB_LEN=%@LEN[%@STRIPANSI[%VERB%]]
         set SPACER=%@REPEAT[ ,%@ABS[%@EVAL[%VERB_LEN%-8]]]``
 
 
 rem Read or set (depending on invocation) via windows alternate data streams:
-        iff "read" eq "%TAG_VALUE%" then
+        iff "read" == "%TAG_VALUE%" then
                 echo —————————————————— READ THE TAG  —————————————————— >nul
                 set OPERATIONAL_MODE=READ
                 rem Store the result of reading the tag into the environment variable we've decided to use as convention for this situation:
@@ -156,17 +156,17 @@ rem Read or set (depending on invocation) via windows alternate data streams:
                 rem If we are in verbose mode, explain what we did:                                                 
                         gosub explain                        
                         
-        elseiff "remove" eq "%TAG_VALUE%" then
+        elseiff "remove" == "%TAG_VALUE%" then
         
                 echo —————————————————— DELETE THE TAG  —————————————————— >nul
                 set OPERATIONAL_MODE=DELETE
                 rem Grab the value so we can say it was removed:
                         set  OLD_VALUE=%@ExecStr[type "%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%"]
-                        if "%OLD_VALUE%" eq ""       (set OLD_VALUE=%ansi_color_normal%%ansi_color_red%%@Repeat[%@CHAR[10875],3]%faint_on% none %faint_off%%@Repeat[%@CHAR[10876],3]%ansi_color_normal%)
-                        if "%TAG_VALUE%" eq "remove" (set value_to_display_in_verbose_mode=%OLD_VALUE%)
+                        if "%OLD_VALUE%" == ""       (set OLD_VALUE=%ansi_color_normal%%ansi_color_red%%@Repeat[%@CHAR[10875],3]%faint_on% none %faint_off%%@Repeat[%@CHAR[10876],3]%ansi_color_normal%)
+                        if "%TAG_VALUE%" == "remove" (set value_to_display_in_verbose_mode=%OLD_VALUE%)
 
                 rem Delete/blank out/remove the tag from the file, but in a very safe way where we don't accidentally delete the file:
-                        iff "%TAG_TO_MODIFY%" ne "" then
+                        iff "%TAG_TO_MODIFY%" != "" then
                                 >"%File_To_Change_Tag_Of%:%TAG_TO_MODIFY%"
                         else
                                 call fatal_error ("%TAG_TO_MODIFY is currently '%TAG_TO_MODIFY%' and absolutely should not be" %+ goto :END)
@@ -199,7 +199,7 @@ goto :END
                 
                 rem If we are in verbose mode, explain what we did:
                         set tmp_value=%[value_to_display_in_verbose_mode]
-                        iff "" eq "%tmp_value%" then
+                        iff "" == "%tmp_value%" then
                                 set tmp_value=%italics_on%%blink_on%(unset)%blink_off%%italics_off%
                                 set was_null=1
                         else
@@ -255,26 +255,26 @@ goto :END
                                         set tmp_emoji2use=%EMOJI_EXCLAMATION_QUESTION_MARK%          
                                 endiff
                                 
-                                rem if "%ext2%" eq "lrc" .or. "%ext2%" eq "srt" (
+                                rem if "%ext2%" == "lrc" .or. "%ext2%" == "srt" (
                                 rem         set ENTITY=Karaoke 
                                 rem         set VERB2=is
                                 rem ) else (
-                                rem         if "%EXT2%" eq "txt" (                                                        
+                                rem         if "%EXT2%" == "txt" (                                                        
                                 rem                 set ENTITY=Lyrics
                                 rem         )                                                                
                                 rem )
 
                                 rem echo HERE! %tmp_value OPERATIONAL_MODE=%OPERATIONAL_MODE% ext2=%ext2% entity==%entity% LYRIC_MODE=%LYRIC_MODE%
 
-                                rem "%OPERATIONAL_MODE%" ne "READ"                           then
-                                iff "%OPERATIONAL_MODE%" ne "READ" .and. 1 ne %LYRIC_MODE% then
+                                rem "%OPERATIONAL_MODE%" != "READ"                           then
+                                iff "%OPERATIONAL_MODE%" != "READ" .and. "1" != "%LYRIC_MODE%" then
                                         echo %tmp_emoji2use% Set %bold_on%%italics_on%%tmp_tag%%italics_off%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%                                        
                                 else %+ rem it is a lyric mode:
 
                                 
                                         rem tag_to_modify=%tag_to_modify% 🐐
                                         set hide_status=0
-                                        iff "%tag_to_modify%" eq "lyriclessness" then
+                                        iff "%tag_to_modify%" == "lyriclessness" then
                                                 set our_maybe_subtitle_1=%@unquote[%@NAME["%tmp_file2use%"]].lrc
                                                 set our_maybe_subtitle_2=%@unquote[%@NAME["%tmp_file2use%"]].srt
                                                 set our_maybe_lyrics=%@unquote[%@NAME["%tmp_file2use%"]].txt
@@ -292,17 +292,17 @@ goto :END
                                                 set EXTRA=%EXTRA% Lyriclessness is
                                         else
                                                 rem echo [ext2=%ext2%]
-                                                if "%ext2%" eq "lrc" .or. "%ext2%" eq "srt" (
+                                                if "%ext2%" == "lrc" .or. "%ext2%" == "srt" (
                                                         set ENTITY=Karaoke 
                                                         set VERB2=is
                                                         set EXTRA=%@ansi_move_left[3]%ansi_color_green%%emj1% %ENTITY% %emj1% file.... %ansi_color_normal%
                                                 ) else (
-                                                        if "%EXT2%" eq "txt" (                                                        
+                                                        if "%EXT2%" == "txt" (                                                        
                                                                 set ENTITY=Lyrics
                                                                 set EXTRA=%@ansi_move_left[3]%ansi_color_green%%emj2% %ENTITY% %emj2% file..... %ansi_color_normal%
                                                         ) else (
                                                                 set EXTRA=%ansi_color_green%%ENTITY% exist
-                                                                if "is" eq "%VERB2%" set EXTRA=%EXTRA%s
+                                                                if "is" == "%VERB2%" set EXTRA=%EXTRA%s
                                                                 set EXTRA=%EXTRA%%ansi_color_normal%...
                                                         )                                                                
                                                 )
@@ -328,16 +328,19 @@ goto :END
 
 :END
 
-goto :skip_subroutines
-        :divider []
-                rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
-                set wd=%@EVAL[%_columns - 1]
-                set nm=%bat%\dividers\rainbow-%wd%.txt
-                iff exist %nm% then
-                        *type %nm%
-                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
-                else
-                        echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
-                endiff
-        return
-:skip_subroutines
+        goto :skip_subroutines
+                :divider []
+pause
+                        rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
+                        set wd=%@EVAL[%_columns - 1]
+                        set nm=%bat%\dividers\rainbow-%wd%.txt
+                        iff exist %nm% then
+                                echo typing it...  %+ *pause>nul
+                                *type %nm%
+                                if "%1" != "NoNewline" .and. "%2" != "NoNewline" .and. "%3" != "NoNewline" .and. "%4" != "NoNewline" .and. "%5" != "NoNewline"  .and. "%6" != "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                        else
+                                echo echo’ing it...  %+ *pause>nul
+                                echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                        endiff
+                return
+        :skip_subroutines

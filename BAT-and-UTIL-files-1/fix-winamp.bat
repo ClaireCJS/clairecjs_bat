@@ -10,7 +10,7 @@ REM     so 2020,0,600,600 becomes 2031,20,591,566 which is an offset of +11,+20,
 
 
 set ARG=%1
-if "%1" eq "" .or. "%1" eq "alt" .or. "%1" eq "normal" (goto :%MachineName%)
+if "%1" == "" .or. "%1" == "alt" .or. "%1" == "normal" (goto :%MachineName%)
                goto :%ARG%
 			   goto :Default
                call warning "'%1' is not a label or valid parameter"
@@ -54,14 +54,14 @@ if "%1" eq "" .or. "%1" eq "alt" .or. "%1" eq "normal" (goto :%MachineName%)
                     activate "album art"              pos=01941,-0695,0450,450
 
         rem vvvvvvvvvvvvvvvvvvvvvvvv *** normal album art ***
-        rem if "alt" ne "%FIX_WINAMP_MODE%"                   (activate "album art" pos=1430,-800,410,410) %+ rem *** normal ***
-        rem if "alt" eq "%FIX_WINAMP_MODE" .or. "alt" eq "%1" (activate "album art" pos=1926,-660,410,410) %+ rem *** alt ***
+        rem if "alt" != "%FIX_WINAMP_MODE%"                   (activate "album art" pos=1430,-800,410,410) %+ rem *** normal ***
+        rem if "alt" == "%FIX_WINAMP_MODE" .or. "alt" == "%1" (activate "album art" pos=1926,-660,410,410) %+ rem *** alt ***
         rem                                                   (activate "album art" pos=1030,-800,410,410) %+ REM monitors: 4,2/3,1 20230715
         rem                                                    activate "album art" pos=1754,-798,410,410     %+ REM 20230717
         rem ^^^^^^^^^^^^^^^^^^^^^^^^ *** alt album art ***               suddenly mid-day 2023/07/11 only this works
 
-            if "alt"    eq "%FIX_WINAMP_MODE" .or. "alt" eq "%1" (set FIX_WINAMP_MODE=alt)
-            if "normal" eq "%1"                                  (set FIX_WINAMP_MODE=normal)
+            if "alt"    == "%FIX_WINAMP_MODE" .or. "alt" == "%1" (set FIX_WINAMP_MODE=alt)
+            if "normal" == "%1"                                  (set FIX_WINAMP_MODE=normal)
 
    
 	goto :END

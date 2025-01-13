@@ -12,7 +12,7 @@ rem Validate environment once:
         endiff                
         
 rem Validate parameters every time
-        if not exist "%@UNQUOTE[%Song_File_To_Approve%]" call validate-environment-variable Song_File_To_Approve "1ˢᵗ arg must be a song file. 2ⁿᵈ optional arg can be a tag other than “lyrics” to add to file, 3ʳᵈ can be a value other than “approved”/“not_approved”/etc to add to file"
+        if not exist "%@UNQUOTE["%Song_File_To_Approve%"]" call validate-environment-variable Song_File_To_Approve "1ˢᵗ arg must be a song file. 2ⁿᵈ optional arg can be a tag other than “lyrics” to add to file, 3ʳᵈ can be a value other than “approved”/“not_approved”/etc to add to file"
         call validate-is-extension       "%Song_File_To_Approve%" %FILEMASK_AUDIO%           
 
 rem Set via windows alternate data streams:

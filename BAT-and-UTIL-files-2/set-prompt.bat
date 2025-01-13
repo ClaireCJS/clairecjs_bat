@@ -6,13 +6,13 @@ rem If we're running this outside of TCC, just do a generic prompt:
         if "%comspec%" == "C:\Windows\system32\cmd.exe " goto :NoAnsiPrompt
 
 rem Debug stuff:
-        if "%DEBUG_DEPTH%" eq "1" (echo * setprompt.bat (batch=%_BATCH))
+        if "%DEBUG_DEPTH%" == "1" (echo * setprompt.bat (batch=%_BATCH))
 
 
 
 rem Machine-specific exceptions can go here:
-        rem if "%1" eq "BROADWAY" .or. "%@UPPER[%MACHINENAME%]" eq "BROADWAY" (goto :NoAnsiPrompt)
-        if "%@UPPER[%MACHINENAME%]" eq "WORK"                              (goto :work)
+        rem if "%1" == "BROADWAY" .or. "%@UPPER[%MACHINENAME%]" == "BROADWAY" (goto :NoAnsiPrompt)
+        if "%@UPPER[%MACHINENAME%]" == "WORK"                              (goto :work)
 
 
 

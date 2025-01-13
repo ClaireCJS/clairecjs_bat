@@ -7,7 +7,7 @@ rem Grab parameters:
         set FOUND=0
 
 rem Need SOMEthing:
-        iff "%1" eq "" then
+        iff "%1" == "" then
                 echo.
                 call warning "No filename given to display tags of!"
                 goto :END
@@ -21,9 +21,9 @@ rem Validate environment:
         endiff
 
 rem Deal with wildcard parameters by expanding them and recursing through them:
-        iff "%@RegEx[[\*\?],%*]" eq "1" then
+        iff "%@RegEx[[\*\?],%*]" == "1" then
                 set DISPLAY_TAGS_PREFIX_NAME=1
-                rem for %%tmpfile in (%*) do (if "%@RegEx[%@EXT[%tmpfile],%filemask_audio]" eq "1"  (call %0 "%tmpfile%"))
+                rem for %%tmpfile in (%*) do (if "%@RegEx[%@EXT[%tmpfile],%filemask_audio]" == "1"  (call %0 "%tmpfile%"))
                 for %%tmpfile in (%*) do (call %0 "%tmpfile%")
                 set DISPLAY_TAGS_PREFIX_NAME=0
                 goto :END
@@ -31,22 +31,22 @@ rem Deal with wildcard parameters by expanding them and recursing through them:
 
 
 rem Display depending on extension: flac vs mp3 vs image vs video
-        iff     "%EXT%" eq "flac" .or. "%FILE%" eq "*" then
+        iff     "%EXT%" == "flac" .or. "%FILE%" == "*" then
                 set  FOUND=1
                 call display-flac-tags "%FILE%" %2$
         endiff
 
-        iff "%EXT%" eq "mp3"  .or. "%FILE%" eq "*" then
+        iff "%EXT%" == "mp3"  .or. "%FILE%" == "*" then
                 set  FOUND=1
                 call list-mp3-tags     "%FILE%" %2$
         endiff
 
-        iff "%@RegEX[\Q%EXT%\E,%FILEMASK_IMAGE%]" eq "1" .or. "%FILE%" eq "*" then
+        iff "%@RegEX[\Q%EXT%\E,%FILEMASK_IMAGE%]" == "1" .or. "%FILE%" == "*" then
                 set  FOUND=1
                 call exiflist          "%FILE%" %2$
         endiff
 
-        iff "%@RegEX[\Q%EXT%\E,%FILEMASK_VIDEO%]" eq "1" .or. "%FILE%" eq "*" then
+        iff "%@RegEX[\Q%EXT%\E,%FILEMASK_VIDEO%]" == "1" .or. "%FILE%" == "*" then
                 set  FOUND=1
                 ifF 1 EQ %DISPLAY_TAGS_PREFIX_NAME% then
                        (ffprobe.exe    "%FILE%" %2$ |&|:u8 insert-before-each-line "%ANSI_COLOR_MAGENTA%%@unquote[%file%]%@unquote[%2]:%ANSI_COLOR_NORMAL%") |:u8 fast_cat

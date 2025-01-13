@@ -28,21 +28,21 @@
         REM old command was: set OUTPUT=%@EXECSTR[taskList  %*|grep -i -v grep|grep -i -v keep-killing-if-running|grep -i -v react-after-program-closes] ADFASDFASFDASDF
         set  OUTPUT=%@EXECSTR[isRunning-helper %*]
         if %DEBUG eq 1 (call debug "%OUTPUT is '%italics%%OUTPUT%%italics_off%'")
-        if "%OUTPUT%" eq "" (set ISRUNNING=0)
-        if "%OUTPUT%" ne "" (set ISRUNNING=1)
+        if "%OUTPUT%" == "" (set ISRUNNING=0)
+        if "%OUTPUT%" != "" (set ISRUNNING=1)
     )
 
 
 
 ::::: INFORM USER:
-	if "%ISRUNNING%" eq "1" goto :IsRunning_YES
+	if "%ISRUNNING%" == "1" goto :IsRunning_YES
                             goto :IsRunning_NO
 
             :IsRunning_YES
                     set emoji=%EMOJI_CHECK_MARK
                     color green on black     
                     echos %@ANSI_RGB_BG[0,60,0]
-                    iff "%2" eq "quiet" .or. "%2" eq "silent" then
+                    iff "%2" == "quiet" .or. "%2" == "silent" then
                             rem (do nothing)
                     else
                             @echos %emoji% %italics%%1%italics_off% %underline%is%underline_off% running %emoji%``     
@@ -55,7 +55,7 @@
             :IsRunning_NO
                     color bright red on blue 
                     echos %@ANSI_RGB_BG[80,0,0]
-                            if "%2" eq "quiet" .or. "%2" eq "silent" (goto :Quiet_YES)
+                            if "%2" == "quiet" .or. "%2" == "silent" (goto :Quiet_YES)
                                     :Quiet_No
                                             iff 1 eq %SLEEPING% then
                                                     @echos . %+ %COLOR_NORMAL% 

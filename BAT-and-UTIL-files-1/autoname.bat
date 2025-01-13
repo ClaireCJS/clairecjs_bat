@@ -4,9 +4,9 @@
 call validate-in-path fix-unicode-filenames
 
 rem ARE WE DOING THIS, OR JUST SAYING HOW TO DO IT?:
-        if "%1" eq "go" (goto :Begin)
-        if "%1" eq ""   (goto :Usage) %+ rem 20240324: Purposefully breaking all past invocations to this script in order to add the "go" safety in order to allow blank calls to be requests to display the usage
-        if "%1" eq "/h" .or. "%1" eq "-h" .or. "%1" eq "--h" .or. "%1" eq "--help" .or. "%1" eq "/?" .or. "%1" eq "-?" .or. "%1" eq "?" .or. "%1" eq "help" (goto :usage)
+        if "%1" == "go" (goto :Begin)
+        if "%1" == ""   (goto :Usage) %+ rem 20240324: Purposefully breaking all past invocations to this script in order to add the "go" safety in order to allow blank calls to be requests to display the usage
+        if "%1" == "/h" .or. "%1" == "-h" .or. "%1" == "--h" .or. "%1" == "--help" .or. "%1" == "/?" .or. "%1" == "-?" .or. "%1" == "?" .or. "%1" == "help" (goto :usage)
         goto :Begin
         :Usage
             %COLOR_ADVICE%
@@ -23,9 +23,9 @@ rem ARE WE DOING THIS, OR JUST SAYING HOW TO DO IT?:
 rem PARAMETER PROCESSING:
         :Begin
         SET NOEXIF=0
-        ::if "%@UPPER[%1]" eq "AFTER"  (goto  :After)
-          if "%@UPPER[%1]" eq "rmaa"   (SET REMOVE_ARTIST_ALBUM_FROM_FILENAME_MODE=1) %+ rem affects allfilesmv.pl
-          if "%@UPPER[%1]" eq "NOEXIF" (SET NOEXIF=1)
+        ::if "%@UPPER[%1]" == "AFTER"  (goto  :After)
+          if "%@UPPER[%1]" == "rmaa"   (SET REMOVE_ARTIST_ALBUM_FROM_FILENAME_MODE=1) %+ rem affects allfilesmv.pl
+          if "%@UPPER[%1]" == "NOEXIF" (SET NOEXIF=1)
 
 rem SPECIAL STUFF FOR EXIF-EXTRACTION & NEWPICS ONLY:
         rem TODO CHECK IF WE ARE IN DROPBOX AND IF FILES START WITH P1000876.jpg P???????.jpg THEN it is the new camera

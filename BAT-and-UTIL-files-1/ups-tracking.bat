@@ -3,7 +3,7 @@
 
 rem Validate invocation:
         set NUMBER=%*
-        iff "%NUMBER%" eq "" then
+        iff "%NUMBER%" == "" then
                 call usage "You gotta supply a tracking number!"
                 eset NUMBER
         endiff

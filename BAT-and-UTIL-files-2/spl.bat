@@ -12,21 +12,21 @@ REM horizontal/vertical
         set MODE=horizontal
         set COMMAND_TO_SPLIT_THE_SCREEN=%BAT%\split-windows-terminal-screen.ahk
     :CLI_overrides
-        if "%1" eq "v" .or. "%1" eq "/v" .or. "%1" eq "-v" .or. "%1" eq "--v" .or. "%1" eq "--vertical"   .or. "%1" eq "vertical" (
+        if "%1" == "v" .or. "%1" == "/v" .or. "%1" == "-v" .or. "%1" == "--v" .or. "%1" == "--vertical"   .or. "%1" == "vertical" (
             set FULL_POST_SPLIT_COMMAND=%2$
             set POST_SPLIT_COMMAND_ARGV0=%2
             set COMMAND_TO_SPLIT_THE_SCREEN=%BAT%\split-windows-terminal-screen-vertical.ahk
             set MODE=vertical
             shift
         )
-        if "%1" eq "h" .or. "%1" eq "/h" .or. "%1" eq "-h" .or. "%1" eq "--h" .or. "%1" eq "--horizontal" .or. "%1" eq "horizontal" (
+        if "%1" == "h" .or. "%1" == "/h" .or. "%1" == "-h" .or. "%1" == "--h" .or. "%1" == "--horizontal" .or. "%1" == "horizontal" (
             set FULL_POST_SPLIT_COMMAND=%2$
             set POST_SPLIT_COMMAND_ARGV0=%2
             set COMMAND_TO_SPLIT_THE_SCREEN=%BAT%\split-windows-terminal-screen.ahk
             set MODE=horizontal
             shift
         )
-        if "%POST_SPLIT_COMMAND_ARGV0" eq "/elevated" (
+        if "%POST_SPLIT_COMMAND_ARGV0" == "/elevated" (
             call debug "Still developing this area of behavior..."
             pause
 
@@ -39,17 +39,17 @@ REM horizontal/vertical
     
         REM Remind user of keypress because it's hard to remember when first using Windows Terminal:
             set KEY=Alt-Shift-D
-            if "%mode%" eq "vertical" set KEY=Alt-Shift-=
+            if "%mode%" == "vertical" set KEY=Alt-Shift-=
             %COLOR_ADVICE% %+ echo - Split the screen %mode%ly with the %key% keypress
 
 
 REM insert "call" before bat file commands, s that if EXIT_AFTER is turned in, we actualy return from the command to reach the 'exit' command in our generated POST_SPLIT_COMMAND_SCRIPT
-    if "%1"                         eq "" goto :No_Parameters
-    if "%POST_SPLIT_COMMAND_ARGV0%" eq "" goto :No_Parameters
+    if "%1"                         == "" goto :No_Parameters
+    if "%POST_SPLIT_COMMAND_ARGV0%" == "" goto :No_Parameters
         call detect-with-which %POST_SPLIT_COMMAND_ARGV0%
         set  DETECTED_SPLIT_COMMAND_ARGV0=%RESULT%
         set  DETECTED_SPLIT_COMMAND_ARGV0_EXTENSION=%@EXT[%DETECTED_SPLIT_COMMAND_ARGV0]
-        if "%DETECTED_SPLIT_COMMAND_ARGV0_EXTENSION%" eq "bat" (
+        if "%DETECTED_SPLIT_COMMAND_ARGV0_EXTENSION%" == "bat" (
             call logging "it's a bat!"
             set FULL_POST_SPLIT_COMMAND=call %FULL_POST_SPLIT_COMMAND%
             set POST_SPLIT_COMMAND_ARGV0=call                                   
@@ -64,7 +64,7 @@ REM generate BAT file for post-split command:
                     
                                          echo @Echo OFF                  >:u8%POST_SPLIT_COMMAND_SCRIPT%
                                          echo %_CWD\                    >>:u8%POST_SPLIT_COMMAND_SCRIPT% %+ REM change into the same folder we issue this rom
-    if "%FULL_POST_SPLIT_COMMAND%" ne "" echo %FULL_POST_SPLIT_COMMAND% >>:u8%POST_SPLIT_COMMAND_SCRIPT%
+    if "%FULL_POST_SPLIT_COMMAND%" != "" echo %FULL_POST_SPLIT_COMMAND% >>:u8%POST_SPLIT_COMMAND_SCRIPT%
     if  %EXIT_AFTER_SPLIT_IS_RUN   eq  1 echo exit                      >>:u8%POST_SPLIT_COMMAND_SCRIPT%
 
 
@@ -87,7 +87,7 @@ REM Actually split the screen:
 REM return focus back to calling window by hitting Alt-Left - TODO figure out when I would want to suppress this behavior? if i want to do something i'll just type it in the new window. if i want something to run, i'll put it in the command tail. so possibly i will never want to suppress this
     set KEY=
     set KEYSCRIPT=
-    if "%mode%" eq "vertical" (
+    if "%mode%" == "vertical" (
         set KEY=Alt-Up
         set KEYSCRIPT=%BAT%\send-keypress-alt_up.ahk
     ) else (

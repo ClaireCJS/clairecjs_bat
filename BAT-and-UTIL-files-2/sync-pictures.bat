@@ -33,7 +33,7 @@
 
 
 ::::: ALLLOW FOR QUICK SETUP OF NEW MP3 DEVICES/USB DRIVES:
-    if "%1" ne "SETUP"  goto :NotSettingUp
+    if "%1" != "SETUP"  goto :NotSettingUp
         %COLOR_WARNING% %+ echo WARNING: About to set up this device to sync pictures to. You sure you want to do this?!?!?!?! %+ %COLOR_NORMAL% %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause 
             cd \
             if not isdir PICS md PICS
@@ -47,11 +47,11 @@
         %COLOR_SUCCESS% %+ echo All done! %+ %COLOR_NORMAL%
         goto :END
     :NotSettingUp
-    if "%1" eq "HELP"  (goto :Help_YES)
-    if "%1" eq "USAGE" (goto :Help_YES)
-    if "%1" eq "?"     (goto :Help_YES)
-    if "%1" eq "/?"    (goto :Help_YES)
-    if "%1" eq "/-"    (goto :Help_YES)
+    if "%1" == "HELP"  (goto :Help_YES)
+    if "%1" == "USAGE" (goto :Help_YES)
+    if "%1" == "?"     (goto :Help_YES)
+    if "%1" == "/?"    (goto :Help_YES)
+    if "%1" == "/-"    (goto :Help_YES)
                         goto :Help_NO
         :Help_YES
             %COLOR_ADVICE%
@@ -70,7 +70,7 @@
 
 
 ::::: SPIEL:
-    if "%BLURB_DISPLAYED%" eq "1" goto :AlrightAlready
+    if "%BLURB_DISPLAYED%" == "1" goto :AlrightAlready
     set  BLURB_DISPLAYED=1
         %COLOR_WARNING%
         call validate-environment-variables NEWPICTURES
@@ -91,7 +91,7 @@
 ::::: DETERMINE TARGET & OTHER SETUP:
     set CURRENT_PICTURES_TARGET=%NEWPICS%
     set ALTERNATE_TARGET=0
-    :if "%@UPPER[%MACHINENAME%]" eq "GOLIATH" .or. "%@UPPER[%MACHINENAME%]" eq "MAGIC" .or. "%@UPPER[%MACHINENAME%]" eq "CHAOS" (set CURRENT_PICTURES_TARGET=%NEWNEWPICS% %+ set ALTERNATE_TARGET=1)
+    :if "%@UPPER[%MACHINENAME%]" == "GOLIATH" .or. "%@UPPER[%MACHINENAME%]" == "MAGIC" .or. "%@UPPER[%MACHINENAME%]" == "CHAOS" (set CURRENT_PICTURES_TARGET=%NEWNEWPICS% %+ set ALTERNATE_TARGET=1)
     set PULLED_FROM_CAMERA=0
 
 ::::: DETERMINE FILEMASKS:
@@ -101,7 +101,7 @@
     set IMAGE_FILEMASK=%FILEMASK_IMAGE%
 
 ::::: COMMAND-LINE PARAMETER BRANCHING:
-    for %%letter in (%THE_ALPHABET%) do if "%@UPPER[%1]" eq "%letter%" (gosub DealWithDriveLetter %letter% %+ goto :Finish_Up)
+    for %%letter in (%THE_ALPHABET%) do if "%@UPPER[%1]" == "%letter%" (gosub DealWithDriveLetter %letter% %+ goto :Finish_Up)
     :Otherwise, we fall through to below, where we do "all"
 
 ::::: ACTUALLY DO THE SYNCING/GRABBING:
@@ -119,11 +119,11 @@ goto :Finish_Up
 
     ::::: If the drive isn't ready, return from this:
         %COLOR_GREP %+ echos ***** Checking drive %Letter% for pictures ***** %+ %COLOR_NORMAL% %+ echo.
-        if "%@READY[%Letter%]" eq "0" (%COLOR_WARNING% %+ echo * Drive %Letter% is not ready! %+ %COLOR_NORMAL% %+ goto :returnFromThisOne)
+        if "%@READY[%Letter%]" == "0" (%COLOR_WARNING% %+ echo * Drive %Letter% is not ready! %+ %COLOR_NORMAL% %+ goto :returnFromThisOne)
 
     ::::: We don't sync C: drives: [added in 201610 because of Carolyn providing false information; untested]
-        if "%@UPPER[%Letter%]" eq "C" (%COLOR_WARNING% %+ echos * We do not sync to C drives! Sorry!!!!!!!!!!!!!!!!!!!!!!!!!!!!! %+ %COLOR_NORMAL% %+ echo. %+ goto :returnFromThisOne)
-        for %computer in (%ALL_COMPUTERS_UP%) if "%@UPPER[%[%Letter%]]" eq "%@UPPER[%[%[DRIVE_C_%computer%]]]" .and. "" ne "%[%Letter%]" .and. "" ne "%[DRIVE_C_%computer%]" (%COLOR_WARNING% %+ echos * We do not sync to C drives, and %Letter% is %computer%'s C drive! Sorry! %+ %COLOR_NORMAL% %+ echo. %+ goto :ReturnAlready)
+        if "%@UPPER[%Letter%]" == "C" (%COLOR_WARNING% %+ echos * We do not sync to C drives! Sorry!!!!!!!!!!!!!!!!!!!!!!!!!!!!! %+ %COLOR_NORMAL% %+ echo. %+ goto :returnFromThisOne)
+        for %computer in (%ALL_COMPUTERS_UP%) if "%@UPPER[%[%Letter%]]" == "%@UPPER[%[%[DRIVE_C_%computer%]]]" .and. "" != "%[%Letter%]" .and. "" != "%[DRIVE_C_%computer%]" (%COLOR_WARNING% %+ echos * We do not sync to C drives, and %Letter% is %computer%'s C drive! Sorry! %+ %COLOR_NORMAL% %+ echo. %+ goto :ReturnAlready)
 
     ::::: LEGACY CAMERAS, PROBABLY IMPLEMENTED STUPIDLY:    
                     ::::: That stupid $100 GE camera that died so fast and made Christian so butt-hurt because he recommended it and his didn't die:
@@ -305,7 +305,7 @@ return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             :WipeImagesOffOfDevice [DriveLetter]
-                %COLOR_ALARM%   %+ if "%driveletter%" eq "" (call alarm-beep %+ echo FATAL ERROR#0923402843 %+ call cancelll)
+                %COLOR_ALARM%   %+ if "%driveletter%" == "" (call alarm-beep %+ echo FATAL ERROR#0923402843 %+ call cancelll)
                 %COLOR_DEBUG%   %+ timer /1 on
                 %COLOR_WARNING% %+ echo * Wiping all images off of %DriveLetter%
                 :COLOR_DEBUG%   %+ echo del/s%DriveLetter%:\PICS\%FILEMASK_IMAGE% %+ pause %+ REM debug
@@ -355,7 +355,7 @@ return
         %COLOR_IMPORTANT%
             echo * This appears to be a Z5 dashcam.
             echo * We will process it as "generic folder of badly named videos".
-            if "%DEBUG%" eq "1" pause
+            if "%DEBUG%" == "1" pause
         %COLOR_NORMAL%
 
     ::::: LOOK AT DRIVE LABEL:
@@ -389,7 +389,7 @@ return
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :DealWithGenericFolderOfBadlyNamedVideos [source target additionalDescriptor]
-    if "%DEBUG%" eq "1" .or. %username% eq "carolyn" (%COLOR_DEBUG% %+ echo - DealWithGenericFolderOfBadlyNamedVideos %source% %TARGET% %+ %COLOR_NORMAL%)
+    if "%DEBUG%" == "1" .or. %username% == "carolyn" (%COLOR_DEBUG% %+ echo - DealWithGenericFolderOfBadlyNamedVideos %source% %TARGET% %+ %COLOR_NORMAL%)
     if not isdir %TARGET%  md /s %TARGET%
     if not isdir %TARGET% (echo target of %TARGET% must exist! %+ beep %+ pause %+ quit)
     if not isdir %source% (echo source of %source% must exist! %+ beep %+ pause %+ quit)
@@ -459,7 +459,7 @@ return
 ::::: CLEAN-UP / POST-PROCESSING:
     ::::: STORE OUR ORGINAL FOLDER AND MOVE TO OUR TARGET FOLDER SO WE CAN RUN SCRIPTS THERE:
         :Finish_Up
-        if "%DEBUG%" eq "1" (echo * All done, about to finish up. %+ echo * CWD = %_CWD %+ pause)        
+        if "%DEBUG%" == "1" (echo * All done, about to finish up. %+ echo * CWD = %_CWD %+ pause)        
         pushd .
         "%CURRENT_PICTURES_TARGET%\"
 
@@ -507,7 +507,7 @@ return
 ::        :Skip_Filedate_Processing
 
     ::::: IF WE AREN'T DOING THIS IN THE NORMAL PLACE, MOVE OUR STUFF TO THE NORMAL PLACE:
-        if "%ALTERNATE_TARGET%" ne "1" goto :donotassimilate
+        if "%ALTERNATE_TARGET%" != "1" goto :donotassimilate
             echo Now we will assimilate them to %NEWPICS%... %+ pause>nul %+ pause>nul %+ pause>nul
             call assimilate.bat
         :donotassimilate

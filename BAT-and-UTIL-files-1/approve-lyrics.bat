@@ -30,9 +30,9 @@ endiff
 for %%tmpfile in (%PARAMS%) do (
         set file="%@unquote[%tmpfile]"
         if exist %file% (
-                call    approve-lyric-file.bat %file%
+                call approve-lyric-file.bat %file%
         ) else (
-                call error "File “%italics_on%%file%%italics_off%” does not exist"
+                call error "File %lq%%italics_on%%file%%italics_off%%rq% does not exist"
         )
 )        
 

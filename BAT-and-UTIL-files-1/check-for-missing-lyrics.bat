@@ -53,6 +53,8 @@ rem Validate environment once per session:
         endiff                
 
 
+
+
 rem If we were supplied a filename, process it as a list of files:                                 %+ rem This script can run in a couple different modes, so we need to deal with that
         set PARENT=%@UNQUOTE[%@NAME["%_PBATCHNAME"]]
         set GET=0                                                                                  %+ rem Our default mode is GET=0, which means we will not be running the generated script afterward
@@ -68,13 +70,14 @@ rem If we were supplied a filename, process it as a list of files:              
                         set Filelist_to_Check_for_Missing_Lyrics_in=
                         shift
 
+                        rem This code block is bad form that should not exist:
                         iff "%@EXT[%@UNQUOTE["%1"]]" == "m3u" then
                                 rem echo it’s an m3u! limit=%limit%
                                 set most_songs_from_playlist_to_process_at_a_time=10000
                                 set FILELIST_MODE=1
                                 set Filelist_to_Check_for_Missing_Lyrics_in=%@UNQUOTE["%1"]
                                 call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
-                                call less_important "Finding songs with missing %findNature% in playlist: %italics_on%“%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%italics_off%”%conceal_on%1111%conceal_off%"
+                                rem moved below call important "Finding songs with missing %findNature% in playlist: %italics_on%“%emphasis%%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%italics_off%%deemphasis%”%conceal_on%1111%conceal_off%"
                                 shift
                         endiff
 
@@ -83,7 +86,9 @@ rem If we were supplied a filename, process it as a list of files:              
                         set  Filelist_to_Check_for_Missing_Lyrics_in=%@UNQUOTE["%1"]               %+ rem       ...store the filename parameter for later...
                         shift
                         call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
-                        call less_important "Finding songs with missing %findNature% in playlist: %italics_on%“%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%italics_off%”%conceal_on%2222%conceal_off%"
+                        rem repeat 7 echo.
+                        rem call divider
+                        rem moved below call important "Finding %blink_on%%limit%%blink_off% songs with missing %italics_on%%findNature%%italics_off% in playlist: %italics_on%“%emphasize%%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%deemphasis%%italics_off%”%conceal_on%2222%conceal_off%"
                         iff "%1" == "get" then                                                    
                                 set GET=1                                                         
                                 shift                                                             
@@ -97,6 +102,10 @@ rem If we were supplied a filename, process it as a list of files:              
         rem DEBUG: echo Filelist_to_Check_for_Missing_Lyrics_in=%Filelist_to_Check_for_Missing_Lyrics_in% filelist_mode=%filelist_mode% %+ pause   %+ rem Debug
         rem DEBUG:
 
+
+
+
+
 rem Set our getter, depending on whether we’re in lyric mode, or “hidden” karaoke mode:
         iff 1 ne %GET_KARAOKE then
                 set GETTER=get-lyrics
@@ -106,7 +115,13 @@ rem Set our getter, depending on whether we’re in lyric mode, or “hidden” 
                 set findNature=karaoke
         endiff
 
-        rem DEBUG: echo ETC is “%ETC%”, GET=“%GET%”, GET_KARAOKE=“%GET_KARAOKE%”, GETTER=“%GETTER%”, NATURE=“%findNature”, flielist_mode=“%flielist_mode%” %+ pause
+        rem DEBUG: 
+
+
+
+rem Debug:
+        rem echo ETC is “%ETC%”, GET=“%GET%”, GET_KARAOKE=“%GET_KARAOKE%”, GETTER=“%GETTER%”, NATURE=“%findNature”, flielist_mode=“%flielist_mode%”, limit=“%limit%” %%*=“%*”, %%1=“%1” %+ pause
+
 
 
 rem Go through each audio file, seeing if it lacks approved lyrics:
@@ -120,8 +135,6 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
         
         rem DEBUG: echo tmpfile  is %tmpfile_cfml_1%%newline%tmpfile2 is %tmpfile2% %+ pause
 
-
-
         iff 0 eq %FILELIST_MODE% then 
                 set ENTITY_TO_USE=%FILEMASK_AUDIO%
                 set LIMIT=9999
@@ -132,10 +145,50 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
                 set ENTITY_TO_USE=@"%tmpfile2%"
         endiff
         
-        set remaining=%limit%
+
+
+
+rem Remaining parameter processing: For if we pass a number to set a manual limit:
+        set next=%1
+        shift
+        iff "%next%" ne "" then
+                setdos /x-5
+                        iff "1" == "%@RegEx[^[0-9]+$,%@UNQUOTE["%next%"]]" then
+                                set LIMIT=%next%
+                                shift
+                        else
+                                rem Nope...
+                        endiff
+                        setdos /x0
+        endiff
+
+
+
+rem Let user know what’s going on:
+        repeat 5 echo.
+        iff 1 eq %FILELIST_MODE then
+                set in= in playlist: %italics_on%“%emphasis%%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%deemphasis%%italics_off%”
+        else
+                set in= in %@NAME[%_CWD]
+        endiff
+        gosub divider
+        echo.
+        call important "Finding %blink_on%%limit%%blink_off% songs with missing %italics_on%%findNature%%italics_off%%IN%"
+        echo.
+
+
+
+rem Debug:        
+        rem echo ETC is “%ETC%”, GET=“%GET%”, GET_KARAOKE=“%GET_KARAOKE%”, GETTER=“%GETTER%”, NATURE=“%findNature”, flielist_mode=“%flielist_mode%”, limit=“%limit%” %%*=“%*”, %%1=“%1” %+ pause
+
+
+
+
+
 
 rem If we are processing a playlist OR a wildcard set of files, look through it for audio files, 
 rem and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_1:
+        set remaining=%limit%
         set limit_reached=0
         setdos /x-4
         for %%CFML_AudioFile in (%ENTITY_TO_USE%) do (
@@ -353,7 +406,7 @@ rem —————————————————————————�
                                 set NUM_PROCESSED=%@EVAL[%NUM_PROCESSED + 1]
                                 
                         rem Display the # processed (which only applies to bad files):
-                                title Processed: %NUM_PROCESSED%
+                                title To find: %remaining% ... Tried: %NUM_PROCESSED%
                                 
                         rem If this file is bad, deal with that:
                                 iff 1 eq %BAD% then
@@ -379,8 +432,12 @@ rem —————————————————————————�
                                         rem Add lyric-retrieval command to our autorun script:
                                               rem echo gosub process "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
                                               setdos /x-4
-                        
-                                              echo repeat 7 echo. `%`+ if exist "%unquoted_audio_file%" .and. not exist "%@unquote[%@name["%unquoted_audio_file%"]].txt" call %GETTER% "%unquoted_audio_file%" %ETC% `%`+ call  divider >>:u8"%tmpfile_cfml_1%"
+
+                                              iff 1 eq %GENIUS_ONLY% then
+                                                      echo repeat 7 echo. `%`+ if exist "%unquoted_audio_file%" .and. not exist "%@unquote[%@name["%unquoted_audio_file%"]].txt" call %GETTER% "%unquoted_audio_file%" %ETC% `%`+ call  divider >>:u8"%tmpfile_cfml_1%"
+                                              else
+                                                      echo repeat 7 echo. `%`+ if exist "%unquoted_audio_file%"                                                                  call %GETTER% "%unquoted_audio_file%" %ETC% `%`+ call  divider >>:u8"%tmpfile_cfml_1%"
+                                              endiff
                                               rem we added the and not exist part right here --------------------^^^^^^^^ for genius mode, TODO consider whether that should also be there during normal mode or not. After we do our full-collection genius-only download, this should emergently become more apparant
                                               setdos /x0
                                                     
@@ -404,11 +461,12 @@ rem —————————————————————————�
 
         goto :skip_subs_cfml
                 :divider []
+                        rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
                         set wd=%@EVAL[%_columns - 1]
                         set nm=%bat%\dividers\rainbow-%wd%.txt
                         iff exist %nm% then
                                 *type %nm%
-                                if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                                if "%1" != "NoNewline" .and. "%2" != "NoNewline" .and. "%3" != "NoNewline" .and. "%4" != "NoNewline" .and. "%5" != "NoNewline"  .and. "%6" != "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
                         else
                                 echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
                         endiff

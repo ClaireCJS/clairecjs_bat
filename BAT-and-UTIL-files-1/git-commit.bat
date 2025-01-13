@@ -22,7 +22,7 @@ REM Show modified/uncommitted files
 REM Get reason to commit
     set REASON=%1 
     :Get_Reason
-    if "%REASON%" eq "" .or. "%REASON%" eq "--verbose" .or. 1 eq %COMMIT_WITH_AUTOMATIC_REASON% (
+    if "%REASON%" == "" .or. "%REASON%" == "--verbose" .or. 1 eq %COMMIT_WITH_AUTOMATIC_REASON% (
         rem I liked this one:
                 REM generate a very nice commit comment akin to "update on 2023/06/01 -- 5:14:10 PM -- Thursday /// README.md"
                 REM call set-date-verynice
@@ -37,12 +37,12 @@ REM Get reason to commit
             call set-nicetime
             set REASON=%_dow %nicetime: %@unquote[%currently_playing_song]
     )
-    if "%NOPAUSE%" ne "1" .and. "%1" ne "nopause" .and. %GIT_SKIP_COMMIT_REASON_EDIT ne 1 (
-        if "%1" ne "" (
-            if "%1" ne "auto" .and. "%1" eq "" (                                   eset REASON %+ set EDIT=1)
-            if "%1" ne "auto" .and. "%1" ne "" (set REASON=%* %EMDASH% %REASON% %+ eset REASON %+ set EDIT=1)
-            if "%1" eq "auto" .and. "%2" ne "" (set REASON=%* %EMDASH% %REASON%                %+ set EDIT=0)
-            if "%1" eq "auto" .and. "%2" eq "" (set EDIT=0                                                  ) %+ rem (reason remains its pre-existing value)
+    if "%NOPAUSE%" != "1" .and. "%1" != "nopause" .and. %GIT_SKIP_COMMIT_REASON_EDIT ne 1 (
+        if "%1" != "" (
+            if "%1" != "auto" .and. "%1" == "" (                                   eset REASON %+ set EDIT=1)
+            if "%1" != "auto" .and. "%1" != "" (set REASON=%* %EMDASH% %REASON% %+ eset REASON %+ set EDIT=1)
+            if "%1" == "auto" .and. "%2" != "" (set REASON=%* %EMDASH% %REASON%                %+ set EDIT=0)
+            if "%1" == "auto" .and. "%2" == "" (set EDIT=0                                                  ) %+ rem (reason remains its pre-existing value)
             if %EDIT eq 1 (
                 echo.
                 call important "Enter your commit reason:"

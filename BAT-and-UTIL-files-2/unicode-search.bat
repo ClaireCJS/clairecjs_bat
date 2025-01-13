@@ -1,7 +1,10 @@
 @on break cancel
 @Echo off
 
-:DESCRIPTION:  To search emoji environment variables (set by set-emoji.bat) using a regular expression [i.e. "grep my emojis"]
+:DESCRIPTION:  Forked version of emoji-grep.bat that isn’t limited to just emojis
+
+:DESCRIPTION:  To search environment variables (set by set-emoji.bat) using a regular expression [i.e. "grep my env"]
+
 :REQUIRES: set-emoji.bat (to set emoji envirionment variables), emoji.env (used by set-emoji.bat), print-message.bat, set-tmp-file.bat, important.bat, set-colors.bat (to set color environment variables)
 
 REM parameter processing
@@ -31,7 +34,7 @@ REM go through each enviroment variable
 
 goto :END
     :ProcessEnvVar [var]
-        if          "%@REGEX[EMOJI_,%@UPPER[%VAR%]]" ne "1" (return) %+ rem return if emoji isn’t in the env var name
+        rem ////////////////////////////// THIS IS THE ONLY MODIFICATION FROM EMOJI-SEARCH if          "%@REGEX[EMOJI_,%@UPPER[%VAR%]]" ne "1" (return) %+ rem return if emoji isn’t in the env var name
         if "%@REGEX[%@UPPER[%PARAM],%@UPPER[%VAR%]]" ne "1" (return) %+ rem return if what we are searching for doesn’t match
         if %FOUND ne 1 (echo.)
         set FOUND=1

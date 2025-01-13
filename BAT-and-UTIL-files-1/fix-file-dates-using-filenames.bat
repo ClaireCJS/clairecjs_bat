@@ -9,13 +9,13 @@
     set BREADCRUMB="__ dates fixed as of this date __"
 
 ::::: CHECK INVOCATION:
-    if ""  eq   "%1"          (gosub :Usage    %+                                               %+ goto :END)
+    if ""  ==   "%1"          (gosub :Usage    %+                                               %+ goto :END)
     if not exist %1           (%COLOR_WARNING% %+ echo * WARNING: DOES NOT EXIST: %1            %+ goto :END)
-    if     exist %BREADCRUMB% (%COLOR_WARNING% %+ echo * Warning: We've already done this here. %+ if "%2" eq "override" goto :DoIt %+ goto :END)
+    if     exist %BREADCRUMB% (%COLOR_WARNING% %+ echo * Warning: We've already done this here. %+ if "%2" == "override" goto :DoIt %+ goto :END)
 
 ::::: DEBUG CONSIDERATIONS:
     if defined DEBUGECHO (unset /q DEBUGECHO     )
-    if "%DEBUG%" eq "1"  (  set    DEBUGECHO=echo)
+    if "%DEBUG%" == "1"  (  set    DEBUGECHO=echo)
 
 ::::: CYCLE THROUGH EACH FILE:
     :DoIt
@@ -88,15 +88,15 @@ goto :CleanUp
             if %@LEN[%XX00%] == 13 .and. %@LEN[%XX01%]==4 .and. %@LEN[%XX02%] == 2 .and. %@LEN[%XX03%]==2 .and. %@LEN[%XX04%]==2 .and. %@LEN[%XX05%]==02 .and. %@LEN[%XX06%]  == 00                (echos [1] %+ set NEW_YYYY=%XX01%   %+ set NEW_MM=%XX02% %+ set NEW_DD=%XX03% %+ set NEW_HH=%%XX04% %+ set NEW_MIN=%XX05% %+                                                                                                 %+ goto :Match_YES)
             if %@LEN[%XX10%] gt 07 .and. %@LEN[%XX11%]==4 .and. %@LEN[%XX12%] == 2 .and. %@LEN[%XX13%]==2 .and. %@LEN[%XX14%]==0 .and. %XX11% lt %HIY% .and. %XX12% lt 13                          (echos [2] %+ set NEW_YYYY=%XX11%   %+ set NEW_MM=%XX12% %+ set NEW_DD=%XX13% %+ set NEW_HH=12      %+ set NEW_MIN=00     %+                                                                                                 %+ goto :Match_YES)
             if %@LEN[%XX20%] == 06 .and. %@LEN[%XX21%]==4 .and. %@LEN[%XX22%] == 2 .and. %@LEN[%XX23%]==0 .and. %XX21% lt %HIY%                                                .and. %XX22% lt 13  (echos [3] %+ set NEW_YYYY=%XX21%   %+ set NEW_MM=%XX22% %+ set NEW_DD=15     %+ set NEW_HH=12      %+ set NEW_MIN=00     %+                                                                                                 %+ goto :Match_YES)
-            if %@LEN[%XX35%] gt 07 .and. %@LEN[%XX36%]==3 .and. %@LEN[%XX37%] gt 2 .and. %@LEN[%XX38%]==0                                                                                          (echos [6] %+ set NEW_YYYY=%XX36%5  %+ set NEW_MM=01     %+ set NEW_DD=01     %+ set NEW_HH=12      %+ set NEW_MIN=00     %+ if "%XX37%" eq "early" (set NEW_YYYY=%XX36%2 ) %+ if "%XX37%" eq "late" (set NEW_YYYY=%XX36%8 ) %+ goto :Match_YES)
-            if %@LEN[%XX25%] gt 07 .and. %@LEN[%XX26%]==2 .and. %@LEN[%XX27%] gt 2 .and. %@LEN[%XX28%]==0                                                                                          (echos [4] %+ set NEW_YYYY=%XX26%50 %+ set NEW_MM=01     %+ set NEW_DD=01     %+ set NEW_HH=12      %+ set NEW_MIN=00     %+ if "%XX27%" eq "early" (set NEW_YYYY=%XX26%20) %+ if "%XX27%" eq "late" (set NEW_YYYY=%XX26%80) %+ goto :Match_YES)
+            if %@LEN[%XX35%] gt 07 .and. %@LEN[%XX36%]==3 .and. %@LEN[%XX37%] gt 2 .and. %@LEN[%XX38%]==0                                                                                          (echos [6] %+ set NEW_YYYY=%XX36%5  %+ set NEW_MM=01     %+ set NEW_DD=01     %+ set NEW_HH=12      %+ set NEW_MIN=00     %+ if "%XX37%" == "early" (set NEW_YYYY=%XX36%2 ) %+ if "%XX37%" == "late" (set NEW_YYYY=%XX36%8 ) %+ goto :Match_YES)
+            if %@LEN[%XX25%] gt 07 .and. %@LEN[%XX26%]==2 .and. %@LEN[%XX27%] gt 2 .and. %@LEN[%XX28%]==0                                                                                          (echos [4] %+ set NEW_YYYY=%XX26%50 %+ set NEW_MM=01     %+ set NEW_DD=01     %+ set NEW_HH=12      %+ set NEW_MIN=00     %+ if "%XX27%" == "early" (set NEW_YYYY=%XX26%20) %+ if "%XX27%" == "late" (set NEW_YYYY=%XX26%80) %+ goto :Match_YES)
             if %@LEN[%XX45%] == 07 .and. %@LEN[%XX46%]==3 .and. %@LEN[%XX47%] == 0                                                                                                                 (echos [7] %+ set NEW_YYYY=%XX46%5  %+ set NEW_MM=01     %+ set NEW_DD=01     %+ set NEW_HH=12      %+ set NEW_MIN=00     %+                                                                                                 %+ goto :Match_YES)
             if %@LEN[%XX30%] gt 03 .and. %@LEN[%XX31%]==4 .and. %@LEN[%XX32%] == 0                                                                                                                 (echos [5] %+ set NEW_YYYY=%XX31%   %+ set NEW_MM=06     %+ set NEW_DD=01     %+ set NEW_HH=12      %+ set NEW_MIN=00     %+                                                                                                 %+ goto :Match_YES)
             if %@LEN[%XX80%] gt 05 .and. %@LEN[%XX81%]==4 .and. %@LEN[%XX82%] == 0                                                                                                                 (echos [8] %+ set NEW_YYYY=%XX81%   %+ set NEW_MM=06     %+ set NEW_DD=01     %+ set NEW_HH=12      %+ set NEW_MIN=00     %+                                                                                                 %+ goto :Match_YES)
-            if %@LEN[%XX90%] gt 10 .and. %@LEN[%XX91%]==3 .and. %@LEN[%XX92%] == 0 .and.      "%XX10%" eq ""                                                                                       (echos [9] %+ set NEW_YYYY=%XX91%5  %+ set NEW_MM=01     %+ set NEW_DD=01     %+ set NEW_HH=12      %+ set NEW_MIN=00     %+                                                                                                 %+ goto :Match_YES)
+            if %@LEN[%XX90%] gt 10 .and. %@LEN[%XX91%]==3 .and. %@LEN[%XX92%] == 0 .and.      "%XX10%" == ""                                                                                       (echos [9] %+ set NEW_YYYY=%XX91%5  %+ set NEW_MM=01     %+ set NEW_DD=01     %+ set NEW_HH=12      %+ set NEW_MIN=00     %+                                                                                                 %+ goto :Match_YES)
 
         :: if we have only examined the filename, but found no matches, then continue on to examine the folder name 
-            if "%FOLDERNAME_TRIED%" eq "1" goto :Match_NO               %+ REM We will try this once, and once it is tried, we will continue to failure
+            if "%FOLDERNAME_TRIED%" == "1" goto :Match_NO               %+ REM We will try this once, and once it is tried, we will continue to failure
             set FOLDERNAME_TRIED=1                                      %+ REM Mark that we have tried this
             set CHECKING_IN=%@FULL[%file%]                              %+ REM Refocus our search to the foldername instead of the filename
             echo      ...looking in folder name....                     %+ REM show some kind of indication that we have checked this

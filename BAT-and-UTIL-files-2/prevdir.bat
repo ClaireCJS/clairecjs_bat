@@ -3,9 +3,9 @@
 
 ::::: IF WE PASS A SINGLE-DIGIT NUMBER, WE ARE PROBABLY TRYING TO CALL DP.BAT INSTEAD OF PD.BAT, SO LET'S JUST ALLOW THAT:
     SET ARGV=%1
-    if "%ARGV%" eq "" goto :NoOverload
+    if "%ARGV%" == "" goto :NoOverload
         :Overload
-        if "%ARGV%" ne "" .and. "%@LEN[%ARGV%]" eq "1" .and. "%2" eq "" .and. "%@REGEX[[0-%_MONITORS],%ARGV%]" eq "1" (dp.bat %*)
+        if "%ARGV%" != "" .and. "%@LEN[%ARGV%]" == "1" .and. "%2" == "" .and. "%@REGEX[[0-%_MONITORS],%ARGV%]" == "1" (dp.bat %*)
     :NoOverload
 
 ::::: Take a file along with us, if one is given: part 1 of 2:
@@ -18,7 +18,7 @@
     call %TARGET
 
 ::::: Take a file along with us, if one is given: part 2 of 2:
-    if "%FILE_TO_MOVE%" eq "" goto :NoFileToMove
+    if "%FILE_TO_MOVE%" == "" goto :NoFileToMove
         mv "%FILE_TO_MOVE%" .
         set FILE_THAT_WAS_MOVED=%FILE_TO_MOVE%
         unset /Q FILE_TO_MOVE

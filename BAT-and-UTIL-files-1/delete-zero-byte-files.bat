@@ -6,10 +6,10 @@
 
 
                set FILES=*.*
-if "%1" ne "" (set FILES=%1)
+if "%1" != "" (set FILES=%1)
 
 set DZBF_SILENT=0
-if "%1" eq "silent" .or. "%2" eq "silent" .or. "%3" eq "silent" (set DZBF_SILENT=1)
+if "%1" == "silent" .or. "%2" == "silent" .or. "%3" == "silent" (set DZBF_SILENT=1)
 
 :: Loop through all files in the target directory
 for %%qqq in (%FILES%) do (gosub :processfile "%qqq")

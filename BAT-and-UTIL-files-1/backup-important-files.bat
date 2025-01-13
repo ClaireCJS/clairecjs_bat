@@ -55,18 +55,18 @@ rem ****************************************************************************
 
 
 
-if "%PARAM_1%" eq "winamp" (goto winamp)
+if "%PARAM_1%" == "winamp" (goto winamp)
 
 rem Back up each important file:
 
-        iff "%USERNAME%" eq "claire" then
+        iff "%USERNAME%" == "claire" then
                 gosub backup_file dropbox_Y "Windows Terminal settings"    %LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
                 gosub backup_file dropbox_Y "### file"                     %CONTACTS%
                 gosub backup_file dropbox_N "Adobe Audition settings"      %APPDATA%\Adobe\Audition\12.0\ApplicationSettings.xml onlyIfExists
                 gosub backup_file dropbox_N "eyebar captions"              %EYEBARCAPS%
         endiff
         :winamp        
-        iff "%USERNAME%" eq "claire" then
+        iff "%USERNAME%" == "claire" then
                 gosub backup_file dropbox_N "Winamp.ini"                   %WINAMP_INI%
         endiff                
         gosub backup_file dropbox_N "DVD catalog offline fragment" %PREBURN_DVD_CATALOG%
@@ -114,7 +114,7 @@ goto :END
                 set TARGET_FILENAME_DATED=%TARGET_FILENAME%.%_ISODATE
                       
                 rem Always copy it to dropbox if instructed
-                        if "%dropbox_YN%" eq "dropbox_Y" (
+                        if "%dropbox_YN%" == "dropbox_Y" (
                                 set SAME=0
                                 if exist %target_filename_dropbox (set SAME=%@COMPARE[%filepath,%target_filename_dropbox]) 
                                 if %SAME eq 0 (

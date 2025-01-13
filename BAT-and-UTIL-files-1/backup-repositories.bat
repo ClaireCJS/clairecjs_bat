@@ -28,9 +28,9 @@ rem VALIDATE ENVIRONMENT:
 
 rem PARAMETER PROCESSING —— allow "simultaneous" or "parallel" to quickly do them all in the same window:
         set goto=Normal
-        if "%1" ne "simultaneous" .and. "%1" ne "parallel" .and. "%1" ne "" (set goto=%1)
-        if "%1" eq "simultaneous"  .or. "%1" eq "parallel" (  set    BACKUPREPOSTARTER=call startafter1secondpausewithexitafter %+ goto :%goto%)
-        if "%1" ne "simultaneous" .and. "%1" ne "parallel" (unset /q BACKUPREPOSTARTER                                          %+ goto :%goto%)         
+        if "%1" != "simultaneous" .and. "%1" != "parallel" .and. "%1" != "" (set goto=%1)
+        if "%1" == "simultaneous"  .or. "%1" == "parallel" (  set    BACKUPREPOSTARTER=call startafter1secondpausewithexitafter %+ goto :%goto%)
+        if "%1" != "simultaneous" .and. "%1" != "parallel" (unset /q BACKUPREPOSTARTER                                          %+ goto :%goto%)         
         rem              call print-if-debug "BACKUPREPOSTARTER is “%BACKUPREPOSTARTER%”"
 
 
@@ -41,7 +41,7 @@ rem START DOING THE BACKUP:
         timer
 
 rem INTERACTION WITH ANOTHER BACKUP SCRIPT:
-        if "%BACKUP_REPO_PRECLEAN%" eq "1" (goto :PreCleaned_Already)
+        if "%BACKUP_REPO_PRECLEAN%" == "1" (goto :PreCleaned_Already)
             call askyn "Run hitomi-assmilate?" no 10                                                           %+ REM ask if we want to run this other backup script, but proceed if no answer is given in 10 seconds
             if %DO_IT eq 1 (call after hitomi %+ set BACKUP_REPO_PRECLEAN=1)
         :PreCleaned_Already

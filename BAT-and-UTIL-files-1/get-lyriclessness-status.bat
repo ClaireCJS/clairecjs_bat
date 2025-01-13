@@ -1,4 +1,4 @@
-@Echo OFF
+@Echo Off
  on break cancel
 
 
@@ -33,7 +33,9 @@ rem Validate environment once per session:
         endiff
         
 rem Validate parameters:
-        call validate-environment-variable Song_To_Get_Status_Of "1ˢᵗ argument to “%0” must be the songfile that you want to get the lyric%italics_on%lessness%italics_off% status for"
+        unset /q validate_multiple
+        rem echo Song_To_Get_Status_Of is  %Song_To_Get_Status_Of%
+        call validate-environment-variable Song_To_Get_Status_Of "1st argument to “%0” %@IF["%_PBATCHNAME" != "",(pbatchname=%_pbatchname),]must be the songfile that you want to get the lyric%italics_on%lessness%italics_off% status for"
         call validate-extension            Song_To_Get_Status_Of %FILEMASK_AUDIO%
 
 rem Clear recepticle variables:
@@ -42,8 +44,8 @@ rem Clear recepticle variables:
 
 rem Read the lyriclessness status:
         iff exist "%SONG_TO_GET_STATUS_OF%" then
-                rem call read-ADS-tag-from-file "%SONG_TO_GET_STATUS_OF%" lyriclessness ➕➕➕➕➕➕➕➕ >nul
-                    call read-ADS-tag-from-file "%SONG_TO_GET_STATUS_OF%" lyriclessness
+                echo call read-ADS-tag-from-file "%SONG_TO_GET_STATUS_OF%" lyriclessness ➕➕➕➕➕➕➕➕ >nul
+                     call read-ADS-tag-from-file "%SONG_TO_GET_STATUS_OF%" lyriclessness
         else
                 if 1 ne %SILENT_GETLYRICLESSNESSSTATUS% call warning_soft "File “%italics_on%%emphasis%%SONG_TO_GET_STATUS_OF%%deemphasis%%italics_off%” does not exist"
         endiff

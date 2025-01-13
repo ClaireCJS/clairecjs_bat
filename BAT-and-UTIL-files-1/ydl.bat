@@ -31,9 +31,9 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         
 
 
-        REM this can never happen if "" eq "%1" .and. "" ne "%1" (set URL=%*    %+ unset /q OUTPUTNAME)
-        REM this seemed wrong     if "" eq "%2" .or.  "" eq "%1" (call FATAL_ERROR "NEED FILENAME AND URL PARAMETERS!" %+ goto :END)
-        if "%2" eq "NOEXT" (set NOEXT=1) 
+        REM this can never happen if "" == "%1" .and. "" != "%1" (set URL=%*    %+ unset /q OUTPUTNAME)
+        REM this seemed wrong     if "" == "%2" .or.  "" == "%1" (call FATAL_ERROR "NEED FILENAME AND URL PARAMETERS!" %+ goto :END)
+        if "%2" == "NOEXT" (set NOEXT=1) 
 
     ::::: EXECUTION:
         call validate-in-path %YDL %
@@ -69,6 +69,7 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
      rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser opera     --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         @echo on
          call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
+     rem was suggested thato ne could scrub unicode chars with this command: --replace-in-metadata "video:title" " ?[\U000002AF-\U0010ffff]+" ""
         @Echo off
          rem we don’t call errorlevel because %YDL% returns an errorlevel even when successful
          REM removed --embed-thumbnail: messes up workflow this that extra file: PLUS it made: ERROR: Postprocessing: Supported filetypes for thumbnail embedding are: mp3, mkv/mka, ogg/opus/flac, m4a/mp4/mov 
@@ -93,7 +94,7 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         call errorlevel
 
     :: manual rename opportunity - also covers companion files
-        if "%UNATTENDED_YOUTUBE_DOWNLOADS%" eq "1" goto :Unattended
+        if "%UNATTENDED_YOUTUBE_DOWNLOADS%" == "1" goto :Unattended
             call rn-latest-for-youtube-dl %FILEMASK_VIDEO%
             :^^^^^^^^^^^^^^^^^^^^^^^^^^^^ side-effect: sets %FILENAME_NEW%, which we use later  ...TODO:possible bug in that it tries to rename the JSON now. same effcet but more confusing
             call errorlevel

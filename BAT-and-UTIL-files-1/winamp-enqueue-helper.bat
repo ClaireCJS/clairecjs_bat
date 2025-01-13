@@ -23,9 +23,9 @@
 
 ::::: PLAY OUR PLAYLIST:
 
-	if "%MPLAYVLC%" eq "1" goto :Play_With_VLC
-	if "%MPLAYMPC%" eq "1" goto :Play_With_MPC
-	if "%ENQUEUE%"  eq "1" goto :Play_With_Winamp
+	if "%MPLAYVLC%" == "1" goto :Play_With_VLC
+	if "%MPLAYMPC%" == "1" goto :Play_With_MPC
+	if "%ENQUEUE%"  == "1" goto :Play_With_Winamp
 	                       goto :Play_With_MPC
                            :: 20150630 - default changed to MPC because VLC is being a bitch with forward slashes all of a sudden
 

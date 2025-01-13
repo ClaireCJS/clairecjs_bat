@@ -63,6 +63,7 @@ pause =    @call  pause-alias.bat
 python=    @call       python.bat
 rd=        @call     rd-alias.bat 
 say=       @call          say.bat 
+setdos=    @call setdos-alias.bat
 sleep=     @call        sleep.bat
 sort =     @call         sort.bat
 speak=     @call        speak.bat

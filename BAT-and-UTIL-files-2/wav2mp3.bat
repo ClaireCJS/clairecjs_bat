@@ -4,10 +4,10 @@
 ::::: PARAMETERS:
     set SOURCE_WAV=%1
     set TARGET_MP3=%2
-    set    QUALITY=%3                        %+ if "%QUALITY%" eq ""   (set QUALITY=0)
+    set    QUALITY=%3                        %+ if "%QUALITY%" == ""   (set QUALITY=0)
     set        MIN=-b 96                     %+ if  %QUALITY%  gt 3    (unset /q MIN)
-    set   CHANNELS=-m j                      %+ if "%QUALITY%" eq "-m" (set QUALITY=0 %+ set CHANNELS=%3 %4)  %+ REM This is admittedly ugly, but due to legacy interaction, this bat ends up being overloaded with parameters in a few different combinations. We just have to deal with it.
-    set   CHANNELS=-m j                      %+ if "%4%"       eq "-m" (                 set CHANNELS=%4 %5)
+    set   CHANNELS=-m j                      %+ if "%QUALITY%" == "-m" (set QUALITY=0 %+ set CHANNELS=%3 %4)  %+ REM This is admittedly ugly, but due to legacy interaction, this bat ends up being overloaded with parameters in a few different combinations. We just have to deal with it.
+    set   CHANNELS=-m j                      %+ if "%4%"       == "-m" (                 set CHANNELS=%4 %5)
     set OTHEROPTIONS=--add-id3v2 --tn 1/1 --replaygain-accurate  %+ REM  Best attempt to force id3v1/v2 stub tags so tagging process goes slightly faster later.
     :OLD: set START=start /low /wait /min    %+ REM stopped doing this with DEMONA in 2022. Things are fast enough to just let them run in the current window.
     unset /q START
@@ -16,8 +16,8 @@
 
 ::::: VALIDATE ENVIRONMENT, PARAMETERS:
     call validate-environment-variable UTIL
-    if ""  eq   "%SOURCE_WAV%" (echo FATAL ERROR: 1st parameter of WAV source file must be given!! %+ beep %+ pause %+ goto :END)
-    if ""  eq   "%TARGET_MP3%" (echo FATAL ERROR: 2nd parameter of MP3 target file must be given!! %+ beep %+ pause %+ goto :END)
+    if ""  ==   "%SOURCE_WAV%" (echo FATAL ERROR: 1st parameter of WAV source file must be given!! %+ beep %+ pause %+ goto :END)
+    if ""  ==   "%TARGET_MP3%" (echo FATAL ERROR: 2nd parameter of MP3 target file must be given!! %+ beep %+ pause %+ goto :END)
     if not exist %SOURCE_WAV%  (call alarm-beep FATAL ERROR: parameter 1, source_wav, %SOURCE_WAV%, does not exist!! %+ pause %+ goto :END)
 
 ::::: BACKUP DESTINATION IF IT ALREADY EXISTS:
@@ -38,7 +38,7 @@
     set NAME_TO_CHECK=%@NAME[%@STRIP[%=",%SOURCE_WAV%]].jpg %+ if exist %NAME_TO_CHECK% set ARTWORK=%NAME_TO_CHECK%
     set NAME_TO_CHECK=%@NAME[%@STRIP[%=",%SOURCE_WAV%]].png %+ if exist %NAME_TO_CHECK% set ARTWORK=%NAME_TO_CHECK%
 	unset /q ARTWORKOPTIONS
-	if "%ARTWORK%" ne "" set ARTWORKOPTIONS=--ti "%@UNQUOTE[%ARTWORK%]"
+	if "%ARTWORK%" != "" set ARTWORKOPTIONS=--ti "%@UNQUOTE[%ARTWORK%]"
 
 ::::: LET USER KNOW:
 	echo.

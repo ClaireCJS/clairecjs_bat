@@ -21,24 +21,24 @@ set BEEPBAT_PARAM3=%3$
 
 
 REM to test system sounds:
-    if "%FREQ_OR_SYSTEMSOUND%" eq "test"       (goto :systemsoundtest)
+    if "%FREQ_OR_SYSTEMSOUND%" == "test"       (goto :systemsoundtest)
 
 REM we accept HIGHEST/LOWEST as a parameters to use the highest/lowest known beeps:
     set SKIP_FREQ_CHECK=0
-    if "%FREQ_OR_SYSTEMSOUND%" eq "highest"    (set FREQ_OR_SYSTEMSOUND=%HIGHEST_BEEP% %+ set SKIP_FREQ_CHECK=1)
-    if "%FREQ_OR_SYSTEMSOUND%" eq "lowest"     (set FREQ_OR_SYSTEMSOUND=%LOWEST_BEEP%  %+ set SKIP_FREQ_CHECK=1)
+    if "%FREQ_OR_SYSTEMSOUND%" == "highest"    (set FREQ_OR_SYSTEMSOUND=%HIGHEST_BEEP% %+ set SKIP_FREQ_CHECK=1)
+    if "%FREQ_OR_SYSTEMSOUND%" == "lowest"     (set FREQ_OR_SYSTEMSOUND=%LOWEST_BEEP%  %+ set SKIP_FREQ_CHECK=1)
 
 REM these system sound names are valid for *beep:
-    if "%FREQ_OR_SYSTEMSOUND%" eq "question"        goto :parameters_have_been_validated
-    if "%FREQ_OR_SYSTEMSOUND%" eq "exclamation"     goto :parameters_have_been_validated
-    if "%FREQ_OR_SYSTEMSOUND%" eq "asterisk"        goto :parameters_have_been_validated
-    if "%FREQ_OR_SYSTEMSOUND%" eq "hand"            goto :parameters_have_been_validated
-    if "%FREQ_OR_SYSTEMSOUND%" eq "ok"              goto :parameters_have_been_validated
-    if "%FREQ_OR_SYSTEMSOUND%" eq "systemsoundtest" goto :parameters_have_been_validated
+    if "%FREQ_OR_SYSTEMSOUND%" == "question"        goto :parameters_have_been_validated
+    if "%FREQ_OR_SYSTEMSOUND%" == "exclamation"     goto :parameters_have_been_validated
+    if "%FREQ_OR_SYSTEMSOUND%" == "asterisk"        goto :parameters_have_been_validated
+    if "%FREQ_OR_SYSTEMSOUND%" == "hand"            goto :parameters_have_been_validated
+    if "%FREQ_OR_SYSTEMSOUND%" == "ok"              goto :parameters_have_been_validated
+    if "%FREQ_OR_SYSTEMSOUND%" == "systemsoundtest" goto :parameters_have_been_validated
                                                     
 
 REM but also we have a value we don't want to go above based on testing our speakers/setup
-if  %SKIP_FREQ_CHECK% ne 1 .and. defined HIGHEST_BEEP .and. %FREQ_OR_SYSTEMSOUND% gt %HIGHEST_BEEP% .and. "%FREQ_OR_SYSTEMSOUND%" ne "systemsoundtest" (
+if  %SKIP_FREQ_CHECK% ne 1 .and. defined HIGHEST_BEEP .and. %FREQ_OR_SYSTEMSOUND% gt %HIGHEST_BEEP% .and. "%FREQ_OR_SYSTEMSOUND%" != "systemsoundtest" (
     call error "Beep value of %FREQ_OR_SYSTEMSOUND% is higher than HIGHEST_BEEP of %HIGHEST_BEEP, sorry!"
     rem call CANCELll / *cancel is really destructive to do right here
     goto :The_Very_END
@@ -49,7 +49,7 @@ if  %SKIP_FREQ_CHECK% ne 1 .and. defined HIGHEST_BEEP .and. %FREQ_OR_SYSTEMSOUND
 
 
 REM branch based on awake/asleep value to not disturb others
-    if "%SLEEPING%" eq "1" goto :Asleep
+    if "%SLEEPING%" == "1" goto :Asleep
                            goto :Awake
 
                 :Asleep
@@ -69,11 +69,11 @@ REM branch based on awake/asleep value to not disturb others
                     echo.
                     for %snd in (asterisk exclamation hand ok question) (
                         set snd4print=%snd%
-                        if "%snd%" eq "asterisk"    set "snd4print=%SND%    (windows: 'Asterisk')"
-                        if "%snd%" eq "exclamation" set "snd4print=%SND% (windows: 'Exclamation')"
-                        if "%snd%" eq "ok"          set "snd4print=%SND%          (windows: 'Default Beep')"
-                        if "%snd%" eq "hand"        set "snd4print=%SND%        (windows: 'Program Error')"
-                        if "%snd%" eq "question"    set "snd4print=%SND%    (windows: 'Question')"
+                        if "%snd%" == "asterisk"    set "snd4print=%SND%    (windows: 'Asterisk')"
+                        if "%snd%" == "exclamation" set "snd4print=%SND% (windows: 'Exclamation')"
+                        if "%snd%" == "ok"          set "snd4print=%SND%          (windows: 'Default Beep')"
+                        if "%snd%" == "hand"        set "snd4print=%SND%        (windows: 'Program Error')"
+                        if "%snd%" == "question"    set "snd4print=%SND%    (windows: 'Question')"
                         call important_less "     - %snd4print%"
                         call beep.bat               %snd%
                         call sleep 1
@@ -84,7 +84,7 @@ REM branch based on awake/asleep value to not disturb others
 
 
 REM Add on our own options to /?
-    if "%FREQ_OR_SYSTEMSOUND%" eq "/?" (
+    if "%FREQ_OR_SYSTEMSOUND%" == "/?" (
         echo.
         call important_less "Bonus usages:"
         %COLOR_ADVICE%

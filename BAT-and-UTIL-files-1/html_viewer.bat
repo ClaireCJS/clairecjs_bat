@@ -4,17 +4,17 @@
 
 :::: 202002 temp fix when chrome sucked
     set CHROME_SUCKS_RIGHT_NOW=0
-    :if "%machinename%" eq "THAILOG" (goto :Firefox)
+    :if "%machinename%" == "THAILOG" (goto :Firefox)
 
 :: Massage 2nd parameter:
     set TWO=%2
-    if "%2" eq "CHROME" .or. "%2" eq "IE" (unset /q TWO)
+    if "%2" == "CHROME" .or. "%2" == "IE" (unset /q TWO)
     set ARGS=%1 %TWO% %3 %4 %5 %6 %7 %8 %9 
     set LAST_HTML_VIEWER_ARGS=%ARGS
 
 :: Let 2nd parameter choose browser:
-    if "%2" eq "CHROME" goto :Chrome
-    if "%2" eq "IE"     goto :IE
+    if "%2" == "CHROME" goto :Chrome
+    if "%2" == "IE"     goto :IE
 
 :: Default browser:
                         goto :Chrome              %+ REM //Default behavior

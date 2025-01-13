@@ -3,12 +3,12 @@
 
 rem Configure defaults:
         set                OUR_TAB_WIDTH_TO_USE=%DEFAULT_TAB_STOP_WIDTH%
-        if "%1" ne "" (set OUR_TAB_WIDTH_TO_USE=%1)
+        if "%1" != "" (set OUR_TAB_WIDTH_TO_USE=%1)
         set                   NUM_TABS_TO_REGEN=100
-        if "%2" ne "" (set    NUM_TABS_TO_REGEN=%2)
+        if "%2" != "" (set    NUM_TABS_TO_REGEN=%2)
 
 rem Validate environment, but only once:
-        if %validated_reset_tab_stops ne 1 .or. "%3" eq "validate" (
+        if %validated_reset_tab_stops ne 1 .or. "%3" == "validate" (
             call validate-env-vars  ANSI_TABSTOP_SET_COL OUR_TAB_WIDTH_TO_USE NUM_TABS_TO_REGEN ANSI_POSITION_SAVE ANSI_POSITION_RESTORE ANSI_TABSTOP_CLR_COL ANSI_TABSTOP_SET_COL STAR BLINK_ON BLINK_OFF ANSI_COLOR_SUCCESS PARTY_POPPER DEFAULT_TAB_STOP_WIDTH ANSI_TABSTOP_RESET
             call validate-functions ANSI_MOVE_UP ANSI_MOVE_TO_COL
             set  validated_reset_tab_stops=1
@@ -46,7 +46,7 @@ rem (Cosmetic Voodoo)
 
 rem Display our handiwork:
         set SILENT=0
-        if "%1" eq "silent" .or. "%2" eq "silent" .or. "%3" eq "silent" .or. "%4" eq "silent" (set SILENT=1)
+        if "%1" == "silent" .or. "%2" == "silent" .or. "%3" == "silent" .or. "%4" == "silent" (set SILENT=1)
         if %SILENT ne 1 (
             call display-tab-stops %@EVAL[%NUM_REGENERATED%-1]
             rem We do NUM_REGENERATED-1 because displaying 2 digits can wrap to the next line

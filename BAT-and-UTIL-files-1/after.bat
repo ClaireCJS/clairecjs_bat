@@ -77,9 +77,9 @@
                            set tmpfile=%PUBCL%\journal\%LOGFILE_BASENAME_TO_USE%-%_YEAR.txt
 if "%YearInFileName"=="no" set tmpfile=%PUBCL%\journal\%LOGFILE_BASENAME_TO_USE%.txt
     :DEBUG: echo tmpfile is %tmpfile
-	if "%MINIMIZE_AFTER" eq ""  %EDITOR%   %tmpfile%
-	if "%MINIMIZE_AFTER" eq "0" %EDITOR%   %tmpfile%
-	if "%MINIMIZE_AFTER" eq "1" %EDITORBG% %tmpfile%
+	if "%MINIMIZE_AFTER" == ""  %EDITOR%   %tmpfile%
+	if "%MINIMIZE_AFTER" == "0" %EDITOR%   %tmpfile%
+	if "%MINIMIZE_AFTER" == "1" %EDITORBG% %tmpfile%
 :LOGFILE_BASENAME_TO_USEisnull
 goto :END
 
@@ -290,23 +290,23 @@ goto :END
 			%EDITOR% %PUBCL\journal\%LOGFILE_BASENAME_TO_USE-%_YEAR.txt
 			pause
         :NetflixRating
-		eset NETFLIX_RATING             %+ if "%NETFLIX_RATING%"          eq "." goto :NetflixRating
+		eset NETFLIX_RATING             %+ if "%NETFLIX_RATING%"          == "." goto :NetflixRating
         :IMBRating
-		eset IMDB_RATING                %+ if "%IMDB_RATING%"             eq "." goto :IMDBRating
+		eset IMDB_RATING                %+ if "%IMDB_RATING%"             == "." goto :IMDBRating
         :imdb_link
-		eset IMDB_LINK                  %+ if "%IMDB_LINK%"               eq "." goto :imdb_link
+		eset IMDB_LINK                  %+ if "%IMDB_LINK%"               == "." goto :imdb_link
         :claires_netflix_rating
-		eset CLAIRES_NETFLIX_RATING     %+ if "%CLAIRES_NETFLIX_RATING%"  eq "." goto :claires_netflix_rating
+		eset CLAIRES_NETFLIX_RATING     %+ if "%CLAIRES_NETFLIX_RATING%"  == "." goto :claires_netflix_rating
         :claires_imdb_rating
-		eset CLAIRES_IMDB_RATING        %+ if "%CLAIRES_IMDB_RATING%"     eq "." goto :claires_imdb_rating
+		eset CLAIRES_IMDB_RATING        %+ if "%CLAIRES_IMDB_RATING%"     == "." goto :claires_imdb_rating
         :carolyns_netflix_rating
-		eset CAROLYNS_NETFLIX_RATING    %+ if "%CAROLYNS_NETFLIX_RATING%" eq "." goto :carolyns_netflix_rating
+		eset CAROLYNS_NETFLIX_RATING    %+ if "%CAROLYNS_NETFLIX_RATING%" == "." goto :carolyns_netflix_rating
         :carolyns_imdb_rating
-		eset CAROLYNS_IMDB_RATING       %+ if "%CAROLYNS_IMDB_RATING%"    eq "." goto :carolyns_imdb_rating
+		eset CAROLYNS_IMDB_RATING       %+ if "%CAROLYNS_IMDB_RATING%"    == "." goto :carolyns_imdb_rating
 	:ause
 		:: NAH http://www.rhymezone.com/
 		%EDITOR% %BAT\blog-movie-body-template.txt
-		if "%_MONITORS" eq "1" (call minimize "*Google Chrome*")       %+  echos %MOVIE% (%YEAR%) >clip:
+		if "%_MONITORS" == "1" (call minimize "*Google Chrome*")       %+  echos %MOVIE% (%YEAR%) >clip:
 		%EDITOR %PUBCL\journal\%LOGFILE_BASENAME_TO_USE-%_YEAR.txt                      %+  echos %MOVIE% (%YEAR%) >clip:
 	:ause
 		set TITLE=VIDEO: MOVIES: REVIEW: %MOVIE% (%YEAR%)
@@ -472,14 +472,14 @@ return
         set WEIGHTS_FILE=%ourfile%
 
     unset /q WEIGHT
-    if "%2"       ne "" (set   WEIGHT=%2        )      %+ REM %1 is the username, %2 is the weight
-    if "%WEIGHT%" ne "" (goto :AlreadyHaveWeight)
+    if "%2"       != "" (set   WEIGHT=%2        )      %+ REM %1 is the username, %2 is the weight
+    if "%WEIGHT%" != "" (goto :AlreadyHaveWeight)
 
         querybox /d /l3 "Just got weighed!" Enter your new weight:  %%WEIGHT
 
     :AlreadyHaveWeight
     set WEIGHT_NAME=%KNOWN_NAME%
-    if "%USERNAME%" eq "claire" (set WEIGHT_NAME=claire)
+    if "%USERNAME%" == "claire" (set WEIGHT_NAME=claire)
     if  %WEIGHT%    lt  150     (set WEIGHT_NAME=carolyn)
 
     echo %WEIGHT_NAME,%YYYYMMDDHHMM,%WEIGHT >>:u8%OURFILE
@@ -558,7 +558,7 @@ goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :month
     set tmpyear=%_YEAR
-    if "%2" ne "" (set tmpyear=%2)
+    if "%2" != "" (set tmpyear=%2)
 	if "%_DAY"=="1" goto :DoLastMonth
 
 	:DoThisMonth
@@ -683,8 +683,8 @@ goto :END
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :tagging
-    if "%USERNAME%" eq "claire" goto :TaggingCommon
-    if "%USERNAME%" eq "clio"   goto :TaggingCommon
+    if "%USERNAME%" == "claire" goto :TaggingCommon
+    if "%USERNAME%" == "clio"   goto :TaggingCommon
     pause %+ %COLOR_ADVICE%  %+ echo * You didn't just make things up when tagging difficult things - You referred to standards-and-practices, right?
              %COLOR_ADVICE%  %+ echo * You didn't say "I" or "me" in the caption, did you?
     pause %+ %COLOR_ADVICE%  %+ echo * You didn't change tense in the middle of your caption, did you?

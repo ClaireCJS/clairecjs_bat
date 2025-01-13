@@ -16,13 +16,13 @@ REM CONFIGURATION:
 
 REM PROTECTION FROM PASSING NO ARGS WHICH WOULD PULL OUR RECYCLE BIN INTO CURRENT FOLDER WHICH IS A NASTY CLEANUP:
         REM @echo %%1 is %1, %%2 is %2
-        if "%1" eq "\recycled" .and. "%2" eq "" goto :END
-        if "%1" eq ""                           goto :END
+        if "%1" == "\recycled" .and. "%2" == "" goto :END
+        if "%1" == ""                           goto :END
 
 
 REM Automatic coloring
         echo %ANSI_RESET%
-        iff "%2" eq "\recycled" then
+        iff "%2" == "\recycled" then
             %COLOR_REMOVAL%
         else
             %COLOR_RUN%
@@ -30,9 +30,9 @@ REM Automatic coloring
 
 
 REM special decorator invocation
-        if "%MV_DECORATOR%" eq "randcolor" .or. "%MV_DECORATOR_ON%" eq "randcolor" .or. "%MOVE_DECORATOR%" eq "randcolor" .or. "%MOVE_DECORATOR_ON%" eq "randcolor" (call randcolor %+ gosub reset_option_variables)
-        if "%MV_DECORATOR%" eq "randfg"    .or. "%MV_DECORATOR_ON%" eq "randfg"    .or. "%MOVE_DECORATOR%" eq "randfg"    .or. "%MOVE_DECORATOR_ON%" eq "randfg"    (call randfg    %+ gosub reset_option_variables)
-        if "%MV_DECORATOR%" eq "randbg"    .or. "%MV_DECORATOR_ON%" eq "randbg"    .or. "%MOVE_DECORATOR%" eq "randbg"    .or. "%MOVE_DECORATOR_ON%" eq "randbg"    (call randbg    %+ gosub reset_option_variables)
+        if "%MV_DECORATOR%" == "randcolor" .or. "%MV_DECORATOR_ON%" == "randcolor" .or. "%MOVE_DECORATOR%" == "randcolor" .or. "%MOVE_DECORATOR_ON%" == "randcolor" (call randcolor %+ gosub reset_option_variables)
+        if "%MV_DECORATOR%" == "randfg"    .or. "%MV_DECORATOR_ON%" == "randfg"    .or. "%MOVE_DECORATOR%" == "randfg"    .or. "%MOVE_DECORATOR_ON%" == "randfg"    (call randfg    %+ gosub reset_option_variables)
+        if "%MV_DECORATOR%" == "randbg"    .or. "%MV_DECORATOR_ON%" == "randbg"    .or. "%MOVE_DECORATOR%" == "randbg"    .or. "%MOVE_DECORATOR_ON%" == "randbg"    (call randbg    %+ gosub reset_option_variables)
 
 
 REM create our move and undo commands 
