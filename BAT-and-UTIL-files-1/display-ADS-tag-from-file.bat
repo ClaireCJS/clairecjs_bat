@@ -1,3 +1,4 @@
+@loadbtm on
 
 @rem     Displays a tag associated with a file, using Windows Alternate Data Streams for files. 
 

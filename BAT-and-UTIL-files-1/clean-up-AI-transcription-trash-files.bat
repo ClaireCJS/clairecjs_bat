@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo OFF
 
 set DIRT=AI transcription trash files

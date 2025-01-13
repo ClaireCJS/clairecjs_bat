@@ -1,9 +1,11 @@
+@loadbtm on
 @Echo OFF
 @setdos /x0
 @on break cancel
-echo **** create-srt-from-file.bat called **** 🌭🌭🌭 GOAT
+rem echo **** create-srt-from-file.bat called **** 🌭🌭🌭 
 if not defined Default_command_Separator_Character set Default_command_Separator_Character=`^`
 
+rem TODO: not outfitted for the situation of successful generation but no words found so no file produced
 
 rem TODO: add another srt to subtitles if the last one is not empty to combat stuck lyrics:
 rem 17
@@ -57,6 +59,10 @@ goto :subroutine_definitions_end
         return
     :subroutine_definitions_end
 
+rem Pre-Cleanup:
+        unset /q JUST_APPROVED_LYRICLESSNESS
+        UNSET /Q goto_forcing_ai_generation
+
 
 rem MAJOR BRANCHING:
         iff "%1" ==  "postprocess_lrc_srt_files" then
@@ -84,9 +90,9 @@ rem CONFIG: 2024: WAIT TIMES:
         set AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES=5    %+ rem wait time for "no lyrics, gen with AI anyway"-type questions *IF WE HAVE APPROVED LYRICLESSNESS STATUS* for the song
         set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=25                  %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
         set PROMPT_CONSIDERATION_TIME=20                                         %+ rem wait time for "does this AI command look sane"-type questions
-        set PROMPT_EDIT_CONSIDERATION_TIME=10                                    %+ rem wait time for "do you want to edit the AI prompt"-type questions
+        set PROMPT_EDIT_CONSIDERATION_TIME=20                                    %+ rem wait time for "do you want to edit the AI prompt"-type questions
         set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0                   %+ rem wait time for "hey lyrics not found!"-type notifications/questions. Set to 0 to not pause at all.
-        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=300                            %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
+        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=150                            %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
         rem ^^^^ TODO?: automation mode where all these get shortened to quite significantly, or all to 3, or all to 1, or something 🐮
 
 REM config: 2023:
@@ -102,7 +108,9 @@ REM values set from parameters:
         set SONGDIR=%@UNQUOTE["%@PATH["%@UNQUOTE["%@FULL["%SONGFILE%"]"]"]"]
         setdos /x0
 
-        if "%_CWD\" != "%SONGDIR%" pushd %SONGDIR%
+        if "%_CWD\" != "%SONGDIR%" pushd "%SONGDIR%"
+
+        set OUTPUT_DIR=%@Unquote[%@ReReplace[\\$,,%SONGDIR%]]
 
         rem DEBUG: echo SONGDIR is “%SONGDIR%” , cwd=“%_CWD” , SONGBASE=“%SONGBASE%”, songfile=“%SONGFILE%” %+ *pause
 
@@ -167,8 +175,10 @@ REM validate environment [once]:
                         if not defined ANSI_CURSOR_CHANGE_TO_UNDERLINE_STEADY      set ANSI_CURSOR_CHANGE_TO_UNDERLINE_STEADY=%ansi_escape%4 q
                         if not defined ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING=%ansi_escape%5 q
                         if not defined ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_STEADY   set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_STEADY=%ansi_escape%6 q
-                        rem ansi_color_blue
-
+                        if not defined ANSI_COLOR_BLUE                             set ANSI_COLOR_BLUE=%@CHAR[27][34m
+                        if not defined ANSI_COLOR_BRIGHT_YELLOW                    set ANSI_COLOR_BRIGHT_YELLOW=%@CHAR[27][93m
+                        if not defined ANSI_COLOR_ORANGE                           set ANSI_COLOR_ORANGE=%@CHAR[27][38;2;235;107;0m
+                        rem TODO BLINK_ON, BLINK_OFF ITALICS_ON ITALICS_OFF
         endiff
 
                         
@@ -265,11 +275,11 @@ REM branch on certain paramters, and clean up various parameters
         iff 1 eq %AUTO_LYRIC_APPROVAL .or. 1 eq %FAST_MODE% then
                 set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=3                 %+ rem wait time for "are these lyrics good?"-type questions
                 set AI_GENERATION_ANYWAY_WAIT_TIME=3                       %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
-                set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=2     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
+                set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=3     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
                 set PROMPT_CONSIDERATION_TIME=4                            %+ rem wait time for "does this AI command look sane"-type questions
-                set PROMPT_EDIT_CONSIDERATION_TIME=2                       %+ rem wait time for "do you want to edit the AI prompt"-type questions
-                set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=1     %+ rem wait time for "hey lyrics not found!"-type notifications/questions
-                set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=1                %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
+                set PROMPT_EDIT_CONSIDERATION_TIME=3                       %+ rem wait time for "do you want to edit the AI prompt"-type questions
+                set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=2     %+ rem wait time for "hey lyrics not found!"-type notifications/questions
+                set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=3                %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
         endiff
 
 
@@ -278,11 +288,13 @@ REM branch on certain paramters, and clean up various parameters
 
 REM Values fetched from input file:
         rem echo solely_by_ai is %solely_by_ai% %+ pause
-        iff 1 ne %SOLELY_BY_AI then
-                call get-lyrics-for-song "%SONGFILE%" SetVarsOnly %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc
-                set last_file_probed=%SONGFILE%                               %+ rem prevents get-lyrics from probing twice
+        iff "1" == "%SOLELY_BY_AI%" then
                 set PROMPT_CONSIDERATION_TIME=3
                 set PROMPT_EDIT_CONSIDERATION_TIME=3
+        else
+                call get-lyrics-for-song "%SONGFILE%" SetVarsOnly %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc
+                if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
+                set last_file_probed=%SONGFILE%                               %+ rem prevents get-lyrics from probing twice
         endiff
 
 REM Determine the base text used for our window title:
@@ -324,7 +336,7 @@ REM Now, let’s check these values:
                 if exist "%@UNQUOTE[%MAYBE_SRT_1%]" set found_subtitle_file=%@UNQUOTE["%MAYBE_SRT_1%"]
                 gosub divider
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
-                call bigecho      "%ansi_color_warning_soft%%star2%Already have!%ansi_reset%"
+                call bigecho      "%ansi_color_warning_soft%%star2% Already have karaoke!%ansi_reset%"
                 call warning_soft "Pre-existing subtitles found in lyric repository at: “%emphasis%%italics_on%%found_subtitle_file%%deemphasis%%italics_off%”" silent
                 echo %STAR% %ANSI_COLOR_ADVICE%Copy this file %italics_on%from our local repo%italics_off% into this folder, as a sidecar file for %@NAME[%SONGFILE%]%ansi-color_normal%
                 call askYN        "Copy repository version to local folder as sidecar file" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
@@ -337,7 +349,7 @@ REM Now, let’s check these values:
                         *copy /q "%found_subtitle_file%" "%target%" >&>nul
                         if not exist "%target%" (call error "target of %left_quote%%target%%right_quote% should exist now, in %left_apostrophe%%italics_on%create-srt-from-file%italics_off%%right_apostrophe% line 320ish" %+ call warning "...not sure if we want to abort right now or not..." )
                         call review-file "%target%"
-                        call askYN "Do these still look acceptible" yes 20 %+ rem hardcoded value warning
+                        call askYN "Do these still look acceptible (H=yes but hand edit)" yes 30 H H:Yes_but_hand-_edit_them %+ rem hardcoded value warning
 
                         iff "%ANSWER%" == "N" then
                                 call disapprove-subtitle-file "%target%"
@@ -347,7 +359,12 @@ REM Now, let’s check these values:
                                 endiff                                        
                                 title %red_x% %SRT_FILE% %blink_on%NOT%blink_off% retrieved successfully! %red_x%             
                         endiff                                
-                        iff  "%ANSWER%" == "Y" then
+                        iff "%ANSWER%" == "Y" .or. "%ANSWER%" == "H" then
+                                iff "%ANSWER%" == "H" then
+                                        %EDITOR% "%target%"
+                                        echos %emoji_pause% Hit any key when done editing...
+                                        *pause>nul
+                                endiff
                                 call approve-subtitle-file "%target%"
                                 @call success "“%italics_on%%SRT_FILE%%italics_off%” retrieved successfully!"
                                 title %CHECK% %SRT_FILE% retrieved successfully! %check%             
@@ -435,6 +452,7 @@ REM if we already have a SRT file, we have a problem:
                         @call AskYN "Get new lyrics" %DEFAULT_ANSWER_FOR_THIS% %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME% %+ rem todo make unique wait time for this
                         iff "%ANSWER%" == "Y" .and. 1 ne %AUTO_LYRIC_APPROVAL then
                                 call get-lyrics-for-song "%songfile%"
+                                if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
                         endiff                                
                         
                         echo Used to do this here: set GOTO_FORCE_AI_GEN=1 🌵
@@ -478,7 +496,8 @@ REM If we say "force", skip the already-exists check and contiune
                 REM At this point, if an LRC file already exists, we shouldn’t bother generating anything...
                         rem if exist %LRC_FILE% (@call error   "Sorry, but %bold%LRC%bold_off% file “%italics%%LRC_FILE%%italics_off%” %underline%already%underline_off% exists!" %+ call cancelll)
                             iff exist %LRC_FILE% then
-                                     @call warning "Sorry, but %bold%LRC%bold_off% file “%italics%%LRC_FILE%%italics_off%” %underline%already%underline_off% exists!%" silent 
+                                     @call warning "Sorry, but %italics_on%LRC%italics_off% file “%italics%%LRC_FILE%%italics_off%” %underline%already%underline_off% exists!%" silent 
+                                      call review-file "%LRC_FILE%"
                                      @call AskYN   "Mark LRC file as %italics_on%approved%italics_off%" yes 10
                                      if "%ANSWER%" == "Y" call approve-subtitles "@UNQUOTE[%LRC_FILE%]"
                                      goto :END
@@ -515,18 +534,20 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
         rem not exist "%TXT_FILE%" .and. 1 ne %FORCE_REGEN% .and. 1 eq %LYRIC_ATTEMPT_MADE then
         rem not exist "%TXT_FILE%" .and. 1 ne %FORCE_REGEN%                                then
         iff not exist "%TXT_FILE%" .and. 1 ne %FORCE_REGEN% .and. 1 eq %LYRIC_ATTEMPT_MADE then
-                @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Failed to generate %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning%                %emoji_warning% %ansi_color_normal%
-                @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% because the lyrics %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning% do not exist!! %emoji_warning% %ansi_color_normal%
-                rem @call advice  "Use “ai” option to go straight to AI generation"
+                iff "1" != "%ABANDONED%" .or. "%LYRICLESSNESS_STATUS%" == "APPROVED" then
+                        @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Failed to generate%emphasis% %SRT_FILE%%deemphasis%%ansi_color_warning%                %emoji_warning% %ansi_color_normal%
+                        @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% because the lyrics%emphasis% %TXT_FILE%%deemphasis%%ansi_color_warning% do not exist!! %emoji_warning% %ansi_color_normal%
+                        rem @call advice  "Use “ai” option to go straight to AI generation"
+                endiff
                 
                 rem If we are approved for lyriclessness, we’ve already decided we don’t want lyrics, so
                 rem reduce the AI_GENERATION_ANYWAY_WAIT_TIME prompt time
-                iff 1 eq %JUST_APPROVED_LYRICLESSNESS% then
-                        set AI_GENERATION_ANYWAY_WAIT_TIME=%AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES%
-                        set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=yes
-                else                        
-                        set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=no
-                endiff
+                        iff 1 eq %JUST_APPROVED_LYRICLESSNESS% then
+                                set AI_GENERATION_ANYWAY_WAIT_TIME=%AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES%
+                                set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=yes
+                        else                        
+                                set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=no
+                        endiff
                 
                 @call askYN "Generate AI anyway" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME%
                 if "%ANSWER%" == "Y" (goto :Force_AI_Generation)
@@ -541,6 +562,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 endiff
                 :Refetch_Lyrics
                         call get-lyrics-for-song "%SONGFILE%" 
+                        if "%_CWD\" != "%SONGDIR%" pushd "%SONGDIR%"
                         set LYRIC_ATTEMPT_MADE=1
                 goto :We_Have_A_Text_File_Now
         endiff
@@ -587,29 +609,29 @@ rem Mandatory review of lyrics
 REM if a text file of the lyrics exists, we need to engineer our AI transcription prompt with it to get better results
         rem 2023 version: set CLI_OPS=
         rem Not adding txt to output_format in case there were hand-edited lyrics that we don’t want to overwrite already there
-        rem CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words True  --beep_off --check_files --sentence --standard       --max_line_width 99 --ff_mdx_kim2 --verbose True
-        rem CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words True  --beep_off --check_files --sentence --standard       --max_line_width 25 --ff_mdx_kim2 --verbose True
-        :et CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files                             --max_line_width 30 --ff_mdx_kim2 --verbose True
-        rem CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files --vad_max_speech_duration 6 --max_line_width 30 --ff_mdx_kim2 --verbose True
-        :et CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files                             --max_line_width 30 --ff_mdx_kim2 --verbose True
-        :et CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True
-        :et CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_threshold 0.35 --max_segment_length isn’t even an option! 5
-        :et CLI_OPS=--vad_filter false --model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_filter False   --max_segment_length isn’t even an option! 5
+        rem CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words True  --beep_off --check_files --sentence --standard       --max_line_width 99 --ff_mdx_kim2 --verbose True
+        rem CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words True  --beep_off --check_files --sentence --standard       --max_line_width 25 --ff_mdx_kim2 --verbose True
+        :et CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files                             --max_line_width 30 --ff_mdx_kim2 --verbose True
+        rem CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files --vad_max_speech_duration 6 --max_line_width 30 --ff_mdx_kim2 --verbose True
+        :et CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files                             --max_line_width 30 --ff_mdx_kim2 --verbose True
+        :et CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True
+        :et CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_threshold 0.35 --max_segment_length isn’t even an option! 5
+        :et CLI_OPS=--vad_filter false --model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_filter False   --max_segment_length isn’t even an option! 5
         rem some tests with Destroy Boys - Word Salad & i threw glass at my... were done with 9 & 10
         rem 9:
-        :et CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_filter False   
-        :et CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --vad_filter False   -vad_threshold 0.35 --verbose True
-rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  -vad_threshold 0.35 --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200
+        :et CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_filter False   
+        :et CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --vad_filter False   -vad_threshold 0.35 --verbose True
+rem     set CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  -vad_threshold 0.35 --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 200
 rem     rem 10v1: is better than 9 in one case, same in another
-rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 201
+rem     set CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 201
 rem     rem 11v2: worse than 9 or 10 definitely doesn’t pick up on as many lyrics as prompt v9 prompt
-rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 202 --vad_threshold 0.35
+rem     set CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --highlight_words False --beep_off --check_files          --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --verbose True  --vad_max_speech_duration_s 5  --vad_min_speech_duration_ms 500 --vad_min_silence_duration_ms 300 --vad_speech_pad_ms 202 --vad_threshold 0.35
         rem 9v3: making vad_filter false requires taking out other vad-related args or it errors out
-        :et CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --verbose True
+        :et CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter False  --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --verbose True
         rem 9v4: seeing if --sentence still works with 9v3 ... may have to remove verbose?
-        :et CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True
+        :et CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter False  --max_line_count 2 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True
         rem 9v5:  let’s experiment with maxlinecount=1
-        :et CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True %PARAM_2% %3$
+        :et CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True %PARAM_2% %3$
         rem THE IDEA GARBAGE CAN: 9v5:
         rem Possible improvements, but in practice missed like 2/3rds of X-Ray Spex - Oh Bondage, Up yours! (blooper live version from 2-cd set) whereas vad_filter=false did not
         rem --vad_max_speech_duration_s 5:     [default= ♾] Limits the maximum length of a speech segment to 5 seconds, forcing breaks if a segment runs too long.
@@ -617,32 +639,32 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%_CWD" --output_format srt --
         rem --vad_min_silence_duration_ms 300: [default=100] Splits subtitles at smaller pauses (300ms).
         rem --vad_speech_pad_ms 200:           [default= 30] Ensures a 200ms buffer around detected speech to avoid clipping.
         rem 9v6:  changing to use equals between some args
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True 
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True 
         rem Alas, completely disabling VAD filter results in major major major hallucinations during silence... Let’s try turning it on again, sigh.
         rem 10v2: gave "unrecognized arguments: --vad_filter_threshold=0.2" oops it should be vad_threshold not vad_filter_threshold plus we had accidentally left vad_filter=False
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_filter_threshold=0.2 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_filter_threshold=0.2 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
         rem 10v3: 
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.2 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.2 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
         rem 10v4:  lowering vad_threshold from 0.2 to 0.1 because of metal & punk with fast/hard vocals. May increase hallucations tho
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
         rem 11:  adding --best_of 5  and --vad_alt_method=pyannote_v3 & removed --ff_mdx_kim2 but this clearly gave worse lyrics, terrible ones, with Wet Leg – Girlfriend
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20               --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_alt_method=pyannote_v3 --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20               --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_alt_method=pyannote_v3 --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
         rem 12:  going back to original --ff_mdx_kim2 vocal separation but keeping the best_of 5 ... Looks great?
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_alt_method=pyannote_v3 --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_alt_method=pyannote_v3 --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
         rem 12v2:  reordering
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
         rem 13: adding --max_comma_cent 70
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70
         rem 14: adding -hst 2 via Purview’s advice to stop the thing where one subtitle gets stuck on for a whollleeee solooooo — it is short for --hallucination_silence_threshold  ... But it absolutely 100% does not solve that problem and gives output that causes concern for discarded lyrics. Have added logging the whisper output [and not just prompt] to the logfile to help track this...
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 -hst 2 
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 -hst 2 
         rem 15: adding --max_gap 3.0 — Purfview said there is a --max_gap option -- default is 3.0 but i’m getting gaps way larger than that so I don’t think it’s being enforced so i’m going to explicitly add it
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 -hst 2 --max_gap 3.0 
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 -hst 2 --max_gap 3.0 
         rem 16b: adding --max_gap 3.0 — Purfview said there is a --max_gap option -- default is 3.0 but i’m getting gaps way larger than that so I don’t think it’s being enforced so i’m going to explicitly add it
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 3.0 
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 3.0 
         rem 17: try shortening max_gap ———————— FINALLY VERY VERY GOOD RESULTS!!!! ————————
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
         rem 17b: dropping %PARAM_2% business
-        set CLI_OPS=--model=large-v2           %3$ --language=%OUR_LANGUAGE% --output_dir "%_CWD" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
+        set CLI_OPS=--model=large-v2           %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20 --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1 --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
 
         set PROMPT_VERSION=17 %+ rem used in log files
 
@@ -759,7 +781,10 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         :actually_make_the_lrc
         gosub divider
         @echos %STAR% %ANSI_COLOR_WARNING_SOFT%%blink_on%About to: %blink_off%
-        @echo  %LAST_WHISPER_COMMAND%%ansi_color_reset% 
+        set LAST_WHISPER_COMMAND_FOR_DISPLAY_TMP=%LAST_WHISPER_COMMAND%
+        rem LAST_WHISPER_COMMAND_FOR_DISPLAY=%@ReReplace[initial_prompt ,initial_prompt%ansi_color_orange% ,"%LAST_WHISPER_COMMAND_FOR_DISPLAY_TMP%"]
+        set LAST_WHISPER_COMMAND_FOR_DISPLAY=%@ReReplace["(initial_prompt..)([^\\]*)","\1%ansi_color_orange%\2%ansi_color_bright_yellow%","%LAST_WHISPER_COMMAND_FOR_DISPLAY_TMP%"]
+        @echo %LAST_WHISPER_COMMAND_FOR_DISPLAY%%ansi_color_reset% 
         @call AskYn "Proceed with this AI generation" yes %PROMPT_CONSIDERATION_TIME%
         iff "%answer%" == "N" then
                 @call warning "Aborting because you changed your mind..."
@@ -822,6 +847,7 @@ REM ✨ ✨ ✨ ✨ ✨ Actually generate the SRT file [used to be LRC but we ha
         rem Cosmetics:
             @echo.
             @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% Launching AI! %EMOJI_FIREWORKS%%ansi_color_normal%
+            echo CWP=%_CWP
             rem that firework emoji was so much cooler in emoji11/win10 than emoji13/win11
             echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[magenta]%ANSI_CURSOR_CHANGE_TO_vertical_bar_BLINKING%   
             title waiting: %BASE_TITLE_TEXT%
@@ -888,6 +914,11 @@ rem but y’know rather than using tee, i could maybe use copy-move-post ITSELF 
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%                
                 call unlock-bot                    %+ rem Disable our status bar
                 title Done: %BASE_TITLE_TEXT%      %+ rem Update the window title
+
+        rem Keep track of how many we’ve done in this session:
+                        set NUM_TRANSCRIBED_THIS_SESSION=%@EVAL[%NUM_TRANSCRIBED_THIS_SESSION% + 1]
+                        if %NUM_TRANSCRIBED_THIS_SESSION% gt 1 echo %ANSI_COLOR_IMPORTANT%%check1% %blink_on%Transcribed this session: %italics_on%%NUM_TRANSCRIBED_THIS_SESSION%%blink_off%%italics_off%%ANSI_COLOR_NORMAL%
+
 
 REM delete zero-byte LRC files that can be created
         rem echo "About to delete zero byte files " %+ pause
@@ -1070,9 +1101,11 @@ rem Full-endeavor success message:
         @gosub divider
         call approve-subtitle-file "%SRT_FILE%"
         @gosub divider
-        @call success "%bold_on%“%bold_off%%italics_on%%SRT_FILE%%italics_off%” generated successfully!" big
+        @call success "%bold_on%“%bold_off%%italics_on%%@NAME[%SRT_FILE%].%@EXT[%SRT_FILE%]%italics_off%” generated successfully!" big
         title %CHECK% %SRT_FILE% generated successfully! %check%             
         @gosub divider
+        if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
+        call debug "CWP = %_CWP GOAT"
         @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case there were mistakes above]%faint_off%" no %EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME% notitle
         iff "%ANSWER" == "Y" then
                 rem @echo %ANSI_COLOR_DEBUG%- DEBUG: %EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
@@ -1082,6 +1115,8 @@ rem Full-endeavor success message:
                 else
                         %EDITOR% "%TXT_FILE%" "%SRT_FILE%" 
                 endiff
+                echos %emoji_pause% Hit any key when done editing...
+                *pause>nul
         endiff
         title %CHECK% %SRT_FILE% generated successfully! %check%      
         if %SOLELY_BY_AI eq 1 (call warning "ONLY AI WAS USED. Lyrics were not used for prompting")
@@ -1129,3 +1164,8 @@ echos %ansi_color_reset%
         setdos /c%default_command_separator_character%
         setdos /x0
 
+:Unset_Variables
+        unset /q PROMPT_CONSIDERATION_TIME
+        unset /q PROMPT_EDIT_CONSIDERATION_TIME
+        unset /q JUST_APPROVED_LYRICLESSNESS
+        UNSET /Q goto_forcing_ai_generation

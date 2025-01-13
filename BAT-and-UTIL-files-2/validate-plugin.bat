@@ -1,3 +1,4 @@
+@loadbtm on
 @if %DEBUG_TCASE gt 0 @echo %0 called by %_PBATCHNAME
 @Echo off
 @on break cancel

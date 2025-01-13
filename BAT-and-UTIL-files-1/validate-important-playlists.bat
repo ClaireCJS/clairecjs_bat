@@ -1,4 +1,5 @@
 @echo off
+@loadbtm on
 @on break cancel
 
 set playlistsGoto=%1

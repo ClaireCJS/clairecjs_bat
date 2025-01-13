@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo OFF
 
 set  audio_file=%1

@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo Off
 @on break cancel
 
@@ -53,7 +54,7 @@ rem Count how many files we will be displaying the status of:
         set DEFAULT_MASKS=%FILEMASK_LYRICS_TEMP%;*.srt;*.lrc;%FILEMASK_AUDIO
         set DEFAULT_MASKS=*.*
 
-        iff "1" eq "%@RegEx[[\*\?],%1]" then
+        iff "1" == "%@RegEx[[\*\?],%1]" then
                 set MASKS=%1
         else
                 set MASKS=%DEFAULT_MASKS%

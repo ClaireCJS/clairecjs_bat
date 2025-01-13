@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo off
 set    NOW_PLAYING=%@EXECSTR[get-current-song-playing.pl]
 %COLOR_DEBUG

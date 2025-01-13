@@ -1,3 +1,4 @@
+@loadbtm on
 
 @rem     Reads a tag associated with a file into %RECEIVED_VALUE%, using Windows Alternate Data Streams for files. 
 

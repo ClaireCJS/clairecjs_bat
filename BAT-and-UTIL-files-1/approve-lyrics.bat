@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo Off
 @on break cancel
 set PARAMS=%*

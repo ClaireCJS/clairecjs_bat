@@ -79,18 +79,18 @@ if ($use_words_mode) {                                                          
         vol chap pg sec ex exs     ref       fig     sup eqn prop cor sol prob                       
         adj adv     aux cl     conj det exclam intj n. nn np vb prn pron                             
     );
-#       Mr Dr Jr Sr Ms Mrs Mx Prof St Fr etc vs v. e.g i.e viz Hon Gen Col Capt Adm Sen                # Titles and general abbreviations
-#       Rev Gov Pres Lt Cmdr Sgt Pvt Maj Ave Blvd Rd Hwy Pk Pl Sq Ln Ct                                # Street, road, and location abbreviations
-#       Inc Corp Ltd Co LLP Intl Assoc Org Co. Mt Ft No Vol Ch Sec Div Dep Dept                        # Corporate and geographic terms
-#       Inc Corp Ltd Co LLP Intl Assoc Org Co. Mt Ft    Vol Ch Sec Div Dep Dept                      
-#       U.S U.K U.N U.A.E E.U A.T.M I.M.F W.H.O N.A.S.A                                                # Country and organizational abbreviations
-#       Ph.D M.D B.A M.A D.D.S J.D D.V.M B.Sc M.B.A B.F.A M.F.A                                        # Academic and professional degrees
-#       A.D B.C BCE CE C.E B.P T.P R.C A.C a.m p.m A.M P.M                                             # Historical and time-related terms
-#       St. N.Y. L.A. D.C. Chi. S.F. B.K.                                                              # Common city/state abbreviations
-#       approx esp fig min     std var coeff corr dep est lim val eq dif exp                           # Scientific and statistical abbreviations: removed some
-#       opp alt gen rel abs simp conv coeff asym diag geom alg trig calc                               # Mathematical and geometric terms
-#       vol chap pg sec ex exs     ref       fig     sup eqn prop cor sol prob                         # Book and academic citations: removed some
-#       adj adv     aux cl     conj det exclam intj n. nn np vb prn pron                               # Grammatical and linguistic abbreviations: removed some
+#      Mr Dr Jr Sr Ms Mrs Mx Prof St Fr etc vs v. e.g i.e viz Hon Gen Col Capt Adm Sen                 # Titles and general abbreviations
+#      Rev Gov Pres Lt Cmdr Sgt Pvt Maj Ave Blvd Rd Hwy Pk Pl Sq Ln Ct                                 # Street, road, and location abbreviations
+#      Inc Corp Ltd Co LLP Intl Assoc Org Co. Mt Ft No Vol Ch Sec Div Dep Dept                         # Corporate and geographic terms
+#      Inc Corp Ltd Co LLP Intl Assoc Org Co. Mt Ft    Vol Ch Sec Div Dep Dept                       
+#      U.S U.K U.N U.A.E E.U A.T.M I.M.F W.H.O N.A.S.A                                                 # Country and organizational abbreviations
+#      Ph.D M.D B.A M.A D.D.S J.D D.V.M B.Sc M.B.A B.F.A M.F.A                                         # Academic and professional degrees
+#      A.D B.C BCE CE C.E B.P T.P R.C A.C a.m p.m A.M P.M                                              # Historical and time-related terms
+#      St. N.Y. L.A. D.C. Chi. S.F. B.K.                                                               # Common city/state abbreviations
+#      approx esp fig min     std var coeff corr dep est lim val eq dif exp                            # Scientific and statistical abbreviations: removed some
+#      opp alt gen rel abs simp conv coeff asym diag geom alg trig calc                                # Mathematical and geometric terms
+#      vol chap pg sec ex exs     ref       fig     sup eqn prop cor sol prob                          # Book and academic citations: removed some
+#      adj adv     aux cl     conj det exclam intj n. nn np vb prn pron                                # Grammatical and linguistic abbreviations: removed some
 #      #approx esp fig min max std var coeff corr dep est lim val eq dif exp                           # Scientific and statistical abbreviations
 #      #vol chap pg sec ex exs add ref trans fig app sup eqn prop cor sol prob                         # Book and academic citations
 #      #adj adv art aux cl con conj det exclam intj n. nn np vb prn pron pro                           # Grammatical and linguistic abbreviations
@@ -110,7 +110,7 @@ if ($use_words_mode) {                                                          
 		if ($leave_censorship) {
 			$tmpLine = $_;
 		} else {
-			$tmpLine = &global_postprocess($_);
+			$tmpLine = &whisper_ai_postprocess($_);
 		}
         if ($tmpLine =~ /\.\.\.\s*$/) {                                                                # Check if line ends with ellipses ("...")
             print $out "$tmpLine\n";                                                                   # if so, print the line as-is to the output file
@@ -120,8 +120,8 @@ if ($use_words_mode) {                                                          
             print $out "$tmpLine\n";                                                                   # if so, Print the line as-is to the output file
             next;                                                                                      # and skip further processing for this line
         }																						 	   
-        $tmpLine =~ s/\.\s*$//;                                                                                    # Remove a single trailing period (and spaces)
-        print $out  "$tmpLine\n";                                                                             # Print the modified line to the output file
+        $tmpLine =~ s/\.\s*$//;                                                                        # Remove a single trailing period (and spaces)
+        print $out  "$tmpLine\n";                                                                      # Print the modified line to the output file
     }																							 	   
 } else {                                                                                               # Default mode: blind period removal
     # —————————————————————————————————————————————————————————————————————————————————————————————————
@@ -136,7 +136,7 @@ if ($use_words_mode) {                                                          
 		if ($leave_censorship) {
 			$tmpLine = $_;
 		} else {
-			$tmpLine = &global_postprocess($_);
+			$tmpLine = &whisper_ai_postprocess($_);
 		}
         print $out "$tmpLine\n";                                                                       # Print the modified line to the output file
     }
@@ -148,9 +148,9 @@ move $tempfile, $filename or die "Error: Cannot overwrite original file: $!\n"; 
 
 
 
-sub global_postprocess {
+sub de_censor {
 	my $s=$_[0];
-	
+
 	#un-f**k:
 	$s =~ s/\b(f)(\*)(\*)(\*)/$1uck/gi;	#f***
 	$s =~ s/\b(\*)(u)(\*)(\*)/f$1ck/gi;	#*u**
@@ -168,7 +168,16 @@ sub global_postprocess {
 	$s =~ s/\b(f)(\*)(c)(k)/$1u$2$3/gi;	#f*ck
 	$s =~ s/\b(f)(u)(\*)(k)/$1$2c$3/gi;	#fu*k
 	$s =~ s/\b(f)(u)(c)(\*)/$1$2$3k/gi;	#fuc*
+	
+	return($s);
+}	
 
+sub whisper_ai_postprocess {
+	my $s=$_[0];
+	
+	$s =~ s/And we are back\.*//gi;				 #"... These are WhisperAI hallucinations.
+	
+	$s = &de_censor($s);
 
 	return($s);
 }

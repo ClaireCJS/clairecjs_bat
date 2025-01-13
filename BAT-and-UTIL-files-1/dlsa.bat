@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo OFF
 
 rem @call display-lyric-status audio

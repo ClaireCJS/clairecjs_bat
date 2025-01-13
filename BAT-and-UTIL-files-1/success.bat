@@ -1,15 +1,9 @@
+@loadbtm on
 @Echo OFF
 @on break cancel
 
-set MSG=%@UNQUOTE[%*]
+set MSG=%@UNQUOTE[%1]
 if "%1" == "" set MSG=*** Success!!! ***
 
-call print-message success "%MSG%"
-goto :END
+ call print-message success "%MSG%" %2$
 
-            :LEGACY
-                    call AlarmCharge
-                    %COLOR_SUCCESS% %+ echos *** Success!!! ***
-                    %COLOR_NORMAL%  %+ echo.
-
-:END

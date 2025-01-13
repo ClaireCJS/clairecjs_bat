@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo Off
  @on break cancel
  set params=%*
@@ -33,8 +34,6 @@ for %%tmpfile in (%PARAMS%) do (
                 call error "File '%italics_on%%file%%italics_off%' does not exist"
         )
 )        
-
-
 
 :end
 

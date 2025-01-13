@@ -1,4 +1,5 @@
 @Echo off
+@loadbtm on
 @on break cancel
 
 
@@ -24,6 +25,7 @@ rem Delete files that could be anywhere:
                         gosub DeleteEverywhere               *._vad_pyannote_v3.txt
                         gosub DeleteEverywhere  create-the-missing-karaokes-here-temp.bat
                         gosub DeleteEverywhere       get-the-missing-lyrics-here-temp.bat
+                        gosub DeleteEverywhere      get-the-missing-karaoke-here-temp.bat
                 if "%1" == "" goto :DoneDeletingBecauseThisIsANormalInvocation
 
 

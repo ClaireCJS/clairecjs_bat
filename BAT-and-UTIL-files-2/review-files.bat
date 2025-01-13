@@ -1,4 +1,5 @@
 @Echo off
+@loadbtm on
 rem on break cancel
 set onbreak=goto:END
 setdos /x0

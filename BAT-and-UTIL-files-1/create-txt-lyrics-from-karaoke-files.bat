@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo Off
 
 :DESCRIPTION: In the current folder, convert all karaoke sidecar files into text sidecar files (unless they already exist).

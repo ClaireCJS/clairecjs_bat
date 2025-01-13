@@ -1,4 +1,5 @@
 @Echo Off
+@loadbtm on
  on break cancel
  cls
 rem to edit self [good when testing]: %EDITOR% c:\bat\watch.bat

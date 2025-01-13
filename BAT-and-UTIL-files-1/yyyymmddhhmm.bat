@@ -1,3 +1,4 @@
+@loadbtm on
 @echo off
  on break cancel
 :#PURPOSE: To put the current date in yyyymmddhh format into the environment as %YYYYMMDDHH.

@@ -1,3 +1,4 @@
+@loadbtm on
 @set RECEIVED_ERRORLEVEL_2=%?
 @set RECEIVED_ERRORLEVEL_1=%_?
 @REM keep those in "2,1" order!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! —— _? contains the exit code of the last internal command. You must use or save this value immediately, because it is set by every internal command, including the one used to save it. Result codes: 0 command successful,1=usage error occurred,2=another TCC error occurred         

@@ -1,3 +1,4 @@
+@loadbtm on
 @echo Off
 
 rem Validate environment (once):

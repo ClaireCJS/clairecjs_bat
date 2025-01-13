@@ -1,4 +1,5 @@
 @Echo OFF
+@loadbtm on
 @setdos /x0
 rem @on break cancel
 rem @setlocal
@@ -73,7 +74,7 @@ rem If we were supplied a filename, process it as a list of files:              
                         rem This code block is bad form that should not exist:
                         iff "%@EXT[%@UNQUOTE["%1"]]" == "m3u" then
                                 rem echo it’s an m3u! limit=%limit%
-                                set most_songs_from_playlist_to_process_at_a_time=10000
+                                set most_songs_from_playlist_to_process_at_a_time=1000
                                 set FILELIST_MODE=1
                                 set Filelist_to_Check_for_Missing_Lyrics_in=%@UNQUOTE["%1"]
                                 call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
@@ -249,17 +250,18 @@ rem Display post-processing statistics:
 
 rem Create the fix-script, if there are any to fix:
         setdos /x0
-        iff 1 eq %ANY_BAD% then                                                                    %+ rem We generate a script to find the missing ones, but if and only if some missing ("bad") ones were found
-                set TARGET_SCRIPT=get-the-missing-lyrics-here-temp.bat                             %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
-                echo @Echo OFF                                          >:u8 "%TARGET_SCRIPT"       %+ rem get-missing-lyrics script: initialize: turn Echo OFF
+        iff 1 eq %ANY_BAD% then                                                                           %+ rem We generate a script to find the missing ones, but if and only if some missing ("bad") ones were found
+                set TARGET_SCRIPT=get-the-missing-lyrics-here-temp.bat                                    %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
+                if "%findNature%" eq "karaoke" set TARGET_SCRIPT=get-the-missing-karaoke-here-temp.bat    %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
+                echo @Echo OFF                                          >:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: initialize: turn Echo OFF
                 echo @setdos /x-4                                      >>:u8 "%TARGET_SCRIPT"
-                rem Rexx says try x-3 here
-                rem echo @on break cancel                              >>:u8 "%TARGET_SCRIPT"      %+ rem get-missing-lyrics script: initialize: make ^C/^Break work better
-                echo.                                                  >>:u8 "%TARGET_SCRIPT"      %+ rem get-missing-lyrics script: cosmetics:  script starts with a blank line
-                type %tmpfile_cfml_1% |:u8 randomize-file.pl           >>:u8 "%TARGET_SCRIPT"      %+ rem get-missing-lyrics script: randomize the order of our script to eliminate alphabetical bias
-                echo.                                                  >>:u8 "%TARGET_SCRIPT"      %+ rem get-missing-lyrics script: cosmetics:  script starts with a blank line
-                echo.                                                  >>:u8 "%TARGET_SCRIPT"      %+ rem get-missing-lyrics script: cosmetics:  script starts with a blank line
-                rem echo goto :skip_subs                               >>:u8 "%TARGET_SCRIPT"
+                rem Rexx says try x-3 here but i’m not so sure
+                rem echo @on break cancel                              >>:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: initialize: make ^C/^Break work better
+                echo.                                                  >>:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: cosmetics:  script starts with a blank line
+                type %tmpfile_cfml_1% |:u8 randomize-file.pl           >>:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: randomize the order of our script to eliminate alphabetical bias
+                echo.                                                  >>:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: cosmetics:  script starts with a blank line
+                echo.                                                  >>:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: cosmetics:  script starts with a blank line
+                rem echo goto :skip_subs                               >>:u8 "%TARGET_SCRIPT"           
                 rem echo         :process [file]                       >>:u8 "%TARGET_SCRIPT"
                 rem echo                 repeat 8  echo.               >>:u8 "%TARGET_SCRIPT"
                 rem echo                 setdos /x-4                   >>:u8 "%TARGET_SCRIPT"
@@ -313,7 +315,7 @@ rem —————————————————————————�
 
                         rem Return if the file doesn’t exist:
                                 iff not exist "%unquoted_audio_file%" then
-                                        echo %ansi_color_alarm%%blink_on% file doesn’t exist: “%unquoted_audio_file%”%ansi_color_normal%%blink_off%
+                                        echo %ansi_color_alarm%%blink_on%%EMOJI_WARNING% file doesn’t exist: “%unquoted_audio_file%”%ansi_color_normal%%blink_off%
                                         setdos /x0
                                         return
                                 endiff

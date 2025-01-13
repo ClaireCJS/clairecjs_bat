@@ -1,3 +1,4 @@
+@loadbtm on
 @echo OFF
 @on break cancel
 

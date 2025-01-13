@@ -118,6 +118,11 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 &nbsp;
 
+7. 💻 Certain environment variables should be defined
+    - ```%EDITOR%``` should be set to your text editor command (i.e. ```set editor=editplus.exe```)
+    - ```%LYRICS%``` should be set to your lyrics repository   (i.e. ```set lyrics=c:\lyrics\```)
+
+&nbsp;
 
 8. 📂 Filename requirements: Don’t have any audio files with percents or carets in them!
     - Unicode characters should be fine
@@ -128,8 +133,8 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 &nbsp;
 
-7. 📜 Recommended: To use the “local lyric repository search” functionality, set an environment variable named ```LYRICS``` to point to your lyric repository.  For example, ```set LYRICS=c:\lyrics```.
-This is a repository of saved lyrics, possibly from past [MiniLyrics](https://minilyrics.en.softonic.com/)/[EvilLyrics](https://www.evillabs.sk/evillyrics/) use.   
+7. 📜 Recommended: As mentioned earlier, to use the “local lyric repository search” functionality, you must set an environment variable named ```LYRICS``` to point to your lyric repository.  For example, ```set LYRICS=c:\lyrics```.
+This is a repository of saved lyrics, possibly from years of past [MiniLyrics](https://minilyrics.en.softonic.com/)/[EvilLyrics](https://www.evillabs.sk/evillyrics/) use.   
 The structure of the repository is assumed to be subfolders for the 1ˢᵗ letter of the artist, with filenames that are “*Artist* - *Title*.txt”, for example ```c:\Lyrics\M\Metallica - Enter Sandman.txt```, with the possibility of apostrophes being substituted into underscores. 
 
 &nbsp;
@@ -521,12 +526,13 @@ A lyric postprocessor that removes tons of junk from downloaded lyrics, only sho
 ### 🌟 [remove-period-at-ends-of-lines.pl](../BAT-and-UTIL-files-1/remove-period-at-ends-of-lines.pl):
 
 The final subtitle postprocessor, which removes periods from end of each line in a subtitle. 
-Preserves periods for words like “Mr.”, “Dr.”, “approx”, etc
+It preserves the periods at the end of the line if the are for common abbreviations like “Mr.”, “Dr.”, “approx.”, etc
 
 **Rationale:** We add “invisible” periods to the end of each line of lyrics, so that WhisperAI’s ```--sentence``` option is influenced by where lyric posters post the line breaks in their lyrics. It absolutely helped. A lot. Hours were spent determiing this and, and it was obvious from the first [of many] tests.   We then remove these periods (making them “invisible”) afterward, because they are ugly and often not even gramatically correct — just correct for *timing* purposes.  
 
-This also also has some extra functionality slipped in to de-censoring some curse words that WhisperAI censors.
-This functionality can be suppressed with the ```--leave-censorship``` or ```-L``` options.
+This also also has some extra karaoke postprocessing functionality slipped in:
+    - de-censoring some curse words that WhisperAI censors (suppress this with ```--leave-censorship``` or ```-L```)
+    - removing any line that is "And we are back."... These are hallucinations.
 
 </details>
 

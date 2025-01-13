@@ -1,3 +1,5 @@
+@rem Set BTM mode for loading whole BAT into memory and allowing us to EDIT our BATs without messing up their execution:
+        @loadbtm on
 
 @rem Turn off echo'ing:
         @Echo OFF

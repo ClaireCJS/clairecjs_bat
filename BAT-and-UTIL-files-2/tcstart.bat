@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo off
 rem timer /7 on
 

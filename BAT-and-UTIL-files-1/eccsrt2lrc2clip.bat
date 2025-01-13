@@ -1,4 +1,5 @@
-@Echo On
+@loadbtm on
+@Echo Off
 
 rem side-note: worst-named BAT ever hahahahahhaha
 

@@ -1,3 +1,4 @@
+@loadbtm on
 
 @rem     Removes a tag associated with a file, using Windows Alternate Data Streams for files. 
 

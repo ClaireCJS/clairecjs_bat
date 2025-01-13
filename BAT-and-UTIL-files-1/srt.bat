@@ -1,1 +1,2 @@
+@loadbtm on
 @create-srt %*

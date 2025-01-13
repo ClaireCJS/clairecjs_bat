@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo off
 @set PERFORMANCE_TUNING=0 %+ if %PERFORMANCE_TUNING eq 1 (timer /9 /q on)
 @set rgb_index=1

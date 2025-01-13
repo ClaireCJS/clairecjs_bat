@@ -1,4 +1,5 @@
 @Echo OFF
+@loadbtm on
 @on   break cancel
 set   old_val=%VALIDATE_MULTIPLE%
 set   VALIDATE_MULTIPLE=1

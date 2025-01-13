@@ -1,3 +1,4 @@
+@loadbtm on
 @if  AHK_VALIDATED eq 1 (goto :END)
 
 

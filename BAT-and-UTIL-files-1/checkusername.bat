@@ -1,4 +1,5 @@
 @Echo off
+@loadbtm on
  on break cancel
 
 :Restart

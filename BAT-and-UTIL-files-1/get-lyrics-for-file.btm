@@ -1,4 +1,5 @@
 @Echo Off
+@loadbtm on
 @setdos /x0
 @setdos /x-5
 rem @setdos /c%@CHAR[1]
@@ -177,7 +178,7 @@ rem VALIDATE ENVIRONMENT [once per session]:
                         if not defined ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_STEADY     set ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_STEADY=%ansi_escape%6 q
                         rem TODO: ansi_color_yellow
                         if "%@ANSI_CURSOR_CHANGE_COLOR_WORD[]" == ""            function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                                
-                        if not defined FILEMASK_AUDIO                                set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
+                        if not defined FILEMASK_AUDIO                                set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.dtshd
                 set  VALIDATED_GLVMS_ENV=1
         endiff
 
@@ -189,6 +190,7 @@ rem VALIDATE PARAMETERS [every time]:
 
         :process_audiofile_parameter_again
         setdos /x-4
+        set  AUDIO_FILE_FULL=%@UNQUOTE[%@FULL["%AUDIO_FILE%"]]
         set  AUDIO_FILE_BASE=%@UNQUOTE[%@NAME["%AUDIO_FILE%"]]
         set  AUDIO_FILE_NAME=%@UNQUOTE[%@NAME["%AUDIO_FILE%"]]
         set  AUDIO_FILE_EXT=%@UNQUOTE[%@EXT["%AUDIO_FILE%"]]
@@ -207,14 +209,29 @@ rem VALIDATE PARAMETERS [every time]:
 
 
         rem Now see if it exists....
-        if not exist "%AUDIO_FILE%"  call validate-environment-variable AUDIO_FILE "1ˢᵗ parameter to get-lyrics-for-song must be an audio file that exists! [PBATCHNAME=%@UNQUOTE["%_PBATCHNAME"]] [full command line=“%@UNQUOTE["%0"] %@UNQUOTE["%*"]”]"
+                if not exist "%AUDIO_FILE%"  call validate-environment-variable AUDIO_FILE "1ˢᵗ parameter to get-lyrics-for-song must be an audio file that exists! [PBATCHNAME=%@UNQUOTE["%_PBATCHNAME"]] [full command line=“%@UNQUOTE["%0"] %@UNQUOTE["%*"]”]"
 
-        setdos /x-4
-        set  SONG_DIR=%@UNQUOTE[%@PATH["%AUDIO_FILE%"]]
-        setdos /x0
-        call validate-file-extension "%AUDIO_FILE%" %FILEMASK_AUDIO%
+        rem Get the folder that the song is in:
+                setdos /x-4
+                rem SONG_DIR=%@UNQUOTE[%@PATH["%AUDIO_FILE%"]]
+                set SONG_DIR=%@UNQUOTE["%@PATH["%@UNQUOTE["%@FULL["%AUDIO_FILE%"]"]"]"]
+                setdos /x0
 
-        if "%_CWD\" != "%SONG_DIR%"   pushd %SONG_DIR%
+        rem Validate the extension:
+                call validate-file-extension "%AUDIO_FILE%" %FILEMASK_AUDIO%
+
+
+        rem Debug info:
+                iff "False" == "True" then
+                        echo        CWD is %_CWD
+                        echo        AUDIO_FILE is %AUDIO_FILE%
+                        echo        AUDIO_FILE_FULL is %AUDIO_FILE_FULL%
+                        echo        @PATH["%AUDIO_FILE%"] is %@PATH["%AUDIO_FILE%"]
+                        echo        if "%_CWD\" != "%SONG_DIR%"   pushd "%SONG_DIR%"
+                        pause
+                endiff
+
+        if "%_CWD\" != "%SONG_DIR%"   pushd "%SONG_DIR%"
 
         rem Determine if GENIUS-ONLY get-lyric run, set GENIUS_ONLY appropriately:
                 iff "%2" == "genius" .or. "%3" == "genius" .or. "%4" == "genius" .or. "%5" == "genius" then
@@ -1044,7 +1061,7 @@ rem                 ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 insert-before-eac
                         echo %[MYNAMEY]>"%@UNQUOTE["%AUDIO_FILE%"]:genius_filename"
                         set NUM_DOWNLOADED_THIS_SESSION=%@EVAL[%NUM_DOWNLOADED_THIS_SESSION% + 1]
                         rem PARENT_BAT=get-lyrics at this point
-                        if %NUM_DOWNLOADED_THIS_SESSION% gt 0 echo %ANSI_COLOR_UNIMPORTANT%%check1% Downloaded this session: %bold_on%%NUM_DOWNLOADED_THIS_SESSION%%bold_off%%ANSI_COLOR_NORMAL%
+                        if %NUM_DOWNLOADED_THIS_SESSION% gt 1 echo %ANSI_COLOR_UNIMPORTANT%%check1% Downloaded this session: %bold_on%%NUM_DOWNLOADED_THIS_SESSION%%bold_off%%ANSI_COLOR_NORMAL%
 
 
                         rem At this point, if we’ve given the “genius” command-line option, we’re done. This is all we’re doing.
@@ -1395,7 +1412,7 @@ rem While we’re here, create LRCs from pre-existing SRTs?:
 
 rem Validate we did something:
         if %DEBUG gt 0 echo %ANSI_COLOR_DEBUG%- DEBUG: (30) iff not exist "%LYRIC_FILE%" 
-        rem echo 🐐 iff not exist "%LYRIC_FILE%" .and. "%LYRICLESSNESS_STATUS%" != "APPROVED" then
+echo 🐐 iff not exist "%LYRIC_FILE%" .and. "%LYRICLESSNESS_STATUS%" != "APPROVED" ....  PONIES!PONIES!PONIES!
         iff not exist "%LYRIC_FILE%" .and. "%LYRICLESSNESS_STATUS%" != "APPROVED" then
                 rem Take note of the fact that we failed to fetch the lyrics for this audio file!:
                         set LYRICS_FETCHED=0
@@ -1485,7 +1502,7 @@ rem —————————————— SUBROUTINES: BEGIN: ————�
                         %EDITOR% "%LYRIC_FILE%"
                         echos %ANSI_POSITION_RESTORE%
                         rem   pause "%ansi_color_warning_soft%%blink_on%Press any key when done hand-editing the lyrics...%blink_off%%ansi_color_normal%"
-                        call  pause-for-x-seconds %LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS% "%ansi_color_bright_yellow%%pencil% Hit a key when done editing lyrics... %faint_on%(leave blank if none found)%faint_off% %pencil% %ansi_color_normal%"
+                        call  pause-for-x-seconds %LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS% "%ansi_color_bright_yellow%%pencil% Hit a key when done editing lyrics... %faint_on%(leave blank if none found or if done by mistake)%faint_off% %pencil% %ansi_color_normal%"
                         set   ALREADY_HAND_EDITED=1
                         iff %@FILESIZE["%LYRIC_FILE%"] lt 3 then 
                                 set LYRICS_ACCEPTABLE=0
@@ -1520,6 +1537,7 @@ rem —————————————— SUBROUTINES: BEGIN: ————�
                         echo marked! ™™™
                         set  ABANDONED=1
                         set  JUST_APPROVED_LYRICLESSNESS=1
+                        set  JUST_APPROVED_LYRICS=0
                         echo LYRICLESSNESS_STATUS Trace 1 >nul
                         set  LYRICLESSNESS_STATUS=APPROVED              
                         rem gosub divider

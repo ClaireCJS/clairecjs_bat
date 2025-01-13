@@ -1,4 +1,5 @@
 @Echo OFF
+@loadbtm on
  on break cancel
 
 set VALUE=%1

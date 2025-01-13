@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo OFF
 
 iff "%1" eq "" then

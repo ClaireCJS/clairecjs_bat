@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo OFF
 
 call validate-environment-variable FILEMASK_AUDIO%

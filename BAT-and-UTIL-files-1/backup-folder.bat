@@ -1,1 +1,2 @@
+@loadbtm on
 @backup-thing %*

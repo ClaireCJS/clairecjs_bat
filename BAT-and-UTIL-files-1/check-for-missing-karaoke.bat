@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo Off
  rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
  call bat-init
