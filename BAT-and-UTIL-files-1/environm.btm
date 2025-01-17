@@ -720,6 +720,9 @@ return
     ::::: MANUALLY SETTING WHAT IS SUPPOSED TO ALREADY BE SET IN THE “OPTION” DIALOG:
                 setdos /X0
                 setdos /X-8
+                        set DEFAULT_ESCAPE_CHARACTER_DESCRIPTION=PlusOverMinusSymbol
+                        set ESCAPE_CHARACTER_DESCRIPTION=%DEFAULT_ESCAPE_CHARACTER_DESCRIPTION%
+                        set DEFAULT_ESCAPE_CHARACTER=`±`
                         set ESCAPE_CHARACTER=`±`
                         set ESCAPECHARACTER=`±`
                         set ESCAPE_CHAR=`±`
@@ -727,6 +730,8 @@ return
                 setdos /X0
                 setdos /X-5
                         set DEFAULT_COMMAND_SEPARATOR_CHARACTER=^
+                        set DEFAULT_COMMAND_SEPARATOR_DESCRIPTION=CARET     %+ rem New    name of DEFAULT_COMMAND_SEPARATOR             which is still used in places
+                        set DEFAULT_COMMAND_SEPARATOR=CARET                 %+ rem Legacy name of DEFAULT_COMMAND_SEPARATOR_DESCRIPTION which is still used in places
                         set COMMAND_SEPARATOR_CHARACTER=^
                         set COMMAND_SEPARATOR=CARET
                 setdos /X0

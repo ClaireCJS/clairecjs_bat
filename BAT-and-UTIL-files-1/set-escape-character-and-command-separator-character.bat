@@ -1,14 +1,14 @@
 @Echo OFF            
 @on break cancel
 
-setdos /X-8
-                set ESCAPE_CHARACTER=`±`
-setdos /X0
 
-setdos /X-5
-                set COMMAND_SEPARATOR_CHARACTER=^
-setdos /X0
+rem Validate environemnt (once):
+        @setdos /x0
+        iff 1 ne %validated_setesccharandcomsep% then
+                validate-in-path set-default-command-separator set-default-escape-character
+                set validated_setesccharandcomsep=1
+        endiff
 
-                set COMMAND_SEPARATOR=CARET
-                
-                
+
+call set-default-escape-character
+call set-default-command-separator

@@ -1,8 +1,8 @@
 import random
 import sys
 from colorama import init
-init(autoreset=False)
-
+#init(autoreset=False)
+#init()
 
 colors = range(31, 38)
 for line in sys.stdin:

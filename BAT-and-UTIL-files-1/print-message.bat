@@ -90,10 +90,11 @@ REM Process parameters
     if %DEBUG_PRINTMESSAGE eq  1                                 (echoerr %ANSI_COLOR_DEBUG%- debug branch 1 because %%PM_PARAM3 is %PM_PARAM3 - btw %%PM_PARAM2=%PM_PARAM2 - message is now %MESSAGE%ANSI_RESET% %+ echoerr DEBUG: TYPE=%TYPE%,EXECUTE_PROTECTION_PAUSES=%EXECUTE_PROTECTION_PAUSES%,MESSAGE=%MESSAGE%)
     set MESSAGE=%@UNQUOTE[`%PM_PARAMS2`]``
 
-    if defined COLOR_%TYPE% (
+    iff defined COLOR_%TYPE% then
             set     OUR_COLORTOUSE=%[COLOR_%TYPE%]
             set OUR_ANSICOLORTOUSE=%[ANSI_COLOR_%TYPE%]
-     )
+            echos %ansi_color_yellow%
+    endiff
     if not defined OUR_COLORTOUSE  (
             if %DEBUG_PRINTMESSAGE% eq 1 (echoerr %ANSI_COLOR_DEBUG% %RED_FLAG% Oops! Let’s try setting OUR_COLORTOUSE to %%COLOR_%@UPPER[%PM_PARAM1])
             set TYPE=%PM_PARAM1%
@@ -108,15 +109,63 @@ REM Process parameters
     if %DEBUG_PRINTMESSAGE eq 1 (echoerr TYPE=%TYPE% OUR_COLORTOUSE=%OUR_COLORTOUSE% EXECUTE_PROTECTION_PAUSES=%EXECUTE_PROTECTION_PAUSES% MESSAGE is: %MESSAGE% )
 
 REM Validate parameters
-    set print_message_running=2
-    iff 1 ne %VALIDATED_PRINTMESSAGE_ENV  then
-            if not defined COLOR_%TYPE%  (echoerr %ANSI_COLOR_fatal_error%This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment %+ *pause %+ goto :END)
-            if not defined MESSAGE       (echoerr %ANSI_COLOR_fatal_error%$0 called without a message %+ *pause %+ go)
-            call validate-in-path beep.bat 
-            call validate-plugin StripANSI
-            call validate-environment-variables BLINK_ON BLINK_OFF REVERSE_ON REVERSE_OFF ITALICS_ON ITALICS_OFF BIG_TEXT_LINE_1 BIG_TEXT_LINE_2 OUR_COLORTOUSE EXECUTE_PROTECTION_PAUSES EMOJI_TRUMPET ANSI_RESET EMOJI_FLEUR_DE_LIS ANSI_COLOR_WARNING ANSI_COLOR_IMPORTANT RED_FLAG EMOJI_WARNING big_top BIG_TOP_ON big_bot BIG_BOT_ON FAINT_ON FAINT_OFF EMOJI_WARNING EMOJI_WHITE_EXCLAMATION_MARK EMOJI_RED_EXCLAMATION_MARK EMOJI_STAR STAR STAR2 EMOJI_GLOWING_STAR EMOJI_ALARM_CLOCK ENDASH EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_MAGNIFYING_GLASS_TILTED_LEFT
-            set  VALIDATED_PRINTMESSAGE_ENV=1
-    endiff
+        set print_message_running=2
+        iff 1 ne %VALIDATED_PRINTMESSAGE_ENV  then
+                if not defined COLOR_%TYPE%    (echoerr %ANSI_COLOR_fatal_error%This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment %+ *pause %+ goto :END)
+                if not defined MESSAGE         (echoerr %ANSI_COLOR_fatal_error%$0 called without a message %+ *pause %+ go)
+                if "%@PLUGIN[StripAnsi]" == "" (echoerr %ANSI_COLOR_fatal_error%$0 called without StripAnsi plugin loaded %+ *pause %+ go)
+                call  validate-in-path beep.bat 
+                set GOTOEND=0
+                echos %reverse_on%
+                gosub validate BLINK_OFF 
+                gosub validate REVERSE_ON 
+                gosub validate REVERSE_OFF 
+                gosub validate ITALICS_ON 
+                gosub validate ITALICS_OFF 
+                gosub validate BIG_TEXT_LINE_1 
+                gosub validate BIG_TEXT_LINE_2 
+                gosub validate OUR_COLORTOUSE 
+                gosub validate EXECUTE_PROTECTION_PAUSES 
+                gosub validate EMOJI_TRUMPET 
+                gosub validate ANSI_RESET 
+                gosub validate EMOJI_FLEUR_DE_LIS 
+                gosub validate ANSI_COLOR_WARNING 
+                gosub validate ANSI_COLOR_IMPORTANT 
+                gosub validate RED_FLAG 
+                gosub validate EMOJI_WARNING 
+                gosub validate big_top 
+                gosub validate BIG_TOP_ON 
+                gosub validate big_bot 
+                gosub validate BIG_BOT_ON 
+                gosub validate FAINT_ON 
+                gosub validate FAINT_OFF 
+                gosub validate EMOJI_WARNING 
+                gosub validate EMOJI_WHITE_EXCLAMATION_MARK 
+                gosub validate EMOJI_RED_EXCLAMATION_MARK 
+                gosub validate EMOJI_STAR 
+                gosub validate STAR 
+                gosub validate STAR2 
+                gosub validate EMOJI_GLOWING_STAR 
+                gosub validate EMOJI_ALARM_CLOCK 
+                gosub validate ENDASH 
+                gosub validate EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT 
+                gosub validate EMOJI_MAGNIFYING_GLASS_TILTED_LEFT  
+                echos %reverse_off%
+                if "1" == "%GOTOEND%" (goto :END)
+              
+                set   VALIDATED_PRINTMESSAGE_ENV=1
+        endiff
+
+                goto :validate_subroutine_done
+                        :validate [validatee]
+                                rem echo validate called with validatee=“%validatee%”
+                                if "" ==  "%[%validatee]" (
+                                        echo %ansi_color_fatal_error%!!! ERROR !!!   %validatee%  needs to be defined%ansi_color_normal%
+                                        set GOTOEND=1 
+                                )
+                                if "1" == "%GOTOEND%" (goto :END)
+                        return
+                :validate_subroutine_done
 
 
 REM convert special characters
@@ -222,6 +271,7 @@ REM Pre-Message determination of how many times we will display the message:
 
 
 REM Actually display the message:
+        echos %ANSI_COLOR_BRIGHT_GREEN%
         set FIRST=0
         set SECOND=0
         :actually_display-the_message
@@ -278,6 +328,7 @@ REM Actually display the message:
                 set LEN=%@LEN[%STRIPPED_MESSAGE]
                 if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS-16] (set SKIP_DOUBLE_HEIGHT=1)
 
+        echos %ANSI_COLOR_BLUE%
         for %msgNum in (%HOW_MANY%) do (           
                 set REM=handle pre-message formatting [color/blinking/reverse/italics/faint], based on what type of message and which message in the sequence of repeated messages it is
 
@@ -345,9 +396,9 @@ REM Actually display the message:
                         )
 
                         echoerr %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
-                        set REM=are we here? ⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉⁉
         )
 
+        echos %ansi_color_blue%
         REM display our closing big-header, if we are in big-header mode:
                 rem if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%[DECORATOR_RIGHT]****%ANSI_RESET%%ANSI_ERASE_TO_EOL%)
                 iff %BIG_HEADER eq 1 then
@@ -360,6 +411,7 @@ REM Actually display the message:
 
         
 REM Post-message delays and pauses
+        echos %ANSI_COL0R_MAGENTA%
         set print_message_running=10
         setdos /x0
         set DO_DELAY=0    
@@ -408,17 +460,18 @@ REM Logging
 REM For errors, give chance to gracefully exit the script (no more mashing of ctrl-C / ctrl-Break)
         set print_message_running=15
         rem echoerr type=%type%        
-        if "%TYPE%" == "FATAL_ERROR" .or. "%TYPE%" == "FATALERROR" .or. "%TYPE%" == "ERROR" (
+        iff "%TYPE%" == "FATAL_ERROR" .or. "%TYPE%" == "FATALERROR" .or. "%TYPE%" == "ERROR" then
                 set DO_IT=
                 set temp_title=%_wintitle
-                call askyn "Cancel all execution and return to command line?" yes
-                rem yes, CANCELL with 2 L’s. Complex reasons for this:
-                if %DO_IT eq 1 (
-                        call CANCELLL.bat
-                        title %temp_title%
-                        goto :END
-                )
-        )
+                call exit-maybe
+                rem call askyn "Cancel all execution and return to command line?" yes
+                rem rem yes, CANCELL with 2 L’s. Complex reasons for this:
+                rem if %DO_IT eq 1 (
+                rem         call CANCELLL.bat
+                rem         title %temp_title%
+                rem         goto :END
+                rem )
+        endiff
 
 REM Hit user with the “pause” prompt several times, to prevent accidental passthrough from previous key mashing
         unset /q loop
@@ -522,5 +575,6 @@ set print_message_running=999999999
 echo %ANSI_RESET% >nul %+ rem reset the color if we are in echo-on mode
 
 @rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+@echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━> nul
 @rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-@rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

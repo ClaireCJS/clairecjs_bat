@@ -169,12 +169,14 @@ rem Let user know what’s going on:
         repeat 5 echo.
         iff 1 eq %FILELIST_MODE then
                 set in= in playlist: %italics_on%“%emphasis%%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%deemphasis%%italics_off%”
+                set limit_to_use=%limit%
         else
-                set in= in %@NAME[%_CWD]
+                set in= in: %italics_on%“%emphasis%%@NAME[%_CWD]%deemphasis”
+                set limit_to_use=
         endiff
         gosub divider
         echo.
-        call important "Finding %blink_on%%limit%%blink_off% songs with missing %italics_on%%findNature%%italics_off%%IN%"
+        call important "Finding %@IF["%limit_to_use%" ne "",%blink_on%%limit%%blink_off% ,]songs with missing %italics_on%%findNature%%italics_off%%IN%"
         echo.
 
 
@@ -240,6 +242,9 @@ rem Display post-processing statistics:
                 ) else (
                         set clean_formatted_percent=%formatted_percent%
                 )
+                rem flags not accurate: if "" != "%ANY_BAD%" .and. "0" != "%ANY_BAD%" echo.
+                rem To conditionalize this next echo we’d have to keep trakc of whether there’s any output at all, not just any_bad...:
+                echo.
                 echo ━━━━━━━━━━━━━━━━━━ Current dir is %_CWD ━━━━━━━━━━━━ >nul
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%  Processed: %italics_on%%@FORMATn[3.0,%NUM_PROCESSED%]%italics_off% songs 
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located: %ansi_color_red%%@FORMATn[3.0,%NUM_BAD%]%ansi_color_bright_green% songs needing %findNature% attention
@@ -335,7 +340,24 @@ rem —————————————————————————�
                         rem Reject if the file doesn’t exist at all:                                
                                 iff not exist %CFML_AudioFile% then
                                      echo %ansi_color_yellow% %EMOJI_CROSS_MARK% songfile doesn’t exist:        %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                     return
                                 endiff
+
+                        rem Reject if the file is one of our trash filenames:
+                                iff "1" == "%@RegEx[._vad_.*_chunks.*\.wav,"%CFML_AudioFile%"]" then
+                                     echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an AI temp-file:    %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                     return                                
+                                endiff
+
+                        rem Reject if the file is one of our trash filenames:
+                                iff "1" == "%@RegEx[[\(\[]instrumental[\)\]],%@UNQUOTE[%CFML_AudioFile%]]" then
+                                     echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an AI temp-file:    %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                     return                                
+                                endiff
+
+                        rem Special instrumental handling?
+                                rem iff 1 eq %@RegEx[\(instrumental\),%@UNQUOTE[%CFML_AudioFile%]] then
+                                rem endiff                     
 
                         rem If the song is marked for approved-lyriclessness, the file is good:                                
                                 set LYRICLESSNESS_APPROVAL_VALUE=%@ExecStr[TYPE "%unquoted_audio_file_full%:lyriclessness" >&>nul]         %+ rem get the song’s lyriclessness approval status
@@ -343,10 +365,6 @@ rem —————————————————————————�
                                         set BAD=0
                                         goto :done_processing_this_file
                                 endiff                                        
-
-                        rem Special instrumental handling?
-                                rem iff 1 eq %@RegEx[\(instrumental\),%@UNQUOTE[%CFML_AudioFile%]] then
-                                rem endiff                     
                                 
                         rem Determine filenames for lyric/karaoke files (which may or may not exist):                                
                                 set txtfile=%audio_file_path%%audio_file_name%.txt                            %+ rem Create the filename of the lyric file that we will be looking for

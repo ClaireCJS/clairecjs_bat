@@ -168,7 +168,7 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 
 From a running TCC command line, use whatever system commands you’d like from the list below.
 
-Generally speaking, it will be: ```create-srt audio_file.mp3``` or ```create-missing-karaoke``` or ```get-lyrics```.
+Generally speaking, it will be: ```create-srt``` or ```get-lyrics``` followed by a filename, a playlist, or the word “this” to operate on the currently-playing song.
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -199,14 +199,20 @@ Generally speaking, it will be: ```create-srt audio_file.mp3``` or ```create-mis
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 [get-lyrics {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
+### 🌟 [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
 
-Obtains the lyrics for a particular song file. 
+Obtains the lyrics for a song file, a playlist, or the currently playing song. 
 - transcriptions work **much** better with lyrics
-- This checks local sidecar files, local lyric repository, Genius, and Google
+- checks local sidecar files for pre-existing lyric files
+- checks local lyrics/MiniLyrics/EvilLyrics repository for pre-existing lyric files
+- seraches Genius for lyrics
+- gives option to hand-edit artist/track name if lyrics are not find
+- gives option to Google lyrics if all else fails
 - gives an option to hand-edit lyrics after download
-- can approve lyrics for later use (to allow the option of ONLY focusing on obtaining lyrics) [karaoke can be generated while sleeping]
-- can approve lyric*less*ness for later use to “give up” on a lyric search (to allow automatic AI-generation to happen even though no lyrics were found)
+- can approve lyrics for later use (to concentrate your focus ONLY on lyrics, since karaoke can be generated automatically when the approved lyric file is found)
+- can approve lyric*less*ness “give up” on a lyric search (to allow aforementioned automatic AI-generation to happen even though no lyrics were found, and to prevent us from searching for lyrics a 2ⁿᵈ time at a later date)
+- lyrics are processed (for example, the apostrophe conversion of changing ```'``` into ```’```)
+- lyrics are filtered (spam and unrelated text that follows common patterns are removed)
 
 
 ### 🌟 [get-lyrics-for-currently-playing-song](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
@@ -253,7 +259,7 @@ TODO: If you would like to check your progress, run [report-lyric-and-subtitle-p
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# 👉👉👉 *Karaoke Generation* commands:
+# 👉👉👉 *Karaoke Alignment* commands:
 
 #### These commands creates the karaoke files that are the primary goal of this project! 🎈
 
@@ -382,15 +388,16 @@ Displays a list of files in the *current folder* which are missing *karaoke* fil
 ![image](https://github.com/user-attachments/assets/61e1f155-a798-4668-945a-7d7dd2ac06dc)
 
 
-### TODO check-for-missing-karaokes-in-playlist {playlist}
+### 🌟 convert-playlist-to-only-songs-that-do-not-have-karaoke.bat {playlist} [convert-playlist-to-only-song-that-do-not-have-karaoke.bat](../BAT-and-UTIL-files-1/convert-playlist-to-only-song-that-do-not-have-karaoke.bat):
 
-Displays a list of files in *a playlist* which are missing *karaoke* files
+convert-playlist-to-only-song-that-do-not-have-karaoke.bat
+
+Creates a new playlist consisint of all the files
 [when this is developed, playlist auditor can be moved into utility documentation]
 
+### 🌟 Sidecar-File Auditor [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py):
 
-### 🌟 Playlist Auditor / Sidecar-File Auditor: [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py):
-
-Processes a playlist (or filelist) to create a new playlist (or filelist) consisting of ONLY the songs that do not have karaoke files.
+A generalized utility that, in our case, is being used to process a playlist to create a new playlist consisting of *ONLY* the songs that do not have karaoke files. This helps us focus our efforts.
 
 EXAMPLE:
 ```
@@ -413,17 +420,23 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 
 ### 🌟 [get-lyrics-for-currently-playing-song ](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
 
-Runs ```get-lyrics``` on *the song currently being played* in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
+Get lyrics for *the song currently being played* in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
 
 
 ### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/create-srt-file-for-currently-playing-song.bat):
 
-Runs ```create-srt``` on *the song currently being played* in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
+Creates karaoke for *the song currently being played* in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
 
 
-### 🌟 Karaoke insertion fudger - [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat):
+### 🌟 Karaoke insertion fudger / MiniLyrics fixer - [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat):
 
-In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com/) does not auto-import the generated SRT file.  Because [MiniLyrics](https://minilyrics.en.softonic.com/) primarily uses LRC instead of SRT, it can sometimes miss an SRT. When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the [MiniLyrics](https://minilyrics.en.softonic.com/) lyric window manually. This script handles that by detecting the current song playing, converting it’s SRT to LRC, copying it to the clipboard, and automatically opening [MiniLyrics](https://minilyrics.en.softonic.com/)’s lyric editor window. All the user has to do is paste and save.
+In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com/) does not display new karaoke we create. This is because [MiniLyrics](https://minilyrics.en.softonic.com/) primarily uses LRC instead of SRT, so if an LRC was already there, and you create an SRT, it tends to ignore the SRT,e ven if you delete the LRC. 
+
+When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the [MiniLyrics](https://minilyrics.en.softonic.com/) lyric window manually, so that the data goes wherever it is MiniLyrics is storing it (we don’t know! It’s been out of development for 10+ yrs and is am ysterious product). 
+
+This script handles that by detecting the current song playing, converting it’s SRT to LRC, copying the SRT’s contents to the clipboard, and automatically opening [MiniLyrics](https://minilyrics.en.softonic.com/)’s lyric editor window. 
+
+All the user has to do is paste, then save.
 
 </details>
 

@@ -1,5 +1,5 @@
 @loadbtm on
-@Echo OFF
+@Echo Off
 @on break cancel
 
 :USAGE: get-lyrics {songfile}
@@ -11,8 +11,8 @@ rem Validate usage:
                         echo USAGE: get-lyrics song.flac    —— attempts to get approved lyrics for one song
                         echo USAGE: get-lyrics here         —— attempts to get approved lyrics for all files in current folder
                         echo USAGE: get-lyrics playlist.m3u —— attempts to get approved lyrics for all files in a playlist
-                        echo USAGE: get-lyrics now_playing  —— get lyrics for the song currently playing in WinAmp                        
-                        echo                                   nowplaying, np, now, winamp, this —— are other alises for this mode
+                        echo USAGE: get-lyrics this         —— get lyrics for the song currently playing in WinAmp                        
+                        echo                                   nowplaying, np, now, winamp, this —— are other possible untested aliases for this mode
                         echo.
                         echo.
                         echo.

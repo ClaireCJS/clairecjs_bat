@@ -29,4 +29,4 @@
 )
 *echos %ansi_color_normal%
 *if "" != "%old_title%" *title %old_title%
-echo %_PBATCHNAME !
+rem echo %_PBATCHNAME !

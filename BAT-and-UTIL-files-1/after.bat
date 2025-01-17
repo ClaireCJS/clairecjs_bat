@@ -44,14 +44,14 @@
     if "%1"=="inventory"       (goto :Inventory)
     if "%1"=="jobapplication"   goto jobapplication
     if "%1"=="meter"		   (goto meter)
-    if "%1"=="month"		   (set  LOGFILE_BASENAME_TO_USE=year  %+       goto month            )
-    if "%1"=="mouse"		   (set  LOGFILE_BASENAME_TO_USE=mouse %+		set  YearInFileName=no)
-    if "%1"=="movie"		   (set  LOGFILE_BASENAME_TO_USE=movie %+		goto movie            )
-    if "%1"=="mov"  		   (set  LOGFILE_BASENAME_TO_USE=movie %+		goto mov              )
-    if "%1"=="m"  		       (set  LOGFILE_BASENAME_TO_USE=movie %+		goto m                )
+    if "%1"=="month"		   (set  LOGFILE_BASENAME_TO_USE=year           %+      goto month            )
+    if "%1"=="mouse"		   (set  LOGFILE_BASENAME_TO_USE=mouse          %+	set  YearInFileName=no)
+    if "%1"=="movie"		   (set  LOGFILE_BASENAME_TO_USE=movie          %+	goto movie            )
+    if "%1"=="mov"  		   (set  LOGFILE_BASENAME_TO_USE=movie          %+	goto mov              )
+    if "%1"=="m"  		   (set  LOGFILE_BASENAME_TO_USE=movie      %+	goto m                )
     if "%1"=="nap"  		   (call awake)
     if "%1"=="netflix"		   (goto :netflix)
-    if "%1"=="year"		        goto year
+    if "%1"=="year"		    goto year
     if "%1"=="pictures"		   (gosub :AfterCamera)
     if "%1"=="peapod"		   (goto :Peapod)
     if "%1"=="poweroutage"	   (goto :PowerOutage)
@@ -59,12 +59,12 @@
     if "%1"=="quake"		   (goto :quake)
     if "%1"=="quakelive"	   (goto :quakelive)
     if "%1"=="quote"		   (goto :quote)
-    if "%1"=="rocksmith"       (goto :RockSmith)
+    if "%1"=="rocksmith"           (goto :RockSmith)
     if "%1"=="screw"		   (call qd>:u8clip:          %+   %EDITOR %PUBCL\journal\companies-that-screwed-me.txt	%+ goto :END )
-    if "%1"=="sex"			   (goto :sexyTimes)
-    if "%1"=="show"			   (set  LOGFILE_BASENAME_TO_USE=show)
+    if "%1"=="sex"		   (goto :sexyTimes)
+    if "%1"=="show"		   (set  LOGFILE_BASENAME_TO_USE=show)
     if "%1"=="tagging"		   (goto :tagging)
-    if "%1"=="trans"	        goto :hairRemoval
+    if "%1"=="trans"	            goto :hairRemoval
     if "%1"=="wedding"		   (goto :wedding)
     if "%1"=="weigh"		   (goto :weight)
     if "%1"=="weight"		   (goto :weight)

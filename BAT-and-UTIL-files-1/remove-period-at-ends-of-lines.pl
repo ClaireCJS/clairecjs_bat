@@ -148,7 +148,7 @@ move $tempfile, $filename or die "Error: Cannot overwrite original file: $!\n"; 
 
 
 
-sub de_censor {
+sub de_censor_original {
 	my $s=$_[0];
 
 	#un-f**k:
@@ -171,6 +171,33 @@ sub de_censor {
 	
 	return($s);
 }	
+
+sub de_censor {
+	# List of 4-letter curse words
+	my @four_letter_words = qw(fuck shit piss);
+
+	# Iterate through each curse word
+	for my $word (@four_letter_words) {
+		my @chars = split //, $word; # Split the word into individual characters
+
+		# Generate the substitution patterns for all possible masked combinations
+		for my $i (0 .. 3) {
+			for my $j ($i .. 3) {
+				my @pattern = ('*', '*', '*', '*');
+				$pattern[$i] = $chars[$i]; # Unmask the i-th character
+				$pattern[$j] = $chars[$j] if $i != $j; # Optionally unmask the j-th character
+
+				# Construct the regex pattern and replacement
+				my $regex = "\\b" . join('', @pattern) . "\\b"; # Create masked word
+				$regex =~ s/\*/\\w/g; # Replace * with \w to match any word character
+				my $replacement = $word; # Replace with the original word
+
+				# Perform the substitution
+				$s =~ s/$regex/$replacement/gi;
+			}
+		}
+	}
+}
 
 sub whisper_ai_postprocess {
 	my $s=$_[0];

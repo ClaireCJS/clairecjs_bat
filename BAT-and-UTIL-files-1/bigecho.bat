@@ -150,7 +150,7 @@ rem                             echo REMAINING_STR = %ansi_color_red%[%ansi_colo
                                 set              %[UNIQUE_VAR_NAME]="%@UNQUOTE[%LINE%]"
                                 rem setdos /x-678
 rem                             echo @call  bigecho %[%[UNIQUE_VAR_NAME]] ---------------------- %newline%
-                                @call       bigecho %[%[UNIQUE_VAR_NAME]]
+                                if "" !=  "%[%[UNIQUE_VAR_NAME]]" @call bigecho %[%[UNIQUE_VAR_NAME]]
                                 rem setdos /x0
                                 unset  /q        %[UNIQUE_VAR_NAME]
                                 

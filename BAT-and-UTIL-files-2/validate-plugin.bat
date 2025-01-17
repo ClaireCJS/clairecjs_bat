@@ -97,9 +97,9 @@ goto :Past_The_End_Of_The_SubRoutines
                     ::::: REPOND IF IT IS NOT:
                         :Loaded_NO
                             set ERROR=1
-                            set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Plugin “%underline%%italics%%blink%%PLUGIN_NAME%%italics_off%%blink_off%%underline_off%” is %double_Underline%not%double_Underline_off% loaded, and needs to be, in %italics_on%“%[_PBATCHNAME]”%italics_off%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
+                            set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Plugin %lq%%underline%%italics%%blink%%PLUGIN_NAME%%italics_off%%blink_off%%underline_off%%rq% is %double_Underline%not%double_Underline_off% loaded, and needs to be, in %italics_on%%lq%%[_PBATCHNAME]%rq%%italics_off%!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]
                             if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: ERROR_MESSAGE[1]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
-                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: `%`USER_MESSAGE`%` is “%USER_MESSAGE%”)
+                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: `%`USER_MESSAGE`%` is %lq%%USER_MESSAGE%%rq%)
                             if "%USER_MESSAGE%" != "" goto :Do_It_1
                                                       goto :Do_It_1_Done
                             :Do_It_1
@@ -116,7 +116,7 @@ goto :Past_The_End_Of_The_SubRoutines
                                 REM for /L %%i in (1,1,%LENGTH_DIFF%) do (set EXCLAMATION_MARKS=%EXCLAMATION_MARKS%!)
                                 REM 
                                 REM rem Substitute the final sequence of exclamation marks in ERROR_MESSAGE
-                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: EXCLAMATION_MARKS is “%EXCLAMATION_MARKS%”)
+                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echoerr - DEBUG: EXCLAMATION_MARKS is “%EXCLAMATION_MARKS%%rq%)
                                 REM set NORMALIZED_ERROR_MESSAGE=%@REPLACE[!!!,%EXCLAMATION_MARKS%,%ERROR_MESSAGE%]
                                 REM set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
 

@@ -1,8 +1,9 @@
+@rem %ansi_color_magenta%━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @loadbtm on
 @Echo off
 @on break cancel
 @setdos /x0
-
+rem why won’t this work for this bat? @setlocal
 
 ::::: GET PARAMETERS:
     set LAST_TITLE=%_TITLE
@@ -31,6 +32,8 @@
 ::::: CLEAR LONGTERM ERROR FLAGS:
     set DEBUG_VALIDATE_ENV_VAR=0
     set DEBUG_NORMALIZE_MESSAGE=0
+    set ERROR_MESSAGE=
+    set ERROR=0
 
 ::::: CLEAR LONGTERM ERROR FLAGS:
     set ENVIRONMENT_VALIDATION_FAILED=0
@@ -44,13 +47,17 @@
         set OUR_CALLER=%@NAME[%our_caller].%@EXT[%our_caller]
     
 ::::: VALIDATE ENVIRONMENT:
-        iff not defined FILEMASK_ALL_REGEX then
+        iff "1" !=  "%validated_validate_env_vars%" .and. not defined FILEMASK_ALL_REGEX then
                 %color_warning%
                 echo WARNING in validate-environment-variable.bat when called by %OUR_CALLER%: FILEMASK_ALL_REGEX not defined!
                 if defined PBATCH2 echo       grandparent BAT = %PBATCH2%
                 pause
                 goto :END
+        else
+                set validated_validate_env_vars=1
         endiff
+
+
 
 
 ::::: VALIDATE PARAMETERS STRICTLY
@@ -209,16 +216,20 @@ goto :Past_The_End_Of_The_Subroutines
 
         ::::: ADDITIONALLY, VALIDATE THAT IT EXISTS, IF IT SEEMS TO BE POINTING TO A FOLDER/FILE:
                 :Defined_YES
-                set VARVALUE=%[%VARNAME%]``                    
-                if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX%VARVALUE is %VARVALUE%)
-                set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])     
+                if "%[%VARNAME%]" !=  "" set VARVALUE=%[%VARNAME%]
+                rem echo [1] VARVALUE==`%[%VARNAME]`==`%[`%VARNAME%]==“%VARVALUE%”
+                if %DEBUG_VALIDATE_ENV_VAR% eq 1  (echo %DEBUGPREFIX%VARNAME is %lq%%VARNAME%%rq%, VARVALUE (`%[%VARNAME%]`) is %lq%%VARVALUE%%rq% )
+                iff ":\" == "%@INSTR[1,2,%VARVALUE%]" .or. ":/" == "%@INSTR[1,2,%VARVALUE%]" then
+                        set VARVALUEDRIVE=%@INSTR[0,1,%VARVALUE%])     
+                endiff
 
 
                 set IS_FILE_LOCATION=0
                 setdos /x-5
                 iff defined VARVALUE then
                                                     
-                        rem  echo VARVALUE is [%VARVALUE%], varname is %VARNAME>nul
+                        rem [2A] We here? 🐐
+                        echo VARVALUE is defined and is [%VARVALUE%], varname is %VARNAME 🐐rem>nul
                         
                         rem It’s definitely not a file location if:
                         rem     1) The variable’s  name is “newline” or “tab”
@@ -240,13 +251,20 @@ goto :Past_The_End_Of_The_Subroutines
                                 set IS_FILE_LOCATION=0
                         endiff       
                         setdos /x0
+            else
+                        rem [2B] or are We here? 🐐
             endiff                          
             :skippy
 
         setdos /x0
+
+        rem echo IS_FILE_LOCATION=%IS_FILE_LOCATION% 🐐🐐
+
         if "0" == "%IS_FILE_LOCATION%" .or. "0" == "%@READY[%VARVALUEDRIVE%]" .or. 1 eq  %SKIP_VALIDATION_EXISTENCE%                      (goto :DontValidateIfExists)                         %+ rem //Don’t look for if we want to validate the variable only
         if exist "%VARVALUE%"          .or. isdir "%VARVALUE%"                                                                            (goto :ItExistsAfterall)                             %+ rem //Does it exist as a file or folder?
         if exist "%VARVALUE%.dep"      .or. isdir "%VARVALUE%.dep"  .or. exist "%VARVALUE%.deprecated" .or. isdir "%VARVALUE%.deprecated" (goto :ItExistsAfterall %+ gosub :ItIsDeprecated)    %+ rem //Internal kludge for the way I do workflows
+
+        rem echo Doesn’t seem to exist ... 🐐🐐
 
         ::::: SET ERROR FLAGS (store error specifics for debugging analysis):
                 set ERROR=1
@@ -274,15 +292,19 @@ goto :Past_The_End_Of_The_Subroutines
                                 REM important than simply advice -- 
                                 REM      -- it represents a system failure!!!
                                 REM ...so let’s put asterisks around it, too!
-                                call warning %USER_MESSAGE%
+                                rem call warning %USER_MESSAGE%
+                                echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% %USER_MESSAGE% %ANSI_COLOR_NORMAL%
+
                 endiff
+
+                rem echo [3] 🐐🐐
                     
                 set old=%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%
                 set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
 
-                if "" != "%our_caller%" call   warning  "    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%@NAME[%our_caller%].%@EXT[%our_caller%]%italics_off%%blink_off%"      
+                if "" != "%our_caller%"                 echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% dir/folder: %italics_on%%[_CWD]%italics_off% %ANSI_COLOR_NORMAL%    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%@NAME[%our_caller%].%@EXT[%our_caller%]%italics_off%%blink_off% %ansi_color_normal%
 
-                call warning "  dir/folder: %italics_on%%[_CWD]%italics_off%"              
+                echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% dir/folder: %italics_on%%[_CWD]%italics_off% %ANSI_COLOR_NORMAL%
 
                 rem TCCv33 introduced a new command. We tried it out like this:
                 rem SET OUR_CALLER=%@execSTR[caller]
@@ -297,7 +319,16 @@ goto :Past_The_End_Of_The_Subroutines
                 else
                         set USER_MESSAGE_TO_USE=
                 endiff
-                call fatal_error "%left_quote%%italics_on%%@UPPER[%VARNAME%]%italics_off%%right_quote% location does not exist: %left_quote%%VARVALUE%%right_quote%...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%" 
+                echo %ansi_color_debug%DEBUG: varname = %VARNAME%, varvalue = %VARVALUE%%ansi_color_normal%
+                set msg=%left_quote%%italics_on%%@UPPER[%VARNAME%]%italics_off%%right_quote% location does not exist: %left_quote%%VARVALUE%%right_quote%...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%
+                rem echo %ansi_color_fatal_error% %msg% %ansi_color_normal%
+                rem echo on
+                setdos /x0
+                rem @echo path is %path%
+                rem dir  c:\bat\fatal_error.bat
+                rem @echo %%@search[fatal_error.bat] is '%@search[fatal_error.bat]'
+                call c:\bat\fatal_error.bat "%msg%"
+                call exit-maybe
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -335,4 +366,8 @@ if "" == "%LAST_TITLE%" (set LAST_TITLE=TCC)
 title %LAST_TITLE%
 
 echos %CURSOR_RESET%
+
 setdos /x0
+rem why won’t this work for this bat? endlocal LAST_TITLE ENVIRONMENT_VALIDATION_FAILED ENVIRONMENT_VALIDATION_FAILED_NAME ENVIRONMENT_VALIDATION_FAILED_VALUE DEBUG_VALIDATE_ENV_VAR DEBUG_NORMALIZE_MESSAGE ERROR ERROR_MESSAGE ERROR ERROR_ENVIRONMENT_VALIDATION_FAILED ERROR_ENVIRONMENT_VALIDATION_FAILED_NAME ERROR_ENVIRONMENT_VALIDATION_FAILED_VALUE
+
+

@@ -4,6 +4,8 @@
 @on break cancel
 rem echo **** create-srt-from-file.bat called **** 🌭🌭🌭 
 if not defined Default_command_Separator_Character set Default_command_Separator_Character=`^`
+setlocal
+
 
 rem TODO: not outfitted for the situation of successful generation but no words found so no file produced
 
@@ -62,6 +64,8 @@ goto :subroutine_definitions_end
 rem Pre-Cleanup:
         unset /q JUST_APPROVED_LYRICLESSNESS
         UNSET /Q goto_forcing_ai_generation
+        UNSET /Q ABANDONED_SEARCH
+        UNSET /Q LYRICLESSNESS_STATUS
 
 
 rem MAJOR BRANCHING:
@@ -93,7 +97,7 @@ rem CONFIG: 2024: WAIT TIMES:
         set PROMPT_EDIT_CONSIDERATION_TIME=20                                    %+ rem wait time for "do you want to edit the AI prompt"-type questions
         set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0                   %+ rem wait time for "hey lyrics not found!"-type notifications/questions. Set to 0 to not pause at all.
         set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=150                            %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
-        rem ^^^^ TODO?: automation mode where all these get shortened to quite significantly, or all to 3, or all to 1, or something 🐮
+        set EDIT_KARAOKE_AFTER_FORCE_REGEN_WAIT_TIME=12                          %+ rem wait time for "edit it now that we’ve made it?"-type questions when we are in force-regen mode
 
 REM config: 2023:
         rem set TRANSCRIBER_TO_USE=call whisper-faster.bat 
@@ -205,6 +209,7 @@ REM branch on certain paramters, and clean up various parameters
         set FORCE_REGEN=0 
         set CLEANUP=0 
         set AUTO_LYRIC_APPROVAL=0
+        set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=0
 
         iff %CONSIDER_ALL_LYRICS_APPROVED eq 1 then
                 set AUTO_LYRIC_APPROVAL=1
@@ -233,7 +238,7 @@ REM branch on certain paramters, and clean up various parameters
                 rem echo checking special=“%special%” ... %%1=“%1” %+ pause
                 if "%special%" == "ai"                 (set SOLELY_BY_AI=1       )
                 if "%special%" == "cleanup"            (set CLEANUP=1            )
-                if "%special%" == "force"              (set FORCE_REGEN=1        )
+                if "%special%" == "force"              (set FORCE_REGEN=1        %+ set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=1)
                 if "%special%" == "lyriclessness"      (set NEVERMIND_THIS_ONE=42) %+ rem If this gets snuck in as 2ⁿᵈ argument, ignore it...for reasons
                 if "%special%" == "force-regen"        (set FORCE_REGEN=1        )
                 if "%special%" == "redo"               (set FORCE_REGEN=1        )
@@ -282,8 +287,9 @@ REM branch on certain paramters, and clean up various parameters
                 set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=3                %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
         endiff
 
-
-
+        iff "1" == "%FORCE_REGEN%" then
+                set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=10
+        endiff
 
 
 REM Values fetched from input file:
@@ -292,7 +298,7 @@ REM Values fetched from input file:
                 set PROMPT_CONSIDERATION_TIME=3
                 set PROMPT_EDIT_CONSIDERATION_TIME=3
         else
-                call get-lyrics-for-song "%SONGFILE%" SetVarsOnly %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc
+                call get-lyrics-for-file "%SONGFILE%" SetVarsOnly %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc
                 if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
                 set last_file_probed=%SONGFILE%                               %+ rem prevents get-lyrics from probing twice
         endiff
@@ -338,7 +344,7 @@ REM Now, let’s check these values:
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
                 call bigecho      "%ansi_color_warning_soft%%star2% Already have karaoke!%ansi_reset%"
                 call warning_soft "Pre-existing subtitles found in lyric repository at: “%emphasis%%italics_on%%found_subtitle_file%%deemphasis%%italics_off%”" silent
-                echo %STAR% %ANSI_COLOR_ADVICE%Copy this file %italics_on%from our local repo%italics_off% into this folder, as a sidecar file for %@NAME[%SONGFILE%]%ansi-color_normal%
+                echo %STAR% %ANSI_COLOR_ADVICE%Copy this file %italics_on%from our local repo%italics_off% into this folder, as a sidecar file for %@NAME[%SONGFILE%]%ansi_color_normal%
                 call askYN        "Copy repository version to local folder as sidecar file" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                 iff "Y" == "%answer%" then
                         set target_old=%@path[%@full[%songfile%]]%@name[%SONGFILE%].%@ext[%found_subtitle_file%]``
@@ -372,10 +378,10 @@ REM Now, let’s check these values:
                         goto :END
                 endiff
         endiff
-rem e
+
 
 REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
-        call validate-environment-variable INPUT_FILE
+        if not exist "%INPUT_FILE%" call validate-environment-variable INPUT_FILE
         rem iff "%FORCE_REGEN%" == "1" .or. "%SOLELY_BY_AI%" == "1" then
         rem         rem Skip validation because we’re doing things automatically
         rem else
@@ -385,7 +391,6 @@ REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
 
 
 REM If our input file is lyricless and we’ve approved its lyriclessness, then we’ve decided to transcribe without a lyrics file
-        rem echo 🐐2  call get-lyriclessness-status "%INPUT_FILE%" 
         call get-lyriclessness-status "%INPUT_FILE%"
         iff "%LYRICLESSNESS_STATUS%" == "APPROVED" then 
                 call success "%italics_on%Lyric%underline_on%less%underline_off%ness%italics_off% already approved! Using AI only!"
@@ -395,6 +400,7 @@ REM If our input file is lyricless and we’ve approved its lyriclessness, then 
         else                
                 set goto_forcing_ai_generation=0
         endiff
+        echo 🐐2  call get-lyriclessness-status "%INPUT_FILE%" is “%LYRICLESSNESS_STATUS%” ... goto_forcing_ai_generation=%goto_forcing_ai_generation%
         if 1 eq %goto_forcing_ai_generation goto :forcing_ai_generation
 
 
@@ -450,12 +456,15 @@ REM if we already have a SRT file, we have a problem:
                         call get-lyric-status "%TXT_FILE%"
                         if 1 eq %AUTO_LYRIC_APPROVAL% .or. "%LYRIC_STATUS%" == "APPROVED" (set DEFAULT_ANSWER_FOR_THIS=no)
                         @call AskYN "Get new lyrics" %DEFAULT_ANSWER_FOR_THIS% %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME% %+ rem todo make unique wait time for this
-                        iff "%ANSWER%" == "Y" .and. 1 ne %AUTO_LYRIC_APPROVAL then
-                                call get-lyrics-for-song "%songfile%"
+                        iff "%ANSWER%" == "Y" .and. "1" !=  "%AUTO_LYRIC_APPROVAL%" then
+                                call get-lyrics-for-file "%songfile%"
                                 if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
+                                set last_file_probed=%SONGFILE%                               %+ rem prevents get-lyrics from probing twice
+                        else
+                                set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=1
                         endiff                                
-                        
                         echo Used to do this here: set GOTO_FORCE_AI_GEN=1 🌵
+                        
                 else
                         @call warning_soft "Not generating anything, then!"
                         if exist "%SRT_FILE%" call approve-subtitles "%SRT_FILE%"
@@ -531,10 +540,10 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
         if 1 eq %SOLELY_BY_AI goto :we_decided_to_never_check_for_txtfile
 
    
-        rem not exist "%TXT_FILE%" .and. 1 ne %FORCE_REGEN% .and. 1 eq %LYRIC_ATTEMPT_MADE then
-        rem not exist "%TXT_FILE%" .and. 1 ne %FORCE_REGEN%                                then
-        iff not exist "%TXT_FILE%" .and. 1 ne %FORCE_REGEN% .and. 1 eq %LYRIC_ATTEMPT_MADE then
-                iff "1" != "%ABANDONED%" .or. "%LYRICLESSNESS_STATUS%" == "APPROVED" then
+        rem not exist "%TXT_FILE%" .and.  1  ne  %FORCE_REGEN%  .and.  1  eq  %LYRIC_ATTEMPT_MADE   then
+        rem not exist "%TXT_FILE%" .and.  1  ne  %FORCE_REGEN%                                      then
+        iff not exist "%TXT_FILE%" .and. "1" != "%FORCE_REGEN%" .and. "1" == "%LYRIC_ATTEMPT_MADE%" then
+                iff "1" != "%ABANDONED_SEARCH%" .or. "%LYRICLESSNESS_STATUS%" == "APPROVED" then
                         @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Failed to generate%emphasis% %SRT_FILE%%deemphasis%%ansi_color_warning%                %emoji_warning% %ansi_color_normal%
                         @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% because the lyrics%emphasis% %TXT_FILE%%deemphasis%%ansi_color_warning% do not exist!! %emoji_warning% %ansi_color_normal%
                         rem @call advice  "Use “ai” option to go straight to AI generation"
@@ -556,12 +565,12 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 rem This seems inapplicable now (2024/12/11): @echo %ansi_color_warning_soft%%star% Not yet generating %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning_soft% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning_soft% does not exist!%ansi_color_normal%
                 rem Let’s save this for our usage response: @echo %ansi_color_advice%`---->` Use “%italics_on%force%italics_off%” option to override.
                 rem Let’s save this for our usage response: @echo %ansi_color_advice%`---->` Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!
-                rem Don’t need this (2025/01/04) because get-lyrics-for-song calls its own divider: gosub divider
+                rem Don’t need this (2025/01/04) because get-lyrics-for-file calls its own divider: gosub divider
                 iff %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST gt 0 then
                     call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
                 endiff
                 :Refetch_Lyrics
-                        call get-lyrics-for-song "%SONGFILE%" 
+                        call get-lyrics-for-file "%SONGFILE%" 
                         if "%_CWD\" != "%SONGDIR%" pushd "%SONGDIR%"
                         set LYRIC_ATTEMPT_MADE=1
                 goto :We_Have_A_Text_File_Now
@@ -784,6 +793,11 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         set LAST_WHISPER_COMMAND_FOR_DISPLAY_TMP=%LAST_WHISPER_COMMAND%
         rem LAST_WHISPER_COMMAND_FOR_DISPLAY=%@ReReplace[initial_prompt ,initial_prompt%ansi_color_orange% ,"%LAST_WHISPER_COMMAND_FOR_DISPLAY_TMP%"]
         set LAST_WHISPER_COMMAND_FOR_DISPLAY=%@ReReplace["(initial_prompt..)([^\\]*)","\1%ansi_color_orange%\2%ansi_color_bright_yellow%","%LAST_WHISPER_COMMAND_FOR_DISPLAY_TMP%"]
+        set LAST_WHISPER_COMMAND_FOR_DISPLAY=%@ReReplace["(initial_prompt..)([^\\_]*)","\1%ansi_color_orange%\2%ansi_color_bright_yellow%","%LAST_WHISPER_COMMAND_FOR_DISPLAY_TMP%"]
+        rem ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  Can do the matching of non-quote characters better 
+        rem if you do it like this, but it requires the escape caharacter, which introduces potential incompatibility:
+                rem setdos /e!
+                rem echo %@rereplace[[^\!q],x,"How is "your" quest going?"]
         @echo %LAST_WHISPER_COMMAND_FOR_DISPLAY%%ansi_color_reset% 
         @call AskYn "Proceed with this AI generation" yes %PROMPT_CONSIDERATION_TIME%
         iff "%answer%" == "N" then
@@ -847,6 +861,7 @@ REM ✨ ✨ ✨ ✨ ✨ Actually generate the SRT file [used to be LRC but we ha
         rem Cosmetics:
             @echo.
             @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% Launching AI! %EMOJI_FIREWORKS%%ansi_color_normal%
+                echo.
             echo CWP=%_CWP
             rem that firework emoji was so much cooler in emoji11/win10 than emoji13/win11
             echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[magenta]%ANSI_CURSOR_CHANGE_TO_vertical_bar_BLINKING%   
@@ -1042,7 +1057,7 @@ rem Cleanup:
         rem   for sure: in the case of %lyrics%\<first letter of artist name?>\<same name as audio file>.txt  ——— MAYBE_LYRICS_2
         rem      maybe: in the case of %lyrics%\letter\artist - title.txt             ——— MAYBE_LYRICS_1
         rem So we must delete at least the first one, if it exists.  We use our get-lyrics script in SetVarsOnly mode:
-        rem moved to beginning: call get-lyrics-for-song "%SONGFILE%" SetVarsOnly
+        rem moved to beginning: call get-lyrics-for-file "%SONGFILE%" SetVarsOnly
         rem ...which sets MAYBE_LYRICS_1 and MAYBE_LYRICS_2
         rem echo %ansi_color_debug%- DEBUG: (7) Checking if exists: “%underline_on%%MAYBE_LYRICS_2%%underline_off%” for deprecation%ansi_color_normal%
         set MAYBE_SRT_2=%@PATH[%maybe_lyrics_2]%@NAME[%MAYBE_LYRICS_2].lrc
@@ -1106,7 +1121,13 @@ rem Full-endeavor success message:
         @gosub divider
         if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
         call debug "CWP = %_CWP GOAT"
-        @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case there were mistakes above]%faint_off%" no %EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME% notitle
+        iff "1" == "%FORCE_REGEN%" then
+                set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE=%EDIT_KARAOKE_AFTER_FORCE_REGEN_WAIT_TIME%
+        else
+                set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE=%EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME%
+        endiff
+
+        @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case there were mistakes above]%faint_off%" no %EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE% notitle
         iff "%ANSWER" == "Y" then
                 rem @echo %ANSI_COLOR_DEBUG%- DEBUG: %EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
                 title %check% %SRT_FILE% generated successfully! %check%             
@@ -1169,3 +1190,12 @@ echos %ansi_color_reset%
         unset /q PROMPT_EDIT_CONSIDERATION_TIME
         unset /q JUST_APPROVED_LYRICLESSNESS
         UNSET /Q goto_forcing_ai_generation
+        unset /q LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE
+        UNSET /Q ABANDONED_SEARCH
+        UNSET /Q LYRICLESSNESS_STATUS
+        unset /q AUTO_LYRIC_APPROVAL        
+
+
+endlocal AI_GENERATION_ANYWAY_WAIT_TIME AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES AUTO_LYRIC_APPROVAL CLEANUP CONCURRENCY_WAS_TRIGGERED EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE EDIT_KARAOKE_AFTER_FORCE_REGEN_WAIT_TIME EXPECTED_OUTPUT_FILE FORCE_REGEN FOUND_SUBTITLE_FILE JSN_FILE LAST_FILE_PROBED LAST_WHISPER_COMMAND LRC_FILE LYRICS_ACCEPTABLE LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME MAKING_KARAOKE MAYBE_LYRICS_2 MAYBE_SRT_2 NEVERMIND_THIS_ONE NUM_TRANSCRIBED_THIS_SESSION OKAY_THAT_WE_HAVE_SRT_ALREADY OUR_LANGUAGE OUR_LYRICS OUTPUT_DIR PROMPT_CONSIDERATION_TIME PROMPT_EDIT_CONSIDERATION_TIME REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME SKIP_TXTFILE_PROMPTING SOLELY_BY_AI SONGBASE SONGDIR SONGFILE SRT_FILE TRANSCRIBER_PDNAME TRANSCRIBER_TO_USE TXT_FILE VALIDATED_CREATE_LRC_FF WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST WHISPER_PROMPT
+
+

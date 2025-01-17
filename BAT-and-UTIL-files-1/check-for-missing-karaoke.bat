@@ -119,4 +119,10 @@ rem If there was nothing to do, let user know:
         endiff
 
 
+rem If we passed the “get” parameter, then run the script to get them:
+        iff "%1" == "get" .or. "%2" == "get" .or. "%3" == "get" then 
+                call create-the-missing-karaokes-here-temp.bat
+        endiff
+
+
 :END

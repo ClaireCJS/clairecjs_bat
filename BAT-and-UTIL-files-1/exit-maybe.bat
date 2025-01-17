@@ -1,4 +1,5 @@
 @Echo off
+@loadbtm on
 @on break cancel
 REM sleep 1
 set MYCOLOR=%@ANSI_BG[40,0,0]
@@ -13,7 +14,8 @@ rem otherwise a bit of screen junk remains, so we set LEFT_MORE=1 to kludge asky
         set LEFT_MORE=1
         rem came here thinking there was a bug in askyn but it turned out it was just the 'no_enter' option here deliberately making enter not work... 😂 2024/09/08
         rem  askyn "%MYCOLOR%%italics%%blink%%underline%Return%underline_off% to command line?%blink_off%%italics_off" yes 99999 no_enter big
-        call askyn "%MYCOLOR%%italics%%blink%%underline%Return%underline_off% to command line?%blink_off%%italics_off" yes 99999 no_enter 0
+        rem ?askyn "%MYCOLOR%%italics%%blink%%underline%Return%underline_off% to command line?%blink_off%%italics_off" yes 99999 no_enter 0
+        call askyn "%blink_on%Cancel all execution and return to command line?%blink_off%" yes 99999 0
         set LEFT_MORE=0
 
 title %prev_title%

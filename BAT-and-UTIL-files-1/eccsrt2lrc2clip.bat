@@ -1,5 +1,5 @@
 @loadbtm on
-@Echo Off
+@Echo On
 
 rem side-note: worst-named BAT ever hahahahahhaha
 
@@ -57,7 +57,9 @@ rem Front MiniLyrics so it's easier to find:
         activate "minilyrics"
 
 rem Send Ctrl-E to MiniLyrics to open up the lyric editor:
-        LaunchKey %escape_character%^e
+        setdos /x-58
+        LaunchKey ^e
+        setdos /x0
 
 rem Wait a couple second
         call sleep 2
@@ -66,6 +68,7 @@ rem Activate the lyrics editor
         activate "Lyrics Editor"
 
 rem Send Ctrl-V to paste clipboard into there:
+        setdos /x-58
         LaunchKey %escape_character%^e
 
 rem Wait a second

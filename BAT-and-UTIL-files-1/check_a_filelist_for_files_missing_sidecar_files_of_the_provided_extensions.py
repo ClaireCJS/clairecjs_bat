@@ -190,7 +190,10 @@ def main_guts(input_filename, extensions, options, extra_args):
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extension.py <input_filename> <extensions> <postprocessor> {parameters to pass to created script}\n")
-        print("Postprocessors can be GetLyricsFileWrite, CreateSrtFileWrite, and they cretae scripts based on missing sidecar files\n")
+        print("Postprocessors can be GetLyricsFileWrite, CreateSrtFileWrite, and they create scripts based on missing sidecar files\n\n")
+        print("For example, “CreateSrtFileWrite” will create a script to create SRT files for each file missing a sidecar file\n")
+        print("For example, “GetLyricsFileWrite” will create a script to get lyrics for each file missing a sidecar file\n\n")
+        print("If no postprocessor is given, it simply creates a new filelist with a name based on——but different——than the input filename")
         sys.exit(1)
 
 

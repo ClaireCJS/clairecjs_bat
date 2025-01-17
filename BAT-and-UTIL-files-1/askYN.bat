@@ -301,7 +301,8 @@ REM Print the question out with a spacer below to deal with pesky ANSI behavior:
         rem set XX=10
         repeat %XX% echoerr.
         echoserr   %@ANSI_MOVE_LEFT[2]``
-        if %xx gt 0 (echoserr %@ANSI_MOVE_UP[%@EVAL[%xx-1]])
+        rem ? if %xx gt 0 (echoserr %@ANSI_MOVE_UP[%@EVAL[%xx-1]])
+        if %xx gt 0 (echoserr %@ANSI_MOVE_UP[%@EVAL[%xx]])
         rem echoserr %@ANSI_MOVE_UP[1] %+ rem this seems to be too much for normal-size but TODO not sure about large size
         iff %BIG_QUESTION eq 1 then
                 echoserr %@ANSI_MOVE_DOWN[1]

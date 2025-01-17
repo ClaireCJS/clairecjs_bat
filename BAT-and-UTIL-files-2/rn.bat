@@ -1,5 +1,6 @@
 @Echo OFF
 @on break cancel
+@loadbtm on
 
 rem %COLOR_DEBUG% %+ echo * EXTRA_NAME is %EXTRA_NAME% ... YOUTUBE_MODE=%YOUTUBE_MODE% %+ %COLOR_NORMAL%
 rem %COLOR_DEBUG% %+ echo ARGS: %*

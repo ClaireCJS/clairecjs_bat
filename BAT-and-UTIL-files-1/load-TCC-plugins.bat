@@ -85,7 +85,7 @@ rem                 And the, finally, do we actually do what this whole script i
 
 
 rem Double check things worked out:
-        call validate-plugin 4WT StripANSI
+        call validate-plugins 4WT StripANSI
         
 
 :END
