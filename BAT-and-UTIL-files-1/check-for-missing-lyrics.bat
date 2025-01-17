@@ -1,12 +1,13 @@
 @Echo OFF
 @loadbtm on
 @setdos /x0
+@setlocal
 rem @on break cancel
 rem @setlocal
 
 
 rem CONFIGURATION:
-        set most_songs_from_playlist_to_process_at_a_time=100 %+ rem 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
+        set most_songs_from_playlist_to_process_at_a_time=50 %+ rem 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
 
 
 :DESCRIPTION: Checks for files that are missing *approved* lyric files.
@@ -492,3 +493,5 @@ rem —————————————————————————�
                         endiff
                 return
         :skip_subs_cfml
+
+@endlocal most_songs_from_playlist_to_process_at_a_time validated_cfml_ansi validated_cfmlb ANY_BAD NUM_BAD NUM_PROCESSED limit limit_reached compliance_pct target_script

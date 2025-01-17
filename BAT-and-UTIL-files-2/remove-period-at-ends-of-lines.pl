@@ -1,4 +1,6 @@
-#NOTE: We've snuck out-of-scope functionality into this script. Just a little bit so far, but a de-censoring of a bad word is done in addition to removing periods :)
+#NOTE: We've snuck out-of-scope functionality into this script. 
+#NOTE: Just a little bit so far, but:
+#NOTE:       default, but optional, de-censoring of a bad words is done in addition to removing periods :)
 
 
 #!/usr/bin/env perl                                                                                    # Specify the script interpreter
@@ -13,7 +15,8 @@ use File::Copy qw(move);                                                        
 # —————————————————————————————————————————————————————————————————————————————————————————————————————
 
 my $leave_censorship = 0;
-my $use_words_mode = 0;                                                                                # Default: do not use words mode
+my $use_words_mode   = 0;                                                                              # Default: do not use words mode
+my $do_test_suite    = 0;
 my $filename;                                                                                          # Variable to hold the input file name
 my $tmpLine;
 
@@ -22,6 +25,8 @@ foreach my $arg (@ARGV) {                                                       
         $use_words_mode = 1;                                                                           # Enable words mode if it was
     } elsif ($arg eq '-l' || $arg eq '--leave_censorship' ) {                                          # Check if ——words or -w is passed
         $leave_censorship = 1;                                                                         # Enable words mode if it was
+    } elsif ($arg eq '-t' || $arg eq '--test' ) {                                          
+		$do_test_suite=1
     } elsif ($arg =~ /^(\-\-?|\/?)he?l?p?$/i) {                                                        # Match common help flags
         print <<'USAGE';                                                                               # Print usage instructions and exit
 Usage: perl remove_periods.pl [options] <file>
@@ -41,6 +46,33 @@ USAGE
         $filename = $arg;                                                                              # Set the file name
     }
 }
+
+# —————————————————————————————————————————————————————————————————————————————————————————————————————
+# Test Suite
+# —————————————————————————————————————————————————————————————————————————————————————————————————————
+
+if ($do_test_suite == 1) { 
+	print &de_censor_original  ("f*ck") . "\n";
+	print &de_censor_chatgpt_1 ("f*ck") . "\n";
+	print &de_censor_production("f*ck") . "\n";
+	print &de_censor_production("fuck") . "\n";
+	print &de_censor_production("*uck") . "\n";
+	print &de_censor_production("f*ck") . "\n";
+	print &de_censor_production("fu*k") . "\n";
+	print &de_censor_production("fuc*") . "\n";
+	print &de_censor_production("**ck") . "\n";
+	print &de_censor_production("*u*k") . "\n";
+	print &de_censor_production("*uc*") . "\n";
+	print &de_censor_production("f**k") . "\n";
+	print &de_censor_production("f*c*") . "\n";
+	print &de_censor_production("fu**") . "\n";
+	print &de_censor_production("f***") . "\n";
+	print &de_censor_production("*u**") . "\n";
+	print &de_censor_production("**c*") . "\n";
+	print &de_censor_production("***k") . "\n";
+	die("Test suite complete");
+}		
+
 
 # —————————————————————————————————————————————————————————————————————————————————————————————————————
 # Validate the input file.
@@ -172,7 +204,9 @@ sub de_censor_original {
 	return($s);
 }	
 
-sub de_censor {
+sub de_censor_chatgpt_1 {
+	my $s=$_[0];
+
 	# List of 4-letter curse words
 	my @four_letter_words = qw(fuck shit piss);
 
@@ -197,7 +231,58 @@ sub de_censor {
 			}
 		}
 	}
+	return($s);
 }
+
+sub de_censor_production_approved {}
+    my $s = $_[0];
+
+    # Handle specific patterns first to fully uncensor "f*ck"-like cases
+    $s =~ s/(?:^|\b)(f)(\*)(c)(k)/$1u$3$4/gi;  # f*ck -> fuck
+    $s =~ s/(?:^|\b)(f)(u)(\*)(k)/$1$2c$4/gi;  # fu*k -> fuck
+    $s =~ s/(?:^|\b)(f)(u)(c)(\*)/$1$2$3k/gi;  # fuc* -> fuck
+    $s =~ s/(?:^|\b)(\*)(u)(c)(k)/f$2$3$4/gi;  # *uck -> fuck
+
+    # General cases that unmask other letters
+    $s =~ s/(?:^|\b)(f)(\*)(\*)(k)/$1uc$4/gi;  # f**k -> fuck
+    $s =~ s/(?:^|\b)(f)(\*)(c)(\*)/$1u$3k/gi;  # f*c* -> fuck
+    $s =~ s/(?:^|\b)(f)(u)(\*)(\*)/$1$2ck/gi;  # fu** -> fuck
+    $s =~ s/(?:^|\b)(\*)(u)(\*)(k)/f$2c$4/gi;  # *u*k -> fuck
+    $s =~ s/(?:^|\b)(\*)(u)(c)(\*)/f$2$3k/gi;  # *uc* -> fuck
+    $s =~ s/(?:^|\b)(\*)(\*)(c)(k)/fu$3$4/gi;  # **ck -> fuck
+	
+    $s =~ s/(?:^|\b)(\*)(\*)(\*)(k)/fuc$4/gi;  # ***k -> fuck
+    $s =~ s/(?:^|\b)(\*)(\*)(c)(\*)/fu$3k/gi;  # **c* -> fuck
+    $s =~ s/(?:^|\b)(\*)(u)(\*)(\*)/f$2ck/gi;  # *u** -> fuck
+    $s =~ s/(?:^|\b)(f)(\*)(\*)(\*)/$1uck/gi;  # f*** -> fuck
+
+    return $s;
+}
+sub de_censor_productiond {}
+    my $s = $_[0];
+
+    # Handle specific patterns first to fully uncensor "f*ck"-like cases
+    $s =~ s/(?:^|\b)(f)(\*)(c)(k)/$1u$3$4/gi;  # f*ck -> fuck
+    $s =~ s/(?:^|\b)(f)(u)(\*)(k)/$1$2c$4/gi;  # fu*k -> fuck
+    $s =~ s/(?:^|\b)(f)(u)(c)(\*)/$1$2$3k/gi;  # fuc* -> fuck
+    $s =~ s/(?:^|\b)(\*)(u)(c)(k)/f$2$3$4/gi;  # *uck -> fuck
+
+    # General cases that unmask other letters
+    $s =~ s/(?:^|\b)(f)(\*)(\*)(k)/$1uc$4/gi;  # f**k -> fuck
+    $s =~ s/(?:^|\b)(f)(\*)(c)(\*)/$1u$3k/gi;  # f*c* -> fuck
+    $s =~ s/(?:^|\b)(f)(u)(\*)(\*)/$1$2ck/gi;  # fu** -> fuck
+    $s =~ s/(?:^|\b)(\*)(u)(\*)(k)/f$2c$4/gi;  # *u*k -> fuck
+    $s =~ s/(?:^|\b)(\*)(u)(c)(\*)/f$2$3k/gi;  # *uc* -> fuck
+    $s =~ s/(?:^|\b)(\*)(\*)(c)(k)/fu$3$4/gi;  # **ck -> fuck
+	
+    $s =~ s/(?:^|\b)(\*)(\*)(\*)(k)/fuc$4/gi;  # ***k -> fuck
+    $s =~ s/(?:^|\b)(\*)(\*)(c)(\*)/fu$3k/gi;  # **c* -> fuck
+    $s =~ s/(?:^|\b)(\*)(u)(\*)(\*)/f$2ck/gi;  # *u** -> fuck
+    $s =~ s/(?:^|\b)(f)(\*)(\*)(\*)/$1uck/gi;  # f*** -> fuck
+
+    return $s;
+}
+
 
 sub whisper_ai_postprocess {
 	my $s=$_[0];
@@ -208,3 +293,4 @@ sub whisper_ai_postprocess {
 
 	return($s);
 }
+

@@ -390,10 +390,9 @@ Displays a list of files in the *current folder* which are missing *karaoke* fil
 
 ### 🌟 convert-playlist-to-only-songs-that-do-not-have-karaoke.bat {playlist} [convert-playlist-to-only-song-that-do-not-have-karaoke.bat](../BAT-and-UTIL-files-1/convert-playlist-to-only-song-that-do-not-have-karaoke.bat):
 
-convert-playlist-to-only-song-that-do-not-have-karaoke.bat
+Creates a new playlist consisting of all the files in the original playlist that do not have karaoke sidecar files.
+Asks if we want to start getting karaoke or lyrics for that playlist.
 
-Creates a new playlist consisint of all the files
-[when this is developed, playlist auditor can be moved into utility documentation]
 
 ### 🌟 Sidecar-File Auditor [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py):
 

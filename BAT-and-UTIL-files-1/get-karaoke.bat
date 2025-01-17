@@ -38,9 +38,7 @@ rem Process currently-playing song:
 
 rem Process current folder:
         iff "%1" == "here"  then
-                rem echo 🍕🍕🍕
                 setdos /x0
-                rem check-for-missing-karaoke-here get %2$
                 call check-for-missing-karaoke.bat get %2$
                 goto :next_step
         endiff

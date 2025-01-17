@@ -44,9 +44,9 @@ import gc
 #
 
 
-# compensate for utf-8 files                                                            #print(f"Before reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
-sys.stdout.reconfigure(encoding='utf-8')                                                #print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')                      #print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+# compensate for utf-8 files                                                        #print(f"Before reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+sys.stdout.reconfigure(encoding='utf-8')                                            #print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')                  #print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
 
 # These leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot:
 SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here-temp.bat"           #don't change without changing in accompanying BAT files
@@ -94,9 +94,6 @@ def main_guts(input_filename, extensions, options, extra_args):
     files_without_sidecars = set()
 
     # Open and read the input filename (list of files)
-    #ith open(input_filename, 'r')                   as file:
-    #with open(input_filename, 'r', encoding='utf-8') as file:
-    #    files = [line.strip() for line in file.readlines() if line.strip()]
     try:
         with open(input_filename, 'r', encoding=encoding) as file:
             files = [line.strip() for line in file.readlines() if line.strip()]
@@ -111,7 +108,7 @@ def main_guts(input_filename, extensions, options, extra_args):
    
     gc.collect
 
-   
+ 
     # Check each file for sidecar files
     for file in            files:
         total_file_count = total_file_count + 1
@@ -119,18 +116,14 @@ def main_guts(input_filename, extensions, options, extra_args):
         # Skip files containing "(instrumental)" or "[instrumental]"
         if "(instrumental)" in file.lower() or "[instrumental]" in file.lower(): continue
                 
-        file_path = os.path.abspath(file)  # Get absolute path for consistency
+        file_path = os.path.abspath(file)                                       # Get absolute path for consistency
         directory = os.path.dirname(file_path)
         base_filename, _ = os.path.splitext(file)
         base_filename, _ = os.path.splitext(os.path.basename(file))
         #if DEBUG_SIDECAR_SEARCH: print(f"found file {file_path} ... base_filename={base_filename} ... for file={file}")
         
-        #use glob.escape so it works with filenames that have brakcets in them too:
-        #works for these.m3u but not all.m3u: has_sidecar = any(glob.glob(                                     f"{glob.escape(base_filename)}{ext[1:]}")  for ext in extensions_list)
-        #failed fix: has_sidecar = any(glob.glob(os.path.join(glob.escape(directory), f"{glob.escape(base_filename)}{ext[1:]}")) for ext in extensions_list)
-        #Let’s just expand it to a more traditional loop:
         # Check for sidecar files explicitly with a debug-friendly loop
-        has_sidecar = False  # Assume no sidecar file initially
+        has_sidecar = False                                                     # Assume no sidecar until we find it
         for ext in extensions_list:
             potential_sidecar = os.path.join(directory, f"{base_filename}.{ext}")
             if DEBUG_SIDECAR_SEARCH: print(f"DEBUG: Looking for sidecar file: {potential_sidecar}")
@@ -143,13 +136,14 @@ def main_guts(input_filename, extensions, options, extra_args):
         if not has_sidecar:
             without_sidecar_count = without_sidecar_count + 1
             files_without_sidecars.add(file)
-            #TODO need an option to display the missing ones i think! I like them displayed in folder mode, but not in playlist mode?            
+            #🚀🚀🚀 TODO 🚀🚀🚀  Maybe need an option to display the missing ones? particularly in folder mode?
             #print(file)
 
     # Write the output file
     if files_without_sidecars:
         input_file_ext = os.path.splitext(input_filename)[1]
-        output_filename = f"{os.path.splitext(input_filename)[0]}-without {' '.join(ext[2:] for ext in extensions_list)}{input_file_ext}"
+        output_filename = f"{os.path.splitext(input_filename)[0]}-without {   ' '.join(ext[2:] for ext in extensions_list)}{input_file_ext}"
+        output_filename = f"{os.path.splitext(input_filename)[0]}-without {' or '.join(ext     for ext in extensions_list)}{input_file_ext}"
         if options.lower() == "getlyricsfilewrite": output_filename = SCRIPT_NAME_FOR_LYRIC_RETRIEVAL
         if options.lower() == "createsrtfilewrite": output_filename = SCRIPT_NAME_FOR_KARAOKE_CREATION
         if options.lower() !=        "NoFileWrite":
@@ -159,10 +153,12 @@ def main_guts(input_filename, extensions, options, extra_args):
             #ys.stderr.write(colored(f"       Files processed:  {total_file_count} \n"     , 'green', attrs=['bold']))
             #ys.stderr.write(colored(f"       Without sidecar:  {without_sidecar_count} \n", 'green', attrs=['bold']))
             #ys.stderr.write(colored(f"       To fix, run:      {output_filename} \n", 'green', attrs=['bold']))
-            sys.stderr.write(        f"✏ ✏ ✏  Writing output file ✏ ✏ ✏\n")
-            sys.stderr.write(        f"       Files processed:  {total_file_count} \n")
-            sys.stderr.write(        f"       Without sidecar:  {without_sidecar_count} \n")
-            sys.stderr.write(        f"       To fix, run:      {output_filename} \n")
+            sys.stderr.write("\n")
+            sys.stderr.write(f"✏ ✏ ✏ ✏ ✏ ✏  Writing output file ✏ ✏ ✏ ✏ ✏ ✏\n")
+            sys.stderr.write(f"       Files processed:       {total_file_count} \n")
+            sys.stderr.write(f"       Sidecars searched for: {extensions} \n")
+            sys.stderr.write(f"       Without sidecar:       {without_sidecar_count} \n")
+            sys.stderr.write(f"       To fix, run:           {output_filename} \n")
             #DEBUG: if extra_args: print(f"Using extra arguments of: {extra_args}")
 
             if extra_args == "/s": extra_args=""

@@ -81,6 +81,6 @@ rem Process playlists / audio files:
 
 rem Clean up & finish:
         :next_step
-                setdos /x0
         :END
                 setdos /x0
+

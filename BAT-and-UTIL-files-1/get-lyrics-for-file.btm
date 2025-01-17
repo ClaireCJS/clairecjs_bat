@@ -158,7 +158,8 @@ rem Remove any trash environment variables left over from a previously-aborted r
         unset /q ABANDONED_SEARCH
         unset /q LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE
         unset /q GOTO_END
-        
+        set goto_END=0
+     
 
 rem VALIDATE ENVIRONMENT [once per session]:
         iff 1 ne %VALIDATED_GLVMS_ENV then
@@ -1206,7 +1207,7 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
                 set   GOOGLE_NOW=0
         endiff
         gosub check_for_answer_of_L
-        if 1 eq %goto_END% goto :END
+        if "1" eq "%goto_END%" (goto :END)
         iff "%answer%" == "A" then
                 set SOLELY_BY_AI=1
                 rem TODO: right now, if you are ONLY getting lyrics, and you answer "A" for 
@@ -1571,7 +1572,7 @@ rem —————————————— SUBROUTINES: BEGIN: ————�
                         set  LYRICLESSNESS_STATUS=APPROVED              
                         rem gosub divider
                         set goto_END=1
-                        goto :END
+                        return 666
                 else
                         set goto_END=0
                 endiff
