@@ -5,6 +5,7 @@
 
 rem Validate environment (once):
         if not defined FILEEXT_AUDIO set FILEEXT_AUDIO=mp3   wav   rm   voc   au   mid   stm   mod   vqf   ogg   mpc   wma   mp4   flac   snd   aac   opus   ac3
+        if not defined BAT and isdir c:\bat set BAT=c:\bat
         iff 1 ne %validated_lrc2txt_env% then
                 call validate-environment-variables FILEEXT_AUDIO EMOJIS_HAVE_BEEN_SET ANSI_COLORS_HAVE_BEEN_SET
                 call validate-in-path               errorlevel.bat lrc2txt.py review-files.bat approve-lyrics.bat python approve-lyriclessness.bat 
@@ -70,15 +71,16 @@ rem Perform the actual conversion:
                         echo %ansi_color_warning%%emoji_warning Zero-byte file generated! %emoji_warning%%ansi_reset% 
                         echo %ansi_color_less_important%%star% Reviewing the source LRC...%ansi_reset% 
                         call review-file "%LRC_FILE%"
-                        call AskYN "Delete the LRC file" no 5
+                        call AskYN "Delete the LRC file" no 90
                         if "Y" == "%ANSWER" (*del /q "%LRC_FILE%" >nul)
                         call AskYN "Mark corresponding audio as lyric%underline_on%less%underline_off%" yes 8
                         for %%tmpMask in (%fileext_audio%) do (
                                 set proposed_audio_file=%@unquote["%@name["%lrc_file%"]"].%tmpMask
-                                set rem=echo Checking if exist "%proposed_audio_file%"
+                                set rem=echo Checking[dd] if exist "%proposed_audio_file%"
                                 if exist "%proposed_audio_file%" (
-                                        echo Approving lyriclessness for "%proposed_audio_file%"
-                                        call approve-lyriclessness "%proposed_audio_file%"
+                                        rem echo %check% Approving lyriclessness for "%proposed_audio_file%"
+                                        rem call approve-lyriclessness "%proposed_audio_file%"
+                                        gosub "%BAT%\get-lyrics-for-file.btm" mark_as_lyricless "%proposed_audio_file%"
                                 ) else (
                                         set rem=echo       ...It does not.
                                 )

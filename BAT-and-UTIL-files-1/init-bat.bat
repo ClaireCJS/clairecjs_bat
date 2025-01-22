@@ -1,8 +1,8 @@
+@loadbtm on
 @rem Set BTM mode for loading whole BAT into memory and allowing us to EDIT our BATs without messing up their execution:
-        @loadbtm on
 
 @rem Turn off echo'ing:
-        @Echo OFF
+        @Echo Off
 
 rem Make sure Ctrl-Break actually does something:
         on break cancel 

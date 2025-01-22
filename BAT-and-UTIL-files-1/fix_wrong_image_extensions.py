@@ -114,13 +114,13 @@ def detect_wrong_image_extension(directory=".", num_image_files_renamed=0, testi
     for file in files:
         file_count +=1
         if ANNOUNCE_EACH_FILE:
-            print(f'{Fore.GREEN}\t- Processing file "{file}"',flush=True,end="")
+            print(f'{Fore.GREEN}\t- Processing file #{file_count}: “{file}”',flush=True,end="")
             if testing: print(f'{Fore.YELLOW}...testmode, testing_images_true_extension={Fore.RED}{testing_images_true_extension}{Fore.WHITE}',flush=True,end="")
             print()
         else:
             if file_count % 5 == 1:
                 print('.',end="",flush=True)
-                claire.tick(mode="fg")                                              # cycle the color of the dots for visual flaire
+                #is this slowing it down? #GOAT2025 claire.tick(mode="fg")                                              # cycle the color of the dots for visual flaire
 
         file_path = os.path.join(directory, file)
         if not testing: image_type = imghdr.what(file_path)                         # get image type, or use the type we sent for unit testing

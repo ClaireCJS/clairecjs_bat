@@ -1,5 +1,9 @@
+@loadbtm on
+@if "%1" == "unlock" goto :do_the_unlock
 @echo Off
-@set DISABLE_STATUS_BAR=1 %+ rem goatgoatgoatgoat temporary
+@set DISABLE_STATUS_BAR=0
+@rem echo %ansi_color_orange%@if "%temporarily_disable_status_bar%" == "1" set DISABLE_STATUS_BAR=1 
+@if "%temporarily_disable_status_bar%" == "1" set DISABLE_STATUS_BAR=1 
 @if "1" == "%DISABLE_STATUS_BAR%" goto :The_Very_End
 @on break cancel
 
@@ -41,7 +45,7 @@ rem ENVIRONMENT: Validate the environment:
 
 rem CONFIG: Set message background color & divider:
         set LOCKED_MESSAGE_COLOR_BG=%@ANSI_BG[0,0,64] %+ rem if this is changed, need to change hard-coding in create-srt--from-file.bat
-        echo %@ANSI_BG[0,0,0]>nul
+        echos %@ANSI_BG[0,0,0]>nul
         set LOCKED_MESSAGE_COLOR=%ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG%
         set DOTTIE=%BLINK_ON%%DOT%%BLINK_OFF%
         set DEFAULT_ROWS_TO_LOCK=3                                                              %+ rem the height of our default status bars
@@ -53,16 +57,18 @@ rem Respond to command-line parameters:
         unset /q LOCKED_MESSAGE
         echos %ANSI_RESET% >nul
         rem Unlock mode:
-                if "%TB_PARAM_1" == "unlock" .or. "1" == "%DISABLE_STATUS_BAR%" (
+                :do_the_unlock
+                if "%TB_PARAM_1" == "unlock" .or. "%1" == "unlock" .or. "1" == "%DISABLE_STATUS_BAR%" (
                         set STATUSBAR_LOCKED=0
                         echos %@ANSI_UNLOCK_ROWS[]
                         if "%TB_PARAM_2" ne "no_erase" .and. 1 ne %DISABLE_STATUS_BAR%  (                        
                                 set NN=%ROWS_TO_LOCK%
                                 if defined LAST_ROWS_TO_LOCK set NN=%LAST_ROWS_TO_LOCK%
                                 echo %ansi_save_position%%@CHAR[27][%@EVAL[%_rows - %NN% + 1]H%ansi_reset%%ansi_erase_to_eol%
-                                echo %ansi_erase_to_eol%
+                                echos %ansi_erase_to_eol%
+                                echos %ansi_erase_to_end_of_screen%
                                 set repeats=%@EVAL[%nn - %DEFAULT_ROWS_TO_LOCK%]
-                                if %repeats% gt 0 repeat %repeats% echo %ansi_erase_to_eol%
+                                if %repeats% gt 0 repeat %repeats% echos %ansi_erase_to_eol%
                                 echos %ansi_erase_to_eol%%ansi_restore_position%
                         )                        
                         goto :END
@@ -179,7 +185,7 @@ rem Start with our status bar:
         repeat                %adjustment_value% echo.
         echos  %@ANSI_MOVE_UP[%adjustment_value%]%ANSI_SAVE_POSITION%%@CHAR[27][r%@ANSI_MOVE_TO_ROW[%@EVAL[%_rows-%rows_to_lock+1]]
                if 1 ne %STATUSBAR_LOCKED ( echos %LOCKED_MESSAGE_COLOR% %+ call divider %_columns NoNewline )
-               echo %@ANSI_MOVE_TO_COL[0]%ansi_color_normal%               
+               echos %@ANSI_MOVE_TO_COL[0]%ansi_color_normal%               
                if 1 ne %STATUSBAR_LOCKED ( 
                         echos %LOCKED_MESSAGE_COLOR%  
                         call divider NoNewline lmc
@@ -198,10 +204,10 @@ goto :END
 
         
 rem Echo the header to the console as well:
-        iff 1 ne %header_noecho then 
+        if 1 ne %header_noecho (
                 echo.  
                 echo %ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG% %DOTTIE% %LOCKED_MESSAGE% %DOTTIE% %ansi_reset% 
-        endiff
+        )
 
 
 rem END by restoring the cursor and saving the # of rows we unlocked to the environment for auditing/analysis:
@@ -215,12 +221,12 @@ goto :skip_subroutines
                 rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
                 set wd=%@EVAL[%_columns - 1]
                 set nm=%bat%\dividers\rainbow-%wd%.txt
-                iff exist %nm% then
+                if exist %nm% (
                         *type %nm%
                         if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
-                else
+                ) else (
                         echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
-                endiff
+                )
         return
 :skip_subroutines
 

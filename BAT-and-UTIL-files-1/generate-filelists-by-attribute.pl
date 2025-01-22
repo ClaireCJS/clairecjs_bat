@@ -1,3 +1,7 @@
+##### CURRENT DEVELOPMENT DEBUGS TO KEEP AS 1 WHILE DEVELOPING BUT 0 WHILE GENERATING:
+my $DEBUG_ATTRIBUTE_WEIGHTS_X         = 0;							#reserve value: 0 / other values: 1-2
+my $DEBUG_META_ATTRIBUTE_WEIGHTS_X    = 0;							#reserve value: 0 / other values: 1
+
 
 #### TODO! MAJOR! FLAC FILES DO NOT HAVE GENRES EXTRACTION HANDLED!!!!! OR ANYTHING I GUESS!!!! .... ESPECIALLY YEAR.
 
@@ -54,11 +58,6 @@
 
 
 
-##### CURRENT DEVELOPMENT DEBUGS:
-my $DEBUG_ATTRIBUTE_WEIGHTS_STAR      = 0;							#reserve value: 0 / other values: 1-2
-my $DEBUG_ATTRIBUTE_WEIGHTS_X         = 1;							#reserve value: 0 / other values: 1-2
-my $DEBUG_META_ATTRIBUTE_WEIGHTS_STAR = 0;							#reserve value: 0 / other values: 1
-my $DEBUG_META_ATTRIBUTE_WEIGHTS_X    = 1;							#reserve value: 0 / other values: 1
 
 ##### RESERVE DEBUGS:
 my $DEBUG_BASE_ATTRIB_PRINT_EACH_LINE=0;                    #reserve value: 0

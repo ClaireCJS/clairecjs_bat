@@ -106,7 +106,7 @@ rem cancel %+ 🐐
                                 :processLetterKeyMeaning                         
                                         rem echoerr tmpLetterForKeyMeaning  = %tmpLetterForKeyMeaning%
                                         if "1" != "%@RegEx[:,%tmpLetterForKeyMeaning%]" (
-                                                call fatal_error "%left_quote%%tmpLetterForKeyMeaning%%right_quote% makes no sense. This parameter should have been in the forumat of %left_quote%{%italics_on%letter%italics_off%}:{%italics_on%Key_Meaning%italics_off%}%right_quote%, where %left_quote%letter%right_quote% is a letter found in our additional allowable keys %faint_on%(currently set to %left_quote%additional_keys%%right_quote%)%faint_off%"
+                                                call fatal_error "%left_quote%%tmpLetterForKeyMeaning%%right_quote% makes no sense. This parameter should have been in the format of %left_quote%{%italics_on%letter%italics_off%}:{%italics_on%Key_Meaning%italics_off%}%right_quote%, where %left_quote%letter%right_quote% is a letter found in our additional allowable keys %faint_on%(currently set to %left_quote%additional_keys%%right_quote%)%faint_off%"
                                         )
                                         set tmp_key_meaning_letter=%@LEFT[1,%tmpLetterForKeyMeaning%]
                                         set tmp_key_meaning_expand=%@RIGHT[%@EVAL[%@LEN[%tmpLetterForKeyMeaning]-2],%tmpLetterForKeyMeaning%]
@@ -216,7 +216,7 @@ rem Set title for waiting-for-answer state:
 REM Parameter validation:
         rem Let’s not dip into all this for something used so often: call validate-environment-variable question skip_validation_existence
         if not defined ask_question (call fatal_error "$0 called without a question being passed as the 1st parameter (also, “yes”/“no” must be 2ⁿᵈ parameter)")
-        iff "%default_answer" != "" .and. "%default_answer%" != "yes" .and. "%default_answer%" != "no" .and. "%default_answer%" != "y" .and. "%default_answer%" != "n" then
+        iff "%default_answer" != "" .and. "%default_answer%" != "yes" .and. "%default_answer%" != "no" .and. "%default_answer%" != "Y" .and. "%default_answer%" != "N" then
            call fatal_error "2nd parameter to %0 can only be “yes”, “no”, “y”, or “n” but was “%DEFAULT_ANSWER%”"
            rem TODO expand this to allow other letters if they were passed as available letters
         endiff
@@ -227,8 +227,8 @@ REM Parameter validation:
 
 
 REM Parameter massaging:
-        if "%default_answer%" == "y" (set default_answer=yes)
-        if "%default_answer%" == "n" (set default_answer=no)
+        if "%default_answer%" == "Y" (set default_answer=yes)
+        if "%default_answer%" == "N" (set default_answer=no)
 
 
 REM Build the question prompt:

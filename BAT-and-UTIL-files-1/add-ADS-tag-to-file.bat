@@ -68,6 +68,9 @@ return
 rem Get parameters:
         set   File_To_Change_TagOOF=%@unquote[%@trueNAME["%@UNQUOTE["%1"]"]]               %+ rem file to use but %@TRUENAME[] fails on ;
         set   File_To_Change_Tag_Of=%@unquote[%@truename["%@replace[;,%%%%@char[59],%1]"]] %+ rem file to use that works with ; 
+        rem echo BEFORE: File_To_Change_Tag_Of = %File_To_Change_Tag_Of%
+        set   File_To_Change_Tag_Of=%@unquote["%@ReReplace[\\\\\?\\,,"%File_To_Change_Tag_Of%"]"]
+        rem echo AFTER:  File_To_Change_Tag_Of = %File_To_Change_Tag_Of% %+ call sleep 2 %+ rem 
 
         set TAG_TO_MODIFY=%@UNQUOTE["%2"]                                      %+ rem tag to use
         set     TAG_VALUE=%@UNQUOTE["%3"]                                      %+ rem value to set tag to, or "read" to return the value in %RETRIEVED_TAG%
@@ -81,7 +84,7 @@ rem Get parameters:
 rem Validate environment once:
         iff 1 ne %validated_add_ads_tag_to_file% then
                 call validate-environment-variables  emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off check EMOJI_CROSS_MARK ansi_color_alarm ansi_color_celebration ansi_color_warning_soft EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_RED_QUESTION_MARK ansi_conceal_on ansi_conceal_off
-                call validate-in-path                fatal_error warning 
+                call validate-in-path                fatal_error warning warning_soft print-message pause-for-x-seconds
                 call validate-plugin                 StripANSI
                 set  validated_add_ads_tag_to_file=1
         endiff
@@ -89,6 +92,8 @@ rem Validate environment once:
 rem Validate parameters every time:
         iff "%@RegEx[[\*\?],"%@unquote["%File_To_Change_Tag_Of%"]"]" == "1" then
                 call warning "Cannot use %0 on wildcards for 1ˢᵗ parameter!"
+                call warning_soft "File_To_Change_Tag_Of of “%File_To_Change_Tag_Of%” doesn’t seem to work here"
+                call pause-for-x-seconds 7200
                 goto :END
         endiff
         if "%1" == "" (gosub :usage %+ goto :END)

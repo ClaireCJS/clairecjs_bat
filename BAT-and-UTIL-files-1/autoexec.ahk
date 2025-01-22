@@ -223,7 +223,6 @@ Pause::
 ;-------   "-"          ;           Hyphen --------- for normal default hyphen                     (compound words, words interrupted by line break)
 ^-::Send   "–"          ;      Ctrl+Hyphen ––––––––– for en dash                                   (ranges,    quotations)
 !-::Send   "—"          ;       Alt+Hyphen ————————— for em dash                                   (interruptions, breaks)
-;;;;;;;;;  "─"          ;                  ───────── for unicode box drawing light horizontal      (      dividers       ) WHICH LOOKS SAME AS ENDASH usually
 ^!-::Send  "━"          ;  Ctrl-Alt+Hyphen ━━━━━━━━━ for unicode box drawing heavy horizontal line (      dividers       )
       
 !'::Send  "{U+0027}"    ;      Alt+apostrophe for    default original dumb apostrophe / feet symbol
@@ -246,18 +245,30 @@ Pause::
 !,::Send  "❟"		;      Alt-Comma for “❟”  smart comma /	fancy unicode comma [in editplus, it looks “dumber” (“❟”) than the “dumb” comma (“,”)
 ^!,::Send "❟"		; Ctrl-Alt-Comma for “❟”  smart comma /	fancy unicode comma [in editplus, it looks “dumber” (“❟”) than the “dumb” comma (“,”)
 
+;=::Send  "="           ; “=” —          Equals key for the normal equals
+;^=::Send "═"		; “═” —     Ctrl-Equals key for the connecting_equals symbol but we have this disabled becuase it’s used for zoom up in Windows Terminal
+;!=::Send "═"		; “═” —      Alt-Equals key for the connecting_equals symbol aka box drawing horizontal double
+!=::Send  "─"           ; “─” —      Alt-Equals key for the unicode box drawing light horizontal      (      dividers       ) WHICH LOOKS SAME AS EMDASH BUT CONNECTS WITH OTHER DRAWING CHARS BETTER BECUASE IT’S SLIGHTLY HIGHER
+^!=::Send "═"		; “═” — Ctrl-Alt-Equals key for the connecting_equals symbol
+
 
 		      
-^!0::Send "⁰"           ; Ctrl+Alt+0 for superscript number
-^!1::Send "¹"           ; Ctrl+Alt+1 for superscript number
-^!2::Send "²"           ; Ctrl+Alt+2 for superscript number
-^!3::Send "³"           ; Ctrl+Alt+3 for superscript number
-^!4::Send "⁴"           ; Ctrl+Alt+4 for superscript number
-^!5::Send "⁵"           ; Ctrl+Alt+5 for superscript number
-^!6::Send "⁶"           ; Ctrl+Alt+6 for superscript number
-^!7::Send "⁷"           ; Ctrl+Alt+7 for superscript number
-^!8::Send "⁸"           ; Ctrl+Alt+8 for superscript number
-^!9::Send "⁹"           ; Ctrl+Alt+9 for superscript number
+		      
+;|::Send  "|"           ; “|” —          Pipe key for the normal pipe
+^|::Send  "│"		; “│” —     Ctrl-Pipe key for the thin   connecting vertical bar
+!|::Send  "┃"		; “┃” —      Alt-Pipe key for the thick  connecting vertical bar
+^!|::Send "║"		; “║” — Ctrl-Alt-Pipe key for the doulbe connecting vertical bar
+		      
+^!0::Send "⁰"           ; Ctrl+Alt+0 for superscript number ⁰
+^!1::Send "¹"           ; Ctrl+Alt+1 for superscript number ¹
+^!2::Send "²"           ; Ctrl+Alt+2 for superscript number ²
+^!3::Send "³"           ; Ctrl+Alt+3 for superscript number ³
+^!4::Send "⁴"           ; Ctrl+Alt+4 for superscript number ⁴
+^!5::Send "⁵"           ; Ctrl+Alt+5 for superscript number ⁵
+^!6::Send "⁶"           ; Ctrl+Alt+6 for superscript number ⁶
+^!7::Send "⁷"           ; Ctrl+Alt+7 for superscript number ⁷
+^!8::Send "⁸"           ; Ctrl+Alt+8 for superscript number ⁸
+^!9::Send "⁹"           ; Ctrl+Alt+9 for superscript number ⁹
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 

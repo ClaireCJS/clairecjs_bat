@@ -48,11 +48,18 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
         goto :default
 
 
+
         :EditPlus6InUtil2
-            rem call %DEBUG_LEVEL% "Using UTIL2\EditPlus 6..."
-            rem   start %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% %+ 
-                  *start "" %STARTOPTIONS% %@SFN["%UTIL2%\EditPlus 6\editplus.exe"]  -e %ALL_ARGS% 
-                  goto :END
+                rem This is intended to be the final resting place to put a stop to all the craziness
+                rem             this file has emerged into over the many years of using this editor.
+                rem      Of course, Editplus 6 is kinda buggy so I might go back to 5....
+
+                rem call %DEBUG_LEVEL% "Using UTIL2\EditPlus 6..."
+                rem   start    %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
+                rem  *start "" %STARTOPTIONS% %@SFN["%UTIL2%\EditPlus 6\editplus.exe"]  -e %ALL_ARGS% 
+                rem  this holds the window up ugh   "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
+                     *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
+                goto :END
 	:default32bitOS
             call %DEBUG_LEVEL% "Using EditPlus Default32bitOS..."
             start "" %STARTOPTIONS% %@SFN["%PROGRAMFILES%\EditPlus\editplus.exe"]          %ALL_ARGS% %+ goto :END

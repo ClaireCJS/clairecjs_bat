@@ -1,3 +1,4 @@
+@loadbtm on
 @Echo off
 @on break cancel
 
@@ -31,7 +32,6 @@ rem Parameter passing:
                     goto :END
                 endiff
 
-:@echo on
         rem Extra-pause mode:
                 :@echo iff          "%PARAM_1%"  == "/#" then {param_2=%param_2%}
                 if %EXTRA_PAUSE_MODE eq 1 goto :ExtraPauseModeDone
@@ -58,15 +58,13 @@ rem Set window title if instructed:
 
 
 
-rem Clear the keyboard buffer to prevent accidental pause-bypasses:
-        repeat 10 @input /c /w0 %%just_clearing_the_keyboard_buffer 
-
-
 rem Preface the pause with an emoji for visual processing ease and make it the color we want:
-        %COLOR_PAUSE%
-        echos %EMOJI_PAUSE_BUTTON% %ANSI_RESET%%@char[27][ q%@char[27]]12;#FFFF00%@char[7]
+        echos %ANSI_COLOR_PAUSE%%EMOJI_PAUSE_BUTTON% %ANSI_RESET%%@char[27][ q%@char[27]]12;#FFFF00%@char[7]
 
-rem Again, clear the keyboard buffer [/C option] to prevent accidental pause-bypasses:
+rem Clear the keyboard buffer [/C option] to prevent accidental pause-bypasses:
+        inkey /c
+
+rem Do the actual pause:
         *pause /C %@unquote[%PARAMS%]
 
 rem A pause that doesn't start at the beginning of the line (due to our emoji) doesn't clear itself correctly (TCC bug or maybe VT100 working as intended), so we must do it ourselves:

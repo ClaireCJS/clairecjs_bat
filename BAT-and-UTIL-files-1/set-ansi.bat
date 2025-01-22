@@ -659,42 +659,54 @@ rem ANSI: erasing
     rem                   n=0 clears from cursor to end of line
     rem                   n=1 clears from cursor to start of line
     rem                   n=2 clears entire line
-            set ANSI_ERASE_CURRENT_LINE=%ANSI_ESCAPE%K                      %+ rem erases in line
-                set ANSI_ERASE_LINE=%ANSI_ERASE_CURRENT_LINE%               %+ rem alias
-                set ANSI_CLEAR_LINE=%ANSI_ERASE_CURRENT_LINE%               %+ rem alias
-                set ANSI_LINE_ERASE=%ANSI_ERASE_CURRENT_LINE%               %+ rem alias
-                set ANSI_LINE_CLEAR=%ANSI_ERASE_CURRENT_LINE%               %+ rem alias
-            set ANSI_ERASE_TO_END_OF_LINE=%ANSI_ESCAPE%0K                   %+ rem erases from cursor until end of line
-                set ANSI_ERASE_TO_END=%ANSI_ERASE_TO_END_OF_LINE%
-                set ANSI_CLEAR_TO_END=%ANSI_ERASE_TO_END_OF_LINE%
-                set ANSI_ERASE_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%
-                set ANSI_CLEAR_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%
-                set     ANSI_LINE_FIX=%ANSI_ERASE_TO_END_OF_LINE%
-                set      ANSI_LINEFIX=%ANSI_LINE_FIX%
-                set          ANSI_EOL=%ANSI_LINE_FIX%
-            set ANSI_ERASE_TO_BEG_OF_LINE=%ANSI_ESCAPE%1K                   %+ rem erases from cursor until end of line
-                set ANSI_CLEAR_TO_BEG_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
-                set ANSI_ERASE_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%
-                set ANSI_CLEAR_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%
-                set ANSI_ERASE_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%
-                set ANSI_CLEAR_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%
-                set ANSI_ERASE_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
-                set ANSI_CLEAR_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%
+            set ANSI_ERASE_CURRENT_LINE=%ANSI_ESCAPE%K                          %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_ERASE_LINE=%ANSI_ERASE_CURRENT_LINE%                   %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_CLEAR_LINE=%ANSI_ERASE_CURRENT_LINE%                   %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_LINE_ERASE=%ANSI_ERASE_CURRENT_LINE%                   %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_LINE_CLEAR=%ANSI_ERASE_CURRENT_LINE%                   %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
 
-            set ANSI_ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
-            set      ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
-            set   ANSI_ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
-            set        ERASE_TO_END_OF_PAGE=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
-            set           ANSI_ERASE_TO_EOP=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
-            set                ERASE_TO_EOP=%ANSI_ESCAPE%J                  %+ rem erases from cursor until end of the page
-            set     ANSI_ERASE_UP_TO_CURSOR=%ANSI_ESCAPE%1J                 %+ rem erases from start of page up to cursor! weird!
-            set      ANSI_ERASE_ENTIRE_PAGE=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
-            set             ANSI_ERASE_PAGE=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
-            set                  ERASE_PAGE=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
-            set    ANSI_ERASE_ENTIRE_SCREEN=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
-            set           ANSI_ERASE_SCREEN=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
-            set                ERASE_SCREEN=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
-            set                    ANSI_CLS=%ANSI_ESCAPE%2J                 %+ rem erases entire screen
+            set ANSI_ERASE_TO_END_OF_LINE=%ANSI_ESCAPE%0K                       %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_ERASE_TO_END=%ANSI_ERASE_TO_END_OF_LINE%               %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_CLEAR_TO_END=%ANSI_ERASE_TO_END_OF_LINE%               %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_ERASE_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%               %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_CLEAR_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%               %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set     ANSI_LINE_FIX=%ANSI_ERASE_TO_END_OF_LINE%               %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set      ANSI_LINEFIX=%ANSI_LINE_FIX%                           %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set          ANSI_EOL=%ANSI_LINE_FIX%                           %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+
+            set ANSI_ERASE_TO_BEG_OF_LINE=%ANSI_ESCAPE%1K                       %+ rem n=1; erases from start of line until cursor 
+                set ANSI_CLEAR_TO_BEG_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%       %+ rem n=1; erases from start of line until cursor 
+                set ANSI_ERASE_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%               %+ rem n=1; erases from start of line until cursor 
+                set ANSI_CLEAR_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%               %+ rem n=1; erases from start of line until cursor 
+                set ANSI_ERASE_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%               %+ rem n=1; erases from start of line until cursor 
+                set ANSI_CLEAR_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%               %+ rem n=1; erases from start of line until cursor 
+                set ANSI_ERASE_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE% %+ rem n=1; erases from start of line until cursor 
+                set ANSI_CLEAR_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE% %+ rem n=1; erases from start of line until cursor 
+
+            set ANSI_ERASE_ENTIRE_LINE=%ANSI_ESCAPE%2K                          %+ rem n=2; erases entire line leaving cursor in same place
+                set ANSI_ERASE_CURRENT_LINE=%ANSI_ERASE_ENTIRE_LINE%            %+ rem n=2; erases entire line leaving cursor in same place
+                set ANSI_ERASE_LINE_CURRENT=%ANSI_ERASE_ENTIRE_LINE%            %+ rem n=2; erases entire line leaving cursor in same place
+                set ANSI_ERASE_LINE=%ANSI_ERASE_ENTIRE_LINE%                    %+ rem n=2; erases entire line leaving cursor in same place
+
+            set ANSI_ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                      %+ rem erases from cursor until end of the page
+                set    ERASE_TO_END_OF_SCREEN=%ANSI_ERASE_TO_END_OF_SCREEN%     %+ rem erases from cursor until end of the page
+                set ANSI_ERASE_TO_END_OF_PAGE=%ANSI_ERASE_TO_END_OF_SCREEN%     %+ rem erases from cursor until end of the page
+                set      ERASE_TO_END_OF_PAGE=%ANSI_ERASE_TO_END_OF_SCREEN%     %+ rem erases from cursor until end of the page
+                set         ANSI_ERASE_TO_EOP=%ANSI_ERASE_TO_END_OF_SCREEN%     %+ rem erases from cursor until end of the page
+                set              ERASE_TO_EOP=%ANSI_ERASE_TO_END_OF_SCREEN%     %+ rem erases from cursor until end of the page
+
+            set     ANSI_ERASE_UP_TO_CURSOR=%ANSI_ESCAPE%1J                     %+ rem erases from start of page up to cursor! weird!
+                set ANSI_ERASE_TO_BEGINNING_OF_SCREEN=%ANSI_ERASE_UP_TO_CURSOR% %+ rem erases from start of page up to cursor! weird!
+                set       ANSI_ERASE_TO_BEG_OF_SCREEN=%ANSI_ERASE_UP_TO_CURSOR% %+ rem erases from start of page up to cursor! weird!
+                set                 ANSI_ERASE_TO_BOS=%ANSI_ERASE_UP_TO_CURSOR% %+ rem erases from start of page up to cursor! weird!
+
+            set      ANSI_ERASE_ENTIRE_PAGE=%ANSI_ESCAPE%2J                     %+ rem erases entire screen
+                set          ANSI_ERASE_PAGE=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
+                set               ERASE_PAGE=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
+                set ANSI_ERASE_ENTIRE_SCREEN=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
+                set        ANSI_ERASE_SCREEN=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
+                set             ERASE_SCREEN=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
+                set                 ANSI_CLS=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
 
             rem UNIMPLEMENTED: L   Erase in Line   (ESC [ Ps K). Erases some or all of the Active Line according to the parameter.
             rem UNIMPLEMENTED: EF  Erase in Field  (ESC [ Pn N). Erases some or all of the Active Field according to the parameter.
@@ -1339,7 +1351,11 @@ rem —————————————————————————�
 
 
 
-REM  unexplored: Set text colour to index n in a 256-colour palette (e.g. \x1b[38;5;34m)
+
+
+rem “You should add info about paste bracket mode, you enable it with \x1b[?2004h and disable with \x1b[?2004l. The feature allow detecting pasting text into terminal, mostly for auto indentation feature (when you have code interpreter).”
+
+
 
 rem Bugfix
         if defined CREATE_PENTAGRAM echos %create_pentagram%

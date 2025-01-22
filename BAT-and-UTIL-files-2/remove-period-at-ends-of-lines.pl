@@ -70,6 +70,24 @@ if ($do_test_suite == 1) {
 	print &de_censor_production("*u**") . "\n";
 	print &de_censor_production("**c*") . "\n";
 	print &de_censor_production("***k") . "\n";
+
+	print &de_censor_production("p*ss") . "\n";
+	print &de_censor_production("piss") . "\n";
+	print &de_censor_production("*iss") . "\n";
+	print &de_censor_production("p*ss") . "\n";
+	print &de_censor_production("pi*s") . "\n";
+	print &de_censor_production("pis*") . "\n";
+	print &de_censor_production("**ss") . "\n";
+	print &de_censor_production("*i*s") . "\n";
+	print &de_censor_production("*is*") . "\n";
+	print &de_censor_production("p**s") . "\n";
+	print &de_censor_production("p*s*") . "\n";
+	print &de_censor_production("pi**") . "\n";
+	print &de_censor_production("p***") . "\n";
+	print &de_censor_production("*i**") . "\n";
+	print &de_censor_production("**s*") . "\n";
+	print &de_censor_production("***s") . "\n";
+
 	die("Test suite complete");
 }		
 
@@ -180,6 +198,18 @@ move $tempfile, $filename or die "Error: Cannot overwrite original file: $!\n"; 
 
 
 
+sub whisper_ai_postprocess {
+	my $s=$_[0];
+	
+	$s =~ s/A little pause... *//gi;		     #"... These are common WhisperAI hallucinations.
+	$s =~ s/And we are back\.*//gi;				 #"... These are common WhisperAI hallucinations.
+	
+	$s = &de_censor($s);
+
+	return($s);
+}
+
+
 sub de_censor_original {
 	my $s=$_[0];
 
@@ -234,7 +264,7 @@ sub de_censor_chatgpt_1 {
 	return($s);
 }
 
-sub de_censor_production_approved {}
+sub de_censor_production_approved {
     my $s = $_[0];
 
     # Handle specific patterns first to fully uncensor "f*ck"-like cases
@@ -258,7 +288,7 @@ sub de_censor_production_approved {}
 
     return $s;
 }
-sub de_censor_productiond {}
+sub de_censor_production_old1 {
     my $s = $_[0];
 
     # Handle specific patterns first to fully uncensor "f*ck"-like cases
@@ -283,14 +313,32 @@ sub de_censor_productiond {}
     return $s;
 }
 
+sub de_censor_production {
+	my $s = $_[0];
 
-sub whisper_ai_postprocess {
-	my $s=$_[0];
+	my @four_letter_curse_words = ('fuck', 'shit', 'cunt', 'piss', 'cock', 'crap', 'dick');				# Array of four-letter curse words
 	
-	$s =~ s/And we are back\.*//gi;				 #"... These are WhisperAI hallucinations.
-	
-	$s = &de_censor($s);
-
-	return($s);
+	foreach my $curse_word (@four_letter_curse_words) {							# Loop through each curse word
+		my ($F, $U, $C, $K) = split(//, $curse_word);							# Assign variables for each character in the curse word
+		$s =~ s/(?:^|\b)($F)(\*)(\*)(\*)/$1$U$C$K/gi; # f*** or s***
+		$s =~ s/(?:^|\b)(\*)($U)(\*)(\*)/$F$2$C$K/gi; # *u** or *h**
+		$s =~ s/(?:^|\b)(\*)(\*)($C)(\*)/$F$U$3$K/gi; # **c* or **i*
+		$s =~ s/(?:^|\b)(\*)(\*)(\*)($K)/$F$U$C$4/gi; # ***k or ***t
+		$s =~ s/(?:^|\b)(\*)(\*)($C)($K)/$F$U$3$4/gi; # **ck or **it
+		$s =~ s/(?:^|\b)(\*)($U)(\*)($K)/$F$2$C$4/gi; # *u*k or *h*t
+		$s =~ s/(?:^|\b)(\*)($U)($C)(\*)/$F$2$3$K/gi; # *uc* or *hi*
+		$s =~ s/(?:^|\b)($F)(\*)(\*)($K)/$1$U$C$4/gi; # f**k or s**t
+		$s =~ s/(?:^|\b)($F)(\*)($C)(\*)/$1$U$3$K/gi; # f*c* or s*i*
+		$s =~ s/(?:^|\b)($F)($U)(\*)(\*)/$1$2$C$K/gi; # fu** or sh**
+		$s =~ s/(?:^|\b)(\*)($U)($C)($K)/$F$2$3$4/gi; # *uck or *hit or *iss
+		$s =~ s/(?:^|\b)($F)(\*)($C)($K)/$1$U$3$4/gi; # f*ck or s*it
+		$s =~ s/(?:^|\b)($F)($U)(\*)($K)/$1$2$C$4/gi; # fu*k or sh*t
+		$s =~ s/(?:^|\b)($F)($U)($C)(\*)/$1$2$3$K/gi; # fuc* or shi*
+	}
+	return $s;
 }
+sub de_censor {
+	my $s = $_[0];
+	return &de_censor_production($s);
+}	
 

@@ -199,7 +199,7 @@ Generally speaking, it will be: ```create-srt``` or ```get-lyrics``` followed by
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
+### 🌟 [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-file {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
 
 Obtains the lyrics for a song file, a playlist, or the currently playing song. 
 - transcriptions work **much** better with lyrics
@@ -391,20 +391,14 @@ Displays a list of files in the *current folder* which are missing *karaoke* fil
 ### 🌟 convert-playlist-to-only-songs-that-do-not-have-karaoke.bat {playlist} [convert-playlist-to-only-song-that-do-not-have-karaoke.bat](../BAT-and-UTIL-files-1/convert-playlist-to-only-song-that-do-not-have-karaoke.bat):
 
 Creates a new playlist consisting of all the files in the original playlist that do not have karaoke sidecar files.
-Asks if we want to start getting karaoke or lyrics for that playlist.
+It then asks if we want to start getting karaoke or lyrics for that playlist.
+
+### 🌟 convert-playlist-to-only-songs-that-do-not-have-lyrics.bat {playlist} [convert-playlist-to-only-song-that-do-not-have-lyrics.bat](../BAT-and-UTIL-files-1/convert-playlist-to-only-song-that-do-not-have-lyrics.bat):
+
+Creates a new playlist consisting of all the files in the original playlist that do not have lyric sidecar files.
+Asks if we want to start getting lyrics for that playlist.
 
 
-### 🌟 Sidecar-File Auditor [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py):
-
-A generalized utility that, in our case, is being used to process a playlist to create a new playlist consisting of *ONLY* the songs that do not have karaoke files. This helps us focus our efforts.
-
-EXAMPLE:
-```
-check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py PlayList.m3u *.srt;*.lrc ``CreateSRTFileWrite
-```
-^^^ This example goes through the file ```PlayList.m3u```, checks for all files that do not have karaoke files (i.e. no ```*.srt``` or ```*.lrc``` sidecar file), creates a ```PlayList-without lrc srt.m3u``` consisting of those files.  Bbecause the `````CreateSRTFileWrite``` option was used, it also generates a script to actually create the missing karaoke files.  The ``GetLyricsFileWrite``` option can instead be used to *ONLY* obataining lyrics, and save the karaoke generation for later.
-
-![image](https://github.com/user-attachments/assets/5b368467-b23b-4039-b3df-c4dc85e90ad5)
 
 </details>
 
@@ -446,6 +440,19 @@ All the user has to do is paste, then save.
 Other important commands specific to this project.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
+
+### 🌟 Sidecar-File Auditor [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py):
+
+A generalized utility that, in our case, is being used to process a playlist to create a new playlist consisting of *ONLY* the songs that do not have karaoke files. This helps us focus our efforts.
+
+EXAMPLE:
+```
+check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py PlayList.m3u *.srt;*.lrc ``CreateSRTFileWrite
+```
+^^^ This example goes through the file ```PlayList.m3u```, checks for all files that do not have karaoke files (i.e. no ```*.srt``` or ```*.lrc``` sidecar file), creates a ```PlayList-without lrc srt.m3u``` consisting of those files.  Bbecause the `````CreateSRTFileWrite``` option was used, it also generates a script to actually create the missing karaoke files.  The ``GetLyricsFileWrite``` option can instead be used to *ONLY* obataining lyrics, and save the karaoke generation for later.
+
+![image](https://github.com/user-attachments/assets/5b368467-b23b-4039-b3df-c4dc85e90ad5)
+
 
 ### 🌟 [approve-lyrics / approve-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/disapprove-lyric-file.bat):
 
@@ -544,7 +551,7 @@ It preserves the periods at the end of the line if the are for common abbreviati
 
 This also also has some extra karaoke postprocessing functionality slipped in:
     - de-censoring some curse words that WhisperAI censors (suppress this with ```--leave-censorship``` or ```-L```)
-    - removing any line that is "And we are back."... These are hallucinations.
+    - removing any line that is "A little pause..." "And we are back."... These are hallucinations.
 
 </details>
 

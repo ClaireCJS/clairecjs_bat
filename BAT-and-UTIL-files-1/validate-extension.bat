@@ -1,4 +1,1 @@
-@loadbtm on
-@on break cancel
-@call validate-file-extension %*
-
+@call validate-is-extension %*

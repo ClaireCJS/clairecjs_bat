@@ -1,5 +1,5 @@
 @loadbtm on
-@Echo Off
+@Echo On
 @on break cancel
 
 :USAGE: get-lyrics {songfile}
@@ -68,7 +68,7 @@ rem Process playlists / audio files:
                                 rem echo 🍕🍕🍕
                                 call get-lyrics-for-playlist %1$       %+ rem Process individual playlist
                         else
-                                call get-lyrics-for-song     %1$       %+ rem Process individual audiofile
+                                call get-lyrics-for-file.btm %1$       %+ rem Process individual audiofile
                         endiff       
         else 
                 setdos /x0

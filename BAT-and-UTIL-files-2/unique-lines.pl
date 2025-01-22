@@ -110,6 +110,7 @@ while (<STDIN>) {
 		if ($file_album ne "") { 
 			$line =~ s/Album: \Q$file_album\E,?//i; 
 		}
+		$line =~ s/id: [^s]+$//i; 
 
 		#commas and quotes
 		$line =~ s/^, *$//;			#remove leading comma like ", a line of text"

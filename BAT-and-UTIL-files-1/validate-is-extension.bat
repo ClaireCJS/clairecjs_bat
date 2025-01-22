@@ -2,9 +2,9 @@
 @Echo Off
 @on break cancel
 
-rem USAGE:   call validate-file-extension [filename]   [extension(s)]           //%FILEMASK_{type} env vars work!  "*.txt;*.bat" works. "txt bat" works too.
-rem EXAMPLE: call validate-file-extension filename.txt txt                      //example to check for one  extension
-rem EXAMPLE: call validate-file-extension %FILENAME%  "txt text rtf html"       //example to check for many extensions
+rem USAGE:   call validate-file-extension [filename]   [extension(s)] ["custom error message"]  [“silent”]       //%FILEMASK_{type} env vars work!  "*.txt;*.bat" works. "txt bat" works too but isn’t as well-tested.
+rem EXAMPLE: call validate-file-extension filename.txt txt                                //example to check for one  extension
+rem EXAMPLE: call validate-file-extension %FILENAME%  "txt text rtf html"                 //example to check for many extensions
 
 
 rem SETUP: Get Parameters
@@ -12,6 +12,7 @@ rem SETUP: Get Parameters
         set VALIDATION_FILE=%1
         set  EXTENSION_LIST=%2
         set  CUSTOM_ERR_MSG=%3
+        set          SILENT=%4
 
 rem USAGE if no parameters:
 if "%1" == "" (
@@ -55,28 +56,28 @@ rem ERROR: At this point, all checks have failed and the file is not valid!
         set VAL_FILE_EXT_ERR_MSG=*** Validation of file “%VALIDATION_FILE%” failed because its extension is not one of: “%italics%%underline%%EXTENSION_LIST_TO_USE%%italics_off%%underline_off%”
 
         call divider
-        call warning "Calling File: %_PBATCHNAME"                         silent
-        call warning "  Parameters: %italics_on%%VEVPARAMS%%italics_off%" silent
-        call warning "         CWD: %_CWD"                                silent
+        echo %ansi_color_warning%Calling File: “%[_PBATCHNAME]”%EOL%
+        echo %ansi_color_warning%  Parameters: %italics_on%“%VEVPARAMS%”%italics_off%%ansi_color_normal%
+        echo %ansi_color_warning%         CWD: “%_CWD”%ansi_color_normal%
 
-        iff "%CUSTOM_ERR_MSG%" == "" then
-                echos %ANSI_COLOR_ERROR%
-                call divider
-                repeat  10  echo %VAL_FILE_EXT_ERR_MSG%%EOL%
-                call divider
-                call fatal_error %VAL_FILE_EXT_ERR_MSG%
-                repeat 2 echo.
-        else
-                rem echos %ANSI_COLOR_FATAL_ERROR%
-                call divider
+
+        call divider
+
+        iff "%CUSTOM_ERR_MSG%" != "" then
                 rem echos %ANSI_COLOR_FATAL_ERROR%
                 call bigecho %ANSI_COLOR_FATAL_ERROR%%VAL_FILE_EXT_ERR_MSG%%ANSI_COLOR_NORMAL%
                 rem echo  %ANSI_COLOR_FATAL_ERROR%
                 call divider
-                call fatal_error %CUSTOM_ERR_MSG%
-                goto :END
-                cancel
         endiff
+
+        repeat 2 echo %ANSI_COLOR_fatal_error%%VAL_FILE_EXT_ERR_MSG%%Ansi_color_normal%%EOL%
+        iff "%CUSTOM_ERR_MSG%" != "" then
+                repeat 10 echo %ANSI_COLOR_fatal_error%%CUSTOM_ERR_MSG%%Ansi_color_normal%%EOL%
+        endiff
+        repeat 2 echo %ANSI_COLOR_fatal_error%%VAL_FILE_EXT_ERR_MSG%%Ansi_color_normal%%EOL%
+        call divider
+        goto :END
+        cancel
 
 :Validated_File_Extension_Successfully
 

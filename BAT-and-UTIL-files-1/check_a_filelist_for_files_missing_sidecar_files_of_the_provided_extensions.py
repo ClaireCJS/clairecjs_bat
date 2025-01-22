@@ -120,7 +120,7 @@ def main_guts(input_filename, extensions, options, extra_args):
         directory = os.path.dirname(file_path)
         base_filename, _ = os.path.splitext(file)
         base_filename, _ = os.path.splitext(os.path.basename(file))
-        #if DEBUG_SIDECAR_SEARCH: print(f"found file {file_path} ... base_filename={base_filename} ... for file={file}")
+        if DEBUG_SIDECAR_SEARCH: print(f"found file {file_path} ... base_filename={base_filename} ... for file={file}")
         
         # Check for sidecar files explicitly with a debug-friendly loop
         has_sidecar = False                                                     # Assume no sidecar until we find it

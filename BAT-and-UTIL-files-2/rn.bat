@@ -6,10 +6,10 @@ rem %COLOR_DEBUG% %+ echo * EXTRA_NAME is %EXTRA_NAME% ... YOUTUBE_MODE=%YOUTUBE
 rem %COLOR_DEBUG% %+ echo ARGS: %*
 
 rem Do nothing when passed these arguments:
-    if             "%1"  == ""   goto :END
-    if "%@UNQUOTE["%1"]" == "."  goto :END
-    if "%@UNQUOTE["%1"]" == ".." goto :END
-    if not exist  %1             goto :DNE
+        if            "%1"   == ""   goto :END
+        if "%@UNQUOTE["%1"]" == "."  goto :END
+        if "%@UNQUOTE["%1"]" == ".." goto :END
+        if  not exist  %1            goto :DNE
 
 rem Validate environment (once):
         iff 1 ne %validated_rn_1% then
@@ -45,19 +45,21 @@ rem Get/react to arguments:
                     :et  FILENAME_OLD_TRUENAME=%@TRUENAME["%1"]
                     set  FILENAME_OLD_TRUENAME=%@TRUENAME["%FILENAME_OLD%"]
                     if %DEBUG gt 0 (call print-if-debug "[About to validate-env-var FILENAME_OLD_TRUENAME (%FILENAME_OLD_TRUENAME%)]")
-                    call validate-environment-variable FILENAME_OLD_TRUENAME
+                    if not exist "%FILENAME_OLD_TRUENAME%" call validate-environment-variable FILENAME_OLD_TRUENAME
             color bright red on black 
             set  FILENAME_NEW=%FILENAME_OLD%        
             if %END_NAME_SPECIFIED eq 1 ( set FILENAME_NEW=%2)
-            if %END_NAME_SPECIFIED ne 1 (
+            rem if %END_NAME_SPECIFIED ne 1 (
                     eset FILENAME_NEW
                     call set-cursor
-            )
+            rem )
             %COLOR_RUN%
             if "%FILENAME_NEW%" == "%FILENAME_OLD%" (%COLOR_WARNING% %+ echos * %ITALICS_ON%No change.%ITALICS_OFF% %+ %COLOR_NORMAL% %+ echo. %+ goto :END)
             set  UNDOCOMMAND=%REN% "%FILENAME_NEW%" "%@UNQUOTE[%FILENAME_OLD%]" 
             set  REDOCOMMAND=%REN% "%FILENAME_OLD%" "%@UNQUOTE[%FILENAME_NEW%]"      %+ if "%DEBUG%" == "1" (echo [DEBUG] About to: %REDOCOMMAND% %+ pause)
                                  set LAST_RENAMED_TO=%@UNQUOTE["%FILENAME_NEW%"]
+
+                echo REDOCOMMAND=%REDOCOMMAND%
 
                 %COLOR_SUCCCESS%
                 echos %FAINT_ON%%@RANDFG_SOFT[]%RN_DECORATOR% ``

@@ -1,4 +1,6 @@
 @Echo OFF
+@loadbtm on
+@on break cancel
 
 rem Validate environment (once):
         iff "1" !=  "%validated_convert_pl_2_ones_missing_karaoke%" then
@@ -30,6 +32,8 @@ rem Validate the existence of the output file:
         call validate-environment-variable NEW_PLAYLIST_NAME
 
 rem Now that we have a playlist of songs that do not have karaoke, ask if we want to get lyrics or karaoke for it:
+rem (Unless we are being called by work.bat, which is handling this):
+        if "%@NAME[%_PBATCHNAME]" == "work" .or. "1" == "%CURRENTLY_WORKING_RIGHT_NOW%" goto :skip_questioning
         echo.
         :ask
         call AskYN "Create karaoke files —— or fetch lyrics —— from the new playlist" no 60 KL K:Create_karaoke_from_new_playlist,L:Get_lyrics_for_new_playlist
@@ -39,10 +43,10 @@ rem Now that we have a playlist of songs that do not have karaoke, ask if we wan
                 goto :ask
         endiff
         iff "K" == "%ANSWER%" then
-                call get-karaoke "%NEW_PLAYLIST_NAME%"
+                call get-karaoke "%NEW_PLAYLIST_NAME%" 50
         elseiff "L" == "%ANSWER%" then
                 call get-lyrics  "%NEW_PLAYLIST_NAME%"
         endiff
-
+        :skip_questioning
 
 :END

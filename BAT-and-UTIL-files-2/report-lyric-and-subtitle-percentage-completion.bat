@@ -1,16 +1,19 @@
 @loadbtm on
-@echo Off
- call init-bat
+@Echo Off
+rem @call init-bat
+
 
 rem CONFIGURATION:
         set log=lyric-subtitle-compliance.log
-        set filelist=filelist-non-instrumental.txt
+        set vocal_filelist=filelist-non-instrumental.txt
+        set full_filelist=filelist.txt
+        set DEBUG_SYSTEM_CALLS=0                                        %+ rem set to 1 to see the grep commands that are being used
 
 rem Validate environment (once):
-        iff 1 ne %validated_countsoffiletype6% then
-                call validate-in-path              grep egrep uniq wc copy-move-post makefilelist warning_soft 
+        iff 1   ne  %validated_countsoffiletype8% then
+                call validate-in-path              grep egrep uniq wc copy-move-post makefilelist warning_soft set-tmp-file fast_cat
                 call validate-is-function          ansi_move_to_col
-                set  validated_countsoffiletype6=1
+                set  validated_countsoffiletype8=1
         endiff
 
 rem Warn, unless we are in the same folder defined as MP3OFFICIAL in our environment:
@@ -28,52 +31,97 @@ rem Count the file types:
         echo.
         set dir=%_CWD
         set remake=0
-        if   not   exist    %filelist%                                            (set remake=1 %+ goto :remake)
-        if %@eval[%@makeage[%_date,%_time] - %@fileage[%filelist%]] gt 1800000000 (set remake=1)     %+ rem if it’s more than 180s old
+        if   not   exist    %vocal_filelist%                                            (set remake=1 %+ goto :remake)
+        if   not   exist     %full_filelist%                                            (set remake=1 %+ goto :remake)
+        if %@eval[%@makeage[%_date,%_time] - %@fileage[%vocal_filelist%]] gt 3600000000 (set remake=1)     %+ rem if it’s more than 180s old
         :remake
         iff 1 eq %remake% then
-                echo * Making filelist... 
-                ((dir /b /s /[!*instrumental*] >:u8%filelist%) | copy-move-post)
-                echo %@ANSI_MOVE_UP[1]%@ANSI_MOVE_TO_COL[1]%ANSI_ERASE_TO_EOL%%@ANSI_MOVE_UP[1]
+                echos * Making filelists... 
+                ((dir /b /s /[!*instrumental*]                  >:u8%vocal_filelist) | copy-move-post) %+ echos ...
+                ((dir /b /s                                     >:u8%full_filelist%) | copy-move-post)
+                rem echo %@ANSI_MOVE_UP[1]%@ANSI_MOVE_TO_COL[1]%ANSI_ERASE_TO_EOL%%@ANSI_MOVE_UP[1]
+                                     echo %@ANSI_MOVE_TO_COL[1]%ANSI_ERASE_TO_EOL%%@ANSI_MOVE_UP[1]
         endiff
 
-        rem Initialize audio file count:
-                set AUDIO_COUNT=0
 
-        rem 1ˢᵗ gosub
-                gosub :counttype "  audio" %AUDIO_COUNT% "%@UNQUOTE[%filemask_audio_regex%]"   
+        rem Validate:
+                iff "1" !=  "%validated_rlaspctcsubtoo934%" then
+                        call  validate-in-path egrep wc
+                        set   validated_rlaspctcsubtoo934=1
+                endiff
+                call validate-environment-variable vocal_filelist full_filelist
 
-        rem Update audio file count with results from 1ˢᵗ gosub:
-                set AUDIO_COUNT=%COUNT%
+        rem Initialize audio file counts, though we trash some of these values so it’s unnecessary:
+                unset /q *count*
+                set VOCAL_AUDIO_COUNT=0
+                set   ALL_AUDIO_COUNT=%@EXECSTR[egrep "%@UNQUOTE[%filemask_audio_regex%]" %FULL_FILELIST%  | wc -l]
+                set VOCAL_AUDIO_COUNT=%@EXECSTR[egrep "%@UNQUOTE[%filemask_audio_regex%]" %VOCAL_FILELIST% | wc -l]
 
-        rem 2ⁿᵈ gosub
-                gosub :counttype " lyrics" %AUDIO_COUNT% "\.txt"
-
-        rem 3ʳᵈ  gosub
-                gosub :counttype "karaoke" %AUDIO_COUNT% "(\.lrc|\.srt)"
+                gosub counttype        "total" " total audio"  NULL                                  "%@UNQUOTE[%filemask_audio_regex%]"  %+ set    ALL_AUDIO_COUNT_PROBED=%COUNT%
+                gosub counttype "instrumental" "instrumental" %ALL_AUDIO_COUNT_PROBED% "instrumental.*%@UNQUOTE[%filemask_audio_regex%]"  %+ set INSTRUMENTAL_COUNT=%COUNT%
+                gosub counttype        "audio" "       vocal" %ALL_AUDIO_COUNT_PROBED%               "%@UNQUOTE[%filemask_audio_regex%]"  %+ set  VOCAL_AUDIO_COUNT_PROBED=%COUNT%
+                gosub counttype       "lyrics" "      lyrics" %VOCAL_AUDIO_COUNT%                               "\.txt"                   %+ set   HAVE_LYRIC_COUNT=%COUNT%
+                gosub counttype      "karaoke" "     karaoke" %VOCAL_AUDIO_COUNT%                               "(\.lrc|\.srt)"           %+ set HAVE_KARAOKE_COUNT=%COUNT%
 
         echo.
         pause
         set skip=27
         set highlight="[0-9][0-9]?\.[0-9][0-9]"
-        (type %log%|grep -i  lyrics)|uniq -s%SKIP%|call highlight %highlight%
-        (type %log%|grep -i karaoke)|uniq -s%SKIP%|call highlight %highlight%
+        rem (type %log%|grep -i  lyrics)|uniq -s%SKIP%|call highlight %highlight%
+        rem (type %log%|grep -i karaoke)|uniq -s%SKIP%|call highlight %highlight%
+        call set-tmp-file %+ set tmpfile1=%tmpfile%
+        call set-tmp-file %+ set tmpfile2=%tmpfile%
+        call set-tmp-file %+ set tmpfile3=%tmpfile%
+        call set-tmp-file %+ set tmpfile4=%tmpfile%
+        ((type %log%|grep -i  lyrics)|uniq -s%SKIP%)    >:u8%tmpfile1% 
+        type %tmpfile1% |:u8 call highlight %highlight% >:u8%tmpfile2% 
+        call fast_cat                                       %tmpfile2%
+        ((type %log%|grep -i karaoke)|uniq -s%SKIP%)    >:u8%tmpfile3% 
+        type %tmpfile3% |:u8 call highlight %highlight% >:u8%tmpfile4% 
+        call fast_cat                                       %tmpfile4%
 
 goto :END
-        :counttype [nature audio_count regex]
-                title counttype %nature %audio_count %regex
+        :counttype [nature_clean nature AUDIO_COUNT_TOTAL_TO_USE_FOR_PCT_CALCS regex]
+                if %DEBUG gt 0 echo CALLED: :counttype [%nature% %AUDIO_COUNT_TOTAL_TO_USE_FOR_PCT_CALCS% %regex%]
+                title counttype %nature %AUDIO_COUNT_TOTAL_TO_USE_FOR_PCT_CALCS %regex
                 echos %@randfg_soft[]
                 echos %italics_on%%@UNQUOTE[%Nature%]%italics_off%: ``
                 echos %@randfg_soft[]
-                set COUNT=%@EXECSTR[egrep -i "%@unquote[%regex%]" %filelist% | wc -l  ]
-                echos %@COMMA[%COUNT%]
-                iff %audio_count% gt 0 then
-                        set RAW_VALUE=%@EVAL[%count/%audio_COUNT%*100]
-                        set VALUE=%@FORMATn[-4.1,%raw_value%]
-                        echo %dir%,%_datetime,%@TRIM[%@UNQUOTE[%nature%]],%raw_value%%@CHAR[65285] >>%log%
-                        echos  %@randfg_soft[](%VALUE%%@CHAR[65285]) 
+                set filelist_to_use=%vocal_filelist%
+                iff "%@UNQUOTE[%nature_clean%]" == "instrumental" .or. "%@UNQUOTE[%nature_clean%]" == "total" then
+                        set filelist_to_use=%full_filelist%
+                else
+                        set filelist_to_use=%vocal_filelist%
                 endiff
+
+                rem DEBUG:
+                        iff 1 == %DEBUG_SYSTEM_CALLS% then
+                                echo %tab%grep command is egrep -i "%@unquote[%regex%]" "%filelist_to_use%"
+                                echos %newline%
+                                setdos /x-5
+                                        echos %%@EXECSTR[egrep -i "%@unquote[%regex%]" "%filelist_to_use%" `|` wc -l  ]
+                                setdos /x5
+                                echos %newline%%@ansi_move_to_col[15]
+                        endiff
+
+                set COUNT=%@EXECSTR[egrep -i "%@unquote[%regex%]" "%filelist_to_use%" | wc -l  ]
+                iff "NULL" == "%AUDIO_COUNT_TOTAL_TO_USE_FOR_PCT_CALCS%" then
+                        set AUDIO_COUNT_TOTAL_TO_USE_FOR_PCT_CALCS_TO_USE=%COUNT%
+                else
+                        set AUDIO_COUNT_TOTAL_TO_USE_FOR_PCT_CALCS_TO_USE=%AUDIO_COUNT_TOTAL_TO_USE_FOR_PCT_CALCS%
+                endiff
+                echos %@FORMAT[6,%@COMMA[%@FORMATn[5.0,%COUNT%]]]
+                if %AUDIO_COUNT_TOTAL_TO_USE_FOR_PCT_CALCS% gt 0 goto :has_value
+                                      goto :has_value_end
+                        :has_value
+                                set RAW_VALUE=%@EVAL[%count/%AUDIO_COUNT_TOTAL_TO_USE_FOR_PCT_CALCS_TO_USE%*100]
+                                set VALUE=%@FORMATn[-4.1,%raw_value%]
+                                echo %dir%,%_datetime,%@TRIM[%@UNQUOTE[%nature%]],%raw_value%%@CHAR[65285],%COUNT% >>%log%
+                                echos  %@randfg_soft[]%@FORMAT[8,(%VALUE%%@CHAR[65285])]
+                        :has_value_end
                 echo.
+                rem about to return
         return
+        echo This is the line past return and we should never be here! %+ pause
 :END
 

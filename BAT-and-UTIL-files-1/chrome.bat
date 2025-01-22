@@ -2,6 +2,8 @@
  on break cancel
 
 set OUR_CHROMEARGS=--max_old_space_size=4096
+rem 2025, let’s try not using the above, and because of yt-dlp changes we need to add LockProfileCookieDatabase
+set OUT_CHROMEARGS=--disable-features=LockProfileCookieDatabase
  
  unset /q OUR_CHROMEARGS
 

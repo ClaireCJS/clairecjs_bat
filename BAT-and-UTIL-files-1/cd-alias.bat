@@ -121,8 +121,8 @@ rem If there were a different number of files now than when we last entered this
         set PERCENT=%@FLOOR[100-%@EVAL[100*(%NUM_FILES_NOW_2 / %NUM_FILES_THEN_2)]]
         set PERCENT=%@EVAL[-1 * %PERCENT]
         :NoPercent
-        if %CD_PERCENT eq 1 (echo %ansi_color_less_important%%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then_2%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW_2%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]`%`%faint_on%) %faint_on%since last check of %faint_off%%italics_on%%LAST_FOLDER%%italics_off%%faint_off%)
-        if %CD_PERCENT eq 0 (echo %ansi_color_less_important%%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then_2%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW_2%%bold_off%%blink_off%%double_underline_off% %faint_on%since last check of %faint_off%%italics_on%%LAST_FOLDER%%italics_off%%faint_off%) %+ REM previous line copied over but with percent section removed to avoid divide by zero errors
+        if %CD_PERCENT eq 1 (echo %ANSI_COLOR_LESS_IMPORTANT%%STAR2% %faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then_2%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW_2%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]`%`%faint_on%) %faint_on%since last check of %faint_off%%italics_on%%LAST_FOLDER%%italics_off%%faint_off%)
+        if %CD_PERCENT eq 0 (echo %ANSI_COLOR_LESS_IMPORTANT%%STAR2% %faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then_2%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW_2%%bold_off%%blink_off%%double_underline_off% %faint_on%since last check of %faint_off%%italics_on%%LAST_FOLDER%%italics_off%%faint_off%) %+ REM previous line copied over but with percent section removed to avoid divide by zero errors
         :skip_saying
 
 rem If there were a different number of files when we entered our new folder than when we last exited our new folder, let us know:
@@ -134,7 +134,7 @@ rem If there were a different number of files when we entered our new folder tha
         if %NUM_FILES_NOW lt %NUM_FILES_THEN (set CHANGE=decreased %+ set VERB=%ansi_color_red%decreased)
         set PERCENT=%@FLOOR[100-%@EVAL[100*(%NUM_FILES_NOW / %NUM_FILES_THEN)]]
         set PERCENT=%@EVAL[-1 * %PERCENT]
-        echo %STAR% %ANSI_COLOR_LESS_IMPORTANT%%faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]%%%faint_on%) %faint_on%since last check in %faint_off%%italics_on%%[_cwd]%italics_off%%faint_off%%ANSI_RESET%%ANSI_EOL%
+        echo %ANSI_COLOR_LESS_IMPORTANT%%STAR2% %faint_on%# of files %faint_on%%italics_on%%VERB%%italics_off% %ansi_color_important_less%from%faint_off% %bold_on%%NUM_FILES_then%%bold_off% %faint_on%to%faint_off% %double_underline_on%%blink_on%%bold_on%%NUM_FILES_NOW%%bold_off%%blink_off%%double_underline_off% %faint_on%(%faint_off%%[PERCENT]%%%faint_on%) %faint_on%since last check in %faint_off%%italics_on%%[_cwd]%italics_off%%faint_off%%ANSI_RESET%%ANSI_EOL%
         :skip_saying_2
 
 
