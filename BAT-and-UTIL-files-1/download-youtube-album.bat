@@ -88,9 +88,17 @@ REM do everything in a temp folder!
     call warning "About to download a youtube video of a song, or chapter-separated album, to mp3 format!"
     call warning "yt-dlp %italics_on%%URL%%italics_off% (with extra steps)"  %+ pause %+ %COLOR_RUN% 
     %COLOR_RUN%
+    rem failed attempt to fix: yt-dlp -vU --write-info-json --write-description --extractor-args   "youtube:player_client=android" --split-chapters %URL% -f bestaudio --extract-audio --audio-quality 0 --embed-metadata   --write-thumbnail  --embed-thumbnail --cookies-from-browser firefox --compat-options filename-sanitization %*
+    rem    --verbose --write-info-json --write-description --split-chapters %URL% -f bestaudio --extract-audio --audio-quality 0 --embed-metadata --write-thumbnail --embed-thumbnail --cookies-from-browser firefox --compat-options filename-sanitization --audio-format mp3 --audio-format mp3  --extractor-args   "youtube:player_client=android" 
+    yt-dlp --verbose --write-info-json --write-description --split-chapters                    --extract-audio --audio-quality 0 --embed-metadata --write-thumbnail --embed-thumbnail --cookies-from-browser firefox --compat-options filename-sanitization --audio-format mp3 %URL%
+
+        rem need to remove android player
     @echo on
-    yt-dlp --verbose --write-info-json --write-description --extractor-args   "youtube:player_client=android" --split-chapters %URL% -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 --embed-metadata   --write-thumbnail  --embed-thumbnail 
+        
     @echo off
+
+    rem 2025 ydl call: call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
+
 
     REM -o "%%(album_artist,artist,creator,uploader|)s/%%(release_year,release_date,upload_date|)s%%(release_year,release_date,upload_date& - |)s%%(album,title|)s/%%{id&FULL ALBUM|}s%%{title|}s
     REM GOLD: "%%(album_artist,artist,creator,uploader|)s/%%(release_year,release_date,upload_date|)s%%(release_year,release_date,upload_date& - |)s%%(album,title|)s"

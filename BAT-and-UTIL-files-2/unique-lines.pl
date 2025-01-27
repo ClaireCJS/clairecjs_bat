@@ -2,16 +2,16 @@
 
 # On the surface, a general utility like uniq, except it remembers if a line has been seen before —— you don't have to pre-sort it
 
-# Under the hood, this is a post-processor for downloaded lyrics also used to distill lyrics into shorted possible string to use as prompt for OpenAI Whisper transcription, which has a maximum # of tokens of 224, putting an onus to use those 224 tokens efficiently and without repetition. This is also the reason why we change quotes into apostrophes —— because quote are what surrounds the lyrics when used as a commmand-line parameter
+# However, prior to us forking “unique-lines.pl” to “lyric-postprocessor.pl”, some additional features were added. They are NOT
+# relevant to the task here of “unique lines”.   Combine any of these parameters to access the DEPRECATED pre-forked features:
+		#“-L” to treat it as lyrics being fed to an AI for transcription, which need postprocessing from various download sources
+		#“-A” to to print all lines, in case you want to preview the lyric postprocessing while maintaining the normal structure
+		#“-1” parameter to smush it all into one line
 
-# Combine any of these parameters:
-#takes a "-L" parameter to treat it as lyrics being fed to an AI for transcription, which need postprocessing from various download sources
-#takes a "-A" parameter to print all lines, in case you want to preview the lyric massage while maintaining the normal structure
-#takes a "-1" parameter to smush it all into one line
 
+### DEPRECATED FEATURES MAY BE REMOVED AT ANY TIME!! ###
 
 ########### CONFIGURATION: BEGIN: ###########
-#y $ADDED_END_LINE_CHARACTER=",";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online
 my $ADDED_END_LINE_CHARACTER=".";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online
 ########### CONFIGURATION: ^^^END ###########
 
@@ -35,7 +35,7 @@ foreach my $arg (@ARGV) {
     } elsif ($arg eq '-A') {
         $ALL_LINES_MODE = 1;
     } else {
-        die "\n\n\nUnknown argument: $arg\n\n\nUSAGE:\n\t-1 for smushing into 1 line\n\t-A to show ALL lines not just unique lines\n\t-L for downloaded-lyric postprocessing";
+        die "\n\n\nUnknown argument: $arg\n\n\nUSAGE (deprecated; use lyric-postprocessor.pl instead):\n\t-1 for smushing into 1 line\n\t-A to show ALL lines not just unique lines\n\t-L for downloaded-lyric postprocessing";
 		usage();
 		exit 1;
     }

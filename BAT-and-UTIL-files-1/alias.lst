@@ -12,7 +12,7 @@ readalias=realias
 ;;;;;;;;;;;;; UNKNOWN COMMAND STUFF: ;;;;;;;;;;;;;
 ;;;;;;;;;;;;; UNKNOWN COMMAND STUFF: ;;;;;;;;;;;;;
 
-UNKNOWN_CMD=call unknown_cmd.bat %*
+UNKNOWN_CMD=call unknown_cmd.bat BATCHLINE %_BATCHLINE %1$
 
 
 

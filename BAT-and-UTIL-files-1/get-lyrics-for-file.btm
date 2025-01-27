@@ -320,7 +320,7 @@ rem Check if the lyrics are already approved...
         )
 
         gosub "%BAT%\create-srt-from-file.bat" refresh_lyriclessness_status
-        echo [GM] INITIAL lyriclessness status ===== “%LYRICLESSNESS_STATUS%”
+        echo [GM]   INITIAL lyriclessness status ===== “%LYRICLESSNESS_STATUS%”
         if "%LYRICLESSNESS_STATUS%" != "APPROVED" goto :not_lyricless
                 echo %ANSI_COLOR_WARNING_SOFT%%blink_on%%STAR2%%blink_off% Already marked %italics_on%lyric%underscore_on%less%underscore_off%%italics_off%!%ansi_color_normal%
                 goto :END
@@ -1034,13 +1034,15 @@ rem If we still didn’t find anything acceptable, but have potentially matching
                 call review-file "%TMPREVIEWFILE%" "Lyrics from local repo"
                 gosub divider
                 gosub DisplayAudioFileName
-                call AskYn "Do these lyrics %italics_on%from our local lyrics repository%italics_off% look acceptable?%conceal_on%4%conceal_off%[%ANSI_COLOR_MAGENTA%H%ANSI_COLOR_PROMPT%%connecting_equals%Yes but hand edit them]" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% HDLIP H:Yes_but_hand-edit_first,D:Download_new_ones,L:Mark_as_lyricless,I:Rename_as_instrumental,P:Play_it!
+                call AskYn "Do these %italics_on%from our local repository%italics_off% look acceptable?%conceal_on%4%conceal_off%[%ANSI_COLOR_MAGENTA%H%ANSI_COLOR_PROMPT%%connecting_equals%Yes&hand edit,A=edit artist name,L=lyricless,I=Instrumental,G=Google,P=Play]" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% HDLIPAG H:Yes_but_hand-edit_first,A:artist_name_hand_edit_first,D:Download_new_ones,L:Mark_as_lyricless,I:Rename_as_instrumental,P:Play_it!,G:Google_for_better_lyrics
                 gosub check_for_answer_of_P
+                gosub check_for_answer_of_G
                 gosub rename_audio_file_as_instr_if_answer_was_I
                 gosub check_for_answer_of_L
                 echo Just got back from 🌭🌭🌭🌭🌭 situation and the answer is still “%ANSWER%” and goto_end is “%GOTO_END%” -- - LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%” -- - LYRIC_STATUS=“%LYRIC_STATUS%”
                 echo 🐐 Trace LS-B-4.2 -- LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
-                if 1 eq %goto_END% goto :END
+                if 1 eq %goto_END%    goto :END
+                if 1 eq %Google_Now%  goto :Google_Now
                 if  "%ANSWER%" == "D" goto :download_with_lyric_downloader_init
                 iff "%ANSWER%" == "Y" .or. "%ANSWER%" == "H" then
                         *copy /q "%TMPREVIEWFILE%" "%LYRIC_FILE%" >nul
@@ -1074,7 +1076,7 @@ rem If we still didn’t find anything acceptable, but have potentially matching
                 rem or that the file we selected is 0 bytes andn ot useful
         endiff
         echo 🐐 Trace LS5-A -- LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”, goto_end=“%goto_end%”
-        if 1 eq %goto_END% goto :END
+        if "1" == "%goto_END%" .or. "%LYRICLESSNESS_STATUS%" == "APPROVED" goto :END
 
         iff "%TRY_SELECTION_AGAIN%" == "1" then
                 set TRY_SELECTION_AGAIN=2                               %+ rem Recursion stopgap
@@ -1106,7 +1108,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
 
         set current_search=%FILE_SONG_TO_USE% :::: %FILE_ARTIST_TO_USE%``
         iff "%current_search%" == "%last_search%" then
-                echo %ansi_color_warning_soft%%NO% Skipping search because current_search is the same as last_search%ansi_color_normal%
+                echo %ansi_color_warning_soft%%NO% Skipping search because current_search is the same as last_search of “%LAST_SEARCH%”%ansi_color_normal%
                 goto :skip_this_search
         endiff
 
@@ -1820,9 +1822,10 @@ rem —————————————— SUBROUTINES: BEGIN: ————�
         :edit_right_now_if_we_answered_H [subarg force]
                 iff "H" == "%ANSWER%" .or. "%force%" == "force" .or. ("%ANSWER%" == "%subarg%" .and. "" !=  "%subarg") then
                         echos %ANSI_POSITION_SAVE%
-                        echo editing lyric file because answer=“%answer%”  ... google_now=“%google_now%”.... call = “%blink_on%%EDITOR% "%LYRIC_FILE%"%blink_off%” 💩
-                        %EDITOR% "%LYRIC_FILE%"
-                        echos %ANSI_POSITION_RESTORE%
+                        set EDIT_CALL=%EDITOR% "%LYRIC_FILE%"
+                        echo editing lyric file because answer=“%answer%”  ... google_now=“%google_now%”.... call = “%blink_on%%edit_call%%blink_off%” 💩
+                        %EDIT_CALL%
+                        rem   2025/01/23: Not sure if this is necessary anymore: echos %ANSI_POSITION_RESTORE%
                         rem   pause "%ansi_color_warning_soft%%blink_on%Press any key when done hand-editing the lyrics...%blink_off%%ansi_color_normal%"
                         rem   pause-for-x-seconds %LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS% "%ansi_color_bright_yellow%%pencil% Hit a key when done editing lyrics... %faint_on%(leave blank if none found or if done by mistake)%faint_off% %pencil% %ansi_color_normal%"
                               pause "%ansi_color_warning_soft%%blink_on%Press any key when done hand-editing the lyrics...%blink_off%%ansi_color_normal%"
@@ -1849,9 +1852,10 @@ rem —————————————— SUBROUTINES: BEGIN: ————�
                 echo 🌷🌷🌷  Asking if we want to mark as lyricless.... 🌷🌷🌷 >nul
                 echo %ansi_color_advice%%star2% NOTE: “%ansi_color_bright_yellow%lyric%underline_on%less%underline_on%%ansi_color_advice%”     means “we can’t/won’t find lyrics for this song online”
                 echo %ansi_color_advice%%star2%       “%ansi_color_bright_yellow%linstrumental%ansi_color_advice%” means “no words are sung or spoken at all”
-                call AskYn "Want to mark this song instrumental or lyric%underline_on%less%underline_off% (i.e. officially abandon our lyric search)" no 300 IGL I:Mark_this_file_as_an_instrumental,G:Google,L:It’s_Lyricless %+ rem 🐮 hard-coded value
+                :ask_if_want_mark_lyriclessness_2
+                call AskYn "Want to mark this song instrumental or lyric%underline_on%less%underline_off% (i.e. officially abandon our lyric search) [P=Preview]" no 300 IGLP I:Mark_this_file_as_an_instrumental,G:Google,L:It’s_Lyricless,P:Play_it %+ rem 🐮 hard-coded value
                 gosub check_for_answer_of_G
-                if "1" == "%GOOGLE_NOW%" goto :Google_Now
+                gosub check_for_answer_of_P
                 gosub check_for_answer_of_I
                 gosub check_for_answer_of_L
                 iff "%ANSWER%" == "Y" then 
@@ -1861,7 +1865,9 @@ rem —————————————— SUBROUTINES: BEGIN: ————�
                         echo Just got back from check_for_answer_of_L called FROM WITHIN :ASK_IF_WANT_MARK_LYRICLESSNESS [] ...answer=“%ANSWER%”, goto_end=“%GOTO_END%”
                         if 1 eq %goto_END% goto :END
                 endiff
-                if "1" == "%GOOGLE_END%" goto :goto_end
+                if "P" == "%ANSWER%"     goto :ask_if_want_mark_lyriclessness_2
+                if "1" == "%GOOGLE_NOW%" goto :Google_Now
+                if "1" == "%GOTO_END%"   goto :goto_end
         return
         goto :END
 
@@ -1908,9 +1914,9 @@ rem —————————————— SUBROUTINES: BEGIN: ————�
         :check_for_answer_of_P []
                 :try_again
                 iff "%PLAYER_COMMAND%"  == "" then
-                        call warning "player command isn’t set!"
+                        echo %ANSI_COLOR_WARNING%%EMOJI_CAUTION%Player command isn’t set! setting to vlc.exe for best odds...%ansi_color_normal%
                         set  player_command=vlc.exe
-                        eset player_command
+                        rem  eset player_command
                 endiff
                 if "%PLAYER_COMMAND%"  == "" goto :try_again
                 echo %arrow% check_for_answer_of_P [] ... audio_file = %AUDIO_FILE%, SONGFILE= %SONGFILE%,%SONG_FILE%
@@ -1947,7 +1953,7 @@ rem —————————————— SUBROUTINES: BEGIN: ————�
         :rename_audio_file_as_instrumental []                        
                 call status-bar unlock
                 echos %ANSI_ERASE_TO_END_OF_SCREEN%
-                call divider
+                rem Let’s try not doing this: call divider
                 call rn "%AUDIO_FILE%" "%@NAME["%AUDIO_FILE%"] [instrumental].%@EXT["%AUDIO_FILE%"]"
                 iff "" !=  "%LAST_RENAMED_TO%" then
                         set AUDIO_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]

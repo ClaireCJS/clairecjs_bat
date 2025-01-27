@@ -517,7 +517,7 @@ Inserts text before/after each line of STDIN. Used for script generation.
 Put ```{{{{QUOTE}}}}``` in the argument to turn it into a quote mark in the final output.
 ![image](https://github.com/user-attachments/assets/e3423665-783c-45e2-b275-7837d93d5ad9)
 
-### 🌟 [unique-lines.pl](../BAT-and-UTIL-files-1/unique-lines.pl):
+### 🌟 [lyric-postprocessor.pl](../BAT-and-UTIL-files-1/lyric-postprocessor.pl):
 
 Display each *unique* line in a file. Much like the ```uniq``` command except that no pre-sorting is required.
 [Also has postprocessor functionality listed below]
@@ -537,7 +537,7 @@ Preprocessors / Postprocessors developed for this project.
 
 The lyric downloader we use for Genius saves lyrics as a ```JSON file```. This extracts the actual lyrics from that file, with minimal preprocessing.
 
-### 🌟 [unique-lines.pl](../BAT-and-UTIL-files-1/unique-lines.pl):
+### 🌟 [lyric-postprocessor.pl](../BAT-and-UTIL-files-1/lyric-postprocessor.pl):
 
 A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI’s 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a spiritual fork of ``uniq``` that doesn’t require file sorting (to avoid using up the 224 max tokens for WhisperAI with repeating lyrics), and grew into full-fledged lyric preprocessor that does much lyric massaging. Including putting a period at the end of each line, which is later removed by our subtitle postprocessor.
 

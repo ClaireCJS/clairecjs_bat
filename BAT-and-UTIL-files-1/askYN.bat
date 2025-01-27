@@ -42,7 +42,7 @@ rem Validate environment once:
         iff 1 ne %VALIDATED_ASKYN% then
                 call validate-plugin                stripansi
                 call validate-in-path               echos echoerr echoserr print-if-debug important.bat fatal_error.bat warning.bat repeat if set color_alarm_hex color_success_hex
-                call validate-functions             CURSOR_COLOR_BY_WORD CURSOR_COLOR_BY_HEX 
+                call validate-functions             ANSI_CURSOR_CHANGE_COLOR_WORD CURSOR_COLOR_BY_HEX 
                 call validate-environment-variables CURSOR_RESET ANSI_COLORS_HAVE_BEEN_SET
                 set VALIDATED_ASKYN=1
         endiff
@@ -314,8 +314,8 @@ REM Print the question out with a spacer below to deal with pesky ANSI behavior:
         endiff
             
 REM Load INKEY with the question, unless we’ve already printed it out:
-        echoserr %@CURSOR_COLOR_BY_WORD[PURPLE]
-                                    set INKEY_QUESTION=%PRETTY_QUESTION%
+        echoserr %@ANSI_CURSOR_CHANGE_COLOR_WORD[PURPLE]
+                                                             set INKEY_QUESTION=%PRETTY_QUESTION%
         if %WAIT_TIMER_ACTIVE eq 0 .and. %BIG_QUESTION eq 1 (set INKEY_QUESTION=)
 
 

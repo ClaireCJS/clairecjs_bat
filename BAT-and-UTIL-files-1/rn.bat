@@ -12,6 +12,7 @@ rem Do nothing when passed these arguments:
         if  not exist  %1            goto :DNE
 
 rem Validate environment (once):
+        if "%@CURSOR_COLOR_BY_WORD[]" == "" function CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
         iff 1 ne %validated_rn_1% then
                 call validate-is-function CURSOR_COLOR_BY_WORD
                 set  validated_rn_1=1

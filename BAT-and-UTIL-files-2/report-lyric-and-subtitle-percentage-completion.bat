@@ -57,14 +57,16 @@ rem Count the file types:
                 set   ALL_AUDIO_COUNT=%@EXECSTR[egrep "%@UNQUOTE[%filemask_audio_regex%]" %FULL_FILELIST%  | wc -l]
                 set VOCAL_AUDIO_COUNT=%@EXECSTR[egrep "%@UNQUOTE[%filemask_audio_regex%]" %VOCAL_FILELIST% | wc -l]
 
-                gosub counttype        "total" " total audio"  NULL                                  "%@UNQUOTE[%filemask_audio_regex%]"  %+ set    ALL_AUDIO_COUNT_PROBED=%COUNT%
-                gosub counttype "instrumental" "instrumental" %ALL_AUDIO_COUNT_PROBED% "instrumental.*%@UNQUOTE[%filemask_audio_regex%]"  %+ set INSTRUMENTAL_COUNT=%COUNT%
-                gosub counttype        "audio" "       vocal" %ALL_AUDIO_COUNT_PROBED%               "%@UNQUOTE[%filemask_audio_regex%]"  %+ set  VOCAL_AUDIO_COUNT_PROBED=%COUNT%
-                gosub counttype       "lyrics" "      lyrics" %VOCAL_AUDIO_COUNT%                               "\.txt"                   %+ set   HAVE_LYRIC_COUNT=%COUNT%
-                gosub counttype      "karaoke" "     karaoke" %VOCAL_AUDIO_COUNT%                               "(\.lrc|\.srt)"           %+ set HAVE_KARAOKE_COUNT=%COUNT%
+                call divider
+                gosub counttype        "total" "       total audio"  NULL                                  "%@UNQUOTE[%filemask_audio_regex%]"  %+ set    ALL_AUDIO_COUNT_PROBED=%COUNT%
+                gosub counttype "instrumental" "      instrumental" %ALL_AUDIO_COUNT_PROBED% "instrumental.*%@UNQUOTE[%filemask_audio_regex%]"  %+ set INSTRUMENTAL_COUNT=%COUNT%
+                gosub counttype        "audio" "             vocal" %ALL_AUDIO_COUNT_PROBED%               "%@UNQUOTE[%filemask_audio_regex%]"  %+ set  VOCAL_AUDIO_COUNT_PROBED=%COUNT%
+                gosub counttype       "lyrics" "            lyrics" %VOCAL_AUDIO_COUNT%                               "\.txt"                   %+ set   HAVE_LYRIC_COUNT=%COUNT%
+                gosub counttype      "karaoke" "           karaoke" %VOCAL_AUDIO_COUNT%                               "(\.lrc|\.srt)"           %+ set HAVE_KARAOKE_COUNT=%COUNT%
+                call divider
 
         echo.
-        pause
+        rem pause
         set skip=27
         set highlight="[0-9][0-9]?\.[0-9][0-9]"
         rem (type %log%|grep -i  lyrics)|uniq -s%SKIP%|call highlight %highlight%
@@ -73,12 +75,17 @@ rem Count the file types:
         call set-tmp-file %+ set tmpfile2=%tmpfile%
         call set-tmp-file %+ set tmpfile3=%tmpfile%
         call set-tmp-file %+ set tmpfile4=%tmpfile%
-        ((type %log%|grep -i  lyrics)|uniq -s%SKIP%)    >:u8%tmpfile1% 
-        type %tmpfile1% |:u8 call highlight %highlight% >:u8%tmpfile2% 
-        call fast_cat                                       %tmpfile2%
-        ((type %log%|grep -i karaoke)|uniq -s%SKIP%)    >:u8%tmpfile3% 
-        type %tmpfile3% |:u8 call highlight %highlight% >:u8%tmpfile4% 
-        call fast_cat                                       %tmpfile4%
+        call divider
+        ((type %log%|grep -i  lyrics)|uniq -s%SKIP%)        >:u8%tmpfile1% 
+        head -1 %tmpfile1% |:u8 call highlight %highlight%  >:u8%tmpfile2% 
+        tail -6 %tmpfile1% |:u8 call highlight %highlight% >>:u8%tmpfile2% 
+        call fast_cat                                           %tmpfile2%
+        call divider
+        ((type %log%|grep -i karaoke)|uniq -s%SKIP%)        >:u8%tmpfile3% 
+        head -1 %tmpfile3% |:u8 call highlight %highlight%  >:u8%tmpfile4% 
+        tail -6 %tmpfile3% |:u8 call highlight %highlight% >>:u8%tmpfile4% 
+        call fast_cat                                           %tmpfile4%
+        call divider
 
 goto :END
         :counttype [nature_clean nature AUDIO_COUNT_TOTAL_TO_USE_FOR_PCT_CALCS regex]

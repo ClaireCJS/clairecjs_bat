@@ -88,6 +88,9 @@ REM CONFIG: 2024:
         goto :set_TRANSCRIBER_VALID_EXTENSIONS_done
         :set_TRANSCRIBER_VALID_EXTENSIONS
                 set TRANSCRIBER_VALID_EXTENSIONS=*.wav;*.flac;*.mp3;*.mp4;*.mpweg;*.mpga;*.m4a;*.wav;*.webm %+ rem valid extensions that our transcriber can transscribe
+                set search=%@SEARCH[%TRANSCRIBER_TO_USE%]
+                set TRANSCRIBER_LOCK_FILE=%@UNQUOTE[%@path[%search%]%@NAME[%TRANSCRIBER_TO_USE%]].lock
+                echo %ANSI_COLOR_DEBUG%- TRANSCRIBER_LOCK_FILE is “%TRANSCRIBER_LOCK_FILE%”     %faint_on%(search=“%search%”)%faint_off%
         return
         :set_TRANSCRIBER_VALID_EXTENSIONS_done
 
@@ -171,12 +174,6 @@ rem Set filemask to match audio files:
 REM validate environment [once]:
         if not defined UnicodeOutputDefault (set UnicodeOutputDefault=no)
         iff "1" !=  "%VALIDATED_CREATE_LRC_FF%" then
-                rem 2023 versin: call validate-in-path whisper-faster.bat debug.bat
-                @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  unique-lines.pl  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat
-                @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check red_x ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off ansi_color_blue
-                @call validate-environment-variables TRANSCRIBER_PDNAME skip_validation_existence
-                @call validate-is-function           ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD                
-                @call checkeditor
                 rem Default values to help portability:
                         if not defined ESCAPE                                      set                                            ESCAPE=%@CHAR[27]
                         if not defined ANSI_ESCAPE                                 set                                       ANSI_ESCAPE=%ESCAPE%[
@@ -190,8 +187,14 @@ REM validate environment [once]:
                         if not defined ANSI_COLOR_BLUE                             set ANSI_COLOR_BLUE=%@CHAR[27][34m
                         if not defined ANSI_COLOR_BRIGHT_YELLOW                    set ANSI_COLOR_BRIGHT_YELLOW=%@CHAR[27][93m
                         if not defined ANSI_COLOR_ORANGE                           set ANSI_COLOR_ORANGE=%@CHAR[27][38;2;235;107;0m
-                        rem TODO BLINK_ON, BLINK_OFF ITALICS_ON ITALICS_OFF
-                @set VALIDATED_CREATE_LRC_FF=1
+                        rem TODO BLINK_ON, BLINK_OFF ITALICS_ON ITALICS_OFF, QUOTE, etc
+                rem Perform the actual validations:
+                        @call validate-in-path               %TRANSCRIBER_TO_USE%  get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl
+                        @call validate-environment-variable  TRANSCRIBER_PDNAME skip_validation_existence
+                        @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check red_x ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off ansi_color_blue
+                        @call validate-is-function           ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD                
+                        @call checkeditor
+                        @set VALIDATED_CREATE_LRC_FF=1
         endiff
 
                         
@@ -343,20 +346,24 @@ rem If the file has been marked as failed previously, abort (unless in force mod
 
 REM Values fetched from input file:
         rem echo solely_by_ai is %solely_by_ai% %+ pause
-        iff "1" == "%SOLELY_BY_AI%" then
+        if "1" == "%SOLELY_BY_AI%" (
                 set PROMPT_CONSIDERATION_TIME=3
                 set PROMPT_EDIT_CONSIDERATION_TIME=3
-        else
+        )
+        if "1" != "%SOLELY_BY_AI%" goto :endiff_359
                 echo %ansi_color_unimportant%🐐 %@cool[calling get-lyrics-for-file] [111] - CALLING %@colorful_string[━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━]
                 call get-lyrics-for-file "%SONGFILE%" SetVarsOnly %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc
                 echo %ansi_color_unimportant%🐐 return: %@cool[get-lyrics-for-file] [111] - RETURNED %@colorful_string[━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━]
-                if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
+echo goat echo on!
+echo on
+                if "%_CWD\" != "%SONGDIR%" (*cd "%SONGDIR%")
                 set last_file_probed=%SONGFILE%                               %+ rem prevents get-lyrics from probing twice
-        endiff
+        :endiff_359
 
 REM if 2nd parameter is lyric file, use that one:
         if not exist "%POTENTIAL_LYRIC_FILE%" goto :ine_plf
                 set TXT_FILE=%@UNQUOTE["%POTENTIAL_LYRIC_FILE%"]
+                echo on %+ rem goat!
                 echo %STAR%%ANSI_COLOR_IMPORTANT% Using existing lyrics file: %italics_on%%TXT_FILE%%italics_off%%ansi_color_normal%
                 set goto_AI_generation=1
         :ine_plf
@@ -708,6 +715,8 @@ rem Mandatory review of lyrics
 :we_decided_to_never_check_for_txtfile
 :Force_AI_Generation
 :AI_generation
+echo ❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇ AI generation! ❇❇❇❇❇❇❇❇❇❇❇❇❇❇ >nul
+echo off
 
 
 REM if a text file of the lyrics exists, we need to engineer our AI transcription prompt with it to get better results
@@ -805,7 +814,6 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format
         else                
                 :use_text
                 rem the text file %TXT_FILE% does in fact exist!
-                setdos /x-1
                         rem 2023 method: set CLI_OPS=%CLI_OPS% --initial_prompt "Transcribe this audio, keeping in mind that I am providing you with an existing transcription, which may or may not have errors, as well as header and footer junk that is not in the audio you are transcribing. Lines that say “downloaded from” should definitely be ignored. So take this transcription lightly, but do consider it. The contents of the transcription will have each line separated by “ / ”.   Here it is: ``
                         rem set CLI_OPS=%CLI_OPS% --initial_prompt "Transcribe this audio, keeping in mind that I am providing you with an existing transcription, which may or may not have errors, as well as header and footer junk that is not in the audio you are transcribing. Lines th at say “downloaded from” should definitely be ignored. So take this transcription lightly, but do consider it. The contents of the transcription will have each line separated by “ / ”.   Here it is: ``
                         rem 2024: have learned prompt is limited to 224 tokens and should really just be a transcription
@@ -822,19 +830,37 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format
                                 rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" | awk "!seen[$0]++" ]] .... This was getting unruly, wrote a perl script that like “uniq”, but more for this specific situation
 
                                 rem Essentially make it so there is no command separator character. CHAR[1] should NOT come up in any lyrics
+                                rem The problem with setdos /x-5 is it also disables piping so it made this into a multi-step process, but that’s okay.
+                                rem The problem with setdos /x-1 is that it makes “*Echo” and commands prefixed with “*” invalid
                                 setdos /c%@CHAR[1] 
-                                set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE[%TXT_FILE]" |:u8 unique-lines.pl -1 -L]] 
+                                rem But wait! This isn’t setting separator to  %@ASCII[1], but to “%”! oops!
+                                set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 unique-lines.pl -1 -L]] 
                                 set OUR_LYRICS_TRUNCATED=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%OUR_LYRICS%]
+                                set OUR_LYRICS_2=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -1 -L]]                               
+                                set tmppromptfile=%_DATETIME.%KNOWN_NAME%.%_PID.%@NAME[%@UNIQUEx[%TEMP%\]]
+                                (type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -1 -L) >%tmppromptfile%
+                                setdos /x0
+                                setdos /x-25
+                                set OUR_LYRICS_3a=%@EXECSTR[type %tmppromptfile%]
+                                set OUR_LYRICS_3=%@unquote["%@LEFT[%MAXIMUM_PROMPT_SIZE%,"%our_lyrics_3a"]"]
+                                setdos /x0
+                                rem echo our_lyrics_1=“%OUR_LYRICS_TRUNCATED%”
+                                rem echo our_lyrics_2=“%our_lyrics_2%”
+                                rem echo our_lyrics_3=“%our_lyrics_3%”
 
                         rem Add the lyrics to our existing whisper prompt:
-                                set WHISPER_PROMPT=--initial_prompt "%OUR_LYRICS_TRUNCATED%"
+                                setdos /x-5
+                                set WHISPER_PROMPT=--initial_prompt "%OUR_LYRICS_3%"
+                                setdos /x0
                                 rem @echo %ANSI_COLOR_DEBUG%Whisper_prompt is:%newline%%tab%%tab%%faint_on%%WHISPER_PROMPT%%faint_off%%ANSI_COLOR_NORMAL%
 
                         rem Leave a hint to future-self, because we definitely do "env whisper" to look into the environment to find the whisper prompt last-used, for when we want to do minor tweaks... And remembering --batch_recursive is hard 😂
                                 set WHISPER_PROMPT_ADVICE_NOTE_TO_SELF______________________________=*********** FOR RECURSIVE: do %%whisper_prompt%% but instead of the filename do --batch_recursive *.mp3
 
                         rem Preface our whisper prompt with our hard-coded default command line options from above:
+                                setdos /x-5
                                 set CLI_OPS=%CLI_OPS% %WHISPER_PROMPT%
+                                setdos /x0
                 setdos /x0
         endiff                
         :No_Text
@@ -874,8 +900,9 @@ REM does our input file exist?
         call validate-environment-variable  INPUT_FILE
 
 REM Assemble the full command-line to transcribe the file:
+        setdos /x-5
         set LAST_WHISPER_COMMAND=%TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%"    
-
+        setdos /x0
 
 
 REM Backup any existing SRT file, and ask if we are sure we want to generate AI right now:
@@ -885,6 +912,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         :actually_make_the_lrc
         gosub divider
         @echos %STAR% %ANSI_COLOR_WARNING_SOFT%%emphasis%%blink_on%About to%deemphasis%: %blink_off%
+        setdos /x-5
         set LAST_WHISPER_COMMAND_FOR_DISPLAY_TMP=%LAST_WHISPER_COMMAND%
         rem LAST_WHISPER_COMMAND_FOR_DISPLAY=%@ReReplace[initial_prompt ,initial_prompt%ansi_color_orange% ,"%LAST_WHISPER_COMMAND_FOR_DISPLAY_TMP%"]
         set LAST_WHISPER_COMMAND_FOR_DISPLAY=%@ReReplace["(initial_prompt..)([^\\]*)","\1%ansi_color_orange%\2%ansi_color_bright_yellow%","%LAST_WHISPER_COMMAND_FOR_DISPLAY_TMP%"]
@@ -894,6 +922,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
                 rem setdos /e!
                 rem echo %@rereplace[[^\!q],x,"How is "your" quest going?"]
         @echo %LAST_WHISPER_COMMAND_FOR_DISPLAY%%ansi_color_reset% 
+        setdos /x0
         @call AskYn "Proceed with this AI generation" yes %PROMPT_CONSIDERATION_TIME%
         iff "%answer%" == "N" then
                 @call warning "Aborting because you changed your mind..."
@@ -1034,23 +1063,21 @@ REM delete zero-byte LRC files that can be created
         call delete-zero-byte-files *.srt silent >nul
         echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%                
         
-REM Post-process the SRT file:
-rem Remove periods from the end of each line in the SRT, but preserve them if at the end of a common word like "Mr.", "Ms.", or if "...":
-        rem echo "About to remove invisible periods" %+ pause
-        
+REM Post-process the SRT file: Cosmetics:
         rem When we had headers, we needed to do this:
                 rem gosub divider
         rem But now that we switched to status-bar/footers, i noticed that we end up on the 3ʳᵈ  line of the footer
         rem after footer unlock. The way I noticed this was that gosub'ing ’divider’ up above overwrote the status bar
         rem divider with our own, which had an incongruent background color, which made me realize the bottom divider
         rem line of the status-bar was being overrwritten with our “call  divider” from above.  So we changedi t
-        rem and instead of calling divider, we simply move one line down. The divider is already there.
-        rem NOTE: that this may change after we update unlock-bot to clean off the footer after unlocking.
+        rem and instead of calling divider, we simply moe one line down. The divider is already there.
+        rem NOTE: that this may change after we update uvnlock-bot to clean off the footer after unlocking.
         rem NOTE:      Currently, this implementation is slated to be a temporary cosmetic fix that will likely breka later
                 echo.
 
+REM Post-process the SRT file: Actual postprocessing:    
+        rem echo "About to remove invisible periods" %+ pause
         gosub :postprocess_lrc_srt_files
-
         
 
 
@@ -1260,8 +1287,8 @@ goto :skip_subroutines
                 if     exist "%LRC_FILE%" .and.     exist "%SRT_FILE%"  echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%SRT%italics_off% and %italics_on%LRC%italics_off% files...
                 if     exist "%LRC_FILE%" .and. not exist "%SRT_FILE%"  echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%LRC%italics_off% file...
                 if not exist "%LRC_FILE%" .and.     exist "%SRT_FILE%"  echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%SRT%italics_off% file...
-                if exist "%LRC_FILE%" (remove-period-at-ends-of-lines.pl -w "%LRC_FILE%")
-                if exist "%SRT_FILE%" (remove-period-at-ends-of-lines.pl -w "%SRT_FILE%")
+                if exist "%LRC_FILE%" (subtitle-postprocessor.pl -w "%LRC_FILE%")
+                if exist "%SRT_FILE%" (subtitle-postprocessor.pl -w "%SRT_FILE%")
                 echo ...%CHECK% %ANSI_COLOR_GREEN%Success%BOLD_ON%!%BOLD_OFF%%ANSI_COLOR_NORMAL%
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%                
         return

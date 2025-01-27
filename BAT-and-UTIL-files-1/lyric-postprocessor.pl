@@ -1,15 +1,21 @@
+#TODO: possibly shorten things like ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 #!/usr/bin/perl
 
-# On the surface, a general utility like uniq, except it remembers if a line has been seen before —— you don't have to pre-sort it
+# Lyric postprocessor for AI transcription prompts!
+#
+#		
 
-# However, prior to us forking “unique-lines.pl” to “lyric-postprocessor.pl”, some additional features were added. They are NOT
-# relevant to the task here of “unique lines”.   Combine any of these parameters to access the DEPRECATED pre-forked features:
-		#“-L” to treat it as lyrics being fed to an AI for transcription, which need postprocessing from various download sources
-		#“-A” to to print all lines, in case you want to preview the lyric postprocessing while maintaining the normal structure
-		#“-1” parameter to smush it all into one line
+# Combine any of these command-line parameters:
+#     [DEFAULT] “-U” parameter to print unique lines only
+#               “-A” parameter to print *all*  lines
+#               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#     [DEFAULT] “-L” parameter to treat it as downloaded lyrics, which need extended/special postprocessing 
+#               “-N” parameter to treat it as downloaded lyrics, which need extended/special postprocessing 
+#               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#               “-1” parameter to smush it all into one line {for AI command-line prompting}
 
 
-### DEPRECATED FEATURES MAY BE REMOVED AT ANY TIME!! ###
+#HISTORY: forked from “lyric-postprocessor.pl”
 
 ########### CONFIGURATION: BEGIN: ###########
 my $ADDED_END_LINE_CHARACTER=".";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online
@@ -24,7 +30,7 @@ my $ALL_LINES_MODE;
 my $to_print_last;
 
 # Loop through @ARGV to check for -1 and -L options
-$LYRICS_MODE    = 0;    
+$LYRICS_MODE    = 1;    
 $ONE_LINE       = 0;
 $ALL_LINES_MODE = 0;
 foreach my $arg (@ARGV) {
@@ -32,11 +38,15 @@ foreach my $arg (@ARGV) {
         $ONE_LINE = 1;
     } elsif ($arg eq '-L') {
         $LYRICS_MODE = 1;
+    } elsif ($arg eq '-N') {
+        $LYRICS_MODE = 0;
     } elsif ($arg eq '-A') {
         $ALL_LINES_MODE = 1;
+    } elsif ($arg eq '-U') {
+        $ALL_LINES_MODE = 0;
     } else {
-        die "\n\n\nUnknown argument: $arg\n\n\nUSAGE (deprecated; use lyric-postprocessor.pl instead):\n\t-1 for smushing into 1 line\n\t-A to show ALL lines not just unique lines\n\t-L for downloaded-lyric postprocessing";
-		usage();
+        die "\n\n\nUnknown argument: $arg\n\n\nUSAGE:\n\t-1 for smushing into 1 line\n\t-A to show ALL lines not just unique lines\n\t-L for downloaded-lyric postprocessing";
+		show_usage();
 		exit 1;
     }
 }
@@ -122,6 +132,9 @@ while (<STDIN>) {
 			$line = lc($line);
 		}
 
+		#fix crap like: “ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo”
+		# Use regex to match any character repeated more than 24 times and replace it with 24 of that character
+		$line =~ s/(\w)\1{24,}/$1 x 24/eg;
 
 	}
 
@@ -181,9 +194,13 @@ if ($ONE_LINE) {
 }
 print $output;
 
-sub usage {
-	print "\n <command> |  unique-lines\n";
-	print   " <command> |  unique-lines -1 -- smush into one line\n";
-	print   " <command> |  unique-lines -L -- lyrics mode\n";
-	print   " <command> |  unique-lines -1 -L -- both (best for AI prompts)\n";
+sub show_usage {
+	print "\n <command> |  lyric-postprocessor\n";
+	print   " <command> |  lyric-postprocessor -L -- lyric postprocessing mode ON\n";
+	print   " <command> |  lyric-postprocessor -N -- lyric postprocessing mode OFF\n";
+	print   " <command> |  lyric-postprocessor -1 -- smush into one line\n";
+	print   " <command> |  lyric-postprocessor -1 -L -- both (best for AI prompts)\n";
+	print   "\nNOTE: Changes \" into \’ as well"
+	
+
 }

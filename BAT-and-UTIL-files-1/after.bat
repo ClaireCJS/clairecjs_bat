@@ -350,23 +350,13 @@ goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :mov
 	echo.
-	echo *SHORT* movie review mode. Relies on IFTTT (which sucks)
+	echo *SHORT* movie review mode. Diary-only.
 	echo.
 	echo Enter movie name:
-		if "%MOVIE"=="" set MOVIE=.
-		eset  MOVIE
-		echo %MOVIE >clip:
-	%EDITOR %PUBCL\journal\%LOGFILE_BASENAME_TO_USE-%_YEAR.txt %BAT\blog-movie-body-template.txt c:\perl\site\lib\clio\HTML.pm
-		http://www.facebook.com/%NETNAME%
-		call sleep 1
-		http://%NETNAME_DEAD%.wordpress.com
-		call sleep 1
-		https://ifttt.com/myrecipes/personal/632571
-		call sleep 1
-		https://ifttt.com/myrecipes/personal/632559
-		call sleep 1
-	call netflix.bat %MOVIE
-	call sleep 1
+        if "%MOVIE"=="" set MOVIE=.
+        eset  MOVIE
+        echo %MOVIE >clip:
+	%EDITOR %PUBCL\journal\%LOGFILE_BASENAME_TO_USE-%_YEAR.txt 
 	call    imdb.bat %MOVIE
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
