@@ -1,6 +1,6 @@
 @echo 🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗 CREATE-SRT-FROM-FILE 🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗 >nul
 @loadbtm on
-@Echo Off
+@Echo On
 @setdos /x0
 @on break cancel
 @rem echo **** create-srt-from-file.bat called **** 🌭🌭🌭 
@@ -68,7 +68,7 @@ rem Pre-Cleanup:
         UNSET /Q goto_forcing_ai_generation
         UNSET /Q ABANDONED_SEARCH
         UNSET /Q LYRICLESSNESS_STATUS
-
+        UNSET /Q FAILURE_ADS_RESULT
 
 rem MAJOR BRANCHING:
         iff "%1" ==  "postprocess_lrc_srt_files" then
@@ -106,9 +106,11 @@ rem CONFIG: 2024: WAIT TIMES:
         set AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES=5                       %+ rem wait time for "no lyrics, gen with AI anyway"-type questions *IF WE HAVE APPROVED LYRICLESSNESS STATUS* for the song
         set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=25                                     %+ rem wait time for "we already have karaoke, regen anyway?"-type questions
         set PROMPT_CONSIDERATION_TIME=20                                                            %+ rem wait time for "does this AI command look sane"-type questions
+        SET PROCEED_WITH_AI_CONSIDERATION_TIME=40                                                   %+ rem wait time for "Proceed with this AI generation?"-type questions
         set PROMPT_EDIT_CONSIDERATION_TIME=20                                                       %+ rem wait time for "do you want to edit the AI prompt"-type questions
         set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0                                      %+ rem wait time for "hey lyrics not found!"-type notifications/questions. Set to 0 to not pause at all.
         set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=120                                               %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
+        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=1200                                              %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
         set EDIT_KARAOKE_AFTER_FORCE_REGEN_WAIT_TIME=12                                             %+ rem wait time for "edit it now that we’ve made it?"-type questions when we are in force-regen mode
 
 REM config: 2023:
@@ -236,13 +238,14 @@ REM branch on certain paramters, and clean up various parameters
         rem %1 is the filename, but %2+++ can be various options to pull off, while the rest is to go to Whisper/our transcriber
         rem iff "%2" == "ai" .or. "%2" == "fast" .or. "%2" == "redo" .or. "%2" == "force-regen" .or. "%2" == "cleanup" then
         echos %ANSI_COLOR_MAGENTA%
+echo on %+ rem goat
         rem echo tail is %1$
         rem echo  one is %1
         set TMP_PARAM_1=%1
-        rem echo TMP_PARAM_1 is “%TMP_PARAM_1%”
-        iff "%TMP_PARAM_1%" != "" then
+        rem goat
+        echo TMP_PARAM_1 is “%TMP_PARAM_1%”
+        iff "%@UNQUOTE["%TMP_PARAM_1%"]" != "" then
                 set special_parameters_possibly_present=1
-                rem echo special params present! %1$
         else
                 set special_parameters_possibly_present=0
         endiff
@@ -279,6 +282,7 @@ REM branch on certain paramters, and clean up various parameters
 
 
         rem echo AUTO_LYRIC_APPROVAL is %AUTO_LYRIC_APPROVAL%  %+ pause
+echo off %+ rem goat
         
         if 1 eq %CLEANUP (goto :just_do_the_cleanup)
 
@@ -298,6 +302,7 @@ REM branch on certain paramters, and clean up various parameters
                 set PROMPT_EDIT_CONSIDERATION_TIME=3                       %+ rem wait time for "do you want to edit the AI prompt"-type questions
                 set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=2     %+ rem wait time for "hey lyrics not found!"-type notifications/questions
                 set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=3                %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
+                SET PROCEED_WITH_AI_CONSIDERATION_TIME=6                   %+ rem wait time for "Proceed with this AI generation?"-type questions
         endiff
 
         iff "1" == "%FORCE_REGEN%" then
@@ -337,8 +342,10 @@ rem If the file is an instrumental, abort...
 
 
 rem If the file has been marked as failed previously, abort (unless in force mode):
+        unset /q failure_ads_result
         set  failure_ads_result=%@EXECSTR[type "%@UNQUOTE["%INPUT_FILE%"]:karaoke_failed"  >>&>nul] 
-        rem echo failure_ads_result is “%failure_ads_result%”
+        rem goat
+        echo failure_ads_result is “%failure_ads_result%”, force_regen=“%force_regen%”
         iff "True" == "%failure_ads_result%" .and. "1" != "%FORCE_REGEN%" then
                 @call warning "Sorry, this file has failed in transcription, and won’t be tried again without the “force” parameter being used: %faint_on%%INPUT_FILE%%faint_off%" silent 
                 goto :END
@@ -635,8 +642,10 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                                 set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=no
                         endiff
                 
-                @call askYN "Generate AI anyway" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME%
+                @call askYN "Generate AI anyway (I=instrumental,L=lyric%underline_on%less%underline_off%)" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME% IL I:Mark_it_as_an_instrumental_track,L:Mark_lyricless
                 if "%ANSWER%" == "Y" (goto :Force_AI_Generation)
+                gosub :check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
+                gosub :check_for_answer_of_L "%@UNQUOTE["%INPUT_FILE%"]"
 
                 iff "1" != "%ABANDONED_SEARCH%" .or. "%LYRICLESSNESS_STATUS%" == "APPROVED" then
                         @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Failed to generate%emphasis% %SRT_FILE%%deemphasis%%ansi_color_warning%                %emoji_warning% %ansi_color_normal%
@@ -668,7 +677,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 echo %ansi_color_normal%🐐 calling: %@cool[calling get-lyrics-for-file] [333A]
                 call get-lyrics-for-file "%SONGFILE%" 
                 if "1" == "%JUST_RENAMED_TO_INSTRUMENTAL%" set GOTO_END_AFTER_GET_LYRICS_CALLED=1
-                echo %ansi_color_normal%🐐 return:  %@cool[calling get-lyrics-for-file] [333Z] [GOTO_END_AFTER_GET_LYRICS_CALLED=%GOTO_END_AFTER_GET_LYRICS_CALLED%]
+                echo %ansi_color_normal%🐐 return: %@cool[calling get-lyrics-for-file] [333Z] [GOTO_END_AFTER_GET_LYRICS_CALLED=%GOTO_END_AFTER_GET_LYRICS_CALLED%]
                 if "%_CWD\" != "%SOnGDIR%" pushd "%SONGDIR%"
                 set LYRIC_ATTEMPT_MADE=1
                 if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto :END
@@ -836,9 +845,9 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format
                                 rem But wait! This isn’t setting separator to  %@ASCII[1], but to “%”! oops!
                                 set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 unique-lines.pl -1 -L]] 
                                 set OUR_LYRICS_TRUNCATED=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%OUR_LYRICS%]
-                                set OUR_LYRICS_2=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -1 -L]]                               
+                                set OUR_LYRICS_2=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -A -1 -L]]                               
                                 set tmppromptfile=%_DATETIME.%KNOWN_NAME%.%_PID.%@NAME[%@UNIQUEx[%TEMP%\]]
-                                (type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -1 -L) >%tmppromptfile%
+                                (type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -A -1 -L) >%tmppromptfile%
                                 setdos /x0
                                 setdos /x-25
                                 set OUR_LYRICS_3a=%@EXECSTR[type %tmppromptfile%]
@@ -923,16 +932,20 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
                 rem echo %@rereplace[[^\!q],x,"How is "your" quest going?"]
         @echo %LAST_WHISPER_COMMAND_FOR_DISPLAY%%ansi_color_reset% 
         setdos /x0
-        @call AskYn "Proceed with this AI generation" yes %PROMPT_CONSIDERATION_TIME%
+        unset /q answer
+        @call AskYn "Proceed with this AI generation (L=mark lyricless%underline_on%ness%underline_off%)" yes %PROCEED_WITH_AI_CONSIDERATION_TIME% L L:Mark_as_lyricless
+        if  "%answer%" == "Y" goto :edit_ai_prompt
         iff "%answer%" == "N" then
                 @call warning "Aborting because you changed your mind..."
                 sleep 1
                 goto :END
         endiff
+        gosub check_for_answer_of_L  "%INPUT_FILE%"    
 
 
 
 REM quick chance to edit prompt:
+        :edit_ai_prompt
         @call AskYn "Edit the AI prompt" no %PROMPT_EDIT_CONSIDERATION_TIME%
         iff "%answer%" == "Y" (eset LAST_WHISPER_COMMAND)
 
@@ -983,7 +996,7 @@ REM set a non-scrollable header on the console to keep us from getting confused 
         call footer "%banner_message%"
 
 
-REM ✨ ✨ ✨ ✨ ✨ Actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI: ✨ ✨ ✨ ✨ ✨
+REM  ✨ ✨ Get ready to actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI: ✨ ✨ 
         rem Cosmetics:
             @echo.
             @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% Launching AI! %EMOJI_FIREWORKS%%ansi_color_normal%
@@ -993,6 +1006,7 @@ REM ✨ ✨ ✨ ✨ ✨ Actually generate the SRT file [used to be LRC but we ha
             echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[magenta]%ANSI_CURSOR_CHANGE_TO_vertical_bar_BLINKING%   
             title waiting: %BASE_TITLE_TEXT%
 
+REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨ 
         rem One last concurrency check:
                 iff "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then
                         echo %ANSI_COLOR_WARNING% Actually, it’s still running! %ANSI_RESET%
@@ -1015,11 +1029,14 @@ REM ✨ ✨ ✨ ✨ ✨ Actually generate the SRT file [used to be LRC but we ha
         rem A 3rd concurrency check became necessary in my endeavors:
                 if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto :Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
 
+REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨ 
+REM  ✨ ✨ ✨ ✨ ✨ ✨ ACTUALLY DO THE AI-TRANSCRIPTOIN: ✨ ✨ ✨ ✨ ✨ ✨ 
         rem ACTUALLY DO IT!!!:
                 if defined CURSOR_RESET echos %CURSOR_RESET%
                 echos %ANSI_CURSOR_CHANGE_TO_vertical_bar_steady%   
                 echo. %+ rem this is the blank line after “launching ai”
                 option //UnicodeOutput=yes
+                on break continue
                 rem    %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper 
                 rem    %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper  |&:u8 tee      /a      "%OUR_LOGFILE%"
                 rem    %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper  |&:u8 tee.exe --append "%OUR_LOGFILE%"
@@ -1035,7 +1052,8 @@ rem temporary cosmetic feature removal while working out copy-move-post.py post-
 rem                    %LAST_WHISPER_COMMAND%                                                         |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
 rem but y’know rather than using tee, i could maybe use copy-move-post ITSELF to write the  logfile and escape these complications entirely!                       
                        %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper -t"%OUR_LOGFILE%"  
-                       
+
+                on break cancel                      
                        
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
@@ -1297,17 +1315,20 @@ goto :skip_subroutines
                 if "I" == "%ANSWER%" gosub rename_audio_file_as_instrumental
         return
 
-        :AskAboutInstrumental []
-                gosub "%BAT%\get-lyrics-for-file.btm" AskAboutInstrumental
+        :AskAboutInstrumental [opt]
+                gosub "%BAT%\get-lyrics-for-file.btm" AskAboutInstrumental %opt%
         return
-        :check_for_answer_of_I []                        
-                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr_if_answer_was_I 
+        :check_for_answer_of_I [opt]                        
+                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr_if_answer_was_I %opt%
+        return
+        :check_for_answer_of_L [opt]                        
+                gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_L %opt%
         return
         :refresh_lyric_status [opt]
                 gosub "%BAT%\get-lyrics-for-file.btm" refresh_lyric_status %opt%
         return
-        :rename_audio_file_as_instrumental []                        
-                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental
+        :rename_audio_file_as_instrumental [opt]                        
+                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental %opt%
         return
 
         :refresh_lyriclessness_status [opt]
@@ -1373,6 +1394,8 @@ echos %ansi_color_reset%
         setdos /x0
 
 :Unset_Variables
+        set last_failure_ads_result=%failure_ads_result%
+        unset /q failure_ads_result
         unset /q PROMPT_CONSIDERATION_TIME
         unset /q PROMPT_EDIT_CONSIDERATION_TIME
         unset /q JUST_APPROVED_LYRICLESSNESS

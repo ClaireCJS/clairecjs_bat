@@ -226,14 +226,15 @@ rem If we have reached our limit, stop processing
 
         
 rem Display post-processing statistics:
-        iff %num_processed eq 0 then
+        if %num_processed ne 0 goto :num_proc_ne_0
                 echo.
                 echo.
                 call warning "No files were processed here!" silent
                 echos %ansi_reset% >nul
                 echo.
                 echo.
-        else
+                goto :done_with_displaying_postprocessing_statistics
+        :num_proc_ne_0
                 set       fail_rate=%@EVAL[ %num_bad                  /%num_processed]
                 set compliance_rate=%@EVAL[(%num_processed - %num_bad)/%num_processed]
                 set  compliance_pct=%@EVAL[100*%compliance_rate]        
@@ -254,8 +255,7 @@ rem Display post-processing statistics:
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located: %ansi_color_red%%@FORMATn[3.0,%NUM_BAD%]%ansi_color_bright_green% songs needing %findNature% attention
                 call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK% Compliance: %@ANSI_RGB[%our_r%,%our_g%,%our_b%]%@formatn[3.1,%clean_formatted_percent%]%cool_percent%
                 echo.
-        endiff
-
+        :done_with_displaying_postprocessing_statistics
 
 rem Create the fix-script, if there are any to fix:
         setdos /x0

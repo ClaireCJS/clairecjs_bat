@@ -259,7 +259,7 @@ rem VALIDATE PARAMETERS [every time]:
 rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 rem Skip if instrumental....
-        echo [DL-A] INITIAL lyric         status ===== “%LYRIC_STATUS%”
+        echo [AA-D] INITIAL lyric         status ===== “%LYRIC_STATUS%”
         iff 1 eq %@RegEx[instrumental,"%AUDIO_FILE%"] then
                 gosub divider
                 rem echo.
@@ -279,7 +279,9 @@ rem Skip if already an approved-for-lyricLESSness song....
         rem  call get-lyriclessness-status "%AUDIO_FILE%" 🐐1 status=%RECEIVED_VALUE / %LYRICLESSNESS_STATUS
         rem echo %ansi_color_subtle%* LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”, FORCE_REGEN=“%FORCE_REGEN%” , audio_file=“%audio_file%” %ansi_color_normal% %conceal_on%goat%conseal_off%
         echo [EL-A] INITIAL lyric         status ===== “%LYRIC_STATUS%”
-        iff "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "%1" != "force" .and. "%2" != "force" .and. "%3" != "force" .and. "%4" != "force" .and. "%5" != "force" then
+        if "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "%1" != "force" .and. "%2" != "force" .and. "%3" != "force" .and. "%4" != "force" .and. "%5" != "force" goto :do_it_9024398042890234
+                                                                                                                                                                goto :done_skip_if_already_approved_lyriclessness %+ rem (else do this)
+                :do_it_9024398042890234
                 echo.
                 gosub divider
                 echo %ansi_color_bright_yellow%%star% File already marked as lyric%underline_on%less%underline_off%. %italics_on%Not%italics_off% fetching lyrics.
@@ -287,7 +289,8 @@ rem Skip if already an approved-for-lyricLESSness song....
                 echo %ansi_color_advice%%@CHAR[55357]%@CHAR[56393] Add the “%bold_on%force%bold_off%” parameter to skip this check %@CHAR[55357]%@CHAR[56392]
                 gosub divider
                 goto :END
-        endiff
+                pause "this shouldn’t happen!"
+        :done_skip_if_already_approved_lyriclessness
 
 rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -1247,8 +1250,13 @@ rem                 ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 insert-before-eac
                         call review-file "%LYRIC_FILE%" "Downloaded lyrics"
                         rem pause "pause 3c2"
                         @gosub divider
-                        echo %ansi_color_important_less%%star% Directory is: %italics_on%%[_CWP]%[italics_off]
-                        echo %ansi_color_important_less%%star% Filename  is: %ansi_color_green%%italics_on%%blink_on%%@unquote[%@NAME["%AUDIO_FILE%"]]%blink_off%.%faint_on%%@EXT["%AUDIO_FILE%"]%faint_off%%italics_off%
+                        iff "%GENIUS_FILANAME%" !=  "" then
+                                set spacer=                  `
+                        else
+                                unset /q spacer
+                        endiff
+                        echo %ansi_color_important_less%%star% Directory is: %SPACER%%italics_on%%[_CWP]%[italics_off]
+                        echo %ansi_color_important_less%%star% Filename  is: %SPACER%%ansi_color_green%%italics_on%%blink_on%%@unquote[%@NAME["%AUDIO_FILE%"]]%blink_off%.%faint_on%%@EXT["%AUDIO_FILE%"]%faint_off%%italics_off%
                         call bigecho %STAR% %ANSI_COLOR_GREEN%Downloaded: %bold_on%“%bold_off%%[blink_on]%[italics_on]%[MYNAMEY]%[italics_off]%[blink_off]%bold_on%”%bold_off%
                         rem Store the Genius filename as an ADS tag, because the filename is AN AMAZINGLY GOOD SANITY CHECK for whether they were the right lyrics or not —— particularly with music you aren’t familiar with and dno’t recognize the lyrics to right away. They could be lyrics to a totally different song! You’d never know!
                         echo %[MYNAMEY]>"%@UNQUOTE["%AUDIO_FILE%"]:genius_filename"
@@ -1950,11 +1958,16 @@ rem —————————————— SUBROUTINES: BEGIN: ————�
                 if "I" == "%ANSWER%" gosub rename_audio_file_as_instrumental
         return
 
-        :rename_audio_file_as_instrumental []                        
+        :rename_audio_file_as_instrumental [different_filename_than_usual]                        
+                iff "" == "%different_filename_than_usual%" then
+                        set filename_to_rename_as_instrmental=%audio_file%
+                else
+                        set filename_to_rename_as_instrmental=%different_filename_than_usual%
+                endiff
                 call status-bar unlock
                 echos %ANSI_ERASE_TO_END_OF_SCREEN%
                 rem Let’s try not doing this: call divider
-                call rn "%AUDIO_FILE%" "%@NAME["%AUDIO_FILE%"] [instrumental].%@EXT["%AUDIO_FILE%"]"
+                call rn "%AUDIO_FILE%" "%@NAME["%filename_to_rename_as_instrmental%"] [instrumental].%@EXT["%filename_to_rename_as_instrmental%"]"
                 iff "" !=  "%LAST_RENAMED_TO%" then
                         set AUDIO_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
                         set JUST_RENAMED_TO_INSTRUMENTAL=1

@@ -4,6 +4,10 @@
 
 :USAGE: get-karaoke {songfile}
 
+rem Debug configuration:
+        set CALL=echo call           %+ rem Use this for a dry run
+        set CALL=call                %+ rem Use this for normal production
+
 rem Validate usage:
         iff "%1" == "" then
                 %color_advice%
@@ -22,7 +26,7 @@ rem Validate usage:
 
 rem Validate environment once:
         iff 1 ne %validated_getlyrics% then
-                call validate-in-path create-srt-file-for-currently-playing-song.bat check-for-missing-karaoke-here create-srt-from-playlist create-srt-from-file.bat
+                %CALL% validate-in-path create-srt-file-for-currently-playing-song.bat check-for-missing-karaoke-here create-srt-from-playlist create-srt-from-file.bat
                 set  validated_getlyrics=1
         endiff
 
@@ -32,14 +36,14 @@ setdos /x0
 rem Process currently-playing song:
         iff "%1" == "nowplaying" .or. "%1" == "now" .or. "%1" == "np" .or. "%1" == "winamp" .or. "%1" == "this" then
                 setdos /x0
-                call create-srt-file-for-currently-playing-song.bat %2$
+                %CALL% create-srt-file-for-currently-playing-song.bat %2$
                 goto :next_step
         endiff         
 
 rem Process current folder:
         iff "%1" == "here"  then
                 setdos /x0
-                call check-for-missing-karaoke.bat get %2$
+                %CALL% check-for-missing-karaoke.bat get %2$
                 goto :next_step
         endiff
 
@@ -49,7 +53,7 @@ rem DEBUG: setdos /x-4 %+ echo param1 is %1 %+ pause
 rem Error out if a parameter is given that doesn’t exist:
         setdos /x-4
         iff not exist %1 then
-                call fatal_error "get-lyrics can’t do anything with “%1” because it doesn’t exist!"
+                %CALL% fatal_error "get-lyrics can’t do anything with “%1” because it doesn’t exist!"
                 setdos /x0
                 goto :END
         endiff
@@ -66,13 +70,13 @@ rem Process playlists / audio files:
                 rem Process either a playlist or an individual song:
                         iff "m3u" == "%ext%" then
                                 rem echo 🍕🍕🍕
-                                call create-srt-from-playlist %1$       %+ rem Process individual playlist
+                                %CALL% create-srt-from-playlist %1$       %+ rem Process individual playlist
                         else
-                                call create-srt-from-file.bat  %1$       %+ rem Process individual audiofile
+                                %CALL% create-srt-from-file.bat  %1$       %+ rem Process individual audiofile
                         endiff       
         else 
                 setdos /x0
-                call alarm "%0 reached point of confusion"
+                %CALL% alarm "%0 reached point of confusion"
                 pause
         endiff
         setdos /x0

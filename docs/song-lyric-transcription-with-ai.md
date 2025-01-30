@@ -1,3 +1,4 @@
+https://github.com/EtienneAb3d/WhisperTimeSync
 
 
 
@@ -519,8 +520,9 @@ Put ```{{{{QUOTE}}}}``` in the argument to turn it into a quote mark in the fina
 
 ### 🌟 [lyric-postprocessor.pl](../BAT-and-UTIL-files-1/lyric-postprocessor.pl):
 
-Display each *unique* line in a file. Much like the ```uniq``` command except that no pre-sorting is required.
-[Also has postprocessor functionality listed below]
+Downloaded lyrics postprocessor. Cleans up non-lyric trash that inevitably creeps into these.
+Add ```-1``` option to squish lyrics into a single line for use in AI prompts.
+Add ```-0``` option to not [default].
 
 </details>
 

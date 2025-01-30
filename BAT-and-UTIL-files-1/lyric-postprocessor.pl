@@ -4,7 +4,6 @@
 # Lyric postprocessor for AI transcription prompts!
 #
 #		
-
 # Combine any of these command-line parameters:
 #     [DEFAULT] “-U” parameter to print unique lines only
 #               “-A” parameter to print *all*  lines
@@ -12,7 +11,8 @@
 #     [DEFAULT] “-L” parameter to treat it as downloaded lyrics, which need extended/special postprocessing 
 #               “-N” parameter to treat it as downloaded lyrics, which need extended/special postprocessing 
 #               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#               “-1” parameter to smush it all into one line {for AI command-line prompting}
+#               “-1” parameter to     smush it all into one line {for AI command-line prompting}
+#     [DEFAULT] “-0” parameter to NOT smush it all into one line 
 
 
 #HISTORY: forked from “lyric-postprocessor.pl”
@@ -26,24 +26,31 @@ use strict;
 use warnings;
 my $LYRICS_MODE;
 my $ONE_LINE;
-my $ALL_LINES_MODE;
+my $UNIQUE_LINES_MODE;
 my $to_print_last;
 
 # Loop through @ARGV to check for -1 and -L options
-$LYRICS_MODE    = 1;    
-$ONE_LINE       = 0;
-$ALL_LINES_MODE = 0;
+$LYRICS_MODE       = 1;
+$ONE_LINE          = 0;
+$UNIQUE_LINES_MODE = 0;
+
 foreach my $arg (@ARGV) {
-    if      ($arg eq '-1') {
+
+    if      ($arg eq '-1') {				#smush into 1 line or not
         $ONE_LINE = 1;
-    } elsif ($arg eq '-L') {
+    } elsif ($arg eq '-0') {
+        $ONE_LINE = 0;
+
+    } elsif ($arg eq '-L') {				#lyric mode or not
         $LYRICS_MODE = 1;
     } elsif ($arg eq '-N') {
         $LYRICS_MODE = 0;
-    } elsif ($arg eq '-A') {
-        $ALL_LINES_MODE = 1;
+
+    } elsif ($arg eq '-A') {				#all lines or only unique lines
+        $UNIQUE_LINES_MODE = 0;
     } elsif ($arg eq '-U') {
-        $ALL_LINES_MODE = 0;
+        $UNIQUE_LINES_MODE = 1;
+
     } else {
         die "\n\n\nUnknown argument: $arg\n\n\nUSAGE:\n\t-1 for smushing into 1 line\n\t-A to show ALL lines not just unique lines\n\t-L for downloaded-lyric postprocessing";
 		show_usage();
@@ -157,8 +164,8 @@ while (<STDIN>) {
 
 	# store only if unique, postprodess later
 	$to_print_last="";
-	if ($LYRICS_MODE==1) { $test=(($ALL_LINES_MODE) || (!$seen{$key}++) || ($original_line eq "")); }
-	else                 { $test=(($ALL_LINES_MODE) || (!$seen{$key}++)); }
+	if ($LYRICS_MODE==1) { $test=(($UNIQUE_LINES_MODE) || (!$seen{$key}++) || ($original_line eq "")); }
+	else                 { $test=(($UNIQUE_LINES_MODE) || (!$seen{$key}++)); }
 	if ($test) {
 		if (($LYRICS_MODE==1) && ($to_print_last eq $to_print) && ($to_print !~ /[a-z0-9_-]/)) {
 			#Don't print 2 identical non-lyric lines!?
@@ -196,11 +203,23 @@ print $output;
 
 sub show_usage {
 	print "\n <command> |  lyric-postprocessor\n";
+	print   " <command> |  lyric-postprocessor -A -- print only unique lines: OFF [default]\n";
+	print   " <command> |  lyric-postprocessor -U -- print only unique lines: ON\n";
+	print   " <command> |  lyric-postprocessor -N -- lyric postprocessing mode OFF [default]\n";
 	print   " <command> |  lyric-postprocessor -L -- lyric postprocessing mode ON\n";
-	print   " <command> |  lyric-postprocessor -N -- lyric postprocessing mode OFF\n";
-	print   " <command> |  lyric-postprocessor -1 -- smush into one line\n";
-	print   " <command> |  lyric-postprocessor -1 -L -- both (best for AI prompts)\n";
-	print   "\nNOTE: Changes \" into \’ as well"
+	print   " <command> |  lyric-postprocessor -0 -- smush into one line: OFF [default]\n";
+	print   " <command> |  lyric-postprocessor -1 -- smush into one line: ON\n";
+	print   "\nNOTE: Changes \" into \’ as well in most/all circumstances"
 	
 
 }
+# Combine any of these command-line parameters:
+#               “-U” parameter to print unique lines only
+#     [DEFAULT] “-A” parameter to print *all*  lines
+#               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#     [DEFAULT] “-L” parameter to treat it as downloaded lyrics, which need extended/special postprocessing 
+#               “-N” parameter to treat it as downloaded lyrics, which need extended/special postprocessing 
+#               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#               “-1” parameter to     smush it all into one line {for AI command-line prompting}
+#     [DEFAULT] “-0” parameter to NOT smush it all into one line 
+

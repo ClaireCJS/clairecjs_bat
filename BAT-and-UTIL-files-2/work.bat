@@ -15,6 +15,7 @@
 
 rem Work configuration: lyrics & karaoke:
         set default_playlist_to_work=crtl.m3u
+        set default_playlist_to_work=2010s party.m3u
         set default_number_of_lyrics_to_work=69
         set default_number_of_karaoke_to_work=1500
 
@@ -59,6 +60,7 @@ iff "L" == "%ANSWER%" .or. "K" == "%ANSWER%" .or. "%1" == "lyrics" .or. "%1" == 
         endiff
         call mp3l
         unset /q worker workload
+        set default_playlist_to_work="%@UNQUOTE["%default_playlist_to_work%"]"
         iff "K" == "%ANSWER%" .or. "%1" == "karaoke" then
                 call convert-playlist-to-only-songs-that-do-not-have-karaoke.bat %default_playlist_to_work%
                 set worker=get-karaoke

@@ -8,7 +8,7 @@ set PROCESS_WINDOW_TITLE=Calendar Monitor
 
 
 call validate-environment-variable MONITORING_SCRIPT PROCESS_REGEX
-call validate-in-path              helper-start calendar-monitor-helper python isRunning tasklist grep sed
+call validate-in-path              helper-start calendar-monitor-helper python isRunning tasklist grep sed minimize
 
 call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Checking if %italics_on%Calendar Monitor%italics_off% is already running...
         :Recheck
@@ -34,9 +34,10 @@ call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Checking if %italics_on%Calendar Monit
 call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Starting %italics_on%Calendar Monitor%italics_off%...
 *start "Calendar Monitor" /MIN c:\bat\calendar-monitor-helper.bat %*
 
-rem call sleep 2
-rem call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Minimizing %italics_on%Calendar Monitor%italics_off% to %italics_on%tray%italics_off%...
+call sleep 2
+call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Minimizing %italics_on%Calendar Monitor%italics_off% to %italics_on%tray%italics_off%...
 rem activate "Calendar Monitor*" tray
+call minimize "*Calendar Monitor*"
 
 call bigecho "%STAR% %ANSI_COLOR_ADVICE%Drop ICS files into:"
 call bigecho    "    %ANSI_COLOR_ADVICE%    %italics_on%%faint_on%c:\Calendar\%faint_off%%italics_off% or %italics_on%%faint_on%c:\Cal\%faint_off%%italics_off%..."

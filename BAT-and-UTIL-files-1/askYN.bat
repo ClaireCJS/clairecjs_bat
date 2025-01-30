@@ -315,6 +315,7 @@ REM Print the question out with a spacer below to deal with pesky ANSI behavior:
             
 REM Load INKEY with the question, unless we’ve already printed it out:
         echoserr %@ANSI_CURSOR_CHANGE_COLOR_WORD[PURPLE]
+        on break cancel
                                                              set INKEY_QUESTION=%PRETTY_QUESTION%
         if %WAIT_TIMER_ACTIVE eq 0 .and. %BIG_QUESTION eq 1 (set INKEY_QUESTION=)
 
