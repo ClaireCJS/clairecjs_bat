@@ -648,12 +648,18 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                         else                        
                                 set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=no
                         endiff
-                
+
+                :Generate_AI_Anyway_question                
                 @call askYN "Generate AI anyway (I=instrumental,L=lyric%underline_on%less%underline_off%)" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME% IL I:Mark_it_as_an_instrumental_track,L:Mark_lyricless
                 if "%ANSWER%" == "Y" (goto :Force_AI_Generation)
                 gosub :check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
                 gosub :check_for_answer_of_L "%@UNQUOTE["%INPUT_FILE%"]"
-
+                iff "L" == "%ANSWER%" then
+                        set JUST_APPROVED_LYRICLESSNESS=1
+                        set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=yes
+                        set AI_GENERATION_ANYWAY_WAIT_TIME=10
+                        goto :Generate_AI_Anyway_question
+                endiff
                 iff "1" != "%ABANDONED_SEARCH%" .or. "%LYRICLESSNESS_STATUS%" == "APPROVED" then
                         @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Failed to generate%emphasis% %SRT_FILE%%deemphasis%%ansi_color_warning%                %emoji_warning% %ansi_color_normal%
                         @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% because the lyrics%emphasis% %TXT_FILE%%deemphasis%%ansi_color_warning% do not exist!! %emoji_warning% %ansi_color_normal%

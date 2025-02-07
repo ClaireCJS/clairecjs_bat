@@ -7,13 +7,19 @@ divider_ansi        =  "\033[38;2;187;187;0m"
 #content_ansi       =  "\033[42m\033[31m" #
 divider             = f"  {divider_ansi}" + "│" + f"  {content_ansi}"  # Divider with #BBBB00 color and additional padding
 
-
 #TODO: deal with situation of lines that are sooo long that we'd really have to wrap them to fit? or is this fine?
 #TODO: maybe make each column a slightly different color
 
 #font coefficient = 1.4! that's what i got!
 #lhecker@github: Generally speaking, you can assume that fonts have roughly an aspect ratio of 2:1. It seems you measured the actual size of the glyph though which is slightly different from the cell height/width.
 
+#define some ANSI codes we plan to use
+BLINK_ON   = "\033[6m"
+BLINK_OFF  = "\033[25m"
+FAINT_ON   = "\033[2m"
+FAINT_OFF  = "\033[22m"
+COLOR_GREY = "\033[90m"
+ANSI_RESET = "\033[39m\033[49m\033[0m"
 
 
 
@@ -413,7 +419,7 @@ def render_columns(columns_data, column_widths, divider):
                 if VERBOSE: print(f'⚠🚫 assigned "" to part ')
                 
             # pad "part" into "padded_part"
-            current_content_width = wcswidth(part)
+            current_content_width   = wcswidth(part)
             #print(f"[[[part={part}]]]")
             #consistent_word_highlight
             num_spaces_to_add       = current_column_width - current_content_width
@@ -501,7 +507,8 @@ def remove_trailing_blank_lines(output):
 
 
 
-# ═════════════════════════════════════════════════════════════════════════════════ WORD HILIGHTING: BEGIN
+# ════════════════════════════════════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════════ WORD HILIGHTING: BEGIN:
 import hashlib
 
 WORD_HIGHLIGHT_LEN_MIN   = 7     # Minimum length of a word to highlight
@@ -584,11 +591,13 @@ def consistent_word_highlight(text):
                     stripeload = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m"
                     highlighted_text.append(payload)
                     striped_text.    append(payload)
+                    #print(f"adding payload to striped text: “{payload}”")
                     in_highlight = True
                 if not words_used: words_used =                    word
                 else:              words_used = words_used + " " + word
                 payload = word + "\033[0m"
                 highlighted_text.append(payload)                                        # Reset formatting after the word
+                #print(f"adding payload to striped text: “{payload}”")
                 striped_text.    append(payload)                                       
                 in_highlight = False
             else:
@@ -614,14 +623,103 @@ def consistent_word_highlight(text):
     #print (f"🍏 hey striped_text is {striped_text}")
     return ''.join(highlighted_text), striped_text
 # ═════════════════════════════════════════════════════════════════════════════════
+
+
+# ═════════════════════════════════════════════════════════════════════════════════
+def convert_stretched_stripe(stripe, columns, console_width):
+    result = ''
+    words = []
+    
+    # Step 1: Extract the words from the stripe array
+    for i in range(0, len(stripe), 2):
+        if i + 1 < len(stripe):
+            word = stripe[i + 1].split('\x1b')[0]  # Extract the word before the ANSI reset sequence
+            words.append(word)
+        else:
+            split_code_word = stripe[i].split('m', 1)
+            word_with_reset = split_code_word[1] if len(split_code_word) > 1 else ''
+            last_word = word_with_reset.split('\x1b')[0]
+            words.append(last_word)
+    
+    # Step 2: Calculate how many characters need to be added
+    total_characters = len(words)
+    total_length = sum(1 for word in words if word)  # One letter from each word
+    
+    extra_spaces = console_width - total_length
+    
+    # Step 3: Calculate equal padding for each letter
+    if total_characters > 0:
+        base_padding = extra_spaces // total_characters  # Even padding for each letter
+        remaining_padding = extra_spaces % total_characters  # Remainder padding
+
+    # Step 4: Add padding to the result
+    for i in range(0, len(stripe), 2):
+        if i + 1 < len(stripe):
+            ansi_code = stripe[i].replace("38", "temp").replace("48", "38").replace("temp", "48")
+            word = stripe[i + 1].split('\x1b')[0].upper()  # Extract the word
+
+            #1ˢᵗ one did not center/caps the letter
+            #esult +=                             f'{ansi_code}{word[0]}' + ' ' *  base_padding                       # Add base padding
+            result += f'{ansi_code} ' * (base_padding // 2) + f'{ansi_code}{word[0]}' + ' ' * (base_padding - base_padding // 2)  # Center the letter
+
+            # Step 5: Distribute extra spaces (remaining_padding) based on word length
+            if remaining_padding > 0:
+                result += ' '  # Add an extra space to the longest words
+                remaining_padding -= 1
+
+            result += '\x1b[0m'  # Reset ANSI codes
+        else:
+            split_code_word = stripe[i].split('m', 1)
+            ansi_code = split_code_word[0] + 'm'
+            word_with_reset = split_code_word[1] if len(split_code_word) > 1 else ''
+            last_word = word_with_reset.split('\x1b')[0]
+            if last_word:
+                result += f'{ansi_code}{last_word[0]}' + ' ' * base_padding
+                
+                # Distribute remaining padding for last word
+                if remaining_padding > 0:
+                    result += ' '
+                    remaining_padding -= 1
+                
+                result += '\x1b[0m'  # Reset ANSI codes    
+    return result
+# ═════════════════════════════════════════════════════════════════════════════════
+
+
+# ═════════════════════════════════════════════════════════════════════════════════
+def convert_stripe(stripe, columns):
+    result = ''
+    for i in range(0, len(stripe), 2):
+        if i + 1 < len(stripe):                                         # Swap foreground and background colors
+            ansi_code = stripe[i].replace("38", "temp").replace("48", "38").replace("temp", "48")
+            word = stripe[i + 1].split('\x1b')[0]                       # Extract the word before the ANSI reset sequence
+            result += f'{ansi_code}{word[0]}\x1b[0m'                    # Add only the first letter
+        else:                                                           # Handle the last element, which includes ANSI code and word together
+            split_code_word = stripe[i].split('m', 1)                   # Split only once at the first 'm'
+            ansi_code = split_code_word[0] + 'm'                        # Get the ANSI code part
+            word_with_reset = split_code_word[1] if len(split_code_word) > 1 else ''  # Get the word if it exists
+            # Remove the ANSI reset sequence and extract the first letter of the word:
+            last_word = word_with_reset.split('\x1b')[0]                # Extract the word before the reset sequence
+            if last_word:                                               # Safely add the first character of the word to the result if the word exists
+                result += f'{ansi_code}{last_word[0]}\x1b[0m'           # Add only the first letter
+    return result
+# ═════════════════════════════════════════════════════════════════════════════════
+
+# ═════════════════════════════════════════════════════════════════════════════════
 # ═════════════════════════════════════════════════════════════════════════════════ WORD HIGHLIGHTING: END
 
 
 
 
+
+
+
+
+
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
+
 def main():
     global INTERNAL_LOG, VERBOSE, WRAPPING, STRIPE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, console_width, console_height, columns, avg_line_width, record_working_column_length, ROW_PADDING
     our_args = parse_arguments()
@@ -648,6 +746,7 @@ def main():
     if our_args.no_wrap:     WRAPPING = False
     if FORCED_CONSOLE_WIDTH: console_width=our_args.console_width
 
+
     # read our input data:   
     input_data = read_input(WRAPPING, args.max_line_length_before_wrapping)     # Read and process input lines
     
@@ -671,13 +770,16 @@ def main():
         columns = determine_optimal_columns(input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
         rows_per_col = ceil(len(input_data) / columns)                  #NOT a situation for wcswidth
 
-    #define some ANSI codes we plan to use
-    BLINK_ON   = "\033[6m"
-    BLINK_OFF  = "\033[25m"
-    FAINT_ON   = "\033[2m"
-    FAINT_OFF  = "\033[22m"
-    COLOR_GREY = "\033[90m"
-    ANSI_RESET = "\033[39m\033[49m\033[0m"
+
+    #Generate Stripe one-line representation
+    if STRIPE:
+        joined_input_data = " ".join(input_data)                                         #print(f"joined_input_data is {joined_input_data}")
+        columns_data      = [[joined_input_data]]                                        #print(f"columns_data is {columns_data}")
+        column_widths     = calculate_column_widths(columns_data)                        #print(f"column_widths is {column_widths}")
+        meh, stripeamabob = render_columns(columns_data, column_widths, divider)         #print(f"stripeamabob is {stripeamabob}")     #        striperooni       = convert_stripe(stripeamabob,1)                        #print(f"\nstriperooni is:\n{striperooni}\nand looks like this:"); print(striperooni)       #tripester = format_colored_array(striperooni,console_width-1)
+        stripester        = convert_stretched_stripe(stripeamabob,1,console_width-1)     #print(f"\nstripester is:\n{stripester}")
+        print(stripester)
+
 
     #start preliminarily generating output, which we will determine post-generation whether it's too wide or not:
     output = ""
@@ -703,7 +805,7 @@ def main():
         if VERBOSE: print(f"🔧 🔧 🔧 columns_data is {columns_data}\n☀☀ column widths [re]calculated to: {column_widths}")
         
         #test-render the rows
-        rendered_rows, stripe = render_columns(columns_data, column_widths, divider)
+        rendered_rows, throwaway_stripe = render_columns(columns_data, column_widths, divider)
         if not rendered_rows:   
             print("⚠⚠⚠ Warning: rendered_rows is empty. Check the rendering function. ⚠⚠⚠")
         elif VERBOSE:            
@@ -757,46 +859,7 @@ def main():
         if STRIPE:  keep_looping = False
         if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬🤬🤬 FINAL_COLUMNS ——> columns is now {columns}"   #debug
         #print(F"keep_looping is {keep_looping}")
-
-    def convert_stripe(stripe, columns):
-        result = ''
-        for i in range(0, len(stripe), 2):
-            if i + 1 < len(stripe):
-                # Swap foreground and background colors
-                ansi_code = stripe[i].replace("38", "temp").replace("48", "38").replace("temp", "48")
-                word = stripe[i + 1].split('\x1b')[0]  # Extract the word before the ANSI reset sequence
-                result += f'{ansi_code}{word[0]}\x1b[0m'  # Add only the first letter
-            else:
-                # Handle the last element, which includes ANSI code and word together
-                split_code_word = stripe[i].split('m', 1)  # Split only once at the first 'm'
-                ansi_code = split_code_word[0] + 'm'  # Get the ANSI code part
-                word_with_reset = split_code_word[1] if len(split_code_word) > 1 else ''  # Get the word if it exists
-
-                # Remove the ANSI reset sequence and extract the first letter of the word
-                last_word = word_with_reset.split('\x1b')[0]  # Extract the word before the reset sequence
-
-                # Safely add the first character of the word to the result if the word exists
-                if last_word:
-                    result += f'{ansi_code}{last_word[0]}\x1b[0m'  # Add only the first letter
-        return result
-    def format_colored_array(arr, width):
-        result = []
-        width2use = int(width/(len(arr)/2))
-        for i in range(0, len(arr), 2):
-            # Get the color code (odd-indexed)
-            color_code = arr[i]
-            
-            # Get the word (even-indexed) and truncate to 1 character
-            word = arr[i + 1][0]
-            
-            # Append enough spaces to reach the given width
-            formatted_word = word.center(width2use)
-            
-            # Append color code and formatted word back into the result array
-            result.append(color_code)
-            result.append(formatted_word + '\x1b[0m')  # Adding the reset code at the end
-            
-        return result
+       
 
     #══════════════════════════════════════════════════════════════════════#
     # 🎉🎉🎉 ⭐⭐⭐⭐⭐ THE FILE IS GONNA BE PRINTED RIGHT HERE: ⭐⭐⭐⭐⭐ 🎉🎉🎉 #
@@ -808,21 +871,14 @@ def main():
     # 🎉🎉🎉 ⭐⭐⭐⭐⭐ THE FILE IS ACTUALLY PRINTED RIGHT HERE: ⭐⭐⭐⭐⭐ 🎉🎉🎉 #
     else:                                                                  #
         if not STRIPE:                                                     #
-            #print(output)                                                 #
             trimmed_output = remove_trailing_blank_lines(output)           #
             if WORD_HIGHLIGHTING:                                          #
                 highlighted_output = trimmed_output                        #
                 print(highlighted_output, end="")                          # 
-                #print (words_used)                                        #
             else:                                                          #
                 print(    trimmed_output, end="")                          #
-        else:                                                              #
-            #print("\n1:" + f"{stripe}\n")            #DEGBUG: print(f"{words_used}")  #
-            #print(convert_stripe(stripe,console_width))                                  #
-            #print("\n3:" + ''.join(stripe))                                         #
-            #print("\n4:" + ''.join(format_colored_array(stripe,console_width-2)) + ANSI_RESET)                                  #
-            print(''.join(format_colored_array(stripe,console_width-2)) + ANSI_RESET)                                  #
     #══════════════════════════════════════════════════════════════════════#
+    
 
     
     # Optionally, print the internal log
