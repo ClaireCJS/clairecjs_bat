@@ -70,7 +70,7 @@ rem Process playlists / audio files:
                 rem Process either a playlist or an individual song:
                         iff "m3u" == "%ext%" then
                                 rem echo 🍕🍕🍕
-                                %CALL% create-srt-from-playlist %1$       %+ rem Process individual playlist
+                                %CALL% create-srt-from-playlist  %1$       %+ rem Process individual playlist
                         else
                                 %CALL% create-srt-from-file.bat  %1$       %+ rem Process individual audiofile
                         endiff       

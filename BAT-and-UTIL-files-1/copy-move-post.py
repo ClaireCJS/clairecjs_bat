@@ -628,7 +628,8 @@ if whisper_ai: char_read_time_out=0.05          #go slower when postprocessing w
 if whisper_ai: 
     CONCEAL_ON  = ""
     CONCEAL_OFF = ""
-    char_read_time_out=0.064                     #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it aso ften.
+    char_read_time_out=0.064                     #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it as often.
+    char_read_time_out=0.016                     #go slower when postprocessing whisper transcription because there's hardly any screen output, and it's not interactive, so speed is less important, and we want to keep the CPU as free as possible. Even though the claire.tick() function has adaptive throttling based on how often it's called, tested to ensure we don't hammer our CPU harder for the pretty colors than for our actual calculations, it's still more efficient to not call it as often.
     SPECIAL_TREATMENT_FOR_QUESTION_LINES = False # Set to False to suppress special treatment of lines with '?'
 
 

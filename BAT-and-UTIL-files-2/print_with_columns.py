@@ -1,3 +1,5 @@
+#TODO: bg color is same . bug??
+
 #### USER CONFIGURATION:
 DEFAULT_ROW_PADDING = 7                             # SUGGESTED: 7. Number of rows to subtract from screen height as desired maximum output height before adding columns. May not currently do anything.
 content_ansi        =  "\033[0m"
@@ -39,19 +41,21 @@ sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 ##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 ##### GLOBAL VARIABLES:
-divider_visible_length = 5
-DEFAULT_WRAPPING       = False                                            #do we default to enabling the wrapping of long lines
-WRAPPING               = DEFAULT_WRAPPING
-VERBOSE                = False
-FORCE_COLUMNS          = False
-args                   = None
-parser                 = None
-avg_line_width         = None
-console_width          = None
-console_height         = None
-FORCED_CONSOLE_WIDTH   = 0
-columns                = 0
-INTERNAL_LOG           = ""
+divider_visible_length       = 5
+DEFAULT_WRAPPING             = False                                            #do we default to enabling the wrapping of long lines
+WRAPPING                     = DEFAULT_WRAPPING
+STRIPE                       = False
+VERBOSE                      = False
+WORD_HIGHLIGHTING            = False
+FORCE_COLUMNS                = False
+args                         = None
+parser                       = None
+avg_line_width               = None
+console_width                = None
+console_height               = None
+FORCED_CONSOLE_WIDTH         = 0
+columns                      = 0
+INTERNAL_LOG                 = ""
 record_working_column_length = 0
 
 
@@ -68,28 +72,33 @@ record_working_column_length = 0
 ##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
 def parse_arguments():
-    global WRAPPING, VERBOSE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, args, console_width, console_height
+    global STRIPE, WRAPPING, VERBOSE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, args, console_width, console_height, WORD_HIGHLIGHTING
+
     """
     Parse command-line arguments.
     """
     parser = argparse.ArgumentParser(description="Display STDIN in a compact, multi-column format.")
 
     # Optional positional argument for the filename
-    parser.add_argument('optional_filename'     , nargs='?', type=str, help="Optional filename to process. If not provided, input is from STDIN.")
-
-    parser.add_argument( '-w', '--width'        , type=int, help="Override output width to something other than console width")
-    parser.add_argument('-cw', '--console_width', type=int, help="Override detected console width")
-    parser.add_argument( '-c', '--columns'      , type=int, help="Override number of columns calculation")
-    parser.add_argument( '-p', '--row_padding'  , type=int, default=7, help="Number of rows to subtract from screen height as desired maximum")
-    parser.add_argument( '-v', '--verbose'      , action='store_true', help="Verbose mode—display debug info and internal logs")
-    parser.add_argument('--wrap'                , action='store_true', help="Enable line wrapping for long lines")
-    parser.add_argument('--no_wrap'             , action='store_true', help="Disable line wrapping for long lines")
-    parser.add_argument('--max_line_length_before_wrapping', type=int, default=80, help="Maximum line length before wrapping")
+    parser.add_argument('optional_filename'                        , nargs='?', type=str,  help="Optional filename to process. If not provided, input is from STDIN.")                                                                                   
+    parser.add_argument( '-w', '--width'                           , type=int,             help="Override output width to something other than console width")
+    parser.add_argument('-cw', '--console_width'                   , type=int,             help="Override detected console width")
+    parser.add_argument( '-c', '--columns'                         , type=int,             help="Override number of columns calculation")
+    parser.add_argument( '-p', '--row_padding'                     , type=int, default=7,  help="Number of rows to subtract from screen height as desired maximum")
+    parser.add_argument( '-v', '--verbose'                         , action='store_true',  help="Verbose mode—display debug info and internal logs")
+    parser.add_argument('-wh', '--word_highlighting'               , action='store_true',  help="Word Highlighting")
+    parser.add_argument('-st', '--stripe'                          , action='store_true',  help="generate a stripe instead")
+    parser.add_argument('-wr', '--wrap'                            , action='store_true',  help="Enable line wrapping for long lines")
+    parser.add_argument('-nw', '--no_wrap'                         , action='store_true',  help="Disable line wrapping for long lines")
+    parser.add_argument('-ll', '--max_line_length_before_wrapping' , type=int, default=80, help="Maximum line length before wrapping")
     args = parser.parse_args()
-    ROW_PADDING   = args.row_padding
-    VERBOSE       = args.verbose
-    FORCE_COLUMNS = args.columns
+    ROW_PADDING          = args.row_padding
+    VERBOSE              = args.verbose
+    WORD_HIGHLIGHTING    = args.word_highlighting
+    FORCE_COLUMNS        = args.columns
     FORCED_CONSOLE_WIDTH = args.console_width
+    STRIPE               = args.stripe
+    if STRIPE: WORD_HIGHLIGHTING = True                         #stripe is really an abbreviated form of word_highlighting mode
     return parser.parse_args()
 
 
@@ -386,11 +395,12 @@ def render_columns(columns_data, column_widths, divider):
     Returns:
         list of strings: Each string represents a formatted row.
     """
-    
+    global VERBOSE, WORD_HIGHLIGHTING    
     if columns_data: rows_per_col = max(len(col) for col in columns_data)   
     else:            rows_per_col = 1
     if VERBOSE: print(f"😷😷😷😷😷 Recalculated rows per column as: {rows_per_col}")
      
+    stripe=""
     rendered_rows = []
     for row in range(rows_per_col):
         row_parts = []
@@ -404,9 +414,15 @@ def render_columns(columns_data, column_widths, divider):
                 
             # pad "part" into "padded_part"
             current_content_width = wcswidth(part)
-            num_spaces_to_add     = current_column_width - current_content_width
-            spacer                = num_spaces_to_add * " "
-            padded_part           = part + spacer
+            #print(f"[[[part={part}]]]")
+            #consistent_word_highlight
+            num_spaces_to_add       = current_column_width - current_content_width
+            spacer                  = num_spaces_to_add * " "
+            if WORD_HIGHLIGHTING:
+                part_to_use, stripe = consistent_word_highlight(part)
+            else:
+                part_to_use         = part
+            padded_part             = part_to_use + spacer
             
             # append "padded part" to our row:
             row_parts.append(padded_part)
@@ -414,7 +430,8 @@ def render_columns(columns_data, column_widths, divider):
         # Join the rows together with the divider
         rendered_row = divider.join(row_parts)
         rendered_rows.append(rendered_row)
-    return rendered_rows
+        #print (f"🍎 hey stripe is {stripe}")
+    return rendered_rows, stripe
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
 
@@ -484,6 +501,121 @@ def remove_trailing_blank_lines(output):
 
 
 
+# ═════════════════════════════════════════════════════════════════════════════════ WORD HILIGHTING: BEGIN
+import hashlib
+
+WORD_HIGHLIGHT_LEN_MIN   = 7     # Minimum length of a word to highlight
+WORD_HIGHLIGHT_LEN_MIN   = 6     # Minimum length of a word to highlight
+MAX_BACKGROUND_INTENSITY = 0.37  # Maximum background color intensity
+MAX_BACKGROUND_INTENSITY = 0.25  # Maximum background color intensity
+MAX_BACKGROUND_INTENSITY = 0.22  # Maximum background color intensity
+SATURATION               = 0.9
+LIGHTNESS                = 0.5
+
+# ═════════════════════════════════════════════════════════════════════════════════
+def string_to_color(word):
+    """
+    Convert a string to a deterministic RGB color.
+    """
+    hash_value1 = int(hashlib.sha256(   word    .upper().encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground   
+    hash_value2 = int(hashlib.sha256(f"{word}bg".upper().encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for background
+    hue1        = hash_value1 %     360                                             # Map the hash value to a foreground hue (0-360 degrees)
+    hue2        = hash_value2 % int(360*MAX_BACKGROUND_INTENSITY)                   # Map the hash value to a background hue (0-[360*max_bg_intensity] degrees)
+    hue2        = hash_value2 %     360                                             # Map the hash value to a background hue (0-[360*max_bg_intensity] degrees)
+    lightness   = LIGHTNESS                                                         # Saturation and lightness are kept constant for distinct colors
+    saturation  = SATURATION                                                        # Saturation and lightness are kept constant for distinct colors
+    r , g , b   = hsl_to_rgb(hue1, saturation, lightness)                           # Convert HSL to RGB: foreground
+    rb, gb, bb  = hsl_to_rgb(hue2, saturation, MAX_BACKGROUND_INTENSITY)            # Convert HSL to RGB: background
+    background  = apply_background_color(gb, bb, rb)                                # Apply a subtle background color: scramble it up a bit by changing rgb=>gbr
+    return r, g, b, background                                                      # Return our values
+# ═════════════════════════════════════════════════════════════════════════════════
+
+# ═════════════════════════════════════════════════════════════════════════════════
+def hsl_to_rgb(h, s, l):
+    """
+    Convert HSL color to RGB.
+    """
+    c =     (1 - abs(       2 * l - 1)) * s
+    x = c * (1 - abs((h / 60) % 2 - 1))
+    m = l -                 c / 2
+    if     0 <= h <  60: r, g, b = c, x, 0
+    elif  60 <= h < 120: r, g, b = x, c, 0
+    elif 120 <= h < 180: r, g, b = 0, c, x
+    elif 180 <= h < 240: r, g, b = 0, x, c
+    elif 240 <= h < 300: r, g, b = x, 0, c
+    else:                r, g, b = c, 0, x
+    r = (r + m) * 255
+    g = (g + m) * 255
+    b = (b + m) * 255
+    return int(r), int(g), int(b)
+# ═════════════════════════════════════════════════════════════════════════════════
+
+# ═════════════════════════════════════════════════════════════════════════════════
+def apply_background_color(r, g, b):
+    """
+    Apply a subtle background color to the text.
+    """
+    luminance            = 0.2126 * r + 0.7152 * g + 0.0722 * b                                                           # Calculate the luminance of the text color
+    background_intensity = MAX_BACKGROUND_INTENSITY * (1 - luminance / 255)                                               # Determine the background color intensity based on luminance
+    background           = (int(r * background_intensity), int(g * background_intensity), int(b * background_intensity))  # Apply the background color
+    return background
+# ═════════════════════════════════════════════════════════════════════════════════
+
+# ═════════════════════════════════════════════════════════════════════════════════
+words_used=""
+striped_text = []
+def consistent_word_highlight(text):
+    global words_used, striped_text
+    """
+    Highlight words in the text that are longer than WORD_HIGHLIGHT_LEN_MIN.
+    """
+    highlighted_text = []
+    word             = ''
+    in_highlight     = False                                                            # Track whether we're currently inside a highlighted word
+
+    for char in text:
+        if char.isalnum():                                                              # Building a word
+            word += char
+        else:
+            if len(word) >= WORD_HIGHLIGHT_LEN_MIN:                                     # Word is long enough for highlighting
+                if not in_highlight:                                                    # Start highlighting
+                    r, g, b, background = string_to_color(word)
+                    payload    = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m"
+                    stripeload = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m"
+                    highlighted_text.append(payload)
+                    striped_text.    append(payload)
+                    in_highlight = True
+                if not words_used: words_used =                    word
+                else:              words_used = words_used + " " + word
+                payload = word + "\033[0m"
+                highlighted_text.append(payload)                                        # Reset formatting after the word
+                striped_text.    append(payload)                                       
+                in_highlight = False
+            else:
+                highlighted_text.append(word)                                           # Just append the word without highlighting            
+            highlighted_text.append(char)                                               # Append the non-word character (punctuation, space, etc.)
+            word = ''
+    
+    if word:                                                                            # Handle the last word if any
+        if len(word) >= WORD_HIGHLIGHT_LEN_MIN:                                         # word = word.lstrip("0m")
+            if not words_used: words_used =                    word
+            else:              words_used = words_used + " " + word
+            r, g, b, background = string_to_color(word)
+            payload     = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m" + word + "\033[0m"     # Reset formatting after the word
+            stripeload1 = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m" 
+            stripeload2 = word + "\033[0m"     # Reset formatting after the word
+            highlighted_text.append(payload)
+            striped_text    .append(stripeload1)
+            striped_text    .append(stripeload2)
+        else:                                                                           # word = word.lstrip("0m")
+            words_used = words_used + " " + word
+            highlighted_text.append(word)
+    
+    #print (f"🍏 hey striped_text is {striped_text}")
+    return ''.join(highlighted_text), striped_text
+# ═════════════════════════════════════════════════════════════════════════════════
+# ═════════════════════════════════════════════════════════════════════════════════ WORD HIGHLIGHTING: END
+
 
 
 
@@ -491,7 +623,7 @@ def remove_trailing_blank_lines(output):
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 def main():
-    global INTERNAL_LOG, VERBOSE, WRAPPING, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, console_width, console_height, columns, avg_line_width, record_working_column_length, ROW_PADDING
+    global INTERNAL_LOG, VERBOSE, WRAPPING, STRIPE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, console_width, console_height, columns, avg_line_width, record_working_column_length, ROW_PADDING
     our_args = parse_arguments()
     INTERNAL_LOG=""
 
@@ -508,11 +640,10 @@ def main():
 
 
     # Process our command line parameters:
-    VERBOSE     = our_args.verbose
     WRAPPING    = DEFAULT_WRAPPING
-    ROW_PADDING = DEFAULT_ROW_PADDING   
     width = args.width or console_width
     if our_args.row_padding: ROW_PADDING = our_args.row_padding
+    else:                    ROW_PADDING = DEFAULT_ROW_PADDING   
     if our_args   .wrap:     WRAPPING = True
     if our_args.no_wrap:     WRAPPING = False
     if FORCED_CONSOLE_WIDTH: console_width=our_args.console_width
@@ -572,7 +703,7 @@ def main():
         if VERBOSE: print(f"🔧 🔧 🔧 columns_data is {columns_data}\n☀☀ column widths [re]calculated to: {column_widths}")
         
         #test-render the rows
-        rendered_rows = render_columns(columns_data, column_widths, divider)
+        rendered_rows, stripe = render_columns(columns_data, column_widths, divider)
         if not rendered_rows:   
             print("⚠⚠⚠ Warning: rendered_rows is empty. Check the rendering function. ⚠⚠⚠")
         elif VERBOSE:            
@@ -580,8 +711,11 @@ def main():
 
         if args.verbose: print(f"Column  widths: {    column_widths}")
 
+        #if STRIPE: break
+
         #render the rows repeatedly, decreasing until they fit within the propr width 
-        for row_num, rendered_row in enumerate(rendered_rows, start=1):
+        loopybob = enumerate(rendered_rows, start=1)    
+        for row_num, rendered_row in loopybob:
             if VERBOSE: print(f"🏹🏹🏹🏹🏹🍎🍎🍎 processing row_num {row_num}")
             INTERNAL_LOG_FRAGMENT=""
             line_parts = rendered_row.split(divider)                      # Split the rendered row back into parts based on the divider
@@ -592,7 +726,7 @@ def main():
             
             #if it's too wide, stop bothering to process (unless we are forcing columns):
             if VERBOSE: print(f"🐾🐾 row_num {row_num}... is_too_wide={is_too_wide}")
-            if is_too_wide and not FORCE_COLUMNS: 
+            if is_too_wide and not FORCE_COLUMNS and not STRIPE: 
                 if VERBOSE: print(f"🐾🐾 breaking")
                 break
 
@@ -602,6 +736,11 @@ def main():
             #add our rendered row to our output:
             output += rendered_row.replace("Æ","’") + "\n"                         #mis-encoded apostrpohe fox ... This is very untenable
             #🐱🐱🐱 if VERBOSE: print(f"🤬🤬 row_num {row_num}... is_too_wide={is_too_wide}\n⚙ ⚙ ⚙ OUTPUT SO FAR:\n{BLINK_ON}{COLOR_GREY}{output}{BLINK_OFF}{ANSI_RESET}⚙ ⚙ ⚙ That's it!")
+
+            #print("loopybob")
+            if STRIPE: 
+                #print("breaking")
+                break
             
         #now that we have rendered our row, figure out if we are done or not:
         keep_looping = False                                                       #only keep looking if things required a redo
@@ -614,19 +753,76 @@ def main():
             if columns == 0:                                                       #if we are down to 0 columns, go back to 1 and quit
                 columns = 1
                 keep_looping = False                                  
-            if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬 ACTING ON IT ——> columns is now {columns}"
-        
+            if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬 ACTING ON IT ——> columns is now {columns}"       
+        if STRIPE:  keep_looping = False
+        if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬🤬🤬 FINAL_COLUMNS ——> columns is now {columns}"   #debug
+        #print(F"keep_looping is {keep_looping}")
 
-    if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬🤬🤬 FINAL_COLUMNS ——> columns is now {columns}"   #debug
+    def convert_stripe(stripe, columns):
+        result = ''
+        for i in range(0, len(stripe), 2):
+            if i + 1 < len(stripe):
+                # Swap foreground and background colors
+                ansi_code = stripe[i].replace("38", "temp").replace("48", "38").replace("temp", "48")
+                word = stripe[i + 1].split('\x1b')[0]  # Extract the word before the ANSI reset sequence
+                result += f'{ansi_code}{word[0]}\x1b[0m'  # Add only the first letter
+            else:
+                # Handle the last element, which includes ANSI code and word together
+                split_code_word = stripe[i].split('m', 1)  # Split only once at the first 'm'
+                ansi_code = split_code_word[0] + 'm'  # Get the ANSI code part
+                word_with_reset = split_code_word[1] if len(split_code_word) > 1 else ''  # Get the word if it exists
 
-    # kludge to fix bug, really shouldn't happen anymore:
-    if (output==""): 
-        print("\n".join(input_data))
-        if VERBOSE: print("❕‼ OUTPUT WAS EMPTY, so we joined input_data manually ❕‼")
-    else: 
-        #print(output)
-        trimmed_output = remove_trailing_blank_lines(output)
-        print(trimmed_output,end="")
+                # Remove the ANSI reset sequence and extract the first letter of the word
+                last_word = word_with_reset.split('\x1b')[0]  # Extract the word before the reset sequence
+
+                # Safely add the first character of the word to the result if the word exists
+                if last_word:
+                    result += f'{ansi_code}{last_word[0]}\x1b[0m'  # Add only the first letter
+        return result
+    def format_colored_array(arr, width):
+        result = []
+        width2use = int(width/(len(arr)/2))
+        for i in range(0, len(arr), 2):
+            # Get the color code (odd-indexed)
+            color_code = arr[i]
+            
+            # Get the word (even-indexed) and truncate to 1 character
+            word = arr[i + 1][0]
+            
+            # Append enough spaces to reach the given width
+            formatted_word = word.center(width2use)
+            
+            # Append color code and formatted word back into the result array
+            result.append(color_code)
+            result.append(formatted_word + '\x1b[0m')  # Adding the reset code at the end
+            
+        return result
+
+    #══════════════════════════════════════════════════════════════════════#
+    # 🎉🎉🎉 ⭐⭐⭐⭐⭐ THE FILE IS GONNA BE PRINTED RIGHT HERE: ⭐⭐⭐⭐⭐ 🎉🎉🎉 #
+    # kludge to fix situation of empty output, which shouldn’t happen:     #
+    if (output==""):                                                       #
+        print("\n".join(input_data))                                       #
+        if VERBOSE: print("❕‼ OUTPUT EMPTY. Joined input_data manually ❕‼")#
+    #══════════════════════════════════════════════════════════════════════#
+    # 🎉🎉🎉 ⭐⭐⭐⭐⭐ THE FILE IS ACTUALLY PRINTED RIGHT HERE: ⭐⭐⭐⭐⭐ 🎉🎉🎉 #
+    else:                                                                  #
+        if not STRIPE:                                                     #
+            #print(output)                                                 #
+            trimmed_output = remove_trailing_blank_lines(output)           #
+            if WORD_HIGHLIGHTING:                                          #
+                highlighted_output = trimmed_output                        #
+                print(highlighted_output, end="")                          # 
+                #print (words_used)                                        #
+            else:                                                          #
+                print(    trimmed_output, end="")                          #
+        else:                                                              #
+            #print("\n1:" + f"{stripe}\n")            #DEGBUG: print(f"{words_used}")  #
+            #print(convert_stripe(stripe,console_width))                                  #
+            #print("\n3:" + ''.join(stripe))                                         #
+            #print("\n4:" + ''.join(format_colored_array(stripe,console_width-2)) + ANSI_RESET)                                  #
+            print(''.join(format_colored_array(stripe,console_width-2)) + ANSI_RESET)                                  #
+    #══════════════════════════════════════════════════════════════════════#
 
     
     # Optionally, print the internal log
@@ -639,6 +835,10 @@ def main():
         #print(f'💔input_data=' + "\n".join(input_data) + '\n')
         print(f"🥒 console_width=🥒 {console_width}...")
         print(f"💿 record_working_column_length={record_working_column_length}")
+        print(f"💿 stripe={STRIPE}")
+        print(f"💿 WORD_HIGHLIGHTING={WORD_HIGHLIGHTING}")
+        print(f"💿 words_used={words_used}")
+        print(f"💿 stripe={stripe}")
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###

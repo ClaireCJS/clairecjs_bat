@@ -206,7 +206,7 @@ Obtains the lyrics for a song file, a playlist, or the currently playing song.
 - transcriptions work **much** better with lyrics
 - checks local sidecar files for pre-existing lyric files
 - checks local lyrics/MiniLyrics/EvilLyrics repository for pre-existing lyric files
-- seraches Genius for lyrics
+- searches Genius for lyrics
 - gives option to hand-edit artist/track name if lyrics are not find
 - gives option to Google lyrics if all else fails
 - gives an option to hand-edit lyrics after download

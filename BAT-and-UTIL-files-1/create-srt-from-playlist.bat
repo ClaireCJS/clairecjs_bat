@@ -6,7 +6,7 @@ rem USAGE:
         iff "%1" eq "" then
                 %color_advice%
                 text
-                        USAGE: %0 {playlist_filename} -- to check all files of that playlist for kaarokes
+                        USAGE: %0 {playlist_filename} {limit} -- to check all files of that playlist for karokes, until we find our limit
                 endtext
                 goto :END
         endiff

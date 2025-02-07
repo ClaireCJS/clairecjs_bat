@@ -42,7 +42,7 @@ rem MESSAGE TYPES LIST: PLEASE ADD ANY NEW MESSAGE TYPES TO THIS LIST BEFORE IMP
 
 REM DEBUG:
     set DEBUG_PRINTMESSAGE=0
-
+    set FUDGE_FACTOR=10                         %+ rem don’t change until %@WIDTH[] function is released to public and implemented here
 
 REM Initialize variables:
     set PM_PARAMS=%*
@@ -313,6 +313,8 @@ REM Actually display the message:
                 rem We assemble the double-height lines manually here, without using bigecho.bat, to have the most control over that bug:
                 echoerr %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
                 echoerr %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+                rem call bigecho %BIG_ECHO_MSG_TO_USE%
+                rem TODO bigechoerr.bat!
         )
 
         REM repeat the message the appropriate number of times
@@ -326,7 +328,7 @@ REM Actually display the message:
                         set STRIPPED_MESSAGE=%@stripansi[%DECORATED_MESSAGE]``
                 endiff
                 set LEN=%@LEN[%STRIPPED_MESSAGE]
-                if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS-16] (set SKIP_DOUBLE_HEIGHT=1)
+                if not %@EVAL[%len*2] lt %@EVAL[%_COLUMNS-%FUDGE_FACTOR%] (set SKIP_DOUBLE_HEIGHT=1)
 
         echos %ANSI_COLOR_BLUE%
         for %msgNum in (%HOW_MANY%) do (           
@@ -408,6 +410,7 @@ REM Actually display the message:
 
         REM If big mode, go back to print the 2ⁿᵈ/lower-½ line:
                 if "1" == "%BIG_MESSAGE%" .and. "1" !=  "%SECOND%" goto :actually_display-the_message
+
 
         
 REM Post-message delays and pauses

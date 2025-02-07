@@ -26,7 +26,6 @@ rem Clear the character buffer so we don't end up hitting a key BEFORE the promp
         rem 🐐🐐GOATGOAT🐐🐐 i think this results in false pauses somehow!!! Scripts get caught up here! This isn’t reliable for workflows!
 
 rem Do the actual pause:
-echo        *pause /W%SECONDS% /T %PAUSE% %PAUSE_MESSAGE% 
         *pause /W%SECONDS% /T %PAUSE% %PAUSE_MESSAGE% 
 
 :Abort

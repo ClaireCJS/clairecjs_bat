@@ -1,4 +1,7 @@
-#NOTE: We've snuck out-of-scope functionality into this script. 
+
+
+
+#NOTE: A little out-of-scope functionality crept into this script before it was forked to lyric-postprocessor.pl
 #NOTE: Just a little bit so far, but:
 #NOTE:       default, but optional, de-censoring of a bad words is done in addition to removing periods :)
 

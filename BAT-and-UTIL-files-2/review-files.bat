@@ -4,11 +4,46 @@ rem on break cancel
 set onbreak=goto:END
 setdos /x0
 
-
-
+rem Usage:
+        iff "%1" == "" then
+                echo USAGE: review_files -options_to_pass_to_print-with-columns `<`file`>` `<`file2`>` `<`file3`>` 
+                echo.
+                echo EXAMPLE: review-files a.txt
+                echo EXAMPLE: review-files a.txt b.txt c.txt
+                echo EXAMPLE: review-files *.txt
+                echo EXAMPLE: review-files *
+                echo EXAMPLE: review-files -wh    *.txt ——— passes “-wh”          on to print-with-columns
+                echo EXAMPLE: review-files -wh -1 *.txt ——— passes “-wh” and “-1” on to print-with-columns
+                echo EXAMPLE: review-files -wh -1 *.txt ——— passes “-wh” and “-1” on to print-with-columns
+                echo.
+                echo. SPECIAL: the “-st”  action can be stacked with “-wh”, even though print-with-columns doesn’t work like that
+                echo. SPECIAL: the “-stU” action causes “-st” stripe before divider
+                goto :END
+endiff
 
 rem Config:
         set our_filemask=*.srt;*.lrc
+
+rem First, process any arguments that start with “-”:
+        unset /q PWC_OPTIONS
+        set STRIPE=0
+        set STRIPEU=0
+        :check_next_arg_for_pwd_opts
+        set  left1=%@UNQUOTE[%@LEFT[2,"%1"]]
+        iff "%left1%" == "-" then
+                iff "%1" == "-st" .or. "%1" == "--stripe" then
+                        set STRIPE=1
+                elseiff "%1" == "-stU" .or. "%1" == "--stripeU" then
+                        set STRIPEU=1
+                else
+                        rem echo * Adding PWC_OPTION of “%1”
+                        set PWC_OPTIONS=%PWC_OPTIONS% %1
+                endiff
+                shift
+                goto :check_next_arg_for_pwd_opts
+        endiff           
+        rem echo %%1 is %1 , 2=%2, 3=%3, 4=%4 %+ pause
+
 
 rem Only review a single file, if [what is hopefully] a filename is provided:
         set replacement_text=
@@ -27,7 +62,7 @@ rem Only review a single file, if [what is hopefully] a filename is provided:
                         rem echo Tracking 2>nul
                         gosub check_for_filemask 
                 else
-                        set our_filemask=%*
+                        set our_filemask=%1$
                         set replacement_text=
                 endiff
         endiff                
@@ -62,15 +97,16 @@ rem Go through each one and review it:
         
         call set-tmp-file
         set tmp_file_1=%tmpfile%
+        rem gosub debug "tmp_file_1==“%tmp_file_1%”"
 
         call set-tmp-file
         set tmp_file_2=%tmpfile%
+        rem gosub debug "tmp_file_2==“%tmp_file_2%”"
 
         for %%File_To_Check  in (%our_filemask%) do if not exist "%File_To_Check%" (call fatal_error "File to review of %left_quote%%italics_on%%File_To_Check%%italics_on%%right_quote% does not exist")               
         for %%File_To_Review in (%our_filemask%) do gosub do_it "%@unquote[%File_To_Review%]"
         goto :do_it_end
         :do_it [tmpfile] 
-                call divider 
                 rem echo %blink_on%reviewing file %tmpfile%%blink_off% %warning% our_filemask=%our_filemask%
                 setdos /x0
                 rem title %@CHAR[55357]%@CHAR[56403] %@name[%tmpfile]
@@ -81,7 +117,6 @@ rem Go through each one and review it:
                 else
                         set our_msg=%@name[%tmpfile%].%ext%
                 endiff
-                call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"
                 setdos /x0
                 rem (type "%@UNQUOTE[%tmpfile%]" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" )  |:u8 print-with-columns 
                 setdos /x-5
@@ -94,8 +129,15 @@ rem Go through each one and review it:
                          (echo raw|(*copy /q /r "%tmp_file_1%" "%tmp_file_2%" >&nul))
                 )
                 echos %ansi_reset%
+                if "1" == "%STRIPEU%" (type %tmp_file_2 |:u8 call print-with-columns -st)
+                call divider 
+                call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"
                 rem call print-with-columns <%tmp_file_2 
-                type %tmp_file_2 |:u8 call print-with-columns 
+                                      type %tmp_file_2 |:u8 call print-with-columns %PWC_OPTIONS%
+                iff "1" == "%STRIPE%" then
+                        call divider
+                        type %tmp_file_2 |:u8 call print-with-columns -st
+                endiff
         return
         :do_it_end
         
