@@ -291,20 +291,25 @@ rem Run the fix-script, if we have decided to:
                         echo.
                         gosub divider
                         echo.
-                        echos %@ANSI_MOVE_UP[3]%ANSI_CURSOR_VISIBLE%
-                        echos %@ANSI_CURSOR_COLOR_BY_WORD[yellow]                                  %+ rem Impotent because cursor color is set in pause-for-x-seconds anyway!
-                        echo %ansi_color_green%Going to find those missing %findNature% now!%ansi_color_bright_Red%%blink_on%
+                        echo %@ANSI_MOVE_UP[3]%ANSI_CURSOR_VISIBLE%%@ANSI_CURSOR_COLOR_BY_WORD[yellow]%ansi_color_green%Going to find those missing %findNature% now!%ansi_color_bright_Red%%blink_on%
                         sleep 1
-                        echos %CURSOR_RESET%
-                        echos %blink_off%
                         set TARGET_SCRIPT_TO_CALL=%@NAME[%TARGET_SCRIPT%]-%[_datetime].bat
-                        echo.
-                        ren "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
-                        echo call "%TARGET_SCRIPT_TO_CALL%"   📞📞📞
-                             call "%TARGET_SCRIPT_TO_CALL%"                                        %+ rem run the generated script !X--X!
-                        call   errorlevel                                                          %+ rem check for errorlevel //rem DEBUG: echo our_errorlevel is %our_errorlevel% 
+                        echo %CURSOR_RESET%%blink_off%
+                        iff not exist "%TARGET_SCRIPT%" then
+                                call warning "Why doesn’t target_script exist? “%TARGET_SCRIPT%”'
+                        else
+                              echo GOAT ren  "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
+                                        ren  "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
+                                iff not exist "%TARGET_SCRIPT_TO_CALL%" then
+                                        call warning "Why doesn’t TARGET_SCRIPT_TO_CALL exist? “%TARGET_SCRIPT_TO_CALL%”'
+                                else
+                                      echo GOAT call "%TARGET_SCRIPT_TO_CALL%"   📞📞📞
+                                                call "%TARGET_SCRIPT_TO_CALL%"                                             %+ rem run the generated script !X--X!
+                                                call   errorlevel                                                          %+ rem check for errorlevel //rem DEBUG: echo our_errorlevel is %our_errorlevel% 
+                                endiff
+                        endiff
                         if "" != "%original_title%" (*title %original_title%)                
-                        rem echo pbatchmame_check-for-missing-lyrics_bat=%_PBATCHNAME >
+                        rem echo pbatchname_check-for-missing-lyrics_bat=%_PBATCHNAME 
                 endiff
         endiff
         
@@ -437,7 +442,10 @@ rem —————————————————————————�
                         rem Keep track of how many files we’ve processed in total:
                                 :done_processing_this_file
                                 set NUM_PROCESSED=%@EVAL[%NUM_PROCESSED + 1]
-                                
+              
+                        rem Change cursor every once in awhile to alleviate hangxiety:
+                                if %@EVAL[%NUM_PROCESSED% mod 10] == 0 echos %@randcursor[]
+
                         rem Display the # processed (which only applies to bad files):
                                 title To find: %remaining% ... Tried: %NUM_PROCESSED%
                                 

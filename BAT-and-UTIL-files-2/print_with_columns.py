@@ -524,8 +524,8 @@ def string_to_color(word):
     """
     Convert a string to a deterministic RGB color.
     """
-    hash_value1 = int(hashlib.sha256(   word    .upper().encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground   
-    hash_value2 = int(hashlib.sha256(f"{word}bg".upper().encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for background
+    hash_value1 = int(hashlib.sha256(     word    .upper().replace("'","").replace("’","").replace("`","").replace("-","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground ... don’t consider apostrophes so that the word is colored the same apostrophe or not   
+    hash_value2 = int(hashlib.sha256(f"bg{word}bg".upper().replace("'","").replace("’","").replace("`","").replace("-","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for background ... don’t consider apostrophes so that the word is colored the same apostrophe or not
     hue1        = hash_value1 %     360                                             # Map the hash value to a foreground hue (0-360 degrees)
     hue2        = hash_value2 % int(360*MAX_BACKGROUND_INTENSITY)                   # Map the hash value to a background hue (0-[360*max_bg_intensity] degrees)
     hue2        = hash_value2 %     360                                             # Map the hash value to a background hue (0-[360*max_bg_intensity] degrees)
@@ -533,7 +533,7 @@ def string_to_color(word):
     saturation  = SATURATION                                                        # Saturation and lightness are kept constant for distinct colors
     r , g , b   = hsl_to_rgb(hue1, saturation, lightness)                           # Convert HSL to RGB: foreground
     rb, gb, bb  = hsl_to_rgb(hue2, saturation, MAX_BACKGROUND_INTENSITY)            # Convert HSL to RGB: background
-    background  = apply_background_color(gb, bb, rb)                                # Apply a subtle background color: scramble it up a bit by changing rgb=>gbr
+    background  = apply_background_color(bb, rb, gb)                                # Apply a subtle background color: scramble it up a bit by changing rgb=>gbr
     return r, g, b, background                                                      # Return our values
 # ═════════════════════════════════════════════════════════════════════════════════
 
@@ -563,7 +563,7 @@ def apply_background_color(r, g, b):
     Apply a subtle background color to the text.
     """
     luminance            = 0.2126 * r + 0.7152 * g + 0.0722 * b                                                           # Calculate the luminance of the text color
-    background_intensity = MAX_BACKGROUND_INTENSITY * (1 - luminance / 255)                                               # Determine the background color intensity based on luminance
+    background_intensity =      MAX_BACKGROUND_INTENSITY * (1 - luminance / 255)                                          # Determine the background color intensity based on luminance
     background           = (int(r * background_intensity), int(g * background_intensity), int(b * background_intensity))  # Apply the background color
     return background
 # ═════════════════════════════════════════════════════════════════════════════════
@@ -581,7 +581,9 @@ def consistent_word_highlight(text):
     in_highlight     = False                                                            # Track whether we're currently inside a highlighted word
 
     for char in text:
-        if char.isalnum():                                                              # Building a word
+        #f char.isalnum() or char == "’" or char == "'" or char == "´":                 # Building a word
+        if char.isalnum() or char in {"’", "'", "´", "-", "–", "—"}:                    # Building a word
+            if               char in {"’", "'", "´"}: char = "’"                        # replace dumb apostrophes with smart apostrophes
             word += char
         else:
             if len(word) >= WORD_HIGHLIGHT_LEN_MIN:                                     # Word is long enough for highlighting
@@ -656,29 +658,29 @@ def convert_stretched_stripe(stripe, columns, console_width):
     for i in range(0, len(stripe), 2):
         if i + 1 < len(stripe):
             ansi_code = stripe[i].replace("38", "temp").replace("48", "38").replace("temp", "48")
-            word = stripe[i + 1].split('\x1b')[0].upper()  # Extract the word
+            word      = stripe[i + 1].split('\x1b')[0].upper()  # Extract the word
 
             #1ˢᵗ one did not center/caps the letter
             #esult +=                             f'{ansi_code}{word[0]}' + ' ' *  base_padding                       # Add base padding
             result += f'{ansi_code} ' * (base_padding // 2) + f'{ansi_code}{word[0]}' + ' ' * (base_padding - base_padding // 2)  # Center the letter
 
             # Step 5: Distribute extra spaces (remaining_padding) based on word length
-            if remaining_padding > 0:
-                result += ' '  # Add an extra space to the longest words
+            if remaining_padding   > 0:
+                result            += ' '  # Add an extra space to the longest words
                 remaining_padding -= 1
 
             result += '\x1b[0m'  # Reset ANSI codes
         else:
             split_code_word = stripe[i].split('m', 1)
-            ansi_code = split_code_word[0] + 'm'
+            ansi_code       = split_code_word[0] + 'm'
             word_with_reset = split_code_word[1] if len(split_code_word) > 1 else ''
-            last_word = word_with_reset.split('\x1b')[0]
+            last_word       = word_with_reset.split('\x1b')[0]
             if last_word:
                 result += f'{ansi_code}{last_word[0]}' + ' ' * base_padding
                 
                 # Distribute remaining padding for last word
-                if remaining_padding > 0:
-                    result += ' '
+                if remaining_padding   > 0:
+                    result            += ' '
                     remaining_padding -= 1
                 
                 result += '\x1b[0m'  # Reset ANSI codes    
@@ -692,11 +694,11 @@ def convert_stripe(stripe, columns):
     for i in range(0, len(stripe), 2):
         if i + 1 < len(stripe):                                         # Swap foreground and background colors
             ansi_code = stripe[i].replace("38", "temp").replace("48", "38").replace("temp", "48")
-            word = stripe[i + 1].split('\x1b')[0]                       # Extract the word before the ANSI reset sequence
-            result += f'{ansi_code}{word[0]}\x1b[0m'                    # Add only the first letter
+            word      = stripe[i + 1].split('\x1b')[0]                  # Extract the word before the ANSI reset sequence
+            result   += f'{ansi_code}{word[0]}\x1b[0m'                  # Add only the first letter
         else:                                                           # Handle the last element, which includes ANSI code and word together
             split_code_word = stripe[i].split('m', 1)                   # Split only once at the first 'm'
-            ansi_code = split_code_word[0] + 'm'                        # Get the ANSI code part
+            ansi_code       = split_code_word[0] + 'm'                        # Get the ANSI code part
             word_with_reset = split_code_word[1] if len(split_code_word) > 1 else ''  # Get the word if it exists
             # Remove the ANSI reset sequence and extract the first letter of the word:
             last_word = word_with_reset.split('\x1b')[0]                # Extract the word before the reset sequence
@@ -777,6 +779,7 @@ def main():
         columns_data      = [[joined_input_data]]                                        #print(f"columns_data is {columns_data}")
         column_widths     = calculate_column_widths(columns_data)                        #print(f"column_widths is {column_widths}")
         meh, stripeamabob = render_columns(columns_data, column_widths, divider)         #print(f"stripeamabob is {stripeamabob}")     #        striperooni       = convert_stripe(stripeamabob,1)                        #print(f"\nstriperooni is:\n{striperooni}\nand looks like this:"); print(striperooni)       #tripester = format_colored_array(striperooni,console_width-1)
+        #stripeamabob is ['\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;119;242m\x1b[48;2;20;0;12m', 'secretly\x1b[0m', '\x1b[38;2;242;12;31m\x1b[48;2;13;0;21m', 'smiling\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;234;242m\x1b[48;2;19;5;0m', 'Conversations\x1b[0m', '\x1b[38;2;12;226;242m\x1b[48;2;20;0;19m', 'Russian\x1b[0m', '\x1b[38;2;242;47;12m\x1b[48;2;2;16;0m', 'accent\x1b[0m', '\x1b[38;2;242;89;12m\x1b[48;2;19;0;20m', "that's\x1b[0m", '\x1b[38;2;242;12;242m\x1b[48;2;11;0;21m', 'colored\x1b[0m', '\x1b[38;2;112;12;242m\x1b[48;2;17;9;0m', 'Blanket\x1b[0m', '\x1b[38;2;242;12;24m\x1b[48;2;20;0;18m', 'dinner\x1b[0m', '\x1b[38;2;12;242;108m\x1b[48;2;15;13;0m', 'President\x1b[0m', '\x1b[38;2;73;242;12m\x1b[48;2;4;15;0m', 'Cardboard\x1b[0m', '\x1b[38;2;127;12;242m\x1b[48;2;20;0;16m', 'appliance\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;188;242m\x1b[48;2;1;1;22m', 'flamingos\x1b[0m', '\x1b[38;2;142;12;242m\x1b[48;2;18;8;0m', 'engaging\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;192;242m\x1b[48;2;0;16;6m', 'Listening\x1b[0m', '\x1b[38;2;12;242;12m\x1b[48;2;9;15;0m', 'Captain\x1b[0m', '\x1b[38;2;242;158;12m\x1b[48;2;20;0;15m', 'Beefheart\x1b[0m', '\x1b[38;2;66;242;12m\x1b[48;2;0;14;16m', 'Everyone\x1b[0m', '\x1b[38;2;242;12;35m\x1b[48;2;4;1;21m', 'Mixing\x1b[0m', '\x1b[38;2;12;242;223m\x1b[48;2;0;15;7m', 'pieces\x1b[0m', '\x1b[38;2;12;238;242m\x1b[48;2;0;15;11m', 'different\x1b[0m', '\x1b[38;2;242;135;12m\x1b[48;2;20;3;0m', 'Sleeping\x1b[0m', '\x1b[38;2;89;12;242m\x1b[48;2;13;14;0m', 'bathtub\x1b[0m', '\x1b[38;2;242;89;12m\x1b[48;2;19;0;20m', "that's\x1b[0m", '\x1b[38;2;123;242;12m\x1b[48;2;0;15;6m', 'stored\x1b[0m', '\x1b[38;2;20;242;12m\x1b[48;2;0;15;14m', 'larger\x1b[0m', '\x1b[38;2;242;43;12m\x1b[48;2;20;0;13m', 'version\x1b[0m', '\x1b[38;2;12;192;242m\x1b[48;2;12;14;0m', 'itself\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;104;242m\x1b[48;2;17;9;0m', 'Unbelievably\x1b[0m', '\x1b[38;2;127;242;12m\x1b[48;2;19;0;20m', 'shadow\x1b[0m', '\x1b[38;2;12;204;242m\x1b[48;2;7;1;21m', 'puppets\x1b[0m', '\x1b[38;2;12;242;131m\x1b[48;2;20;0;4m', 'Masterminding\x1b[0m', '\x1b[38;2;242;116;12m\x1b[48;2;5;15;0m', 'scheme\x1b[0m', '\x1b[38;2;242;12;200m\x1b[48;2;0;16;3m', 'stretches\x1b[0m', '\x1b[38;2;242;12;77m\x1b[48;2;7;15;0m', 'around\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;181;12;242m\x1b[48;2;0;9;19m', 'Understanding\x1b[0m', '\x1b[38;2;242;12;200m\x1b[48;2;0;8;19m', 'complicated\x1b[0m', '\x1b[38;2;242;39;12m\x1b[48;2;8;1;21m', 'puzzle\x1b[0m', '\x1b[38;2;234;12;242m\x1b[48;2;0;16;4m', 'Laughing\x1b[0m', '\x1b[38;2;12;242;39m\x1b[48;2;20;0;20m', 'Looking\x1b[0m', '\x1b[38;2;66;12;242m\x1b[48;2;0;16;4m', 'Knowing\x1b[0m', '\x1b[38;2;16;12;242m\x1b[48;2;1;1;22m', 'everything\x1b[0m', '\x1b[38;2;0;16;3m\x1b[48;2;242;150;12m', 'thinking\x1b[0m']
         stripester        = convert_stretched_stripe(stripeamabob,1,console_width-1)     #print(f"\nstripester is:\n{stripester}")
         print(stripester)
 
@@ -863,7 +866,7 @@ def main():
 
     #══════════════════════════════════════════════════════════════════════#
     # 🎉🎉🎉 ⭐⭐⭐⭐⭐ THE FILE IS GONNA BE PRINTED RIGHT HERE: ⭐⭐⭐⭐⭐ 🎉🎉🎉 #
-    # kludge to fix situation of empty output, which shouldn’t happen:     #
+    # output="" at the end of each line:                                   #
     if (output==""):                                                       #
         print("\n".join(input_data))                                       #
         if VERBOSE: print("❕‼ OUTPUT EMPTY. Joined input_data manually ❕‼")#

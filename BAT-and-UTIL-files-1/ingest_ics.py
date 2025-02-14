@@ -115,8 +115,13 @@ def generate_google_calendar_url_from_ics_file(file_path):                      
     print(f"\n{Fore.YELLOW}* Processing ics file: {file_path}{Fore.WHITE}")
     with open(file_path, 'r', encoding="utf-8") as file: ics_content = file.read()
     fixed_ics = fix_malformed_ics(ics_content)
-    calendar  = icsCalendar(fixed_ics)
-    events    = calendar.events
+
+    try:
+        calendar  = icsCalendar(fixed_ics)
+    except Exception:
+        print ("Calendar exception 555!")
+
+    events = calendar.events
 
     if DEBUG_ICS_PROCESSING:
         print(f"\t- contents of original ics file={Fore.RED}{ics_content}{Fore.WHITE}")

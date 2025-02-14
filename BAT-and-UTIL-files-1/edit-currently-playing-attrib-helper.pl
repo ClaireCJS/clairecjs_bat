@@ -24,7 +24,7 @@
 ##########                       [2] attribute filename is defined in $ATTRIB_LST below
 ##########                       [3] text editor is defined via the %EDITOR% environment variable
 ##########        (3) optionally adds an attribute to the attribute file without opening it
-##########                       [1] set env-var AUTOMARKAS=<the name of the attribute we want to add, such as "learned" or "party">
+##########                       [1] set env-var AUTOMARKAS=<the name of the attribute we want to add, such as “learned” or “party”
 ##########                       [2] set env-var LEARNED_COMMENT=the text of the comment you want added to the attribute file above our tag
 ##########	      (4) Copies the track number of the mp3/songfile to the clipboard
 ##########
@@ -100,10 +100,10 @@ my $ALL_SONGS_LIST = $ARGV[1];						#for 2008/2009 years
 my $REGEX          = $ARGV[2];						#we can also pass it a regex, to edit the status of songs that AREN'T currently playing
 my $COMMENT        = $ENV{"LEARNED_COMMENT"};		#20240702 —— changed this from 'comment' to 'learned_comment' to avoid scope collisions
 if ("" eq $MUSIC_LOG) { print "echo * FATAL ERROR 1: First argument must specify filename of MUSIC LOG!!\n"; exit(); }
-if ( !-e  $MUSIC_LOG) { print "echo * FATAL ERROR 2: music log OF \"$MUSIC_LOG\" DOES NOT EXIST!!\n"       ; exit(); }
+if ( !-e  $MUSIC_LOG) { print "echo * FATAL ERROR 2: music log OF “$MUSIC_LOG” DOES NOT EXIST!!\n"       ; exit(); }
 if (($METHOD eq "2008") || ($METHOD eq "2009")) {
 	if ("" eq $ALL_SONGS_LIST) { print "FATAL ERROR 3: Second argument must specify filename of ALL SONGS LIST!!\n"; exit(); }
-	if ( !-e  $ALL_SONGS_LIST) { print "FATAL ERROR 4: $ALL_SONGS_LIST DOES NOT EXIST!!\n"                         ; exit(); }
+	if ( !-e  $ALL_SONGS_LIST) { print "FATAL ERROR 4: “$ALL_SONGS_LIST” DOES NOT EXIST!!\n"                       ; exit(); }
 }
 
 
@@ -212,7 +212,7 @@ if ($METHOD ne "2024") {
 	chomp $last_found;
 	if ($DEBUG_FIND_IN_AUDIOSCROBBLER_LOG) { print ":\$FOUND_IN_AUDIOSCROBBLER_LOG = $FOUND_IN_AUDIOSCROBBLER_LOG\n"; }
 	if ($DEBUG)                            { 
-		if ($FOUND_IN_AUDIOSCROBBLER_LOG)  { print ":last_found found line is: \"$last_found\"\n"; }
+		if ($FOUND_IN_AUDIOSCROBBLER_LOG)  { print ":last_found found line is: “$last_found”\n"; }
 		else                               { print ":searchfor of $MUSIC_LOG_SEARCH_FOR was never found!\n"; }
 	}
 	
@@ -246,7 +246,7 @@ if ($METHOD ne "2024") {
 
 	if (($METHOD eq "2008") || ($METHOD eq "2009")) {
 		##### Because I remove move things in parenthesis, anything that this is a mistake for must be preserved for later. This is a feature added in 2009:
-		##### we keep things in parenthesis if they are "live", "demo", "x mix", "x remix", "mix by x", "x version"
+		##### we keep things in parenthesis if they are “live”, “demo”, “x mix”, “x remix”, “mix by x”, “x version”
 		$parenthetical_title_to_save="";
 		if (($song =~ /(\([^\)]*Mix\))/i) || ($song =~ /(\([^\)]*Version\))/i) || ($song =~ /(\([^\)]*Mix by [^\)]+\))/i)				## THIS WHOLE
 			#testing 20090921:																											## BLOCK   IS 
@@ -264,7 +264,7 @@ if ($METHOD ne "2024") {
 		#$song =~ s/\([\(\).]*\)//;
 		$song =~ s/\s+$//;
 		$song =~ s/^\s+//;
-		if ($DEBUG) { print "\n:song is now [2] \"$song\"!\n"; }
+		if ($DEBUG) { print "\n:song is now [2] “$song”!\n"; }
 
 		##### If there was parenthtical stuff we saved from before (remixes, for example), they were stripped, so now we add it back on:
 		$song .= " $parenthetical_title_to_save";
@@ -274,13 +274,13 @@ if ($METHOD ne "2024") {
 	}
 }
 
-if ($DEBUG>0) { print "[B] REGEX is '$REGEX', RGACL=$REGEX_GIVEN_AT_COMMAND_LINE\n"               ; }
+if ($DEBUG>0) { print "[B] REGEX is “$REGEX”, RGACL=$REGEX_GIVEN_AT_COMMAND_LINE\n"               ; }
 if ($DEBUG>0) { print ":Song regex is now[A5]: $song_regex (RGACL=$REGEX_GIVEN_AT_COMMAND_LINE)\n"; }
 
 
 if (($METHOD eq "2008") || ($METHOD eq "2009")) {				# || ($REGEX_GIVEN_AT_COMMAND_LINE ==1) meh
-	if ($DEBUG>0) { print ": intial song_regex is \"$song_regex\" \n"; }
-	if ($song_regex eq "- ") { print "\n\n\n:ERROR! No info in regex! Is the song not tagged??\n"; die("regex of \"$song_regex\" is not substantive... Is the song untagged?"); }
+	if ($DEBUG>0) { print ": intial song_regex is “$song_regex” \n"; }
+	if ($song_regex eq "- ") { print "\n\n\n:ERROR! No info in regex! Is the song not tagged??\n"; die("regex of “$song_regex” is not substantive... Is the song untagged?"); }
 	#FROM convert-id3-to-filenameregex
 	$song_regex =~ s/(.*) - (.*)/$1.*$2/g;
 	$left=$1; $right=$2;
@@ -291,9 +291,9 @@ if (($METHOD eq "2008") || ($METHOD eq "2009")) {				# || ($REGEX_GIVEN_AT_COMMA
 	$song_regex =~ s/\s*\/\s*/.*/g;
 
 	#### The kludges happen here:
-	$song_regex =~ s/^[\-\s]+//;				#the cut point in the audioscrobbler logfile isn't always the smae ... sometimes we get a "- " at the beginning .. so we need to remove that  or the grep we do with that in the future will fail
+	$song_regex =~ s/^[\-\s]+//;				#the cut point in the audioscrobbler logfile isn't always the smae ... sometimes we get a “- ” at the beginning .. so we need to remove that  or the grep we do with that in the future will fail
 
-	$song_regex =~ s/^The //i;					#### Also, for example, "The Bangles" really is "Bangles, The". We should just remove "The".
+	$song_regex =~ s/^The //i;					#### Also, for example, “The Bangles” really is “Bangles, The”. We should just remove “The”.
 
 	#### Other good ideas to do while we're here:
 	$song_regex =~ s/^\s*//;					#also remove leading  spaces...seems like a harmless side-effect
@@ -302,10 +302,10 @@ if (($METHOD eq "2008") || ($METHOD eq "2009")) {				# || ($REGEX_GIVEN_AT_COMMA
 	#parentehsis need to be real parens now; spaces into .
 	$song_regex =~ s/\(/\\(/g;
 	$song_regex =~ s/\)/\\)/g;
-	$song_regex =~ s/ /.*/g;					#was just . but broke on "Sabbat - A Cautionary Tale  (demo)" due to extra space before demo that's not supposed to be there
+	$song_regex =~ s/ /.*/g;					#was just . but broke on “Sabbat - A Cautionary Tale  (demo)” due to extra space before demo that's not supposed to be there
 	
 	##### INFORM REGEX FOR DEBUG:
-	print "echo regex [A] was $song_regex\necho.\necho.\n";			#OBSOLETE: if ($DEBUG) { print "\n:song_regex is now \"$song_regex\"!\n\n"; }
+	print "echo regex [A] was $song_regex\necho.\necho.\n";			#OBSOLETE: if ($DEBUG) { print "\n:song_regex is now “$song_regex”!\n\n"; }
 }
 
 if ($DEBUG>0) { print ":Song regex is now[B5]: $song_regex (RGACL=$REGEX_GIVEN_AT_COMMAND_LINE)\n"; }
@@ -313,7 +313,7 @@ if ($DEBUG>0) { print ":Song regex is now[B5]: $song_regex (RGACL=$REGEX_GIVEN_A
 
 ##### THE OLD METHOD: LOOK THROUGH OUR SONGS LIST TO FIND THE SONG.  The 2011 last.fm improved logfile format makes this totally unnecessary. UNLESS we're not using that!
 if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE==1)) {
-	open(PLAYLIST,"$ALL_SONGS_LIST") || die("FATAL ERROR 6: COULD NOT OPEN \"$ALL_SONGS_LIST\", despite it existing!");
+	open(PLAYLIST,"$ALL_SONGS_LIST") || die("FATAL ERROR 6: COULD NOT OPEN “$ALL_SONGS_LIST”, despite it existing!");
 	while ($line=<PLAYLIST>) {
 		chomp $line; if ($line =~ /$song_regex/i) { $song_found .= "$line\n"; $found++;	$found_regex=$song_regex;	if ($DEBUG>1) { print ":found song $line\n"; } }
 	}
@@ -328,12 +328,12 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 		if    ( $method == 1) {	$try_regex =~ s/^(.*)(\.\*)(.*)$/$3$2$1/i; }
 		elsif ( $method == 2) {	$try_regex =~ s/^(.*)(\.\*)(.*)(\.\*)(.*)$/$1$2$5/i; }
 		elsif ( $method == 3) {	$try_regex =~ s/^(.*)\.\*(.*)\.\*(.*)$/$2.*$3.*$1/i; }
-		elsif ( $method == 4) {	$try_regex =~ s/^(.*)(\.\*)with.*(\.\*)(.*)(\.\*)(.*)$/$1$2$3$4$5$6/i; }			#if it's "blah blah with blah blah - blah blah blah" we end up with "blah blah - blah blah" - everything after with, but before the last 2 words is taken out
+		elsif ( $method == 4) {	$try_regex =~ s/^(.*)(\.\*)with.*(\.\*)(.*)(\.\*)(.*)$/$1$2$3$4$5$6/i; }			#if it's “blah blah with blah blah - blah blah blah” we end up with “blah blah - blah blah” - everything after with, but before the last 2 words is taken out
 		elsif ( $method == 5) {	$try_regex =~ s/^(.*)(\.\*)with.*(\.\*)(.*)$/$1$2$3$4/i; }							#like 3, but with just the last word instead of the last two words
 		elsif ( $method == 7) {	$try_regex = $right . ".*" . $left; }												#comes in play with tribute albums that are song - band
 		elsif ( $method == 8) {	$try_regex = $right; }
 		elsif ( $method == 9) {	$try_regex = $left; }			
-		elsif (($method == 6) && (!$SIX)) {	$try_regex =~ s/feat\.\*[a-z]*//i; $method=1; $SIX=1; }										#remove "feat. bandname" and start over
+		elsif (($method == 6) && (!$SIX)) {	$try_regex =~ s/feat\.\*[a-z]*//i; $method=1; $SIX=1; }										#remove “feat. bandname” and start over
 		#BLANKS (remember to increase $num_methods above!!!!!!!!!!): 
 		#elsif ($method == 4) {	$try_regex =~ s/^///i; }
 		#elsif ($method == 5) {	$try_regex =~ s/^///i; }
@@ -362,7 +362,7 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 	##### THE SONG MAY HAVE MULTIPLE RESULTS, SO GO THROUGH THEM:
 	my @songs_found = split(/\n/,"$song_found");
 	foreach $possible_song_found (@songs_found) {
-		if ($DEBUG>1) { print ":possible_song_found is now \"$possible_song_found\"!\n\n"; }
+		if ($DEBUG>1) { print ":possible_song_found is now “$possible_song_found”!\n\n"; }
 		$possible_song_found =~ /^(.*)[\\\/]([^\\\/]*)$/;
 		$possible_folder = $1;
 
@@ -370,16 +370,16 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 		$text_to_copy_to_clipboard__usually_tracknum =~ s/^.*[\\\/]//i;
 		$text_to_copy_to_clipboard__usually_tracknum =~ s/\....$//i;
 		$text_to_copy_to_clipboard__usually_tracknum =~ s/^([0-9]*_*[0-9]*[0-9]_).*$/$1/;		#THE MEAT - HERE'S WHERE WE GET THE # IN BEST CASE SCENARIOS
-		$text_to_copy_to_clipboard__usually_tracknum =~ s/^([0-9]*_*[0-9]*[0-9] - ).*$/$1/;		#meat #2 - sometimes it's like this for pre-processed stuff that we haven't named our way, e.g. "01 - First Track" instead of "01_First Track" 
+		$text_to_copy_to_clipboard__usually_tracknum =~ s/^([0-9]*_*[0-9]*[0-9] - ).*$/$1/;		#meat #2 - sometimes it's like this for pre-processed stuff that we haven't named our way, e.g. “01 - First Track” instead of “01_First Track” 
 		$text_to_copy_to_clipboard__usually_tracknum =~ s/_$//;							#after a long time, decided trailing underscore is annoying
 		$text_to_copy_to_clipboard__usually_tracknum =~ s/^0//;							#after a long time, decided  leading    zero    is annoying
 
-		if ($DEBUG>1) { print ":possible_folder is now \"$possible_folder\"!\n"; }
+		if ($DEBUG>1) { print ":possible_folder is now “$possible_folder”!\n"; }
 		if (-e "$possible_folder\\$ATTRIB_LST") {
-			if ($DEBUG>1) { print ":possible attrib list found at $possible_folder\\$ATTRIB_LST\"!\n"; }
+			if ($DEBUG>1) { print ":possible attrib list found at $possible_folder\\$ATTRIB_LST!\n"; }
 			push (@TARGET_FILES,"$possible_folder\\$ATTRIB_LST");
 		} else {
-			if ($DEBUG>1) { print ":possible attrib list NOT found at $possible_folder\\$ATTRIB_LST\"!\n"; }
+			if ($DEBUG>1) { print ":possible attrib list NOT found at $possible_folder\\$ATTRIB_LST!\n"; }
 			#20070922:	adding this line, because we need this to work for 
 			#			folders that don't have an $ATTRIB_LST as well!
 			push (@TARGET_FILES,"$possible_folder\\$ATTRIB_LST");
@@ -390,7 +390,7 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 ##### THE NEW 2011 METHOD IS WAY EASIER THAN ALL OF THE ABOVE!
 } elsif (($METHOD eq "2011") || ($METHOD eq "2012") || ($METHOD eq "2013")) {
 
-	if ($DEBUG>0) { print "REM :DEBUG: pushing onto \@TARGET_FILES: \"$song\"\n"; }
+	if ($DEBUG>0) { print "REM :DEBUG: pushing onto \@TARGET_FILES: “$song”\n"; }
 	push(@TARGET_FILES,$song);			#SEE HOW EASY THAT WAS?
 
 }
@@ -450,7 +450,7 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 	$filename_nodir =~ s/\"*$//g;
 	$filename_nodir =~ s/ $//g;
 	next if $filename_nodir eq "";
-	if (($DEBUG>0)||(1)) { print "\nREM ##### filename_nodir is \"" . $filename_nodir. "\"\n\n"; }
+	if (($DEBUG>0)||(1)) { print "\nREM ##### filename_nodir is “" . $filename_nodir. "”\n\n"; }
 
 	##### IMPORTANT: WE ONLY DEAL WITH EACH DIRECTORY *ONCE* AND ONLY ONCE:
 	if    ($folder_dealt_with{$target_dir} == 1) { next; }
@@ -579,10 +579,10 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 		if ($text_to_copy_to_clipboard__usually_tracknum ne "_") {
 			$FAIL=0;
 			##### write out the actual values to our $ATTRIB_LST (attrib.lst) file:
-			### Marked:   1_09_This Killer In My House.mp3  as  "learned"   [2022-09-29 at 11:59:47]
+			### Marked:   1_09_This Killer In My House.mp3  as  “learned”   [2022-09-29 at 11:59:47]
 			print   "echo."                                                                                   . ">>$ATTRIB_LST\n";	
 			#rint "\necho ### $filename_nodir ==%%=> $AUTOMARK_AS ==%%=> on %_isoDate at %_time"              . ">>$ATTRIB_LST\n";							
-			print "\necho ### Marked:   \"$filename_nodir\"   as  \"$AUTOMARK_AS\"    [%_isoDate at %_time]"  . ">>$ATTRIB_LST\n";							
+			print "\necho ### Marked:   “$filename_nodir”   as  “$AUTOMARK_AS”    [%_isoDate at %_time]"      . ">>$ATTRIB_LST\n";							
 			if ($COMMENT ne "") { print "echo ### $COMMENT"                                                   . ">>$ATTRIB_LST\n"; }
 			print     "echo $text_to_copy_to_clipboard__usually_tracknum:$AUTOMARK_AS"                        . ">>$ATTRIB_LST\n";	
 		} else {
@@ -609,7 +609,7 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 
 			print "beep\n";
 			print "\%COLOR_ALARM\%\n";
-			print "echo Didn't work! Must 'ec' or 'ec $text_to_copy_to_clipboard__usually_tracknum' manually!\n";
+			print "echo Didn’t work! Must “ec” or “ec $text_to_copy_to_clipboard__usually_tracknum” manually!\n";
 			print "\%COLOR_NORMAL\%\n";
 			print "keystack ec\n";
 
@@ -642,8 +642,8 @@ sub go_up_one_level_where_appropriate {
 	$target_dir =~ s/[\\\/]not-tolerable//i;
 	$target_dir =~ s/[\\\/]not tolerable//i;
 
-	##### 2011 addition when I made "changerrecent\Atari Teenage Riot" to force the new album into changerrecent before it was put into the official album list
-	##### This broke certain things, as typically something like "changerrecnet" would only be at THE END of the path, where it could be safely removed.
+	##### 2011 addition when I made “changerrecent\Atari Teenage Riot” to force the new album into changerrecent before it was put into the official album list
+	##### This broke certain things, as typically something like “changerrecnet” would only be at THE END of the path, where it could be safely removed.
 	##### But now that it's beginning to be done in the MIDDLE of the path, it's not always safe to remove.  
 
 	#### We need to check that the folder actualy exists before returning it now!

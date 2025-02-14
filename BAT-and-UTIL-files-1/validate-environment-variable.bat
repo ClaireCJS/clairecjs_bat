@@ -228,10 +228,9 @@ goto :Past_The_End_Of_The_Subroutines
                 setdos /x-5
                 iff defined VARVALUE then
                                                     
-                        rem [2A] We here? 🐐
-                        echo VARVALUE is defined and is [%VARVALUE%], varname is %VARNAME 🐐rem>nul
+                        if %DEBUG_VALIDATE_ENV_VAR% eq 1  (echo VARVALUE is defined and is [%VARVALUE%], varname is %VARNAME 🐐rem>nul)
                         
-                        rem It’s definitely not a file location if:
+                        rem It’s definitely NOT a file location if:
                         rem     1) The variable’s  name is “newline” or “tab”
                         rem     2) The variable’s value is “ ”
                         rem     3) The variable’s value does not contain a “.”

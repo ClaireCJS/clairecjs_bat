@@ -4,6 +4,7 @@
  
 rem Get parameters:
         set song_file_to_approve=%@UNQUOTE[%1]                                               %+ rem song file to use 
+        set txt_sidecar=%@name["%song_file_to_approve%"].txt
 
 rem Validate environment once:
         iff 1 ne %VALIDATE_SONG_APPROVE_APPROVE% then
@@ -18,3 +19,7 @@ rem Validate parameters every time
 
 rem Set via windows alternate data streams:
         call add-ads-tag-to-file         "%song_file_to_Approve%" lyriclessness APPROVED lyrics
+
+rem special case for approve-lyriclessness.bat only: 
+rem If a lyric file exists, nuke it, because we’ve determined this can’t have lyrics found:
+        if exist "%txt_sidecar%" (echo ray | *del /q "%txt_sidecar%")

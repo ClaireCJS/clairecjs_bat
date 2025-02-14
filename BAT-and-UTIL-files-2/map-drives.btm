@@ -113,7 +113,11 @@
         :mapDrive [letter sharename machine]
             :: DEBUG: echo * mapdrive %letter% %sharename% %machine%
 
+                rem echo letter1 is %LETTER%
+                rem echo letter2 is %@UPPER[%LETTER%]
+                rem echo "`%`[DRIVE_C_%MACHINE%]" is "%[DRIVE_C_%MACHINE%]"
             :: if we are mapping to the machine we are currently on, we should only map the machine's C drive, and none other:
+rem echo        if "%@UPPER[%MACHINENAME%]" eq "%@UPPER[%machine%]" .and. "%@UPPER[%LETTER%]" ne "%[DRIVE_C_%MACHINE%]" return
                 if "%@UPPER[%MACHINENAME%]" eq "%@UPPER[%machine%]" .and. "%@UPPER[%LETTER%]" ne "%[DRIVE_C_%MACHINE%]" return
 
             :: check for tethering
