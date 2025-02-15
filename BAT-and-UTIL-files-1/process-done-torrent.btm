@@ -3,7 +3,9 @@
 rem HOW TO USE THIS SCRIPT: PASTE THIS INTO UTORRENT CLIENT FOR THE SCRIPT TO RUN ON COMPLETED TORRENTS: 
 rem c:\tcmd\tcc.exe C:\bat\process-done-torrent.btm "%F" "%D" "%N" "%P" "%L" "%T" "%M" "%S" %K "%I"
 
-
+rem set ANSI codes defined because the call to this is special and doesn’t seem to run our environm.btm
+        call set-ansi
+ 
 rem Document parameters:
         rem  rem You can use the following parameters:
         rem  rem      %F - Name of downloaded file (for single file torrents)

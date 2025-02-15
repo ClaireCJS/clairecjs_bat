@@ -71,8 +71,9 @@ rem Respond to command-line parameters:
                                 if %repeats% gt 0 repeat %repeats% echos %ansi_erase_to_eol%
                                 echos %ansi_erase_to_eol%%ansi_restore_position%
                         )                        
-                        goto :END
+                        set goto_END=1
                 )
+                if "1" == "%goto_END%" goto :END
 
 
 

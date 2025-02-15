@@ -94,6 +94,7 @@ REM CONFIG: 2024:
         set SKIP_SEPARATION=1                                                                       %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn’t work anymore
         SET SKIP_TXTFILE_PROMPTING=0                                                                %+ rem 0=use lyric file to prompt AI, 1=go in blind
         set MAXIMUM_PROMPT_SIZE=3000                                                                %+ rem The most TXT we will use to prime our transcription.  Since faster-whisper-xxx only supports max_tokens of 224, we only need 250 words or so. But will pad a bit extra. We just don’t want to go over the command-line-length-limit!
+        set DEBUG_SHOW_LYRIC_STATUS=1                                                               %+ rem shows lyriclessness/lyric status if we “gosub debug_show_lyric_status”
 rem CONFIG: 2024: WAIT TIMES:                                                                      
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                                                %+ rem wait time for “are these lyrics good?”-type questions
         set AI_GENERATION_ANYWAY_WAIT_TIME=45                                                       %+ rem wait time for “no lyrics, gen with AI anyway”-type questions
@@ -204,7 +205,7 @@ REM validate environment [once]:
                         if not defined ANSI_COLOR_ORANGE                           set ANSI_COLOR_ORANGE=%@CHAR[27][38;2;235;107;0m
                         rem TODO BLINK_ON, BLINK_OFF ITALICS_ON ITALICS_OFF, QUOTE, etc
                 rem Perform the actual validations:
-                        @call validate-in-path              %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat remove-period-at-ends-of-lines.pl review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alert.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat
+                        @call validate-in-path              %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alert.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat
                         @call validate-environment-variable  TRANSCRIBER_PDNAME  skip_validation_existence
                         @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check check party_popper emoji_birthday_cake red_x ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off ansi_color_blue machinename
                         @call validate-is-function           ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD                
@@ -657,6 +658,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                                 endiff
                                 rem echo ⏺ AI_GENERATION_ANYWAY_DEFAULT_ANSWER=“%AI_GENERATION_ANYWAY_DEFAULT_ANSWER%”
 
+                        gosub debug_show_lyric_status
                         @call askYN "Generate AI anyway (%ansi_color_bright_green%I%ansi_color_prompt%=instrumental,%ansi_color_bright_green%L%ansi_color_prompt%=Lyrics Unfindable)" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME% IL I:Mark_it_as_an_instrumental_track,L:Mark_lyricless
                         if "%ANSWER%" == "Y" (goto :Force_AI_Generation)
                         iff "L" == "%ANSWER%" then                        
@@ -867,9 +869,9 @@ rem     set CLI_OPS=--model large-v2 --output_dir "%OUTPUT_DIR%" --output_format
                                 rem The problem with setdos /x-1 is that it makes “*Echo” and commands prefixed with “*” invalid
                                 setdos /c%@CHAR[1] 
                                 rem But wait! This isn’t setting separator to  %@ASCII[1], but to “%”! oops!
-                                set OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 unique-lines.pl -1 -L]] 
-                                set OUR_LYRICS_TRUNCATED=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%OUR_LYRICS%]
-                                set OUR_LYRICS_2=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -A -1 -L]]                               
+                                rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 unique-lines.pl -1 -L]] 
+                                rem OUR_LYRICS_TRUNCATED=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%OUR_LYRICS%]
+                                rem OUR_LYRICS_2=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -A -1 -L]]                               
                                 set tmppromptfile=%TEMP%\%_DATETIME.%KNOWN_NAME%.%_PID.%@NAME[%@UNIQUEx[%TEMP%\]]
                                 (type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -A -1 -L) >%tmppromptfile%
                                 setdos /x0
@@ -957,7 +959,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
         @echo %LAST_WHISPER_COMMAND_FOR_DISPLAY%%ansi_color_reset% 
         setdos /x0
         unset /q answer
-        echo 🐺 LYRICLESSNESSNESS_STATUS=“%LYRICLESSNESSNESS_STATUS%”
+        gosub debug_show_lyric_status
         @call AskYn "Proceed with this AI generation (%ansi_color_bright_green%L%ansi_color_prompt%=mark lyricless%underline_on%ness%underline_off%)" yes %PROCEED_WITH_AI_CONSIDERATION_TIME% L L:Mark_as_lyricless!
         if  "%answer%" == "Y" goto :edit_ai_prompt
         iff "%answer%" == "N" then
@@ -1024,15 +1026,6 @@ REM set a non-scrollable header on the console to keep us from getting confused 
 
 
 REM  ✨ ✨ Get ready to actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI: ✨ ✨ 
-        rem Cosmetics:
-            @echo.
-            @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% Launching AI! %EMOJI_FIREWORKS%%ansi_color_normal%
-            echo.
-            echo CWP=%_CWP, time=%_DATETIME
-            rem that firework emoji was so much cooler in emoji11/win10 than emoji13/win11
-            echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[magenta]%ANSI_CURSOR_CHANGE_TO_vertical_bar_BLINKING%   
-            title waiting: %BASE_TITLE_TEXT%
-
 REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨ 
         rem One last concurrency check:
                 iff "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then
@@ -1060,7 +1053,17 @@ echo goat:      if `%`LOG_PROMPTS_USED`%`[%LOG_PROMPTS_USED%] eq 1 (@echo %newli
 REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨ 
         gosub :create_transcriber_lock_file 
 
-REM  ✨ ✨ ✨ ✨ ✨ ✨ ACTUALLY DO THE AI-TRANSCRIPTOIN: ✨ ✨ ✨ ✨ ✨ ✨ 
+REM  ✨ ✨ ✨ ✨ ✨ ✨ ACTUALLY DO THE AI-TRANSCRIPTION: ✨ ✨ ✨ ✨ ✨ ✨ 
+        rem PRETTY HEADER FOR AI-TRANSCRIPTION:
+                rem Cosmetics:
+                    @echo.
+                    @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% Launching AI! %EMOJI_FIREWORKS%%ansi_color_normal%
+                    echo.
+                    echo CWP=%_CWP, time=%_DATETIME
+                    rem that firework emoji was so much cooler in emoji11/win10 than emoji13/win11
+                    echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[magenta]%ANSI_CURSOR_CHANGE_TO_vertical_bar_BLINKING%   
+                    title waiting: %BASE_TITLE_TEXT%
+
         rem ACTUALLY DO IT!!!:
                 if defined CURSOR_RESET echos %CURSOR_RESET%
                 echos %ANSI_CURSOR_CHANGE_TO_vertical_bar_steady%   
@@ -1527,8 +1530,10 @@ goto :skip_subroutines
                                 rem endiff
                         endiff
                 :actually_create_it
-                        call debug "Creating lock file “%TRANSCRIBER_LOCK_FILE%”"
-                        echo * Process %_PID is transcribing “%SONGFILE%”>"%TRANSCRIBER_LOCK_FILE%"
+                        iff not exist "%TRANSCRIBER_LOCK_FILE%" then
+                                call debug "Creating lock file “%TRANSCRIBER_LOCK_FILE%”"
+                                echo %star2% Process %_PID is transcribing “%SONGFILE%” beginning at %_time on date %_date>"%TRANSCRIBER_LOCK_FILE%"
+                        endiff
         return
         :wait_on_transcriber_lock_file [opt]
                 gosub :set_transcriber_lock_file_variables
@@ -1577,6 +1582,9 @@ goto :skip_subroutines
 
         :debug [msg]
                 echo %ANSI_COLOR_DEBUG%- DEBUG: %msg% %ansi_color_normal%
+        return
+        :debug_show_lyric_status []
+                if %debug_show_lyric_status% != "0" echo 🐺 LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%” ...LYRIC_STATUS=“%LYRIC_STATUS%” 
         return
 
 

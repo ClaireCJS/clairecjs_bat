@@ -1104,21 +1104,23 @@ rem If we still didn’t find anything acceptable, but have potentially matching
                         set   DO_NOT_ASK_TO_HAND_EDIT=1
 
                         goto :have_acceptable_lyrics_now_or_at_the_very_least_are_done
-                elseiff "%ANSWER%" == "L" then
-                        rem (do nothing, this is just so we don’t hit the “else” below if “L” was pressed)
                 else
-                        rem echo 🐐 Trace LS-B2-4.2 -- LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
-                        set LYRICS_ACCEPTABLE=0
-                        call important_less "We have rejected this set of lyrics"
-                        rem echo.
-                        rem instead of this: goto :End_Of_Local_Lyric_Archive_Selection
-                        rem if we go back to the beginning, we can allow trying of multiple 
-                        rem                                 files before finally giving up
-                        rem This seemed to not workgoto: TrySelectingSomethingFromOurLyricsArchive
-                        iff "1" == "%file_count%" then
-                                rem Don’t try it again. But also don’t mark it 0.n
+                        iff "%ANSWER%" == "L" then
+                                rem (do nothing, this is just so we don’t hit the “else” below if “L” was pressed)
                         else
-                                set TRY_SELECTION_AGAIN=1
+                                rem echo 🐐 Trace LS-B2-4.2 -- LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
+                                set LYRICS_ACCEPTABLE=0
+                                call important_less "We have rejected this set of lyrics"
+                                rem echo.
+                                rem instead of this: goto :End_Of_Local_Lyric_Archive_Selection
+                                rem if we go back to the beginning, we can allow trying of multiple 
+                                rem                                 files before finally giving up
+                                rem This seemed to not workgoto: TrySelectingSomethingFromOurLyricsArchive
+                                iff "1" == "%file_count%" then
+                                        rem Don’t try it again. But also don’t mark it 0.n
+                                else
+                                        set TRY_SELECTION_AGAIN=1
+                                endiff
                         endiff
                 endiff
         else

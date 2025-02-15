@@ -544,16 +544,15 @@ The lyric downloader we use for Genius saves lyrics as a ```JSON file```. This e
 A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI’s 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a spiritual fork of ``uniq``` that doesn’t require file sorting (to avoid using up the 224 max tokens for WhisperAI with repeating lyrics), and grew into full-fledged lyric preprocessor that does much lyric massaging. Including putting a period at the end of each line, which is later removed by our subtitle postprocessor.
 
 
-### 🌟 [remove-period-at-ends-of-lines.pl](../BAT-and-UTIL-files-1/remove-period-at-ends-of-lines.pl):
+### 🌟 [subtitle-postprocessor.pl](../BAT-and-UTIL-files-1/subtitle-postprocessor.pl):
 
-The final subtitle postprocessor, which removes periods from end of each line in a subtitle. 
-It preserves the periods at the end of the line if the are for common abbreviations like “Mr.”, “Dr.”, “approx.”, etc
+The final subtitle postprocessor—originally called ```remove-period-at-ends-of-lines.pl```—which removes periods from end of each line in a subtitle. It preserves the periods at the end of the line if the are for common abbreviations like “Mr.”, “Dr.”, “approx.”, etc
 
 **Rationale:** We add “invisible” periods to the end of each line of lyrics, so that WhisperAI’s ```--sentence``` option is influenced by where lyric posters post the line breaks in their lyrics. It absolutely helped. A lot. Hours were spent determiing this and, and it was obvious from the first [of many] tests.   We then remove these periods (making them “invisible”) afterward, because they are ugly and often not even gramatically correct — just correct for *timing* purposes.  
 
 This also also has some extra karaoke postprocessing functionality slipped in:
     - de-censoring some curse words that WhisperAI censors (suppress this with ```--leave-censorship``` or ```-L```)
-    - removing any line that is "A little pause..." "And we are back."... These are hallucinations.
+    - removing any line that is “A little pause...” “And we are back.”... These are common hallucinations.
 
 </details>
 

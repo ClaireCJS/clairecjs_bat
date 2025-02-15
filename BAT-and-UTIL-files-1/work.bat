@@ -14,8 +14,9 @@
 
 
 rem Work configuration: lyrics & karaoke:
-        set default_playlist_to_work=crtl.m3u
         set default_playlist_to_work=2010s party.m3u
+        set default_playlist_to_work=changer.m3u
+        set default_playlist_to_work=crtl.m3u
         set default_number_of_lyrics_to_work=69
         set default_number_of_karaoke_to_work=1500
 

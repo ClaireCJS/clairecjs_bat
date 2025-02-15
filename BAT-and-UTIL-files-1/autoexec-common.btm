@@ -27,6 +27,7 @@ rem Initialize environment:
         call footer "Running %@NAME[%0]..."
 
 rem Load our autohotkey script right away since it has winamp control aspects in it
+        echos %@ANSI_MOVE_TO_COL[1]``
         call less_important "Initializing %italics_on%AutoHotKey%italics_off%..."
         call AutoHotKey-autoexec.bat %*
         gosub done_with_step
@@ -50,9 +51,9 @@ rem Girder?
 
 
 rem Minimize annoying programs...
-        call less_important "Minimizing %italics_on%imUp%italics_off% window..."
-        call minimize imUp
-        call minimize girder
+        call less_important "Minimizing %italics_on%imUp%italics_off% & %italics_on%Girder%italics_off% windows..."
+        windowhide.exe /min "imUp"
+        windowhide.exe /min "girder"
         gosub done_with_step
 
 rem Map drives

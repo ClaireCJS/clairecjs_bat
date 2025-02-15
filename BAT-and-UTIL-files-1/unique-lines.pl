@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+#HISTORY: forked to “lyric-postprocessor.pl”
+
+
 # On the surface, a general utility like uniq, except it remembers if a line has been seen before —— you don't have to pre-sort it
 
 # However, prior to us forking “unique-lines.pl” to “lyric-postprocessor.pl”, some additional features were added. They are NOT
