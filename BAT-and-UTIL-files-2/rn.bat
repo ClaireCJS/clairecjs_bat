@@ -7,9 +7,9 @@ rem %COLOR_DEBUG% %+ echo ARGS: %*
 
 
 rem Validate environment (once):
-        if "%@CURSOR_COLOR_BY_WORD[]" == "" function CURSOR_COLOR_BY_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
+        rem if "%ANSI_CURSOR_CHANGE_COLOR_WORD[]" == "" function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
         iff 1 ne %validated_rn_1% then
-                call validate-is-function CURSOR_COLOR_BY_WORD
+                call validate-is-function ANSI_CURSOR_CHANGE_COLOR_WORD
                 set  validated_rn_1=1
         endiff
 
@@ -74,7 +74,7 @@ rem Count files matching parameter:
                 rem DEBUG: echo filename_new is %lq%%filename_new%%rq% %+ pause
 
         rem Let user edit the filename:
-                echos %@CURSOR_COLOR_BY_WORD[yellow]
+                echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[yellow]
                 eset FILENAME_NEW
                 call set-cursor
 
@@ -113,8 +113,8 @@ rem Count files matching parameter:
                     %COLOR_SUCCESS%        %+  echo %FAINT_ON%                          To: %FILENAME_SIDECAR_NEW%%FAINT_OFF% %+ %COLOR_NORMAL%
                     %COLOR_SUBTLE%         %+  echos %FAINT_ON%%ITALICS_ON%                           ``
                     set comment=rem I’m not quite sure what we were validating here:
-                    call validate-environment-variable FILENAME_SIDECAR_OLD "Script currently doesn't rename sidecar files if they aren't in the current folder"
-                                               %REN% "%FILENAME_SIDECAR_OLD%" "%FILENAME_SIDECAR_NEW%"
+                    if not exist "%FILENAME_SIDECAR_OLD%"  call validate-environment-variable FILENAME_SIDECAR_OLD "Script currently doesn't rename sidecar files if they aren't in the current folder"
+                                            %REN% "%FILENAME_SIDECAR_OLD%" "%FILENAME_SIDECAR_NEW%"
                     set UNDOCOMMAND_SIDECAR=%REN% "%FILENAME_SIDECAR_NEW%" "%FILENAME_SIDECAR_OLD%"
                     set REDOCOMMAND_SIDECAR=%REN% "%FILENAME_SIDECAR_OLD%" "%FILENAME_SIDECAR_NEW%"
                     echos %FAINT_OFF%%ITALICS_OFF%

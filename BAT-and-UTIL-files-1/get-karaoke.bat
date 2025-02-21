@@ -31,19 +31,22 @@ rem Validate environment once:
         endiff
 
 
-setdos /x0
 
 rem Process currently-playing song:
         iff "%1" == "nowplaying" .or. "%1" == "now" .or. "%1" == "np" .or. "%1" == "winamp" .or. "%1" == "this" then
                 setdos /x0
-                %CALL% create-srt-file-for-currently-playing-song.bat %2$
+                %CALL% create-srt-file-for-currently-playing-song.bat get %2$
                 goto :next_step
         endiff         
 
 rem Process current folder:
         iff "%1" == "here"  then
+                shift
                 setdos /x0
-                %CALL% check-for-missing-karaoke.bat get %2$
+                rem echo %%1=“%1” %%2=“%2” %%3=“%3” %%4=“%4” ...... %%9$=“%9$”
+                unset /q get
+                if "%1" == "get" (set get=get %+ shift)
+                %CALL% check-for-missing-karaoke.bat %get% %2 %3 %4 %5 %6 %7 %8 %9$
                 goto :next_step
         endiff
 

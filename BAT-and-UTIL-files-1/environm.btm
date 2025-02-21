@@ -385,11 +385,11 @@ return
         :only be C if you're on STORM (the machine the harddrive is in),
         :otherwise it will probably be S: (first letter of storm--my convention).
         :Deprecated in favor of variables like %REMAPSTORM?????
-        rem HD20M=C
-        rem HD300M=C
-        rem HD500M=C
-        rem HD800M=C
-        rem HD4G=C
+                rem HD20M=C
+                rem HD300M=C
+                rem HD500M=C
+                rem HD800M=C
+                rem HD4G=C
                 rem HD16GREAL=C
                 rem HD25GREAL=C
                 rem HD40GREAL=D        :decomissioned
@@ -424,12 +424,12 @@ return
                 rem HD1500GREAL=L
                 rem HD1500G2REAL=W
                 rem HD2000GREAL=C
-        SET HD1000G2REAL=C
+                SET HD1000G2REAL=C
                 SET HD2000G2REAL=R
                 rem HD2000G3REAL=T
                 rem HD2000G4REAL=?
                 rem HD2000G5REAL=?
-        SET HD2T1REAL=P
+                SET HD2T1REAL=P
                 SET HD4000GREAL=B
                 SET HD4000G2REAL=E
                 rem HD4000G3REAL=F
@@ -439,22 +439,26 @@ return
                 SET HD4000G7REAL=I
                 SET HD6000G1REAL=Q
                 SET HD6000G2REAL=K
-        rem HD6000G3REAL=D
-        SET HD6000G3REAL=p
-        SET HD10T1REAL=W
-        SET HD10T2REAL=U
-        SET HD18TREAL=O
-        SET HD18T1REAL=O
-        SET HD18000GREAL=O
-        SET HD18000G1REAL=O
-        SET HD18T1REAL=O
-        SET HD18000G2REAL=A
-        SET HD18T2REAL=A
+                rem HD6000G3REAL=D
+                SET HD6000G3REAL=p
+                SET HD10T1REAL=W
+                SET HD10T2REAL=U
+                SET HD18TREAL=O
+                SET HD18T1REAL=O
+                SET HD18000GREAL=O
+                SET HD18000G1REAL=O
+                SET HD18T1REAL=O
+                SET HD18000G2REAL=A
+                SET HD18T2REAL=A
                 SET HD18T3REAL=T
-        SET HD20T1REAL=R
-        SET HD20T2REAL=W
-        SET HD22T1REAL=M
-                :also, make sure the section just above this is updated for the computer holding the drive in question
+                SET HD20T1REAL=R
+                SET HD20T2REAL=W
+                SET HD22T1REAL=M
+                rem ^^^^^^^^^^^^^ also, make sure the section just above this is updated for the computer holding the drive in question
+                rem ^^^^^^^^^^^^^ also, make sure the section just above this is updated for the computer holding the drive in question
+                rem ^^^^^^^^^^^^^ also, make sure the section just above this is updated for the computer holding the drive in question
+                rem ^^^^^^^^^^^^^ also, make sure the section just above this is updated for the computer holding the drive in question
+                rem ^^^^^^^^^^^^^ also, make sure the section just above this is updated for the computer holding the drive in question
 
 
         ::::: DEFINE DRIVE REMAPPING (reverse lookup to convert drive letter to %HDxxxG environment variable):
@@ -688,11 +692,13 @@ return
 return
 
 
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 :Set_Environment_Variables
 :SetEnvironmentVariables
-:CommonEnvVarsIncludingNetworking
-
-            
+:CommonEnvVarsIncludingNetworking          
 
     :::::::::: Set common environment variables that we want for all machines (or are just too lazy to set it per-machine)
  
@@ -715,21 +721,35 @@ return
                         set DEFAULT_TAB_STOP_WIDTH=4
         rem Something I should have been keeping track of since the 1990’s:                    
 
-
     ::::: 2023 STUFF:
         rem Delay value used for the various “split” bat files that start new TCC panes. They don’t work right without a delay:
-            set MAXIMUM_TIME_FOR_TCC_TO_START=4
+            rem MAXIMUM_TIME_FOR_TCC_TO_START=4 changed to 6 on 2025/02/18:
+            set MAXIMUM_TIME_FOR_TCC_TO_START=6
+
+    ::::: 2010s STUFF:
+        ::::: ALPHABET/LETTER HARD-CODINGS, FOR REASONS:
+                SET THE_ALPHABET=A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+                SET THE_ALPHABET_BY_DRIVE_PRIORITY=S F D M I X Y E C H K L Q R T U V W J P G N O A B Z
+                SET THE_LETTER_C=C                    %+ rem Do not change. Necessary in situations where we have to pass environment variable names and just want to pass a C. It happens.
+
+    ::::: 1990s STUFF:
+        SET DIRCMD=/e/j
 
     ::::: MANUALLY SETTING WHAT IS SUPPOSED TO ALREADY BE SET IN THE “OPTION” DIALOG:
                 setdos /X0
                 setdos /X-8
                         set DEFAULT_ESCAPE_CHARACTER_DESCRIPTION=PlusOverMinusSymbol
                         set ESCAPE_CHARACTER_DESCRIPTION=%DEFAULT_ESCAPE_CHARACTER_DESCRIPTION%
-                        set DEFAULT_ESCAPE_CHARACTER=`±`
-                        set ESCAPE_CHARACTER=`±`
-                        set ESCAPECHARACTER=`±`
-                        set ESCAPE_CHAR=`±`
-                        set ESCAPECHAR=`±`
+                        rem DEFAULT_ESCAPE_CHARACTER=`±`
+                        rem ESCAPE_CHARACTER=`±`
+                        rem ESCAPECHARACTER=`±`
+                        rem ESCAPE_CHAR=`±`
+                        rem ESCAPECHAR=`±`
+                        set DEFAULT_ESCAPE_CHARACTER=%@CHAR[177]
+                        set ESCAPE_CHARACTER=%@CHAR[177]
+                        set ESCAPECHARACTER=%@CHAR[177]
+                        set ESCAPE_CHAR=%@CHAR[177]
+                        set ESCAPECHAR=%@CHAR[177]
                 setdos /X0
                 setdos /X-5
                         set DEFAULT_COMMAND_SEPARATOR_CHARACTER=^
@@ -795,15 +815,16 @@ return
     %gosub_stopwatch_button% yellow "      %STAR%[1]CommonEnvVarsIncludingNetworking"
 
 
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
+rem Define Servers:
 
-
-        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ************************************ SERVER(s) DELINEATION: BEGIN: ************************************
-        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
                 rem WHO'S THE BOSS?
@@ -825,11 +846,9 @@ return
                         set MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_C_DRIVE=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY_CDRIVE%
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ************************************ SERVER(s) DELINEATION: END ************************************
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
 
@@ -837,11 +856,9 @@ return
 
 
 
-        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ************************************ MUSIC SERVER(s) & COLLECTION: BEGIN: ************************************
-        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
                 rem 💿***** MUSIC COLLECTION STUFF: ***** 
@@ -947,180 +964,257 @@ return
                                         SET       TMPMUSICSERVER=%MUSICSERVER%                                        
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ************************************ MUSIC SERVER(s) & COLLECTION: END: ************************************
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+
+
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ CAMERA SERVER(s) & COLLECTION: BEGIN: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                ::::: SERVER THAT CONTROLS THE IMAGES THAT ARE ON THE BACKGROUNDS OF OUR SCREENS:
+                            SET SERVER_OF_SCREEN_BACKGROUNDS=%MACHINENAME_SCRIPT_AND_DROPBOX_AUTHORITY%
+                ::::: HOUSE CAMERAS:
+                    rem cameras        
+                        rem IPcam #1 
+                            rem IPCAM1_IP=192.168.0.149
+                            set IPCAM1_IP=192.168.0.151
+                            set IPCAM1_MAC=54:CD:EE:00:F2:96
+                            set IPCAM1_PORT_RSTP=554
+                            set IPCAM1_PORT_MEDIA=38401
+                            set IPCAM1_PORT_ONVIF=36000
+                            REM IPCAM1_USERNAME_ADMIN=[REDACTED into private.env]
+                            REM IPCAM1_PASSWORD_ADMIN=[REDACTED into private.env]
+                            REM IPCAM1_USERNAME_GUEST=[REDACTED into private.env]
+                            REM IPCAM1_PASSWORD_GUEST=[REDACTED into private.env]
+                            set IPCAM1_DDNS_USER=n6905
+                            set IPCAM1_DDNS_HOSTNAME=%IPCAM1_DDNS_USER%.oipcam.com
+                            set IPCAM1_DDNS_URL=http://%IPCAM1_DDNS_HOSTNAME%:80
+                            set IPCAM1_UI_URL=http://%IPCAM1_IP%/main.htm
+                            REM equals sign exposes TCC 31 bug under Windows 11 on Carolyn's computer: set IPCAM1_STREAM_URL_INTERNAL=http://%IPCAM1_IP%/cgi-bin/videostream.cgi?user=%IPCAM1_USERNAME_GUEST%&pwd=%IPCAM1_PASSWORD_GUEST%
+                            set IPCAM1_STREAM_URL=%IPCAM1_STREAM_URL_INTERNAL%
+                            set IPCAM1_STREAM=%IPCAM1_STREAM_URL_INTERNAL%
+                            set IPCAM1=%IPCAM1_STREAM%
+                            set IPCAM=%IPCAM1%
+                        rem IPcam #2
+                            rem IPCAM2_IP=192.168.0.116
+                            set IPCAM2_IP=192.168.0.121
+                            set IPCAM2_MAC=54:CD:EE:00:F6:35
+                            set IPCAM2_PORT_RSTP=554
+                            set IPCAM2_PORT_MEDIA=38401
+                            set IPCAM2_PORT_ONVIF=36000
+                            rem IPCAM2_USERNAME_ADMIN=[REDACTED into private.env]
+                            rem IPCAM2_PASSWORD_ADMIN=[REDACTED into private.env]
+                            rem IPCAM2_USERNAME_GUEST=[REDACTED into private.env]
+                            rem IPCAM2_PASSWORD_GUEST=[REDACTED into private.env]
+                            set IPCAM2_DDNS_USER=n5262
+                            rem IPCAM2_P2P1_GUID=[REDACTED into private.env]
+                            set IPCAM2_DDNS_HOSTNAME=%IPCAM2_DDNS_USER%.oipcam.com
+                            set IPCAM2_DDNS_URL=http://%IPCAM2_DDNS_HOSTNAME%:80
+                            set IPCAM2_UI_URL=http://%IPCAM2_IP%/main.htm
+                            REM equals sign exposes TCC 31 bug under Windows 11 on Carolyn's computer: set IPCAM2_STREAM_URL_INTERNAL=http://%IPCAM2_IP%/cgi-bin/videostream.cgi?user=%IPCAM2_USERNAME_GUEST%&pwd=%IPCAM2_PASSWORD_GUEST%
+                            set IPCAM2_STREAM_URL=%IPCAM2_STREAM_URL_INTERNAL%
+                            set IPCAM2_STREAM=%IPCAM2_STREAM_URL_INTERNAL%
+                            set IPCAM2=%IPCAM2_STREAM%
+                        rem camera summary
+                            set IPCAMS_STREAMS_URLS=%IPCAM1% %IPCAM2%
+                            set IPCAMS_NAMES=IPCAM1 IPCAM2
+                                                   
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ CAMERA SERVER(s) & COLLECTION: END: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ HOME AUTOMATION SERVER(s) & COLLECTION: BEGIN: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                rem girder
+                    rem GIRDERPORT=[REDACTED into private.env]
+                    rem GIRDERPASSWORD=[REDACTED into private.env]
+                rem where this computer is
+                    SET LOCATION=upstairs
+                rem X10 (deprecated)
+                    rem computerwith X10 USB controller
+                        set X10_SERVER=THAILOG 
+                    rem house rooms                
+                        SET X10_LIGHTS_UPSTAIRS_LIVING_ROOM=B7
+                        SET X10_LIGHTS_UPSTAIRS_HALLWAY=    B1
+                        SET X10_LIGHTS_KITCHEN=         A9 A13                     %+ REM A9 is technically not the kitchen, but the guitar-area light used to GET to the kitchen
+                    rem house sections
+                        SET X10_LIGHTS_UPSTAIRS=        A1  A2  A3  A4  A5  A6  A7 %X10_LIGHTS_UPSTAIRS_HALLWAY% %X10_LIGHTS_UPSTAIRS_LIVING_ROOM%
+                        SET X10_LIGHTS_DOWNSTAIRS=      A10 A11 A12 A14 A15 A16    %X10_LIGHTS_KITCHEN%
+                    rem device types
+                        set X10_IPCAM=I1                %+ REM used for lazy power cycling when the IP cam gets messed up
+                        SET X10_CHIMES=                 A8                                         
+                        SET X10_LIGHTS_BLACKLIGHT=      A6 A14
+                        SET X10_LIGHTS_CHRISTMAS=       A7 A15
+                        SET X10_LIGHTS_LED=             A13 B7                      %+ REM  Not all of these are party lights, though.
+                        SET X10_LIGHTS_PARTY=           %X10_LIGHTS_BLACKLIGHT% %X10_LIGHTS_CHRISTMAS% %X10_LIGHTS_UPSTAIRS_HALLWAY% %X10_LIGHTS_UPSTAIRS_LIVING_ROOM%    
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ HOME AUTOMATION SERVER(s) & COLLECTION: END: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ PORTABLE DEVICES / CLOUD STORAGE: BEGIN: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                ::::: PORTABLE DEVICES: (I don't think any of this is true anymore)
+                        set IPHONE=192.168.0.100
+                        set ANDROID=192.168.0.101
+                        SET MP3PLAYERCAS=I
+
+                ::::: CLOUD STUFF:
+                        SET UNIXHOMEURL=http://claire.sheer.us
+                        @SET UNIXHOST=claire.sheer.us
+                        rem PASSWORD=[REDACTED into private.env]
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ PORTABLE DEVICES / CLOUD STORAGE: END: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
 
 
-
-
-        ::::: SERVER THAT CONTROLS THE IMAGES THAT ARE ON THE BACKGROUNDS OF OUR SCREENS:
-            SET SERVER_OF_SCREEN_BACKGROUNDS=THAILOG
-        ::::: HOUSE STUFF:
-            rem cameras        
-                rem IPcam #1 
-                    rem IPCAM1_IP=192.168.0.149
-                    set IPCAM1_IP=192.168.0.151
-                    set IPCAM1_MAC=54:CD:EE:00:F2:96
-                    set IPCAM1_PORT_RSTP=554
-                    set IPCAM1_PORT_MEDIA=38401
-                    set IPCAM1_PORT_ONVIF=36000
-                    REM IPCAM1_USERNAME_ADMIN=[REDACTED into private.env]
-                    REM IPCAM1_PASSWORD_ADMIN=[REDACTED into private.env]
-                    REM IPCAM1_USERNAME_GUEST=[REDACTED into private.env]
-                    REM IPCAM1_PASSWORD_GUEST=[REDACTED into private.env]
-                    set IPCAM1_DDNS_USER=n6905
-                    set IPCAM1_DDNS_HOSTNAME=%IPCAM1_DDNS_USER%.oipcam.com
-                    set IPCAM1_DDNS_URL=http://%IPCAM1_DDNS_HOSTNAME%:80
-                    set IPCAM1_UI_URL=http://%IPCAM1_IP%/main.htm
-                    REM equals sign exposes TCC 31 bug under Windows 11 on Carolyn's computer: set IPCAM1_STREAM_URL_INTERNAL=http://%IPCAM1_IP%/cgi-bin/videostream.cgi?user=%IPCAM1_USERNAME_GUEST%&pwd=%IPCAM1_PASSWORD_GUEST%
-                    set IPCAM1_STREAM_URL=%IPCAM1_STREAM_URL_INTERNAL%
-                    set IPCAM1_STREAM=%IPCAM1_STREAM_URL_INTERNAL%
-                    set IPCAM1=%IPCAM1_STREAM%
-                    set IPCAM=%IPCAM1%
-                rem IPcam #2
-                    rem IPCAM2_IP=192.168.0.116
-                    set IPCAM2_IP=192.168.0.121
-                    set IPCAM2_MAC=54:CD:EE:00:F6:35
-                    set IPCAM2_PORT_RSTP=554
-                    set IPCAM2_PORT_MEDIA=38401
-                    set IPCAM2_PORT_ONVIF=36000
-                    rem IPCAM2_USERNAME_ADMIN=[REDACTED into private.env]
-                    rem IPCAM2_PASSWORD_ADMIN=[REDACTED into private.env]
-                    rem IPCAM2_USERNAME_GUEST=[REDACTED into private.env]
-                    rem IPCAM2_PASSWORD_GUEST=[REDACTED into private.env]
-                    set IPCAM2_DDNS_USER=n5262
-                    rem IPCAM2_P2P1_GUID=[REDACTED into private.env]
-                    set IPCAM2_DDNS_HOSTNAME=%IPCAM2_DDNS_USER%.oipcam.com
-                    set IPCAM2_DDNS_URL=http://%IPCAM2_DDNS_HOSTNAME%:80
-                    set IPCAM2_UI_URL=http://%IPCAM2_IP%/main.htm
-                    REM equals sign exposes TCC 31 bug under Windows 11 on Carolyn's computer: set IPCAM2_STREAM_URL_INTERNAL=http://%IPCAM2_IP%/cgi-bin/videostream.cgi?user=%IPCAM2_USERNAME_GUEST%&pwd=%IPCAM2_PASSWORD_GUEST%
-                    set IPCAM2_STREAM_URL=%IPCAM2_STREAM_URL_INTERNAL%
-                    set IPCAM2_STREAM=%IPCAM2_STREAM_URL_INTERNAL%
-                    set IPCAM2=%IPCAM2_STREAM%
-                rem camera summary
-                    set IPCAMS_STREAMS_URLS=%IPCAM1% %IPCAM2%
-                    set IPCAMS_NAMES=IPCAM1 IPCAM2
-            rem girder
-                rem GIRDERPORT=[REDACTED into private.env]
-                rem GIRDERPASSWORD=[REDACTED into private.env]
-            rem where this computer is
-                SET LOCATION=upstairs
-            rem X10 (deprecated)
-                rem computerwith X10 USB controller
-                    set X10_SERVER=THAILOG 
-                rem house rooms                
-                    SET X10_LIGHTS_UPSTAIRS_LIVING_ROOM=B7
-                    SET X10_LIGHTS_UPSTAIRS_HALLWAY=    B1
-                    SET X10_LIGHTS_KITCHEN=         A9 A13                     %+ REM A9 is technically not the kitchen, but the guitar-area light used to GET to the kitchen
-                rem house sections
-                    SET X10_LIGHTS_UPSTAIRS=        A1  A2  A3  A4  A5  A6  A7 %X10_LIGHTS_UPSTAIRS_HALLWAY% %X10_LIGHTS_UPSTAIRS_LIVING_ROOM%
-                    SET X10_LIGHTS_DOWNSTAIRS=      A10 A11 A12 A14 A15 A16    %X10_LIGHTS_KITCHEN%
-                rem device types
-                    set X10_IPCAM=I1                %+ REM used for lazy power cycling when the IP cam gets messed up
-                    SET X10_CHIMES=                 A8                                         
-                    SET X10_LIGHTS_BLACKLIGHT=      A6 A14
-                    SET X10_LIGHTS_CHRISTMAS=       A7 A15
-                    SET X10_LIGHTS_LED=             A13 B7                      %+ REM  Not all of these are party lights, though.
-                    SET X10_LIGHTS_PARTY=           %X10_LIGHTS_BLACKLIGHT% %X10_LIGHTS_CHRISTMAS% %X10_LIGHTS_UPSTAIRS_HALLWAY% %X10_LIGHTS_UPSTAIRS_LIVING_ROOM%
-
-        ::::: PORTABLE DEVICES: (I don't think any of this is true anymore)
-                set IPHONE=192.168.0.100
-                set ANDROID=192.168.0.101
-                SET MP3PLAYERCAS=I
-
-        ::::: CLOUD STUFF:
-                SET UNIXHOMEURL=http://claire.sheer.us
-                @SET UNIXHOST=claire.sheer.us
-                rem PASSWORD=[REDACTED into private.env]
-
-    ::::: API KEYS & PROGRAMMING STUFF - private keys are in private.env
-        ::::: GITHUB/publishing:
-                rem echos %@RANDCURSOR[]
-                set GITHUB_USERNAME=clairecjs
-                rem [REDACTED to private.env]
-                ::This created problems with validation though: if isdir C:\ProgramData\Anaconda3\Lib\site-packages (set PYTHONPATH=C:\ProgramData\Anaconda3\Lib\site-packages)
-
-        ::::: PYTHON:
-                set PYTHONIOENCODING=utf-8
-
-                ::::: JAVA: 64-bit version for AI:
-                iff defined JAVA_64BT then                                 
-                        set JAVA_WHISPERTIMESYNC=%JAVA_64BT%
-                else
-                        set JAVA_WHISPERTIMESYNC=java.exe
-                endiff
-                if exist "C:\Program Files\Java\jre-1.8\bin\java.exe" set JAVA_WHISPERTIMESYNC=C:\Program Files\Java\jre-1.8\bin\java.exe
-
-
-        ::::: CLAIRE-VIRONMENT VARIABLE DEFAULT VALUES:
-                SET OS=10
-                SET OSBIT=64
-        SET BATDRIVE=C
-                SET BAT=%BATDRIVE%:\BAT
-                SET HOME=%BAT%
-        SET UTILDRIVE=C
-        if     isdir %UTILDRIVE%:\UTIL (SET UTIL=%UTILDRIVE%:\UTIL)
-        if not isdir %UTILDRIVE%:\UTIL (SET UTIL=%BAT%            )
-        set UTIL1DRIVE=%UTILDRIVE%
-        set UTIL1=%UTIL%
-        set UTIL2DRIVE=C
-                SET UTIL2=%UTIL2DRIVE%:\UTIL2
-                SET DECISIONTIME=60
-                SET TMPDIR=%TEMP%
-                SET  WIDTH=%@WINMETRICS[0]  
-                SET HEIGHT=%@WINMETRICS[1]
-                SET EDITOR=call ep
-                SET EDITORBG=call epb
-        %gosubValidateFolderExists%   BATDRIVE BAT
-        %gosubValidateFolderExists%  UTILDRIVE UTIL
-        %gosubValidateFolderExists% UTIL1DRIVE UTIL1
-        %gosubValidateFolderExists% UTIL2DRIVE UTIL2
-    
-    ::::: STUFF TO HELP 3RD PARTY SOFTWARE WORK THE WAY WE WANT:
-        set GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-
-    ::::: (ansi/emoji used to be here)
-
-    ::::: MACHINE-SPECIFIC EMOJI:                             ::: ALIASES:                                                                     (Consider: When new computer is added:)
-        set MACHINE_EMOJI_GOLIATH=%EMOJI_BAT%            %+   set EMOJI_MACHINE_GOLIATH=%MACHINE_EMOJI_GOLIATH%
-        set MACHINE_EMOJI_DEMONA=%EMOJI_DEVIL_FACE%      %+   set EMOJI_MACHINE_DEMONA=%MACHINE_EMOJI_DEMONA%
-        set MACHINE_EMOJI_WYVERN=%EMOJI_CASTLE%          %+   set EMOJI_MACHINE_WYVERN=%MACHINE_EMOJI_WYVERN%
-        set MACHINE_EMOJI_THAILOG=%EMOJI_MAN_VAMPIRE%    %+   set EMOJI_MACHINE_THAILOG=%MACHINE_EMOJI_THAILOG%
-        set MACHINE_EMOJI=%[MACHINE_EMOJI_%MACHINENAME%] %+   set EMOJI_MACHINE=%MACHINE_EMOJI%
-                                                              set  MACHINEEMOJI=%MACHINE_EMOJI%   %+ REM we also want a %machineemoji% without underscore to match our %machinename% that doesn't have an underscore
-
-    ::::: MACHINE-SPECIFIC COLORS:                            ::: ALIASES:                                                                     (Consider: When new computer is added:)
-        set MACHINE_COLOR_GOLIATH=%ANSI_MAGENTA%         %+   set ANSI_COLOR_MACHINE_GOLIATH=%MACHINE_COLOR_GOLIATH%
-        set MACHINE_COLOR_DEMONA=%ANSI_BRIGHT_RED%       %+   set ANSI_COLOR_MACHINE_DEMONA=%MACHINE_COLOR_DEMONA%
-        set MACHINE_COLOR_WYVERN=%ANSI_MAGENTA%          %+   set ANSI_COLOR_MACHINE_WYVERN=%MACHINE_COLOR_WYVERN%
-        set MACHINE_COLOR_THAILOG=%ANSI_RED%             %+   set ANSI_COLOR_MACHINE_THAILOG=%MACHINE_COLOR_THAILOG%
-        set MACHINE_COLOR=%[MACHINE_COLOR_%MACHINENAME%] %+   set ANSI_COLOR_MACHINE=%MACHINE_COLOR%
-                                                              set ANSI_MACHINE_COLOR=%MACHINE_COLOR%   %+ REM we also want a %machineemoji% without underscore to match our %machinename% that doesn't have an underscore
-
-        ::::: COMMAND-LINE CUSTOMIZATION:
-                ::::: HARD-TO-ESCAPE-CORRECTLY-SO-LET'S-FIGURE-IT-OUT-ONCE-AND-JUST-MAKE-IT-AN-ENVIRONMENT-VARIABLE STUFF:
-            SET SPACE= ``    %+ if "%SPACE%"   ne " "  (call alarmbeep envVar SPACE    ("%SPACE%")  is not a space!!! %+ pause)
-            SET PERCENT=%%%% %+ if "%PERCENT%" ne "%%" (call alarmbeep envVar PERCENT ("%PERCENT%") is not a percent! %+ pause)
-                ::::: UNIX-TYPE STUFF:
-            :::: DETERMINE IF CYGWIN:
-                if not isdir c:\cygwin\ SET CYGWIN=0
-                if not isdir c:\cygwin\ alias grep=c:\util\grep32.exe
-                if     isdir c:\cygwin\ SET CYGWIN=nodosfilewarning
-                if exist C:\cygwin\bin\rsync.exe set CYG_RSYNC=1
-                ::::: 1990s STUFF:
-                        SET DIRCMD=/e/j
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ PROGRAMMING and API KEYS/ACCESS TOKENS: BEGIN: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                ::::: API KEYS & PROGRAMMING STUFF - private keys are in private.env
+                    ::::: GITHUB/publishing:
+                            rem echos %@RANDCURSOR[]
+                            set GITHUB_USERNAME=clairecjs
+                            rem [REDACTED to private.env]
+                            ::This created problems with validation though: if isdir C:\ProgramData\Anaconda3\Lib\site-packages (set PYTHONPATH=C:\ProgramData\Anaconda3\Lib\site-packages)
+            
+                    ::::: PYTHON:
+                            set PYTHONIOENCODING=utf-8
+            
+                            ::::: JAVA: 64-bit version for AI:
+                            iff defined JAVA_64BT then                                 
+                                    set JAVA_WHISPERTIMESYNC=%JAVA_64BT%
+                            else
+                                    set JAVA_WHISPERTIMESYNC=java.exe
+                            endiff
+                            if exist "C:\Program Files\Java\jre-1.8\bin\java.exe" set JAVA_WHISPERTIMESYNC=C:\Program Files\Java\jre-1.8\bin\java.exe
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ PROGRAMMING and API KEYS/ACCESS TOKENS: END: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                ::::: CONFIGURATION OF PROGRAMMING-RELATED SOFTWARE:
+                        set GIT_DISCOVERY_ACROSS_FILESYSTEM=1
                         SET PERL4=c:\util\perl4.exe
-                        rem set PERL_CODEPAGE=%CODEPAGE_WE_THINK_WE_MIGHT_WANT_TO_START_USING% is done in the "2024" section above
-                ::::: 2010s STUFF:
-            ::::: ALPHABET/LETTER HARD-CODINGS, FOR REASONS:
-                SET THE_ALPHABET=A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-                SET THE_ALPHABET_BY_DRIVE_PRIORITY=S F D M I X Y E C H K L Q R T U V W J P G N O A B Z
-                SET THE_LETTER_C=C                    %+ rem Do not change. Necessary in situations where we have to pass environment variable names and just want to pass a C. It happens.
+                        rem PERL_CODEPAGE=%CODEPAGE_WE_THINK_WE_MIGHT_WANT_TO_START_USING% is done in the "2024" section above
+                ::::: CLAIRE-VIRONMENT VARIABLE DEFAULT VALUES:
+                        rem Operating-system values:
+                                SET OS=10
+                                SET OSBIT=64
+                        rem Main locations: BAT:
+                                SET BATDRIVE=C
+                                SET BAT=%BATDRIVE%:\BAT
+                                SET HOME=%BAT%
+                        rem Main locations: UTIL:
+                                SET UTILDRIVE=C
+                                if     isdir %UTILDRIVE%:\UTIL (SET UTIL=%UTILDRIVE%:\UTIL)
+                                if not isdir %UTILDRIVE%:\UTIL (SET UTIL=%BAT%            )
+                                set UTIL1DRIVE=%UTILDRIVE%
+                                set UTIL1=%UTIL%
+                                set UTIL2DRIVE=C
+                                SET UTIL2=%UTIL2DRIVE%:\UTIL2
+                        rem Default text editor, and separate BG command to call the text in the background:
+                                SET EDITOR=call ep
+                                SET EDITORBG=call epb
+                        rem Screen metrics:
+                                SET  WIDTH=%@WINMETRICS[0]  
+                                SET HEIGHT=%@WINMETRICS[1]
+                        rem Common aliases for values:
+                                SET TMPDIR=%TEMP%
+                        rem Deprecated default prompt time ━ definitely NOT used in AskYn.bat or Pause-For-X-Seconds.bat:
+                                SET     DECISIONTIME=60
+                ::::: VALIDATE OUR VALUES:
+                        %gosubValidateFolderExists%   BATDRIVE BAT
+                        %gosubValidateFolderExists%  UTILDRIVE UTIL
+                        %gosubValidateFolderExists% UTIL1DRIVE UTIL1
+                        %gosubValidateFolderExists% UTIL2DRIVE UTIL2            
+
+
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ MACHINE-SPECIFIC EMOJI & COLORS: BEGIN: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                ::::: MACHINE-SPECIFIC EMOJI:                             ::: ALIASES:                                                                     (Consider: When new computer is added:)
+                    set MACHINE_EMOJI_GOLIATH=%EMOJI_BAT%            %+   set EMOJI_MACHINE_GOLIATH=%MACHINE_EMOJI_GOLIATH%
+                    set MACHINE_EMOJI_DEMONA=%EMOJI_DEVIL_FACE%      %+   set EMOJI_MACHINE_DEMONA=%MACHINE_EMOJI_DEMONA%
+                    set MACHINE_EMOJI_WYVERN=%EMOJI_CASTLE%          %+   set EMOJI_MACHINE_WYVERN=%MACHINE_EMOJI_WYVERN%
+                    set MACHINE_EMOJI_THAILOG=%EMOJI_MAN_VAMPIRE%    %+   set EMOJI_MACHINE_THAILOG=%MACHINE_EMOJI_THAILOG%
+                    set MACHINE_EMOJI=%[MACHINE_EMOJI_%MACHINENAME%] %+   set EMOJI_MACHINE=%MACHINE_EMOJI%
+                                                                          set  MACHINEEMOJI=%MACHINE_EMOJI%   %+ REM we also want a %machineemoji% without underscore to match our %machinename% that doesn't have an underscore
+            
+                ::::: MACHINE-SPECIFIC COLORS:                            ::: ALIASES:                                                                     (Consider: When new computer is added:)
+                    set MACHINE_COLOR_GOLIATH=%ANSI_MAGENTA%         %+   set ANSI_COLOR_MACHINE_GOLIATH=%MACHINE_COLOR_GOLIATH%
+                    set MACHINE_COLOR_DEMONA=%ANSI_BRIGHT_RED%       %+   set ANSI_COLOR_MACHINE_DEMONA=%MACHINE_COLOR_DEMONA%
+                    set MACHINE_COLOR_WYVERN=%ANSI_MAGENTA%          %+   set ANSI_COLOR_MACHINE_WYVERN=%MACHINE_COLOR_WYVERN%
+                    set MACHINE_COLOR_THAILOG=%ANSI_RED%             %+   set ANSI_COLOR_MACHINE_THAILOG=%MACHINE_COLOR_THAILOG%
+                    set MACHINE_COLOR=%[MACHINE_COLOR_%MACHINENAME%] %+   set ANSI_COLOR_MACHINE=%MACHINE_COLOR%
+                                                                          set ANSI_MACHINE_COLOR=%MACHINE_COLOR%   %+ REM we also want a %machineemoji% without underscore to match our %machinename% that doesn't have an underscore
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ MACHINE-SPECIFIC EMOJI & COLORS: END: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+
+
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ SPECIAL CHARACTERS: BEGIN: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                ::::: COMMAND-LINE CUSTOMIZATION:
+                        ::::: HARD-TO-ESCAPE-CORRECTLY-SO-LET'S-FIGURE-IT-OUT-ONCE-AND-JUST-MAKE-IT-AN-ENVIRONMENT-VARIABLE STUFF:
+                                SET SPACE= ``    %+ if "%SPACE%"   ne " "  (call alarmbeep envVar SPACE    ("%SPACE%")  is not a space!!! %+ pause)
+                                SET PERCENT=%%%% %+ if "%PERCENT%" ne "%%" (call alarmbeep envVar PERCENT ("%PERCENT%") is not a percent! %+ pause)
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ SPECIAL CHARACTERS: END: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+ 
+
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ UNIX-COMPATIBILITY: BEGIN: ************************************
+        rem ************************************ UNIX-COMPATIBILITY: BEGIN: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+                ::::: UNIX-TYPE STUFF:
+                        :::: DETERMINE IF CYGWIN:
+                                if not isdir c:\cygwin\ SET CYGWIN=0
+                                if not isdir c:\cygwin\ alias grep=c:\util\grep32.exe
+                                if     isdir c:\cygwin\ SET CYGWIN=nodosfilewarning
+                                if exist C:\cygwin\bin\rsync.exe set CYG_RSYNC=1
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ************************************ UNIX-COMPATIBILITY: END: ************************************
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 return
 
@@ -1131,112 +1225,114 @@ return
 
 ::::::::::::::::::::::::: INITIAL[%MACHINENAME%] FUNCTIONS - MOSTLY FOR REDEFINING C-DRIVE ::::::::::::::::::::::::: 
         :InitialBroadway
-        set TABLET=1
-        set OSBIT=32
+                set TABLET=1
+                set OSBIT=32
+        return
 
-    :InitialDemona
-        rem hardware
-            set CPU_CORES=16 %+ set OPTIMAL_CPU_THREADS=12 %+ REM guessing on optimal cpu threads here
-            set HD1000G3=C   %+ set C=HD1000G3  %+  set HD1T3=C  %+ set DEMONA1T=C  %+ SET  HD1T3_PRESENCE=%HD1T3%:\__ I awaken! __
-        rem software
-            SET OS=10
-            rem OS_USERNAME=Claire
-            set OS_USERNAME=%MAPPING_DEMONA_USR% 
-        rem runalot [everytime environm is run]
-            rem stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
-        rem bugfix kludges
-            set PROGRAMFILES=c:\Program Files
-        rem CUDA kludge:
-            set cuda_path=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1
-
-    return
+        :InitialDemona
+                rem hardware
+                        set CPU_CORES=16 %+ set OPTIMAL_CPU_THREADS=12 %+ REM guessing on optimal cpu threads here
+                        set HD1000G3=C   %+ set C=HD1000G3  %+  set HD1T3=C  %+ set DEMONA1T=C  %+ SET  HD1T3_PRESENCE=%HD1T3%:\__ I awaken! __
+                rem CUDA kludge:
+                        set cuda_path=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1
+                rem software
+                        SET OS=10
+                        rem OS_USERNAME=Claire
+                        set OS_USERNAME=%MAPPING_DEMONA_USR% 
+                        rem runalot [everytime environm is run]
+                        rem stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
+                        rem bugfix kludges
+                        set PROGRAMFILES=c:\Program Files
+        return
 
         :InitialThailog
-        rem hardware
-            set CPU_CORES=6 %+ set OPTIMAL_CPU_THREADS=9
-            rem HD240G=C    %+ rem C=HD240G
-            rem HD240G2=C   %+ rem C=HD240G2
-            SET HD512G=C    %+ SET C=HD512G
-            set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=13 %+ REM Network card's interface number in the "routes" command, for the network card used to reach non-tethered machines (i.e. i.e. those machines not sharing the tethered internet connection and retaining their normal broadband network configurations)
-        rem software
-            SET OS=10
-            REM OS_USERNAME=%MAPPING_THAILOG_USR% -- this is the default but on this machine we had to make a separate user for sharing so this wouldn't match
-            set OS_USERNAME=claire
-        rem runalot [everytime environm is run]
-            rem stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
-        rem bugfix kludges
-            set PROGRAMFILES=c:\Program Files
-    return
-
-    :InitialGoliath
-        rem hardware
-            set CPU_CORES=4 %+ set OPTIMAL_CPU_THREADS=2
-            set MAXIMUM_TIME_FOR_TCC_TO_START=5
-                    SET HD1000G=C %+ SET C=HD1000G
-            set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=12 %+ REM Network card's interface number in the "routes" command, for the network card used to reach non-tethered machines (i.e. i.e. those machines not sharing the tethered internet connection and retaining their normal broadband network configurations)
-         rem software
-            SET OS=10
-            *window /trans=228            
-            rem OS_USERNAME=carolyn
-            set OS_USERNAME=%MAPPING_GOLIATH_USR% %+ REM 202308-/Windows 10
-    return
-
-    :InitialWyvern
-        *window /trans=228            
-        rem hardware
-            set CPU_CORES=12 %+ set OPTIMAL_CPU_THREADS=12
-            set MAXIMUM_TIME_FOR_TCC_TO_START=4
-                    SET HD2T1=C %+ SET C=HD2T1
-            rem set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=12 %+ REM Network card's interface number in the "routes" command, for the network card used to reach non-tethered machines (i.e. i.e. those machines not sharing the tethered internet connection and retaining their normal broadband network configurations)
-         rem software
-            SET OS=11
-            rem OS_USERNAME=carolyn
-            set OS_USERNAME=%MAPPING_WYVERN_USR% 
+                rem hardware
+                        set CPU_CORES=6 %+ set OPTIMAL_CPU_THREADS=9
+                        rem HD240G=C    %+ rem C=HD240G
+                        rem HD240G2=C   %+ rem C=HD240G2
+                        SET HD512G=C    %+ SET C=HD512G
+                        set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=13 %+ REM Network card's interface number in the "routes" command, for the network card used to reach non-tethered machines (i.e. i.e. those machines not sharing the tethered internet connection and retaining their normal broadband network configurations)
+                rem software
+                        SET OS=10
+                        REM OS_USERNAME=%MAPPING_THAILOG_USR% -- this is the default but on this machine we had to make a separate user for sharing so this wouldn't match
+                        set OS_USERNAME=claire
+                        rem runalot [everytime environm is run]
+                        rem stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
+                        rem bugfix kludges
+                        set PROGRAMFILES=c:\Program Files
         return
 
-    :InitialHades
-        rem hardware
-            SET HD256G=C %+  SET C=HD256G
-        rem software
-            SET OS=7
-            set OS_USERNAME=oh
-            rem had a weird PHP install back then
-                set PHP_PEAR_SYSCONF_DIR=%ProgramFiles%\PHP
-                set PHP_PEAR_INSTALL_DIR=%ProgramFiles%\PHP\pear
-                set     PHP_PEAR_DOC_DIR=%ProgramFiles%\PHP\docs
-                set     PHP_PEAR_BIN_DIR=%ProgramFiles%\PHP
-                set    PHP_PEAR_DATA_DIR=%ProgramFiles%\PHP\data
-                set     PHP_PEAR_PHP_BIN=%ProgramFiles%\PHP\php.exe
-                set    PHP_PEAR_TEST_DIR=%ProgramFiles%\PHP\tests
+        :InitialGoliath
+                rem hardware
+                        set CPU_CORES=4 %+ set OPTIMAL_CPU_THREADS=2
+                        rem MAXIMUM_TIME_FOR_TCC_TO_START=5 changed to 9 on 2025/02/18 because Demona’s was lengthened
+                        set MAXIMUM_TIME_FOR_TCC_TO_START=9
+                        SET HD1000G=C %+ SET C=HD1000G
+                        set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=12 %+ REM Network card's interface number in the "routes" command, for the network card used to reach non-tethered machines (i.e. i.e. those machines not sharing the tethered internet connection and retaining their normal broadband network configurations)
+                rem software
+                        SET OS=10
+                        *window /trans=228            
+                        rem OS_USERNAME=carolyn
+                        set OS_USERNAME=%MAPPING_GOLIATH_USR% %+ REM 202308-/Windows 10
         return
 
-    :InitialFire
-        rem hardware
-            SET HD300G=C %+  SET C=HD300G  %+ REM or should we be setting SHARE300G=C ?? confused about what to do here :)
-        rem software
-            SET OS=XP
-            set OSBIT=32
-            set OS_USERNAME=Administrator
+        :InitialWyvern
+                *window /trans=228            
+                set CPU_CORES=12 %+ set OPTIMAL_CPU_THREADS=12
+                set MAXIMUM_TIME_FOR_TCC_TO_START=4
+                set MAXIMUM_TIME_FOR_TCC_TO_START=7
+                SET C=HD2T1
+                SET HD2T1=C 
+                SET OS=11
+                rem OS_USERNAME=carolyn
+                set OS_USERNAME=%MAPPING_WYVERN_USR% 
         return
 
-    :InitialMist
-                SET HD25G=C %+  SET C=HD25G
+        :InitialHades
+                rem hardware
+                        SET HD256G=C %+  SET C=HD256G
+                rem software
+                        SET OS=7
+                        set OS_USERNAME=oh
+                rem had a weird PHP install back then
+                        set PHP_PEAR_SYSCONF_DIR=%ProgramFiles%\PHP
+                        set PHP_PEAR_INSTALL_DIR=%ProgramFiles%\PHP\pear
+                        set     PHP_PEAR_DOC_DIR=%ProgramFiles%\PHP\docs
+                        set     PHP_PEAR_BIN_DIR=%ProgramFiles%\PHP
+                        set    PHP_PEAR_DATA_DIR=%ProgramFiles%\PHP\data
+                        set     PHP_PEAR_PHP_BIN=%ProgramFiles%\PHP\php.exe
+                        set    PHP_PEAR_TEST_DIR=%ProgramFiles%\PHP\tests
+        return
+
+        :InitialFire
+                rem hardware
+                        SET HD300G=C %+  SET C=HD300G  %+ REM or should we be setting SHARE300G=C ?? confused about what to do here :)
+                rem software
+                        SET OS=XP
+                        set OSBIT=32
+                        set OS_USERNAME=Administrator
+        return
+
+        :InitialMist
+                SET C=HD25G
+                SET HD25G=C 
                 SET OS=XP
-        set OS_USERNAME=carolyn
-        set OSBIT=32
+                set OS_USERNAME=carolyn
+                set OSBIT=32
         return
 
-    :InitialTemplate %+ REM Consider: When new computer is added - add new function here
-        rem hardware
-            set CPU_CORES=6 %+ set OPTIMAL_CPU_THREADS=9
-            SET HD[TODO]G=C %+ SET C=HD[TODO]G
-            set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=[TODO] %+ REM Secondary network card (ethernet cable #2)'s interface number in the "routes" command
-        rem software
-            SET OS=7
-            set  claire
+        :InitialTemplate %+ REM Consider: When new computer is added - add new function here
+                rem hardware
+                        set CPU_CORES=6 %+ set OPTIMAL_CPU_THREADS=9
+                        SET HD[TODO]G=C %+ SET C=HD[TODO]G
+                        set NETWORK_NIC_TO_REACH_UNTETHERED_MACHINES_INTERFACE_NUM=[TODO] %+ REM Secondary network card (ethernet cable #2)'s interface number in the "routes" command
+                rem software
+                        SET OS=7
+                        set username=claire
+                        set OS_USERNAME=%MAPPING_WYVERN_USR% 
         return
 
-    :InitialWork
+        :InitialWork
                 :not any more.... call %BAT%\work\set-[EMPLOYERNAME]-environment-vars
                 ::::: PERSONAL:
                         SET MUSICSERVER=localhost:%MUSICSERVERPORT%
@@ -1247,31 +1343,31 @@ return
                 ::::: JAVA:
                         if isdir "c:\Program Files\Java\jdk1.7.0_71"          set JAVA_HOME=c:\Program Files\Java\jdk1.7.0_71
                         if isdir "c:\Program Files\Java\jdk1.7.0_76"          set JAVA_HOME=c:\Program Files\Java\jdk1.7.0_76
-            if exist "C:\Program Files\Java\jre-1.8\bin\java.exe" set JAVA_64BT=C:\Program Files\Java\jre-1.8\bin\java.exe
-
+                        if exist "C:\Program Files\Java\jre-1.8\bin\java.exe" set JAVA_64BT=C:\Program Files\Java\jre-1.8\bin\java.exe
                 ::::: MAVEN:
                         set    TRUNK=c:\dharness\trunk
                         set  M2_REPO=c:\Users\jlip\.m2\repository
                         set  M2_HOME=C:\util\MAVEN\apache-maven-3.0.5
-            :Validate:
-                set CDRIVE=C
-                set C_DRIVE=%CDRIVE%
-                %gosubValidateFolderExists% CDRIVE TRUNK
-                %gosubValidateFolderExists% CDRIVE M2_REPO
-                %gosubValidateFolderExists% CDRIVE M2_HOME
-                ::::: ORACLEXE:
-                        set ORACLE_HOME=C:\oraclexe\app\oracle\product\11.2.0\server
-                        set ORACLE_SID=XE
-                %gosubValidateFolderExists% CDRIVE ORACLE_HOME
-                ::::: WEBLOGIC:
-                        set  ORACLE_DOMAIN=diss
-                        SET WEBLOGICDOMAIN=C:\Oracle\Middleware\Oracle_Home\user_projects\domains\%ORACLE_DOMAIN%
-                        SET WEBLOGIC_DOMAIN=%WEBLOGICDOMAIN%
-                        SET        MW_HOME=C:\Oracle\Middleware
-                        SET    WEBLOGICJAR=c:\Oracle\Middleware\wlserver_10.3\server\lib\weblogic.jar
-                %gosubValidateFolderExists% CDRIVE WEBLOGICDOMAIN
-                %gosubValidateFolderExists% CDRIVE MW_HOME
-                return
+                :Validate:
+                        ::::: MAIN:
+                        set CDRIVE=C
+                        set C_DRIVE=%CDRIVE%
+                        %gosubValidateFolderExists% CDRIVE TRUNK
+                        %gosubValidateFolderExists% CDRIVE M2_REPO
+                        %gosubValidateFolderExists% CDRIVE M2_HOME
+                        ::::: ORACLEXE:
+                                set ORACLE_HOME=C:\oraclexe\app\oracle\product\11.2.0\server
+                                set ORACLE_SID=XE
+                                %gosubValidateFolderExists% CDRIVE ORACLE_HOME
+                        ::::: WEBLOGIC:
+                                set  ORACLE_DOMAIN=diss
+                                SET WEBLOGICDOMAIN=C:\Oracle\Middleware\Oracle_Home\user_projects\domains\%ORACLE_DOMAIN%
+                                SET WEBLOGIC_DOMAIN=%WEBLOGICDOMAIN%
+                                SET        MW_HOME=C:\Oracle\Middleware
+                                SET    WEBLOGICJAR=c:\Oracle\Middleware\wlserver_10.3\server\lib\weblogic.jar
+                                %gosubValidateFolderExists% CDRIVE WEBLOGICDOMAIN
+                                %gosubValidateFolderExists% CDRIVE MW_HOME
+        return
 
         
 ::::::::::::::::::::::::: INITIAL[%MACHINENAME%] FUNCTIONS - MOSTLY FOR REDEFINING C-DRIVE ::::::::::::::::::::::::: 
@@ -1537,7 +1633,8 @@ return
 
                 rem               COMEDYDRIVE=%HD6000G3%       ----- CRASHED IN 2020 OR 2021 OR SO, HAD TO RE-CREATE FROM OLD BACKUP IN 2022 -- BUT WHERE IS IT?!
                 rem                                                  DATA-BDR-11-mp3 apparently has a backup of it! TODO! GET CAROLYN TO RETRIEVE IT
-                set               COMEDYDRIVE=%HD10T2%
+                rem               COMEDYDRIVE=%HD10T2%  until 2025/02/15
+                set               COMEDYDRIVE=%HD18T2%
                 set               COMEDY=%COMEDYDRIVE%:\MEDIA\COMEDY
                 set               COMEDY_BACKUP_DRIVE=%HD4000G5%
                 set               COMEDY_BACKUP=%COMEDY_BACKUP_DRIVE%:\BACKUPS\comedy.bak
@@ -2509,8 +2606,8 @@ rem return
 :SetUsernameAndNetName
     rem we allow a flag to be passed to skip this, because going by machinename can go against wishes when using terminal services (RDP):
         if "%ENVIRONM_BAT_DO_NOT_SET_USERNAME%"=="1" goto :set_user_name_NO
-                                                                 goto :set_user_name_YES
-                :set_user_name_YES
+                                                     goto :set_user_name_YES
+        :set_user_name_YES
             rem default user
                 SET   USERNAME=claire
                 SET    NETNAME_DEAD=cLInTJcl
@@ -2518,7 +2615,8 @@ rem return
                 SET    NETNAME_CLAIRE=ClaireCJS
                 SET    NETNAME=%NETNAME_FEM%
                 set  KNOWNNAME=Claire          %+ set KNOWN_NAME=%KNOWNNAME%
-                set   DEADNAME=Clint           %+ set  DEAD_NAME=%DEADNAME%
+                set   DEADNAME=%@CHAR[67]%@CHAR[108]%@CHAR[105]%@CHAR[110]%@CHAR[116]
+                set  DEAD_NAME=%DEADNAME%
 
             rem other users set by machinename
                 REM Consider: When new computer is added
@@ -2534,12 +2632,19 @@ rem return
                                 set KNOWNNAME=Carolyn
                                 set MV_DRY_RUN_FIRST=1
                             :Set_Carolyn_DONE
+
+            rem If nothing defined, grab from username:
+                if "" == "%KNOWNNAME%" set KNOWNNAME=%_WINUSER
+
             rem Alias-ize
                 set KNOWN_NAME=%KnownName%
+
             rem Validate
-                :echo * Username is now %USERNAME
-                if "%USERNAME%" eq "" gosub username_not_found
-                :set_user_name_NO
+                rem echo * Username is now %USERNAME
+                if "%USERNAME%"  eq "" gosub username_not_found
+                if "%KNOWNNAME%" eq "" gosub knownname_not_found
+
+        :set_user_name_NO
 return
 
 
@@ -2739,6 +2844,10 @@ return
                 call FATAL_ERROR "USERNAME NOT KNOWN.  YOU NEED TO ADD A :setUSERNAME subroutine to %BAT%\environm.btm"
                 gosub SetMachineSpecificEnvironment
         return
+       :knownname_not_found
+                call FATAL_ERROR "KNOWNNAME NOT KNOWN.  YOU NEED TO DEFINE IT in %BAT%\environm.btm"
+                gosub SetMachineSpecificEnvironment
+        return
 
         :setMachinenameSubroutineNotFound
                 call                      alarm-beep
@@ -2885,37 +2994,49 @@ rem                     if %array_exists eq 1 .or. "%1" ne "force" (goto :RGB_Ar
 
 
 
-
+:END━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+:END━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+:END━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :END
+
 :Cleanup
                 REM sunset this code because we don't use XP/2K machines anymore: if "%OS%" eq "XP" .or. "%OS%" eq "2K" (title 4NT)
                 if "%@UPPER[%1]" eq "DEBUG" (set DEBUG=%DEBUG_TMP%)
+
+
 :The_Very_END
                 SET ENVIRONM_RUN=1
                 set RUNNING_ENVIRONM=0
 
+
 :POST_end
-        rem Performance tuning        
+        rem ❇❇❇ Performance tuning ❇❇❇
                 timer %QUIET_TIMER_OR_NOT% /9 off
                                 : 20240911: environm {norml} - 0.023
                                 :           environm {fresh} - 2.500
                                 :           environm  force  - 3.700
 
-        rem Reset the cursor to normal, and possibly ensure our custom pentagram is actually created [bugfix kludge]:
+        rem ❇❇❇ Reset the cursor to normal ❇❇❇
+        rem (and possibly ensure our custom pentagram is actually created [bugfix kludge]_
         rem 2024/11/15: set-ansi force definitely fixes the disappearing pentagram issue, but aborting environm.btm mid-way leaves it broken *after*, so whatever is breaking it can and is still fixed by echo'ing our %create_pentagram% string
                 echos %CURSOR_RESET%%CREATE_PENTAGRAM%
 
                     
-        rem Reset the window title:
+        rem ❇❇❇ Reset the window title: ❇❇❇
                 title TCC
 
 
 :Possibly_Run_Next_Command
-        rem Sometimes this script is passed an additional command (via 'NEXTCOMMAND' environment variable) to be run at the end:
-                if "%NEXTCOMMAND%" ne "" (%NEXTCOMMAND%)
+        rem Sometimes this script is passed an additional command to be run at the end:
+        rem This is passed via “NEXTCOMMAND” environment variable:
+                if "%NEXTCOMMAND%" ne "" (
+                        set LAST_COMMAND=NEXTCOMMAND
+                        unset /q         NEXTCOMMAND
+                        %LAST_COMMAND%
+                )
 
-
-rem WTF 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MAKE IT STOP OCOLUS PLEAAASE WTF:
-        if exist c:\*.json *del c:\*.json
+:Horribly_unnecessary_trash_cleanup_that_we_want_done_very_often
+        rem IT STOP OCULUS RIFT PLEEEEEEEAAASE WHY ARE YOU DOING THIS:
+                if exist c:\*.json *del c:\*.json
         
         

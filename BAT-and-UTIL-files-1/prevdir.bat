@@ -14,7 +14,10 @@
 ::::: ACTUAL PD.BAT (which could be refactored into a parameterized call to ND.bat, really):
     call checktemp
     set TARGET="%TEMP\go-to-next-directory.bat"
-    go-to-next-directory-generator.pl "%_CWD" PREVIOUS >%TARGET
+    rem could NOT handle unicode! not even after 10 chatgpt rewrites!
+    rem perl -CDSA %BAT%\go-to-next-directory-generator.pl "%_CWD" PREVIOUS >%TARGET
+    rem so we made it python instead:
+    go-to-next-directory-generator.py "%_CWD" PREVIOUS >%TARGET
     call %TARGET
 
 ::::: Take a file along with us, if one is given: part 2 of 2:

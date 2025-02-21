@@ -212,72 +212,72 @@ rem —————————————————————————�
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 rem ANSI: special stuff: cursor position save/restore
-        set ANSI_POSITION_SAVE=%ESCAPE%7%ANSI_ESCAPE%s                  %+ REM we do this the DEC way, then the SCO way
-        set ANSI_POSITION_RESTORE=%ESCAPE%8%ANSI_ESCAPE%u               %+ REM we do this the DEC way, then the SCO way
-            set ANSI_SAVE_POSITION=%ANSI_POSITION_SAVE%                
+        set ANSI_POSITION_SAVE=%ESCAPE%7%ANSI_ESCAPE%s                           %+ REM we do this the DEC way, then the SCO way
+        set ANSI_POSITION_RESTORE=%ESCAPE%8%ANSI_ESCAPE%u                        %+ REM we do this the DEC way, then the SCO way
+            set ANSI_SAVE_POSITION=%ANSI_POSITION_SAVE%                         
             set ANSI_RESTORE_POSITION=%ANSI_POSITION_RESTORE%          
             set ANSI_RESTORE=%ANSI_POSITION_RESTORE%          
             set ANSI_LOAD_POSITION=%ANSI_POSITION_RESTORE%          
             set ANSI_POSITION_LOAD=%ANSI_POSITION_RESTORE%          
 
-rem ANSI: special stuff: cursor position requests/polling:
-        set ANSI_POSITION_REQUEST=%ANSI_ESCAPE%6n	                    %+ REM query/request current cursor position (reports as ESC[#;#R)
-            set       ANSI_REQUEST_POSITION=%ANSI_POSITION_REQUEST%
-            set        ANSI_CURSOR_POSITION=%ANSI_POSITION_REQUEST%
-            set ANSI_REPORT_CURSOR_POSITION=%ANSI_POSITION_REQUEST%
-        set ANSI_REQUEST_FG_COLOR=%ANSI_ESCAPE%38;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
-        set ANSI_REQUEST_BG_COLOR=%ANSI_ESCAPE%48;5;n	                %+ rem query/request current foreground color (2024: not supported in windows terminal)
-
-rem ANSI: cursor position movement
-        rem To Home
-            set ANSI_HOME=%ANSI_ESCAPE%H	                                %+ REM moves cursor to home position (0, 0)
+rem ANSI: special stuff: cursor position requests/polling:                       
+        set ANSI_POSITION_REQUEST=%ANSI_ESCAPE%6n	                         %+ REM query/request current cursor position (reports as ESC[#;#R)
+            set       ANSI_REQUEST_POSITION=%ANSI_POSITION_REQUEST%              
+            set        ANSI_CURSOR_POSITION=%ANSI_POSITION_REQUEST%              
+            set ANSI_REPORT_CURSOR_POSITION=%ANSI_POSITION_REQUEST%              
+        set ANSI_REQUEST_FG_COLOR=%ANSI_ESCAPE%38;5;n	                         %+ rem query/request current foreground color (2024: not supported in windows terminal)
+        set ANSI_REQUEST_BG_COLOR=%ANSI_ESCAPE%48;5;n	                         %+ rem query/request current foreground color (2024: not supported in windows terminal)
+                                                                                 
+rem ANSI: cursor position movement                                               
+        rem To Home                                                              
+            set ANSI_HOME=%ANSI_ESCAPE%H	                                 %+ REM moves cursor to home position (0, 0)
                 set ANSI_MOVE_HOME=%ANSI_HOME%
                 set ANSI_MOVE_TO_HOME=%ANSI_HOME%
 
         rem To a specific position:
-            function ANSI_MOVE_TO_POS1=`%@CHAR[27][%1;%2H`                  %+ rem moves cursor to line #, column #\_____ both work
-            function ANSI_MOVE_TO_POS2=`%@CHAR[27][%1;%2f`                  %+ rem moves cursor to line #, column #/
-                function ANSI_MOVE_POS=`%@CHAR[27][%1;%2H`                  %+ rem alias
-                function ANSI_MOVE=`%@CHAR[27][%1;%2H`                      %+ rem alias
-            function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`	                    %+ rem moves cursor to column #
-            function ANSI_MOVE_TO_ROW=`%@CHAR[27][%1H`                      %+ rem unfortunately does not preserve column position! not possible! cursor request ansi code return value cannot be captured
-            rem tion ANSI_MOVE_TO_COORDINATE                                %+ rem is defined in our unsupported section, as it's a replacement for an unsupported code
-            rem tion ANSI_MOVE_TO                                           %+ rem is defined in our unsupported section, as it's a replacement for an unsupported code
-
+            function ANSI_MOVE_TO_POS1=`%@CHAR[27][%1;%2H`                       %+ rem moves cursor to line #, column #\_____ both work
+            function ANSI_MOVE_TO_POS2=`%@CHAR[27][%1;%2f`                       %+ rem moves cursor to line #, column #/
+                function ANSI_MOVE_POS=`%@CHAR[27][%1;%2H`                       %+ rem alias
+                function ANSI_MOVE=`%@CHAR[27][%1;%2H`                           %+ rem alias
+            function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`	                         %+ rem moves cursor to column #
+            function ANSI_MOVE_TO_ROW=`%@CHAR[27][%1d`                           %+ rem vt420+/xterm improvement of [1H — this time it preserves column position!
+            function ANSI_MOVE_TO_ROW_WITHOUT_PRESERVING_COLUMN=`%@CHAR[27][%1H` %+ rem unfortunately does not preserve column position! not possible! cursor request ansi code return value cannot be captured
+            rem tion ANSI_MOVE_TO_COORDINATE                                     %+ rem is defined in our unsupported section, as it's a replacement for an unsupported code
+            rem tion ANSI_MOVE_TO                                                %+ rem is defined in our unsupported section, as it's a replacement for an unsupported code
+                                                                         
         rem Up/Down/Left/Right:
-            set ANSI_MOVE_UP_1=%ESCAPE%M                                    %+ rem moves cursor one line up, scrolling if needed
-                set ANSI_MOVE_UP_ONE=%ANSI_MOVE_UP_1%                       %+ rem alias
-            function ANSI_MOVE_UP=`%@CHAR[27][%1A`                          %+ rem moves cursor up # lines
-                function ANSI_UP=`%@CHAR[27][%1A`	                    %+ rem alias
-            function ANSI_MOVE_DOWN=`%@CHAR[27][%1B`	                    %+ rem moves cursor down # lines
-                function ANSI_DOWN=`%@CHAR[27][%1B`                         %+ rem alias
-            function         ANSI_MOVE_RIGHT=`%@CHAR[27][%1C`	            %+ rem moves cursor right # columns
-                function          ANSI_RIGHT=`%@ANSI_MOVE_RIGHT[%1$]`       %+ rem alias
-                function  ANSI_MOVE_TO_RIGHT=`%@ANSI_MOVE_RIGHT[%1$]`	    %+ rem moves cursor left # columns
-            function          ANSI_MOVE_LEFT=`%@CHAR[27][%1D`	            %+ rem moves cursor left # columns
-                function           ANSI_LEFT=`%@ANSI_MOVE_LEFT[%1$]`        %+ rem alias
-                function   ANSI_MOVE_TO_LEFT=`%@ANSI_MOVE_LEFT[%1$]`	    %+ rem moves cursor left # columns
-
-        rem Line-based:
-            function   ANSI_MOVE_LINES_UP=`%@CHAR[27][%1F`                  %+ rem moves cursor to beginning of previous line, # lines up
-            function   ANSI_MOVE_UP_LINES=`%@CHAR[27][%1F`                  %+ rem moves cursor to beginning of previous line, # lines up
-            function ANSI_MOVE_LINES_DOWN=`%@CHAR[27][%1E`                  %+ rem moves cursor to beginning of next line, # lines down
-            function ANSI_MOVE_DOWN_LINES=`%@CHAR[27][%1E`                  %+ rem moves cursor to beginning of next line, # lines down
-
+            set ANSI_MOVE_UP_1=%ESCAPE%M                                         %+ rem moves cursor one line up, scrolling if needed
+                set ANSI_MOVE_UP_ONE=%ANSI_MOVE_UP_1%                            %+ rem alias
+            function ANSI_MOVE_UP=`%@CHAR[27][%1A`                               %+ rem moves cursor up # lines
+                function ANSI_UP=`%@CHAR[27][%1A`	                         %+ rem alias
+            function ANSI_MOVE_DOWN=`%@CHAR[27][%1B`	                         %+ rem moves cursor down # lines
+                function ANSI_DOWN=`%@CHAR[27][%1B`                              %+ rem alias
+            function         ANSI_MOVE_RIGHT=`%@CHAR[27][%1C`	                 %+ rem moves cursor right # columns
+                function          ANSI_RIGHT=`%@ANSI_MOVE_RIGHT[%1$]`            %+ rem alias
+                function  ANSI_MOVE_TO_RIGHT=`%@ANSI_MOVE_RIGHT[%1$]`	         %+ rem moves cursor left # columns
+            function          ANSI_MOVE_LEFT=`%@CHAR[27][%1D`	                 %+ rem moves cursor left # columns
+                function           ANSI_LEFT=`%@ANSI_MOVE_LEFT[%1$]`             %+ rem alias
+                function   ANSI_MOVE_TO_LEFT=`%@ANSI_MOVE_LEFT[%1$]`	         %+ rem moves cursor left # columns
+                                                                               
+        rem Line-based:                                                        
+            function   ANSI_MOVE_LINES_UP=`%@CHAR[27][%1F`                       %+ rem moves cursor to beginning of previous line, # lines up
+            function   ANSI_MOVE_UP_LINES=`%@CHAR[27][%1F`                       %+ rem moves cursor to beginning of previous line, # lines up
+            function ANSI_MOVE_LINES_DOWN=`%@CHAR[27][%1E`                       %+ rem moves cursor to beginning of next line, # lines down
+                                                                               
         rem Tab-stop management:
-            set        ANSI_TABSTOP_SET=%ESCAPE%H                            %+ rem Sets a tab stop in the current column the cursor is on
-            set    ANSI_TABSTOP_SET_COL=%ESCAPE%H                            %+ rem Sets a tab stop in the current column the cursor is on
-            set    ANSI_TABSTOP_CLR_COL=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
-            set      ANSI_TABSTOP_CLEAR=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
-            set  ANSI_TABSTOP_CLEAR_COL=%ESCAPE%[0g                          %+ rem Clears tab stop in the current column the cursor is on
-            set  ANSI_TABSTOP_CLEAR_ALL=%ESCAPE%[3g                          %+ rem Clears ALLLLLLLLLLLLLLL tab stops —— better run     reset-tab-stops.bat after!
-            set ANSI_TABSTOP_RESET_TO_8=%ESCAPE%[?W                          %+ rem resets all tabs to width of 8 —— in leiu of running reset-tab-stops.bat after!
-            set      ANSI_TABSTOP_RESET=%ESCAPE%[?W                          %+ rem resets all tabs to width of 8 —— in leiu of running reset-tab-stops.bat after!
-
-        rem Tab-stop management: Not very useful:
-            function  ANSI_TAB_FORWARD=`%@CHAR[27][%1I`                     %+ rem Advance the cursor to the   next   column (in the same row) with a tab stop. If there are no more tab stops, move to the  last column in the row. If the cursor is in the  last column, move to the first column of the next row
-            function ANSI_TAB_BACKWARD=`%@CHAR[27][%1Z`                     %+ rem Retreat the cursor to the previous column (in the same row) with a tab stop. If there are no more tab stops, move to the first column in the row. If the cursor is in the first column, don't move the cursor
-
+            set        ANSI_TABSTOP_SET=%ESCAPE%H                                %+ rem Sets a tab stop in the current column the cursor is on
+            set    ANSI_TABSTOP_SET_COL=%ESCAPE%H                                %+ rem Sets a tab stop in the current column the cursor is on
+            set    ANSI_TABSTOP_CLR_COL=%ESCAPE%[0g                              %+ rem Clears tab stop in the current column the cursor is on
+            set      ANSI_TABSTOP_CLEAR=%ESCAPE%[0g                              %+ rem Clears tab stop in the current column the cursor is on
+            set  ANSI_TABSTOP_CLEAR_COL=%ESCAPE%[0g                              %+ rem Clears tab stop in the current column the cursor is on
+            set  ANSI_TABSTOP_CLEAR_ALL=%ESCAPE%[3g                              %+ rem Clears ALLLLLLLLLLLLLLL tab stops —— better run     reset-tab-stops.bat after!
+            set ANSI_TABSTOP_RESET_TO_8=%ESCAPE%[?W                              %+ rem resets all tabs to width of 8 —— in leiu of running reset-tab-stops.bat after!
+            set      ANSI_TABSTOP_RESET=%ESCAPE%[?W                              %+ rem resets all tabs to width of 8 —— in leiu of running reset-tab-stops.bat after!
+                                                                               
+        rem Tab-stop management: Not very useful:                              
+            function  ANSI_TAB_FORWARD=`%@CHAR[27][%1I`                          %+ rem Advance the cursor to the   next   column (in the same row) with a tab stop. If there are no more tab stops, move to the  last column in the row. If the cursor is in the  last column, move to the first column of the next row
+            function ANSI_TAB_BACKWARD=`%@CHAR[27][%1Z`                          %+ rem Retreat the cursor to the previous column (in the same row) with a tab stop. If there are no more tab stops, move to the first column in the row. If the cursor is in the first column, don't move the cursor
+                                                                               
 
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -361,6 +361,12 @@ REM ANSI: styles —— As of Windows Terminal we can now actually display itali
         set      BLINK_ON=%ANSI_BLINK_ON%
         set      BLINK_OFF=%ANSI_BLINK_OFF%
         set      BLINK=%BLINK_ON%
+
+        rem Unsupported by windows terminal:
+                rem ESC [10;Ps]	Set text blink speed (Windows Terminal may not support)
+                rem ESC [11;Ps]	Set text steady (non-blinking)
+                        function ANSI_SET_BLINK_SPEED=`%@char[27][10;%1]`
+                        FUNCTION ANSI_SET_TEXT_STEADY=`%@char[27][11;%1]`
 
         set ANSI_REVERSE=%ANSI_ESCAPE%7m
         set ANSI_REVERSE_ON=%ANSI_REVERSE%
@@ -659,54 +665,62 @@ rem ANSI: erasing
     rem                   n=0 clears from cursor to end of line
     rem                   n=1 clears from cursor to start of line
     rem                   n=2 clears entire line
-            set ANSI_ERASE_CURRENT_LINE=%ANSI_ESCAPE%K                          %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
-                set ANSI_ERASE_LINE=%ANSI_ERASE_CURRENT_LINE%                   %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
-                set ANSI_CLEAR_LINE=%ANSI_ERASE_CURRENT_LINE%                   %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
-                set ANSI_LINE_ERASE=%ANSI_ERASE_CURRENT_LINE%                   %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
-                set ANSI_LINE_CLEAR=%ANSI_ERASE_CURRENT_LINE%                   %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
+            set ANSI_ERASE_CURRENT_LINE=%ANSI_ESCAPE%K                                 %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_ERASE_LINE=%ANSI_ERASE_CURRENT_LINE%                          %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_CLEAR_LINE=%ANSI_ERASE_CURRENT_LINE%                          %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_LINE_ERASE=%ANSI_ERASE_CURRENT_LINE%                          %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_LINE_CLEAR=%ANSI_ERASE_CURRENT_LINE%                          %+ rem n=0; (the 0 is implicit) —— erases from cursor until end of line, including extending the background color
+                                                                                       
+            set ANSI_ERASE_TO_END_OF_LINE=%ANSI_ESCAPE%0K                              %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_ERASE_TO_END=%ANSI_ERASE_TO_END_OF_LINE%                      %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_CLEAR_TO_END=%ANSI_ERASE_TO_END_OF_LINE%                      %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_ERASE_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%                      %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set ANSI_CLEAR_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%                      %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set     ANSI_LINE_FIX=%ANSI_ERASE_TO_END_OF_LINE%                      %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set      ANSI_LINEFIX=%ANSI_LINE_FIX%                                  %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                set          ANSI_EOL=%ANSI_LINE_FIX%                                  %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
+                                                                                       
+            set ANSI_ERASE_TO_BEG_OF_LINE=%ANSI_ESCAPE%1K                              %+ rem n=1; erases from start of line until cursor 
+                set ANSI_CLEAR_TO_BEG_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%              %+ rem n=1; erases from start of line until cursor 
+                set ANSI_ERASE_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%                      %+ rem n=1; erases from start of line until cursor 
+                set ANSI_CLEAR_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%                      %+ rem n=1; erases from start of line until cursor 
+                set ANSI_ERASE_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%                      %+ rem n=1; erases from start of line until cursor 
+                set ANSI_CLEAR_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%                      %+ rem n=1; erases from start of line until cursor 
+                set ANSI_ERASE_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%        %+ rem n=1; erases from start of line until cursor 
+                set ANSI_CLEAR_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%        %+ rem n=1; erases from start of line until cursor 
+                                                                                       
+            set ANSI_ERASE_ENTIRE_LINE=%ANSI_ESCAPE%2K                                 %+ rem n=2; erases entire line leaving cursor in same place
+                set ANSI_ERASE_CURRENT_LINE=%ANSI_ERASE_ENTIRE_LINE%                   %+ rem n=2; erases entire line leaving cursor in same place
+                set ANSI_ERASE_LINE_CURRENT=%ANSI_ERASE_ENTIRE_LINE%                   %+ rem n=2; erases entire line leaving cursor in same place
+                set ANSI_ERASE_LINE=%ANSI_ERASE_ENTIRE_LINE%                           %+ rem n=2; erases entire line leaving cursor in same place
+                                                                                       
+            set ANSI_ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                             %+ rem erases from cursor until end of the page
+                set    ERASE_TO_END_OF_SCREEN=%ANSI_ERASE_TO_END_OF_SCREEN%            %+ rem erases from cursor until end of the page
+                set ANSI_ERASE_TO_END_OF_PAGE=%ANSI_ERASE_TO_END_OF_SCREEN%            %+ rem erases from cursor until end of the page
+                set      ERASE_TO_END_OF_PAGE=%ANSI_ERASE_TO_END_OF_SCREEN%            %+ rem erases from cursor until end of the page
+                set         ANSI_ERASE_TO_EOP=%ANSI_ERASE_TO_END_OF_SCREEN%            %+ rem erases from cursor until end of the page
+                set              ERASE_TO_EOP=%ANSI_ERASE_TO_END_OF_SCREEN%            %+ rem erases from cursor until end of the page
+                                                                                       
+            set     ANSI_ERASE_UP_TO_CURSOR=%ANSI_ESCAPE%1J                            %+ rem erases from start of page up to cursor! weird!
+                set ANSI_ERASE_TO_BEGINNING_OF_SCREEN=%ANSI_ERASE_UP_TO_CURSOR%        %+ rem erases from start of page up to cursor! weird!
+                set       ANSI_ERASE_TO_BEG_OF_SCREEN=%ANSI_ERASE_UP_TO_CURSOR%        %+ rem erases from start of page up to cursor! weird!
+                set                 ANSI_ERASE_TO_BOS=%ANSI_ERASE_UP_TO_CURSOR%        %+ rem erases from start of page up to cursor! weird!
+                                                                                       
+            set       ANSI_ERASE_ENTIRE_PAGE=%ANSI_ESCAPE%2J                           %+ rem erases entire screen without moving cursor [vt420+/xterm]
+                set          ANSI_ERASE_PAGE=%ANSI_ERASE_ENTIRE_PAGE%                  %+ rem erases entire screen
+                set               ERASE_PAGE=%ANSI_ERASE_ENTIRE_PAGE%                  %+ rem erases entire screen
+                set ANSI_ERASE_ENTIRE_SCREEN=%ANSI_ERASE_ENTIRE_PAGE%                  %+ rem erases entire screen
+                set        ANSI_ERASE_SCREEN=%ANSI_ERASE_ENTIRE_PAGE%                  %+ rem erases entire screen
+                set             ERASE_SCREEN=%ANSI_ERASE_ENTIRE_PAGE%                  %+ rem erases entire screen
+                set                 ANSI_CLS=%ANSI_ERASE_ENTIRE_PAGE%                  %+ rem erases entire screen
 
-            set ANSI_ERASE_TO_END_OF_LINE=%ANSI_ESCAPE%0K                       %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
-                set ANSI_ERASE_TO_END=%ANSI_ERASE_TO_END_OF_LINE%               %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
-                set ANSI_CLEAR_TO_END=%ANSI_ERASE_TO_END_OF_LINE%               %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
-                set ANSI_ERASE_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%               %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
-                set ANSI_CLEAR_TO_EOL=%ANSI_ERASE_TO_END_OF_LINE%               %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
-                set     ANSI_LINE_FIX=%ANSI_ERASE_TO_END_OF_LINE%               %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
-                set      ANSI_LINEFIX=%ANSI_LINE_FIX%                           %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
-                set          ANSI_EOL=%ANSI_LINE_FIX%                           %+ rem n=0; (the 0 is explicit) —— erases from cursor until end of line, including extending the background color
-
-            set ANSI_ERASE_TO_BEG_OF_LINE=%ANSI_ESCAPE%1K                       %+ rem n=1; erases from start of line until cursor 
-                set ANSI_CLEAR_TO_BEG_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE%       %+ rem n=1; erases from start of line until cursor 
-                set ANSI_ERASE_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%               %+ rem n=1; erases from start of line until cursor 
-                set ANSI_CLEAR_TO_BEG=%ANSI_ERASE_TO_BEG_OF_LINE%               %+ rem n=1; erases from start of line until cursor 
-                set ANSI_ERASE_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%               %+ rem n=1; erases from start of line until cursor 
-                set ANSI_CLEAR_TO_BOL=%ANSI_ERASE_TO_BEG_OF_LINE%               %+ rem n=1; erases from start of line until cursor 
-                set ANSI_ERASE_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE% %+ rem n=1; erases from start of line until cursor 
-                set ANSI_CLEAR_TO_BEGINNING_OF_LINE=%ANSI_ERASE_TO_BEG_OF_LINE% %+ rem n=1; erases from start of line until cursor 
-
-            set ANSI_ERASE_ENTIRE_LINE=%ANSI_ESCAPE%2K                          %+ rem n=2; erases entire line leaving cursor in same place
-                set ANSI_ERASE_CURRENT_LINE=%ANSI_ERASE_ENTIRE_LINE%            %+ rem n=2; erases entire line leaving cursor in same place
-                set ANSI_ERASE_LINE_CURRENT=%ANSI_ERASE_ENTIRE_LINE%            %+ rem n=2; erases entire line leaving cursor in same place
-                set ANSI_ERASE_LINE=%ANSI_ERASE_ENTIRE_LINE%                    %+ rem n=2; erases entire line leaving cursor in same place
-
-            set ANSI_ERASE_TO_END_OF_SCREEN=%ANSI_ESCAPE%J                      %+ rem erases from cursor until end of the page
-                set    ERASE_TO_END_OF_SCREEN=%ANSI_ERASE_TO_END_OF_SCREEN%     %+ rem erases from cursor until end of the page
-                set ANSI_ERASE_TO_END_OF_PAGE=%ANSI_ERASE_TO_END_OF_SCREEN%     %+ rem erases from cursor until end of the page
-                set      ERASE_TO_END_OF_PAGE=%ANSI_ERASE_TO_END_OF_SCREEN%     %+ rem erases from cursor until end of the page
-                set         ANSI_ERASE_TO_EOP=%ANSI_ERASE_TO_END_OF_SCREEN%     %+ rem erases from cursor until end of the page
-                set              ERASE_TO_EOP=%ANSI_ERASE_TO_END_OF_SCREEN%     %+ rem erases from cursor until end of the page
-
-            set     ANSI_ERASE_UP_TO_CURSOR=%ANSI_ESCAPE%1J                     %+ rem erases from start of page up to cursor! weird!
-                set ANSI_ERASE_TO_BEGINNING_OF_SCREEN=%ANSI_ERASE_UP_TO_CURSOR% %+ rem erases from start of page up to cursor! weird!
-                set       ANSI_ERASE_TO_BEG_OF_SCREEN=%ANSI_ERASE_UP_TO_CURSOR% %+ rem erases from start of page up to cursor! weird!
-                set                 ANSI_ERASE_TO_BOS=%ANSI_ERASE_UP_TO_CURSOR% %+ rem erases from start of page up to cursor! weird!
-
-            set      ANSI_ERASE_ENTIRE_PAGE=%ANSI_ESCAPE%2J                     %+ rem erases entire screen
-                set          ANSI_ERASE_PAGE=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
-                set               ERASE_PAGE=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
-                set ANSI_ERASE_ENTIRE_SCREEN=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
-                set        ANSI_ERASE_SCREEN=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
-                set             ERASE_SCREEN=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
-                set                 ANSI_CLS=%ANSI_ERASE_ENTIRE_PAGE%           %+ rem erases entire screen
+            set       ANSI_ERASE_ENTIRE_PAGE_AND_SCROLLBACK=%ANSI_ESCAPE%3J                           %+ rem erases entire screen without moving cursor [vt420+/xterm]
+                set          ANSI_ERASE_PAGE_AND_SCROLLBACK=%ANSI_ERASE_ENTIRE_PAGE_AND_SCROLLBACK%   %+ rem erases entire screen
+                set               ERASE_PAGE_AND_SCROLLBACK=%ANSI_ERASE_ENTIRE_PAGE_AND_SCROLLBACK%   %+ rem erases entire screen
+                set ANSI_ERASE_ENTIRE_SCREEN_AND_SCROLLBACK=%ANSI_ERASE_ENTIRE_PAGE_AND_SCROLLBACK%   %+ rem erases entire screen
+                set        ANSI_ERASE_SCREEN_AND_SCROLLBACK=%ANSI_ERASE_ENTIRE_PAGE_AND_SCROLLBACK%   %+ rem erases entire screen
+                set             ERASE_SCREEN_AND_SCROLLBACK=%ANSI_ERASE_ENTIRE_PAGE_AND_SCROLLBACK%   %+ rem erases entire screen
+                set                 ANSI_CLS_AND_SCROLLBACK=%ANSI_ERASE_ENTIRE_PAGE_AND_SCROLLBACK%   %+ rem erases entire screen
 
             rem UNIMPLEMENTED: L   Erase in Line   (ESC [ Ps K). Erases some or all of the Active Line according to the parameter.
             rem UNIMPLEMENTED: EF  Erase in Field  (ESC [ Pn N). Erases some or all of the Active Field according to the parameter.
@@ -716,10 +730,44 @@ rem ANSI: erasing
             rem                                     ESC [ 12 P	Deletes 12 characters
 
 
+        rem     Erase Ps characters at cursor (without shifting text)
+                rem ESC [Ps P	Delete Ps characters (shifts text left)
+                rem ESC [Ps L	Insert Ps blank lines at cursor
+                rem ESC [Ps M	Delete Ps lines (shifts lines up)
+                rem ESC [Ps @	Insert Ps characters at cursor
+                        function ANSI_DELETE_CHARS=`%@CHAR[27][%1P`                           
+                        function ANSI_DELETE_LINES=`%@CHAR[27][%1M`                           
+                        function ANSI_INSERT_BLANK_LINES_=`%@CHAR[27][%1L`                           
+                        function ANSI_INSERT_BLANK_LINES_PRESERVING_POSITION=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%1L%@CHAR[27]8%@CHAR[27][u`                           
+                        function ANSI_INSERT_BLANK_CHARS=`%@CHAR[27][%1@`                           
+
         rem truly esoteric stuff —— I believe this toggles whether the background color bleeds to the right of the screen when you hit enter
                     set ERASE_COLOR_MODE_ON=%ANSI_ESCAPE%?117h  
                     set ERASE_COLOR_MODE_OFF=%ANSI_ESCAPE%?117l
 
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+REM stuff ChatGPT says is missing and generated, which I don’t think is personally worth looking into ’cause 
+rem most of it doesn’t seem supported in Windows Terminal as of 2025:
+
+        rem Extended xterm Window Controls
+                set ANSI_REPORT_WIN_PIXELS=%@CHAR[27][14t
+                set ANSI_REPORT_WIN_CHARS=%@CHAR[27][18t
+
+        rem Bracketed Paste Mode
+                set ANSI_ENABLE_BRACKETED_PASTE=%@CHAR[27][?2004h
+                set ANSI_DISABLE_BRACKETED_PASTE=%@CHAR[27][?2004l
+
+        rem Unicode Support (iTerm2/kitty-specific)
+                set ANSI_INLINE_IMAGE=%@CHAR[27]]1337;File=name=  %+ rem Base64-encoded filename follows
+                set ANSI_HYPERLINK_START=%@CHAR[27]]133;A
+                set ANSI_HYPERLINK_END=%@CHAR[27]]133;B
+
+        rem Application Escape Codes
+                set ANSI_SET_COLUMN_MODE=%@CHAR[27][3h
+                set ANSI_RESET_COLUMN_MODE=%@CHAR[27][3l
+                                                        
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -785,62 +833,6 @@ REM ANSI: unsupported in Windows Terminal:
 
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-REM ANSI: margin-setting / anti-scroll areas
-        rem echos %@RANDCURSOR[]
-        rem Cordoning off rows:
-                rem Want to   lock the top  5 rows from scrolling?  echos @%ANSI_LOCK_TOP_ROWS[5]
-                        function       ANSI_LOCK_BOT_ROW=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][1;1r%@CHAR[27]8%@CHAR[27][u`
-                        
-rem echo %ANSI_POSITION_SAVE%%@ANSI_MOVE_TO[666,1]*** %_DATETIME *** %ANSI_POSITION_RESTORE% And we’re back at %_DATETIME...%@CHAR[27]7%@CHAR[27][s%@CHAR[27][1;2r%@CHAR[27]8%@CHAR[27][u
-                             
-                        function      ANSI_LOCK_TOP_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%@EVAL[%1+1];%[_rows]r%@CHAR[27]8%@CHAR[27][u`
-                        function ANSI_UNLOCK_LOCKED_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
-                        set      ANSI_UNLOCK_LOCKED_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
-                rem Want to unlock all locked rows for  scrolling?  echos %ANSI_UNLOCK_ROWS%   or  echos %@ANSI_UNLOCK_ROWS[]
-                        function        ANSI_UNLOCK_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
-                        set             ANSI_UNLOCK_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
-                        rem aliases:
-                                function         ANSI_UNLOCK_ROW=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
-                                set              ANSI_UNLOCK_ROW=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
-
-        rem Cordoning off columns:
-                rem Want to lock *columns* at the *sides*? That's funkier! First we have to determine the string to enable it:
-                        set    ANSI_LOCK_COLUMNS_ENABLE=%ANSI_CSI%?69h
-                rem Then, we incorporate that enabling screen into our function to lock BOTH sides an equal amount based on a single parameter:
-                rem BUT A CATCH! You most likely want to do an echos %ANSI_POSITION_SAVE% and RESTORE before and after...
-                        function ANSI_LOCK_SIDE_COLUMNS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
-                        function      ANSI_LOCK_COLUMNS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
-                        function    ANSI_LOCK_SIDE_COLS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
-                        function         ANSI_LOCK_COLS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
-                rem And when we want to unlock it, use the "?69l" code:                                      %+ rem EXAMPLE: echos %ANSI_UNLOCK_COLUMNS%
-                        set   ANSI_LOCK_COLUMNS_DISABLE=%ANSI_CSI%?69l
-                        set ANSI_LOCKED_COLUMNS_DISABLE=%ANSI_LOCK_COLUMNS_DISABLE%
-                        set         ANSI_UNLOCK_COLUMNS=%ANSI_LOCK_COLUMNS_DISABLE%
-                        set         ANSI_COLUMNS_UNLOCK=%ANSI_LOCK_COLUMNS_DISABLE%
-                        set          ANSI_RESET_COLUMNS=%ANSI_LOCK_COLUMNS_DISABLE%
-                        set           ANSI_COLUMS_RESET=%ANSI_LOCK_COLUMNS_DISABLE%
-                        set            ANSI_UNLOCK_COLS=%ANSI_LOCK_COLUMNS_DISABLE%
-                        set            ANSI_COLS_UNLOCK=%ANSI_LOCK_COLUMNS_DISABLE%
-                        set             ANSI_RESET_COLS=%ANSI_LOCK_COLUMNS_DISABLE%
-                        set             ANSI_COLS_RESET=%ANSI_LOCK_COLUMNS_DISABLE%
-
-        rem Unlocking everything:
-                rem ANSI_UNLOCK=%@ANSI_UNLOCK_ROWS[0,%_ROWS]%ANSI_COLS_RESET% —— was not sufficient because the # of rows could be a pane that is smaller now but enlarged later, which would leave non-scrollable lines at the bottom. But 9999 also was not sufficient. Do with and without row argument to cover all bases.
-                rem ANSI_UNLOCK=%@ANSI_UNLOCK_ROWS[0,999999]%@ANSI_UNLOCK_ROWS[]%ANSI_COLS_RESET%
-                rem ANSI_UNLOCK=%ANSI_COLS_RESET%%@ANSI_UNLOCK_ROWS[]%@ANSI_UNLOCK_ROWS[0,999999]
-                set ANSI_UNLOCK=%ANSI_COLS_RESET%%@ANSI_UNLOCK_ROWS[]%@ANSI_UNLOCK_ROWS[0,999999]
-                SET ANSI_UNLOCK_TOP=%@ANSI_UNLOCK_ROWS[]
-                SET ANSI_UNLOCK_ROWS=%@ANSI_UNLOCK_ROWS[]
-                SET ANSI_UNLOCK_MARGINS=%ANSI_LOCK_COLUMNS_DISABLE%
-                SET ANSI_UNLOCK_ALL=%ANSI_LOCK_COLUMNS_DISABLE%%@ANSI_UNLOCK_ROWS[]
-
-        rem Cordining off an area (row_start,row_end,col_start,col_end)
-                function      CORDON=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%1;%[2]r%@CHAR[27]8%@CHAR[27][u`
-                                  rem %@CHAR[27]7%@CHAR[27][s%@CHAR[27][%@EVAL[%1+1];%[_rows]r%@CHAR[27]8%@CHAR[27][u`
-        rem A proof-of-concept function that makes us end up with cordoned off columns on both sides in a random color without disturbing your cursor location very much ... Very dramatic:
-                function ANSI_COLOR_SIDE_COLS=`%ANSI_SAVE_POSITION%%@ANSI_RANDBG[]%ANSI_CLS%%@ANSI_LOCK_COLS[%1]%ANSI_RESTORE_POSITION%%@ANSI_MOVE_UP[2]%@ANSI_MOVE_RIGHT[%1]`
-
 
 
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -970,8 +962,100 @@ rem ANSI: Alternate Screen Buffers (VT-220, supported by Windows):
         rem %ANSI_CSI%4h  —  insert mode
         rem %ANSI_CSI%4l  — replace mode
 
-rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
+rem ————————— VT-420+/xterm stuff —————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+rem Clipboard (unsupported in WT 2025)
+        function ANSI_SET_CLIPBOARD=`%@CHAR[27]]52;c;%1$%CHAR[7]`
+
+rem Enable synchronous output mode (Prevents race conditions in multithreaded output)
+        set ENABLE_SYCHRONOUS_MODE=%@CHAR[27][?2026h
+        rem TODO may need this for copy-move-post
+
+rem Set window title
+        function ANSI_SET_WINDOW_TITLE=`%@char[27]]2;%1$%@CHAR[7]`          %+ rem 2025/02/01: doesn’t seem supported in WT
+        function ANSI_SET_WINDOW_TITLE_AND_ICON=`%@char[27]]0;%1%@CHAR[7]`  %+ rem (not always supported)
+
+rem Scrolling the screen *WITHOUT* moving the cursor:
+        function ANSI_SCROLL_DOWN=`%@CHAR[27][%1S`	                    %+ rem SCROLLS screen down without moving cursor
+        function   ANSI_SCROLL_UP=`%@CHAR[27][%1T`	                    %+ rem SCROLLS screen  up  without moving cursor
+        function DOESNT_WORK_SMART_SCROLL_DOWN=`%@IF[%%_ROW LT %%_ROWS,%%@CHAR[27][%%1B],%%@CHAR[27][%%1T]`
+
+
+REM ANSI: margin-setting / anti-scroll areas (VT-420+/xterm)
+        rem echos %@RANDCURSOR[]
+        rem Cordoning off rows:
+                rem Want to   lock the top  5 rows from scrolling?  echos @%ANSI_LOCK_TOP_ROWS[5]
+                        function       ANSI_LOCK_BOT_ROW=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][1;1r%@CHAR[27]8%@CHAR[27][u`
+                        
+                rem echo %ANSI_POSITION_SAVE%%@ANSI_MOVE_TO[666,1]*** %_DATETIME *** %ANSI_POSITION_RESTORE% And we’re back at %_DATETIME...%@CHAR[27]7%@CHAR[27][s%@CHAR[27][1;2r%@CHAR[27]8%@CHAR[27][u
+                             
+                        function      ANSI_LOCK_TOP_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%@EVAL[%1+1];%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                        function ANSI_UNLOCK_LOCKED_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                        set      ANSI_UNLOCK_LOCKED_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                rem Want to unlock all locked rows for  scrolling?  echos %ANSI_UNLOCK_ROWS%   or  echos %@ANSI_UNLOCK_ROWS[]
+                        function        ANSI_UNLOCK_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                        set             ANSI_UNLOCK_ROWS=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                        rem aliases:
+                                function         ANSI_UNLOCK_ROW=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+                                set              ANSI_UNLOCK_ROW=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][0;%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+
+        rem Cordoning off columns:
+                rem Want to lock *columns* at the *sides*? That's funkier! First we have to determine the string to enable it:
+                        set    ANSI_LOCK_COLUMNS_ENABLE=%ANSI_CSI%?69h
+                rem Then, we incorporate that enabling screen into our function to lock BOTH sides an equal amount based on a single parameter:
+                rem BUT A CATCH! You most likely want to do an echos %ANSI_POSITION_SAVE% and RESTORE before and after...
+                        function ANSI_LOCK_SIDE_COLUMNS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
+                        function      ANSI_LOCK_COLUMNS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
+                        function    ANSI_LOCK_SIDE_COLS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
+                        function         ANSI_LOCK_COLS=`%@CHAR[27][?69h%@CHAR[27][%1;%@EVAL[%_COLUMNS-%1]s` %+ rem EXAMPLE: echos %@ANSI_LOCK_SIDE_COLUMNS[5]
+                rem And when we want to unlock it, use the "?69l" code:                                      %+ rem EXAMPLE: echos %ANSI_UNLOCK_COLUMNS%
+                        set   ANSI_LOCK_COLUMNS_DISABLE=%ANSI_CSI%?69l
+                        set ANSI_LOCKED_COLUMNS_DISABLE=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set         ANSI_UNLOCK_COLUMNS=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set         ANSI_COLUMNS_UNLOCK=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set          ANSI_RESET_COLUMNS=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set           ANSI_COLUMS_RESET=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set            ANSI_UNLOCK_COLS=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set            ANSI_COLS_UNLOCK=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set             ANSI_RESET_COLS=%ANSI_LOCK_COLUMNS_DISABLE%
+                        set             ANSI_COLS_RESET=%ANSI_LOCK_COLUMNS_DISABLE%
+
+        rem Unlocking everything:
+                rem ANSI_UNLOCK=%@ANSI_UNLOCK_ROWS[0,%_ROWS]%ANSI_COLS_RESET% —— was not sufficient because the # of rows could be a pane that is smaller now but enlarged later, which would leave non-scrollable lines at the bottom. But 9999 also was not sufficient. Do with and without row argument to cover all bases.
+                rem ANSI_UNLOCK=%@ANSI_UNLOCK_ROWS[0,999999]%@ANSI_UNLOCK_ROWS[]%ANSI_COLS_RESET%
+                rem ANSI_UNLOCK=%ANSI_COLS_RESET%%@ANSI_UNLOCK_ROWS[]%@ANSI_UNLOCK_ROWS[0,999999]
+                set ANSI_UNLOCK=%ANSI_COLS_RESET%%@ANSI_UNLOCK_ROWS[]%@ANSI_UNLOCK_ROWS[0,999999]
+                SET ANSI_UNLOCK_TOP=%@ANSI_UNLOCK_ROWS[]
+                SET ANSI_UNLOCK_ROWS=%@ANSI_UNLOCK_ROWS[]
+                SET ANSI_UNLOCK_MARGINS=%ANSI_LOCK_COLUMNS_DISABLE%
+                SET ANSI_UNLOCK_ALL=%ANSI_LOCK_COLUMNS_DISABLE%%@ANSI_UNLOCK_ROWS[]
+
+        rem Cordining off an area (row_start,row_end,col_start,col_end)
+                function      CORDON=`%@CHAR[27]7%@CHAR[27][s%@CHAR[27][%1;%[2]r%@CHAR[27]8%@CHAR[27][u`
+                                  rem %@CHAR[27]7%@CHAR[27][s%@CHAR[27][%@EVAL[%1+1];%[_rows]r%@CHAR[27]8%@CHAR[27][u`
+
+        rem A proof-of-concept function that makes us end up with cordoned off columns on both sides in a random color without disturbing your cursor location very much ... Very dramatic:
+                function ANSI_COLOR_SIDE_COLS=`%ANSI_SAVE_POSITION%%@ANSI_RANDBG[]%ANSI_CLS%%@ANSI_LOCK_COLS[%1]%ANSI_RESTORE_POSITION%%@ANSI_MOVE_UP[2]%@ANSI_MOVE_RIGHT[%1]`
+
+
+rem ————————— VT52 / VT-52 stuff —————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+rem     What happens in Vt52 mode?
+rem             VT52 mode disables ANSI/VT100 commands and switches to older VT52-only escape sequences.
+rem             The cursor movement commands change:
+rem             Move cursor up:      ESC A
+rem             Move cursor down:    ESC B
+rem             Move cursor right:   ESC C
+rem             Move cursor left:    ESC D
+rem             Move cursor to home: ESC H (top-left)
+
+        set  ENABLE_VT52_MODE=%@CHAR[27][?2h
+        set DISABLE_VT52_MODE=%@CHAR[27][?2l
+                set VT52_ON=%ENABLE_VT52_MODE%
+                set VT52_OFF=%DISABLE_VT52_MODE%
+
+rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 REM ANSI: testing —— and the magic way to know whether we are in insert mode or not:
         rem echos %@RANDCURSOR[]

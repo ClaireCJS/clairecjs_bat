@@ -1,5 +1,7 @@
 @Echo Off
-on break cancel
+@loadBTM on
+@on break cancel
+@call bat-init
 
 
 :USAGE: askyn "question" "yes|no" {run ’askyn’ without parameters to see usage)
@@ -125,15 +127,15 @@ iff "%ASK_QUESTION%" == "" .or. "%ASK_QUESTION%" == "help" .or. "%ASK_QUESTION%"
                 echoerr USAGE: NOTE: %ANSI_COLOR_MAGENTA%%italics_on%Bracketed%italics_off% arguments are %italics_on%%ansi_color_red%optional%italics_off%%ansi_color_advice%%ansi_color_advice%:
                 echoerr USAGE:                
                 rem echoerr USAGE: You did this: %ansi_color_warning_soft%%0 %*%ansi_color_advice%
-                echoerrs USAGE: %ansi_color_bright_yellow%call askyn ``
-                echoerrs %ansi_color_orange%{%ansi_color_yellow%%italics_on%%ansi_color_magenta%question%italics_off%%ansi_color_orange%} %ansi_color_orange%{“%ansi_color_bright_yellow%yes%ansi_color_orange%” %italics_on%%ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%”%ansi_color_magneta%%italics_on% %ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%”%ansi_color_yellow%%ansi_color_orange%}                
-                echoerrs  %ansi_color_orange%[%ansi_color_yellow%%italics_on%%ansi_color_magenta%wait_time%ansi_color_orange%%italics_off%] 
+                echoserr USAGE: %ansi_color_bright_yellow%call askyn ``
+                echoserr %ansi_color_orange%{%ansi_color_yellow%%italics_on%%ansi_color_magenta%question%italics_off%%ansi_color_orange%} %ansi_color_orange%{“%ansi_color_bright_yellow%yes%ansi_color_orange%” %italics_on%%ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%”%ansi_color_magneta%%italics_on% %ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%”%ansi_color_yellow%%ansi_color_orange%}                
+                echoserr  %ansi_color_orange%[%ansi_color_yellow%%italics_on%%ansi_color_magenta%wait_time%ansi_color_orange%%italics_off%] 
                 rem echoerrs  %ansi_color_orange%[%ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange% 
                 rem echoerrs  %ansi_color_yellow%%italics_on%or%italics_off% %ansi_color_orange%“%ansi_color_bright_bright_yellow%notitle%ansi_color_orange%%ansi_color_yellow%%italics_off%%ansi_color_orange%”]
-                echoerrs  %ansi_color_orange%[%ansi_color_magenta%%italics_on%modes of operation%italics_off%%ansi_color_orange%] 
-                echoerrs  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra allowable keys%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
-                echoerrs  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra key meanings%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
-                echoerr.
+                echoserr  %ansi_color_orange%[%ansi_color_magenta%%italics_on%modes of operation%italics_off%%ansi_color_orange%] 
+                echoserr  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra allowable keys%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
+                echoserr  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra key meanings%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
+                echoserr.
                 echoerr USAGE: 
                 echoerr USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%1) sets %ansi_color_yellow%%italics_on%`%`OUR_ANSWER%italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%Y%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%N%ansi_color_orange%”%ansi_color_advice% ..... or one of our additional allowed keystrokes
                 echoerr USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%2) sets %ansi_color_yellow%%italics_on%`%`DO_IT     %italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%1%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%”%ansi_color_advice% (don’t use if using additional allowed keystrokes)

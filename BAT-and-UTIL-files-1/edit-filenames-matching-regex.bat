@@ -16,7 +16,6 @@ rem USAGE:
         endiff
 
 rem ENVIRONMENT VALIDATION:
-        call validate-environment-variables FILEMASK_CODE FILEMASK_TEXT
         call validate-in-path               checkeditor grep fixtmp insert-before-each-line.pl echos editor-slow divider
         call                                checkeditor
 
@@ -31,6 +30,7 @@ rem VALIDATE PARAMETERS & ENVIRONMENT:
         if "%REGEX%" eq "" .or. "%1" eq "" (goto :ERROR_NoParameter1)
         set                     FILESTOGREP=%FILESTOGREP_DEFAULT%
         if "%2"      ne "" (set FILESTOGREP=%2)
+        if "%2"      eq "" (call validate-environment-variables FILEMASK_CODE FILEMASK_TEXT)
 
 
 rem SET UP INTERNAL VARIABLES AND FILENAMES:

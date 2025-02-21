@@ -104,6 +104,11 @@ import msvcrt
 import builtins
 #import unidecode                                                           #pip install Unidecode==1.2.0 - for the right one - capitalizing the U (or not) is (or isn't) important. this package sucks.
 import unicodedata
+import emoji                                                                                                    # emoji    library
+import romkan                                                                                                   # Japanese library
+from pypinyin                   import lazy_pinyin, Style as PypinyinStyle                                      # Chinese  library
+from korean_romanizer.romanizer import Romanizer          as KoreanRomanizer                                    # Korean   library
+from pythainlp.transliterate    import romanize           as ThaiRomanize                                       # Thai     library
 from unidecode import unidecode
 from colorama import Fore, Back, Style, just_fix_windows_console
 #init()
@@ -208,7 +213,7 @@ def primt(*args, **kwargs):     #custom_print "prim print" function to print, pr
         log_file.write(f"{output}\n")
 
 
-def convert_to_ascii_filename_chracters(filename,mode):
+def convert_to_ascii_filename_chracters(filename,mode):    
     """Translates a string (in our case, a filename) to its ASCII/roman equivalent
 
     (1) First, an amazing multi-language language-agnostic full translation library called polyglot is used
@@ -233,14 +238,17 @@ def convert_to_ascii_filename_chracters(filename,mode):
 
 
 #pylint: disable=C0415                                                                                  #don't nag me about lazy-loading the libraries, pylint!
+import logging
+from polyglot.detect import Detector
+from polyglot.transliteration import Transliterator
 def polyglot_language_agnostic_romanize(text):
     """Return translated text, but fail very gracefully and transparently if there are any exceptions"""
     global DEBUG, DEBUG_LANG_DETECT
+
+     ##### CURRENTLY HAVING SLOWNESS PROBLEMS 2024Q4 / 2025Q1 and in need of optimization
+
     try:
-        import logging
         if not DEBUG_LANG_DETECT: logging.getLogger('polyglot').setLevel(logging.ERROR)                             #Disable logging messages from Polyglot unless in debug mode
-        from polyglot.detect import Detector
-        from polyglot.transliteration import Transliterator
         detector = Detector(text)
         if DEBUG_LANG_DETECT: primt(f"* Detector: {str(detector)}")
         source_lang = detector.language.code
@@ -451,11 +459,6 @@ def translate_character_with_language_libraries(char,mode,filename="not given"):
     return translate_return_value
 
 
-import emoji                                                                                                    # emoji    library
-import romkan                                                                                                   # Japanese library
-from pypinyin                   import lazy_pinyin, Style as PypinyinStyle                                      # Chinese  library
-from korean_romanizer.romanizer import Romanizer          as KoreanRomanizer                                    # Korean   library
-from pythainlp.transliterate    import romanize           as ThaiRomanize                                       # Thai     library
 
 def translate_thai_____to_ascii(text): return ThaiRomanize(text)                                                # Thai
 def translate_japanese_to_ascii(char): return romkan.to_roma(char)                                              # Japanese
@@ -575,7 +578,7 @@ def clear_keyboard_buffer():
 #        primt(f"{Fore.RED}No files with unicode characters found.{Style.RESET_ALL}")
 
 
-def rename_files_in_current_directory(mode="file",automatic_mode=False,recursive_mode=False):
+def rename_files_in_current_directory_PRODUCTION_FOR_A_YEAR(mode="file",automatic_mode=False,recursive_mode=False):
     """Renames all files in a directory, replacing unicode characters."""
     global DRY_RUN, DEBUG_ANNOUNCE_FILENAMES
     any_files_found_to_rename_at_all = False
@@ -589,13 +592,11 @@ def rename_files_in_current_directory(mode="file",automatic_mode=False,recursive
         nonlocal any_files_found_to_rename_at_all, automatic
         for filename in os.listdir(directory):
             filename_for_primt = filename.encode('utf-8','ignore')
-            if DEBUG_ANNOUNCE_FILENAMES:
-                ### without color-cycling:
-                #primt(f"{Fore.CYAN}{Style.BRIGHT}* Processing file {filename}...{Style.NORMAL}{Fore.WHITE}")
-                ### with color-cycling:
-                original_print(f"* Processing file {filename}...")
-                for i in range(100): claire.tick(mode="fg")                     #TODO maybe consider the range(100) thing bad form haha but we're also testing another library
+            if DEBUG_ANNOUNCE_FILENAMES: original_print(f"* Processing file {filename}...")
+
+            if True: original_print(f"* about to run convert_to_ascii_filename_chracters on filename {filename}...")
             new_name = convert_to_ascii_filename_chracters(filename,mode)
+            if True: original_print(f"* done running convert_to_ascii_filename_chracters on filename {filename}...")
 
             if filename != new_name:
                 any_files_found_to_rename_at_all = True
@@ -605,7 +606,7 @@ def rename_files_in_current_directory(mode="file",automatic_mode=False,recursive
                     action_string  = "  Auto-Renamed"
                 else:
                     automatic      = False
-                    permission = ask_permission(filename, new_name)
+                    permission     = ask_permission(filename, new_name)
                     do_it_for_real = permission
                     action_string  = "       Renamed" if permission is True else f"{Fore.RED}Did not rename"
                 if DRY_RUN:
@@ -625,14 +626,78 @@ def rename_files_in_current_directory(mode="file",automatic_mode=False,recursive
                       f"{Fore.CYAN}\n\t\t    to:" +  f"\t{Fore.GREEN}{new_new_file}{Style.NORMAL}\n\n\n")
 
     if recursive_mode:
-        for root, dirs, files in os.walk(directory):
+        #or root,    _,   _   in os.walk(directory):    #nope
+        #or _   , dirs, _     in os.walk(directory):    #nope
+        for root, dirs, files in os.walk(directory):    #production for a year
             process_directory(root)
     else:
         process_directory(directory)
 
+    #2025 addressing slow speed that didn’t used to happen
+    #if recursive_mode:
+    #    for entry in os.scandir(directory):
+    #        if entry.is_dir():
+    #            process_directory(entry.path)
+    #else:
+    #    process_directory(directory)
+
+
     if not any_files_found_to_rename_at_all:
         primt(f"{Fore.RED}No files with unicode characters found.{Style.RESET_ALL}")
 
+
+
+def rename_files_in_current_directory(mode="file", automatic_mode=False, recursive_mode=False):
+    """Renames all files in a directory, replacing Unicode characters. -- 2025/02/17 chatgpt rewrite of year-long production code to fix slowness and it did not """
+    global DRY_RUN, DEBUG_ANNOUNCE_FILENAMES
+    any_files_found_to_rename_at_all = False
+    do_it_for_real = True
+    automatic = False
+    DRY_RUN = False
+    permission = False
+    directory = sys.argv[1] if len(sys.argv) > 1 else '.'
+
+    def process_directory(directory):
+        nonlocal any_files_found_to_rename_at_all, automatic
+        for entry in os.scandir(directory):
+            if entry.is_file():
+                filename = entry.name
+                filename_for_primt = filename.encode('utf-8', 'ignore')
+
+                if DEBUG_ANNOUNCE_FILENAMES:
+                    original_print(f"* Processing file {filename}...")  # Print once
+                    claire.tick(mode="fg")  # Call once, not 100 times
+
+                #if True: original_print(f"* about to run convert_to_ascii_filename_chracters on filename {filename}...")
+                new_name = convert_to_ascii_filename_chracters(filename,mode)
+                #if True: original_print(f"* done running convert_to_ascii_filename_chracters on filename {filename}...")
+
+                if filename != new_name:
+                    any_files_found_to_rename_at_all = True
+                    automatic = automatic_mode
+                    do_it_for_real = automatic or ask_permission(filename, new_name)
+                    do_it_for_real = False if DRY_RUN else do_it_for_real
+
+                    old_file = entry.path
+                    new_file = os.path.join(directory, new_name)
+                    new_new_file = last_minute_filename_cleanser(new_file)
+
+                    if do_it_for_real:
+                        rename_folder_or_file_but_if_renamed_is_a_folder_that_already_exists_then_move_files_into_it_instead(
+                            old_file, new_new_file)
+
+                    # Consolidated print for efficiency
+                    action_string = "Auto-Renamed" if automatic else ("Renamed" if do_it_for_real else f"{Fore.RED}Did not rename")
+                    primt(f"{Fore.GREEN}{Style.NORMAL}\t{action_string}: {old_file} → {new_new_file}{Style.RESET_ALL}\n")
+
+            elif entry.is_dir() and recursive_mode:
+                process_directory(entry.path)  # Recursive directory processing
+
+    # Start processing
+    process_directory(directory)
+
+    if not any_files_found_to_rename_at_all:
+        primt(f"{Fore.RED}No files with Unicode characters found.{Style.RESET_ALL}")
 
 
 
@@ -836,166 +901,166 @@ def create_script_to_define_emoji_characters_1():
 
 
 
-def create_script_to_define_emoji_charactersDECENTBUTPROBLEMATICAF():
-    primt("EMOJI_ENVIRONMENT_VARIABLES_CREATED_BY=fix_unicode_files.py script")
-    import ctypes
-    from emoji.unicode_codes import EMOJI_DATA
-    processed_emojis = set()  # Set to track processed emojis
-    qualified_emojis = set()  # Set to track qualified emojis
-    output_strings = []  # List to store the output strings
-    for emoji, emoji_data in EMOJI_DATA.items():
-        # Fetch the base emoji without any skin tone variation
-        base_emoji = emoji.split('\u200d')[0]
-
-        # Check if the base emoji has already been processed
-        if base_emoji not in processed_emojis:
-            processed_emojis.add(base_emoji)
-
-            emoji_name_meat = emoji_data['en'].upper().replace(' ', '_').replace(':', '').replace('-', '_').replace("'", '').replace('SKIN_TONE', 'SKIN').replace('&', '_AND_')
-
-            # Check if the current emoji is fully qualified
-            if emoji_data['status'] == 'fully_qualified':
-                qualified_emojis.add(emoji_name_meat)
-                emoji_name = f"EMOJI_{emoji_name_meat}"
-                qualified_output_string = None
-            else:
-                emoji_name = f"EMOJI_{emoji_name_meat}_UNQUALIFIED"
-                qualified_output_string = f"EMOJI_{emoji_name_meat}"
-
-            # Convert the emoji into a ctypes wide string
-            # Then cast it to a pointer to short (16-bit) integers, and fetch the values
-            emoji_code_units = ctypes.cast(ctypes.c_wchar_p(emoji), ctypes.POINTER(ctypes.c_uint16))
-
-            # Create the output string
-            output_string = f"{emoji_name}="
-            for i in range(2):  # two UTF-16 code units
-                output_string += f"%@CHAR[{emoji_code_units[i]}]"
-
-            output_strings.append(output_string)
-
-            # Append the qualified output string if available
-            if qualified_output_string:
-                qualified_output_string += f"=%@CHAR[{emoji_code_units[0]}]%@CHAR[{emoji_code_units[1]}]"
-                output_strings.append(qualified_output_string)
-
-    # Print the output strings
-    for output_string in output_strings:
-        primt(output_string)
-
-
-
-
-
-def create_script_to_define_emoji_characters_tried_without_gpt_got_5718():
-    primt("EMOJI_ENVIRONMENT_VARIABLES_CREATED_BY=fix_unicode_files.py script")
-    import ctypes
-    from emoji.unicode_codes import EMOJI_DATA
-    processed_emojis = set()  # Set to track processed emojis
-    qualified_emojis = set()  # Set to track qualified emojis
-    unqualified_emojis = set()  # Set to track qualified emojis
-    rights = set() # set to track right half of = in output file so we don't make duplicates
-    output_strings = []  # List to store the output strings
-    for emoji, emoji_data in EMOJI_DATA.items():
-        # Fetch the base emoji without any skin tone variation
-        base_emoji = emoji.split('\u200d')[0]
-
-        # Check if the base emoji has already been processed
-        if base_emoji not in processed_emojis:
-            processed_emojis.add(base_emoji)
-
-            emoji_name_meat = emoji_data['en'].upper().replace(' ', '_').replace(':', '').replace('-', '_').replace("'", '').replace('SKIN_TONE', 'SKIN').replace('&', '_AND_')
-
-            # Check if the current emoji is fully qualified
-            if emoji_data['status'] == 'fully_qualified':
-                if emoji_name_meat in qualified_emojis:
-                    continue
-                qualified_emojis.add(emoji_name_meat)
-                emoji_name = f"EMOJI_{emoji_name_meat}"
-                qualified_output_string = None
-
-            else:
-                if emoji_name_meat in unqualified_emojis:
-                    continue
-                unqualified_emojis.add(emoji_name_meat)
-                emoji_name = f"EMOJI_{emoji_name_meat}_UNQUALIFIED"
-                qualified_output_string = f"EMOJI_{emoji_name_meat}"
-
-            # Convert the emoji into a ctypes wide string
-            # Then cast it to a pointer to short (16-bit) integers, and fetch the values
-            emoji_code_units = ctypes.cast(ctypes.c_wchar_p(emoji), ctypes.POINTER(ctypes.c_uint16))
-
-            # Create the output string
-            right = ""
-            for i in range(2):  # two UTF-16 code units
-                right += f"%@CHAR[{emoji_code_units[i]}]"
-            output_string = f"{emoji_name}={right}"
-            if right in rights:
-                continue
-            rights.add(right)
-
-            if output_string in output_strings:
-                continue
-            output_strings.append(output_string)
-
-            # Append the qualified output string if available
-            if qualified_output_string:
-                qualified_output_string += f"=%@CHAR[{emoji_code_units[0]}]%@CHAR[{emoji_code_units[1]}]"
-                output_strings.append(qualified_output_string)
-
-    # Print the output strings
-    printed = set()
-    for output_string in output_strings:
-        if output_string in printed: continue
-        printed.add(output_string)
-        primt(output_string)
+#def create_script_to_define_emoji_charactersDECENTBUTPROBLEMATICAF():
+#    primt("EMOJI_ENVIRONMENT_VARIABLES_CREATED_BY=fix_unicode_files.py script")
+#    import ctypes
+#    from emoji.unicode_codes import EMOJI_DATA
+#    processed_emojis = set()  # Set to track processed emojis
+#    qualified_emojis = set()  # Set to track qualified emojis
+#    output_strings = []  # List to store the output strings
+#    for emoji, emoji_data in EMOJI_DATA.items():
+#        # Fetch the base emoji without any skin tone variation
+#        base_emoji = emoji.split('\u200d')[0]
+#
+#        # Check if the base emoji has already been processed
+#        if base_emoji not in processed_emojis:
+#            processed_emojis.add(base_emoji)
+#
+#            emoji_name_meat = emoji_data['en'].upper().replace(' ', '_').replace(':', '').replace('-', '_').replace("'", '').replace('SKIN_TONE', 'SKIN').replace('&', '_AND_')
+#
+#            # Check if the current emoji is fully qualified
+#            if emoji_data['status'] == 'fully_qualified':
+#                qualified_emojis.add(emoji_name_meat)
+#                emoji_name = f"EMOJI_{emoji_name_meat}"
+#                qualified_output_string = None
+#            else:
+#                emoji_name = f"EMOJI_{emoji_name_meat}_UNQUALIFIED"
+#                qualified_output_string = f"EMOJI_{emoji_name_meat}"
+#
+#            # Convert the emoji into a ctypes wide string
+#            # Then cast it to a pointer to short (16-bit) integers, and fetch the values
+#            emoji_code_units = ctypes.cast(ctypes.c_wchar_p(emoji), ctypes.POINTER(ctypes.c_uint16))
+#
+#            # Create the output string
+#            output_string = f"{emoji_name}="
+#            for i in range(2):  # two UTF-16 code units
+#                output_string += f"%@CHAR[{emoji_code_units[i]}]"
+#
+#            output_strings.append(output_string)
+#
+#            # Append the qualified output string if available
+#            if qualified_output_string:
+#                qualified_output_string += f"=%@CHAR[{emoji_code_units[0]}]%@CHAR[{emoji_code_units[1]}]"
+#                output_strings.append(qualified_output_string)
+#
+#    # Print the output strings
+#    for output_string in output_strings:
+#        primt(output_string)
+#
 
 
 
 
-def create_script_to_define_emoji_characters_got_3106_much_better():
-    primt("EMOJI_ENVIRONMENT_VARIABLES_CREATED_BY=fix_unicode_files.py script")
-    import ctypes
-    from emoji.unicode_codes import EMOJI_DATA
-    processed_emojis = set()  # Set to track processed emojis
-    rights = set()  # Set to track right half of = in output file so we don't make duplicates
-    output_strings = set()  # Set to handle duplicate output strings
-    for emoji, emoji_data in EMOJI_DATA.items():
-        # Fetch the base emoji without any skin tone variation
-        base_emoji = emoji.split('\u200d')[0]
+#def create_script_to_define_emoji_characters_tried_without_gpt_got_5718():
+#    primt("EMOJI_ENVIRONMENT_VARIABLES_CREATED_BY=fix_unicode_files.py script")
+#    import ctypes
+#    from emoji.unicode_codes import EMOJI_DATA
+#    processed_emojis = set()  # Set to track processed emojis
+#    qualified_emojis = set()  # Set to track qualified emojis
+#    unqualified_emojis = set()  # Set to track qualified emojis
+#    rights = set() # set to track right half of = in output file so we don't make duplicates
+#    output_strings = []  # List to store the output strings
+#    for emoji, emoji_data in EMOJI_DATA.items():
+#        # Fetch the base emoji without any skin tone variation
+#        base_emoji = emoji.split('\u200d')[0]
+#
+#        # Check if the base emoji has already been processed
+#        if base_emoji not in processed_emojis:
+#            processed_emojis.add(base_emoji)
+#
+#            emoji_name_meat = emoji_data['en'].upper().replace(' ', '_').replace(':', '').replace('-', '_').replace("'", '').replace('SKIN_TONE', 'SKIN').replace('&', '_AND_')
+#
+#            # Check if the current emoji is fully qualified
+#            if emoji_data['status'] == 'fully_qualified':
+#                if emoji_name_meat in qualified_emojis:
+#                    continue
+#                qualified_emojis.add(emoji_name_meat)
+#                emoji_name = f"EMOJI_{emoji_name_meat}"
+#                qualified_output_string = None
+#
+#            else:
+#                if emoji_name_meat in unqualified_emojis:
+#                    continue
+#                unqualified_emojis.add(emoji_name_meat)
+#                emoji_name = f"EMOJI_{emoji_name_meat}_UNQUALIFIED"
+#                qualified_output_string = f"EMOJI_{emoji_name_meat}"
+#
+#            # Convert the emoji into a ctypes wide string
+#            # Then cast it to a pointer to short (16-bit) integers, and fetch the values
+#            emoji_code_units = ctypes.cast(ctypes.c_wchar_p(emoji), ctypes.POINTER(ctypes.c_uint16))
+#
+#            # Create the output string
+#            right = ""
+#            for i in range(2):  # two UTF-16 code units
+#                right += f"%@CHAR[{emoji_code_units[i]}]"
+#            output_string = f"{emoji_name}={right}"
+#            if right in rights:
+#                continue
+#            rights.add(right)
+#
+#            if output_string in output_strings:
+#                continue
+#            output_strings.append(output_string)
+#
+#            # Append the qualified output string if available
+#            if qualified_output_string:
+#                qualified_output_string += f"=%@CHAR[{emoji_code_units[0]}]%@CHAR[{emoji_code_units[1]}]"
+#                output_strings.append(qualified_output_string)
+#
+#    # Print the output strings
+#    printed = set()
+#    for output_string in output_strings:
+#        if output_string in printed: continue
+#        printed.add(output_string)
+#        primt(output_string)
 
-        # Check if the base emoji has already been processed
-        if base_emoji not in processed_emojis:
-            processed_emojis.add(base_emoji)
 
-            emoji_name_meat = emoji_data['en'].upper().replace(' ', '_').replace(':', '').replace('-', '_').replace("'", '').replace('SKIN_TONE', 'SKIN').replace('&', '_AND_')
 
-            # Convert the emoji into a ctypes wide string
-            # Then cast it to a pointer to short (16-bit) integers, and fetch the values
-            emoji_code_units = ctypes.cast(ctypes.c_wchar_p(emoji), ctypes.POINTER(ctypes.c_uint16))
 
-            # Create the output string
-            right = ""
-            for i in range(2):  # two UTF-16 code units
-                right += f"%@CHAR[{emoji_code_units[i]}]"
-
-            if right in rights:
-                continue
-            rights.add(right)
-
-            # Check if the current emoji is fully qualified
-            if emoji_data['status'] == 'fully_qualified':
-                emoji_name = f"EMOJI_{emoji_name_meat}"
-            else:
-                emoji_name = f"EMOJI_{emoji_name_meat}_UNQUALIFIED"
-
-            output_string = f"{emoji_name}={right}"
-
-            output_strings.add(output_string)  # Add to a set to handle duplicates
-
-    # Print the output strings
-    for output_string in output_strings:
-        primt(output_string)
-
+#def create_script_to_define_emoji_characters_got_3106_much_better():
+#    primt("EMOJI_ENVIRONMENT_VARIABLES_CREATED_BY=fix_unicode_files.py script")
+#    import ctypes
+#    from emoji.unicode_codes import EMOJI_DATA
+#    processed_emojis = set()  # Set to track processed emojis
+#    rights = set()  # Set to track right half of = in output file so we don't make duplicates
+#    output_strings = set()  # Set to handle duplicate output strings
+#    for emoji, emoji_data in EMOJI_DATA.items():
+#        # Fetch the base emoji without any skin tone variation
+#        base_emoji = emoji.split('\u200d')[0]
+#
+#        # Check if the base emoji has already been processed
+#        if base_emoji not in processed_emojis:
+#            processed_emojis.add(base_emoji)
+#
+#            emoji_name_meat = emoji_data['en'].upper().replace(' ', '_').replace(':', '').replace('-', '_').replace("'", '').replace('SKIN_TONE', 'SKIN').replace('&', '_AND_')
+#
+#            # Convert the emoji into a ctypes wide string
+#            # Then cast it to a pointer to short (16-bit) integers, and fetch the values
+#            emoji_code_units = ctypes.cast(ctypes.c_wchar_p(emoji), ctypes.POINTER(ctypes.c_uint16))
+#
+#            # Create the output string
+#            right = ""
+#            for i in range(2):  # two UTF-16 code units
+#                right += f"%@CHAR[{emoji_code_units[i]}]"
+#
+#            if right in rights:
+#                continue
+#            rights.add(right)
+#
+#            # Check if the current emoji is fully qualified
+#            if emoji_data['status'] == 'fully_qualified':
+#                emoji_name = f"EMOJI_{emoji_name_meat}"
+#            else:
+#                emoji_name = f"EMOJI_{emoji_name_meat}_UNQUALIFIED"
+#
+#            output_string = f"{emoji_name}={right}"
+#
+#            output_strings.add(output_string)  # Add to a set to handle duplicates
+#
+#    # Print the output strings
+#    for output_string in output_strings:
+#        primt(output_string)
+#
 
 
 # thread about this: https://jpsoft.com/forums/threads/1431-emoji-environment-variables-for-your-echoing-convenience.11618/

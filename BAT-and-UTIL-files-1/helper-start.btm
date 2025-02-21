@@ -33,14 +33,15 @@ goto :END
     if "%POS%"      == "" .and. "%BIG%" != "1" set POS=/POS=-1000,-1000,0,0
     
     
+    %color_debug%
     :20150716 - noticed /c side-effects a maximize that is very annoying
     :20150811 - added POS with defualt value to launch on left screen on Thailog, will see if it impacts other computers
     :20241207 - changes to deal with the new start syntax that came out a few years ago
-    :old  *start %POS% "%TIT%" %MAX% %MIN%       %LAUNCHER% %* 
-    %color_debug%
-echo                 *start "%TIT%" %INV% %MAX% %MIN% %POS% %LAUNCHER% %*
     %color_run%
-                 *start "%TIT%" %INV% %MAX% %MIN% %POS% %LAUNCHER% %*
+
+    :old  *       start %POS% "%TIT%" %MAX% %MIN%             %LAUNCHER% %* 
+echo             *start       "%TIT%" %INV% %MAX% %MIN% %POS% %LAUNCHER% %*
+                 *start       "%TIT%" %INV% %MAX% %MIN% %POS% %LAUNCHER% %*
 
 
 :END

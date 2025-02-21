@@ -1,6 +1,6 @@
 @loadbtm on
+@echo off
 @if "%1" == "unlock" goto :do_the_unlock
-@echo Off
 @set DISABLE_STATUS_BAR=0
 @rem echo %ansi_color_orange%@if "%temporarily_disable_status_bar%" == "1" set DISABLE_STATUS_BAR=1 
 @if "%temporarily_disable_status_bar%" == "1" set DISABLE_STATUS_BAR=1 
@@ -28,6 +28,7 @@ rem Capture parameters:
         unset /q        TB_PARAM_2
         unset /q           PARAMS
         unset /q  ORIGINAL_PARAMS
+        unset /q  status_bar_goto_END
         set             TB_PARAM_1=%1
         set             TB_PARAM_2=%2
         set                PARAMS=%*
@@ -36,45 +37,50 @@ rem Capture parameters:
 
 rem ENVIRONMENT: Validate the environment:
         if 1 ne %VALIDATED_LOCKED_MESSAGE_BAT% (
-                call validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_UNLOCK_MARGINS ANSI_SAVE_POSITION ANSI_RESTORE_POSITION ANSI_EOL NEWLINE CONNECTING_EQUALS BLINK_ON BLINK_OFF DOT ANSI_COLOR_ERROR ANSI_UNLOCK_MARGINS
-                call validate-functions             ANSI_MOVE_UP  ANSI_BG  ANSI_UNLOCK_ROWS 
+                call validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_UNLOCK_MARGINS ANSI_SAVE_POSITION ANSI_RESTORE_POSITION ANSI_EOL NEWLINE CONNECTING_EQUALS BLINK_ON BLINK_OFF DOT ANSI_COLOR_ERROR ANSI_UNLOCK_MARGINS connecting_equals
+                call validate-functions             ANSI_MOVE_UP   ANSI_BG  ANSI_UNLOCK_ROWS    ANSI_SCROLL_DOWN   ANSI_MOVE_DOWN
                 call validate-plugin                StripANSI
                 set VALIDATED_LOCKED_MESSAGE_BAT=1
         )
 
 
 rem CONFIG: Set message background color & divider:
-        set LOCKED_MESSAGE_COLOR_BG=%@ANSI_BG[0,0,64] %+ rem if this is changed, need to change hard-coding in create-srt--from-file.bat
-        echos %@ANSI_BG[0,0,0]>nul
-        set LOCKED_MESSAGE_COLOR=%ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG%
-        set DOTTIE=%BLINK_ON%%DOT%%BLINK_OFF%
-        set DEFAULT_ROWS_TO_LOCK=3                                                              %+ rem the height of our default status bars
-        set ROWS_TO_LOCK=%DEFAULT_ROWS_TO_LOCK%
+        rem the height of our default status bars:
+                set DEFAULT_ROWS_TO_LOCK=3      
+        rem if this is changed, need to change hard-coding in create-srt--from-file.bat
+                set LOCKED_MESSAGE_COLOR_BG=%@ANSI_BG[0,0,64] 
+        rem other stuff:
+                set LOCKED_MESSAGE_COLOR=%ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG%
+                set DOTTIE=%BLINK_ON%%DOT%%BLINK_OFF%
+                set ROWS_TO_LOCK=%DEFAULT_ROWS_TO_LOCK%
 
 
 
 rem Respond to command-line parameters:
+        echos %@ANSI_BG[0,0,0]%ANSI_RESET%>nul
         unset /q LOCKED_MESSAGE
-        echos %ANSI_RESET% >nul
         rem Unlock mode:
                 :do_the_unlock
-                if "%TB_PARAM_1" == "unlock" .or. "%1" == "unlock" .or. "1" == "%DISABLE_STATUS_BAR%" (
-                        set STATUSBAR_LOCKED=0
-                        echos %@ANSI_UNLOCK_ROWS[]
-                        if "%TB_PARAM_2" ne "no_erase" .and. 1 ne %DISABLE_STATUS_BAR%  (                        
-                                set NN=%ROWS_TO_LOCK%
-                                if defined LAST_ROWS_TO_LOCK set NN=%LAST_ROWS_TO_LOCK%
-                                echo %ansi_save_position%%@CHAR[27][%@EVAL[%_rows - %NN% + 1]H%ansi_reset%%ansi_erase_to_eol%
-                                echos %ansi_erase_to_eol%
-                                echos %ansi_erase_to_end_of_screen%
-                                set repeats=%@EVAL[%nn - %DEFAULT_ROWS_TO_LOCK%]
-                                if %repeats% gt 0 repeat %repeats% echos %ansi_erase_to_eol%
-                                echos %ansi_erase_to_eol%%ansi_restore_position%
-                        )                        
-                        set goto_END=1
-                )
-                if "1" == "%goto_END%" goto :END
+                if "%TB_PARAM_1" == "unlock" .or. "%1" == "unlock" .or. "1" == "%DISABLE_STATUS_BAR%" goto :respond_yes
+                                                                                                      goto :respond_no
+                        :respond_yes
+                                if "1" != "%STATUSBAR_LOCKED%" .and. "%2" != "force" goto :END
+                                set STATUSBAR_LOCKED=0
+                                echos %@ANSI_UNLOCK_ROWS[]
+                                if "%TB_PARAM_2" ne "no_erase" .and. 1 ne %DISABLE_STATUS_BAR%  (                        
+                                        set NN=%ROWS_TO_LOCK%
+                                        if defined LAST_ROWS_TO_LOCK set NN=%LAST_ROWS_TO_LOCK%
+                                        echo %ansi_save_position%%@CHAR[27][%@EVAL[%_rows - %NN% + 1]H%ansi_reset%%ansi_erase_to_eol%
+                                        echos %ansi_erase_to_eol%%ansi_erase_to_end_of_screen%
+                                        set repeats=%@EVAL[%nn - %DEFAULT_ROWS_TO_LOCK%]
+                                        if %repeats% gt 0 repeat %repeats% echos %ansi_erase_to_eol%
+                                        echos %ansi_erase_to_eol%%ansi_restore_position%
+                                )                        
+                                set status_bar_goto_END=1
+                        :endif:
+                :respond_no
 
+                if "1" == "%status_bar_goto_END%" goto :END
 
 
 rem Set free space stuffs:
@@ -182,33 +188,71 @@ rem Start with our status bar:
         rem
         rem So, to eliminate THAT, we echo 4 blank lines before moving up 4 lines.               vv---- but now we’re trying 5 instead of 4       
         :skip_rems_1
-        set                    adjustment_value=%@EVAL[%rows_to_lock+1                           +1]
-        repeat                %adjustment_value% echo.
-        echos  %@ANSI_MOVE_UP[%adjustment_value%]%ANSI_SAVE_POSITION%%@CHAR[27][r%@ANSI_MOVE_TO_ROW[%@EVAL[%_rows-%rows_to_lock+1]]
-               if 1 ne %STATUSBAR_LOCKED ( echos %LOCKED_MESSAGE_COLOR% %+ call divider %_columns NoNewline )
-               echos %@ANSI_MOVE_TO_COL[0]%ansi_color_normal%               
-               if 1 ne %STATUSBAR_LOCKED ( 
-                        echos %LOCKED_MESSAGE_COLOR%  
-                        call divider NoNewline lmc
-                        echos %@char[27][%[_COLUMNS]G%locked_message_color%%@CHAR[27][38;2;255;0;5m%connecting_equals%        
-               )
+
+        set row=%_ROW
+        set rows=%_ROWS
+
+                                                   set ROLL_NEEDED=0
+        if %row% gt %@EVAL[%rows% - %rows_to_lock% -1] set ROLL_NEEDED=1
+
+        rem echo roll_decision_row=row "%ROW%" out of "%ROWS%" rows %+ pause
+        title row %ROW of %ROWS rows
+        rem But perhaps we don’t need to do this block if it’s already locked: ... 
+        rem Or if our current row is a bit higher
+                iff "0"=="%STATUSBAR_LOCKED%" .and. "1"=="%ROLL_NEEDED%" then
+                        set                    adjustment_value=%@EVAL[%rows_to_lock+1   +1]
+                        set                    adjustment_value=%@EVAL[%rows_to_lock]
+                        set                    adjustment_value=%@EVAL[%rows_to_lock+1]
+                        set                    adjustment_value=%@EVAL[%rows_to_lock+1   +1] %+ rem goddamnit
+                        REM repeat             %adjustment_value% echo.
+                        rem echos %@ansi_MOVE_DOWN[%adjustment_value%]   ━━━
+                        REM echos %@ansi_scroll_DOWN[%adjustment_value%] ━━━
+                        echos %@ansi_SCROLL_DOWN[%adjustment_value%]
+                        echos %@ANSI_MOVE_UP[%adjustment_value%]%ANSI_SAVE_POSITION%%@CHAR[27][r
+                else
+                        rem maybe not echos %ANSI_SAVE_POSITION%
+                endiff
+
+        rem Move to row n where n=last row on the screen minus how much space we need to display our message:
+        echos %@ANSI_MOVE_TO_ROW[%@EVAL[%_rows-%rows_to_lock+1]]
+
+        if 1 ne %STATUSBAR_LOCKED ( echos %LOCKED_MESSAGE_COLOR% %+ call divider %_columns NoNewline )
+               echos %@ANSI_MOVE_TO_COL[1]%ansi_color_normal%               
+               rem 20250221 not sure if 1 ne %STATUSBAR_LOCKED ( 
+               rem 20250221 not sure          echos %LOCKED_MESSAGE_COLOR%  
+               rem 20250221 not sure          call divider NoNewline lmc
+               rem 20250221 not sure          echos %@char[27][%[_COLUMNS]G%locked_message_color%%@CHAR[27][38;2;255;0;5m%connecting_equals%        
+               rem 20250221 not sure )
+
         echos %@CHAR[27][1;%@EVAL[%_rows-%rows_to_lock%]r%ANSI_RESTORE_POSITION%
 
 
-rem Output the message to the screen as well, if we're supposed to:        
-        echos %ANSI_SAVE_POSITION%%@ANSI_MOVE_TO[%@EVAL[%_ROWS-1],0]%LOCKED_MESSAGE_COLOR%%DIVIDER%
-        echos %LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE%%ANSI_EOL%%NEWLINE%
-        echos %LOCKED_MESSAGE_COLOR%%DIVIDER%%LOCKED_MESSAGE_COLOR%%ANSI_RESTORE_POSITION%
+rem At this point we have our 1ˢᵗ divider and are at the 2ⁿᵈ line which is the line of our message
+rem     echos %ANSI_SAVE_POSITION%%@ANSI_MOVE_TO[%@EVAL[%_ROWS-1],0]%LOCKED_MESSAGE_COLOR%%DIVIDER%
+        echos %ANSI_SAVE_POSITION%%@ANSI_MOVE_TO[%@EVAL[%_ROWS-1],0]%LOCKED_MESSAGE_COLOR%
+
+        rem Line 2: The actual message itself
+        rem echos %LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE%%ANSI_EOL%%NEWLINE%
+        echo %LOCKED_MESSAGE_COLOR%%SPACER%%DECORATED_MESSAGE%%ANSI_EOL%    
+
+rem At this point, the message is displayed and we’re on the 3ʳᵈ/final line     
+        gosub dividerWithStatusBarKludge NoNewLine
+  
+        rem                               echos %LOCKED_MESSAGE_COLOR%%DIVIDER%
+        rem   %@ANSI_MOVE_TO[%@EVAL[%_ROWS-1],0]%LOCKED_MESSAGE_COLOR%%DIVIDER%
+rem        echos %@ANSI_MOVE_TO[%@EVAL[%_ROWS-1],0]%LOCKED_MESSAGE_COLOR%
+        echos %ANSI_RESTORE_POSITION%
         set STATUSBAR_LOCKED=1
 
 goto :END
 
         
-rem Echo the header to the console as well:
-        if 1 ne %header_noecho (
+rem Echo the status bar message (aka “header”——but I hate that name) to the console as well:
+        rem (don’t want to use if() because stuff in ( ) doesn’t display unicode correctly in TCC pre-v34):
+        if "1" == "%header_noecho%" goto :skip_echo
                 echo.  
                 echo %ANSI_COLOR_IMPORTANT%%LOCKED_MESSAGE_COLOR_BG% %DOTTIE% %LOCKED_MESSAGE% %DOTTIE% %ansi_reset% 
-        )
+        :skip_echo
 
 
 rem END by restoring the cursor and saving the # of rows we unlocked to the environment for auditing/analysis:
@@ -218,17 +262,63 @@ rem END by restoring the cursor and saving the # of rows we unlocked to the envi
 
 
 goto :skip_subroutines
-        :divider []
+        :dividerOLD []
                 rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
                 set wd=%@EVAL[%_columns - 1]
+                set wd=%@EVAL[%_columns - 0]
                 set nm=%bat%\dividers\rainbow-%wd%.txt
                 if exist %nm% (
+                echos %@ANSI_MOVE_TO_COL[0]%@CHAR[8]
                         *type %nm%
                         if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
                 ) else (
                         echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
                 )
         return
+
+        :dividerWithStatusBarKludge [divider_param]
+                iff "1" == "%suppress_next_divider%" then
+                        set  suppress_next_divider=0
+                        return
+                endiff
+                set wd=%@EVAL[%_columns - 1] %+ rem results in 1 too few char
+                set wd=%@EVAL[%_columns - 0] %+ rem results in 1 too few char but offset 1 to the right! yuck!
+                set nm=%bat%\dividers\rainbow-%wd%.txt
+                iff exist %nm% then
+                                
+                        *type %nm%
+
+                        rem this kludge is only specific to status-bar because of the coloring, which we could make a parameter:
+                        echo %@ANSI_MOVE_TO_COL[0]%LOCKED_MESSAGE_COLOR%%@ANSI_RGB[255,0,0]%connecting_equals%
+
+
+                        set last_divider_method=type
+                        set last_divider_param=%divider_param%
+                else
+                        echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                        set last_divider_method=echo
+                endiff
+                iff "%divider_param%" == "NoNewline"  then
+                        set last_divider_newline=False
+                else 
+                        set last_divider_newline=True
+                        rem we COULD do the newline character, but it’s easier to just do a few spaces so that we end up on the new line anyway:
+                        rem echos %NEWLINE%%@ANSI_MOVE_TO_COL[1] 
+                        echos     %@ANSI_MOVE_TO_COL[1] 
+                endiff
+                rem echo last_divider_newline=%last_divider_newline% should we do one?
+        return
+
+
 :skip_subroutines
 
+
 :The_Very_End
+
+        :cleanup
+                rem A cleanup we need to do to prevent getting our cursor stuck int he locked area!
+                        iff "1" == "%STATUSBAR_LOCKED%" then
+                                set need_to_move_up=%@EVAL[-1*(%_ROWS - %_ROW - %rows_to_lock%)]
+                                if %need_to_move_up% gt 0 echos %@ANSI_MOVE_UP[%need_to_move_up%]
+                        endiff
+

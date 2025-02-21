@@ -27,7 +27,9 @@ REM DEBUGGY stuff
 REM check parameters & environment
         if "%1"    == "" .or. "%URL%" == "" (call error "Need URL!" %+ goto :END)
         call validate-in-path               ingest_youtube_album.py delete-zero-byte-files important important_less errorlevel delete-largest-file warning error print-if-debug set-task metamp3 metaflac yt-dlp set-latest-filename openimage get-image-dimensions askyn crop-center-square-of-image make-image-square celebration change-into-temp-folder expand-image-to-square
-        call validate-environment-variables ANSI_BRIGHT_CYAN faint_on faint_off italics_on italics_off underline_on underline_off filemask_image filemask_audio %+ REM most of these are set by set-colors.bat:
+        call validate-environment-variables ANSI_BRIGHT_CYAN faint_on faint_off italics_on italics_off underline_on underline_off %+ REM most of these are set by set-colors.bat:
+        if not defined filemask_image call validate-environment-variable  filemask_image skip_existence_validation
+        if not defined filemask_audio call validate-environment-variable  filemask_audio skip_existence_validation
 
 
 REM Extensions that we may be downloading:
@@ -93,9 +95,6 @@ REM do everything in a temp folder!
     yt-dlp --verbose --write-info-json --write-description --split-chapters                    --extract-audio --audio-quality 0 --embed-metadata --write-thumbnail --embed-thumbnail --cookies-from-browser firefox --compat-options filename-sanitization --audio-format mp3 %URL%
 
         rem need to remove android player
-    @echo on
-        
-    @echo off
 
     rem 2025 ydl call: call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
 

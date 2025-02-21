@@ -252,7 +252,7 @@ Randomly walks a folder tree, obtaining/reviewing lyrics, with the intent of app
 (It is reviewing lyrics in the case of predownload-all-lyrics-in-all-subfolders.bat having already downloaded some lyrics. And it is obtaining lyrics in the case of those lyrics not existing or not being sufficient.)
 
 ###
-TODO: If you would like to check your progress, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat). It does generate a log file (```lyric-subtitle-compliance.log```) if you are curious to track your progress over time.
+TODO: If you would like to check your progress, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat). When run in the base of your music collection, generate a report on the percentage completion of our lyric and karaoke tasks.  It does so by logging values into ```lyric-subtitle-compliance.log``` each time it is run.  This gives the data needed to graph your progress over time, which is as easy as dumping the file into [ChatGPT](http://www.openai.com/chat) and asking nicely.
 
 
 </details>
@@ -521,8 +521,17 @@ Put ```{{{{QUOTE}}}}``` in the argument to turn it into a quote mark in the fina
 ### 🌟 [lyric-postprocessor.pl](../BAT-and-UTIL-files-1/lyric-postprocessor.pl):
 
 Downloaded lyrics postprocessor. Cleans up non-lyric trash that inevitably creeps into these.
-Add ```-1``` option to squish lyrics into a single line for use in AI prompts.
-Add ```-0``` option to not [default].
+
+Add ```-1``` option to turn on  squishing of lyrics into a single line for use in AI prompts
+Add ```-0``` option to turn off squishing of lyrics into a single line for use in AI prompts [DEFAULT]
+Add ```-A``` option to display allllll the lines,  not just the unique lines [DEFAULT]
+Add ```-U``` option to display only unique lines, instead of using all lines
+Add ```-L``` option to turn on  lyric-specific processing [DEFAULT]
+Add ```-N``` option to turn off lyric-specific processing 
+Add ```-N``` option to turn off adding a character to the end of each line 
+Add ```-L``` option to turn on  adding a character to the end of each line [DEFAULT]***
+
+***[character is “.” for this system, to manipulate WhisperAI’s ```--sentence``` parameter into breaking subtitles at lyrical lines and to compensate for lyrics not usually being punctuated]
 
 </details>
 
@@ -537,7 +546,7 @@ Preprocessors / Postprocessors developed for this project.
 
 ### 🌟 [get-lyrics-with-lyricsgenius-json-processor.pl](../BAT-and-UTIL-files-1/get-lyrics-with-lyricsgenius-json-processor.pl):
 
-The lyric downloader we use for Genius saves lyrics as a ```JSON file```. This extracts the actual lyrics from that file, with minimal preprocessing.
+The lyric downloader we use for Genius saves lyrics as a ```JSON file```. This extracts the actual lyrics from that file, with minimal processing.
 
 ### 🌟 [lyric-postprocessor.pl](../BAT-and-UTIL-files-1/lyric-postprocessor.pl):
 

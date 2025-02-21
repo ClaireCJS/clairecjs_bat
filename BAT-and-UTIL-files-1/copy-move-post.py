@@ -741,3 +741,15 @@ print(CURSOR_VISIBLE + ANSI_RESET,end="")
 
 #20241222: got stuck red during get-lyrics:
 print(ANSI_RESET_FULL,end="")
+
+
+
+
+
+
+
+
+
+#todo goat keep in mind this ansi code exists and may help with the crap chars shoved to the rightmost column trick we use with copy /g on TCC v33ish:
+#rem Enable synchronous output mode (Prevents race conditions in multithreaded output)
+#        set ENABLE_SYCHRONOUS_MODE=%@CHAR[27][?2026h

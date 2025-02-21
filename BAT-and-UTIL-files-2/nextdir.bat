@@ -30,7 +30,8 @@
 
 ::::: MOVE TO THE NEXT FOLDER:
     set TARGET_TEMP_SCRIPT="%TEMP\go-to-next-directory.bat"
-    go-to-next-directory-generator.pl "%_CWD" >:u8 %TARGET_TEMP_SCRIPT%
+    rem NO UNICODE!! even with 10 chatgpt rewrites! ———> perl -CSDA %BAT%\go-to-next-directory-generator.pl "%_CWD" >:u8 %TARGET_TEMP_SCRIPT%
+    go-to-next-directory-generator.py "%_CWD" >%TARGET_TEMP_SCRIPT%
     REM echo done with perl
     call %TARGET_TEMP_SCRIPT%
 

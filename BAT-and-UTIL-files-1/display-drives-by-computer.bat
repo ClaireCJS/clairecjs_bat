@@ -29,10 +29,15 @@ goto :END
 
         rem Create the line of output for the machinename in question
                 unset /q stuff
-                SET STUFF=%STUFF%%ANSI_RESET%%EMOJI_COMPUTER_DISK% %BOLD_OFF%%ANSI_COLOR_IMPORTANT%Drives for %@FORMAT[-%MAX_MACHINENAME_LENGTH%,%MACHINENAME%] %ANSI_COLOR_IMPORTANT%are: %ITALICS_ON%%BOLD_ON%%DRIVES%%BOLD_OFF%%ITALICS_OFF% %NEWLINE% 
+                rem STUFF=%STUFF%%ANSI_RESET%%EMOJI_COMPUTER_DISK% %BOLD_OFF%%ANSI_COLOR_IMPORTANT%Drives for %@FORMAT[-%MAX_MACHINENAME_LENGTH%,%MACHINENAME%] %ANSI_COLOR_IMPORTANT%are: %ITALICS_ON%%BOLD_ON%%DRIVES%%BOLD_OFF%%ITALICS_OFF% %NEWLINE% 
+                SET STUFF=%STUFF%%ANSI_RESET%%EMOJI_COMPUTER_DISK% %BOLD_OFF%%ANSI_COLOR_IMPORTANT%Drives for %@FORMAT[-%MAX_MACHINENAME_LENGTH%,%MACHINENAME%] %ANSI_COLOR_IMPORTANT%are: %ITALICS_ON%%BOLD_ON%%DRIVES%%BOLD_OFF%%ITALICS_OFF% 
+
+
+                set STUFF2=%@EXECSTR[echo %stuff% | call highlight-by-computer-name]
 
         rem Pass the double-height text through our script that adds the emoji for each machine 
         rem [defined in environm.btm] next to any mention of it:
-                echos %BIG_TOP%%STUFF%%BIG_BOT%%STUFF% |:u8 call highlight-by-computer-name
+                rem echos %BIG_TOP%%STUFF%%BIG_BOT%%STUFF% |:u8 call highlight-by-computer-name
+                call bigecho %STUFF2% 
     return
 :END

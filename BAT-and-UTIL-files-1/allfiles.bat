@@ -1,6 +1,10 @@
-@Echo Off
+@Echo On
  on break cancel
 
+
+rem 2025/02/20:
+    set STARTWITHCALL=1 %+ rem because starting things in new windows isn’t working out lately
+    set NOEXITINTERNAL=1
 
 
 
@@ -207,7 +211,7 @@ goto :do_prescrub
     >"__ done - allfiles exif time __"
     set FILTERSCRIPT=%BAT%\allfileexif.pl
     : This encourages development:
-goto :do_prescrub
+goto do_prescrub
 :::::::::::::::::::::::::::::::::::::::::::
 :allfiles_filedate_prescrub
     set VALIDATE_LINES=1
@@ -216,7 +220,7 @@ goto :do_prescrub
     if "%2"=="time" set ADDTIME=1
     set FILTERSCRIPT=%BAT%\allfilefiledate.pl
     : This encourages development:
-goto :do_prescrub
+goto do_prescrub
 
 :::::::::::::::::::::::::::::::::::::::::::
 :allfiles_master_prescrub
@@ -225,22 +229,22 @@ goto :do_prescrub
     set FILTERSCRIPT=%BAT%\allfilem.pl
     : This encourages development:
     %EDITOR% %FILTERSCRIPT%
-goto :do_prescrub
+goto do_prescrub
 :::::::::::::::::::::::::::::::::::::::::::
 :::::::::::::::::::::::::::::::::::::::::::
 :avi2wav_prescrub
     set FILTERSCRIPT=%BAT%\allfilea2w.pl
-goto :do_prescrub
+goto do_prescrub
 :::::::::::::::::::::::::::::::::::::::::::
 :::::::::::::::::::::::::::::::::::::::::::
 :wav2avi_prescrub
     set FILTERSCRIPT=%BAT%\allfilew2a.pl
-goto :do_prescrub
+goto do_prescrub
 :::::::::::::::::::::::::::::::::::::::::::
 :::::::::::::::::::::::::::::::::::::::::::
 :wav2mp3_prescrub
     set FILTERSCRIPT=%BAT%\allfilew2m.pl
-goto :do_prescrub
+goto do_prescrub
 :::::::::::::::::::::::::::::::::::::::::::
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :mp32wav_prescrub
@@ -249,17 +253,17 @@ echo asefasdfads ^ pause
     ::^^^^^^^^^^^^^^ WE ARE NOT USING THIS! JUST HERE FOR HISTORICAL PURPOSES. DOESN'T ACTUALLY WORK.
     call extract-all-WAVs-from-audio-files.bat %*
     goto :CleanUp
-goto :do_prescrub
+goto do_prescrub
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :::::::::::::::::::::::::::::::::::::::::::
 :mpc2wav_prescrub
     set FILTERSCRIPT=%BAT%\allfilemp2w.pl
-goto :do_prescrub
+goto do_prescrub
 :::::::::::::::::::::::::::::::::::::::::::
 :::::::::::::::::::::::::::::::::::::::::::
 :flac2wav_prescrub
     set FILTERSCRIPT=%BAT%\allfilef2w.pl
-goto :do_prescrub
+goto do_prescrub
 :::::::::::::::::::::::::::::::::::::::::::
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :allfiles_unicode_prescrub_OLD
@@ -271,11 +275,11 @@ goto :do_prescrub
     set STARTWITHCALL=1
     set NOEXITINTERNAL=1
     set NOCLS=1
-    : This prescrub does things to make files suitable for burning
+    rem This prescrub does things to make files suitable for burning
     set FILTERSCRIPT=%BAT%\allfileunicode.pl
-    : This encourages development:
-    : %EDITOR% %FILTERSCRIPT%
-goto :do_prescrub
+    rem This encourages development:
+    rem %EDITOR% %FILTERSCRIPT%
+goto do_prescrub
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
@@ -299,15 +303,20 @@ goto :Cleanup
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :do_prescrub
-	::::: 20221119 
+    echo Doing prescrub...
     %COLOR_UNIMPORTANT% %+      *copy                       %TMP1% c:\recycled\latest-allfiles-filelist-just-before-filterscript.txt
-    %COLOR_UNIMPORTANT% %+      *copy                       %TMP1%                                %TMP3%   %+ REM copy file before filtering it, so if filter hangs and is aborted, this can continue with unfiltered version of output
-    %COLOR_DEBUG%       %+ echo %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9 %=>:u8 %TMP3% [is the filter command]
-echo %emoji_goat%      %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9   >:u8 %TMP3%
-    %COLOR_UNIMPORTANT% %+      %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9   >:u8 %TMP3%
+    %COLOR_UNIMPORTANT% %+      *copy                       %TMP1%                               %TMP3%   %+ REM copy file before filtering it, so if filter hangs and is aborted, this can continue with unfiltered version of output
+    %COLOR_DEBUG%       %+ echo %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9 to :u8%TMP3% [is the filter command]
+    %COLOR_UNIMPORTANT%       
+    %COLOR_RUN%       
+    %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9
+    %PERL% -CSDA %FILTERSCRIPT% %TMP1% %2 %3 %4 %5 %6 %7 %8 %9 >:u8%TMP3%
+    echo Checking errorlevel...
     call errorlevel
-    if "%NO_PRESCRUB%" eq "1"   *copy                       %TMP1%                                %TMP3%
-    %COLOR_UMIMPORTANT% %+      *copy                       %TMP3%                                %TMP1%
+    if "%NO_PRESCRUB%" eq "1"   *copy                       %TMP1%                               %TMP3%
+    echo Copying file...
+    %COLOR_UMIMPORTANT% %+      *copy                       %TMP3%                               %TMP1%
+    echo Done copying...
 goto :Edit
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -331,7 +340,8 @@ goto :Edit
     pushd
     if "%SKIPEDIT%" eq "1" goto :SkipEdit
     if "%SWEEPING%" eq "1" goto :SkipEdit
-        call wrapper %EDITOR "%TMP1"
+        rem call wrapper %EDITOR "%TMP1"
+                        %EDITOR% "%TMP1"
         if "%VALIDATE_LINES%" ne "1" goto :SkipValidationOfLines
                 :::: TODO PUT VALIDATION OF LINES CODE HERE
         :SkipValidationOfLines
@@ -489,8 +499,8 @@ goto :Edit
         if "%SWEEPING%"      eq "1" goto :Start_With_Call
                                     goto :Start_With_Start
             :Start_With_Call
-                set REDOCOMMAND=call              c:\bat\allfiles-helper.bat "%_cwd" "%TMP5"
-                   %REDOCOMMAND%
+                set REDOCOMMAND=call              c:\bat\allfiles-helper.bat "%_cwd" "%TMP5" noexit
+                   %REDOCOMMAND% 
             goto :Sweeping_RunIt_DONE
 
             :Start_With_Start

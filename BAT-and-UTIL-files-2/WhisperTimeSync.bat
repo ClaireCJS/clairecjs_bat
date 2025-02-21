@@ -1,4 +1,5 @@
 @Echo Off
+@loadbtm on
 
 rem Install WhisperTimeSync with:  git clone https://github.com/EtienneAb3d/WhisperTimeSync.git
 rem Set JAVA_WHISPERTIMESYNC=      to the path of the java.exe you wish to use. Or just set it to "java"
@@ -27,8 +28,8 @@ rem USAGE:
                         echo.
                         echo USAGE: %0 [subtitle file with bad words and good timing] [lyric file with good words and no/bad timing]
                         echo USAGE: %0 [subtitles] [lyrics]
-                        echo    EX: %0  %@cool_text[subtitl.srt lyrics.txt]%ansi_color_advice%
-                        echo    EX: %0  %@cool_text[subtitl.srt crappy.srt]
+                        echo    EX: %0  %@cool_text[bad.srt good.txt]%ansi_color_advice%
+                        rem     EX: %0  %@cool_text[subtitles.srt lyrics.txt]%ansi_color_advice%
                 call divider
                 echo.
                 goto :END
@@ -40,7 +41,7 @@ rem VALIDATE PARAMETERS:
         set   MP3=%NAME[%LYR%].mp3
         set   WAV=%NAME[%LYR%].wav
         set  FLAC=%NAME[%LYR%].flac
-        call validate-environment-variables SRT     LYR
+        if not exist "%SRT%" .or. not exist "%LRC%" call validate-environment-variables SRT     LYR
         call validate-is-extension        "%SRT%" *.srt
         call validate-is-extension        "%LYR%" *.txt
         set  validated_srt_and_txt_for_whispertimesync_already=1
@@ -50,20 +51,35 @@ rem Run WhisperTimeSync:
         set  validated_srt_and_txt_for_whispertimesync_already=0    %+ rem This flag has now been used and can be disposedo f
 
 
-rem Preview the lyrics vs OLD srt with stripes next to each other:
-        call review-file       -wh -st  "%lyr%"
-        call review-file       -wh -stU "%srt%"
-        call print-with-columns    -st  "%srt%"
+rem Preview changes:
+rem            1 lyrics                   \__ review lyrics with stripe
+rem            2     lyrics stripe        /  
+rem            3     Old Subtitles stripe \__ review subtitles with upper stripe  
+rem            4 Old Subtitles            /
+rem            5     Old Subtitles stripe
+rem            6     New Subtitles stripe\___ review new subtitles with upper stripe
+rem            7 New Subtitles           /
+rem            8     Old Subtitles stripe
+rem            9     lyrics stripe
+rem            10    New Subtitles stripe
 
-rem Preview the lyrics vs NEW srt with stripes next to each other:
+
+rem Preview the lyrics vs OLD srt with stripes next to each other:
+        call review-file       -wh -st  "%lyr%"                       %+ rem 1 & 2
+        call review-file       -wh -stU "%srt%"                       %+ rem 3 & 4
         call divider
-        call print-with-columns    -st  "%lyr%"
-        call review-file       -wh -stU "%srt_new%"
-        call print-with-columns     -st "%srt_new%"
+        call print-with-columns    -st  "%srt%"                       %+ rem 5
+
+rem Preview the NEW srt with stripes next to each other:
+        call review-file       -wh -stU "%srt_new%"                   %+ rem 6 & 7
 
 rem Compare stripes of old srt and new srt:
-        call print-with-columns    -st  "%lyr%"
-        call print-with-columns    -st  "%srt_new%"
+        call divider
+        call print-with-columns    -st  "%lyr%"                       %+ rem 9
+        call print-with-columns    -st  "%srt%"                       %+ rem 8
+        call print-with-columns    -st  "%srt_new%"                   %+ rem 10
+        call print-with-columns    -st  "%lyr%"                       %+ rem 9
+        echo %faint_on%(lyrics, original subtitle, new subtitle, lyrics again)%faint_off%
         call divider
 
 rem Ask if it’s better or not...

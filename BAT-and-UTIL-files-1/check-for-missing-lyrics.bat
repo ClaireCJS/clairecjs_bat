@@ -80,7 +80,7 @@ rem If we were supplied a filename, process it as a list of files:              
                                 rem echo most_songs_from_playlist_to_process_at_a_time is %most_songs_from_playlist_to_process_at_a_time%
                                 set FILELIST_MODE=1
                                 set Filelist_to_Check_for_Missing_Lyrics_in=%@UNQUOTE["%1"]
-                                call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
+                                if not exist "%Filelist_to_Check_for_Missing_Lyrics_in%" call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
                                 rem moved below call important "Finding songs with missing %findNature% in playlist: %italics_on%“%emphasis%%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%italics_off%%deemphasis%”%conceal_on%1111%conceal_off%"
                                 shift
                         endiff
@@ -89,9 +89,8 @@ rem If we were supplied a filename, process it as a list of files:              
                         set  FILELIST_MODE=1                                                       %+ rem       ...set our operational mode flag appropriately...
                         set  Filelist_to_Check_for_Missing_Lyrics_in=%@UNQUOTE["%1"]               %+ rem       ...store the filename parameter for later...
                         shift
-                        call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
+                        if not exist "%validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in%" call validate-environment-variable Filelist_to_Check_for_Missing_Lyrics_in %+ rem       ...and make sure the filename is a file that actually exists
                         rem repeat 7 echo.
-                        rem call divider
                         rem moved below call important "Finding %blink_on%%limit%%blink_off% songs with missing %italics_on%%findNature%%italics_off% in playlist: %italics_on%“%emphasize%%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%deemphasis%%italics_off%”%conceal_on%2222%conceal_off%"
                         iff "%1" == "get" then                                                    
                                 set GET=1                                                         
@@ -142,7 +141,7 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
         iff 0 eq %FILELIST_MODE% then 
                 set ENTITY_TO_USE=%FILEMASK_AUDIO%
                 set LIMIT=9999
-                if "%@FILES[%filemask_audio%]" !=  "" set LIMIT=%@FILES[%filemask_audio%]
+                if "%@FILES[%filemask_audio%]" !=  "" set LIMIT=%@EVAL[%@FILES[%filemask_audio%] * 2]  %+ rem doubling it out of pure superstition
         else    
                 set LIMIT=%most_songs_from_playlist_to_process_at_a_time%
                 randomize-file.pl  <"%Filelist_to_Check_for_Missing_Lyrics_in%" >%tmpfile2%
@@ -298,12 +297,11 @@ rem Run the fix-script, if we have decided to:
                         iff not exist "%TARGET_SCRIPT%" then
                                 call warning "Why doesn’t target_script exist? “%TARGET_SCRIPT%”'
                         else
-                              echo GOAT ren  "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
-                                        ren  "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
+                                        echos %ansi_color_unimportant%
+                                        ren   "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
                                 iff not exist "%TARGET_SCRIPT_TO_CALL%" then
                                         call warning "Why doesn’t TARGET_SCRIPT_TO_CALL exist? “%TARGET_SCRIPT_TO_CALL%”'
                                 else
-                                      echo GOAT call "%TARGET_SCRIPT_TO_CALL%"   📞📞📞
                                                 call "%TARGET_SCRIPT_TO_CALL%"                                             %+ rem run the generated script !X--X!
                                                 call   errorlevel                                                          %+ rem check for errorlevel //rem DEBUG: echo our_errorlevel is %our_errorlevel% 
                                 endiff
@@ -361,8 +359,21 @@ rem —————————————————————————�
                                      return
                                 endiff
 
+
+                        rem gosub DeleteEverywhere               *._vad_collected_chunks*.wav
+                        rem gosub DeleteEverywhere               *._vad_collected_chunks*.srt
+                        rem gosub DeleteEverywhere               *._vad_original*.srt
+                        rem gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
+                        rem gosub DeleteEverywhere               *._vad_pyannote_v3.txt
+                        rem gosub DeleteEverywhere  create-the-missing-karaokes-here-temp*.bat
+                        rem gosub DeleteEverywhere       get-the-missing-lyrics-here-temp*.bat
+                        rem gosub DeleteEverywhere      get-the-missing-karaoke-here-temp*.bat
+
+
+
                         rem Reject if the file is one of our trash filenames:
-                                iff "1" == "%@RegEx[._vad_.*_chunks.*\.wav,"%CFML_AudioFile%"]" then
+rem echo                        iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML_AudioFile%"]" tyhen
+                                iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML_AudioFile%"]" then
                                      echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an AI temp-file:    %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                      return                                
                                 endiff

@@ -68,6 +68,7 @@ rem Parameter checking:
                         
                         set FILEMASK_TO_USE=%DEFAULT_FILEMASK%
                 endiff
+
         rem Use different filelist name depending on parameters:
                 iff "%dir_params%" != "" then
                     rem echo - DEBUG: if "%@REGEX[/s,%dir_params%]" == "1" (set FILELIST_TO_USE=all.m3u) 
@@ -80,6 +81,10 @@ rem Parameter checking:
 
                 endiff                        
 
+
+        rem If the filelist is these or all.m3u we need to regenerate them...
+rem echo        if "%filelist_to_use%" == "these.m3u" .or. "%filelist_to_use%" == "all.m3u" (call mp3index)
+                if "%filelist_to_use%" == "these.m3u" .or. "%filelist_to_use%" == "all.m3u" (call mp3index)
 
 rem Debug info:
         if %DEBUG gt 0 echo %ANSI_COLOR_DEBUG%- PARAMS: %PARAMS%%newline%%tab%using filelist of = %FILELIST_TO_USE%%newline%%tab%using filemask of = %FILEMASK_TO_USE%%ANSI_COLOR_NORMAL%
@@ -97,10 +102,9 @@ rem If the filelist doesn't exist...
         endiff                
 
 rem Check for songs missing sidecar TXT files :
-echo 🔀 check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% "
-             (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
+        (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
 
-rem While we're here, do some cleanup:
+rem 🧹🧹🧹 While we're here, do some cleanup: 🧹🧹🧹
         iff exist *.json then
                 echo rayray|*del /q *.json>&>nul
         endiff
@@ -121,11 +125,12 @@ rem If there was nothing to do, let user know:
 
 
 rem If we passed the “get” parameter, then run the script to get them:
+rem echo 💣💣💣💣💣💣       iff %%1"%1" == "get" .or. %%2"%2" == "get" .or. %%3"%3" == "get" t h e n  params=%1$
         iff "%1" == "get" .or. "%2" == "get" .or. "%3" == "get" then 
                 iff exist create-the-missing-karaokes-here-temp.bat then
                         call create-the-missing-karaokes-here-temp.bat
                 else
-                        call warning_soft "create-the-missing-karaokes-here-temp.bat does not exist"
+                        rem call warning_soft "create-the-missing-karaokes-here-temp.bat does not exist"
                 endiff
         endiff
 

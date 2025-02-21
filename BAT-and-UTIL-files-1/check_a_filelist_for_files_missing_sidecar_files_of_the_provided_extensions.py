@@ -85,7 +85,7 @@ def main_guts(input_filename, extensions, options, extra_args):
     # Parse the extensions
     extensions_list1 = extensions.split(';')
     extensions_list2 = [ext.strip()[2:] for ext in extensions_list1 if ext.startswith('*.')]        #DEBUG: print(f"extensions_list1='{extensions_list1}'\nextensions_list2='{extensions_list2}'")
-    extensions_list=extensions_list2;
+    extensions_list  = extensions_list2;
     if not extensions_list:
         print("Error: No valid extensions provided.")
         sys.exit(1)
@@ -106,18 +106,21 @@ def main_guts(input_filename, extensions, options, extra_args):
             print(f"Error: Unable to read file '{input_filename}' with detected encoding '{encoding}'.")
             sys.exit(1)
    
+    # memory maintenance
     gc.collect
-
  
     # Check each file for sidecar files
     for file in            files:
         total_file_count = total_file_count + 1
         
-        # Skip files containing "(instrumental)" or "[instrumental]"
-        if "(instrumental)" in file.lower() or "[instrumental]" in file.lower(): continue
-                
-        file_path = os.path.abspath(file)                                       # Get absolute path for consistency
-        directory = os.path.dirname(file_path)
+        # Skip files containing "(instrumental)" or "[instrumental]", and other various temp files
+        if    "(instrumental)"     in file.lower() or  "[instrumental]"   in file.lower(): continue
+        if "_vad_collected_chunks" in file.lower() or "._vad_pyannote_"   in file.lower(): continue
+        if "_vad_original"         in file.lower() or "check-for-missing" in file.lower(): continue
+
+        # get filenames                    
+        file_path        = os.path.abspath(file)                                       # Get absolute path for consistency
+        directory        = os.path.dirname(file_path)
         base_filename, _ = os.path.splitext(file)
         base_filename, _ = os.path.splitext(os.path.basename(file))
         if DEBUG_SIDECAR_SEARCH: print(f"found file {file_path} ... base_filename={base_filename} ... for file={file}")
@@ -141,7 +144,7 @@ def main_guts(input_filename, extensions, options, extra_args):
 
     # Write the output file
     if files_without_sidecars:
-        input_file_ext = os.path.splitext(input_filename)[1]
+        input_file_ext  = os.path.splitext(input_filename)[1]
         output_filename = f"{os.path.splitext(input_filename)[0]}-without {   ' '.join(ext[2:] for ext in extensions_list)}{input_file_ext}"
         output_filename = f"{os.path.splitext(input_filename)[0]}-without {' or '.join(ext     for ext in extensions_list)}{input_file_ext}"
         if options.lower() == "getlyricsfilewrite": output_filename = SCRIPT_NAME_FOR_LYRIC_RETRIEVAL
@@ -197,12 +200,12 @@ if __name__ == "__main__":
     extra_args_str=""
     if len(sys.argv)>0:
         input_filename = sys.argv[1]
-        extensions = sys.argv[2]
+        extensions     = sys.argv[2]
     if len(sys.argv) >= 4:
         options = sys.argv[3]
     if len(sys.argv) >= 5:
-        extra_args = sys.argv[4:]
-        extra_args_str=  ' '.join(extra_args)
+        extra_args     = sys.argv[4:]
+        extra_args_str =  ' '.join(extra_args)
 
     #print(f"- DEBUG: Extra args are: '{extra_args_str}'") #
     #print(f"- DEBUG: Extensions are: '{extensions    }'") #

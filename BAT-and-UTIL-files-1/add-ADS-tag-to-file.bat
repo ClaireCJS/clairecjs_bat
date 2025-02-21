@@ -274,7 +274,7 @@ goto :END
 
                                 rem "%OPERATIONAL_MODE%" != "READ"                           then
                                 iff "%OPERATIONAL_MODE%" != "READ" .and. "1" != "%LYRIC_MODE%" then
-                                        echo %tmp_emoji2use% Set %bold_on%%italics_on%%tmp_tag%%italics_off%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%                                        
+                                        echo %tmp_emoji2use% Set %bold_on%%italics_on%%tmp_tag%%italics_off%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
                                 else
                                         rem it is a lyric mode:
 

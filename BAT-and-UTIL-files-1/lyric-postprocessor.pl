@@ -13,6 +13,9 @@
 #               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #               “-1” parameter to     smush it all into one line {for AI command-line prompting}
 #     [DEFAULT] “-0” parameter to NOT smush it all into one line 
+#               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#     [DEFAULT] “-P” parameter to     add character to end of each line
+#               “-S” parameter to NOT add character to end of each line
 
 
 #HISTORY: forked from “lyric-postprocessor.pl”
@@ -27,13 +30,15 @@ use warnings;
 my $LYRICS_MODE;
 my $ONE_LINE;
 my $UNIQUE_LINES_MODE;
-my $to_print_last;
+my $ADD_CHARACTER_MODE;
+   
+# Default modes:
+$LYRICS_MODE        = 1;
+$ONE_LINE           = 0;
+$UNIQUE_LINES_MODE  = 0;
+$ADD_CHARACTER_MODE = 1;
 
 # Loop through @ARGV to check for -1 and -L options
-$LYRICS_MODE       = 1;
-$ONE_LINE          = 0;
-$UNIQUE_LINES_MODE = 0;
-
 foreach my $arg (@ARGV) {
 
     if      ($arg eq '-1') {				#smush into 1 line or not
@@ -51,6 +56,11 @@ foreach my $arg (@ARGV) {
     } elsif ($arg eq '-U') {
         $UNIQUE_LINES_MODE = 1;
 
+    } elsif ($arg eq '-P') {				#add a char (periods for my 1ˢᵗ use) to the end of every line
+        $ADD_CHARACTER_MODE = 1;
+    } elsif ($arg eq '-S') {
+        $ADD_CHARACTER_MODE = 0;
+
     } else {
         die "\n\n\nUnknown argument: $arg\n\n\nUSAGE:\n\t-1 for smushing into 1 line\n\t-A to show ALL lines not just unique lines\n\t-L for downloaded-lyric postprocessing";
 		show_usage();
@@ -59,7 +69,8 @@ foreach my $arg (@ARGV) {
 }
 
 my $key;
-my $to_print;
+my $to_print="";
+my $to_print_last="";
 my %seen;
 my @lines;
 my $test;
@@ -78,6 +89,7 @@ if ($LYRICS_MODE) {
 	$file_title       = $ENV{FILE_TITLE }      || "";
 	$file_album       = $ENV{ALBUM      }      || "";
 }
+my $do_it=-1;
 my $line_number=0;
 while (<STDIN>) {
 	#massage the line
@@ -89,7 +101,6 @@ while (<STDIN>) {
 	if ($LYRICS_MODE) {
 		#pre-processing
 		$line =~ s/ +$//;					#remove trailing spaces
-		$line =~ s/([a-z0-9])$/$1$ADDED_END_LINE_CHARACTER/ig;			#if line ends in letter, add comma to end of it —— to give WhisperAI a better sense of where to split lines
 
 		#first-line-only stuff to red rid of
 		if ($line_number == 1) {
@@ -102,8 +113,9 @@ while (<STDIN>) {
 
 		#song sections to get rid of
 		for ($i=1; $i<=2; $i++) {			#twice to get things like "Intro/Chorus" or "Guitar Solo/Bridge", which meant changing the regex to include an ending of / where previously it just included ]
-			#line =~   s/[\[\(]?(Intro|Sample|Hook|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)\/]?//i;
-			$line =~ s/[\[\(]? ?(Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
+			#line =~    s/[\[\(]?(Intro|Sample|Hook|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)\/]?//i;
+			$line =~    s/[\[\(]? ?(Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
+			$line =~ s/\d?[\[\(]? ?(Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
 		}
 
 
@@ -113,21 +125,23 @@ while (<STDIN>) {
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
 		$line =~ s/Album tracklist with lyrics//;
 
+		#the word “Embed” is sometimes tacked onto the end of al ine of downloaded lyrics:
+		$line =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;
+
 		#advertising crap to get rid of
 		$line =~ s/Get tickets as low as \$[\d\.]+//i;
 
 		#dynamic content removals {uses environment variables set in create-lyrics bat}		
 		if ($file_artist ne "") { 
 			$line =~ s/See \Q$file_artist Live\E//i; 
-			$line =~ s/Artist: \Q$file_artist\E,?//i; 
+			$line =~ s/Artist: \Q$file_artist\E[\.,]?//i; 
 		}
 		if ($file_title ne "") { 
-			$line =~ s/Title: \Q$file_title\E,?//i; 
+			$line =~ s/Title: \Q$file_title\E[\.,]?//i; 
 		}
 		if ($file_album ne "") { 
-			$line =~ s/Album: \Q$file_album\E,?//i; 
+			$line =~ s/Album: \Q$file_album\E[\.,]?//i; 
 		}
-		$line =~ s/id: [^s]+$//i; 
 
 		#commas and quotes
 		$line =~ s/^, *$//;			#remove leading comma like ", a line of text"
@@ -143,6 +157,18 @@ while (<STDIN>) {
 		# Use regex to match any character repeated more than 24 times and replace it with 24 of that character
 		$line =~ s/(\w)\1{24,}/$1 x 24/eg;
 
+
+		#however our environment variables aren’t always set, 
+		#so we ended up needing to do this more aggressively:
+		$line =~  s/^Album: [\w\s]+\.?$//i; 
+		$line =~  s/^Title: [\w\s]+\.?$//i; 
+		$line =~ s/^Artist: [\w\s]+\.?$//i; 
+		$line =~     s/^id: [\w\s]+\.?$//i; 
+
+		#add our invisible character at the end but do it Last!
+		if ($ADD_CHARACTER_MODE) {
+			$line =~ s/([a-z0-9])$/$1$ADDED_END_LINE_CHARACTER/ig;			#if line ends in letter, add comma to end of it —— to give WhisperAI a better sense of where to split lines
+		}
 	}
 
 
@@ -156,19 +182,26 @@ while (<STDIN>) {
 	if ($ONE_LINE) { 
 		$to_print .=  " ";
 	} else { 
-		$to_print .= "\n";
+		#print "to_print is “$to_print”\n";
+		if (($to_print eq "") && ($to_print_last eq "")) {
+			$do_it = 0;
+		} else {
+			$do_it = 1;
+			$to_print .= "\n";
+		}
 	}
 
 	#print only if unique
     #print $to_print unless $seen{$key}++;
 
-	# store only if unique, postprodess later
-	$to_print_last="";
-	if ($LYRICS_MODE==1) { $test=(($UNIQUE_LINES_MODE) || (!$seen{$key}++) || ($original_line eq "")); }
-	else                 { $test=(($UNIQUE_LINES_MODE) || (!$seen{$key}++)); }
+	# store only if unique, postprocess later
+	#why? $to_print_last="";
+	if ($LYRICS_MODE==1) { $test=((!$UNIQUE_LINES_MODE) || (!$seen{$key}++) || ($original_line eq "")); }
+	else                 { $test=((!$UNIQUE_LINES_MODE) || (!$seen{$key}++)); }
 	if ($test) {
-		if (($LYRICS_MODE==1) && ($to_print_last eq $to_print) && ($to_print !~ /[a-z0-9_-]/)) {
+		if (($LYRICS_MODE==1) && ($to_print_last eq $to_print) && ($to_print !~ /[a-z0-9_-]/) && ($to_print ne "") && ($to_print ne "\n")) {
 			#Don't print 2 identical non-lyric lines!?
+			if (!$UNIQUE_LINES_MODE) { push @lines, $to_print; }
 		} else {
 			push @lines, $to_print;
 		}
@@ -187,7 +220,11 @@ my $output="";
 if ($ONE_LINE) {
     # Join all lines into a single string and remove the trailing comma if it exists
     my $final_output = join('', @lines);
-    $final_output =~ s/, +$//;  # Remove the last trailing comma if it exists
+
+	#very final postprocessing:
+    $final_output =~ s/, +$//;		# Remove the last trailing “,” [comma] if it exists
+    $final_output =~ s/^\d\.? ?//;  # Remove “1. ”-type stuff at beginning
+	#$final_output =~ s/
     print $final_output;
 } else {
 	# postprocessing for when lines are together:
@@ -209,6 +246,8 @@ sub show_usage {
 	print   " <command> |  lyric-postprocessor -L -- lyric postprocessing mode ON\n";
 	print   " <command> |  lyric-postprocessor -0 -- smush into one line: OFF [default]\n";
 	print   " <command> |  lyric-postprocessor -1 -- smush into one line: ON\n";
+	print   " <command> |  lyric-postprocessor -P -- add “$ADDED_END_LINE_CHARACTER” character to end of line: ON [default]\n";
+	print   " <command> |  lyric-postprocessor -S -- add “$ADDED_END_LINE_CHARACTER” character to end of line: OFF\n";
 	print   "\nNOTE: Changes \" into \’ as well in most/all circumstances"
 	
 
@@ -222,4 +261,7 @@ sub show_usage {
 #               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #               “-1” parameter to     smush it all into one line {for AI command-line prompting}
 #     [DEFAULT] “-0” parameter to NOT smush it all into one line 
+#               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#     [DEFAULT] “-P” parameter to     add character to end of each line
+#               “-S” parameter to NOT add character to end of each line
 

@@ -176,7 +176,8 @@ REM one last cleanup - no blank path entries - ";;" must become ";"
 
 REM * Save our dynamically-generated path as a .cmd file that can be run in other commandlines such as PowerShell & Anaconda
         rem echos %conceal_on%%ansi_save_position%
-        path >c:\bat\setpath.cmd >&>nul
+        rem merge stdout & stderr to nul:
+        (path >c:\bat\setpath.cmd) >>&nul
         rem echos %ansi_restore_position%%conceal_off%
 
 

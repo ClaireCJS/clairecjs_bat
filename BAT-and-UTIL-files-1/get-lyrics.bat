@@ -1,5 +1,5 @@
 @loadbtm on
-@Echo On
+@Echo Off
 @on break cancel
 
 :USAGE: get-lyrics {songfile}

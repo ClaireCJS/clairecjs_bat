@@ -485,7 +485,7 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 	print "set CURRENT_SONG_DIR="      . $target_dir                          . "\n";
 	print "set CURRENT_SONG_FILENAME=" . $target_dir . "\\" . $filename_nodir . "\n";
 
-	print "\n\nrem 😹 targetdir is $target_dir \n";
+	print "\n\nrem 😹 targetdir  is $target_dir \n";
 	print     "rem 😹 targetfile is $target_attrib_file\n";
 	if (($ENV{EC_DO_NOT_GO_UP_1_DIR} ne 1) && ((($target_dir =~ /(_*unsorted)[\\\/]*$/i) || ($target_dir =~ /(currently.judging)[\\\/]*$/i)))) { 
 		my $tmp=$1;
@@ -517,8 +517,8 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 		} else {
 			$text_to_copy_to_clipboard__usually_tracknum = $filename_nodir;
 		}
-#	} else {
 
+#	} else {
 
 		if ($DEBUG_CLIPBOARD_TEXT) {  print "echo [C] it's $text_to_copy_to_clipboard__usually_tracknum!\n"; }
 		$text_to_copy_to_clipboard__usually_tracknum =~ s/\.\s*/.*/g;				
@@ -581,7 +581,7 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 			##### write out the actual values to our $ATTRIB_LST (attrib.lst) file:
 			### Marked:   1_09_This Killer In My House.mp3  as  “learned”   [2022-09-29 at 11:59:47]
 			print   "echo."                                                                                   . ">>$ATTRIB_LST\n";	
-			#rint "\necho ### $filename_nodir ==%%=> $AUTOMARK_AS ==%%=> on %_isoDate at %_time"              . ">>$ATTRIB_LST\n";							
+			#changes need to be updated in the other section too..
 			print "\necho ### Marked:   “$filename_nodir”   as  “$AUTOMARK_AS”    [%_isoDate at %_time]"      . ">>$ATTRIB_LST\n";							
 			if ($COMMENT ne "") { print "echo ### $COMMENT"                                                   . ">>$ATTRIB_LST\n"; }
 			print     "echo $text_to_copy_to_clipboard__usually_tracknum:$AUTOMARK_AS"                        . ">>$ATTRIB_LST\n";	
@@ -604,15 +604,45 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 			#2022/02: This makes sense, but only in the event of us not being able to get a "for sure" tracklist
 			#this is experienced as the "no i can't mark this as XXXXX, you must type 'ec' manually" "error"
 			#when that "error" happens, then we should do this:
-			$text_to_copy_to_clipboard__usually_tracknum = $ENV{"AUTOMARKAS"};
+			#2025/02/21: suspending: $text_to_copy_to_clipboard__usually_tracknum = $ENV{"AUTOMARKAS"};
 			#However, this clipboard may get overwritten by the next 'ec' anyway
 
 			print "beep\n";
 			print "\%COLOR_ALARM\%\n";
-			print "echo Didn’t work! Must “ec” or “ec $text_to_copy_to_clipboard__usually_tracknum” manually!\n";
-			print "\%COLOR_NORMAL\%\n";
-			print "keystack ec\n";
+			print "echo Didn’t work! Must “ec” or “ec \"$text_to_copy_to_clipboard__usually_tracknum\"” manually!\n";
 
+
+			if (1) {
+				#print "echo on\n";
+				print "echo Wait! Let’s try something (2025/02/21 idea): target_dir in perl=$target_dir\n";
+				print " set text_to_copy_to_clipboard__usually_tracknum=$text_to_copy_to_clipboard__usually_tracknum\n";
+				print ":AskAboutRegexAgain\n";
+				#TODO setdos stuff on
+				print "eset text_to_copy_to_clipboard__usually_tracknum\n";
+				print "echo \%ANSI_COLOR_IMPORTANT\%Test grep:\%ANSI_COLOR_YELLOW%\%\n";
+				print "echos \%ANSI_COLOR_BRIGHT_GREEN\%\n";
+				#rint "echo *dir /b/s *.mp3;*.flac;" . $ENV{"filemask_audio"} . " [pipe] grep -i \%text_to_copy_to_clipboard__usually_tracknum\%\n";
+				print "     *dir /b/s *.mp3;*.flac;" . $ENV{"filemask_audio"} .      " | grep -i \%text_to_copy_to_clipboard__usually_tracknum\%\n";
+				print "echos \%ANSI_COLOR_NORMAL\%\n";
+				#TODO setdos stuff off
+				print "call askyn \"Y=Regex good, proceed. N=Try editing the regex again, G=Give up\" no 10 G G:give_up\n";
+				print "if \"N\" == \"\%ANSWER\%\" goto :AskAboutRegexAgain\n";
+				print "if \"G\" == \"\%ANSWER\%\" goto :GiveUp\n";
+
+				#copied from other section
+				print "\necho ### Marked:   “$filename_nodir”   as  “$AUTOMARK_AS”    [%_isoDate at %_time]"      . ">>$ATTRIB_LST\n";							
+				if ($COMMENT ne "") { print "echo ### $COMMENT"                                                   . ">>$ATTRIB_LST\n"; }
+				#TODO setdos stuff on
+				print  "echo \%text_to_copy_to_clipboard__usually_tracknum\%:$AUTOMARK_AS"                        . ">>$ATTRIB_LST\n";	
+				#TODO setdos stuff off
+				print  "call divider\n";	
+				print  "echos \%ANSI_COLOR_BRIGHT_GREEN\%\n";	
+				print  "tail attrib.lst | insert-before-each-line \"    \"\n";	
+				print  "echos \%ANSI_COLOR_NORMAL\%\n";	
+			} else {
+				print "keystack ec\n";
+			}
+			print "\%COLOR_NORMAL\%\n";
 		}
 		print ":::: Automark-Specific output - END\n";
 	} else {
@@ -620,6 +650,7 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 	}
 	print "echo. \n";
 #	print "echo dg $text_to_copy_to_clipboard__usually_tracknum \n";								#`echos` keeps trailing linebreak away, vs `echo`
+	print ":GiveUp\n";
 }
 
 

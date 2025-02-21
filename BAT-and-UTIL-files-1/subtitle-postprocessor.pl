@@ -198,16 +198,6 @@ move $tempfile, $filename or die "Error: Cannot overwrite original file: $!\n"; 
 
 
 
-sub whisper_ai_postprocess {
-	my $s=$_[0];
-	
-	$s =~ s/A little pause... *//gi;		     #"... These are common WhisperAI hallucinations.
-	$s =~ s/And we are back\.*//gi;				 #"... These are common WhisperAI hallucinations.
-	
-	$s = &de_censor($s);
-
-	return($s);
-}
 
 
 sub de_censor_original {
@@ -341,4 +331,18 @@ sub de_censor {
 	my $s = $_[0];
 	return &de_censor_production($s);
 }	
+
+
+sub whisper_ai_postprocess {
+	my $s=$_[0];
+	
+	$s =~ s/A little pause... *//gi;		     #"... These are common WhisperAI hallucinations.
+	$s =~ s/And we are back\.*//gi;				 #"... These are common WhisperAI hallucinations.
+	
+	$s = &de_censor($s);
+
+	$s =~ s/['`]/’/g;
+
+	return($s);
+}
 

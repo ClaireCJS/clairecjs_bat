@@ -110,10 +110,14 @@ rem all while considering that double-height lines use 2 columns per character:
 rem Actually write out the divider, which is easy for normal height text:
         if %BIG eq 1 (goto :BIG)
         rem old: repeat %NUM_REPEATS% echos %DIVIDER% 
-        if not defined HZ_PCT ( 
+        if defined HZ_PCT goto :HZ_PCT_defined
+
+        :HZ_PCT_defined
             repeat %NUM_REPEATS% echos %DIVIDER% 
             rem TODO speed this up^^^^^^^^
-        ) else (
+            goto :HZ_PCT_stuff_done
+
+        :HZ_PCT_NOT_defined
             rem Default decorator:
                     set DECORATOR_BAR_END=%FAINT_ON%
                     set DECORATOR_BAR_BEG=%FAINT_OFF   
@@ -155,7 +159,8 @@ rem Actually write out the divider, which is easy for normal height text:
             echos %LAST_GENERATED_DIVIDER_LEFT%
             if %HZ_PCT gt 0 (echos %ESCAPE_CHARACTER%>)
             echos %LAST_GENERATED_DIVIDER_RIGHT%
-        )
+
+        :HZ_PCT_stuff_done
         echos %ANSI_EOL% 
         echo.
         goto :END

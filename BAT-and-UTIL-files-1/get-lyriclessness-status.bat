@@ -47,6 +47,11 @@ rem Read the lyriclessness status:
         iff exist "%SONG_TO_GET_STATUS_OF%" then
                 echo call read-ADS-tag-from-file "%SONG_TO_GET_STATUS_OF%" lyriclessness ➕➕➕➕➕➕➕➕ >nul
                      call read-ADS-tag-from-file "%SONG_TO_GET_STATUS_OF%" lyriclessness
+
+                rem our “NULL” values shall be represented with “NOT_SET”
+                rem  which will prevent us from repeated reading by giving us SOME kind of value
+                if "" == "%RECEIVED_VALUE%"set RECEIVED_VALUE=NOT_SET
+
         else
                 if 1 ne %SILENT_GETLYRICLESSNESSSTATUS% call warning_soft "File “%italics_on%%emphasis%%SONG_TO_GET_STATUS_OF%%deemphasis%%italics_off%” does not exist"
         endiff

@@ -1,11 +1,12 @@
 #TODO: bg color is same . bug??
 
 #### USER CONFIGURATION:
-DEFAULT_ROW_PADDING = 7                             # SUGGESTED: 7. Number of rows to subtract from screen height as desired maximum output height before adding columns. May not currently do anything.
-content_ansi        =  "\033[0m"
-divider_ansi        =  "\033[38;2;187;187;0m"
-#content_ansi       =  "\033[42m\033[31m" #
-divider             = f"  {divider_ansi}" + "│" + f"  {content_ansi}"  # Divider with #BBBB00 color and additional padding
+NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR = 19                            # we don’t need to look very far into words to get unique colors. Wider than 25 we start to get into subtitle-split-word territory where words >25chars get split into 2 lines and become a differently-colored stripe segment even though they were technically the same word.
+DEFAULT_ROW_PADDING                               = 7                             # SUGGESTED: 7. Number of rows to subtract from screen height as desired maximum output height before adding columns. May not currently do anything.
+content_ansi                                      =  "\033[0m"
+divider_ansi                                      =  "\033[38;2;187;187;0m"
+#content_ansi                                     =  "\033[42m\033[31m" #
+divider                                           = f"  {divider_ansi}" + "│" + f"  {content_ansi}"  # Divider with #BBBB00 color and additional padding
 
 #TODO: deal with situation of lines that are sooo long that we'd really have to wrap them to fit? or is this fine?
 #TODO: maybe make each column a slightly different color
@@ -524,6 +525,8 @@ def string_to_color(word):
     """
     Convert a string to a deterministic RGB color.
     """
+    global NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLO
+    word = word[:NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR]                                            
     hash_value1 = int(hashlib.sha256(     word    .upper().replace("'","").replace("’","").replace("`","").replace("-","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground ... don’t consider apostrophes so that the word is colored the same apostrophe or not   
     hash_value2 = int(hashlib.sha256(f"bg{word}bg".upper().replace("'","").replace("’","").replace("`","").replace("-","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for background ... don’t consider apostrophes so that the word is colored the same apostrophe or not
     hue1        = hash_value1 %     360                                             # Map the hash value to a foreground hue (0-360 degrees)
