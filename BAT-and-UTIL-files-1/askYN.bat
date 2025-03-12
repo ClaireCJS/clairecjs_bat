@@ -254,14 +254,17 @@ REM Build the question prompt:
         if "%default_answer" == "no"  .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%N%underline_off%%bold_off%                             %+ rem   capital N
                                                 rem extra allowable keys go here, with a slash first:
                                                         set  spread=%@ReReplace[(.),\1 ,%additional_keys%]
-                                                        for %%tmpKey in (%spread%) do (
-                                                               rem PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%@LOWER[%tmpKey%]%faint_off%
-                                                               set PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%@UPPER[%tmpKey%]%faint_off%
-                                                               set      key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
-                                                               set last_key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
-                                                        )
-                                                               set PRETTY_QUESTION=%pretty_question%%@ANSI_FG_RGB[%BRACKET_COLOR]]%EMOJI_RED_QUESTION_MARK%                                    %+ rem right bracket + ❓
-                                                               set PRETTY_QUESTION_ANSWERED=%@REPLACE[%BLINK_ON%,,%PRETTY_QUESTION] %+ rem an unblinking version, so the question mark that blinks before we answer is still displayed——but stops blinking after we answer the question 
+                                                        for %%tmpKey in (%spread%) do gosub tmp_key_sub
+                                                        goto :skip_sub_2903409243
+                                                                                :tmp_key_sub []
+                                                                                       rem PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%@LOWER[%tmpKey%]%faint_off%
+                                                                                       set PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%@UPPER[%tmpKey%]%faint_off%
+                                                                                       set      key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
+                                                                                       set last_key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
+                                                                                return
+                                                        :skip_sub_2903409243
+                                                       set PRETTY_QUESTION=%pretty_question%%@ANSI_FG_RGB[%BRACKET_COLOR]]%EMOJI_RED_QUESTION_MARK%                                    %+ rem right bracket + ❓
+                                                       set PRETTY_QUESTION_ANSWERED=%@REPLACE[%BLINK_ON%,,%PRETTY_QUESTION] %+ rem an unblinking version, so the question mark that blinks before we answer is still displayed——but stops blinking after we answer the question 
 
 rem Check if we are not doing titling, and skip titling section if that is the case:
         if 1 eq %NOTITLE% (goto :title_done)

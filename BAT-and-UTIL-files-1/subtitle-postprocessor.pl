@@ -336,12 +336,19 @@ sub de_censor {
 sub whisper_ai_postprocess {
 	my $s=$_[0];
 	
-	$s =~ s/A little pause... *//gi;		     #"... These are common WhisperAI hallucinations.
-	$s =~ s/And we are back\.*//gi;				 #"... These are common WhisperAI hallucinations.
+	################ HALLUCATIONS: ################ 
+	$s =~ s/A little pause... *//gi;						#...These are common WhisperAI hallucinations.
+	$s =~ s/And we are back\.*//gi;							#...These are common WhisperAI hallucinations.
 	
+	################# CENSORSHIP: ################# 
 	$s = &de_censor($s);
 
-	$s =~ s/['`]/’/g;
+	################ SPECIAL CHARS: ############### 
+	$s =~ s/[â'`]/’/g;										#apostrophes and misrepresentations thereof
+	
+	############# LYRIC WEBSITE JUNK: #############
+	$s =~ s/You might also like//i;
+	$s =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;
 
 	return($s);
 }

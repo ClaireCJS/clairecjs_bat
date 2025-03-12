@@ -1,5 +1,7 @@
 #TODO: bg color is same . bug??
 
+DEBUG_VERBOSE_COLUMNS = True
+
 #### USER CONFIGURATION:
 NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR = 19                            # we don’t need to look very far into words to get unique colors. Wider than 25 we start to get into subtitle-split-word territory where words >25chars get split into 2 lines and become a differently-colored stripe segment even though they were technically the same word.
 DEFAULT_ROW_PADDING                               = 7                             # SUGGESTED: 7. Number of rows to subtract from screen height as desired maximum output height before adding columns. May not currently do anything.
@@ -94,10 +96,10 @@ def parse_arguments():
     parser.add_argument( '-p', '--row_padding'                     , type=int, default=7,  help="Number of rows to subtract from screen height as desired maximum")
     parser.add_argument( '-v', '--verbose'                         , action='store_true',  help="Verbose mode—display debug info and internal logs")
     parser.add_argument('-wh', '--word_highlighting'               , action='store_true',  help="Word Highlighting")
-    parser.add_argument('-st', '--stripe'                          , action='store_true',  help="generate a stripe instead")
+    parser.add_argument('-st', '--stripe'                          , action='store_true',  help="generate a visual stripe summary instead")
     parser.add_argument('-wr', '--wrap'                            , action='store_true',  help="Enable line wrapping for long lines")
     parser.add_argument('-nw', '--no_wrap'                         , action='store_true',  help="Disable line wrapping for long lines")
-    parser.add_argument('-ll', '--max_line_length_before_wrapping' , type=int, default=80, help="Maximum line length before wrapping")
+    parser.add_argument('-ll', '--max_line_length_before_wrapping' , type=int, default=999, help="Maximum line length before wrapping")     #was 80 for like 6 months but changed to 999 2025/03/03
     args = parser.parse_args()
     ROW_PADDING          = args.row_padding
     VERBOSE              = args.verbose
@@ -213,8 +215,10 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
         required_width = cols * max_line_length + (cols -1) * divider_length
         if required_width <= console_width and rows <= desired_max_height:
             if verbose: print(f"🔍 ??? Optimal columns determined: {cols} with {rows} rows per column")
+            #eturn cols #chatgpt20250302
             return max_possible_columns
 
+    #eturn cols #chatgpt20250302
     return max_possible_columns
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
@@ -726,7 +730,7 @@ def convert_stripe(stripe, columns):
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
 def main():
-    global INTERNAL_LOG, VERBOSE, WRAPPING, STRIPE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, console_width, console_height, columns, avg_line_width, record_working_column_length, ROW_PADDING
+    global INTERNAL_LOG, VERBOSE, WRAPPING, STRIPE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, console_width, console_height, columns, avg_line_width, record_working_column_length, ROW_PADDING, DEBUG_VERBOSE_COLUMNS
     our_args = parse_arguments()
     INTERNAL_LOG=""
 
@@ -766,14 +770,14 @@ def main():
             print("Error: Number of columns must be at least 1.")
             sys.exit(1)
             
-        columns = our_args.columns
+        columns           = our_args.columns
         joined_input_data = "\n".join(input_data)
-        rows_per_col = ceil(len(joined_input_data) / columns)           #NOT a situation for wcswidth
+        rows_per_col      = ceil(len(joined_input_data) / columns)                  # NOT a situation for wcswidth
 
         if our_args.verbose or VERBOSE: print(f"Using user-specified columns: {columns}\nRows per column: {rows_per_col}")
     else:
-        columns = determine_optimal_columns(input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
-        rows_per_col = ceil(len(input_data) / columns)                  #NOT a situation for wcswidth
+        columns      = determine_optimal_columns(input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
+        rows_per_col = ceil(len(input_data) / columns)                        # NOT a situation for wcswidth
 
 
     #Generate Stripe one-line representation
@@ -866,6 +870,26 @@ def main():
         if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬🤬🤬 FINAL_COLUMNS ——> columns is now {columns}"   #debug
         #print(F"keep_looping is {keep_looping}")
        
+    # Optionally, print the internal log
+    if VERBOSE:
+        print("\nInternal Log:")
+        print(INTERNAL_LOG)
+    if VERBOSE or DEBUG_VERBOSE_COLUMNS:
+        print(f"🥒 num_columns={columns} ... column_widths={column_widths} 🥒")
+    if VERBOSE:
+        #print(f"🥒  output=🥒 {output}\n")
+        #print(f'💔input_data=' + "\n".join(input_data) + '\n')
+        pass
+    if VERBOSE or DEBUG_VERBOSE_COLUMNS:
+        print(f"🥒 console_width=🥒 {console_width}...")
+        print(f"💿 record_working_column_length={record_working_column_length}")
+    if VERBOSE:
+        print(f"💿 stripe={STRIPE}")
+        print(f"💿 WORD_HIGHLIGHTING={WORD_HIGHLIGHTING}")
+        print(f"💿 words_used={words_used}")
+        print(f"💿 stripe={stripester}")
+
+
 
     #══════════════════════════════════════════════════════════════════════#
     # 🎉🎉🎉 ⭐⭐⭐⭐⭐ THE FILE IS GONNA BE PRINTED RIGHT HERE: ⭐⭐⭐⭐⭐ 🎉🎉🎉 #
@@ -887,20 +911,6 @@ def main():
     
 
     
-    # Optionally, print the internal log
-    if VERBOSE:
-        print(f"🦈 in the end, columns were {columns}")
-        print("\nInternal Log:")
-        print(INTERNAL_LOG)
-        print(f"🥒 columns=🥒 {columns}...")
-        #print(f"🥒  output=🥒 {output}\n")
-        #print(f'💔input_data=' + "\n".join(input_data) + '\n')
-        print(f"🥒 console_width=🥒 {console_width}...")
-        print(f"💿 record_working_column_length={record_working_column_length}")
-        print(f"💿 stripe={STRIPE}")
-        print(f"💿 WORD_HIGHLIGHTING={WORD_HIGHLIGHTING}")
-        print(f"💿 words_used={words_used}")
-        print(f"💿 stripe={stripe}")
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###

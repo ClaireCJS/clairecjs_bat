@@ -221,10 +221,13 @@ Obtains the lyrics for a song file, a playlist, or the currently playing song.
 If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, get lyrics for *the song currently being played*.
 
 
-### 🌟 [get-missing-lyrics-here.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [gmlh](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [gml](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat):
+### 🌟 glh / [get-missing-lyrics-here.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [gmlh](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [gml](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat):
 
 Gets lyrics for all the files *in the current folder* that do not have *approved* lyric files.
 (Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
+
+Use [get-lyrics-here-in-alphabetical-order.bat](../BAT-and-UTIL-files-1/get-lyrics-here-in-alphabetical-order.bat) to do it in alphabetical order instead of random order.
+
 
 
 ### 🌟 [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat) {limit}:

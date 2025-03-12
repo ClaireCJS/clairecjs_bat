@@ -1,5 +1,6 @@
 @Echo OFF
- on break cancel
+@on break cancel
+@if "%1" == "quick" .or. "%1" == "quickly" (set UNPAUSE_QUICKLY=1 %+ goto :Unpause_Quickly)
 
 if defined emoji_play_button (%COLOR_SUCCESS% %+ echo %big_top%%emoji_play_button% %+ echo %big_bot%%emoji_play_button%)
 
@@ -12,7 +13,6 @@ if defined emoji_play_button (%COLOR_SUCCESS% %+ echo %big_top%%emoji_play_butto
 
 
 ::::: CHECK WINAMP STATE TO REACT, OR SKIP THAT STUFF:
-    if "%1" == "quick" .or. "%1" == "quickly" (set UNPAUSE_QUICKLY=1 %+ goto :Unpause_Quickly)
     call get-winamp-state
 
 
@@ -25,16 +25,17 @@ if defined emoji_play_button (%COLOR_SUCCESS% %+ echo %big_top%%emoji_play_butto
 
 goto :END
 
-        :Unpause_Quickly
-            call winamp-pause quick
-        goto :END
+                :Unpause_Quickly
+                        call winamp-pause quick %2$
+                goto :END
 
 		:Unpause_YES					
 			call winamp-pause OVERRIDE %*
 		goto :END
 
-		:Play_YES					
-			call winamp-play %*
+		:Play_YES		
+                        if "1" == "%PAF_WINAMP_INTEGRATION%" (call winamp-play %* >&>nul)
+			if "1" != "%PAF_WINAMP_INTEGRATION%" (call winamp-play %*       )
 		goto :END
 
 

@@ -61,8 +61,12 @@ foreach my $arg (@ARGV) {
     } elsif ($arg eq '-S') {
         $ADD_CHARACTER_MODE = 0;
 
+	} elsif ($arg eq '-H') {
+		show_usage();
+		exit 1;
+
     } else {
-        die "\n\n\nUnknown argument: $arg\n\n\nUSAGE:\n\t-1 for smushing into 1 line\n\t-A to show ALL lines not just unique lines\n\t-L for downloaded-lyric postprocessing";
+        #die "\n\n\nUnknown argument: $arg\n\n\nUSAGE:\n\t-1 for smushing into 1 line\n\t-A to show ALL lines not just unique lines\n\t-L for downloaded-lyric postprocessing";
 		show_usage();
 		exit 1;
     }
@@ -125,7 +129,8 @@ while (<STDIN>) {
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
 		$line =~ s/Album tracklist with lyrics//;
 
-		#the word “Embed” is sometimes tacked onto the end of al ine of downloaded lyrics:
+		#the word “Embed” is sometimes tacked onto the end of a line of downloaded lyrics:
+		$line =~ s/You might also like//i;
 		$line =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;
 
 		#advertising crap to get rid of
@@ -165,8 +170,11 @@ while (<STDIN>) {
 		$line =~ s/^Artist: [\w\s]+\.?$//i; 
 		$line =~     s/^id: [\w\s]+\.?$//i; 
 
+		$line =~ s/^ *//g;
+		$line =~ s/ *$//g;
+
 		#add our invisible character at the end but do it Last!
-		if ($ADD_CHARACTER_MODE) {
+		if (($ADD_CHARACTER_MODE) && ($line ne "")) {
 			$line =~ s/([a-z0-9])$/$1$ADDED_END_LINE_CHARACTER/ig;			#if line ends in letter, add comma to end of it —— to give WhisperAI a better sense of where to split lines
 		}
 	}
@@ -248,9 +256,7 @@ sub show_usage {
 	print   " <command> |  lyric-postprocessor -1 -- smush into one line: ON\n";
 	print   " <command> |  lyric-postprocessor -P -- add “$ADDED_END_LINE_CHARACTER” character to end of line: ON [default]\n";
 	print   " <command> |  lyric-postprocessor -S -- add “$ADDED_END_LINE_CHARACTER” character to end of line: OFF\n";
-	print   "\nNOTE: Changes \" into \’ as well in most/all circumstances"
-	
-
+	print   "\nNOTE: Changes \" into \’ as well in most/all circumstances";	
 }
 # Combine any of these command-line parameters:
 #               “-U” parameter to print unique lines only

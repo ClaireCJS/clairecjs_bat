@@ -1,6 +1,9 @@
 @loadbtm on
 @Echo Off
 @on break cancel
+cls
+
+
 
 :USAGE: get-lyrics {songfile}
 
@@ -25,24 +28,33 @@ rem Validate environment once:
                 call validate-in-path get-lyrics-for-currently-playing-song check-for-missing-lyrics get-lyrics-for-playlist get-lyrics-for-song
                 set  validated_getlyrics=1
         endiff
+        setdos /x0
 
 
-setdos /x0
+
+
 
 rem Process currently-playing song:
         iff "%1" == "nowplaying" .or. "%1" == "now" .or. "%1" == "np" .or. "%1" == "winamp" .or. "%1" == "this" then
                 setdos /x0
                 call get-lyrics-for-currently-playing-song %2$
-                goto :next_step
+                goto next_step
         endiff         
 
 rem Process current folder:
         iff "%1" == "here"  then
                 setdos /x0
-                call check-for-missing-lyrics get %2$
-                goto :next_step
-        endiff
+                unset /q FILE_* 
 
+                iff "%2" == "abc" then
+                        call get-lyrics-here-in-alphabetical-order.bat %3$
+                        goto end
+                else
+                        call check-for-missing-lyrics get %2$
+                        goto next_step
+                endiff
+        endiff
+        iff "%2" == "abc" goto end
 
 rem DEBUG: setdos /x-4 %+ echo param1 is %1 %+ pause
 

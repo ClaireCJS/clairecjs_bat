@@ -31,6 +31,7 @@
 ::::: MOVE TO THE NEXT FOLDER:
     set TARGET_TEMP_SCRIPT="%TEMP\go-to-next-directory.bat"
     rem NO UNICODE!! even with 10 chatgpt rewrites! ———> perl -CSDA %BAT%\go-to-next-directory-generator.pl "%_CWD" >:u8 %TARGET_TEMP_SCRIPT%
+    set here=%_cwp
     go-to-next-directory-generator.py "%_CWD" >%TARGET_TEMP_SCRIPT%
     REM echo done with perl
     call %TARGET_TEMP_SCRIPT%
@@ -59,6 +60,11 @@
         :Move_NO
 
 
-::::: Show that we're done:
+
+rem If we couldn’t go anywhere, drop down one folder so we can start to move to the next branch in the tree:
+      if "%here%" == "%_cwp" cd ..
+
+
+rem Show that we're done:
     dir
 

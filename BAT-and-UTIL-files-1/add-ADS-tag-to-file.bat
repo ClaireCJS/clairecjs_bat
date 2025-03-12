@@ -1,6 +1,7 @@
 @loadbtm on
 @Echo Off
-on break cancel
+@on break cancel
+@setdos /x0
 goto :init
 
 
@@ -233,7 +234,7 @@ goto :END
                         endiff
                         
                 rem Lyrics mode output:                        
-                        iff 1 eq %LYRIC_MODE then
+                        if "1" !=  "%LYRIC_MODE" goto :endif_353
                                 set  value_spacer=
                                 set  value_spacer_post=
                                 set voodoo_spacer=
@@ -272,65 +273,84 @@ goto :END
 
                                 rem echo HERE! %tmp_value OPERATIONAL_MODE=%OPERATIONAL_MODE% ext2=%ext2% entity==%entity% LYRIC_MODE=%LYRIC_MODE%
 
-                                rem "%OPERATIONAL_MODE%" != "READ"                           then
-                                iff "%OPERATIONAL_MODE%" != "READ" .and. "1" != "%LYRIC_MODE%" then
-                                        echo %tmp_emoji2use% Set %bold_on%%italics_on%%tmp_tag%%italics_off%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
-                                else
-                                        rem it is a lyric mode:
-
-                                
-                                        rem tag_to_modify=%tag_to_modify% 🐐
-                                        set hide_status=0
-                                        iff "%tag_to_modify%" == "lyriclessness" then
-                                                set our_maybe_subtitle_1=%@unquote[%@NAME["%tmp_file2use%"]].lrc
-                                                set our_maybe_subtitle_2=%@unquote[%@NAME["%tmp_file2use%"]].srt
-                                                set our_maybe_lyrics=%@unquote[%@NAME["%tmp_file2use%"]].txt
-                                                iff     exist "%our_maybe_subtitle_1%" .or. exist "%our_maybe_subtitle_2%" then
-                                                        set EXTRA=%ansi_color_bright_green%Has karaoke! %ansi_color_normal%
-                                                        set hide_status=0
-                                                elseiff exist "%our_maybe_lyrics%" then                                                
-                                                        set hide_status=0
-                                                        set EXTRA=%ansi_color_bright_YELLOW%Has lyrics!%ansi_color_normal%%faint_on%..%faint_off%
-                                                else
-                                                        set hide_status=0
-                                                        set EXTRA=%ansi_color_red%No lyrics!...%ansi_color_normal%
-                                                endiff                                                        
-                                                set value_spacer=``
-                                                set EXTRA=%EXTRA% Lyriclessness is
-                                        else
-                                                rem echo [ext2=%ext2%]
-                                                if "%ext2%" == "lrc" .or. "%ext2%" == "srt" (
-                                                        set ENTITY=Karaoke 
-                                                        set VERB2=is
-                                                        set EXTRA=%@ansi_move_left[3]%ansi_color_green%%emj1% %ENTITY% %emj1% file.... %ansi_color_normal%
-                                                ) else (
-                                                        if "%EXT2%" == "txt" (                                                        
-                                                                set ENTITY=Lyrics
-                                                                set EXTRA=%@ansi_move_left[3]%ansi_color_green%%emj2% %ENTITY% %emj2% file..... %ansi_color_normal%
-                                                        ) else (
-                                                                set EXTRA=%ansi_color_green%%ENTITY% exist
-                                                                if "is" == "%VERB2%" set EXTRA=%EXTRA%s
-                                                                set EXTRA=%EXTRA%%ansi_color_normal%...
-                                                        )                                                                
-                                                )
-                                                set EXTRA=%EXTRA%%ENTITY% %VERB2% 
-                                                set value_spacer=``
-                                        endiff
-                                        
-                                        echos %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %EXTRA% %value_spacer%
-                                        iff 1 eq %HIDE_STATUS then
-                                                echos %@ANSI_MOVE_LEFT[18]%faint_on%....................................%faint_off%``
-                                        else                                                
-                                                echos  %tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use%
-                                        endiff
-                                        echos %value_spacer_post% for %@ansi_fg_rgb[182,118,182]
-                                        echos %@ext["%tmp_file2use%"]
-                                        echos %ansi_color_reset%: %@IF[%@len[%@ext[%tmp_file2use%]] lt 4, ,]%faint_on%%italics_on%
-                                        if 0 ne %ADSTAG_DISPLAY_FOR_PATH% echos %@path[%tmp_file2use%]
-                                        echos %@unquote[%@name["%tmp_file2use%"]]
-                                        echo .%faint_off%%italics_off%%@ansi_fg[124,124,124]%@ext[%tmp_file2use%]%faint_off%%italics_off%%conceal_on%orange42%conceal_off%
-                                endiff
-                        endiff
+                                rem "%OPERATIONAL_MODE%" != "READ"                             then
+                                if  "%OPERATIONAL_MODE%" != "READ" .and. "1" != "%LYRIC_MODE%" goto :then_block_278
+                                                                                               goto :else_block_282
+                                        :then_block_278
+                                                echo %tmp_emoji2use% Set %bold_on%%italics_on%%tmp_tag%%italics_off%%bold_off% to %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%
+                                        goto :endif_351
+                                rem else
+                                        :else_block_282
+                                                rem it is a lyric mode:
+                                                                      
+                                                rem tag_to_modify=%tag_to_modify% 🐐
+                                                set hide_status=0
+                                                if "%tag_to_modify%" == "lyriclessness" goto :then_block_286
+                                                                                        goto :else_block_304
+                                                        :then_block_286
+                                                                set our_maybe_subtitle_1=%@unquote[%@NAME["%tmp_file2use%"]].lrc
+                                                                set our_maybe_subtitle_2=%@unquote[%@NAME["%tmp_file2use%"]].srt
+                                                                set our_maybe_lyrics=%@unquote[%@NAME["%tmp_file2use%"]].txt
+                                                                iff     exist "%our_maybe_subtitle_1%" .or. exist "%our_maybe_subtitle_2%" then
+                                                                        set EXTRA=%ansi_color_bright_green%Has karaoke! %ansi_color_normal%
+                                                                        set hide_status=0
+                                                                elseiff exist "%our_maybe_lyrics%" then                                                
+                                                                        set hide_status=0
+                                                                        set EXTRA=%ansi_color_bright_YELLOW%Has lyrics!%ansi_color_normal%%faint_on%..%faint_off%
+                                                                else
+                                                                        set hide_status=0
+                                                                        set EXTRA=%ansi_color_red%No lyrics!...%ansi_color_normal%
+                                                                endiff                                                        
+                                                                set value_spacer=``
+                                                                set EXTRA=%EXTRA% Lyriclessness is
+                                                        goto :endif_328
+                                                rem else
+                                                        :else_block_304
+                                                                rem echo [ext2=%ext2%]
+                                                                if "%ext2%" == "lrc" .or. "%ext2%" == "srt" goto :block_302
+                                                                                                            goto :block_314       
+                                                                        :block_302
+                                                                                set ENTITY=Karaoke 
+                                                                                set VERB2=is
+                                                                                set EXTRA=%@ansi_move_left[3]%ansi_color_green%%emj1% %ENTITY% %emj1% file.... %ansi_color_normal%
+                                                                        goto :endif_323
+                                                                rem else 
+                                                                        :block_314
+                                                                                if "%EXT2%" == "txt" (                                                        
+                                                                                        set ENTITY=Lyrics
+                                                                                        set EXTRA=%@ansi_move_left[3]%ansi_color_green%%emj2% %ENTITY% %emj2% file..... %ansi_color_normal%
+                                                                                ) else (
+                                                                                        set EXTRA=%ansi_color_green%%ENTITY% exist
+                                                                                        if "is" == "%VERB2%" set EXTRA=%EXTRA%s
+                                                                                        set EXTRA=%EXTRA%%ansi_color_normal%...
+                                                                                )                                                                
+                                                                        goto :endif_323
+                                                                :endif_323
+                                                                set EXTRA=%EXTRA%%ENTITY% %VERB2% 
+                                                                set value_spacer=``
+                                                        goto :endif_328
+                                                :endif_328
+                                                
+                                                echos %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %EXTRA% %value_spacer%
+                                                if "1" == "%HIDE_STATUS%" goto :then_block_332
+                                                                          goto :else_block_337
+                                                        :then_block_332
+                                                                echos %@ANSI_MOVE_LEFT[18]%faint_on%....................................%faint_off%``
+                                                        goto :end_block_344
+                                                rem else
+                                                        :else_block_337
+                                                                echos  %tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use%
+                                                        goto :end_block_344
+                                                :end_block_344
+                                                echos %value_spacer_post% for %@ansi_fg_rgb[182,118,182]
+                                                echos %@ext["%tmp_file2use%"]
+                                                echos %ansi_color_reset%: %@IF[%@len[%@ext[%tmp_file2use%]] lt 4, ,]%faint_on%%italics_on%
+                                                if 0 ne %ADSTAG_DISPLAY_FOR_PATH% echos %@path[%tmp_file2use%]
+                                                echos %@unquote[%@name["%tmp_file2use%"]]
+                                                echo .%faint_off%%italics_off%%@ansi_fg[124,124,124]%@ext[%tmp_file2use%]%faint_off%%italics_off%%conceal_on%orange42%conceal_off%
+                                        goto :endif_351
+                                :endif_351
+                        :endif_353
         return
 
 :END

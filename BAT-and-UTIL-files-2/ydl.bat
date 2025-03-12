@@ -1,4 +1,4 @@
-@Echo off
+@Echo on
 @loadbtm on
 @on break cancel
 
@@ -29,12 +29,12 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
 
 
 
-::::: WHICH DOWNLOADER TO USE:
+rem WHICH DOWNLOADER TO USE:
         rem YDL=youtube-dl —— stopped being developed / as good, replaced by “yt-dlp”
         set YDL=yt-dlp
 
 
-::::: PARAMETERS:
+rem PARAMETERS:
         REM set OUTPUTNAME=%1
         if %@COUNT[%@char[34],%1] ne 2 (call error "first argument must have quotes around it")
         SET URL=%@UNQUOTE[%1]
@@ -47,8 +47,8 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         REM this seemed wrong     if "" == "%2" .or.  "" == "%1" (call FATAL_ERROR "NEED FILENAME AND URL PARAMETERS!" %+ goto :END)
         if "%2" == "NOEXT" (set NOEXT=1) 
 
-::::: EXECUTION:
-        call validate-in-path %YDL %
+rem EXECUTION:
+        call validate-in-path %YDL%
         :call dl                                                                                          %+ REM moves us to the folder we typically download youtube videos into
         set TMPDIR=oh.%_DATETIME.%_PID
         REM REDOCOMMAND=call %YDL%     -o "%@UNQUOTE[%OUTPUTNAME%]"     "%URL%"
@@ -81,8 +81,10 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser opera     --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser edge      --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser chrome    --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
-            call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
+        rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
+        rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
+            call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
         @Echo off
         rem was suggested that one could scrub unicode chars with this command: --replace-in-metadata "video:title" " ?[\U000002AF-\U0010ffff]+" ""
         rem we don’t call errorlevel because %YDL% returns an errorlevel even when successful
@@ -92,7 +94,7 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
 
 
 
-::::: VALIDATION:
+rem VALIDATION:
         REM we don’t track output names anymore....: if defined OUTPUTNAME if not exist %OUTPUTNAME% (call WARNING "Output file does not exist: “%OUTPUTNAME%”")
         
 
@@ -101,27 +103,27 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
 
 :2022 removing but maybe this should just be a DEMONA thing: setdos /X0
 
-::::: CLEANUP:
-    :: fix filenames
+rem CLEANUP:
+    rem fix filenames
         REM this can be run in unattended mode, but we’re not ready for that yet:
         call fix-unicode-filenames       
-        call errorlevel
+        call errorlevel "problem with fix-unicode-filenames"
 
-    :: manual rename opportunity - also covers companion files
+    rem manual rename opportunity - also covers companion files
         if "%UNATTENDED_YOUTUBE_DOWNLOADS%" == "1" goto :Unattended
             call rn-latest-for-youtube-dl %FILEMASK_VIDEO%
             :^^^^^^^^^^^^^^^^^^^^^^^^^^^^ side-effect: sets %FILENAME_NEW%, which we use later  ...TODO:possible bug in that it tries to rename the JSON now. same effcet but more confusing
-            call errorlevel
+            call errorlevel "problem with rn-latest-for-youtube-dl"
         :Unattended
 
-    :: get json file - do this *AFTER* we do our renaming so that we can use our post-rename filename for the JSON file
+    rem get json file - do this *AFTER* we do our renaming so that we can use our post-rename filename for the JSON file
         echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Fetching json description...
             set JSON_WANTED=%@NAME[%FILENAME_NEW%].json
             call %YDL% --dump-json "%URL%" >"%JSON_WANTED%"
-            call validate-environment-variable JSON_WANTED
-        call success "Succcess!"
+            if not exist "%JSON_WANTED%" call validate-environment-variable JSON_WANTED "can’t find JSON_WANTED file of “%JSON_WANTED%”"
+            call success "Succcess!"
 
-    :: clean-up 0-byte description txt file
+    rem clean-up 0-byte description txt file
         for %%tmpZeroByteFile in (*.txt;*.description) do (
             if %%~zf==0 (
                 echo. 
@@ -132,10 +134,10 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
             )
         )
 
-    :: multiple-file downloads is janky and .description files don’t all get turned into .txt correctly
+    rem multiple-file downloads is janky and .description files don’t all get turned into .txt correctly
         if exist *.description (ren *.description *.txt)
 
-    :: move files back into original folder we started in
+    rem move files back into original folder we started in
         :dangerous: mv * ..
         cd ..
         if isdir %TMPDIR% (%COLOR_SUBTLE% %+ mv/ds %TMPDIR% .)

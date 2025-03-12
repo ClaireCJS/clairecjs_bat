@@ -90,6 +90,9 @@ def main_guts(input_filename, extensions, options, extra_args):
         print("Error: No valid extensions provided.")
         sys.exit(1)
 
+    #
+    print(f"🔎🔎🔎 Checking playlist {input_filename} for files missing sidecars... 🔍🔍🔍")
+
     # Create a set to keep track of files without sidecars (unique entries)
     files_without_sidecars = set()
 

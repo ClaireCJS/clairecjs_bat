@@ -722,14 +722,14 @@ foreach $filename (@LINES) {
 	$filename =~ s/^MITM/Malcolm In The Middle/i;
 	$filename =~ s/^KOTH/King Of The Hill/i;
 	$filename =~ s/The Venture Brothers/The Venture Bros./i;
-    $filename =~ s/beavis&butt\-?head/Beavis & Butt-head/i;
+    $filename =~ s/beavis &butt\-?head/Beavis & Butt-head/i;
     $filename =~ s/beavis and butt\-?head/Beavis & Butt-head/i;
     $filename =~ s/^ppg[_\s]/PowerPuff Girls - /i;
 	$filename =~ s/ren and stimpy/Ren & Stimpy/i;
 	$filename =~ s/^O Grady/O'Grady/i;
 	#" -- " to ", " for multiple episode titles per airing -- i.e. Grim & Evil, Garfield & Friends, Eek!Stravaganza, etc
 	$filename =~ s/^(Angry Beavers.*) -- (.*)$/$1, $2/;
-	$filename =~ s/the ren [and&]+ stimpy show/Ren & Stimpy/i;
+	$filename =~ s/the ren [and &]+ stimpy show/Ren & Stimpy/i;
 	$filename =~ s/^Mr Bungle/Mr. Bungle/i;
 	$filename =~ s/Batman Tas /Batman-TAS (1990s) /i;
 	$filename =~ s/Batman The Brave And The Bold/Batman- The Brave And The Bold/i;
@@ -1353,9 +1353,11 @@ foreach $filename (@LINES) {
 
 	if ($isAudio) {  
 		#DON'T WANT: (64kbps) = (64_bps) 
-		#WANT: "01 name" into "01_name"
 		#filename =~ s/([^0-9][0-9][0-9])[^_012346789]([a-z])/$1_$2/i;
+		#WANT: "01 name"  into "01_name"
 		$filename =~ s/([^0-9][0-9][0-9])[^_012346789kM]([a-z])/$1_$2/i;
+		#WANT: "01. name" into "01_name"
+		$filename =~ s/^([0-9]{1,3})\. (.*)/$1_$2/i;
 		#DEBUG: if ($DEBUG_TRANSFORMATION) { print "\$1=$1,\$2=$2,\$3=$3\n"; }
 
 		$filename =~ s/O'clock/O'Clock/;

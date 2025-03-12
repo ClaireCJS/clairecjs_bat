@@ -2,6 +2,7 @@
 @loadbtm on
 @setdos /x0
 @setlocal
+cls
 rem @on break cancel
 rem @setlocal
 
@@ -206,7 +207,9 @@ rem and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_
                 )
         )    
         setdos /x0
-        rem not always! (2025/01/04) call status-bar unlock
+        rem not always! (2025/01/04) 
+        rem maybe always? (2025/03/03)
+        call status-bar unlock
         echos %ansi_save_position%
         for %%offset in (-1) do (
                echos %@ansi_move[%@EVAL[%_rows-%offset],0]%ansi_erase_to_eol%
@@ -248,17 +251,20 @@ rem Display post-processing statistics:
                 )
                 rem flags not accurate: if "" != "%ANY_BAD%" .and. "0" != "%ANY_BAD%" echo.
                 rem To conditionalize this next echo we’d have to keep trakc of whether there’s any output at all, not just any_bad...:
+                call status-bar unlock
                 echo.
                 echo ━━━━━━━━━━━━━━━━━━ Current dir is %_CWD ━━━━━━━━━━━━ >nul
-                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%  Processed: %italics_on%%@FORMATn[3.0,%NUM_PROCESSED%]%italics_off% songs 
-                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located: %ansi_color_red%%@FORMATn[3.0,%NUM_BAD%]%ansi_color_bright_green% songs needing %findNature% attention
-                call bigecho %ANSI_COLOR_BRIGHT_GREEN%%CHECK% Compliance: %@ANSI_RGB[%our_r%,%our_g%,%our_b%]%@formatn[3.1,%clean_formatted_percent%]%cool_percent%
+                call bigecho "%ANSI_COLOR_BRIGHT_GREEN%%CHECK%  Processed: %italics_on%%@FORMATn[3.0,%NUM_PROCESSED%]%italics_off% songs%BIG_OFF%"
+                call bigecho "%ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located: %ansi_color_red%%@FORMATn[3.0,%NUM_BAD%]%ansi_color_bright_green% songs needing %findNature% attention%BIG_OFF%"
+                set compliance_string=%@formatn[3.1,%clean_formatted_percent%]%cool_percent%
+                call bigecho "%ANSI_COLOR_BRIGHT_GREEN%%CHECK% Compliance: %@ANSI_RGB[%our_r%,%our_g%,%our_b%]%compliance_string%%BIG_OFF%"
+                title %CHECK%Compliance: %compliance_string%
                 echo.
         :done_with_displaying_postprocessing_statistics
 
 rem Create the fix-script, if there are any to fix:
-        setdos /x0
-        iff 1 eq %ANY_BAD% then                                                                           %+ rem We generate a script to find the missing ones, but if and only if some missing ("bad") ones were found
+        *setdos /x0
+        if "1" !=  "%ANY_BAD%" goto :no_bad_detected                                                      %+ rem We generate a script to find the missing ones, but if and only if some missing ("bad") ones were found
                 set TARGET_SCRIPT=get-the-missing-lyrics-here-temp.bat                                    %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
                 if "%findNature%" eq "karaoke" set TARGET_SCRIPT=get-the-missing-karaoke-here-temp.bat    %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
                 echo @Echo OFF                                          >:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: initialize: turn Echo OFF
@@ -281,35 +287,36 @@ rem Create the fix-script, if there are any to fix:
                 echo @setdos /x0                                       >>:u8 "%TARGET_SCRIPT"
                 echo :END                                              >>:u8 "%TARGET_SCRIPT"
                 
-rem Run the fix-script, if we have decided to:
-                iff 1 eq %GET .or. 1 eq %GET_KARAOKE then                                          %+ rem If we have decided to auto-run the script, the let’s do that
-                        rem title "Fetching lyrics!"
-                        echos %@CHAR[27][%[_rows]H %+ rem Move to bottom of screen
-                        repeat 3 echo.
-                        gosub divider
-                        echo.
-                        gosub divider
-                        echo.
-                        echo %@ANSI_MOVE_UP[3]%ANSI_CURSOR_VISIBLE%%@ANSI_CURSOR_COLOR_BY_WORD[yellow]%ansi_color_green%Going to find those missing %findNature% now!%ansi_color_bright_Red%%blink_on%
-                        sleep 1
-                        set TARGET_SCRIPT_TO_CALL=%@NAME[%TARGET_SCRIPT%]-%[_datetime].bat
-                        echo %CURSOR_RESET%%blink_off%
-                        iff not exist "%TARGET_SCRIPT%" then
-                                call warning "Why doesn’t target_script exist? “%TARGET_SCRIPT%”'
-                        else
-                                        echos %ansi_color_unimportant%
-                                        ren   "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
-                                iff not exist "%TARGET_SCRIPT_TO_CALL%" then
-                                        call warning "Why doesn’t TARGET_SCRIPT_TO_CALL exist? “%TARGET_SCRIPT_TO_CALL%”'
-                                else
-                                                call "%TARGET_SCRIPT_TO_CALL%"                                             %+ rem run the generated script !X--X!
-                                                call   errorlevel                                                          %+ rem check for errorlevel //rem DEBUG: echo our_errorlevel is %our_errorlevel% 
-                                endiff
-                        endiff
-                        if "" != "%original_title%" (*title %original_title%)                
-                        rem echo pbatchname_check-for-missing-lyrics_bat=%_PBATCHNAME 
-                endiff
-        endiff
+                rem Run the fix-script, if we have decided to:
+                        *setdos /x0
+                        if "1" == "%GET%" .or. "1" == "%GET_KARAOKE%" goto :fetch_lyrics_begin
+                                                                      goto :fetch_lyrics_end
+                                :fetch_lyrics_begin
+                                        rem title "Fetching lyrics!"
+                                        echos %@CHAR[27][%[_rows]H %+ rem Move to bottom of screen
+                                        repeat 3 echo.
+                                        gosub divider
+                                        echo.
+                                        gosub divider
+                                        echo.
+                                        echo %@ANSI_MOVE_UP[3]%ANSI_CURSOR_VISIBLE%%@ANSI_CURSOR_COLOR_BY_WORD[yellow]%ansi_color_green%Going to find those missing %findNature% now!%ansi_color_bright_Red%%blink_on%
+                                        sleep 1
+                                        set TARGET_SCRIPT_TO_CALL=%@NAME[%TARGET_SCRIPT%]-%[_datetime].bat
+                                        echo %CURSOR_RESET%%blink_off%
+                                        iff exist "%TARGET_SCRIPT%" goto :target_script_exists_1
+                                                call warning "Why doesn’t target_script exist? “%TARGET_SCRIPT%”'
+                                                goto :target_script_exists_2
+                                        :target_script_exists_1
+                                                echos %ansi_color_unimportant%
+                                                ren  "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
+                                                if not exist "%TARGET_SCRIPT_TO_CALL%" call warning "Why doesn’t TARGET_SCRIPT_TO_CALL exist? “%TARGET_SCRIPT_TO_CALL%”'
+                                                if     exist "%TARGET_SCRIPT_TO_CALL%" call "%TARGET_SCRIPT_TO_CALL%"                                             %+ rem run the generated script !X--X!
+                                                if     exist "%TARGET_SCRIPT_TO_CALL%" call   errorlevel                                                          %+ rem check for errorlevel //rem DEBUG: echo our_errorlevel is %our_errorlevel% 
+                                        :target_script_exists_2
+                                        if "" != "%original_title%" (*title %original_title%)                
+                                        rem echo pbatchname_check-for-missing-lyrics_bat=%_PBATCHNAME 
+                                :fetch_lyrics_end
+        :no_bad_detected
         
         
         
@@ -380,7 +387,7 @@ rem echo                        iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML
 
                         rem Reject if the file is one of our trash filenames:
                                 iff "1" == "%@RegEx[[\(\[]instrumental[\)\]],%@UNQUOTE[%CFML_AudioFile%]]" then
-                                     echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an instrumental:    %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                     echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an instrumental:   %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                      return                                
                                 endiff
 
@@ -390,7 +397,9 @@ rem echo                        iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML
 
                         rem If the song is marked for approved-lyriclessness, the file is good:                                
                                 set LYRICLESSNESS_APPROVAL_VALUE=%@ExecStr[TYPE "%unquoted_audio_file_full%:lyriclessness" >&>nul]         %+ rem get the song’s lyriclessness approval status
+                                rem echo LYRICLESSNESS_APPROVAL_VALUE=“%LYRICLESSNESS_APPROVAL_VALUE%” for “%unquoted_audio_file_full%:lyriclessness”
                                 iff "APPROVED" == "%LYRICLESSNESS_APPROVAL_VALUE%" then
+                                        echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is marked lyricless:  %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                         set BAD=0
                                         goto :done_processing_this_file
                                 endiff                                        
@@ -479,9 +488,8 @@ rem echo                        iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML
                                         rem Warn of missing lyrics:                                        
                                             rem echos %@ANSI_MOVE_TO_COL[1]%EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%
                                             rem Moved out of function for speedo optimization: set MISSING_FILE_PRE_TEXT=%@ANSI_MOVE_TO_COL[1]%EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%
-                                                echos %MISSING_FILE_PRE_TEXT%
                                                       setdos /x-4
-                                                      echo %unquoted_audio_file%
+                                                echo %MISSING_FILE_PRE_TEXT%%unquoted_audio_file%
                                                       setdos /x0
                                                 
                                         rem Add lyric-retrieval command to our autorun script:

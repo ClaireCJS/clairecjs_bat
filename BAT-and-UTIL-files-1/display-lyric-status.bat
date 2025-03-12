@@ -35,7 +35,7 @@ rem Make sure some important environment variables actually exist:
 rem Validate environment once per session:
         iff 1 ne %VALIDATED_DLS% then
                 call validate-in-path display-lyric-status-for-file validate-environment-variable warning get-lyric-status get-lyriclessness-status
-                call validate-environment-variable filemask_audio
+                call validate-environment-variable filemask_audio skip_validation_existence
                 set  VALIDATED_DLS=1
         endiff
 

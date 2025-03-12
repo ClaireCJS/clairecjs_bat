@@ -8,10 +8,10 @@ rem %COLOR_DEBUG% %+ echo ARGS: %*
 
 rem Validate environment (once):
         rem if "%ANSI_CURSOR_CHANGE_COLOR_WORD[]" == "" function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-        iff 1 ne %validated_rn_1% then
-                call validate-is-function ANSI_CURSOR_CHANGE_COLOR_WORD
-                set  validated_rn_1=1
-        endiff
+        call validate-is-function ANSI_CURSOR_CHANGE_COLOR_WORD
+        rem iff 1 ne %validated_rn_1% then
+        rem        set  validated_rn_1=1
+        rem endiff
 
 rem Get/react to instrumental arguments:
         iff "%1" == "as_instrumental" then
@@ -102,9 +102,12 @@ rem Count files matching parameter:
                 if not exist %FILENAME_NEW (call fatal_error "filename_new does not exist! %blink_off%%filename_new%%blink_off%")
 
         rem Rename any existing sidecar/companion files
+        goto :NewMethodTest
+
         :RenameSidecars
             set BASENAME_OLD=%~n1
             set BASENAME_NEW=%@UNQUOTE[%@NAME["%FILENAME_NEW%"]]
+            rem goat pushd basedir
             for %%F in ("%~dp1%BASENAME_OLD%.*") do (
                 if "%%~nxF" neq "%FILENAME_OLD%" (
                     set FILENAME_SIDECAR_OLD=%%~nxF
@@ -120,6 +123,43 @@ rem Count files matching parameter:
                     echos %FAINT_OFF%%ITALICS_OFF%
                 )
             )
+            rem goat popd
+
+        :NewMethodTest
+                setlocal enabledelayedexpansion
+
+                :RenameSidecars
+                set BASENAME_OLD=%~n1
+                set BASENAME_NEW=%@UNQUOTE[%@NAME["%FILENAME_NEW%"]]
+
+                for %%F in ("%~dp1%BASENAME_OLD%.*") do (
+                    if "%%~nxF" neq "%FILENAME_OLD%" (
+                        set "FILENAME_SIDECAR_OLD=%~dp1%%~nxF"
+                        set "FILENAME_SIDECAR_NEW=%~dp1%BASENAME_NEW%%%~xF"
+
+                        echo DEBUG: Checking sidecar file - !FILENAME_SIDECAR_OLD!
+                        echo DEBUG: Renaming to - !FILENAME_SIDECAR_NEW!
+                        %COLOR_SUCCESS%        %+  echo %FAINT_ON%     - Renaming sidecar file: !FILENAME_SIDECAR_OLD%!
+                        %COLOR_SUCCESS%        %+  echo %FAINT_ON%                          To: !FILENAME_SIDECAR_NEW!%FAINT_OFF% %+ %COLOR_NORMAL%
+                        %COLOR_SUBTLE%         %+  echos %FAINT_ON%%ITALICS_ON%                           ``
+
+                        if not exist "!FILENAME_SIDECAR_OLD!" (
+                            call validate-environment-variable FILENAME_SIDECAR_OLD "Script currently doesn't rename sidecar files if they aren't in the current folder"
+                        )
+
+                        %REN% "!FILENAME_SIDECAR_OLD!" "!FILENAME_SIDECAR_NEW!"
+
+                        set "UNDOCOMMAND_SIDECAR=%REN% "!FILENAME_SIDECAR_NEW!" "!FILENAME_SIDECAR_OLD!""
+                        set "REDOCOMMAND_SIDECAR=%REN% "!FILENAME_SIDECAR_OLD!" "!FILENAME_SIDECAR_NEW!""
+
+                        echo Sidecar file renamed successfully.
+                    ) else (
+                        echo DEBUG: Skipping main file - %%~nxF matches %FILENAME_OLD%
+                    )
+                )
+
+                endlocal
+
             
         gosub :after
 

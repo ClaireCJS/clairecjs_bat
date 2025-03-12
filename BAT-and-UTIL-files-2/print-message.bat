@@ -4,6 +4,8 @@
 @rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRINT-MESSAGE.bat — BEGIN ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 @Echo Off
 @on break cancel
+@setdos /x0
+
 set print_message_running=1
 
 :REQUIRES: set-colors.bat to be run first —— to define certain environment variables that represent ANSI character control sequences
@@ -41,8 +43,9 @@ rem MESSAGE TYPES LIST: PLEASE ADD ANY NEW MESSAGE TYPES TO THIS LIST BEFORE IMP
 
 
 REM DEBUG:
-    set DEBUG_PRINTMESSAGE=0
-    set FUDGE_FACTOR=10                         %+ rem don’t change until %@WIDTH[] function is released to public and implemented here
+        set DEBUG_PRINTMESSAGE=0
+        rem don’t change until @WIDTH[] function is released to public and implemented here:
+            set FUDGE_FACTOR=10                         
 
 REM Initialize variables:
     set PM_PARAMS=%*
@@ -57,8 +60,6 @@ REM Initialize variables:
     
     rem echoerr %ANSI_COLOR_DEBUG%DEBUG: PRINTMESSAGE_OPT_SUPPRESS_AUDIO is %PRINTMESSAGE_OPT_SUPPRESS_AUDIO% ... PM_PARAM3 IS %PM_PARAM3 %ANSI_COLOR_NORMAL%
 
-REM Ensure correct environment
-    setdos /x0
 
 REM Process parameters
                                   set FAST=0

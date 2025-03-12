@@ -1,5 +1,9 @@
 @loadbtm on
 @echo off
+@rem MANUALLY save cursor position because the ansi_save_position / restore_position is not sufficient
+@set PRE_ROW=%_row
+@set PRE_COL=%_column
+@rem echos [set pre_row/col to:%pre_row%,%pre_col%]
 @if "%1" == "unlock" goto :do_the_unlock
 @set DISABLE_STATUS_BAR=0
 @rem echo %ansi_color_orange%@if "%temporarily_disable_status_bar%" == "1" set DISABLE_STATUS_BAR=1 
@@ -44,6 +48,8 @@ rem ENVIRONMENT: Validate the environment:
         )
 
 
+
+
 rem CONFIG: Set message background color & divider:
         rem the height of our default status bars:
                 set DEFAULT_ROWS_TO_LOCK=3      
@@ -56,27 +62,34 @@ rem CONFIG: Set message background color & divider:
 
 
 
+
 rem Respond to command-line parameters:
         echos %@ANSI_BG[0,0,0]%ANSI_RESET%>nul
         unset /q LOCKED_MESSAGE
         rem Unlock mode:
                 :do_the_unlock
-                if "%TB_PARAM_1" == "unlock" .or. "%1" == "unlock" .or. "1" == "%DISABLE_STATUS_BAR%" goto :respond_yes
+                if "%TB_PARAM_1" == "unlock" .or. "%1" == "unlock" .or. "1" == "%DISABLE_STATUS_BAR%" goto :lock_yes
                                                                                                       goto :respond_no
-                        :respond_yes
+                        :lock_yes
                                 if "1" != "%STATUSBAR_LOCKED%" .and. "%2" != "force" goto :END
-                                set STATUSBAR_LOCKED=0
-                                echos %@ANSI_UNLOCK_ROWS[]
-                                if "%TB_PARAM_2" ne "no_erase" .and. 1 ne %DISABLE_STATUS_BAR%  (                        
-                                        set NN=%ROWS_TO_LOCK%
-                                        if defined LAST_ROWS_TO_LOCK set NN=%LAST_ROWS_TO_LOCK%
-                                        echo %ansi_save_position%%@CHAR[27][%@EVAL[%_rows - %NN% + 1]H%ansi_reset%%ansi_erase_to_eol%
-                                        echos %ansi_erase_to_eol%%ansi_erase_to_end_of_screen%
-                                        set repeats=%@EVAL[%nn - %DEFAULT_ROWS_TO_LOCK%]
-                                        if %repeats% gt 0 repeat %repeats% echos %ansi_erase_to_eol%
-                                        echos %ansi_erase_to_eol%%ansi_restore_position%
-                                )                        
+                                echos %big_off%%@ANSI_UNLOCK_ROWS[]
+                                if "%TB_PARAM_2" != "no_erase" .and. "1" != "%DISABLE_STATUS_BAR%"  goto :do_it_80
+                                                                                                    goto :endif_88
+                                        :do_it_80
+                                                set NN=%ROWS_TO_LOCK%
+                                                if defined LAST_ROWS_TO_LOCK set NN=%LAST_ROWS_TO_LOCK%
+                                                echo %ansi_save_position%%@CHAR[27][%@EVAL[%_rows - %NN% + 1]H%big_off%%ansi_reset%%ansi_erase_to_eol%
+                                                echos %big_off%%ansi_erase_to_eol%%ansi_erase_to_end_of_screen%
+                                                set repeats=%@EVAL[%nn - %DEFAULT_ROWS_TO_LOCK%]
+                                                if %repeats% gt 0 repeat %repeats% echos %big_off%%ansi_erase_to_eol%
+                                                echos %big_off%%ansi_erase_to_eol%%ansi_restore_position%%big_off%
+                                                iff %_ROW gt %@EVAL[%_rows - %DEFAULT_ROWS_TO_LOCK%] then
+                                                        set repeat_num=%@EVAL[%_row - (%_rows - %DEFAULT_ROWS_TO_LOCK%)]
+                                                        repeat %repeat_num% echos %ansi_move_up_1%
+                                                endiff
+                                :endif_88
                                 set status_bar_goto_END=1
+                                set STATUSBAR_LOCKED=0
                         :endif:
                 :respond_no
 
@@ -321,4 +334,10 @@ goto :skip_subroutines
                                 set need_to_move_up=%@EVAL[-1*(%_ROWS - %_ROW - %rows_to_lock%)]
                                 if %need_to_move_up% gt 0 echos %@ANSI_MOVE_UP[%need_to_move_up%]
                         endiff
+
+
+
+rem MANUALLY restore cursor position because the ansi_save_position / restore_position is not sufficient
+        echos %@ANSI_MOVE_TO[%@EVAL[%pre_row%+1],%pre_col%]
+
 

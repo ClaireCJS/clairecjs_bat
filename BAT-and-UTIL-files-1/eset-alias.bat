@@ -23,6 +23,7 @@ rem ➕Implement our /p option to prompt the user:
                 set varname=%1
                 set CMD_TAIL=%1 %3$
                 echo %ansi_color_important_less%%emoji_warning% Please edit the value of %faint_on%'%faint_off%%ansi_color_important%%italics_on%%varname%%ansi_color_important_less%%faint_on%'%faint_off%:
+                echos %BIG_OFF%
         endiff
         
 
@@ -41,12 +42,13 @@ rem ✏Emojify✏ & 🏳‍🌈colorfy🏳 the prompt, and change the cursor⬜ 
 rem 📴Turn ANSI rendering off or things will get crazy:
 rem 🔨Do the actual eset command:
         :actual_eset
-        on break call ansi-on.bat
-        call ansi-off
-        *eset %CMD_TAIL%
-        call ansi-on
+                on break call ansi-on.bat
+                echos %BIG_OFF%
+                call ansi-off
+                *eset %CMD_TAIL%
 
-rem 🔛Turn ANSI rendering back on:
+rem 🔛Turn ANSI rendering and Ctrl-Break handling back to normal:
+        call ansi-on
         on break cancel
 
 rem 📰Remind user of our extra options:

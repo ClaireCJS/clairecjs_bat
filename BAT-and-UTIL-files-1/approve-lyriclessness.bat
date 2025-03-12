@@ -29,7 +29,7 @@ rem Deal “all” / “*.*” / “*” / “*.mp3” / “*.flac”  invocatio
                 call AskYN        "You sure" %are_you_sure_answer% %are_you_sure_wait%
                 if "%answer%" != "y" goto :end
                 :force_1
-                call validate-environment-variable filemask_audio
+                if not defined filemask_audio call validate-environment-variable filemask_audio skip_validation_existence
                 for %%tmpfile in (%filemask_audio%) do (
                        @call    approve-lyriclessness-for-file.bat "%@unquote[%tmpfile]"
                 )

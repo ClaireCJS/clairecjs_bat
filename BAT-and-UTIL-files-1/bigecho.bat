@@ -26,7 +26,7 @@ rem Get parameters:
 
 
 rem Validate environment
-        if %BIGECHO_VALIDATED ne 1 (
+        if %BIGECHO_VALIDATED% ne 1 (
             if not defined BIG_TEXT_LINE_1 (call error "BIG_TEXT_LINE_1 is not defined. Try running set-colors.bat")
             if not defined BIG_TEXT_LINE_2 (call error "BIG_TEXT_LINE_2 is not defined. Try running set-colors.bat")
             call validate-plugin StripANSI

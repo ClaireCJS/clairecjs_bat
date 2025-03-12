@@ -73,7 +73,11 @@ rem Perform the actual conversion:
                         call review-file "%LRC_FILE%"
                         call AskYN "Delete the LRC file" no 90
                         if "Y" == "%ANSWER" (*del /q "%LRC_FILE%" >nul)
-                        call AskYN "Mark corresponding audio as lyric%underline_on%less%underline_off%" yes 8
+                        call AskYN "Mark corresponding audio as lyric%underline_on%less%underline_off%? [I=instrumental]" yes 8 I I:mark_as_instrumental_instead
+                                set lrc2txtmark_answer=%answer%
+                                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr_if_answer_was_I
+                                if  "I" == "%lrc2txtmark_answer%" goto :END
+
                         for %%tmpMask in (%fileext_audio%) do (
                                 set proposed_audio_file=%@unquote["%@name["%lrc_file%"]"].%tmpMask
                                 set rem=echo Checking[dd] if exist "%proposed_audio_file%"

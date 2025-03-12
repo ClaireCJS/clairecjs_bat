@@ -14,7 +14,27 @@
 ;;;;;;;; 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; INSERT MODE TOOLTIP ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CAPS/NUM/SCROLL LOCK/INSERT POP-UPS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;; INITIAL STATE FOR TRACKED KEYS ;;;;;;;;;;;;;;;;
+;(insert is handled completely differently, no way to track it)
+if (GetKeyState("CapsLock", "T")) {
+    SetCapsLockState("On")
+} else {
+    SetCapsLockState("Off")
+}
+if (GetKeyState("NumLock", "T")) {
+    SetNumLockState("On")
+} else {
+    SetNumLockState("Off")
+}
+if (GetKeyState("ScrollLock", "T")) {
+    SetScrollLockState("On")
+} else {
+    SetScrollLockState("Off")
+}
+;;;;;;;;;;;;;;;; INITIAL STATE FOR TRACKED KEYS ;;;;;;;;;;;;;;;;
+
+
 ;#Include c:\bat\ShinsOverlayClass.ahk
 #Include c:\bat\ToolTipOptions.ahk
 Persistent
@@ -136,7 +156,10 @@ HandleKey(      KeyName   ,     KeyModeVarName,        key_up_tray_text,        
     SetTimer () =>TrayTip(), -1000                                       ; hide the tray notificatiOn after these many ms
     return
 }
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; INSERT MODE TOOLTIP ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; CAPS/NUM/SCROLL LOCK/INSERT POP-UPS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
@@ -208,7 +231,18 @@ Pause::
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; KEYBOARD ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+^!0::Send "⁰"           ; Ctrl+Alt+0 for superscript number ⁰
+^!1::Send "¹"           ; Ctrl+Alt+1 for superscript number ¹
+^!2::Send "²"           ; Ctrl+Alt+2 for superscript number ²
+^!3::Send "³"           ; Ctrl+Alt+3 for superscript number ³
+^!4::Send "⁴"           ; Ctrl+Alt+4 for superscript number ⁴
+^!5::Send "⁵"           ; Ctrl+Alt+5 for superscript number ⁵
+^!6::Send "⁶"           ; Ctrl+Alt+6 for superscript number ⁶
+^!7::Send "⁷"           ; Ctrl+Alt+7 for superscript number ⁷
+^!8::Send "⁸"           ; Ctrl+Alt+8 for superscript number ⁸
+^!9::Send "⁹"           ; Ctrl+Alt+9 for superscript number ⁹
+
 ^?::Send  "❔"		;	    Ctrl+? for ❔ [white]
 !?::Send  "❓"		;	     Alt+? for ❓ [red]
 ^!?::Send "⁉️"		;	Ctrl-Alt+? for ⁉️ 
@@ -217,9 +251,14 @@ Pause::
 ^!::Send  "❕"		;	    Ctrl+! for ❕ [white]
 !!::Send  "❗"		;	     Alt+! for ❗ [red]
 		         
-^8::Send  "⭐"		;	Ctrl+8 for ⭐
-!8::Send  "🌟"		;	Alt+8 for 🌟
-		         
+;* normal asterisk key	;         Shift+8 is  *  the normal asterisk key
+^8::Send	"⭐"	;          Ctrl+8 for ⭐  big gold star [but looks tiny in EditPlus]
++^8::Send	"⛧"	;    Shift-Ctrl+8 for ⛧  upside-down star [like a pentagram without the circle around it]
+!8::Send	"★"	;           Alt+8 for ★  filled  black star but very small in browser 
++!8::Send	"✪"	;     Shift-Alt+8 for ✪  inverse black star (^^^^^ same size as ^^^^^)
++^!8::Send	"✨"	;      Ctrl-Alt+8 for ✨ dramatic star
+;^!8     can't be used because it's used for ⁸  but if it wasn't, it would be 🌟 for  dramatic star that I actually like to use as my default star for certain script messaging
+
 ;-------   "-"          ;           Hyphen --------- for normal default hyphen                     (compound words, words interrupted by line break)
 ^-::Send   "–"          ;      Ctrl+Hyphen ––––––––– for en dash                                   (ranges,    quotations)
 !-::Send   "—"          ;       Alt+Hyphen ————————— for em dash                                   (interruptions, breaks)
@@ -230,10 +269,10 @@ Pause::
 ^'::Send  "‘"           ;     Ctrl+apostrophe for ‘  smart single quote: left
 ^!'::Send "‘’"          ; Ctrl-Alt+apostrophe for ‘’ smart single quotes: both
 		         
+;(normal quote key)     ;          quote for "  default original dumb quote / inches symbol
+^!"::Send "“”"          ; Ctrl+Alt+quote for “” smart double/normal quotes: both
 ^"::Send  "“"           ;     Ctrl+quote for “  smart double/normal quotes: left
 !"::Send  "”"           ;      Alt+quote for ”  smart double/normal quotes: right
-^!"::Send "“”"          ; Ctrl+Alt+quote for “” smart double/normal quotes: both
-;(normal quote key)     ;          quote for "  default original dumb quote / inches symbol
 
 ; ,::Send   "❟"		;          Comma for “❟” smart comma / fancy unicode comma [in editplus, it looks “dumber” (“❟”) than the “dumb” comma (“,”)
 ;^,::Send  "{U+2C}"	;     Ctrl-Comma for “,” dumb comma / original/normal comma but Windows Terminal overrides this
@@ -259,35 +298,5 @@ Pause::
 !|::Send  "┃"		; “┃” —      Alt-Pipe key for the thick  connecting vertical bar
 ^!|::Send "║"		; “║” — Ctrl-Alt-Pipe key for the doulbe connecting vertical bar
 		      
-^!0::Send "⁰"           ; Ctrl+Alt+0 for superscript number ⁰
-^!1::Send "¹"           ; Ctrl+Alt+1 for superscript number ¹
-^!2::Send "²"           ; Ctrl+Alt+2 for superscript number ²
-^!3::Send "³"           ; Ctrl+Alt+3 for superscript number ³
-^!4::Send "⁴"           ; Ctrl+Alt+4 for superscript number ⁴
-^!5::Send "⁵"           ; Ctrl+Alt+5 for superscript number ⁵
-^!6::Send "⁶"           ; Ctrl+Alt+6 for superscript number ⁶
-^!7::Send "⁷"           ; Ctrl+Alt+7 for superscript number ⁷
-^!8::Send "⁸"           ; Ctrl+Alt+8 for superscript number ⁸
-^!9::Send "⁹"           ; Ctrl+Alt+9 for superscript number ⁹
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; DASHES/etc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;; INITIAL STATE FOR TRACKED KEYS ;;;;;;;;;;;;;;;;
-;(insert is handled completely differently, no way to track it)
-if (GetKeyState("CapsLock", "T")) {
-    SetCapsLockState("On")
-} else {
-    SetCapsLockState("Off")
-}
-if (GetKeyState("NumLock", "T")) {
-    SetNumLockState("On")
-} else {
-    SetNumLockState("Off")
-}
-if (GetKeyState("ScrollLock", "T")) {
-    SetScrollLockState("On")
-} else {
-    SetScrollLockState("Off")
-}
-;;;;;;;;;;;;;;;; INITIAL STATE FOR TRACKED KEYS ;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; KEYBOARD ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

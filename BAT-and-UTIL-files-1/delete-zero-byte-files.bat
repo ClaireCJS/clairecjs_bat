@@ -18,7 +18,7 @@ goto :Next1
                             :processfile [qqqparam]
                                     set qqq=%@UNQUOTE[%qqqparam]
                                     rem  checking %qqq filesize .. %@FILESIZE["%qqq"] eq 0
-                                    iff %@FILESIZE["%qqq"] eq 0 then
+                                    iff %@FILESIZE["%qqq"] eq 0 .and. 1 ne %@Regex[__ [0-9]+kbps __,"%qqq%"] .and. 1 ne %@Regex[__ .*instrumental.* __,"%qqq%"] then
                                             %COLOR_REMOVAL%
                                             *del /a: /f /q "%qqq%" >&>nul
                                             %COLOR_NORMAL%
@@ -39,7 +39,7 @@ goto :Next1
 
 if %DZBF_SILENT eq 1 goto :silent
 
-        call success "All zero-byte files have been deleted.")
+        call success "All zero-byte files have been deleted."
 
 :silent
 

@@ -1,6 +1,7 @@
 @loadbtm on
 @Echo OFF
- on break cancel
+@on break cancel
+cls
 
 rem USAGE:
         iff "%1" eq "" then

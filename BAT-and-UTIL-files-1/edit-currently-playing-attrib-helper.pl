@@ -122,7 +122,7 @@ if ($DEBUG) { print "rem Method is $METHOD\n"; }
 my $display_title = "";
 my $filename      = "";
 my %metadata=();	
-
+my $grep="";
 
 if ($METHOD eq "2024") {
 	#print ("Method 2024 oooh, log is $MUSIC_LOG ... regex='$REGEX'\n");
@@ -564,6 +564,7 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 		if ($filename_nodir !~ /[0-9]_/) { $text_to_copy_to_clipboard__usually_tracknum .= ":learned";	}
 #	}
 
+	my $text_to_copy_to_clipboard__usually_tracknum_before_automark_modifications=$text_to_copy_to_clipboard__usually_tracknum;
 	if ($MODE eq $MODE_AUTOMARK) {
 		$text_to_copy_to_clipboard__usually_tracknum = $actual_tracknum . "_";
 		$text_to_copy_to_clipboard__usually_tracknum =~ s/:learned/:$ENV{AUTOMARKAS}/i;
@@ -580,8 +581,8 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 			$FAIL=0;
 			##### write out the actual values to our $ATTRIB_LST (attrib.lst) file:
 			### Marked:   1_09_This Killer In My House.mp3  as  “learned”   [2022-09-29 at 11:59:47]
-			print   "echo."                                                                                   . ">>$ATTRIB_LST\n";	
 			#changes need to be updated in the other section too..
+			print "\necho.>>$ATTRIB_LST\n";	
 			print "\necho ### Marked:   “$filename_nodir”   as  “$AUTOMARK_AS”    [%_isoDate at %_time]"      . ">>$ATTRIB_LST\n";							
 			if ($COMMENT ne "") { print "echo ### $COMMENT"                                                   . ">>$ATTRIB_LST\n"; }
 			print     "echo $text_to_copy_to_clipboard__usually_tracknum:$AUTOMARK_AS"                        . ">>$ATTRIB_LST\n";	
@@ -614,31 +615,43 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 
 			if (1) {
 				#print "echo on\n";
-				print "echo Wait! Let’s try something (2025/02/21 idea): target_dir in perl=$target_dir\n";
-				print " set text_to_copy_to_clipboard__usually_tracknum=$text_to_copy_to_clipboard__usually_tracknum\n";
+				print "echo %ansi_color_warning_soft%Wait! Let’s try something (2025/02/21 idea): target_dir in perl=$target_dir\n";
+				#rint " set text_to_copy_to_clipboard__usually_tracknum=$text_to_copy_to_clipboard__usually_tracknum\n";
+				$text_to_copy_to_clipboard__usually_tracknum_before_automark_modifications =~ s/:learned/:$ENV{AUTOMARKAS}/i;
+				$grep=$text_to_copy_to_clipboard__usually_tracknum_before_automark_modifications;
+				print "echo [AAAA] grep=$grep\n";
+				$grep =~ s/:.*$//;
+				print "echo [BBBB] grep=$grep\n";
+				print "pause\n";
+				print " set grep=$grep\n";
+
 				print ":AskAboutRegexAgain\n";
 				#TODO setdos stuff on
-				print "eset text_to_copy_to_clipboard__usually_tracknum\n";
-				print "echo \%ANSI_COLOR_IMPORTANT\%Test grep:\%ANSI_COLOR_YELLOW%\%\n";
-				print "echos \%ANSI_COLOR_BRIGHT_GREEN\%\n";
-				#rint "echo *dir /b/s *.mp3;*.flac;" . $ENV{"filemask_audio"} . " [pipe] grep -i \%text_to_copy_to_clipboard__usually_tracknum\%\n";
-				print "     *dir /b/s *.mp3;*.flac;" . $ENV{"filemask_audio"} .      " | grep -i \%text_to_copy_to_clipboard__usually_tracknum\%\n";
+				print "eset grep\n";
+				print "echo \%ANSI_COLOR_IMPORTANT\%%STAR% Test grep:\%ANSI_COLOR_YELLOW%\%\n";
+				print "echos \%ANSI_COLOR_YELLOW\%\n";
+				print "echo *dir /b/s *.mp3;*.flac;" . $ENV{"filemask_audio"} . " [pipe] grep -i \"%ansi_color_bright_cyan%\%grep\%%ansi_color_bright_green%\"\n";
+				print "     *dir /b/s *.mp3;*.flac;" . $ENV{"filemask_audio"} .      " | grep -i \"\%grep\%\"\n";
 				print "echos \%ANSI_COLOR_NORMAL\%\n";
 				#TODO setdos stuff off
 				print "call askyn \"Y=Regex good, proceed. N=Try editing the regex again, G=Give up\" no 10 G G:give_up\n";
 				print "if \"N\" == \"\%ANSWER\%\" goto :AskAboutRegexAgain\n";
 				print "if \"G\" == \"\%ANSWER\%\" goto :GiveUp\n";
 
-				#copied from other section
-				print "\necho ### Marked:   “$filename_nodir”   as  “$AUTOMARK_AS”    [%_isoDate at %_time]"      . ">>$ATTRIB_LST\n";							
-				if ($COMMENT ne "") { print "echo ### $COMMENT"                                                   . ">>$ATTRIB_LST\n"; }
+				#$text_to_copy_to_clipboard__usually_tracknum = $grep;
+				#if ($ENV{GREP} ne "") {	$text_to_copy_to_clipboard__usually_tracknum = $ENV{GREP}; }
+
+				print "\necho.>>$ATTRIB_LST\n";	
+				print "echo ### Marked:   “$filename_nodir”   as  “$AUTOMARK_AS”    [%_isoDate at %_time]" . ">>$ATTRIB_LST\n";							
+				if ($COMMENT ne "") { print "echo ### $COMMENT"                                            . ">>$ATTRIB_LST\n"; }
+
 				#TODO setdos stuff on
-				print  "echo \%text_to_copy_to_clipboard__usually_tracknum\%:$AUTOMARK_AS"                        . ">>$ATTRIB_LST\n";	
+				print "echo \%grep\%:$AUTOMARK_AS" . ">>$ATTRIB_LST\n";	
 				#TODO setdos stuff off
-				print  "call divider\n";	
-				print  "echos \%ANSI_COLOR_BRIGHT_GREEN\%\n";	
-				print  "tail attrib.lst | insert-before-each-line \"    \"\n";	
-				print  "echos \%ANSI_COLOR_NORMAL\%\n";	
+				print "call divider\n";	
+				print "echos \%ANSI_COLOR_BRIGHT_GREEN\%\n";	
+				print "tail attrib.lst | insert-before-each-line \"    \"\n";	
+				print "echos \%ANSI_COLOR_NORMAL\%\n";	
 			} else {
 				print "keystack ec\n";
 			}

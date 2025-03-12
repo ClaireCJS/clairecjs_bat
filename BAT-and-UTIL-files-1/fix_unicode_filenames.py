@@ -660,7 +660,7 @@ def rename_files_in_current_directory(mode="file", automatic_mode=False, recursi
     def process_directory(directory):
         nonlocal any_files_found_to_rename_at_all, automatic
         for entry in os.scandir(directory):
-            if entry.is_file():
+            if entry.is_file() or True:   #oops, only doing files was skipping directories, totally not what we want!
                 filename = entry.name
                 filename_for_primt = filename.encode('utf-8', 'ignore')
 

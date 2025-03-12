@@ -1,7 +1,8 @@
 @loadbtm on
  rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
-@call bat-init
 @Echo Off
+@call bat-init
+cls
 
 rem Usage:
         iff "%1" == "/h" .or. "%1" == "-h" .or. "%1" == "--help" .or. "%1" == "/help" .or. "%1" == "help" .or. "%1" == "?" .or. "%1" == "/?" .or. "%1" == "-?" .or. "%1" == "--?" then

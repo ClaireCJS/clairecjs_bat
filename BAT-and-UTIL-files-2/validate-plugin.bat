@@ -2,7 +2,7 @@
 @if %DEBUG_TCASE gt 0 @echo %0 called by %_PBATCHNAME
 @Echo off
 @on break cancel
-@setdos /x0
+@*setdos /x0
 
 ::::: GET PARAMETERS:
     set LAST_TITLE=%_TITLE
