@@ -2563,6 +2563,7 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                 set  JUST_APPROVED_LYRICS=0
                 set  LYRICLESSNESS_STATUS=APPROVED              
                 echo LYRICLESSNESS_STATUS Trace 1 - status is “%LYRICLESSNESS_STATUS%” >nul
+                gosub approve_lyrics_done
                 rem echo 🐐 checking if exist: SIDECAR_LYRICS==“%SIDECAR_LYRICS%”
                 iff exist "%SIDECAR_LYRICS%" then
                         echo Deleting lyric file of "%SIDECAR_LYRICS%" ???
