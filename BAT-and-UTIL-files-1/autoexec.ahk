@@ -232,6 +232,7 @@ Pause::
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; KEYBOARD ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; TODO make these numpad instead:
 ^!0::Send "⁰"           ; Ctrl+Alt+0 for superscript number ⁰
 ^!1::Send "¹"           ; Ctrl+Alt+1 for superscript number ¹
 ^!2::Send "²"           ; Ctrl+Alt+2 for superscript number ²
@@ -250,7 +251,10 @@ Pause::
 ;can't figure out Ctrl-Alt-! though ...      ^!!:Send  "‼️";
 ^!::Send  "❕"		;	    Ctrl+! for ❕ [white]
 !!::Send  "❗"		;	     Alt+! for ❗ [red]
-		         
+
+			 
+;todo these brackets: 【a】 [a] [-] 【-】_【-】 [-]_[-]
+
 ;* normal asterisk key	;         Shift+8 is  *  the normal asterisk key
 ^8::Send	"⭐"	;          Ctrl+8 for ⭐  big gold star [but looks tiny in EditPlus]
 +^8::Send	"⛧"	;    Shift-Ctrl+8 for ⛧  upside-down star [like a pentagram without the circle around it]

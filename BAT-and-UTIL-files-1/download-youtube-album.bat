@@ -15,6 +15,9 @@
 :REQUIRES:     metaflac.exe (to add ReplayGain tags to FLAC files), metaflac.mp3 (to add ReplayGain tags to MP3 files), yt-dlp.exe (to download YouTube videos), our messaging system & validator scripts
 :DEPENDENCIES: set-latestfilename.bat (to determine latest/youngest file), delete-largest-file.bat (to delete full-album after splitting into chapters), set-task (but only to set the TASK and window title)
 
+REM CONFIG:
+        set IMAGE_VIEW_PROCESS_NAME=i_view32            %+ rem process name for when we use taskend to kill the image we preview
+
 
 REM DEBUGGY stuff
         set URL="%*"
@@ -25,11 +28,14 @@ REM DEBUGGY stuff
         call set-task "downloading youtube albums"
 
 REM check parameters & environment
-        if "%1"    == "" .or. "%URL%" == "" (call error "Need URL!" %+ goto :END)
-        call validate-in-path               ingest_youtube_album.py delete-zero-byte-files important important_less errorlevel delete-largest-file warning error print-if-debug set-task metamp3 metaflac yt-dlp set-latest-filename openimage get-image-dimensions askyn crop-center-square-of-image make-image-square celebration change-into-temp-folder expand-image-to-square
-        call validate-environment-variables ANSI_BRIGHT_CYAN faint_on faint_off italics_on italics_off underline_on underline_off %+ REM most of these are set by set-colors.bat:
-        if not defined filemask_image call validate-environment-variable  filemask_image skip_existence_validation
-        if not defined filemask_audio call validate-environment-variable  filemask_audio skip_existence_validation
+        if "1" == "%validated_downloadyoutubealbum_1%" goto :validated_already
+                if "%1"    == "" .or. "%URL%" == "" (call error "Need URL!" %+ goto :END)
+                call validate-in-path               ingest_youtube_album.py delete-zero-byte-files important important_less errorlevel delete-largest-file warning error print-if-debug set-task metamp3 metaflac yt-dlp set-latest-filename openimage get-image-dimensions askyn crop-center-square-of-image make-image-square celebration change-into-temp-folder expand-image-to-square
+                call validate-environment-variables ANSI_BRIGHT_CYAN faint_on faint_off italics_on italics_off underline_on underline_off %+ REM most of these are set by set-colors.bat:
+                if not defined filemask_image call validate-environment-variable  filemask_image skip_existence_validation
+                if not defined filemask_audio call validate-environment-variable  filemask_audio skip_existence_validation
+                set validated_downloadyoutubealbum_1=1
+        :validated_already
 
 
 REM Extensions that we may be downloading:
@@ -261,6 +267,7 @@ REM Tag and move the files with our assistant python script:
         :Redo_fuf
         echo. %+ echo. %+ echo. 
         call important "%EMOJI_HAMMER% About to run %italics_on%fix-unicode-filenames%italics_off% %faint_on%(to cleanse files of any unicode/bad characters)%faint_off%..."
+        taskend /f %IMAGE_VIEW_PROCESS_NAME%
         call fix-unicode-filenames auto  %+ call errorlevel "uh oh spaghettios!!!!!!" %+ echo. %+ REM /     so we used the "auto" parameter instead
         if %REDO eq 1 goto :Redo_fuf
         set AUTOMATIC_UNICODE_CLEANING=0 %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. 

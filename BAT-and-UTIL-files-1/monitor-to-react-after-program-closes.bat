@@ -6,7 +6,7 @@
 :::: Do everything related to making this window invisible first:
                                      SET HIDDEN=0
     if "%@UPPER[%3]" eq "EXITAFTER" (SET HIDDEN=1)
-    if "%HIDDEN%"                   (window /trans=0)
+    if "%HIDDEN%" == "1"            (window /trans=0)
 
 :::: Get parameters:
     SET WAIT_FOR=%1

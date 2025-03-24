@@ -123,6 +123,9 @@ rem CLEANUP:
             if not exist "%JSON_WANTED%" call validate-environment-variable JSON_WANTED "can’t find JSON_WANTED file of “%JSON_WANTED%”"
             call success "Succcess!"
 
+    rem rn again?
+        call rn "%FILENAME_NEW%"
+
     rem clean-up 0-byte description txt file
         for %%tmpZeroByteFile in (*.txt;*.description) do (
             if %%~zf==0 (

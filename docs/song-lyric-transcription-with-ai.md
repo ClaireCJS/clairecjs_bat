@@ -1,4 +1,8 @@
-https://github.com/EtienneAb3d/WhisperTimeSync
+TODO: mention this project as requirement https://github.com/EtienneAb3d/WhisperTimeSync
+TODO: daily approvals report			 report-lyric-approval-progress.bat
+TODO: document “approve-lyriclessness ask” as part of a possible workflow
+TODO: document for get-lyrics: :USAGE:     set OVERRIDE_FILE_ARTIST_TO_USE=Misfits     //override artist name, especially useful if you want to predownload lyrics for a bunch of tribute/cover albums of a particular band. For example, I have 10 tribute albums for The Misfits that I want to pre-download lyrics for, but I have a hunch the downloader will not find the right lyrics if my original artist tag is missing on any of these files, plus a lot of people who upload lyrics upload without the “The”. And although this script compensates for both those contingencies, setting this can speed things up.
+
 
 
 
@@ -159,7 +163,8 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
     - Start with: [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat), which runs [predownload-lyrics-here.bat](../BAT-and-UTIL-files-1/predownload-lyrics-here.bat) on random subfolders in a random order.  
     - The predownloader marks files so that they are never retried in pre-download mode ever again. 
     - If you would like to erase those markings, run [reset-genius-search-status-for-all-audio-files.bat](../BAT-and-UTIL-files-1/reset-genius-search-status-for-all-audio-files.bat) in a folder. 
-    - If you would like to check your progress, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat)
+    - If you would like to check your overall lyric/karaoke progress for your entire collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat)
+    - If you would like to check how many lyric approvals you did on a certain day, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat)
 
 </details>
 
@@ -199,6 +204,15 @@ Generally speaking, it will be: ```create-srt``` or ```get-lyrics``` followed by
 
 
 <details><summary>Click here to view command list & descriptions.</summary>  
+
+### [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat)
+
+Runs an initial pass of pre-downloading lyrics from Genius **in a completely unattended fashion**, for an entire folder tree, for later review. 
+
+BENEFIT 1: This is SUPER HANDY for saving online lookup time while you are at the keyboard, by doing initial fetches in advance, so when they are reviewed, no *attended* user time is wasted.
+
+BENEFIT 2: This allows for lyric approval/disapproval to be performed when internet connectivity is down.
+
 
 ### 🌟 [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-file {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
 
@@ -243,19 +257,17 @@ That is: If an MP3/FLAC has a corresponding LRC/SRT but not TXT version, convert
 
 It’s good to prep your entire collection with this, by running it in every folder of your music collection. Do this by going to the base folder of your music collection and running: ```global /i create-txt-lyrics-from-karaoke-files.bat```
 
-###
-TODO: predownload-all-lyrics-in-all-subfolders.bat
 
-Runs an initial pass of downloading lyrics in a completely unattended fashion, for later review
-
-###
-TODO: review-all-lyrics-in-all-subfolders.bat
+### [review-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/review-all-lyrics-in-all-subfolders.bat)
 
 Randomly walks a folder tree, obtaining/reviewing lyrics, with the intent of approving lyrics for later automatic AI transcription.  
 (It is reviewing lyrics in the case of predownload-all-lyrics-in-all-subfolders.bat having already downloaded some lyrics. And it is obtaining lyrics in the case of those lyrics not existing or not being sufficient.)
 
-###
-TODO: If you would like to check your progress, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat). When run in the base of your music collection, generate a report on the percentage completion of our lyric and karaoke tasks.  It does so by logging values into ```lyric-subtitle-compliance.log``` each time it is run.  This gives the data needed to graph your progress over time, which is as easy as dumping the file into [ChatGPT](http://www.openai.com/chat) and asking nicely.
+### [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat)
+Report to check your overall lyric/karaoke progress for your entire music collection
+
+### [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat)
+Report to check how many lyric approvals you did on a certain day
 
 
 </details>
@@ -273,7 +285,15 @@ TODO: If you would like to check your progress, run [report-lyric-and-subtitle-p
 
 **Create karaoke for one audio file.**
 Performs the AI transcription process for a single song file.
-Run without parameters to see various options, including but not limited to  ```ai``` (skips the lyrics component), ```fast``` (shortens prompt timer lengths), ```force``` (generate it even if it already exists), and ```LyricsApproved``` (consider all lyric files to be *pre-approved* even if not explicitly marked as such).
+Run without parameters to see various options, which include:
+
+    - ```         force``` — generate it even if it already exists
+    - ```            ai``` — skips  the   lyrics   component, and transcribes file only with AI
+    - ```LyricsApproved``` — don’t skip the lyrics component, and transcribes file with existing lyrics *even if not pre-approved* [i.e. consider them approved regardless]
+    - ```          fast``` — shortens prompt timer lengths [to get more done overnight]
+    - ```          last``` — retry the last transcription again [in case of error]
+    - ```       cleanup``` — just clean up the temp files [in case of error]
+    - ```PromptAnalysis``` — instead of encoding, simply log the prompt to the log file for later analysis. Great way to test our lyric postprocessor system-wide proper to doing system-wide transcription.
 
 
 ### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/create-srt-file-for-currently-playing-song.bat):
@@ -468,15 +488,17 @@ Marks lyric file with approval/disapproval so that we can pre-approve lyric file
 
 Same as above but for karaoke files. Not particularly used by this system.
 
-### 🌟 [approve-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) / [disapprove-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) {force}:
+### 🌟 [approve-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) / [disapprove-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) {force | all | ask | wildcard | filename}:
 
-**Remember:** The only way to batch transcribe in an unattended fashion (“encode while you sleep”) is to pre-approve lyric files.
+**Remember:** The only way to batch transcribe in an unattended fashion (aka “encode while you sleep”) is to pre-approve lyric files.
 
 But what if lyrics can’t be found and we still want to proceed with batch encode?  
 
 In that case, we must pre-approve that the *song* is *lyricless* — in a state of “**lyriclessness**” — because there is no lyric file to approve.
 
 This script marks a *song file* with *lyriclessness* approval/disapproval so that we can do that.
+
+Invoke it with ```approve-lyriclessness ask``` if you want it to ask individually for each file (along with a chance for one-key listening preview and one-key renaming/marking file as an instrumental, which helps with our stats).
 
 
 &nbsp;

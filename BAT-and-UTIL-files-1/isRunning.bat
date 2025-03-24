@@ -1,3 +1,4 @@
+@loadbtm on
 @on break cancel
 @Echo off
 
@@ -41,7 +42,7 @@
             :IsRunning_YES
                     set emoji=%EMOJI_CHECK_MARK
                     color green on black     
-                    echos %@ANSI_RGB_BG[0,60,0]
+                    rem echos %@ANSI_RGB_BG[0,60,0]
                     iff "%2" == "quiet" .or. "%2" == "silent" then
                             rem (do nothing)
                     else

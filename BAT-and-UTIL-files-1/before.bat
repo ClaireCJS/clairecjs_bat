@@ -35,6 +35,8 @@
 	if "%1"=="quake"          goto :quake
 	if "%1"=="quake3"         goto :quake3
 	if "%1"=="quakelive"      goto :quakelive
+	if "%1"=="scan"           goto :scanner
+	if "%1"=="scanner"        goto :scanner
 	if "%1"=="travel"         goto :trip
 	if "%1"=="trip"           goto :trip
 	if "%1"=="vacation"       goto :trip
@@ -316,6 +318,14 @@ goto :END
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:scanner
+        call validate-environment-variable NOTES
+        call checkeditor
+        %EDITOR% %NOTES%\scanner-notes.txt
+goto :END
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

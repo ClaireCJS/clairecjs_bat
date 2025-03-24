@@ -40,11 +40,11 @@ rem Capture parameters:
 
 
 rem ENVIRONMENT: Validate the environment:
-        if 1 ne %VALIDATED_LOCKED_MESSAGE_BAT% (
+        if "1" != "%VALIDATED_LOCKED_MESSAGE%" (
                 call validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_UNLOCK_MARGINS ANSI_SAVE_POSITION ANSI_RESTORE_POSITION ANSI_EOL NEWLINE CONNECTING_EQUALS BLINK_ON BLINK_OFF DOT ANSI_COLOR_ERROR ANSI_UNLOCK_MARGINS connecting_equals
-                call validate-functions             ANSI_MOVE_UP   ANSI_BG  ANSI_UNLOCK_ROWS    ANSI_SCROLL_DOWN   ANSI_MOVE_DOWN
+                call validate-functions             ANSI_MOVE_UP   ANSI_BG  ANSI_UNLOCK_ROWS    ANSI_SCROLL_DOWN   ANSI_MOVE_DOWN        ANSI_MOVE_TO_ROW
                 call validate-plugin                StripANSI
-                set VALIDATED_LOCKED_MESSAGE_BAT=1
+                set VALIDATED_LOCKED_MESSAGE=1
         )
 
 
@@ -73,6 +73,7 @@ rem Respond to command-line parameters:
                         :lock_yes
                                 if "1" != "%STATUSBAR_LOCKED%" .and. "%2" != "force" goto :END
                                 echos %big_off%%@ANSI_UNLOCK_ROWS[]
+                                set STATUSBAR_LOCKED=0
                                 if "%TB_PARAM_2" != "no_erase" .and. "1" != "%DISABLE_STATUS_BAR%"  goto :do_it_80
                                                                                                     goto :endif_88
                                         :do_it_80
@@ -135,7 +136,6 @@ rem Calculate free space values:
         set FREE_GIGS=%@COMMA[%@FORMATN[.2,%@EVAL[%DF%/1024/1024/1024]]]
         set FREE_TERA=%@FORMATN[.2,%@EVAL[%DF%/1024/1024/1024/1024]]
 
-
 rem Create message text:
         set OUR_SLASH=%bold_on%%slash%%bold_off%
         SET FREE_SPACE_MESSAGE=%bold_on%%FREE_MEGS%%bold_off% %ansi_color_important_less%%LOCKED_MESSAGE_COLOR_BG%M %our_slash% %locked_message_color%%FREE_GIGS% %ansi_color_important_less%%LOCKED_MESSAGE_COLOR_BG%G
@@ -143,10 +143,10 @@ rem Create message text:
         set FREE_SPACE_MESSAGE=%FREE_SPACE_MESSAGE% %italics_on%free%italics_off% on %bold_on%%@UPPER[%@INSTR[0,2,%CWDTMP]]%bold_off%%LOCKED_MESSAGE_COLOR%
         if %USE_JUST_FREE_SPACE_MESSAGE eq 1 ( set LOCKED_MESSAGE=%FREE_SPACE_MESSAGE% )
 
-
 rem Substitute the token {freespace} with our generated free space message:
         set LOCKED_MESSAGE=%@unquote[%@rereplace[{freespace},"%FREE_SPACE_MESSAGE%","%locked_message"]]
         set LAST_LOCKED_MESSAGE=%LOCKED_MESSAGE%
+
 
 
 rem Get message length and create side-spacers of appropriate length to center the message:
@@ -205,7 +205,7 @@ rem Start with our status bar:
         set row=%_ROW
         set rows=%_ROWS
 
-                                                   set ROLL_NEEDED=0
+                                                       set ROLL_NEEDED=0
         if %row% gt %@EVAL[%rows% - %rows_to_lock% -1] set ROLL_NEEDED=1
 
         rem echo roll_decision_row=row "%ROW%" out of "%ROWS%" rows %+ pause
@@ -237,7 +237,9 @@ rem Start with our status bar:
                rem 20250221 not sure          echos %@char[27][%[_COLUMNS]G%locked_message_color%%@CHAR[27][38;2;255;0;5m%connecting_equals%        
                rem 20250221 not sure )
 
+rem Actually lock the screen area:
         echos %@CHAR[27][1;%@EVAL[%_rows-%rows_to_lock%]r%ANSI_RESTORE_POSITION%
+        set STATUSBAR_LOCKED=1
 
 
 rem At this point we have our 1ˢᵗ divider and are at the 2ⁿᵈ line which is the line of our message
@@ -255,7 +257,6 @@ rem At this point, the message is displayed and we’re on the 3ʳᵈ/final line
         rem   %@ANSI_MOVE_TO[%@EVAL[%_ROWS-1],0]%LOCKED_MESSAGE_COLOR%%DIVIDER%
 rem        echos %@ANSI_MOVE_TO[%@EVAL[%_ROWS-1],0]%LOCKED_MESSAGE_COLOR%
         echos %ANSI_RESTORE_POSITION%
-        set STATUSBAR_LOCKED=1
 
 goto :END
 
@@ -329,15 +330,39 @@ goto :skip_subroutines
 :The_Very_End
 
         :cleanup
-                rem A cleanup we need to do to prevent getting our cursor stuck int he locked area!
+                rem A cleanup we need to do to prevent getting our cursor stuck in the locked area!
                         iff "1" == "%STATUSBAR_LOCKED%" then
-                                set need_to_move_up=%@EVAL[-1*(%_ROWS - %_ROW - %rows_to_lock%)]
-                                if %need_to_move_up% gt 0 echos %@ANSI_MOVE_UP[%need_to_move_up%]
+                                rem check if we need to move any rows up but As of 2025/03/16 we still get trapped:
+                                        set need_to_move_up=%@EVAL[-1*(%_ROWS - %_ROW - %rows_to_lock%)]
+                                        rem 15 on 25 =-1*(15-25)= -1*(-10)= move up -10=  stay  on row 15 because negatives are ignored
+                                        rem 21 on 25 = -1*(4-3) = -1*( 1) = move up -1 =  stay  on row 22 because negatives are ignored
+                                        rem 22 on 25 = -1*(3-3) = -1*( 0) = move up  0 =  stay  on row 22
+                                        rem 23 on 25 = -1*(2-3) = -1*(-1) = move up  1 = arrive at row 22
+                                        rem 24 on 25 = -1*(1-3) = -1*(-2) = move up  2 = arrive at row 22
+                                        rem 25 on 25 = -1*(0-3) = -1*(-3) = move up  3 = arrive at row 22
+                        
+
+                                rem So let’s try kludging an additional row out of it. Maybe there are situations where a newline or other output deposits us in the wrong place without the console fully knowing?
+                                        set need_to_move_up=%@EVAL[1 + %need_to_move_up%]
+
+
+                                rem ONLY If we ended up with a positive number, move those many rows up:
+                                        if %need_to_move_up% gt 0 echos %@ANSI_MOVE_UP[%need_to_move_up%]
+                                        set audit_row_when_moved_up_after_unlocking_status_bar=%_ROW
+                                        set audit_col_when_moved_up_after_unlocking_status_bar=%_COL
+
+                                rem TODO: We could just hard-move to the last available row without these calculations. 
                         endiff
 
 
 
 rem MANUALLY restore cursor position because the ansi_save_position / restore_position is not sufficient
         echos %@ANSI_MOVE_TO[%@EVAL[%pre_row%+1],%pre_col%]
+        set audit_row_when_done_setting_status_bar=%_ROW
+        set audit_col_when_done_setting_status_bar=%_COL
+
+rem 2025/03/16: new method for not getting trapped at the bottom....
+        set max_valid_row_to_be_at=%@EVAL[%_ROWS - %ROWS_TO_LOCK]
+        if %_ROW gt %max_valid_row_to_be_at echos %@ANSI_MOVE_TO_ROW[%max_valid_row_to_be_at]
 
 

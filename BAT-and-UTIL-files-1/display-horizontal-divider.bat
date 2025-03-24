@@ -1,5 +1,8 @@
+@if %_columns eq %LAST_NUM_COLUMNS .and. defined last_divider (echos %last_divider% %+ goto :The_Very_END) %+ rem Quick exit
 @Echo OFF
 @on break cancel
+
+
 setdos /x-5
 rem setdos /c^
 setdos /c%default_command_separator_character%
@@ -49,22 +52,36 @@ rem As of 2024/10/18, we now try to use the pre-rendered dividers before drawing
         if "" != "%1" .and. %1 lt 999999 set WIDTH_TO_USE=%1
         set RAINBOW_DIVIDER_FILE=%bat%\dividers\rainbow-%WIDTH_TO_USE%.txt
         iff exist %RAINBOW_DIVIDER_FILE% then
-                iff 1 ne %validated_divider_env then
-                        if "" eq "%@FUNCTION[ansi_move_to_col]" (function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`)
-                        if not defined NEWLINE                  (set NEWLINE=%@char[12]%@char[13])
-                        set validated_divider_env=1
-                endiff
+                rem Validate the environment, but only once:
+                        iff 1 ne %validated_divider_env then
+                                if ""  eq "%@FUNCTION[ansi_move_to_col]" (function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`)
+                                if not defined NEWLINE                   (set NEWLINE=%@char[12]%@char[13])
+                                set validated_divider_env=1
+                        endiff
 
                 rem First, move to column 0... Yes, this means we will overwrite things. This is by design.
-                echos %@ANSI_MOVE_TO_COL[1]%ANSI_ERASE_TO_EOL%
-                iff "%2" == "lmc" .and. defined LOCKED_MESSAGE_COLOR then 
-                        color cyan on blue
-                        echos %LOCKED_MESSAGE_COLOR%%ANSI_ERASE_TO_EOL%
-                endiff
-                type %RAINBOW_DIVIDER_FILE%
+                rem TODO: We could look at where we are with the %_column variable, and if it’s more than 1, go to the next line... that might be better!
+                        echos %@ANSI_MOVE_TO_COL[1]%ANSI_ERASE_TO_EOL%
+                        iff "%2" == "lmc" .and. defined LOCKED_MESSAGE_COLOR then 
+                                color cyan on blue
+                                echos %LOCKED_MESSAGE_COLOR%%ANSI_ERASE_TO_EOL%
+                        endiff
+
+                rem Type the file out, but only if the # of columns is different from last time:
+                rem old: 
+                        rem type %RAINBOW_DIVIDER_FILE%
+                rem new:
+                        iff %_columns ne %LAST_NUM_COLUMNS then
+                               set LAST_DIVIDER=%@execstr[type %RAINBOW_DIVIDER_FILE%]
+                               echos %last_divider%
+                               set LAST_NUM_COLUMNS=%_columns
+                        else
+                               echos %last_divider%
+                        endiff
+
                 rem   Okay this is weird. I keep getting "stuck" because the generated 
                 rem   dividers don't have newlines at the end! So let's force one:
-                if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
+                        if "%1" ne "NoNewline" .and. "%2" ne "NoNewline" .and. "%3" ne "NoNewline" .and. "%4" ne "NoNewline" .and. "%5" ne "NoNewline"  .and. "%6" ne "NoNewline" (echos %NEWLINE%%@ANSI_MOVE_TO_COL[1])
                 goto :Done
         endiff
 
@@ -199,4 +216,5 @@ rem turn-back-on-file-redirection:
         echos %CURSOR_RESET%
 
 rem experimenting with not resetting this for less cursor-y progress bars: echo %ANSI_INVISIBLE_CURSOR%
+:The_Very_END
 

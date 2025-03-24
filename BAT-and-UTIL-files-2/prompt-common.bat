@@ -62,8 +62,11 @@ rem ///// BUILD THE PROMPT:
     :Setup
         unset /q TMPPROMPT
     :Reset_Font_To_English
-        rem just in case we used ansi to flip it into DEC drawing font, we want it back
-        set TMPPROMPT=$e(B%TMPPROMPT%
+        rem just in case we used ANSI to flip it into either the DEC drawing font, or double-height text, then we want to reset
+        rem things back to normal font (escape-leftparen-capitalB) and single-height text (escape-hash-zero)
+                set TMPPROMPT=$e#0$e(B%TMPPROMPT%
+        rem just in case this line of the console was previously set to double-height, we want it back to single-height line:
+
     :Reset_Cursor_To_Our_Preferred_Color_And_Shape
         rem we return diff colored cursors from programs sometimes, and this resets them
         rem Actually... Decided not to do this because it would change it upon the first prompt. I'd really only want to do this a 2nd time, because I use cursor colors to represent errorlevels. Not feasible.

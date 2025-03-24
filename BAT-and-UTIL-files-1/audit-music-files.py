@@ -1,12 +1,13 @@
-"""
 
-todo: need to make this skip processing files that say 5.1 or 7.1 mix
+"""
 
 1) This looks for files that don't have ReplayGain tags, or which are set to read-only, and generates a script to add them.
 
 2) It also generates into this same script❟ fixes for any files erroneously set to read-only [which may be an issue if that’s what you WANT, but we prefer to be able to edit our metadata on the fly!]
 
 3) It also calls out 0-byte audio files, which really shoudln’t exist❟ with a fix for those as well (relying on our “rn.bat”)
+
+4) Finally, it renames any files with “(instrumental)” in the filename into “[instrumental]”
 
 Just run it in the base of any folder tree that has audio files.
 
@@ -135,11 +136,28 @@ def process_file(file_path):                                                    
             print(f"\n\n{Fore.RED}ERROR: {abs_file_path} is 0 bytes. “RG_fix.bat” will address this.{Fore.GREEN}")
             return False, abs_file_path        
 
+
+
+        # ━━━━━━━━━━━━━━━━━━━━━ Rename (instrumental) → [instrumental] ━━━━━━━━━━━━━━━━━━━━━
+        if "(instrumental)" in file_path.lower():
+            new_file_path = file_path.replace("(instrumental)", "[instrumental]")  # Perform the rename
+            with open(rg_fix_bat, "a", encoding="utf-8") as f:
+                maybe_print_bat_header(f)
+                f.write(f"\n\nrem ━━━━━━━━━━━━━━━━━━━━━ INCORRECTLY-MARKED INSTRUMENTAL: ━━━━━━━━━━━━━━━━━━━━━━\n")                    # look pretty in our BAT file output
+                f.write(f'ren "{file_path}" "{new_file_path}"\n')  # Write rename command to batch script
+                #print(f"\n{Fore.YELLOW}Renaming: {file_path} → {new_file_path}{Fore.WHITE}")
+
+
+
         #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Disallow non-2-channel audio from being audited ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         # at this point❟ there are no “forbidden” characters left in the files❟ and they aren’t 0-byte files either
         # so the next thing is to check if it’s 1–2 channels —— we don’t know how to audit music that has a different # of channels
         if AUDIT_ONLY_MONO_AND_STEREO == True:
             try:
+                if "5.1 " in file_path.lower() or "7.1 " in file_path.lower():
+                    print(f"\n{Fore.YELLOW}Skipping {file_path}: Filename suggests not a 1–2-channel file.{Fore.WHITE}\n")
+                    return
+
                 channels = 2
                 audio    = None
                 if   file_path.lower().endswith(".flac"): audio = FLAC(file_path)
@@ -186,6 +204,11 @@ def process_file(file_path):                                                    
         else:
             return (False, abs_file_path)
         #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Check for presence of missing ReplayGainTags: END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
+
+
         
     except HeaderNotFoundError as e:
         print("\r\033[K",end="")    #ansi code to erase current line
@@ -283,7 +306,7 @@ def main():
     # create script to fix all that is wrong:                                                       # (though “add-RelayGain-tags.bat” must exist for it to be effective)
     if rg_no:                                                                                       # if result bucket 2 has contents (filenames)
         rg_no_folders = set(os.path.dirname(file) for file in rg_no)                                # discover all the unique dir names for all those files
-        with open(rg_fix_bat, 'w', encoding='utf-8') as f:                                          # open up a bat file to run the commands to fix it all
+        with open(rg_fix_bat, 'a', encoding='utf-8') as f:                                          # open up a bat file to run the commands to fix it all
             maybe_print_bat_header(f)                                                               # print the BAT file header❟ but only if we havent’ already
             for folder in rg_no_folders:                                                            # then it should go through each unique folder we discovered
                 f.write(f'cd    "{folder}"\n')                                                      # change into the folder in case the pushd command doesn’t work

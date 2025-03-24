@@ -13,7 +13,7 @@ rem Validate environment:
 
 
 rem Actions to take BEFORE preview (pausing music):
-        (if "1" == "%PAF_WINAMP_INTEGRATION%" call winamp-pause   quick) >&>nul
+        (if "1" == "%PAF_WINAMP_INTEGRATION%" call winamp-pause quick) >&>nul
 
 
 rem Do the actual preview:

@@ -73,7 +73,7 @@ rem Perform the actual conversion:
                         call review-file "%LRC_FILE%"
                         call AskYN "Delete the LRC file" no 90
                         if "Y" == "%ANSWER" (*del /q "%LRC_FILE%" >nul)
-                        call AskYN "Mark corresponding audio as lyric%underline_on%less%underline_off%? [I=instrumental]" yes 8 I I:mark_as_instrumental_instead
+                        call AskYN "Mark corresponding audio as lyric%underline_on%less%underline_off%? [%ansi_color_bright_green%I%ansi_color_prompt%=instrumental]" yes 15 I I:mark_as_instrumental_instead
                                 set lrc2txtmark_answer=%answer%
                                 gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr_if_answer_was_I
                                 if  "I" == "%lrc2txtmark_answer%" goto :END
@@ -93,6 +93,12 @@ rem Perform the actual conversion:
                 endiff
                 call validate-environment-variable FILE_OR_FILES_TO_REVIEW
         endiff
+
+
+
+rem Mark that these files have been generated and were not manually typed out [and thus save to regenerate over if we ever decide to do that!]
+        set     TMP_ADS_FILENAME_1="%@UNQUOTE["%OUTPUT_FILE%"]:generated"    %+ echo       1>%TMP_ADS_FILENAME_1%
+        set     TMP_ADS_FILENAME_2="%@UNQUOTE["%OUTPUT_FILE%"]:generated_by" %+ echo lrc2txt>%TMP_ADS_FILENAME_1%
 
 
 rem Review output:

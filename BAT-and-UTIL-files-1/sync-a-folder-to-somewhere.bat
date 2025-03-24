@@ -18,18 +18,17 @@ pushd
 
 :CheckForInvocationErrors
     ::::: 2024 ALTERNATE MORE-INTUITIVE QUICK-RUN INVOCATION:
-        if  "%SYNCSOURCE%" eq "" (set SYNCSOURCE=%1)
-        iff "%SYNCTARGET%" eq "" then
+        if  "%SYNCSOURCE%" == "" (set SYNCSOURCE=%1)
+        iff "%SYNCTARGET%" == "" then
                 set SYNCTARGET=%2
                 if not isdir %SYNCTARGET% (mkdir /s %SYNCTARGET%)
         endiff
-        if "%SYNCTRIGER%" eq "" (set SYNCTRIGER=%3)
-        if "%SYNCTRIGER%" eq "" (set SYNCTRIGER=__ sync info __)
+        if "%SYNCTRIGER%" == "" (set SYNCTRIGER=%3)
+        if "%SYNCTRIGER%" == "" (set SYNCTRIGER=__ sync info __)
 
     ::::: VALIDATE INVOCATION GIVEN:
-        if "%SYNCSOURCE%" eq "" goto :NoSyncSource
-        if "%SYNCTARGET%" eq "" goto :NoSyncTarget
-        if "%SYNCTRIGER%" eq "" goto :NoSyncTriger
+        if "%SYNCSOURCE%" == ""                          goto :NoSyncSource
+        if "%SYNCTARGET%" == "" .or "%SYNCTRIGER%" == "" goto :NoSyncTriger
 
     ::::: VALIDATE INVOCATION ACCURATE:
         if not isdir  %SYNCSOURCE% (call FATAL_ERROR "SYNCTARGET of '%italics_on%%syncsource%%italics_off%' must exist!" %+ goto :END) 
@@ -60,7 +59,9 @@ pushd
     ::::: LOGGING:
         echo. %+ title %SYNCSOURCE% to %SYNCTARGET%
         set footerbg=%@ANSI_BG[0,0,64]%LOCKED_MESSAGE_COLOR_BG% %+ rem fallback value followed by set value
+        *cls
         call footer "Syncing: %ANSI_RESET%%footerbg%%italics_on%%faint_on%%@path[%syncsource%]%faint_off%%@name[%syncsource]%italics_off% %ansi_color_bright_red%%footerbg%%LOCKED_MESSAGE_COLOR_BG%%EMOJI_RIGHT_ARROW% %ansi_color_important%%footerbg%%italics_on%%faint_on%%@path[%syncTarget]%faint_off%%@name[%syncTarget]%italics_off% %ansi_color_bright_green%%footerbg%%DASH%%DASH%%ansi_color_important%%footerbg% {freespace}" %@drive[%syncTarget%]
+        echos %@ANSI_MOVE_TO[0,0]
         set TARGETNAME=%@NAME[%SYNCTARGET%]
 
     ::::: DETERMINE COMMAND TO USE FOR COPY BACKUPS:

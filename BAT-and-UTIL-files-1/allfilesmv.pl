@@ -76,6 +76,7 @@ my $REMOVE_GRANDPARENT_FOLDER_NAME_FROM_FILENAME=0;
 my $parent_dir="";
 my $parent_dir_without_year="";
 my $grandparent_dir="";
+my $cheating_NotReallyAudio="";													#to track when we are renaming [usually sidecar/companion] files as if they are videos, for filetypes that are not videos, like TXT files. Yeah, it's weird.
 my $cheating_NotReallyVideo="";													#to track when we are renaming [usually sidecar/companion] files as if they are videos, for filetypes that are not videos, like TXT files. Yeah, it's weird.
 
 
@@ -194,6 +195,7 @@ foreach $filename (@LINES) {
 
 
     # Determine if it's audio
+	$cheating_NotReallyAudio = 0;												#used for internal cheating
 	$cheating_NotReallyVideo = 0;												#used for internal cheating
     $isAudio  = 0;
     $isImage  = 0;
@@ -208,20 +210,26 @@ foreach $filename (@LINES) {
     if ($filename =~ /\.tga$/i)              { $isImage=1; }
     if ($filename =~ /\.pdf$/i)              { $isComic=1; }
     if ($filename =~ /\.cb[rz]$/i)           { $isComic=1; }
-    if ($filename =~ /\.au$/i)               { $isAudio=1; }
-
-    if ($filename =~ /\.mp3$/i)              { $isAudio=1; $NUM_FILES_BY_EXTENSION{"mp3"}++; }
+	
+	if ($filename =~ /\.au$/i)               { $isAudio=1; }
     if ($filename =~ /\.mp[24]$/i)           { $isAudio=1; }
-    if ($filename =~ /\.wav$/i)              { $isAudio=1; }
-    if ($filename =~ /\.w[mp]a$/i)           { $isAudio=1; }
+    if ($filename =~ /\.mp3$/i)              { $isAudio=1; $NUM_FILES_BY_EXTENSION{"mp3" }++; }
     if ($filename =~ /\.flac$/i)             { $isAudio=1; $NUM_FILES_BY_EXTENSION{"flac"}++; }
+    if ($filename =~ /\.wav$/i)              { $isAudio=1; $NUM_FILES_BY_EXTENSION{"wav" }++; }
+    if ($filename =~ /\.w[mp]a$/i)           { $isAudio=1; }
 
+    if ($filename =~ /\.bak$/i)              { $isAudio=1; $cheating_NotReallyAudio=1; }	#rem maybe mark $isVideo=1; too?
+    if ($filename =~ /\.json$/i)             { $isAudio=1; $cheating_NotReallyAudio=1; }	#rem maybe mark $isVideo=1; too?
+    if ($filename =~ /\.log$/i)              { $isAudio=1; $cheating_NotReallyAudio=1; }	#rem maybe mark $isVideo=1; too?
+    if ($filename =~ /\.srt$/i)              { $isAudio=1; $cheating_NotReallyAudio=1; }	#rem maybe mark $isVideo=1; too?
+    if ($filename =~ /\.txt$/i)              { $isAudio=1; $cheating_NotReallyAudio=1; }	#rem maybe mark $isVideo=1; too?
+
+    if ($filename =~ /\.3gp$/i)              { $isVideo=1; }
     if ($filename =~ /\.asf$/i)              { $isVideo=1; }
     if ($filename =~ /\.mp4$/i)              { $isVideo=1; }	#might be bad for AUDIO-ONLY mp4s..
     if ($filename =~ /\.m4v$/i)              { $isVideo=1; }	#added 20120601 - may suck
     if ($filename =~ /\.avi$/i)              { $isVideo=1; }
     if ($filename =~ /\.webm$/i)             { $isVideo=1; }
-    if ($filename =~ /\.3gp$/i)              { $isVideo=1; }
     if ($filename =~ /\.avi.deprecated$/i)   { $isVideo=1; }
     if ($filename =~ /\.ts$/i)               { $isVideo=1; }
 
@@ -256,9 +264,10 @@ foreach $filename (@LINES) {
 	if ($isLyrics)                  { $isAudio  = 1; }
 
 	##### Keep track of what kinds of files make up this folder, so we can decide if it's an album/music folder or not:
+	##### 2025/03/12: But don’t add cheating files to the total:
 	if ($DEBUG_TRANSFORMATION) { print ":Checkpoint 02.B1: $filename\n"; }
-	if ($isVideo) { $numVideoFiles++; }
-	if ($isAudio) { $numAudioFiles++; }
+	if ($isVideo && !$cheating_NotReallyVideo) { $numVideoFiles++; }
+	if ($isAudio && !$cheating_NotReallyAudio) { $numAudioFiles++; }
 	if (($isAudio || $isVideo) && !$cheating_NotReallyVideo) { $BASE_FILENAMES_WITH_MEDIA{$original_filenameNoExt}="1"; }
 
 
@@ -1532,9 +1541,11 @@ foreach $filename (@LINES) {
 		elsif ($firstStereo    != $stereo   ) { $CHANNELS_ALL_THE_SAME    = 0         ; }
 		if    ($firstFrequency eq "")         { $firstFrequency           = $frequency; } 
 		elsif ($firstFrequency != $frequency) { $FREQUENCIES_ALL_THE_SAME = 0         ; }
-
 	}
 
+	if (($isAudio) && ($filename =~ /\.flac$/i)) {
+		#see test-flac-read.pl for proof of concept
+	}
 
 
 	#^^^^^^^^^^>

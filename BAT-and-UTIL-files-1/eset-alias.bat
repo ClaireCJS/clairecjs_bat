@@ -1,11 +1,15 @@
 @Echo Off
+@loadbtm on
+
+rem 🧹Pre-run clean-up:
+        if defined eset_fail unset /q eset_fail
 
 rem 🔍Validate environment, but only once:
-        iff 1 ne %ESET_VALIDATED% then
+        iff "1" != "%ESET_VALIDATED_2%" then
                 call validate-environment-variables EMOJI_PENCIL ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING ANSI_COLOR_PROMPT ANSI_COLOR_NORMAL CURSOR_RESET ansi_color_warning underline_on underline_off italics_on italics_off color_advice color_normal blink_on  blink_off emoji_warning ansi_color_important_less faint_on faint_off ansi_color_important
                 call validate-is-function           CURSOR_COLOR
-                call validate-in-path               eset divider echos beep.bat
-                set ESET_VALIDATED=1
+                call validate-in-path               eset divider echos beep.bat clear-buffered-keystrokes
+                set ESET_VALIDATED_2=1
         endiff
 
 rem 📪Did we get a command-line parameter?
@@ -16,6 +20,7 @@ rem 📪Did we get a command-line parameter?
                 goto :actual_eset
         else
                 set CMD_TAIL=%*
+                if "%2" == "quick" set CMD_TAIL=%1 %3$
         endiff
 
 rem ➕Implement our /p option to prompt the user:
@@ -28,7 +33,7 @@ rem ➕Implement our /p option to prompt the user:
         
 
 rem 🔊Gentle audio prompt —— the lowest audible beep and the shortest duration —— to grab user attention:
-        call beep.bat lowest 1
+        if "%2" != "quick" call beep.bat lowest 1
 
 rem 🔎Make sure the variable actually exists:
         if not defined %1 .and. "%1" != "/?" (set %1=?>&>nul)
@@ -39,17 +44,22 @@ rem 💄Purely cosmetic:
 rem ✏Emojify✏ & 🏳‍🌈colorfy🏳 the prompt, and change the cursor⬜ to the largest blinkiest bright yellow🟨 —— to grab user attention:
         echos %EMOJI_PENCIL%%@CURSOR_COLOR[yellow]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%%ANSI_COLOR_PROMPT% ``
 
+rem Clear the keybaord buffer...
+        rem still necessarily even in quick mode, unfortunately: if "%2" != "quick"
+        call clear-buffered-keystrokes %2$
+
 rem 📴Turn ANSI rendering off or things will get crazy:
 rem 🔨Do the actual eset command:
         :actual_eset
-                on break call ansi-on.bat
                 echos %BIG_OFF%
-                call ansi-off
+                if "%2" != "quick" call ansi-off
+                on break set eset_fail=1
                 *eset %CMD_TAIL%
-
+                if "%2" != "quick" .and. "1" == "%ansi_off%"  call ansi-on
+                on break cancel
+ 
 rem 🔛Turn ANSI rendering and Ctrl-Break handling back to normal:
-        call ansi-on
-        on break cancel
+        if "1" == "%eset_fail%" goto :END
 
 rem 📰Remind user of our extra options:
         iff "%1" eq "" .or. "%1" eq "/?" then
@@ -64,7 +74,11 @@ rem 📰Remind user of our extra options:
         endiff
 
 rem ✅Reset the color & cursor back to normal:
-        echos %ANSI_COLOR_NORMAL%%CURSOR_RESET%
+        :END
+       on break cancel
+       echos %ANSI_COLOR_NORMAL%%CURSOR_RESET%
+       if "1" == "%ansi_off%"  call ansi-on
+       if "1" == "%eset_fail%" quit 667
 
 
  

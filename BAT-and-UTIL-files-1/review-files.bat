@@ -130,12 +130,12 @@ rem Go through each one and review it:
                 )
                 echos %ansi_reset%
                 if "1" == "%STRIPEU%" (type %tmp_file_2 |:u8 call print-with-columns -st)
-                call divider 
+                gosub "%bat%\get-lyrics-for-file.btm" divider
                 call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"
                 rem call print-with-columns <%tmp_file_2 
                                       type %tmp_file_2 |:u8 call print-with-columns %PWC_OPTIONS%
                 iff "1" == "%STRIPE%" then
-                        call divider
+                        gosub "%bat%\get-lyrics-for-file.btm" divider
                         type %tmp_file_2 |:u8 call print-with-columns -st
                 endiff
         return

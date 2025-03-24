@@ -1,13 +1,13 @@
-#TODO: bg color is same . bug??
+#TODO: bg color is same as fg bug-ish??
 
-DEBUG_VERBOSE_COLUMNS = True
+DEBUG_VERBOSE_COLUMNS = False
 
 #### USER CONFIGURATION:
 NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR = 19                            # we don’t need to look very far into words to get unique colors. Wider than 25 we start to get into subtitle-split-word territory where words >25chars get split into 2 lines and become a differently-colored stripe segment even though they were technically the same word.
 DEFAULT_ROW_PADDING                               = 7                             # SUGGESTED: 7. Number of rows to subtract from screen height as desired maximum output height before adding columns. May not currently do anything.
 content_ansi                                      =  "\033[0m"
 divider_ansi                                      =  "\033[38;2;187;187;0m"
-#content_ansi                                     =  "\033[42m\033[31m" #
+#content_ansi                                     =  "\033[42m\033[31m" 
 divider                                           = f"  {divider_ansi}" + "│" + f"  {content_ansi}"  # Divider with #BBBB00 color and additional padding
 
 #TODO: deal with situation of lines that are sooo long that we'd really have to wrap them to fit? or is this fine?

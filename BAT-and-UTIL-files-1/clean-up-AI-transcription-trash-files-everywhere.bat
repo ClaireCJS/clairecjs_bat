@@ -28,6 +28,7 @@ rem Delete files that could be anywhere:
                                 gosub DeleteEverywhere  create-the-missing-karaokes-here-temp*.bat
                                 gosub DeleteEverywhere       get-the-missing-lyrics-here-temp*.bat
                                 gosub DeleteEverywhere      get-the-missing-karaoke-here-temp*.bat
+                                rem   DeleteEverywhere      __ %+ rem this didn’t work and tried to “get __*.*”
                         :do_not_delete_BATs
                 if "%1" == "" goto :DoneDeletingBecauseThisIsANormalInvocation
 

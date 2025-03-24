@@ -30,7 +30,7 @@ rem MAYBE TODO afterregen anyway, do we need to ask about ecc2fasdfasf.bat?
 :DEPENDENCIES: 2024 version: Faster-Whisper-XXL.exe delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat —— see validators for complete list
 :DEPENDENCIES: 2023 version: whisper-faster.bat delete-zero-byte-files.bat validate-in-path.bat debug.bat error.bat warning.bat errorlevel.bat print-message.bat validate-environment-variable.bat
 
-:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast|AutoLyricApproval} {rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  AutoLyricApproval=consider sidecar TXT files to be pre-approvedl yrics
+:USAGE: lrc.bat whatever.mp3 {force|ai|cleanup|last|fast|AutoLyricApproval|PromptAnalysis} {rest=options to pass on to whisper} ... ai=force ai regeneration, last=redo last one again, force=proceed even if LRC file is there, cleanup=clean up leftover files,  AutoLyricApproval=consider sidecar TXT files to be pre-approvedl yrics, PromptAnalysis=gather prompts to log file, don’t actually run the encoding
 :USAGE: set USE_LANGUAGE=jp                ——— to encode in a different language from en, like jp
 :USAGE: set CONSIDER_ALL_LYRICS_APPROVED=1 ——— for *forced* pre-approved-lyrics mode (deprecated)
 
@@ -47,7 +47,7 @@ goto :subroutine_definitions_end
                 echo USAGE:
                 echo        $0 ai  ————————————————— use AI only; no lyrics; with   normal  prompt wait times
                 echo        $0 fast ———————————————— normal execution but with shortenedp rompt wait times
-                echo        $0 last ———————————————— redo the prevoius generation again [in case it was interrupted]
+                echo        $0 last ———————————————— redo the previous generation again [in case it was interrupted]
                 echo        $0 force ——————————————— generate even if SRT/LRC already exists
                 echo        $0 cleanup ————————————— clean up trash after transcription —— clean-up-AI-transcription-trash-files.bat also cleans these
                 echo        $0 AutoLyricApproval ——— long  way to: consider all lyric files to be in APPROVED status, even if they are not marked as such                
@@ -93,40 +93,43 @@ REM OLD 2023 USAGE:
         rem    Not sure if applicable with 2024 version: :USAGE: lrc.bat last               {quick retry again at the point of creating the lrc file —— separated vocal files must already exist}
 
 REM CONFIG: 2025: 
-        iff not defined LOGS then                                                                   %+ rem copy this line to get-lyrics-for-file as well
-                mkdir c:\logs                                                                       %+ rem copy this line to get-lyrics-for-file as well
-                set logs=c:\logs                                                                    %+ rem copy this line to get-lyrics-for-file as well
-                if not isdir %logs% mkdir %logs%                                                    %+ rem copy this line to get-lyrics-for-file as well
-        endiff                                                                                      %+ rem copy this line to get-lyrics-for-file as well
-        set AUDIOFILE_TRANSCRIPTION_LOG_FILE=%LOGS%\audiofile-transcription.log                     %+ rem copy this line to get-lyrics-for-file as well
+        iff not defined LOGS then                                                                      %+ rem copy this line to get-lyrics-for-file as well
+                mkdir c:\logs                                                                          %+ rem copy this line to get-lyrics-for-file as well
+                set logs=c:\logs                                                                       %+ rem copy this line to get-lyrics-for-file as well
+                if not isdir %logs% mkdir %logs%                                                       %+ rem copy this line to get-lyrics-for-file as well
+        endiff                                                                                         %+ rem copy this line to get-lyrics-for-file as well
+        set AUDIOFILE_TRANSCRIPTION_LOG_FILE=%LOGS%\audiofile-transcription.log                        %+ rem copy this line to get-lyrics-for-file as well
+        set AUDIOFILE_TRANSCRIPTION_PROMPTS_USED_LOG_FILE=%LOGS%\audiofile-transcription-prompts.log   %+ rem copy this line to get-lyrics-for-file as well
 
 REM CONFIG: 2024: 
-        gosub set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME                                   %+ rem Done as subroutine so it can be called by get-lyrics in case it needs it too
-        set INSIST_ON_HAVING_ARTIST=0                                                               %+ rem Set to 1 to ALWAYS ask for an artist, even if one can’t be found. For me personally, I found this to be too naggy.
-        set DEFAULT_PLAYER_COMMAND=vlc.exe                                                          %+ rem UPDATE THIS IN GET-LYRICS TOO! ——> program we use to play audio files, i.e. VLCplayer, MPC, etc.
-        set DEFAULT_PLAYER_COMMAND=call preview-audio-file                                          %+ rem Command to run to play files with a media player
-        set OUR_LANGUAGE=en                                                                         %+ rem May need to set this to something else if your collection’s primarily language isn’t English                          
-        set LOG_PROMPTS_USED=1                                                                      %+ rem 1=save prompt used to create SRT into sidecar ..log file
-        set SKIP_SEPARATION=1                                                                       %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn’t work anymore
-        SET SKIP_TXTFILE_PROMPTING=0                                                                %+ rem 0=use lyric file to prompt AI, 1=go in blind
-        set MAXIMUM_PROMPT_SIZE=3000                                                                %+ rem The most TXT we will use to prime our transcription.  Since faster-whisper-xxx only supports max_tokens of 224, we only need 250 words or so. But will pad a bit extra. We just don’t want to go over the command-line-length-limit!
-        set DEBUG_SHOW_LYRIC_STATUS=1                                                               %+ rem shows lyriclessness/lyric status if we “gosub debug_show_lyric_status”
-        set ANNOUNCE_IF_SIDECAR_FILES_EXIST=1                                                       %+ rem 1=very cosmetically polished display of whether each file/sidecar file exists (mp3/srt/lrc/txt/json/srt2)
+        gosub set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME                                      %+ rem Done as subroutine so it can be called by get-lyrics in case it needs it too
+        set INSIST_ON_HAVING_ARTIST=0                                                                  %+ rem Set to 1 to ALWAYS ask for an artist, even if one can’t be found. For me personally, I found this to be too naggy.
+        set DEFAULT_PLAYER_COMMAND=vlc.exe                                                             %+ rem UPDATE THIS IN GET-LYRICS TOO! ——> program we use to play audio files, i.e. VLCplayer, MPC, etc.
+        set DEFAULT_PLAYER_COMMAND=call preview-audio-file                                             %+ rem Command to run to play files with a media player
+        set OUR_LANGUAGE=en                                                                            %+ rem May need to set this to something else if your collection’s primarily language isn’t English                          
+        set LOG_PROMPTS_USED=1                                                                         %+ rem 1=save prompt used to create SRT into sidecar ..log file
+        set SKIP_SEPARATION=1                                                                          %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn’t work anymore
+        SET SKIP_TXTFILE_PROMPTING=0                                                                   %+ rem 0=use lyric file to prompt AI, 1=go in blind
+        set MAXIMUM_PROMPT_SIZE=3000                                                                   %+ rem The most TXT we will use to prime our transcription.  Since faster-whisper-xxx only supports max_tokens of 224, we only need 250 words or so. But will pad a bit extra. We just don’t want to go over the command-line-length-limit!
+        set DEBUG_SHOW_LYRIC_STATUS=1                                                                  %+ rem shows lyriclessness/lyric status if we “gosub debug_show_lyric_status”
+        set ANNOUNCE_IF_SIDECAR_FILES_EXIST=1                                                          %+ rem 1=very cosmetically polished display of whether each file/sidecar file exists (mp3/srt/lrc/txt/json/srt2)
 rem CONFIG: 2024: WAIT TIMES:                                                                      
-        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                                                %+ rem wait time for “are these lyrics good?”-type questions
-        set AI_GENERATION_ANYWAY_WAIT_TIME=45                                                       %+ rem wait time for “no lyrics, gen with AI anyway”-type questions
-        set AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES=5                       %+ rem wait time for “no lyrics, gen with AI anyway”-type questions *IF WE HAVE APPROVED LYRICLESSNESS STATUS* for the song
-        set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=25                                     %+ rem wait time for “we already have karaoke, regen anyway?”-type questions
-        set PROMPT_CONSIDERATION_TIME=20                                                            %+ rem wait time for “does this AI command look sane”-type questions
-        SET PROCEED_WITH_AI_CONSIDERATION_TIME=40                                                   %+ rem wait time for “Proceed with this AI generation?”-type questions
-        set PROMPT_EDIT_CONSIDERATION_TIME=20                                                       %+ rem wait time for “do you want to edit the AI prompt”-type questions
-        set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0                                      %+ rem wait time for “hey lyrics not found!”-type notifications/questions. Set to 0 to not pause at all.
+        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                                                   %+ rem wait time for “are these lyrics good?”-type questions
+        set AI_GENERATION_ANYWAY_WAIT_TIME=45                                                          %+ rem wait time for “no lyrics, gen with AI anyway”-type questions
+        set AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES=5                          %+ rem wait time for “no lyrics, gen with AI anyway”-type questions *IF WE HAVE APPROVED LYRICLESSNESS STATUS* for the song
+        set REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME=25                                        %+ rem wait time for “we already have karaoke, regen anyway?”-type questions
+        set PROMPT_CONSIDERATION_TIME=20                                                               %+ rem wait time for “does this AI command look sane”-type questions
+        SET PROCEED_WITH_AI_CONSIDERATION_TIME=40                                                      %+ rem wait time for “Proceed with this AI generation?”-type questions
+        set PROMPT_EDIT_CONSIDERATION_TIME=20                                                          %+ rem wait time for “do you want to edit the AI prompt”-type questions
+        set WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST=0                                         %+ rem wait time for “hey lyrics not found!”-type notifications/questions. Set to 0 to not pause at all.
         set WHISPERTIMESYNC_QUERY_WAIT_TIME=300
-        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=120                                               %+ rem wait time for “edit it now that we’ve made it?”-type questions ... Have decided it should probably last longer than the average song
-        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=1200                                              %+ rem wait time for “edit it now that we’ve made it?”-type questions ... Have decided it should probably last longer than the average song
-        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=600                                                %+ rem wait time for “edit it now that we’ve made it?”-type questions ... Have decided it should probably last longer than the average song
-        set EDIT_KARAOKE_AFTER_FORCE_REGEN_WAIT_TIME=12                                             %+ rem wait time for “edit it now that we’ve made it?”-type questions when we are in force-regen mode
-        set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=no                                                  %+ rem default answer for “Generate AI anyway?”-type questions
+        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=120                                                  %+ rem wait time for “edit it now that we’ve made it?”-type questions ... Have decided it should probably last longer than the average song
+        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=1200                                                 %+ rem wait time for “edit it now that we’ve made it?”-type questions ... Have decided it should probably last longer than the average song
+        set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=600                                                  %+ rem wait time for “edit it now that we’ve made it?”-type questions ... Have decided it should probably last longer than the average song
+        set EDIT_KARAOKE_AFTER_FORCE_REGEN_WAIT_TIME=12                                                %+ rem wait time for “edit it now that we’ve made it?”-type questions when we are in force-regen mode
+        set KARAOKE_APPROVAL_WAIT_TIME=60                                                              %+ rem wait time for “Approve karaoke file” prompt after creating karaoke
+        set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=no                                                     %+ rem default answer for “Generate AI anyway?”-type questions
+
 
 REM config: 2023:
         rem set TRANSCRIBER_TO_USE=call whisper-faster.bat 
@@ -228,7 +231,7 @@ REM validate environment [once]:
                 rem Perform the actual validations:
                         @call validate-in-path              %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alert.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat
                         @call validate-environment-variable  TRANSCRIBER_PDNAME  skip_validation_existence
-                        @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check check party_popper emoji_birthday_cake red_x ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off ansi_color_blue machinename
+                        @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check check party_popper emoji_birthday_cake red_x ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off ansi_color_blue machinename emoji_ear emoji_microphone emdash
                         @call validate-is-function           ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD                
                         @call validate-plugin                StripANSI
                         @call checkeditor
@@ -261,6 +264,7 @@ REM branch on certain paramters, and clean up various parameters
         set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=0
         set ALREADY_HAND_EDITED=0
         set JUST_RENAMED_TO_INSTRUMENTAL=0
+        set PROMPT_ANALYSIS_ONLY=0
 
         iff %CONSIDER_ALL_LYRICS_APPROVED eq 1 then
                 set AUTO_LYRIC_APPROVAL=1
@@ -287,27 +291,29 @@ REM branch on certain paramters, and clean up various parameters
                 set special=%TMP_PARAM_1%
                 rem echo checking[ee] special=“%special%” ... %%1=“%1” %+ pause
                 if "%special%" == "ai" .or. "1" == "%FORCE_AI_ENCODE_FROM_LYRIC_GET%" (set SOLELY_BY_AI=1)
-                if "%special%" == "cleanup"            (set CLEANUP=1            )
-                if "%special%" == "force"              (set FORCE_REGEN=1          %+ set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=1)
-                if "%special%" == "lyriclessness"      (set NEVERMIND_THIS_ONE=42) %+ rem If this gets snuck in as 2ⁿᵈ argument, ignore it...for reasons
-                if "%special%" == "force-regen"        (set FORCE_REGEN=1        )
-                if "%special%" == "redo"               (set FORCE_REGEN=1        )
-                if "%special%" == "ala"                (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" ==  "la"                (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" ==     "LyricApprove"   (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" ==     "LyricApproved"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" ==     "LyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" ==     "LyricsApprove"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" ==     "LyricsApproved" (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" ==     "LyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" == "AutoLyricsApproval" (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" == "AutoLyricApproval"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" == "AutoLyricsApproved" (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" == "AutoLyricApproved"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" == "AutoLyricsApprove"  (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" == "AutoLyricApprove"   (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" == "AutoLyrics"         (set AUTO_LYRIC_APPROVAL=1)
-                if "%special%" == "AutoLyric"          (set AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "cleanup"            (set  CLEANUP=1            )
+                if "%special%" == "force"              (set  FORCE_REGEN=1          %+ set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=1)
+                if "%special%" == "lyriclessness"      (set  NEVERMIND_THIS_ONE=42) %+ rem Protection from invalid invocation where this gets snuck in as the 2ⁿᵈ argument. Our way to deal with it is to ignore it...for reasons
+                if "%special%" == "force-regen"        (set  FORCE_REGEN=1        )
+                if "%special%" == "redo"               (set  FORCE_REGEN=1        )
+                if "%special%" == "ala"                (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==  "la"                (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricApprove"   (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricApproved"  (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricApproval"  (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricsApprove"  (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricsApproved" (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" ==     "LyricsApproval" (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricsApproval" (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricApproval"  (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricsApproved" (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricApproved"  (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricsApprove"  (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyricApprove"   (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyrics"         (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "AutoLyric"          (set  AUTO_LYRIC_APPROVAL=1)
+                if "%special%" == "prompts"            (set PROMPT_ANALYSIS_ONLY=1)
+                if "%special%" == "PromptAnalysis"     (set PROMPT_ANALYSIS_ONLY=1)
                 shift 
                 rem  after “shift”,  %1$ is now the remaining arguments (if any)
                 rem echo %reverse_on%after “shift”, %%1$ is now: %1$%reverse_off% >nul
@@ -371,15 +377,15 @@ rem Do subtitles exist?
         REM echo if exist "%POTENTIAL_LYRIC_FILE%" 
         if exist "%POTENTIAL_LYRIC_FILE%" (
                 rem gosub refresh_lyric_status "%POTENTIAL_LYRIC_FILE%"
-                echo %ANSI_COLOR_DEBUG%- DEBUG: POTENTIAL_LYRIC_FILE file exists! - %lq%%POTENTIAL_LYRIC_FILE%%rq%%ANSI_COLOR_NORMAL% (status=%lq%%LYRIC_STATUS%%rq%)
+                rem echo %ANSI_COLOR_DEBUG%- DEBUG: POTENTIAL_LYRIC_FILE file exists! - %lq%%POTENTIAL_LYRIC_FILE%%rq%%ANSI_COLOR_NORMAL% (status=%lq%%LYRIC_STATUS%%rq%)
         ) else (
-                echo %ANSI_COLOR_DEBUG%- DEBUG: POTENTIAL_LYRIC_FILE file does not exist! - %lq%%POTENTIAL_LYRIC_FILE%%rq%%ANSI_COLOR_NORMAL%
+                rem echo %ANSI_COLOR_DEBUG%- DEBUG: POTENTIAL_LYRIC_FILE file does not exist! - %lq%%POTENTIAL_LYRIC_FILE%%rq%%ANSI_COLOR_NORMAL%
         )
 
 rem If the file is an instrumental, abort...
         rem echo goaty α 100
         REM If it’s an instrumental, don’t bother:
-        if "%@REGEX[instrumental,%INPUT_FILE%]" == "1" (
+        if "%@REGEX[[^\-]instrumental,%INPUT_FILE%]" == "1" (
                 @call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %faint_on%%INPUT_FILE%%faint_off%" silent 
                 goto :END
         )
@@ -415,13 +421,17 @@ REM Lyric file stuffs:
         set sidecar_was_present_from_the_start=0
         if not exist "%POTENTIAL_LYRIC_FILE%" goto :ine_plf
                 set TXT_FILE=%@UNQUOTE["%POTENTIAL_LYRIC_FILE%"]
-                echo %STAR%%ANSI_COLOR_IMPORTANT% Trying sidecar lyrics file: %faint_on%%italics_on%%TXT_FILE%%italics_off%%faint_off%%ansi_color_normal%
+                echos %STAR%%ANSI_COLOR_IMPORTANT% Trying sidecar lyrics file: %faint_on%%italics_on%%TXT_FILE%%italics_off%%faint_off%...%ansi_color_normal%
                 gosub refresh_lyric_status "%TXT_FILE%"
                 if "%LYRIC_STATUS%" == "APPROVED" (
+                        echo %ansi_color_bright_green%...and it is approved!%ansi_color_normal%
                         set goto_AI_generation=1
+                        set sidecar_was_present_from_the_start=1
                         set LYRIC_FILE=%TXT_FILE%
+                ) else (
+                        echo %ansi_color_bright_red%...but it is not approved!%ansi_color_normal%
+                        set goto_AI_generation=0
                 )
-                set sidecar_was_present_from_the_start=1
         :ine_plf
         if "1" == "%goto_AI_generation%"  (goto :AI_generation)
 
@@ -462,9 +472,9 @@ REM Now, let’s check these values:
                 gosub divider
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
                 call bigecho      "%ansi_color_warning_soft%%star2% Already have the karaoke!%ansi_reset%"
-                call warning_soft "Pre-existing transcriptoin found in lyric repository at: “%emphasis%%italics_on%%found_subtitle_file%%deemphasis%%italics_off%”" silent
+                call warning_soft "Pre-existing transcription found in lyric repository at: “%emphasis%%italics_on%%found_subtitle_file%%deemphasis%%italics_off%”" silent
                 call review-file  "%found_subtitle_file%"
-                call warning_soft "Pre-existing transcriptoin found in lyric repository at: “%emphasis%%italics_on%%found_subtitle_file%%deemphasis%%italics_off%”" silent
+                call warning_soft "Pre-existing transcription found in lyric repository at: “%emphasis%%italics_on%%found_subtitle_file%%deemphasis%%italics_off%”" silent
                 echo %STAR% %ANSI_COLOR_ADVICE%Copy this file %italics_on%from our local repo%italics_off% into this folder, as a sidecar file for %@NAME[%SONGFILE%]%ansi_color_normal%
                 rem You’d think the answer would be yes, but actually, every live version of a song does NOT want the LRC/SRT for the studio version instead!
                 rem Sadly, these must be rejected unless explicitly accepted...
@@ -478,11 +488,12 @@ REM Now, let’s check these values:
                         *copy /q "%found_subtitle_file%" "%target%" >&>nul
                         if not exist "%target%" (call error "target of %left_quote%%target%%right_quote% should exist now, in %left_apostrophe%%italics_on%create-srt-from-file%italics_off%%right_apostrophe% line 320ish" %+ call warning "...not sure if we want to abort right now or not..." )
                         call review-file -wh "%target%" 
+                        echo GOAT displayaudiofilename 06
                         gosub DisplayAudioFileName
                         call askYN "Do these still look acceptible [H=hand-edit,I=Instrumental(X=All)]" yes 30 HIX H:Yes_but_hand-_edit_them,I:Rename_as_instrumental,X:rename_all_the_files_as_instrumentals %+ rem hardcoded value warning
 
                         iff "%ANSWER%" == "I" then
-                                gosub AskIfInstrumental
+                                gosub rename_audio_file_as_instrumental
                         endiff
                         iff "%ANSWER%" == "N" then
                                 call disapprove-subtitle-file "%target%"
@@ -573,8 +584,12 @@ REM if we already have a SRT file, we have a problem:
                 iff %SOLELY_BY_AI eq 1 then
                         @call advice "Automatically answer the next prompt as Yes by adding the parameter “force-regen” or “redo”"
                         iff exist "%TXT_FILE%" then
+                                echo GOAT displayaudiofilename 08
                                 gosub DisplayAudioFileName
-                                @call AskYn "%conceal_on%5%conceal_off%Do the above lyrics look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME
+
+                                set answer_to_use=no
+                                if "1" == "%FORCE_REGEN%" set answer_to_use=yes
+                                @call AskYn "%conceal_on%5%conceal_off%Do the above lyrics look acceptable" %answer_to_use% %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME
                                 iff "%answer%" == "Y" then
                                         rem Proceed with process
                                         set LYRICS_ACCEPTABLE=1
@@ -609,13 +624,13 @@ REM if we already have a SRT file, we have a problem:
                         iff "%ANSWER%" == "Y" .and. "1" !=  "%AUTO_LYRIC_APPROVAL%" then
                                 echo %ansi_color_unimportant%🐐 calling get-lyrics-for-file [2]
                                 unset /q LYRIC_STATUS
+                                set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=0
                                 call get-lyrics-for-file "%songfile%"
                                 if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
                                 set last_file_probed=%SONGFILE%                               %+ rem prevents get-lyrics from probing twice
                                 if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto :END
-                        else
-                                set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=1
                         endiff                                
+                        if "1" == "%AUTO_LYRIC_APPROVAL%" set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=1
                         echo Used to do this here: set GOTO_FORCE_AI_GEN=1 🌵
                         if "1" == "%abort_karaoke_kreation%"           goto :END
                         if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto :END
@@ -735,8 +750,8 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                                 endiff
                                 rem echo ⏺ AI_GENERATION_ANYWAY_DEFAULT_ANSWER=“%AI_GENERATION_ANYWAY_DEFAULT_ANSWER%”
 
-                        gosub debug_show_lyric_status
-                        @call askYN "Generate AI anyway (%ansi_color_bright_green%I%ansi_color_prompt%=instrumental[X=All],%ansi_color_bright_green%L%ansi_color_prompt%=Lyrics Unfindable)" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME% ILX I:Mark_it_as_an_instrumental_track,L:Mark_lyricless,X:mark_all_as_instrumental_tracks
+                        rem gosub debug_show_lyric_status
+                        @call askYN "Generate AI anyway (%ansi_color_bright_green%I%ansi_color_prompt%=instrumental[%ansi_color_bright_green%X%ansi_color_prompt%=All],%ansi_color_bright_green%L%ansi_color_prompt%=Lyrics Unfindable)" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME% ILX I:Mark_it_as_an_instrumental_track,L:Mark_lyricless,X:mark_all_as_instrumental_tracks
                         if "%ANSWER%" == "Y" (goto :Force_AI_Generation)
                         iff "L" == "%ANSWER%" then                        
                                 set JUST_APPROVED_LYRICLESSNESS=1
@@ -746,7 +761,6 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                                 rem Instead go to creating it now, since we marked it as lyricless
                         endiff
                         gosub check_for_answer_of_L "%@UNQUOTE["%INPUT_FILE%"]"
-echo                    if "L" == "%ANSWER%"(answer=%ANSWER%) goto :Force_AI_Generation .... GOAT
                         if "L" == "%ANSWER%" goto :Force_AI_Generation
                         gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
                         iff "1" != "%ABANDONED_SEARCH%" .or. "%LYRICLESSNESS_STATUS%" == "APPROVED" then
@@ -815,6 +829,7 @@ rem Mandatory review of lyrics
                         rem (type "%TXT_FILE%" |:u8 unique-lines -A -L) |:u8 print-with-columns -wh
                         call review-file -wh -st  "%TXT_FILE%" "Review the lyrics now"
                         @gosub divider
+                        echo GOAT displayaudiofilename 08
                         gosub DisplayAudioFileName
                         @call AskYn "[REDUNDANT?] Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                         iff "%ANSWER%" == "N" then
@@ -989,9 +1004,21 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
                                 setdos /x-5
                                 set CLI_OPS=%CLI_OPS% %WHISPER_PROMPT%
                                 setdos /x0
+
+                        rem Log the prompt we generated for analysis:
+                                echo %newline%%newline%%emoji_ear%%emoji_microphone% %_datetime: %WHISPER_PROMPT% %emdash%%emdash%%emdash%%emdash% %audio_file%>>:u8"%AUDIOFILE_TRANSCRIPTION_PROMPTS_USED_LOG_FILE%"
+
+                        rem If we are just gathering prompts for analysis, abort now:
+                                if "1" != "%PROMPT_ANALYSIS_ONLY%" goto :no_analysis_aborting
+                                        echo %ansi_color_important%%star% Only gathering prompts right now, so we are done, actually%ansi_color_normal%
+                                        set goto_end=1
+                                        goto END
+                                :no_analysis_aborting
+
                 setdos /x0
         endiff                
         :No_Text
+        if "1" == "%goto_end%" goto END
 
 
 
@@ -1083,7 +1110,7 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
 REM quick chance to edit prompt:
         :edit_ai_prompt
         @call AskYn "Edit the AI prompt" no %PROMPT_EDIT_CONSIDERATION_TIME%
-        iff "%answer%" == "Y" (eset LAST_WHISPER_COMMAND)
+        iff "%answer%" == "Y" (call eset-alias LAST_WHISPER_COMMAND quick)
 
 
 REM Updated Concurrency Check: wait on lock file
@@ -1124,7 +1151,7 @@ REM set a non-scrollable header on the console to keep us from getting confused 
             set FILE_ARTIST= ``
             rem It turns out that it’s okay most of the time, so better not get 
             rem                all hung up about it with a mandatory interacton:
-            if "1" == "%INSIST_ON_HAVING_ARTIST%" eset FILE_ARTIST
+            if "1" == "%INSIST_ON_HAVING_ARTIST%" call eset-alias FILE_ARTIST quick
         endiff
         rem note: %@ANSI_BG[0,0,64] is copied from status-bar.bat to match the background color used there
         rem AI-transcribing
@@ -1156,9 +1183,9 @@ REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨
         rem Determine log file name:
                 set OUR_LOGFILE=%@NAME[%@UNQUOTE[%INPUT_FILE]].log
 
-        rem Store command, run command, check for error response, and log command:
+        rem TODO UPDATE THIS COMMENT, IT’S WRONG: Store command, run command, check for error response, and log command:
                 title %EMOJI_EAR%%BASE_TITLE_TEXT%
-                iff  "%LOG_PROMPTS_USED%" == "1"
+                iff  "%LOG_PROMPTS_USED%" == "1" then
                         @echo %@REPEAT[%newline%,2]%EMOJI_EAR% %_DATETIME: prompt v%PROMPT_VERSION%: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>:u8"%OUR_LOGFILE%"
                         @echo %@REPEAT[%newline%,4]%EMOJI_EAR% %_DATETIME: filename:  %INPUT_FILE%                                                     >>:u8"%AUDIOFILE_TRANSCRIPTION_LOG_FILE%"
                         @echo %@REPEAT[%newline%,0]%EMOJI_EAR% %_DATETIME: prompt v%PROMPT_VERSION%: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>:u8"%AUDIOFILE_TRANSCRIPTION_LOG_FILE%"
@@ -1228,37 +1255,19 @@ rem but y’know rather than using tee, i could maybe use copy-move-post ITSELF 
 REM delete zero-byte LRC files that can be created
         rem echo "About to delete zero byte files " %+ pause
         echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[orange]%ANSI_CURSOR_CHANGE_TO_BLOCK_steady%                
-        call delete-zero-byte-files *.lrc silent >nul
-        call delete-zero-byte-files *.srt silent >nul
+        call delete-zero-byte-files *.lrc;*.srt silent >nul
         echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%                
-        
-REM Post-process the SRT file: Cosmetics:
-        rem When we had headers, we needed to do this:
-                rem gosub divider
-        rem But now that we switched to status-bar/footers, i noticed that we end up on the 3ʳᵈ  line of the footer
-        rem after footer unlock. The way I noticed this was that gosub'ing ’divider’ up above overwrote the status bar
-        rem divider with our own, which had an incongruent background color, which made me realize the bottom divider
-        rem line of the status-bar was being overrwritten with our “call  divider” from above.  So we changedi t
-        rem and instead of calling divider, we simply moe one line down. The divider is already there.
-        rem NOTE: that this may change after we update uvnlock-bot to clean off the footer after unlocking.
-        rem NOTE:      Currently, this implementation is slated to be a temporary cosmetic fix that will likely breka later
-                echo.
-
-REM Post-process the SRT file: Actual postprocessing:    
-        rem echo "About to remove invisible periods" %+ pause
-        gosub :postprocess_lrc_srt_files
-        
 
 
 
-REM did we create the LRC file?
+REM did we create the SRT file?
         rem echo "About to check if we created the expected output file of “%EXPECTED_OUTPUT_FILE%” file " %+ pause
         rem echo if not exist "%EXPECTED_OUTPUT_FILE%" then 
         iff not exist "%EXPECTED_OUTPUT_FILE%" then 
                 echo expected output file of “%italics%%EXPECTED_OUTPUT_FILE%%italics_off%” does not exist"
                 call pause-for-x-seconds 3
-                gosub AskAboutInstrumental
-
+                gosub ask_about_instrumental
+                goto  did_not_generate
         endiff
         echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[bright green]%ANSI_CURSOR_CHANGE_TO_BLOCK_steady%                
         iff exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" then
@@ -1269,8 +1278,35 @@ REM did we create the LRC file?
                         if "" == "%NUM_TRANSCRIBED_THIS_SESSION%" set NUM_TRANSCRIBED_THIS_SESSION=0
                         set NUM_TRANSCRIBED_THIS_SESSION=%@EVAL[%NUM_TRANSCRIBED_THIS_SESSION% + 1]
                         if %NUM_TRANSCRIBED_THIS_SESSION% gt 1 echo %ANSI_COLOR_IMPORTANT%%check1% %blink_on%Transcribed this session: %italics_on%%NUM_TRANSCRIBED_THIS_SESSION%%blink_off%%italics_off%%ANSI_COLOR_NORMAL%
+
+
+                rem Create TXT file from freshly-generated lyrics, if none currently exists:
+                        if exist "%TXT_FILE%" goto :text_file_exists 
+                                echo %ansi_color_warning_soft%%star2% No text file exists, converting transcription to text...%ansi_color_normal%
+                                call srt2txt "%EXPECTED_OUTPUT_FILE%" "%TXT_FILE%"
+                        :text_file_exists 
         endiff
         title %CHECK%%BASE_TITLE_TEXT%
+
+
+        
+REM Post-process the SRT file: Cosmetics:
+        rem When we had headers, we needed to do this:
+                rem gosub divider
+        rem But now that we switched to status-bar/footers, i noticed that we end up on the 3ʳᵈ  line of the footer
+        rem after footer unlock. The way I noticed this was that gosub'ing ’divider’ up above overwrote the status bar
+        rem divider with our own, which had an incongruent background color, which made me realize the bottom divider
+        rem line of the status-bar was being overrwritten with our “call  divider” from above.  So we changed it
+        rem and instead of calling divider, we simply move one line down. The divider is already there.
+        rem NOTE: that this may change after we update uvnlock-bot to clean off the footer after unlocking.
+        rem NOTE:      Currently, this implementation is slated to be a temporary cosmetic fix that will likely break later
+                echo.
+
+REM Post-process the SRT file: Actual postprocessing:    
+        rem echo "About to remove invisible periods" %+ pause
+        gosub :postprocess_lrc_srt_files
+        
+
 
 
 
@@ -1280,7 +1316,7 @@ rem MiniLyrics will default to displaying TXT over SRC
 
 
 rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
-iff 1 eq %USE_2023_LOGIC then
+iff "1" == "%USE_2023_LOGIC%" then
                         REM rename the file & delete the vocal-split wav file
                             iff "%EXPECTED_OUTPUT_FILE%" != "%LRC_FILE%" then
                                 set MOVE_DECORATOR=%ANSI_GREEN%%FAINT%%ITALICS% 
@@ -1292,7 +1328,7 @@ endiff
 rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
 
 
-
+:did_not_generate
 goto :Cleanup
 
 
@@ -1386,9 +1422,10 @@ rem A chance to edit/reject the karaoke:
         :display_karaoke_before_asking_to_edit_it
         rem @echo.
         rem TODO don’t do this *always*:
-        iff "%LYRICS_ACCEPTABLE%" != "0" then
+        iff "%LYRICS_ACCEPTABLE%" != "0" .or. "%LYRICS_ACCEPTABLE%" == "" then
                 iff not exist "%TXT_FILE%" .or. %@FILESIZE["%TXT_FILE%"] eq 0 then
                         echo %ansi_color_warning_soft%%star% Lyrics were approved but can’t find “%italics_on%%TXT_FILE%%italics_on%”%ansi_reset%
+                        echo %ansi_color_debug%- DEBUG: LYRICS_ACCEPTABLE=“%LYRICS_ACCEPTABLE%”
                 else
                         rem @gosub divider
                         rem @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Lyrics%underline_off%:
@@ -1396,7 +1433,7 @@ rem A chance to edit/reject the karaoke:
                         rem moved out of if: call review-file -wh -st "%TXT_FILE%" "Lyrics"
                 endiff
         else
-                echo LYRICS_ACCEPTABLE is “%LYRICS_ACCEPTABLE%”
+                rem echo LYRICS_ACCEPTABLE is “%LYRICS_ACCEPTABLE%”
         endiff
 
         gosub set_postprocessed_lyrics
@@ -1564,13 +1601,13 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 goto :skip_subroutines
 
 
-        :AskAboutInstrumental [opt]
-                gosub "%BAT%\get-lyrics-for-file.btm" AskAboutInstrumental %opt%
+        :ask_about_instrumental [opt]
+                gosub "%BAT%\get-lyrics-for-file.btm" ask_about_instrumental %opt%
         return
         :ask_to_approve_karaoke 
                 rem assumes %SRT_FILE% is our karaoke file and %AUDIO_FILE% is our audio file
                 :ask_about_karaoke_approval                                        
-                @call askyn  "Approve karaoke file [D=%ansi_color_bright_green%D%ansi_color_prompt%isapprove,P=%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync]" no 15 notitle ADEPW E:edit_karaoke,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it
+                @call askyn  "Approve karaoke file [D=%ansi_color_bright_green%D%ansi_color_prompt%isapprove,P=%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ADEPW E:edit_karaoke,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it
                 gosub check_for_answer_of_E "%SRT_FILE%"
                 iff "%ANSWER" == "W" then
                         set ANSWER=Y
@@ -1707,8 +1744,13 @@ goto :skip_subroutines
                         goto :refreshed
                 :refreshed
         return
-        :rename_audio_file_as_instrumental [opt]                        
-                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental %opt%
+        :rename_audio_file_as_instrumental [opt] 
+                :rafai_ask_again
+                unset /q ANSWER                       
+                if "%1" == "ask"                         call         AskYN                    "Mark as instrumental? [P=%ansi_color_bright_green%P%ansi_color_prompt%lay]" no 500
+                if  "Y" == "%ANSWER%" .or. "%1" != "ask" gosub "%BAT%\get-lyrics-for-file.btm"  rename_audio_file_as_instrumental                                           %opt%
+                if  "P" == "%ANSWER%"                    gosub        check_for_answer_of_P
+                if  "P" == "%ANSWER%"                    goto         rafai_ask_again                
         return
         :rename_audio_file_as_instr_if_answer_was_I []
                 if "I" == "%ANSWER%" gosub rename_audio_file_as_instrumental

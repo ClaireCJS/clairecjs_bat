@@ -24,7 +24,8 @@ rem Validate environment (once):
 
 rem Warn, unless we are in the same folder defined as MP3OFFICIAL in our environment:
         if "%1" == "force"                                     goto :No_warning
-        if defined MP3OFFICIAL .and. "%_CWD" eq "%MP3OFFICIAL" goto :No_warning
+        if defined MP3OFFICIAL .and. "%_CWD" != "%MP3OFFICIAL" %mp3official%\
+        if defined MP3OFFICIAL .and. "%_CWD" == "%MP3OFFICIAL" goto :No_warning
                 call warning_soft "This report is supposed to be run in the base of your audio folder! Pass 2ⁿᵈ parameter of “force”"
                 pause /# 3
                 goto :END

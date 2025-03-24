@@ -6,6 +6,8 @@ iff "%MACHINENAME%" ne "%MUSICSERVERMACHINENAME%" then
         goto :END
 endiff
 
+call yyyymmddhhmmss.bat
+
 taskend /f lastfm*
 set                                 LAST_FM_LOGDIR=%LOGS%\Last.FM
 call      ensure-directories-exist %LAST_FM_LOGDIR %LOGS% 
@@ -13,7 +15,6 @@ set                         target=%LAST_FM_LOGDIR%\LastFM-%MUSICSERVERMACHINENA
 call validate-environment-variables LAST_FM_LOGDIR AUDIOSCROBBLER_LOG
 call validate-in-path yyyymmddhhmmss unimportant 
 
-call yyyymmddhhmmss.bat
 
 echo ray | *move /r /q "%AUDIOSCROBBLER_LOG%" "%TARGET%" >&>nul
 
