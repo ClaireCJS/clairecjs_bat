@@ -143,6 +143,7 @@ rem Stuff we don't normally do is coming up —— so color it a warning color
         %COLOR_WARNING%
 
 rem Rename extensions we don't ever want to ever exist:
+            if exist *.jpg_small (ren /E *.jpg_large *.jpg >&nul)
             if exist *.jpg_large (ren /E *.jpg_large *.jpg >&nul)
             if exist *.jpg!d     (ren /E *.jpg!d     *.jpg >&nul)
 

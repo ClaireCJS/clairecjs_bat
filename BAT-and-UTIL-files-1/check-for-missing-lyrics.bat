@@ -1,10 +1,9 @@
 @Echo OFF
 @loadbtm on
 @setdos /x0
-@setlocal
+rem 20250328 let’s try removing this: @setlocal
 cls
 rem @on break cancel
-rem @setlocal
 
 
 rem CONFIGURATION:
@@ -28,17 +27,17 @@ rem CONFIGURATION:
 rem Environment variable backups —— these should all already be defined already, but if not, define them here:
         set original_title=%_TITLE
         rem Are our required filemasks set?
-                iff 1 ne %FILEMASKS_HAVE_BEEN_SET then
+                iff "1" != "%FILEMASKS_HAVE_BEEN_SET%" then
                         if not defined FILEMASK_AUDIO           set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
                 endiff
         rem Are our required emoji set?
-                iff 1 ne %EMOJIS_HAVE_BEEN_SET% then
+                iff "1" != "%EMOJIS_HAVE_BEEN_SET%" then
                         if not defined DASH                     set DASH=%@REPEAT[%@CHAR[9135],2]
                         if not defined NO                       set NO=%@CHAR[55357]%@CHAR[57003]
                         if not defined EMOJI_CHECK_MARK         set EMOJI_CHECK_MARK=%@CHAR[10004]%@CHAR[65039]
                 endiff                
         rem Are our required ansi values set?
-                iff 1 ne %ANSI_COLORS_HAVE_BEEN_SET% .and. 1 ne %validated_cfml_ansi% then
+                iff "1" != "%ANSI_COLORS_HAVE_BEEN_SET%" .and. "1" != "%validated_cfml_ansi%" then
                         if not defined            BRIGHT_RED    set            BRIGHT_RED=%@CHAR[27][91m
                         if not defined ANSI_COLOR_BRIGHT_RED    set ANSI_COLOR_BRIGHT_RED=%@CHAR[27][91m
                         if not defined ANSI_COLOR_BRIGHT_PURPLE set ANSI_COLOR_BRIGHT_PURPLE=%@CHAR[27][38;2;255;0;255m
@@ -50,7 +49,7 @@ rem Environment variable backups —— these should all already be defined alre
                 endiff
 
 rem Validate environment once per session:
-        iff 1 ne %VALIDATED_CFMLB% then
+        iff "1" != "%VALIDATED_CFMLB%" then
                 call validate-is-function ANSI_MOVE_UP ANSI_CURSOR_COLOR_BY_WORD                   %+ rem would be more portable to bring these definitions into this file
                 call validate-in-path set-tmpfile get-lyrics.bat get-karaoke.bat perl randomize-file.pl errorlevel pause-for-x-seconds divider beep.bat set-tmp-file.bat status-bar.bat
                 set  VALIDATED_CFMLB=1                                                             
@@ -329,24 +328,45 @@ rem —————————————————————————�
                         rem “Processing file: ”
                                 rem @echo %ANSI_COLOR_DEBUG%- DEBUG: Processing file: “%CFML_AudioFile%” %ANSI_COLOR_NORMAL% 🐞 
 
+                        rem CMFL_Audiofile checks:
+                                rem Reject if the file is one of our trash filenames:
+                                        iff "1" == "%@RegEx[[\(\[]instrumental[\)\]],%@UNQUOTE[%CFML_AudioFile%]]" then
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an instrumental:   %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             return                                
+                                        endiff
+                                rem Reject if the file doesn’t exist at all:                                
+                                        iff not exist "%@UNQUOTE["%CFML_AudioFile%"]" then
+                                             echo %ansi_color_yellow% %EMOJI_CROSS_MARK% songfile doesn’t exist:        %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             return
+                                        endiff
+                                rem Reject if the file is one of our trash filenames:
+                                        iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML_AudioFile%"]" then
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an AI temp-file:    %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             return                                
+                                        endiff
 
                         rem Get our filenames (pretty messed up what you have to do to get a file like “whatever .mp3” with a space before the extension to work!):
                                 setdos /x-4
-                                set unquoted_audio_file=%@UNQUOTE[%CFML_AudioFile%]``
+                                rem Unquoted_audio_file filename:
+                                        set unquoted_audio_file=%@UNQUOTE[%CFML_AudioFile%]``
+
+                        rem Unquoted_audio_file checks:
                                 if "%@LEFT[4,%unquoted_audio_file%]" == "\\?\" set unquoted_audio_file=%@RIGHT[%@len[%unquoted_audio_file%-4],%unquoted_audio_file%]  %+ rem Fix filename if it begins with "\\?\" which is a network thingamabob:                                
+                                rem Return if it’s an m3u #EXTINF line
+                                rem Reject if it’s an m3u-specific comment-line in the filelist:
+                                        rem if "1" == "%@Regex[#EXTINF,"%unquoted_audio_file%"]" .or. "1" == "%@Regex[#EXTM3U,"%unquoted_audio_file%"]" return
+                                        if "%@LEFT[8,%unquoted_audio_file%]" == "#EXTINF:"   .or. "%@LEFT[7,%unquoted_audio_file%]" == "#EXTM3U"    return
+                                rem Return if the file doesn’t exist:
+                                        if exist "%unquoted_audio_file%" goto :It_Exists
+                                                echo %ansi_color_alarm%%blink_off%%EMOJI_WARNING% file doesn’t exist: “%unquoted_audio_file%”%ansi_color_normal%%blink_off%
+                                                setdos /x0
+                                                return
+                                        :It_Exists
+
+                        rem Define rest of the filenames:
                                 set unquoted_audio_file_full=%@unquote[%@full[%CFML_audiofile%]``]``                                                                    %+ rem do NOT use full on unquoted_audio_file!
                                 set audio_file_name=%@unquote[%@name[%unquoted_audio_file_full%``]``]``
                                 set audio_file_path=%@unquote[%@path[%unquoted_audio_file_full%``]``]``
-
-                        rem Return if it’s an m3u #EXTINF line
-                        if "1" == "%@Regex[#EXTINF,"%unquoted_audio_file%"]" .or. "1" == "%@Regex[#EXTM3U,"%unquoted_audio_file%"]" return
-
-                        rem Return if the file doesn’t exist:
-                                iff exist "%unquoted_audio_file%" then goto :It_Exists
-                                        echo %ansi_color_alarm%%blink_off%%EMOJI_WARNING% file doesn’t exist: “%unquoted_audio_file%”%ansi_color_normal%%blink_off%
-                                        setdos /x0
-                                        return
-                                :It_Exists
                         
                         rem Debug stuff:
                                 goto :nope_1
@@ -356,17 +376,7 @@ rem —————————————————————————�
                                         echo 🐞 %ansi_color_purple%audio_file_name         =“%audio_file_name%”%ansi_color_normal% 🐞 
                                         echo 🐞 %ansi_color_purple%audio_file_path         =“%audio_file_path%”%ansi_color_normal% 🐞 
                                 :nope_1
-
-                        rem Reject if it’s an m3u-specific comment-line in the filelist:
-                                if "%@LEFT[8,%unquoted_audio_file%]" == "#EXTINF:" .or. "%@LEFT[7,%unquoted_audio_file%]" == "#EXTM3U" return
-
-                        rem Reject if the file doesn’t exist at all:                                
-                                iff not exist %CFML_AudioFile% then
-                                     echo %ansi_color_yellow% %EMOJI_CROSS_MARK% songfile doesn’t exist:        %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
-                                     return
-                                endiff
-
-
+                                          
                         rem gosub DeleteEverywhere               *._vad_collected_chunks*.wav
                         rem gosub DeleteEverywhere               *._vad_collected_chunks*.srt
                         rem gosub DeleteEverywhere               *._vad_original*.srt
@@ -375,21 +385,6 @@ rem —————————————————————————�
                         rem gosub DeleteEverywhere  create-the-missing-karaokes-here-temp*.bat
                         rem gosub DeleteEverywhere       get-the-missing-lyrics-here-temp*.bat
                         rem gosub DeleteEverywhere      get-the-missing-karaoke-here-temp*.bat
-
-
-
-                        rem Reject if the file is one of our trash filenames:
-rem echo                        iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML_AudioFile%"]" tyhen
-                                iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML_AudioFile%"]" then
-                                     echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an AI temp-file:    %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
-                                     return                                
-                                endiff
-
-                        rem Reject if the file is one of our trash filenames:
-                                iff "1" == "%@RegEx[[\(\[]instrumental[\)\]],%@UNQUOTE[%CFML_AudioFile%]]" then
-                                     echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an instrumental:   %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
-                                     return                                
-                                endiff
 
                         rem Special instrumental handling?
                                 rem iff 1 eq %@RegEx[\(instrumental\),%@UNQUOTE[%CFML_AudioFile%]] then
@@ -401,7 +396,7 @@ rem echo                        iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML
                                 iff "APPROVED" == "%LYRICLESSNESS_APPROVAL_VALUE%" then
                                         echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is marked lyricless:  %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                         set BAD=0
-                                        goto :done_processing_this_file
+                                        goto /i :done_processing_this_file
                                 endiff                                        
                                 
                         rem Determine filenames for lyric/karaoke files (which may or may not exist):                                
@@ -434,7 +429,7 @@ rem echo                        iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML
                                      
                         rem Check if the lyrics files already exists, and if so, then check if it is pre-approved:
                         rem (Unless we are in karaoke mode, then we don’t care about the lyric files)
-                                iff 1 ne %GET_KARAOKE then
+                                iff "1" != "%GET_KARAOKE%" then
                                         iff exist "%[txtfile]" then                                                                                         %+ rem If the lyric file exists, we must check if it is approved
                                                 set rem=DEBUG: call debug "Textfile %txtfile% already exists"
                                                 set TXT_EXISTS=1                                                                                            %+ rem If the lyric file exists, flag the situation as such
@@ -470,7 +465,7 @@ rem echo                        iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML
                                 title To find: %remaining% ... Tried: %NUM_PROCESSED%
                                 
                         rem If this file is bad, deal with that:
-                                iff 1 eq %BAD% then
+                                iff "1" == "%BAD%" then
                                                                                
                                         rem Display the # remaining as a status bar at the bottom of the screen:
                                                 setdos /x0
@@ -535,4 +530,4 @@ rem —————————————————————————�
                 return
         :skip_subs_cfml
 
-@endlocal most_songs_from_playlist_to_process_at_a_time validated_cfml_ansi validated_cfmlb ANY_BAD NUM_BAD NUM_PROCESSED limit limit_reached compliance_pct target_script
+rem 20250328 let’s try removing this: @endlocal most_songs_from_playlist_to_process_at_a_time validated_cfml_ansi validated_cfmlb ANY_BAD NUM_BAD NUM_PROCESSED limit limit_reached compliance_pct target_script

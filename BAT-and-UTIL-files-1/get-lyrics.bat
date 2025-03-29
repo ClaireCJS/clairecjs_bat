@@ -24,7 +24,7 @@ rem Validate usage:
         endiff
 
 rem Validate environment once:
-        iff 1 ne %validated_getlyrics% then
+        iff "1" != "%validated_getlyrics%" then
                 call validate-in-path get-lyrics-for-currently-playing-song check-for-missing-lyrics get-lyrics-for-playlist get-lyrics-for-song
                 set  validated_getlyrics=1
         endiff

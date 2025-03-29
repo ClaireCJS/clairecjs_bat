@@ -1,3 +1,4 @@
+@echo %ansi_reset%%conceal_off%%ansi_color_purple%📞📞📞 “%0 %1$” called by %_PBATCHNAME 📞📞📞%ansi_color_normal%
 @loadbtm on
 @Echo OFF
 @on break cancel
@@ -6,13 +7,13 @@ rem Config:
         set PLAYER_COMMAND=call preview-audio-file
 
 rem Validate environment (once):
-        iff "1" != "validated_markallfilenamesasinstrumental" then
+        iff "1" != " validated_markallfilenamesasinstrumental" then
                 call validate-in-path preview-audio-file advice get-lyrics-for-file.btm
                 set  validated_markallfilenamesasinstrumental=1
         endiff
 
 rem Advice:
-        call advice "Run with “ask” parameter to prompt for each file!"
+        if "%1" != "ask" call advice "Run with “ask” parameter to prompt for each file!"
 
 
 rem Call sub-part of lyric-AI-transcription system where this is coded:

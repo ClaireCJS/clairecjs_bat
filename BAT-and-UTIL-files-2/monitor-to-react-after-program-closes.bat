@@ -7,6 +7,7 @@
                                      SET HIDDEN=0
     if "%@UPPER[%3]" eq "EXITAFTER" (SET HIDDEN=1)
     if "%HIDDEN%" == "1"            (window /trans=0)
+    window minimize                
 
 :::: Get parameters:
     SET WAIT_FOR=%1

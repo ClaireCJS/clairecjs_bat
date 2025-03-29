@@ -18,7 +18,7 @@ iff "%1" == "all" .or. "%1" == "*.*" .or. "%1" == "*" .or. "%1" == "*.mp3" .or. 
         call warning_soft "About to disapprove multiple songs for lyric%italics_on%lessness%italics_off% in folder..."
         call AskYN        "You sure" no 10
         if "%answer%" != "y" goto :end
-        call validate-environment-variable filemask_audio
+        if not defined filemask_audio call validate-environment-variable filemask_audio skip_validation_existence
         for %%tmpfile in (%filemask_audio%) do (
                @call disapprove-lyriclessness-for-file.bat "%@unquote[%tmpfile]"
         )

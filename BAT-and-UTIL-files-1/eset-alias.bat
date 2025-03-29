@@ -1,5 +1,5 @@
-@Echo Off
 @loadbtm on
+@Echo Off
 
 rem 🧹Pre-run clean-up:
         if defined eset_fail unset /q eset_fail
@@ -74,7 +74,7 @@ rem 📰Remind user of our extra options:
         endiff
 
 rem ✅Reset the color & cursor back to normal:
-        :END
+       :END
        on break cancel
        echos %ANSI_COLOR_NORMAL%%CURSOR_RESET%
        if "1" == "%ansi_off%"  call ansi-on

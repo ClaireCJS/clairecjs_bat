@@ -531,16 +531,24 @@ def string_to_color(word):
     """
     global NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLO
     word = word[:NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR]                                            
-    hash_value1 = int(hashlib.sha256(     word    .upper().replace("'","").replace("’","").replace("`","").replace("-","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground ... don’t consider apostrophes so that the word is colored the same apostrophe or not   
-    hash_value2 = int(hashlib.sha256(f"bg{word}bg".upper().replace("'","").replace("’","").replace("`","").replace("-","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for background ... don’t consider apostrophes so that the word is colored the same apostrophe or not
+
+    # strip out characters that we don’t want to modify the color of a word, if it’s in one set and not another. For example, “can’t” and “cant” should be same color:
+    hash_value1 = int(hashlib.sha256(     word    .upper().replace("'","").replace("’","").replace("`","").replace("-","").replace(".","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not   
+    hash_value2 = int(hashlib.sha256(f"bg{word}bg".upper().replace("'","").replace("’","").replace("`","").replace("-","").replace(".","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for background ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
+
+    # calculate colors
     hue1        = hash_value1 %     360                                             # Map the hash value to a foreground hue (0-360 degrees)
     hue2        = hash_value2 % int(360*MAX_BACKGROUND_INTENSITY)                   # Map the hash value to a background hue (0-[360*max_bg_intensity] degrees)
     hue2        = hash_value2 %     360                                             # Map the hash value to a background hue (0-[360*max_bg_intensity] degrees)
     lightness   = LIGHTNESS                                                         # Saturation and lightness are kept constant for distinct colors
     saturation  = SATURATION                                                        # Saturation and lightness are kept constant for distinct colors
+
+    # convert colors
     r , g , b   = hsl_to_rgb(hue1, saturation, lightness)                           # Convert HSL to RGB: foreground
     rb, gb, bb  = hsl_to_rgb(hue2, saturation, MAX_BACKGROUND_INTENSITY)            # Convert HSL to RGB: background
-    background  = apply_background_color(bb, rb, gb)                                # Apply a subtle background color: scramble it up a bit by changing rgb=>gbr
+
+    # set background color
+    background  = apply_background_color(gb, bb, rb)                                # Apply a subtle background color: scramble it up a bit by changing rgb=>gbr
     return r, g, b, background                                                      # Return our values
 # ═════════════════════════════════════════════════════════════════════════════════
 
@@ -589,7 +597,7 @@ def consistent_word_highlight(text):
 
     for char in text:
         #f char.isalnum() or char == "’" or char == "'" or char == "´":                 # Building a word
-        if char.isalnum() or char in {"’", "'", "´", "-", "–", "—"}:                    # Building a word
+        if char.isalnum() or char in {"’", "'", "´", "-", "–", "—"}:                    # punctuation that we still want to consider part of the word
             if               char in {"’", "'", "´"}: char = "’"                        # replace dumb apostrophes with smart apostrophes
             word += char
         else:

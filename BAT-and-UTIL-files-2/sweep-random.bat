@@ -48,3 +48,5 @@ rem Run command in every subfolder, but randomly:
 
 rem Advice for force:
         if 1 ne %SR_FORCE% (call advice "Add “force” as 2ⁿᵈ argument to run this")
+
+:END

@@ -233,6 +233,8 @@ foreach $filename (@LINES) {
     if ($filename =~ /\.avi.deprecated$/i)   { $isVideo=1; }
     if ($filename =~ /\.ts$/i)               { $isVideo=1; }
 
+	##### common word misspelling:
+	$filename =~ s/tabulature/tablature/i;
 
 	##### 20060822 WTF -- I find this, but it's still like this?!?!:
 #bad idea: lename =~ /\.idx$/i)     { $isVideo=1; } #20051010 let's try this

@@ -25,7 +25,7 @@ rem Validate usage:
         endiff
 
 rem Validate environment once:
-        iff 1 ne %validated_getlyrics% then
+        iff "1" != "%validated_getlyrics%" then
                 %CALL% validate-in-path create-srt-file-for-currently-playing-song.bat check-for-missing-karaoke-here create-srt-from-playlist create-srt-from-file.bat
                 set  validated_getlyrics=1
         endiff

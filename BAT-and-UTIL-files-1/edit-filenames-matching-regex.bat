@@ -1,5 +1,6 @@
 @Echo Off
  on break cancel
+ loadbtm on
 
 :DESCRIPTION:    Open all files matching a regular expression in the default text editor
 :USAGE:          %0 "someRegex"    *.txt  {defaults to *.bat if no file is specified}
@@ -16,8 +17,11 @@ rem USAGE:
         endiff
 
 rem ENVIRONMENT VALIDATION:
-        call validate-in-path               checkeditor grep fixtmp insert-before-each-line.pl echos editor-slow divider
-        call                                checkeditor
+	iff "1" != "%validated_editgr%" then
+        call validate-in-path  checkeditor grep fixtmp insert-before-each-line.pl echos editor-slow divider
+        call                   checkeditor
+        set  validated_editgr=1
+	endiff
 
 rem CONFIGURATION:
         set FILESTOGREP_DEFAULT=*.bat
@@ -40,9 +44,9 @@ rem SET UP INTERNAL VARIABLES AND FILENAMES:
 
 
 rem GREP FOR OUR LIST OF MATCHING FILES, WHICH ARE SAVED TO A FILELIST:
-        call less_important "Searching files “%italics_on%%FILESTOGREP%%italics_off%” for regex “%italics_on%%REGEX%%italics_off%”"
+        echo %ansi_color_important%%star% Searching files %lq%%italics_on%%FILESTOGREP%%italics_off%%rq% for regex %lq%%italics_on%%REGEX%%italics_off%%rq%%ansi_color_normal%
                                           >:u8%FILELIST%
-        grep -i -l %REGEX% %FilesToGrep% >>:u8%FILELIST% 
+        if exist %filestogrep% grep -i -l %REGEX% %FilesToGrep% >>:u8%FILELIST% 
 
 
 
@@ -57,7 +61,7 @@ rem CONVERT THE FILELIST INTO A BAT FILE WHICH WILL TEXT-EDIT ALL THE MATCHED FI
 
 
 rem PREVIEW THE GENERATED SCRIPT, SO USER CAN BE SURE THEY ACTUALLY WANT TO RUN IT:
-        call less_important "About to run:
+        echo %ansi_color_less_important%%star2% About to run: %ansi_color_normal%
         call divider
         %color_run%
         type %BATFILE%	

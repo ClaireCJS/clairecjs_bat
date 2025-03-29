@@ -111,60 +111,59 @@ REM Process parameters
 
 REM Validate parameters
         set print_message_running=2
-        iff 1 ne %VALIDATED_PRINTMESSAGE_ENV  then
+        iff "1" != "%VALIDATED_PRINTMESSAGE_ENV%"  then
                 if not defined COLOR_%TYPE%    (echoerr %ANSI_COLOR_fatal_error%This variable COLOR_%TYPE% should be an existing COLOR_* variable in our environment %+ *pause %+ goto :END)
                 if not defined MESSAGE         (echoerr %ANSI_COLOR_fatal_error%$0 called without a message %+ *pause %+ go)
                 if "%@PLUGIN[StripAnsi]" == "" (echoerr %ANSI_COLOR_fatal_error%$0 called without StripAnsi plugin loaded %+ *pause %+ go)
-                call  validate-in-path beep.bat 
+                if "1" != "%beep_validated_in_path%" call validate-in-path beep.bat 
+                set beep_validated_in_path=1
                 set GOTOEND=0
                 echos %reverse_on%
-                gosub validate BLINK_OFF 
-                gosub validate REVERSE_ON 
-                gosub validate REVERSE_OFF 
-                gosub validate ITALICS_ON 
-                gosub validate ITALICS_OFF 
-                gosub validate BIG_TEXT_LINE_1 
-                gosub validate BIG_TEXT_LINE_2 
-                gosub validate OUR_COLORTOUSE 
-                gosub validate EXECUTE_PROTECTION_PAUSES 
-                gosub validate EMOJI_TRUMPET 
-                gosub validate ANSI_RESET 
-                gosub validate EMOJI_FLEUR_DE_LIS 
-                gosub validate ANSI_COLOR_WARNING 
-                gosub validate ANSI_COLOR_IMPORTANT 
-                gosub validate RED_FLAG 
-                gosub validate EMOJI_WARNING 
-                gosub validate big_top 
-                gosub validate BIG_TOP_ON 
-                gosub validate big_bot 
-                gosub validate BIG_BOT_ON 
-                gosub validate FAINT_ON 
-                gosub validate FAINT_OFF 
-                gosub validate EMOJI_WARNING 
-                gosub validate EMOJI_WHITE_EXCLAMATION_MARK 
-                gosub validate EMOJI_RED_EXCLAMATION_MARK 
-                gosub validate EMOJI_STAR 
-                gosub validate STAR 
-                gosub validate STAR2 
-                gosub validate EMOJI_GLOWING_STAR 
-                gosub validate EMOJI_ALARM_CLOCK 
-                gosub validate ENDASH 
-                gosub validate EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT 
-                gosub validate EMOJI_MAGNIFYING_GLASS_TILTED_LEFT  
+                if not defined BLINK_OFF                           gosub validate BLINK_OFF 
+                if not defined REVERSE_ON                          gosub validate REVERSE_ON 
+                if not defined REVERSE_OFF                         gosub validate REVERSE_OFF 
+                if not defined ITALICS_ON                          gosub validate ITALICS_ON 
+                if not defined ITALICS_OFF                         gosub validate ITALICS_OFF 
+                if not defined BIG_TEXT_LINE_1                     gosub validate BIG_TEXT_LINE_1 
+                if not defined BIG_TEXT_LINE_2                     gosub validate BIG_TEXT_LINE_2 
+                if not defined OUR_COLORTOUSE                      gosub validate OUR_COLORTOUSE 
+                if not defined EXECUTE_PROTECTION_PAUSES           gosub validate EXECUTE_PROTECTION_PAUSES 
+                if not defined EMOJI_TRUMPET                       gosub validate EMOJI_TRUMPET 
+                if not defined ANSI_RESET                          gosub validate ANSI_RESET 
+                if not defined EMOJI_FLEUR_DE_LIS                  gosub validate EMOJI_FLEUR_DE_LIS 
+                if not defined ANSI_COLOR_WARNING                  gosub validate ANSI_COLOR_WARNING 
+                if not defined ANSI_COLOR_IMPORTANT                gosub validate ANSI_COLOR_IMPORTANT 
+                if not defined RED_FLAG                            gosub validate RED_FLAG 
+                if not defined EMOJI_WARNING                       gosub validate EMOJI_WARNING 
+                if not defined big_top                             gosub validate big_top 
+                if not defined BIG_TOP_ON                          gosub validate BIG_TOP_ON 
+                if not defined big_bot                             gosub validate big_bot 
+                if not defined BIG_BOT_ON                          gosub validate BIG_BOT_ON 
+                if not defined FAINT_ON                            gosub validate FAINT_ON 
+                if not defined FAINT_OFF                           gosub validate FAINT_OFF 
+                if not defined EMOJI_WARNING                       gosub validate EMOJI_WARNING 
+                if not defined EMOJI_WHITE_EXCLAMATION_MARK        gosub validate EMOJI_WHITE_EXCLAMATION_MARK 
+                if not defined EMOJI_RED_EXCLAMATION_MARK          gosub validate EMOJI_RED_EXCLAMATION_MARK 
+                if not defined EMOJI_STAR                          gosub validate EMOJI_STAR 
+                if not defined STAR                                gosub validate STAR 
+                if not defined STAR2                               gosub validate STAR2 
+                if not defined EMOJI_GLOWING_STAR                  gosub validate EMOJI_GLOWING_STAR 
+                if not defined EMOJI_ALARM_CLOCK                   gosub validate EMOJI_ALARM_CLOCK 
+                if not defined ENDASH                              gosub validate ENDASH 
+                if not defined EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT gosub validate EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT 
+                if not defined EMOJI_MAGNIFYING_GLASS_TILTED_LEFT  gosub validate EMOJI_MAGNIFYING_GLASS_TILTED_LEFT  
                 echos %reverse_off%
-                if "1" == "%GOTOEND%" (goto :END)
-              
                 set   VALIDATED_PRINTMESSAGE_ENV=1
+                if "1" == "%GOTOEND%" (goto /i :END)              
         endiff
 
                 goto :validate_subroutine_done
                         :validate [validatee]
                                 rem echo validate called with validatee=“%validatee%”
-                                if "" ==  "%[%validatee]" (
+                                iff "" ==  "%[%validatee]" then
                                         echo %ansi_color_fatal_error%!!! ERROR !!!   %validatee%  needs to be defined%ansi_color_normal%
-                                        set GOTOEND=1 
-                                )
-                                if "1" == "%GOTOEND%" (goto :END)
+                                        goto /i END
+                                endiff
                         return
                 :validate_subroutine_done
 
@@ -173,7 +172,7 @@ REM convert special characters
     set MESSAGE=%@UNQUOTE[%MESSAGE]``
     set ORIGINAL_MESSAGE=%MESSAGE%``
     REM might want to do if %NEWLINE_REPLACEMENT eq 1 instead:
-    iff %NEWLINE_REPLACEMENT eq 1 then
+    iff "%NEWLINE_REPLACEMENT" == "1" then
             set MESSAGE=%@REPLACE[\n,%@CHAR[12]%@CHAR[13],%@REPLACE[\t,%@CHAR[9],%MESSAGE]]``
             unset /q NEWLINE_REPLACEMENT
     endiff
@@ -183,37 +182,43 @@ REM convert special characters
 
 
 REM Type alias/synonym handling
-    if "%TYPE%" == "ERROR_FATAL"    (set TYPE=FATAL_ERROR)
-    if "%TYPE%" == "IMPORTANT_LESS" (set TYPE=LESS_IMPORTANT)
-    if "%TYPE%" == "WARNING_SOFT"   (set TYPE=WARNING_LESS)
-
+    if "%TYPE%" == "ERROR_FATAL"    (
+        set TYPE=FATAL_ERROR
+    )  else (
+            if "%TYPE%" == "IMPORTANT_LESS" (
+                set TYPE=LESS_IMPORTANT
+            ) else (
+                if "%TYPE%" == "WARNING_SOFT"   (set TYPE=WARNING_LESS)
+            )
+    )
 
 REM Behavior overides and message decorators depending on the type of message?
                                        set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=
-    if  "%TYPE%"  == "UNIMPORTANT"    (set DECORATOR_LEFT=...           %+ set DECORATOR_RIGHT=)
+    if  "%TYPE%"  == "ADVICE"         (set DECORATOR_LEFT=%EMOJI_BACKHAND_INDEX_POINTING_RIGHT% `` %+ set DECORATOR_RIGHT= %EMOJI_BACKHAND_INDEX_POINTING_LEFT% %+ goto decorator_defined) 
+    if  "%TYPE%"  == "WARNING_LESS"   (set DECORATOR_LEFT=%STAR% ``     %+ set DECORATOR_RIGHT= %STAR% %+ goto decorator_defined) 
+    rem "%TYPE%"  == "WARNING"        (set DECORATOR_LEFT=%EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %blink%!!%blink_off% `` %+ set DECORATOR_RIGHT= %blink%!!%blink_off% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %+ goto decorator_defined)
+    rem "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT% `` %+ set DECORATOR_RIGHT= %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED% %+ goto decorator_defined)
+    rem "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %DOUBLE_UNDERLINE_ON%`` %+ set DECORATOR_RIGHT=%DOUBLE_UNDERLINE_OFF% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED% %+ goto decorator_defined)
+    if  "%TYPE%"  == "WARNING"        (set DECORATOR_LEFT=%RED_FLAG%%RED_FLAG%%RED_FLAG%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %@ANSI_BG_RGB[0,0,255]%blink%!!%blink_off% ``  %+  set DECORATOR_RIGHT= %blink%!!%blink_off%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %RED_FLAG%%RED_FLAG%%RED_FLAG% %+ goto decorator_defined)
+    if  "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  `` %+ set DECORATOR_RIGHT=  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED% %+ goto decorator_defined)
+    REM "%TYPE%"  == "ADVICE"         (set DECORATOR_LEFT=`-->`         %+ set DECORATOR_RIGHT= %+ goto decorator_defined) 
+    if  "%TYPE%"  == "DEBUG"          (set DECORATOR_LEFT=- DEBUG: ``   %+ set DECORATOR_RIGHT= %+ goto decorator_defined=)
+    rem "%TYPE%"  == "LESS_IMPORTANT" .or. "%TYPE%" == "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR% %ANSI_COLOR_IMPORTANT_LESS%``  %+ set DECORATOR_RIGHT= %+ goto decorator_defined) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
+    if  "%TYPE%"  == "LESS_IMPORTANT" .or. "%TYPE%" == "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR2% %ANSI_COLOR_IMPORTANT_LESS%`` %+ set DECORATOR_RIGHT= %+ goto decorator_defined) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
+    if  "%TYPE%"  == "LESS_IMPORTANT" .or. "%TYPE%" == "IMPORTANT_LESS" (set DECORATOR_LEFT=%ansi_color_important%%UPSIDE_DOWN_STAR% %ANSI_COLOR_IMPORTANT_LESS% `` %+ set DECORATOR_RIGHT= %+ goto decorator_defined) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
+    if  "%TYPE%"  == "UNIMPORTANT"    (set DECORATOR_LEFT=...           %+ set DECORATOR_RIGHT= %+ goto decorator_defined)
     REM to avoid issues with the redirection character, ADVICE’s left-decorator needs to be inserted at runtime if it contains a “>” character. Could proably avoid this with setdos
-    REM "%TYPE%"  == "ADVICE"         (set DECORATOR_LEFT=`-->`         %+ set DECORATOR_RIGHT=) 
-    if  "%TYPE%"  == "ADVICE"         (set DECORATOR_LEFT=%EMOJI_BACKHAND_INDEX_POINTING_RIGHT% `` %+ set DECORATOR_RIGHT= %EMOJI_BACKHAND_INDEX_POINTING_LEFT%) 
-    if  "%TYPE%"  == "NORMAL"         (set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=) 
-    if  "%TYPE%"  == "DEBUG"          (set DECORATOR_LEFT=- DEBUG: ``   %+ set DECORATOR_RIGHT=)
-    rem "%TYPE%"  == "LESS_IMPORTANT" .or. "%TYPE%" == "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR% %ANSI_COLOR_IMPORTANT_LESS%``  %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
-    if  "%TYPE%"  == "LESS_IMPORTANT" .or. "%TYPE%" == "IMPORTANT_LESS" (set DECORATOR_LEFT=%STAR2% %ANSI_COLOR_IMPORTANT_LESS%`` %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
-    if  "%TYPE%"  == "LESS_IMPORTANT" .or. "%TYPE%" == "IMPORTANT_LESS" (set DECORATOR_LEFT=%ansi_color_important%%UPSIDE_DOWN_STAR% %ANSI_COLOR_IMPORTANT_LESS% `` %+ set DECORATOR_RIGHT=) %+ rem some bug was making the color bold, so we fixed it by putting the ansi color here, even though that’s not how this is designed to be used
-    rem "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT% `` %+ set DECORATOR_RIGHT= %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
-    rem "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %DOUBLE_UNDERLINE_ON%`` %+ set DECORATOR_RIGHT=%DOUBLE_UNDERLINE_OFF% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
-    if  "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  `` %+ set DECORATOR_RIGHT=  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED%)
-    rem "%TYPE%"  == "WARNING"        (set DECORATOR_LEFT=%EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %blink%!!%blink_off% `` %+ set DECORATOR_RIGHT= %blink%!!%blink_off% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING%)
-    if  "%TYPE%"  == "WARNING"        (set DECORATOR_LEFT=%RED_FLAG%%RED_FLAG%%RED_FLAG%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %@ANSI_BG_RGB[0,0,255]%blink%!!%blink_off% ``  %+  set DECORATOR_RIGHT= %blink%!!%blink_off%%ANSI_COLOR_WARNING% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %RED_FLAG%%RED_FLAG%%RED_FLAG%)
-    if  "%TYPE%"  == "WARNING_LESS"   (set DECORATOR_LEFT=%STAR% ``     %+ set DECORATOR_RIGHT= %STAR%) 
-    if  "%TYPE%"  == "SUCCESS"        (set DECORATOR_LEFT=%REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%BLINK_OFF%%REVERSE_OFF% ``        %+ set DECORATOR_RIGHT= %REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%REVERSE_OFF%%BLINK_OFF% %PARTY_POPPER%%EMOJI_BIRTHDAY_CAKE%)
-    rem "%TYPE%"  == "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
-    if  "%TYPE%"  == "CELEBRATION"    (set DECORATOR_LEFT=%blink_off%%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF% %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR%)
-    if  "%TYPE%"  == "COMPLETION"     (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT=! ***)
-    if  "%TYPE%"  == "ALARM"          (set DECORATOR_LEFT=* ``          %+ set DECORATOR_RIGHT= *)
-    if  "%TYPE%"  == "REMOVAL"        (set DECORATOR_LEFT=%RED_SKULL%%SKULL%%RED_SKULL% ``        %+ set DECORATOR_RIGHT= %RED_SKULL%%SKULL%%RED_SKULL%)
-    if  "%TYPE%"  == "ERROR"          (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT= ***)
-    if  "%TYPE%"  == "FATAL_ERROR"    (set DECORATOR_LEFT=***** !!! ``  %+ set DECORATOR_RIGHT= !!! *****)
+    if  "%TYPE%"  == "SUCCESS"        (set DECORATOR_LEFT=%REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%BLINK_OFF%%REVERSE_OFF% ``        %+ set DECORATOR_RIGHT= %REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%REVERSE_OFF%%BLINK_OFF% %PARTY_POPPER%%EMOJI_BIRTHDAY_CAKE% %+ goto decorator_defined)
+    if  "%TYPE%"  == "COMPLETION"     (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT=! *** %+ goto decorator_defined)
+    rem "%TYPE%"  == "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR% %+ goto decorator_defined)
+    if  "%TYPE%"  == "CELEBRATION"    (set DECORATOR_LEFT=%blink_off%%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF% %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR% %+ goto decorator_defined)
+    if  "%TYPE%"  == "REMOVAL"        (set DECORATOR_LEFT=%RED_SKULL%%SKULL%%RED_SKULL% ``        %+ set DECORATOR_RIGHT= %RED_SKULL%%SKULL%%RED_SKULL% %+ goto decorator_defined)
+    if  "%TYPE%"  == "ERROR"          (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT= *** %+ goto decorator_defined)
+    if  "%TYPE%"  == "FATAL_ERROR"    (set DECORATOR_LEFT=***** !!! ``  %+ set DECORATOR_RIGHT= !!! ***** %+ goto decorator_defined)
+    if  "%TYPE%"  == "ALARM"          (set DECORATOR_LEFT=* ``          %+ set DECORATOR_RIGHT= * %+ goto decorator_defined)
+    if  "%TYPE%"  == "NORMAL"         (set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT= %+ goto decorator_defined) 
     rem 20240419 moved to after setting COLOR_TO_USE so we can start setting that before the right decorator in case the message contents changed the color: set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
+    :decorator_defined        
 
 
 REM We’re going to change the cursor color to the cursor color associated with this message, IF one was defined in set-ansi:
@@ -235,15 +240,16 @@ REM We’re going to update the window title to the message. If possible, strip 
                 set TITLE=%CLEAN_MESSAGE%
 
         REM But first let’s decorate the window title for certain message types Prior to actually updating the window title:
-                if "%TYPE%" ==          "DEBUG" (set TITLE=%EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %title% %EMOJI_MAGNIFYING_GLASS_TILTED_LEFT%)
-                if "%TYPE%" == "LESS_IMPORTANT" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
-                if "%TYPE%" == "IMPORTANT_LESS" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR%)
-                if "%TYPE%" ==      "IMPORTANT" (set TITLE=%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %title% %EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR%)
-                if "%TYPE%" ==          "ALARM" (set TITLE=%EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%  %title%  %EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%)
-                if "%TYPE%" ==   "WARNING_LESS" (set TITLE=%EMOJI_WARNING%%title%)
-                if "%TYPE%" ==        "WARNING" (set TITLE=%EMOJI_WARNING%%EMOJI_WARNING%%title!%EMOJI_WARNING%%EMOJI_WARNING%)
-                if "%TYPE%" ==          "ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% ERR0R: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
-                if "%TYPE%" ==    "FATAL_ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% FATAL ERROR: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%)
+                if "%TYPE%" ==          "DEBUG" (set TITLE=%EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %title% %EMOJI_MAGNIFYING_GLASS_TILTED_LEFT% %+ goto done_defining_title)
+                if "%TYPE%" == "LESS_IMPORTANT" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR% %+ goto done_defining_title)
+                if "%TYPE%" == "IMPORTANT_LESS" (set TITLE=%EMOJI_STAR% %title% %EMOJI_STAR% %+ goto done_defining_title)
+                if "%TYPE%" ==      "IMPORTANT" (set TITLE=%EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %title% %EMOJI_GLOWING_STAR%%EMOJI_GLOWING_STAR% %+ goto done_defining_title)
+                if "%TYPE%" ==          "ALARM" (set TITLE=%EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK%  %title%  %EMOJI_ALARM_CLOCK%%EMOJI_ALARM_CLOCK% %+ goto done_defining_title)
+                if "%TYPE%" ==   "WARNING_LESS" (set TITLE=%EMOJI_WARNING%%title% %+ goto done_defining_title)
+                if "%TYPE%" ==        "WARNING" (set TITLE=%EMOJI_WARNING%%EMOJI_WARNING%%title!%EMOJI_WARNING%%EMOJI_WARNING% %+ goto done_defining_title)
+                if "%TYPE%" ==          "ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% ERR0R: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% %+ goto done_defining_title)
+                if "%TYPE%" ==    "FATAL_ERROR" (set TITLE=%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% FATAL ERROR: %title% %EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK%%EMOJI_RED_EXCLAMATION_MARK% %+ goto done_defining_title)
+                :done_defining_title
 
         REM Then actually set the current window title to our newly-constructed window title text:        
                 title %title%
@@ -251,8 +257,11 @@ REM We’re going to update the window title to the message. If possible, strip 
 
 REM Some messages will be decorated with audio:
         if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO ne 1 .and. 1 ne %PRINTMESSAGE_OPT_SUPPRESS_AUDIO (
-                if "%TYPE%" == "DEBUG"  (call beep.bat  lowest 1)
-                if "%TYPE%" == "ADVICE" (call beep.bat highest 3)
+                if "%TYPE%" == "DEBUG"  (
+                        call beep.bat  lowest 1
+                ) else (
+                        if "%TYPE%" == "ADVICE" (call beep.bat highest 3)
+                )
         )
 
 REM Pre-Message pause based on message type (pausable messages need a litle visual cushion):

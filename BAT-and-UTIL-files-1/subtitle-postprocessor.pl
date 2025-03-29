@@ -7,6 +7,10 @@
 use strict;                                                                                            # Enforce strict variable declaration rules
 use warnings;                                                                                          # Display warnings for potential errors
 use File::Copy qw(move);                                                                               # Import move() for replacing files
+use utf8;
+binmode(STDOUT, ":utf8");
+binmode(STDIN , ":utf8");
+binmode(STDERR, ":utf8");
 
 # —————————————————————————————————————————————————————————————————————————————————————————————————————
 # Parse command-line arguments to determine the mode of execution.
@@ -344,7 +348,7 @@ sub whisper_ai_postprocess {
 	$s = &de_censor($s);
 
 	################ SPECIAL CHARS: ############### 
-	$s =~ s/[â'`]/’/g;										#apostrophes and misrepresentations thereof
+	$s =~ s/[â'`]/’/ig;										#apostrophes and misrepresentations thereof
 	
 	############# LYRIC WEBSITE JUNK: #############
 	$s =~ s/You might also like//i;

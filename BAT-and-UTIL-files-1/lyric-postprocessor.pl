@@ -31,6 +31,11 @@ my $LYRICS_MODE;
 my $ONE_LINE;
 my $UNIQUE_LINES_MODE;
 my $ADD_CHARACTER_MODE;
+use utf8;
+binmode(STDOUT, ":utf8");
+binmode(STDIN , ":utf8");
+binmode(STDERR, ":utf8");
+
    
 # Default modes:
 $LYRICS_MODE        = 1;
@@ -136,6 +141,7 @@ while (<STDIN>) {
 		#advertising crap to get rid of
 		$line =~ s/Get tickets as low as \$[\d\.]+//i;
 
+		#### artist/song mentions to get rid of:
 		#dynamic content removals {uses environment variables set in create-lyrics bat}		
 		if ($file_artist ne "") { 
 			$line =~ s/See \Q$file_artist Live\E//i; 
@@ -147,6 +153,7 @@ while (<STDIN>) {
 		if ($file_album ne "") { 
 			$line =~ s/Album: \Q$file_album\E[\.,]?//i; 
 		}
+		$line =~ s/^Lyrics by .*$//;
 
 		#commas and quotes
 		$line =~ s/^, *$//;			#remove leading comma like ", a line of text"

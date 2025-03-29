@@ -41,7 +41,7 @@
 :USAGE:
 
 rem Validate environment once:
-        iff 1 ne %VALIDATED_ASKYN% then
+        iff "1" != "%VALIDATED_ASKYN%" then
                 call validate-plugin                stripansi
                 call validate-in-path               echos echoerr echoserr print-if-debug important.bat fatal_error.bat warning.bat repeat if set color_alarm_hex color_success_hex
                 call validate-functions             ANSI_CURSOR_CHANGE_COLOR_WORD CURSOR_COLOR_BY_HEX 

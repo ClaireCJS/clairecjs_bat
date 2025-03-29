@@ -1,10 +1,6 @@
-TODO: mention this project as requirement https://github.com/EtienneAb3d/WhisperTimeSync
-TODO: daily approvals report			 report-lyric-approval-progress.bat
-TODO: document “approve-lyriclessness ask” as part of a possible workflow
 TODO: document for get-lyrics: :USAGE:     set OVERRIDE_FILE_ARTIST_TO_USE=Misfits     //override artist name, especially useful if you want to predownload lyrics for a bunch of tribute/cover albums of a particular band. For example, I have 10 tribute albums for The Misfits that I want to pre-download lyrics for, but I have a hunch the downloader will not find the right lyrics if my original artist tag is missing on any of these files, plus a lot of people who upload lyrics upload without the “The”. And although this script compensates for both those contingencies, setting this can speed things up.
-
-
-
+TODO: document: preview-audio-file.bat mark-all-filenames-as-instrumental.bat ask-if-these-are-instrumentals.bat unmark-all-filenames-ADS-tag-for-as_instrumental.bat/mark-all-filenames-ADS-tag-for-as_instrumental.bat/mark-all-filenames-ADS-tag-for-NOT-as_instrumental.bat
+ask-if-these-are-lyricless.bat
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -37,6 +33,12 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 😢 *Lyriclessness*: This meaning is specific to this project: Lyriclessness is a state in which a song’s lyrics cannot be found on the internet. At this point of giving up on our lyrics search, we can “approve” the lyriclessness state to mark our task as complete.
 
 
+🎸 *Instrumental*: A song that has no vocals or lyrics. The system WILL skip processing these. Marked with “ [instrumental]” in the filename.
+
+🎹 *Semi-Instrumental*: The system will NOT skip processing these. Marked with “ [semi-instrumental]” in the filename. A semi-instrumental is a song that has either:
+  - vocals that aren’t lyrics, i.e. lyricless opera, skat, choruses going “ahhh”, etc
+  - words that aren’t vocals, i.e. an electronica song but it starts off with a spoken-word sample
+
 </details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -47,14 +49,14 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
   
   &nbsp; 
   
-1. 👂 The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL)
+1. 👂 AI: The [latest Faster-Whisper-XXL binaries](https://github.com/Purfview/whisper-standalone-win/releases/tag/Faster-Whisper-XXL)
 
     - The command ``faster-whisper-xxl.exe`` — our AI transriber — must be in your ```path```.
 
 &nbsp;    
 
-2. 💻 [JPSoft’s TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html).  
-    - Install TCC:
+2. 💻 Command line requirements ([JPSoft’s TakeCommand (TCC) command-line v31+](https://jpsoft.com/all-downloads/all-downloads.html))
+    - Install JPSoft’s TakeCommand (aka “TCC”):
         - either from [JPSoft.com](https://jpsoft.com/all-downloads/all-downloads.html)
         - or via *WinGet* with the command: ```winget install JPSoft.tcmd```
           - No *WinGet*? Install it in *PowerShell* with the command ```Add-AppxPackage -Path "https://aka.ms/getwinget"``` 
@@ -70,19 +72,23 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
        
 &nbsp;
 
-3. 🐍 Python 
+3. 🐍 Python requirements 
     - Install Python Anaconda ... That one specifically. [TODO link this]
     - install the *LyricsGenius* package: 
       - install: ```pip install git+https://github.com/johnwillmr/LyricsGenius.git```
       - upgrade: ```pip install -U lyricsgenius```
       - ensure that ```lyricsgenius``` is in your path and works as a command
+    - install the *WhisperTimeSync* package:
+      - https://github.com/EtienneAb3d/WhisperTimeSync
 
 &nbsp;
 
 4. 🦪 Perl
     - Install Strawberry Perl [TODO link this]
-    - install my Perl libraries
+    - install [my Perl libraries](../BAT-and-UTIL-files-1/perl-sitelib-Clio.zip)
       - ```Unzip perl-sitelib-Clio.zip``` into ```c:\Strawberry\perl\site\lib\Clio```
+    - Alternately, Install [my whole site\lib folder](../BAT-and-UTIL-files-1/perl-site-lib.zip)
+      - ```Unzip perl-site-lib.zip``` into ```c:\Strawberry\perl\site\lib\```
 
 &nbsp;
 
@@ -174,7 +180,18 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 
 From a running TCC command line, use whatever system commands you’d like from the list below.
 
-Generally speaking, it will be: ```create-srt``` or ```get-lyrics``` followed by a filename, a playlist, or the word “this” to operate on the currently-playing song.
+  - For single songs/files: ```get-lyrics {filename}``` to align lyrics, ```get-karaoke {filename}``` to transcribe aligned lyrics to subtitle/karaoke file. 
+
+   - For albums/folders: ```glh``` (```get-lyrics-here```) until lyrics are aligned, then ```gkh``` (```get-karaokes-here```) to transcribe.  Beforehand, optionally use ```predownload-lyrics```, ```ask-if-instrumentals``` and ```ask-if-lyricless```.
+
+  - For discographies/folder trees:
+    - Beforehand, optionally use ```predownload-lyrics```, ```sweep ask-if-instrumentals``` and ```sweep ask-if-lyricless```.
+    - in alphabetical order: ```sweep glh``` (```get-lyrics-here```) until lyrics are all aligned, then ```sweep gkh``` (```get-karaokes-here```) to transcribe. 
+    - in random order instead of alphabetic: ```sweep-random "glh" force``` (```get-lyrics-here```) until lyrics are all aligned, then ```sweep-random "gkh" force``` (```get-karaokes-here```) to transcribe. 
+
+  - For playlists/filelists: ```get-lyrics playlist.m3u``` or ```get-karaoke playlist.m3u```, where *playlist.m3u* is the filename of the playlist you want to traverse
+
+  - ⚡ For Winamp Integration only: ⚡ To operate on the song currently playing in WinAmp: ```glt``` (```get-lyrics this```) to align lyrics, ```gkt``` (```get-karaoke this```) to transcribe
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -205,16 +222,36 @@ Generally speaking, it will be: ```create-srt``` or ```get-lyrics``` followed by
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat)
+🌠 BASIC ALIGNMENT STEPS (all optional): Pre-download, mark instrumentals, mark lyriclessness, approve lyrics
+
+### OPTIONAL STEP 1: [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat)
 
 Runs an initial pass of pre-downloading lyrics from Genius **in a completely unattended fashion**, for an entire folder tree, for later review. 
 
-BENEFIT 1: This is SUPER HANDY for saving online lookup time while you are at the keyboard, by doing initial fetches in advance, so when they are reviewed, no *attended* user time is wasted.
+  - BENEFIT 1: THIS SAVES TIME!!!!!!!!  By doing initial fetches in advance, you aren’t wasting *your* time, but *attended* time.
+  - BENEFIT 2: This allows for lyric approval/disapproval to be performed when internet connectivity is down.
 
-BENEFIT 2: This allows for lyric approval/disapproval to be performed when internet connectivity is down.
+### OPTIONAL STEP 2: Mark any instrumentals with [ask-if-instrumentals.bat](../BAT-and-UTIL-files-1/ask-if-these-are-instrumentals.bat)
 
+Particularly useful for soundtrack scores... and easy way to add “[instrumental]” to filenames so that we don’t spend AI-energy trying to transcribe files that have no lyrics.  
 
-### 🌟 [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-file {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
+*Side-note:* We recommend using “[semi-instrumental]” to denote songs that have vocals but no lyrics (i.e. chorus voices being used as instruments), or songs that have a few words but no real vocals (i.e. a 3 minute electronic tracks with a spoken sample at the beginning). Semi-instrumentals will still be transcribed if caught by our scripts, but only 1 attempt will be made before they are flagged with an ADS tag to prevent infinite re-attempts.
+
+### OPTIONAL STEP 3: Mark any songs with unfindable lyrics as “lyricless” with ```ask-if-lyricless.bat``` [ask-if-lyricless.bat](../BAT-and-UTIL-files-1/ask-if-these-are-lyricless.bat)
+
+I usually skip this one except in rare instances, buuuut:
+
+Sometimes, you just KNOW that a song’s lyrics will not be found. Ever. 
+
+Maybe it’s:
+  - a podcast, news segment, or other non-music that wouldn’t have “lyrics” posted because it’s not a song
+  - songs you yourself recorded
+  - a band so obscure no one listens to it
+  - Something you look for lyrics for already
+
+This will go through the songs one at a time and ask if you want to mark any as lyricless / in a state of lyriclessness, which is our internal nomenclature for “we don’t want to bother looking for lyrics anymore”. Ultimately, this is a bit faster than running into these songs one at a time later.
+
+### 🌟 STEP 4: Get and approve lyrics with [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-file {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
 
 Obtains the lyrics for a song file, a playlist, or the currently playing song. 
 - transcriptions work **much** better with lyrics
@@ -229,6 +266,8 @@ Obtains the lyrics for a song file, a playlist, or the currently playing song.
 - lyrics are processed (for example, the apostrophe conversion of changing ```'``` into ```’```)
 - lyrics are filtered (spam and unrelated text that follows common patterns are removed)
 
+
+### OTHER LYRIC ALIGNMENT COMMANDS:
 
 ### 🌟 [get-lyrics-for-currently-playing-song](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
 
@@ -384,8 +423,10 @@ In other words: For our transcribe-while-sleeping process to work with songs we 
 Displays the lyric*lessness* status of a song.  This is to track whether we’ve officially given up on our lyric search for a song.  
 
 
-###
-TODO: If you would like to check your progress, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat). It does generate a log file (```lyric-subtitle-compliance.log```) if you are curious to track your progress over time.
+### 🌟 Reports
+If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
+
+If you would like to check how many lyric approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
 
 
 </details>
@@ -423,6 +464,10 @@ Creates a new playlist consisting of all the files in the original playlist that
 Asks if we want to start getting lyrics for that playlist.
 
 
+### 🌟 Reports
+If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
+
+TODO, POSSIBLY CREATE THIS ONE: If you would like to check how many karaoke approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-karaoke-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
 
 </details>
 
@@ -498,7 +543,7 @@ In that case, we must pre-approve that the *song* is *lyricless* — in a state 
 
 This script marks a *song file* with *lyriclessness* approval/disapproval so that we can do that.
 
-Invoke it with ```approve-lyriclessness ask``` if you want it to ask individually for each file (along with a chance for one-key listening preview and one-key renaming/marking file as an instrumental, which helps with our stats).
+Invoke it with ```approve-lyriclessness ask``` if you want it to ask individually for each file (along with a chance for one-key listening preview and one-key renaming/marking file as an instrumental, which helps with our stats).  This can be a great first step for processing a folder of files.  We can also use ```ask-if-instrumentals.bat``` to similar effect, for marking files that are instrumentals [which will make our transcriber script ignore them!]
 
 
 &nbsp;

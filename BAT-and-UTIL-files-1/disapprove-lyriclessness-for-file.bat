@@ -6,7 +6,7 @@ rem Get parameters:
         set song_file_to_disapprove=%@UNQUOTE[%1]                                               %+ rem song file to use 
 
 rem Validate environment once:
-        iff 1 ne %VALIDATE_SONG_APPROVE_DISAPPROVE% then
+        iff "1" != "%VALIDATE_SONG_APPROVE_DISAPPROVE%" then
                 call validate-in-path              add-ads-tag-to-file validate-environment-variable validate-is-extension
                 call validate-environment-variable filemask_audio skip_validation_existence
                 set  VALIDATE_SONG_APPROVE_DISAPPROVE=1

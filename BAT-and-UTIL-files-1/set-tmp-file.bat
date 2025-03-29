@@ -15,11 +15,11 @@ rem usage:
 
 
 rem Validate environment:
-        if 1 ne %SETTMPFILE_VALIDATED (
-                call validate-environment-variable TEMP 
-                call validate-environment-variable KNOWN_NAME "Known_name should be set to your username"
-                set SETTMPFILE_VALIDATED=1
-        )
+        iff "1" != "%SETTMPFILE_VALIDATED" then
+                if not defined TEMP       call validate-environment-variable TEMP 
+                if not defined KNOWN_NAME call validate-environment-variable KNOWN_NAME "Known_name should be set to your username"
+                set  SETTMPFILE_VALIDATED=1
+        endiff
 
 rem Grab parameters:
         iff "%1" != "" then

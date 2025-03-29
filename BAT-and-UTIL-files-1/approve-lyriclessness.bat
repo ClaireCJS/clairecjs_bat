@@ -28,7 +28,7 @@ rem Usage:
                 echo.
                 echo USAGE: add “force” to command line to skip confirmation question.
                 %color_normal%
-                goto :END
+                goto /i END
         endiff
 
 
@@ -47,11 +47,11 @@ rem Deal with “ask” invocation, and set param_force
         if "%1" == "FORCE" (set param_force=1 %+ shift)
 
 rem Deal with “all” / “*.*” / “*” / “*.mp3” / “*.flac”  invocations:
-        iff "%1" == "all" .or. "%1" == "*.*" .or. "%1" == "*" .or. "1" == "%@Regex[[\*\?],%1$]" .or. "%1" == "*.mp3" .or. "%1" == "*.flac" .or. "1" == "%ask_without_params%" .or. "1" == "%param_force%" then
-                set ask_for_confirmation_for_approving_lyriclessness=1
-        else
-                set ask_for_confirmation_for_approving_lyriclessness=0
-        endiff
+        set ask_for_confirmation_for_approving_lyriclessness=0
+        if "%1" == "all" .or. "%1" == "*.*" .or. "%1" == "*" .or. "%1" == "*.mp3" .or. "%1" == "*.flac" .or. "1" == "%ask_without_params%" .or. "1" == "%param_force%" (set ask_for_confirmation_for_approving_lyriclessness=1 %+ goto :endpoint_deal_with_params_53)
+        set tmp_regex_result=%@Regex[[\*\?],%1$]
+        if  "1" == "%tmp_regex_result%"  set ask_for_confirmation_for_approving_lyriclessness=1
+        :endpoint_deal_with_params_53
         rem echo ask_for_confirmation_for_approving_lyriclessness=“%ask_for_confirmation_for_approving_lyriclessness%” %+ pause
 
 
@@ -103,13 +103,13 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                                 rem if "1" eq "%@RegEx[instrumental,%@unquote["%tmpfile%"]]" goto nevermind_this
                                                     set OUR_LL_VAL=%@execstr[type "%@unquote["%tmpfile%"]:lyriclessness">&>nul]
                                                     set OUR_IN_VAL=%@Regex[instrumental,"%@UNQUOTE["%tmpfile%"]"]
-                                                    if            "1" == "%OUR_IN_VAL%" (gosub divider %+ echo  %no% Already marked instrumental:    %tmpfile% %+ goto :nevermind_this)
-                                                    if     "APPROVED" == "%OUR_LL_VAL%" (gosub divider %+ echo  %no% Already marked lyricless:       %tmpfile% %+ goto :nevermind_this)
+                                                    if            "1" == "%OUR_IN_VAL%" (gosub divider %+ echo  %no% Already marked instrumental:    %tmpfile%           %+ echo. %+ goto :nevermind_this)
+                                                    if     "APPROVED" == "%OUR_LL_VAL%" (gosub divider %+ echo  %no% Already marked lyricless:       %tmpfile%           %+ echo. %+ goto :nevermind_this)
                                                     if "1" == "%param_force%" goto :nvm_1
-                                                            if "NOT_APPROVED" == "%OUR_LL_VAL%" (gosub divider %+ echo  %no% Already marked NOT lyricless:   %tmpfile% %+ goto :nevermind_this)
+                                                            if "NOT_APPROVED" == "%OUR_LL_VAL%" (gosub divider %+ echo  %no% Already marked NOT lyricless:   %tmpfile%   %+ echo. %+ goto :nevermind_this)
                                                     :nvm_1
-                                                    if  exist "%@name["%tmpfile%"].lrc" (gosub divider %+ echo  %no% Already have LRC:               %tmpfile% %+ goto :nevermind_this)
-                                                    if  exist "%@name["%tmpfile%"].srt" (gosub divider %+ echo  %no% Already have SRT:               %tmpfile% %+ goto :nevermind_this)
+                                                    if  exist "%@name["%tmpfile%"].lrc" (gosub divider %+ echo  %no% Already have LRC:               %tmpfile%           %+ echo. %+ goto :nevermind_this)
+                                                    if  exist "%@name["%tmpfile%"].srt" (gosub divider %+ echo  %no% Already have SRT:               %tmpfile%           %+ echo. %+ goto :nevermind_this)
                                         :skip_the_skipping
 
 

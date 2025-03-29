@@ -82,7 +82,7 @@ rem Only review a single file, if [what is hopefully] a filename is provided:
               :skip_check_for_filemask
 
 rem Validate environment:
-        iff 1 ne %validated_review_subtitles% then
+        iff "1" != "%validated_review_subtitles%" then
                 call validate-in-path print-with-columns grep remove-blank-lines
                 set  validated_review_subtitles=1
         endiff
@@ -94,14 +94,18 @@ rem Go through each one and review it:
         rem for less: set LANG=en_US.UTF-8
         rem for less: set LESSCHARSET=utf-8
         rem for less: set columns=%_columns
-        
+
+        if defined tmp_file_1 goto :defined_1        
         call set-tmp-file
         set tmp_file_1=%tmpfile%
         rem gosub debug "tmp_file_1==“%tmp_file_1%”"
+        :defined_1
 
+        if defined tmp_file_2 goto :defined_2
         call set-tmp-file
         set tmp_file_2=%tmpfile%
         rem gosub debug "tmp_file_2==“%tmp_file_2%”"
+        :defined_2
 
         for %%File_To_Check  in (%our_filemask%) do if not exist "%File_To_Check%" (call fatal_error "File to review of %left_quote%%italics_on%%File_To_Check%%italics_on%%right_quote% does not exist")               
         for %%File_To_Review in (%our_filemask%) do gosub do_it "%@unquote[%File_To_Review%]"

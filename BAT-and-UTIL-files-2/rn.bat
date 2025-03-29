@@ -30,9 +30,9 @@ rem Get/react to instrumental arguments:
         endiff
 
 rem Get/react to these arguments that we should do nothing if passed:
-        if            "%1"   == ""   goto :END
-        if "%@UNQUOTE["%1"]" == "."  goto :END
-        if "%@UNQUOTE["%1"]" == ".." goto :END
+        if            "%1"   == ""   goto :END_of_rn
+        if "%@UNQUOTE["%1"]" == "."  goto :END_of_rn
+        if "%@UNQUOTE["%1"]" == ".." goto :END_of_rn
         if  not exist  %1            goto :DNE
 
 rem Get/react to recursive arguments:
@@ -50,7 +50,7 @@ rem Count files matching parameter:
             rem echo for /a: %%fi in (%1) call rn %as_instrmental_param% "%fi" %2 recursive
                      for /a:  %fi in (%1) call rn %as_instrmental_param% "%fi" %2 recursive
             gosub :after
-    goto :END
+    goto :END_of_rn
 
     :IsDir
             set ISDIR=1
@@ -98,13 +98,14 @@ rem Count files matching parameter:
 
         rem Let user edit the filename: Skip the renaming if there was a Ctrl-Break from the eset-alias.bat, or errorlevel otherwise returned:
                 rem echo %@ansi_move_to_col[1]- DEBUG: errorlevel='%_errorlevel%' %%?='%?' %%_='%_?' ansi_off='%ansi_off%' rn_fix_ansi='%rn_fix_ansi%' rn_goto_end='%rn_goto_end%'
-                if "1" == "%rn_goto_end%" goto :END
+                if "1" == "%rn_goto_end%" goto :END_of_rn
 
         rem If the filename isn’t actually any different, then we don’t need to do anything (and warn them of that):
                                                                                set NAMES_MATCH_FOR_CASE_INSENSITIVE_COMPARISON=0
                 if          "%FILENAME_NEW%"   ==          "%FILENAME_OLD%"    set NAMES_MATCH_FOR_CASE_INSENSITIVE_COMPARISON=1
                 if          "%FILENAME_NEW%"   ==          "%FILENAME_OLD%"    set REN=*ren
-                if "%@ASCII["%FILENAME_NEW%"]" == "%@ASCII["%FILENAME_OLD%"]" (%COLOR_WARNING% %+ echos * %ITALICS_ON%No change.%ITALICS_OFF% %+ %COLOR_NORMAL% %+ echo. %+ goto :END)
+                set NO_CHANGE=0
+                if "%@ASCII["%FILENAME_NEW%"]" == "%@ASCII["%FILENAME_OLD%"]" (%COLOR_WARNING% %+ set NO_CHANGE=1 %+ echos * %ITALICS_ON%No change.%ITALICS_OFF% %+ %COLOR_NORMAL% %+ echo. %+ goto :END_of_rn)
 
         rem Store the command/undo command/redo commands, and the last filename we renamed something to (for auditing/integration purposes):
                 set  UNDOCOMMAND=%REN% "%FILENAME_NEW%" "%@UNQUOTE[%FILENAME_OLD%]" 
@@ -162,13 +163,27 @@ rem Count files matching parameter:
 
         rem Watch out for 0-byte versions of the original filename leftover due to filesystem locks:
                 :check_that_it_is_actually_gone
-                if not exist "%FILENAME_OLD%"  goto :we_are_fine
+rem  %ansi_color_debug%-DEBUG: check_that_it_is_actually_gone filename_old of %lq%%FILENAME_OLD%%rq% does %@IF[not exist "%FILENAME_OLD%",not ,]exist [9234].... no_change=%lq%%no_change%%rq%
+                set old_file_seems_to_be_gone=0
+rem             if %newline%"%@ASCII["%FILENAME_NEW%"]" == %newline%"%@ASCII["%FILENAME_OLD%"]" (set old_file_seems_to_be_gone=1)
+                if "%@ASCII["%FILENAME_NEW%"]" == "%@ASCII["%FILENAME_OLD%"]"                   (set old_file_seems_to_be_gone=1) %+ rem This is the case of us not actually renaming it
+rem             if "1"  ==   "%NO_CHANGE%"                                                      (set old_file_seems_to_be_gone=1)
+                if "1"  ==   "%NO_CHANGE%"                                                      (set old_file_seems_to_be_gone=1)
+rem             if not exist "%FILENAME_OLD%"                                                   (set old_file_seems_to_be_gone=1)
+                if not exist "%FILENAME_OLD%"                                                   (set old_file_seems_to_be_gone=1)
+rem             if     exist "%FILENAME_OLD%"                                                   (set old_file_seems_to_be_gone=0)
+                if     exist "%FILENAME_OLD%"                                                   (set old_file_seems_to_be_gone=0)
+rem             if     exist "%FILENAME_OLD%" .and. "%FILENAME_OLD%" == "%FILENAME_NEW%"        (set old_file_seems_to_be_gone=1)
+                if     exist "%FILENAME_OLD%" .and. "%FILENAME_OLD%" == "%FILENAME_NEW%"        (set old_file_seems_to_be_gone=1)
+rem  debug: old_file_seems_to_be_gone==%lq%%old_file_seems_to_be_gone%%rq% %+ pause
+
+                if "1" == "%old_file_seems_to_be_gone%" goto /i old_file_seems_to_be_gone
                         :we_are_not_fine
                         set HOLD_OUR_ANSWER=%ANSWER%
                         set  filename_old_size=%@FILESIZE["%FILENAME_OLD%"] 
                         set  filename_new_size=%@FILESIZE["%FILENAME_NEW%"] 
-                        echo %ansi_color_warning_soft%%star2% %italics_on%FILENAME_OLD%italics_off% of %@COMMA[%filename_old_size%] bytes%ansi_color_warning_soft% still exists:%newline%%tab%%lq%%FILENAME_OLD%%rq%"
-                        echo %ansi_color_advice%%zzzz%%star2% %italics_on%FILENAME_NEW%italics_off% of %@COMMA[%filename_new_size%] bytes%ansi_color_advice%%zzzz% also exists:%newline%%tab%%lq%%FILENAME_NEW%%rq%"
+                        echo %ansi_color_warning_soft%%star2% %italics_on%FILENAME_OLD%italics_off% of %@COMMA[%filename_old_size%] bytes%ansi_color_warning_soft% still exists:%tab%%lq%%FILENAME_OLD%%rq%"
+                        echo %ansi_color_advice%%zzzz%%star2% %italics_on%FILENAME_NEW%italics_off% of %@COMMA[%filename_new_size%] bytes%ansi_color_advice%%zzzz%  also exists:%tab%%lq%%FILENAME_NEW%%rq%"
                                                       set default_answer_to_use_for_deletion=no
                         if 0 eq %filename_old_size%   set default_answer_to_use_for_deletion=yes
                         call AskYN "Delete the old file" %default_answer_to_use_for_deletion% 60
@@ -177,12 +192,12 @@ rem Count files matching parameter:
                         %color_normal%
                         set ANSWER=%HOLD_OUR_ANSWER%
                         goto :check_that_it_is_actually_gone
-                :we_are_fine
+                :old_file_seems_to_be_gone
 
 
             
 
-goto :END
+goto /i :END_of_rn
 
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -209,9 +224,9 @@ rem     ━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         :DNE
-                if "%3" == "recursive" goto :END
+                if "%3" == "recursive" goto :END_of_rn
                 call warning "No action taken, because file does not exist: %lq%%1%rq% " 2
-        goto :END
+        goto :END_of_rn
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         :oops_they_meant_to_do_ren_and_not_rn
@@ -219,7 +234,7 @@ rem     ━━━━━━━━━━━━━━━━━━━━━━━━
                 %COLOR_RUN%      %+ ren "%@UNQUOTE["%1"]" "%@UNQUOTE["%2"]" 
                 set UNDOCOMMAND=    ren "%@UNQUOTE["%2"]" "%@UNQUOTE["%1"]" 
                 set LAST_RENAMED_TO=%@UNQUOTE[%2]
-        goto :END
+        goto :END_of_rn
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         :after
@@ -235,8 +250,22 @@ rem     ━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-:END
-unset /q fix_run 
-if "%1" == "" (echo %ansi_color_fatal_error% rn %blink_on%WHAT?!%blink_off%?! %ansi_color_normal% %+ *beep)
+
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+:END_of_rn
+        unset /q fix_run no_change
+        if "%1" == "" (echo %ansi_color_fatal_error% rn %blink_on%WHAT?!%blink_off%?! %ansi_color_normal% %+ *beep)
+
+rem DEBUG:
+        echo %ansi_color_debug%-DEBUG: filename_old of %lq%%FILENAME_OLD%%rq% does %@IF[not exist "%FILENAME_OLD%",not ,]exist [in %0:9554]     last_renamed_to=%lq%%last_renamed_to%%rq%
 
 
