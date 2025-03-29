@@ -8,6 +8,13 @@ rem Capture and validate parameters:
         call validate-environment-variables SOURCE TARGET
 
 
+rem Validate environment (once per session):
+        iff "1" != "%validated_backup_repository%" then
+                call validate-in-path randfg divider errorlevel print-if-debug important git-commit wait advice
+                set  validated_backup_repository=1
+        endiff
+
+
 rem Make a pretty, *aligned* header:
         set USAGE_TEXT_1=[Repository-VarName]
         set USAGE_TEXT_2=[BackupLocation-VarName]
@@ -65,7 +72,11 @@ goto :NoDebug
     :GIT_Done
 
 
-if "%3" eq "exitafter" (exit)
+iff "%3" == "exitafter" then
+        call wait 30
+        exit
+endiff
+
 
 if %BACKING_UP_MULTIPLE_REPOSITORIES eq 1 (
     call randFG
