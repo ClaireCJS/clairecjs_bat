@@ -2,15 +2,15 @@
 @Echo Off
 rem @call init-bat
 
-rem CONFIGURATION: DEBUG:
-        set DEBUG_SYSTEM_CALLS=1                             %+ rem set to 1 to see the grep commands that are being used
-                                                            
 rem CONFIGURATION: MAIN:                                    
         c:\mp3\                                              %+ rem change into folder we will always run this report from:        
         set skip=27                                          %+ rem how many columns to skip to get to the nature column in our logfile - “T:\mp3,20250105120414,” == 27
         set NUM_SECONDS_BEFORE_NEW_FILELISTS=300             %+ rem how many seconds to wait before generating new filelists
         set NUM_SECONDS_BEFORE_NEW_FILELISTS=5               %+ rem how many seconds to wait before generating new filelists
 
+rem CONFIGURATION: DEBUG:
+        set DEBUG_SYSTEM_CALLS=0                             %+ rem set to 1 to see the grep commands that are being used
+                                                            
 rem CONFIGURATION: COSMETIC ALIGNMENT:
         set lines_to_show=%@FLOOR[%@EVAL[(%_ROWS - 18) / 2]] %+ rem how many lines from each progress logfile to show with the “tail” command
         set mover=%@ANSI_MOVE_TO_COL[38]
@@ -70,7 +70,7 @@ rem Count the file types:
 
                         rem Make transcribeable filelist:
                                 echos %ansi_color_important%%blink_on%%star2%%blink_off% Making transcribeable filelist%@RANDFG_SOFT[]... 
-                                ((dir /b /s /[!%AI_TRASH_FILES%  "::\[instrumental\]" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *[chiptune]* *[chiptunes]* *\chiptunes\*] %filemask_audio%  >:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
+                                ((dir /b /s /[!%AI_TRASH_FILES%  "::\[instrumental\]" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*] %filemask_audio%   >:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %transcribeable_filelist% | wc -l]] %faint_on%files%faint_off%
 
                         rem Make txt filelist:
@@ -120,8 +120,10 @@ rem Report our totals and percent  progress:
         gosub lineyline
         gosub counttype          "total" "       total audio"  NULL                                  "%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set            ALL_AUDIO_COUNT_PROBED=%COUNT%
         gosub counttype   "instrumental" "  -   instrumental" %ALL_AUDIO_COUNT_PROBED% "instrumental.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set         INSTRUMENTAL_COUNT=%COUNT%
+        gosub counttype      "chiptunes" "  -      chiptunes" %ALL_AUDIO_COUNT_PROBED%   "chiptunes*.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set             CHIPTUNE_COUNT=%COUNT%
         gosub counttype  "tracker songs" "  -  tracker songs" %ALL_AUDIO_COUNT_PROBED% "(\.mid|\.midi|\.stm|\.s3m|\.mod|\.cmf\*.rol)"              "%full_filelist%" %+ set         TRACKER_SONG_COUNT=%COUNT%
         gosub counttype   "sound effect" "  -   sound effect" %ALL_AUDIO_COUNT_PROBED% "sound.effect.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set         SOUND_EFFECT_COUNT=%COUNT%        
+                                    echo    %@REPEAT[━,40]
         gosub counttype "transcribeable" "  = transcribeable" %ALL_AUDIO_COUNT_PROBED%               "%@UNQUOTE[%filemask_audio_regex%]" "%transcribeable_filelist%" %+ set TRANSCRIBEABLE_AUDIO_COUNT_PROBED=%COUNT% %+         gosub lineyline
         gosub counttype         "lyrics" "            lyrics" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%     "\.txt"                                      "%text_filelist%" %+ set           HAVE_LYRIC_COUNT=%COUNT%
         gosub counttype        "karaoke" "           karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%    "(\.lrc|\.srt)"                      "%transcription_filelist%" %+ set         HAVE_KARAOKE_COUNT=%COUNT%

@@ -181,17 +181,50 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 From a running TCC command line, use whatever system commands you’d like from the list below.
 
   - For single songs/files: ```get-lyrics {filename}``` to align lyrics, ```get-karaoke {filename}``` to transcribe aligned lyrics to subtitle/karaoke file. 
+    - ⚡ For Winamp Integration only: ⚡ To operate on the song currently playing in WinAmp: ```glt``` (```get-lyrics this```) to align lyrics, ```gkt``` (```get-karaoke this```) to transcribe
 
    - For albums/folders: ```glh``` (```get-lyrics-here```) until lyrics are aligned, then ```gkh``` (```get-karaokes-here```) to transcribe.  Beforehand, optionally use ```predownload-lyrics```, ```ask-if-instrumentals``` and ```ask-if-lyricless```.
 
-  - For discographies/folder trees:
-    - Beforehand, optionally use ```predownload-lyrics```, ```sweep ask-if-instrumentals``` and ```sweep ask-if-lyricless```.
-    - in alphabetical order: ```sweep glh``` (```get-lyrics-here```) until lyrics are all aligned, then ```sweep gkh``` (```get-karaokes-here```) to transcribe. 
-    - in random order instead of alphabetic: ```sweep-random "glh" force``` (```get-lyrics-here```) until lyrics are all aligned, then ```sweep-random "gkh" force``` (```get-karaokes-here```) to transcribe. 
-
   - For playlists/filelists: ```get-lyrics playlist.m3u``` or ```get-karaoke playlist.m3u```, where *playlist.m3u* is the filename of the playlist you want to traverse
 
-  - ⚡ For Winamp Integration only: ⚡ To operate on the song currently playing in WinAmp: ```glt``` (```get-lyrics this```) to align lyrics, ```gkt``` (```get-karaoke this```) to transcribe
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# ⚙️  To transcribe folder trees/discographies/entire music collections: # ⚙️ 
+
+- ① Prep files:
+  - Optionally use ```LRCget``` (TODO link) to pre-download lyrics and transcriptions for your collection (if you don’t, this whole project make take 20–60% longer) 
+  - Optionally use ```predownload-lyrics``` to pre-download lyrics available from genius.com (if you don’t, approving lyrics will take 20–40% longer) 
+  - Optionally use ```sweep ask-if-instrumentals``` to mark instrumentals (if you don’t, you’ll waste electricity+GPU time to get hallucinatory instrumental transcriptions)
+    - for folders with too many to answer individually, you can pre-answer for all files in the folder with: ```mark-all-filenames-ADS-tag-for-as_instrumental``` and ```mark-all-filenames-ADS-tag-for-NOT-as_instrumental``` 
+  - Optionally use ```sweep ask-if-lyricless``` to mark files that are in a state of “lyriclessness”, our term for unfindable lyrics/giving up on finding lyrics (if you don’t, the lyric approval process will take much longer)
+    - for folders with too many to answer individually, you can pre-answer for all files in the folder with:```approve-lyriclessness.bat *``` and ```approve-lyriclessness.bat *``` 
+    - When done, cleanse invalid lyrics/subtitles with ```sweep delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state```
+      - This is necessary in the event of LRCget downloading transcriptions that we later decide are invalid via bulk command 
+
+- ② Then, align lyrics with ```get-lyrics-here```:
+  - Alignment is done by previewing the lyrics of each & every audio file, then either:
+    - *approving lyrics* (they look good) 
+	- ━or━
+	- *approving lyriclessness* (can’t/won’t find lyrics) 
+  - Alignment can be done in either ABC or random order:
+    - (1) for ABC order: ```sweep glh``` 
+    - (2)  random order: ```sweep-random "glh" force``` 
+  - Repeat alignment command until everything passes
+  - Track how many were aligned on a particular day with ```report-lyric-approval-progress.bat```
+   - Track progress with ```report-lyric-and-subtitle-percentage-completion```
+     - it takes a snapshot of progress that lets you see your progress over time
+
+- ③ Then, transcribe audiofiles with ```get-karaoke-here``` (“gkh”).  
+  - A GeForce RTX 3060 with 12G VRAM can do about 300 per day.
+  - (1) transcribe in alphabetical order: ```sweep gkh```
+  - (2) transcribe in    random    order: ```sweep-random "gkh" force``` 
+  - Repeat transcription command until everything is transcribed
+   - Track progress with ```report-lyric-and-subtitle-percentage-completion```, which takes a snapshot of progress that lets you see your progress over time
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -307,6 +340,11 @@ Report to check your overall lyric/karaoke progress for your entire music collec
 
 ### [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat)
 Report to check how many lyric approvals you did on a certain day
+
+### [delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat](../BAT-and-UTIL-files-1/delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat)
+Utility to delete lyric/subtitle sidecar files of audio files whose lyric*less*ness status is “APPROVED”.
+Current implementation of marking-as-lyriclessness (aka “lyrics unfindeable, proceed with AI-only transcription”) deletes sidecar files, but past implementations did not, leaving trash files that necesitated this cleanup utility.
+
 
 
 </details>

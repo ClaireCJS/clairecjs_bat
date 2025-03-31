@@ -1350,8 +1350,10 @@ rem       COLOR_{MESSAGETYPE}_HEX ————— WHERE USED: Used in the cursor
                                                                    set      COLOR_UNIMPORTANT_HEX=000080
         rem COLOR_WARNING=       color bright yellow  on black  %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%                    %+ rem from inception 'til 20230529
         SET COLOR_WARNING=       color bright yellow  on blue   %+ set ANSI_COLOR_WARNING=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLUE%                     %+ rem 20230529-
-                                                                   set ANSI_COLOR_WARNING_BG=%ANSI_BACKGROUND_BLUE%                                                  %+ rem Remember to change this when changing the above line!
                                                                    set      COLOR_WARNING_HEX=FFFF00
+                                                                   set ANSI_COLOR_WARNING_FG=%ANSI_BRIGHT_YELLOW%                                                    %+ rem Remember to change this when changing the above line!
+                                                                   set ANSI_COLOR_WARNING_BG=%ANSI_BACKGROUND_BLUE%                                                  %+ rem Remember to change this when changing the above line!
+                                                                   set ANSI_COLOR_WARNING_BG_SOFT=%@ANSI_BG[0,0,33]                                                  %+ rem Remember to change this when changing the above line!
         rem COLOR_WARNING_LESS=  color        yellow  on black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_YELLOW%%ANSI_BACKGROUND_BLACK%                      %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ REM inception-20230605
         SET COLOR_WARNING_LESS=  color bright yellow  on black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%               %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ set ANSI_COLOR_WARNING_SOFT=%ANSI_COLOR_WARNING_LESS% %+ REM 2020606-
                                                                    set      COLOR_WARNING_LESS_HEX=a8a800

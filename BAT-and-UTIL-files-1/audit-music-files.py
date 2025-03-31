@@ -27,6 +27,7 @@ rename_mappings  = {
          "(instrumental)"  :      "[instrumental]",
     "(semi-instrumental)"  : "[semi-instrumental]",
     "(semi-music)"         : "[semi-music]"       ,
+     "(semimusic)"         : "[semi-music]"       ,
      "(non-music)"         :  "[non-music]"       ,
       "(nonmusic)"         :  "[non-music]"       ,
       "[nonmusic]"         :  "[non-music]"       ,

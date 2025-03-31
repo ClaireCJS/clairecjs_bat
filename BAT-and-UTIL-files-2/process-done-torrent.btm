@@ -381,7 +381,7 @@ rem The Very End:
         :THE_VERY_END
                 title .
             call inc
-            if isdir oh (cd oh)
+            rem if isdir oh (cd oh)
 
 rem Clean up vars:
         :CleanOutEnvironmentVariablesNoLongerNeeded

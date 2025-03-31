@@ -232,7 +232,7 @@ REM validate environment [once]:
                 rem Perform the actual validations:
                         @call validate-in-path              %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  statis-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alert.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat
                         @call validate-environment-variable  TRANSCRIBER_PDNAME  skip_validation_existence
-                        @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check check party_popper emoji_birthday_cake red_x ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off ansi_color_blue machinename emoji_ear emoji_microphone emdash
+                        @call validate-environment-variables FILEMASK_AUDIO COLORS_HAVE_BEEN_SET QUOTE emphasis deemphasis ANSI_COLOR_BRIGHT_RED check check party_popper emoji_birthday_cake red_x ansi_color_bright_Green ansi_color_Green ANSI_COLOR_NORMAL ansi_reset cursor_reset underline_on underline_off faint_on faint_off EMOJI_FIREWORKS star check emoji_warning ansi_color_warning_soft ANSI_COLOR_BLUE UnicodeOutputDefault bold_on bold_off ansi_color_blue machinename emoji_ear emoji_microphone emdash ansi_color_warning_fg
                         @call validate-is-function           ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD                
                         @call validate-plugin                StripANSI
                         @call checkeditor
@@ -361,6 +361,69 @@ REM Determine our expected input and output files:
         SET EXPECTED_OUTPUT_FILE=%SRT_FILE%
 
 
+
+rem Make sure it’s a transcribeable filename:
+        rem echo α 100
+        REM If it’s an instrumental, don’t bother:
+        gosub validate_transcribeable_filename "%INPUT_FILE%" "transcribing"
+        rem echo `%`_?=“%_?” 
+        if "%_?" == "666" .or. "%retval%" == "666" .or. "1" == "%goto_end%" (
+                rem echo Aborting...
+                goto /i The_Very_END
+        )
+        goto :skip_sub_414
+                                :validate_transcribeable_filename [input_file verb]
+                                        rem Failure flag:
+                                                set fail=0
+
+                                        rem Make our filename checks:                                                                           //NOTE: A redundant check occurs later but shoudl no longer happen, and looks like this: if "%@REGEX[instrumental,%INPUT_FILE%]" == "1" (@call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent %+ goto :END)
+                                                set chipt_in_filename=%@REGEX["\[chiptunes*\]",%INPUT_FILE%]
+                                                set chipt_in_foldname=%@REGEX["\\chiptunes*\\",%@FULL["%INPUT_FILE%"]]
+                                                set instr_in_filename=%@REGEX["[^\-]instrumental[\)\]]",%INPUT_FILE%]
+                                                set instr_in_foldname=%@REGEX["[\[\(]instrumentals*[\)\]]",%@FULL["%INPUT_FILE%"]]
+                                                set sndfx_in_filename=%@REGEX["[\[\(]sound effects*[\)\]]",%INPUT_FILE%]
+                                                set sndfx_in_foldname=%@REGEX["sound effects*\\",%@FULL["%INPUT_FILE%"]]
+
+                                        rem These definitely happen in this order for the reason of error message precedence:
+                                                unset /q fail_type fail_point
+                                                if "1" == "%instr_in_filename%" ( set fail_type=instrumental  %+ set fail_point=filename) 
+                                                if "1" == "%chipt_in_filename%" ( set fail_type=chiptune      %+ set fail_point=filename)
+                                                if "1" == "%sndfx_in_filename%" ( set fail_type=sound effects %+ set fail_point=filename)
+                                                if "1" == "%instr_in_foldname%" ( set fail_type=instrumental  %+ set fail_point=dir name)
+                                                if "1" == "%chipt_in_foldname%" ( set fail_type=chiptune      %+ set fail_point=dir name)
+                                                if "1" == "%sndfx_in_foldname%" ( set fail_type=sound effects %+ set fail_point=dir name)
+
+                                        rem Debug stuffs:
+                                                goto :debug_406_no
+                                                goto :debug_406_yes
+                                                     :debug_406_yes
+                                                        echo chipt_in_foldname == “%chipt_in_foldname%”
+                                                        echo instr_in_filename == “%instr_in_filename%”
+                                                        echo sndfx_in_filename == “%sndfx_in_filename%”
+                                                        echo chipt_in_filename == “%chipt_in_filename%”
+                                                        echo instr_in_foldname == “%instr_in_foldname%”
+                                                        echo sndfx_in_foldname == “%sndfx_in_foldname%”
+                                                        echo fail_type         == “%fail_type%”
+                                                        echo fail_point        == “%fail_point%”
+                                                :debug_406_no
+
+                                        rem Notify of error and quit if applicable:
+                                                if "" == "%fail_type%" goto :we_are_fine_403 %+ rem else:
+                                                        unset /q strN
+                                                        if "%fail_type%" == "instrumental" set strN=n
+                                                        echo %ansi_color_warning%%no% Sorry! Not %italics_on%%verb%%italics_off% because this %italics_on%%fail_point%%italics_off% indicates a%strN% %ansi_reset%%ansi_color_red%%ansi_color_warning_bg_soft%%italics_on%%blink_on%%fail_type%%blink_off%%italics_off%%ANSI_COLOR_WARNING% file:%ansi_color_normal% %faint_on%“%@UNQUOTE["%INPUT_FILE%"]”%faint_off%%ansi_color_normal%
+                                                        set fail=1
+                                                :we_are_fine_403
+
+                                        rem Return success/fail:
+                                                if "1" == "%fail%" (return 666)
+                                                if "1" != "%fail%" (return 777)
+                                return
+
+                
+        :skip_sub_414
+
+
 rem Do subtitles exist?
         if exist "%EXPECTED_OUTPUT_FILE%" .and. "1" !=  "%FORCE_REGEN%" (
                 rem echo exp output file exists!
@@ -383,17 +446,9 @@ rem Do subtitles exist?
                 rem echo %ANSI_COLOR_DEBUG%- DEBUG: POTENTIAL_LYRIC_FILE file does not exist! - %lq%%POTENTIAL_LYRIC_FILE%%rq%%ANSI_COLOR_NORMAL%
         )
 
-rem If the file is an instrumental, abort...
-        rem echo goaty α 100
-        REM If it’s an instrumental, don’t bother:
-        if "%@REGEX[[^\-]instrumental,%INPUT_FILE%]" == "1" (
-                @call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %faint_on%%INPUT_FILE%%faint_off%" silent 
-                goto :END
-        )
-
-
+               
 rem If the file has been marked as failed previously, abort (unless in force mode):
-        rem echo goaty α 200
+        rem echo α 200
         unset /q failure_ads_result
         set  failure_ads_result=%@EXECSTR[type "%@UNQUOTE["%INPUT_FILE%"]:karaoke_failed"  >>&>nul] 
         REM echo failure_ads_result is “%failure_ads_result%”, force_regen=“%force_regen%”
@@ -404,7 +459,7 @@ rem If the file has been marked as failed previously, abort (unless in force mod
 
 REM Values fetched from input file:
         rem echo solely_by_ai is %solely_by_ai% %+ pause
-        rem echo goaty α 300
+        rem echo α 300
         if "1" == "%SOLELY_BY_AI%" (
                 set PROMPT_CONSIDERATION_TIME=3
                 set PROMPT_EDIT_CONSIDERATION_TIME=3
@@ -418,7 +473,7 @@ REM Values fetched from input file:
         :endiff_359
 
 REM Lyric file stuffs:
-        rem echo goaty α 400
+        rem echo α 400
         set sidecar_was_present_from_the_start=0
         if not exist "%POTENTIAL_LYRIC_FILE%" goto :ine_plf
                 set TXT_FILE=%@UNQUOTE["%POTENTIAL_LYRIC_FILE%"]
@@ -442,7 +497,7 @@ rem If we are doing it *SOLELY* by AI, skip some of our lyric logic:
 REM display debug info:
         :Retry_Point
         :solely_by_ai_jump1
-        rem echo goaty α 500
+        rem echo α 500
         if %DEBUG gt 0 echo %ansi_color_debug%- DEBUG: (8)%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE=“%ITALICS_ON%%SONGBASE%%ITALICS_OFF%”%NEWLINE%%TAB%%TAB%LRC_FILE=“%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%”, %NEWLINE%%TAB%%TAB%TXT_FILE=“%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%”%FAINT_OFF%%ansi_color_normal%
         gosub divider
         iff "1" == "%ANNOUNCE_IF_SIDECAR_FILES_EXIST%" then
@@ -457,7 +512,7 @@ REM display debug info:
 
 rem If a txt file exists and it is approved, and a subtitle does not exist, jump straight to ai
         rem echos [refresh_lyric_status]
-        rem echo goaty α 600
+        rem echo α 600
         if "%LYRIC_STATUS%" == "" gosub refresh_lyric_status
         rem echos [/refresh_lyric_status]
         rem echo Trace %ansi_color_orange%lyric_status is "%LYRIC_STATUS%"%ansi_color_normal% %@cool[{olaf}]
@@ -489,7 +544,7 @@ REM Now, let’s check these values:
                         *copy /q "%found_subtitle_file%" "%target%" >&>nul
                         if not exist "%target%" (call error "target of %left_quote%%target%%right_quote% should exist now, in %left_apostrophe%%italics_on%create-srt-from-file%italics_off%%right_apostrophe% line 320ish" %+ call warning "...not sure if we want to abort right now or not..." )
                         call review-file -wh "%target%" 
-                        echo GOAT displayaudiofilename 06
+                        rem echo GOAT displayaudiofilename 06
                         gosub DisplayAudioFileName
                         call askYN "Do these still look acceptible [H=hand-edit,I=Instrumental(X=All)]" yes 30 HIX H:Yes_but_hand-_edit_them,I:Rename_as_instrumental,X:rename_all_the_files_as_instrumentals %+ rem hardcoded value warning
 
@@ -526,7 +581,7 @@ REM Now, let’s check these values:
         :retry_after_lrc_copy
 
 REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
-        rem echo goaty α 700
+        rem echo α 700
         if not exist "%INPUT_FILE%" call validate-environment-variable INPUT_FILE
         rem iff "%FORCE_REGEN%" == "1" .or. "%SOLELY_BY_AI%" == "1" then
         rem         rem Skip validation because we’re doing things automatically
@@ -534,38 +589,38 @@ REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
                 rem TODO: refactor this internally for speedup
                 call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO%
         rem endiff
-        rem echo goaty α 750
-        rem echo goaty α 760
-        rem echo goaty α 770
+        rem echo α 750
+        rem echo α 760
+        rem echo α 770
 REM If our input file is lyricless and we’ve approved its lyriclessness, then we’ve decided to transcribe without a lyrics file
-        rem echo goaty α 780
+        rem echo α 780
         rem call get-lyriclessness-status "%INPUT_FILE%"
-        rem echo goaty α 800
-        rem echo goaty set LYRICLESSNESS_STATUS=%%@EXECSTR[type {lt}"%@unquote["%INPUT_FILE%"]:lyriclessness" {gt}&{gt}nul]``
+        rem echo α 800
+        rem echo y set LYRICLESSNESS_STATUS=%%@EXECSTR[type {lt}"%@unquote["%INPUT_FILE%"]:lyriclessness" {gt}&{gt}nul]``
         set LYRICLESSNESS_STATUS=%@EXECSTR[type <"%@unquote["%INPUT_FILE%"]:lyriclessness" >&>nul]``
-        rem echo goaty HEY ARE WE HERE WHAT HAPPENED
-        rem echo goaty α 805
+        rem echo y HEY ARE WE HERE WHAT HAPPENED
+        rem echo α 805
         rem echo 🐐3 LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%” ... 
-        rem echo goaty α 806        
+        rem echo α 806        
         iff "%LYRICLESSNESS_STATUS%" == "APPROVED" then 
-                rem echo goaty α 807.5
+                rem echo α 807.5
                 call success "%italics_on%Lyric%underline_on%less%underline_off%ness%italics_off% already approved! Using AI only!"
                 set SOLELY_BY_AI=1
                 set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=10                                           %+ rem 🐮 hard-coded value warning
                 set goto_forcing_ai_generation=1
         else                
-                rem echo goaty α 807.6
+                rem echo α 807.6
                 set goto_forcing_ai_generation=0
         endiff
-        rem echo goaty α 809
+        rem echo α 809
         if 1 eq %goto_forcing_ai_generation goto :forcing_ai_generation
-        rem echo goaty α 809.1
+        rem echo α 809.1
 
 
 REM if we already have a SRT file, we have a problem:
-        rem echo goaty α 809.2
+        rem echo α 809.2
         iff exist "%SRT_FILE%" .and. %OKAY_THAT_WE_HAVE_SRT_ALREADY ne 1 .and. %SOLELY_BY_AI ne 1 then
-                rem echo goaty α 809.2.3
+                rem echo α 809.2.3
                 iff exist "%TXT_FILE%" .and. %@FILESIZE["%TXT_FILE%"] gt 0 then
                         rem @gosub divider
                         rem call bigecho %STAR% %ANSI_COLOR_IMPORTANT_LESS%Review the lyrics:%ANSI_RESET%
@@ -585,7 +640,7 @@ REM if we already have a SRT file, we have a problem:
                 iff %SOLELY_BY_AI eq 1 then
                         @call advice "Automatically answer the next prompt as Yes by adding the parameter “force-regen” or “redo”"
                         iff exist "%TXT_FILE%" then
-                                echo GOAT displayaudiofilename 08
+                                rem echo displayaudiofilename 08
                                 gosub DisplayAudioFileName
 
                                 set answer_to_use=no
@@ -646,13 +701,13 @@ REM if we already have a SRT file, we have a problem:
                 if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto /i :END
                 if "1" == "%GOTO_END%"                         goto /i :END
         endiff
-        rem echo goaty α 809.3
+        rem echo α 809.3
         iff 1 eq %goto_Force_AI_Generation then 
-                rem echo goaty α 809.3.2
+                rem echo α 809.3.2
                 unset /q goto_Force_AI_Generation=1
                 goto /i Force_AI_Generation
         endiff
-        rem echo goaty α 900
+        rem echo α 900
 
 
 
@@ -661,10 +716,10 @@ REM if we already have a SRT file, we have a problem:
 REM If "%SOLELY_BY_AI%" == "1", we nuke the LRC/SRT file and go straight to AI-generating, and we only use the TEXT
 REM file if it is pre-approved or we are set in AutoLyricsApproval mode:
         :forcing_ai_generation
-        rem echo goaty α 1000.0
+        rem echo α 1000.0
         set goto_ai_generation=0
         iff 1 eq %SOLELY_BY_AI% .and. 1 ne %AUTO_LYRIC_APPROVAL% then
-                rem echo goaty α 1000.0.1
+                rem echo α 1000.0.1
                 @call important_less "Forcing AI generation..."
                 iff exist "%LRC_FILE%" .or. exist "%SRT_FILE%"  then
                         iff "1" == "%FORCE_REGEN%" then
@@ -677,12 +732,12 @@ REM file if it is pre-approved or we are set in AutoLyricsApproval mode:
                         set goto_ai_generation=1
                 endiff
         endiff
-        rem echo goaty α 1000.1
+        rem echo α 1000.1
         if "1" == "%goto_ai_generation%" goto :AI_generation
 
 REM If we say "force", skip the already-exists check and contiune
         rem Orch 1 eq %AUTO_LYRIC_APPROVAL
-        rem echo goaty α 1100
+        rem echo α 1100
         iff 1 eq %FORCE_REGEN then
                 if exist "%LRC_FILE%" (ren /q "%LRC_FILE%" "%@NAME[%LRC_FILE%].lrc.%_datetime_.bak")
                 rem do not do this, we’re just skipping the check, that’s all:
@@ -691,11 +746,18 @@ REM If we say "force", skip the already-exists check and contiune
         else
                 REM At this point, we are NOT in force mode, so:
                 REM At this point, if an LRC file already exists, we shouldn’t bother generating anything...
+                REM Except wait! LRCget can get incorrect LRC files, so barring approval, we shoudln’t just trust the ones we see automatically.
+                REM They still need approval for us to be considered ready-to-encode.
+                REM In part, because thousands of files were marked as in a state of lyriclessness/unfindeable lyrics without their sidecar LRCs being deleted as they shoudl have been
+                REM But still, automatic-LRC-getting means the LRC could be wrong, so we should NOT just assume it’s approved.
+                REM However, this would cause us to overwrite a possibly-good LRC file. One possibly even hand-edited.
+                REM And taht would be very destructive. So we must updated our “business logic” to consider existing LRCs as needing approval before being overwritten.
                         rem if exist %LRC_FILE% (@call error   "Sorry, but %bold%LRC%bold_off% file “%italics%%LRC_FILE%%italics_off%” %underline%already%underline_off% exists!" %+ call cancelll)
                             iff exist %LRC_FILE% then
                                      @call warning "Sorry, but %italics_on%LRC%italics_off% file “%italics%%LRC_FILE%%italics_off%” %underline%already%underline_off% exists!%" silent 
                                       call review-file -wh  "%LRC_FILE%"
-                                     @call AskYN   "Mark LRC file as %italics_on%approved%italics_off%" yes 10
+                                      rem todo hardcode to fix
+                                     @call AskYN   "Mark LRC file as %italics_on%approved%italics_off%" no 600
                                      if "%ANSWER%" == "Y" call approve-subtitles "@UNQUOTE[%LRC_FILE%]"
                                      goto /i :END
                             endiff
@@ -714,9 +776,9 @@ REM If we say "force", skip the already-exists check and contiune
 
 
 REM If it’s an instrumental, don’t bother:
-        rem echo goaty α 1200
+        rem echo α 1200
         if "%@REGEX[instrumental,%INPUT_FILE%]" == "1" (@call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent %+ goto :END)
-        rem echo goaty α 1200.1
+        rem echo α 1200.1
 
 
 
@@ -725,7 +787,7 @@ REM If it’s an instrumental, don’t bother:
 REM In terms of automation, as of 10/28/2024 we are only comfortable with FULLY automatic (i.e. going through a whole playlist) generation
 REM in the event that a txt file also exists.  To enforce this, we will only generate with a "force" parameter if the txt file does not exist.
         :check_for_txtfile
-        rem echo goaty α 1400
+        rem echo α 1400
         if 1 eq %SOLELY_BY_AI goto :we_decided_to_never_check_for_txtfile
    
         rem not exist "%TXT_FILE%" .and.  1  ne  %FORCE_REGEN%  .and.  1  eq  %LYRIC_ATTEMPT_MADE   then
@@ -733,7 +795,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
         iff not exist "%TXT_FILE%" .and. "1" != "%FORCE_REGEN%" .and. "1" == "%LYRIC_ATTEMPT_MADE%" then
                 
                 :Generate_AI_Anyway_question        
-                        rem echo goaty α 1450
+                        rem echo α 1450
                         rem Refetch lyriclessness status:
                                 rem echo ➕ lyriclessness status before refresh: “%LYRICLESSNESS_STATUS%”
                                 if "" == "%LYRICLESSNESS_STATUS%" gosub  refresh_lyriclessness_status
@@ -772,7 +834,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
 
                 goto /i :END
         else
-                rem echo goaty α 1475
+                rem echo α 1475
                 rem This seems inapplicable now (2024/12/11): @echo %ansi_color_warning_soft%%star% Not yet generating %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning_soft% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning_soft% does not exist!%ansi_color_normal%
                 rem Let’s save this for our usage response: @echo %ansi_color_advice%`---->` Use “%italics_on%force%italics_off%” option to override.
                 rem Let’s save this for our usage response: @echo %ansi_color_advice%`---->` Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!
@@ -783,18 +845,18 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
 
         endiff
 
-        rem echo goaty α 1500.0.0 ━━ "LYRICLESSNESS_STATUS" == "%LYRICLESSNESS_STATUS%" 
+        rem echo α 1500.0.0 ━━ "LYRICLESSNESS_STATUS" == "%LYRICLESSNESS_STATUS%" 
         if "%LYRICLESSNESS_STATUS%" == "APPROVED" goto :do_not_refetch_lyrics
-        rem echo goaty α 1500.0.1
-        rem echo goaty α 1500.0.2 - how can this show up but not the next one?
+        rem echo α 1500.0.1
+        rem echo α 1500.0.2 - how can this show up but not the next one?
         :Refetch_Lyrics
-        rem echo goaty α 1500.1.0 - helloooooooooooo???
+        rem echo α 1500.1.0 - helloooooooooooo???
         iff not exist "%TXT_FILE%" .and. "1" != "%FORCE_REGEN%" .and. "1" == "%LYRIC_ATTEMPT_MADE%" then
-                rem echo goaty α 1500.1.1
+                rem echo α 1500.1.1
                 rem this is just the same “iff” condition copied from the block above
                 rem believe it or not, this is for code readability reasons :) :) :)
         else
-                rem echo goaty α 1500.1.2
+                rem echo α 1500.1.2
                 rem echo * Refetch_Lyrics[2A]: LYRIC_STATUS=“%LYRIC_STATUS%”, LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
                 if "%LYRIC_STATUS%" == "" gosub  refresh_lyric_status
                 rem echo * Refetch_Lyrics[2B]: LYRIC_STATUS=“%LYRIC_STATUS%”, LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
@@ -810,16 +872,16 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto /i :END
                 goto /i :We_Have_A_Text_File_Now
         endiff
-        rem echo goaty α 1500.1.98 - helloooooooooooo???
+        rem echo α 1500.1.98 - helloooooooooooo???
         if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" set goto_end=1
-        rem echo goaty α 1500.1.99 - helloooooooooooo???
+        rem echo α 1500.1.99 - helloooooooooooo???
         if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto :END
         :We_Have_A_Text_File_Now
-        rem echo goaty α 1500.10.1 - hello???!?!?
+        rem echo α 1500.10.1 - hello???!?!?
 
 rem Mandatory review of lyrics 
         :mandatory_review_of_lyrics
-        rem echo goaty α 1500.20.1 ━━ mandatory_review_of_lyrics
+        rem echo α 1500.20.1 ━━ mandatory_review_of_lyrics
         iff exist "%TXT_FILE%" .and. %@FILESIZE["%TXT_FILE%"] gt 0 then
                 rem Deprecating this section which is redundant because it’s done in get-lyrics:
                 iff 0 == 1 then
@@ -830,7 +892,7 @@ rem Mandatory review of lyrics
                         rem (type "%TXT_FILE%" |:u8 unique-lines -A -L) |:u8 print-with-columns -wh
                         call review-file -wh -st  "%TXT_FILE%" "Review the lyrics now"
                         @gosub divider
-                        echo GOAT displayaudiofilename 08
+                        rem echo  displayaudiofilename 08
                         gosub DisplayAudioFileName
                         @call AskYn "[REDUNDANT?] Do these look acceptable" yes %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                         iff "%ANSWER%" == "N" then
@@ -1821,5 +1883,6 @@ rem end of create-srt setlocal blocvk
 rem 20250328 let’s try removing this: endlocal AI_GENERATION_ANYWAY_WAIT_TIME AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES AUTO_LYRIC_APPROVAL CLEANUP CONCURRENCY_WAS_TRIGGERED EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE EDIT_KARAOKE_AFTER_FORCE_REGEN_WAIT_TIME EXPECTED_OUTPUT_FILE FORCE_REGEN FOUND_SUBTITLE_FILE JSN_FILE LAST_FILE_PROBED LAST_WHISPER_COMMAND LRC_FILE LYRICS_ACCEPTABLE LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME MAKING_KARAOKE MAYBE_LYRICS_2 MAYBE_SRT_2 NEVERMIND_THIS_ONE NUM_TRANSCRIBED_THIS_SESSION OKAY_THAT_WE_HAVE_SRT_ALREADY OUR_LANGUAGE OUR_LYRICS OUTPUT_DIR PROMPT_CONSIDERATION_TIME PROMPT_EDIT_CONSIDERATION_TIME REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME SKIP_TXTFILE_PROMPTING SOLELY_BY_AI SONGBASE SONGDIR SONGFILE SRT_FILE TRANSCRIBER_PDNAME TRANSCRIBER_TO_USE TXT_FILE VALIDATED_CREATE_LRC_FF WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST WHISPER_PROMPT  FORCE_AI_ENCODE_FROM_LYRIC_GET
 
 
+:The_Very_END
 @setdos /x0
 

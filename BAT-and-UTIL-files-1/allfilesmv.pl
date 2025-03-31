@@ -328,8 +328,8 @@ foreach $filename (@LINES) {
 
 	##### 2024/03/24 - adding peeling off album/artist from filename based on grand/parent foldernames:
 	if (0) {			#debug
-			print "***** parent_dir=$parent_dir *****\n";#goat
-			print "***** parent_dir_without_year=$parent_dir_without_year *****\n";#goat
+			print "***** parent_dir=$parent_dir *****\n";#
+			print "***** parent_dir_without_year=$parent_dir_without_year *****\n";#
 	}
 	if (     $REMOVE_PARENT_FOLDER_NAME_FROM_FILENAME) { $filename =~      s/$parent_dir\s?-?\s?//i; } 
 	if (     $REMOVE_PARENT_FOLDER_NAME_FROM_FILENAME) { $filename =~      s/$parent_dir_without_year\s?-?\s?//i; } 

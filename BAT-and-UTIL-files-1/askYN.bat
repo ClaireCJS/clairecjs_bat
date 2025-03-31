@@ -1,4 +1,4 @@
-@Echo Off
+@Echo off
 @loadBTM on
 @on break cancel
 @call bat-init
@@ -21,9 +21,10 @@
 :USAGE: 3ʳᵈ param: the wait time in seconds before using the default answer. Use “0” to wait forever.
 :USAGE:
 :USAGE: 4ᵗʰ-6ᵗʰ params: Modes of operation:
-:USAGE:            1) can be   “big”    to make it a double-height question
-:USAGE:            2) can be “no_title” if you don’t want the window title changed while asking
-:USAGE:            3) can be “no_enter” if you don’t want the ENTER key to select the default option
+:USAGE:            1) can be   “big”     to make it a double-height question
+:USAGE:            2) can be “no_title”  if you don’t want the window title changed while asking
+:USAGE:            3) can be “no_enter”  if you don’t want the ENTER key to select the default option
+:USAGE:            4) can be “invisible” if you want the whole thing to be invisible
 :USAGE:
 :USAGE: Next (5ᵗʰ/6ᵗʰ/7ᵗʰ++) params: a list of additional keystrokes allowed:
 :USAGE:                      For example: To allow Y or N:           AskYn "Ovewrite file" no 0
@@ -44,16 +45,14 @@ rem Validate environment once:
         iff "1" != "%VALIDATED_ASKYN%" then
                 call validate-plugin                stripansi
                 call validate-in-path               echos echoerr echoserr print-if-debug important.bat fatal_error.bat warning.bat repeat if set color_alarm_hex color_success_hex
-                call validate-functions             ANSI_CURSOR_CHANGE_COLOR_WORD CURSOR_COLOR_BY_HEX 
-                call validate-environment-variables CURSOR_RESET ANSI_COLORS_HAVE_BEEN_SET
+                call validate-functions             ansi_cursor_change_color_word cursor_color_by_hex ansi_move_up ansi_move_left
+                call validate-environment-variables cursor_reset ansi_colors_have_been_set
+
                 set VALIDATED_ASKYN=1
         endiff
 
 
 rem Set default flags:                                                                    
-        set NOTITLE=0
-        set BIG_QUESTION=0
-        set NO_ENTER_KEY=0
         set RUNNING_TESTS=0
         SET WAIT_TIMER_ACTIVE=0
         set WAIT_OPS=
@@ -69,6 +68,7 @@ rem Get positional required parameters:
                 shift
         endiff
 
+rem Are we in testing mode?
         iff "%1" == "test" then
                 set RUNNING_TESTS=1
         else        
@@ -78,20 +78,31 @@ rem Get positional required parameters:
         set DEFAULT_ANSWER=%1 %+ shift
         set WAIT_TIME=%1      %+ shift
 
+
+rem Wait mode given, not given, or “0” which means “infinity":
         if "%WAIT_TIME%" != "" .and. "%WAIT_TIME%" != "NULL" .and. "%WAIT_TIME%" != "0" (set WAIT_OPS=/T /W%wait_time% %+ set WAIT_TIMER_ACTIVE=1)
         
 
 rem Get non-positional parameters:
-        set ADDITIONAL_KEYS=
-
+        :initialize_params
+                set INVISIBLE_MODE=0
+                set   NO_ENTER_KEY=0
+                set   BIG_QUESTION=0
+                set        NOTITLE=0
         :grab_next_param
+                rem echo - DEBUG: `%1$` is: %1$, 1=%1 %+ pause
                 if "%1" == "" (goto :done_grabbing_params)
-                if "%1" == "noenter" .or. "%1" == "no_enter" (shift %+ set NO_ENTER_KEY=1 %+ goto :grab_next_param)
-                if "%1" == "big"     .or. "%1" == "big"      (shift %+ set BIG_QUESTION=1 %+ goto :grab_next_param)
-                if "%1" == "notitle" .or. "%1" == "no_title" (shift %+ set NOTITLE=1      %+ goto :grab_next_param)
+                if "%1" == "silent"  .or. "%1" == "invisible" (shift %+ set INVISIBLE_MODE=1 %+ goto :grab_next_param)
+                if "%1" == "noenter" .or. "%1" == "no_enter"  (shift %+ set   NO_ENTER_KEY=1 %+ goto :grab_next_param)
+                if "%1" == "big"     .or. "%1" == "bigger"    (shift %+ set   BIG_QUESTION=1 %+ goto :grab_next_param)
+                if "%1" == "notitle" .or. "%1" == "no_title"  (shift %+ set        NOTITLE=1 %+ goto :grab_next_param)
         :done_grabbing_params
+                rem echo - DEBUG: INVISIBLE_MODE=“%INVISIBLE_MODE%” / NO_ENTER_KEY=“%NO_ENTER_KEY%” / BIG_QUESTION=“%BIG_QUESTION%” / NOTITLE=“%NOTITLE%”  %+ pause
+
+
 
 rem Get positional-at-end parameter for expanded answer key meanings (“what does ‘A’ equal?”-type questions):
+        set ADDITIONAL_KEYS=
         iff "%1%" != "" then
                 set ADDITIONAL_KEYS=%1
                 shift
@@ -101,9 +112,7 @@ rem Get positional-at-end parameter for expanded answer key meanings (“what do
                         for %%tmpLetterForKeyMeaning in (%1$) do ( gosub processLetterKeyMeaning "%tmpLetterForKeyMeaning%")
                 endiff
         endiff                
-
-rem cancel %+ 🐐
-
+                        rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                         goto :DoneWithKeyMeaning
                                 :processLetterKeyMeaning                         
                                         rem echoerr tmpLetterForKeyMeaning  = %tmpLetterForKeyMeaning%
@@ -116,6 +125,7 @@ rem cancel %+ 🐐
                                         set key_meaning_%tmp_key_meaning_letter%=%tmp_key_meaning_expand%
                                 return
                         :DoneWithKeyMeaning                        
+                        rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
 
@@ -135,7 +145,7 @@ iff "%ASK_QUESTION%" == "" .or. "%ASK_QUESTION%" == "help" .or. "%ASK_QUESTION%"
                 echoserr  %ansi_color_orange%[%ansi_color_magenta%%italics_on%modes of operation%italics_off%%ansi_color_orange%] 
                 echoserr  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra allowable keys%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
                 echoserr  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra key meanings%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
-                echoserr.
+                echoerr.
                 echoerr USAGE: 
                 echoerr USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%1) sets %ansi_color_yellow%%italics_on%`%`OUR_ANSWER%italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%Y%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%N%ansi_color_orange%”%ansi_color_advice% ..... or one of our additional allowed keystrokes
                 echoerr USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%2) sets %ansi_color_yellow%%italics_on%`%`DO_IT     %italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%1%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%”%ansi_color_advice% (don’t use if using additional allowed keystrokes)
@@ -145,9 +155,10 @@ iff "%ASK_QUESTION%" == "" .or. "%ASK_QUESTION%" == "help" .or. "%ASK_QUESTION%"
                 echoerr USAGE: %ansi_color_orange%3ʳᵈ param: %ansi_color_magenta%the %ansi_color_yellow%wait time in seconds%ansi_color_magenta% before using the %ansi_color_yellow%default answer%ansi_color_advice%. Use %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%” %ansi_color_advice%to wait forever.
                 echoerr USAGE: 
                 echoerr USAGE: %ansi_color_orange%4ᵗʰ-6ᵗʰ params: %ansi_color_magenta%Modes of operation:%ansi_color_advice%
-                echoerr USAGE:            %ansi_color_advice%1) can be   %ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange%”    %ansi_color_advice%to make it a %ansi_color_yellow%double-height %ansi_color_advice%question%ansi_color_advice%
-                echoerr USAGE:            %ansi_color_advice%2) can be %ansi_color_orange%“%ansi_color_bright_yellow%no_title%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%window title%underline_off%%ansi_color_advice% changed while asking%ansi_color_advice%
-                echoerr USAGE:            %ansi_color_advice%3) can be %ansi_color_orange%“%ansi_color_bright_yellow%no_enter%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%%double_underline_on%%italics_on%ENTER%italics_off%%underline_off%%ansi_color_advice% key to select the default option%ansi_color_advice%
+                echoerr USAGE:            %ansi_color_advice%1) can be:       %ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange%” %ansi_color_advice%to make it a %ansi_color_yellow%double-height %ansi_color_advice%question%ansi_color_advice%
+                echoerr USAGE:            %ansi_color_advice%2) can be: %ansi_color_orange% “%ansi_color_bright_yellow%no_title%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%window title%underline_off%%ansi_color_advice% changed while asking%ansi_color_advice%
+                echoerr USAGE:            %ansi_color_advice%3) can be: %ansi_color_orange% “%ansi_color_bright_yellow%no_enter%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%%double_underline_on%%italics_on%ENTER%italics_off%%underline_off%%ansi_color_advice% key to select the default option%ansi_color_advice%
+                echoerr USAGE:            %ansi_color_advice%4) can be: %ansi_color_orange%“%ansi_color_bright_yellow%invisible%ansi_color_orange%” %ansi_color_advice%if you %ZZZZZZZZZZZZZ%%ansi_color_yellow%%double_underline_on%%italics_on%don’t%italics_off%%underline_off%%ansi_color_advice% want any display at all —— an invisible prompt%ansi_color_advice%
                 echoerr USAGE: 
                 echoerr USAGE: %ansi_color_orange%Next (5ᵗʰ/6ᵗʰ/7ᵗʰ++) params: %ansi_color_magenta%a list of %ansi_color_yellow%additional keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
                 echoerr USAGE:                      For example: To allow %ansi_color_bright_yellow%Y%ansi_color_advice% or %ansi_color_bright_yellow%N%ansi_color_advice%:           %ansi_color_bright_yellow%AskYn "Ovewrite file" no 0%ansi_color_advice% 
@@ -233,7 +244,13 @@ REM Parameter massaging:
         if "%default_answer%" == "N" (set default_answer=no)
 
 
+REM Which keys will we allow?
+                                    set ALLOWABLE_KEYS=yn%additional_keys%[Enter]
+        if "%NO_ENTER_KEY%" == "1" (set ALLOWABLE_KEYS=yn%additional_keys%)
+                                    
 REM Build the question prompt:
+        set PRETTY_QUESTION=
+        rem we need this built for our title, so don’t do this: if "1" == "%INVISIBLE_MODE%" goto :done_building_question_prompt
                           unset /q WIN7DECORATOR
         if "%OS%" == "7" (  set    WIN7DECORATOR=*** ``)
         set BRACKET_COLOR=224,0,0
@@ -265,17 +282,19 @@ REM Build the question prompt:
                                                         :skip_sub_2903409243
                                                        set PRETTY_QUESTION=%pretty_question%%@ANSI_FG_RGB[%BRACKET_COLOR]]%EMOJI_RED_QUESTION_MARK%                                    %+ rem right bracket + ❓
                                                        set PRETTY_QUESTION_ANSWERED=%@REPLACE[%BLINK_ON%,,%PRETTY_QUESTION] %+ rem an unblinking version, so the question mark that blinks before we answer is still displayed——but stops blinking after we answer the question 
+        :done_building_question_prompt
+
 
 rem Check if we are not doing titling, and skip titling section if that is the case:
-        if 1 eq %NOTITLE% (goto :title_done)
+        if "1" == "%NOTITLE%" (goto :title_done)
 
 rem Re-set a new window title:
         rem stripped=%@STRIPANSI[%@STRIPANSI[%PRETTY_QUESTION]] %+ rem why were we doing this twice? 
         set stripped=%@STRIPANSI[%PRETTY_QUESTION]
-        iff 1 ne %NOTITLE then
-                rem echoerr setting title 2 - NOTITLE = “%NOTITLE%”
-                title %stripped%
+        iff "1" != "%NOTITLE" then
+                title "%stripped%"
         endiff
+
 
 rem Re-set a new window title: BUG FIX:
         rem weird bug  where "\B" got past the stripansi function, giving us titles like "❓do it?(B [(BY/n]❓" with two "(B" 
@@ -289,14 +308,11 @@ rem Re-set a new window title: BUG FIX:
         :title_done
 
 
-REM Which keys will we allow?
-                               set ALLOWABLE_KEYS=yn%additional_keys%[Enter]
-        if %NO_ENTER_KEY eq 1 (set ALLOWABLE_KEYS=yn%additional_keys%)
-
 
 
 
 REM Print the question out with a spacer below to deal with pesky ANSI behavior:
+        if "1" == "%INVISIBLE_MODE%" goto :done_printing_question_out
         rem if %BIG_QUESTION eq 1 (SET xx=4)
         rem if %BIG_QUESTION ne 1 (SET xx=3)
         set XX=3
@@ -317,22 +333,30 @@ REM Print the question out with a spacer below to deal with pesky ANSI behavior:
                     echoserr %newline%%BIG_BOT%%PRETTY_QUESTION% %ANSI_SAVE_POSITION%%ANSI_CLEAR_TO_END%``
                 if %WAIT_TIMER_ACTIVE eq 1 (echoserr %@ANSI_MOVE_UP[1])
         endiff
+        :done_printing_question_out
             
 REM Load INKEY with the question, unless we’ve already printed it out:
+        if "1" == "%INVISIBLE_MODE%" goto :done_loading_inkey_with_question
         echoserr %@ANSI_CURSOR_CHANGE_COLOR_WORD[PURPLE]
         on break cancel
-                                                             set INKEY_QUESTION=%PRETTY_QUESTION%
-        if %WAIT_TIMER_ACTIVE eq 0 .and. %BIG_QUESTION eq 1 (set INKEY_QUESTION=)
+                                                                                                        set INKEY_QUESTION=%PRETTY_QUESTION%
+        if ("%WAIT_TIMER_ACTIVE%" == "0" .and. "%BIG_QUESTION%" == "1") .or. "%INVISIBLE_MODE%" == "1" (set INKEY_QUESTION=)
+        :done_loading_inkey_with_question
 
+
+REM Set the question test:
+        if "1" ==   "%BIG_QUESTION%" (  set    INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_RESTORE%)
+        if "1" !=   "%BIG_QUESTION%" (  set    INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_SAVE%)
+        if "1" == "%INVISIBLE_MODE%" (unset /q INKEY_QUESTION)
+
+REM Determine whether we are adding the “/X” option or not:
+        unset /q SLASH_X
+        if "1" == "%INVISIBLE_MODE%"  .or. ("1" == "%BIG_QUESTION%" .and. "1" == "%WAIT_TIMER_ACTIVE%") (set SLASH_X=/x)
 
 REM Actually answer the question here —— make the windows “question” noise first, then get the user input:
         echoserr %ANSI_CURSOR_SHOW%
-        if 1 ne %SLEEPING *beep question    
-        unset /q SLASH_X
-        if  %BIG_QUESTION eq 1 .and. %WAIT_TIMER_ACTIVE eq 1 (set SLASH_X=/x)
+        if "1" != "%SLEEPING" *beep question    
         echoserr %ANSI_POSITION_SAVE%
-        if %BIG_QUESTION eq 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_RESTORE%)
-        if %BIG_QUESTION ne 1 (set INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_SAVE%)
         rem as an experiment, let’s do this 100x instead of 1x:
         @rem repeat 100 input /c /w0 %%This_Line_Clears_The_Character_Buffer
         rem @call clear-buffered-keystrokes is just:
@@ -354,13 +378,18 @@ REM Make sure we have an answer, and initialize our return values
         set DO_IT=0
         set ANSWER=%OUR_ANSWER%
 
+
 REM Process the enter key into our default answer:
-        if %OUR_ANSWER% == "@28" .or. "%@ASCII[%OUR_ANSWER]"=="64 50 56" (
-            if  "%default_answer%" == "no"  ( set DO_IT=0 %+ set ANSWER=N )
-            if  "%default_answer%" == "yes" ( set DO_IT=1 %+ set ANSWER=Y )                  
-            echoserr  ``
-            call print-if-debug "enter key processing, answer is now “%ANSWER%”"
-        ) 
+                                                                         set do_it=0
+        if %OUR_ANSWER% == "@28" .or. "%@ASCII[%OUR_ANSWER]"=="64 50 56" set do_it=1
+        if "0" == "%do_it%" goto :done_388
+                if  "%default_answer%" == "no"  ( set DO_IT=0 %+ set ANSWER=N )
+                if  "%default_answer%" == "yes" ( set DO_IT=1 %+ set ANSWER=Y )                  
+                if "1" == "%INVISIBLE_MODE%" goto :done_with_this_output_375
+                        echoserr  ``
+                        call print-if-debug "enter key processing, answer is now “%ANSWER%”"
+                :done_with_this_output_375
+        :done_388
 
 
 REM Title
@@ -399,8 +428,9 @@ REM Generate "pretty" answers & update the title:
         :title_done_3
 
 
-REM Re-print "pretty" question so that the auto-question mark is no longer blinking because it has now been answered, and
+REM Re-print  "pretty" question so that the auto-question mark is no longer blinking because it has now been answered, and
 REM print our "pretty" answers in the right spots (challenging with double-height), erasing any timer leftovers:
+        if "1" == "%INVISIBLE_MODE%" goto :done_printing_pretty_answer                
         if %BIG_QUESTION ne 1 (
             if %WAIT_TIMER_ACTIVE eq 0 (echoerr %ANSI_POSITION_RESTORE%%PRETTY_ANSWER_ANSWERED%%@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED%%PRETTY_ANSWER%)  
             if %WAIT_TIMER_ACTIVE eq 1 (echoerr %ANSI_POSITION_RESTORE%%ZZZZZZZZZZZZZZZZZZZZZZ%%@ANSI_MOVE_TO_COL[1]%PRETTY_QUESTION_ANSWERED%%PRETTY_ANSWER%      %ANSI_CLEAR_TO_END%``)
@@ -427,6 +457,13 @@ REM print our "pretty" answers in the right spots (challenging with double-heigh
 
             repeat 1 echoerr.
         )
+        :done_printing_pretty_answer                
+
+
+rem If in invisible mode, bring us back and erase the answer that INKEY puts on the screen
+        iff "1" == "%INVISIBLE_MODE%" then
+                rem echos %@ansi_move_up[1] %@ansi_move_left[1]
+        endiff
 
 
 goto :END
@@ -439,4 +476,6 @@ goto :END
 :END
 
 unset key_meaning_* tmp_key_meaning_*
+
+
 
