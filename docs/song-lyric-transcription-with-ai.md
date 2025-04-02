@@ -1,6 +1,4 @@
-TODO: document for get-lyrics: :USAGE:     set OVERRIDE_FILE_ARTIST_TO_USE=Misfits     //override artist name, especially useful if you want to predownload lyrics for a bunch of tribute/cover albums of a particular band. For example, I have 10 tribute albums for The Misfits that I want to pre-download lyrics for, but I have a hunch the downloader will not find the right lyrics if my original artist tag is missing on any of these files, plus a lot of people who upload lyrics upload without the “The”. And although this script compensates for both those contingencies, setting this can speed things up.
-TODO: document: preview-audio-file.bat mark-all-filenames-as-instrumental.bat ask-if-these-are-instrumentals.bat unmark-all-filenames-ADS-tag-for-as_instrumental.bat/mark-all-filenames-ADS-tag-for-as_instrumental.bat/mark-all-filenames-ADS-tag-for-NOT-as_instrumental.bat
-ask-if-these-are-lyricless.bat
+
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -198,8 +196,8 @@ From a running TCC command line, use whatever system commands you’d like from 
     - for folders with too many to answer individually, you can pre-answer for all files in the folder with: ```mark-all-filenames-ADS-tag-for-as_instrumental``` and ```mark-all-filenames-ADS-tag-for-NOT-as_instrumental``` 
   - Optionally use ```sweep ask-if-lyricless``` to mark files that are in a state of “lyriclessness”, our term for unfindable lyrics/giving up on finding lyrics (if you don’t, the lyric approval process will take much longer)
     - for folders with too many to answer individually, you can pre-answer for all files in the folder with:```approve-lyriclessness.bat *``` and ```approve-lyriclessness.bat *``` 
-    - When done, cleanse invalid lyrics/subtitles with ```sweep delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state```
-      - This is necessary in the event of LRCget downloading transcriptions that we later decide are invalid via bulk command 
+    - When done, cleanse invalid lyrics/subtitles with ```sweep post-lyricless-clean.bat```
+      - This is necessary in the event of LRCget downloading transcriptions that we later decide are invalid via bulk command, TODO: as well as to purge erroneous subtitle/lyric files associated with instrumentals
 
 - ② Then, align lyrics with ```get-lyrics-here```:
   - Alignment is done by previewing the lyrics of each & every audio file, then either:
@@ -234,8 +232,10 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 ### NOTE: Many commands have several different aliases, for convenience-of-remembering.
 
-#### 🍀 Four main types of commands exist for this system:
+#### 🍀 Five main types of commands exist for this system:
 
+  1. 💾 filename alignment  (mark-all-filenames-as-instrumental.bat, ask-if-these-are-instrumentals.bat, mark-all-filenames-ADS-tag-for-as_instrumental.bat, mark-all-filenames-ADS-tag-for-NOT-as_instrumental.bat, unmark-all-filenames-ADS-tag-for-as_instrumental.bat)
+) TODOLINK
   1. 🎤️ Lyric alignment  ([get-lyrics](../BAT-and-UTIL-files-1/get-lyrics.bat),  [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat) etc)
   1. 🧏 Karaoke generation  ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
   1. 🕵 Lyric   Auditing ([review-lyrics](../BAT-and-UTIL-files-1/review-files.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
@@ -245,6 +245,27 @@ From a running TCC command line, use whatever system commands you’d like from 
 
   1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
   1. ⚙️ Subordinate commands (*under-the-hood* stuff not generally invoked directly)
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+# 👉👉👉 *Filename Alignment* commands:
+
+#### These commands manage the filenames to better direct our resources.
+									
+
+### 🌟 [mark-all-filenames-as-instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-as-instrumental.bat) TODO
+
+### 🌟 [ask-if-these-are-instrumentals](../BAT-and-UTIL-files-1/)ask-if-these-are-instrumentals.bat  TODO
+
+### 🌟 [document: preview-audio-file](../BAT-and-UTIL-files-1/)document: preview-audio-file.bat  TODO
+
+### 🌟 [mark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-ADS-tag-for-as_instrumental.bat) TODO
+
+### 🌟 [mark-all-filenames-ADS-tag-for-NOT-as_instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-ADS-tag-for-NOT-as_instrumental.bat) TODO
+
+### 🌟 [unmark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/unmark-all-filenames-ADS-tag-for-as_instrumental.bat) TODO
+
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -258,6 +279,8 @@ From a running TCC command line, use whatever system commands you’d like from 
 🌠 BASIC ALIGNMENT STEPS (all optional): Pre-download, mark instrumentals, mark lyriclessness, approve lyrics
 
 ### OPTIONAL STEP 1: [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat)
+
+You can ```set OVERRIDE_FILE_ARTIST_TO_USE=Artist Name``` to override the artist name.
 
 Runs an initial pass of pre-downloading lyrics from Genius **in a completely unattended fashion**, for an entire folder tree, for later review. 
 
@@ -302,6 +325,9 @@ Obtains the lyrics for a song file, a playlist, or the currently playing song.
 
 ### OTHER LYRIC ALIGNMENT COMMANDS:
 
+Note that you can ```set OVERRIDE_FILE_ARTIST_TO_USE=Artist Name``` to override the artist name when getting lyrics
+
+
 ### 🌟 [get-lyrics-for-currently-playing-song](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
 
 If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, get lyrics for *the song currently being played*.
@@ -341,11 +367,14 @@ Report to check your overall lyric/karaoke progress for your entire music collec
 ### [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat)
 Report to check how many lyric approvals you did on a certain day
 
-### [delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat](../BAT-and-UTIL-files-1/delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat)
-Utility to delete lyric/subtitle sidecar files of audio files whose lyric*less*ness status is “APPROVED”.
-Current implementation of marking-as-lyriclessness (aka “lyrics unfindeable, proceed with AI-only transcription”) deletes sidecar files, but past implementations did not, leaving trash files that necesitated this cleanup utility.
+### [post-lyricless-clean.bat] (../BAT-and-UTIL-files-1/delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat)
 
+Utility to delete lyric/subtitle sidecar files that should no longer exist at this point.
 
+These include lyric/subtitle files of audio files whose lyric*less*ness status is approved, but whose lyrics are not (removed with [delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state](../BAT-and-UTIL-files-1/delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat)), 
+and lyric/subtitle files of audio files that are instrumentals (removed with [delete-sidecar-lyric-and-subtitle-files-for-audiofiles-that-are-instrumentals](../BAT-and-UTIL-files-1/delete-sidecar-lyric-and-subtitle-files-for-audiofiles-that-are-instrumentals.bat))
+
+Longer explanation: When this system marks a song as lyriclessness (aka “lyrics unfindeable, proceed with AI-only transcription”) it deletes any existing sidecar & lyric files. However, it is still possible for invalid sidecar lyric/subtitle files to exist for songs marked lyricless, if an external utility like LRCget was used to downloaded incorrect LRC/TXT files (for example, attaching a LRC file for the wrong song, or a studio version’s LRC to a live version of the song). Thus, this tool grew out of necessity. Instrumental files need the same treatment too.
 
 </details>
 

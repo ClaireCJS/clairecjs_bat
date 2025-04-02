@@ -364,12 +364,10 @@ REM Determine our expected input and output files:
 
 rem Make sure it’s a transcribeable filename:
         rem echo α 100
-        REM If it’s an instrumental, don’t bother:
         gosub validate_transcribeable_filename "%INPUT_FILE%" "transcribing"
-        rem echo `%`_?=“%_?” 
         if "%_?" == "666" .or. "%retval%" == "666" .or. "1" == "%goto_end%" (
                 rem echo Aborting...
-                goto /i The_Very_END
+                goto /i The_Very_Very_END
         )
         goto :skip_sub_414
                                 :validate_transcribeable_filename [input_file verb]
@@ -637,7 +635,7 @@ REM if we already have a SRT file, we have a problem:
                 @call warning "We already have a file created: %emphasis%%srt_file%%deemphasis%"
                 call review-subtitles "%srt_file%"
                 gosub divider
-                iff %SOLELY_BY_AI eq 1 then
+                iff "%SOLELY_BY_AI" == "1" then
                         @call advice "Automatically answer the next prompt as Yes by adding the parameter “force-regen” or “redo”"
                         iff exist "%TXT_FILE%" then
                                 rem echo displayaudiofilename 08
@@ -658,13 +656,13 @@ REM if we already have a SRT file, we have a problem:
                 endiff
                 :automatic_skip_for_ai_parameter
                 rem FORCE_REGEN is %FORCE_REGEN %+ pause
-                iff %FORCE_REGEN% ne 1 then
+                iff "1" != "%FORCE_REGEN%" then
                         @call askYN "%conceal_on%22%conceal_off%Regenerate it anyway? %faint_on%[“no” will mark karaoke as %italics%approved%italics_off%]%faint_off%" no %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME%
                 endiff
                 set GOTO_END=0
                 set GOTO_FORCE_AI_GEN=0
                 
-                iff "%ANSWER%" == "Y" .or. %FORCE_REGEN eq 1 then
+                iff "%ANSWER%" == "Y" .or. "1" == "%FORCE_REGEN%" then
                         iff exist "%SRT_FILE%" then
                                 ren /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak" >nul
                         endiff
@@ -718,7 +716,7 @@ REM file if it is pre-approved or we are set in AutoLyricsApproval mode:
         :forcing_ai_generation
         rem echo α 1000.0
         set goto_ai_generation=0
-        iff 1 eq %SOLELY_BY_AI% .and. 1 ne %AUTO_LYRIC_APPROVAL% then
+        iff "1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%" then
                 rem echo α 1000.0.1
                 @call important_less "Forcing AI generation..."
                 iff exist "%LRC_FILE%" .or. exist "%SRT_FILE%"  then
@@ -788,7 +786,7 @@ REM In terms of automation, as of 10/28/2024 we are only comfortable with FULLY 
 REM in the event that a txt file also exists.  To enforce this, we will only generate with a "force" parameter if the txt file does not exist.
         :check_for_txtfile
         rem echo α 1400
-        if 1 eq %SOLELY_BY_AI goto :we_decided_to_never_check_for_txtfile
+        if "1" eq "%SOLELY_BY_AI%" goto :we_decided_to_never_check_for_txtfile
    
         rem not exist "%TXT_FILE%" .and.  1  ne  %FORCE_REGEN%  .and.  1  eq  %LYRIC_ATTEMPT_MADE   then
         rem not exist "%TXT_FILE%" .and.  1  ne  %FORCE_REGEN%                                      then
@@ -1014,8 +1012,8 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         rem NOTE: We also have --batch_recursive - {automatically sets --output_dir} but you can’t prompt each file with individual lyrics that way
 
 
-        if 1 eq %AUTO_LYRIC_APPROVAL goto :use_text
-        if not exist %TXT_FILE% .or. %SKIP_TXTFILE_PROMPTING eq 1 .or. (1 eq %SOLELY_BY_AI .and. 1 ne %AUTO_LYRIC_APPROVAL%) goto :endiff_no_text_1017
+        if "1" == "%AUTO_LYRIC_APPROVAL%" goto :use_text
+        if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto :endiff_no_text_1017
                 :use_text
                 rem the text file %TXT_FILE% does in fact exist!
                         rem 2023 method: set CLI_OPS=%CLI_OPS% --initial_prompt "Transcribe this audio, keeping in mind that I am providing you with an existing transcription, which may or may not have errors, as well as header and footer junk that is not in the audio you are transcribing. Lines that say “downloaded from” should definitely be ignored. So take this transcription lightly, but do consider it. The contents of the transcription will have each line separated by “ / ”.   Here it is: ``
@@ -1404,8 +1402,8 @@ rem ////////////////////////////////////////////////////////////////////////////
                         set BOOL_DOES=0 %+ set does_punctuation=: %+ set does=does %FAINT%%ITALICS%%blink%not%blink_off%%ITALICS_OFF%%FAINT_OFF%
                 endiff
                 %COLOR_IMPORTANT_LESS%
-                        if %BOOL_DOES eq 0 (set DECORATOR_ON=  %strikethrough% %+ set DECORATOR_OFF=%strikethrough_off%)
-                        if %BOOL_DOES eq 1 (set DECORATOR_ON=%PARTY_POPPER%%faint_off%    %+ set DECORATOR_OFF=%PARTY_POPPER%     )
+                        if "%BOOL_DOES%" == "0" (set DECORATOR_ON=  %strikethrough% %+ set DECORATOR_OFF=%strikethrough_off%)
+                        if "%BOOL_DOES%" == "1" (set DECORATOR_ON=%PARTY_POPPER%%faint_off%    %+ set DECORATOR_OFF=%PARTY_POPPER%     )
                         @echos * %@FORMAT[11,%it%] %does% exist%does_punctuation% %FAINT%%decorator_on% %filename% %decorator_off%%FAINT_OFF%
                 %COLOR_NORMAL%
                 @echo.
@@ -1850,7 +1848,7 @@ echos %ansi_color_reset%
         if exist     *vad_original*.srt (*del /q     *vad_original*.srt >nul)
 
         rem This happens earlier, but we also want it to happen in cleanup, because sometimes cleanup is called from transcribed stuff *NOT* made with this script:
-                iff %CLEANUP eq 1 then
+                iff "1" == "%CLEANUP%" then
                         call delete-zero-byte-files *.lrc silent >nul
                         call delete-zero-byte-files *.srt silent >nul
                 endiff
@@ -1883,6 +1881,6 @@ rem end of create-srt setlocal blocvk
 rem 20250328 let’s try removing this: endlocal AI_GENERATION_ANYWAY_WAIT_TIME AI_GENERATION_ANYWAY_WAIT_TIME_FOR_LYRICLESSNESS_APPROVED_FILES AUTO_LYRIC_APPROVAL CLEANUP CONCURRENCY_WAS_TRIGGERED EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE EDIT_KARAOKE_AFTER_FORCE_REGEN_WAIT_TIME EXPECTED_OUTPUT_FILE FORCE_REGEN FOUND_SUBTITLE_FILE JSN_FILE LAST_FILE_PROBED LAST_WHISPER_COMMAND LRC_FILE LYRICS_ACCEPTABLE LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME MAKING_KARAOKE MAYBE_LYRICS_2 MAYBE_SRT_2 NEVERMIND_THIS_ONE NUM_TRANSCRIBED_THIS_SESSION OKAY_THAT_WE_HAVE_SRT_ALREADY OUR_LANGUAGE OUR_LYRICS OUTPUT_DIR PROMPT_CONSIDERATION_TIME PROMPT_EDIT_CONSIDERATION_TIME REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME SKIP_TXTFILE_PROMPTING SOLELY_BY_AI SONGBASE SONGDIR SONGFILE SRT_FILE TRANSCRIBER_PDNAME TRANSCRIBER_TO_USE TXT_FILE VALIDATED_CREATE_LRC_FF WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST WHISPER_PROMPT  FORCE_AI_ENCODE_FROM_LYRIC_GET
 
 
-:The_Very_END
+:The_Very_Very_END
 @setdos /x0
 

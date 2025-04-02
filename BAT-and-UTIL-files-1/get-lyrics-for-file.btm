@@ -223,6 +223,7 @@ rem VALIDATE ENVIRONMENT [once per session]:
                 call validate-in-path              %LYRIC_DOWNLOADER_1% %PROBER% %PLAYER_COMMAND% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset eset.bat eset-alias.bat insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl insert-before-each-line.py newspaper.bat print_with_columns.py print-with-columns.bat newspaper.bat srt2lrc.py change-single-quotes-to-double-apostrophes.py add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat approve-lyrics.bat disapprove-lyrics.bat display-lyric-status-for-file.bat review-lyrics.bat review-files.bat approve-lyric-file.bat disapprove-lyric-file.bat approve-subtitle-file.bat disapprove-subtitle-file.bat get-lyric-status.bat approve-LYRICLESSNESS_STATUS-file.bat disapprove-lyriclessness-for-file.bat unapprove-lyriclessness-for-file.bat cut.exe srt2txt.py lrc2txt.py rn.bat 
                 rem  call unimportant               "Validated: lyric downloader, audio file prober"
                 call validate-environment-variables BAT TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME cool_question_mark ANSI_COLOR_BRIGHT_RED italics_on italics_off ANSI_COLOR_BRIGHT_YELLOW blink_on blink_off star ANSI_COLOR_GREEN ANSI_GREEN ansi_color_bright_green ansi_reset bright_on bright_off   underline_on underline_off    emoji_warning check EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_red_QUESTION_MARK LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS ANSI_COLOR_WARNING_SOFT LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO ANSI_COLOR_DEBUG ansi_color_prompt ansi_color_orange CONNECTING_EQUALS connecting_minus bold_on bold_off italics_on italics_off blink_on blink_off ansi_colors_have_been_set LQ RQ EMOJI_DESKTOP_COMPUTER EMOJI_EAR CHECK NO EMOJI_AXE ansi_color_pink color_removal ansi_color_removal color_normal smart_apostrophe glitch_star star1 star2 star3 star4 star5 star6 star7 star8 star9 
+                if not defined filemask_audio call validate-environment-variable filemask_audio skip_validation_existence
                 call validate-functions             cool_text rainbow_string ansi_rgb
                 call validate-plugin                StripANSI
                 call checkeditor
@@ -1064,7 +1065,7 @@ echo 🍕🍕 goat problematic answer is “%answer%” right before the block w
                         else
                                 set LYRICS_ACCEPTABLE=0
                                 rem echo %ansi_color_warning_soft%%star% Not using them, so let’s remove them and try downloading...%ansi_color_normal%
-                                rem if exist "%LYRIC_FILE%" (ren  /q "%LYRIC_FILE%" "%LYRIC_FILE%.%_datetime.666.bak")
+                                rem if exist "%LYRIC_FILE%" (ren  /q "%LYRIC_FILE%" "%LYRIC_FILE%.%_datetime.MAKE_THIS_BE_A_REASON.bak")
 
                                 echo %ansi_color_warning_soft%%star% Not using them...%ansi_color_normal%
                                 iff exist "%LYRIC_FILE%" then
@@ -1598,13 +1599,12 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 echo set LATEST_FILE= @EXECSTR[dir /b /odt ║:u8 tail -1]
                      set LATEST_FILE=%@EXECSTR[dir /b /odt |:u8 tail -1]
 
-        rem Generate the proper post-downlaoder intermediate filename for our freshly-downloaded lyrics, and if it already exists, back it up:
+        rem Generate the proper post-downloader intermediate filename for our freshly-downloaded lyrics, and if it already exists, back it up:
                 rem PREFERRED_LATEST_FILE_NAME=%SONG_DIR%%@NAME[%AUDIO_FILE].%@EXT[%LATEST_FILE]``
                 set PREFERRED_LATEST_FILE_NAME=%SONG_DIR%%@UNQUOTE[%@NAME["%AUDIO_FILE%"].]json
                 rem echo PREFERRED_LATEST_FILE_NAME is %PREFERRED_LATEST_FILE_NAME 🍕🍕🍕
                 set LFEXT=%@EXT[%LATEST_FILE]`` %+ rem latest file extension
-                rem   st "%PREFERRED_LATEST_FILE_NAME%" .and. ("%LFEXT%" != "json" .or. "%LFEXT%" != "txt") (ren /q "%PREFERRED_LATEST_FILE_NAME%" "%PREFERRED_LATEST_FILE_NAME%.%_datetime.777.bak">nul)  %+ rem maintanance warning: if we ever download extensions other than JSON/TXT we need to update this
-                if exist "%PREFERRED_LATEST_FILE_NAME%" .and. ("%LFEXT%" == "json" .or. "%LFEXT%" == "txt") (ren /q "%PREFERRED_LATEST_FILE_NAME%" "%PREFERRED_LATEST_FILE_NAME%.%_datetime.777.bak">nul)  %+ rem maintanance warning: if we ever download extensions other than JSON/TXT we need to update this
+                if exist "%PREFERRED_LATEST_FILE_NAME%" .and. ("%LFEXT%" == "json" .or. "%LFEXT%" == "txt") (ren /q "%PREFERRED_LATEST_FILE_NAME%" "%PREFERRED_LATEST_FILE_NAME%.%_datetime.replaced-by-download.bak">nul)  %+ rem maintanance warning: if we ever download extensions other than JSON/TXT we need to update this
                 rem pause "pause 1"
                 rem echo 🐐 Trace LT1 -- LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
 
@@ -1643,7 +1643,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 echos %ANSI_RESET%
 
         rem We are about to make a TXT file.  If it exists, better back it up first:
-                if exist "%LYRIC_FILE%" (ren /q "%LYRIC_FILE" "%LYRIC_FILE%.%_datetime.888.bak">nul)
+                if exist "%LYRIC_FILE%" (ren /q "%LYRIC_FILE" "%LYRIC_FILE%.%_datetime.replaced-by-lyrics-generated-from-karaoke.bak">nul)
                 rem pause "pause 2"
 
         rem Create TXT file out of the JSON we downloaded, using our Perl postprocessor:
@@ -1764,7 +1764,7 @@ echo goatymccheese answer=“%answer%”, hold_answer_main=“%hold_answer_main%
                                         rem         rem TODO hard-coded wait time:
                                         rem         call askyn "Remove the lyric file? [or %ansi_color_bright_green%A%ansi_color_prompt%pprove it]" no 600 A A:approve_it
                                         rem         if "A" == "%ANSWER%" goto /i have_acceptable_lyrics_now_or_at_the_very_least_are_done
-                                        rem         if "Y" == "%ANSWER%" ren  /q "%LYRIC_FILE%" "%LYRIC_FILE%.%_datetime.999.bak"
+                                        rem         if "Y" == "%ANSWER%" ren  /q "%LYRIC_FILE%" "%LYRIC_FILE%.%_datetime.MAKE_THIS_BE_A_REASON.bak"
                                         rem         set answer=%hold_my_answer_for_me%
                                         rem endiff
                                 endiff                                
@@ -1846,7 +1846,7 @@ rem try again if massaged names exist (that is, if the massaged names are differ
                 goto /i download_with_lyric_downloader_init
         endiff
         :Already_Did_Massaged
-        if exist "%LYRIC_FILE" (ren /q "%LYRIC_FILE" "%LYRIC_FILE%.%_datetime.555.bak">nul)
+        if exist "%LYRIC_FILE" (ren /q "%LYRIC_FILE" "%LYRIC_FILE%.%_datetime.failed-lyric-search.bak">nul)
         rem gosub divider
         rem Continue on... We have failed so far.  (DON’T do this here: goto :end_of_massage_attempt)
         unset /q LD1_MASSAGED_ATTEMPT_1
@@ -2834,15 +2834,24 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                         rem echo 🐐 checking if exist: SIDECAR_LYRICS==“%SIDECAR_LYRICS%”
                         set SIDECAR_LYRICS=%@NAME[%@UNQUOTE["%FILE_TO_MARK_AS_LL%"]].txt
                         set   SIDECAR_JSON=%@NAME[%@UNQUOTE["%FILE_TO_MARK_AS_LL%"]].json
+                        set    SIDECAR_LRC=%@NAME[%@UNQUOTE["%FILE_TO_MARK_AS_LL%"]].lrc
+                        set    SIDECAR_SRT=%@NAME[%@UNQUOTE["%FILE_TO_MARK_AS_LL%"]].srt
                         iff exist "%SIDECAR_LYRICS%" then
                                 rem echo %EMOJI_AXE% %ansi_color_warning_soft%Possibly deleting lyric file of%faint_on%:%faint_off% %ansi_color_pink%“%ansi_color_green%%SIDECAR_LYRICS%%ansi_color_pink%”%ansi_color_normal% %emoji_axe%%ansi_color_removal%
                                 set hold_our_answer_for_now=%answer%
                                 echo sidecar_lyrics/json=%newline%%tab%“%sidecar_lyrics%”%newline%%tab%“%sidecar_json%”
+                                unset /q ANSWER
                                 call AskYn "Delete lyrics & json" yes 180
                                 if "Y" != "%answer"  goto /i :endiff_do_not_delete_2754
-                                        if exist "%SIDECAR_LYRICS%" *del /a: /f  "%SIDECAR_LYRICS%"
-                                        if exist "%SIDECAR_JSON%"   *del /a: /f  "%SIDECAR_JSON%"
+                                        if exist "%SIDECAR_LYRICS%" (echos %AXE%%AXE%%AXE% %+ *del /a: /f  "%SIDECAR_LYRICS%")
+                                        if exist "%SIDECAR_JSON%"   (echos %AXE%%AXE%%AXE% %+ *del /a: /f  "%SIDECAR_JSON%"  )
                                 :endiff_do_not_delete_2754
+                                unset /q ANSWER
+                                call AskYn "Delete lrc & srt" yes 180
+                                if "Y" != "%answer"  goto /i :endiff_do_not_delete_2850
+                                        if exist "%SIDECAR_LRC%"    (echos %AXE%%AXE%%AXE% %+ *del /a: /f  "%SIDECAR_LRC%"   )
+                                        if exist "%SIDECAR_SRT%"    (echos %AXE%%AXE%%AXE% %+ *del /a: /f  "%SIDECAR_SRT%"   )
+                                :endiff_do_not_delete_2850
                                 %color_normal%
                                 echos %ansi_color_normal%
 

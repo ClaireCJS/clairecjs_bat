@@ -9,7 +9,7 @@ rem Get parameters:
 rem Validate environment once:
         iff "1" != "%VALIDATE_APPROVE_LYRICLESSNESS_FOR_FILE%" then
                 call validate-in-path              add-ads-tag-to-file validate-environment-variable validate-is-extension
-                call validate-environment-variable filemask_audio skip_validation_existence
+                if not defined filemask_audio call validate-environment-variable filemask_audio skip_validation_existence
                 set  VALIDATE_APPROVE_LYRICLESSNESS_FOR_FILE=1
         endiff                
         

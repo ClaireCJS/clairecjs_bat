@@ -11,7 +11,7 @@ rem Validate environment:
         iff "1" != "%validated_approve_lyriclessness_4%" then
                 call validate-in-path               get-lyrics-for-file.btm approve-lyriclessness-for-file.bat AskYN warning_soft error fatal_error divider preview-audio-file.bat
                 call validate-environment-variables config_are_you_sure_wait config_are_you_sure_answer  color_advice color_normal italics_on italics_off bat ansi_color_yellow ansi_color_bright_yellow ansi_color_bright_green ansi_color_prompt ansi_color_important star2 faint_on faint_off
-                call validate-environment-variables FILEMASK_AUDIO skip_validation_existence
+                if not defined filemask_audio call validate-environment-variables FILEMASK_AUDIO skip_validation_existence
                 set  validated_approve_lyriclessness_4=1
         endiff
 

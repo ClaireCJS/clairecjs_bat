@@ -83,7 +83,7 @@ rem Get parameters:
 
 
 rem Validate environment once:
-        iff 1 ne %validated_add_ads_tag_to_file% then
+        iff "1" != "%validated_add_ads_tag_to_file%" then
                 call validate-environment-variables  emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off check EMOJI_CROSS_MARK ansi_color_alarm ansi_color_celebration ansi_color_warning_soft EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_RED_QUESTION_MARK ansi_conceal_on ansi_conceal_off
                 call validate-in-path                fatal_error warning warning_soft print-message pause-for-x-seconds
                 call validate-plugin                 StripANSI
