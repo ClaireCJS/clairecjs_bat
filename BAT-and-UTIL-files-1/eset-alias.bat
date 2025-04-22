@@ -44,13 +44,13 @@ rem 💄Purely cosmetic:
 rem ✏Emojify✏ & 🏳‍🌈colorfy🏳 the prompt, and change the cursor⬜ to the largest blinkiest bright yellow🟨 —— to grab user attention:
         echos %EMOJI_PENCIL%%@CURSOR_COLOR[yellow]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%%ANSI_COLOR_PROMPT% ``
 
-rem Clear the keybaord buffer...
-        rem still necessarily even in quick mode, unfortunately: if "%2" != "quick"
-        call clear-buffered-keystrokes %2$
 
 rem 📴Turn ANSI rendering off or things will get crazy:
 rem 🔨Do the actual eset command:
         :actual_eset
+                rem Clear the keybaord buffer...
+                        rem still necessarily even in quick mode, unfortunately: if "%2" != "quick"
+                        call clear-buffered-keystrokes %2$
                 echos %BIG_OFF%
                 if "%2" != "quick" call ansi-off
                 on break set eset_fail=1

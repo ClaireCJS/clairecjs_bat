@@ -222,6 +222,7 @@ foreach $filename (@LINES) {
     if ($filename =~ /\.json$/i)             { $isAudio=1; $cheating_NotReallyAudio=1; }	#rem maybe mark $isVideo=1; too?
     if ($filename =~ /\.log$/i)              { $isAudio=1; $cheating_NotReallyAudio=1; }	#rem maybe mark $isVideo=1; too?
     if ($filename =~ /\.srt$/i)              { $isAudio=1; $cheating_NotReallyAudio=1; }	#rem maybe mark $isVideo=1; too?
+    if ($filename =~ /\.lrc$/i)              { $isAudio=1; $cheating_NotReallyAudio=1; }	#rem maybe mark $isVideo=1; too?
     if ($filename =~ /\.txt$/i)              { $isAudio=1; $cheating_NotReallyAudio=1; }	#rem maybe mark $isVideo=1; too?
 
     if ($filename =~ /\.3gp$/i)              { $isVideo=1; }
@@ -1365,11 +1366,15 @@ foreach $filename (@LINES) {
 	if ($isAudio) {  
 		#DON'T WANT: (64kbps) = (64_bps) 
 		#filename =~ s/([^0-9][0-9][0-9])[^_012346789]([a-z])/$1_$2/i;
+
 		#WANT: "01 name"  into "01_name"
 		$filename =~ s/([^0-9][0-9][0-9])[^_012346789kM]([a-z])/$1_$2/i;
+		
+
 		#WANT: "01. name" into "01_name"
 		$filename =~ s/^([0-9]{1,3})\. (.*)/$1_$2/i;
-		#DEBUG: if ($DEBUG_TRANSFORMATION) { print "\$1=$1,\$2=$2,\$3=$3\n"; }
+
+		#DEBUG: if ($DEBUG_TRANSFORMATION || 1) { print "echo \$1=$1,\$2=$2,\$3=$3\n"; }
 
 		$filename =~ s/O'clock/O'Clock/;
 	}
@@ -1733,7 +1738,7 @@ foreach $filename (@LINES) {
 	$filename =~ s/dd2.0 snd/dd snd/;
 	$filename =~ s/ \(65_x480\) / (655x480) /;			#a rarity to come by
 	$filename =~ s/\(1080([pi])\) \(1920x800\) \(bluray-rip\)/(bluray-rip) (1080$1) (1920x800)/; 
-	$filename =~ s/\(720([pi])\) \(1920x800\) \(bluray-rip\)/(bluray-rip) (1080$1) (1920x800)/; 
+	$filename =~  s/\(720([pi])\) \(1920x800\) \(bluray-rip\)/(bluray-rip) (1080$1) (1920x800)/; 
 	$filename =~ s/11024 *snd/11kHz snd/g;
 	$filename =~ s/22048 *snd/22kHz snd/g;
 	$filename =~ s/ MVI - ([0-9][0-9][0-9][0-9])/ MVI_$1 /i;
@@ -1746,7 +1751,6 @@ foreach $filename (@LINES) {
 	$filename =~ s/\(aac\)(.* snd)/$1 aac snd)/;
 	$filename =~ s/ - Song - / - song - /i;
 	$filename =~ s/ac3 2ch snd/2ch ac3 snd/i;
-	$filename =~ s/11025 snd/11kHz snd/i;
 
 	$filename =~ s/^cats Millionaire/Cats Millionaire/;
 	$filename =~ s/(mono snd.*)(\(mono snd\))/$1/i;

@@ -1,4 +1,3 @@
-#TODO: possibly shorten things like ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 #!/usr/bin/perl
 
 # Lyric postprocessor for AI transcription prompts!
@@ -20,9 +19,10 @@
 
 #HISTORY: forked from “lyric-postprocessor.pl”
 
-########### CONFIGURATION: BEGIN: ###########
-my $ADDED_END_LINE_CHARACTER=".";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online
-########### CONFIGURATION: ^^^END ###########
+########### CONSTANTS: BEGIN: ###########
+my $ADDED_END_LINE_CHARACTER    = ".";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online. Without adding a “phantom period” to the end of each line, WhisperAI’s ‘--sentence’ parameter will not function correclty, and awkward transcriptions are generated where multiple lines of lyrics are one one line of transcriptino
+my $MAX_KARAOKE_WIDTH_MINUS_ONE =  24;					#This system aims for a max width of 25
+########### CONSTANTS: ^^END^ ###########
 
 
 use strict;
@@ -167,7 +167,7 @@ while (<STDIN>) {
 
 		#fix crap like: “ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo”
 		# Use regex to match any character repeated more than 24 times and replace it with 24 of that character
-		$line =~ s/(\w)\1{24,}/$1 x 24/eg;
+		$line =~ s/(\w)\1{24,}/$1 x $MAX_KARAOKE_WIDTH_MINUS_ONE/eg;
 
 
 		#however our environment variables aren’t always set, 
@@ -239,6 +239,7 @@ if ($ONE_LINE) {
 	#very final postprocessing:
     $final_output =~ s/, +$//;		# Remove the last trailing “,” [comma] if it exists
     $final_output =~ s/^\d\.? ?//;  # Remove “1. ”-type stuff at beginning
+	$final_output =~ s/|/ /;		# Remove pipe symbol because of command-line issues it creates and it not being anything we’d ever want in an AI-prompt particularly because it’s invalid on the command line without setdos pre/postfixing
 	#$final_output =~ s/
     print $final_output;
 } else {

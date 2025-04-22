@@ -5,14 +5,14 @@
 :DESCRIPTION: That is: If an MP3/FLAC has a corresponding LRC/SRT but not TXT version, convert the LRC/SRT to TXT.
 
 rem Configuration:
-        set Approve_Generated_Lyrics_CTLFKF=True         %+ rem Whether to run “approve-lyrics.bat” on the output file or not. Set to “False” to prevent auto-approval, but then you might get nagged about every one of these files later, and the real benefit of running this is NOT getting nagged, so best to set to “True” and not “False”
+        set Approve_Generated_Lyrics_CTLFKF=False         %+ rem Whether to run “approve-lyrics.bat” on the output file or not. Set to “False” to prevent auto-approval, but then you might get nagged about every one of these files later, and the real benefit of running this is NOT getting nagged, so best to set to “True” and not “False”
 
 rem Environment preparation:
         if not defined FILEMASK_AUDIO set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
 
 rem Validate environment (once):
         iff 1 ne %validated_CrTxtFrKarFile% then
-                call validate-in-path important_less lrc2txt.bat lrc2txt.py srt2txt.bat srt2txt.py python
+                call validate-in-path important_less lrc2txt.bat lrc2txt.py lrc2txt srt2txt srt2txt.bat srt2txt.py python
                 set  validated_CrTxtFrKarFile=1
         endiff
 

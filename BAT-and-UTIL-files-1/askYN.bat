@@ -8,56 +8,40 @@
 :SIDE-EFFECTS: sets ANSWER to Y or N, and sets DO_IT to 1 (if yes) or 0 (if no)
 :DEPENDENCIES: {see validate-in-path section}
 
-:USAGE: NOTE: Braced    arguments are required,
-:USAGE: NOTE: Bracketed arguments are optional:
-:USAGE:
-:USAGE: call askyn {question} {“yes” or “no” or “None”} [wait_time] [modes of operation] [extra allowable keys] [extra key meanings]
-:USAGE:
-:USAGE: RETURN VALUES: 1) sets %OUR_ANSWER to either “Y” or “N” ..... or one of our additional allowed keystrokes
-:USAGE: RETURN VALUES: 2) sets %DO_IT      to either “1” or “0” (don’t use if using additional allowed keystrokes)
-:USAGE:
-:USAGE: 1ˢᵗ param: the question you want to ask WITHOUT question mark at the end
-:USAGE: 2ⁿᵈ param: the default answer of “yes” or “no” ...or “None” for no default
-:USAGE: 3ʳᵈ param: the wait time in seconds before using the default answer. Use “0” to wait forever.
-:USAGE:
-:USAGE: 4ᵗʰ-6ᵗʰ params: Modes of operation:
-:USAGE:            1) can be   “big”     to make it a double-height question
-:USAGE:            2) can be “no_title”  if you don’t want the window title changed while asking
-:USAGE:            3) can be “no_enter”  if you don’t want the ENTER key to select the default option
-:USAGE:            4) can be “invisible” if you want the whole thing to be invisible
-:USAGE:
-:USAGE: Next (5ᵗʰ/6ᵗʰ/7ᵗʰ++) params: a list of additional keystrokes allowed:
-:USAGE:                      For example: To allow Y or N:           AskYn "Ovewrite file" no 0
-:USAGE:                      For example: To allow Y or N or A or R: AskYn "Ovewrite file" no 0 AR
-:USAGE:
-:USAGE: Next parameters: An optional list of additional letter meanings for any additional keystrokes allowed:
-:USAGE:                  EXAMPLE: To give letter meanings for A and R: AskYn "Overwrite file" no 0 AR A:Abort,R:Retry
-:USAGE:                           Note that underscores in the meanings are converted to spaces
-:USAGE:
-:USAGE: GENERAL EXAMPLE #1: call AskYN "Do you want to" yes
-:USAGE: GENERAL EXAMPLE #2: call AskYN "Do you want to" yes 30
-:USAGE: GENERAL EXAMPLE #3: call AskYN "Do you want to" no  30 big MN N:Not_Sure,M:Maybe_I_Do
-:USAGE:
-:USAGE: TO RUN TEST SUITE: call AskYn test
-:USAGE:
+
 
 rem Validate environment once:
         iff "1" != "%VALIDATED_ASKYN%" then
+                call validate-in-path               echos echoerr echoserr print-if-debug important.bat fatal_error.bat warning.bat repeat if set 
                 call validate-plugin                stripansi
-                call validate-in-path               echos echoerr echoserr print-if-debug important.bat fatal_error.bat warning.bat repeat if set color_alarm_hex color_success_hex
-                call validate-functions             ansi_cursor_change_color_word cursor_color_by_hex ansi_move_up ansi_move_left
-                call validate-environment-variables cursor_reset ansi_colors_have_been_set
-
+                call validate-functions             ansi_cursor_change_color_word cursor_color_by_hex ansi_move_up ansi_move_left 
+                call validate-environment-variables cursor_reset ansi_colors_have_been_set up_arrow ansi_color_pink ansi_color_orange color_alarm_hex color_success_hex dash
                 set VALIDATED_ASKYN=1
         endiff
 
+
+rem Configuration:
+        set BASE_ALLOWABLE_KEYS=yn
 
 rem Set default flags:                                                                    
         set RUNNING_TESTS=0
         SET WAIT_TIMER_ACTIVE=0
         set WAIT_OPS=
+        set INVISIBLE_MODE=0
+        set   NO_ENTER_KEY=0
+        set   BIG_QUESTION=0
+        set        NOTITLE=0
         unset /q last_key_meaning_* 
 
+
+rem Are we in testing mode?
+        iff "%1" == "test" then
+                set RUNNING_TESTS=1
+                shift
+                goto /i test_suite
+        else        
+                set RUNNING_TESTS=0
+        endiff        
 
 rem Get positional required parameters:
         iff defined AskYN_question then
@@ -68,27 +52,22 @@ rem Get positional required parameters:
                 shift
         endiff
 
-rem Are we in testing mode?
-        iff "%1" == "test" then
-                set RUNNING_TESTS=1
-        else        
-                set RUNNING_TESTS=0
-        endiff        
+rem What is the default answer? If it is “0” or “None” then we don’t have an enter key or a defult answer:
+        set DEFAULT_ANSWER=%1 
+        if  "%DEFAULT_ANSWER%" == "None" set NO_ENTER_KEY=1
+        iff "%DEFAULT_ANSWER%" == "0" then 
+                set NO_ENTER_KEY=1
+                set DEFAULT_ANSWER=None
+                unset /q BASE_ALLOWABLE_KEYS
+        endiff
+        shift
 
-        set DEFAULT_ANSWER=%1 %+ shift
-        set WAIT_TIME=%1      %+ shift
-
-
-rem Wait mode given, not given, or “0” which means “infinity":
+rem What is the wait time? Is it infinite (“0”)?
+        set WAIT_TIME=%1      
         if "%WAIT_TIME%" != "" .and. "%WAIT_TIME%" != "NULL" .and. "%WAIT_TIME%" != "0" (set WAIT_OPS=/T /W%wait_time% %+ set WAIT_TIMER_ACTIVE=1)
-        
+        shift
 
-rem Get non-positional parameters:
-        :initialize_params
-                set INVISIBLE_MODE=0
-                set   NO_ENTER_KEY=0
-                set   BIG_QUESTION=0
-                set        NOTITLE=0
+rem Get non-positional parameters [flags were initialized to 0 above]:
         :grab_next_param
                 rem echo - DEBUG: `%1$` is: %1$, 1=%1 %+ pause
                 if "%1" == "" (goto :done_grabbing_params)
@@ -138,7 +117,7 @@ iff "%ASK_QUESTION%" == "" .or. "%ASK_QUESTION%" == "help" .or. "%ASK_QUESTION%"
                 echoerr USAGE:                
                 rem echoerr USAGE: You did this: %ansi_color_warning_soft%%0 %*%ansi_color_advice%
                 echoserr USAGE: %ansi_color_bright_yellow%call askyn ``
-                echoserr %ansi_color_orange%{%ansi_color_yellow%%italics_on%%ansi_color_magenta%question%italics_off%%ansi_color_orange%} %ansi_color_orange%{“%ansi_color_bright_yellow%yes%ansi_color_orange%” %italics_on%%ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%”%ansi_color_magneta%%italics_on% %ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%”%ansi_color_yellow%%ansi_color_orange%}                
+                echoserr %ansi_color_orange%{%ansi_color_yellow%%italics_on%%ansi_color_magenta%question%italics_off%%ansi_color_orange%} %ansi_color_orange%{“%ansi_color_bright_yellow%yes%ansi_color_orange%” %italics_on%%ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%”%ansi_color_magneta%%italics_on% %ansi_color_yellow%or%italics_off% %ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%”%ansi_color_yellow% or %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%”%ansi_color_yellow%%ansi_color_orange%}                
                 echoserr  %ansi_color_orange%[%ansi_color_yellow%%italics_on%%ansi_color_magenta%wait_time%ansi_color_orange%%italics_off%] 
                 rem echoerrs  %ansi_color_orange%[%ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange% 
                 rem echoerrs  %ansi_color_yellow%%italics_on%or%italics_off% %ansi_color_orange%“%ansi_color_bright_bright_yellow%notitle%ansi_color_orange%%ansi_color_yellow%%italics_off%%ansi_color_orange%”]
@@ -147,30 +126,48 @@ iff "%ASK_QUESTION%" == "" .or. "%ASK_QUESTION%" == "help" .or. "%ASK_QUESTION%"
                 echoserr  %ansi_color_orange%[%italics_on%%ansi_color_magenta%extra key meanings%italics_off%%italics_off%%ansi_color_orange%]%ansi_color_advice%
                 echoerr.
                 echoerr USAGE: 
-                echoerr USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%1) sets %ansi_color_yellow%%italics_on%`%`OUR_ANSWER%italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%Y%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%N%ansi_color_orange%”%ansi_color_advice% ..... or one of our additional allowed keystrokes
-                echoerr USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%2) sets %ansi_color_yellow%%italics_on%`%`DO_IT     %italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%1%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%”%ansi_color_advice% (don’t use if using additional allowed keystrokes)
+                echoerr USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%1) sets %ansi_color_yellow%%italics_on%`%`ANSWER%italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%Y%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%N%ansi_color_orange%”%ansi_color_advice% ..... or one of our additional allowed keystrokes
+                echoerr USAGE: %ansi_color_orange%RETURN VALUES: %ansi_color_advice%2) sets %ansi_color_yellow%%italics_on%`%`DO_IT %italics_off%%ansi_color_advice% to either %ansi_color_orange%“%ansi_color_bright_yellow%1%ansi_color_orange%”%ansi_color_advice% or %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%”%ansi_color_advice% (don’t use if using additional allowed keystrokes)
                 echoerr %ANSI_COLOR_ADVICE%USAGE: 
-                echoerr USAGE: %ansi_color_orange%1ˢᵗ param: %ansi_color_magenta%the %ansi_color_yellow%question%ansi_color_magenta% you want to ask %ansi_color_advice%%italics_on%%blink_on%%double_underline_on%WITHOUT%underline_off%%blink_off%%italics_off% question mark at the end%ansi_color_advice%
-                echoerr USAGE: %ansi_color_orange%2ⁿᵈ param: %ansi_color_magenta%the %ansi_color_yellow%default answer%ansi_color_magenta% of %ansi_color_orange%“%ansi_color_bright_yellow%yes%ansi_color_orange%” %ansi_color_magenta%or %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%” %ansi_color_magenta%...or %ansi_color_orange%%ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%” %ansi_color_magenta%for no default%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%1ˢᵗ param: %ansi_color_magenta%the %ansi_color_yellow%question%ansi_color_magenta% you want to ask %ansi_color_advice%%italics_on%%blink_on%%double_underline_on%%ansi_color_magenta%WITHOUT%underline_off%%blink_off%%italics_off% question mark at the end%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%2ⁿᵈ param: %ansi_color_magenta%the %ansi_color_yellow%default answer%ansi_color_magenta% of %ansi_color_orange%“%ansi_color_bright_yellow%yes%ansi_color_orange%” %ansi_color_magenta%or %ansi_color_orange%“%ansi_color_bright_yellow%no%ansi_color_orange%” %ansi_color_magenta%...or %ansi_color_orange%%ansi_color_orange%“%ansi_color_bright_yellow%None%ansi_color_orange%” %ansi_color_magenta%for no default%ansi_color_magenta% .... or %ansi_color_orange%%ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%” %ansi_color_magenta%to not even have %ansi_color_bright_yellow%Y%ansi_color_advice%/%ansi_color_bright_yellow%N%ansi_color_magenta% as options%ansi_color_advice%
                 echoerr USAGE: %ansi_color_orange%3ʳᵈ param: %ansi_color_magenta%the %ansi_color_yellow%wait time in seconds%ansi_color_magenta% before using the %ansi_color_yellow%default answer%ansi_color_advice%. Use %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%” %ansi_color_advice%to wait forever.
                 echoerr USAGE: 
                 echoerr USAGE: %ansi_color_orange%4ᵗʰ-6ᵗʰ params: %ansi_color_magenta%Modes of operation:%ansi_color_advice%
                 echoerr USAGE:            %ansi_color_advice%1) can be:       %ansi_color_orange%“%ansi_color_bright_yellow%big%ansi_color_orange%” %ansi_color_advice%to make it a %ansi_color_yellow%double-height %ansi_color_advice%question%ansi_color_advice%
                 echoerr USAGE:            %ansi_color_advice%2) can be: %ansi_color_orange% “%ansi_color_bright_yellow%no_title%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%window title%underline_off%%ansi_color_advice% changed while asking%ansi_color_advice%
-                echoerr USAGE:            %ansi_color_advice%3) can be: %ansi_color_orange% “%ansi_color_bright_yellow%no_enter%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%%double_underline_on%%italics_on%ENTER%italics_off%%underline_off%%ansi_color_advice% key to select the default option%ansi_color_advice%
-                echoerr USAGE:            %ansi_color_advice%4) can be: %ansi_color_orange%“%ansi_color_bright_yellow%invisible%ansi_color_orange%” %ansi_color_advice%if you %ZZZZZZZZZZZZZ%%ansi_color_yellow%%double_underline_on%%italics_on%don’t%italics_off%%underline_off%%ansi_color_advice% want any display at all —— an invisible prompt%ansi_color_advice%
+                echoerr USAGE:            %ansi_color_advice%3) can be: %ansi_color_orange%“%ansi_color_bright_yellow%invisible%ansi_color_orange%” %ansi_color_advice%if you %ZZZZZZZZZZZZZ%%ansi_color_yellow%%double_underline_on%%italics_on%don’t%italics_off%%underline_off%%ansi_color_advice% want any display at all —— an invisible prompt%ansi_color_advice%
+                echoerr USAGE:            %ansi_color_advice%4) can be: %ansi_color_orange% “%ansi_color_bright_yellow%no_enter%ansi_color_orange%” %ansi_color_advice%if you don’t want the %ansi_color_yellow%%double_underline_on%%italics_on%ENTER%italics_off%%underline_off%%ansi_color_advice% key to select the default option%ansi_color_advice%
+                echoerr USAGE:            %ansi_color_advice%                       ....which can also be achieved by setting the %italics_on%2ⁿᵈ%italics_off% parameter to %ansi_color_orange%“%ansi_color_bright_yellow%0%ansi_color_orange%”%ansi_color_advice%
                 echoerr USAGE: 
-                echoerr USAGE: %ansi_color_orange%Next (5ᵗʰ/6ᵗʰ/7ᵗʰ++) params: %ansi_color_magenta%a list of %ansi_color_yellow%additional keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%Next (5ᵗʰ/6ᵗʰ/7ᵗʰ++) params: %ansi_color_magenta%A list of %ansi_color_yellow%%italics_on%additional%italics_off% keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
                 echoerr USAGE:                      For example: To allow %ansi_color_bright_yellow%Y%ansi_color_advice% or %ansi_color_bright_yellow%N%ansi_color_advice%:           %ansi_color_bright_yellow%AskYn "Ovewrite file" no 0%ansi_color_advice% 
                 echoerr USAGE:                      For example: To allow %ansi_color_bright_yellow%Y%ansi_color_advice% or %ansi_color_bright_yellow%N%ansi_color_advice% or %ansi_color_bright_yellow%A%ansi_color_advice% or %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Ovewrite file" no 0 %double_underline_on%AR%underline_off%%ansi_color_advice% 
                 echoerr USAGE:              
-                echoerr USAGE: %ansi_color_orange%Next parameters: %ansi_color_magenta%An optional list of %ansi_color_yellow%additional letter meanings%ansi_color_magenta% for any additional keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%Next parameters: %ansi_color_magenta%An optional list of %ansi_color_yellow%%italics_on%additional%italics_off% letter meanings%ansi_color_magenta% for any %italics_on%additional%italics_off% keystrokes allowed%ansi_color_magenta%:%ansi_color_advice%
                 echoerr USAGE:                  EXAMPLE: To give %ansi_color_yellow%letter meanings%ansi_color_advice% for %ansi_color_bright_yellow%A%ansi_color_advice% and %ansi_color_bright_yellow%R%ansi_color_advice%: %ansi_color_bright_yellow%AskYn "Overwite file" no 0 AR %double_underline_on%A:Abort,R:Retry%underline_off%%ansi_color_advice%
-                echoerr USAGE:                           Note that %ialics_on%underscores%ialics_off% in the meanings are converted to %ialics_on%spaces %ialics_off%
+                echoerr USAGE:                              Note that %ansi_color_pink%%italics_on%underscores%italics_off%%ansi_color_advice% in the meanings are converted to %ansi_color_pink%%italics_on%spaces%italics_off%%ansi_color_advice%, 
+                echoerr USAGE:                               and that %ansi_color_pink%%italics_on%commas%italics_off%%ansi_color_advice% can’t be used because they are the delimiter%italics_off%
                 echoerr USAGE:
-                echoerr USAGE: %ansi_color_orange%GENERAL EXAMPLE #1: %ansi_color_bright_yellow%call AskYN "Do you want to" yes %ansi_color_advice%
-                echoerr USAGE: %ansi_color_orange%GENERAL EXAMPLE #2: %ansi_color_bright_yellow%call AskYN "Do you want to" yes 30%ansi_color_advice%
-                echoerr USAGE: %ansi_color_orange%GENERAL EXAMPLE #3: %ansi_color_bright_yellow%call AskYN "Do you want to" no  30 big MN N:Not_Sure,M:Maybe_I_Do%ansi_color_advice%
+                echoerr USAGE:
+                echoerr USAGE: %ansi_color_orange%GENERAL EXAMPLE #1: %ansi_color_bright_yellow%call AskYN "Do you want to"  yes %ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%                    %up_arrow% %up_arrow%  ask a %ansi_color_yellow%“%ansi_color_bright_yellow%Y%ansi_color_yellow%”%ansi_color_orange%/%ansi_color_yellow%“%ansi_color_bright_yellow%N%ansi_color_yellow%”%ansi_color_orange%-%italics_on%only%italics_off% question, %ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%                         with the %ansi_color_yellow%ENTER%ansi_color_orange% key %italics_on%defaulting%italics_off% to %ansi_color_yellow%“%ansi_color_bright_yellow%Yes%ansi_color_yellow%”%ansi_color_advice%%ansi_color_advice%
+                echoerr USAGE:
+                echoerr USAGE: %ansi_color_orange%GENERAL EXAMPLE #2: %ansi_color_bright_yellow%call AskYN "Do you want to"   no 30%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%                    %up_arrow% %up_arrow%  ask a %ansi_color_yellow%“%ansi_color_bright_yellow%Y%ansi_color_yellow%”%ansi_color_orange%/%ansi_color_yellow%“%ansi_color_bright_yellow%N%ansi_color_yellow%”%ansi_color_orange%-%italics_on%only%italics_off% question, %ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%                         with the %ansi_color_yellow%ENTER%ansi_color_orange% key %italics_on%defaulting%italics_off% to %ansi_color_yellow%“%ansi_color_bright_yellow%No%ansi_color_yellow%”%ansi_color_advice%,
+                echoerr USAGE: %ansi_color_orange%                         %ansi_color_orange%and %ansi_color_yellow%“%ansi_color_bright_yellow%No%ansi_color_yellow%”%ansi_color_orange% becoming the answer %italics_on%automatically%italics_off% after %underline_on%30 seconds%underline_off%%ansi_color_advice%
+                echoerr USAGE:
+                echoerr USAGE: %ansi_color_orange%GENERAL EXAMPLE #3: %ansi_color_bright_yellow%call AskYN "Do you want to" None  0 big ME M:Maybe_I_Do,E:nEvermind%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%                    %up_arrow% %up_arrow%  ask, %italics_on%with%italics_off% %ansi_color_yellow%“%ansi_color_bright_yellow%Y%ansi_color_yellow%”%ansi_color_orange%/%ansi_color_yellow%“%ansi_color_bright_yellow%N%ansi_color_yellow%”%ansi_color_orange%%ansi_color_orange%/%ansi_color_yellow%“%ansi_color_bright_yellow%M%ansi_color_yellow%”%ansi_color_orange%%ansi_color_orange%/%ansi_color_yellow%“%ansi_color_bright_yellow%E%ansi_color_yellow%”%ansi_color_orange% as the available answers, %ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%                         %italics_on%no%italics_off% default for the %ansi_color_yellow%ENTER%ansi_color_orange% key, in a %italics_on%double-height%italics_off% font,%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%                         waiting %italics_on%forever%italics_off% for an answer%ansi_color_advice% 
+                echoerr USAGE: %ansi_color_orange%                         %ansi_color_purple%(timeout values don’t make sense in this situation, as there is no default answer)
+                echoerr USAGE:
+                echoerr USAGE: %ansi_color_orange%GENERAL EXAMPLE #4: %ansi_color_bright_yellow%call AskYN "Which option"      0  0 12 1:option_1,2:option_2%ansi_color_advice%
+                echoerr USAGE: %ansi_color_orange%                    %up_arrow% %up_arrow%  ask, %italics_on%without%italics_off% %ansi_color_yellow%“%ansi_color_bright_yellow%Y%ansi_color_yellow%”%ansi_color_orange% or %ansi_color_yellow%“%ansi_color_bright_yellow%N%ansi_color_yellow%”%ansi_color_orange% as options, waiting forever for a %ansi_color_yellow%“%ansi_color_bright_yellow%1%ansi_color_yellow%”%ansi_color_orange% or %ansi_color_yellow%“%ansi_color_bright_yellow%2%ansi_color_yellow%”%ansi_color_orange%%ansi_color_advice%
+                echoerr USAGE:
                 echoerr USAGE: 
                 echoerr USAGE: %ansi_color_orange%TO RUN TEST SUITE: %ansi_color_bright_yellow%call AskYn test%ansi_color_advice%
                 echoerr USAGE: 
@@ -182,31 +179,33 @@ endiff
 
 
 REM Test suite special case, including testing for the facts that higher timer values are wider timers which affect answer character placement:
-        if 1 ne %RUNNING_TESTS goto :Not_A_Test
+        :test_suite
+        if "1" != "%RUNNING_TESTS" goto :Not_A_Test
                 cls
                 call important "About to do %0 test suite"
                 echo ———————————————————————————————————————————————————————————————————
+                call AskYN "Generic TIMED question defaulting to  no with extra allowable keys"      no   9999 
+                call AskYN "Generic question without a default answers"   None     0   ABCD A:Apple,B:Banana,C:Carrot,D:Durian
                 call AskYN         "  Big question defaulting to  no d:0"  no      0 big
                 call AskYN         "  Big question defaulting to yes d:0" yes      0 big
-                call AskYN         "Timed question defaulting to  no d:1"  no      9 big
-                call AskYN         "Timed question defaulting to yes d:1" yes      9 big
-                call AskYN         "TIMED question defaulting to  no d:2"  no     99 big
-                call AskYN         "TIMED question defaulting to yes d:2" yes     99 big
-                call AskYN         "TIMED question defaulting to  no d:3"  no    999 big
-                call AskYN         "TIMED question defaulting to yes d:3" yes    999 big
-                call AskYN         "TIMED question defaulting to  no d:4"  no   9999 big
-                call AskYN         "TIMED question defaulting to yes d:4" yes   9999 big
-                call AskYN         "TIMED question defaulting to  no d:5"  no  99999 big
-                call AskYN         "TIMED question defaulting to yes d:5" yes  99999 big
-                call AskYN         "TIMED question defaulting to  no d:6"  no 999999 big
-                call AskYN         "TIMED question defaulting to yes d:6" yes 999999 big
+                call AskYN     "Big Timed question defaulting to  no d:1"  no      9 big
+                call AskYN     "Big Timed question defaulting to yes d:1" yes      9 big
+                call AskYN     "Big TIMED question defaulting to  no d:2"  no     99 big
+                call AskYN     "Big TIMED question defaulting to yes d:2" yes     99 big
+                call AskYN     "Big TIMED question defaulting to  no d:3"  no    999 big
+                call AskYN     "Big TIMED question defaulting to yes d:3" yes    999 big
+                call AskYN     "Big TIMED question defaulting to  no d:4"  no   9999 big
+                call AskYN     "Big TIMED question defaulting to yes d:4" yes   9999 big
+                call AskYN     "Big TIMED question defaulting to  no d:5"  no  99999 big
+                call AskYN     "Big TIMED question defaulting to yes d:5" yes  99999 big
+                call AskYN     "Big TIMED question defaulting to  no d:6"  no 999999 big
+                call AskYN     "Big TIMED question defaulting to yes d:6" yes 999999 big
                 call AskYN "Generic       question defaulting to yes"     yes
                 call AskYN "Generic       question defaulting to  no"      no
                 call AskYN "Generic timed question defaulting to yes"     yes      9
                 call AskYN "Generic timed question defaulting to  no"      no      9
                 call AskYN "Generic TIMED question defaulting to yes"     yes   9999
                 call AskYN "Generic TIMED question defaulting to  no"      no   9999
-                call AskYN "Generic TIMED question defaulting to  no with extra allowable keys"      no   9999  ABCD A:Apple,B:Banana,C:Carrot,D:Durian
                 
                 goto :END
         :Not_A_Test
@@ -229,8 +228,8 @@ rem Set title for waiting-for-answer state:
 REM Parameter validation:
         rem Let’s not dip into all this for something used so often: call validate-environment-variable question skip_validation_existence
         if not defined ask_question (call fatal_error "$0 called without a question being passed as the 1st parameter (also, “yes”/“no” must be 2ⁿᵈ parameter)")
-        iff "%default_answer" != "" .and. "%default_answer%" != "yes" .and. "%default_answer%" != "no" .and. "%default_answer%" != "Y" .and. "%default_answer%" != "N" then
-           call fatal_error "2nd parameter to %0 can only be “yes”, “no”, “y”, or “n” but was “%DEFAULT_ANSWER%”"
+        iff "%default_answer" != "" .and. "%default_answer%" != "yes" .and. "%default_answer%" != "no" .and. "%default_answer%" != "Y" .and. "%default_answer%" != "N" .and. "%default_answer%" != "0" .and. "%default_answer%" != "None" then
+           call fatal_error "2nd parameter to AskYN can only be “yes” or “y”, “no” or “n”, or “None” or “0” %dash% but was “%DEFAULT_ANSWER%”"
            rem TODO expand this to allow other letters if they were passed as available letters
         endiff
         iff "%DEFAULT_ANSWER%" == "" then
@@ -239,14 +238,15 @@ REM Parameter validation:
         endiff
 
 
-REM Parameter massaging:
-        if "%default_answer%" == "Y" (set default_answer=yes)
-        if "%default_answer%" == "N" (set default_answer=no)
+REM Expand default answer:
+        if "%default_answer%" == "Y" (set      default_answer=yes)
+        if "%default_answer%" == "N" (set      default_answer=no)
+        if "%default_answer%" == "0" (unset /q default_answer)
 
 
 REM Which keys will we allow?
-                                    set ALLOWABLE_KEYS=yn%additional_keys%[Enter]
-        if "%NO_ENTER_KEY%" == "1" (set ALLOWABLE_KEYS=yn%additional_keys%)
+                                    set ALLOWABLE_KEYS=%BASE_ALLOWABLE_KEYS%%additional_keys%[Enter]
+        if "%NO_ENTER_KEY%" == "1" (set ALLOWABLE_KEYS=%BASE_ALLOWABLE_KEYS%%additional_keys%)
                                     
 REM Build the question prompt:
         set PRETTY_QUESTION=
@@ -264,20 +264,41 @@ REM Build the question prompt:
                                                            rem set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK%%ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%? %italics_off%%emoji_red_question_mark%%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
                                                            rem 2024/12/24 but why?!?! I don’t like this either .. putting the space back in again haha ... Keep it!!
                                                                set PRETTY_QUESTION=%EMOJI_RED_QUESTION_MARK% %ANSI_COLOR_BRIGHT_RED%%ansi_color_prompt%%ASKYN_DECORATOR%%WIN7DECORATOR%%PRETTY_QUESTION%%ITALICS_ON%%BLINK_ON%%italics_off%%@CHAR[65311]%BLINK_OFF%%ITALICS_OFF%%ANSI_RESET% %@ANSI_FG_RGB[%BRACKET_COLOR][
-        if "%default_answer" == "yes" .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%Y%underline_off%%bold_off%                             %+ rem   capital Y
-        if "%default_answer" == "no"  .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%y%faint_off%                                                                        %+ rem lowercase Y
-                                                               set PRETTY_QUESTION=%pretty_question%%italics_off%%bold_off%%underline_off%%double_underline_off%%@ANSI_FG_RGB[%BRACKET_COLOR]/ %+ rem           slash
-        if "%default_answer" == "yes" .or.  %NO_ENTER_KEY eq 1 set PRETTY_QUESTION=%pretty_question%%faint%n%faint_off%                                                                        %+ rem lowercase N
-        if "%default_answer" == "no"  .and. %NO_ENTER_KEY ne 1 set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%N%underline_off%%bold_off%                             %+ rem   capital N
-                                                rem extra allowable keys go here, with a slash first:
+
+        rem Display “Y/N/” answers only if those keys are allowed:
+                iff "" != "%BASE_ALLOWABLE_KEYS%" then
+                        rem Display “Y/”:
+                                if "%default_answer" == "yes" .and. "%NO_ENTER_KEY%" != "1" set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%Y%underline_off%%bold_off%                             %+ rem   capital Y
+                                if "%default_answer" == "no"  .or.  "%NO_ENTER_KEY%" == "1" set PRETTY_QUESTION=%pretty_question%%faint%y%faint_off%                                                                        %+ rem lowercase Y
+                                                                                            set PRETTY_QUESTION=%pretty_question%%italics_off%%bold_off%%underline_off%%double_underline_off%%@ANSI_FG_RGB[%BRACKET_COLOR]/ %+ rem           slash
+                        rem Display “N”
+                                if "%default_answer" == "yes" .or.  "%NO_ENTER_KEY%" == "1" set PRETTY_QUESTION=%pretty_question%%faint%n%faint_off%                                                                        %+ rem lowercase N
+                                if "%default_answer" == "no"  .and. "%NO_ENTER_KEY%" != "1" set PRETTY_QUESTION=%pretty_question%%bold%%underline%%ANSI_COLOR_PROMPT%N%underline_off%%bold_off%                             %+ rem   capital N
+                        rem Default value for whether we display a slash before our additional allowable keys:
+                                set suppress_first_slash=0
+                else
+                        rem Non-default value for whether we display a slash before our additional allowable keys, which is suppressed in this situatoin:
+                                set suppress_first_slash=1
+                endiff
+
+        rem Display extra allowable keys:
+                                                        rem extra allowable keys go here, with a slash first unless we suppressed it:
+                                                       set first_slash_encountered=0
                                                         set  spread=%@ReReplace[(.),\1 ,%additional_keys%]
                                                         for %%tmpKey in (%spread%) do gosub tmp_key_sub
                                                         goto :skip_sub_2903409243
                                                                                 :tmp_key_sub []
-                                                                                       rem PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%@LOWER[%tmpKey%]%faint_off%
-                                                                                       set PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%@UPPER[%tmpKey%]%faint_off%
-                                                                                       set      key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
-                                                                                       set last_key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
+                                                                                        rem PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]/%faint_on%%@LOWER[%tmpKey%]%faint_off%
+                                                                                        set PRETTY_QUESTION=%PRETTY_QUESTION%%@ANSI_FG_RGB[%BRACKET_COLOR]
+                                                                                        iff "1" == "%suppress_first_slash%" .and. "0" == "%first_slash_encountered%" then
+                                                                                                rem Supress the 1ˢᵗ slash if we’ve been told to
+                                                                                        else
+                                                                                                set PRETTY_QUESTION=%PRETTY_QUESTION%/
+                                                                                        endiff
+                                                                                        set PRETTY_QUESTION=%PRETTY_QUESTION%%faint_on%%@UPPER[%tmpKey%]%faint_off%
+                                                                                        set      key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
+                                                                                        set last_key_meaning_%tmpKey=%[key_meaning_%tmpkey%] 
+                                                                                        set first_slash_encountered=1
                                                                                 return
                                                         :skip_sub_2903409243
                                                        set PRETTY_QUESTION=%pretty_question%%@ANSI_FG_RGB[%BRACKET_COLOR]]%EMOJI_RED_QUESTION_MARK%                                    %+ rem right bracket + ❓

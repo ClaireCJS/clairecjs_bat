@@ -7,7 +7,7 @@ NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR = 19                          
 DEFAULT_ROW_PADDING                               = 7                             # SUGGESTED: 7. Number of rows to subtract from screen height as desired maximum output height before adding columns. May not currently do anything.
 content_ansi                                      =  "\033[0m"
 divider_ansi                                      =  "\033[38;2;187;187;0m"
-#content_ansi                                     =  "\033[42m\033[31m" 
+#content_ansi                                     =  "\033[42m\033[31m"
 divider                                           = f"  {divider_ansi}" + "│" + f"  {content_ansi}"  # Divider with #BBBB00 color and additional padding
 
 #TODO: deal with situation of lines that are sooo long that we'd really have to wrap them to fit? or is this fine?
@@ -89,7 +89,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Display STDIN in a compact, multi-column format.")
 
     # Optional positional argument for the filename
-    parser.add_argument('optional_filename'                        , nargs='?', type=str,  help="Optional filename to process. If not provided, input is from STDIN.")                                                                                   
+    parser.add_argument('optional_filename'                        , nargs='?', type=str,  help="Optional filename to process. If not provided, input is from STDIN.")
     parser.add_argument( '-w', '--width'                           , type=int,             help="Override output width to something other than console width")
     parser.add_argument('-cw', '--console_width'                   , type=int,             help="Override detected console width")
     parser.add_argument( '-c', '--columns'                         , type=int,             help="Override number of columns calculation")
@@ -117,7 +117,7 @@ ANSI_ESCAPE = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~]|\][^\x07]*\x07|P
 def strip_ansi(text):
     """
     Strip ANSI escape codes
-    
+
     Requires global var ANSI_ESCAPE as the compiled regex to remove all codes
     Suggested value: ANSI_ESCAPE = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~]|\][^\x07]*\x07|P[^\\]*\\)')
 
@@ -139,7 +139,7 @@ def wcsarraywidth(strings, mode="total", division_mode="integer"):
 
     Parameters:
         strings (list of str): Array of strings to measure.
-        mode (str): 
+        mode (str):
             "total"   - Sum the widths of all strings.
             "max"     - Return the width of the widest string.
             "average" - Return the average width of all strings.
@@ -159,8 +159,8 @@ def wcsarraywidth(strings, mode="total", division_mode="integer"):
         else                         : retval = sum(widths) /  len(widths)  # Use float   division to get a whole number
     else:
         raise ValueError("Invalid mode. Use 'total', 'max', or 'average'/'avg'.")
-    if VERBOSE: print(f"🔰 wcsarraywidth returning retval={retval}")        
-    return retval        
+    if VERBOSE: print(f"🔰 wcsarraywidth returning retval={retval}")
+    return retval
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
 
@@ -186,16 +186,16 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
     Determine the optimal number of columns based on console width and desired max height.
     Starts with the maximum possible columns and decreases until a fit is found.
     """
-    
+
     #default to 1 col if no lines
-    if not lines:                                                                   
+    if not lines:
         print(f"⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ No lines❓❓❓ ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠")
-        return 1  
+        return 1
 
     #ensure global var has been calculated
-    if avg_line_width == 0: avg_line_width = 1      
+    if avg_line_width == 0: avg_line_width = 1
     if not avg_line_width and avg_line_width !=  0: print(f"⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ Why is avg_line_width == '{avg_line_width}' ???? ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠")
-    elif   VERBOSE                                : print(f"Avg line width: {avg_line_width}")                                   
+    elif   VERBOSE                                : print(f"Avg line width: {avg_line_width}")
 
     #get max line length
     max_line_length = max(wcsarraywidth(line) for line in lines)
@@ -224,16 +224,16 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
 
 
 
-    
+
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 def read_input(wrapping, max_width):
     """
     Read input lines from STDIN and optionally wrap them.
     """
     #input_lines = sys.stdin.read().strip().splitlines()
-    
+
     input_lines=[]
-    
+
 
     # Check if an optional filename is provided and exists
     if args.optional_filename:
@@ -245,10 +245,10 @@ def read_input(wrapping, max_width):
             print(f"❗❗❗❗❗❗ Error: The file “{args.optional_filename}” does not exist. ❗❗❗❗❗❗❗")
             sys.exit(1)  # Exit with error code if file does not exist
     else:
-        # Read from stdin if no filename is provided    
+        # Read from stdin if no filename is provided
         for line in sys.stdin:
             input_lines.append(line)
-    
+
     if not input_lines:
         sys.exit("No input data provided.")
 
@@ -261,7 +261,7 @@ def read_input(wrapping, max_width):
     else:
         return [line.rstrip() for line in input_lines]
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
-    
+
 
 
 
@@ -295,14 +295,14 @@ def format_columns(lines, columns, column_widths, divider):
                 line_parts.append(text.ljust(column_widths[col_index]))
             else:
                 line_parts.append(text)                             # If somehow missing, append without padding
-                
+
         line = divider.join(line_parts)
         INTERNAL_LOG = INTERNAL_LOG + f"🌿🌿🌿🌿🌿 Processed row #️⃣{row_num}:\n\t{line_parts}\n🌿🌿🌿🌿🌿 Into: \n{line}\t🌿🌿🌿is_too_wide={is_too_wide}"
 
         #NTERNAL_LOG = INTERNAL_LOG + f"line_parts={line_parts}\n"
         #dummy__is_to_wide__dummy, internal_log_fragment = log_line_parts_and_process_them_too([line], row, column_widths, "")
         output.append(line)
-        
+
     return output
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
@@ -320,11 +320,11 @@ def distribute_lines_into_columns(lines, columns, rows_per_col):
         end_index = start_index + rows_per_col
         column = lines[start_index:end_index]
         columns_data.append(column)
-        
+
     if VERBOSE:
         print(f"✍ distributed lines into {columns} columns")
         print(f"💥columns_data={columns_data}")
-        
+
     return columns_data
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
@@ -359,7 +359,7 @@ def log_line_parts_and_process_them_too(line_parts, row_num, column_widths, rend
         line_parts (list): List of strings representing parts of a line.
         row_num (int): The current row number.
         column_widths (list): List of column widths.
-        rendered_row: the actual fully rendered version of the row, so we can double-check that we are within proper width parameters    
+        rendered_row: the actual fully rendered version of the row, so we can double-check that we are within proper width parameters
     Returns:
         str: Updated INTERNAL_LOG_LOCAL with the new entries.
     """
@@ -373,26 +373,26 @@ def log_line_parts_and_process_them_too(line_parts, row_num, column_widths, rend
         len2         =   wcswidth(stripped_row)
         if col_num == 1:
             #print(f"INTERNAL_LOG_LOCAL = {INTERNAL_LOG_LOCAL}")
-            tmpstr = f"\n🪓 Row {row_num}:      Length={len2:3} / length2={len2:3} / con width={console_width}\n{rendered_row}\n" 
-            #tmpstr = tmpstr + f"{stripped_row}\n"            
+            tmpstr = f"\n🪓 Row {row_num}:      Length={len2:3} / length2={len2:3} / con width={console_width}\n{rendered_row}\n"
+            #tmpstr = tmpstr + f"{stripped_row}\n"
             INTERNAL_LOG_LOCAL = INTERNAL_LOG_LOCAL + tmpstr
         #NTERNAL_LOG_LOCAL     = INTERNAL_LOG_LOCAL + f"\tColumn {col_num}={col_width} {len     (part):2}  Length: {part.ljust(width)} \n"
         INTERNAL_LOG_LOCAL     = INTERNAL_LOG_LOCAL + f"        ❕ Column {col_num} width={col_width:2} ... part width={part_width:2} \n"
         #GOAT should this be ≥ and not >?
-        if len2 > console_width: 
+        if len2 > console_width:
             too_wide = True
             if VERBOSE: print(f"🪓{columns} columns causes overflow on row {row_num} because len2:{len2} > col_width={console_width}!\n{stripped_row}\n{rendered_row}")
-        if too_wide and not FORCE_COLUMNS: break        
+        if too_wide and not FORCE_COLUMNS: break
     if not too_wide:
             if VERBOSE: print(f"💥   checking if columns={columns} > record_working_column_length={record_working_column_length}")
-            if columns > record_working_column_length: 
+            if columns > record_working_column_length:
                 record_working_column_length = columns
                 if VERBOSE: print(f"💥   record_working_column_length is now {record_working_column_length}")
     if VERBOSE: print(f"🪓   ...Returning: log_line_parts_and_process_them_too return {too_wide}, INTERNAL_LOG_LOCAL\n")
     return too_wide, INTERNAL_LOG_LOCAL
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
-    
-    
+
+
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 def render_columns(columns_data, column_widths, divider):
     """
@@ -402,15 +402,15 @@ def render_columns(columns_data, column_widths, divider):
         columns_data  (list of lists): Distributed lines per column.
         column_widths (list):          Maximum width for each column.
         divider       (str):           The string used to separate columns.
-    
+
     Returns:
         list of strings: Each string represents a formatted row.
     """
-    global VERBOSE, WORD_HIGHLIGHTING    
-    if columns_data: rows_per_col = max(len(col) for col in columns_data)   
+    global VERBOSE, WORD_HIGHLIGHTING
+    if columns_data: rows_per_col = max(len(col) for col in columns_data)
     else:            rows_per_col = 1
     if VERBOSE: print(f"😷😷😷😷😷 Recalculated rows per column as: {rows_per_col}")
-     
+
     stripe=""
     rendered_rows = []
     for row in range(rows_per_col):
@@ -422,7 +422,7 @@ def render_columns(columns_data, column_widths, divider):
             else:
                 part = ""
                 if VERBOSE: print(f'⚠🚫 assigned "" to part ')
-                
+
             # pad "part" into "padded_part"
             current_content_width   = wcswidth(part)
             #print(f"[[[part={part}]]]")
@@ -434,10 +434,10 @@ def render_columns(columns_data, column_widths, divider):
             else:
                 part_to_use         = part
             padded_part             = part_to_use + spacer
-            
+
             # append "padded part" to our row:
             row_parts.append(padded_part)
-            
+
         # Join the rows together with the divider
         rendered_row = divider.join(row_parts)
         rendered_rows.append(rendered_row)
@@ -452,7 +452,7 @@ def render_columns(columns_data, column_widths, divider):
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 def debug_info(columns, width, desired_max_height, console_width, console_height, input_lines, formatted_output):
-    """  
+    """
         Debug function to display layout information
     """
     longest_length=9999999999999
@@ -461,8 +461,8 @@ def debug_info(columns, width, desired_max_height, console_width, console_height
             longest_line = max(formatted_output, key=len)                                             # Use key=len to find the longest line based on length
             longest_length = wcswidth(longest_line)                                                   # how wide is the longest line? [len() won't cut it here due to double-wide chars]
             longest_lines = [line for line in formatted_output if wcswidth(line) == longest_length]   # Find all lines that share the maximum length
-        except ValueError:  
-            longest_line = ''             # This block of code is precautionary; 
+        except ValueError:
+            longest_line = ''             # This block of code is precautionary;
             longest_length = 0            # it shouldn't be reached, since we've
             longest_lines = []            # checked if formatted_output is not empty
 
@@ -530,10 +530,10 @@ def string_to_color(word):
     Convert a string to a deterministic RGB color.
     """
     global NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLO
-    word = word[:NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR]                                            
+    word = word[:NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR]
 
     # strip out characters that we don’t want to modify the color of a word, if it’s in one set and not another. For example, “can’t” and “cant” should be same color:
-    hash_value1 = int(hashlib.sha256(     word    .upper().replace("'","").replace("’","").replace("`","").replace("-","").replace(".","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not   
+    hash_value1 = int(hashlib.sha256(     word    .upper().replace("'","").replace("’","").replace("`","").replace("-","").replace(".","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
     hash_value2 = int(hashlib.sha256(f"bg{word}bg".upper().replace("'","").replace("’","").replace("`","").replace("-","").replace(".","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for background ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
 
     # calculate colors
@@ -615,20 +615,20 @@ def consistent_word_highlight(text):
                 payload = word + "\033[0m"
                 highlighted_text.append(payload)                                        # Reset formatting after the word
                 #print(f"adding payload to striped text: “{payload}”")
-                striped_text.    append(payload)                                       
+                striped_text.    append(payload)
                 in_highlight = False
             else:
-                highlighted_text.append(word)                                           # Just append the word without highlighting            
+                highlighted_text.append(word)                                           # Just append the word without highlighting
             highlighted_text.append(char)                                               # Append the non-word character (punctuation, space, etc.)
             word = ''
-    
+
     if word:                                                                            # Handle the last word if any
         if len(word) >= WORD_HIGHLIGHT_LEN_MIN:                                         # word = word.lstrip("0m")
             if not words_used: words_used =                    word
             else:              words_used = words_used + " " + word
             r, g, b, background = string_to_color(word)
             payload     = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m" + word + "\033[0m"     # Reset formatting after the word
-            stripeload1 = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m" 
+            stripeload1 = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m"
             stripeload2 = word + "\033[0m"     # Reset formatting after the word
             highlighted_text.append(payload)
             striped_text    .append(stripeload1)
@@ -636,7 +636,7 @@ def consistent_word_highlight(text):
         else:                                                                           # word = word.lstrip("0m")
             words_used = words_used + " " + word
             highlighted_text.append(word)
-    
+
     #print (f"🍏 hey striped_text is {striped_text}")
     return ''.join(highlighted_text), striped_text
 # ═════════════════════════════════════════════════════════════════════════════════
@@ -646,7 +646,7 @@ def consistent_word_highlight(text):
 def convert_stretched_stripe(stripe, columns, console_width):
     result = ''
     words = []
-    
+
     # Step 1: Extract the words from the stripe array
     for i in range(0, len(stripe), 2):
         if i + 1 < len(stripe):
@@ -657,13 +657,13 @@ def convert_stretched_stripe(stripe, columns, console_width):
             word_with_reset = split_code_word[1] if len(split_code_word) > 1 else ''
             last_word = word_with_reset.split('\x1b')[0]
             words.append(last_word)
-    
+
     # Step 2: Calculate how many characters need to be added
     total_characters = len(words)
     total_length = sum(1 for word in words if word)  # One letter from each word
-    
+
     extra_spaces = console_width - total_length
-    
+
     # Step 3: Calculate equal padding for each letter
     if total_characters > 0:
         base_padding = extra_spaces // total_characters  # Even padding for each letter
@@ -692,13 +692,13 @@ def convert_stretched_stripe(stripe, columns, console_width):
             last_word       = word_with_reset.split('\x1b')[0]
             if last_word:
                 result += f'{ansi_code}{last_word[0]}' + ' ' * base_padding
-                
+
                 # Distribute remaining padding for last word
                 if remaining_padding   > 0:
                     result            += ' '
                     remaining_padding -= 1
-                
-                result += '\x1b[0m'  # Reset ANSI codes    
+
+                result += '\x1b[0m'  # Reset ANSI codes
     return result
 # ═════════════════════════════════════════════════════════════════════════════════
 
@@ -741,6 +741,7 @@ def main():
     global INTERNAL_LOG, VERBOSE, WRAPPING, STRIPE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, console_width, console_height, columns, avg_line_width, record_working_column_length, ROW_PADDING, DEBUG_VERBOSE_COLUMNS
     our_args = parse_arguments()
     INTERNAL_LOG=""
+    stripester=""
 
     # Try to detect terminal width and height, otherwise use default values
     try:
@@ -749,7 +750,7 @@ def main():
     except Exception:
         console_width, console_height = 666, 69
         INTERNAL_LOG = INTERNAL_LOG + "Unable to detect console size. Using default width=666 and height=69."
-    if VERBOSE: 
+    if VERBOSE:
         INTERNAL_LOG = INTERNAL_LOG + f" —— Detected console  width of {console_width } ——\n"
         INTERNAL_LOG = INTERNAL_LOG + f" —— Detected console height of {console_height} ——\n"
 
@@ -758,26 +759,26 @@ def main():
     WRAPPING    = DEFAULT_WRAPPING
     width = args.width or console_width
     if our_args.row_padding: ROW_PADDING = our_args.row_padding
-    else:                    ROW_PADDING = DEFAULT_ROW_PADDING   
+    else:                    ROW_PADDING = DEFAULT_ROW_PADDING
     if our_args   .wrap:     WRAPPING = True
     if our_args.no_wrap:     WRAPPING = False
     if FORCED_CONSOLE_WIDTH: console_width=our_args.console_width
 
 
-    # read our input data:   
+    # read our input data:
     input_data = read_input(WRAPPING, args.max_line_length_before_wrapping)     # Read and process input lines
-    
+
     # Calculate avg line width
-    avg_line_width = wcsarraywidth(input_data, mode="average")              
+    avg_line_width = wcsarraywidth(input_data, mode="average")
     if args.verbose: print(f"Avg line width: {avg_line_width}")
 
     # Determine the number of columns
-    desired_max_height = console_height - ROW_PADDING                           # total height of output before we *must* attempt wrapping columns [which currently always happens anyway]   
+    desired_max_height = console_height - ROW_PADDING                           # total height of output before we *must* attempt wrapping columns [which currently always happens anyway]
     if our_args.columns:
         if our_args.columns < 1:
             print("Error: Number of columns must be at least 1.")
             sys.exit(1)
-            
+
         columns           = our_args.columns
         joined_input_data = "\n".join(input_data)
         rows_per_col      = ceil(len(joined_input_data) / columns)                  # NOT a situation for wcswidth
@@ -796,6 +797,11 @@ def main():
         meh, stripeamabob = render_columns(columns_data, column_widths, divider)         #print(f"stripeamabob is {stripeamabob}")     #        striperooni       = convert_stripe(stripeamabob,1)                        #print(f"\nstriperooni is:\n{striperooni}\nand looks like this:"); print(striperooni)       #tripester = format_colored_array(striperooni,console_width-1)
         #stripeamabob is ['\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;119;242m\x1b[48;2;20;0;12m', 'secretly\x1b[0m', '\x1b[38;2;242;12;31m\x1b[48;2;13;0;21m', 'smiling\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;234;242m\x1b[48;2;19;5;0m', 'Conversations\x1b[0m', '\x1b[38;2;12;226;242m\x1b[48;2;20;0;19m', 'Russian\x1b[0m', '\x1b[38;2;242;47;12m\x1b[48;2;2;16;0m', 'accent\x1b[0m', '\x1b[38;2;242;89;12m\x1b[48;2;19;0;20m', "that's\x1b[0m", '\x1b[38;2;242;12;242m\x1b[48;2;11;0;21m', 'colored\x1b[0m', '\x1b[38;2;112;12;242m\x1b[48;2;17;9;0m', 'Blanket\x1b[0m', '\x1b[38;2;242;12;24m\x1b[48;2;20;0;18m', 'dinner\x1b[0m', '\x1b[38;2;12;242;108m\x1b[48;2;15;13;0m', 'President\x1b[0m', '\x1b[38;2;73;242;12m\x1b[48;2;4;15;0m', 'Cardboard\x1b[0m', '\x1b[38;2;127;12;242m\x1b[48;2;20;0;16m', 'appliance\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;188;242m\x1b[48;2;1;1;22m', 'flamingos\x1b[0m', '\x1b[38;2;142;12;242m\x1b[48;2;18;8;0m', 'engaging\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;192;242m\x1b[48;2;0;16;6m', 'Listening\x1b[0m', '\x1b[38;2;12;242;12m\x1b[48;2;9;15;0m', 'Captain\x1b[0m', '\x1b[38;2;242;158;12m\x1b[48;2;20;0;15m', 'Beefheart\x1b[0m', '\x1b[38;2;66;242;12m\x1b[48;2;0;14;16m', 'Everyone\x1b[0m', '\x1b[38;2;242;12;35m\x1b[48;2;4;1;21m', 'Mixing\x1b[0m', '\x1b[38;2;12;242;223m\x1b[48;2;0;15;7m', 'pieces\x1b[0m', '\x1b[38;2;12;238;242m\x1b[48;2;0;15;11m', 'different\x1b[0m', '\x1b[38;2;242;135;12m\x1b[48;2;20;3;0m', 'Sleeping\x1b[0m', '\x1b[38;2;89;12;242m\x1b[48;2;13;14;0m', 'bathtub\x1b[0m', '\x1b[38;2;242;89;12m\x1b[48;2;19;0;20m', "that's\x1b[0m", '\x1b[38;2;123;242;12m\x1b[48;2;0;15;6m', 'stored\x1b[0m', '\x1b[38;2;20;242;12m\x1b[48;2;0;15;14m', 'larger\x1b[0m', '\x1b[38;2;242;43;12m\x1b[48;2;20;0;13m', 'version\x1b[0m', '\x1b[38;2;12;192;242m\x1b[48;2;12;14;0m', 'itself\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;104;242m\x1b[48;2;17;9;0m', 'Unbelievably\x1b[0m', '\x1b[38;2;127;242;12m\x1b[48;2;19;0;20m', 'shadow\x1b[0m', '\x1b[38;2;12;204;242m\x1b[48;2;7;1;21m', 'puppets\x1b[0m', '\x1b[38;2;12;242;131m\x1b[48;2;20;0;4m', 'Masterminding\x1b[0m', '\x1b[38;2;242;116;12m\x1b[48;2;5;15;0m', 'scheme\x1b[0m', '\x1b[38;2;242;12;200m\x1b[48;2;0;16;3m', 'stretches\x1b[0m', '\x1b[38;2;242;12;77m\x1b[48;2;7;15;0m', 'around\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;181;12;242m\x1b[48;2;0;9;19m', 'Understanding\x1b[0m', '\x1b[38;2;242;12;200m\x1b[48;2;0;8;19m', 'complicated\x1b[0m', '\x1b[38;2;242;39;12m\x1b[48;2;8;1;21m', 'puzzle\x1b[0m', '\x1b[38;2;234;12;242m\x1b[48;2;0;16;4m', 'Laughing\x1b[0m', '\x1b[38;2;12;242;39m\x1b[48;2;20;0;20m', 'Looking\x1b[0m', '\x1b[38;2;66;12;242m\x1b[48;2;0;16;4m', 'Knowing\x1b[0m', '\x1b[38;2;16;12;242m\x1b[48;2;1;1;22m', 'everything\x1b[0m', '\x1b[38;2;0;16;3m\x1b[48;2;242;150;12m', 'thinking\x1b[0m']
         stripester        = convert_stretched_stripe(stripeamabob,1,console_width-1)     #print(f"\nstripester is:\n{stripester}")
+        if stripester == "": stripester = convert_stretched_stripe(
+            ['\x1b[38;2;4;1;21m\x1b[48;25;25;240;12m', 'NNNNNN\x1b[0m',
+             '\x1b[38;2;4;1;21m\x1b[48;26;250;240;12m', 'UUUUUU\x1b[0m',
+             '\x1b[38;2;4;1;21m\x1b[48;27;25;240;12m', 'LLLLLL\x1b[0m',
+             '\x1b[38;2;4;1;21m\x1b[48;28;25;240;12m', 'LLLLLL\x1b[0m',],1,console_width-1)
         print(stripester)
 
 
@@ -807,61 +813,61 @@ def main():
     while keep_looping:
         is_too_wide = False
         output = ""
-        
-        #calculate # of columns unless we are forcing it:                
+
+        #calculate # of columns unless we are forcing it:
         if not force_num_columns and not FORCE_COLUMNS:
             columns = determine_optimal_columns(input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
         if columns == 0: columns = 1
-        
+
         #rows per column
         rows_per_col = ceil(len(input_data) / columns)                          #NOT a situation for wcswidth
         if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + (f"🚣‍♀️ rows_per_col={rows_per_col}")
-        
+
         #distribute data into columns & calculate the widths of the columns
-        columns_data  = distribute_lines_into_columns(input_data, columns, rows_per_col)              
-        column_widths = calculate_column_widths(columns_data)        
+        columns_data  = distribute_lines_into_columns(input_data, columns, rows_per_col)
+        column_widths = calculate_column_widths(columns_data)
         if VERBOSE: print(f"🔧 🔧 🔧 columns_data is {columns_data}\n☀☀ column widths [re]calculated to: {column_widths}")
-        
+
         #test-render the rows
         rendered_rows, throwaway_stripe = render_columns(columns_data, column_widths, divider)
-        if not rendered_rows:   
+        if not rendered_rows:
             print("⚠⚠⚠ Warning: rendered_rows is empty. Check the rendering function. ⚠⚠⚠")
-        elif VERBOSE:            
+        elif VERBOSE:
             print(f"💯💯 rendered_rows length = {len(rendered_rows)}, column_widths={column_widths}")
 
         if args.verbose: print(f"Column  widths: {    column_widths}")
 
         #if STRIPE: break
 
-        #render the rows repeatedly, decreasing until they fit within the propr width 
-        loopybob = enumerate(rendered_rows, start=1)    
+        #render the rows repeatedly, decreasing until they fit within the propr width
+        loopybob = enumerate(rendered_rows, start=1)
         for row_num, rendered_row in loopybob:
             if VERBOSE: print(f"🏹🏹🏹🏹🏹🍎🍎🍎 processing row_num {row_num}")
             INTERNAL_LOG_FRAGMENT=""
             line_parts = rendered_row.split(divider)                      # Split the rendered row back into parts based on the divider
             line_parts = [part.strip() for part in line_parts]            # Trim any extra spaces
-            
+
             #figure out if this line is too long or not, and create important processing info to log *IF* we keep this rendering:
             is_too_wide, INTERNAL_LOG_FRAGMENT = log_line_parts_and_process_them_too(line_parts, row_num, column_widths, rendered_row)
-            
+
             #if it's too wide, stop bothering to process (unless we are forcing columns):
             if VERBOSE: print(f"🐾🐾 row_num {row_num}... is_too_wide={is_too_wide}")
-            if is_too_wide and not FORCE_COLUMNS and not STRIPE: 
+            if is_too_wide and not FORCE_COLUMNS and not STRIPE:
                 if VERBOSE: print(f"🐾🐾 breaking")
                 break
 
-            #we kept this rendering, so add the important processing info to the log                                                    
+            #we kept this rendering, so add the important processing info to the log
             INTERNAL_LOG = INTERNAL_LOG + INTERNAL_LOG_FRAGMENT
-            
+
             #add our rendered row to our output:
             output += rendered_row.replace("Æ","’") + "\n"                         #mis-encoded apostrpohe fox ... This is very untenable
             #🐱🐱🐱 if VERBOSE: print(f"🤬🤬 row_num {row_num}... is_too_wide={is_too_wide}\n⚙ ⚙ ⚙ OUTPUT SO FAR:\n{BLINK_ON}{COLOR_GREY}{output}{BLINK_OFF}{ANSI_RESET}⚙ ⚙ ⚙ That's it!")
 
             #print("loopybob")
-            if STRIPE: 
+            if STRIPE:
                 #print("breaking")
                 break
-            
+
         #now that we have rendered our row, figure out if we are done or not:
         keep_looping = False                                                       #only keep looking if things required a redo
         force_num_columns = False                                                  #keep track of forced-column mode
@@ -872,12 +878,12 @@ def main():
             if columns == 1: keep_looping = False                                  #if we are down to 1 column, there's no more to check, so stop
             if columns == 0:                                                       #if we are down to 0 columns, go back to 1 and quit
                 columns = 1
-                keep_looping = False                                  
-            if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬 ACTING ON IT ——> columns is now {columns}"       
+                keep_looping = False
+            if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬 ACTING ON IT ——> columns is now {columns}"
         if STRIPE:  keep_looping = False
         if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬🤬🤬 FINAL_COLUMNS ——> columns is now {columns}"   #debug
         #print(F"keep_looping is {keep_looping}")
-       
+
     # Optionally, print the internal log
     if VERBOSE:
         print("\nInternal Log:")
@@ -895,7 +901,7 @@ def main():
         print(f"💿 stripe={STRIPE}")
         print(f"💿 WORD_HIGHLIGHTING={WORD_HIGHLIGHTING}")
         print(f"💿 words_used={words_used}")
-        print(f"💿 stripe={stripester}")
+        print(f"💿 stripester={stripester}")
 
 
 
@@ -912,17 +918,17 @@ def main():
             trimmed_output = remove_trailing_blank_lines(output)           #
             if WORD_HIGHLIGHTING:                                          #
                 highlighted_output = trimmed_output                        #
-                print(highlighted_output, end="")                          # 
+                print(highlighted_output, end="")                          #
             else:                                                          #
                 print(    trimmed_output, end="")                          #
     #══════════════════════════════════════════════════════════════════════#
-    
 
-    
+
+
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     main()

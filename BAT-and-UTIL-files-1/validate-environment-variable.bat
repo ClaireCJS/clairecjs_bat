@@ -1,4 +1,4 @@
-@echo %ansi_reset%%conceal_off%%ansi_color_orange%📞📞📞 “%0 %1$” called by %_PBATCHNAME / %PBATCH2% 📞📞📞%ansi_color_normal%
+@rem @echo %ansi_reset%%conceal_off%%ansi_color_orange%📞📞📞 “%0 %1$” called by %_PBATCHNAME / %PBATCH2% 📞📞📞%ansi_color_normal%
 @loadbtm on
 @Echo off
 @on break cancel
@@ -184,6 +184,7 @@ goto :Past_The_End_Of_The_Subroutines
                                 
                             %COLOR_ALARM%  %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo. %+ rem right after
                             call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%ansi_color_normal%"
+                            eset %varname
 
 
                             rem Optional message as 2nd parameter for validate-environment-variablE  {singular} 
@@ -191,7 +192,8 @@ goto :Past_The_End_Of_The_Subroutines
                                     iff  defined  PARAM2  .and.  not defined  %PARAM2%  then
                                         call warning "%PARAM2"
                                         rem  about to bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!"
-                                        call          bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!"
+                                        call          bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined! ... set it?"
+                                        *eset %PARAM2%
                                         call warning "%PARAM2"
                                     endiff
 

@@ -10,14 +10,16 @@ rem CONFIGURATION:
         set most_songs_from_playlist_to_process_at_a_time=69 %+ rem 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
 
 
+
+
 :DESCRIPTION: Checks for files that are missing *approved* lyric files.
-:USAGE: check-for-missing-lyrics {etc} ————————————————————— checks files in current folder, and displays songs missing lyrics
-:USAGE: check-for-missing-lyrics get {etc} ————————————————— checks files in current folder, and  gets all  the missing lyrics
+:USAGE: check-for-missing-lyrics {etc} ————————————————————— checks files in current folder, and displays a list of songs missing lyrics
+:USAGE: check-for-missing-lyrics get {etc} ————————————————— checks files in current folder, and retrieves/aligns all the missing lyrics
 :USAGE:
-:USAGE: check-for-missing-lyrics playlist.m3u {etc} ———————— checks files in   playlist.m3u, and displays songs missing lyrics
-:USAGE: check-for-missing-lyrics get playlist.m3u {etc} ———— checks files in   playlist.m3u, and  gets all  the missing lyrics
-:USAGE: 
-:USAGE: check-for-missing-lyrics karaoke playlist.m3u {etc} ———— checks files in   playlist.m3u, and  gets all  the missing karaoke
+:USAGE: check-for-missing-lyrics karaoke playlist.m3u {etc} ———— checks files in  playlist.m3u, and retrieves/generates all the missing karaoke/transcriptions
+
+:USAGE: check-for-missing-lyrics playlist.m3u {etc} ———————— checks files in playlist.m3u, and displays a list of songs missing lyrics
+:USAGE: check-for-missing-lyrics get playlist.m3u {etc} ———— checks files in playlist.m3u, and retrieves/aligns all the missing lyrics:USAGE: 
 :USAGE: 
 :USAGE:  ... where {etc} are options that will be passed directly to get-lyrics.bat, such as “genius” or “force”, 
 :USAGE:                  or a number that is the limit of the # of files to find in a playlist search (because that can take time!)
@@ -25,6 +27,7 @@ rem CONFIGURATION:
 
 
 rem Environment variable backups —— these should all already be defined already, but if not, define them here:
+        echos %ANSI_COLOR_NORMAL%
         set original_title=%_TITLE
         rem Are our required filemasks set?
                 iff "1" != "%FILEMASKS_HAVE_BEEN_SET%" then
@@ -51,7 +54,7 @@ rem Environment variable backups —— these should all already be defined alre
 rem Validate environment once per session:
         iff "1" != "%VALIDATED_CFMLB%" then
                 call validate-is-function ANSI_MOVE_UP ANSI_CURSOR_COLOR_BY_WORD                   %+ rem would be more portable to bring these definitions into this file
-                call validate-in-path set-tmpfile get-lyrics.bat get-karaoke.bat perl randomize-file.pl errorlevel pause-for-x-seconds divider beep.bat set-tmp-file.bat status-bar.bat
+                call validate-in-path set-tmpfile get-lyrics.bat get-karaoke.bat perl randomize-file.pl errorlevel pause-for-x-seconds divider beep.bat set-tmp-file.bat status-bar.bat delete-bad-ai-transcriptions
                 set  VALIDATED_CFMLB=1                                                             
         endiff                
 
@@ -72,6 +75,11 @@ rem If we were supplied a filename, process it as a list of files:              
                         set FILELIST_MODE=0
                         set Filelist_to_Check_for_Missing_Lyrics_in=
                         shift
+
+                        rem Kill bad transcriptions first:
+                                if "0" != "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" call delete-bad-ai-transcriptions 3
+                                setdos /x0
+
 
                         iff "%@EXT[%@UNQUOTE["%1"]]" == "m3u" then
                                 rem echo it’s an m3u! limit=%limit%
@@ -138,7 +146,7 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
         
         rem DEBUG: echo tmpfile  is %tmpfile_cfml_1%%newline%tmpfile2 is %tmpfile2% %+ pause
 
-        iff 0 eq %FILELIST_MODE% then 
+        iff "0" == "%FILELIST_MODE%" then 
                 set ENTITY_TO_USE=%FILEMASK_AUDIO%
                 set LIMIT=9999
                 if "%@FILES[%filemask_audio%]" !=  "" set LIMIT=%@EVAL[%@FILES[%filemask_audio%] * 2]  %+ rem doubling it out of pure superstition
@@ -155,14 +163,14 @@ rem Remaining parameter processing: For if we pass a number to set a manual limi
         set next=%1
         shift
         iff "%next%" ne "" then
-                setdos /x-5
+                *setdos /x-5
                         iff "1" == "%@RegEx[^[0-9]+$,%@UNQUOTE["%next%"]]" then
                                 set LIMIT=%next%
                                 shift
                         else
                                 rem Nope...
                         endiff
-                        setdos /x0
+                setdos /x0
         endiff
 
 
@@ -178,7 +186,11 @@ rem Let user know what’s going on:
         endiff
         gosub divider
         echo.
-        call important "Finding %@IF["%limit_to_use%" ne "",%blink_on%%limit%%blink_off% ,]songs with missing %italics_on%%findNature%%italics_off%%IN%"
+
+        rem call important "Finding %@IF["%limit_to_use%" ne "",%blink_on%%limit%%blink_off% ,]songs with missing %italics_on%%findNature%%italics_off%%IN%"
+        set  tmpmsg=Finding %@IF["%limit_to_use%" ne "",%blink_on%%limit%%blink_off% ,]songs with missing %italics_on%%findNature%%italics_off%%IN%
+        title %tmpmsg%
+        call important "%tmpmsg%"
         echo.
 
 
@@ -196,7 +208,7 @@ rem If we are processing a playlist OR a wildcard set of files, look through it 
 rem and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_1:
         set remaining=%limit%
         set limit_reached=0
-        setdos /x-4
+        *setdos /x-4
         for %%CFML_AudioFile in (%ENTITY_TO_USE%) do (
                 gosub process_file "%CFML_AudioFile%" 
                 rem echo NUM_BAD=%NUM_BAD%
@@ -227,7 +239,7 @@ rem If we have reached our limit, stop processing
 
         
 rem Display post-processing statistics:
-        if %num_processed ne 0 goto :num_proc_ne_0
+        if "%num_processed%" != "0" goto :num_proc_ne_0
                 echo.
                 echo.
                 call warning "No files were processed here!" silent
@@ -262,12 +274,12 @@ rem Display post-processing statistics:
         :done_with_displaying_postprocessing_statistics
 
 rem Create the fix-script, if there are any to fix:
-        *setdos /x0
+        setdos /x0
         if "1" !=  "%ANY_BAD%" goto :no_bad_detected                                                      %+ rem We generate a script to find the missing ones, but if and only if some missing ("bad") ones were found
                 set TARGET_SCRIPT=get-the-missing-lyrics-here-temp.bat                                    %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
                 if "%findNature%" eq "karaoke" set TARGET_SCRIPT=get-the-missing-karaoke-here-temp.bat    %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
                 echo @Echo OFF                                          >:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: initialize: turn Echo OFF
-                echo @setdos /x-4                                      >>:u8 "%TARGET_SCRIPT"
+                echo @*setdos /x-4                                      >>:u8 "%TARGET_SCRIPT"
                 rem Rexx says try x-3 here but i’m not so sure
                 rem echo @on break cancel                              >>:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: initialize: make ^C/^Break work better
                 echo.                                                  >>:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: cosmetics:  script starts with a blank line
@@ -277,7 +289,7 @@ rem Create the fix-script, if there are any to fix:
                 rem echo goto :skip_subs                               >>:u8 "%TARGET_SCRIPT"           
                 rem echo         :process [file]                       >>:u8 "%TARGET_SCRIPT"
                 rem echo                 repeat 8  echo.               >>:u8 "%TARGET_SCRIPT"
-                rem echo                 setdos /x-4                   >>:u8 "%TARGET_SCRIPT"
+                rem echo                 *setdos /x-4                   >>:u8 "%TARGET_SCRIPT"
                 rem echo                 echo call get-lyrics %%file%% >>:u8 "%TARGET_SCRIPT"
                 rem echo                 setdos /x0                    >>:u8 "%TARGET_SCRIPT"
                 rem echo                 call  divider                 >>:u8 "%TARGET_SCRIPT"
@@ -287,7 +299,7 @@ rem Create the fix-script, if there are any to fix:
                 echo :END                                              >>:u8 "%TARGET_SCRIPT"
                 
                 rem Run the fix-script, if we have decided to:
-                        *setdos /x0
+                        setdos /x0
                         if "1" == "%GET%" .or. "1" == "%GET_KARAOKE%" goto :fetch_lyrics_begin
                                                                       goto :fetch_lyrics_end
                                 :fetch_lyrics_begin
@@ -334,9 +346,13 @@ rem —————————————————————————�
                                              echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an instrumental:   %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
+                                        iff "1" == "%@RegEx[[\(\[\\]chiptunes?[\)\]\\],%@FULL[%@UNQUOTE[%CFML_AudioFile%]]]" then
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is a chiptune:   %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             return                                
+                                        endiff
                                 rem Reject if the file doesn’t exist at all:                                
                                         iff not exist "%@UNQUOTE["%CFML_AudioFile%"]" then
-                                             echo %ansi_color_yellow% %EMOJI_CROSS_MARK% songfile doesn’t exist:        %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             echo %ansi_color_yellow%%EMOJI_CROSS_MARK% songfile doesn’t exist:        %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return
                                         endiff
                                 rem Reject if the file is one of our trash filenames:
@@ -346,7 +362,7 @@ rem —————————————————————————�
                                         endiff
 
                         rem Get our filenames (pretty messed up what you have to do to get a file like “whatever .mp3” with a space before the extension to work!):
-                                setdos /x-4
+                                *setdos /x-4
                                 rem Unquoted_audio_file filename:
                                         set unquoted_audio_file=%@UNQUOTE[%CFML_AudioFile%]``
 
@@ -471,8 +487,8 @@ rem —————————————————————————�
                                                 setdos /x0
                                                 set remaining=%@EVAL[%remaining - 1]
                                                 set msg=%emoji_gear% Remaining:%italics_on%%@sans_serif[%remaining%]%italics_off% %emoji_gear%
-                                                if 1 ne %DONT_MESS_WITH_MY_STATUS_BAR% call status-bar "%msg%"
-                                                if 0 eq %REMAINING% call status-bar unlock
+                                                if "1" != "%DONT_MESS_WITH_MY_STATUS_BAR%" call status-bar "%msg%"
+                                                if "0" == "%REMAINING%"                    call status-bar unlock
                                                 rem   *pause>nul
                                         
                                         rem Keep track of if/how many bad files there were:
@@ -483,13 +499,13 @@ rem —————————————————————————�
                                         rem Warn of missing lyrics:                                        
                                             rem echos %@ANSI_MOVE_TO_COL[1]%EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%
                                             rem Moved out of function for speedo optimization: set MISSING_FILE_PRE_TEXT=%@ANSI_MOVE_TO_COL[1]%EMOJI_WARNING% %ansi_color_warning_soft%Missing approved lyrics: %EMOJI_WARNING% %ansi_color_bright_purple%%DASH% %ansi_color_magenta%
-                                                      setdos /x-4
+                                                      *setdos /x-4
                                                 echo %MISSING_FILE_PRE_TEXT%%unquoted_audio_file%
                                                       setdos /x0
                                                 
                                         rem Add lyric-retrieval command to our autorun script:
                                               rem echo gosub process "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
-                                              setdos /x-4
+                                              *setdos /x-4
                                               iff 1 eq %GENIUS_ONLY% then
                                                       echo repeat 7 echo. `%`+ if exist "%unquoted_audio_file%" .and. not exist "%@unquote[%@name["%unquoted_audio_file%"]].txt" call %GETTER% "%unquoted_audio_file%" %ETC% `%`+ call  divider >>:u8"%tmpfile_cfml_1%"
                                               else

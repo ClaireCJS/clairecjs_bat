@@ -1,6 +1,6 @@
 @loadbtm on
 @Echo Off
- on break cancel
+rem no...want to be able to break out: on break cancel
 
 :DESCRIPTION: Backup management script to ensure that all repositories are properly backed up
 
@@ -53,6 +53,7 @@ rem BACKUP ALL KNOWN REPOSITORIES:           Note that .bak files will not be ba
 set BACKING_UP_MULTIPLE_REPOSITORIES=1
 %BACKUPREPOSTARTER% call backup-repository NEWCL                                   NEWCL_BACKUP_1
 %BACKUPREPOSTARTER% call backup-repository NEWCL                                   NEWCL_BACKUP_2
+:56
 %BACKUPREPOSTARTER% call backup-repository NEWCAS                                 NEWCAS_BACKUP
 %BACKUPREPOSTARTER% call backup-repository NEWPICTURES                        NEWPICTURESBACKUP
 %BACKUPREPOSTARTER% call backup-repository REVIEWDIR                            REVIEWDIRBACKUP            %+ REM 2022/03/20 - 6.4TB nowhere big enough to copy it :/

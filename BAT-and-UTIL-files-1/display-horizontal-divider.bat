@@ -1,4 +1,4 @@
-@if %_columns eq %LAST_NUM_COLUMNS .and. defined last_divider (echos %last_divider% %+ goto :The_Very_END) %+ rem Quick exit
+@rem @if %_columns eq %LAST_NUM_COLUMNS .and. defined last_divider .and. "%last_divider_cmd_tail%" == "%*" (echos %last_divider% %+ goto :The_Very_END) %+ rem Quick exit
 @Echo OFF
 @on break cancel
 
@@ -7,7 +7,7 @@ setdos /x-5
 rem setdos /c^
 setdos /c%default_command_separator_character%
 setdos /x0
-
+set last_divider_cmd_tail=%*
 
 rem QUICK VERSION:        :divider []
 rem QUICK VERSION:                *type %bat%\dividers\rainbow-%@EVAL[%_columns - 1].txt
@@ -16,7 +16,8 @@ rem QUICK VERSION:        return
 
 
 rem :USAGE: "Divider"      to draw a horizontal divider using the default character repeated
-rem :USAGE: "Divider 50 nonewline"   ^^^^ same as above, but leave us dangling right at the last drawn character; no newline or moving back to column 0
+rem :USAGE: "Divider newline"        ^^^^ same as above, but with a newline echo’ed afterward
+rem :USAGE: "Divider 50 nonewline"   ^^^^ [DEPRECATED USAGE, MAY NOT WORK] same as above, but leave us dangling right at the last drawn character; no newline or moving back to column 0 [DEPRECATED USAGE, MAY NOT WORK]
 rem :USAGE:
 rem :USAGE:
 rem :USAGE: .... Everything else below is likely broken....
@@ -44,6 +45,9 @@ rem CONFIGURATION:
 
 rem quick: type %bat%\dividers\rainbow-%@EVAL[%_columns - 1].txt
 
+rem Did we pass “newline” as an option?
+        set DHD_NEWLINE=0
+        if "%1" == "newline" (set DHD_NEWLINE=1 %+ shift)
 
 
 rem After this script was developed, pre-rendered horizontal dividers were created [for use with top-message.bat]
@@ -211,9 +215,14 @@ rem TCC/Windows Terminal rendering bug that required a lot of ANSI fuddling to d
 :END
 :Done
 
+rem Echo a newline if told:
+        if "1" == "%DHD_NEWLINE%" echo.
+
 rem turn-back-on-file-redirection:
         setdos /x0
         echos %CURSOR_RESET%
+
+
 
 rem experimenting with not resetting this for less cursor-y progress bars: echo %ANSI_INVISIBLE_CURSOR%
 :The_Very_END

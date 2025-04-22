@@ -1,14 +1,10 @@
 @loadbtm on
-@echo off
-@rem MANUALLY save cursor position because the ansi_save_position / restore_position is not sufficient
+@if "%1" == "unlock" .and. "0" == "%STATUSBAR_LOCKED%" goto The_Very_END
+@if  "1" == "%DISABLE_STATUS_BAR%" .or. "1" == "%temporarily_disable_status_bar%" goto The_Very_END
 @set PRE_ROW=%_row
 @set PRE_COL=%_column
-@rem echos [set pre_row/col to:%pre_row%,%pre_col%]
 @if "%1" == "unlock" goto :do_the_unlock
 @set DISABLE_STATUS_BAR=0
-@rem echo %ansi_color_orange%@if "%temporarily_disable_status_bar%" == "1" set DISABLE_STATUS_BAR=1 
-@if "%temporarily_disable_status_bar%" == "1" set DISABLE_STATUS_BAR=1 
-@if "1" == "%DISABLE_STATUS_BAR%" goto :The_Very_End
 @on break cancel
 
 
@@ -71,7 +67,7 @@ rem Respond to command-line parameters:
                 if "%TB_PARAM_1" == "unlock" .or. "%1" == "unlock" .or. "1" == "%DISABLE_STATUS_BAR%" goto :lock_yes
                                                                                                       goto :respond_no
                         :lock_yes
-                                if "1" != "%STATUSBAR_LOCKED%" .and. "%2" != "force" goto :END
+                                if "1" != "%STATUSBAR_LOCKED%" .and. "%2" != "force" goto /i END
                                 echos %big_off%%@ANSI_UNLOCK_ROWS[]
                                 set STATUSBAR_LOCKED=0
                                 if "%TB_PARAM_2" != "no_erase" .and. "1" != "%DISABLE_STATUS_BAR%"  goto :do_it_80
@@ -327,7 +323,6 @@ goto :skip_subroutines
 :skip_subroutines
 
 
-:The_Very_End
 
         :cleanup
                 rem A cleanup we need to do to prevent getting our cursor stuck in the locked area!
@@ -356,13 +351,17 @@ goto :skip_subroutines
 
 
 
-rem MANUALLY restore cursor position because the ansi_save_position / restore_position is not sufficient
-        echos %@ANSI_MOVE_TO[%@EVAL[%pre_row%+1],%pre_col%]
-        set audit_row_when_done_setting_status_bar=%_ROW
-        set audit_col_when_done_setting_status_bar=%_COL
 
-rem 2025/03/16: new method for not getting trapped at the bottom....
-        set max_valid_row_to_be_at=%@EVAL[%_ROWS - %ROWS_TO_LOCK]
-        if %_ROW gt %max_valid_row_to_be_at echos %@ANSI_MOVE_TO_ROW[%max_valid_row_to_be_at]
+rem Fix location after unlock/lock:
+        if "%skip_location_fix%" == "1" goto :skip_location_fix
+                rem MANUALLY restore cursor position because the ansi_save_position / restore_position is not sufficient
+                        echos %@ANSI_MOVE_TO[%@EVAL[%pre_row%+1],%pre_col%]
+                        set audit_row_when_done_setting_status_bar=%_ROW
+                        set audit_col_when_done_setting_status_bar=%_COL
 
+                rem 2025/03/16: new method for not getting trapped at the bottom...should only apply if we actually unlocked it though!
+                        set max_valid_row_to_be_at=%@EVAL[%_ROWS - %ROWS_TO_LOCK]
+                        if %_ROW gt %max_valid_row_to_be_at echos %@ANSI_MOVE_TO_ROW[%max_valid_row_to_be_at]
+        :skip_location_fix
 
+:The_Very_End

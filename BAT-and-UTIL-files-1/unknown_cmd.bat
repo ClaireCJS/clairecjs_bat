@@ -1,6 +1,7 @@
-@*Echo OFF
-@*setdos /x0
 @*loadbtm on
+
+
+@*Echo OFF
 
 *rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 🎛🎛🎛 CONFIGURATION: 🎛🎛🎛 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         *set unknown_command_highlight_color=

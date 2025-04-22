@@ -18,9 +18,9 @@
     if not isdir  %2  goto :NoExistArg2
 	if     isdir  %1  goto :isdir
 	if     exist  %1  goto :isfile
-		:undefined
+        :undefined
             %COLOR_WARNING% %+ echo Behaviour for this parameter is undefined.
-			                   echo So far, this only works on folders. So "%1" would have to be a folder.
+                           echo So far, this only works on folders. So "%1" would have to be a folder.
 		goto :END
         :NoArg2
             call warning "Must pass 2 arguments. 2nd must be destination folder."

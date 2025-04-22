@@ -321,8 +321,8 @@ REM Actually display the message:
                 rem I opened this bug report with Windows Terminal to fix it: 
                 rem https://github.com/microsoft/terminal/issues/17771
                 rem We assemble the double-height lines manually here, without using bigecho.bat, to have the most control over that bug:
-                echoerr %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
-                echoerr %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+                echoerr %@ansi_move_to_col[0]%BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
+                echoerr %@ansi_move_to_col[0]%BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
                 rem call bigecho %BIG_ECHO_MSG_TO_USE%
                 rem TODO bigechoerr.bat!
         )

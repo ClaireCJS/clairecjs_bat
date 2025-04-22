@@ -1,13 +1,14 @@
+@echo %ansi_reset%%conceal_off%%ansi_color_grey%📞📞📞 “%0 %1$” called by %_PBATCHNAME 📞📞📞%ansi_color_normal% %+ *if defined BATCHLINE .and. "%BATCHLINE%" != "-1" *echoerr 🚩 %ANSI_COLOR_ERROR%     Line number:  %italics%%unknown_command_highlight_color%%BATCHLINE%%ANSI_COLOR_ERROR%%italics_off% %ansi_color_normal%
+
 @on break cancel
 @echo off
 
 set IRFANVIEW="%UTIL2%\IRFANVIEWPORTABLE\App\IrfanView64\i_view64.exe"
 call validate-environment-variable IRFANVIEW
 
-      start %IRFANVIEW %*
- echo start %IRFANVIEW %*
-:           %IRFANVIEW %*
-:echo       %IRFANVIEW %*
+      start %IRFANVIEW% %*
+ echo start %IRFANVIEW% %*
+:echo       %IRFANVIEW% %*
  
   :::   :::   :::   :::   :::   :::   :::   :::   :::   :::   :::   :::   :::   :::   :::   :::   :::   :::   ::: 
   :::  

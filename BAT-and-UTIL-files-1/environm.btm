@@ -262,8 +262,8 @@ return
                 set  HD1000G3_DOWN=0 %+ set HD1000G3=S  %+  SET S=HD1000G3  %+  SET MAPPING_S=DEMONA1T   %+ SET     HD1T3=%HD1000G3%  %+ set DEMONA1T=%HD1000G3%    %+ set  HD1T3_PRESENCE=%HD1T3%:\__ I awaken! __
 
                 rem 2025/02/13 found these not mapping:
-                set HD18000G3_DOWN=0 %+ set HD18000G3=T %+  SET T=HD18000G3 %+  SET MAPPING_T=DEMONA18T1 %+ SET    HD18T3=%HD18000G3% %+ set DEMONA18T1=%HD18000G3% %+ set HD18T3_PRESENCE=%HD18T3:\__ I awaken __  %+ DEMONA18T=%DEMONA18T1% 
                 set  HD18000G_DOWN=0 %+ set HD18000G=O  %+  SET O=HD18000G  %+  SET MAPPING_O=DEMONA18T2 %+ SET HD18000G1=%HD18000G%  %+ set HD18T=%HD18000G%       %+                                              %+ set HD18T1=%HD18T%
+                set HD18000G3_DOWN=0 %+ set HD18000G3=T %+  SET T=HD18000G3 %+  SET MAPPING_T=DEMONA18T1 %+ SET    HD18T3=%HD18000G3% %+ set DEMONA18T1=%HD18000G3% %+ set HD18T3_PRESENCE=%HD18T3:\__ I awaken __  %+ DEMONA18T=%DEMONA18T1% 
                 set    HD10T2_DOWN=0 %+ set HD10T2=U    %+  SET U=HD10T2    %+  SET MAPPING_U=DEMONA10T2 %+ set HD10000G2=%HD10T2 
 
                 set    HD22T1_DOWN=0 %+ set HD22T1=M    %+  SET M=HD22T1    %+  SET MAPPING_M=DEMONA22T1 %+ set HD22000G1=%HD22T1     %+ set HD22T=%HD22T1          %+ set HD22000G=%HD22T1
@@ -666,6 +666,9 @@ return
 
 
 :SetTCCBehaviorOptions
+
+        set TCC=c:\tcmd
+
         rem Make Ctrl-C/^C  and Ctrl-Break/^Break actually work!
                 on break cancel
     
@@ -1119,6 +1122,7 @@ rem Define Servers:
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
                 ::::: CONFIGURATION OF PROGRAMMING-RELATED SOFTWARE:
                         set GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+                        set PERL=call c:\bat\perl.bat
                         SET PERL4=c:\util\perl4.exe
                         rem PERL_CODEPAGE=%CODEPAGE_WE_THINK_WE_MIGHT_WANT_TO_START_USING% is done in the "2024" section above
                 ::::: CLAIRE-VIRONMENT VARIABLE DEFAULT VALUES:

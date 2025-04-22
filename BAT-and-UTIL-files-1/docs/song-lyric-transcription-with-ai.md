@@ -1,4 +1,8 @@
+TODO: may have to unapprove any txt if the LRC/SRT is generated         "%@UNQUOTE["%OUTPUT_FILE%"]:generated"  
+TODO: delete-bad-ai-transcription after done aligning
+TODO: align-music-collection-lyrics.bat for quick start
 
+about section to include obstacles -- hallucination-prevention was tough
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -191,6 +195,7 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 - ① Prep files:
   - Optionally use ```LRCget``` (TODO link) to pre-download lyrics and transcriptions for your collection (if you don’t, this whole project make take 20–60% longer) 
+  - Optionally use ```global /i create-txt-lyrics-from-karaoke-files.bat``` to convert any LRC/SRTs we already have to TXT
   - Optionally use ```predownload-lyrics``` to pre-download lyrics available from genius.com (if you don’t, approving lyrics will take 20–40% longer) 
   - Optionally use ```sweep ask-if-instrumentals``` to mark instrumentals (if you don’t, you’ll waste electricity+GPU time to get hallucinatory instrumental transcriptions)
     - for folders with too many to answer individually, you can pre-answer for all files in the folder with: ```mark-all-filenames-ADS-tag-for-as_instrumental``` and ```mark-all-filenames-ADS-tag-for-NOT-as_instrumental``` 
@@ -348,12 +353,12 @@ Gets lyrics for all the files *in a playlist* that do not have *approved* lyric 
 
 
 ### 🌟 cmt / gmt / [create-txt-lyrics-from-karaoke-files.bat](../BAT-and-UTIL-files-1create-txt-lyrics-from-karaoke-files.bat.bat):
-create-txt-lyrics-from-karaoke-files.bat
+
 
 In the current folder, convert all karaoke sidecar files into text sidecar files (unless they already exist).
 That is: If an MP3/FLAC has a corresponding LRC/SRT but not TXT version, convert the LRC/SRT to TXT.
 
-It’s good to prep your entire collection with this, by running it in every folder of your music collection. Do this by going to the base folder of your music collection and running: ```global /i create-txt-lyrics-from-karaoke-files.bat```
+It is good to prep your entire collection with this, by running it in every folder of your music collection. Do this by going to the base folder of your music collection and running: ```global /i create-txt-lyrics-from-karaoke-files.bat```
 
 
 ### [review-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/review-all-lyrics-in-all-subfolders.bat)
@@ -413,21 +418,20 @@ If lyrics (or lyriclessness) are pre-approved, creation is automatic.
 
 Create karaoke files for **all songs** *in the current folder* that do not have them
 Songs that have pre-approved lyrics go through the process automatically.
+To do for an entire folder tree, preceed with ```sweep ```
 
 
-### 🌟 ❗TODO❗ [get-karaoke-for-playlist.bat](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat):
+### 🌟 [create-srt-from-playlist.bat](../BAT-and-UTIL-files-1/create-srt-from-playlist) (called via ```get-karaoke *{playlist}*```):
 
 Create karaoke files for **all songs** *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. Files are run in random order, to prevent alphabetical bias, and transcriptions are done automatically if lyrics are pre-approved (or if lyriclessness is pre-approved).
 
 
-### 🌟 ❗TODO❗ create-karaoke-automatically-from-approved-lyrics.bat {folder to recurse through]:
-
-Create karaoke files for **all songs** in a *folder tree* that do not have them, as long as their lyric file has been previously approved. This is intended so one can spend 100% of time aligning/approving lyrics (i.e. with ```get-lyrics-for-playlist.bat```), then go to bed and run this to generate everything that has pre-approved lyrics, saving the karaoke generation for another time (like when you are asleep). 
-
-
 ### 🌟 [delete-bad-ai-transcriptions](../BAT-and-UTIL-files-1/delete-bad-ai-transcriptions):
 
-Automatically run after creating karaoke files, this searches for bad karaoke transriptions (i.e. WhisperAI failures) & deletes them. There are a few key phrases that Whisper hallucinates. Experience dictates the mere presence of these phrases means the entire transcription is suspect.
+Automatically run after creating karaoke files, this searches for bad karaoke transriptions & deletes them. 
+
+  1. Certain commonly-hallucinated-by-AI phrases can be consistently serached for to find bad transcriptions. “And now we’re back” is one of them.
+  2. Either LRCget or LyricsGenius likes to put Chris DeBurg’s “Lady In Red” as the LRC file for a TON of songs—This will flag an error unless the filename has “Lady In Red” in it, in which case it’s the right song.
 
 
 ### 🌟 [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat):
@@ -534,7 +538,7 @@ Asks if we want to start getting lyrics for that playlist.
 ### 🌟 Reports
 If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 
-TODO, POSSIBLY CREATE THIS ONE: If you would like to check how many karaoke approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-karaoke-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
+: If you would like to check how many karaoke approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
 
 </details>
 

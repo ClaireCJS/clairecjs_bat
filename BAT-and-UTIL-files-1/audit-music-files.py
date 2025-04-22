@@ -24,14 +24,16 @@ supported_extensions                  = ('.mp3', '.flac')                       
 extra_renaming_extensions             = ('.srt', '.lrc', '.txt', '.json', '.jpg', '.gif', '.png', '.webp', '.log')   # other extensions that we want to apply our rename_mappings renamings to  — the list
 extra_renaming_extensions_description = "subtitle/lyric/art"                                                 # other extensions that we want to apply our rename_mappings renamings to  — description of
 rename_mappings  = {                                # should be case sensitive
-         "(instrumental)"  :      "[instrumental]",
-    "(semi-instrumental)"  : "[semi-instrumental]",
-    "(semi-music)"         : "[semi-music]"       ,
-     "(semimusic)"         : "[semi-music]"       ,
-     "(non-music)"         :  "[non-music]"       ,
-      "(nonmusic)"         :  "[non-music]"       ,
-      "[nonmusic]"         :  "[non-music]"       ,
-    "(bonus track)"        :  "[bonus track]"     ,
+         "(instrumental)"  :       "[instrumental]",
+    "(semi-instrumental)"  :  "[semi-instrumental]",
+    "(semi-music)"         :  "[semi-music]"       ,
+     "(semimusic)"         :  "[semi-music]"       ,
+     "(non-music)"         :   "[non-music]"       ,
+      "(nonmusic)"         :   "[non-music]"       ,
+      "[nonmusic]"         :   "[non-music]"       ,
+   "(bonus track)"         :  "[bonus track]"      ,
+     "(vinyl rip)"         :  "[vinyl rip]"        ,
+      "(denoised)"         :  "[denoised]"         ,
 }
 
 
@@ -123,7 +125,7 @@ def substitute_forbidden_chars(file_path):
 
 
 def process_file(file_path, primary_processing=True):                                                                                          # process one file. primary_processing refers to our ReplayGain processing and other fixes that only make sense for those types of files and not for our extra_renaming_extensions files
-    global forbidden_chars, forbidden_chars_alternates, rename_mappings, total_num_files_processed                                             # use our character lists defined at the top of the file
+    global supported_extensions, forbidden_chars, forbidden_chars_alternates, rename_mappings, total_num_files_processed                       # use our character lists defined at the top of the file
     total_num_files_processed = total_num_files_processed + 1
     abs_file_path = os.path.abspath(file_path)
     try:
@@ -134,19 +136,21 @@ def process_file(file_path, primary_processing=True):                           
                 maybe_print_bat_header(f)
                 f.write(f"\n\n\n\nrem ━━━━━━━━━━━━━━━━━━━━━ BAD FILENAME ENCOUNTERED: BEGIN ━━━━━━━━━━━━━━━━━━━━━━\n")                         # look pretty in our BAT file output
                 f.write(f"    echo.\n")                                                                                                        # insert blank line in our STDOUT output
-                #.write(f"    setdos /x-3 \n")                                                                                                 # turn off all variable expansion so we can use perent signs to rename files with percent signs
-                f.write(f"    setdos /x-35\n")                                                                                                 # turn off all variable expansion so we can use perent signs to rename files with percent signs
-                f.write(f"    echo %ansi_color_warning%This file path contains forbidden characters:%ansi_color_normal% “{abs_file_path}”\n")  # let user know
-                # NO!  (f"    setdos /c%@CHAR[1]\n")                                                                                           # switch to nonsense command separator during rename process❟ just as extra protection
+                #.write(f"    *setdos /x-3 \n")                                                                                                # turn off all variable expansion so we can use perent signs to rename files with percent signs
+                f.write(f"    *setdos /x-35\n")                                                                                                # turn off all variable expansion so we can use perent signs to rename files with percent signs
+                f.write(f"    *setdos /x-359\n")                                                                                               # turn off all variable expansion so we can use perent signs to rename files with percent signs and also turn off include lists so we can rename semicolon filenames
+                #.write(f"    echo %ansi_color_warning%This file path contains forbidden characters:%ansi_color_normal% “{abs_file_path}”\n")  # let user know
+                f.write(f"    echo *** This file path contains forbidden characters: “{abs_file_path}”\n")                                     # let user know
+                # NO!  (f"    *setdos /c%@CHAR[1]\n")                                                                                          # switch to nonsense command separator during rename process❟ just as extra protection
                 f.write(f"    echo Forbidden characters in name: “{abs_file_path}”\n")                                                         # let user know
                 new_file_path  =  substitute_forbidden_chars(     abs_file_path)                                                               # subtitute new❟ valid characters in❟ for invalid characters
                 f.write(f"    echo Trying to rename to new name: “{new_file_path}”\n")                                                         # let user know
                 f.write(f"    ren \"{abs_file_path}\" \"{new_file_path}\"\n")                                                                  # Rename command
-                f.write(f"    setdos /x-3\n")                                                                                                  # turn off command separator processing
-                if "default_command_separator_character" in os.environ: f.write(f"    setdos /c%default_command_separator_character%\n")       # what I   try  to use
-                elif os.getenv('USERNAME') == 'claire':                 f.write(f"    setdos /c^\n")                                           # what I  actually use
-                else:                                                   f.write(f"    setdos /c&\n")                                           # what most people use
-                f.write(f"    setdos /x0\n")                                                                                                   # turn everything we turned off back on
+                f.write(f"    *setdos /x-3\n")                                                                                                 # turn off command separator processing
+                if "default_command_separator_character" in os.environ: f.write(f"    *setdos /c%default_command_separator_character%\n")      # what I   try  to use
+                elif os.getenv('USERNAME') == 'claire':                 f.write(f"    *setdos /c^\n")                                          # what I  actually use
+                else:                                                   f.write(f"    *setdos /c&\n")                                          # what most people use
+                f.write(f"    setdos /x0\n")                                                                                                  # turn everything we turned off back on
                 f.write(f"rem ━━━━━━━━━━━━━━━━━━━━━ BAD FILENAME ENCOUNTERED: END ━━━━━━━━━━━━━━━━━━━━━━━━\n\n\n\n\n")                         # look pretty in our BAT file output
             # Optionally, you can also print the message to console for feedback:
             print(f"\n\n{Fore.RED}ERROR: {abs_file_path} contains one of the forbidden characters ({forbidden_chars}). The “RG_fix.bat” that this script produces will TRY to fix it❟ but it may not be able to handle these characters. You may need to rename the file yourself. Suggested to use these alternative characters: {forbidden_chars_alternates}{Fore.GREEN}\n\n")
@@ -154,10 +158,17 @@ def process_file(file_path, primary_processing=True):                           
             return False, abs_file_path                                                                                                        # quit out for this file if this happens
 
         #print(f"size: {os.path.getsize(file_path)} for {file_path}")                                                                          # debug that we are correctly probing our file sizes
-        if os.path.getsize(file_path) == 0:                                                                                                    # take action if the file is 0 bytes
+        file_size = os.path.getsize(file_path)
+        ext = os.path.getsize(file_path)
+        file_name_base, file_extension = os.path.splitext(file_path)
+        #if file_extension     in supported_extensions: print (f"\next {file_extension} is     in supported_extensions\n")
+        #if file_extension not in supported_extensions: print (f"\next {file_extension} is NOT in supported_extensions\n")
+        if file_size < 8192 and file_extension in supported_extensions:                                                                        # take action if the file is 0 bytes
             with open(rg_fix_bat, "a", encoding="utf-8") as f:                                                                                 # add to our output script
                 f.write(f"echo.\necho.\necho.\necho.\necho.\n")                                                                                # cosmetic spacer
-                f.write(f"echo %@RandFG_soft[]*** This file is 0 bytes, how do you want to deal with it?:\n")                                  # warn user
+                f.write(f"echo **************** This file is too small ({file_size} bytes) how do you want to deal with it?: **************** \n")                  # warn user
+                f.write(f"echo **************** This file is too small ({file_size} bytes) how do you want to deal with it?: **************** \n")                  # warn user
+                f.write(f"echo **************** This file is too small ({file_size} bytes) how do you want to deal with it?: **************** \n")                  # warn user
                 f.write(f"echo    “{abs_file_path}”\n")                                                                                        # show filename
                 #.write(f'call rn "{abs_file_path}"\n')                                                                                        #  'rn' command to rename the file
                 f.write(f'*del /p "{abs_file_path}"\n')                                                                                        # 'del' command to delete the file
@@ -197,7 +208,8 @@ def process_file(file_path, primary_processing=True):                           
                     maybe_print_bat_header(f)                                                                                                   # print the header if it isn’t printed already
                     entity_for_bat_file_header_comment = old.replace("(", "").replace(")", "").upper()                                          # make some cosmetic adjustments to our header text
                     f.write(f"\n\nrem ━━━ INCORRECTLY-MARKED {entity_for_bat_file_header_comment}: ━━━\n")                                      # leave a comment in our output script explaining this [1/2]
-                    f.write(f'ren "{file_path}" "{new_file_path}"\n\n\n')                                                                       # rename the old filename to the new filename
+                    f.write(f' ren     "{file_path}" "{new_file_path}"\n\n\n')                                                                  # rename the old filename to the new filename
+                    #.write(f'*ren /MD "{file_path}" "{new_file_path}"\n\n\n')                                                                  # rename the old filename to the new filename in a way that lets us rename the folder as well, in case the folder name is in our renaming mapping BUT THE PROBLEM WITH THIS APPROACH IS IT ONLY HANDLES *OUR HANDLED FILES* AND WILL CREATE DUPE-FOLDERS WITH STRAGGER FILES
         # ━━━━━━━━━━━━━━━━━━━━━ Rename (instrumental) → [instrumental] and other similar renamings ━━━━━━━━━━━━━━━━━━━━━ ^END
 
 
@@ -276,7 +288,7 @@ def process_file(file_path, primary_processing=True):                           
             # otherwise return “False” and the path so that we will fix that folder in our fix-script
             else:
                 print("\r\033[K",end="")                                                                                                       # erase current line
-                print(f"\n{Fore.BRIGHT_RED}ERROR: Missing ReplayGain tags: {file_path}{Fore.WHITE}\n")                                         # let the user nkow
+                print(f"\n{Fore.RED}ERROR: Missing ReplayGain tags: {file_path}{Fore.WHITE}\n")                                         # let the user nkow
                 return (False, abs_file_path)                                                                                                  # return fact no replaygain tags are there
         #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Check for presence of missing ReplayGainTags: END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -405,7 +417,7 @@ def main():
         with open(rg_fix_bat, 'a', encoding='utf-8') as f:                                                         # open up a bat file to run the commands to fix it all
             maybe_print_bat_header(f)                                                                              # print the BAT file header❟ but only if we havent’ already
             for folder in rg_no_folders:                                                                           # then it should go through each unique folder we discovered
-                f.write(f'cd    "{folder}"\n')                                                                     # change into the folder in case the pushd command doesn’t work
+                f.write(f'*cd   "{folder}"\n')                                                                     # change into the folder in case the pushd command doesn’t work
                 f.write(f'pushd "{folder}"\n')                                                                     # store the folder into the directory stack so we can return from whence we came
                 f.write(f'call add-ReplayGain-tags\n')                                                             # call whatever our script to add ReplayGain tags to all files in a folder is
                 f.write('popd\n')                                                                                  # return from whence we came

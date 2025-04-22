@@ -7,13 +7,15 @@ rem %COLOR_DEBUG% %+ echo ARGS: %*
 
 rem Fix environment:
         if "0" == "%ansi_off%" call ansi-on
+        rem No! Leave it! Worst that happens is an erroneous blank line! set SIDECARS_RENAMED=0
+
 
 rem Validate environment (once):
         rem if "%ANSI_CURSOR_CHANGE_COLOR_WORD[]" == "" function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
         iff "1" != "%validated_rn_4%" then
                 call validate-is-function ANSI_CURSOR_CHANGE_COLOR_WORD
-                call validate-environment-variables party_popper cake COLOR_WARNING COLOR_NORMAL color_success color_subtle ansi_color_normal blink_on blink_off ansi_color_fatal_error italics_on italics_off COLOR_RUN FAINT_ON FAINT_OFF CURSOR_RESET star star2 lq rq
-                call validate-in-path ansi-on ansi-off warning fatal_error set-cursor print-if-debug print-message rn.bat eset-alias
+                call validate-environment-variables party_popper cake COLOR_WARNING COLOR_NORMAL color_success color_subtle ansi_color_normal blink_on blink_off ansi_color_fatal_error italics_on italics_off COLOR_RUN FAINT_ON FAINT_OFF CURSOR_RESET star star2 lq rq ansi_color_success star3 ANSI_COLOR_WARNING_SOFT emoji_warning ansi_color_bright_green ansi_color_green ansi_color_bright_red
+                call validate-in-path ansi-on ansi-off warning fatal_error set-cursor print-if-debug print-message eset-alias
                 set  validated_rn_4=1
         endiff
 
@@ -39,13 +41,21 @@ rem Get/react to recursive arguments:
                                                                            set END_NAME_SPECIFIED=0
         if "%2" != "" .and. "%1" != "recursive" .and. "%2" != "recursive" (set END_NAME_SPECIFIED=1)
 
+rem Get/react to auto argument:
+        if "%3" == "auto" set RN_SKIP_USER_EDIT=1
+        if "%3" != "auto" set RN_SKIP_USER_EDIT=0
+
+
 rem Count files matching parameter:
-    set FILES=%@FILES["%@UNQUOTE[%1]"]                                                                                                              %+ call print-if-debug * FILES is %FILES%
+    set FILES=%@FILES["%@UNQUOTE[%1]"] 
+    if defined debug call print-if-debug "FILES is “%FILES%”"
     set ISDIR=0
     if  isdir    %1 goto :IsDir
     if %FILES% gt 1 goto :IsManyFiles
                     goto :IsSingleFile
 
+
+rem React to count accordingly?
     :IsManyFiles
             rem echo for /a: %%fi in (%1) call rn %as_instrmental_param% "%fi" %2 recursive
                      for /a:  %fi in (%1) call rn %as_instrmental_param% "%fi" %2 recursive
@@ -76,29 +86,42 @@ rem Count files matching parameter:
                 if "1" == "%AS_INSTRUMENTAL%"    (set FILENAME_NEW="%@NAME["%FILENAME_NEW%"] [instrumental].%@EXT["%FILENAME_NEW%"]")
                 rem DEBUG: echo filename_new is %lq%%filename_new%%rq% %+ pause
 
-        rem Let user edit the filename: first change cursor to yellow for the edit:
-                echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[yellow]
 
-        rem Let user edit the filename: set up flag to capture error in subordinate ESET script:
-                set rn_goto_end=0
-                set rn_fix_ansi=0
 
-        rem Let user edit the filename: send them to the eset-alias.bat where they do the actual editing: 
-        rem                       then: capture any errorlevel——probably due to user hitting Ctrl-Break:
-                call eset-alias FILENAME_NEW        
-                if "%_" == "667" .or. "1" == "%eset_fail%" (set rn_goto_end=1 %+ set rn_fix_ansi=1)
-                                                               
-        rem Let user edit the filename: In order to edit ANSI codes that are environment varaibles, we always turn off ANSI when editing one
-        rem                             Check if ANSI was not properly turned back on, probably due to user hitting Ctrl-Break:
-                if "1" == "%rn_fix_ansi%" .or. "1" == "%ansi_off%"  call ansi-on
 
-        rem Let user edit the filename: Fix the cursor afteward
-               rem call set-cursor
-               echos %ANSI_COLOR_NORMAL%%CURSOR_RESET%%@ansi_move_to_col[1]
+        rem Let user edit the filename: 
+                rem Skip this if instructed...
+                        if "%RN_SKIP_USER_EDIT%" == "1" goto :skip_rn_user_edit
 
-        rem Let user edit the filename: Skip the renaming if there was a Ctrl-Break from the eset-alias.bat, or errorlevel otherwise returned:
-                rem echo %@ansi_move_to_col[1]- DEBUG: errorlevel='%_errorlevel%' %%?='%?' %%_='%_?' ansi_off='%ansi_off%' rn_fix_ansi='%rn_fix_ansi%' rn_goto_end='%rn_goto_end%'
-                if "1" == "%rn_goto_end%" goto :END_of_rn
+                rem Let user edit the filename: first change cursor to yellow for the edit:
+                        echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[yellow]
+
+                rem Let user edit the filename: set up flag to capture error in subordinate ESET script:
+                        set rn_goto_end=0
+                        set rn_fix_ansi=0
+
+                rem Let user edit the filename: send them to the eset-alias.bat where they do the actual editing: 
+                rem                       then: capture any errorlevel——probably due to user hitting Ctrl-Break:
+                        call eset-alias FILENAME_NEW        
+                        if "%_" == "667" .or. "1" == "%eset_fail%" (set rn_goto_end=1 %+ set rn_fix_ansi=1)
+                                                                       
+                rem Let user edit the filename: In order to edit ANSI codes that are environment varaibles, we always turn off ANSI when editing one
+                rem                             Check if ANSI was not properly turned back on, probably due to user hitting Ctrl-Break:
+                        if "1" == "%rn_fix_ansi%" .or. "1" == "%ansi_off%"  call ansi-on
+
+                rem Let user edit the filename: Fix the cursor afteward
+                       rem call set-cursor
+                       echos %ANSI_COLOR_NORMAL%%CURSOR_RESET%%@ansi_move_to_col[1]
+
+                rem Let user edit the filename: Skip the renaming if there was a Ctrl-Break from the eset-alias.bat, or errorlevel otherwise returned:
+                        rem echo %@ansi_move_to_col[1]- DEBUG: errorlevel='%_errorlevel%' %%?='%?' %%_='%_?' ansi_off='%ansi_off%' rn_fix_ansi='%rn_fix_ansi%' rn_goto_end='%rn_goto_end%'
+                        if "1" == "%rn_goto_end%" goto :END_of_rn
+
+                rem End label:
+                        :skip_rn_user_edit
+
+
+
 
         rem If the filename isn’t actually any different, then we don’t need to do anything (and warn them of that):
                                                                                set NAMES_MATCH_FOR_CASE_INSENSITIVE_COMPARISON=0
@@ -115,12 +138,16 @@ rem Count files matching parameter:
 
         rem Add any decorator we’ve defined for cosmetic porpuses:
                 %COLOR_SUCCCESS%
-                echos %FAINT_ON%%@RANDFG_SOFT[]%RN_DECORATOR% ``
+                echos %FAINT_ON%%@RANDFG_SOFT[]%RN_DECORATOR%``
+
+        rem Cosmetic line skip if last set had sidecars renamed:
+                if "1" == "%SIDECARS_RENAMED%" echo.
 
         rem DO the acutal file renaming:
                 REM echo y|%REDOCOMMAND%                                                 
                 rem call debug "redo command is %blink_on%%REDOCOMMAND%%blink_off%"
                 %COLOR_RUN%
+                echos %blink_on%%bold_on%%STAR5% RENAMING:%bold_off% %blink_off%``
                 %REDOCOMMAND%                                                 
                 echos %FAINT_OFF%
 
@@ -129,6 +156,7 @@ rem Count files matching parameter:
 
         rem Rename any existing sidecar/companion files
                 :Rename_Sidecars_2024
+                set SIDECARS_RENAMED=0
                 setlocal enabledelayedexpansion
 
                         :RenameSidecars
@@ -139,43 +167,39 @@ rem Count files matching parameter:
                             if "%%~nxF" neq "%FILENAME_OLD%" (
                                 set "FILENAME_SIDECAR_OLD=%~dp1%%~nxF"
                                 set "FILENAME_SIDECAR_NEW=%~dp1%BASENAME_NEW%%%~xF"
-                                echo DEBUG: Checking sidecar file - !FILENAME_SIDECAR_OLD!
-                                echo DEBUG: Renaming to - !FILENAME_SIDECAR_NEW!
-                                %COLOR_SUCCESS%        %+  echo %FAINT_ON%     - Renaming sidecar file: !FILENAME_SIDECAR_OLD%!
-                                %COLOR_SUCCESS%        %+  echo %FAINT_ON%                          To: !FILENAME_SIDECAR_NEW!%FAINT_OFF% %+ %COLOR_NORMAL%
-                                %COLOR_SUBTLE%         %+  echos %FAINT_ON%%ITALICS_ON%                           ``
+                                rem echo %ansi_color_debug%DEBUG: Checking sidecar file - !FILENAME_SIDECAR_OLD!
+                                rem echo %ansi_color_debug%DEBUG: Renaming to - !FILENAME_SIDECAR_NEW!
+                                %COLOR_SUCCESS%        %+  echo      %ansi_color_bright_red%%star3% %ansi_color_green%Renaming sidecar file: %ansi_color_green%%italics_on%%faint_on%%@NAME[!FILENAME_SIDECAR_OLD!]%faint_off%%italics_off%
+                                %COLOR_SUCCESS%        %+  echo      %ansi_color_green%%zzzzzzzzzzzzzzzzzzzzzzz%                     To: %italics_on%%faint_on%%@NAME[!FILENAME_SIDECAR_NEW!]%faint_off%%italics_off% %+ %COLOR_NORMAL%
+                                %COLOR_SUBTLE%         %+  echos %FAINT_ON%%ITALICS_ON%                              ``
 
                                 if not exist "!FILENAME_SIDECAR_OLD!" (
                                     call validate-environment-variable FILENAME_SIDECAR_OLD "Script currently doesn't rename sidecar files if they aren't in the current folder"
                                 )
 
                                 %REN% "!FILENAME_SIDECAR_OLD!" "!FILENAME_SIDECAR_NEW!"
+                                set SIDECARS_RENAMED=1  
 
                                 set "UNDOCOMMAND_SIDECAR=%REN% "!FILENAME_SIDECAR_NEW!" "!FILENAME_SIDECAR_OLD!""
                                 set "REDOCOMMAND_SIDECAR=%REN% "!FILENAME_SIDECAR_OLD!" "!FILENAME_SIDECAR_NEW!""
-                                echo %ansi_color_celebration% %cake%%party_popper% %Sidecar file renamed successfully!!! %party_popper%%cake% %ansi_color_normal%
+                                rem echo %ansi_color_success% %cake%%party_popper% %Sidecar file renamed successfully!!! %party_popper%%cake% %ansi_color_normal%
                             ) else (
                                 echo DEBUG: Skipping main file - %%~nxF matches %FILENAME_OLD%
                             )
                         )
 
-                endlocal
+                endlocal SIDECARS_RENAMED
+                rem DEBUG: echo SIDECARS_RENAMED=%SIDECARS_RENAMED%
 
         rem Watch out for 0-byte versions of the original filename leftover due to filesystem locks:
                 :check_that_it_is_actually_gone
-rem  %ansi_color_debug%-DEBUG: check_that_it_is_actually_gone filename_old of %lq%%FILENAME_OLD%%rq% does %@IF[not exist "%FILENAME_OLD%",not ,]exist [9234].... no_change=%lq%%no_change%%rq%
                 set old_file_seems_to_be_gone=0
-rem             if %newline%"%@ASCII["%FILENAME_NEW%"]" == %newline%"%@ASCII["%FILENAME_OLD%"]" (set old_file_seems_to_be_gone=1)
                 if "%@ASCII["%FILENAME_NEW%"]" == "%@ASCII["%FILENAME_OLD%"]"                   (set old_file_seems_to_be_gone=1) %+ rem This is the case of us not actually renaming it
-rem             if "1"  ==   "%NO_CHANGE%"                                                      (set old_file_seems_to_be_gone=1)
                 if "1"  ==   "%NO_CHANGE%"                                                      (set old_file_seems_to_be_gone=1)
-rem             if not exist "%FILENAME_OLD%"                                                   (set old_file_seems_to_be_gone=1)
                 if not exist "%FILENAME_OLD%"                                                   (set old_file_seems_to_be_gone=1)
-rem             if     exist "%FILENAME_OLD%"                                                   (set old_file_seems_to_be_gone=0)
                 if     exist "%FILENAME_OLD%"                                                   (set old_file_seems_to_be_gone=0)
-rem             if     exist "%FILENAME_OLD%" .and. "%FILENAME_OLD%" == "%FILENAME_NEW%"        (set old_file_seems_to_be_gone=1)
                 if     exist "%FILENAME_OLD%" .and. "%FILENAME_OLD%" == "%FILENAME_NEW%"        (set old_file_seems_to_be_gone=1)
-rem  debug: old_file_seems_to_be_gone==%lq%%old_file_seems_to_be_gone%%rq% %+ pause
+                rem  debug: old_file_seems_to_be_gone==%lq%%old_file_seems_to_be_gone%%rq% %+ pause
 
                 if "1" == "%old_file_seems_to_be_gone%" goto /i old_file_seems_to_be_gone
                         :we_are_not_fine
@@ -230,8 +254,9 @@ rem     ━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         :oops_they_meant_to_do_ren_and_not_rn
-                %COLOR_WARNING%  %+ echo * Looks like you meant to use 'ren' and not 'rn', so we'll do that instead:
-                %COLOR_RUN%      %+ ren "%@UNQUOTE["%1"]" "%@UNQUOTE["%2"]" 
+                echo %ansi_color_warning_soft%%emoji_warning% Looks like you meant to use 'ren' and not 'rn', so we'll do that instead:
+                echos %ansi_color_run%%star% ``
+                ren "%@UNQUOTE["%1"]" "%@UNQUOTE["%2"]" 
                 set UNDOCOMMAND=    ren "%@UNQUOTE["%2"]" "%@UNQUOTE["%1"]" 
                 set LAST_RENAMED_TO=%@UNQUOTE[%2]
         goto :END_of_rn
@@ -263,9 +288,27 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 :END_of_rn
         unset /q fix_run no_change
-        if "%1" == "" (echo %ansi_color_fatal_error% rn %blink_on%WHAT?!%blink_off%?! %ansi_color_normal% %+ *beep)
+        iff "%1" == "" then 
+                echo %ansi_color_fatal_error% rn %blink_on%WHAT?!%blink_off%?! %ansi_color_normal% *beep
+                echo.
+                echo %ansi_color_advice% USAGE: call rn {old_filename} - to interactivately rename it
+                echo.
+                echo %ansi_color_advice% USAGE: call rn {old_filename} {new_filename} - to behave like the “ren” command, but with the 
+                echo %ansi_color_advice%                                                perks of the “rn” command, such as automatically 
+                echo %ansi_color_advice%                                                renaming sidecar files and a chance for user-edit
+                echo.
+                echo %ansi_color_advice% USAGE: call rn {old_filename} {new_filename} auto - Like above, but skipping the user edit perk
+                echo %ansi_color_advice%                                                     Great for renaming sidecar files
+                echo.
+
+
+RN_SKIP_USER_EDIT
+        endiff
 
 rem DEBUG:
-        echo %ansi_color_debug%-DEBUG: filename_old of %lq%%FILENAME_OLD%%rq% does %@IF[not exist "%FILENAME_OLD%",not ,]exist [in %0:9554]     last_renamed_to=%lq%%last_renamed_to%%rq%
+        setdos /x-58
+        rem   echo %ansi_color_debug%- DEBUG: filename_old of %lq%%FILENAME_OLD%%rq% does %@IF[not exist "%FILENAME_OLD%",not ,]exist [in %0:9554]     last_renamed_to=%lq%%last_renamed_to%%rq%
+        set LAST_DEBUG_COMMENT_TO_SELF=DEBUG: filename_old of %lq%%FILENAME_OLD%%rq% does %@IF[not exist "%FILENAME_OLD%",not ,]exist [in %0:9554]     last_renamed_to=%lq%%last_renamed_to%%rq%
+        setdos /x0
 
 

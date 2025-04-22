@@ -59,8 +59,8 @@ rem Environment validation
              if "%BAT"    == "" SET    BAT=c:\bat
              if "%PERL"   == "" SET   PERL=perl
             :if "%EDITOR" == "" SET EDITOR=notepad
-            call validate-environment-variables  PERL  BAT EDITOR 
-            call validate-in-path               %PERL%
+            call validate-environment-variables  BAT EDITOR 
+            call validate-in-path                perl
 
 :ErrorCheck
     call set-drive-related-environment-variables

@@ -90,8 +90,7 @@ def main_guts(input_filename, extensions, options, extra_args):
         print("Error: No valid extensions provided.")
         sys.exit(1)
 
-    #
-    print(f"🔎🔎🔎 Checking playlist {input_filename} for files missing sidecars... 🔍🔍🔍")
+    #THIS IS A BAD IDEA UNLESS DEBUGGING, BECAUSE IT CREATES FALSE ERROR OUTPUT:    print(f"🔎🔎🔎 Checking playlist {input_filename} for files missing sidecars... 🔍🔍🔍")
 
     # Create a set to keep track of files without sidecars (unique entries)
     files_without_sidecars = set()
@@ -108,26 +107,26 @@ def main_guts(input_filename, extensions, options, extra_args):
         except UnicodeDecodeError:
             print(f"Error: Unable to read file '{input_filename}' with detected encoding '{encoding}'.")
             sys.exit(1)
-   
+
     # memory maintenance
     gc.collect
- 
+
     # Check each file for sidecar files
     for file in            files:
         total_file_count = total_file_count + 1
-        
+
         # Skip files containing "(instrumental)" or "[instrumental]", and other various temp files
         if    "(instrumental)"     in file.lower() or  "[instrumental]"   in file.lower(): continue
         if "_vad_collected_chunks" in file.lower() or "._vad_pyannote_"   in file.lower(): continue
         if "_vad_original"         in file.lower() or "check-for-missing" in file.lower(): continue
 
-        # get filenames                    
+        # get filenames
         file_path        = os.path.abspath(file)                                       # Get absolute path for consistency
         directory        = os.path.dirname(file_path)
         base_filename, _ = os.path.splitext(file)
         base_filename, _ = os.path.splitext(os.path.basename(file))
         if DEBUG_SIDECAR_SEARCH: print(f"found file {file_path} ... base_filename={base_filename} ... for file={file}")
-        
+
         # Check for sidecar files explicitly with a debug-friendly loop
         has_sidecar = False                                                     # Assume no sidecar until we find it
         for ext in extensions_list:
@@ -136,7 +135,7 @@ def main_guts(input_filename, extensions, options, extra_args):
             if os.path.exists(potential_sidecar):
                 if DEBUG_SIDECAR_SEARCH: print(f"DEBUG: Found sidecar file: {potential_sidecar}")
                 has_sidecar = True
-        
+
         if DEBUG_SIDECAR_SEARCH: print(f"has_sidecar is {has_sidecar} for file {file}\n")
 
         if not has_sidecar:
@@ -165,7 +164,8 @@ def main_guts(input_filename, extensions, options, extra_args):
             sys.stderr.write(f"       Sidecars searched for: {extensions} \n")
             sys.stderr.write(f"       Without sidecar:       {without_sidecar_count} \n")
             sys.stderr.write(f"       To fix, run:           {output_filename} \n")
-            #DEBUG: if extra_args: print(f"Using extra arguments of: {extra_args}")
+            sys.stderr.write(f"       Used extra args of:    {extra_args}\n")
+            sys.stderr.write(f"\n")
 
             if extra_args == "/s": extra_args=""
 
@@ -214,5 +214,5 @@ if __name__ == "__main__":
     #print(f"- DEBUG: Extensions are: '{extensions    }'") #
 
     main_guts(input_filename, extensions, options, extra_args_str)
-    
+
 

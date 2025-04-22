@@ -31,6 +31,7 @@ rem Set mode:
         if "%1" == "force" set mode=force
 
 rem CONSTANTS:
+        unset /q our_log*             
         set OUR_LOGFILE=%LOGS%\audiofile-transcription.log                                           %+ rem don’t change because this needs to be sync’ed with the value in report-lyric-approval-progress.bat
         set str_longest_possible_lyriclessness_status=NOT_APPROVED                                   %+ rem don’t change because this needs to be the longest-possible value of lyriclessness for a file. See get-lyrics for full list of valid values
 
@@ -42,8 +43,6 @@ rem How to represent our probing nature based on operational mode of this script
         endiff
         set str_status_introd=%star% %str_probing_nature% is ``                                      %+ rem beginning of the line that displays lyriclessness status for each file
 
-rem Debug logging:
-        unset /q our_log*
 
 rem Determine cosmetic values:
         rem Save screen width:

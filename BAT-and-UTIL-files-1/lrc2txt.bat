@@ -67,12 +67,12 @@ rem Perform the actual conversion:
                 lrc2txt.py "%LRC_file%"
                 call ErrorLevel
                 iff %@filesize["%@unquote["%output_file%"]"] eq 0 then
-                        *del /q "%OUTPUT_FILE%" >nul
+                        *del /Ns /q "%OUTPUT_FILE%" >nul
                         echo %ansi_color_warning%%emoji_warning Zero-byte file generated! %emoji_warning%%ansi_reset% 
                         echo %ansi_color_less_important%%star% Reviewing the source LRC...%ansi_reset% 
                         call review-file "%LRC_FILE%"
                         call AskYN "Delete the LRC file" no 90
-                        if "Y" == "%ANSWER" (*del /q "%LRC_FILE%" >nul)
+                        if "Y" == "%ANSWER" (*del /Ns /q "%LRC_FILE%" >nul)
                         call AskYN "Mark corresponding audio as lyric%underline_on%less%underline_off%? [%ansi_color_bright_green%I%ansi_color_prompt%=instrumental]" yes 15 I I:mark_as_instrumental_instead
                                 set lrc2txtmark_answer=%answer%
                                 gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr_if_answer_was_I
@@ -114,7 +114,7 @@ rem Review output:
                         )
 
                         call review-files  "%@UNQUOTE["%tmp_review_file%"]"                        
-                        if "%Approve_Generated_Lyrics_CTLFKF%" != "False" (call approve-lyrics "%@UNQUOTE["%tmp_review_file%"]")
+                        if "%Approve_Generated_Lyrics_CTLFKF%" == "True" (call approve-lyrics "%@UNQUOTE["%tmp_review_file%"]")
                 )
         endiff
 

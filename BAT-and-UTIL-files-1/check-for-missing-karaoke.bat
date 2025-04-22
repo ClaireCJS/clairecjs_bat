@@ -26,7 +26,7 @@ rem Configuration:
 
 rem Validate Enviroment:
         iff  1  ne  %validated_cfmk then
-                call validate-in-path              check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index
+                call validate-in-path              check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index delete-bad-ai-transcriptions
                 call validate-environment-variable filemask_audio   skip_validation_existence
                 call validate-environment-variable DEFAULT_FILEMASK skip_validation_existence
                 call validate-environment-variable ANSI_COLORS_HAVE_BEEN_SET
@@ -77,7 +77,7 @@ rem Parameter checking:
                 endiff                                      
                 iff exist %filemask_audio% then
                         rem dir /b /[!*instrumental*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%
-                           (dir /b /[!*instrumental*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%) >&>nul
+                           (dir /b /[!*instrumental* *chiptune*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%) >&>nul
                         rem ^^^ There still might be errors here in the event of audio files being present, but 100% of them having "instrumental" in their name. Therefore, let's suppress stderr
 
                 endiff                        
@@ -101,6 +101,12 @@ rem If the filelist doesn't exist...
                 rem call mp3index                           >:u8these.m3u
                 if not exist these.m3u .or. 0 eq %@FILESIZE[these.m3u] goto :END
         endiff                
+
+rem Kill bad transcriptions first:
+        if "0" == "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" goto :skip_delete_bad
+        call delete-bad-ai-transcriptions 3
+        :skip_delete_bad
+        setdos /x0
 
 rem Check for songs missing sidecar TXT files :
         (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
