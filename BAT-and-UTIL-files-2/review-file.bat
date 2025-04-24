@@ -17,7 +17,7 @@ rem Usage:
                 echo EXAMPLE: review-files -wh -1 *.txt ——— passes “-wh” and “-1” on to print-with-columns
                 echo.
                 echo. SPECIAL: the “-st”  action can be stacked with “-wh”, even though print-with-columns doesn’t work like that
-                echo. SPECIAL: the “-stU” action causes “-st” stripe before divider
+                echo. SPECIAL: the “-stU” action causes “-st” stripe to be an “upper stripe” before divider
                 goto :END
 endiff
 

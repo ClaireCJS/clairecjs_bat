@@ -145,7 +145,6 @@ rem Determine verb clause to use —— looks best if they are >8 chars each tho
         set VERB_LEN=%@LEN[%@STRIPANSI[%VERB%]]
         set SPACER=%@REPEAT[ ,%@ABS[%@EVAL[%VERB_LEN%-8]]]``
 
-
 rem Read or set (depending on invocation) via windows alternate data streams:
         iff "read" == "%TAG_VALUE%" then
                 echo —————————————————— READ THE TAG  —————————————————— >nul
@@ -232,7 +231,8 @@ goto :END
                         iff 1 eq %BRIEF_MODE then
                                 echo %ansi_color_green%%tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%%conceal_on%red44%conceal_off%
                         endiff
-                        
+
+rem ECHO goat1111111111111111                        
                 rem Lyrics mode output:                        
                         if "1" !=  "%LYRIC_MODE" goto :endif_353
                                 set  value_spacer=
@@ -331,6 +331,7 @@ goto :END
                                                         goto :endif_328
                                                 :endif_328
                                                 
+rem ECHO goat22222222
                                                 echos %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %EXTRA% %value_spacer%
                                                 if "1" == "%HIDE_STATUS%" goto :then_block_332
                                                                           goto :else_block_337
@@ -342,12 +343,12 @@ goto :END
                                                                 echos  %tmp_emoji2use% %italics_on%%tmp_color%%tmp_value%%ansi_color_normal%%deemphasis%%italics_off%%voodoo_spacer%%tmp_emoji2use%
                                                         goto :end_block_344
                                                 :end_block_344
-                                                echos %value_spacer_post% for %@ansi_fg_rgb[182,118,182]
-                                                echos %@ext["%tmp_file2use%"]
+                                                echos %value_spacer_post% for %@ansi_fg_rgb[182,118,182]%@ext["%tmp_file2use%"]
                                                 echos %ansi_color_reset%: %@IF[%@len[%@ext[%tmp_file2use%]] lt 4, ,]%faint_on%%italics_on%
-                                                if 0 ne %ADSTAG_DISPLAY_FOR_PATH% echos %@path[%tmp_file2use%]
+                                                if "0" != "%ADSTAG_DISPLAY_FOR_PATH%" echos %@path[%tmp_file2use%]
                                                 echos %@unquote[%@name["%tmp_file2use%"]]
-                                                echo .%faint_off%%italics_off%%@ansi_fg[124,124,124]%@ext[%tmp_file2use%]%faint_off%%italics_off%%conceal_on%orange42%conceal_off%
+                                                echo .%faint_off%%italics_off%%@ansi_fg[124,124,124]%@ext[%tmp_file2use%]%faint_off%%italics_off%%conceal_on%☼%conceal_off%
+rem ECHO goat333333
                                         goto :endif_351
                                 :endif_351
                         :endif_353
@@ -357,7 +358,6 @@ goto :END
 
         goto :skip_subroutines
                 :divider []
-pause
                         rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
                         set wd=%@EVAL[%_columns - 1]
                         set nm=%bat%\dividers\rainbow-%wd%.txt

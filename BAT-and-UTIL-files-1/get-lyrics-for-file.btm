@@ -1,3 +1,4 @@
+@rem DUPLICATE TODO ALSO LISTED BELOW: make lyric postprocessor accept filename input the way subtitle-postprocessor does, then fix
 @loadbtm on
 @Echo Off
                             
@@ -81,9 +82,9 @@ rem ━━━━━ DOCUMENTATION ━━━━━━━━━━━━━━━�
 
 :top
 rem CONFIG: DEBUG:
-        set DEBUG_VALUE_TRANSFER=0
-        set DEBUG_TOKEN_PROCESSING=0    
-        set DEBUG_DISPLAY_PROBE_RESULTS=0                             %+ rem whether we want to display the g values to the screen for debug purposes
+        set DEBUG_TOKEN_PROCESSING=0                                                  %+ rem (1) whether we want to display each probe value token as it is processed
+        set DEBUG_VALUE_TRANSFER=0                                                    %+ rem (2) whether we want to display the transfer of each probe value token to local environment varial
+        set DEBUG_DISPLAY_PROBE_RESULTS=1                                             %+ rem (3) whether we want to display the probe results to the screen for debug purposes
 
 REM CONFIG: 2025: 
         iff not defined LOGS then                                                     %+ rem copy this line to create-srt-from-file as well
@@ -478,7 +479,7 @@ rem Check if the lyrics are already approved...
                 if "1" != "%FORCE_REGEN%" .and. "%1" !=  "force" .and. "%2" != "force" .and. "%3" !=  "force" .and. "1" != "%did_not_go_to_end_169%" goto :END
                         rem so at this point it wwas marked lyricless, but we’re also forcing. So we should potentially check the lyrics first, and not force a download over it.
                         set did_not_go_to_end_169=1
-                        cal AskYN "Unmark them as lyric%underline_on%less%underline_off%"
+                        call AskYN "Unmark them as lyric%underline_on%less%underline_off%"
                                 if  "Y" == "%ANSWER%" call unapprove-lyriclessness "%AUDIO_FILE%’
                                 iff "Y" == "%ANSWER%" then
                                         set LYRICLESSNESS_STATUS=NOT_APPROVED
@@ -940,7 +941,7 @@ rem Check if we already have a LRC/SRT file but no TXT file
                                                         if exist "%LYRIC_FILE%" (ren  /q "%LYRIC_FILE%" "%LYRIC_FILE%.%_datetime.rejected-after-conversion-from-%just_converted_from%.bak")                                                
                                                 endiff
                                         rem On “Y”/“A”/“D”/“I”/“L”/“P”:
-                                                gosub check_for_answer_of_P
+                                                gosub check_for_answer_of_P 
                                                 if  "P" == "%OUR_LAST_ANSWER_HERE%" .or. "E" == "%OUR_LAST_ANSWER_HERE%"   goto /i Ask_Again_845
                                                 gosub check_for_answer_of_A Y
                                                 gosub check_for_answer_of_D
@@ -2767,7 +2768,8 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
         return
 
         :check_for_answer_of_P [opt]
-                rem echo 🔥🔥🔥 called: get-lyrics: check_for_answer_of_P [opt=%opt%]
+                rem goat
+                echo 📞📞📞 called: get-lyrics: check_for_answer_of_P [opt=%opt%] 📞📞📞
                 :try_again
                 iff "%PLAYER_COMMAND%" == "" then
                         rem echo %ANSI_COLOR_WARNING%%EMOJI_CAUTION%Player command isn’t set! setting to vlc.exe for best odds...%ansi_color_normal%
@@ -2777,12 +2779,19 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                 rem echo %arrow% check_for_answer_of_P [] ... audio_file = %AUDIO_FILE%, SONGFILE= %SONGFILE%,%SONG_FILE%
                 iff "%answer%" == "P" then
                         set FILE_TO_USE=%AUDIO_FILE%
-                        if "%opt%" != "" .and. exist %opt% set FILE_TO_USE=%opt%
+                        set size=-1
+echo                    iff "%@UNQUOTE["%opt%"]" != "" .and. exist "%@UNQUOTE["%opt%"]" then
+                        iff "%@UNQUOTE["%opt%"]" != "" .and. exist "%@UNQUOTE["%opt%"]" then
+                                set FILE_TO_USE=%@UNQUOTE["%opt%"]
+                        else
+                                call warning "couldn’t make sense of opt=“%opt%” in %0 on line 2785ish .. pbatchname=“%_PBATCHNAME”"
+                        endiff
                         set size=%@FILESIZE["%FILE_TO_USE%"] 
                         if %size% lt 1000 call warning "This file is %size% bytes!!!!!!!!!!!!!!!!!!!!!!"
                         echo %ANSI_COLOR_IMPORTANT%%EMOJI_PLAY_BUTTON% Playing file: “%@UNQUOTE["%FILE_TO_USE%"]” %ansi_color_normal%
-                        set player_command_to_use=%PLAYER_COMMAND% "%@UNQUOTE["%FILE_TO_USE%"]"
-                        rem echo %ansi_color_debug%- DEBUG: Player command: %faint_on%%player_command_to_use%%faint_off%
+                        set player_command_to_use=%PLAYER_COMMAND% "%@UNQUOTE["%FILE_TO_USE%"]" %player_command_extra_options%
+                        rem goat
+                        echo %ansi_color_debug%- DEBUG: Player command: %faint_on%%player_command_to_use%%faint_off%
                         set LAST_PLAYER_COMMAND_USED=%player_command_to_use%                 
                         %player_command_to_use%                 
                 endiff
@@ -3323,13 +3332,13 @@ echo                   %ansi_color_pink%set  IS_INSTRUMENTAL_ADS_FILENAME=%@name
                 return
 
 
-        :oops_made_a_duplicate_rename_audio_file_as_instrumental [opt opt2 opt3] 
-                :rafai_ask_again
-                unset /q ANSWER                       
-                if "%1" == "ask"                             call         AskYN                    "Mark as instrumental? [P=%ansi_color_bright_green%P%ansi_color_prompt%lay,D=%ansi_color_bright_green%d%ansi_color_prompt%elete some sidecars]" no 500 D D:delete_sidecars
-                if  "Y" == "%ANSWER%" .or. "%opt2%" != "ask" gosub "%BAT%\get-lyrics-for-file.btm"  rename_audio_file_as_instrumental                                           %opt%
-                if  "P" == "%ANSWER%" .                      goto        :rafai_ask_again                
-        return
+        rem :oops_made_a_duplicate_rename_audio_file_as_instrumental [opt opt2 opt3] 
+        rem         :rafai_ask_again
+        rem         unset /q ANSWER                       
+        rem         if "%1" == "ask"                             call         AskYN                    "Mark as instrumental? [P=%ansi_color_bright_green%P%ansi_color_prompt%lay,D=%ansi_color_bright_green%d%ansi_color_prompt%elete some sidecars]" no 500 D D:delete_sidecars
+        rem         if  "Y" == "%ANSWER%" .or. "%opt2%" != "ask" gosub "%BAT%\get-lyrics-for-file.btm"  rename_audio_file_as_instrumental                                           %opt%
+        rem         if  "P" == "%ANSWER%" .                      goto        :rafai_ask_again                
+        rem return
 
 
         :check_for_answer_of_X
@@ -3465,19 +3474,30 @@ echo                   %ansi_color_pink%set  IS_INSTRUMENTAL_ADS_FILENAME=%@name
         return
 
         :set_postprocessed_lyrics [opt]
-                echo %ansi_color_green%%%EMOJI_PHONE% CALLED: gosub set_postprocessed_lyrics "%lyric_file%"%ansi_color_normal%
-                set file_to_use=%@UNQUOTE["%LYRIC_FILE%"]
-                if "" != "%opt%" set file_to_use=%@UNQUOTE["%opt%"]
-                call set-tmp-file "postprocessed lyrics"
-                rem e "%@UNQUOTE["%LYRIC_FILE%"]" |:u8  lyric-postprocessor.pl -A -L -S)   >%tmpfile%
-echo about to:  (type            "%file_to_use%" `|`:u8 lyric-postprocessor.pl -A -L -S) `>`%tmpfile%
-                (type            "%file_to_use%"  |:u8  lyric-postprocessor.pl -A -L -S)   >%tmpfile%
-                iff defined postprocessed_lyrics .and. exist %postprocessed_lyrics% .and. "%last_file_used_for_lyric_processing%" == "%file_to_use%" then
-                        rem do nothing because it’s already set to an existing postprocessed file
-                else
-                        set postprocessed_lyrics=%tmpfile% 
-                endiff
-                set last_file_used_for_lyric_processing=%file_to_use%
+                rem Debug:
+                        echo %ansi_color_green%%%EMOJI_PHONE% CALLED: gosub set_postprocessed_lyrics "%lyric_file%"%ansi_color_normal%
+
+                rem Process “opt” parameter to potentially override %lyric_file% with a different file:
+                        set                  file_to_use=%@UNQUOTE["%LYRIC_FILE%"]
+                        if "" != "%opt%" set file_to_use=%@UNQUOTE["%opt%"]
+
+                rem Create a %tmpfile%:
+                        call set-tmp-file "postprocessed lyrics"
+
+                rem Run the post-processor on our input file, outputting to our tmpfile:
+                        rem  type "%@UNQUOTE["%LYRIC_FILE%"]" |:u8  lyric-postprocessor.pl -A -L -S)                 >    %tmpfile%
+                        rem (type            "%FILE_TO_USE%"  |:u8  lyric-postprocessor.pl -A -L -S)                 >    %tmpfile%
+                                                                    lyric-postprocessor.pl -A -L -S  "%FILE_TO_USE%" >:u8 %tmpfile%
+
+                rem Save the filename of our post-processed lyrics, so we can grab them later:
+                        iff defined postprocessed_lyrics .and. exist %postprocessed_lyrics% .and. "%last_file_used_for_lyric_processing%" == "%file_to_use%" then
+                                rem do nothing because it’s already set to an existing postprocessed file
+                        else
+                                set postprocessed_lyrics=%tmpfile% 
+                        endiff
+
+                rem Save the filename of our last input file, just in case we need it for something (aka “auditing”):
+                        set last_file_used_for_lyric_processing=%file_to_use%
         return                        
 
 

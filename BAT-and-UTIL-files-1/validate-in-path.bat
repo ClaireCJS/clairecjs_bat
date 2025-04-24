@@ -135,8 +135,8 @@ rem Once more for good measure:
         :END
         :cleanup
         unset /q validate_in_path_message
-        if defined CURSOR_RESET echos %CURSOR_RESET%``
-        @echo %ansi_reset%%conceal_off%%ansi_color_grey%📞📞📞 ENDING: “%0 %1$” called by %_PBATCHNAME 📞📞📞%ansi_color_normal%
+        if defined CURSOR_RESET echos %CURSOR_RESET%
+        rem @echo %ansi_reset%%conceal_off%%ansi_color_grey%📞📞📞 ENDING: “%0 %1$” called by %_PBATCHNAME 📞📞📞%ansi_color_normal%
      
 
 

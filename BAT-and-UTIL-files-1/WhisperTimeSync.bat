@@ -14,7 +14,7 @@ rem CONFIG:
 rem VALIDATE ENVIRONMENT:
         set  validated_srt_and_txt_for_whispertimesync_already=0
         iff 1 ne %VALIDATED_WHISPERTIMESYNC2% then
-                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columms.bat print_with_columns.py review-file review-files AskYN
+                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN
                 call validate-environment-variables JAVA_WHISPERTIMESYNC our_language color_advice ansi_color_advice
                 call validate-is-function cool_text
                 set  VALIDATED_WHISPERTIMESYNC2=1

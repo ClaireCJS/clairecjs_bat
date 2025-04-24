@@ -6,14 +6,14 @@
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-rem CONFIGURATION:
-        set CREATE_MISSING_KRAOKES_SCRIPT_NAME=create-the-missing-karaokes-here-temp.bat %+ rem This must be synchronized with values elsewhere, so don’t change!
-
-rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 rem Debug configuration:
         set CALL=echo call           %+ rem Use this for a dry run
         set CALL=call                %+ rem Use this for normal production
+
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+rem CONFIGURATION:
+        set CREATE_MISSING_KRAOKES_SCRIPT_NAME=create-the-missing-karaokes-here-temp.bat %+ rem This must be synchronized with values elsewhere, so don’t change!
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -60,16 +60,22 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 rem Process current folder:
         iff "%1" == "here"  then
-                shift
-                setdos /x0
-                rem echo %%1=“%1” %%2=“%2” %%3=“%3” %%4=“%4” ...... %%9$=“%9$”
-                unset /q get
-                if "%1" == "get"            (set get=get            %+ shift)
-                if "%1" == "PromptAnalysis" (set get=PromptAnalysis %+ shift)
-                %CALL% check-for-missing-karaoke.bat %get% %2 %3 %4 %5 %6 %7 %8 %9$
+                rem Gobble up “here” option:
+                        shift
+                        setdos /x0
+                        rem echo %%1=“%1” %%2=“%2” %%3=“%3” %%4=“%4” ...... %%9$=“%9$”
 
-                rem Experimental and put in very late (2025/04/25):
-                if exist %CREATE_MISSING_KRAOKES_SCRIPT_NAME% call %CREATE_MISSING_KRAOKES_SCRIPT_NAME%
+                rem Remove older generated script if it exists:
+                        if exist %CREATE_MISSING_KRAOKES_SCRIPT_NAME% (echos %ansi_color_removal%%axe%%axe% `` %+ *del /z /a: /Ns %CREATE_MISSING_KRAOKES_SCRIPT_NAME%)
+
+                rem Determine mode:
+                        unset /q get
+                        if "%1" == "get"            (set get=get            %+ shift)
+                        if "%1" == "PromptAnalysis" (set get=PromptAnalysis %+ shift)
+                        %CALL% check-for-missing-karaoke.bat %get% %2 %3 %4 %5 %6 %7 %8 %9$
+
+                rem Run our script, if it now exists / was generated:
+                        if exist %CREATE_MISSING_KRAOKES_SCRIPT_NAME% %CALL% %CREATE_MISSING_KRAOKES_SCRIPT_NAME%
 
                 goto /i END
         endiff

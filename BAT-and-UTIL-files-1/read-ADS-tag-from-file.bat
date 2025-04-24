@@ -47,8 +47,8 @@ rem Usage:
 rem Get parameters:
         set FILE_TO_USE=%@UNQUOTE["%1"]                                         %+ rem file to use 
         set TAG_TO_READ=%@UNQUOTE["%2"]                                         %+ rem ads tag to display
-        set               PARAM_3=%3                                            %+ rem "verbose" if you want MORE on-screen verification of what’s happeneing
-        set              PARAMS_3=%3$                                           %+ rem rest of the command tail
+        set                PARAM_3=%3                                           %+ rem "verbose" if you want MORE on-screen verification of what’s happeneing
+        set               PARAMS_3=%3$                                          %+ rem rest of the command tail
 
 rem Validate environment (once):
         iff "1" != "%validated_read_ads_tag_from_file%" then
@@ -58,7 +58,7 @@ rem Validate environment (once):
 
 rem Validate parameters (every time):
         iff "%4" ne "skip_validations" then
-                if "" == "%File_To_Use%" call validate-environment-variable File_To_Use "1ˢᵗ arg must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg arg can be “verbose”"
+                if "" == "%File_To_Use%" call validate-environment-variable File_To_Use "1ˢᵗ argument must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg arg can be “verbose”"
                 if "" == "%Tag_To_Read%" call validate-environment-variable Tag_To_Read "2ⁿᵈ argument must be a tag to read, NOT empty"
         endiff
         
@@ -68,7 +68,6 @@ rem Set default values for parameters:
 
 
 rem Read tag: 
-        rem  add-ADS-tag-to-file "%FILE_TO_USE%" "%TAG_TO_READ%" read %PARAMS_3% 🐐
         call add-ADS-tag-to-file "%FILE_TO_USE%" "%TAG_TO_READ%" read %PARAMS_3%
         rem iff "%PARAM_3%" ne "verbose" then
         rem         echo call add-ADS-tag-to-file "%FILE_TO_USE%" %TAG_TO_READ% read %PARAM_3%
