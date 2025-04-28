@@ -17,13 +17,13 @@ rem Validate environment (once):
         endiff
 
 rem Check if there are any audio files:
-        if not exist %FILEMASK_AUDIO% (call important_less "No audio files in %_CWP" %+ goto :END)
+        if not exist %FILEMASK_AUDIO% (call important_less "No audio files in %_CWP" %+ goto /i END)
 
 rem For each audio file, processi t:
         for %%tmpAudioFile in (%FILEMASK_AUDIO%) gosub process_file "%tmpAudioFile%"
 
 rem End:
-        goto :END
+        goto /i END
 
 rem ━━━━ SUBROUTINES: BEGIN: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

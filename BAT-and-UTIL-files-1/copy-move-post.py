@@ -459,25 +459,26 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         line = line.replace("MDX Kim_Vocal_2" ,f"MDX Kim-Vocal 2")
 
         # patterned substitutions: (in alphabetical order):
-        line = line.replace("Starting work on: "                                      ,f"🎤 Starting transcription work on: {ITALICS_ON}")
-        line = line.replace("* Compression ratio threshold is not"                    ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Compression ratio threshold is not") + FAINT_OFF
-        line = line.replace("* Log probability threshold is not"                      ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ Log probability threshold is not"  ) + FAINT_OFF
-        line = line.replace("* No speech threshold is met"                            ,f"{spacer}{FAINT_ON}{COLOR_GREY}⭐ No speech threshold is met")         + FAINT_OFF
-        line = line.replace("Audio filtering finished in: "                           ,f"⏱  Audio filtering finished in: {ITALICS_ON}")
-        line = line.replace("Audio filtering is in progress"                          ,f"{MOVE_UP_1}🔊 {COLOR_BRIGHT_GREEN}Audio filtering is {ANSI_RESET}{ITALICS_ON}in progress{ITALICS_OFF}{COLOR_BRIGHT_GREEN}") + "\n"
-        line = line.replace("CUDA"                                                    ,f"{ITALICS_ON}CUDA{ITALICS_OFF}")
-        line = line.replace("Estimating duration from bitrate, this may be inaccurate",f"🤔 Estimating duration from bitrate {FAINT_ON}(may be inaccurate){FAINT_OFF}") + "\n"
-        line = line.replace("Model loaded in: "                                       ,f"💾 Model loaded in: {ITALICS_ON}") + "\n"
-        line = line.replace("Number of visible GPU devices: "                         ,f"🖥️ Number of visible GPU devices: {ITALICS_ON}") + "\n"
-        line = line.replace("Operation finished in: "                                 ,f"{MOVE_UP_1}{MOVE_UP_1}{COLOR_BRIGHT_GREEN}🏁 Operation finished in: {COLOR_GREEN}{ITALICS_ON}")
-        line = line.replace("Processing audio with duration"                          ,f"👂 Processing audio with duration{ITALICS_ON}") + "\n"
-        line = line.replace("Subtitles are written to '"                              ,f"✅ Subtitles are written to '{ITALICS_ON}{BOLD_ON}").replace("' directory.",f"{BOLD_OFF}{ITALICS_OFF}' directory. ✅")
-        line = line.replace("Supported compute types by GPU:"                         ,f"🖥️ Supported compute types by GPU: {ITALICS_ON}") + "\n"
-        line = line.replace("Transcription speed: "                                   ,f"{FAINT_ON}{COLOR_GREY}⏱  Transcription speed: {ITALICS_ON}")
-        line = line.replace("VAD filter removed "                                     ,f"✔  VAD filter audio removal duration: {ITALICS_ON}").replace("of audio","")
-        line = line.replace("VAD filter kept the following audio segments: "          ,f"✔️ VAD filter kept the following audio segments: {FAINT_ON}") #for some reason this needs 1 less space before “VAD” ... not a mistake
-        line = line.replace("VAD finished in: "                                       ,f"{MOVE_UP_1}{MOVE_TO_COL_1}🏁 VAD finished in: {ITALICS_ON}")
-        line = line.replace("VAD timestamps are dumped to "                           ,f"{MOVE_UP_1}✍  VAD timestamps are dumped to: {ITALICS_ON}")
+        line = line.replace("Starting work on: "                                      ,f"{FAINT_OFF}🎤 Starting transcription work on: {ITALICS_ON}")
+        line = line.replace("* Compression ratio threshold is not"                    ,f"{FAINT_OFF}{spacer}{FAINT_ON}{COLOR_GREY}⭐ Compression ratio threshold is not") + FAINT_OFF
+        line = line.replace("* Log probability threshold is not"                      ,f"{FAINT_OFF}{spacer}{FAINT_ON}{COLOR_GREY}⭐ Log probability threshold is not"  ) + FAINT_OFF
+        line = line.replace("* No speech threshold is met"                            ,f"{FAINT_OFF}{spacer}{FAINT_ON}{COLOR_GREY}⭐ No speech threshold is met")         + FAINT_OFF
+        line = line.replace("Audio filtering finished in: "                           ,f"{FAINT_OFF}⏱  Audio filtering finished in: {ITALICS_ON}")
+        line = line.replace("Audio filtering is in progress"                          ,f"{FAINT_OFF}{MOVE_UP_1}🔊 {COLOR_BRIGHT_GREEN}Audio filtering is {ANSI_RESET}{ITALICS_ON}in progress{ITALICS_OFF}{COLOR_BRIGHT_GREEN}") + "\n"
+        line = line.replace("CUDA"                                                    ,f"{FAINT_OFF}{ITALICS_ON}CUDA{ITALICS_OFF}")
+        line = line.replace("Estimating duration from bitrate"                        ,f"{FAINT_OFF}🤔 Estimating duration from bitrate {FAINT_ON}") + "\n"
+        line = line.replace("invalid new backstep"                                    ,f"{FAINT_OFF}⚠ Invalid new backstep" + "\n")
+        line = line.replace("Model loaded in: "                                       ,f"{FAINT_OFF}💾 Model loaded in: {ITALICS_ON}") + "\n"
+        line = line.replace("Number of visible GPU devices: "                         ,f"{FAINT_OFF}🖥️ Number of visible GPU devices: {ITALICS_ON}") + "\n"
+        line = line.replace("Operation finished in: "                                 ,f"{FAINT_OFF}{MOVE_UP_1}{MOVE_UP_1}{COLOR_BRIGHT_GREEN}🏁 Operation finished in: {COLOR_GREEN}{ITALICS_ON}")
+        line = line.replace("Processing audio with duration"                          ,f"{FAINT_OFF}👂 Processing audio with duration{ITALICS_ON}") + "\n"
+        line = line.replace("Subtitles are written to '"                              ,f"{FAINT_OFF}✅ Subtitles are written to '{ITALICS_ON}{BOLD_ON}").replace("' directory.",f"{BOLD_OFF}{ITALICS_OFF}' directory. ✅")
+        line = line.replace("Supported compute types by GPU:"                         ,f"{FAINT_OFF}🖥️ Supported compute types by GPU: {ITALICS_ON}") + "\n"
+        line = line.replace("Transcription speed: "                                   ,f"{FAINT_OFF}{FAINT_ON}{COLOR_GREY}⏱  Transcription speed: {ITALICS_ON}")
+        line = line.replace("VAD filter removed "                                     ,f"{FAINT_OFF}✔  VAD filter audio removal duration: {ITALICS_ON}").replace("of audio","")
+        line = line.replace("VAD filter kept the following audio segments: "          ,f"{FAINT_OFF}✔️ VAD filter kept the following audio segments: {FAINT_ON}") #for some reason this needs 1 less space before “VAD” ... not a mistake
+        line = line.replace("VAD finished in: "                                       ,f"{FAINT_OFF}{MOVE_UP_1}{MOVE_TO_COL_1}🏁 VAD finished in: {ITALICS_ON}")
+        line = line.replace("VAD timestamps are dumped to "                           ,f"{FAINT_OFF}{MOVE_UP_1}✍  VAD timestamps are dumped to: {ITALICS_ON}")
 
         # unique substitutions: multi-line:
         if  original_line.startswith("  Processing segment at "):

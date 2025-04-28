@@ -18,7 +18,7 @@ rem Usage:
                 echo.
                 echo. SPECIAL: the “-st”  action can be stacked with “-wh”, even though print-with-columns doesn’t work like that
                 echo. SPECIAL: the “-stU” action causes “-st” stripe to be an “upper stripe” before divider
-                goto :END
+                goto /i END
 endiff
 
 rem Config:
@@ -40,7 +40,7 @@ rem First, process any arguments that start with “-”:
                         set PWC_OPTIONS=%PWC_OPTIONS% %1
                 endiff
                 shift
-                goto :check_next_arg_for_pwd_opts
+                goto /i check_next_arg_for_pwd_opts
         endiff           
         rem echo %%1 is %1 , 2=%2, 3=%3, 4=%4 %+ pause
 
@@ -73,7 +73,7 @@ rem Only review a single file, if [what is hopefully] a filename is provided:
                                 *setdos /x-5
                                 iff not exist %our_filemask% then
                                         echo %ANSI_COLOR_WARNING_soft%%EMOJI_WARNING% No %@upper[%@%@REReplace[;,/,%@REReplace[\*\.,,%our_filemask%]]] files present %EMOJI_WARNING%%ANSI_COLOR_NORMAL%
-                                        goto :END
+                                        goto /i END
                                 else
                                         echo It exists...>nul
                                 endiff

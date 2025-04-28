@@ -238,24 +238,24 @@ rem Cleanup:
         rem Set files to be read-only so we don’t accidentally edit them in the wrong place:
                 
         :Skip_TheRest
-                unset /q SECONDARY_BAT_FILES
-                unset /q SECONDARY_BAT_FILES_2
-                unset /q SECONDARY_BAT_FILES_3
-                unset /q SECONDARY_BAT_FILES_4
+                rem unset /q SECONDARY_BAT_FILES
+                rem unset /q SECONDARY_BAT_FILES_2
+                rem unset /q SECONDARY_BAT_FILES_3
+                rem unset /q SECONDARY_BAT_FILES_4
                 rem unset /q SECONDARY_BAT_FILES_5
-                unset /q SECONDARY_BAT_FILES_6
-                unset /q SECONDARY_BAT_FILES_7
-                unset /q SECONDARY_BAT_FILES_8
-                unset /q SECONDARY_BAT_FILES_9
-                unset /q SECONDARY_BAT_FILES_2
-                unset /q SECONDARY_BAT_FILES_3
-                unset /q SECONDARY_BAT_FILES_4
-                unset /q SECONDARY_BAT_FILES_5   
+                rem unset /q SECONDARY_BAT_FILES_6
+                rem unset /q SECONDARY_BAT_FILES_7
+                rem unset /q SECONDARY_BAT_FILES_8
+                rem unset /q SECONDARY_BAT_FILES_9
+                rem unset /q SECONDARY_BAT_FILES_2
+                rem unset /q SECONDARY_BAT_FILES_3
+                rem unset /q SECONDARY_BAT_FILES_4
+                rem unset /q SECONDARY_BAT_FILES_5   
         :END
 
 rem echo %ansi_color_removal%👻 leaving %0 in %_CWD tha was called by %_PBATCHNAME%ansi_color_normal% %+ pause
 
-goto :skip_subroutines
+goto skip_subroutines
         :divider []
                 rem Use my pre-rendered rainbow dividers, or if they don’t exist, just generate a divider dynamically
                 set wd=%@EVAL[%_columns - 1]

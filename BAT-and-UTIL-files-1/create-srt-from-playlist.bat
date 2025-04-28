@@ -9,7 +9,7 @@ rem USAGE:
                 text
                         USAGE: %0 {playlist_filename} {limit} -- to check all files of that playlist for karokes, until we find our limit
                 endtext
-                goto :END
+                goto /i END
         endiff
 
 rem VALIDATE ENVIRONMENT:

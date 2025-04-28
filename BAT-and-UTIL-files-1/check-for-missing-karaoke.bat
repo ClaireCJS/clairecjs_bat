@@ -11,7 +11,7 @@ rem Usage:
                 echo USAGE: %ansi_color_bright_yellow%%0 %ansi_color_advice%————— checks for missing karaoke in current folder
                 echo USAGE: %ansi_color_bright_yellow%%0 /s %ansi_color_advice%—— checks for missing karaoke in current folder RECURSIVELY
                 %color_normal%
-                goto :END
+                goto /i END
         endiff
 
 rem Variable definitions ported from our outer environment into this script for portability:
@@ -45,7 +45,7 @@ rem Parameter processing:
         if  "%1" == "/s" set RECURSE_CFMK=1
         iff "%2" != "" then
                 shift
-                goto :Again
+                goto /i Again
         endiff                
 
 rem Debug:
@@ -95,15 +95,15 @@ rem If the filelist doesn't exist...
         iff 1 eq %RECURSE_CFMK% then
                 rem call mp3index/s                         >:u8all.m3u
                 call mp3index
-                if not exist all.m3u   .or. 0 eq %@FILESIZE[all.m3u]  goto :END
+                if not exist all.m3u   .or. 0 eq %@FILESIZE[all.m3u]  goto /i END
         else                
                 call mp3index
                 rem call mp3index                           >:u8these.m3u
-                if not exist these.m3u .or. 0 eq %@FILESIZE[these.m3u] goto :END
+                if not exist these.m3u .or. 0 eq %@FILESIZE[these.m3u] goto /i END
         endiff                
 
 rem Kill bad transcriptions first:
-        if "0" == "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" goto :skip_delete_bad
+        if "0" == "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" goto /i skip_delete_bad
         call delete-bad-ai-transcriptions 3
         :skip_delete_bad
         setdos /x0

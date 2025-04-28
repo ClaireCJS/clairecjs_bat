@@ -188,12 +188,12 @@ if ($use_words_mode) {                                                          
 
     while (<$in>) {                                                                                    # Read the file line by line
         chomp;                                                                                         # Remove the newline for safer processing
-        s/\.$//;                                                                                       # Remove exactly one trailing period
 		if ($leave_censorship) {
 			$tmpLine = $_;
 		} else {
 			$tmpLine = &whisper_ai_postprocess($_);
 		}
+        $tmpLine =~ s/\.$//;                                                                           # Remove exactly one trailing period —— because these are the “invisible periods” we add to the end of each line of downloaded lyrics, which cause WhisperAI’s --sentence parameter to work properly [vs improperly if you don’t add the “invisible” periods to the end of each line]
         print $out "$tmpLine\n";                                                                       # Print the modified line to the output file
     }
 }

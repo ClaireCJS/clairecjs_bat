@@ -257,9 +257,9 @@ REM validate environment [once]:
 
 REM branch on certain paramters, and clean up various parameters 
         rem %1 "last" is a very unique situation:
-        echo %ansi_color_red% if "%@UNQUOTE[%1]" == "last" (goto :actually_make_the_lrc) >nul
+        echo %ansi_color_red% if "%@UNQUOTE[%1]" == "last" (goto /i actually_make_the_lrc) >nul
         echo %@ansi_randfg_soft[][AAA1] %%1$ is %1$ >nul
-        if "%1" == "last" (goto :actually_make_the_lrc) %+ rem to repeat the last regen
+        if "%1" == "last" (goto /i actually_make_the_lrc) %+ rem to repeat the last regen
         rem %1 was unique. Now we do the normal stuffs:
 
         rem ENVIRONMENT-ONLY parameters:               
@@ -335,7 +335,7 @@ REM branch on certain paramters, and clean up various parameters
 
         rem echo AUTO_LYRIC_APPROVAL is %AUTO_LYRIC_APPROVAL%  %+ pause
         
-        if 1 eq %CLEANUP (goto :just_do_the_cleanup)
+        if 1 eq %CLEANUP (goto /i just_do_the_cleanup)
 
         set MAKING_KARAOKE=1
 
@@ -391,7 +391,7 @@ rem Make sure it’s a transcribeable filename:
                 rem echo Aborting...
                 goto /i The_Very_Very_END
         )
-        goto :skip_sub_414
+        goto skip_sub_414
                                 :validate_transcribeable_filename [input_file verb]
                                         rem Failure flag:
                                                 set fail=0
@@ -457,7 +457,7 @@ rem Do subtitles exist?
                 rem echo exp output file does not exist! 
                 rem echo goto_end == "%goto_end%" 
         )
-        if "1" == "%goto_end%" goto :END
+        if "1" == "%goto_end%" goto /i END
         REM echo if exist "%POTENTIAL_LYRIC_FILE%" 
         if exist "%POTENTIAL_LYRIC_FILE%" (
                 rem gosub refresh_lyric_status "%POTENTIAL_LYRIC_FILE%"
@@ -476,7 +476,7 @@ rem If the file has been marked as failed previously, abort (unless in force mod
                 gosub divider
                 @call warning "Sorry, this file has failed in transcription, and won’t be tried again without the “force” parameter being used: %faint_on%%INPUT_FILE%%faint_off%" silent 
                 gosub divider
-                goto :END
+                goto /i END
         endiff
 
 REM Values fetched from input file:
@@ -486,7 +486,7 @@ REM Values fetched from input file:
                 set PROMPT_CONSIDERATION_TIME=3
                 set PROMPT_EDIT_CONSIDERATION_TIME=3
         )
-        if "1" != "%SOLELY_BY_AI%" goto :endiff_359
+        if "1" != "%SOLELY_BY_AI%" goto /i endiff_359
                 echo %ansi_color_unimportant%🐐 %@cool[calling get-lyrics-for-file] [111] - CALLING %@colorful_string[━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━]
                 call get-lyrics-for-file "%SONGFILE%" SetVarsOnly %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc
                 echo %ansi_color_unimportant%🐐 return: %@cool[get-lyrics-for-file] [111] - RETURNED %@colorful_string[━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━]
@@ -500,12 +500,12 @@ REM Lyric file stuffs:
         iff not exist "%POTENTIAL_LYRIC_FILE%" then
                 echo Lyrics don’t exist ... PROMPT_ANALYSIS_ONLY=%PROMPT_ANALYSIS_ONLY% .. goatgoatgoat ... so if we are in prompt analyais mode we shoudl actually goto /i END !!
         endiff
-        if not exist "%POTENTIAL_LYRIC_FILE%" goto :end_of_potential_lyric_file_initial_processing
+        if not exist "%POTENTIAL_LYRIC_FILE%" goto /i end_of_potential_lyric_file_initial_processing
                 set TXT_FILE=%@UNQUOTE["%POTENTIAL_LYRIC_FILE%"]
-                echos %STAR%%ANSI_COLOR_IMPORTANT% Trying sidecar lyrics file: %faint_on%%italics_on%%TXT_FILE%%italics_off%%faint_off%...%ansi_color_normal%
+                echos %STAR%%ANSI_COLOR_IMPORTANT% Checking lyrics at %faint_on%%italics_on%%lq%%TXT_FILE%%rq%%italics_off%%faint_off%...%ansi_color_normal%
                 gosub refresh_lyric_status "%TXT_FILE%"
                 if "%LYRIC_STATUS%" == "APPROVED" (
-                        echo %ansi_color_bright_green%...and it is approved!%ansi_color_normal%
+                        echo %ansi_color_bright_green%...%italics_on%and they are %blink_on%approved%blink_off%!%italics_off%%ansi_color_normal%
                         set sidecar_was_present_from_the_start=1
                         set LYRIC_FILE=%TXT_FILE%
                         goto /i AI_generation 
@@ -607,7 +607,7 @@ REM Now, let’s check these values:
                 endiff
         endiff
         if "%goto_end%" == "1" gosub divider
-        if "%goto_end%" == "1" goto :END
+        if "%goto_end%" == "1" goto /i END
         :retry_after_lrc_copy
 
 REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
@@ -643,7 +643,7 @@ REM If our input file is lyricless and we’ve approved its lyriclessness, then 
                 set goto_forcing_ai_generation=0
         endiff
         rem echo α 809
-        if 1 eq %goto_forcing_ai_generation goto :forcing_ai_generation
+        if "1" == "%goto_forcing_ai_generation%" goto /i forcing_ai_generation
         rem echo α 809.1
 
 
@@ -797,14 +797,14 @@ REM If we say "force", skip the already-exists check and contiune
 :attempt_to_download_LRC_with_lyricy
         REM FAILED: Let’s NOT try downloading a LRC with lyricy first because it gets mismatches whenever none exists, which is almost always:
                rem call get-lrc-with-lyricy "%CURRENT_SONG_FILE%"
-               rem if exist %LRC_FILE% (@call success "Looks like %italics_on%lyricy%italics_off% found an LRC for us!" %+ goto :END)
+               rem if exist %LRC_FILE% (@call success "Looks like %italics_on%lyricy%italics_off% found an LRC for us!" %+ goto /i END)
 
 
 
 
 REM If it’s an instrumental, don’t bother:
         rem echo α 1200
-        if "%@REGEX[instrumental,%INPUT_FILE%]" == "1" (@call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent %+ goto :END)
+        if "%@REGEX[instrumental,%INPUT_FILE%]" == "1" (@call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent %+ goto /i END)
         rem echo α 1200.1
 
 
@@ -815,7 +815,7 @@ REM In terms of automation, as of 10/28/2024 we are only comfortable with FULLY 
 REM in the event that a txt file also exists.  To enforce this, we will only generate with a "force" parameter if the txt file does not exist.
         :check_for_txtfile
         rem echo α 1400
-        if "1" eq "%SOLELY_BY_AI%" goto :we_decided_to_never_check_for_txtfile
+        if "1" eq "%SOLELY_BY_AI%" goto /i we_decided_to_never_check_for_txtfile
    
         rem not exist "%TXT_FILE%" .and.  1  ne  %FORCE_REGEN%  .and.  1  eq  %LYRIC_ATTEMPT_MADE   then
         rem not exist "%TXT_FILE%" .and.  1  ne  %FORCE_REGEN%                                      then
@@ -840,26 +840,30 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                                 endiff
                                 rem echo ⏺ AI_GENERATION_ANYWAY_DEFAULT_ANSWER=“%AI_GENERATION_ANYWAY_DEFAULT_ANSWER%”
 
-                        rem gosub debug_show_lyric_status
-                        @call askYN "Generate AI anyway (%ansi_color_bright_green%I%ansi_color_prompt%=instrumental[%ansi_color_bright_green%X%ansi_color_prompt%=All],%ansi_color_bright_green%L%ansi_color_prompt%=Lyrics Unfindable)" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME% ILX I:Mark_it_as_an_instrumental_track,L:Mark_lyricless,X:mark_all_as_instrumental_tracks
-                        if "%ANSWER%" == "Y" (goto :Force_AI_Generation)
-                        iff "L" == "%ANSWER%" then                        
-                                set JUST_APPROVED_LYRICLESSNESS=1
-                                set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=yes
-                                set AI_GENERATION_ANYWAY_WAIT_TIME=5
-                                rem NO! This is infinite-loop-ish: goto /i :Generate_AI_Anyway_question
-                                rem Instead go to creating it now, since we marked it as lyricless
-                        endiff
-                        gosub check_for_answer_of_L "%@UNQUOTE["%INPUT_FILE%"]"
-                        if "L" == "%ANSWER%" goto :Force_AI_Generation
-                        gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
-                        iff "1" != "%ABANDONED_SEARCH%" .or. "%LYRICLESSNESS_STATUS%" == "APPROVED" then
-                                @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Failed to generate%emphasis% %SRT_FILE% %deemphasis%%ansi_color_warning%                %emoji_warning% %ansi_color_normal%
-                                @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% because the lyrics%emphasis% %TXT_FILE% %deemphasis%%ansi_color_warning% do not exist!! %emoji_warning% %ansi_color_normal%
-                                rem @call advice  "Use “ai” option to go straight to AI generation"
-                        endiff
+                        rem ASK THE ACTUAL QUESTOIN:
+                                rem gosub debug_show_lyric_status
+                                @call askYN "Generate AI anyway (%ansi_color_bright_green%I%ansi_color_prompt%=instrumental[%ansi_color_bright_green%X%ansi_color_prompt%=All],%ansi_color_bright_green%L%ansi_color_prompt%=Lyrics Unfindable)" %AI_GENERATION_ANYWAY_DEFAULT_ANSWER% %AI_GENERATION_ANYWAY_WAIT_TIME% ILX I:Mark_it_as_an_instrumental_track,L:Mark_lyricless,X:mark_all_as_instrumental_tracks
 
-                goto /i :END
+                        rem DEAL WITH THE ANSWERS:
+                                if "%ANSWER%" == "Y" (goto /i Force_AI_Generation)
+                                iff "L" == "%ANSWER%" then                        
+                                        set JUST_APPROVED_LYRICLESSNESS=1
+                                        set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=yes
+                                        set AI_GENERATION_ANYWAY_WAIT_TIME=5
+                                        rem NO! This is infinite-loop-ish: goto /i :Generate_AI_Anyway_question
+                                        rem Instead go to creating it now, since we marked it as lyricless
+                                endiff
+                                gosub check_for_answer_of_L "%@UNQUOTE["%INPUT_FILE%"]"
+                                gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
+                                if "L" == "%ANSWER%" goto /i Force_AI_Generation
+
+                        rem If we are still here, then:
+                                iff "1" != "%ABANDONED_SEARCH%" .or. "%LYRICLESSNESS_STATUS%" == "APPROVED" then
+                                        @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Failed to generate %emphasis%%SRT_FILE% %deemphasis%%ansi_color_warning%                %emoji_warning% %ansi_color_normal%
+                                        @echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% because the lyrics %emphasis%%TXT_FILE% %deemphasis%%ansi_color_warning% do not exist!! %emoji_warning% %ansi_color_normal%
+                                        rem @call advice  "Use “ai” option to go straight to AI generation"
+                                endiff
+                goto /i END
         else
                 rem echo α 1475
                 rem This seems inapplicable now (2024/12/11): @echo %ansi_color_warning_soft%%star% Not yet generating %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning_soft% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning_soft% does not exist!%ansi_color_normal%
@@ -873,7 +877,7 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
         endiff
 
         rem echo α 1500.0.0 ━━ "LYRICLESSNESS_STATUS" == "%LYRICLESSNESS_STATUS%" 
-        if "%LYRICLESSNESS_STATUS%" == "APPROVED" goto :do_not_refetch_lyrics
+        if "%LYRICLESSNESS_STATUS%" == "APPROVED" goto /i do_not_refetch_lyrics
         rem echo α 1500.0.1
         rem echo α 1500.0.2 - how can this show up but not the next one?
         :Refetch_Lyrics
@@ -939,7 +943,10 @@ rem Mandatory review of lyrics
 :we_decided_to_never_check_for_txtfile
 :Force_AI_Generation
 :AI_generation
-echo ❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇ AI generation! ❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇ >nul
+
+rem DEBUG:
+        echo ❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇  AI generation! ❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇❇ 
+        rem >nul
 
 
 REM if a text file of the lyrics exists, we need to engineer our AI transcription prompt with it to get better results
@@ -1035,8 +1042,8 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         rem NOTE: We also have --batch_recursive - {automatically sets --output_dir} but you can’t prompt each file with individual lyrics that way
 
 
-        if "1" == "%AUTO_LYRIC_APPROVAL%" goto :use_text
-        if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto :endiff_no_text_1017
+        if "1" == "%AUTO_LYRIC_APPROVAL%" goto /i use_text
+        if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto /i endiff_no_text_1017
                 :use_text
 
                 rem the text file %TXT_FILE% does in fact exist!
@@ -1107,10 +1114,10 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
 
 rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
 REM        REM demucs vocals out (or not——we don’t do this in 2024):
-REM                                        if %SKIP_SEPARATION eq 1 (goto :Vocal_Separation_Skipped)
+REM                                        if %SKIP_SEPARATION eq 1 (goto /i Vocal_Separation_Skipped)
 REM                                        if exist %VOC_FILE% (
 REM                                            @call warning "Vocal file “%italics%%VOC_FILE%%italics_off%” %underline%already%underline_off% exists! Using it..."
-REM                                            goto :Vocal_Separation_Done
+REM                                            goto /i Vocal_Separation_Done
 REM                                        )
 REM                                    REM do it
 REM                                        :Vocal_Separation
@@ -1145,7 +1152,7 @@ REM Log the prompt we generated for analysis:
 
 
 REM If we are ONLY gathering prompts for analysis, abort now:
-        if "1" != "%PROMPT_ANALYSIS_ONLY%" goto :no_analysis_aborting        
+        if "1" != "%PROMPT_ANALYSIS_ONLY%" goto /i no_analysis_aborting        
                 echo %ansi_color_warning_less%%star% Only gathering prompts right now, so we are done, actually.%ansi_color_normal%
                 iff "" != "%LAST_WHISPER_COMMAND%" then
                         echo %ansi_color_less_important%%star% Prompt used would be: %faint_on%%LAST_WHISPER_COMMAND%%faint_off%%ansi_color_normal%
@@ -1188,19 +1195,20 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
                 unset /q ADDITIONAL_OPTIONS_MEANINGS
                                                                                                                         
                 iff "%LYRICLESSNESS_STATUS%" != "APPROVED" then
-                        set ADDITIONAL_OPTIONS_TEXT= [P=Play,%ansi_color_bright_green%L%ansi_color_prompt%=mark lyricless%underline_on%ness%underline_off%]
-                        set ADDITIONAL_OPTIONS_LETTERS=LP
-                        set ADDITIONAL_OPTIONS_MEANINGS=L:Mark_as_lyricless!,P:play_the_file
+                        set ADDITIONAL_OPTIONS_TEXT= [P=Play,%ansi_color_bright_green%L%ansi_color_prompt%=mark lyricless%underline_on%ness%underline_off%,I=Instr]
+                        set ADDITIONAL_OPTIONS_LETTERS=ILP
+                        set ADDITIONAL_OPTIONS_MEANINGS=L:Mark_as_lyricless!,P:play_the_file,I:mark_as_instrumental
                 else
-                        set ADDITIONAL_OPTIONS_TEXT= [P=Play]
-                        set ADDITIONAL_OPTIONS_LETTERS=P
-                        set ADDITIONAL_OPTIONS_MEANINGS=P:preview_the_file
+                        set ADDITIONAL_OPTIONS_TEXT= [P=Play,I=instr]
+                        set ADDITIONAL_OPTIONS_LETTERS=IP
+                        set ADDITIONAL_OPTIONS_MEANINGS=P:preview_the_file,I:mark_as_instrumental
                 endiff
         :determine_dynamic_prompt_options_end
 
         if "%LYRIC_STATUS%" == "APPROVED" set PROCEED_WITH_AI_CONSIDERATION_TIME=9
-        :proceed_ֲַprompt
+        :proceed_prompt
         @call AskYn "Proceed with this AI generation%ADDITIONAL_OPTIONS_TEXT%" yes %PROCEED_WITH_AI_CONSIDERATION_TIME% %ADDITIONAL_OPTIONS_LETTERS% %ADDITIONAL_OPTIONS_MEANINGS%
+        gosub                                 check_for_answer_of_I "%INPUT_FILE%"
         gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%INPUT_FILE%"
         if  "%answer%" == "P" goto /i  proceed_prompt
         if  "%answer%" == "L" goto /i regen_ai_prompt
@@ -1227,7 +1235,7 @@ REM Updated Concurrency Check: wait on lock file
 
 REM Original Concurrency Check: Check if the encoder is already running in the process list. Don’t run more than 1 at once.
         rem slower call isRunning %TRANSCRIBER_PRNAME% silent
-        rem slower if "%isRunning" != "1" (goto :no_concurrency_issues)
+        rem slower if "%isRunning" != "1" (goto /i no_concurrency_issues)
         rem faster:
         rem echo %ANSI_COLOR_DEBUG%- DEBUG: (4) iff @PID[TRANSCRIBER_PDNAME=%TRANSCRIBER_PDNAME%] %@PID[%TRANSCRIBER_PDNAME%] ne 0 then %ANSI_COLOR_NORMAL%
         set CONCURRENCY_WAS_TRIGGERED=0        
@@ -1244,9 +1252,9 @@ REM Original Concurrency Check: Check if the encoder is already running in the p
                 rem Wait a random number of seconds to lower the odds of multiple waiting processes seeing an opening and all starting at the same time]:
                 sleep %@random[7,29] 
                 rem slow: call isRunning %TRANSCRIBER_PRNAME% silent
-                rem echo %ANSI_COLOR_DEBUG%- DEBUG: (55) if "@PID[TRANSCRIBER_PDNAME]" (which is "@PID[%transcriber_pdname]" which is "%@PID[%TRANSCRIBER_PDNAME]") ne 0 (goto :Check_If_Transcriber_Is_Running_Again)%ANSI_COLOR_NORMAL%
-                rem echo if "@PID[%TRANSCRIBER_PDNAME%]" != "0" (goto :Check_If_Transcriber_Is_Running_Again)
-                if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (goto :Check_If_Transcriber_Is_Running_Again)
+                rem echo %ANSI_COLOR_DEBUG%- DEBUG: (55) if "@PID[TRANSCRIBER_PDNAME]" (which is "@PID[%transcriber_pdname]" which is "%@PID[%TRANSCRIBER_PDNAME]") ne 0 (goto /i Check_If_Transcriber_Is_Running_Again)%ANSI_COLOR_NORMAL%
+                rem echo if "@PID[%TRANSCRIBER_PDNAME%]" != "0" (goto /i Check_If_Transcriber_Is_Running_Again)
+                if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (goto /i Check_If_Transcriber_Is_Running_Again)
                 @echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
         :no_concurrency_issues
         
@@ -1265,7 +1273,8 @@ REM set a non-scrollable header on the console to keep us from getting confused 
 
         unset /q banner_message
         rem set  banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%ZZZZZZZZ%AI-Transcribing%faint_off% %ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%“%italics_on%%FILE_TITLE%%italics_off%” %faint_on%%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%ZZZZZZZZ%%@cool[%FILE_ARTIST%]%%ZZZZZZZZZ%
-        set      banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%%ansi_color_normal%%@ANSI_BG[0,0,64]AI–Transcribing%faint_off%%ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%%@IF["" != "%FILE_TITLE%" .and. "" != "%FILE_ARTIST%", %@NAME["%INPUT_FILE%"],]%@IF["" != "%FILE_TITLE%", “%italics_on%%FILE_TITLE%%italics_off%”,]%LOCKED_MESSAGE_COLOR_BG%%@IF["" != "%FILE_ARTIST%", %@randfg_soft[]%faint_on%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%,]
+        rem set  banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%%ansi_color_normal%%@ANSI_BG[0,0,64]AI–Transcribing%faint_off%%ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%%@IF["" != "%FILE_TITLE%" .and. "" != "%FILE_ARTIST%", %@NAME["%INPUT_FILE%"],]%@IF["" != "%FILE_TITLE%", “%italics_on%%FILE_TITLE%%italics_off%”,]%LOCKED_MESSAGE_COLOR_BG%%@IF["" != "%FILE_ARTIST%", %@randfg_soft[]%faint_on%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%,]
+        set      banner_message=%@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%faint_on%%ansi_color_normal%%@ANSI_BG[0,0,64]AI–Transcribing%faint_off%%ansi_color_important%%LOCKED_MESSAGE_COLOR_BG%%@IF["" != "%FILE_TITLE%" .and. "" != "%FILE_ARTIST%", %@NAME["%INPUT_FILE%"],%@IF["" != "%FILE_TITLE%", “%italics_on%%FILE_TITLE%%italics_off%”,]%LOCKED_MESSAGE_COLOR_BG%%@IF["" != "%FILE_ARTIST%", %@randfg_soft[]%faint_on%by%faint_off% %@randfg_soft[]%LOCKED_MESSAGE_COLOR_BG%%blink_on%%@cool[%FILE_ARTIST%]%%blink_off%,]]
         gosub divider
         rem BRING BACK AFTER I FIX THE BANNER: call top-banner "%banner_message%"
         rem instead do this temporarily: call important "%banner_message%"
@@ -1300,7 +1309,7 @@ REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨
                 endiff
 
         rem A 3rd concurrency check became necessary in my endeavors:
-                if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto :Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
+                if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
 
 REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨ 
         gosub :lockfile_create_transcriber_lock_file 
@@ -1321,33 +1330,33 @@ REM  ✨ ✨ ✨ ✨ ✨ ✨ ACTUALLY DO THE AI-TRANSCRIPTION: ✨ ✨ ✨ ✨ �
                 echos %ANSI_CURSOR_CHANGE_TO_vertical_bar_steady%   
                 echo. %+ rem this is the blank line after “launching ai”
                 option //UnicodeOutput=yes
-                on break continue
+                on break rem
                 rem    %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper 
                 rem    %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper  |&:u8 tee      /a      "%OUR_LOGFILE%"
                 rem    %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper  |&:u8 tee.exe --append "%OUR_LOGFILE%"
-                rem    %LAST_WHISPER_COMMAND% |&:u8  grep -v ctranslate  |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"
-                rem   (%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"
-                rem  ((%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper) |:u8  tee.exe --append "%OUR_LOGFILE%"
-                rem  ((%LAST_WHISPER_COMMAND%                          ) |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%")
+                rem    %LAST_WHISPER_COMMAND% |&:u8  grep -v ctranslate  |:u8 copy-move-post whisper   |:u8 tee.exe --append "%OUR_LOGFILE%"
+                rem   (%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper   |:u8 tee.exe --append "%OUR_LOGFILE%"
+                rem  ((%LAST_WHISPER_COMMAND% |&|:u8 grep -v ctranslate) |:u8 copy-move-post whisper)  |:u8 tee.exe --append "%OUR_LOGFILE%"
+                rem  ((%LAST_WHISPER_COMMAND%                          ) |:u8 copy-move-post whisper   |:u8 tee.exe --append "%OUR_LOGFILE%")
                 rem  ((%LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper) |&:u8 tee.exe --append "%OUR_LOGFILE%")
                 rem   (%LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper  |&:u8 tee.exe --append "%OUR_LOGFILE%")
                 rem    %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper                                          %+ rem works great....but no log
-                rem    %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper  |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
+                rem    %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper   |:u8 tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
 rem temporary cosmetic feature removal while working out copy-move-post.py post-TCCv33 modifications is to remove the postprocessor:
-rem                    %LAST_WHISPER_COMMAND%                                                         |:u8  tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
+rem                    %LAST_WHISPER_COMMAND%                                                          |:u8 tee.exe --append "%OUR_LOGFILE%"  %+ rem does NOT fully work. cycling yes but no italicized cycling lyrics just the whole thing
 rem but y’know rather than using tee, i could maybe use copy-move-post ITSELF to write the  logfile and escape these complications entirely!                       
                        %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper -t"%OUR_LOGFILE%"  
 
                 on break cancel                      
                        
-                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
-                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
-                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
-                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
-                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
-                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
-                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
-                goto :Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
+                goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
+                goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
+                goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
+                goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
+                goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
+                goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
+                goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
+                goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 :Done_Transcribing                 %+ rem  /     If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 option //UnicodeOutput=%UnicodeOutputDefault%
                 if defined TOCK echos %TOCK%       %+ rem just our nickname for an extra-special ansi-reset
@@ -1378,7 +1387,7 @@ REM did we create the SRT file?
                 goto /i did_not_generate
         endiff
         echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[bright green]%ANSI_CURSOR_CHANGE_TO_BLOCK_steady%                
-        if not exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" goto :endiff_1286
+        if not exist "%@UNQUOTE[%EXPECTED_OUTPUT_FILE%]" goto /i endiff_1286
                 rem Ensure the folder is marked as having AI-generated transcriptions:
                         if not exist "__ contains AI-generated SRT files __" @echo %EXPECTED_OUTPUT_FILE%%::::%_DATETIME%::::%TRANSCRIBER_TO_USE% >>:u8"__ contains AI-generated SRT files __"
 
@@ -1438,7 +1447,7 @@ rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////
 
 :did_not_generate
 echo About to go to cleanup but maybe should be going to cleanup_only
-goto :Cleanup
+goto /i Cleanup
 
 
 rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
@@ -1489,16 +1498,18 @@ rem Let user know if we were NOT succesful, then skip to the end:
                 gosub divider
                 @call warning "Unfortunately, we could not create the karaoke file %emphasis%%SRT_FILE%%deemphasis%"
                 title %emoji_warning% Karaoke not generated! %emoji_warning% 
+                :ask_about_instrumental_1500
                 gosub ask_about_instrumental
                 gosub divider
-                call AskYN "Mark karaoke as failed so we don’t try again [N=No, mark instrumental instead]" no %KARAOKE_APPROVAL_WAIT_TIME% I I:no_instead_mark_mark_instrumental
-                gosub check_for_answer_of_I %INPUT_FILE%
-
+                call AskYN "Mark karaoke as failed so we don’t try again [N=No, mark instrumental instead,P=Play it]" no %KARAOKE_APPROVAL_WAIT_TIME% IP I:no_instead_mark_mark_instrumental,P:play
+                gosub check_for_answer_of_I "%INPUT_FILE%"
+                gosub check_for_answer_of_P "%INPUT_FILE%"             
+                if  "P" == "%ANSWER%" goto /i ask_about_instrumental_1500
                 iff "Y" == "%ANSWER%" then
                              echo True`>%@`UNQUOTE["%INPUT_FILE%"]:karaoke_failed" 🐐🐐🐐🐐🐐🐐🐐>nul
                               echo True>"%@UNQUOTE["%INPUT_FILE%"]:karaoke_failed"
                 endiff
-                goto :nothing_generated
+                goto /i nothing_generated
         endiff
 
 
@@ -1593,10 +1604,10 @@ rem Full-endeavor success message:
                 :ask_about_karaoke_edit
                 rem echo 🐐 about to gosub approve karaoke 1432
                 gosub ask_to_approve_karaoke
-                rem TODO remove: if "Y" == "%ANSWER%"      goto :go_here_if_we_just_approved_the_karaoke
+                rem TODO remove: if "Y" == "%ANSWER%"      goto /i go_here_if_we_just_approved_the_karaoke
 
         rem Ask to IMPROVE our karaoke:
-                if not exist "%TXT_FILE%" goto :do_not_ask_to_align_with_txt
+                if not exist "%TXT_FILE%" goto /i do_not_ask_to_align_with_txt
                 @call AskYN "%ansi_color_bright_green%Y%ansi_color_prompt%=Align %italics_on%mis-heard%italics_off% karaoke to original lyrics with %italics_on%WhisperTimeSync%%italics_off% [%ansi_green%P%ansi_color_prompt%=Play 1st,%ansi_green%A%ansi_color_prompt%=Approve now,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e]" no %WHISPERTIMESYNC_QUERY_WAIT_TIME% notitle APT P:Play_It,A:approve_the_karaoke_right_now,T:delete
                         rem Option “T”:
                                 gosub check_for_answer_of_T 
@@ -1605,7 +1616,7 @@ rem Full-endeavor success message:
                                 set      player_command_extra_options=show_karaoke
                                 gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%input_file%"
                                 unset /q player_command_extra_options
-                                if  "P" == "%ANSWER%" goto :ask_about_karaoke_edit          
+                                if  "P" == "%ANSWER%" goto /i ask_about_karaoke_edit          
 
                         rem Option “A”:
                                 iff "A" == "%ANSWER%" then
@@ -1649,19 +1660,19 @@ rem Full-endeavor success message:
                                         rem                else
                                         rem                                echo ray|*del /q "%SRT_NEW%" 
                                         rem                endiff
-                                        goto :display_karaoke_before_asking_to_edit_it
+                                        goto /i display_karaoke_before_asking_to_edit_it
                                 endiff
                         :WhisperTimeSync_alignment_complete
 
         rem At this point, the karaoke is generated, possibly corrected, and awaiting our approval:
                 echo %ansi_color_debug%- DEBUG: about to gosub approve karaoke 1644%ansi_color_normal%
                 gosub ask_to_approve_karaoke
-                rem TODO remove: if "Y" == "%ANSWER%" goto :go_here_if_we_just_approved_the_karaoke
+                rem TODO remove: if "Y" == "%ANSWER%" goto /i go_here_if_we_just_approved_the_karaoke
                 :do_not_ask_to_align_with_txt
 
 
         rem Last chance to edit the karaoke:
-                echo %ansi_color_warning_soft%- DEBUG: pretty sure we can: goto :skip_this_part_we_no_longer_need_it_1670
+                echo %ansi_color_warning_soft%- DEBUG: pretty sure we can: goto /i skip_this_part_we_no_longer_need_it_1670
                 @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%=Approve karaoke,%ansi_color_bright_green%U%ansi_color_prompt%=Unapprove,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e]" no %EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE% notitle APUWT P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:unapprove_karaoke,T:delete_karaoke_file
                 :just_asked_to_edit_karaoke
                 gosub check_for_answer_of_E
@@ -1671,7 +1682,7 @@ rem Full-endeavor success message:
                         goto /i go_here_if_we_just_approved_the_karaoke
                 endiff
                 iff "U" == "%ANSWER%" then
-                        call  unapprove-karaoke "%srt_file%"
+                        call disapprove-karaoke "%srt_file%"
                         goto /i go_here_if_we_unpproved_or_deleted_the_karaoke
                 endiff
                 iff "W" == "%ANSWER%" then
@@ -1697,12 +1708,12 @@ rem Full-endeavor success message:
                         set player_command_extra_options=show_karaoke
                         gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%input_FILE%"
                         unset /q player_command_extra_options
-                        iff "%ANSWER" == "P" then goto :ask_about_karaoke_edit
+                        iff "%ANSWER" == "P" then goto /i ask_about_karaoke_edit
 
 
         echo 🐐 about to gosub approve karaoke 1526
         gosub ask_to_approve_karaoke
-        rem TODO remove: if  "Y" == "%ANSWER%" goto :go_here_if_we_just_approved_the_karaoke
+        rem TODO remove: if  "Y" == "%ANSWER%" goto /i go_here_if_we_just_approved_the_karaoke
         rem TODO remove: iff "N" == "%ANSWER%" then
         rem TODO remove:         title %RED_X% %SRT_FILE% NOT generated successfully! %RED_X%      
         rem TODO remove:         goto /i :go_here_if_we_unpproved_or_deleted_the_karaoke
@@ -1722,7 +1733,7 @@ rem Full-endeavor success message:
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-goto :skip_subroutines
+goto /i skip_subroutines
 
 
         :ask_about_instrumental [opt]
@@ -1733,8 +1744,10 @@ goto :skip_subroutines
 
                 rem assumes %SRT_FILE% is our karaoke file and %INPUT_FILE% is our audio file
                 :ask_about_karaoke_approval                                        
-                @call askyn  "Approve karaoke file [D=%ansi_color_bright_green%D%ansi_color_prompt%isapprove,P=%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ADEIPW E:edit_karaoke,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental
-                gosub check_for_answer_of_I
+                @call askyn  "Approve karaoke file [D=%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,P=%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ADEIPTW E:edit_karaoke,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete_it
+echo ** calling gosub check_for_answer_of_I "%INPUT_FILE%" goat
+                gosub check_for_answer_of_T "%INPUT_FILE%"
+                gosub check_for_answer_of_I "%INPUT_FILE%"
                 gosub check_for_answer_of_E "%SRT_FILE%"
                 iff "%ANSWER" == "W" then
                         set ANSWER=Y
@@ -1773,6 +1786,7 @@ goto :skip_subroutines
                 endiff
         return
         :check_for_answer_of_I [opt]                        
+echo * calling: gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr_if_answer_was_I %opt% goat
                 gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr_if_answer_was_I %opt%
         return
         :check_for_answer_of_L [opt]                        
@@ -1784,10 +1798,13 @@ goto :skip_subroutines
                 rem unset /q player_command_extra_options
         return
         :check_for_answer_of_T [opt]
+                rem TODO opt->file2use conversion
                 iff "T" == "%ANSWER%" then
                         if exist "%srt_file%" (echos %ansi_color_removal%%emoji_axe%  `` %+ *del /p /Ns "%srt_file%")
                         if exist "%lrc_file%" (echos %ansi_color_removal%%emoji_axe%  `` %+ *del /p /Ns "%lrc_file%")
                         if exist "%txt_file%" (echos %ansi_color_removal%%emoji_axe%  `` %+ *del /p /Ns "%txt_file%")
+                        if not exist "%srt_file%" set KARAOKE_STATUS=NOT_APPROVED
+                        if not exist "%txt_file%" set   LYRIC_STATUS=NOT_APPROVED
                         if not exist "%srt_file%" .and. not exist "%txt_file%" gosub rename_audio_file_as_instrumental "%input_file%" ask
                         goto /i go_here_if_we_unpproved_or_deleted_the_karaoke
                 endiff
@@ -1815,7 +1832,8 @@ goto :skip_subroutines
                         if exist "%TRANSCRIBER_LOCK_FILE%" gosub :lockfile_wait_on_transcriber_lock_file
                 :actually_create_it
                         iff not exist "%TRANSCRIBER_LOCK_FILE%" then
-                                call debug "Creating lock file “%TRANSCRIBER_LOCK_FILE%”"
+                                rem call debug "Creating lock file “%TRANSCRIBER_LOCK_FILE%”"
+                                echo %ansi_color_important_less%%STAR2% Creating lock file: %faint_on%“%italics_on%%@UNQUOTE["%TRANSCRIBER_LOCK_FILE%"]%italics_off%”%faint_off%%ansi_color_normal%
                                 echo %ansi_color_green%%star2% Process %ansi_color_orange%%[_PID]%ansi_color_green% is transcribing: %ansi_color_cyan%“%ansi_color_pink%%SONGFILE%%ansi_color_cyan%”%ansi_color_green%>"%TRANSCRIBER_LOCK_FILE%"
                                 echo %ansi_color_green%                 %star2% beginning at %ansi_color_purple%%[_time]%ansi_color_green% on date %ansi_color_purple%%_date%>>"%TRANSCRIBER_LOCK_FILE%"
                         endiff
@@ -1842,9 +1860,8 @@ goto :skip_subroutines
                                 rem echo  checking if "1" ==  "@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" 
                                 rem echo  checking if "1" == "%@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" 
                                 if "1" == "%@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" (
-                                        echo ...but it%smart_apostrophe%s the lockfile for %italics_on%this%italics_off% process, so ignoring...
+                                        echo %ansi_color_warning_soft%%star3% Lockfile exists!%ansi_color_green%...but it%smart_apostrophe%s the lockfile for %italics_on%this%italics_off% process, so overwriting...
                                         return
-
                                 ) 
                                 :start_waiting_at_point_of_having_contents_already
                         
@@ -1860,7 +1877,7 @@ goto :skip_subroutines
                                 call AskYN  "Delete lockfile" no 10 
                                 rem This one makes no sense here: E E:Edit_ai_prompt
                                 unset /q return_point
-                                if "%ANSWER%" == "E"  gosub "%BAT%\create-srt-from-file.bat" eset_fileartist_and_filesong
+                                if "%ANSWER%" == "E" gosub "%BAT%\create-srt-from-file.bat" eset_fileartist_and_filesong
                                 if "%ANSWER%" == "Y" gosub :lockfile_delete_transcriber_lock_file                            
                                 if "%ANSWER%" != "Y" echos %ansi_restore_position%%@ansi_move_up[4]%ansi_erase_to_end_of_screen%%ansi
                                 if "%ANSWER%" != "Y" goto /i check_lock_file_try_again                                
@@ -1879,14 +1896,19 @@ goto :skip_subroutines
                 if not exist "%LRC_FILE%" .and.     exist "%SRT_FILE%"  echo %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%SRT%italics_off% file...
                 if     exist "%LRC_FILE%" .and. not exist "%SRT_FILE%"  echo %ANSI_COLOR_IMPORTANT_LESS%%STAR% Postprocessing %italics_on%LRC%italics_off% file...
 
-                rem This whole block of reviewing only should happen in certain situations, not all situations:
-                        goto :todo_figure_this_out_1841
-                                if     exist "%SRT_FILE%" (subtitle-postprocessor.pl -w "%SRT_FILE%"     %+    set review_srt=1 )
-                                if     exist "%LRC_FILE%" (subtitle-postprocessor.pl -w "%LRC_FILE%"     %+    set review_lrc=1 )
-                                if ("1" == "%REVIEW_SRT%" .or. "1" == "%review_lrc%") .and. exist "%TXT_FILE%" set review_txt=1
-                                if  "1" == "%REVIEW_LRC%" call review-file -st  "%LRC_FILE%"
-                                if  "1" == "%REVIEW_TXT%" call review-file -st  "%TXT_FILE%"
-                                if  "1" == "%REVIEW_SRT%" call review-file -stU "%SRT_FILE%"
+                rem SRT: Postprocess the SRT file to remove the “invisible periods” we add to cause WhisperAI’s “--sentence” parameter to work correctly:
+                rem LRC: Also do the same for the LRC file, even though it shoudln’t have any “invisible periods”
+                        if exist "%SRT_FILE%" subtitle-postprocessor.pl -w "%SRT_FILE%"     
+                        if exist "%LRC_FILE%" subtitle-postprocessor.pl -w "%LRC_FILE%"     
+
+                rem This whole block of reviewing only should happen in certain situations, not all situations. It looked cool when put in, then ended up being too much for most situations:
+                        goto /i todo_figure_this_out_1841
+                                if  exist  "%SRT_FILE%"   set    review_srt=1
+                                if  exist  "%LRC_FILE%"   set    review_lrc=1
+                                if  exist  "%TXT_FILE%"   .and.  ("1" == "%REVIEW_SRT%" .or. "%review_lrc%" == "1") set review_txt=1
+                                if  "1" == "%REVIEW_LRC%" call   review-file  -st   "%LRC_FILE%"
+                                if  "1" == "%REVIEW_TXT%" call   review-file  -st   "%TXT_FILE%"
+                                if  "1" == "%REVIEW_SRT%" call   review-file  -stU  "%SRT_FILE%"
                         :todo_figure_this_out_1841
 
                 rem echo ...%CHECK% %ANSI_COLOR_GREEN%Success%BOLD_ON%!%BOLD_OFF%%ANSI_COLOR_NORMAL%
@@ -1909,6 +1931,7 @@ goto :skip_subroutines
                 :refreshed
         return
         :rename_audio_file_as_instrumental [opt] 
+echo *called rename_audio_file_as_instrumental [opt=%opt%] 
                 :rafai_ask_again
                 unset /q ANSWER                       
                 if "%1" == "ask"                         call         AskYN                    "Mark as instrumental? [P=%ansi_color_bright_green%P%ansi_color_prompt%lay]" no 500
@@ -1967,7 +1990,7 @@ echos %ansi_color_reset%
 :PopD
         setdos /x0
         if %@DirStack[] gt 0 popd                                    %+ rem If we pushd’ed to another folder, popd back
-        if %@DirStack[] gt 0 goto :PopD
+        if %@DirStack[] gt 0 goto /i PopD
 
 :Fix_Command_Separator
         *setdos /x-5

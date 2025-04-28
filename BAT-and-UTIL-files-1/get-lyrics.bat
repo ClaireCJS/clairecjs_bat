@@ -38,7 +38,7 @@ rem Validate usage:
                         echo       %ansi_color_pink%set LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE=1  %ansi_color_advice%//no automatic timeouts; always waits for user input
                         echo.
                 %color_normal%
-                goto :END
+                goto /i END
         endiff
 
         setdos /x0
