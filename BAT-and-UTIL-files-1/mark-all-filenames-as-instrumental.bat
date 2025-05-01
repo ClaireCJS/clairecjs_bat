@@ -1,4 +1,4 @@
-@echo %ansi_reset%%conceal_off%%ansi_color_purple%📞📞📞 “%0 %1$” called by %_PBATCHNAME 📞📞📞%ansi_color_normal%
+@rem DEBUG: @echo %ansi_reset%%conceal_off%%ansi_color_purple%📞📞📞 “%0 %1$” called by %_PBATCHNAME 📞📞📞%ansi_color_normal%
 @loadbtm on
 @Echo OFF
 @on break cancel
@@ -19,7 +19,7 @@ rem Prep:
         call delete-bad-AI-transcriptions 3
 
 rem Call sub-part of lyric-AI-transcription system where this is coded:
-        gosub "%BAT%\get-lyrics-for-file.btm" actually_rename_every_file_as_an_instrumental_or_whatever %*
+        gosub "%BAT%\get-lyrics-for-file.btm" actually_rename_every_file_as_an_instrumental_or_whatever %1 ask
 
 
 rem Success stuffs (if any):

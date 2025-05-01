@@ -281,7 +281,7 @@ goto :Past_The_End_Of_The_Subroutines
                     REM %COLOR_NORMAL%
                     
                 REM with messaging system:
-                iff "%USER_MESSAGE%" != "" then
+                if "%USER_MESSAGE%" == "" goto :no_user_message
                                 REM Although this is technically advice, we 
                                 REM are coloring it warning-style because 
                                 REM advice related to an error in this context
@@ -295,8 +295,7 @@ goto :Past_The_End_Of_The_Subroutines
                                 REM ...so let’s put asterisks around it, too!
                                 rem call warning %USER_MESSAGE%
                                 echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% %USER_MESSAGE% %ANSI_COLOR_NORMAL%
-
-                endiff
+                :no_user_message
 
                 rem echo [3] 🐐🐐
                     

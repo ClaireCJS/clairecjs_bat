@@ -166,7 +166,12 @@ if ($METHOD eq "2024") {
 		}
 	}
 
-	my $generated_display_title = $metadata{artist} . " - " .  $metadata{title};
+
+	my   $metadataTitleToUse = $metadata{title } || "";
+	my  $metadataArtistToUse = $metadata{artist} || "";
+	my  $generated_display_title_separator = " - ";
+	my  $generated_display_title = $metadataArtistToUse . $generated_display_title_separator .  $metadataTitleToUse;
+	if ($generated_display_title eq $generated_display_title_separator) { $generated_display_title="None"; }
 	
 	if ($DEBUG>0) {
 		print "echo * Display Title: $display_title\n";				# Print the first two special variables

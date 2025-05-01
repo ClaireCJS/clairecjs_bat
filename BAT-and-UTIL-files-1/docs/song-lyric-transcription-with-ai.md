@@ -1,3 +1,4 @@
+TODO: thorough.bat - sets/unsets environment variables for thorough mode
 TODO: may have to unapprove any txt if the LRC/SRT is generated         "%@UNQUOTE["%OUTPUT_FILE%"]:generated"  
 TODO: delete-bad-ai-transcription after done aligning
 TODO: align-music-collection-lyrics.bat for quick start

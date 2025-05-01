@@ -825,9 +825,11 @@ REM ANSI: unsupported in Windows Terminal:
         set       UNSUPPORTED_FRAME_ENCIRCLE_OFF=%ANSI_CSI%54m
         function   UNSUPPORTED_SET_WARN_BELL_VOL=`%@CHAR[27][%1 t`              %+ rem 1/0/None=Off, 2-4=low, 5-8=high
         function UNSUPPORTED_SET_MARGIN_BELL_VOL=`%@CHAR[27][%1 u`              %+ rem 1=Off, 2-4=low, None,0,5-8=high
-        function  ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%2H`            %+ rem Windows Terminal 2024 doesn't support this official code................
-        function  ANSI_MOVE_TO_COORDINATE=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem    .........so instead, we reduce into 2 separate commands internally 😎
-        function             ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem alias
+
+        rem Move to [x,y] function: —— **NOTE** if this is changed, change the copy in validate-in-path:
+                function  ANSI_MOVE_TO_COORDINATE_UNSUPP=`%@CHAR[27][%1,%2H`            %+ rem Windows Terminal 2024 doesn't support this official code, so .............
+                function  ANSI_MOVE_TO_COORDINATE=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem    ........instead, we split it into separate move-to-row and move-to-col 😎
+                function             ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        %+ rem alias
 
         set UNSUPPORTED_MAP_A_TO_Z=%ANSI_DCS%"y1/7A/7A/7A/7A/7A/7A/-%ANSI_ST%   %+ rem Windows Terminal 2024 doesn't seem to support this 😢
 

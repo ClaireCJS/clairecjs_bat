@@ -44,11 +44,12 @@ rem Run command in current folder:
 rem Run command in every subfolder, but randomly, by generating a script:
         rem echo 🐐 GOAT 🐐 Tracer #QQ4 ━━ doing rest >nul
         call set-tmp-file
-        rem (dir /a:d /s /b |:u8 randomize-file |:u8 insert-before-each-line.py              "*cd                  {{{{QUOTE}}}}" |:u8 insert-after-each-line.py "{{{{QUOTE}}}} {{{{PERCENT}}}}+ %PRECOMMAND% %@UNQUOTE["%COMMAND%"]" ) 
-            (dir /a:d /s /b |:u8 randomize-file |:u8 insert-before-each-line.py "echo. %+ call cd-for-sweep-random {{{{QUOTE}}}}" |:u8 insert-after-each-line.py "{{{{QUOTE}}}} {{{{PERCENT}}}}+ %PRECOMMAND% %@UNQUOTE["%COMMAND%"]" ) >:u8%tmpfile%.bat
+        rem (dir /a:d /s /b |:u8 randomize-file |:u8 insert-before-each-line.py               "*cd                  {{{{QUOTE}}}}" |:u8 insert-after-each-line.py "{{{{QUOTE}}}} {{{{PERCENT}}}}+ %PRECOMMAND% %@UNQUOTE["%COMMAND%"]" ) 
+            (dir /a:d /s /b |:u8 randomize-file |:u8 insert-before-each-line.py "echo. %%+ call cd-for-sweep-random {{{{QUOTE}}}}" |:u8 insert-after-each-line.py "{{{{QUOTE}}}} {{{{PERCENT}}}}+ %PRECOMMAND% %@UNQUOTE["%COMMAND%"]" ) >:u8%tmpfile%.bat
         pushd .
 
-        rem DEBUG:        type %tmpfile%.bat %+ pause
+        rem DEBUG:      
+  type %tmpfile%.bat %+ pause
 
 rem Run the script to run the command in every subfolder randomly:                
         call %tmpfile%.bat

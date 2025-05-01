@@ -387,8 +387,8 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
 
 
     # Fix excessive indentation in ctranslate2 logs
-    if whisper_ai and "[ctranslate2]" in line_buffer:
-        line_buffer = re.sub(r'^[ ]{10,}', '', line_buffer)
+    #if whisper_ai and "[ctranslate2]" in line_buffer:
+    #    line_buffer = re.sub(r'^[ ]{10,}', '', line_buffer)
 
     original_line  = original_line_buffer.rstrip()
     original_line2 =          line_buffer.rstrip()
