@@ -70,7 +70,8 @@ my $DEBUG_NOW=0;											#reserve value: 0
 #my $DEBUG_META = 11;										#reserve value: unset / 0,...,6,10,11
 #$DEBUG=10;													#reserve value: unset / standard value: 10
 #$DEBUGMMDD=1;												#reserve value: unset / used for developing
-##$DEBUG_FILEFIND = 5;										#reserve value: unset / good value = 5 
+my $DEBUG_FILEFIND = 5;										#reserve value: unset / good value = 5 
+my $DEBUG_FILEFIND = 0;										#reserve value: unset / good value = 5 
 
 ##### RARELY-USED META DEBUGGING:
 #$DEBUG_ATTRIBWATCH_ATTRIBNAME="Dad's picture frame REAL";
@@ -291,6 +292,7 @@ my $GENREFILELIST_DIR	= ""; #"c:/My Documents";   #FILELIST-BY-GENRE DIR. CURREN
 my $ARTISTFILELIST_DIR  = $GENREFILELIST_DIR;
 my $ALBUMFILELIST_DIR   = $GENREFILELIST_DIR;
 my $SONGFILELIST_DIR    = $GENREFILELIST_DIR;
+my $yearFILELIST_DIR    = $GENREFILELIST_DIR;
 my $BASE_ATTRIBUTE_FILE	= ""; #"c:/mp3/mp3-base-attributes.lst";          #base attribute file, applied to all collections
 my $META_ATTRIBUTE_FILE	= ""; #"c:/mp3/mp3-meta-attributes.lst";          #meta-attribute file, for personal black magic
 my @EXTENSIONS			= ""; #("mp3","wav","voc","mod","stm","au","vqf","wma","ogg");
@@ -311,10 +313,12 @@ my $GENRE_INDEX			= "";
 my $ARTIST_INDEX        = "";
 my $ALBUM_INDEX         = "";
 my $SONG_INDEX          = "";
+my $YEAR_INDEX          = "";
 my $GENRE_LIST			= "";
 my $ARTIST_LIST			= "";
 my $ALBUM_LIST			= "";
 my $SONG_LIST			= "";
+my $YEAR_LIST			= "";
 my $DATE_INDEX			= "";
 my $COLLECTION_INDEX	= "";
 my $INVERSE_INDEX		= "";		#this one is more grep-friendly
@@ -332,10 +336,12 @@ my %GENRE=();
 my %ARTIST=();					    
 my %ALBUM=();					    
 my %SONG=();					    
+my %YEAR=();					    
 my $genres_encountered  = 0;	    
 my $artists_encountered = 0;	    
 my $albums_encountered  = 0;	    
 my $songs_encountered   = 0;	    
+my $years_encountered   = 0;	    
 my %ALLFILES=();				    #key=filename,value=2 if it's of valid extension that we are indexing, less if not (ie random other files like thumbnails, 0-byte comments, CRAP)
 local %ATTRIBUTES=();			    #changed from "my" to "local" 20081123 after years if strict adherance to proper paremeter passing, but still having problems with setting new ATTRIBUTES inside of subroutines, especially when trying to make NotLast6Months work
 local %ATTRIBUTE_WEIGHTS_STAR=();	#key={$filename$delimiter$attribute},value=weight
@@ -539,11 +545,10 @@ sub determine_delete_command {
 #######################################################################################################################
 sub final_report {
 	&log("\n*** ".sprintf("%3u",($nummeta+$firstpassfilelists+$num_dated_filelists_created+$genres_encountered
-		                         +$artists_encountered+$albums_encountered+$songs_encountered)));
+		                         +$artists_encountered+$albums_encountered+$songs_encountered,+$years_encountered)));
 	&log(" total filelists created (normal=$firstpassfilelists,dated=$num_dated_filelists_created," . 
 		 "genre=$genres_encountered,artists=$artists_encountered,albums=$albums_encountered,songs=" . 
-		 "$songs_encountered,meta=$nummeta).\n");
-
+		 "$songs_encountered,years=$years_encountered,meta=$nummeta).\n");
 	
 	my $program_end_time = time();
 	my $elapsed_seconds  = $program_end_time - $program_begin_time;
@@ -635,15 +640,12 @@ sub filefind {
 
 	### SIDE-EFFECTS!!! This uses &find which automatically calls &wanted. ###
 
-	#if ($DEBUG_FILEFIND) { print "\nDEBUG: &FILEFIND($_[0],$_[1],$_[2])\nLOOKIN' FOR: \"$lookingFor\"\n\tIN: \"$dir2lookin\""; }
+	if ($DEBUG_FILEFIND) { print "\nDEBUG: &FILEFIND($_[0],$_[1],$_[2])\nLOOKIN' FOR: \"$lookingFor\"\n\tIN: \"$dir2lookin\""; }
 
-	#OLD:&find($dir2lookin);
-	#NEW:&find(wanted=>\&wanted,$dir2lookin);
-	#NEWER:
-	     &find({wanted=>\&wanted, no_chdir   =>1},$dir2lookin);
-	#    &find({wanted=>\&wanted, follow_fast=>1},$dir2lookin);	#TODO try follow_fast instead of chdir:
+	&find({wanted=>\&wanted, no_chdir   =>1},$dir2lookin);
+	#find({wanted=>\&wanted, follow_fast=>1},$dir2lookin);	#TODO try follow_fast instead of chdir:
 
-    #if ($DEBUG_FILEFIND) { print "\nNUMFOUND/ENCOUNTERED: ".@filelist."/$numEncountered/$numEncounteredDirs"; }
+    if ($DEBUG_FILEFIND) { print "\nNUMFOUND/ENCOUNTERED: ".@filelist."/$numEncountered/$numEncounteredDirs"; }
 
     return(@filelist);
 }#endsub filefind
@@ -841,7 +843,7 @@ if (($month==1) || ($month== 3) || ($month== 5) || ($month==7)
         print $temp;
 }#endif
 
-#print "<h1>Last day of month \"$month\" in year \"$year\" is \"$day\"</h1>\n\n";       #
+#DEBUG: print "<h1>Last day of month \"$month\" in year \"$year\" is \"$day\"</h1>\n\n";       #
 
 return($day);
 }#endsub last_day_of_month
@@ -851,9 +853,9 @@ return($day);
 
 ###########################################################################
 sub gather_id3_genres_artists_albums_songs {
-    if ($NO_GENRE_PROCESSING_WHATSOEVER) { &log("\n*** NOT Retrieving id3 genre tags.\n"); return; }  #TODO this will cause skipping of artists/bands/songs too
+    if ($NO_GENRE_PROCESSING_WHATSOEVER) { &log("\n*** NOT Retrieving id3 genre tags.\n"); return; }  #TODO this will cause skipping of artists/bands/songs/years too
     &log                                           ("\n*** Retrieving id3 genre/artist/album/song tags from $num_files_to_check files.");
-    my ($mp3_file1,$mp3_file2,$genrev1,$genrev2,$bestgenre,$artist,$album,$song);
+    my ($mp3_file1,$mp3_file2,$genrev1,$genrev2,$bestgenre,$artist,$album,$song,$year);
     my $factor = 500;												#hard-coding this isn't as elegant, let's instead calcluate a value:
     $factor = int ($num_files_to_check / 200);						#how many dots to display, set to 100 and each dot is 1% progress
     if ($factor == 0) { $factor=1; }
@@ -861,16 +863,14 @@ sub gather_id3_genres_artists_albums_songs {
     foreach my $tmpfile (@files) {
 		#print "[PTFG] tmpfile=$tmpfile\n";							#2024/06/02 - had to uncomment this for a weird encoding issue in a Sloppy Jane album [Willow]. Fixed by re-saving metadata of each song in VLCplayer. Made me realize parts of this need a try/catch so that the name is outputted if there is an error, but not otherwise. No need to actually implement that unless this comes up again, though.
         if (($numEncountered++ % $factor)==0) { &log("."); }
-        if ($tmpfile !~ /\.mp3$/i) { next; }                        #id3 tags are only for mp3 files! #TODO FLac support would go here
+        if ($tmpfile !~ /\.mp3$/i) { next; }                        #id3 tags are only for mp3 files! #TODO FLac support requires modification here
         ($genrev1,$genrev2,$artist,$album,$song,$year) = &get_genre_artist_album_song_year_for_one_mp3($tmpfile);
 
-		## TODO GOAT MAY NEED TO CHECK IF THESE VALUES EXIST, AND IF THEY DON'T, INITIALIZE TO ZERO
+		# No need to initialize these to 0 prior to “++” becuase Perl is graceful like that:
         $ARTIST{$artist}->{$tmpfile}++;
         $ALBUM{$album}->{$tmpfile}++;
         $SONG{$song}->{$tmpfile}++;
-		#TODO? $YEAR{$year}->{$tmpfile}++;
-
-
+		$YEAR{$year}->{$tmpfile}++;
         if ($year != "") { $ATTRIBUTES{"year-$year"}->{$tmpfile}=1; }
 
 
@@ -1696,7 +1696,6 @@ sub delete_old_lists {
 		if ($NO_GENRE_PROCESSING_WHATSOEVER != 1) { system("$delete $GENREFILELIST_DIR/*." . $filelistextension); }
 		#TODO wiping the bands/artists/songs files has not been covered yet
 	} else {
-		#TODO: change this to simply us the &osslash function
 		my $ATTRIBUTELIST_DIR_W_BACKSLASH = $ATTRIBUTELIST_DIR;
 		my  $METAFILELIST_DIR_W_BACKSLASH =  $METAFILELIST_DIR;
 		my  $DATEFILELIST_DIR_W_BACKSLASH =  $DATEFILELIST_DIR;
@@ -1770,7 +1769,7 @@ sub convertgetinfo {
 sub findfilesonly {
 		my @tmpfiles=();
         foreach my $currentCollection (@COLLECTIONS) {
-            print "\n*** Finding files in ".$currentCollection.".";
+            print "\n*** Finding files in:                     ".$currentCollection.".";
             push(@tmpfiles,&filefind($currentCollection,".",{extensionsonly=>1,dots=>1}));
         }
 		foreach my $tmpfile (@tmpfiles) {
@@ -1887,6 +1886,19 @@ sub write_song_list {
 	foreach my $tmp (@songs_encountered) { print LIST $tmp . "\n"; }
 	close(LIST);
 }#endsub write_song_list
+##################################################################################################################################################
+##################################################################################################################################################
+sub write_year_list {
+	#if ($NO_GENRE_PROCESSING_WHATSOEVER) { return; }
+	my @years_encountered = sort keys %YEAR;
+	my $num_encountered = @years_encountered;
+	&log("\n*** Writing list of years encountered ($num_encountered total) to $YEAR_LIST...");
+	my $tmpfilename = $YEAR_LIST;
+	open (LIST, ">$tmpfilename") || &death("could not open [12D] $tmpfilename!!\nPerhaps the directory does not exist... Look carefully at the filename and make sure the directory exists too.\n");
+	binmode LIST, ":encoding(UTF-8)";
+	foreach my $tmp (@years_encountered) { print LIST $tmp . "\n"; }
+	close(LIST);
+}#endsub write_year_list
 ##################################################################################################################################################
 
 
@@ -2581,6 +2593,26 @@ sub write_song_index {
 	&write_song_list();
 }
 ########################################################################################################################################
+########################################################################################################################################
+sub write_year_index {
+	#if ($NO_GENRE_PROCESSING_WHATSOEVER) { return; }
+	&log("\n*** Writing index of years to $YEAR_LIST ...");
+	my $tmpfilename = $YEAR_LIST;
+	open (INDEX, ">$tmpfilename") || &death("could not open [13D] $tmpfilename!!\nPerhaps the directory does not exist... Look carefully at the filename and make sure the directory exists too.\n");
+	binmode INDEX, ":encoding(UTF-8)";
+		my $current4access="";
+		foreach my $current (sort keys %YEAR) {
+			if ($current eq "") { next; }
+			$current4access = $current;
+			$current4access =~ s/\//--/;
+			$current4access =~ s/:/- /;
+			#DEBUG: print "\n[XYSAYX] current = $current / 4access = $current4access";
+			print INDEX "$current\n";
+		}
+	close(INDEX);
+	&write_year_list();
+}
+########################################################################################################################################
 
 
 
@@ -2847,6 +2879,7 @@ sub read_ini {
 	$ARTIST_LIST        = &osslash($METAFILELIST_DIR . "/ARTISTS.LST"    ); #no reason to ever change this unless you already have a      artists.lst you want in that directory for some odd reason
 	$ALBUM_LIST         = &osslash($METAFILELIST_DIR . "/ALBUMS.LST"     ); #no reason to ever change this unless you already have a       albums.lst you want in that directory for some odd reason
 	$SONG_LIST          = &osslash($METAFILELIST_DIR . "/SONGS.LST"      ); #no reason to ever change this unless you already have a        songs.lst you want in that directory for some odd reason
+	$YEAR_LIST          = &osslash($METAFILELIST_DIR . "/YEARS.LST"      ); #no reason to ever change this unless you already have a        years.lst you want in that directory for some odd reason
 	$DATE_INDEX        	= &osslash($METAFILELIST_DIR . "/DATES.DAT"      ); #no reason to ever change this unless you already have a        dates.lst you want in that directory for some odd reason
 	$STATS_INDEX       	= &osslash($METAFILELIST_DIR . "/STATS.DAT"      );	#no reason to ever change this unless you already have a        stats.dat you want in that directory for some odd reason
 	$INVERSE_INDEX     	= &osslash($METAFILELIST_DIR . "/INVERSE.DAT"    ); #no reason to ever change this unless you already have an     inverse.dat you want in that directory for some odd reason
@@ -2858,22 +2891,25 @@ sub read_ini {
 	$LOG                = &osslash($METAFILELIST_DIR . "/INDEXER.LOG"    );	#no reason to ever change this unless you already have a      indexer.log you want in that directory for some odd reason
 	
 	
-	&log("\n* Using file_index file "           . "of:\t\t"   . "$FILE_INDEX"       );
-	&log("\n* Using attrib_file_index file "    . "of:\t"     . "$ATTRIB_LIST_INDEX");
-	&log("\n* Using date_file_index file "      . "of:\t"     . "$DATE_INDEX"       );
+	&log(    "\n* Using file_index file of:               $FILE_INDEX"       );
+	&log(    "\n* Using attrib_file_index file of:        $ATTRIB_LIST_INDEX");
+	&log(    "\n* Using date_file_index file of:          $DATE_INDEX"       );
 	if (!$SKIP_INVERSE_LIST) { 
-		&log("\n* Using inverse attribute index file of:"     . "$INVERSE_INDEX_2"  ); 
+		&log("\n* Using inverse attribute index file of:  $INVERSE_INDEX_2"  ); 
 	}
-	&log("\n* Using stat index "                . "of:\t\t\t" . "$STATS_INDEX"      );
-	&log("\n* Using attribute index "           . "of:\t\t"   . "$ATTRIBUTE_LIST"   );
-	&log("\n* Using trigger file "              . "of:\t\t"   . "$TRIGGER_FILE"     );
-	&log("\n* Using todo file "                 . "of:\t\t\t" . "$TODO_FILE"        );
-	&log("\n* Using access index file "         . "of:\t\t"   . "$ACCESS_INDEX"     );
-	&log("\n* Using collections index file "    . "of:\t"     . "$COLLECTION_INDEX" );
+	&log(    "\n* Using stat index of:                    $STATS_INDEX"      );
+	&log(    "\n* Using attribute index of:               $ATTRIBUTE_LIST"   );
+	&log(    "\n* Using trigger file of:                  $TRIGGER_FILE"     );
+	&log(    "\n* Using todo file of:                     $TODO_FILE"        );
+	&log(    "\n* Using access index file of:             $ACCESS_INDEX"     );
+	&log(    "\n* Using collections index file of:        $COLLECTION_INDEX" );
 	if (!$NO_GENRE_PROCESSING_WHATSOEVER) {
-	    &log("\n* Using genre_file_index file " . "of:\t"     . "$GENRE_INDEX"      );
-	    &log("\n* Using genre_list file "       . "of:\t\t"   . "$GENRE_LIST"       );
-		#TODO mention in logging: our ARTISTS/ALBUMS/SONGS index
+	    &log("\n* Using genre_file_index file of:         $GENRE_INDEX"      );
+	    &log("\n* Using genre_list file of:               $GENRE_LIST"       );
+	    &log("\n* Using artistlist file of:               $ARTIST_LIST"      );
+	    &log("\n* Using album_list file of:               $ALBUM_LIST"       );
+	    &log("\n* Using song_list  file of:               $SONG_LIST"        );
+	    &log("\n* Using year_list  file of:               $YEAR_LIST"        );
 	}#endif
 }#endsub read_ini
 ########################################################################################################################################################
@@ -3183,10 +3219,10 @@ sub create_stat_index {
 	##### Also do todo file:
 	&log("\n*** Creating TODO list in    $TODO_FILE...");
 
-	open (TODO, ">$TODO_FILE") || &death("could not open [26.B] todo file of $TODO_FILE");
+	open   (TODO, ">$TODO_FILE") || &death("could not open [26.B] todo file of $TODO_FILE");
 	binmode TODO, ":encoding(UTF-8)";
 	foreach my $todo (@TODO) { print TODO &osslash($todo); }
-	close(TODO);
+	close  (TODO);
 }#endsub create_stat_index
 ############################################################
 #########################################################################
@@ -4110,7 +4146,8 @@ sub process_attributelist {		#1st pass lists sprinkled everywhere (attrib.lst)
 					&log("\n\n\nWARNING$tmp: RegEx of /$fileRegex/ at line ***".$linenum."*** of list $list does not match any actual files...\n" 
 							. "\tLine: $line\n" 
 							. "        $CD_COMMAND\n" 
-							. "        $FIXCOMMAND" 
+							. "        $FIXCOMMAND\n" 
+							. "        $list\n" 
 							. "\n\n\n");
 				}
 			#} elsif (@tmpfilelist > 0) {
@@ -4352,7 +4389,7 @@ sub quickfilefind {                         #hopefully this will speed it up
 			($tmpdir,$tmpname)=&splitdirname($tmpfname);														
 			#f ($DEBUG_QFF>=2) { &log("\n    ****** --FOUND-- WHERE of $where in $tmpfname (searching for ".@regexes. " regular expressions)...\n");}			#DEBUG: if (($DEBUG_QFF>=7)||(($tmpfname=~/$DEBUG_FILEWATCH_FILENAME/i))){ print qq[===>if (($tmpfname =~ /$searchfor/i) || ($tmpname =~ /$searchfor/i))\n]; 																									
 			if ($DEBUG_QFF>=1) { &log("\n    \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t:) This is where we should be looking :) where=$where,searchfor=$searchfor,searchforall=$searchforall,tmpfname=$tmpfname"); }	#
-			foreach $searchfor (@regexes) {																		#TODO maybe something here, or when the right is originally read, to keep unmatched parenthesis from making it crap out 20060402
+			foreach $searchfor (@regexes) {																		#TODO maybe something here, or when the right is originally read, to keep unmatched parenthesis from making it crap out 20060402 (20250506 still haven’t fixed this lol)
 				if ($DEBUG_QFF>=1) { &log("\n\t\t\t*********** So is this a match with /$searchfor/???\n\t\t\t\t*********** tmpfname=$tmpfname [name=$tmpname]"); }
 				if (($tmpfname =~ /$searchfor/i) || ($tmpname =~ /$searchfor/i)) {								
 					#Premature to declare this just yet: if ($DEBUG_QFF>=1) { &log("\n\t\t\t************************ --FOUND--!! tmpfname=$tmpfname,SEARCHFOR=$searchfor,where=$where...\n"); }

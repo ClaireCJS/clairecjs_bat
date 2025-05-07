@@ -55,9 +55,9 @@
 		if "%BOTH"=="1" if not exist %FULLLIST2 (set  FULLLIST2=%MP3\LISTS\by-attribute\%PLAYLIST %+ set PLAYLIST=by-attribute\%PLAYLIST)
 
         call debug "* 2) Checking if %FULLLIST exists"
-                if not exist %FULLLIST% then
-                if                 not exist %FULLLIST  (call FATAL_ERROR "Could not find “%FULLLIST%” in LISTS or LISTS\by-attribute!")
-		if "%BOTH"=="1" if not exist %FULLLIST2 (call FATAL_ERROR "Could not find “%FULLLIST2” in LISTS or LISTS\by-attribute!")
+                iff not exist %FULLLIST% then
+                        if                 not exist %FULLLIST  (call FATAL_ERROR "Could not find “%FULLLIST%” in LISTS or LISTS\by-attribute!")
+                        if "%BOTH"=="1" if not exist %FULLLIST2 (call FATAL_ERROR "Could not find “%FULLLIST2” in LISTS or LISTS\by-attribute!")
 		endiff
 
 
@@ -68,13 +68,13 @@
 	::A new approach - instead of trying to load the specified playlist, and deal with the %20 b.s.,
 	::let’s just COPY whatever playlist they select to now-playing-playlist -- then we can reload
 	::that list blindly without knowing what it is (i.e. after index).
-			          call  debug             "FULLLIST  is “%FULLLIST%”"
-	if "%BOTH"=="1" ( call  debug             "FULLLIST2 is “%FULLLIST2”")
+			  call  debug                    "FULLLIST  is “%FULLLIST%”"
+	if "%BOTH"=="1" ( call  debug                    "FULLLIST2 is “%FULLLIST2”")
                          %COLOR_SUCCESS% %+ echo r|copy "%FULLLIST"   %MP3\LISTS\now-playing-playlist.m3u
 	if "%BOTH"=="1" (%COLOR_SUCCESS% %+ echo r|copy "%FULLLIST2" %MP32\LISTS\now-playing-playlist.m3u)
 	call debug "originallist = “%ORIGINALLIST%”"
 	:DEBUG: PAUSE
-			        echo %ORIGINALLIST%>%MP3\LISTS\now-playing.dat
+			echo %ORIGINALLIST%>%MP3\LISTS\now-playing.dat
 	if "%BOTH"=="1" echo %ORIGINALLIST2>%MP3\LISTS\now-playing.dat
 	call debug "originallist = “%ORIGINALLIST%”"
 	:DEBUG: PAUSE

@@ -4,7 +4,7 @@
 
 
 rem Validate environment once per session:
-        iff 1 ne %validated_claitrfi% then
+        iff "1" != "%validated_claitrfi%" then
                 call validate-in-path fast_cat important less_important sort uniq insert-before-each-line.py insert-after-each-line.py run-piped-input-as-bat.bat everything 
                 set validated_claitrfi=1
         endiff
@@ -105,9 +105,12 @@ rem —————————————————————————�
                         
                         rem Find all instances of the file [found via everything] we are deleting, pipe to sort-and-uniq to dedupe it, then insert "del-if-exists" [and a quote] before it, a quote after it, then pipe *all that* directly to the command line, then pipe it to fast_cat to fix ansi rendering errors:
                         rem Be damn sure you know what you’re doing if you change this. Best put an "echo " before the "*del" and test it out if you do.
+                                call set-tmp-file "deleting AI trash"
+                                (((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") >:u8 %tmpfile%.bat
+                                call %tmpfile%.bat |:u8 fast_cat
 
-                                ((((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") |:u8 call run-piped-input-as-bat.bat) |:u8 fast_cat
-                                echos %@randfg_soft[]%@randcursor[]
+                                rem echo All done? %+ pause
+                                rem echos %@randfg_soft[]%@randcursor[]
                 return
         :skip_subroutine_definitions
 rem ———————————————————————————————————————————————— SUBROUTINES: END —————————————————————————————————————————————————

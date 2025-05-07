@@ -92,10 +92,10 @@ rem Debug info:
         rem echo got here ... does 1 eq %RECURSE_CFMK%?
 
 rem If the filelist doesn't exist...
-        iff 1 eq %RECURSE_CFMK% then
+        iff "1" == "%RECURSE_CFMK%" then
                 rem call mp3index/s                         >:u8all.m3u
                 call mp3index
-                if not exist all.m3u   .or. 0 eq %@FILESIZE[all.m3u]  goto /i END
+                if not exist   all.m3u .or. 0 eq %@FILESIZE[all.m3u]   goto /i END
         else                
                 call mp3index
                 rem call mp3index                           >:u8these.m3u

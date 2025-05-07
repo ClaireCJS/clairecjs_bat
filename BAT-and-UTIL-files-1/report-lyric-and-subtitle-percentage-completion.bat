@@ -25,11 +25,11 @@ rem CONFIGURATION: FILENAMES:
         rem If this changes, also update the similar values in clean-up-AI-transcription-trash-files-everywhere.bat:
 
 rem Validate environment (once):
-        iff 1   ne  %validated_countsoffiletype8% then
+        iff "1" != "%validated_countsoffiletype%" then
                 call validate-in-path               grep egrep uniq wc copy-move-post makefilelist warning_soft set-tmp-file fast_cat clean-up-AI-transcription-trash-files-everywhere.bat wc
                 call validate-is-function           ansi_move_to_col
                 call validate-environment-variables connecting_equals 
-                set  validated_countsoffiletype8=1
+                set  validated_countsoffiletype=1
         endiff
 
 rem Warn, unless we are in the same folder defined as MP3OFFICIAL in our environment:

@@ -57,8 +57,8 @@ rem Count files matching parameter:
 
 rem React to count accordingly?
     :IsManyFiles
-            rem echo for /a: %%fi in (%1) call rn %as_instrmental_param% "%fi" %2 recursive
-                     for /a:  %fi in (%1) call rn %as_instrmental_param% "%fi" %2 recursive
+            rem echo for /a: %%fi in (%1)                                 call rn %as_instrmental_param% "%fi" %2 recursive
+                     for /a:  %fi in (%1) if exist %as_instrmental_param% call rn %as_instrmental_param% "%fi" %2 recursive
             gosub :after
     goto :END_of_rn
 
@@ -167,8 +167,8 @@ rem React to count accordingly?
                             if "%%~nxF" neq "%FILENAME_OLD%" (
                                 set "FILENAME_SIDECAR_OLD=%~dp1%%~nxF"
                                 set "FILENAME_SIDECAR_NEW=%~dp1%BASENAME_NEW%%%~xF"
-                                echo %ansi_color_debug%DEBUG: Checking sidecar file — %lq%!FILENAME_SIDECAR_OLD!%rq%
-                                echo %ansi_color_debug%DEBUG: Renaming to ——————————— %lq%!FILENAME_SIDECAR_NEW!%rq%
+                                echo %ansi_color_debug%DEBUG: Checking sidecar file - %lq%!FILENAME_SIDECAR_OLD!%rq%
+                                echo %ansi_color_debug%DEBUG: Renaming to ----------- %lq%!FILENAME_SIDECAR_NEW!%rq%
                                 %COLOR_SUCCESS%        %+  echo      %ansi_color_bright_red%%star3% %ansi_color_green%Renaming sidecar file: %ansi_color_green%%italics_on%%faint_on%%@NAME[!FILENAME_SIDECAR_OLD!]%faint_off%%italics_off%
                                 %COLOR_SUCCESS%        %+  echo      %ansi_color_green%%zzzzzzzzzzzzzzzzzzzzzzz%                     To: %italics_on%%faint_on%%@NAME[!FILENAME_SIDECAR_NEW!]%faint_off%%italics_off% %+ %COLOR_NORMAL%
                                 %COLOR_SUBTLE%         %+  echos %FAINT_ON%%ITALICS_ON%                              ``

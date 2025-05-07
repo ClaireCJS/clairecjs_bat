@@ -46,9 +46,14 @@ rem Ask for each file, and delete:
                 echo %star% %ansi_color_yellow%Full filename: %faint_on%%italics_on%%@UNQUOTE["%@FULL["%file%"]"]%italics_off%%faint_off%
                 :reask
                 call askyn "Delete %lq%%ansi_color_bright_yellow%%@UNQUOTE["%file%"]%ansi_color_prompt%%rq% [E=edit%EVEN_MORE_PROMPT_TEXT%]" yes 0 E%EVEN_MORE_EXTRA_LETTERS%P E:edit_it_instead%EVEN_MORE_EXTRA_EXPLANATIONS%
-                if "Y" == "%ANSWER%" *del /a: /f /Ns  "%@UNQUOTE["%file%"]"
-                if "E" == "%ANSWER%" (%EDITOR% "%@UNQUOTE["%file%"]" %+ goto :reask)
-                rem if "P" == "%ANSWER%" (call preview-% "%@UNQUOTE["%file%"]" %+ goto :reask)
+                iff not exist "%@UNQUOTE["%file%"]" then
+                        call warning "File “%@UNQUOTE["%file%"]” doesn’t seem to exist... [anymore?]"
+                else
+                        if "Y" == "%ANSWER%" (*del /a: /f /Ns  "%@UNQUOTE["%file%"]"               )
+                        if "E" == "%ANSWER%" (%EDITOR%         "%@UNQUOTE["%file%"]" %+ goto :reask)
+                        if "P" == "%ANSWER%" (call review-file "%@UNQUOTE["%file%"]" %+ goto :reask)
+                endiff
+                
         return
 
 :END

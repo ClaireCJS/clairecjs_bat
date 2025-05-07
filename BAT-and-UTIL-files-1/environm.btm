@@ -1144,6 +1144,7 @@ rem Define Servers:
                         rem Default text editor, and separate BG command to call the text in the background:
                                 SET EDITOR=call ep
                                 SET EDITORBG=call epb
+                                set BIGEDITOR="%Program Files%\SlickEdit Pro 21.0.0\win\vs.exe" %+ rem Editor for *VERY LARGE* files
                         rem Screen metrics:
                                 SET  WIDTH=%@WINMETRICS[0]  
                                 SET HEIGHT=%@WINMETRICS[1]
@@ -1860,6 +1861,10 @@ return
                 SET VIDEOLISTDIRDRIVE=%VIDEODRIVE%
                 SET VIDEOLISTDRIVE=%VIDEOLISTDIRDRIVE%
                 set VIDEOLIST=%VIDLIST%
+                SET RECENTLISTFILENAME=newest-files.txt
+                SET RECENT_FILE_LIST_DRIVE=%VIDLISTDIRDRIVE%
+                SET RECENT_FILE_LIST=%VIDLISTDIR%\%RECENTLISTFILENAME%
+                SET RECENTLISTPUB=%VCR\vid-%USERNAME-new.htm
             rem :Validation
                 %gosubValidateFolderExists%            VIDEODRIVE VIDEO
                 %gosubValidateFolderExists%        VIDEOLISTDRIVE VIDEOLIST

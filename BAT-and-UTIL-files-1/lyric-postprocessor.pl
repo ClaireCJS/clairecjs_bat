@@ -235,6 +235,7 @@ while (<$INPUT>) {
 	#handle whether we do the new line at the end or not
 	$to_print = $line;
 	if ($ONE_LINE) { 
+		$to_print  =~ s/’’/’/ig;											#kludge 20250424 1358 copied here 20250505 1833
 		$to_print .=  " ";
 	} else { 
 		#print "to_print is “$to_print”\n";

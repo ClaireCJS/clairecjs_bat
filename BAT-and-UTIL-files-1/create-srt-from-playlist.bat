@@ -4,7 +4,7 @@
  setdos /x0
 
 rem USAGE:
-        iff "%1" eq "" then
+        iff "%1" == "" then
                 %color_advice%
                 text
                         USAGE: %0 {playlist_filename} {limit} -- to check all files of that playlist for karokes, until we find our limit
@@ -13,7 +13,7 @@ rem USAGE:
         endiff
 
 rem VALIDATE ENVIRONMENT:
-        iff 1 ne    %validated_glfp then
+        iff "1" != "%validated_glfp%" then
                 call validate-in-path check-for-missing-lyrics.bat
                 set  validated_glfp=1
         endiff

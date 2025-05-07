@@ -33,7 +33,7 @@ rem Make sure some important environment variables actually exist:
         if not defined RED_X          set RED_X=%@CHAR[10060]%@CHAR[0]
 
 rem Validate environment once per session:
-        iff 1 ne %VALIDATED_DLS% then
+        iff "1" != "%VALIDATED_DLS%" then
                 call validate-in-path display-lyric-status-for-file validate-environment-variable warning get-lyric-status get-lyriclessness-status
                 call validate-environment-variable filemask_audio skip_validation_existence
                 set  VALIDATED_DLS=1
@@ -72,7 +72,7 @@ rem Count how many files we will be displaying the status of:
 
 rem If we will be displaying more than 1 file, use justification so the values line up nicely:
         rem num_lyrics_found=%num_lyrics_found
-        iff 1 eq %NUM_LYRICS_FOUND then
+        iff "1" == "%NUM_LYRICS_FOUND%" then
                 set USE_SPACER=0
         else
                 set USE_SPACER=1
@@ -116,11 +116,11 @@ rem Go through each file, displaying it’s lyric status:
                                 if "%@LEFT[ 6,%tmpfile%]" == "README"                                   goto :nevermind_on_the_processing %+ rem Skip README files
         
                         rem Determine statuses based on parameters:
-                                set NOT_LYRICS=0          %+ if "%EXT%" != "txt"                         (set NOT_LYRICS=1         )
-                                set  IS_LYRICS=0          %+ if "%EXT%" == "txt"                         (set  IS_LYRICS=1         )
-                                set  IS_KARAOKE=0         %+ if "%EXT%" == "srt" .or.  "%EXT%" eq "lrc"  (set  IS_KARAOKE=1        )
-                                set NOT_KARAOKE=0         %+ if "%EXT%" != "srt" .and. "%EXT%" ne "lrc"  (set NOT_KARAOKE=1        )
-                                set PROBABLY_AUDIO_FILE=0 %+ if 1 eq %NOT_LYRICS .and. 1 eq %NOT_KARAOKE (set PROBABLY_AUDIO_FILE=1)
+                                set NOT_LYRICS=0          %+ if "%EXT%" != "txt"                                   (set NOT_LYRICS=1         )
+                                set  IS_LYRICS=0          %+ if "%EXT%" == "txt"                                   (set  IS_LYRICS=1         )
+                                set  IS_KARAOKE=0         %+ if "%EXT%" == "srt" .or.  "%EXT%" == "lrc"            (set  IS_KARAOKE=1        )
+                                set NOT_KARAOKE=0         %+ if "%EXT%" != "srt" .and. "%EXT%" != "lrc"            (set NOT_KARAOKE=1        )
+                                set PROBABLY_AUDIO_FILE=0 %+ if "1" == "%NOT_LYRICS%" .and. "1" == "%NOT_KARAOKE%" (set PROBABLY_AUDIO_FILE=1)
 
                         rem Debug info:
                                 rem  echo %emoji_cat% ext=%ext% - %ansi_color_bright_yellow% tmpfile is %tmpfile% %ansi_color_yellow%... ext = %ext ... %ansi_color_orange% not_lyrics=%NOT_LYRICS% is_lyrics=%IS_LYRICS% not_karaoke=%NOT_KARAOKE is_karaoke=%IS_KARAOKE prob_audio_file=%PROBABLY_AUDIO_FILE%%ansi_reset% 
@@ -145,23 +145,23 @@ rem Go through each file, displaying it’s lyric status:
 
 
                         rem Display the lyric status if a sidecar file was found, or another message if one was not:
-                                if 1 eq %IS_KARAOKE (
+                                if "1" == "%IS_KARAOKE%" (
                                                 rem echos is_karaoke: ``
                                                 call display-lyric-status-for-file "%tmpfile%" skip_validations
                                 ) else (
-                                        set comment=rem if 1 eq %SIDECAR_FOUND%  (
+                                        set comment=rem if "1" == "%SIDECAR_FOUND%"  (
                                         set comment=rem         call display-lyric-status-for-file "%TMP_LYRIC_OR_SONG_SIDECAR_FILE%" skip_validations
                                         set comment=rem ) else (                                
                                         set comment=rem         rem The old way, before lyriclessness was approveable: if 1 eq %USE_SPACER% ( echo %@CHAR[55357]%@CHAR[56590] %@CHAR[27][38;2;98;108;22m%red_x% No corresponding lyric file for: %@CHAR[27][38;2;68;78;15m%italics_on%%@FULL[%tmpFile%]%italics_off%%faint_off% ) else ( echo %@CHAR[55357]%@CHAR[56590] %@CHAR[27][38;2;98;108;22mNo corresponding lyric for: %@CHAR[27][38;2;68;78;15m%italics_on%%@FULL[%tmpFile%]%italics_off%%faint_off% )
                                         set comment=rem         call display-lyric-status-for-file "%tmpfile%" lyriclessness skip_validations
                                         set comment=rem )       
-                                        if 1 eq %IS_LYRICS% (
+                                        if "1" == "%IS_LYRICS%" (
                                                 call display-lyric-status-for-file "%tmpfile%" lyrics        skip_validations
                                         ) else (
                                                 set comment=rem If we’re displaying both karaoke *AND* audio files, and a karaoke file exists, 
                                                 set comment=rem    then there is no need to mention the audio file, as we don’t generally have
                                                 set comment=rem    karaoke files just hanging around without an attached song.  
-                                                iff 0 eq %SIDECAR_FOUND then
+                                                iff "0" == "%SIDECAR_FOUND%" then
                                                         call display-lyric-status-for-file "%tmpfile%" lyriclessness skip_validations
                                                 else
                                                         set COMMENT=doing nothing

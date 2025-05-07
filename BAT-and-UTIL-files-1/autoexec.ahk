@@ -232,7 +232,9 @@ Pause::
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; KEYBOARD ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; TODO make these numpad instead:
+;todo these brackets: 【a】 [a] [-] 【-】_【-】 [-]_[-]
+
+; TODO make these numpad instead because Ctrl+Alt+[0-9] are used for other things actually:
 ^!0::Send "⁰"           ; Ctrl+Alt+0 for superscript number ⁰
 ^!1::Send "¹"           ; Ctrl+Alt+1 for superscript number ¹
 ^!2::Send "²"           ; Ctrl+Alt+2 for superscript number ²
@@ -244,6 +246,7 @@ Pause::
 ^!8::Send "⁸"           ; Ctrl+Alt+8 for superscript number ⁸
 ^!9::Send "⁹"           ; Ctrl+Alt+9 for superscript number ⁹
 
+
 ^?::Send  "❔"		;	    Ctrl+? for ❔ [white]
 !?::Send  "❓"		;	     Alt+? for ❓ [red]
 ^!?::Send "⁉️"		;	Ctrl-Alt+? for ⁉️ 
@@ -251,9 +254,6 @@ Pause::
 ;can't figure out Ctrl-Alt-! though ...      ^!!:Send  "‼️";
 ^!::Send  "❕"		;	    Ctrl+! for ❕ [white]
 !!::Send  "❗"		;	     Alt+! for ❗ [red]
-
-			 
-;todo these brackets: 【a】 [a] [-] 【-】_【-】 [-]_[-]
 
 ;* normal asterisk key	;         Shift+8 is  *  the normal asterisk key
 ^8::Send	"⭐"	;          Ctrl+8 for ⭐  big gold star [but looks tiny in EditPlus]
@@ -292,15 +292,18 @@ Pause::
 ;^=::Send "═"		; “═” —     Ctrl-Equals key for the connecting_equals symbol but we have this disabled becuase it’s used for zoom up in Windows Terminal
 ;!=::Send "═"		; “═” —      Alt-Equals key for the connecting_equals symbol aka box drawing horizontal double
 !=::Send  "─"           ; “─” —      Alt-Equals key for the unicode box drawing light horizontal      (      dividers       ) WHICH LOOKS SAME AS EMDASH BUT CONNECTS WITH OTHER DRAWING CHARS BETTER BECUASE IT’S SLIGHTLY HIGHER
-^!=::Send "═"		; “═” — Ctrl-Alt-Equals key for the connecting_equals symbol
-
-
-		      
+^!=::Send "═"		; “═” — Ctrl-Alt-Equals key for the connecting_equals symbol		      
 		      
 ;|::Send  "|"           ; “|” —          Pipe key for the normal pipe
 ^|::Send  "│"		; “│” —     Ctrl-Pipe key for the thin   connecting vertical bar
 !|::Send  "┃"		; “┃” —      Alt-Pipe key for the thick  connecting vertical bar
 ^!|::Send "║"		; “║” — Ctrl-Alt-Pipe key for the doulbe connecting vertical bar
+		      
+;|::Send  "x"           ; “x”  —                x key for the normal x
+;^|::Send  "│"		;      —           Ctrl-x key is definitely reserved for other things
+;!|::Send  "┃"		;      —            Alt-x key is likely     reserved for other things
+^!x::Send "×"		; “×”  —       Ctrl-Alt-x key for “×” , the multiplication unicode symbol, which is more in the center than the “x” is:  ×x×x×x×x×
++^!X::Send "✖️"		; “✖️” — Shift-Ctrl-Alt-x key for “✖️”, the multiplication  emoji  symbol, which is huuuge compared to the x: x×X✖️
 		      
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; KEYBOARD ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

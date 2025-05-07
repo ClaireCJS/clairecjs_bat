@@ -118,7 +118,7 @@ rem If we were supplied a filename, process it as a list of files:              
 
 
 rem Set our getter, depending on whether we’re in lyric mode, or “hidden” karaoke mode:
-        iff 1 ne %GET_KARAOKE then
+        iff "1" != "%GET_KARAOKE%" then
                 set GETTER=get-lyrics-for-file.btm
                 set findNature=lyrics
         else
@@ -177,7 +177,7 @@ rem Remaining parameter processing: For if we pass a number to set a manual limi
 
 rem Let user know what’s going on:
         repeat 5 echo.
-        iff 1 eq %FILELIST_MODE then
+        iff "1" eq "%FILELIST_MODE%" then
                 set in= in playlist: %italics_on%“%emphasis%%@NAME[%Filelist_to_Check_for_Missing_Lyrics_in%].%@EXT[%Filelist_to_Check_for_Missing_Lyrics_in%]%deemphasis%%italics_off%”
                 set limit_to_use=%limit%
         else
@@ -230,7 +230,7 @@ rem and add lines generating the missing lyrics (if any found) to %tmpfile_cfml_
         
 rem If we have reached our limit, stop processing        
         if %ANY_BAD gt 0 repeat 4 echo.
-        iff 1 eq %limit_reached then
+        iff "1" == "%limit_reached%" then
                 repeat 1 call beep.bat highest
                 call bigecho "%ansi_color_warning_soft%%check%   Limit of: %italics_on%%blink_on%%@formatn[3.0,%LIMIT%]%blink_off%%italics_off% files %ansi_color_success%reached%ansi_color_normal%"
         else                
@@ -277,7 +277,7 @@ rem Create the fix-script, if there are any to fix:
         setdos /x0
         if "1" !=  "%ANY_BAD%" goto :no_bad_detected                                                      %+ rem We generate a script to find the missing ones, but if and only if some missing ("bad") ones were found
                 set TARGET_SCRIPT=get-the-missing-lyrics-here-temp.bat                                    %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
-                if "%findNature%" eq "karaoke" set TARGET_SCRIPT=get-the-missing-karaoke-here-temp.bat    %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
+                if "%findNature%" == "karaoke" set TARGET_SCRIPT=get-the-missing-karaoke-here-temp.bat    %+ rem don’t change this!! Not w/o changing in clean-up-AI-transcription-trash-files and possibly in other places ... In some cases this may actually be getting the missing karaoke here and be a bit of a misnomer, sorry!
                 echo @Echo OFF                                          >:u8 "%TARGET_SCRIPT"             %+ rem get-missing-lyrics script: initialize: turn Echo OFF
                 echo @*setdos /x-4                                      >>:u8 "%TARGET_SCRIPT"
                 rem Rexx says try x-3 here but i’m not so sure
@@ -506,7 +506,7 @@ rem —————————————————————————�
                                         rem Add lyric-retrieval command to our autorun script:
                                               rem echo gosub process "%unquoted_audio_file%" >>:u8"%tmpfile_cfml_1%"
                                               *setdos /x-4
-                                              iff 1 eq %GENIUS_ONLY% then
+                                              iff "1" == "%GENIUS_ONLY%" then
                                                       echo repeat 7 echo. `%`+ if exist "%unquoted_audio_file%" .and. not exist "%@unquote[%@name["%unquoted_audio_file%"]].txt" call %GETTER% "%unquoted_audio_file%" %ETC% `%`+ call  divider >>:u8"%tmpfile_cfml_1%"
                                               else
                                                       echo repeat 7 echo. `%`+ if exist "%unquoted_audio_file%"                                                                  call %GETTER% "%unquoted_audio_file%" %ETC% `%`+ call  divider >>:u8"%tmpfile_cfml_1%"

@@ -453,6 +453,8 @@ Rarely used side-utility: Creates karaoke files for **all songs** in a *folder t
 
 Reviews all lyric files in current folder, using ```print-with-columns``` to reduce scrolling up.
 
+To add visual representation stripe, use the “-st”, “-stU”, “stL”, and “-stB” parameters for default stripe, upper stripe, lower stripe, and both stripes.
+
 
 
 

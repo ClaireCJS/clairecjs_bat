@@ -35,7 +35,7 @@ rem Usage:
 
 
 rem Validate environment (once):
-        iff 1 ne %validated_work% then
+        iff "1" != "%validated_work%" then
                 call validate-in-path askyn
                 set  validated_work=1
         endiff
@@ -46,7 +46,7 @@ rem Ask what kind of work we are doing, if it is not specified already:
         iff "%1" == "" then
                 echo.
                 cls
-                call AskYn "Work how? K=Karaoke, L=Lyrics, P=Prompts" no 9999 big LKP L:Lyrics!,K:Karaoke!,P:Prompts!
+                call AskYn "Work how? %ansi_color_bright_green%K%ansi_color_prompt%=Karaoke, %ansi_color_bright_green%L%ansi_color_prompt%=Lyrics, %ansi_color_bright_green%P%ansi_color_prompt%=Prompts" no 9999 big LKP L:Lyrics!,K:Karaoke!,P:Prompts!
                         set work_type_answer=%answer%
         endiff
 

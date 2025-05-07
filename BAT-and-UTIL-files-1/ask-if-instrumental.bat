@@ -15,6 +15,7 @@ rem Store original %ANSWER%:
 
 
 rem Main:
+        unset already_asked_about*
         iff "%@UNQUOTE["%1"]" == "" then
                 call ask-if-these-are-instrumentals.bat  %*
         elseiff exist %1 then

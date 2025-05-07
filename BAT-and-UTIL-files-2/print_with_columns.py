@@ -40,10 +40,10 @@ from   rich.console import Console                                        #shuti
 import colorama
 from   colorama     import Fore, Style
 from   wcwidth      import wcswidth
-colorama.init()
-#print(Fore.RED + "This text should be red." + Style.RESET_ALL)
 sys.stdin .reconfigure(encoding='utf-8', errors='replace')
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+colorama.init()
+#print(Fore.RED + "This text should be red." + Style.RESET_ALL)
 
 
 
@@ -583,6 +583,17 @@ def apply_background_color(r, g, b):
     return background
 # ═════════════════════════════════════════════════════════════════════════════════
 
+
+
+# ═════════════════════════════════════════════════════════════════════════
+def normalize_for_highlight(word):
+    word = word.replace("’", "").replace("'", "").replace("´", "")
+    if word.endswith("ing"):
+        word = word[:-3] + "in"
+    return word
+# ═════════════════════════════════════════════════════════════════════════
+
+
 # ═════════════════════════════════════════════════════════════════════════════════
 words_used=""
 striped_text = []
@@ -602,8 +613,10 @@ def consistent_word_highlight(text):
             word += char
         else:
             if len(word) >= WORD_HIGHLIGHT_LEN_MIN:                                     # Word is long enough for highlighting
+
                 if not in_highlight:                                                    # Start highlighting
-                    r, g, b, background = string_to_color(word)
+                    normalized_word = normalize_for_highlight(word)
+                    r, g, b, background = string_to_color(normalized_word)
                     payload    = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m"
                     stripeload = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m"
                     highlighted_text.append(payload)
@@ -622,20 +635,39 @@ def consistent_word_highlight(text):
             highlighted_text.append(char)                                               # Append the non-word character (punctuation, space, etc.)
             word = ''
 
-    if word:                                                                            # Handle the last word if any
-        if len(word) >= WORD_HIGHLIGHT_LEN_MIN:                                         # word = word.lstrip("0m")
-            if not words_used: words_used =                    word
-            else:              words_used = words_used + " " + word
+
+    # THIS WAY WORKED FOR A LONG TIME, but then a bug crept up in the final segment and ChatGPT fixed it for me (2025/05/02).
+
+    # OLD, BARELY-BUGGY WAY:
+    #if word:                                                                            # Handle the last word if any
+    #    if len(word) >= WORD_HIGHLIGHT_LEN_MIN:                                         # word = word.lstrip("0m")
+    #        if not words_used: words_used =                    word
+    #        else:              words_used = words_used + " " + word
+    #        r, g, b, background = string_to_color(word)
+    #        payload     = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m" + word + "\033[0m"     # Reset formatting after the word
+    #        stripeload1 = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m"
+    #        stripeload2 = word + "\033[0m"     # Reset formatting after the word
+    #        highlighted_text.append(payload)
+    #        #NO striped_text.append(payload) NO!
+    #        striped_text    .append(stripeload1)
+    #        striped_text    .append(stripeload2)
+    #    else:                                                                           # word = word.lstrip("0m")
+    #        words_used = words_used + " " + word
+    #        highlighted_text.append(word)
+    # NEW, CHAT-GPT 20250502 WAY:
+    if word:
+        if len(word) >= WORD_HIGHLIGHT_LEN_MIN:
             r, g, b, background = string_to_color(word)
-            payload     = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m" + word + "\033[0m"     # Reset formatting after the word
-            stripeload1 = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m"
-            stripeload2 = word + "\033[0m"     # Reset formatting after the word
-            highlighted_text.append(payload)
-            striped_text    .append(stripeload1)
-            striped_text    .append(stripeload2)
-        else:                                                                           # word = word.lstrip("0m")
-            words_used = words_used + " " + word
+            ansi = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m"
+            payload = word + "\033[0m"
+            striped_text.append(ansi)
+            striped_text.append(payload)
+            highlighted_text.append(ansi + payload)
+        else:
+            words_used = words_used + " " + word    #?
             highlighted_text.append(word)
+
+
 
     #print (f"🍏 hey striped_text is {striped_text}")
     return ''.join(highlighted_text), striped_text

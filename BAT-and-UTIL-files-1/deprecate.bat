@@ -5,9 +5,9 @@
 
 
 rem Validate environment (once):
-        if "2" != "%validated_deprecate%"
+        iff "1" != "%validated_deprecate%" then
                 call validate-in-path AskYN white-noise undep
-                call validate-environment-variables color_alarm ansi_color_alarm lq rq color_normal italics_on italics_off
+                call validate-environment-variables color_alarm ansi_color_alarm lq rq color_normal italics_on italics_off ansi_color_normal ansi_color_removal ansi_color_run
                 set  validated_deprecate=1
         endiff
 
@@ -44,7 +44,10 @@ rem Check if filename.depcreated already exists, in which case we must use the m
 rem Generate our redo and undo commands, then actually do it (by running the REDO command):
         set REDOCOMMAND=%SUBCOMMAND% "%LAST_FILE_DEPPED_OLD%" "%LAST_FILE_DEPPED_NEW%"
         set UNDOCOMMAND=call undep
+
+        echos %ansi_color_run%
            %REDOCOMMAND%
+        echos %ansi_color_normal%
 
 
 rem If the old file still exists, we’ve got issues:
@@ -53,8 +56,9 @@ rem If the old file still exists, we’ve got issues:
                 echos %ANSI_COLOR_ALARM%LAST_FILE_DEPPED_OLD of %lq%%LAST_FILE_DEPPED_OLD%%rq% *%italics_on%still%italics_off%* exists and should not! Might want to run '%italics_on%handles%italics_off%'.%ANSI_RESET% 
                 echo. 
                 call white-noise 1
-                call askyn "delete “%italics_on%%LAST_FILE_DEPPED_OLD%%italics_off%”" yes 5000
+                call askyn "⁹Delete “%italics_on%%LAST_FILE_DEPPED_OLD%%italics_off%”" yes 5000
                 iff "Y" == "%ANSWER%" then
+                        echos %ansi_color_removal%
                         *del /z /a: /f /Ns "%LAST_FILE_DEPPED_OLD%"
                         goto /i recheck_51
                 endiff

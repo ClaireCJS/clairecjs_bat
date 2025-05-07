@@ -17,7 +17,10 @@ rem Usage:
                 echo EXAMPLE: review-files -wh -1 *.txt ——— passes “-wh” and “-1” on to print-with-columns
                 echo.
                 echo. SPECIAL: the “-st”  action can be stacked with “-wh”, even though print-with-columns doesn’t work like that
-                echo. SPECIAL: the “-stU” action causes “-st” stripe to be an “upper stripe” before divider
+                echo.
+                echo. SPECIAL: the “-stU” action causes the stripe to be an “upper stripe” before divider
+                echo. SPECIAL: the “-stL” action causes the stripe to be a  “lower stripe”  after  divider, which is the same as the “-st” option
+                echo. SPECIAL: the “-stB” action causes both stripes to be displayed
                 goto /i END
 endiff
 
@@ -26,15 +29,20 @@ rem Config:
 
 rem First, process any arguments that start with “-”:
         unset /q PWC_OPTIONS
-        set STRIPE=0
+        set STRIPEL=0
         set STRIPEU=0
         :check_next_arg_for_pwd_opts
         set  left1=%@UNQUOTE[%@LEFT[2,"%1"]]
         iff "%left1%" == "-" then
-                iff "%1" == "-st" .or. "%1" == "--stripe" then
-                        set STRIPE=1
+                iff "%1" == "-stB" .or. "%1" == "--stB" then
+                        set STRIPEL=1
+                        set STRIPEU=1
+                elseiff "%1" == "-st" .or. "%1" == "-stL" .or. "%1" == "--stL" .or. "%1" == "--stripe" then
+                        set STRIPEU=0
+                        set STRIPEL=1
                 elseiff "%1" == "-stU" .or. "%1" == "--stripeU" then
                         set STRIPEU=1
+                        set STRIPEL=0
                 else
                         rem echo * Adding PWC_OPTION of “%1”
                         set PWC_OPTIONS=%PWC_OPTIONS% %1
@@ -186,10 +194,14 @@ rem Go through each one and review it:
                 gosub "%bat%\get-lyrics-for-file.btm" divider
                 call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"
                 rem call print-with-columns <%tmp_file_2 
-                                      type %tmp_file_2 |:u8 call print-with-columns %PWC_OPTIONS%
-                iff "1" == "%STRIPE%" then
+                                rem type %tmp_file_2 |:u8 call print-with-columns %PWC_OPTIONS%
+                                                          call print-with-columns %PWC_OPTIONS% %tmp_file_2 
+                iff "1" == "%STRIPEL%" then
                         gosub "%bat%\get-lyrics-for-file.btm" divider
-                        type %tmp_file_2 |:u8 call print-with-columns -st
+                        iff exist %tmp_file_2% then
+                                rem type %tmp_file_2% |:u8 call print-with-columns -st
+                                                           call print-with-columns -st %tmp_file_2% 
+                        endiff
                 endiff
         return
         :do_it_end

@@ -152,12 +152,6 @@ def main_guts(input_filename, extensions, options, extra_args):
         if options.lower() == "getlyricsfilewrite": output_filename = SCRIPT_NAME_FOR_LYRIC_RETRIEVAL
         if options.lower() == "createsrtfilewrite": output_filename = SCRIPT_NAME_FOR_KARAOKE_CREATION
         if options.lower() !=        "NoFileWrite":
-            #print          (colored(f"✏✏✏  Writing output file: {output_filename} ✏✏✏"  , 'green', attrs=['bold']))
-            #print          (colored(f"✏✏✏  Writing output file: {output_filename} ✏✏✏"  , 'green', attrs=['bold']), file=sys.stderr)
-            #ys.stderr.write(colored(f"✏ ✏ ✏  Writing output file ✏ ✏ ✏\n", 'green', attrs=['bold']))
-            #ys.stderr.write(colored(f"       Files processed:  {total_file_count} \n"     , 'green', attrs=['bold']))
-            #ys.stderr.write(colored(f"       Without sidecar:  {without_sidecar_count} \n", 'green', attrs=['bold']))
-            #ys.stderr.write(colored(f"       To fix, run:      {output_filename} \n", 'green', attrs=['bold']))
             sys.stderr.write("\n")
             sys.stderr.write(f"✏ ✏ ✏ ✏ ✏ ✏  Writing output file ✏ ✏ ✏ ✏ ✏ ✏\n")
             sys.stderr.write(f"       Files processed:       {total_file_count} \n")
@@ -173,18 +167,16 @@ def main_guts(input_filename, extensions, options, extra_args):
             #ith open(output_filename, 'w') as output_file:
             with open(output_filename, 'w', encoding='utf-8') as output_file:
                 output_file.write(f"@on break cancel\n")
+                output_file.write(f"@rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py\n")
 
-                # Convert set to list
-                files_without_sidecars_list = list(files_without_sidecars)
-
-                # Shuffle the list
-                random.shuffle(files_without_sidecars_list)
+                files_without_sidecars_list = list(files_without_sidecars)              # create  the list
+                random.shuffle(files_without_sidecars_list)                             # shuffle the list
 
                 #or missing_file in sorted(files_without_sidecars)    :
                 for missing_file in        files_without_sidecars_list:
                     if os.path.exists(missing_file):
-                        if options.lower() == "getlyricsfilewrite": output_file.write(f"@repeat 13 echo. %+ @call get-lyrics \"{missing_file}\" {extra_args} %+ @call divider %+ rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py\n")
-                        if options.lower() == "createsrtfilewrite": output_file.write(f"@repeat 13 echo. %+ @call create-srt \"{missing_file}\" {extra_args} %+ @call divider %+ rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py\n")
+                        if options.lower() == "getlyricsfilewrite": output_file.write(f"@repeat 13 echo. %+ @call get-lyrics \"{missing_file}\" {extra_args} %+ @call divider\n")
+                        if options.lower() == "createsrtfilewrite": output_file.write(f"@repeat 13 echo. %+ @call create-srt \"{missing_file}\" {extra_args} %+ @call divider\n")
                         else                                      : output_file.write(f"{missing_file}\n")
                 if options.lower()         == "getlyricsfilewrite": output_file.write("@call divider\n@call celebration \"ALL DONE WITH LYRIC RETRIEVAL!!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
                 if options.lower()         == "createsrtfilewrite": output_file.write("@call divider\n@call celebration \"ALL DONE WITH KARAOKE CREATION!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot

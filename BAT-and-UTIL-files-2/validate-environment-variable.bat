@@ -3,6 +3,8 @@
 @Echo off
 @on break cancel
 @setdos /x0
+gosub save_cusor_position
+gosub display_temp_output
 rem why won’t this work for this bat? @setlocal
 
 ::::: GET PARAMETERS:
@@ -34,6 +36,7 @@ rem why won’t this work for this bat? @setlocal
     set DEBUG_NORMALIZE_MESSAGE=0
     set ERROR_MESSAGE=
     set ERROR=0
+    set any_env_var_validations_failed=0
 
 ::::: CLEAR LONGTERM ERROR FLAGS:
     set ENVIRONMENT_VALIDATION_FAILED=0
@@ -47,7 +50,22 @@ rem why won’t this work for this bat? @setlocal
         set OUR_CALLER=%@NAME[%our_caller].%@EXT[%our_caller]
     
 ::::: VALIDATE ENVIRONMENT:
+rem Make sure ansi_move_to function is defined:
+        if "" == "%@function[ANSI_MOVE_TO]" function ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        
+        if "" == "%@function[RANDFG_SOFT]"  goto :endif_66
+                        rem echo redefining randfg_soft.... %+ pause
+                rem (copied from set-ansi.bat):
+                        set MIN_RGB_VALUE_FG=88
+                        set MAX_RGB_VALUE_FG=255
+                        set MIN_RGB_VALUE_BG=12
+                        set MAX_RGB_VALUE_BG=40
+                        set EMPHASIS_BG_EXPANSION_FACTOR=1.4
+                        set MIN_RGB_VALUE_BG=%@FLOOR[%@EVAL[%MIN_RGB_VALUE_BG*%EMPHASIS_BG_EXPANSION_FACTOR%]]
+                        Set MAX_RGB_VALUE_BG=%@FLOOR[%@EVAL[%MAX_RGB_VALUE_BG*%EMPHASIS_BG_EXPANSION_FACTOR%]]
+                        function RANDFG_SOFT=`%@CHAR[27][38;2;%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]]m`
+        :endif_66
         iff "1" !=  "%validated_validate_env_vars%" .and. not defined FILEMASK_ALL_REGEX then
+                gosub restore_cusor_position
                 %color_warning%
                 echo WARNING in validate-environment-variable.bat when called by %OUR_CALLER%: FILEMASK_ALL_REGEX not defined!
                 if defined PBATCH2 echo       grandparent BAT = %PBATCH2%
@@ -59,13 +77,13 @@ rem why won’t this work for this bat? @setlocal
 
 
 
-
 ::::: VALIDATE PARAMETERS STRICTLY
     rem call debug "param3            is %param3%"
     rem call debug "validate_multiple is %validate_multiple%"
     rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
     if "%@NAME[%OUR_CALLER%]" == "validate-environment-variables" set VALIDATE_MULTIPLE=1
     iff "%PARAM3%" != "" .and. %VALIDATE_MULTIPLE ne 1 then
+        gosub restore_cusor_position
         call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
         color bright white on red
         echo  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
@@ -86,7 +104,7 @@ rem why won’t this work for this bat? @setlocal
         set SKIP_VALIDATION_EXISTENCE=1 
         set USER_MESSAGE=%3$
     )
-    if %DEBUG_NORMALIZE_MESSAGE eq 1 (echo %ansi_color_debug%- DEBUG: PARAM2: %left_quotes%%PARAM2%%right_quotes%%ansi_color_normal%)
+    if %DEBUG_NORMALIZE_MESSAGE eq 1 (gosub restore_cusor_position %+ echo %ansi_color_debug%- DEBUG: PARAM2: %left_quotes%%PARAM2%%right_quotes%%ansi_color_normal%)
 
 
     iff %VALIDATE_MULTIPLE ne 1 then
@@ -119,6 +137,8 @@ goto :Past_The_End_Of_The_Subroutines
 
                     ::::: RESPOND IF IT IS NOT DEFINED/EXISTING:
                         :Defined_NO
+                            gosub restore_cusor_position
+                            set any_env_var_validations_failed=1
                             set ERROR=1
                             set ERROR_MESSAGE=%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] Environment variable %left_quote%%underline%%italics%%blink%%varname%%italics_off%%blink_off%%underline_off%%right_quote% is %double_Underline%not%double_Underline_off% defined, and needs to be
                             if "" !=  "%OUR_CALLER%" set ERROR_MESSAGE=%ERROR_MESSAGE%, in %italics_on%%left_quotes%%@name[%our_caller%].%@ext[%our_caller%]%right_quote%%italics_off%
@@ -353,6 +373,30 @@ goto :Past_The_End_Of_The_Subroutines
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :save_cusor_position []
+                set vev_saved_row=%_row
+                set vev_saved_col=%_col
+        return
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :restore_cusor_position []
+                echos %@ansi_move_to[%@EVAL[%vev_saved_row% + 1],%@EVAL[%vev_saved_col% + 1]]
+        return
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :display_temp_output []
+                set coloring=%@randfg_soft[]
+                echos %ansi_cursor_invisible%%coloring%V%coloring%%faint_on%?%faint_off%%ansi_color_reset%
+                set temp_output_vev_length=2
+        return
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 
@@ -362,12 +406,19 @@ goto :Past_The_End_Of_The_Subroutines
 :ItExistsAfterall
 :DontValidateIfExists
 :END
-if "" == "%LAST_TITLE%" (set LAST_TITLE=TCC)
-title %LAST_TITLE%
+        if "" == "%LAST_TITLE%" (set LAST_TITLE=TCC)
+        title %LAST_TITLE%
+        if defined        CURSOR_RESET echos %CURSOR_RESET%
+        if defined ANSI_CURSOR_VISIBLE echos %ANSI_CURSOR_VISIBLE%
+        setdos /x0
+        rem why won’t this work for this bat? endlocal LAST_TITLE ENVIRONMENT_VALIDATION_FAILED ENVIRONMENT_VALIDATION_FAILED_NAME ENVIRONMENT_VALIDATION_FAILED_VALUE DEBUG_VALIDATE_ENV_VAR DEBUG_NORMALIZE_MESSAGE ERROR ERROR_MESSAGE ERROR ERROR_ENVIRONMENT_VALIDATION_FAILED ERROR_ENVIRONMENT_VALIDATION_FAILED_NAME ERROR_ENVIRONMENT_VALIDATION_FAILED_VALUE
 
-echos %CURSOR_RESET%
+rem Erase temp output:
+        iff "1" != "%any_env_var_validations_failed%" then
+                gosub restore_cusor_position
+                echos %@REPEAT[ ,%temp_output_vev_length%]``
+                gosub restore_cusor_position
+        endiff
 
-setdos /x0
-rem why won’t this work for this bat? endlocal LAST_TITLE ENVIRONMENT_VALIDATION_FAILED ENVIRONMENT_VALIDATION_FAILED_NAME ENVIRONMENT_VALIDATION_FAILED_VALUE DEBUG_VALIDATE_ENV_VAR DEBUG_NORMALIZE_MESSAGE ERROR ERROR_MESSAGE ERROR ERROR_ENVIRONMENT_VALIDATION_FAILED ERROR_ENVIRONMENT_VALIDATION_FAILED_NAME ERROR_ENVIRONMENT_VALIDATION_FAILED_VALUE
 
 

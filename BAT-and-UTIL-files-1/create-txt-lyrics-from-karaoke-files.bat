@@ -11,7 +11,7 @@ rem Environment preparation:
         if not defined FILEMASK_AUDIO set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
 
 rem Validate environment (once):
-        iff 1 ne %validated_CrTxtFrKarFile% then
+        iff "1" != "%validated_CrTxtFrKarFile%" then
                 call validate-in-path important_less lrc2txt.bat lrc2txt.py lrc2txt srt2txt srt2txt.bat srt2txt.py python
                 set  validated_CrTxtFrKarFile=1
         endiff

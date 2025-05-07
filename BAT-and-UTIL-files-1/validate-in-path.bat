@@ -2,8 +2,8 @@
 @echo off
 @on break cancel
 @rem echo %ansi_reset%%conceal_off%%ansi_color_grey%📞📞📞 “%0 %1$” called by %_PBATCHNAME 📞📞📞%ansi_color_normal%
-rem echos %@RandFG_soft[]P?
 gosub save_cusor_position
+gosub display_temp_output
 
 :PUBLISH:
 :DESCRIPTION: validates if commands are valid
@@ -22,12 +22,25 @@ rem                     [Solution: use regular epressions to strip things off pa
 rem Make sure stripansi plugin is loaded:   
         set stripansi_failed=0
         if "%@PLUGIN[stripansi]" == "" call load-TCC-plugins
-        rem If it’s still not loaded even after trying, take special note of it:
-                if "%@PLUGIN[stripansi]" == "" set stripansi_failed=1
+rem If it’s still not loaded even after trying, take special note of it:
+        if "%@PLUGIN[stripansi]" == "" set stripansi_failed=1
 
 
 rem Make sure ansi_move_to function is defined:
-        if "" == "%@ANSI_MOVE_TO[1,1]" function ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        
+        if "" == "%@FUNCTION[ansi_move_to]" function ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        
+        if "" == "%@function[RANDFG_SOFT]"  goto :endif_66
+                        rem echo redefining randfg_soft.... %+ pause
+                rem (copied from set-ansi.bat):
+                        set MIN_RGB_VALUE_FG=88
+                        set MAX_RGB_VALUE_FG=255
+                        set MIN_RGB_VALUE_BG=12
+                        set MAX_RGB_VALUE_BG=40
+                        set EMPHASIS_BG_EXPANSION_FACTOR=1.4
+                        set MIN_RGB_VALUE_BG=%@FLOOR[%@EVAL[%MIN_RGB_VALUE_BG*%EMPHASIS_BG_EXPANSION_FACTOR%]]
+                        Set MAX_RGB_VALUE_BG=%@FLOOR[%@EVAL[%MAX_RGB_VALUE_BG*%EMPHASIS_BG_EXPANSION_FACTOR%]]
+                        function RANDFG_SOFT=`%@CHAR[27][38;2;%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]]m`
+        :endif_66
+        rem if "" == "%@FUNCTION[ansi_move_to]" call set-ansi force
 
 
 rem Message styling experimentation:
@@ -85,7 +98,8 @@ rem Process command line parameters:
 rem Validate each command line parameter
         rem echo 🐈 validate_in_path_message is %validate_in_path_message% 🐈
         rem echo 🐈 about to process CMDTAIL of %lq%%cmdtail%%rq%
-        for %command in (%CMDTAIL%) do gosub validate_path_for_one_parameter %command%
+        set any_path_validations_failed=0
+        for %command in (%CMDTAIL%) do (gosub restore_cusor_position %+ gosub display_temp_output %+ gosub validate_path_for_one_parameter %command%)
         goto :cleanup
 
 
@@ -116,15 +130,19 @@ rem Validate each command line parameter
                 if "1" == "%is_command%" goto /i validation_passed
                                          goto /i validation_failed
 
-                        :validation_failed
+                        :validation_failed        
                                 rem Debug:
                                         rem echo %ansi_color_orange%command doesn’t seem to exist%ansi_color_normal%
+
+                                rem Track that there were any failures at all:
+                                        set any_path_validations_failed=1
                                 rem Create error message:
                                         set my_message=%PRIMARY_ERROR_MESSAGE_STYLING_ON%%clean_command%%PRIMARY_ERROR_MESSAGE_STYLING_OFF% is %italics_on%not%italics_off% in your path in %_PBATCHNAME, and needs to be %validate_in_path_message%
                                         rem echo unset /q validate_in_path_message
                                         unset /q validate_in_path_message
                                 rem Display error message:
                                         call setpath 
+                                        gosub restore_cusor_position
                                         call fatal_error "%my_message%"
                                 rem Attempt a quick in-place hotfix:
                                         call advice      "We will try setting the path again just in case"
@@ -147,28 +165,40 @@ rem Validate each command line parameter
         return
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        :save_cusor_position
+        :save_cusor_position []
                 set vip_saved_row=%_row
                 set vip_saved_col=%_col
         return
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        :restore_cusor_position
-                echos @ansi_move_to[%@EVAL[%saved_row% + 1],%@EVAL[%saved_col% + 1]]
+        :restore_cusor_position []
+                echos %@ansi_move_to[%@EVAL[%vip_saved_row% + 1],%@EVAL[%vip_saved_col% + 1]]
+        return
+:━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+:━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        :display_temp_output []
+                set coloring=`%@randfg_soft[]`
+                echos %ansi_cursor_invisible%%coloring%P%coloring%%faint_on%?%faint_off%%ansi_color_reset%
+                set temp_output_vip_length=2
         return
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-:━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-:━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
-rem Once more for good measure:
+rem Ending stuff / cleanup:
         :END
         :cleanup
-        unset /q validate_in_path_message
-        if defined CURSOR_RESET echos %CURSOR_RESET%
-        rem @echo %ansi_reset%%conceal_off%%ansi_color_grey%📞📞📞 ENDING: “%0 %1$” called by %_PBATCHNAME 📞📞📞%ansi_color_normal%
+                unset /q validate_in_path_message
+                rem if defined ANSI_CURSOR_VISIBLE echos %ANSI_CURSOR_VISIBLE%
+                if defined CURSOR_RESET        echos %CURSOR_RESET%
      
+rem Erase temp output:
+        iff "1" != "%any_path_validations_failed%" then
+                gosub restore_cusor_position
+                echos %@REPEAT[ ,%temp_output_vip_length%]``
+                gosub restore_cusor_position
+        endiff
 
-
+rem DEBUG:
+        rem @echo %ansi_reset%%conceal_off%%ansi_color_grey%📞📞📞 ENDING: “validate-in-path $*” called by %_PBATCHNAME 📞📞📞%ansi_color_normal%
