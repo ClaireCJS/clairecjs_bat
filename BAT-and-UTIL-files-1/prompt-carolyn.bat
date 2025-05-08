@@ -20,6 +20,7 @@ set TIME_COLOR_BRACKETS=1;32;34
 set CPU_USAGE_PERCENTS=1;30
 set CPU_USAGE_BRACKETS=0;37
 set ADD_THE_CPU_USAGE=1
+set TEXT_AT_END= 😈 $e[1;35m-$G ``
 call prompt-common
 call cursor-carolyn
 

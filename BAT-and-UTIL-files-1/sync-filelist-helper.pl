@@ -199,8 +199,9 @@ foreach $file (@FILES) {
 		$COMMANDSET .= "echo.\n";
 		$COMMANDSET .= "\%COLOR_WARNING\% \%+ echo NOT copying FLAC file: \"$file\" \%+ \%COLOR_NORMAL\% \n";
 	} else {
-	    $COMMANDSET .= "echos \%\@ANSI_RANDFG_SOFT[]\n";
-		$COMMANDSET .= "$COPY \"$file\" \"$newfile\"\n";
+	    $COMMANDSET .= "if exist \"$file\" echos \%\@ANSI_RANDFG_SOFT[]\n";
+		$COMMANDSET .= "if exist \"$file\" $COPY \"$file\" \"$newfile\"\n";
+		$COMMANDSET .= "if exist \"$file\" call status-bar $destinationDriveLetter:\n";
 
 	}
 
@@ -228,8 +229,10 @@ foreach my $command (@QUEUEDCOMMANDSRANDOM) {
 	print $command; 
 	#print "\%COLOR_LESS_IMPORTANT\% \%+ echo * Files remaining: \%\@COMMA[" . $filenum . "] \%+ \%COLOR_NORMAL\% \n\n"; 
 	$remain = $total_files - $filenum;
-	print "set  DISPLAY_FREE_SPACE_AS_LOCKED_MESSAGE_ADDITIONAL_MESSAGE= \%BLINK_ON\%\%\@CHAR[9679]\%BLINK_OFF\% \%ITALICS_ON\%" . $remain . "\%ITALICS_OFF\% files remaining\n";
-	print "call display-free-space-as-locked-message $destinationDriveLetter\n";
+	#print "set  DISPLAY_FREE_SPACE_AS_LOCKED_MESSAGE_ADDITIONAL_MESSAGE= \%BLINK_ON\%\%\@CHAR[9679]\%BLINK_OFF\% \%ITALICS_ON\%" . $remain . "\%ITALICS_OFF\% files remaining\n";
+	#print "call status-bar \"\%DISPLAY_FREE_SPACE_AS_LOCKED_MESSAGE_ADDITIONAL_MESSAGE\%\"\n";
+	#print "call display-free-space-as-locked-message $destinationDriveLetter\n";
+	#this was ugly: print "call status-bar unlock\n";
 	$filenum++;
 }
 

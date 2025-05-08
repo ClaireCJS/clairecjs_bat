@@ -21,7 +21,7 @@ rem If we passed a parameter, we are operating on a single file:
                 echos %ansi_reset%
                 goto :END
         endiff
-        iff "%1" ne "" .and. "%1" != "all" .and. "%1" != "audio" .and. "1" != "%@RegEx[[\*\?],%1]"  then
+        iff "%1" != "" .and. "%1" != "all" .and. "%1" != "audio" .and. "1" != "%@RegEx[[\*\?],%1]"  then
                 rem When operating on a single file, make sure it is the correct extension prior to displaying the lyrics:
                         if "%2" != "skip_validations" call validate-is-extension "%@UNQUOTE[%1]" %FILEMASK_LYRICS_TEMP% "Slow down, partner! The 1ˢᵗ arg must be a file that matches “%italics_on%%FILEMASK_LYRICS_TEMP%%italics_off%”"
                         call display-lyric-status-for-file %*
@@ -67,7 +67,7 @@ rem Count how many files we will be displaying the status of:
                         set FOUND=0
                         for %%E in (%FILEMASK_AUDIO%) do (if exist "%BASENAME%%%~xE" (set FOUND=1))
                 rem If it does, then increase our file count by 1:
-                        if %FOUND% ne 0 (set NUM_LYRICS_FOUND=%@EVAL[%NUM_LYRICS_FOUND + 1])       
+                        if "%FOUND%" != "0" (set NUM_LYRICS_FOUND=%@EVAL[%NUM_LYRICS_FOUND + 1])       
         )
 
 rem If we will be displaying more than 1 file, use justification so the values line up nicely:
@@ -80,7 +80,7 @@ rem If we will be displaying more than 1 file, use justification so the values l
         if %NUM_LYRICS_FOUND gt 0 (echo.)
 
 rem Go through each file, displaying it’s lyric status:
-        iff "1" ne "%@RegEx[[\*\?],%1]" then
+        iff "1" != "%@RegEx[[\*\?],%1]" then
                 set ADSTAG_DISPLAY_FOR_PATH=0
                 set masks=%FILEMASK_AUDIO%;*.srt;*.lrc;*.txt
                 set masks=*

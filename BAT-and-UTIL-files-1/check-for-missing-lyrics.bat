@@ -162,7 +162,7 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
 rem Remaining parameter processing: For if we pass a number to set a manual limit:
         set next=%1
         shift
-        iff "%next%" ne "" then
+        iff "%next%" != "" then
                 *setdos /x-5
                         iff "1" == "%@RegEx[^[0-9]+$,%@UNQUOTE["%next%"]]" then
                                 set LIMIT=%next%
@@ -187,8 +187,8 @@ rem Let user know what’s going on:
         gosub divider
         echo.
 
-        rem call important "Finding %@IF["%limit_to_use%" ne "",%blink_on%%limit%%blink_off% ,]songs with missing %italics_on%%findNature%%italics_off%%IN%"
-        set  tmpmsg=Finding %@IF["%limit_to_use%" ne "",%blink_on%%limit%%blink_off% ,]songs with missing %italics_on%%findNature%%italics_off%%IN%
+        rem call important "Finding %@IF["%limit_to_use%" != "",%blink_on%%limit%%blink_off% ,]songs with missing %italics_on%%findNature%%italics_off%%IN%"
+        set  tmpmsg=Finding %@IF["%limit_to_use%" != "",%blink_on%%limit%%blink_off% ,]songs with missing %italics_on%%findNature%%italics_off%%IN%
         title %tmpmsg%
         call important "%tmpmsg%"
         echo.

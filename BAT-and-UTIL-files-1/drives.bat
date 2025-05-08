@@ -86,10 +86,8 @@ goto :END
         setdos /x-678
 		rem %echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
 		rem %echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_BACKGROUND_BLACK%
-
-        if %big eq 0 (%echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_BACKGROUND_BLACK)
-        if %big eq 1 (call bigechos %emoji_color%%EmojiToUse%%spacer%%ansi_color_warning%%ToBlinkOrNotToBlink%%drive% %DESC%%POST% %ANSI_BACKGROUND_BLACK%%ansi_black%)
-
+        if "%big%" == "0" (%echocommand% %EmojiToUse%%spacer%%ToBlinkOrNotToBlink%%drive% %DESC%%POST%%ANSI_BACKGROUND_BLACK)
+        if "%big%" == "1" (set  ECHOSBIG=1 %+ setdos /x-6 %+ call bigecho "%emoji_color%%EmojiToUse%%spacer%%ansi_color_warning%%ToBlinkOrNotToBlink%%drive% %DESC%%POST% %ANSI_BACKGROUND_BLACK%%ansi_normal%" %+ set ECHOSBIG=0)
         setdos /x0
         if "%echocommand%" eq "echos" (%COLOR_NORMAL%%FAINT_OFF% %+ echo.)
 	return

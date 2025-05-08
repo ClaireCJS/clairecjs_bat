@@ -22,7 +22,6 @@
         rem had multiple separate music areas in our house due to construction:
 	        rem call setMUSICSERVER.bat %*
 
-:	rem set DEBUG=0
 	call advice "Does %1 exist?"
 		iff exist %1 then
 			call debug "Yes: Precise full filename given." silent

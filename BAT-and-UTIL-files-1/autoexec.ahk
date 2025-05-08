@@ -246,6 +246,7 @@ Pause::
 ^!8::Send "⁸"           ; Ctrl+Alt+8 for superscript number ⁸
 ^!9::Send "⁹"           ; Ctrl+Alt+9 for superscript number ⁹
 
++^!5::Send "％"          ; Shift-Ctrl+Alt+5 / Ctrl+Alt+% = ％ , the cool percent
 
 ^?::Send  "❔"		;	    Ctrl+? for ❔ [white]
 !?::Send  "❓"		;	     Alt+? for ❓ [red]

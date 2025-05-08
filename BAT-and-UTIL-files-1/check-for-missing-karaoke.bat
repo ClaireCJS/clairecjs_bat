@@ -25,7 +25,7 @@ rem Configuration:
 
 
 rem Validate Enviroment:
-        iff  1  ne  %validated_cfmk then
+        iff  "1" != "%validated_cfmk%" then
                 call validate-in-path              check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index delete-bad-ai-transcriptions
                 call validate-environment-variable filemask_audio   skip_validation_existence
                 call validate-environment-variable DEFAULT_FILEMASK skip_validation_existence

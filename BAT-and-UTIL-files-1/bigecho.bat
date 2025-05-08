@@ -16,7 +16,7 @@
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————        
 
 rem Get parameters:
-        setdos /x-5
+        setdos /x-56
         set PARAMS=%@UNQUOTE[%*]
         set PARAMS2=%@UNQUOTE[%1$]
         rem DEBUG: echo    %%1$ is %1$
@@ -37,7 +37,9 @@ rem Validate environment
 rem ———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————        
 
 rem If it's too wide  then simply revert back to echo'ing the command in normal/single-height lines...
-        setdos /x-5
+echo off
+        setdos /x-56
+        set            STRIPPED_MESSAGE=%@stripansi[%@UNQUOTE[%PARAMS]]
         set            STRIPPED_MESSAGE=%@stripansi[%@UNQUOTE[%PARAMS]]
         rem LEN=%@width[%STRIPPED_MESSAGE%]
         set LEN=%@width["%STRIPPED_MESSAGE%"]

@@ -6,9 +6,10 @@ rem Quick short circuit if our time-wait is 0 (for whatever reason):
         if "%1" eq "0" goto :Abort
 
 rem Validate the parameters
-        set                       SECONDS=%1
-        call validate-env-var     SECONDS     "Must provide number of seconds to pause when invoking %0 ... And optional 2nd parameter of your pause message"
-        call validate-is-number  %SECONDS%
+        unset /q       PAUSE_FOR_X_SECONDS_SECONDS
+        set            PAUSE_FOR_X_SECONDS_SECONDS=%1
+        if not defined PAUSE_FOR_X_SECONDS_SECONDS call validate-env-var     PAUSE_FOR_X_SECONDS_SECONDS     "Must provide number of seconds to pause when invoking %0 ... And optional 2nd parameter of your pause message"
+        call validate-is-number  %PAUSE_FOR_X_SECONDS_SECONDS%
 
 rem Set up the pause text
         set                PAUSE_MESSAGE=Press any key when ready...
@@ -26,7 +27,7 @@ rem Clear the character buffer so we don't end up hitting a key BEFORE the promp
         rem 🐐🐐GOATGOAT🐐🐐 i think this results in false pauses somehow!!! Scripts get caught up here! This isn’t reliable for workflows!
 
 rem Do the actual pause:
-        *pause /W%SECONDS% /T %PAUSE% %PAUSE_MESSAGE% 
+        *pause /W%PAUSE_FOR_X_SECONDS_SECONDS% /T %PAUSE% %PAUSE_MESSAGE% 
 
 :Abort
 endlocal

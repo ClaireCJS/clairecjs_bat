@@ -1,36 +1,40 @@
 @on break cancel
-@echo on
+@echo off
 
+
+rem PARAMS:
     set SEARCHFOR1=%*
     set SEARCHFOR2=%@UNQUOTE[%*]
-    :call debug "Searchfor1/2 are '%SEARCHFOR1%' and '%SEARCHFOR1%'"
+    rem call debug "Searchfor1/2 are '%SEARCHFOR1%' and '%SEARCHFOR1%'"
 
-::::: DEBUGS:
+rem DEBUGS:
     set DEBUG_HIGHLIGHT=0
 
-::::: DOCUMENTATION ONLY: SUGGESTED EXAMPLE ENVIRONMENT VALUES:
-    :set GREP_COLORS_NORMAL=fn=1;33:ln=1;36;44
-    :set GREP_COLOR_NORMAL=1;33;42
-    :set GREP_COLORS_HILITE=fn=1;34:ln=1;37;44
-    :set GREP_COLOR_HILITE=1;41;37
+rem DOCUMENTATION ONLY: SUGGESTED EXAMPLE ENVIRONMENT VALUES:
+    rem set GREP_COLORS_NORMAL=fn=1;33:ln=1;36;44
+    rem set GREP_COLOR_NORMAL=1;33;42
+    rem set GREP_COLORS_HILITE=fn=1;34:ln=1;37;44
+    rem set GREP_COLOR_HILITE=1;41;37
 
 
-::::: ENVIRONMENT VALIDATION:
-    if "%ENVIRONMENT_VALIDATION_HIGHLIGHT_ALREADY%" eq "1" goto :AlreadyValidated
-        call validate-environment-variables GREP_COLOR_NORMAL GREP_COLORS_NORMAL GREP_COLOR_HILITE GREP_COLORS_HILITE
-        call validate-in-path sed
+rem ENVIRONMENT VALIDATION:
+    if "%ENVIRONMENT_VALIDATION_HIGHLIGHT_ALREADY%" == "1" goto :AlreadyValidated
+        if not defined GREP_COLOR_NORMAL  call validate-environment-variable GREP_COLOR_NORMAL 
+        if not defined GREP_COLORS_NORMAL call validate-environment-variable GREP_COLORS_NORMAL 
+        if not defined GREP_COLOR_HILITE  call validate-environment-variable GREP_COLOR_HILITE 
+        if not defined GREP_COLORS_HILITE call validate-environment-variable GREP_COLORS_HILITE        
+        rem this creates problems when in a piped situation like this script: call validate-in-path sed
         set ENVIRONMENT_VALIDATION_HIGHLIGHT_ALREADY=1
     :AlreadyValidated
 
-::::: STORE ORIGINAL GREP-COLOR AND ESCAPE KEY, SWAP OUT FOR HILIGHT-SPECIFIC GREP-COLOR:
+rem STORE ORIGINAL GREP-COLOR AND ESCAPE KEY, SWAP OUT FOR HILIGHT-SPECIFIC GREP-COLOR:
     set GREP_COLORS=%GREP_COLORS_HILITE% 
     call car silent
 
 
 
-::::: DO THE ACTUAL GREP:
-        set DEBUG_HIGHLIGHT=1
-        if %DEBUG_HIGHLIGHT ne 1 goto :No_Debug
+rem DO THE ACTUAL GREP:
+        if "%DEBUG_HIGHLIGHT%" != "1" goto :No_Debug
             echo SEARCHFOR1=%SEARCHFOR1%
             echo SEARCHFOR2=%SEARCHFOR2%
             echo sed '/%SEARCHFOR1/,${s//\x1b[1;33;41m&\x1b[0m/g;b};$q5'  [with searchfor1]
@@ -40,7 +44,7 @@
 
     
 
-::::: RESTORE ORIGINAL GREP-COLORS AND ESCAPE CHARACTER:
+rem RESTORE ORIGINAL GREP-COLORS AND ESCAPE CHARACTER:
     call nocar silent
     set  GREP_COLOR=%GREP_COLOR_NORMAL%
     set GREP_COLORS=%GREP_COLORS_NORMAL%

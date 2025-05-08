@@ -2676,6 +2676,7 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                                 rem         echo %ansi_color_warning_soft%%star2% Last chance for bonus renaming:
                                 rem         call rn "%AUDIO_FILE%"
                                 rem :endif_2479
+                                goto /i END %+ rem goatgoat? 2025/05/07 update: will this stop the problem of asking us to mark it as a failed transcription in the case of renaming a file as an instrumental after a lyricless transcription that triggers out “possible instrumental detected” logic ?
                                 goto /i endiff_2313
                         :else_230999
                                 rem gosub debug "echo False to “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
@@ -2883,9 +2884,9 @@ echo                    iff "%@UNQUOTE["%opt%"]" != "" .and. exist "%@UNQUOTE["%
                         echo wtf last_divider_newline=%last_divider_newline% should we do one? >nul
         return
 
-        :divider_v001_uses_version_in_createsrt_script [opt]
-                gosub "%BAT%\create-srt-from-file.bat" divider %opt%
-        return
+        rem :divider_v001_uses_version_in_createsrt_script [opt]
+        rem         gosub "%BAT%\create-srt-from-file.bat" divider %opt%
+        rem return
 
         :divider_v002_is_just_v000_here_again_but_now_we_must_remember_to_update_this_in_both_files
         :divider [divider_param]

@@ -52,7 +52,7 @@ rem why won’t this work for this bat? @setlocal
 ::::: VALIDATE ENVIRONMENT:
 rem Make sure ansi_move_to function is defined:
         if "" == "%@function[ANSI_MOVE_TO]" function ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        
-        if "" == "%@function[RANDFG_SOFT]"  goto :endif_66
+        if "" != "%@function[RANDFG_SOFT]"  goto :endif_66
                         rem echo redefining randfg_soft.... %+ pause
                 rem (copied from set-ansi.bat):
                         set MIN_RGB_VALUE_FG=88

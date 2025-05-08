@@ -124,7 +124,10 @@ rem CLEANUP:
             call success "Succcess!"
 
     rem rn again?
-        call rn "%FILENAME_NEW%"
+        rem seemed to cause our mkv to not get renamed when we stared to do this....
+        rem not sure if we need to switch this: call rn "%FILENAME_NEW%"
+        rem to this:
+            call rn-latest-for-youtube-dl %FILEMASK_VIDEO%
 
     rem clean-up 0-byte description txt file
         for %%tmpZeroByteFile in (*.txt;*.description) do (

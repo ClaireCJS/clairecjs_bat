@@ -837,8 +837,8 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
         rem echo α 1400
         if "1" == "%SOLELY_BY_AI%" goto /i we_decided_to_never_check_for_txtfile
    
-        rem not exist "%TXT_FILE%" .and.  1  ne  %FORCE_REGEN%  .and.  1  eq  %LYRIC_ATTEMPT_MADE   then
-        rem not exist "%TXT_FILE%" .and.  1  ne  %FORCE_REGEN%                                      then
+        rem not exist "%TXT_FILE%" .and.  1  !=  %FORCE_REGEN%  .and.  1  ==  %LYRIC_ATTEMPT_MADE   then
+        rem not exist "%TXT_FILE%" .and.  1  !=  %FORCE_REGEN%                                      then
         iff not exist "%TXT_FILE%" .and. "1" != "%FORCE_REGEN%" .and. "1" == "%LYRIC_ATTEMPT_MADE%" then
                 
                 :Generate_AI_Anyway_question        
@@ -1134,7 +1134,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
 
 rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
 REM        REM demucs vocals out (or not——we don’t do this in 2024):
-REM                                        if %SKIP_SEPARATION eq 1 (goto /i Vocal_Separation_Skipped)
+REM                                        if "%SKIP_SEPARATION%" == "1" (goto /i Vocal_Separation_Skipped)
 REM                                        if exist %VOC_FILE% (
 REM                                            @call warning "Vocal file “%italics%%VOC_FILE%%italics_off%” %underline%already%underline_off% exists! Using it..."
 REM                                            goto /i Vocal_Separation_Done
@@ -1272,34 +1272,46 @@ REM quick chance to edit prompt:
 
 
 REM Updated Concurrency Check: wait on lock file
-        gosub :lockfile_wait_on_transcriber_lock_file 
+        gosub lockfile_wait_on_transcriber_lock_file 
 
 
 REM Original Concurrency Check: Check if the encoder is already running in the process list. Don’t run more than 1 at once.
         rem slower call isRunning %TRANSCRIBER_PRNAME% silent
         rem slower if "%isRunning" != "1" (goto /i no_concurrency_issues)
         rem faster:
-        rem echo %ANSI_COLOR_DEBUG%- DEBUG: (4) iff @PID[TRANSCRIBER_PDNAME=%TRANSCRIBER_PDNAME%] %@PID[%TRANSCRIBER_PDNAME%] ne 0 then %ANSI_COLOR_NORMAL%
+        rem echo %ANSI_COLOR_DEBUG%- DEBUG: (4) iff @PID[TRANSCRIBER_PDNAME=%TRANSCRIBER_PDNAME%] "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then %ANSI_COLOR_NORMAL%
         set CONCURRENCY_WAS_TRIGGERED=0        
-        iff "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then
+        if "%@PID[%TRANSCRIBER_PDNAME%]" == "0" goto /i no_concurrency_issues
+
                 @echo %ansi_color_warning_soft%%star% %italics_on%%TRANSCRIBER_PDNAME%%italics_off% is already running%ansi_color_normal%
                 @echos %ANSI_COLOR_WARNING_SOFT%%STAR% Waiting for completion of %italics_on%another%italics_on% instance of %italics_on%%@cool[%TRANSCRIBER_PDNAME%]%italics_off% %ansi_color_warning_soft%to finish before starting this one...%ANSI_COLOR_NORMAL%
                 set CONCURRENCY_WAS_TRIGGERED=1
-        else 
-                goto /i :no_concurrency_issues
-        endiff
 
-        :Check_If_Transcriber_Is_Running_Again
-                rem Echo a random-colored dot:
-                        @echos %@randfg_soft[].
+                :Check_If_Transcriber_Is_Running_Again
+                        rem Echo a random-colored dot:
+                                @echos %@randfg_soft[].
 
-                rem Wait a random number of seconds to lower the odds of multiple waiting processes seeing an opening and all starting at the same time]:
-                        call sleep.bat %@random[7,29]        
-                        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again
+                        rem Wait a random number of seconds to lower the odds of multiple waiting processes seeing an opening and all starting at the same time]:
+                                rem call sleep.bat %@random[7,29]        
+                                set HOW_MANY=%@random[7,29]        
+                                set LEFT=%HOW_MANY%
+                                do i = 1 to %how_many%
+                                        title %emoji_stopwatch% %left% more seconds...
+                                        set left=%@EVAL[%left% - 1]
+                                        echos %@randcursor[]
+                                        *delay 1
+                                enddo
+                                title $0
 
-                rem When finally done, echo a green “...”:
-                        @echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
+                        rem Check to see if we waited long enough for the other transcriber instance to no longer be running:
+                                if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again
+
+                        rem When finally done, echo a green “...”:
+                                @echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
         :no_concurrency_issues
+
+
+REM ════════════════════════════════════════════════════════════════════════════════════ WE’RE DOING IT NOW!!! ════════════════════════════════════════════════════════════════════════════════════ 
         
 REM set a non-scrollable header on the console to keep us from getting confused about which file / what we’re doing / etc
         rem call top-message Transcribing %FILE_TITLE% by %FILE_ARTIST%
@@ -1355,7 +1367,7 @@ REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨
                 if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
 
 REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨ 
-        gosub :lockfile_create_transcriber_lock_file 
+        gosub lockfile_create_transcriber_lock_file 
 
 
 REM  ✨ ✨ ✨ ✨ ✨ ✨ LOG WHAT WE’RE DOING: ✨ ✨ ✨ ✨ ✨ ✨         [and window title too]
@@ -1946,14 +1958,14 @@ echo * calling: gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr
                 if not defined TRANSCRIBER_LOCK_FILE set TRANSCRIBER_LOCK_FILE=%@UNQUOTE[%@path[%search%]%@NAME[%TRANSCRIBER_TO_USE%]].lock
         return
         :lockfile_create_transcriber_lock_file [opt]
-                if not defined TRANSCRIBER_LOCK_FILE set gosub :lockfile_set_transcriber_lock_file_variables
+                if not defined TRANSCRIBER_LOCK_FILE set gosub lockfile_set_transcriber_lock_file_variables
                 :check_lock_file_try_again
-                        if exist "%TRANSCRIBER_LOCK_FILE%" gosub :lockfile_wait_on_transcriber_lock_file
+                        if exist "%TRANSCRIBER_LOCK_FILE%" gosub lockfile_wait_on_transcriber_lock_file
                 :actually_create_it
                         iff not exist "%TRANSCRIBER_LOCK_FILE%" then
                                 rem call debug "Creating lock file “%TRANSCRIBER_LOCK_FILE%”"
                                 echo. %+ rem added very late 2024/04/28
-                                echo %ansi_color_important_less%%STAR2% Creating lock file: %faint_on%“%italics_on%%@UNQUOTE["%TRANSCRIBER_LOCK_FILE%"]%italics_off%”%faint_off%%ansi_color_normal%
+                                echo %ansi_color_important_less%%STAR2% Creating lock file: %faint_on%“%italics_on%%@UNQUOTE["%TRANSCRIBER_LOCK_FILE%"]%italics_off%” [time=%_datetime]%faint_off%%ansi_color_normal%
                                 echo %ansi_color_green%%star2% Process %ansi_color_orange%%[_PID]%ansi_color_green% is transcribing: %ansi_color_cyan%“%ansi_color_pink%%SONGFILE%%ansi_color_cyan%”%ansi_color_green%>"%TRANSCRIBER_LOCK_FILE%"
                                 echo %ansi_color_green%                 %star2% beginning at %ansi_color_purple%%[_time]%ansi_color_green% on date %ansi_color_purple%%_date%>>"%TRANSCRIBER_LOCK_FILE%"
                         endiff
@@ -1971,7 +1983,7 @@ echo * calling: gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr
                 endiff
         return
         :lockfile_wait_on_transcriber_lock_file [opt]
-                if not defined TRANSCRIBER_LOCK_FILE set gosub :lockfile_set_transcriber_lock_file_variables
+                if not defined TRANSCRIBER_LOCK_FILE gosub lockfile_set_transcriber_lock_file_variables
                 :start_waiting
                 iff exist "%TRANSCRIBER_LOCK_FILE%" then
 
@@ -1979,10 +1991,10 @@ echo * calling: gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr
                                 set LOCKFILE_CONTENTS=%@ExecStr[type "%TRANSCRIBER_LOCK_FILE%"]
                                 rem echo  checking if "1" ==  "@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" 
                                 rem echo  checking if "1" == "%@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" 
-                                if "1" == "%@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" (
+                                if  "1" != "%@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" goto :endif_1997
                                         echo %ansi_color_warning_soft%%star3% Lockfile exists!%ansi_color_green%...but it%smart_apostrophe%s the lockfile for %italics_on%this%italics_off% process, so overwriting...
                                         return
-                                ) 
+                                :endif_1997
                                 :start_waiting_at_point_of_having_contents_already
                         
                         rem Ask to delete the lockfile, or wait for it to finish:
@@ -1998,12 +2010,17 @@ echo * calling: gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr
                                 rem This one makes no sense here: E E:Edit_ai_prompt
                                 unset /q return_point
                                 if "%ANSWER%" == "E" gosub eset_fileartist_and_filesong
-                                if "%ANSWER%" == "Y" gosub lockfile_delete_transcriber_lock_file                            
-                                if "%ANSWER%" != "Y" echos %ansi_restore_position%%@ansi_move_up[4]%ansi_erase_to_end_of_screen%%ansi
-                                if "%ANSWER%" != "Y" goto /i check_lock_file_try_again                                
+                                iff "%ANSWER%" == "Y" then
+                                        gosub lockfile_delete_transcriber_lock_file                            
+                                else
+                                        echos %ansi_restore_position%%@ansi_move_up[4]%ansi_erase_to_end_of_screen%%ansi
+                                        goto /i check_lock_file_try_again                                
+                                endiff
                 endiff
-                if exist "%TRANSCRIBER_LOCK_FILE%" *delay 1
-                if exist "%TRANSCRIBER_LOCK_FILE%" goto /i start_waiting_at_point_of_having_contents_already
+                iff exist "%TRANSCRIBER_LOCK_FILE%" then
+                        *delay 1
+                        goto /i start_waiting_at_point_of_having_contents_already
+                endiff
         return
 
         :postprocess_lrc_srt_files

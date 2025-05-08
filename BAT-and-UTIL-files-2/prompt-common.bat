@@ -109,7 +109,7 @@ rem ///// BUILD THE PROMPT:
         
     :Add_Any_Text_We_Want_At_The_End        
         iff "%TEXT_AT_END%" != "" then
-            set TMPPROMPT=%TMPPROMPT%%TEXT_AT_END%
+            set TMPPROMPT=%TMPPROMPT%%TEXT_AT_END%``
         endiff
 
         
