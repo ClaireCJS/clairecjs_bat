@@ -61,7 +61,7 @@ my $COMMANDSET="";
 my %FOLDERS_CREATED=();
 my @QUEUEDCOMMANDS =();
 print "\@Echo OFF\n";
-print "call car\n";
+print "call car.bat\n";
 print ":REM: destinationDrive is \"$destinationDriveLetter\"\n";
 print "\n\%COLOR_IMPORTANT\% \%+ echo * Making directories... \%+ \%COLOR_NORMAL\% \n\n";
 my $file;
@@ -199,9 +199,14 @@ foreach $file (@FILES) {
 		$COMMANDSET .= "echo.\n";
 		$COMMANDSET .= "\%COLOR_WARNING\% \%+ echo NOT copying FLAC file: \"$file\" \%+ \%COLOR_NORMAL\% \n";
 	} else {
-	    $COMMANDSET .= "if exist \"$file\" echos \%\@ANSI_RANDFG_SOFT[]\n";
-		$COMMANDSET .= "if exist \"$file\" $COPY \"$file\" \"$newfile\"\n";
-		$COMMANDSET .= "if exist \"$file\" call status-bar $destinationDriveLetter:\n";
+	    $COMMANDSET .= "iff exist \"$file\" then\n";
+		$COMMANDSET .= "        iff not exist \"$newfile\" then \n";
+		$COMMANDSET .= "                echo.\n";
+		$COMMANDSET .= "                echos \%\@ANSI_RANDFG_SOFT[]\%\@char[9959] ``\n";
+		$COMMANDSET .= "                $COPY \"$file\" \"$newfile\"\n";
+		$COMMANDSET .= "                call status-bar $destinationDriveLetter:\n";
+	    $COMMANDSET .= "        endiff\n";
+	    $COMMANDSET .= "endiff\n";
 
 	}
 
@@ -258,7 +263,7 @@ print "        call alarm-beep\n";
 print "    return\n";
 print "\n";
 print ":END\n";
-print "call nocar\n";
+print "call nocar >nul\n";
 
 
 

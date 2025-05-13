@@ -13,8 +13,10 @@
 	title * Syncing files listed in: "%1" to destination: "%2 "
 
 ::::: GENERATE TEMP-SCRIPT FILENAME:
-	call settemp
-	set TEMPBAT="%TEMP\sync-filelist-%_PID.bat"
+	rem call settemp
+	rem set TEMPBAT="%TEMP\sync-filelist-%_PID.bat"
+        call set-temp-file sync_filelist_bat
+        set TEMPBAT=%tmpfile%.bat
 
 ::::: CREATE AND RUN TEMP-SCRIPT:
 	echo * sync-filelist-helper.pl %1 %2 

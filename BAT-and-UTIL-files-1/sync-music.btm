@@ -3,6 +3,7 @@
 
 
 
+
 @loadbtm on
 @Echo off
 @on break cancel
@@ -132,6 +133,34 @@ rem ::::::: DEV ISSUES: UNTESTED: “no flac” option is now implemented, but u
 
 
 
+rem Manual copy of current folder tree to drive:
+        if "%1" != "AskAboutCurrentFolderTree"  goto No_23423
+                global /s2 /q for /a:d /h %%dir in (*.*) do gosub do_dir "%dir%"
+                iff isdir %driveLetter%:\new\music then
+                        call less_important "Moving %driveLetter%:\NEW\ into %driveLetter%:\MP3\"
+                        *move /e /ds %driveLetter%:\new\music %driveLetter%:\mp3
+                endiff
+                        goto skipsub_145
+                                :do_dir [dir] 
+                                        unset /q answer      
+                                        *beep                             
+                                        unset /q answer                                                                                             
+                                        call  askyn          "Copy /s “%@UNQUOTE["%@FULL[%dir]"]”  “%driveletter%%@SUBSTR["%@UNQUOTE["%@FULL[%dir]"]",2,9999]” no 0  %+ rem trust me that this invocation is right even though it appears to be missing a final "
+                                        iff "Y" == "%ANSWER%" then
+                                                echos %@randfg_soft[]
+                                                on break rem
+                                                *copy /s /g /[! "__ * __" *.bak *.m3u *.log *.json .git readme.txt .cache attrib.lst] "%@UNQUOTE["%@FULL[%dir]"]"  "%driveletter%%@SUBSTR["%@UNQUOTE["%@FULL[%dir]"]",2,9999]" 
+                                                echo %@randfg_soft[]
+                                                echos %STAR3% Drive %DriveLetter%: has ``
+                                                call free %DriveLetter%: | grep bytes.free
+                                                on break cancel
+                                                call color-cycle-background-briefly
+                                        endiff
+                                return
+                        :skipsub_145
+                goto END
+        :No_23423
+
 
 ::::: ALLLOW FOR QUICK SETUP OF NEW MP3 DEVICES/USB DRIVES:
         if "%1" != "SETUP"  goto :NotSettingUp
@@ -181,7 +210,12 @@ rem MAKING USAGE STRICTER IN 2025:
         rem React if no params given:
                 iff "" == "%1"  then
                         echo.
-                        echo %ansi_color_advice%%star% Please use “sync-music all” or “sync-music {drive_letter followed by colon}:” or “sync-music setup” to set up a new USB stick with default options
+                        echo %ansi_color_advice%%star% Please use:
+                        echo           %star2% “sync-music all” 
+                        echo           %star2% “sync-music {drive_letter followed by colon}:”  to sync just 1 drive letter
+                        echo           %star2% “sync-music setup”                              to set up a new USB stick with default options
+                        echo           %star2% “sync-music AskAboutCurrentFolderTree”          to copy the current folder tree (1ˢᵗ level deep, then 2ⁿᵈ level deep) to our target %faint_on%(may need to set driveletter={a letter})%faint_off%
+
                         goto /i end
                 endiff
 
@@ -429,7 +463,7 @@ return
                                 call important "Validating %italics_on%sync_music%italics_off% environment"
                                 call environm force
                                 call validate-in-path               divider sync-filelist cancelll yyyymmdd white-noise validate-important-playlists sync-mp3-playlists-to-location.bat alarm-beep print-if-debug print-message.bat remap-mp3-player pg pause-for-x-seconds debug rn unimportant less_important important_less
-                                call validate-environment-variables MP3 ALL_COMPUTERS_UP EXITAFTER LAUNCHER MP3OFFICIAL MP3PLAYERCAS THE_ALPHABET THE_ALPHABET_BY_DRIVE_PRIORITY USERNAME WIPECOMMAND  italics_on italics_off check red_x cool_question_mark
+                                call validate-environment-variables MP3 ALL_COMPUTERS_UP EXITAFTER LAUNCHER MP3OFFICIAL MP3PLAYERCAS THE_ALPHABET THE_ALPHABET_BY_DRIVE_PRIORITY USERNAME WIPECOMMAND  italics_on italics_off check red_x cool_question_mark blink_on blink_off
                                 if not defined WIPELIST            call validate-environment-variables WIPELIST            skip_validation_existence                                                                                          
                                 if not defined FILEMASK_AUDIO      call validate-environment-variables FILEMASK_AUDIO      skip_validation_existence
                                 if not defined POTENTIAL_PLAYLISTS call validate-environment-variable  POTENTIAL_PLAYLISTS skip_validation_existence
@@ -456,7 +490,6 @@ return
                         if exist "\__ mp3 sync option - never wipe __"                  goto :FreeSpaceCheck_NO
                         if exist "\__ mp3 sync option - auto-wipe __"                   goto :FreeSpaceCheck_NO
                         if exist "\__ mp3 sync option - do not check for free space __" goto :FreeSpaceCheck_NO
-                                call divider
                                 %COLOR_PROMPT%  %+ echo. %+ echo. %+ echo. %+ echo Is there enough free space on %DriveLetter: ?
                                 %COLOR_SUCCESS% %+ (free %DriveLetter: | highlight [0-9].*bytes.free) 
                                 %COLOR_NORMAL%  %+ echo. 
@@ -562,9 +595,12 @@ if %DEBUG% ge 1 echo %@colorful[if  "%[PLAYLIST_DEFAULT_SYNC_%quoteless_playlist
                             ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                     :WipeDeviceAtAppropriateLevel [driveletter desc basedir playlistdir trigger]
-                        if "%NOCLEAN%"     == "1" .or. "%QUICK%" == "1" .or. "%SKIPWIPE%" == "1" return
-                        if "%ANSWER_WIPE%" == "1" gosub WipeDeviceFully     %DriveLetter% %Desc% %BaseDir% %PlaylistDir% %Trigger%
-                        if "%ANSWER_WIPE%" != "1" gosub CleanDevice %DriveLetter% %Desc% %BaseDir% %PlaylistDir% %Trigger%
+                        if " %NOCLEAN%"     == "1" .or. "%QUICK%" == "1" .or. "%SKIPWIPE%" == "1" return
+                        if " %ANSWER_WIPE%" == "1" gosub WipeDeviceFully     %DriveLetter% %Desc% %BaseDir% %PlaylistDir% %Trigger%
+                        iff "%ANSWER_WIPE%" != "1" then
+                                echo.
+                                gosub CleanDevice %DriveLetter% %Desc% %BaseDir% %PlaylistDir% %Trigger%
+                        endiff
                     return
                     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                     :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -699,19 +735,22 @@ if %DEBUG% ge 1 echo %@colorful[if  "%[PLAYLIST_DEFAULT_SYNC_%quoteless_playlist
                         %COLOR_REMOVAL%
                             if exist "@filelist.txt" *del /q "@filelist.txt"
                             if exist   filelist.txt  *del /q   filelist.txt         
-                            :DEBUG: 
-echo %_CWD %+ pause
-                            sweep if exist %FILEMASK_AUDIO% *del /q /s %FILEMASK_AUDIO%
-                            if isdir [a-z0-9_]* (sweep rd *)
-                            if isdir [a-z0-9_]* (sweep rd *)
-                            if isdir [a-z0-9_]* (sweep rd *)
-                            if isdir [a-z0-9_]* (sweep rd *)
-                            if isdir [a-z0-9_]* (sweep rd *)
-                            if isdir [a-z0-9_]* (sweep rd *)
-                            if isdir [a-z0-9_]* (sweep rd *)
-                            if isdir [a-z0-9_]* (sweep rd *)
-                            if isdir [a-z0-9_]* (sweep rd *)
-                            if isdir [a-z0-9_]* (sweep rd *)
+                            rem DEBUG: 
+                                echo %newline%%STAR% We are in the folder: %blink_on%%[_CWD]%blink_off% %+ pause
+                            rem sweep if exist %FILEMASK_AUDIO% *del /q /s %FILEMASK_AUDIO%
+                            rem *del /s /e %FILEMASK_AUDIO%
+                                
+                            call bigecho "%EMOJI_WARNING% %ansi_color_warning_soft%BE REALLY CAREFUL!!! MAKE SURE WE’RE IN THE RIGHT FOLDER!! %EMOJI_WARNING%"    
+                            call bigecho "%EMOJI_WARNING% %ansi_color_warning_soft%This will take several minutes... %EMOJI_WARNING%"    
+                            echos %ansi_color_warning_soft%%star% %blink_on%Delete everything in ``
+                            on break rem
+                            *rd /s .
+                            on break cancel
+                            echos %blink_off%
+
+                            rem :if_exist_706
+                            rem if exist [a-z0-9_]* (sweep rd * %+ goto /i if_exist_706)
+
                             *cd \
                             if not isdir mp3 (*md MP3)
                             if exist %FILEMASK_AUDIO% (*del /q /s %FILEMASK_AUDIO%)

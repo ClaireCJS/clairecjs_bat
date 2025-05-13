@@ -1272,6 +1272,7 @@ REM quick chance to edit prompt:
 
 
 REM Updated Concurrency Check: wait on lock file
+        :lockfile_again
         gosub lockfile_wait_on_transcriber_lock_file 
 
 
@@ -1286,6 +1287,7 @@ REM Original Concurrency Check: Check if the encoder is already running in the p
                 @echo %ansi_color_warning_soft%%star% %italics_on%%TRANSCRIBER_PDNAME%%italics_off% is already running%ansi_color_normal%
                 @echos %ANSI_COLOR_WARNING_SOFT%%STAR% Waiting for completion of %italics_on%another%italics_on% instance of %italics_on%%@cool[%TRANSCRIBER_PDNAME%]%italics_off% %ansi_color_warning_soft%to finish before starting this one...%ANSI_COLOR_NORMAL%
                 set CONCURRENCY_WAS_TRIGGERED=1
+                goto /i lockfile_again
 
                 :Check_If_Transcriber_Is_Running_Again
                         rem Echo a random-colored dot:
@@ -1960,11 +1962,11 @@ echo * calling: gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr
         :lockfile_create_transcriber_lock_file [opt]
                 if not defined TRANSCRIBER_LOCK_FILE set gosub lockfile_set_transcriber_lock_file_variables
                 :check_lock_file_try_again
-                        if exist "%TRANSCRIBER_LOCK_FILE%" gosub lockfile_wait_on_transcriber_lock_file
+                        if exist "%TRANSCRIBER_LOCK_FILE%" (gosub lockfile_wait_on_transcriber_lock_file %+ return)
                 :actually_create_it
                         iff not exist "%TRANSCRIBER_LOCK_FILE%" then
                                 rem call debug "Creating lock file “%TRANSCRIBER_LOCK_FILE%”"
-                                echo. %+ rem added very late 2024/04/28
+                                rem echo. %+ rem added very late 2024/04/28 then removed 2025/05/08
                                 echo %ansi_color_important_less%%STAR2% Creating lock file: %faint_on%“%italics_on%%@UNQUOTE["%TRANSCRIBER_LOCK_FILE%"]%italics_off%” [time=%_datetime]%faint_off%%ansi_color_normal%
                                 echo %ansi_color_green%%star2% Process %ansi_color_orange%%[_PID]%ansi_color_green% is transcribing: %ansi_color_cyan%“%ansi_color_pink%%SONGFILE%%ansi_color_cyan%”%ansi_color_green%>"%TRANSCRIBER_LOCK_FILE%"
                                 echo %ansi_color_green%                 %star2% beginning at %ansi_color_purple%%[_time]%ansi_color_green% on date %ansi_color_purple%%_date%>>"%TRANSCRIBER_LOCK_FILE%"
@@ -1985,8 +1987,10 @@ echo * calling: gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr
         :lockfile_wait_on_transcriber_lock_file [opt]
                 if not defined TRANSCRIBER_LOCK_FILE gosub lockfile_set_transcriber_lock_file_variables
                 :start_waiting
-                iff exist "%TRANSCRIBER_LOCK_FILE%" then
+                if exist "%TRANSCRIBER_LOCK_FILE%" goto :do_it_1992
+                if exist "%TRANSCRIBER_LOCK_FILE%" goto :skip_it_2024
 
+                        :do_it_1992
                         rem Check if it’s the lockfile for the current process, and ignore it if iti s:
                                 set LOCKFILE_CONTENTS=%@ExecStr[type "%TRANSCRIBER_LOCK_FILE%"]
                                 rem echo  checking if "1" ==  "@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" 
@@ -2001,7 +2005,8 @@ echo * calling: gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr
                                 repeat 8 echo.
                                 echos %@ANSI_MOVE_UP[8]
                                 echos %ansi_position_save%
-                                gosub divider
+                                rem gosub divider seems to give me batch nesting limits due to recursion.. Let’s try calling our batfile instead
+                                call divider
                                 echos %ansi_color_important_less%%star2% Waiting on lockfile...
                                 call warning_soft "Lockfile already exists! %START% Status:"                   
                                 echos         %ansi_color_debug%``                              
@@ -2009,14 +2014,14 @@ echo * calling: gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instr
                                 call  AskYN  "Delete lockfile"  no  10 
                                 rem This one makes no sense here: E E:Edit_ai_prompt
                                 unset /q return_point
-                                if "%ANSWER%" == "E" gosub eset_fileartist_and_filesong
+                                if  "%ANSWER%" == "E" gosub eset_fileartist_and_filesong
                                 iff "%ANSWER%" == "Y" then
                                         gosub lockfile_delete_transcriber_lock_file                            
                                 else
-                                        echos %ansi_restore_position%%@ansi_move_up[4]%ansi_erase_to_end_of_screen%%ansi
+                                        echos %ansi_restore_position%%@ansi_move_up[4]%ansi_erase_to_end_of_screen%%ansi_reset%
                                         goto /i check_lock_file_try_again                                
                                 endiff
-                endiff
+                :skip_it_2024
                 iff exist "%TRANSCRIBER_LOCK_FILE%" then
                         *delay 1
                         goto /i start_waiting_at_point_of_having_contents_already
