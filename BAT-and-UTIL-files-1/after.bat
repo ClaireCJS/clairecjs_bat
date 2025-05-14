@@ -416,40 +416,59 @@ goto :END
 
 
 
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :concert
-        call validate-environment-variables WWWCL username
-        call validate-in-path               al.bat divider.bat as.bat 
-	pause "Add concert to diary"
-	        call as claire diary
-		pause
-                call divider
-        pause "Fix concertnext band in base attribute list (after pressing a key)"
-	        call al.bat
-                pause
-        pause "Edit concert journal"
-        	%EDITOR %WWWCL\media\concerts.htm
-                http://www.songkick.com/
-                pause
-        pause "Make blog post?"                
-        	set categories=People,Carolyn,Claire,Media,Audio,Music,Journal,Concerts,Reviews
-                set template=%BAT\blog-concert-body-template.txt
-                call validate-environment-variable template
-		echo.
-		echo Enter band name:
-                        if "%BAND"=="" set BAND=.
-                        eset BAND
-        	set TITLE=JOURNAL: CONCERT: %BAND
-        		echo %BAND >:u8clip:
-		echo ** Eventually we should program %BAT\blog-concert-body-template.txt to automatically import ????
-        	%EDITOR     %BAT\blog-concert-body-template.txt
-        	call mtblog %BAT\blog-concert-body-template.txt
-                pause
-		rem unset /q title
-		rem unset /q categories
-                rem :NAH, this will copy the header crap: type %BAT\mtsend-last-blog-sent.bak >clip:
+        call validate-environment-variables WWWCL username editor italics_on italics_off
+        call validate-in-path               al.bat divider.bat as.bat  askyn success.bat print-message.bat as.bat diary.bat
+
+        call AskYN "Edit concert list" no  0
+                iff "Y" == "%ANSWER%" then
+                        %EDITOR %WWWCL\media\concerts.htm
+                        pause
+                        call divider
+                endiff
+        call AskYN "Check out playlists on %italics_on%SongKick.com%italics_off%" no  0
+                iff "Y" == "%ANSWER%" then
+                        http://www.songkick.com/
+                        pause
+                        call divider
+                endiff
+	call AskYN "Add concert to diary" no 0
+                iff "Y" == "%ANSWER%" then
+                        call as claire diary
+                        pause
+                        call divider
+                endiff
+        call AskYN "Fix concertnext band in base attribute list (after pressing a key)" yes 0
+                iff "Y" == "%ANSWER%" then
+                        call al.bat
+                        call divider
+                        pause
+                endiff
+        call AskYN "Make blog post?" no  0
+                iff "Y" == "%ANSWER%" then
+                        set categories=People,Carolyn,Claire,Media,Audio,Music,Journal,Concerts,Reviews
+                        set template=%BAT\blog-concert-body-template.txt
+                        call validate-environment-variable template
+                        echo.
+                        echo Enter band name:
+                                if "%BAND"=="" set BAND=.
+                                eset BAND
+                        set TITLE=JOURNAL: CONCERT: %BAND
+                                echo %BAND >:u8clip:
+                        echo ** Eventually we should program %BAT\blog-concert-body-template.txt to automatically import ????
+                        %EDITOR     %BAT\blog-concert-body-template.txt
+                        call mtblog %BAT\blog-concert-body-template.txt
+                        rem :NAH, this will copy the header crap: type %BAT\mtsend-last-blog-sent.bak >clip:
+                        pause
+                        call divider
+                endiff
+
+        call success "Done"
+        rem unset /q title
+        rem unset /q categories
 return
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :weight

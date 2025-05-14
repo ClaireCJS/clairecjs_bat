@@ -424,9 +424,7 @@ def render_columns(columns_data, column_widths, divider):
                 if VERBOSE: print(f'⚠🚫 assigned "" to part ')
 
             # pad "part" into "padded_part"
-            current_content_width   = wcswidth(part)
-            #print(f"[[[part={part}]]]")
-            #consistent_word_highlight
+            current_content_width   = wcswidth(part)                                                        #print(f"[[[part={part}]]]")
             num_spaces_to_add       = current_column_width - current_content_width
             spacer                  = num_spaces_to_add * " "
             if WORD_HIGHLIGHTING:
@@ -525,16 +523,31 @@ SATURATION               = 0.9
 LIGHTNESS                = 0.5
 
 # ═════════════════════════════════════════════════════════════════════════════════
+import unicodedata
 def string_to_color(word):
     """
     Convert a string to a deterministic RGB color.
     """
-    global NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLO
+    global NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR
+    #print(f"called string_to_color({word})\t",end="")
+
     word = word[:NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR]
 
-    # strip out characters that we don’t want to modify the color of a word, if it’s in one set and not another. For example, “can’t” and “cant” should be same color:
-    hash_value1 = int(hashlib.sha256(     word    .upper().replace("'","").replace("’","").replace("`","").replace("-","").replace(".","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
-    hash_value2 = int(hashlib.sha256(f"bg{word}bg".upper().replace("'","").replace("’","").replace("`","").replace("-","").replace(".","").encode('utf-8')).hexdigest(), 16)  # Hash the word to get a consistent integer for background ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
+    #prep our word
+    word_clean = unicodedata.normalize('NFC', word.upper())
+    word_clean = word_clean.upper().replace("'","").replace("’","").replace("`","").replace("-","").replace(".","").replace('е', 'e')  # that last one is replacing Cyrillic 'е' with Latin 'e'
+    #print([ord(c) for c in word_clean])  # Check the code points
+
+    wordfg  =     word_clean    .encode('utf-8')    # strip out characters that we don’t want to modify the color of a word, if it’s in one set and not another. For example, “can’t” and “cant” should be same color:
+    wordbg = f"bg{word_clean}bg".encode('utf-8')                                                                                  # make bg color different by modifying the string a bit
+
+    #print(f"wordclean: {word_clean} // wordfg: {wordfg}\twordbg: {wordbg}")
+
+
+    #hash our word
+    hash_value1 = int(hashlib.sha256(wordfg).hexdigest(), 16)  # Hash the word to get a consistent integer for foreground ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
+    hash_value2 = int(hashlib.sha256(wordbg).hexdigest(), 16)  # Hash the word to get a consistent integer for background ... don’t consider apostrophes/periods/etc so that the word is colored the same apostrophe or not
+    #print(f"hv1={hash_value1} //",end="")
 
     # calculate colors
     hue1        = hash_value1 %     360                                             # Map the hash value to a foreground hue (0-360 degrees)
@@ -549,6 +562,8 @@ def string_to_color(word):
 
     # set background color
     background  = apply_background_color(gb, bb, rb)                                # Apply a subtle background color: scramble it up a bit by changing rgb=>gbr
+
+    #print(f"c returned r={r:3},g={g:3},b={b:3},background={background}")
     return r, g, b, background                                                      # Return our values
 # ═════════════════════════════════════════════════════════════════════════════════
 
@@ -585,13 +600,59 @@ def apply_background_color(r, g, b):
 
 
 
-# ═════════════════════════════════════════════════════════════════════════
+
+
+char_map = {
+    # Cyrillic to Latin (Visually Identical)
+    'е': 'e', 'Е': 'E',      # Cyrillic e and E to Latin e and E
+    'а': 'a', 'А': 'A',      # Cyrillic a and A to Latin a and A
+    'о': 'o', 'О': 'O',      # Cyrillic o and O to Latin o and O
+    'с': 'c', 'С': 'C',      # Cyrillic c and C to Latin c and C
+    'т': 't', 'Т': 'T',      # Cyrillic t and T to Latin t and T
+    'р': 'p', 'Р': 'P',      # Cyrillic p and P to Latin p and P
+    'у': 'y', 'У': 'Y',      # Cyrillic y and Y to Latin y and Y
+    'в': 'b', 'В': 'B',      # Cyrillic b and B to Latin b and B
+    'н': 'h', 'Н': 'H',      # Cyrillic n and N to Latin n and N
+    'к': 'k', 'К': 'K',      # Cyrillic k and K to Latin k and K
+    'м': 'm', 'М': 'M',      # Cyrillic m and M to Latin m and M
+    'л': 'l', 'Л': 'L',      # Cyrillic l and L to Latin l and L
+
+    # Greek to Latin (Visually Identical)
+    'α': 'a', 'Α': 'A',      # Greek alpha to Latin a
+    'β': 'b', 'Β': 'B',      # Greek beta to Latin b
+    'ε': 'e', 'Ε': 'E',      # Greek epsilon to Latin e
+    'ο': 'o', 'Ο': 'O',      # Greek omicron to Latin o
+    'ρ': 'p', 'Ρ': 'P',      # Greek rho to Latin p
+    'σ': 's', 'Σ': 'S',      # Greek sigma to Latin s
+    'ι': 'i', 'Ι': 'I',      # Greek iota to Latin i
+    'κ': 'k', 'Κ': 'K',      # Greek kappa to Latin k
+    'λ': 'l', 'Λ': 'L',      # Greek lambda to Latin l
+    'μ': 'm', 'Μ': 'M',      # Greek mu to Latin m
+    'ν': 'n', 'Ν': 'N',      # Greek nu to Latin n
+    'τ': 't', 'Τ': 'T',      # Greek tau to Latin t
+
+    # Other common similar letters
+    'ı': 'i',               # Dotless i to i
+    'İ': 'I',               # Dotted I to I
+    'ı': 'i',               # Turkish dotless i to Latin i
+}
+
+
+# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 def normalize_for_highlight(word):
-    word = word.replace("’", "").replace("'", "").replace("´", "")
-    if word.endswith("ing"):
-        word = word[:-3] + "in"
+    if word == "versus" or word == "v.s.": word = "vs"                               #different ways to express the same word should be drawn  the same color
+    word = word.replace("’ve", "").replace("'ve", "").replace("´ve", "")             #makes word-variants like “should’ve”  and  “should have” the same color
+    word = word.replace("’s" , "").replace("'s" , "").replace("´s" , "")             #makes word-variants like  “there’s”   and    “there is”  the same color
+    word = word.replace("’"  , "").replace("'"  , "").replace("´"  , "")             #variations in which apostrophe we use should all be made the same color
+    if word.endswith("ing"): word = word[:-3] + "in"                                 #makes word-variants like “coping” vs “copin’” vs “copin” the same color
+
+    word = unicodedata.normalize('NFC', word)
+    for cyrillic_char, latin_char in char_map.items():
+            word = word.replace(cyrillic_char, latin_char)
+
+    #print (f"word={word}")
     return word
-# ═════════════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
 
 # ═════════════════════════════════════════════════════════════════════════════════
@@ -606,16 +667,20 @@ def consistent_word_highlight(text):
     word             = ''
     in_highlight     = False                                                            # Track whether we're currently inside a highlighted word
 
-    for char in text:
-        #f char.isalnum() or char == "’" or char == "'" or char == "´":                 # Building a word
-        if char.isalnum() or char in {"’", "'", "´", "-", "–", "—"}:                    # punctuation that we still want to consider part of the word
-            if               char in {"’", "'", "´"}: char = "’"                        # replace dumb apostrophes with smart apostrophes
+    text2use = text.replace('--','—');
+
+    for char in text2use:
+        #f char.isalnum() or char ==  "’" or char == "'" or char == "´":                # Building a word: punctuation that we still want to consider part of the word
+        #f char.isalnum() or char in {"’", "'", "´", "-", "–", "—"}:                    # Building a word: punctuation that we still want to consider part of the word
+        if char.isalnum() or char in {"’", "'", "´", "-", "–"     }:                    # Building a word: punctuation that we still want to consider part of the word —— maybe en-dash should NOT be on the list afterall?
+            if               char in {"’", "'", "´"}: char = "’"                        # Building a word: replace dumb apostrophes with smart apostrophes
             word += char
         else:
-            if len(word) >= WORD_HIGHLIGHT_LEN_MIN:                                     # Word is long enough for highlighting
+            normalized_word = normalize_for_highlight(word)
+            if len(normalized_word) >= WORD_HIGHLIGHT_LEN_MIN:                          # Word is long enough for highlighting
 
                 if not in_highlight:                                                    # Start highlighting
-                    normalized_word = normalize_for_highlight(word)
+                    #normalized_word = normalize_for_highlight(word)                    #moved above so we can check length AFTER normalizatoin process
                     r, g, b, background = string_to_color(normalized_word)
                     payload    = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m"
                     stripeload = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m"
@@ -636,37 +701,18 @@ def consistent_word_highlight(text):
             word = ''
 
 
-    # THIS WAY WORKED FOR A LONG TIME, but then a bug crept up in the final segment and ChatGPT fixed it for me (2025/05/02).
-
-    # OLD, BARELY-BUGGY WAY:
-    #if word:                                                                            # Handle the last word if any
-    #    if len(word) >= WORD_HIGHLIGHT_LEN_MIN:                                         # word = word.lstrip("0m")
-    #        if not words_used: words_used =                    word
-    #        else:              words_used = words_used + " " + word
-    #        r, g, b, background = string_to_color(word)
-    #        payload     = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m" + word + "\033[0m"     # Reset formatting after the word
-    #        stripeload1 = f"\033[38;2;{background[0]};{background[1]};{background[2]}m\033[48;2;{r};{g};{b}m"
-    #        stripeload2 = word + "\033[0m"     # Reset formatting after the word
-    #        highlighted_text.append(payload)
-    #        #NO striped_text.append(payload) NO!
-    #        striped_text    .append(stripeload1)
-    #        striped_text    .append(stripeload2)
-    #    else:                                                                           # word = word.lstrip("0m")
-    #        words_used = words_used + " " + word
-    #        highlighted_text.append(word)
-    # NEW, CHAT-GPT 20250502 WAY:
     if word:
-        if len(word) >= WORD_HIGHLIGHT_LEN_MIN:
-            r, g, b, background = string_to_color(word)
+        normalized_word = normalize_for_highlight(word)
+        if len(normalized_word) >= WORD_HIGHLIGHT_LEN_MIN:
+            r, g, b, background = string_to_color(normalized_word)
             ansi = f"\033[38;2;{r};{g};{b}m\033[48;2;{background[0]};{background[1]};{background[2]}m"
-            payload = word + "\033[0m"
-            striped_text.append(ansi)
-            striped_text.append(payload)
+            payload = word + "\033[0m"                                                  # todo maybe try this with normalized_word if the stripe doesn’t match for some reason
+            striped_text    .append(ansi)
+            striped_text    .append(payload)
             highlighted_text.append(ansi + payload)
         else:
-            words_used = words_used + " " + word    #?
-            highlighted_text.append(word)
-
+            words_used = words_used + " " + word                                        # ?
+            highlighted_text.append(word)                                               # todo maybe try this with normalized_word if the stripe doesn’t match for some reason
 
 
     #print (f"🍏 hey striped_text is {striped_text}")

@@ -40,7 +40,7 @@
 #   - Adds “.” to the end of each line by default, for better WhisperAI        #
 #                                    parsing with the --sentence option        #
 #   - Changes ' into ’                                                         #
-#   - Removes song-section titles like “[chorus]”							   #
+#   - Removes song-section titles like “[chorus]” or “[spoken]”				   #
 #   - Removes lyric website advertising spam 								   #
 #   - Removes redundant lyric website mentions of artist/song title/album	   #
 #   - Removes special command-line characters if in -1 mode					   #
@@ -158,8 +158,8 @@ while (<$INPUT>) {
 		#song sections to get rid of
 		for ($i=1; $i<=2; $i++) {			#twice to get things like "Intro/Chorus" or "Guitar Solo/Bridge", which meant changing the regex to include an ending of / where previously it just included ]
 			#line =~    s/[\[\(]?(Intro|Sample|Hook|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)\/]?//i;
-			$line =~    s/[\[\(]? ?(Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
-			$line =~ s/\d?[\[\(]? ?(Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
+			$line =~    s/[\[\(]? ?(Spoken|Whispered|Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
+			$line =~ s/\d?[\[\(]? ?(Spoken|Whispered|Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
 		}
 
 
@@ -190,9 +190,10 @@ while (<$INPUT>) {
 		}
 		$line =~ s/^Lyrics by .*$//;
 
-		#commas and quotes
+		#commas and quotes and dashes and punctuation, oh my!
 		$line =~ s/^, *$//;			#remove leading comma like ", a line of text"
 	    $line =~ s/"/'/g;			#change quotes to apostrophes so these can be used as a quoted command line argument
+		$line =~ s/\-\-/—/g;
 
 		#formatting: dealing with ALL CAPS LYRICS
 		#if there are >=10 all-caps letters and no lowercase letters, lowercase the line

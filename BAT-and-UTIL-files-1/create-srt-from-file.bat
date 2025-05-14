@@ -1749,10 +1749,12 @@ rem Full-endeavor success message:
                                 endiff
 
                         rem Option “Y”:
+                                :just_before_affirmative_whisper_timesync
                                 :Do_Whisper_Time_Sync
                                 iff "Y" == "%ANSWER%" .or. "1" == "%DO_WHISPER_TIME_SYNC%" then
                                         set DO_WHISPER_TIME_SYNC=0                                                                      %+ rem Turn Off Flag
-                                        call WhisperTimeSync "%SRT_FILE%" "%TXT_FILE%" 
+                                        call debug "call WhisperTimeSync “%SRT_FILE%” “%TXT_FILE%”"                                     %+ rem GOAT
+                                        call             WhisperTimeSync "%SRT_FILE%" "%TXT_FILE%" 
 
                                         rem        rem Run WhisperTimeSync to re-align:
                                         rem                call WhisperTimeSync-helper "%SRT_FILE%" "%TXT_FILE%" preview
@@ -1873,13 +1875,14 @@ goto /i skip_subroutines
                 rem assumes %SRT_FILE% is our karaoke file and %INPUT_FILE% is our audio file
                 :ask_about_karaoke_approval                                        
                 @call askyn  "Approve karaoke file [D=%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,P=%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ADEIPTW E:edit_karaoke,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete_it
-echo ** calling gosub check_for_answer_of_I "%INPUT_FILE%" goat
                 gosub check_for_answer_of_T "%INPUT_FILE%"
+echo ** calling gosub check_for_answer_of_I "%INPUT_FILE%" goat
                 gosub check_for_answer_of_I "%INPUT_FILE%"
                 gosub check_for_answer_of_E "%SRT_FILE%"
                 iff "%ANSWER" == "W" then
                         set ANSWER=Y
-                        goto /i just_asked_to_edit_karaoke
+                        rem fail: goto /i just_asked_to_edit_karaoke
+                        goto /i just_before_affirmative_whisper_timesync
                 endiff
                 iff "%ANSWER" == "W" then
                         set   DO_WHISPER_TIME_SYNC=1

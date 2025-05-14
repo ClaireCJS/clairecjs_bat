@@ -16,7 +16,7 @@ rem VALIDATE ENVIRONMENT:
         set  validated_srt_and_txt_for_whispertimesync_already=0
         iff "2" != "%validated_whispertimesync2%" then
                 call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file
-                call validate-environment-variables JAVA_WHISPERTIMESYNC our_language color_advice ansi_color_advice ansi_color_removal ansi_color_normal ansi_color_run
+                call validate-environment-variables JAVA_WHISPERTIMESYNC our_language color_advice ansi_color_advice ansi_color_removal ansi_color_normal ansi_color_run smart_apostrophe
                 call validate-is-function cool_text
                 set  validated_whispertimesync2=2
         endiff
@@ -37,26 +37,33 @@ rem USAGE:
         endiff
 
 rem VALIDATE PARAMETERS:
+        echo %%1 is “%1” %+ pause
         set     SRT=%@UNQUOTE[%1]
         set LYR_RAW=%@UNQUOTE[%2]
         set     MP3=%NAME[%LYR%].mp3
         set     WAV=%NAME[%LYR%].wav
         set    FLAC=%NAME[%LYR%].flac
         if not exist "%SRT%" .or. not exist "%LRC%" call validate-environment-variables SRT LYR_RAW
+echo    call validate-is-extension        "%SRT%"     *.srt %+ pause
         call validate-is-extension        "%SRT%"     *.srt
+echo    call validate-is-extension        "%LYR_RAW%" *.txt %+ pause
         call validate-is-extension        "%LYR_RAW%" *.txt
 
 rem Make sure we’re dealing with *processed* lyrics for WhisperTimeSync:
         call set-tmp-file "postprocessed_lyrics"
         set lyr_processed=%tmpfile%.txt
-        lyric-postprocessor.pl -A -L -S  "%FILE_TO_USE%"   >:u8 %lyr_processed%
+echo    lyric-postprocessor.pl -A -L -S  "%LYR_RAW%"  `>`:u8%lyr_processed% %+ pause
+        lyric-postprocessor.pl -A -L -S  "%LYR_RAW%"    >:u8%lyr_processed%
         if not exist %lyr_processed% call validate-environment-variable target "lyric-postprocessor.pl output file does not exist: “%lyr_processed%”"
 
 rem Run WhisperTimeSync:
         set  validated_srt_and_txt_for_whispertimesync_already=1
+echo    call WhisperTimeSync-helper "%srt%" "%lyr_processed%"       %+ pause
         call WhisperTimeSync-helper "%srt%" "%lyr_processed%"       %+ rem “Did it work?”-style validation is in WhisperTimeSync-helper.bat
         set  validated_srt_and_txt_for_whispertimesync_already=0    %+ rem This flag has now been used and can be disposedo f
 
+rem Did it work?
+        call validate-environment-variable SRT_NEW "seems like we didn’t set SRT_NEW correctly, it’s value is “%SRT_NEW%”"
 
 rem Preview changes:
 rem            1 lyrics                   \__ review lyrics with stripe
@@ -91,7 +98,7 @@ rem Compare stripes of old srt and new srt:
 
 
 
-repeat 5 call divider %+ pause "let’s try a different way..." %+ repeat 5 call divider 
+repeat 5 call divider %+ pause "let%smart_apostrophe%s try a different way..." %+ repeat 5 call divider 
 
 
 rem Preview changes:
