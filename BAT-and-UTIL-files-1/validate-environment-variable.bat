@@ -1,9 +1,11 @@
-@rem @echo %ansi_reset%%conceal_off%%ansi_color_orange%📞📞📞 “%0 %1$” called by %_PBATCHNAME / %PBATCH2% 📞📞📞%ansi_color_normal%
 @loadbtm on
+@rem @echo %ansi_reset%%conceal_off%%ansi_color_orange%📞📞📞 “%0 %1$” called by %_PBATCHNAME / %PBATCH2% 📞📞📞%ansi_color_normal%
 @Echo off
 @on break cancel
 @setdos /x0
+if defined italics_on set italics_maybe=%italics_on%
 gosub save_cusor_position
+rem pause "about to gosub display_temp_output"
 gosub display_temp_output
 rem why won’t this work for this bat? @setlocal
 
@@ -82,7 +84,7 @@ rem Make sure ansi_move_to function is defined:
     rem call debug "validate_multiple is %validate_multiple%"
     rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
     if "%@NAME[%OUR_CALLER%]" == "validate-environment-variables" set VALIDATE_MULTIPLE=1
-    iff "%PARAM3%" != "" .and. %VALIDATE_MULTIPLE ne 1 then
+    iff "%PARAM3%" != "" .and. "%VALIDATE_MULTIPLE%" != "1" then
         gosub restore_cusor_position
         call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
         color bright white on red
@@ -107,7 +109,7 @@ rem Make sure ansi_move_to function is defined:
     if %DEBUG_NORMALIZE_MESSAGE eq 1 (gosub restore_cusor_position %+ echo %ansi_color_debug%- DEBUG: PARAM2: %left_quotes%%PARAM2%%right_quotes%%ansi_color_normal%)
 
 
-    iff %VALIDATE_MULTIPLE ne 1 then
+    iff "1" != "%VALIDATE_MULTIPLE%" then
         gosub validate_environment_variable %VARNAME%
 
         rem If this script gets aborted, leaving this flag set can create false errors:
@@ -115,7 +117,11 @@ rem Make sure ansi_move_to function is defined:
     else 
         set USER_MESSAGE=
         do i = 1 to %# (
-                 gosub validate_environment_variable  %[%i]
+                 rem pause "validate_environment_variable  %[%i]"
+                 gosub restore_cusor_position
+                 gosub display_temp_output %[%i]
+
+                 gosub  validate_environment_variable  %[%i]
         )
     endiff
 
@@ -379,19 +385,39 @@ goto :Past_The_End_Of_The_Subroutines
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :save_cusor_position []
                 set vev_saved_row=%_row
-                set vev_saved_col=%_col
+                set vev_saved_col=%_column
+                echos %ansi_cursor_invisible%
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :restore_cusor_position []
-                echos %@ansi_move_to[%@EVAL[%vev_saved_row% + 1],%@EVAL[%vev_saved_col% + 1]]
+                echos %ansi_cursor_invisible%
+                echos %@ansi_move_to_row[%@EVAL[%vev_saved_row% + 1]]
+                echos %@ansi_move_to_col[%@EVAL[%vev_saved_col% + 1]]
+                echos %ansi_cursor_invisible%
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-        :display_temp_output []
+        :display_temp_output [varname]
+                rem Alternating italics give it a little “jiggle” in its dance:
+                        iff defined italics_maybe then
+                                if "%italics_maybe%" == "%italics_on%" (
+                                        set italics_maybe=%italics_off%
+                                ) else ( 
+                                        set italics_maybe=%italics_on%
+                                )
+                        endiff
+
                 set coloring=%@randfg_soft[]
-                echos %ansi_cursor_invisible%%coloring%V%coloring%%faint_on%?%faint_off%%ansi_color_reset%
-                set temp_output_vev_length=2
+                echos %ansi_cursor_invisible%
+                echos %@randfg_soft[]
+                if defined italics_maybe echos %italics_maybe%  %+ rem Alternating italics give it a little “jiggle” in its dance:
+                echos %@CHAR[9733] Validating variable: %@randfg_soft[]
+                if defined varname echos %VARNAME%
+                echos %@randfg_soft[]...%ansi_erase_to_eol%
+                echos %@randfg_soft[]
+                echos %ansi_cursor_invisible%
+                set temp_output_vev_length=%@EVAL[26 + %@LEN[%VARNAME%]]
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -409,7 +435,8 @@ goto :Past_The_End_Of_The_Subroutines
         if "" == "%LAST_TITLE%" (set LAST_TITLE=TCC)
         title %LAST_TITLE%
         if defined        CURSOR_RESET echos %CURSOR_RESET%
-        if defined ANSI_CURSOR_VISIBLE echos %ANSI_CURSOR_VISIBLE%
+        if defined ANSI_CURSOR_VISIBLE .and. "1" != "%VALIDATE_MULTIPLE%" echos %ANSI_CURSOR_VISIBLE%
+        if defined ANSI_COLOR_RESET    echos %ANSI_COLOR_RESET%
         setdos /x0
         rem why won’t this work for this bat? endlocal LAST_TITLE ENVIRONMENT_VALIDATION_FAILED ENVIRONMENT_VALIDATION_FAILED_NAME ENVIRONMENT_VALIDATION_FAILED_VALUE DEBUG_VALIDATE_ENV_VAR DEBUG_NORMALIZE_MESSAGE ERROR ERROR_MESSAGE ERROR ERROR_ENVIRONMENT_VALIDATION_FAILED ERROR_ENVIRONMENT_VALIDATION_FAILED_NAME ERROR_ENVIRONMENT_VALIDATION_FAILED_VALUE
 

@@ -497,6 +497,12 @@ In other words: For our transcribe-while-sleeping process to work with songs we 
 Displays the lyric*lessness* status of a song.  This is to track whether we’ve officially given up on our lyric search for a song.  
 
 
+### 🌟 [convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat](../BAT-and-UTIL-files-1/convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat):
+
+Not very useful to the end-user, but this does what the title says. Converts a playlist to only songs that have karaoke (LRC/SRT) sidecar files, but which do not have lyric (TXT) sidecar files. The main purpose for this is to be able to find testdata for [srt2txt.bat](../BAT-and-UTIL-files-1/srt2txt.bat) / [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py) and [lrc2txt.bat](../BAT-and-UTIL-files-1/lrc2txt.bat)/ [lrc2txt.py](../BAT-and-UTIL-files-1/lrc2txt.py)
+
+
+
 ### 🌟 Reports
 If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 

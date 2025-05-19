@@ -1,18 +1,26 @@
 @Echo Off
+@on break cancel
 
-call validate-environment-variables MIN_RGB_VALUE_FG MAX_RGB_VALUE_FG MIN_RGB_VALUE_BG MAX_RGB_VALUE_BG
+rem Validate environment (once):
+        iff "1" != "%validated_delifexist%" then
+                call validate-environment-variables MIN_RGB_VALUE_FG MAX_RGB_VALUE_FG MIN_RGB_VALUE_BG MAX_RGB_VALUE_BG
+                set  validated_delifexist=1
+        endiff
 
- on break cancel
-iff exist %* then
-    rem Make it pretty:
-            rem echos %@randfg_soft[]  ``
-            echos %@CHAR[27][38;2;%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]]m
 
-    rem Delete the file now that we know it exists:
-            *del /R %*
+rem If it exists, delete it:
+        iff exist %* then
+                rem Make each file deletion a random color so we can see where one ends and the other begins
+                rem But not TRULY random of a color. Choose between colors in a tasteful, easily-visible threshold
+                        rem This was the original function we used: echos %@randfg_soft[]  ``
+                        rem But we manually expanded it so that there is not a dependency on the %@randfg_soft function existing
+                                echos %@CHAR[27][38;2;%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]]m
 
-    rem If we were paranoid:
-            rem if "%@REGEX[\*,%*]" set == "1" OPT=/p
-            rem set OPT=
-            rem *del %OPT% %*
-endiff
+                rem For extra safety, add the /p option if wildcards are involved
+                        unset /q                         additional_del_if_later_opt
+                        if "%@REGEX[\*,"%*"]" == "1" set additional_del_if_later_opt=/p
+
+                rem Delete the file now that we know it exists:
+                        *del /R %additional_del_if_later_opt% %*
+
+        endiff

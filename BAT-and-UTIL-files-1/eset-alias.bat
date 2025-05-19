@@ -6,7 +6,8 @@ rem 🧹Pre-run clean-up:
 
 rem 🔍Validate environment, but only once:
         iff "1" != "%ESET_VALIDATED_2%" then
-                call validate-environment-variables EMOJI_PENCIL ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING ANSI_COLOR_PROMPT ANSI_COLOR_NORMAL CURSOR_RESET ansi_color_warning underline_on underline_off italics_on italics_off color_advice color_normal blink_on  blink_off emoji_warning ansi_color_important_less faint_on faint_off ansi_color_important
+                rem  validate-environment-variables EMOJI_PENCIL ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING ANSI_COLOR_PROMPT ANSI_COLOR_NORMAL CURSOR_RESET ansi_color_warning underline_on underline_off italics_on italics_off color_advice color_normal blink_on  blink_off emoji_warning ansi_color_important_less faint_on faint_off ansi_color_important
+                call validate-environment-variables emojis_have_been_set ansi_colors_have_been_set 
                 call validate-is-function           CURSOR_COLOR
                 call validate-in-path               eset divider echos beep.bat clear-buffered-keystrokes
                 set ESET_VALIDATED_2=1

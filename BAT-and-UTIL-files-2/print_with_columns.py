@@ -1,45 +1,27 @@
+
+#TODO ask chatgpt why words like orange-colored aren’t being highlighted at alllllllllllllll, i stillw ant to do up to the first hyphen
+
+
 #TODO: bg color is same as fg bug-ish??
-
-DEBUG_VERBOSE_COLUMNS = False
-
-#### USER CONFIGURATION:
-NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR = 19                            # we don’t need to look very far into words to get unique colors. Wider than 25 we start to get into subtitle-split-word territory where words >25chars get split into 2 lines and become a differently-colored stripe segment even though they were technically the same word.
-DEFAULT_ROW_PADDING                               = 7                             # SUGGESTED: 7. Number of rows to subtract from screen height as desired maximum output height before adding columns. May not currently do anything.
-content_ansi                                      =  "\033[0m"
-divider_ansi                                      =  "\033[38;2;187;187;0m"
-#content_ansi                                     =  "\033[42m\033[31m"
-divider                                           = f"  {divider_ansi}" + "│" + f"  {content_ansi}"  # Divider with #BBBB00 color and additional padding
-
 #TODO: deal with situation of lines that are sooo long that we'd really have to wrap them to fit? or is this fine?
 #TODO: maybe make each column a slightly different color
 
-#font coefficient = 1.4! that's what i got!
-#lhecker@github: Generally speaking, you can assume that fonts have roughly an aspect ratio of 2:1. It seems you measured the actual size of the glyph though which is slightly different from the cell height/width.
-
-#define some ANSI codes we plan to use
-BLINK_ON   = "\033[6m"
-BLINK_OFF  = "\033[25m"
-FAINT_ON   = "\033[2m"
-FAINT_OFF  = "\033[22m"
-COLOR_GREY = "\033[90m"
-ANSI_RESET = "\033[39m\033[49m\033[0m"
-
-
-
-
-
 ##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 ##### INIT LIBRARIES:
-import sys
-import argparse
-from   math         import ceil
+##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 import re
-import textwrap
+import os
+import sys
 import shutil
-from   rich.console import Console                                        #shutil *and* os do *NOT* get the right console dimensions under Windows Terminal
+import hashlib                                                                              # for computing stripe segment colors
+import argparse
+import textwrap
 import colorama
-from   colorama     import Fore, Style
+import unicodedata                                                                          # for unicode normalization
+from   rich.console import Console                                                          # shutil *and* os do *NOT* get the right console dimensions under Windows Terminal
+#rom   colorama     import Fore, Style, init
 from   wcwidth      import wcswidth
+from   math         import ceil
 sys.stdin .reconfigure(encoding='utf-8', errors='replace')
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 colorama.init()
@@ -48,10 +30,105 @@ colorama.init()
 
 
 
+
+
+##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+##### CONFIGURATION:
+##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+
+################ USER CONFIGURATION FOR STRIPE-REPRESENTATIONS: ################
+NUMBER_OF_CHARACTERS_TO_CONSIDER_FOR_STRIPE_COLOR = 19                                                  # we don’t need to look very far into words to get unique colors. Wider than 25 we start to get into subtitle-split-word territory where words >25chars get split into 2 lines and become a differently-colored stripe segment even though they were technically the same word.
+NUM_CHARS_PER_WORD_ON_STRIPE_SEGMENT              = 3                                                   # max number of characters to show per stripe segment
+
+
+################ USER CONFIGURATION FOR WORD HILIGHTING: ################
+WORD_HIGHLIGHT_LEN_MIN   = 6                                                                            # word hilighting: Minimum length of a word to highlight
+#AX_BACKGROUND_INTENSITY = 0.37                                                                         # word hilighting: Maximum background color intensity
+#AX_BACKGROUND_INTENSITY = 0.25                                                                         # word hilighting: Maximum background color intensity
+#AX_BACKGROUND_INTENSITY = 0.22                                                                         # word hilighting: Maximum background color intensity
+MAX_BACKGROUND_INTENSITY = 0.25                                                                         # word hilighting: Maximum background color intensity
+SATURATION               = 0.9                                                                          # word hilighting: default saturation level
+LIGHTNESS                = 0.5                                                                          # word hilighting: default  lightness level
+
+
+################ USER CONFIGURATION FOR COSMETICS: ################
+DEFAULT_ROW_PADDING    = 7                                                                              # SUGGESTED: 7. Number of rows to subtract from screen height as desired maximum output height before adding columns. May not currently do anything.
+content_ansi           =  "\033[0m"
+divider_ansi           =  "\033[38;2;187;187;0m"
+#content_ansi          =  "\033[42m\033[31m"
+divider                = f"  {divider_ansi}" + "│" + f"  {content_ansi}"                                # Divider with #BBBB00 color and additional padding
+divider_visible_length = 5                                                                              # basically the same as len(stripe_ansi(divider))
+DEFAULT_WRAPPING       = False                                                                          # do we default to enabling the wrapping of long lines
+
+
+################ USER CONFIGURATION FOR DEBUGGING: ################
+DEBUG_VERBOSE_COLUMNS  = False
+
+
+
+
+
+
+##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+##### CONSTANTS:
+##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+
+################ CONSTANTS FOR ANSI CODE: ################
+ANSI_RESET          = "\033[39m\033[49m\033[0m"
+BLINK_ON            = "\033[6m"
+BLINK_OFF           = "\033[25m"
+COLOR_GREY          = "\033[90m"
+FAINT_ON            = "\033[2m"
+FAINT_OFF           = "\033[22m"
+REGEX_TO_MATCH_ANSI = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~]|\][^\x07]*\x07|P[^\\]*\\)')
+
+
+################ CONSTANTS FOR MANUAL UNICODE NORMALIZATION: ################                           # to help stripe-segment-color consistency for letters that SEEM to be the same letter but aren’t
+char_map = {                                                                                            # we simply convert an identical-looking not-normal-letter to the normal-letter it appears to be!
+    # Cyrillic to Latin (Visually Identical)
+    'е': 'e', 'Е': 'E',      # Cyrillic e and E to Latin e and E
+    'а': 'a', 'А': 'A',      # Cyrillic a and A to Latin a and A
+    'о': 'o', 'О': 'O',      # Cyrillic o and O to Latin o and O
+    'с': 'c', 'С': 'C',      # Cyrillic c and C to Latin c and C
+    'т': 't', 'Т': 'T',      # Cyrillic t and T to Latin t and T
+    'р': 'p', 'Р': 'P',      # Cyrillic p and P to Latin p and P
+    'у': 'y', 'У': 'Y',      # Cyrillic y and Y to Latin y and Y
+    'в': 'b', 'В': 'B',      # Cyrillic b and B to Latin b and B
+    'н': 'h', 'Н': 'H',      # Cyrillic n and N to Latin n and N
+    'к': 'k', 'К': 'K',      # Cyrillic k and K to Latin k and K
+    'м': 'm', 'М': 'M',      # Cyrillic m and M to Latin m and M
+    'л': 'l', 'Л': 'L',      # Cyrillic l and L to Latin l and L
+
+    # Greek to Latin (Visually Identical)
+    'α': 'a', 'Α': 'A',      # Greek   alpha to Latin a
+    'β': 'b', 'Β': 'B',      # Greek    beta to Latin b
+    'ε': 'e', 'Ε': 'E',      # Greek epsilon to Latin e
+    'ο': 'o', 'Ο': 'O',      # Greek omicron to Latin o
+    'ρ': 'p', 'Ρ': 'P',      # Greek     rho to Latin p
+    'σ': 's', 'Σ': 'S',      # Greek   sigma to Latin s
+    'ι': 'i', 'Ι': 'I',      # Greek    iota to Latin i
+    'κ': 'k', 'Κ': 'K',      # Greek   kappa to Latin k
+    'λ': 'l', 'Λ': 'L',      # Greek  lambda to Latin l
+    'μ': 'm', 'Μ': 'M',      # Greek      mu to Latin m
+    'ν': 'n', 'Ν': 'N',      # Greek      nu to Latin n
+    'τ': 't', 'Τ': 'T',      # Greek     tau to Latin t
+
+    # Other common similar letters
+    'ı': 'i',               # Generic Dotless i to Latin i
+    'İ': 'I',               # Generic Dotted  I to Latin I
+    'ı': 'i',               # Turkish dotless i to Latin i
+}
+
+
+
+
+
+
 ##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 ##### GLOBAL VARIABLES:
-divider_visible_length       = 5
-DEFAULT_WRAPPING             = False                                            #do we default to enabling the wrapping of long lines
+##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 WRAPPING                     = DEFAULT_WRAPPING
 STRIPE                       = False
 VERBOSE                      = False
@@ -113,17 +190,16 @@ def parse_arguments():
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
-ANSI_ESCAPE = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~]|\][^\x07]*\x07|P[^\\]*\\)')
 def strip_ansi(text):
     """
     Strip ANSI escape codes
 
-    Requires global var ANSI_ESCAPE as the compiled regex to remove all codes
-    Suggested value: ANSI_ESCAPE = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~]|\][^\x07]*\x07|P[^\\]*\\)')
+    Requires global var REGEX_TO_MATCH_ANSI as the compiled regex to remove all codes
+    Suggested value: REGEX_TO_MATCH_ANSI = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~]|\][^\x07]*\x07|P[^\\]*\\)')
 
     """
-    global ANSI_ESCAPE
-    return ANSI_ESCAPE.sub('', text)
+    global REGEX_TO_MATCH_ANSI
+    return REGEX_TO_MATCH_ANSI.sub('', text)
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
 
@@ -237,7 +313,6 @@ def read_input(wrapping, max_width):
 
     # Check if an optional filename is provided and exists
     if args.optional_filename:
-        import os
         if os.path.exists(args.optional_filename):
             with open(args.optional_filename, 'r', encoding='utf-8') as file:
                 input_lines.extend(file.readlines())  # Read lines from the file
@@ -512,18 +587,7 @@ def remove_trailing_blank_lines(output):
 
 # ════════════════════════════════════════════════════════════════════════════════════════════════════════
 # ════════════════════════════════════════════════════════════════════════════════ WORD HILIGHTING: BEGIN:
-import hashlib
-
-WORD_HIGHLIGHT_LEN_MIN   = 7     # Minimum length of a word to highlight
-WORD_HIGHLIGHT_LEN_MIN   = 6     # Minimum length of a word to highlight
-MAX_BACKGROUND_INTENSITY = 0.37  # Maximum background color intensity
-MAX_BACKGROUND_INTENSITY = 0.25  # Maximum background color intensity
-MAX_BACKGROUND_INTENSITY = 0.22  # Maximum background color intensity
-SATURATION               = 0.9
-LIGHTNESS                = 0.5
-
-# ═════════════════════════════════════════════════════════════════════════════════
-import unicodedata
+# ════════════════════════════════════════════════════════════════════════════════════════════════════════
 def string_to_color(word):
     """
     Convert a string to a deterministic RGB color.
@@ -602,49 +666,17 @@ def apply_background_color(r, g, b):
 
 
 
-char_map = {
-    # Cyrillic to Latin (Visually Identical)
-    'е': 'e', 'Е': 'E',      # Cyrillic e and E to Latin e and E
-    'а': 'a', 'А': 'A',      # Cyrillic a and A to Latin a and A
-    'о': 'o', 'О': 'O',      # Cyrillic o and O to Latin o and O
-    'с': 'c', 'С': 'C',      # Cyrillic c and C to Latin c and C
-    'т': 't', 'Т': 'T',      # Cyrillic t and T to Latin t and T
-    'р': 'p', 'Р': 'P',      # Cyrillic p and P to Latin p and P
-    'у': 'y', 'У': 'Y',      # Cyrillic y and Y to Latin y and Y
-    'в': 'b', 'В': 'B',      # Cyrillic b and B to Latin b and B
-    'н': 'h', 'Н': 'H',      # Cyrillic n and N to Latin n and N
-    'к': 'k', 'К': 'K',      # Cyrillic k and K to Latin k and K
-    'м': 'm', 'М': 'M',      # Cyrillic m and M to Latin m and M
-    'л': 'l', 'Л': 'L',      # Cyrillic l and L to Latin l and L
-
-    # Greek to Latin (Visually Identical)
-    'α': 'a', 'Α': 'A',      # Greek alpha to Latin a
-    'β': 'b', 'Β': 'B',      # Greek beta to Latin b
-    'ε': 'e', 'Ε': 'E',      # Greek epsilon to Latin e
-    'ο': 'o', 'Ο': 'O',      # Greek omicron to Latin o
-    'ρ': 'p', 'Ρ': 'P',      # Greek rho to Latin p
-    'σ': 's', 'Σ': 'S',      # Greek sigma to Latin s
-    'ι': 'i', 'Ι': 'I',      # Greek iota to Latin i
-    'κ': 'k', 'Κ': 'K',      # Greek kappa to Latin k
-    'λ': 'l', 'Λ': 'L',      # Greek lambda to Latin l
-    'μ': 'm', 'Μ': 'M',      # Greek mu to Latin m
-    'ν': 'n', 'Ν': 'N',      # Greek nu to Latin n
-    'τ': 't', 'Τ': 'T',      # Greek tau to Latin t
-
-    # Other common similar letters
-    'ı': 'i',               # Dotless i to i
-    'İ': 'I',               # Dotted I to I
-    'ı': 'i',               # Turkish dotless i to Latin i
-}
 
 
 # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 def normalize_for_highlight(word):
-    if word == "versus" or word == "v.s.": word = "vs"                               #different ways to express the same word should be drawn  the same color
-    word = word.replace("’ve", "").replace("'ve", "").replace("´ve", "")             #makes word-variants like “should’ve”  and  “should have” the same color
-    word = word.replace("’s" , "").replace("'s" , "").replace("´s" , "")             #makes word-variants like  “there’s”   and    “there is”  the same color
-    word = word.replace("’"  , "").replace("'"  , "").replace("´"  , "")             #variations in which apostrophe we use should all be made the same color
-    if word.endswith("ing"): word = word[:-3] + "in"                                 #makes word-variants like “coping” vs “copin’” vs “copin” the same color
+    if word == "versus"    or word == "v.s.": word = "vs"                            # different ways to express the same word should be drawn  the same color
+    #f word == "alongside"                  : word == "along side"                   # different ways to express the same word should be drawn  the same color
+    if word == "alongside"                  : word == "along"                        # make “along side” same color as “alongside” by treating both as simply “along”
+    word = word.replace("’ve", "").replace("'ve", "").replace("´ve", "")             # makes word-variants like “should’ve”  and  “should have” the same color
+    word = word.replace("’s" , "").replace("'s" , "").replace("´s" , "")             # makes word-variants like  “there’s”   and    “there is”  the same color
+    word = word.replace("’"  , "").replace("'"  , "").replace("´"  , "")             # variations in which apostrophe we use should all be made the same color
+    if word.endswith("ing"): word = word[:-3] + "in"                                 # makes word-variants like “coping” vs “copin’” vs “copin” the same color
 
     word = unicodedata.normalize('NFC', word)
     for cyrillic_char, latin_char in char_map.items():
@@ -677,6 +709,17 @@ def consistent_word_highlight(text):
             word += char
         else:
             normalized_word = normalize_for_highlight(word)
+
+
+            # To keep stripe alignment more consistent, we exclude words that start with -/–/— because they are hyphenated word segments:
+            if normalized_word.startswith('-') or normalized_word.startswith('–') or normalized_word.startswith('—'):
+                highlighted_text.append(word)
+                highlighted_text.append(char)
+                word = ''
+                continue
+
+
+
             if len(normalized_word) >= WORD_HIGHLIGHT_LEN_MIN:                          # Word is long enough for highlighting
 
                 if not in_highlight:                                                    # Start highlighting
@@ -823,7 +866,6 @@ def main():
 
     # Try to detect terminal width and height, otherwise use default values
     try:
-        import shutil
         console_width, console_height = shutil.get_terminal_size()
     except Exception:
         console_width, console_height = 666, 69
@@ -1010,3 +1052,13 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+# ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
+# ═════════════════════════════════════════════════  O L D   N O T E S  ═════════════════════════════════════════════════════════════###
+# ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
+
+#NOTES for when I was trying to make the output a square: font coefficient = 1.4! that's what i got! #lhecker@github: Generally speaking, you can assume that fonts have roughly an aspect ratio of 2:1. It seems you measured the actual size of the glyph though which is slightly different from the cell height/width.
+
+

@@ -96,7 +96,7 @@ rem COPY OUR MATRIXMIXER CONFIG:
         call appdata 
         cd winamp
         call warning_soft "MatrixMixer configuration re-copied" silent
-        echo ry | cp /z out_mixer.ini.official out_mixer.ini    
+        echo ry | *copy /z out_mixer.ini.official out_mixer.ini    
     popd
 
 

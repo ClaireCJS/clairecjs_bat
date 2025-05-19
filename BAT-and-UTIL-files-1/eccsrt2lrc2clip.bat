@@ -1,5 +1,5 @@
 @loadbtm on
-@Echo On
+@Echo Off
 
 rem side-note: worst-named BAT ever hahahahahhaha
 
@@ -12,8 +12,12 @@ rem [or go deleting in the archive, which is a bit too destructive and automatic
 
 
 
-rem Validate environment
-        call validate-in-path srt2lrc.py go-to-currently-playing-song-dir.bat LaunchKey activate important sleep 
+rem Validate environment (once):
+        iff "1" != "%validated_eccsrt2lrc2clip%" then        
+                call validate-in-path               LaunchKey.exe sleep.bat activate setdos important.bat print-message.bat load_to_clipboard.py srt2lrc.py go-to-currently-playing-song-dir.bat 
+                call validate-environment-variables ansi_colors_have_been_set
+                set  validated_eccsrt2lrc2clip=1
+        endiff
 
 
 rem First figure out what song is playing and go there:
@@ -22,7 +26,7 @@ rem First figure out what song is playing and go there:
         rem  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ sets (unquoted) CURRENT_SONG_FILE to just the filename
 
 rem Figure out the names of our files and make sure they are here:
-        call validate-environment-variables CURRENT_SONG_FILENAME CURRENT_SONG_FILE
+        if not exist "%CURRENT_SONG_FILENAME%" .or. not exist "%CURRENT_SONG_FILE%" call validate-environment-variables CURRENT_SONG_FILENAME CURRENT_SONG_FILE
 
         set THE_SRT=%@UNQUOTE[%@NAME[%CURRENT_SONG_FILE%].srt]
         set THE_LRC=%@UNQUOTE[%@NAME[%CURRENT_SONG_FILE%].lrc]
@@ -34,24 +38,29 @@ rem Figure out the names of our files and make sure they are here:
                 set OUR_FILE=%THE_LRC%
                 set USING_LRC=1
         endiff                
-        if 1 eq %USING_LRC (goto :LRC_Exists_Already)
+        if "1" == "%USING_LRC%" (goto :LRC_Exists_Already)
 
 rem Then convert all SRTs to LRC:
         iff not exist *.srt then
                 echo %ansi_color_error%No subtitle files to convert!%ansi_reset%
                 goto :END
         endiff
-        srt2lrc.py %*
+        srt2lrc.py go %*
+
 
 rem Make sure we actually made the LRC file:
         call validate-environment-variable OUR_FILE
 
-rem Then copy the LRC to this song to the clipboard
+rem If the LRC exists already, give it the proper treatment (open in editor, copy to clipboard)
         :LRC_Exists_Already
-         type "%THE_LRC%" >:u8 clip:
+        rem This failed with unicode characters/emoji: type     "%THE_LRC%" >:u8 clip:
+        rem So we compensated with manually doing it: rem %EDITOR% "%THE_LRC%"
+        rem But then we wrote a program to load the clipboard properly
+                load_to_clipboard.py "%THE_LRC%"
+
 
 rem Let us know:
-        call important "LRC copied to clipboard"
+        call important "LRC copied to clipboard %blink_on%BUT COPY MANUALLY IF ANY SPECIAL CHARACTERS%blink_off%"
  
 rem Front MiniLyrics so it's easier to find:
         activate "minilyrics"
@@ -76,5 +85,4 @@ rem Wait a second
 
 rem Save the lyrics?
         LaunchKey %escape_character%^s
-
 :END

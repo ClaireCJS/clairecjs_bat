@@ -36,6 +36,7 @@ winget install --id Microsoft.PowerToys -e
 
 winget install Crintsoft.MiniLyrics
 winget install NirSoft.NirCmd
+winget install Microsoft.WinDbg
 
 winget install 35795FlorianHeidenreich.Mp3tag_rf0p6xgxmX 
 winget install 38812MedievalSoftware.CUESplitter_qfb500X 

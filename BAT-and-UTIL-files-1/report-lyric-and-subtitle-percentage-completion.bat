@@ -123,14 +123,14 @@ rem Report our totals and percent  progress:
 
         gosub lineyline
         gosub counttype          "total" "       total audio"  NULL                                  "%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set            ALL_AUDIO_COUNT_PROBED=%COUNT%
-        gosub counttype   "instrumental" "  -   instrumental" %ALL_AUDIO_COUNT_PROBED% "instrumental.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set         INSTRUMENTAL_COUNT=%COUNT%
-        gosub counttype      "chiptunes" "  -      chiptunes" %ALL_AUDIO_COUNT_PROBED%   "chiptunes*.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set             CHIPTUNE_COUNT=%COUNT%
-        gosub counttype  "tracker songs" "  -  tracker songs" %ALL_AUDIO_COUNT_PROBED% "(\.mid|\.midi|\.stm|\.s3m|\.mod|\.cmf\*.rol)"              "%full_filelist%" %+ set         TRACKER_SONG_COUNT=%COUNT%
-        gosub counttype   "sound effect" "  -   sound effect" %ALL_AUDIO_COUNT_PROBED% "sound.effect.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set         SOUND_EFFECT_COUNT=%COUNT%        
-                                    echo    %@REPEAT[━,40]
-        gosub counttype "transcribeable" "  = transcribeable" %ALL_AUDIO_COUNT_PROBED%               "%@UNQUOTE[%filemask_audio_regex%]" "%transcribeable_filelist%" %+ set TRANSCRIBEABLE_AUDIO_COUNT_PROBED=%COUNT% %+         gosub lineyline
-        gosub counttype         "lyrics" "            lyrics" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%     "\.txt"                                      "%text_filelist%" %+ set           HAVE_LYRIC_COUNT=%COUNT%
-        gosub counttype        "karaoke" "           karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%    "(\.lrc|\.srt)"                      "%transcription_filelist%" %+ set         HAVE_KARAOKE_COUNT=%COUNT%
+        gosub counttype   "instrumental" "  -   instrumental" %ALL_AUDIO_COUNT_PROBED% "instrumental.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set                INSTRUMENTAL_COUNT=%COUNT%
+        gosub counttype      "chiptunes" "  -      chiptunes" %ALL_AUDIO_COUNT_PROBED%   "chiptunes*.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set                    CHIPTUNE_COUNT=%COUNT%
+        gosub counttype  "tracker songs" "  -  tracker songs" %ALL_AUDIO_COUNT_PROBED% "(\.mid|\.midi|\.stm|\.s3m|\.mod|\.cmf\*.rol)"              "%full_filelist%" %+ set                TRACKER_SONG_COUNT=%COUNT%
+        gosub counttype   "sound effect" "  -  sound effects" %ALL_AUDIO_COUNT_PROBED% "sound.effect.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set                SOUND_EFFECT_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
+        gosub counttype "transcribeable" "  = transcribeable" %ALL_AUDIO_COUNT_PROBED%               "%@UNQUOTE[%filemask_audio_regex%]" "%transcribeable_filelist%" %+ set TRANSCRIBEABLE_AUDIO_COUNT_PROBED=%COUNT%  %+ gosub   lineyline
+        gosub counttype      "audiobook" "        audiobooks" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%    "AUDIOBOOK"                         "%transcribeable_filelist%" %+ set                   AUDIOBOOK_COUNT=%COUNT%
+        gosub counttype         "lyrics" "      have  lyrics" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%    "\.txt"                                       "%text_filelist%" %+ set                  HAVE_LYRIC_COUNT=%COUNT%
+        gosub counttype        "karaoke" "      have karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%    "(\.lrc|\.srt)"                      "%transcription_filelist%" %+ set                HAVE_KARAOKE_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
         gosub lineyline
         call  divider
         echo.

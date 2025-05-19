@@ -40,6 +40,7 @@ rem Get mode type:
 rem Create meaningfully-named temporary file:
         set NUM_STEPS=20
         set NUM_STEPS=12
+        set NUM_STEPS=13
         set     step_num=1
         gosub   step
         call set-tmp-file "kill bad AI transcriptions filelist A1_original"               %+  set tmpfile1=%tmpfile%.lst
@@ -81,12 +82,17 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
                 :new_way
                 rem POSSIBLE ONE: “Oh, honey, wait for me.”
                 gosub step %+ if exist *.srt;*.lrc;*.txt   (grep -i .                               *.srt *.lrc *.txt   >>:u8 %tmpfile8% >&>nul) %+ rem smush all files we are probing into a single file for speedup
+                gosub step %+ (grep    VAD.chunk.*-.[0-9]                                           %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI temporary file
                 gosub step %+ (grep -i this.is.the.first.sentence                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                 gosub step %+ (grep -i and.we.are.back                                              %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                 gosub step %+ (grep -i a.little.pause\.\.\.                                         %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                 gosub step %+ (grep -i "I.ve never seen you looking so lovely as you did tonight"   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem incorrectly-placed lyrics: “Chris DeBurg - Lady In Red” 
                 gosub step %+ (grep -i "Closed lamps, curfews, dead leaves"                         %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem incorrectly-placed lyrics:       “Voivod - Black City” 
                 if "%@FILESIZE[%tmpfile1%]" == "0" (repeat 5 gosub step %+ goto :nothing_to_do)                         
+
+        rem Set options for del-maybe-after-review:
+                set EVEN_MORE_PROMPT_TEXT=,%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%Q%ansi_color_prompt%=enqueue
+                set EVEN_MORE_EXTRA_LETTERS=PQ
 
         rem create scripts:
                 set                                 EXTRACT_FILENAME=sed -s "s/:.*$//ig"

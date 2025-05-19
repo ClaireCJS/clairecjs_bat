@@ -910,8 +910,9 @@ rem Define Servers:
                         rem Set which machine is our Music Server, and what it's IP address is:
                                 SET   MUSICSERVERMACHINENAME=DEMONA
                                 SET   MUSICSERVERIPONLY=%IP_DEMONA%
-                                if  "%MUSICSERVERMACHINENAME%" eq "%MACHINENAME%" (set MUSICSERVERIPONLY=localhost  )
-                                if  "WORK"                     eq "%MACHINENAME%" (set MUSICSERVERIPONLY=%PUBLIC_IP%)
+                                set   WINAMP_INTEGRATION_GENERAL=0
+                                if  "%MUSICSERVERMACHINENAME%" == "%MACHINENAME%" (set MUSICSERVERIPONLY=localhost   %+ set WINAMP_INTEGRATION_GENERAL=1)
+                                if   "WORK"                    == "%MACHINENAME%" (set MUSICSERVERIPONLY=%PUBLIC_IP% %+ set WINAMP_INTEGRATION_GENERAL=1)
                                 
                         rem Music server stuff: Set the port of the music server web interface, and 'MUSICSERVER' which is a [badly-named] URL-base:                        
                                 set MUSICSERVERPORT=666
@@ -939,7 +940,6 @@ rem Define Servers:
                                 set       NOW_PLAYING_ART=%WINAMP_NOW_PLAYING_ART%
                                 set NOW_PLAYING_SONG_INFO=%WINAMP_NOW_PLAYING_TXT%
                                 set       NOW_PLAYING_TXT=%WINAMP_NOW_PLAYING_TXT%
-
                        
                 rem ✔***** VALIDATIONS: ***** 
                         rem Not sure where this gets set, so not validating it: %gosubValidateFolderExists% WAWILOGSDRIVE WAWILOGS

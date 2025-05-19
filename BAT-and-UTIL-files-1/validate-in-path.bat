@@ -2,11 +2,18 @@
 @echo off
 @on break cancel
 @rem echo %ansi_reset%%conceal_off%%ansi_color_grey%📞📞📞 “%0 %1$” called by %_PBATCHNAME 📞📞📞%ansi_color_normal%
+@gosub save_cusor_position
+@gosub display_temp_output %1
+
+
+
+
+
 
 :PUBLISH:
 :DESCRIPTION: validates if commands are valid
-:USAGE:   set validate_in_path_message={optional additional error message}
-:USAGE:       validate-in-path {list of commands to validate}
+:USAGE:       set validate_in_path_message={optional additional error message}
+:USAGE:           validate-in-path {list of commands to validate}
 :EXAMPLE:     validate-in-path grep awk whatever.exe whatever.bat dir cmd.exe anything_really.py
 
 rem    Complication #1: What if we are passed an alias?   
@@ -14,8 +21,14 @@ rem                     [Solution: add isalias check]
 
 rem    Complication #2: Windows command lines let us do commands like "dir/s" without space before the slash, 
 rem                     [Solution: use regular epressions to strip things off past a slash into a clean command]
+                   
 
-   
+
+
+
+
+
+
    
 rem Make sure stripansi plugin is loaded:   
         set stripansi_failed=0
@@ -56,8 +69,6 @@ rem Custom error message:
 rem Now start validating!
 
 
-gosub save_cusor_position
-gosub display_temp_output
 
 
    
@@ -70,6 +81,7 @@ rem Process command line parameters:
         do while "%@UNQUOTE["%1"]" != ""
                 set unquoted_command=%@UNQUOTE[%1]
                 set already_validated_varname=validated_in_path_%1
+                gosub display_temp_output "%unquoted_command%"
                 iff "1" == "%[%already_validated_varname%]" then
                         if defined debug .and. %DEBUG% gt 1 echo %star2% Command already validated as in our path: %italics_on%%already_validated_varname%%italics_off%
                 elseiff "%@RegEx[You need,%unquoted_command%]" == "1" then
@@ -100,7 +112,7 @@ rem Validate each command line parameter
         rem echo 🐈 validate_in_path_message is %validate_in_path_message% 🐈
         rem echo 🐈 about to process CMDTAIL of %lq%%cmdtail%%rq%
         set any_path_validations_failed=0
-        for %command in (%CMDTAIL%) do (gosub restore_cusor_position %+ gosub display_temp_output %+ gosub validate_path_for_one_parameter %command%)
+        for %command in (%CMDTAIL%) do (gosub restore_cusor_position %+ gosub display_temp_output %command% %+ gosub validate_path_for_one_parameter %command%)
         goto :cleanup
 
 
@@ -168,13 +180,17 @@ rem Validate each command line parameter
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         :save_cusor_position []
                 set vip_saved_row=%_row
-                set vip_saved_col=%_col
+                set vip_saved_col=%_column
+                echos %ansi_cursor_invisible%
         return
-:━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         :restore_cusor_position []
-                echos %@ansi_move_to[%@EVAL[%vip_saved_row% + 1],%@EVAL[%vip_saved_col% + 1]]
+                echos %ansi_cursor_invisible%
+                echos %@ansi_move_to_row[%@EVAL[%vip_saved_row% + 1]]
+                echos %@ansi_move_to_col[%@EVAL[%vip_saved_col% + 1]]
+                echos %ansi_cursor_invisible%
         return
+:━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -184,7 +200,7 @@ rem Validate each command line parameter
         return
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        :display_temp_output []
+        :display_temp_output_OLD []
                 echos %ansi_cursor_invisible%
                 rem echos %@randfg_soft[]
                 gosub coloring
@@ -193,6 +209,32 @@ rem Validate each command line parameter
                 gosub coloring
                 echos %faint_on%?%faint_off%%ansi_color_reset%
                 set temp_output_vip_length=2
+        return
+:━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+:━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        :display_temp_output [varname]
+                set unquoted_varname=%@UNQUOTE["%varname%"]
+                rem Alternating italics give it a little “jiggle” in its dance:
+                        iff defined italics_maybe then
+                                if "%italics_maybe%" == "%italics_on%" (
+                                        set italics_maybe=%italics_off%
+                                ) else ( 
+                                        set italics_maybe=%italics_on%
+                                )
+                        endiff
+                                                           
+                set coloring=%@randfg_soft[]
+                echos %ansi_cursor_invisible%
+                echos %@randfg_soft[]
+                if defined italics_maybe echos %italics_maybe%  %+ rem Alternating italics give it a little “jiggle” in its dance:
+                echos %@CHAR[9733] Validating command: %@randfg_soft[]
+                if not defined unquoted_varname set unquoted_varname=%@UNQUOTE[%1]
+                echos %unquoted_VARNAME%
+        
+                echos %@randfg_soft[]...%ansi_erase_to_eol%
+                echos %@randfg_soft[]
+                echos %ansi_cursor_invisible%%@ANSI_MOVE_TO_COL[1]
+                set temp_output_vip_length=%@EVAL[25 + %@LEN[%unquoted_VARNAME%]]
         return
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

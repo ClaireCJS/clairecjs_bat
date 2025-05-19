@@ -10,12 +10,9 @@ cls
 rem Validate environment once:
         iff "1" != "%validated_getlyrics2%" then
                 rem call validate-in-path get-lyrics-for-currently-playing-song check-for-missing-lyrics get-lyrics-for-playlist get-lyrics-for-song fatal_error alarm
-                call validate-in-path get-lyrics-for-currently-playing-song 
-                call validate-in-path check-for-missing-lyrics 
-                call validate-in-path get-lyrics-for-playlist 
-                call validate-in-path get-lyrics-for-song 
-                call validate-in-path fatal_error alarm
-                call validate-environment-variables ansi_color_pink color_advice ansi_color_advice color_normal faint_on faint_off up_arrow italics_on italics_off star
+                call validate-in-path get-lyrics-for-currently-playing-song check-for-missing-lyrics get-lyrics-for-playlist  get-lyrics-for-song fatal_error alarm
+                rem  validate-environment-variables ansi_color_pink color_advice ansi_color_advice color_normal faint_on faint_off up_arrow italics_on italics_off star
+                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET 
                 set  validated_getlyrics2=1
         endiff
 

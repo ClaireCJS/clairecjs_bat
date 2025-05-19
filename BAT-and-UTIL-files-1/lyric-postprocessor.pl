@@ -110,6 +110,7 @@ my $test1;
 my $test2;
 my $file_artist="";
 my $file_title="";
+my $file_itle="";
 my $file_album="";
 my $original_line;
 my $file_orig_artist;
@@ -123,6 +124,12 @@ if ($LYRICS_MODE) {
 }
 #my $do_it=-1;
 my $line_number=0;
+
+
+$file_itle=$file_title;
+$file_itle=~s/^.(.*)$/$1/;
+#print "FILE_TITLE = “$file_title” \n";
+#print "FILE_ITLE  = “$file_itle” \n\n";
 
 #OLD: while (<STDIN>) {
 #NEW:
@@ -158,8 +165,17 @@ while (<$INPUT>) {
 		#song sections to get rid of
 		for ($i=1; $i<=2; $i++) {			#twice to get things like "Intro/Chorus" or "Guitar Solo/Bridge", which meant changing the regex to include an ending of / where previously it just included ]
 			#line =~    s/[\[\(]?(Intro|Sample|Hook|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)\/]?//i;
-			$line =~    s/[\[\(]? ?(Spoken|Whispered|Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
-			$line =~ s/\d?[\[\(]? ?(Spoken|Whispered|Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
+			#line =~    s/[\[\(]? ?(Spoken|Whispered|Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro)[\.]* *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
+
+			#2025/05/18: adding “^” at beginning of this regex so that it doesn’t get things in mid-line
+				#because in c:\new\MUSIC\They Might Be Giants\Compilations\They Might Be Giants - 2002 - Dial-A-Song. 20 Years of They Might Be Giants (2CD)\Disc 2\2_16_Robot Parade (Adult Version).txt
+				#the line “To build a giant cyborg” got turnedi nto “To”
+
+			$line =~   s/^[\[\(]? ?(Spoken|Whispered|Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro)[\.]* *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
+			#line =~ s/\d?[\[\(]? ?(Spoken|Whispered|Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro)[\.]* *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
+			#2025/05/18 removing the “?” after “\d” so that it only applies if an errant digit is before it:
+			$line =~ s /\d[\[\(]? ?(Spoken|Whispered|Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro)[\.]* *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
+			#SOLVED:  "This is a real good chorus." gets transformed to "This is really good" .. so 2025/05/14: adding [\.]* after |Outro)
 		}
 
 
@@ -184,6 +200,10 @@ while (<$INPUT>) {
 		}
 		if ($file_title ne "") { 
 			$line =~ s/Title: \Q$file_title\E[\.,]?//i; 
+			$line =~ s/$file_title Lyrics//i; 			
+		}
+		if ($file_itle ne "") {
+			$line =~ s/$file_itle Lyrics//i; 			
 		}
 		if ($file_album ne "") { 
 			$line =~ s/Album: \Q$file_album\E[\.,]?//i; 
@@ -194,6 +214,7 @@ while (<$INPUT>) {
 		$line =~ s/^, *$//;			#remove leading comma like ", a line of text"
 	    $line =~ s/"/'/g;			#change quotes to apostrophes so these can be used as a quoted command line argument
 		$line =~ s/\-\-/—/g;
+		$line =~ s/([a-z]) (\-)([a-z])/$1$2$3/ig;												   # turn things like “double -dutch” back into “double-dutch”
 
 		#formatting: dealing with ALL CAPS LYRICS
 		#if there are >=10 all-caps letters and no lowercase letters, lowercase the line
@@ -368,8 +389,12 @@ sub replace_smart_quotes {
 		if ($char eq '“') { $in_quotes = 1; }
 		if ($char eq '”') { $in_quotes = 0; }
 
-		if ($char eq '"') {
-			if ($prev =~ /^\s?$/ && $next =~ /^\s?$/) {
+		if ($char eq '"') {							#[chatgpt:2025/05/19]
+			if ($prev =~ /^[\[\(\{<¡!¿“]$/) {		#[chatgpt:2025/05/19]	#possibly remove exclaimation point
+				$char_used = "“";					#[chatgpt:2025/05/19]
+				$in_quotes = 1;						#[chatgpt:2025/05/19]
+			}
+			elsif ($prev =~ /^\s?$/ && $next =~ /^\s?$/) {
 				if ($last_non_space eq "”") {
 					$char_used = "“";
 					$in_quotes = 1;

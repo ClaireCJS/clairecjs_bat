@@ -547,13 +547,12 @@ foreach $filename (@LINES) {
             #video is sometimes Kbps not kbps so don't fuck with it
             $filename =~ s/\(([0-9]+)Kbps\)/($1kbps)/;
         }
-        $filename =~ s/\[/(/g;    #brackets fuck with 4dos
-        $filename =~ s/\]/)/g;
-        $filename =~ s/\]/)/g;
+        # $filename =~ s/\[/(/g;    #2001: brackets fuck with 4dos ... 2025: but this is 2025 and they don’t hurt anymore so take this out
+        # $filename =~ s/\]/)/g;	#2001: brackets fuck with 4dos ... 2025: but this is 2025 and they don’t hurt anymore so take this out
 		if ($DEBUG_TRANSFORMATION) { print ":Checkpoint 005: $filename\n"; }
         my @regeps=
-        (           ##### STUFF TO FORCE INTO LOWERCASE:
-					##### OSD/osd are case sensitive and should not be put in
+        (   ##### STUFF TO FORCE INTO LOWERCASE:
+			##### OSD/osd are case sensitive and should not be put in
             #"(slightly cut off!+)","(buzzy sound)","(some clipping!+)",
             #"(slightly cut off)","(may be cut off)",
             "\\(song only\\)",
@@ -671,84 +670,84 @@ foreach $filename (@LINES) {
 	if ($DEBUG_TRANSFORMATION) { print ":Checkpoint 015: $filename\n"; }
 
     ### show names 
-	$filename =~ s/Rick & Morty/Rick And Morty/ig;
-	$filename =~ s/Dirk Gentlys/Dirk Gently's/ig;
-	$filename =~ s/^Doctor Who Extra - /Doctor Who - extra - Doctor Who Extra - /ig;
-	$filename =~ s/Cartoon Network City/Cartoon Network - promo - Cartoon Network City/ig;
-	$filename =~ s/Fugget.About.It./Fugget About It /ig;
+	$filename =~ s/^The Three Stooges -/Three Stooges -/i;
+	$filename =~ s/^12 Oz Mouse/12 Oz. Mouse/i;
+	$filename =~ s/^American Dad! /American Dad /i;
+	$filename =~ s/^aaf-am/Assy McGee/i;
 	$filename =~ s/-? ?Webisodes - Adult Swim Video(.*)(\....)/(AdultSwim) (web-rip)$1 (Osd)$2/ig;
+	$filename =~ s/^ATHF/Aqua Teen Hunger Force/i;
+	$filename =~ s/^aaf-athf/Aqua Teen Hunger Force/i;
+	$filename =~ s/^AbFab -/Absolutely Fabulous -/i;
+	$filename =~ s/^Bobobo-bo Bo-bobo - /BoBoBo - /i;
+	$filename =~ s/^aaf-bd/The Boondocks/i;
+	$filename =~ s/^Archer (2009) /Archer /i;
+	$filename =~ s/^aaf-tb/The Boondocks/i;
+	$filename =~ s/^(Angry Beavers.*) -- (.*)$/$1, $2/;
 	$filename =~ s/The Agents Of S M A S H /The Agents Of S.M.A.S.H. - /ig;
-	$filename =~ s/^Talking Dead/The Talking Dead/ig;
-	$filename =~ s/BREAKING BAD/Breaking Bad/;
+	$filename =~ s/The Avengers Earths Mightiest Heroes/The Avengers- Earth's Mightiest Heroes/;
 	$filename =~ s/China IL/China, IL/ig;
-	$filename =~ s/TMNT/Teenage Mutant Ninja Turtles/g;
-	$filename =~ s/Teenage Mutant Ninja Turtles \(2012\)/Teenage Mutant Ninja Turtles-TAS (2010s)/ig;
-	$filename =~ s/Todd & The Book Of Pure Evil/Todd And The Book Of Pure Evil/ig;
+	$filename =~ s/Batman Tas /Batman-TAS (1990s) /i;
+	$filename =~ s/Batman The Brave And The Bold/Batman- The Brave And The Bold/i;
+    $filename =~ s/beavis &butt\-?head/Beavis & Butt-head/i;
+    $filename =~ s/beavis and butt\-?head/Beavis & Butt-head/i;
+	$filename =~ s/^Bobs Burgers /Bob's Burgers /i;
+	$filename =~ s/BREAKING BAD/Breaking Bad/;
+	$filename =~ s/Cartoon Network City/Cartoon Network - promo - Cartoon Network City/ig;
+	$filename =~ s/^MTV - Celebrity Deathmatch/Celebrity Deathmatch/i;
+	$filename =~ s/Children's Hospital Us/Childrens Hospital/i;
+	$filename =~ s/Children's Hospital/Childrens Hospital/i;
+	$filename =~ s/Cow And Chicken/Cow & Chicken/ig;
+	$filename =~ s/^Doctor Who Extra - /Doctor Who - extra - Doctor Who Extra - /ig;
+	$filename =~ s/^Dr\.? Who (2005) /Doctor Who (2000s) /i;
+	$filename =~ s/^Doctor Who (2005) /Doctor Who (2000s) /i;
+	$filename =~ s/Dirk Gentlys/Dirk Gently's/ig;
+	$filename =~ s/^Aaf-fgsii/Fat Guy Stuck In Internet/i;
+	$filename =~ s/^Fake Trailer /fake trailer  /;
+	$filename =~ s/^aaf-fd/Frisky Dingo/i;
+	$filename =~ s/Fugget.About.It./Fugget About It /ig;
+	$filename =~ s/^Www Howtobehave Tv/www.HowToBehave.tv/i;
+	$filename =~ s/Aaf-jbhav/Jon Benjamin Has A Van/i;
+	$filename =~ s/^Itchy & Scratchy[\s-]/Simpsons - clip - Itchy & Scratchy - /i;
+	$filename =~ s/^Aaf-tipdotm/The Increasingly Poor Decisions Of Todd Margaret/i;
+	$filename =~ s/^aaf-kvs/Kenny Vs. Spenny/i;
+	$filename =~ s/^KOTH/King Of The Hill/i;
+	$filename =~ s/^Aaf-latot/The Life And Times Of Tim/i;
+	$filename =~ s/Mary Shellys/Mary Shelly's/i;
+	$filename =~ s/^aaf-metalocalypse/Metalocalypse/i;
 	$filename =~ s/MLP *- *EG *-* */My Little Pony- Equestria Girls - /ig;
 	$filename =~ s/MLP /My Little Pony- Friendship Is Magic /ig;
 	$filename =~ s/MLP[\-\s]?FiM /My Little Pony- Friendship Is Magic /ig;
 	$filename =~ s/MLP[\-\s]?EG /My Little Pony- Equestria Girls /ig;
+	$filename =~ s/^Mr Show/Mr. Show/i;
+	$filename =~ s/^Mr Bungle/Mr. Bungle/i;
+	$filename =~ s/^MITM/Malcolm In The Middle/i;
+	$filename =~ s/^Aaf-onn/Onion News Network/i;
+	$filename =~ s/^O Grady/O'Grady/i;
 	$filename =~ s/ntsd.sd.suv/National Terrorism Strike Force- San Diego- Sport Utility Vehicle/i;
+    $filename =~ s/^ppg[_\s]/PowerPuff Girls - /i;
+	$filename =~ s/ProducingParker/Producing Parker/i;
+	$filename =~ s/the ren [and &]+ stimpy show/Ren & Stimpy/i;
+	$filename =~ s/Rick & Morty/Rick And Morty/ig;
+	$filename =~ s/ren and stimpy/Ren & Stimpy/i;
 	$filename =~ s/^Superjail! /Superjail/i;
-	$filename =~ s/Mary Shellys/Mary Shelly's/i;
 	$filename =~ s/^Superjail-/Superjail /i;
+	$filename =~ s/^Talking Dead/The Talking Dead/ig;
+	$filename =~ s/Teenage Mutant Ninja Turtles \(2012\)/Teenage Mutant Ninja Turtles-TAS (2010s)/ig;
+	$filename =~ s/TMNT/Teenage Mutant Ninja Turtles/g;
+	$filename =~ s/Todd & The Book Of Pure Evil/Todd And The Book Of Pure Evil/ig;
 	$filename =~ s/Tim And Eric Awesome Show Great Job/Tim And Eric Awesome Show, Great Job!/;
 	$filename =~ s/The Dragon That Wasn't \(Or Was He.\)/The Dragon That Wasn't (Or Was He?)/ig;
-	$filename =~ s/The Avengers Earths Mightiest Heroes/The Avengers- Earth's Mightiest Heroes/;
-	$filename =~ s/Children's Hospital Us/Childrens Hospital/i;
-	$filename =~ s/Children's Hospital/Childrens Hospital/i;
-	$filename =~ s/ProducingParker/Producing Parker/i;
-	$filename =~ s/^Bobs Burgers /Bob's Burgers /i;
-	$filename =~ s/^MTV - Celebrity Deathmatch/Celebrity Deathmatch/i;
-	$filename =~ s/^Archer (2009) /Archer /i;
-	$filename =~ s/^Dr\.? Who (2005) /Doctor Who (2000s) /i;
-	$filename =~ s/^Doctor Who (2005) /Doctor Who (2000s) /i;
 	$filename =~ s/^TMBGPodcast/They Might Be Giants - podcast - #/i;
 	$filename =~ s/^E7-office/The Office/i;	
-	$filename =~ s/Cow And Chicken/Cow & Chicken/ig;
-	$filename =~ s/^Aaf-tipdotm/The Increasingly Poor Decisions Of Todd Margaret/i;
-	$filename =~ s/Aaf-jbhav/Jon Benjamin Has A Van/i;
-	$filename =~ s/^Aaf-onn/Onion News Network/i;
-	$filename =~ s/^Aaf-latot/The Life And Times Of Tim/i;
-	$filename =~ s/^Aaf-wta/Warren The Ape/i;
 	$filename =~ s/^Aaf-tusotu/Tracey Ullman's State Of The Union/i;
 	$filename =~ s/^Aaf-tssp/The Sarah Silverman Program/i;
-	$filename =~ s/^Aaf-fgsii/Fat Guy Stuck In Internet/i;
-	$filename =~ s/^aaf-kvs/Kenny Vs. Spenny/i;
-	$filename =~ s/^aaf-fd/Frisky Dingo/i;
-	$filename =~ s/^aaf-metalocalypse/Metalocalypse/i;
-	$filename =~ s/^aaf-am/Assy McGee/i;
 	$filename =~ s/^aaf-sb/Squidbillies/i;
 	$filename =~ s/^aaf-sp/South Park/i;
-	$filename =~ s/^aaf-athf/Aqua Teen Hunger Force/i;
-	$filename =~ s/^aaf-taeas/Tim And Eric Awesome Show, Great Job!/i;
-	$filename =~ s/^aaf-bd/The Boondocks/i;
-	$filename =~ s/^aaf-tb/The Boondocks/i;
-	$filename =~ s/^The Three Stooges -/Three Stooges -/i;
 	$filename =~ s/^The Simpsons -/Simpsons -/i;
-	$filename =~ s/^AbFab -/Absolutely Fabulous -/i;
-	$filename =~ s/^Bobobo-bo Bo-bobo - /BoBoBo - /i;
-	$filename =~ s/^12 Oz Mouse/12 Oz. Mouse/i;
-	$filename =~ s/^Mr Show/Mr. Show/i;
-	$filename =~ s/^ATHF/Aqua Teen Hunger Force/i;
-	$filename =~ s/^MITM/Malcolm In The Middle/i;
-	$filename =~ s/^KOTH/King Of The Hill/i;
+	$filename =~ s/^aaf-taeas/Tim And Eric Awesome Show, Great Job!/i;
 	$filename =~ s/The Venture Brothers/The Venture Bros./i;
-    $filename =~ s/beavis &butt\-?head/Beavis & Butt-head/i;
-    $filename =~ s/beavis and butt\-?head/Beavis & Butt-head/i;
-    $filename =~ s/^ppg[_\s]/PowerPuff Girls - /i;
-	$filename =~ s/ren and stimpy/Ren & Stimpy/i;
-	$filename =~ s/^O Grady/O'Grady/i;
+	$filename =~ s/^Aaf-wta/Warren The Ape/i;
 	#" -- " to ", " for multiple episode titles per airing -- i.e. Grim & Evil, Garfield & Friends, Eek!Stravaganza, etc
-	$filename =~ s/^(Angry Beavers.*) -- (.*)$/$1, $2/;
-	$filename =~ s/the ren [and &]+ stimpy show/Ren & Stimpy/i;
-	$filename =~ s/^Mr Bungle/Mr. Bungle/i;
-	$filename =~ s/Batman Tas /Batman-TAS (1990s) /i;
-	$filename =~ s/Batman The Brave And The Bold/Batman- The Brave And The Bold/i;
-	$filename =~ s/^American Dad! /American Dad /i;
-	$filename =~ s/^Itchy & Scratchy[\s-]/Simpsons - clip - Itchy & Scratchy - /i;
-	$filename =~ s/^Www Howtobehave Tv/www.HowToBehave.tv/i;
-	$filename =~ s/^Fake Trailer /fake trailer  /;
 
 	### segment/act numbers
     $filename =~ s/ - Segment ([0-9]+) / - segment $1 /;

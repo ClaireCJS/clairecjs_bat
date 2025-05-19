@@ -1,5 +1,6 @@
 @on break cancel
 @Echo OFF
+@loadBTM on
 
 
 
@@ -16,7 +17,7 @@
 :DEPENDENCIES: set-latestfilename.bat (to determine latest/youngest file), delete-largest-file.bat (to delete full-album after splitting into chapters), set-task (but only to set the TASK and window title)
 
 REM CONFIG:
-        set IMAGE_VIEW_PROCESS_NAME=i_view32            %+ rem process name for when we use taskend to kill the image we preview
+        if not defined IMAGE_VIEW_PROCESS_NAME set IMAGE_VIEW_PROCESS_NAME=i_view32            %+ rem process name for when we use taskend to kill the image we preview
 
 
 REM DEBUGGY stuff
@@ -238,6 +239,7 @@ REM                 \-- it may need resized  in order to become square (720x720 
             call askyn %Q1% yes 0 %+ if %do_it eq 1 (set image_was_changed=1 %+ call expand-image-to-square      "%image%" %+ goto :done_with_questions)
             call askyn %Q2% yes 0 %+ if %do_it eq 1 (set image_was_changed=1 %+ call crop-center-square-of-image "%image%" %+ goto :done_with_questions)
             call askyn %Q3% no  0 %+ if %do_it eq 1 (set image_was_changed=1 %+ call make-image-square           "%image%" %+ goto :done_with_questions)
+
             :done_with_questions
 
             :embed_again
@@ -248,13 +250,15 @@ REM                 \-- it may need resized  in order to become square (720x720 
                 if %DO_IT eq 0 (call warning "Returning to command line..." %+ call advice "Run "%0 img” to return to this point" %+ call cancelll)
                 set DONT_DELETE_ART_AFTER_EMBEDDING=1
 
-                call important "%EMOJI_INPUT_NUMBERS%Embedding..."
+                call important "%EMOJI_INPUT_NUMBERS%Embedding new art into audio..."
                 for %song in (%filemask_audio%) (
                     call randfg
                     echos .
                     call add-art-to-song "%IMAGE%" "%song%" 
                 )
 
+                pause "Press any key to close the image viewer"                                                                        
+                taskend /f %IMAGE_VIEW_PROCESS_NAME%
             )
 
         :done_fixing_image
@@ -267,7 +271,6 @@ REM Tag and move the files with our assistant python script:
         :Redo_fuf
         echo. %+ echo. %+ echo. 
         call important "%EMOJI_HAMMER% About to run %italics_on%fix-unicode-filenames%italics_off% %faint_on%(to cleanse files of any unicode/bad characters)%faint_off%..."
-        taskend /f %IMAGE_VIEW_PROCESS_NAME%
         call fix-unicode-filenames auto  %+ call errorlevel "uh oh spaghettios!!!!!!" %+ echo. %+ REM /     so we used the "auto" parameter instead
         if %REDO eq 1 goto :Redo_fuf
         set AUTOMATIC_UNICODE_CLEANING=0 %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. 

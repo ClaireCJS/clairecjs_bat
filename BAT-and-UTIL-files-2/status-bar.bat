@@ -315,7 +315,9 @@ goto :skip_subroutines
                         set last_divider_newline=True
                         rem we COULD do the newline character, but it’s easier to just do a few spaces so that we end up on the new line anyway:
                         rem echos %NEWLINE%%@ANSI_MOVE_TO_COL[1] 
-                        echos     %@ANSI_MOVE_TO_COL[1] 
+                        
+                        rem 2025/05/19 echos     %@ANSI_MOVE_TO_COL[1] 
+                        echo.
                 endiff
                 rem echo last_divider_newline=%last_divider_newline% should we do one?
         return

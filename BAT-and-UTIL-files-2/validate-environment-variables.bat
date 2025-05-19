@@ -10,5 +10,6 @@ REM new, relies on the VALIDATE_MULTIPLE flag to do the loop internally in valid
         set  PBATCH2=%_PBATCHNAME
         set  VALIDATE_MULTIPLE=1
         call validate-environment-variable %*
+        if defined ANSI_CURSOR_VISIBLE echos %ANSI_CURSOR_VISIBLE%
         set  VALIDATE_MULTIPLE=0
         unset /q PBATCH2

@@ -71,7 +71,7 @@ rem Perform the actual conversion:
                         echo %ansi_color_warning%%emoji_warning Zero-byte file generated! %emoji_warning%%ansi_reset% 
                         echo %ansi_color_less_important%%star% Reviewing the source LRC...%ansi_reset% 
                         call review-file "%LRC_FILE%"
-                        call AskYN "Delete the LRC file" no 90
+                        call AskYN "Delete our LRC file" no 90
                         if "Y" == "%ANSWER" (*del /Ns /q "%LRC_FILE%" >nul)
                         call AskYN "Mark corresponding audio as lyric%underline_on%less%underline_off%? [%ansi_color_bright_green%I%ansi_color_prompt%=instrumental]" yes 15 I I:mark_as_instrumental_instead
                                 set lrc2txtmark_answer=%answer%

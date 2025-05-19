@@ -12,11 +12,14 @@ rem Fix environment:
 
 rem Validate environment (once):
         rem if "%ANSI_CURSOR_CHANGE_COLOR_WORD[]" == "" function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`
-        iff "1" != "%validated_rn_4%" then
+        iff "5" != "%validated_rn%" then
+                rem pause "goat debug about to val function"
                 call validate-is-function ANSI_CURSOR_CHANGE_COLOR_WORD
-                call validate-environment-variables party_popper cake COLOR_WARNING COLOR_NORMAL color_success color_subtle ansi_color_normal blink_on blink_off ansi_color_fatal_error italics_on italics_off COLOR_RUN FAINT_ON FAINT_OFF CURSOR_RESET star star2 lq rq ansi_color_success star3 ANSI_COLOR_WARNING_SOFT emoji_warning ansi_color_bright_green ansi_color_green ansi_color_bright_red
+                rem pause "goat debug about to val env vars"
+                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET 
+                rem pause "goat debug about to val path"
                 call validate-in-path ansi-on ansi-off warning fatal_error set-cursor print-if-debug print-message eset-alias
-                set  validated_rn_4=1
+                set  validated_rn=5
         endiff
 
 rem Get/react to instrumental arguments:
@@ -229,7 +232,7 @@ rem     ━━━━━━━━━━━━━━━━━━━━━━━━
         :Rename_Sidecars_2022_OLD
             set BASENAME_OLD=%~n1
             set BASENAME_NEW=%@UNQUOTE[%@NAME["%FILENAME_NEW%"]]
-            rem goat pushd basedir
+            rem  pushd basedir
             for %%F in ("%~dp1%BASENAME_OLD%.*") do (
                 if "%%~nxF" neq "%FILENAME_OLD%" (
                     set FILENAME_SIDECAR_OLD=%%~nxF
