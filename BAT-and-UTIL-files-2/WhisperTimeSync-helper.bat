@@ -60,23 +60,25 @@ rem VALIDATE PARAMETERS:
         endiff
 
 rem Extra prep of lyrics:
-        call warning "Get the lyrics %italics_on%perfect%italics_off%" big
-        call AskYN   "Listen to the audio file while editing lyrics"   no  0
-        %EDITOR% "%LYR%"
-        iff "Y" == "%ANSWER%" then
-               call preview-audio-file.bat "%AFL%"
+        iff "1" != "%WHISPERTIMESYNC_QUICK%" then
+                call warning "Get the lyrics %italics_on%perfect%italics_off%" big
+                call AskYN   "Listen to the audio file while editing lyrics"   no  0
+                %EDITOR% "%LYR%"
+                iff "Y" == "%ANSWER%" then
+                       call preview-audio-file.bat "%AFL%"
+                endiff
+                pause "Press any key after fixing up the lyrics"
         endiff
-        pause "Press any key after fixing up the lyrics"
 
 rem Ask if we want to copy these lyrics back over our official file...
-        iff exist "%AFL%" then
-        call important_less "Do you want these lyric edits to be saved over the original lyric file" %+ rem  [[not!!]] at %faint_on%%italics_on%%lyr%%italics_off%%faint_off%
-        call AskYN          "Copy lyric edits over original lyrics" no 0
-        iff "Y" == "%ANSWER%" then
-                set      COMMAND=copy "%LYR%" "%@NAME["%AFL%"].txt"
-                rem echo COMMAND is %COMMAND% %+ pause
-                %color_removal%
-                %COMMAND%
+        iff exist "%AFL%" .and. "1" != "%WHISPERTIMESYNC_QUICK%" then
+                call important_less "Do you want these lyric edits to be saved over the original lyric file" %+ rem  [[not!!]] at %faint_on%%italics_on%%lyr%%italics_off%%faint_off%
+                call AskYN          "Copy lyric edits over original lyrics" no 0
+                iff "Y" == "%ANSWER%" then
+                        set      COMMAND=copy "%LYR%" "%@NAME["%AFL%"].txt"
+                        rem echo COMMAND is %COMMAND% %+ pause
+                        %color_removal%
+                        %COMMAND%
         endiff
 
 rem Run WhisperTimeSync:
@@ -95,7 +97,7 @@ rem Did it work?
         iff exist "%SRT_NEW%" then
                 call success "%italics_on%WhisperTimeSync%italics_off% successful"
         else
-                call validate-environment-variable SRT_NEW "WhisperTimeSync did not produce expected output file of %lq%%SRT_NEW%%rq%"
+                if not exist "%SRT_NEW%" call validate-environment-variable SRT_NEW "WhisperTimeSync did not produce expected output file of %lq%%SRT_NEW%%rq%"
         endiff
 
 
@@ -105,11 +107,11 @@ rem WhisperTimeSync is horribly buggy so we fix some of that——particularly t
 
 rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
-        call warning      "Quick review of subtitles"     big
-        call warning_soft "%italics_on%WhisperTimeSync%italics_off% often gets the very beginning wrong" silent
-        call warning_soft "1) take special care that the very beginning / first words fall within a subtitle"  silent
-        call warning_soft "2) there shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)" silent
-        call warning_soft "3) If the last timestamp of the new subtitles, which is:" silent
+        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% Quick review of subtitles:%ansi_color_normal%
+        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% italics_on%WhisperTimeSync%italics_off% often gets the very beginning wrong%ansi_color_normal%
+        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% ❶ take special care that the very beginning / first words fall within a subtitle"  silent
+        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% ❷ there shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)" silent
+        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% ❸ If the last timestamp of the new subtitles, which is:" silent
 
         @echo off
         call set-tmp-file subtitle-final-timestamp-grep-results 

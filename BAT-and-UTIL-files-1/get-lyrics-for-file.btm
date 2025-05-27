@@ -238,7 +238,7 @@ rem Remove any trash environment variables left over from a previously-aborted r
         rem Leave this one for when we are calling get-lyrics from create-karaoke: unset /q LYRIC_STATUS
         rem Leave this one for when we are calling get-lyrics from create-karaoke: unset /q LYRICLESSNESS_STATUS
         set goto_END=0
-        set TMPREVIEWFILE=%temp%\review-file.%_datetime.%_PID.txt               %+ rem Temp file we sometimes use to hold files-to-review to be reviewed in
+        set TMPREVIEWFILE=%temp%\lyric-review-file.%_datetime.%@RANDOM[1,99999].%_PID.txt               %+ rem Temp file we sometimes use to hold files-to-review to be reviewed in
 
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

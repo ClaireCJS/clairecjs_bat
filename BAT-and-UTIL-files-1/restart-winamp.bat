@@ -4,9 +4,9 @@
 
 
 rem Validate environment (once):
-        iff 1 ne %validated_restart_winamp% then
+        iff "1" != "%validated_restart_winamp%" then
                 call validate-in-path set-winamp-constants fix-minilyrics-window-size-and-position.bat save-window-positions important change-command-separator-character-to-normal winamp-close-gracefully wait stop-minilyrics     killIfRunning winamp-play next randomize lastfm-start isrunning winamp nocar warning warning_soft appdata sleep
-                set validated_restart_winamp=1
+                set  validated_restart_winamp=1
         endiff
 
 
@@ -20,7 +20,7 @@ rem CONFIGURATION:
     :was 2 for many years, setting to 1 for Thailog:
     SET SLEEP_TIME_AFTER_RESTARTING_WINAMP_BEFORE_CHECKING_THAT_IT_RESTARTED=1
 
-    call set-winamp-constants
+    if not defined REGEX_TASKLIST_WINAMP .or. not defined REGEX_TASKLIST_LASTFM call set-winamp-constants
         :SET REGEX_TASKLIST_WINAMP=Winamp
         :SET REGEX_KILLPROC_WINAMP=winamp*
         :SET REGEX_TASKLIST_LASTFM=Last.fm
@@ -30,17 +30,20 @@ rem CONFIGURATION:
 
 
 rem CLOSE WINAMP:
+    if "%1" == "fast" .or. "%1" == "Quick" goto :quick_1        
     echo.
     echo.
         REM call save-window-positions 
             call save-window-positions WinampLast
+    :quick_1
+
 
 
     echo.
     echo.
     call important "Closing Winamp %italics_on%gracefully%italics_off%"
-        call change-command-separator-character-to-normal
-        call winamp-close-gracefully
+        if "%COMMAND_SEPARATOR%" != "DEFAULT_COMMAND_SEPARATOR_DESCRIPTION%" call change-command-separator-character-to-normal
+        call winamp-close-girder
         call wait 3
 
 

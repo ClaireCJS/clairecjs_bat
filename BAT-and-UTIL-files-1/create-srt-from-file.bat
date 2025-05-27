@@ -1320,6 +1320,10 @@ REM Updated Concurrency Check: wait on lock file
         if "666" == "%_" (delay /m %@RANDOM[3000,8000] %+ goto /i lockfile_again)
 
 
+
+
+
+
 REM Original Concurrency Check: Check if the encoder is already running in the process list. Don’t run more than 1 at once.
         rem slower call isRunning %TRANSCRIBER_PRNAME% silent
         rem slower if "%isRunning" != "1" (goto /i no_concurrency_issues)
@@ -1354,8 +1358,8 @@ REM Original Concurrency Check: Check if the encoder is already running in the p
                                 title $0
 
                         rem Check to see if we waited long enough for the other transcriber instance to no longer be running:
-                                if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
                                 if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again
+                                if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
 
                         rem When finally done, echo a green “...”:
                                 @echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
@@ -1425,10 +1429,23 @@ rem A 3rd concurrency check became necessary in my endeavors:
         if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
 
 
-
 rem Cosmetics:
         if defined CURSOR_RESET echos %CURSOR_RESET%
         echos %ANSI_CURSOR_CHANGE_TO_vertical_bar_steady%   
+
+
+REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨ 
+        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
+        delay /m %@RANDOM[1000,10000]
+        gosub lockfile_create_transcriber_lock_file 
+        if "%_" == "666" goto /i concurrency_checks
+        if  "1" == "%LOCKFILE_ALREADY_EXISTS%" goto /i concurrency_checks
+
+
+rem 4ᵗʰ concurrency is a new level of preposterousness in this maddening concurrency situation:
+rem echo f "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again  [4ᵗʰ concurrency check] 🐐
+        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
+
 
 
 REM  ✨ ✨ ✨ ✨ ✨ ✨ ACTUALLY DO THE AI-TRANSCRIPTION: ✨ ✨ ✨ ✨ ✨ ✨ 
@@ -1445,20 +1462,6 @@ REM  ✨ ✨ ✨ ✨ ✨ ✨ ACTUALLY DO THE AI-TRANSCRIPTION: ✨ ✨ ✨ ✨ �
                         echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[magenta]%ANSI_CURSOR_CHANGE_TO_vertical_bar_BLINKING%   
                         title waiting: %BASE_TITLE_TEXT%
                         :launching_ai_already_displayed
-
-REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨ 
-        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
-        delay /m %@RANDOM[1000,10000]
-        gosub lockfile_create_transcriber_lock_file 
-        if "%_" == "666" goto /i concurrency_checks
-        if  "1" == "%LOCKFILE_ALREADY_EXISTS%" goto /i concurrency_checks
-
-
-rem 4ᵗʰ concurrency is a new level of preposterousness in this maddening concurrency situation:
-rem echo f "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again  [4ᵗʰ concurrency check] 🐐
-        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
-
-
 
 rem Prepare to actually do it!
                 echo. %+ rem this is the blank line after “launching ai”

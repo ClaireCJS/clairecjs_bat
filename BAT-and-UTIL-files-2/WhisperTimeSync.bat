@@ -2,7 +2,12 @@
 @loadbtm on
 @set whisper_alignment_happened=0
 
-if "%1" == "jump" goto :jump_point
+if  "%1" == "jump" goto :jump_point
+iff "%1" == "fast" .or. "%1" == "quick" then
+        set WHISPERTIMESYNC_QUICK=1
+else
+        set WHISPERTIMESYNC_QUICK=0
+endiff
 
 rem Install WhisperTimeSync with:  git clone https://github.com/EtienneAb3d/WhisperTimeSync.git
 rem Set JAVA_WHISPERTIMESYNC=      to the path of the java.exe you wish to use. Or just set it to "java"
@@ -58,9 +63,9 @@ rem VALIDATE PARAMETERS:
 rem Make sure we’re dealing with *processed* lyrics for WhisperTimeSync:
 
         rem Set post-processed filename:
-                call set-tmp-file "postprocessed_lyrics"
-                set lyr_processed=%tmpfile%.txt
-                set lyr_processed_rendered_plus_bot_stripe=%tmpfile2%.txt
+                call set-tmp-file "WhisperTimeSync"
+                set lyr_processed=%tmpfile%-postprocessed-lyrics.txt
+                set lyr_processed_rendered_plus_bot_stripe=%tmpfile2%-lyr-plus-str.txt
 
         rem Run current iteration of lyrics through post-processor and make sure it was successful:
                 set LYRICS_TO_POSTPROCESS=%lyr_raw%
@@ -116,22 +121,23 @@ rem            10    New Subtitles stripe
 
 
 goto :new_way_212
-
+        set SRT_OLD=%SRT%
 
 rem Preview the lyrics vs OLD srt with stripes next to each other:
-        call review-file       -wh -st  --output_file "lyr_processed_rendered_plus_bot_stripe" %+ type "%lyr_processed_rendered_plus_bot_stripe%"             %+ rem 1 & 2
-        call review-file       -wh -stU "%srt%"                       %+ rem 3 & 4
-        call divider
-        call print-with-columns    -st  "%srt%"                       %+ rem 5
+        call review-file        -wh -st  "%lyr_raw%" --output_file "%lyr_processed_rendered_plus_bot_stripe%" %+ type "%lyr_processed_rendered_plus_bot_stripe%"             %+ rem 1 & 2
+rem     call review-file        -wh -stU "%srt_old%"                   %+ rem 3 & 4
+rem     call divider
+        call review-file        -wh -stB "%srt_old%" "old subs"        %+ rem 3 & 4
 
-rem Preview the NEW srt with stripes next to each other:
-        call review-file       -wh -stU "%srt_new%"                   %+ rem 6 & 7
+rem Preview the NEW srt just past the old srt, with stripes next to each other:
+rem     call print-with-columns -wh -st  "%srt_old%"                   %+ rem 5
+        call review-file        -wh -stU "%srt_new%" "new subs"        %+ rem 6 & 7
+        call divider
 
 rem Compare stripes of old srt and new srt:
-        call divider
         type "%lyr_processed_rendered_plus_bot_stripe%"               %+ rem call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
-        call print-with-columns    -st  "%srt%"                       %+ rem 8
-        call print-with-columns    -st  "%srt_new%"                   %+ rem 10
+        call print-with-columns -wh -st  "%srt_old%"                  %+ rem 8
+        call print-with-columns -wh -st  "%srt_new%"                  %+ rem 10
         type "%lyr_processed_rendered_plus_bot_stripe%"               %+ rem call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
         echo %faint_on%(lyrics, original subtitle, new subtitle, lyrics again)%faint_off%
         call divider

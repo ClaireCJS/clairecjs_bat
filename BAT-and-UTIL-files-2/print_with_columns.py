@@ -1,10 +1,11 @@
 
-#TODO ask chatgpt why words like orange-colored aren’t being highlighted at alllllllllllllll, i stillw ant to do up to the first hyphen
 
 
-#TODO: bg color is same as fg bug-ish??
-#TODO: deal with situation of lines that are sooo long that we'd really have to wrap them to fit? or is this fine?
-#TODO: maybe make each column a slightly different color
+#TODO: bg color is same as fg color... is that a bug? how would i fix that?
+
+#TODO: deal with situation of lines that are too long. there should not be a ’stripe too long’ error
+
+#TODO: maybe make every other column have a slight background grey hue
 
 ##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 ##### INIT LIBRARIES:
@@ -684,7 +685,7 @@ def normalize_for_highlight(word):
     #f word == "alongside"                  : word == "along side"                   # different ways to express the same word should be drawn  the same color
     if word == "alongside"                  : word == "along"                        # make “along side” same color as “alongside” by treating both as simply “along”
     word = word.replace("’ve", "").replace("'ve", "").replace("´ve", "")             # makes word-variants like “should’ve”  and  “should have” the same color
-    word = word.replace("’s" , "").replace("'s" , "").replace("´s" , "")             # makes word-variants like  “there’s”   and    “there is”  the same color
+    word = word.replace("’s" ,"s").replace("'s" ,"s").replace("´s" ,"s")             # makes word-variants like  “there’s”   and    “there is”  the same color
     word = word.replace("’"  , "").replace("'"  , "").replace("´"  , "")             # variations in which apostrophe we use should all be made the same color
     if word.endswith("ing"): word = word[:-3] + "in"                                 # makes word-variants like “coping” vs “copin’” vs “copin” the same color
 
@@ -701,7 +702,7 @@ def normalize_for_highlight(word):
 words_used=""
 striped_text = []
 def consistent_word_highlight(text):
-    global words_used, striped_text
+    global words_used, striped_text, WORD_HIGHLIGHT_LEN_MIN
     """
     Highlight words in the text that are longer than WORD_HIGHLIGHT_LEN_MIN.
     """
@@ -730,7 +731,8 @@ def consistent_word_highlight(text):
 
 
 
-            if len(normalized_word) >= WORD_HIGHLIGHT_LEN_MIN:                          # Word is long enough for highlighting
+            #f len(normalized_word) >= WORD_HIGHLIGHT_LEN_MIN:                          # Word is long enough for highlighting
+            if len(           word) >= WORD_HIGHLIGHT_LEN_MIN:                          # Word is long enough for highlighting
 
                 if not in_highlight:                                                    # Start highlighting
                     #normalized_word = normalize_for_highlight(word)                    #moved above so we can check length AFTER normalizatoin process
@@ -799,8 +801,10 @@ def convert_stretched_stripe(stripe, columns, console_width):
 
     total_chars = max_letters * num_words
     total_padding = console_width - total_chars
-    base_pad = total_padding // num_words
-    extra_pad = total_padding % num_words
+    if num_words:   base_pad = total_padding // num_words
+    else:           base_pad = total_padding
+    if num_words:  extra_pad = total_padding  % num_words
+    else:          extra_pad = total_padding
 
     for i in range(0, len(stripe), 2):
         ansi_raw = stripe[i]
@@ -960,7 +964,7 @@ def convert_stripe(stripe, columns):
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
 def main():
-    global INTERNAL_LOG, VERBOSE, WRAPPING, STRIPE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, console_width, console_height, columns, avg_line_width, record_working_column_length, ROW_PADDING, DEBUG_VERBOSE_COLUMNS
+    global INTERNAL_LOG, VERBOSE, WRAPPING, STRIPE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, console_width, console_height, columns, avg_line_width, record_working_column_length, ROW_PADDING, DEBUG_VERBOSE_COLUMNS, WORD_HIGHLIGHT_LEN_MIN
     our_args = parse_arguments()
     INTERNAL_LOG=""
     stripester=""
