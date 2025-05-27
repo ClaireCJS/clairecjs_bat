@@ -33,6 +33,11 @@ rem Grab parameters:
 rem Generate components of our temp filename:
 
         SET TMP_FILE_FILE=%_DATETIME.%KNOWN_NAME%.%[NATURE]%_PID.%@NAME[%@UNIQUEx[%TEMP%\]]
+        SET TMP_FILE_FILE1=%TMP_FILE_FILE%
+        SET TMP_FILE_FILE2=%_DATETIME.%KNOWN_NAME%.%[NATURE]%_PID.%@NAME[%@UNIQUEx[%TEMP%\]]
+        SET TMP_FILE_FILE3=%_DATETIME.%KNOWN_NAME%.%[NATURE]%_PID.%@NAME[%@UNIQUEx[%TEMP%\]]
+        SET TMP_FILE_FILE4=%_DATETIME.%KNOWN_NAME%.%[NATURE]%_PID.%@NAME[%@UNIQUEx[%TEMP%\]]
+        SET TMP_FILE_FILE5=%_DATETIME.%KNOWN_NAME%.%[NATURE]%_PID.%@NAME[%@UNIQUEx[%TEMP%\]]
                 SET TEMP_FILE_FILE=%TMP_FILE_FILE%
                 SET TMPFILE_FILE=%TMP_FILE_FILE%
                 SET TEMPFILE_FILE=%TMP_FILE_FILE%
@@ -76,12 +81,21 @@ rem Generate components of our temp filename:
 
        
 rem Set the actual, full tmpfile name:
-    SET TMP_FILE_FULL=%TMPFILE_DIR%\%TMPFILE_FILE%               
+     SET TMP_FILE_FULL=%TMPFILE_DIR%\%TMP_FILE_FILE1%               
+    SET TMP_FILE_FULL2=%TMPFILE_DIR%\%TMP_FILE_FILE2%               
+    SET TMP_FILE_FULL3=%TMPFILE_DIR%\%TMP_FILE_FILE3%               
+    SET TMP_FILE_FULL4=%TMPFILE_DIR%\%TMP_FILE_FILE4%               
+    SET TMP_FILE_FULL5=%TMPFILE_DIR%\%TMP_FILE_FILE5%               
             SET TMPFILE_FULL=%TMP_FILE_FULL%
             SET    TEMP_FILE=%TMP_FILE_FULL%
             SET     TEMPFILE=%TMP_FILE_FULL%
             SET     TMP_FILE=%TMP_FILE_FULL%
             SET      TMPFILE=%TMP_FILE_FULL%
+            SET     TMPFILE1=%TMP_FILE_FULL%
+            SET     TMPFILE2=%TMP_FILE_FULL2%
+            SET     TMPFILE3=%TMP_FILE_FULL3%
+            SET     TMPFILE4=%TMP_FILE_FULL4%
+            SET     TMPFILE5=%TMP_FILE_FULL5%
     
 rem BE VERY CAREFUL WITH DEBUG OUTPUT!! It can mess up stuff when this is buried deep within cosmetic/ansi-complicated stuff
     if 1 eq %DEBUG_TMPFILE (call debug "TMPFILE is '%TMPFILE%'")

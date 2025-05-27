@@ -128,14 +128,18 @@ rem —————————————————————————�
 
  rem ANSI: cursor visibility
         rem Cursor visibility:
-                set ANSI_CURSOR_HIDE=%ANSI_ESCAPE%?25l                          %+ rem hides the cursor
-                    set ANSI_HIDE_CURSOR=%ANSI_CURSOR_HIDE%                     %+ rem alias
-                    set ANSI_INVISIBLE_CURSOR=%ANSI_CURSOR_HIDE%                %+ rem alias
-                    set ANSI_CURSOR_INVISIBLE=%ANSI_CURSOR_HIDE%                %+ rem alias
-                set ANSI_CURSOR_SHOW=%ANSI_ESCAPE%?25h                          %+ rem shows the cursor
-                    set ANSI_SHOW_CURSOR=%ANSI_CURSOR_SHOW%                     %+ rem alias
-                    set ANSI_VISIBLE_CURSOR=%ANSI_CURSOR_SHOW%                  %+ rem alias
-                    set ANSI_CURSOR_VISIBLE=%ANSI_CURSOR_SHOW%                  %+ rem alias
+                set                            ANSI_CURSOR_HIDE=%ANSI_ESCAPE%?25l       %+ rem hides the cursor
+                    set      ANSI_HIDE_CURSOR=%ANSI_CURSOR_HIDE%                        %+ rem ^----alias
+                    set ANSI_INVISIBLE_CURSOR=%ANSI_CURSOR_HIDE%                        %+ rem ^----alias
+                    set ANSI_CURSOR_INVISIBLE=%ANSI_CURSOR_HIDE%                        %+ rem ^----alias
+                    set       ANSI_CURSOR_OFF=%ANSI_CURSOR_HIDE%                        %+ rem ^----alias
+                    set            CURSOR_OFF=%ANSI_CURSOR_HIDE%                        %+ rem ^----alias
+                set                            ANSI_CURSOR_SHOW=%ANSI_ESCAPE%?25h       %+ rem shows the cursor
+                    set      ANSI_SHOW_CURSOR=%ANSI_CURSOR_SHOW%                        %+ rem ^----alias
+                    set   ANSI_VISIBLE_CURSOR=%ANSI_CURSOR_SHOW%                        %+ rem ^----alias
+                    set   ANSI_CURSOR_VISIBLE=%ANSI_CURSOR_SHOW%                        %+ rem ^----alias
+                    set        ANSI_CURSOR_ON=%ANSI_CURSOR_SHOW%                        %+ rem ^----alias
+                    set             CURSOR_ON=%ANSI_CURSOR_SHOW%                        %+ rem ^----alias
 
         rem Cursor shape:
                 rem Possible allowable shapes:

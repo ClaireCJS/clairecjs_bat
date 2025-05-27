@@ -155,7 +155,9 @@ rem React to count accordingly?
                 echos %FAINT_OFF%
 
         rem Make sure we actually succeeded in our renaming:
-                if not exist %FILENAME_NEW (call fatal_error "%italics_on%FILENAME_NEW%italics_off% does not exist! %blink_off%'%filename_new%'%blink_off%")
+                iff not exist %FILENAME_NEW then
+                        call fatal_error "%italics_on%FILENAME_NEW%italics_off% does not exist! %blink_off%'%filename_new%'%blink_off%"
+                endiff
 
         rem Rename any existing sidecar/companion files
                 :Rename_Sidecars_2024

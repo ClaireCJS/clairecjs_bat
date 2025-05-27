@@ -21,6 +21,7 @@ rem Usage:
                 echo. SPECIAL: the “-stU” action causes the stripe to be an “upper stripe” before divider
                 echo. SPECIAL: the “-stL” action causes the stripe to be a  “lower stripe”  after  divider, which is the same as the “-st” option
                 echo. SPECIAL: the “-stB” action causes both stripes to be displayed
+                echo. SPECIAL: the “-o {filename}” causes output to be rendered to a filename instead
                 goto /i END
 endiff
 
@@ -28,21 +29,26 @@ rem Config:
         set our_filemask=*.srt;*.lrc
 
 rem First, process any arguments that start with “-”:
-        unset /q PWC_OPTIONS
+        unset /q PWC_OPTIONS TO_FILENAME
         set STRIPEL=0
         set STRIPEU=0
+        set TO_FILE=0                        
         :check_next_arg_for_pwd_opts
         set  left1=%@UNQUOTE[%@LEFT[2,"%1"]]
         iff "%left1%" == "-" then
-                iff "%1" == "-stB" .or. "%1" == "--stB" then
+                iff     "%1" == "-stB" .or. "%1" == "--stB" then
                         set STRIPEL=1
                         set STRIPEU=1
-                elseiff "%1" == "-st" .or. "%1" == "-stL" .or. "%1" == "--stL" .or. "%1" == "--stripe" then
+                elseiff "%1" == "-st"  .or. "%1" == "-stL" .or. "%1" == "--stL" .or. "%1" == "--stripe" then
                         set STRIPEU=0
                         set STRIPEL=1
                 elseiff "%1" == "-stU" .or. "%1" == "--stripeU" then
                         set STRIPEU=1
                         set STRIPEL=0
+                elseiff "%1" == "-o"   .or. "%1" == "--output_filename" .or. "%1" == "--output_file" .or. "%1" == "--output" then
+                        set TO_FILE=1
+                        shift
+                        set TO_FILENAME=%@UNQUOTE["%1"]
                 else
                         rem echo * Adding PWC_OPTION of “%1”
                         set PWC_OPTIONS=%PWC_OPTIONS% %1
@@ -51,6 +57,25 @@ rem First, process any arguments that start with “-”:
                 goto /i check_next_arg_for_pwd_opts
         endiff           
         rem echo %%1 is %1 , 2=%2, 3=%3, 4=%4 %+ pause
+        rem pause "TO_FILE==“%TO_FILE%”,TO_FILENAME==“%TO_FILENAME%”"
+
+
+rem Deal with “-o”/“--output_filename” parameter
+        unset /q POTENTIAL_REDIRECTION
+        iff "1" == "%to_file%" .and. "" != "%to_filename%" then
+
+                rem Kill the to_filename if it exists:
+                        if exist "%to_filename%" *del /Ns /Q "%to_filename%" >>&nul
+
+                rem Create the redirector string:
+                        set POTENTIAL_REDIRECTION=`>>`:u8"%@UNQUOTE["%TO_FILENAME%"]"
+
+                rem Debug: setdos /x-6 %+  pause "POTENTIAL_REDIRECTION==“%POTENTIAL_REDIRECTION%”" %+ setdos /x0
+        endiff
+
+
+        rem pause "%1=“%1”,%*=“%*”"
+
 
 
 rem Only review a single file, if [what is hopefully] a filename is provided:
@@ -62,7 +87,6 @@ rem Only review a single file, if [what is hopefully] a filename is provided:
                 rem echo Tracking 1>nul
                 gosub check_for_filemask
         endiff              
-        echo Checkpoint alpha ----------━━━━━━━━━━━━━━━━━━━━━━━━━━━>nul
         iff "%@UNQUOTE[%2]" != "" then
                 iff not exist "%@unquote[%2]" then 
                         set our_filemask=%1
@@ -75,6 +99,7 @@ rem Only review a single file, if [what is hopefully] a filename is provided:
                 endiff
         endiff                
         setdos /x0
+        rem pause "Checkpoint alpha ----------━━━━━━━━━━━━━━━━━━━━━━━━━━━ our_filemask is “%our_filemask%”"
 
               goto :skip_check_for_filemask
                         :check_for_filemask 
@@ -107,16 +132,16 @@ rem Go through each one and review it:
         rem for less: set LESSCHARSET=utf-8
         rem for less: set columns=%_columns
 
-        if defined tmp_file_1 goto :defined_1        
+        rem bad for concurrency: if defined review_file_tmp_file_1 goto :defined_1        
         call set-tmp-file
-        set tmp_file_1=%tmpfile%
-        rem gosub debug "tmp_file_1==“%tmp_file_1%”"
+        set review_file_tmp_file_1=%tmpfile%
+        rem gosub debug "review_file_tmp_file_1==“%review_file_tmp_file_1%”"
         :defined_1
 
-        if defined tmp_file_2 goto :defined_2
+        rem bad for concurrency: if defined review_file_tmp_file_2 goto :defined_2
         call set-tmp-file
-        set tmp_file_2=%tmpfile%
-        rem gosub debug "tmp_file_2==“%tmp_file_2%”"
+        set review_file_tmp_file_2=%tmpfile%
+        rem gosub debug "review_file_tmp_file_2==“%review_file_tmp_file_2%”"
         :defined_2
 
         for %%File_To_Check  in (%our_filemask%) do if not exist "%File_To_Check%" (call fatal_error "File to review of %left_quote%%italics_on%%File_To_Check%%italics_on%%right_quote% does not exist")               
@@ -179,30 +204,34 @@ rem Go through each one and review it:
                 setdos /x0
                 rem (type "%@UNQUOTE[%tmpfile%]" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" )  |:u8 print-with-columns 
                 *setdos /x-5
-                type "%@unquote[%tmpfile%]" >:u8"%tmp_file_1%"
+                type "%@unquote[%tmpfile%]" >:u8"%review_file_tmp_file_1%"
                 setdos /x0
                 rem echo %ansi_color_debug%- DEBUG: %left_quote%%%ext%%%right_quote% is %left_quote%%ext%%right_quote% %warning%CP2309234%warning%
-                if "%ext%" == "srt" (
-                         grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%tmp_file_1%" >:u8"%tmp_file_2%"
-                         grep -vE "^#" "%tmp_file_2%" >:u8"%tmp_file_1%"
-                        *copy /z /q "%tmp_file_1%" "%tmp_file_2%"
-                ) else (
-                         (echo raw|(*copy /q /r "%tmp_file_1%" "%tmp_file_2%" >&nul))
-                )
-                echos %ansi_reset%
-                if "1" == "%STRIPEU%" (type %tmp_file_2 |:u8 call print-with-columns -st)
-                gosub "%bat%\get-lyrics-for-file.btm" divider
-                call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"
-                rem call print-with-columns <%tmp_file_2 
-                                rem type %tmp_file_2 |:u8 call print-with-columns %PWC_OPTIONS%
-                                                          call print-with-columns %PWC_OPTIONS% %tmp_file_2 
-                iff "1" == "%STRIPEL%" then
-                        gosub "%bat%\get-lyrics-for-file.btm" divider
-                        iff exist %tmp_file_2% then
-                                rem type %tmp_file_2% |:u8 call print-with-columns -st
-                                                           call print-with-columns -st %tmp_file_2% 
-                        endiff
+                iff "%ext%" == "srt" then
+                         grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%review_file_tmp_file_1%" >:u8"%review_file_tmp_file_2%"
+                         grep -vE "^#\s"                                                                             "%review_file_tmp_file_2%" >:u8"%review_file_tmp_file_1%"
+                        *copy /z /q "%review_file_tmp_file_1%" "%review_file_tmp_file_2%"
+                else
+                         (echo raw|(*copy /q /r "%review_file_tmp_file_1%" "%review_file_tmp_file_2%" >&nul))
                 endiff
+                echos %ansi_reset%
+
+
+
+                rem Optional upper stripe + mandatory divider:
+                        rem setdos /x-6 %+ echo if "1" == "%STRIPEU%"                     call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION% %+ setdos /x0
+                        if "1" == "%STRIPEU%"                     call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
+                        gosub "%bat%\get-lyrics-for-file.btm"     divider
+
+                rem Display filename with header:
+                                call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"                                       %POTENTIAL_REDIRECTION%
+                                if exist %review_file_tmp_file_2% call print-with-columns -cw %_columns %PWC_OPTIONS%     %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
+
+                rem Optional lower stripe gets a divider only if it exists:
+                        iff "1" == "%STRIPEL%" then
+                                gosub "%bat%\get-lyrics-for-file.btm" divider
+                                if exist %review_file_tmp_file_2% call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
+                        endiff
         return
         :do_it_end
         

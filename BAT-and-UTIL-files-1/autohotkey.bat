@@ -1,33 +1,45 @@
+@LoadBTM on
 @Echo OFF
- on break cancel
+@on break cancel
 
-set OUR_LOGGING_LEVEL=None
 
-if %VALIDATED_AHK ne 1 (call validate-ahk)
+rem Validate environment (once):
+        if "1" != "%VALIDATED_AHK%" (call validate-ahk %+ set VALIDATED_AHK=1)
 
-set PARAMS=%*
-set PARAM_1=%1
+rem Config and Get parameters:
+        set OUR_LOGGING_LEVEL=None
+        set PARAMS=%*
+        set PARAM_1=%1
 
-pushd
-%AHK_DIR%\
+rem Save folder & go into AutoHotKey folder:
+        pushd
+        %AHK_DIR%\
 
-    rem Default action if no parameters are passed... 
-            if "%PARAM_1%" == "" (
-                    cls
-                    dir
-                    repeat 2 echo.
-                    call warning_soft "No AHK file specified, went to folder instead... “popd” to return"
-                    goto :END_No_Popd
-            )
+rem Default action if no parameters are passed... 
+    iff "%PARAM_1%" == "" then
+            cls
+            dir
+            repeat 2 echo.
+            call warning_soft "No AHK file specified, went to folder instead... “popd” to return"
+            goto :END_No_Popd
+    endiff
 
-    rem allow "autohotkey restart" / "ahk restart" command:
-            if "%PARAM_1%" == "restart" (
-                    echo %ANSI_COLOR_REMOVAL%Restarting %italics_on%AutoHotKey%italics_off%...%ANSI_RESET%
-                    rem Kills/restarts, run
-                    call AutoHotKey-autoexec 
-                    set PARAM_1=start
-                    goto :END
-            )
+rem Special "autohotkey restart" / "ahk restart" command to re-start it in case something goes wrong or we want to force-restart AutoHotKey:
+    iff "%PARAM_1%" == "restart" then
+                rem Let user know:
+                        echo %ANSI_COLOR_REMOVAL%Restarting %italics_on%AutoHotKey%italics_off%...%ANSI_RESET%
+
+                rem “AutoHotKey-autoexec.bat” performs the following:
+                rem     ❶ kills the Autohotkey process with “taskend /f autohotkey64*”
+                rem     ❷  sets the “insert” mode to “on”
+                rem     ❸  sets the “scroll lock" to “off”
+                rem     ❹  sets the   “caps lock” to “off”
+                rem     ❺  sets the    “num lock” to “off” 
+                rem     ❻  runs the AutoHotKey startup script “autoexec.ahk” 
+                        call AutoHotKey-autoexec 
+                        set  PARAM_1=start                       
+                        goto /i END
+    endiff
 
     rem our autoexec.ahk has a insert-status "tracker" that doesn’t really track, so best set insert to on coinciding with the loading of this:
             if "%PARAM_1%" == "start" .or. "%PARAM_1%" == "restart" .or. "%PARAM_1%" == "autoexec"     (set PARAM_1=%BAT%\autoexec.ahk %+ set PARAMS=%PARAM_1%)

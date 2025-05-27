@@ -56,6 +56,8 @@ my $MAX_KARAOKE_WIDTH_MINUS_ONE =  24;					#This system aims for a max width of 
 ########### CONSTANTS: ^^END^ ###########
 
 
+
+
 use strict;
 use warnings;
 
@@ -134,14 +136,34 @@ $file_itle=~s/^.(.*)$/$1/;
 #OLD: while (<STDIN>) {
 #NEW:
 my $INPUT;
-if ($filename ne "") {
-	open($INPUT, "<:utf8", $filename) or die "Could not open file '$filename': $!";
-} else {
+if ($filename eq "") {
 	$INPUT = *STDIN;
+} else {
+	open($INPUT, "<:utf8", $filename) or die "Could not open file '$filename': $!";		# breaks on malformed files, of which there are many
+	#pen($INPUT, "<:raw" , $filename) or die "Could not open file '$filename': $!";		# open raw, and decode to UTF-8 later after fixing malformed characters
 }
+use Encode qw(decode encode);
+use Encode::Guess;
 while (<$INPUT>) {
-	#massage the line
-    my $line = $_; 
+	my $line = $_;
+	my $raw  = $_;
+	#$raw     =~ s/\xA0/ /g;																	# Replace non-breaking space, which crashes us on various input files
+	#$line =~ s/\xA0/ /g;	
+	#$line =  decode('UTF-8', $raw, Encode::FB_CROAK | Encode::LEAVE_SRC);
+    #eval { $line = decode('UTF-8', $raw, FB_CROAK); };    # Try UTF-8 first        # If UTF-8 fails, fallback to Latin-1 (Windows-1252)
+    #if ($@) { eval    { $line = decode('Windows-1252', $raw, FB_CROAK   ); };
+    #          if ($@) { $line = decode('UTF-8'       , $raw, FB_HTMLCREF); warn "Warning: sanitized malformed line: $.\n"; } }	# As last resort, decode and replace problematic bytes with HTML entities
+    #my $decoder = Encode::Guess->guess($raw);       # If guessing fails, default to Latin1 and log a warning
+    #if (ref($decoder)) { $line = $decoder->decode($raw); } else { warn "Encoding guess failed at line $.: $decoder\n"; $line = decode("Windows-1252", $raw); }
+    #$line =~ s/\x{A0}/ /g;							# Replace non-breaking spaces
+    #$line =~ s/[^\x09\x0A\x0D\x20-\x7E]//g;			# Strip non-printables except tab/newline
+    # Continue your existing processing...
+
+	#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FILE IS SAFELY OPEN NOW! GEEZE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
+
 	$line =~ s/\n//ig;		#get rid of newline
 	$line_number++;
 	my $original_line=$line;
@@ -184,13 +206,13 @@ while (<$INPUT>) {
         $line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
 		$line =~ s/Album tracklist with lyrics//;
-
-		#the word “Embed” is sometimes tacked onto the end of a line of downloaded lyrics:
 		$line =~ s/You might also like//i;
-		$line =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;
-
-		#advertising crap to get rid of
 		$line =~ s/Get tickets as low as \$[\d\.]+//i;
+
+		#word corrections
+		$line =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;			#the word “Embed” is sometimes tacked onto the end of a line of downloaded lyrics:
+		$line =~ s/our selves/ourselves/g;	
+	
 
 		#### artist/song mentions to get rid of:
 		#dynamic content removals {uses environment variables set in create-lyrics bat}		
@@ -433,5 +455,9 @@ sub replace_smart_quotes {
 		}
 	}
 
-	return join("", @result);
+	my $result = join("", @result);
+
+	$result =~ s/!“/!”/g;				#kludge bug fix
+
+	return $result
 }

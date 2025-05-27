@@ -399,13 +399,17 @@ rem Old/redundant way that should no longer apply at this point:
                 goto /i END
         endiff
         iff 1 eq %@RegEx[INSTRUMENTAL,"%@UPPER["%AUDIO_FILE%"]"] then
+                gosub "%BAT%\create-srt-from-file.bat" refresh_lyriclessness_status
+                echo lyriclessness_status=“%lyriclessness_status%” GOAT
                 gosub divider
                 rem echo.
                 call bigecho "%ansi_color_warning_soft%%emoji_warning% Instrumental encountered!%ansi_color_normal% %emoji_warning%"
                 echo %ANSI_COLOR_WARNING%%emoji_warning% This is an instrumental track! %emoji_warning%%ansi_color_normal% %ansi_color_bright_yellow%%connecting_minus%%connecting_minus% %ansi_color_yellow%%audio_file%%ansi_color_normal%
-                set FORCE_ASK_TO_APPROVE_LYRICLESSNESS=1
-                set LYRICLESSNESS_APPROVAL_CURRENT_DEFAULT_ANSWER=yes
-                goto /i ask_to_approve_lyriclessness
+                iff "%lyriclessness_status%" != "APPROVED" then
+                        set FORCE_ASK_TO_APPROVE_LYRICLESSNESS=1
+                        set LYRICLESSNESS_APPROVAL_CURRENT_DEFAULT_ANSWER=yes
+                        goto /i ask_to_approve_lyriclessness
+                endiff
         endiff
 
 
@@ -847,6 +851,8 @@ rem DEBUG: echo pbatchname = %_PBATCHNAME  %+ pause
                       
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━        PROBE FILE: original location
+
+rem pause " Why would we do this? Let’s stop doing this and see what happens: goto /i old_probe_end_846 🐐"
 goto /i old_probe_end_846
 
 rem Get artist and song so we can use them to download lyrics:
@@ -1168,15 +1174,15 @@ rem Check if we already have a LRC/SRT file but no TXT file
                                                         if exist "%LYRIC_FILE%" (ren  /q "%LYRIC_FILE%" "%LYRIC_FILE%.%_datetime.rejected-after-conversion-from-%just_converted_from%.bak")                                                
                                                 endiff
                                         rem On “Y”/“A”/“D”/“I”/“L”/“P”/“Q”:
-                                                gosub check_for_answer_of_P 
-                                                gosub check_for_answer_of_Q 
+                                                gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
+                                                gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                                                 if "P" == "%OUR_LAST_ANSWER_HERE%" goto /i Ask_Again_845
                                                 if "E" == "%OUR_LAST_ANSWER_HERE%" goto /i Ask_Again_845
                                                 if "Q" == "%OUR_LAST_ANSWER_HERE%" goto /i Ask_Again_845
                                                 gosub check_for_answer_of_A Y
                                                 gosub check_for_answer_of_D
                                                 gosub check_for_answer_of_H
-                                                gosub check_for_answer_of_I
+                                                gosub check_for_answer_of_I 
                                                 gosub check_for_answer_of_L
                                         rem Finishings for “I”, “L”, “O”:
                                                 if  "I" == "%OUR_LAST_ANSWER_HERE%"   goto /i END
@@ -1362,10 +1368,10 @@ rem Check if we already have approved lyrics in the same folder:
                                 gosub check_for_answer_of_R
                                 set ANSWER=%HOLD_ANSWER%
 
-                                gosub check_for_answer_of_P
+                                gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
                                 set ANSWER=%HOLD_ANSWER%
 
-                                gosub check_for_answer_of_Q
+                                gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                                 set ANSWER=%HOLD_ANSWER%
 
                                 gosub check_for_answer_of_H
@@ -1512,8 +1518,8 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                         gosub check_for_answer_of_D_to_eset_artist_and_song
                         rem echo 🎨 goto_download_with_lyric_downloader_1 is "%goto_download_with_lyric_downloader_1%" 
                         rem echo [C] Just got back from “these good” around line 975 🏠🏠🏠🏠🏠🏠 ...answer=“%ANSWER%”, goto_end=“%GOTO_END%”, LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”, LYRIC_STATUS=“%LYRIC_STATUS%”, LYRICS_ACCEPTABLE=“%LYRICS_ACCEPTABLE%”,  LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%” !!!!!
-                        gosub check_for_answer_of_P %AUDIO_FILE%
-                        gosub check_for_answer_of_Q %AUDIO_FILE%
+                        gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
+                        gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                         gosub check_for_answer_of_L
                         rem echo [E] Just got back from “these good” around line 975 🏠🏠🏠🏠🏠🏠 ...answer=“%ANSWER%”, goto_end=“%GOTO_END%”, LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”, LYRIC_STATUS=“%LYRIC_STATUS%”, LYRICS_ACCEPTABLE=“%LYRICS_ACCEPTABLE%”,  LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%” !!!!!
                         if  "L" == "%SAVED_ANSWER%"   goto /i END
@@ -1586,8 +1592,8 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                         *copy "%MAYBE_LYRICS_2%" "%LYRIC_FILE%"
                         unset /q LYRIC_STATUS
                         rem about to call edit_lyrics_now_if_we_answered_H 🐐
-                        gosub check_for_answer_of_P
-                        gosub check_for_answer_of_Q
+                        gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
+                        gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                         if "%ANSWER%" == "P" goto /i ask_again_1297
                         if "%ANSWER%" == "Q" goto /i ask_again_1297
                         iff "%ANSWER%" == "Y" then
@@ -1667,8 +1673,8 @@ rem If we still didn’t find anything acceptable, but have potentially matching
                                 gosub check_for_answer_of_D
                                 gosub check_for_answer_of_I
                                 gosub check_for_answer_of_L
-                                gosub check_for_answer_of_P
-                                gosub check_for_answer_of_Q
+                                gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
+                                gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                                 if  "I" == "%OUR_LAST_ANSWER%"   goto /i END
                                 rem echo CHEESE007 OUR_LAST_ANSWER=“%OUR_LAST_ANSWER%”
                         rem Finishings for “L”, “O”, “P”:
@@ -1739,8 +1745,8 @@ rem Now we have gotten past the “Select from existing filelist” part
                 gosub check_for_answer_of_L
                 gosub check_for_answer_of_D_to_eset_artist_and_song
                 gosub check_for_answer_of_G
-                gosub check_for_answer_of_P
-                gosub check_for_answer_of_Q
+                gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
+                gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                 gosub check_for_answer_of_R
                 gosub rename_audio_file_as_instr_if_answer_was_I
                 if  "O" == "%ANSWER%"                                goto /i download_with_lyric_downloader_init
@@ -1855,8 +1861,8 @@ rem                         It could be a hand-edited txt file that’s years ol
                                 )
                         rem On “P”/“Q”, preview:
                                 set ANSWER=%HOLD_ANSWER_1681%
-                                gosub check_for_answer_of_P
-                                gosub check_for_answer_of_Q
+                                gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
+                                gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                                 if  "%HOLD_ANSWER_1681%" == "P" .or. "%HOLD_ANSWER_1681%" == "Q" (goto /i requestion_1347)
 
                         rem On “L”, mark as lyricless:
@@ -2112,9 +2118,9 @@ setdos /x0
                                 gosub check_for_answer_of_I
                                 set answer=%hold_answer_main%
                                 if  "I" == "%ANSWER%"  goto  END
-                                gosub check_for_answer_of_P
+                                gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
                                 set answer=%hold_answer_main%
-                                gosub check_for_answer_of_Q
+                                gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                                 set answer=%hold_answer_main%
                                 gosub check_for_answer_of_G
                                 set answer=%hold_answer_main%
@@ -2383,8 +2389,8 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
                         gosub check_for_answer_of_R
                         if  "%answer%" == "R" (goto /i requestion_1325)
                 rem “P”:
-                        gosub check_for_answer_of_P
-                        gosub check_for_answer_of_Q
+                        gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
+                        gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                         if  "%answer%" == "P" .OR. "%answer%" == "Q" (goto /i requestion_1325)
                 rem “Y”/“N” answers:
                         if "N" == "%ANSWER%"                        goto  did_not_want_to_change_artist_song
@@ -2473,8 +2479,8 @@ rem Ask to Google the lyrics if we haven’t approved them yet:
         call AskYN "%[italics_on]Google%[italics_off] for some lyrics (%ansi_color_bright_green%L%ansi_color_prompt%=Lyricless[%ansi_color_bright_green%Z%ansi_color_prompt%=All],D=e%ansi_color_bright_green%D%ansi_color_prompt%it names)" no %GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME% DILPQZ L:Mark_this_as_lyricless_insteaed,Z:Mark_all_as_lyricless,I:No_just_mark_it_as_instrumental,D:edit_song_and_artist,Q:enQueue_in_winamp,P:play
         rem echo Just got back from 🚩🚩🚩 situation 🚩 and the answer is still “%ANSWER%” and goto_end is “%GOTO_END%”
         if "N" == "%ANSWER%"  goto /i END
-        gosub check_for_answer_of_P
-        gosub check_for_answer_of_Q
+        gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
+        gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
         gosub check_for_answer_of_A 
         gosub check_for_answer_of_I
         gosub check_for_answer_of_L        
@@ -2634,8 +2640,8 @@ rem Final chance to hand edit the lyrics, but skip it if we already opted to sea
                                      rem echo 001 we got the post-hand-edited answer of ANSWER=“%ANSWER%”
                                      gosub check_for_answer_of_R
                                      gosub check_for_answer_of_L
-                                     gosub check_for_answer_of_P
-                                     gosub check_for_answer_of_Q
+                                     gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
+                                     gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                                      rem oops totesmces gosub check_for_answer_of_H
                                      rem oops totesmces if "%answer%" == "H" goto recheck_post_hand_edited_lyrics
                                      if "%answer%" == "P" goto recheck_post_hand_edited_lyrics
@@ -2819,6 +2825,7 @@ rem echo %blink_on%  i thought LYRICLESSNESS_STATUS="%LYRICLESSNESS_STATUS%" is 
         
 rem echo iff("1" != "%LYRICS_FETCHED%" .and. "1" != "%JUST_APPROVED_LYRICLESSNESS%" .and. "1" !=  "%LYRICS_ACCEPTABLE%") .or. ("1" == "%FORCE_ASK_TO_APPROVE_LYRICLESSNESS%" .and. "%LYRICLESSNESS_STATUS%" != "APPROVED") then 🐐lyr
         if   "1" == "%LYRIC_SUCCESS_CELEBRATION_DISPLAYED%" goto /i skip_2204
+        echo ***GOAT*** LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
         iff ("1" != "%LYRICS_FETCHED%" .and. "1" != "%JUST_APPROVED_LYRICLESSNESS%" .and. "1" !=  "%LYRICS_ACCEPTABLE%") .or. ("1" == "%FORCE_ASK_TO_APPROVE_LYRICLESSNESS%" .and. "%LYRICLESSNESS_STATUS%" != "APPROVED") then
                 gosub divider
 
@@ -2900,7 +2907,7 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                 rem if it’s not marked as instrumental, ask if it is one...
                 rem echo            🐐 checking[f] iff "1" == "`%`@Regex[instrumental,"%AUDIO_FILE%"]" == "%@Regex[instrumental,"%AUDIO_FILE%"]" then
                 if "1" != "%@Regex[instrumental,"%AUDIO_FILE%"]" goto /i else_2280
-                        gosub debug "Marked file with ADS tag of “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
+                        gosub debug "❶ Marked file with ADS tag of %italics_on%True%italics_off%: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
                         echo True>"%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%"
                         goto /i endiff_2318
                 :else_2280
@@ -2914,8 +2921,8 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                                         unset /q ANSWER
                                         call AskYN "Is this an instrumental? [%ansi_color_bright_green%P%ansi_color_prompt%=Preview]" No %GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME% IPQ Q:enQueue_in_winamp,P:preview_song,I:instrumental_it_is!
                                         SET LAST_ANSWER_TO_ISTHISINSTRUMENTAL=%ANSWER%
-                                        gosub check_for_answer_of_P "%audio_file%"
-                                        gosub check_for_answer_of_Q "%audio_file%"
+                                        gosub check_for_answer_of_P "%@UNQUOTE["%audio_file%"]"
+                                        gosub check_for_answer_of_Q "%@UNQUOTE["%audio_file%"]"
                                         if "P" == "%ANSWER%" gosub ask_again_2283
                                         if "Q" == "%ANSWER%" gosub ask_again_2283
                                         if "I" == "%ANSWER%" .or. "Y" == "%ANSWER%" (gosub rename_audio_file_as_instrumental %+ goto /i END)
@@ -2929,7 +2936,7 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                                 endiff
                         :endiff_2300
                         if "Y" != "%ANSWER%" goto /i else_230999
-                                gosub debug "Marked file with ADS tag: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
+                                gosub debug "❷ Marked file with ADS tag: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
                                 echo True>"%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%"
                                 iff "" !=  "%LAST_RENAMED_TO%" then
                                         set AUDIO_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
@@ -2947,7 +2954,7 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                         :else_230999
                                 rem gosub debug "echo False to “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
                                 echo False>"%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%"
-                                gosub debug "Marked file with ADS tag of %italics_on%FALSE%italics_off%: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
+                                gosub debug "❸ Marked file with ADS tag of %italics_on%FALSE%italics_off%: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
                         :endiff_2313
 
                         rem echo            🐐 gonna gosub rename_audio_file_as_instrumental from ask_about_instrumental
@@ -3069,7 +3076,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
 
                         rem Is it too small?
                                 iff %size% lt 1000 then
-                                        call warning "file is %size% bytes! -- %FILE_TO_USE%"
+                                        call warning "file is %size% bytes! -- %lq%%FILE_TO_USE%%rq%"
                                         set HOLD_OUR_ANSWER=%ANSWER%
                                         call askyn "⁵Delete it" no 0
                                                 iff "Y" == "%ANSWER%" .and. exist "%@UNQUOTE["%FILE_TO_USE%"]" then
@@ -3206,6 +3213,8 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
 
         :divider_v002_is_just_v000_here_again_but_now_we_must_remember_to_update_this_in_both_files
         :divider [divider_param]
+                rem  %POTENTIAL_REDIRECTION% is an optional string that represents where we want to direct our output too
+
                 iff "1" == "%suppress_next_divider%" then
                         set  suppress_next_divider=0
                         return
@@ -3217,12 +3226,12 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
 
                 rem Type divider file if it exists:
                         iff exist %nm% then
-                                *type %nm%
+                                *type %nm%  %POTENTIAL_REDIRECTION%
                                 set last_divider_method=type
                                 set last_divider_param=%divider_param%
                 rem Otherwise, manually draw the divider:
                         else
-                                echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                                echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m %POTENTIAL_REDIRECTION%
                                 set last_divider_method=echo
                         endiff
 
@@ -3246,10 +3255,10 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                                         rem why isn’t this working? There’s no reason these methods shoudln’t work. Try the original again?!?!
                                         rem echos %NEWLINE%
                                         rem but on 2025/05/19 we redefined %NEWLINE% so let’s just go back to echo.:
-                                        echo.
+                                        echo. %POTENTIAL_REDIRECTION%
 
                                 rem Then move to column 0/1 [which are the same column]:
-                                        echos %@ANSI_MOVE_TO_COL[0] 
+                                        echos %@ANSI_MOVE_TO_COL[0] %POTENTIAL_REDIRECTION%
 
                         endiff
 
@@ -3869,10 +3878,10 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                                 rem old way as a fallback:
                                         rem echos %ansi_color_bright_yellow% %EMOJI_AXE%%EMOJI_AXE%%EMOJI_AXE% ``   
                                         set AXER=%EMOJI_AXE%%EMOJI_AXE%%EMOJI_AXE% ``
-                                        if  exist "%LYRIC_SIDECAR%" (call review-file "%LYRIC_SIDECAR%" %+ call askyn "%AXER%⁵Delete lyric sidecar" yes 0 %+ if "Y" == "%ANSWER%" (echos %AXER% %+ *del /Ns "%LYRIC_SIDECAR%"))
+                                        if  exist "%LYRIC_SIDECAR%" (call review-file -wh -stu -ins "%LYRIC_SIDECAR%" %+ call askyn "%AXER%⁵Delete lyric sidecar" yes 0 %+ if "Y" == "%ANSWER%" (echos %AXER% %+ *del /Ns "%LYRIC_SIDECAR%"))
                                         iff exist   "%SRT_SIDECAR%" .or. exist "%LRC_SIDECAR%" then
-                                                if exist "%LRC_SIDECAR%"                             (set KIND=LRC     %+ set sidecar=sidecar %+ call review-file "%LRC_SIDECAR%")
-                                                if exist "%SRT_SIDECAR%"                             (set KIND=SRT     %+ set sidecar=sidecar %+ call review-file "%SRT_SIDECAR%")
+                                                if exist "%LRC_SIDECAR%"                             (set KIND=LRC     %+ set sidecar=sidecar %+ call review-file -wh -stu -ins "%LRC_SIDECAR%")
+                                                if exist "%SRT_SIDECAR%"                             (set KIND=SRT     %+ set sidecar=sidecar %+ call review-file -wh -stu -ins "%SRT_SIDECAR%")
                                                 if exist "%SRT_SIDECAR%" .and. exist "%LRC_SIDECAR%" (set KIND=SRT/LRC %+ set sidecar=sidecars)
                                                 call askyn "%AXER%Delete %KIND% %SIDECAR%" yes 0 
                                                 iff "Y" == "%ANSWER%" then
@@ -3971,10 +3980,10 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                         call set-tmp-file "postprocessed lyrics"
 
                 rem Run the post-processor on our input file, outputting to our tmpfile:
-                        rem  type "%@UNQUOTE["%LYRIC_FILE%"]" |:u8  lyric-postprocessor.pl -A -L -S)                 >    %tmpfile%
-                        rem (type            "%FILE_TO_USE%"  |:u8  lyric-postprocessor.pl -A -L -S)                 >    %tmpfile%
+                        rem  type "%@UNQUOTE["%LYRIC_FILE%"]" |:u8  lyric-postprocessor.pl -A -L -S)                  >     %tmpfile%
+                        rem (type            "%FILE_TO_USE%"  |:u8  lyric-postprocessor.pl -A -L -S)                  >     %tmpfile%
                                                             echo 🐐 lyric-postprocessor.pl -A -L -S  "%FILE_TO_USE%" `>`:u8 %tmpfile%
-                                                                    lyric-postprocessor.pl -A -L -S  "%FILE_TO_USE%"   >:u8 %tmpfile%
+                                                                    lyric-postprocessor.pl -A -L -S  "%FILE_TO_USE%"  >:u8 %tmpfile%
 
                 rem Save the filename of our post-processed lyrics, so we can grab them later:
                         rem iff defined postprocessed_lyrics .and. exist "%@UNQUOTE["%postprocessed_lyrics%"]" .and. "%last_file_used_for_lyric_processing%" == "%file_to_use%" then

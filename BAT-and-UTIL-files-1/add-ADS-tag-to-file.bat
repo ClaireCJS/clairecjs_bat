@@ -102,7 +102,7 @@ rem Validate parameters every time:
         if "%5" == "skip_validations" (goto :skip_validations_1)
         rem if not exist "%@UNQUOTE["%File_To_Change_Tag_Of%"]" call validate-environment-variable  File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
         if not exist "%@UNQUOTE["%File_To_Change_Tag_Of%"]" call validate-environment-variable  File_To_Change_Tag_Of  "1ˢᵗ arg to %@unquote[%0] of '%italics_on%%@unquote[%1]%italics_off%' must be a filename that actually exists"
-        call validate-environment-variables Tag_To_Modify Tag_Value              
+        if "" == "%Tag_To_Modify" .or. "" == "%Tag_Value%"  call validate-environment-variables Tag_To_Modify Tag_Value              
         rem call validate-environment-variable Tag_To_Modify          "2ⁿᵈ argument to %0 must a tag, NOT empty"
         rem call validate-environment-variable Tag_Value              "3ʳᵈ argument to %0 must a value, or 'read' ... NOT empty"
         :skip_validations_1

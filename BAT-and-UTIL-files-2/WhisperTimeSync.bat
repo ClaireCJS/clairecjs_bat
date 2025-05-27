@@ -2,7 +2,7 @@
 @loadbtm on
 @set whisper_alignment_happened=0
 
-
+if "%1" == "jump" goto :jump_point
 
 rem Install WhisperTimeSync with:  git clone https://github.com/EtienneAb3d/WhisperTimeSync.git
 rem Set JAVA_WHISPERTIMESYNC=      to the path of the java.exe you wish to use. Or just set it to "java"
@@ -17,12 +17,12 @@ rem CONFIG:
 
 rem VALIDATE ENVIRONMENT:
         set  validated_srt_and_txt_for_whispertimesync_already=0
-        iff "2" != "%validated_whispertimesync2%" then
-                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file
+        iff "1" != "%validated_whispertimesync%" then
+                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file enqueue.bat visual-comparison.bat
                 rem  validate-environment-variables JAVA_WHISPERTIMESYNC our_language color_advice ansi_color_advice ansi_color_removal ansi_color_normal ansi_color_run smart_apostrophe italics_on italics_off lq rq smart_apostrophe
-                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language 
+                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language lq rq 
                 call validate-is-function cool_text
-                set  validated_whispertimesync2=2
+                set  validated_whispertimesync=1
         endiff
 
 rem USAGE:
@@ -31,8 +31,8 @@ rem USAGE:
                 call divider
                 %color_advice%
                         echo.
-                        echo USAGE: %0 [subtitle file with bad words and good timing] [lyric file with good words and no/bad timing]
-                        echo USAGE: %0 [subtitles] [lyrics]
+                        echo USAGE: %0 {subtitle file with bad words and good timing} {lyric file with good words and no/bad timing} [optional filename of audio_file]
+                        echo USAGE: %0 {subtitle} {lyrics} [audio_file]
                         echo    EX: %0  %@cool_text[bad.srt good.txt]%ansi_color_advice%
                         rem     EX: %0  %@cool_text[subtitles.srt lyrics.txt]%ansi_color_advice%
                 call divider
@@ -46,30 +46,60 @@ rem VALIDATE PARAMETERS:
         set      SRT=%@UNQUOTE[%1]
         set  SRT_OLD=%@UNQUOTE[%1]
         set  LYR_RAW=%@UNQUOTE[%2]
+        set  AUD_FIL=%@UNQUOTE[%3]
         set  aud_MP3=%@NAME[%SRT%].mp3
         set  aud_WAV=%@NAME[%SRT%].wav
         set aud_FLAC=%@NAME[%SRT%].flac
         rem @echo off
         if not exist "%SRT%" .or. not exist "%LRC%" call validate-environment-variables SRT LYR_RAW
-        call validate-is-extension        "%SRT%"     *.srt
-        call validate-is-extension        "%LYR_RAW%" *.txt
+        call validate-is-extension          "%SRT%"      *.srt
+        call validate-is-extension          "%LYR_RAW%"  *.txt
 
 rem Make sure we’re dealing with *processed* lyrics for WhisperTimeSync:
-        call set-tmp-file "postprocessed_lyrics"
-        set lyr_processed=%tmpfile%.txt
-        lyric-postprocessor.pl -A -L -S  "%LYR_RAW%"    >:u8%lyr_processed%
-        if not exist %lyr_processed% call validate-environment-variable target "lyric-postprocessor.pl output file does not exist: “%lyr_processed%”"
+
+        rem Set post-processed filename:
+                call set-tmp-file "postprocessed_lyrics"
+                set lyr_processed=%tmpfile%.txt
+                set lyr_processed_rendered_plus_bot_stripe=%tmpfile2%.txt
+
+        rem Run current iteration of lyrics through post-processor and make sure it was successful:
+                set LYRICS_TO_POSTPROCESS=%lyr_raw%
+                lyric-postprocessor.pl -A -L -S  "%LYRICS_TO_POSTPROCESS%"    >:u8%lyr_processed%
+                call errorlevel                  "wts69 in %0"
+                if not exist %lyr_processed% call validate-environment-variable target "lyric-postprocessor.pl output file does not exist: “%lyr_processed%”"
+
+
+rem TODO: if aud_fil="" then check audmp3/wav/flac
 
 rem Run WhisperTimeSync:
         set  validated_srt_and_txt_for_whispertimesync_already=1
-    rem echo WhisperTimeSync-helper "%srt%" "%lyr_processed%"       %+ pause
-        call WhisperTimeSync-helper "%srt%" "%lyr_processed%"       %+ rem “Did it work?”-style validation is in WhisperTimeSync-helper.bat
-        set  validated_srt_and_txt_for_whispertimesync_already=0    %+ rem This flag has now been used and can be disposedo f
+        call WhisperTimeSync-helper "%srt%" "%lyr_processed%"  "%aud_fil%"     %+ rem “Did it work?”-style validation is in WhisperTimeSync-helper.bat, so no need to do it here
+        set  validated_srt_and_txt_for_whispertimesync_already=0               %+ rem This flag has now been used and can be disposedo f
 
 rem Did it work?
         call validate-environment-variable SRT_NEW "seems like we didn’t set SRT_NEW correctly, it’s value is “%SRT_NEW%”"
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PREVIEW CHANGES: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
 
 
 rem Preview changes:
@@ -84,8 +114,12 @@ rem            8     Old Subtitles stripe
 rem            9     lyrics stripe
 rem            10    New Subtitles stripe
 
+
+goto :new_way_212
+
+
 rem Preview the lyrics vs OLD srt with stripes next to each other:
-        call review-file       -wh -st  "%lyr_processed%"             %+ rem 1 & 2
+        call review-file       -wh -st  --output_file "lyr_processed_rendered_plus_bot_stripe" %+ type "%lyr_processed_rendered_plus_bot_stripe%"             %+ rem 1 & 2
         call review-file       -wh -stU "%srt%"                       %+ rem 3 & 4
         call divider
         call print-with-columns    -st  "%srt%"                       %+ rem 5
@@ -95,10 +129,10 @@ rem Preview the NEW srt with stripes next to each other:
 
 rem Compare stripes of old srt and new srt:
         call divider
-        call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
+        type "%lyr_processed_rendered_plus_bot_stripe%"               %+ rem call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
         call print-with-columns    -st  "%srt%"                       %+ rem 8
         call print-with-columns    -st  "%srt_new%"                   %+ rem 10
-        call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
+        type "%lyr_processed_rendered_plus_bot_stripe%"               %+ rem call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
         echo %faint_on%(lyrics, original subtitle, new subtitle, lyrics again)%faint_off%
         call divider
 
@@ -108,8 +142,8 @@ rem Compare stripes of old srt and new srt:
 
 
 
-repeat 5 call divider %+ pause "let%smart_apostrophe%s try viewing our %italics_on%WhisperTimeSync%italics_off% results in a different way..." %+ repeat 5 call divider 
-
+repeat 5 call divider %+ call important "let%smart_apostrophe%s try viewing our %italics_on%WhisperTimeSync%italics_off% results in a different way..." %+ repeat 5 call divider 
+:new_way_212
 
 
 
@@ -128,58 +162,92 @@ rem            9     lyrics stripe
 rem            8     Old Subtitles stripe
 
 rem Preview the lyrics vs OLD srt with stripes next to each other:
-        call review-file       -wh -st  "%lyr_processed%"             %+ rem 1 & 2
-        call review-file       -wh -stU "%srt_old%"                   %+ rem 3 & 4
-        echo %faint_on%(lyrics + [lyric stripe, original subtitle stripe] + original subtitles ... srt_old=“%srt_old%”%faint_off%
+        call review-file       -wh -st  -ins --output_file  "%lyr_processed_rendered_plus_bot_stripe%" "%lyr_processed%" %+ type "%lyr_processed_rendered_plus_bot_stripe%"            %+ rem 1 & 2
+        call review-file       -wh -stU -ins "%srt_old%"                   %+ rem 3 & 4
+        echo %faint_on%lyrics + stripe, old subtitle + stripe%faint_off%
         call divider
 
 rem Preview the old subtitles vs the new subtitles, with stripes for both between them:
-        call print-with-columns    -st  "%srt_old%"                   %+ rem 5
-        call review-file       -wh -stU "%srt_new%"                   %+ rem 6 & 7
+        call print-with-columns    -st  -ins "%srt_old%"                   %+ rem 5
+        call review-file       -wh -stU -ins "%srt_new%"                   %+ rem 6 & 7
+        echo %faint_on% old subtitle + stripe, new subtitle + stripe%faint_off%
         call divider
 
 rem Compare stripes of old subtitle to lyrics:
-        echo %STAR2% %double_underline_on%OLD%double_underline_off% subtitles vs lyrics:
-echo    call print-with-columns    -st  "%srt_old%"                   %+ rem 8
-        call print-with-columns    -st  "%srt_old%"                   %+ rem 8
-echo    call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
-        call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
-        echo %faint_on% original subtitle + stripe, lyrics + stripe%faint_off%
+        echo %STAR2% %double_underline_on%OLD%double_underline_off% lyrics vs subtitles:
+        call print-with-columns    -st  -ins "%lyr_processed%"             %+ rem 9
+        call print-with-columns    -st  -ins "%srt_old%"                   %+ rem 8
+        echo %faint_on% lyrics + stripe, old subtitle + stripe%faint_off%
         call divider
 
 rem Compare stripes of new subtitle to lyrics:
         echo %STAR2% %double_underline_on%NEW%double_underline_off% subtitles vs lyrics:
-echo    call print-with-columns    -st  "%srt_new%"                   %+ rem 10
-        call print-with-columns    -st  "%srt_new%"                   %+ rem 10
-echo    call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
-        call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
-        echo %faint_on% new subtitle + stripe, lyrics + stripe%faint_off%
+        type "%lyr_processed_rendered_plus_bot_stripe%"                    %+ rem  9 %+ rem call print-with-columns    -st  -ins "%lyr_processed%"             %+ rem 9
+        call print-with-columns    -st  -ins "%srt_new%"                   %+ rem 10
+        echo %faint_on% lyrics + stripe, new subtitle + stripe%faint_off%
         call divider 
+
+rem Do the animated visual comparison:
+        :jump_point
+        echo %STAR2% %double_underline_on%NEW%double_underline_off% subtitles vs lyrics:
+        call visual-comparison "%srt_old%" "%srt_new%" "%italics_on%old%italics_off% subtitles" "%italics_on%new%italics_off% subtitles"
+
+
+
+
+
+
+
+
+
 
 
 
 rem Ask if it’s better or not...
         :AskYnIfBetter
-        call AskYN "%faint_on%[WhisperTimeSync]%faint_off% Is this realignment better than the original" no 0 P P:play_it
+        call AskYN "%faint_on%[WhisperTimeSync]%faint_off% Is this realignment better than the original [P=Play,Q=enQueue in WinAmp]" no 0 PQ P:play_it,Q:enQueue_it
 
-rem Preview if it need be, prior to asking
+rem Preview if it need be, prior to asking:
         iff "%ANSWER%" == "P" then
                 rem DEBUG:
-                        echo %ansi_color_subtle%🐐 %0: call vlc %@if[exist "%mp3%","%mp3%",] %@if[exist "%flac%","%flac%",]%ansi_color_normal%
+                        echo %ansi_color_subtle%🐐 %0: call vlc %@if[exist "%mp3%","%mp3%",] %@if[exist "%flac%","%flac%",] %@if[exist "%wav%","%wav%",]%ansi_color_normal%
                 rem PLAY IT:
-                        call vlc %@if[exist "%mp3%","%mp3%",] %@if[exist "%flac%","%flac%",]
+                        call                                vlc %@if[exist "%mp3%","%mp3%",] %@if[exist "%flac%","%flac%",] %@if[exist "%wav%","%wav%",]
+                rem GO BACK TO OUR QUESTION AGAIN:
+                        goto :AskYnIfBetter
+        endiff
+
+rem Enqueue in WinAmp, which requires copying our audio file into the temp folder next to our provisional/freshly-generated/not-yet-approved-so-not-yet-copied-to-real-locatin-yet subtitles:
+        iff "%ANSWER%" == "Q" then
+                rem DETERMINE AUDIO FILE THAT WE WILL NEED TO COPY INTO TEMP FOLDER:                                
+                        if exist "%wav%"      SET FILE_TO_COPY=%wav%
+                        if exist "%mp3%"      SET FILE_TO_COPY=%mp3%
+                        if exist "%flac%"     SET FILE_TO_COPY=%flac%
+                        if exist "%AUD_FIL%"  SET FILE_TO_COPY=%AUD_FIL%
+                rem DETERMINE TARGET FILENAME THAT WE WILL NEED TO COPY THE FILE TO:
+                        SET  COPIED_FILE=%@PATH[%SRT_NEW%]\%@NAME[%SRT_NEW%].%@EXT["%FILE_TO_COPY%"]
+                rem DEBUG:
+                        pause "FILE_TO_COPY==%lq%%FILE_TO_COPY%%rq%, COPIED_FILE==%lq%%COPIED_FILE%%rq% (@NAME[SRT_NEW]=%lq%%@NAME[%SRT_NEW%]%rq%)"
+                rem COPY THE FILE:
+                        *copy "%FILE_TO_COPY%" "%COPIED_FILE%"
+                rem DEBUG:
+                        echo %ansi_color_subtle%🐐 %0: call enqueue "%COPIED_FILE%" %ansi_color_normal%
+                rem PLAY IT:
+                        call                                enqueue "%COPIED_FILE%"
+                rem GO BACK TO OUR QUESTION AGAIN:
                         goto :AskYnIfBetter
         endiff
 
 rem If it is better, back up the old version and replace it with this one:
         set whisper_alignment_happened=0
+        set original_srt_before_whispertimesync=%srt%.pre-wts.%_DATETIME.bak
         iff "Y" == "%ANSWER%" then
                 rem Audit flag:
                         set whisper_alignment_happened=1
                 rem back up the old/existing karaoke:
                         echos %ansi_color_removal%
-                        rem echo *copy /Nst "%srt%"     "%srt%.pre-wts.%_DATETIME.bak" 
-                        echo ray|*copy /Nst "%srt%"     "%srt%.pre-wts.%_DATETIME.bak" 
+                        rem echo *copy /Nst "%srt%"     "%original_srt_before_whispertimesync%"
+                        echo ray|*copy /Nst "%srt%"     "%original_srt_before_whispertimesync%"
                 rem move the new karaoke to overwrite the now-backed-up old karaoke:
                         echos %ansi_color_success%
                         rem echo *copy /Nst "%SRT_NEW%" "%srt%" 
@@ -198,7 +266,7 @@ rem Load the new song into winamp to test?
         iff "1" == "%WHISPERTIME_SYNC_WINAMP_INTEGRATION%" then
                 call divider
                 echo %ansi_color_important%%STAR% Because %italics_on%WHISPERTIME_SYNC_WINAMP_INTEGRATION%italics_off% is set to %lq%1%rq% in WhisperTimeSync-helper.bat, we will ask:%ansi_color_normal%
-                call askyn "Enqueue the song into WinAmp to see how the subtitles play in Minilyrics" no 0
+                call askyn "Enqueue the song into %italics_on%WinAmp%italics_off% to see how the subtitles play in %italics_on%Minilyrics%italics_off%" no 0
                 iff "Y" == "%ANSWER%" then
                         if exist "%aud_wav%"  set our_audio=%aud_wav%
                         if exist "%aud_mp3%"  set our_audio=%aud_mp3%
@@ -214,8 +282,11 @@ rem Load the new song into winamp to test?
                                 call warning "Still can%smart_apostrophe%t find our audio file! Giving up!"
                                 goto /i END
                         endiff
+                        %color_run%                                                        
                         call enqueue "%our_audio%"
+                        %color_run%                                                        
                         call winamp-next        
+                        %color_normal%                                                        
                 endiff
         endiff
 

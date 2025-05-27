@@ -24,7 +24,7 @@ rem CONFIG:
 
 rem VALIDATE ENVIRONMENT:
         iff "1" != "%validated_whispertimesynchelper%" then
-                call validate-in-path               errorlevel askyn enqueue.bat warning.bat advice.bat print-message.bat winamp-next subtitle-postprocessor.pl perl
+                call validate-in-path               errorlevel askyn enqueue.bat warning.bat advice.bat print-message.bat winamp-next subtitle-postprocessor.pl perl preview-audio-file.bat tail 
                 rem  validate-environment-variables JAVA_WHISPERTIMESYNC WhisperTimeSync our_language color_advice ansi_color_advice lq rq underline_on underline_off italics_on italics_off
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language WhisperTimeSync 
                 call validate-is-function           cool_text
@@ -40,8 +40,8 @@ rem USAGE:
                 call divider
                 %color_advice%
                         echo.
-                        echo USAGE: %0 [subtitle file with bad words and good timing] [lyric file with good words and no/bad timing]
-                        echo USAGE: %0 [subtitles] [lyrics]
+                        echo USAGE: %0 {subtitle file with bad words and good timing} {lyric file with good words and no/bad timing} [optional audio file]
+                        echo USAGE: %0 {subtitles} {lyrics} [audio_file]
                         echo    EX: %0  %@cool_text[subtitl.srt lyrics.txt]%ansi_color_advice%
                         echo    EX: %0  %@cool_text[subtitl.srt crappy.srt]
                 call divider
@@ -52,6 +52,7 @@ rem USAGE:
 rem VALIDATE PARAMETERS:
         set SRT=%@UNQUOTE[%1]
         set LYR=%@UNQUOTE[%2]
+        set AFL=%@UNQUOTE[%3]
         iff "1" != "%validated_srt_and_txt_for_whispertimesync_already%" then
                 call validate-environment-variables   SRT     LYR
                 call validate-is-extension          "%SRT%" *.srt
@@ -60,8 +61,23 @@ rem VALIDATE PARAMETERS:
 
 rem Extra prep of lyrics:
         call warning "Get the lyrics %italics_on%perfect%italics_off%" big
+        call AskYN   "Listen to the audio file while editing lyrics"   no  0
         %EDITOR% "%LYR%"
+        iff "Y" == "%ANSWER%" then
+               call preview-audio-file.bat "%AFL%"
+        endiff
         pause "Press any key after fixing up the lyrics"
+
+rem Ask if we want to copy these lyrics back over our official file...
+        iff exist "%AFL%" then
+        call important_less "Do you want these lyric edits to be saved over the original lyric file" %+ rem  [[not!!]] at %faint_on%%italics_on%%lyr%%italics_off%%faint_off%
+        call AskYN          "Copy lyric edits over original lyrics" no 0
+        iff "Y" == "%ANSWER%" then
+                set      COMMAND=copy "%LYR%" "%@NAME["%AFL%"].txt"
+                rem echo COMMAND is %COMMAND% %+ pause
+                %color_removal%
+                %COMMAND%
+        endiff
 
 rem Run WhisperTimeSync:
         %color_run%
@@ -84,14 +100,38 @@ rem Did it work?
 
 
 rem WhisperTimeSync is horribly buggy so we fix some of that——particularly the blocks that are completely missing lyrics——with our subtitle postprocessor:
+        echo %ansi_color_important%%star% Postprocessing subtitle file because %italics_on%WhisperTimeSync%italics_off% produces malformed SRT files...%ansi_color_normal%
         subtitle-postprocessor.pl "%SRT_NEW%"
 
 rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
-        call warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
-        call warning "So manually review/fix the subtitles"                                  big
-        %EDITOR% "%SRT_NEW%"
-        pause "Press any key after fixing up the subtitles"
+        rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
+        call warning      "Quick review of subtitles"     big
+        call warning_soft "%italics_on%WhisperTimeSync%italics_off% often gets the very beginning wrong" silent
+        call warning_soft "1) take special care that the very beginning / first words fall within a subtitle"  silent
+        call warning_soft "2) there shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)" silent
+        call warning_soft "3) If the last timestamp of the new subtitles, which is:" silent
+
+        @echo off
+        call set-tmp-file subtitle-final-timestamp-grep-results 
+        set last_timestamp_old_file=%tmpfile1%
+        set last_timestamp_new_file=%tmpfile2%
+        ((grep "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" "%@UNQUOTE["%srt_new%"]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_new_file%)
+        ((grep "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" "%@UNQUOTE["%srt_old%"]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)
+        iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
+                call warning "Final timestamps differ!" big
+                set our_display_color=%ansi_color_bright_red%
+        else
+                call success "Final timestamps are the same, so we’re probably fine!" big
+                set our_display_color=%ansi_color_bright_green%
+                
+        endiff
+        echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_red%%zzzzzz%%italics_on%old%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_new_file%
+        echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_green%%zzzz%%italics_on%new%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_old_file%
+
+        %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
+        pause "Press any key after BRIEFLY reviewing the subtitles for malformed blocks and making sure the first word(s) are inside a valid block and no blocks have same timestamps"
 
 
 
 :END
+

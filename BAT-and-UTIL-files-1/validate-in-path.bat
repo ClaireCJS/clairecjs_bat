@@ -2,9 +2,6 @@
 @echo off
 @on break cancel
 @rem echo %ansi_reset%%conceal_off%%ansi_color_grey%📞📞📞 “%0 %1$” called by %_PBATCHNAME 📞📞📞%ansi_color_normal%
-@gosub save_cusor_position
-@gosub display_temp_output %1
-
 
 
 
@@ -30,15 +27,10 @@ rem                     [Solution: use regular epressions to strip things off pa
 
 
    
-rem Make sure stripansi plugin is loaded:   
-        set stripansi_failed=0
-        if "%@PLUGIN[stripansi]" == "" call load-TCC-plugins
-rem If it’s still not loaded even after trying, take special note of it:
-        if "%@PLUGIN[stripansi]" == "" set stripansi_failed=1
-
-
 rem Make sure ansi_move_to function is defined:
-        if "" == "%@FUNCTION[ansi_move_to]" function ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        
+        if "" == "%@FUNCTION[ansi_move_to]"      function ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        
+        if "" == "%@FUNCTION[ansi_move_to_col]"  function ANSI_MOVE_TO_COL=`%@CHAR[27][%1G`
+        if "" == "%@FUNCTION[ansi_move_to_row]"  function ANSI_MOVE_TO_ROW=`%@CHAR[27][%1d`      
         if "" != "%@function[RANDFG_SOFT]"  goto :endif_66
                 rem (copied from set-ansi.bat):
                         set MIN_RGB_VALUE_FG=88
@@ -48,9 +40,19 @@ rem Make sure ansi_move_to function is defined:
                         set EMPHASIS_BG_EXPANSION_FACTOR=1.4
                         set MIN_RGB_VALUE_BG=%@FLOOR[%@EVAL[%MIN_RGB_VALUE_BG*%EMPHASIS_BG_EXPANSION_FACTOR%]]
                         Set MAX_RGB_VALUE_BG=%@FLOOR[%@EVAL[%MAX_RGB_VALUE_BG*%EMPHASIS_BG_EXPANSION_FACTOR%]]
-                        function RANDFG_SOFT=`%@CHAR[27][38;2;%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]]m`
+                        if "" eq "%@FUNCTION[RANDFG_SOFT]"       function RANDFG_SOFT=`%@CHAR[27][38;2;%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]];%@RANDOM[%[MIN_RGB_VALUE_FG],%[MAX_RGB_VALUE_FG]]m`
         :endif_66
         rem if "" == "%@FUNCTION[ansi_move_to]" call set-ansi force
+
+rem Beginning cosmetics:
+        @gosub save_cusor_position
+        @gosub display_temp_output %1
+
+rem Make sure stripansi plugin is loaded:   
+        set stripansi_failed=0
+        if "%@PLUGIN[stripansi]" == "" call load-TCC-plugins
+rem If it’s still not loaded even after trying, take special note of it:
+        if "%@PLUGIN[stripansi]" == "" set stripansi_failed=1
 
 
 rem Message styling experimentation:

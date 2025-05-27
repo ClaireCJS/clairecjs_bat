@@ -5,7 +5,7 @@
 rem Validate environment (once):
         iff "1" != "%validated_autoname%" then
                 call validate-in-path               fix-unicode-filenames
-                call validate-environment-vairables ansi_colors_have_been_set
+                call validate-environment-variables ansi_colors_have_been_set
                 set  validated_autoname=1
         endiff
 
@@ -47,7 +47,7 @@ rem SPECIAL STUFF FOR EXIF-EXTRACTION & NEWPICS ONLY:
         :NoExif
 
 rem But let's fix the unicode filenames first...
-        echo %ansi_color_important%%star% Fixing unide filenames...%ansi_color_normal%
+        echo %ansi_color_important%%star% Fixing unicode filenames...%ansi_color_normal%
         call fix-unicode-filenames auto
 
 rem RUN "ALLFILES MV" (with %SWEEPING% having been set to 1 to trigger automatic mode):

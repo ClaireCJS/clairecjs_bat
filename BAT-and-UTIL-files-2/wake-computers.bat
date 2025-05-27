@@ -64,7 +64,7 @@ rem Annd we’re done!
     return
 
     :wake_up_by_MAC_address [name tmp_mac tmp_ip tmp_emoji down]
-                call less_important "Waking %tmp_emoji% %name% %tmp_emoji%  %tab% %star2% IP: %tmp_ip%%tab%%star2% MAC: %tmp_mac%"
+                call less_important "Waking %tmp_emoji% %name% %tmp_emoji%  %tab%%@ansi_move_to_col[27] %star2% IP: %tmp_ip%%@ansi_move_to_col[52]%star2% MAC: %tmp_mac%"
                 wake-on-lan.exe %tmp_mac% /a %tmp_ip% >nul
     return
 :END

@@ -24,7 +24,7 @@ from   wcwidth      import wcswidth
 from   math         import ceil
 sys.stdin .reconfigure(encoding='utf-8', errors='replace')
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-colorama.init()
+colorama.init(strip=False)
 #print(Fore.RED + "This text should be red." + Style.RESET_ALL)
 
 
@@ -56,6 +56,7 @@ LIGHTNESS                = 0.5                                                  
 DEFAULT_ROW_PADDING    = 7                                                                              # SUGGESTED: 7. Number of rows to subtract from screen height as desired maximum output height before adding columns. May not currently do anything.
 content_ansi           =  "\033[0m"
 divider_ansi           =  "\033[38;2;187;187;0m"
+BOT_OFF                =  "\033#0"
 #content_ansi          =  "\033[42m\033[31m"
 divider                = f"  {divider_ansi}" + "│" + f"  {content_ansi}"                                # Divider with #BBBB00 color and additional padding
 divider_visible_length = 5                                                                              # basically the same as len(stripe_ansi(divider))
@@ -77,11 +78,14 @@ DEBUG_VERBOSE_COLUMNS  = False
 
 ################ CONSTANTS FOR ANSI CODE: ################
 ANSI_RESET          = "\033[39m\033[49m\033[0m"
-BLINK_ON            = "\033[6m"
-BLINK_OFF           = "\033[25m"
-COLOR_GREY          = "\033[90m"
-FAINT_ON            = "\033[2m"
-FAINT_OFF           = "\033[22m"
+ANSI_EOL            = "\033[0K"
+ANSI_BIG_OFF        = "\033#0"
+ANSI_FG_BLACK       = "\033[30m"
+ANSI_BLINK_ON       = "\033[6m"
+ANSI_BLINK_OFF      = "\033[25m"
+ANSI_COLOR_GREY     = "\033[90m"
+ANSI_FAINT_ON       = "\033[2m"
+ANSI_FAINT_OFF      = "\033[22m"
 REGEX_TO_MATCH_ANSI = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~]|\][^\x07]*\x07|P[^\\]*\\)')
 
 
@@ -134,6 +138,8 @@ STRIPE                       = False
 VERBOSE                      = False
 WORD_HIGHLIGHTING            = False
 FORCE_COLUMNS                = False
+IGNORE_NUMSIGNLINES          = False
+TEXT_ALSO                    = False
 args                         = None
 parser                       = None
 avg_line_width               = None
@@ -158,7 +164,7 @@ record_working_column_length = 0
 ##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
 def parse_arguments():
-    global STRIPE, WRAPPING, VERBOSE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, args, console_width, console_height, WORD_HIGHLIGHTING
+    global STRIPE, WRAPPING, VERBOSE, FORCE_COLUMNS, FORCED_CONSOLE_WIDTH, IGNORE_NUMSIGNLINES, args, console_width, console_height, WORD_HIGHLIGHTING, TEXT_ALSO
 
     """
     Parse command-line arguments.
@@ -166,24 +172,30 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Display STDIN in a compact, multi-column format.")
 
     # Optional positional argument for the filename
-    parser.add_argument('optional_filename'                        , nargs='?', type=str,  help="Optional filename to process. If not provided, input is from STDIN.")
-    parser.add_argument( '-w', '--width'                           , type=int,             help="Override output width to something other than console width")
-    parser.add_argument('-cw', '--console_width'                   , type=int,             help="Override detected console width")
-    parser.add_argument( '-c', '--columns'                         , type=int,             help="Override number of columns calculation")
-    parser.add_argument( '-p', '--row_padding'                     , type=int, default=7,  help="Number of rows to subtract from screen height as desired maximum")
-    parser.add_argument( '-v', '--verbose'                         , action='store_true',  help="Verbose mode—display debug info and internal logs")
-    parser.add_argument('-wh', '--word_highlighting'               , action='store_true',  help="Word Highlighting")
-    parser.add_argument('-st', '--stripe'                          , action='store_true',  help="generate a visual stripe summary instead")
-    parser.add_argument('-wr', '--wrap'                            , action='store_true',  help="Enable line wrapping for long lines")
-    parser.add_argument('-nw', '--no_wrap'                         , action='store_true',  help="Disable line wrapping for long lines")
-    parser.add_argument('-ll', '--max_line_length_before_wrapping' , type=int, default=999, help="Maximum line length before wrapping")     #was 80 for like 6 months but changed to 999 2025/03/03
-    args = parser.parse_args()
+    parser.add_argument('optional_filename'                          , nargs  = '?', type=str,    help="Optional filename to process. If not provided, input is from STDIN.")
+    parser.add_argument( '-w'  , '--width'                           , type   = int,              help="Override output width to something other than console width")
+    parser.add_argument('-cw'  , '--console_width'                   , type   = int,              help="Override detected console width")
+    parser.add_argument( '-c'  , '--columns'                         , type   = int,              help="Override number of columns calculation")
+    parser.add_argument( '-p'  , '--row_padding'                     , type   = int, default=7  , help="Number of rows to subtract from screen height as desired maximum")
+    parser.add_argument('-ll'  , '--max_line_length_before_wrapping' , type   = int, default=999, help="Maximum line length before wrapping")     #was 80 for like 6 months but changed to 999 2025/03/03
+    parser.add_argument( '-v'  , '--verbose'                         , action = 'store_true',     help="Verbose mode—display debug info and internal logs")
+    parser.add_argument('-wh'  , '--word_highlighting'               , action = 'store_true',     help="Word Highlighting")
+    parser.add_argument('-st'  , '--stripe'                          , action = 'store_true',     help="generate a visual stripe summary instead")
+    parser.add_argument('-also', '--text_also'                       , action = 'store_true',     help="display the text AND the stripe after")
+    parser.add_argument('-wr'  , '--wrap'                            , action = 'store_true',     help="Enable line wrapping for long lines")
+    parser.add_argument('-nw'  , '--no_wrap'                         , action = 'store_true',     help="Disable line wrapping for long lines")
+    parser.add_argument('-ins' , '--ignore_numsign_lines_for_stripes', action = 'store_true',     help="Ignore lines starting with “#” when creating stripe")
+
+    IGNORE_NUMSIGNLINES  = False                              # unnecessary
+    args                 = parser.parse_args()
     ROW_PADDING          = args.row_padding
     VERBOSE              = args.verbose
     WORD_HIGHLIGHTING    = args.word_highlighting
     FORCE_COLUMNS        = args.columns
     FORCED_CONSOLE_WIDTH = args.console_width
     STRIPE               = args.stripe
+    TEXT_ALSO            = args.text_also
+    IGNORE_NUMSIGNLINES  = args.ignore_numsign_lines_for_stripes
     if STRIPE: WORD_HIGHLIGHTING = True                         #stripe is really an abbreviated form of word_highlighting mode
     return parser.parse_args()
 
@@ -447,11 +459,8 @@ def log_line_parts_and_process_them_too(line_parts, row_num, column_widths, rend
         #en2         =        len(stripped_row)
         len2         =   wcswidth(stripped_row)
         if col_num == 1:
-            #print(f"INTERNAL_LOG_LOCAL = {INTERNAL_LOG_LOCAL}")
             tmpstr = f"\n🪓 Row {row_num}:      Length={len2:3} / length2={len2:3} / con width={console_width}\n{rendered_row}\n"
-            #tmpstr = tmpstr + f"{stripped_row}\n"
             INTERNAL_LOG_LOCAL = INTERNAL_LOG_LOCAL + tmpstr
-        #NTERNAL_LOG_LOCAL     = INTERNAL_LOG_LOCAL + f"\tColumn {col_num}={col_width} {len     (part):2}  Length: {part.ljust(width)} \n"
         INTERNAL_LOG_LOCAL     = INTERNAL_LOG_LOCAL + f"        ❕ Column {col_num} width={col_width:2} ... part width={part_width:2} \n"
         #GOAT should this be ≥ and not >?
         if len2 > console_width:
@@ -670,6 +679,7 @@ def apply_background_color(r, g, b):
 
 # ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 def normalize_for_highlight(word):
+    word = re.split(r"[-–—━]", word, 1)[0]  # truncate at first hyphen-like character
     if word == "versus"    or word == "v.s.": word = "vs"                            # different ways to express the same word should be drawn  the same color
     #f word == "alongside"                  : word == "along side"                   # different ways to express the same word should be drawn  the same color
     if word == "alongside"                  : word == "along"                        # make “along side” same color as “alongside” by treating both as simply “along”
@@ -696,13 +706,13 @@ def consistent_word_highlight(text):
     Highlight words in the text that are longer than WORD_HIGHLIGHT_LEN_MIN.
     """
     highlighted_text = []
+    #striped_text    = []  # reset every time
     word             = ''
     in_highlight     = False                                                            # Track whether we're currently inside a highlighted word
 
     text2use = text.replace('--','—');
 
     for char in text2use:
-        #f char.isalnum() or char ==  "’" or char == "'" or char == "´":                # Building a word: punctuation that we still want to consider part of the word
         #f char.isalnum() or char in {"’", "'", "´", "-", "–", "—"}:                    # Building a word: punctuation that we still want to consider part of the word
         if char.isalnum() or char in {"’", "'", "´", "-", "–"     }:                    # Building a word: punctuation that we still want to consider part of the word —— maybe en-dash should NOT be on the list afterall?
             if               char in {"’", "'", "´"}: char = "’"                        # Building a word: replace dumb apostrophes with smart apostrophes
@@ -763,8 +773,82 @@ def consistent_word_highlight(text):
 # ═════════════════════════════════════════════════════════════════════════════════
 
 
+
 # ═════════════════════════════════════════════════════════════════════════════════
+import re
+
 def convert_stretched_stripe(stripe, columns, console_width):
+    result = ''
+    words = []
+
+    for i in range(0, len(stripe), 2):
+        if i + 1 < len(stripe):
+            word = stripe[i + 1].split('\x1b')[0]
+        else:
+            word = stripe[i].split('m', 1)[-1].split('\x1b')[0]
+        words.append(word)
+
+    num_words = len(words)
+    min_per_word_width = 2
+    if num_words * min_per_word_width > console_width:
+        return "(stripe too wide)"
+
+    max_letters = 2
+    while max_letters * num_words > console_width and max_letters > 1:
+        max_letters -= 1
+
+    total_chars = max_letters * num_words
+    total_padding = console_width - total_chars
+    base_pad = total_padding // num_words
+    extra_pad = total_padding % num_words
+
+    for i in range(0, len(stripe), 2):
+        ansi_raw = stripe[i]
+        word = stripe[i + 1].split('\x1b')[0] if i + 1 < len(stripe) else ""
+
+        # Parse 38 = bg, 48 = fg (because of the flip done in stripeload)
+        bg_match = re.search(r'38;2;(\d+);(\d+);(\d+)', ansi_raw)  # actual bg
+        fg_match = re.search(r'48;2;(\d+);(\d+);(\d+)', ansi_raw)  # actual text color
+
+        if not (fg_match and bg_match):
+            continue
+
+        r_bg, g_bg, b_bg = map(int, bg_match.groups())  # ← visual background
+        r_fg, g_fg, b_fg = map(int, fg_match.groups())  # ← current text color
+
+        # Check if background is too blue or dark
+        luminance = 0.2126 * r_bg + 0.7152 * g_bg + 0.0722 * b_bg
+        is_blueish = b_bg > max(r_bg, g_bg) and b_bg > 100
+        is_dark = luminance < 80
+
+        if is_blueish or is_dark:
+            r_fg, g_fg, b_fg = 255, 255, 255  # use white text
+
+        # Build the ANSI stripe block: foreground (text) then background (box)
+        ansi = f"\033[38;2;{r_fg};{g_fg};{b_fg}m\033[48;2;{r_bg};{g_bg};{b_bg}m"
+
+        if len(word) >= 2 and max_letters >= 2:
+            letters = word[0].upper() + word[1].lower()
+        else:
+            letters = word[:1].upper()
+
+        pad = base_pad + (1 if extra_pad > 0 else 0)
+        if extra_pad > 0:
+            extra_pad -= 1
+
+        left = pad // 2
+        right = pad - left
+        right_segment = f"{' ' * right}"
+        #f right_segment and right_segment[-1] == ' ': right_segment = right_segment[:-1]                 +  '▕'
+        if right_segment and right_segment[-1] == ' ': right_segment = right_segment[:-1] + ANSI_FG_BLACK +  '▕'
+        result += f"{ansi}{' ' * left}{letters}{right_segment}\033[0m"
+
+    return result
+# ═════════════════════════════════════════════════════════════════════════════════
+
+
+# ═════════════════════════════════════════════════════════════════════════════════
+def convert_stretched_stripe_yay(stripe, columns, console_width):
     result = ''
     words = []
 
@@ -798,7 +882,24 @@ def convert_stretched_stripe(stripe, columns, console_width):
 
             #1ˢᵗ one did not center/caps the letter
             #esult +=                             f'{ansi_code}{word[0]}' + ' ' *  base_padding                       # Add base padding
-            result += f'{ansi_code} ' * (base_padding // 2) + f'{ansi_code}{word[0]}' + ' ' * (base_padding - base_padding // 2)  # Center the letter
+            #result += f'{ansi_code} ' * (base_padding // 2) + f'{ansi_code}{word[0]}' + ' ' * (base_padding - base_padding // 2)  # Center the letter
+
+            # Determine stripe width per word segment
+            segment_width = base_padding + 1  # 1 char minimum from word + its padding
+
+            # Choose 2-letter output only if wide enough
+            if segment_width >= 4 and len(word) >= 2:
+                letters = word[0].upper() + word[1].lower()
+            else:
+                letters = word[0].upper()
+
+            # Center letters in the segment
+            pad_total = base_padding
+            pad_left  = pad_total // 2
+            pad_right = pad_total - pad_left
+            result += f'{ansi_code}{" " * pad_left}{letters}{" " * pad_right}\x1b[0m'
+
+
 
             # Step 5: Distribute extra spaces (remaining_padding) based on word length
             if remaining_padding   > 0:
@@ -876,12 +977,14 @@ def main():
 
 
     # Process our command line parameters:
-    WRAPPING    = DEFAULT_WRAPPING
-    width = args.width or console_width
-    if our_args.row_padding: ROW_PADDING = our_args.row_padding
-    else:                    ROW_PADDING = DEFAULT_ROW_PADDING
-    if our_args   .wrap:     WRAPPING = True
-    if our_args.no_wrap:     WRAPPING = False
+    WRAPPING = DEFAULT_WRAPPING
+    IGNORE_NUMSIGNLINES = False
+    width    = args.width or console_width
+    if our_args.row_padding:                      ROW_PADDING = our_args.row_padding
+    else:                                         ROW_PADDING = DEFAULT_ROW_PADDING
+    if our_args.wrap:                             WRAPPING = True
+    if our_args.no_wrap:                          WRAPPING = False
+    if our_args.ignore_numsign_lines_for_stripes: IGNORE_NUMSIGNLINES = True
     if FORCED_CONSOLE_WIDTH: console_width=our_args.console_width
 
 
@@ -911,12 +1014,22 @@ def main():
 
     #Generate Stripe one-line representation
     if STRIPE:
-        joined_input_data = " ".join(input_data)                                         #print(f"joined_input_data is {joined_input_data}")
-        columns_data      = [[joined_input_data]]                                        #print(f"columns_data is {columns_data}")
-        column_widths     = calculate_column_widths(columns_data)                        #print(f"column_widths is {column_widths}")
-        meh, stripeamabob = render_columns(columns_data, column_widths, divider)         #print(f"stripeamabob is {stripeamabob}")     #        striperooni       = convert_stripe(stripeamabob,1)                        #print(f"\nstriperooni is:\n{striperooni}\nand looks like this:"); print(striperooni)       #tripester = format_colored_array(striperooni,console_width-1)
+        if IGNORE_NUMSIGNLINES: joined_input_data = (BOT_OFF + " ").join(line for line in input_data if not line.lstrip().startswith("#"))
+        else:                   joined_input_data = (BOT_OFF + " ").join(input_data)                                                              #print(f"joined_input_data is {joined_input_data}")
+        columns_data      = [[joined_input_data]]                                                                                     #print(f"columns_data is {columns_data}")
+        column_widths     = calculate_column_widths(columns_data)                                                                     #print(f"column_widths is {column_widths}")
+        meh, stripeamabob = render_columns(columns_data, column_widths, divider)                                                      #print(f"stripeamabob is {stripeamabob}")     #        striperooni       = convert_stripe(stripeamabob,1)                        #print(f"\nstriperooni is:\n{striperooni}\nand looks like this:"); print(striperooni)       #tripester = format_colored_array(striperooni,console_width-1)
         #stripeamabob is ['\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;119;242m\x1b[48;2;20;0;12m', 'secretly\x1b[0m', '\x1b[38;2;242;12;31m\x1b[48;2;13;0;21m', 'smiling\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;234;242m\x1b[48;2;19;5;0m', 'Conversations\x1b[0m', '\x1b[38;2;12;226;242m\x1b[48;2;20;0;19m', 'Russian\x1b[0m', '\x1b[38;2;242;47;12m\x1b[48;2;2;16;0m', 'accent\x1b[0m', '\x1b[38;2;242;89;12m\x1b[48;2;19;0;20m', "that's\x1b[0m", '\x1b[38;2;242;12;242m\x1b[48;2;11;0;21m', 'colored\x1b[0m', '\x1b[38;2;112;12;242m\x1b[48;2;17;9;0m', 'Blanket\x1b[0m', '\x1b[38;2;242;12;24m\x1b[48;2;20;0;18m', 'dinner\x1b[0m', '\x1b[38;2;12;242;108m\x1b[48;2;15;13;0m', 'President\x1b[0m', '\x1b[38;2;73;242;12m\x1b[48;2;4;15;0m', 'Cardboard\x1b[0m', '\x1b[38;2;127;12;242m\x1b[48;2;20;0;16m', 'appliance\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;188;242m\x1b[48;2;1;1;22m', 'flamingos\x1b[0m', '\x1b[38;2;142;12;242m\x1b[48;2;18;8;0m', 'engaging\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;192;242m\x1b[48;2;0;16;6m', 'Listening\x1b[0m', '\x1b[38;2;12;242;12m\x1b[48;2;9;15;0m', 'Captain\x1b[0m', '\x1b[38;2;242;158;12m\x1b[48;2;20;0;15m', 'Beefheart\x1b[0m', '\x1b[38;2;66;242;12m\x1b[48;2;0;14;16m', 'Everyone\x1b[0m', '\x1b[38;2;242;12;35m\x1b[48;2;4;1;21m', 'Mixing\x1b[0m', '\x1b[38;2;12;242;223m\x1b[48;2;0;15;7m', 'pieces\x1b[0m', '\x1b[38;2;12;238;242m\x1b[48;2;0;15;11m', 'different\x1b[0m', '\x1b[38;2;242;135;12m\x1b[48;2;20;3;0m', 'Sleeping\x1b[0m', '\x1b[38;2;89;12;242m\x1b[48;2;13;14;0m', 'bathtub\x1b[0m', '\x1b[38;2;242;89;12m\x1b[48;2;19;0;20m', "that's\x1b[0m", '\x1b[38;2;123;242;12m\x1b[48;2;0;15;6m', 'stored\x1b[0m', '\x1b[38;2;20;242;12m\x1b[48;2;0;15;14m', 'larger\x1b[0m', '\x1b[38;2;242;43;12m\x1b[48;2;20;0;13m', 'version\x1b[0m', '\x1b[38;2;12;192;242m\x1b[48;2;12;14;0m', 'itself\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;12;104;242m\x1b[48;2;17;9;0m', 'Unbelievably\x1b[0m', '\x1b[38;2;127;242;12m\x1b[48;2;19;0;20m', 'shadow\x1b[0m', '\x1b[38;2;12;204;242m\x1b[48;2;7;1;21m', 'puppets\x1b[0m', '\x1b[38;2;12;242;131m\x1b[48;2;20;0;4m', 'Masterminding\x1b[0m', '\x1b[38;2;242;116;12m\x1b[48;2;5;15;0m', 'scheme\x1b[0m', '\x1b[38;2;242;12;200m\x1b[48;2;0;16;3m', 'stretches\x1b[0m', '\x1b[38;2;242;12;77m\x1b[48;2;7;15;0m', 'around\x1b[0m', '\x1b[38;2;150;242;12m\x1b[48;2;15;12;0m', 'Definition\x1b[0m', '\x1b[38;2;181;12;242m\x1b[48;2;0;9;19m', 'Understanding\x1b[0m', '\x1b[38;2;242;12;200m\x1b[48;2;0;8;19m', 'complicated\x1b[0m', '\x1b[38;2;242;39;12m\x1b[48;2;8;1;21m', 'puzzle\x1b[0m', '\x1b[38;2;234;12;242m\x1b[48;2;0;16;4m', 'Laughing\x1b[0m', '\x1b[38;2;12;242;39m\x1b[48;2;20;0;20m', 'Looking\x1b[0m', '\x1b[38;2;66;12;242m\x1b[48;2;0;16;4m', 'Knowing\x1b[0m', '\x1b[38;2;16;12;242m\x1b[48;2;1;1;22m', 'everything\x1b[0m', '\x1b[38;2;0;16;3m\x1b[48;2;242;150;12m', 'thinking\x1b[0m']
-        stripester        = convert_stretched_stripe(stripeamabob,1,console_width-1)     #print(f"\nstripester is:\n{stripester}")
+        stripester        = convert_stretched_stripe(stripeamabob,1,console_width-1)                                                  #print(f"\nstripester is:\n{stripester}")
+
+        #if stripester == "": stripester = convert_stretched_stripe(
+        #    ['\x1b[38;2;4;1;21m\x1b[48;25;25;240;12m', 'NNNNNN\x1b[0m',
+        #     '\x1b[38;2;4;1;21m\x1b[48;26;250;240;12m', 'UUUUUU\x1b[0m',
+        #     '\x1b[38;2;4;1;21m\x1b[48;27;25;240;12m', 'LLLLLL\x1b[0m',
+        #     '\x1b[38;2;4;1;21m\x1b[48;28;25;240;12m', 'LLLLLL\x1b[0m',],1,console_width-1)
+        while stripester == "":
+            WORD_HIGHLIGHT_LEN_MIN = WORD_HIGHLIGHT_LEN_MIN - 1
+            stripester = convert_stretched_stripe(stripeamabob,1,console_width-1)
         if stripester == "": stripester = convert_stretched_stripe(
             ['\x1b[38;2;4;1;21m\x1b[48;25;25;240;12m', 'NNNNNN\x1b[0m',
              '\x1b[38;2;4;1;21m\x1b[48;26;250;240;12m', 'UUUUUU\x1b[0m',
@@ -972,7 +1085,7 @@ def main():
 
             #if it's too wide, stop bothering to process (unless we are forcing columns):
             if VERBOSE: print(f"🐾🐾 row_num {row_num}... is_too_wide={is_too_wide}")
-            if is_too_wide and not FORCE_COLUMNS and not STRIPE:
+            if is_too_wide and not FORCE_COLUMNS and (not STRIPE or TEXT_ALSO):
                 if VERBOSE: print(f"🐾🐾 breaking")
                 break
 
@@ -980,27 +1093,27 @@ def main():
             INTERNAL_LOG = INTERNAL_LOG + INTERNAL_LOG_FRAGMENT
 
             #add our rendered row to our output:
-            output += rendered_row.replace("Æ","’") + "\n"                         #mis-encoded apostrpohe fox ... This is very untenable
-            #🐱🐱🐱 if VERBOSE: print(f"🤬🤬 row_num {row_num}... is_too_wide={is_too_wide}\n⚙ ⚙ ⚙ OUTPUT SO FAR:\n{BLINK_ON}{COLOR_GREY}{output}{BLINK_OFF}{ANSI_RESET}⚙ ⚙ ⚙ That's it!")
+            output += rendered_row.replace("Æ","’") + ANSI_EOL + "\n"              # the mis-encoded apostrophe fix is not a very tenable fix, but the ANSI_EOL is *VERY IMPORTANT*!!
+            #🐱🐱🐱 if VERBOSE: print(f"🤬🤬 row_num {row_num}... is_too_wide={is_too_wide}\n⚙ ⚙ ⚙ OUTPUT SO FAR:\n{ANSI_BLINK_ON}{ANSI_COLOR_GREY}{output}{ANSI_BLINK_OFF}{ANSI_RESET}⚙ ⚙ ⚙ That's it!")
 
             #print("loopybob")
-            if STRIPE:
+            if STRIPE and not TEXT_ALSO:
                 #print("breaking")
                 break
 
         #now that we have rendered our row, figure out if we are done or not:
-        keep_looping = False                                                       #only keep looking if things required a redo
-        force_num_columns = False                                                  #keep track of forced-column mode
-        if is_too_wide and not FORCE_COLUMNS:                                      #ignore the error of things being too wide if we are in forced-columns mode
-            keep_looping = True                                                    #keep looping, but with a lower number of coumns
-            columns = columns - 1                                                  #next time, try with 1 fewer columns
-            force_num_columns = True                                               #internally, we are now forcing the number of columns to be the 1 fewer that we set in the previous line
-            if columns == 1: keep_looping = False                                  #if we are down to 1 column, there's no more to check, so stop
-            if columns == 0:                                                       #if we are down to 0 columns, go back to 1 and quit
+        keep_looping = False                                                       # only keep looking if things required a redo
+        force_num_columns = False                                                  # keep track of forced-column mode
+        if is_too_wide and not FORCE_COLUMNS:                                      # ignore the error of things being too wide if we are in forced-columns mode
+            keep_looping = True                                                    # keep looping, but with a lower number of coumns
+            columns = columns - 1                                                  # next time, try with 1 fewer columns
+            force_num_columns = True                                               # internally, we are now forcing the number of columns to be the 1 fewer that we set in the previous line
+            if columns == 1: keep_looping = False                                  # if we are down to 1 column, there's no more to check, so stop
+            if columns == 0:                                                       # if we are down to 0 columns, go back to 1 and quit
                 columns = 1
                 keep_looping = False
             if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬 ACTING ON IT ——> columns is now {columns}"
-        if STRIPE:  keep_looping = False
+        if STRIPE and not TEXT_ALSO:  keep_looping = False
         if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🤬🤬🤬🤬 FINAL_COLUMNS ——> columns is now {columns}"   #debug
         #print(F"keep_looping is {keep_looping}")
 
@@ -1034,7 +1147,7 @@ def main():
     #══════════════════════════════════════════════════════════════════════#
     # 🎉🎉🎉 ⭐⭐⭐⭐⭐ THE FILE IS ACTUALLY PRINTED RIGHT HERE: ⭐⭐⭐⭐⭐ 🎉🎉🎉 #
     else:                                                                  #
-        if not STRIPE:                                                     #
+        if not STRIPE or TEXT_ALSO:                                        #
             trimmed_output = remove_trailing_blank_lines(output)           #
             if WORD_HIGHLIGHTING:                                          #
                 highlighted_output = trimmed_output                        #
