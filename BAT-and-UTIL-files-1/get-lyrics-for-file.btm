@@ -38,6 +38,7 @@ rem Basic initialization:
         rem rem echo y α linish 29
         @set DONT_MESS_WITH_MY_STATUS_BAR=1
         @set temporarily_disable_status_bar=0
+        @set SOME_INSTRUMENTALS_WERE_MARKED=0
         rem rem echo y α linish 32
 
 
@@ -3533,7 +3534,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
         :actually_rename_every_file_as_an_instrumental_or_whatever [opt1 opt2 opt3]
                 set ask=0
                 if "%1" == "%ask" .or. "%@UNQUOTE["%opt1%"]" == "ask" set ask=1
-                for %%tmpFileForXAnswer in (%FILEMASK_AUDIO%) do (echo gosub arefaiowsub "%@UNQUOTE["%tmpFileForXAnswer%"]" "%@unquote["%opt1%"]" "%@unquote["%opt2%"]" "%@unquote["%opt3%"]"  %+ gosub arefaiowsub "%@UNQUOTE["%tmpFileForXAnswer%"]" "%@unquote["%opt1%"]" "%@unquote["%opt2%"]" "%@unquote["%opt3%"]" )
+                for %%tmpFileForXAnswer in (%FILEMASK_AUDIO%) do (gosub arefaiowsub "%@UNQUOTE["%tmpFileForXAnswer%"]" "%@unquote["%opt1%"]" "%@unquote["%opt2%"]" "%@unquote["%opt3%"]" )
 
         return
                 :arefaiowsub [tmpFileForXAnswer_copy opt2 opt3]
@@ -3700,6 +3701,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
 
                         rem If we ultimately said “Y”/“I” for “Yes, it’s an Instrumental”, then mark it as such:
                                 if  "Y" != "%ANSWER%" .and. "I" != "%ANSWER%" goto /i endiff_not_y_2856
+                                        set SOME_INSTRUMENTALS_WERE_MARKED=1
 
                                         rem Let’s not use the ADS tag, since we will be renaming the file:
                                         rem *echo True>"%IS_INSTRUMENTAL_ADS_FILENAME%"
@@ -3832,7 +3834,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                                 endiff
 
                         rem 4) If we opted not to rename it, then abort this function:
-                                iff  "Y" != "%ANSWER%" then
+                                iff  "Y" != "%ANSWER%" .and. "I" != "%ANSWER%" then    rem We use “I” in place of “Y” for Yes-rename-as-instrumental
                                         echo %ansi_color_warning_soft%%star%Fine, won’t rename as %italics_on%%nature%%italics_off% then!%ansi_color_normal%
                                         return
                                 endiff

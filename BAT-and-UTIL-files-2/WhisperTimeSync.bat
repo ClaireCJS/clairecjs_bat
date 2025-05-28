@@ -47,7 +47,6 @@ rem USAGE:
 
 rem VALIDATE PARAMETERS:
         rem echo %%1 is %lq%%1%rq% %+ pause
-        rem @echo on
         set      SRT=%@UNQUOTE[%1]
         set  SRT_OLD=%@UNQUOTE[%1]
         set  LYR_RAW=%@UNQUOTE[%2]
@@ -82,7 +81,7 @@ rem Run WhisperTimeSync:
         set  validated_srt_and_txt_for_whispertimesync_already=0               %+ rem This flag has now been used and can be disposedo f
 
 rem Did it work?
-        call validate-environment-variable SRT_NEW "seems like we didn’t set SRT_NEW correctly, it’s value is “%SRT_NEW%”"
+        if not exist "%SRT_NEW%" call validate-environment-variable SRT_NEW "seems like we didn’t set SRT_NEW correctly, it’s value is %lq%%SRT_NEW%%rq%"
 
 
 

@@ -267,6 +267,7 @@ REM branch on certain paramters, and clean up various parameters
         set PROMPT_ANALYSIS_ONLY=0
         set CHIPTUNE_ENCOUNTERED=0
         set LAUNCHING_AI_DISPLAYED=0
+        set LOCKFILE_MENTIONED_ALREADY=0
         set JUST_RENAMED_TO_INSTRUMENTAL=0
         set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=0
         unset /q karaoke_status
@@ -1521,9 +1522,9 @@ rem ACTUALLY DO IT!!!:
 
 REM  ✨ ✨ ✨ ✨ ✨ ✨ LOG WHAT WE’VE DONE: ✨ ✨ ✨ ✨ ✨ ✨         [and window title too]
                 iff  "%LOG_PROMPTS_USED%" == "1" then
-                        @echo %@REPEAT[%newline%,2]%EMOJI_EAR% %_DATETIME: prompt v%PROMPT_VERSION%: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>:u8"%OUR_LOGFILE%"
+                        @echo %@REPEAT[%newline%,4]%EMOJI_EAR% %_DATETIME: prompt v%PROMPT_VERSION%: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>:u8"%OUR_LOGFILE%"
                         @echo %@REPEAT[%newline%,0]%EMOJI_EAR% %_DATETIME: prompt v%PROMPT_VERSION%: %TRANSCRIBER_TO_USE% %CLI_OPS% %3$ "%INPUT_FILE%" >>:u8"%AUDIOFILE_TRANSCRIPTION_LOG_FILE%"
-                        @echo %@REPEAT[%newline%,4]%EMOJI_EAR% %_DATETIME: filename:  %INPUT_FILE%                                                     >>:u8"%AUDIOFILE_TRANSCRIPTION_LOG_FILE%"
+                        @echo %@REPEAT[%newline%,1]%EMOJI_EAR% %_DATETIME: filename:  %INPUT_FILE%                                                     >>:u8"%AUDIOFILE_TRANSCRIPTION_LOG_FILE%"
                 endiff
 
 REM delete zero-byte LRC files that can be created
@@ -1909,8 +1910,8 @@ rem Full-endeavor success message:
 
         rem At this point, the karaoke is generated, possibly corrected, and awaiting our approval:
                 if  "%KARAOKE_STATUS%" == "APPROVED" goto :karaoke_already_approved_1913
-                        echo %ansi_color_debug%- DEBUG: about to gosub approve karaoke 1644%ansi_color_normal%
-                        if "1" == "%JUST_RENAMED_TO_INSTRUMENTAL%" goto END
+                        echo %ansi_color_debug%- DEBUG: about to gosub approve karaoke 1644%ansi_color_normal%  "JUST_RENAMED_TO_INSTRUMENTAL" == "%JUST_RENAMED_TO_INSTRUMENTAL%" 
+                        if "1" == "%JUST_RENAMED_TO_INSTRUMENTAL%" goto /i END
                         gosub ask_to_approve_karaoke
                         rem TODO remove: if "Y" == "%ANSWER%" goto /i go_here_if_we_just_approved_the_karaoke
                 :karaoke_already_approved_1913
@@ -2002,18 +2003,18 @@ goto /i skip_subroutines
                 :ask_about_karaoke_approval                                        
                 unset /q ANSWER
                 @call askyn  "Approve/edit karaoke file [D=%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,P=%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ADEIPQTWM E:edit_karaoke,Q:enQueue_in_winamp,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete_it,M:restart_winamp
+                set HOLD_ANSWER_2006=%ANSWER%
                 gosub check_for_answer_of_T "%@UNQUOTE["%INPUT_FILE%"]"
                 gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
                 gosub check_for_answer_of_E "%SRT_FILE%"
                 gosub check_for_answer_of_M
-                iff "%ANSWER" == "W" then
-                        set ANSWER=Y
-                        rem fail: goto /i just_asked_to_edit_karaoke
-                        goto /i just_before_affirmative_whisper_timesync
-                endiff
+                set ANSWER=%HOLD_ANSWER_2006%
                 iff "%ANSWER" == "W" then
                         set   DO_WHISPER_TIME_SYNC=1
                         gosub DO_WHISPER_TIME_SYNC
+                        set ANSWER=Y
+                        pause "About to goat-goto just_before_affirmative_whisper_timesync"
+                        goto /i just_before_affirmative_whisper_timesync
                 endiff
                 REM call debug "about to check iff “%ANSWER%” == “Y” ...... 🍪"
                 iff "%ANSWER" == "Y" .or. "%ANSWER" == "A" then
@@ -2144,7 +2145,7 @@ goto /i skip_subroutines
                                 rem echo  checking if "1" ==  "@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" 
                                 rem echo  checking if "1" == "%@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" 
                                 if  "1" != "%@RegEx[%_PID,"%LOCKFILE_CONTENTS%"]" goto :endif_1997
-                                        echo %ansi_color_warning_soft%%star3% Lockfile exists!%ansi_color_green%...but it%smart_apostrophe%s the lockfile for %italics_on%this%italics_off% process, so overwriting...
+                                        echo %ansi_color_warning_soft%%star3% Lockfile exists!%ansi_color_green%...but it%smart_apostrophe%s the lockfile for %italics_on%this%italics_off% process, so overwriting...%ansi_erase_to_end_of_screen%
                                         return 777
                                 :endif_1997
                                 :start_waiting_at_point_of_having_contents_already
@@ -2154,7 +2155,13 @@ goto /i skip_subroutines
                                 echos %ansi_position_save%
                                 rem gosub divider seems to give me batch nesting limits due to recursion.. Let’s try calling our batfile instead
                                 call divider
+                                iff "1" != "%LOCKFILE_MENTIONED_ALREADY%" then
+                                        set num_lines=10
+                                        repeat %num_lines% echo.
+                                        echos %@ANSI_MOVE_UP[%num_lines%]
+                                endiff
                                 echos %ansi_color_important_less%%star2% Waiting on lockfile...
+                                set LOCKFILE_MENTIONED_ALREADY=1
                                 call warning_soft "Lockfile already exists! %START% Status:"                   
                                 echos         %ansi_color_debug%``                              
                                 if exist "%TRANSCRIBER_LOCK_FILE%" type "%TRANSCRIBER_LOCK_FILE%"                                         

@@ -79,10 +79,12 @@ rem Ask if we want to copy these lyrics back over our official file...
                         rem echo COMMAND is %COMMAND% %+ pause
                         %color_removal%
                         %COMMAND%
+                endiff
         endiff
 
 rem Run WhisperTimeSync:
         %color_run%
+        echo %STAR3% Running WhisperTimeSync...
         "%JAVA_WHISPERTIMESYNC%" -Xmx2G -jar %WhisperTimeSync% "%srt%" "%lyr%" %our_language%
         call errorlevel
 
@@ -109,9 +111,9 @@ rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
         echo %ANSI_COLOR_WARNING_SOFT%%STAR2% Quick review of subtitles:%ansi_color_normal%
         echo %ANSI_COLOR_WARNING_SOFT%%STAR2% italics_on%WhisperTimeSync%italics_off% often gets the very beginning wrong%ansi_color_normal%
-        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% ❶ take special care that the very beginning / first words fall within a subtitle"  silent
-        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% ❷ there shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)" silent
-        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% ❸ If the last timestamp of the new subtitles, which is:" silent
+        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz% ❶  Take special care that the very beginning / first words fall within a subtitle"  silent
+        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz% ❷  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
+        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz% ❸  If the last timestamp of the new subtitles, which is:
 
         @echo off
         call set-tmp-file subtitle-final-timestamp-grep-results 

@@ -1212,7 +1212,7 @@ rem ************* TOYS: BEGIN: *************
 
 
 
-        rem ——————— cursive lettering! ——————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ——————— cursive lettering! — 𝓬𝓾𝓻𝓼𝓲𝓿𝓮 𝓵𝓮𝓽𝓽𝓮𝓻𝓲𝓷𝓰 ——————————————————————————————————————————————————————————————————————————————————————————————————
 
                 rem Cursor uppercase and lowercase sets are a different distance apart from each other than the ASCII ones!
                         rem 𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩
@@ -1240,14 +1240,109 @@ rem ************* TOYS: BEGIN: *************
 
                 rem Testing:
                     goto :testing_skip_1
-                        bigecho %@cursive_lower[A] %@cursive_lower[a] %@cursive_lower[1] %@cursive_lower[Heinz 57 VARIETY]
-                        bigecho %@cursive_upper[A] %@cursive_upper[a] %@cursive_upper[1] str:%@cursive_upper[Heinz 57 VARIETY]
-                        bigecho %@cursive_letter_only[A] %@cursive_letter_only[a] %@cursive_letter_only[1] str:%@cursive_letter_only[Heinz 57 VARIETY]
-                        bigecho %@cursive_letter[A] %@cursive_letter[a] %@cursive_letter[1] str:%@cursive_letter[Heinz 57 VARIETY]
-                        bigecho %@cursive_string[A] %@cursive_string[a] %@cursive_string[1] str:%@cursive_string[Heinz 57 VARIETY]
-                        bigecho %@cursive_string_rainbow[A] %@cursive_string_rainbow[a] %@cursive_string_rainbow[1] str:%@cursive_string_rainbow[Heinz 57 VARIETY]
+                        call bigecho %@cursive_lower[A] %@cursive_lower[a] %@cursive_lower[1] %@cursive_lower[Heinz 57 VARIETY]
+                        call bigecho %@cursive_upper[A] %@cursive_upper[a] %@cursive_upper[1] str:%@cursive_upper[Heinz 57 VARIETY]
+                        call bigecho %@cursive_letter_only[A] %@cursive_letter_only[a] %@cursive_letter_only[1] str:%@cursive_letter_only[Heinz 57 VARIETY]
+                        call bigecho %@cursive_letter[A] %@cursive_letter[a] %@cursive_letter[1] str:%@cursive_letter[Heinz 57 VARIETY]
+                        call bigecho %@cursive_string[A] %@cursive_string[a] %@cursive_string[1] str:%@cursive_string[Heinz 57 VARIETY]
+                        call bigecho %@cursive_string_rainbow[A] %@cursive_string_rainbow[a] %@cursive_string_rainbow[1] str:%@cursive_string_rainbow[Heinz 57 VARIETY]
                     goto :END
                     :testing_skip_1
+
+
+
+
+
+        rem ——————— block lettering! —— 🇧 🇱 🇴 🇨 🇰  🇱 🇪 🇹 🇹 🇪 🇷 🇮 🇳 🇬 ! ——————————————————————————————————————————————————————————————————————————————————————————————————
+
+                rem Cursor uppercase and lowercase sets are a different distance apart from each other than the ASCII ones!
+                        rem 𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩
+                        function  block_upperr=`echo @if[@ASCII[@left[1,%1]] ge 65`
+                        function  block_upper=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[%@EVAL[127397+%@ASCII[%@left[1,%1]]]] ``,%@left[1,%1]``]`
+                        function  block_lower=`%@if[%@ASCII[%@left[1,%1``]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[%@EVAL[127397-32+%@ASCII[%@left[1,%1]]]] ``,%@left[1,%1]``]`
+   
+                rem block *any* character —— uses block_upper and block_lower when appropriate
+                        rem 𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃           𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃          𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃
+                        function  block_letter_only=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[%@EVAL[127397+%@ASCII[%@left[1,%1]]]],]%@if[%@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[%@EVAL[127397-32+%@ASCII[%@left[1,%1]]]] ``,]`
+                        function       block_letter=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90  .or.   %@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@block_LETTER_ONLY[%@left[1,%1]]``,%@left[1,%1]``]`
+
+
+                rem block any string:
+                        function block_string=`%@ReReplace[([A-Za-z]),%%@block_letter[\1],%1$]`
+                        function  block_plain=`%@block_string[%1$]`
+
+                rem 🌈🌈🌈 Block any string, but in rainbow: 🌈🌈🌈
+                        function block_string_colorful=`%@colorful_string[%@block_string[%@UNQUOTE[%1$]]]%ansi_reset%`
+                        function  block_string_rainbow=`%@block_string_colorful[%1$]`
+
+                rem Set our main block function —— using the colorful one doesn’t even make sense here but what the hay:
+                        function block=`%@block_string_colorful[%@unquote[%1$]]`
+
+                rem Testing:
+                    goto :testing_skip_3
+                        call bigecho %@block_lower[A] %@block_lower[a] %@block_lower[1] %@block_lower[Heinz 57 VARIETY]
+                        call bigecho %@block_upper[A] %@block_upper[a] %@block_upper[1] str:%@block_upper[Heinz 57 VARIETY]
+                        call bigecho %@block_letter_only[A] %@block_letter_only[a] %@block_letter_only[1] str:%@block_letter_only[Heinz 57 VARIETY]
+                        call bigecho %@block_letter[A] %@block_letter[a] %@block_letter[1] str:%@block_letter[Heinz 57 VARIETY]
+                        call bigecho %@block_string[A] %@block_string[a] %@block_string[1] str:%@block_string[Heinz 57 VARIETY]
+                        call bigecho %@block_string_rainbow[A] %@block_string_rainbow[a] %@block_string_rainbow[1] str:%@block_string_rainbow[Heinz 57 VARIETY]
+                    goto :END
+                    :testing_skip_3
+
+
+
+
+
+        rem ——————— Double lettering! —— 🇧 🇱 🇴 🇨 🇰  🇱 🇪 🇹 🇹 🇪 🇷 🇮 🇳 🇬 ! ——————————————————————————————————————————————————————————————————————————————————————————————————
+
+                rem Cursor uppercase and lowercase sets are a different distance apart from each other than the ASCII ones!
+
+
+                        rem 𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩
+                        set double_lettering_offset_upper=120055
+                        set double_lettering_offset_lower=120049
+                        rem Most sets work the same for all uppers, but “doubling” has 7 exceptions from a different character set...
+                        function  double_upper_without_7_exceptions                              =`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[%@EVAL[%double_lettering_offset_upper%+%@ASCII[%@left[1,%1]]]] ``,%@left[1,%1]``]`
+                        function  double_uppper=`%@IF["%@ASCII[%@left[1,%1]]" == "67",%@CHAR[8450],%@ASCII[%@left[1,%1]]GOAT %@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[%@EVAL[%double_lettering_offset_upper%+%@ASCII[%@left[1,%1]]]] ``,%@left[1,%1]``]]`
+                        function            sss=`%@IF["%@ASCII[%@left[1,%1]]" == "65",is capital A,isn’t capital a]`
+                        rem capital “C” == %@CHAR[8450] (useless offset==8383)
+                        rem capital “H” == %@CHAR[8461] (useless offset==8389)
+                        rem capital “N” == %@CHAR[8469] (useless offset==8391)
+                        rem capital “P” == %@CHAR[8473] (useless offset==8393)
+                        rem capital “Q” == %@CHAR[8474] (useless offset==8393)
+                        rem capital “R” == %@CHAR[8477] (useless offset==8395)
+                        rem capital “Z” == %@CHAR[8484] (useless offset==8394)
+                        function  double_upper=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[%@EVAL[%double_lettering_offset_upper%+%@ASCII[%@left[1,%1]]]] ``,%@left[1,%1]``]`
+                        function  double_lower=`%@if[%@ASCII[%@left[1,%1``]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[%@EVAL[%double_lettering_offset_lower%+%@ASCII[%@left[1,%1]]]] ``,%@left[1,%1]``]`
+   
+                rem double *any* character —— uses double_upper and double_lower when appropriate
+                        rem 𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃           𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃          𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃
+                        function  double_letter_only=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90           ,%@CHAR[%@EVAL[%double_lettering_offset_upper%+%@ASCII[%@left[1,%1]]]],]%@if[%@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[%@EVAL[%double_lettering_offset_lower%+%@ASCII[%@left[1,%1]]]] ``,]`
+
+                        function       double_letter=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90  .or.   %@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@double_LETTER_ONLY[%@left[1,%1]]``,%@left[1,%1]``]`
+
+
+                rem double any string:
+                        function double_string=`%@ReReplace[([A-Za-z]),%%@double_letter[\1],%1$]`
+                        function  double_plain=`%@double_string[%1$]`
+
+                rem 🌈🌈🌈 double any string, but in rainbow: 🌈🌈🌈
+                        function double_string_colorful=`%@colorful_string[%@double_string[%@UNQUOTE[%1$]]]%ansi_reset%`
+                        function  double_string_rainbow=`%@double_string_colorful[%1$]`
+
+                rem Set our main double function —— using the colorful one doesn’t even make sense here but what the hay:
+                        function double=`%@double_string_colorful[%@unquote[%1$]]`
+
+                rem Testing:
+                    goto :testing_skip_2
+                        call bigecho %@double_lower[A] %@double_lower[a] %@double_lower[1] %@double_lower[Heinz 57 VARIETY]
+                        call bigecho %@double_upper[A] %@double_upper[a] %@double_upper[1] str:%@double_upper[Heinz 57 VARIETY]
+                        call bigecho %@double_letter_only[A] %@double_letter_only[a] %@double_letter_only[1] str:%@double_letter_only[Heinz 57 VARIETY]
+                        call bigecho %@double_letter[A] %@double_letter[a] %@double_letter[1] str:%@double_letter[Heinz 57 VARIETY]
+                        call bigecho %@double_string[A] %@double_string[a] %@double_string[1] str:%@double_string[Heinz 57 VARIETY]
+                        call bigecho %@double_string_rainbow[A] %@double_string_rainbow[a] %@double_string_rainbow[1] str:%@double_string_rainbow[Heinz 57 VARIETY]
+                    goto :END
+                    :testing_skip_2
 
 
 rem ************* TOYS: END^ *************
@@ -1432,6 +1527,8 @@ rem If we're running our tests, do them now that we are done:
                     call bigecho        "      %@cool[      cool digits: 0123456789]"
                     call bigecho "%@sans_serif_string[sans serif digits: 0123456789]"
                     call bigecho %@cursive[Cursive testing OH YEAH!!]
+                    call bigecho %@block[block testing OH YEAH!!]
+                    call bigecho %double[double testing OH YEAH!!]
 
 
 
@@ -1448,7 +1545,7 @@ rem —————————————————————————�
 rem “You should add info about paste bracket mode, you enable it with \x1b[?2004h and disable with \x1b[?2004l. The feature allow detecting pasting text into terminal, mostly for auto indentation feature (when you have code interpreter).”
 
 
+:END
 
 rem Bugfix
         if defined CREATE_PENTAGRAM echos %create_pentagram%
-

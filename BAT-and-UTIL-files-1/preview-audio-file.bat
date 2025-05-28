@@ -23,7 +23,7 @@ rem Inherit any winamp integration flags, just in case the flag in this file is 
 
 rem Actions to take BEFORE preview (pausing music):
         iff "1" == "%PAF_WINAMP_INTEGRATION%" then
-                echo %italics_off%%emoji_pause_button%%emoji_llama% Pausing ⚡WinAmp⚡
+                echo %italics_off%%emoji_pause_button%%emoji_llama%   Pausing ⚡WinAmp⚡
                 ((call winamp-pause   quick)>&>nul) >&>nul
         endiff
 

@@ -21,7 +21,7 @@ rem Usage:
                 echo. SPECIAL: the “-stU” action causes the stripe to be an “upper stripe” before divider
                 echo. SPECIAL: the “-stL” action causes the stripe to be a  “lower stripe”  after  divider, which is the same as the “-st” option
                 echo. SPECIAL: the “-stB” action causes both stripes to be displayed
-                echo. SPECIAL: the “-o {filename}” causes output to be rendered to a filename instead
+                echo. SPECIAL: the “-o {filename}” or “--output_filename {filename}” causes output to be rendered to a filename instead
                 goto /i END
 endiff
 
@@ -132,6 +132,8 @@ rem Go through each one and review it:
         rem for less: set LESSCHARSET=utf-8
         rem for less: set columns=%_columns
 
+
+rem Set temp files:
         rem bad for concurrency: if defined review_file_tmp_file_1 goto :defined_1        
         call set-tmp-file
         set review_file_tmp_file_1=%tmpfile%
@@ -144,14 +146,22 @@ rem Go through each one and review it:
         rem gosub debug "review_file_tmp_file_2==“%review_file_tmp_file_2%”"
         :defined_2
 
+rem Make sure our files exist first:
         for %%File_To_Check  in (%our_filemask%) do if not exist "%File_To_Check%" (call fatal_error "File to review of %left_quote%%italics_on%%File_To_Check%%italics_on%%right_quote% does not exist")               
+
+rem Then process each one to review:
         for %%File_To_Review in (%our_filemask%) do gosub do_it "%@unquote[%File_To_Review%]"
         goto :do_it_end
-        :do_it [tmpfile] 
-                if not exist "%@UNQUOTE["%tmpfile%"]" return
 
-                rem echo %blink_on%reviewing file %tmpfile%%blink_off% %warning% our_filemask=%our_filemask%
-                setdos /x0
+
+rem ══════════════════ SUBROUTINES: ══════════════════ 
+        :do_it [tmpfile] 
+                rem If the file no longer exists, don’t do anything:
+                        if not exist "%@UNQUOTE["%tmpfile%"]" return
+
+                rem Get our setdos settings right:
+                        rem echo %blink_on%reviewing file %tmpfile%%blink_off% %warning% our_filemask=%our_filemask%
+                        setdos /x0
 
 
                 rem What if we call this with a file that isn’t text?
@@ -184,63 +194,77 @@ rem Go through each one and review it:
                                 endiff
                         endiff
 
-
+                rem If we ended up displaying something other than text, then there is no text to display,
+                rem so we are done:
                         if "1" == "%display_text%" goto :continue_on_to_display_text
                                 call divider
                                 return
                         :continue_on_to_display_text
                 
                              
+                rem ✨✨✨✨✨✨✨✨ At this point, it’s text file and we need to display it ✨✨✨✨✨✨✨✨
 
 
-                rem title %@CHAR[55357]%@CHAR[56403] %@name[%tmpfile]
-                title %emoji_palm_tree%%@name[%tmpfile]
-                set ext=%@ext[%tmpfile%]
-                iff "%replacement_text%" != "" then 
-                        set our_msg=%replacement_text%
-                else
-                        set our_msg=%@name[%tmpfile%].%ext%
-                endiff
-                setdos /x0
-                rem (type "%@UNQUOTE[%tmpfile%]" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" )  |:u8 print-with-columns 
-                *setdos /x-5
-                type "%@unquote[%tmpfile%]" >:u8"%review_file_tmp_file_1%"
-                setdos /x0
-                rem echo %ansi_color_debug%- DEBUG: %left_quote%%%ext%%%right_quote% is %left_quote%%ext%%right_quote% %warning%CP2309234%warning%
-                iff "%ext%" == "srt" then
-                         grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%review_file_tmp_file_1%" >:u8"%review_file_tmp_file_2%"
-                         grep -vE "^#\s"                                                                             "%review_file_tmp_file_2%" >:u8"%review_file_tmp_file_1%"
-                        *copy /z /q "%review_file_tmp_file_1%" "%review_file_tmp_file_2%"
-                else
-                         (echo raw|(*copy /q /r "%review_file_tmp_file_1%" "%review_file_tmp_file_2%" >&nul))
-                endiff
-                echos %ansi_reset%
+                rem Generate a window tile:
+                        rem title %@CHAR[55357]%@CHAR[56403] %@name[%tmpfile]
+                        title %emoji_palm_tree%%@name[%tmpfile]
+
+                rem Isolate the extension of the file we are working with so that our message matches it:
+                        set ext=%@ext[%tmpfile%]
+                        iff "%replacement_text%" != "" then 
+                                set our_msg=%replacement_text%
+                        else
+                                set our_msg=%@name[%tmpfile%].%ext%
+                        endiff
+
+                rem Debug:
+                        rem setdos /x0
+                        rem (type "%@UNQUOTE[%tmpfile%]" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" )  |:u8 print-with-columns 
+
+                rem Copy our file-to-review into our temp file location:
+                        *setdos /x-5
+                        type "%@unquote[%tmpfile%]" >:u8"%review_file_tmp_file_1%"
+                        setdos /x0
+
+                rem Debug:      rem echo %ansi_color_debug%- DEBUG: %left_quote%%%ext%%%right_quote% is %left_quote%%ext%%right_quote% %warning%CP2309234%warning%
+
+                rem If it is a SRT file, we need to strip out the lines that are not actual subtitle content:
+                        iff "%ext%" == "srt" then
+                                 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%review_file_tmp_file_1%" >:u8"%review_file_tmp_file_2%"
+                                 grep -vE "^#\s"                                                                             "%review_file_tmp_file_2%" >:u8"%review_file_tmp_file_1%"
+                                *copy /z /q "%review_file_tmp_file_1%" "%review_file_tmp_file_2%"
+                        else
+                                 (echo raw|(*copy /q /r "%review_file_tmp_file_1%" "%review_file_tmp_file_2%" >&nul))
+                        endiff
+                        echos %ansi_reset%
 
 
-
-                rem Optional upper stripe + mandatory divider:
+                rem If we are instructed to draw an upper-stripe, it gets a divider AFTER it:
                         rem setdos /x-6 %+ echo if "1" == "%STRIPEU%"                     call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION% %+ setdos /x0
                         if "1" == "%STRIPEU%"                     call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
                         gosub "%bat%\get-lyrics-for-file.btm"     divider
 
-                rem Display filename with header:
+                rem Display filename with our header message:
                                 call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"                                       %POTENTIAL_REDIRECTION%
                                 if exist %review_file_tmp_file_2% call print-with-columns -cw %_columns %PWC_OPTIONS%     %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
 
-                rem Optional lower stripe gets a divider only if it exists:
+                rem If we are instructed to draw a lower-stripe, it gets a divider BEFORE it:
                         iff "1" == "%STRIPEL%" then
                                 gosub "%bat%\get-lyrics-for-file.btm" divider
-                                if exist %review_file_tmp_file_2% call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
+                                rem xist %review_file_tmp_file_2% echo call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
+                                if exist %review_file_tmp_file_2%      call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
                         endiff
         return
         :do_it_end
         
-        rem was a nice idea but no: |:u8 less -R
 
 
 
 
 :END
 
- setdos /x0
+rem Cleanup:
+        setdos /x0
+
+
 

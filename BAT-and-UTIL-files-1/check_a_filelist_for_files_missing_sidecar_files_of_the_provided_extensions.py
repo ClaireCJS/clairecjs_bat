@@ -115,14 +115,28 @@ def main_guts(input_filename, extensions, options, extra_args):
     for file in            files:
         total_file_count = total_file_count + 1
 
-        # Skip files containing "(instrumental)" or "[instrumental]", and other various temp files
-        if    "(instrumental)"     in file.lower() or  "[instrumental]"   in file.lower(): continue
-        if "_vad_collected_chunks" in file.lower() or "._vad_pyannote_"   in file.lower(): continue
-        if "_vad_original"         in file.lower() or "check-for-missing" in file.lower(): continue
+
+        # get folder/directory
+        file_path        = os.path.abspath(file)                                       # Get absolute path for consistency
+        path             = file_path                                                   # for reasons of pure laziness, 2 names for one value
+        directory        = os.path.dirname(file_path)                                  # isolate *just* the folder name
+
+        # Skip files containing "(instrumental)" or "[instrumental]", and other various temp files or files that we want ignored in our AI-transcription system
+        if "_vad_original"         in file.lower() or "check-for-missing"   in file.lower(): continue
+        if "_vad_collected_chunks" in file.lower() or "._vad_pyannote_"     in file.lower(): continue
+        if    "(chiptune)"         in file.lower() or  "[chiptune]"         in file.lower(): continue
+        if    "(chiptunes)"        in file.lower() or  "[chiptunes]"        in file.lower(): continue
+        if   "\\chiptunes\\"       in path.lower() or "\\chiptune\\"        in path.lower(): continue
+        if    "(instrumental)"     in file.lower() or  "[instrumental]"     in file.lower(): continue
+        if    "(instrumentals)"    in file.lower() or  "[instrumentals]"    in file.lower(): continue
+        if   "\\instrumentals\\"   in path.lower() or "\\instrumental\\"    in path.lower(): continue
+        if    "(sound effect)"     in file.lower() or  "[sound effect]"     in file.lower(): continue
+        if    "(sound effects)"    in file.lower() or  "[sound effects]"    in file.lower(): continue
+        if   "\\sound effects\\"   in path.lower() or "\\sound effect\\"    in path.lower(): continue
+        if    "(untranscribable)"  in file.lower() or  "[untranscribable]"  in file.lower(): continue
+        if    "(untranscribeable)" in file.lower() or  "[untranscribeable]" in file.lower(): continue
 
         # get filenames
-        file_path        = os.path.abspath(file)                                       # Get absolute path for consistency
-        directory        = os.path.dirname(file_path)
         base_filename, _ = os.path.splitext(file)
         base_filename, _ = os.path.splitext(os.path.basename(file))
         if DEBUG_SIDECAR_SEARCH: print(f"found file {file_path} ... base_filename={base_filename} ... for file={file}")
