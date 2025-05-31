@@ -56,33 +56,21 @@ rem Minimize annoying programs...
         windowhide.exe /min "girder"
         gosub done_with_step
 
-rem Map drives
-        call important "Mapping drives..."
-        if isfunction randcursor (echos %@RANDCURSOR[])
-        rem 🚫 *start "" /min c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
-        REM call helper-start c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
-        call map-drives once
-        gosub done_with_step
-
-
 
 
 REM Above all else, the music must flow —— but only if it's the music server:
-        if "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" (
+        iff "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" then
             call winamp autoexec
             call sleep 3
             call fix-minilyrics-window-size-and-position
             if isfunction randcursor (echos %@RANDCURSOR[])
-    )
+        endiff
 
 
 
 REM Common programs to start before we do our backups:
         call chrome
         call opera
-
-
-
 
 
 rem Things for our primary machines only:
@@ -105,6 +93,16 @@ rem Things for our primary machines only:
 
 rem Minimize Girder:
         if     isdir c:\girder (windowHide /min Girder*)
+
+
+rem Map drives
+        call important "Mapping drives..."
+        if isfunction randcursor (echos %@RANDCURSOR[])
+        rem 🚫 *start "" /min c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
+        REM call helper-start c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
+        call map-drives once
+        gosub done_with_step
+
 
 
 goto :END

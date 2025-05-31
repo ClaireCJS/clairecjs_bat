@@ -230,6 +230,7 @@ rem ══════════════════ SUBROUTINES: ══�
 
                 rem If it is a SRT file, we need to strip out the lines that are not actual subtitle content:
                         iff "%ext%" == "srt" then
+                                set PWC_OPTIONS=%PWC_OPTIONS% -ins 
                                  grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%review_file_tmp_file_1%" >:u8"%review_file_tmp_file_2%"
                                  grep -vE "^#\s"                                                                             "%review_file_tmp_file_2%" >:u8"%review_file_tmp_file_1%"
                                 *copy /z /q "%review_file_tmp_file_1%" "%review_file_tmp_file_2%"
@@ -246,12 +247,13 @@ rem ══════════════════ SUBROUTINES: ══�
 
                 rem Display filename with our header message:
                                 call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"                                       %POTENTIAL_REDIRECTION%
+                                rem echo 🐐 if exist %review_file_tmp_file_2% call print-with-columns -cw %_columns %PWC_OPTIONS%     %review_file_tmp_file_2% %POTENTIAL_REDIRECTION% %+ pause>nul
                                 if exist %review_file_tmp_file_2% call print-with-columns -cw %_columns %PWC_OPTIONS%     %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
 
                 rem If we are instructed to draw a lower-stripe, it gets a divider BEFORE it:
                         iff "1" == "%STRIPEL%" then
                                 gosub "%bat%\get-lyrics-for-file.btm" divider
-                                rem xist %review_file_tmp_file_2% echo call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
+                                echo                                   call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
                                 if exist %review_file_tmp_file_2%      call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
                         endiff
         return

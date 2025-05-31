@@ -13,9 +13,18 @@ call c:\bat\autoexec-common %*
 
 
 REM
-        call footer "Running %@NAME[%0]..."
+        set old_title=%_title
+        set msg=Running %@NAME[%0]...
+        call status-bar "%msg%"
+        title            %msg%
         
 
+REM Edit this script, if so instructed:
+        iff "1" == "%EDIT_SELF%" then
+            call validate-environment-variables BAT MACHINENAME EDITOR EDITORBG
+            set  SELF=%BAT%\%MACHINENAME%\autoexec.btm
+            %EDITORBG% %SELF%
+        endiff
 
 REM Startup DEMONA programs:
         call divider
@@ -34,12 +43,6 @@ REM backup DEMONA's BAT files:
         call util  %+ call dist full
         call util2 %+ call dist full
 
-REM Edit this script, if so instructed:
-        if %EDIT_SELF eq 1 (
-            call validate-environment-variables BAT MACHINENAME EDITOR EDITORBG
-            set  SELF=%BAT%\%MACHINENAME%\autoexec.btm
-            %EDITORBG% %SELF%
-        )
 
 REM We're done!
         call unlock-bot
@@ -54,4 +57,5 @@ REM Advice here
 
 REM But wait —— we can do more! We can run backups.bat automatically:
         call AskYN "Run full backups next" yes 1800
-        if "%ANSWER" == "Y" ( call backups.bat )
+        iff "Y" == "%ANSWER%" call backups.bat
+        title %old_title%

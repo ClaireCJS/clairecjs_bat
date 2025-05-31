@@ -57,7 +57,6 @@ my $MAX_KARAOKE_WIDTH_MINUS_ONE =  24;					#This system aims for a max width of 
 
 
 
-
 use strict;
 use warnings;
 
@@ -133,6 +132,8 @@ $file_itle=~s/^.(.*)$/$1/;
 #print "FILE_TITLE = “$file_title” \n";
 #print "FILE_ITLE  = “$file_itle” \n\n";
 
+use Encode qw(decode FB_DEFAULT FB_CROAK FB_QUIET FB_WARN);
+use Encode::Guess;
 #OLD: while (<STDIN>) {
 #NEW:
 my $INPUT;
@@ -142,8 +143,23 @@ if ($filename eq "") {
 	open($INPUT, "<:utf8", $filename) or die "Could not open file '$filename': $!";		# breaks on malformed files, of which there are many
 	#pen($INPUT, "<:raw" , $filename) or die "Could not open file '$filename': $!";		# open raw, and decode to UTF-8 later after fixing malformed characters
 }
-use Encode qw(decode encode);
-use Encode::Guess;
+##NEW2: this resulted in files that lookd fine when cat’ed to the screen but formed malformed columns when printed with print_with_columns.py						
+#if ($filename eq "") {
+#	local $/ = undef;                            # Slurp mode
+#	binmode(STDIN, ":raw");                      # Raw input, no UTF-8 decoding yet
+#	my $raw = <STDIN>;                           # Read whole input as bytes
+#	$raw = decode('utf8', $raw, FB_QUIET);       # Decode and silently skip invalid bytes
+#	open(my $fh, "<", \$raw);                    # Open a filehandle from string
+#	$INPUT = $fh;
+#} else {
+#	open(my $fh, "<:raw", $filename) or die "Can't open '$filename': $!";
+#	my $raw = do { local $/; <$fh> };            # Slurp file raw
+#	$raw = decode('utf8', $raw, FB_QUIET);       # Or FB_WARN for warnings
+#	open(my $in, "<", \$raw);                    # In-memory filehandle
+#	$INPUT = $in;
+#}
+
+
 while (<$INPUT>) {
 	my $line = $_;
 	my $raw  = $_;
@@ -245,8 +261,11 @@ while (<$INPUT>) {
 		}
 
 		#fix crap like: “ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo”
-		# Use regex to match any character repeated more than 24 times and replace it with 24 of that character
+		# Use regex to match any character repeated more than 24 times and replace it with 24 of that character ... 
 		$line =~ s/(\w)\1{24,}/$1 x $MAX_KARAOKE_WIDTH_MINUS_ONE/eg;
+		# But this may not work, so double-do it with this:
+		$line = &limit_repeats($line, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);  
+
 
 		#fix apostrophes into smart apostrophes
 		$line =~ s/[â'`]/’/ig;										#apostrophes and misrepresentations thereof
@@ -457,7 +476,30 @@ sub replace_smart_quotes {
 
 	my $result = join("", @result);
 
-	$result =~ s/!“/!”/g;				#kludge bug fix
+	$result =~ s/!“/!”/g;				# kludge bug fix
+	$result =~ s/„/”/g;					# although this is technically how Germans OPEN quotes („like this”), this shows up in downloaded lyrics as a mis-encoded right quote, so let’s treat it as such
 
 	return $result
 }
+
+
+sub limit_repeats {
+    my ($s, $max) = @_;
+    my $result = '';
+    my $last_char = '';
+    my $count = 0;
+
+    foreach my $c (split //, $s) {
+        if ($c eq $last_char) {
+            $count++;
+        } else {
+            $last_char = $c;
+            $count = 1;
+        }
+        $result .= $c if $count <= $max;
+    }
+
+    return $result;
+}
+
+

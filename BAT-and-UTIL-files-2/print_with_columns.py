@@ -65,7 +65,8 @@ DEFAULT_WRAPPING             = False                                            
 
 
 ################ USER CONFIGURATION FOR DEBUGGING: ################
-DEBUG_VERBOSE_COLUMNS  = False
+DEBUG_STRIPE_GENERATION      = False
+DEBUG_VERBOSE_COLUMNS        = False
 
 
 
@@ -213,6 +214,9 @@ def parse_arguments():
     TEXT_ALSO            = args.text_also
     IGNORE_NUMSIGNLINES  = args.ignore_numsign_lines_for_stripes
     if STRIPE: WORD_HIGHLIGHTING = True                         #stripe is really an abbreviated form of word_highlighting mode
+
+    #print(f"word_highlighting is {WORD_HIGHLIGHTING}")
+
     return parser.parse_args()
 
 
@@ -342,7 +346,7 @@ def read_input(wrapping, max_width):
     # Check if an optional filename is provided and exists
     if args.optional_filename:
         if os.path.exists(args.optional_filename):
-            with open(args.optional_filename, 'r', encoding='utf-8') as file:
+            with open(args.optional_filename, 'r', encoding='utf-8', errors='replace') as file:
                 input_lines.extend(file.readlines())  # Read lines from the file
         else:
             print(f"❗❗❗❗❗❗ Error: The file “{args.optional_filename}” does not exist. ❗❗❗❗❗❗❗")
@@ -507,6 +511,9 @@ def render_columns(columns_data, column_widths, divider):
         list of strings: Each string represents a formatted row.
     """
     global VERBOSE, WORD_HIGHLIGHTING
+
+    #print(f"word_highlighting is {WORD_HIGHLIGHTING}")
+
     if columns_data: rows_per_col = max(len(col) for col in columns_data)
     else:            rows_per_col = 1
     if VERBOSE: print(f"😷😷😷😷😷 Recalculated rows per column as: {rows_per_col}")
@@ -529,6 +536,7 @@ def render_columns(columns_data, column_widths, divider):
             spacer                  = num_spaces_to_add * " "
             if WORD_HIGHLIGHTING:
                 part_to_use, stripe = consistent_word_highlight(part)
+                #print(f"APPLYING HIGHLIGHTING TO: {part}")
             else:
                 part_to_use         = part
             padded_part             = part_to_use + spacer
@@ -746,8 +754,8 @@ def consistent_word_highlight(text):
 
 
 
-            #f len(normalized_word) >= WORD_HIGHLIGHT_LEN_MIN:                          # Word is long enough for highlighting
-            if len(           word) >= WORD_HIGHLIGHT_LEN_MIN:                          # Word is long enough for highlighting
+            #f len(           word) >= WORD_HIGHLIGHT_LEN_MIN:                          # Word is long enough for highlighting  ... this change would cause ’cause to highlight when it really shouldn’t .. I forget why this was the best change to make at one point
+            if len(normalized_word) >= WORD_HIGHLIGHT_LEN_MIN:                          # Word is long enough for highlighting
 
                 if not in_highlight:                                                    # Start highlighting
                     #normalized_word = normalize_for_highlight(word)                    #moved above so we can check length AFTER normalizatoin process
@@ -972,7 +980,7 @@ def convert_stripe(stripe, columns):
 
 
 def try_generate_stripe(joined_input_data, max_len=6):
-    global WORD_HIGHLIGHT_LEN_MIN, striped_text
+    global WORD_HIGHLIGHT_LEN_MIN, striped_text, DEBUG_STRIPE_GENERATION
     MIN_STRIPE_WIDTH = 4
 
     for threshold in range(max_len, 0, -1):
@@ -987,13 +995,13 @@ def try_generate_stripe(joined_input_data, max_len=6):
         if stripe_width >= MIN_STRIPE_WIDTH:
             return stripe_rendered
 
-        print(f"⚠️ stripe was empty or too narrow with WORD_HIGHLIGHT_LEN_MIN={threshold} (width={stripe_width})")
+        if DEBUG_STRIPE_GENERATION: print(f"⚠️ stripe was empty or too narrow with WORD_HIGHLIGHT_LEN_MIN={threshold} (width={stripe_width})")
 
-    print("‼️ Unable to generate stripe. Falling back to default test data.")
+    if DEBUG_STRIPE_GENERATION: print("‼️ Unable to generate stripe. Falling back to default test data.")
     return convert_stretched_stripe([
-        '\x1b[38;2;255;255;255m\x1b[48;2;0;0;255m', 'TEST\x1b[0m',
-        '\x1b[38;2;0;0;0m\x1b[48;2;255;255;0m'    , 'NULL\x1b[0m',
-    ], 1, console_width - 1)
+        '\x1b[38;2;255;255;255m\x1b[48;2;0;0;255m',   'NULL\x1b[0m',
+        '\x1b[38;2;0;0;0m\x1b[48;2;255;255;0m'    , 'STRIPE\x1b[0m',
+        ], 1, console_width - 1)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
@@ -1026,7 +1034,8 @@ def main():
     if our_args.wrap:                             WRAPPING = True
     if our_args.no_wrap:                          WRAPPING = False
     if our_args.ignore_numsign_lines_for_stripes: IGNORE_NUMSIGNLINES = True
-    if FORCED_CONSOLE_WIDTH > 0 and our_args.console_width: console_width=our_args.console_width
+    if FORCED_CONSOLE_WIDTH:
+        if FORCED_CONSOLE_WIDTH > 0 and our_args.console_width: console_width=our_args.console_width
 
 
     # read our input data:
@@ -1114,15 +1123,18 @@ def main():
 
             #if it's too wide, stop bothering to process (unless we are forcing columns):
             if VERBOSE: print(f"🐾🐾 row_num {row_num}... is_too_wide={is_too_wide}")
-            if is_too_wide and not FORCE_COLUMNS and (not STRIPE or TEXT_ALSO):
-                if VERBOSE: print(f"🐾🐾 breaking")
-                break
+
+            #goat chatgpt nuked this and it helped me?!?!!!!!
+            #if is_too_wide and not FORCE_COLUMNS and (not STRIPE or TEXT_ALSO):
+            #    if VERBOSE: print(f"🐾🐾 breaking")
+            #    break
 
             #we kept this rendering, so add the important processing info to the log
             INTERNAL_LOG = INTERNAL_LOG + INTERNAL_LOG_FRAGMENT
 
             #add our rendered row to our output:
             output += rendered_row.replace("Æ","’") + ANSI_EOL + "\n"              # the mis-encoded apostrophe fix is not a very tenable fix, but the ANSI_EOL is *VERY IMPORTANT*!!
+            #output += f"RENDERED ROW: {repr(rendered_row)}"
             #🐱🐱🐱 if VERBOSE: print(f"🤬🤬 row_num {row_num}... is_too_wide={is_too_wide}\n⚙ ⚙ ⚙ OUTPUT SO FAR:\n{ANSI_BLINK_ON}{ANSI_COLOR_GREY}{output}{ANSI_BLINK_OFF}{ANSI_RESET}⚙ ⚙ ⚙ That's it!")
 
             #print("loopybob")
@@ -1186,6 +1198,7 @@ def main():
     #══════════════════════════════════════════════════════════════════════#
 
 
+    #print(f"word_highlighting is {WORD_HIGHLIGHTING}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###

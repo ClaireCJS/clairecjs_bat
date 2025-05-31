@@ -61,30 +61,41 @@ rem VALIDATE PARAMETERS:
 
 rem Extra prep of lyrics:
         iff "1" != "%WHISPERTIMESYNC_QUICK%" then
-                call warning "Get the lyrics %italics_on%perfect%italics_off%" big
-                call AskYN   "Listen to the audio file while editing lyrics"   no  0
-                %EDITOR% "%LYR%"
+                set held_answer_wtsh=%ANSWER%
+                call warning "Get the lyrics %blink_on%perfect%blink_off%" big
+                call AskYN   "Edit lyrics for required perfection"   yes 0
                 iff "Y" == "%ANSWER%" then
-                       call preview-audio-file.bat "%AFL%"
-                endiff
-                pause "Press any key after fixing up the lyrics"
+                        rem Ask if we want to listen to the song while editing:
+                                call AskYN   "Listen to the audio file while editing lyrics"   no  0
+                                %EDITOR% "%LYR%"
+
+                        rem If we answered “yes”, then play that song:
+                                iff "Y" == "%ANSWER%" then
+                                        set PAF_START=start
+                                        call preview-audio-file.bat "%AFL%"
+                                endiff
+
+                        rem Pause this script while they go edit...
+                                pause "Press any key after fixing up the lyrics"
+
+                        rem Ask if we want to copy these lyrics back over our official file when we’re done
+                                iff exist "%AFL%" .and. "1" != "%WHISPERTIMESYNC_QUICK%" then
+                                        call warning_soft "Do you want these lyric edits to be saved over the original lyric file?" %+ rem  [[not!!]] at %faint_on%%italics_on%%lyr%%italics_off%%faint_off%
+                                        call AskYN          "Copy lyric edits over original lyrics" no 0
+                                                iff "Y" == "%ANSWER%" then
+                                                        set      COMMAND=copy "%LYR%" "%@NAME["%AFL%"].txt"
+                                                        rem echo COMMAND is %COMMAND% %+ pause
+                                                        %color_removal%
+                                                        %COMMAND%
+                                                endiff
+                                endiff
         endiff
 
-rem Ask if we want to copy these lyrics back over our official file...
-        iff exist "%AFL%" .and. "1" != "%WHISPERTIMESYNC_QUICK%" then
-                call important_less "Do you want these lyric edits to be saved over the original lyric file" %+ rem  [[not!!]] at %faint_on%%italics_on%%lyr%%italics_off%%faint_off%
-                call AskYN          "Copy lyric edits over original lyrics" no 0
-                iff "Y" == "%ANSWER%" then
-                        set      COMMAND=copy "%LYR%" "%@NAME["%AFL%"].txt"
-                        rem echo COMMAND is %COMMAND% %+ pause
-                        %color_removal%
-                        %COMMAND%
-                endiff
-        endiff
+
 
 rem Run WhisperTimeSync:
         %color_run%
-        echo %STAR3% Running WhisperTimeSync...
+        echo %STAR3% Running WhisperTimeSync...%ansi_move_up_1%
         "%JAVA_WHISPERTIMESYNC%" -Xmx2G -jar %WhisperTimeSync% "%srt%" "%lyr%" %our_language%
         call errorlevel
 
@@ -110,7 +121,7 @@ rem WhisperTimeSync is horribly buggy so we fix some of that——particularly t
 rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
         echo %ANSI_COLOR_WARNING_SOFT%%STAR2% Quick review of subtitles:%ansi_color_normal%
-        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% italics_on%WhisperTimeSync%italics_off% often gets the very beginning wrong%ansi_color_normal%
+        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% %italics_on%WhisperTimeSync%italics_off% often gets the very beginning wrong%ansi_color_normal%
         echo %ANSI_COLOR_WARNING_SOFT%%zzzzz% ❶  Take special care that the very beginning / first words fall within a subtitle"  silent
         echo %ANSI_COLOR_WARNING_SOFT%%zzzzz% ❷  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
         echo %ANSI_COLOR_WARNING_SOFT%%zzzzz% ❸  If the last timestamp of the new subtitles, which is:

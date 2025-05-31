@@ -45,18 +45,28 @@
 !+1::Send        "❗"	;	    Alt-Shift-1 for ❗ [red]
 ^!+1::Send       "‼️"	;      Ctrl-Alt-Shift-1 for ‼️ [double red]
                  
-+^!5::Send       "％"    ;     Ctrl+Alt+Shift-5 for ％  the cool percent (Ctrl+Alt+%)
++^!5::Send       "％"   ;     Ctrl+Alt+Shift-5 for ％  the cool percent (Ctrl+Alt+%)
+
+
+
+;6                      ;                     6 for 6   ━━━ but some other arrows we could use are: ^ ↑ ⤊ ⇧ ⬆️ ⬆ ⤴ ▲   ↥ ⮝ ⏫ ⏶ △ 🔼 🆙 ⇑ ⟰
+;+6                     ;               Shift+6 for ^
+^+6::Send        "⬆️"    ;          Ctrl-Shift+6 for ⬆️
+!+6::Send        "↑"    ;           Alt-Shift+6 for ↑
+#+6::Send        "⇧"    ;           Win-Shift+6 for ⇧
+^!#+6::Send      "⤊"    ;  Ctrl-Alt-Win-Shift+6 for ⤊
+                                                       
+
+
 
 ;8                      ;                     8 for 8                
 ;* normal asterisk key  ;               Shift+8 for *  the normal asterisk key
-^8::Send	 "⭐"	;                Ctrl+8 for ⭐  big gold star [but looks tiny in EditPlus]
-;!8::Send	 "★"	;                 Alt+8 for ★  filled  black star but very small in browser 
-                                 
-                                 
-!8::Send	 "⛧"   ;                 Alt+8 for ⛧  upside-down star [like a pentagram without the circle around it]
-+!8::Send	 "✪"   ;           Shift-Alt+8 for ✪  inverse black star (^^^^^ same size as ^^^^^)
-+^!8::Send	 "✨"  ;            Ctrl-Alt+8 for ✨ starry   star
-;^!#8::Send      "🌟"   ;       Ctrl-Alt-Win+8 for 🌟 dramatic star
+^8::Send	 "⭐"    ;                Ctrl+8 for ⭐  big gold star [but looks tiny in EditPlus]
+;!8::Send	 "★"    ;                 Alt+8 for ★  filled  black star but very small in browser                                  
+!8::Send	 "⛧"    ;                 Alt+8 for ⛧  upside-down star [like a pentagram without the circle around it]
++!8::Send	 "✪"    ;           Shift-Alt+8 for ✪  inverse black star (^^^^^ same size as ^^^^^)
++^!8::Send	 "✨"   ;            Ctrl-Alt+8 for ✨ starry   star
+;^!#8::Send      "🌟"   ;        Ctrl-Alt-Win+8 for 🌟 dramatic star
 
 ;9                      ;                     9 for 9
 ;+9                     ;               Shift+9 for (

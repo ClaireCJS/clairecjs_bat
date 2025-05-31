@@ -46,7 +46,6 @@ rem Parameter passing:
                         unset /q EXTRA_PAUSE_NUMBER_OF_PAUSES
                 endiff
                 :ExtraPauseModeDone
-:@echo off
 
 
 rem Set window title if instructed:
@@ -56,6 +55,10 @@ rem Set window title if instructed:
                 set PAUSE_WINDOW_TITLE=
         endiff
 
+
+rem Save position:
+        set pause_row=%_ROW
+        set pause_col=%_column
 
 
 rem Preface the pause with an emoji for visual processing ease and make it the color we want:
@@ -69,7 +72,9 @@ rem Do the actual pause:
 
 rem A pause that doesn't start at the beginning of the line (due to our emoji) doesn't clear itself correctly (TCC bug or maybe VT100 working as intended), so we must do it ourselves:
 rem But we use it to our advantage to leave it if we have additional pauses, because it looks better that way
-        echos %ANSI_RESET%%ANSI_EOL%             
+rem Let’s additionally go back to where the pause was initiated and erase the rest of that line:
+        echos %ANSI_RESET%%ANSI_EOL%%@ANSI_MOVE_TO_ROW[%@EVAL[%pause_row% + 1]]%@ANSI_MOVE_TO_COL[%pause_col%]%ANSI_ERASE_TO_END_OF_LINE%
+
 
 
 rem An extra countdown for those times when we really want to get in a fight with our future selves:
@@ -115,5 +120,5 @@ rem An extra countdown for those times when we really want to get in a fight wit
                 delay /m250
 
 
-        echo %CURSOR_RESET%
+        echos %CURSOR_RESET%
 

@@ -19,8 +19,7 @@ rem Flush previous “No” answers that were stored in files’ ADS tags:
 rem Main:
         @set SOME_INSTRUMENTALS_WERE_MARKED=0
         unset already_asked_about*
-        iff "%@UNQUOTE["%1"]" == "" then
-                
+        iff "%@UNQUOTE["%1"]" == "" then                
                 call ask-if-these-are-instrumentals.bat  %*
         elseiff exist %1 then
                 gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental %1 instrumental ask

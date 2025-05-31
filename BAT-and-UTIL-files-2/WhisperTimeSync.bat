@@ -1,9 +1,9 @@
-@Echo Off
+@Echo OFF
 @loadbtm on
 @set whisper_alignment_happened=0
 
 if  "%1" == "jump" goto :jump_point
-iff "%1" == "fast" .or. "%1" == "quick" then
+iff "%1" == "fast" .or. "%1" == "quick" .or. "%2" == "fast" .or. "%2" == "quick"  .or. "%3" == "fast" .or. "%3" == "quick"  .or. "%4" == "fast" .or. "%4" == "quick"  then
         set WHISPERTIMESYNC_QUICK=1
 else
         set WHISPERTIMESYNC_QUICK=0
@@ -54,7 +54,7 @@ rem VALIDATE PARAMETERS:
         set  aud_MP3=%@NAME[%SRT%].mp3
         set  aud_WAV=%@NAME[%SRT%].wav
         set aud_FLAC=%@NAME[%SRT%].flac
-        rem @echo off
+        rem @Echo OFF
         if not exist "%SRT%" .or. not exist "%LRC%" call validate-environment-variables SRT LYR_RAW
         call validate-is-extension          "%SRT%"      *.srt
         call validate-is-extension          "%LYR_RAW%"  *.txt
@@ -126,17 +126,17 @@ rem Preview the lyrics vs OLD srt with stripes next to each other:
         call review-file        -wh -st  "%lyr_raw%" --output_file "%lyr_processed_rendered_plus_bot_stripe%" %+ type "%lyr_processed_rendered_plus_bot_stripe%"             %+ rem 1 & 2
 rem     call review-file        -wh -stU "%srt_old%"                   %+ rem 3 & 4
 rem     call divider
-        call review-file        -wh -stB "%srt_old%" "old subs"        %+ rem 3 & 4
+        call review-file -ins   -wh -stB "%srt_old%" "old subs"        %+ rem 3 & 4
 
 rem Preview the NEW srt just past the old srt, with stripes next to each other:
 rem     call print-with-columns -wh -st  "%srt_old%"                   %+ rem 5
-        call review-file        -wh -stU "%srt_new%" "new subs"        %+ rem 6 & 7
+        call review-file -ins   -wh -stU "%srt_new%" "new subs"        %+ rem 6 & 7
         call divider
 
 rem Compare stripes of old srt and new srt:
         type "%lyr_processed_rendered_plus_bot_stripe%"               %+ rem call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
-        call print-with-columns -wh -st  "%srt_old%"                  %+ rem 8
-        call print-with-columns -wh -st  "%srt_new%"                  %+ rem 10
+        call print-with-columns -wh -st -ins "%srt_old%"              %+ rem 8
+        call print-with-columns -wh -st -ins "%srt_new%"              %+ rem 10
         type "%lyr_processed_rendered_plus_bot_stripe%"               %+ rem call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
         echo %faint_on%(lyrics, original subtitle, new subtitle, lyrics again)%faint_off%
         call divider
@@ -215,9 +215,9 @@ rem Ask if it’s better or not...
 rem Preview if it need be, prior to asking:
         iff "%ANSWER%" == "P" then
                 rem DEBUG:
-                        echo %ansi_color_subtle%🐐 %0: call vlc %@if[exist "%mp3%","%mp3%",] %@if[exist "%flac%","%flac%",] %@if[exist "%wav%","%wav%",]%ansi_color_normal%
+                        echo %ansi_color_subtle%🐐 %0: call vlc %@if[exist "%aud_mp3%","%aud_mp3%",] %@if[exist "%aud_flac%","%aud_flac%",] %@if[exist "%aud_wav%","%aud_wav%",]%ansi_color_normal%
                 rem PLAY IT:
-                        call                                vlc %@if[exist "%mp3%","%mp3%",] %@if[exist "%flac%","%flac%",] %@if[exist "%wav%","%wav%",]
+                        call                                vlc %@if[exist "%aud_mp3%","%aud_mp3%",] %@if[exist "%aud_flac%","%aud_flac%",] %@if[exist "%aud_wav%","%aud_wav%",]
                 rem GO BACK TO OUR QUESTION AGAIN:
                         goto :AskYnIfBetter
         endiff
@@ -225,14 +225,14 @@ rem Preview if it need be, prior to asking:
 rem Enqueue in WinAmp, which requires copying our audio file into the temp folder next to our provisional/freshly-generated/not-yet-approved-so-not-yet-copied-to-real-locatin-yet subtitles:
         iff "%ANSWER%" == "Q" then
                 rem DETERMINE AUDIO FILE THAT WE WILL NEED TO COPY INTO TEMP FOLDER:                                
-                        if exist "%wav%"      SET FILE_TO_COPY=%wav%
-                        if exist "%mp3%"      SET FILE_TO_COPY=%mp3%
-                        if exist "%flac%"     SET FILE_TO_COPY=%flac%
-                        if exist "%AUD_FIL%"  SET FILE_TO_COPY=%AUD_FIL%
+                        if exist "%aud_wav%"      SET FILE_TO_COPY=%aud_wav%
+                        if exist "%aud_mp3%"      SET FILE_TO_COPY=%aud_mp3%
+                        if exist "%aud_flac%"     SET FILE_TO_COPY=%aud_flac%
+                        if exist "%aud_fil%"      SET FILE_TO_COPY=%aud_fil%
                 rem DETERMINE TARGET FILENAME THAT WE WILL NEED TO COPY THE FILE TO:
                         SET  COPIED_FILE=%@PATH[%SRT_NEW%]\%@NAME[%SRT_NEW%].%@EXT["%FILE_TO_COPY%"]
                 rem DEBUG:
-                        pause "FILE_TO_COPY==%lq%%FILE_TO_COPY%%rq%, COPIED_FILE==%lq%%COPIED_FILE%%rq% (@NAME[SRT_NEW]=%lq%%@NAME[%SRT_NEW%]%rq%)"
+                        rem pause "FILE_TO_COPY==%lq%%FILE_TO_COPY%%rq%, COPIED_FILE==%lq%%COPIED_FILE%%rq% (@NAME[SRT_NEW]=%lq%%@NAME[%SRT_NEW%]%rq%)"
                 rem COPY THE FILE:
                         *copy "%FILE_TO_COPY%" "%COPIED_FILE%"
                 rem DEBUG:

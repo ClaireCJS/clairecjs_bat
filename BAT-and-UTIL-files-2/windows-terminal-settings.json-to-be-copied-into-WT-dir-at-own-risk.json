@@ -185,5 +185,7 @@
         ]
     },
     "schemes": [],
-    "themes": []
+    "tabWidthMode": "equal",
+    "themes": [],
+    "useAcrylicInTabRow": false
 }

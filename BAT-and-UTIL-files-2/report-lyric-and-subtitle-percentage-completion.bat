@@ -12,8 +12,12 @@ rem CONFIGURATION: DEBUG:
         set DEBUG_SYSTEM_CALLS=0                             %+ rem set to 1 to see the grep commands that are being used
                                                             
 rem CONFIGURATION: COSMETIC ALIGNMENT:
-        set lines_to_show=%@FLOOR[%@EVAL[(%_ROWS - 18) / 2]] %+ rem how many lines from each progress logfile to show with the “tail” command
-        set mover=%@ANSI_MOVE_TO_COL[38]
+        set lines_to_tail_magic_number=18 %+ rem was good until changing reporting methods
+        set lines_to_tail_magic_number=22 %+ rem tracker songs is 1ˢᵗ line
+        set lines_to_tail_magic_number=24 %+ rem instrumental is first line - 2 more than 22
+        set lines_to_tail_magic_number=26 %+ rem 
+        set lines_to_tail=%@FLOOR[%@EVAL[(%_ROWS - %lines_to_tail_magic_number%) / 2]] %+ rem how many lines from each progress logfile to show with the “tail” command
+        set mover=%@ANSI_MOVE_TO_COL[38]                                               %+ rem How far over to move when displaying file counts
 
 rem CONFIGURATION: FILENAMES:
         set           full_filelist=filelist-all.txt
@@ -40,6 +44,9 @@ rem Warn, unless we are in the same folder defined as MP3OFFICIAL in our environ
                 pause /# 3
                 goto :END
         :No_warning
+
+rem Jump straight to our report if we use the “report” parameter:
+        if "%1" == "report" goto :report
 
 rem Re-create variable if not included in environment:
         if not defined filemask_audio_regex set filemask_audio_regex=(\.mp3|\.wav|\.rm|\.voc|\.au|\.mid|\.stm|\.mod|\.vqf|\.ogg|\.mpc|\.wma|\.mp4|\.flac|\.snd|\.aac|\.opus|\.ac3|\.ra)
@@ -135,25 +142,41 @@ rem Report our totals and percent  progress:
         call  divider
         echo.
 
-rem Show the last few values of our progress in our log files:
-        set highlight="[0-9][0-9]?\.[0-9][0-9]"
-        rem need 4 temp files:
-                call set-tmp-file  %+  set tmpfile1=%tmpfile%
-                call set-tmp-file  %+  set tmpfile2=%tmpfile%
-                call set-tmp-file  %+  set tmpfile3=%tmpfile%
-                call set-tmp-file  %+  set tmpfile4=%tmpfile%
-        rem lyric alignment progress:
-                ((type %report_log%|grep -i  lyrics)|uniq -s%SKIP%) >:u8%tmpfile1% 
-                head -1               %tmpfile1% |:u8 call highlight %highlight%  >:u8%tmpfile2% 
-                tail -%lines_to_show% %tmpfile1% |:u8 call highlight %highlight% >>:u8%tmpfile2% 
-                call fast_cat                                                         %tmpfile2%
-        rem karaoke alignment progress:
-                call divider %+ echo.
-                ((type %report_log%|grep -i karaoke)|uniq -s%SKIP%) >:u8%tmpfile3% 
-                head -1               %tmpfile3% |:u8 call highlight %highlight%  >:u8%tmpfile4% 
-                tail -%lines_to_show% %tmpfile3% |:u8 call highlight %highlight% >>:u8%tmpfile4% 
-                call fast_cat                                                         %tmpfile4%
-                call divider
+rem rem Show the last few values of our progress in our log files:
+rem         set highlight="[0-9][0-9]?\.[0-9][0-9]"
+rem         rem need 4 temp files:
+rem                 call set-tmp-file  %+  set tmpfile1=%tmpfile%
+rem                 call set-tmp-file  %+  set tmpfile2=%tmpfile%
+rem                 call set-tmp-file  %+  set tmpfile3=%tmpfile%
+rem                 call set-tmp-file  %+  set tmpfile4=%tmpfile%
+rem         rem lyric alignment progress:
+rem                 ((type %report_log%|grep -i  lyrics)|uniq -s%SKIP%) >:u8%tmpfile1% 
+rem                 head -1               %tmpfile1% |:u8 call highlight %highlight%  >:u8%tmpfile2% 
+rem                 tail -%lines_to_tail% %tmpfile1% |:u8 call highlight %highlight% >>:u8%tmpfile2% 
+rem                 call fast_cat                                                         %tmpfile2%
+rem 
+rem 
+rem         rem karaoke alignment progress:
+rem                 call divider %+ echo.
+rem                 ((type %report_log%|grep -i karaoke)|uniq -s%SKIP%) >:u8%tmpfile3% 
+rem                 head -1               %tmpfile3% |:u8 call highlight %highlight%  >:u8%tmpfile4% 
+rem                 tail -%lines_to_tail% %tmpfile3% |:u8 call highlight %highlight% >>:u8%tmpfile4% 
+rem                 call fast_cat                                                         %tmpfile4%
+rem                 call divider
+
+
+rem Show the last few values of our progress in our log files - BETA:
+        :report
+        rem need 4 temp files ... this sets sets %tmpfile1% through %tmpfile5% :
+                call set-tmp-file "music-collection-AI-transcription-progress-data"
+
+        rem lyric/karaoke alignment progress:                
+                ((type %report_log%|grep -i  lyrics)|uniq -s%SKIP%) >:u8%tmpfile1% %+ head -1 %tmpfile1% >:u8%tmpfile5 %+ tail -%lines_to_tail% %tmpfile1% >>:u8%tmpfile5% %+ echo %FAINT_ON%>>%tmpfile2% %+ type %tmpfile5% |:u8 sed -r "s/(20[0-9][0-9])([0-1][0-9])([0-3][0-9])([0-2][0-9])([0-5][0-9])([0-5][0-9]),([a-z]+),([0-9]+\.[0-9][0-9])(.*)/%ansi_color_grey%\7:%ansi_color_normal% %ansi_color_bright_magenta%\1\/%ansi_color_bright_pink%\2\/%ansi_color_bright_red%\3 %faint_on%\4:\5:%faint_off% \8%cool_percent%,\9/g" |:u8 sed -e "s/[a-z]:\\\\mp3,//ig" -e "s/,/ /ig" -e "s/%cool_percent%.*%cool_percent%/%cool_percent% !!!/"    -e  "s/!!!/ %faint_on%!!!!/" -e "s/!!!! /(/" |:u8 sed -r "s/(\([0-9]+) ([0-9]+)/\1 of \2)/g" >>:u8%tmpfile2% 
+                ((type %report_log%|grep -i karaoke)|uniq -s%SKIP%) >:u8%tmpfile3% %+ head -1 %tmpfile3% >:u8%tmpfile5 %+ tail -%lines_to_tail% %tmpfile3% >>:u8%tmpfile5% %+ echo %FAINT_ON%>>%tmpfile4% %+ type %tmpfile5% |:u8 sed -r "s/(20[0-9][0-9])([0-1][0-9])([0-3][0-9])([0-2][0-9])([0-5][0-9])([0-5][0-9]),([a-z]+),([0-9]+\.[0-9][0-9])(.*)/%ansi_color_grey%\7:%ansi_color_normal% %ansi_color_bright_magenta%\1\/%ansi_color_bright_pink%\2\/%ansi_color_bright_red%\3 %faint_on%\4:\5:%faint_off% \8%cool_percent%,\9/g" |:u8 sed -e "s/[a-z]:\\\\mp3,//ig" -e "s/,/ /ig" -e "s/%cool_percent%.*%cool_percent%/%cool_percent% !!!/"    -e  "s/!!!/ %faint_on%!!!!/" -e "s/!!!! /(/" |:u8 sed -r "s/(\([0-9]+) ([0-9]+)/\1 of \2)/g" >>:u8%tmpfile4% 
+                echos %ansi_move_up_1%
+                call important_less "%@colorful[Lyric progress]:"  big %+ echos %ANSI_MOVE_UP_1% %+ call fast_cat %tmpfile2% %+ call divider 
+                call important_less "%@colorful[Karoke progress]:" big %+ echos %ANSI_MOVE_UP_1% %+ call fast_cat %tmpfile4% %+ call divider
+
 
 goto :END
 

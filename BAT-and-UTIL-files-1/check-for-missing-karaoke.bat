@@ -1,8 +1,9 @@
+@rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
 @loadbtm on
- rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
-@Echo Off
+@Echo      off
 @call bat-init
-cls
+
+if "%_PBATCHNAME" == "" cls
 
 rem Usage:
         iff "%1" == "/h" .or. "%1" == "-h" .or. "%1" == "--help" .or. "%1" == "/help" .or. "%1" == "help" .or. "%1" == "?" .or. "%1" == "/?" .or. "%1" == "-?" .or. "%1" == "--?" then
@@ -12,6 +13,27 @@ rem Usage:
                 echo USAGE: %ansi_color_bright_yellow%%0 /s %ansi_color_advice%—— checks for missing karaoke in current folder RECURSIVELY
                 %color_normal%
                 goto /i END
+        endiff
+
+rem HALT CONDITION:
+rem If the folder indicates something we shoudln’t be creating karaoke for, let the user know:
+rem (copied from create-srt but with %_CWD\ substitued over %FULL_FILENAME%)
+        unset /q cfmk_fail_type
+        set chipt_in_foldname=%@REGEX["[\\\[\(][cC][hH][iI][pP][tT][uU][nN][eE][sS]*[\\\]\)]","%_CWD%\"]
+        set instr_in_foldname=%@REGEX["[\[\(][iI][nN][sS][tT][rR][uU][mM][eE][nN][tT][aA][lL][sS]*[\)\]\\]","%_CWD\"]
+        set sndfx_in_foldname=%@REGEX["[sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*[\\\]\)]","%_CWD\"]
+        set iscis_in_foldname=%@REGEX["[\\\[\(][Uu][Nn][Tt][Rr][Aa][Nn][Ss][Cc][Rr][Ii][Bb][Ee][Aa][Bb][Ll][Ee][\\\]\)]","%_CWD\"]
+        if "1" == "%instr_in_foldname%" ( set cfmk_fail_type=instrumental     %+ set cfmk_fail_point=dir name)
+        if "1" == "%chipt_in_foldname%" ( set cfmk_fail_type=chiptune         %+ set cfmk_fail_point=dir name)
+        if "1" == "%sndfx_in_foldname%" ( set cfmk_fail_type=sound effects    %+ set cfmk_fail_point=dir name)
+        if "1" == "%iscis_in_foldname%" ( set cfmk_fail_type=untranscribeable %+ set cfmk_fail_point=dir name)
+        if "dir name" == "%cfmk_fail_point%" set BAD_AI_TRANSCRIPTION_FOLDER=%_CWP                  %+ rem Set environment flag to signal other processes(but I think this is unused, just an idea)
+        rem DEBUG: pause "cmfk_fail_type=%cfmk_fail_type% chipt_in_foldname=%chipt_in_foldname%"
+        iff "" != "%cfmk_fail_type%" then
+                echo %ansi_color_warning%%no% Sorry! Not checking for missing karaokes here because this %italics_on%%cfmk_fail_point%%italics_off% indicates a %ansi_color_red%%italics_on%%blink_on%%cfmk_fail_type%%blink_off%%italics_off%%ANSI_COLOR_WARNING% folder:%ansi_color_normal% %faint_on%“%_CWP%”%faint_off%%ansi_color_normal%
+                set fail=1
+                call sleep 1
+                goto :END
         endiff
 
 rem Variable definitions ported from our outer environment into this script for portability:
@@ -26,7 +48,7 @@ rem Configuration:
 
 rem Validate Enviroment:
         iff  "1" != "%validated_cfmk%" then
-                call validate-in-path              check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index delete-bad-ai-transcriptions
+                call validate-in-path              check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index delete-bad-ai-transcriptions errorlevel
                 call validate-environment-variable filemask_audio   skip_validation_existence
                 call validate-environment-variable DEFAULT_FILEMASK skip_validation_existence
                 call validate-environment-variable ANSI_COLORS_HAVE_BEEN_SET
@@ -77,19 +99,20 @@ rem Parameter checking:
                 endiff                                      
                 iff exist %filemask_audio% then
                         rem dir /b /[!*instrumental*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%
-                           (dir /b /[!*instrumental* *chiptune*] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%) >&>nul
+                           (dir /b /[!*instrumental* *chiptune* "*sound effect*"  "*untranscribeable*"] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%) >&>nul
                         rem ^^^ There still might be errors here in the event of audio files being present, but 100% of them having "instrumental" in their name. Therefore, let's suppress stderr
 
                 endiff                        
 
 
-        rem If the filelist is these or all.m3u we need to regenerate them...
-rem echo        if "%filelist_to_use%" == "these.m3u" .or. "%filelist_to_use%" == "all.m3u" (call mp3index)
+        rem If the filelist is these or all.m3u we need to regenerate them...  (Do we really?)
                 if "%filelist_to_use%" == "these.m3u" .or. "%filelist_to_use%" == "all.m3u" (call mp3index)
 
 rem Debug info:
         if %DEBUG gt 0 echo %ANSI_COLOR_DEBUG%- PARAMS: %PARAMS%%newline%%tab%using filelist of = %FILELIST_TO_USE%%newline%%tab%using filemask of = %FILEMASK_TO_USE%%ANSI_COLOR_NORMAL%
         rem echo got here ... does 1 eq %RECURSE_CFMK%?
+
+
 
 rem If the filelist doesn't exist...
         iff "1" == "%RECURSE_CFMK%" then
@@ -109,7 +132,9 @@ rem Kill bad transcriptions first:
         setdos /x0
 
 rem Check for songs missing sidecar TXT files :
-        (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
+        set last_command=(check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
+                         (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") |:u8 fast_cat
+        call errorlevel
 
 rem 🧹🧹🧹 While we're here, do some cleanup: 🧹🧹🧹
         iff exist *.json then

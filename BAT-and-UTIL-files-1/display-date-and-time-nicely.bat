@@ -2,7 +2,7 @@
 @Echo Off
  echo.
 
-:DESCRIPTION: This 25-year-old BAT file finally “graduated” on 12/30/2024. Don’t think there’s any further we can really go!
+:DESCRIPTION: This 25-year-old BAT file finally “graduated” on 12/30/2024. Don’t think there’s any further we can really go.. other than displaying seconds!
 
 rem Minimum number of columns a date can take up:
         set DEFAULT_RIGHT_COLUMN=35 %+ rem 05/04/2025

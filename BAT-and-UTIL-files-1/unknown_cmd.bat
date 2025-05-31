@@ -1,6 +1,4 @@
 @*loadbtm on
-
-
 @*Echo OFF
 
 *rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 🎛🎛🎛 CONFIGURATION: 🎛🎛🎛 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -48,7 +46,7 @@
 *rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ ⚠⚠⚠ OUTPUT ERROR MESSAGE: ⚠⚠⚠ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         *echoerr.
         *echoserr %ansi_color_normal%
-        *echos %ansi_color_normal%
+           *echos %ansi_color_normal%
         *set quote_color=%ansi_color_grey%
         *rem *echo pbatch=%_PBATCHNAME
         *echoerr 🚩 %ANSI_COLOR_ERROR% Unknown command: %blink_on%%quote_color%“%blink_off%%ansi_color_error%%italics%%unknown_command_highlight_color%%1$%ANSI_COLOR_ERROR%%italics_off%%blink_on%%quote_color%”%blink_off% %@unquote[%@IF["" != "%_PBATCHNAME","%ANSI_BACKGROUND_BLACK% %ansi_color_bright_yellow%in%faint_on%:%faint_off% %italics%%[_PBATCHNAME]%italics_off%",]]%ANSI_RESET% 🚩 
@@ -57,15 +55,15 @@
 
 
 *rem ━━━━━━━━━━━━━━━━━━━━━━━ 🛑🛑🛑 HALT EXECUTION UNTIL ACKNOWLEDGED: 🛑🛑🛑 ━━━━━━━━━━━━━━━━━━━━━━━
-        *if "" != "%PARAMS%" (
+        iff "" != "%PARAMS%" then
                 set msg=%ansi_color_warning%Pausing to allow time for this error to be discovered, but %italics_on%not%italics_off% stopping...%ansi_color_normal%%ansi_background_black%%ansi_color_bright_red%
-                if "" != "%@search[pause-for-x-seconds]" .and. defined wait_time_for_unknown_commands .and. defined msg (
+                iff "" != "%@search[pause-for-x-seconds]" .and. defined wait_time_for_unknown_commands .and. defined msg then
                         *call pause-for-x-seconds %wait_time_for_unknown_commands% "%msg%"
-                ) else (
-                        *echo %msg%
+                else
+                        *echo %msg% 
                         *pause                
-                )
-        )
+                endiff
+        endiff
 
 
 *rem ━━━━━━━━━━━━━━━━━━━━━━━━━ 🌇🌇🌇 PUT EVERYTHING BACK TO NORMAL: 🌇🌇🌇 ━━━━━━━━━━━━━━━━━━━━━━━━━

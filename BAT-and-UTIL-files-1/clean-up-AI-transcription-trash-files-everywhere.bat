@@ -19,11 +19,13 @@ rem Delete files that could be anywhere:
                 if "%1" == "audit-music-files" goto :unrelated_overloaded_functionality
                         call less_important "Erasing trash AI transcription files..."
                         rem If these filename values changes, also update the AI_TRASH_FILES variable in report-lyric-and-subtitle-percentage-completion.bat
+                        rem skip for now: gosub DeleteEverywhere .LastInvalidAITranscriptionCheck %+ rem Relates to delete-bad-AI-transcriptions.bat, which is designed to not be re-run every 72 hours. However, upon reboot, we will clean up the trash so that these files don’t stick around forever once we stop using that component
                         gosub DeleteEverywhere               *._vad_collected_chunks*.wav
                         gosub DeleteEverywhere               *._vad_collected_chunks*.srt
                         gosub DeleteEverywhere               *._vad_original*.srt
                         gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
                         gosub DeleteEverywhere               *._vad_pyannote_v3.txt
+
                         iff "%1" == "do_not_delete_BATs" goto :do_not_delete_BATs
                                 gosub DeleteEverywhere  create-the-missing-karaokes-here-temp*.bat
                                 gosub DeleteEverywhere       get-the-missing-lyrics-here-temp*.bat

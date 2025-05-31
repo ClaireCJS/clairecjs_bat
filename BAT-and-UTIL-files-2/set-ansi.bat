@@ -94,23 +94,26 @@ rem ANSI: Names influenced by online references:
 
 rem ————————————————————————————————————————————— UTILITY FUNCTIONS: ——————————————————————————————————————————————————————————————————————————————————————
 
-rem Utility functions: 
+rem Adds as space after every character:
+        function add_spaces_after_every_char=`%@ReReplace[(.),\1%@char[32],%1$]`                                                                           %+ rem Adds spaces after each char, i.e. “purple” becomes “p u r p l e ”
+        function                      spaced=`%@ReReplace[(.),\1%@char[32],%1$]`                                                                           %+ rem      🠉🠉 alias for 🠉🠉
 
-        rem Returns a random single hex character, i.e. '0', '1', ..., '8', '9', 'A', 'B', ..., 'E', 'F':
-                function random_hex_char=`%@substr[0123456789ABCDEF,%@random[0,15],1]`             
+rem Radomizers:
+        function random_upper_letter=`%@substr[ABCDEFGHIJKLMNOPQRSTUVWXYZ],%@random[0,25],1]`                                                                     %+ rem Returns a random letter in upper/uppercase/capital/CAPS
+        function random_lower_letter=`%@substr[abcdefghijklmnopqrstuvwxyz],%@random[0,25],1]`                                                                     %+ rem Returns a random letter in lower/lowercase
+        function       random_letter=`%@substr[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz],%@random[0,51],1]`                                           %+ rem Returns a random letter of either case
+        function        random_digit=`%@substr[0123456789,%@random[0,9],1]`                                                                                       %+ rem Returns a random digit
+        function    random_hex_digit=`%@substr[0123456789ABCDEF,%@random[0,15],1]`                                                                                %+ rem Returns a random single hex character, i.e. '0', '1', ..., '8', '9', 'A', 'B', ..., 'E', 'F'
+        function      random_rgb_hex=`%@random_hex_digit[]%@random_hex_digit[]%@random_hex_digit[]%@random_hex_digit[]%@random_hex_digit[]%@random_hex_digit[]`   %+ rem Returns a random hex rgb i.e. '47A98F', '9D3B5C':
 
-        rem Return a random hex rgb i.e. '47A98F', '9D3B5C':
-                function random_rgb_hex=`%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]%@random_hex_char[]`
-                
-        rem Returns the width of a string (length is # of chars, width is how wide it *displays*, i.e. NOT counting ANSI):
-                function string_width=`%@len[%@stripansi[%1$]]`
-                function width=`%@string_width[%1$]`
-                function wid=`%@string_width[%1$]`
-
-        rem Alias for our len functoin:
-                function length=`%@len[%1$]`
-
-
+rem String fuctions:
+        function                 string_width=`%@len[%@stripansi[%1$]]`                                                                                           %+ rem Returns the **WIDTH** (NOT length) of a string (length is # of chars, width is how wide it *displays*, i.e. NOT counting ANSI and emojis counting as double-wide):
+        function        width=`%@string_width[%1$]`                                                                                                               %+ rem      🠉🠉 alias for 🠉🠉
+        function          wid=`%@string_width[%1$]`                                                                                                               %+ rem      🠉🠉 alias for 🠉🠉
+                                                                                                                                                               
+rem Alias for common mistakes we make:                                                                                                                         
+        function length=`%@len[%1$]`                                                                                                                              %+ rem It’s very easy to think “len” could be “length”
+                                                                                                                                                      
 rem ————————————————————————————————————————————— RESETTING: ——————————————————————————————————————————————————————————————————————————————————————————————
 
 rem ANSI: special stuff: reset
@@ -1256,20 +1259,22 @@ rem ************* TOYS: BEGIN: *************
         rem ——————— block lettering! —— 🇧 🇱 🇴 🇨 🇰  🇱 🇪 🇹 🇹 🇪 🇷 🇮 🇳 🇬 ! ——————————————————————————————————————————————————————————————————————————————————————————————————
 
                 rem Cursor uppercase and lowercase sets are a different distance apart from each other than the ASCII ones!
-                        rem 𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩     𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩
                         function  block_upperr=`echo @if[@ASCII[@left[1,%1]] ge 65`
-                        function  block_upper=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[%@EVAL[127397+%@ASCII[%@left[1,%1]]]] ``,%@left[1,%1]``]`
-                        function  block_lower=`%@if[%@ASCII[%@left[1,%1``]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[%@EVAL[127397-32+%@ASCII[%@left[1,%1]]]] ``,%@left[1,%1]``]`
+                        function  block_upper=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[%@EVAL[127397+%@ASCII[%@left[1,%1]]]] ``,%@left[1,%1]{SPACE1}``]`
+                        function  block_lower=`%@if[%@ASCII[%@left[1,%1``]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[%@EVAL[127397-32+%@ASCII[%@left[1,%1]]]] ``,%@left[1,%1]{SPACE2}``]`
    
                 rem block *any* character —— uses block_upper and block_lower when appropriate
-                        rem 𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃           𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃          𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃
-                        function  block_letter_only=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[%@EVAL[127397+%@ASCII[%@left[1,%1]]]],]%@if[%@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[%@EVAL[127397-32+%@ASCII[%@left[1,%1]]]] ``,]`
+                        function  block_letter_only=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90,%@CHAR[%@EVAL[127397+%@ASCII[%@left[1,%1]]]],]%@if[%@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@CHAR[%@EVAL[127397-32+%@ASCII[%@left[1,%1]]]]``,]`
                         function       block_letter=`%@if[%@ASCII[%@left[1,%1``]] ge 65 .and. %@ASCII[%@left[1,%1]] le  90  .or.   %@ASCII[%@left[1,%1]] ge 97 .and. %@ASCII[%@left[1,%1]] le 122,%@block_LETTER_ONLY[%@left[1,%1]]``,%@left[1,%1]``]`
 
-
                 rem block any string:
-                        function block_string=`%@ReReplace[([A-Za-z]),%%@block_letter[\1],%1$]`
-                        function  block_plain=`%@block_string[%1$]`
+                        function block_string_smushed=`%@ReReplace[([A-Za-z]),%%@block_letter[\1],%1$]`
+                rem Fix the weirdness that a space is needed after each one to display blocked characters properly:
+                        function block_string_small_spaces=`%@add_spaces_after_every_char[%@block_string_smushed[%1$]]`
+                rem Fix the weirdness that when pasted into a browser/Discord, the spaces between words are way too small:
+                        function block_string=`%@ReReplace[%@CHAR[32]%@CHAR[32]%@CHAR[32],%@CHAR[32]%@CHAR[32]%@CHAR[32]%@CHAR[32]%@CHAR[32],%@block_string_small_spaces[%1$]]`
+                rem Alias:
+                        function block_plain=`%@block_string[%1$]`
 
                 rem 🌈🌈🌈 Block any string, but in rainbow: 🌈🌈🌈
                         function block_string_colorful=`%@colorful_string[%@block_string[%@UNQUOTE[%1$]]]%ansi_reset%`
@@ -1293,7 +1298,7 @@ rem ************* TOYS: BEGIN: *************
 
 
 
-        rem ——————— Double lettering! —— 🇧 🇱 🇴 🇨 🇰  🇱 🇪 🇹 🇹 🇪 🇷 🇮 🇳 🇬 ! ——————————————————————————————————————————————————————————————————————————————————————————————————
+        rem ——————— Double lettering! —— ! ——————————————————————————————————————————————————————————————————————————————————————————————————
 
                 rem Cursor uppercase and lowercase sets are a different distance apart from each other than the ASCII ones!
 

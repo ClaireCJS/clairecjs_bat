@@ -1,33 +1,119 @@
 @loadbtm on
 @Echo Off
- on break cancel
+@on break cancel
+
+rem #############################################################################################################
+rem #############################################################################################################
+rem ####                                                                                                     ####   This hunts and destroys invalid
+rem ####                         █████                        ██     █       ██                              ####   WhisperAI subtitle/karaoke files
+rem ####                           █                           █              █                              ####
+rem ####                           █                           █              █                              ####   It leaves a trigger file so as not
+rem ####                           █   ██ ██  ███ ███ ████     █   ███    █████                              ####   to be run more than once every X 
+rem ####                           █    ██  █  █   █      █    █     █   █    █                              ####   hours {x is currently 72}
+rem ####                           █    █   █  █   █  █████    █     █   █    █                              ####   
+rem ####                           █    █   █   █ █  █    █    █     █   █    █                              ####   ...as this is something you would          
+rem ####                           █    █   █   █ █  █    █    █     █   █    █                              ####   want run in every folder in your           
+rem ####                         █████ ███ ███   █    ████ █ █████ █████  ██████                             ####   music collection in order to repair        
+rem ####                                                                                                     ####   any AI-transcriptions that have            
+rem ####   ███████                                                 █                   █                     ####   hallucinations                             
+rem ####   █  █  █                                                              █                            ####                                              
+rem ####      █                                                                 █                            ####   Add a “force” parameter to override        
+rem ####      █   ███ ██  ████   ██ ██    █████   █████  ███ ██  ███   ██████  ████  ███    █████  ██ ██     ####   the timeout threshold and Just Do It™      
+rem ####      █     ██  █     █   ██  █  █     █ █     █   ██  █   █    █    █  █      █   █     █  ██  █    ####                                               
+rem ####      █     █     █████   █   █   ███    █         █       █    █    █  █      █   █     █  █   █    ####   If a number 1–3 is not provided as         
+rem ####      █     █    █    █   █   █      ██  █         █       █    █    █  █      █   █     █  █   █    ####   a command-line option, it will prompt      
+rem ####      █     █    █    █   █   █  █     █ █     █   █       █    █    █  █  █   █   █     █  █   █    ####   you to choose an option of 1–3:            
+rem ####     ███  █████   ████ █ ███ ███  █████   █████  █████   █████  █████    ██  █████  █████  ███ ███   ####                                              
+rem ####                                                                █                                    ####       ① Delete automatically                  
+rem ####                                                               ███                                   ####       ② Delete after asking                   
+rem ####              ███████  ██     █             █                                                        ####       ③ Delete after reviewing and asking     
+rem ####               █    █   █                                       █                                    ####                                               
+rem ####               █        █                                       █                                    ####   I recommend “3”, which also has an option                             
+rem ####               █  █     █   ███   ███ █   ███   ██ ██    ████  ████   █████  ███ ██                  ####   to edit the file rather than deleting it 
+rem ####               ████     █     █    █ █ █    █    ██  █       █  █    █     █   ██  █                 ####       
+rem ####               █  █     █     █    █ █ █    █    █   █   █████  █    █     █   █                     ####   The most common WhisperAI hallucations are:    
+rem ####               █        █     █    █ █ █    █    █   █  █    █  █    █     █   █                     ####      ① “And we’re back”                          
+rem ####               █    █   █     █    █ █ █    █    █   █  █    █  █  █ █     █   █                     ####      ② “This is the first[/second] sentence”                                             
+rem ####              ███████ █████ █████ ██ █ ██ █████ ███ ███  ████ █  ██   █████  █████                   ####                                              
+rem ####                                                                                                     ####   
+rem #############################################################################################################   
+rem #############################################################################################################
 
 
-rem Halt condition:
-        set dir_txt=%italics_on%%faint_on%%[_CWP]%faint_off%%italics_off%%ansi_color_normal% 
-        iff not exist *.srt;*.lrc;*.txt then
+rem ━━━ CONFIG: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+rem ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ CONFIG: BEHAVIOR TO change whenver you feel like it: ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ 
+
+        rem How many hours do you want to go by before it is permissible to run this in a folder again?  It’s a delay-step in productivity
+        rem so we reallllllllllllllly don’t like running this unnecessarily:
+                set HOURS_BEFORE_REDO=72                                                    
+
+rem ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ CONFIG: CONSTANTS THAT SHOULDN’T BE CHANGED AS THEY ARE USED IN OTHER FILES: ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ 
+                set BAD_AI_SEARCH_TRIGGER_FILENAME=.LastInvalidAITranscriptionCheck
+
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+rem Values calculated from config or current folder:
+        set MINUTES_BEFORE_REDO=%@EVAL[60 * %HOURS_BEFORE_REDO%]
+        set dir_txt=%italics_on%%faint_on%%[_CWD]%faint_off%%italics_off%%ansi_color_normal% 
+
+rem Halt condition 1: No subtitles/lyrics/text to even bother searching for bad transcriptions: [controversial: the inclusion of .txt]
+        iff not exist *.srt;*.lrc then
                 title %_CWP
-                echo %ansi_color_warning_soft%%star2% %underline_on%No%underline_off%%zzzzzz% %italics_on%bad AI transcriptions%italics_off% %@cursive_plain[to] delete %@cursive_plain[in]: %dir_txt% %+ goto /i END %+ else
-                echo %ansi_color_run%%zzzzzzz%%star2% Looking %@cursive_plain[for]%zzzzzzzzz% %italics_on%bad AI transcriptions%italics_off% %zzzzzzzzzzzzzzzzzzzzzzzzz%%@cursive_plain[in]: %dir_txt%
+                echo.                                                                                
+                rem “No AI transcriptions to delete”
+                echo %ansi_color_red%%zzzzz%%star2% %underline_on%No%underline_off%%zzzzzz% %italics_on%AI transcriptions%italics_off% %@cursive_plain[to] delete %@cursive_plain[in]: %dir_txt% %+ goto /i END %+ else
+                if exist %FILEMASK_AUDIO% call delete-zero-byte-files %FILEMASK_AUDIO% silent
+        else
+                rem “Looking for AI transcriptions to delete”
+                echo %ansi_color_run%%zzzzzzz%%star2% Looking %@cursive_plain[for]%zzzzzzzzz% %italics_on%AI transcriptions%italics_off% %zzzzzzzzzzzzzzzzzzzzzzzzz%%@cursive_plain[in]: %dir_txt%
         endiff
 
+
+rem Halt condition 2: We have checked in the last 24 hrs or whatever our user-defined-interval is
+        iff exist %BAD_AI_SEARCH_TRIGGER_FILENAME% .and. "%2" != "force" .and. "%1" != "force" then
+                rem Basic time constants to make our code more readable:
+                        set TIMESTAMP_PER_SECOND=10000000
+                        set   SECONDS_PER_MINUTE=60
+                        set     MINUTES_PER_HOUR=60
+                rem Convert our refresh threshold from minutes to internal timestamp units:
+                        if not defined MINUTES_BEFORE_REDO call validate-environment-variable MINUTES_BEFORE_REDO "somebody forgot to define  MINUTES_BEFORE_REDO  in delete-bad-ai-transcriptions"
+                        set REFRESH_THRESHOLD_MIN=%@EVAL[%MINUTES_BEFORE_REDO% * %SECONDS_PER_MINUTE% * %TIMESTAMP_PER_SECOND%]                
+                rem Get file’s age versus our current moment in time:
+                        set LOCAL_FILE_AGE=%@FILEAGE["%BAD_AI_SEARCH_TRIGGER_FILENAME%"]
+                        set  TIMESTAMP_NOW=%@MAKEAGE[%_date,%_time]
+                rem Calculate the time difference between now and the file’s age, then convert it to seconds, then to minutes:
+                        set CURRENT_DELTA_VAL=%@EVAL[%TIMESTAMP_NOW%     -       %LOCAL_FILE_AGE%]
+                        set CURRENT_DELTA_SEC=%@EVAL[%CURRENT_DELTA_VAL% / %TIMESTAMP_PER_SECOND%]
+                        set CURRENT_DELTA_MIN=%@EVAL[%CURRENT_DELTA_SEC% /   %SECONDS_PER_MINUTE%]
+                        set CURRENT_DELTA_HOU=%@EVAL[%CURRENT_DELTA_MIN% /     %MINUTES_PER_HOUR%]
+                rem Halt if the current time difference is less than how long we want to wait to do this again:
+                        set HALT=%@EVAL[%CURRENT_DELTA_MIN% < %MINUTES_BEFORE_REDO%]                                                                  
+                        rem DEBUG: pause "halt == “%HALT%   HOURS_BEFORE_REDO=“%HOURS_BEFORE_REDO%” , CURRENT_Δ_HOURS=“%@FORMATN[0.1,%CURRENT_DELTA_HOU%]"”"
+                        iff "1" == "%HALT%" then
+                                echo.
+                                echo %ansi_color_red%%zzzzz%%star2% Until %italics_on%%@cool_number[%HOURS_BEFORE_REDO%]%italics_off%%ansi_color_red% hours %@cursive_plain[have] passed, %double_underline_on%%italics_on%will not%double_underline_off%%italics_off% look for invalid AI transcriptions %@cursive_plain[in]: %dir_txt% 
+                                goto /i :END
+                        endiff
+                        
+        endiff
 
 rem Grab parameter:
         set PARAM1=%1
 
 rem Validate environment (once):
-        iff "1" != "%validated_dbaitrr%" then
-                call validate-in-path grep insert-before-each-line.py insert-after-each-line.py run-piped-input-as-bat.bat askyn del-maybe-after-review uniq sed fatal_error
-                call validate-environment-variables ansi_color_unimportant ansi_color_important_less ansi_color_normal star2 ansi_color_bright_green ansi_color_bright_blue ansi_color_prompt faint_on faint_off italics_off italics_on ansi_erase_to_eol  faint_on faint_off ansi_color_warning_soft ansi_cursor_invisible ansi_cursor_visible underline_on underline_off star star2 star3 star4 check 
-                call validate-is-function ansi_move_to_col randcursor ANSI_MOVE_RIGHT randfg_soft cursive cursive_plain
-                set  validated_dbaitrr=1
+        iff "True" != "%validated_dbaitrr%" then
+                call validate-in-path               grep insert-before-each-line.py insert-after-each-line.py run-piped-input-as-bat.bat askyn del-maybe-after-review uniq sed fatal_error delete-zero-byte-files 
+                call validate-environment-variables ansi_colors_have_been_set emoji_have_been_set star2 star star2 star3 star4 check FILEMASK_AUDIO
+                call validate-is-function           ansi_move_to_col randcursor ANSI_MOVE_RIGHT randfg_soft cursive cursive_plain
+                set  validated_dbaitrr=True
         endiff
 
 rem Get mode type:
         unset /q BAD_TRANSCRIPTION_DELETE_MODE ANSWER
         :re_ask_delete_bad_ai_transcription_mode
         iff "%PARAM1%" == "1" .or. "%PARAM1%" == "2" .or. "%PARAM1%" == "3"  then
-                SET BAD_TRANSCRIPTION_DELETE_MODE=%PARAM1%
+                set BAD_TRANSCRIPTION_DELETE_MODE=%PARAM1%
         else
                 call AskYN "%ansi_color_bright_green%1%ansi_color_prompt%=Delete automatically, %ansi_color_bright_green%2%ansi_color_prompt%=ask for each deletion, or %ansi_color_bright_green%3%ansi_color_prompt%=review before for each deletion" 0 0 123 1:delete_automatically,2:ask_for_each_deletion,3:review_before_deleting
                 iff "%answer%" == "1" .or. "%answer%" == "2" .or. "%answer%" == "3" then
@@ -37,10 +123,13 @@ rem Get mode type:
                 endiff
         endiff
 
+
+
 rem Create meaningfully-named temporary file:
         set NUM_STEPS=20
         set NUM_STEPS=12
         set NUM_STEPS=13
+        set NUM_STEPS=14
         set     step_num=1
         gosub   step
         call set-tmp-file "kill bad AI transcriptions filelist A1_original"               %+  set tmpfile1=%tmpfile%.lst
@@ -90,7 +179,7 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
                 gosub step %+ (grep -i "Closed lamps, curfews, dead leaves"                         %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem incorrectly-placed lyrics:       “Voivod - Black City” 
                 if "%@FILESIZE[%tmpfile1%]" == "0" (repeat 5 gosub step %+ goto :nothing_to_do)                         
 
-        rem Set options for del-maybe-after-review:
+        rem set options for del-maybe-after-review:
                 set EVEN_MORE_PROMPT_TEXT=,%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%Q%ansi_color_prompt%=enqueue
                 set EVEN_MORE_EXTRA_LETTERS=PQ
 
@@ -114,12 +203,32 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
                 if exist %tmpfile9% call %tmpfile9%
                 rem echo %ANSI_COLOR_DEBUG%- DEBUG: done executing: %italics_on%%tmpfile9%%italics_off%
 
+        rem While we’re here, also delete 0-byte audio files, which we end up leaving sometimes when we rename things to instrumental:
         rem Of course this opens a new issue which is.... If any lyric to any song is LEGITIMATELY “and we are back”, or other catch-phrases ... then we’re in a bit of a pickle
+                if exist %FILEMASK_AUDIO% call delete-zero-byte-files %FILEMASK_AUDIO%
+                gosub step
+
+
+        rem Erase the status bar when we are done:
                 :nothing_to_do
                 echos %@ANSI_MOVE_TO_COL[0]%ANSI_ERASE_TO_EOL%
-                goto :END
+
+        rem Leave trigger file to save date that we last checked:
+                rem First make sure the filename is properly defined:
+                        if not defined BAD_AI_SEARCH_TRIGGER_FILENAME call fatal_error "%italics_on%％BAD_AI_SEARCH_TRIGGER_FILENAME％%italics_off% is not set"  
+                rem Then, make sure it isn’t read only, if it exists:
+                        iff exist %BAD_AI_SEARCH_TRIGGER_FILENAME% attrib -hr %BAD_AI_SEARCH_TRIGGER_FILENAME% >nul        
+                rem Then, create a file with the filename. Its date (and——redundantly——its contents) will set the moment that we last checked for bad AI transcriptions:
+                        echo %_DATETIME>%BAD_AI_SEARCH_TRIGGER_FILENAME%
+                rem Then, set the filename to hidden because these would be annoying to see:
+                        attrib +h  %BAD_AI_SEARCH_TRIGGER_FILENAME% >nul
+                        
+
+
+
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+goto :END
 
         :step []                                                                             
                 echos %@ansi_move_to_col[0]%star3% %ansi_color_important_less%%faint_off%Looking %@cursive_plain[for]%faint_off% %italics_on%%underline_on%bad%underline_off% AI transcriptions%italics_off%%@randfg_soft[].%@randfg_soft[].%@randfg_soft[].  %ansi_color_bright_blue%Step%ansi_color_important% %step_num% %ansi_color_bright_blue%of%ansi_color_important% %NUM_STEPS%%@randfg_soft[].%@randfg_soft[].%@randfg_soft[].%@randcursor[] ``

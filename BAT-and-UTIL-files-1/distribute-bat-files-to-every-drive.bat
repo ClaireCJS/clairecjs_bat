@@ -45,7 +45,9 @@
 ::::: MAKE SURE ALL OUR DRIVES ARE MAPPED:
         rem  checkmappings.bat nopause ———— we no longer do this with the 'nopause' option, but we used to
         rem  checkmappings.bat  ————————————— 20241013: changing back to nopause because this is run from autoexec:
-        if 1 ne %DIST_NOCHECKMAP (call checkmappings.bat once nopause) %+ rem 2024/12/30: once only currently works with “once nopause” but not “nopause once”
+        iff "1" !=  "%DIST_NOCHECKMAP%" then
+                call checkmappings.bat once nopause %+ rem 2024/12/30: once only currently works with “once nopause” but not “nopause once”
+        endiff
 
 
         rem gosub :doit —— was the old/inelegant way we used for decades, we now use :doit2024:
@@ -75,7 +77,9 @@ goto :Cleanup
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :Delay
-    if "%DIST_DELAY%" != "" (%COLOR_DEBUG% %+ echo %EMOJI_STOPWATCH%%EMOJI_STOPWATCH% (waiting %DIST_DELAY% seconds) %EMOJI_STOPWATCH%%EMOJI_STOPWATCH% %+ %COLOR_NORMAL% %+ sleep %DIST_DELAY%)
+        iff "%DIST_DELAY%" != "" then 
+                %COLOR_DEBUG% %+ echo %EMOJI_STOPWATCH%%EMOJI_STOPWATCH% (waiting %DIST_DELAY% seconds) %EMOJI_STOPWATCH%%EMOJI_STOPWATCH% %+ %COLOR_NORMAL% %+ sleep %DIST_DELAY%
+        endiff
 return
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -130,7 +134,7 @@ goto :Cleanup
 
     rem update to github...
             call askYN "Update to %italics_on%GitHub%italics_off% as well?" yes 600
-            if %ANSWER eq Y (call publish-bat-updates-to-github.bat)
+            if "Y" == "%ANSWER%" call publish-bat-updates-to-github.bat
 
 
 goto :Cleanup

@@ -6,6 +6,7 @@ rem CONFIG:
 
 
 rem USAGE:
+        rem optional:   set PAF_START=start /min
         rem             call preview-audio-file whatever.mp3
         rem             call preview-audio-file whatever.mp3 show_karaoke
 
@@ -24,7 +25,7 @@ rem Inherit any winamp integration flags, just in case the flag in this file is 
 rem Actions to take BEFORE preview (pausing music):
         iff "1" == "%PAF_WINAMP_INTEGRATION%" then
                 echo %italics_off%%emoji_pause_button%%emoji_llama%   Pausing ⚡WinAmp⚡
-                ((call winamp-pause   quick)>&>nul) >&>nul
+                ((call winamp-pause quick)>&>nul) >&>nul
         endiff
 
 rem Show raw karaoke:
@@ -34,9 +35,11 @@ rem Show raw karaoke:
         endiff
         
 
+
 rem Do the actual preview:
         rem Outer-script should be responsible for this: echo %emoji_play_button% Previewing file: %italics_on%%*%italics_off%
-        vlc.exe --volume 200 %*
+        %PAF_START% vlc.exe --volume 200 %*
+        if defined PAF_START unset /q PAF_START
 
 
 rem Actions to take AFTER preview (unpausing music):

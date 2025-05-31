@@ -147,20 +147,20 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 
 &nbsp;
 
-7. 📜 Recommended: As mentioned earlier, to use the “local lyric repository search” functionality, you must set an environment variable named ```LYRICS``` to point to your lyric repository.  For example, ```set LYRICS=c:\lyrics```.
+9. 📜 Recommended: As mentioned earlier, to use the “local lyric repository search” functionality, you must set an environment variable named ```LYRICS``` to point to your lyric repository.  For example, ```set LYRICS=c:\lyrics```.
 This is a repository of saved lyrics, possibly from years of past [MiniLyrics](https://minilyrics.en.softonic.com/)/[EvilLyrics](https://www.evillabs.sk/evillyrics/) use.   
 The structure of the repository is assumed to be subfolders for the 1ˢᵗ letter of the artist, with filenames that are “*Artist* - *Title*.txt”, for example ```c:\Lyrics\M\Metallica - Enter Sandman.txt```, with the possibility of apostrophes being substituted into underscores. 
 
 &nbsp;
 
-8. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
+10. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
     - Always be running  the ```Everything``` service, which comes with TakeCommand ([TCC](https://jpsoft.com/all-downloads/all-downloads.html))
     - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn’t start automatically. 
     - ```clean-up-AI-transcription-trash-files``` is the command to clean up our trash.  Insert it into your startup/autoexec.bat equivalent and this system won’t leave any trash anywhere.
 
 &nbsp;
 
-9. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration:
+11. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration:
     - Install the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile)
     - Configure the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. 
     - This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on “whatever song we are currently listening to” from any computer in the household. 🦙
@@ -168,7 +168,7 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 
 &nbsp;
 
-10. Optional: To speed up the workflow, pre-download lyrics for your entire music collection before even starting to look at individual albums/songs.  
+12. Optional: To speed up the workflow, pre-download lyrics for your entire music collection before even starting to look at individual albums/songs.  
     - Start with: [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat), which runs [predownload-lyrics-here.bat](../BAT-and-UTIL-files-1/predownload-lyrics-here.bat) on random subfolders in a random order.  
     - The predownloader marks files so that they are never retried in pre-download mode ever again. 
     - If you would like to erase those markings, run [reset-genius-search-status-for-all-audio-files.bat](../BAT-and-UTIL-files-1/reset-genius-search-status-for-all-audio-files.bat) in a folder. 

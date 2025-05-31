@@ -34,7 +34,7 @@ rem Validate the extension of the file:
 
 
 rem Unpause the music otherwise EnqueueEE.exe won’t work:
-    %COLOR_NORMAL% %+ echo.
+    if "%_PBATCHNAME%" != "" (%COLOR_NORMAL% %+ echo.)
     call unpause
     if %DEBUG% gt 0 call print-if-debug "EnqueueEE.exe -a “%italics%%@UNQUOTE[%@LFN[%1]]%italics_off%”"
 

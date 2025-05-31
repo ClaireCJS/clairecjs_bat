@@ -9,7 +9,7 @@ rem Validate environment (once):
 
 
 rem If it exists, delete it:
-        iff exist %* then
+        iff isfile %* then
                 rem Make each file deletion a random color so we can see where one ends and the other begins
                 rem But not TRULY random of a color. Choose between colors in a tasteful, easily-visible threshold
                         rem This was the original function we used: echos %@randfg_soft[]  ``
@@ -21,6 +21,6 @@ rem If it exists, delete it:
                         if "%@REGEX[\*,"%*"]" == "1" set additional_del_if_later_opt=/p
 
                 rem Delete the file now that we know it exists:
-                        *del /R %additional_del_if_later_opt% %*
+                        *del /R /a: /Ns %additional_del_if_later_opt% %*
 
         endiff

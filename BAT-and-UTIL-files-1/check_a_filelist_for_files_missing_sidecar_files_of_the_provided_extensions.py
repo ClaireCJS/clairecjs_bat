@@ -1,15 +1,6 @@
 DEBUG_DETECT_ENCODING = False
 DEBUG_SIDECAR_SEARCH  = False
-import io
-import sys
-import chardet
-import os
-import glob
-from termcolor import colored
-import random
-from colorama import init
-init(autoreset=False)
-import gc
+
 
 
 
@@ -44,14 +35,26 @@ import gc
 #
 
 
+import io
+import sys
+import chardet
+import os
+import glob
+from termcolor import colored
+import random
+from colorama import init
+init(autoreset=False)
+import gc
+
 # compensate for utf-8 files                                                        #print(f"Before reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
 sys.stdout.reconfigure(encoding='utf-8')                                            #print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')                  #print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')     #GOATjustchanged20250530             #print(f"After reconfigure: sys.stdout.encoding = {sys.stdout.encoding}")
 
 # These leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot:
 SCRIPT_NAME_FOR_LYRIC_RETRIEVAL  = "get-the-missing-lyrics-here-temp.bat"           #don't change without changing in accompanying BAT files
 SCRIPT_NAME_FOR_KARAOKE_CREATION = "create-the-missing-karaokes-here-temp.bat"      #don't change without changing in accompanying BAT files
 
+# initialize counts
 without_sidecar_count = 0
 total_file_count      = 0
 
@@ -69,13 +72,26 @@ def main_guts(input_filename, extensions, options, extra_args):
 
 
     # Detect encoding of the input file
-    encoding = detect_encoding(input_filename)
-    if not encoding:
-        encoding = "utf-8"
-        print(f"Warning: Unable to detect encoding for file '{input_filename}' but trying utf-8.")
-        #sys.exit(1)
-    else:
-        if DEBUG_DETECT_ENCODING: print(f"Detected encoding for {input_filename} of {encoding}")
+
+    #encoding = detect_encoding(input_filename)
+    #if not encoding:
+    #    encoding = "utf-8"
+    #    print(f"Warning: Unable to detect encoding for file '{input_filename}' but trying utf-8.")
+    #    #sys.exit(1)
+    #else:
+    #    if DEBUG_DETECT_ENCODING: print(f"Detected encoding for {input_filename} of {encoding}")
+
+    # Always try UTF-8 first, then fall back to chardet
+    encoding = "utf-8"
+    try:
+        with open(input_filename, 'r', encoding=encoding) as file:
+            files = [line.strip() for line in file.readlines() if line.strip()]
+    except UnicodeDecodeError:
+        encoding = detect_encoding(input_filename)
+        print(f"⚠️ UTF-8 decode failed, trying detected encoding: {encoding}")
+        with open(input_filename, 'r', encoding=encoding) as file:
+            files = [line.strip() for line in file.readlines() if line.strip()]
+
 
     # Check if the input file exists
     if not os.path.exists(input_filename):
@@ -170,7 +186,11 @@ def main_guts(input_filename, extensions, options, extra_args):
             sys.stderr.write(f"✏ ✏ ✏ ✏ ✏ ✏  Writing output file ✏ ✏ ✏ ✏ ✏ ✏\n")
             sys.stderr.write(f"       Files processed:       {total_file_count} \n")
             sys.stderr.write(f"       Sidecars searched for: {extensions} \n")
-            sys.stderr.write(f"       Without sidecar:       {without_sidecar_count} \n")
+            sys.stderr.write(f"       Without sidecar:       {without_sidecar_count} ")
+            if total_file_count:
+                pct = without_sidecar_count / total_file_count * 100
+                sys.stderr.write(f"({pct:2.0f}%)")
+            sys.stderr.write(f"\n")
             sys.stderr.write(f"       To fix, run:           {output_filename} \n")
             sys.stderr.write(f"       Used extra args of:    {extra_args}\n")
             sys.stderr.write(f"\n")
@@ -182,7 +202,7 @@ def main_guts(input_filename, extensions, options, extra_args):
             with open(output_filename, 'w', encoding='utf-8') as output_file:
                 output_file.write(f"@LoadBTM on\n")
                 output_file.write(f"@on break cancel\n")
-                output_file.write(f"@rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py\n")
+                output_file.write(f"@rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py\n\n\n\n")
 
                 files_without_sidecars_list = list(files_without_sidecars)              # create  the list
                 random.shuffle(files_without_sidecars_list)                             # shuffle the list
@@ -193,8 +213,8 @@ def main_guts(input_filename, extensions, options, extra_args):
                         if options.lower() == "getlyricsfilewrite": output_file.write(f"@repeat 13 echo. %+ @call get-lyrics \"{missing_file}\" {extra_args} %+ @call divider\n")
                         if options.lower() == "createsrtfilewrite": output_file.write(f"@repeat 13 echo. %+ @call create-srt \"{missing_file}\" {extra_args} %+ @call divider\n")
                         else                                      : output_file.write(f"{missing_file}\n")
-                if options.lower()         == "getlyricsfilewrite": output_file.write("@call divider\n@call celebration \"ALL DONE WITH LYRIC RETRIEVAL!!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
-                if options.lower()         == "createsrtfilewrite": output_file.write("@call divider\n@call celebration \"ALL DONE WITH KARAOKE CREATION!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
+                if options.lower()         == "getlyricsfilewrite": output_file.write("\n\n\n@call divider\n@call celebration \"ALL DONE WITH LYRIC RETRIEVAL!!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
+                if options.lower()         == "createsrtfilewrite": output_file.write("\n\n\n@call divider\n@call celebration \"ALL DONE WITH KARAOKE CREATION!!!\" silent\n") #@echo yra | *del %0 >&>nul\n") Self-deleting like this doesn't work, so these leftover files eventually get found and deleted in free-harddrive-space.bat which is called from maintenance.bat which is called upon reboot
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
