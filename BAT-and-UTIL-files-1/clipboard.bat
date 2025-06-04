@@ -25,9 +25,10 @@ rem Check if the first argument is a filename or not:
 
 rem Copy text or filename to clipboard, depending on the nature of our input:
         iff "%filename_for_clip%" == "None" then
-                @echo %* >:u8 clip:
-        else 
+                rem dep: @echo %* >:u8 clip:
                 load_to_clipboard.py %*
+        else 
+echo            load_to_clipboard.py %*
         endiff
 
 

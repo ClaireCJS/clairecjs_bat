@@ -43,18 +43,18 @@ rem Get parameters:
         set               PARAM_3=%3                                               %+ rem "verbose" if you want on-screen verification of what’s happeneing
 
 rem Validate environment (once):
-        iff 1 ne %validated_rm_ads_tag_from_file% then
-                call validate-environment-variables emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off
+        iff "1" != "%validated_rm_ads_tag_from_file%" then
+                call validate-environment-variables ansi_colors_have_been_set
                 set  validated_rm_ads_tag_from_file=1
         endiff
 
 rem Validate parameters (every time):
-        call validate-environment-variable  File_To_Use   "1ˢᵗ arg to %0 must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg can be “verbose”"
-        call validate-environment-variable  Tag_To_Remove "2ⁿᵈ argument %0 must be a tag to remove, NOT empty"
+        if not exist "%File_To_Use%" call validate-environment-variable  File_To_Use   "1ˢᵗ arg to %0 must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg can be “verbose”"
+        if "" ==   "%tag_to_remove%" call validate-environment-variable  Tag_To_Remove "2ⁿᵈ argument %0 must be a tag to remove, NOT empty"
 
 rem Set default values for parameters:
         set VERBOSE=0
-        if "%TAG_TO_REMOVE%" eq ""  (set TAG_TO_REMOVE=tag)
+        if "%TAG_TO_REMOVE%" == ""  (set TAG_TO_REMOVE=tag)
 
 
 rem Remove tag: 

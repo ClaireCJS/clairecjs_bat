@@ -1,4 +1,4 @@
 @Echo OFF
-rem @call get-lyrics  here get %*
 rem @call get-karaoke here get %*
-    @call get-karaoke here  %*
+rem @call get-karaoke here  %* ....... until 20250601
+    @call get-karaoke here get %*

@@ -112,7 +112,7 @@ FAINT_OFF            = "\033[22m"
 ITALICS_ON           = "\033[3m"
 ITALICS_OFF          = "\033[23m"
 #OVE_TO_COL_1        = "\033[1G"
-MOVE_TO_COL_1        = "\r"
+#OVE_TO_COL_1        = "\r"
 MOVE_TO_COL_1        = "\033[1G"
 MOVE_UP_1            = "\033M"
 REVERSE_ON           = "\033[7m"
@@ -439,10 +439,10 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         #   #pass
 
         if  "ctranslate" in original_line:
-            line = spacer + FAINT_ON   + COLOR_GREY + "⭐" + line + FAINT_OFF               #+ "HEYOOOOOOOOOOO"
+            line = spacer + FAINT_ON   + COLOR_GREY + "⭐" + line + FAINT_OFF
             line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)
             #DEBUG: print ("ctranslate line found!")#
-        line = re.sub(r'(\[[23]\d{3}.[01]\d.[0-3]\d )', f'{COLOR_GREY}\1', line)    #todo experimental: just do this, won't affecti f there isn't a match
+        line = re.sub(r'(\[[1-2]\d{3}.[01]\d.[0-3]\d )', f'{MOVE_TO_COL_1}{COLOR_GREY}\1', line)            #todo experimental: just do this, won't affect if there isn't a match #20250601 added MOVE_TO_COL_1 not sure about that but trying to stop those hanging date lines that start at eol-6ish
         if  original_line.startswith("Standalone Faster-Whisper-XXL "):
             #### = line.replace("Standalone Faster-Whisper-XXL", "\n\n🚀 Standalone Faster-Whisper-XXL 🚀\n").replace(" running on:",":")
             line = decorator_title + " " + line.rstrip('\n').replace(" running on:"," ━━ on").replace("Standalone",f"{decorator_title} Standalone") + " " + decorator_title

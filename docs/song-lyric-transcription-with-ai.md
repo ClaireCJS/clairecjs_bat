@@ -1,9 +1,9 @@
-TODO: thorough.bat - sets/unsets environment variables for thorough mode
 TODO: may have to unapprove any txt if the LRC/SRT is generated         "%@UNQUOTE["%OUTPUT_FILE%"]:generated"  
 TODO: delete-bad-ai-transcription after done aligning
 TODO: align-music-collection-lyrics.bat for quick start
+TODO: serach for other todos below
 
-about section to include obstacles -- hallucination-prevention was tough
+TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency.
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -195,7 +195,7 @@ From a running TCC command line, use whatever system commands you’d like from 
 # ⚙️  To transcribe folder trees/discographies/entire music collections: # ⚙️ 
 
 - ① Prep files:
-  - Optionally use ```LRCget``` (TODO link) to pre-download lyrics and transcriptions for your collection (if you don’t, this whole project make take 20–60% longer) 
+  - Optionally use ```LRCget``` (TODO link) to pre-download lyrics and transcriptions for your collection (if you don’t, this whole project make take 20–60% longer). BEWARE!!!!!  Every single live or remix song will match to the official version, so you want to take note of the date you run this, and delete every file that has “(live” or “Mix)” in it [or however it is you name things in your own collection]. TODO: Create tool to do this named “LRCget-post-cleanup.bat”
   - Optionally use ```global /i create-txt-lyrics-from-karaoke-files.bat``` to convert any LRC/SRTs we already have to TXT
   - Optionally use ```predownload-lyrics``` to pre-download lyrics available from genius.com (if you don’t, approving lyrics will take 20–40% longer) 
   - Optionally use ```sweep ask-if-instrumentals``` to mark instrumentals (if you don’t, you’ll waste electricity+GPU time to get hallucinatory instrumental transcriptions)
@@ -251,6 +251,11 @@ From a running TCC command line, use whatever system commands you’d like from 
 
   1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
   1. ⚙️ Subordinate commands (*under-the-hood* stuff not generally invoked directly)
+
+
+🍀 Uncategorized commands:
+
+  1. ([thorough.bat](../BAT-and-UTIL-files-1/thorough.bat) - sets/unsets environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -397,7 +402,7 @@ Longer explanation: When this system marks a song as lyriclessness (aka “lyric
 
 **Create karaoke for one audio file.**
 Performs the AI transcription process for a single song file.
-Run without parameters to see various options, which include:
+Run without parameters to see various options, as the list here is not guaranteed to be synchronized with the most up-to-date options. Options include:
 
     - ```         force``` — generate it even if it already exists
     - ```            ai``` — skips  the   lyrics   component, and transcribes file only with AI
@@ -407,6 +412,7 @@ Run without parameters to see various options, which include:
     - ```       cleanup``` — just clean up the temp files [in case of error]
     - ```PromptAnalysis``` — instead of encoding, simply log the prompt to the log file for later analysis. Great way to test our lyric postprocessor system-wide proper to doing system-wide transcription.
 
+One may also set the environment variables %OVERRIDE_VAD_THRESHOLD% and %OVERRIDE_LANGUAGE% to override the %DEFAULT_VAD_THRESHOLD% and %DEFAULT_LANGUAGE% values in the config section of create-srt.
 
 ### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/create-srt-file-for-currently-playing-song.bat):
 

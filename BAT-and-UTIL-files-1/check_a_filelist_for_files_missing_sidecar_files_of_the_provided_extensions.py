@@ -192,7 +192,7 @@ def main_guts(input_filename, extensions, options, extra_args):
                 sys.stderr.write(f"({pct:2.0f}%)")
             sys.stderr.write(f"\n")
             sys.stderr.write(f"       To fix, run:           {output_filename} \n")
-            sys.stderr.write(f"       Used extra args of:    {extra_args}\n")
+            if extra_args: sys.stderr.write(f"       Used extra args of:    {extra_args}\n")
             sys.stderr.write(f"\n")
 
             if extra_args == "/s": extra_args=""

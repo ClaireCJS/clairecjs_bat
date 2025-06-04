@@ -117,7 +117,7 @@ rem Only review a single file, if [what is hopefully] a filename is provided:
 rem Validate environment:
         iff "4" != "%validated_review_subtitles%" then
                 call validate-in-path print-with-columns grep remove-blank-lines warning preview-audio-file preview-video-file preview-image-file print-with-columns print_with_columns.py
-                call validate-environment-variables ansi_color_bright_red ansi_color_warning_soft emoji_warning ansi_color_normal italics_on italics_off left_quote right_quote 
+                call validate-environment-variables ansi_colors_have_been_set emoji_have_een_set 
                 if not defined filemask_video call validate-environment-variables filemask_video skip_validation_existence
                 if not defined filemask_audio call validate-environment-variables filemask_audio skip_alidation_existence
                 if not defined filemask_audio call validate-environment-variables filemask_image skip_validation_existence
@@ -253,7 +253,7 @@ rem ══════════════════ SUBROUTINES: ══�
                 rem If we are instructed to draw a lower-stripe, it gets a divider BEFORE it:
                         iff "1" == "%STRIPEL%" then
                                 gosub "%bat%\get-lyrics-for-file.btm" divider
-                                echo                                   call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
+                                rem echo                                   call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
                                 if exist %review_file_tmp_file_2%      call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
                         endiff
         return

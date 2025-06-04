@@ -66,6 +66,7 @@ rem Extra prep of lyrics:
                 call AskYN   "Edit lyrics for required perfection"   yes 0
                 iff "Y" == "%ANSWER%" then
                         rem Ask if we want to listen to the song while editing:
+                                echo * Audio file==%AFL%
                                 call AskYN   "Listen to the audio file while editing lyrics"   no  0
                                 %EDITOR% "%LYR%"
 

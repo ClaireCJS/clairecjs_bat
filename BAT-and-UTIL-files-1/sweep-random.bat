@@ -4,7 +4,7 @@
 rem Validate environment (once):
         iff "2" != "%validated_sweeprandom1%" then
                 call validate-in-path insert-before-each-line.py insert-after-each-line.py less_important advice print-message randomize-file run-piped-input-as-bat set-tmp-file cd-for-sweep-random.bat less_important print-message
-                call validate-environment-variables lq rq bold_on bold_off faint_on faint_off ansi_color_warning_soft color_advice color_normal italics_on italics_off
+                call validate-environment-variables emoji_have_been_set ansi_colors_have_been_set
                 set  validated_sweeprandom1=2
         endiff
 

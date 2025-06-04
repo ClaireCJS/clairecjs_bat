@@ -14,6 +14,7 @@ if "%1" == "generate"               (fix_unicode_filenames.py script|:u8sort|:u8
                 set /r c:\bat\emoji.env           
 
         rem Flag that the emojis have been defined so we don't do this over and over:
+                set EMOJI_HAVE_BEEN_SET=1         
                 set EMOJIS_HAVE_BEEN_SET=1         
 
 :Already_Set

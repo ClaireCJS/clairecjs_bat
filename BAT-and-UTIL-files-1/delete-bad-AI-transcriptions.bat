@@ -91,7 +91,7 @@ rem Halt condition 2: We have checked in the last 24 hrs or whatever our user-de
                         set HALT=%@EVAL[%CURRENT_DELTA_MIN% < %MINUTES_BEFORE_REDO%]                                                                  
                         rem DEBUG: pause "halt == “%HALT%   HOURS_BEFORE_REDO=“%HOURS_BEFORE_REDO%” , CURRENT_Δ_HOURS=“%@FORMATN[0.1,%CURRENT_DELTA_HOU%]"”"
                         iff "1" == "%HALT%" then
-                                echo.
+                                if "%_PBATCHNAME" == "" echo.
                                 echo %ansi_color_red%%zzzzz%%star2% Until %italics_on%%@cool_number[%HOURS_BEFORE_REDO%]%italics_off%%ansi_color_red% hours %@cursive_plain[have] passed, %double_underline_on%%italics_on%will not%double_underline_off%%italics_off% look for invalid AI transcriptions %@cursive_plain[in]: %dir_txt% 
                                 goto /i :END
                         endiff

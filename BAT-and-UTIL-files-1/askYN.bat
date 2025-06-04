@@ -11,17 +11,19 @@
 
 
 rem Validate environment once:
-        iff "1" != "%VALIDATED_ASKYN%" then
+        if not defined ansi_colors_have_been_set call set-ansi force
+        iff "True" != "%VALIDATED_ASKYN%" then
                 call validate-in-path               echos echoerr echoserr print-if-debug important.bat fatal_error.bat warning.bat repeat if set 
                 call validate-plugin                stripansi
                 call validate-functions             ansi_cursor_change_color_word cursor_color_by_hex ansi_move_up ansi_move_left 
                 call validate-environment-variables cursor_reset ansi_colors_have_been_set up_arrow ansi_color_pink ansi_color_orange color_alarm_hex color_success_hex dash
-                set VALIDATED_ASKYN=1
+                set VALIDATED_ASKYN=True
         endiff
 
 
 rem Configuration:
         set BASE_ALLOWABLE_KEYS=yn
+
 
 rem Set default flags:                                                                    
         set RUNNING_TESTS=0
@@ -43,6 +45,7 @@ rem Are we in testing mode?
                 set RUNNING_TESTS=0
         endiff        
 
+
 rem Get positional required parameters:
         iff defined AskYN_question then
                 set ASK_QUESTION=%@UNQUOTE[%AskYN_question% ]
@@ -51,6 +54,7 @@ rem Get positional required parameters:
                 set ASK_QUESTION=%@UNQUOTE[%[1]]
                 shift
         endiff
+
 
 rem What is the default answer? If it is “0” or “None” then we don’t have an enter key or a defult answer:
         set DEFAULT_ANSWER=%1 
@@ -62,10 +66,12 @@ rem What is the default answer? If it is “0” or “None” then we don’t h
         endiff
         shift
 
+
 rem What is the wait time? Is it infinite (“0”)?
         set WAIT_TIME=%1      
         if "%WAIT_TIME%" != "" .and. "%WAIT_TIME%" != "NULL" .and. "%WAIT_TIME%" != "0" (set WAIT_OPS=/T /W%wait_time% %+ set WAIT_TIMER_ACTIVE=1)
         shift
+
 
 rem Get non-positional parameters [flags were initialized to 0 above]:
         :grab_next_param
@@ -77,8 +83,7 @@ rem Get non-positional parameters [flags were initialized to 0 above]:
                 if "%1" == "notitle" .or. "%1" == "no_title"  (shift %+ set        NOTITLE=1 %+ goto :grab_next_param)
         :done_grabbing_params
                 rem echo - DEBUG: INVISIBLE_MODE=“%INVISIBLE_MODE%” / NO_ENTER_KEY=“%NO_ENTER_KEY%” / BIG_QUESTION=“%BIG_QUESTION%” / NOTITLE=“%NOTITLE%”  %+ pause
-
-
+                             
 
 rem Get positional-at-end parameter for expanded answer key meanings (“what does ‘A’ equal?”-type questions):
         set ADDITIONAL_KEYS=
@@ -105,7 +110,6 @@ rem Get positional-at-end parameter for expanded answer key meanings (“what do
                                 return
                         :DoneWithKeyMeaning                        
                         rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 
 
 iff "%ASK_QUESTION%" == "" .or. "%ASK_QUESTION%" == "help" .or. "%ASK_QUESTION%" == "--help" .or. "%ASK_QUESTION%" == "/?" .or. "%ASK_QUESTION%" == "-?" .or. "%ASK_QUESTION%" == "-h" then

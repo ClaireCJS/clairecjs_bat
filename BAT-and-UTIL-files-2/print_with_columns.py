@@ -700,17 +700,15 @@ def apply_background_color(r, g, b):
 
 
 
-
-# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 def normalize_for_highlight(word):
     word = re.split(r"[-–—━]", word, 1)[0]  # truncate at first hyphen-like character
-    if word == "versus"    or word == "v.s.": word = "vs"                            # different ways to express the same word should be drawn  the same color
-    #f word == "alongside"                  : word == "along side"                   # different ways to express the same word should be drawn  the same color
-    if word == "alongside"                  : word == "along"                        # make “along side” same color as “alongside” by treating both as simply “along”
-    word = word.replace("’ve", "").replace("'ve", "").replace("´ve", "")             # makes word-variants like “should’ve”  and  “should have” the same color
-    word = word.replace("’s" ,"s").replace("'s" ,"s").replace("´s" ,"s")             # makes word-variants like  “there’s”   and    “there is”  the same color
-    word = word.replace("’"  , "").replace("'"  , "").replace("´"  , "")             # variations in which apostrophe we use should all be made the same color
-    if word.endswith("ing"): word = word[:-3] + "in"                                 # makes word-variants like “coping” vs “copin’” vs “copin” the same color
+    if word == "’round"  or word == "around": word = "around"                        # ❶ different ways to express the same word should be drawn  the same color so it doesn’t appear like a mismatch①①
+    if word == "versus"  or word ==   "v.s.": word = "vs"                            # ❶ different ways to express the same word should be drawn  the same color so it doesn’t appear like a mismatch
+    word = word.replace("’ve", "").replace("'ve", "").replace("´ve", "")             # ❷ makes word-variants like “should’ve”  and  “should have” the same color so it doesn’t appear like a mismatch
+    word = word.replace("’s" ,"s").replace("'s" ,"s").replace("´s" ,"s")             # ❷ makes word-variants like  “there’s”   and    “there is”  the same color so it doesn’t appear like a mismatch
+    word = word.replace("’"  , "").replace("'"  , "").replace("´"  , "")             # ❸ variations in which apostrophe we use should all be made the same color so it doesn’t appear like a mismatch
+    if word.endswith("ing"): word = word[:-3] + "in"                                 # ❹ makes word-variants like “coping” vs “copin’” vs “copin” the same color so it doesn’t appear like a mismatch
 
     word = unicodedata.normalize('NFC', word)
     for cyrillic_char, latin_char in char_map.items():
@@ -718,7 +716,7 @@ def normalize_for_highlight(word):
 
     #print (f"word={word}")
     return word
-# ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
 
 # ═════════════════════════════════════════════════════════════════════════════════
@@ -1180,13 +1178,13 @@ def main():
 
 
     #══════════════════════════════════════════════════════════════════════#
-    # 🎉🎉🎉 ⭐⭐⭐⭐⭐ THE FILE IS GONNA BE PRINTED RIGHT HERE: ⭐⭐⭐⭐⭐ 🎉🎉🎉 #
+    # 🎉🎉🎉 ⭐⭐⭐⭐ THE FILE IS GONNA BE PRINTED RIGHT HERE ⭐⭐⭐⭐ 🎉🎉🎉 #
     # output="" at the end of each line:                                   #
     if (output==""):                                                       #
         print("\n".join(input_data))                                       #
         if VERBOSE: print("❕‼ OUTPUT EMPTY. Joined input_data manually ❕‼")#
     #══════════════════════════════════════════════════════════════════════#
-    # 🎉🎉🎉 ⭐⭐⭐⭐⭐ THE FILE IS ACTUALLY PRINTED RIGHT HERE: ⭐⭐⭐⭐⭐ 🎉🎉🎉 #
+    # 🎉🎉🎉 ⭐⭐⭐⭐⭐ FILE IS ACTUALLY PRINTED RIGHT HERE: ⭐⭐⭐⭐⭐ 🎉🎉🎉 #
     else:                                                                  #
         if not STRIPE or TEXT_ALSO:                                        #
             trimmed_output = remove_trailing_blank_lines(output)           #

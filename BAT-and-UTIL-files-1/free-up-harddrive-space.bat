@@ -31,8 +31,8 @@ rem Delete files in specific places:
         gosub CreateIfGone c:\recycled
 
 rem Delete files that could be anywhere❟ on any harddrive❟ with a name we hate:
-        if "%USERNAME%" == "Claire" call clean-up-AI-transcription-trash-files-everywhere.bat  
-        if "%USERNAME%" == "Claire" call clean-up-AI-transcription-trash-files-everywhere.bat audit-music-files
+        if "%USERNAME%" == "Claire" call clean-up-AI-transcription-trash-files-everywhere.bat include-dot-files %+ rem clean up files leftover by AI music transcription system
+        if "%USERNAME%" == "Claire" call clean-up-AI-transcription-trash-files-everywhere.bat audit-music-files %+ rem clean up files leftover by audit-music-files.py
 
 rem Re-calculate free space & space saved❟ now that we have deleted things:
         set FREE_C_AFTER=%@DISKFREE[c]

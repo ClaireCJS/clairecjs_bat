@@ -2,6 +2,9 @@
 @loadbtm on
 @on break cancel
 
+rem PLEASE RUN THIS EVERY REBOOT!
+rem INSERT THIS INTO YOUR AUTOEXEC.BAT / MAINTENANCE.BAT / FREE-UP-HARDDRIVE-SPACE.BAT
+
 
 rem Validate environment once per session:
         iff "1" != "%validated_claitrfi%" then
@@ -12,42 +15,46 @@ rem Validate environment once per session:
 rem Take note of how much was free before we started:
         set FREE_C_BEFORE=%@DISKFREE[c]
 
+rem If we are mis-using this script for things outside it’s original intention❟ branch to that...
+rem .....Otherwise❟ do what this script was made for: Cleaning up AI-transcription trash files!
+        if "%1" == "audit-music-files" goto :unrelated_overloaded_functionality
+
 rem Delete files that could be anywhere:
+        rem If any of these filename values changes also update the AI_TRASH_FILES variable in report-lyric-and-subtitle-percentage-completion.bat
+        call less_important "Erasing trash AI transcription files..."
 
-        rem If we are mis-using this script for things outside it’s original intention❟ branch to that...
-        rem .....Otherwise❟ do what this script was made for: Cleaning up AI-transcription trash files!
-                if "%1" == "audit-music-files" goto :unrelated_overloaded_functionality
-                        call less_important "Erasing trash AI transcription files..."
-                        rem If these filename values changes, also update the AI_TRASH_FILES variable in report-lyric-and-subtitle-percentage-completion.bat
-                        rem skip for now: gosub DeleteEverywhere .LastInvalidAITranscriptionCheck %+ rem Relates to delete-bad-AI-transcriptions.bat, which is designed to not be re-run every 72 hours. However, upon reboot, we will clean up the trash so that these files don’t stick around forever once we stop using that component
-                        gosub DeleteEverywhere               *._vad_collected_chunks*.wav
-                        gosub DeleteEverywhere               *._vad_collected_chunks*.srt
-                        gosub DeleteEverywhere               *._vad_original*.srt
-                        gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
-                        gosub DeleteEverywhere               *._vad_pyannote_v3.txt
+        iff "%1" != "include-dot-files" goto :no_dot_files
+                gosub DeleteEverywhere        .CurrentlyDoingTranscriptionsHere      %+ rem Folder-level lockfiles don’t make sense after a reboot, which is when this script is typically run
+                gosub DeleteEverywhere        .LastInvalidAITranscriptionCheck       %+ rem Relates to delete-bad-AI-transcriptions.bat, which is designed to not be re-run every 72 hours. However, upon reboot, we will clean up the trash so that these files don’t stick around forever once we stop using that component
+        :no_dot_files
 
-                        iff "%1" == "do_not_delete_BATs" goto :do_not_delete_BATs
-                                gosub DeleteEverywhere  create-the-missing-karaokes-here-temp*.bat
-                                gosub DeleteEverywhere       get-the-missing-lyrics-here-temp*.bat
-                                gosub DeleteEverywhere      get-the-missing-karaoke-here-temp*.bat
-                                rem   DeleteEverywhere      __ %+ rem this didn’t work and tried to “get __*.*”
-                        :do_not_delete_BATs
-                if "%1" == "" goto :DoneDeletingBecauseThisIsANormalInvocation
+        gosub DeleteEverywhere               *._vad_collected_chunks*.wav
+        gosub DeleteEverywhere               *._vad_collected_chunks*.srt
+        gosub DeleteEverywhere               *._vad_original*.srt
+        gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
+        gosub DeleteEverywhere               *._vad_pyannote_v3.txt
+
+        iff "%1" == "do_not_delete_BATs" goto :do_not_delete_BATs
+                gosub DeleteEverywhere  create-the-missing-karaokes-here-temp*.bat
+                gosub DeleteEverywhere       get-the-missing-lyrics-here-temp*.bat
+                gosub DeleteEverywhere      get-the-missing-karaoke-here-temp*.bat
+                rem   DeleteEverywhere      __ %+ rem this didn’t work and tried to “get __*.*”
+        :do_not_delete_BATs
+        if "%1" == "" goto :DoneDeletingBecauseThisIsANormalInvocation
 
 
         rem Here is where we started adding unrelated tasks to this script in an ugly-but-convenient fashion:
                 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 :unrelated_overloaded_functionality
-
                 
                         rem Detritus from audit-music-files.py:
-                                if "%1" == "audit-music-files" (
+                                iff "%1" == "audit-music-files" then
                                         gosub DeleteEverywhere  RG_fix.bat
                                         gosub DeleteEverywhere  RG_no.dat
                                         gosub DeleteEverywhere  RG_no.dat.bak.*
                                         gosub DeleteEverywhere  RG_yes.dat
                                         gosub DeleteEverywhere  RG_yes.dat.bak.*
-                                )
+                                endiff
 
                 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

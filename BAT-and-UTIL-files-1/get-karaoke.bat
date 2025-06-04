@@ -72,6 +72,7 @@ rem Process current folder:
                         unset /q get
                         if "%1" == "get"            (set get=get            %+ shift)
                         if "%1" == "PromptAnalysis" (set get=PromptAnalysis %+ shift)
+                        if "%1$" != "" pause "we still have %1$ 092438902340892438"
                         %CALL% check-for-missing-karaoke.bat %get% %2 %3 %4 %5 %6 %7 %8 %9$
 
                 rem Run our script, if it now exists / was generated:

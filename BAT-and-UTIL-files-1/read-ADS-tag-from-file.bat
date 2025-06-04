@@ -52,7 +52,7 @@ rem Get parameters:
 
 rem Validate environment (once):
         iff "1" != "%validated_read_ads_tag_from_file%" then
-                call validate-environment-variables emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off
+                call validate-environment-variables ansi_colors_have_been_set emoji_have_been_set
                 set  validated_read_ads_tag_from_file=1
         endiff
 

@@ -84,7 +84,7 @@ rem Get parameters:
 
 rem Validate environment once:
         iff "1" != "%validated_add_ads_tag_to_file%" then
-                call validate-environment-variables  emphasis deemphasis italics_on italics_off ansi_color_green normal_arrow bold_on bold_off faint_on faint_off check EMOJI_CROSS_MARK ansi_color_alarm ansi_color_celebration ansi_color_warning_soft EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT EMOJI_RED_QUESTION_MARK ansi_conceal_on ansi_conceal_off
+                call validate-environment-variables  ansi_colors_have_been_set emoji_have_been_set
                 call validate-in-path                fatal_error warning warning_soft print-message pause-for-x-seconds
                 call validate-plugin                 StripANSI
                 set  validated_add_ads_tag_to_file=1
@@ -232,7 +232,7 @@ goto :END
                                 echo %ansi_color_green%%tmp_emoji2use% Set %bold_on%%tmp_tag%%bold_off% to %italics_on%%emphasis%%tmp_value%%deemphasis%%italics_off% for %faint_on%%italics_on%%tmp_file2use%%faint_off%%italics_off%%conceal_on%red44%conceal_off%
                         endiff
 
-rem ECHO goat1111111111111111                        
+
                 rem Lyrics mode output:                        
                         if "1" !=  "%LYRIC_MODE" goto :endif_353
                                 set  value_spacer=
@@ -262,18 +262,6 @@ rem ECHO goat1111111111111111
                                         set tmp_emoji2use=%EMOJI_EXCLAMATION_QUESTION_MARK%          
                                 endiff
                                 
-                                rem if "%ext2%" == "lrc" .or. "%ext2%" == "srt" (
-                                rem         set ENTITY=Karaoke 
-                                rem         set VERB2=is
-                                rem ) else (
-                                rem         if "%EXT2%" == "txt" (                                                        
-                                rem                 set ENTITY=Lyrics
-                                rem         )                                                                
-                                rem )
-
-                                rem echo HERE! %tmp_value OPERATIONAL_MODE=%OPERATIONAL_MODE% ext2=%ext2% entity==%entity% LYRIC_MODE=%LYRIC_MODE%
-
-                                rem "%OPERATIONAL_MODE%" != "READ"                             then
                                 if  "%OPERATIONAL_MODE%" != "READ" .and. "1" != "%LYRIC_MODE%" goto :then_block_278
                                                                                                goto :else_block_282
                                         :then_block_278
@@ -283,7 +271,6 @@ rem ECHO goat1111111111111111
                                         :else_block_282
                                                 rem it is a lyric mode:
                                                                       
-                                                rem tag_to_modify=%tag_to_modify% 🐐
                                                 set hide_status=0
                                                 if "%tag_to_modify%" == "lyriclessness" goto :then_block_286
                                                                                         goto :else_block_304
@@ -331,7 +318,6 @@ rem ECHO goat1111111111111111
                                                         goto :endif_328
                                                 :endif_328
                                                 
-rem ECHO goat22222222
                                                 echos %EMOJI_MAGNIFYING_GLASS_TILTED_RIGHT% %EXTRA% %value_spacer%
                                                 if "1" == "%HIDE_STATUS%" goto :then_block_332
                                                                           goto :else_block_337
@@ -348,7 +334,6 @@ rem ECHO goat22222222
                                                 if "0" != "%ADSTAG_DISPLAY_FOR_PATH%" echos %@path[%tmp_file2use%]
                                                 echos %@unquote[%@name["%tmp_file2use%"]]
                                                 echo .%faint_off%%italics_off%%@ansi_fg[124,124,124]%@ext[%tmp_file2use%]%faint_off%%italics_off%%conceal_on%☼%conceal_off%
-rem ECHO goat333333
                                         goto :endif_351
                                 :endif_351
                         :endif_353

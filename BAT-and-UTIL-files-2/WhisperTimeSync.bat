@@ -210,7 +210,7 @@ rem Do the animated visual comparison:
 
 rem Ask if it’s better or not...
         :AskYnIfBetter
-        call AskYN "%faint_on%[WhisperTimeSync]%faint_off% Is this realignment better than the original [P=Play,Q=enQueue in WinAmp]" no 0 PQ P:play_it,Q:enQueue_it
+        call AskYN "%faint_on%[WhisperTimeSync]%faint_off% Is this realignment better than the original [P=Play,Q=enQueue in WinAmp]" yes 0 PQ P:play_it,Q:enQueue_it
 
 rem Preview if it need be, prior to asking:
         iff "%ANSWER%" == "P" then
