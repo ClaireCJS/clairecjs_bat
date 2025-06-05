@@ -6,18 +6,21 @@
 :USAGE:                               optional param 2 of 'quiet' makes it silent mode
 :USAGE: SET ISRUNNING_FAST=1 to run it at a faster speed, but can only check PID
 
-::::: DEBUG:
+rem DEBUG:
 	if %DEBUG eq 1 (Echo ON)
 
-::::: SETUP:
-    REM 20230714 not sure why running this so removing for speedup: call fixtmp
+
+rem Validate environment:
+        iff "1" != "%validated_isrunning%" then
+                call validate-in-path               isrunning-helper debug grep type 
+                call validate-environment-variables ansi_colors_have_been_set emoji_have_been_set
+                set  validated_isrunning=1
+        endiff
 
 
-
-
-
-::::: CHECK IF THE PROCESS IS RUNNING:
-    if %isRunning_fast eq 1 (
+rem CHECK IF THE PROCESS IS RUNNING:
+    unset /q OUTPUT
+    if "1" == "%isRunning_fast%" (
         set COMMENTISRUNNING=echo doing fast, %%1='%1'
         iff %@pid[%1] ne 0 then
             set ISRUNNING=1
@@ -35,9 +38,9 @@
 
 
 
-::::: INFORM USER:
+rem INFORM USER:
 	if "%ISRUNNING%" == "1" goto :IsRunning_YES
-                            goto :IsRunning_NO
+                                goto :IsRunning_NO
 
             :IsRunning_YES
                     set emoji=%EMOJI_CHECK_MARK
@@ -69,10 +72,11 @@
                             :Quiet_DONE
                     set LAST_ISRUNNING=0
             goto :IsRunning_END
+
     :IsRunning_END
     %COLOR_NORMAL%
 
 
-::::: ALIASES:
+rem ALIASES:
     set IS_RUNNING=%ISRUNNING%
     set LASTISRUNNING=%LAST_ISRUNNING%

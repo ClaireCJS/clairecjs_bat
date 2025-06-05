@@ -1,9 +1,10 @@
 @Echo Off
  on break cancel
+ set old_title_sleep=%_title                        
 
 :USAGE: sleep <seconds to sleep> [silent/clock] [custom clock message with special substitution for {seconds}]
 
-iff "%1" eq "" then
+iff "%1" == "" then
         repeat 10 echo.
         call divider
         %COLOR_ADVICE%
@@ -13,7 +14,7 @@ iff "%1" eq "" then
         echo USAGE: sleep 60 clock "Only {seconds} seconds left!" ———— sleeps 60 seconds, displaying a clock, with a custom message next to it, with dynamic substitution of remaining seconds replacing "{seconds}"
         call divider
         pause
-        goto :END
+        goto /i END
 endiff
 
 rem Before Windows  7, we used a 32-bit sleep.exe in our %UTIL% folder, but
@@ -29,11 +30,11 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
     goto :New_Way
 
     :Old_Way
-            rem Cute screen output, except when we don't want it:
-                    if "%2" eq "silent" (goto :silent_1)
-                            rem  %ANSI_COLOR_DEBUG%%@CHAR[9201]%@CHAR[65039]%FAINT_ON% delay %* %FAINT_OFF%%ANSI_RESET%
-                            echo %ANSI_COLOR_DEBUG%%EMOJI_STOPWATCH%%ZZZZZZ%%FAINT_ON% delay %* %FAINT_OFF%%ANSI_RESET%
-                    :silent_1
+            rem Cute screen output, except when we don't want it due to silent mode:
+                    iff "%2" != "silent" then
+                            rem  %ANSI_COLOR_DEBUG%%EMOJI_STOPWATCH%%ZZZZZZ%%FAINT_ON% delay %* %FAINT_OFF%%ANSI_RESET%
+                            echo %ANSI_COLOR_DEBUG%%@CHAR[9201]%@CHAR[65039]%FAINT_ON% delay %* %FAINT_OFF%%ANSI_RESET%
+                    endiff
 
             rem Do the actual sleep using the TCC internal DELAY command —- experimenting with new methods:
                     *delay %*
@@ -44,16 +45,31 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                     set SLEEP_TIME=3
 
             rem  But if a time is specified, use that time:
-                    if  "%1" !=  ""  (set SLEEP_TIME=%1)
+                    if  "%1" !=  ""  (set SLEEP_TIME=%1 %+ shift)
 
             rem And if silent mode is specified, do that:
                     set silent=1
-                    if "%2" eq "silent" (set silent=1) 
-                    if "%2" eq "clock"  (set silent=0) 
+                    set wipe=0
+                    if "%1" == "silent" (set silent=1 %+ shift)  
+                    if "%1" == "clock"  (set silent=0 %+ shift) 
+                    if "%1" == "wipe"   (set   wipe=1 %+ shift) 
 
             rem And grab any optional message for clock-mode:
                     unset   /q         SLEEP_MESSAGE
-                    if "%3" ne "" (set SLEEP_MESSAGE=%%@randfg_soft[]%@UNQUOTE[%3$])
+                    if "%3" != "" (set SLEEP_MESSAGE=%%@randfg_soft[]%@UNQUOTE[%3$] %+ shift)
+
+
+            rem If clock mode, clear off some space...
+                        repeat 2 echo.
+                        echos %@ANSI_MOVE_UP[2]%@ANSI_MOVE_TO_COL[0]
+
+            rem If Wipe mode, save spot:
+                    iff "1" == "%wipe%" then
+                        set sleep_beginning_row=%_row
+                        set sleep_beginning_col=%_column
+                    else
+                        unset /q sleep_beginning_row sleep_beginning_col
+                    endiff
 
             rem Temporarily change cursor to the vertical blinking bar, which is the least obtustive to the animated clock:
                     if %silent ne 1 (echos %ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%) else (echos %ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%)
@@ -138,12 +154,23 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
 
             enddo
 
+
+
+
             
             rem Reset our cursor back to the user-preferred shape & color, reset all ansi status, draw our final clock, and leave us in the right place:
-                    iff %silent ne 1 then
-                        echo %CURSOR_RESET%%ANSI_RESET%%ANSI_EOL%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_SAVE_POSITION%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_RESTORE_POSITION%%@ANSI_MOVE_DOWN[1]%@ANSI_MOVE_LEFT[4]%BIG_OFF%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_ERASE_TO_END_OF_LINE%
+                    iff "1" != "%silent%" then
+                        echos %CURSOR_RESET%%ANSI_RESET%%ANSI_EOL%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_SAVE_POSITION%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_RESTORE_POSITION%%@ANSI_MOVE_DOWN[1]%@ANSI_MOVE_LEFT[4]%BIG_OFF%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_ERASE_TO_END_OF_LINE%
                     else
                         echos %CURSOR_RESET%%ANSI_RESET%
+                    endiff
+
+
+            rem Wipe?
+                    iff "1" == "%wipe%" then
+                        echos %@ansi_move_to_row[%@EVAL[%sleep_beginning_row+1]]%@ansi_move_to_col[0]%erase_to_end_of_screen%%big_off%
+                        rem *pause>nul
+                        echos %ansi_erase_to_end_of_screen%
                     endiff
 
             goto :END
@@ -168,5 +195,7 @@ rem —————————————————————————�
 
 
 :END
-    title TCC
+        *title %old_title_sleep% >nul
+        echos %CURSOR_RESET%%ANSI_RESET%
+
 
