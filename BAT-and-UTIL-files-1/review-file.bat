@@ -117,7 +117,7 @@ rem Only review a single file, if [what is hopefully] a filename is provided:
 rem Validate environment:
         iff "4" != "%validated_review_subtitles%" then
                 call validate-in-path print-with-columns grep remove-blank-lines warning preview-audio-file preview-video-file preview-image-file print-with-columns print_with_columns.py
-                call validate-environment-variables ansi_colors_have_been_set emoji_have_een_set 
+                call validate-environment-variables ansi_colors_have_been_set emoji_have_been_set 
                 if not defined filemask_video call validate-environment-variables filemask_video skip_validation_existence
                 if not defined filemask_audio call validate-environment-variables filemask_audio skip_alidation_existence
                 if not defined filemask_audio call validate-environment-variables filemask_image skip_validation_existence

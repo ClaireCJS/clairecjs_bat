@@ -115,7 +115,7 @@ rem —————————————————————————�
                         rem Find all instances of the file [found via everything] we are deleting, pipe to sort-and-uniq to dedupe it, then insert "del-if-exists" [and a quote] before it, a quote after it, then pipe *all that* directly to the command line, then pipe it to fast_cat to fix ansi rendering errors:
                         rem Be damn sure you know what you’re doing if you change this. Best put an "echo " before the "*del" and test it out if you do.
                                 call set-tmp-file "deleting AI trash"
-                                (((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") >:u8 %tmpfile%.bat
+                                (((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists /z {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") >:u8 %tmpfile%.bat
                                 call %tmpfile%.bat |:u8 fast_cat
 
                                 rem echo All done? %+ pause

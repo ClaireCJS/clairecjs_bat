@@ -67,4 +67,5 @@ if index < 0 or index >= len(files):
 full_target = get_real_path(os.path.join(parent_dir, files[index])) + "\\"
 
 print(f'rem echo DEBUG: Switching to: "{full_target}"')
-print(f'cd "{full_target}"')
+print(f'*cd "{full_target}"')
+

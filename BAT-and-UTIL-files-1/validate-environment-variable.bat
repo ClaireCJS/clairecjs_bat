@@ -48,7 +48,7 @@ rem why won’t this work for this bat? @setlocal
     
 ::::: GET CALLING-BAT-FILE INFO, INCLUDING THAT MANUALLY PASSED FROM GRANDPARENT BATCH FILE:
         set OUR_CALLER=%_PBATCHNAME
-        if "%_PBATCHNAME" == "%bat%\validate-environment-variables.bat" .and. defined PBATCH2 (set OUR_CALLER=%PBATCH2%)
+        if "%_PBATCHNAME" == "%bat%\validate-environment-variables.bat" .and. defined PBATCH2 .and. "" != "%PBATCH2%" (set OUR_CALLER=%PBATCH2%)
         set OUR_CALLER=%@NAME[%our_caller].%@EXT[%our_caller]
     
 ::::: VALIDATE ENVIRONMENT:
@@ -348,11 +348,11 @@ goto :Past_The_End_Of_The_Subroutines
                 echo %ansi_color_debug%DEBUG: varname = %VARNAME%, varvalue = %VARVALUE%%ansi_color_normal%
                 set msg=%left_quote%%italics_on%%@UPPER[%VARNAME%]%italics_off%%right_quote% location does not exist: %left_quote%%VARVALUE%%right_quote%...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%
                 rem echo %ansi_color_fatal_error% %msg% %ansi_color_normal%
-                rem echo on
                 setdos /x0
                 rem @echo path is %path%
                 rem dir  c:\bat\fatal_error.bat
                 rem @echo %%@search[fatal_error.bat] is '%@search[fatal_error.bat]'
+                call less_important "Calling script == “%our_caller%”"
                 call c:\bat\fatal_error.bat "%msg%"
                 call exit-maybe
         return

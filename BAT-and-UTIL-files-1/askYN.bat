@@ -1,7 +1,8 @@
-@Echo off
 @loadBTM on
+@Echo off
 @on break cancel
 @call bat-init
+@rem @echo called askyn.bat with params %* from %_PBATCHNAME
 
 
 :USAGE: askyn "question" "yes|no" {run ’askyn’ without parameters to see usage)
@@ -81,6 +82,10 @@ rem Get non-positional parameters [flags were initialized to 0 above]:
                 if "%1" == "noenter" .or. "%1" == "no_enter"  (shift %+ set   NO_ENTER_KEY=1 %+ goto :grab_next_param)
                 if "%1" == "big"     .or. "%1" == "bigger"    (shift %+ set   BIG_QUESTION=1 %+ goto :grab_next_param)
                 if "%1" == "notitle" .or. "%1" == "no_title"  (shift %+ set        NOTITLE=1 %+ goto :grab_next_param)
+                iff defined OVERRIDE_ASKYN_NOTITLE then
+                        set NOTITLE=%OVERRIDE_ASKYN_NOTITLE%
+                        unset /q OVERRIDE_ASKYN_NOTITLE 
+                endiff
         :done_grabbing_params
                 rem echo - DEBUG: INVISIBLE_MODE=“%INVISIBLE_MODE%” / NO_ENTER_KEY=“%NO_ENTER_KEY%” / BIG_QUESTION=“%BIG_QUESTION%” / NOTITLE=“%NOTITLE%”  %+ pause
                              

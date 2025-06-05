@@ -1,6 +1,7 @@
 
 
 
+
 #TODO: bg color is same as fg color... is that a bug? how would i fix that?
 
 #TODO: deal with situation of lines that are too long. there should not be a ’stripe too long’ error
@@ -457,7 +458,7 @@ def calculate_column_widths(columns_data):
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 def log_line_parts_and_process_them_too(line_parts, row_num, column_widths, rendered_row):
-    global INTERNAL_LOG, record_working_column_length
+    global INTERNAL_LOG, record_working_column_length, console_width, console_height
     INTERNAL_LOG_LOCAL = ""
     """
     Logs the details of each element in line_parts with their lengths and positions.
@@ -495,6 +496,12 @@ def log_line_parts_and_process_them_too(line_parts, row_num, column_widths, rend
     if VERBOSE: print(f"🪓   ...Returning: log_line_parts_and_process_them_too return {too_wide}, INTERNAL_LOG_LOCAL\n")
     return too_wide, INTERNAL_LOG_LOCAL
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
+
+
+
+
+
+
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###

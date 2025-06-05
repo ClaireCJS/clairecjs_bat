@@ -50,10 +50,10 @@
 
 
 
-########### CONSTANTS: BEGIN: ###########
+###########  CONSTANTS: BEGIN:  ###########
 my $ADDED_END_LINE_CHARACTER    = ".";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online. Without adding a “phantom period” to the end of each line, WhisperAI’s ‘--sentence’ parameter will not function correclty, and awkward transcriptions are generated where multiple lines of lyrics are one one line of transcriptino
 my $MAX_KARAOKE_WIDTH_MINUS_ONE =  24;					#This system aims for a max width of 25
-########### CONSTANTS: ^^END^ ###########
+###########  CONSTANTS: ^^END^  ###########
 
 
 
@@ -218,6 +218,7 @@ while (<$INPUT>) {
 
 
 		#website crap to get rid of
+		$line =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;														# common junk found in downloaded lyrics
 		$line =~ s/\*? (No|\[(duble|metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z\d]+lyrics[a-z\d]*|\[[a-z0-9]+ )\]) filter used//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
         $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
@@ -228,7 +229,12 @@ while (<$INPUT>) {
 		#word corrections
 		$line =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;			#the word “Embed” is sometimes tacked onto the end of a line of downloaded lyrics:
 		$line =~ s/our selves/ourselves/g;	
-	
+
+		################ WHISPER-AI HALLUCINATIONS: ################ 
+		$line =~ s/A little pause..?.? *//gi;															# ...These are common WhisperAI hallucinations.
+		$line =~ s/And we are back\.*//gi;																# ...These are common WhisperAI hallucinations.
+
+
 
 		#### artist/song mentions to get rid of:
 		#dynamic content removals {uses environment variables set in create-lyrics bat}		

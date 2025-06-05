@@ -1,9 +1,3 @@
-TODO: may have to unapprove any txt if the LRC/SRT is generated         "%@UNQUOTE["%OUTPUT_FILE%"]:generated"  
-TODO: delete-bad-ai-transcription after done aligning
-TODO: align-music-collection-lyrics.bat for quick start
-TODO: serach for other todos below
-
-TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency.
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -133,16 +127,17 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 &nbsp;
 
 7. 💻 Certain environment variables should be defined
-    - ```%EDITOR%``` should be set to your text editor command (i.e. ```set editor=editplus.exe```)
-    - ```%LYRICS%``` should be set to your lyrics repository   (i.e. ```set lyrics=c:\lyrics\```)
+    - ```%MP3%```    should be set to your music repository      (i.e. ```set mp3=c:\mp3\```)
+    - ```%EDITOR%``` should be set to your text editor command   (i.e. ```set editor=editplus.exe```)
+    - ```%LYRICS%``` should be set to your MiniLyrics repository (i.e. ```set lyrics=c:\lyrics\```)
 
 &nbsp;
 
-8. 📂 Filename requirements: Don’t have any audio files with percents or carets in them!
+8. 📂 Filename requirements: Don’t have any audio files with these characters in them: “%^;”. 
     - Unicode characters should be fine
     - Emoji   characters should be fine, but may be risky
-    - DON’T USE “```%```” (the percent character)! It’s technically not even valid, but Windows allows it. Use the unicode ```％``` instead!
-    - DON’T USE “```^```” (the [caret character](https://en.wikipedia.org/wiki/Caret))!  Sorry!  Caret is my personal command separator. Spent a lot of time making this system work with caret-filenames, and it mostly does, but with some errant error messages. In the end, I recommend not using carets in music collection filenames. I was using them to represent exponents in quirky song titles that have mathematical equations in their title, such as those by *Type O Negative* and *Man Or Astro Man?*.  It turns out that the superscript characters ¹²³⁴⁵⁶⁷⁸⁹⁰ are easier to live with... Use ```²``` instead of ```^2``` to represent the mathematical concept of “squared”.
+    - DON’T USE “```%```” (the percent character)! It’s technically not even valid, but Windows allows it. Use the unicode ```％``` if you must, but even that can be a problem! Better to just say "{percent}".
+    - DON’T USE “```^```” (the [caret character](https://en.wikipedia.org/wiki/Caret))!  Sorry!  Caret is my personal command separator. Spent a lot of time making this system work with caret-filenames, and it mostly does, but with some errant error messages. In the end, I recommend not using carets in music collection filenames. I was using them to represent exponents in quirky song titles that have mathematical equations in their title, such as those by *Type O Negative* and *Man Or Astro Man?*.  It turns out that the superscript characters ¹²³⁴⁵⁶⁷⁸⁹⁰ are easier to live with... Use ```²``` instead of ```^2``` to represent the mathematical concept of “squared”. Or better yet just say “{squared}”.
     
 
 &nbsp;
@@ -197,7 +192,7 @@ From a running TCC command line, use whatever system commands you’d like from 
 - ① Prep files:
   - Optionally use ```LRCget``` (TODO link) to pre-download lyrics and transcriptions for your collection (if you don’t, this whole project make take 20–60% longer). BEWARE!!!!!  Every single live or remix song will match to the official version, so you want to take note of the date you run this, and delete every file that has “(live” or “Mix)” in it [or however it is you name things in your own collection]. TODO: Create tool to do this named “LRCget-post-cleanup.bat”
   - Optionally use ```global /i create-txt-lyrics-from-karaoke-files.bat``` to convert any LRC/SRTs we already have to TXT
-  - Optionally use ```predownload-lyrics``` to pre-download lyrics available from genius.com (if you don’t, approving lyrics will take 20–40% longer) 
+  - Optionally use ```predownload-lyrics``` to pre-download lyrics available from genius.com (if you don’t, the approving lyrics process will take 20–40% longer) 
   - Optionally use ```sweep ask-if-instrumentals``` to mark instrumentals (if you don’t, you’ll waste electricity+GPU time to get hallucinatory instrumental transcriptions)
     - for folders with too many to answer individually, you can pre-answer for all files in the folder with: ```mark-all-filenames-ADS-tag-for-as_instrumental``` and ```mark-all-filenames-ADS-tag-for-NOT-as_instrumental``` 
   - Optionally use ```sweep ask-if-lyricless``` to mark files that are in a state of “lyriclessness”, our term for unfindable lyrics/giving up on finding lyrics (if you don’t, the lyric approval process will take much longer)
@@ -212,7 +207,7 @@ From a running TCC command line, use whatever system commands you’d like from 
 	- *approving lyriclessness* (can’t/won’t find lyrics) 
   - Alignment can be done in either ABC or random order:
     - (1) for ABC order: ```sweep glh``` 
-    - (2)  random order: ```sweep-random "glh" force``` 
+    - (2)  random order: ```align-music-collection-lyrics.bat``` or ```sweep-random "glh" force``` which
   - Repeat alignment command until everything passes
   - Track how many were aligned on a particular day with ```report-lyric-approval-progress.bat```
    - Track progress with ```report-lyric-and-subtitle-percentage-completion```
@@ -224,6 +219,12 @@ From a running TCC command line, use whatever system commands you’d like from 
   - (2) transcribe in    random    order: ```sweep-random "gkh" force``` 
   - Repeat transcription command until everything is transcribed
    - Track progress with ```report-lyric-and-subtitle-percentage-completion```, which takes a snapshot of progress that lets you see your progress over time
+
+- ④ When completely done with the entire project
+  - run ```delete-bad-ai-transcription``` in every folder with the command: ```sweep call delete-bad-ai-transcription``` to delete any bad transcriptions.
+  - run ```clean-up-AI-transcription-trash-files-everywhere.bat include-dot-files``` to clean up any remaining trash files and lockfiles
+
+
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -255,7 +256,8 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 🍀 Uncategorized commands:
 
-  1. ([thorough.bat](../BAT-and-UTIL-files-1/thorough.bat) - sets/unsets environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.
+  1. ([thorough.bat](../BAT-and-UTIL-files-1/thorough.bat) - sets/unsets environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.  The most SRT files I’ve created in a day in thorough mode is 480, and that required some amount of attention from wake to sleep.
+
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -931,3 +933,9 @@ Technically should be called “```audio_file_index.bat```”.
 ![image](https://github.com/user-attachments/assets/9abdb1a5-c50a-424c-b151-144046fedd93)
 
 
+
+
+
+TODO: may have to unapprove any txt if the LRC/SRT is generated         
+TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency.
+TODO: serach for other todos below

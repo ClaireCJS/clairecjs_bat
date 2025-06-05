@@ -476,6 +476,8 @@ REM For errors, give chance to gracefully exit the script (no more mashing of ct
         iff "%TYPE%" == "FATAL_ERROR" .or. "%TYPE%" == "FATALERROR" .or. "%TYPE%" == "ERROR" then
                 set DO_IT=
                 set temp_title=%_wintitle
+                echo * Parent file: %_PBATCHNAME 
+                if "%OUR_CALLER%" != "" echo * %%OUR_CALLER%%: %OUR_CALLER%
                 call exit-maybe
                 rem call askyn "Cancel all execution and return to command line?" yes
                 rem rem yes, CANCELL with 2 L’s. Complex reasons for this:

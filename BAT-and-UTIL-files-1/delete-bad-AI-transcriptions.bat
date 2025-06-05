@@ -104,7 +104,8 @@ rem Grab parameter:
 rem Validate environment (once):
         iff "True" != "%validated_dbaitrr%" then
                 call validate-in-path               grep insert-before-each-line.py insert-after-each-line.py run-piped-input-as-bat.bat askyn del-maybe-after-review uniq sed fatal_error delete-zero-byte-files 
-                call validate-environment-variables ansi_colors_have_been_set emoji_have_been_set star2 star star2 star3 star4 check FILEMASK_AUDIO
+                call validate-environment-variables ansi_colors_have_been_set emoji_have_been_set 
+                call validate-environment-variables FILEMASK_AUDIO skip_validation_existence
                 call validate-is-function           ansi_move_to_col randcursor ANSI_MOVE_RIGHT randfg_soft cursive cursive_plain
                 set  validated_dbaitrr=True
         endiff

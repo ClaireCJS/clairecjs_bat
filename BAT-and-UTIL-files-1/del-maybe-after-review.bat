@@ -46,7 +46,9 @@ rem Ask for each file, and delete:
                 echo %star% %ansi_color_yellow%Full filename: %faint_on%%italics_on%%@UNQUOTE["%@FULL["%file%"]"]%italics_off%%faint_off%
 
                 :reask
-                call askyn "Delete %lq%%ansi_color_bright_yellow%%@UNQUOTE["%file%"]%ansi_color_prompt%%rq% [%ansi_color_bright_green%E%ansi_color_prompt%=edit%EVEN_MORE_PROMPT_TEXT%]" yes 0 E%EVEN_MORE_EXTRA_LETTERS% E:edit_it_instead%EVEN_MORE_EXTRA_EXPLANATIONS%
+                title Del maybe after review?
+                set OVERRIDE_ASKYN_NOTITLE=1
+                call askyn "Delete %lq%%ansi_color_bright_yellow%%@UNQUOTE["%file%"]%ansi_color_prompt%%rq% [%ansi_color_bright_green%E%ansi_color_prompt%=edit%EVEN_MORE_PROMPT_TEXT%]" no 0 E%EVEN_MORE_EXTRA_LETTERS% E:edit_it_instead%EVEN_MORE_EXTRA_EXPLANATIONS%
                 iff not exist "%@UNQUOTE["%file%"]" then
                         call warning "File “%@UNQUOTE["%file%"]” doesn’t seem to exist... [anymore?]"
                 else

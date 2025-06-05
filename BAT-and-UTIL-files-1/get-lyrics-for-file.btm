@@ -265,15 +265,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 rem VALIDATE ENVIRONMENT [once per session]:
         rem rem echo y α linish 189
-        iff "2" != "%VALIDATED_GLVMS_ENV%" then
-                call validate-in-path              %LYRIC_DOWNLOADER_1% %PROBER% %PLAYER_COMMAND% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset eset.bat eset-alias.bat insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl insert-before-each-line.py newspaper.bat print_with_columns.py print-with-columns.bat newspaper.bat srt2lrc.py change-single-quotes-to-double-apostrophes.py add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat approve-lyrics.bat disapprove-lyrics.bat display-lyric-status-for-file.bat review-lyrics.bat review-files.bat approve-lyric-file.bat disapprove-lyric-file.bat approve-subtitle-file.bat disapprove-subtitle-file.bat get-lyric-status.bat approve-LYRICLESSNESS-for-file.bat disapprove-lyriclessness-for-file.bat unapprove-lyriclessness-for-file.bat cut.exe srt2txt.py lrc2txt.py rn.bat clean-up-AI-transcription-trash-files-here.bat
-                rem  call unimportant               "Validated: lyric downloader, audio file prober"
-                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET BAT TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME cool_question_mark star check LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO 
-                if not defined filemask_audio       call validate-environment-variable filemask_audio skip_validation_existence
-                call validate-functions             cool_text rainbow_string ansi_rgb
-                call validate-plugin                StripANSI
-                call checkeditor
-                if "1" == "%WINAMP_INTEGRATION_GETLYRICS%" call validate-in-path enqueue.bat winamp-next.bat enqueueee.exe
+        iff "1" != "%VALIDATED_GLVMS_ENV%" then
                 rem Default values to help portability:
                         if not defined ESCAPE                                        set                                            ESCAPE=%@CHAR[27]
                         if not defined ANSI_ESCAPE                                   set                                       ANSI_ESCAPE=%ESCAPE%[
@@ -287,7 +279,16 @@ rem VALIDATE ENVIRONMENT [once per session]:
                         rem TODO: ansi_color_yellow, bold on, bold off
                         if "%@ANSI_CURSOR_CHANGE_COLOR_WORD[]" == ""            function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                                
                         if not defined FILEMASK_AUDIO                                set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.dtshd
-                set  VALIDATED_GLVMS_ENV=2
+                rem Now Validate:
+                        call validate-in-path              %LYRIC_DOWNLOADER_1% %PROBER% %PLAYER_COMMAND% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset eset.bat eset-alias.bat insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl insert-before-each-line.py newspaper.bat print_with_columns.py print-with-columns.bat newspaper.bat srt2lrc.py change-single-quotes-to-double-apostrophes.py add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat approve-lyrics.bat disapprove-lyrics.bat display-lyric-status-for-file.bat review-lyrics.bat review-files.bat approve-lyric-file.bat disapprove-lyric-file.bat approve-subtitle-file.bat disapprove-subtitle-file.bat get-lyric-status.bat approve-LYRICLESSNESS-for-file.bat disapprove-lyriclessness-for-file.bat unapprove-lyriclessness-for-file.bat cut.exe srt2txt.py lrc2txt.py rn.bat clean-up-AI-transcription-trash-files-here.bat
+                        rem  call unimportant               "Validated: lyric downloader, audio file prober"
+                        call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET BAT TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME cool_question_mark star check LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO 
+                        if not defined filemask_audio       call validate-environment-variable filemask_audio skip_validation_existence
+                        call validate-functions             cool_text rainbow_string ansi_rgb
+                        call validate-plugin                StripANSI
+                        call checkeditor
+                        if "1" == "%WINAMP_INTEGRATION_GETLYRICS%" call validate-in-path enqueue.bat winamp-next.bat enqueueee.exe
+                        set  VALIDATED_GLVMS_ENV=1
         endiff
 
         if not defined TRANSCRIBER_VALID_EXTENSIONS gosub "%BAT%\create-srt-from-file.bat" set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME
@@ -1238,10 +1239,13 @@ rem Check if we already have approved lyrics in the same folder:
                         rem @call bigecho %ansi_color_bright_white%%star% %underline_on%Current lyrics%underline_off%:
                         rem don’t set a color: echos %ANSI_COLOR_GREEN%
                         rem (type "%LYRIC_FILE%" |:u8 unique-lines -A -L) |:u8 print-with-columns
-
-                        gosub create_or_set_postprocessed_lyrics "%LYRIC_FILE%"
-                        if "1" == "%SHOW_UNPROCESSED_LYRICS_ALSO%" call review-file   -wh  -st    "%LYRIC_FILE%"           "%underline_on%Current lyrics%underline_off% (not processed)"
-                                                                   call review-file   -wh  -stU   "%postprocessed_lyrics%" "%underline_on%Current lyrics%underline_off% (processed)"
+                        iff not exist "%LYRIC_FILE%" then
+                                call warning "LYRICS DO NOT EXIST: %LYRIC_FILE%"
+                        else
+                                gosub create_or_set_postprocessed_lyrics "%LYRIC_FILE%"
+                                if "1" == "%SHOW_UNPROCESSED_LYRICS_ALSO%" call review-file   -wh  -st    "%LYRIC_FILE%"           "%underline_on%Current lyrics%underline_off% (not processed)"
+                                                                           call review-file   -wh  -stU   "%postprocessed_lyrics%" "%underline_on%Current lyrics%underline_off% (processed)"
+                        endiff
 
                         echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[purple]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
                         rem removed 2022/12/11 
@@ -2943,10 +2947,14 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                                         unset /q ANSWER
                                         call AskYN "₁Is this an instrumental? [%ansi_color_bright_green%P%ansi_color_prompt%=Preview]" No %GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME% IPQ Q:enQueue_in_winamp,P:preview_song,I:instrumental_it_is!
                                         SET LAST_ANSWER_TO_ISTHISINSTRUMENTAL=%ANSWER%
+
                                         gosub check_for_answer_of_P "%@UNQUOTE["%audio_file%"]"
-                                        gosub check_for_answer_of_Q "%@UNQUOTE["%audio_file%"]"
                                         if "P" == "%ANSWER%" gosub ask_again_2283
+
+                                        gosub check_for_answer_of_Q "%@UNQUOTE["%audio_file%"]"
                                         if "Q" == "%ANSWER%" gosub ask_again_2283
+
+                                        SET ANSWER=%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%
                                         if "I" == "%ANSWER%" .or. "Y" == "%ANSWER%" (echos %EMOJI_BEAR% %+ gosub rename_audio_file_as_instrumental %+ goto /i END)
                                 set ANSWER=%HELD_ANSWER%
                                 goto /i endiff_2300
@@ -3502,8 +3510,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
         return                
 
         :rename_audio_file_as_instr_if_answer_was_I [opt]
-                rem goat
-                echo * calling: if "I" == "%ANSWER%" gosub rename_audio_file_as_instrumental %opt% 
+                rem echo * calling: if "I" == "%ANSWER%" gosub rename_audio_file_as_instrumental %opt% 
                 if "I" == "%ANSWER%" gosub rename_audio_file_as_instrumental %opt%
         return
 
@@ -3521,7 +3528,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                         set goto_END=1
                         goto /i END
                 else
-                        echo goat: calling: gosub rename_audio_file_as_instr_if_answer_was_I %opt1 %opt2 %opt3
+                        rem echo goat: calling: gosub rename_audio_file_as_instr_if_answer_was_I %opt1 %opt2 %opt3
                         gosub rename_audio_file_as_instr_if_answer_was_I %opt1 %opt2 %opt3
                 endiff       
                  if "1" == "%GOTO_END%" (goto /i END)
@@ -3995,7 +4002,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                         rem echo %ansi_color_bright_green%%EMOJI_PHONE% DOINGG: gosub [get-lyrics::]create_or_set_postprocessed_lyrics ....... file_to_use==“%file_to__use%”%newline%%tab%%star%postprocessed_lyrics==“%postprocessed_lyrics%”%ansi_color_normal%
 
                 rem Do they exist already?
-                        echos %ansi_color_debug%%star% Postprocessed lyrics of “%postprocessed_lyrics%” ``
+                        echos %ansi_color_debug%%star% Postprocessed lyrics do not exist: “%postprocessed_lyrics%” ``
                         iff exist "%postprocessed_lyrics%" then
                                 echo exists
                                 call review-file "%postprocessed_lyrics%"  "test postprocessed lyrics review"

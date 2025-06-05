@@ -62,7 +62,7 @@
 
 
 rem If we couldn’t go anywhere, drop down one folder so we can start to move to the next branch in the tree:
-      if "%here%" == "%_cwp" cd ..
+      if "%here%" == "%_cwp" *cd ..
 
 
 rem Show that we're done:

@@ -1,6 +1,8 @@
 @Echo Off
 @on break cancel
 
+set params=%1$
+
 rem Validate environment (once):
         iff "1" != "%validated_delifexist%" then
                 call validate-environment-variables MIN_RGB_VALUE_FG MAX_RGB_VALUE_FG MIN_RGB_VALUE_BG MAX_RGB_VALUE_BG
@@ -21,6 +23,6 @@ rem If it exists, delete it:
                         if "%@REGEX[\*,"%*"]" == "1" set additional_del_if_later_opt=/p
 
                 rem Delete the file now that we know it exists:
-                        *del /R /a: /Ns %additional_del_if_later_opt% %*
+                        *del /R /a: /Ns %params% %additional_del_if_later_opt% %*
 
         endiff

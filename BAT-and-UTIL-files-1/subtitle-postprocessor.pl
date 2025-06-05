@@ -95,8 +95,7 @@ my $tmpLine;
 ###### PARSE COMMAND-LINE PARAMETERS: ##########################################################################################################################################################################################################
 
 my $arg;
-foreach $arg (@ARGV) {                                                                                 # Iterate over command-line arguments
-	print "checking arg $arg\n";
+foreach $arg (@ARGV) {                                                                                 # Iterate over command-line arguments		#DEBUG: print "checking arg $arg\n";
     if    ($arg eq "-t" || $arg eq "--test"                           ) { $do_test_suite    = 1; }     # Check if —t or ——test             was passed; Run test suite if it was
     elsif ($arg eq "-w" || $arg eq "--wordsw" || $arg eq "--WhisperAI") { $use_words_mode   = 1; }     # Check if —w or ——words            was passed; Enable words mode if it was                                                                                
     elsif ($arg eq "-l" || $arg eq "--leave_censorship"               ) { $leave_censorship = 1; }     # Check if —l or ——leave_censorship was passed; Enable decensoring mode if it was                                                                                 
@@ -391,8 +390,13 @@ sub whisper_ai_postprocess {
 
 	
 	############# LYRIC WEBSITE SPAM: #############												# If our code was more honest, this would be in a separate function as it’s not *directly* related to WhisperAI postprocessing, and more of an artifact of downloading lyrics from websites with autodownloaders like “LyricsGenius.exe”
-	$s =~ s/You might also like//i;																# common junk found in downloaded lyrics
 	$s =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;														# common junk found in downloaded lyrics
+	$s =~ s/\*? (No|\[(duble|metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z\d]+lyrics[a-z\d]*|\[[a-z0-9]+ )\]) filter used//i;
+	$s =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
+	$s =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
+	$s =~ s/Album tracklist with lyrics//;
+	$s =~ s/Get tickets as low as \$[\d\.]+//i;
+	$s =~ s/You might also like//i;																# common junk found in downloaded lyrics
 
 	################ WHISPER-AI HALLUCINATIONS: ################ 
 	$s =~ s/A little pause..?.? *//gi;															# ...These are common WhisperAI hallucinations.

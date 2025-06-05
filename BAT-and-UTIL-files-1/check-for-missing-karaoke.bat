@@ -227,7 +227,7 @@ rem ═════════════════════════�
         :lockfile_folderlevel_check_lockfile [opt]
                 if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Checking folder level lockfile"
                 iff exist "%KARAOKE_FOLDER_LOCKFILE_FILENAME%" then
-                        echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Lockfile detected! Already doing work here! %EMOJI_WARNING% %ANSI_COLOR_NORMAL%        
+                        echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Folder-level lockfile detected! Already doing work here! %EMOJI_WARNING% %ANSI_COLOR_NORMAL%        
                         gosub lockfile_folderlevel_read_values
                         echo %ANSI_COLOR_ADVICE%%star2% Use ‘force’ option to continue anyway %ansi_color_normal%
                         rem TODO write-up the force option if we ever get into that istuation
@@ -236,7 +236,7 @@ rem ═════════════════════════�
                                         gosub lockfile_folderlevel_delete_lockfile
                                         return
                                 endiff
-                        call AskYN "Delete it and proceed anyway" no 5
+                        call AskYN "Delete it and proceed anyway" no 10
                                 rem Automatic deletion if it’s expired:
                                 iff "Y" == "%ANSWER%" then
                                         gosub lockfile_folderlevel_delete_lockfile
@@ -253,12 +253,18 @@ rem ═════════════════════════�
                         set raw2=%@if[exist %KARAOKE_FOLDER_LOCKFILE_FILENAME%,%@LINE[%KARAOKE_FOLDER_LOCKFILE_FILENAME%,3],NONE]
                         echo * lockfile_folderlevel_read_values  - pid=“%raw2%”,datetime=“%raw1%”
                         set seconds_ago=%@EVAL[%_DATETIME - %raw1%]
-                        echo %seconds_ago% seconds_ago
-                        iff  %seconds_ago% gt %LOCKFILE_EXPIRATION_TIME% then
-                                set lockfile_folderlevel_expired=1
-                        else
+                        set uptime_seconds=%@EVAL[%_WINTICKS/1000]
+                        echo %seconds_ago% seconds ago!
+                        rem If the lockfile has reached our expiration time, or is older than our last reboot, then it’s expired:
                                 set lockfile_folderlevel_expired=0
-                        endiff
+                                iff  %seconds_ago% gt %LOCKFILE_EXPIRATION_TIME% then
+                                        echo * Lockfile is past our age threshhold...
+                                        set lockfile_folderlevel_expired=1
+                                endiff
+                                iff %seconds_ago% gt %uptime_seconds% then
+                                        echo * Lockfile is before last reboot time...
+                                        set lockfile_folderlevel_expired=1
+                                endiff
                         iff "%raw1" == "NONE" unset folder_lockfile_dir
                         iff "%raw2" == "NONE" unset folder_lockfile_pid
         return %folder_lockfile_pid%
@@ -293,3 +299,4 @@ rem ═════════════════════════�
 
 
 :END
+gosub lockfile_folderlevel_delete_lockfile

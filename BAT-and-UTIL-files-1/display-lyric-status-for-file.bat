@@ -17,7 +17,8 @@ rem Get parameters:
 rem Validate environment:
         iff 1 ne %VALIDATE_LYRIC_APPROVE_DISAPPROVE% then
                 call validate-in-path add-ads-tag-to-file fatal_error
-                call validate-environment-variables italics_on italics_off newline filemask_audio
+                call validate-environment-variables ansi_colors_have_been_set emojis_have_been_set newline 
+                call validate-environment-variables filemask_audio skip_validation_existence
                 set  VALIDATE_LYRIC_APPROVE_DISAPPROVE=1
         endiff                
         

@@ -3,7 +3,7 @@
 
 
 rem Validate environment once:
-        if "1" != "%seelatverofbatongit%"
+        iff "1" != "%seelatverofbatongit%" then
                 call validate-environment-variable ANSI_HAS_BEEN_SET
                 call validate-in-path              AskYN  clip
                 set  validated-seelatverofbatongit=1
@@ -21,7 +21,7 @@ rem Check if the filename we are talking about is in \bat\ or \notes\:
 rem Go to whatever URL we decidedo n:
         iff "" != "%EARL%" then
                 echo Copied to clipboard: %faint_on%%EARL%%faint_off%
-                call clip %EARL%
+                echo %EARL% >:u8clip:
                 call AskYN "go there" yes 0
                 if "Y" == "%ANSWER%" %EARL%
         endiff
