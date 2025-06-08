@@ -143,7 +143,10 @@ if ($filename eq "") {
 	open($INPUT, "<:utf8", $filename) or die "Could not open file '$filename': $!";		# breaks on malformed files, of which there are many
 	#pen($INPUT, "<:raw" , $filename) or die "Could not open file '$filename': $!";		# open raw, and decode to UTF-8 later after fixing malformed characters
 }
+
+
 ##NEW2: this resulted in files that lookd fine when cat’ed to the screen but formed malformed columns when printed with print_with_columns.py						
+## But that may have been a print_with_columns error, so we may have to look back into this
 #if ($filename eq "") {
 #	local $/ = undef;                            # Slurp mode
 #	binmode(STDIN, ":raw");                      # Raw input, no UTF-8 decoding yet
@@ -254,10 +257,22 @@ while (<$INPUT>) {
 		}
 		$line =~ s/^Lyrics by .*$//;
 
-		#commas and quotes and dashes and punctuation, oh my!
+
+		#line-level fixes:
 		$line =~ s/^, *$//;			#remove leading comma like ", a line of text"
-	    $line =~ s/"/'/g;			#change quotes to apostrophes so these can be used as a quoted command line argument
-		$line =~ s/\-\-/—/g;
+
+		#character-level fixes:
+		#commas and quotes and dashes and punctuation, oh my!
+		$line =~ s/„/”/g;			# copied from lyric-postprocessor: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
+		$line =~ s/</⧼/g;			# redirection characters should not reach our command-line, which is what our lyrics mode is used for
+		$line =~ s/>/⧽/g;			# redirection characters should not reach our command-line, which is what our lyrics mode is used for
+		$line =~ s/\|/│/g;			# redirection characters should not reach our command-line, which is what our lyrics mode is used for		
+		$line =~ s/[â'`]/’/ig;		# apostrophes and misrepresentations thereof
+		$line =~ s/’’/’/ig;			# apostrophe kludge 20250424 1358
+	    $line =~ s/"/'/g;			# change quotes to apostrophes so these can be used as a quoted command line argument
+		$line =~ s/\-\-/—/g;		# double-hyphen is really an em-dash
+
+		# word level fixes
 		$line =~ s/([a-z]) (\-)([a-z])/$1$2$3/ig;												   # turn things like “double -dutch” back into “double-dutch”
 
 		#formatting: dealing with ALL CAPS LYRICS
@@ -273,9 +288,6 @@ while (<$INPUT>) {
 		$line = &limit_repeats($line, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);  
 
 
-		#fix apostrophes into smart apostrophes
-		$line =~ s/[â'`]/’/ig;										#apostrophes and misrepresentations thereof
-		$line =~ s/’’/’/ig;											#kludge 20250424 1358
 
 
 		#however our environment variables aren’t always set, 
@@ -483,7 +495,6 @@ sub replace_smart_quotes {
 	my $result = join("", @result);
 
 	$result =~ s/!“/!”/g;				# kludge bug fix
-	$result =~ s/„/”/g;					# although this is technically how Germans OPEN quotes („like this”), this shows up in downloaded lyrics as a mis-encoded right quote, so let’s treat it as such
 
 	return $result
 }

@@ -56,7 +56,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
 
             rem And grab any optional message for clock-mode:
                     unset   /q         SLEEP_MESSAGE
-                    if "%3" != "" (set SLEEP_MESSAGE=%%@randfg_soft[]%@UNQUOTE[%3$] %+ shift)
+                    if "%1" != "" (set SLEEP_MESSAGE=%%@randfg_soft[]%@UNQUOTE[%1$] %+ shift)
 
 
             rem If clock mode, clear off some space...
@@ -160,7 +160,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
             
             rem Reset our cursor back to the user-preferred shape & color, reset all ansi status, draw our final clock, and leave us in the right place:
                     iff "1" != "%silent%" then
-                        echos %CURSOR_RESET%%ANSI_RESET%%ANSI_EOL%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_SAVE_POSITION%%ANSI_ERASE_TO_END_OF_LINE%%ANSI_RESTORE_POSITION%%@ANSI_MOVE_DOWN[1]%@ANSI_MOVE_LEFT[4]%BIG_OFF%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_ERASE_TO_END_OF_LINE%
+                        echos %CURSOR_RESET%%ANSI_RESET%%ANSI_EOL%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_SAVE_POSITION%%ANSI_ERASE_TO_END_OF_LINE%%@ansi_move_down[1]%ansi_erase_to_end_of_line%%@ansi_move_up[1]%ANSI_RESTORE_POSITION%%@ANSI_MOVE_DOWN[1]%@ANSI_MOVE_LEFT[4]%BIG_OFF%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_ERASE_TO_END_OF_LINE%
                     else
                         echos %CURSOR_RESET%%ANSI_RESET%
                     endiff
@@ -171,6 +171,8 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                         echos %@ansi_move_to_row[%@EVAL[%sleep_beginning_row+1]]%@ansi_move_to_col[0]%erase_to_end_of_screen%%big_off%
                         rem *pause>nul
                         echos %ansi_erase_to_end_of_screen%
+                    else
+                        echo %ansi_erase_to_end_of_line%
                     endiff
 
             goto :END

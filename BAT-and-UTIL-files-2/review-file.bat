@@ -231,8 +231,8 @@ rem ══════════════════ SUBROUTINES: ══�
                 rem If it is a SRT file, we need to strip out the lines that are not actual subtitle content:
                         iff "%ext%" == "srt" then
                                 set PWC_OPTIONS=%PWC_OPTIONS% -ins 
-                                 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*" "%review_file_tmp_file_1%" >:u8"%review_file_tmp_file_2%"
-                                 grep -vE "^#\s"                                                                             "%review_file_tmp_file_2%" >:u8"%review_file_tmp_file_1%"
+                                type "%review_file_tmp_file_1%" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*"  >:u8"%review_file_tmp_file_2%"
+                                type "%review_file_tmp_file_2%" |:u8 grep -vE "^#\s"                                                                              >:u8"%review_file_tmp_file_1%"
                                 *copy /z /q "%review_file_tmp_file_1%" "%review_file_tmp_file_2%"
                         else
                                  (echo raw|(*copy /q /r "%review_file_tmp_file_1%" "%review_file_tmp_file_2%" >&nul))

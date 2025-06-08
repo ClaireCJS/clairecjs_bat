@@ -1,3 +1,4 @@
+@loadBTM ON
 @rem @if %_columns eq %LAST_NUM_COLUMNS .and. defined last_divider .and. "%last_divider_cmd_tail%" == "%*" (echos %last_divider% %+ goto :The_Very_END) %+ rem Quick exit
 @Echo OFF
 @on break cancel

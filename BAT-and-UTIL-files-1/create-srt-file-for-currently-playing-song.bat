@@ -3,7 +3,7 @@
  on break cancel
 
 rem Validate environment (once):
-        iff 1 ne %validated_create_srt_file_for_currently_playing_song% then
+        iff "1" != "%validated_create_srt_file_for_currently_playing_song%" then
                 call validate-in-path create-srt-from-file go-to-currently-playing-song-dir errorlevel validate-environment-variable
                 set  validated_create_srt_file_for_currently_playing_song=1
         endiff

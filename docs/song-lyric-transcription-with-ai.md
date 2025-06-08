@@ -129,7 +129,7 @@ copy c:\bat\alias.lst    c:\tcmd\alias.lst
 7. 💻 Certain environment variables should be defined
     - ```%MP3%```    should be set to your music repository      (i.e. ```set mp3=c:\mp3\```)
     - ```%EDITOR%``` should be set to your text editor command   (i.e. ```set editor=editplus.exe```)
-    - ```%LYRICS%``` should be set to your MiniLyrics repository (i.e. ```set lyrics=c:\lyrics\```)
+    - ```%LYRICS%``` should be set to your [MiniLyrics](https://minilyrics.en.softonic.com/) repository (i.e. ```set lyrics=c:\lyrics\```)
 
 &nbsp;
 
@@ -218,7 +218,8 @@ From a running TCC command line, use whatever system commands you’d like from 
   - (1) transcribe in alphabetical order: ```sweep gkh```
   - (2) transcribe in    random    order: ```sweep-random "gkh" force``` 
   - Repeat transcription command until everything is transcribed
-   - Track progress with ```report-lyric-and-subtitle-percentage-completion```, which takes a snapshot of progress that lets you see your progress over time
+  - Ren ```gkh report``` if you want to see what percentage remains in a specific folder (like if you’ve been working a folder with hundreds of songs and are curious).
+   - Track total project progress with ```report-lyric-and-subtitle-percentage-completion```, which takes a snapshot of progress that lets you see your progress over time
 
 - ④ When completely done with the entire project
   - run ```delete-bad-ai-transcription``` in every folder with the command: ```sweep call delete-bad-ai-transcription``` to delete any bad transcriptions.
@@ -266,19 +267,34 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 #### These commands manage the filenames to better direct our resources.
 									
+### 🌟 [preview-audio-file](../BAT-and-UTIL-files-1/preview-audio-file.bat)
 
-### 🌟 [mark-all-filenames-as-instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-as-instrumental.bat) TODO
+Previews an audio-file in VLC player.  
+Used to preview audio files so we can mark them as instumentals or not.
+If Winamp Integration is enabled, pauses and unpauses WinAmp before/after the preview.
 
-### 🌟 [ask-if-these-are-instrumentals](../BAT-and-UTIL-files-1/)ask-if-these-are-instrumentals.bat  TODO
+### 🌟 aii / [ask-if-instrumental](../BAT-and-UTIL-files-1/ask-if-instrumental.bat)
 
-### 🌟 [document: preview-audio-file](../BAT-and-UTIL-files-1/)document: preview-audio-file.bat  TODO
+Asks if an individual song is an instrumental, and takes appropriate actions if it is. Those actions include: Previewing any TXT/LRC/SRT lyric/subtitle files and prompting the user for deletion of each one, prompting the user for deletion of any associated JSON/LOG files, and allowing the user to preview the song (with ```preview-audio-file.bat```) or enqueue the song in WinAmp (with my recompiled ```enqueueee.exe```) for double-checking its instrumental nature.
 
-### 🌟 [mark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-ADS-tag-for-as_instrumental.bat) TODO
+### 🌟 [ask-if-instrumentals](../BAT-and-UTIL-files-1/ask-if-instrumentals) / [mark-all-filenames-as-instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-as-instrumental.bat)
+
+```ask-if-instrumentals``` is a better-named call to ```mark-all-filenames-as-instrumental.bat```, as ```mark-all-filenames-as-instrumental.bat``` is a bit improperly-named.  These are both the same command, and that command *ASKS* us if we want to mark each audio file in a folder as an instrumental. If we do, it takes the actions ```ask-if-instrumental``` takes.  This can be very annoying on a folder of 100+ songs, sooooo (see next entry):
 
 ### 🌟 [mark-all-filenames-ADS-tag-for-NOT-as_instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-ADS-tag-for-NOT-as_instrumental.bat) TODO
 
-### 🌟 [unmark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/unmark-all-filenames-ADS-tag-for-as_instrumental.bat) TODO
+Marks all filenames in a folder with an ADS tag flagging them as NOT AN INSTRUMENTAL. 
+Why would we ever do this?
+To speed up the ```ask-if-instrumentals``` process on a folder that has hundreds of non-instrumental files. 
+Rather than answering “N” to each file, this can pre-mark the answer so we aren’t asked in the first place.
 
+### 🌟 [mark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-ADS-tag-for-as_instrumental.bat) 
+
+The opposite of the last script. This marks all filenames in a folder with an ADS tag flagging them as an instrumental. However, this is NOT our preferred solution. Our preferred solution is for EACH FILENAME to have “ [instrumental]” in it. In many situations, only the filename is examineds, so the ADS tag is NOT sufficient for accurate reporting.
+
+### 🌟 [unmark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/unmark-all-filenames-ADS-tag-for-as_instrumental.bat) 
+
+If we screwed up with either of the last 2 scripts, this removes our screwup from every every file in the folder by completely removing the is_instrumental ADS tag from every audio file in the folder. This resets our “Y”/“N” answers for ```ask-if-these-are-instrumentals``` and allows us to start the process over for any filenames which have been flagged solely with ADS tags.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -325,7 +341,7 @@ This will go through the songs one at a time and ask if you want to mark any as 
 Obtains the lyrics for a song file, a playlist, or the currently playing song. 
 - transcriptions work **much** better with lyrics
 - checks local sidecar files for pre-existing lyric files
-- checks local lyrics/MiniLyrics/EvilLyrics repository for pre-existing lyric files
+- checks local lyrics/[MiniLyrics](https://minilyrics.en.softonic.com/)/EvilLyrics repository for pre-existing lyric files
 - searches Genius for lyrics
 - gives option to hand-edit artist/track name if lyrics are not find
 - gives option to Google lyrics if all else fails
@@ -419,7 +435,6 @@ One may also set the environment variables %OVERRIDE_VAD_THRESHOLD% and %OVERRID
 ### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/create-srt-file-for-currently-playing-song.bat):
 
 If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, creates karaoke file for *the song currently being played*.
-
 If lyrics (or lyriclessness) are pre-approved, creation is automatic.
 
 
@@ -437,15 +452,31 @@ Create karaoke files for **all songs** *in a playlist* that do not have them —
 
 ### 🌟 [delete-bad-ai-transcriptions](../BAT-and-UTIL-files-1/delete-bad-ai-transcriptions):
 
-Automatically run after creating karaoke files, this searches for bad karaoke transriptions & deletes them. 
+This searches for bad karaoke transriptions & deletes them with a configurable prompting level. 
 
-  1. Certain commonly-hallucinated-by-AI phrases can be consistently serached for to find bad transcriptions. “And now we’re back” is one of them.
-  2. Either LRCget or LyricsGenius likes to put Chris DeBurg’s “Lady In Red” as the LRC file for a TON of songs—This will flag an error unless the filename has “Lady In Red” in it, in which case it’s the right song.
+This is automatically run at various points (such as before and/or after creating karaoke files), and should also be run on the entire music collection when the project is completed. 
+
+Bad karaoke transcriptions include:
+  1. Files that contain certain commonly-hallucinated-by-AI phrases can be consistently serached for to find bad transcriptions. “And now we’re back” is one of them.
+  2. Either LRCget or LyricsGenius likes to put Chris DeBurg’s “Lady In Red” and Voivoid’s “Black City” as the LRC file for a TON of songs—and Id on’t know why. This will flag an error unless the filename has “Lady In Red” or “Black City” in it, in which case it’s the right song.
+  3. TODO anything else?
 
 
 ### 🌟 [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat):
 
-Rarely used side-utility: Creates karaoke files for **all songs** in a *folder tree* without using lyric files or voice detection (VAD). This is useful for folders of hundreds sound clips and small samples, where you just want to get a lot done without the extra overhead of lyrics and without the extra time delay of loading the VAD model.
+Rarely used side-utility: Creates karaoke files for **all songs** in a *folder tree* without using lyric files or voice detection (VAD). This is useful for large repositories of sound clips, small samples from movies, or audiobooks..... Where you just want to get a lot done without the extra overhead of operating the Lyric Alignment system, andwithout the extra time delay of loading the VAD (voice detection) model. This will get a LOT done FAST, but it will be sloppy.
+
+
+### 🌟 [WhisperTimeSync.bat](../BAT-and-UTIL-files-1/WhisperTimeSync.bat) {bad_subtitle_file} {good_text_file} {optional_audio_file}:
+
+Use the incorporated instance of the [WhisperTimeSync](https://github.com/EtienneAb3d/WhisperTimeSync) project to fix mis-transcriptions in the SRT file by using the TXT lyrics as an official point of truth.  This is tricky, and the original project is fraught with implementation issues.  This script guides us through the steps to avoid those issues, including giving an option to directly enqueue songs into WinAmp to preview how the lyrics are being displayed in [MiniLyrics](https://minilyrics.en.softonic.com/), comparing the final timestamps of both files, and opening the before and after in our text editor so that we can manually review the re-sync’ed lyrics.  
+
+Final review includes using the special modes incorporated into the [print_with_columns.py](../BAT-and-UTIL-files-1/print_with_columns.py) created specifically for comparing old subtitles to new subtitles. These include a mode where the screen alternates between the before/after subtitles, and a mode where the timestamps are synced in a 2-column side-by-side display of the before/after subtitles. That way we can be dang sure the WhisperTimeSynchronized new subtitles are actuallyb etter than the old ones, which are backed up to the current folder prior to being replaced.
+
+
+### 🌟 [WhisperTimeSync-currently-playing-song.bat](../BAT-and-UTIL-files-1/WhisperTimeSync-currently-playing-song.bat):
+
+If Winamp Integration is enabled, runs [WhisperTimeSync.bat](../BAT-and-UTIL-files-1/WhisperTimeSync.bat) on the currently-playing song.
 
 </details>
 
@@ -582,7 +613,7 @@ Creates karaoke for *the song currently being played* in ⚡️ [WinAmp](https:/
 
 In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com/) does not display new karaoke we create. This is because [MiniLyrics](https://minilyrics.en.softonic.com/) primarily uses LRC instead of SRT, so if an LRC was already there, and you create an SRT, it tends to ignore the SRT,e ven if you delete the LRC. 
 
-When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the [MiniLyrics](https://minilyrics.en.softonic.com/) lyric window manually, so that the data goes wherever it is MiniLyrics is storing it (we don’t know! It’s been out of development for 10+ yrs and is am ysterious product). 
+When this happens, the SRT must be converted to LRC, copied to the clipboard, and pasted into the [MiniLyrics](https://minilyrics.en.softonic.com/) lyric window manually, so that the data goes wherever it is [MiniLyrics](https://minilyrics.en.softonic.com/) is storing it (we don’t know! It’s been out of development for 10+ yrs and is am ysterious product). 
 
 This script handles that by detecting the current song playing, converting it’s SRT to LRC, copying the SRT’s contents to the clipboard, and automatically opening [MiniLyrics](https://minilyrics.en.softonic.com/)’s lyric editor window. 
 

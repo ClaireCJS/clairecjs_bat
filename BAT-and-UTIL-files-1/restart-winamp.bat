@@ -76,6 +76,7 @@ echo               We might want to change this script to have multiple modes.
         call killIfRunning %REGEX_TASKLIST_WINAMP% %REGEX_KILLPROC_WINAMP%
         call killIfRunning %REGEX_TASKLIST_LASTFM% %REGEX_KILLPROC_LASTFM%
         call killIfRunning %REGEX_TASKLIST_LYRICS% %REGEX_KILLPROC_LYRICS%
+        kill /f reporter
 
     echo.
     echo.
@@ -149,3 +150,4 @@ rem REOPEN WINAMP (et al):
     
     rem fix minilyrics positoin
         call fix-minilyrics-window-size-and-position.bat
+

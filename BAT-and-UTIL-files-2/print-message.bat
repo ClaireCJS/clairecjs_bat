@@ -45,7 +45,7 @@ rem MESSAGE TYPES LIST: PLEASE ADD ANY NEW MESSAGE TYPES TO THIS LIST BEFORE IMP
 REM DEBUG:
         set DEBUG_PRINTMESSAGE=0
         rem don’t change until @WIDTH[] function is released to public and implemented here:
-            set FUDGE_FACTOR=10                         
+            set FUDGE_FACTOR=10        
 
 REM Initialize variables:
     set PM_PARAMS=%*
@@ -274,9 +274,9 @@ REM Pre-Message determination of if we do a big header or not:
 REM Pre-Message determination of how many times we will display the message:
         set print_message_running=5
         set HOW_MANY=1 
-        if "%TYPE%" == "CELEBRATION" (set HOW_MANY=1 2)
-        if "%TYPE%" ==       "ERROR" (set HOW_MANY=1 2 3)
-        if "%TYPE%" == "FATAL_ERROR" (set HOW_MANY=1 2 3)
+        if "%TYPE%" == "CELEBRATION" (set HOW_MANY=1 2)    %+ rem “How Many” needs to be 2 (“1 2”) for things we print BIG —— because they are really 2 lines, a top-big and a bottom-big —— and celebration is a message type that we always draw big
+        if "%TYPE%" ==       "ERROR" (set HOW_MANY=1 2 3)  %+ rem 3 lines, but we make the 1ˢᵗ and 3ʳᵈ inverse-colored
+        if "%TYPE%" == "FATAL_ERROR" (set HOW_MANY=1 2 3)  %+ rem 3 lines, but we make the middle one blinking
 
 
 
@@ -284,7 +284,7 @@ REM Actually display the message:
         echos %ANSI_COLOR_BRIGHT_GREEN%
         set FIRST=0
         set SECOND=0
-        :actually_display-the_message
+        :actually_display_the_message
         setdos /x-6
 
         iff 1 eq %BIG_MESSAGE% then
@@ -299,10 +299,11 @@ REM Actually display the message:
         rem in case the color was changed within the message itself.  
         rem ((( However, for FATAL_ERROR, we want the color to persist because we set a special color )))
         rem ((( for one of the repeated messages and want the decorator to remain that  special color )))
-        if "%TYPE%" != "FATAL_ERROR" (
-            set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%OUR_ANSICOLORTOUSE%%DECORATOR_RIGHT%
-        ) else (
+        if "%TYPE%" == "FATAL_ERROR" .or. "%TYPE%" == "ERROR" (
             set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
+            set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%
+        ) else (
+            set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%OUR_ANSICOLORTOUSE%%DECORATOR_RIGHT%
         )
 
         if defined %[ANSI_COLOR_%type%] set OUR_ANSICOLORTOUSE=%[ANSI_COLOR_%type%]
@@ -376,11 +377,14 @@ REM Actually display the message:
                 if "%TYPE%" == "FATAL_ERROR" (
                         if %@EVAL[%msgNum mod 3] == 0 (echoserr %ANSI_COLOR_FATAL_ERROR%%BLINK_OFF%)
                         rem @EVAL[%msgNum mod 2] == 1 (echoserr %REVERSE_OFF%)
+
                         if        %msgNum        == 2 (echoserr %BLINK_ON%)
+
                         if %@EVAL[%msgNum mod 2] == 0 (echoserr %REVERSE_ON%)
+
                         if        %msgNum        != 3 (echoserr %ANSI_COLOR_FATAL_ERROR%%ITALICS_OFF%)
                         if        %msgNum        == 4 .and. 1 ne %SKIP_DOUBLE_HEIGHT% (
-                                echoerr %BIG_TOP%%ANSI_COLOR_FATAL_ERROR%%@ANSI_BG_RGB[128,0,0]%DECORATED_MESSAGE%%@ANSI_BG_RGB[128,0,0]
+                                echoerr %BIG_TOP%%ANSI_COLOR_FATAL_ERROR%%@ANSI_BG_RGB[128,0,0]%DECORATED_MESSAGE%%@ANSI_BG_RGB[128,0,0]%DECORATOR_RIGHT%
                                 echoserr %BIG_TEXT_LINE_2%%@ANSI_BG_RGB[128,0,0]%DECORATED_MESSAGE%%@ANSI_BG_RGB[128,0,0]
                         ) else (
                                 rem echoserr %ANSI_COLOR_FATAL_ERROR%
@@ -396,7 +400,14 @@ REM Actually display the message:
                          ) else (
                                 if %msgNum == 2 (echoserr %blink_on%)
                                 echoserr %DECORATED_MESSAGE%
+                                if %msgNum == 2 (echoserr %blink_on%)
                          )
+
+                rem For FATAL_ERROR messages, we never added the right-decorator to decorated_message, 
+                rem for formatting reasons, so we echo it here:
+                if "%TYPE%" == "FATAL_ERROR" .or. "%TYPE%" == "ERROR" echoserr %decorator_right%
+
+
 
                 set REM=handle post-message formatting
                         if "%TYPE%"     == "SUBTLE"      (echoserr %FAINT_OFF%)
@@ -419,7 +430,7 @@ REM Actually display the message:
                 endiff
 
         REM If big mode, go back to print the 2ⁿᵈ/lower-½ line:
-                if "1" == "%BIG_MESSAGE%" .and. "1" !=  "%SECOND%" goto :actually_display-the_message
+                if "1" == "%BIG_MESSAGE%" .and. "1" !=  "%SECOND%" goto :actually_display_the_message
 
 
         
@@ -476,7 +487,8 @@ REM For errors, give chance to gracefully exit the script (no more mashing of ct
         iff "%TYPE%" == "FATAL_ERROR" .or. "%TYPE%" == "FATALERROR" .or. "%TYPE%" == "ERROR" then
                 set DO_IT=
                 set temp_title=%_wintitle
-                echo * Parent file: %_PBATCHNAME 
+                if %_column gt 0 echo.
+                echo %ansi_color_warning_soft%* Parent file: %_PBATCHNAME 
                 if "%OUR_CALLER%" != "" echo * %%OUR_CALLER%%: %OUR_CALLER%
                 call exit-maybe
                 rem call askyn "Cancel all execution and return to command line?" yes
@@ -546,17 +558,17 @@ goto :skip_subroutines
                 if   1  ne %myfast (repeat 3 echoerr.)
                 cls
                 echoerr.
-                if 1 ne %my_fast (
+                iff "1" != "%my_fast%" then
                         echoerr %ANSI_COLOR_IMPORTANT%System print test - press N to go from one to the next --- any other key will cause tests to not complete -- if you get stuck hit enter once, then N -- if that doesn’t work hit enter twice, then N
                         echoerr.
                         pause>nul
-                )
+                endiff
 
                 rem      use %MESSAGE_TYPES instead of %MESSAGE_TYPES_WITHOUT_ALIASES to test alias message types:
                 gosub divider
                 for %%clr in (%MESSAGE_TYPES_WITHOUT_ALIASES%) (   
                         set clr4print=%clr%
-                        if 1 ne %my_fast (
+                        iff "1" != "%my_fast%" then
                                 echoerr.
                                 cls
                                 echoerr %ANSI_COLOR_IMPORTANT%about to test %clr4print:
@@ -565,11 +577,11 @@ goto :skip_subroutines
                                 cls
                                 call print-message %clr "This is a %clr4print message"
                                 pause>nul
-                        ) else (
+                        else
                                 rem pause
                                 call print-message %clr "This is a %clr4print message"
                                 gosub divider                   
-                        )
+                        endiff
                 )
         goto :END
 

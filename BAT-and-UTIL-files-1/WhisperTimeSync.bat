@@ -77,6 +77,7 @@ rem TODO: if aud_fil="" then check audmp3/wav/flac
 
 rem Run WhisperTimeSync:
         set  validated_srt_and_txt_for_whispertimesync_already=1
+        echo %ansi_color_debug%* About to: call WhisperTimeSync-helper "%srt%" "%lyr_processed%"  "%aud_fil%"%ansi_color_normal%
         call WhisperTimeSync-helper "%srt%" "%lyr_processed%"  "%aud_fil%"     %+ rem “Did it work?”-style validation is in WhisperTimeSync-helper.bat, so no need to do it here
         set  validated_srt_and_txt_for_whispertimesync_already=0               %+ rem This flag has now been used and can be disposedo f
 

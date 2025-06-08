@@ -72,7 +72,7 @@ rem Extra prep of lyrics:
 
                         rem If we answered “yes”, then play that song:
                                 iff "Y" == "%ANSWER%" then
-                                        set PAF_START=start
+                                        rem set PAF_START=start
                                         call preview-audio-file.bat "%AFL%"
                                 endiff
 
@@ -96,8 +96,10 @@ rem Extra prep of lyrics:
 
 rem Run WhisperTimeSync:
         %color_run%
-        echo %STAR3% Running WhisperTimeSync...%ansi_move_up_1%
-        "%JAVA_WHISPERTIMESYNC%" -Xmx2G -jar %WhisperTimeSync% "%srt%" "%lyr%" %our_language%
+        echo %STAR3% Running WhisperTimeSync...
+        echo %STAR3% command: "%JAVA_WHISPERTIMESYNC%" -Xmx2G -jar %WhisperTimeSync% "%srt%" "%lyr%" %our_language%
+        echos %ansi_move_up_1%
+                              "%JAVA_WHISPERTIMESYNC%" -Xmx2G -jar %WhisperTimeSync% "%srt%" "%lyr%" %our_language%
         call errorlevel
 
 rem Determine output filenames:
@@ -123,16 +125,19 @@ rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
         echo %ANSI_COLOR_WARNING_SOFT%%STAR2% Quick review of subtitles:%ansi_color_normal%
         echo %ANSI_COLOR_WARNING_SOFT%%STAR2% %italics_on%WhisperTimeSync%italics_off% often gets the very beginning wrong%ansi_color_normal%
-        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz% ❶  Take special care that the very beginning / first words fall within a subtitle"  silent
-        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz% ❷  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
-        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz% ❸  If the last timestamp of the new subtitles, which is:
+        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❶  Take special care that the very beginning / first words fall within a subtitle"  silent
+        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❷  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
+        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❸  If the last timestamp of the new subtitles, which is:
 
         @echo off
         call set-tmp-file subtitle-final-timestamp-grep-results 
         set last_timestamp_old_file=%tmpfile1%
         set last_timestamp_new_file=%tmpfile2%
-        ((grep "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" "%@UNQUOTE["%srt_new%"]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_new_file%)
-        ((grep "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" "%@UNQUOTE["%srt_old%"]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)
+        rem ((grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" "%@UNQUOTE["%srt_old%"]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)
+        ((type "%@UNQUOTE["%srt_old%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)
+        if not exist %last_timestamp_old_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_old_file%"
+        ((type "%@UNQUOTE["%srt_new%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_new_file%)
+        if not exist %last_timestamp_new_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_new_file%"
         iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
                 call warning "Final timestamps differ!" big
                 set our_display_color=%ansi_color_bright_red%

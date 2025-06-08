@@ -2,6 +2,8 @@
 @Echo Off
 @on break cancel
 
+rem ASSUMES exit-maybe.bat is in path, as many others!  Our validators don’t use our validators (to avoid cyclic validation) so there are a lot of assumptions in our validation scripts.
+
 rem USAGE:   call validate-file-extension [filename]   [extension(s)] ["custom error message"]  [“silent”]       //%FILEMASK_{type} env vars work!  "*.txt;*.bat" works. "txt bat" works too but isn’t as well-tested.
 rem EXAMPLE: call validate-file-extension filename.txt txt                                //example to check for one  extension
 rem EXAMPLE: call validate-file-extension %FILENAME%  "txt text rtf html"                 //example to check for many extensions
@@ -76,6 +78,9 @@ rem ERROR: At this point, all checks have failed and the file is not valid!
         endiff
         repeat 2 echo %ANSI_COLOR_fatal_error%%VAL_FILE_EXT_ERR_MSG%%Ansi_color_normal%%EOL%
         call divider
+
+        call exit-maybe
+
         goto :END
         cancel
 

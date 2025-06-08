@@ -459,16 +459,26 @@ SendRawCToWinamp() {
 
 
 MinimizeOrRaiseWinamp() {
-    hwnd := WinExist("ahk_class Winamp v1.x")
+        MinimizeOrRaiseWindow("ahk_class Winamp v1.x")
+        MinimizeOrRaiseWindow("MiniLyrics")
+}
+MinimizeOrRaiseWindow(wintitle) {
+    hwnd := WinExist(wintitle)
     if !hwnd
         return
 
     ourWinGetMinMax := WinGetMinMax(hwnd)
-    if ourWinGetMinMax == -1 {
-        WinRestore(hwnd)
-    } else {
-        WinMinimize(hwnd)
-    }
+
+    ;; This way restores it:
+    WinMinimize(hwnd)
+    WinRestore(hwnd)
+
+    ;; This way alternates between minimizing and restoring it:
+    ;; if ourWinGetMinMax == -1 {
+    ;;    WinRestore(hwnd)
+    ;; } else {
+    ;;    WinMinimize(hwnd)
+    ;; }
 }
 
 F8::ShowWinampState()                                                   ; TODO 20250527 remove this after testing

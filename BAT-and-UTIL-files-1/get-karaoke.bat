@@ -70,13 +70,17 @@ rem Process current folder:
 
                 rem Determine mode:
                         unset /q get
-                        if "%1" == "get"            (set get=get            %+ shift)
-                        if "%1" == "PromptAnalysis" (set get=PromptAnalysis %+ shift)
+                        unset /q report_only
+                        :reparam
+                        if "%1"  == "get"            (set get=get            %+ shift %+ goto /i :reparam)
+                        if "%1"  == "PromptAnalysis" (set get=PromptAnalysis %+ shift %+ goto /i :reparam)
+                        if "%1"  == "report"         (set report_only=1      %+ shift %+ goto /i :reparam)
                         if "%1$" != "" pause "we still have %1$ 092438902340892438"
+                        if  "1"  == "%report_only%"  (set get=/f)
                         %CALL% check-for-missing-karaoke.bat %get% %2 %3 %4 %5 %6 %7 %8 %9$
 
                 rem Run our script, if it now exists / was generated:
-                        if exist %CREATE_MISSING_KRAOKES_SCRIPT_NAME% %CALL% %CREATE_MISSING_KRAOKES_SCRIPT_NAME%
+                        if exist %CREATE_MISSING_KRAOKES_SCRIPT_NAME% .and. "1" != "%report_only%" %CALL% %CREATE_MISSING_KRAOKES_SCRIPT_NAME%
 
                 goto /i END
         endiff
@@ -130,5 +134,6 @@ rem Clean up & finish:
 
 :END
 setdos /x0
+unset /q get report_only
 
 

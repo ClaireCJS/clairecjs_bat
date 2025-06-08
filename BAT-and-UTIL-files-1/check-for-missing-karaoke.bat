@@ -227,7 +227,7 @@ rem ═════════════════════════�
         :lockfile_folderlevel_check_lockfile [opt]
                 if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Checking folder level lockfile"
                 iff exist "%KARAOKE_FOLDER_LOCKFILE_FILENAME%" then
-                        echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Folder-level lockfile detected! Already doing work here! %EMOJI_WARNING% %ANSI_COLOR_NORMAL%        
+                        echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Folder-level lockfile detected! Already doing work in %italics_on%%[_CWP]%italics_off%! %EMOJI_WARNING% %ANSI_COLOR_NORMAL%        
                         gosub lockfile_folderlevel_read_values
                         echo %ANSI_COLOR_ADVICE%%star2% Use ‘force’ option to continue anyway %ansi_color_normal%
                         rem TODO write-up the force option if we ever get into that istuation
@@ -262,7 +262,7 @@ rem ═════════════════════════�
                                         set lockfile_folderlevel_expired=1
                                 endiff
                                 iff %seconds_ago% gt %uptime_seconds% then
-                                        echo * Lockfile is before last reboot time...
+                                        echo %ansi_color_removal%* Lockfile is before last reboot time...Deleting%ansi_color_normal%
                                         set lockfile_folderlevel_expired=1
                                 endiff
                         iff "%raw1" == "NONE" unset folder_lockfile_dir
@@ -279,7 +279,7 @@ rem ═════════════════════════�
         :lockfile_folderlevel_delete_lockfile [opt]
                 :delete_it
                 iff not exist "%KARAOKE_FOLDER_LOCKFILE_FILENAME%" then
-                        if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "No lockfile to delete"
+                        if %DEBUG_CFMK_LOCKFILE% gt 0 .and. "1" == "%ONLY_RUN_ONCE_PER_FOLDER%" call debug "No lockfile to delete"
                         return
                 endiff
                 if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Deleting folder level lockfile"
@@ -299,4 +299,12 @@ rem ═════════════════════════�
 
 
 :END
-gosub lockfile_folderlevel_delete_lockfile
+        :Cleanup
+                iff "1" == "%ONLY_RUN_ONCE_PER_FOLDER%" then
+                        gosub lockfile_folderlevel_delete_lockfile
+                        unset /q ONLY_RUN_ONCE_PER_FOLDER
+                endiff
+
+        
+
+

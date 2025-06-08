@@ -47,7 +47,23 @@ rem Start the service called "Everything" (not the abstract concept of everythin
 rem Girder?
         if     isdir c:\girder (call start-girder)
         if not isdir c:\girder (call warning "not starting girder")
+
                 
+rem Things for our primary machines only:
+        iff "%machinename%" == "WYVERN" .or. "%machinename%" == "DEMONA" then               
+                rem Start Discord bot:
+                        call  less_important "Initializing Discord bot..."        %+  gosub done_with_step
+                        call  discord-bot      %*                                 %+  gosub done_with_step
+
+                rem Start calendar monitor for primary machines only:
+                        call  less_important "Initializing calendar monitor..."   %+  gosub done_with_step
+                        call  calendar-monitor %*                                 %+  gosub done_with_step
+                                                                                   
+                REM backup files                                                   
+                        call  backup-important-files   %*                         %+  gosub done_with_step
+                        call  backup-important-folders %*                         %+  gosub done_with_step
+        :endiff
+
 
 
 rem Minimize annoying programs...
@@ -55,7 +71,6 @@ rem Minimize annoying programs...
         windowhide.exe /min "imUp"
         if isdir c:\girder windowhide.exe /min "girder"
         gosub done_with_step
-
 
 
 REM Above all else, the music must flow —— but only if it's the music server:
@@ -80,22 +95,6 @@ rem Map drives
         call map-drives once
         gosub done_with_step
 
-rem Things for our primary machines only:
-        if "%machinename%" ne "WYVERN" .and. "%machinename%" ne "DEMONA" (goto :NoCalmon)
-            rem Start calendar monitor for primary machines only:
-                    call less_important "Initializing calendar monitor..."
-                    if isfunction randcursor (echos %@RANDCURSOR[])
-                    call calendar-monitor %*
-                    if isfunction randcursor (echos %@RANDCURSOR[])
-                    gosub done_with_step
-
-            REM backup files
-                    call backup-important-files   %*
-                    if isfunction randcursor (echos %@RANDCURSOR[])
-                    call backup-important-folders %*
-                    if isfunction randcursor (echos %@RANDCURSOR[])
-                gosub done_with_step
-        :NoCalmon
 
 
 

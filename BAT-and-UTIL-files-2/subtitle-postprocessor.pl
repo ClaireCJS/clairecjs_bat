@@ -379,6 +379,10 @@ sub whisper_ai_postprocess {
 	$s =~ s/\-\-([^>])/—$1/g;																	# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
 	$s =~ s/!“/!”/g;																			# copied from lyric-postprocessor: kludge bug fix
 	$s =~ s/„/”/g;																				# copied from lyric-postprocessor: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
+	#BAD IDEA HERE: $s =~ s/</⧼/g;																# redirection characters should not reach our command-line, which is what our lyrics mode is used for
+	#BAD IDEA HERE: $s =~ s/>/⧽/g;																# redirection characters should not reach our command-line, which is what our lyrics mode is used for
+	#BAD IDEA HERE: s =~ s/\|/│/g;																# redirection characters should not reach our command-line, which is what our lyrics mode is used for
+
 
 	################ WORD-BASED PUNCTUATION FIXES: ################ 							
 	$s =~ s/self \-righteous/self-righteous/g;													# 1)    proof of concept: fix hyphenated words that have an erroneous space before the hyphen

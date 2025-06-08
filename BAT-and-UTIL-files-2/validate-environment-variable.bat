@@ -320,6 +320,7 @@ goto :Past_The_End_Of_The_Subroutines
                                 REM      -- it represents a system failure!!!
                                 REM ...so let’s put asterisks around it, too!
                                 rem call warning %USER_MESSAGE%
+                                if %_column gt 0 echo.
                                 echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% %USER_MESSAGE% %ANSI_COLOR_NORMAL%
                 :no_user_message
 
@@ -328,8 +329,12 @@ goto :Past_The_End_Of_The_Subroutines
                 set old=%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%
                 set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1
 
-                if "" != "%our_caller%"                 echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% dir/folder: %italics_on%%[_CWD]%italics_off% %ANSI_COLOR_NORMAL%    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%@NAME[%our_caller%].%@EXT[%our_caller%]%italics_off%%blink_off% %ansi_color_normal%
+                iff "" != "%our_caller%" then
+                        if %_column gt 0 echo.
+                        echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% dir/folder: %italics_on%%[_CWD]%italics_off% %ANSI_COLOR_NORMAL%    %@CHAR[55357]%@CHAR[56542]   ERROR IN: %blink_on%%italics_on%%@NAME[%our_caller%].%@EXT[%our_caller%]%italics_off%%blink_off% %ansi_color_normal%
+                endiff
 
+                if %_column gt 0 echo.
                 echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% dir/folder: %italics_on%%[_CWD]%italics_off% %ANSI_COLOR_NORMAL%
 
                 rem TCCv33 introduced a new command. We tried it out like this:
@@ -341,17 +346,21 @@ goto :Past_The_End_Of_The_Subroutines
 
                 set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=%old%
                 iff "" != "%USER_MESSAGE%" then
-                        set USER_MESSAGE_TO_USE=%NEWLINE%%USER_MESSAGE%
+                        unset /q indentation
+                        if "%type%" == "FATAL_ERROR" set indentation=                 ``
+                        set USER_MESSAGE_TO_USE= ... %user_message%
                 else
-                        set USER_MESSAGE_TO_USE=
+                        unset /q USER_MESSAGE_TO_USE
                 endiff
+                if %_column gt 0 echo.
                 echo %ansi_color_debug%DEBUG: varname = %VARNAME%, varvalue = %VARVALUE%%ansi_color_normal%
-                set msg=%left_quote%%italics_on%%@UPPER[%VARNAME%]%italics_off%%right_quote% location does not exist: %left_quote%%VARVALUE%%right_quote%...%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%
+                set msg=%left_quote%%italics_on%%@UPPER[%VARNAME%]%italics_off%%right_quote% location does not exist: %left_quote%%VARVALUE%%right_quote%%USER_MESSAGE_TO_USE%%ANSI_COLOR_FATAL_ERROR%
                 rem echo %ansi_color_fatal_error% %msg% %ansi_color_normal%
                 setdos /x0
                 rem @echo path is %path%
                 rem dir  c:\bat\fatal_error.bat
                 rem @echo %%@search[fatal_error.bat] is '%@search[fatal_error.bat]'
+                if %_column gt 0 echo.
                 call less_important "Calling script == “%our_caller%”"
                 call c:\bat\fatal_error.bat "%msg%"
                 call exit-maybe

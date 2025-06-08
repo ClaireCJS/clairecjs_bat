@@ -60,6 +60,16 @@ rem Clean up trash files first
         :skip_preclean
         cls
 
+rem Get rid of our files:
+        set del=*del /p
+        if exist "%full_filelist%" %DEL% "%full_filelist%"
+        if exist "%text_filelist%" %DEL% "%text_filelist%"
+        if exist "%transcribeable_filelist%" %DEL% "%transcribeable_filelist%"
+        if exist "%transcription_filelist%" %DEL% "%transcription_filelist%"
+        rem NOOOOOO!!! if exist "%report_log%" %DEL% "%report_log%"
+        
+
+
 rem Count the file types:    
         echo.
         set dir=%_CWD
@@ -68,28 +78,28 @@ rem Count the file types:
         if   not   exist     %full_filelist%          (set remake=1 %+ goto :remake)
         if %@eval[%@makeage[%_date,%_time] - %@fileage[%transcribeable_filelist%]] gt %@EVAL[%NUM_SECONDS_BEFORE_NEW_FILELISTS * 10000000] (set remake=1)     %+ rem if it’s more than 180s old
         :remake
-        if "%1"=="quick" .or. "%1"==fast goto :go_here_from_if_at_64
+        if "%1"=="quick" .or. "%1"=="fast" goto :go_here_from_if_at_64
                 iff "1" == "%remake%" then
                         rem make main filelist:
-                                echos %ansi_color_important%%blink_on%%star2%%blink_off% Making master filelist%@RANDFG_SOFT[]... 
+                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making master filelist%@RANDFG_SOFT[]... 
                                                           if "%1" != "quick" .and. "%1" != "fast"  ((dir /b /s /[!%AI_TRASH_FILES%]                   %filemask_audio%  >:u8%full_filelist%)) %+ echos %@RANDFG_SOFT[]...
                                 if defined incoming_music if "%1" != "quick" .and. "%1" != "fast"  ((dir /b /s /[!%AI_TRASH_FILES%]  %incoming_music%\%filemask_audio% >>:u8%full_filelist%)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %full_filelist% | wc -l]] %faint_on%files%faint_off%
 
                         rem Make transcribeable filelist:
-                                echos %ansi_color_important%%blink_on%%star2%%blink_off% Making transcribeable filelist%@RANDFG_SOFT[]... 
+                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making transcribeable filelist%@RANDFG_SOFT[]... 
                                                           ((dir /b /s /[!%AI_TRASH_FILES%  "::\[instrumental\]" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*]                  %filemask_audio%   >:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%  "::\[instrumental\]" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*] %incoming_music%\%filemask_audio%  >>:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %transcribeable_filelist% | wc -l]] %faint_on%files%faint_off%
 
                         rem Make txt filelist:
-                                echos %ansi_color_important%%blink_on%%star2%%blink_off% Making txt filelist%@RANDFG_SOFT[]... 
+                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making txt filelist%@RANDFG_SOFT[]... 
                                                           ((dir /b /s /[!%AI_TRASH_FILES% readme*.* *tablature*.txt *tabulature*.txt filelist*.* normalization-report*.* shn.txt dirlist*.txt delme*.* *lyrics*.txt *discography*.txt meaning*songmeaning*.txt dir.txt \lyrics\*.txt \lists*\*.txt foobar*.txt "amg review.txt" names.txt tree.txt "* - README.txt" track_*.txt "dir (?).txt" bridge-??.txt  "lyrics - *.txt"]                  *.txt  >:u8%text_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES% readme*.* *tablature*.txt *tabulature*.txt filelist*.* normalization-report*.* shn.txt dirlist*.txt delme*.* *lyrics*.txt *discography*.txt meaning*songmeaning*.txt dir.txt \lyrics\*.txt \lists*\*.txt foobar*.txt "amg review.txt" names.txt tree.txt "* - README.txt" track_*.txt "dir (?).txt" bridge-??.txt  "lyrics - *.txt"] %incoming_music%\*.txt >>:u8%text_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %text_filelist% | wc -l]] %faint_on%files%faint_off%
 
                         rem Make txt filelist:
-                                echos %ansi_color_important%%blink_on%%star2%%blink_off% Making transcribed filelist%@RANDFG_SOFT[]... %ansi_color_normal%
+                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making transcribed filelist%@RANDFG_SOFT[]... %ansi_color_normal%
                                                           ((dir /b /s /[!%AI_TRASH_FILES%]                  *.srt;*.lrc  >:u8%transcription_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%] %incoming_music%\*.srt;*.lrc >>:u8%transcription_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %transcription_filelist% | wc -l]] %faint_on%files%faint_off%

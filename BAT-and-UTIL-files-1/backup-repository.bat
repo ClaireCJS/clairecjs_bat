@@ -5,7 +5,7 @@
 rem Capture and validate parameters:
         set SOURCE=%1
         set TARGET=%2
-        call validate-environment-variables SOURCE TARGET
+        if not exist %SOURCE% .or. not exist %TARGET% call validate-environment-variables SOURCE TARGET
 
 
 rem Validate environment (once per session):
@@ -73,13 +73,13 @@ goto :NoDebug
 
 
 iff "%3" == "exitafter" then
-        call wait 30
+        call wait 1800
         exit
 endiff
 
 
-if %BACKING_UP_MULTIPLE_REPOSITORIES eq 1 (
-    call randFG
-    call divider
-)
+iff "1" == "%BACKING_UP_MULTIPLE_REPOSITORIES%" then
+        call randFG
+        call divider
+endiff
 
