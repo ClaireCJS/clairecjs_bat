@@ -1,5 +1,5 @@
-@Echo OFF
 @loadbtm on
+@Echo OFF
 @set whisper_alignment_happened=0
 
 if  "%1" == "jump" goto :jump_point

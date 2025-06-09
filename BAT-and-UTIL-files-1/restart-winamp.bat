@@ -139,8 +139,8 @@ rem REOPEN WINAMP (et al):
 
 
 :END
-    echo Not randomizing or next'ing
-    REM call randomize
+    rem echo Not randomizing or next'ing
+    call randomize
     REM call next
 
 
@@ -148,6 +148,7 @@ rem REOPEN WINAMP (et al):
         call winamp-play
     
     
-    rem fix minilyrics positoin
+    rem fix minilyrics position
+        echo fixing minilyrics position
         call fix-minilyrics-window-size-and-position.bat
 

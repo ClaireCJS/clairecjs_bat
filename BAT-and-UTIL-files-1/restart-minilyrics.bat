@@ -8,4 +8,6 @@ sleep 2
 
 call start-minilyrics
 
+rem Fix positions:
+call fml
 

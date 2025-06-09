@@ -1021,6 +1021,14 @@ def try_generate_stripe(joined_input_data, max_len=6):
         ], 1, console_width - 1)
 
 
+
+
+
+def get_max_stripped_line_width(text):
+    """Return the width of the longest line in `text`, after stripping ANSI escapes."""
+    return max((len(strip_ansi(line)) for line in text.splitlines()), default=0)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
@@ -1159,6 +1167,11 @@ def main():
                 #print("breaking")
                 break
 
+        if not STRIPE:
+            widest_output_line = get_max_stripped_line_width(output)
+            print(f"🥒 widest_output_line for columns={columns} is “{widest_output_line}” ...  console_width={console_width} 🥒")   # copy
+            if widest_output_line > console_width: is_too_wide = True
+
         #now that we have rendered our row, figure out if we are done or not:
         keep_looping = False                                                       # only keep looking if things required a redo
         force_num_columns = False                                                  # keep track of forced-column mode
@@ -1166,7 +1179,7 @@ def main():
             keep_looping = True                                                    # keep looping, but with a lower number of coumns
             columns = columns - 1                                                  # next time, try with 1 fewer columns
             force_num_columns = True                                               # internally, we are now forcing the number of columns to be the 1 fewer that we set in the previous line
-            if columns == 1: keep_looping = False                                  # if we are down to 1 column, there's no more to check, so stop
+            #bad logic: if columns == 1: keep_looping = False                     if we are down to 1 column, there's no more to check, so stop
             if columns == 0:                                                       # if we are down to 0 columns, go back to 1 and quit
                 columns = 1
                 keep_looping = False
@@ -1181,6 +1194,8 @@ def main():
         print(INTERNAL_LOG)
     if VERBOSE or DEBUG_VERBOSE_COLUMNS:
         print(f"🥒 num_columns={columns} ... column_widths={column_widths} 🥒")
+        print(f"🥒 widest_output_line={widest_output_line} ...  🥒")
+
     if VERBOSE:
         #print(f"🥒  output=🥒 {output}\n")
         #print(f'💔input_data=' + "\n".join(input_data) + '\n')

@@ -265,10 +265,10 @@ rem Display post-processing statistics:
                 call status-bar unlock
                 echo.
                 echo ━━━━━━━━━━━━━━━━━━ Current dir is %_CWD ━━━━━━━━━━━━ >nul
-                call bigecho "%ANSI_COLOR_BRIGHT_GREEN%%CHECK%  Processed: %italics_on%%@FORMATn[3.0,%NUM_PROCESSED%]%italics_off% songs%BIG_OFF%"
-                call bigecho "%ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located: %ansi_color_red%%@FORMATn[3.0,%NUM_BAD%]%ansi_color_bright_green% songs needing %findNature% attention%BIG_OFF%"
+                call bigecho "%ANSI_COLOR_BRIGHT_GREEN%%CHECK%  Processed: %italics_on%%@FORMATn[3.0,%NUM_PROCESSED%]%italics_off% songs"
+                call bigecho "%ANSI_COLOR_BRIGHT_GREEN%%CHECK%    Located: %ansi_color_red%%@FORMATn[3.0,%NUM_BAD%]%ansi_color_bright_green% songs needing %findNature% attention"
                 set compliance_string=%@formatn[3.1,%clean_formatted_percent%]%cool_percent%
-                call bigecho "%ANSI_COLOR_BRIGHT_GREEN%%CHECK% Compliance: %@ANSI_RGB[%our_r%,%our_g%,%our_b%]%compliance_string%%BIG_OFF%"
+                call bigecho "%ANSI_COLOR_BRIGHT_GREEN%%CHECK% Compliance: %@ANSI_RGB[%our_r%,%our_g%,%our_b%]%compliance_string%"
                 title %CHECK%Compliance: %compliance_string%
                 echo.
         :done_with_displaying_postprocessing_statistics

@@ -2,15 +2,20 @@
  on break cancel
 rem cls
 
-set MONITORING_SCRIPT=%bat%\ingest_ics.py
-set PROCESS_REGEX=python.*ingest_ics
-set PROCESS_WINDOW_TITLE=Calendar Monitor
+
+rem Configuration:
+        set MONITORING_SCRIPT=%bat%\ingest_ics.py
+        set PROCESS_REGEX=python.*ingest_ics
+        set PROCESS_WINDOW_TITLE=Calendar Monitor
 
 
-call validate-environment-variable MONITORING_SCRIPT PROCESS_REGEX
-call validate-in-path              helper-start calendar-monitor-helper python isRunning tasklist grep sed minimize
+rem Validate environment:
+        call validate-environment-variable MONITORING_SCRIPT PROCESS_REGEX
+        call validate-in-path              helper-start calendar-monitor-helper python isRunning tasklist grep sed minimize
 
-call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Checking if %italics_on%Calendar Monitor%italics_off% is already running...
+
+rem Kill it if it’s already running:
+        call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Checking if %italics_on%Calendar Monitor%italics_off% is already running...
         :Recheck
         set  isRunning=0
         call isRunning %PROCESS_REGEX% quiet >NUL
@@ -31,15 +36,28 @@ call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Checking if %italics_on%Calendar Monit
         )
         :break_recheck
 
-call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Starting %italics_on%Calendar Monitor%italics_off%...
-rem *start "Calendar Monitor" /MIN c:\bat\calendar-monitor-helper.bat %*
-    *start "Calendar Monitor" /MIN python c:\bat\ingest_ics.py %*
 
-call sleep 2
-call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Minimizing %italics_on%Calendar Monitor%italics_off% to %italics_on%tray%italics_off%...
-rem activate "Calendar Monitor*" tray
-rem minimize "*Calendar Monitor*"
-call minimize "*ingest_ics*"
 
-call bigecho "%STAR% %ANSI_COLOR_ADVICE%Drop ICS files into:"
-call bigecho    "    %ANSI_COLOR_ADVICE%    %italics_on%%faint_on%c:\Calendar\%faint_off%%italics_off% or %italics_on%%faint_on%c:\Cal\%faint_off%%italics_off%..."
+rem Sometimes we save .cal files in c:\ because we don’t feel like opening them JUST yet. 
+rem Let’s not forget about those!
+        if exist c:\*.ics mv c:\*.ics c:\calendar\
+
+
+rem Start it up:
+        call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Starting %italics_on%Calendar Monitor%italics_off%...
+        rem *start "Calendar Monitor" /MIN c:\bat\calendar-monitor-helper.bat %*
+            *start "Calendar Monitor" /MIN python c:\bat\ingest_ics.py %*
+
+
+
+rem Deprecated code to minimize it:
+        rem  call sleep 2
+        rem  call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Minimizing %italics_on%Calendar Monitor%italics_off% to %italics_on%tray%italics_off%...
+        rem  rem activate "Calendar Monitor*" tray
+        rem  rem minimize "*Calendar Monitor*"
+        rem  rem call minimize "*ingest_ics*"
+
+
+rem Some advice:
+        call bigecho "%STAR% %ANSI_COLOR_ADVICE%Drop ICS files into:"
+        call bigecho    "    %ANSI_COLOR_ADVICE%    %italics_on%%faint_on%c:\Calendar\%faint_off%%italics_off% or %italics_on%%faint_on%c:\Cal\%faint_off%%italics_off%..."

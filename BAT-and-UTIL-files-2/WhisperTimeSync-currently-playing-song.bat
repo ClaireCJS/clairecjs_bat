@@ -1,6 +1,6 @@
 @loadbtm on
 @Echo Off
- on break cancel
+@on break cancel
 
 rem Validate environment (once):
         iff "1" != "%validated_create_srt_file_for_currently_playing_song%" then

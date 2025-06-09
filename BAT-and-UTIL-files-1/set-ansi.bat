@@ -422,6 +422,7 @@ REM ANSI: styles —— As of Windows Terminal we can now actually display itali
                     set BIG_BOTTOM_ON=%BIG_BOTTOM%
                     REM this/these is/are guess(es):
                         set BIG_TEXT_END=%ESCAPE%#0
+                        set BIG_TEXT_END=%ESCAPE%#5 %+ rem according to https://github.com/microsoft/terminal/issues/19008#issuecomment-2950925025
                         set BIG_OFF=%BIG_TEXT_END%
                         set BIG_TEXT_OFF=%BIG_OFF%
                         set BIG_TOP_OFF=%BIG_OFF%

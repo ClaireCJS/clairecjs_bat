@@ -411,7 +411,11 @@ HandleKey(      KeyName   ,     KeyModeVarName,        key_up_tray_text,        
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; WINAMP ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 🌟🌟🌟 NOT WORKING WELL!! 🌟🌟🌟
 
 
-WinampClass := "ahk_class Winamp v1.x"                                  ; Define the Winamp window class
+WinampClass         := "ahk_class Winamp v1.x"                                  ; Define the window class for     Winamp’s window: main 
+FloatingLyricsClass := "ahk_class FloatingLyr"                                  ; Define the window class for MiniLyrics’s window: floating lyrics 
+
+
+;; DEBUG: F8::ShowWinampState()                                                 
 
 ;; Activate Winamp window —— I set Ctrl-Alt-W in Windows internal hotkeys (2025)
 #w::MinimizeOrRaiseWinamp()
@@ -422,6 +426,9 @@ Pause::SendWinampPause()
 ^!p::SendWinampPause()
 #c::SendWinampPause()
 F9::SendWinampPause()                                                   ; 20250527: TODO remove F9 after we sit with it for awhile for testing purposes
+SendWinampPause() {
+        SendRawCToWinamp()
+}
        
 ;; ⏹⏹ Stop ⏹⏹                                                 
 ^!v::PostMessage(       0x111, 40047, 0, , WinampClass  )               ; Stop
@@ -439,11 +446,8 @@ Media_Next::PostMessage(0x111, 40048, 0, , WinampClass  )
 Media_Prev::PostMessage(0x111, 40044, 0, , WinampClass  )
                                                         
 
-SendWinampPause() {
-        SendRawCToWinamp()
-}
 SendRawCToWinamp() {
-    hwnd := WinExist("ahk_class Winamp v1.x")
+    hwnd := WinExist(WinampClass)
     if !hwnd
         return
 
@@ -457,35 +461,45 @@ SendRawCToWinamp() {
     PostMessage(WM_KEYUP  , VK_C, (SC_C << 16) | 0xC0000000, , hwnd)
 }
 
-
 MinimizeOrRaiseWinamp() {
-        MinimizeOrRaiseWindow("ahk_class Winamp v1.x")
-        MinimizeOrRaiseWindow("MiniLyrics")
+        MinimizeOrRaiseWindow(WinampClass)
+        BringFloatingLyricsToFront()
 }
+
 MinimizeOrRaiseWindow(wintitle) {
     hwnd := WinExist(wintitle)
     if !hwnd
         return
-
     ourWinGetMinMax := WinGetMinMax(hwnd)
-
-    ;; This way restores it:
-    WinMinimize(hwnd)
-    WinRestore(hwnd)
-
-    ;; This way alternates between minimizing and restoring it:
-    ;; if ourWinGetMinMax == -1 {
-    ;;    WinRestore(hwnd)
-    ;; } else {
-    ;;    WinMinimize(hwnd)
-    ;; }
+    if ourWinGetMinMax == -1 {                  ; Window is minimized → restore it
+        WinRestore(hwnd)
+        WinActivate('ahk_id ' hwnd)
+    } else {                                    ; Window is already normal → just bring to front without minimizing
+        WinActivate('ahk_id ' hwnd)
+    }
 }
 
-F8::ShowWinampState()                                                   ; TODO 20250527 remove this after testing
+BringFloatingLyricsToFront() {
+    hwnd := WinExist(FloatingLyricsClass)
+    if hwnd
+        ForceWindowToFront(hwnd)
+}
+ForceWindowToFront(hwnd) {
+    fg_hwnd       := DllCall('user32.dll\GetForegroundWindow'      , 'ptr'                            )
+    fg_thread     := DllCall('user32.dll\GetWindowThreadProcessId' , 'ptr',    fg_hwnd, 'uint*',     0)
+    target_thread := DllCall('user32.dll\GetWindowThreadProcessId' , 'ptr',       hwnd, 'uint*',     0)
+    DllCall('user32.dll\AttachThreadInput'  , 'uint', target_thread, 'uint', fg_thread, 'int'  ,  true)
+    DllCall('user32.dll\BringWindowToTop'   ,                        'ptr',       hwnd                )
+    DllCall('user32.dll\SetForegroundWindow',                        'ptr',       hwnd                )
+    DllCall('user32.dll\AttachThreadInput'  , 'uint', target_thread, 'uint', fg_thread, 'int'  , false)
+}
+
+
+
 ShowWinampState() {
-    hwnd := WinExist("ahk_class Winamp v1.x")
+    hwnd := WinExist(WinampClass)
     if !hwnd
-        return
+        return        
 
     WM_USER       := 0x400
     IPC_ISPLAYING := 104
@@ -493,43 +507,6 @@ ShowWinampState() {
 
     ToolTip("Winamp state: " . result . " (Type: " . Type(result) . ")")
 }
-
-;;    SendWinampPause_NO() {
-;;        hwnd := WinExist("ahk_class Winamp v1.x")
-;;        if !hwnd
-;;            return
-;;    
-;;        WM_USER := 0x400
-;;        IPC_ISPLAYING := 104
-;;        WM_COMMAND := 0x111
-;;        CMD_PLAYPAUSE := 40045
-;;    
-;;        ; Ask Winamp what state it's in (0=stopped, 1=playing, 3=paused)
-;;        state := SendMessage(WM_USER + IPC_ISPLAYING, 0, 0, , hwnd)
-;;    
-;;        if (state == 1 || state == 3) {
-;;            ; Only send Play/Pause if currently playing or paused
-;;            PostMessage(WM_COMMAND, CMD_PLAYPAUSE, 0, , hwnd)
-;;            ToolTip("Play/Pause sent to Winamp")
-;;            SetTimer(() => ToolTip(), -1000)
-;;        } else {
-;;            ToolTip("Winamp is stopped – not pausing - state is")
-;;            SetTimer(() => ToolTip(), -1000)
-;;            ToolTip(state)
-;;        }
-;;    }
-;;    
-;;    SendWinampPauseUGH() {
-;;        hwnd := WinExist("ahk_class Winamp v1.x")
-;;        if hwnd {
-;;            WM_USER := 0x400
-;;            IPC_PAUSE := 100
-;;            SendMessage(WM_USER + IPC_PAUSE, 0, 0, , hwnd)
-;;            PostMessage(WM_USER + IPC_PAUSE, 0, 0, , hwnd)
-;;            ToolTip("Pause sent to Winamp", 10, 10)
-;;            SetTimer(() => ToolTip(), -1000)  ; Clear tooltip after 1s
-;;        }
-;;    }
 
 
 

@@ -1,5 +1,5 @@
-@Echo Off
 @loadBTM ON
+@Echo Off
 @on break cancel
 
 

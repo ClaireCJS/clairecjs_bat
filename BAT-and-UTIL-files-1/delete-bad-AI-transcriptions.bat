@@ -1,6 +1,7 @@
 @loadbtm on
 @Echo Off
 @on break cancel
+@set old_title_dbat=%_title
 
 rem #############################################################################################################
 rem #############################################################################################################
@@ -46,16 +47,23 @@ rem ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ CONFIG: BEHAVIOR TO change whenver you feel 
 
         rem How many hours do you want to go by before it is permissible to run this in a folder again?  It’s a delay-step in productivity
         rem so we reallllllllllllllly don’t like running this unnecessarily:
-                set HOURS_BEFORE_REDO=72                                                    
+                set HOURS_BEFORE_REDO=72                                                  
+                if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set HOURS_BEFORE_REDO=0.01 
 
 rem ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ CONFIG: CONSTANTS THAT SHOULDN’T BE CHANGED AS THEY ARE USED IN OTHER FILES: ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ 
                 set BAD_AI_SEARCH_TRIGGER_FILENAME=.LastInvalidAITranscriptionCheck
+
+rem ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ CONFIG: DEBUGGING: ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ 
+                rem set DEBUG_INSTRUMENTAL=1 %+ rem to trigger debug of same name in get-lyrics subroutines
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 rem Values calculated from config or current folder:
         set MINUTES_BEFORE_REDO=%@EVAL[60 * %HOURS_BEFORE_REDO%]
         set dir_txt=%italics_on%%faint_on%%[_CWD]%faint_off%%italics_off%%ansi_color_normal% 
+
+rem Flags to reset:
+        unset /q DELETING_BAD_AI_TRANSCRIPTIONS
 
 rem Halt condition 1: No subtitles/lyrics/text to even bother searching for bad transcriptions: [controversial: the inclusion of .txt]
         iff not exist *.srt;*.lrc then
@@ -127,6 +135,7 @@ rem Get mode type:
 
 
 rem Create meaningfully-named temporary file:
+        set DELETING_BAD_AI_TRANSCRIPTIONS=1
         set NUM_STEPS=20
         set NUM_STEPS=12
         set NUM_STEPS=13
@@ -143,7 +152,7 @@ rem Create meaningfully-named temporary file:
 rem Determine the command that handles our situation correctly based on the mode:
         iff     "1" == "%BAD_TRANSCRIPTION_DELETE_MODE%" then set PROCESSING_COMMAND_TO_USE=*del /Ns
         elseiff "2" == "%BAD_TRANSCRIPTION_DELETE_MODE%" then set PROCESSING_COMMAND_TO_USE=*del /Ns /p
-        elseiff "3" == "%BAD_TRANSCRIPTION_DELETE_MODE%" then set PROCESSING_COMMAND_TO_USE=call del-maybe-after-review.bat
+        elseiff "3" == "%BAD_TRANSCRIPTION_DELETE_MODE%" then set PROCESSING_COMMAND_TO_USE=call  Del-Maybe-After-Review.bat
         endiff
 
 rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
@@ -182,7 +191,13 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
 
         rem set options for del-maybe-after-review:
                 set EVEN_MORE_PROMPT_TEXT=,%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%Q%ansi_color_prompt%=enqueue
-                set EVEN_MORE_EXTRA_LETTERS=PQ
+                set EVEN_MORE_EXTRA_LETTERS=IP
+
+        rem Set additional Winamp-related options if winamp integration is set:
+                iff "1" == "%WINAMP_INTEGRATION_GENERAL%" .or. "%WINAMP_INTEGRATION_GETLYRICS%" == "1" then
+                        set EVEN_MORE_PROMPT_TEXT=%EVEN_MORE_PROMPT_TEXT%,%ansi_color_bright_green%I%ansi_color_prompt%=₉mark as instrumental
+                        set EVEN_MORE_EXTRA_LETTERS=%EVEN_MORE_EXTRA_LETTERS%Q
+                endiff
 
         rem create scripts:
                 set                                 EXTRACT_FILENAME=sed -s "s/:.*$//ig"
@@ -256,4 +271,5 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 :END
         unset /q step_num
         echos %ansi_color_normal%
-        title %_CWP
+        set DELETING_BAD_AI_TRANSCRIPTIONS=Done
+        title %old_title_dbat%>nul

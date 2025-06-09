@@ -169,6 +169,8 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
     - If you would like to erase those markings, run [reset-genius-search-status-for-all-audio-files.bat](../BAT-and-UTIL-files-1/reset-genius-search-status-for-all-audio-files.bat) in a folder. 
     - If you would like to check your overall lyric/karaoke progress for your entire collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat)
     - If you would like to check how many lyric approvals you did on a certain day, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat)
+    - If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../BAT-and-UTIL-files-1/how-many-AI-transcriptions-have-run-today.bat) 
+
 
 </details>
 
@@ -240,12 +242,11 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 ### NOTE: Many commands have several different aliases, for convenience-of-remembering.
 
-#### 🍀 Five main types of commands exist for this system:
+#### 🍀 Five main types of commands exist for this system: TODOLINK
 
   1. 💾 filename alignment  (mark-all-filenames-as-instrumental.bat, ask-if-these-are-instrumentals.bat, mark-all-filenames-ADS-tag-for-as_instrumental.bat, mark-all-filenames-ADS-tag-for-NOT-as_instrumental.bat, unmark-all-filenames-ADS-tag-for-as_instrumental.bat)
-) TODOLINK
   1. 🎤️ Lyric alignment  ([get-lyrics](../BAT-and-UTIL-files-1/get-lyrics.bat),  [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat) etc)
-  1. 🧏 Karaoke generation  ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
+  1. 🧏 Karaoke alignment ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
   1. 🕵 Lyric   Auditing ([review-lyrics](../BAT-and-UTIL-files-1/review-files.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
   1. 🕵 Karaoke Auditing ([review-subtitles](../BAT-and-UTIL-files-1/review-subtitles.bat), [check-for-missing-karaoke](../BAT-and-UTIL-files-1/check-for-missing-karaoke.bat), etc)
   
@@ -257,7 +258,7 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 🍀 Uncategorized commands:
 
-  1. ([thorough.bat](../BAT-and-UTIL-files-1/thorough.bat) - sets/unsets environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.  The most SRT files I’ve created in a day in thorough mode is 480, and that required some amount of attention from wake to sleep.
+  1. ([thorough.bat](../BAT-and-UTIL-files-1/thorough.bat) - sets/unsets the ```%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%``` environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.  The most SRT files I’ve created in a day in thorough mode is 480, and that required some amount of attention from wake to sleep.
 
 
 
@@ -295,6 +296,7 @@ The opposite of the last script. This marks all filenames in a folder with an AD
 ### 🌟 [unmark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/unmark-all-filenames-ADS-tag-for-as_instrumental.bat) 
 
 If we screwed up with either of the last 2 scripts, this removes our screwup from every every file in the folder by completely removing the is_instrumental ADS tag from every audio file in the folder. This resets our “Y”/“N” answers for ```ask-if-these-are-instrumentals``` and allows us to start the process over for any filenames which have been flagged solely with ADS tags.
+
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -390,12 +392,6 @@ It is good to prep your entire collection with this, by running it in every fold
 Randomly walks a folder tree, obtaining/reviewing lyrics, with the intent of approving lyrics for later automatic AI transcription.  
 (It is reviewing lyrics in the case of predownload-all-lyrics-in-all-subfolders.bat having already downloaded some lyrics. And it is obtaining lyrics in the case of those lyrics not existing or not being sufficient.)
 
-### [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat)
-Report to check your overall lyric/karaoke progress for your entire music collection
-
-### [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat)
-Report to check how many lyric approvals you did on a certain day
-
 ### [post-lyricless-clean.bat] (../BAT-and-UTIL-files-1/delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat)
 
 Utility to delete lyric/subtitle sidecar files that should no longer exist at this point.
@@ -404,6 +400,13 @@ These include lyric/subtitle files of audio files whose lyric*less*ness status i
 and lyric/subtitle files of audio files that are instrumentals (removed with [delete-sidecar-lyric-and-subtitle-files-for-audiofiles-that-are-instrumentals](../BAT-and-UTIL-files-1/delete-sidecar-lyric-and-subtitle-files-for-audiofiles-that-are-instrumentals.bat))
 
 Longer explanation: When this system marks a song as lyriclessness (aka “lyrics unfindeable, proceed with AI-only transcription”) it deletes any existing sidecar & lyric files. However, it is still possible for invalid sidecar lyric/subtitle files to exist for songs marked lyricless, if an external utility like LRCget was used to downloaded incorrect LRC/TXT files (for example, attaching a LRC file for the wrong song, or a studio version’s LRC to a live version of the song). Thus, this tool grew out of necessity. Instrumental files need the same treatment too.
+
+
+### 🌟 Lyric-related Reports:
+
+If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
+
+If you would like to check how many lyric approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
 
 </details>
 
@@ -452,7 +455,7 @@ Create karaoke files for **all songs** *in a playlist* that do not have them —
 
 ### 🌟 [delete-bad-ai-transcriptions](../BAT-and-UTIL-files-1/delete-bad-ai-transcriptions):
 
-This searches for bad karaoke transriptions & deletes them with a configurable prompting level. 
+This searches for bad karaoke transriptions in the current folder & deletes them with a configurable prompting level. 
 
 This is automatically run at various points (such as before and/or after creating karaoke files), and should also be run on the entire music collection when the project is completed. 
 
@@ -461,6 +464,11 @@ Bad karaoke transcriptions include:
   2. Either LRCget or LyricsGenius likes to put Chris DeBurg’s “Lady In Red” and Voivoid’s “Black City” as the LRC file for a TON of songs—and Id on’t know why. This will flag an error unless the filename has “Lady In Red” or “Black City” in it, in which case it’s the right song.
   3. TODO anything else?
 
+
+### 🌟 [bad-transcription-hunter.bat](../BAT-and-UTIL-files-1/bad-transcription-hunter.bat):
+
+This searches an entire folder tree (in random order) for bad karaoke transcriptions.
+										 
 
 ### 🌟 [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat):
 
@@ -479,6 +487,13 @@ Final review includes using the special modes incorporated into the [print_with_
 If Winamp Integration is enabled, runs [WhisperTimeSync.bat](../BAT-and-UTIL-files-1/WhisperTimeSync.bat) on the currently-playing song.
 
 </details>
+
+### 🌟 Karaoke-related Reports
+
+If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
+
+If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../BAT-and-UTIL-files-1/how-many-AI-transcriptions-have-run-today.bat) 
+
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -541,8 +556,8 @@ Displays the lyric*lessness* status of a song.  This is to track whether we’ve
 Not very useful to the end-user, but this does what the title says. Converts a playlist to only songs that have karaoke (LRC/SRT) sidecar files, but which do not have lyric (TXT) sidecar files. The main purpose for this is to be able to find testdata for [srt2txt.bat](../BAT-and-UTIL-files-1/srt2txt.bat) / [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py) and [lrc2txt.bat](../BAT-and-UTIL-files-1/lrc2txt.bat)/ [lrc2txt.py](../BAT-and-UTIL-files-1/lrc2txt.py)
 
 
+### 🌟 Lyric-related Reports:
 
-### 🌟 Reports
 If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 
 If you would like to check how many lyric approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
@@ -583,10 +598,13 @@ Creates a new playlist consisting of all the files in the original playlist that
 Asks if we want to start getting lyrics for that playlist.
 
 
-### 🌟 Reports
+### 🌟 Karaoke-related Reports
+
 If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 
-: If you would like to check how many karaoke approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
+If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../BAT-and-UTIL-files-1/how-many-AI-transcriptions-have-run-today.bat) 
+
+
 
 </details>
 

@@ -1,5 +1,5 @@
-@Echo OFF
 @loadBTM on
+@Echo OFF
 
 rem CONFIG:
         rem ⓿ Whether to pause after running our previewer:

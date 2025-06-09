@@ -1,6 +1,7 @@
+@loadbtm on
+@echo %ansi_color_bright_green%-—━━━━━━━━━━━━━━━RN.BAT: START -—━━━━━━━━━━━━━━━%ansi_color_normal%
 @Echo Off
 @on break cancel
-@loadbtm on
 
 rem %COLOR_DEBUG% %+ echo * EXTRA_NAME is %EXTRA_NAME% ... YOUTUBE_MODE=%YOUTUBE_MODE% %+ %COLOR_NORMAL%
 rem %COLOR_DEBUG% %+ echo ARGS: %*
@@ -38,7 +39,7 @@ rem Get/react to these arguments that we should do nothing if passed:
         if            "%1"   == ""   goto :END_of_rn
         if "%@UNQUOTE["%1"]" == "."  goto :END_of_rn
         if "%@UNQUOTE["%1"]" == ".." goto :END_of_rn
-        if  not exist  %1            goto :DNE
+        if  not exist  %1 .and. not exist "%@UNQUOTE["%1"]"            goto :DNE
 
 rem Get/react to recursive arguments:
                                                                            set END_NAME_SPECIFIED=0
@@ -254,7 +255,7 @@ rem     ━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         :DNE
                 if "%3" == "recursive" goto :END_of_rn
-                call warning "No action taken, because file does not exist: %lq%%1%rq% " 2
+                call warning "%faint_on%[rn]%faint_off% No action taken, because file does not exist: %lq%%1%rq% " 2
         goto :END_of_rn
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -317,3 +318,4 @@ rem DEBUG:
         setdos /x0
 
 
+@echo %ansi_color_bright_green%-—━━━━━━━━━━━━━━━RN.BAT: END -—━━━━━━━━━━━━━━━%ansi_color_normal%

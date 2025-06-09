@@ -322,8 +322,8 @@ REM Actually display the message:
                 rem I opened this bug report with Windows Terminal to fix it: 
                 rem https://github.com/microsoft/terminal/issues/17771
                 rem We assemble the double-height lines manually here, without using bigecho.bat, to have the most control over that bug:
-                echoerr %@ansi_move_to_col[0]%BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%
-                echoerr %@ansi_move_to_col[0]%BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+                echoerr %@ansi_move_to_col[0]%BIG_TOP%%BIG_ECHO_MSG_TO_USE%%ANSI_RESET%
+                echoerr %@ansi_move_to_col[0]%BIG_BOT%%BIG_ECHO_MSG_TO_USE%%ANSI_RESET%%ANSI_EOL%
                 rem call bigecho %BIG_ECHO_MSG_TO_USE%
                 rem TODO bigechoerr.bat!
         )
@@ -414,8 +414,8 @@ REM Actually display the message:
                         if "%TYPE%"     == "UNIMPORTANT" (echoserr %FAINT_OFF%)
                         if "%TYPE%"     == "SUCCESS"     (echoserr %BOLD_OFF%)
                         if "%TYPE%"     == "CELEBRATION"  (
-                                if %msgNum == 1 (echoserr %BIG_TEXT_END%%ANSI_RESET%``)
-                                if %msgNum == 2 (echoserr %BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%``)
+                                if %msgNum == 1 (echoserr %ANSI_RESET%``)
+                                if %msgNum == 2 (echoserr %ANSI_RESET%%ANSI_EOL%``)
                         )
 
                         echoerr %ANSI_COLOR_NORMAL%%ANSI_RESET%%ANSI_ERASE_TO_EOL%
@@ -425,8 +425,8 @@ REM Actually display the message:
         REM display our closing big-header, if we are in big-header mode:
                 rem if %BIG_HEADER eq 1 (set COLOR_TO_USE=%OUR_COLORTOUSE% %+ call bigecho ****%DECORATOR_LEFT%%@UPPER[%TYPE%]%[DECORATOR_RIGHT]****%ANSI_RESET%%ANSI_ERASE_TO_EOL%)
                 iff %BIG_HEADER eq 1 then
-                        echoerr %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
-                        echoerr %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%BIG_TEXT_END%%ANSI_RESET%%ANSI_EOL%
+                        echoerr %BIG_TOP%%BIG_ECHO_MSG_TO_USE%%ANSI_RESET%%ANSI_EOL%
+                        echoerr %BIG_BOT%%BIG_ECHO_MSG_TO_USE%%ANSI_RESET%%ANSI_EOL%
                 endiff
 
         REM If big mode, go back to print the 2ⁿᵈ/lower-½ line:
@@ -434,7 +434,7 @@ REM Actually display the message:
 
 
         
-REM Post-message delays and pauses
+REM Post-message delays and pauses:
         echos %ANSI_COL0R_MAGENTA%
         set print_message_running=10
         setdos /x0
@@ -473,6 +473,31 @@ REM Post-message beeps and sound effects
     REM Do delay:
         if %DO_DELAY gt 0 .and. 1 ne %SILENT_MESSAGE (delay %DO_DELAY)
     
+
+rem Do animation for big ones:
+        iff "1" == "%BIG_MESSAGE%" .or. "%TYPE%" == "CELEBRATION" then
+                        set min_delay=50 
+                        set max_delay=75
+                        set num_anims=10                               
+                        set color=%[ANSI_COLOR_%TYPE%] 
+                        do count = 1 to %num_anims% by 1 (
+                                rem set color=%%@RANDFG_SOFT[] .. random colors each time wasn’t as cool as I’d hoped
+                                if %count% eq %num_anims% set color=%[ANSI_COLOR_%TYPE%] 
+                                
+
+                                echos %@ANSI_MOVE_UP[2]
+                                repeat 2 echo %WIDE_ON%%color%%DECORATED_MESSAGE%%ansi_color_reset
+
+                                delay /m %@RANDOM[%min_delay%,%max_delay%]
+
+                                echos %@ANSI_MOVE_UP[2]
+                                echo %BIG_TOP%
+                                echo %BIG_BOT%
+
+                                delay /m %@RANDOM[%min_delay%,%max_delay%]
+                        )
+        endiff
+
 REM Logging
         iff "%TYPE%" == "FATAL_ERROR" then
                 if not defined   LOGS   set        logs=c:\logs

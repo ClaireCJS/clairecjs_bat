@@ -1,5 +1,5 @@
-@rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
 @loadbtm on
+@rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
 @Echo      off
 ON BREAK goto :cmfk_onbreak
 
@@ -229,14 +229,14 @@ rem ═════════════════════════�
                 iff exist "%KARAOKE_FOLDER_LOCKFILE_FILENAME%" then
                         echo %ANSI_COLOR_WARNING% %EMOJI_WARNING% Folder-level lockfile detected! Already doing work in %italics_on%%[_CWP]%italics_off%! %EMOJI_WARNING% %ANSI_COLOR_NORMAL%        
                         gosub lockfile_folderlevel_read_values
-                        echo %ANSI_COLOR_ADVICE%%star2% Use ‘force’ option to continue anyway %ansi_color_normal%
                         rem TODO write-up the force option if we ever get into that istuation
                         unset /q ANSWER
                                 iff "1" == "%lockfile_folderlevel_expired%" then
                                         gosub lockfile_folderlevel_delete_lockfile
                                         return
                                 endiff
-                        call AskYN "Delete it and proceed anyway" no 10
+                        echo %ANSI_COLOR_ADVICE%%star2% Use ‘force’ option to continue anyway %ansi_color_normal%
+                        call AskYN "Delete lockfile & proceed anyway" no 10
                                 rem Automatic deletion if it’s expired:
                                 iff "Y" == "%ANSWER%" then
                                         gosub lockfile_folderlevel_delete_lockfile
