@@ -343,16 +343,20 @@ rem —————————————————————————�
                         rem CMFL_Audiofile checks:
                                 rem Reject if the file is one of our trash filenames:
                                         iff "1" == "%@RegEx[[\(\[]instrumental[\)\]],%@UNQUOTE[%CFML_AudioFile%]]" then
-                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an instrumental:   %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an instrumental: %zzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
                                         iff "1" == "%@RegEx[[\(\[\\]chiptunes?[\)\]\\],%@FULL[%@UNQUOTE[%CFML_AudioFile%]]]" then
-                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is a chiptune:   %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is a chiptune: %zzzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             return                                
+                                        endiff
+                                        iff "1" == "%@RegEx[[\(\[\\]sound effect?[\)\]\\],%@FULL[%@UNQUOTE[%CFML_AudioFile%]]]" then
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is a sound effect: %zzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
                                 rem Reject if the file doesn’t exist at all:                                
                                         iff not exist "%@UNQUOTE["%CFML_AudioFile%"]" then
-                                             echo %ansi_color_yellow%%EMOJI_CROSS_MARK% songfile doesn’t exist:        %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             echo %ansi_color_yellow%%EMOJI_CROSS_MARK% songfile doesn’t exist: %zzzzzzzzzzzzzz%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return
                                         endiff
                                 rem Reject if the file is one of our trash filenames:

@@ -1465,6 +1465,8 @@ rem       COLOR_{MESSAGETYPE}_HEX ————— WHERE USED: Used in the cursor
         SET COLOR_WARNING_LESS=  color bright yellow  on black  %+ set ANSI_COLOR_WARNING_LESS=%ANSI_RESET%%ANSI_BRIGHT_YELLOW%%ANSI_BACKGROUND_BLACK%               %+ set COLOR_WARNING_SOFT=%COLOR_WARNING_LESS% %+ set ANSI_COLOR_WARNING_SOFT=%ANSI_COLOR_WARNING_LESS% %+ REM 2020606-
                                                                    set      COLOR_WARNING_LESS_HEX=a8a800
                                                                    set      COLOR_WARNING_SOFT_HEX=a8a800
+                                                                   set ANSI_COLOR_WARNING_LESS_FG=%ANSI_BRIGHT_YELLOW%
+                                                                   set ANSI_COLOR_WARNING_LESS_BG=%ANSI_BACKGROUND_BACK%
 
 rem —————— Grep coloring ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 

@@ -296,6 +296,8 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
     Starts with the maximum possible columns and decreases until a fit is found.
     """
 
+    DEBUG_DETERMINE_OPTIMAL_COLUMNS = False
+
     #default to 1 col if no lines
     if not lines:
         print(f"⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ No lines❓❓❓ ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠")
@@ -303,31 +305,35 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
 
     #ensure global var has been calculated
     if avg_line_width == 0: avg_line_width = 1
-    if not avg_line_width and avg_line_width !=  0: print(f"⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ Why is avg_line_width == '{avg_line_width}' ???? ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠")
-    elif   VERBOSE                                : print(f"Avg line width: {avg_line_width}")
+    if not avg_line_width  and  avg_line_width != 0: print(f"⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ Why is avg_line_width == '{avg_line_width}' ???? ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠")
+    elif VERBOSE or DEBUG_DETERMINE_OPTIMAL_COLUMNS: print(f"💦Avg line width: {avg_line_width}")
 
     #get max line length
     max_line_length = max(wcsarraywidth(line) for line in lines)
-    if verbose: print(f"Max line length: {max_line_length}")
+    if verbose or DEBUG_DETERMINE_OPTIMAL_COLUMNS: print(f"💥Max line length: {max_line_length}, console_width={console_width}")
 
     #get max possible columns, then triple it to be sure
     max_possible_columns = console_width // avg_line_width                           # Start with the maximum possible columns based on the average line
-    max_possible_columns = max_possible_columns * 3
+
+    # what if we removed this line... max_possible_columns = max_possible_columns * 3
+    # and replaced it with: #GOATGOAT
+    max_possible_columns = max_possible_columns + 2
 
     #make sure max possible columns has been set
     if max_possible_columns == 0: max_possible_columns = 1
-    if verbose: INTERNAL_LOG = INTERNAL_LOG + f"Initial max possible columns: {max_possible_columns}"
+    if verbose or DEBUG_DETERMINE_OPTIMAL_COLUMNS: INTERNAL_LOG = INTERNAL_LOG + f"💌Initial max possible columns: {max_possible_columns}"
 
     #determine max possible columns
     for cols in range(max_possible_columns, 0, -1):
         rows = ceil(len(lines) / cols)
         required_width = cols * max_line_length + (cols -1) * divider_length
         if required_width <= console_width and rows <= desired_max_height:
-            if verbose: print(f"🔍 ??? Optimal columns determined: {cols} with {rows} rows per column")
+            if verbose or DEBUG_DETERMINE_OPTIMAL_COLUMNS: print(f"🔍 ??? Optimal columns determined: {cols} with {rows} rows per column")
             #eturn cols #chatgpt20250302
             return max_possible_columns
 
     #eturn cols #chatgpt20250302
+    if verbose or DEBUG_DETERMINE_OPTIMAL_COLUMNS: print(f"‼️‼️‼️‼️‼️‼️ ??? max_possible_columns ===═==══{max_possible_columns}")
     return max_possible_columns
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
@@ -1029,6 +1035,7 @@ def get_max_stripped_line_width(text):
     return max((len(strip_ansi(line)) for line in text.splitlines()), default=0)
 
 
+
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
@@ -1068,7 +1075,12 @@ def main():
 
     # Calculate avg line width
     avg_line_width = wcsarraywidth(input_data, mode="average")
-    if args.verbose: print(f"Avg line width: {avg_line_width}")
+    if args.verbose: print(f"Avg line width1: {avg_line_width}") # goat
+
+    tmp_stripped_input_data = [strip_ansi(line) for line in input_data]
+    avg_line_width2 = wcsarraywidth(tmp_stripped_input_data, mode="average")
+    if args.verbose: print(f"Avg line width2: {avg_line_width2}") # goat
+
 
     # Determine the number of columns
     desired_max_height = console_height - ROW_PADDING                           # total height of output before we *must* attempt wrapping columns [which currently always happens anyway]
@@ -1169,7 +1181,7 @@ def main():
 
         if not STRIPE:
             widest_output_line = get_max_stripped_line_width(output)
-            print(f"🥒 widest_output_line for columns={columns} is “{widest_output_line}” ...  console_width={console_width} 🥒")   # copy
+            if VERBOSE: INTERNAL_LOG = ITERNAL_LOG + f"🥒 ❷ widest_output_line for columns={columns} is “{widest_output_line}” ...  console_width={console_width} 🥒"
             if widest_output_line > console_width: is_too_wide = True
 
         #now that we have rendered our row, figure out if we are done or not:
@@ -1194,7 +1206,7 @@ def main():
         print(INTERNAL_LOG)
     if VERBOSE or DEBUG_VERBOSE_COLUMNS:
         print(f"🥒 num_columns={columns} ... column_widths={column_widths} 🥒")
-        print(f"🥒 widest_output_line={widest_output_line} ...  🥒")
+        print(f"🥒 ❶ widest_output_line={widest_output_line} ...  🥒")
 
     if VERBOSE:
         #print(f"🥒  output=🥒 {output}\n")

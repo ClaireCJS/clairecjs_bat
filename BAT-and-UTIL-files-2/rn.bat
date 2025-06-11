@@ -1,6 +1,6 @@
 @loadbtm on
 @echo %ansi_color_bright_green%-—━━━━━━━━━━━━━━━RN.BAT: START -—━━━━━━━━━━━━━━━%ansi_color_normal%
-@Echo Off
+@Echo off
 @on break cancel
 
 rem %COLOR_DEBUG% %+ echo * EXTRA_NAME is %EXTRA_NAME% ... YOUTUBE_MODE=%YOUTUBE_MODE% %+ %COLOR_NORMAL%
@@ -19,7 +19,7 @@ rem Validate environment (once):
                 rem pause "goat debug about to val env vars"
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET 
                 rem pause "goat debug about to val path"
-                call validate-in-path ansi-on ansi-off warning fatal_error set-cursor print-if-debug print-message eset-alias
+                call validate-in-path ansi-on ansi-off warning fatal_error set-cursor print-if- DEBUG print-message eset-alias
                 set  validated_rn=5
         endiff
 
@@ -52,7 +52,7 @@ rem Get/react to auto argument:
 
 rem Count files matching parameter:
     set FILES=%@FILES["%@UNQUOTE[%1]"] 
-    if defined debug call print-if-debug "FILES is “%FILES%”"
+    if defined debug call print-if- DEBUG "FILES is “%FILES%”"
     set ISDIR=0
     if  isdir    %1 goto :IsDir
     if %FILES% gt 1 goto :IsManyFiles
@@ -61,8 +61,9 @@ rem Count files matching parameter:
 
 rem React to count accordingly?
     :IsManyFiles
-            rem echo for /a: %%fi in (%1)                                 call rn %as_instrmental_param% "%fi" %2 recursive
-                     for /a:  %fi in (%1) if exist %as_instrmental_param% call rn %as_instrmental_param% "%fi" %2 recursive
+                for /a: %%fi in (%1)                                 echo call rn %as_instrmental_param% "%fi" %2 recursive
+rem             for /a:  %fi in (%1) if exist %as_instrmental_param%      call rn %as_instrmental_param% "%fi" %2 recursive
+                for /a:  %fi in (%1)                                      call rn %as_instrmental_param% "%fi" %2 recursive
             gosub :after
     goto :END_of_rn
 
@@ -80,7 +81,7 @@ rem React to count accordingly?
 
         rem Save old filename:
                 set                                               FILENAME_OLD=%@UNQUOTE["%1"]                             
-                set            FILENAME_OLD_TRUENAME=%@TRUENAME["%FILENAME_OLD%"]                                            %+ if %DEBUG gt 0 (call print-if-debug "[About to validate-env-var FILENAME_OLD_TRUENAME (%FILENAME_OLD_TRUENAME%)]")
+                set            FILENAME_OLD_TRUENAME=%@TRUENAME["%FILENAME_OLD%"]                                            %+ if %DEBUG gt 0 (call print-if- DEBUG "[About to validate-env-var FILENAME_OLD_TRUENAME (%FILENAME_OLD_TRUENAME%)]")
                 if not exist "%FILENAME_OLD_TRUENAME%" call validate-environment-variable FILENAME_OLD_TRUENAME
 
         rem Set new filename:

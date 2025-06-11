@@ -475,27 +475,13 @@ REM Post-message beeps and sound effects
     
 
 rem Do animation for big ones:
+  echo off
         iff "1" == "%BIG_MESSAGE%" .or. "%TYPE%" == "CELEBRATION" then
                         set min_delay=50 
                         set max_delay=75
                         set num_anims=10                               
                         set color=%[ANSI_COLOR_%TYPE%] 
-                        do count = 1 to %num_anims% by 1 (
-                                rem set color=%%@RANDFG_SOFT[] .. random colors each time wasn’t as cool as I’d hoped
-                                if %count% eq %num_anims% set color=%[ANSI_COLOR_%TYPE%] 
-                                
-
-                                echos %@ANSI_MOVE_UP[2]
-                                repeat 2 echo %WIDE_ON%%color%%DECORATED_MESSAGE%%ansi_color_reset
-
-                                delay /m %@RANDOM[%min_delay%,%max_delay%]
-
-                                echos %@ANSI_MOVE_UP[2]
-                                echo %BIG_TOP%
-                                echo %BIG_BOT%
-
-                                delay /m %@RANDOM[%min_delay%,%max_delay%]
-                        )
+                        do count = 1 to %num_anims% by 1 (gosub do_the_wiggle)
         endiff
 
 REM Logging
@@ -551,6 +537,21 @@ goto :skip_subroutines
 
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :do_the_wiggle []
+                set unused_color=%%@RANDFG_SOFT[] .. random colors each time wasn’t as cool as I’d hoped
+                if %count% eq %num_anims% set color=%[ANSI_COLOR_%TYPE%] 
+                
+                echos %@ANSI_MOVE_UP[2]
+                repeat 2 echo %WIDE_ON%%color%%DECORATED_MESSAGE%%ansi_color_reset
+
+                delay /m %@RANDOM[%min_delay%,%max_delay%]
+
+                echos %@ANSI_MOVE_UP[2]
+                echo %BIG_TOP%
+                echo %BIG_BOT%
+
+                delay /m %@RANDOM[%min_delay%,%max_delay%]
+        return
         :DemoSuite
                 cls
                 echoerr.

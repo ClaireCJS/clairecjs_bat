@@ -1,3 +1,3 @@
 @loadbtm on
 @on break cancel
-@call review-files %* *.srt;*.lrc
+@call review-files -wh -st *.srt;*.lrc

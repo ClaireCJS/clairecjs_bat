@@ -7,6 +7,7 @@ rem Set colors so less_important works:
         rem nahhh too complicated to do it this early call set-colors force
 
 rem Set cosmetics:
+        call             tcstart.bat⁄
         call      c:\bat\set-ansi.bat force
         call    c:\bat\set-emojis.bat force
         call c:\bat\print-message.bat vars_only
@@ -48,6 +49,16 @@ rem Girder?
         if     isdir c:\girder (call start-girder)
         if not isdir c:\girder (call warning "not starting girder")
 
+
+
+rem Map drives
+        call important "Mapping drives..."
+        if isfunction randcursor (echos %@RANDCURSOR[])
+        rem 🚫 *start "" /min c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
+        REM call helper-start c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
+        call map-drives once
+        gosub done_with_step
+
                 
 rem Things for our primary machines only:
         iff "%machinename%" == "WYVERN" .or. "%machinename%" == "DEMONA" then               
@@ -87,13 +98,6 @@ REM Common programs to start before we do our backups:
         call chrome
         call opera
 
-rem Map drives
-        call important "Mapping drives..."
-        if isfunction randcursor (echos %@RANDCURSOR[])
-        rem 🚫 *start "" /min c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
-        REM call helper-start c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
-        call map-drives once
-        gosub done_with_step
 
 
 

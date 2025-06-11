@@ -1,6 +1,6 @@
+@loadbtm on
 @Echo off
- rem on error break
- on break cancel
+@on break cancel
  goto :begin
 
 

@@ -15,7 +15,8 @@ rem CONFIGURATION: COSMETIC ALIGNMENT:
         set lines_to_tail_magic_number=18 %+ rem was good until changing reporting methods
         set lines_to_tail_magic_number=22 %+ rem tracker songs is 1ˢᵗ line
         set lines_to_tail_magic_number=24 %+ rem instrumental is first line - 2 more than 22
-        set lines_to_tail_magic_number=26 %+ rem 
+        set lines_to_tail_magic_number=26 %+ rem 2025/05/×× fix
+        set lines_to_tail_magic_number=25 %+ rem 2025/06/11 fix
         set lines_to_tail=%@FLOOR[%@EVAL[(%_ROWS - %lines_to_tail_magic_number%) / 2]] %+ rem how many lines from each progress logfile to show with the “tail” command
         set mover=%@ANSI_MOVE_TO_COL[38]                                               %+ rem How far over to move when displaying file counts
 
@@ -55,18 +56,19 @@ rem Re-create variable if not included in environment:
 
 rem Clean up trash files first
         if "%1" == "quick" .or. "%1" == "fast"  goto :skip_preclean
-        cls
-        call clean-up-AI-transcription-trash-files-everywhere.bat do_not_delete_BATs
-        :skip_preclean
-        cls
+                rem Get rid of our previous files:
+                        set del=*del /p
+                        if exist           "%full_filelist%" %DEL%           "%full_filelist%"
+                        if exist           "%text_filelist%" %DEL%           "%text_filelist%"
+                        if exist "%transcribeable_filelist%" %DEL% "%transcribeable_filelist%"
+                        if exist  "%transcription_filelist%" %DEL%  "%transcription_filelist%"
+                        rem NOOOOOO!!! if exist "%report_log%" %DEL% "%report_log%"
 
-rem Get rid of our files:
-        set del=*del /p
-        if exist "%full_filelist%" %DEL% "%full_filelist%"
-        if exist "%text_filelist%" %DEL% "%text_filelist%"
-        if exist "%transcribeable_filelist%" %DEL% "%transcribeable_filelist%"
-        if exist "%transcription_filelist%" %DEL% "%transcription_filelist%"
-        rem NOOOOOO!!! if exist "%report_log%" %DEL% "%report_log%"
+                rem Get rid of transcription-related files that could throw off our stats:
+                        cls
+                        call clean-up-AI-transcription-trash-files-everywhere.bat do_not_delete_BATs
+                        cls
+        :skip_preclean
         
 
 
@@ -225,7 +227,7 @@ goto :END
                         echos %@FORMAT[6,%@COMMA[%@FORMATn[5.0,%COUNT%]]]
 
                 rem percentage:
-                        rem echo -DEBUG: FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE=“%FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE%” FOR %NATURE%
+                        rem echo - DEBUG: FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE=“%FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE%” FOR %NATURE%
                         if %FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE% gt 0 goto :has_value_beg
                                                                             goto :has_value_end
                                 :has_value_beg

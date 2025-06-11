@@ -1,10 +1,22 @@
 @loadbtm on
 @Echo off
+@on break cancel
 rem timer /7 on
 
 rem MAJOR speedup by skipping this bat file if it's a transient shell —— special thanks to the helpful folks at the JPSoft forums for this one:
         if "%_PIPE %_TRANSIENT" != "0 0" (call c:\bat\setpath %+ QUIT)
+        if "%_PIPE %_TRANSIENT" == "0 0" goto :NonTransient
+        if "force"              == "%1"  goto :NonTransient
+        
+        :Transient
+        echo This doesn’t happen actually
+         call c:\bat\setpath 
+         call c:\bat\set-ansi force
+         call c:\bat\set-emoji force
+         QUIT
+        *QUIT
 
+        :NonTransient
 
 rem SET UP FOR ENVIRONMENT.BAT
         set OS=10
@@ -12,11 +24,24 @@ rem SET UP FOR ENVIRONMENT.BAT
         SET MACHINENAME=DEMONA
         set LOGGING_LEVEL=None
         set MOST_SECONDS_TCC_WOULD_EVER_TAKE_TO_START_UP=6
+        
+        
 
 rem ::::: RUN ENVIRONMENT.BAT, WITH THE ONE PRE-REQUISITE THAT THE MACHINE NAME IS SET:
     title TCC
-    call c:\bat\environm.btm tcstart
 
+    if exist "%1" .and. "%@EXT[%1]" == "BAT" (
+        echo should run env and %1 with params %2$?
+        call c:\bat\environm.btm force
+        call %1$
+        goto :Clean_Up
+    ) 
+   if "%1" == "force" (
+            shift
+            call c:\bat\environm.btm force tcstart
+   ) else (
+            call c:\bat\environm.btm tcstart
+   )
 
 
 
@@ -57,7 +82,7 @@ rem                  * We addressed this by renaming the script to a unique file
 
 
 
-
+:Clean_Up
 
             set                    AUTORUN_SCRIPT=c:\tcmd\runonce-post-split.bat
             if exist              %AUTORUN_SCRIPT% (
@@ -104,3 +129,4 @@ goto :Skip
 
 :END
 rem timer /7 off
+title TCC

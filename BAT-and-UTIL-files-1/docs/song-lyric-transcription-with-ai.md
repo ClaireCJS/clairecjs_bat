@@ -419,7 +419,7 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 create-srt {*songfile*} / [create-srt-from-file {*songfile*}](../BAT-and-UTIL-files-1/create-srt-from-file.bat):
+### 🌟 THE 1ˢᵗ BIG ONE: create-srt {*songfile*} / [create-srt-from-file {*songfile*}](../BAT-and-UTIL-files-1/create-srt-from-file.bat):
 
 **Create karaoke for one audio file.**
 Performs the AI transcription process for a single song file.
@@ -441,7 +441,7 @@ If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/30666
 If lyrics (or lyriclessness) are pre-approved, creation is automatic.
 
 
-### 🌟 cmk / gmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../BAT-and-UTIL-files-1/create-the-missing-karaokes-here.bat):
+### 🌟 THE 2ⁿᵈ BIG ONE: cmk / gmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../BAT-and-UTIL-files-1/create-the-missing-karaokes-here.bat):
 
 Create karaoke files for **all songs** *in the current folder* that do not have them
 Songs that have pre-approved lyrics go through the process automatically.
@@ -453,27 +453,12 @@ To do for an entire folder tree, preceed with ```sweep ```
 Create karaoke files for **all songs** *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. Files are run in random order, to prevent alphabetical bias, and transcriptions are done automatically if lyrics are pre-approved (or if lyriclessness is pre-approved).
 
 
-### 🌟 [delete-bad-ai-transcriptions](../BAT-and-UTIL-files-1/delete-bad-ai-transcriptions):
-
-This searches for bad karaoke transriptions in the current folder & deletes them with a configurable prompting level. 
-
-This is automatically run at various points (such as before and/or after creating karaoke files), and should also be run on the entire music collection when the project is completed. 
-
-Bad karaoke transcriptions include:
-  1. Files that contain certain commonly-hallucinated-by-AI phrases can be consistently serached for to find bad transcriptions. “And now we’re back” is one of them.
-  2. Either LRCget or LyricsGenius likes to put Chris DeBurg’s “Lady In Red” and Voivoid’s “Black City” as the LRC file for a TON of songs—and Id on’t know why. This will flag an error unless the filename has “Lady In Red” or “Black City” in it, in which case it’s the right song.
-  3. TODO anything else?
-
-
-### 🌟 [bad-transcription-hunter.bat](../BAT-and-UTIL-files-1/bad-transcription-hunter.bat):
-
-This searches an entire folder tree (in random order) for bad karaoke transcriptions.
-										 
-
 ### 🌟 [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat):
 
 Rarely used side-utility: Creates karaoke files for **all songs** in a *folder tree* without using lyric files or voice detection (VAD). This is useful for large repositories of sound clips, small samples from movies, or audiobooks..... Where you just want to get a lot done without the extra overhead of operating the Lyric Alignment system, andwithout the extra time delay of loading the VAD (voice detection) model. This will get a LOT done FAST, but it will be sloppy.
 
+										 
+## 🌟 Karaoke Repair
 
 ### 🌟 [WhisperTimeSync.bat](../BAT-and-UTIL-files-1/WhisperTimeSync.bat) {bad_subtitle_file} {good_text_file} {optional_audio_file}:
 
@@ -488,11 +473,28 @@ If Winamp Integration is enabled, runs [WhisperTimeSync.bat](../BAT-and-UTIL-fil
 
 </details>
 
-### 🌟 Karaoke-related Reports
+
+
+## 🌟 Karaoke-related Reports
 
 If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 
 If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../BAT-and-UTIL-files-1/how-many-AI-transcriptions-have-run-today.bat) 
+
+
+## 🌟 Sample task-oriented “task-runner” scripts:
+
+### 🌟 [work-incoming-karaoke.bat](../BAT-and-UTIL-files-1/work-incoming-karaoke.bat)
+
+Goes to my incoming folder and works all the folders in random order, generating karaoke in THOROUGH mode.
+
+### 🌟 [work-nonmusic-karaoke.bat](../BAT-and-UTIL-files-1/work-nonmusic-karaoke.bat)
+
+Goes to my NON-MUSIC/audiobooks folder and works all the folders in random order, generating karaoke in NON-THOROUGH mode.
+
+### 🌟 [work.bat](../BAT-and-UTIL-files-1/work.bat)
+
+A framework for doing different kinds of work related to this system. Can also be used for other kinds of work. You type “work” and questions or asked, or type “work karaoke” or “work lyrics” to tackle those general tasks in the specific way the script does.  It helps limit the “chunk size” of how much work we bite off at a time, which can make karaoke/lyric work a bit more pleasant.
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -568,6 +570,21 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 # 👉👉👉 *Auditing Commands* for *Karaoke*:
+
+### 🌟 [delete-bad-ai-transcriptions](../BAT-and-UTIL-files-1/delete-bad-ai-transcriptions):
+
+This searches for bad karaoke transriptions in the current folder & deletes them with a configurable prompting level. 
+
+This is automatically run at various points (such as before and/or after creating karaoke files), and should also be run on the entire music collection when the project is completed. 
+
+Bad karaoke transcriptions include:
+  1. Files that contain certain commonly-hallucinated-by-AI phrases can be consistently serached for to find bad transcriptions. “And now we’re back” is one of them.
+  2. Either LRCget or LyricsGenius likes to put Chris DeBurg’s “Lady In Red” and Voivoid’s “Black City” as the LRC file for a TON of songs—and Id on’t know why. This will flag an error unless the filename has “Lady In Red” or “Black City” in it, in which case it’s the right song.
+  3. TODO anything else?
+
+### 🌟 [bad-transcription-hunter.bat](../BAT-and-UTIL-files-1/bad-transcription-hunter.bat):
+
+This searches an entire folder tree (in random order) for bad karaoke transcriptions.
 
 #### These commands find & obtain missing karaoke files.
 

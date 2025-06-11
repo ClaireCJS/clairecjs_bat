@@ -24,6 +24,11 @@
                     * double-heightens summaries (to increase visual accessibility to the part that matters more than the details)
 
 """
+
+#todo 🐐 keep in mind this ansi code exists and may help with the crap chars shoved to the rightmost column trick we use with copy /g on TCC v33ish:
+#rem Enable synchronous output mode (Prevents race conditions in multithreaded output)
+#        set ENABLE_SYCHRONOUS_MODE=%@CHAR[27][?2026h
+
 import random
 import sys
 import re
@@ -61,8 +66,10 @@ import shutil
 try:
     screen_columns, screen_rows = shutil.get_terminal_size()
 except Exception:
-    print(f"Error: {e}")
+    print(f"Error getting screen dimensions: {e}")
 #————————————————————————————————————————————————————————————————————
+
+
 #────────────────────────────────────────────────────────────────────
 SPECIAL_TREATMENT_FOR_QUESTION_LINES = True       # Set to False to suppress special treatment of lines with '?'
 COLOR_QUESTION_BACKGROUNDS           = True       #whether to highlight lines with "?" with a random background character and other stuff —— originally developed for Y/N/R/A-type prompts when copying files, but annoying in other situations
@@ -190,6 +197,18 @@ def setup_output():
         sys.stdout = DualOutput(output_file)
 
 #━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+def redetect_terminal_dimensions():
+    # screen_columns, screen_rows = redetect_terminal_dimensions()
+    try:
+        screen_columns, screen_rows = shutil.get_terminal_size()
+        return screen_columns, screen_rows
+    except Exception:
+        print(f"Error: {e}")
+    return None, None
+
+#————————————————————————————————————————————————————————————————————
 
 def hide_cursor():
     sys.stdout.write("\033[?25l")
@@ -345,7 +364,7 @@ def enclose_numbers(line): return re.sub(r'(\d+)', DOUBLE_UNDERLINE_ON + r'\1' +
 our_ansi_reset = ANSI_RESET + move_decorator_from_environment_variable
 
 def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
-    global whisper_decorator_title
+    global whisper_decorator_title, screen_columns, screen_rows
 
     #sys.stderr.write(f"DEBUG: called print_line({line_buffer}, {r}, {g}, {b}, {additional_beginning_ansi}){PRENEWLINE}\n")
     color_change_ansi = f'\033[38;2;{r};{g};{b}m'
@@ -420,6 +439,9 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         line = line.replace(   ':' , f'{our_ansi_reset}:{   color_change_ansi}')                                  #  /
         line = line.replace( ' - ' , f'{our_ansi_reset} - { color_change_ansi}')                                  # /
         line = line.replace(  '\\' , f'{our_ansi_reset}\\{  color_change_ansi}')                                  #/
+
+
+    screen_columns, screen_rows = redetect_terminal_dimensions()
 
     if whisper_ai:
         decorator_title = whisper_decorator_title
@@ -576,19 +598,6 @@ tee                           = False       # for -t option
 output_file                   = None        # for -t option
 
 
-#sys.stdout.write(f"sys.argv is {sys.argv}\n")
-
-#if len(sys.argv) > 1:
-#    #sys.stdout.write(f"sys.argv[1] is {sys.argv[1]}\n")
-#    if sys.argv[1] == 'bg' or sys.argv[1] == 'both': my_mode = sys.argv[1]
-#    for arg in sys.argv[1:]:
-#        if arg.lower() in ["n", "-n", "--n", "nomoji", "-nomoji", "--nomoji", "no-emoji", "-no-emoji", "--no-emoji"]: nomoji  = True
-#    for arg in sys.argv[1:]:
-#        if arg.lower() in ["v", "-v", "--v", "verbose", "-verbose", "--verbose"]: verbose = True
-#    for arg in sys.argv[1:]:
-#        if arg.lower() in ["w", "-w", "--w", "whisperai", "-whisperai", "--whisperai", "whisper", "-whisper", "--whisper"]:
-#            whisper_ai = True
-#            nomoji     = True
 
 
 if len(sys.argv) > 1:
@@ -598,14 +607,14 @@ if len(sys.argv) > 1:
     for arg in sys.argv[1:]:
         arg_lower = arg.lower()
         if   arg_lower in ["n", "-n", "--n", "nomoji", "-nomoji", "--nomoji", "no-emoji", "-no-emoji", "--no-emoji"]:
-            nomoji = True
+            nomoji      = True
         elif arg_lower in ["v", "-v", "--v", "verbose", "-verbose", "--verbose"]:
-            verbose = True
+            verbose     = True
         elif arg_lower in ["w", "-w", "--w", "whisperai", "-whisperai", "--whisperai", "whisper", "-whisper", "--whisper"]:
-            whisper_ai = True
-            nomoji = True
+            whisper_ai  = True
+            nomoji      = True
         elif arg.startswith('-t'):  # Detect -t with attached value
-            tee = True
+            tee         = True
             output_file = arg[2:]   # Extract the value after -t
 
 
@@ -649,7 +658,7 @@ while t.is_alive() or not q.empty():
 #hile True:
     # It's tempting to process things line-by-line, but due to prompts and such, we must process things char-by-char
     try:
-        char = q.get(timeout=char_read_time_out)                                                                                                     # grab the characters *this* fast!
+        char = q.get(timeout=char_read_time_out)                                                                                        # grab the characters *this* fast!
         if char is None: break                                                                                                          # but not much faster because we're probably coming right back if no chars are in the buffer yet
         line_buffer += char
 
@@ -658,7 +667,7 @@ while t.is_alive() or not q.empty():
         if (char == '?' and not in_prompt) or (char == '\n' and not in_prompt):
             r ,  g,  b = get_random_color()                                                      # Generate random colors for the branches below that need them [a refactoring]
 
-        if char == '?' and not in_prompt and SPECIAL_TREATMENT_FOR_QUESTION_LINES:               #coloring for copy/move prompts, so we can make them blinky & attention-get'y
+        if char == '?' and not in_prompt and SPECIAL_TREATMENT_FOR_QUESTION_LINES:               # coloring for copy/move prompts, so we can make them blinky & attention-get'y
             in_prompt = True
             sys.stdout.write(CURSOR_VISIBLE)
             #color switching logic: background colors:
@@ -686,9 +695,9 @@ while t.is_alive() or not q.empty():
             else:              line_spacer = ""
 
             ##### ACTUALLY PRINT OUT THE LINE:
-            if   any(substring in line_buffer for substring in file_removals         ): line_spacer = EMOJIS_DELETE                                 #treatment for file deletion lines
-            elif any(substring in line_buffer for substring in ["Y/N/A/R)"," (Y/N)"] ): line_spacer = EMOJIS_PROMPT                                  #treatment for  user prompt  lines
-            elif any(substring in line_buffer for substring in ["=>","->"]           ): line_spacer = EMOJIS_COPY                                    #treatment for   file copy   lines
+            if   any(substring in line_buffer for substring in file_removals         ): line_spacer = EMOJIS_DELETE                                  # treatment for file deletion lines
+            elif any(substring in line_buffer for substring in ["Y/N/A/R)"," (Y/N)"] ): line_spacer = EMOJIS_PROMPT                                  # treatment for  user prompt  lines
+            elif any(substring in line_buffer for substring in ["=>","->"]           ): line_spacer = EMOJIS_COPY                                    # treatment for   file copy   lines
 
             sys.stdout.write(f'{background_color_switch_maybe}{foreground_color_switch}{CURSOR_RESET}{cursor_color_switch_by_hex}{additional_beginning_ansi}'    + f'{line_spacer}{blink_maybe}{line_buffer} {ANSI_RESET}') #\033[0m #\033[1C
             #moved to end of loop: sys.stdout.flush()                                                                                   # Flush the output buffer to display the prompt immediately
@@ -728,9 +737,6 @@ while t.is_alive() or not q.empty():
             #line_buffer = ""
             #additional_beginning_ansi = ""
 
-
-
-
             #REFERENCE: function ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                                 # with "#" in front of color
             #rgbhex_with_pound_sign = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)                                                  # Reset for the next line
             #additional_beginning_ansi = f"{CURSOR_RESET}\033]" + "12;" + rgbhex_with_pound_sign + f"\007"                              # Reset for the next line: make cursor same color
@@ -755,7 +761,7 @@ while t.is_alive() or not q.empty():
 
 # Flush any remaining content in line_buffer after the loop
 # After exiting the main loop, print any remaining line content
-#f line_buffer.strip():                                                     # Ensure any remaining line without \n is printed
+#f line_buffer.strip():                                                      # Ensure any remaining line without \n is printed
 #    print_line(line_buffer, r, g, b, additional_beginning_ansi)
 #if line_buffer.strip() and "[ctranslate2]" not in line_buffer:              # Ensure any remaining line without \n is printed
 #    print_line(line_buffer, r, g, b, additional_beginning_ansi)
@@ -765,30 +771,15 @@ if line_buffer.strip():
     # else: silently suppress
 
 
-# Reset the ansi? #kind of equivalent of: if TICK: claire.tock()
-#sys.stdout.write(ANSI_RESET + "\n")  # Reset any leftover ANSI styles
-
-# Final flush?
-#flush()
-
-# Restore sys.stdout if needed
-#sys.stdout = sys.stdout.original_stdout
+#sys.stdout.write(ANSI_RESET + "\n")  # Reset any leftover ANSI styles  # Reset the ansi? #kind of equivalent of: if TICK: claire.tock()
+#flush()   # Final flush?
+# Restore sys.stdout if needed  #sys.stdout = sys.stdout.original_stdout
 
 
 
 print(CURSOR_VISIBLE + ANSI_RESET,end="")
 
-#20241222: got stuck red during get-lyrics:
-print(ANSI_RESET_FULL,end="")
+print(ANSI_RESET_FULL,end="")                               # 20241222: got stuck red during get-lyrics
 
 
 
-
-
-
-
-
-
-#todo goat keep in mind this ansi code exists and may help with the crap chars shoved to the rightmost column trick we use with copy /g on TCC v33ish:
-#rem Enable synchronous output mode (Prevents race conditions in multithreaded output)
-#        set ENABLE_SYCHRONOUS_MODE=%@CHAR[27][?2026h

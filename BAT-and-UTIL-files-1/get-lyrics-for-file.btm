@@ -606,7 +606,7 @@ rem Get artist and song so we can use them to download lyrics:
 
 
                 rem Split the string into tokens:
-                        rem echo -DEBUG:  wondering if things went south yet [1]
+                        rem echo - DEBUG:  wondering if things went south yet [1]
                         for /f "tokens=1-5 delims=%@CHAR[%delimeter_ascii%]" %%a in ("%probe_output%") do (
                                 rem if %DEBUG_VALUE_TRANSFER gt 0 .or. %DEBUG_TOKEN_PROCESSING gt 0 (echo       %faint_on%%wrench% processing tokens (tit=%[faint_off]%%a %@ansi_move_left[1]%[faint_on]) (art=%[faint_off]%%b %@ansi_move_left[1]%[faint_on]) (alb=%[faint_off]%%c %@ansi_move_left[1]%[faint_on]) (tope=%[faint_off]%%d %@ansi_move_left[1]%[faint_on]) (hmm=%[faint_off]%e %@ansi_move_left[1]%[faint_on])%[faint_off])
                                 rem this ruins things *setdos /x-5
@@ -628,7 +628,7 @@ rem Get artist and song so we can use them to download lyrics:
                         setdos /x0
 
                 rem Save post-probed values for auditing
-                        rem echo -DEBUG:  wondering if things went south yet [2]
+                        rem echo - DEBUG:  wondering if things went south yet [2]
                         unset /q PROBED*
                         *setdos /x-5
                         set PROBED_FILE_SONG=%probe_tit%
@@ -657,7 +657,7 @@ rem Get artist and song so we can use them to download lyrics:
                                                         if %DEBUG_VALUE_TRANSFER gt 0  (echo %newline%!!   %%tmpVarName  is %lq%%TmpVarName%%rq% is %%value=%lq%%value%%rq% %+ echo    left_nin is %lq%%left_nin%%rq%%+ echo    left_ten is %lq%%left_ten%%rq% %+ echo    left_elv is %lq%%left_elv%%rq% %+ echo    left_thi is %lq%%left_thi%%rq%)
                                                         setdos /x0
                                      
-                                                        rem echo %ansi_color_grey%-DEBUG:  wondering if things went south yet [3]%ansi_color_normal%
+                                                        rem echo %ansi_color_grey%- DEBUG:  wondering if things went south yet [3]%ansi_color_normal%
 
                                                         iff "%LEFT_TEN%" == "tag:TITLE=" then
                                                                 if %DEBUG_VALUE_TRANSFER gt 0 (echo    🐓 setting FILE_SONG=%@right[%@eval[%@len[%value]-10],%value])
@@ -682,7 +682,7 @@ rem Get artist and song so we can use them to download lyrics:
                                                         endiff
                                                 return
                                         :for_724_end
-                        rem echo -DEBUG:  wondering if things went south yet [4]
+                        rem echo - DEBUG:  wondering if things went south yet [4]
                         iff "1" == "%DEBUG_DISPLAY_PROBE_RESULTS%" then
                                 %color_debug%
                                 echos %ansi_color_debug%
@@ -707,7 +707,7 @@ rem Get artist and song so we can use them to download lyrics:
                 endiff
 
         rem If we didn’t get an original artist, also check fo the Composer tag which is the only place it would likely be in a FLAC file...
-                rem echo -DEBUG:  wondering if things went south yet [5]
+                rem echo - DEBUG:  wondering if things went south yet [5]
                 rem NO! ffprobe does some voodoo behind the scenes making this unnecessary: if "" == "%FILE_ORIG_ARTIST%" (set FILE_ORIG_ARTIST=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=Composer -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%" |:u8 change-single-quotes-to-double-apostrophes.py])
 
         rem “Title” is better than “Song”, but we are doing both for ease-of-remembrance
@@ -731,7 +731,7 @@ rem Back up original values of these variables because we change them as we try 
         set        FILE_SONG_INITIAL=%FILE_SONG%
         set       FILE_TITLE_INITIAL=%FILE_SONG%
         if %vebose gt 0 call unimportant "Original values saved" 
-        rem echo -DEBUG:  wondering if things went south yet [6]
+        rem echo - DEBUG:  wondering if things went south yet [6]
 
 :old_probe_end_846
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -978,7 +978,7 @@ rem !!!                                   set last_file_probed=%AUDIO_FILE%
 rem !!!           
 rem !!!           
 rem !!!                           rem Split the string into tokens:
-rem !!!                                   rem echo -DEBUG:  wondering if things went south yet [1]
+rem !!!                                   rem echo - DEBUG:  wondering if things went south yet [1]
 rem !!!                                   for /f "tokens=1-5 delims=%@CHAR[%delimeter_ascii%]" %%a in ("%probe_output%") do (
 rem !!!                                           rem if %DEBUG_VALUE_TRANSFER gt 0 .or. %DEBUG_TOKEN_PROCESSING gt 0 (echo       %faint_on%%wrench% processing tokens (tit=%[faint_off]%%a %@ansi_move_left[1]%[faint_on]) (art=%[faint_off]%%b %@ansi_move_left[1]%[faint_on]) (alb=%[faint_off]%%c %@ansi_move_left[1]%[faint_on]) (tope=%[faint_off]%%d %@ansi_move_left[1]%[faint_on]) (hmm=%[faint_off]%e %@ansi_move_left[1]%[faint_on])%[faint_off])
 rem !!!                                           rem this ruins things *setdos /x-5
@@ -1000,7 +1000,7 @@ rem !!!                                   if "%probe_hmm" == "%e" set probe_hmm=
 rem !!!                                   setdos /x0
 rem !!!           
 rem !!!                           rem Save post-probed values for auditing
-rem !!!                                   rem echo -DEBUG:  wondering if things went south yet [2]
+rem !!!                                   rem echo - DEBUG:  wondering if things went south yet [2]
 rem !!!                                   unset /q PROBED*
 rem !!!                                   *setdos /x-5
 rem !!!                                   set PROBED_FILE_SONG=%probe_tit%
@@ -1029,7 +1029,7 @@ rem !!!
 rem !!!                                                                   if %DEBUG_VALUE_TRANSFER gt 0  (echo %newline%!!   %%tmpVarName  is %lq%%TmpVarName%%rq% is %%value=%lq%%value%%rq% %+ echo    left_nin is %lq%%left_nin%%rq%%+ echo    left_ten is %lq%%left_ten%%rq% %+ echo    left_elv is %lq%%left_elv%%rq% %+ echo    left_thi is %lq%%left_thi%%rq%)
 rem !!!                                                                   setdos /x0
 rem !!!                                                
-rem !!!                                                                   rem echo %ansi_color_grey%-DEBUG:  wondering if things went south yet [3]%ansi_color_normal%
+rem !!!                                                                   rem echo %ansi_color_grey%- DEBUG:  wondering if things went south yet [3]%ansi_color_normal%
 rem !!!           
 rem !!!                                                                   iff "%LEFT_TEN%" == "tag:TITLE=" then
 rem !!!                                                                           if %DEBUG_VALUE_TRANSFER gt 0 (echo    🐓 setting FILE_SONG=%@right[%@eval[%@len[%value]-10],%value])
@@ -1054,7 +1054,7 @@ rem !!!                                                                         
 rem !!!                                                                   endiff
 rem !!!                                                           return
 rem !!!                                                   :for_724_end
-rem !!!                                   rem echo -DEBUG:  wondering if things went south yet [4]
+rem !!!                                   rem echo - DEBUG:  wondering if things went south yet [4]
 rem !!!                                   iff "1" == "%DEBUG_DISPLAY_PROBE_RESULTS%" then
 rem !!!                                           %color_debug%
 rem !!!                                           color bright red on black
@@ -1079,7 +1079,7 @@ rem !!!                                   echo %star3%%emoji_warning% Attempting
 rem !!!                           endiff
 rem !!!           
 rem !!!                   rem If we didn’t get an original artist, also check fo the Composer tag which is the only place it would likely be in a FLAC file...
-rem !!!                           rem echo -DEBUG:  wondering if things went south yet [5]
+rem !!!                           rem echo - DEBUG:  wondering if things went south yet [5]
 rem !!!                           rem NO! ffprobe does some voodoo behind the scenes making this unnecessary: if "" == "%FILE_ORIG_ARTIST%" (set FILE_ORIG_ARTIST=%@EXECSTR[%PROBER% -v quiet -show_entries format_tags=Composer -of default=noprint_wrappers=1:nokey=1 "%AUDIO_FILE%" |:u8 change-single-quotes-to-double-apostrophes.py])
 rem !!!           
 rem !!!                   rem “Title” is better than “Song”, but we are doing both for ease-of-remembrance
@@ -1103,7 +1103,7 @@ rem !!!                   set       FILE_ALBUM_INITIAL=%FILE_ALBUM%
 rem !!!                   set        FILE_SONG_INITIAL=%FILE_SONG%
 rem !!!                   set       FILE_TITLE_INITIAL=%FILE_SONG%
 rem !!!                   if %vebose gt 0 call unimportant "Original values saved" 
-rem !!!                   rem echo -DEBUG:  wondering if things went south yet [6]
+rem !!!                   rem echo - DEBUG:  wondering if things went south yet [6]
 rem !!!           
 :old_probe_end_846
 
@@ -1138,7 +1138,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 rem Set potential filenames in our %LYRICS% repository, which can be matched 2 different ways: 
         :SetVarsOnly_skip_to_1
-        rem echo -DEBUG:  wondering if things went south yet [8]
+        rem echo - DEBUG:  wondering if things went south yet [8]
         set MAYBE_SUBDIR_LETTER=%@LEFT[1,%file_artist]
         set              MAYBE_LYRICS_1=%lyrics\%MAYBE_SUBDIR_LETTER%\%file_artist% - %zzzzzzz%%@ReReplace[',_,%file_song%].txt
         set MAYBE_LYRICS_1_BROAD_SEARCH=%lyrics\%MAYBE_SUBDIR_LETTER%\%file_artist% - %@LEFT[3,%@ReReplace[',_,%file_song]]*.txt
@@ -1173,7 +1173,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 rem Check if we already have a LRC/SRT file but no TXT file
 
         :Check_Again
-        rem echo -DEBUG:  wondering if things went south yet [12]
+        rem echo - DEBUG:  wondering if things went south yet [12]
         iff exist "%LYRIC_FILE%" .and. "%@FILESIZE["%LYRIC_FILE%"]" != "0" goto /i goto_endpoint_830
                 rem echo iff not exist "%LYRIC_FILE%" .or. @FILESIZE["%LYRIC_FILE%"] eq 0 happened ...........
                 rem iff exist "%SRT_SIDECAR_FILENAME%" .or. exist "%LRC_SIDECAR_FILENAME%" then
@@ -1246,7 +1246,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 rem Check if we already have approved lyrics in the same folder:
 
         :check_lyric_file_begin                
-        rem echo -DEBUG:  wondering if things went south yet [16]
+        rem echo - DEBUG:  wondering if things went south yet [16]
         iff exist "%LYRIC_FILE%" .and. %@FILESIZE["%LYRIC_FILE%"] gt 0 .and. "1" != "%FORCE_REGEN%"  then
                 rem Get lyric pre-approval status
                         rem if  "%LYRIC_STATUS%" == "" call get-lyric-status "%LYRIC_FILE%" silent
@@ -1529,7 +1529,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━ CHECKI
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 :actual_alignment_begins
 :repo_stuffs_begin
-rem echo -DEBUG:  wondering if things went south yet [32]
+rem echo - DEBUG:  wondering if things went south yet [32]
 
 
 
@@ -1957,7 +1957,7 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
         rem echo 🌧🌧🌧 got to %italics_on%download_with_lyric_downloader_1%italics_off% with %italics_on%FILE_SONG_TO_USE%italics_off%=“%FILE_SONG_TO_USE%” and %italics_on%FILE_ARTIST_TO_USE%italics_off%=“%FILE_ARTIST_TO_USE%”
 
         set current_search=%FILE_SONG_TO_USE% :::: %FILE_ARTIST_TO_USE%``
-        rem echo %ANSI_COLOR_DEBUG% -DEBUG: current_search set to %ansi_color_orange%"%current_search%"%ansi_color_normal% 666
+        rem echo %ANSI_COLOR_DEBUG% - DEBUG: current_search set to %ansi_color_orange%"%current_search%"%ansi_color_normal% 666
         iff "%current_search%" == "%last_search%" .and. "%FIRST_SEARCH_COMPLETE%" != "1" then
                 echo %ansi_color_warning_soft%%NO% Skipping search because current_search is the same as last_search of “%LAST_SEARCH%”%ansi_color_normal%
                 goto /i skip_this_search
@@ -2142,7 +2142,7 @@ setdos /x0
                                         if "" == "%NUM_DOWNLOADED_THIS_SESSION%" set NUM_DOWNLOADED_THIS_SESSION=0
                                         set NUM_DOWNLOADED_THIS_SESSION=%@EVAL[%NUM_DOWNLOADED_THIS_SESSION% + 1]
                                         rem PARENT_BAT=get-lyrics at this point
-                                        if %NUM_DOWNLOADED_THIS_SESSION% gt 1 echo %ANSI_COLOR_IMPORTANT%%check1% Downloaded this session: %bold_on%%NUM_DOWNLOADED_THIS_SESSION%%bold_off%%ANSI_COLOR_NORMAL%
+                                        if %NUM_DOWNLOADED_THIS_SESSION% gt 1 echo %ANSI_COLOR_IMPORTANT%%check1% Downloaded this session: %bold_on%%@cool[%NUM_DOWNLOADED_THIS_SESSION%]%bold_off%%ANSI_COLOR_NORMAL%
 
                                         call bigecho %STAR% %ANSI_COLOR_GREEN%Downloaded: %bold_on%“%bold_off%%[blink_on]%[italics_on]%[MYNAMEY]%[italics_off]%[blink_off]%bold_on%”%bold_off%
                                         set  LYRIC_STATUS=NOT_SET
@@ -3458,7 +3458,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                         if "%@UNQUOTE["%opt2%"]" == "no_end" set NO_END=1
 
                 rem Let user know we called this:
-                        rem echo %ansi_color_debug%-DEBUG: Called: mark_as_lyricless [%use_this_file_instead%] with FILE_TO_MARK_AS_LL==“%FILE_TO_MARK_AS_LL%”  %ansi_color_normal% 
+                        rem echo %ansi_color_debug%- DEBUG: Called: mark_as_lyricless [%use_this_file_instead%] with FILE_TO_MARK_AS_LL==“%FILE_TO_MARK_AS_LL%”  %ansi_color_normal% 
                         echo %star% Audio filename: %faint_on%“%FILE_TO_MARK_AS_LL%”%faint_off%, no_end=“%no_end%” %conceal_on%XX%conceal_off%
 
 
@@ -3515,7 +3515,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                         rem moved from below, for speedup:
                         set HOLD_AUDIO_FILE=%AUDIO_FILE%
                         set AUDIO_FILE="%@UNQUOTE["%FILE_TO_MARK_AS_LL%"]"
-                        echo %ansi_color_debug%-DEBUG: gosub ask_about_instrumental ............... answer=“%ANSWER%” ... AUDIO_FILE=“%AUDIO_FILE%” %ansi_color_normal%
+                        echo %ansi_color_debug%- DEBUG: gosub ask_about_instrumental ............... answer=“%ANSWER%” ... AUDIO_FILE=“%AUDIO_FILE%” %ansi_color_normal%
                         gosub ask_about_instrumental "%AUDIO_FILE%"
 
                 rem Don’t do it if we’ve already done it:
@@ -3703,12 +3703,12 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                         rem If we want to mark it as a sound effect, do that:
                                 if "S" != "%ANSWER" goto /i not_S_2915
                                         gosub rename_audio_file_as_sound_effect "%@UNQUOTE["%tmpFileForXAnswer_copy%"]"  tmpFileForXAnswer_copy
-                                        echo -DEBUG: LAST_RENAMED_TO=%lq%%LAST_RENAMED_TO%%rq% 🐈
+                                        echo - DEBUG: LAST_RENAMED_TO=%lq%%LAST_RENAMED_TO%%rq% 🐈
                                         if "" == "%LAST_RENAMED_TO%" goto /i do_not__update_3032
                                                 set tmpFileForXAnswer_copy=%LAST_RENAMED_TO% 
                                                 set IS_INSTRUMENTAL_ADS_FILENAME=%@name[%@UNQUOTE["%tmpFileForXAnswer_copy%"]].%@EXT[%@UNQUOTE["%tmpFileForXAnswer_copy%"]]:is_instrumental
                                         :do_not__update_3032
-                                        echo -DEBUG: tmpFileForXAnswer_copy now == %lq%%tmpFileForXAnswer_copy%%rq% .. LAST_RENAMED_TO was %lq%%LAST_RENAMED_TO%%rq% 
+                                        echo - DEBUG: tmpFileForXAnswer_copy now == %lq%%tmpFileForXAnswer_copy%%rq% .. LAST_RENAMED_TO was %lq%%LAST_RENAMED_TO%%rq% 
                                         goto about_to_askyn_3390
                                 :not_S_2915
 
@@ -3794,7 +3794,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                                         :delete_some_of_the_sidecar_files_2880
                                         %color_removal%
                                         set HELD_ANSWER_2876=%ANSWER%
-                                                echo -DEBUG: delete some sidecar files??? potential_srt=“%potential_srt%” / potential_txt=“%potential_txt%” / potential_lrc=“%potential_lrc%”
+                                                echo - DEBUG: delete some sidecar files??? potential_srt=“%potential_srt%” / potential_txt=“%potential_txt%” / potential_lrc=“%potential_lrc%”
                                                 if not exist     "%potential_srt%"  goto /i endiff_not_exist_potential_srt 
                                                         call review-file -ins -wh "%potential_srt%"
                                                         call AskYN  "Delete SRT file" yes 0
@@ -3868,7 +3868,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                         endiff
 
                 rem DEBUG:
-                        if "1" == "%DEBUG_INSTRUMENTAL%" echo %ansi_color_debug%-DEBUG: called :rename_audio_file_as_instrumental [different_filename_than_usual=%different_filename_than_usual% as_what=%as_what% ask=%ask%] ... nature=“%nature%” ... filename_to_rename_as_instrumental_or_whatever=“%filename_to_rename_as_instrumental_or_whatever%” %ansi_color_normal%  %+ pause
+                        if "1" == "%DEBUG_INSTRUMENTAL%" echo %ansi_color_debug%- DEBUG: called :rename_audio_file_as_instrumental [different_filename_than_usual=%different_filename_than_usual% as_what=%as_what% ask=%ask%] ... nature=“%nature%” ... filename_to_rename_as_instrumental_or_whatever=“%filename_to_rename_as_instrumental_or_whatever%” %ansi_color_normal%  %+ pause
 
                 rem Skip if the file has already been marked as an instrumental/whatever:
                         rem 20250327: added brackets around %nature% in regex
@@ -3897,7 +3897,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                                 unset /q ANSWER              
 
                         rem 2.33) But like——if we already answered the question in the outer function——don’t ask:
-                                rem echo -DEBUG: OUTER_INSTRUMENTAL_ANSWER==“%OUTER_INSTRUMENTAL_ANSWER%”
+                                rem echo - DEBUG: OUTER_INSTRUMENTAL_ANSWER==“%OUTER_INSTRUMENTAL_ANSWER%”
                                 iff "" != "%OUTER_INSTRUMENTAL_ANSWER%" then
                                         set ANSWER=%OUTER_INSTRUMENTAL_ANSWER%
                                         unset /q    OUTER_INSTRUMENTAL_ANSWER
@@ -3981,7 +3981,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
 
                 rem Unset status bar if it’s set:
                         call status-bar unlock
-                        if "1" == "%DEBUG_INSTRUMENTAL%" echo -DEBUG: rename_audio_file_as_instrumental called with filename_to_rename_as_instrumental_or_whatever == “%filename_to_rename_as_instrumental_or_whatever%”
+                        if "1" == "%DEBUG_INSTRUMENTAL%" echo - DEBUG: rename_audio_file_as_instrumental called with filename_to_rename_as_instrumental_or_whatever == “%filename_to_rename_as_instrumental_or_whatever%”
 
                 rem Clean our junk files first, so they don’t get caught in the sidecar renaming madness:
                         if "1" == "%DEBUG_INSTRUMENTAL%" (echo about to call clean-up-AI-transcription-trash-files-here.bat but just checking value of %0 which is “%0” and what about pbatchname it is “%_PBATCHNAME” and hey DELETING_BAD_AI_TRANSCRIPTIONS is %DELETING_BAD_AI_TRANSCRIPTIONS% %+ pause)
@@ -3990,12 +3990,12 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                 rem Rename the file & validate that it was named:
                         set nature=%nature_bak%
                         echos %ANSI_ERASE_TO_END_OF_SCREEN%
-                        if "1" == "%DEBUG_INSTRUMENTAL%" echo -DEBUG: %ansi_color_unimportant%call rn "%@UNQUOTE[%filename_to_rename_as_instrumental_or_whatever%]" "%@NAME["%filename_to_rename_as_instrumental_or_whatever%"] [%nature%].%@EXT["%filename_to_rename_as_instrumental_or_whatever%"]"%ansi_color_normal% 🐐🐐 ... nature==“%nature%”
+                        if "1" == "%DEBUG_INSTRUMENTAL%" echo - DEBUG: %ansi_color_unimportant%call rn "%@UNQUOTE[%filename_to_rename_as_instrumental_or_whatever%]" "%@NAME["%filename_to_rename_as_instrumental_or_whatever%"] [%nature%].%@EXT["%filename_to_rename_as_instrumental_or_whatever%"]"%ansi_color_normal% 🐐🐐 ... nature==“%nature%”
 
                         unset /q LAST_RENAMED_TO
                         rem set DEBUG_INSTRUMENTAL=1 
                         call rn "%@UNQUOTE[%filename_to_rename_as_instrumental_or_whatever%]" "%@NAME["%filename_to_rename_as_instrumental_or_whatever%"] [%nature%].%@EXT["%filename_to_rename_as_instrumental_or_whatever%"]"
-                        if "1" == "%DEBUG_INSTRUMENTAL%" echo %ansi_color_debug%-DEBUG: after rn at 3125, last_renamed_to=“%LAST_RENAMED_TO%” so maybe set tmpFileForXAnswer_copy=%LAST_RENAMED_TO%%ansi_color_normal% 
+                        if "1" == "%DEBUG_INSTRUMENTAL%" echo %ansi_color_debug%- DEBUG: after rn at 3125, last_renamed_to=“%LAST_RENAMED_TO%” so maybe set tmpFileForXAnswer_copy=%LAST_RENAMED_TO%%ansi_color_normal% 
                         iff "" != "%LAST_RENAMED_TO%" then
                                 set tmpFileForXAnswer_copy=%LAST_RENAMED_TO%
                                 set SOME_INSTRUMENTALS_WERE_MARKED=1
@@ -4013,13 +4013,13 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
 
                 rem All done!
                         :skip_it_2700   
-                        if "1" ==           "%DEBUG_INSTRUMENTAL%" echo %ansi_color_debug%-DEBUG: DONE WITH rename_audio_file_as_instrumental %%ansi_color_normal% 
+                        if "1" ==           "%DEBUG_INSTRUMENTAL%" echo %ansi_color_debug%- DEBUG: DONE WITH rename_audio_file_as_instrumental %%ansi_color_normal% 
                         if "1" == "%JUST_RENAMED_TO_INSTRUMENTAL%" goto /i END_OF_GET_LYRICS                                                            %+ rem If we just marked something instrumental, then yeahhhh, we’re done with lyric-getting...
         return
 
 
         :refresh_lyric_status [opt]
-                rem echo %ANSI_COLOR_DEBUG%-DEBUG: 🐐 called 💚 refresh_lyric_status 💚 [%opt%]%ansi_color_normal%
+                rem echo %ANSI_COLOR_DEBUG%- DEBUG: 🐐 called 💚 refresh_lyric_status 💚 [%opt%]%ansi_color_normal%
                 unset /q FILE_TO_GET_LYRIC_STATUS_OF
                 set FILE_TO_GET_LYRIC_STATUS_OF=%LYRIC_FILE%
                 if exist %opt% set FILE_TO_GET_LYRIC_STATUS_OF="%@UNQUOTE["%opt%"]"

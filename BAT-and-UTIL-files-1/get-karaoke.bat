@@ -4,16 +4,19 @@
 
 :USAGE: get-karaoke {songfile}
 
-rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-rem Debug configuration:
-        set CALL=echo call           %+ rem Use this for a dry run
-        set CALL=call                %+ rem Use this for normal production
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 rem CONFIGURATION:
         set CREATE_MISSING_KRAOKES_SCRIPT_NAME=create-the-missing-karaokes-here-temp.bat %+ rem This must be synchronized with values elsewhere, so don’t change!
+
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+rem Debug configuration:
+        set DEBUG_GK_CFMK_CALL=0     %+ rem whether to echo to screen: the call to check-for-missing-lyrics
+        set DEBUG_GK_CMDTAIL_PROC=0  %+ rem whether to echo to screen: various debugs related to command-tail processing
+        set CALL=echo call           %+ rem Use this for a dry run
+        set CALL=call                %+ rem Use this for normal production
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -63,7 +66,7 @@ rem Process current folder:
                 rem Gobble up “here” option:
                         shift
                         setdos /x0
-                        rem echo %%1=“%1” %%2=“%2” %%3=“%3” %%4=“%4” ...... %%9$=“%9$”
+                        if "1" == "%DEBUG_GK_CMDTAIL_PROC%" echo %%1=“%1” %%2=“%2” %%3=“%3” %%4=“%4” ...... %%9$=“%9$”
 
                 rem Remove older generated script if it exists:
                         if exist %CREATE_MISSING_KRAOKES_SCRIPT_NAME% (echos %ansi_color_removal%%axe%%axe% `` %+ *del /z /a: /Ns %CREATE_MISSING_KRAOKES_SCRIPT_NAME%)
@@ -71,13 +74,18 @@ rem Process current folder:
                 rem Determine mode:
                         unset /q get
                         unset /q report_only
+                        unset /q gk_force_mode
                         :reparam
                         if "%1"  == "get"            (set get=get            %+ shift %+ goto /i :reparam)
                         if "%1"  == "PromptAnalysis" (set get=PromptAnalysis %+ shift %+ goto /i :reparam)
-                        if "%1"  == "report"         (set report_only=1      %+ shift %+ goto /i :reparam)
-                        if "%1$" != "" pause "we still have %1$ 092438902340892438"
                         if  "1"  == "%report_only%"  (set get=/f)
-                        %CALL% check-for-missing-karaoke.bat %get% %2 %3 %4 %5 %6 %7 %8 %9$
+                        if "%1"  == "report"         (set   report_only=1    %+ shift %+ goto /i :reparam)
+                        if "%1"  == "force"          (set gk_force_mode=1    %+ shift %+ goto /i :reparam)
+                        if "%1$" != "" pause "we still have leftover command tail with: %1$ [db092438902340892438]"
+                        set command_tail_to_use=%get% %2 %3 %4 %5 %6 %7 %8 %9$ %@if["1" == "%gk_force_mode",force,]
+                        if "1" == "%DEBUG_GK_CMDTAIL_PROC%" pause "command_tail_to_use=%@UNQUOTE["%command_tail_to_use%"]"
+                        if "1" == "%DEBUG_GK_CFMK_CALL%"    echo %ansi_color_debug%- DEBUG: Running: %CALL% check-for-missing-karaoke.bat %command_tail_to_use%
+                        %CALL% check-for-missing-karaoke.bat %command_tail_to_use%
 
                 rem Run our script, if it now exists / was generated:
                         if exist %CREATE_MISSING_KRAOKES_SCRIPT_NAME% .and. "1" != "%report_only%" %CALL% %CREATE_MISSING_KRAOKES_SCRIPT_NAME%
