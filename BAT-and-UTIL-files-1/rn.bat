@@ -19,7 +19,7 @@ rem Validate environment (once):
                 rem pause "goat debug about to val env vars"
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET 
                 rem pause "goat debug about to val path"
-                call validate-in-path ansi-on ansi-off warning fatal_error set-cursor print-if- DEBUG print-message eset-alias
+                call validate-in-path ansi-on ansi-off warning fatal_error set-cursor print-if-DEBUG print-message eset-alias
                 set  validated_rn=5
         endiff
 
@@ -52,7 +52,7 @@ rem Get/react to auto argument:
 
 rem Count files matching parameter:
     set FILES=%@FILES["%@UNQUOTE[%1]"] 
-    if defined debug call print-if- DEBUG "FILES is “%FILES%”"
+    if defined debug call print-if-DEBUG "FILES is “%FILES%”"
     set ISDIR=0
     if  isdir    %1 goto :IsDir
     if %FILES% gt 1 goto :IsManyFiles
@@ -81,7 +81,7 @@ rem             for /a:  %fi in (%1) if exist %as_instrmental_param%      call r
 
         rem Save old filename:
                 set                                               FILENAME_OLD=%@UNQUOTE["%1"]                             
-                set            FILENAME_OLD_TRUENAME=%@TRUENAME["%FILENAME_OLD%"]                                            %+ if %DEBUG gt 0 (call print-if- DEBUG "[About to validate-env-var FILENAME_OLD_TRUENAME (%FILENAME_OLD_TRUENAME%)]")
+                set            FILENAME_OLD_TRUENAME=%@TRUENAME["%FILENAME_OLD%"]                                            %+ if %DEBUG gt 0 (call print-if-DEBUG "[About to validate-env-var FILENAME_OLD_TRUENAME (%FILENAME_OLD_TRUENAME%)]")
                 if not exist "%FILENAME_OLD_TRUENAME%" call validate-environment-variable FILENAME_OLD_TRUENAME
 
         rem Set new filename:

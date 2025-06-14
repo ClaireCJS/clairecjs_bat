@@ -104,17 +104,18 @@ rem VALIDATION:
 :2022 removing but maybe this should just be a DEMONA thing: setdos /X0
 
 rem CLEANUP:
-    rem fix filenames
-        REM this can be run in unattended mode, but we’re not ready for that yet:
-        call fix-unicode-filenames       
-        call errorlevel "problem with fix-unicode-filenames"
-
     rem manual rename opportunity - also covers companion files
         if "%UNATTENDED_YOUTUBE_DOWNLOADS%" == "1" goto :Unattended
             call rn-latest-for-youtube-dl %FILEMASK_VIDEO%
             :^^^^^^^^^^^^^^^^^^^^^^^^^^^^ side-effect: sets %FILENAME_NEW%, which we use later  ...TODO:possible bug in that it tries to rename the JSON now. same effcet but more confusing
             call errorlevel "problem with rn-latest-for-youtube-dl"
         :Unattended
+
+    rem fix filenames
+        REM this can be run in unattended mode, but we’re not ready for that yet:
+        call fix-unicode-filenames no_trace
+        if exist fix-unicode-filenames.log *del fix-unicode-filenames.log
+        call errorlevel "problem with fix-unicode-filenames"
 
     rem get json file - do this *AFTER* we do our renaming so that we can use our post-rename filename for the JSON file
         echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Fetching json description...

@@ -129,4 +129,5 @@ goto :Skip
 
 :END
 rem timer /7 off
+set TCSTART_FINISHED=1
 title TCC
