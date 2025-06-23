@@ -1,3 +1,4 @@
+### THIS IS JUST FOR SYNC’ING PLYALISTS, NOT FILES!
 
 
 #USAGE: sync-mp3-playlists-to-location-helper.pl
@@ -15,16 +16,16 @@ $mp3     =~ s/\\/\\\\/ig;
 while ($line=<STDIN>) {
 	$line =~ s/\//\\/ig;
 	#if (($line =~ /^$mp3/i) || ($line =~ /^C:[\\\/]mp3/)) {
-			##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
-			##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
-			##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
-			##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
-			##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
-			##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
-			##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
-			##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
-			##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
-			##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
+			##### WARNING! CLAIREVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
+			##### WARNING! CLAIREVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
+			##### WARNING! CLAIREVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
+			##### WARNING! CLAIREVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
+			##### WARNING! CLAIREVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
+			##### WARNING! CLAIREVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
+			##### WARNING! CLAIREVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
+			##### WARNING! CLAIREVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
+			##### WARNING! CLAIREVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
+			##### WARNING! CLAIREVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-FILELIST-HELPER.PL, which is the generalized/2nd version of this
 #		$line =~ s/^[A-Z]:[\\\/]mp3/$BASEDIR/i;
 		$line =~ s/^[A-Z]:[\\\/]testing([\\\/])1 - ONEDIR JUDGE WITH CAROLYN/$BASEDIR/i;
 		$line =~ s/^[A-Z]:[\\\/]testing/$BASEDIR/i;

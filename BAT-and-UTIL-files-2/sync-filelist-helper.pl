@@ -1,47 +1,51 @@
-use List::Util qw(shuffle);
-
-
-
-
-#This  is a generalized 2nd edition that is deprecated because I've re-written it, but will never go away becuase it's still plugged into some scripts and is not broken.
-#There is a specialized 1st edition, which ironically has a more specific filename:    sync-mp3-playlists-to-location-helper.pl
-
 #!perl
-my $DEBUG=1;
-my $ALLOW_COPY_TO_SAME_DRIVE=1;		#2022/03/17 - changed this because not doing car syncs a lot lately and needed to copy stuff for Beth
-
-
-################## MAJOR IDEA: Do all the folder making first, then copy the files IN RANDOM ORDER. That way, if we are trying to copy more than will fit, rather than over-representing the stuff at the beginning of the alphabet, we just get some of it
-
 
 #USAGE: sync-filelist-helper.pl FILELIST.txt D:\DESTINATION\FOLDER\
-#		^^^^ Generates script to copy all files from the filelist into the destination folder/directory. Includes creating folders/directories when necessary.
+#USAGE:		^^^^ Generates script to copy all files from the filelist into the destination folder/directory. Includes creating folders/directories when necessary.
 
-my $BACKSLASHES=1;						#set to 1 if you want all filename slashes to become backslashes
-my $MKDIR = "mkdir /s /Nt";				#set to "md" if you must - but you're gonna need to add the option that let's this make multiple folders inside each other at once, i.e. creating "c:\one\two\three\four" in one command, not four.  The /Nt is a TCMD-specific speedup.
-my $COPY  = "*copy /u /g /h /j /k /Nst";#set to "cp" if you must - but for me, /u makes it an update copy, which only copies if the file is newer. Significantly saves time. /g=percentage progress. /h=copy hidden, /j=restartable, /Ns=no summary ("1 file copied" suppressed), no updating JPSTREE.IDX
-my $SLASH = "\\";						#set to  "/" if you must [Unix folk]
+
+#HISTORY: This is the generalized 2ⁿᵈ edition of the more-specialized “sync-mp3-playlists-to-location-helper.pl”, which only sync’ed playlists, whereas this usually/also sync audio files.
+
+
+
+##### CONFIGURATION:
+
+my $COPY                     = "*copy /u /g /h /j /k /Nst"; #set to “copy” if you must - but for me, /u makes it an update copy, which only copies if the file is newer. Significantly saves time. /g=percentage progress. /h=copy hidden, /j=restartable, /Ns=no summary ("1 file copied" suppressed), no updating JPSTREE.IDX
+my $MKDIR                    = "mkdir /s /Nt";				#set to   “md” if you must - but you're gonna need to add whatver option lets you this make multiple folders inside each other at once, i.e. creating "c:\one\two\three\four" in one command, not four.  The /Nt is a TCC-specific speedup.
+my $SLASH                    = "\\";						#set to    “/” if you must [Unix folk]
+my $ALLOW_COPY_TO_SAME_DRIVE = 0;		                    #2025/06/21 - changed this back to original inception value of 0 .... 2022/03/17 - changed this because not doing car syncs a lot lately and needed to copy stuff for Beth and doing some same-drive script testing ... original inception value was 0
+my $BACKSLASHES              = 1;						    #set to 1 if you want all filename slashes to become backslashes
+
+##### INITIALIZE LIBRARIES:
+use List::Util qw(shuffle);
 
 ##### GET COMMAND-LINE ARGUMENTS:
 my $filelist               =  $ARGV[0];
 my $destination            =  $ARGV[1];
+   $destination            =~ s/^"//g;
+   $destination            =~ s/"$//g;
 my $destinationDriveLetter =  $destination;
+   $destinationDriveLetter =~ s/^"//g;
+   $destinationDriveLetter =~ s/"$//g;
    $destinationDriveLetter =~ s/^(.).*$/$1/;		#just the letter, no colon afterward
 
 ##### GET ENVIRONMENT ARGUMENTS:
-my $FLAC=1;
-if ($ENV{"FLAC"} eq "0") { $FLAC=0; }
+my                         $FLAC = 1;
+if ("0" == "$ENV{FLAC}") { $FLAC = 0; }
+my                                                   $PUT_EACH_SONG_IN_RANDOM_FOLDER = 0;
+if ("1" == "$ENV{PUT_EACH_SONG_IN_RANDOM_FOLDER}") { $PUT_EACH_SONG_IN_RANDOM_FOLDER = 1; }			#GOATGOATGOAT make this do a thing
 
 ##### GET FILESYSTEM ARGUMENTS:
 my $COLLAPSE=0; 
-if (-e "$destinationDriveLetter:\__ mp3 sync option - collapse __") { $COLLAPSE=1; }
+if (-e "$destinationDriveLetter:\__ mp3 sync option - collapse __") { $COLLAPSE                       = 1; }
+if (-e "$destinationDriveLetter:\__ each song in random folder __") { $PUT_EACH_SONG_IN_RANDOM_FOLDER = 1; }
 
 ##### VALIDATE COMMAND-LINE ARGUMENTS:
 if (!-e $filelist)    { die("FATAL ERROR: $filelist"    . "doesn't exist!\nBe careful! Some devices are case-sensitive!\n\n"); }
 if (!-d $destination) { die("FATAL ERROR: $destination" . "doesn't exist!\nBe careful! Some devices are case-sensitive!\n\n"); }
 
 ##### DETERMINE FOLDER DIVIDER CHARACTER:
-my $DIVIDER     = "/";
+my $DIVIDER                 ="/" ;
 if ($BACKSLASHES) { $DIVIDER="\\"; } 
 
 ##### READ IN FILELIST:
@@ -52,12 +56,12 @@ close     (FILELIST);
 ##### TRAVERSE FILELIST:
 use strict;
 my $folder="";
-my $newFolder="";
 my $newfile="";
 my $fileonly="";
-my $driveLetterBefore="";
-my $driveLetterAfter="";
+my $newFolder="";
 my $COMMANDSET="";
+my $driveLetterAfter="";
+my $driveLetterBefore="";
 my %FOLDERS_CREATED=();
 my @QUEUEDCOMMANDS =();
 print "\@Echo OFF\n";
@@ -90,6 +94,10 @@ foreach $file (@FILES) {
 		##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-MP3-PLAYLISTS-TO-LOCATION-HELPER.PL, which is the generalized/2nd version of this
 		##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-MP3-PLAYLISTS-TO-LOCATION-HELPER.PL, which is the generalized/2nd version of this
 		##### WARNING! CLIOVIRONMENT REQUIRES ANY UPDATES TO BELOW TO ALSO BE MADE TO SYNC-MP3-PLAYLISTS-TO-LOCATION-HELPER.PL, which is the generalized/2nd version of this
+
+
+
+
 	$newFolder =  $folder;
 
 	$newFolder =~ s/CAROLYN-PROCESS[^\\\/]*//;
@@ -140,9 +148,17 @@ foreach $file (@FILES) {
 	#$newFolder =~ s/$destination$destination/$destination/;
 	$newFolder =~ s/^(.*)([A-Z]:.*$)/$2/;		
 	$newFolder =~ s/\\mp3music\\/\\mp3\\/ig;
+
 	
-	#DEBUG:	
-	print ":REM     ## newFolder for $folder is $newFolder\n";
+	#### All the above $newFolder might be for nothing, because if we set this optin, this is what’s supposed to happen:
+    if ($PUT_EACH_SONG_IN_RANDOM_FOLDER) {
+        # build a 16-char random string from 0–9, a–z
+        my @chars    = ('0'..'9','a'..'z');
+        my $randdir = join '', map { $chars[ int rand @chars ] } 1..16;
+        $newFolder  = $destination . $SLASH . $randdir;							# that becomes your only subfolder under the main $destination
+        $newFolder  = $destination . $SLASH . $randdir;							# that becomes your only subfolder under the main $destination
+    }
+	print "\@rem      *** DEBUG: newFolder for “$folder” is “$newFolder” ***\n";
 
 	##### Sanity check for missing folder substitution patterns:
 	$driveLetterBefore =    $folder; $driveLetterBefore =~ s/^(.).*$/$1/;
@@ -187,7 +203,7 @@ foreach $file (@FILES) {
 		$COMMANDSET .= "color green on black\n";
 	}
 
-	$COMMANDSET .= "if \"\%\@READY[$destinationDriveLetter:]\" eq \"0\" gosub :NotReady\n";
+	$COMMANDSET .= "if \"\%\@READY[$destinationDriveLetter:]\" == \"0\" gosub :NotReady\n";
 
 	#TRIED, BUT WAS STUPID, BECAUSE PLAYLISTS SYNC *FIRST* IN OUR SYSTEM: I want to leave 20M free for playlists, so threshold at 25M: 	#$COMMANDSET .= "if \%\@DISKFREE[$destinationDriveLetter:] lt 26214400 goto :Full\n";
 
@@ -202,12 +218,12 @@ foreach $file (@FILES) {
 	    $COMMANDSET .= "iff exist \"$file\" then\n";
 		$COMMANDSET .= "        iff not exist \"$newfile\" then \n";
 		$COMMANDSET .= "                echo.\n";
-		$COMMANDSET .= "                echos \%\@ANSI_RANDFG_SOFT[]\%\@char[9959] ``\n";
+		$COMMANDSET .= "                echos \%\@ANSI_RANDFG_SOFT[]\%\@RANDCURSOR[]\%\@char[9959] ``\n";
 		$COMMANDSET .= "                $COPY \"$file\" \"$newfile\"\n";
+		$COMMANDSET .= "                delay /m 100\n";									# slight delay to not quote go 100% of the time
 		$COMMANDSET .= "                call status-bar $destinationDriveLetter:\n";
 	    $COMMANDSET .= "        endiff\n";
 	    $COMMANDSET .= "endiff\n";
-
 	}
 
 
@@ -260,6 +276,8 @@ print "        echo.\n";
 print "        echo ..... Annnnnd drive $destinationDriveLetter is no longer ready! WTF! (ERRORLEVEL=\%ERRORLEVEL\%)\n";
 print "        echo ..... File we were going to copy was: \%LASTFILE\%\n";
 print "        call alarm-beep\n";
+print "        echo * Giving a moment to let the drive “spin” back up...\n";
+print "        call pause-for-x-seconds 60\n";
 print "    return\n";
 print "\n";
 print ":END\n";

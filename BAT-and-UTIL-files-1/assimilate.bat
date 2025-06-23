@@ -12,34 +12,34 @@
     call validate-environment-variable MOVIE_WATCHED_OVERFLOW_DRIVE
 
 ::::: Determine assimilate role:
-    if "%@UPPER[%1]"    eq "ALL"                                                             goto :ALL
-	if "%@UPPER[%_CWP]" eq "\DBCU"                                                           goto :DropBoxCameraUploads
-	if "%@UPPER[%_CWP]" eq "\DROPBOX\CAMERA UPLOADS"                                         goto :DropBoxCameraUploads
-	if "%@UPPER[%_CWP]" eq "\NEW\P2P\BITTORRENT\OH"                                          goto :CompletedTorrentCopies
-	if "%@UPPER[%_CWP]" eq         "\BITTORRENT\OH"                                          goto :CompletedTorrentCopies
-	if "%@UPPER[%_CWP]" eq                "\INC\OH"                                          goto :CompletedTorrentCopies
-	if "%@UPPER[%_CWD]" eq           "%DROPDIR%\OH"                                          goto :CompletedTorrentCopies
-	if "%@UPPER[%_CWD]" eq "%HD4000G6%:\MEDIA\FOR-REVIEW\DO_LATERRRRRRRRRRRRRRRRRRRRRRR\oh"  goto :CompletedTorrentCopies
-	if "%@UPPER[%_CWD]" eq "%NEWCL%"                                                         goto :NewCL
-	if "%@UPPER[%_CWD]" eq "%NEWPICS%"                                                       goto :NewPics
-	if "%@UPPER[%_CWP]" eq "\MEDIA\newpics"                                                  goto :NewPics
-	if "%@UPPER[%_CWP]" eq "\newpics"                                                        goto :NewPics
-	if "%@UPPER[%_CWP]" eq "\RSL\DONE"                                                       goto :RSLDone
-	if "%@UPPER[%_CWP]" eq "\RSL"                                                            goto :RSLDone
-	if "%@UPPER[%_CWP]" eq "\np"                                                             goto :NewPics
-	if "%@UPPER[%_CWD]" eq "%READYTODELETE%"                                                 goto :rtd1
-	if "%@UPPER[%_CWD]" eq "%HD2000G5%:\ABOUT-TO-BE-BURNED-DVD\READY-TO-DELETE"              goto :rtd1
-	if "%@UPPER[%_CWD]" eq "%READYTODELETE2ROOTALIAS%"                                       goto :AllBurned
-	if "%@UPPER[%_CWD]" eq       "%HD250G%:\ABOUT-TO-BE-BURNED\DATA\READY-TO-DELETE"         goto :rtd2
-	if "%@UPPER[%_CWD]" eq "%HD2000G5%:\MEDIA\ABOUT-TO-BE-BURNED-DVD\READY-TO-BDR-BURN"	     goto :rtd2
-	if "%@UPPER[%_CWD]" eq       "%HD2000G5%:\ABOUT-TO-BE-BURNED-DVD\READY-TO-BDR-BURN"	     goto :rtd2
-	if "%@UPPER[%_CWD]" eq "%HD2000G5%:\MEDIA\ABOUT-TO-BE-BURNED-DVD\DATA\READY-TO-BDR-BURN" goto :rtd2
-	if "%@UPPER[%_CWD]" eq       "%HD2000G5%:\ABOUT-TO-BE-BURNED-DVD\DATA\READY-TO-BDR-BURN" goto :rtd2
-	if "%@UPPER[%_CWD]" eq "%READYTODELETEBDR%"                                              goto :rtd_vid_after_bluray_burn    %+ REM  ----- post bluray main video one ----
-	if "%@UPPER[%_CWD]" eq       "%HD2000G5:\ABOUT-TO-BE-BURNED\DATA\READY-TO-DELETE"        goto :rtd_data_after_bluray_burn
-	if "%@UPPER[%_CWD]" eq "%HD2000G5:\MEDIA\ABOUT-TO-BE-BURNED\DATA\READY-TO-DELETE"        goto :rtd_data_after_bluray_burn
-	if "%@UPPER[%_CWP]" eq "\MEDIA\MOVIES"                                                   goto :mainMovieWatchingArea
-	if "%@UPPER[%_CWD]" eq "%HDG:\"                                                          goto :TEMPLATE
+        if "%@UPPER[%1]"    == "ALL"                                                             goto :ALL
+	if "%@UPPER[%_CWP]" == "\DBCU" .or. "%1" == "dbcu"                                       goto :DropBoxCameraUploads
+	if "%@UPPER[%_CWP]" == "\DROPBOX\CAMERA UPLOADS"                                         goto :DropBoxCameraUploads
+	if "%@UPPER[%_CWP]" == "\NEW\P2P\BITTORRENT\OH"                                          goto :CompletedTorrentCopies
+	if "%@UPPER[%_CWP]" ==         "\BITTORRENT\OH"                                          goto :CompletedTorrentCopies
+	if "%@UPPER[%_CWP]" ==                "\INC\OH"                                          goto :CompletedTorrentCopies
+	if "%@UPPER[%_CWD]" ==           "%DROPDIR%\OH"                                          goto :CompletedTorrentCopies
+	if "%@UPPER[%_CWD]" == "%HD4000G6%:\MEDIA\FOR-REVIEW\DO_LATERRRRRRRRRRRRRRRRRRRRRRR\oh"  goto :CompletedTorrentCopies
+	if "%@UPPER[%_CWD]" == "%NEWCL%"                                                         goto :NewCL
+	if "%@UPPER[%_CWD]" == "%NEWPICS%"                                                       goto :NewPics
+	if "%@UPPER[%_CWP]" == "\MEDIA\newpics" .or. "%@UPPER[%_CWP]" == "c:\newpics"            goto :NewPics
+	if "%@UPPER[%_CWP]" == "\newpics"                                                        goto :NewPics
+	if "%@UPPER[%_CWP]" == "\RSL\DONE"                                                       goto :RSLDone
+	if "%@UPPER[%_CWP]" == "\RSL"                                                            goto :RSLDone
+	if "%@UPPER[%_CWP]" == "\np"                                                             goto :NewPics
+	if "%@UPPER[%_CWD]" == "%READYTODELETE%"                                                 goto :rtd1
+	if "%@UPPER[%_CWD]" == "%HD2000G5%:\ABOUT-TO-BE-BURNED-DVD\READY-TO-DELETE"              goto :rtd1
+	if "%@UPPER[%_CWD]" == "%READYTODELETE2ROOTALIAS%"                                       goto :AllBurned
+	if "%@UPPER[%_CWD]" ==       "%HD250G%:\ABOUT-TO-BE-BURNED\DATA\READY-TO-DELETE"         goto :rtd2
+	if "%@UPPER[%_CWD]" == "%HD2000G5%:\MEDIA\ABOUT-TO-BE-BURNED-DVD\READY-TO-BDR-BURN"	     goto :rtd2
+	if "%@UPPER[%_CWD]" ==       "%HD2000G5%:\ABOUT-TO-BE-BURNED-DVD\READY-TO-BDR-BURN"	     goto :rtd2
+	if "%@UPPER[%_CWD]" == "%HD2000G5%:\MEDIA\ABOUT-TO-BE-BURNED-DVD\DATA\READY-TO-BDR-BURN" goto :rtd2
+	if "%@UPPER[%_CWD]" ==       "%HD2000G5%:\ABOUT-TO-BE-BURNED-DVD\DATA\READY-TO-BDR-BURN" goto :rtd2
+	if "%@UPPER[%_CWD]" == "%READYTODELETEBDR%"                                              goto :rtd_vid_after_bluray_burn    %+ REM  ----- post bluray main video one ----
+	if "%@UPPER[%_CWD]" ==       "%HD2000G5:\ABOUT-TO-BE-BURNED\DATA\READY-TO-DELETE"        goto :rtd_data_after_bluray_burn
+	if "%@UPPER[%_CWD]" == "%HD2000G5:\MEDIA\ABOUT-TO-BE-BURNED\DATA\READY-TO-DELETE"        goto :rtd_data_after_bluray_burn
+	if "%@UPPER[%_CWP]" == "\MEDIA\MOVIES"                                                   goto :mainMovieWatchingArea
+	if "%@UPPER[%_CWD]" == "%HDG:\"                                                          goto :TEMPLATE
 
 	goto :NoClueWhatToDo
 
@@ -130,7 +130,7 @@ goto :END
 	gosub checkIfDir _watched
 	gosub checkIfDir  %MOVIE_WATCHED_OVERFLOW_DRIVE%:\MEDIA\MOVIES\_WATCHED\
 	%COLOR_ALARM% %+ echo * ERROR is %ERROR %+ %COLOR_NORMAL%
-	if "%ERROR" eq "1" goto :END
+	if "%ERROR" == "1" goto :END
 	mv /ds _watched\* %MOVIE_WATCHED_OVERFLOW_DRIVE%:\MEDIA\MOVIES\_WATCHED\
 	if not isdir _watched (md _watched)
 	if isdir "3-D MOVIES" if exist "*3-D*" mv "*3-D*" "3-D MOVIES"
@@ -161,7 +161,7 @@ goto :END
 			:rtd2nodata2
 			%COLOR_ALARM% %+ echos %DATA2 must exist!
             %COLOR_NORMAL %+ echo.
-			if "%@UPPER[%MACHINENAME%]" eq "FIRE" (%COLOR_ADVICE% %+ echo Odds are this won't run on Fire. %+ %COLOR_NORMAL%)
+			if "%@UPPER[%MACHINENAME%]" == "FIRE" (%COLOR_ADVICE% %+ echo Odds are this won't run on Fire. %+ %COLOR_NORMAL%)
 			::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -254,7 +254,7 @@ goto :END
         :osub CopyToDeleteAfterWatchingHangout 
 	echo.
 	dir
-	if "%ANY_MOVED%" eq "1" goto :Moved_YES
+	if "%ANY_MOVED%" == "1" goto :Moved_YES
 	                        goto :Moved_NO
 		:Moved_YES						
 			 window restore
@@ -308,7 +308,7 @@ goto :END
        :gosub CopyToDeleteAfterWatchingNormal  
 	echo.
 	dir
-		if "%ANY_MOVED%" eq "1" goto :Moved_YES
+		if "%ANY_MOVED%" == "1" goto :Moved_YES
 		                        goto :Moved_NO
 			:Moved_YES						
 				 window restore
@@ -360,7 +360,7 @@ return
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :CopyToDeleteAfterWatchingNormal  [mask]
-    if "%mask%" eq "" goto :prereturn1
+    if "%mask%" == "" goto :prereturn1
 	set TARGET=%DELETEAFTERWATCHING%
     %COLOR_SUCCESS%
 	gosub CopyIncomingVideoToTarget %mask% %target%
@@ -452,7 +452,7 @@ return
 	echo.
 	echo.
 
-	if isdir GAMES (%COLOR_WARNING% %+ echo GAMES folder requires individual dealing with - some stuff goes to \GAMES\, some to \INSTALL-FILES\GAMES\ %+ %COLOR_NORMAL%)
+	if isdir GAMES (%COLOR_WARNING% %+ echo %italics_on%GAMES%italics_off% folder requires individual dealing with - some stuff goes to %italics_on%\GAMES\%italics_off%, some to %italics_on%\INSTALL-FILES\GAMES\%italics_off%%ansi_color_normal% %+ %COLOR_NORMAL%)
 goto :END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

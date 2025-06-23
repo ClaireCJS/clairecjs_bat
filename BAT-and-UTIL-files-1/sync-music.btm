@@ -44,6 +44,7 @@ rem ::::::: DEV ISSUES: UNTESTED: “no flac” option is now implemented, but u
 ::                                                       - DEFAULT BEHAVIOR: set PLAYLIST_SYNC_{PLAYLISTNAME} to YES/NO/ASK in the PRIMARY SETUP CONFIGURATION STEP#3 section to define.
 :: POST-SYNC MANAGEMENT OPTIONS:
 :: "__ mp3 sync option - collapse __"                    - This will collapse all mp3s into one folder. Good for playback devices that won't shuffle across different folders. Shoves all the music into the root folder. 
+:: "__ mp3 sync option - each song in random folder __"  - This will put each song into a randomly-generated folder name to simulate shuffle on bluetooth speakers with no random functionality
 ::
 :: DEPRECATED OPTIONS:
 :: "__ mp3 sync option - do not check for free space __" - During pre-wipe phase, will skip the free space prompt and pressing a key to continue. Nowadays we simply use "__ mp3 sync option - auto-wipe __". Leaving this for backward compatibility
@@ -66,6 +67,18 @@ rem ::::::: DEV ISSUES: UNTESTED: “no flac” option is now implemented, but u
 ::::::::::::::::::::::::::::::::::::::::::::::::::: PRIMARY SETUP CONFIGURATION: BEGIN: ::::::::::::::::::::::::::::::::::::::::::::::
 ::::::::::::::::::::::::::::::::::::::::::::::::::: PRIMARY SETUP CONFIGURATION: BEGIN: ::::::::::::::::::::::::::::::::::::::::::::::
 
+        rem 2025 configuration: formailze which playlists we tend to process, and use this array for future script enhancements:
+                if "%our_playlists[0]%" != "" unsetarray /q our_playlists
+                setarray our_playlists[8]
+                set      our_playlists[0]=oh
+                set      our_playlists[1]=party unlearned
+                set      our_playlists[2]=party
+                set      our_playlists[3]=best
+                set      our_playlists[4]=collaring ceremony updated
+                set      our_playlists[5]=crtl
+                set      our_playlists[6]=changerrecent
+                set      our_playlists[7]=changer
+
     ::::: CONFIGURATION: STEP 0: WIPE ENVIRONMENT VARIABLES THAT MAY BE LEFT OVER FROM PREVIOUS RUNS, CAUSING BAD SIDE-EFFECTS
     ::::: DON'T ALTER THIS SECTION!!
         unset /q VALUE ARG1 PLAYLIST_DEFAULT_SYNC_* SYNC_ANSWER_* ANSWER* 
@@ -79,8 +92,15 @@ rem ::::::: DEV ISSUES: UNTESTED: “no flac” option is now implemented, but u
     ::::: This is a full set of the playlists that we will ever sync to any device 
     ::::: Each of these playlists will need a default sync policy set in step 3 below
     ::::: For example, if you only ever care about party.m3u and car.m3u, set POTENTIAL_PLAYLISTS=CAR PARTY
-        set POTENTIAL_PLAYLISTS="PARTY UNLEARNED"                                          %+ rem testing
-        set POTENTIAL_PLAYLISTS=OH CRTL CHANGERRECENT PARTY "PARTY UNLEARNED" BEST CHANGER 
+        rem set POTENTIAL_PLAYLISTS="PARTY UNLEARNED"                                          %+ rem testing
+        rem set POTENTIAL_PLAYLISTS=OH CRTL CHANGERRECENT PARTY "PARTY UNLEARNED" BEST CHANGER 
+        rem The new way:
+        unset /q potential_playlists
+        do tmp_playlist in /Y our_playlists
+                rem echo tmp_playlist is “%tmp_playlist%”
+                set potential_playlists=%POTENTIAL_PLAYLISTS% "%tmp_playlist%" 
+        enddo
+
 
     ::::: CONFIGURATION: STEP 3: WHICH PLAYLISTS GET SYNCED IN THE ABSENCE OF AN OPTION FILE:
     ::::: For each playlist defined in the POTENTIAL_PLAYLISTS in STEP 2, you need to define a default sync policy
@@ -98,12 +118,13 @@ rem ::::::: DEV ISSUES: UNTESTED: “no flac” option is now implemented, but u
     ::::: How do you wipe files? How do you launch scripts? 
     ::::: How do you handle whether launched scripts disappear after they are run?
     ::::: Alter at risk:
-        set WIPECOMMAND=*del /q
-        set WIPELIST=wipelist.txt
+        set    WIPECOMMAND=*del /q
+        set       WIPELIST=wipelist.txt
         set LAUNCHER_START=start /min
-        set LAUNCHER_CALL=call
-        set LAUNCHER=%LAUNCHER_CALL%
-        set EXITAFTER=0 %+ if "%LAUNCHER%" == "%LAUNCHER_START%" set EXITAFTER=1
+        set  LAUNCHER_CALL=call
+        set       LAUNCHER=%LAUNCHER_CALL%
+        set      EXITAFTER=0 
+        if "%LAUNCHER%" == "%LAUNCHER_START%" set EXITAFTER=1
 
     ::::: CONFIGURATION: STEP 5: CONFIGURATION VALIDATION:
         for %var in (%POTENTIAL_PLAYLISTS%) if not defined PLAYLIST_DEFAULT_SYNC_%@UNQUOTE[%var%] (%COLOR_ALARM% %+ echo * FATAL ERROR: %%PLAYLIST_DEFAULT_SYNC_%var% NOT DEFINED! %+ pause %+ goto :END)
@@ -118,13 +139,14 @@ rem ::::::: DEV ISSUES: UNTESTED: “no flac” option is now implemented, but u
 
 
 ::::: INTERNAL FLAGS:
-	set ANSWER_WIPE=%ANSWER_WIPE_DEFAULT%
+    set ANSWER_WIPE=%ANSWER_WIPE_DEFAULT%
     set ERROR=0
+    set ThrowAllFilesToRootDir_DONE_ALREADY=0
 
 ::::: DEBUG FLAGS:                                  // if  %DEBUG% the environment variable is set, let's turn on ALL the debug flags:
     set DEBUG_WIPE=0                                %+ if "%DEBUG%" == "1" (set DEBUG_WIPE=1                             )
     set DEBUG_DETERMINE_WHICH_PLAYLISTS_TO_SYNC=0   %+ if "%DEBUG%" == "1" (set DEBUG_DETERMINE_WHICH_PLAYLISTS_TO_SYNC=1)
-:goat
+
 
 
 
@@ -164,23 +186,45 @@ rem Manual copy of current folder tree to drive:
 
 ::::: ALLLOW FOR QUICK SETUP OF NEW MP3 DEVICES/USB DRIVES:
         if "%1" != "SETUP"  goto :NotSettingUp
-                %COLOR_WARNING% %+ echo WARNING: About to set up this device to sync mp3s to. You sure you want to do this?!?!?!?! %+ %COLOR_NORMAL%
-                pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause %+ pause 
+                %COLOR_WARNING% %+ echo WARNING: About to set up this device to sync mp3s to. You sure you want to do this?!?!?!?!%ansi_color_normal% %+ %COLOR_NORMAL%
+                pause /# 6
                 *cd \
+                if exist __* *del /p __*
                 if not isdir mp3 md MP3
                 >"__ mp3 holder __"
-                >"__ mp3 sync option - no playlists __"
-                >"__ mp3 sync option - auto-wipe __.disabled"
-                >"__ mp3 sync option - collapse __.disabled"
-                >"__ mp3 sync option - sync ask - oh __"
-                >"__ mp3 sync option - sync always - party unlearned __"
-                >"__ mp3 sync option - sync ask - best __
-                >"__ mp3 sync option - sync always - CRTL __"
-                >"__ mp3 sync option - sync ask - party __
-                >"__ mp3 sync option - sync ask - changer __"
-                call rn *sync*
-                dir
-                %COLOR_SUCCESS% %+ echo All done! %+ %COLOR_NORMAL%
+
+                call bigecho "Please configure your behavior when running sync-music / sync:"
+                echo. 
+
+
+                rem Ask the binary questions:
+                        call askyn "Copy playlists here in addition to music" no 0
+                                        if "N" == "%ANSWER%" >"__ mp3 sync option - no playlists __"
+                                        if "Y" == "%ANSWER%" >"__ mp3 sync option - no playlists __.disabled"
+                        call askyn "Auto-wipe music before sync’ing new music to it" no 0
+                                        if "Y" == "%ANSWER%" >"__ mp3 sync option - auto-wipe __"
+                                        if "N" == "%ANSWER%" >"__ mp3 sync option - auto-wipe __.disabled"
+                        call askyn "Collapse folders after sync" no 0
+                                        if "Y" == "%ANSWER%" >"__ mp3 sync option - collapse __"
+                                        if "N" == "%ANSWER%" >"__ mp3 sync option - collapse __.disabled"
+                        call askyn "Put each individual song into a randomly-numbered folder to force shuffle" no 0
+                                        if "Y" == "%ANSWER%" >"__ mp3 sync option - each song in random folder __"
+                                        if "N" == "%ANSWER%" >"__ mp3 sync option - each song in random folder collapse __.disabled"
+
+
+                rem Ask the non-binary questions:
+                        set sync_question_pre_blurb=When syncing, sync the files in ``
+                        set sync_question_post_blurb=? [%ansi_color_bright_green%1%ansi_color_prompt%=Always,%ansi_color_bright_green%2%ansi_color_prompt%=Never,%ansi_color_bright_green%3%ansi_color_prompt%=Ask each time we sync]                                               
+                        do tmp_playlist in /Y our_playlists
+                                rem echo tmp_playlist is “%tmp_playlist%”
+                                set tmp_playlist_4_print=%@REPLACE[ ,_,%tmp_playlist%]
+                                call askyn "%sync_question_pre_blurb%“%italics_on%%ansi_color_orange%%tmp_playlist%.m3u%italics_off%%ansi_color_prompt%”%sync_question_post_blurb%" 0 0 123 1:always_sync_%tmp_playlist_4_print%.m3u,2:never_sync_%tmp_playlist_4_print%.m3u,3:ask_about_%tmp_playlist_4_print%.m3u_each_time
+                                        if "1" == "%ANSWER%" >"__ mp3 sync option - sync always - %tmp_playlist% __"
+                                        if "2" == "%ANSWER%" >"__ mp3 sync option - sync never - %tmp_playlist% __"
+                                        if "3" == "%ANSWER%" >"__ mp3 sync option - sync ask - %tmp_playlist% __"
+                        enddo
+                rem dir
+                call celebration "All done!"
                 goto :END
         :NotSettingUp
 
@@ -205,18 +249,27 @@ rem SETUP & VALIDATION:
     gosub SetupAndValidation
 
 
+
+
                                                                        
 rem MAKING USAGE STRICTER IN 2025:
         rem React if no params given:
                 iff "" == "%1"  then
-                        echo.
-                        echo %ansi_color_advice%%star% Please use:
-                        echo           %star2% “sync-music all” 
-                        echo           %star2% “sync-music {drive_letter followed by colon}:”  to sync just 1 drive letter
-                        echo           %star2% “sync-music setup”                              to set up a new USB stick with default options
-                        echo           %star2% “sync-music AskAboutCurrentFolderTree”          to copy the current folder tree (1ˢᵗ level deep, then 2ⁿᵈ level deep) to our target %faint_on%(may need to set driveletter={a letter})%faint_off%
-
-                        goto /i end
+                        rem IF NO PARAMS WERE GIVEN, see if current drive is sufficient:
+                                iff exist "__ mp3 holder __" then
+                                        set curdrive=%@LEFT[1,%_CWD]
+                                        call AskYN "Sync music to %italics_on%this%italics_off% drive (%@UPPER[%curdrive%]:)" yes 0
+                                        call sync-music %curdrive%:
+                                        goto /i END_SYNC_MUSIC 
+                                endiff
+                        rem Otherwise, show usage:
+                                echo.
+                                echo %ansi_color_advice%%star% Please use:
+                                echo           %star2% “sync-music all” 
+                                echo           %star2% “sync-music {drive_letter followed by colon}:”  to sync just 1 drive letter
+                                echo           %star2% “sync-music setup”                              to set up a new USB stick with default options
+                                echo           %star2% “sync-music AskAboutCurrentFolderTree”          to copy the current folder tree (1ˢᵗ level deep, then 2ⁿᵈ level deep) to our target %faint_on%(may need to set driveletter={a letter})%faint_off%
+                                goto /i END_SYNC_MUSIC 
                 endiff
 
         rem Determine if it is a one-drive-letter invocation:
@@ -235,10 +288,10 @@ rem MAKING USAGE STRICTER IN 2025:
         
 
 
-rem pre-2025 COMMAND-LINE BRANCHING:
-    if "%1" == "" .and. "%@READY[%SYNCONLY%]" == "1" set ARG1=%SYNCONLY%        %+ call print-if-debug SYNCONLY         is %SYNCONLY%
-    set                                 SYNC_DRIVE_READY=%@READY[%ARG1%]        %+ call print-if-debug SYNC_DRIVE_READY is %SYNC_DRIVE_READY%
-    if "%ARG1%" == ""              (set SYNC_DRIVE_READY=0      )               %+ call print-if-debug SYNC_DRIVE_READY is %SYNC_DRIVE_READY%
+rem COMMAND-LINE BRANCHING:
+    if "%1" == "" .and. "%@READY[%SYNCONLY%]" == "1" set ARG1=%SYNCONLY%        %+ call print-if-debug "SYNCONLY         is %SYNCONLY%"
+    set                                 SYNC_DRIVE_READY=%@READY[%ARG1%]        %+ call print-if-debug "SYNC_DRIVE_READY is %SYNC_DRIVE_READY%"
+    if "%ARG1%" == ""              (set SYNC_DRIVE_READY=0              )       %+ call print-if-debug "SYNC_DRIVE_READY is %SYNC_DRIVE_READY%"
 	if "%SYNC_DRIVE_READY%" == "1" (goto :single_drive_execution)               
         :multi_drive_execution     
             echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. 
@@ -283,8 +336,13 @@ rem pre-2025 COMMAND-LINE BRANCHING:
         if "%DriveLetter%" == "" (%COLOR_ALARM% %+ echos * %%DriveLetter passed to :syncDriveLetter cannot be blank?!?! What's going on?!?! %+ %COLOR_NORMAL% %+ pause %+ echo. %+ return)
 
 
+    :: Set environment variable if we are to put each song in a random folder:       
+                set PUT_EACH_SONG_IN_RANDOM_FOLDER=0
+                if exist "%DriveLetter%:\__ mp3 sync option - each song in random folder __" set PUT_EACH_SONG_IN_RANDOM_FOLDER=1
+
+
     :: Let user know what's going on:
-        echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. 
+        repeat 5 echo.
         %COLOR_IMPORTANT% %+ echo *** SyncDriveLetter: %@UPPER[%DriveLetter%]:... %+ %COLOR_NORMAL%
 
     :: Validate some things:        
@@ -317,7 +375,7 @@ rem pre-2025 COMMAND-LINE BRANCHING:
         rem isdir "%DriveLetter:\mp3\"             goto :GENERIC_YES           
                                                    goto :GENERIC_NO            
             :GENERIC_YES
-                call debug "generic handling"
+                call  debug "generic handling"
                 gosub GENERIC %DriveLetter%                  %+ REM New-and-Improved Generic handling
                 goto  :returnFromSyncDriveLetter
             :GENERIC_NO
@@ -380,6 +438,8 @@ return
     call less_important "about to collapse the folder structure if instructed"
     pause               "about to collapse the folder structure if instructed"
     gosub CollapseTheFolderStructureIfInstructed
+    gosub PutEachSongInRandomFolderIfInstructed
+
 
     gosub MarkWhenSyncOccurred
 return
@@ -683,8 +743,8 @@ if %DEBUG% ge 1 echo %@colorful[if  "%[PLAYLIST_DEFAULT_SYNC_%quoteless_playlist
                                     if "%VALUE%" != "1" goto :No
                                         %COLOR_IMPORTANT%                              
                                         *cls
-                                        echo                   - RUNNING: %LAUNCHER%   sync-filelist "%mp3%\lists\%UNQUOTED_PLAYLIST%.m3u" %DriveLetter%:\%BaseDir%\
-                                        %COLOR_SUBTLE%        %+          %LAUNCHER%   sync-filelist "%mp3%\lists\%UNQUOTED_PLAYLIST%.m3u" %DriveLetter%:\%BaseDir%\
+                                        echo                   - RUNNING: %LAUNCHER%   sync-filelist "%mp3%\lists\%UNQUOTED_PLAYLIST%.m3u" %DriveLetter%:\%BaseDir%\ NoRandomAsk
+                                        %COLOR_SUBTLE%        %+          %LAUNCHER%   sync-filelist "%mp3%\lists\%UNQUOTED_PLAYLIST%.m3u" %DriveLetter%:\%BaseDir%\ NoRandomAsk
                                         %COLOR_NORMAL%                                       
 
                                     :No
@@ -730,6 +790,23 @@ if %DEBUG% ge 1 echo %@colorful[if  "%[PLAYLIST_DEFAULT_SYNC_%quoteless_playlist
                         md \mp3
                     return
                     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+                    ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+                    :PutEachSongInRandomFolderIfInstructed []
+                        echo PutEachSongInRandomFolderIfInstructed  is a bypass function that does nothing for right now. Remove it once we get the perl thingy working %+ return
+
+                        :: DEBUG: %COLOR_DEBUG% %+ 
+                        if not exist "%DriveLetter%:\__ mp3 sync option - each song in random folder __" return %+ color white on black
+                        if "%LAUNCHER%" == "%LAUNCHER_START%" (%COLOR_PROMPT% %+ echos * Wait for sync to finish and %+ pause %+ %COLOR_NORMAL%)
+                        *cd \
+                        if "1" != "%ThrowAllFilesToRootDir_DONE_ALREADY%"  gosub ThrowAllFilesToRootDir
+                        gosub RemoveAllDirectoriesOnly  
+
+                        call bigecho "Need to create code to randomly put everything here"
+
+                        rem md \mp3
+                    return
+                    ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
                     ::::::::::::::::::::::::::::::::
                     :RemoveAllDirectoriesANDFiles
                         %COLOR_REMOVAL%
@@ -786,9 +863,9 @@ if %DEBUG% ge 1 echo %@colorful[if  "%[PLAYLIST_DEFAULT_SYNC_%quoteless_playlist
                     return                        
                     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-                
 :END
-        unset /q SYNCONLY EXITAFTER VALUE ARG1 PLAYLIST_DEFAULT_SYNC_* SYNC_ANSWER_* ANWER*
+:END_SYNC_MUSIC                
+        unset /q SYNCONLY EXITAFTER VALUE ARG1 PLAYLIST_DEFAULT_SYNC_* SYNC_ANSWER_* ANWER* ThrowAllFilesToRootDir_DONE_ALREADY
         *cd \
         call yyyymmdd
         rem got sick of seeing this: if "%ERROR%" != "1" dir

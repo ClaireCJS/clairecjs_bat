@@ -18,11 +18,19 @@
         call set-temp-file sync_filelist_bat
         set TEMPBAT=%tmpfile%.bat
 
+::::: ASK ABOUT RANDOM FOLDER PLACEMENT:
+        set curSetting=%@IF["%PUT_EACH_SONG_IN_RANDOM_FOLDER%" == "1",yes,no]
+        iff "%3" != "NoRandomAsk" then
+                call askyn "Put each file in a randomly-named folder [D=don’t change current setting of “%curSetting%”]" no 60 d D:dont_change_current_setting_of_%curSetting%
+                if "N" == "%ANSWER%" set PUT_EACH_SONG_IN_RANDOM_FOLDER=0
+                if "Y" == "%ANSWER%" set PUT_EACH_SONG_IN_RANDOM_FOLDER=1
+        endiff
+
 ::::: CREATE AND RUN TEMP-SCRIPT:
-	echo * sync-filelist-helper.pl %1 %2 
-	echo * sync-filelist-helper.pl %1 %2     to %TEMPBAT
-	REM    sync-filelist-helper.pl %1 %2 |& tee %TEMPBAT
-	       sync-filelist-helper.pl %1 %2    >:u8%TEMPBAT
+	echo * sync-filelist-helper.pl "%@UNQUOTE["%1"]" "%@UNQUOTE["%2"]"
+	echo * sync-filelist-helper.pl "%@UNQUOTE["%1"]" "%@UNQUOTE["%2"]"     to %TEMPBAT
+	REM    sync-filelist-helper.pl "%@UNQUOTE["%1"]" "%@UNQUOTE["%2"]" |& tee %TEMPBAT
+	       sync-filelist-helper.pl "%@UNQUOTE["%1"]" "%@UNQUOTE["%2"]"    >:u8%TEMPBAT
 	call %TEMPBAT
 	call fix-window-title
 goto :END
@@ -53,6 +61,10 @@ goto :END
 			echo .     Folders like c:\mp3\Metallica\ and such will be become  e:\music-location\Metallica\ , for example
 			echo .
 			echo This can also be used with non-playlists. Any list of files can be sync'ed with this. But you may need to add directory transformations to the code...
+                        echo
+                        echo %ansi_color_advice%%star% REMEMBER TO OPTIONALLY RUN “sync setup” ON THE TARGET DEVICE FIRST!! %star% %ansi_color_normal%
+                        
+
 		goto :END
 		::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

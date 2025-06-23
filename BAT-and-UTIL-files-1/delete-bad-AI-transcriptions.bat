@@ -70,7 +70,7 @@ rem Halt condition 1: No subtitles/lyrics/text to even bother searching for bad 
                 title %_CWP
                 echo.                                                                                
                 rem “No AI transcriptions to delete”
-                echo %ansi_color_red%%zzzzz%%star2% %underline_on%No%underline_off%%zzzzzz% %italics_on%AI transcriptions%italics_off% %@cursive_plain[to] delete %@cursive_plain[in]: %dir_txt% %+ goto /i END %+ else
+                echo %ansi_color_red%%zzzzz%%star2% %underline_on%No%underline_off%%zzzz% bad %italics_on%AI transcriptions%italics_off% %@cursive_plain[to] delete %@cursive_plain[in]: %dir_txt% %+ goto /i END %+ else
                 if exist %FILEMASK_AUDIO% call delete-zero-byte-files %FILEMASK_AUDIO% silent
         else
                 rem “Looking for AI transcriptions to delete”
@@ -190,12 +190,12 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
                 if "%@FILESIZE[%tmpfile1%]" == "0" (repeat 5 gosub step %+ goto :nothing_to_do)                         
 
         rem set options for del-maybe-after-review:
-                set EVEN_MORE_PROMPT_TEXT=,%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%Q%ansi_color_prompt%=enqueue
-                set EVEN_MORE_EXTRA_LETTERS=IP
+                set EVEN_MORE_PROMPT_TEXT=,%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%Q%ansi_color_prompt%=enqueue,%ansi_color_bright_green%S%ansi_color_prompt%=₉as sound effect
+                set EVEN_MORE_EXTRA_LETTERS=IPS
 
         rem Set additional Winamp-related options if winamp integration is set:
                 iff "1" == "%WINAMP_INTEGRATION_GENERAL%" .or. "%WINAMP_INTEGRATION_GETLYRICS%" == "1" then
-                        set EVEN_MORE_PROMPT_TEXT=%EVEN_MORE_PROMPT_TEXT%,%ansi_color_bright_green%I%ansi_color_prompt%=₉mark as instrumental
+                        set EVEN_MORE_PROMPT_TEXT=%EVEN_MORE_PROMPT_TEXT%,%ansi_color_bright_green%I%ansi_color_prompt%=₉Mark as instrumental
                         set EVEN_MORE_EXTRA_LETTERS=%EVEN_MORE_EXTRA_LETTERS%Q
                 endiff
 

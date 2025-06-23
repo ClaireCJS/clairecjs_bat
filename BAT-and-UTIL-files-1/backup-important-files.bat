@@ -35,7 +35,7 @@ rem ...But do NOT auto-create the dropbox one (that's too intrusive to do automa
 
 
 rem Define environment variables for any not-yet-undefined important files we're about to back up:
-        set EYEBARCAPS=%HD1T3%:\beta\browser-extension\eyebarCaptions.txt
+        set EYEBARCAPS=%util2%\browser-extensions\BetaSafety\latest\browser-extension\eyebarCaptions.txt
         set WINAMP_INI="%APPDATA%\winamp v5.666\winamp.ini"
 
 

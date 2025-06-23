@@ -144,11 +144,12 @@ def main_guts(input_filename, extensions, options, extra_args):
         if    "(chiptunes)"        in file.lower() or  "[chiptunes]"        in file.lower(): continue
         if   "\\chiptunes\\"       in path.lower() or "\\chiptune\\"        in path.lower(): continue
         if    "(instrumental)"     in file.lower() or  "[instrumental]"     in file.lower(): continue
-        if    "(instrumentals)"    in file.lower() or  "[instrumentals]"    in file.lower(): continue
+        if     "instrumentals)"    in file.lower() or   "instrumentals]"    in file.lower(): continue
         if   "\\instrumentals\\"   in path.lower() or "\\instrumental\\"    in path.lower(): continue
         if    "(sound effect)"     in file.lower() or  "[sound effect]"     in file.lower(): continue
         if    "(sound effects)"    in file.lower() or  "[sound effects]"    in file.lower(): continue
         if   "\\sound effects\\"   in path.lower() or "\\sound effect\\"    in path.lower(): continue
+        if     "sound effect"      in file.lower() or   "sound effect"      in path.lower(): continue           # this sloppier-than-the-rest catch-all turned out to be necessary
         if    "(untranscribable)"  in file.lower() or  "[untranscribable]"  in file.lower(): continue
         if    "(untranscribeable)" in file.lower() or  "[untranscribeable]" in file.lower(): continue
 

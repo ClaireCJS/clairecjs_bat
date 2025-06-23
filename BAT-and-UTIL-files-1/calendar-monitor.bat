@@ -45,17 +45,21 @@ rem Let’s not forget about those!
 
 rem Start it up:
         call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Starting %italics_on%Calendar Monitor%italics_off%...
+
         rem *start "Calendar Monitor" /MIN c:\bat\calendar-monitor-helper.bat %*
             *start "Calendar Monitor" /MIN python c:\bat\ingest_ics.py %*
 
 
 
 rem Deprecated code to minimize it:
-        rem  call sleep 2
-        rem  call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Minimizing %italics_on%Calendar Monitor%italics_off% to %italics_on%tray%italics_off%...
-        rem  rem activate "Calendar Monitor*" tray
-        rem  rem minimize "*Calendar Monitor*"
+        call sleep 2
+        call bigecho %STAR% %ANSI_COLOR_IMPORTANT%Minimizing %italics_on%Calendar Monitor%italics_off% to %italics_on%tray%italics_off%...
+        rem call minimize /hide  "Calendar Monitor"
+        rem activate "Calendar Monitor*" tray
+        rem call minimize /hide "*ingest_ics.py*
+        rem window activate
         rem  rem call minimize "*ingest_ics*"
+        activate "*ingest_ics*" tray
 
 
 rem Some advice:

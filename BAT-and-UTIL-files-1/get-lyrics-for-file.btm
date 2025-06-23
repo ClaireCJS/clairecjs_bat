@@ -130,21 +130,22 @@ rem CONFIG: BEHAVIOR: LYRIC RETRIEVAL: DEFAULT ANSWERS:
 : ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem CONFIG: WAIT TIMES: DEFAULTS ━━ MAKE SURE ANY NEW ONES GET ADDED TO MODE-DEPENDENT ONES AS WELL, ESPECIALLY THOROUGH MODE:
         SET ADDITIONAL_HAND_EDIT_WAIT_TIME_IF_THEY_GOOGLED=220                        %+ rem Additional wait time to add on to last value in the event that they Googled the lyrics [to give time to check out the google results before the Yes/No prompt expires] ... One can get lost for several minutes searching through the google results, so best to extend this by several minutes....
+        SET APPROVE_LYRICLESS_SONGS_WAIT_TIME=18                                      %+ rem how long to wait for the prompt: “Do you want to approve “lyriclessness” status, and officially give up on finding lyrics for this song?”
+        set DOWNLOAD_NEW_REPLACEMENT_LYRICS_WAIT_TIME=360                             %+ rem how long to wait for the prompt: “Do you want to download new lyrics to overwrite/replace your existing ones”
+        set GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME=25                                     %+ rem how long to wait for the prompt: “do you want to google the lyrics?”-type questions
+        set GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME=250                                    %+ rem how long to wait for the prompt: “do you want to google the lyrics?”-type questions
+        set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=60                  %+ rem how long to wait for the prompt:           “hand edit these lyrics?”-type questions
+        set IS_THIS_AN_INSTRUMENTAL_WAIT_TIME=90                                      %+ rem how long to wait for the prompt:          “Is this an instrumental?”-type questions
         set LARGE_DOWNLOAD_WARNING_WAIT_TIME=0                                        %+ rem Wait time after announcing that the lyrics downloaded seemed larger than expected [pretty uselessi n practice]
+        set LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS=800                            %+ rem give us 15 minutes to hand edit in case we get distracted
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=180                                  %+ rem How long to show lyrics on the screen for them to get approval or not —— was 60 but running this while playing games made me miss the prompt so increased to 180
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=1800                                 %+ rem How long to show lyrics on the screen for them to get approval or not —— was 60 but running this while playing games made me miss the prompt so increased to 180
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO=4                               %+ rem How long to show lyrics on the screen for them to get approval or not —— if the environment variable says they are already pre-approved
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_FOR_FORCE_REGEN=10                   %+ rem How long to show lyrics on the screen for them to get approval or not when we are in force-regen mode and probably already did this
         rem LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=30                                   %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can’t be done in automatic mode], before proceeding on 
         set LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=180                                  %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can’t be done in automatic mode], before proceeding on 
+        set PAUSED_DEBUG_WAIT_TIME=5                                                  %+ rem how long to wait for debug statements we’re particularly focusing on
         set WAIT_AFTER_ANNOUNCING_MASSAGED_SEARCH=0                                   %+ rem How long to wait after displaying the massaged artist/title prior to searching for the (if the 1st search with non-massaged failed). If set to 0, there will be no notice at all
-        set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=60                  %+ rem how long to wait for “hand edit these lyrics?”-type questions
-        set GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME=25                                     %+ rem how long to pause on “do you want to google the lyrics?”-type questions
-        set GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME=250                                    %+ rem how long to pause on “do you want to google the lyrics?”-type questions
-        set LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS=800                            %+ rem give us 15 minutes to hand edit in case we get distracted
-        set PAUSED_DEBUG_WAIT_TIME=5                                                  %+ rem how long to pause on debug statements we’re particularly focusing on
-        SET APPROVE_LYRICLESS_SONGS_WAIT_TIME=18                                      %+ rem how long to pause on the prompt: “Do you want to approve “lyriclessness” status, and officially give up on finding lyrics for this song?”
-        set DOWNLOAD_NEW_REPLACEMENT_LYRICS_WAIT_TIME=360                             %+ rem how long to pause on the prompt: “Do you want to download new lyrics to overwrite/replace your existing ones”
 : ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem CONFIG: WAIT TIMES: DEPENDING ON CALLING SCRIPT:
         iff "%PARENT_BAT%" == "get-lyrics" then                              
@@ -159,27 +160,28 @@ rem CONFIG: WAIT TIMES: DEPENDING ON ENVIRONMENT-VARIABLE-PARAMETER:
                 set LARGE_DOWNLOAD_WARNING_WAIT_TIME=0                        %+ rem Wait time after announcing that the lyrics downloaded seemed larger than expected [pretty uselessi n practice]
                 set LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=3                    %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can’t be done in automatic mode], before proceeding on 
                 set WAIT_AFTER_ANNOUNCING_MASSAGED_SEARCH=0                   %+ rem How long to wait after displaying the massaged artist/title prior to searching for the (if the 1st search with non-massaged failed)
-                set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=2   %+ rem how long to wait for “hand edit these lyrics?”-type questions
-                set GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME=1                      %+ rem how long to pause on “do you want to google the lyrics?”-type questions
+                set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=2   %+ rem how long to wait for the prompt:          “Is this an instrumental?”-type questions
+                set GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME=1                      %+ rem how long to wait for the prompt: “do you want to google the lyrics?”-type questions
                 SET ADDITIONAL_HAND_EDIT_WAIT_TIME_IF_THEY_GOOGLED=1          %+ rem Additional wait time to add on to last value in the event that they Googled the lyrics [to give time to check out the google resuls before the Yes/No prompt expires]
         endiff
 : ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem CONFIG: WAIT TIMES: MODE-DEPENDENT: THOROUGH MODE: basically a copy of the default values, but with almost everyting set to “0”:
-        iff "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" then                     
+        if "1" != "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" goto /i end_of_thorough_time_wait_config
         SET ADDITIONAL_HAND_EDIT_WAIT_TIME_IF_THEY_GOOGLED=0                          %+ rem Additional wait time to add on to last value in the event that they Googled the lyrics [to give time to check out the google results before the Yes/No prompt expires] ... One can get lost for several minutes searching through the google results, so best to extend this by several minutes....
+        SET APPROVE_LYRICLESS_SONGS_WAIT_TIME=0                                       %+ rem how long to pause on the prompt: “Do you want to approve “lyriclessness” status, and officially give up on finding lyrics for this song?”
+        set DOWNLOAD_NEW_REPLACEMENT_LYRICS_WAIT_TIME=0                               %+ rem how long to pause on the prompt: “Do you want to download new lyrics to overwrite/replace your existing ones”
+        set GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME=0                                      %+ rem how long to pause on “do you want to google the lyrics?”-type questions
+        set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=0                   %+ rem how long to wait for “hand edit these lyrics?”-type questions
+        set IS_THIS_AN_INSTRUMENTAL_WAIT_TIME=0                                       %+ rem how long to wait for the prompt:          “Is this an instrumental?”-type questions
         set LARGE_DOWNLOAD_WARNING_WAIT_TIME=0                                        %+ rem Wait time after announcing that the lyrics downloaded seemed larger than expected [pretty uselessi n practice]
+        set LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS=0                              %+ rem give us 15 minutes to hand edit in case we get distracted
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=0                                    %+ rem How long to show lyrics on the screen for them to get approval or not —— was 60 but running this while playing games made me miss the prompt so increased to 180
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO=0                               %+ rem How long to show lyrics on the screen for them to get approval or not —— if the environment variable says they are already pre-approved
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_FOR_FORCE_REGEN=0                    %+ rem How long to show lyrics on the screen for them to get approval or not when we are in force-regen mode and probably already did this
         set LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=0                                    %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can’t be done in automatic mode], before proceeding on 
-        set WAIT_AFTER_ANNOUNCING_MASSAGED_SEARCH=0                                   %+ rem How long to wait after displaying the massaged artist/title prior to searching for the (if the 1st search with non-massaged failed). If set to 0, there will be no notice at all
-        set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=0                   %+ rem how long to wait for “hand edit these lyrics?”-type questions
-        set GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME=0                                      %+ rem how long to pause on “do you want to google the lyrics?”-type questions
-        set LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS=0                              %+ rem give us 15 minutes to hand edit in case we get distracted
         set PAUSED_DEBUG_WAIT_TIME=30                                                 %+ rem how long to pause on debug statements we’re particularly focusing on
-        SET APPROVE_LYRICLESS_SONGS_WAIT_TIME=0                                       %+ rem how long to pause on the prompt: “Do you want to approve “lyriclessness” status, and officially give up on finding lyrics for this song?”
-        set DOWNLOAD_NEW_REPLACEMENT_LYRICS_WAIT_TIME=0                               %+ rem how long to pause on the prompt: “Do you want to download new lyrics to overwrite/replace your existing ones”
-        endiff                                              
+        set WAIT_AFTER_ANNOUNCING_MASSAGED_SEARCH=0                                   %+ rem How long to wait after displaying the massaged artist/title prior to searching for the (if the 1st search with non-massaged failed). If set to 0, there will be no notice at all
+        :end_of_thorough_time_wait_config
 : ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 : ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 : ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 𝓽𝓲𝓶𝓮𝓸𝓾𝓽 𝓬𝓸𝓷𝓯𝓲𝓰𝓾𝓻𝓪𝓽𝓲𝓸𝓷 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -225,12 +227,13 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 rem Remove any trash environment variables left over from a previously-aborted run which might interfere with the current run:
         rem rem echo y α linish 151
         rem unset /q LYRIC_RETRIEVAL_1_FAILED
-        unset /q LD1_MASSAGED_ATTEMPT_1 WE_GOOGLED TRY_SELECTION_AGAIN ONLY_ONE_FILE_AND_IT_WAS_TRIED cover_original_attempt DO_NOT_ASK_TO_HAND_EDIT ALREADY_HAND_EDITED already_searched_for* GOOGLE_NOW ANSWER goto_download_with_lyric_downloader_1 goto_download_with_lyric DO_NOT_ASK_TO_HAND_EDIT PREV_GENIUS_FNAME_2_USE postprocessed_lyrics
+        unset /q LD1_MASSAGED_ATTEMPT_1 WE_GOOGLED TRY_SELECTION_AGAIN ONLY_ONE_FILE_AND_IT_WAS_TRIED cover_original_attempt DO_NOT_ASK_TO_HAND_EDIT ALREADY_HAND_EDITED already_searched_for* GOOGLE_NOW ANSWER goto_download_with_lyric_downloader_1 goto_download_with_lyric DO_NOT_ASK_TO_HAND_EDIT PREV_GENIUS_FNAME_2_USE postprocessed_lyrics FORCE_REGEN_LYRICS
         unset /q logged_lyricapproval_*
         set FORCE_ASK_TO_APPROVE_LYRICLESSNESS=0
         echo FORCE_HAND_EDIT=%FORCE_HAND_EDIT% trace 1 >nul 
         set FORCE_HAND_EDIT=0
         set LYRICS_ACCEPTABLE=0
+        set FORCE_REGEN_LYRICS=0                                               
         set JUST_APPROVED_LYRICS=0
         set JUST_GENERATED_LYRICS=0
         set LYRICS_JUST_DISAPPROVED=0
@@ -241,7 +244,6 @@ rem Remove any trash environment variables left over from a previously-aborted r
         set JUST_RENAMED_TO_INSTRUMENTAL=0
         set FORCE_AI_ENCODE_FROM_LYRIC_GET=0
         set GOTO_END_AFTER_GET_LYRICS_CALLED=0
-        if "%2" != "SetVarsOnly" set FORCE_REGEN=0                                                      %+ rem If we set it as 1 in get-karaoke, we need to pass it explicitly to this one rather than inherit it. Too messy in practice.
         rem set LYRIC_SUCCESS_CELEBRATION_DISPLAYED=0 %+ rem we changed this from a 0/1 flag to a “1_%audio_file%” flag
         set debanded=0
         unset /q LYRIC_SEARCH_FAILED GENIUS_ONLY ABANDONED_SEARCH LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE GOTO_END did_not_go_to_end_169 lyric_downloader_initialized player_command_to_use LAST_ALIGNMENT_TEMP_INDEX rejected_original_lyrics JUST_CONVERTED_FROM
@@ -384,7 +386,7 @@ rem VALIDATE PARAMETERS [every time]:
                 endiff
 
         rem Chedk for “force” option which may only have been provided this BAT when directly called (it’s often set in get-karaoke.bat)
-                if "%1" == "force" .or. "%2" == "force" .or. "%3" == "force" .or. "%4" == "force" .or. "%5" == "force" .or. "%6" == "force" (set force_regen=1 %+ goto /i done_skip_if_already_approved_lyriclessness)
+                if "%1" == "force" .or. "%2" == "force" .or. "%3" == "force" .or. "%4" == "force" .or. "%5" == "force" .or. "%6" == "force" (set force_regen_LYRICS=1 %+ goto /i done_skip_if_already_approved_lyriclessness)
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -444,7 +446,7 @@ iff "%2" != "SetVarsOnly" then
         rem  ^^^^^^^^ decided to expand this into 2 lines to reduce line-wrap errors
         set quote_color=%ansi_color_bright_green%
 
-        iff "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "1" != "%force_regen%" then
+        iff "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "1" != "%force_regen_LYRICS%" then
                 call warning "is this the infinite loop?!?!?!"
                 goto /i :END_OF_GET_LYRICS
         endiff
@@ -476,7 +478,7 @@ rem Skip if already an approved-for-lyricLESSness song....
         rem set LYRICLESSNESS=%@ExecStr[TYPE "%@UNQUOTE["%AUDIO_FILE%"]:lyriclessness" >&>nul]   %+ rem Read lyriclessness status        
         rem ^^^^^ moved to beginning of file: call get-lyriclessness-status "%AUDIO_FILE%"
         rem  call get-lyriclessness-status "%AUDIO_FILE%" 🐐1 status=%RECEIVED_VALUE / %LYRICLESSNESS_STATUS
-        rem echo %ansi_color_subtle%* LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”, FORCE_REGEN=“%FORCE_REGEN%” , audio_file=“%audio_file%” %ansi_color_normal% %conceal_on%%conseal_off%
+        rem echo %ansi_color_subtle%* LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”, FORCE_REGEN_LYRICS=“%FORCE_REGEN_LYRICS%” , audio_file=“%audio_file%” %ansi_color_normal% %conceal_on%%conseal_off%
         rem echo  [EL-A] get-lyrics: INITIAL lyric status ===== “%LYRIC_STATUS%” .... LYRICLESSNESS_STATUS ==== “%LYRICLESSNESS_STATUS%” ............... FORCE_REDOWNLOAD=“%FORCE_REDOWNLOAD%”  ............. %%1=“%1” %%2=“%2”
 
         rem rem echo y α linish 300
@@ -741,37 +743,33 @@ rem Check if the lyrics are already approved...
         rem rem echo y α linish 432
         rem echo 🐐 [GL-A] INITIAL lyric         status ===== “%LYRIC_STATUS%”
         if "%LYRIC_STATUS%" == "" gosub refresh_lyric_status
-        rem echo 🐐 [GL-Z] INITIAL lyric         status ===== “%LYRIC_STATUS%” ... force_regen=“%force_regen%”
+        rem echo 🐐 [GL-Z] INITIAL lyric         status ===== “%LYRIC_STATUS%” ... force_regen_LYRICS=“%force_regen_LYRICS%”
         if not exist "%LYRIC_FILE%" set LYRIC_STATUS=NOT_SET
-        iff     "%LYRIC_STATUS%" == "APPROVED" .and. "1" == "%FORCE_REGEN%" then
-                ren /q "%LYRIC_FILE%" "%LYRIC_FILE%.removed_via_force_parameter.%[_datetime].bak"
-                set LYRIC_STATUS=NOT_SET
-                set LYRICLESSNESS_STATUS=NOT_SET
-                goto /i :from_goto_459                
-        elseiff "%LYRIC_STATUS%" == "APPROVED" .and. "1" != "%FORCE_REGEN%" then
-                gosub divider
-                rem echo Tracer we're here in approval-land right? [1]
-                call celebrate "%blink_off%Lyrics already approved!"
-                rem 2025/06 taking this out for redundancy: echo %ANSI_COLOR_SUCCESS%%CHECK% Lyrics already approved: %ansi_color_less_important%%italics_on%%LYRIC_FILE%%italics_off%%ansi_color_normal%``
-                rem echo Tracer we're here in approval-land right? [2]
-                iff "1" == "%FORCE_REGEN%" then
-                        call sleep 1
-                        rem echo hi goto_end==%lq%%goto_end%%rq%
-                else
+        iff  "%LYRIC_STATUS%" == "APPROVED"  then
+                iff     "1" == "%FORCE_REGEN_LYRICS%" then
+                        ren /q "%LYRIC_FILE%" "%LYRIC_FILE%.removed_via_force_parameter.%[_datetime].bak"
+                        set LYRIC_STATUS=NOT_SET
+                        set LYRICLESSNESS_STATUS=NOT_SET
+                        rem call sleep 1
+                        goto /i :from_goto_459                
+                elseiff "1" != "%FORCE_REGEN_LYRICS%" then
+                        gosub divider
+                        call celebrate "%blink_off%Lyrics already approved!"
+                        iff "1" == "%FORCE_REGEN_LYRICS%" then
                         goto /i END_OF_GET_LYRICS
-                        rem set goto_end=1
                 endiff
         endiff
 
         gosub "%BAT%\create-srt-from-file.bat" refresh_lyriclessness_status
         rem echo [GM]   INITIAL lyriclessness status ===== “%LYRICLESSNESS_STATUS%”
         if "%LYRICLESSNESS_STATUS%" != "APPROVED" goto /i not_lyricless
-                rem OLD: echo %ANSI_COLOR_WARNING_SOFT%%blink_on%%STAR2%%blink_off% Already marked %italics_on%lyric%underscore_on%less%underscore_off%%italics_off%!%ansi_color_normal% %faint_on%[force_regen=%force_regen%]%faint_off%
+                rem OLD: echo %ANSI_COLOR_WARNING_SOFT%%blink_on%%STAR2%%blink_off% Already marked %italics_on%lyric%underscore_on%less%underscore_off%%italics_off%!%ansi_color_normal% %faint_on%[force_regen_LYRICS=%force_regen_LYRICS%]%faint_off%
                 rem NEW:
-                rem no longer need this debug output: %faint_on%[force_regen=%force_regen%]%faint_off%
+                rem no longer need this debug output: %faint_on%[force_regen_LYRICS=%force_regen_LYRICS%]%faint_off%
                 call warning_soft "%ansi_color_orange%Already marked %italics_on%lyric%underscore_on%less%underscore_off%%italics_off%!" big
+                call warning_soft "%ansi_color_orange%(which causes automatic transcription without having to fetch lyrics first)" 
 
-                if "1" != "%FORCE_REGEN%" .and. "%1" !=  "force" .and. "%2" != "force" .and. "%3" !=  "force" .and. "1" != "%did_not_go_to_end_169%" goto /i END_OF_GET_LYRICS
+                if "1" != "%FORCE_REGEN_LYRICS%" .and. "%1" !=  "force" .and. "%2" != "force" .and. "%3" !=  "force" .and. "1" != "%did_not_go_to_end_169%" goto /i END_OF_GET_LYRICS
                         rem so at this point it wwas marked lyricless, but we’re also forcing. So we should potentially check the lyrics first, and not force a download over it.
                         set did_not_go_to_end_169=1
                         unset /q ANSWER
@@ -801,7 +799,7 @@ rem Catch our breath
 rem Skip if the lyrics are already approved:
     rem iff "%LYRIC_STATUS%" == "APPROVED"                             then
         rem rem echo y α linish 378
-        iff "%LYRIC_STATUS%" == "APPROVED" .and. "%2" != "SetVarsOnly" .and. "1" != "%FORCE_REGEN%" then
+        iff "%LYRIC_STATUS%" == "APPROVED" .and. "%2" != "SetVarsOnly" .and. "1" != "%FORCE_REGEN_LYRICS%" then
                 call success "Lyrics already approved for “%italics_on%%@name[%audio_file%]%italics_off%”!"
                 if not defined EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=%LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS% 
                 rem set GOTO_END=1
@@ -1247,7 +1245,7 @@ rem Check if we already have approved lyrics in the same folder:
 
         :check_lyric_file_begin                
         rem echo - DEBUG:  wondering if things went south yet [16]
-        iff exist "%LYRIC_FILE%" .and. %@FILESIZE["%LYRIC_FILE%"] gt 0 .and. "1" != "%FORCE_REGEN%"  then
+        iff exist "%LYRIC_FILE%" .and. %@FILESIZE["%LYRIC_FILE%"] gt 0 .and. "1" != "%FORCE_REGEN_LYRICS%"  then
                 rem Get lyric pre-approval status
                         rem if  "%LYRIC_STATUS%" == "" call get-lyric-status "%LYRIC_FILE%" silent
                         if  "%LYRIC_STATUS%" == "" gosub refresh_lyric_status       
@@ -1260,7 +1258,7 @@ rem Check if we already have approved lyrics in the same folder:
                                 set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO%
                                 rem set GOTO_END=1
                                 goto /i END_OF_GET_LYRICS
-                        elseiff "1" == "%FORCE_REGEN" then 
+                        elseiff "1" == "%FORCE_REGEN_LYRICS" then 
                                 set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_FOR_FORCE_REGEN%
                         else                        
                                 set LYRICS_ACCEPTABLE=0
@@ -1399,7 +1397,7 @@ rem Check if we already have approved lyrics in the same folder:
 
                 rem Ask if the lyrics are good:
                         rem Default answer is different depending on the situation:
-                                iff "1" == "%LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE%" .or. "1" == "%FORCE_REGEN%" then
+                                iff "1" == "%LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE%" .or. "1" == "%FORCE_REGEN_LYRICS%" then
                                         set LYRIC_ACCEPTANCE_PROMPT_TO_USE=yes
                                         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_TO_USE=%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_FOR_FORCE_REGEN%
                                         unset /q LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE
@@ -2428,7 +2426,7 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
         if "1" == "%GENIUS_ONLY%"  (goto /i Skip_Hand_Editing)
         gosub divider 
         rem echo %ANSI_COLOR_UNIMPORTANT%- DEBUG: Initial LYRICLESSNESS_STATUS IS “%LYRICLESSNESS_STATUS%”
-        iff "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "1" != "%FORCE_REGEN%" then
+        iff "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "1" != "%FORCE_REGEN_LYRICS%" then
                 echo %ansi_color_warning_soft%%star2%%star2%%star2% Lyriclessness status is “%LYRICLESSNESS_STATUS%”, so we are aborting lyric retrieval %star2%%star2%%star2%%ansi_color_normal%
                 goto /i END_OF_GET_LYRICS
         endiff
@@ -2673,7 +2671,7 @@ rem Final chance to hand edit the lyrics, but skip it if we already opted to sea
         rem Ask if we are supposed to:   
                 unset /q answer
                 rem echo 🌴 iff "1" != GENIUS_ONLY="%GENIUS_ONLY%" .and. "1" != ALREADY_HAND_EDITED="%ALREADY_HAND_EDITED%" then and. LYRICLESSNESS_STATUS="%LYRICLESSNESS_STATUS%" != "APPROVED" then         🐐
-                if "1" == "%FORCE_REGEN%" goto /i :goto_from_2338
+                if "1" == "%FORCE_REGEN_LYRICS%" goto /i :goto_from_2338
                 iff "1" != "%GENIUS_ONLY%" .and. "1" != "%ALREADY_HAND_EDITED%" .and. "%LYRICLESSNESS_STATUS%" != "APPROVED" then         
                         call AskYN "Hand-edit our%conceal_on%H%conceal_off%lyrics" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME%
                 endiff
@@ -2752,7 +2750,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 rem Mark the lyric file as approved/disapproved, using windows Alternate Data Streams:
 
 
-        iff exist "%LYRIC_FILE%" .and. "1" != "%LYRICS_FOUND_TO_HAVE_BEEN_PREAPPROVED%" .and. "1" != "%FORCE_REGEN%" then
+        iff exist "%LYRIC_FILE%" .and. "1" != "%LYRICS_FOUND_TO_HAVE_BEEN_PREAPPROVED%" .and. "1" != "%FORCE_REGEN_LYRICS%" then
                 rem echo LYRIC_STATUS is %LYRIC_STATUS 🐶🐶🐶
                 rem gosub divider
                 iff "1" == "%LYRICS_ACCEPTABLE%" .and. "%LYRIC_STATUS%" !=      "APPROVED" then
@@ -2958,8 +2956,8 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                         iff "1" != "%[already_asked_about_%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%]" then
                                  set  already_asked_about_%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%=1
                         else
-                                echo Already asked about this song.... (already_asked_about_%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%=“%[already_asked_about_%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%]”)
-                                return
+                                echo %ansi_color_warning_soft%%star2% Already asked about this song.... (already_asked_about_%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%=“%[already_asked_about_%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%]”)%ansi_color_normal%
+                                if "%PARENT_BAT%" != "" .and. "%PARENT_BAT%" != "create-srt-from-file" return
                         endiff
                         rem echo are we still here? 🐐🐐🐐🐐
 
@@ -2978,14 +2976,19 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                                         set HELD_ANSWER=%ANSWER%
                                                 :ask_again_2283
                                                 unset /q ANSWER
-                                                call AskYN "₁Is this an instrumental? [%ansi_color_bright_green%P%ansi_color_prompt%=Preview]" No %GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME% IPQ Q:enQueue_in_winamp,P:preview_song,I:instrumental_it_is!
+                                                call AskYN "₁Is this an instrumental? [%ansi_color_bright_green%P%faint_on%/%faint_off%Q%ansi_color_prompt%=Preview/enQueue,%ansi_color_bright_green%S%ansi_color_prompt%=sound effect]" No %IS_THIS_AN_INSTRUMENTAL_WAIT_TIME% IPQS Q:enQueue_in_winamp,P:preview_song,I:instrumental_it_is!,S:no_but_its_a_sound_effect
                                                 SET LAST_ANSWER_TO_ISTHISINSTRUMENTAL=%ANSWER%
 
                                                 gosub check_for_answer_of_P "%@UNQUOTE["%audio_file%"]"
                                                 if "P" == "%ANSWER%" gosub ask_again_2283
 
+                                                SET ANSWER=%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%
                                                 gosub check_for_answer_of_Q "%@UNQUOTE["%audio_file%"]"
                                                 if "Q" == "%ANSWER%" gosub ask_again_2283
+
+                                                SET ANSWER=%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%
+                                                gosub check_for_answer_of_S "%@UNQUOTE["%audio_file%"]"
+                                                if "S" == "%ANSWER%" gosub ask_again_2283
 
                                                 SET ANSWER=%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%
                                                 if "I" == "%ANSWER%" .or. "Y" == "%ANSWER%" (echos %EMOJI_BEAR% %+ gosub rename_audio_file_as_instrumental %+ goto /i END_OF_GET_LYRICS)
@@ -3031,7 +3034,7 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                 echo %ansi_color_advice%%star2%       “%ansi_color_bright_yellow%linstrumental%ansi_color_advice%” means “no words are sung or spoken at all”
                 :ask_if_want_mark_lyriclessness_2
                 unset /q ANSWER
-                call AskYn "Want to mark this song %ansi_green%i%ansi_color_prompt%nstrumental or %ansi_green%l%ansi_color_prompt%yrics %underline_on%unfindable%underline_off% (i.e. officially abandon our lyric search[%ansi_color_bright_green%Z%ansi_color_prompt%=All]) [%ansi_color_bright_green%P%ansi_color_%=Play]" no %GOOGLE_FOR_LYRICS_PROMPT_WAIT_TIME% IGLPQZ I:Mark_this_file_as_an_instrumental,G:Google,L:It’s_Lyricless,Z:Mark_all_as_lyricless,Q:enQueue_in_winamp,P:Play_it %+ rem 🐮 borrowed wait time
+                call AskYn "Want to mark this song %ansi_green%i%ansi_color_prompt%nstrumental or %ansi_green%l%ansi_color_prompt%yrics %underline_on%unfindable%underline_off% (i.e. officially abandon our lyric search[%ansi_color_bright_green%Z%ansi_color_prompt%=All]) [%ansi_color_bright_green%P%ansi_color_%=Play]" no %IS_THIS_AN_INSTRUMENTAL_WAIT_TIME% IGLPQZ I:Mark_this_file_as_an_instrumental,G:Google,L:It’s_Lyricless,Z:Mark_all_as_lyricless,Q:enQueue_in_winamp,P:Play_it %+ rem 🐮 borrowed wait time
                 gosub check_for_answer_of_G
                 gosub check_for_answer_of_I
                 if "1" == "%GOTO_END%" (goto /i END_OF_GET_LYRICS)
@@ -3203,6 +3206,19 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                         set   LRC_FILE=%@NAME["%AUDIO_FILE%"].lrc
                 endiff
                 call warning "Renaming may break future operations...You may want to hit Ctrl-C now...." %+ pause
+        return
+
+
+        :check_for_answer_of_S [opt]        
+                rem This only applies if we gave an answer of “S”:
+                        iff "S" != "%ANSWER" return
+                
+                rem Process “opt” parameter to potentially override %lyric_file% with a different file:
+                        if exist       "%LYRIC_FILE%" set file_to_use=%@UNQUOTE["%LYRIC_FILE%"]
+                        if "" != "%@UNQUOTE["%opt%"]" set file_to_use=%@UNQUOTE["%opt%"]
+
+                rem Rename it:
+                        gosub rename_audio_file_as_sound_effect "%@UNQUOTE["%file_to_use%"]"  
         return
 
         :debug [msg]
@@ -3701,7 +3717,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                                 set OUTER_INSTRUMENTAL_ANSWER=%ANSWER%
 
                         rem If we want to mark it as a sound effect, do that:
-                                if "S" != "%ANSWER" goto /i not_S_2915
+                                iff "S" == "%ANSWER" then
                                         gosub rename_audio_file_as_sound_effect "%@UNQUOTE["%tmpFileForXAnswer_copy%"]"  tmpFileForXAnswer_copy
                                         echo - DEBUG: LAST_RENAMED_TO=%lq%%LAST_RENAMED_TO%%rq% 🐈
                                         if "" == "%LAST_RENAMED_TO%" goto /i do_not__update_3032
@@ -3710,7 +3726,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                                         :do_not__update_3032
                                         echo - DEBUG: tmpFileForXAnswer_copy now == %lq%%tmpFileForXAnswer_copy%%rq% .. LAST_RENAMED_TO was %lq%%LAST_RENAMED_TO%%rq% 
                                         goto about_to_askyn_3390
-                                :not_S_2915
+                                endiff
 
                         rem If we are forcing a global change, just do it:
                                 iff "1" == "%force_unmark_every_file_as_instrumental%" .or. "1" == "%force_mark_every_file_as_instrumental%" .or. "1" == "%force_mark_every_file_as_NOT_an_instrumental%" then
@@ -3877,10 +3893,11 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                                 set already_marked_as=1
                         else
                                 set already_marked_as=0
-                        endiff
-                        iff "%@Regex[sound effect,"%filename_to_rename_as_instrumental_or_whatever%"]" == "1" then
-                                echo %ansi_color_warning_soft%%star2% %italics_on%Already marked%italics_off% as a sound effect: “%faint_on%%filename_to_rename_as_instrumental_or_whatever%%faint_off%”
-                                set already_marked_as=1
+                                rem Try again without brackets:
+                                iff "%@Regex[sound effect,"%filename_to_rename_as_instrumental_or_whatever%"]" == "1" then
+                                        echo %ansi_color_warning_soft%%star2% %italics_on%Already marked%italics_off% as a sound effect: “%faint_on%%filename_to_rename_as_instrumental_or_whatever%%faint_off%”
+                                        set already_marked_as=1
+                                endiff
                         endiff
                         if "1" == "%already_marked_as%" goto /i skip_it_2700
 
@@ -3905,18 +3922,24 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                                 endiff
 
                         rem 2.66) But otherwise——DO ask:
-                                if "%1" == "ask" .or. "%ask%" == "ask"  call AskYN "Mark as %nature%? [P=%ansi_color_bright_green%P%ansi_color_prompt%lay]" no 1200 PQ Q:enQueue_in_winamp,P:Preview_file_via_playback
+                                if "%1" == "ask" .or. "%ask%" == "ask"  call AskYN "₅Mark as %nature%? [P=%ansi_color_bright_green%P%ansi_color_prompt%lay]" no 1200 PQ Q:enQueue_in_winamp,P:Preview_file_via_playback
                                 :we_used_the_outer_answer_instead
 
                         rem 3) If we answered the question with “P” for “Play it” (or “Q” to enQueue in WinAmp), then we aren’t sure what to do yet, and need to play it:
-                                iff "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" then
+                        rem 3.5) And if we answered “S” for sound effect, that needs to work too...
+                                iff "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" then
                                         gosub   check_for_answer_of_P   "%@UNQUOTE["%filename_to_rename_as_instrumental_or_whatever%"]"
                                         gosub   check_for_answer_of_Q   "%@UNQUOTE["%filename_to_rename_as_instrumental_or_whatever%"]"
+                                        gosub   check_for_answer_of_S   "%@UNQUOTE["%filename_to_rename_as_instrumental_or_whatever%"]"
+                                        call    delete-zero-byte-files   %FILEMASK_AUDIO% 
+                                endiff
+                                iff "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" then
                                         goto /i rafai_ask_again       
                                 endiff
 
                         rem 4) If we opted not to rename it, then abort this function:
-                                iff  "Y" != "%ANSWER%" .and. "I" != "%ANSWER%" then    rem We use “I” in place of “Y” for Yes-rename-as-instrumental
+                                gosub debug "answer at 3942 is %answer% 🐐"
+                                iff  "Y" != "%ANSWER%" .and. "I" != "%ANSWER%" .and. "S" != "%ANSWER%" .and. "C" != "%ANSWER%" then    rem We use “I” in place of “Y” for Yes-rename-as-instrumental
                                         echo %ansi_color_warning_soft%%star%Fine, won’t rename as %italics_on%%nature%%italics_off% then!%ansi_color_normal%
                                         return
                                 endiff
@@ -4135,7 +4158,7 @@ rem Debug stuffs:
                 rem     But otherwise, if we’re just looking for lyrics, then we can unset this value as we don’t need it later and it can mess up multilpe lyric search:
                 rem echo 🦴 parent_bat = “%PARENT_BAT%” .. making_karaoke=“%making_karaoke%” %+ rem call pause-for-x-seconds 9
                 if "%PARENT_BAT%" != "create-srt-from-file" unset /q LYRICLESSNESS_STATUS LYRIC_STATUS                                                  
-                if "%2"           != "SetVarsOnly"          unset /q FORCE_REGEN 
+                if "%2"           != "SetVarsOnly"          unset /q FORCE_REGEN_LYRICS 
                 unset /q ANSWER ABANDONED_SEARCH
             rem unset /q LYRIC_SEARCH_FAILED            //leave this one for auditing
             rem unset /q LYRIC_RETRIEVAL_1_FAILED       //leave this one for auditing

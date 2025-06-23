@@ -399,7 +399,12 @@ if (($METHOD eq "2008") || ($METHOD eq "2009") ||  ($REGEX_GIVEN_AT_COMMAND_LINE
 #### POST LAST.FM STUFF IS SO MUCH EAISER:
 if ($METHOD >= 2024) {
 	if ($DEBUG>0) { print "{{{{post-last.fm methodology}}}} [method=$METHOD] [filename=$filename]\n"; }
-	my $tmp_whatchamacallit = $filename;
+
+	# only include the current-playing file when no regex was supplied
+    if (!$REGEX_GIVEN_AT_COMMAND_LINE) {	
+        my $tmp_whatchamacallit = $filename;
+        push(@TARGET_FILES, $tmp_whatchamacallit);
+    }
 	push(@TARGET_FILES,$tmp_whatchamacallit);
 }	
 

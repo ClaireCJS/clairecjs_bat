@@ -85,7 +85,9 @@
     :AlrightAlready
 
 ::::: ENVIRONMENT VALIDATION:
-    call validate-environment-variables FILEMASK_IMAGE FILEMASK_VIDEO THE_ALPHABET NEWPICS
+    call validate-environment-variables FILEMASK_IMAGE skip_validation_existence
+    call validate-environment-variables FILEMASK_VIDEO skip_validation_existence
+    call validate-environment-variables THE_ALPHABET NEWPICS
 
 
 ::::: DETERMINE TARGET & OTHER SETUP:

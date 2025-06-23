@@ -1,6 +1,7 @@
 @on break cancel
 @Echo OFF
 
+set oldtitle=%_title
 
 echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo.  
 echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo.  
@@ -291,3 +292,6 @@ REM 404! https://jpsoft.com/help/whats-new-in-version-26.htm is a 404 echo. %+ e
  echo. %+ echo. %+ color bright green on bright blue %+ echo ****** v30 additions ****** %+ color white on black
     echo _PBATCHNAME = Parent batchfile name = %_PBATCHNAME
     echo _VOLUME     = volume (updated)      = %_volume
+
+title %oldtitle% >nul
+

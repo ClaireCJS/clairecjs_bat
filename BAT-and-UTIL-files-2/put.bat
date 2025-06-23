@@ -55,7 +55,7 @@
         if "%TARGETDIRTEMP%" ne "" (set TARGETDIR=%TARGETDIRTEMP%)
         %COLOR_PROMPT%  %+echos  *** Edit target folder's name to your heart's content: *** ``
         %COLOR_SUCCESS% %+ echo.
-        eset TARGETDIR  
+        if "0" != "%CONFIRM%" eset TARGETDIR  
         %COLOR_NORMAL%
 
 ::::: ENSURE TARGET DOESN'T ALREADY EXIST:

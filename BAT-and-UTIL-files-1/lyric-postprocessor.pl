@@ -239,6 +239,7 @@ while (<$INPUT>) {
 
 
 
+
 		#### artist/song mentions to get rid of:
 		#dynamic content removals {uses environment variables set in create-lyrics bat}		
 		if ($file_artist ne "") { 
@@ -263,17 +264,21 @@ while (<$INPUT>) {
 
 		#character-level fixes:
 		#commas and quotes and dashes and punctuation, oh my!
-		$line =~ s/„/”/g;			# copied from lyric-postprocessor: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
-		$line =~ s/</⧼/g;			# redirection characters should not reach our command-line, which is what our lyrics mode is used for
-		$line =~ s/>/⧽/g;			# redirection characters should not reach our command-line, which is what our lyrics mode is used for
-		$line =~ s/\|/│/g;			# redirection characters should not reach our command-line, which is what our lyrics mode is used for		
-		$line =~ s/[â'`]/’/ig;		# apostrophes and misrepresentations thereof
-		$line =~ s/’’/’/ig;			# apostrophe kludge 20250424 1358
-	    $line =~ s/"/'/g;			# change quotes to apostrophes so these can be used as a quoted command line argument
-		$line =~ s/\-\-/—/g;		# double-hyphen is really an em-dash
+		$line =~ s/[â'`]/’/ig;			# apostrophes and misrepresentations thereof
+		$line =~ s/’’/’/ig;				# apostrophe kludge 20250424 1358
+		#OLD: $line =~ s/\-\-/—/g;		# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
+		$line =~ s/\-\-([^>])/—$1/g;	# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
+		$line =~ s/„/”/g;				# copied from lyric-postprocessor: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
+
+		#character-level fixes: for command line compatibility, because our lyrics become part of a command-line prompt to WhisperAI:
+		$line =~ s/\|/│/g;				# redirection characters should not reach our command-line, which is what our lyrics mode is used for		
+	    $line =~ s/"/'/g;				# change quotes to apostrophes so these can be used as a quoted command line argument
+		$line =~ s/</⧼/g;				# redirection characters should not reach our command-line, which is what our lyrics mode is used for
+		$line =~ s/>/⧽/g;				# redirection characters should not reach our command-line, which is what our lyrics mode is used for
 
 		# word level fixes
 		$line =~ s/([a-z]) (\-)([a-z])/$1$2$3/ig;												   # turn things like “double -dutch” back into “double-dutch”
+		$line =~ s/\bwont\b/won’t/gi;
 
 		#formatting: dealing with ALL CAPS LYRICS
 		#if there are >=10 all-caps letters and no lowercase letters, lowercase the line

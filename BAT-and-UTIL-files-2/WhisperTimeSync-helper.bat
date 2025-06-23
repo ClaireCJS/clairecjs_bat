@@ -119,7 +119,7 @@ rem Did it work?
 
 rem WhisperTimeSync is horribly buggy so we fix some of that——particularly the blocks that are completely missing lyrics——with our subtitle postprocessor:
         echo %ansi_color_important%%star% Postprocessing subtitle file because %italics_on%WhisperTimeSync%italics_off% produces malformed SRT files...%ansi_color_normal%
-        subtitle-postprocessor.pl "%SRT_NEW%"
+        subtitle-postprocessor.pl -w "%SRT_NEW%"
 
 rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big

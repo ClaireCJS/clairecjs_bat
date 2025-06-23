@@ -124,7 +124,7 @@ rem Parameter processing:
         if "%1" == "/s"     (shift %+ set RECURSE_CFMK=1            )
         if "%1" == "/f"     (shift %+ set ONLY_RUN_ONCE_PER_FOLDER=0)
         if "%1" == "force"  (shift %+ set CFMK_FORCE=1)
-        if "%1" != ""       (echo * ERROR: check-for-missing-karaoke.bat still need to process command tail value of, but doesn’tk now how: %1$ %+ goto /i Again)
+        if "%1" != ""       (echo * ERROR: check-for-missing-karaoke.bat still need to process command tail value of, but doesn’t know how: %1$ %+ goto /i Again)
         rem DEBUG pause "After cmd tail proc, CFMK_FORCE=“%CFMK_FORCE%”"
 
 
@@ -257,9 +257,10 @@ rem ═════════════════════════�
 
                 rem If the lockfile still exists and is valid, let user know about “force” option——unless that option is already being used:
                 rem Otherwise, set our answer timeout to a low value with “yes” so that the lockfile is automatically deleted in “force” mode:
+                        rem TODO hard-coded timeout values here
                         iff "1" != "%cfmk_force%" then
                                 echo %ANSI_COLOR_ADVICE%%star2% Use ‘force’ option to continue anyway %ansi_color_normal%
-                                set ANSWER_TIMEOUT=0
+                                set ANSWER_TIMEOUT=1200 %+ rem TODO fix hardcoded val
                                 set ANSWER_DEFAULT=no
                         else
                                 set ANSWER_TIMEOUT=5
@@ -268,7 +269,7 @@ rem ═════════════════════════�
 
                 rem Ask if they want to delete the lockfile, using parameters that may have been modified by the “force” option:
                         unset /q ANSWER
-                        call AskYN "Delete lockfile & proceed anyway" %ANSWER_DEFAULT% %ANSWER_TIMEOUT%
+                        call AskYN "Delete lockfile & proceed in this folder anyway" %ANSWER_DEFAULT% %ANSWER_TIMEOUT%
 
                 rem If the user answered “Yes” to our deletion question (which is not asked in “force” mode), then delete it:
                 rem Otherwise, let the user know that we are aborting execution because a lockfile exists and we are already working in this folder

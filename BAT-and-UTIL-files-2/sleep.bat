@@ -1,6 +1,7 @@
 @Echo Off
- on break cancel
- set old_title_sleep=%_title                        
+@set old_title_sleep=%_title                        
+@on break cancel
+rem @call init-bat
 
 :USAGE: sleep <seconds to sleep> [silent/clock] [custom clock message with special substitution for {seconds}]
 
@@ -74,10 +75,12 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
             rem Temporarily change cursor to the vertical blinking bar, which is the least obtustive to the animated clock:
                     if %silent ne 1 (echos %ANSI_CURSOR_CHANGE_TO_VERTICAL_BAR_BLINKING%) else (echos %ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%)
 
+
+        rem Actually do the sleep 1 second at a time:
             do second = %SLEEP_TIME% to 0 by -1 
 
                     rem Animate our sleep/wait countdown:                        
-                            iff %silent ne 1 then
+                            if "%silent%" == "1" goto /i silent_checkpoint_1
                                     rem Determine which clock emoji to use at this second:
                                             set emoji_to_use=%EMOJI_STOPWATCH%
                                             set                          last_digit=%@INSTR[%@EVAL[%@LEN[%second]-1],1,%second%]
@@ -139,7 +142,10 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
 
                                     rem Turn the cursor off, which makes the blinking stay in a consistent location instead of being all bouncy:
                                             if %silent ne 1 (echos %ANSI_CURSOR_INVISIBLE%) 
-                            else
+
+                                    goto /i checkpoint_old_endiff_153
+
+                            :silent_checkpoint_1
                                     rem Update window title:
                                             title %emoji_to_use% Sleep: %second% more seconds %emoji_to_use%
 
@@ -147,7 +153,7 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                                             rem echos %@RANDOM_CURSOR_COLOR[]%ANSI_CURSOR_CHANGE_TO_BLOCK_STEADY%
                                             echos %@randcursor[]
                                             if "%second" != "0" (*delay 1)
-                            endiff
+                            :checkpoint_old_endiff_153
 
 
 

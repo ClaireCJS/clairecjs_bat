@@ -1,5 +1,5 @@
 @loadbtm on
-@echo DZBF BEGIN━━━━━━-━—-━━-–🐐🐐🐐
+@rem @echo DZBF BEGIN━━━━━━-━—-━━-–🐐🐐🐐
 @echo off
 @on break cancel
 
@@ -55,4 +55,4 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 :END
         unset /q DZBF_SILENT
-        @echo DZBF END━━━━━━-━—-━━-–🐐🐐🐐
+        @rem @echo DZBF END━━━━━━-━—-━━-–🐐🐐🐐

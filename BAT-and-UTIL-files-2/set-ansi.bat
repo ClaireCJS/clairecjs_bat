@@ -211,8 +211,10 @@ rem —————————————————————————�
                         function    ANSI_CURSOR_RANDOM=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
                         rem Aliases:                                                                                            
                                 function RANDOM_CURSOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
+                                function   RAND_CURSOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
                                 function    RANDCURSOR=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
                                 function    CURSORRAND=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
+                                function   CURSOR_RAND=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]%@char[27][%@random[0,6] q`
                                 rem echos %@RANDCURSOR[]
 
 

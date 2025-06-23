@@ -116,13 +116,11 @@ rem Make sure ansi_move_to function is defined:
                 unset /q VALIDATE_MULTIPLE 
     else 
         set USER_MESSAGE=
-        do i = 1 to %# (
-                 rem pause "validate_environment_variable  %[%i]"
-                 gosub restore_cusor_position
-                 gosub display_temp_output %[%i]
-
-                 gosub  validate_environment_variable  %[%i]
-        )
+        do i = 1 to %# 
+                gosub restore_cusor_position
+                gosub display_temp_output            %[%i]
+                gosub validate_environment_variable  %[%i]
+        enddo
     endiff
 
 

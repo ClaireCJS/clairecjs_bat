@@ -374,15 +374,17 @@ sub whisper_ai_postprocess {
 	
 	################ CHAR-BASED CHARACTER FIXES: ############### 
 	$s = &limit_repeats($s, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);								    # Fix lines like “Noooooooooooooooooooooooooooooooooooo” from being wider than our subtitle length
-	$s =~ s/[â′'`]/’/ig;																		# not-smart apostrophes and misrepresentations thereof
-	#s =~ s/"/'/g;																				# change quotes to apostrophes so these can be used as a quoted command line argument ... makes no sense actually, this isn’t going to command line anymore
 	$s =~ s/\-\-([^>])/—$1/g;																	# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
+	$s =~ s/[â′'`]/’/ig;																		# not-smart apostrophes and misrepresentations thereof
 	$s =~ s/!“/!”/g;																			# copied from lyric-postprocessor: kludge bug fix
 	$s =~ s/„/”/g;																				# copied from lyric-postprocessor: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
+
+	################ CHAR-BASED CHARACTER FIXES: COMMAND-LINE COMPATIBILITY ###############		# these aren’t needed because nothing in our subtitles ever reaches the command line!
+	#BAD IDEA HERE: #s =~ s/"/'/g;																# change quotes to apostrophes so these can be used as a quoted command line argument ... makes no sense actually, this isn’t going to command line anymore
 	#BAD IDEA HERE: $s =~ s/</⧼/g;																# redirection characters should not reach our command-line, which is what our lyrics mode is used for
+	#BAD IDEA HERE: $s =~ s/"/'/g;																# change quotes to apostrophes so these can be used as a quoted command line argument
 	#BAD IDEA HERE: $s =~ s/>/⧽/g;																# redirection characters should not reach our command-line, which is what our lyrics mode is used for
 	#BAD IDEA HERE: s =~ s/\|/│/g;																# redirection characters should not reach our command-line, which is what our lyrics mode is used for
-
 
 	################ WORD-BASED PUNCTUATION FIXES: ################ 							
 	$s =~ s/self \-righteous/self-righteous/g;													# 1)    proof of concept: fix hyphenated words that have an erroneous space before the hyphen
@@ -390,23 +392,25 @@ sub whisper_ai_postprocess {
 
 	################ WORD-BASED WORD FIXES: ################ 
 	$s =~ s/our selves/ourselves/g;														        # common grammatical mistake
-	$s = &de_censor($s);																		# remove censorship	—— see —t option for testing the decensoring code
+	$s =~ s/\bwont\b/won’t/gi;
 
+	################ LINE-BASED FIXES: ################ 
+	$s =  &de_censor($s);																		# remove censorship	—— see —t option for testing the decensoring code
+
+	################ LINE-BASED FIXES: AI HALLUCATIONS ################ 
+	$s =~ s/A little pause..?.? *//gi;															# ...These are common WhisperAI hallucinations.
+	$s =~ s/And we are back\.*//gi;																# ...These are common WhisperAI hallucinations.
 	
-	############# LYRIC WEBSITE SPAM: #############												# If our code was more honest, this would be in a separate function as it’s not *directly* related to WhisperAI postprocessing, and more of an artifact of downloading lyrics from websites with autodownloaders like “LyricsGenius.exe”
-	$s =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;														# common junk found in downloaded lyrics
+	################ LINE-BASED FIXES: LYRIC WEBSITE SPAM: ################						# If our code was more honest, this would be in a separate function as it’s not *directly* related to WhisperAI postprocessing, and more of an artifact of downloading lyrics from websites with autodownloaders like “LyricsGenius.exe”
 	$s =~ s/\*? (No|\[(duble|metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z\d]+lyrics[a-z\d]*|\[[a-z0-9]+ )\]) filter used//i;
 	$s =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
 	$s =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
-	$s =~ s/Album tracklist with lyrics//;
 	$s =~ s/Get tickets as low as \$[\d\.]+//i;
+	$s =~ s/Album tracklist with lyrics//;
+	$s =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;														# common junk found in downloaded lyrics
 	$s =~ s/You might also like//i;																# common junk found in downloaded lyrics
 
-	################ WHISPER-AI HALLUCINATIONS: ################ 
-	$s =~ s/A little pause..?.? *//gi;															# ...These are common WhisperAI hallucinations.
-	$s =~ s/And we are back\.*//gi;																# ...These are common WhisperAI hallucinations.
-
-	########## LINE-BASED PUNCTUATION FIXES: RELATED TO MY AI-TRANSCRIPTION SYSTEM: ########## 
+	########## LINE-BASED PUNCTUATION FIXES: RELATED TO MY AI-MUSIC-TRANSCRIPTION SYSTEM: ########## 
 	$s =~ s/^, *$//;																		    # remove leading comma like “, a line of text”
 	if ($REMOVE_PERIODS == 1) {	
 			if    ( $s =~ /\.\.\.\s*$/) { $s =~ s/\.\.\.\.$/.../; }                             # Check if line ends with ellipses (“..."), if so, don’t use our period-removal code, but DO change a line ending in “....” to “...”
