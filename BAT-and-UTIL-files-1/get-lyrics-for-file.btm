@@ -414,9 +414,11 @@ rem Old/redundant way that should no longer apply at this point:
                 echo %ansi_color_bright_red%%NO% Aborting because chiptune...
                 goto /i END_OF_GET_LYRICS
         endiff
+        set INSTRUMENTAL_ENCOUNTERED=0
         iff 1 eq %@RegEx[INSTRUMENTAL,"%@UPPER["%AUDIO_FILE%"]"] then
                 gosub "%BAT%\create-srt-from-file.bat" refresh_lyriclessness_status
-                echo lyriclessness_status=“%lyriclessness_status%” GOAT
+                echo %ansi_color_debug%-DEBUG: lyriclessness_status=“%lyriclessness_status%” GOAT%ansi_color_normal%
+                set INSTRUMENTAL_ENCOUNTERED=0
                 gosub divider
                 rem echo.
                 call bigecho "%ansi_color_warning_soft%%emoji_warning% Instrumental encountered!%ansi_color_normal% %emoji_warning%"
@@ -426,6 +428,8 @@ rem Old/redundant way that should no longer apply at this point:
                         set LYRICLESSNESS_APPROVAL_CURRENT_DEFAULT_ANSWER=yes
                         goto /i ask_to_approve_lyriclessness
                 endiff
+                echo %ansi_color_bright_red%%NO% Aborting because instrumental...
+                goto /i END_OF_GET_LYRICS
         endiff
 
 
@@ -3210,6 +3214,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
 
 
         :check_for_answer_of_S [opt]        
+                echo -DEBUG: we are at check_for_answer_of_S [%opt%] and answer=“%ANSWER%”         GOAT
                 rem This only applies if we gave an answer of “S”:
                         iff "S" != "%ANSWER" return
                 
