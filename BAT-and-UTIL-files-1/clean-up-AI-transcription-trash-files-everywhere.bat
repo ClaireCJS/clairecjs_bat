@@ -28,9 +28,10 @@ rem Delete files that could be anywhere:
                 gosub DeleteEverywhere        .LastInvalidAITranscriptionCheck       %+ rem Relates to delete-bad-AI-transcriptions.bat, which is designed to not be re-run every 72 hours. However, upon reboot, we will clean up the trash so that these files don’t stick around forever once we stop using that component
         :no_dot_files
 
+        rem If any are added here, also add them to clean-up-AI-transcription-trash-files-here!
         gosub DeleteEverywhere               *._vad_collected_chunks*.wav
         gosub DeleteEverywhere               *._vad_collected_chunks*.srt
-        gosub DeleteEverywhere               *._vad_original*.srt
+        gosub DeleteEverywhere               *._vad_original*.*
         gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
         gosub DeleteEverywhere               *._vad_pyannote_v3.txt
 
