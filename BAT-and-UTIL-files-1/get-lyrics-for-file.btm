@@ -1,5 +1,5 @@
 @loadbtm on
-@Echo Off
+@Echo off
 
 
 rem ARE YOU USING WINAMP?
@@ -749,20 +749,30 @@ rem Check if the lyrics are already approved...
         if "%LYRIC_STATUS%" == "" gosub refresh_lyric_status
         rem echo 🐐 [GL-Z] INITIAL lyric         status ===== “%LYRIC_STATUS%” ... force_regen_LYRICS=“%force_regen_LYRICS%”
         if not exist "%LYRIC_FILE%" set LYRIC_STATUS=NOT_SET
-        iff  "%LYRIC_STATUS%" == "APPROVED"  then
-                iff     "1" == "%FORCE_REGEN_LYRICS%" then
+        echo GOAT about to iff  "%LYRIC_STATUS%" == "APPROVED"  then
+        if "%LYRIC_STATUS%" != "APPROVED" goto :Lyrics_Not_Approved_754
+                echo GOAT-TRACE-753
+                iff "1" == "%FORCE_REGEN_LYRICS%" then
+                        echo GOAT-TRACE-755
                         ren /q "%LYRIC_FILE%" "%LYRIC_FILE%.removed_via_force_parameter.%[_datetime].bak"
                         set LYRIC_STATUS=NOT_SET
                         set LYRICLESSNESS_STATUS=NOT_SET
                         rem call sleep 1
-                        goto /i :from_goto_459                
-                elseiff "1" != "%FORCE_REGEN_LYRICS%" then
-                        gosub divider
-                        call celebrate "%blink_off%Lyrics already approved!"
-                        iff "1" == "%FORCE_REGEN_LYRICS%" then
-                        goto /i END_OF_GET_LYRICS
+                        goto /i :this_is_line_825
+                else
+                        echo GOAT-TRACE-764
+                        iff "1" != "%FORCE_REGEN_LYRICS%" then
+                                echo GOAT-TRACE-766
+                                gosub divider
+                                call celebrate "%blink_off%Lyrics already approved!"
+                                iff "1" == "%FORCE_REGEN_LYRICS%" then
+                                goto /i END_OF_GET_LYRICS
+                        endiff
+                        echo GOAT-TRACE-771
                 endiff
-        endiff
+                echo GOAT-TRACE-774
+        :Lyrics_Not_Approved_754
+        echo GOAT-TRACE-776
 
         gosub "%BAT%\create-srt-from-file.bat" refresh_lyriclessness_status
         rem echo [GM]   INITIAL lyriclessness status ===== “%LYRICLESSNESS_STATUS%”
@@ -811,7 +821,7 @@ rem Skip if the lyrics are already approved:
                 rem echo going to end [2q4] goto_end=“%GOTO_END%”
         endiff
         if "1" == "%goto_end%" goto /i END_OF_GET_LYRICS
-        :from_goto_459          
+        :this_is_line_825          
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━     GENIUS-ONLY 
 
@@ -2499,10 +2509,14 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
                                 echo.
                                 call warning_soft "I know you said to AI encode now... But you need to be running the get-karaoke commands to do that, and you’re just running get-lyric commands"
                                 call warning_soft "The %italics_on%PARENT_BAT%italics_off% var is set to “%PARENT_BAT%”"
-                                call warning_soft "Okay... Let’s try calling create-srt from get-lyrics and see how that plays out... beta idea!"
-                                set FORCE_AI_ENCODE_FROM_LYRIC_GET=1
-                                call create-srt-from-file "%AUDIO_FILE%"
-                                set  GOTO_END_AFTER_GET_LYRICS_CALLED=1
+
+                                rem OLD:
+                                        rem call warning_soft "Okay... Let’s try calling create-srt from get-lyrics and see how that plays out... beta idea!"
+                                        rem set FORCE_AI_ENCODE_FROM_LYRIC_GET=1
+                                        rem call create-srt-from-file "%AUDIO_FILE%"
+                                        rem set  GOTO_END_AFTER_GET_LYRICS_CALLED=1
+                                rem NEW:
+                                        call warning_soft "We previously experimented with trying to call create-srt from get-lyrics and see how that plays out but it didn’t play out right the first time so we aren’t doing this anymore as of 2025/07/11!"
                         endiff
                         goto /i END_OF_GET_LYRICS
                 else
@@ -2876,7 +2890,7 @@ rem Validate we did something:
         rem echo All done? 🐐🐮🐐🐮🐐🐮
         if "1" == "%goto_end%"         goto /i END_OF_GET_LYRICS
         if "1" == "%ABANDONED_SEARCH%" goto /i END_OF_GET_LYRICS
-        echo this is NOT the end! 🐐🐮🐐🐮🐐🐮
+        echo 🐐🐮🐐🐮🐐🐮 This is NOT the end! 🐐🐮🐐🐮🐐🐮
 
 rem If we couldn’t find lyrics, as if we want to approve this as our final lyic status: The status of “lyriclessness”
         :ask_to_approve_lyriclessness
@@ -2934,7 +2948,7 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
 
         :ask_about_instrumental [as_what]
                 rem DEBUG:
-                        echo %ansi_color_debug%🐐 called ask_about_instrumental [as_what=“%as_what”] [answer]%ansi_color_normal%
+                        echo %ansi_color_debug%🐐%blink_on%🐐%blink_off%🐐 called ask_about_instrumental [as_what=“%as_what”] [answer]%ansi_color_normal%
 
                 rem reset flags:
                         set JUST_RENAMED_TO_INSTRUMENTAL=0      %+ rem added 2025/05/15
@@ -3006,8 +3020,11 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                                                         set ANSWER=N
                                                 endiff
                                 :endiff_2300
-                                if "Y" == "%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%" then
-                                        gosub debug "❷ Marked file with ADS tag: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
+                        
+                                echo ** if "Y" == LAST_ANSWER_TO_ISTHISINSTRUMENTAL{which is "%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%"} then.. goatgoatgoat
+                                echo ** if "Y" == "%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%" then
+                                iff "Y" == "%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%" then
+                                        gosub debug "❷[222] Marked file with ADS tag: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
                                         echo True>"%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%"
                                         iff "" !=  "%LAST_RENAMED_TO%" then
                                                 set AUDIO_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
@@ -3024,8 +3041,9 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                                         goto /i endiff_2313
                                 else
                                         rem gosub debug "echo False to “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
+                                        echo GOAT Weeeeeeeee just said Noooooooooooo to if it’s an instrumentall.........
                                         echo False>"%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%"
-                                        gosub debug "❸ Marked file with ADS tag of %italics_on%FALSE%italics_off%: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
+                                        gosub debug "❸[333] Marked file with ADS tag of %italics_on%FALSE%italics_off%: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
                                 endiff
 
                                 rem echo            🐐 gonna gosub rename_audio_file_as_instrumental from ask_about_instrumental

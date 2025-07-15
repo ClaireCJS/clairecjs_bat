@@ -112,10 +112,10 @@ pushd
         :NotZipping
 
 :Let_user_know_what_we_are_going_to_do
-                                 set NEWLINE_REPLACEMENT=0 %+ call important_less "%blink_on%Syncing:%blink_off% SOURCE = %italics_on%%SYNCSOURCE%%italics_off%"
-                                 set NEWLINE_REPLACEMENT=0 %+ call important_less "%blink_on%Syncing:%blink_off% TARGET = %italics_on%%SYNCTARGET%%italics_off%"
-    rem if "%TARGETNAME%" ne "" (set NEWLINE_REPLACEMENT=0 %+ call important_less "   Name: %italics_on%%TARGETNAME%%italics_off%") —— forget why I was displaying this, but it seems pointless now [2024/05/09]
-                                 set NEWLINE_REPLACEMENT=0 %+ call important_less "Command: %italics_on%%REDOCOMMAND%%italics_off%"
+                                 set NEWLINE_REPLACEMENT=0 %+ call important_less "%big_off%%blink_on%Syncing:%blink_off% SOURCE = %italics_on%%SYNCSOURCE%%italics_off%"
+                                 set NEWLINE_REPLACEMENT=0 %+ call important_less "%big_off%%blink_on%Syncing:%blink_off% TARGET = %italics_on%%SYNCTARGET%%italics_off%"
+    rem if "%TARGETNAME%" ne "" (set NEWLINE_REPLACEMENT=0 %+ call important_less "%big_off%   Name: %italics_on%%TARGETNAME%%italics_off%") —— forget why I was displaying this, but it seems pointless now [2024/05/09]
+                                 set NEWLINE_REPLACEMENT=0 %+ call important_less "%big_off%Command: %italics_on%%REDOCOMMAND%%italics_off%"
     %COLOR_NORMAL%    
     echo.
 

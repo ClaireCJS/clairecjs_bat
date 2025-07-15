@@ -27,16 +27,37 @@ async def on_ready(): print(f"Logged in as {bot.user} (ID: {bot.user.id})")
 
 #meets_text_requirements = True                                                                                                                                                                            # If we wanted to enforce text-level spoilering, we would do this: meets_text_requirements = "||" in message.contene ... But because we don’t, juset set the text as good/True:
 
+#OLD @bot.event
+#OLD async def on_message(message):
+#OLD     if message.author.bot:                                          return
+#OLD     if message.channel.id != THIS_CHANNEL_REQUIRES_SPOILER_TAGS:    return
+#OLD     attachments_ok = all(a.is_spoiler() for a in message.attachments)                                                                                                                                         # Check if all attachments are spoilered
+#OLD     if not attachments_ok:                                                                                                                                                                                    # if not meets_text_requirements and message.attachments and not attachments_ok:    #if not meets_text_requirements and not message.attachments: await message.delete(); await message.channel.send(f"{message.author.mention}, please use spoiler tags like `||this||` in this channel.",delete_after=5)
+#OLD         await message.delete()
+#OLD         await message.channel.send(f"{message.author.mention}, please mark image " +
+#OLD             + "uploads as spoilers using the eye icon or rename the file with `SPOILER_`."
+#OLD             ,delete_after=WAIT_SECONDS_AFTER_DELETION_MSG)
+
 @bot.event
 async def on_message(message):
-    if message.author.bot:                                          return
-    if message.channel.id != THIS_CHANNEL_REQUIRES_SPOILER_TAGS:    return
-    attachments_ok = all(a.is_spoiler() for a in message.attachments)                                                                                                                                         # Check if all attachments are spoilered
-    if not attachments_ok:                                                                                                                                                                                    # if not meets_text_requirements and message.attachments and not attachments_ok:    #if not meets_text_requirements and not message.attachments: await message.delete(); await message.channel.send(f"{message.author.mention}, please use spoiler tags like `||this||` in this channel.",delete_after=5)
-        await message.delete()
-        await message.channel.send(f"{message.author.mention}, please mark image " +
-            + "uploads as spoilers using the eye icon or rename the file with `SPOILER_`."
-            ,delete_after=WAIT_SECONDS_AFTER_DELETION_MSG)
+    if message.author.bot:                                       return
+    if message.channel.id != THIS_CHANNEL_REQUIRES_SPOILER_TAGS: return
+
+    attachments_ok = all(a.is_spoiler() for a in message.attachments)
+
+    if not attachments_ok:
+        try:
+            await message.delete()
+        except Exception as e:
+            print(f"⚠️ Failed to delete message: {e}")
+
+        try:
+            await message.channel.send(
+                f"{message.author.mention}, please mark image uploads as spoilers using the eye icon (on mobile, touch the picture after you’ve attached it to your message, and there is an eyeball you can click), or rename the file with `SPOILER_` at the beginning of the filename",
+                delete_after=WAIT_SECONDS_AFTER_DELETION_MSG
+            )
+        except Exception as e:
+            print(f"⚠️ Failed to send explanation message: {e}")
 
 
 if os.environ.get("MACHINENAME").upper() == "WYVERN":

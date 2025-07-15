@@ -1,6 +1,12 @@
+@loadBTM on
 @Echo OFF
  on break cancel
 rem cls
+
+
+:USAGE: call discord-bot
+:USAGE: call discord-bot testing ——— won’t hidei t
+
 
 
 rem CONFIG: 
@@ -21,7 +27,10 @@ rem Validate environment:
         endiff
 
 rem Parameter branching:
+        set MIN=/min
+        set testing_discord_bot=0
         if "%1" == "verify" .or. "%1" == "/v" .or. "%1" == "-v" goto :verification
+        if "%1" == "test" .or. "%1" == "testing" .or. "%1" == "debug" .or. "%1" == "debugging" (set testing_discord_bot=1 %+ unset /q min)
 
 rem Check if it’s running already:
         unset /q ASK_FOR_RERUN
@@ -67,8 +76,8 @@ rem Start it up if it’s not yet running:
         call bigecho "%STAR% %ANSI_COLOR_IMPORTANT%Starting %italics_on%%ECHOABLE_NAME_OF_WHAT_WE_ARE_RUNNING%%italics_off%..."
                 rem                         *start "%PROCESS_WINDOW_TITLE_OF_WHAT_WE_ARE_RUNNING%" /MIN c:\bat\calendar-monitor-helper.bat %*
                 rem                         *start "%PROCESS_WINDOW_TITLE_OF_WHAT_WE_ARE_RUNNING%" /MIN python c:\bat\ingest_ics.py %*
-                set last_start_command_used=*start "%PROCESS_WINDOW_TITLE_OF_WHAT_WE_ARE_RUNNING%" /MIN %INVOCATION_OF_SCRIPT_WE_ARE_RUNNING% %*
-                rem echo %ansi_color_debug%- DEBUG: start command will be: %italics_on%%last_start_command_used%%italics_off%%ansi_color_normal%
+                set last_start_command_used=*start "%PROCESS_WINDOW_TITLE_OF_WHAT_WE_ARE_RUNNING%" %MIN% %INVOCATION_OF_SCRIPT_WE_ARE_RUNNING% %*
+                echo %ansi_color_debug%- DEBUG: start command will be: %italics_on%%last_start_command_used%%italics_off%%ansi_color_normal%
                 %last_start_command_used
                 call wait %SLEEP_TIME_AFTER_RUNNING_BEFORE_IT_HAS_STARTED% wipe
 

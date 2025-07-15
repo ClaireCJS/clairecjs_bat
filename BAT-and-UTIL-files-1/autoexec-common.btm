@@ -71,12 +71,7 @@ rem Things for our primary machines only:
                         call  less_important "Initializing calendar monitor..."   %+  gosub done_with_step
                         call  calendar-monitor %*                                 %+  gosub done_with_step
                                                                                    
-                REM backup files                                                   
-                        call  backup-important-files   %*                         %+  gosub done_with_step
-                        call  backup-important-folders %*                         %+  gosub done_with_step
-        :endiff
-
-
+        endiff
 
 
 rem Minimize annoying programs...
@@ -105,6 +100,17 @@ rem Map drives
         REM call helper-start c:\tcmd\tcc.exe c:\bat\map-drives.btm exitafter
         call map-drives once
         gosub done_with_step
+
+
+
+
+rem Backups
+        iff "%machinename%" == "WYVERN" .or. "%machinename%" == "DEMONA" then               
+                REM backup files                                                   
+                        call  backup-important-files   %*                         %+  gosub done_with_step
+                        call  backup-important-folders %*                         %+  gosub done_with_step
+        endiff
+
 
 
 
