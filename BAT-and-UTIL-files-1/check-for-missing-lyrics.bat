@@ -338,19 +338,23 @@ rem —————————————————————————�
         goto :process_file_end                                                                     %+ rem Skip over subroutines
              :process_file [CFML_AudioFile]
                         rem “Processing file: ”
-                                rem @echo %ANSI_COLOR_DEBUG%- DEBUG: Processing file: “%CFML_AudioFile%” %ANSI_COLOR_NORMAL% 🐞 
+                                rem 
+                                @echo %ANSI_COLOR_DEBUG%- DEBUG: Processing file: “%CFML_AudioFile%” %ANSI_COLOR_NORMAL% 🐞 
 
                         rem CMFL_Audiofile checks:
                                 rem Reject if the file is one of our trash filenames:
-                                        iff "1" == "%@RegEx[[\(\[]instrumental[\)\]],%@UNQUOTE[%CFML_AudioFile%]]" then
+                                        rem "1" == "%@RegEx[[\(\[]instrumental[\)\]],%@UNQUOTE[%CFML_AudioFile%]]" then rem Error 2025/07/25
+                                        set namey=%@FULL[%@UNQUOTE[%CFML_AudioFile%]]
+                                        if "" == "%namey%" set namey=NULL
+                                        iff "1" == "%@RegEx[[\(\[]instrumental[\)\]],%namey%]" then
                                              echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an instrumental: %zzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
-                                        iff "1" == "%@RegEx[[\(\[\\]chiptunes?[\)\]\\],%@FULL[%@UNQUOTE[%CFML_AudioFile%]]]" then
+                                        iff "1" == "%@RegEx[[\(\[\\]chiptunes?[\)\]\\],%namey%]" then
                                              echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is a chiptune: %zzzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
-                                        iff "1" == "%@RegEx[[\(\[\\]sound effect?[\)\]\\],%@FULL[%@UNQUOTE[%CFML_AudioFile%]]]" then
+                                        iff "1" == "%@RegEx[[\(\[\\]sound effect?[\)\]\\],%namey%]" then
                                              echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is a sound effect: %zzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
@@ -410,11 +414,11 @@ rem —————————————————————————�
                                 rem iff 1 eq %@RegEx[\(instrumental\),%@UNQUOTE[%CFML_AudioFile%]] then
                                 rem endiff                     
 
-                        rem If the song is marked for approved-lyriclessness, the file is good:                                
+                        rem If the song is marked for approved-lyriclessness, the file is good **IF WE ARE CHECKING FOR MISSING LYRICS** but ✨✨✨NOT✨✨✨ if we are checking for missing karaoke:                                
                                 set LYRICLESSNESS_APPROVAL_VALUE=%@ExecStr[TYPE "%unquoted_audio_file_full%:lyriclessness" >&>nul]         %+ rem get the song’s lyriclessness approval status
                                 rem echo LYRICLESSNESS_APPROVAL_VALUE=“%LYRICLESSNESS_APPROVAL_VALUE%” for “%unquoted_audio_file_full%:lyriclessness”
-                                iff "APPROVED" == "%LYRICLESSNESS_APPROVAL_VALUE%" then
-                                        echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is marked lyricless:  %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                iff "APPROVED" == "%LYRICLESSNESS_APPROVAL_VALUE%" .and. "1" != "%GET_KARAOKE%" then
+                                        echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] %italics_on%%ansi_color_debug%%faint_on%[check-for-missing-lyrics]%faint_off%%italics_off%%ansi_color_yellow% songfile is marked lyricless:  %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                         set BAD=0
                                         goto /i :done_processing_this_file
                                 endiff                                        

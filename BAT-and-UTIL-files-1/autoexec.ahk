@@ -203,6 +203,7 @@
 ;^|::Send  "│"		;      —           Ctrl-x key is definitely reserved for other things
 ;!|::Send  "┃"		;      —            Alt-x key is likely     reserved for other things
 ^!x::Send  "×"		; “×”  —       Ctrl-Alt-x key for “×” , the multiplication unicode symbol, which is more in the center than the “x” is:  ×x×x×x×x×
+#!x::Send  "✖️"		; “✖️” —        Win-Alt-x key for “✖️”, the multiplication  emoji  symbol, which is huuuge compared to the x: x×X✖️
 +^!X::Send "✖️"		; “✖️” — Shift-Ctrl-Alt-x key for “✖️”, the multiplication  emoji  symbol, which is huuuge compared to the x: x×X✖️
 
 

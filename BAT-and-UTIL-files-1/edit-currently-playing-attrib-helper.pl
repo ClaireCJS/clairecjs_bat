@@ -615,7 +615,7 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 
 			print "beep\n";
 			print "\%COLOR_ALARM\%\n";
-			print "echo Didn’t work! Must “ec” or “ec \"$text_to_copy_to_clipboard__usually_tracknum\"” manually!\n";
+			print "echo warnDidn’t work! Must “ec” or “ec \"$text_to_copy_to_clipboard__usually_tracknum\"” manually!\n";
 
 
 			if (1) {
@@ -624,16 +624,16 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 				#rint " set text_to_copy_to_clipboard__usually_tracknum=$text_to_copy_to_clipboard__usually_tracknum\n";
 				$text_to_copy_to_clipboard__usually_tracknum_before_automark_modifications =~ s/:learned/:$ENV{AUTOMARKAS}/i;
 				$grep=$text_to_copy_to_clipboard__usually_tracknum_before_automark_modifications;
-				print "echo [AAAA] grep=$grep\n";
+				print "rem [AAAA] grep=$grep\n";
 				$grep =~ s/:.*$//;
-				print "echo [BBBB] grep=$grep\n";
-				print "pause\n";
+				print "rem [BBBB] grep=$grep\n";
+				#print "pause\n";
 				print " set grep=$grep\n";
 
 				print ":AskAboutRegexAgain\n";
 				#TODO setdos stuff on
 				print "eset grep\n";
-				print "echo \%ANSI_COLOR_IMPORTANT\%%STAR% Test grep:\%ANSI_COLOR_YELLOW%\%\n";
+				print "echo \%ANSI_COLOR_DEBUG\%%STAR% Test grep:\%ANSI_COLOR_YELLOW%\%\n";
 				print "echos \%ANSI_COLOR_YELLOW\%\n";
 				print "echo *dir /b/s *.mp3;*.flac;" . $ENV{"filemask_audio"} . " [pipe] grep -i \"%ansi_color_bright_cyan%\%grep\%%ansi_color_bright_green%\"\n";
 				print "     *dir /b/s *.mp3;*.flac;" . $ENV{"filemask_audio"} .      " | grep -i \"\%grep\%\"\n";

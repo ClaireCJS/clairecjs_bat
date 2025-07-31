@@ -24,6 +24,7 @@ rem GRAB + VALIDATE PARAMETER IS A M3U/TXT file:
         call validate-is-extension        "%FILELIST_TO_USE%"   *.m3u;*.txt   "1ˢᵗ parameter to %0 must be of .%underline_on%m3u%underline_off% or .%underline_on%txt%underline_off% extension because it is a filelist"
  
  rem Go through the file and check for missing karaoke by using the script that does this for missing lyrics, but in “secret” karaoke mode:
+        rem DEBUG: echo 🍕🍕🍕 
         call check-for-missing-lyrics.bat karaoke "%FILELIST_TO_USE%" %2$
          
 :END        

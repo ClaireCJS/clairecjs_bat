@@ -1,3 +1,4 @@
+TODO: New hallucination pattern: “Ding, ding, bop”, “I’m going to play a little bit of the first one, and then we’ll move on to the next one”
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -158,6 +159,9 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 11. ⚡️ Optional: For 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration:
     - Install the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile)
     - Configure the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) so that the 2ⁿᵈ line of its output file is the full filename of the currently playing song. 
+    - TODO add picture
+    - Configure the 3ʳᵈ line to be the time elapsed. Not currently used, but may be used in the future for timed lyric display within MilkDrop3’s messaging system.
+    - Here is what I use as of 2025/07/15: ```{{#if Artist}}{{Artist}} – {{/if}}{{Title}}{{#if Album}} – {{Album}}{{/if}}{{#newline}}{{Filename}}{{#newline}}elapsed={{Elapsed:m\:ss}}{{#newline}}album={{Album}}{{#newline}}year={{Year}}{{#newline}}genre={{Genre}}{{#newline}}length={{Length:m\:ss}}{{#newline}}artist={{Artist}}{{#newline}}title={{Title}}{{#newline}}filename={{Filename}}{{#newline}}comment={{Comment}}{{#newline}}end_comment=1{{#newline}}subtitle={{Subtitle}}{{#newline}}end_subtitle=1{{#newline}}composer={{Composer}}{{#newline}}```
     - This allows instant no-resource any-computer access to the location of which song file is currently playing in [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), allowing us to have commands that operate on “whatever song we are currently listening to” from any computer in the household. 🦙
       - Currently doesn’t work if the music is paused, but a future update to the WinAmpNowPlayingToFile plugin is headed down the pipeline
 

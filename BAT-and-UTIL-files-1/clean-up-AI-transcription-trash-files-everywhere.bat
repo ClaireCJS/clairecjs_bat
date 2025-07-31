@@ -29,11 +29,13 @@ rem Delete files that could be anywhere:
         :no_dot_files
 
         rem If any are added here, also add them to clean-up-AI-transcription-trash-files-here!
-        gosub DeleteEverywhere               *._vad_collected_chunks*.wav
-        gosub DeleteEverywhere               *._vad_collected_chunks*.srt
-        gosub DeleteEverywhere               *._vad_original*.*
-        gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
-        gosub DeleteEverywhere               *._vad_pyannote_v3.txt
+                gosub DeleteEverywhere               *._vad_pyannote_v3.*
+                rem echo DEBUG: goto quick! %+ goto :quick
+                gosub DeleteEverywhere               *._vad_collected_chunks*.wav
+                gosub DeleteEverywhere               *._vad_collected_chunks*.srt
+                gosub DeleteEverywhere               *._vad_original*.*
+                gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
+                rem   DeleteEverywhere               *._vad_pyannote_v3.txt
 
         iff "%1" == "do_not_delete_BATs" goto :do_not_delete_BATs
                 gosub DeleteEverywhere  create-the-missing-karaokes-here-temp*.bat
@@ -41,6 +43,7 @@ rem Delete files that could be anywhere:
                 gosub DeleteEverywhere      get-the-missing-karaoke-here-temp*.bat
                 rem   DeleteEverywhere      __ %+ rem this didn’t work and tried to “get __*.*”
         :do_not_delete_BATs
+        :quick
         if "%1" == "" goto :DoneDeletingBecauseThisIsANormalInvocation
 
 
@@ -107,17 +110,23 @@ rem —————————————————————————�
 
         rem Delete a file no matter where it exists on all of our harddrives:
                 :deleteEverywhere [file]
+                        rem Parameters:
+                                set file="%@UNQUOTE[%file]"                                             %+ rem Strip quotes off file mask and re-quote it
+                                rem DEBUG: echo * filemask=%file
+
                         rem Let us know which filename we are on the hunt for:
-                                set file="%@UNQUOTE[%file]"                                             %+ rem Strip quotes off filename
                                 echos         %ANSI_RESET%``                                            %+ rem Indent this part
-                                call less_important "looking for “%italics_on%%file%%italics_off%”"     %+ rem Indented "looking for {filename}" message
+                                call less_important "looking for “%italics_on%%file%%italics_off%”%ansi_save_position%"     %+ rem Indented "looking for {filename}" message
+                                rem DEBUG: echos %ansi_restore_position%%ansi_move_up_1%
                                 echos %@randfg_soft[]%@randcursor[]
                         
                         rem Find all instances of the file [found via everything] we are deleting, pipe to sort-and-uniq to dedupe it, then insert "del-if-exists" [and a quote] before it, a quote after it, then pipe *all that* directly to the command line, then pipe it to fast_cat to fix ansi rendering errors:
                         rem Be damn sure you know what you’re doing if you change this. Best put an "echo " before the "*del" and test it out if you do.
                                 call set-tmp-file "deleting AI trash"
-                                (((*everything "%file%" |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "call del-if-exists /z {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") >:u8 %tmpfile%.bat
+                                (((*everything %file% |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "echos {{{{PERCENT}}}}@randfg_soft[]. {{{{PERCENT}}}}+ call del-if-exists /z {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") >:u8 %tmpfile%.bat
                                 call %tmpfile%.bat |:u8 fast_cat
+
+                                rem DEBUG: echo.
 
                                 rem echo All done? %+ pause
                                 rem echos %@randfg_soft[]%@randcursor[]

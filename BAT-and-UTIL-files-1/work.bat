@@ -21,6 +21,7 @@ rem Work configuration: lyrics & karaoke: playlists:
 rem Work configuration: lyrics & karaoke: workloads:
         set default_number_of_lyrics_to_work=69
         set default_number_of_karaoke_to_work=30
+        set default_number_of_karaoke_to_work=10
 
 
 
@@ -138,6 +139,8 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                 rem Ask if we want to keep on chompin’... 
                 rem If we answer “Yes”, then we must simulate, that we answered “K” to the original 
                 rem                             “What kind of work do you want to do?” question
+                        set WAIT_TIME=30
+                        if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set WAIT_TIME=0
                         call AskYN "Keep on chompin’" yes 30
                                 iff "%ANSWER%" == "Y" then
                                         set ANSWER=%work_type_answer% 

@@ -25,7 +25,7 @@ rem Validate parameter extension:
         if  "%EXT%" != "m3u" call fatal_error "Must pass a playlist to “%0”, not a file of another extension such as “%extT”"
 
 rem Do the acutal work:
-        check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %pl *.lrc;*.srt 
+        check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %pl% *.lrc;*.srt 
 
 rem Validate the existence of the output file:
         set NEW_PLAYLIST_NAME=%@UNQUOTE[%@NAME["%@UNQUOTE["%PL%"]"]]-without lrc or srt.m3u
@@ -42,7 +42,7 @@ rem (Unless we are being called by work.bat, which is handling this):
                 echo %ansi_color_error% Please choose “K” or “L”! %ansi_color_normal%
                 goto :ask
         endiff
-        iff "K" == "%ANSWER%" then
+        iff     "K" == "%ANSWER%" then
                 call get-karaoke "%NEW_PLAYLIST_NAME%" 50
         elseiff "L" == "%ANSWER%" then
                 call get-lyrics  "%NEW_PLAYLIST_NAME%"

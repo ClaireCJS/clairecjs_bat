@@ -480,14 +480,20 @@ rem If the file has been marked as failed previously, abort (unless in force mod
                 @call warning "     %INPUT_FILE%     ``"
                 gosub divider
                 unset /q answer
-                call AskYN "Rename it as “[untranscribeable]” to prevent this prompt from coming up again" no 20 %+ rem TODO remove hard-coded wait time
-                iff "Y" == "%ANSWER%" then
-                        unset /q answer
-echo                    gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%INPUT_FILE"]" "untranscribeable" GOAT %+ pause
-                        gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%INPUT_FILE"]" "untranscribeable"
-                        
-                        goto /i END
-                endiff
+                :ask_about_instrumental_480
+                call AskYN "Rename it as “[untranscribeable]” to prevent this prompt from coming up again [TODO OPTIONS]" no 20 IQPS I:no_but_mark_it_instrumental_instead,Q:enQueue_in_winamp,P:play_it,S:no_instead_mark_mark_as_sound_effect %+ rem TODO remove hard-coded wait time
+                        gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
+                        gosub check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
+                        gosub check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
+                        gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
+                        if  "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" goto /i ask_about_instrumental_480
+                        iff "Y" == "%ANSWER%" then
+                                unset /q answer
+        echo                    gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%INPUT_FILE"]" "untranscribeable" GOAT %+ pause
+                                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%INPUT_FILE"]" "untranscribeable"
+                                
+                                goto /i END
+                        endiff
                 goto /i END
         endiff
 
@@ -2681,7 +2687,8 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 :PopD
         rem Get us back to the folder we were in when we called this... but only if told to:
                 setdos /x0
-                if "1" == "%pushd_performed_in_create_srt%" (echo * 2025 POPD! %+ pause %+ popd)
+                rem if "1" == "%pushd_performed_in_create_srt%" (echo * 2025 POPD! %+ pause)
+                    if "1" == "%pushd_performed_in_create_srt%" (popd)
 
 :Fix_Command_Separator
         rem Extra-safe command separator fixing:
