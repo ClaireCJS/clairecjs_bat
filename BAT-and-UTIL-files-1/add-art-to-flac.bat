@@ -10,10 +10,10 @@ rem Capture parameters and validate environment:
         set PARAMS_ADDARTTOFLAC=%*
         set PARAM_ADDARTTOFLAC_1=%1
         set PARAM_ADDARTTOFLAC_2=%2
-        if %VALIDATED_ADDARTTOFLAC ne 1 (
+        iff "%VALIDATED_ADDARTTOFLAC%" != "1" then
             call validate-in-path remove-art-from-flac add-art-to-flac-helper 
             set VALIDATED_ADDARTTOFLAC=1
-        )
+        endiff
 
 rem Remove old art, add new art:
         call remove-art-from-flac                          %PARAM_ADDARTTOFLAC_2%

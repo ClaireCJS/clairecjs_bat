@@ -1,15 +1,26 @@
+@LoadBTM on
 @echo off 
- on break cancel
+@on break cancel
+
+
+rem Validate environment (once):
+        iff "1" != "%validated_addreplaygaintagstoallmp3s%" then
+                call validate-environment-variables ansi_colors_have_been_set
+                call validate-in-path randfg errorlevel mv cd rd color echos metamp3
+                set  validated_addreplaygaintagstoallmp3s=1
+        endiff
+
+
 
 if not exist *.mp3 (%COLOR_IMPORTANT_LESS% %+ echo 🚫 No mp3s exist here. %+ goto :END)
 
 ::::: metamp3.exe doesn't properly process *.mp3 if the mp3's base filename also ends in a dot / there are 2 dots before mp3 (example: W.T.F..mp3). So we have to use *.* not *.mp3
 ::::: but if we use *.*, it totally bludgeons and corrupts every non-mp3 file -- even rendering cover.jpg files into corrupt jpgs.   So we have to sequester.
 
-set                                SEQ_DIR=ohhhh
-md                                %SEQ_DIR%
-call validate-environment-variable SEQ_DIR
-cd                                %SEQ_DIR%
+set           SEQ_DIR=ohhhh
+md           %SEQ_DIR%
+if not isdir %SEQ_DIR%   call validate-environment-variable SEQ_DIR
+cd           %SEQ_DIR%
 
 
 set MOVE_DECORATOR=%@ANSI_RGB_BG[28,0,0]%ITALICS%%STRIKETHROUGH%%FAINT%
@@ -22,7 +33,7 @@ call errorlevel        "something went wrong with adding replaygain tags in %0"
 set MOVE_DECORATOR=%ANSI_COLOR_SUCCESS%%@ANSI_RGB_BG[0,28,0]%ITALICS%%STRIKETHROUGH%%FAINT%
 
 mv * ..
-cd   ..
+*cd  ..
 rd  %SEQ_DIR%
 
 

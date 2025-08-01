@@ -27,49 +27,25 @@ import fix_unicode_filenames
 
 
 
-
-
-
-
-
-
-
-
+# CONFIGURATION:
 DEBUG_SANITIZE_TEXT                    = False
 DEBUG_COMMENT_NEWLINES                 = False
 DEBUG_FILENAME_SPLITTING               = False
 DEBUG_FILE_RENAMING                    = False
 DEBUG_VIEW_TAG_VALUES_BEFORE_INSERTION = False
 DEBUG_TAGGING_CRASHES                  = False
+LOG_FILE                               = "_ingest.log"
+COMPANION_FILES                        = ["info.json", "README.txt", LOG_FILE]
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-LOG_FILE = "_ingest.log"
-COMPANION_FILES = ["info.json", "README.txt", LOG_FILE]
-
-
-
-
+ITALICS_ON  = "\033[3m"
+ITALICS_OFF = "\033[23m"
+BOLD_ON     = "\033[1m"
+BOLD_OFF    = "\033[22m"
+MOVE_UP_1   = "\033M"
 
 
 
@@ -228,7 +204,10 @@ def rename_tag_move_incoming_youtube_album(directory, our_json_file):
     log_print(f"{Fore.GREEN}{Style.NORMAL}\nYear: {Style.BRIGHT}{year}")
 
     # make our new folder
-    our_new_folder = os.path.join(artistname_filename, f"{year} - {album_name_filename}")
+    album_name_for_folder = album_name
+    if album_name_filename: album_name_for_folder = album_name_filename
+    print(f"💫 Using album_name_for_folder of {album_name_for_folder}")
+    our_new_folder = os.path.join(artistname_filename, f"{year} - {album_name_for_folder}")
     if num_mp3s > 1: os.makedirs(our_new_folder, exist_ok=True)
 
     # tag and move our songs
@@ -252,6 +231,26 @@ def rename_tag_move_incoming_youtube_album(directory, our_json_file):
 
 
 
+def OLD_insert_default_text(text):
+    def do_insert():
+        buf = get_app().current_buffer
+        buf.insert_text(text)
+    return do_insert
+from prompt_toolkit.application.current import get_app_or_none
+import time
+
+def insert_default_text(text):
+    def do_insert():
+        # Wait for prompt_toolkit to finish layout setup
+        time.sleep(0.01)
+        app = get_app_or_none()
+        if app:
+            buf = app.current_buffer
+            if buf.text == "":
+                buf.insert_text(text)
+    return do_insert
+
+
 
 def fix_and_edit_value(key, value, mode="tag", prompt_only_if_unicode_was_changed=None, fix_default_value_for_filenames=False):                #pylint: disable=C0103
     original_value = value
@@ -265,22 +264,33 @@ def fix_and_edit_value(key, value, mode="tag", prompt_only_if_unicode_was_change
     session = PromptSession(style=custom_style)
 
     if mode == "file": default_value = fix_unicode_filenames.convert_a_filename(value,silent_if_unchanged=True)
-    else:              default_value = value
+    else:              default_value =                                          value
+    return_value = default_value
 
+    # are we prompting?
     do_prompt = True
     if prompt_only_if_unicode_was_changed is True:
         do_prompt = bool(default_value != original_value)
 
+    # if so, do the prompting:
     if do_prompt:
         clear_keyboard_buffer()
         if fix_default_value_for_filenames: default = fix_unicode_filenames.convert_a_filename(default_value,silent=True)
-        else:                               default =                                        default_value
+        else:                               default =                                          default_value
 
-        user_input = session.prompt([('class:prompt', f'>>Please enter new value for {key}:\n'),
-                                     ('class:user_input', '')], default=default)
-        return user_input if user_input else default_value
 
-    return default_value
+        print(f'{Fore.RED}💥 Please enter new value for:  {Fore.RED}{BOLD_ON}{key}{BOLD_OFF}')
+        if default: print(f'{Fore.RED}💥 Or hit {ITALICS_ON}ENTER{ITALICS_OFF} for default of: {Fore.RED}{BOLD_ON}{default}{BOLD_OFF}{Fore.RESET}')
+        #ser_input = session.prompt([('class:prompt', f'>> ')], default=default)
+        print (f"{Fore.YELLOW}", end="")
+        user_input = session.prompt([('class:prompt', f'>> ')], pre_run=insert_default_text(default))
+
+        if user_input: return_value = user_input
+
+    print(f"{MOVE_UP_1}{Fore.GREEN}{BOLD_ON}>>{BOLD_OFF} {return_value}")
+    return return_value
+
+
 
 
 def clear_keyboard_buffer():
@@ -414,12 +424,15 @@ def process_files(directory,artist="",year="",album_name="",publisher="",genre="
             log_print(f"{Fore.CYAN}{Style.BRIGHT}             To: {Fore.BLUE}{Style.BRIGHT}{new_name}")
             rename_with_companion_rename(file, new_name, directory=directory)
         else:
-            new_file  = f"{chapter_num}_{title}"
-            base, ext = os.path.splitext(new_file)                       # Split the filename and extension
-            base      = fix_filename_case(base)                          # Capitalize each word in filename, but not in extension
-            ext       = ext.lower()
-            if not ext: ext = ".mp3"
-            new_file  = f"{base}{ext}"
+            #new_file  = f"{chapter_num}_{title}"
+            #base, ext = os.path.splitext(new_file)                       # Split the filename and extension
+            #base      = fix_filename_case(base)                          # Capitalize each word in filename, but not in extension
+            #ext       = ext.lower()
+            #if not ext: ext = ".mp3"
+            #new_file  = f"{base}{ext}"
+            base      = fix_filename_case(f"{chapter_num}_{title}")
+            new_file  = base if base.lower().endswith(".mp3") else base + ".mp3"
+
             new_path  = os.path.join(our_new_folder, new_file)
             log_print(f"{Fore.BLUE}{Style.BRIGHT}\t* Renaming and moving file to: {new_path}")
             shutil.move(os.path.join(directory, file), new_path)
@@ -483,7 +496,7 @@ def set_artist_tags(audiofile="", artist="", orig_artist="", filepath=""):      
 def create_bat_file(our_new_folder):
     log_print(f"\n{Fore.CYAN}{Style.BRIGHT}*** go-to-album.bat created{Style.NORMAL}")
     # Create a batch file that changes directory into our_new_folder, which will be used externally:
-    with open('go-to-album.bat', 'w', encoding="utf-8") as bat_file: bat_file.write(f'cd "{our_new_folder}"\n') #this is basically our script's return value
+    with open('go-to-album.bat', 'w', encoding="utf-8") as bat_file: bat_file.write(f'*cd "{our_new_folder}"\n') #this is basically our script's return value
     log_print("\n\n")
 
 

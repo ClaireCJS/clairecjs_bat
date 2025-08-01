@@ -1774,7 +1774,7 @@ rem MiniLyrics will default to displaying TXT over SRC
         rem NO NOT ANYMORE if exist "%TXT_FILE%" (ren /q "%TXT_FILE%" "%TXT_FILE.bak.%_datetime" )
 
 
-rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
+rem ///////////////////////////////////////////// OLD DEPRECATED CODE /////////////////////////////////////////////
 iff "1" == "%USE_2023_LOGIC%" then
                         REM rename the file & delete the vocal-split wav file
                             iff "%EXPECTED_OUTPUT_FILE%" != "%LRC_FILE%" then
@@ -1784,7 +1784,7 @@ iff "1" == "%USE_2023_LOGIC%" then
                             if not exist "%LRC_FILE%" call validate-environment-variable LRC_FILE "LRC file not found around line 1501ish"
                             if exist "%LRC_FILE%" .and. "%2" != "keep" (*del /Ns /q /r "%VOC_FILE%")
 endiff
-rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////////////////////////////////////////
+rem ///////////////////////////////////////////// OLD DEPRECATED CODE /////////////////////////////////////////////
 
 
 :did_not_generate

@@ -81,9 +81,9 @@ if isdir "%TARGET" goto :TargetExists_YES
 
 ::::: ENSURE ORIGINAL SOURCE IS GONE, IF NOT, TRY AGAIN AND/OR WARN:
     dir "%TARGETNOQUOTES%\%TARGETDIR%"
-	if isdir %SOURCE (if exist "%SOURCENOQUOTES\Thumbs.db" (*del /z "%SOURCE\thumbs.db"))
-	if isdir %SOURCE (rmdir %SOURCE)
-	if isdir %SOURCE (call warning "%1 still exists —— %emphasis%rmdir '%1'%deemphasis% %BLINK_ON%failed%BLINK_OFF%!")
+	if isdir %SOURCE if exist "%SOURCENOQUOTES\Thumbs.db" (*del /z "%SOURCE\thumbs.db")
+	if isdir %SOURCE rmdir /s %SOURCE%
+	if isdir %SOURCE call warning "%1 still exists —— %emphasis%rmdir '%1'%deemphasis% %BLINK_ON%failed%BLINK_OFF%!"
 	goto :END
 
 

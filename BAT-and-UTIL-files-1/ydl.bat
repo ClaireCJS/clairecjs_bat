@@ -86,6 +86,7 @@ rem EXECUTION:
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
             call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
         @Echo off
+        title YouTube D/L complete!                                                                                                
         rem was suggested that one could scrub unicode chars with this command: --replace-in-metadata "video:title" " ?[\U000002AF-\U0010ffff]+" ""
         rem we don’t call errorlevel because %YDL% returns an errorlevel even when successful
         rem removed --embed-thumbnail: messes up workflow this that extra file: PLUS it made: ERROR: Postprocessing: Supported filetypes for thumbnail embedding are: mp3, mkv/mka, ogg/opus/flac, m4a/mp4/mov 
@@ -119,16 +120,17 @@ rem CLEANUP:
 
     rem get json file - do this *AFTER* we do our renaming so that we can use our post-rename filename for the JSON file
         echos %ANSI_COLOR_IMPORTANT_LESS%%STAR% Fetching json description...
-            set JSON_WANTED=%@NAME[%FILENAME_NEW%].json
-            call %YDL% --dump-json "%URL%" >"%JSON_WANTED%"
-            if not exist "%JSON_WANTED%" call validate-environment-variable JSON_WANTED "can’t find JSON_WANTED file of “%JSON_WANTED%”"
-            call success "Succcess!"
+        set JSON_WANTED=%@NAME[%FILENAME_NEW%].json
+        call %YDL% --dump-json "%URL%" >"%JSON_WANTED%"
+        if not exist "%JSON_WANTED%" call validate-environment-variable JSON_WANTED "can’t find JSON_WANTED file of “%JSON_WANTED%”"
+        call success "Succcess!"
 
     rem rn again?
         rem seemed to cause our mkv to not get renamed when we stared to do this....
         rem not sure if we need to switch this: call rn "%FILENAME_NEW%"
         rem to this:
-            call rn-latest-for-youtube-dl %FILEMASK_VIDEO%
+        REM maybe not actually:
+        rem call rn-latest-for-youtube-dl %FILEMASK_VIDEO%
 
     rem clean-up 0-byte description txt file
         for %%tmpZeroByteFile in (*.txt;*.description) do (
@@ -146,7 +148,7 @@ rem CLEANUP:
 
     rem move files back into original folder we started in
         :dangerous: mv * ..
-        cd ..
+        *cd ..
         if isdir %TMPDIR% (%COLOR_SUBTLE% %+ mv/ds %TMPDIR% .)
         if isdir %TMPDIR% (call ERROR "Couldn’t remove “%TMPDIR%”! Are you sure you aren’t in this folder in another window?")
 

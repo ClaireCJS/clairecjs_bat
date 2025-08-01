@@ -1509,6 +1509,7 @@ rem We're done!
         rem echos %@RANDCURSOR[]
         set      COLORS_HAVE_BEEN_SET=1     %+ rem "At first we were like..."
         set ANSI_COLORS_HAVE_BEEN_SET=1     %+ rem "....then we were like..."
+        set   ANSI_COLOR_HAS_BEEN_SET=1     %+ rem "....then we were like..."
         set         ANSI_HAS_BEEN_SET=1     %+ rem "....then we were like..."
         :AlreadyDone
 

@@ -7,7 +7,7 @@ rem @on break cancel
 
 
 rem CONFIGURATION:
-        set most_songs_from_playlist_to_process_at_a_time=69 %+ rem 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
+        set most_songs_from_playlist_to_process_at_a_time=25 %+ rem 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
 
 
 
@@ -83,7 +83,7 @@ rem If we were supplied a filename, process it as a list of files:              
 
                         iff "%@EXT[%@UNQUOTE["%1"]]" == "m3u" then
                                 rem echo it’s an m3u! limit=%limit%
-                                set most_songs_from_playlist_to_process_at_a_time=1000
+                                rem set most_songs_from_playlist_to_process_at_a_time=1000
                                 if "%@Regex[![0-9]+!,!%2!]" == "1" set most_songs_from_playlist_to_process_at_a_time=%2
                                 rem echo most_songs_from_playlist_to_process_at_a_time is %most_songs_from_playlist_to_process_at_a_time%
                                 set FILELIST_MODE=1
@@ -338,9 +338,13 @@ rem —————————————————————————�
         goto :process_file_end                                                                     %+ rem Skip over subroutines
              :process_file [CFML_AudioFile]
                         rem “Processing file: ”
-                                rem 
-                                @echo %ANSI_COLOR_DEBUG%- DEBUG: Processing file: “%CFML_AudioFile%” %ANSI_COLOR_NORMAL% 🐞 
+                                rem @echo %ANSI_COLOR_DEBUG%- DEBUG: Processing file: “%CFML_AudioFile%” %ANSI_COLOR_NORMAL% 🐞 
 
+                        rem If no filename given, it’s an erroneous/extraneous call and we shouldn’t do anything:
+                                iff "%UNQUOTE[%CFML_AUDIOFILE%]" == "" .or. %CFML_AUDIOFILE% == "" then
+                                        echo [Returning due to null filename being passed]
+                                        return
+                                endiff
                         rem CMFL_Audiofile checks:
                                 rem Reject if the file is one of our trash filenames:
                                         rem "1" == "%@RegEx[[\(\[]instrumental[\)\]],%@UNQUOTE[%CFML_AudioFile%]]" then rem Error 2025/07/25
@@ -360,7 +364,7 @@ rem —————————————————————————�
                                         endiff
                                 rem Reject if the file doesn’t exist at all:                                
                                         iff not exist "%@UNQUOTE["%CFML_AudioFile%"]" then
-                                             echo %ansi_color_yellow%%EMOJI_CROSS_MARK% songfile doesn’t exist: %zzzzzzzzzzzzzz%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             echo %ansi_color_yellow%%EMOJI_CROSS_MARK% songfile doesn’t exist: %zzzzzzzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return
                                         endiff
                                 rem Reject if the file is one of our trash filenames:
@@ -444,11 +448,14 @@ rem —————————————————————————�
 
 
                         rem Check if the potential karaoke files exist, and if they do, the file is good:
-                                if exist "%SRTfile%" .or. exist "%LRCfile%" (
+                                iff exist "%SRTfile%" then
+                                        rem echo * Not bad because SRTfile exists: %SRTfile
                                         set BAD=0
-                                ) else (
-                                        set BAD=1
-                                )
+                                endiff
+                                iff exist "%LRCfile%" then 
+                                        rem echo * Not bad because LRCfile exists: %SRTfile
+                                        set BAD=0
+                                endiff
 
                                      
                         rem Check if the lyrics files already exists, and if so, then check if it is pre-approved:

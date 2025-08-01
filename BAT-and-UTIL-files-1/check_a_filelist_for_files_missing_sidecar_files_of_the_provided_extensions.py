@@ -201,9 +201,12 @@ def main_guts(input_filename, extensions, options, extra_args):
             # run any special postprocessing we've created, usually to create scripts to deal with files that are missing sidecar files
             #ith open(output_filename, 'w') as output_file:
             with open(output_filename, 'w', encoding='utf-8') as output_file:
-                output_file.write(f"@LoadBTM on\n")
-                output_file.write(f"@on break cancel\n")
-                output_file.write(f"@rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py\n\n\n\n")
+
+
+                if options.lower() == "getlyricsfilewrite" or options.lower() == "createsrtfilewrite":
+                    output_file.write(f"@LoadBTM on\n")
+                    output_file.write(f"@on break cancel\n")
+                    output_file.write(f"@rem from check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py\n\n\n\n")
 
                 files_without_sidecars_list = list(files_without_sidecars)              # create  the list
                 random.shuffle(files_without_sidecars_list)                             # shuffle the list

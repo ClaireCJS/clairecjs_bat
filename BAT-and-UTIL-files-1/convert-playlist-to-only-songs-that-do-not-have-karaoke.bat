@@ -28,7 +28,7 @@ rem Do the acutal work:
         check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %pl% *.lrc;*.srt 
 
 rem Validate the existence of the output file:
-        set NEW_PLAYLIST_NAME=%@UNQUOTE[%@NAME["%@UNQUOTE["%PL%"]"]]-without lrc or srt.m3u
+        set                                NEW_PLAYLIST_NAME=%@UNQUOTE[%@NAME["%@UNQUOTE["%PL%"]"]]-without lrc or srt.m3u
         call validate-environment-variable NEW_PLAYLIST_NAME
 
 rem Now that we have a playlist of songs that do not have karaoke, ask if we want to get lyrics or karaoke for it:

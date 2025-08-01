@@ -23,15 +23,15 @@ REM CONFIG:
 REM DEBUGGY stuff
         set URL="%*"
         :eset URL
-        echo. %+ echo.
+        repeat 2 echo. 
         call print-if-debug "URL is:         %URL%"
         call print-if-debug "Parameters are: %*"
-        call set-task "downloading youtube albums"
+        call set-task       "downloading youtube albums"
 
 REM check parameters & environment
         if "1" == "%validated_downloadyoutubealbum_1%" goto :validated_already
                 if "%1"    == "" .or. "%URL%" == "" (call error "Need URL!" %+ goto :END)
-                call validate-in-path               ingest_youtube_album.py delete-zero-byte-files important important_less errorlevel delete-largest-file warning error print-if-debug set-task metamp3 metaflac yt-dlp set-latest-filename openimage get-image-dimensions askyn crop-center-square-of-image make-image-square celebration change-into-temp-folder expand-image-to-square
+                call validate-in-path               ingest_youtube_album.py delete-zero-byte-files important important_less errorlevel delete-largest-file warning error print-if-debug set-task metamp3 metaflac yt-dlp set-latest-filename openimage get-image-dimensions askyn crop-center-square-of-image make-image-square celebration change-into-temp-folder expand-image-to-square randfg
                 call validate-environment-variables ANSI_BRIGHT_CYAN faint_on faint_off italics_on italics_off underline_on underline_off %+ REM most of these are set by set-colors.bat:
                 if not defined filemask_image call validate-environment-variable  filemask_image skip_existence_validation
                 if not defined filemask_audio call validate-environment-variable  filemask_audio skip_existence_validation
@@ -65,10 +65,9 @@ REM secret command line options
 REM Ask where to place our downloads...
         pushd 
         set            NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN=.
-        REM eset       NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN
         if not isdir "%NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN%" (md "%NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN%")
         if not isdir "%NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN%" (call error "wtf couldn’t make dir" %+ goto :END)
-        cd           "%NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN%" 
+        *cd          "%NAME_OF_FOLDER_TO_PUT_THIS_DOWNLOAD_IN%" 
 
 
 
@@ -184,14 +183,14 @@ REM rename files to the filenames we like
         set JSON_INFO=info.json
         echo. %+ echo. %+ echo. %+ echo. 
         call important_less "%EMOJI_CHECK_BOX_WITH_CHECK%Successfully downloaded %NUM_DOWNLOADED% files matching extensions “%EXTENSIONS_WE_ARE_POSSIBLY_DOWNLOADING%”"
-        if %NUM_DOWNLOADED% GT 1 (
+        iff %NUM_DOWNLOADED% GT 1 then
             set DOWNLOADS=many
             if exist *.description (ren *.description    %TEXT_INFO%)           %+ REM typically README.txt
             if exist *.json        (ren *.json           %JSON_INFO%)           %+ REM typically info.json
             for %%G in (%filemask_image%) do (if exist "*%%G" set COVER_ART=cover.%@LOWER[%@EXT[%%G]] %+ %COLOR_RUN %+ ren "%%G" "%COVER_ART%" %+ %COLOR_IMPORTANT %+ call less_important "%EMOJI_ARTIST_PALETTE%Cover art renamed to “%COVER_ART%”" )
             call validate-environment-variables TEXT_INFO JSON_INFO COVER_ART
-        )
-        if %NUM_DOWNLOADED% EQ 1 (
+        endiff
+        iff "%NUM_DOWNLOADED%" == "1" then
             set DOWNLOADS=one
             call set-latestfilename %EXTENSIONS_WE_ARE_POSSIBLY_DOWNLOADING%
             set LATESTFILENAME_BASE=%@NAME[%LATEST_FILENAME]
@@ -203,7 +202,7 @@ REM rename files to the filenames we like
             echos %FAINT_ON%
             for %file in (%FILEMASK_IMAGE%) do      if exist "%file%" (echos %FAINT_ON% %+ ren "%file%" "%LATESTFILENAME_BASE%.%@EXT[%FILE]")
             echos %FAINT_OFF%
-        )
+        endiff
 
 
 
@@ -219,10 +218,11 @@ REM                 \-- it may need resized  in order to become square (720x720 
             set image=%latest_filename%
 
         REM let user know what’s going on
-            echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo. 
+            repeat 7 echo. 
             call bigecho %EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%
             set NEWLINE_REPLACEMENT=1
             call warning_soft "About to open image - %italics_on%Remember%italics_off%: our goal is to make it %underline_on%%italics_on%square%italics_off%%underline_off% for album cover embedding\nBut first, just take a look at the image"
+            call display-image-dimensions.bat "%image%"
             call bigecho %EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%%EMOJI_STOP_SIGN%
             call unimportant "Image filename = “%italics%%image%%italics_off%”, CWP=“%italics%%_CWP%%italics_off%”"
             pause %+ REM this pause is important to keep buffered keystrokes from answering the next questions
@@ -243,12 +243,14 @@ REM                 \-- it may need resized  in order to become square (720x720 
             :done_with_questions
 
             :embed_again
-            if %image_was_changed eq 1 (
+            iff "%image_was_changed%" == "1" then
                 if %auto_embed ne 1    (call openimage  "%image%")
-                if not exist "%image%" (call error       "image of "%image%” doesn’t exist")
+                if not exist "%image%" (call error       "image of “%image%” doesn’t exist")
                 call askyn "Are we satisfied with the new image?" yes 0
-                if %DO_IT eq 0 (call warning "Returning to command line..." %+ call advice "Run "%0 img” to return to this point" %+ call cancelll)
+                if %DO_IT eq 0 (call warning "Returning to command line..." %+ call advice "Run “%0 img” to return to this point" %+ call cancelll)
+                taskend /f %IMAGE_VIEW_PROCESS_NAME%
                 set DONT_DELETE_ART_AFTER_EMBEDDING=1
+
 
                 call important "%EMOJI_INPUT_NUMBERS%Embedding new art into audio..."
                 for %song in (%filemask_audio%) (
@@ -257,9 +259,9 @@ REM                 \-- it may need resized  in order to become square (720x720 
                     call add-art-to-song "%IMAGE%" "%song%" 
                 )
 
-                pause "Press any key to close the image viewer"                                                                        
-                taskend /f %IMAGE_VIEW_PROCESS_NAME%
-            )
+                rem pause "Press any key to close the image viewer"                                                                        
+                rem taskend /f %IMAGE_VIEW_PROCESS_NAME%
+            endiff
 
         :done_fixing_image
 
@@ -293,11 +295,11 @@ REM Add replaygain tags
         :add_replaygain_tags
         pushd 
             REM ingest-youtube-album.py creates go-to-album.bat as a return value to change into the folder it created to moves the album into   
-            if "%DOWNLOADS%" == "many" (
-                set                                INGEST_RETURN_SCRIPT=go-to-album.bat
-                call validate-environment-variable INGEST_RETURN_SCRIPT "ingest return script not found in %0"
-                call                              %INGEST_RETURN_SCRIPT%
-            )               
+            iff "%DOWNLOADS%" == "many" then
+                        set                                INGEST_RETURN_SCRIPT=go-to-album.bat
+                        call validate-environment-variable INGEST_RETURN_SCRIPT "ingest return script not found in %0"
+                        call                              %INGEST_RETURN_SCRIPT%
+            endiff
             echo. %+ echo. %+ echo. %+ echo. %+ echo. %+ echo.          
             REM call warning "About to add replaygain tags in %_CWP" 
             call pause-if-debug "force" 
@@ -313,16 +315,15 @@ REM Allow us to manually adjust the filename
         echos %FAINT_ON%
         call delete-zero-byte-files
         echos %FAINT_OFF%
-        echo. %+ echo. %+ echo. %+ echo. %+ echo. 
+        repeat 5 echo. 
         call set-latest-filename
-        echo.
-        echo.
-        echo.
-        echo %ANSI_COLOR_IMPORTANT%EMOJI_FILE_FOLDER% Original filename was: %FAINT_ON%%ITALICS_ON%%FILENAME_AFTER_DOWNLOADING%%FAINT_OFF%%ITALICS_OFF%
+        repeat 3 echo.
+        echo %ANSI_COLOR_IMPORTANT%%EMOJI_FILE_FOLDER%   Latest filename  is: %FAINT_ON%%ITALICS_ON%%latest_file%%FAINT_OFF%%ITALICS_OFF%
+        echo %ANSI_COLOR_IMPORTANT%%EMOJI_FILE_FOLDER% Original filename was: %FAINT_ON%%ITALICS_ON%%FILENAME_AFTER_DOWNLOADING%%FAINT_OFF%%ITALICS_OFF%
         echo.
         call important "Fix your filename here %faint_on%(if you need to)%faint_off%:"
         echo.
-        call rn "%latest_file%"
+        if %latest_file% != "" .and. "%latest_file%" != "" call rn "%latest_file%"
 
 
 
@@ -334,9 +335,9 @@ REM Allow us to manually adjust the filename
 
 
 REM Change out of temp folder and move things back to where we started
-        cd ..
+        *cd ..
         call validate-env-var TEMP_FOLDER WHERE_WE_STARTED
-        echo. %+ echo. %+ echo. 
+        repeat 3 echo. 
         %COLOR_IMPORTANT_LESS% %+ echo * Current folder = %EMOJI_OPEN_FILE_FOLDER% %_CWD %EMOJI_OPEN_FILE_FOLDER% %+ echo. 
         %COLOR_WARNING%        %+ echos %EMOJI_WARNING% About to move everything out of our TEMP_FOLDER:``
         %COLOR_WARNING_SOFT%   %+ echos  %overstrike%%TEMP_FOLDER%%overstrike_off% ``
@@ -354,7 +355,7 @@ REM Change out of temp folder and move things back to where we started
 
 
 :END
-        echo. %+ echo. %+ echo. 
+        repeat 3 echo. 
         call celebration "%EMOJI_CHECK_MARK%Download complete!!!%EMOJI_CHECK_MARK%"
         REM  celebration.bat->:u8print-message.bat does titles automatically now so we don’t need to do this anymore: title Completed:  Youtube album download
         popd
