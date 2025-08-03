@@ -276,9 +276,9 @@ goto :Past_The_End_Of_The_Subroutines
                                 set IS_FILE_LOCATION=0
                         endiff       
                         setdos /x0
-            else
+            rem else
                         rem [2B] or are We here? 🐐
-            endiff                          
+            rem endiff                          
             :skippy
 
         setdos /x0

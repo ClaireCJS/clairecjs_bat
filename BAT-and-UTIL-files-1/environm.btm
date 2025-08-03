@@ -2719,7 +2719,7 @@ return
         if "%OS" eq "7"                                    set ALIASES=c:\TCMD\alias.lst
         if "%OS" eq "XP"                                   set ALIASES=c:\4NT\alias.lst
         if "%OS" eq "ME" .or. "%OS"=="95" .or. "%OS"=="98" set ALIASES=c:\4DOS\alias.lst
-        if not exist %ALIASES% (%COLOR_ALARM% %+ echo * ERROR: Aliases file not found! %+ beep %+ beep %+ beep %+ pause)
+        if not exist %ALIASES% (%COLOR_ALARM% %+ echo * ERROR: Aliases file not found! %+ beep %+ beep %+ beep %+ *pause)
         alias  /r    %ALIASES%
 return
 
@@ -2838,7 +2838,7 @@ return
                                         title %MSG%
                         %COLOR_NORMAL%
                         repeat 2 
-                        pause
+                        *pause
                 endiff                
         return
 
@@ -2846,7 +2846,7 @@ return
                 %COLOR_ALARM% %+ Echo you must have MACHINENAME set!! %+ echo.  %+ %COLOR_WARNING%
                 echo !!!!!!!!!!!!!!!ALL COOL STUFF WILL BE BROKEN!!!!!!!!!!!!!! %+ echo !!!!!!!!!!!!!!!ALL COOL STUFF WILL BE BROKEN!!!!!!!!!!!!!!
                 echo !!!!!!!!!!!!!!!ALL COOL STUFF WILL BE BROKEN!!!!!!!!!!!!!! %+ echo !!!!!!!!!!!!!!!ALL COOL STUFF WILL BE BROKEN!!!!!!!!!!!!!!
-                call alarmbeep %+ pause
+                call alarmbeep %+ *pause
         goto :BEGIN_COMMON
 
         :username_not_found
@@ -2866,7 +2866,7 @@ return
                 %COLOR_ADVICE%  %+ echo For example, :setStorm and :setFire
                                    echo You probably just need to make a blank entry if you really don't 
                                    echo have any environment variables *unique* to this machine.  
-                %COLOR_PAUSE%   %+ pause
+                %COLOR_PAUSE%   %+ *pause
         goto :END
         
         ::::::::::::::::::::::::::::::::::::: ERROR SUBROUTINES: END :::::::::::::::::::::::::::::::::::::

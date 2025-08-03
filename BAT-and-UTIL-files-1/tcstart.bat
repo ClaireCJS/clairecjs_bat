@@ -4,6 +4,7 @@
 rem timer /7 on
 
 rem MAJOR speedup by skipping this bat file if it's a transient shell —— special thanks to the helpful folks at the JPSoft forums for this one:
+echo "_PIPE _TRANSIENT" is "%_PIPE %_TRANSIENT" >nul
         if "%_PIPE %_TRANSIENT" != "0 0" (call c:\bat\setpath %+ QUIT)
         if "%_PIPE %_TRANSIENT" == "0 0" goto :NonTransient
         if "force"              == "%1"  goto :NonTransient
@@ -28,20 +29,23 @@ rem SET UP FOR ENVIRONMENT.BAT
         
 
 rem ::::: RUN ENVIRONMENT.BAT, WITH THE ONE PRE-REQUISITE THAT THE MACHINE NAME IS SET:
-    title TCC
+        title TCC
 
-    if exist "%1" .and. "%@EXT[%1]" == "BAT" (
-        echo should run env and %1 with params %2$?
-        call c:\bat\environm.btm force
-        call %1$
-        goto :Clean_Up
-    ) 
-   if "%1" == "force" (
-            shift
-            call c:\bat\environm.btm force tcstart
-   ) else (
-            call c:\bat\environm.btm tcstart
-   )
+        iff exist "%1" .and. "%@EXT[%1]" == "BAT" then
+                echo Should we run env and %1 with params %2$?
+                *pause
+                call c:\bat\environm.btm force
+                call %1$
+                goto /i :Clean_Up
+        endiff 
+        iff "%1" == "force" then
+                echo Scenario a >nul
+                shift
+                call c:\bat\environm.btm force tcstart
+        else
+                echo Scenario b ... ENVIRONM_RUN is currently “%ENVIRONM_RUN%” >nul
+                call c:\bat\environm.btm tcstart
+        endiff
 
 
 

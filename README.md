@@ -54,6 +54,14 @@ But here are the proper instructions:
     Now run TCC!
     A good test for if things worked is typing ```echo %PENTAGRAM%```. Do you see a pentagram character?  If not, you can always try copying my [windows terminal settings file](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json) into your *Windows Terminal* folder and seeing what happens. 
 
+1. Force [TCC](http:///www.jpsoft.com) to always run in Windows Terminal even when run directly:
+    * Hit Windows-R to open the Windows run menu
+    * Type ```c:\tcmd\tcc.exe``` to run TCC
+    * TCC probably will NOT run under Windows Terminal when launched like this — and we want it to because our integrations require Windows Terminal
+    * Right-click the properties for your erroneous TCC window
+    * In the (rightmost) tab for “Console” properties, change the preferred console to Windows Terminal
+    * Type ```c:\tcmd\tcc.exe``` in the Windows run menu once again to double-check that running TCC directly now opens in Windows Terminal
+
 1. At your freshly-run [TCC](http:///www.jpsoft.com) command-line, type ```option```, and switch to the *“Advanced”* tab.  In the upper-left is a section called *“Special Characters”*.  Change the separator to “```^```” (the [caret character](https://en.wikipedia.org/wiki/Caret)). 
     This is actually a deviation from how most people do things, due to the isolation of learning this command-line in the 1980s and 1990s. This created past complications that have been mostly mitigated in the present. However❟ any mitigations I missed will cause failures unless you change this one option.
 

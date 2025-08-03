@@ -1335,7 +1335,7 @@ rem Ask if we should proceed:
         :proceed_prompt
         unset /q answer
         @call AskYn "Do the transcription%ADDITIONAL_OPTIONS_TEXT%" yes %PROCEED_WITH_AI_CONSIDERATION_TIME% %ADDITIONAL_OPTIONS_LETTERS% %ADDITIONAL_OPTIONS_MEANINGS%
-                set STORED_ANSWER=%ANSWER%                                                                                     %+ rem echo stored_answer is “%stored_answer” %+ pause %+ echo on
+                set STORED_ANSWER=%ANSWER%                                                                                     %+ rem echo stored_answer is “%stored_answer” %+ pause %+ echo 0n
                 rem “K”:
                         if  "%STORED_ANSWER%" == "K" goto /i END
                 rem “G”:
@@ -1544,7 +1544,7 @@ rem A 3rd concurrency check became necessary in my endeavors:
 
 
 REM  ✨ ✨ ✨ Concurrency check 1435: ✨ ✨ ✨ 
-        echo LOCKFILE_ALREADY_EXISTS==“%LOCKFILE_ALREADY_EXISTS%”>nul                          %+ rem debugging for when we have echo on
+        echo LOCKFILE_ALREADY_EXISTS==“%LOCKFILE_ALREADY_EXISTS%”>nul                          %+ rem debugging for when we have echo 0n
         if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
         delay /m %@RANDOM[100,1000]
         rem if "1" == "%LOCKFILE_ALREADY_EXISTS%" goto /i concurrency_checks

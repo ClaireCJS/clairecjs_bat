@@ -1,4 +1,4 @@
-@Echo on
+@Echo off
 @loadbtm on
 @on break cancel
 
@@ -76,7 +76,7 @@ rem EXECUTION:
         rem ━━ BACKUP 20230526 WHILE BUGESTING: ━━
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization -f bestaudio --audio-quality best --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         rem call %YDL% -vU --verbose --write-description                                                                                           --add-metadata --embed-metadata                                --sub-langs en "%URL%"
-        @echo on
+        rem @echo on
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt         --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser opera     --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser edge      --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"

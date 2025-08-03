@@ -1,5 +1,5 @@
 @on break cancel
-@Echo OFF
+@Echo off
 
 rem Make sure %BAT% is defined, in case we are manually running this early:
         iff not defined PLUGIN_TCC_BASE then
@@ -8,7 +8,7 @@ rem Make sure %BAT% is defined, in case we are manually running this early:
                 else
                         set PLUGIN_TCC_BASE=%BAT%
                 endiff
-endiff
+        endiff
 rem ^^^^ If PLUGIN_TCC_BASE is a folder already in our path, then we don't need to do anything
 rem But if it isn't, there is a line we need to uncomment later, look for it...
 
@@ -85,7 +85,9 @@ rem                 And the, finally, do we actually do what this whole script i
 
 
 rem Double check things worked out:
-        call validate-plugins 4WT StripANSI
+        if not plugin StripANSI call validate-plugin StripANSI 
+        rem Skip this for now: GOATGOATGOAT: if not plugin       4WT call validate-plugin 4WT 
+
         
 
 :END

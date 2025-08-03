@@ -139,13 +139,17 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
                         goto :docs_only_goto_1
                 endiff                        
         rem Files that don’t normally live in C:\BAT\ but which we copy there for distribution, to keep things simple:        
+                %copy%  %TCMD_INI%                            %BAT%\tcmd.ini
                 %copy%  %TCMD_INI%                    %TARGET_MAIN%\tcmd.ini
                 %copy%  %GIRDER_CONFIGURATION%        %TARGET_MAIN%\girder.gml
+                %copy%  %GIRDER_CONFIGURATION%                %BAT%\girder.gml
                 %copy%  %TCMD_START_SCRIPT%           %TARGET_MAIN%\tcstart.bat
+                %copy%  %TCMD_START_SCRIPT%                   %BAT%\tcstart.bat
                 %copy%  %PRIMARY_AUTOEXEC_BAT%        %TARGET_MAIN%\autoexec.btm
                 %copy%  %COLORTOOL_EXE%               %TARGET_MAIN%\ColorTool.exe
         rem Some things we want to copy into a different filename than the original filename:
                 %copy%  %PERL_SITELIB_CLAIRE_ZIP%     %TARGET_MAIN%\perl-sitelib-Clio.zip
+                %copy%  %PERL_SITELIB_CLAIRE_ZIP%             %BAT%\perl-sitelib-Clio.zip
                 %copy%  %WINAMP_SETUP_NOTES%          %TARGET_MAIN%\winamp-setup-notes.txt
                 %copy%  %AUDIO_PROCESSING_NOTES%     "%TARGET_MAIN%\notes - audio processing.txt"
                 %copy% "%WINDOWS_TERMINAL_SETTINGS%"  %TARGET_MAIN%\windows-terminal-settings.json-to-be-copied-into-WT-dir-at-own-risk.json
@@ -153,7 +157,7 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
                 %copy% %0 %TARGET_MAIN%                 
         rem Update programming libraries:                
                 rem Update python libraries to the copy that lives in our BAT folder: both the ’living’ one, and the copy here:
-                        %copy_S% /E %PYTHON_LIBRARIES_DIR%         c:\bat\clairecjs_utils
+                        %copy_S% /E %PYTHON_LIBRARIES_DIR%          %BAT%\clairecjs_utils
                         %copy_S% /E %PYTHON_LIBRARIES_DIR%  %TARGET_MAIN%\clairecjs_utils
                 rem Update perl libraries:
                         %copy%  %PERL_SITELIB_FULL_ZIP%  %TARGET_MAIN%                
