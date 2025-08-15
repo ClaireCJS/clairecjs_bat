@@ -46,7 +46,10 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                     set SLEEP_TIME=3
 
             rem  But if a time is specified, use that time:
-                    if  "%1" !=  ""  (set SLEEP_TIME=%1 %+ shift)
+                    iff "%1" !=  "" then
+                        set SLEEP_TIME=%1 
+                        shift
+                    endiff
 
             rem And if silent mode is specified, do that:
                     set silent=1

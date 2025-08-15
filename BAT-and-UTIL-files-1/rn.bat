@@ -1,5 +1,5 @@
 @loadbtm on
-@echo %ansi_color_bright_green%-—━━━━━━━━━━━━━━━RN.BAT: START: “rn %1$” -—━━━━━━━━━━━━━━━%ansi_color_normal% %+ pause
+@rem @echo %ansi_color_bright_green%-—━━━━━━━━━━━━━━━RN.BAT: START: “rn %1$” -—━━━━━━━━━━━━━━━%ansi_color_normal% %+ pause
 @Echo off
 @on break cancel
 
@@ -319,4 +319,4 @@ rem DEBUG:
         setdos /x0
 
 
-@echo %ansi_color_bright_green%-—━━━━━━━━━━━━━━━RN.BAT: END -—━━━━━━━━━━━━━━━%ansi_color_normal%
+@rem @echo %ansi_color_bright_green%-—━━━━━━━━━━━━━━━RN.BAT: END -—━━━━━━━━━━━━━━━%ansi_color_normal%
