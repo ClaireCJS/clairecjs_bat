@@ -151,7 +151,7 @@ ren=*ren /Nt
 ;;;;;;;;;;;;; EXTEND BASIC COMMANDS INTO NEW COMMANDS: ;;;;;;;;;;;;;
  
 duh=du -h
-dg=(dir/km|:u8 gr %1$) | cat_fast
+dg= (dir/km |:u8 gr %1$) |:u8 cat_fast
 clf=d/bs %1$ >clip:
 DD=dir/bw *.com;*.exe;*.bat
 DDD=ls/x
