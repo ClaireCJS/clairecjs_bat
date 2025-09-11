@@ -1320,12 +1320,12 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
                                                                                                                         
                 iff "%LYRICLESSNESS_STATUS%" != "APPROVED" then
                         set ADDITIONAL_OPTIONS_TEXT= [%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%L%ansi_color_prompt%=mark lyricless%underline_on%ness%underline_off%,%ansi_color_bright_green%I%ansi_color_prompt%=Instr,%ansi_color_bright_green%K%ansi_color_prompt%=skip,%ansi_color_bright_green%G%ansi_color_prompt%=get lyrics,%ansi_color_bright_green%U%ansi_color_prompt%=mark as Untranscribeable/failed]
-                        set ADDITIONAL_OPTIONS_LETTERS=FGIKLPSU
-                        set ADDITIONAL_OPTIONS_MEANINGS=L:Mark_as_lyricless!,Q:enQueue_in_winamp,P:play_the_file,I:mark_as_instrumental,U:mark_as_untranscribeable,S:mark_as_sound_effect
+                        set ADDITIONAL_OPTIONS_LETTERS=GIKLPSU
+                        set ADDITIONAL_OPTIONS_MEANINGS=G:re-probe,L:Mark_as_lyricless!,Q:enQueue_in_winamp,P:play_the_file,I:mark_as_instrumental,U:mark_as_untranscribeable,S:mark_as_sound_effect,K:skip
                 else
                         set ADDITIONAL_OPTIONS_TEXT= [%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%I%ansi_color_prompt%=instr,%ansi_color_bright_green%K%ansi_color_prompt%=skip,%ansi_color_bright_green%G%ansi_color_prompt%=get lyrics,%ansi_color_bright_green%U%ansi_color_prompt%=mark as %ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable/failed]
-                        set ADDITIONAL_OPTIONS_LETTERS=FGIKPSU
-                        set ADDITIONAL_OPTIONS_MEANINGS=Q:enQueue_in_winamp,P:preview_the_file,I:mark_as_instrumental,U:mark_as_untranscribeable,S:mark_as_sound_effect
+                        set ADDITIONAL_OPTIONS_LETTERS=GIKPSU
+                        set ADDITIONAL_OPTIONS_MEANINGS=G:re-probe,Q:enQueue_in_winamp,P:preview_the_file,I:mark_as_instrumental,U:mark_as_untranscribeable,S:mark_as_sound_effect,K:skip
                 endiff
         :determine_dynamic_prompt_options_end
 
@@ -1345,6 +1345,13 @@ rem Ask if we should proceed:
                         iff "%STORED_ANSWER%" == "I" then
                                 gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
                                 @call warning "Aborting because you marked it as an instrumental..."
+                                gosub divider
+                                goto /i END
+                        endiff
+                        unset /q answer
+                rem “K”:
+                        iff "%STORED_ANSWER%" == "K" then
+                                @call warning "Skipping..."
                                 gosub divider
                                 goto /i END
                         endiff
@@ -1430,7 +1437,7 @@ REM Updated Concurrency Check: wait on lock file
                                 unset /q ANSWER
                         endiff
                         iff not exist %TRANSCRIBER_LOCK_FILE% then
-                                if "1" == "%lockfile_initially_detected%" call warning_soft "But now it’s gone, so something must have %italics_on%just%italics_ofinished%..."
+                                if "1" == "%lockfile_initially_detected%" call warning_soft "But now it’s gone, so something must have %italics_on%just%italics_off% finished..."
                         else
                                 call AskYN "%my_question" no %my_wait_time%
                                 if "Y" == "%ANSWER%" gosub lockfile_delete_transcriber_lock_file

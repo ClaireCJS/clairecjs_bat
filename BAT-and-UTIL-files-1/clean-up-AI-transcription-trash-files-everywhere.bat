@@ -19,6 +19,11 @@ rem If we are mis-using this script for things outside it’s original intention
 rem .....Otherwise❟ do what this script was made for: Cleaning up AI-transcription trash files!
         if "%1" == "audit-music-files" goto :unrelated_overloaded_functionality
 
+rem Proces parameters:
+        set DO_NOT_DELETE_BATS=0
+        iff "%1" == "do_not_delete_BATs" set DO_NOT_DELETE_BATS=1
+
+
 rem Delete files that could be anywhere:
         rem If any of these filename values changes also update the AI_TRASH_FILES variable in report-lyric-and-subtitle-percentage-completion.bat
         call less_important "Erasing trash AI transcription files..."
@@ -37,7 +42,7 @@ rem Delete files that could be anywhere:
                 gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
                 rem   DeleteEverywhere               *._vad_pyannote_v3.txt
 
-        iff "%1" == "do_not_delete_BATs" goto :do_not_delete_BATs
+        if "1" == "%DO_NOT_DELETE_BATS%" goto :do_not_delete_BATs
                 gosub DeleteEverywhere  create-the-missing-karaokes-here-temp*.bat
                 gosub DeleteEverywhere       get-the-missing-lyrics-here-temp*.bat
                 gosub DeleteEverywhere      get-the-missing-karaoke-here-temp*.bat

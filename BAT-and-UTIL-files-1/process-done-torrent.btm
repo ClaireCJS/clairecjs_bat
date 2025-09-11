@@ -142,8 +142,9 @@ rem Figure out if it is a single-file or multi-file torrent:
 		if "%EXTENSION%" eq "apk" set TARGETDIR=%TARGETDIR%\APK
 	if not isdir %TARGETDIR% (md %TARGETDIR%)
 
-	:echo r | cp    %N %TARGETDIR%
-	 echo r | cp /r %F %TARGETDIR%
+	:echo r |  cp      %N %TARGETDIR%
+	:echo r |  cp   /r %F %TARGETDIR%
+	 echo r | *copy /r %F %TARGETDIR%
             %COLOR_WARNING% %+ echo. %+ echo ...Did it copy?
             %COLOR_NORMAL%  %+ echo.
 goto :END

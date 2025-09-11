@@ -452,7 +452,7 @@ iff "%2" != "SetVarsOnly" then
 
         iff "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "1" != "%force_regen_LYRICS%" then
                 call warning "is this the infinite loop?!?!?!"
-                goto /i :END_OF_GET_LYRICS
+                goto /i END_OF_GET_LYRICS
         endiff
 
 
@@ -850,7 +850,7 @@ rem If we are in Genius-download-only mode, skip if we’ve already tried it for
                         rem echo displayaudiofilename 01
                         gosub DisplayAudioFileName
                         echo %star% %conceal_off%%ansi_color_bright_yellow%Already searched this file in genius-only mode. Skipping.%ansi_color_reset%
-                        goto /i :END_OF_GET_LYRICS
+                        goto /i END_OF_GET_LYRICS
                 endiff
         endiff
 
@@ -1280,7 +1280,7 @@ rem Check if we already have approved lyrics in the same folder:
                                 set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_TO_USE=%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                                 set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=%HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME%
                         endiff                   
-                        if "1" == "%GOTO_END%" goto /i :END_OF_GET_LYRICS
+                        if "1" == "%GOTO_END%" goto /i END_OF_GET_LYRICS
 
                 rem Display lyrics:
                         rem @gosub divider
@@ -1942,7 +1942,7 @@ rem                         It could be a hand-edited txt file that’s years ol
                                         goto /i end_OF_GET_LYRICS
                                 :keep_on_truckin_1295
 
-                rem echo Hello McFly! if "1" == "%GOTO_END%" .or. "1" == "%ABANDONED_SEARCH%" goto /i :END_OF_GET_LYRICS
+                rem echo Hello McFly! if "1" == "%GOTO_END%" .or. "1" == "%ABANDONED_SEARCH%" goto /i END_OF_GET_LYRICS
                 if "1" == "%GOTO_END%" .or. "1" == "%ABANDONED_SEARCH%" goto /i END_OF_GET_LYRICS
 
 
@@ -2501,23 +2501,24 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
                 rem 2025/02/15 adding answer==L to this one to fix infinite loop bug:                                                
                 iff "%answer%" == "L" then
                         set SOLELY_BY_AI=1
-                        rem TODO: right now, if you are ONLY getting lyrics, and you answer "A" for 
-                        rem               for "AI encode now", you just end up back at the prompt. 
-                        rem       This is technically correct, but it’s a bit jarring to tell it 
-                        rem               to do something and have it do nothing!
-                        iff "%PARENT_BAT%" != "create-srt-from-file" then
-                                echo.
-                                call warning_soft "I know you said to AI encode now... But you need to be running the get-karaoke commands to do that, and you’re just running get-lyric commands"
-                                call warning_soft "The %italics_on%PARENT_BAT%italics_off% var is set to “%PARENT_BAT%”"
-
-                                rem OLD:
-                                        rem call warning_soft "Okay... Let’s try calling create-srt from get-lyrics and see how that plays out... beta idea!"
-                                        rem set FORCE_AI_ENCODE_FROM_LYRIC_GET=1
-                                        rem call create-srt-from-file "%AUDIO_FILE%"
-                                        rem set  GOTO_END_AFTER_GET_LYRICS_CALLED=1
-                                rem NEW:
-                                        call warning_soft "We previously experimented with trying to call create-srt from get-lyrics and see how that plays out but it didn’t play out right the first time so we aren’t doing this anymore as of 2025/07/11!"
-                        endiff
+                        rem 202509 taking this warning out: rem TODO: right now, if you are ONLY getting lyrics, and you answer "A" for 
+                        rem 202509 taking this warning out: rem               for "AI encode now", you just end up back at the prompt. 
+                        rem 202509 taking this warning out: rem       This is technically correct, but it’s a bit jarring to tell it 
+                        rem 202509 taking this warning out: rem               to do something and have it do nothing!
+                        rem 202509 taking this warning out: iff "%PARENT_BAT%" != "create-srt-from-file" then
+                        rem 202509 taking this warning out:         echo.
+                        rem 202509 taking this warning out:         call warning_soft "I know you said to AI encode now... But you need to be running the get-karaoke commands to do that, and you’re just running get-lyric commands"
+                        rem 202509 taking this warning out:         rem                                                ^^^^ no i didn’t?! 
+                        rem 202509 taking this warning out:         call warning_soft "The %italics_on%PARENT_BAT%italics_off% var is set to “%PARENT_BAT%”"
+                        rem 202509 taking this warning out: 
+                        rem 202509 taking this warning out:         rem OLD:
+                        rem 202509 taking this warning out:                 rem call warning_soft "Okay... Let’s try calling create-srt from get-lyrics and see how that plays out... beta idea!"
+                        rem 202509 taking this warning out:                 rem set FORCE_AI_ENCODE_FROM_LYRIC_GET=1
+                        rem 202509 taking this warning out:                 rem call create-srt-from-file "%AUDIO_FILE%"
+                        rem 202509 taking this warning out:                 rem set  GOTO_END_AFTER_GET_LYRICS_CALLED=1
+                        rem 202509 taking this warning out:         rem NEW:
+                        rem 202509 taking this warning out:                 call warning_soft "We previously experimented with trying to call create-srt from get-lyrics and see how that plays out but it didn’t play out right the first time so we aren’t doing this anymore as of 2025/07/11!"
+                        rem 202509 taking this warning out: endiff
                         goto /i END_OF_GET_LYRICS
                 else
                         echo ----`>` Answer is not A! >nul
@@ -2620,6 +2621,7 @@ echos %ANSI_CURSOR_CHANGE_TO_underline_BLINKING%                                
 
 rem echo 🐐 checking[K] iff 1 eq LYRICS_ACCEPTABLE=%LYRICS_ACCEPTABLE .or. 1 eq LYRICS_FOUND_TO_HAVE_BEEN_PREAPPROVED=%LYRICS_FOUND_TO_HAVE_BEEN_PREAPPROVED then ..... LYRIC_STATUS=“%LYRIC_STATUS%”
 iff "0" == "%LYRICS_ACCEPTABLE%" .and. "1" != "%LYRICS_FOUND_TO_HAVE_BEEN_PREAPPROVED%" then
+        echo [goat] about to ask instrumental 2624
         gosub ask_about_instrumental
         echo something should be done here? but what?
         echo let’s go back to the start maybe?
@@ -2923,6 +2925,7 @@ rem echo iff("1" != "%LYRICS_FETCHED%" .and. "1" != "%JUST_APPROVED_LYRICLESSNES
                         call  unapprove-lyriclessness-for-file.bat "%AUDIO_FILE%"
                         set   JUST_UNAPPROVED_LYRICLESSNESS=1
                         set   LYRICLESSNESS_STATUS=NOT_APPROVED
+                        echo [goat] about to ask instrumental 2928
                         gosub ask_about_instrumental
                 endiff
         endiff
@@ -2976,6 +2979,9 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
                         else
                                 echo %ansi_color_warning_soft%%star2% Already asked about this song.... (already_asked_about_%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%=“%[already_asked_about_%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%]”)%ansi_color_normal%
                                 if "%PARENT_BAT%" != "" .and. "%PARENT_BAT%" != "create-srt-from-file" return
+
+                                rem 2025/09: let’s just return, getting double-asked is becoming annoying:
+                                return
                         endiff
                         rem echo are we still here? 🐐🐐🐐🐐
 

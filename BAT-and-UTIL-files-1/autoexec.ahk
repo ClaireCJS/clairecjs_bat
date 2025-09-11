@@ -21,6 +21,13 @@
 
 
 
+;;; 2005/09/03 efforts to stop the damn ctrl/alt/shift keys from getting stuck all the damn time:
+
+SendMode "Input"        ; more reliable than default/event for many systems
+SetKeyDelay 66, 66      ; slow it down just enough to avoid races
+ReleaseAllMods() {
+    Send "{Ctrl up}{Alt up}{Shift up}{LWin up}{RWin up}"
+}
 
 
 
@@ -190,10 +197,39 @@
 ^'::Send  "‘"           ;     Ctrl+apostrophe for ‘  smart single quote: left
 ^!'::Send "‘’"          ; Ctrl-Alt+apostrophe for ‘’ smart single quotes: both
 		         
-;"(normal quote key)    ;"          quote for "   — "the default original dumb quote / inches symbol"
-^!"::Send "“”"          ;" Ctrl+Alt+quote for “”  — smart double/normal quotes: both
+;;;;;       ;"(normal quote key)    ;"          quote for "   — "the default original dumb quote / inches symbol"
+;;;;;       ^!"::Send "“”"          ;" Ctrl+Alt+quote for “”  — smart double/normal quotes: both
 ^"::Send  "“"           ;"     Ctrl+quote for “   — smart double/normal quotes: left
 !"::Send  "”"           ;"      Alt+quote for ”   — smart double/normal quotes: right
+
+;"(normal quote key)    ;"          quote for "   — "the default original dumb quote / inches symbol"
+^!":: {                          ; Ctrl+Alt+quote hotkey
+    try {
+        Send "{Ctrl up}{Alt up}"
+        Send "{Ctrl up}"
+        Send "{Alt up}"
+        KeyWait "Ctrl"
+        KeyWait "Alt"
+        Send "“"
+        Send "”"
+        return
+    }
+    finally {
+        Send "{Ctrl up}{Alt up}"
+        Send "{Ctrl up}"
+        Send "{Alt up}"
+    }
+}
+
+;; ^!"::{   try { Send "“”" }         finally { Send "{Ctrl up}{Alt up}" }          } ;" Ctrl+Alt+quote for “”  — smart double/normal quotes: both
+;; ^"::{    try { Send "“" }          finally { Send "{Ctrl up}" }                  } ;"     Ctrl+quote for “   — smart double/normal quotes: left
+;; !"::{    try { Send "”" }          finally { Send "{Alt up}" }                   } ;"      Alt+quote for ”   — smart double/normal quotes: right
+
+;; !'::{    try { Send "{U+0027}" }   finally { Send "{Alt up}" }                   } ;      Alt+apostrophe for '  default original dumb apostrophe / feet symbol
+;; '::{     try { Send "’" }          finally { }                                   } ;          apostrophe for ’  smart single quote: right           ; the *correct* apostrophe we should be using, i.e. “can’t”
+;; ^'::{    try { Send "‘" }          finally { Send "{Ctrl up}" }                  } ;     Ctrl+apostrophe for ‘  smart single quote: left
+;; ^!'::{   try { Send "‘’" }         finally { Send "{Ctrl up}{Alt up}" }          } ; Ctrl-Alt+apostrophe for ‘’ smart single quotes: both
+
 
 
 

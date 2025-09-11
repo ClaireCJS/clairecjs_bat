@@ -18,6 +18,7 @@ REM way too big!
 
 REM i think the scaling change between monitors makes these REALLY GOOD NUMBERS not work when used from a diff monitor:
 REM activate %TO_ACTIVATE% pos=-1339,-1079,1290,672
-    activate %TO_ACTIVATE% pos=-1339,-1079,851,403
+REM activate %TO_ACTIVATE% pos=-1339,-1079,851,403
+    activate %TO_ACTIVATE% pos=-1339,-1779,851,403
 
 title     %ORIG_TITLE

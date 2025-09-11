@@ -53,7 +53,7 @@ rem Opening cosmetics:
         if "%_PBATCHNAME" == "" cls
 
 rem HALT CONDITIONS:
-        rem HALT ❶: If the folder indicates something we shoudln’t be creating karaoke for, let the user know:
+        rem HALT ❶: If the folder indicates something we shouldn’t be creating karaoke for, let the user know:
         rem (copied from create-srt but with %_CWD\ substitued over %FULL_FILENAME%)
                 rem Reset our failure flag(s):
                         unset /q cfmk_fail_type
@@ -63,7 +63,7 @@ rem HALT CONDITIONS:
                         set instr_in_foldname=%@REGEX["[\[\(][iI][nN][sS][tT][rR][uU][mM][eE][nN][tT][aA][lL][sS]*[\)\]\\]","%_CWD\"]
                         set sndfx_in_foldname=%@REGEX["[sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*[\\\]\)]","%_CWD\"]                                    %+ rem OLD
                         set sndfx_in_foldname=%@REGEX["[sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*","%_CWD\"]                                            %+ rem NEW: to commodate folder names like “sound effects & ambient sound”
-                        set iscis_in_foldname=%@REGEX["[\\\[\(][Uu][Nn][Tt][Rr][Aa][Nn][Ss][Cc][Rr][Ii][Bb][Ee][Aa][Bb][Ll][Ee][\\\]\)]","%_CWD\"]
+                        set iscis_in_foldname=%@REGEX["[\\\[\(][Uu][Nn][Tt][Rr][Aa][Nn][Ss][Cc][Rr][Ii][Bb][Ee]*[Aa][Bb][Ll][Ee][\\\]\)]","%_CWD\"]
 
                 rem If certain halt patterns ARE in our filename, gather our failure type:
                         if "1" == "%instr_in_foldname%" ( set cfmk_fail_type=instrumental     %+ set cfmk_fail_point=dir name)

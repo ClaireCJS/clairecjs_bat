@@ -13,16 +13,18 @@ rem CONFIGURATION:
 
 
 :DESCRIPTION: Checks for files that are missing *approved* lyric files.
-:USAGE: check-for-missing-lyrics {etc} ————————————————————— checks files in current folder, and displays a list of songs missing lyrics
-:USAGE: check-for-missing-lyrics get {etc} ————————————————— checks files in current folder, and retrieves/aligns all the missing lyrics
+:USAGE:
+:USAGE: check-for-missing-lyrics {etc} ————————————————————————— checks files in current folder, and displays a list of songs missing lyrics
+:USAGE: check-for-missing-lyrics get {etc} ————————————————————— checks files in current folder, and retrieves/aligns all the missing lyrics
 :USAGE:
 :USAGE: check-for-missing-lyrics karaoke playlist.m3u {etc} ———— checks files in  playlist.m3u, and retrieves/generates all the missing karaoke/transcriptions
-
-:USAGE: check-for-missing-lyrics playlist.m3u {etc} ———————— checks files in playlist.m3u, and displays a list of songs missing lyrics
-:USAGE: check-for-missing-lyrics get playlist.m3u {etc} ———— checks files in playlist.m3u, and retrieves/aligns all the missing lyrics:USAGE: 
+:USAGE:
+:USAGE: check-for-missing-lyrics playlist.m3u {etc} ———————————— checks files in playlist.m3u, and displays a list of songs missing lyrics
+:USAGE: check-for-missing-lyrics get playlist.m3u {etc} ———————— checks files in playlist.m3u, and retrieves/aligns all the missing lyrics:USAGE: 
 :USAGE: 
 :USAGE:  ... where {etc} are options that will be passed directly to get-lyrics.bat, such as “genius” or “force”, 
 :USAGE:                  or a number that is the limit of the # of files to find in a playlist search (because that can take time!)
+:USAGE:
 
 
 
@@ -310,19 +312,19 @@ rem Create the fix-script, if there are any to fix:
                                         echo.
                                         gosub divider
                                         echo.
-                                        echo %@ANSI_MOVE_UP[3]%ANSI_CURSOR_VISIBLE%%@ANSI_CURSOR_COLOR_BY_WORD[yellow]%ansi_color_green%Going to find those missing %findNature% now!%ansi_color_bright_Red%%blink_on%
+                                        echos %@ANSI_MOVE_UP[3]%ANSI_CURSOR_VISIBLE%%@ANSI_CURSOR_COLOR_BY_WORD[yellow]
+                                        call bigecho "%ansi_color_green%Going to find those missing %findNature% now!%ansi_color_bright_red%"
                                         sleep 1
                                         set TARGET_SCRIPT_TO_CALL=%@NAME[%TARGET_SCRIPT%]-%[_datetime].bat
                                         echo %CURSOR_RESET%%blink_off%
-                                        iff exist "%TARGET_SCRIPT%" goto :target_script_exists_1
-                                                call warning "Why doesn’t target_script exist? “%TARGET_SCRIPT%”'
-                                                goto :target_script_exists_2
-                                        :target_script_exists_1
+                                        iff exist "%TARGET_SCRIPT%" then
                                                 echos %ansi_color_unimportant%
                                                 ren  "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
+                                        endiff
+                                        :target_script_exists_1
                                                 if not exist "%TARGET_SCRIPT_TO_CALL%" call warning "Why doesn’t TARGET_SCRIPT_TO_CALL exist? “%TARGET_SCRIPT_TO_CALL%”'
                                                 if     exist "%TARGET_SCRIPT_TO_CALL%" call "%TARGET_SCRIPT_TO_CALL%"                                             %+ rem run the generated script !X--X!
-                                                if     exist "%TARGET_SCRIPT_TO_CALL%" call   errorlevel                                                          %+ rem check for errorlevel //rem DEBUG: echo our_errorlevel is %our_errorlevel% 
+                                                if     exist "%TARGET_SCRIPT_TO_CALL%" call errorlevel                                                            %+ rem check for errorlevel //rem DEBUG: echo our_errorlevel is %our_errorlevel% 
                                         :target_script_exists_2
                                         if "" != "%original_title%" (*title %original_title%)                
                                         rem echo pbatchname_check-for-missing-lyrics_bat=%_PBATCHNAME 
@@ -358,6 +360,11 @@ rem —————————————————————————�
                                              echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is a chiptune: %zzzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
+                                        rem ✪✪✪ We still want lyrics for untranscribeable songs, so let’s NOT do this: ✪✪✪
+                                        rem iff "1" == "%@RegEx[[\(\[\\]untranscribeable?[\)\]\\],%namey%]" then
+                                        rem      echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is untranscribeable: %zzzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                        rem      return                                
+                                        rem endiff
                                         iff "1" == "%@RegEx[[\(\[\\]sound effect?[\)\]\\],%namey%]" then
                                              echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is a sound effect: %zzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                

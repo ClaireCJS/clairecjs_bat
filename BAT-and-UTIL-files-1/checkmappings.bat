@@ -129,7 +129,7 @@
 ::: DEMONA:
 	if 1 ne %HD1000G3_DOWN% if "%@READY[%HD1000G3:]" == "0"  (call warning "ERROR! HD1000G3 [%HD1000G3:] not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% %HD1000G3)
 	if 1 ne   %HD18T3_DOWN% if "%@READY[%HD18T3:]"   == "0"  (call warning "ERROR! HD18T3   [%HD18T3%:]  not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD18T3)
-	if 1 ne   %HD22T1_DOWN% if "%@READY[%HD22T1:]"   == "0"  (call warning "ERROR! HD22T1   [%HD22T1%:]  not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD22T1)
+rem TODO GOAT	if 1 ne   %HD22T1_DOWN% if "%@READY[%HD22T1:]"   == "0"  (call warning "ERROR! HD22T1   [%HD22T1%:]  not mapped!"  %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD22T1)
 
 ::: WYVERN:
 	if 1 ne  %HD2T1_DOWN    if "%@READY[%HD2T1%:]"   == "0"  (call warning "ERROR! HD2T1  [%HD2T1%:] not mapped!"      %+ set ERROR=1 %+ set ERRORFULL=%ERRORFULL% HD2T1)

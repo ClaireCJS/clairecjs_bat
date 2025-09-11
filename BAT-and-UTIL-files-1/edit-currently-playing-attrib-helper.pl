@@ -657,6 +657,13 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 				print "echos \%ANSI_COLOR_BRIGHT_GREEN\%\n";	
 				print "tail attrib.lst | insert-before-each-line \"    \"\n";	
 				print "echos \%ANSI_COLOR_NORMAL\%\n";	
+
+				print "call askyn \"Y=Edit attrib.lst / N=don’t\" no 15 G G:give_up\n";
+				print "if \"N\" == \"\%ANSWER\%\" goto :DoNotEdit\n";
+				print "%%EDITOR%% attrib.lst\n";
+				print ":DoNotEdit\n";
+
+
 			} else {
 				print "keystack ec\n";
 			}

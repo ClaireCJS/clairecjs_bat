@@ -1,4 +1,5 @@
 
+
 """
      *** SAVE CODE CHANGES TO A .SAVETEXT FILE FIRST AND CHECK ENCODING BEFORE OVERWRITING!!! IT IS VERY EASY TO CORRUPT THIS FILE!!! TOO EASY!!! ***
      *** SAVE CODE CHANGES TO A .SAVETEXT FILE FIRST AND CHECK ENCODING BEFORE OVERWRITING!!! IT IS VERY EASY TO CORRUPT THIS FILE!!! TOO EASY!!! ***
@@ -213,7 +214,7 @@ def primt(*args, **kwargs):     #custom_print "prim print" function to print, pr
         log_file.write(f"{output}\n")
 
 
-def convert_to_ascii_filename_chracters(filename,mode):    
+def convert_to_ascii_filename_chracters(filename,mode):
     """Translates a string (in our case, a filename) to its ASCII/roman equivalent
 
     (1) First, an amazing multi-language language-agnostic full translation library called polyglot is used

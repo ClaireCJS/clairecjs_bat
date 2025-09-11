@@ -195,7 +195,7 @@ rem Compare stripes of new subtitle to lyrics:
 
 rem Do the animated visual comparison:
         :jump_point
-        echo %STAR2% %double_underline_on%NEW%double_underline_off% subtitles vs lyrics: %faint_on%[hit ‘X’ to stop animation]%faint_off%
+        echo %STAR2% %double_underline_on%NEW%double_underline_off% subtitles vs lyrics: %faint_on%[hit %left_apostrophe%X%right_apostrophe% to stop animation]%faint_off%
         call visual-comparison "%srt_old%" "%srt_new%" "%italics_on%old%italics_off% subtitles" "%italics_on%new%italics_off% subtitles"
 
 
