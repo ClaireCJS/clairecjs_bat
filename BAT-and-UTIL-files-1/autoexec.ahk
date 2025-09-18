@@ -90,7 +90,17 @@ ReleaseAllMods() {
                         
 ;-------         "-"    ;         Hyphen ------ for normal default hyphen                     (compound words, words interrupted by line break)
 ^-::Send         "–"    ;    Ctrl+Hyphen –––––– for en dash                                   (ranges,    quotations)
-!-::Send         "—"    ;     Alt+Hyphen —————— for em dash                                   (interruptions, breaks)
+;;; !-::Send         "—"    ;     Alt+Hyphen —————— for em dash                                   (interruptions, breaks)
+!-:: {
+    try {
+        Send "—"
+        return
+    }
+    finally {
+        Send "{Alt up}"
+    }
+}
+
 ^!-::Send        "━"    ;Ctrl-Alt+Hyphen ━━━━━━ for unicode box drawing heavy horizontal line (      dividers       )      
                       
 ;=::Send         "="    ;“=”         Equals key for the normal equals
@@ -203,7 +213,7 @@ ReleaseAllMods() {
 !"::Send  "”"           ;"      Alt+quote for ”   — smart double/normal quotes: right
 
 ;"(normal quote key)    ;"          quote for "   — "the default original dumb quote / inches symbol"
-^!":: {                          ; Ctrl+Alt+quote hotkey
+^!":: {                 ;  Ctrl+Alt+quote for “”
     try {
         Send "{Ctrl up}{Alt up}"
         Send "{Ctrl up}"

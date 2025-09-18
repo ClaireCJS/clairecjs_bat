@@ -24,7 +24,7 @@ rem CONFIG:
 
 rem VALIDATE ENVIRONMENT:
         iff "1" != "%validated_whispertimesynchelper%" then
-                call validate-in-path               errorlevel askyn enqueue.bat warning.bat advice.bat print-message.bat winamp-next subtitle-postprocessor.pl perl preview-audio-file.bat tail 
+                call validate-in-path               errorlevel askyn enqueue.bat warning.bat advice.bat print-message.bat winamp-next subtitle-postprocessor.pl perl preview-audio-file.bat tail subtitle-verifier.py
                 rem  validate-environment-variables JAVA_WHISPERTIMESYNC WhisperTimeSync our_language color_advice ansi_color_advice lq rq underline_on underline_off italics_on italics_off
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language WhisperTimeSync 
                 call validate-is-function           cool_text
@@ -121,13 +121,18 @@ rem WhisperTimeSync is horribly buggy so we fix some of that——particularly t
         echo %ansi_color_important%%star% Postprocessing subtitle file because %italics_on%WhisperTimeSync%italics_off% produces malformed SRT files...%ansi_color_normal%
         subtitle-postprocessor.pl -w "%SRT_NEW%"
 
+rem Check for problems:
+        echo %ANSI_COLOR_LESS_IMPORTANT%%STAR2% Checking for duplicate timestamps...%ansi_color_normal%
+        rem echo    subtitle-verifier.py --columns %_COLUMNS "%SRT_NEW%"
+        subtitle-verifier.py --columns %_COLUMNS "%SRT_NEW%"
+
 rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
         echo %ANSI_COLOR_WARNING_SOFT%%STAR2% Quick review of subtitles:%ansi_color_normal%
-        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% %italics_on%WhisperTimeSync%italics_off% often gets the very beginning wrong%ansi_color_normal%
-        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❶  Take special care that the very beginning / first words fall within a subtitle"  silent
-        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❷  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
-        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❸  If the last timestamp of the new subtitles, which is:
+        echo %ANSI_COLOR_WARNING_SOFT%  %STAR2% %italics_on%WhisperTimeSync%italics_off% often gets the very beginning wrong%ansi_color_normal%
+        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❶  Take special care that the very beginning / first words fall within a subtitle
+        rem  We now have a program for this:       ❷  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
+        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❷  If the last timestamp of the new subtitles, which is:
 
         @echo off
         call set-tmp-file subtitle-final-timestamp-grep-results 

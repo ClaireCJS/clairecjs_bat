@@ -25,20 +25,31 @@ rem VALIDATE ENVIRONMENT:
         iff "1" != "%validated_whispertimesync%" then
                 call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file enqueue.bat visual-comparison.bat
                 rem  validate-environment-variables JAVA_WHISPERTIMESYNC our_language color_advice ansi_color_advice ansi_color_removal ansi_color_normal ansi_color_run smart_apostrophe italics_on italics_off lq rq smart_apostrophe
-                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language lq rq 
+                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language lq rq FILEEXT_AUDIO
                 call validate-is-function cool_text
                 set  validated_whispertimesync=1
         endiff
 
+rem IMPLIED PARAMETERS —— If we only give a song file as a first parameter, then we imply the rest:
+        rem If the first parameter is a song file, but the other 2 parametesrs don’t exist, flip to implied parameter mode:
+                set PARAM1=%@UNQUOTE[%1]
+                set PARAM1_IS_AUDIO=0
+                for %%tmpExt in (%FILEEXT_AUDIO%) if "%@EXT[%PARAM1%]" == "%tmpExt" set PARAM1_IS_AUDIO=1
+                if "%2" != "" .or. "%3" != "" set PARAM1_IS_AUDIO=0     
+        rem If it is, then we will react to it below
+                
+
 rem USAGE:
-        iff "%1" == "" .or. "%2" == "" then
+        iff "%@unquote[%1]" == "" .or. ("%@unquote[%2]" == "" .and. "0" == "%PARAM1_IS_AUDIO%") then
                 echo.
                 call divider
                 %color_advice%
                         echo.
-                        echo USAGE: %0 {subtitle file with bad words and good timing} {lyric file with good words and no/bad timing} [optional filename of audio_file]
-                        echo USAGE: %0 {subtitle} {lyrics} [audio_file]
-                        echo    EX: %0  %@cool_text[bad.srt good.txt]%ansi_color_advice%
+                        echo USAGE #1: %0 {subtitle} {lyrics} [audio_file]
+                        echo USAGE #1: %0 {subtitle file with bad words and good timing} {lyric file with good words and no/bad timing} [optional filename of audio_file]
+                        echo USAGE #2: %0 {audiofile} --`>` this mode automatically finds sidecar lyric and subtitle files from the audio filename
+                        echo    EX #1: %0  %@cool_text[bad.srt good.txt]%ansi_color_advice%
+                        echo    EX #2: %0  %@cool_text[song.mp3]%ansi_color_advice%
                         rem     EX: %0  %@cool_text[subtitles.srt lyrics.txt]%ansi_color_advice%
                 call divider
                 echo.
@@ -55,6 +66,19 @@ rem VALIDATE PARAMETERS:
         set  aud_WAV=%@NAME[%SRT%].wav
         set aud_FLAC=%@NAME[%SRT%].flac
         rem @Echo OFF
+
+        rem If our first parameter is an audio file, the other 2 parameters are implied:
+                iff "1" == "%PARAM1_IS_AUDIO%" then
+                        set  AUD_FIL=%@UNQUOTE[%1]
+echo                    set      SRT=%@NAME[%AUD_FIL%].srt
+                        set      SRT=%@NAME[%AUD_FIL%].srt
+                        set  SRT_OLD=%SRT%
+                        set  LYR_RAW=%@NAME[%AUD_FIL%].txt
+                        set  aud_MP3=%@NAME[%AUD_FIL%].mp3
+                        set  aud_WAV=%@NAME[%AUD_FIL%].wav
+                        set aud_FLAC=%@NAME[%AUD_FIL%].flac                
+                endiff
+
         if not exist "%SRT%" .or. not exist "%LRC%" call validate-environment-variables SRT LYR_RAW
         call validate-is-extension          "%SRT%"      *.srt
         call validate-is-extension          "%LYR_RAW%"  *.txt
@@ -63,7 +87,7 @@ rem Make sure we’re dealing with *processed* lyrics for WhisperTimeSync:
 
         rem Set post-processed filename:
                 call set-tmp-file "WhisperTimeSync"
-                set lyr_processed=%tmpfile%-postprocessed-lyrics.txt
+                set lyr_processed=%tmpfile%-proposed-new-subtitles-via-WhisperTimeSync.txt
                 set lyr_processed_rendered_plus_bot_stripe=%tmpfile2%-lyr-plus-str.txt
 
         rem Run current iteration of lyrics through post-processor and make sure it was successful:
@@ -211,7 +235,7 @@ rem Do the animated visual comparison:
 
 rem Ask if it’s better or not...
         :AskYnIfBetter
-        call AskYN "%faint_on%[WhisperTimeSync]%faint_off% Is this realignment better than the original [P=Play,Q=enQueue in WinAmp]" yes 0 PQ P:play_it,Q:enQueue_it
+        call AskYN "%faint_on%[WhisperTimeSync]%faint_off% Is this realignment better than the original [%ansi_color_bright_green%P%ansi_color_prompt%=%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%Q%ansi_color_prompt%=en%ansi_color_bright_green%Q%ansi_color_prompt%ueue in WinAmp]" yes 0 PQ P:play_it,Q:enQueue_it
 
 rem Preview if it need be, prior to asking:
         iff "%ANSWER%" == "P" then

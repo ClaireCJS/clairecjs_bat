@@ -6,9 +6,9 @@
 @on break goto :csff_onbreak
 @if not defined Default_command_Separator_Character set Default_command_Separator_Character=`^`
 
-rem TODO: concurrency: per-directory locking
-rem TODO: figure out where to place the :go_here_for_encoding_retries label                                                            
-rem MAYBE TODO afterregen anyway, do we need to ask about ecc2fasdfasf.bat?
+rem TODO: MAYBE: figure out where to place the :go_here_for_encoding_retries label                                                            
+rem TODO: MAYBE: concurrency: per-directory locking is implemented for certain scripts, but this one doesn’t perform any of it’s own [and that’s probably overkill]
+rem TODO: MAYBE: afterregen anyway, do we need to ask about ecc2fasdfasf.bat?
 
 
 REM CONFIG: LOGFILES: 
@@ -21,19 +21,20 @@ REM CONFIG: LOGFILES:
         set AUDIOFILE_TRANSCRIPTION_PROMPTS_USED_LOG_FILE=%LOGS%\audiofile-transcription-prompts.log   %+ rem copy this line to get-lyrics-for-file as well
 
 REM CONFIG: 2025: 2ⁿᵈ half:
-        set DEBUG_ECHO_CALLS_TO_GETLYRICS=0                                                            %+ rem Whether to echo to the screen any calls to the get-lyrics functionality
-        set DEBUG_KARAOKE_APPROVAL=0                                                                   %+ rem Whether to let us know where calls to approving the karaoke file are made
         set DEBUG_TRACE_CSFF=0                                                                         %+ rem Whether we want to echo our “we are here” debug traces
+        set DEBUG_KARAOKE_APPROVAL=0                                                                   %+ rem Whether to let us know where calls to approving the karaoke file are made
+        set DEBUG_ECHO_CALLS_TO_GETLYRICS=0                                                            %+ rem Whether to echo to the screen any calls to the get-lyrics functionality
         set LOCKFILE_MESSAGE_ROWS_TO_CLEAR=10                                                          %+ rem cosmetic: How many rows to clear out (scroll text up these many rows) to make space for lockfile messages to appear on the same part of the screen with more consistency
 
 REM CONFIG: 2025: 1ˢᵗ half:
         @set temporarily_disable_status_bar=0
-        set DEFAULT_LANGUAGE=en                                                                        %+ rem Default language. MAKE SURE TO SET/OVERRIDE TO “None” IF YOU DON’T WANT ONE!
+        set DEFAULT_LANGUAGE=en                                                                        %+ rem Default language. MAKE SURE TO SET/OVERRIDE TO “None” IF YOU DON’T WANT ONE! WhisperAI is actually pretty good at knowing which language something is, anyway
+        set DEBUG_LOCKFILE=0                                                                           %+ rem Whether to show lockfile-related debugging info
         set DEFAULT_VAD_THRESHOLD=0.075                                                                %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
         set DEFAULT_VAD_THRESHOLD=0.07                                                                 %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
         set DEFAULT_VAD_THRESHOLD=0.05                                                                 %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
         set DEFAULT_VAD_THRESHOLD=0.03                                                                 %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals. And increasingly, we make this lower over time because our auto-hallucation-removal removes is the primary bad side-effect from setting this value too low.
-        set DEBUG_LOCKFILE=0                                                                           %+ rem Whether to show lockfile-related debugging info
+        set DEFAULT_VAD_THRESHOLD=0.01                                                                 %+ rem 2025/09/12 adjustment
 
 
 REM CONFIG: 2024: 
@@ -45,6 +46,7 @@ REM CONFIG: 2024:
         set MAXIMUM_PROMPT_SIZE=3000                                                                   %+ rem The most TXT we will use to prime our transcription.  Since faster-whisper-xxx only supports max_tokens of 224, we only need 250 words or so. But will pad a bit extra. We just don’t want to go over the command-line-length-limit!
         set DEBUG_SHOW_LYRIC_STATUS=0                                                                  %+ rem shows lyriclessness/lyric status if we “gosub debug_show_lyric_status”
         set ANNOUNCE_IF_SIDECAR_FILES_EXIST=1                                                          %+ rem 1=very cosmetically polished display of whether each file/sidecar file exists (mp3/srt/lrc/txt/json/srt2)
+
 rem CONFIG: 2024: WAIT TIMES:                                                                      
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=120                                                   %+ rem wait time for “are these lyrics good?”-type questions
         set AI_GENERATION_ANYWAY_WAIT_TIME=45                                                          %+ rem wait time for “no lyrics, gen with AI anyway”-type questions
@@ -65,7 +67,7 @@ rem CONFIG: 2024: WAIT TIMES:
         set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=no                                                     %+ rem default answer for “Generate AI anyway?”-type questions
 
 
-REM config: 2023:
+REM CONFIG: 2023:
         set SKIP_SEPARATION=1                                                                          %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn’t work anymore
         SET SKIP_TXTFILE_PROMPTING=0                                                                   %+ rem 0=use lyric file to prompt AI, 1=go in blind
         rem set TRANSCRIBER_TO_USE=call whisper-faster.bat 
@@ -2202,13 +2204,13 @@ goto /i skip_subroutines
                         call approve-subtitles    "%SRT_FILE%" 
                         set karaoke_status=APPROVED
                 endiff
-                iff "%ANSWER" == "N" .or. "%ANSWER" == "D" then
+                iff "%ANSWER%" == "D" .or. "%ANSWER" == "N" then
                         set karaoke_status=NOT_APPROVED
-                        call disapprove-subtitles "%SRT_FILE%" 
-                        iff "N" == "%ANSWER%" then
-                                title %RED_X% %SRT_FILE% NOT generated successfully! %RED_X%      
-                                goto /i go_here_if_we_unpproved_or_deleted_the_karaoke
+                        iff "%ANSWER%" == "D" then
+                                call disapprove-subtitles "%SRT_FILE%" 
                         endiff
+                        title %RED_X% %SRT_FILE% NOT generated successfully! %RED_X%      
+                        goto /i go_here_if_we_unpproved_or_deleted_the_karaoke
                 endiff
                 set player_command_extra_options=show_karaoke
                 gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%INPUT_FILE%"

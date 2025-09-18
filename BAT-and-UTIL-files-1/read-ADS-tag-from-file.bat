@@ -58,8 +58,8 @@ rem Validate environment (once):
 
 rem Validate parameters (every time):
         iff "%4" ne "skip_validations" then
-                if "" == "%File_To_Use%" call validate-environment-variable File_To_Use "1ˢᵗ argument must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg arg can be “verbose”"
-                if "" == "%Tag_To_Read%" call validate-environment-variable Tag_To_Read "2ⁿᵈ argument must be a tag to read, NOT empty"
+                if "" == "%File_To_Use%" if not exist "%File_To_Use%" call validate-environment-variable File_To_Use "1ˢᵗ argument must be a filename. 2ⁿᵈ optional arg must be a tag, 3ʳᵈ arg arg can be “verbose”"
+                if "" == "%Tag_To_Read%" if  ""  ==   "%Tag_To_Read%" call validate-environment-variable Tag_To_Read "2ⁿᵈ argument must be a tag to read, NOT empty"
         endiff
         
 rem Set default values for parameters:

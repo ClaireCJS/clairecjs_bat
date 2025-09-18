@@ -452,8 +452,11 @@ iff "%2" != "SetVarsOnly" then
 
         iff "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "1" != "%force_regen_LYRICS%" then
                 call warning "is this the infinite loop?!?!?!"
+                call AskYN   "Sorry. Not gonna do it. Unless you really want me to" no 30
+                if   "Y" == "%ANSWER%" goto /i i_really_want_you_to
                 goto /i END_OF_GET_LYRICS
         endiff
+        :i_really_want_you_to
 
 
         rem “✨ Getting lyrics for: “whatever.mp3””
@@ -782,12 +785,13 @@ rem Check if the lyrics are already approved...
                 rem no longer need this debug output: %faint_on%[force_regen_LYRICS=%force_regen_LYRICS%]%faint_off%
                 call warning_soft "%ansi_color_orange%Already marked %italics_on%lyric%underscore_on%less%underscore_off%%italics_off%!" big
                 call warning_soft "%ansi_color_orange%(which causes automatic transcription without having to fetch lyrics first)" 
+                call warning_soft "%ansi_color_orange%%faint_on%(use the “force” parameter to do it anyway)%faint_off%" 
 
                 if "1" != "%FORCE_REGEN_LYRICS%" .and. "%1" !=  "force" .and. "%2" != "force" .and. "%3" !=  "force" .and. "1" != "%did_not_go_to_end_169%" goto /i END_OF_GET_LYRICS
                         rem so at this point it wwas marked lyricless, but we’re also forcing. So we should potentially check the lyrics first, and not force a download over it.
                         set did_not_go_to_end_169=1
                         unset /q ANSWER
-                        call AskYN "Unmark them as lyric%underline_on%less%underline_off%" no 0
+                        call AskYN "Unmark them as lyric%underline_on%less%underline_off% %faint_on%(so that we can download lyrics afterall)%faint_off%" no 0
                                 iff "Y" == "%ANSWER%" then
                                         call unapprove-lyriclessness "%AUDIO_FILE%"
                                         set LYRICLESSNESS_STATUS=NOT_APPROVED
@@ -3446,6 +3450,7 @@ echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [o
                                 set already_answer=%answer%
                                 set answer=%hold_hand_answer%
                         rem Exit if that’s what we want:
+                                call debug "if “N” == “%already_answer%” return"
                                 if "N" == "%already_answer%" return
                 endiff
                 set do_next_block=0

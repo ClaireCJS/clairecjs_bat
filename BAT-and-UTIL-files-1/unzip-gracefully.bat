@@ -69,7 +69,7 @@
         echo.
         rem echo call AskYN "Delete the original archive" no 15
                 set  AskYN_question=Delete the original archive
-echo            call AskYN "%AskYN_question%" no 8 GOAT
+echo            call AskYN "%AskYN_question%" no 8 [GOAT]
                 call AskYN "%AskYN_question%" no 8
                                                  set WE_DELETE=0
                            if "%ANSWER%" == "Y" (set WE_DELETE=1)
