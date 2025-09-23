@@ -65,7 +65,10 @@ rem Preface the pause with an emoji for visual processing ease and make it the c
         echos %ANSI_COLOR_PAUSE%%EMOJI_PAUSE_BUTTON% %ANSI_RESET%%@char[27][ q%@char[27]]12;#FFFF00%@char[7]
 
 rem Clear the keyboard buffer [/C option] to prevent accidental pause-bypasses:
-        inkey /c
+        rem Except this now gives an error message without any other args: inkey /c
+                inkey /c
+        rem So suddenly on 2025/09/18, we had to change this:
+                inkey /c /w0 %%Whatever
 
 rem Do the actual pause:
         *pause /C %@unquote[%PARAMS%]

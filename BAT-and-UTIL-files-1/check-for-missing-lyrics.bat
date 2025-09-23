@@ -57,6 +57,7 @@ rem Validate environment once per session:
         iff "1" != "%VALIDATED_CFMLB%" then
                 call validate-is-function ANSI_MOVE_UP ANSI_CURSOR_COLOR_BY_WORD                   %+ rem would be more portable to bring these definitions into this file
                 call validate-in-path set-tmpfile get-lyrics.bat get-karaoke.bat perl randomize-file.pl errorlevel pause-for-x-seconds divider beep.bat set-tmp-file.bat status-bar.bat delete-bad-ai-transcriptions
+                echos %@ANSI_MOVE_TO_COL[1]
                 set  VALIDATED_CFMLB=1                                                             
         endiff                
 
@@ -291,7 +292,7 @@ rem Create the fix-script, if there are any to fix:
                 rem echo goto :skip_subs                               >>:u8 "%TARGET_SCRIPT"           
                 rem echo         :process [file]                       >>:u8 "%TARGET_SCRIPT"
                 rem echo                 repeat 8  echo.               >>:u8 "%TARGET_SCRIPT"
-                rem echo                 *setdos /x-4                   >>:u8 "%TARGET_SCRIPT"
+                rem echo                 *setdos /x-4                  >>:u8 "%TARGET_SCRIPT"
                 rem echo                 echo call get-lyrics %%file%% >>:u8 "%TARGET_SCRIPT"
                 rem echo                 setdos /x0                    >>:u8 "%TARGET_SCRIPT"
                 rem echo                 call  divider                 >>:u8 "%TARGET_SCRIPT"
@@ -313,7 +314,8 @@ rem Create the fix-script, if there are any to fix:
                                         gosub divider
                                         echo.
                                         echos %@ANSI_MOVE_UP[3]%ANSI_CURSOR_VISIBLE%%@ANSI_CURSOR_COLOR_BY_WORD[yellow]
-                                        call bigecho "%ansi_color_green%Going to find those missing %findNature% now!%ansi_color_bright_red%"
+                                        call bigecho "%ansi_color_green%%STAR% Going to find those missing %findNature% now!%ansi_color_bright_red% %STAR%"
+                                        gosub divider
                                         sleep 1
                                         set TARGET_SCRIPT_TO_CALL=%@NAME[%TARGET_SCRIPT%]-%[_datetime].bat
                                         echo %CURSOR_RESET%%blink_off%

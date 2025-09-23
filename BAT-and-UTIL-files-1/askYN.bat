@@ -390,7 +390,8 @@ REM Actually answer the question here —— make the windows “question” noi
         rem as an experiment, let’s do this 100x instead of 1x:
         @rem repeat 100 input /c /w0 %%This_Line_Clears_The_Character_Buffer
         rem @call clear-buffered-keystrokes is just:
-        inkey /c
+        rem inkey /c
+            inkey /c /w0 %%whatever
         rem The " >&:u8 con " is so it shows up to the console even if the entire thing is wrapped in something redirecting STDOUT to nul ... This is a case where we want to “pop out” of STDERR *into* STDOUT / have both combined into STDOUT, so that we see it and can answer the prompt:
         rem Alas, this causes our unicode characters to be munged because so much of TCC’s internal workings don’t support modern characters
         rem (inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER) >:u8&:u8 con

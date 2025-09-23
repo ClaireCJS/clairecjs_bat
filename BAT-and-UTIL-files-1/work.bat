@@ -5,6 +5,8 @@
 @.
 @cls
 
+
+
 :══════════════════════════════════════════════════════════════════════
 :║                                                                    ║
 :║  This was developed to work on our karaoke/lyric workload,         ║
@@ -18,12 +20,17 @@ rem Work configuration: lyrics & karaoke: playlists:
         set default_playlist_to_work=changer.m3u
         set default_playlist_to_work=crtl.m3u
         set default_playlist_to_work=changerrecent.m3u
+        set default_playlist_to_work=best.m3u
 
 rem Work configuration: lyrics & karaoke: workloads:
         set default_number_of_lyrics_to_work=69
         set default_number_of_karaoke_to_work=30
         set default_number_of_karaoke_to_work=10
         set default_number_of_karaoke_to_work=20
+        set default_number_of_karaoke_to_work=30
+
+rem Work configuration: lyrics & karaoke: options:
+        set LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE=1
 
 
 

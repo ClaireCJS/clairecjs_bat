@@ -8,15 +8,17 @@ srt2lrc batch converter
     (1) did not take into account SRT end timestamps
             (a) which causes a line sung before a guitar solo to persist on screen for the whole guiar solo
             (b) which causes the last line sung on a song to persist until the end of the song
-    (2) failed very easily on SRT files that were the “wrong” encoding
-    (3) overwrote existing files even if you didn’t want them to
-    (4) did not back up overwritten files
-    (5) erroneously processed comments in SRT file (lines that start with “#”)
+    (2) erroneously processed comments in SRT file (lines that start with “#”)
+    (3) failed very easily on SRT files that were the “wrong” encoding
+    (4) overwrote existing files even if you didn’t want them to
+    (5) overwritten files were not backed up
     (6) lacked commenting in the code
 
 
 
 '''
+
+
 
 MIN_SECONDS_OF_SILENCE_BETWEEN_LINES_TO_NOT_INSERT_BLANK_LINE = 0.75                    # maximum amount of time, in seconds, that we can “linger” on a line that is done completing, without drawing a blank line before the next line is sung
 
