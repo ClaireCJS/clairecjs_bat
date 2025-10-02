@@ -237,7 +237,7 @@ rem Set title for waiting-for-answer state:
 REM Parameter validation:
         rem Let’s not dip into all this for something used so often: call validate-environment-variable question skip_validation_existence
         if not defined ask_question (call fatal_error "$0 called without a question being passed as the 1st parameter (also, “yes”/“no” must be 2ⁿᵈ parameter)")
-        iff "%default_answer" != "" .and. "%default_answer%" != "yes" .and. "%default_answer%" != "no" .and. "%default_answer%" != "Y" .and. "%default_answer%" != "N" .and. "%default_answer%" != "0" .and. "%default_answer%" != "None" then
+        iff "%default_answer%" != "" .and. "%default_answer%" != "yes" .and. "%default_answer%" != "no" .and. "%default_answer%" != "Y" .and. "%default_answer%" != "N" .and. "%default_answer%" != "0" .and. "%default_answer%" != "None" then
            call fatal_error "2nd parameter to AskYN can only be “yes” or “y”, “no” or “n”, or “None” or “0” %dash% but was “%DEFAULT_ANSWER%”"
            rem TODO expand this to allow other letters if they were passed as available letters
         endiff

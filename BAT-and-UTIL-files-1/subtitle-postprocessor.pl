@@ -373,33 +373,36 @@ sub whisper_ai_postprocess {
 	my $s=$_[0];
 	
 	################ CHAR-BASED CHARACTER FIXES: ############### 
-	$s = &limit_repeats($s, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);								    # Fix lines like “Noooooooooooooooooooooooooooooooooooo” from being wider than our subtitle length
-	$s =~ s/\-\-([^>])/—$1/g;																	# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
-	$s =~ s/[â′'`]/’/ig;																		# not-smart apostrophes and misrepresentations thereof
-	$s =~ s/!“/!”/g;																			# copied from lyric-postprocessor: kludge bug fix
-	$s =~ s/„/”/g;																				# copied from lyric-postprocessor: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
+	$s = &limit_repeats($s, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);								                             # Fix lines like “Noooooooooooooooooooooooooooooooooooo” from being wider than our subtitle length
+	$s =~ s/\-\-([^>])/—$1/g;																	                         # fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
+	$s =~ s/[â′'`]/’/ig;																		                         # not-smart apostrophes and misrepresentations thereof
+	$s =~ s/!“/!”/g;																			                         # copied from lyric-postprocessor: kludge bug fix
+	$s =~ s/„/”/g;																				                         # copied from lyric-postprocessor: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
+																							                            
+	################ CHAR-BASED CHARACTER FIXES: COMMAND-LINE COMPATIBILITY ###############		                         # these aren’t needed because nothing in our subtitles ever reaches the command line!
+	#BAD IDEA HERE: #s =~ s/"/'/g;																                         # change quotes to apostrophes so these can be used as a quoted command line argument ... makes no sense actually, this isn’t going to command line anymore
+	#BAD IDEA HERE: $s =~ s/</⧼/g;																                         # redirection characters should not reach our command-line, which is what our lyrics mode is used for
+	#BAD IDEA HERE: $s =~ s/"/'/g;																                         # change quotes to apostrophes so these can be used as a quoted command line argument
+	#BAD IDEA HERE: $s =~ s/>/⧽/g;																                         # redirection characters should not reach our command-line, which is what our lyrics mode is used for
+	#BAD IDEA HERE: s =~ s/\|/│/g;																                         # redirection characters should not reach our command-line, which is what our lyrics mode is used for
+																							                            
+	################ WORD-BASED PUNCTUATION FIXES: ################ 							                         
+	$s =~ s/self \-righteous/self-righteous/g;													                         # 1)    proof of concept: fix hyphenated words that have an erroneous space before the hyphen
+	$s =~ s/([a-z]) (\-)([a-z])/$1$2$3/ig;														                         # 2) generalized version: turn things like “double -dutch” back into “double-dutch”, since Whisper AI seems to do this
+																							                            
+	################ WORD-BASED WORD FIXES: ################ 								                            
+	$s =~ s/our selves/ourselves/g;														                                 # common grammatical mistake
+	$s =~ s/\bwont\b/won’t/gi;																                            
+																							                            
+	################ LINE-BASED FIXES: ################ 									                            
+	$s =  &de_censor($s);																		                         # remove censorshi —— see —t option for testing the decensoring code
+																							                            
+	################ LINE-BASED FIXES: AI HALLUCATIONS ################ 					                            
+	$s =~ s/A little pause..?.? *//gi;															                         # ...These are common WhisperAI hallucinations.
+	$s =~ s/And we are back\.*//gi;																                         # ...These are common WhisperAI hallucinations.
+	$s =~ s/Ding, ding, bop ?//gi;			                                                                             # ... These are common WhisperAI hallucinations.
+	$s =~ s/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?//gi;				 # ... These are common WhisperAI hallucinations.
 
-	################ CHAR-BASED CHARACTER FIXES: COMMAND-LINE COMPATIBILITY ###############		# these aren’t needed because nothing in our subtitles ever reaches the command line!
-	#BAD IDEA HERE: #s =~ s/"/'/g;																# change quotes to apostrophes so these can be used as a quoted command line argument ... makes no sense actually, this isn’t going to command line anymore
-	#BAD IDEA HERE: $s =~ s/</⧼/g;																# redirection characters should not reach our command-line, which is what our lyrics mode is used for
-	#BAD IDEA HERE: $s =~ s/"/'/g;																# change quotes to apostrophes so these can be used as a quoted command line argument
-	#BAD IDEA HERE: $s =~ s/>/⧽/g;																# redirection characters should not reach our command-line, which is what our lyrics mode is used for
-	#BAD IDEA HERE: s =~ s/\|/│/g;																# redirection characters should not reach our command-line, which is what our lyrics mode is used for
-
-	################ WORD-BASED PUNCTUATION FIXES: ################ 							
-	$s =~ s/self \-righteous/self-righteous/g;													# 1)    proof of concept: fix hyphenated words that have an erroneous space before the hyphen
-	$s =~ s/([a-z]) (\-)([a-z])/$1$2$3/ig;														# 2) generalized version: turn things like “double -dutch” back into “double-dutch”, since Whisper AI seems to do this
-
-	################ WORD-BASED WORD FIXES: ################ 
-	$s =~ s/our selves/ourselves/g;														        # common grammatical mistake
-	$s =~ s/\bwont\b/won’t/gi;
-
-	################ LINE-BASED FIXES: ################ 
-	$s =  &de_censor($s);																		# remove censorship	—— see —t option for testing the decensoring code
-
-	################ LINE-BASED FIXES: AI HALLUCATIONS ################ 
-	$s =~ s/A little pause..?.? *//gi;															# ...These are common WhisperAI hallucinations.
-	$s =~ s/And we are back\.*//gi;																# ...These are common WhisperAI hallucinations.
 	
 	################ LINE-BASED FIXES: LYRIC WEBSITE SPAM: ################						# If our code was more honest, this would be in a separate function as it’s not *directly* related to WhisperAI postprocessing, and more of an artifact of downloading lyrics from websites with autodownloaders like “LyricsGenius.exe”
 	$s =~ s/\*? (No|\[(duble|metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z\d]+lyrics[a-z\d]*|\[[a-z0-9]+ )\]) filter used//i;

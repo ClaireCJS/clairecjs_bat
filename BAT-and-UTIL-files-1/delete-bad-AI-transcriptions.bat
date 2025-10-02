@@ -139,7 +139,9 @@ rem Create meaningfully-named temporary file:
         set NUM_STEPS=20
         set NUM_STEPS=12
         set NUM_STEPS=13
+        set NUM_STEPS=22
         set NUM_STEPS=14
+        set NUM_STEPS=16
         set     step_num=1
         gosub   step
         call set-tmp-file "kill bad AI transcriptions filelist A1_original"               %+  set tmpfile1=%tmpfile%.lst
@@ -156,24 +158,31 @@ rem Determine the command that handles our situation correctly based on the mode
         endiff
 
 rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
-                                                rem either LRCget or LyricsGenius.exe seems to have chosen “Lady In Red” by Chris DeBurg for TONS AND TONS of inapplicable songs, as well as “Black City” by Voivod:
-                                                goto :skip_old_way
-                                                        gosub step %+ if exist *.srt                              (grep -li this.is.the.first.sentence                                 *.srt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
-                                                        gosub step %+ if exist *.lrc                              (grep -li this.is.the.first.sentence                                 *.lrc >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
-                                                        gosub step %+ if exist *.txt                              (grep -li this.is.the.first.sentence                                 *.txt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
-                                                        gosub step %+ if exist *.srt                              (grep -li and.we.are.back                                            *.srt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
-                                                        gosub step %+ if exist *.lrc                              (grep -li and.we.are.back                                            *.lrc >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
-                                                        gosub step %+ if exist *.txt                              (grep -li and.we.are.back                                            *.txt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
-                                                        gosub step %+ if exist *.srt                              (grep -li a.little.pause\.\.\.                                       *.srt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
-                                                        gosub step %+ if exist *.lrc                              (grep -li a.little.pause\.\.\.                                       *.lrc >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
-                                                        gosub step %+ if exist *.txt                              (grep -li a.little.pause\.\.\.                                       *.txt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
-                                                        gosub step %+ if exist *.srt except /Ne ("*lady in red*") (grep -li "I.ve never seen you looking so lovely as you did tonight" *.srt >>:u8 %tmpfile1%) %+ rem Chris DeBurg - Lady In Red
-                                                        gosub step %+ if exist *.lrc except /Ne ("*lady in red*") (grep -li "I.ve never seen you looking so lovely as you did tonight" *.lrc >>:u8 %tmpfile1%) %+ rem Chris DeBurg - Lady In Red
-                                                        gosub step %+ if exist *.txt except /Ne ("*lady in red*") (grep -li "I.ve never seen you looking so lovely as you did tonight" *.txt >>:u8 %tmpfile1%) %+ rem Chris DeBurg - Lady In Red
-                                                        gosub step %+ if exist *.srt except /Ne ( "*black city*") (grep -li "Closed lamps, curfews, dead leaves"                       *.srt >>:u8 %tmpfile1%) %+ rem Voivod - Black City
-                                                        gosub step %+ if exist *.lrc except /Ne ( "*black city*") (grep -li "Closed lamps, curfews, dead leaves"                       *.lrc >>:u8 %tmpfile1%) %+ rem Voivod - Black City
-                                                        gosub step %+ if exist *.txt except /Ne ( "*black city*") (grep -li "Closed lamps, curfews, dead leaves"                       *.txt >>:u8 %tmpfile1%) %+ rem Voivod - Black City
-                                                :skip_old_way
+                                                                                                                rem either LRCget or LyricsGenius.exe seems to have chosen “Lady In Red” by Chris DeBurg for TONS AND TONS of inapplicable songs, as well as “Black City” by Voivod:
+        goto :skip_old_way
+                                                                                                                        gosub step %+ if exist *.lrc                              (grep -li this.is.the.first.sentence                                 *.lrc >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.lrc                              (grep -li and.we.are.back                                            *.lrc >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.lrc                              (grep -li Ding,.ding,.bop                                            *.lrc >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.lrc                              (grep -li a.little.pause\.\.\.                                       *.lrc >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.lrc                              (grep -li I.m.going.to.play.a.little.bit.of.the.first.one.*and.then  *.lrc >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.srt                              (grep -li this.is.the.first.sentence                                 *.srt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.srt                              (grep -li and.we.are.back                                            *.srt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.srt                              (grep -li Ding,.ding,.bop                                            *.srt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.txt                              (grep -li and.we.are.back                                            *.txt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.txt                              (grep -li this.is.the.first.sentence                                 *.txt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.txt                              (grep -li Ding,.ding,.bop                                            *.txt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.txt                              (grep -li I.m.going.to.play.a.little.bit.of.the.first.one.*and.then  *.txt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.srt                              (grep -li I.m.going.to.play.a.little.bit.of.the.first.one.*and.then  *.srt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.srt                              (grep -li a.little.pause\.\.\.                                       *.srt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.txt                              (grep -li a.little.pause\.\.\.                                       *.txt >>:u8 %tmpfile1%) %+ rem WhisperAI silence hallucination
+                                                                                                                        gosub step %+ if exist *.srt except /Ne ("*lady in red*") (grep -li "I.ve never seen you looking so lovely as you did tonight" *.srt >>:u8 %tmpfile1%) %+ rem Chris DeBurg - Lady In Red
+                                                                                                                        gosub step %+ if exist *.lrc except /Ne ("*lady in red*") (grep -li "I.ve never seen you looking so lovely as you did tonight" *.lrc >>:u8 %tmpfile1%) %+ rem Chris DeBurg - Lady In Red
+                                                                                                                        gosub step %+ if exist *.txt except /Ne ("*lady in red*") (grep -li "I.ve never seen you looking so lovely as you did tonight" *.txt >>:u8 %tmpfile1%) %+ rem Chris DeBurg - Lady In Red
+                                                                                                                        gosub step %+ if exist *.srt except /Ne ( "*black city*") (grep -li "Closed lamps, curfews, dead leaves"                       *.srt >>:u8 %tmpfile1%) %+ rem Voivod - Black City
+                                                                                                                        gosub step %+ if exist *.lrc except /Ne ( "*black city*") (grep -li "Closed lamps, curfews, dead leaves"                       *.lrc >>:u8 %tmpfile1%) %+ rem Voivod - Black City
+                                                                                                                        gosub step %+ if exist *.txt except /Ne ( "*black city*") (grep -li "Closed lamps, curfews, dead leaves"                       *.txt >>:u8 %tmpfile1%) %+ rem Voivod - Black City
+                                                                                                                                                                    
+        :skip_old_way
 
 rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
 
@@ -182,11 +191,13 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
                 rem POSSIBLE ONE: “Oh, honey, wait for me.”
                 gosub step %+ if exist *.srt;*.lrc;*.txt   (grep -i .                               *.srt *.lrc *.txt   >>:u8 %tmpfile8% >&>nul) %+ rem smush all files we are probing into a single file for speedup
                 gosub step %+ (grep    VAD.chunk.*-.[0-9]                                           %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI temporary file
-                gosub step %+ (grep -i this.is.the.first.sentence                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                 gosub step %+ (grep -i and.we.are.back                                              %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                 gosub step %+ (grep -i a.little.pause\.\.\.                                         %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
-                gosub step %+ (grep -i "I.ve never seen you looking so lovely as you did tonight"   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem incorrectly-placed lyrics: “Chris DeBurg - Lady In Red” 
-                gosub step %+ (grep -i "Closed lamps, curfews, dead leaves"                         %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem incorrectly-placed lyrics:       “Voivod - Black City” 
+                gosub step %+ (grep -i this.is.the.first.sentence                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                gosub step %+ (grep -i Ding,.ding,.bop                                              %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                gosub step %+ (grep -i I.m.going.to.play.a.little.bit.of.the.first.one.*and.then    %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                gosub step %+ (grep -i "I.ve never seen you looking so lovely as you did tonight"   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem incorrectly-placed lyrics: “Chris DeBurg - Lady In Red”   \___ todo: consider that this part might not work as well after refactoring
+                gosub step %+ (grep -i "Closed lamps, curfews, dead leaves"                         %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem incorrectly-placed lyrics:       “Voivod - Black City”    /
                 if "%@FILESIZE[%tmpfile1%]" == "0" (repeat 5 gosub step %+ goto :nothing_to_do)                         
 
         rem set options for del-maybe-after-review:

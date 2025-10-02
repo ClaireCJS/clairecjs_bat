@@ -611,3 +611,29 @@ ShowWinampState() {
 ;;202505 REPLACED THIS: ;; 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; WINAMP ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
+
+; Press Ctrl+Shift+C to collapse ~100 folders in sequence
+^+c:: {
+        try {
+                Loop 40 {
+                        Send "{Left}"  ; expand current folder
+                        Sleep 40        ; tiny pause to give UI time
+                        Send "{Down}"   ; move to next folder
+                        Sleep 40
+                }
+        }
+        finally {
+                Sleep 50
+                Send "{Shift up}"
+        }
+        Loop 5 {
+                Send "{Shift up}"
+        }
+        SetCapsLockState("Off")         ; Turn Caps Lock Off
+        Send "{Shift up}"
+}

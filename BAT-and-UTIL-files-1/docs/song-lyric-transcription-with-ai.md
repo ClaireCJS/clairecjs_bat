@@ -1,4 +1,4 @@
-TODO: New hallucination pattern: “Ding, ding, bop”, “I’m going to play a little bit of the first one, and then we’ll move on to the next one”
+TODO: serach for other todos below
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -582,8 +582,8 @@ This searches for bad karaoke transriptions in the current folder & deletes them
 This is automatically run at various points (such as before and/or after creating karaoke files), and should also be run on the entire music collection when the project is completed. 
 
 Bad karaoke transcriptions include:
-  1. Files that contain certain commonly-hallucinated-by-AI phrases can be consistently serached for to find bad transcriptions. “And now we’re back” is one of them.
-  2. Either LRCget or LyricsGenius likes to put Chris DeBurg’s “Lady In Red” and Voivoid’s “Black City” as the LRC file for a TON of songs—and Id on’t know why. This will flag an error unless the filename has “Lady In Red” or “Black City” in it, in which case it’s the right song.
+  1. Files that contain certain commonly-hallucinated-by-AI phrases can be consistently serached for to find bad transcriptions. “And now we’re back” is one of them, but no fewer than 5 different hallucations are regularly searched for
+  2. Either LRCget or LyricsGenius likes to put Chris DeBurg’s “Lady In Red” and Voivoid’s “Black City” as the LRC file for a TON of songs—and I don’t know why. It became a systemic project issue. This will flag these errors as well, unless the filename has “Lady In Red” or “Black City” in it, in which case it’s the right song and the check is skipped.
   3. TODO anything else?
 
 ### 🌟 [bad-transcription-hunter.bat](../BAT-and-UTIL-files-1/bad-transcription-hunter.bat):
@@ -617,6 +617,14 @@ It then asks if we want to start getting karaoke or lyrics for that playlist.
 
 Creates a new playlist consisting of all the files in the original playlist that do not have lyric sidecar files.
 Asks if we want to start getting lyrics for that playlist.
+
+
+### 🌟 subtitle-integrity-checker.bat {SRT file} [subtitle-integrity-checker.bat](../BAT-and-UTIL-files-1/subtitle-integrity-checker.bat):
+
+Checks a SRT file for overlapping timestamps, and zero-time timestamps, and displays results in a graph.
+Used to further reconcile *WhisperTimeSync*-reconciled SRT files.
+(Good lyrics ➜ Bad SRT ➜ WhisperTimeSync fixes SRT based on lyrics ➜ subtitle-integrity-checker looks for things WhisperTimeSync may have screwed up (since it does).
+
 
 
 ### 🌟 Karaoke-related Reports
@@ -789,7 +797,7 @@ The final subtitle postprocessor—originally called ```remove-period-at-ends-of
 
 This also also has some extra karaoke postprocessing functionality slipped in:
     - de-censoring some curse words that WhisperAI censors (suppress this with ```--leave-censorship``` or ```-L```)
-    - removing any line that is “A little pause...” “And we are back.”... These are common hallucinations.
+    - removing any line that is a common WhisperAI hallucination
 
 </details>
 
@@ -1008,4 +1016,5 @@ Technically should be called “```audio_file_index.bat```”.
 
 TODO: may have to unapprove any txt if the LRC/SRT is generated         
 TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency.
-TODO: serach for other todos below
+	NOTE: New hallucation patterns must be added to: delete-bad-AI-transcriptions.bat lyric-postprocessor.pl	subtitle-postprocessor.pl remove-period-at-ends-of-lines.pl
+

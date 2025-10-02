@@ -234,8 +234,10 @@ while (<$INPUT>) {
 		$line =~ s/our selves/ourselves/g;	
 
 		################ WHISPER-AI HALLUCINATIONS: ################ 
-		$line =~ s/A little pause..?.? *//gi;															# ...These are common WhisperAI hallucinations.
-		$line =~ s/And we are back\.*//gi;																# ...These are common WhisperAI hallucinations.
+		$line =~ s/A little pause..?.? *//gi;														                             # ...These are common WhisperAI hallucinations.
+		$line =~ s/And we are back\.*//gi;															                             # ...These are common WhisperAI hallucinations.
+		$line =~ s/Ding, ding, bop ?//gi;			                                                                             # ... These are common WhisperAI hallucinations.
+		$line =~ s/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?//gi;				 # ... These are common WhisperAI hallucinations.
 
 
 

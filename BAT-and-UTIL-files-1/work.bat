@@ -110,6 +110,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                         iff "K" == "%WORK_TYPE_ANSWER%" .or. "%1" == "karaoke"  then
                                 set  WORK_TYPE_ANSWER=K
                                 call convert-playlist-to-only-songs-that-do-not-have-karaoke.bat %default_playlist_to_work%
+                                call sleep 4
                                 set worker=get-karaoke
                                 set workload=%default_number_of_karaoke_to_work%
                                 set PLAYLIST_TO_WORK="%@NAME["%default_playlist_to_work%"]-without lrc or srt.%@EXT["%default_playlist_to_work%"]"
@@ -117,6 +118,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                         iff  "L" == "%WORK_TYPE_ANSWER%" .or. "%1" == "lyrics"  then
                                 set  WORK_TYPE_ANSWER=L
                                 call convert-playlist-to-only-songs-that-do-not-have-lyrics.bat  %default_playlist_to_work%
+                                call sleep 4
                                 set worker=get-lyrics
                                 set workload=%default_number_of_lyrics_to_work%
                                 set PLAYLIST_TO_WORK="%@NAME["%default_playlist_to_work%"]-without txt.%@EXT["%default_playlist_to_work%"]"
@@ -124,6 +126,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                         iff  "P" == "%WORK_TYPE_ANSWER%" .or. "%1" == "prompts"  then
                                 set  WORK_TYPE_ANSWER=P
                                 call convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat  %default_playlist_to_work%
+                                call sleep 4
                                 set worker=get-karaoke-prompts-only
                                 set workload=%default_number_of_lyrics_to_work%
                                 set PLAYLIST_TO_WORK="%@NAME["%default_playlist_to_work%"]-with txt but no lrc or srt.%@EXT["%default_playlist_to_work%"]"

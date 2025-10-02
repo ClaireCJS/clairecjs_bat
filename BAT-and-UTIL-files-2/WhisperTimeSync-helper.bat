@@ -24,7 +24,7 @@ rem CONFIG:
 
 rem VALIDATE ENVIRONMENT:
         iff "1" != "%validated_whispertimesynchelper%" then
-                call validate-in-path               errorlevel askyn enqueue.bat warning.bat advice.bat print-message.bat winamp-next subtitle-postprocessor.pl perl preview-audio-file.bat tail subtitle-verifier.py
+                call validate-in-path               errorlevel askyn enqueue.bat warning.bat advice.bat print-message.bat winamp-next subtitle-postprocessor.pl perl preview-audio-file.bat tail subtitle-verifier.py subtitle-integrity-checker
                 rem  validate-environment-variables JAVA_WHISPERTIMESYNC WhisperTimeSync our_language color_advice ansi_color_advice lq rq underline_on underline_off italics_on italics_off
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language WhisperTimeSync 
                 call validate-is-function           cool_text
@@ -124,7 +124,7 @@ rem WhisperTimeSync is horribly buggy so we fix some of that——particularly t
 rem Check for problems:
         echo %ANSI_COLOR_LESS_IMPORTANT%%STAR2% Checking for duplicate timestamps...%ansi_color_normal%
         rem echo    subtitle-verifier.py --columns %_COLUMNS "%SRT_NEW%"
-        subtitle-verifier.py --columns %_COLUMNS "%SRT_NEW%"
+        call subtitle-integrity-checker "%SRT_NEW%"
 
 rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
@@ -155,7 +155,7 @@ rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_green%%zzzz%%italics_on%new%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_old_file%
 
         %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
-        pause "Press any key after BRIEFLY reviewing the subtitles for malformed blocks and making sure the first word(s) are inside a valid block and no blocks have same timestamps"
+        pause "Press any key after reviewing the subtitles for malformed blocks and making sure the first word(s) are inside a valid block"
 
 
 

@@ -67,10 +67,10 @@
         echos %FAINT_OFF%%ANSI_RESET%
         set FILECOUNT=%@FILES[/s/h,*]
         echo.
-        rem echo call AskYN "Delete the original archive" no 15
-                set  AskYN_question=Delete the original archive
-echo            call AskYN "%AskYN_question%" no 8 [GOAT]
-                call AskYN "%AskYN_question%" no 8
+        rem echocall AskYN "Delete the original archive" no 15
+                set  AskYN_questionnnn=Delete the original archive
+echo            call AskYN "%AskYN_questionnnn%" no 8 [GOAT]
+                call AskYN "%AskYN_questionnnn%" no 8
                                                  set WE_DELETE=0
                            if "%ANSWER%" == "Y" (set WE_DELETE=1)
         rem call debug "file count == %FILECOUNT%, WE_DELETE == %WE_DELETE%, NUMBERED == %NUMBERED%, TO_UNZIP == “%TO_UNZIP%”, CWP == %_CWP"

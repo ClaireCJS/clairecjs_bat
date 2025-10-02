@@ -1225,7 +1225,7 @@ rem Check if we already have a LRC/SRT file but no TXT file
                         rem Review it! We auto-approved tons of these and left a horrible mess for ourselves by not adding this review step in til 2025/04/02
                                 rem pause  set JUST_GENERATED_LYRICS=“%JUST_GENERATED_LYRICS%” ... TXT_SIDECAR_FILENAME=“%TXT_SIDECAR_FILENAME%”
                                 if "1" != "%JUST_GENERATED_LYRICS%" goto /i endif_903
-                                        call bigecho "🧁 Freshly generated! 🧁" 
+                                        call bigecho "🧁 Freshly generated from %italics_on%%JUST_CONVERTED_FROM%%italics_off% file! 🧁" 
                                         if exist "%TXT_SIDECAR_FILENAME%" call review-files "%TXT_SIDECAR_FILENAME%"
                                         :Ask_Again_845
                                         unset /q ANSWER
@@ -2138,9 +2138,9 @@ setdos /x0
                                 rem call review-file -wh -st "%LYRIC_FILE%" "Downloaded lyrics"
                                 rem NEW:
                                         gosub create_or_set_postprocessed_lyrics
-                                        if exist "%TXT_FILE%"             call review-file -wh -st             "%TXT_FILE%" "①Lyrics"
-                                        if exist "%LYRIC_FILE%"           call review-file -wh -st           "%LYRIC_FILE%" "②Lyrics"              
-                                        if exist "%POSTPROCESSED_LYRICS%" call review-file -wh -stB "%POSTPROCESSED_LYRICS" "③Lyrics (processed)"
+                                        if exist "%TXT_FILE%"             call review-file -wh -st             "%TXT_FILE%" "%underline_off%① %underline_on%Lyrics"
+                                        if exist "%LYRIC_FILE%"           call review-file -wh -st           "%LYRIC_FILE%" "%underline_off%② %underline_on%Lyrics"              
+                                        if exist "%POSTPROCESSED_LYRICS%" call review-file -wh -stB "%POSTPROCESSED_LYRICS" "%underline_off%③ %underline_on%Lyrics (processed)"
                                         rem xist "%SRT_FILE%"             call review-file -wh -stU            "%SRT_FILE%" "Transcription"
 
 
@@ -2484,7 +2484,10 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
                         if  "%answer%" == "A" goto  have_acceptable_lyrics_now_or_at_the_very_least_are_done
                 rem “L”:
                         set ANSWER=%HELD_ANSWER_2923%
-                        if "L" == "%ANSWER%" set LYRICS_ACCEPTABLE=0
+                        iff "L" == "%HELD_ANSWER_2923%" then
+                                set LYRICS_ACCEPTABLE=0
+                                set SOLELY_BY_AI=1
+                        endiff
                         gosub check_for_answer_of_L "%@UNQUOTE["%AUDIO_FILE%"]"
                         if "1" == "%goto_END%"         goto /i END_OF_GET_LYRICS
                         if "1" == "%ABANDONED_SEARCH%" goto /i END_OF_GET_LYRICS
@@ -2500,33 +2503,34 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
                         set ANSWER=%HELD_ANSWER_2923%
                         gosub rename_audio_file_as_instr_if_answer_was_I
                         if "%goto_end%" == "1" goto /i end_OF_GET_LYRICS
+                        if "L" == "%HELD_ANSWER_2923%" goto /i END_OF_GET_LYRICS                %+ rem Added 2025/10/01 but only after we subsequently ask if it’s an instrumental
 
                 rem echo Just got back from 🌶🌶 🌶🌶 🦆🦆 🦆🦆 situation and the answer is still “%ANSWER%” and goto_end is “%GOTO_END%”
                 rem 2025/02/15 adding answer==L to this one to fix infinite loop bug:                                                
-                iff "%answer%" == "L" then
-                        set SOLELY_BY_AI=1
-                        rem 202509 taking this warning out: rem TODO: right now, if you are ONLY getting lyrics, and you answer "A" for 
-                        rem 202509 taking this warning out: rem               for "AI encode now", you just end up back at the prompt. 
-                        rem 202509 taking this warning out: rem       This is technically correct, but it’s a bit jarring to tell it 
-                        rem 202509 taking this warning out: rem               to do something and have it do nothing!
-                        rem 202509 taking this warning out: iff "%PARENT_BAT%" != "create-srt-from-file" then
-                        rem 202509 taking this warning out:         echo.
-                        rem 202509 taking this warning out:         call warning_soft "I know you said to AI encode now... But you need to be running the get-karaoke commands to do that, and you’re just running get-lyric commands"
-                        rem 202509 taking this warning out:         rem                                                ^^^^ no i didn’t?! 
-                        rem 202509 taking this warning out:         call warning_soft "The %italics_on%PARENT_BAT%italics_off% var is set to “%PARENT_BAT%”"
-                        rem 202509 taking this warning out: 
-                        rem 202509 taking this warning out:         rem OLD:
-                        rem 202509 taking this warning out:                 rem call warning_soft "Okay... Let’s try calling create-srt from get-lyrics and see how that plays out... beta idea!"
-                        rem 202509 taking this warning out:                 rem set FORCE_AI_ENCODE_FROM_LYRIC_GET=1
-                        rem 202509 taking this warning out:                 rem call create-srt-from-file "%AUDIO_FILE%"
-                        rem 202509 taking this warning out:                 rem set  GOTO_END_AFTER_GET_LYRICS_CALLED=1
-                        rem 202509 taking this warning out:         rem NEW:
-                        rem 202509 taking this warning out:                 call warning_soft "We previously experimented with trying to call create-srt from get-lyrics and see how that plays out but it didn’t play out right the first time so we aren’t doing this anymore as of 2025/07/11!"
-                        rem 202509 taking this warning out: endiff
-                        goto /i END_OF_GET_LYRICS
-                else
-                        echo ----`>` Answer is not A! >nul
-                endiff
+                rem iff "%answer%" == "L" then
+                rem         rem 202510 moved above: set SOLELY_BY_AI=1
+                rem         rem 202509 taking this warning out: rem TODO: right now, if you are ONLY getting lyrics, and you answer "A" for 
+                rem         rem 202509 taking this warning out: rem               for "AI encode now", you just end up back at the prompt. 
+                rem         rem 202509 taking this warning out: rem       This is technically correct, but it’s a bit jarring to tell it 
+                rem         rem 202509 taking this warning out: rem               to do something and have it do nothing!
+                rem         rem 202509 taking this warning out: iff "%PARENT_BAT%" != "create-srt-from-file" then
+                rem         rem 202509 taking this warning out:         echo.
+                rem         rem 202509 taking this warning out:         call warning_soft "I know you said to AI encode now... But you need to be running the get-karaoke commands to do that, and you’re just running get-lyric commands"
+                rem         rem 202509 taking this warning out:         rem                                                ^^^^ no i didn’t?! 
+                rem         rem 202509 taking this warning out:         call warning_soft "The %italics_on%PARENT_BAT%italics_off% var is set to “%PARENT_BAT%”"
+                rem         rem 202509 taking this warning out: 
+                rem         rem 202509 taking this warning out:         rem OLD:
+                rem         rem 202509 taking this warning out:                 rem call warning_soft "Okay... Let’s try calling create-srt from get-lyrics and see how that plays out... beta idea!"
+                rem         rem 202509 taking this warning out:                 rem set FORCE_AI_ENCODE_FROM_LYRIC_GET=1
+                rem         rem 202509 taking this warning out:                 rem call create-srt-from-file "%AUDIO_FILE%"
+                rem         rem 202509 taking this warning out:                 rem set  GOTO_END_AFTER_GET_LYRICS_CALLED=1
+                rem         rem 202509 taking this warning out:         rem NEW:
+                rem         rem 202509 taking this warning out:                 call warning_soft "We previously experimented with trying to call create-srt from get-lyrics and see how that plays out but it didn’t play out right the first time so we aren’t doing this anymore as of 2025/07/11!"
+                rem         rem 202509 taking this warning out: endiff
+                rem         goto /i END_OF_GET_LYRICS
+                rem else
+                rem         echo ----`>` Answer is not A! >nul
+                rem endiff
                 if "1" == "%goto_END%" (goto /i END_OF_GET_LYRICS)
 
         rem 🤔 remind us of filename

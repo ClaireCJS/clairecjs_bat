@@ -15,38 +15,46 @@
 import re, sys, argparse, shutil
 from collections import defaultdict, OrderedDict
 
-# ---------- ANSI colors ----------
-ESC = "\x1b"; RESET = f"{ESC}[0m"
-BRIGHT_CYAN  = f"{ESC}[96m"               # column 1 (Du)
-CYAN         = f"{ESC}[36m"               # column 2 (Overlap)
-RED          = f"{ESC}[31m"               # column 3 (Lines)
-BRIGHT_RED   = f"{ESC}[91m"
-ORANGE       = f"{ESC}[38;2;235;107;0m"   # column 4 (Lyrics)
-MAGENTA      = f"{ESC}[35m"               # borders/lines
-BRIGHT_GREEN = f"{ESC}[92m"               # header text
 
-BIG_TOP      = f"{ESC}#3"
-BIG_BOT      = f"{ESC}#4"
-BIG_OFF      = f"{ESC}#5"
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ ANSI COLORS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ESC           =   "\x1b"                          # the escape character
+RESET         = f"{ESC}[0m"                       # reset color back to default
+BRIGHT_CYAN   = f"{ESC}[96m"                      # column 1 (Du)
+GREEN         = f"{ESC}[32m"                      # success
+BRIGHT_GREEN  = f"{ESC}[42m"                      # success
+CYAN          = f"{ESC}[36m"                      # column 2 (Overlap)
+RED           = f"{ESC}[31m"                      # column 3 (Lines)
+BRIGHT_RED    = f"{ESC}[91m"                      # errors
+BRIGHT_YELLOW = f"{ESC}[93m"                      # warnings
+ORANGE        = f"{ESC}[38;2;235;107;0m"          # column 4 (Lyrics)
+MAGENTA       = f"{ESC}[35m"                      # borders/lines
+BRIGHT_GREEN  = f"{ESC}[92m"                      # header text
+
+BIG_TOP       = f"{ESC}#3"                        # double-height text: on. Font/Mode =  top   half of double-height text
+BIG_BOT       = f"{ESC}#4"                        # double-height text: on. Font/Mode = bottom half of double-height text
+BIG_OFF       = f"{ESC}#5"                        # double-height text: off
+
+ANSI_RE       = re.compile(r"\x1b\[[0-9;]*m")     # regex to match all possible ansi, for use with strip_ansi
+def strip_ansi(s: str) -> str:                    # function to remove all ansi from a string
+    return ANSI_RE.sub("", s)                     # which uses the above-defined regex of ANSI_RE
 
 
-ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
-def strip_ansi(s: str) -> str:
-    return ANSI_RE.sub("", s)
+
+
 
 # ---------- time utils ----------
 def ts_to_ms(ts):
     # accept 00:00:00,000 or 00:00:00.000
-    h, m, rest = ts.split(":")
+    h, m, rest            =   ts.split(":")
     if "," in rest: s, ms = rest.split(",")
     else:           s, ms = rest.split(".")
     return (int(h)*3600 + int(m)*60 + int(s))*1000 + int(ms)
 
 def ms_to_ts(ms):
     if ms < 0: ms = 0
-    s, ms = divmod(ms, 1000)
-    h, s = divmod(s, 3600)
-    m, s = divmod(s, 60)
+    s, ms         = divmod(ms, 1000)
+    h, s          = divmod(s, 3600)
+    m, s          = divmod(s, 60)
     return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
 # ---------- parsing ----------
@@ -83,13 +91,6 @@ def parse_srt(path):
 
 
 
-import re
-
-ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
-
-def _strip_ansi(s: str) -> str:
-    return ANSI_RE.sub("", s)
-
 def reduce_vertical_whitespace(table_str: str, threshold: int = 2, reduce_if_header_text: bool = False) -> str:
     """
     Shrink a box-drawn table by removing vertical runs of columns that are spaces on every relevant line.
@@ -106,8 +107,8 @@ def reduce_vertical_whitespace(table_str: str, threshold: int = 2, reduce_if_hea
         return table_str
 
     # Identify border + header rows so we don’t base “blank column” solely on top/bottom borders
-    border_chars = "┏┓┗┛┯┷┠┨┼━"
-    is_border = [any(ch in ln for ch in border_chars) for ln in lines_raw]
+    border_chars = "┏┓┗┛┳┻┣┫╋━"
+    is_border    = [any(ch in ln for ch in border_chars) for ln in lines_raw]
 
     # Header lines are those between the top border and the first “mid” separator (┼)
     header_start = 1 if len(lines_raw) > 1 and is_border[0] else 0
@@ -130,7 +131,7 @@ def reduce_vertical_whitespace(table_str: str, threshold: int = 2, reduce_if_hea
     if not consider_idxs:
         return table_str
 
-    plains = [_strip_ansi(lines_raw[i]) for i in range(len(lines_raw))]
+    plains = [strip_ansi(lines_raw[i]) for i in range(len(lines_raw))]
     width = max(len(plains[i]) for i in consider_idxs)
     # Pad plains to uniform width for indexing
     plains = [p + " " * max(0, width - len(p)) for p in plains]
@@ -166,8 +167,8 @@ def reduce_vertical_whitespace(table_str: str, threshold: int = 2, reduce_if_hea
 
     # Rebuild each line: keep ANSI sequences always; skip visible chars whose column is marked remove
     def reconstruct(raw: str) -> str:
-        out = []
-        i = 0
+        out     = []
+        i       = 0
         vis_col = 0
         while i < len(raw):
             if raw[i] == "\x1b":
@@ -189,6 +190,68 @@ def reduce_vertical_whitespace(table_str: str, threshold: int = 2, reduce_if_hea
     return "\n".join(reconstruct(ln) for ln in lines_raw)
 
 
+# ---------- overlap detection by content-key (half-open [start,end)) ----------
+from collections import Counter, defaultdict
+
+def find_overlap_segments_by_key(cues, key_fn):
+    """
+    Return chronological list of overlap segments PER key.
+    Each segment: {'start': ms, 'end': ms, 'key': K, 'count': n, 'members': (idx,...)}
+      - end > start, and count >= 2 during [start, end)
+      - key_fn(cue) -> grouping key (e.g., normalized text)
+    Notes:
+      * Handles handoffs at identical timestamps: ends processed before starts.
+      * If two distinct cues with the same text swap at the same t, multiplicity
+        does not spuriously spike, so no false overlap.
+    """
+    # bucket events by time
+    buckets = defaultdict(lambda: {"end": [], "start": []})  # t -> {end:[(key,idx)], start:[(key,idx)]}
+    for c in cues:
+        if c["s_ms"] == c["e_ms"]: continue
+        k = key_fn(c)
+        buckets[c["s_ms"]]["start"].append((k, c["idx"]))
+        buckets[c["e_ms"]]["end"].append((k, c["idx"]))
+
+    times = sorted(buckets)
+    active_counts = Counter()                 # key -> multiplicity
+    active_members = defaultdict(set)         # key -> set of idx (optional, for reporting)
+    segments = []                             # list of result segments
+    prev_t = None
+
+    # helper: flush interval [prev_t, t) for keys with count>=2
+    def flush_interval(t):
+        if prev_t is None or t <= prev_t: return
+        for k, cnt in active_counts.items():
+            if cnt >= 2:
+                segments.append({
+                    "start": prev_t, "end": t, "key": k, "count": cnt,
+                    "members": tuple(sorted(active_members[k]))
+                })
+
+    for t in times:
+        # finalize the interval up to t with the state AFTER prev_t events applied
+        flush_interval(t)
+
+        # apply events at t (half-open): remove ends first, then add starts
+        for k, idx in buckets[t]["end"]:
+            if idx in active_members[k]:
+                active_members[k].discard(idx)
+                active_counts[k] -= 1
+                if active_counts[k] <= 0:
+                    del active_counts[k]; active_members.pop(k, None)
+
+        for k, idx in buckets[t]["start"]:
+            if idx not in active_members[k]:
+                active_members[k].add(idx)
+                active_counts[k] += 1
+
+        prev_t = t
+
+    # no tail flush (no time after the last timestamp)
+    return segments
+
+
+
 # ---------- overlap detection (sweep line) ----------
 def find_overlap_segments(cues):
     """Return chronological list of overlap segments.
@@ -197,13 +260,14 @@ def find_overlap_segments(cues):
     """
     events = []  # (time, typ, idx) where typ: 0=end, 1=start  (end before start at same time)
     for c in cues:
+        if c["s_ms"] == c["e_ms"]: continue
         events.append((c["s_ms"], 1, c["idx"]))
         events.append((c["e_ms"], 0, c["idx"]))
     events.sort()
 
-    active = set()
+    active   = set()
     segments = []
-    prev_t = None
+    prev_t   = None
 
     # group events by identical time
     i = 0; L = len(events)
@@ -269,26 +333,42 @@ def build_table_from_segments(cues, segments, total_cols):
             "lyrics": list(OrderedDict.fromkeys(lyrics))
         })
 
+    # Add zero-length timestamp cues as separate error rows
+    for c in cues:
+        if c["s_ms"] == c["e_ms"]:
+            overlap_pair = f"{ms_to_ts(c['s_ms'])} --> {ms_to_ts(c['e_ms'])}"
+            preview = (c.get("lyric") or "").strip()
+            err_msg = f"{BRIGHT_YELLOW}zero-length timestamp{ORANGE}"
+            if preview: preview = err_msg + ": " + preview + " "
+            else:       preview = err_msg + "!"            + " "
+            rows.append({
+                "count": 1,
+                "overlap": overlap_pair,
+                "lines": [c["line"]],
+                "lyrics": [preview]
+            })
+
+
     if not rows: return ""
 
     # Column headers (3-line for Lines)
     H1, H2, H4 = "Dupes", "Timestamp", "Lyrics"
     H3_parts = ["Line #s"]
 
-    max_count   = max(r["count"] for r in rows)
-    max_line_no = max(max(r["lines"]) for r in rows)
-    line_w = max(2, len(str(max_line_no)))
-    row_line_strs = [fmt_lines(r["lines"], width_each=line_w) for r in rows]
+    max_count       = max(r["count"] for r in rows)
+    max_line_no     = max(max(r["lines"]) for r in rows)
+    line_w          = max(2, len(str(max_line_no)))
+    row_line_strs   = [fmt_lines(r["lines"], width_each=line_w) for r in rows]
     max_overlap_len = max(len(r["overlap"]) for r in rows)
 
     w1 = max(len(H1), len(str(max_count)))
     w2 = max(len(H2), max_overlap_len, len("00:00:00,000 --> 00:00:00,000"))
     tmp_w3_needed = max([len("Lines")] + ([len(s) for s in row_line_strs] or [len("Lines")]))
 
-    budget = max(20, total_cols - 2)  # minus borders
+    budget     = max(20, total_cols - 2)  # minus borders
     sep_spaces = 9
-    w3 = min(tmp_w3_needed, max(8, (budget - (w1 + w2 + sep_spaces)) // 3))
-    w4 = max(10, budget - (w1 + w2 + w3 + sep_spaces))
+    w3         = min(tmp_w3_needed, max(8, (budget - (w1 + w2 + sep_spaces)) // 3))
+    w4         = max(10, budget - (w1 + w2 + w3 + sep_spaces))
     if w4 < 10:
         reclaim = 10 - w4
         w3 = max(8, w3 - reclaim)
@@ -296,9 +376,10 @@ def build_table_from_segments(cues, segments, total_cols):
 
     def bar(ch_left, ch_mid, ch_right, ch_fill="━"):
         return f"{MAGENTA}{ch_left}{ch_fill*(w1+2)}{ch_fill[0:0]}{ch_mid}{ch_fill*(w2+2)}{ch_mid}{ch_fill*(w3+2)}{ch_mid}{ch_fill*(w4+2)}{ch_right}{RESET}"
-    top    = bar("┏","┯","┓")
-    mid    = bar("┠","┼","┨")
-    bottom = bar("┗","┷","┛")
+
+    top    = bar("┏","┳","┓")
+    mid    = bar("┣","╋","┫")
+    bottom = bar("┗","┻","┛")
 
     def row(c1, c2, c3, c4, colors):
         p1 = pad_visible_plain(c1, w1); p2 = pad_visible_plain(c2, w2); p3 = pad_visible_plain(c3, w3); p4 = pad_visible_plain(c4, w4)
@@ -310,19 +391,20 @@ def build_table_from_segments(cues, segments, total_cols):
 
     out = [top]
     out.append(row(H1, H2, H3_parts[0], H4, (BRIGHT_GREEN, BRIGHT_GREEN, BRIGHT_GREEN, BRIGHT_GREEN)))
-    #out.append(row("",  "",  H3_parts[1], "",  (BRIGHT_GREEN, BRIGHT_GREEN, BRIGHT_GREEN, BRIGHT_GREEN)))
-    #out.append(row("",  "",  H3_parts[2], "",  (BRIGHT_GREEN, BRIGHT_GREEN, BRIGHT_GREEN, BRIGHT_GREEN)))
     out.append(mid)
 
     for i, r in enumerate(rows):
         lines_str = fmt_lines(r["lines"], width_each=line_w)
         lyric_join = " • ".join(OrderedDict.fromkeys([l for l in r["lyrics"] if l]))
         if len(lyric_join) > w4: lyric_join = lyric_join[:w4]
-        out.append(row(str(r["count"]), r["overlap"], lines_str, lyric_join,
-                       (BRIGHT_CYAN, CYAN, RED, ORANGE)))
+        out.append(row(str(r["count"]), r["overlap"], lines_str, lyric_join,(BRIGHT_CYAN, CYAN, RED, ORANGE)))
 
     out.append(bottom)
     return "\n".join(out)
+
+
+
+
 
 # ---------- CLI ----------
 def main():
@@ -331,23 +413,34 @@ def main():
     ap.add_argument("--columns","-c", type=int, help="override detected console width (uses N-3)")
     args = ap.parse_args()
 
+    # process SRT file
     cues = parse_srt(args.srt)
     if not cues:
         return
 
+    # suss out individual subtitle time segment, and see if any overlap
     segs = find_overlap_segments(cues)
     segs = coalesce_segments(segs)
-    if not segs:
-        return  # silent when no overlaps
 
+    # If there are no true overlap segments, still check for zero-length cues
+    zero_len = [c for c in cues if c['s_ms'] == c['e_ms']]
+    if not segs and not zero_len:
+        print(f"{GREEN}★ Subtitle integrity verified")
+        return  # silent when no overlaps AND no zero-length cues
+
+    # build the table
     cols = term_width(args.columns)
     table = build_table_from_segments(cues, segs, cols)
+
+    # display the table if a table was built
     if table:
         MSG = f"{BRIGHT_RED}✨ ✪ ✪ ✪ Karaoke Timestamp Problems! ✪ ✪ ✪ ✨"
         print(f"{BIG_TOP}{MSG}")
         print(f"{BIG_BOT}{MSG}")
         print(f"{BIG_OFF}", end="")
         print(reduce_vertical_whitespace(table))
+    else:
+        print(f"{BRIGHT_GREEN}* Subtitle integrity verified, but this should never happen here on line 441ish")          #this should never happen
 
 if __name__ == "__main__":
     main()
