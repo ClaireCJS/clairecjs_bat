@@ -406,7 +406,7 @@ goto :Past_The_End_Of_The_Subroutines
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :display_temp_output [varname]
-                rem Alternating italics give it a little “jiggle” in its dance:
+                rem ❶ Alternating italics give it a little “jiggle” in its dance:
                         iff defined italics_maybe then
                                 if "%italics_maybe%" == "%italics_on%" (
                                         set italics_maybe=%italics_off%
@@ -418,7 +418,8 @@ goto :Past_The_End_Of_The_Subroutines
                 set coloring=%@randfg_soft[]
                 echos %ansi_cursor_invisible%
                 echos %@randfg_soft[]
-                if defined italics_maybe echos %italics_maybe%  %+ rem Alternating italics give it a little “jiggle” in its dance:
+                rem ❸ Alternating italics give it a little “jiggle” in its dance:
+                if defined italics_maybe echos %italics_maybe%  
                 echos %@CHAR[9733] Validating variable: %@randfg_soft[]
                 if defined varname echos %VARNAME%
                 echos %@randfg_soft[]...%ansi_erase_to_eol%

@@ -2383,6 +2383,7 @@ goto /i skip_subroutines
                                 rem call debug "Creating lock file “%TRANSCRIBER_LOCK_FILE%”"
                                 rem echo. %+ rem added very late 2024/04/28 then removed 2025/05/08
                                 set LOCKFILE_ALREADY_EXISTS=0
+                                gosub divider
                                 delay /m %@RANDOM[1000,5000]
                                 iff exist "%TRANSCRIBER_LOCK_FILE%" return 666
                                 echo %ansi_color_important_less%%STAR2% Creating lock file: %faint_on%“%italics_on%%@UNQUOTE["%TRANSCRIBER_LOCK_FILE%"]%italics_off%” [time=%_datetime]%faint_off%%ansi_color_normal%

@@ -660,7 +660,8 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 
 				print "call askyn \"Y=Edit attrib.lst / N=don’t\" no 15 G G:give_up\n";
 				print "if \"N\" == \"\%ANSWER\%\" goto :DoNotEdit\n";
-				print "%%EDITOR%% attrib.lst\n";
+				#NO:  "%%EDITOR%% attrib.lst\n";
+				print "\%EDITOR\% attrib.lst\n";
 				print ":DoNotEdit\n";
 
 

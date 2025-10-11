@@ -1446,9 +1446,10 @@ return
             set LOCAL_BACKUPS_DIR=%LOCAL_BACKUPS_DRIVE%:\%BACKUPS_DIRNAME%
 
         ::hardware
-            rem HARDWARE_MAIN_DRIVE=%HD10T1% —— until 2023/early —— broke L-tab off power-port 
+            rem HARDWARE_MAIN_DRIVE=%HD10T1% —— until 2023/early —— broke L-tab off power-port of harddrive, so... yuck
             rem HARDWARE_MAIN_DRIVE=%HD18T1% —— until 2024/06/16 —— O: got full, moved to T:
-            set HARDWARE_MAIN_DRIVE=%HD18T3% 
+            rem HARDWARE_MAIN_DRIVE=%HD18T3% —— until 2025/10/09 —— T: got full, moved to U: (accidentally instead of R:?)
+            set HARDWARE_MAIN_DRIVE=%HD10T2% 
                 rem aliases
                 set HARDWARE_DRIVE=%HARDWARE_MAIN_DRIVE%
                 set HARDWAREDRIVE=%HARDWARE_DRIVE%
@@ -1463,7 +1464,8 @@ return
 
         ::installers
             rem echos %@RANDCURSOR[]
-            SET INSTALLFILESDRIVE=%HD18T1%
+            rem INSTALLFILESDRIVE=%HD18T1% —— until 2025/10/09 —— O: got full, moved to R:
+            SET INSTALLFILESDRIVE=%HD20T1%
             SET INSTALLFILES=%INSTALLFILESDRIVE%:\install-files
             rem INSTALLFILESBACKUPDRIVE=%HD2000G4%
             rem INSTALLFILESBACKUPDRIVE=%HD18T3% 2023/08 revival of 6T3 which already had install files on it so it became the backup:
@@ -1473,9 +1475,12 @@ return
         ::dropbox_Claire
             rem DROPBOXDRIVE=%HD18T1%
             SET DROPBOXDRIVE=%HD1T3%
-            SET DROPBOX=%DROPBOXDRIVE%:\Dropbox
-                        SET DROPBOX_CLAIRE_DRIVE=%DROPBOXDRIVE%
-                        SET DROPBOX_CLAIRE=%DROPBOX%
+            SET DROPBOX_CLAIRE_DRIVE=%HD1T3%
+            rem DROPBOX=%DROPBOXDRIVE%%zzzzzz%:\Dropbox
+            SET DROPBOX_CLAIRE=%DROPBOX_CLAIRE_DRIVE%:\Dropbox
+                        rem DROPBOX_CLAIRE_DRIVE=%DROPBOXDRIVE%
+                        SET DROPBOX_CLAIRE_DRIVE=%DROPBOX_CLAIRE_DRIVE%
+                        SET DROPBOX=%DROPBOX_CLAIRE%
         ::dropbox_Carolyn
             rem DROPBOX_CAROLYN_DRIVE=%HD4000G5%
             SET DROPBOX_CAROLYN_DRIVE=%HD2T1%
@@ -1484,6 +1489,7 @@ return
                 ::aliases
                     SET DROPBOXCAROLYN_DRIVE=%DROPBOX_CAROLYN_DRIVE%
                     SET DROPBOXCAROLYN=%DROPBOX_CAROLYN%
+                if "%USERNAME%" == "carolyn" set DROPBOX=%DROPBOX_CAROLYN%
         ::dropbox_related
             SET LOCAL_DROPBOX_OVERFLOW=%LOCAL_BACKUPS_DIR%\%DROPBOX_OVERFLOW_DIRNAME%
 

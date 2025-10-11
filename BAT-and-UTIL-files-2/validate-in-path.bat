@@ -216,7 +216,7 @@ rem Validate each command line parameter
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         :display_temp_output [varname]
                 set unquoted_varname=%@UNQUOTE["%varname%"]
-                rem Alternating italics give it a little “jiggle” in its dance:
+                rem ❹ Alternating italics give it a little “jiggle” in its dance:
                         iff defined italics_maybe then
                                 if "%italics_maybe%" == "%italics_on%" (
                                         set italics_maybe=%italics_off%
@@ -228,7 +228,8 @@ rem Validate each command line parameter
                 set coloring=%@randfg_soft[]
                 echos %ansi_cursor_invisible%
                 echos %@randfg_soft[]
-                if defined italics_maybe echos %italics_maybe%  %+ rem Alternating italics give it a little “jiggle” in its dance:
+                rem ❷ Alternating italics give it a little “jiggle” in its dance:
+                if defined italics_maybe echos %italics_maybe%  
                 echos %@CHAR[9733] Validating command: %@randfg_soft[]
                 if not defined unquoted_varname set unquoted_varname=%@UNQUOTE[%1]
                 echos %unquoted_VARNAME%

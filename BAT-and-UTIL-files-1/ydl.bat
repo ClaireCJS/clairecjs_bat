@@ -8,7 +8,7 @@ rem ║ WHAT DOES THIS DO DIFFERENTLY FROM CALLING ytp-dl / ydl DIRECTLY??? ║
 rem ║                                                                     ║
 rem ║     External unicode/emoji filename scrubber run                    ║
 rem ║     Chance to interactively rename file when done                   ║
-rem ║     Description/caption of video saved                              ║
+rem ║     Description/caption of video saved as sidecar txt               ║
 rem ║     Subtitles, Metadata, Chapsters, English Subtitles embedded      ║
 rem ║     JSON metadata saved                                             ║
 rem ║     Zero-byte files deleted                                         ║
@@ -20,7 +20,6 @@ rem ║════════════════════════�
 
 set DEBUG=0
 set OUR_LOGGING_LEVEL=None
-call set-cursor
 
 
 
@@ -29,12 +28,21 @@ REM     2022 removing but maybe this should just be a DEMONA thing: setdos /X-56
 
 
 
-rem WHICH DOWNLOADER TO USE:
+rem CONFIG: WHICH DOWNLOADER TO USE:
         rem YDL=youtube-dl —— stopped being developed / as good, replaced by “yt-dlp”
         set YDL=yt-dlp
 
+rem Validate environment:
+        iff "1GOAT" != "%validated_ydl_bat%" then
+                call validate-in-path               %YDL% set-cursor print-if-debug  rn-latest-for-youtube-dl errorlevel fix-unicode-filenames error print-message warning success rn title divider rn pause-for-x-seconds
+                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET check
+                set  validated_ydl_bat=1
+        endiff
 
-rem PARAMETERS:
+rem INIT:
+        call set-cursor
+
+rem PROCESS PARAMETERS:
         REM set OUTPUTNAME=%1
         if %@COUNT[%@char[34],%1] ne 2 (call error "first argument must have quotes around it")
         SET URL=%@UNQUOTE[%1]
@@ -47,31 +55,32 @@ rem PARAMETERS:
         REM this seemed wrong     if "" == "%2" .or.  "" == "%1" (call FATAL_ERROR "NEED FILENAME AND URL PARAMETERS!" %+ goto :END)
         if "%2" == "NOEXT" (set NOEXT=1) 
 
+
 rem EXECUTION:
-        call validate-in-path %YDL%
-        :call dl                                                                                          %+ REM moves us to the folder we typically download youtube videos into
+        rem call dl                                                                                          %+ REM moves us to the folder we typically download youtube videos into
         set TMPDIR=oh.%_DATETIME.%_PID
         REM REDOCOMMAND=call %YDL%     -o "%@UNQUOTE[%OUTPUTNAME%]"     "%URL%"
         set REDOCOMMAND=call %YDL%                                      "%URL%"
         *md %TMPDIR%
-        if not exist %TMPDIR% (call warning "tmpdir “%TMPDIR%” doesn’t seem to exist" %+ pause %+ pause %+ pause %+ pause)
-        *cd %TMPDIR%
+        if not exist %TMPDIR% (call warning "tmpdir “%TMPDIR%” doesn’t seem to exist" %+ pause %+ pause %+ pause %+ pause %+ goto :No_Temp_Dir)
+                *cd %TMPDIR%
+        :No_Temp_Dir
 
-        :: how to stop unicode b.s. characters though?  
-        :: --no-restrict-filenames - allow unicode characters, &, and spaces ---
-        :: --windows-filenames doesn’t stop them
-        :: --restrict-filenames stops too much, makes every space a nunderscore, etc
-        :: -o without any other options - "yt-dlp.exe: err;or: you must provide at least one URL"
-        :: --replace-in-metadata '“:'':”:'':‘:' <video-url>
-        :: someone says --compat-options filename-sanitization
-        :: Alternatively you can use --compat-options filename-sanitization to mimic youtube-dl’s behavior which doesn’t do this
+        rem :: how to stop unicode b.s. characters though?  
+        rem :: --no-restrict-filenames - allow unicode characters, &, and spaces ---
+        rem :: --windows-filenames doesn’t stop them
+        rem :: --restrict-filenames stops too much, makes every space a nunderscore, etc
+        rem :: -o without any other options - "yt-dlp.exe: err;or: you must provide at least one URL"
+        rem :: --replace-in-metadata '“:'':”:'':‘:' <video-url>
+        rem :: someone says --compat-options filename-sanitization
+        rem :: Alternatively you can use --compat-options filename-sanitization to mimic youtube-dl’s behavior which doesn’t do this
         
-        ::: OKAY HERE IS THE SOLUTION! But also add each newly fixed item to allfileunicode.pl too!
-        :: yt-dlp --replace-in-metadata '“:":”:":‘:' <video-url>
+        rem ::: OKAY HERE IS THE SOLUTION! But also add each newly fixed item to allfileunicode.pl too!
+        rem :: yt-dlp --replace-in-metadata '“:":”:":‘:' <video-url>
 
-        :call %YDL% --no-check-certificate                    "%URL%"
-        :call %YDL% --write-description --windows-filenames   "%URL%"
-        :call %YDL% --write-description --windows-filenames   "%URL%"
+        rem :call %YDL% --no-check-certificate                    "%URL%"
+        rem :call %YDL% --write-description --windows-filenames   "%URL%"
+        rem :call %YDL% --write-description --windows-filenames   "%URL%"
         %COLOR_RUN%
         rem ━━ BACKUP 20230526 WHILE BUGESTING: ━━
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization -f bestaudio --audio-quality best --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
@@ -105,12 +114,21 @@ rem VALIDATION:
 :2022 removing but maybe this should just be a DEMONA thing: setdos /X0
 
 rem CLEANUP:
-    rem manual rename opportunity - also covers companion files
+        if exist *.description (ren *.description *.txt)
         if "%UNATTENDED_YOUTUBE_DOWNLOADS%" == "1" goto :Unattended
-            call rn-latest-for-youtube-dl %FILEMASK_VIDEO%
-            :^^^^^^^^^^^^^^^^^^^^^^^^^^^^ side-effect: sets %FILENAME_NEW%, which we use later  ...TODO:possible bug in that it tries to rename the JSON now. same effcet but more confusing
-            call errorlevel "problem with rn-latest-for-youtube-dl"
+                call set-latest-filename *.txt
+                call debug "LATEST_FILENAME is “%LATEST_FILENAME%”" %+ call pause-for-x-seconds 5
+                if not defined LATEST_FILENAME goto :no_latest_filename
+                        call divider
+                        type "%LATEST_FILENAME%"
+                        call divider        
+                :no_latest_filename
+                call rn-latest-for-youtube-dl %FILEMASK_VIDEO%
+                :^^^^^^^^^^^^^^^^^^^^^^^^^^^^ side-effect: sets %FILENAME_NEW%, which we use later  ...TODO:possible bug in that it tries to rename the JSON now. same effcet but more confusing
+                call errorlevel "problem with rn-latest-for-youtube-dl"
         :Unattended
+
+
 
     rem fix filenames
         REM this can be run in unattended mode, but we’re not ready for that yet:
@@ -153,5 +171,5 @@ rem CLEANUP:
         if isdir %TMPDIR% (call ERROR "Couldn’t remove “%TMPDIR%”! Are you sure you aren’t in this folder in another window?")
 
 unset /q YOUTUBE_MODE
-title Completed: youtube download
+title %CHECK% Completed youtube download!
 call set-cursor
