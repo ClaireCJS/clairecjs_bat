@@ -1,13 +1,14 @@
 @Echo OFF
 @loadBTM ON
 set filemask=%1
-@echo %ansi_color_bright_green%-—━━━━━━━━━━━━━━━RN-LATEST-FOR-YOUTUBE.BAT: START: “rn-latest-for-youtube %1$” -—━━━━━━━━━━━━━━━ filemask=“%filemask%”%ansi_color_normal% %+ rem pause
 @on break cancel
 
 rem CONFIGURATION:
         set YOUTUBE_ID_LENGTH=10
         set DEBUG_RNLATESTFORYOUTUBE=0
 
+rem DEBUG:
+        if "0" != "%DEBUG_RNLATESTFORYOUTUBE%" @echo %ansi_color_bright_green%-—━━━━━━━━━━━━━━━RN-LATEST-FOR-YOUTUBE.BAT: START: “rn-latest-for-youtube %1$” -—━━━━━━━━━━━━━━━ filemask=“%filemask%”%ansi_color_normal% %+ rem pause
 
 rem VALIDATE ENVIRONMENT (once):
         iff "1" != "%validated_rnlatestforyoutubedl%" then
@@ -19,7 +20,7 @@ rem VALIDATE ENVIRONMENT (once):
 rem MAKE SURE THE FILE WE WANT TO RENAME ACTUALLY EXISTS:
         unset /q LATEST_FILENAME_NOT_COUNTING_METADATA_FILES
 	set LATEST_FILENAME_NOT_COUNTING_METADATA_FILES="%@EXECSTR[d/odt/b %FILEMASK%|:u8grep -v \.description|:u8grep -v \.webp|:u8grep -v \.json|:u8tail -1]"
-        call debug   "LATEST_FILENAME_NOT_COUNTING_METADATA_FILES is “%LATEST_FILENAME_NOT_COUNTING_METADATA_FILES%”"
+        if "0" != "%DEBUG_RNLATESTFORYOUTUBE%" call debug   "LATEST_FILENAME_NOT_COUNTING_METADATA_FILES is “%LATEST_FILENAME_NOT_COUNTING_METADATA_FILES%”"
         rem pause
 	call validate-environment-variable LATEST_FILENAME_NOT_COUNTING_METADATA_FILES
 
@@ -55,10 +56,10 @@ rem DEBUG:
 
 rem RENAME THE FILE AND MAKED SURE WE WERE SUCCESSFUL:
 	%COLOR_RUN%
-	echo %ANSI_COLOR_DEBUG%- DEBUG: We do this: “%faint_on%ren %LATEST_FILENAME_NOT_COUNTING_METADATA_FILES% %FIXED_FILENAME%%faint_off%”
+	if "0" != "%DEBUG_RNLATESTFORYOUTUBE%" echo %ANSI_COLOR_DEBUG%- DEBUG: We do this: “%faint_on%ren %LATEST_FILENAME_NOT_COUNTING_METADATA_FILES% %FIXED_FILENAME%%faint_off%”
 	ren %LATEST_FILENAME_NOT_COUNTING_METADATA_FILES% %FIXED_FILENAME%
-	call validate-environment-variable FIXED_FILENAME
-	echo %ANSI_COLOR_DEBUG%- DEBUG: But maybe we also need to do this: “%faint_on%ren "%BASE_NAME%.*" "%FIXED_BASENAME%.*"%faint_off%”
+	if not exist %FIXED_FILENAME% call validate-environment-variable FIXED_FILENAME
+	if "0" != "%DEBUG_RNLATESTFORYOUTUBE%" echo %ANSI_COLOR_DEBUG%- DEBUG: But maybe we also need to do this: “%faint_on%ren "%BASE_NAME%.*" "%FIXED_BASENAME%.*"%faint_off%”
         rem pause
         %color_run%
         if exist "%BASE_NAME%.*"  ren "%BASE_NAME%.*" "%FIXED_BASENAME%.*

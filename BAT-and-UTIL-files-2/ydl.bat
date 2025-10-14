@@ -33,7 +33,7 @@ rem CONFIG: WHICH DOWNLOADER TO USE:
         set YDL=yt-dlp
 
 rem Validate environment:
-        iff "1GOAT" != "%validated_ydl_bat%" then
+        iff "1" != "%validated_ydl_bat%" then
                 call validate-in-path               %YDL% set-cursor print-if-debug  rn-latest-for-youtube-dl errorlevel fix-unicode-filenames error print-message warning success rn title divider rn pause-for-x-seconds
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET check
                 set  validated_ydl_bat=1
@@ -93,7 +93,12 @@ rem EXECUTION:
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en "%URL%"
-            call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
+
+        rem Good:
+            rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
+        
+        rem Testing:
+            call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
         @Echo off
         title YouTube D/L complete!                                                                                                
         rem was suggested that one could scrub unicode chars with this command: --replace-in-metadata "video:title" " ?[\U000002AF-\U0010ffff]+" ""
@@ -121,6 +126,7 @@ rem CLEANUP:
                 if not defined LATEST_FILENAME goto :no_latest_filename
                         call divider
                         type "%LATEST_FILENAME%"
+                        echo.
                         call divider        
                 :no_latest_filename
                 call rn-latest-for-youtube-dl %FILEMASK_VIDEO%

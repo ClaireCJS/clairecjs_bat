@@ -1,4 +1,4 @@
-TODO: serach for other todos below
+TODO: search for other todos below
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -7,7 +7,7 @@ TODO: serach for other todos below
   1. 🥅 *General*: 🥅 To see the lyrics 📄 to music 🎵 highlighted ↔ as they are sung 🎤
   1. 🥅 *Technical*: 🥅 To automate AI transcription of music into karaoke files
   1. 🥅 *Specific*: 🥅 To have the [MiniLyrics](https://minilyrics.en.softonic.com/) program correctly display lyrics as they are sung.
-  1. 🥅 *Detailed*: 🥅 To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI’s transcription of audio files into karaoke/subtitle files.
+  1. 🥅 *Detailed*: 🥅 To obtain and approve accurate lyrics for songs, which are then used as a prompt to improve the accuracy of WhisperAI’s transcription of audio files into karaoke/subtitle files, as well as to ensure each file has TXT and either LRC or SRT subtitles—usually both.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -720,11 +720,11 @@ A *batch* SRT-file to LRC-file converter that’s better than all the other ones
 
 ### 🌟 converter: [srt2txt.bat](../BAT-and-UTIL-files-1/srt2txt.bat) / [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py):
 
-A *single-file* ```SRT``` to ```TXT```. Used when we already have SRT files for a song (say, from a download), and *really* want a TXT version of the lyrics. Configurable thresholds for joining subtitle lines together into 1 text line (if they are really close together in time, i.e. under ≈0.5 seconds), or for adding a blank line between lyrics (if the subtitles are really far in time from each other, i.e. over ≈3 seconds)
+A *single-file* ```SRT``` to ```TXT```. Used when we already have SRT files for a song (say, from a download), but don’t have a TXT version of the lyrics.  One is automatically created to ensure file uniformity. Configurable thresholds for joining subtitle lines together into 1 text line (if they are really close together in time, i.e. under ≈0.5 seconds), or for adding a blank line between lyrics (if the subtitles are really far in time from each other, i.e. over ≈3 seconds)
 
 ### 🌟 converter: [lrc2txt.bat](../BAT-and-UTIL-files-1/lrc2txt.bat)/ [lrc2txt.py](../BAT-and-UTIL-files-1/lrc2txt.py):
 
-A *single-file* ```LRC``` to ```TXT```. Used when we already have SRT files for a song (say, from a download), and *really* want a TXT version of the lyrics. Correctly converts lines that are a timestamp with no text to blank lines in the output file.
+A *single-file* ```LRC``` to ```TXT```. Used when we already have LRC files for a song (say, from a download), but don’t have a TXT version of the lyrics. One is automatically created to ensure file uniformity. Estimates where line breaks should occur based im time thresholds (currently .65s=new line, 4.75s=blank line).
 
 
 </details>
