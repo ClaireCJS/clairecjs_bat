@@ -1,4 +1,4 @@
-@Echo Off
+ydl "@Echo Off
  cls
 REM NOTE that this file: c:\bat\DEMONA\autoexec.btm is copied to c:\clairecjs_bat\autoexec.btm and c:\bat\autoexec.btm but those are not the official location!
 

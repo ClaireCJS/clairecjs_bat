@@ -1,4 +1,4 @@
-@Echo off
+Echo off
 @call bat-init
 
 
@@ -28,6 +28,7 @@ rem Delete files in specific places:
         gosub DelIfExists  %TMPDIR%\*.*
         gosub CreateIfGone %TMPDIR%
         gosub DelIfExists  c:\recycled\*.*
+        gosub DelIfExists  c:\*.json          %+ rem Oculus Rift PLEASE STOP!!
         gosub CreateIfGone c:\recycled
 
 rem Delete files that could be anywhere❟ on any harddrive❟ with a name we hate:

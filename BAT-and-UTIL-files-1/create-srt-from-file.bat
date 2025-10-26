@@ -1329,11 +1329,11 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
                                                                                                                         
                 iff "%LYRICLESSNESS_STATUS%" != "APPROVED" then
                         set ADDITIONAL_OPTIONS_TEXT= [%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%L%ansi_color_prompt%=mark lyricless%underline_on%ness%underline_off%,%ansi_color_bright_green%I%ansi_color_prompt%=Instr,%ansi_color_bright_green%K%ansi_color_prompt%=skip,%ansi_color_bright_green%G%ansi_color_prompt%=get lyrics,%ansi_color_bright_green%U%ansi_color_prompt%=mark as Untranscribeable/failed]
-                        set ADDITIONAL_OPTIONS_LETTERS=GIKLPSU
-                        set ADDITIONAL_OPTIONS_MEANINGS=G:re-probe,L:Mark_as_lyricless!,Q:enQueue_in_winamp,P:play_the_file,I:mark_as_instrumental,U:mark_as_untranscribeable,S:mark_as_sound_effect,K:skip
+                        set ADDITIONAL_OPTIONS_LETTERS=EGIKLPSU
+                        set ADDITIONAL_OPTIONS_MEANINGS=G:re-probe,L:Mark_as_lyricless!,Q:enQueue_in_winamp,P:play_the_file,I:mark_as_instrumental,U:mark_as_untranscribeable,S:mark_as_sound_effect,K:skip,E:edit_lyrics
                 else
-                        set ADDITIONAL_OPTIONS_TEXT= [%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%I%ansi_color_prompt%=instr,%ansi_color_bright_green%K%ansi_color_prompt%=skip,%ansi_color_bright_green%G%ansi_color_prompt%=get lyrics,%ansi_color_bright_green%U%ansi_color_prompt%=mark as %ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable/failed]
-                        set ADDITIONAL_OPTIONS_LETTERS=GIKPSU
+                        set ADDITIONAL_OPTIONS_TEXT= [%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%I%ansi_color_prompt%=instr,%ansi_color_bright_green%K%ansi_color_prompt%=skip,%ansi_color_bright_green%G%ansi_color_prompt%=get lyrics,%ansi_color_bright_green%U%ansi_color_prompt%=mark as %ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable/failed,%ansi_color_bright_green%E%ansi_color_prompt%dit lyr]
+                        set ADDITIONAL_OPTIONS_LETTERS=EGIKPSU
                         set ADDITIONAL_OPTIONS_MEANINGS=G:re-probe,Q:enQueue_in_winamp,P:preview_the_file,I:mark_as_instrumental,U:mark_as_untranscribeable,S:mark_as_sound_effect,K:skip
                 endiff
         :determine_dynamic_prompt_options_end
@@ -1345,6 +1345,12 @@ rem Ask if we should proceed:
         unset /q answer
         @call AskYn "Do the transcription%ADDITIONAL_OPTIONS_TEXT%" yes %PROCEED_WITH_AI_CONSIDERATION_TIME% %ADDITIONAL_OPTIONS_LETTERS% %ADDITIONAL_OPTIONS_MEANINGS%
                 set STORED_ANSWER=%ANSWER%                                                                                     %+ rem echo stored_answer is “%stored_answer” %+ pause %+ echo 0n
+                rem “E”:
+                        iff "%STORED_ANSWER%" == "E" then
+                                if not exist "%TXT_FILE%" call warning "%italics_on%TXT_FILE%italics_off% of “%faint_on%%TXT_FILE%%faint_off%” does not exist!"
+                                if     exist "%TXT_FILE%" %EDITOR% "%TXT_FILE%"
+                                goto /i :go_here_after_last_minute_lyric_edit
+                        endiff
                 rem “K”:
                         if  "%STORED_ANSWER%" == "K" goto /i END
                 rem “G”:
@@ -2111,6 +2117,7 @@ rem Full-endeavor success message:
         rem Last chance to edit the karaoke —— absolutely we need to ask this one last time, even if it’s annoying, because in some situations, it’s the only time:
                 :ask_about_karaoke_edit
                         unset /q ANSWER
+                        if not exist "%TXT_FILE%" .and. not exist "%SRT_FILE%" goto :skip_asking_to_edit_karaoke_file
                         @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%=Approve karaoke,%ansi_color_bright_green%U%ansi_color_prompt%=Unapprove,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry]" no %EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE% notitle AIEFPQUWT Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:unapprove_karaoke,T:delete_karaoke_file,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable
                         set HELD_ANSWER_1922=%ANSWER%
                         :just_asked_to_edit_karaoke
@@ -2173,6 +2180,7 @@ rem Full-endeavor success message:
                 if "%SOLELY_BY_AI%" == "1" (call warning "ONLY AI WAS USED. Lyrics were not used for prompting")
 
         rem If we deleted/unapproved our karaoke, we should end up here:
+                :skip_asking_to_edit_karaoke_file
                 :go_here_if_we_unpproved_or_deleted_the_karaoke
 
 
@@ -2320,7 +2328,7 @@ goto /i skip_subroutines
                                                 gosub rename_audio_file_as_instrumental "%file_to_use%" ask
                                         else
                                                 unset /q ANSWER
-                                                call AskYN "Try transcribing again with a lower voice detection threshold (current is “%italics_on%VAD_threshold%italics_off%”)" no 0
+                                                call AskYN "Try transcribing again with a lower voice detection threshold (current is “%italics_on%%VAD_threshold%%italics_off%”)" no 0
                                                         iff "Y" == "%ANSWER%" then
                                                                 gosub VAD_threshold_advice
                                                                 eset  vad_threshold
@@ -2334,15 +2342,16 @@ goto /i skip_subroutines
                                                         endiff
                                                         unset /q ANSWER
                                                 echo %star2% Current lyrics are: %italics_on%%our_lyrics%%italics_on%
-                                                call AskYN "Try again with unsetting the lyrics so there are no lyrics" no 0
+                                                rem  AskYN "Try again with unsetting the lyrics so there are no lyrics"   no   0
+                                                call AskYN "Try the whole process again from the very very start"         yes  0
                                                         iff "Y" == "%ANSWER%" then
-                                                                echo %ansi_color_removal%%emoji_axe% Unsetting lyrics...
+                                                                echo %ansi_color_removal%%emoji_axe% Unsetting lyrics...%ansi_color_normal%
                                                                 unset our_lyrics*
                                                                 set goto_try_again=1
                                                         endiff
                                                 set ANSWER=%HELD_ANSWER%
                                         endiff
-                                        if "1" == "%goto_try_again%" goto /i go_here_for_encoding_retries
+                                        if "1" == "%goto_try_again%" goto /i :go_here_for_encoding_retries
                                 endiff
                         set ANSWER=%HELD_ANSWER%
                         goto /i go_here_if_we_unpproved_or_deleted_the_karaoke

@@ -97,8 +97,11 @@ REM do everything in a temp folder!
     call warning "yt-dlp %italics_on%%URL%%italics_off% (with extra steps)"  %+ pause %+ %COLOR_RUN% 
     %COLOR_RUN%
     rem failed attempt to fix: yt-dlp -vU --write-info-json --write-description --extractor-args   "youtube:player_client=android" --split-chapters %URL% -f bestaudio --extract-audio --audio-quality 0 --embed-metadata   --write-thumbnail  --embed-thumbnail --cookies-from-browser firefox --compat-options filename-sanitization %*
-    rem    --verbose --write-info-json --write-description --split-chapters %URL% -f bestaudio --extract-audio --audio-quality 0 --embed-metadata --write-thumbnail --embed-thumbnail --cookies-from-browser firefox --compat-options filename-sanitization --audio-format mp3 --audio-format mp3  --extractor-args   "youtube:player_client=android" 
-    yt-dlp --verbose --write-info-json --write-description --split-chapters                    --extract-audio --audio-quality 0 --embed-metadata --write-thumbnail --embed-thumbnail --cookies-from-browser firefox --compat-options filename-sanitization --audio-format mp3 %URL%
+    rem        --verbose --write-info-json --write-description --split-chapters %URL% -f bestaudio --extract-audio --audio-quality 0 --embed-metadata --write-thumbnail --embed-thumbnail --cookies-from-browser firefox --compat-options filename-sanitization --audio-format mp3 --audio-format mp3  --extractor-args   "youtube:player_client=android" 
+    rem good:
+    rem yt-dlp --verbose --write-info-json --write-description --split-chapters                    --extract-audio --audio-quality 0 --embed-metadata --write-thumbnail --embed-thumbnail --cookies-from-browser firefox --compat-options filename-sanitization --audio-format mp3 %URL%
+    rem testing:
+        yt-dlp --verbose --write-info-json --write-description --split-chapters                    --extract-audio --audio-quality 0 --embed-metadata --write-thumbnail --embed-thumbnail --cookies c:\cookies.txt       --compat-options filename-sanitization --audio-format mp3 %URL%
 
         rem need to remove android player
 

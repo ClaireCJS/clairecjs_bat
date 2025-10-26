@@ -1,47 +1,30 @@
 @loadbtm on
 @Echo off
-@set PERFORMANCE_TUNING=0 %+ if %PERFORMANCE_TUNING eq 1 (timer /9 /q on)
+@set PERFORMANCE_TUNING=0 %+ rem if %PERFORMANCE_TUNING eq 1 (timer /9 /q on)
+
+
+
 @set rgb_index=1
-echos %@CHAR[27][2 %+ rem Cursor=steady
-echos %@CHAR[27][ q%@CHAR[27]]12;#550000%@CHAR[7] %+ rem Cusor=dark red
-rem @gosub :set_next_cursor_color_in_rainbow_sequence
-rem SPEEDUP VERDICT #1: We need to separate all our validation calls into one location, then put them in an if/else so we don't go into validation subroutines over and over
-rem SPEEDUP VERDICT #2: We need to move repositories, other environment variables, into a separate environm.env file much like private.env
+@echos %@CHAR[27][2                                %+ rem Cursor=steady
+@echos %@CHAR[27][ q%@CHAR[27]]12;#550000%@CHAR[7] %+ rem Cursor=dark red %+ rem @gosub :set_next_cursor_color_in_rainbow_sequence 
+
+@rem SPEEDUP VERDICT #1: We need to separate all our validation calls into one location, then put them in an if/else so we don't go into validation subroutines over and over
+@rem SPEEDUP VERDICT #2: We need to move repositories, other environment variables, into a separate environm.env file much like private.env
+
+ 
+@rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Parameter from "&" back to "$" which is the value it's supposed to have. "&" was for 4DOS compatibility
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Parameter from "&" back to "$" which is the value it's supposed to have. "&" was for 4DOS compatibility
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 :DESCRIPTION: This is to define my command-line environment variables.
-:ASSUME:  %MACHINENAME has been set.
-:USAGE:   environm
-:USAGE:   environm validate - to validate all symlinks
+:ASSUME:      %MACHINENAME has been set.
+:USAGE:       environm
+:USAGE:       environm force    - to run through the script *fully*, which is only otherwise done once——when TCC is launched
+:USAGE:       environm validate - to validate all repository locations as being accessible
+:USAGE:       environm autoexec - for specific behavior when environm.btm is force-called from autoexec.btm
+:USAGE:       environm debug    - for debugging
 
 
 
@@ -74,18 +57,18 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
                 rem 1) TCSTART.BAT can pass a "TCSTART" parameter so that we can tell when this has been run and not run it repeatedly
                 rem 2) Secondary shells start from a different INI-specified location, using a different TCStart.bat, which sets SECONDARYSHELL=1
                 rem 3) We also set ENVIRONM_RUN=1 after running, to prevent successive timewasting runs
-        iff "%1" eq "force" .or. "%1" eq "-force" .or. "%1" eq "validate" then
+        iff "%1" == "force" .or. "%1" == "-force" .or. "%1" == "validate" then
                 rem We are in force mode! Skip these particular validations!
         else                
-            if  "1" eq "%ENVIRONM_RUN%"                                  (goto :The_Very_END  )   %+ REM added this line 2023/07/26
-            if  "1" eq "%ENVIRONM_RUN%" .and. "%@UPPER[%1]" eq "TCSTART" (goto :The_Very_END  )   %+ REM so as of 2023/07/26 this line should never happen
-            if  "1" eq "%SECONDARYSHELL%"                                (goto :SecondaryShell)
+            if  "1" == "%ENVIRONM_RUN%"                                  (goto :The_Very_END  )   %+ REM added this line 2023/07/26
+            if  "1" == "%ENVIRONM_RUN%" .and. "%@UPPER[%1]" == "TCSTART" (goto :The_Very_END  )   %+ REM so as of 2023/07/26 this line should never happen
+            if  "1" == "%SECONDARYSHELL%"                                (goto :SecondaryShell)
         endiff
 
     rem DEBUG & VALIDATIONS can be turned on with these:
-        if "%@UPPER[%1]" eq "VALIDATE" (set PERFORM_VALIDATIONS=1 %+ set DEBUG_VALIDATIONS=1 %+ call wake-all-drives)
-        if "%@UPPER[%1]" eq "AUTOEXEC" (set PERFORM_VALIDATIONS=1 %+ set AUTOEXEC=1                                 )
-        if "%@UPPER[%1]" eq "DEBUG"    (set   DEBUG_VALIDATIONS=1 %+ set DEBUG_TMP=%DEBUG%   %+ set DEBUG=1         )
+        if "%@UPPER[%1]" == "VALIDATE" (set PERFORM_VALIDATIONS=1 %+ set DEBUG_VALIDATIONS=1 %+ call wake-all-drives)
+        if "%@UPPER[%1]" == "AUTOEXEC" (set PERFORM_VALIDATIONS=1 %+ set AUTOEXEC=1                                 )
+        if "%@UPPER[%1]" == "DEBUG"    (set   DEBUG_VALIDATIONS=1 %+ set DEBUG_TMP=%DEBUG%   %+ set DEBUG=1         )
 
     rem VALIDATIONS take a full 0.5 seconds longer if you actually call the routine, vs turning the call itself into a REM statement when we're not doing them
                                         set gosubValidateFolderExists=rem gosub ValidateFolderExists
@@ -107,12 +90,12 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 
    ::::: ANSI COLORS & EMOJI ENV VARS:
         %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- b4 ansi"               
-        if "%COLORS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-ansi          force)                
+        if "%COLORS_HAVE_BEEN_SET%" != "1" .or. "%1" == "force" (call c:\bat\set-ansi          force)                
         rem 2024/11/15: this is the point at which bug disappearing pentagrams come back. Just wanted to verify that this fixes it.
         gosub :set_next_cursor_color_in_rainbow_sequence
 
         %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after ansi b4 emoji"   
-        if "%EMOJIS_HAVE_BEEN_SET%" ne "1" .or. "%1" eq "force" (call c:\bat\set-emojis        force)
+        if "%EMOJIS_HAVE_BEEN_SET%" != "1" .or. "%1" == "force" (call c:\bat\set-emojis        force)
         gosub :set_next_cursor_color_in_rainbow_sequence
 
         %gosub_stopwatch_button% yellow "      %STAR%[2]CommonEnvVarsIncludingNetworking --- after emoji"           
@@ -209,7 +192,7 @@ rem NOTE: 2023: used "option" command to change Advanced-)Special Characters-)Pa
 ::::::::::::::::::::::::::::::::: SUBROUTINES :::::::::::::::::::::::::::::::::
 
 :PreliminaryErrorCheck
-        if "%MACHINENAME%" eq "" goto :NoMachineName
+        if "%MACHINENAME%" == "" goto :NoMachineName
 return
 
 
@@ -355,7 +338,7 @@ return
 
         ::::::::::::::::::: OLD COMPUTERS ::::::::::::::::::: 
         ::FIRE  (2011)
-                        if "%FIRE_DOWN%" eq "1" (goto :FireDownNoDriveDefinitions)
+                        if "%FIRE_DOWN%" == "1" (goto :FireDownNoDriveDefinitions)
                         rem HD300G=K    %+  SET K=HD300G           %+  SET MAPPING_K=FIRE300G 
                         SET SHARE300G=\\fire\\fire300g\            %+  SET SHARING_K=%SHARE300G%                 %+ REM out of drive letters, but still want an environment variable for this harddrive
                         rem HD250G=Q    %+  SET Q=HD250G           %+  SET MAPPING_Q=FIRE250G 
@@ -695,9 +678,29 @@ return
 return
 
 
-rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
+rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+
+
+
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━   C O M M O N    E N V I R O N M E N T    V A R I A B L E S ━━━━━━━━━━━
+rem ━━━━━━━━   C O M M O N    E N V I R O N M E N T    V A R I A B L E S ━━━━━━━━━━━
+rem ━━━━━━━━   C O M M O N    E N V I R O N M E N T    V A R I A B L E S ━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 :Set_Environment_Variables
 :SetEnvironmentVariables
@@ -778,11 +781,11 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
             rem GATEWAY_DSL=66.167.233.209                              %+ rem 2016-2017 [Megapath]
             set GATEWAY_COX=192.168.0.1                                 %+ rem 2017-     [[[Cox]]]] 
             set GATEWAY=%GATEWAY_COX%
-            if "%TETHERING%" eq "1" (set GATEWAY=%GATEWAY_TETHERING%)   %+ rem later on, after path is set, we will: call validate-environment-variable GATEWAY
+            if "%TETHERING%" == "1" (set GATEWAY=%GATEWAY_TETHERING%)   %+ rem later on, after path is set, we will: call validate-environment-variable GATEWAY
         rem wifi
             set WAP_INTERNAL=wap                                        %+ rem maintained in hosts.txt
             set WAP_EXTERNAL=%PUBLIC_IP%                               
-            set WAP=%WAP_INTERNAL%                                      %+ if "%MACHINENAME%" eq "WORK" (set WAP=%WAP_EXTERNAL%)
+            set WAP=%WAP_INTERNAL%                                      %+ if "%MACHINENAME%" == "WORK" (set WAP=%WAP_EXTERNAL%)
         rem MAC addresses
             set MAC_GOLIATH=BC:5F:F4:43:EC:6E
             set MAC_THAILOG=D0:50:99:38:A5:2C
@@ -920,7 +923,7 @@ rem Define Servers:
                                 set MUSICSERVERSTATUSURL=http://%MUSICSERVER%/main
                                 
                         rem Music server stuff: Which drive is the C: drive of the music server?
-                                iff "%MUSICSERVERMACHINENAME%" eq "%MACHINENAME%" then
+                                iff "%MUSICSERVERMACHINENAME%" == "%MACHINENAME%" then
                                         set MUSICSERVERCDRIVE=C
                                 else                                
                                         rem MUSICSERVERCDRIVE=%HD240G2%                                          
@@ -1195,8 +1198,8 @@ rem Define Servers:
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
                 ::::: COMMAND-LINE CUSTOMIZATION:
                         ::::: HARD-TO-ESCAPE-CORRECTLY-SO-LET'S-FIGURE-IT-OUT-ONCE-AND-JUST-MAKE-IT-AN-ENVIRONMENT-VARIABLE STUFF:
-                                SET SPACE= ``    %+ if "%SPACE%"   ne " "  (call alarmbeep envVar SPACE    ("%SPACE%")  is not a space!!! %+ pause)
-                                SET PERCENT=%%%% %+ if "%PERCENT%" ne "%%" (call alarmbeep envVar PERCENT ("%PERCENT%") is not a percent! %+ pause)
+                                SET SPACE= ``    %+ if "%SPACE%"   != " "  (call alarmbeep envVar SPACE    ("%SPACE%")  is not a space!!! %+ pause)
+                                SET PERCENT=%%%% %+ if "%PERCENT%" != "%%" (call alarmbeep envVar PERCENT ("%PERCENT%") is not a percent! %+ pause)
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ************************************ SPECIAL CHARACTERS: END: ************************************
@@ -1220,6 +1223,9 @@ rem Define Servers:
         rem ************************************ UNIX-COMPATIBILITY: END: ************************************
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
         rem ————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+
+
 
 return
 
@@ -1760,21 +1766,21 @@ return
                                                rem MEDIA_B=%HD4000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G1  MEDIA_B
                                                rem MEDIA_D=%HD6000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G3  MEDIA_D
                                                rem MEDIA_E=%HD4000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G2  MEDIA_E
-                 if "%HD4000G3_DOWN%"  ne "1" (SET MEDIA_F=%HD4000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G3  MEDIA_F)
-                 if "%HD4000G4_DOWN%"  ne "1" (SET MEDIA_H=%HD4000G4%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G4  MEDIA_H)
-                 if "%HD4000G7_DOWN%"  ne "1" (SET MEDIA_I=%HD4000G7%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G7  MEDIA_I)
-                 if "%HD6000G2_DOWN%"  ne "1" (SET MEDIA_K=%HD6000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G2  MEDIA_K)
+                 if "%HD4000G3_DOWN%"  != "1" (SET MEDIA_F=%HD4000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G3  MEDIA_F)
+                 if "%HD4000G4_DOWN%"  != "1" (SET MEDIA_H=%HD4000G4%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G4  MEDIA_H)
+                 if "%HD4000G7_DOWN%"  != "1" (SET MEDIA_I=%HD4000G7%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G7  MEDIA_I)
+                 if "%HD6000G2_DOWN%"  != "1" (SET MEDIA_K=%HD6000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G2  MEDIA_K)
                                                rem MEDIA_L=%HD1500G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD1500G1  MEDIA_L
-                 if "%HD2000G5_DOWN%"  ne "1" (SET MEDIA_N=%HD2000G5%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G5  MEDIA_N)
+                 if "%HD2000G5_DOWN%"  != "1" (SET MEDIA_N=%HD2000G5%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G5  MEDIA_N)
                                                rem MEDIA_O=%HD2000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G1  MEDIA_O :decommissioned media folder 20191002, drive itself 20210323
-                 if "%HD18T1_DOWN%"    ne "1" (SET MEDIA_O=%[HD18T1]%:\MEDIA\ %+ %gosubValidateFolderExists% HD18T1    MEDIA_O)
-                 if "%HD6000G1_DOWN%"  ne "1" (SET MEDIA_Q=%HD6000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G1  MEDIA_Q)
+                 if "%HD18T1_DOWN%"    != "1" (SET MEDIA_O=%[HD18T1]%:\MEDIA\ %+ %gosubValidateFolderExists% HD18T1    MEDIA_O)
+                 if "%HD6000G1_DOWN%"  != "1" (SET MEDIA_Q=%HD6000G1%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G1  MEDIA_Q)
                                                rem MEDIA_R=%HD2000G2%:\MEDIA\ %+ %gosubValidateFolderExists% HD2000G2  MEDIA_R
-                 if "%HD4000G6_DOWN%"  ne "1" (SET MEDIA_S=%HD4000G6%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G6  MEDIA_S)
-                 if "%HD6000G3_DOWN%"  ne "1" (SET MEDIA_T=%HD6000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G3  MEDIA_T)
-                 if "%HD10000G2_DOWN%" ne "1" (SET MEDIA_U=%HD10000G2:\MEDIA\ %+ %gosubValidateFolderExists% HD10000G2 MEDIA_U)
-                 if "%HD4000G5_DOWN%"  ne "1" (SET MEDIA_V=%HD4000G5%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G5  MEDIA_V)
-                 if "%HD20T2_DOWN%"    ne "1" (SET MEDIA_W=%HD20000G2:\MEDIA\ %+ %gosubValidateFolderExists% HD20000G2 MEDIA_W)
+                 if "%HD4000G6_DOWN%"  != "1" (SET MEDIA_S=%HD4000G6%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G6  MEDIA_S)
+                 if "%HD6000G3_DOWN%"  != "1" (SET MEDIA_T=%HD6000G3%:\MEDIA\ %+ %gosubValidateFolderExists% HD6000G3  MEDIA_T)
+                 if "%HD10000G2_DOWN%" != "1" (SET MEDIA_U=%HD10000G2:\MEDIA\ %+ %gosubValidateFolderExists% HD10000G2 MEDIA_U)
+                 if "%HD4000G5_DOWN%"  != "1" (SET MEDIA_V=%HD4000G5%:\MEDIA\ %+ %gosubValidateFolderExists% HD4000G5  MEDIA_V)
+                 if "%HD20T2_DOWN%"    != "1" (SET MEDIA_W=%HD20000G2:\MEDIA\ %+ %gosubValidateFolderExists% HD20000G2 MEDIA_W)
             %gosub_stopwatch_button% magenta "      DefineRepositories [15]          " 
             rem Validation:
                 rem the plugin erases them if you stop, though: if not exist %NOW_PLAYING_ALBUM_ART% (call warning "NOW_PLAYING_ALBUM_ART of %NOW_PLAYING_ALBUM_ART% cannot be found" %+ pause)
@@ -1826,7 +1832,7 @@ return
                 %gosubValidateFolderExists%          TEXT_BACKUP_DRIVE TEXT_BACKUP
 
         :Because Goliath is being shitty with N:
-            if "%@UPPER[%MACHINENAME%]" ne "GOLIATH" goto :GoliathValidations_NO
+            if "%@UPPER[%MACHINENAME%]" != "GOLIATH" goto :GoliathValidations_NO
                 %gosubValidateFolderExists% PUBCASDRIVE       PUBCAS
                 %gosubValidateFolderExists% PUBCASBACKUPDRIVE PUBCASBACKUP
                 %gosubValidateFolderExists%       WWWCASDRIVE WWWCAS
@@ -2327,7 +2333,7 @@ return
             title Validating: %dir%
 
         rem Check parameters exist
-            if "%DEBUG_VALIDATIONS%" ne "1"  goto :Debug_Validations_No 
+            if "%DEBUG_VALIDATIONS%" != "1"  goto :Debug_Validations_No 
                 echo. 
                 color bright   cyan on black %+ echos * `` 
                 color          cyan on black %+ echos ValidateFolderExists%@RANDCURSOR[]
@@ -2347,12 +2353,12 @@ return
 
         rem Dont check if the drive isn't ready; the machine may be down or something, 
         rem we can't wait any measurable time on this:
-            if "%DEBUG_VALIDATIONS%" eq "1" (color yellow on black %+ echos           .............checking if drive is ready... %+ color bright yellow on black %+ echos %actualDrive%: %+ color yellow on black %+ echos ...)
+            if "%DEBUG_VALIDATIONS%" == "1" (color yellow on black %+ echos           .............checking if drive is ready... %+ color bright yellow on black %+ echos %actualDrive%: %+ color yellow on black %+ echos ...)
             set  READY=%@READY[%actualDrive%]
-            if "%DEBUG_VALIDATIONS%" ne "1" goto :Debug_Validations_No_2 
+            if "%DEBUG_VALIDATIONS%" != "1" goto :Debug_Validations_No_2 
                                     set COLOR=magenta
-                if "%READY%" eq "0" set COLOR=red
-                if "%READY%" eq "1" set COLOR=green
+                if "%READY%" == "0" set COLOR=red
+                if "%READY%" == "1" set COLOR=green
                 *color        %COLOR% on black %+ echos ...ready value for 
                 *color bright %COLOR% on black %+ echos  %actualDrive%: 
                 *color        %COLOR% on black %+ echos  is "
@@ -2362,7 +2368,7 @@ return
             :Debug_Validations_No_2
 
         rem Return if the folder exists, otherwise, handle the error:
-            if "%DEBUG_VALIDATIONS%" ne "1" goto :Debug_Validations_No_3
+            if "%DEBUG_VALIDATIONS%" != "1" goto :Debug_Validations_No_3
                 *color        cyan on black %+ echos           .............checking if folder exists.... 
                 *color bright cyan on black %+ echos %actualDir% 
                 *color        cyan on black %+ echo .
@@ -2372,7 +2378,7 @@ return
             if isdir %actualDir% goto :returnNow
             set ERRMSG=* ERROR! %dir% of %actualDir% does not exist! (%%%%READY for %actualDrive%: is %READY%)
             %COLOR_WARNING% %+ echo  %ERRMSG% %+ title %ERRMSG% %+ %COLOR_NORMAL% 
-                if "%handler%" eq "MAKE" goto :Handle_MAKE
+                if "%handler%" == "MAKE" goto :Handle_MAKE
                                          goto :Handle_DONE
                         :Handle_MAKE
                             echo ...Attempting to create it for you.
@@ -2635,10 +2641,10 @@ rem return
 
             rem other users set by machinename
                 REM Consider: When new computer is added
-                if "%@UPPER[%MACHINENAME%]" eq "MAGIC"   goto :Set_Carolyn
-                if "%@UPPER[%MACHINENAME%]" eq "MIST"    goto :Set_Carolyn
-                if "%@UPPER[%MACHINENAME%]" eq "GOLIATH" goto :Set_Carolyn
-                if "%@UPPER[%MACHINENAME%]" eq "WYVERN"  goto :Set_Carolyn
+                if "%@UPPER[%MACHINENAME%]" == "MAGIC"   goto :Set_Carolyn
+                if "%@UPPER[%MACHINENAME%]" == "MIST"    goto :Set_Carolyn
+                if "%@UPPER[%MACHINENAME%]" == "GOLIATH" goto :Set_Carolyn
+                if "%@UPPER[%MACHINENAME%]" == "WYVERN"  goto :Set_Carolyn
                                                          goto :Set_Carolyn_DONE
                             :Set_Carolyn
                                 SET USERNAME=carolyn
@@ -2656,8 +2662,8 @@ rem return
 
             rem Validate
                 rem echo * Username is now %USERNAME
-                if "%USERNAME%"  eq "" gosub username_not_found
-                if "%KNOWNNAME%" eq "" gosub knownname_not_found
+                if "%USERNAME%"  == "" gosub username_not_found
+                if "%KNOWNNAME%" == "" gosub knownname_not_found
 
         :set_user_name_NO
 return
@@ -2666,19 +2672,34 @@ return
 
 
 
+
+
+
+
+
+
 ::::::::::::::::::::::::::::::::::::: Initial[%USERNAME%] functions, mostly for spousal differences :::::::::::::::::::::::::::::::::::::
+::::::::::::::::::::::::::::::::::::: Initial[%USERNAME%] functions, mostly for spousal differences :::::::::::::::::::::::::::::::::::::
+::::::::::::::::::::::::::::::::::::: Initial[%USERNAME%] functions, mostly for spousal differences :::::::::::::::::::::::::::::::::::::
+
+rem Some repositories are supposed to be person-specific, so those that get redefined go here:
+
         :Initialclio
         :Initialclaire
-                :Defaults should be fine! :)
-         REM (randblack.bat)
-         REM call redefine-the-colorblack-randomly.bat >>&>:u8nul
+                REM Defaults should be fine! :)
+                REM (randblack.bat)
+                REM call redefine-the-colorblack-randomly.bat >>&>:u8nul
+                if defined STEAM_ID_CLAIRE  SET STEAM_ID=%STEAM_ID_CLAIRE%    %+ rem “STEAM_ID_CLAIRE” is read from “private.env”
         return
         :Initialcarolyn
-        rem Some repositories are supposed to be person-specific, so those that get redefined go here:
-            SET WWW=%WWWCAS% %+ set WWWDRIVE=%WWWCASDRIVE%
-            SET NEW=%NEWCAS% %+ set NEWDRIVE=%NEWCASDRIVE%
-            SET PUB=%PUBCAS% %+ SET PUBDRIVE=%PUBCASDRIVE%
+                if defined STEAM_ID_CAROLYN SET STEAM_ID=%STEAM_ID_CAROLYN%   %+ rem “STEAM_ID_CAROLYN” is read from “private.env”
+                SET WWW=%WWWCAS% %+ set WWWDRIVE=%WWWCASDRIVE%
+                SET NEW=%NEWCAS% %+ set NEWDRIVE=%NEWCASDRIVE%
+                SET PUB=%PUBCAS% %+ SET PUBDRIVE=%PUBCASDRIVE%
         return
+
+::::::::::::::::::::::::::::::::::::: Initial[%USERNAME%] functions, mostly for spousal differences :::::::::::::::::::::::::::::::::::::
+::::::::::::::::::::::::::::::::::::: Initial[%USERNAME%] functions, mostly for spousal differences :::::::::::::::::::::::::::::::::::::
 ::::::::::::::::::::::::::::::::::::: Initial[%USERNAME%] functions, mostly for spousal differences :::::::::::::::::::::::::::::::::::::
 
 
@@ -2721,10 +2742,10 @@ return
 
 :LoadAliases
         unalias *                         
-                                                           set ALIASES=c:\bat\alias.lst
-        if "%OS" eq "7"                                    set ALIASES=c:\TCMD\alias.lst
-        if "%OS" eq "XP"                                   set ALIASES=c:\4NT\alias.lst
-        if "%OS" eq "ME" .or. "%OS"=="95" .or. "%OS"=="98" set ALIASES=c:\4DOS\alias.lst
+                                                           set ALIASES=c:\BAT\alias.lst
+        if "%OS" == "7"                                    set ALIASES=c:\TCMD\alias.lst
+        if "%OS" == "XP"                                   set ALIASES=c:\4NT\alias.lst
+        if "%OS" == "ME" .or. "%OS"=="95" .or. "%OS"=="98" set ALIASES=c:\4DOS\alias.lst
         if not exist %ALIASES% (%COLOR_ALARM% %+ echo * ERROR: Aliases file not found! %+ beep %+ beep %+ beep %+ *pause)
         alias  /r    %ALIASES%
 return
@@ -2784,11 +2805,11 @@ return
                 gosub AddFolderToClassPathEndOnlyIfItExists "%ProgramFiles%\Java\jdk1.7.0_71\lib"
                 gosub AddFolderToClassPathEndOnlyIfItExists "%ProgramFiles%\Java\jdk1.7.0_25\lib"
                 gosub AddFolderToClassPathEndOnlyIfItExists "%ProgramFiles%\Java\jdk1.6.0_35\lib"
-                if "%TRUNK%" eq "" goto :NoTrunk1
+                if "%TRUNK%" == "" goto :NoTrunk1
                         gosub AddFolderToClassPathEndOnlyIfItExists  %TRUNK%\maven-diss\diss\diss-jvs-datadictionary\target\test-classes
                         gosub AddFolderToClassPathEndOnlyIfItExists  %TRUNK%\maven-diss\diss\diss-jvs-datadictionary\target\classes
                 :NoTrunk1
-                if "%M2_REPO%" eq "" goto :NoM2Repo
+                if "%M2_REPO%" == "" goto :NoM2Repo
                         gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\javax\javaee-web-api\6.0\javaee-web-api-6.0.jar
                         gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\log4j\log4j\1.2.16\log4j-1.2.16.jar
                         gosub AddFileToClassPathEndOnlyIfItExists    %M2_REPO\junit\junit\4.0\junit-4.0.jar
@@ -2799,9 +2820,6 @@ return
                 :echo classpathtemp is %classpathtemp% %+ echo. %+ echo.
                 set CLASSPATH=%CLASSPATHTEMP%
         return
-        :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    
-    
                         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                         :AddFolderToClassPathEndOnlyIfItExists [folder]
                                 if isdir %folder% set CLASSPATHTEMP=%CLASSPATHTEMP%;%folder%
@@ -2814,6 +2832,12 @@ return
                                 rem echo * classpathtemp is now %CLASSPATHTEMP%
                         return
                         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    
+
+
+
+    
 
 
         :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -2837,7 +2861,7 @@ return
 
         :ValidateIfEnvironmentVariableIsDefined [varName]
                 set   VALUE=%%%varName%%%
-                iff "%value%" eq "" then
+                iff "%value%" == "" then
                         set MSG=* ERROR! %italics_on%%blink_on%%varName%%blink_off%%italics_off% is not defined!
                         %COLOR_ALARM% 
                                          echo %MSG% 
@@ -2914,18 +2938,18 @@ return
                 
                 
                         rem Initialize the array and counter — we will use the fact that number_of_rgb_colorsteps is defined as the litmus test of needing to define it or not ... Unless we're in 
-                        if defined number_of_rgb_colorsteps .and. "%1" ne "force" goto :RGB_Array_Has_Been_Set_Already
-                        iff "%@ARRAYINFO[rgb_steps_hex]" ne "-1" then
+                        if defined number_of_rgb_colorsteps .and. "%1" != "force" goto :RGB_Array_Has_Been_Set_Already
+                        iff "%@ARRAYINFO[rgb_steps_hex]" != "-1" then
                                 set array_exists=1
                         else 
                                 set array_exists=0
                         endiff                
                         rem echo array exists=%array_exists%
-                        iff "%1" eq "force" .and. %array_exists eq 1 then
+                        iff "%1" == "force" .and. %array_exists eq 1 then
                                 UnsetArray /q rgb_steps_hex
                         endiff                                
                         rem echo %reverse_on%set_next_cursor_color_in_rainbow_sequence called, rgb_index is %rgb_index%%reverse_off% array_exists=%array_exists%
-rem                     if %array_exists eq 1 .or. "%1" ne "force" (goto :RGB_Array_Has_Been_Set_Already) ///NO!
+rem                     if %array_exists eq 1 .or. "%1" != "force" (goto :RGB_Array_Has_Been_Set_Already) ///NO!
                         if %array_exists eq 1                      (goto :RGB_Array_Has_Been_Set_Already)
                                 set number_of_rgb_colorsteps=21
                                 SetArray  rgb_steps_hex[%number_of_rgb_colorsteps%]
@@ -2951,7 +2975,7 @@ rem                     if %array_exists eq 1 .or. "%1" ne "force" (goto :RGB_Ar
                                 set       rgb_steps_hex[18]=7F00FF          %+ rem set rgb_steps_rgb[02]=255,127,0          %+ rem oops backwards
                                 set       rgb_steps_hex[19]=BF00FF          %+ rem set rgb_steps_rgb[01]=255,63,0           %+ rem oops backwards
                                 set       rgb_steps_hex[20]=FF00FF          %+ rem set rgb_steps_rgb[00]=255,0,0            %+ rem oops backwards
-                                if "%1" ne "force" (set rgb_index=0)
+                                if "%1" != "force" (set rgb_index=0)
                                 rem set   DEBUG_CURSOR=2
                         :RGB_Array_Has_Been_Set_Already
 
@@ -3016,7 +3040,7 @@ rem                     if %array_exists eq 1 .or. "%1" ne "force" (goto :RGB_Ar
 
 :Cleanup
                 REM sunset this code because we don't use XP/2K machines anymore: if "%OS%" eq "XP" .or. "%OS%" eq "2K" (title 4NT)
-                if "%@UPPER[%1]" eq "DEBUG" (set DEBUG=%DEBUG_TMP%)
+                if "%@UPPER[%1]" == "DEBUG" (set DEBUG=%DEBUG_TMP%)
 
 
 :The_Very_END
@@ -3044,14 +3068,14 @@ rem                     if %array_exists eq 1 .or. "%1" ne "force" (goto :RGB_Ar
 :Possibly_Run_Next_Command
         rem Sometimes this script is passed an additional command to be run at the end:
         rem This is passed via “NEXTCOMMAND” environment variable:
-                if "%NEXTCOMMAND%" ne "" (
+                iff "%NEXTCOMMAND%" != "" then
                         set LAST_COMMAND=NEXTCOMMAND
                         unset /q         NEXTCOMMAND
                         %LAST_COMMAND%
-                )
+                endiff
 
 :Horribly_unnecessary_trash_cleanup_that_we_want_done_very_often
-        rem IT STOP OCULUS RIFT PLEEEEEEEAAASE WHY ARE YOU DOING THIS:
+        rem OCULUS RIFT PLEEEEEEEAAASE WHY ARE YOU DOING THIS: —— TODO move to autoexec purge
                 if exist c:\*.json *del c:\*.json
         
         

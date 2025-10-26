@@ -77,12 +77,12 @@ rem Extra prep of lyrics:
                                 endiff
 
                         rem Pause this script while they go edit...
-                                pause "Press any key after fixing up the lyrics"
+                                pause "Press any key after fixing up the lyrics..."
 
                         rem Ask if we want to copy these lyrics back over our official file when we’re done
                                 iff exist "%AFL%" .and. "1" != "%WHISPERTIMESYNC_QUICK%" then
                                         call warning_soft "Do you want these lyric edits to be saved over the original lyric file?" %+ rem  [[not!!]] at %faint_on%%italics_on%%lyr%%italics_off%%faint_off%
-                                        call AskYN          "Copy lyric edits over original lyrics" no 0
+                                        call AskYN          "Copy lyric edits over original lyrics" yes 0
                                                 iff "Y" == "%ANSWER%" then
                                                         set      COMMAND=copy "%LYR%" "%@NAME["%AFL%"].txt"
                                                         rem echo COMMAND is %COMMAND% %+ pause
@@ -155,7 +155,7 @@ rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_green%%zzzz%%italics_on%new%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_old_file%
 
         %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
-        pause "Press any key after reviewing the subtitles for malformed blocks and making sure the first word(s) are inside a valid block"
+        pause "%ansi_color_important%Press any key after reviewing the subtitles for malformed blocks and making sure the first word(s) are inside a valid block..."
 
 
 

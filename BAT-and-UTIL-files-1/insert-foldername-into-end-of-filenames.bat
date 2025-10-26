@@ -23,7 +23,7 @@ goto :Cleanup
 
                 iff "%file_unquoted" == "%inserttrigger%" .or. %@REGEX[%parent_folder_name,%file_unquoted] eq 1 .or. %@REGEX[%inserttrigger,%file_unquoted] eq 1 then
                         echos %ANSI_COLOR_WARNING%Skipping file '%file_unquoted%'...``
-                        goto :Skipe
+                        goto :Skip
                 endiff
 
                 set target=%@name[%file_unquoted]-%parent_folder_name%.%@ext[%file_unquoted]

@@ -754,28 +754,28 @@ rem Check if the lyrics are already approved...
         if not exist "%LYRIC_FILE%" set LYRIC_STATUS=NOT_SET
         echo GOAT about to iff  "%LYRIC_STATUS%" == "APPROVED"  then
         if "%LYRIC_STATUS%" != "APPROVED" goto :Lyrics_Not_Approved_754
-                echo GOAT-TRACE-753
+                rem echo GOAT-TRACE-753
                 iff "1" == "%FORCE_REGEN_LYRICS%" then
-                        echo GOAT-TRACE-755
+                        rem echo GOAT-TRACE-755
                         ren /q "%LYRIC_FILE%" "%LYRIC_FILE%.removed_via_force_parameter.%[_datetime].bak"
                         set LYRIC_STATUS=NOT_SET
                         set LYRICLESSNESS_STATUS=NOT_SET
                         rem call sleep 1
                         goto /i :this_is_line_825
                 else
-                        echo GOAT-TRACE-764
+                        rem echo GOAT-TRACE-764
                         iff "1" != "%FORCE_REGEN_LYRICS%" then
-                                echo GOAT-TRACE-766
+                                rem echo GOAT-TRACE-766
                                 gosub divider
                                 call celebrate "%blink_off%Lyrics already approved!"
                                 iff "1" == "%FORCE_REGEN_LYRICS%" then
                                 goto /i END_OF_GET_LYRICS
                         endiff
-                        echo GOAT-TRACE-771
+                        rem echo GOAT-TRACE-771
                 endiff
-                echo GOAT-TRACE-774
+                rem echo GOAT-TRACE-774
         :Lyrics_Not_Approved_754
-        echo GOAT-TRACE-776
+        rem echo GOAT-TRACE-776
 
         gosub "%BAT%\create-srt-from-file.bat" refresh_lyriclessness_status
         rem echo [GM]   INITIAL lyriclessness status ===== “%LYRICLESSNESS_STATUS%”

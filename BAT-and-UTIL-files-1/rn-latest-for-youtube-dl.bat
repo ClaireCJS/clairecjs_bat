@@ -57,12 +57,12 @@ rem DEBUG:
 rem RENAME THE FILE AND MAKED SURE WE WERE SUCCESSFUL:
 	%COLOR_RUN%
 	if "0" != "%DEBUG_RNLATESTFORYOUTUBE%" echo %ANSI_COLOR_DEBUG%- DEBUG: We do this: “%faint_on%ren %LATEST_FILENAME_NOT_COUNTING_METADATA_FILES% %FIXED_FILENAME%%faint_off%”
-	ren %LATEST_FILENAME_NOT_COUNTING_METADATA_FILES% %FIXED_FILENAME%
+	if exist %LATEST_FILENAME_NOT_COUNTING_METADATA_FILES% .and. not exist %FIXED_FILENAME% ren %LATEST_FILENAME_NOT_COUNTING_METADATA_FILES% %FIXED_FILENAME%
 	if not exist %FIXED_FILENAME% call validate-environment-variable FIXED_FILENAME
 	if "0" != "%DEBUG_RNLATESTFORYOUTUBE%" echo %ANSI_COLOR_DEBUG%- DEBUG: But maybe we also need to do this: “%faint_on%ren "%BASE_NAME%.*" "%FIXED_BASENAME%.*"%faint_off%”
         rem pause
         %color_run%
-        if exist "%BASE_NAME%.*"  ren "%BASE_NAME%.*" "%FIXED_BASENAME%.*
+        if exist "%BASE_NAME%.*"  ren "%BASE_NAME%.*" "%FIXED_BASENAME%.*"
         %color_normal%
         rem echo %Ansi_color_warning%%EMOJI_QUESTION_MARK% did it work? %ansi_color_normal% %+ call pause-for-x-seconds 5 %+ dir /odt %+ call pause-for-x-seconds 5
 
