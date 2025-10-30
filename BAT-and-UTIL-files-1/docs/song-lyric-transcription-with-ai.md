@@ -433,9 +433,9 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 
 # 👉👉👉 *Karaoke Alignment* commands:
 
-#### These commands creates the karaoke files that are the primary goal of this project! 🎈
+#### These commands create & repair the karaoke files that are the primary goal of this project! 🎈
 
-<details><summary>Click here to view command list & descriptions.</summary>  
+<details><summary>Click here to view the karaoke generation command lists & descriptions.</summary>  
 
 ### 🌟 THE 1ˢᵗ BIG ONE: create-srt {*songfile*} / [create-srt-from-file {*songfile*}](../BAT-and-UTIL-files-1/create-srt-from-file.bat):
 
@@ -475,6 +475,10 @@ Create karaoke files for **all songs** *in a playlist* that do not have them —
 
 Rarely used side-utility: Creates karaoke files for **all songs** in a *folder tree* without using lyric files or voice detection (VAD). This is useful for large repositories of sound clips, small samples from movies, or audiobooks..... Where you just want to get a lot done without the extra overhead of operating the Lyric Alignment system, andwithout the extra time delay of loading the VAD (voice detection) model. This will get a LOT done FAST, but it will be sloppy.
 
+</details>
+
+
+<details><summary>Click here to view the karaoke repair command lists & descriptions.</summary>  
 										 
 ## 🌟 Karaoke Repair
 
@@ -512,6 +516,7 @@ The 2 files are rendered in column view, then redrawn over each other.
 
 It gets ugly if the 2 columns are different widths, but this often lets you visually see what was changed in a very quick way.
 
+</details>
 
 
 ## 🌟 Karaoke-related Reports
