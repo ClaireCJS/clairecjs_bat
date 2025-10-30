@@ -180,8 +180,10 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
-# ⚙️ HOW TO USE ⚙️
+# ⚙️ To transcribe albums/songs/playlists ⚙️
 
+<details><summary>Click here to view the basics</summary>  
+						    
 From a running TCC command line, use whatever system commands you’d like from the list below.
 
   - For single songs/files: ```get-lyrics {filename}``` to align lyrics, ```get-karaoke {filename}``` to transcribe aligned lyrics to subtitle/karaoke file. 
@@ -190,6 +192,22 @@ From a running TCC command line, use whatever system commands you’d like from 
    - For albums/folders: ```glh``` (```get-lyrics-here```) until lyrics are aligned, then ```gkh``` (```get-karaokes-here```) to transcribe.  Beforehand, optionally use ```predownload-lyrics```, ```ask-if-instrumentals``` and ```ask-if-lyricless```.
 
   - For playlists/filelists: ```get-lyrics playlist.m3u``` or ```get-karaoke playlist.m3u```, where *playlist.m3u* is the filename of the playlist you want to traverse
+
+
+## 🌟 Main workhorse script, once things are moving along more:
+
+### 🌟 [work.bat](../BAT-and-UTIL-files-1/work.bat)
+
+This script requires some personalization to use, but once set up:
+
+Type “work karaoke” to search a playlist of your choice for 25 karaoke files to work on.
+Type “work lyrics”  to search a playlist of your choice for 25 lyric   files to work on.
+Type “work”         to be interactively asked as to the nature of your work.
+
+(This framework can also be extended for other kinds of work. It helps limit the “chunk size” of how much work we bite off at a time, which can make karaoke/lyric work a bit more pleasant with shorter wait times. A value of 25 is recommended.)
+
+</details>
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -329,7 +347,7 @@ If we screwed up with either of the last 2 scripts, this removes our screwup fro
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-🌠 BASIC ALIGNMENT STEPS (all optional): Pre-download, mark instrumentals, mark lyriclessness, approve lyrics
+### 🌠 BASIC ALIGNMENT STEPS (all optional): mark instrumentals ➜ mark lyriclessness ➜ predownload lyrics ➜ review/approve lyrics
 
 ### OPTIONAL STEP 1: [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat)
 
@@ -437,7 +455,7 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 
 # 👉👉👉 *Karaoke Alignment* commands:
 
-#### These commands create & repair the karaoke files that are the primary goal of this project! 🎈
+#### These commands create & repair the karaoke files that are the primary goal of this project! 🎈 
 
 <details><summary>Click here to view the karaoke generation command lists & descriptions.</summary>  
 
@@ -533,16 +551,6 @@ If you would like to check how many transcriptions were initiated on a certain d
 
 </details>
 
-## 🌟 Main work script:
-
-### 🌟 [work.bat](../BAT-and-UTIL-files-1/work.bat)
-
-Type “work karaoke” to search a playlist of your choice for 25 karaoke files to work on.
-Type “work lyrics”  to search a playlist of your choice for 25 lyric   files to work on.
-Type “work”         to be interactively asked as to the nature of your work.
-
-This framework can also be extended for other kinds of work. 
-It helps limit the “chunk size” of how much work we bite off at a time, which can make karaoke/lyric work a bit more pleasant with shorter wait times. A value of 25 is recommended.
 
 
 ## 🌟 Sample specific “task-runner” scripts:
@@ -633,6 +641,8 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 # 👉👉👉 *Auditing Commands* for *Karaoke*:
+
+#### These commands find & obtain missing karaoke files.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
