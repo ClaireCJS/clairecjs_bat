@@ -13,7 +13,7 @@ rem TODO: MAYBE: afterregen anyway, do we need to ask about ecc2fasdfasf.bat?
 
 
 REM CONFIG: OUTPUT FILE WIDTH:
-        set SUBTITLE_OUTPUT_WITH=30                                                                    %+ rem is 25 for dvds, set to 20 for 72% of the project, trying 30 as of 2025/09/24
+        set SUBTITLE_OUTPUT_WIDTH=30                                                                    %+ rem is 25 for dvds, set to 20 for 72% of the project, trying 30 as of 2025/09/24
 
 
 REM CONFIG: LOGFILES: 
@@ -1107,7 +1107,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         rem 19v1: 20250219: raising --vad_filter Threshold back up to halfway between what we had for a long time, and what we recently lowered it to. There’s some wonkyness sometimes and we’re just not sure if it may be caused by this. Mostly going on gut feeling from observing it churn and churn and churn.
         set CLI_OPS=--model=large-v2           %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=%VAD_THRESHOLD% --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
         rem 19v2: 20250601: changing language to be conditional on language set to “None” or not. Still considered Prompt Version 19 because it doesn’t actually change the prompt,j ust how it’s generated
-        set CLI_OPS=--model=large-v2           %3$ %LANGUAGE_PART_OF_PROMPT% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width %SUBTITLE_OUTPUT_WITH% --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=%%VAD_THRESHOLD%% --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
+        set CLI_OPS=--model=large-v2           %3$ %LANGUAGE_PART_OF_PROMPT% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width %SUBTITLE_OUTPUT_WIDTH% --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=%%VAD_THRESHOLD%% --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
                 
         set PROMPT_VERSION=19              %+ rem used in log files
 

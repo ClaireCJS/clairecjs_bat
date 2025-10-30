@@ -22,7 +22,7 @@ import colorama
 import unicodedata                                                                          # for unicode normalization
 from   rich.console import Console                                                          # shutil *and* os do *NOT* get the right console dimensions under Windows Terminal
 #rom   colorama     import Fore, Style, init
-from   wcwidth      import wcswidth
+#rom   wcwidth      import wcswidth
 from   math         import ceil
 sys.stdin .reconfigure(encoding='utf-8', errors='replace')
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
@@ -166,6 +166,16 @@ record_working_column_length = 0
 #####                  SUBROUTINES:
 ##### ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
+
+from wcwidth import wcswidth as _orig_wcswidth
+def wcswidth(s):
+    #w = _orig_wcswidth(           s )
+    w  = _orig_wcswidth(strip_ansi(s))
+    #print (f"---- w={w} for “{s}” -----")
+    #if s in ['⸎❶❷']: return 2
+    return 0 if w < 0 else w
+
+
 def parse_arguments():
     """
     Parse command-line arguments.
@@ -237,6 +247,10 @@ def strip_ansi(text):
 
 
 
+ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
+def visible_width(s):
+    stripped = ansi_escape.sub('', s)
+    return len(stripped)
 
 
 
@@ -258,17 +272,29 @@ def wcsarraywidth(strings, mode="total", division_mode="integer"):
     """
     if not all(isinstance(s, str) for s in strings): raise ValueError("All elements in 'strings' must be strings.")
 
+    if 1 == 2:
+        print("=== DEBUG: line widths (aggregated per line) ===")
+        for idx, s in enumerate(strings, start=1):
+            # if strings is already a line, this prints one per line;
+            # if it's characters, join() reconstructs the visible string
+            # line_text = ''.join(s) if isinstance(s, (list, tuple)) else str(s)
+            #line_text = ''.join(s) if isinstance(s, (list, tuple)) else str(s)
+            line_text = ''.join(s)
+            width = wcswidth(line_text)
+            print(f"{idx:03}: width={width:<4} len={len(line_text):<4} text={repr(line_text)}")
+        print("=== END DEBUG ===")
+
     widths = [wcswidth(s) for s in strings]
 
     retval = None
     if   mode == "total": return sum(widths)
     elif mode ==   "max": return max(widths)
     elif mode == "average" or mode == "avg":
-        if division_mode == "integer": retval = sum(widths) // len(widths)  # Use integer division to get a whole number
-        else                         : retval = sum(widths) /  len(widths)  # Use float   division to get a whole number
+        if division_mode == "integer": retval = sum(widths) // len(widths)  # Use integer division to get a  whole  number
+        else                         : retval = sum(widths) /  len(widths)  # Use float   division to get a decimal number
     else:
         raise ValueError("Invalid mode. Use 'total', 'max', or 'average'/'avg'.")
-    if VERBOSE: print(f"🔰 wcsarraywidth returning retval={retval}")
+    if VERBOSE: print(f"🔰 wcsarraywidth returning retval={retval} for line={strings} ... sum={sum(widths)},max={max(widths)}, len(widths)={len(widths)}, sum(widths) // len(widths)={sum(widths) // len(widths)}")
     return retval
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
@@ -423,16 +449,16 @@ def format_columns(lines, columns, column_widths, divider):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
-def distribute_lines_into_columns(lines, columns, rows_per_col):
+def distribute_lines_into_columns_PRODTIL202510(lines, columns, rows_per_col):
     global VERBOSE
     """
     Distribute lines into the specified number of columns.
     """
     columns_data = []
     for col in range(columns):
-        start_index = col * rows_per_col
-        end_index = start_index + rows_per_col
-        column = lines[start_index:end_index]
+        start_index = col         * rows_per_col
+        end_index   = start_index + rows_per_col
+        column      = lines[start_index:end_index]
         columns_data.append(column)
 
     if VERBOSE:
@@ -443,9 +469,40 @@ def distribute_lines_into_columns(lines, columns, rows_per_col):
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
 
+# ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
+def distribute_lines_into_columns(lines, columns, rows_per_col):
+    global VERBOSE
+    """
+    Distribute lines into the specified number of columns.
+    Keeps ANSI formatting for display but calculates widths correctly.
+    """
+
+    # Prepare empty columns
+    columns_data = [[] for _ in range(columns)]
+
+    for col in range(columns):
+        start_index = col * rows_per_col
+        end_index   = start_index + rows_per_col
+        column_lines = lines[start_index:end_index]
+
+        # Store original lines for display
+        columns_data[col] = column_lines
+
+        # Optional: calculate widths using stripped lines if you need max column widths
+        max_width = max((len(strip_ansi(line)) for line in column_lines), default=0)
+        if VERBOSE:
+            print(f"📏 Column {col} max width (visible chars): {max_width}")
+
+    if VERBOSE:
+        print(f"✍ distributed lines into {columns} columns")
+        print(f"💥columns_data={columns_data}")
+
+    return columns_data
+# ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
+
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
-def calculate_column_widths(columns_data):
+def calculate_column_widths_PRODTIL202510(columns_data):
     """
     Calculate the maximum width for each column.
     """
@@ -456,6 +513,17 @@ def calculate_column_widths(columns_data):
             max_width = max(wcswidth(line) for line in col)
         else:
             max_width = 0
+        column_widths.append(max_width)
+    return column_widths
+def calculate_column_widths(columns_data):
+    """
+    Given a list of columns (each a list of lines), return the max visible width per column.
+    ANSI codes are ignored for width calculation.
+    """
+    column_widths = []
+    for col_idx, column_lines in enumerate(columns_data):
+        # Max width of any line in this column, ignoring ANSI
+        max_width = max((len(strip_ansi(line)) for line in column_lines), default=0)
         column_widths.append(max_width)
     return column_widths
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
@@ -556,7 +624,8 @@ def render_columns(columns_data, column_widths, divider):
                 if VERBOSE: print(f'⚠🚫 assigned "" to part ')
 
             # pad "part" into "padded_part"
-            current_content_width   = wcswidth(part)                                                        #print(f"[[[part={part}]]]")
+            current_content_width   = wcswidth(part)
+            #print(              f"[[[wcswidth(part)={current_content_width},part={part}]]]")
             num_spaces_to_add       = current_column_width - current_content_width
             spacer                  = num_spaces_to_add * " "
             if WORD_HIGHLIGHTING:
@@ -1072,13 +1141,13 @@ def main():
 
     # read our input data:
     input_data = read_input(WRAPPING, args.max_line_length_before_wrapping)     # Read and process input lines
+    tmp_stripped_input_data = [strip_ansi(line) for line in input_data]
 
     # Calculate avg line width
-    avg_line_width = wcsarraywidth(input_data, mode="average")
-    if args.verbose: print(f"Avg line width1: {avg_line_width}") # goat
+    avg_line_width  = wcsarraywidth(             input_data, mode="average")    #0
+    avg_line_width2 = wcsarraywidth(tmp_stripped_input_data, mode="average")    #17
 
-    tmp_stripped_input_data = [strip_ansi(line) for line in input_data]
-    avg_line_width2 = wcsarraywidth(tmp_stripped_input_data, mode="average")
+    if args.verbose: print(f"Avg line width1: {avg_line_width }") # goat
     if args.verbose: print(f"Avg line width2: {avg_line_width2}") # goat
 
 
@@ -1095,7 +1164,8 @@ def main():
 
         if our_args.verbose or VERBOSE: print(f"Using user-specified columns: {columns}\nRows per column: {rows_per_col}")
     else:
-        columns      = determine_optimal_columns(input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
+        #olumns      = determine_optimal_columns(             input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
+        columns      = determine_optimal_columns(tmp_stripped_input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
         rows_per_col = ceil(len(input_data) / columns)                        # NOT a situation for wcswidth
 
 
@@ -1124,7 +1194,8 @@ def main():
 
         #calculate # of columns unless we are forcing it:
         if not force_num_columns and not FORCE_COLUMNS:
-            columns = determine_optimal_columns(input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
+            #olumns = determine_optimal_columns(             input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
+            columns = determine_optimal_columns(tmp_stripped_input_data, width, divider_length=3, desired_max_height=desired_max_height, verbose=args.verbose)
         if columns == 0: columns = 1
 
         #rows per column
@@ -1132,7 +1203,8 @@ def main():
         if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + (f"🚣‍♀️ rows_per_col={rows_per_col}")
 
         #distribute data into columns & calculate the widths of the columns
-        columns_data  = distribute_lines_into_columns(input_data, columns, rows_per_col)
+        #olumns_data  = distribute_lines_into_columns(tmp_stripped_input_data, columns, rows_per_col)   #loses final formatting
+        columns_data  = distribute_lines_into_columns(             input_data, columns, rows_per_col)
         column_widths = calculate_column_widths(columns_data)
         if VERBOSE: print(f"🔧 🔧 🔧 columns_data is {columns_data}\n☀☀ column widths [re]calculated to: {column_widths}")
 
@@ -1181,7 +1253,7 @@ def main():
 
         if not STRIPE:
             widest_output_line = get_max_stripped_line_width(output)
-            if VERBOSE: INTERNAL_LOG = ITERNAL_LOG + f"🥒 ❷ widest_output_line for columns={columns} is “{widest_output_line}” ...  console_width={console_width} 🥒"
+            if VERBOSE: INTERNAL_LOG = INTERNAL_LOG + f"🥒 ❷ widest_output_line for columns={columns} is “{widest_output_line}” ...  console_width={console_width} 🥒"
             if widest_output_line > console_width: is_too_wide = True
 
         #now that we have rendered our row, figure out if we are done or not:

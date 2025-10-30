@@ -37,14 +37,14 @@ rem VALIDATE ENVIRONMENT:
 rem USAGE:
         iff "%1" eq "" .or. "%2" eq "" then
                 echo.
-                call divider
+                gosub divider
                 %color_advice%
                         echo.
                         echo USAGE: %0 {subtitle file with bad words and good timing} {lyric file with good words and no/bad timing} [optional audio file]
                         echo USAGE: %0 {subtitles} {lyrics} [audio_file]
                         echo    EX: %0  %@cool_text[subtitl.srt lyrics.txt]%ansi_color_advice%
                         echo    EX: %0  %@cool_text[subtitl.srt crappy.srt]
-                call divider
+                gosub divider
                 echo.
                 goto :END
         endiff
@@ -139,10 +139,8 @@ rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         set last_timestamp_old_file=%tmpfile1%
         set last_timestamp_new_file=%tmpfile2%
         rem ((grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" "%@UNQUOTE["%srt_old%"]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)
-        ((type "%@UNQUOTE["%srt_old%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)
-        if not exist %last_timestamp_old_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_old_file%"
-        ((type "%@UNQUOTE["%srt_new%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_new_file%)
-        if not exist %last_timestamp_new_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_new_file%"
+        ((type "%@UNQUOTE["%srt_old%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)       %+        if not exist %last_timestamp_old_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_old_file%"
+        ((type "%@UNQUOTE["%srt_new%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_new_file%)       %+        if not exist %last_timestamp_new_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_new_file%"
         iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
                 call warning "Final timestamps differ!" big
                 set our_display_color=%ansi_color_bright_red%
@@ -156,6 +154,52 @@ rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
 
         %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
         pause "%ansi_color_important%Press any key after reviewing the subtitles for malformed blocks and making sure the first word(s) are inside a valid block..."
+
+
+goto :END
+
+
+        :divider [divider_param]
+                iff "1" == "%suppress_next_divider%" then
+                        set  suppress_next_divider=0
+                        return
+                endiff
+
+                rem Determine divider file to use:
+                        set wd=%@EVAL[%_columns - 1]
+                        set nm=%bat%\dividers\rainbow-%wd%.txt
+
+                rem Type divider file if it exists:
+                        iff exist %nm% then
+                                *type %nm%
+                                set last_divider_method=type
+                                set last_divider_param=%divider_param%
+                rem Otherwise, manually draw the divider:
+                        else
+                                echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                                set last_divider_method=echo
+                        endiff
+
+                rem Our divider files do not include newlines. Do we add one ourself?
+                        rem debug: *pause>nul
+                        iff "%divider_param%" == "NoNewline"  then
+                                set last_divider_newline=False
+                        else 
+                                set last_divider_newline=True
+
+                                rem Go to the next line:           
+                                        rem echos %NEWLINE%
+                                        echo.
+
+                                rem Then move to column 0/1 [which are the same column]:
+                                        echos %@ANSI_MOVE_TO_COL[0] 
+
+                        endiff
+
+                rem Debug:
+                        echo wtf last_divider_newline=%last_divider_newline% should we do one? >nul
+        return
+
 
 
 

@@ -23,7 +23,7 @@ rem CONFIG:
 rem VALIDATE ENVIRONMENT:
         set  validated_srt_and_txt_for_whispertimesync_already=0
         iff "1" != "%validated_whispertimesync%" then
-                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file enqueue.bat visual-comparison.bat
+                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file enqueue.bat visual-comparison.bat srt_comparator.py
                 rem  validate-environment-variables JAVA_WHISPERTIMESYNC our_language color_advice ansi_color_advice ansi_color_removal ansi_color_normal ansi_color_run smart_apostrophe italics_on italics_off lq rq smart_apostrophe
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language lq rq FILEEXT_AUDIO
                 call validate-is-function cool_text
@@ -42,7 +42,7 @@ rem IMPLIED PARAMETERS —— If we only give a song file as a first parameter, 
 rem USAGE:
         iff "%@unquote[%1]" == "" .or. ("%@unquote[%2]" == "" .and. "0" == "%PARAM1_IS_AUDIO%") then
                 echo.
-                call divider
+                gosub divider
                 %color_advice%
                         echo.
                         echo USAGE #1: %0 {subtitle} {lyrics} [audio_file]
@@ -51,7 +51,7 @@ rem USAGE:
                         echo    EX #1: %0  %@cool_text[bad.srt good.txt]%ansi_color_advice%
                         echo    EX #2: %0  %@cool_text[song.mp3]%ansi_color_advice%
                         rem     EX: %0  %@cool_text[subtitles.srt lyrics.txt]%ansi_color_advice%
-                call divider
+                gosub divider
                 echo.
                 goto :END
         endiff
@@ -145,34 +145,29 @@ rem            10    New Subtitles stripe
 
 
 goto :new_way_212
-        set SRT_OLD=%SRT%
+                                                                        set SRT_OLD=%SRT%
 
-rem Preview the lyrics vs OLD srt with stripes next to each other:
-        call review-file        -wh -st  "%lyr_raw%" --output_file "%lyr_processed_rendered_plus_bot_stripe%" %+ type "%lyr_processed_rendered_plus_bot_stripe%"             %+ rem 1 & 2
-rem     call review-file        -wh -stU "%srt_old%"                   %+ rem 3 & 4
-rem     call divider
-        call review-file -ins   -wh -stB "%srt_old%" "old subs"        %+ rem 3 & 4
+                                                                        rem Preview the lyrics vs OLD srt with stripes next to each other:
+                                                                                call review-file        -wh -st  "%lyr_raw%" --output_file "%lyr_processed_rendered_plus_bot_stripe%" %+ type "%lyr_processed_rendered_plus_bot_stripe%"             %+ rem 1 & 2
+                                                                        rem     call review-file        -wh -stU "%srt_old%"                   %+ rem 3 & 4
+                                                                        rem     gosub divider
+                                                                                call review-file -ins   -wh -stB "%srt_old%" "old subs"        %+ rem 3 & 4
 
-rem Preview the NEW srt just past the old srt, with stripes next to each other:
-rem     call print-with-columns -wh -st  "%srt_old%"                   %+ rem 5
-        call review-file -ins   -wh -stU "%srt_new%" "new subs"        %+ rem 6 & 7
-        call divider
+                                                                        rem Preview the NEW srt just past the old srt, with stripes next to each other:
+                                                                        rem     call print-with-columns -wh -st  "%srt_old%"                   %+ rem 5
+                                                                                call review-file -ins   -wh -stU "%srt_new%" "new subs"        %+ rem 6 & 7
+                                                                                gosub divider
 
-rem Compare stripes of old srt and new srt:
-        type "%lyr_processed_rendered_plus_bot_stripe%"               %+ rem call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
-        call print-with-columns -wh -st -ins "%srt_old%"              %+ rem 8
-        call print-with-columns -wh -st -ins "%srt_new%"              %+ rem 10
-        type "%lyr_processed_rendered_plus_bot_stripe%"               %+ rem call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
-        echo %faint_on%(lyrics, original subtitle, new subtitle, lyrics again)%faint_off%
-        call divider
-
-
+                                                                        rem Compare stripes of old srt and new srt:
+                                                                                type "%lyr_processed_rendered_plus_bot_stripe%"               %+ rem call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
+                                                                                call print-with-columns -wh -st -ins "%srt_old%"              %+ rem 8
+                                                                                call print-with-columns -wh -st -ins "%srt_new%"              %+ rem 10
+                                                                                type "%lyr_processed_rendered_plus_bot_stripe%"               %+ rem call print-with-columns    -st  "%lyr_processed%"             %+ rem 9
+                                                                                echo %faint_on%(lyrics, original subtitle, new subtitle, lyrics again)%faint_off%
+                                                                                gosub divider
 
 
-
-
-
-repeat 5 call divider %+ call important "let%smart_apostrophe%s try viewing our %italics_on%WhisperTimeSync%italics_off% results in a different way..." %+ repeat 5 call divider 
+repeat 5 gosub divider %+ call important "let%smart_apostrophe%s try viewing our %italics_on%WhisperTimeSync%italics_off% results in a different way..." %+ repeat 5 gosub divider 
 :new_way_212
 
 
@@ -195,32 +190,67 @@ rem Preview the lyrics vs OLD srt with stripes next to each other:
         call review-file       -wh -st  -ins --output_file  "%lyr_processed_rendered_plus_bot_stripe%" "%lyr_processed%" %+ type "%lyr_processed_rendered_plus_bot_stripe%"            %+ rem 1 & 2
         call review-file       -wh -stU -ins "%srt_old%"                   %+ rem 3 & 4
         echo %faint_on%lyrics + stripe, old subtitle + stripe%faint_off%
-        call divider
+        gosub divider
 
 rem Preview the old subtitles vs the new subtitles, with stripes for both between them:
         call print-with-columns    -st  -ins "%srt_old%"                   %+ rem 5
         call review-file       -wh -stU -ins "%srt_new%"                   %+ rem 6 & 7
         echo %faint_on% old subtitle + stripe, new subtitle + stripe%faint_off%
-        call divider
+        gosub divider
 
 rem Compare stripes of old subtitle to lyrics:
         echo %STAR2% %double_underline_on%OLD%double_underline_off% lyrics vs subtitles:
         call print-with-columns    -st  -ins "%lyr_processed%"             %+ rem 9
         call print-with-columns    -st  -ins "%srt_old%"                   %+ rem 8
         echo %faint_on% lyrics + stripe, old subtitle + stripe%faint_off%
-        call divider
+        gosub divider
 
 rem Compare stripes of new subtitle to lyrics:
         echo %STAR2% %double_underline_on%NEW%double_underline_off% subtitles vs lyrics:
         type "%lyr_processed_rendered_plus_bot_stripe%"                    %+ rem  9 %+ rem call print-with-columns    -st  -ins "%lyr_processed%"             %+ rem 9
         call print-with-columns    -st  -ins "%srt_new%"                   %+ rem 10
         echo %faint_on% lyrics + stripe, new subtitle + stripe%faint_off%
-        call divider 
+        gosub divider 
 
 rem Do the animated visual comparison:
         :jump_point
         echo %STAR2% %double_underline_on%NEW%double_underline_off% subtitles vs lyrics: %faint_on%[hit %left_apostrophe%X%right_apostrophe% to stop animation]%faint_off%
         call visual-comparison "%srt_old%" "%srt_new%" "%italics_on%old%italics_off% subtitles" "%italics_on%new%italics_off% subtitles"
+
+rem Use our comparator:
+        rem Warn user:
+                pause "Presss any key to see SRT comparator output..."
+
+        rem Run comparator:
+                call set-tmp-file "comparator-output"
+                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr -key >"%tmpfile1%"
+
+        rem Let’s try raw printing the results
+                gosub divider
+                type "%tmpfile1%"
+
+        rem Let’s try generically printing the comparator output with however many columns it uses:
+                gosub divider
+                call print-with-columns "%tmpfile1%"
+
+        rem Let’s try specifically printing the comparator output with 2 columns only:
+                gosub divider
+                call print-with-columns "%tmpfile1%" -c 2
+
+        rem Let’s try specifically printing the comparator output with 2/4/6/8 columns:
+                gosub divider
+                if not defined SUBTITLE_OUTPUT_WIDTH set SUBTITLE_OUTPUT_WIDTH=30
+                set PADDING=5
+                set    initial_column_pair_width=%@EVAL[2* SUBTITLE_OUTPUT_WIDTH + 1 * PADDING]
+                set subsequent_column_pair_width=%@EVAL[2* SUBTITLE_OUTPUT_WIDTH + 2 * PADDING]
+                set COLS_TO_USE=2
+                :recol_calc
+                if %@EVAL[%initial_column_pair_width% + %subsequent_column_pair_width%] lt %@EVAL[%_COLUMNS-1] (set COLS_TO_USE=%@EVAL[%cols_to_use% + 2] %+ goto :recol_calc)
+                call debug "determined # of even columns to use of “%COLS_TO_USE%”"                
+                call print-with-columns "%tmpfile1% -c %COLS_TO_USE%
+
+        rem Final divider:
+                gosub divider
 
 
 
@@ -294,7 +324,7 @@ rem If it is better, back up the old version and replace it with this one:
 
 rem Load the new song into winamp to test?
         iff "1" == "%WHISPERTIME_SYNC_WINAMP_INTEGRATION%" then
-                call divider
+                gosub divider
                 echo %ansi_color_important%%STAR% Because %italics_on%WHISPERTIME_SYNC_WINAMP_INTEGRATION%italics_off% is set to %lq%1%rq% in WhisperTimeSync-helper.bat, we will ask:%ansi_color_normal%
                 call askyn "Enqueue the song into %italics_on%WinAmp%italics_off% to see how the subtitles play in %italics_on%Minilyrics%italics_off%" no 0
                 iff "Y" == "%ANSWER%" then
@@ -319,6 +349,54 @@ rem Load the new song into winamp to test?
                         %color_normal%                                                        
                 endiff
         endiff
+
+
+
+goto :END
+
+
+        :divider [divider_param]
+                iff "1" == "%suppress_next_divider%" then
+                        set  suppress_next_divider=0
+                        return
+                endiff
+
+                rem Determine divider file to use:
+                        set wd=%@EVAL[%_columns - 1]
+                        set nm=%bat%\dividers\rainbow-%wd%.txt
+
+                rem Type divider file if it exists:
+                        iff exist %nm% then
+                                *type %nm%
+                                set last_divider_method=type
+                                set last_divider_param=%divider_param%
+                rem Otherwise, manually draw the divider:
+                        else
+                                echo %@char[27][93m%@REPEAT[%@CHAR[9552],%wd%]%@char[27][0m
+                                set last_divider_method=echo
+                        endiff
+
+                rem Our divider files do not include newlines. Do we add one ourself?
+                        rem debug: *pause>nul
+                        iff "%divider_param%" == "NoNewline"  then
+                                set last_divider_newline=False
+                        else 
+                                set last_divider_newline=True
+
+                                rem Go to the next line:           
+                                        rem echos %NEWLINE%
+                                        echo.
+
+                                rem Then move to column 0/1 [which are the same column]:
+                                        echos %@ANSI_MOVE_TO_COL[0] 
+
+                        endiff
+
+                rem Debug:
+                        echo wtf last_divider_newline=%last_divider_newline% should we do one? >nul
+        return
+
+
 
 
 

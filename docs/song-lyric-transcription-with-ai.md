@@ -1,7 +1,5 @@
 TODO: search for other todos below
 
-
-
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
 ## ✨ Goals: ✨
@@ -250,9 +248,9 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 #### 🍀 Five main types of commands exist for this system: TODOLINK
 
-  1. 💾 filename alignment  (mark-all-filenames-as-instrumental.bat, ask-if-these-are-instrumentals.bat, mark-all-filenames-ADS-tag-for-as_instrumental.bat, mark-all-filenames-ADS-tag-for-NOT-as_instrumental.bat, unmark-all-filenames-ADS-tag-for-as_instrumental.bat)
-  1. 🎤️ Lyric alignment  ([get-lyrics](../BAT-and-UTIL-files-1/get-lyrics.bat),  [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat) etc)
-  1. 🧏 Karaoke alignment ([create-srt](../BAT-and-UTIL-files-1/create-srt-from-file.bat), [get-karaoke-for-playlist](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
+  1. 💾 filename alignment  (mark-all-filenames-as-instrumental.bat, ask-if-these-are-instrumentals.bat, etc)
+  1. 🎤️ Lyric alignment  ([get-lyrics](../BAT-and-UTIL-files-1/get-lyrics.bat),  [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat), etc)
+  1. 🧏 Karaoke alignment ([get-karaoke](../BAT-and-UTIL-files-1/get-karaoke.bat), [get-karaoke-for-playlist](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
   1. 🕵 Lyric   Auditing ([review-lyrics](../BAT-and-UTIL-files-1/review-files.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
   1. 🕵 Karaoke Auditing ([review-subtitles](../BAT-and-UTIL-files-1/review-subtitles.bat), [check-for-missing-karaoke](../BAT-and-UTIL-files-1/check-for-missing-karaoke.bat), etc)
   
@@ -264,7 +262,7 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 🍀 Uncategorized commands:
 
-  1. ([thorough.bat](../BAT-and-UTIL-files-1/thorough.bat) - sets/unsets the ```%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%``` environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.  The most SRT files I’ve created in a day in thorough mode is 480, and that required some amount of attention from wake to sleep.
+  1. [thorough.bat](../BAT-and-UTIL-files-1/thorough.bat) - sets/unsets the ```%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%``` environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.  The most SRT files I’ve created in a day in thorough mode is 480, and that required some amount of attention from wake to sleep.
 
 
 
@@ -273,6 +271,9 @@ From a running TCC command line, use whatever system commands you’d like from 
 # 👉👉👉 *Filename Alignment* commands:
 
 #### These commands manage the filenames to better direct our resources.
+
+
+<details><summary>Click here to view command list & descriptions.</summary>  
 									
 ### 🌟 [preview-audio-file](../BAT-and-UTIL-files-1/preview-audio-file.bat)
 
@@ -303,6 +304,7 @@ The opposite of the last script. This marks all filenames in a folder with an AD
 
 If we screwed up with either of the last 2 scripts, this removes our screwup from every every file in the folder by completely removing the is_instrumental ADS tag from every audio file in the folder. This resets our “Y”/“N” answers for ```ask-if-these-are-instrumentals``` and allows us to start the process over for any filenames which have been flagged solely with ADS tags.
 
+</details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -479,28 +481,64 @@ If Winamp Integration is enabled, runs [WhisperTimeSync.bat](../BAT-and-UTIL-fil
 
 </details>
 
+### 🌟 [srt_comparator.py](../BAT-and-UTIL-files-1/srt_comparator.py):
+
+Compares 2 (or more) SRT files in chronological order.
+Each timestamp encountered is shown, with the version of subtitles from each compared file in its own color.
+
+Suppressing identical lines with the ```--hide-identical-lines``` option reduces the output to _just_ the different lines, which provides a functional audit of just what it was that [WhisperTimeSync-helper.bat](../BAT-and-UTIL-files-1/WhisperTimeSync-helper.bat) fixed or did not fix.
+
+We also use the ```--low-res-timestamps``` option to ignore small (less than 1 second) timestmap differences.
+
+The ```---show-filenames``` / ```--key``` option can also be used to clarify confusion.
+
+
+
+### 🌟 [visual-comparison.bat](../BAT-and-UTIL-files-1/visual-comparison.bat):
+
+Compares 2 (or more) SRT files visually.
+
+The 2 files are rendered in column view, then redrawn over each other.
+
+It gets ugly if the 2 columns are different widths, but this often lets you visually see what was changed in a very quick way.
+
 
 
 ## 🌟 Karaoke-related Reports
+
+<details><summary>Click here to view our 2 report scripts.</summary>  
 
 If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 
 If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../BAT-and-UTIL-files-1/how-many-AI-transcriptions-have-run-today.bat) 
 
+</details>
 
-## 🌟 Sample task-oriented “task-runner” scripts:
-
-### 🌟 [work-incoming-karaoke.bat](../BAT-and-UTIL-files-1/work-incoming-karaoke.bat)
-
-Goes to my incoming folder and works all the folders in random order, generating karaoke in THOROUGH mode.
-
-### 🌟 [work-nonmusic-karaoke.bat](../BAT-and-UTIL-files-1/work-nonmusic-karaoke.bat)
-
-Goes to my NON-MUSIC/audiobooks folder and works all the folders in random order, generating karaoke in NON-THOROUGH mode.
+## 🌟 Main work script:
 
 ### 🌟 [work.bat](../BAT-and-UTIL-files-1/work.bat)
 
-A framework for doing different kinds of work related to this system. Can also be used for other kinds of work. You type “work” and questions or asked, or type “work karaoke” or “work lyrics” to tackle those general tasks in the specific way the script does.  It helps limit the “chunk size” of how much work we bite off at a time, which can make karaoke/lyric work a bit more pleasant.
+Type “work karaoke” to search a playlist of your choice for 25 karaoke files to work on.
+Type “work lyrics”  to search a playlist of your choice for 25 lyric   files to work on.
+Type “work”         to be interactively asked as to the nature of your work.
+
+This framework can also be extended for other kinds of work. 
+It helps limit the “chunk size” of how much work we bite off at a time, which can make karaoke/lyric work a bit more pleasant with shorter wait times. A value of 25 is recommended.
+
+
+## 🌟 Sample specific “task-runner” scripts:
+
+<details><summary>Click here to view 2 sample scripts for more specific alignment work</summary>  
+
+### 🌟 [work-incoming-karaoke.bat](../BAT-and-UTIL-files-1/work-incoming-karaoke.bat)
+
+Goes to my incoming folder and works all the folders in random order, generating karaoke in THOROUGH mode, becuase I do care to double-check these and don’t want them to run while asleep.  This is how I work on new/incoming music.
+
+### 🌟 [work-nonmusic-karaoke.bat](../BAT-and-UTIL-files-1/work-nonmusic-karaoke.bat)
+
+Goes to my NON-MUSIC/audiobooks folder and works all the folders in random order, generating karaoke in NON-THOROUGH mode, because I don’t care to double-check these and want them to run while asleep.  This is how I transcribed all my audiobooks in my sleep.
+
+</details>
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -577,6 +615,8 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 
 # 👉👉👉 *Auditing Commands* for *Karaoke*:
 
+<details><summary>Click here to view command list & descriptions.</summary>  
+
 ### 🌟 [delete-bad-ai-transcriptions](../BAT-and-UTIL-files-1/delete-bad-ai-transcriptions):
 
 This searches for bad karaoke transriptions in the current folder & deletes them with a configurable prompting level. 
@@ -593,8 +633,6 @@ Bad karaoke transcriptions include:
 This searches an entire folder tree (in random order) for bad karaoke transcriptions.
 
 #### These commands find & obtain missing karaoke files.
-
-<details><summary>Click here to view command list & descriptions.</summary>  
 
 ### 🌟 [review-subtitles.bat / review-all-SRTs / review-all-subtitles / review-SRTs / review-LRCs](../BAT-and-UTIL-files-1/review-subtitles.bat):
 
