@@ -21,6 +21,7 @@ rem Work configuration: lyrics & karaoke: playlists:
         set default_playlist_to_work=crtl.m3u
         set default_playlist_to_work=changerrecent.m3u
         set default_playlist_to_work=best.m3u
+        set default_playlist_to_work=pretty good.m3u
 
 rem Work configuration: lyrics & karaoke: workloads:
         set default_number_of_lyrics_to_work=69
@@ -46,7 +47,7 @@ rem Usage:
 
 rem Validate environment (once):
         iff "1" != "%validated_work%" then
-                call validate-in-path askyn
+                call validate-in-path askyn divider
                 set  validated_work=1
         endiff
 
@@ -153,6 +154,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                 rem                             “What kind of work do you want to do?” question
                         set WAIT_TIME=30
                         if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set WAIT_TIME=0
+                        call divider
                         call AskYN "Keep on chompin’" yes 30
                                 iff "%ANSWER%" == "Y" then
                                         set ANSWER=%work_type_answer% 

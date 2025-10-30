@@ -355,11 +355,11 @@ rem —————————————————————————�
                                         set namey=%@FULL[%@UNQUOTE[%CFML_AudioFile%]]
                                         if "" == "%namey%" set namey=NULL
                                         iff "1" == "%@RegEx[[\(\[]instrumental[\)\]],%namey%]" then
-                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an instrumental: %zzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is instrumental: %zzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
                                         iff "1" == "%@RegEx[[\(\[\\]chiptunes?[\)\]\\],%namey%]" then
-                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is a chiptune: %zzzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is chiptune: %zzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
                                         rem ✪✪✪ We still want lyrics for untranscribeable songs, so let’s NOT do this: ✪✪✪
@@ -368,17 +368,17 @@ rem —————————————————————————�
                                         rem      return                                
                                         rem endiff
                                         iff "1" == "%@RegEx[[\(\[\\]sound effect?[\)\]\\],%namey%]" then
-                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is a sound effect: %zzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is sound effect: %zzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
                                 rem Reject if the file doesn’t exist at all:                                
                                         iff not exist "%@UNQUOTE["%CFML_AudioFile%"]" then
-                                             echo %ansi_color_yellow%%EMOJI_CROSS_MARK% songfile doesn’t exist: %zzzzzzzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             echo %ansi_color_yellow%%EMOJI_CROSS_MARK% songfile doesn’t exist: %zzzzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return
                                         endiff
                                 rem Reject if the file is one of our trash filenames:
                                         iff "1" == "%@RegEx[_vad_.*_chunks.*\.wav,"%CFML_AudioFile%"]" then
-                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is an AI temp-file:    %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is AI temp-file:       %faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                
                                         endiff
 

@@ -66,7 +66,7 @@ rem Preface the pause with an emoji for visual processing ease and make it the c
 
 rem Clear the keyboard buffer [/C option] to prevent accidental pause-bypasses:
         rem Except this now gives an error message without any other args: inkey /c
-                inkey /c
+                rem 20251026 inkey /c
         rem So suddenly on 2025/09/18, we had to change this:
                 inkey /c /w0 %%Whatever
 

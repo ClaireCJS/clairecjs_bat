@@ -1,5 +1,7 @@
 TODO: search for other todos below
 
+
+
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
 ## ✨ Goals: ✨
@@ -603,7 +605,8 @@ Reviews all karaoke files in current folder, using ```print-with-columns``` to e
 
 ### 🌟 cfmk / [check-for-missing-karaoke](../BAT-and-UTIL-files-1/check-for-missing-karaoke.bat):
 
-Displays a list of files in the *current folder* which are missing *karaoke* files
+Displays a list of files in the *current folder* which are missing *karaoke* files, defaulting to use ```these.m3u``` is the playlist to check.
+Pass a playlist filename to use a playlist other than ```these.m3u```
 
 ![image](https://github.com/user-attachments/assets/61e1f155-a798-4668-945a-7d7dd2ac06dc)
 
@@ -1015,6 +1018,9 @@ Technically should be called “```audio_file_index.bat```”.
 
 
 TODO: may have to unapprove any txt if the LRC/SRT is generated         
-TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency.
+TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency. instrumentals. etc.
 	NOTE: New hallucation patterns must be added to: delete-bad-AI-transcriptions.bat lyric-postprocessor.pl	subtitle-postprocessor.pl remove-period-at-ends-of-lines.pl
+
+
+
 

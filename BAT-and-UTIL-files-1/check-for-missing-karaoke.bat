@@ -1,6 +1,6 @@
 @loadbtm on
 @rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
-@Echo      off
+@Echo    off
 ON BREAK goto /i cmfk_onbreak
 
 
@@ -14,13 +14,15 @@ ON BREAK goto /i cmfk_onbreak
 
 rem ===== CONFIG: EXECUTION: ==========================================================================================================================
 
-set LOCKFILE_EXPIRATION_TIME=604800  %+ rem How old should the lockfile be to where we just ignore it? In seconds. We’re going to go with one week, which is 60 sec * 60 min * 24 hrs * 7 days = 604,800 seconds
-set ONLY_RUN_ONCE_PER_FOLDER=1       %+ rem Use lockfiles to prevent two instances of this from running in the same folder simultaneously. There may be situations where you want to turn this off, like if you want to dedicate multilpe tabs to transcribing one folder.
+set LOCKFILE_EXPIRATION_TIME=604800          %+ rem How old should the lockfile be to where we just ignore it? In seconds. We’re going to go with one week, which is 60 sec * 60 min * 24 hrs * 7 days = 604,800 seconds
+set DEFAULT_FILELIST_NAME_TO_USE=these.m3u   %+ rem name of playlist to go through to check
+set ONLY_RUN_ONCE_PER_FOLDER=1               %+ rem Use lockfiles to prevent two instances of this from running in the same folder simultaneously. There may be situations where you want to turn this off, like if you want to dedicate multilpe tabs to transcribing one folder.
+set DEFAULT_FILEMASK=%FILEMASK_AUDIO%        %+ rem list of extensions that can be audio files, e.g. “*.mp3;*.wav;*.rm;*.flac”
 
 rem ===== CONFIG: DEBUG: ==============================================================================================================================
-
-set    DEBUG_CFMK_LOCKFILE=0         %+ rem whether to echo to screen: certain information about the per-folder-lockfile–processing to the screen
-set DEBUG_AUTOFAIL_FOLDERS=0         %+ rem whether to echo to screen: the results of our probe to see whether the current folder is valid or not
+                                      
+set    DEBUG_CFMK_LOCKFILE=0                 %+ rem whether to echo to screen: certain information about the per-folder-lockfile–processing to the screen
+set DEBUG_AUTOFAIL_FOLDERS=0                 %+ rem whether to echo to screen: the results of our probe to see whether the current folder is valid or not
 
 rem ===================================================================================================================================================
 
@@ -35,14 +37,19 @@ rem ============================================================================
 
 
 rem Usage:
+        set ABORT=0
         iff "%1" == "/h" .or. "%1" == "-h" .or. "%1" == "--help" .or. "%1" == "/help" .or. "%1" == "help" .or. "%1" == "?" .or. "%1" == "/?" .or. "%1" == "-?" .or. "%1" == "--?" then
+                :usage
                 echo.
                 %color_advice%
-                        echo USAGE: %ansi_color_bright_yellow%%0 %ansi_color_advice%————— checks for missing karaoke in current folder
-                        echo USAGE: %ansi_color_bright_yellow%%0 /s %ansi_color_advice%—— checks for missing karaoke in current folder RECURSIVELY
-                        echo USAGE: %ansi_color_bright_yellow%%0 /f %ansi_color_advice%—— checks for missing karaoke in current folder, ignoring lockfiles, in case you want to run multilpe instances in one folder
+                        echo USAGE: %ansi_color_bright_yellow%%0 %zzzzzzz%%ansi_color_advice%━━━━━━━━━━━━━━━━%zzzzzzzzzzzzzzzzzzzzzzzzzzzzz% checks for missing karaoke in current folder, generating a playlist named “%DEFAULT_FILELIST_NAME_TO_USE%”
+                        echo USAGE: %ansi_color_bright_yellow%%0 %italics_on%playlist.m3u%italics_off% %zzzz%%ansi_color_advice%━━━%zzzzzzz% checks for missing karaoke in the specified playlist filename
+                        echo USAGE: %ansi_color_bright_yellow%%0 /s %zzzz%%ansi_color_advice%━━━━━━━━━━━━━%zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz% checks for missing karaoke in current folder, but RECURSIVELY
+                        echo USAGE: %ansi_color_bright_yellow%%0 /f %zzzz%%ansi_color_advice%━━━━━━━━━━━━━%zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz% checks for missing karaoke in current folder, ignoring lockfiles
+                        echo USAGE: %ansi_color_bright_yellow%                                             %ansi_color_advice%%bold_on%%EMOJI_UP_LEFT_ARROW%%bold_off%%faint_on%in case you want to run multiple instances in one folder%faint_off%
                 %color_normal%
-                goto /i END
+                set ABORT=1
+                goto :env_check
         endiff
 
 
@@ -91,21 +98,21 @@ rem Variable definitions ported from our outer environment into this script for 
         iff not defined filemask_audio then
                 set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
         endiff
-rem Configuration:
-        set DEFAULT_FILELIST_NAME_TO_USE=these.m3u
-        set DEFAULT_FILEMASK=%FILEMASK_AUDIO%
 
 
 
-rem Validate Enviroment:
-        iff  "1" != "%validated_cfmk%" then
+
+rem Validate Environment (once per session, expiring daily):
+        :env_check
+        iff  "%_DOY" != "%validated_cfmk%" then
                 call validate-in-path              check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index delete-bad-ai-transcriptions errorlevel
                 call validate-environment-variable filemask_audio   skip_validation_existence
                 call validate-environment-variable DEFAULT_FILEMASK skip_validation_existence
-                call validate-environment-variable ANSI_COLORS_HAVE_BEEN_SET
-                set  validated_cfmk=1
+                call validate-environment-variable ANSI_COLORS_HAVE_BEEN_SET EMOJI_HAVE_BEEN_SET
+                set  validated_cfmk=%_DOY
                 rem  CHECK-FOR-MISSING-KARAOKE ENVIRONMENT SUCCESSFULLY VALIDATED!!!!!!!!!!!!!!!!
         endiff
+        if "1" == "%ABORT%" goto :end
         
 
 
@@ -115,29 +122,30 @@ rem Parameter capture:
         set PARAMS=%*
         set DIR_PARAMS=%PARAMS%
         
+rem Initialization:
+        set  FILELIST_TO_USE=%DEFAULT_FILELIST_NAME_TO_USE%
+
 rem Parameter processing:
         :Again
-        set     CFMK_GET=0
-        set   CFMK_FORCE=0
-        set RECURSE_CFMK=0
-        if "%1" == "get"    (shift %+ set CFMK_GET=1                )
-        if "%1" == "/s"     (shift %+ set RECURSE_CFMK=1            )
-        if "%1" == "/f"     (shift %+ set ONLY_RUN_ONCE_PER_FOLDER=0)
-        if "%1" == "force"  (shift %+ set CFMK_FORCE=1)
-        if "%1" != ""       (echo * ERROR: check-for-missing-karaoke.bat still need to process command tail value of, but doesn’t know how: %1$ %+ goto /i Again)
+        set        CFMK_GET=0
+        set      CFMK_FORCE=0
+        set    RECURSE_CFMK=0
+        set CUSTOM_FILELIST=0
+        if "%1" == "get"                         (shift %+ set CFMK_GET=1                )
+        if "%1" == "force"                       (shift %+ set CFMK_FORCE=1              )
+        if "%1" == "/s"                          (shift %+ set RECURSE_CFMK=1            )
+        if "%1" == "/f"                          (shift %+ set ONLY_RUN_ONCE_PER_FOLDER=0)
+        if exist "%1" .and. "M3U" == "%@EXT[%1]" (set FILELIST_TO_USE=%@UNQUOTE[%1] %+ set CUSTOM_FILELIST=1 %+ echo. %+ echo %ansi_color_less_important%%star2% Using filelist of: %blink_on%%italics_on%%FILELIST_TO_USE%%italics_off%%blink_off%%ansi_color_normal% %+ shift)
+        if exist "%1" .and. "M3U" != "%@EXT[%1]" (echo. %+ call warning "Not processing file because it’s not an m3u playlist: %italics_on%“%1”%italics_off%" %+ set ABORT=1  %+ goto :Usage)
+        if "%1" != ""                            (echo. %+ echo %ANSI_COLOR_FATAL_ERROR%* ERROR: check-for-missing-karaoke.bat still need to process command tail value of, but doesn’t know how:%ANSI_COLOR_IMPORTANT% %1$ %+ shift %+ set ABORT=1 %+ goto /i Again)
         rem DEBUG pause "After cmd tail proc, CFMK_FORCE=“%CFMK_FORCE%”"
-
+        if "1" == "%ABORT%" goto :END
 
 rem Debug:
         rem echo recurse_cfmk is %RECURSE_CFMK% 
 
 
 
-
-
-rem Initialization:
-        set  FILELIST_TO_USE=%DEFAULT_FILELIST_NAME_TO_USE%
-        echo FILELIST_TO_USE is “%FILELIST_TO_USE%” 🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱>nul
 
 
 rem Parameter checking:
@@ -150,13 +158,13 @@ rem Parameter checking:
                 iff "%dir_params%" != "" then
                         if "%@REGEX[/s,%dir_params%]" == "1" (set FILELIST_TO_USE=all.m3u)
                 endiff                                      
-                iff exist %filemask_audio% then
-                        (dir /b /[!*instrumental* *chiptune* "*sound effect*"  "*untranscribable*" "*untranscribeable*"] %DIR_PARAMS% %filemask_audio% >:u8 %FILELIST_TO_USE%) >&>nul
+                iff "1" != "%CUSTOM_FILELIST%" .and. exist %filemask_audio% then
+                        (dir /b /[!*instrumental* *chiptune* "*sound effect*"  "*untranscribable*" "*untranscribeable*"] %DIR_PARAMS% %filemask_audio% >:u8 "%FILELIST_TO_USE%") >&>nul
                         rem ^^^ There still might be errors here in the event of audio files not being present, but 100% of them having "instrumental" in their name. Therefore, let's suppress stderr
                 endiff                        
 
         rem If the filelist is these or all.m3u we need to regenerate them...  (Do we really?)
-                if "%filelist_to_use%" == "these.m3u" .or. "%filelist_to_use%" == "all.m3u" (call mp3index)
+                if ("%filelist_to_use%" == "these.m3u" .or. "%filelist_to_use%" == "all.m3u") .and. "1" != "%CUSTOM_FILELIST%" (call mp3index)
 
 rem Debug info:
         if %DEBUG gt 0 echo %ANSI_COLOR_DEBUG%- PARAMS: %PARAMS%%newline%%tab%using filelist of = %FILELIST_TO_USE%%newline%%tab%using filemask of = %FILEMASK_TO_USE%%ANSI_COLOR_NORMAL%
@@ -178,12 +186,14 @@ rem             this would thwart us. So we will make it configutable
 
 
 rem If the filelist doesn't exist...
+        if "1" == "%CUSTOM_FILELIST%" goto :skip_to_here_if_using_custom_filelist
         call mp3index
         iff "1" == "%RECURSE_CFMK%" then
                 if not exist   all.m3u .or. 0 eq %@FILESIZE[all.m3u]   goto /i END
         else                
                 if not exist these.m3u .or. 0 eq %@FILESIZE[these.m3u] goto /i END
         endiff                
+        :skip_to_here_if_using_custom_filelist
 
 rem Kill bad transcriptions first:
         if "0" == "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" goto /i skip_delete_bad
@@ -191,10 +201,15 @@ rem Kill bad transcriptions first:
         :skip_delete_bad
         setdos /x0
 
+
+rem Debug:
+        rem 
+        echo ❼ FILELIST_TO_USE is “%FILELIST_TO_USE%” 🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱>nul
+
 rem Check for songs missing sidecar TXT files :
-        set last_check_for_missing_karaoke_command=(check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") `|:u8` fast_cat
-        set                           last_command=(check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") `|:u8` fast_cat
-                                                   (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py %FILELIST_TO_USE% *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ")  |:u8  fast_cat
+        set last_check_for_missing_karaoke_command=(check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py "%FILELIST_TO_USE%" *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") `|:u8` fast_cat
+        set                           last_command=(check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py "%FILELIST_TO_USE%" *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") `|:u8` fast_cat
+                                                   (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py "%FILELIST_TO_USE%" *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ")  |:u8  fast_cat
         call errorlevel
 
 rem 🧹🧹🧹 While we're here, do some cleanup: 🧹🧹🧹

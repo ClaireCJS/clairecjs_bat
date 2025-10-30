@@ -596,8 +596,9 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 		}
 		#20230626 taking out print "echo.>>$ATTRIB_LST\n";				
 		### Remove current song from current winamp playlist:
-#		print "if \%AUTOMARKAS\% eq \"learned\" call remove-currently-playing-song-from-playlist\n";			#didn't work as well
-		if ($AUTOMARK_AS eq "learned") { print "call remove-currently-playing-song-from-playlist\n"; }
+#		print "if \%AUTOMARKAS\% eq \"learned\" call remove-currently-playing-song-from-playlist\n";				#didn't work as well
+#		if ($AUTOMARK_AS eq "learned") { print "call remove-currently-playing-song-from-playlist\n"; }				#general  BAT name
+		if ($AUTOMARK_AS eq "learned") { print "call remove-currently-playing-song-from-winamp-playlist.bat\n"; }	#specific BAT name
 		print "echo.\n";
 		print "echo.\n";
 		print "echo.\n";

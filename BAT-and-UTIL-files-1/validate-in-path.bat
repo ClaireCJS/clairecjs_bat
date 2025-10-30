@@ -216,7 +216,7 @@ rem Validate each command line parameter
 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         :display_temp_output [varname]
                 set unquoted_varname=%@UNQUOTE["%varname%"]
-                rem ❹ Alternating italics give it a little “jiggle” in its dance:
+                rem ❹ Alternating italics give it a little “jiggle” in its vertical-split-from-1-big-line–into–2-small-lines-and-back-and-forth dance:
                         iff defined italics_maybe then
                                 if "%italics_maybe%" == "%italics_on%" (
                                         set italics_maybe=%italics_off%
