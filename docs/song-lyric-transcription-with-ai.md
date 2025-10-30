@@ -193,10 +193,11 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-# ⚙️  To transcribe folder trees/discographies/entire music collections: # ⚙️ 
+# ⚙️  To transcribe entire music collections: # ⚙️ 
 
 
 <details><summary>Click here to view Step ① File preparation:.</summary>  
+
 - ① Prep files:
   - Optionally use ```LRCget``` (TODO link) to pre-download lyrics and transcriptions for your collection (if you don’t, this whole project make take 20–60% longer). BEWARE!!!!!  Every single live or remix song will match to the official version, so you want to take note of the date you run this, and delete every file that has “(live” or “Mix)” in it [or however it is you name things in your own collection]. TODO: Create tool to do this named “LRCget-post-cleanup.bat”
   - Optionally use ```global /i create-txt-lyrics-from-karaoke-files.bat``` to convert any LRC/SRTs we already have to TXT
@@ -210,6 +211,7 @@ From a running TCC command line, use whatever system commands you’d like from 
 </details>
 
 <details><summary>Click here to view Step ②: Lyric alignment.</summary>  
+
 - ② Then, align lyrics with ```get-lyrics-here```:
   - Alignment is done by previewing the lyrics of each & every audio file, then either:
     - *approving lyrics* (they look good) 
@@ -225,6 +227,7 @@ From a running TCC command line, use whatever system commands you’d like from 
 </details>
 
 <details><summary>Click here to view Step ③: Karaoke alignment.</summary>  
+
 - ③ Then, transcribe audiofiles with ```get-karaoke-here``` (“gkh”).  
   - A GeForce RTX 3060 with 12G VRAM can do about 300 per day.
   - (1) transcribe in alphabetical order: ```sweep gkh```
@@ -235,6 +238,7 @@ From a running TCC command line, use whatever system commands you’d like from 
 </details>
 
 <details><summary>Click here to view Step ④: Cleanup & reporting.</summary>  
+
 - ④ When completely done with the entire project
   - Double-check for bad AI transcriptions by running ```delete-bad-ai-transcription``` in every folder of your collection. Do this by going ot the base folder and running the command: ```sweep call delete-bad-ai-transcription``` which runs our deleter inside each and every subfolder
   - If you have not made it part of your computer’s reboot automation scripts, manually run ```clean-up-AI-transcription-trash-files-everywhere.bat include-dot-files``` to clean up any remaining trash files and lockfiles
