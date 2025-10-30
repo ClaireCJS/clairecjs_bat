@@ -195,6 +195,8 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 # ⚙️  To transcribe folder trees/discographies/entire music collections: # ⚙️ 
 
+
+<details><summary>Click here to view Step ① File preparation:.</summary>  
 - ① Prep files:
   - Optionally use ```LRCget``` (TODO link) to pre-download lyrics and transcriptions for your collection (if you don’t, this whole project make take 20–60% longer). BEWARE!!!!!  Every single live or remix song will match to the official version, so you want to take note of the date you run this, and delete every file that has “(live” or “Mix)” in it [or however it is you name things in your own collection]. TODO: Create tool to do this named “LRCget-post-cleanup.bat”
   - Optionally use ```global /i create-txt-lyrics-from-karaoke-files.bat``` to convert any LRC/SRTs we already have to TXT
@@ -205,7 +207,9 @@ From a running TCC command line, use whatever system commands you’d like from 
     - for folders with too many to answer individually, you can pre-answer for all files in the folder with:```approve-lyriclessness.bat *``` and ```approve-lyriclessness.bat *``` 
     - When done, cleanse invalid lyrics/subtitles with ```sweep post-lyricless-clean.bat```
       - This is necessary in the event of LRCget downloading transcriptions that we later decide are invalid via bulk command, TODO: as well as to purge erroneous subtitle/lyric files associated with instrumentals
+</details>
 
+<details><summary>Click here to view Step ②: Lyric alignment.</summary>  
 - ② Then, align lyrics with ```get-lyrics-here```:
   - Alignment is done by previewing the lyrics of each & every audio file, then either:
     - *approving lyrics* (they look good) 
@@ -218,7 +222,9 @@ From a running TCC command line, use whatever system commands you’d like from 
   - Track how many were aligned on a particular day with ```report-lyric-approval-progress.bat```
    - Track progress with ```report-lyric-and-subtitle-percentage-completion```
      - it takes a snapshot of progress that lets you see your progress over time
+</details>
 
+<details><summary>Click here to view Step ③: Karaoke alignment.</summary>  
 - ③ Then, transcribe audiofiles with ```get-karaoke-here``` (“gkh”).  
   - A GeForce RTX 3060 with 12G VRAM can do about 300 per day.
   - (1) transcribe in alphabetical order: ```sweep gkh```
@@ -226,10 +232,14 @@ From a running TCC command line, use whatever system commands you’d like from 
   - Repeat transcription command until everything is transcribed
   - Ren ```gkh report``` if you want to see what percentage remains in a specific folder (like if you’ve been working a folder with hundreds of songs and are curious).
    - Track total project progress with ```report-lyric-and-subtitle-percentage-completion```, which takes a snapshot of progress that lets you see your progress over time
+</details>
 
+<details><summary>Click here to view Step ④: Cleanup & reporting.</summary>  
 - ④ When completely done with the entire project
-  - run ```delete-bad-ai-transcription``` in every folder with the command: ```sweep call delete-bad-ai-transcription``` to delete any bad transcriptions.
-  - run ```clean-up-AI-transcription-trash-files-everywhere.bat include-dot-files``` to clean up any remaining trash files and lockfiles
+  - Double-check for bad AI transcriptions by running ```delete-bad-ai-transcription``` in every folder of your collection. Do this by going ot the base folder and running the command: ```sweep call delete-bad-ai-transcription``` which runs our deleter inside each and every subfolder
+  - If you have not made it part of your computer’s reboot automation scripts, manually run ```clean-up-AI-transcription-trash-files-everywhere.bat include-dot-files``` to clean up any remaining trash files and lockfiles
+</details>
+
 
 
 
@@ -246,9 +256,9 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 ### NOTE: Many commands have several different aliases, for convenience-of-remembering.
 
-#### 🍀 Five main types of commands exist for this system: TODOLINK
+#### 🍀 Five main types of commands exist for this system: TODOLINKTOBELOW
 
-  1. 💾 filename alignment  (mark-all-filenames-as-instrumental.bat, ask-if-these-are-instrumentals.bat, etc)
+  1. 💾 Filename alignment  (mark-all-filenames-as-instrumental.bat, ask-if-these-are-instrumentals.bat, etc)
   1. 🎤️ Lyric alignment  ([get-lyrics](../BAT-and-UTIL-files-1/get-lyrics.bat),  [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat), etc)
   1. 🧏 Karaoke alignment ([get-karaoke](../BAT-and-UTIL-files-1/get-karaoke.bat), [get-karaoke-for-playlist](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
   1. 🕵 Lyric   Auditing ([review-lyrics](../BAT-and-UTIL-files-1/review-files.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
@@ -256,13 +266,13 @@ From a running TCC command line, use whatever system commands you’d like from 
   
 🍀 Two lesser types of commands exist for this system:
 
-  1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
+  1. ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration commands (to work with the song that is currently playing in ⚡️Winamp⚡️) [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙)
   1. ⚙️ Subordinate commands (*under-the-hood* stuff not generally invoked directly)
 
 
 🍀 Uncategorized commands:
 
-  1. [thorough.bat](../BAT-and-UTIL-files-1/thorough.bat) - sets/unsets the ```%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%``` environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.  The most SRT files I’ve created in a day in thorough mode is 480, and that required some amount of attention from wake to sleep.
+  1. [thorough.bat](../BAT-and-UTIL-files-1/thorough.bat) - sets/unsets the ```%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%``` environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.
 
 
 
@@ -1058,7 +1068,6 @@ Technically should be called “```audio_file_index.bat```”.
 TODO: may have to unapprove any txt if the LRC/SRT is generated         
 TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency. instrumentals. etc.
 	NOTE: New hallucation patterns must be added to: delete-bad-AI-transcriptions.bat lyric-postprocessor.pl	subtitle-postprocessor.pl remove-period-at-ends-of-lines.pl
-
 
 
 
