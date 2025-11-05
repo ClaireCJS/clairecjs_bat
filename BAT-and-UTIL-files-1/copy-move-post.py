@@ -33,7 +33,7 @@ import random
 import sys
 import re
 import io
-from io import StringIO
+from   io import StringIO
 import threading
 import queue
 import time
@@ -59,35 +59,35 @@ except ImportError:
 from colorama import init
 init(autoreset=False)
 
-
-#————————————————————————————————————————————————————————————————————
-#screen_columns, screen_rows = os.get_terminal_size()
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 import shutil
 try:
-    screen_columns, screen_rows = shutil.get_terminal_size()
+    screen_columns, screen_rows = shutil.get_terminal_size()    #screen_columns, screen_rows = os.get_terminal_size()
 except Exception:
     print(f"Error getting screen dimensions: {e}")
-#————————————————————————————————————————————————————————————————————
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 
 
 #────────────────────────────────────────────────────────────────────
-SPECIAL_TREATMENT_FOR_QUESTION_LINES = True       # Set to False to suppress special treatment of lines with '?'
-COLOR_QUESTION_BACKGROUNDS           = True       #whether to highlight lines with "?" with a random background character and other stuff —— originally developed for Y/N/R/A-type prompts when copying files, but annoying in other situations
+SPECIAL_TREATMENT_FOR_QUESTION_LINES = True        # Set to False to suppress special treatment of lines with '?'
+COLOR_QUESTION_BACKGROUNDS           = True        # whether to highlight lines with "?" with a random background character and other stuff —— originally developed for Y/N/R/A-type prompts when copying files, but annoying in other situations
+DEFAULT_COLOR_CYCLE_MODE             = "fg"        # whether to color-cycle foreground ("fg"), background ("bg"), or both ("both").
+tee                                  = False       # set to True to disable [some] emoji decoration of lines
+nomoji                               = False       # set to True to disable [some] emoji decoration of lines
+whisper_ai                           = False       # set to True to run in WhisperAI mode
 
-DEFAULT_COLOR_CYCLE_MODE   = "fg"                 #whether to color-cycle foreground ("fg"), background ("bg"), or both ("both").
-EMOJIS_COPY                = '⭢︋📂 '
-EMOJIS_PROMPT              = '❓❓ '
-#MOJIS_DELETE              = '👻⛔'               #"ghost" + "no" = dead file? no more file? File is now a ghost?
-EMOJIS_DELETE              = '👻⛔ '              #"ghost" + "no" = dead file? no more file? File is now a ghost?
-EMOJIS_SUMMARY             = '✔️ '
-EMOJIS_ERROR               = '🛑🛑'
-tee                        = False                #set to True to disable [some] emoji decoration of lines
-nomoji                     = False                #set to True to disable [some] emoji decoration of lines
-whisper_ai                 = False                #set to True to run in WhisperAI mode
-whisper_decorator_title    = "🚀🚀🚀"             #decorator for Whisper title
+whisper_decorator_title = "🚀🚀🚀"                # decorator for Whisper title
+EMOJIS_COPY             = '⭢︋📂 '
+EMOJIS_PROMPT           = '❓❓ '
+#MOJIS_DELETE           = '👻⛔'                  # "ghost" + "no" = dead file? no more file? File is now a ghost?
+EMOJIS_DELETE           = '👻⛔ '                 # "ghost" + "no" = dead file? no more file? File is now a ghost?
+EMOJIS_SUMMARY          = '✔️ '
+EMOJIS_ERROR            = '🛑🛑'
+
 #Note to self: either maintain a simultaneous update of these 4 values in set-colors.bat or create env-var overrides:
-MIN_RGB_VALUE_FG =  88;  MIN_RGB_VALUE_BG = 12    #\__ range of random values we
-MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40    #/   choose random colors from
+MIN_RGB_VALUE_FG =  88;  MIN_RGB_VALUE_BG = 12     #\__ range of random values we
+MAX_RGB_VALUE_FG = 255;  MAX_RGB_VALUE_BG = 40     #/   choose random colors from
 
 
 # ANSI codes
@@ -129,9 +129,8 @@ UNDERLINE_OFF        = "\033[24m"
 
 PRENEWLINE = ERASE_TO_EOL
 
-
-FOOTERS = [                                                                                                     #values that indicate a copy/move summary line,
-           "files copied"          , "file copied"           ,                                                 #which we like to identify for special treatment
+FOOTERS = [                                                                                                   # values that indicate a copy/move summary line,
+           "files copied"          , "file copied"           ,                                                # which we like to identify for special treatment
            "files moved"           , "file moved"            ,
            "files deleted"         , "file deleted"          ,
            "dirs copied"           , "dir copied"            ,
@@ -145,16 +144,16 @@ FOOTERS = [                                                                     
            "Standalone Faster-Whisper-XXL r"
           ]
 
-file_removals  = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                    #values that indicate a file deletion/removal
-#sys.stdout     = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                    #utf-8 fix
-move_decorator_from_environment_variable = os.environ.get('move_decorator_from_environment_variable', '')   #fetch user-specified decorator (if any)
+file_removals  = ["\\recycled\\","\\recycler\\","Removing ","Deleting "]                                    # values that indicate a file deletion/removal
+#sys.stdout     = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')                   # utf-8 fix
+move_decorator_from_environment_variable = os.environ.get('move_decorator_from_environment_variable', '')   # fetch user-specified decorator (if any)
 
 if os.environ.get('no_tick') == "1": TICK = False
 else                               : TICK = True
 #print(f"tick is {TICK} .. {os.environ.get('no_tick')}")
 
 if os.environ.get('no_double_lines',0) == "1": DOUBLE_LINES_ENABLED = False
-else                                         : DOUBLE_LINES_ENABLED = True                                  #DEBUG: print(f"DOUBLE_LINES_ENABLED={DOUBLE_LINES_ENABLED}")
+else                                         : DOUBLE_LINES_ENABLED = True                                  # DEBUG: print(f"DOUBLE_LINES_ENABLED={DOUBLE_LINES_ENABLED}")
 
 #vars
 current_processing_segment = 0
@@ -384,6 +383,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
             summary     = True
 
     line = ""
+
     #as of TCC v33 the copy /G now outputs to screen directly which leaves detritus that we WANT until we don’t want it
     #so now we have to move to column 1
     if nomoji is True:                                                                                          # Start the line off
@@ -392,10 +392,10 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         line = line + MOVE_TO_COL_1 + move_decorator_from_environment_variable                                                                                                      #decorate with environment-var-supplied decorator if applicable
         if   any(substring in line_buffer for substring in file_removals ): line += EMOJIS_DELETE                                  #treatment for file deletion lines
         elif any(substring in line_buffer for substring in ["Y/N/A/R)"]  ):
-            line += EMOJIS_PROMPT + CURSOR_VISIBLE                                  #treatment for  user prompt  lines
+            line += EMOJIS_PROMPT + CURSOR_VISIBLE                                                                                 #treatment for  user prompt  lines
             with output_mutex:
                 enable_vt_support()
-                sys.stdout.write(CURSOR_VISIBLE)    #timing
+                sys.stdout.write(CURSOR_VISIBLE)                                                                                   #timing
                 flush()
             #print(f"[line buffer={line_buffer}")
         elif any(substring in line_buffer for substring in ["=>","->"]   ): line += EMOJIS_COPY                                    #treatment for   file copy   lines
@@ -449,7 +449,7 @@ def print_line(line_buffer, r, g, b, additional_beginning_ansi=""):
         spacer           = "                              "
         spacer2          = "                           "
         spacer_less      = "           "
-        spacer_even_less =    "   "
+        spacer_even_less = "   "
         if verbose: print(f"orig_line is [orig={original_line}][line={line}]")
 
         #f "[ctranslate2]" in line: just won't work!
@@ -734,11 +734,11 @@ while t.is_alive() or not q.empty():
 
 
             #print_line(line_buffer, r, g, b, additional_beginning_ansi)
-            #line_buffer = ""
+            #line_buffer               = ""
             #additional_beginning_ansi = ""
 
             #REFERENCE: function ANSI_CURSOR_CHANGE_COLOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`                                 # with "#" in front of color
-            #rgbhex_with_pound_sign = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)                                                  # Reset for the next line
+            #rgbhex_with_pound_sign    = convert_rgb_tuple_to_hex_string_with_hash(r,g,b)                                               # Reset for the next line
             #additional_beginning_ansi = f"{CURSOR_RESET}\033]" + "12;" + rgbhex_with_pound_sign + f"\007"                              # Reset for the next line: make cursor same color
         else:
             flush()                 #didn’t seem to fix what i wanted it to, but didn’t seem to hurt (2024/12/19)
@@ -752,7 +752,7 @@ while t.is_alive() or not q.empty():
         except:
             pass
 
-    #final flush just in case ... 🐐 might not be necessary...
+    #final flush just in case ... might not be necessary...
     try:
         flush()
     except:
@@ -761,25 +761,19 @@ while t.is_alive() or not q.empty():
 
 # Flush any remaining content in line_buffer after the loop
 # After exiting the main loop, print any remaining line content
-#f line_buffer.strip():                                                      # Ensure any remaining line without \n is printed
-#    print_line(line_buffer, r, g, b, additional_beginning_ansi)
-#if line_buffer.strip() and "[ctranslate2]" not in line_buffer:              # Ensure any remaining line without \n is printed
-#    print_line(line_buffer, r, g, b, additional_beginning_ansi)
 if line_buffer.strip():
     if "[ctranslate2]" not in line_buffer:
         print_line(line_buffer, r, g, b, additional_beginning_ansi)
     # else: silently suppress
 
-
-#sys.stdout.write(ANSI_RESET + "\n")  # Reset any leftover ANSI styles  # Reset the ansi? #kind of equivalent of: if TICK: claire.tock()
-#flush()   # Final flush?
-# Restore sys.stdout if needed  #sys.stdout = sys.stdout.original_stdout
-
+#sys.stdout.write(ANSI_RESET + "\n")        # Reset any leftover ANSI styles  # Reset the ansi? #kind of equivalent of: if TICK: claire.tock()
+#flush()                                    # Final flush?
+#sys.stdout = sys.stdout.original_stdout    # Restore sys.stdout if needed
 
 
 print(CURSOR_VISIBLE + ANSI_RESET,end="")
+print(ANSI_RESET_FULL            ,end="")                               # 20241222: got stuck red during get-lyrics
 
-print(ANSI_RESET_FULL,end="")                               # 20241222: got stuck red during get-lyrics
 
 
 

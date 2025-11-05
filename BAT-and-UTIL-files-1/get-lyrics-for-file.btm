@@ -2886,7 +2886,7 @@ rem Validate we did something:
         rem echo All done? 🐐🐮🐐🐮🐐🐮
         if "1" == "%goto_end%"         goto /i END_OF_GET_LYRICS
         if "1" == "%ABANDONED_SEARCH%" goto /i END_OF_GET_LYRICS
-        echo 🐐🐮🐐🐮🐐🐮 This is NOT the end! 🐐🐮🐐🐮🐐🐮
+        rem debug: echo 🐐🐮🐐🐮🐐🐮 This is NOT the end! 🐐🐮🐐🐮🐐🐮
 
 rem If we couldn’t find lyrics, as if we want to approve this as our final lyic status: The status of “lyriclessness”
         :ask_to_approve_lyriclessness

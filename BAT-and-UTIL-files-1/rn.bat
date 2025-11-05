@@ -6,6 +6,11 @@
 rem %COLOR_DEBUG% %+ echo * EXTRA_NAME is %EXTRA_NAME% ... YOUTUBE_MODE=%YOUTUBE_MODE% %+ %COLOR_NORMAL%
 rem %COLOR_DEBUG% %+ echo ARGS: %*
 
+
+rem Config:
+        set DEBUG_CHECK_SIDECAR=0
+
+
 rem Fix environment:
         if "0" == "%ansi_off%" call ansi-on
         rem No! Leave it! Worst that happens is an erroneous blank line! set SIDECARS_RENAMED=0
@@ -174,8 +179,8 @@ rem             for /a:  %fi in (%1) if exist %as_instrmental_param%      call r
                             if "%%~nxF" neq "%FILENAME_OLD%" (
                                 set "FILENAME_SIDECAR_OLD=%~dp1%%~nxF"
                                 set "FILENAME_SIDECAR_NEW=%~dp1%BASENAME_NEW%%%~xF"
-                                echo %ansi_color_debug%DEBUG: Checking sidecar file - %lq%!FILENAME_SIDECAR_OLD!%rq%
-                                echo %ansi_color_debug%DEBUG: Renaming to ----------- %lq%!FILENAME_SIDECAR_NEW!%rq%
+                                if "1" == "%DEBUG_CHECK_SIDECAR%" echo %ansi_color_debug%DEBUG: Checking sidecar file - %lq%!FILENAME_SIDECAR_OLD!%rq%
+                                if "1" == "%DEBUG_CHECK_SIDECAR%" echo %ansi_color_debug%DEBUG: Renaming to ----------- %lq%!FILENAME_SIDECAR_NEW!%rq%
                                 %COLOR_SUCCESS%        %+  echo      %ansi_color_bright_red%%star3% %ansi_color_green%Renaming sidecar file: %ansi_color_green%%italics_on%%faint_on%%@NAME[!FILENAME_SIDECAR_OLD!]%faint_off%%italics_off%
                                 %COLOR_SUCCESS%        %+  echo      %ansi_color_green%%zzzzzzzzzzzzzzzzzzzzzzz%                     To: %italics_on%%faint_on%%@NAME[!FILENAME_SIDECAR_NEW!]%faint_off%%italics_off% %+ %COLOR_NORMAL%
                                 %COLOR_SUBTLE%         %+  echos %FAINT_ON%%ITALICS_ON%                              ``

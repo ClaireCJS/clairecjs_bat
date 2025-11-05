@@ -2341,14 +2341,22 @@ goto /i skip_subroutines
                                                                 set goto_try_again=1
                                                         endiff
                                                         unset /q ANSWER
-                                                echo %star2% Current lyrics are: %italics_on%%our_lyrics%%italics_on%
-                                                rem  AskYN "Try again with unsetting the lyrics so there are no lyrics"   no   0
+                                                call AskYN "Edit lyrics" no 0
+                                                        iff "Y" == "%ANSWER%" then
+                                                                unset our_lyrics*
+                                                                gosub check_for_answer_of_E "%txt_file%" "%srt_file%" 
+                                                        else
+                                                                echo %star2% Current lyrics are: %lq%%italics_on%%our_lyrics%%italics_on%%rq%
+                                                                rem  AskYN "Try again with unsetting the lyrics so there are no lyrics"   no   0
+                                                        endiff
                                                 call AskYN "Try the whole process again from the very very start"         yes  0
                                                         iff "Y" == "%ANSWER%" then
                                                                 echo %ansi_color_removal%%emoji_axe% Unsetting lyrics...%ansi_color_normal%
                                                                 unset our_lyrics*
                                                                 set goto_try_again=1
                                                         endiff
+                                                        if "N" == "%ANSWER%" then goto :nothing_generated
+                                                
                                                 set ANSWER=%HELD_ANSWER%
                                         endiff
                                         if "1" == "%goto_try_again%" goto /i :go_here_for_encoding_retries
