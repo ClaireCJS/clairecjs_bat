@@ -23,11 +23,12 @@ rem Capture parameters:
 rem call debug "TB_PARAM_1=%TB_PARAM_1%,TB_PARAM_2=%TB_PARAM_2%,params=%*"
 
 rem ENVIRONMENT: Validate the environment:
-        if 1 ne %VALIDATED_LOCKED_MESSAGE_BAT% (
-                call validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_UNLOCK_MARGINS ANSI_SAVE_POSITION ANSI_RESTORE_POSITION ANSI_EOL NEWLINE CONNECTING_EQUALS BLINK_ON BLINK_OFF DOT ANSI_COLOR_ERROR ANSI_UNLOCK_MARGINS
+        iff "1" != "%VALIDATED_LOCKED_MESSAGE_BAT%" then
+                rem  validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_UNLOCK_MARGINS ANSI_SAVE_POSITION ANSI_RESTORE_POSITION ANSI_EOL NEWLINE CONNECTING_EQUALS BLINK_ON BLINK_OFF DOT ANSI_COLOR_ERROR ANSI_UNLOCK_MARGINS
+                call validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_COLORS_HAVE_BEEN_SET EMOJI_HAVE_BEEN_SET
                 call validate-plugin StripANSI
                 set  VALIDATED_LOCKED_MESSAGE_BAT=1
-        )
+        endiff
 
 
 rem CONFIG: Set message background color & divider:

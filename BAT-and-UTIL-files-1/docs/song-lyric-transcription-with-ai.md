@@ -1,4 +1,5 @@
 TODO: search for other todos below
+TODO: mention about local repo search: c:\lyrics\M\Metallica\Metallica - One.txt search
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -219,12 +220,12 @@ Type “work”         to be interactively asked as to the nature of your work.
 - ① Prep files:
   - Optionally use ```LRCget``` (TODO link) to pre-download lyrics and transcriptions for your collection (if you don’t, this whole project make take 20–60% longer). BEWARE!!!!!  Every single live or remix song will match to the official version, so you want to take note of the date you run this, and delete every file that has “(live” or “Mix)” in it [or however it is you name things in your own collection]. TODO: Create tool to do this named “LRCget-post-cleanup.bat”
   - Optionally use ```global /i create-txt-lyrics-from-karaoke-files.bat``` to convert any LRC/SRTs we already have to TXT
-  - Optionally use ```predownload-lyrics``` to pre-download lyrics available from genius.com (if you don’t, the approving lyrics process will take 20–40% longer) 
-  - Optionally use ```sweep ask-if-instrumentals``` to mark instrumentals (if you don’t, you’ll waste electricity+GPU time to get hallucinatory instrumental transcriptions)
+  - Optionally use ```global /i predownload-lyrics``` to pre-download lyrics available from genius.com (if you don’t, the approving lyrics process will take 20–40% longer) 
+  - Optionally use ```global /i ask-if-instrumentals``` to mark instrumentals (if you don’t, you’ll waste electricity+GPU time to get hallucinatory instrumental transcriptions)
     - for folders with too many to answer individually, you can pre-answer for all files in the folder with: ```mark-all-filenames-ADS-tag-for-as_instrumental``` and ```mark-all-filenames-ADS-tag-for-NOT-as_instrumental``` 
-  - Optionally use ```sweep ask-if-lyricless``` to mark files that are in a state of “lyriclessness”, our term for unfindable lyrics/giving up on finding lyrics (if you don’t, the lyric approval process will take much longer)
+  - Optionally use ```global /i ask-if-lyricless``` to mark files that are in a state of “lyriclessness”, our term for unfindable lyrics/giving up on finding lyrics (if you don’t, the lyric approval process will take much longer)
     - for folders with too many to answer individually, you can pre-answer for all files in the folder with:```approve-lyriclessness.bat *``` and ```approve-lyriclessness.bat *``` 
-    - When done, cleanse invalid lyrics/subtitles with ```sweep post-lyricless-clean.bat```
+    - When done, cleanse invalid lyrics/subtitles with ```global /i post-lyricless-clean.bat```
       - This is necessary in the event of LRCget downloading transcriptions that we later decide are invalid via bulk command, TODO: as well as to purge erroneous subtitle/lyric files associated with instrumentals
 </details>
 
@@ -236,7 +237,7 @@ Type “work”         to be interactively asked as to the nature of your work.
 	- ━or━
 	- *approving lyriclessness* (can’t/won’t find lyrics) 
   - Alignment can be done in either ABC or random order:
-    - (1) for ABC order: ```sweep glh``` 
+    - (1) for ABC order: ```global /i glh``` 
     - (2)  random order: ```align-music-collection-lyrics.bat``` or ```sweep-random "glh" force``` which
   - Repeat alignment command until everything passes
   - Track how many were aligned on a particular day with ```report-lyric-approval-progress.bat```
@@ -248,7 +249,7 @@ Type “work”         to be interactively asked as to the nature of your work.
 
 - ③ Then, transcribe audiofiles with ```get-karaoke-here``` (“gkh”).  
   - A GeForce RTX 3060 with 12G VRAM can do about 300 per day.
-  - (1) transcribe in alphabetical order: ```sweep gkh```
+  - (1) transcribe in alphabetical order: ```global /i gkh```
   - (2) transcribe in    random    order: ```sweep-random "gkh" force``` 
   - Repeat transcription command until everything is transcribed
   - Ren ```gkh report``` if you want to see what percentage remains in a specific folder (like if you’ve been working a folder with hundreds of songs and are curious).
@@ -258,7 +259,7 @@ Type “work”         to be interactively asked as to the nature of your work.
 <details><summary>Click here to view Step ④: Cleanup & reporting.</summary>  
 
 - ④ When completely done with the entire project
-  - Double-check for bad AI transcriptions by running ```delete-bad-ai-transcription``` in every folder of your collection. Do this by going ot the base folder and running the command: ```sweep call delete-bad-ai-transcription``` which runs our deleter inside each and every subfolder
+  - Double-check for bad AI transcriptions by running ```delete-bad-ai-transcription``` in every folder of your collection. Do this by going ot the base folder and running the command: ```global /i call delete-bad-ai-transcription``` which runs our deleter inside each and every subfolder
   - If you have not made it part of your computer’s reboot automation scripts, manually run ```clean-up-AI-transcription-trash-files-everywhere.bat include-dot-files``` to clean up any remaining trash files and lockfiles
 </details>
 
@@ -315,26 +316,40 @@ If Winamp Integration is enabled, pauses and unpauses WinAmp before/after the pr
 
 ### 🌟 aii / [ask-if-instrumental](../BAT-and-UTIL-files-1/ask-if-instrumental.bat)
 
-Asks if an individual song is an instrumental, and takes appropriate actions if it is. Those actions include: Previewing any TXT/LRC/SRT lyric/subtitle files and prompting the user for deletion of each one, prompting the user for deletion of any associated JSON/LOG files, and allowing the user to preview the song (with ```preview-audio-file.bat```) or enqueue the song in WinAmp (with my recompiled ```enqueueee.exe```) for double-checking its instrumental nature.
+Asks if an *INDIVIDUAL* song is an instrumental, and takes appropriate actions if it is. 
+Those actions include: Previewing any TXT/LRC/SRT lyric/subtitle files and prompting the user for deletion of each one, prompting the user for deletion of any associated JSON/LOG files, and allowing the user to preview the song (with ```preview-audio-file.bat```) or enqueue the song in WinAmp (with my recompiled ```enqueueee.exe```) for double-checking its instrumental nature.
 
 ### 🌟 [ask-if-instrumentals](../BAT-and-UTIL-files-1/ask-if-instrumentals) / [mark-all-filenames-as-instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-as-instrumental.bat)
 
-```ask-if-instrumentals``` is a better-named call to ```mark-all-filenames-as-instrumental.bat```, as ```mark-all-filenames-as-instrumental.bat``` is a bit improperly-named.  These are both the same command, and that command *ASKS* us if we want to mark each audio file in a folder as an instrumental. If we do, it takes the actions ```ask-if-instrumental``` takes.  This can be very annoying on a folder of 100+ songs, sooooo (see next entry):
+```ask-if-instrumentals``` extends ```ask-if-instrumental``` to multiple songs. It cleans out bad AI transcriptions from the current folder and then *ASKS* us—one audio file at a time—if we want to mark each audio file in a folder as an instrumental (or as a sound effect).  
+
+This process can be very annoying on a folder of 100+ songs, sooooo ```ask-if-instrumentals``` is extended to (see next entry):
 
 ### 🌟 [mark-all-filenames-ADS-tag-for-NOT-as_instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-ADS-tag-for-NOT-as_instrumental.bat) TODO
 
-Marks all filenames in a folder with an ADS tag flagging them as NOT AN INSTRUMENTAL. 
-Why would we ever do this?
-To speed up the ```ask-if-instrumentals``` process on a folder that has hundreds of non-instrumental files. 
-Rather than answering “N” to each file, this can pre-mark the answer so we aren’t asked in the first place.
+Marks *ALL* filenames in a folder with an ADS tag flagging them as NOT AN INSTRUMENTAL. 
+
+Why would we ever do this?  To speed up the ```ask-if-instrumentals``` process on a folder that has hundreds of non-instrumental files. 
+
+Rather than answering “N” to each file, this can pre-mark the answer so we aren’t asked in the first place. Very useful, for example, on folder trees full of vocal-less music.  You can do this on an entire folder tree via the command: ```global /i mark-all-filenames-ADS-tag-for-NOT-as_instrumental```
+
 
 ### 🌟 [mark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-ADS-tag-for-as_instrumental.bat) 
 
-The opposite of the last script. This marks all filenames in a folder with an ADS tag flagging them as an instrumental. However, this is NOT our preferred solution. Our preferred solution is for EACH FILENAME to have “ [instrumental]” in it. In many situations, only the filename is examineds, so the ADS tag is NOT sufficient for accurate reporting.
+The opposite of the last script. This marks all filenames in a folder with an ADS tag flagging them as an instrumental. 
+
+However, this is NOT our preferred solution! 
+Our preferred solution is for EACH FILENAME to have “ [instrumental]” in it!
+
+In many situations, only the filename is examined, so if you want full precision in progress reports, and faster playlist processing (i.e. ```get-lyrics``` and ```get-karaoke``` when used on playlists), you will eventually need to rename the filename as well.
+
+		  
 
 ### 🌟 [unmark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/unmark-all-filenames-ADS-tag-for-as_instrumental.bat) 
 
-If we screwed up with either of the last 2 scripts, this removes our screwup from every every file in the folder by completely removing the is_instrumental ADS tag from every audio file in the folder. This resets our “Y”/“N” answers for ```ask-if-these-are-instrumentals``` and allows us to start the process over for any filenames which have been flagged solely with ADS tags.
+If we screwed up with either of the last 2 scripts, this removes the answers for every file in the folder.
+
+It does this by completely removing the ```is_instrumental``` ADS tag from every audio file in the folder. This resets our “Y”/“N” answers for ```ask-if-these-are-instrumentals``` and allows us to start the process over for any filenames which have been flagged solely with ADS tags.
 
 </details>
 
@@ -347,9 +362,9 @@ If we screwed up with either of the last 2 scripts, this removes our screwup fro
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌠 BASIC ALIGNMENT STEPS (all optional): mark instrumentals ➜ mark lyriclessness ➜ predownload lyrics ➜ review/approve lyrics
+### 🌠 BASIC LYRIC ALIGNMENT PROCESS (all optional): mark instrumentals ➜ mark lyriclessness ➜ predownload lyrics ➜ review/re-download/google lyrics ➜ approve lyrics
 
-### OPTIONAL STEP 1: [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat)
+### 🌟 ❶ OPTIONAL STEP 1: [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat)
 
 You can ```set OVERRIDE_FILE_ARTIST_TO_USE=Artist Name``` to override the artist name.
 
@@ -358,13 +373,13 @@ Runs an initial pass of pre-downloading lyrics from Genius **in a completely una
   - BENEFIT 1: THIS SAVES TIME!!!!!!!!  By doing initial fetches in advance, you aren’t wasting *your* time, but *attended* time.
   - BENEFIT 2: This allows for lyric approval/disapproval to be performed when internet connectivity is down.
 
-### OPTIONAL STEP 2: Mark any instrumentals with [ask-if-instrumentals.bat](../BAT-and-UTIL-files-1/ask-if-these-are-instrumentals.bat)
+### 🌟 ❷ OPTIONAL STEP 2: Mark any instrumentals with [ask-if-instrumentals.bat](../BAT-and-UTIL-files-1/ask-if-these-are-instrumentals.bat)
 
 Particularly useful for soundtrack scores... and easy way to add “[instrumental]” to filenames so that we don’t spend AI-energy trying to transcribe files that have no lyrics.  
 
 *Side-note:* We recommend using “[semi-instrumental]” to denote songs that have vocals but no lyrics (i.e. chorus voices being used as instruments), or songs that have a few words but no real vocals (i.e. a 3 minute electronic tracks with a spoken sample at the beginning). Semi-instrumentals will still be transcribed if caught by our scripts, but only 1 attempt will be made before they are flagged with an ADS tag to prevent infinite re-attempts.
 
-### OPTIONAL STEP 3: Mark any songs with unfindable lyrics as “lyricless” with ```ask-if-lyricless.bat``` [ask-if-lyricless.bat](../BAT-and-UTIL-files-1/ask-if-these-are-lyricless.bat)
+### 🌟 ❸ OPTIONAL STEP 3: Mark any songs with unfindable lyrics as “lyricless” with ```ask-if-lyricless.bat``` [ask-if-lyricless.bat](../BAT-and-UTIL-files-1/ask-if-these-are-lyricless.bat)
 
 I usually skip this one except in rare instances, buuuut:
 
@@ -378,7 +393,7 @@ Maybe it’s:
 
 This will go through the songs one at a time and ask if you want to mark any as lyricless / in a state of lyriclessness, which is our internal nomenclature for “we don’t want to bother looking for lyrics anymore”. Ultimately, this is a bit faster than running into these songs one at a time later.
 
-### 🌟 STEP 4: Get and approve lyrics with [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-file {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
+### 🌟 ❹ STEP 4: Get and approve lyrics with [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-file {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
 
 Obtains the lyrics for a song file, a playlist, or the currently playing song. 
 - transcriptions work **much** better with lyrics
@@ -394,9 +409,9 @@ Obtains the lyrics for a song file, a playlist, or the currently playing song.
 - lyrics are filtered (spam and unrelated text that follows common patterns are removed)
 
 
-### OTHER LYRIC ALIGNMENT COMMANDS:
+## OTHER LYRIC ALIGNMENT COMMANDS:
 
-Note that you can ```set OVERRIDE_FILE_ARTIST_TO_USE=Artist Name``` to override the artist name when getting lyrics
+Note that you can ```set OVERRIDE_FILE_ARTIST_TO_USE=Artist Name``` to override the artist name when getting lyrics. Can be useful if it’s a cover album. For example, a Nirvana tribute album where every artist is not Nirvana definitely uses Nirvana’s lyrics, so setting the value to ```Nirvana``` would be an appropriate way to speed up the process.
 
 
 ### 🌟 [get-lyrics-for-currently-playing-song](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
@@ -485,7 +500,7 @@ If lyrics (or lyriclessness) are pre-approved, creation is automatic.
 
 Create karaoke files for **all songs** *in the current folder* that do not have them
 Songs that have pre-approved lyrics go through the process automatically.
-To do for an entire folder tree, preceed with ```sweep ```
+To do for an entire folder tree, preceed with ```global /i ```
 
 
 ### 🌟 [create-srt-from-playlist.bat](../BAT-and-UTIL-files-1/create-srt-from-playlist) (called via ```get-karaoke *{playlist}*```):
@@ -515,7 +530,6 @@ Final review includes using the special modes incorporated into the [print_with_
 
 If Winamp Integration is enabled, runs [WhisperTimeSync.bat](../BAT-and-UTIL-files-1/WhisperTimeSync.bat) on the currently-playing song.
 
-</details>
 
 ### 🌟 [srt_comparator.py](../BAT-and-UTIL-files-1/srt_comparator.py):
 

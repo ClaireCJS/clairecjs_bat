@@ -128,8 +128,8 @@ rem Check for problems:
 
 rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
-        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% Quick review of subtitles:%ansi_color_normal%
-        echo %ANSI_COLOR_WARNING_SOFT%  %STAR2% %italics_on%WhisperTimeSync%italics_off% often gets the very beginning wrong%ansi_color_normal%
+        echo %ANSI_COLOR_WARNING_SOFT%%STAR2% Potential manual review of subtitles:%ansi_color_normal%
+        echo %ANSI_COLOR_WARNING_SOFT%  %STAR2% %italics_on%WhisperTimeSync%italics_off% on rare case gets the very beginning wrong%ansi_color_normal%
         echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❶  Take special care that the very beginning / first words fall within a subtitle
         rem  We now have a program for this:       ❷  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
         echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❷  If the last timestamp of the new subtitles, which is:
@@ -153,7 +153,7 @@ rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_green%%zzzz%%italics_on%new%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_old_file%
 
         %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
-        pause "%ansi_color_important%Press any key after reviewing the subtitles for malformed blocks and making sure the first word(s) are inside a valid block..."
+        pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
 
 
 goto :END

@@ -242,19 +242,19 @@ rem ══════════════════ SUBROUTINES: ══�
 
                 rem If we are instructed to draw an upper-stripe, it gets a divider AFTER it:
                         rem setdos /x-6 %+ echo if "1" == "%STRIPEU%"                     call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION% %+ setdos /x0
-                        if "1" == "%STRIPEU%"                     call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
+                        if "1" == "%STRIPEU%"                     call print-with-columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
                         gosub "%bat%\get-lyrics-for-file.btm"     divider
 
                 rem Display filename with our header message:
                                 call bigecho "%STAR% %@randfg_soft[]%underline_on%%our_msg%%underline_off%:"                                       %POTENTIAL_REDIRECTION%
                                 rem echo 🐐 if exist %review_file_tmp_file_2% call print-with-columns -cw %_columns %PWC_OPTIONS%     %review_file_tmp_file_2% %POTENTIAL_REDIRECTION% %+ pause>nul
-                                if exist %review_file_tmp_file_2% call print-with-columns -cw %_columns %PWC_OPTIONS%     %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
+                                if exist %review_file_tmp_file_2% call print-with-columns %PWC_OPTIONS%     %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
 
                 rem If we are instructed to draw a lower-stripe, it gets a divider BEFORE it:
                         iff "1" == "%STRIPEL%" then
                                 gosub "%bat%\get-lyrics-for-file.btm" divider
                                 rem echo                                   call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
-                                if exist %review_file_tmp_file_2%      call print-with-columns -cw %_columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
+                                if exist %review_file_tmp_file_2%      call print-with-columns %PWC_OPTIONS% -st %review_file_tmp_file_2% %POTENTIAL_REDIRECTION%
                         endiff
         return
         :do_it_end

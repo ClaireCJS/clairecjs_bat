@@ -1,1 +1,1 @@
-@print_with_columns.py %*
+@print_with_columns.py -cw %_COLUMNS %*

@@ -21,7 +21,7 @@ rem Validate environment (once):
 rem Delete previous file:
         if not exist %TMPPAGE% goto :TmpPageDoesNotExist
                 *del /q %TMPPAGE%
-                goto :ERROR_TmpPageWouldNotDelete
+                if exist %TMPPAGE% goto :ERROR_TmpPageWouldNotDelete
         :TmpPageDoesNotExist
 
 rem Get track number from WAWI status page:

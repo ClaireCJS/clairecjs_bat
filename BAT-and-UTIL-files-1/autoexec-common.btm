@@ -1,4 +1,4 @@
-@Echo off
+@Echo on
 @loadbtm on
 @on break continue
 

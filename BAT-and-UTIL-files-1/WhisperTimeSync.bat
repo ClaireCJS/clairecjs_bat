@@ -195,21 +195,21 @@ rem Preview the lyrics vs OLD srt with stripes next to each other:
 rem Preview the old subtitles vs the new subtitles, with stripes for both between them:
         call print-with-columns    -st  -ins "%srt_old%"                   %+ rem 5
         call review-file       -wh -stU -ins "%srt_new%"                   %+ rem 6 & 7
-        echo %faint_on% old subtitle + stripe, new subtitle + stripe%faint_off%
+        echo %faint_on% That was old subtitle + stripe, new subtitle + stripe%faint_off%
         gosub divider
 
 rem Compare stripes of old subtitle to lyrics:
         echo %STAR2% %double_underline_on%OLD%double_underline_off% lyrics vs subtitles:
         call print-with-columns    -st  -ins "%lyr_processed%"             %+ rem 9
         call print-with-columns    -st  -ins "%srt_old%"                   %+ rem 8
-        echo %faint_on% lyrics + stripe, old subtitle + stripe%faint_off%
+        echo %faint_on% That was lyrics + stripe, old subtitle + stripe%faint_off%
         gosub divider
 
 rem Compare stripes of new subtitle to lyrics:
         echo %STAR2% %double_underline_on%NEW%double_underline_off% subtitles vs lyrics:
         type "%lyr_processed_rendered_plus_bot_stripe%"                    %+ rem  9 %+ rem call print-with-columns    -st  -ins "%lyr_processed%"             %+ rem 9
         call print-with-columns    -st  -ins "%srt_new%"                   %+ rem 10
-        echo %faint_on% lyrics + stripe, new subtitle + stripe%faint_off%
+        echo %faint_on% That was lyrics + stripe, new subtitle + stripe%faint_off%
         gosub divider 
 
 rem Do the animated visual comparison:
@@ -222,32 +222,47 @@ rem Use our comparator:
                 pause "Presss any key to see SRT comparator output..."
 
         rem Run comparator:
-                call set-tmp-file "comparator-output"
-                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr -key >"%tmpfile1%"
+                call set-tmp-file "comparator-output"                                %+ rem sets %tmpfile1%, %tmpfile2% automatically
+                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr -key >"%tmpfile1%" %+ rem     using “--key” option
+                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr      >"%tmpfile2%" %+ rem not using “--key” option
 
         rem Let’s try raw printing the results
                 gosub divider
+                call debug "(type tmpfile1)"
                 type "%tmpfile1%"
 
         rem Let’s try generically printing the comparator output with however many columns it uses:
                 gosub divider
-                call print-with-columns "%tmpfile1%"
+                call debug "(print tmpfile2 with columns)"
+                call print-with-columns "%tmpfile2%"
 
         rem Let’s try specifically printing the comparator output with 2 columns only:
                 gosub divider
-                call print-with-columns "%tmpfile1%" -c 2
+                call debug "(print tmpfile2 with 2 columns)"
+                call print-with-columns "%tmpfile2%" -c 2
 
         rem Let’s try specifically printing the comparator output with 2/4/6/8 columns:
+                call debug "(print tmpfile2 with dynamic columns)"
                 gosub divider
                 if not defined SUBTITLE_OUTPUT_WIDTH set SUBTITLE_OUTPUT_WIDTH=30
-                set PADDING=5
-                set    initial_column_pair_width=%@EVAL[2* SUBTITLE_OUTPUT_WIDTH + 1 * PADDING]
-                set subsequent_column_pair_width=%@EVAL[2* SUBTITLE_OUTPUT_WIDTH + 2 * PADDING]
-                set COLS_TO_USE=2
+                SET COMPARATOR_PADDING=7
+                set COL_PADDING=5
+                set COL_SIZE=%@eval[%SUBTITLE_OUTPUT_WIDTH% + %COMPARATOR_PADDING%]
+                REM set    initial_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 1 * PADDING + 7]
+                REM set subsequent_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 2 * PADDING]
+                set INITIAL_COLS_TO_USE=10
+                set         COLS_TO_USE=%INITIAL_COLS_TO_USE%
                 :recol_calc
-                if %@EVAL[%initial_column_pair_width% + %subsequent_column_pair_width%] lt %@EVAL[%_COLUMNS-1] (set COLS_TO_USE=%@EVAL[%cols_to_use% + 2] %+ goto :recol_calc)
-                call debug "determined # of even columns to use of “%COLS_TO_USE%”"                
-                call print-with-columns "%tmpfile1% -c %COLS_TO_USE%
+                set TOTAL_WIDTH=%@EVAL[(%COLS_TO_USE% * %COL_SIZE%) + ((%COLS_TO_USE% - 1) * %COL_PADDING%)]
+                rem @EVAL[%initial_column_pair_width% + %subsequent_column_pair_width%] lt %@EVAL[%_COLUMNS-1] (set COLS_TO_USE=%@EVAL[%cols_to_use% + 2] %+ goto :recol_calc)
+                iff %TOTAL_WIDTH% gt %@EVAL[%_COLUMNS-1] then
+                        call debug "COLS_TO_USE=%COLS_TO_USE% ... iff TOTAL_WIDTH[%TOTAL_WIDTH%] gt @EVAL[%_COLUMNS-1][@EVAL[%_COLUMNS-1]] then make cols_to_use less"
+                        set COLS_TO_USE=%@EVAL[%cols_to_use% - 2] 
+                        if %COLS_TO_USE% gt 2 goto :recol_calc
+                endiff
+                call debug "determined # of even columns to use of %lq%%COLS_TO_USE%%rq%, COL_SIZE=%lq%%COL_SIZE%%rq%"                
+                call debug "call print-with-columns %tmpfile2% -c %COLS_TO_USE%"
+                call print-with-columns "%tmpfile2%" -c %COLS_TO_USE%
 
         rem Final divider:
                 gosub divider

@@ -38,7 +38,8 @@ rem Capture parameters:
 
 rem ENVIRONMENT: Validate the environment:
         if "1" == "%VALIDATED_LOCKED_MESSAGE%" goto :validated_locked_messages_already
-                call validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_UNLOCK_MARGINS ANSI_SAVE_POSITION ANSI_RESTORE_POSITION ANSI_EOL NEWLINE CONNECTING_EQUALS BLINK_ON BLINK_OFF DOT ANSI_COLOR_ERROR ANSI_UNLOCK_MARGINS connecting_equals
+                rem  validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_UNLOCK_MARGINS ANSI_SAVE_POSITION ANSI_RESTORE_POSITION ANSI_EOL NEWLINE CONNECTING_EQUALS BLINK_ON BLINK_OFF DOT ANSI_COLOR_ERROR ANSI_UNLOCK_MARGINS connecting_equals
+                call validate-environment-variables PLUGIN_STRIPANSI_LOADED ANSI_COLORS_HAVE_BEEN_SET EMOJI_HAVE_BEEN_SET 
                 call validate-functions             ANSI_MOVE_UP   ANSI_BG  ANSI_UNLOCK_ROWS    ANSI_SCROLL_DOWN   ANSI_MOVE_DOWN        ANSI_MOVE_TO_ROW
                 call validate-plugin                StripANSI
                 set VALIDATED_LOCKED_MESSAGE=1

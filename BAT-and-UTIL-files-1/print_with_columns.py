@@ -168,12 +168,15 @@ record_working_column_length = 0
 
 
 from wcwidth import wcswidth as _orig_wcswidth
-def wcswidth(s):
-    #w = _orig_wcswidth(           s )
-    w  = _orig_wcswidth(strip_ansi(s))
-    #print (f"---- w={w} for “{s}” -----")
+def wcswidth(s):                                                # override wcwidth function to never return -1
+    #w = _orig_wcswidth(           s )                          # wrong way: not accurate unless ANSI is stripped first!
+    w  = _orig_wcswidth(strip_ansi(s))                          # right way: not accurate unless ANSI is stripped first!
+
+    #print (f"---- w={w} for “{s}” -----")                      #debug
+
     #if s in ['⸎❶❷']: return 2
-    return 0 if w < 0 else w
+
+    return 0 if w < 0 else w                                    # never return -1, which the original library returns in situations
 
 
 def parse_arguments():
@@ -826,7 +829,7 @@ def consistent_word_highlight(text):
     word             = ''
     in_highlight     = False                                                            # Track whether we're currently inside a highlighted word
 
-    text2use = text.replace('--','—');
+    text2use = text.replace('--','——');                                                 # double-hyphens are really meant to be em-dashes (“—”), however, windows terminal displays em-dashes as a single character in width, so we have to make two of them to not potentially upset the width (NOT length) of the string.
 
     for char in text2use:
         #f char.isalnum() or char in {"’", "'", "´", "-", "–", "—"}:                    # Building a word: punctuation that we still want to consider part of the word

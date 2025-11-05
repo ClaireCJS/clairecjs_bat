@@ -1,6 +1,6 @@
 @Echo OFF
 @on break cancel
 
-call validate-environment-variable ANSI_UNLOCK_MARGINS
+if not defined ANSI_UNLOCK_MARGINS call validate-environment-variable ANSI_UNLOCK_MARGINS
 
 echos %ANSI_UNLOCK_MARGINS%

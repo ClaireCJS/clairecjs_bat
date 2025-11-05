@@ -8,6 +8,6 @@ rem Validate environment (once):
         endiff        
 
 rem Unlock the rows:
-        call top-message unlock
+        call top-banner unlock
 
 
