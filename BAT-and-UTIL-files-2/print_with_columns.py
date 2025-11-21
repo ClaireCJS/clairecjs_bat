@@ -829,6 +829,7 @@ def consistent_word_highlight(text):
     word             = ''
     in_highlight     = False                                                            # Track whether we're currently inside a highlighted word
 
+    # cosmetic buff:
     text2use = text.replace('--','——');                                                 # double-hyphens are really meant to be em-dashes (“—”), however, windows terminal displays em-dashes as a single character in width, so we have to make two of them to not potentially upset the width (NOT length) of the string.
 
     for char in text2use:

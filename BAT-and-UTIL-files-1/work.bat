@@ -155,6 +155,8 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                         set WAIT_TIME=30
                         if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set WAIT_TIME=0
                         call divider
+                        call celebrate
+                        call divider
                         call AskYN "Keep on chompin’" yes 30
                                 iff "%ANSWER%" == "Y" then
                                         set ANSWER=%work_type_answer% 

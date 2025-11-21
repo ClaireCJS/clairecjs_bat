@@ -1,4 +1,4 @@
-@Echo on
+@Echo off
 @on break cancel
 
 :DESCRIPTION: this simply goes to the next folder, alphabetically. A lateral folder move. 

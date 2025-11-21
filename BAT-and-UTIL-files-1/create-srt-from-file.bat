@@ -2323,7 +2323,7 @@ goto /i skip_subroutines
                         set HELD_ANSWER=%ANSWER%
                                 iff not exist "%srt_file%" then
                                         unset /q ANSWER
-                                        call AskYN "Rename as instrumental" yes 0
+                                        call AskYN "Rename as instrumental/etc" yes 0
                                         iff "Y" == "%ANSWER%" then
                                                 gosub rename_audio_file_as_instrumental "%file_to_use%" ask
                                         else
@@ -2349,16 +2349,17 @@ goto /i skip_subroutines
                                                                 echo %star2% Current lyrics are: %lq%%italics_on%%our_lyrics%%italics_on%%rq%
                                                                 rem  AskYN "Try again with unsetting the lyrics so there are no lyrics"   no   0
                                                         endiff
-                                                call AskYN "Try the whole process again from the very very start"         yes  0
-                                                        iff "Y" == "%ANSWER%" then
-                                                                echo %ansi_color_removal%%emoji_axe% Unsetting lyrics...%ansi_color_normal%
-                                                                unset our_lyrics*
-                                                                set goto_try_again=1
-                                                        endiff
-                                                        if "N" == "%ANSWER%" then goto :nothing_generated
                                                 
                                                 set ANSWER=%HELD_ANSWER%
                                         endiff
+
+                                        call AskYN "Try the whole process again from the very very start"         yes  0
+                                                iff "Y" == "%ANSWER%" then
+                                                        echo %ansi_color_removal%%emoji_axe% Unsetting lyrics...%ansi_color_normal%
+                                                        unset our_lyrics*
+                                                        set goto_try_again=1
+                                                endiff
+                                                if "N" == "%ANSWER%" goto :nothing_generated
                                         if "1" == "%goto_try_again%" goto /i :go_here_for_encoding_retries
                                 endiff
                         set ANSWER=%HELD_ANSWER%

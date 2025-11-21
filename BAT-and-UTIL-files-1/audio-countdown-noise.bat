@@ -12,7 +12,7 @@
     
 
 ::::: DETERMINE BEEP FREQUENCY:
-    SET NOTES=%BAT%\note-frequencies.dat %+ call validate-environment-variable NOTES
+    SET NOTES=%BAT%\note-frequencies.dat %+ if not defined NOTES .or. not exist %NOTES% call validate-environment-variable NOTES
     SET BEEP_NOTES_TOTAL=%@LINES[%NOTES%]
     SET BEEP_RANGE_ITEM=%@EVAL[BEEP_NOTES_TOTAL / TOTAL_ITEMS]
     SET DONE_ITEMS_RANGE=%@EVAL[BEEP_RANGE_ITEM * ITEM_NUMBER]
@@ -37,7 +37,7 @@
         :Normal
 
 ::::: DO THE BEEP (BEEP CAN ONLY TAKE INTEGER FREQUENCIES; TRUNCATE CALCULATED FREQUENCY):
-    beep %@CEILING[%FREQ_TO_USE%] %INTERVAL%
+    *beep %@CEILING[%FREQ_TO_USE%] %INTERVAL%
 
 
 goto :END

@@ -248,20 +248,23 @@ rem Use our comparator:
                 SET COMPARATOR_PADDING=7
                 set COL_PADDING=5
                 set COL_SIZE=%@eval[%SUBTITLE_OUTPUT_WIDTH% + %COMPARATOR_PADDING%]
+                call debug "COL_SIZE initial value is “%COL_SIZE%”"
                 REM set    initial_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 1 * PADDING + 7]
                 REM set subsequent_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 2 * PADDING]
                 set INITIAL_COLS_TO_USE=10
                 set         COLS_TO_USE=%INITIAL_COLS_TO_USE%
                 :recol_calc
                 set TOTAL_WIDTH=%@EVAL[(%COLS_TO_USE% * %COL_SIZE%) + ((%COLS_TO_USE% - 1) * %COL_PADDING%)]
+                call debug "TOTAL_WIDTH for %COLS_TO_USE% columns is now being set to “%TOTAL_WIDTH%” [columns=%_COLUMNS]"
                 rem @EVAL[%initial_column_pair_width% + %subsequent_column_pair_width%] lt %@EVAL[%_COLUMNS-1] (set COLS_TO_USE=%@EVAL[%cols_to_use% + 2] %+ goto :recol_calc)
-                iff %TOTAL_WIDTH% gt %@EVAL[%_COLUMNS-1] then
-                        call debug "COLS_TO_USE=%COLS_TO_USE% ... iff TOTAL_WIDTH[%TOTAL_WIDTH%] gt @EVAL[%_COLUMNS-1][@EVAL[%_COLUMNS-1]] then make cols_to_use less"
-                        set COLS_TO_USE=%@EVAL[%cols_to_use% - 2] 
+                set MAX_WIDTH=%@EVAL[%_COLUMNS-3]
+                iff %TOTAL_WIDTH% gt %MAX_WIDTH% then
+                        set COLS_TO_USE=%@EVAL[%cols_to_use% - 1] 
+                        call debug "Because TOTAL_WIDTH[%TOTAL_WIDTH%] gt MAX_WIDTH[%MAX_WIDTH%] we need to use 1 fewer column, so wet have set COLS_TO_USE=%COLS_TO_USE%"
                         if %COLS_TO_USE% gt 2 goto :recol_calc
                 endiff
                 call debug "determined # of even columns to use of %lq%%COLS_TO_USE%%rq%, COL_SIZE=%lq%%COL_SIZE%%rq%"                
-                call debug "call print-with-columns %tmpfile2% -c %COLS_TO_USE%"
+                call debug "call print-with-columns %tmpfile2% -c %COLS_TO_USE% [screen width=%_COLUMNS]"
                 call print-with-columns "%tmpfile2%" -c %COLS_TO_USE%
 
         rem Final divider:

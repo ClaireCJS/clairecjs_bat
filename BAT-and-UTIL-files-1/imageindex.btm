@@ -1,9 +1,12 @@
 @Echo OFF
+@on break cancel
+@loadbtm on
 
- rem doesn't work with unicode output:
+
+rem Doesn't work with unicode output:
          option //unicodeoutput=no
  
-::::: CONFIGURATION:
+rem CONFIGURATION:
     setdos /X0
     set DEBUG=0
     set HTML_VIEWER=call html_viewer
@@ -13,12 +16,12 @@
     set LATEST_IMAGEINDEX_HTML_FULLNAME_OUTPUT=%LATEST_IMAGEINDEX_DIR%\%LATEST_IMAGEINDEX_HTML_FILENAME_OUTPUT%
     set LATEST_IMAGEINDEX_HTML_FULLNAME_INPUT=%LATEST_IMAGEINDEX_DIR%\latest-imageindex-input.html
 
-::::: PRELIMINARY REMINDERS:
+rem PRELIMINARY REMINDERS:
     if "%MACHINENAME"=="MAGIC" (%COLOR_ALARM% %+ echo * Carolyn, if you're tagging new pictures, you better run make-thumbnails.bat first! %+ %COLOR_NORMAL% %+ pause)
 
 
 
-::::: DOCUMENTATION:
+rem DOCUMENTATION:
     :PUBLISH
     :SUMMARY:  This let's you view all images in a directory in your webbrowser, very conveniuent.
     :USAGE:    image-index          [to view all images in current dir]
@@ -31,13 +34,14 @@
     :REQUIRES: 'cut' unix port to trim directories (could be worked around with a better makeimg.pl)
 
 
-::::: PARAMETERS:
+rem PARAMETERS:
     if "%1" eq "QUICK" imageindex-quick
 
-::::: ENVIRONMENT VALIDATION:
-    call validate-environment-variables FILEMASK_IMAGE FILEMASK_VIDEO
+rem ENVIRONMENT VALIDATION:
+        if not defined FILEMASK_IMAGE .or. not defined FILEMASK_VIDEO call validate-environment-variables FILEMASK_IMAGE FILEMASK_VIDEO
+        call validate-in-path fixtemp
 
-::::: SETUP:
+rem SETUP:
     unset /q TAGS
     unset /q DESCRIPTION
     unset /q TITLE
@@ -54,8 +58,8 @@
     :sets %WIDTH% to screen resolution:
     call setwidth.bat
 
-::::: DIRECTIVES LIKE 'COMPACT' AND 'GENERATE' NEED TO BE PARSED, BUT WE
-::::: CAN'T IGNORE A POTENTIAL WILDCARD COMING AFTER THOSE:
+rem DIRECTIVES LIKE 'COMPACT' AND 'GENERATE' NEED TO BE PARSED, BUT WE
+rem CAN'T IGNORE A POTENTIAL WILDCARD COMING AFTER THOSE:
 SET WILDCARD=%1
 if  "%@INDEX[%1,?]" NE "-1" (goto :Help)
 unset /q GENERATE
@@ -83,7 +87,7 @@ if "%RECURSIVE"=="1" (set DIRB=%DIRS)
 
 if "%DEBUG"=="1" (%COLOR_DEBUG% %+ echo * Checkpoint Alpha.  %+ %COLOR_NORMAL% %+ pause)
 
-::::: Generate directory of images:
+rem Generate directory of images:
     if "%ODT"=="ODT" goto :ODT
     :generate
     :20080424: In response to Flickr now allowing video, we need to slide AVIs in with JPGs alphabetically, whether they exist or not:      
@@ -95,7 +99,7 @@ if "%DEBUG"=="1" (%COLOR_DEBUG% %+ echo * Checkpoint Alpha.  %+ %COLOR_NORMAL% %
 :   (((%DIRB%       %FILEMASK_VIDEO%;%FILEMASK_IMAGE%) >&>:u8 nul) >>:u8 %TMP2)
 
     :::: TCMD v19 bug-workaround:        
-    call settmpfile %+ set TMPDIRFILE=%TMPFILE% %+ call settmpfile %+ REM grab another unique tmp filename, but leave %tmpfile pointing to somethign that isn't what we just popped off - i should probably have a tmpFile factory script at this point
+    call set-tmp-file %+ set TMPDIRFILE=%TMPFILE% %+ call set-tmp-file %+ REM grab another unique tmp filename, but leave %tmpfile pointing to somethign that isn't what we just popped off - i should probably have a tmpFile factory script at this point
     (((if exist %FILEMASK_IMAGE% %DIRB% %FILEMASK_IMAGE%) >&>:u8nul) >>:u8%TMPDIRFILE%)
     (((if exist %FILEMASK_VIDEO% %DIRB% %FILEMASK_VIDEO%) >&>:u8nul) >>:u8%TMPDIRFILE%)
     call sort.bat <"%TMPDIRFILE%" >:u8%TMP2
@@ -112,8 +116,8 @@ if "%DEBUG"=="1" (%COLOR_DEBUG% %+ echo * Checkpoint Alpha.  %+ %COLOR_NORMAL% %
     if "%DEBUG"=="1" (echo * tmp2[A] is %TMP2  %+ pause)
     %COLOR_NORMAL%
 
-::::: Once we've generated our image directory, we need to sort it:
-    copy "%TMP2" c:\recycler\latest-imageindex-directory-unsorted.txt
+rem Once we've generated our image directory, we need to sort it:
+    echo ray | copy "%TMP2" c:\recycler\latest-imageindex-directory-unsorted.txt
     if "%RECURSIVE"=="1" goto :recurse1
     %COLOR_LOGGING% %+ echos * Sorting %TMP2 into %TMP1... `` %+ %COLOR_NORMAL% %+ echo.
     (type "%TMP2" | sort) >%TMP1
@@ -123,12 +127,12 @@ if "%DEBUG"=="1" (%COLOR_DEBUG% %+ echo * Checkpoint Alpha.  %+ %COLOR_NORMAL% %
     :done1
 
 
-::::: DEBUG:
+rem DEBUG:
     if "%DEBUG"=="1" (%COLOR_DEBUG %+ echo * tmp2[B] is %TMP2  %+ pause %+ %COLOR_NORMAL%)
     %COLOR_DEBUG% %+ echo * wildcard is $WILDCARD, as in dir %WILDCARD*.jpg %+ %COLOR_NORMAL% 
 
 
-::::: ODT:
+rem ODT:
     if "%ODT"=="ODT" goto ODT
                      goto SKIPODT
         :ODT
@@ -143,21 +147,21 @@ if "%DEBUG"=="1" (%COLOR_DEBUG% %+ echo * Checkpoint Alpha.  %+ %COLOR_NORMAL% %
 
 : #Let's grep using %WILDCARD .. this'll be SOOO much better than
 : #actually using real wildcards!
-     if "%WILDCARD" != "" (grep -iq %WILDCARD "%TMP1" >"%TMP2"  %+  copy "%TMP2" "%TMP1")
+     if "%WILDCARD" != "" (grep -iq %WILDCARD "%TMP1" >"%TMP2"  %+  echo ray | copy "%TMP2" "%TMP1")
 
 
-::::: GENERATE THE FILE:
+rem GENERATE THE FILE:
     :erl %BAT%\makeimg.pl "%_CWD" %COMPACT %GENERATE %2 %3 %4 %5 %6 %7 %8 %9 <%TMP1 >%TMP3
     perl %BAT%\makeimg.pl "%_CWD" %COMPACT %GENERATE %2 %3 %4 %5 %6 %7 %8 %9 <%TMP1 | tee %TMP3 | call hilight \*\*\*\*\*\*\*\*\*\*\*\*\*\*\* [0-9]+ of [0-9]+ \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
     if not exist %TMP3% (%COLOR_ALARM% %+ echo * ERROR: %TMP3% doesn't exist?!?! Did Makeimg.pl fail? %+ beep %+ pause %+ pause)
 
-::::: COPY THE FILE:
-    copy "%TMP1"     "%LATEST_IMAGEINDEX_HTML_FULLNAME_INPUT%"
-    copy "%TMP3"      %LATEST_IMAGEINDEX_HTML_FULLNAME_OUTPUT%
-    copy "%TMP3" %TMP\%LATEST_IMAGEINDEX_HTML_FILENAME_OUTPUT%
+rem COPY THE FILE:
+    echo ray | copy "%TMP1"     "%LATEST_IMAGEINDEX_HTML_FULLNAME_INPUT%"
+    echo ray | copy "%TMP3"      %LATEST_IMAGEINDEX_HTML_FULLNAME_OUTPUT%
+    echo ray | copy "%TMP3" %TMP\%LATEST_IMAGEINDEX_HTML_FILENAME_OUTPUT%
     :DEBUG: pause
 
-::::: NOW IS A GOOD TIME TO KILL OTHER IEXPLORE:
+rem NOW IS A GOOD TIME TO KILL OTHER IEXPLORE:
     : only if html_viewer uses iexplore, actually:    kill /f iexplore*
 
 
@@ -175,25 +179,15 @@ if "%GENERATE"=="GENERATE" goto :GENERATE2
 
 :End
     :GENERATE2
-    copy /r %TMP3 "%_CWD\index.html"
-    %HTML_VIEWER% "%_CWD\index.html"
+    echo ray | copy /r %TMP3 "%_CWD\index.html"
+               %HTML_VIEWER% "%_CWD\index.html"
     goto :CLEANUP
 
         :CLEANUP
-            ::::: But don't cleanup if we are in debug mode, because we want to examine these values:
-            if "%DEBUG"=="1" goto :TheEnd
-            UNSET /Q ODT
-            :NSET /q TMP1
-            UNSET /q TMP2
-            :NSET /q TMP3
-            UNSET /q CLEAN
-            unset /q WIDTH
-            UNSET /q COMPACT
-            UNSET /Q GENERATE
-            UNSET /q WILDCARD
-            UNSET /Q RECURSIVE
-            unset /Q VIDEO
-        goto :TheEnd
+                rem But don't cleanup if we are in debug mode, because we want to examine these values:
+                if "%DEBUG"=="1" goto :TheEnd
+                unset /q ODT TMP1 TMP2 TMP3 CLEAN WIDTH COMPACT GENERATE WILDCARD RECURSIVE VIDEO
+                goto :TheEnd
 
         :Help
             %color_advice%

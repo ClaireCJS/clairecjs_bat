@@ -13,6 +13,12 @@
     *** NOTE: Processed files will be moved to c:\calendar\processed
 
 """
+
+
+
+# TODO: possible issue: 0-byte ics files may crash it?
+
+
 import os
 import re
 import sys
@@ -49,7 +55,7 @@ FOLDER_TO_DROP_ICS_FILES_IN  = r"c:/calendar"                                   
 HOW_OFTEN_TO_CHECK                           = 1                                #how many seconds between checking FOLDER_TO_DROP_ICE_FILES_IN repeatedly
 AUTOMATICALLY_GO_TO_GOOGLE_CALENDAR_CREATION = True                             #open link in web browser automatically?
 COPY_URL_TO_CLIPBOARD                        = False                            #copy event link to clipboard?
-EMOJI_TO_ADD_TO_BEGINNING_OF_EVENT_TITLE     = "smiling_face_with_horns"        #set to "" to disable, or change to another emoj
+EMOJI_TO_ADD_TO_BEGINNING_OF_EVENT_TITLE     = "smiling_face_with_horns"        #set to "" to disable, or change to another emoji
 DOT_COLORS                                   = [Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.BLUE, Fore.MAGENTA, Fore.WHITE, Fore.LIGHTBLACK_EX, Fore.LIGHTRED_EX, Fore.LIGHTGREEN_EX, Fore.LIGHTYELLOW_EX, Fore.LIGHTBLUE_EX, Fore.LIGHTMAGENTA_EX, Fore.LIGHTCYAN_EX]
 
 DEBUG_ICS_PROCESSING = False

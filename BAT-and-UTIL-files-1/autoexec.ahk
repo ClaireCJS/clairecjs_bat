@@ -617,7 +617,7 @@ ShowWinampState() {
 
 
 
-; Press Ctrl+Shift+C to collapse ~100 folders in sequence
+; Press Ctrl+Shift+C to collapse ~100 folders in sequence in SoulSeek
 ^+c:: {
         try {
                 Loop 40 {
@@ -637,3 +637,14 @@ ShowWinampState() {
         SetCapsLockState("Off")         ; Turn Caps Lock Off
         Send "{Shift up}"
 }
+
+
+
+
+
+
+;;;; Win-` & Ctrl-Alt-[ENTER] to simulate a single click 
+#`::Click("left")
+^!Enter:: Click("left")
+;;to simulate a doubleclick do it twice 50ms apart::{ click("left") sleep(50) click("left") }
+
