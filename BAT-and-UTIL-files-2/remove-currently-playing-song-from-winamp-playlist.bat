@@ -30,14 +30,14 @@ rem Get track number from WAWI status page:
         set TRACKNUM=%@EXECSTR[get-currently-playing-tracknum-from-wawi-index_html.pl <%TMPPAGE%]
 
 
-rem Ask:
-        call AskYN "Remove track #%blink_on%%TRACKNUM%%blink_off% from Winamp playlist" yes 30
-        if "N" == "%ANSWER%" goto :decided_not_to_remove_from_playlist
+rem Ask to remove current track from playlist:
+        rem Ask:
+                call AskYN "Remove track #%blink_on%%TRACKNUM%%blink_off% from Winamp playlist" yes 30
+                if "N" == "%ANSWER%" goto :decided_not_to_remove_from_playlist
 
-
-rem Remove that track number from the playlist:
-        call removal "Removing track %TRACKNUM% from Winamp playlist..."
-        delete-track-from-currently-playing-playlist %TRACKNUM% >nul >&>nul
+        rem Remove that track number from the playlist if they didn’t say “N”:
+                call removal "Removing track %TRACKNUM% from Winamp playlist..."
+                call delete-track-from-currently-playing-playlist %TRACKNUM% >nul >&>nul
 
 
 goto :END
@@ -45,13 +45,13 @@ goto :END
 
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :decided_not_to_remove_from_playlist
-                call warning "Did not remove track %TRACKNUM% from Winamp playlist..."
+                call warning "Just FYI... We did not remove track %TRACKNUM% from Winamp playlist..."
         goto :END
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         :ERROR_NoTrackNum
-                call  FATALERROR "Remove-currently-playing-song-from-playlist failed because TRACKNUM was not retrieved..."
+                call FATALERROR "Remove-currently-playing-song-from-playlist failed because TRACKNUM was not retrieved..."
         goto :END
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

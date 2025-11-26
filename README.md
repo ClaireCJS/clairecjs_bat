@@ -216,6 +216,30 @@ Now that we have an environment, and our file are backed up, and we can relax...
 
 ---------------------------------
 
+### Scripts that increase scripting power:
+
+1. [all-ready-drives.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/all-ready-drives.bat) can run a command on every single harddrive in your house/LAN
+
+1. [run-piped-input-as-bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/run-piped-input-as-bat.bat)
+
+1. insert-before|after-each-line.py/.pl - Utilities to insert text before and after each line. Used to generate-on-the-fly scripts which may also be piped to ```run-piped-input-as-bat```. Substitutes ```{{{{QUOTE}}}}``` into quote marks❟ as well as ```{{{{PIPE}}}}``` to ```|``` and ```{{{{PERCENT}}}}```` to ```%```.  Perl version is 25% faster than Python version❟ but with no emoji capability. Python version is 33% slower than Perl version❟ but is emoji-capable.
+
+1. [AskYN](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/AskYN.bat) — prompting system to ask a question and store answer in ``%ANSWER%``
+
+1. [ask-command](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/ask-command.bat) — uses ``AskYN.bat`` to prefix a command with a prompt asking if we actually want to do it
+													 
+
+### Some scripts for file management:											 
+
+1. [dist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/dist.bat) / [distribute-bat-files-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/distribute-bat-files-to-every-drive.bat) — Updates the ```c:\bat\``` on every single drive letter that has a ```c:\bat\```
+
+1. [backup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup.bat) {*filename*} / [backup-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup-to-every-drive.bat) {*filename*} — Backs up file to the ```c:\backups\``` folder on every single drive letter that has a ```c:\backups\```
+
+1. git wrappers for easier github commits and publishing and cosmetic output improvements
+
+
+
+---------------------------------
 # Other cool things we can do
 
 Stuff that isn’t about scripting functionality, but which is cool.<BR>
@@ -256,21 +280,6 @@ Some of it is useful in scripts, some of it is useful at the command prompt.<BR>
 
 * Use [charge.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/charge.bat) to jokingly rally the troops via [alarm-charge.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/alarm-charge.bat)
 
-### Some scripts that drastically increase scripting power now exist:
-
-1. [all-ready-drives.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/all-ready-drives.bat) can run a command on every single harddrive in your house/LAN
-
-1. [dist.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/dist.bat) / [distribute-bat-files-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/distribute-bat-files-to-every-drive.bat) — Updates the ```c:\bat\``` on every single drive letter that has a ```c:\bat\```
-
-1. [backup.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup.bat) {*filename*} / [backup-to-every-drive.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/backup-to-every-drive.bat) {*filename*} — Backs up file to the ```c:\backups\``` folder on every single drive letter that has a ```c:\backups\```
-
-1. [run-piped-input-as-bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/run-piped-input-as-bat.bat)
-
-1. insert-before|after-each-line.py/.pl - Utilities to insert text before and after each line. Used to generate-on-the-fly scripts which may also be piped to ```run-piped-input-as-bat```. Substitutes ```{{{{QUOTE}}}}``` into quote marks❟ as well as ```{{{{PIPE}}}}``` to ```|``` and ```{{{{PERCENT}}}}```` to ```%```.  Perl version is 25% faster than Python version❟ but with no emoji capability. Python version is 33% slower than Perl version❟ but is emoji-capable.
-
-1. git wrappers for easier github 
-
-1. 
 
 
 ### More esoteric things you can do:

@@ -37,7 +37,7 @@
 2025-02-20  22:25            640   48%  allfiles-helper.bat
 2024-11-07  15:19            996   51%  allfiles-prescript-template.pl
 2024-11-19  08:36            132   44%  allfiles-snoop.bat
-2025-04-08  22:11         26,187   74%  ALLFILES.bat
+2025-11-26  10:53         26,314   74%  ALLFILES.bat
 2024-11-07  15:20            406   39%  allfilesHyphenswap.pl
 2025-05-19  16:55        119,920   71%  allfilesmv.pl
 2023-05-19  16:39          1,218   55%  allfileunicode.pl
@@ -49,7 +49,7 @@
 2025-08-06  15:15             81    3%  allpng2jpg.bat
 2024-11-19  03:24             60    4%  allpng2jpg500.bat
 2024-11-19  03:23             95    4%  alltif2jpg.bat
-2024-11-19  03:23            547   40%  allwav2mp3.bat
+2025-11-26  10:52            610   42%  allwav2mp3.bat
 2025-08-06  15:15             82    3%  allwebp2jpg.bat
 2024-11-19  08:36             37   -5%  an.bat
 2025-03-13  16:35             76    6%  ansi-off.bat
@@ -278,7 +278,7 @@
 2025-06-19  14:56          6,290   70%  del-maybe-after-review.bat
 2024-11-19  03:50            213   28%  del-WAVs-if-mp3s-exist.bat
 2024-11-19  03:50            359   36%  del-WAVs-if-mp3s-or-flacs-exist.bat
-2025-09-25  00:29         32,820   81%  delete-bad-AI-transcriptions.bat
+2025-11-25  20:24         33,105   81%  delete-bad-AI-transcriptions.bat
 2024-11-19  03:50            445   39%  delete-duplicate-files-in-each-subfolder-but-not-across-current-folder.bat
 2024-11-19  03:50          2,110   58%  delete-duplicate-files-including-subfolder-duplicates.bat
 2024-12-08  19:17            661   48%  delete-largest-file.bat
@@ -287,6 +287,7 @@
 2024-11-19  03:50            744   49%  delete-track-from-currently-playing-playlist.bat
 2024-11-19  03:50            270   27%  delete-WAVs-if-MP3s-exist.bat
 2025-06-16  17:05          4,840   83%  delete-zero-byte-files.bat
+2025-11-26  11:05            129   11%  deltree-if-isdir.bat
 2024-11-19  03:50          1,083   58%  deltree.bat
 2024-11-19  08:36             41    3%  dep-all.bat
 2024-11-19  03:50            162   21%  dep-MP3s-if-FLACs-exist.bat
@@ -846,7 +847,7 @@
 2024-11-12  03:20             55   -1%  remove-blank-lines.bat
 2024-12-08  19:10          1,850   57%  remove-commas-from-filenames.bat
 2024-11-19  22:35             79    4%  remove-currently-playing-song-from-playlist.bat
-2025-11-20  19:27          3,174   69%  remove-currently-playing-song-from-winamp-playlist.bat
+2025-11-25  20:00          3,316   69%  remove-currently-playing-song-from-winamp-playlist.bat
 2024-12-08  19:12          3,185   63%  remove-filename-characters-invalid-for-xbox360.bat
 2025-04-16  12:07            667   53%  remove-leading-0s-from-music-filenames.bat
 2024-12-08  19:12          2,283   59%  remove-percents-from-filenames.bat
