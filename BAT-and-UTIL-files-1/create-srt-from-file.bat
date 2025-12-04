@@ -439,6 +439,7 @@ rem Make sure it’s a transcribeable filename:
                                                         call bigecho "%ansi_color_warning%%star2%%star2%%star2%%star2%%star2% %fail_type%!!!%star2%%star2%%star2%%star2%%star2%%ansi_color_normal%"
                                                         echo %ansi_color_warning%%no% Sorry! Not %italics_on%%verb%%italics_off% because this %italics_on%%fail_point%%italics_off% indicates a%strN% %ansi_resetNOLETSNOTDOTHAT%%ansi_color_red%%italics_on%%blink_on%%fail_type%%blink_off%%italics_off%%ANSI_COLOR_WARNING% file:%ansi_color_normal% %faint_on%“%@UNQUOTE["%INPUT_FILE%"]”%faint_off%%ansi_color_normal%
                                                         set fail=1
+                                                        if "%2" == "%force%" .or. "1" == "%FORCE_REGEN%" (echo Ignoring!!! %+ set fail=0)
                                                         call sleep 1
                                                 :we_are_fine_403
 
@@ -1501,7 +1502,7 @@ REM Original Concurrency Check: Check if the encoder is already running in the p
                 unset /q ANSWER
                 call AskYN "Continue anyway%ansi_erase_to_end_of_line%" no 2
                 iff "Y" == "%ANSWER%" then
-                        if %DEBUG_LOCKFILE% gt echo 🐐 goto /i :no_concurrency_issues no wait actually :actually_do_it
+                        if %DEBUG_LOCKFILE% gt 0 echo goto :actually_do_it at line ~1504ish
                         goto /i :actually_do_it
                 endiff
                 goto /i :concurrency_checks
@@ -1531,7 +1532,7 @@ REM Original Concurrency Check: Check if the encoder is already running in the p
                         rem When finally done, echo a green “...”:
                                 @echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
         :no_concurrency_issues
-        if %DEBUG_LOCKFILE% gt echo 🐐 at :no_concurrency_issues "@PID[%%TRANSCRIBER_PDNAME%%]" == “%@PID[%TRANSCRIBER_PDNAME%]”
+        if %DEBUG_LOCKFILE% gt 0 echo 🐐 at :no_concurrency_issues "@PID[%%TRANSCRIBER_PDNAME%%]" == “%@PID[%TRANSCRIBER_PDNAME%]”
 
 
 REM ════════════════════════════════════════════════════════════════════════════════════ WE’RE DOING IT NOW!!! ════════════════════════════════════════════════════════════════════════════════════ 

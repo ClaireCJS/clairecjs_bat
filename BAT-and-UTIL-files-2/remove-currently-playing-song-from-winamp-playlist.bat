@@ -32,7 +32,7 @@ rem Get track number from WAWI status page:
 
 rem Ask to remove current track from playlist:
         rem Ask:
-                call AskYN "Remove track #%blink_on%%TRACKNUM%%blink_off% from Winamp playlist" yes 30
+                call AskYN "Remove track #%blink_on%%TRACKNUM%%blink_off% from Winamp playlist" yes 600
                 if "N" == "%ANSWER%" goto :decided_not_to_remove_from_playlist
 
         rem Remove that track number from the playlist if they didn’t say “N”:

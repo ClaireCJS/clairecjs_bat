@@ -10,7 +10,7 @@ rem Set colors so less_important works:
         rem nahhh too complicated to do it this early call set-colors force
 
 rem Set cosmetics:
-        if "1" !=          "%TCSTART_FINISHED%" call tcstart.bat
+        if "1" !=          "%TCSTART_FINISHED%" call tcstart.bat %machinename%
         if "1" != "%ANSI_COLORS_HAVE_BEEN_SET%" call c:\bat\set-ansi.bat   force
         if "1" !=      "%EMOJIS_HAVE_BEEN_SET%" call c:\bat\set-emojis.bat force
         call c:\bat\print-message.bat vars_only
@@ -57,7 +57,7 @@ rem Girder?
 
                 
 REM Above all else, the music must flow —— but only if it's the music server:
-        iff "%MACHINENAME%" eq "%MUSICSERVERMACHINENAME%" then
+        iff "%MACHINENAME%" == "%MUSICSERVERMACHINENAME%" then
             call winamp autoexec
             call sleep 3
             call fix-minilyrics-window-size-and-position

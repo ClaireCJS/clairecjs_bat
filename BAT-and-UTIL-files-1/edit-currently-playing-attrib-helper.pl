@@ -605,7 +605,7 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 		print "dir /b /s $ATTRIB_LST\n";
 		print "echo.\n";
 		print "\%COLOR_SUCCESS\%\n";
-		print "tail $ATTRIB_LST\n";
+		print "if exist $ATTRIB_LST tail $ATTRIB_LST\n";
 		print "\%COLOR_NORMAL\%\n";
 		if ($FAIL) {
 			#2022/02: This makes sense, but only in the event of us not being able to get a "for sure" tracklist
@@ -616,7 +616,7 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 
 			print "beep\n";
 			print "\%COLOR_ALARM\%\n";
-			print "echo warnDidn’t work! Must “ec” or “ec \"$text_to_copy_to_clipboard__usually_tracknum\"” manually!\n";
+			print "echo \%ansi_color_warning\%Regex processing uncertain! Must “ec” or “ec \"$text_to_copy_to_clipboard__usually_tracknum\"” manually!\n";
 
 
 			if (1) {
@@ -625,9 +625,9 @@ foreach my $target_attrib_file (@TARGET_FILES) {
 				#rint " set text_to_copy_to_clipboard__usually_tracknum=$text_to_copy_to_clipboard__usually_tracknum\n";
 				$text_to_copy_to_clipboard__usually_tracknum_before_automark_modifications =~ s/:learned/:$ENV{AUTOMARKAS}/i;
 				$grep=$text_to_copy_to_clipboard__usually_tracknum_before_automark_modifications;
-				print "rem [AAAA] grep=$grep\n";
+				print "rem [DEBUG] [AAAA] grep=$grep\n";
 				$grep =~ s/:.*$//;
-				print "rem [BBBB] grep=$grep\n";
+				print "rem [DEBUG] [BBBB] grep=$grep\n";
 				#print "pause\n";
 				print " set grep=$grep\n";
 

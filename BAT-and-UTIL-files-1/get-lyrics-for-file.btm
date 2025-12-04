@@ -100,6 +100,7 @@ rem CONFIG: DEBUG:
         set DEBUG_ADS_MARKING=0                                                       %+ rem (5) whether we want to display when we ADS mark files
         set DEBUG_INSTRUMENTAL=0                                                      %+ rem (6) whether we want to display certain instrumental-marking–related debugs
         set DEBUG_LYRICLESS_STATUS=0                                                  %+ rem (6) whether we want to display certain     lyricless-status–related debugs
+        set DEBUG_GETLYRICS_CALL=0                                                    %+ rem (7) whether we want to display when this script is called
 
 REM CONFIG: 2025: 
         iff not defined LOGS then                                                     %+ rem copy this line to create-srt-from-file as well
@@ -3118,8 +3119,7 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
         return
 
         :check_for_answer_of_L [opt]
-                rem debug:
-                echo %ANSI_COLOR_MAGENTA%010101 check_for_answer_of_L answer=“%answer%”, JUST_RENAMED_TO_INSTRUMENTAL=“%JUST_RENAMED_TO_INSTRUMENTAL%”, GOTO_END=“%GOTO_END%”%ANSI_COLOR_NORMAL%
+                rem debug: echo %ANSI_COLOR_MAGENTA%010101 check_for_answer_of_L answer=“%answer%”, JUST_RENAMED_TO_INSTRUMENTAL=“%JUST_RENAMED_TO_INSTRUMENTAL%”, GOTO_END=“%GOTO_END%”%ANSI_COLOR_NORMAL%
                 set HOLD_ANSWER_CFAOL=%answer%
                 if "%answer%" == "L" gosub mark_as_lyricless %opt%
 
@@ -3142,8 +3142,7 @@ rem ━━━━━━━━━━━━━━ SUBROUTINES: BEGIN: ━━━━�
         return
 
         :check_for_answer_of_P [opt]
-                rem 
-echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [opt=%opt%] [answer=%lq%%answer%%rq%] [PLAYER_COMMAND=%lq%%PLAYER_COMMAND%%rq%] 📞📞📞%ansi_color_normal% 
+                if "1" == "%DEBUG_GETLYRICS_CALL%" echo %ansi_color_debug%📞📞📞 called: get-lyrics: check_for_answer_of_P [opt=%opt%] [answer=%lq%%answer%%rq%] [PLAYER_COMMAND=%lq%%PLAYER_COMMAND%%rq%] 📞📞📞%ansi_color_normal% 
                 :try_again
                 iff "%PLAYER_COMMAND%" == "" then
                         echo %ANSI_COLOR_WARNING_soft%%EMOJI_CAUTION%Player command isn’t set!%ansi_color_normal%
