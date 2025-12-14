@@ -211,7 +211,7 @@ def primt(*args, **kwargs):     #custom_print "prim print" function to print, pr
     original_print(output, **kwargs)                                    # Call the original print function that we saved before
     with open("fix-unicode-filenames.log", "a", encoding='utf-8') as log_file:
         #log_file.write(f"{strip_ansi_codes(output)}\n")
-        log_file.write(f"{output}\n")
+        log_file.write(f"{output}")
 
 
 def convert_to_ascii_filename_chracters(filename,mode):
@@ -516,19 +516,24 @@ def get_name_from_hex(unicode_hex):
 
 
 def ask_permission(old_name, new_name):
+    primt(f"━━━━━ calling ask_permission{old_name},{new_name})")
     """Asks the user for permission to rename a file."""
-    primt(f"\n{Fore.YELLOW}{Style.BRIGHT}***** Rename:"                                                                   +
-          f"\n{Fore.RED   }{Style.BRIGHT}From: {Style.NORMAL}{old_name}{Fore.CYAN}{Style.NORMAL}"                         +
-          f"\n{Fore.GREEN }{Style.BRIGHT}  To: {Style.NORMAL}{new_name}{Fore.CYAN}{Style.NORMAL} "                        +
+    primt(f"\n{Fore.YELLOW}{Style.BRIGHT}***** Rename:"       , end="")
+    primt(f"\n{Fore.RED   }{Style.BRIGHT}From: {Style.NORMAL}", end="")
+    original_print(f"{old_name}"                              , end="")
+    with open("fix-unicode-filenames.log", "a", encoding='utf-8') as log_file:
+        log_file.write(f"{old_name}")
+    primt(f"{Fore.CYAN}{Style.NORMAL}"                        , end="")
+    primt(f"\n{Fore.GREEN }{Style.BRIGHT}  To: {Style.NORMAL}{new_name}{Fore.CYAN}{Style.NORMAL} "                        +
           f"\n{Fore.YELLOW}{Style.BRIGHT}***** Rename?"                                                                   +
           f" { Fore.BLUE  }{Style.BRIGHT}[{Fore.CYAN}Y{Fore.BLUE}/{Style.NORMAL}{Fore.CYAN}n{Style.BRIGHT}]{Style.NORMAL} ", end="")
     clear_keyboard_buffer()
     response = msvcrt.getch().decode().lower().strip()
     primt(Style.BRIGHT, end="")
     if response.lower() in ['y', 'yes', '']:
-        primt(f"{Fore.GREEN}Yes!", end="")
+        primt(f"{Fore.GREEN}Yes!")
         return True
-    primt(f"{Fore.RED}No!", end="")
+    primt(f"{Fore.RED}No!")
     return False
 
 def clear_keyboard_buffer():
@@ -592,6 +597,7 @@ def rename_files_in_current_directory_PRODUCTION_FOR_A_YEAR(mode="file",automati
     def process_directory(directory):
         nonlocal any_files_found_to_rename_at_all, automatic
         for filename in os.listdir(directory):
+            original_filename = filename
             filename_for_primt = filename.encode('utf-8','ignore')
             if DEBUG_ANNOUNCE_FILENAMES: original_print(f"* Processing file {filename}...")
 
@@ -607,7 +613,7 @@ def rename_files_in_current_directory_PRODUCTION_FOR_A_YEAR(mode="file",automati
                     action_string  = "  Auto-Renamed"
                 else:
                     automatic      = False
-                    permission     = ask_permission(filename, new_name)
+                    permission     = ask_permission(original_filename, new_name)
                     do_it_for_real = permission
                     action_string  = "       Renamed" if permission is True else f"{Fore.RED}Did not rename"
                 if DRY_RUN:
@@ -662,7 +668,9 @@ def rename_files_in_current_directory(mode="file", automatic_mode=False, recursi
         nonlocal any_files_found_to_rename_at_all, automatic
         for entry in os.scandir(directory):
             if entry.is_file() or True:   #oops, only doing files was skipping directories, totally not what we want!
-                filename = entry.name
+                filename           = entry.name
+                original_filename  = filename
+                original_print(f"* original_filename = {original_filename}...")  # DEBUG GOAT
                 filename_for_primt = filename.encode('utf-8', 'ignore')
 
                 if DEBUG_ANNOUNCE_FILENAMES:
@@ -676,7 +684,8 @@ def rename_files_in_current_directory(mode="file", automatic_mode=False, recursi
                 if filename != new_name:
                     any_files_found_to_rename_at_all = True
                     automatic = automatic_mode
-                    do_it_for_real = automatic or ask_permission(filename, new_name)
+                    original_print(f"* about to ask permission for {original_filename} to change to {new_name}...")  # DEBUG GOAT
+                    do_it_for_real = automatic or ask_permission(original_filename, new_name)
                     do_it_for_real = False if DRY_RUN else do_it_for_real
 
                     old_file = entry.path
@@ -1713,7 +1722,7 @@ unicode_to_ascii_custom_character_mapping = {
 
 if __name__ == "__main__":
     #we do this only in main because otherwise it affects loading modules
-    original_print = print                                      # Store the original print function before overriding
+    original_print = print                                     # Store the original print function before overriding
     builtins.print = print_error                               # Override the built-in print function with the custom one
     main()
 

@@ -1,10 +1,10 @@
-@Echo on
+@Echo OFF
 @loadbtm on
 @on break continue
 
 
-
 rem Only meant to be called by the various autoexec-<MACHINENAME>.BTM/.BATs
+
 
 rem Set colors so less_important works:
         rem nahhh too complicated to do it this early call set-colors force
@@ -18,9 +18,11 @@ rem Set cosmetics:
 
 rem Set path:
         rem call c:\bat\less_important "Setting path..."
-        echo * Setting path...
-        call c:\bat\setpath.bat %*
-        gosub done_with_step
+        if "1" == "%PATH_HAS_BEEN_SET%" goto :Path_Set_Done
+                echo * Setting path...
+                call c:\bat\setpath.bat %*
+                gosub done_with_step
+        :Path_Set_Done
 
 rem Initialize environment:
         rem call less_important "Initializing environment..."
@@ -29,6 +31,9 @@ rem Initialize environment:
         window "AUTOEXEC"
         gosub done_with_step
         call footer "Running %@NAME[%0]..."
+
+if "%1" == "discord" goto :Discord
+
 
 rem Load our autohotkey script right away since it has winamp control aspects in it
         echos %@ANSI_MOVE_TO_COL[1]``
@@ -65,12 +70,20 @@ REM Above all else, the music must flow —— but only if it's the music server
         endiff
 
 rem Things for our primary machines only:
+        :discord
         iff "%machinename%" == "WYVERN" .or. "%machinename%" == "DEMONA" then               
+
                 rem Start Discord bot:
                         call  less_important "Initializing Discord bot..."        %+  gosub done_with_step
+                        rem Debug:
+                                pause "About to initialize discord bot, let’s see what’s up"
+                                echo on
                         call  discord-bot      %*                                 %+  gosub done_with_step
 
                 rem Start calendar monitor for primary machines only:
+                        rem Debug:
+                                pause "About to initialize calendar monitor, let’s see what’s up"
+                                echo on
                         call  less_important "Initializing calendar monitor..."   %+  gosub done_with_step
                         call  calendar-monitor %*                                 %+  gosub done_with_step
                                                                                    

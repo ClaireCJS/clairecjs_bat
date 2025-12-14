@@ -55,6 +55,34 @@ my $ADDED_END_LINE_CHARACTER    = ".";					#character to append to each line of 
 my $MAX_KARAOKE_WIDTH_MINUS_ONE =  24;					#This system aims for a max width of 25
 ###########  CONSTANTS: ^^END^  ###########
 
+###########  AI CONFIGURATION: BEGIN:  ###########
+my @OLDhallucination_patterns              = (								     # WhisperAI silence hallucination
+		qr/A little pause..?.? */i,
+		qr/And we are back\.*/i,
+		qr/Ding, ding, bop ?/i,
+		qr/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?/i,
+		qr/This is the first sentence/i,                         
+		qr/And this is the second one/i,                         # WhisperAI silence hallucination
+		qr/Ding, ding, bop/i,                                    # WhisperAI silence hallucination
+		qr/I.m going to play a little bit of the first one.*and then/i,
+		qr/Thank you for watching/i,
+		#### NOTE: Add new patterns to lyric-postprocessor.pl & delete-bad-AI-transcriptions.bat
+);
+
+my @hallucination_patterns = (
+    # Your original four lines, unchanged in behavior
+    qr/A little pause..?.? */i,
+    qr/And we are back\.* */i,
+    qr/Ding, ding, bop ?/i,
+    qr/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?/i,
+
+    # New ones based on your grep patterns, but kept simple & non-greedy
+    qr/This is the first sentence/i,
+    qr/And this is the second one/i,
+    qr/Thank you for watching/i,
+);
+
+###########  AI CONFIGURATION: ^^END^  ###########
 
 
 use strict;
@@ -233,11 +261,8 @@ while (<$INPUT>) {
 		$line =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;			#the word “Embed” is sometimes tacked onto the end of a line of downloaded lyrics:
 		$line =~ s/our selves/ourselves/g;	
 
-		################ WHISPER-AI HALLUCINATIONS: ################ 
-		$line =~ s/A little pause..?.? *//gi;														                             # ...These are common WhisperAI hallucinations.
-		$line =~ s/And we are back\.*//gi;															                             # ...These are common WhisperAI hallucinations.
-		$line =~ s/Ding, ding, bop ?//gi;			                                                                             # ... These are common WhisperAI hallucinations.
-		$line =~ s/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?//gi;				 # ... These are common WhisperAI hallucinations.
+		################ LINE-BASED FIXES: WHISPER-AI HALLUCATIONS ################
+		for my $re (@hallucination_patterns) { $line =~ s/$re//g; }
 
 
 

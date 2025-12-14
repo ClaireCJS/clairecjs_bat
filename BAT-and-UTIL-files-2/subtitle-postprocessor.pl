@@ -42,11 +42,26 @@ binmode(STDERR, ":utf8");																			   # enable UTF-8 character support 
 
 ################################## CONFIG: SUIBTITLE-SPECIFIC CONFIG: ################################## 
 
-my $leave_censorship                    =   0;								 # Set to 0 to de-censor things, set to 1 to leave things censored
-my $REMOVE_PERIODS                      =   1;                               # Remove a single trailing period (and spaces) including our “invisible periods” (that aren’t really invisible) which we deliberately place into our lyrics to force WhisperAI’s “--sentence” option to correctly process line breaks in a way that makes semantic sense
-my $MAX_KARAOKE_WIDTH_MINUS_ONE         =  24;								 # This system aims for a max width of 25
-my $MAX_KARAOKE_WIDTH_MINUS_ONE_TIMES_2 = $MAX_KARAOKE_WIDTH_MINUS_ONE * 2;
-my $use_words_mode                      = 1;                                                                              # Default: do not use words mode
+my $LEAVE_CENSORSHIP                    =  0;								 # Set to 0 to de-censor things, set to 1 to leave things censored
+my $REMOVE_PERIODS                      =  1;                                # Remove a single trailing period (and spaces) including our “invisible periods” (that aren’t really invisible) which we deliberately place into our lyrics to force WhisperAI’s “--sentence” option to correctly process line breaks in a way that makes semantic sense
+my $USE_WORDS_MODE                      =  1;                                # Checks for words that end in a period before removing periods from the end of each line
+my $MAX_KARAOKE_WIDTH_MINUS_ONE         = 24;								 # This system aims for a max width of 25
+my $MAX_KARAOKE_WIDTH_MINUS_ONE_TIMES_2 = $MAX_KARAOKE_WIDTH_MINUS_ONE * 2;  # used for formatting
+my @hallucination_patterns              = (								     # WhisperAI silence hallucination
+		qr/A little pause..?.? */i,
+		qr/And we are back\.*/i,
+		qr/Ding, ding, bop ?/i,
+		qr/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?/i,
+		qr/This is the first sentence/i,                         
+		qr/And this is the second one/i,                         # WhisperAI silence hallucination
+		qr/Ding, ding, bop/i,                                    # WhisperAI silence hallucination
+		qr/I.m going to play a little bit of the first one.*and then/i,
+		qr/Thank you for watching/i,
+		#### NOTE: Add new patterns to lyric-postprocessor.pl & delete-bad-AI-transcriptions.bat
+);
+
+
+
 
 																		   
 ################################## CONFIG: LIST OF ABBREVIATIONS: ################################## 
@@ -97,8 +112,8 @@ my $tmpLine;
 my $arg;
 foreach $arg (@ARGV) {                                                                                 # Iterate over command-line arguments		#DEBUG: print "checking arg $arg\n";
     if    ($arg eq "-t" || $arg eq "--test"                           ) { $do_test_suite    = 1; }     # Check if —t or ——test             was passed; Run test suite if it was
-    elsif ($arg eq "-w" || $arg eq "--wordsw" || $arg eq "--WhisperAI") { $use_words_mode   = 1; }     # Check if —w or ——words            was passed; Enable words mode if it was                                                                                
-    elsif ($arg eq "-l" || $arg eq "--leave_censorship"               ) { $leave_censorship = 1; }     # Check if —l or ——leave_censorship was passed; Enable decensoring mode if it was                                                                                 
+    elsif ($arg eq "-w" || $arg eq "--wordsw" || $arg eq "--WhisperAI") { $USE_WORDS_MODE   = 1; }     # Check if —w or ——words            was passed; Enable words mode if it was                                                                                
+    elsif ($arg eq "-l" || $arg eq "--leave_censorship"               ) { $LEAVE_CENSORSHIP = 1; }     # Check if —l or ——leave_censorship was passed; Enable decensoring mode if it was                                                                                 
     elsif ($arg =~ /^(\-\-?|\/?)he?l?p?$/i)                             { &usage();        exit; }     # Provide usage directions in response to common help flags
     elsif (!$filename)                                                  { $filename    =   $arg; }     # Treat the first non-flag argument as the file name
 }
@@ -219,7 +234,7 @@ if ($buffer ne '') {
 
 
 
-if ($use_words_mode) {                                                                                 # If words mode is enabled
+if ($USE_WORDS_MODE) {                                                                                 # If words mode is enabled
     # Define a list of common exceptions where periods are preserved                                 									
     # —————————————————————————————————————————————————————————————————————————————————————————————————
     # Words mode processing loop:
@@ -361,7 +376,7 @@ sub de_censor_production {
 }
 sub de_censor {
 	my $s = $_[0];
-	if ($leave_censorship == 1) {
+	if ($LEAVE_CENSORSHIP == 1) {
 		return $s;
 	} else {
 		return &de_censor_production($s);
@@ -397,11 +412,8 @@ sub whisper_ai_postprocess {
 	################ LINE-BASED FIXES: ################ 									                            
 	$s =  &de_censor($s);																		                         # remove censorshi —— see —t option for testing the decensoring code
 																							                            
-	################ LINE-BASED FIXES: AI HALLUCATIONS ################ 					                            
-	$s =~ s/A little pause..?.? *//gi;															                         # ...These are common WhisperAI hallucinations.
-	$s =~ s/And we are back\.*//gi;																                         # ...These are common WhisperAI hallucinations.
-	$s =~ s/Ding, ding, bop ?//gi;			                                                                             # ... These are common WhisperAI hallucinations.
-	$s =~ s/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?//gi;				 # ... These are common WhisperAI hallucinations.
+	################ LINE-BASED FIXES: WHISPER-AI HALLUCATIONS ################
+	for my $re (@hallucination_patterns) { $s =~ s/$re//g; }
 
 	
 	################ LINE-BASED FIXES: LYRIC WEBSITE SPAM: ################						# If our code was more honest, this would be in a separate function as it’s not *directly* related to WhisperAI postprocessing, and more of an artifact of downloading lyrics from websites with autodownloaders like “LyricsGenius.exe”

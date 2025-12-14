@@ -480,7 +480,7 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 Performs the AI transcription process for a single song file.
 Run without parameters to see various options, as the list here is not guaranteed to be synchronized with the most up-to-date options. Options include:
 
-    - ```         force``` — generate it even if it already exists
+    - ```         force``` — generate it even if it already exists, or is an instrumental (some instrumentals have samples or backing choruses you might want displayed)
     - ```            ai``` — skips  the   lyrics   component, and transcribes file only with AI
     - ```LyricsApproved``` — don’t skip the lyrics component, and transcribes file with existing lyrics *even if not pre-approved* [i.e. consider them approved regardless]
     - ```          fast``` — shortens prompt timer lengths [to get more done overnight]

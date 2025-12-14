@@ -1,4 +1,4 @@
-@Echo Off
+@Echo On
  on break cancel
 
 
@@ -7,17 +7,22 @@ rem This is a ridiculous bat file!  Grew over decades, over different versions o
 rem including 2023 bugfix to workaround the EditPlus bug of the disallow multiple instances option not actually working.
 
 
-::::: CONFIGURATION:
+rem CONFIGURATION:
         :SUSPENDED: SET STARTOPTIONS=/min
         set TRADITIONAL_START=1
 
-::::: SETUP:
+rem SETUP:
         call get-command-line
         call nocar
         set DEBUG_LEVEL=unimportant
 
-::::: BRANCH BASED ON PARAMETER:
+rem BRANCH BASED ON PARAMETER:
         set ALL_ARGS=%*
+        set ALL_ARGS_AMPERSAND_ESCAPED=%@ReReplace[&,\\\\&,%ALL_ARGS%]
+        set ALL_ARGS_AMPERSAND_ESCAPED=%@ReReplace[&,%escape_character%&,%all_args%]
+        set ALL_ARGS_AMPERSAND_ESCAPED=%@ReReplace[&,\\\\&,%all_args%]
+        rem DEBUG: echo ALL_ARGS_AMPERSAND_ESCAPED = %ALL_ARGS_AMPERSAND_ESCAPED% %+ pause
+
         set ARGV1=%@UNQUOTE[%1]
         REM echo %DEBUG_LEVEL%: %0: all-args is %ALL_ARGS, %%ARGV1 is %ARGV1
         REM echo if "%ARGV1%" == "USE EDITPLUS VERSION 3" 
@@ -30,7 +35,7 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
             goto :v3
         )
 
-::::: BRANCH BASED ON INSTALLED VERSION OR COMMAND-LINE:
+rem BRANCH BASED ON INSTALLED VERSION OR COMMAND-LINE:
         IF isdir "%util2%\Editplus 6"               goto :EditPlus6InUtil2
         if isdir "%[PROGRAMFILES]%\EditPlus 5"      goto :v5
         if "%OUR_COMMAND_LINE%" == "Anaconda"       goto :AnacondaStart
@@ -43,7 +48,7 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
         if isdir "%[PROGRAMFILES(x86)]%\EditPlus 3" goto :v3b
         if isdir "%[PROGRAMFILES(x86)]%\EditPlus"   goto :vX
 
-::::: IF NO BRANCH, WARN THAT WE ARE * Using THE DEFAULT:
+rem IF NO BRANCH, WARN THAT WE ARE * Using THE DEFAULT:
         call warning "Using default editplus..."
         goto :default
 
@@ -58,7 +63,9 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
                 rem   start    %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
                 rem  *start "" %STARTOPTIONS% %@SFN["%UTIL2%\EditPlus 6\editplus.exe"]  -e %ALL_ARGS% 
                 rem  this holds the window up ugh   "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
-                     *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
+                echo ❶ *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
+                echo ❷ *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS_AMPERSAND_ESCAPED% 
+                        *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS_AMPERSAND_ESCAPED% 
                 goto :END
 	:default32bitOS
             call %DEBUG_LEVEL% "Using EditPlus Default32bitOS..."
@@ -82,7 +89,7 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
             :tart %STARTOPTIONS%       "%[PROGRAMFILES]%\EditPlus 5\editplus.exe"       %ALL_ARGS% %+ goto :END
             set EDITPLUS_DIR=%[PROGRAMFILES]%\EditPlus 5\
             set EDITPLUS_EXE=%EDITPLUS_DIR%\EditPlus.exe
-            call validate-environment-variable EDITPLUS_DIR EDITPLUS_EXE
+            if not defined editplus_dir .or. not defined editplus_exe call validate-environment-variables EDITPLUS_DIR EDITPLUS_EXE
             pushd .
 
             REM Calling 'EditPlus' with no options kept opening pesky new instances!
@@ -125,7 +132,9 @@ rem including 2023 bugfix to workaround the EditPlus bug of the disallow multipl
             :call wrapper start %STARTOPTIONS% "%PROGRAMFILES%\EditPlus 3\editplus.exe" 
             :editplus.exe -a b.txt to add a file - but stil doesn't load it utf-8 like
             call debug "start %EDITPLUSEXE% %ALL_ARGS%"
-                  start %EDITPLUSEXE% %ALL_ARGS% 
+            call deubg "start %EDITPLUSEXE% %ALL_ARGS_AMPERSAND_ESCAPED%"
+              REM start %EDITPLUSEXE% %ALL_ARGS% 
+                  start %EDITPLUSEXE% %ALL_ARGS_AMPERSAND_ESCAPED% 
             goto :END
     :AnacondaStart
             echo * TODO edit this and make it work with editplus 5

@@ -4,6 +4,7 @@
 
 @Echo OFF
 @on break cancel
+@set PATH_HAS_BEEN_SET=0
 
 if "%DEBUG_DEPTH%" eq "1" echo * setpath.bat (batch=%_BATCH)
 
@@ -184,3 +185,4 @@ REM * Save our dynamically-generated path as a .cmd file that can be run in othe
 
 :END
 
+set PATH_HAS_BEEN_SET=1
