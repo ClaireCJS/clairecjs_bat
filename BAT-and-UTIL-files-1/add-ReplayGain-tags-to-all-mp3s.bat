@@ -18,7 +18,7 @@ if not exist *.mp3 (%COLOR_IMPORTANT_LESS% %+ echo 🚫 No mp3s exist here. %+ g
 ::::: but if we use *.*, it totally bludgeons and corrupts every non-mp3 file -- even rendering cover.jpg files into corrupt jpgs.   So we have to sequester.
 
 set           SEQ_DIR=ohhhh
-md           %SEQ_DIR%
+if not isdir %SEQ_DIR%   md                                %SEQ_DIR%
 if not isdir %SEQ_DIR%   call validate-environment-variable SEQ_DIR
 cd           %SEQ_DIR%
 
@@ -34,7 +34,7 @@ set MOVE_DECORATOR=%ANSI_COLOR_SUCCESS%%@ANSI_RGB_BG[0,28,0]%ITALICS%%STRIKETHRO
 
 mv * ..
 *cd  ..
-rd  %SEQ_DIR%
+if isdir %SEQ_DIR% rd  %SEQ_DIR%
 
 
 

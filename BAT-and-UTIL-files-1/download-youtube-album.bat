@@ -31,7 +31,7 @@ REM DEBUGGY stuff
 REM check parameters & environment
         if "1" == "%validated_downloadyoutubealbum_1%" goto :validated_already
                 if "%1"    == "" .or. "%URL%" == "" (call error "Need URL!" %+ goto :END)
-                call validate-in-path               ingest_youtube_album.py delete-zero-byte-files important important_less errorlevel delete-largest-file warning error print-if-debug set-task metamp3 metaflac yt-dlp set-latest-filename openimage get-image-dimensions askyn crop-center-square-of-image make-image-square celebration change-into-temp-folder expand-image-to-square randfg
+                call validate-in-path               ingest_youtube_album.py delete-zero-byte-files important important_less errorlevel delete-largest-file warning error print-if-debug set-task metamp3 metaflac yt-dlp set-latest-filename openimage get-image-dimensions askyn crop-center-square-of-image make-image-square celebration change-into-temp-folder expand-image-to-square randfg advice
                 call validate-environment-variables ANSI_BRIGHT_CYAN faint_on faint_off italics_on italics_off underline_on underline_off %+ REM most of these are set by set-colors.bat:
                 if not defined filemask_image call validate-environment-variable  filemask_image skip_existence_validation
                 if not defined filemask_audio call validate-environment-variable  filemask_audio skip_existence_validation
@@ -361,7 +361,11 @@ REM Change out of temp folder and move things back to where we started
         repeat 3 echo. 
         call celebration "%EMOJI_CHECK_MARK%Download complete!!!%EMOJI_CHECK_MARK%"
         REM  celebration.bat->:u8print-message.bat does titles automatically now so we don’t need to do this anymore: title Completed:  Youtube album download
+        if isdir ohhhh rd ohhhh
         popd
+        if isdir ohhhh rd ohhhh
         dir
 
-
+        call divider
+        call advice "If you need to split this into chapters/songs, run %italics_on%split-mp3-by-inputted-chapter-info.bat%italics_off%"
+        call divider
