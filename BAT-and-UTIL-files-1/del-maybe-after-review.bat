@@ -1,5 +1,5 @@
 @loadbtm on
-@echo ━━━━━━━━DEL-MAYBE-AFTER-REVIEW: BEGIN━━━━━━━━
+@rem @echo ━━━━━━━━DEL-MAYBE-AFTER-REVIEW: BEGIN━━━━━━━━
 @rem call bat-init
 @Echo OFF
 @set dmar_title=%_title
@@ -112,6 +112,6 @@ rem Ask for each file, and delete:
         setdos /x0
         echos %ansi_color_normal%%@randfg_soft[]
         title %dmar_title% >nul
-        @echo ━━━━━━━━DEL-MAYBE-AFTER-REVIEW: END━━━━━━━━
+        @rem @echo ━━━━━━━━DEL-MAYBE-AFTER-REVIEW: END━━━━━━━━
 
 

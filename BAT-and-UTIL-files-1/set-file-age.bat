@@ -2,6 +2,18 @@
 @on break cancel
 
 REM ***************** Get/Validate parameters *****************
+        iff "" == "%1%" then
+                echo.
+                if defined color_advice %color_advice%
+                echo         USAGE: %0 {filename}, where {filename} is the file you want to get the age of
+                echo        OUTPUT:  sets %AGE% to %RESULT% which is %RESULT_IN_SECONDS% which is the file’s age in seconds
+                if defined color_normal %color_normal%
+                goto /i :END
+        endiff
+
+
+
+REM ***************** Get/Validate parameters *****************
         set  FILE=%1
         call validate-env-var FILE
 
@@ -28,4 +40,7 @@ REM ********************** Set results **********************
         set RESULT_IN_SECONDS_DESCRIPTION=age in seconds of file %FILE%
         set            RESULT_DESCRIPTION=synonym of RESULT_IN_SECONDS
         set               AGE_DESCRIPTION=synonym of RESULT
+
+
+:END
 

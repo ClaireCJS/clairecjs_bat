@@ -25,7 +25,7 @@ rem VALIDATE ENVIRONMENT:
         iff "1" != "%validated_whispertimesync%" then
                 call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file enqueue.bat visual-comparison.bat srt_comparator.py
                 rem  validate-environment-variables JAVA_WHISPERTIMESYNC our_language color_advice ansi_color_advice ansi_color_removal ansi_color_normal ansi_color_run smart_apostrophe italics_on italics_off lq rq smart_apostrophe
-                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language lq rq FILEEXT_AUDIO
+                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language lq rq FILEEXT_AUDIO 
                 call validate-is-function cool_text
                 set  validated_whispertimesync=1
         endiff
@@ -94,7 +94,7 @@ rem Make sure we’re dealing with *processed* lyrics for WhisperTimeSync:
                 set LYRICS_TO_POSTPROCESS=%lyr_raw%
                 lyric-postprocessor.pl -A -L -S  "%LYRICS_TO_POSTPROCESS%"    >:u8%lyr_processed%
                 call errorlevel                  "wts69 in %0"
-                if not exist %lyr_processed% call validate-environment-variable target "lyric-postprocessor.pl output file does not exist: “%lyr_processed%”"
+                if not exist %lyr_processed% call validate-environment-variable target "lyric-postprocessor.pl output file does not exist: %lq%%lyr_processed%%rq%"
 
 
 rem TODO: if aud_fil="" then check audmp3/wav/flac
@@ -248,14 +248,14 @@ rem Use our comparator:
                 SET COMPARATOR_PADDING=7
                 set COL_PADDING=5
                 set COL_SIZE=%@eval[%SUBTITLE_OUTPUT_WIDTH% + %COMPARATOR_PADDING%]
-                call debug "COL_SIZE initial value is “%COL_SIZE%”"
+                call debug "COL_SIZE initial value is %lq%%COL_SIZE%%rq%"
                 REM set    initial_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 1 * PADDING + 7]
                 REM set subsequent_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 2 * PADDING]
                 set INITIAL_COLS_TO_USE=10
                 set         COLS_TO_USE=%INITIAL_COLS_TO_USE%
                 :recol_calc
                 set TOTAL_WIDTH=%@EVAL[(%COLS_TO_USE% * %COL_SIZE%) + ((%COLS_TO_USE% - 1) * %COL_PADDING%)]
-                call debug "TOTAL_WIDTH for %COLS_TO_USE% columns is now being set to “%TOTAL_WIDTH%” [columns=%_COLUMNS]"
+                call debug "TOTAL_WIDTH for %COLS_TO_USE% columns is now being set to %lq%%TOTAL_WIDTH%%rq% [columns=%_COLUMNS]"
                 rem @EVAL[%initial_column_pair_width% + %subsequent_column_pair_width%] lt %@EVAL[%_COLUMNS-1] (set COLS_TO_USE=%@EVAL[%cols_to_use% + 2] %+ goto :recol_calc)
                 set MAX_WIDTH=%@EVAL[%_COLUMNS-3]
                 iff %TOTAL_WIDTH% gt %MAX_WIDTH% then

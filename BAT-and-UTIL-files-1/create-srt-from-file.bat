@@ -516,16 +516,14 @@ REM Values fetched from input file:
                 set PROMPT_EDIT_CONSIDERATION_TIME=3
         endiff
         set SONG_PROBED_VIA_CALL_FROM_CREATE_SRT=0
-        if      exist "%SONGFILE%"  echos %ansi_color_success%%STAR2% songfile exists!
-        iff not exist "%SONGFILE%" then
-                rem pause "let’s see if the songfile not existing is why the step craps out - create-srt-from-file #511"
+        REM if  exist "%SONGFILE%"  echos %ansi_color_success%%STAR2% songfile exists!                           %+ rem Decided on 12/20/2025 that this was a bit *too* verbose
+        iff not exist "%SONGFILE%" then                                                                          %+ rem pause "let’s see if the songfile not existing is why the step craps out - create-srt-from-file #511"
                 echos %ansi_color_alarm%%STAR2% songfile “%SONGFILE%” does NOT exist!  Aborting!
                 goto /i END
         endiff
         iff "1" != "%SOLELY_BY_AI%" then                                
-                echo %faint_on% ... Probing!%faint_off%                                                          %+ rem echo %ansi_color_unimportant%🐐 %@cool[calling %lq%get-lyrics-for-file "%SONGFILE%" SetVarsOnly%rq%] [22111] - CALLING %@colorful_string[━━━━━━━━━━━━━━━━(to probe the file)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━] CWP=%_CWP                
-                rem 2025/07/17: separating force_regen into separaet flags for karaoke/lyric process, so we shouldn’t just pass it on like this anymore:
-                rem call get-lyrics-for-file "%SONGFILE%" SetVarsOnly %@IF["1" == "%FORCE_REGEN%",force,]        %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc %+ rem echo %ansi_color_unimportant%🐐 return: %@cool[get-lyrics-for-file] [22111] - RETURNED %@colorful_string[━━━━━━━━━━━━━━━(after file probing)━━━━━━━━━━━━━━ CWP=%_CWP] 
+                rem 2025/12/20: Decided I don’t need to explicitly say this & that it may not be outputting at the right time due to recent changes anyway:  echo %faint_on% ... Probing!%faint_off%                                                          %+ rem echo %ansi_color_unimportant%🐐 %@cool[calling %lq%get-lyrics-for-file "%SONGFILE%" SetVarsOnly%rq%] [22111] - CALLING %@colorful_string[━━━━━━━━━━━━━━━━(to probe the file)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━] CWP=%_CWP                
+                rem 2025/07/17: separating force_regen into separaet flags for karaoke/lyric process, so we shouldn’t just pass it on like this anymore:     rem call get-lyrics-for-file "%SONGFILE%" SetVarsOnly %@IF["1" == "%FORCE_REGEN%",force,]        %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc %+ rem echo %ansi_color_unimportant%🐐 return: %@cool[get-lyrics-for-file] [22111] - RETURNED %@colorful_string[━━━━━━━━━━━━━━━(after file probing)━━━━━━━━━━━━━━ CWP=%_CWP] 
                 call get-lyrics-for-file "%SONGFILE%" SetVarsOnly                                                %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc %+ rem echo %ansi_color_unimportant%🐐 return: %@cool[get-lyrics-for-file] [22111] - RETURNED %@colorful_string[━━━━━━━━━━━━━━━(after file probing)━━━━━━━━━━━━━━ CWP=%_CWP] 
                 set SONG_PROBED_VIA_CALL_FROM_CREATE_SRT=1                                                       %+ rem Set the fact that is has been probed
                 set last_file_probed=%SONGFILE%                                                                  %+ rem prevents get-lyrics from probing twice
@@ -1996,7 +1994,7 @@ rem Compare lyrics vs postprocessed vs transcription, with visual stripes betwee
                         if %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 call review-file -wh -stB      "%POSTPROCESSED_LYRICS" "²Lyrics (processed)"
                 :endiff_1897
         endiff
-@echo off
+        @echo off
 
 
 rem Review the subtitle file, if it exists and is non-zero (enough) in size:
@@ -2253,15 +2251,33 @@ goto /i skip_subroutines
                 rem echo GOAT opt1=“%opt1%”, opt2=“%opt2%”
                 if not defined EDITOR call fatal_error "EDITOR needs to be defined as your text editor command,a nd was not, in create-srt-from-file subroutine check_for_answer_of_E"
                 iff "E" == "%ANSWER%" then
-                        set FILES_TO_USE=%TXT_FILE% 
-                        if "" != "%@UNQUOTE["%opt1%"]" .and. exist "%@UNQUOTE["%opt1%"]" set FILES_TO_USE="%@UNQUOTE["%opt1%"]"
-                        if "" != "%@UNQUOTE["%opt2%"]" .and. exist "%@UNQUOTE["%opt2%"]" set FILES_TO_USE=%FILES_TO_USE% "%@UNQUOTE["%opt2%"]"
-                        if "" != "%@UNQUOTE["%opt3%"]" .and. exist "%@UNQUOTE["%opt3%"]" set FILES_TO_USE=%FILES_TO_USE% "%@UNQUOTE["%opt3%"]"
-                        if "" != "%@UNQUOTE["%opt4%"]" .and. exist "%@UNQUOTE["%opt4%"]" set FILES_TO_USE=%FILES_TO_USE% "%@UNQUOTE["%opt4%"]"
-                        echo COMMAND IS: %EDITOR% "%FILES_TO_USE%" [goat20394] %+ pause
-                        %EDITOR% %FILES_TO_USE%
-                        pause "%ansi_color_warning%%blink_on%Press any key when done with edits...%blink_off%%ansi_color_normal%"
-                        goto /i review_changes_with_stripes
+
+                        rem Determine file to edit based on options passed (or lack thereof):
+                                set FILES_TO_USE=%TXT_FILE% 
+                                if "" != "%@UNQUOTE["%opt1%"]" .and. exist "%@UNQUOTE["%opt1%"]" set FILES_TO_USE="%@UNQUOTE["%opt1%"]"
+                                if "" != "%@UNQUOTE["%opt2%"]" .and. exist "%@UNQUOTE["%opt2%"]" set FILES_TO_USE=%FILES_TO_USE% "%@UNQUOTE["%opt2%"]"
+                                if "" != "%@UNQUOTE["%opt3%"]" .and. exist "%@UNQUOTE["%opt3%"]" set FILES_TO_USE=%FILES_TO_USE% "%@UNQUOTE["%opt3%"]"
+                                if "" != "%@UNQUOTE["%opt4%"]" .and. exist "%@UNQUOTE["%opt4%"]" set FILES_TO_USE=%FILES_TO_USE% "%@UNQUOTE["%opt4%"]"
+
+                        rem 20251220 adding new default filename for situation where “E” answer actually creates the file, i.e. pre-emptive editing when called in get-lyrics-for-file.btm:
+                                iff "" == "%FILES_TO_USE%" then
+                                        set FILES_TO_USE=%LYRIC_FILE%
+                                        set skip_review_changes_with_stripes=1
+                                else
+                                        set skip_review_changes_with_stripes=0
+                                endiff
+
+                        rem Actually call our text editor and actually edit the files:
+                                rem echo COMMAND IS: %EDITOR% "%FILES_TO_USE%" [goat20394] %+ pause
+                                %EDITOR% %FILES_TO_USE%
+                                pause "%ansi_color_warning%%blink_on%Press any key when done with edits...%blink_off%%ansi_color_normal%"
+
+                        rem Continue on with normal workflow if we are creating karaoke:
+                                iff "1" != "%skip_review_changes_with_stripes%" then
+                                        goto /i review_changes_with_stripes
+                                else
+                                        call success "Lyric edit complete!"
+                                endiff
                 endiff
         return
         :check_for_answer_of_F [opt]

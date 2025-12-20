@@ -278,7 +278,7 @@ while (<$INPUT>) {
 			$line =~ s/$file_title Lyrics//i; 			
 		}
 		if ($file_itle ne "") {
-			$line =~ s/$file_itle Lyrics//i; 			
+			$line =~ s/\Q$file_itle\E Lyrics//i; 			
 		}
 		if ($file_album ne "") { 
 			$line =~ s/Album: \Q$file_album\E[\.,]?//i; 

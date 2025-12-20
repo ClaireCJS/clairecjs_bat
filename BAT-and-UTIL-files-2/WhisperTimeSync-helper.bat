@@ -21,6 +21,7 @@ rem TODO: Possble idea: Preview it if 3ʳᵈ “preview” option (TODO) is pass
 rem CONFIG:
         set WhisperTimeSync=%UTIL2%\WhisperTimeSync\distrib\WhisperTimeSync.jar
         set our_language=en
+        set DEBUG_AUDIO_FILE_SELECTION=0
 
 rem VALIDATE ENVIRONMENT:
         iff "1" != "%validated_whispertimesynchelper%" then
@@ -66,7 +67,7 @@ rem Extra prep of lyrics:
                 call AskYN   "Edit lyrics for required perfection"   yes 0
                 iff "Y" == "%ANSWER%" then
                         rem Ask if we want to listen to the song while editing:
-                                echo * Audio file==%AFL%
+                                if %DEBUG_AUDIO_FILE_SELECTION% gt 0 echo * Audio file==%AFL%
                                 call AskYN   "Listen to the audio file while editing lyrics"   no  0
                                 %EDITOR% "%LYR%"
 

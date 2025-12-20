@@ -63,9 +63,9 @@ rem IF NO BRANCH, WARN THAT WE ARE * Using THE DEFAULT:
                 rem   start    %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
                 rem  *start "" %STARTOPTIONS% %@SFN["%UTIL2%\EditPlus 6\editplus.exe"]  -e %ALL_ARGS% 
                 rem  this holds the window up ugh   "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
-                echo ❶ *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
-                echo ❷ *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS_AMPERSAND_ESCAPED% 
-                        *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS_AMPERSAND_ESCAPED% 
+                rem echo ❶ *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
+                rem echo ❷ *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS_AMPERSAND_ESCAPED% 
+                           *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS_AMPERSAND_ESCAPED% 
                 goto :END
 	:default32bitOS
             call %DEBUG_LEVEL% "Using EditPlus Default32bitOS..."
@@ -131,10 +131,10 @@ rem IF NO BRANCH, WARN THAT WE ARE * Using THE DEFAULT:
             call %DEBUG_LEVEL% Using EditPlus for Demona... %EDITPLUSEXE% %+ %COLOR_NORMAL%
             :call wrapper start %STARTOPTIONS% "%PROGRAMFILES%\EditPlus 3\editplus.exe" 
             :editplus.exe -a b.txt to add a file - but stil doesn't load it utf-8 like
-            call debug "start %EDITPLUSEXE% %ALL_ARGS%"
-            call deubg "start %EDITPLUSEXE% %ALL_ARGS_AMPERSAND_ESCAPED%"
-              REM start %EDITPLUSEXE% %ALL_ARGS% 
-                  start %EDITPLUSEXE% %ALL_ARGS_AMPERSAND_ESCAPED% 
+            rem call debug "start %EDITPLUSEXE% %ALL_ARGS%"
+            rem call deubg "start %EDITPLUSEXE% %ALL_ARGS_AMPERSAND_ESCAPED%"
+            rem start %EDITPLUSEXE% %ALL_ARGS% 
+                start %EDITPLUSEXE% %ALL_ARGS_AMPERSAND_ESCAPED% 
             goto :END
     :AnacondaStart
             echo * TODO edit this and make it work with editplus 5
