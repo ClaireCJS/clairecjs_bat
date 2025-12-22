@@ -24,12 +24,13 @@ rem Grab the passed parameters:
          set COPYBATPARAMS=%*
                   
 rem Generate the copy command:
-        set LAST_COPY_COMMAND=*copy /Nt %RTC% /G /R /K /L /Z %COPYBATPARAMS%
+        rem LAST_COPY_COMMAND=*copy /Nt %RTC% /G /R /K /L /Z %COPYBATPARAMS% %+ rem 2025/12/21: i believe the “/R” option is what’s interrupting us with overwrite prompts whereas “/Z” w/o “/R”
+        set LAST_COPY_COMMAND=*copy /Nt %RTC% /G    /K /L /Z %COPYBATPARAMS%
 
 rem Decide if doing old/simple or new/colorful copy method:
-        if "%OS%" eq "10"                     (goto :default)
-        if "%OS%" eq "11"                     (goto :default)
-        if "%OS%" ne "7" .and. "%OS%" ne "2K" (goto :default)
+        if "%OS%" == "10"                     (goto :default)
+        if "%OS%" == "11"                     (goto :default)
+        if "%OS%" != "7" .and. "%OS%" != "2K" (goto :default)
         
         :the_simple_way
                 %LAST_COPY_COMMAND%               

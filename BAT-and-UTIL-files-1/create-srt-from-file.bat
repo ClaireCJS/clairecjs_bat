@@ -554,7 +554,7 @@ REM Lyric file stuffs:
         endiff
         if not exist "%POTENTIAL_LYRIC_FILE%" goto /i end_of_potential_lyric_file_initial_processing
                 set TXT_FILE=%@UNQUOTE["%POTENTIAL_LYRIC_FILE%"]
-                echos %STAR%%ANSI_COLOR_IMPORTANT% Checking lyrics at %faint_on%%italics_on%%lq%%TXT_FILE%%rq%%italics_off%%faint_off%...%ansi_color_normal%
+                echos %STAR2%%ANSI_COLOR_IMPORTANT% Checking lyrics at:       %faint_on%%italics_on%%lq%%TXT_FILE%%rq%%italics_off%%faint_off%...%ansi_color_normal%
                 gosub refresh_lyric_status "%TXT_FILE%"
                 iff "%LYRIC_STATUS%" == "APPROVED" then
                         echo %ansi_color_bright_green%...%italics_on%and they are %blink_on%approved%blink_off%!%italics_off%%ansi_color_normal%
@@ -1027,6 +1027,7 @@ rem Mandatory review of lyrics
 :AI_generation
 
 rem DEBUG:
+        @gosub divider
         echo ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇  %@rainbow[AI generation: go!] ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ 
         rem >nul
 
@@ -2032,9 +2033,16 @@ rem Full-endeavor success message:
         rem @gosub divider
         rem call approve-subtitle-file "%SRT_FILE%"
         @gosub divider
-        @call  bigecho "%check%%check%%check% %bold_on%%ansi_color_green%“%bold_off%%italics_on%%@NAME[%SRT_FILE%].%@EXT[%SRT_FILE%]%italics_off%” %ansi_color_bright_green%generated successfully!%ansi_color_normal% %check%%check%%check%%party_popper%%emoji_birthday_cake%" 
         title %CHECK% %SRT_FILE% generated successfully! %check%             
-        echo %TAB%%TAB%%TAB%%TAB%%ansi_color_less_important%%star2% in dir: %faint_off%%italics_on%%[_CWP]%italics_off%%faint_off%%ansi_color_normal%
+        @call  bigecho "%check%%check%%check% %bold_on%%ansi_color_green%“%bold_off%%italics_on%%@NAME[%SRT_FILE%].%@EXT[%SRT_FILE%]%italics_off%” %ansi_color_bright_green%generated successfully!%ansi_color_normal% %check%%check%%check%%party_popper%%emoji_birthday_cake%" 
+        echos %TAB%%TAB%%TAB%%TAB%%ansi_color_less_important%%star2% %italics_on%``
+        iff "1" == "%SOLELY_BY_AI%" then
+                echos %italics_on%NOT%italics_off% u``
+        else
+                echos U
+        endiff
+        echo sing%italics_off% a lyric prompt%faint_off%%ansi_color_normal%
+        echo %TAB%%TAB%%TAB%%TAB%%ansi_color_less_important%%star2% in dir: %faint_on%%italics_on%%[_CWP]%italics_off%%faint_off%%ansi_color_normal%
         @gosub divider
         if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
         REM gosub debug "CWP = “%_CWP” 
@@ -2048,7 +2056,7 @@ rem Full-endeavor success message:
                 rem if "1" == "%DEBUG_KARAOKE_APPROVAL%" echo About to ask_to_approve_karaoke around line 1969ish
                 if "1" == "%DEBUG_KARAOKE_APPROVAL%" echo %ansi_color_warning_soft%🐐 about to gosub ask_to_approve_approve_karaoke [1670] BUT MAYBE WE CAN SKIP THIS%ansi_color_normal% but let’s try adding if not exist "%TXT_FILE%" 
                 if not exist "%TXT_FILE%" gosub ask_to_approve_karaoke
-                rem TODO remove: if "Y" == "%ANSWER%"      goto /i go_here_if_we_just_approved_the_karaoke
+                rem removed: if "Y" == "%ANSWER%"      goto /i go_here_if_we_just_approved_the_karaoke
 
         rem (1) Stuations to EXCLUDE from asking to improve our karaoke:
                 if not exist "%TXT_FILE%" .or. "1" == "%JUST_CONVERTED_LRC_TO_TEXT%" .or. "1" == "%JUST_CONVERTED_SRT_TO_TEXT%" .or. "1" == "%whisper_alignment_happened%" goto /i do_not_ask_to_align_with_txt
@@ -2059,7 +2067,6 @@ rem Full-endeavor success message:
                
                 unset /q answer 
                 rem call debug "* UNQUOTED INPUT FILE IS “%@UNQUOTE["%INPUT_FILE%"]”"
-                rem l AskYN "Align %italics_on%mis-heard%italics_off% karaoke to original lyrics with %italics_on%WhisperTimeSync%%italics_off% [%ansi_green%P%ansi_color_prompt%=Play 1st,%ansi_green%A%ansi_color_prompt%=Approve now,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e,%ansi_color_green%E%ansi_color_prompt%dit transcription]" no %WHISPERTIMESYNC_QUERY_WAIT_TIME% notitle AEIPQTW Q:enQueue_in_winamp,P:Play_It,A:approve_the_karaoke_right_now,T:delete,E:Edit_transcription,I:mark_as_instrumental
                 @call AskYN "Align %italics_on%mis-heard%italics_off% karaoke to original lyrics with %italics_on%WhisperTimeSync%%italics_off% [%ansi_green%P%ansi_color_prompt%=Play 1st,%ansi_green%A%ansi_color_prompt%=Approve now,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_green%E%ansi_color_prompt%dit it]"            no %WHISPERTIMESYNC_QUERY_WAIT_TIME%         AEIPQTW Q:enQueue_in_winamp,P:Play_It,A:approve_the_karaoke_right_now,T:delete,E:Edit_transcription,I:mark_as_instrumental,W:align_with_WhisperTimeSync
                         rem @Echo OFF %+ echo answer is %ANSWER%
                         set HELD_ANSWER_1787=%ANSWER%
@@ -2098,7 +2105,6 @@ rem Full-endeavor success message:
                                 set ANSWER=%HELD_ANSWER_1787%
                                 iff "Y" == "%ANSWER%" .or. "W" == "%ANSWER%" .or. "1" == "%DO_WHISPER_TIME_SYNC%" then
                                         set DO_WHISPER_TIME_SYNC=0                                                                      %+ rem Turn Off Flag
-                                        call debug "call WhisperTimeSync “%SRT_FILE%” “%TXT_FILE%”  “%@UNQUOTE["%INPUT_FILE%"]”"                                     %+ rem GOAT1813
                                         call             WhisperTimeSync "%SRT_FILE%" "%TXT_FILE%"  "%@UNQUOTE["%INPUT_FILE%"]"
                                         goto /i display_karaoke_before_asking_to_edit_it
                                 endiff

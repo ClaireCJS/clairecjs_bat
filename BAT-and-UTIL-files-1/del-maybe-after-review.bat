@@ -50,13 +50,34 @@ rem Ask for each file, and delete:
 
 
         :do_file [file]
+                rem File extension considerations:
+                set LETTER_E_MAYBE=e
+                set EXT=%@EXT[%file%]
+                rem call debug "ext = “%EXT%”"
+                iff "%EXT%" == "TXT" .or. "%EXT%" == "LOG" .or. "%EXT%" == "SRT" .or. "%EXT%" == "LRC" .or. "%EXT%" == "ME" then
+                        set LETTER_E_MAYBE=E
+                        set E_EXPLANATION=E:edit_it_instead
+                        set E_HELP=%ansi_color_bright_green%E%ansi_color_prompt%=edit
+                else
+                        unset /q LETTER_E_MAYBE
+                        unset /q E_EXPLANATION
+                        unset /q E_HELP
+                endiff
+
+
                 call review-file -st  "%@UNQUOTE["%file%"]"
                 echo %star% %ansi_color_yellow%Full filename: %faint_on%%italics_on%%@UNQUOTE["%@FULL["%file%"]"]%italics_off%%faint_off%
 
                 :reask
                 rem title Delete? >nul
                 set OVERRIDE_ASKYN_NOTITLE=1
-                call askyn "₇Delete %lq%%ansi_color_bright_yellow%%@UNQUOTE["%file%"]%ansi_color_prompt%%rq% [%ansi_color_bright_green%E%ansi_color_prompt%=edit%EVEN_MORE_PROMPT_TEXT%]" no 0 E%EVEN_MORE_EXTRA_LETTERS% E:edit_it_instead%EVEN_MORE_EXTRA_EXPLANATIONS%
+
+                rem Generate optional bracketed text explaining keys:
+                        set  BRACKETED_TEXT= [%E_HELP%%EVEN_MORE_PROMPT_TEXT%]                                                                                                                                                                                                                                                                                              
+                        if "%BRACKETED_TEXT%" == " []" unset /q BRACKETED_TEXT
+
+
+                call askyn "₇Delete %lq%%ansi_color_bright_yellow%%@UNQUOTE["%file%"]%ansi_color_prompt%%rq%%BRACKETED_TEXT%" no 0 %LETTER_E_MAYBE%%EVEN_MORE_EXTRA_LETTERS% %E_EXPLANATION%%EVEN_MORE_EXTRA_EXPLANATIONS%
                 iff not exist "%@UNQUOTE["%file%"]" then
                         call warning "₄File “%italics_on%%@UNQUOTE["%file%"]%italics_off%” doesn’t seem to exist... [anymore?]"
                         pause

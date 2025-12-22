@@ -187,93 +187,189 @@ rem            9     lyrics stripe
 rem            8     Old Subtitles stripe
 
 rem Preview the lyrics vs OLD srt with stripes next to each other:
+        repeat 5 echo.
+        call bigecho "%star% Review #1: Lyrics vs old subtitles:"
         call review-file       -wh -st  -ins --output_file  "%lyr_processed_rendered_plus_bot_stripe%" "%lyr_processed%" %+ type "%lyr_processed_rendered_plus_bot_stripe%"            %+ rem 1 & 2
         call review-file       -wh -stU -ins "%srt_old%"                   %+ rem 3 & 4
         echo %faint_on%lyrics + stripe, old subtitle + stripe%faint_off%
         gosub divider
+        repeat 10 echo.
+
+rem rem Preview the old subtitles vs the new subtitles, with stripes for both between them:
+rem         call bigecho "Review #2 buggy: old vs new subtitles"
+rem         call print-with-columns    -st  -ins "%srt_old%"                   %+ rem 5
+rem         call review-file       -wh -stU -ins "%srt_new%"                   %+ rem 6 & 7
+rem         echo %faint_on% That was old subtitle + stripe, new subtitle + stripe%faint_off%
+rem         gosub divider
+rem         repeat 10 echo.
 
 rem Preview the old subtitles vs the new subtitles, with stripes for both between them:
-        call print-with-columns    -st  -ins "%srt_old%"                   %+ rem 5
+        call bigecho "%star% Review #2: old vs new subtitles:"
+        rem  print-with-columns    -st  -ins "%srt_old%"                   %+ rem 5
+        call review-file       -wh -stL -ins "%srt_old%"                   %+ rem 6 & 7
         call review-file       -wh -stU -ins "%srt_new%"                   %+ rem 6 & 7
         echo %faint_on% That was old subtitle + stripe, new subtitle + stripe%faint_off%
         gosub divider
+        repeat 10 echo.
+
+
+
+
+
+rem rem Compare stripes of old subtitle to lyrics:
+rem         call bigecho "Review #3 DEPRECATED: lyrics vs old subtitle"
+rem         echo %STAR2% %double_underline_on%OLD%double_underline_off% lyrics vs subtitles:
+rem         call print-with-columns    -st  -ins "%lyr_processed%"             %+ rem 9
+rem         call print-with-columns    -st  -ins "%srt_old%"                   %+ rem 8
+rem         echo %faint_on% That was lyrics + stripe, old subtitle + stripe%faint_off%
+rem         gosub divider
+rem         repeat 10 echo.
+
 
 rem Compare stripes of old subtitle to lyrics:
+        call bigecho "%star% Review #3: lyrics vs old subtitle:"
         echo %STAR2% %double_underline_on%OLD%double_underline_off% lyrics vs subtitles:
-        call print-with-columns    -st  -ins "%lyr_processed%"             %+ rem 9
-        call print-with-columns    -st  -ins "%srt_old%"                   %+ rem 8
+        call review-file       -wh -stL -ins "%lyr_processed%"                   
+        call review-file       -wh -stU -ins "%srt_old%"                   
         echo %faint_on% That was lyrics + stripe, old subtitle + stripe%faint_off%
         gosub divider
+        repeat 10 echo.
+
+
+
+
+rem rem Compare stripes of new subtitle to lyrics:
+rem         call bigecho "Review #4 deprecated: lyrics vs new subtitle"
+rem         echo %STAR2% %double_underline_on%NEW%double_underline_off% subtitles vs lyrics:
+rem         type "%lyr_processed_rendered_plus_bot_stripe%"                    %+ rem  9 %+ rem call print-with-columns    -st  -ins "%lyr_processed%"             %+ rem 9
+rem         call print-with-columns    -st  -ins "%srt_new%"                   %+ rem 10
+rem         echo %faint_on% That was lyrics + stripe, new subtitle + stripe%faint_off%
+rem         gosub divider 
+rem         repeat 10 echo.
 
 rem Compare stripes of new subtitle to lyrics:
+        call bigecho "%star% Review #4: lyrics vs new subtitle:"
         echo %STAR2% %double_underline_on%NEW%double_underline_off% subtitles vs lyrics:
         type "%lyr_processed_rendered_plus_bot_stripe%"                    %+ rem  9 %+ rem call print-with-columns    -st  -ins "%lyr_processed%"             %+ rem 9
-        call print-with-columns    -st  -ins "%srt_new%"                   %+ rem 10
+        call review-file -stu  -ins "%srt_new%"                            %+ rem 10
         echo %faint_on% That was lyrics + stripe, new subtitle + stripe%faint_off%
         gosub divider 
+        repeat 10 echo.
+
+
+
+
 
 rem Do the animated visual comparison:
         :jump_point
-        echo %STAR2% %double_underline_on%NEW%double_underline_off% subtitles vs lyrics: %faint_on%[hit %left_apostrophe%X%right_apostrophe% to stop animation]%faint_off%
+        call bigecho "%star% Review #5: animated comparison: (hit %lq%X%rq% to end)"
+        echo %STAR2% %double_underline_on%NEW%double_underline_off% old vs new subtitles:  %faint_on%[hit %left_apostrophe%X%right_apostrophe% to stop animation]%faint_off%
         call visual-comparison "%srt_old%" "%srt_new%" "%italics_on%old%italics_off% subtitles" "%italics_on%new%italics_off% subtitles"
+        repeat 10 echo.
 
 rem Use our comparator:
         rem Warn user:
-                pause "Presss any key to see SRT comparator output..."
+                gosub divider
+                call bigecho "%star% Review #6: old/new subtitle comparator:"
+                rem pause "Presss any key to see SRT comparator output..."
 
         rem Run comparator:
                 call set-tmp-file "comparator-output"                                %+ rem sets %tmpfile1%, %tmpfile2% automatically
                 srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr -key >"%tmpfile1%" %+ rem     using “--key” option
                 srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr      >"%tmpfile2%" %+ rem not using “--key” option
+                goto :print_it_with_columns
 
-        rem Let’s try raw printing the results
-                gosub divider
-                call debug "(type tmpfile1)"
-                type "%tmpfile1%"
+                                                        rem Let’s try raw printing the results:
+                                                                gosub divider
+                                                                call debug "(type tmpfile1)"
+                                                                type "%tmpfile1%"
 
         rem Let’s try generically printing the comparator output with however many columns it uses:
-                gosub divider
-                call debug "(print tmpfile2 with columns)"
+                :print_it_with_columns
+                rem gosub divider
+                rem call debug "(print tmpfile2 with columns)"
                 call print-with-columns "%tmpfile2%"
+                goto :done_with_comparator_output
 
-        rem Let’s try specifically printing the comparator output with 2 columns only:
-                gosub divider
-                call debug "(print tmpfile2 with 2 columns)"
-                call print-with-columns "%tmpfile2%" -c 2
+                                                        rem Let’s try specifically printing the comparator output with 2 columns only:
+                                                                gosub divider
+                                                                rem call debug "(print tmpfile2 with 2 columns)"
+                                                                call print-with-columns "%tmpfile2%" -c 2
 
-        rem Let’s try specifically printing the comparator output with 2/4/6/8 columns:
-                call debug "(print tmpfile2 with dynamic columns)"
-                gosub divider
-                if not defined SUBTITLE_OUTPUT_WIDTH set SUBTITLE_OUTPUT_WIDTH=30
-                SET COMPARATOR_PADDING=7
-                set COL_PADDING=5
-                set COL_SIZE=%@eval[%SUBTITLE_OUTPUT_WIDTH% + %COMPARATOR_PADDING%]
-                call debug "COL_SIZE initial value is %lq%%COL_SIZE%%rq%"
-                REM set    initial_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 1 * PADDING + 7]
-                REM set subsequent_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 2 * PADDING]
-                set INITIAL_COLS_TO_USE=10
-                set         COLS_TO_USE=%INITIAL_COLS_TO_USE%
-                :recol_calc
-                set TOTAL_WIDTH=%@EVAL[(%COLS_TO_USE% * %COL_SIZE%) + ((%COLS_TO_USE% - 1) * %COL_PADDING%)]
-                call debug "TOTAL_WIDTH for %COLS_TO_USE% columns is now being set to %lq%%TOTAL_WIDTH%%rq% [columns=%_COLUMNS]"
-                rem @EVAL[%initial_column_pair_width% + %subsequent_column_pair_width%] lt %@EVAL[%_COLUMNS-1] (set COLS_TO_USE=%@EVAL[%cols_to_use% + 2] %+ goto :recol_calc)
-                set MAX_WIDTH=%@EVAL[%_COLUMNS-3]
-                iff %TOTAL_WIDTH% gt %MAX_WIDTH% then
-                        set COLS_TO_USE=%@EVAL[%cols_to_use% - 1] 
-                        call debug "Because TOTAL_WIDTH[%TOTAL_WIDTH%] gt MAX_WIDTH[%MAX_WIDTH%] we need to use 1 fewer column, so wet have set COLS_TO_USE=%COLS_TO_USE%"
-                        if %COLS_TO_USE% gt 2 goto :recol_calc
-                endiff
-                call debug "determined # of even columns to use of %lq%%COLS_TO_USE%%rq%, COL_SIZE=%lq%%COL_SIZE%%rq%"                
-                call debug "call print-with-columns %tmpfile2% -c %COLS_TO_USE% [screen width=%_COLUMNS]"
-                call print-with-columns "%tmpfile2%" -c %COLS_TO_USE%
+                                                        rem Let’s try specifically printing the comparator output with 2/4/6/8 columns:
+                                                                rem call debug "(print tmpfile2 with dynamic columns)"
+                                                                gosub divider
+                                                                if not defined SUBTITLE_OUTPUT_WIDTH set SUBTITLE_OUTPUT_WIDTH=30
+                                                                SET COMPARATOR_PADDING=7
+                                                                set COL_PADDING=5
+                                                                set COL_SIZE=%@eval[%SUBTITLE_OUTPUT_WIDTH% + %COMPARATOR_PADDING%]
+                                                                rem call debug "COL_SIZE initial value is %lq%%COL_SIZE%%rq%"
+                                                                REM set    initial_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 1 * PADDING + 7]
+                                                                REM set subsequent_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 2 * PADDING]
+                                                                set INITIAL_COLS_TO_USE=10
+                                                                set         COLS_TO_USE=%INITIAL_COLS_TO_USE%
+                                                                :recol_calc
+                                                                set TOTAL_WIDTH=%@EVAL[(%COLS_TO_USE% * %COL_SIZE%) + ((%COLS_TO_USE% - 1) * %COL_PADDING%)]
+                                                                rem call debug "TOTAL_WIDTH for %COLS_TO_USE% columns is now being set to %lq%%TOTAL_WIDTH%%rq% [columns=%_COLUMNS]"
+                                                                rem @EVAL[%initial_column_pair_width% + %subsequent_column_pair_width%] lt %@EVAL[%_COLUMNS-1] (set COLS_TO_USE=%@EVAL[%cols_to_use% + 2] %+ goto :recol_calc)
+                                                                set MAX_WIDTH=%@EVAL[%_COLUMNS-3]
+                                                                iff %TOTAL_WIDTH% gt %MAX_WIDTH% then
+                                                                        set COLS_TO_USE=%@EVAL[%cols_to_use% - 1] 
+                                                                        rem call debug "Because TOTAL_WIDTH[%TOTAL_WIDTH%] gt MAX_WIDTH[%MAX_WIDTH%] we need to use 1 fewer column, so wet have set COLS_TO_USE=%COLS_TO_USE%"
+                                                                        if %COLS_TO_USE% gt 2 goto :recol_calc
+                                                                endiff
+                                                                rem call debug "determined # of even columns to use of %lq%%COLS_TO_USE%%rq%, COL_SIZE=%lq%%COL_SIZE%%rq%"                
+                                                                rem call debug "call print-with-columns %tmpfile2% -c %COLS_TO_USE% [screen width=%_COLUMNS]"
+                                                                call print-with-columns "%tmpfile2%" -c %COLS_TO_USE%
 
         rem Final divider:
+                :done_with_comparator_output
                 gosub divider
 
 
 
 
 
+
+rem TODO GOATGOAT: This inform user about timestamp section moved from whispertimesync-helper to test if it works here:
+rem Inform user if final timestamp on new subtitles is different from final timestamp on old subtitles:
+        rem Use grep+tail+cut+sed to extract the final timestamp from both the old and new subtitles into their own files:
+                call set-tmp-file subtitle-final-timestamp-grep-results 
+                set last_timestamp_old_file=%tmpfile1%
+                set last_timestamp_new_file=%tmpfile2%
+                rem ((grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" "%@UNQUOTE["%srt_old%"]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)
+                ((type "%@UNQUOTE["%srt_old%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)       %+        if not exist %last_timestamp_old_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_old_file%"
+                ((type "%@UNQUOTE["%srt_new%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_new_file%)       %+        if not exist %last_timestamp_new_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_new_file%"
+
+        rem Display final timestamp from each file:
+                echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_red%%zzzzzz%%italics_on%old%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_new_file%
+                echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_green%%zzzz%%italics_on%new%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_old_file%
+
+        rem Warn user if the timestamps are different:
+                iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
+                        call warning "Final timestamps differ!" big
+                        call advice "Make sure to manually review before/after subs in text editor"
+                        *pause
+                        set our_display_color=%ansi_color_bright_red%
+                else
+                        call success "Final timestamps are the same, so we’re probably fine!" big
+                        set our_display_color=%ansi_color_bright_green%
+                        
+                endiff
+
+        rem 2025/12/21 moved to WhisperTimeSync.bat:
+        rem %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
+        rem pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
+
+
+
+
+
+rem Section moved from WhisperTimeSync-helper.bat (happening before our comparisons) to here:
+        repeat 7 echo.
+        call bigecho "Opening new/old subs in txt editor"
+        %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
+        pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
 
 
 
@@ -344,19 +440,19 @@ rem Load the new song into winamp to test?
         iff "1" == "%WHISPERTIME_SYNC_WINAMP_INTEGRATION%" then
                 gosub divider
                 echo %ansi_color_important%%STAR% Because %italics_on%WHISPERTIME_SYNC_WINAMP_INTEGRATION%italics_off% is set to %lq%1%rq% in WhisperTimeSync-helper.bat, we will ask:%ansi_color_normal%
-                call askyn "Enqueue the song into %italics_on%WinAmp%italics_off% to see how the subtitles play in %italics_on%Minilyrics%italics_off%" no 0
+                call askyn "Enqueue the song into %italics_on%WinAmp%italics_off% to see how the subtitles play in %italics_on%Minilyrics%italics_off%" no 60 %+ rem Thorough mode will still bypass this prompt on timeout because if we aren’t paying attention we truly do want to move to the next task
                 iff "Y" == "%ANSWER%" then
                         if exist "%aud_wav%"  set our_audio=%aud_wav%
                         if exist "%aud_mp3%"  set our_audio=%aud_mp3%
                         if exist "%aud_flac%" set our_audio=%aud_flac%
                         iff not exist "%our_audio%" then
-                                call debug   "[our_audio=%lq%%italics_on%%our_audio%%italics_off%%rq%]"
+                                rem call debug   "[our_audio=%lq%%italics_on%%our_audio%%italics_off%%rq%]"
                                 call warning "Oops! Can%smart_apostrophe%t find our audio file!"
                                 call advice  "Try manually setting it?"
                                 eset our_audio
                         endiff
                         iff not exist "%our_audio%" then
-                                call debug   "[our_audio=%lq%%italics_on%%our_audio%%italics_off%%rq%]"
+                                rem call debug   "[our_audio=%lq%%italics_on%%our_audio%%italics_off%%rq%]"
                                 call warning "Still can%smart_apostrophe%t find our audio file! Giving up!"
                                 goto /i END
                         endiff

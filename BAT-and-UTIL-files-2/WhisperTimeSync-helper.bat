@@ -85,10 +85,10 @@ rem Extra prep of lyrics:
                                         call warning_soft "Do you want these lyric edits to be saved over the original lyric file?" %+ rem  [[not!!]] at %faint_on%%italics_on%%lyr%%italics_off%%faint_off%
                                         call AskYN          "Copy lyric edits over original lyrics" yes 0
                                                 iff "Y" == "%ANSWER%" then
-                                                        set      COMMAND=copy "%LYR%" "%@NAME["%AFL%"].txt"
+                                                        set      COMMAND=*copy /z "%LYR%" "%@NAME["%AFL%"].txt"
                                                         rem echo COMMAND is %COMMAND% %+ pause
                                                         %color_removal%
-                                                        %COMMAND%
+                                                        echo ray | %COMMAND%
                                                 endiff
                                 endiff
         endiff
@@ -122,6 +122,10 @@ rem WhisperTimeSync is horribly buggy so we fix some of that——particularly t
         echo %ansi_color_important%%star% Postprocessing subtitle file because %italics_on%WhisperTimeSync%italics_off% produces malformed SRT files...%ansi_color_normal%
         subtitle-postprocessor.pl -w "%SRT_NEW%"
 
+
+
+
+rem ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 rem Check for problems:
         echo %ANSI_COLOR_LESS_IMPORTANT%%STAR2% Checking for duplicate timestamps...%ansi_color_normal%
         rem echo    subtitle-verifier.py --columns %_COLUMNS "%SRT_NEW%"
@@ -135,26 +139,36 @@ rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         rem  We now have a program for this:       ❷  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
         echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❷  If the last timestamp of the new subtitles, which is:
 
-        @echo off
-        call set-tmp-file subtitle-final-timestamp-grep-results 
-        set last_timestamp_old_file=%tmpfile1%
-        set last_timestamp_new_file=%tmpfile2%
-        rem ((grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" "%@UNQUOTE["%srt_old%"]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)
-        ((type "%@UNQUOTE["%srt_old%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)       %+        if not exist %last_timestamp_old_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_old_file%"
-        ((type "%@UNQUOTE["%srt_new%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_new_file%)       %+        if not exist %last_timestamp_new_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_new_file%"
-        iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
-                call warning "Final timestamps differ!" big
-                set our_display_color=%ansi_color_bright_red%
-        else
-                call success "Final timestamps are the same, so we’re probably fine!" big
-                set our_display_color=%ansi_color_bright_green%
-                
-        endiff
-        echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_red%%zzzzzz%%italics_on%old%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_new_file%
-        echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_green%%zzzz%%italics_on%new%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_old_file%
 
-        %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
-        pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
+
+rem Inform user if final timestamp on new subtitles is different from final timestamp on old subtitles:
+        rem Use grep+tail+cut+sed to extract the final timestamp from both the old and new subtitles into their own files:
+                call set-tmp-file subtitle-final-timestamp-grep-results 
+                set last_timestamp_old_file=%tmpfile1%
+                set last_timestamp_new_file=%tmpfile2%
+                rem ((grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" "%@UNQUOTE["%srt_old%"]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)
+                ((type "%@UNQUOTE["%srt_old%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_old_file%)       %+        if not exist %last_timestamp_old_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_old_file%"
+                ((type "%@UNQUOTE["%srt_new%"]" |:u8 grep -a "[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9].....[0-9][0-9]:[0-9][0-9]:[0-9][0-9],[0-9][0-9][0-9]" |:u8 tail -1 |:u8 cut -c 18- | sed -e "s/^00://g" -e "s/^0//g" -e "s/,/./g" ) >:u8 %last_timestamp_new_file%)       %+        if not exist %last_timestamp_new_file% call fatal_error "last_timestamp_new_file does not exist: %last_timestamp_new_file%"
+
+        rem Display final timestamp from each file:
+                echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_red%%zzzzzz%%italics_on%old%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_new_file%
+                echos %ansi_color_important%              %star2% last timestamp %@cursive_plain[for] %ansi_color_bright_green%%zzzz%%italics_on%new%italics_off%%ansi_color_important% subtitles is: %our_display_color% %+ type %last_timestamp_old_file%
+
+        rem Warn user if the timestamps are different:
+                iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
+                        call warning "Final timestamps differ!" big
+                        call advice "Make sure to manually review before/after subs in text editor"
+                        *pause
+                        set our_display_color=%ansi_color_bright_red%
+                else
+                        call success "Final timestamps are the same, so we%apostrophe%re probably fine!" big
+                        set our_display_color=%ansi_color_bright_green%
+                        
+                endiff
+
+        rem 2025/12/21 moved to WhisperTimeSync.bat:
+        rem %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
+        rem pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
 
 
 goto :END

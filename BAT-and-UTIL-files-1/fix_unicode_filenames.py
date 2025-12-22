@@ -144,13 +144,14 @@ DRY_RUN                               = False
 
 
 ################################## DEBUG CONFIGURATION ################################################
-DEBUG_MOST_CHARS = False           #controls several debugs below
-DEBUG_ALL_CHARS  = False           #controls several debugs below
+DEBUG_MOST_CHARS                  = False           #controls several debugs below
+DEBUG_ALL_CHARS                   = False           #controls several debugs below
 
-DEBUG_ANNOUNCE_FILENAMES=True
-DEBUG_MODE_ARGV=False
-DEBUG_LANG_DETECT=False
-DEBUG_POLYGLOT=False
+DEBUG_ANNOUNCE_FILENAMES          = False
+DEBUG_MODE_ARGV                   = False
+DEBUG_LANG_DETECT                 = False
+DEBUG_POLYGLOT                    = False
+
 DEBUG_CHAR                        = bool(False or DEBUG_ALL_CHARS or DEBUG_MOST_CHARS)
 DEBUG_UNIDECODECHAR               = bool(False or DEBUG_ALL_CHARS or DEBUG_MOST_CHARS)
 DEBUG_UNIDECODECHAR_TRANSLATECHAR = bool(False

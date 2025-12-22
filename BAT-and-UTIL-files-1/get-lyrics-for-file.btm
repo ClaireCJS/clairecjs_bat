@@ -1750,7 +1750,7 @@ rem If we still didn’t find anything acceptable, but have potentially matching
                         unset /q ANSWER
                         rem  AskYn "%underline_on%Select%underline_off% from %file_count% files, for “%italics_on%%blink_on%%FILE_SONG%%blink_off%%italics_off%” by “%italics_on%%FILE_ARTIST%%italics_off%” [%ansi_color_bright_green%I%ansi_color_prompt%=rename as instrumental]" no %LYRIC_SELECT_FROM_FILELIST_WAIT_TIME% LI L:Mark_this_one_as_lyricLESS,I:rename_file_as_instrumental
 
-call debug "lyric_file is %@UNQUOTE[%lyric_file%]"
+call debug "[9923409394834] lyric_file is %@UNQUOTE[%lyric_file%]"
 pause
 
                         call AskYn "%underline_on%Select%underline_off% from one of these %file_count% file%@IF[%file_count% gt 1,s,]? [%ansi_green%I%ansi_color_prompt%nstrum(%ansi_color_bright_green%X%ansi_color_prompt%=All),%ansi_green%P%ansi_color_prompt%=Play,%ansi_green%L%ansi_color_prompt%=Lyrics unfindable(%ansi_color_bright_green%Z%ansi_color_prompt%=all),e%ansi_color_bright_green%D%ansi_color_prompt%it names,e%ansi_color_bright_green%D%ansi_color_prompt%it names]" no %LYRIC_SELECT_FROM_FILELIST_WAIT_TIME% ADELIOPQXZ L:Mark_this_one_as_lyricLESS,Z:Mark_all_as_lyricless,I:rename_file_as_instrumental,Q:enQueue_in_winamp,P:play_it!!!!,O:dOwnlOad_nOw_already!!,X:rename_all_songs_as_instrumental,D:edit_names,A:approve_them_Instead,E:edit_them_in_text_editor_instead
@@ -3508,7 +3508,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                 set already_answer=%answer%
                                 set answer=%hold_hand_answer%
                         rem Exit if that’s what we want:
-                                call debug "if “N” == “%already_answer%” return"
+                                rem call debug "if “N” == “%already_answer%” return"
                                 if "N" == "%already_answer%" return
                 endiff
                 set do_next_block=0                                                                                                                                                                                                                     %+ rem echo %ansi_color_orange%� mid1:   edit_lyrics_now_if_we_answered_H [subarg=%subarg% force=%force%] ALREADY_HAND_EDITED=“%ALREADY_HAND_EDITED%”, answer=“%answer%”, do_next_block=“%do_next_block%”, subarg=“%subarg%”, force=“%force%”%ansi_color_normal%
