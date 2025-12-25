@@ -23,7 +23,7 @@ rem CONFIG:
 rem VALIDATE ENVIRONMENT:
         set  validated_srt_and_txt_for_whispertimesync_already=0
         iff "1" != "%validated_whispertimesync%" then
-                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file enqueue.bat visual-comparison.bat srt_comparator.py
+                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file enqueue.bat visual-comparison.bat srt_comparator.py subtitle-integrity-checker
                 rem  validate-environment-variables JAVA_WHISPERTIMESYNC our_language color_advice ansi_color_advice ansi_color_removal ansi_color_normal ansi_color_run smart_apostrophe italics_on italics_off lq rq smart_apostrophe
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language lq rq FILEEXT_AUDIO 
                 call validate-is-function cool_text
@@ -333,6 +333,21 @@ rem Use our comparator:
 
 rem TODO GOATGOAT: This inform user about timestamp section moved from whispertimesync-helper to test if it works here:
 rem Inform user if final timestamp on new subtitles is different from final timestamp on old subtitles:
+
+        rem Inform user and run out external subtitle integrity checker utility that displays duplicate timestamps in a table:
+                echo %ANSI_COLOR_LESS_IMPORTANT%%STAR2% Checking for duplicate timestamps...%ansi_color_normal%
+                rem echo    subtitle-verifier.py --columns %_COLUMNS "%SRT_NEW%"
+                call subtitle-integrity-checker "%SRT_NEW%"
+
+        rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
+                rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
+                echo %ANSI_COLOR_WARNING_SOFT%%STAR2% Potential manual review of subtitles:%ansi_color_normal%
+                echo %ANSI_COLOR_WARNING_SOFT%  %STAR2% %italics_on%WhisperTimeSync%italics_off% on rare case gets the very beginning wrong%ansi_color_normal%
+                echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      %inverse_circled_1%  Take special care that the very beginning / first words fall within a subtitle
+                rem  We now have a program for this:       %inverse_circled_2%  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
+                echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      %inverse_circled_3%  If the last timestamp of the new subtitles, which is:
+
+
         rem Use grep+tail+cut+sed to extract the final timestamp from both the old and new subtitles into their own files:
                 call set-tmp-file subtitle-final-timestamp-grep-results 
                 set last_timestamp_old_file=%tmpfile1%
@@ -348,11 +363,11 @@ rem Inform user if final timestamp on new subtitles is different from final time
         rem Warn user if the timestamps are different:
                 iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
                         call warning "Final timestamps differ!" big
-                        call advice "Make sure to manually review before/after subs in text editor"
+                        call advice  "Make sure to manually review before/after subs in text editor"
                         *pause
                         set our_display_color=%ansi_color_bright_red%
                 else
-                        call success "Final timestamps are the same, so we’re probably fine!" big
+                        call success "Final timestamps are the same, so we%apostrophe%e probably fine!" big
                         set our_display_color=%ansi_color_bright_green%
                         
                 endiff

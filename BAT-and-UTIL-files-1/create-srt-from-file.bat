@@ -554,7 +554,7 @@ REM Lyric file stuffs:
         endiff
         if not exist "%POTENTIAL_LYRIC_FILE%" goto /i end_of_potential_lyric_file_initial_processing
                 set TXT_FILE=%@UNQUOTE["%POTENTIAL_LYRIC_FILE%"]
-                echos %STAR2%%ANSI_COLOR_IMPORTANT% Checking lyrics at:       %faint_on%%italics_on%%lq%%TXT_FILE%%rq%%italics_off%%faint_off%...%ansi_color_normal%
+                echos %STAR2%%ANSI_COLOR_IMPORTANT% Checking lyrics at:        %faint_on%%italics_on%%lq%%TXT_FILE%%rq%%italics_off%%faint_off%...%ansi_color_normal%
                 gosub refresh_lyric_status "%TXT_FILE%"
                 iff "%LYRIC_STATUS%" == "APPROVED" then
                         echo %ansi_color_bright_green%...%italics_on%and they are %blink_on%approved%blink_off%!%italics_off%%ansi_color_normal%
@@ -2746,7 +2746,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
         rem Get us back to the folder we were in when we called this... but only if told to:
                 setdos /x0
                 rem if "1" == "%pushd_performed_in_create_srt%" (echo * 2025 POPD! %+ pause)
-                    if "1" == "%pushd_performed_in_create_srt%" (popd)
+                    if "1" == "%pushd_performed_in_create_srt%" (popd >&>nul)
 
 :Fix_Command_Separator
         rem Extra-safe command separator fixing:

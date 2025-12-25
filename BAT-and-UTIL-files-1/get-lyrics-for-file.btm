@@ -893,9 +893,9 @@ rem Check if we already have a TXT file in the same folder and shouldn’t even 
 
                                 set NOT_APPROVED_STR=%ansi_color_red%NOT_APPROVED
                                 echo %ansi_color_warning_soft%%star2% Current folder:            %ansi_color_bright_green%“%ansi_color_warning_soft%%faint_on%%[_CWP]%faint_off%%ansi_color_bright_green%”
-                                echo %ansi_color_warning_soft%%star2% Lyrics already exist for:  “%emphasis%%AUDIO_FILE%%deemphasis%%ansi_color_bright_green%”
-                                echo %ansi_color_warning_soft%%star2% Lyrics approval status:    “%emphasis%%@IF["" !=         "%LYRIC_STATUS%",%LYRIC_STATUS%,%NOT_APPROVED_STR%]%deemphasis%%ansi_color_bright_green%”
-                                echo %ansi_color_warning_soft%%star2% Lyricless approval status: “%emphasis%%@IF["" != "%LYRICLESSNESS_STATUS%",%LYRICLESSNESS_STATUS%,%NOT_APPROVED_STR%]%deemphasis%%ansi_color_bright_green%”%ansi_color_normal%
+                                echo %ansi_color_warning_soft%%star2% Lyrics already exist for:  %ansi_color_bright_green%“%ansi_color_warning_soft%%emphasis%%AUDIO_FILE%%deemphasis%%ansi_color_bright_green%”
+                                echo %ansi_color_warning_soft%%star2% Lyrics approval status:    %ansi_color_bright_green%“%ansi_color_warning_soft%%emphasis%%@IF["" !=         "%LYRIC_STATUS%",%LYRIC_STATUS%,%NOT_APPROVED_STR%]%deemphasis%%ansi_color_bright_green%”
+                                echo %ansi_color_warning_soft%%star2% Lyricless approval status: %ansi_color_bright_green%“%ansi_color_warning_soft%%emphasis%%@IF["" != "%LYRICLESSNESS_STATUS%",%LYRICLESSNESS_STATUS%,%NOT_APPROVED_STR%]%deemphasis%%ansi_color_bright_green%”%ansi_color_normal%
                         endiff
 
                 rem If we’re in “Genius” mode—which is for unattended mass/batch 1ˢᵗ-pass Genius downloads, 

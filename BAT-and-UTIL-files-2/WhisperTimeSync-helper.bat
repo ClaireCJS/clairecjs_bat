@@ -135,9 +135,9 @@ rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
         rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
         echo %ANSI_COLOR_WARNING_SOFT%%STAR2% Potential manual review of subtitles:%ansi_color_normal%
         echo %ANSI_COLOR_WARNING_SOFT%  %STAR2% %italics_on%WhisperTimeSync%italics_off% on rare case gets the very beginning wrong%ansi_color_normal%
-        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❶  Take special care that the very beginning / first words fall within a subtitle
-        rem  We now have a program for this:       ❷  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
-        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      ❷  If the last timestamp of the new subtitles, which is:
+        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      %inverse_circled_1%  Take special care that the very beginning / first words fall within a subtitle
+        rem  We now have a program for this:       %inverse_circled_2%  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
+        echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      %inverse_circled_3%  If the last timestamp of the new subtitles, which is:
 
 
 
