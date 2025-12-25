@@ -1,1 +1,1 @@
-https://github.com/ClaireCJS/clairecjs_bat/tree/main/editplus*
+https://github.com/ClaireCJS/clairecjs_bat/tree/main/TTRGB*

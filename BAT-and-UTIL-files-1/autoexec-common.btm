@@ -76,14 +76,14 @@ rem Things for our primary machines only:
                 rem Start Discord bot:
                         call  less_important "Initializing Discord bot..."        %+  gosub done_with_step
                         rem Debug:
-                                pause "About to initialize discord bot, let’s see what’s up"
-                                echo on
+                                rem pause "About to initialize discord bot, let’s see what’s up"
+                                rem echo on
                         call  discord-bot      %*                                 %+  gosub done_with_step
 
                 rem Start calendar monitor for primary machines only:
                         rem Debug:
-                                pause "About to initialize calendar monitor, let’s see what’s up"
-                                echo on
+                                rem pause "About to initialize calendar monitor, let’s see what’s up"
+                                rem echo on
                         call  less_important "Initializing calendar monitor..."   %+  gosub done_with_step
                         call  calendar-monitor %*                                 %+  gosub done_with_step
                                                                                    
