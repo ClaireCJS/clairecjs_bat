@@ -95,7 +95,7 @@ return
     
     rem all-ready-drives sometimes has trouble copying itself when open, so we'll copy it to \recycled\ and run the copy instead:
             set TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME=c:\recycled\all-ready-drives-temp-%_DATETIME.bat %+ rem make name
-            echo ray | *copy /q /r c:\bat\all-ready-drives.bat %TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME% %+ rem copy it to name
+            echo yra | *copy /q /r c:\bat\all-ready-drives.bat %TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME% %+ rem copy it to name
             call validate-environment-variable TEMP_ALL_AREADY_DRIVES_SCRIPT_NAME                   %+ rem make sure it copied, then run it:
             
     rem ACTUALLY DISTRIBUTE THE BAT FILES TO EVERY DRIVE:                    
