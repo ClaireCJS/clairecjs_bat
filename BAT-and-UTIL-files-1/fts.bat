@@ -1,0 +1,1 @@
+@call fix-subtitles-for-currently-playing-song.bat %*

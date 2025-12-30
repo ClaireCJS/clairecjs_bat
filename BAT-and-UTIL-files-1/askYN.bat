@@ -377,7 +377,7 @@ REM Load INKEY with the question, unless we’ve already printed it out:
 REM Set the question test:
         if "1" ==   "%BIG_QUESTION%" (  set    INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_RESTORE%)
         if "1" !=   "%BIG_QUESTION%" (  set    INKEY_QUESTION=%INKEY_QUESTION%%ANSI_POSITION_SAVE%)
-        if "1" == "%INVISIBLE_MODE%" (unset /q INKEY_QUESTION)
+        if "1" == "%INVISIBLE_MODE%" (unset /q INKEY_QUESTION)%inverse_circled_ %
 
 REM Determine whether we are adding the “/X” option or not:
         unset /q SLASH_X
@@ -395,7 +395,12 @@ REM Actually answer the question here —— make the windows “question” noi
         rem The " >&:u8 con " is so it shows up to the console even if the entire thing is wrapped in something redirecting STDOUT to nul ... This is a case where we want to “pop out” of STDERR *into* STDOUT / have both combined into STDOUT, so that we see it and can answer the prompt:
         rem Alas, this causes our unicode characters to be munged because so much of TCC’s internal workings don’t support modern characters
         rem (inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER) >:u8&:u8 con
-        inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
+        set LAST_SLASH_X=%SLASH_X%
+        set LAST_WAIT_OPS=%WAIT_OPS%
+        set LAST_ALLOWABLE_KEYS=%ALLOWABLE_KEYS%
+        set LAST_INKEY_QUESTION=%INKEY_QUESTION%
+        set LAST_INKEY_COMMAND=inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
+                               inkey %SLASH_X% %WAIT_OPS% /c /k"%ALLOWABLE_KEYS%" %INKEY_QUESTION% %%OUR_ANSWER
         echos %BLINK_OFF%%ANSI_CURSOR_SHOW%
 
 REM set default answer if we hit ENTER, or timed out (which should only happen if WAIT_OPS exists):

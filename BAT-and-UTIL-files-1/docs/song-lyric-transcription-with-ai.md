@@ -312,12 +312,12 @@ Type “work”         to be interactively asked as to the nature of your work.
 
 Previews an audio-file in VLC player.  
 Used to preview audio files so we can mark them as instumentals or not.
-If Winamp Integration is enabled, pauses and unpauses WinAmp before/after the preview.
+If ⚡ WinAmp 🦙 Integration is enabled, pauses and unpauses ⚡ WinAmp 🦙 before/after the preview.
 
 ### 🌟 aii / [ask-if-instrumental](../BAT-and-UTIL-files-1/ask-if-instrumental.bat)
 
 Asks if an *INDIVIDUAL* song is an instrumental, and takes appropriate actions if it is. 
-Those actions include: Previewing any TXT/LRC/SRT lyric/subtitle files and prompting the user for deletion of each one, prompting the user for deletion of any associated JSON/LOG files, and allowing the user to preview the song (with ```preview-audio-file.bat```) or enqueue the song in WinAmp (with my recompiled ```enqueueee.exe```) for double-checking its instrumental nature.
+Those actions include: Previewing any TXT/LRC/SRT lyric/subtitle files and prompting the user for deletion of each one, prompting the user for deletion of any associated JSON/LOG files, and allowing the user to preview the song (with ```preview-audio-file.bat```) or enqueue the song in ⚡ WinAmp 🦙 (with my recompiled ```enqueueee.exe```) for double-checking its instrumental nature.
 
 ### 🌟 [ask-if-instrumentals](../BAT-and-UTIL-files-1/ask-if-instrumentals) / [mark-all-filenames-as-instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-as-instrumental.bat)
 
@@ -521,14 +521,14 @@ Rarely used side-utility: Creates karaoke files for **all songs** in a *folder t
 
 ### 🌟 [WhisperTimeSync.bat](../BAT-and-UTIL-files-1/WhisperTimeSync.bat) [{bad_subtitle_file} {good_text_file} {optional_audio_file}] or [{audio_file to imply subtitles and lyrics from the filename of}]:
 
-Use the incorporated instance of the [WhisperTimeSync](https://github.com/EtienneAb3d/WhisperTimeSync) project to fix mis-transcriptions in the SRT file by using the TXT lyrics as an official point of truth.  This is tricky, and the original project is fraught with implementation issues.  This script guides us through the steps to avoid those issues, including giving an option to directly enqueue songs into WinAmp to preview how the lyrics are being displayed in [MiniLyrics](https://minilyrics.en.softonic.com/), comparing the final timestamps of both files, and opening the before and after in our text editor so that we can manually review the re-sync’ed lyrics.  
+Use the incorporated instance of the [WhisperTimeSync](https://github.com/EtienneAb3d/WhisperTimeSync) project to fix mis-transcriptions in the SRT file by using the TXT lyrics as an official point of truth.  This is tricky, and the original project is fraught with implementation issues.  This script guides us through the steps to avoid those issues, including giving an option to directly enqueue songs into ⚡ WinAmp 🦙 to preview how the lyrics are being displayed in [MiniLyrics](https://minilyrics.en.softonic.com/), comparing the final timestamps of both files, and opening the before and after in our text editor so that we can manually review the re-sync’ed lyrics.  
 
 Final review includes using the special modes incorporated into the [print_with_columns.py](../BAT-and-UTIL-files-1/print_with_columns.py) created specifically for comparing old subtitles to new subtitles. These include a mode where the screen alternates between the before/after subtitles, and a mode where the timestamps are synced in a 2-column side-by-side display of the before/after subtitles. That way we can be dang sure the WhisperTimeSynchronized new subtitles are actuallyb etter than the old ones, which are backed up to the current folder prior to being replaced.
 
 
 ### 🌟 [WhisperTimeSync-currently-playing-song.bat](../BAT-and-UTIL-files-1/WhisperTimeSync-currently-playing-song.bat):
 
-If Winamp Integration is enabled, runs [WhisperTimeSync.bat](../BAT-and-UTIL-files-1/WhisperTimeSync.bat) on the currently-playing song.
+If ⚡ WinAmp 🦙 Integration is enabled, runs [WhisperTimeSync.bat](../BAT-and-UTIL-files-1/WhisperTimeSync.bat) on the currently-playing song.
 
 
 ### 🌟 [srt_comparator.py](../BAT-and-UTIL-files-1/srt_comparator.py):
@@ -882,6 +882,11 @@ The final subtitle postprocessor—originally called ```remove-period-at-ends-of
 This also also has some extra karaoke postprocessing functionality slipped in:
     - de-censoring some curse words that WhisperAI censors (suppress this with ```--leave-censorship``` or ```-L```)
     - removing any line that is a common WhisperAI hallucination
+
+### 🌟 [fix-subtitles-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/fix-subtitles-for-currently-playing-song.bat) [or ```fts``` for “fix these subtitles”]:
+
+If ⚡ WinAmp 🦙 Integration is enabled, runs [subtitle-postprocessor.pl](../BAT-and-UTIL-files-1/subtitle-postprocessor.pl) on the currently playing song.
+
 
 </details>
 
