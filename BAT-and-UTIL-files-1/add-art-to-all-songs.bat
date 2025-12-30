@@ -7,7 +7,7 @@
 rem Validate environment once per session:
         iff "1" != "%validated_addarttoallsongs%" then
                 if not defined filemask_audio call validate-environment-variable filemask_audio allwebp2jpg
-                call validate-in-path randfg add-art-to-song warning print-message
+                call validate-in-path randfg add-art-to-song warning print-message divider
                 set validated_addarttoallsongs=1
         endiff
 
@@ -40,9 +40,11 @@ rem If no cover art found, intervene:
 
 rem Go through each song and add the art:       (changing color each time so we can tell where one begins and one ends)
         for %song in (%filemask_audio%) (
-            call randfg
-            echos .
-            call add-art-to-song "%cover%" "%song%" 
+                call randfg
+                echos .
+                set DONT_DELETE_ART_AFTER_EMBEDDING=1
+                call add-art-to-song "%cover%" "%song%" 
+                call divider
         )
 
 

@@ -1,8 +1,8 @@
 """
-    split those pesky youtube videos where the timestamps are only listed in a comment by some random commenter,
+    split those pesky downloaded youtube videos where the timestamps are only listed in a comment by some random commenter,
     in a format like:
 
-    0:00 Battery
+    90:00 Battery
     05:11 Master of Puppets
     13:06 The Thing That Should Not Be
     19:17 Welcome Home (Sanitarium)
@@ -10,6 +10,9 @@
     33:23 Leper Messiah
     38:59 Orion
     47:03 Damage, Inc.
+
+    Automatically seeks out the largest file in the current folder to do this on
+
 
 """
 import re
@@ -74,12 +77,14 @@ def main():
     # Generate the batch script
     with open('generated-splitter.bat', 'w', encoding="utf-8") as f:
         f.write("@Echo OFF\n")
+        f.write("on break continue\n")
         for i, timestamp in enumerate(timestamps, start=1):
             time, title, end_time = timestamp_splitter(timestamp, timestamps, i)
             f.write(f'REM    {time} {title}\n')
         f.write("\nset  INPUT_MP3=%@UNQUOTE[%1]\n")
+        f.write("if isdir ohhhh rd ohhhh\n")                                                                                #holistic internal cleanup of a temp folder name I use
         f.write("call validate-environment-variable INPUT_MP3\n")
-        f.write("call validate-in-path ffmpeg eyeD3\n\n")
+        f.write("call validate-in-path              ffmpeg eyeD3\n\n")
         for i, timestamp in enumerate(timestamps, start=1):
             time, title, end_time = timestamp_splitter(timestamp, timestamps, i)
             title_for_filename = f"{i}_{title}"

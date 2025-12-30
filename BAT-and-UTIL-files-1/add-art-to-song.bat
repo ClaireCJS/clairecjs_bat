@@ -13,7 +13,7 @@ rem Validate parameters:
 
 rem Validate environment (once):
         iff "1" != "%validated_addarttosong%" then
-                call validate-in-path add-art-to-mp3.bat add-art-to-flac.bat
+                call validate-in-path add-art-to-mp3.bat add-art-to-flac.bat success.bat print-message.bat
                 set  validated_addarttosong=1
         endiff
 
@@ -36,9 +36,7 @@ rem Call appropriate script depending on extension of parameter:
 
 
 rem Inform success:
-        %COLOR_SUCCESS%
-        echo Done!
-        %COLOR_NORMAL%
+        call success "Done!"
         :goto_here_if_not_successful
 
 
