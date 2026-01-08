@@ -267,6 +267,7 @@ goto :Past_The_End_Of_The_Subroutines
 
                         
                         setdos /x-5
+                        rem echo iff "%VARNAME%" == "newline" .or. "%VARNAME%" == "tab" .or. "%VARVALUE%" == " " .or. "%@RegEx[\.,%varvalue%]" != "1" tax
                         iff "%VARNAME%" == "newline" .or. "%VARNAME%" == "tab" .or. "%VARVALUE%" == " " .or. "%@RegEx[\.,%varvalue%]" != "1" then
                                 set IS_FILE_LOCATION=0
                         elseiff "1" == "%@REGEX[^[A-Za-z]:[\\\/],%@UPPER[%@UNQUOTE[%VARVALUE%]]]"  .or.  "1" == "%@REGEX[%@UPPER[%FILEMASK_ALL_REGEX%]$,%@UPPER[%@UNQUOTE[%VARVALUE%]]]" then
