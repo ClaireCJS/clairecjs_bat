@@ -816,6 +816,9 @@ REM if we already have a SRT file, we have a problem unless we’re forcing a re
 
 
 
+REM I believe this is where we want to re-jump in, if we *create* lyrics with a last-minute lyric edit:
+        :go_here_after_last_minute_lyric_edit
+
 
 
 REM If "%SOLELY_BY_AI%" == "1", we nuke the LRC/SRT file and go straight to AI-generating, and we only use the TEXT
