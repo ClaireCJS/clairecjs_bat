@@ -95,14 +95,7 @@ echo               We might want to change this script to have multiple modes.
 
 
 rem COPY OUR MATRIXMIXER CONFIG:
-    pushd
-        REM goat not sure if this will continue to work after changing winamp back to 5.666 but it was an install-over-5.92 install so maybe it will
-        call appdata 
-        cd winamp
-        call warning_soft "MatrixMixer configuration re-copied" silent
-        echo ry | *copy /z out_mixer.ini.official out_mixer.ini    
-    popd
-
+        call copy-matrixmixer-config-from-backup.bat
 
 
 
