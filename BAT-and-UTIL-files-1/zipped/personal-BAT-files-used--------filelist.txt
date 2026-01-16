@@ -1,5 +1,6 @@
 2024-11-24  00:44        149,504   49%  4wt.dll
 2024-11-24  00:44          3,433   60%  4wt.txt
+2023-08-26  16:32             72    5%  adb.bat
 2025-06-03  13:38         25,538   78%  add-ADS-tag-to-file.bat
 2025-12-30  22:36          1,629   64%  add-art-to-all-songs.bat
 2024-12-08  19:19          2,625   63%  add-art-to-flac-helper.bat
@@ -89,7 +90,7 @@
 2024-11-19  03:23          5,089   78%  auto-clean.bat
 2025-01-05  13:11         13,972   74%  auto-process.bat
 2025-12-25  16:53          6,451   71%  autoexec-common.btm
-2025-11-20  22:43         43,438   77%  autoexec.ahk
+2026-01-08  10:38         44,196   77%  autoexec.ahk
 2024-11-19  03:23            917   52%  AutoHotKey-autoexec.bat
 2025-05-22  20:21          2,692   61%  AutoHotKey.bat
 2025-05-23  11:49          3,594   61%  autoname.bat
@@ -233,6 +234,8 @@
 2024-11-19  08:37             44   -4%  coolbigecho.bat
 2025-12-21  13:13          2,824   61%  copy-alias.bat
 2025-11-26  14:04             16  -12%  copy-dir.bat
+2026-01-14  18:30            277   32%  copy-matrixmixer-config-from-backup.bat
+2026-01-14  18:31            365   42%  copy-matrixmixer-config-to-backup.bat
 2025-11-05  15:43         47,567   74%  copy-move-post.py
 2024-11-19  08:37             37   -5%  copy.bat
 2025-11-26  14:04             16  -12%  copydir.bat
@@ -361,6 +364,7 @@
 2024-11-19  08:47            101   14%  display-song-lengths.bat
 2024-11-19  08:47            506   41%  display-tab-stops.bat
 2025-01-12  17:38          2,736   66%  display-tags.bat
+2026-01-08  18:17          2,356   64%  display-tax-cost.bat
 2020-12-30  21:05             71    8%  display-this-month.pl
 2024-11-19  08:47          2,856   71%  display-time-elapsed.bat
 2024-11-19  08:47          1,394   68%  display-video-length.bat
@@ -411,7 +415,7 @@
 2024-11-19  08:47             41   -4%  emoji-grep.bat
 2024-12-09  16:35             39   -5%  emoji-search-online.bat
 2025-01-12  18:30          2,105   60%  emoji-search.bat
-2025-12-22  01:12        102,590   78%  emoji.env
+2026-01-15  23:54        102,763   78%  emoji.env
 2025-05-29  08:15          1,940   57%  enqueue-file-into-winamp-playlist.bat
 2024-12-11  18:04             80   15%  enqueue-regex-to-winamp.bat
 2024-11-19  08:47             66   -3%  enqueue.bat
@@ -457,7 +461,7 @@
 2025-01-12  17:43         14,355   82%  fix-file-dates-using-filenames.bat
 2024-11-19  08:47            987   59%  fix-google-photo-filenames.bat
 2024-11-19  08:47             98    9%  fix-lastfm-window-size-and-position.bat
-2026-01-03  16:31          1,283   63%  fix-minilyrics-window-size-and-position.bat
+2026-01-11  13:10          1,323   63%  fix-minilyrics-window-size-and-position.bat
 2024-11-19  08:47             68   -1%  fix-MiniLyrics.bat
 2024-11-19  08:47            161   48%  fix-music-window-sizes-and-positions.bat
 2025-12-30  23:31          1,327   58%  fix-subtitles-for-currently-playing-song.bat
@@ -476,6 +480,7 @@
 2024-12-11  19:00            268   37%  footer-and-bigecho.bat
 2024-12-09  20:35             33   -6%  footer.bat
 2024-11-19  08:47          8,887   73%  FR.bat
+2026-01-10  20:08            715   55%  free-quest-space.bat
 2024-11-19  08:47            717   52%  free-space-monitor.bat
 2024-11-19  08:47             52   -3%  free-space.bat
 2025-10-21  09:28          5,196   68%  free-up-harddrive-space.bat
@@ -888,13 +893,13 @@
 2024-11-23  11:45            865   56%  restart-explorer.bat
 2024-11-19  16:16            179   26%  restart-ip-stack-(requires-reboot).bat
 2025-09-24  20:57            220   42%  restart-lastfm.bat
-2025-06-08  21:05            125   27%  restart-minilyrics.bat
+2026-01-11  13:13            608   53%  restart-minilyrics.bat
 2024-11-19  16:16          3,979   70%  restart-process.bat
 2024-11-19  16:16            168   20%  restart-taskbar-autohide.bat
 2024-11-19  16:16            323   44%  restart-tcpip-stack.bat
 2024-11-19  16:16            234   36%  restart-ttrgb.bat
 2024-11-19  16:16          1,135   56%  restart-winamp-visualizer.bat
-2025-06-08  20:48          4,962   64%  restart-winamp.bat
+2026-01-14  18:30          4,660   65%  restart-winamp.bat
 2024-11-19  22:35             45   -4%  restart.bat
 2024-11-19  16:16          1,002   51%  restore-window-positions.bat
 2024-11-19  22:35             40   -5%  restore-window.bat
@@ -1119,6 +1124,7 @@
 2024-12-22  18:27            597   56%  tag-mp3s.bat
 2024-12-22  18:22            655   46%  tag.bat
 2024-11-19  16:04            291   49%  tail.bat
+2026-01-08  18:08             27   -7%  tax.bat
 2024-11-19  16:04             65    4%  tcc-in-console-window.bat
 2025-12-25  16:48             70    6%  tcstart-then-autoexec.bat
 2024-11-19  16:04            184   38%  tee.bat
@@ -1199,7 +1205,7 @@
 2025-03-31  15:30             29   -6%  validate-are-functions.bat
 2025-01-13  12:30             71    5%  validate-env-var.bat
 2025-01-13  12:29             70    3%  validate-env-vars.bat
-2025-10-08  03:58         27,992   77%  validate-environment-variable.bat
+2026-01-08  17:51         28,147   78%  validate-environment-variable.bat
 2025-05-16  15:08            569   47%  validate-environment-variables.bat
 2025-01-22  03:57             32   -6%  validate-extension.bat
 2025-01-22  03:58             32   -6%  validate-file-extension.bat
