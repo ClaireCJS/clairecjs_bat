@@ -2,10 +2,20 @@
 @echo off
 @on break cancel
 
-if not exist %1 goto :DNE1
-%COLOR_IMPORTANT% %+ echo *** Validating %1: 
-%COLOR_RUN% 
-(c:\perl\bin\perl.exe %BAT%\validate-filelist.pl) <%1 
+rem Validate environment:
+        iff "1" != "%validated-valfilelist%" then
+                call validate-in-path perl validate-filelist.pl
+                set  validated-valfilelist=1
+        endiff
+
+rem Validate parameters:
+        if not exist %1 goto :DNE1
+        %COLOR_IMPORTANT% %+ echo *** Validating %1: 
+        %COLOR_RUN% 
+
+
+rem Run it:
+(perl %BAT%\validate-filelist.pl) <%1 
 : cut-to-width
 
 
