@@ -25,9 +25,9 @@ rem CONFIG:
 
 rem VALIDATE ENVIRONMENT:
         iff "1" != "%validated_whispertimesynchelper%" then
-                call validate-in-path               errorlevel askyn enqueue.bat warning.bat advice.bat print-message.bat winamp-next subtitle-postprocessor.pl perl preview-audio-file.bat tail subtitle-verifier.py subtitle-integrity-checker
-                rem  validate-environment-variables JAVA_WHISPERTIMESYNC WhisperTimeSync our_language color_advice ansi_color_advice lq rq underline_on underline_off italics_on italics_off
-                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language WhisperTimeSync 
+                rem  validate-environment-variables color_advice ansi_color_advice lq rq JAVA_WHISPERTIMESYNC WhisperTimeSync our_language underline_on underline_off italics_on italics_off
+                call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC WhisperTimeSync our_language 
+                call validate-in-path               errorlevel askyn enqueue.bat warning.bat advice.bat print-message.bat winamp-next subtitle-postprocessor.pl perl preview-audio-file.bat tail subtitle-verifier.py subtitle-integrity-checker "%JAVA_WHISPERTIMESYNC%"
                 call validate-is-function           cool_text
                 call checkeditor
                 set  validated_whispertimesynchelper=1
@@ -131,12 +131,11 @@ rem Check for problems:
         rem echo    subtitle-verifier.py --columns %_COLUMNS "%SRT_NEW%"
         call subtitle-integrity-checker "%SRT_NEW%"
 
-rem WhisperTimeSync is horribly buggy so manual review/fix is needed:
-        rem  warning "%underline_on%WhisperTimeSync%underline_off% is buggy af%italics_off%" big
+rem WhisperTimeSync is a bit buggy, so manual review/fix is needed:
         echo %ANSI_COLOR_WARNING_SOFT%%STAR2% Potential manual review of subtitles:%ansi_color_normal%
         echo %ANSI_COLOR_WARNING_SOFT%  %STAR2% %italics_on%WhisperTimeSync%italics_off% on rare case gets the very beginning wrong%ansi_color_normal%
         echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      %inverse_circled_1%  Take special care that the very beginning / first words fall within a subtitle
-        rem  We now have a program for this:       %inverse_circled_2%  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
+        rem  We now have a program for this, so it’s no longer manual:  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
         echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      %inverse_circled_3%  If the last timestamp of the new subtitles, which is:
 
 

@@ -1,3 +1,7 @@
+TODO: document that java is a requirement for WhisperTimeSync [java.bat & path?]
+	rem 1) Install WhisperTimeSync with:      git clone https://github.com/EtienneAb3d/WhisperTimeSync.git
+	rem 2) Set JAVA_WHISPERTIMESYNC=          to the path of the java.exe you wish to use. Or just set it to "java"
+
 TODO: search for other todos below
 TODO: mention about local repo search: c:\lyrics\M\Metallica\Metallica - One.txt search
 

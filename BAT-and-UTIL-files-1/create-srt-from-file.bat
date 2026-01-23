@@ -491,19 +491,21 @@ rem If the file has been marked as failed previously, abort (unless in force mod
                 gosub divider
                 unset /q answer
                 :ask_about_instrumental_480
-                call AskYN "Rename it as “[untranscribeable]” to prevent this prompt from coming up again [TODO OPTIONS]" no 20 IQPS I:no_but_mark_it_instrumental_instead,Q:enQueue_in_winamp,P:play_it,S:no_instead_mark_mark_as_sound_effect %+ rem TODO remove hard-coded wait time
-                        gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
-                        gosub check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
-                        gosub check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
-                        gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
-                        if  "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" goto /i ask_about_instrumental_480
-                        iff "Y" == "%ANSWER%" then
-                                unset /q answer
-        echo                    gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%INPUT_FILE"]" "untranscribeable" GOAT %+ pause
-                                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%INPUT_FILE"]" "untranscribeable"
-                                
-                                goto /i END
-                        endiff
+                gosub ask_if_untranscribeable
+
+rem             call AskYN "Rename it as “[untranscribeable]” to prevent this prompt from coming up again [TODO OPTIONS]" no 20 IQPS I:no_but_mark_it_instrumental_instead,Q:enQueue_in_winamp,P:play_it,S:no_instead_mark_mark_as_sound_effect %+ rem TODO remove hard-coded wait time
+rem                     gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
+rem                     gosub check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
+rem                     gosub check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
+rem                     gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
+rem                     if  "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" goto /i ask_about_instrumental_480
+rem                     iff "Y" == "%ANSWER%" then
+rem                             unset /q answer
+rem                             gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%INPUT_FILE"]" "untranscribeable"                                
+rem                             goto /i END
+rem                     endiff
+rem             return
+
                 goto /i END
         endiff
 
@@ -2201,6 +2203,24 @@ goto /i skip_subroutines
         :ask_about_instrumental [opt opt2 opt3]
                 gosub "%BAT%\get-lyrics-for-file.btm" ask_about_instrumental %opt% %opt2% %opt3%
         return
+        :ask_if_untranscribeable [opts]
+                call AskYN "Rename it as “[untranscribeable]” to prevent this prompt from coming up again [TODO OPTIONS]" no 20 IQPS I:no_but_mark_it_instrumental_instead,Q:enQueue_in_winamp,P:play_it,S:no_instead_mark_mark_as_sound_effect %+ rem TODO remove hard-coded wait time
+                        gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
+                        gosub check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
+                        gosub check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
+                        gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
+                        set IS_UNTRANSCRIBEABLE=-1
+                        if  "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" goto /i ask_about_instrumental_480
+                        iff "Y" == "%ANSWER%" then
+                                unset /q answer
+                                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%INPUT_FILE"]" "untranscribeable"                                
+                                set IS_UNTRANSCRIBEABLE=1
+                                goto /i END
+                        endiff
+                        iff "N" == "%ANSWER%" then
+                                set IS_UNTRANSCRIBEABLE=0
+                        endiff
+        return
         :ask_to_approve_karaoke [opt]
                 if "%KARAOKE_STATUS%" == "APPROVED" (echo %ansi_color_important_less%%star2% Karaoke already approved...%zzzzzz%%ansi_color_normal% %+ return)
                 if not exist "%SRT_FILE%"           (echo %ansi_color_important_less%%star2% Karaoke doesn’t exist to approve...%ansi_color_normal% %+ return)
@@ -2385,7 +2405,10 @@ goto /i skip_subroutines
                                                         unset our_lyrics*
                                                         set goto_try_again=1
                                                 endiff
-                                                if "N" == "%ANSWER%" goto :nothing_generated
+                                                iff "N" == "%ANSWER%" then
+                                                        gosub ask_if_untranscribeable
+                                                        goto /i nothing_generated
+                                                endiff
                                         if "1" == "%goto_try_again%" goto /i :go_here_for_encoding_retries
                                 endiff
                         set ANSWER=%HELD_ANSWER%
