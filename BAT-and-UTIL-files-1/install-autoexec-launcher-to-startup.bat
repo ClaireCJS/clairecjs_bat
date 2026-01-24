@@ -10,16 +10,17 @@
     if not isdir %BAT%     gosub :No %BAT%
 
 
-::::: SET TARGET:
-    set TARGET="%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\autoexec-launcher.btm"
+::::: SET AUTOEXEC_TARGET:
+    set AUTOEXEC_TARGET="%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\autoexec-launcher.btm"
+    set AUTOEXEC_TARGET_DIR=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\
 
 ::::: ENSURE WE HAVEN'T DONE THIS ALREADY:
-    if exist %TARGET% .and. "%@UPPER[%1]" ne "FORCE" goto :Already
+    if exist %AUTOEXEC_TARGET% .and. "%@UPPER[%1]" ne "FORCE" goto :Already
 
 ::::: INSTALL AUTOEXEC LAUNCHER:
-    rem worked 'til 20241016: echo %BAT%\%MACHINENAME%\autoexec.btm %PARAMETERS% >%TARGET%
+    rem worked 'til 20241016: echo %BAT%\%MACHINENAME%\autoexec.btm %PARAMETERS% >%AUTOEXEC_TARGET%
     rem new:
-    echo c:\TCMD\tcc.exe %BAT%\%MACHINENAME%\autoexec.btm %PARAMETERS% >%TARGET%
+    echo c:\TCMD\tcc.exe %BAT%\%MACHINENAME%\autoexec.btm %PARAMETERS% >%AUTOEXEC_TARGET%
 
 
 ::::: REPORT:
@@ -30,11 +31,11 @@
     echo * Autoexec launcher installed! Go into your start menu and 
     echo   Right click the newly-created icon in order to manually 
     echo   change the launcher to our preferred command line.
-    echo * Location: %TARGET%
+    echo * Location: %AUTOEXEC_TARGET%
     %COLOR_IMPORTANT%
     echo * Contents:
     %COLOR_DEBUG%
-    type %TARGET%
+    type %AUTOEXEC_TARGET%
     echo.
     echo.
     echo.
@@ -42,6 +43,9 @@
     echo ** THIS WILL NOT WORK ** unless you right click on a BTM file and 
     echo    Choose Program and choose TCMD to open it. Otherwise, the above
     echo    contents will run things with CMD.EXE, which is very bad.
+pause
+"%AUTOEXEC_TARGET_DIR%\"
+call iehere
 
 
 
@@ -62,7 +66,7 @@ goto :END
         echo * We already did this! Add "force" as a parameter to force it.
         echo.
         echo * This already exists:
-        echo   %TARGET% 
+        echo   %AUTOEXEC_TARGET% 
     goto :END
     ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
