@@ -17,11 +17,11 @@
 
 rem Work configuration: lyrics & karaoke: playlists:
         set default_playlist_to_work=2010s party.m3u
-        set default_playlist_to_work=changer.m3u
         set default_playlist_to_work=crtl.m3u
         set default_playlist_to_work=changerrecent.m3u
         set default_playlist_to_work=best.m3u
         set default_playlist_to_work=pretty good.m3u
+        set default_playlist_to_work=changer.m3u
 
 rem Work configuration: lyrics & karaoke: workloads:
         set default_number_of_lyrics_to_work=69
@@ -88,12 +88,13 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
 
                 rem Validate environment specific to this task:
                         iff "1" != "%validated_work_lyricskaraoke%" then
-                                echos %ansi_color_less_important%%star2% Validating work-related variables...
+                                echos %ansi_color_less_important%%star2% Validating work-related variables...%ansi_save_position%
                                         call validate-in-path get-lyrics get-karaoke mp3l error print-message AskYN convert-playlist-to-only-songs-that-do-not-have-karaoke.bat convert-playlist-to-only-songs-that-do-not-have-lyrics.bat
                                         call validate-environment-variables default_playlist_to_work default_number_of_karaoke_to_work default_number_of_lyrics_to_work
-                                echo done!%ansi_color_normal%
+                                echo %ansi_restore_position%%@ansi_move_to_col[0]%ansi_color_success%%star% Validations successful!%ansi_color_normal%%ansi_erase_to_eol%%ansi_eol%
                                 set  validated_work_lyricskaraoke=1
                         endiff
+
 
                 rem Make sure our playlist-to-work is properly quoted:
                         set default_playlist_to_work="%@UNQUOTE["%default_playlist_to_work%"]"

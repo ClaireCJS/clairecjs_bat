@@ -345,7 +345,7 @@ rem Inform user if final timestamp on new subtitles is different from final time
                 echo %ANSI_COLOR_WARNING_SOFT%  %STAR2% %italics_on%WhisperTimeSync%italics_off% on rare case gets the very beginning wrong%ansi_color_normal%
                 echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      %inverse_circled_1%  Take special care that the very beginning / first words fall within a subtitle
                 rem  We now have a program for this:       %inverse_circled_2%  There shouldn’t be duplicate timestamps in different blocks (TODO: write autochecker)
-                echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      %inverse_circled_3%  If the last timestamp of the new subtitles, which is:
+                echo %ANSI_COLOR_WARNING_SOFT%%zzzzz%      %inverse_circled_3%  Or if the last timestamp of the new subtitles is different from the old. They are:
 
 
         rem Use grep+tail+cut+sed to extract the final timestamp from both the old and new subtitles into their own files:
@@ -364,13 +364,14 @@ rem Inform user if final timestamp on new subtitles is different from final time
                 iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
                         call warning "Final timestamps differ!" big
                         call advice  "Make sure to manually review before/after subs in text editor"
-                        call advice  "The old subtitles may have content before/after the new subtitles that needs to be manually copied over"
-                        *pause
+                        call advice  "%blink_on%The old subtitles may have content before/after the new subtitles that needs to be manually copied over%blink_off%"
+                        pause        "Press any key to continue (text editor will be opened)"
                         set our_display_color=%ansi_color_bright_red%
+                        set text_editor_must_be_opened=1
                 else
                         call success "Final timestamps are the same, so we%apostrophe%e probably fine!" big
                         set our_display_color=%ansi_color_bright_green%
-                        
+                        set text_editor_must_be_opened=0                        
                 endiff
 
         rem 2025/12/21 moved to WhisperTimeSync.bat:
@@ -378,15 +379,21 @@ rem Inform user if final timestamp on new subtitles is different from final time
         rem pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
 
 
-
-
-
 rem Section moved from WhisperTimeSync-helper.bat (happening before our comparisons) to here:
-        repeat 7 echo.
-        call bigecho "Opening new/old subs in txt editor"
-        %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
-        pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
+        rem Are we *really* opening them? Definite yes if timestamp mismatch occured above, otherwise a maybe:
+                iff "1" != "%TEXT_EDITOR_MUST_BE_OPENED%" then 
+                        unset /q ANSWER
+                        call AskYn "Open old & new subtitles in editor" no 300
+                        if "Y" == "%ANSWER%" set text_editor_must_be_opened=1
+                endiff
 
+        rem Open them if we need to:
+                iff "1" == "%TEXT_EDITOR_MUST_BE_OPENED%" then 
+                        repeat 7 echo.
+                        call bigecho "Opening new/old subs in txt editor"
+                        %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
+                        pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
+                endiff
 
 
 
