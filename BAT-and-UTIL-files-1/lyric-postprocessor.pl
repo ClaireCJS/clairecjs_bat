@@ -40,9 +40,10 @@
 #   - Adds “.” to the end of each line by default, for better WhisperAI        #
 #                                    parsing with the --sentence option        #
 #   - Changes ' into ’                                                         #
-#   - Removes song-section titles like “[chorus]” or “[spoken]”				   #
 #   - Removes lyric website advertising spam 								   #
+#   - Removes song-section titles like “[chorus]” or “[spoken]”				   #
 #   - Removes redundant lyric website mentions of artist/song title/album	   #
+#   - changes “â€™” to “’” which comes up way too often in downloaded lyrics   #
 #   - Removes special command-line characters if in -1 mode					   #
 #   - Removes leading comma from lines that start with a comma				   #
 ################################################################################
@@ -52,7 +53,7 @@
 
 ###########  CONSTANTS: BEGIN:  ###########
 my $ADDED_END_LINE_CHARACTER    = ".";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online. Without adding a “phantom period” to the end of each line, WhisperAI’s ‘--sentence’ parameter will not function correclty, and awkward transcriptions are generated where multiple lines of lyrics are one one line of transcriptino
-my $MAX_KARAOKE_WIDTH_MINUS_ONE =  24;					#This system aims for a max width of 25
+my $MAX_KARAOKE_WIDTH_MINUS_ONE =  24;					#This system aims for a max width of 25, so that minus one is 24
 ###########  CONSTANTS: ^^END^  ###########
 
 ###########  AI CONFIGURATION: BEGIN:  ###########
@@ -289,10 +290,11 @@ while (<$INPUT>) {
 		#line-level fixes:
 		$line =~ s/^, *$//;			#remove leading comma like ", a line of text"
 
-		#character-level fixes:
-		#commas and quotes and dashes and punctuation, oh my!
+		#character-level fixes: commas and quotes and dashes and punctuation, oh my!
 		$line =~ s/[â'`]/’/ig;			# apostrophes and misrepresentations thereof
-		$line =~ s/’’/’/ig;				# apostrophe kludge 20250424 1358
+		$line =~ s/’’/’/ig;				# apostrophes and misrepresentations thereof (kludge 20250424 1358)
+		$line =~ s/â€™/’/ig;			# apostrophes and misrepresentations thereof (kludge 20250424 1358)
+		
 		#OLD: $line =~ s/\-\-/—/g;		# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
 		$line =~ s/\-\-([^>])/—$1/g;	# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
 		$line =~ s/„/”/g;				# copied from lyric-postprocessor: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “

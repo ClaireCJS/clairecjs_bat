@@ -242,6 +242,7 @@ rem Remove any trash environment variables left over from a previously-aborted r
         set JUST_CONVERTED_SRT_TO_TEXT=0
         set FOUND_BROAD_LYRICS_BRANCH_1=0
         set JUST_APPROVED_LYRICLESSNESS=0
+        set JUST_RENAMED=0
         set JUST_RENAMED_TO_INSTRUMENTAL=0
         set FORCE_AI_ENCODE_FROM_LYRIC_GET=0
         SET ASKED_ABOUT_INSTRUMENTAL_ALREADY=0
@@ -4117,6 +4118,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                 set SOME_INSTRUMENTALS_WERE_MARKED=1
                                 rem let’s not do this anymore: (20250221): set AUDIO_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
                                 set JUST_RENAMED_TO_INSTRUMENTAL=1
+                                set JUST_RENAMED=1
                         endiff
 
                 rem Validate that the renaming happened:              

@@ -119,13 +119,6 @@ rem Map drives
 
 
 
-rem Backups
-        iff "%machinename%" == "WYVERN" .or. "%machinename%" == "DEMONA" then               
-                REM backup files                                                   
-                        call  backup-important-files   %*                         %+  gosub done_with_step
-                        call  backup-important-folders %*                         %+  gosub done_with_step
-        endiff
-
 
 
 
@@ -143,6 +136,13 @@ goto :END
 
 rem ——————————————————————————————————————————————————————————————————————————————–——————————————————————————————–—————————————————————————————————————————————
 :END
+        rem Backups
+                iff "%machinename%" == "WYVERN" .or. "%machinename%" == "DEMONA" then               
+                        REM backup files                                                   
+                                call  backup-important-files   %*                         %+  gosub done_with_step
+                                call  backup-important-folders %*                         %+  gosub done_with_step
+                endiff
+
         rem Maintainence, including rolling files:
                 repeat 5 echo.
                 repeat 5 call divider %CHECK%
