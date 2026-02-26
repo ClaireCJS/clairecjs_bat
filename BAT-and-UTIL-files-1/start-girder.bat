@@ -7,5 +7,5 @@ cd \girder
 start girder.exe
 popd
 popd
-windowHide /min Girder*
+echo windowHide /min Girder* isn’t working latley so not doing it anymore
 

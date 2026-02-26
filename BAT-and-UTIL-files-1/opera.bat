@@ -1,6 +1,11 @@
 @echo off
 @on break cancel
-pushd .
+@pushd .
+
+
+rem CONFIG:
+        set OPERA_FLAGS=--disable-update --site-per-process
+
 
 if "%1"=="old" goto :old
 
@@ -59,7 +64,7 @@ if "%1"=="old" goto :old
             return
 
         :StartOpera
-            start Opera.exe --disable-update
+            start Opera.exe %OPERA_FLAGS%
     goto :end
 
     :old
