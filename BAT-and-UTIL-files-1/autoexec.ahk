@@ -97,7 +97,12 @@ ReleaseAllMods() {
         return
     }
     finally {
+        Sleep 50
         Send "{Alt up}"
+        ReleaseAllMods()
+        Sleep 50
+        Send "{Alt up}"
+        ReleaseAllMods()
     }
 }
 

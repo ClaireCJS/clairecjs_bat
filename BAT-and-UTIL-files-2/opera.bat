@@ -4,7 +4,8 @@
 
 
 rem CONFIG:
-        set OPERA_FLAGS=--disable-update --site-per-process
+        set OPERA_FLAGS=--disable-update --site-per-process %+ REM apparently --site-per-process can cause video decoding issues by messing with the VP9 codec that YouTube et al use
+        set OPERA_FLAGS=--disable-update 
 
 
 if "%1"=="old" goto :old
