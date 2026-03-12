@@ -1,3 +1,10 @@
+# Added by Docker Desktop
+192.168.1.190 host.docker.internal
+192.168.1.190 gateway.docker.internal
+# To allow the same kube context to work on the host and the container:
+127.0.0.1 kubernetes.docker.internal
+# End of section
+
 
 192.168.100.1 cablemodem
 192.168.100.1 modem
@@ -6,23 +13,27 @@
 192.168.0.1  wap
 192.168.0.2  dlink
 
-# 66.167.233.211  Thailog
-# 66.167.233.211  MusicServer
-# 66.167.233.212  Goliath
-# 66.167.233.213  Fire
-
+#things that exist in 2026
+192.168.0.17  MusicServer
+192.168.0.17   Demona
 192.168.0.106  Thailog
-192.168.0.106  MusicServer
 192.168.0.107  Goliath
 192.168.0.97   Wyvern
-192.168.0.105  Fire
+
+#xbox
+192.168.1.113 xbox
+192.168.1.113 xbox360
+192.168.1.113 lex
+192.168.1.113 lexington
+
 
 #things that don't exist
+192.168.0.105  Fire
+192.168.0.116  Hades
+192.168.0.126  Hell
 192.168.0.117  Mist
 192.168.0.127  Magic
 192.168.0.137  Phoenix
-192.168.0.116  Hades
-192.168.0.126  Hell
 
 192.168.0.109  ipcam
 192.168.0.109  ipcam1
@@ -37,3 +48,4 @@
 127.0.0.1 hlrcv.stage.adobe.com
 127.0.0.1 practivate.adobe.com 
 127.0.0.1 activate.adobe.com
+127.0.0.1 quicklicensemanager.com

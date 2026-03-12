@@ -1254,6 +1254,7 @@ return
                         rem stop annoying CCC:AEMCapturingWindow that keeps popping up: c:\util\windowhide.exe /kill AMD:CCC-AEMCapturingWindow :20150825 try removing this
                         rem bugfix kludges
                         set PROGRAMFILES=c:\Program Files
+                        *window /trans=254
         return
 
         :InitialThailog
@@ -2787,11 +2788,13 @@ return
                         :201 @ 20220525 (guess my vision is going)
                         :210 @ 20221103 (guess my vision is going)
                         :242 @ 20221119 (guess my vision is going)
-                        window /TRANS=242
-            :By the way, as of 20151003, this exhibits a weird behavior - the window /trans command run here is special.
-            :****IF**** you are running Actual Window Manager.  When you move the window around, it will snap back to the transparency
-            :level here, even if you issue other window /trans commands later. It is as if Actual Window Manager gets "attached" to the
-            :initial transprency level, and wants to return to it whenever it notices you've moved the window around.
+                        :254 @ 20260310 (10-bit color makes transparency more visual or something?)
+                        window /TRANS=254
+            rem By the way, as of 20151003, this exhibits a weird behavior - the window /trans command run here is special.
+            rem ****IF**** you are running Actual Window Manager.  When you move the window around, it will snap back to the transparency
+            rem level here, even if you issue other window /trans commands later. It is as if Actual Window Manager gets "attached" to the
+            rem initial transprency level, and wants to return to it whenever it notices you've moved the window around.
+            rem Not sure if this is still the case in 2026.
 return
 
 

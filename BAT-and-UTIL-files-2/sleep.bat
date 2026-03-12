@@ -157,10 +157,6 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
                                             echos %@randcursor[]
                                             if "%second" != "0" (*delay 1)
                             :checkpoint_old_endiff_153
-
-
-
-
             enddo
 
 
@@ -169,11 +165,16 @@ rem After  Windows XP, we redirect sleep commands to the internal *delay command
             
             rem Reset our cursor back to the user-preferred shape & color, reset all ansi status, draw our final clock, and leave us in the right place:
                     iff "1" != "%silent%" then
-                        echos %CURSOR_RESET%%ANSI_RESET%%ANSI_EOL%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_SAVE_POSITION%%ANSI_ERASE_TO_END_OF_LINE%%@ansi_move_down[1]%ansi_erase_to_end_of_line%%@ansi_move_up[1]%ANSI_RESTORE_POSITION%%@ANSI_MOVE_DOWN[1]%@ANSI_MOVE_LEFT[4]%BIG_OFF%%EMOJI_ALARM_CLOCK%%CHECK%%ANSI_ERASE_TO_END_OF_LINE%
+                        rem Redraw the clock, but in normal size...
+                        echos %CURSOR_RESET%%BIG_OFF%%ANSI_RESET%%ANSI_EOL%
+                        echos %EMOJI_ALARM_CLOCK%%CHECK% %ansi_color_bright_black% %faint_on%(waited %SLEEP_TIME% seconds)%faint_off%%ANSI_SAVE_POSITION%%ANSI_ERASE_TO_END_OF_LINE%
+                        rem echos %@ansi_move_down[1]%ansi_erase_to_end_of_line%%@ansi_move_up[1]%ANSI_RESTORE_POSITION%%@ANSI_MOVE_DOWN[1]%@ANSI_MOVE_LEFT[4]%BIG_OFF%%EMOJI_ALARM_CLOCK%%CHECK% (%SLEEP_TIME%s)%ANSI_ERASE_TO_END_OF_LINE%
+                        echos %@ansi_move_down[1]%@ANSI_MOVE_TO_COL[1]%ansi_erase_to_end_of_line%%big_off%
+                        rem echos %@ANSI_MOVE_TO_COL[1]%ANSI_EOL%
+                        echos %ANSI_RESTORE_POSITION%
                     else
                         echos %CURSOR_RESET%%ANSI_RESET%
                     endiff
-
 
             rem Wipe?
                     iff "1" == "%wipe%" then

@@ -99,7 +99,8 @@ rem EXECUTION:
         
         rem Testing:
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
-            call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt         --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
+        echo call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt         --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%" >c:\last-ydl.bat
+             call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt         --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
         @Echo off
         title YouTube D/L complete!                                                                                                
         rem was suggested that one could scrub unicode chars with this command: --replace-in-metadata "video:title" " ?[\U000002AF-\U0010ffff]+" ""
@@ -123,7 +124,7 @@ rem CLEANUP:
         if exist *.description (ren *.description *.txt)
         if "%UNATTENDED_YOUTUBE_DOWNLOADS%" == "1" goto :Unattended
                 call set-latest-filename *.txt
-                call debug "LATEST_FILENAME is “%LATEST_FILENAME%”" %+ call pause-for-x-seconds 5
+                rem call debug "LATEST_FILENAME is “%LATEST_FILENAME%”" %+ call pause-for-x-seconds 5
                 if not defined LATEST_FILENAME goto :no_latest_filename
                         call divider
                         type "%LATEST_FILENAME%"

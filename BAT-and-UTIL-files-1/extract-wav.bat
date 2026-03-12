@@ -1,5 +1,5 @@
 @on break cancel
-@Echo OFF
+@Echo On
 
 
 %color_advice%
@@ -23,8 +23,7 @@
 
 ::::: EXTRACT THE WAV:
     %COLOR_RUN% 
-        :ffmpeg -i "%@UNQUOTE[%SOURCE%]" -vn -ar 44100 -ac 2 -ab 768000 -f wav "%@UNQUOTE[%TARGET%]"
-         ffmpeg -i "%@UNQUOTE[%SOURCE%]" -vn           -ac 2            -f wav "%@UNQUOTE[%TARGET%]"
+        ffmpeg.exe -i "%@UNQUOTE[%SOURCE%]" -vn           -ac 2            -f wav "%@UNQUOTE[%TARGET%]"
     %COLOR_NORMAL%
 
 

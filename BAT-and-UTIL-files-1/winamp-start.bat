@@ -24,14 +24,14 @@ rem BRANCH VIA PARAMETERS:
     if "%PARAM" eq "5.666"     (set WINAMP="%UTIL2%\WinAmp repo\Winamp v5.666\winamp.exe")
     if "%PARAM" eq  "5666"     (set WINAMP="%UTIL2%\WinAmp repo\Winamp v5.666\winamp.exe")
     if "%PARAM" eq   "666"     (set WINAMP="%UTIL2%\WinAmp repo\Winamp v5.666\winamp.exe")
-    call validate-environment-variable WINAMP
+    if not defined WINAMP call validate-environment-variable WINAMP
 	if exist %WINAMP% goto :Winamp_Exists_YES
 	                       :Winamp_Exists_NO
 		:Winamp_Exists_YES
-			:: REM 20221102 changing nonelevated to elevated because of polka stuff not playing
-            :set CLI_OPTIONS=/device=2
+            REM 20221102 changing nonelevated to elevated because of polka stuff not playing
+            rem set CLI_OPTIONS=/device=2
             unset /q CLI_OPTIONS=
-REM         echo ** call start-elevated %@SFN[%WINAMP]% %CLI_OPTIONS% 
+            REM echo ** call start-elevated %@SFN[%WINAMP]% %CLI_OPTIONS% 
 			echo ** call start-elevated       %WINAMP   %CLI_OPTIONS% 
 			        call start-elevated       %WINAMP   %CLI_OPTIONS% 
                     :20230424 reduced this sleep from 3 to 2
@@ -41,8 +41,7 @@ REM         echo ** call start-elevated %@SFN[%WINAMP]% %CLI_OPTIONS%
                      if "%1"=="autoexec" (call play)
                     :20240417 - after downgrading to winamp 5.666 it seems MiniLyrics needs to be independently started? Huh>
                     call MiniLyrics
-
-					call fix-MiniLyrics-window-size-and-position
+                    if "%1" != "noposfix" call fix-MiniLyrics-window-size-and-position
 			goto :Winamp_Exists_DONE
 
 		:Winamp_Exists_NO

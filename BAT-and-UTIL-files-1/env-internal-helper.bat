@@ -293,5 +293,35 @@ REM 404! https://jpsoft.com/help/whats-new-in-version-26.htm is a 404 echo. %+ e
     echo _PBATCHNAME = Parent batchfile name = %_PBATCHNAME
     echo _VOLUME     = volume (updated)      = %_volume
 
+ echo. %+ echo. %+ color bright green on bright blue %+ echo ****** v31 additions ****** %+ color white on black
+        echo _pbatchname      = name of calling bat file                   = %_pbatchname
+
+ echo. %+ echo. %+ color bright green on bright blue %+ echo ****** v32 additions ****** %+ color white on black
+        echo _batchlabel      = name of current gosub routine              = %_batchlabel
+
+ echo. %+ echo. %+ color bright green on bright blue %+ echo ****** v33 additions ****** %+ color white on black
+        echo _DARKENABLED   = Returns 1 if Windows is using a dark theme        = %_DARKENABLED
+        echo _DARKSUPPORTED = Returns 1 if Windows supports   dark themes       = %_DARKSUPPORTED
+        echo _HIGHCONTRAST  = Returns 1 if Windows is using high contrast theme = %_HIGHCONTRAST
+
+ echo. %+ echo. %+ color bright green on bright blue %+ echo ****** v34 additions ****** %+ color white on black
+        echo _bttime          = Date/time of last BTMONITOR event          = %_bttime
+        echo _eventtime       = Date/time of last EVENTMONITOR event       = %_eventtime
+        echo _firewiretime    = Date/time of last FIREWIREMONITOR event    = %_firewiretime
+        echo _nettime         = Date/time of last NETMONITOR event         = %_nettime
+        echo _outputdebugtime = Date/time of last DEBUGMONITOR event       = %_outputdebugtime
+        echo _powertime       = Date/time of last POWERMONITOR event       = %_powertime
+        echo _processtime     = Date/time of last PROCESSMONITOR event     = %_processtime
+        echo _servicetime     = Date/time of the last SERVICEMONITOR event = %_servicetime
+        echo _sqlite          = The version of SQLite included in TCC      = %_sqlite
+        echo _usbtime         = Date/time of the last USBMONITOR event     = %_usbtime
+
+rem echo. %+ echo. %+ color bright green on bright blue %+ echo ****** v35 additions ****** %+ color white on black
+rem  (v35 has no new internal env vars as of 20260310)
+
+
+
+
+
 title %oldtitle% >nul
 

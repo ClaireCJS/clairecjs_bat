@@ -36,7 +36,7 @@ rem BRANCH BASED ON PARAMETER:
         )
 
 rem BRANCH BASED ON INSTALLED VERSION OR COMMAND-LINE:
-        IF isdir "%util2%\Editplus 6"               goto :EditPlus6InUtil2
+        if isdir "%util2%\Editplus 6"               goto :EditPlus6InUtil2
         if isdir "%[PROGRAMFILES]%\EditPlus 5"      goto :v5
         if "%OUR_COMMAND_LINE%" == "Anaconda"       goto :AnacondaStart
         :NO MORE!: if "%MACHINENAME"=="Hades"       goto :Hades

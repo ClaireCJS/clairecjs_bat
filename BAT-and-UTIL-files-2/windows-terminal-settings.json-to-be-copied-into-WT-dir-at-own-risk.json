@@ -66,7 +66,8 @@
         [
             {
                 "altGrAliasing": false,
-                "antialiasingMode": "grayscale",
+                "antialiasingMode": "cleartype",
+		"experimental.useAtlasEngine": false,
                 "bellStyle": 
                 [
                     "audible",
@@ -85,13 +86,14 @@
                 },
                 "guid": "{dd3810e8-e081-487d-a281-8b3a8c934f95}",
                 "hidden": false,
-                "historySize": 9001,
+                "historySize": 3000,
                 "icon": "ms-appx:///ProfileIcons/{61c54bbd-c2c6-5271-96e7-009a87ff44bf}.png",
                 "name": "TCC",
                 "padding": "8, 8, 8, 8",
                 "snapOnInput": true,
                 "startingDirectory": "%USERPROFILE%",
-                "useAcrylic": false
+                "useAcrylic": false,
+		"opacity": 100
             },
             {
                 "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",

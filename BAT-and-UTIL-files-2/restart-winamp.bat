@@ -5,7 +5,7 @@
 
 rem Validate environment (once):
         iff "1" != "%validated_restart_winamp%" then
-                call validate-in-path set-winamp-constants fix-minilyrics-window-size-and-position.bat save-window-positions important change-command-separator-character-to-normal winamp-close-gracefully wait stop-minilyrics     killIfRunning winamp-play next randomize lastfm-start isrunning winamp nocar warning warning_soft appdata sleep
+                call validate-in-path set-winamp-constants fix-minilyrics-window-size-and-position.bat save-window-positions important change-command-separator-character-to-normal winamp-close-gracefully wait stop-minilyrics     killIfRunning winamp-play next randomize lastfm-start isrunning winamp nocar warning warning_soft appdata sleep askyn
                 set  validated_restart_winamp=1
         endiff
 
@@ -100,48 +100,47 @@ rem COPY OUR MATRIXMIXER CONFIG:
 
 
 
-rem REOPEN WINAMP (et al):
+rem PREPARE TO REOPEN WINAMP (et al):
     echo.
     echo.
     call important "Starting Winamp/etc"
         call nocar
-        call WinAmp.bat
+
+
+
+
+rem START WINAMP:
+        rem call WinAmp.bat
+        call WinAmp-start.bat noposfix
+
+
+rem Check that it’s running:
         call wait %SLEEP_TIME_AFTER_RESTARTING_WINAMP_BEFORE_CHECKING_THAT_IT_RESTARTED%
         call isRunning winamp
 
+
+
+rem Start last.fm:
     echo.
     echo.
     call important "Starting Lastfm"
-        call                 lastfm-start
+    call                     lastfm-start
 
 
     
-    REM echo.
-    REM echo.
-    REM call important "Restoring/Fixing window positions"
-    REM     :: a broad-sweep window position fix for ALL windows 
-    REM         call warning "NOT restoring window positions for the time being"
-    REM         :call restore-window-positions WinampLast
-    REM         call fix-minilyrics-window-size-and-position
-    REM    
-    REM     :: a narrow sweep to fix window position AND sizes for MiniLyrics, EvilLyrics, Last.FM (as of 2020/06), etc:
-    REM         call warning "%underline_on%%italics_on%NOT%italics_off%%underline_off% CURRENTLY DOING THIS: call fix-music-window-sizes-and-positions"
-
-
-
-
-
 :END
-    rem echo Not randomizing or next'ing
-    call randomize
-    REM call next
 
 
-    rem But play it if it isn't already:
+    rem Randomize the playlist:
+            call randomize
+            REM call next
+
+
+    rem Press play if it isn't playing already:
         call winamp-play
     
     
     rem fix minilyrics position
-        echo fixing minilyrics position
-        call fix-minilyrics-window-size-and-position.bat
+        call askyn "Fix minilyrics position" no 30
+        if "Y" == "%ANSWER%" call fix-minilyrics-window-size-and-position.bat
 
