@@ -30,7 +30,7 @@ rem PARAMETER PROCESSING:
         :Begin
         SET NOEXIF=0
         ::if "%@UPPER[%1]" == "AFTER"  (goto  :After)
-          if "%@UPPER[%1]" == "rmaa"   (SET REMOVE_ARTIST_ALBUM_FROM_FILENAME_MODE=1) %+ rem affects allfilesmv.pl
+          if "%@UPPER[%1]" == "rmaa" .or. exist %FILEMASK_AUDIO%  (SET REMOVE_ARTIST_ALBUM_FROM_FILENAME_MODE=1) %+ rem affects allfilesmv.pl
           if "%@UPPER[%1]" == "NOEXIF" (SET NOEXIF=1)
 
 rem SPECIAL STUFF FOR EXIF-EXTRACTION & NEWPICS ONLY:

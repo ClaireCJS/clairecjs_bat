@@ -80,6 +80,10 @@ my $cheating_NotReallyAudio="";													#to track when we are renaming [usua
 my $cheating_NotReallyVideo="";													#to track when we are renaming [usually sidecar/companion] files as if they are videos, for filetypes that are not videos, like TXT files. Yeah, it's weird.
 
 
+#if ($ENV{"REMOVE_FROM_ALLFILE_NAMES"} != "") {						
+#	my $rmtext=$ENV{"REMOVE_FROM_ALLFILE_NAMES";
+#	$filename
+#}
 
 if ($ENV{"REMOVE_ARTIST_ALBUM_FROM_FILENAME_MODE"} == 1) {						#2024 behavior added
 	     $REMOVE_PARENT_FOLDER_NAME_FROM_FILENAME=1; 

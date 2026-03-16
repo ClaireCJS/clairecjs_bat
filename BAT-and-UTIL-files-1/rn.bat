@@ -113,6 +113,7 @@ rem             for /a:  %fi in (%1) if exist %as_instrmental_param%      call r
                 rem Let user edit the filename: send them to the eset-alias.bat where they do the actual editing: 
                 rem                       then: capture any errorlevel——probably due to user hitting Ctrl-Break:
                         call set-insert-on
+                        echos %@ANSI_MOVE_TO_COL[0]%ANSI_EOL%
                         call eset-alias FILENAME_NEW        
                         if "%_" == "667" .or. "1" == "%eset_fail%" (set rn_goto_end=1 %+ set rn_fix_ansi=1)
                                                                        

@@ -302,6 +302,10 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
                             - for example "cover (2).jpg" vs "cover.jpg" —— 1st with "(2)" is clearly automated, 2nd is clearly human and says what the image actually is
 
 
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 - [do whatever is after this next]
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐  
+
 - TAGGING: STEP 6: ALBUM ART: final review
     	- finally, go through a full directory-crawl reviewing/deleting/renaming the downloaded album art from all the previous steps so that everything is perfect
             - THIS IS A BIG, TIMESTAKING STEP! MusicBrainz Picard can leave a ton of these in each folder. This is the final review. It is slow and arduous.
@@ -324,10 +328,6 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 
-
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 -
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐  
 
 
 
