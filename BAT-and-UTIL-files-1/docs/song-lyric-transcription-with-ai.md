@@ -88,9 +88,9 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
 
 4. 🦪 Perl
     - Install Strawberry Perl [TODO link this]
-    - install [my Perl libraries](../BAT-and-UTIL-files-1/perl-sitelib-Clio.zip)
+    - install [my Perl libraries](../perl-sitelib-Clio.zip)
       - ```Unzip perl-sitelib-Clio.zip``` into ```c:\Strawberry\perl\site\lib\Clio```
-    - Alternately, Install [my whole site\lib folder](../BAT-and-UTIL-files-1/perl-site-lib.zip)
+    - Alternately, Install [my whole site\lib folder](../perl-site-lib.zip)
       - ```Unzip perl-site-lib.zip``` into ```c:\Strawberry\perl\site\lib\```
 
 &nbsp;
@@ -154,7 +154,7 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 
 &nbsp;
 
-10. ☯️ Optional: For [automatic cleanup](../BAT-and-UTIL-files-1/clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
+10. ☯️ Optional: For [automatic cleanup](../clean-up-AI-transcription-trash-files) of leftover AI files across an entire computer:
     - Always be running  the ```Everything``` service, which comes with TakeCommand ([TCC](https://jpsoft.com/all-downloads/all-downloads.html))
     - Use ```start-everything.bat``` or ```start EVERYTHING.EXE -startup``` to start it, if it doesn’t start automatically. 
     - ```clean-up-AI-transcription-trash-files``` is the command to clean up our trash.  Insert it into your startup/autoexec.bat equivalent and this system won’t leave any trash anywhere.
@@ -173,12 +173,12 @@ The structure of the repository is assumed to be subfolders for the 1ˢᵗ lette
 &nbsp;
 
 12. Optional: To speed up the workflow, pre-download lyrics for your entire music collection before even starting to look at individual albums/songs.  
-    - Start with: [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat), which runs [predownload-lyrics-here.bat](../BAT-and-UTIL-files-1/predownload-lyrics-here.bat) on random subfolders in a random order.  
+    - Start with: [predownload-all-lyrics-in-all-subfolders.bat](../predownload-all-lyrics-in-all-subfolders.bat), which runs [predownload-lyrics-here.bat](../predownload-lyrics-here.bat) on random subfolders in a random order.  
     - The predownloader marks files so that they are never retried in pre-download mode ever again. 
-    - If you would like to erase those markings, run [reset-genius-search-status-for-all-audio-files.bat](../BAT-and-UTIL-files-1/reset-genius-search-status-for-all-audio-files.bat) in a folder. 
-    - If you would like to check your overall lyric/karaoke progress for your entire collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat)
-    - If you would like to check how many lyric approvals you did on a certain day, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat)
-    - If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../BAT-and-UTIL-files-1/how-many-AI-transcriptions-have-run-today.bat) 
+    - If you would like to erase those markings, run [reset-genius-search-status-for-all-audio-files.bat](../reset-genius-search-status-for-all-audio-files.bat) in a folder. 
+    - If you would like to check your overall lyric/karaoke progress for your entire collection, run [report-lyric-and-subtitle-percentage-completion.bat](../report-lyric-and-subtitle-percentage-completion.bat)
+    - If you would like to check how many lyric approvals you did on a certain day, run [report-lyric-approval-progress.bat](../report-lyric-approval-progress.bat)
+    - If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../how-many-AI-transcriptions-have-run-today.bat) 
 
 
 </details>
@@ -201,7 +201,7 @@ From a running TCC command line, use whatever system commands you’d like from 
 
 ## 🌟 Main workhorse script, once things are moving along more:
 
-### 🌟 [work.bat](../BAT-and-UTIL-files-1/work.bat)
+### 🌟 [work.bat](../work.bat)
 
 This script requires some personalization to use, but once set up:
 
@@ -286,10 +286,10 @@ Type “work”         to be interactively asked as to the nature of your work.
 #### 🍀 Five main types of commands exist for this system: TODOLINKTOBELOW
 
   1. 💾 Filename alignment  (mark-all-filenames-as-instrumental.bat, ask-if-these-are-instrumentals.bat, etc)
-  1. 🎤️ Lyric alignment  ([get-lyrics](../BAT-and-UTIL-files-1/get-lyrics.bat),  [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat), etc)
-  1. 🧏 Karaoke alignment ([get-karaoke](../BAT-and-UTIL-files-1/get-karaoke.bat), [get-karaoke-for-playlist](../BAT-and-UTIL-files-1/get-karaoke-for-playlist.bat), etc)
-  1. 🕵 Lyric   Auditing ([review-lyrics](../BAT-and-UTIL-files-1/review-files.bat), [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat), etc)
-  1. 🕵 Karaoke Auditing ([review-subtitles](../BAT-and-UTIL-files-1/review-subtitles.bat), [check-for-missing-karaoke](../BAT-and-UTIL-files-1/check-for-missing-karaoke.bat), etc)
+  1. 🎤️ Lyric alignment  ([get-lyrics](../get-lyrics.bat),  [get-missing-lyrics](../check-for-missing-lyrics.bat), etc)
+  1. 🧏 Karaoke alignment ([get-karaoke](../get-karaoke.bat), [get-karaoke-for-playlist](../get-karaoke-for-playlist.bat), etc)
+  1. 🕵 Lyric   Auditing ([review-lyrics](../review-files.bat), [display-lyric-status.bat](../display-lyric-status.bat), etc)
+  1. 🕵 Karaoke Auditing ([review-subtitles](../review-subtitles.bat), [check-for-missing-karaoke](../check-for-missing-karaoke.bat), etc)
   
 🍀 Two lesser types of commands exist for this system:
 
@@ -299,7 +299,7 @@ Type “work”         to be interactively asked as to the nature of your work.
 
 🍀 Uncategorized commands:
 
-  1. [thorough.bat](../BAT-and-UTIL-files-1/thorough.bat) - sets/unsets the ```%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%``` environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.
+  1. [thorough.bat](../thorough.bat) - sets/unsets the ```%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%``` environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.
 
 
 
@@ -312,24 +312,24 @@ Type “work”         to be interactively asked as to the nature of your work.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 									
-### 🌟 [preview-audio-file](../BAT-and-UTIL-files-1/preview-audio-file.bat)
+### 🌟 [preview-audio-file](../preview-audio-file.bat)
 
 Previews an audio-file in VLC player.  
 Used to preview audio files so we can mark them as instumentals or not.
 If ⚡ WinAmp 🦙 Integration is enabled, pauses and unpauses ⚡ WinAmp 🦙 before/after the preview.
 
-### 🌟 aii / [ask-if-instrumental](../BAT-and-UTIL-files-1/ask-if-instrumental.bat)
+### 🌟 aii / [ask-if-instrumental](../ask-if-instrumental.bat)
 
 Asks if an *INDIVIDUAL* song is an instrumental, and takes appropriate actions if it is. 
 Those actions include: Previewing any TXT/LRC/SRT lyric/subtitle files and prompting the user for deletion of each one, prompting the user for deletion of any associated JSON/LOG files, and allowing the user to preview the song (with ```preview-audio-file.bat```) or enqueue the song in ⚡ WinAmp 🦙 (with my recompiled ```enqueueee.exe```) for double-checking its instrumental nature.
 
-### 🌟 [ask-if-instrumentals](../BAT-and-UTIL-files-1/ask-if-instrumentals) / [mark-all-filenames-as-instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-as-instrumental.bat)
+### 🌟 [ask-if-instrumentals](../ask-if-instrumentals) / [mark-all-filenames-as-instrumental](../mark-all-filenames-as-instrumental.bat)
 
 ```ask-if-instrumentals``` extends ```ask-if-instrumental``` to multiple songs. It cleans out bad AI transcriptions from the current folder and then *ASKS* us—one audio file at a time—if we want to mark each audio file in a folder as an instrumental (or as a sound effect).  
 
 This process can be very annoying on a folder of 100+ songs, sooooo ```ask-if-instrumentals``` is extended to (see next entry):
 
-### 🌟 [mark-all-filenames-ADS-tag-for-NOT-as_instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-ADS-tag-for-NOT-as_instrumental.bat) TODO
+### 🌟 [mark-all-filenames-ADS-tag-for-NOT-as_instrumental](../mark-all-filenames-ADS-tag-for-NOT-as_instrumental.bat) TODO
 
 Marks *ALL* filenames in a folder with an ADS tag flagging them as NOT AN INSTRUMENTAL. 
 
@@ -338,7 +338,7 @@ Why would we ever do this?  To speed up the ```ask-if-instrumentals``` process o
 Rather than answering “N” to each file, this can pre-mark the answer so we aren’t asked in the first place. Very useful, for example, on folder trees full of vocal-less music.  You can do this on an entire folder tree via the command: ```global /i mark-all-filenames-ADS-tag-for-NOT-as_instrumental```
 
 
-### 🌟 [mark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/mark-all-filenames-ADS-tag-for-as_instrumental.bat) 
+### 🌟 [mark-all-filenames-ADS-tag-for-as_instrumental](../mark-all-filenames-ADS-tag-for-as_instrumental.bat) 
 
 The opposite of the last script. This marks all filenames in a folder with an ADS tag flagging them as an instrumental. 
 
@@ -349,7 +349,7 @@ In many situations, only the filename is examined, so if you want full precision
 
 		  
 
-### 🌟 [unmark-all-filenames-ADS-tag-for-as_instrumental](../BAT-and-UTIL-files-1/unmark-all-filenames-ADS-tag-for-as_instrumental.bat) 
+### 🌟 [unmark-all-filenames-ADS-tag-for-as_instrumental](../unmark-all-filenames-ADS-tag-for-as_instrumental.bat) 
 
 If we screwed up with either of the last 2 scripts, this removes the answers for every file in the folder.
 
@@ -368,7 +368,7 @@ It does this by completely removing the ```is_instrumental``` ADS tag from every
 
 ### 🌠 BASIC LYRIC ALIGNMENT PROCESS (all optional): mark instrumentals ➜ mark lyriclessness ➜ predownload lyrics ➜ review/re-download/google lyrics ➜ approve lyrics
 
-### 🌟 ❶ OPTIONAL STEP 1: [predownload-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/predownload-all-lyrics-in-all-subfolders.bat)
+### 🌟 ❶ OPTIONAL STEP 1: [predownload-all-lyrics-in-all-subfolders.bat](../predownload-all-lyrics-in-all-subfolders.bat)
 
 You can ```set OVERRIDE_FILE_ARTIST_TO_USE=Artist Name``` to override the artist name.
 
@@ -377,13 +377,13 @@ Runs an initial pass of pre-downloading lyrics from Genius **in a completely una
   - BENEFIT 1: THIS SAVES TIME!!!!!!!!  By doing initial fetches in advance, you aren’t wasting *your* time, but *attended* time.
   - BENEFIT 2: This allows for lyric approval/disapproval to be performed when internet connectivity is down.
 
-### 🌟 ❷ OPTIONAL STEP 2: Mark any instrumentals with [ask-if-instrumentals.bat](../BAT-and-UTIL-files-1/ask-if-these-are-instrumentals.bat)
+### 🌟 ❷ OPTIONAL STEP 2: Mark any instrumentals with [ask-if-instrumentals.bat](../ask-if-these-are-instrumentals.bat)
 
 Particularly useful for soundtrack scores... and easy way to add “[instrumental]” to filenames so that we don’t spend AI-energy trying to transcribe files that have no lyrics.  
 
 *Side-note:* We recommend using “[semi-instrumental]” to denote songs that have vocals but no lyrics (i.e. chorus voices being used as instruments), or songs that have a few words but no real vocals (i.e. a 3 minute electronic tracks with a spoken sample at the beginning). Semi-instrumentals will still be transcribed if caught by our scripts, but only 1 attempt will be made before they are flagged with an ADS tag to prevent infinite re-attempts.
 
-### 🌟 ❸ OPTIONAL STEP 3: Mark any songs with unfindable lyrics as “lyricless” with ```ask-if-lyricless.bat``` [ask-if-lyricless.bat](../BAT-and-UTIL-files-1/ask-if-these-are-lyricless.bat)
+### 🌟 ❸ OPTIONAL STEP 3: Mark any songs with unfindable lyrics as “lyricless” with ```ask-if-lyricless.bat``` [ask-if-lyricless.bat](../ask-if-these-are-lyricless.bat)
 
 I usually skip this one except in rare instances, buuuut:
 
@@ -397,7 +397,7 @@ Maybe it’s:
 
 This will go through the songs one at a time and ask if you want to mark any as lyricless / in a state of lyriclessness, which is our internal nomenclature for “we don’t want to bother looking for lyrics anymore”. Ultimately, this is a bit faster than running into these songs one at a time later.
 
-### 🌟 ❹ STEP 4: Get and approve lyrics with [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-file {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../BAT-and-UTIL-files-1/get-lyrics-via-multiple-sources.bat):
+### 🌟 ❹ STEP 4: Get and approve lyrics with [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-file {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../get-lyrics-via-multiple-sources.bat):
 
 Obtains the lyrics for a song file, a playlist, or the currently playing song. 
 - transcriptions work **much** better with lyrics
@@ -418,23 +418,23 @@ Obtains the lyrics for a song file, a playlist, or the currently playing song.
 Note that you can ```set OVERRIDE_FILE_ARTIST_TO_USE=Artist Name``` to override the artist name when getting lyrics. Can be useful if it’s a cover album. For example, a Nirvana tribute album where every artist is not Nirvana definitely uses Nirvana’s lyrics, so setting the value to ```Nirvana``` would be an appropriate way to speed up the process.
 
 
-### 🌟 [get-lyrics-for-currently-playing-song](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
+### 🌟 [get-lyrics-for-currently-playing-song](../get-lyrics-for-currently-playing-song.bat):
 
 If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, get lyrics for *the song currently being played*.
 
 
-### 🌟 glh / [get-missing-lyrics-here.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [get-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [gmlh](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat) / [gml](../BAT-and-UTIL-files-1/check-for-missing-lyrics-here.bat):
+### 🌟 glh / [get-missing-lyrics-here.bat](../check-for-missing-lyrics-here.bat) / [get-missing-lyrics](../check-for-missing-lyrics-here.bat) / [gmlh](../check-for-missing-lyrics-here.bat) / [gml](../check-for-missing-lyrics-here.bat):
 
 Gets lyrics for all the files *in the current folder* that do not have *approved* lyric files.
-(Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat).)
+(Uses [check-for-missing-lyrics.bat](../check-for-missing-lyrics.bat).)
 
-Use [get-lyrics-here-in-alphabetical-order.bat](../BAT-and-UTIL-files-1/get-lyrics-here-in-alphabetical-order.bat) to do it in alphabetical order instead of random order.
+Use [get-lyrics-here-in-alphabetical-order.bat](../get-lyrics-here-in-alphabetical-order.bat) to do it in alphabetical order instead of random order.
 
 
 
-### 🌟 [get-lyrics-for-playlist.bat](../BAT-and-UTIL-files-1/get-lyrics-for-playlist.bat) {limit}:
+### 🌟 [get-lyrics-for-playlist.bat](../get-lyrics-for-playlist.bat) {limit}:
 
-Gets lyrics for all the files *in a playlist* that do not have *approved* lyric files, in random order to avoid alphabetical bias. Can specify an optional *limit*  so that it stops after finding a few.   (Uses [check-for-missing-lyrics.bat](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat))
+Gets lyrics for all the files *in a playlist* that do not have *approved* lyric files, in random order to avoid alphabetical bias. Can specify an optional *limit*  so that it stops after finding a few.   (Uses [check-for-missing-lyrics.bat](../check-for-missing-lyrics.bat))
 
 
 ### 🌟 cmt / gmt / [create-txt-lyrics-from-karaoke-files.bat](../BAT-and-UTIL-files-1create-txt-lyrics-from-karaoke-files.bat.bat):
@@ -446,26 +446,26 @@ That is: If an MP3/FLAC has a corresponding LRC/SRT but not TXT version, convert
 It is good to prep your entire collection with this, by running it in every folder of your music collection. Do this by going to the base folder of your music collection and running: ```global /i create-txt-lyrics-from-karaoke-files.bat```
 
 
-### [review-all-lyrics-in-all-subfolders.bat](../BAT-and-UTIL-files-1/review-all-lyrics-in-all-subfolders.bat)
+### [review-all-lyrics-in-all-subfolders.bat](../review-all-lyrics-in-all-subfolders.bat)
 
 Randomly walks a folder tree, obtaining/reviewing lyrics, with the intent of approving lyrics for later automatic AI transcription.  
 (It is reviewing lyrics in the case of predownload-all-lyrics-in-all-subfolders.bat having already downloaded some lyrics. And it is obtaining lyrics in the case of those lyrics not existing or not being sufficient.)
 
-### [post-lyricless-clean.bat] (../BAT-and-UTIL-files-1/delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat)
+### [post-lyricless-clean.bat] (../delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat)
 
 Utility to delete lyric/subtitle sidecar files that should no longer exist at this point.
 
-These include lyric/subtitle files of audio files whose lyric*less*ness status is approved, but whose lyrics are not (removed with [delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state](../BAT-and-UTIL-files-1/delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat)), 
-and lyric/subtitle files of audio files that are instrumentals (removed with [delete-sidecar-lyric-and-subtitle-files-for-audiofiles-that-are-instrumentals](../BAT-and-UTIL-files-1/delete-sidecar-lyric-and-subtitle-files-for-audiofiles-that-are-instrumentals.bat))
+These include lyric/subtitle files of audio files whose lyric*less*ness status is approved, but whose lyrics are not (removed with [delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state](../delete-sidecar-lyric-and-subtitle-files-for-audiofiles-in-lyricless-approved-state.bat)), 
+and lyric/subtitle files of audio files that are instrumentals (removed with [delete-sidecar-lyric-and-subtitle-files-for-audiofiles-that-are-instrumentals](../delete-sidecar-lyric-and-subtitle-files-for-audiofiles-that-are-instrumentals.bat))
 
 Longer explanation: When this system marks a song as lyriclessness (aka “lyrics unfindeable, proceed with AI-only transcription”) it deletes any existing sidecar & lyric files. However, it is still possible for invalid sidecar lyric/subtitle files to exist for songs marked lyricless, if an external utility like LRCget was used to downloaded incorrect LRC/TXT files (for example, attaching a LRC file for the wrong song, or a studio version’s LRC to a live version of the song). Thus, this tool grew out of necessity. Instrumental files need the same treatment too.
 
 
 ### 🌟 Lyric-related Reports:
 
-If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
+If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 
-If you would like to check how many lyric approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
+If you would like to check how many lyric approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../report-lyric-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
 
 </details>
 
@@ -478,7 +478,7 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 
 <details><summary>Click here to view the karaoke generation command lists & descriptions.</summary>  
 
-### 🌟 THE 1ˢᵗ BIG ONE: create-srt {*songfile*} / [create-srt-from-file {*songfile*}](../BAT-and-UTIL-files-1/create-srt-from-file.bat):
+### 🌟 THE 1ˢᵗ BIG ONE: create-srt {*songfile*} / [create-srt-from-file {*songfile*}](../create-srt-from-file.bat):
 
 **Create karaoke for one audio file.**
 Performs the AI transcription process for a single song file.
@@ -494,25 +494,25 @@ Run without parameters to see various options, as the list here is not guarantee
 
 One may also set the environment variables %OVERRIDE_VAD_THRESHOLD% and %OVERRIDE_LANGUAGE% to override the %DEFAULT_VAD_THRESHOLD% and %DEFAULT_LANGUAGE% values in the config section of create-srt.
 
-### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/create-srt-file-for-currently-playing-song.bat):
+### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../create-srt-file-for-currently-playing-song.bat):
 
 If 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration is enabled, creates karaoke file for *the song currently being played*.
 If lyrics (or lyriclessness) are pre-approved, creation is automatic.
 
 
-### 🌟 THE 2ⁿᵈ BIG ONE: cmk / gmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../BAT-and-UTIL-files-1/create-the-missing-karaokes-here.bat):
+### 🌟 THE 2ⁿᵈ BIG ONE: cmk / gmk / cmkf / [create-missing-karaoke-files / create-the-missing-karaokes-here](../create-the-missing-karaokes-here.bat):
 
 Create karaoke files for **all songs** *in the current folder* that do not have them
 Songs that have pre-approved lyrics go through the process automatically.
 To do for an entire folder tree, preceed with ```global /i ```
 
 
-### 🌟 [create-srt-from-playlist.bat](../BAT-and-UTIL-files-1/create-srt-from-playlist) (called via ```get-karaoke *{playlist}*```):
+### 🌟 [create-srt-from-playlist.bat](../create-srt-from-playlist) (called via ```get-karaoke *{playlist}*```):
 
 Create karaoke files for **all songs** *in a playlist* that do not have them — Traverses a playlist, running ```create-SRT``` on every file in the playlist. Files are run in random order, to prevent alphabetical bias, and transcriptions are done automatically if lyrics are pre-approved (or if lyriclessness is pre-approved).
 
 
-### 🌟 [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../BAT-and-UTIL-files-1/create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat):
+### 🌟 [create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat](../create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat):
 
 Rarely used side-utility: Creates karaoke files for **all songs** in a *folder tree* without using lyric files or voice detection (VAD). This is useful for large repositories of sound clips, small samples from movies, or audiobooks..... Where you just want to get a lot done without the extra overhead of operating the Lyric Alignment system, andwithout the extra time delay of loading the VAD (voice detection) model. This will get a LOT done FAST, but it will be sloppy.
 
@@ -523,24 +523,24 @@ Rarely used side-utility: Creates karaoke files for **all songs** in a *folder t
 										 
 ## 🌟 Karaoke Repair
 
-### 🌟 [WhisperTimeSync.bat](../BAT-and-UTIL-files-1/WhisperTimeSync.bat) [{bad_subtitle_file} {good_text_file} {optional_audio_file}] or [{audio_file to imply subtitles and lyrics from the filename of}]:
+### 🌟 [WhisperTimeSync.bat](../WhisperTimeSync.bat) [{bad_subtitle_file} {good_text_file} {optional_audio_file}] or [{audio_file to imply subtitles and lyrics from the filename of}]:
 
 Use the incorporated instance of the [WhisperTimeSync](https://github.com/EtienneAb3d/WhisperTimeSync) project to fix mis-transcriptions in the SRT file by using the TXT lyrics as an official point of truth.  This is tricky, and the original project is fraught with implementation issues.  This script guides us through the steps to avoid those issues, including giving an option to directly enqueue songs into ⚡ WinAmp 🦙 to preview how the lyrics are being displayed in [MiniLyrics](https://minilyrics.en.softonic.com/), comparing the final timestamps of both files, and opening the before and after in our text editor so that we can manually review the re-sync’ed lyrics.  
 
-Final review includes using the special modes incorporated into the [print_with_columns.py](../BAT-and-UTIL-files-1/print_with_columns.py) created specifically for comparing old subtitles to new subtitles. These include a mode where the screen alternates between the before/after subtitles, and a mode where the timestamps are synced in a 2-column side-by-side display of the before/after subtitles. That way we can be dang sure the WhisperTimeSynchronized new subtitles are actuallyb etter than the old ones, which are backed up to the current folder prior to being replaced.
+Final review includes using the special modes incorporated into the [print_with_columns.py](../print_with_columns.py) created specifically for comparing old subtitles to new subtitles. These include a mode where the screen alternates between the before/after subtitles, and a mode where the timestamps are synced in a 2-column side-by-side display of the before/after subtitles. That way we can be dang sure the WhisperTimeSynchronized new subtitles are actuallyb etter than the old ones, which are backed up to the current folder prior to being replaced.
 
 
-### 🌟 [WhisperTimeSync-currently-playing-song.bat](../BAT-and-UTIL-files-1/WhisperTimeSync-currently-playing-song.bat):
+### 🌟 [WhisperTimeSync-currently-playing-song.bat](../WhisperTimeSync-currently-playing-song.bat):
 
-If ⚡ WinAmp 🦙 Integration is enabled, runs [WhisperTimeSync.bat](../BAT-and-UTIL-files-1/WhisperTimeSync.bat) on the currently-playing song.
+If ⚡ WinAmp 🦙 Integration is enabled, runs [WhisperTimeSync.bat](../WhisperTimeSync.bat) on the currently-playing song.
 
 
-### 🌟 [srt_comparator.py](../BAT-and-UTIL-files-1/srt_comparator.py):
+### 🌟 [srt_comparator.py](../srt_comparator.py):
 
 Compares 2 (or more) SRT files in chronological order.
 Each timestamp encountered is shown, with the version of subtitles from each compared file in its own color.
 
-Suppressing identical lines with the ```--hide-identical-lines``` option reduces the output to _just_ the different lines, which provides a functional audit of just what it was that [WhisperTimeSync-helper.bat](../BAT-and-UTIL-files-1/WhisperTimeSync-helper.bat) fixed or did not fix.
+Suppressing identical lines with the ```--hide-identical-lines``` option reduces the output to _just_ the different lines, which provides a functional audit of just what it was that [WhisperTimeSync-helper.bat](../WhisperTimeSync-helper.bat) fixed or did not fix.
 
 We also use the ```--low-res-timestamps``` option to ignore small (less than 1 second) timestmap differences.
 
@@ -548,7 +548,7 @@ The ```---show-filenames``` / ```--key``` option can also be used to clarify con
 
 
 
-### 🌟 [visual-comparison.bat](../BAT-and-UTIL-files-1/visual-comparison.bat):
+### 🌟 [visual-comparison.bat](../visual-comparison.bat):
 
 Compares 2 (or more) SRT files visually.
 
@@ -563,9 +563,9 @@ It gets ugly if the 2 columns are different widths, but this often lets you visu
 
 <details><summary>Click here to view our 2 report scripts.</summary>  
 
-If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
+If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 
-If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../BAT-and-UTIL-files-1/how-many-AI-transcriptions-have-run-today.bat) 
+If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../how-many-AI-transcriptions-have-run-today.bat) 
 
 </details>
 
@@ -575,11 +575,11 @@ If you would like to check how many transcriptions were initiated on a certain d
 
 <details><summary>Click here to view 2 sample scripts for more specific alignment work</summary>  
 
-### 🌟 [work-incoming-karaoke.bat](../BAT-and-UTIL-files-1/work-incoming-karaoke.bat)
+### 🌟 [work-incoming-karaoke.bat](../work-incoming-karaoke.bat)
 
 Goes to my incoming folder and works all the folders in random order, generating karaoke in THOROUGH mode, becuase I do care to double-check these and don’t want them to run while asleep.  This is how I work on new/incoming music.
 
-### 🌟 [work-nonmusic-karaoke.bat](../BAT-and-UTIL-files-1/work-nonmusic-karaoke.bat)
+### 🌟 [work-nonmusic-karaoke.bat](../work-nonmusic-karaoke.bat)
 
 Goes to my NON-MUSIC/audiobooks folder and works all the folders in random order, generating karaoke in NON-THOROUGH mode, because I don’t care to double-check these and want them to run while asleep.  This is how I transcribed all my audiobooks in my sleep.
 
@@ -594,7 +594,7 @@ Goes to my NON-MUSIC/audiobooks folder and works all the folders in random order
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 [review-lyrics / review-all-TXTs / review-TXTs.bat](../BAT-and-UTIL-files-1/review-files.bat):
+### 🌟 [review-lyrics / review-all-TXTs / review-TXTs.bat](../review-files.bat):
 
 Reviews all lyric files in current folder, using ```print-with-columns``` to reduce scrolling up.
 
@@ -603,7 +603,7 @@ To add visual representation stripe, use the “-st”, “-stU”, “stL”, a
 
 
 
-### 🌟 dlsa / dls / [display-lyric-status.bat](../BAT-and-UTIL-files-1/display-lyric-status.bat) {*lyric_filename* or “all” or “audio” or “*”}:
+### 🌟 dlsa / dls / [display-lyric-status.bat](../display-lyric-status.bat) {*lyric_filename* or “all” or “audio” or “*”}:
 
 Displays the lyric/lyriclessness status (approved, unapproved, or unset) for all lyric/audio files in current folder. 
 
@@ -615,14 +615,14 @@ or
 ![image](https://github.com/user-attachments/assets/0ccdebd6-7e26-4a2b-91ee-c3e0cfe9f147)
 
 
-### 🌟 cfml / cmlf / [check-for-missing-lyrics](../BAT-and-UTIL-files-1/check-for-missing-lyrics.bat):
+### 🌟 cfml / cmlf / [check-for-missing-lyrics](../check-for-missing-lyrics.bat):
 
 Displays a list of files in the *current folder* which are missing *approved lyric* files 
 
 (Does not display files that have been pre-approved to be lyricless aka “lyriclessness approved” state)
 
 
-### 🌟 Lyric Auditor: cpfml / cpmlf / [check-playlist-for-missing-lyrics](../BAT-and-UTIL-files-1/get-playlist-for-missing-lyrics.bat):
+### 🌟 Lyric Auditor: cpfml / cpmlf / [check-playlist-for-missing-lyrics](../get-playlist-for-missing-lyrics.bat):
 
 Displays a list of files in a *playlist* which are missing *approved lyric* files.
 
@@ -630,28 +630,28 @@ Does not display songs that have been pre-approved to be in “lyriclessness” 
 
 ![image](https://github.com/user-attachments/assets/42fb6e4e-2cea-48e1-bbc8-499454c201ae)
 
-### 🌟 [display-lyriclessness-status.bat](../BAT-and-UTIL-files-1/display-lyriclessness-status.bat):
+### 🌟 [display-lyriclessness-status.bat](../display-lyriclessness-status.bat):
 
 Displays the “lyric*lessness*” status of a songfile. A song is in “lyriclessness approved” state if we have officially given up on our lyric search. The “lyriclessness approved” state allows the AI to transcribe our songs *without* a text file prompt, when running in automatic mode. 
 
 In other words: For our transcribe-while-sleeping process to work with songs we can’t find lyrics for, we need to approve the fact that there will be no lyrics. This displays whether that has been done or not.
 
 
-### 🌟 [display-lyriclessness-status-for-file.bat](../BAT-and-UTIL-files-1/display-lyriclessness-status-for-file.bat):
+### 🌟 [display-lyriclessness-status-for-file.bat](../display-lyriclessness-status-for-file.bat):
 
 Displays the lyric*lessness* status of a song.  This is to track whether we’ve officially given up on our lyric search for a song.  
 
 
-### 🌟 [convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat](../BAT-and-UTIL-files-1/convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat):
+### 🌟 [convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat](../convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat):
 
-Not very useful to the end-user, but this does what the title says. Converts a playlist to only songs that have karaoke (LRC/SRT) sidecar files, but which do not have lyric (TXT) sidecar files. The main purpose for this is to be able to find testdata for [srt2txt.bat](../BAT-and-UTIL-files-1/srt2txt.bat) / [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py) and [lrc2txt.bat](../BAT-and-UTIL-files-1/lrc2txt.bat)/ [lrc2txt.py](../BAT-and-UTIL-files-1/lrc2txt.py)
+Not very useful to the end-user, but this does what the title says. Converts a playlist to only songs that have karaoke (LRC/SRT) sidecar files, but which do not have lyric (TXT) sidecar files. The main purpose for this is to be able to find testdata for [srt2txt.bat](../srt2txt.bat) / [srt2txt.py](../srt2txt.py) and [lrc2txt.bat](../lrc2txt.bat)/ [lrc2txt.py](../lrc2txt.py)
 
 
 ### 🌟 Lyric-related Reports:
 
-If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
+If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 
-If you would like to check how many lyric approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../BAT-and-UTIL-files-1/report-lyric-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
+If you would like to check how many lyric approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../report-lyric-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
 
 
 </details>
@@ -664,7 +664,7 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 [delete-bad-ai-transcriptions](../BAT-and-UTIL-files-1/delete-bad-ai-transcriptions):
+### 🌟 [delete-bad-ai-transcriptions](../delete-bad-ai-transcriptions):
 
 This searches for bad karaoke transriptions in the current folder & deletes them with a configurable prompting level. 
 
@@ -675,20 +675,20 @@ Bad karaoke transcriptions include:
   2. Either LRCget or LyricsGenius likes to put Chris DeBurg’s “Lady In Red” and Voivoid’s “Black City” as the LRC file for a TON of songs—and I don’t know why. It became a systemic project issue. This will flag these errors as well, unless the filename has “Lady In Red” or “Black City” in it, in which case it’s the right song and the check is skipped.
   3. TODO anything else?
 
-### 🌟 [bad-transcription-hunter.bat](../BAT-and-UTIL-files-1/bad-transcription-hunter.bat):
+### 🌟 [bad-transcription-hunter.bat](../bad-transcription-hunter.bat):
 
 This searches an entire folder tree (in random order) for bad karaoke transcriptions.
 
 #### These commands find & obtain missing karaoke files.
 
-### 🌟 [review-subtitles.bat / review-all-SRTs / review-all-subtitles / review-SRTs / review-LRCs](../BAT-and-UTIL-files-1/review-subtitles.bat):
+### 🌟 [review-subtitles.bat / review-all-SRTs / review-all-subtitles / review-SRTs / review-LRCs](../review-subtitles.bat):
 
 Reviews all karaoke files in current folder, using ```print-with-columns``` to eliminate most scrolling up.
 
 ![image](https://github.com/user-attachments/assets/9b579cf2-ca93-4684-aec5-35df8c793143)
 
 
-### 🌟 cfmk / [check-for-missing-karaoke](../BAT-and-UTIL-files-1/check-for-missing-karaoke.bat):
+### 🌟 cfmk / [check-for-missing-karaoke](../check-for-missing-karaoke.bat):
 
 Displays a list of files in the *current folder* which are missing *karaoke* files, defaulting to use ```these.m3u``` is the playlist to check.
 Pass a playlist filename to use a playlist other than ```these.m3u```
@@ -696,18 +696,18 @@ Pass a playlist filename to use a playlist other than ```these.m3u```
 ![image](https://github.com/user-attachments/assets/61e1f155-a798-4668-945a-7d7dd2ac06dc)
 
 
-### 🌟 convert-playlist-to-only-songs-that-do-not-have-karaoke.bat {playlist} [convert-playlist-to-only-song-that-do-not-have-karaoke.bat](../BAT-and-UTIL-files-1/convert-playlist-to-only-song-that-do-not-have-karaoke.bat):
+### 🌟 convert-playlist-to-only-songs-that-do-not-have-karaoke.bat {playlist} [convert-playlist-to-only-song-that-do-not-have-karaoke.bat](../convert-playlist-to-only-song-that-do-not-have-karaoke.bat):
 
 Creates a new playlist consisting of all the files in the original playlist that do not have karaoke sidecar files.
 It then asks if we want to start getting karaoke or lyrics for that playlist.
 
-### 🌟 convert-playlist-to-only-songs-that-do-not-have-lyrics.bat {playlist} [convert-playlist-to-only-song-that-do-not-have-lyrics.bat](../BAT-and-UTIL-files-1/convert-playlist-to-only-song-that-do-not-have-lyrics.bat):
+### 🌟 convert-playlist-to-only-songs-that-do-not-have-lyrics.bat {playlist} [convert-playlist-to-only-song-that-do-not-have-lyrics.bat](../convert-playlist-to-only-song-that-do-not-have-lyrics.bat):
 
 Creates a new playlist consisting of all the files in the original playlist that do not have lyric sidecar files.
 Asks if we want to start getting lyrics for that playlist.
 
 
-### 🌟 subtitle-integrity-checker.bat {SRT file} [subtitle-integrity-checker.bat](../BAT-and-UTIL-files-1/subtitle-integrity-checker.bat):
+### 🌟 subtitle-integrity-checker.bat {SRT file} [subtitle-integrity-checker.bat](../subtitle-integrity-checker.bat):
 
 Checks a SRT file for overlapping timestamps, and zero-time timestamps, and displays results in a graph.
 Used to further reconcile *WhisperTimeSync*-reconciled SRT files.
@@ -717,9 +717,9 @@ Used to further reconcile *WhisperTimeSync*-reconciled SRT files.
 
 ### 🌟 Karaoke-related Reports
 
-If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../BAT-and-UTIL-files-1/report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
+If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 
-If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../BAT-and-UTIL-files-1/how-many-AI-transcriptions-have-run-today.bat) 
+If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../how-many-AI-transcriptions-have-run-today.bat) 
 
 
 
@@ -734,17 +734,17 @@ If you would like to check how many transcriptions were initiated on a certain d
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 [get-lyrics-for-currently-playing-song ](../BAT-and-UTIL-files-1/get-lyrics-for-currently-playing-song.bat):
+### 🌟 [get-lyrics-for-currently-playing-song ](../get-lyrics-for-currently-playing-song.bat):
 
 Get lyrics for *the song currently being played* in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
 
 
-### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/create-srt-file-for-currently-playing-song.bat):
+### 🌟 srtthis / [create-srt-file-for-currently-playing-song.bat](../create-srt-file-for-currently-playing-song.bat):
 
 Creates karaoke for *the song currently being played* in ⚡️ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙.
 
 
-### 🌟 Karaoke insertion fudger / MiniLyrics fixer - [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat):
+### 🌟 Karaoke insertion fudger / MiniLyrics fixer - [eccsrt2lrc2clip.bat](../eccsrt2lrc2clip.bat):
 
 In certain very rare situations, [MiniLyrics](https://minilyrics.en.softonic.com/) does not display new karaoke we create. This is because [MiniLyrics](https://minilyrics.en.softonic.com/) primarily uses LRC instead of SRT, so if an LRC was already there, and you create an SRT, it tends to ignore the SRT,e ven if you delete the LRC. 
 
@@ -764,7 +764,7 @@ Other important commands specific to this project.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 Sidecar-File Auditor [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../BAT-and-UTIL-files-1/check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py):
+### 🌟 Sidecar-File Auditor [CheckAFilelistForFilesMissingSidecarFilesOfTheProvidedExtension](../check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py):
 
 A generalized utility that, in our case, is being used to process a playlist to create a new playlist consisting of *ONLY* the songs that do not have karaoke files. This helps us focus our efforts.
 
@@ -777,17 +777,17 @@ check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py P
 ![image](https://github.com/user-attachments/assets/5b368467-b23b-4039-b3df-c4dc85e90ad5)
 
 
-### 🌟 [approve-lyrics / approve-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../BAT-and-UTIL-files-1/disapprove-lyric-file.bat):
+### 🌟 [approve-lyrics / approve-lyric-file {lyric_file}](../approve-lyric-file.bat) / [disapprove-lyrics / disapprove-lyric-file {lyric_file}](../disapprove-lyric-file.bat):
 
 Marks lyric file with approval/disapproval so that we can pre-approve lyric files in advance of transcription process. Uses [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs) to store approval tags in a database-less, file-less way.
 
 ![image](https://github.com/user-attachments/assets/c48e2ed3-c1fb-4760-8ba8-c9accf691178)
 
-### 🌟 [approve-subtitles / approve-subtitle-file {subtitle_file}](../BAT-and-UTIL-files-1/approve-subtitle-file.bat) / [disapprove-subtitles / disapprove-subtitle-file {subtitle_file}](../BAT-and-UTIL-files-1/disapprove-subtitle-file.bat):
+### 🌟 [approve-subtitles / approve-subtitle-file {subtitle_file}](../approve-subtitle-file.bat) / [disapprove-subtitles / disapprove-subtitle-file {subtitle_file}](../disapprove-subtitle-file.bat):
 
 Same as above but for karaoke files. Not particularly used by this system.
 
-### 🌟 [approve-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) / [disapprove-lyriclessness / approve-lyriclessness-for-file {audio_file}](../BAT-and-UTIL-files-1/approve-lyriclessness-for-file.bat) {force | all | ask | wildcard | filename}:
+### 🌟 [approve-lyriclessness / approve-lyriclessness-for-file {audio_file}](../approve-lyriclessness-for-file.bat) / [disapprove-lyriclessness / approve-lyriclessness-for-file {audio_file}](../approve-lyriclessness-for-file.bat) {force | all | ask | wildcard | filename}:
 
 **Remember:** The only way to batch transcribe in an unattended fashion (aka “encode while you sleep”) is to pre-approve lyric files.
 
@@ -802,15 +802,15 @@ Invoke it with ```approve-lyriclessness ask``` if you want it to ask individuall
 
 &nbsp;
 
-### 🌟 converter: [srt2lrc.py](../BAT-and-UTIL-files-1/srt2lrc.py):
+### 🌟 converter: [srt2lrc.py](../srt2lrc.py):
 
-A *batch* SRT-file to LRC-file converter that’s better than all the other ones on the internet. Used by [eccsrt2lrc2clip.bat](../BAT-and-UTIL-files-1/eccsrt2lrc2clip.bat) in the very rare event of [MiniLyrics](https://minilyrics.en.softonic.com/) not properly importing an ```SRT``` file.
+A *batch* SRT-file to LRC-file converter that’s better than all the other ones on the internet. Used by [eccsrt2lrc2clip.bat](../eccsrt2lrc2clip.bat) in the very rare event of [MiniLyrics](https://minilyrics.en.softonic.com/) not properly importing an ```SRT``` file.
 
-### 🌟 converter: [srt2txt.bat](../BAT-and-UTIL-files-1/srt2txt.bat) / [srt2txt.py](../BAT-and-UTIL-files-1/srt2txt.py):
+### 🌟 converter: [srt2txt.bat](../srt2txt.bat) / [srt2txt.py](../srt2txt.py):
 
 A *single-file* ```SRT``` to ```TXT```. Used when we already have SRT files for a song (say, from a download), but don’t have a TXT version of the lyrics.  One is automatically created to ensure file uniformity. Configurable thresholds for joining subtitle lines together into 1 text line (if they are really close together in time, i.e. under ≈0.5 seconds), or for adding a blank line between lyrics (if the subtitles are really far in time from each other, i.e. over ≈3 seconds)
 
-### 🌟 converter: [lrc2txt.bat](../BAT-and-UTIL-files-1/lrc2txt.bat)/ [lrc2txt.py](../BAT-and-UTIL-files-1/lrc2txt.py):
+### 🌟 converter: [lrc2txt.bat](../lrc2txt.bat)/ [lrc2txt.py](../lrc2txt.py):
 
 A *single-file* ```LRC``` to ```TXT```. Used when we already have LRC files for a song (say, from a download), but don’t have a TXT version of the lyrics. One is automatically created to ensure file uniformity. Estimates where line breaks should occur based im time thresholds (currently .65s=new line, 4.75s=blank line).
 
@@ -823,7 +823,7 @@ A *single-file* ```LRC``` to ```TXT```. Used when we already have LRC files for 
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 [print_with_columns.py](../BAT-and-UTIL-files-1/print_with_columns.py) / [newspaper.bat](../BAT-and-UTIL-files-1/newspaper.bat):
+### 🌟 [print_with_columns.py](../print_with_columns.py) / [newspaper.bat](../newspaper.bat):
 
 Created to review lyrics & karaoke for this project without the interruption of having to scroll up!
 
@@ -831,18 +831,18 @@ Displays text in column (“newspaper”) format with columns.
 A useful replacement for the ```type``` command.
 
 
-### 🌟 [google.py](../BAT-and-UTIL-files-1/google.py):
+### 🌟 [google.py](../google.py):
 
 Invokes a google search in primary browser, all while properly preserving the quotes given at the command line. 
 Way harder to do than it should be.
 
-### 🌟 [insert-before-each-line.py](../BAT-and-UTIL-files-1/insert-before-each-line.py) / [insert-after-each-line.py](../BAT-and-UTIL-files-1/insert-after-each-line.py):
+### 🌟 [insert-before-each-line.py](../insert-before-each-line.py) / [insert-after-each-line.py](../insert-after-each-line.py):
 
 Inserts text before/after each line of STDIN. Used for script generation.   
 Put ```{{{{QUOTE}}}}``` in the argument to turn it into a quote mark in the final output.
 ![image](https://github.com/user-attachments/assets/e3423665-783c-45e2-b275-7837d93d5ad9)
 
-### 🌟 [lyric-postprocessor.pl](../BAT-and-UTIL-files-1/lyric-postprocessor.pl):
+### 🌟 [lyric-postprocessor.pl](../lyric-postprocessor.pl):
 
 Downloaded lyrics postprocessor. Cleans up non-lyric trash that inevitably creeps into these.
 
@@ -868,16 +868,16 @@ Preprocessors / Postprocessors developed for this project.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 [get-lyrics-with-lyricsgenius-json-processor.pl](../BAT-and-UTIL-files-1/get-lyrics-with-lyricsgenius-json-processor.pl):
+### 🌟 [get-lyrics-with-lyricsgenius-json-processor.pl](../get-lyrics-with-lyricsgenius-json-processor.pl):
 
 The lyric downloader we use for Genius saves lyrics as a ```JSON file```. This extracts the actual lyrics from that file, with minimal processing.
 
-### 🌟 [lyric-postprocessor.pl](../BAT-and-UTIL-files-1/lyric-postprocessor.pl):
+### 🌟 [lyric-postprocessor.pl](../lyric-postprocessor.pl):
 
 A lyric postprocessor that removes tons of junk from downloaded lyrics, only shows unique lines (to help fit into WhisperAI’s 224-token prompt limit), and smushes all the lyrics into a single line (for use as a command line option). Started as a spiritual fork of ``uniq``` that doesn’t require file sorting (to avoid using up the 224 max tokens for WhisperAI with repeating lyrics), and grew into full-fledged lyric preprocessor that does much lyric massaging. Including putting a period at the end of each line, which is later removed by our subtitle postprocessor.
 
 
-### 🌟 [subtitle-postprocessor.pl](../BAT-and-UTIL-files-1/subtitle-postprocessor.pl):
+### 🌟 [subtitle-postprocessor.pl](../subtitle-postprocessor.pl):
 
 The final subtitle postprocessor—originally called ```remove-period-at-ends-of-lines.pl```—which removes periods from end of each line in a subtitle. It preserves the periods at the end of the line if the are for common abbreviations like “Mr.”, “Dr.”, “approx.”, etc
 
@@ -887,9 +887,9 @@ This also also has some extra karaoke postprocessing functionality slipped in:
     - de-censoring some curse words that WhisperAI censors (suppress this with ```--leave-censorship``` or ```-L```)
     - removing any line that is a common WhisperAI hallucination
 
-### 🌟 [fix-subtitles-for-currently-playing-song.bat](../BAT-and-UTIL-files-1/fix-subtitles-for-currently-playing-song.bat) [or ```fts``` for “fix these subtitles”]:
+### 🌟 [fix-subtitles-for-currently-playing-song.bat](../fix-subtitles-for-currently-playing-song.bat) [or ```fts``` for “fix these subtitles”]:
 
-If ⚡ WinAmp 🦙 Integration is enabled, runs [subtitle-postprocessor.pl](../BAT-and-UTIL-files-1/subtitle-postprocessor.pl) on the currently playing song.
+If ⚡ WinAmp 🦙 Integration is enabled, runs [subtitle-postprocessor.pl](../subtitle-postprocessor.pl) on the currently playing song.
 
 
 </details>
@@ -904,23 +904,23 @@ If ⚡ WinAmp 🦙 Integration is enabled, runs [subtitle-postprocessor.pl](../B
 
 <details><summary>🌈Psychedelic color-cycler with 👂WhisperAI-specific postprocessing</summary>  
 
-### 🌟 [copy-move-post.py](../BAT-and-UTIL-files-1/copy-move-post.py):
+### 🌟 [copy-move-post.py](../copy-move-post.py):
 
 Inspired by ```glow.com``` in the 1980s DOS era, a cosmetic postprocessor which employs ANSI color-cycling to inbue a psychedelic effect onto text by cycling the colors of the primary text color through the visible spectrum. Originally written to combat “hangxiety” — anxiety over whether your code has hung — by affecting screenoutput without actually generating any “real” output. Then enhanced to postprocess the output to the ```move``` and ```copy``` commands with emoji, color, italics, double-height text for summaries, and more. Finally, enhanced again with explicit postprocessing for WhisperAI’s transcription output.
 
-Uses my [claire_console.py](../BAT-and-UTIL-files-1/clairecjs_utils/claire_console.py) library to achieve the color-cycling.
+Uses my [claire_console.py](../clairecjs_utils/claire_console.py) library to achieve the color-cycling.
 
 &nbsp;
 </details>
 
 <details><summary>⚡ WinAmp 🦙 integration to operate on “song currently playing”</summary>  
 
-### 🌟 [go-to-currently-playing-song-dir.bat](../BAT-and-UTIL-files-1/go-to-currently-playing-song-dir.bat):
+### 🌟 [go-to-currently-playing-song-dir.bat](../go-to-currently-playing-song-dir.bat):
 
-Used in this project for ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration only. Changes current folder to same folder that the song we are listening to is in.  (The change-folder script is actually generated by [edit-currently-playing-attrib.bat](../BAT-and-UTIL-files-1/edit-currently-playing-attrib.bat))
+Used in this project for ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) 🦙 integration only. Changes current folder to same folder that the song we are listening to is in.  (The change-folder script is actually generated by [edit-currently-playing-attrib.bat](../edit-currently-playing-attrib.bat))
 
 &nbsp;
-### 🌟 [edit-currently-playing-attrib-helper.pl](../BAT-and-UTIL-files-1/edit-currently-playing-attrib-helper.pl):
+### 🌟 [edit-currently-playing-attrib-helper.pl](../edit-currently-playing-attrib-helper.pl):
 
 Used in this project for 🦙 *[WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516)* 🦙 integration only, by ```go-to-currently-playing-song-dir.bat``` to determine the folder of the current song playing. Processes the ```winamp_now_playing.txt``` file generated by the [WinampNowPlayingToFile plugin](https://github.com/Aldaviva/WinampNowPlayingToFile) to determine this information. 
 This method was used becuase API calls would limit us to only using this on the same computer that is running [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516), and we want to be able to run this from *other* computers in the household, without having to poke through any kind of security. This is a very ad-hoc organic spaghetti script that isn’t at all nice-looking, but was fixedu p a lot in 2024 to branch past all the horribly ugly legacy 2008, 2009, 2012, and 2013 code, which all worked with the [Last.FM](https://www.last.fm/user/ClioCJS) logfile, an approach we have discontinued because it would create a big hassle every time Last.FM updated their logfile format.
@@ -931,9 +931,9 @@ This method was used becuase API calls would limit us to only using this on the 
 
 <details><summary>pre-rendered beautiful rainbow 🌈 horizontal dividers</summary>  
 
-### 🌟 [divider.bat](../BAT-and-UTIL-files-1/display-horizontal-divider.bat):
+### 🌟 [divider.bat](../display-horizontal-divider.bat):
 
-Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/dividers/) to separate out output into sections.
+Pre-rendered [pretty rainbow-ized horizontal dividers](../dividers/) to separate out output into sections.
 ![image](https://github.com/user-attachments/assets/ca684639-3df9-4f9c-9e82-17af0a5bb320)
 
 &nbsp;
@@ -941,7 +941,7 @@ Pre-rendered [pretty rainbow-ized horizontal dividers](../BAT-and-UTIL-files-1/d
 
 <details><summary>Prompting System with automatic default-answer timeouts</summary>  
 
-### 🌟 [askYN.bat](../BAT-and-UTIL-files-1/askYN.bat):
+### 🌟 [askYN.bat](../askYN.bat):
 
 The Yes/No prompting system with automatic-default-answer prompt timeouts.
 ![image](https://github.com/user-attachments/assets/fbff4fcd-f9da-4395-bfa1-bc95b85a7b18)
@@ -951,9 +951,9 @@ The Yes/No prompting system with automatic-default-answer prompt timeouts.
 
 <details><summary>Messaging System for warnings/errors/success/debug/etc</summary>  
 
-### 🌟 [print-message.bat](../BAT-and-UTIL-files-1/print-message.bat):
+### 🌟 [print-message.bat](../print-message.bat):
 
-The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat), [debug.bat](../BAT-and-UTIL-files-1/debug.bat), [error.bat](../BAT-and-UTIL-files-1/error.bat), [fatal_error.bat](../BAT-and-UTIL-files-1/fatalerror.bat), [success.bat](../BAT-and-UTIL-files-1/success.bat), [celebration.bat](../BAT-and-UTIL-files-1/celebration.bat), [important.bat](../BAT-and-UTIL-files-1/important.bat), [important_less.bat](../BAT-and-UTIL-files-1/important_less.bat), [advice](../BAT-and-UTIL-files-1/advice.bat), [unimportant](../BAT-and-UTIL-files-1/unimportant.bat), etc)
+The messaging system (used by [warning.bat](../warning.bat), [debug.bat](../debug.bat), [error.bat](../error.bat), [fatal_error.bat](../fatalerror.bat), [success.bat](../success.bat), [celebration.bat](../celebration.bat), [important.bat](../important.bat), [important_less.bat](../important_less.bat), [advice](../advice.bat), [unimportant](../unimportant.bat), etc)
 
 ![image](https://github.com/user-attachments/assets/a3335d4e-9359-4584-a4ba-2a306907cb30)
 
@@ -962,7 +962,7 @@ The messaging system (used by [warning.bat](../BAT-and-UTIL-files-1/warning.bat)
 
 <details><summary>File Randomizer / Shuffler (to eliminate alphabetical bias)</summary>  
 
-### 🌟 [randomize-file.pl](../BAT-and-UTIL-files-1/randomize-file.pl.bat):
+### 🌟 [randomize-file.pl](../randomize-file.pl.bat):
 
 Scrambles the lines of STDIN.  One could think of it as shuffling/randomizing a playlist/filelist.  Used to do things in random orders.
 ![image](https://github.com/user-attachments/assets/e64933d7-c8e9-4b9c-a128-1bd40bc53116)
@@ -972,7 +972,7 @@ Scrambles the lines of STDIN.  One could think of it as shuffling/randomizing a 
 
 <details><summary>Alternate Data Stream file tag editor (for lyric approval)</summary>  
 
-### 🌟 [add-ADS-tag-to-file.bat](../BAT-and-UTIL-files-1/add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/remove-ADS-tag-from-file.bat) / [display-ADS-tag-from-file.bat](../BAT-and-UTIL-files-1/display-ADS-tag-from-file.bat):
+### 🌟 [add-ADS-tag-to-file.bat](../add-ADS-tag-to-file.bat) / [remove-ADS-tag-from-file.bat](../remove-ADS-tag-from-file.bat) / [display-ADS-tag-from-file.bat](../display-ADS-tag-from-file.bat):
 
 Commands for displaying tags, and for adding/removing tags to files using [Alternate Data Streams](https://superuser.com/questions/186627/anybody-have-a-legitimate-use-for-alternate-data-streams-in-ntfs). Used for lyric [dis]approval.
 ![image](https://github.com/user-attachments/assets/d21f1af0-b2bf-479c-940f-7f62252ef6ce)
@@ -986,22 +986,22 @@ Commands for displaying tags, and for adding/removing tags to files using [Alter
 
 <details><summary>Validators (for variables, commands, functions, & file extensions)</summary>  
 
-### 🌟 [validate-environment-variables {list of env-var names}](../BAT-and-UTIL-files-1/validate-environment-variable.bat):
+### 🌟 [validate-environment-variables {list of env-var names}](../validate-environment-variable.bat):
 
 Validates whether environment variables (and the files they point to!) exist.
 ![image](https://github.com/user-attachments/assets/837b847e-9562-4adf-a981-1ad67497b2f7)
 
-### 🌟 [validate-in-path {list of commands}](../BAT-and-UTIL-files-1/validate-in-path.bat):
+### 🌟 [validate-in-path {list of commands}](../validate-in-path.bat):
 
 Validates whether commands (be they internal, alias, or not) are in the path
 ![image](https://github.com/user-attachments/assets/e05721d4-617c-456e-ab35-19b6b81be036)
 
-### 🌟 [validate-is-extension {filename} {list of extensions}](../BAT-and-UTIL-files-1/validate-is-extension.bat):
+### 🌟 [validate-is-extension {filename} {list of extensions}](../validate-is-extension.bat):
 
 Validates whether a file has an acceptable file extension.  
 ![image](https://github.com/user-attachments/assets/36358ff3-f956-444e-b106-dc7014ee9e7d)
 
-### 🌟 [validate-is-function {list of functions}](../BAT-and-UTIL-files-1/validate-function.bat):
+### 🌟 [validate-is-function {list of functions}](../validate-function.bat):
 
 Validates whether a TCC user %@function is defined or not
 ![image](https://github.com/user-attachments/assets/b877db1e-d797-4f26-b36e-f83f57933469)
@@ -1020,20 +1020,20 @@ Validates whether a TCC user %@function is defined or not
 
 <details><summary>Visual Layer (ansi / űńîçőḑѐ / emoji functions)</summary>  
 
-### 🌟 [bigecho.bat](../BAT-and-UTIL-files-1/bigecho.bat):
+### 🌟 [bigecho.bat](../bigecho.bat):
 
 Echos text in double-height (using VT100 double-height ANSI codes). Requires ```set-ansi```.
 ![image](https://github.com/user-attachments/assets/9cde5587-3033-4fb1-917a-2a82986c6fa8)
 
-### 🌟 [set-ansi.bat](../BAT-and-UTIL-files-1/set-ansi.bat):
+### 🌟 [set-ansi.bat](../set-ansi.bat):
 
-Sets envirionment variables (or user functions) for all the ansi codes we know to exist, as well as for our messaging system ([print-message.bat](../BAT-and-UTIL-files-1/print-message.bat)). Read the VT100 and VT220 manuals all the way through for this.
+Sets envirionment variables (or user functions) for all the ansi codes we know to exist, as well as for our messaging system ([print-message.bat](../print-message.bat)). Read the VT100 and VT220 manuals all the way through for this.
 
-### 🌟 [set-emojis.bat](../BAT-and-UTIL-files-1/set-emojis.bat):
+### 🌟 [set-emojis.bat](../set-emojis.bat):
 
-Sets all the emoji we care to set, using the [emoji.env](../BAT-and-UTIL-files-1/emoji.env) file to add new emoji.
+Sets all the emoji we care to set, using the [emoji.env](../emoji.env) file to add new emoji.
 
-### 🌟 [fast_cat.exe](../BAT-and-UTIL-files-1/cat_fast.exe):
+### 🌟 [fast_cat.exe](../cat_fast.exe):
 
 Version of ```cat.exe``` deemed to be the fastest. I have several versions of the unix ```cat``` command, but this is the one I use for speediness. Piping things to ```fast_cat``` or ```cat_fast``` fixes ANSI rendering errors and is a required step for modern color rendering if you use [TCC](https://jpsoft.com/all-downloads/all-downloads.html) in conjunction with Windows Terminal.
 
@@ -1047,12 +1047,12 @@ Version of ```cat.exe``` deemed to be the fastest. I have several versions of th
 <details><summary>Conditional Deletion</summary>  
 
 
-### 🌟 [delete-zero-byte-files.bat](../BAT-and-UTIL-files-1/delete-zero-byte-files.bat) {filemask}:
+### 🌟 [delete-zero-byte-files.bat](../delete-zero-byte-files.bat) {filemask}:
 
 Deletes all 0-byte files matching a filemask. Removes 0-byte files to save us having to check EVERY file for non-zero-ness.
 ![image](https://github.com/user-attachments/assets/d77d8e9c-af57-42f6-95b8-4dc94205c370)
 
-### 🌟 [del-if-exists.bat](../BAT-and-UTIL-files-1/del-if-exists.bat):
+### 🌟 [del-if-exists.bat](../del-if-exists.bat):
 
 Delete a file, but only if it exists.
 
@@ -1067,17 +1067,17 @@ Delete a file, but only if it exists.
 <details><summary>Miscellaneous</summary>  
 
 
-### 🌟 [environm.bat](../BAT-and-UTIL-files-1/environm.bat):
+### 🌟 [environm.bat](../environm.bat):
 
 An absolute mess, but this is the command line initialization script that is run every time our command line is opened. Most anything I create won’t work without this being run.
 
 
-### 🌟 [run-piped-input-as-bat.bat](../BAT-and-UTIL-files-1/run-piped-input-as-bat.bat):
+### 🌟 [run-piped-input-as-bat.bat](../run-piped-input-as-bat.bat):
 
 Receives piped input and runs it as if it were typed to the command line. Dangerous stuff!
 
 
-### 🌟 [change-single-quotes-to-double-apostrophes.py](../BAT-and-UTIL-files-1/change-single-quotes-to-double-apostrophes.py):
+### 🌟 [change-single-quotes-to-double-apostrophes.py](../change-single-quotes-to-double-apostrophes.py):
 
 Changes single quotes (```"```) into double-apostrophes (```''```). 
 Quote conversion offloaded into python script to avoid command-line complications with varoius quote symbols.
@@ -1085,7 +1085,7 @@ Quote conversion offloaded into python script to avoid command-line complication
 
 &nbsp;
 
-### 🌟 [mp3index.bat](../BAT-and-UTIL-files-1/mp3index.bat):
+### 🌟 [mp3index.bat](../mp3index.bat):
 
 Prints a list of all audio files (mp3, flac, wav, etc).
 Technically should be called “```audio_file_index.bat```”. 
