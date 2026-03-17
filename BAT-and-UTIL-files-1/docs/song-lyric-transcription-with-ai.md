@@ -312,6 +312,30 @@ Type “work”         to be interactively asked as to the nature of your work.
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 									
+### 🌟🌟🌟 SPECIAL FILENAMES THAT AFFECT BEHAVIOR 🌟🌟🌟
+
+The following file naming conventions affect system behavior:
+
+| File Name Contains                                   | Meaning                                            | System Behavior                        |
+| --------------------------------------------         | ----------------------------                       | -------------------------------------- |
+| - ```(instrumental)```, ```[instrumental]```         | file is an instrumental                            | lyrics & transcription will be skipped |
+| - ```(sound clip)```, ```[sound clip]```             | file is a sound clip/effect                        | lyrics & transcription will be skipped |
+| - ```(sound effect)```, ```[sound effect]```         | file is a sound clip/effect                        | lyrics & transcription will be skipped |
+| - ```(chiptune)```, ```[chiptune]```                 | file is a chiptune/tracker file                    | lyrics & transcription will be skipped |
+| - ```(untranscribeable)```, ```[untranscribeable]``` | transcription for this file has failed in the past |          transcription will be skipped |
+| - ```(untranscribable)```, ```[untranscribable]```   | transcription for this file has failed in the past |          transcription will be skipped |
+
+| Folder Name Contains                                 | Meaning                                                                   | System Behavior                        |
+| ----------------------------------------------       | ----------------------------------------                                  | -------------------------------------- |
+| - ```(instrumentals)```, ```[instrumentals]```       | folder contains only instrumentals                                        | lyrics & transcription will be skipped |
+| - ```sound clips```                                  | folder contains only sound clips/effects                                  | lyrics & transcription will be skipped |
+| - ```sound effects```                                | folder contains only sound clips/effects                                  | lyrics & transcription will be skipped |
+| - ```chiptunes```                                    | folder contians only chiptune/tracker files                               | lyrics & transcription will be skipped |
+| - ```audiobook```                                    | folder contians only audiobook files                                      |  (only used for reporting statistics)  |
+| - ```(untranscribeable)```, ```[untranscribeable]``` | folder contains only files for which transcription has failed in the past |          transcription will be skipped |
+| - ```(untranscribable)```, ```[untranscribable]```   | folder contains only files for which transcription has failed in the past |          transcription will be skipped |
+
+
 ### 🌟 [preview-audio-file](../preview-audio-file.bat)
 
 Previews an audio-file in VLC player.  
@@ -650,6 +674,7 @@ Not very useful to the end-user, but this does what the title says. Converts a p
 ### 🌟 Lyric-related Reports:
 
 If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
+<img width="844" height="1645" alt="image" src="https://github.com/user-attachments/assets/8b7aa3d2-934f-4f98-bcaa-ce35ba5ba3e5" />
 
 If you would like to check how many lyric approvals you did on a certain day, just for that sense of accomplishment, run [report-lyric-approval-progress.bat](../report-lyric-approval-progress.bat), which will tell you how many lyric[less] approvals you did on a specific calendar day.
 
@@ -669,6 +694,7 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 This searches for bad karaoke transriptions in the current folder & deletes them with a configurable prompting level. 
 
 This is automatically run at various points (such as before and/or after creating karaoke files), and should also be run on the entire music collection when the project is completed. 
+<img width="1521" height="138" alt="image" src="https://github.com/user-attachments/assets/3d00fab8-48b4-4c28-8977-8c3a7e104222" />
 
 Bad karaoke transcriptions include:
   1. Files that contain certain commonly-hallucinated-by-AI phrases can be consistently serached for to find bad transcriptions. “And now we’re back” is one of them, but no fewer than 5 different hallucations are regularly searched for
@@ -686,6 +712,7 @@ This searches an entire folder tree (in random order) for bad karaoke transcript
 Reviews all karaoke files in current folder, using ```print-with-columns``` to eliminate most scrolling up.
 
 ![image](https://github.com/user-attachments/assets/9b579cf2-ca93-4684-aec5-35df8c793143)
+<img width="1779" height="1586" alt="image" src="https://github.com/user-attachments/assets/5da5ac3b-cbed-457a-8a09-707c01d067e4" />
 
 
 ### 🌟 cfmk / [check-for-missing-karaoke](../check-for-missing-karaoke.bat):
@@ -720,6 +747,7 @@ Used to further reconcile *WhisperTimeSync*-reconciled SRT files.
 If you would like to check your overall lyric/karaoke progress as a percentage of your whole music collection, run [report-lyric-and-subtitle-percentage-completion.bat](../report-lyric-and-subtitle-percentage-completion.bat) from the root folder of your music collection. It generates a log file (```lyric-subtitle-compliance.log```) that allows you to track your progress over time.
 
 If you would like to check how many transcriptions were initiated on a certain day, run [how-many-AI-transcriptions-have-run-today.bat](../how-many-AI-transcriptions-have-run-today.bat) 
+<img width="1024" height="321" alt="image" src="https://github.com/user-attachments/assets/b86bdaf9-4f79-4dcd-9992-e8daf100a219" />
 
 
 

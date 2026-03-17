@@ -111,6 +111,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
 
                         iff "K" == "%WORK_TYPE_ANSWER%" .or. "%1" == "karaoke"  then
                                 set  WORK_TYPE_ANSWER=K
+                                call thorough on
                                 call convert-playlist-to-only-songs-that-do-not-have-karaoke.bat %default_playlist_to_work%
                                 call sleep 4
                                 set worker=get-karaoke
@@ -119,6 +120,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                         endiff
                         iff  "L" == "%WORK_TYPE_ANSWER%" .or. "%1" == "lyrics"  then
                                 set  WORK_TYPE_ANSWER=L
+                                call thorough on
                                 call convert-playlist-to-only-songs-that-do-not-have-lyrics.bat  %default_playlist_to_work%
                                 call sleep 4
                                 set worker=get-lyrics
@@ -127,6 +129,7 @@ rem Handle option “K” / “L” which are for karaoke / lyric work related t
                         endiff
                         iff  "P" == "%WORK_TYPE_ANSWER%" .or. "%1" == "prompts"  then
                                 set  WORK_TYPE_ANSWER=P
+                                call thorough on
                                 call convert-playlist-to-only-songs-that-do-not-have-karaoke-but-do-have-lyrics.bat  %default_playlist_to_work%
                                 call sleep 4
                                 set worker=get-karaoke-prompts-only

@@ -54,9 +54,11 @@ rem DOCUMENTATION:
 		gosub AddFolderToPathEndOnlyIfItExists  %UTIL2%\Faster-Whisper-XXL
 	    :Programs_That_May_Be_Installed_That_I_Script_With_Or_Use
                 gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.0.2-essentials_build\bin"
+                gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\WinGet\Packages\DenoLand.Deno_Microsoft.Winget.Source_8wekyb3d8bbwe\"
                 gosub AddFolderToPathBegOnlyIfItExists "%LocalAppData%\Microsoft\WindowsApps"
 		gosub AddFolderToPathEndOnlyIfItExists "%ProgramFiles%\FastPictureViewer"
 		gosub AddFolderToPathBegOnlyIfItExists "%ProgramFiles%\ImageMagick"
+		gosub AddFolderToPathBegOnlyIfItExists "%ProgramFiles%\nodejs"
 		gosub AddFolderToPathBegOnlyIfItExists "%[ProgramFiles(x86)]\ImageMagick-6.3.3-Q16"
 		gosub AddFolderToPathBegOnlyIfItExists "%ProgramFiles%\nodejs"
 		gosub AddFolderToPathEndOnlyIfItExists "%ProgramFiles%\PHP"

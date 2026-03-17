@@ -98,10 +98,14 @@ rem EXECUTION:
         rem call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies-from-browser firefox   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
         
         rem Testing:
-        rem echo call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
-                 call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
-        rem echo call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt         --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%" >c:\last-ydl.bat
-        rem      call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt         --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail "%URL%"
+        rem echo all %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail                    "%URL%"
+        rem     call %YDL% -vU --verbose --write-description --compat-options filename-sanitization                                   --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail                    "%URL%"
+        rem     call %YDL% -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt         --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail                    "%URL%"
+
+        rem     call %YDL%                 -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt         --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail         --js-runtimes "deno:%LocalAppData%\Microsoft\WinGet\Packages\DenoLand.Deno_Microsoft.Winget.Source_8wekyb3d8bbwe\deno.exe,node:C:\Program Files\nodejs\node.exe"    --remote-components ejs:github   "%URL%"
+                call %YDL% --ignore-config -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt         --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail         --js-runtimes "deno:C:\Users\ClioC\AppData\Local\Microsoft\WinGet\Packages\DenoLand.Deno_Microsoft.Winget.Source_8wekyb3d8bbwe\deno.exe"                            --remote-components ejs:github   "%URL%"
+
+                                                                                                                                                                
         @Echo off
         title YouTube D/L complete!                                                                                                
         rem was suggested that one could scrub unicode chars with this command: --replace-in-metadata "video:title" " ?[\U000002AF-\U0010ffff]+" ""
