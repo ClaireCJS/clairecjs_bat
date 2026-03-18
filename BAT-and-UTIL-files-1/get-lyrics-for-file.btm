@@ -98,7 +98,8 @@ rem CONFIG: DEBUG:
         set DEBUG_VALUE_TRANSFER=0                                                    %+ rem (3) whether we want to display the transfer of each probe value token to local environment varial
         set DEBUG_POSTPROCESSORS=0                                                    %+ rem (4) whether we want to display the calls to postprocessor(s)
         set DEBUG_ADS_MARKING=0                                                       %+ rem (5) whether we want to display when we ADS mark files
-        set DEBUG_INSTRUMENTAL=0                                                      %+ rem (6) whether we want to display certain instrumental-marking–related debugs
+        set DEBUG_INSTRUMENTAL=1                                                      %+ rem (6) whether we want to display certain instrumental-marking–related debugs
+        rem GOAT^^^^^^^^^^^^^^^^
         set DEBUG_LYRICLESS_STATUS=0                                                  %+ rem (6) whether we want to display certain     lyricless-status–related debugs
         set DEBUG_GETLYRICS_CALL=0                                                    %+ rem (7) whether we want to display when this script is called
 
@@ -112,6 +113,7 @@ REM CONFIG: 2025:
         set AUDIOFILE_TRANSCRIPTION_PROMPTS_USED_LOG_FILE=%LOGS%\audiofile-transcription-prompts.log   %+ rem copy this line to get-lyrics-for-file as well
 rem CONFIG: EXTERNAL PROGRAMS:
         set DEFAULT_PLAYER_COMMAND=vlc.exe                                            %+ rem UPDATE THIS IN GET-KARAOKE TOO! ——> program we use to play audio files, i.e. VLCplayer, MPC, etc.
+        set DEFAULT_PLAYER_COMMAND=call preview-audio-file                            %+ rem Command to run to play files with a media player
         set PROBER=ffprobe.exe                                                        %+ rem program we use to probe existing tag values for song title, artist, album, etc
         set PLAYER_COMMAND=vlc.exe --volume 200                                       %+ rem Command to run to play files with a media player —— basic
         set PLAYER_COMMAND=call preview-audio-file                                    %+ rem Command to run to play files with a media player —— better
@@ -3764,7 +3766,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                 endiff
 
                         rem Skip sound effects:
-                                iff "1" == "%@REGEX[SOUND EFFECT,%@UPPER[%@full["%tmpFileForXAnswer_copy%"]]]" then
+                                iff "1" == "%@REGEX[SOUND EFFECT,%@UPPER[%@full["%tmpFileForXAnswer_copy%"]]]" .or. "1" == "%@REGEX[SOUND CLIP,%@UPPER[%@full["%tmpFileForXAnswer_copy%"]]]" then
                                         set value=True
                                         echo     %ansi_color_warning_soft%%star4% “%italics_on%%@UNQUOTE["%tmpFileForXAnswer_copy%"]%italics_off%” is a %italics_on%sound effect%italics_off% and thus not transcribeable!
                                         echo     %ansi_color_warning_soft%%star5% Tagging “%italics_on%is_instrumental%italics_off%” ADS as “%italics_on%%value%%italics_off%” since sound effects don’t have words
@@ -3988,7 +3990,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         else
                                 set already_marked_as=0
                                 rem Try again without brackets:
-                                iff "%@Regex[sound effect,"%filename_to_rename_as_instrumental_or_whatever%"]" == "1" then
+                                iff "%@Regex[sound effect,"%filename_to_rename_as_instrumental_or_whatever%"]" == "1" .or. "%@Regex[sound clip,"%filename_to_rename_as_instrumental_or_whatever%"]" == "1" then
                                         echo %ansi_color_warning_soft%%star2% %italics_on%Already marked%italics_off% as a sound effect: “%faint_on%%filename_to_rename_as_instrumental_or_whatever%%faint_off%”
                                         set already_marked_as=1
                                 endiff
@@ -4101,7 +4103,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         if "1" == "%DEBUG_INSTRUMENTAL%" echo - DEBUG: rename_audio_file_as_instrumental called with filename_to_rename_as_instrumental_or_whatever == “%filename_to_rename_as_instrumental_or_whatever%”
 
                 rem Clean our junk files first, so they don’t get caught in the sidecar renaming madness:
-                        if "1" == "%DEBUG_INSTRUMENTAL%" (echo about to call clean-up-AI-transcription-trash-files-here.bat but just checking value of %0 which is “%0” and what about pbatchname it is “%_PBATCHNAME” and hey DELETING_BAD_AI_TRANSCRIPTIONS is %DELETING_BAD_AI_TRANSCRIPTIONS% %+ pause)
+                        if "1" == "%DEBUG_INSTRUMENTAL%" (echo * about to call clean-up-AI-transcription-trash-files-here.bat but just checking value of %0 which is “%0” and what about pbatchname it is “%_PBATCHNAME” and hey DELETING_BAD_AI_TRANSCRIPTIONS is %DELETING_BAD_AI_TRANSCRIPTIONS% %+ pause)
                         call clean-up-AI-transcription-trash-files-here.bat
 
                 rem Rename the file & validate that it was named:
@@ -4111,7 +4113,9 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
                         unset /q LAST_RENAMED_TO
                         rem set DEBUG_INSTRUMENTAL=1 
+                        if not exist "%@UNQUOTE[%filename_to_rename_as_instrumental_or_whatever%]" goto :skip_the_rn_4114
                         call rn "%@UNQUOTE[%filename_to_rename_as_instrumental_or_whatever%]" "%@NAME["%filename_to_rename_as_instrumental_or_whatever%"] [%nature%].%@EXT["%filename_to_rename_as_instrumental_or_whatever%"]"
+                        :skip_the_rn_4114
                         if "1" == "%DEBUG_INSTRUMENTAL%" echo %ansi_color_debug%- DEBUG: after rn at 3125, last_renamed_to=“%LAST_RENAMED_TO%” so maybe set tmpFileForXAnswer_copy=%LAST_RENAMED_TO%%ansi_color_normal% 
                         iff "" != "%LAST_RENAMED_TO%" then
                                 set tmpFileForXAnswer_copy=%LAST_RENAMED_TO%

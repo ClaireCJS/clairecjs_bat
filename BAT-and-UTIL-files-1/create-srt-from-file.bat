@@ -399,6 +399,9 @@ rem Make sure it’s a transcribeable filename:
                                                 set sndfx_in_filename=%@REGEX["[\[\(][sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*[\)\]]",%INPUT_FILE%]
                                                 set sndfx_in_foldname=%@REGEX["[sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*[\\\]\)]",%@FULL["%INPUT_FILE%"]]              %+ rem OLD
                                                 set sndfx_in_foldname=%@REGEX["[sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*",%@FULL["%INPUT_FILE%"]]                      %+ rem NEW: to accomodate folder names like “sound effects & ambient sound”
+                                                set sndcl_in_filename=%@REGEX["[\[\(][sS][oO][uU][nN][dD] [cC][Ll][Ii][Pp][sS]*[\)\]]",%INPUT_FILE%]
+                                                set sndcl_in_foldname=%@REGEX["[sS][oO][uU][nN][dD] [cC][Ll][Ii][Pp][sS]*[\\\]\)]",%@FULL["%INPUT_FILE%"]]                      %+ rem OLD
+                                                set sndcl_in_foldname=%@REGEX["[sS][oO][uU][nN][dD] [cC][Ll][Ii][Pp][sS]*",%@FULL["%INPUT_FILE%"]]                              %+ rem NEW: to accomodate folder names like “sound clips & ambient sound”
                                                 set iscis_in_filename=%@REGEX["\[[Uu][Nn][Tt][Rr][Aa][Nn][Ss][Cc][Rr][Ii][Bb][Ee][Aa][Bb][Ll][Ee]*\]",%INPUT_FILE%]
                                                 set iscis_in_foldname=%@REGEX["[\\\[\(][Uu][Nn][Tt][Rr][Aa][Nn][Ss][Cc][Rr][Ii][Bb][Ee][Aa][Bb][Ll][Ee]*[\\\)\]]",%@FULL["%INPUT_FILE%"]]
 
@@ -407,10 +410,12 @@ rem Make sure it’s a transcribeable filename:
                                                 if "1" == "%instr_in_filename%" ( set fail_type=instrumental     %+ set fail_point=filename) 
                                                 if "1" == "%chipt_in_filename%" ( set fail_type=chiptune         %+ set fail_point=filename)
                                                 if "1" == "%sndfx_in_filename%" ( set fail_type=sound effects    %+ set fail_point=filename)
+                                                if "1" == "%sndcl_in_filename%" ( set fail_type=sound effects    %+ set fail_point=filename)
                                                 if "1" == "%iscis_in_filename%" ( set fail_type=untranscribeable %+ set fail_point=filename)
                                                 if "1" == "%instr_in_foldname%" ( set fail_type=instrumental     %+ set fail_point=dir name)
                                                 if "1" == "%chipt_in_foldname%" ( set fail_type=chiptune         %+ set fail_point=dir name)
                                                 if "1" == "%sndfx_in_foldname%" ( set fail_type=sound effects    %+ set fail_point=dir name)
+                                                if "1" == "%sndcl_in_foldname%" ( set fail_type=sound effects    %+ set fail_point=dir name)
                                                 if "1" == "%iscis_in_foldname%" ( set fail_type=untranscribeable %+ set fail_point=dir name)
 
                                         rem Debug stuffs:
@@ -420,10 +425,12 @@ rem Make sure it’s a transcribeable filename:
                                                         echo chipt_in_foldname == “%chipt_in_foldname%”
                                                         echo instr_in_filename == “%instr_in_filename%”
                                                         echo sndfx_in_filename == “%sndfx_in_filename%”
+                                                        echo sndcl_in_filename == “%sndcl_in_filename%”
                                                         echo iscis_in_filename == “%iscis_in_filename%”
                                                         echo chipt_in_filename == “%chipt_in_filename%”
                                                         echo instr_in_foldname == “%instr_in_foldname%”
                                                         echo sndfx_in_foldname == “%sndfx_in_foldname%”
+                                                        echo sndcl_in_foldname == “%sndcl_in_foldname%”
                                                         echo iscis_in_foldname == “%iscis_in_foldname%”
                                                         echo fail_type         == “%fail_type%”
                                                         echo fail_point        == “%fail_point%”
@@ -492,20 +499,7 @@ rem If the file has been marked as failed previously, abort (unless in force mod
                 unset /q answer
                 :ask_about_instrumental_480
                 gosub ask_if_untranscribeable
-
-rem             call AskYN "Rename it as “[untranscribeable]” to prevent this prompt from coming up again [TODO OPTIONS]" no 20 IQPS I:no_but_mark_it_instrumental_instead,Q:enQueue_in_winamp,P:play_it,S:no_instead_mark_mark_as_sound_effect %+ rem TODO remove hard-coded wait time
-rem                     gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
-rem                     gosub check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
-rem                     gosub check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
-rem                     gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
-rem                     if  "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" goto /i ask_about_instrumental_480
-rem                     iff "Y" == "%ANSWER%" then
-rem                             unset /q answer
-rem                             gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%INPUT_FILE"]" "untranscribeable"                                
-rem                             goto /i END
-rem                     endiff
-rem             return
-
+                call debug "Goat askifuntranscribeable 494 called"
                 goto /i END
         endiff
 
@@ -2118,7 +2112,7 @@ rem Full-endeavor success message:
         rem At this point, the karaoke is generated, possibly corrected, and awaiting our approval:
                 if  "%KARAOKE_STATUS%" == "APPROVED" goto :karaoke_already_approved_1913
                         if "1" == "%JUST_RENAMED_TO_INSTRUMENTAL%" goto /i END
-                        if "1" == "%DEBUG_KARAOKE_APPROVAL%" echo About to ask_to_approve_karaoke around line 2060ish
+                        if "1" == "%DEBUG_KARAOKE_APPROVAL%" echo %ansi_color_debug%[DEBUG] About to ask_to_approve_karaoke around line 2060ish%ansi_color_normal%
                         gosub ask_to_approve_karaoke
                 :karaoke_already_approved_1913
                 :do_not_ask_to_align_with_txt
@@ -2140,6 +2134,7 @@ rem Full-endeavor success message:
                                                 iff not exist "%TXT_FILE%" then
                                                         %EDITOR% "%SRT_FILE%" 
                                                 else
+                                                        echo CALL IS: %EDITOR% "%TXT_FILE%" "%SRT_FILE%" 
                                                         %EDITOR% "%TXT_FILE%" "%SRT_FILE%" 
                                                 endiff
                                                 echos %emoji_pause% Hit any key when done editing...
@@ -2235,6 +2230,7 @@ goto /i skip_subroutines
                 gosub check_for_answer_of_E "%SRT_FILE%" "%TXT_FILE%"
                 gosub check_for_answer_of_B
                 gosub check_for_answer_of_M
+                call debug "goat done checking answers TIEBM line 2225ish"
                 set ANSWER=%HOLD_ANSWER_2006%
                 iff "%ANSWER" == "W" then
                         set   DO_WHISPER_TIME_SYNC=1
@@ -2492,7 +2488,7 @@ goto /i skip_subroutines
                 if not defined TRANSCRIBER_LOCK_FILE gosub lockfile_set_transcriber_lock_file_variables
                 :lockfile_delete_transcriber_lock_file_begin
                 iff exist "%TRANSCRIBER_LOCK_FILE%" then
-                        echo %ansi_color_removal%%emoji_axe% Deleting lock file: “%italics_on%%faint_on%%TRANSCRIBER_LOCK_FILE%%faint_off%%italics_off%”"%ansi_color_normal%
+                        echo %ansi_color_removal%%emoji_axe% Deleting lock file: “%italics_on%%faint_on%%TRANSCRIBER_LOCK_FILE%%faint_off%%italics_off%”%ansi_color_normal%
                         attrib -r          "%TRANSCRIBER_LOCK_FILE%" >&nul
                         *del /q /Ns /z /a: "%TRANSCRIBER_LOCK_FILE%" >&nul
                 endiff
@@ -2740,15 +2736,15 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 :csff_onbreak
 :nothing_generated
 :just_do_the_cleanup
+        rem Unlock the status bar: [moved from after to before “stop the timer” on 20260318]
+                setdos /x0
+                call status-bar unlock
+
         rem Stop the Timer:
                 setdos /x0
                 if defined ansi_color_unimportant echos %ansi_color_unimportant%
-                timer /5 off
+                timer /5 off 
                 if defined ansi_color_reset       echos %ansi_color_reset%
-
-        rem Unlock the status bar:
-                setdos /x0
-                call status-bar unlock
 
         rem Delete certain junk files if present:
                 if exist *collected_chunks*.wav (*del /q *collected_chunks*.wav >nul)

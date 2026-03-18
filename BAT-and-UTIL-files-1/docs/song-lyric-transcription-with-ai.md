@@ -319,8 +319,8 @@ The following file naming conventions affect system behavior:
 | File Name Contains                                   | Meaning                                            | System Behavior                        |
 | --------------------------------------------         | ----------------------------                       | -------------------------------------- |
 | - ```(instrumental)```, ```[instrumental]```         | file is an instrumental                            | lyrics & transcription will be skipped |
-| - ```(sound clip)```, ```[sound clip]```             | file is a sound clip/effect                        | lyrics & transcription will be skipped |
 | - ```(sound effect)```, ```[sound effect]```         | file is a sound clip/effect                        | lyrics & transcription will be skipped |
+| - ```(sound clip)```, ```[sound clip]```             | file is a sound clip/effect                        | lyrics & transcription will be skipped |
 | - ```(chiptune)```, ```[chiptune]```                 | file is a chiptune/tracker file                    | lyrics & transcription will be skipped |
 | - ```(untranscribeable)```, ```[untranscribeable]``` | transcription for this file has failed in the past |          transcription will be skipped |
 | - ```(untranscribable)```, ```[untranscribable]```   | transcription for this file has failed in the past |          transcription will be skipped |
@@ -328,12 +328,12 @@ The following file naming conventions affect system behavior:
 | Folder Name Contains                                 | Meaning                                                                   | System Behavior                        |
 | ----------------------------------------------       | ----------------------------------------                                  | -------------------------------------- |
 | - ```(instrumentals)```, ```[instrumentals]```       | folder contains only instrumentals                                        | lyrics & transcription will be skipped |
-| - ```sound clips```                                  | folder contains only sound clips/effects                                  | lyrics & transcription will be skipped |
 | - ```sound effects```                                | folder contains only sound clips/effects                                  | lyrics & transcription will be skipped |
+| - ```sound clips```                                  | folder contains only sound clips/effects                                  | lyrics & transcription will be skipped |
 | - ```chiptunes```                                    | folder contians only chiptune/tracker files                               | lyrics & transcription will be skipped |
-| - ```audiobook```                                    | folder contians only audiobook files                                      |  (only used for reporting statistics)  |
 | - ```(untranscribeable)```, ```[untranscribeable]``` | folder contains only files for which transcription has failed in the past |          transcription will be skipped |
 | - ```(untranscribable)```, ```[untranscribable]```   | folder contains only files for which transcription has failed in the past |          transcription will be skipped |
+| - ```audiobook```                                    | folder contians only audiobook files                                      |  (only used for reporting statistics)  |
 
 
 ### 🌟 [preview-audio-file](../preview-audio-file.bat)

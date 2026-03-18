@@ -164,7 +164,7 @@ rem CLEANUP:
         rem call rn-latest-for-youtube-dl %FILEMASK_VIDEO%
 
     rem clean-up 0-byte description txt file
-        for %%tmpZeroByteFile in (*.txt;*.description) do (
+        for %%tmpZeroByteFile in (*.txt;*.description;*.json;%FILEMASK_IMAGE%;*.srt) do (
             if %%~zf==0 (
                 echo. 
                 rem  warning "Deleting %italics_on%zero-byte              file:             %%tmpZeroByteFile ????"
