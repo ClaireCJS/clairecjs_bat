@@ -2,25 +2,20 @@
 @Echo OFF
 @set whisper_alignment_happened=0
 
-if  "%1" == "jump" goto :jump_point
-iff "%1" == "fast" .or. "%1" == "quick" .or. "%2" == "fast" .or. "%2" == "quick"  .or. "%3" == "fast" .or. "%3" == "quick"  .or. "%4" == "fast" .or. "%4" == "quick"  then
-        set WHISPERTIMESYNC_QUICK=1
-else
-        set WHISPERTIMESYNC_QUICK=0
-endiff
-
-rem Install WhisperTimeSync with:  git clone https://github.com/EtienneAb3d/WhisperTimeSync.git
-rem Set JAVA_WHISPERTIMESYNC=      to the path of the java.exe you wish to use. Or just set it to "java"
-
-rem Synchonize example from that github: java -Xmx2G -jar distrib/WhisperTimeSync.jar song.srt lyrics.txt en
-                               
+rem DOCUMENTATION:
+        rem Install WhisperTimeSync with:  git clone https://github.com/EtienneAb3d/WhisperTimeSync.git
+        rem Set JAVA_WHISPERTIMESYNC=      to the path of the java.exe you wish to use. Or just set it to "java"
+        rem Synchonize example from that github: java -Xmx2G -jar distrib/WhisperTimeSync.jar song.srt lyrics.txt en
 
 rem CONFIG:
+        set DEFAULT_WAIT_OPEN_SUBS_IN_EDITOR=300                                                        %+ rem How long to wait when asking if we want to open old+new subtitles in the text editor
         if not defined WHISPERTIME_SYNC_WINAMP_INTEGRATION set WHISPERTIME_SYNC_WINAMP_INTEGRATION=1    %+ rem For auto-enqueing the song afterward to see a live test
         set WhisperTimeSync=%UTIL2%\WhisperTimeSync\distrib\WhisperTimeSync.jar                         %+ rem Location of WhisperTimeSync .jar file
         set our_language=en                                                                             %+ rem Our default language
 
-rem VALIDATE ENVIRONMENT:
+
+
+rem VALIDATE ENVIRONMENT (once):
         set  validated_srt_and_txt_for_whispertimesync_already=0
         iff "1" != "%validated_whispertimesync%" then
                 call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file enqueue.bat visual-comparison.bat srt_comparator.py subtitle-integrity-checker
@@ -29,6 +24,15 @@ rem VALIDATE ENVIRONMENT:
                 call validate-is-function cool_text
                 set  validated_whispertimesync=1
         endiff
+
+rem CATCH PARAMETERS:
+        if  "%1" == "jump" goto :jump_point
+        iff "%1" == "fast" .or. "%1" == "quick" .or. "%2" == "fast" .or. "%2" == "quick"  .or. "%3" == "fast" .or. "%3" == "quick"  .or. "%4" == "fast" .or. "%4" == "quick"  then
+                set WHISPERTIMESYNC_QUICK=1
+        else
+                set WHISPERTIMESYNC_QUICK=0
+        endiff
+
 
 rem IMPLIED PARAMETERS —— If we only give a song file as a first parameter, then we imply the rest:
         rem If the first parameter is a song file, but the other 2 parametesrs don’t exist, flip to implied parameter mode:
@@ -39,7 +43,7 @@ rem IMPLIED PARAMETERS —— If we only give a song file as a first parameter, 
         rem If it is, then we will react to it below
                 
 
-rem USAGE:
+rem DISPLAY USAGE IF NO PARAMETERS:
         iff "%@unquote[%1]" == "" .or. ("%@unquote[%2]" == "" .and. "0" == "%PARAM1_IS_AUDIO%") then
                 echo.
                 gosub divider
@@ -70,7 +74,6 @@ rem VALIDATE PARAMETERS:
         rem If our first parameter is an audio file, the other 2 parameters are implied:
                 iff "1" == "%PARAM1_IS_AUDIO%" then
                         set  AUD_FIL=%@UNQUOTE[%1]
-echo                    set      SRT=%@NAME[%AUD_FIL%].srt
                         set      SRT=%@NAME[%AUD_FIL%].srt
                         set  SRT_OLD=%SRT%
                         set  LYR_RAW=%@NAME[%AUD_FIL%].txt
@@ -83,8 +86,10 @@ echo                    set      SRT=%@NAME[%AUD_FIL%].srt
         call validate-is-extension          "%SRT%"      *.srt
         call validate-is-extension          "%LYR_RAW%"  *.txt
 
-rem Make sure we’re dealing with *processed* lyrics for WhisperTimeSync:
 
+
+
+rem Make sure we’re dealing with *processed* lyrics for WhisperTimeSync:
         rem Set post-processed filename:
                 call set-tmp-file "WhisperTimeSync"
                 set lyr_processed=%tmpfile%-proposed-new-subtitles-via-WhisperTimeSync.txt
@@ -97,15 +102,15 @@ rem Make sure we’re dealing with *processed* lyrics for WhisperTimeSync:
                 if not exist %lyr_processed% call validate-environment-variable target "lyric-postprocessor.pl output file does not exist: %lq%%lyr_processed%%rq%"
 
 
-rem TODO: if aud_fil="" then check audmp3/wav/flac
+rem TODO: if aud_fil="" then check audmp3/wav/flac (?)
 
-rem Run WhisperTimeSync:
+rem Actually run WhisperTimeSync:
         set  validated_srt_and_txt_for_whispertimesync_already=1
         echo %ansi_color_debug%* About to: call WhisperTimeSync-helper "%srt%" "%lyr_processed%"  "%aud_fil%"%ansi_color_normal%
         call WhisperTimeSync-helper "%srt%" "%lyr_processed%"  "%aud_fil%"     %+ rem “Did it work?”-style validation is in WhisperTimeSync-helper.bat, so no need to do it here
         set  validated_srt_and_txt_for_whispertimesync_already=0               %+ rem This flag has now been used and can be disposedo f
 
-rem Did it work?
+rem Did it work? Check to see if the new subtitles actually exist:
         if not exist "%SRT_NEW%" call validate-environment-variable SRT_NEW "seems like we didn’t set SRT_NEW correctly, it’s value is %lq%%SRT_NEW%%rq%"
 
 
@@ -115,7 +120,7 @@ rem Did it work?
 
 
 
-
+rem Now we go onto previewing and accepting the changes... which has evolved into many separate comparisons...
 
 
 
@@ -260,14 +265,22 @@ rem Compare stripes of new subtitle to lyrics:
 
 
 
-rem Do the animated visual comparison:
+rem Do the animated visual comparison:  
+rem This is a pretty cool way to see very minor changes that might escape your eye
         :jump_point
         call bigecho "%star% Review #5: animated comparison: (hit %lq%X%rq% to end)"
         echo %STAR2% %double_underline_on%NEW%double_underline_off% old vs new subtitles:  %faint_on%[hit %left_apostrophe%X%right_apostrophe% to stop animation]%faint_off%
         call visual-comparison "%srt_old%" "%srt_new%" "%italics_on%old%italics_off% subtitles" "%italics_on%new%italics_off% subtitles"
         repeat 10 echo.
 
-rem Use our comparator:
+
+
+
+
+
+rem Use the subtitle comparator that we wrote in Python:
+rem This is basically a time-dependent "diff" that checks to see the subtitles for a particular timestamp have changed
+rem This is the best way to compare so far:
         rem Warn user:
                 gosub divider
                 call bigecho "%star% Review #6: old/new subtitle comparator:"
@@ -277,20 +290,15 @@ rem Use our comparator:
                 call set-tmp-file "comparator-output"                                %+ rem sets %tmpfile1%, %tmpfile2% automatically
                 srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr -key >"%tmpfile1%" %+ rem     using “--key” option
                 srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr      >"%tmpfile2%" %+ rem not using “--key” option
-                goto :print_it_with_columns
-
-                                                        rem Let’s try raw printing the results:
-                                                                gosub divider
-                                                                call debug "(type tmpfile1)"
-                                                                type "%tmpfile1%"
 
         rem Let’s try generically printing the comparator output with however many columns it uses:
-                :print_it_with_columns
-                rem gosub divider
-                rem call debug "(print tmpfile2 with columns)"
                 call print-with-columns "%tmpfile2%"
                 goto :done_with_comparator_output
 
+
+
+
+        rem SOME ALTERNATIVES THAT WERE DISCARDED:
                                                         rem Let’s try specifically printing the comparator output with 2 columns only:
                                                                 gosub divider
                                                                 rem call debug "(print tmpfile2 with 2 columns)"
@@ -322,6 +330,8 @@ rem Use our comparator:
                                                                 rem call debug "call print-with-columns %tmpfile2% -c %COLS_TO_USE% [screen width=%_COLUMNS]"
                                                                 call print-with-columns "%tmpfile2%" -c %COLS_TO_USE%
 
+
+
         rem Final divider:
                 :done_with_comparator_output
                 gosub divider
@@ -331,7 +341,6 @@ rem Use our comparator:
 
 
 
-rem TODO GOATGOAT: This inform user about timestamp section moved from whispertimesync-helper to test if it works here:
 rem Inform user if final timestamp on new subtitles is different from final timestamp on old subtitles:
 
         rem Inform user and run out external subtitle integrity checker utility that displays duplicate timestamps in a table:
@@ -379,11 +388,16 @@ rem Inform user if final timestamp on new subtitles is different from final time
         rem pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
 
 
+
+
+
 rem Section moved from WhisperTimeSync-helper.bat (happening before our comparisons) to here:
         rem Are we *really* opening them? Definite yes if timestamp mismatch occured above, otherwise a maybe:
                 iff "1" != "%TEXT_EDITOR_MUST_BE_OPENED%" then 
                         unset /q ANSWER
-                        call AskYn "Open old & new subtitles in editor" no 300
+                        set WAIT_OPEN_SUBS_IN_EDITOR=%DEFAULT_WAIT_OPEN_SUBS_IN_EDITOR%
+                        if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%"  set WAIT_OPEN_SUBS_IN_EDITOR=0
+                        call AskYn "Open old & new subtitles in editor" no %WAIT_OPEN_SUBS_IN_EDITOR%
                         if "Y" == "%ANSWER%" set text_editor_must_be_opened=1
                 endiff
 
@@ -392,6 +406,7 @@ rem Section moved from WhisperTimeSync-helper.bat (happening before our comparis
                         repeat 7 echo.
                         call bigecho "Opening new/old subs in txt editor"
                         %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
+                        call less_important " Opening text editor!"
                         pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
                 endiff
 
@@ -492,6 +507,21 @@ rem Load the new song into winamp to test?
 goto :END
 
 
+
+
+
+
+
+rem ═════════════════════════════════════════════════════════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════
+rem ════════════════════════════════════════ SUBROUTINES ════════════════════════════════════════
+rem ════════════════════════════════════════ SUBROUTINES ════════════════════════════════════════
+rem ════════════════════════════════════════ SUBROUTINES ════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════
+rem ═════════════════════════════════════════════════════════════════════════════════════════════
+
+
+
         :divider [divider_param]
                 iff "1" == "%suppress_next_divider%" then
                         set  suppress_next_divider=0
@@ -537,9 +567,12 @@ goto :END
 
 
 
+
+
+
+
+
 :END
-
-
 :Cleanup
         set validated_srt_and_txt_for_whispertimesync_already=0
 

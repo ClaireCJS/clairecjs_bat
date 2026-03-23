@@ -1,9 +1,3 @@
-TODO: document that java is a requirement for WhisperTimeSync [java.bat & path?]
-	rem 1) Install WhisperTimeSync with:      git clone https://github.com/EtienneAb3d/WhisperTimeSync.git
-	rem 2) Set JAVA_WHISPERTIMESYNC=          to the path of the java.exe you wish to use. Or just set it to "java"
-
-TODO: search for other todos below
-TODO: mention about local repo search: c:\lyrics\M\Metallica\Metallica - One.txt search
 
 # 🎆 AI Lyric Transcription System For Windows 🎆
 
@@ -83,6 +77,8 @@ Another example is when a program like ```whatever.exe``` has a ```whatever.ini`
       - ensure that ```lyricsgenius``` is in your path and works as a command
     - install the *WhisperTimeSync* package:
       - https://github.com/EtienneAb3d/WhisperTimeSync
+      - Set ```JAVA_WHISPERTIMESYNC``` enivronemnt variable  to the path of the java.exe you wish to use. Or just set it to "java" if the java command is in your path and happens to be the version you’re comfortable with using.
+        As of 2026, what works for me is: ```set JAVA_WHISPERTIMESYNC=C:\Program Files\Java\jre-1.8\bin\java.exe```
 
 &nbsp;
 
@@ -222,7 +218,8 @@ Type “work”         to be interactively asked as to the nature of your work.
 <details><summary>Click here to view Step ① File preparation:.</summary>  
 
 - ① Prep files:
-  - Optionally use ```LRCget``` (TODO link) to pre-download lyrics and transcriptions for your collection (if you don’t, this whole project make take 20–60% longer). BEWARE!!!!!  Every single live or remix song will match to the official version, so you want to take note of the date you run this, and delete every file that has “(live” or “Mix)” in it [or however it is you name things in your own collection]. TODO: Create tool to do this named “LRCget-post-cleanup.bat”
+  - Optionally use ```LRCget``` (TODO link) to pre-download lyrics and transcriptions for your collection (if you don’t, this whole project make take 20–60% longer). BEWARE!!!!!  Every single live or remix song will match to the official version, so you want to take note of the date you run this, and delete every file that has “(live” or “Mix)” in it [or however it is you name things in your own collection]. (Possible todo: Create tool to do this named “LRCget-post-cleanup.bat”. But probably not worth the effort.)
+  - Optionally use ```ydl.bat``` (TODO link) to download YouTube videos in a way that saves SRT subtitles. This is better for accuracy than using AI... But make sure those YouTube subtitles are official, and not AI-generated, because this project will produce much better results than YouTube’s crappy AI subtitles.
   - Optionally use ```global /i create-txt-lyrics-from-karaoke-files.bat``` to convert any LRC/SRTs we already have to TXT
   - Optionally use ```global /i predownload-lyrics``` to pre-download lyrics available from genius.com (if you don’t, the approving lyrics process will take 20–40% longer) 
   - Optionally use ```global /i ask-if-instrumentals``` to mark instrumentals (if you don’t, you’ll waste electricity+GPU time to get hallucinatory instrumental transcriptions)
@@ -1115,8 +1112,8 @@ Quote conversion offloaded into python script to avoid command-line complication
 
 ### 🌟 [mp3index.bat](../mp3index.bat):
 
-Prints a list of all audio files (mp3, flac, wav, etc).
-Technically should be called “```audio_file_index.bat```”. 
+Prints a list of all audio files (e.g. mp3, flac, wav, midi, mod, etc) *or* all vocal files (i.e. audio files that are capable of having vocals) (e.g. mp3, flac, wav, NOT midi, NOT mod, etc). 
+Technically should be called “```audio_file_index.bat```”... but isn’t. 
 ![image](https://github.com/user-attachments/assets/7a1262a5-66bf-445d-b611-cd936035b93b)
 &nbsp;
 
@@ -1135,9 +1132,13 @@ Technically should be called “```audio_file_index.bat```”.
 
 
 
-TODO: may have to unapprove any txt if the LRC/SRT is generated         
+TODO: may have to unapprove any txt if the LRC/SRT is generated?
 TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency. instrumentals. etc.
-	NOTE: New hallucation patterns must be added to: delete-bad-AI-transcriptions.bat lyric-postprocessor.pl	subtitle-postprocessor.pl remove-period-at-ends-of-lines.pl
+NOTE: New hallucation patterns must be added to: delete-bad-AI-transcriptions.bat lyric-postprocessor.pl subtitle-postprocessor.pl remove-period-at-ends-of-lines.pl
+			NEW HALLUCNATION: I’m sorry, I don’t know what I’m doing - very uncommon? do we bother? cover both smart/dumb apostrophes
+			NEW HALLUCNATION: © BF-WATCH TV 2021
 
-
+TODO: search for other todos below
+TODO: mention about local repo search: c:\lyrics\M\Metallica\Metallica - One.txt search
+TODO: IDEA: Go thru existing lyrics & subtitles, if non-english language charcaters are found, take the line, run through translation API, then add english version in parenthesis at end of line .... But what happens with a mixed-language line then? Nothing, just treat it the same.
 

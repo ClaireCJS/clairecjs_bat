@@ -1,5 +1,6 @@
+@loadbtm on
 @Echo Off
- on break cancel
+@on break cancel
 
 :DESCRIPTION: "cd" but with file-number-tracking, a tiny bit of file maintenance, and autoruns
 :DESCRIPTION:

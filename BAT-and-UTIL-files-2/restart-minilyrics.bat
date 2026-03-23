@@ -15,6 +15,6 @@ rem Stop, wait, & restart MiniLyrics:
         call start-minilyrics
 
 rem Ask if we should fix window positions:
-        call AskYN "Fix MiniLyrics window position & size" 30 no 
+        call AskYN "Fix MiniLyrics window position & size" no 30 
         if "Y" == "%ANSWER%" call fix-minilyrics-window-size-and-position
 

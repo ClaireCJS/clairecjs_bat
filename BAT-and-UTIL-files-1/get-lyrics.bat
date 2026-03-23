@@ -84,7 +84,6 @@ rem Process playlists / audio files:
                 set ext=%@ext[%1]
                 rem echo ext is %ext
 
-
                 rem Process either a playlist or an individual song:
                         if "m3u" == "%ext%" call get-lyrics-for-playlist %1$       %+ rem Process individual playlist
                         if "m3u" != "%ext%" call get-lyrics-for-file.btm %1$       %+ rem Process individual audiofile

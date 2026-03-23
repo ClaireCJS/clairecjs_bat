@@ -1,8 +1,14 @@
 @loadbtm on
-@rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
 @Echo    off
 ON BREAK goto /i cmfk_onbreak
 
+
+@rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
+@rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
+@rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
+@rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
+@rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
+@rem !!!!!!!!!!!!!!!!!!!!!!!!!! CHECK-FOR-MISSING-KARAOKE.BAT !!!!!!!!!!!!!!!!!!!!!!!!!! 
 
 
 
@@ -14,10 +20,16 @@ ON BREAK goto /i cmfk_onbreak
 
 rem ===== CONFIG: EXECUTION: ==========================================================================================================================
 
-set LOCKFILE_EXPIRATION_TIME=604800          %+ rem How old should the lockfile be to where we just ignore it? In seconds. We’re going to go with one week, which is 60 sec * 60 min * 24 hrs * 7 days = 604,800 seconds
-set DEFAULT_FILELIST_NAME_TO_USE=these.m3u   %+ rem name of playlist to go through to check
-set ONLY_RUN_ONCE_PER_FOLDER=1               %+ rem Use lockfiles to prevent two instances of this from running in the same folder simultaneously. There may be situations where you want to turn this off, like if you want to dedicate multilpe tabs to transcribing one folder.
-set DEFAULT_FILEMASK=%FILEMASK_AUDIO%        %+ rem list of extensions that can be audio files, e.g. “*.mp3;*.wav;*.rm;*.flac”
+set ONLY_RUN_ONCE_PER_FOLDER=1                                   %+ rem Use lockfiles to prevent two instances of this from running in the same folder simultaneously. There may be situations where you want to turn this off, like if you want to dedicate multilpe tabs to transcribing one folder.
+
+set DEFAULT_FILELIST_NAME_TO_USE=these.m3u                               %+ rem name of playlist to go through to check
+set DEFAULT_ANSWER_TIMEOUT=1200                                          %+ rem Prompt timeout when running under normal / not-thorough mode
+set DEFAULT_ANSWER_TIMEOUT_FORCED=5                                      %+ rem Prompt timeout when using the “force” parameter
+
+set LOCKFILE_EXPIRATION_TIME=604800                                      %+ rem How old should the lockfile be to where we just ignore it? In seconds. We’re going to go with one week, which is 60 sec * 60 min * 24 hrs * 7 days = 604,800 seconds
+
+set DEFAULT_FILEMASK=%FILEMASK_AUDIO%                                    %+ rem list of extensions that can be audio files THAT HAVE VOCALS, e.g. “*.mp3;*.wav;*.rm;*.flac”
+if defined FILEMASK_VOCAL set DEFAULT_FILEMASK=%FILEMASK_VOCAL%          %+ rem A new environment variable FILEMASK_VOCAL was introduced which is a subset of FILEMASK_AUDIO that only has extensions that can have *vocals*.  That way we don’t end up running up against MIDI files, or oldschool tracker files like MOD/CMF/STM/S3M
 
 rem ===== CONFIG: DEBUG: ==============================================================================================================================
                                       
@@ -187,7 +199,7 @@ rem             this would thwart us. So we will make it configutable
 
 rem If the filelist doesn't exist...
         if "1" == "%CUSTOM_FILELIST%" goto :skip_to_here_if_using_custom_filelist
-        call mp3index
+        call mp3index vocalonly
         iff "1" == "%RECURSE_CFMK%" then
                 if not exist   all.m3u .or. 0 eq %@FILESIZE[all.m3u]   goto /i END
         else                
@@ -203,8 +215,7 @@ rem Kill bad transcriptions first:
 
 
 rem Debug:
-        rem 
-        echo ❼ FILELIST_TO_USE is “%FILELIST_TO_USE%” 🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱>nul
+        rem echo ❼ FILELIST_TO_USE is “%FILELIST_TO_USE%” 🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱>nul
 
 rem Check for songs missing sidecar TXT files :
         set last_check_for_missing_karaoke_command=(check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py "%FILELIST_TO_USE%" *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") `|:u8` fast_cat
@@ -271,17 +282,22 @@ rem ═════════════════════════�
                                 return
                         endiff
 
+                rem Determine timeout for our prompt. Also:
                 rem If the lockfile still exists and is valid, let user know about “force” option——unless that option is already being used:
                 rem Otherwise, set our answer timeout to a low value with “yes” so that the lockfile is automatically deleted in “force” mode:
-                        rem TODO hard-coded timeout values here
                         iff "1" != "%cfmk_force%" then
                                 echo %ANSI_COLOR_ADVICE%%star2% Use ‘force’ option to continue anyway %ansi_color_normal%
-                                set ANSWER_TIMEOUT=1200 %+ rem TODO fix hardcoded val
+                                set ANSWER_TIMEOUT=%DEFAULT_ANSWER_TIMEOUT%
                                 set ANSWER_DEFAULT=no
                         else
-                                set ANSWER_TIMEOUT=5
+                                set ANSWER_TIMEOUT=%DEFAULT_ANSWER_TIMEOUT_FORCED%
                                 set ANSWER_DEFAULT=yes
                         endiff
+                        rem Respond to “thorough” mode with prompt that never times out:
+        
+
+
+                        if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set ANSWER_TIMEOUT=0 
 
                 rem Ask if they want to delete the lockfile, using parameters that may have been modified by the “force” option:
                         unset /q ANSWER

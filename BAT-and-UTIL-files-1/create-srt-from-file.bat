@@ -1,48 +1,54 @@
 @loadbtm on
-@rem echo %@colorful[🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗 CREATE-SRT-FROM-FILE 🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗] CWP=%_CWP
-@Echo off                                                 %+ @rem @set LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE=1
-@setdos /x0
-@on break cancel                                          %+ @rem echo **** create-srt-from-file.bat called **** 🌭🌭🌭 
-@on break goto :csff_onbreak
-@if not defined Default_command_Separator_Character set Default_command_Separator_Character=`^`
+REM INIT:
+        @rem echo %@colorful[🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗 CREATE-SRT-FROM-FILE 🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗] CWP=%_CWP
+        @Echo off                                               
+        @setdos /x0
+        @on break cancel                                        
+        @on break goto :csff_onbreak
+        @if not defined Default_command_Separator_Character set Default_command_Separator_Character=`^`
 
-rem TODO: MAYBE: figure out where to place the :go_here_for_encoding_retries label                                                            
-rem TODO: MAYBE: concurrency: per-directory locking is implemented for certain scripts, but this one doesn’t perform any of it’s own [and that’s probably overkill]
-rem TODO: MAYBE: afterregen anyway, do we need to ask about ecc2fasdfasf.bat?
+REM TODO:
+        rem TODO: MAYBE: figure out where to place the :go_here_for_encoding_retries label                                                            
+        rem TODO: MAYBE: concurrency: per-directory locking is implemented for certain scripts, but this one doesn’t perform any of it’s own [and that’s probably overkill]
+        rem TODO: MAYBE: afterregen anyway, do we need to ask about ecc2fasdfasf.bat?
 
+
+
+
+
+
+
+rem ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ══════════════════════════════════════════════════════════════════════════════════    CONFIG    ═══════════════════════════════════════════════════════════════════════════════════════════════
+rem ══════════════════════════════════════════════════════════════════════════════════    CONFIG    ═══════════════════════════════════════════════════════════════════════════════════════════════
+rem ══════════════════════════════════════════════════════════════════════════════════    CONFIG    ═══════════════════════════════════════════════════════════════════════════════════════════════
+rem ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+rem ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
 
 REM CONFIG: OUTPUT FILE WIDTH:
         set SUBTITLE_OUTPUT_WIDTH=30                                                                    %+ rem is 25 for dvds, set to 20 for 72% of the project, trying 30 as of 2025/09/24
 
+REM CONFIG: 2026:
+        set DEBUG_EDITOR=1                                                                             %+ rem Whether we want to echo out the command line calls used to send files to our favorite text editor [as defined in the environment variable %EDITOR%]
 
-REM CONFIG: LOGFILES: 
-        iff not defined LOGS then                                                                      %+ rem copy this line to get-lyrics-for-file as well
-                mkdir c:\logs                                                                          %+ rem copy this line to get-lyrics-for-file as well
-                set logs=c:\logs                                                                       %+ rem copy this line to get-lyrics-for-file as well
-                if not isdir %logs% mkdir %logs%                                                       %+ rem copy this line to get-lyrics-for-file as well
-        endiff                                                                                         %+ rem copy this line to get-lyrics-for-file as well
-        set              AUDIOFILE_TRANSCRIPTION_LOG_FILE=%LOGS%\audiofile-transcription.log           %+ rem copy this line to get-lyrics-for-file as well
-        set AUDIOFILE_TRANSCRIPTION_PROMPTS_USED_LOG_FILE=%LOGS%\audiofile-transcription-prompts.log   %+ rem copy this line to get-lyrics-for-file as well
-
-
-REM CONFIG: 2025: 2ⁿᵈ half:
+REM CONFIG: 2025:
+        set TEMPORARILY_DISABLE_STATUS_BAR=0                                                           %+ rem cosmetic: disable the status bar functoinality
+        set LOCKFILE_MESSAGE_ROWS_TO_CLEAR=10                                                          %+ rem cosmetic: How many rows to clear out (scroll text up these many rows) to make space for lockfile messages to appear on the same part of the screen with more consistency
+        set DEFAULT_LANGUAGE=en                                                                        %+ rem Default language. MAKE SURE TO SET/OVERRIDE TO “None” IF YOU DON’T WANT ONE! WhisperAI is actually pretty good at knowing which language something is, anyway
+        set DEBUG_LOCKFILE=0                                                                           %+ rem Whether to show lockfile-related debugging info
         set DEBUG_TRACE_CSFF=0                                                                         %+ rem Whether we want to echo our “we are here” debug traces
         set DEBUG_KARAOKE_APPROVAL=0                                                                   %+ rem Whether to let us know where calls to approving the karaoke file are made
         set DEBUG_ECHO_CALLS_TO_GETLYRICS=0                                                            %+ rem Whether to echo to the screen any calls to the get-lyrics functionality
-        set LOCKFILE_MESSAGE_ROWS_TO_CLEAR=10                                                          %+ rem cosmetic: How many rows to clear out (scroll text up these many rows) to make space for lockfile messages to appear on the same part of the screen with more consistency
-
-REM CONFIG: 2025: 1ˢᵗ half:
-        @set temporarily_disable_status_bar=0
-        set DEFAULT_LANGUAGE=en                                                                        %+ rem Default language. MAKE SURE TO SET/OVERRIDE TO “None” IF YOU DON’T WANT ONE! WhisperAI is actually pretty good at knowing which language something is, anyway
-        set DEBUG_LOCKFILE=0                                                                           %+ rem Whether to show lockfile-related debugging info
         set DEFAULT_VAD_THRESHOLD=0.075                                                                %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
         set DEFAULT_VAD_THRESHOLD=0.07                                                                 %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
         set DEFAULT_VAD_THRESHOLD=0.05                                                                 %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
         set DEFAULT_VAD_THRESHOLD=0.03                                                                 %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals. And increasingly, we make this lower over time because our auto-hallucation-removal removes is the primary bad side-effect from setting this value too low.
         set DEFAULT_VAD_THRESHOLD=0.01                                                                 %+ rem 2025/09/12 adjustment
         set DEFAULT_VAD_THRESHOLD=0                                                                    %+ rem 2025/09/24 adjustment but I think this may be unnecessary for most music genres
-
 
 REM CONFIG: 2024: 
         set INSIST_ON_HAVING_ARTIST=0                                                                  %+ rem Set to 1 to ALWAYS ask for an artist, even if one can’t be found. For me personally, I found this to be too naggy.
@@ -73,7 +79,6 @@ rem CONFIG: 2024: WAIT TIMES:
         set KARAOKE_APPROVAL_WAIT_TIME=60                                                              %+ rem wait time for “Approve/edit karaoke file” prompt after creating karaoke
         set AI_GENERATION_ANYWAY_DEFAULT_ANSWER=no                                                     %+ rem default answer for “Generate AI anyway?”-type questions
 
-
 REM CONFIG: 2023:
         set SKIP_SEPARATION=1                                                                          %+ rem 1=disables the 2023 process of separating vocals out, a feature that is now built in to Faster-Whisper-XXL, 0=run old code that probably doesn’t work anymore
         SET SKIP_TXTFILE_PROMPTING=0                                                                   %+ rem 0=use lyric file to prompt AI, 1=go in blind
@@ -82,10 +87,18 @@ REM CONFIG: 2023:
 
 
 
+REM CONFIG: LOGFILES: 
+        iff not defined LOGS then                                                                      %+ rem copy this line to get-lyrics-for-file as well
+                mkdir c:\logs                                                                          %+ rem copy this line to get-lyrics-for-file as well
+                set logs=c:\logs                                                                       %+ rem copy this line to get-lyrics-for-file as well
+                if not isdir %logs% mkdir %logs%                                                       %+ rem copy this line to get-lyrics-for-file as well
+        endiff                                                                                         %+ rem copy this line to get-lyrics-for-file as well
+        set              AUDIOFILE_TRANSCRIPTION_LOG_FILE=%LOGS%\audiofile-transcription.log           %+ rem copy this line to get-lyrics-for-file as well
+        set AUDIOFILE_TRANSCRIPTION_PROMPTS_USED_LOG_FILE=%LOGS%\audiofile-transcription-prompts.log   %+ rem copy this line to get-lyrics-for-file as well
 
 
-REM Setting valid extensions and lockfile name:
-        rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+REM Setting audio transcriber, valid extensions to transcribe, and lockfile name:
         goto :set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME_done
         :set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME
                 set TRANSCRIBER_TO_USE=Faster-Whisper-XXL.exe                                               %+ rem Command to generate/transcribe [with AI]
@@ -100,7 +113,6 @@ REM Setting valid extensions and lockfile name:
                         rem echo %ANSI_COLOR_DEBUG%- TRANSCRIBER_LOCK_FILE is “%TRANSCRIBER_LOCK_FILE%”     %faint_on%(search=“%search%”)%faint_off%
         return
         :set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME_done
-        rem ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
 
 rem Set filemask to match audio files:
@@ -128,8 +140,8 @@ REM validate environment [once]:
                         if not defined ANSI_COLOR_ORANGE                           set ANSI_COLOR_ORANGE=%@CHAR[27][38;2;235;107;0m
                         rem TODO BLINK_ON, BLINK_OFF ITALICS_ON ITALICS_OFF, QUOTE, etc
                 rem Perform the actual validations:
-                        @call validate-in-path              %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  status-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alarm.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat restart-winamp.bat appdata.bat winamp.bat display-horizontal-divider.bat
-                        @if not defined TRANSCRIBER_PDNAME  @call validate-environment-variable  TRANSCRIBER_PDNAME  skip_validation_existence
+                        @call validate-in-path                %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  status-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alarm.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat restart-winamp.bat appdata.bat winamp.bat display-horizontal-divider.bat
+                        @if not defined TRANSCRIBER_PDNAME    @call validate-environment-variable  TRANSCRIBER_PDNAME  skip_validation_existence
                         @if not defined FILEMASK_AUDIO        @call validate-environment-variable  FILEMASK_AUDIO      skip_validation_existence
                         @call validate-environment-variables  ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET UnicodeOutputDefault machinename 
                         @call validate-is-function            ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD                
@@ -177,7 +189,7 @@ rem Start our processing of command line parameters with giving USAGE if no comm
         endiff
 
 rem Pre-Cleanup:
-        unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed
+        unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END
 REM values set from parameters:
         *setdos /x-4
         set SONGFILE=%@UNQUOTE["%1"]
@@ -378,11 +390,12 @@ REM Determine our expected input and output files:
 rem Make sure it’s a transcribeable filename:
         rem echo α 100
         :regenerate_karaoke
+        unset /q retval
         gosub validate_transcribeable_filename "%INPUT_FILE%" "transcribing"
-        if "%_?" == "666" .or. "%retval%" == "666" .or. "1" == "%goto_end%" (
+        iff "%_?" == "666" .or. "%retval%" == "666" .or. "1" == "%goto_end%" then
                 rem echo %EMOJI_STOP_SIGN% Aborting...
                 goto /i The_Very_Very_END
-        )
+        endiff
         goto skip_sub_414
                                 :validate_transcribeable_filename [input_file verb]
                                         rem Debug:
@@ -1372,7 +1385,7 @@ rem Ask if we should proceed:
                         unset /q answer
                 rem “L”:
                         iff "%STORED_ANSWER%" == "L" then 
-                                set answer=%STORED_ANSWER%
+                                set answer=%STORED_ANSWER%  %+ rem 1388
                                 gosub check_for_answer_of_L "%INPUT_FILE%" no_end
                                 goto /i regen_ai_prompt
                         endiff                
@@ -1395,7 +1408,7 @@ rem Ask if we should proceed:
                 rem “U”: 1305
                         unset /q answer
                         set answer=%STORED_ANSWER%
-                        if  "%STORED_ANSWER%" == "U" (gosub mark_as_untranscribeable "%INPUT_FILE%" %+ goto /i END_OF_GET_LYRICS)
+                        if  "%STORED_ANSWER%" == "U" (gosub mark_as_untranscribeable "%INPUT_FILE%" %+ goto /i :nothing_generated)
 
 
 REM quick chance to edit prompt:
@@ -1912,11 +1925,16 @@ rem Let user know if we were NOT succesful, then skip to the end:
                 :ask_about_failed
                         gosub divider
                         unset /q ANSWER
-                        call AskYN "Mark karaoke as failed so we don’t try again [%ansi_color_bright_green%N%ansi_color_prompt%=No, mark instrumental instead,%ansi_color_bright_green%P%ansi_color_prompt%=Play it]" no %KARAOKE_APPROVAL_WAIT_TIME% IPQS I:no_instead_mark_mark_instrumental,Q:enQueue_in_winamp,P:play,S:no_instead_mark_mark_as_sound_effect
+                        rem TODO formatting of prompt green letters:
+                        call AskYN "Mark karaoke as failed so we don’t try again [%ansi_color_bright_green%N%ansi_color_prompt%=No, mark instrumental instead,%ansi_color_bright_green%P%ansi_color_prompt%=Play it,S=Mark as soundclip,%ansi_color_bright_greenR%ansi_color_prompt%estart transcriptoin]" no %KARAOKE_APPROVAL_WAIT_TIME% IPQRS I:no_instead_mark_mark_instrumental,Q:enQueue_in_winamp,P:play,S:no_instead_mark_mark_as_sound_effect,R:retry_encode_from_start
                                 gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
                                 gosub check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
                                 gosub check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
                                 gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
+                                gosub check_for_answer_of_R "%@UNQUOTE["%INPUT_FILE%"]"
+                                :check_for_answer_of_R 
+                                if  "R" == "%ANSWER%" goto /i go_here_for_encoding_retries
+
                                 if  "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" goto /i ask_about_instrumental_1500
                                 iff "Y" == "%ANSWER%" .or. "I" == "%ANSWER%" then
                                       echo Tru`>%@`UNQUOTE["%INPUT_FILE%"]:karaoke_failed" 🐐🐐🐐🐐🐐🐐🐐>nul
@@ -2293,7 +2311,10 @@ goto /i skip_subroutines
                                 endiff
 
                         rem Actually call our text editor and actually edit the files:
-                                rem echo COMMAND IS: %EDITOR% "%FILES_TO_USE%" [goat20394] %+ pause
+                                iff "1" == "%DEBUG_EDITOR%" then
+                                        echo %ansi_color_debug%- [DEBUG] COMMAND IS: %EDITOR% %FILES_TO_USE% %ansi_color_normal% 
+                                        pause
+                                endiff
                                 %EDITOR% %FILES_TO_USE%
                                 pause "%ansi_color_warning%%blink_on%Press any key when done with edits...%blink_off%%ansi_color_normal%"
 

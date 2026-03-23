@@ -2747,6 +2747,7 @@ return
         if "%OS" == "7"                                    set ALIASES=c:\TCMD\alias.lst
         if "%OS" == "XP"                                   set ALIASES=c:\4NT\alias.lst
         if "%OS" == "ME" .or. "%OS"=="95" .or. "%OS"=="98" set ALIASES=c:\4DOS\alias.lst
+        if exist c:\bat\alias.lst                          set ALIASES=c:\bat\alias.lst
         if not exist %ALIASES% (%COLOR_ALARM% %+ echo * ERROR: Aliases file not found! %+ beep %+ beep %+ beep %+ *pause)
         alias  /r    %ALIASES%
 return

@@ -36,8 +36,9 @@ rem BRANCH BASED ON PARAMETER:
         )
 
 rem BRANCH BASED ON INSTALLED VERSION OR COMMAND-LINE:
-        if isdir "%util2%\Editplus 6"               goto :EditPlus6InUtil2
+      rem 20260322 after a year+ of EditPlus 6, it’s slowness is just intolerable; going to prefer v5 now
         if isdir "%[PROGRAMFILES]%\EditPlus 5"      goto :v5
+        if isdir "%util2%\Editplus 6"               goto :EditPlus6InUtil2
         if "%OUR_COMMAND_LINE%" == "Anaconda"       goto :AnacondaStart
         :NO MORE!: if "%MACHINENAME"=="Hades"       goto :Hades
     REM if "%MACHINENAME%" == "DEMONA"              goto :Demona
@@ -65,7 +66,8 @@ rem IF NO BRANCH, WARN THAT WE ARE * Using THE DEFAULT:
                 rem  this holds the window up ugh   "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
                 rem echo ❶ *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
                 rem echo ❷ *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS_AMPERSAND_ESCAPED% 
-                           *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS_AMPERSAND_ESCAPED% 
+                rem 20260318 going back to all_args because TV & MOVIES subtitle edits are failing due to & being changeed to \\&
+                           *start "" %STARTOPTIONS%       "%UTIL2%\EditPlus 6\editplus.exe"   -e %ALL_ARGS% 
                 goto :END
 	:default32bitOS
             call %DEBUG_LEVEL% "Using EditPlus Default32bitOS..."
@@ -87,14 +89,14 @@ rem IF NO BRANCH, WARN THAT WE ARE * Using THE DEFAULT:
             call %DEBUG_LEVEL% "Using EditPlus 5..."                                                      
             :tart %STARTOPTIONS% %@SFN["%[PROGRAMFILES]%\EditPlus 5\editplus.exe"]      %ALL_ARGS% %+ goto :END
             :tart %STARTOPTIONS%       "%[PROGRAMFILES]%\EditPlus 5\editplus.exe"       %ALL_ARGS% %+ goto :END
-            set EDITPLUS_DIR=%[PROGRAMFILES]%\EditPlus 5\
+            set EDITPLUS_DIR=%[PROGRAMFILES]%\EditPlus 5
             set EDITPLUS_EXE=%EDITPLUS_DIR%\EditPlus.exe
             if not defined editplus_dir .or. not defined editplus_exe call validate-environment-variables EDITPLUS_DIR EDITPLUS_EXE
             pushd .
 
             REM Calling 'EditPlus' with no options kept opening pesky new instances!
             if %NEW_INSTANCE eq 1 (
-                    start /ELEVATED "%EDITPLUS_EXE%" 
+                    start /ELEVATED "EditPlus" "%EDITPLUS_EXE%" 
             )
 
             if "%ALL_ARGS%" == "" (
@@ -112,9 +114,9 @@ rem IF NO BRANCH, WARN THAT WE ARE * Using THE DEFAULT:
                 REM            that makes one want to hit the ESCAPE or ENTER key instinctively, after either of which we find 
                 REM            ourselves in the exact situation that we've wanted to be this whole time -- focused on the 
                 REM            **current**, **already-existing** instance of EditPlus rather than opening up a new one
-                start /ELEVATED "%EDITPLUS_EXE%" "           !!!!!!!!!!!!!!!!!! HIT ESCAPE !!!!!!!!!!!!!!!!!!                     " 
+                start /ELEVATED "EditPlus" "%EDITPLUS_EXE%" "           !!!!!!!!!!!!!!!!!! HIT ESCAPE !!!!!!!!!!!!!!!!!!                     " 
             ) else (
-                start /ELEVATED "%EDITPLUS_EXE%" %ALL_ARGS%
+                start /ELEVATED "EditPlus"  "%EDITPLUS_EXE%" %ALL_ARGS%
             )
 
             popd

@@ -86,10 +86,10 @@ zipp=      @call   c:\bat\zip.bat
 ;;;;;;;;;;;;; ABBREVIATE DIRECTORY NAVIGATION: ;;;;;;;;;;;;;
 ;;;;;;;;;;;;; ABBREVIATE DIRECTORY NAVIGATION: ;;;;;;;;;;;;;
 
-.=call    "cd.bat" .    %+ call fix-window-title %+ d
-..=call   "cd.bat" ..   
-...=call  "cd.bat" ...  %+ d/w
-....=call "cd.bat" .... %+ d/w
+.=call    "cd-alias.bat" .    %+ call fix-window-title %+ d
+..=call   "cd-alias.bat" ..   
+...=call  "cd-alias.bat" ...  %+ d/w
+....=call "cd-alias.bat" .... %+ d/w
 
 
 

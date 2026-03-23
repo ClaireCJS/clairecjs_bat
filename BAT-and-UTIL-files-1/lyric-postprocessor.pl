@@ -64,6 +64,9 @@ my @OLDhallucination_patterns              = (								     # WhisperAI silence h
 		qr/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?/i,
 		qr/This is the first sentence/i,                         
 		qr/And this is the second one/i,                         # WhisperAI silence hallucination
+		qr/And this is the third one/i,                          # WhisperAI silence hallucination
+		qr/And this is the fourth one/i,                         # WhisperAI silence hallucination
+		qr/And this is the fifth one/i,                          # WhisperAI silence hallucination
 		qr/Ding, ding, bop/i,                                    # WhisperAI silence hallucination
 		qr/I.m going to play a little bit of the first one.*and then/i,
 		qr/Thank you for watching/i,
@@ -80,6 +83,9 @@ my @hallucination_patterns = (
     # New ones based on your grep patterns, but kept simple & non-greedy
     qr/This is the first sentence/i,
     qr/And this is the second one/i,
+    qr/And this is the third one/i,
+    qr/And this is the fourth one/i,
+    qr/And this is the fifth one/i,
     qr/Thank you for watching/i,
 );
 
@@ -276,9 +282,9 @@ while (<$INPUT>) {
 		}
 		if ($file_title ne "") { 
 			$line =~ s/Title: \Q$file_title\E[\.,]?//i; 
-			$line =~ s/$file_title Lyrics//i; 			
+			$line =~ s/\Q$file_title\E Lyrics//i; 			
 		}
-		if ($file_itle ne "") {
+		if ($file_title ne "") {
 			$line =~ s/\Q$file_itle\E Lyrics//i; 			
 		}
 		if ($file_album ne "") { 

@@ -54,6 +54,9 @@ my @hallucination_patterns              = (								     # WhisperAI silence hall
 		qr/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?/i,
 		qr/This is the first sentence/i,                         
 		qr/And this is the second one/i,                         # WhisperAI silence hallucination
+		qr/And this is the third one/i,                         # WhisperAI silence hallucination
+		qr/And this is the fourth one/i,                         # WhisperAI silence hallucination
+		qr/And this is the fifth one/i,                         # WhisperAI silence hallucination
 		qr/Ding, ding, bop/i,                                    # WhisperAI silence hallucination
 		qr/I.m going to play a little bit of the first one.*and then/i,
 		qr/Thank you for watching/i,

@@ -7,7 +7,7 @@ rem @on break cancel
 
 
 rem CONFIGURATION:
-        set most_songs_from_playlist_to_process_at_a_time=25 %+ rem 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
+        set most_songs_from_playlist_to_process_at_a_time=25 
 
 
 
@@ -33,7 +33,8 @@ rem Environment variable backups —— these should all already be defined alre
         set original_title=%_TITLE
         rem Are our required filemasks set?
                 iff "1" != "%FILEMASKS_HAVE_BEEN_SET%" then
-                        if not defined FILEMASK_AUDIO           set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3
+                        if not defined FILEMASK_AUDIO           set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.ra;*.dtshd;*.m4a;*.aif
+                        if not defined FILEMASK_VOCAL           set FILEMASK_VOCAL=*.mp3;*.wav;*.rm;*.voc;*.au;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.ra;*.dtshd;*.m4a;*.aif
                 endiff
         rem Are our required emoji set?
                 iff "1" != "%EMOJIS_HAVE_BEEN_SET%" then
@@ -150,9 +151,9 @@ rem Go through each audio file, seeing if it lacks approved lyrics:
         rem DEBUG: echo tmpfile  is %tmpfile_cfml_1%%newline%tmpfile2 is %tmpfile2% %+ pause
 
         iff "0" == "%FILELIST_MODE%" then 
-                set ENTITY_TO_USE=%FILEMASK_AUDIO%
+                set ENTITY_TO_USE=%FILEMASK_vocal%
                 set LIMIT=9999
-                if "%@FILES[%filemask_audio%]" !=  "" set LIMIT=%@EVAL[%@FILES[%filemask_audio%] * 2]  %+ rem doubling it out of pure superstition
+                if "%@FILES[%filemask_vocal%]" !=  "" set LIMIT=%@EVAL[%@FILES[%filemask_vocal%] * 2]  %+ rem doubling it out of pure superstition
         else    
                 set LIMIT=%most_songs_from_playlist_to_process_at_a_time%
                 randomize-file.pl  <"%Filelist_to_Check_for_Missing_Lyrics_in%" >%tmpfile2%

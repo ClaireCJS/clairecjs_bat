@@ -302,9 +302,6 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
                             - for example "cover (2).jpg" vs "cover.jpg" —— 1st with "(2)" is clearly automated, 2nd is clearly human and says what the image actually is
 
 
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 - [do whatever is after this next]
-🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐  
 
 - TAGGING: STEP 6: ALBUM ART: final review
     	- finally, go through a full directory-crawl reviewing/deleting/renaming the downloaded album art from all the previous steps so that everything is perfect
@@ -339,6 +336,7 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 
 
+
 - TAGGING: STEP 7: add ReplayGain tags - "sweep argt" - to all (flac/mp3) files
 	- may not work with songs (esp flac) that have a percent in their name! But in 2024 we have resolved to use the unicode percent (“％”) instead of the real %. That helps. That’s better than our previous solution of having to temp-rename (esp flacs) those files!
 
@@ -346,46 +344,40 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really need to do anymore, but let’s try?
 
-	* Step 1: run: "audit-music-files.py" ————— requires working python with a lot of installed packages tho
+	* Step 1: in the root of our processing batch, run: "audit-music-files.py" ————— requires working python with a lot of installed packages tho
 		- This may output to the screen various filenames that cannot be read, i.e. “can’t sync to MPEG frame”
 				- Copy and yellow filename that is a problem into the clipboard
 				- Open it up in Adobe Audition! It’s probably corrupt and need action!
 				- If you open them up and no song is there, clearly there’s nothing to save!
 				- run "rn  <paste that filename at the command line>"
 					- remove “.mp3” or “.flac” or whatever from the end
-					- replace with “ —— CORRUPTED”
-				- 
-						     This will also mention any files taht don’t have replaygain tags like they should!
-						     The extended instructions are below:
+					- replace with “ —— CORRUPTED”				- 
+			        - This will also mention any files that don’t have replaygain tags like they should! [which was the original purpose of audit-music-files]
+				- "audit-music-files.py" is supposed to be bulletproof, but in the event of failure:								
+									- the command line tool only works with 2-channel songs, so all 5.1 songs will fail
+									- be vigilant about keeping an eye out for songs that have a % symbol in them, they (esp flac) may have failed
+									- occasionally some files will fail randomly because metaflac/metamp3 isn’t perfect at reading/writing the tags
+									- *** for all of these various failures, if things JUST WON’T WORK, you can MANUALLY add ReplayGain tags by opening the file in Foobar media player, and rightclick the files to add ReplayGain tags with Foobar ***
+										- when you notice one that’s missing, use "cthis.bat" to make c:\c\ point to the folder you are in
+										- open Foobar, file->add file->browse to "c:\c" if it’s not there already->add the file to foobar
+										- right click the file(s)s -> ReplayGain -> scan as invidual track/album (depending on which is appropriate) -> update file tags
+										- then do "audit-music-files.py" (old command: "lr") again to verify that it worked
+											- sometimes EVEN AFTER THAT, they still won’t be viewable at the command line ("lr" will fail) ...  it’s extremely rare!
+													- open them in WinAmp to verify the ReplayGain tags were successfully added
+													- if they still aren’t viewable, WE HAVE A PROBLEM. It may behoove us to manually normalize the audio in Adobe Audition if we notice problems.
 
-        - OLD/EXTENDED INSTRUCTIONS:
-	- OLD: manually review ReplayGain tags —— now happens automatically, but here are the instructions for historical purposes:
-			* Step 1: run: "audit-music-files.py" —————— requires working python with a lot of installed packages tho
-			* Step 2: run: "RG_fix.bat" ——————————————— if it was generated (i.e. if “RG_yes.dat” is non-zero)
-			* Step 3: Goto Step 1 and try aain!
-				If repeating leaves some stragglers (RG_no.dat is nonzero in size) maybe something isn’t getting properly picked up. You may have to refer to “SOME SONGS WILL HAVE FAILED” in the deprecated instructions below?
-				
-			* Step Z: There is no step Z! THESE ARE JUST DEPRECATED OLD INSTRUCTIONS TO KEEP AROUND:
-					- walk the folder tree manually, typing "lr" [list-replaygain-tags] at command line in each folder
-						- use "nd" to go to next folder for ease
-							- use “nd” only after being done with any subfolders 
-							- don’t forget “cheese”
-							- don’t forget “ORIGINAL-VERSIONS”
-							- don’t forget *any* subfolders
-					- SOME SONGS WILL HAVE FAILED! That’s why we’re doing the review!
-						- the command line tool only works with 2-channel songs, so all 5.1 songs will fail
-						- be vigilant about keeping an eye out for songs that have a % symbol in them, they (esp flac) may have failed
-						- occasionally some files will fail randomly because metaflac/metamp3 isn’t perfect at reading/writing the tags
-						- *** for all of these various failures, if things JUST WON’T WORK, you can MANUALLY add ReplayGain tags by opening the file in Foobar media player, and rightclick the files to add ReplayGain tags with Foobar ***
-							- when you notice one that’s missing, use "cthis.bat" to make c:\c\ point to the folder you are in
-							- open Foobar 
-							- file->add file->browse to "c:\c" if it’s not there already->add the file to foobar
-							- right click the file(s)s -> ReplayGain -> scan as invidual track/album (depending on which is appropriate) -> update file tags
-							- then do "lr" again to verify that it worked
-								- sometimes EVEN AFTER THAT, they still won’t be viewable at the command line ("lr" will fail).  
-									- it's extremely rare
-									- open them in WinAmp to verify the ReplayGain tags were successfully added
-									- if they still aren’t viewable, WE HAVE A PROBLEM. It may behoove us to manually normalize the audio in Adobe Audition if we notice problems.
+														- OLD/EXTENDED INSTRUCTIONS FROM BEFORE "audit-music-files.py" WAS WRITTEN:
+																- OLD: manually review ReplayGain tags —— now happens automatically, but here are the instructions for historical purposes:
+																		* Step 1: run: "audit-music-files.py" —————— requires working python with a lot of installed packages tho
+																		* Step 2: run: "RG_fix.bat" ——————————————— if it was generated (i.e. if “RG_yes.dat” is non-zero)
+																		* Step 3: Goto Step 1 and try again! If repeating leaves some stragglers (RG_no.dat is nonzero in size) maybe something isn’t getting properly picked up. You may have to refer to “SOME SONGS WILL HAVE FAILED” in the deprecated instructions below?				
+																		* Step Z: There is no step Z! THESE ARE JUST DEPRECATED OLD INSTRUCTIONS TO KEEP AROUND:
+																				- walk the folder tree manually, typing "lr" [list-replaygain-tags] at command line in each folder
+																					- use "nd" to go to next folder for ease
+																						- use “nd” only after being done with any subfolders 
+																						- don’t forget “cheese”, “ORIGINAL-VERSIONS”												
+																						- don’t forget *any* subfolders
+
 
 
 
@@ -395,6 +387,9 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
 
 
 
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 - [do whatever is after this next]
+🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐 MOVE THIS GOAT TO WHEREVER WE ARE IN THE PROCESS AS A MARKER OF WHERE WE ARE 🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐🐐  
 
 - VERY IMPORTANT STEP: PROCESS THE TODOS:
 	- run "ldg TODO" to check for any TODOs that may need to be done — This may mean back to editing audio files, as we often discover things we need to do at all steps fo the process
@@ -408,13 +403,17 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
 	1) To have a .SRT or .LRC (preferably .SRT *and* .LRC? Or maybe just SRT?) for every non-instrumental song
 	2) To have a .TXT lyrics for as many non-instrumental songs as possible [which happens as a side-effect of goal #1]
 
+- KARAOKE COMPLIANCE: INITIAL CHECK:
+    - Are there any TXT files of lyrics already there?  Might not need to do anything, might need to "sweep approve-lyrics *.txt"
+
 - KARAOKE COMPLIANCE: INITIAL KARAOKE DOWNLOAD:
-    - run LRCget (it's on github, and I should have a saved installer somewhere) on the batch folder.
+    - run LRCget (it’s on github, and I should have a saved installer somewhere) on the batch folder.
 	    - the configuration menu is where you set the folder —— 
 	            - if using our symlink tips from above, it would hopefully already be set to C:\B\ 
 		    - Make sure that the option "SKIP TRACKS THAT ALREADY HAVE LYRICS OR ARE INSTRUMENTAL" is       checked !!!!!!!!!!!!!
 		    - Make sure that the option "TRY TO EMBED THE LYRICS TO THE TRACK FILES WHEN POSSIBLE" is *NOT* checked !!!!!!!!!!!!!
-    - just run it and let it download. It should only take 2-5 minutes.
+    - Run it and let it download. It should only take 2-5 minutes.
+    - Run command "sweep approve-lyrics *.txt" to approve all the LRCget-fetched lyrics
     
 - KARAOKE COMPLIANCE: INITIAL LYRIC DOWNLOAD:
 	At the base folder of the batch of music that we are processing, run: 
