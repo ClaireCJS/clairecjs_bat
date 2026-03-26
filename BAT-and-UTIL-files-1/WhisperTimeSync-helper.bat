@@ -64,11 +64,11 @@ rem Extra prep of lyrics:
         iff "1" != "%WHISPERTIMESYNC_QUICK%" then
                 set held_answer_wtsh=%ANSWER%
                 call warning "Get the lyrics %blink_on%perfect%blink_off%" big
-                call AskYN   "Edit lyrics for required perfection"   yes 0
+                call AskYN   "%faint_on%[WhisperTimeSync]%faint_off% Edit lyrics for required perfection"   yes 0
                 iff "Y" == "%ANSWER%" then
                         rem Ask if we want to listen to the song while editing:
                                 if %DEBUG_AUDIO_FILE_SELECTION% gt 0 echo * Audio file==%AFL%
-                                call AskYN   "Listen to the audio file while editing lyrics"   no  0
+                                call AskYN   "%faint_on%[WhisperTimeSync]%faint_off% Listen to the audio file while editing lyrics"   no  0
                                 %EDITOR% "%LYR%"
 
                         rem If we answered “yes”, then play that song:
@@ -83,7 +83,7 @@ rem Extra prep of lyrics:
                         rem Ask if we want to copy these lyrics back over our official file when we’re done
                                 iff exist "%AFL%" .and. "1" != "%WHISPERTIMESYNC_QUICK%" then
                                         call warning_soft "Do you want these lyric edits to be saved over the original lyric file?" %+ rem  [[not!!]] at %faint_on%%italics_on%%lyr%%italics_off%%faint_off%
-                                        call AskYN          "Copy lyric edits over original lyrics" yes 0
+                                        call AskYN          "%faint_on%[WhisperTimeSync]%faint_off% Copy lyric edits over original lyrics" yes 0
                                                 iff "Y" == "%ANSWER%" then
                                                         set      COMMAND=*copy /z "%LYR%" "%@NAME["%AFL%"].txt"
                                                         rem echo COMMAND is %COMMAND% %+ pause
@@ -127,7 +127,7 @@ rem WhisperTimeSync is horribly buggy so we fix some of that——particularly t
 
 rem ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 rem Check for problems:
-        echo %ANSI_COLOR_LESS_IMPORTANT%%STAR2% Checking for duplicate timestamps...%ansi_color_normal%
+        echo %ANSI_COLOR_LESS_IMPORTANT%%STAR2% Checking subtitle integrity & duplicate timestamps...%ansi_color_normal%
         rem echo    subtitle-verifier.py --columns %_COLUMNS "%SRT_NEW%"
         call subtitle-integrity-checker "%SRT_NEW%"
 
@@ -156,11 +156,11 @@ rem Inform user if final timestamp on new subtitles is different from final time
         rem Warn user if the timestamps are different:
                 iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
                         call warning "Final timestamps differ!" big
-                        call advice "Make sure to manually review before/after subs in text editor"
+                        call advice  "Make sure to manually review before/after subs in text editor"
                         *pause
                         set our_display_color=%ansi_color_bright_red%
                 else
-                        call success "Final timestamps are the same, so we%apostrophe%re probably fine!" big
+                        call success "Final timestamps are the same, so we%smart_apostrophe%re probably fine!" big
                         set our_display_color=%ansi_color_bright_green%
                         
                 endiff

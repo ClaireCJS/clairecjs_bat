@@ -9,6 +9,7 @@ rem DOCUMENTATION:
 
 rem CONFIG:
         set DEFAULT_WAIT_OPEN_SUBS_IN_EDITOR=300                                                        %+ rem How long to wait when asking if we want to open old+new subtitles in the text editor
+        set DEFAULT_WAIT_TIME_ENQUEUE_WINAMP=60                                                         %+ rem How long to wait when asking if we want to enqueue the current audio file into WinAmp to preview it
         if not defined WHISPERTIME_SYNC_WINAMP_INTEGRATION set WHISPERTIME_SYNC_WINAMP_INTEGRATION=1    %+ rem For auto-enqueing the song afterward to see a live test
         set WhisperTimeSync=%UTIL2%\WhisperTimeSync\distrib\WhisperTimeSync.jar                         %+ rem Location of WhisperTimeSync .jar file
         set our_language=en                                                                             %+ rem Our default language
@@ -18,7 +19,7 @@ rem CONFIG:
 rem VALIDATE ENVIRONMENT (once):
         set  validated_srt_and_txt_for_whispertimesync_already=0
         iff "1" != "%validated_whispertimesync%" then
-                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl set-tmp-file enqueue.bat visual-comparison.bat srt_comparator.py subtitle-integrity-checker
+                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl enqueue.bat visual-comparison.bat srt_comparator.py subtitle-integrity-checker srt2txt set-tmp-file 
                 rem  validate-environment-variables JAVA_WHISPERTIMESYNC our_language color_advice ansi_color_advice ansi_color_removal ansi_color_normal ansi_color_run smart_apostrophe italics_on italics_off lq rq smart_apostrophe
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language lq rq FILEEXT_AUDIO 
                 call validate-is-function cool_text
@@ -102,7 +103,12 @@ rem Make sure we’re dealing with *processed* lyrics for WhisperTimeSync:
                 if not exist %lyr_processed% call validate-environment-variable target "lyric-postprocessor.pl output file does not exist: %lq%%lyr_processed%%rq%"
 
 
-rem TODO: if aud_fil="" then check audmp3/wav/flac (?)
+rem TODO?: if aud_fil="" then check audmp3/wav/flac (?)
+
+
+
+:subsequent_whispertimesync_entrypoint
+
 
 rem Actually run WhisperTimeSync:
         set  validated_srt_and_txt_for_whispertimesync_already=1
@@ -277,25 +283,27 @@ rem This is a pretty cool way to see very minor changes that might escape your e
 
 
 
+gosub    Run_Subtitle_Comparator
+goto    :Run_Subtitle_Comparator_END
+        :Run_Subtitle_Comparator
+                rem Use the subtitle comparator that we wrote in Python:
+                rem This is basically a time-dependent "diff" that checks to see the subtitles for a particular timestamp have changed
+                rem This is the best way to compare so far:
+                        rem Warn user:
+                                gosub divider
+                                call bigecho "%star% Review #6: old/new subtitle comparator:"
+                                rem pause "Presss any key to see SRT comparator output..."
 
-rem Use the subtitle comparator that we wrote in Python:
-rem This is basically a time-dependent "diff" that checks to see the subtitles for a particular timestamp have changed
-rem This is the best way to compare so far:
-        rem Warn user:
-                gosub divider
-                call bigecho "%star% Review #6: old/new subtitle comparator:"
-                rem pause "Presss any key to see SRT comparator output..."
+                        rem Run comparator:
+                                call set-tmp-file "comparator-output"                                %+ rem sets %tmpfile1%, %tmpfile2% automatically
+                                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr -key >"%tmpfile1%" %+ rem     using “--key” option
+                                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr      >"%tmpfile2%" %+ rem not using “--key” option
 
-        rem Run comparator:
-                call set-tmp-file "comparator-output"                                %+ rem sets %tmpfile1%, %tmpfile2% automatically
-                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr -key >"%tmpfile1%" %+ rem     using “--key” option
-                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr      >"%tmpfile2%" %+ rem not using “--key” option
-
-        rem Let’s try generically printing the comparator output with however many columns it uses:
-                call print-with-columns "%tmpfile2%"
-                goto :done_with_comparator_output
-
-
+                        rem Let’s try generically printing the comparator output with however many columns it uses:
+                                call print-with-columns "%tmpfile2%"
+                                goto :done_with_comparator_output
+        return
+        :Run_Subtitle_Comparator_END
 
 
         rem SOME ALTERNATIVES THAT WERE DISCARDED:
@@ -397,7 +405,7 @@ rem Section moved from WhisperTimeSync-helper.bat (happening before our comparis
                         unset /q ANSWER
                         set WAIT_OPEN_SUBS_IN_EDITOR=%DEFAULT_WAIT_OPEN_SUBS_IN_EDITOR%
                         if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%"  set WAIT_OPEN_SUBS_IN_EDITOR=0
-                        call AskYn "Open old & new subtitles in editor" no %WAIT_OPEN_SUBS_IN_EDITOR%
+                        call AskYn "%faint_on%[WhisperTimeSync]%faint_off% Open old & new subtitles in editor" no %WAIT_OPEN_SUBS_IN_EDITOR%
                         if "Y" == "%ANSWER%" set text_editor_must_be_opened=1
                 endiff
 
@@ -407,7 +415,7 @@ rem Section moved from WhisperTimeSync-helper.bat (happening before our comparis
                         call bigecho "Opening new/old subs in txt editor"
                         %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
                         call less_important " Opening text editor!"
-                        pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
+                        pause "%ansi_color_prompt%%faint_on%[WhisperTimeSync]%faint_off% Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
                 endiff
 
 
@@ -417,7 +425,7 @@ rem Section moved from WhisperTimeSync-helper.bat (happening before our comparis
 
 rem Ask if it’s better or not...
         :AskYnIfBetter
-        call AskYN "%faint_on%[WhisperTimeSync]%faint_off% Is this realignment better than the original [%ansi_color_bright_green%P%ansi_color_prompt%=%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%Q%ansi_color_prompt%=en%ansi_color_bright_green%Q%ansi_color_prompt%ueue in WinAmp]" yes 0 PQ P:play_it,Q:enQueue_it
+        call AskYN "%faint_on%[WhisperTimeSync]%faint_off% Is this realignment better than the original [%ansi_color_bright_green%P%ansi_color_prompt%lay,en%ansi_color_bright_green%Q%ansi_color_prompt%ueue in %italics_on%WinAmp%italics_off%]" yes 0 PQ P:play_it,Q:enQueue_it
 
 rem Preview if it need be, prior to asking:
         iff "%ANSWER%" == "P" then
@@ -454,6 +462,7 @@ rem If it is better, back up the old version and replace it with this one:
         set whisper_alignment_happened=0
         set original_srt_before_whispertimesync=%srt%.pre-wts.%_DATETIME.bak
         iff "Y" == "%ANSWER%" then
+                echos %CHECK% ``
                 rem Audit flag:
                         set whisper_alignment_happened=1
                 rem back up the old/existing karaoke:
@@ -464,6 +473,26 @@ rem If it is better, back up the old version and replace it with this one:
                         echos %ansi_color_success%
                         rem echo *copy /Nst "%SRT_NEW%" "%srt%" 
                         echo ray|*copy /Nst "%SRT_NEW%" "%srt%" %+ rem pause
+
+                rem Re-create lyrics from SRT, so that our data is synced, but only if we do not need to run this process more than once (which happens):
+                        :reask_476
+                        call AskYn "%faint_on%[WhisperTimeSync]%faint_off% Do we need to run %italics_on%WhisperTimeSync%italics_off% on this file a subsequent time [Y/N/run %ansi_color_bright_green%C%ansi_color_prompt%omparator]" no 0 C C:run_subtitle_comparator_again
+                        iff "C" == "%ANSWER%" then
+                                gosub Run_Subtitle_Comparator
+                                goto /i :reask_476
+                        endiff
+                        iff "N" == "%ANSWER%" then
+                                call srt2txt "%srt%"
+                                if not defined tmpfile call set-tmp-file "postprocessed lyrics"
+                                echo %ansi_color_debug%%EMOIJI_GEAR% Running %italics_on%lyric-postprocessor.pl%italics_off% -A -L -S  "%txt%"  `>`:u8 %faint_on%%tmpfile%%faint_off%%ansi_color_normal%
+                                lyric-postprocessor.pl -A -L -S  "%txt%"  >:u8 %tmpfile%
+                                if not exist %tmpfile% ( call warning "tmpfile doesn’t exist: %tmpfile%" %+ pause)
+                                *copy /q "%tmpfile%" "%txt%" >nul
+                        endiff
+                        iff "Y" == "%ANSWER%" then
+                                cls
+                                goto /i :subsequent_whispertimesync_entrypoint
+                        endiff
         else
                         set whisper_alignment_happened=0
                         echos %ansi_color_removal%
@@ -478,7 +507,9 @@ rem Load the new song into winamp to test?
         iff "1" == "%WHISPERTIME_SYNC_WINAMP_INTEGRATION%" then
                 gosub divider
                 echo %ansi_color_important%%STAR% Because %italics_on%WHISPERTIME_SYNC_WINAMP_INTEGRATION%italics_off% is set to %lq%1%rq% in WhisperTimeSync-helper.bat, we will ask:%ansi_color_normal%
-                call askyn "Enqueue the song into %italics_on%WinAmp%italics_off% to see how the subtitles play in %italics_on%Minilyrics%italics_off%" no 60 %+ rem Thorough mode will still bypass this prompt on timeout because if we aren’t paying attention we truly do want to move to the next task
+                set USE_WAIT=%DEFAULT_WAIT_TIME_ENQUEUE_WINAMP%
+                if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%"  set USE_WAIT=0
+                call askyn "%faint_on%[WhisperTimeSync]%faint_off% Enqueue the song into %italics_on%WinAmp%italics_off% to see how the subtitles play in %italics_on%Minilyrics%italics_off%" no %USE_WAIT% %+ rem Thorough mode will still bypass this prompt on timeout because if we aren’t paying attention we truly do want to move to the next task
                 iff "Y" == "%ANSWER%" then
                         if exist "%aud_wav%"  set our_audio=%aud_wav%
                         if exist "%aud_mp3%"  set our_audio=%aud_mp3%

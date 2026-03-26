@@ -504,6 +504,7 @@ if __name__ == "__main__":                                                      
     for input_file in input_files:                                                                                     # Iterate over each input file
         if args.output: output_file = args.output                                                                      # If output filename is specified, use the specified output filename
         else:           output_file = re.sub(r'\.[^.]+$', EXTENSION_TO_PRODUCE, input_file)                            # If no output filename is provided, replace input file's extension with EXTENSION
+        print(f"⚙  Converting: {input_file}")                                                                         # convert it
         lrc_to_txt(input_file, output_file)                                                                            # Call the main function with input and output files
         print(f'✔  Karaoke conversion success: “{output_file}”')                                                      # Display success message
 

@@ -21,6 +21,7 @@ rem Let user know:
         call less_important "Junctioned %italics_on%c:\lrcget%italics_off% to current folder"
         call important      "❶ Go into the settings %faint_off%(gear icon)%faint_off% for %italics_on%LRCget%italics_off%"
         call important      "❷ Click “%italics_on%Refresh my library for new changes%italics_off%” near the bottom"
+        call important      "❸ Click “%italics_on%Download All%italics_off%” near the upper right"
         call advice         "If refreshing does not work after %italics_on%LRCget%italics_off% is run, double-check that %italics_on%c:\lrcget\%italics_off% is in the %italics_on%scanning folders%italics_off% section of the %italics_on%LRCget%italics_off% config"
 
 rem Run LRC get:

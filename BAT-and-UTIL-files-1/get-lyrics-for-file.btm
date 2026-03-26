@@ -98,10 +98,9 @@ rem CONFIG: DEBUG:
         set DEBUG_VALUE_TRANSFER=0                                                    %+ rem (3) whether we want to display the transfer of each probe value token to local environment varial
         set DEBUG_POSTPROCESSORS=0                                                    %+ rem (4) whether we want to display the calls to postprocessor(s)
         set DEBUG_ADS_MARKING=0                                                       %+ rem (5) whether we want to display when we ADS mark files
-        set DEBUG_INSTRUMENTAL=1                                                      %+ rem (6) whether we want to display certain instrumental-marking–related debugs
-        rem GOAT^^^^^^^^^^^^^^^^
-        set DEBUG_LYRICLESS_STATUS=0                                                  %+ rem (6) whether we want to display certain     lyricless-status–related debugs
-        set DEBUG_GETLYRICS_CALL=0                                                    %+ rem (7) whether we want to display when this script is called
+        set DEBUG_INSTRUMENTAL=0                                                      %+ rem (6) whether we want to display certain instrumental-marking–related debugs
+        set DEBUG_LYRICLESS_STATUS=0                                                  %+ rem (7) whether we want to display certain     lyricless-status–related debugs
+        set DEBUG_GETLYRICS_CALL=0                                                    %+ rem (8) whether we want to display when this script is called
 
 REM CONFIG: 2025: 
         iff not defined LOGS then                                                     %+ rem copy this line to create-srt-from-file as well
@@ -1226,6 +1225,9 @@ rem Check if we already have a LRC/SRT file but no TXT file
                                         call warning_soft "%italics_on%SRT%italics_off% exists...but no lyrics: ‘%italics_on%%LRC_SIDECAR_FILENAME%%italics_off’%"
                                         call less_important "Converting SRT file to TXT"
                                         call srt2txt.bat "%SRT_SIDECAR_FILENAME%" silent
+                                        if not defined tmpfile call set-tmp-file "postprocessed lyrics"
+                                        lyric-postprocessor.pl -A -L -S  "%TXT_SIDECAR_FILENAME%"  >:u8 %tmpfile%
+                                        *copy /q "%tmpfile%"             "%TXT_SIDECAR_FILENAME%"  >nul
                                         unset /q LYRIC_STATUS
                                         set JUST_GENERATED_LYRICS=1
                                         set JUST_CONVERTED_SRT_TO_TEXT=1
@@ -3306,7 +3308,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 
         :check_for_answer_of_S [opt]        
-                echo -DEBUG: we are at check_for_answer_of_S [%opt%] and answer=“%ANSWER%”         GOAT
+                rem echo -DEBUG: we are at check_for_answer_of_S [%opt%] and answer=“%ANSWER%”         
                 rem This only applies if we gave an answer of “S”:
                         iff "S" != "%ANSWER" return
                 
@@ -3326,9 +3328,9 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                 echo %star% Audio file: %faint_on%%AUDIO_FILE%%faint_off%%conceal_on%%0%%conceal_off%
         return
         :DisplayAudioDirectory [opt]
-                 rem  %ansi_color_prompt%%star% %ansi_color_bright_yellow%Audio directory: %ansi_color_bright_red%“%italics_on%%blink_off%%ansi_color_green%%@PATH[%AUDIO_FILE%]%blink_off%%italics_off%%ansi_color_prompt%%ansi_color_bright_red%”%ansi_color_normal%                        
-                 echo %ansi_color_prompt%%star% %ansi_color_bright_yellow%Audio directory: %ansi_color_bright_red%“%italics_on%%blink_off%%ansi_color_green%%ansi_color_pink%%@IF["" != "%@UNQUOTE[%@PATH[%AUDIO_FILE%]]",%@PATH[%AUDIO_FILE%],%_CWP]%blink_off%%italics_off%%ansi_color_prompt%%ansi_color_bright_red%”%ansi_color_normal%
-                 rem echo %ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP% TESTING 🐐
+                rem  %ansi_color_prompt%%star% %ansi_color_bright_yellow%Audio directory: %ansi_color_bright_red%“%italics_on%%blink_off%%ansi_color_green%%@PATH[%AUDIO_FILE%]%blink_off%%italics_off%%ansi_color_prompt%%ansi_color_bright_red%”%ansi_color_normal%                        
+                echo %ansi_color_prompt%%star% %ansi_color_bright_yellow%Audio directory: %ansi_color_bright_red%“%italics_on%%blink_off%%ansi_color_green%%ansi_color_pink%%@IF["" != "%@UNQUOTE[%@PATH[%AUDIO_FILE%]]",%@PATH[%AUDIO_FILE%],%_CWP]%blink_off%%italics_off%%ansi_color_prompt%%ansi_color_bright_red%”%ansi_color_normal%
+                rem echo %ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP% TESTING 🐐
                 if "%opt%" == "nofilename" goto /i nofilename
                 if "%PREVIOUS_GENIUS_FILENAME%" !=  "" (
                         set dspauddir_spacer= ``
@@ -3340,10 +3342,11 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
         return
 
         :divider_v000_moved_to_createsrt_script [divider_param]
-                iff "1" == "%suppress_next_divider%" then
-                        set  suppress_next_divider=0
-                        return
-                endiff
+                rem Suppress divider if instructed:
+                        iff "1" == "%suppress_next_divider%" then
+                                set  suppress_next_divider=0
+                                return
+                        endiff
 
                 rem Determine divider file to use:
                         set wd=%@EVAL[%_columns - 1]
@@ -3368,39 +3371,24 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                 set last_divider_newline=True
 
                                 rem Go to the next line:
-                                        rem we COULD do the newline character:
-                                        rem echos %NEWLINE%%@ANSI_MOVE_TO_COL[1] 
-                                        rem but it’s easier to just do a few spaces so that we end up on the new line anyway, then move to col 1:
-                                        rem echos     %@ANSI_MOVE_TO_COL[1] 
-                                        rem But that didn’t work great either, let’s try echo. instead of echo’ing %newline%:
-                                        rem echos. 
-                                        rem For some reason, echos. just isn’t going to the next line! Possible bug!
-                                        rem Just do it with ansi? No. wtf.
-                                        rem echos %@ANSI_MOVE_DOWN[2]
-                                        rem why isn’t this working? There’s no reason these methods shoudln’t work. Try the original again?!?!
                                         echos %NEWLINE%
 
                                 rem Then move to column 0/1 [which are the same column]:
                                         echos %@ANSI_MOVE_TO_COL[0] 
-
                         endiff
 
-                rem Debug:
-                        echo wtf last_divider_newline=%last_divider_newline% should we do one? >nul
+                rem Debug: echo wtf last_divider_newline=%last_divider_newline% should we do one? >nul
         return
-
-        rem :divider_v001_uses_version_in_createsrt_script [opt]
-        rem         gosub "%BAT%\create-srt-from-file.bat" divider %opt%
-        rem return
 
         :divider_v002_is_just_v000_here_again_but_now_we_must_remember_to_update_this_in_both_files
         :divider [divider_param]
                 rem  %POTENTIAL_REDIRECTION% is an optional string that represents where we want to direct our output too
 
-                iff "1" == "%suppress_next_divider%" then
-                        set  suppress_next_divider=0
-                        return
-                endiff
+                rem Suppress divider if instructed:
+                        iff "1" == "%suppress_next_divider%" then
+                                set  suppress_next_divider=0
+                                return
+                        endiff
 
                 rem Determine divider file to use:
                         set wd=%@EVAL[%_columns - 1]
@@ -3425,18 +3413,6 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                 set last_divider_newline=True
 
                                 rem Go to the next line:
-                                        rem we COULD do the newline character:
-                                        rem echos %NEWLINE%%@ANSI_MOVE_TO_COL[1] 
-                                        rem but it’s easier to just do a few spaces so that we end up on the new line anyway, then move to col 1:
-                                        rem echos     %@ANSI_MOVE_TO_COL[1] 
-                                        rem But that didn’t work great either, let’s try echo. instead of echo’ing %newline%:
-                                        rem echos. 
-                                        rem For some reason, echos. just isn’t going to the next line! Possible bug!
-                                        rem Just do it with ansi? No. wtf.
-                                        rem echos %@ANSI_MOVE_DOWN[2]
-                                        rem why isn’t this working? There’s no reason these methods shoudln’t work. Try the original again?!?!
-                                        rem echos %NEWLINE%
-                                        rem but on 2025/05/19 we redefined %NEWLINE% so let’s just go back to echo.:
                                         echo. %POTENTIAL_REDIRECTION%
 
                                 rem Then move to column 0/1 [which are the same column]:
@@ -3626,7 +3602,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         rem moved from below, for speedup:
                         set HOLD_AUDIO_FILE=%AUDIO_FILE%
                         set AUDIO_FILE="%@UNQUOTE["%FILE_TO_MARK_AS_LL%"]"
-                        echo %ansi_color_debug%- DEBUG: gosub ask_about_instrumental ............... answer=“%ANSWER%” ... AUDIO_FILE=“%AUDIO_FILE%” %ansi_color_normal%
+                        rem echo %ansi_color_debug%- DEBUG: gosub ask_about_instrumental ............... answer=“%ANSWER%” ... AUDIO_FILE=“%AUDIO_FILE%” %ansi_color_normal%
                         gosub ask_about_instrumental "%AUDIO_FILE%"
                         set ASKED_ABOUT_INSTRUMENTAL_ALREADY=1
 
@@ -3663,9 +3639,9 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
                                 rem Account for “Z” to rename *EVERY* file in the folder as an instrumental:
                                         set           ANSWER=%HOLD_ANSWER%
-                                        echo GOAT: [MIFL] checking if "Z" != "%ANSWER%" goto /i END_OF_GET_LYRICS
+                                        rem echo [DEBUG] [MIFL] checking if "Z" != "%ANSWER%" goto /i END_OF_GET_LYRICS
                                         if "Z" != "%ANSWER%" goto /i END_OF_GET_LYRICS
-                                        echo GOAT: [MIFL] we still here???
+                                        rem echo [DEBUG] [MIFL] we still here???
                                         
 
                         :already_approved_from_2790
@@ -3679,7 +3655,6 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
         return                
 
         :rename_audio_file_as_instr_if_answer_was_I [opt]
-                rem echo * calling: if "I" == "%ANSWER%" gosub rename_audio_file_as_instrumental %opt% 
                 if "I" == "%ANSWER%" gosub rename_audio_file_as_instrumental %opt%
         return
 
@@ -3697,7 +3672,6 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         set goto_END=1
                         goto /i END_OF_GET_LYRICS
                 else
-                        rem echo goat: calling: gosub rename_audio_file_as_instr_if_answer_was_I %opt1 %opt2 %opt3
                         gosub rename_audio_file_as_instr_if_answer_was_I %opt1 %opt2 %opt3
                 endiff       
                  if "1" == "%GOTO_END%" (goto /i END_OF_GET_LYRICS)
@@ -4134,7 +4108,6 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                 rem echo BUG MONITOR for bug of: Marking instrumental doesn’t end when it should. GOTO_END is now “%GOTO_END%” and JUST_RENAMED_TO_INSTRUMENTAL is now “%JUST_RENAMED_TO_INSTRUMENTAL%” 🐐
                         endiff
 
-
                 rem All done!
                         :skip_it_2700   
                         if "1" ==           "%DEBUG_INSTRUMENTAL%" echo %ansi_color_debug%- DEBUG: DONE WITH rename_audio_file_as_instrumental %%ansi_color_normal% 
@@ -4168,15 +4141,13 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
         return
 
         :create_or_set_postprocessed_lyrics [opt]
-                rem Debug:
-                        rem echo %ansi_color_bright_green%%EMOJI_PHONE% CALLED: gosub [get-lyrics::]create_or_set_postprocessed_lyrics "%opt%" ... %newline%%tab%%star%lyric_file=“%lyric_file%” ...%newline%%tab%%star%file_to_use==“%file_to__use%”%newline%%tab%%star%postprocessed_lyrics==“%postprocessed_lyrics%”%ansi_color_normal%
+                rem Debug: echo %ansi_color_bright_green%%EMOJI_PHONE% CALLED: gosub [get-lyrics::]create_or_set_postprocessed_lyrics "%opt%" ... %newline%%tab%%star%lyric_file=“%lyric_file%” ...%newline%%tab%%star%file_to_use==“%file_to__use%”%newline%%tab%%star%postprocessed_lyrics==“%postprocessed_lyrics%”%ansi_color_normal%
 
                 rem Process “opt” parameter to potentially override %lyric_file% with a different file:
                         if exist       "%LYRIC_FILE%" set file_to_use=%@UNQUOTE["%LYRIC_FILE%"]
                         if "" != "%@UNQUOTE["%opt%"]" set file_to_use=%@UNQUOTE["%opt%"]
 
-                rem Debug:
-                        rem echo %ansi_color_bright_green%%EMOJI_PHONE% DOINGG: gosub [get-lyrics::]create_or_set_postprocessed_lyrics ....... file_to_use==“%file_to__use%”%newline%%tab%%star%postprocessed_lyrics==“%postprocessed_lyrics%”%ansi_color_normal%
+                rem Debug: echo %ansi_color_bright_green%%EMOJI_PHONE% DOINGG: gosub [get-lyrics::]create_or_set_postprocessed_lyrics ....... file_to_use==“%file_to__use%”%newline%%tab%%star%postprocessed_lyrics==“%postprocessed_lyrics%”%ansi_color_normal%
 
                 rem Do they exist already? - Verdict: While it’s nice to know, it doesn’t make sense to output this and review it at this point
                         rem echos %ansi_color_debug%%star% Postprocessed lyrics 
@@ -4202,14 +4173,14 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         rem else
                         rem         set postprocessed_lyrics=%tmpfile% 
                         rem endiff
+
                 rem Save the filename of our post-processed lyrics, so we can grab them later:
                         if defined tmpfile .and. exist %tmpfile% set postprocessed_lyrics=%tmpfile% 
 
                 rem Save the filename of our last input file, just in case we need it for something (aka “auditing”):
                         set last_file_used_for_lyric_processing=%file_to_use%
 
-                rem Debug:
-                        rem echo %ansi_color_green%%EMOJI_PHONE%  ENDED: gosub [get-lyrics::]create_or_set_postprocessed_lyrics "%lyric_file%" ... file_to_use==“%file_to__use%” ... postprocessed_lyrics=“%tmpfile%”%ansi_color_normal%
+                rem Debug: rem echo %ansi_color_green%%EMOJI_PHONE%  ENDED: gosub [get-lyrics::]create_or_set_postprocessed_lyrics "%lyric_file%" ... file_to_use==“%file_to__use%” ... postprocessed_lyrics=“%tmpfile%”%ansi_color_normal%
         return
 
 

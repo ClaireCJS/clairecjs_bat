@@ -17,17 +17,20 @@ rem CONFIGURATION: COSMETIC ALIGNMENT:
         set lines_to_tail_magic_number=24 %+ rem instrumental is first line - 2 more than 22
         set lines_to_tail_magic_number=26 %+ rem 2025/05/×× fix
         set lines_to_tail_magic_number=25 %+ rem 2025/06/11 fix
+        set lines_to_tail_magic_number=27 %+ rem 2026/03/24 adjustment for adding untranscribeable count [24 didn’t work, 27]
         set lines_to_tail=%@FLOOR[%@EVAL[(%_ROWS - %lines_to_tail_magic_number%) / 2]] %+ rem how many lines from each progress logfile to show with the “tail” command
         set mover=%@ANSI_MOVE_TO_COL[38]                                               %+ rem How far over to move when displaying file counts
 
 rem CONFIGURATION: FILENAMES:
-        set           full_filelist=filelist-all.txt
-        set           text_filelist=filelist-txt.txt
-        set transcribeable_filelist=filelist-transcribeable.txt
-        set  transcription_filelist=filelist-transcriptions.txt
-        set report_log=lyric-subtitle-compliance.log
-        set AI_TRASH_FILES=*._vad_collected_chunks*.wav *._vad_collected_chunks*.log *._vad_collected_chunks*.srt *._vad_original*.srt *._vad_pyannote_*chunks*.wav *._vad_pyannote_v3.txt create-the-missing-karaokes-here-temp*.bat get-the-missing-lyrics-here-temp*.bat get-the-missing-karaoke-here-temp*.bat
+        set             full_filelist=filelist-all.txt
+        set             text_filelist=filelist-txt.txt
+        set   transcribeable_filelist=filelist-transcribeable.txt
+        set untranscribeable_filelist=filelist-untranscribeable.txt
+        set    transcription_filelist=filelist-transcriptions.txt
+        set                report_log=lyric-subtitle-compliance.log
         rem If this changes, also update the similar values in clean-up-AI-transcription-trash-files-everywhere.bat:
+        set            AI_TRASH_FILES=*._vad_collected_chunks*.wav *._vad_collected_chunks*.log *._vad_collected_chunks*.srt *._vad_original*.srt *._vad_pyannote_*chunks*.wav *._vad_pyannote_v3.txt create-the-missing-karaokes-here-temp*.bat get-the-missing-lyrics-here-temp*.bat get-the-missing-karaoke-here-temp*.bat
+
 
 rem Validate environment (once):
         iff "1" != "%validated_countsoffiletype%" then
@@ -46,6 +49,9 @@ rem Warn, unless we are in the same folder defined as MP3OFFICIAL in our environ
                 goto :END
         :No_warning
 
+rem Fast mode:
+        if "%1" == "fast"   goto :fast_mode_entry_point
+
 rem Jump straight to our report if we use the “report” parameter:
         if "%1" == "report" goto :report
 
@@ -58,10 +64,11 @@ rem Clean up trash files first
         if "%1" == "quick" .or. "%1" == "fast"  goto :skip_preclean
                 rem Get rid of our previous files:
                         set del=*del /p
-                        if exist           "%full_filelist%" %DEL%           "%full_filelist%"
-                        if exist           "%text_filelist%" %DEL%           "%text_filelist%"
-                        if exist "%transcribeable_filelist%" %DEL% "%transcribeable_filelist%"
-                        if exist  "%transcription_filelist%" %DEL%  "%transcription_filelist%"
+                        if exist             "%full_filelist%" %DEL%             "%full_filelist%"
+                        if exist             "%text_filelist%" %DEL%             "%text_filelist%"
+                        if exist   "%transcribeable_filelist%" %DEL%   "%transcribeable_filelist%"
+                        if exist "%untranscribeable_filelist%" %DEL% "%untranscribeable_filelist%"
+                        if exist    "%transcription_filelist%" %DEL%    "%transcription_filelist%"
                         rem NOOOOOO!!! if exist "%report_log%" %DEL% "%report_log%"
 
                 rem Get rid of transcription-related files that could throw off our stats:
@@ -72,26 +79,36 @@ rem Clean up trash files first
         
 
 
+
+:fast_mode_entry_point
+
+
 rem Count the file types:    
         echo.
         set dir=%_CWD
         set remake=0
         if   not   exist    %transcribeable_filelist% (set remake=1 %+ goto :remake)
-        if   not   exist     %full_filelist%          (set remake=1 %+ goto :remake)
+        if   not   exist  %untranscribeable_filelist% (set remake=1 %+ goto :remake)
+        if   not   exist              %full_filelist% (set remake=1 %+ goto :remake)
         if %@eval[%@makeage[%_date,%_time] - %@fileage[%transcribeable_filelist%]] gt %@EVAL[%NUM_SECONDS_BEFORE_NEW_FILELISTS * 10000000] (set remake=1)     %+ rem if it’s more than 180s old
         :remake
         if "%1"=="quick" .or. "%1"=="fast" goto :go_here_from_if_at_64
                 iff "1" == "%remake%" then
-                        rem make main filelist:
+                        rem make main filelist of all audio files:
                                 echos %ansi_color_important%%blink_on%%star2% %blink_off%Making master filelist%@RANDFG_SOFT[]... 
                                                           if "%1" != "quick" .and. "%1" != "fast"  ((dir /b /s /[!%AI_TRASH_FILES%]                   %filemask_audio%  >:u8%full_filelist%)) %+ echos %@RANDFG_SOFT[]...
                                 if defined incoming_music if "%1" != "quick" .and. "%1" != "fast"  ((dir /b /s /[!%AI_TRASH_FILES%]  %incoming_music%\%filemask_audio% >>:u8%full_filelist%)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %full_filelist% | wc -l]] %faint_on%files%faint_off%
 
+
+                        rem Make untranscribeable filelist:
+                                grep -i "\[untranscribe*able\]" %full_filelist% >:u8%untranscribeable_filelist %+ echos %@RANDFG_SOFT[]...
+                                echo %mover%%@COMMA[%@EXECSTR[type %untranscribeable_filelist% | wc -l]] %faint_on%files%faint_off%
+
                         rem Make transcribeable filelist:
                                 echos %ansi_color_important%%blink_on%%star2% %blink_off%Making transcribeable filelist%@RANDFG_SOFT[]... 
-                                                          ((dir /b /s /[!%AI_TRASH_FILES%  "::\[instrumental\]" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*]                  %filemask_audio%   >:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
-                                if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%  "::\[instrumental\]" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*] %incoming_music%\%filemask_audio%  >>:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
+                                                          ((dir /b /s /[!%AI_TRASH_FILES%  "::\[untranscribe?able\]"  "::\[instrumental\]" "::\(instrumental\)" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*]                  %filemask_audio%   >:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
+                                if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%  "::\[untranscribe?able\]"  "::\[instrumental\]" "::\(instrumental\)" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*] %incoming_music%\%filemask_audio%  >>:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %transcribeable_filelist% | wc -l]] %faint_on%files%faint_off%
 
                         rem Make txt filelist:
@@ -141,15 +158,16 @@ rem Report our totals and percent  progress:
 
 
         gosub lineyline
-        gosub counttype          "total" "       total audio"  NULL                                  "%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set            ALL_AUDIO_COUNT_PROBED=%COUNT%
-        gosub counttype   "instrumental" "  -   instrumental" %ALL_AUDIO_COUNT_PROBED% "instrumental.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set                INSTRUMENTAL_COUNT=%COUNT%
-        gosub counttype      "chiptunes" "  -      chiptunes" %ALL_AUDIO_COUNT_PROBED%   "chiptunes*.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set                    CHIPTUNE_COUNT=%COUNT%
-        gosub counttype  "tracker songs" "  -  tracker songs" %ALL_AUDIO_COUNT_PROBED% "(\.mid|\.midi|\.stm|\.s3m|\.mod|\.cmf\*.rol)"              "%full_filelist%" %+ set                TRACKER_SONG_COUNT=%COUNT%
-        gosub counttype   "sound effect" "  -  sound effects" %ALL_AUDIO_COUNT_PROBED% "sound.effect.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set                SOUND_EFFECT_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
-        gosub counttype "transcribeable" "  = transcribeable" %ALL_AUDIO_COUNT_PROBED%               "%@UNQUOTE[%filemask_audio_regex%]" "%transcribeable_filelist%" %+ set TRANSCRIBEABLE_AUDIO_COUNT_PROBED=%COUNT%  %+ gosub   lineyline
-        gosub counttype      "audiobook" "        audiobooks" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%    "AUDIOBOOK"                         "%transcribeable_filelist%" %+ set                   AUDIOBOOK_COUNT=%COUNT%
-        gosub counttype         "lyrics" "      have  lyrics" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%    "\.txt"                                       "%text_filelist%" %+ set                  HAVE_LYRIC_COUNT=%COUNT%
-        gosub counttype        "karaoke" "      have karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%    "(\.lrc|\.srt)"                      "%transcription_filelist%" %+ set                HAVE_KARAOKE_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
+        gosub counttype            "total" "         total audio"  NULL                                           "%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set              ALL_AUDIO_COUNT_PROBED=%COUNT%
+        gosub counttype     "instrumental" "  -     instrumental" %ALL_AUDIO_COUNT_PROBED%          "instrumental.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set                  INSTRUMENTAL_COUNT=%COUNT%
+        gosub counttype        "chiptunes" "  -        chiptunes" %ALL_AUDIO_COUNT_PROBED%            "chiptunes*.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set                      CHIPTUNE_COUNT=%COUNT%
+        gosub counttype    "tracker songs" "  -    tracker songs" %ALL_AUDIO_COUNT_PROBED%             "(\.mid|\.midi|\.stm|\.s3m|\.mod|\.cmf\*.rol)"           "%full_filelist%" %+ set                  TRACKER_SONG_COUNT=%COUNT%
+        gosub counttype     "sound effect" "  -    sound effects" %ALL_AUDIO_COUNT_PROBED%          "sound.effect.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set                  SOUND_EFFECT_COUNT=%COUNT%  %+ rem echo   %@REPEAT[━,38]
+        gosub counttype "untranscribeable" "  - untranscribeable" %ALL_AUDIO_COUNT_PROBED% "\[untranscribe*able\].*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set UNTRANSCRIBEABLE_AUDIO_COUNT_PROBED=%COUNT%  %+ echo   %@REPEAT[━,38]
+        gosub counttype   "transcribeable" "  =   transcribeable" %ALL_AUDIO_COUNT_PROBED%                        "%@UNQUOTE[%filemask_audio_regex%]" "%transcribeable_filelist%" %+ set   TRANSCRIBEABLE_AUDIO_COUNT_PROBED=%COUNT%  %+ gosub   lineyline
+        gosub counttype        "audiobook" "          audiobooks" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "AUDIOBOOK"                         "%transcribeable_filelist%" %+ set                     AUDIOBOOK_COUNT=%COUNT%
+        gosub counttype           "lyrics" "        have  lyrics" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "\.txt"                                       "%text_filelist%" %+ set                    HAVE_LYRIC_COUNT=%COUNT%
+        gosub counttype          "karaoke" "        have karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "(\.lrc|\.srt)"                      "%transcription_filelist%" %+ set                  HAVE_KARAOKE_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
         gosub lineyline
         call  divider
         echo.
