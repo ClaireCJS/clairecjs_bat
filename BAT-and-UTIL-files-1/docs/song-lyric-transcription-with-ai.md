@@ -12,31 +12,30 @@
 
 ## 📓 Terminology: 📓
 
-<details><summary>Click here to view full definitions of “karaoke files” and “sidecar files”</summary>  
-
-&nbsp;
-
-📑 *Karaoke Files*: 📑 We generally call both ```SRT files``` and ```LRC files``` “karaoke files”, which is a colloquial shorthand for “files capable of displaying the lyrics *as* they are sung”. This system generates ```SRT``` files, but includes a batch converter that converts ```SRT``` to ```LRC```.
-
-&nbsp;
-
-🏎 *Sidecar Files*: 🏎 A file of the *same* name, but *different* extension.
-
-For example, ```filename.mp3``` might have a sidecar file named ```filename.txt```, which would typically be lyrics for a song, and a sidecar file named ```filename.jpg```, which would typically be the cover art to the song.  
-
-Another example is when a program like ```whatever.exe``` has a ```whatever.ini`` *INI file* for its settings; That *INI* file is a sidecar file the *EXE* file. 
-
-
-😢 *Lyriclessness*: This meaning is specific to this project: Lyriclessness is a state in which a song’s lyrics cannot be found on the internet. At this point of giving up on our lyrics search, we can “approve” the lyriclessness state to mark our task as complete.
-
-
-🎸 *Instrumental*: A song that has no vocals or lyrics. The system WILL skip processing these. Marked with “ [instrumental]” in the filename.
-
-🎹 *Semi-Instrumental*: The system will NOT skip processing these. Marked with “ [semi-instrumental]” in the filename. A semi-instrumental is a song that has either:
-  - vocals that aren’t lyrics, i.e. lyricless opera, skat, choruses going “ahhh”, etc
-  - words that aren’t vocals, i.e. an electronica song but it starts off with a spoken-word sample
-
-</details>
+<summary>Click here to view full definitions of “karaoke files” and “sidecar files”</summary>  
+  
+  &nbsp;
+  
+  📑 *Karaoke Files*: 📑 We generally call both ```SRT files``` and ```LRC files``` “karaoke files”, which is a colloquial shorthand for “files capable of displaying the lyrics *as* they are sung”. This system generates ```SRT``` files, but includes a batch converter that converts ```SRT``` to ```LRC```.
+  
+  &nbsp;
+  
+  🏎 *Sidecar Files*: 🏎 A file of the *same* name, but *different* extension.
+  
+  For example, ```filename.mp3``` might have a sidecar file named ```filename.txt```, which would typically be lyrics for a song, and a sidecar file named ```filename.jpg```, which would typically be the cover art to the song.  
+  
+  Another example is when a program like ```whatever.exe``` has a ```whatever.ini`` *INI file* for its settings; That *INI* file is a sidecar file the *EXE* file. 
+  
+  
+  😢 *Lyriclessness*: This meaning is specific to this project: Lyriclessness is a state in which a song’s lyrics cannot be found on the internet. At this point of giving up on our lyrics search, we can “approve” the lyriclessness state to mark our task as complete.
+  
+  
+  🎸 *Instrumental*: A song that has no vocals or lyrics. The system WILL skip processing these. Marked with “ [instrumental]” in the filename.
+  
+  🎹 *Semi-Instrumental*: The system will NOT skip processing these. Marked with “ [semi-instrumental]” in the filename. A semi-instrumental is a song that has either:
+    - vocals that aren’t lyrics, i.e. lyricless opera, skat, choruses going “ahhh”, etc
+    - words that aren’t vocals, i.e. an electronica song but it starts off with a spoken-word sample
+    - Some of these may need to be marked “[no lyrics]” to prevent processing
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -321,15 +320,21 @@ The following file naming conventions affect system behavior:
 | - ```(chiptune)```, ```[chiptune]```                 | file is a chiptune/tracker file                    | lyrics & transcription will be skipped |
 | - ```(untranscribeable)```, ```[untranscribeable]``` | transcription for this file has failed in the past |          transcription will be skipped |
 | - ```(untranscribable)```, ```[untranscribable]```   | transcription for this file has failed in the past |          transcription will be skipped |
+| - ```(no vocals)```, ```[no vocals]```               | transcription for this file is not necessary       |          transcription will be skipped |
+| - ```(no vocal)```, ```[no vocal]```                 | transcription for this file is not necessary       |          transcription will be skipped |
+| - ```(no lyrics)```, ```[no lyrics]```               | transcription for this file is not necessary       |          transcription will be skipped |
 
 | Folder Name Contains                                 | Meaning                                                                   | System Behavior                        |
 | ----------------------------------------------       | ----------------------------------------                                  | -------------------------------------- |
 | - ```(instrumentals)```, ```[instrumentals]```       | folder contains only instrumentals                                        | lyrics & transcription will be skipped |
 | - ```sound effects```                                | folder contains only sound clips/effects                                  | lyrics & transcription will be skipped |
-| - ```sound clips```                                  | folder contains only sound clips/effects                                  | lyrics & transcription will be skipped |
-| - ```chiptunes```                                    | folder contians only chiptune/tracker files                               | lyrics & transcription will be skipped |
+| - ```(sound clips)```, ```[sound clips]```           | folder contains only sound clips/effects                                  | lyrics & transcription will be skipped |
+| - ```(chiptunes)```, ```[chiptunes]```               | folder contains only chiptune/tracker files                               | lyrics & transcription will be skipped |
 | - ```(untranscribeable)```, ```[untranscribeable]``` | folder contains only files for which transcription has failed in the past |          transcription will be skipped |
 | - ```(untranscribable)```, ```[untranscribable]```   | folder contains only files for which transcription has failed in the past |          transcription will be skipped |
+| - ```(no vocals)```, ```[no vocals]```               | transcription for this folder is not necessary                            |          transcription will be skipped |
+| - ```(no vocal)```, ```[no vocal]```                 | transcription for this folder is not necessary                            |          transcription will be skipped |
+| - ```(no lyrics)```, ```[no lyrics]```               | transcription for this folder is not necessary                            |          transcription will be skipped |
 | - ```audiobook```                                    | folder contians only audiobook files                                      |  (only used for reporting statistics)  |
 
 

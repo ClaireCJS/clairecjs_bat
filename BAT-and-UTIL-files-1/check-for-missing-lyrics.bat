@@ -54,6 +54,50 @@ rem Environment variable backups —— these should all already be defined alre
                         set validated_cfml_ansi=1
                 endiff
 
+
+
+rem HALT CONDITIONS:  (copy to check-for-missing-lyrics & check-for-missing-karaoke but change _fail_type varname & don’t fail getting lyrics for untranscribeable & change printed “Sorry!”):
+        rem HALT ❶: If the folder indicates something we shouldn’t be creating karaoke for, let the user know:
+        rem (copied from create-srt but with %_CWD\ substitued over %FULL_FILENAME%)
+                rem Reset our failure flag(s):
+                        unset /q cfml_fail_type cfml_fail_point *_in_foldname
+
+                rem Check to see if certain halt patterns are in our folder names:
+                        set instr_in_foldname=%@REGEX["[\[\(][iI][nN][sS][tT][rR][uU][mM][eE][nN][tT][aA][lL][sS]*[\)\]\\]","%_CWD\"]
+                        set chipt_in_foldname=%@REGEX["[\\\[\(][cC][hH][iI][pP][tT][uU][nN][eE][sS]*[\\\]\)]","%_CWD%\"]
+                        set sndfx_in_foldname=%@REGEX["[sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*[\\\]\)]","%_CWD\"]                                    %+ rem OLD
+                        set sndfx_in_foldname=%@REGEX["[sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*","%_CWD\"]                                            %+ rem NEW: to commodate folder names like “sound effects & ambient sound”
+                        set sndcl_in_foldname=%@REGEX["[sS][oO][uU][nN][dD] [cC][lL][iI][pP][sS]*","%_CWD\"]                                                    %+ rem NEW: to commodate folder names like  “sound clips & ambient sound”
+                        set novoc_in_foldname=%@REGEX["[nN][oO] [vV][oO][cC][aA][lL][sS]*","%_CWD\"]                                                    
+                        set nolyr_in_foldname=%@REGEX["[nN][oO] [lL][yY][rR][iI][cC][sS]*","%_CWD\"]                                                    
+                        set untra_in_foldname=%@REGEX["[\\\[\(][Uu][Nn][Tt][Rr][Aa][Nn][Ss][Cc][Rr][Ii][Bb][Ee]*[Aa][Bb][Ll][Ee][\\\]\)]","%_CWD\"]
+
+                rem If certain halt patterns ARE in our filename, gather our failure type:
+                        if "1" == "%instr_in_foldname%" ( set cfml_fail_type=instrumental     %+ set cfml_fail_point=dir name)
+                        if "1" == "%chipt_in_foldname%" ( set cfml_fail_type=chiptune         %+ set cfml_fail_point=dir name)
+                        if "1" == "%sndfx_in_foldname%" ( set cfml_fail_type=sound effects    %+ set cfml_fail_point=dir name)
+                        if "1" == "%sndcl_in_foldname%" ( set cfml_fail_type=sound clips      %+ set cfml_fail_point=dir name)
+                        if "1" == "%novoc_in_foldname%" ( set cfml_fail_type=no vocals        %+ set cfml_fail_point=dir name)
+                        if "1" == "%nolyr_in_foldname%" ( set cfml_fail_type=no lyrics        %+ set cfml_fail_point=dir name)
+                        rem if "1" == "%untra_in_foldname%" ( set cfml_fail_type=untranscribeable %+ set cfml_fail_point=dir name)
+
+                rem Signal our failure to any other processes watching this environment variable:
+                        if "dir name" == "%cfml_fail_point%" set BAD_AI_TRANSCRIPTION_FOLDER=%_CWP                  
+
+                rem DEBUG: 
+                        if "1" == "%DEBUG_AUTOFAIL_FOLDERS%" pause "cmfk_fail_type=“%cfml_fail_type%” chipt_in_foldname=“%chipt_in_foldname%” sndfx_in_foldname=“%sndfx_in_foldname%”" 
+
+                rem Let user know if we halted based on one of our halt conditions:
+                        iff "" != "%cfml_fail_type%" then
+                                echo %ansi_color_warning%%no% Sorry! Not checking for missing lyrics here because this %italics_on%%cfml_fail_point%%italics_off% indicates a %ansi_color_red%%italics_on%%blink_on%%cfml_fail_type%%blink_off%%italics_off%%ANSI_COLOR_WARNING% folder:%ansi_color_normal% %faint_on%“%_CWP%”%faint_off%%ansi_color_normal%
+                                set  fail=1
+                                call sleep 1
+                                goto /i END
+                        endiff
+
+
+
+
 rem Validate environment once per session:
         iff "1" != "%VALIDATED_CFMLB%" then
                 call validate-is-function ANSI_MOVE_UP ANSI_CURSOR_COLOR_BY_WORD                   %+ rem would be more portable to bring these definitions into this file

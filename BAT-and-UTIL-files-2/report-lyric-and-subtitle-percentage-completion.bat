@@ -69,7 +69,7 @@ rem Clean up trash files first
                         if exist   "%transcribeable_filelist%" %DEL%   "%transcribeable_filelist%"
                         if exist "%untranscribeable_filelist%" %DEL% "%untranscribeable_filelist%"
                         if exist    "%transcription_filelist%" %DEL%    "%transcription_filelist%"
-                        rem NOOOOOO!!! if exist "%report_log%" %DEL% "%report_log%"
+                        rem NOOOOOO!!! if exist "%report_log%" %DEL%                "%report_log%"
 
                 rem Get rid of transcription-related files that could throw off our stats:
                         cls
@@ -95,30 +95,31 @@ rem Count the file types:
         if "%1"=="quick" .or. "%1"=="fast" goto :go_here_from_if_at_64
                 iff "1" == "%remake%" then
                         rem make main filelist of all audio files:
-                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making master filelist%@RANDFG_SOFT[]... 
+                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making %italics_on%master%italics_off% filelist%@RANDFG_SOFT[]... 
                                                           if "%1" != "quick" .and. "%1" != "fast"  ((dir /b /s /[!%AI_TRASH_FILES%]                   %filemask_audio%  >:u8%full_filelist%)) %+ echos %@RANDFG_SOFT[]...
                                 if defined incoming_music if "%1" != "quick" .and. "%1" != "fast"  ((dir /b /s /[!%AI_TRASH_FILES%]  %incoming_music%\%filemask_audio% >>:u8%full_filelist%)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %full_filelist% | wc -l]] %faint_on%files%faint_off%
 
 
                         rem Make untranscribeable filelist:
+                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making %italics_on%untranscribeable%italics_off% filelist%@RANDFG_SOFT[]... 
                                 grep -i "\[untranscribe*able\]" %full_filelist% >:u8%untranscribeable_filelist %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %untranscribeable_filelist% | wc -l]] %faint_on%files%faint_off%
 
                         rem Make transcribeable filelist:
-                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making transcribeable filelist%@RANDFG_SOFT[]... 
+                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making %italics_on%transcribeable%italics_off% filelist%@RANDFG_SOFT[]... 
                                                           ((dir /b /s /[!%AI_TRASH_FILES%  "::\[untranscribe?able\]"  "::\[instrumental\]" "::\(instrumental\)" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*]                  %filemask_audio%   >:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%  "::\[untranscribe?able\]"  "::\[instrumental\]" "::\(instrumental\)" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*] %incoming_music%\%filemask_audio%  >>:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %transcribeable_filelist% | wc -l]] %faint_on%files%faint_off%
 
                         rem Make txt filelist:
-                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making txt filelist%@RANDFG_SOFT[]... 
+                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making %italics_on%txt%italics_off% filelist%@RANDFG_SOFT[]... 
                                                           ((dir /b /s /[!%AI_TRASH_FILES% readme*.* *tablature*.txt *tabulature*.txt filelist*.* normalization-report*.* shn.txt dirlist*.txt delme*.* *lyrics*.txt *discography*.txt meaning*songmeaning*.txt dir.txt \lyrics\*.txt \lists*\*.txt foobar*.txt "amg review.txt" names.txt tree.txt "* - README.txt" track_*.txt "dir (?).txt" bridge-??.txt  "lyrics - *.txt"]                  *.txt  >:u8%text_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES% readme*.* *tablature*.txt *tabulature*.txt filelist*.* normalization-report*.* shn.txt dirlist*.txt delme*.* *lyrics*.txt *discography*.txt meaning*songmeaning*.txt dir.txt \lyrics\*.txt \lists*\*.txt foobar*.txt "amg review.txt" names.txt tree.txt "* - README.txt" track_*.txt "dir (?).txt" bridge-??.txt  "lyrics - *.txt"] %incoming_music%\*.txt >>:u8%text_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %text_filelist% | wc -l]] %faint_on%files%faint_off%
 
                         rem Make txt filelist:
-                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making transcribed filelist%@RANDFG_SOFT[]... %ansi_color_normal%
+                                echos %ansi_color_important%%blink_on%%star2% %blink_off%Making %italics_on%transcribed%italics_off% filelist%@RANDFG_SOFT[]... %ansi_color_normal%
                                                           ((dir /b /s /[!%AI_TRASH_FILES%]                  *.srt;*.lrc  >:u8%transcription_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%] %incoming_music%\*.srt;*.lrc >>:u8%transcription_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %transcription_filelist% | wc -l]] %faint_on%files%faint_off%
@@ -238,7 +239,8 @@ goto :END
                 rem count from our filelist:
                         set COUNT=%@EXECSTR[egrep -i "%@unquote[%regex%]" "%filelist_to_use%" | wc -l]
                         iff "NULL" == "%FILECOUNT_THAT_EQUALS_100_PERCENT%" then
-                                set FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE=%ALL_AUDIO_COUNT_PROBED%
+                                rem FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE=%ALL_AUDIO_COUNT_PROBED% %+ rem Oops! This dropped the total count from 2025/03 until 2026/03. ChatGPT caught the error when I had it make graphs from my log files 😂
+                                set FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE=%COUNT%
                         else
                                 set FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE=%FILECOUNT_THAT_EQUALS_100_PERCENT%
                         endiff
@@ -247,7 +249,7 @@ goto :END
                 rem percentage:
                         rem echo - DEBUG: FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE=“%FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE%” FOR %NATURE%
                         if %FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE% gt 0 goto :has_value_beg
-                                                                            goto :has_value_end
+                                                                           goto :has_value_end
                                 :has_value_beg
                                         SET RAW_VALUE=%@EVAL[%COUNT%/%FILECOUNT_THAT_EQUALS_100_PERCENT_TO_USE%*100]
                                         set    VALUE=%@FORMATn[-4.1,%raw_value%]

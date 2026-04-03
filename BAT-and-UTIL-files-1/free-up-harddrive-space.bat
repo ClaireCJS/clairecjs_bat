@@ -27,9 +27,10 @@ rem Delete files in specific places:
         gosub CreateIfGone %TEMP%
         gosub DelIfExists  %TMPDIR%\*.*
         gosub CreateIfGone %TMPDIR%
-        gosub DelIfExists  c:\recycled\*.*
         gosub DelIfExists  c:\*.json          %+ rem Oculus Rift PLEASE STOP!!
         gosub CreateIfGone c:\recycled
+        gosub DelIfExists  c:\recycled\*.*
+        gosub DelIfExists  C:\logs\dumps.%MACHINENAME%
 
 rem Delete files that could be anywhere❟ on any harddrive❟ with a name we hate:
         if "%USERNAME%" == "Claire" call clean-up-AI-transcription-trash-files-everywhere.bat include-dot-files %+ rem clean up files leftover by AI music transcription system

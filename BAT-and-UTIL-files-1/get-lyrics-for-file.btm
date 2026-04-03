@@ -436,6 +436,24 @@ rem Old/redundant way that should no longer apply at this point:
                 goto /i END_OF_GET_LYRICS
         endiff
 
+        set NO_LYRICS_ENCOUNTERED=0
+        iff 1 eq %@RegEx["\[NO LYRICS\]]","%@UPPER["%AUDIO_FILE%"]"] .or. 1 eq %@RegEx["\(NO LYRICS\)","%@UPPER["%AUDIO_FILE%"]"] then
+                gosub "%BAT%\create-srt-from-file.bat" refresh_lyriclessness_status
+                echo %ansi_color_debug%-DEBUG: lyriclessness_status[2]=“%lyriclessness_status%” GOAT%ansi_color_normal%
+                set NO_LYRICS_ENCOUNTERED=0
+                gosub divider
+                rem echo.
+                call bigecho "%ansi_color_warning_soft%%emoji_warning% Vocal track with no lyrics encountered!%ansi_color_normal% %emoji_warning%"
+                echo %ANSI_COLOR_WARNING%%emoji_warning% This is a vocal track with no lyrics! %emoji_warning%%ansi_color_normal% %ansi_color_bright_yellow%%connecting_minus%%connecting_minus% %ansi_color_yellow%%audio_file%%ansi_color_normal%
+                iff "%lyriclessness_status%" != "APPROVED" then
+                        set FORCE_ASK_TO_APPROVE_LYRICLESSNESS=1
+                        set LYRICLESSNESS_APPROVAL_CURRENT_DEFAULT_ANSWER=yes
+                        goto /i ask_to_approve_lyriclessness
+                endiff
+                echo %ansi_color_bright_red%%NO% Aborting because instrumental...
+                goto /i END_OF_GET_LYRICS
+        endiff
+
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -4092,11 +4110,13 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         if not exist "%@UNQUOTE[%filename_to_rename_as_instrumental_or_whatever%]" goto :skip_the_rn_4114
                         call rn "%@UNQUOTE[%filename_to_rename_as_instrumental_or_whatever%]" "%@NAME["%filename_to_rename_as_instrumental_or_whatever%"] [%nature%].%@EXT["%filename_to_rename_as_instrumental_or_whatever%"]"
                         :skip_the_rn_4114
-                        if "1" == "%DEBUG_INSTRUMENTAL%" echo %ansi_color_debug%- DEBUG: after rn at 3125, last_renamed_to=“%LAST_RENAMED_TO%” so maybe set tmpFileForXAnswer_copy=%LAST_RENAMED_TO%%ansi_color_normal% 
+                        if "1" == "%DEBUG_INSTRUMENTAL%" .or "GOAT" == "GOAT" echo %ansi_color_debug%- DEBUG: after rn at 3125, last_renamed_to=“%LAST_RENAMED_TO%” so maybe set tmpFileForXAnswer_copy=%LAST_RENAMED_TO%%ansi_color_normal% 
                         iff "" != "%LAST_RENAMED_TO%" then
                                 set tmpFileForXAnswer_copy=%LAST_RENAMED_TO%
                                 set SOME_INSTRUMENTALS_WERE_MARKED=1
-                                rem let’s not do this anymore: (20250221): set AUDIO_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
+                                rem     let’s not do this anymore: (20250221): set AUDIO_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
+                                rem but let’s not do this now:     (20260401): 
+                                set INPUT_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
                                 set JUST_RENAMED_TO_INSTRUMENTAL=1
                                 set JUST_RENAMED=1
                         endiff

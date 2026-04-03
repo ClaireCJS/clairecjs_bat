@@ -9,7 +9,7 @@ rem Validate environment (once):
         endiff
 
 rem Get parameters:
-        set COMMAND=%1
+        set SWEEP_COMMAND=%1
         iff "%1" == "" then
                 %color_advice%
                 echo USAGE: Put the command you want to sweep in quotes, i.e.: 
@@ -20,14 +20,14 @@ rem Get parameters:
                 %color_normal%
                 goto :END
         endiff
-        echo %ansi_color_warning_soft%%star% command to randomly walk through folders is: %bold_on%%bold_off%%faint_on%%italics_on%%@unquote[%command%]%italics_off%%faint_off%%bold_on%%bold_off%%ansi_color_normal%
+        echo %ansi_color_warning_soft%%star% command to randomly walk through folders is: %bold_on%%bold_off%%faint_on%%italics_on%%@unquote[%SWEEP_command%]%italics_off%%faint_off%%bold_on%%bold_off%%ansi_color_normal%
 
 rem Force?
         iff "force" == "%2" then
-                set PRECOMMAND=
+                set SWEEP_PRECOMMAND=
                 set SR_FORCE=1
         else
-                set PRECOMMAND=echo ``
+                set SWEEP_PRECOMMAND=echo ``
                 set SR_FORCE=0
         endiff
         rem echo 🐐 GOAT 🐐 Tracer #QQ1 >nul
@@ -39,13 +39,13 @@ rem Force?
 rem Run command in current folder:
         rem echo 🐐 GOAT 🐐 Tracer #QQ3 ━━ doing root >nul
         call cd-for-sweep-random .
-        %PRECOMMAND% %@UNQUOTE["%COMMAND%"]
+        %SWEEP_PRECOMMAND% %@UNQUOTE["%SWEEP_COMMAND%"]
 
 rem Run command in every subfolder, but randomly, by generating a script:
         rem echo 🐐 GOAT 🐐 Tracer #QQ4 ━━ doing rest >nul
         call set-tmp-file
-        rem (dir /a:d /s /b |:u8 randomize-file |:u8 insert-before-each-line.py               "*cd                  {{{{QUOTE}}}}" |:u8 insert-after-each-line.py "{{{{QUOTE}}}} {{{{PERCENT}}}}+ %PRECOMMAND% %@UNQUOTE["%COMMAND%"]" ) 
-            (dir /a:d /s /b |:u8 randomize-file |:u8 insert-before-each-line.py "echo. %%+ call cd-for-sweep-random {{{{QUOTE}}}}" |:u8 insert-after-each-line.py "{{{{QUOTE}}}} {{{{PERCENT}}}}+ %PRECOMMAND% %@UNQUOTE["%COMMAND%"]" ) >:u8%tmpfile%.bat
+        rem (dir /a:d /s /b |:u8 randomize-file |:u8 insert-before-each-line.py               "*cd                  {{{{QUOTE}}}}" |:u8 insert-after-each-line.py "{{{{QUOTE}}}} {{{{PERCENT}}}}+ %SWEEP_PRECOMMAND% %@UNQUOTE["%SWEEP_COMMAND%"]" ) 
+            (dir /a:d /s /b |:u8 randomize-file |:u8 insert-before-each-line.py "echo. %%+ call cd-for-sweep-random {{{{QUOTE}}}}" |:u8 insert-after-each-line.py "{{{{QUOTE}}}} {{{{PERCENT}}}}+ %SWEEP_PRECOMMAND% %@UNQUOTE["%SWEEP_COMMAND%"]" ) >:u8%tmpfile%.bat
         pushd .
 
         rem DEBUG:      

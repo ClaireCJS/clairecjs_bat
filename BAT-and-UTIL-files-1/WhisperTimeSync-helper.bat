@@ -108,6 +108,7 @@ rem Determine output filenames:
         rem SRT_NEW=%BASE%.txt.srt
         rem SRT_NEW=%@NAME["%LYR%"].txt.srt
         set SRT_NEW=%@PATH[%@UNQUOTE["%LYR%"]]%@NAME[%@UNQUOTE["%LYR%"]].txt.srt                                          %+ rem Never as simple as you think....
+        set TXT_OLD=%@NAME[%SRT%].txt
         rem eset SRT_NEW
 
 rem Did it work?

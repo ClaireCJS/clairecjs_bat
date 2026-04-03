@@ -98,28 +98,30 @@ rem Ask for each file, and delete:
                                 if  "1" == "%THERE_IS_AN_AUDIO_FILE_WE_CAN_PLAY_FOR_THIS_ONE%" SET file_to_use=%file_to_play%
 
                         rem Deal with individual answers:
-                                iff "E" == "%ANSWER%" then
-                                        %EDITOR% "%@UNQUOTE["%file%"]" 
-                                        pause "Press any key once you are done making your edits..."
-                                        goto /i reask
-                                endiff
-                                if  "Y" == "%ANSWER%" (*del /a: /f /Ns "%@UNQUOTE["%file%"]"                 )
-                                iff "I" == "%ANSWER%" then
-                                        gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%file%"]"                 
-                                endiff
-                                iff "S" == "%ANSWER%" then
-                                        gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%file%"]"  "sound effect"
-                                endiff
-                                iff "Q" == "%ANSWER%" then
-                                        call    enqueue-file-into-winamp-playlist.bat "%@UNQUOTE["%file_to_play%"]" 
-                                endiff
-                                iff "P" == "%ANSWER%" then
-                                        iff "1" == "%THERE_IS_AN_AUDIO_FILE_WE_CAN_PLAY_FOR_THIS_ONE%" then
-                                                call preview-audio-file "%@UNQUOTE["%file_to_play%"]" 
-                                        else
-                                                call        review-file "%@UNQUOTE["%file%"]" 
+                                set hold_file=%file%
+                                        iff "E" == "%ANSWER%" then
+                                                %EDITOR% "%@UNQUOTE["%file%"]" 
+                                                pause "Press any key once you are done making your edits..."
+                                                goto /i reask
                                         endiff
-                                endiff
+                                        if  "Y" == "%ANSWER%" (*del /a: /f /Ns "%@UNQUOTE["%file%"]")
+                                        iff "I" == "%ANSWER%" then
+                                                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%file%"]"                 
+                                        endiff
+                                        iff "S" == "%ANSWER%" then
+                                                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental "%@UNQUOTE["%file%"]"  "sound effect"
+                                        endiff
+                                        iff "Q" == "%ANSWER%" then
+                                                call    enqueue-file-into-winamp-playlist.bat "%@UNQUOTE["%file_to_play%"]" 
+                                        endiff
+                                        iff "P" == "%ANSWER%" then
+                                                iff "1" == "%THERE_IS_AN_AUDIO_FILE_WE_CAN_PLAY_FOR_THIS_ONE%" then
+                                                        call preview-audio-file "%@UNQUOTE["%file_to_play%"]" 
+                                                else
+                                                        call        review-file "%@UNQUOTE["%file%"]" 
+                                                endiff
+                                        endiff
+                                set file=%hold_file%
 
                         rem Potentially ask the original question again:
                                 if "Q" == "%ANSWER%" .or. "P" == "%ANSWER%" goto /i reask

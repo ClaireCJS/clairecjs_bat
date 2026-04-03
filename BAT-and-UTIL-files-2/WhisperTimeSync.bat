@@ -1,5 +1,5 @@
 @loadbtm on
-@Echo OFF
+@Echo on
 @set whisper_alignment_happened=0
 
 rem DOCUMENTATION:
@@ -58,7 +58,7 @@ rem DISPLAY USAGE IF NO PARAMETERS:
                         rem     EX: %0  %@cool_text[subtitles.srt lyrics.txt]%ansi_color_advice%
                 gosub divider
                 echo.
-                goto :END
+                goto :END_OF_WTS
         endiff
 
 rem VALIDATE PARAMETERS:
@@ -92,7 +92,7 @@ rem VALIDATE PARAMETERS:
 
 rem Make sure we’re dealing with *processed* lyrics for WhisperTimeSync:
         rem Set post-processed filename:
-                call set-tmp-file "WhisperTimeSync"
+                call set-tmp-file "Whisper_Time_Sync"
                 set lyr_processed=%tmpfile%-proposed-new-subtitles-via-WhisperTimeSync.txt
                 set lyr_processed_rendered_plus_bot_stripe=%tmpfile2%-lyr-plus-str.txt
 
@@ -282,31 +282,15 @@ rem This is a pretty cool way to see very minor changes that might escape your e
 
 
 
+rem Do the subtitle comparator I created, which i think is the most useful:
+        gosub Run_Subtitle_Comparator
 
-gosub    Run_Subtitle_Comparator
-goto    :Run_Subtitle_Comparator_END
-        :Run_Subtitle_Comparator
-                rem Use the subtitle comparator that we wrote in Python:
-                rem This is basically a time-dependent "diff" that checks to see the subtitles for a particular timestamp have changed
-                rem This is the best way to compare so far:
-                        rem Warn user:
-                                gosub divider
-                                call bigecho "%star% Review #6: old/new subtitle comparator:"
-                                rem pause "Presss any key to see SRT comparator output..."
 
-                        rem Run comparator:
-                                call set-tmp-file "comparator-output"                                %+ rem sets %tmpfile1%, %tmpfile2% automatically
-                                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr -key >"%tmpfile1%" %+ rem     using “--key” option
-                                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr      >"%tmpfile2%" %+ rem not using “--key” option
 
-                        rem Let’s try generically printing the comparator output with however many columns it uses:
-                                call print-with-columns "%tmpfile2%"
-                                goto :done_with_comparator_output
-        return
-        :Run_Subtitle_Comparator_END
 
 
         rem SOME ALTERNATIVES THAT WERE DISCARDED:
+                goto :end_of_discarded_alternatives
                                                         rem Let’s try specifically printing the comparator output with 2 columns only:
                                                                 gosub divider
                                                                 rem call debug "(print tmpfile2 with 2 columns)"
@@ -337,7 +321,7 @@ goto    :Run_Subtitle_Comparator_END
                                                                 rem call debug "determined # of even columns to use of %lq%%COLS_TO_USE%%rq%, COL_SIZE=%lq%%COL_SIZE%%rq%"                
                                                                 rem call debug "call print-with-columns %tmpfile2% -c %COLS_TO_USE% [screen width=%_COLUMNS]"
                                                                 call print-with-columns "%tmpfile2%" -c %COLS_TO_USE%
-
+                :end_of_discarded_alternatives
 
 
         rem Final divider:
@@ -386,7 +370,7 @@ rem Inform user if final timestamp on new subtitles is different from final time
                         set our_display_color=%ansi_color_bright_red%
                         set text_editor_must_be_opened=1
                 else
-                        call success "Final timestamps are the same, so we%apostrophe%e probably fine!" big
+                        call success "Final timestamps are the same, so we are probably fine!" big
                         set our_display_color=%ansi_color_bright_green%
                         set text_editor_must_be_opened=0                        
                 endiff
@@ -477,21 +461,26 @@ rem If it is better, back up the old version and replace it with this one:
                 rem Re-create lyrics from SRT, so that our data is synced, but only if we do not need to run this process more than once (which happens):
                         :reask_476
                         call AskYn "%faint_on%[WhisperTimeSync]%faint_off% Do we need to run %italics_on%WhisperTimeSync%italics_off% on this file a subsequent time [Y/N/run %ansi_color_bright_green%C%ansi_color_prompt%omparator]" no 0 C C:run_subtitle_comparator_again
+                        iff "Y" == "%ANSWER%" then
+                                cls
+                                goto /i :subsequent_whispertimesync_entrypoint
+                        endiff
                         iff "C" == "%ANSWER%" then
                                 gosub Run_Subtitle_Comparator
                                 goto /i :reask_476
                         endiff
                         iff "N" == "%ANSWER%" then
-                                call srt2txt "%srt%"
-                                if not defined tmpfile call set-tmp-file "postprocessed lyrics"
-                                echo %ansi_color_debug%%EMOIJI_GEAR% Running %italics_on%lyric-postprocessor.pl%italics_off% -A -L -S  "%txt%"  `>`:u8 %faint_on%%tmpfile%%faint_off%%ansi_color_normal%
-                                lyric-postprocessor.pl -A -L -S  "%txt%"  >:u8 %tmpfile%
-                                if not exist %tmpfile% ( call warning "tmpfile doesn’t exist: %tmpfile%" %+ pause)
-                                *copy /q "%tmpfile%" "%txt%" >nul
-                        endiff
-                        iff "Y" == "%ANSWER%" then
-                                cls
-                                goto /i :subsequent_whispertimesync_entrypoint
+                                set HOLD_476_ANSWER=%ANSWER%
+                                call AskYN "Convert these subtitles %italics_on%back%italics_off% to lyrics" no 0
+                                        iff "Y" == "%ANSWER%" then
+                                                call srt2txt "%srt%"
+                                                if not defined tmpfile call set-tmp-file "postprocessed lyrics"
+                                                echo %ansi_color_debug%%EMOIJI_GEAR% Running %italics_on%lyric-postprocessor.pl%italics_off% -A -L -S  "%LYR_RAW%"  `>`:u8 %faint_on%%tmpfile%%faint_off%%ansi_color_normal%
+                                                                                                         lyric-postprocessor.pl              -A -L -S  "%LYR_RAW%"    >:u8 %tmpfile%
+                                                if not exist %tmpfile% ( call warning "tmpfile doesn’t exist: %tmpfile%" %+ pause)
+                                                *copy /q "%tmpfile%" "%LYR_RAW%" >nul
+                                        endiff
+                                set ANSWER=%HOLD_476_ANSWER%
                         endiff
         else
                         set whisper_alignment_happened=0
@@ -523,7 +512,7 @@ rem Load the new song into winamp to test?
                         iff not exist "%our_audio%" then
                                 rem call debug   "[our_audio=%lq%%italics_on%%our_audio%%italics_off%%rq%]"
                                 call warning "Still can%smart_apostrophe%t find our audio file! Giving up!"
-                                goto /i END
+                                goto /i END_OF_WTS
                         endiff
                         %color_run%                                                        
                         call enqueue "%our_audio%"
@@ -535,7 +524,7 @@ rem Load the new song into winamp to test?
 
 
 
-goto :END
+goto :END_OF_WTS
 
 
 
@@ -596,6 +585,23 @@ rem ═════════════════════════�
 
 
 
+        :Run_Subtitle_Comparator
+                rem Use the subtitle comparator that we wrote in Python:
+                rem This is basically a time-dependent "diff" that checks to see the subtitles for a particular timestamp have changed
+                rem This is the best way to compare so far:
+                        rem Warn user:
+                                gosub divider
+                                call bigecho "%star% Review #6: old/new subtitle comparator:"
+                                rem pause "Presss any key to see SRT comparator output..."
+
+                        rem Run comparator:
+                                call set-tmp-file "comparator-output"                                %+ rem sets %tmpfile1%, %tmpfile2% automatically
+                                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr -key >"%tmpfile1%" %+ rem     using “--key” option
+                                srt_comparator.py "%srt_old%" "%srt_new%" -hi -lr      >"%tmpfile2%" %+ rem not using “--key” option
+
+                        rem Let’s try generically printing the comparator output with however many columns it uses:
+                                call print-with-columns "%tmpfile2%"
+        return
 
 
 
@@ -603,7 +609,7 @@ rem ═════════════════════════�
 
 
 
-:END
+:END_OF_WTS
 :Cleanup
         set validated_srt_and_txt_for_whispertimesync_already=0
 

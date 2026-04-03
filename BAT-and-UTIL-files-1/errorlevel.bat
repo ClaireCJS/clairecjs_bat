@@ -58,7 +58,7 @@ rem                      3) also outputs a .BAT pattern that can be incorporated
 :DESCRIPTION: TODO
 :DEPENDENCIES: validate-in-path.bat   echos beep sed color colors.bat colortool.bat randcolor.bat print-message.bat fatal_error.bat fatalerror.bat exit-maybe.bat important.bat advice.bat debug.bat print-if-debug.bat settmpfile.bat 
 
-iff  1   ne  %validated_errorlevel then
+iff "1" !=  "%validated_errorlevel%" then
          call validate-in-path       echos beep sed color colors.bat colortool.bat randcolor.bat print-message.bat fatal_error.bat fatalerror.bat exit-maybe.bat important.bat advice.bat debug.bat print-if-debug.bat settmpfile.bat 
          call validate-env-vars      ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING ANSI_PREFERRED_CURSOR_SHAPE ANSI_ERASE_TO_EOL ANSI_BACKGROUND_BLACK ANSI_COLOR_BRIGHT_RED COLOR_SUCCESS COLOR_SUCCESS_HEX COLOR_NORMAL COLOR_ADVICE ANSI_COLOR_WARNING COLOR_ALARM_HEX ITALICS_ON ITALICS_OFF BLINK_ON BLINK_OFF STAR
          call validate-functions     ANSI_CURSOR_CHANGE_COLOR_HEX
