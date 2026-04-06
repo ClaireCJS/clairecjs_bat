@@ -131,9 +131,9 @@ rem Delete previous dumps, which in certain edge cases can get as large as 300GB
                 set PID=%_PID
                 echo %ansi_color_important_less%%star5% Deleting %italics_on%Whisper%italics_off% dump files to reclaim space...     %faint_on%[current process id is %italics_on%%PID%%italics_off%]%faint_off%
                 if exist %dumps% *del /a: /f /Nt /[!*%PID*] %dumps% >&>nul |  copy-move-post 
-                call pause-for-x-seconds 10 "🐐 was there an error [expected no]" 
-                if exist %dumps% *del /a: /f /Nt            %dumps% >&>nul |  copy-move-post 
-                call pause-for-x-seconds 10 "🐐 was there an error [expected yes]"
+                rem call pause-for-x-seconds 10 "🐐 was there an error [expected no]"   %+ rem Usually it was no, but sometimes yes
+                rem if exist %dumps% *del /a: /f /Nt            %dumps% >&>nul |  copy-move-post 
+                rem call pause-for-x-seconds 10 "🐐 was there an error [expected yes]"  %+ rem Usually it was no, but if it was yes, more likely here
                 echos %ansi_color_normal%
         endiff
 
@@ -288,6 +288,7 @@ REM Set flags and default values:
                 set LAUNCHING_AI_DISPLAYED=0
                 set LOCKFILE_MENTIONED_ALREADY=0
                 set JUST_RENAMED_TO_INSTRUMENTAL=0
+                set QUIT_BECAUSE_UNTRANSCRIBEABLE=0
                 set ALREADY_ASKED_TO_DELETE_LOCKEFILE=0
                 set DELETE_BAD_AI_TRANSCRIPTIONS_FIRST=1                                                       %+ rem Whether we run delete-bad-ai-transcriptions in folders ... This used to be configurable, but now the system only runs the cleaner every 72 hours at most, so it doesn’t represent enough of a time-slow down to be considered a configurable option anymore. Better to always keep it on.
                 set SONG_PROBED_VIA_CALL_FROM_CREATE_SRT=0                                                     %+ rem Also gets set later but put here as a formality so this list is more thorough
@@ -412,7 +413,8 @@ rem Make sure it’s a transcribeable filename:
         unset /q retval
         gosub validate_transcribeable_filename "%INPUT_FILE%" "transcribing"
         iff "%_?" == "666" .or. "%retval%" == "666" .or. "1" == "%goto_end%" then
-                echo %EMOJI_STOP_SIGN% Aborting transcripion...
+                echo %EMOJI_STOP_SIGN% Aborting transcription...
+                exit /b
                 goto /i The_Very_Very_END
         endiff
         goto skip_sub_414
@@ -422,6 +424,7 @@ rem Make sure it’s a transcribeable filename:
 
                                         rem Failure flag:
                                                 unset /q retval
+                                                set QUIT_BECAUSE_UNTRANSCRIBEABLE=0
                                                 set fail=0
                                                 unset /q fail_type fail_point *_in_filename *_in_foldname
 
@@ -451,12 +454,12 @@ rem Make sure it’s a transcribeable filename:
                                                 if "1" == "%chipt_in_filename%" ( set fail_type=chiptune         %+ set fail_point=filename)
                                                 if "1" == "%sndfx_in_filename%" ( set fail_type=sound effects    %+ set fail_point=filename)
                                                 if "1" == "%sndcl_in_filename%" ( set fail_type=sound clips      %+ set fail_point=filename)
-                                                if "1" == "%novoc_in_filename%" ( set fail_type=no vocals        %+ set fail_point=filename)
-                                                if "1" == "%nolyr_in_filename%" ( set fail_type=lyrics           %+ set fail_point=filename)
+                                                if "1" == "%novoc_in_filename%" ( set fail_type=no vocals/lyrics %+ set fail_point=filename)
+                                                if "1" == "%nolyr_in_filename%" ( set fail_type=no lyrics/vocals %+ set fail_point=filename)
                                                 if "1" == "%untra_in_filename%" ( set fail_type=untranscribeable %+ set fail_point=filename)
                                                 if "1" == "%sndfx_in_foldname%" ( set fail_type=sound effects    %+ set fail_point=dir name1)
-                                                if "1" == "%novoc_in_foldname%" ( set fail_type=no vocals        %+ set fail_point=dir nam2⅓)
-                                                if "1" == "%nolyr_in_foldname%" ( set fail_type=lyrics           %+ set fail_point=dir nam3e)
+                                                if "1" == "%novoc_in_foldname%" ( set fail_type=no vocals/lyrics %+ set fail_point=dir nam2e)
+                                                if "1" == "%nolyr_in_foldname%" ( set fail_type=no lyrics/vocals %+ set fail_point=dir nam3e)
                                                 if "1" == "%sndcl_in_foldname%" ( set fail_type=sound clips      %+ set fail_point=dir nam4e)
                                                 if "1" == "%untra_in_foldname%" ( set fail_type=untranscribeable %+ set fail_point=dir name5)
                                                 if "1" == "%chipt_in_foldname%" ( set fail_type=chiptune         %+ set fail_point=dir name6)
@@ -496,13 +499,13 @@ rem Make sure it’s a transcribeable filename:
                                                         call bigecho "%ansi_color_warning%%star2%%star2%%star2%%star2%%star2% %fail_type%!!!%star2%%star2%%star2%%star2%%star2%%ansi_color_normal%"
                                                         echo %ansi_color_warning%%no% Sorry! Not %italics_on%%verb%%italics_off% because this %italics_on%%fail_point%%italics_off% indicates a%strN% %ansi_resetNOLETSNOTDOTHAT%%ansi_color_red%%italics_on%%blink_on%%fail_type%%blink_off%%italics_off%%ANSI_COLOR_WARNING% file:%ansi_color_normal% %faint_on%“%@UNQUOTE["%INPUT_FILE%"]”%faint_off%%ansi_color_normal%
                                                         set fail=1
-                                                        if "%2" == "%force%" .or. "1" == "%FORCE_REGEN%" (echo %emoji_warning% Ignoring this fact!!! %+ set fail=0)
+                                                        if "%2" == "force" .or. "1" == "%FORCE_REGEN%" (echo %emoji_warning% ₉Ignoring this fact!!! %faint_on%[force=%lq%%force%%rq%,force_regen=%lq%%FORCE_REGEN%%rq%]%faint_off% %+ set fail=0)
                                                         call sleep 1
                                                 :we_are_fine_403
 
                                         rem Return success/fail:
-                                                if "1" == "%fail%" (set retval=666 %+ return 666)
-                                                if "1" != "%fail%" (set retval=777 %+ return 777)
+                                                if "1" == "%fail%" (set retval=666 %+ set QUIT_BECAUSE_UNTRANSCRIBEABLE=1 %+ return 666)
+                                                if "1" != "%fail%" (set retval=777 %+ set QUIT_BECAUSE_UNTRANSCRIBEABLE=0 %+ return 777)
                                 return
 
                 
@@ -571,9 +574,12 @@ REM Values fetched from input file:
                 rem 2025/12/20: Decided I don’t need to explicitly say this & that it may not be outputting at the right time due to recent changes anyway:  echo %faint_on% ... Probing!%faint_off%                                                          %+ rem echo %ansi_color_unimportant%🐐 %@cool[calling %lq%get-lyrics-for-file "%SONGFILE%" SetVarsOnly%rq%] [22111] - CALLING %@colorful_string[━━━━━━━━━━━━━━━━(to probe the file)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━] CWP=%_CWP                
                 rem 2025/07/17: separating force_regen into separaet flags for karaoke/lyric process, so we shouldn’t just pass it on like this anymore:     rem call get-lyrics-for-file "%SONGFILE%" SetVarsOnly %@IF["1" == "%FORCE_REGEN%",force,]        %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc %+ rem echo %ansi_color_unimportant%🐐 return: %@cool[get-lyrics-for-file] [22111] - RETURNED %@colorful_string[━━━━━━━━━━━━━━━(after file probing)━━━━━━━━━━━━━━ CWP=%_CWP] 
                 call get-lyrics-for-file "%SONGFILE%" SetVarsOnly                                                %+ rem probes the song file and sets FILE_ARTIST / FILE_TITLE / etc %+ rem echo %ansi_color_unimportant%🐐 return: %@cool[get-lyrics-for-file] [22111] - RETURNED %@colorful_string[━━━━━━━━━━━━━━━(after file probing)━━━━━━━━━━━━━━ CWP=%_CWP] 
+                rem pause "QUIT_BECAUSE_UNTRANSCRIBEABLE=%QUIT_BECAUSE_UNTRANSCRIBEABLE%"
                 set SONG_PROBED_VIA_CALL_FROM_CREATE_SRT=1                                                       %+ rem Set the fact that is has been probed
                 set last_file_probed=%SONGFILE%                                                                  %+ rem prevents get-lyrics from probing twice
                 if "%_CWD\" != "%SONGDIR%" (*cd "%SONGDIR%")
+                if "1" == "%QUIT_BECAUSE_UNTRANSCRIBEABLE%" exit /b
+
         else
                 set SONG_PROBED_VIA_CALL_FROM_CREATE_SRT=0
                 unset /q FILE_TITLE
@@ -1242,23 +1248,16 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
                 rem Safely ingest postprocessed lyrics into environment variable:
                         *setdos /x-25
                         rem 2025/06/07: Adding 6 to the setdos options to turn off redirection...
-                        *setdos /x-256 
-                        if "1" == "%DEBUG_TRACE_CSFF%" pause "we are here: 1146"
-                        set OUR_LYRICS_3a=%@EXECSTR[type %tmppromptfile%]
-                        if "1" == "%DEBUG_TRACE_CSFF%" pause "we are here: 1148"
-                        set FINAL_LYRICS=%@unquote["%@LEFT[%MAXIMUM_PROMPT_SIZE%,"%our_lyrics_3a"]"]
-                        if "1" == "%DEBUG_TRACE_CSFF%" pause "we are here: 1150"
+                        *setdos /x-256                                                                                  
+                        set OUR_LYRICS_3a=%@EXECSTR[type %tmppromptfile%]                                               
+                        set FINAL_LYRICS=%@unquote["%@LEFT[%MAXIMUM_PROMPT_SIZE%,"%our_lyrics_3a"]"]                    
                         setdos /x0
-                        rem echo our_lyrics_1=“%OUR_LYRICS_TRUNCATED%”
-                        rem echo our_lyrics_2=“%our_lyrics_2%”
-                        rem echo FINAL_LYRICS=“%FINAL_LYRICS%”
                         if "1" == "%DEBUG_TRACE_CSFF%" pause "we are here: 1152"
 
                 rem Add the lyrics to our existing whisper prompt:
                         *setdos /x-5
                         set WHISPER_PROMPT=--initial_prompt "%FINAL_LYRICS%"
                         setdos /x0
-                        rem @echo %ANSI_COLOR_DEBUG%Whisper_prompt is:%newline%%tab%%tab%%faint_on%%WHISPER_PROMPT%%faint_off%%ANSI_COLOR_NORMAL%
                         if "1" == "%DEBUG_TRACE_CSFF%" pause "we are here: 1159"
 
                 rem Leave a hint to future-self, because we definitely do "env whisper" to look into the environment to find the whisper prompt last-used, for when we want to do minor tweaks... And remembering --batch_recursive is hard 😂
@@ -1275,7 +1274,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         :endiff_no_text_1017
         :No_Text
         rem if "1" == "%goto_end%" goto /i END
-     if "1" == "%come_back_to_1386%" (unset /q come_back_to_1386 %+ goto /i come_back_to_1386)
+        if "1" == "%come_back_to_1386%" (unset /q come_back_to_1386 %+ goto /i come_back_to_1386)
 
 
 
@@ -1304,11 +1303,13 @@ rem ///////////////////////////////////////////// OLD DEPRECATECD CODE /////////
 
 
 REM Use this tool to kill bad AI transcriptions / bad LRCget downloads — with the “3” option to pre-answer the first question for what mode type, type 3 = review and ask before deleting
-        iff   "1" == "%FORCE_REGEN%" then
-                call delete-bad-ai-transcriptions 3 force
-        else
-                iff "1" == "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" then
-                        call delete-bad-ai-transcriptions 3 
+        iff "1" != "%gk_fast_mode%" then
+                iff   "1" == "%FORCE_REGEN%" then
+                        call delete-bad-ai-transcriptions 3 force
+                else
+                        iff "1" == "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" then
+                                call delete-bad-ai-transcriptions 3 
+                        endiff
                 endiff
         endiff
 
@@ -1388,7 +1389,8 @@ REM Backup any existing SRT file, and ask if we are sure we want to generate AI 
 
 
 rem Ask if we should proceed:
-        if "%LYRIC_STATUS%" == "APPROVED" .and. "1" != "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set PROCEED_WITH_AI_CONSIDERATION_TIME=9
+        if "%LYRIC_STATUS%"     == "APPROVED" .and. "1" != "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set PROCEED_WITH_AI_CONSIDERATION_TIME=9
+        if "%LYRICLESS_STATUS%" == "APPROVED"                                                        set PROCEED_WITH_AI_CONSIDERATION_TIME=30 %+ rem Even in thorough mode, we want to auto-pass through *this* *one* prompt when it’s lyricless
         :proceed_prompt
         unset /q answer
         @call AskYn "Do the transcription%ADDITIONAL_OPTIONS_TEXT%" yes %PROCEED_WITH_AI_CONSIDERATION_TIME% %ADDITIONAL_OPTIONS_LETTERS% %ADDITIONAL_OPTIONS_MEANINGS%
@@ -1422,7 +1424,7 @@ rem Ask if we should proceed:
                 rem “L”:
                         iff "%STORED_ANSWER%" == "L" then 
                                 set answer=%STORED_ANSWER%  %+ rem 1388
-                                gosub check_for_answer_of_L "%INPUT_FILE%" no_end
+                                gosub check_for_answer_of_L "%@UNQUOTE["%INPUT_FILE%"]" no_end
                                 goto /i regen_ai_prompt
                         endiff                
                 rem “Y”/“N”:
@@ -1437,14 +1439,14 @@ rem Ask if we should proceed:
                 rem “P”/“Q”/“S”: 1274
                         unset /q answer
                         set answer=%STORED_ANSWER%
-                        if  "%STORED_ANSWER%" == "P" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%INPUT_FILE%"
-                        if  "%STORED_ANSWER%" == "Q" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_Q "%INPUT_FILE%"
-                        if  "%STORED_ANSWER%" == "S" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_S "%INPUT_FILE%"
+                        if  "%STORED_ANSWER%" == "P" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
+                        if  "%STORED_ANSWER%" == "Q" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
+                        if  "%STORED_ANSWER%" == "S" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
                         if  "%STORED_ANSWER%" == "P" .or. "%STORED_ANSWER%" == "Q" .or. "%STORED_ANSWER%" == "S" goto /i  proceed_prompt
                 rem “U”: 1305
                         unset /q answer
                         set answer=%STORED_ANSWER%
-                        if  "%STORED_ANSWER%" == "U" (gosub ask_if_untranscribeable "%INPUT_FILE%" %+ goto /i :nothing_generated)
+                        if  "%STORED_ANSWER%" == "U" (gosub ask_if_untranscribeable "%@UNQUOTE["%INPUT_FILE%"]" %+ goto /i :nothing_generated)
 
 
 REM quick chance to edit prompt:
@@ -2167,8 +2169,6 @@ rem Full-endeavor success message:
                                 iff "Y" == "%ANSWER%" .or. "W" == "%ANSWER%" .or. "1" == "%DO_WHISPER_TIME_SYNC%" then
                                         set DO_WHISPER_TIME_SYNC=0                                                                      %+ rem Turn Off Flag
                                         call             WhisperTimeSync "%SRT_FILE%" "%TXT_FILE%"  "%@UNQUOTE["%INPUT_FILE%"]"
-pause "turning echo on while figuring out this weird WTS error"
-@echo on 
                                         goto /i display_karaoke_before_asking_to_edit_it
                                 endiff
                         :WhisperTimeSync_alignment_complete
@@ -2225,8 +2225,8 @@ pause "turning echo on while figuring out this weird WTS error"
                                 rem “P”/“Q”: 
                                         set ANSWER=%HELD_ANSWER_1922%
                                         set player_command_extra_options=show_karaoke
-                                        iff "%ANSWER" == "P" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%input_FILE%"
-                                        iff "%ANSWER" == "Q" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_Q "%input_FILE%"
+                                        iff "%ANSWER" == "P" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
+                                        iff "%ANSWER" == "Q" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
                                         unset /q player_command_extra_options
                                         set ANSWER=%HELD_ANSWER_1922%
                                         iff "%ANSWER" == "P" then goto /i ask_about_karaoke_edit
@@ -2368,11 +2368,11 @@ goto /i skip_subroutines
 
                         rem Actually call our text editor and actually edit the files:
                                 iff "1" == "%DEBUG_EDITOR%" then
-                                        echo %ansi_color_debug%- [DEBUG] COMMAND IS: %EDITOR% %FILES_TO_USE% %ansi_color_normal% 
-                                        pause
+                                        echo %ansi_color_debug%- [DEBUG] ₈COMMAND IS: %EDITOR% %FILES_TO_USE% %ansi_color_normal% 
                                 endiff
+                                pause "%ansi_color_warning%%blink_on%Press any key to %italics_on%start your edits%italics_off%...%blink_off%%ansi_color_normal%"
                                 %EDITOR% %FILES_TO_USE%
-                                pause "%ansi_color_warning%%blink_on%Press any key when done with edits...%blink_off%%ansi_color_normal%"
+                                pause "%ansi_color_warning%%blink_on%Press any key when %italics_on%done with edits%italics_off%...%blink_off%%ansi_color_normal%"
 
                         rem Continue on with normal workflow if we are creating karaoke:
                                 iff "1" != "%skip_review_changes_with_stripes%" then

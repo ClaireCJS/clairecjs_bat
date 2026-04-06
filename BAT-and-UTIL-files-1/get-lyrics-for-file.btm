@@ -336,7 +336,8 @@ rem VALIDATE PARAMETERS [every time]:
                 gosub "%BAT%\create-srt-from-file.bat" validate_transcribeable_filename "%AUDIO_FILE%" "getting lyrics"
                 set retval=%_?
                 iff "%_?" == "666" .or. "%retval%" == "666" .or. "1" == "%goto_end%" then
-                        echo %EMOJI_STOP_SIGN% Aborting...
+                        echo %EMOJI_STOP_SIGN% %ansi_color_warning_soft%Aborting because this file is not transcribeable...%ansi_color_normal%
+                        quit 123
                         goto /i final_ending
                 endiff
 
@@ -1644,22 +1645,31 @@ rem Check if we have one in our lyric repository already, via 2 different filena
         if  "1" == "%goto_download_with_lyric_downloader_1%" goto download_with_lyric_downloader_init
         iff "1" == "%PROCESS_MAYBE_1%" then
                 unset /q ANSWER hold_answer
-                call AskYn "%conceal_on%2%conceal_off%Do %italics_on%these%italics_off% look acceptable (%ansi_color_bright_green%H%ansi_color_prompt%=Yes+%ansi_color_bright_green%H%ansi_color_prompt%and-edit,%ansi_color_bright_green%L%ansi_color_prompt%=No! Give up/%ansi_color_bright_green%L%ansi_color_prompt%yriclessness)" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% HL H:Yes_but_hand_edit_first,L:No!_Marking_as_lyricless
+                call AskYn "%conceal_on%2%conceal_off%Do %italics_on%these%italics_off% look acceptable (%ansi_color_bright_green%H%ansi_color_prompt%=Yes+%ansi_color_bright_green%H%ansi_color_prompt%and-edit,%ansi_color_bright_green%L%ansi_color_prompt%=No! Give up/%ansi_color_bright_green%L%ansi_color_prompt%yriclessness)" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% HL H:Yes_but_hand_edit_it_first,L:No!_Marking_as_lyricless
                 iff "%ANSWER%" == "Y" .or. "%ANSWER%" == "H" then
                         *copy /q "%MAYBE_LYRICS_1%" "%LYRIC_FILE%" >nul
+
+
+                        iff not exist "%LYRIC_FILE%" then
+                                call error "Well. This shouldn%apostrophe%t happen. #9334033440" 
+                                beep 
+                                pause 
+                                call exit-maybe
+                        endiff
+
                         iff exist "%LYRIC_FILE%" then
+                                echo [1☁] about to call edit_lyrics_now_if_we_answered_H 🐐
+                                if "%ANSWER%" == "H" gosub edit_lyrics_now_if_we_answered_H H
+                                set DO_NOT_ASK_TO_HAND_EDIT=1
+                                set    JUST_APPROVED_LYRICS=1
+                                set       LYRICS_ACCEPTABLE=1
+
                                 call approve-lyrics "%LYRIC_FILE%"
                                 set LYRICS_ACCEPTABLE=1
                                 set LYRIC_STATUS=APPROVED
+                                set LYRIC_STATUS=APPROVED
                         endiff
-                        set LYRIC_STATUS=APPROVED
-                        if not exist "%LYRIC_FILE%" (call error "Well. This shouldn%apostrophe%t happen. #9334033440" %+ beep %+ pause %+ call exit-maybe)
-                        rem 
-                        echo [1☁] about to call edit_lyrics_now_if_we_answered_H 🐐
-                        if "%ANSWER%" == "H" gosub edit_lyrics_now_if_we_answered_H H
-                        set DO_NOT_ASK_TO_HAND_EDIT=1
-                        set    JUST_APPROVED_LYRICS=1
-                        set       LYRICS_ACCEPTABLE=1
+
                         goto /i have_acceptable_lyrics_now_or_at_the_very_least_are_done
                 else
                         set LYRICS_ACCEPTABLE=0
@@ -2241,7 +2251,10 @@ setdos /x0
                                 call bigecho %ansi_color_red%%COOL_QUESTION_MARK%%ansi_color_red%Are the lyrics good for: %bold_on%“%bold_off%%ansi_color_green%%italics_on%%@IF[%UNQUOTE["%file_song_to_use%"] != "",%FILE_SONG_TO_USE%,%FILE_SONG%]%italics_off%%ansi_color_red%%bold_on%”%bold_off%%ansi_color_red%...
                                 if "" != "%FILE_artist_TO_USE%" call bigecho %ansi_color_red%%COOL_QUESTION_MARK%...by %bold_on%“%bold_off%%italics_on%%ansi_color_green%%FILE_artist_TO_USE%%italics_off%%ansi_color_red%%bold_on%”%bold_off% ...
                                 unset /q ANSWER
-                                @call AskYn "Are they good? [D%ANSI_COLOR_PROMPT%%CONNECTING_EQUALS%e%ansi_color_bright_green%D%ansi_color_prompt%it artist/song,%ANSI_COLOR_bright_green%H%ANSI_COLOR_PROMPT%and-edit lyrics,%ANSI_COLOR_bright_green%G%ANSI_COLOR_PROMPT%oogle lyrics,%ANSI_COLOR_bright_green%L%ansi_color_prompt%yricless(%ansi_color_bright_green%Z%ansi_color_prompt%=all),%ANSI_COLOR_bright_green%I%ansi_color_prompt%nstrum(%ansi_color_bright_green%X%ansi_color_prompt%=All),%ANSI_COLOR_bright_green%P%ansi_color_prompt%=Play,s%ansi_color_bright_green%K%ansi_color_prompt%ip]" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% DEGHILPQRXZ D:Edit_artist_and_song_name,G:Google_for_some_lyrics,H:Yes_but_hand_edit_them,L:No_and_Mark_As_Lyricless,Z:Mark_all_as_lyricless,I:rename_as_instrumental,Q:enQueue_in_winamp,P:play_it_baby,X:mark_all_files_as_instrumental,R:rename_the_file_first,S:Skip_file
+                                set USE_WAIT_TIME=%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
+                                if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set USE_WAIT_TIME=0
+                                rem DEBUG: pause "if “1” == “%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%” set USE_WAIT_TIME=0 has set USE_WAIT_TIME to %USE_WAIT_TIME%"
+                                @call AskYn "₈Are they good? [D%ANSI_COLOR_PROMPT%%CONNECTING_EQUALS%e%ansi_color_bright_green%D%ansi_color_prompt%it artist/song,%ANSI_COLOR_bright_green%H%ANSI_COLOR_PROMPT%and-edit lyrics,%ANSI_COLOR_bright_green%G%ANSI_COLOR_PROMPT%oogle lyrics,%ANSI_COLOR_bright_green%L%ansi_color_prompt%yricless(%ansi_color_bright_green%Z%ansi_color_prompt%=all),%ANSI_COLOR_bright_green%I%ansi_color_prompt%nstrum(%ansi_color_bright_green%X%ansi_color_prompt%=All),%ANSI_COLOR_bright_green%P%ansi_color_prompt%=Play,s%ansi_color_bright_green%K%ansi_color_prompt%ip]" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %USE_WAIT_TIME% DEGHILPQRXZ D:Edit_artist_and_song_name,G:Google_for_some_lyrics,H:Yes_but_hand_edit_them,L:No_and_Mark_As_Lyricless,Z:Mark_all_as_lyricless,I:rename_as_instrumental,Q:enQueue_in_winamp,P:play_it_baby,X:mark_all_files_as_instrumental,R:rename_the_file_first,S:Skip_file
                                 set hold_answer_main=%ANSWER%
 
                                 gosub check_for_answer_of_R
@@ -3958,7 +3971,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                 gosub rename_audio_file_as_instrumental %a_different_filename_than_usual% "sound effect"
                 if "%optional_name_of_env_var_to_set_to_new_filename%" != "" .and. "%LAST_RENAMED_TO%" != "" set %[%optional_name_of_env_var_to_set_to_new_filename%]=%LAST_RENAMED_TO%                                                                                                                                                                                      
         return
-        :rename_audio_file_as_instrumental [different_filename_than_usual as_what ask]                        
+        :rename_audio_file_as_instrumental [different_filename_than_usual as_what ask force]                        
                 rem renaming as instrumental or as what else?
                         set nature=instrumental
                         if "" != "%@UNQUOTE["%as_what%"]" .and. "ask" != "%@UNQUOTE["%as_what%"]" set nature=%@UNQUOTE[%as_what%]
@@ -3978,7 +3991,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
                 rem Skip if the file has already been marked as an instrumental/whatever:
                         rem 20250327: added brackets around %nature% in regex
-                        iff "%@Regex[\[%nature%\],"%filename_to_rename_as_instrumental_or_whatever%"]" == "1" then
+                        iff "%@Regex[\[%nature%\],"%filename_to_rename_as_instrumental_or_whatever%"]" == "1" .and. "%force%" != "force" then
                                 echo %ansi_color_warning_soft%%star2% %italics_on%Already marked%italics_off% as %nature%: “%faint_on%%filename_to_rename_as_instrumental_or_whatever%%faint_off%”
                                 set already_marked_as=1
                         else

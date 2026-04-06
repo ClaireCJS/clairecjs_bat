@@ -389,7 +389,7 @@ rem Section moved from WhisperTimeSync-helper.bat (happening before our comparis
                         unset /q ANSWER
                         set WAIT_OPEN_SUBS_IN_EDITOR=%DEFAULT_WAIT_OPEN_SUBS_IN_EDITOR%
                         if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%"  set WAIT_OPEN_SUBS_IN_EDITOR=0
-                        call AskYn "%faint_on%[WhisperTimeSync]%faint_off% Open old & new subtitles in editor" no %WAIT_OPEN_SUBS_IN_EDITOR%
+                        call AskYn "%faint_on%[WhisperTimeSync]%faint_off% Open old & new subtitles in editor" yes %WAIT_OPEN_SUBS_IN_EDITOR%
                         if "Y" == "%ANSWER%" set text_editor_must_be_opened=1
                 endiff
 

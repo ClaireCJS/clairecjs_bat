@@ -136,14 +136,15 @@ rem Get mode type:
 
 rem Create meaningfully-named temporary file:
         set DELETING_BAD_AI_TRANSCRIPTIONS=1
-        rem NUM_STEPS=20
-        rem NUM_STEPS=12
-        rem NUM_STEPS=13
-        rem NUM_STEPS=22
-        rem NUM_STEPS=14
+        rem NUM_STEPS=20   
+        rem NUM_STEPS=12   
+        rem NUM_STEPS=13   \__ just a little history of how the # of steps have changed over time  
+        rem NUM_STEPS=22   /                                                                       
+        rem NUM_STEPS=14                                                                           
         rem NUM_STEPS=16
         rem NUM_STEPS=17
-        set NUM_STEPS=18
+        rem NUM_STEPS=18
+        set NUM_STEPS=19
         set     step_num=1
         gosub   step
         call set-tmp-file "kill bad AI transcriptions filelist A1_original"               %+  set tmpfile1=%tmpfile%.lst
@@ -202,6 +203,7 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
                         gosub step %+ (grep -i Ding,.ding,.bop                                              %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i I.m.going.to.play.a.little.bit.of.the.first.one.*and.then    %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i Thank.you.for.watching                                       %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i Thanks.for.watching                                          %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         rem ✨✨✨ ADD NEW PATTERNS TO LYRIC-POSTPROCESSOR.PL and SUBTITLE-POSTPROCESSER.PL  ✨✨✨
                         rem POSSIBLE ONE: “Oh, honey, wait for me.”
                 rem MIS-IDENTIFIED SONG HALLUCINATIONS WHICH ARE A SLIGHTLY DIFFERENT NATURE AND NOT HANDLED IN OUR LYRIC/SUBTITLE POSTPROCESSORS:

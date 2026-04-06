@@ -87,6 +87,7 @@ my @hallucination_patterns = (
     qr/And this is the fourth one/i,
     qr/And this is the fifth one/i,
     qr/Thank you for watching/i,
+    qr/Thanks for watching/i,
 );
 
 ###########  AI CONFIGURATION: ^^END^  ###########

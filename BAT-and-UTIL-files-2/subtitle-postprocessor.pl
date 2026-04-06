@@ -59,7 +59,8 @@ my @hallucination_patterns              = (								     # WhisperAI silence hall
 		qr/And this is the fifth one/i,                         # WhisperAI silence hallucination
 		qr/Ding, ding, bop/i,                                    # WhisperAI silence hallucination
 		qr/I.m going to play a little bit of the first one.*and then/i,
-		qr/Thank you for watching/i,
+		qr/Thank you for watching[\.!]*/i,
+		qr/Thanks for watching[\.!]*/i,
 		#### NOTE: Add new patterns to lyric-postprocessor.pl & delete-bad-AI-transcriptions.bat
 );
 
@@ -416,8 +417,8 @@ sub whisper_ai_postprocess {
 	$s =  &de_censor($s);																		                         # remove censorshi —— see —t option for testing the decensoring code
 																							                            
 	################ LINE-BASED FIXES: WHISPER-AI HALLUCATIONS ################
-	for my $re (@hallucination_patterns) { $s =~ s/$re//g; }
-
+	for my $re (@hallucination_patterns) { $s =~ s/$re//gi; }
+	$s =~ s/Thank you for watching[\.!]*//ig;																				 # 202604: this one keeps showing up so trying to fix it a second time as an experiment
 	
 	################ LINE-BASED FIXES: LYRIC WEBSITE SPAM: ################						# If our code was more honest, this would be in a separate function as it’s not *directly* related to WhisperAI postprocessing, and more of an artifact of downloading lyrics from websites with autodownloaders like “LyricsGenius.exe”
 	$s =~ s/\*? (No|\[(duble|metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z\d]+lyrics[a-z\d]*|\[[a-z0-9]+ )\]) filter used//i;

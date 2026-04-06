@@ -14,7 +14,15 @@ rem Store original %ANSWER%:
         if defined answer set hold_answer_aif=%answer%
 
 rem Flush previous “No” answers that were stored in files’ ADS tags:
-        if "%1" == "force" call unmark-all-filenames-ADS-tag-for-as_instrumental.bat
+        iff "%1" == "force" .or. "%2" == "force" then
+                set AII_FORCE=1
+                iff "%1" == "force" then
+                        call unmark-all-filenames-ADS-tag-for-as_instrumental.bat
+                endiff
+        else
+                set AII_FORCE=0
+        endiff
+        
 
 rem Main:
         @set SOME_INSTRUMENTALS_WERE_MARKED=0
@@ -22,7 +30,7 @@ rem Main:
         iff "%@UNQUOTE["%1"]" == "" then                
                 call ask-if-these-are-instrumentals.bat  %*
         elseiff exist %1 then
-                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental %1 instrumental ask
+                gosub "%BAT%\get-lyrics-for-file.btm" rename_audio_file_as_instrumental %1 instrumental ask %2
         else
                 call warning "Not sure what to do..."
         endiff

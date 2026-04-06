@@ -152,6 +152,11 @@ def main_guts(input_filename, extensions, options, extra_args):
         if     "sound effect"      in file.lower() or   "sound effect"      in path.lower(): continue           # this sloppier-than-the-rest catch-all turned out to be necessary
         if    "(untranscribable)"  in file.lower() or  "[untranscribable]"  in file.lower(): continue
         if    "(untranscribeable)" in file.lower() or  "[untranscribeable]" in file.lower(): continue
+        if    "(no vocals)"        in file.lower() or  "(no lyrics)"        in file.lower(): continue
+        if    "(no vocals)"        in file.lower() or  "(no lyrics)"        in path.lower(): continue
+        if    "[no vocals]"        in file.lower() or  "[no lyrics]"        in file.lower(): continue
+        if    "[no vocals]"        in file.lower() or  "[no lyrics]"        in path.lower(): continue
+        if    "(untranscribeable)" in file.lower() or  "[untranscribeable]" in file.lower(): continue
 
         # get filenames
         base_filename, _ = os.path.splitext(file)

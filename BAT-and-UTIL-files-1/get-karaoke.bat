@@ -20,6 +20,9 @@ rem Debug configuration:
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+rem Unset flag variables that get used later (and unset them again at the end!): 
+        gosub unset_flag_variables
+
 rem Validate usage:
         iff "%1" == "" then
                 %color_advice%
@@ -28,6 +31,7 @@ rem Validate usage:
                         echo %STAR% USAGE: %ansi_color_pink%get-karaoke %italics_on%playlist.m3u%italics_off% %ansi_color_advice%—— attempts to align karaoke for all audio files in a playlist
                         echo %STAR% USAGE: %ansi_color_pink%get-karaoke here         %ansi_color_advice%—— attempts to align karaoke for all audio files in the current folder
                         echo %STAR% USAGE: %ansi_color_pink%get-karaoke this         %ansi_color_advice%—— attempts to align karaoke for the audio file currently playing in WinAmp                        
+                        echo %STAR% USAGE: Add the %italics_on%fast%italics_off% parameter at the end to speed things up by skipping the deletion of bad AI files
                         echo                                      %italics_on%nowplaying, np, now, %italics_off%and%italics_on% winamp%italics_off% —— should also work
                         echo.
                         echo. %STAR% ENVIRONMENT VARIABLE PARAMETERS:
@@ -72,17 +76,16 @@ rem Process current folder:
                         if exist %CREATE_MISSING_KRAOKES_SCRIPT_NAME% (echos %ansi_color_removal%%axe%%axe% `` %+ *del /z /a: /Ns %CREATE_MISSING_KRAOKES_SCRIPT_NAME%)
 
                 rem Determine mode:
-                        unset /q get
-                        unset /q report_only
-                        unset /q gk_force_mode
                         :reparam
-                        if "%1"  == "get"            (set get=get            %+ shift %+ goto /i :reparam)
-                        if "%1"  == "PromptAnalysis" (set get=PromptAnalysis %+ shift %+ goto /i :reparam)
                         if  "1"  == "%report_only%"  (set get=/f)
-                        if "%1"  == "report"         (set   report_only=1    %+ shift %+ goto /i :reparam)
-                        if "%1"  == "force"          (set gk_force_mode=1    %+ shift %+ goto /i :reparam)
+                        if "%1"  == "get"            (set get=get                   %+ shift %+ goto /i :reparam)
+                        if "%1"  == "PromptAnalysis" (set get=PromptAnalysis        %+ shift %+ goto /i :reparam)
+                        if "%1"  == "report"         (set report_only=1             %+ shift %+ goto /i :reparam)
+                        if "%1"  == "force"          (set gk_force_mode=1           %+ shift %+ goto /i :reparam)
+                        if "%1"  == "fast"           (set gk_fast_mode=1            %+ shift %+ goto /i :reparam)
+
                         if "%1$" != "" pause "we still have leftover command tail with: %1$ [db092438902340892438]"
-                        set command_tail_to_use=%get% %2 %3 %4 %5 %6 %7 %8 %9$ %@if["1" == "%gk_force_mode",force,]
+                        set command_tail_to_use=%get% %2 %3 %4 %5 %6 %7 %8 %9$ %@if["1" == "%gk_force_mode",force,] %@if["1" == "%gk_fast_mode",fast,]
                         if "1" == "%DEBUG_GK_CMDTAIL_PROC%" pause "command_tail_to_use=%@UNQUOTE["%command_tail_to_use%"]"
                         if "1" == "%DEBUG_GK_CFMK_CALL%"    echo %ansi_color_debug%- DEBUG: Running: %CALL% check-for-missing-karaoke.bat %command_tail_to_use%
                         %CALL% check-for-missing-karaoke.bat %command_tail_to_use%
@@ -134,14 +137,27 @@ rem Process playlists / single audio files:
         endiff
         setdos /x0
 
+
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ S U B R O U T I N E S ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        goto:END
+
+        :unset_flag_variables []
+                unset /q get
+                unset /q report_only
+                unset /q gk_force_mode
+                unset /q gk_fast_mode
+        return
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ S U B R O U T I N E S ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 
 rem Clean up & finish:
-
-:END
-setdos /x0
-unset /q get report_only
+        :END
+        setdos /x0
+        gosub unset_flag_variables
+        unset /q get report_only
 
 

@@ -59,6 +59,7 @@ rem Usage:
                         echo USAGE: %ansi_color_bright_yellow%%0 /s %zzzz%%ansi_color_advice%━━━━━━━━━━━━━%zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz% checks for missing karaoke in current folder, but RECURSIVELY
                         echo USAGE: %ansi_color_bright_yellow%%0 /f %zzzz%%ansi_color_advice%━━━━━━━━━━━━━%zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz% checks for missing karaoke in current folder, ignoring lockfiles
                         echo USAGE: %ansi_color_bright_yellow%                                             %ansi_color_advice%%bold_on%%EMOJI_UP_LEFT_ARROW%%bold_off%%faint_on%in case you want to run multiple instances in one folder%faint_off%
+                        echo USAGE: Add the %italics_on%fast%italics_off% parameter at the end to speed things up by skipping the deletion of bad AI files
                 %color_normal%
                 set ABORT=1
                 goto :env_check
@@ -147,15 +148,18 @@ rem Initialization:
         set  FILELIST_TO_USE=%DEFAULT_FILELIST_NAME_TO_USE%
 
 rem Parameter processing:
-        :Again
         set        CFMK_GET=0
+        set       CFMK_FAST=0
         set      CFMK_FORCE=0
         set    RECURSE_CFMK=0
         set CUSTOM_FILELIST=0
-        if "%1" == "get"                         (shift %+ set CFMK_GET=1                )
-        if "%1" == "force"                       (shift %+ set CFMK_FORCE=1              )
-        if "%1" == "/s"                          (shift %+ set RECURSE_CFMK=1            )
-        if "%1" == "/f"                          (shift %+ set ONLY_RUN_ONCE_PER_FOLDER=0)
+        :Again
+        rem pause "checking parameter %lq%%1%rq%"
+        if "%1" == "get"                         (shift %+ set CFMK_GET=1                 %+ goto :Again)
+        if "%1" == "force"                       (shift %+ set CFMK_FORCE=1               %+ goto :Again)
+        if "%1" == "/s"                          (shift %+ set RECURSE_CFMK=1             %+ goto :Again)
+        if "%1" == "/f"                          (shift %+ set ONLY_RUN_ONCE_PER_FOLDER=0 %+ goto :Again)
+        if "%1" == "fast"                        (shift %+ set CFMK_FAST=1                %+ goto :Again)
         if exist "%1" .and. "M3U" == "%@EXT[%1]" (set FILELIST_TO_USE=%@UNQUOTE[%1] %+ set CUSTOM_FILELIST=1 %+ echo. %+ echo %ansi_color_less_important%%star2% Using filelist of: %blink_on%%italics_on%%FILELIST_TO_USE%%italics_off%%blink_off%%ansi_color_normal% %+ shift)
         if exist "%1" .and. "M3U" != "%@EXT[%1]" (echo. %+ call warning "Not processing file because it’s not an m3u playlist: %italics_on%“%1”%italics_off%" %+ set ABORT=1  %+ goto :Usage)
         if "%1" != ""                            (echo. %+ echo %ANSI_COLOR_FATAL_ERROR%* ERROR: check-for-missing-karaoke.bat still need to process command tail value of, but doesn’t know how:%ANSI_COLOR_IMPORTANT% %1$ %+ shift %+ set ABORT=1 %+ goto /i Again)
@@ -163,8 +167,7 @@ rem Parameter processing:
         if "1" == "%ABORT%" goto :END
 
 rem Debug:
-        rem echo recurse_cfmk is %RECURSE_CFMK% 
-
+        rem pause "recurse_cfmk is %RECURSE_CFMK% , CFMK_FAST is %CFMK_FAST, CFMK_GET=%CFMK_GET%"
 
 
 
@@ -184,8 +187,15 @@ rem Parameter checking:
                         rem ^^^ There still might be errors here in the event of audio files not being present, but 100% of them having "instrumental" in their name. Therefore, let's suppress stderr
                 endiff                        
 
-        rem If the filelist is these or all.m3u we need to regenerate them...  (Do we really?)
-                if ("%filelist_to_use%" == "these.m3u" .or. "%filelist_to_use%" == "all.m3u") .and. "1" != "%CUSTOM_FILELIST%" (call mp3index)
+        rem If we used the “/s”:
+                iff "1" == "%RECURSE_CFMK%" then
+                        call mp3index 
+                        set CUSTOM_FILELIST=1
+                        set FLIELIST_TO_USE=all.m3u
+                endiff
+
+        rem If the filelist is these or all.m3u we should quickly regenerate them in vocal only mode...
+                if ("%filelist_to_use%" == "these.m3u" .or. "%filelist_to_use%" == "all.m3u") .and. "1" != "%CUSTOM_FILELIST%" (call mp3index vocalonly)
 
 rem Debug info:
         if %DEBUG gt 0 echo %ANSI_COLOR_DEBUG%- PARAMS: %PARAMS%%newline%%tab%using filelist of = %FILELIST_TO_USE%%newline%%tab%using filemask of = %FILEMASK_TO_USE%%ANSI_COLOR_NORMAL%
@@ -207,19 +217,22 @@ rem             this would thwart us. So we will make it configutable
 
 
 rem If the filelist doesn't exist...
-        if "1" == "%CUSTOM_FILELIST%" goto :skip_to_here_if_using_custom_filelist
-        call mp3index vocalonly
-        iff "1" == "%RECURSE_CFMK%" then
-                if not exist   all.m3u .or. 0 eq %@FILESIZE[all.m3u]   goto /i END
-        else                
-                if not exist these.m3u .or. 0 eq %@FILESIZE[these.m3u] goto /i END
-        endiff                
-        :skip_to_here_if_using_custom_filelist
+        iff "1" != "%CUSTOM_FILELIST%" .and. "" then
+                call mp3index vocalonly
+                iff "1" == "%RECURSE_CFMK%" then
+                        if not exist   all.m3u .or. 0 eq %@FILESIZE[all.m3u]   goto /i END
+                else                
+                        if not exist these.m3u .or. 0 eq %@FILESIZE[these.m3u] goto /i END
+                endiff                
+        endiff
 
 rem Kill bad transcriptions first:
-        if "0" == "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" goto /i skip_delete_bad
-        call delete-bad-ai-transcriptions 3
-        :skip_delete_bad
+        rem pause "gk_fast_mode is %GK_FAST_MODE%"
+        iff "0" == "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" .or. "1" == "%gk_fast_mode%" then
+                set SKIPPED=skipped deleting bad AI transcriptions
+        else
+                call delete-bad-ai-transcriptions 3
+        endiff
         setdos /x0
 
 
@@ -227,10 +240,14 @@ rem Debug:
         rem echo ❼ FILELIST_TO_USE is “%FILELIST_TO_USE%” 🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱🐱>nul
 
 rem Check for songs missing sidecar TXT files :
-        set last_check_for_missing_karaoke_command=(check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py "%FILELIST_TO_USE%" *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") `|:u8` fast_cat
-        set                           last_command=(check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py "%FILELIST_TO_USE%" *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") `|:u8` fast_cat
-                                                   (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py "%FILELIST_TO_USE%" *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ")  |:u8  fast_cat
-        call errorlevel
+        iff exist %FILELIST_TO_USE% then
+                set last_check_for_missing_karaoke_command=(check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py "%FILELIST_TO_USE%" *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") `|:u8` fast_cat
+                set                           last_command=(check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py "%FILELIST_TO_USE%" *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ") `|:u8` fast_cat
+                                                           (check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py "%FILELIST_TO_USE%" *.srt;*.lrc createsrtfilewrite %params% |:u8 insert-before-each-line.py "%EMOJI_WARNING% %ANSI_COLOR_ALARM% MISSING KARAOKE %ANSI_RESET% %EMOJI_WARNING% %DASH% ")  |:u8  fast_cat
+                call errorlevel
+        else
+                call warning_soft "Not checking for missing karaoke because %italics_on%%FILELIST_TO_USE%%italics_off% does not exist in %italics_on%%faint_on%%[_CWP]%faint_off%%%italics_off%"
+        endiff
 
 rem 🧹🧹🧹 While we're here, do some cleanup: 🧹🧹🧹
         iff exist *.json then
@@ -374,12 +391,16 @@ rem ═════════════════════════�
 
 
 :END
+:END_OF_CFMK
         :Cleanup
-                iff "1" == "%ONLY_RUN_ONCE_PER_FOLDER%" then
-                        gosub lockfile_folderlevel_delete_lockfile
-                        unset /q ONLY_RUN_ONCE_PER_FOLDER
-                endiff
+                rem Deal with folder-level lockfiles:
+                        iff "1" == "%ONLY_RUN_ONCE_PER_FOLDER%" then
+                                gosub lockfile_folderlevel_delete_lockfile
+                                unset /q ONLY_RUN_ONCE_PER_FOLDER
+                        endiff
 
+                rem if necessary, regenerate these.m3u/all.m3u NOT in vocal mode, to restore the state to how things were before calling this script:
+                        if ("%filelist_to_use%" == "these.m3u" .or. "%filelist_to_use%" == "all.m3u") .and. "1" != "%CUSTOM_FILELIST%" (call mp3index)
         
 
 

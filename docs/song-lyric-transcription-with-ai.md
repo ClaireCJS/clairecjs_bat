@@ -188,8 +188,10 @@ From a running TCC command line, use whatever system commands you’d like from 
 
   - For single songs/files: ```get-lyrics {filename}``` to align lyrics, ```get-karaoke {filename}``` to transcribe aligned lyrics to subtitle/karaoke file. 
     - ⚡ For Winamp Integration only: ⚡ To operate on the song currently playing in WinAmp: ```glt``` (```get-lyrics this```) to align lyrics, ```gkt``` (```get-karaoke this```) to transcribe
+    - Add the ```fast``` parameter to skip the search & deletion of bad AI files.
 
-   - For albums/folders: ```glh``` (```get-lyrics-here```) until lyrics are aligned, then ```gkh``` (```get-karaokes-here```) to transcribe.  Beforehand, optionally use ```predownload-lyrics```, ```ask-if-instrumentals``` and ```ask-if-lyricless```.
+
+  - For albums/folders: ```glh``` (```get-lyrics-here```) until lyrics are aligned, then ```gkh``` (```get-karaokes-here```) to transcribe.  Beforehand, optionally use ```predownload-lyrics```, ```ask-if-instrumentals``` and ```ask-if-lyricless```.
 
   - For playlists/filelists: ```get-lyrics playlist.m3u``` or ```get-karaoke playlist.m3u```, where *playlist.m3u* is the filename of the playlist you want to traverse
 
@@ -253,7 +255,9 @@ Type “work”         to be interactively asked as to the nature of your work.
   - (2) transcribe in    random    order: ```sweep-random "gkh" force``` 
   - Repeat transcription command until everything is transcribed
   - Ren ```gkh report``` if you want to see what percentage remains in a specific folder (like if you’ve been working a folder with hundreds of songs and are curious).
-   - Track total project progress with ```report-lyric-and-subtitle-percentage-completion```, which takes a snapshot of progress that lets you see your progress over time
+  - Track total project progress with ```report-lyric-and-subtitle-percentage-completion```, which takes a snapshot of progress that lets you see your progress over time
+  - Add the ```fast``` parameter to skip the search & deletion of bad AI files.
+
 </details>
 
 <details><summary>Click here to view Step ④: Cleanup & reporting.</summary>  
@@ -721,6 +725,7 @@ Reviews all karaoke files in current folder, using ```print-with-columns``` to e
 
 Displays a list of files in the *current folder* which are missing *karaoke* files, defaulting to use ```these.m3u``` is the playlist to check.
 Pass a playlist filename to use a playlist other than ```these.m3u```
+Add the ```fast``` parameter to skip the search & deletion of bad AI files.
 
 ![image](https://github.com/user-attachments/assets/61e1f155-a798-4668-945a-7d7dd2ac06dc)
 
