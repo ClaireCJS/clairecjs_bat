@@ -1,5 +1,5 @@
 @loadbtm on
-@Echo on
+@Echo off
 @set whisper_alignment_happened=0
 
 rem DOCUMENTATION:

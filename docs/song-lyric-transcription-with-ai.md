@@ -553,7 +553,7 @@ Rarely used side-utility: Creates karaoke files for **all songs** in a *folder t
 										 
 ## 🌟 Karaoke Repair
 
-### 🌟 [WhisperTimeSync.bat](../WhisperTimeSync.bat) [{bad_subtitle_file} {good_text_file} {optional_audio_file}] or [{audio_file to imply subtitles and lyrics from the filename of}]:
+### 🌟 [WhisperTimeSync.bat](../WhisperTimeSync.bat) [{bad_subtitle_file} {good_text_file} {optional_audio_file}] or [{audio_file to imply subtitles and lyrics from the filename of}] / wtsthis.bat / wtst.bat:
 
 Use the incorporated instance of the [WhisperTimeSync](https://github.com/EtienneAb3d/WhisperTimeSync) project to fix mis-transcriptions in the SRT file by using the TXT lyrics as an official point of truth.  This is tricky, and the original project is fraught with implementation issues.  This script guides us through the steps to avoid those issues, including giving an option to directly enqueue songs into ⚡ WinAmp 🦙 to preview how the lyrics are being displayed in [MiniLyrics](https://minilyrics.en.softonic.com/), comparing the final timestamps of both files, and opening the before and after in our text editor so that we can manually review the re-sync’ed lyrics.  
 
