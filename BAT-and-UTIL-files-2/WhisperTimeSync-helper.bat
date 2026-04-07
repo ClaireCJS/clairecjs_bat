@@ -158,6 +158,7 @@ rem Inform user if final timestamp on new subtitles is different from final time
                 iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
                         call warning "Final timestamps differ!" big
                         call advice  "Make sure to manually review before/after subs in text editor"
+                        pause "TODO Create tail-appender script"
                         *pause
                         set our_display_color=%ansi_color_bright_red%
                 else

@@ -522,7 +522,7 @@
 2025-01-14  21:33            559   51%  get-lyrics-for-all-songs-in-this-folder.bat
 2024-11-11  15:33            418   42%  get-lyrics-for-currently-playing-song.bat
 2025-01-13  11:45             49    0%  get-lyrics-for-file.bat
-2026-04-06  17:35        379,006   82%  get-lyrics-for-file.btm
+2026-04-06  23:56        379,026   82%  get-lyrics-for-file.btm
 2025-03-01  21:15          1,068   53%  get-lyrics-for-playlist.bat
 2024-11-11  15:34             65   -3%  get-lyrics-for-song.bat
 2025-01-13  11:48             61   -1%  get-lyrics-from-song.bat
@@ -1255,8 +1255,8 @@
 2024-11-19  15:01          1,525   64%  whichdrive.bat
 2024-11-19  15:01          4,727   60%  whisper-faster.bat
 2025-06-09  12:12          1,601   64%  WhisperTimeSync-currently-playing-song.bat
-2026-03-28  14:02         13,101   72%  WhisperTimeSync-helper.bat
-2026-04-06  15:15         39,373   78%  WhisperTimeSync.bat
+2026-04-07  04:06         13,167   72%  WhisperTimeSync-helper.bat
+2026-04-07  03:45         39,374   78%  WhisperTimeSync.bat
 2025-01-12  16:43          4,367   70%  white-noise.bat
 2024-11-26  15:16             42    0%  who.bat
 2024-12-03  15:16             39   -5%  winamp-add.bat
@@ -1289,6 +1289,8 @@
 2026-03-17  15:28         12,061   79%  work.bat
 2025-01-13  11:52          3,543   67%  wrapper.bat
 2025-06-08  16:26             30   -6%  wts.bat
+2026-04-07  03:52             53   -3%  wtst.bat
+2026-04-07  03:52             53   -3%  wtsthis.bat
 2024-11-19  15:00          2,469   60%  x10.bat
 2024-11-19  15:00            660   47%  ydl-upgrade.bat
 2026-03-23  19:42         14,311   75%  ydl.bat
