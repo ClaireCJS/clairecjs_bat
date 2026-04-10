@@ -20,7 +20,7 @@ ON BREAK goto /i cmfk_onbreak
 
 rem ===== CONFIG: EXECUTION: ==========================================================================================================================
 
-set ONLY_RUN_ONCE_PER_FOLDER=1                                   %+ rem Use lockfiles to prevent two instances of this from running in the same folder simultaneously. There may be situations where you want to turn this off, like if you want to dedicate multilpe tabs to transcribing one folder.
+set ONLY_RUN_ONCE_PER_FOLDER=1                                           %+ rem Use lockfiles to prevent two instances of this from running in the same folder simultaneously. There may be situations where you want to turn this off, like if you want to dedicate multilpe tabs to transcribing one folder.
 
 set DEFAULT_FILELIST_NAME_TO_USE=these.m3u                               %+ rem name of playlist to go through to check
 set DEFAULT_ANSWER_TIMEOUT=1200                                          %+ rem Prompt timeout when running under normal / not-thorough mode
@@ -60,6 +60,7 @@ rem Usage:
                         echo USAGE: %ansi_color_bright_yellow%%0 /f %zzzz%%ansi_color_advice%━━━━━━━━━━━━━%zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz% checks for missing karaoke in current folder, ignoring lockfiles
                         echo USAGE: %ansi_color_bright_yellow%                                             %ansi_color_advice%%bold_on%%EMOJI_UP_LEFT_ARROW%%bold_off%%faint_on%in case you want to run multiple instances in one folder%faint_off%
                         echo USAGE: Add the %italics_on%fast%italics_off% parameter at the end to speed things up by skipping the deletion of bad AI files
+                        echo USAGE: Add the %italics_on%force%italics_off% parameter at the end to force things by skipping folder-level lockfile detection
                 %color_normal%
                 set ABORT=1
                 goto :env_check
@@ -323,14 +324,21 @@ rem ═════════════════════════�
         
 
 
-                        if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set ANSWER_TIMEOUT=0 
+
+                rem Skip lockfile detection if we are in force mode:
+                        iff "1" == "%CFMK_FORCE%" then
+                                set ANSWER=Y
+                                goto :forced_entry_from_331
+                        endiff
 
                 rem Ask if they want to delete the lockfile, using parameters that may have been modified by the “force” option:
+                        if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set ANSWER_TIMEOUT=0 
                         unset /q ANSWER
-                        call AskYN "Delete lockfile & proceed in this folder anyway" %ANSWER_DEFAULT% %ANSWER_TIMEOUT%
+                        call AskYN "Delete %italics_on%folder-level%italics_off% lockfile & proceed in this folder anyway" %ANSWER_DEFAULT% %ANSWER_TIMEOUT%
 
                 rem If the user answered “Yes” to our deletion question (which is not asked in “force” mode), then delete it:
                 rem Otherwise, let the user know that we are aborting execution because a lockfile exists and we are already working in this folder
+                        :forced_entry_from_331
                         iff "Y" == "%ANSWER%" .or. "1" == "%cfmk_force%"  then
                                 gosub lockfile_folderlevel_delete_lockfile
                         else

@@ -34,6 +34,13 @@ rename_mappings  = {                                # should be case sensitive
    "(bonus track)"         :  "[bonus track]"      ,
      "(vinyl rip)"         :  "[vinyl rip]"        ,
       "(denoised)"         :  "[denoised]"         ,
+           "(hissy)"       :       "[hissy]"       ,
+        "(sl hissy)"       :    "[sl hissy]"       ,
+      "(v sl hissy)"       :  "[v sl hissy]"       ,
+      "(LQ)"               :  "[LQ]"               ,
+      "(MQ)"               :  "[MQ]"               ,
+      "(MLQ)"              :  "[MLQ]"              ,
+      "(pops!)"            :  "[pops!]"            ,
 }
 
 

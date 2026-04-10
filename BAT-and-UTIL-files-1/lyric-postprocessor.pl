@@ -95,17 +95,16 @@ my @hallucination_patterns = (
 
 use strict;
 use warnings;
-
 use utf8;												# enable processing of modern character sets
 #binmode(STDOUT, ":utf8");								# enable processing of modern character sets
 #binmode(STDIN , ":utf8");								# enable processing of modern character sets
 #binmode(STDERR, ":utf8");								# enable processing of modern character sets
 
 
+use Encode qw(decode FB_CROAK);
 binmode(STDOUT, ":encoding(UTF-8)");					# output real UTF-8
 binmode(STDERR, ":encoding(UTF-8)");					# error output real UTF-8
 binmode(STDIN , ":raw");								# input must arrive as raw bytes so WE can decode it safely
-use Encode qw(decode FB_CROAK);
 use Encode::Guess;
 
 
@@ -186,49 +185,63 @@ my $INPUT;
 if ($filename eq "") {
 	$INPUT = *STDIN;
 } else {
-	#pen($INPUT, "<:utf8", $filename) or die "Could not open file '$filename': $!";		# breaks on malformed files, of which there are many
-	#pen($INPUT, "<:raw" , $filename) or die "Could not open file '$filename': $!";		# open raw, and decode to UTF-8 later after fixing malformed characters
-	open($INPUT, "<:utf8", $filename) or die "Could not open file '$filename': $!";		# breaks on malformed files, of which there are many
-	open($INPUT, "<:raw" , $filename) or die "Could not open file '$filename': $!";		# open raw, and decode to UTF-8 later after fixing malformed characters
+	#pen($INPUT, "<:utf8", $filename) or die "💥 lyric-postprocessor could not open file '$filename': $!";		# breaks on malformed files, of which there are many
+	#pen($INPUT, "<:raw" , $filename) or die "💥 lyric-postprocessor could not open file '$filename': $!";		# open raw, and decode to UTF-8 later after fixing malformed characters
+	#pen($INPUT, "<:utf8", $filename) or die "💥 lyric-postprocessor could not open file '$filename': $!";		# breaks on malformed files, of which there are many
+	open($INPUT, "<:raw" , $filename) or die "💥 lyric-postprocessor could not open file '$filename': $!";
+
 }
 
 
 
-while (<$INPUT>) {
-	my $line = $_;
-	my $raw  = $_;
-	#$raw     =~ s/\xA0/ /g;																	# Replace non-breaking space, which crashes us on various input files
-	#$line =~ s/\xA0/ /g;	
-	#$line =  decode('UTF-8', $raw, Encode::FB_CROAK | Encode::LEAVE_SRC);
-    #eval { $line = decode('UTF-8', $raw, FB_CROAK); };    # Try UTF-8 first        # If UTF-8 fails, fallback to Latin-1 (Windows-1252)
-    #if ($@) { eval    { $line = decode('Windows-1252', $raw, FB_CROAK   ); };
-    #          if ($@) { $line = decode('UTF-8'       , $raw, FB_HTMLCREF); warn "Warning: sanitized malformed line: $.\n"; } }	# As last resort, decode and replace problematic bytes with HTML entities
-    #my $decoder = Encode::Guess->guess($raw);       # If guessing fails, default to Latin1 and log a warning
-    #if (ref($decoder)) { $line = $decoder->decode($raw); } else { warn "Encoding guess failed at line $.: $decoder\n"; $line = decode("Windows-1252", $raw); }
-    #$line =~ s/\x{A0}/ /g;							# Replace non-breaking spaces
-    #$line =~ s/[^\x09\x0A\x0D\x20-\x7E]//g;			# Strip non-printables except tab/newline
-    # Continue your existing processing...
+## RAN FOR YEARS, NUKED 20260410:       while (<$INPUT>) {
+## RAN FOR YEARS, NUKED 20260410:       	my $raw       = $_;
+## RAN FOR YEARS, NUKED 20260410:       	my $line      = $_;
+## RAN FOR YEARS, NUKED 20260410:       	my $line_orig = $_;
+## RAN FOR YEARS, NUKED 20260410:       	#$raw     =~ s/\xA0/ /g;																	# Replace non-breaking space, which crashes us on various input files
+## RAN FOR YEARS, NUKED 20260410:       	#$line =~ s/\xA0/ /g;	
+## RAN FOR YEARS, NUKED 20260410:       	#$line =  decode('UTF-8', $raw, Encode::FB_CROAK | Encode::LEAVE_SRC);
+## RAN FOR YEARS, NUKED 20260410:           #eval { $line = decode('UTF-8', $raw, FB_CROAK); };    # Try UTF-8 first        # If UTF-8 fails, fallback to Latin-1 (Windows-1252)
+## RAN FOR YEARS, NUKED 20260410:           #if ($@) { eval    { $line = decode('Windows-1252', $raw, FB_CROAK   ); };
+## RAN FOR YEARS, NUKED 20260410:           #          if ($@) { $line = decode('UTF-8'       , $raw, FB_HTMLCREF); warn "Warning: sanitized malformed line: $.\n"; } }	# As last resort, decode and replace problematic bytes with HTML entities
+## RAN FOR YEARS, NUKED 20260410:           #my $decoder = Encode::Guess->guess($raw);       # If guessing fails, default to Latin1 and log a warning
+## RAN FOR YEARS, NUKED 20260410:           #if (ref($decoder)) { $line = $decoder->decode($raw); } else { warn "Encoding guess failed at line $.: $decoder\n"; $line = decode("Windows-1252", $raw); }
+## RAN FOR YEARS, NUKED 20260410:           #$line =~ s/\x{A0}/ /g;							# Replace non-breaking spaces
+## RAN FOR YEARS, NUKED 20260410:           #$line =~ s/[^\x09\x0A\x0D\x20-\x7E]//g;			# Strip non-printables except tab/newline
+## RAN FOR YEARS, NUKED 20260410:           # Continue your existing processing...
+## RAN FOR YEARS, NUKED 20260410:       
+## RAN FOR YEARS, NUKED 20260410:       	#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FILE IS SAFELY OPEN NOW! GEEZE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-	#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FILE IS SAFELY OPEN NOW! GEEZE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## RAN FOR hours, NUKED 20260410:       	# First try real UTF-8. If that fails, fall back to Windows-1252,
+## RAN FOR hours, NUKED 20260410:       	# which is what a ton of lyric files actually are in practice.
+## RAN FOR hours, NUKED 20260410:       	eval {
+## RAN FOR hours, NUKED 20260410:       		$line = decode('UTF-8', $raw, FB_CROAK);
+## RAN FOR hours, NUKED 20260410:       		1;
+## RAN FOR hours, NUKED 20260410:       	} or eval {
+## RAN FOR hours, NUKED 20260410:       		$line = decode('Windows-1252', $raw, FB_CROAK);
+## RAN FOR hours, NUKED 20260410:       		1;
+## RAN FOR hours, NUKED 20260410:       	} or eval {
+## RAN FOR hours, NUKED 20260410:       		$line = $line_orig;
+## RAN FOR hours, NUKED 20260410:       	} or die "lyric-postprocessor.pl Could not decode input at line $. as UTF-8 or Windows-1252\n";
+
+## RAN FOR YEARS, NUKED 20260410:       	$line =~ s/\n/ /ig;		#get rid of newline
+## RAN FOR YEARS, NUKED 20260410:       	# Keep track of line, line number, original/untouched line (becuase we’re finna touch it)
+## RAN FOR YEARS, NUKED 20260410:       	$line_number++;
+## RAN FOR YEARS, NUKED 20260410:       	my $original_line=$line;
 
 
-	# First try real UTF-8. If that fails, fall back to Windows-1252,
-	# which is what a ton of lyric files actually are in practice.
-	eval {
-		$line = decode('UTF-8', $raw, FB_CROAK);
-		1;
-	} or eval {
-		$line = decode('Windows-1252', $raw, FB_CROAK);
-		1;
-	} or die "Could not decode input at line $. as UTF-8 or Windows-1252\n";
+while (my $raw = <$INPUT>) {
+	my $line = decode_mixed_line($raw);
 
-	$line =~ s/\n//ig;		#get rid of newline
+	# On raw input, chomp may leave \r behind on CRLF files, so strip line ending explicitly.
+	$line =~ s/\r?\n\z/ /;
+	$line =~ s/\n/ /ig;
+
+
 	$line_number++;
-	my $original_line=$line;
+	my $original_line = $line;
 
-	if ($SMART_QUOTE_CONVERT) {  $line = replace_smart_quotes($line); }
-
-
+	if ($SMART_QUOTE_CONVERT) {  $line = replace_smart_quotes($line); }		# convert dumb quotes ("") to smart quotes (“”)
 	if ($LYRICS_MODE) {
 		#pre-processing
 		$line =~ s/ +$//;					#remove trailing spaces
@@ -301,10 +314,10 @@ while (<$INPUT>) {
 		$line =~ s/^, *$//;			#remove leading comma like ", a line of text"
 
 		#character-level fixes: commas and quotes and dashes and punctuation, oh my!
-		$line =~ s/[â'`]/’/ig;			# apostrophes and misrepresentations thereof
+		$line =~ s/[â′'`]/’/ig;			# apostrophes and misrepresentations thereof
 		$line =~ s/â€™/’/ig;			# apostrophes and misrepresentations thereof (kludge 20250424 1358)
 		$line =~ s/€™/’/ig;
-		$line =~ s/’’/’/ig;				# apostrophes and misrepresentations thereof (kludge 20250424 1358)
+		#$line =~ s/’’/’/ig;				# apostrophes and misrepresentations thereof (kludge 20250424 1358)
 		
 		#OLD: $line =~ s/\-\-/—/g;		# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
 		$line =~ s/\-\-([^>])/—$1/g;	# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
@@ -565,3 +578,41 @@ sub limit_repeats {
 }
 
 
+sub decode_mixed_line {
+	my ($raw) = @_;
+	my $out = "";
+	my $utf8_chunk;
+
+	pos($raw) = 0;
+
+	while (pos($raw) < length($raw)) {
+
+		# Fast path: plain ASCII bytes
+		if ($raw =~ /\G([\x00-\x7F]+)/gc) {
+			$out .= $1;
+			next;
+		}
+
+		# Valid UTF-8 sequence starting at the current byte position
+		if ($raw =~ /\G(
+				[\xC2-\xDF][\x80-\xBF]                            |   # 2-byte UTF-8
+				\xE0[\xA0-\xBF][\x80-\xBF]                        |   # 3-byte UTF-8 (special low bound)
+				[\xE1-\xEC\xEE-\xEF][\x80-\xBF]{2}                |   # 3-byte UTF-8
+				\xED[\x80-\x9F][\x80-\xBF]                        |   # 3-byte UTF-8 (surrogate-safe)
+				\xF0[\x90-\xBF][\x80-\xBF]{2}                     |   # 4-byte UTF-8 (special low bound)
+				[\xF1-\xF3][\x80-\xBF]{3}                         |   # 4-byte UTF-8
+				\xF4[\x80-\x8F][\x80-\xBF]{2}                         # 4-byte UTF-8 (special high bound)
+			)/xgc) {
+			$utf8_chunk = $1;
+			$out .= decode('UTF-8', $utf8_chunk, FB_CROAK);
+			next;
+		}
+
+		# One stray non-UTF-8 byte: interpret JUST THAT BYTE as Windows-1252.
+		# This is the crucial part that lets files survive mixed encodings.
+		$raw =~ /\G(.)/sgc;
+		$out .= decode('Windows-1252', $1);
+	}
+
+	return $out;
+}

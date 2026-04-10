@@ -1837,7 +1837,8 @@ REM did we create the SRT file? If so, then keep track of how many, and if no TX
 
                                 rem Perform the conversion and set the converted flag:
                                         echo %ansi_color_warning_soft%%star2% No .TXT lyrics exist, so converting SRT transcription to TXT...%ansi_color_normal%
-                                        call srt2txt "%EXPECTED_OUTPUT_FILE%" "%TXT_FILE%"
+                                        rem  srt2txt "%EXPECTED_OUTPUT_FILE%" "%TXT_FILE%"
+                                        call srt2txt "%EXPECTED_OUTPUT_FILE%" 
                                         set JUST_CONVERTED_SRT_TO_TEXT=1
 
                                 rem Postprocess the freshly-converted lyrics with our postprocessor

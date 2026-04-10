@@ -181,6 +181,19 @@ REM convert special characters
     
 
 
+
+REM Determine if we are in fast mode or not:
+        rem Convert holistic fast-related flags into one internal fast flag:
+                unset /q PM_FAST
+                iff "1" == "%FAST_MODE%" .or. "1" == "%CFMK_FAST%" .or. "1" == "%GK_FAST_MODE%" then
+                        set PM_FAST=1
+                else
+                        set PM_FAST=0                                                                
+                endiff
+
+
+
+
 REM Type alias/synonym handling
     if "%TYPE%" == "ERROR_FATAL"    (
         set TYPE=FATAL_ERROR
@@ -445,6 +458,10 @@ REM Post-message delays and pauses:
         if "%TYPE%" == "FATAL_ERROR" .or. "%TYPE%" == "FATALERROR" (set DO_DELAY=2)
         if "%TYPE%" == "FATAL_ERROR"                               (set EXECUTE_PROTECTION_PAUSES=2)
 
+
+        rem Don’t wait if we are in fast mode:
+        if "1" == "%PM_FAST%" set DO_DELAY=0 
+
 REM Post-message beeps and sound effects
         if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO eq 1 (goto :No_Beeps_2)
             if "%TYPE%" == "CELEBRATION" .or. "%TYPE%" == "COMPLETION" (beep exclamation)
@@ -477,11 +494,20 @@ REM Post-message beeps and sound effects
 rem Do animation for big ones:
   echo off
         iff "1" == "%BIG_MESSAGE%" .or. "%TYPE%" == "CELEBRATION" then
-                        set min_delay=50 
-                        set max_delay=75
-                        set num_anims=10                               
-                        set color=%[ANSI_COLOR_%TYPE%] 
-                        do count = 1 to %num_anims% by 1 (gosub do_the_wiggle)
+                        rem Set values based on whether we are in fast/fast-dance mode or not:
+                                iff "1" != "%PM_FAST%" then
+                                        set min_delay=50 
+                                        set max_delay=75
+                                        set num_anims=10                               
+                                else
+                                        set min_delay=1 
+                                        set max_delay=8
+                                        set num_anims=15
+                                endiff
+
+                        rem Set the color and do the dance:
+                                set color=%[ANSI_COLOR_%TYPE%] 
+                                do count = 1 to %num_anims% by 1 (gosub do_the_wiggle)
         endiff
 
 REM Logging

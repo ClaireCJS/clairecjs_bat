@@ -19,7 +19,7 @@ rem CONFIG:
 rem VALIDATE ENVIRONMENT (once):
         set  validated_srt_and_txt_for_whispertimesync_already=0
         iff "1" != "%validated_whispertimesync%" then
-                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl enqueue.bat visual-comparison.bat srt_comparator.py subtitle-integrity-checker srt2txt set-tmp-file whispertimesync-postprocessor.py
+                call validate-in-path errorlevel success WhisperTimeSync-helper divider print-with-columns.bat print_with_columns.py review-file review-files AskYN lyric-postprocessor.pl enqueue.bat visual-comparison.bat srt_comparator.py subtitle-integrity-checker srt2txt set-tmp-file whispertimesync-postprocessor.py srt2lrc.py srt2txt.bat python
                 rem  validate-environment-variables JAVA_WHISPERTIMESYNC our_language color_advice ansi_color_advice ansi_color_removal ansi_color_normal ansi_color_run smart_apostrophe italics_on italics_off lq rq smart_apostrophe
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC our_language lq rq FILEEXT_AUDIO 
                 call validate-is-function cool_text
@@ -80,6 +80,7 @@ rem VALIDATE PARAMETERS:
                         set  LYR_RAW=%@NAME[%AUD_FIL%].txt
                         set  aud_MP3=%@NAME[%AUD_FIL%].mp3
                         set  aud_WAV=%@NAME[%AUD_FIL%].wav
+                        set  aud_LRC=%@NAME[%AUD_FIL%].lrc
                         set aud_FLAC=%@NAME[%AUD_FIL%].flac                
                 endiff
 
@@ -450,7 +451,8 @@ rem If it is better, back up the old version and replace it with this one:
         set whisper_alignment_happened=0
         set original_srt_before_whispertimesync=%srt%.pre-wts.%_DATETIME.bak
         iff "Y" == "%ANSWER%" then
-                echos %CHECK% ``
+                rem Cosmetic:
+                        echos %CHECK% ``
                 rem Audit flag:
                         set whisper_alignment_happened=1
                 rem back up the old/existing karaoke:
@@ -461,6 +463,9 @@ rem If it is better, back up the old version and replace it with this one:
                         echos %ansi_color_success%
                         rem echo *copy /Nst "%SRT_NEW%" "%srt%" 
                         echo ray|*copy /Nst "%SRT_NEW%" "%srt%" %+ rem pause
+
+                rem Cleanup after editing our subs (check for srt->txt/lrc conversion,etc):
+                        gosub cleanup_after_editing_subs
 
                 rem Re-create lyrics from SRT, so that our data is synced, but only if we do not need to run this process more than once (which happens):
                         :reask_476
@@ -613,6 +618,22 @@ rem ═════════════════════════�
                 %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
                 call less_important " Opening text editor!"
                 pause "%ansi_color_prompt%%message_header%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
+        return
+
+
+        :cleanup_after_editing_subs
+                call AskYN "%message_header%Re-convert subtitles to text" no 0 
+                iff "Y" == "%ANSWER%" then
+                        call srt2txt "%SRT_NEW%" 
+                endiff
+                repeat 4 echo.
+                dir *.lrc
+                repeat 4 echo.
+                call AskYN "Re-convert %italics_on%all%italics_off% subtitles to LRC if no LRC exists" no 0 
+                iff "Y" == "%ANSWER%" then
+                        if exist "%aud_LRC%" *del /q "%aud_LRC%" >&>nul
+                        srt2lrc.py go %+ rem don’t run with “force” option
+                endiff
         return
 
 

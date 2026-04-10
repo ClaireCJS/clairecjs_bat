@@ -2173,7 +2173,7 @@ setdos /x0
                                 rem call review-file -wh -st "%LYRIC_FILE%" "Downloaded lyrics"
                                 rem NEW:
                                         gosub create_or_set_postprocessed_lyrics
-                                        if exist "%TXT_FILE%"             call review-file -wh -st             "%TXT_FILE%" "%underline_off%① %underline_on%Lyrics"
+                                        rem same "%TXT_FILE%"             call review-file -wh -st             "%TXT_FILE%" "%underline_off%① %underline_on%Lyrics"
                                         if exist "%LYRIC_FILE%"           call review-file -wh -st           "%LYRIC_FILE%" "%underline_off%② %underline_on%Lyrics"              
                                         if exist "%POSTPROCESSED_LYRICS%" call review-file -wh -stB "%POSTPROCESSED_LYRICS" "%underline_off%③ %underline_on%Lyrics (processed)"
                                         rem xist "%SRT_FILE%"             call review-file -wh -stU            "%SRT_FILE%" "Transcription"
