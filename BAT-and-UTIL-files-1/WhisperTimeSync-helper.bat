@@ -158,8 +158,6 @@ rem Inform user if final timestamp on new subtitles is different from final time
                 iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
                         call warning "Final timestamps differ!" big
                         call advice  "Make sure to manually review before/after subs in text editor"
-                        whispertimesync-postprocessor.py "%@UNQUOTE["%srt_old%"]" "%@UNQUOTE["%srt_new%"]"
-                        pause "GOATGOAT we just ran whispertimesync-postprocessor!🐐🐐🐐"
                         set our_display_color=%ansi_color_bright_red%
                 else
                         call success "Final timestamps are the same, so we%smart_apostrophe%re probably fine!" big
@@ -167,9 +165,14 @@ rem Inform user if final timestamp on new subtitles is different from final time
                         
                 endiff
 
+        rem Run our WhisperTimeSync postprocessor which saves the parts WhisperTimeSync drops:
+                whispertimesync-postprocessor.py "%@UNQUOTE["%srt_old%"]" "%@UNQUOTE["%srt_new%"]"
+                pause "GOATGOAT we just ran whispertimesync-postprocessor!🐐🐐🐐"
+
+
         rem 2025/12/21 moved to WhisperTimeSync.bat:
-        rem %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
-        rem pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
+                rem %EDITOR% "%SRT_NEW%" "%SRT_OLD%"
+                rem pause "%ansi_color_prompt%Press any key after %italics_on%potentially%italics_off% reviewing the subtitles for malformed blocks & making sure the first word(s) are inside a valid block..."
 
 
 goto :END

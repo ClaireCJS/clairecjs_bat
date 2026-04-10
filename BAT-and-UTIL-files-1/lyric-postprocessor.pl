@@ -1,4 +1,4 @@
-#₆!/usr/bin/perl
+#!/usr/bin/perl
 
 ################################################################################
 #                      Lyric Postprocessor for AI/etc                          #
@@ -97,10 +97,19 @@ use strict;
 use warnings;
 
 use utf8;												# enable processing of modern character sets
-binmode(STDOUT, ":utf8");								# enable processing of modern character sets
-binmode(STDIN , ":utf8");								# enable processing of modern character sets
-binmode(STDERR, ":utf8");								# enable processing of modern character sets
-  
+#binmode(STDOUT, ":utf8");								# enable processing of modern character sets
+#binmode(STDIN , ":utf8");								# enable processing of modern character sets
+#binmode(STDERR, ":utf8");								# enable processing of modern character sets
+
+
+binmode(STDOUT, ":encoding(UTF-8)");					# output real UTF-8
+binmode(STDERR, ":encoding(UTF-8)");					# error output real UTF-8
+binmode(STDIN , ":raw");								# input must arrive as raw bytes so WE can decode it safely
+use Encode qw(decode FB_CROAK);
+use Encode::Guess;
+
+
+
 # Default modes:
 my $LYRICS_MODE         = 1;							# default mode
 my $ONE_LINE            = 0;							# default mode
@@ -120,6 +129,7 @@ foreach my $arg (@ARGV) {
 		push @options, $arg;
 	}
 }
+
 
 # Now process the remaining options:
 @ARGV = @options;  # Restore only options to @ARGV
@@ -176,27 +186,12 @@ my $INPUT;
 if ($filename eq "") {
 	$INPUT = *STDIN;
 } else {
-	open($INPUT, "<:utf8", $filename) or die "Could not open file '$filename': $!";		# breaks on malformed files, of which there are many
+	#pen($INPUT, "<:utf8", $filename) or die "Could not open file '$filename': $!";		# breaks on malformed files, of which there are many
 	#pen($INPUT, "<:raw" , $filename) or die "Could not open file '$filename': $!";		# open raw, and decode to UTF-8 later after fixing malformed characters
+	open($INPUT, "<:utf8", $filename) or die "Could not open file '$filename': $!";		# breaks on malformed files, of which there are many
+	open($INPUT, "<:raw" , $filename) or die "Could not open file '$filename': $!";		# open raw, and decode to UTF-8 later after fixing malformed characters
 }
 
-
-##NEW2: this resulted in files that lookd fine when cat’ed to the screen but formed malformed columns when printed with print_with_columns.py						
-## But that may have been a print_with_columns error, so we may have to look back into this
-#if ($filename eq "") {
-#	local $/ = undef;                            # Slurp mode
-#	binmode(STDIN, ":raw");                      # Raw input, no UTF-8 decoding yet
-#	my $raw = <STDIN>;                           # Read whole input as bytes
-#	$raw = decode('utf8', $raw, FB_QUIET);       # Decode and silently skip invalid bytes
-#	open(my $fh, "<", \$raw);                    # Open a filehandle from string
-#	$INPUT = $fh;
-#} else {
-#	open(my $fh, "<:raw", $filename) or die "Can't open '$filename': $!";
-#	my $raw = do { local $/; <$fh> };            # Slurp file raw
-#	$raw = decode('utf8', $raw, FB_QUIET);       # Or FB_WARN for warnings
-#	open(my $in, "<", \$raw);                    # In-memory filehandle
-#	$INPUT = $in;
-#}
 
 
 while (<$INPUT>) {
@@ -217,7 +212,15 @@ while (<$INPUT>) {
 	#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FILE IS SAFELY OPEN NOW! GEEZE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
-
+	# First try real UTF-8. If that fails, fall back to Windows-1252,
+	# which is what a ton of lyric files actually are in practice.
+	eval {
+		$line = decode('UTF-8', $raw, FB_CROAK);
+		1;
+	} or eval {
+		$line = decode('Windows-1252', $raw, FB_CROAK);
+		1;
+	} or die "Could not decode input at line $. as UTF-8 or Windows-1252\n";
 
 	$line =~ s/\n//ig;		#get rid of newline
 	$line_number++;
