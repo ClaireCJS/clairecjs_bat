@@ -395,8 +395,10 @@ sub whisper_ai_postprocess {
 	$s = &limit_repeats($s, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);								                             # Fix lines like “Noooooooooooooooooooooooooooooooooooo” from being wider than our subtitle length
 	$s =~ s/\-\-([^>])/—$1/g;																	                         # fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
 	$s =~ s/[â′'`]/’/ig;																		                         # not-smart apostrophes and misrepresentations thereof
+	$s =~ s/€™/’/g;
 	$s =~ s/!“/!”/g;																			                         # copied from lyric-postprocessor: kludge bug fix
-	$s =~ s/„/”/g;																				                         # copied from lyric-postprocessor: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
+	$s =~ s/„/”/g;
+	$s =~ s/’€™/’/g;
 																							                            
 	################ CHAR-BASED CHARACTER FIXES: COMMAND-LINE COMPATIBILITY ###############		                         # these aren’t needed because nothing in our subtitles ever reaches the command line!
 	#BAD IDEA HERE: #s =~ s/"/'/g;																                         # change quotes to apostrophes so these can be used as a quoted command line argument ... makes no sense actually, this isn’t going to command line anymore

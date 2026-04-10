@@ -1,20 +1,25 @@
 #!/usr/bin/env python3
+
 """
 whispertimesync-postprocessor
 
-Clone the missing subtitle tail from an older SRT into a newer SRT when the newer file ends earlier.
+Clone any missing subtitle coverage from an older SRT into a newer SRT when the newer file starts later,
+ends earlier, or both.
 
 Behavior:
 - Reads OLD_SRT and NEW_SRT defensively, including legacy encodings when possible.
-- Parses both SRTs, reports each file's last subtitle timestamp, and compares them.
-- If NEW_SRT ends earlier than OLD_SRT, appends OLD_SRT cues from the cutoff onward into NEW_SRT.
+- Parses both SRTs, reports each file's first and last subtitle timestamps, and compares them.
+- If NEW_SRT starts later than OLD_SRT, prepends OLD_SRT cues from before that cutoff into NEW_SRT.
+- If NEW_SRT ends earlier than OLD_SRT, appends OLD_SRT cues from after that cutoff into NEW_SRT.
+- If both are true, does both in one pass.
 - Before overwriting NEW_SRT, creates a backup beside it named like: original.srt.YYYYMMDDHHMMSS.bak
 - Never crashes on ordinary bad input; errors are caught and reported.
 
 Notes:
-- "Timestamp" here means the last subtitle end timestamp inside the SRT, not filesystem modified time.
+- "Timestamp" here means subtitle timestamps inside the SRT, not filesystem modified time.
 - Cue numbers are renumbered on output for a clean final SRT.
-- The boundary logic keeps the overlapping OLD_SRT cue when it really extends past NEW_SRT, but skips it if it is effectively the same cue.
+- Boundary logic tries to preserve overlapping donor cues when they truly extend beyond NEW_SRT's coverage,
+  but skips them when they are effectively duplicates of cues already present in NEW_SRT.
 """
 
 from __future__ import annotations  # allow modern type hint syntax consistently
@@ -37,14 +42,14 @@ COLORS = {
     "error": "\033[97;41;1m",        # white on red
 }
 ICONS = {
-    "very_important": "🔷",  # visually strong FYI / big notice
-    "important": "ℹ️ ",      # normal informative output
-    "warning": "⚠️ ",        # higher-attention warning
-    "soft_warning": "🟨",    # softer warning
-    "advice": "💡",          # advice/tip style output
-    "less_important": "▫️ ", # lower-priority informational output
-    "success": "✅",         # success output
-    "error": "🛑",           # hard error output
+    "very_important": "✨" ,   # visually strong FYI / big notice
+    "important"     : "⛧"  ,   # normal informative output
+    "less_important": "⭐"  ,   # lower-priority informational output
+    "warning"       : "⚠️" ,   # higher-attention warning
+    "soft_warning"  : "❕"   ,   # softer warning
+    "advice"        : "➜"  ,   # advice/tip style output
+    "success"       : "✅" ,   # success output
+    "error"         : "🛑" ,   # hard error output
 }
 
 @dataclass
@@ -187,6 +192,24 @@ def cues_sameish(a: Cue, b: Cue) -> bool:
     tb = " ".join(normalize_text(b.text).split())  # normalize whitespace/text of cue B
     return ta == tb and abs(a.start_ms - b.start_ms) <= 150 and abs(a.end_ms - b.end_ms) <= 150  # near-identical timing + text
 
+def choose_head(OLD_SRT: list[Cue], NEW_SRT: list[Cue]) -> tuple[list[Cue], bool]:
+    if not OLD_SRT:
+        return [], False  # no old cues means there is nothing available to prepend
+    if not NEW_SRT:
+        return [], False  # the completely-empty NEW_SRT case is handled separately in run()
+
+    new_start_ms = NEW_SRT[0].start_ms  # starting timestamp of the first cue already present in NEW_SRT
+
+    boundary = next((i for i, cue in enumerate(OLD_SRT) if cue.start_ms >= new_start_ms), None)  # first old cue that starts at/after NEW_SRT's first cue
+    head = list(OLD_SRT if boundary is None else OLD_SRT[:boundary])  # everything before that boundary is candidate "head" material
+
+    overlap_included = bool(head and head[-1].start_ms < new_start_ms < head[-1].end_ms)  # note whether the last prepended cue overlaps into NEW_SRT's first cue
+    if head and cues_sameish(head[-1], NEW_SRT[0]):
+        head = head[:-1]  # drop the last prepended cue if it is effectively already present as NEW_SRT's first cue
+        overlap_included = False  # if we dropped it, there is no overlap worth reporting anymore
+
+    return head, overlap_included  # return prepended cues plus whether a boundary-overlap cue was intentionally kept
+
 def choose_tail(OLD_SRT: list[Cue], NEW_SRT: list[Cue]) -> tuple[list[Cue], bool]:
     if not OLD_SRT:
         return [], False  # no old cues means nothing to append
@@ -207,7 +230,7 @@ def make_backup_path(path: Path) -> Path:
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")  # build YYYYMMDDHHMMSS timestamp
     return path.with_name(f"{path.name}.{timestamp}.bak")  # create backup filename in same folder
 
-def print_usage(parser: argparse.ArgumentParser) -> None:
+def print_usage_old(parser: argparse.ArgumentParser) -> None:
     say("very_important", f"{APP_NAME} clones the missing subtitle tail from OLD_SRT into NEW_SRT when needed.")  # top summary
     print()  # blank line for readability
     say("important", "Usage:")  # usage label
@@ -221,13 +244,162 @@ def print_usage(parser: argparse.ArgumentParser) -> None:
     print()  # blank line
     parser.print_help()  # argparse-generated help text
 
+def print_usage(parser: argparse.ArgumentParser) -> None:
+    say("very_important", f"{APP_NAME} clones missing subtitle coverage from OLD_SRT into NEW_SRT when needed.")  # top summary
+    print()  # blank line for readability
+    say("important", "Usage:")  # usage label
+    print(paint("important", f"  {APP_NAME} OLD_SRT NEW_SRT"))  # actual usage line
+    print()  # blank line
+    say("advice", "Example:")  # example label
+    print(paint("advice", f"  {APP_NAME} old.srt new.srt"))  # actual example command
+    print()  # blank line
+    say("less_important", "If NEW_SRT starts later than OLD_SRT, missing earlier cues are prepended into NEW_SRT.")  # explain head-cloning behavior
+    say("less_important", "If NEW_SRT ends earlier than OLD_SRT, missing later cues are appended into NEW_SRT.")  # explain tail-cloning behavior
+    say("less_important", "If either change is needed, NEW_SRT is backed up and then overwritten in place.")  # explain overwrite behavior
+    say("less_important", "If NEW_SRT already covers the same or wider time range, nothing is overwritten.")  # explain no-op behavior
+    print()  # blank line
+    parser.print_help()  # argparse-generated help text
+
 def make_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(add_help=True, prog=APP_NAME, description="Clone missing beginning/end subtitle coverage from OLD_SRT into NEW_SRT.")  # build parser
+    parser.add_argument("OLD_SRT", nargs="?", help="older/reference SRT file")  # first positional argument
+    parser.add_argument("NEW_SRT", nargs="?", help="newer/current SRT file that may be missing early and/or late coverage")  # second positional argument
+    return parser  # return configured parser
+
+def make_parser_old() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(add_help=True, prog=APP_NAME, description="Clone missing subtitle tail from OLD_SRT into NEW_SRT.")  # build parser
     parser.add_argument("OLD_SRT", nargs="?", help="older/reference SRT file")  # first positional argument
     parser.add_argument("NEW_SRT", nargs="?", help="newer/current SRT file that may end too early")  # second positional argument
     return parser  # return configured parser
 
 def run(argv: list[str]) -> int:
+    enable_utf8_stdio()  # make stdin/stdout/stderr more Unicode-safe
+    enable_windows_ansi()  # turn on ANSI colors in Windows console if possible
+    parser = make_parser()  # construct CLI parser
+
+    if len(argv) == 1:
+        print_usage(parser)  # no arguments: show usage/help
+        return 0  # normal exit
+
+    args = parser.parse_args(argv[1:])  # parse command line after script name
+    if not args.OLD_SRT or not args.NEW_SRT:
+        say("warning", "You must provide both OLD_SRT and NEW_SRT.")  # missing required positional args
+        print()  # blank line
+        print_usage(parser)  # show usage again
+        return 2  # conventional CLI usage error
+
+    old_path = Path(args.OLD_SRT)  # convert OLD_SRT path string to Path object
+    new_path = Path(args.NEW_SRT)  # convert NEW_SRT path string to Path object
+
+    try:
+        if not old_path.exists():
+            say("error", f"OLD_SRT not found: {old_path}")  # fail if old file does not exist
+            return 2
+        if not new_path.exists():
+            say("error", f"NEW_SRT not found: {new_path}")  # fail if new file does not exist
+            return 2
+        if old_path.is_dir() or new_path.is_dir():
+            say("error", "OLD_SRT and NEW_SRT must be files, not directories.")  # directories are not valid input
+            return 2
+
+        say("important", f"Reading OLD_SRT: {old_path}")  # tell user what is being read
+        old_text, old_enc = read_text_file(old_path)  # read old file with defensive decoding
+        say("important", f"Reading NEW_SRT: {new_path}")  # tell user what is being read
+        new_text, new_enc = read_text_file(new_path)  # read new file with defensive decoding
+        say("less_important", f"Detected encodings: OLD_SRT={old_enc} | NEW_SRT={new_enc}")  # FYI only
+
+        OLD_SRT = parse_srt(old_text)  # required variable name: parsed old cues
+        NEW_SRT = parse_srt(new_text)  # required variable name: parsed new cues
+
+        if not OLD_SRT:
+            say("soft_warning", "OLD_SRT did not yield any parseable subtitle cues.")  # old file parsed to nothing
+        if not NEW_SRT:
+            say("soft_warning", "NEW_SRT did not yield any parseable subtitle cues.")  # new file parsed to nothing
+
+        old_first_ms = OLD_SRT[0].start_ms if OLD_SRT else 0  # first old cue start time or 0 if empty
+        old_last_ms = OLD_SRT[-1].end_ms if OLD_SRT else 0  # last old cue end time or 0 if empty
+        new_first_ms = NEW_SRT[0].start_ms if NEW_SRT else 0  # first new cue start time or 0 if empty
+        new_last_ms = NEW_SRT[-1].end_ms if NEW_SRT else 0  # last new cue end time or 0 if empty
+
+        say("very_important", f"OLD_SRT first subtitle timestamp: {format_ms(old_first_ms)}")  # beginning-of-file FYI
+        say("very_important", f"OLD_SRT last subtitle timestamp:  {format_ms(old_last_ms)}")  # end-of-file FYI
+        say("very_important", f"NEW_SRT first subtitle timestamp: {format_ms(new_first_ms)}")  # beginning-of-file FYI
+        say("very_important", f"NEW_SRT last subtitle timestamp:  {format_ms(new_last_ms)}")  # end-of-file FYI
+
+        prepended = False  # track whether we actually prepended any head cues
+        prepended_count = 0  # track how many cues were prepended
+        appended = False  # track whether we actually appended any tail cues
+        appended_count = 0  # track how many cues were appended
+        head_overlap_included = False  # track whether a prepended boundary-overlap cue was intentionally kept
+        tail_overlap_included = False  # track whether an appended boundary-overlap cue was intentionally kept
+        final_cues = list(NEW_SRT)  # begin with the currently parsed NEW_SRT as the starting output
+
+        if OLD_SRT and not NEW_SRT:
+            final_cues = [Cue(index=0, start_ms=c.start_ms, end_ms=c.end_ms, text=c.text) for c in OLD_SRT]  # if NEW_SRT is empty/unparseable, copy all old cues into it
+            prepended = True  # reuse "prepended" flag to indicate that NEW_SRT gained earlier coverage
+            prepended_count = len(final_cues)  # report how many cues were copied
+        else:
+            if OLD_SRT and NEW_SRT and new_first_ms > old_first_ms:
+                head, head_overlap_included = choose_head(OLD_SRT, NEW_SRT)  # collect any older cues that belong before NEW_SRT starts
+                if head:
+                    final_cues = [Cue(index=0, start_ms=c.start_ms, end_ms=c.end_ms, text=c.text) for c in head] + final_cues  # prepend copied head cues
+                    prepended = True  # record that a prepend occurred
+                    prepended_count = len(head)  # record number of prepended cues
+
+            if OLD_SRT and NEW_SRT and new_last_ms < old_last_ms:
+                tail, tail_overlap_included = choose_tail(OLD_SRT, NEW_SRT)  # collect any later cues that belong after NEW_SRT ends
+                if tail:
+                    final_cues.extend(Cue(index=0, start_ms=c.start_ms, end_ms=c.end_ms, text=c.text) for c in tail)  # append copied tail cues
+                    appended = True  # record that an append occurred
+                    appended_count = len(tail)  # record number of appended cues
+
+        changed = prepended or appended  # only back up and overwrite if we actually changed NEW_SRT
+
+        if changed:
+            backup_path = make_backup_path(new_path)  # compute backup filename before touching NEW_SRT
+            shutil.copy2(new_path, backup_path)  # preserve original NEW_SRT with metadata/timestamps if possible
+            new_path.write_text(render_srt(final_cues), encoding="utf-8-sig", newline="")  # overwrite NEW_SRT in UTF-8 BOM form
+
+            if not NEW_SRT and OLD_SRT:
+                say("success", f"NEW_SRT had no parseable cues, so copied {prepended_count} cue(s) from OLD_SRT into it.")  # special-case success message for empty NEW_SRT
+            else:
+                if prepended:
+                    say("success", f"Prepended {prepended_count} cue(s) from OLD_SRT so NEW_SRT reaches the old beginning.")  # head-clone success message
+                if appended:
+                    say("success", f"Appended {appended_count} cue(s) from OLD_SRT so NEW_SRT reaches the old ending.")  # tail-clone success message
+
+            say("less_important", f"Backed up overwritten NEW_SRT to: {backup_path}")  # backup FYI
+            say("less_important", f"Overwrote NEW_SRT in place: {new_path}")  # overwrite FYI
+
+            if head_overlap_included:
+                say("soft_warning", "The last prepended cue overlaps NEW_SRT's beginning, so it was kept to preserve the head.")  # boundary-case FYI for prepending
+            if tail_overlap_included:
+                say("soft_warning", "The first appended cue overlaps NEW_SRT's ending, so it was kept to preserve the tail.")  # boundary-case FYI for appending
+        else:
+            say("less_important", "No prepend or append needed: NEW_SRT already covers the same or wider time range.")  # normal no-op case
+            say("less_important", "No file was overwritten.")  # explicitly state no overwrite happened
+
+        say("less_important", f"Prepend performed: {'yes' if prepended else 'no'}")  # low-priority prepend result
+        if prepended:
+            say("less_important", f"Number of prepended cues: {prepended_count}")  # extra detail if prepend occurred
+
+        say("less_important", f"Append performed: {'yes' if appended else 'no'}")  # low-priority append result
+        if appended:
+            say("less_important", f"Number of appended cues: {appended_count}")  # extra detail if append occurred
+
+        say("advice", "Files written by this script use UTF-8 with BOM for broad subtitle-editor compatibility.")  # final tip
+        return 0  # success exit code
+
+    except KeyboardInterrupt:
+        say("warning", "Interrupted by user.")  # graceful Ctrl+C handling
+        return 130  # conventional interrupted-process exit code
+    except Exception as exc:
+        say("error", f"Unexpected error: {exc}")  # catch-all failure message
+        tb = traceback.format_exc().strip().splitlines()  # get traceback lines for compact reporting
+        say("less_important", tb[-1] if tb else "No traceback available.")  # show last traceback line as FYI
+        return 1  # generic failure exit code
+
+def run_old(argv: list[str]) -> int:
     enable_utf8_stdio()  # make stdin/stdout/stderr more Unicode-safe
     enable_windows_ansi()  # turn on ANSI colors in Windows console if possible
     parser = make_parser()  # construct CLI parser

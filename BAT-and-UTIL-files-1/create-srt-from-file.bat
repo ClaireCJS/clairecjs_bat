@@ -158,7 +158,7 @@ rem validate environment [once]:
                         if not defined ANSI_COLOR_ORANGE                           set ANSI_COLOR_ORANGE=%@CHAR[27][38;2;235;107;0m
                         rem TODO BLINK_ON, BLINK_OFF ITALICS_ON ITALICS_OFF, QUOTE, etc
                 rem Perform the actual validations:
-                        @call validate-in-path                %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  status-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alarm.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat restart-winamp.bat appdata.bat winamp.bat display-horizontal-divider.bat pause-for-x-seconds
+                        @call validate-in-path                %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  status-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alarm.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat restart-winamp.bat appdata.bat winamp.bat display-horizontal-divider.bat pause-for-x-seconds whispertimesync-postprocessor.py
                         @if not defined TRANSCRIBER_PDNAME    @call validate-environment-variable  TRANSCRIBER_PDNAME  skip_validation_existence
                         @if not defined FILEMASK_AUDIO        @call validate-environment-variable  FILEMASK_AUDIO      skip_validation_existence
                         @call validate-environment-variables  ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET UnicodeOutputDefault machinename STAR STAR2 STAR5
@@ -388,6 +388,7 @@ rem Process command line parameters:
         iff "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" then                     
                 set AI_GENERATION_ANYWAY_WAIT_TIME=0                       %+ rem wait time for "no lyrics, gen with AI anyway"-type questions
                 set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=0                %+ rem wait time for "edit it now that we’ve made it?"-type questions ... Have decided it should probably last longer than the average song
+                set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE=0
                 set KARAOKE_APPROVAL_WAIT_TIME=0
                 set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=0                 %+ rem wait time for "are these lyrics good?"-type questions
                 SET PROCEED_WITH_AI_CONSIDERATION_TIME=0                   %+ rem wait time for "Proceed with this AI generation?"-type questions
@@ -2107,13 +2108,9 @@ rem Full-endeavor success message:
         echo sing%italics_off% a lyric prompt%faint_off%%ansi_color_normal%
         echo %TAB%%TAB%%TAB%%TAB%%ansi_color_less_important%%star2% in dir: %faint_on%%italics_on%%[_CWP]%italics_off%%faint_off%%ansi_color_normal%
         @gosub divider
-        if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
-        REM gosub debug "CWP = “%_CWP” 
-        iff "1" == "%FORCE_REGEN%" then
-                set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE=%EDIT_KARAOKE_AFTER_FORCE_REGEN_WAIT_TIME%
-        else
-                set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE=%EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME%
-        endiff
+
+        rem Current folder voodoo:
+                if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
 
         rem Ask to approve our karaoke:
                 rem if "1" == "%DEBUG_KARAOKE_APPROVAL%" echo About to ask_to_approve_karaoke around line 1969ish
@@ -2186,16 +2183,18 @@ rem Full-endeavor success message:
                 :ask_about_karaoke_edit
                         unset /q ANSWER
                         if not exist "%TXT_FILE%" .and. not exist "%SRT_FILE%" goto :skip_asking_to_edit_karaoke_file
-                        @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%R%ansi_color_prompt%etry]" no %EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME_TO_USE% notitle ADEFIPQRSTUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_file,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,R:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually
+
+                        set USE_WAIT_TIME=%EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME%
+                        @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%R%ansi_color_prompt%etry]" no %USE_WAIT_TIME% notitle ADEFIPQRSTUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_file,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,R:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually
                         set HELD_ANSWER_1922=%ANSWER%
                         :just_asked_to_edit_karaoke
+                                rem DEBUG: echo DEBUG: "%ansi_color_debug%- DEBUG: about to check iff %lq%%ANSWER%%rq% == %lq%Y%rq%" ......it is %lq%%ANSWER%%rq% 🍪%ansi_color_normal% GOAT"
                                 rem “U” for untranscribeable:
                                         if  "U" == "%ANSWER%" gosub ask_if_untranscribeable
                                 rem “R” for retry:
                                         if  "R" == "%ANSWER%" goto /i go_here_for_encoding_retries
                                 rem “Y”/“E”:
                                         rem This can work for either of the previous AskYN calls:
-                                        echo %ansi_color_debug%- DEBUG: about to check iff "%ANSWER" == "Y" ...... 🍪%ansi_color_normal%>nul
                                         iff "%ANSWER" == "Y" .or. "%ANSWER" == "E" then
                                                 rem @echo %ANSI_COLOR_DEBUG%- DEBUG: %EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
                                                 title %check% %SRT_FILE% generated successfully! %check%             
@@ -2234,7 +2233,9 @@ rem Full-endeavor success message:
                                 rem “A”/“D”: 
                                         set ANSWER=%HELD_ANSWER_1922%
                                         iff "A" == "%ANSWER%" then
+                                                echo %CHECK% Approving karaoke... Begin
                                                 call  approve-karaoke "%srt_file%"
+                                                echo %CHECK% Approving karaoke... End
                                                 goto /i go_here_if_we_just_approved_the_karaoke
                                         endiff
                                         iff "D" == "%ANSWER%" then

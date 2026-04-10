@@ -27,7 +27,7 @@ rem VALIDATE ENVIRONMENT:
         iff "1" != "%validated_whispertimesynchelper%" then
                 rem  validate-environment-variables color_advice ansi_color_advice lq rq JAVA_WHISPERTIMESYNC WhisperTimeSync our_language underline_on underline_off italics_on italics_off
                 call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET JAVA_WHISPERTIMESYNC WhisperTimeSync our_language 
-                call validate-in-path               errorlevel askyn enqueue.bat warning.bat advice.bat print-message.bat winamp-next subtitle-postprocessor.pl perl preview-audio-file.bat tail subtitle-verifier.py subtitle-integrity-checker "%JAVA_WHISPERTIMESYNC%"
+                call validate-in-path               errorlevel askyn enqueue.bat warning.bat advice.bat print-message.bat winamp-next subtitle-postprocessor.pl perl preview-audio-file.bat tail subtitle-verifier.py subtitle-integrity-checker "%JAVA_WHISPERTIMESYNC%" whispertimesync-postprocessor.py
                 call validate-is-function           cool_text
                 call checkeditor
                 set  validated_whispertimesynchelper=1
@@ -64,11 +64,11 @@ rem Extra prep of lyrics:
         iff "1" != "%WHISPERTIMESYNC_QUICK%" then
                 set held_answer_wtsh=%ANSWER%
                 call warning "Get the lyrics %blink_on%perfect%blink_off%" big
-                call AskYN   "%faint_on%[WhisperTimeSync]%faint_off% Edit lyrics for required perfection"   yes 0
+                call AskYN   "%message_header%Edit lyrics for required perfection"   yes 0
                 iff "Y" == "%ANSWER%" then
                         rem Ask if we want to listen to the song while editing:
                                 if %DEBUG_AUDIO_FILE_SELECTION% gt 0 echo * Audio file==%AFL%
-                                call AskYN   "%faint_on%[WhisperTimeSync]%faint_off% Listen to the audio file while editing lyrics"   no  0
+                                call AskYN   "%message_header%Listen to the audio file while editing lyrics"   no  0
                                 %EDITOR% "%LYR%"
 
                         rem If we answered “yes”, then play that song:
@@ -83,7 +83,7 @@ rem Extra prep of lyrics:
                         rem Ask if we want to copy these lyrics back over our official file when we’re done
                                 iff exist "%AFL%" .and. "1" != "%WHISPERTIMESYNC_QUICK%" then
                                         call warning_soft "Do you want these lyric edits to be saved over the original lyric file?" %+ rem  [[not!!]] at %faint_on%%italics_on%%lyr%%italics_off%%faint_off%
-                                        call AskYN          "%faint_on%[WhisperTimeSync]%faint_off% Copy lyric edits over original lyrics" yes 0
+                                        call AskYN          "%message_header%Copy lyric edits over original lyrics" yes 0
                                                 iff "Y" == "%ANSWER%" then
                                                         set      COMMAND=*copy /z "%LYR%" "%@NAME["%AFL%"].txt"
                                                         rem echo COMMAND is %COMMAND% %+ pause
@@ -158,8 +158,8 @@ rem Inform user if final timestamp on new subtitles is different from final time
                 iff %@CRC32["%last_timestamp_new_file%"] ne %@CRC32["%last_timestamp_old_file%"] then
                         call warning "Final timestamps differ!" big
                         call advice  "Make sure to manually review before/after subs in text editor"
-                        pause "TODO Create tail-appender script"
-                        *pause
+                        whispertimesync-postprocessor.py "%@UNQUOTE["%srt_old%"]" "%@UNQUOTE["%srt_new%"]"
+                        pause "GOATGOAT we just ran whispertimesync-postprocessor!🐐🐐🐐"
                         set our_display_color=%ansi_color_bright_red%
                 else
                         call success "Final timestamps are the same, so we%smart_apostrophe%re probably fine!" big

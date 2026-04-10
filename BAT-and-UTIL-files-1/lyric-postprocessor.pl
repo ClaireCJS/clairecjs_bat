@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#₆!/usr/bin/perl
 
 ################################################################################
 #                      Lyric Postprocessor for AI/etc                          #
@@ -299,8 +299,9 @@ while (<$INPUT>) {
 
 		#character-level fixes: commas and quotes and dashes and punctuation, oh my!
 		$line =~ s/[â'`]/’/ig;			# apostrophes and misrepresentations thereof
-		$line =~ s/’’/’/ig;				# apostrophes and misrepresentations thereof (kludge 20250424 1358)
 		$line =~ s/â€™/’/ig;			# apostrophes and misrepresentations thereof (kludge 20250424 1358)
+		$line =~ s/€™/’/ig;
+		$line =~ s/’’/’/ig;				# apostrophes and misrepresentations thereof (kludge 20250424 1358)
 		
 		#OLD: $line =~ s/\-\-/—/g;		# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
 		$line =~ s/\-\-([^>])/—$1/g;	# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation

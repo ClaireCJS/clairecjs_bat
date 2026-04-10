@@ -849,11 +849,11 @@ A *batch* SRT-file to LRC-file converter that’s better than all the other ones
 
 ### 🌟 converter: [srt2txt.bat](../srt2txt.bat) / [srt2txt.py](../srt2txt.py):
 
-A *single-file* ```SRT``` to ```TXT```. Used when we already have SRT files for a song (say, from a download), but don’t have a TXT version of the lyrics.  One is automatically created to ensure file uniformity. Configurable thresholds for joining subtitle lines together into 1 text line (if they are really close together in time, i.e. under ≈0.5 seconds), or for adding a blank line between lyrics (if the subtitles are really far in time from each other, i.e. over ≈3 seconds)
+A ```SRT``` to ```TXT``` coverter. Pass filename to convert single file or ```all``` to convert all SRT files into TXT. Used when we already have SRT files for a song (say, from a download), but don’t have a TXT version of the lyrics.  One is automatically created to ensure file uniformity. Configurable thresholds for joining subtitle lines together into 1 text line (if they are really close together in time, i.e. under ≈0.5 seconds), or for adding a blank line between lyrics (if the subtitles are really far in time from each other, i.e. over ≈3 seconds)
 
 ### 🌟 converter: [lrc2txt.bat](../lrc2txt.bat)/ [lrc2txt.py](../lrc2txt.py):
 
-A *single-file* ```LRC``` to ```TXT```. Used when we already have LRC files for a song (say, from a download), but don’t have a TXT version of the lyrics. One is automatically created to ensure file uniformity. Estimates where line breaks should occur based im time thresholds (currently .65s=new line, 4.75s=blank line).
+A ```LRC``` to ```TXT``` converter. Pass filename to convert single file or ```all``` to convert all LRC files into TXT. Used when we already have LRC files for a song (say, from a download), but don’t have a TXT version of the lyrics. One is automatically created to ensure file uniformity. Estimates where line breaks should occur based im time thresholds (currently .65s=new line, 4.75s=blank line).
 
 
 </details>

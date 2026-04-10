@@ -1,1 +1,1 @@
-https://github.com/ClaireCJS/clairecjs_bat/tree/main/T:\new
+https://github.com/ClaireCJS/clairecjs_bat/tree/main/
