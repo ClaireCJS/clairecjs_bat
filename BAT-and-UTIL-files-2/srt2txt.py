@@ -272,8 +272,8 @@ if __name__ == "__main__":                                                      
         if os.path.exists(output_file):                                                                 # If the text file exists already
             print(f"❌ Not converting: {input_file} because TXT file exists already")                   # then don’t convert it
         else:                                                                                           # but if the txt file DOESN’T exist already
-            print(f"⚙  Converting: {input_file}")                                                          # convert it
+            print(f"⚙  Converting SRT 🠊 TXT: {input_file}")                                                          # convert it
             srt_to_txt(input_file, output_file)                                                         # Call the main function with input and output files
             #rint(f"✔  Generated: {output_file} generated")                                            # Display success message
-            print(f'✔  Karaoke conversion success: “{output_file}”')                                   # Display success message
+            print(f'✔  SRT subtitle conversion success: “{output_file}”')                                   # Display success message
             #rint(f'✔  Converted  SRT file to TXT: “{output_file}” successfully!')                     # Display success message

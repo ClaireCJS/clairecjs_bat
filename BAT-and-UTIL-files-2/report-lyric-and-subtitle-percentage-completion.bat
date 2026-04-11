@@ -18,6 +18,8 @@ rem CONFIGURATION: COSMETIC ALIGNMENT:
         set lines_to_tail_magic_number=26 %+ rem 2025/05/×× fix
         set lines_to_tail_magic_number=25 %+ rem 2025/06/11 fix
         set lines_to_tail_magic_number=27 %+ rem 2026/03/24 adjustment for adding untranscribeable count [24 didn’t work, 27]
+        set lines_to_tail_magic_number=29 %+ rem 2026/04/11 adjustment for a divider line
+        set lines_to_tail_magic_number=31 %+ rem 2026/04/11 adjustment for adding how many left
         set lines_to_tail=%@FLOOR[%@EVAL[(%_ROWS - %lines_to_tail_magic_number%) / 2]] %+ rem how many lines from each progress logfile to show with the “tail” command
         set mover=%@ANSI_MOVE_TO_COL[38]                                               %+ rem How far over to move when displaying file counts
 
@@ -103,13 +105,13 @@ rem Count the file types:
 
                         rem Make untranscribeable filelist:
                                 echos %ansi_color_important%%blink_on%%star2% %blink_off%Making %italics_on%untranscribeable%italics_off% filelist%@RANDFG_SOFT[]... 
-                                grep -i "\[untranscribe*able\]" %full_filelist% >:u8%untranscribeable_filelist %+ echos %@RANDFG_SOFT[]...
+                                grep -i -E "\[untranscribe*able\]|\[no vocals\]|\[no lyrics\]" %full_filelist% >:u8%untranscribeable_filelist %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %untranscribeable_filelist% | wc -l]] %faint_on%files%faint_off%
 
                         rem Make transcribeable filelist:
                                 echos %ansi_color_important%%blink_on%%star2% %blink_off%Making %italics_on%transcribeable%italics_off% filelist%@RANDFG_SOFT[]... 
-                                                          ((dir /b /s /[!%AI_TRASH_FILES%  "::\[untranscribe?able\]"  "::\[instrumental\]" "::\(instrumental\)" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*]                  %filemask_audio%   >:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
-                                if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%  "::\[untranscribe?able\]"  "::\[instrumental\]" "::\(instrumental\)" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*] %incoming_music%\%filemask_audio%  >>:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
+                                                          ((dir /b /s /[!%AI_TRASH_FILES%  "::\[untranscribe?able\]" "::\(untranscribe?able\)"  "::\[instrumental\]" "::\(instrumental\)   "::\[no lyrics\]" "::\(no lyrics\)   "::\[no vocals\]" "::\(no vocals\)" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*]                  %filemask_audio%   >:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
+                                if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%  "::\[untranscribe?able\]" "::\(untranscribe?able\)"  "::\[instrumental\]" "::\(instrumental\)   "::\[no lyrics\]" "::\(no lyrics\)   "::\[no vocals\]" "::\(no vocals\)" *sound?effect* *.mid *.midi *.stm *.s3m *.mod *.cmf *.rol *chiptune*] %incoming_music%\%filemask_audio%  >>:u8%transcribeable_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %transcribeable_filelist% | wc -l]] %faint_on%files%faint_off%
 
                         rem Make txt filelist:
@@ -118,11 +120,11 @@ rem Count the file types:
                                 if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES% readme*.* *tablature*.txt *tabulature*.txt filelist*.* normalization-report*.* shn.txt dirlist*.txt delme*.* *lyrics*.txt *discography*.txt meaning*songmeaning*.txt dir.txt \lyrics\*.txt \lists*\*.txt foobar*.txt "amg review.txt" names.txt tree.txt "* - README.txt" track_*.txt "dir (?).txt" bridge-??.txt  "lyrics - *.txt"] %incoming_music%\*.txt >>:u8%text_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%@EXECSTR[type %text_filelist% | wc -l]] %faint_on%files%faint_off%
 
-                        rem Make txt filelist:
+                        rem Make transcribed filelist:
                                 echos %ansi_color_important%%blink_on%%star2% %blink_off%Making %italics_on%transcribed%italics_off% filelist%@RANDFG_SOFT[]... %ansi_color_normal%
                                                           ((dir /b /s /[!%AI_TRASH_FILES%]                  *.srt;*.lrc  >:u8%transcription_filelist)) %+ echos %@RANDFG_SOFT[]...
                                 if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%] %incoming_music%\*.srt;*.lrc >>:u8%transcription_filelist)) %+ echos %@RANDFG_SOFT[]...
-                                echo %mover%%@COMMA[%@EXECSTR[type %transcription_filelist% | wc -l]] %faint_on%files%faint_off%
+                                echo %mover%%@COMMA[%TRANSCRIBED_COUNT%] %faint_on%files%faint_off%
 
                         rem Cosmetics
                                 echo %mover%%@ANSI_MOVE_TO_COL[1]%ANSI_ERASE_TO_EOL%%@ANSI_MOVE_UP[1]
@@ -141,10 +143,14 @@ rem Validate environment for what we need to finish:
 rem Initialize audio file counts, though we trash some of these values so it’s unnecessary:
         unset /q *count*
 
+        set          TRANSCRIBED_COUNT=0 %+ set          TRANSCRIBED_COUNT=%@EXECSTR[type %transcription_filelist% | wc -l]
         set TRANSCRIBEABLE_AUDIO_COUNT=0 %+ set TRANSCRIBEABLE_AUDIO_COUNT=%@EXECSTR[egrep "%@UNQUOTE[%filemask_audio_regex%]" %transcribeable_filelist% | wc -l]
         set            ALL_AUDIO_COUNT=0 %+ set            ALL_AUDIO_COUNT=%@EXECSTR[egrep "%@UNQUOTE[%filemask_audio_regex%]"           %FULL_FILELIST% | wc -l]
 
         rem echo ALL_AUDIO_COUNT is %ALL_AUDIO_COUNT% which should be 60619ish as of 20250219ish
+
+rem How many left?
+        set HOW_MANY_LEFT=%@eval[%TRANSCRIBEABLE_AUDIO_COUNT% - %TRANSCRIBED_COUNT%]
 
 rem Report our totals and percent  progress:
         call divider
@@ -166,9 +172,10 @@ rem Report our totals and percent  progress:
         gosub counttype     "sound effect" "  -    sound effects" %ALL_AUDIO_COUNT_PROBED%          "sound.effect.*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set                  SOUND_EFFECT_COUNT=%COUNT%  %+ rem echo   %@REPEAT[━,38]
         gosub counttype "untranscribeable" "  - untranscribeable" %ALL_AUDIO_COUNT_PROBED% "\[untranscribe*able\].*%@UNQUOTE[%filemask_audio_regex%]"           "%full_filelist%" %+ set UNTRANSCRIBEABLE_AUDIO_COUNT_PROBED=%COUNT%  %+ echo   %@REPEAT[━,38]
         gosub counttype   "transcribeable" "  =   transcribeable" %ALL_AUDIO_COUNT_PROBED%                        "%@UNQUOTE[%filemask_audio_regex%]" "%transcribeable_filelist%" %+ set   TRANSCRIBEABLE_AUDIO_COUNT_PROBED=%COUNT%  %+ gosub   lineyline
-        gosub counttype        "audiobook" "          audiobooks" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "AUDIOBOOK"                         "%transcribeable_filelist%" %+ set                     AUDIOBOOK_COUNT=%COUNT%
+        gosub counttype        "audiobook" "          audiobooks" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "AUDIOBOOK"                         "%transcribeable_filelist%" %+ set                     AUDIOBOOK_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
         gosub counttype           "lyrics" "        have  lyrics" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "\.txt"                                       "%text_filelist%" %+ set                    HAVE_LYRIC_COUNT=%COUNT%
         gosub counttype          "karaoke" "        have karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "(\.lrc|\.srt)"                      "%transcription_filelist%" %+ set                  HAVE_KARAOKE_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
+        echo %STAR% %STAR% %STAR% %blink_on%%@COMMA[%HOW_MANY_LEFT%]%blink_off% left! %STAR% %STAR% %STAR% 
         gosub lineyline
         call  divider
         echo.

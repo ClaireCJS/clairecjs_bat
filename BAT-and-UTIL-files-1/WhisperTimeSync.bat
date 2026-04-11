@@ -626,10 +626,16 @@ rem ═════════════════════════�
                 iff "Y" == "%ANSWER%" then
                         call srt2txt "%SRT_NEW%" 
                 endiff
+
                 repeat 4 echo.
-                dir *.lrc
+                iff exist *.lrc then
+                        dir *.lrc
+                else
+                        call less_important "No LRC files exist here!"
+                endiff
                 repeat 4 echo.
-                call AskYN "Re-convert %italics_on%all%italics_off% subtitles to LRC if no LRC exists" no 0 
+
+                call AskYN "%message_header%Re-convert %italics_on%all%italics_off% subtitles to LRC if no LRC exists" no 0 
                 iff "Y" == "%ANSWER%" then
                         if exist "%aud_LRC%" *del /q "%aud_LRC%" >&>nul
                         srt2lrc.py go %+ rem don’t run with “force” option

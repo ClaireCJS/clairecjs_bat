@@ -285,6 +285,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 rem VALIDATE ENVIRONMENT [once per session]:
         rem rem echo y α linish 189
         iff "1" != "%VALIDATED_GLVMS_ENV%" then
+                rem pause "validating create-lyr env"
                 rem Default values to help portability:
                         if not defined ESCAPE                                        set                                            ESCAPE=%@CHAR[27]
                         if not defined ANSI_ESCAPE                                   set                                       ANSI_ESCAPE=%ESCAPE%[
@@ -3090,12 +3091,12 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                 echo %ansi_color_advice%%star2%       “%ansi_color_bright_yellow%linstrumental%ansi_color_advice%” means “no words are sung or spoken at all”
                 :ask_if_want_mark_lyriclessness_2
                 unset /q ANSWER
-                call AskYn "Want to mark this song %ansi_green%i%ansi_color_prompt%nstrumental or %ansi_green%l%ansi_color_prompt%yrics %underline_on%unfindable%underline_off% (i.e. officially abandon our lyric search[%ansi_color_bright_green%Z%ansi_color_prompt%=All]) [%ansi_color_bright_green%P%ansi_color_%=Play]" no %IS_THIS_AN_INSTRUMENTAL_WAIT_TIME% IGLPQZ I:Mark_this_file_as_an_instrumental,G:Google,L:It’s_Lyricless,Z:Mark_all_as_lyricless,Q:enQueue_in_winamp,P:Play_it %+ rem 🐮 borrowed wait time
+                call AskYn "Want to mark this song %ansi_green%i%ansi_color_prompt%nstrumental or %ansi_green%l%ansi_color_prompt%yrics %underline_on%unfindable%underline_off% (i.e. officially abandon our lyric search[%ansi_color_bright_green%Z%ansi_color_prompt%=All]) [P=%ansi_color_bright_green%P%ansi_color_prompt%lay]" no %IS_THIS_AN_INSTRUMENTAL_WAIT_TIME% IGLPQZ I:Mark_this_file_as_an_instrumental,G:Google,L:It’s_Lyricless,Z:Mark_all_as_lyricless,Q:enQueue_in_winamp,P:Play_it %+ rem 🐮 borrowed wait time
                 gosub check_for_answer_of_G
                 gosub check_for_answer_of_I
                 if "1" == "%GOTO_END%" (goto /i END_OF_GET_LYRICS)
                 gosub check_for_answer_of_L
-                gosub check_for_answer_of_P
+                gosub 
                 gosub check_for_answer_of_Q
                 if  "P" == "%ANSWER%" goto /i ask_if_want_mark_lyriclessness_2
                 if  "Q" == "%ANSWER%" goto /i ask_if_want_mark_lyriclessness_2

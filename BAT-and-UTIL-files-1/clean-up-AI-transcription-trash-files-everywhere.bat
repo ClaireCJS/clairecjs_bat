@@ -24,6 +24,13 @@ rem Proces parameters:
         iff "%1" == "do_not_delete_BATs" set DO_NOT_DELETE_BATS=1
 
 
+rem General harddrive/file maintanance mode:
+        iff "%1" == "maint" .or. "%1" == "maintenance" then
+                gosub DeleteEverywhere  "::!!!!!!!* HIT ESCAPE !!!!!*"
+                goto /i :END
+        endiff
+
+
 rem Delete files that could be anywhere:
         call less_important "Erasing %italics_on%trash%italics_off% AI transcription files to ensure accurate statistics..."
 
@@ -64,6 +71,8 @@ rem Delete files that could be anywhere:
                                         gosub DeleteEverywhere  RG_yes.dat.bak.*
                                 endiff
 
+
+                                                         
                 :━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 

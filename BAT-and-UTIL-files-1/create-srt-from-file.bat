@@ -1,4 +1,5 @@
 @loadbtm on
+
 REM INIT:
         @rem echo %@colorful[🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗 CREATE-SRT-FROM-FILE 🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗] CWP=%_CWP
         @Echo off                                               
@@ -28,6 +29,8 @@ rem ═════════════════════════�
 rem ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 rem ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
+REM CONFIG: ZOMBIE PROCESSES:
+        set NUMBER_OF_WHISPERAI_ZOMBIE_PROCESSES=1 %+ rem Normally set to 0 but if you have some zombie processes and don’t want to reboot, account for them here
 
 REM CONFIG: OUTPUT FILE WIDTH:
         set SUBTITLE_OUTPUT_WIDTH=30                                                                   %+ rem is 25 for dvds, set to 20 for 72% of the project, trying 30 as of 2025/09/24
@@ -104,7 +107,7 @@ REM Setting audio transcriber, valid extensions to transcribe, and lockfile name
         goto :set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME_done
         :set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME
                 set TRANSCRIBER_TO_USE=Faster-Whisper-XXL.exe                                               %+ rem Command to generate/transcribe [with AI]
-                set TRANSCRIBER_PDNAME=faster-whisper-xxl.exe                                               %+ rem probably the same as as %TRANSCRIBER_TO_USE%, but technically         it’s whatever string can go into %@PID[] that returns a nonzero result if we are running a transcriber
+                set TRANSCRIBER_PDNAME=faster-whisper-xxl                                                   %+ rem probably the same as as %TRANSCRIBER_TO_USE%, but technically         it’s whatever string can go into %@PID[] that returns a nonzero result if we are running a transcriber
                 set TRANSCRIBER_VALID_EXTENSIONS=*.wav;*.flac;*.mp3;*.mp4;*.mpweg;*.mpga;*.m4a;*.wav;*.webm %+ rem valid extensions that our transcriber can transscribe
                 set search=%@SEARCH[%TRANSCRIBER_TO_USE%]
                 rem If you don’t add the machinename to the lockfile, then running on multiple machines is not possible 
@@ -142,6 +145,7 @@ rem validate environment [once]:
         call status-bar unlock
         if not defined UnicodeOutputDefault (set UnicodeOutputDefault=no)
         iff "1" != "%VALIDATED_CREATE_LRC_FF%" then
+                rem pause "validating create-srt env"
                 rem Default values to help portability:
                         if not defined MACHINENAME .and. "" != "%USERDOMAIN%"      set MACHINENAME=%USERDOMAIN%
                         if not defined ESCAPE                                      set                                            ESCAPE=%@CHAR[27]
@@ -158,7 +162,7 @@ rem validate environment [once]:
                         if not defined ANSI_COLOR_ORANGE                           set ANSI_COLOR_ORANGE=%@CHAR[27][38;2;235;107;0m
                         rem TODO BLINK_ON, BLINK_OFF ITALICS_ON ITALICS_OFF, QUOTE, etc
                 rem Perform the actual validations:
-                        @call validate-in-path                %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  status-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alarm.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat restart-winamp.bat appdata.bat winamp.bat display-horizontal-divider.bat pause-for-x-seconds whispertimesync-postprocessor.py
+                        @call validate-in-path                %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  status-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alarm.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat restart-winamp.bat appdata.bat winamp.bat display-horizontal-divider.bat pause-for-x-seconds whispertimesync-postprocessor.py wc
                         @if not defined TRANSCRIBER_PDNAME    @call validate-environment-variable  TRANSCRIBER_PDNAME  skip_validation_existence
                         @if not defined FILEMASK_AUDIO        @call validate-environment-variable  FILEMASK_AUDIO      skip_validation_existence
                         @call validate-environment-variables  ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET UnicodeOutputDefault machinename STAR STAR2 STAR5
@@ -295,18 +299,6 @@ REM Set flags and default values:
                 set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=0
                 set LOCKFILE_NOT_FOR_THIS_PROCESS_MENTIONED=0
 
-        rem Default values that can be overridden by environment variables:
-                set  OUR_LANGUAGE=%DEFAULT_LANGUAGE%
-                set VAD_THRESHOLD=%DEFAULT_VAD_THRESHOLD%
-                if "" !=      "%USE_LANGUAGE%"       set  OUR_LANGUAGE=%USE_LANGUAGE%                          %+ rem deprecated legacy option——now renamed as “%%”——that we’ve removed from the documentation but are leaving for backward compatibility
-                if "" != "%OVERRIDE_LANGUAGE%"       set  OUR_LANGUAGE=%OVERRIDE_LANGUAGE%
-                if "" != "%OVERRIDE_VAD_THRESHOLD%"  set VAD_THRESHOLD=%OVERRIDE_VAD_THRESHOLD%
-
-                unset /q karaoke_status
-
-        rem pause "our language is %OUR_LANGUAGE"
-
-
         rem Set if we approving lyrics automatically
                 iff "%CONSIDER_ALL_LYRICS_APPROVED%" == "1" then
                         set AUTO_LYRIC_APPROVAL=1
@@ -314,6 +306,24 @@ REM Set flags and default values:
                         unset /q CONSIDER_ALL_LYRICS_APPROVED   
                 endiff                
 
+        rem Default values that can be overridden by environment variables:
+                set  OUR_LANGUAGE=%DEFAULT_LANGUAGE%
+                set VAD_THRESHOLD=%DEFAULT_VAD_THRESHOLD%
+                if "" !=      "%USE_LANGUAGE%"       set  OUR_LANGUAGE=%USE_LANGUAGE%                          %+ rem deprecated legacy option——now renamed as “%%”——that we’ve removed from the documentation but are leaving for backward compatibility
+                if "" != "%OVERRIDE_LANGUAGE%"       set  OUR_LANGUAGE=%OVERRIDE_LANGUAGE%
+                if "" != "%OVERRIDE_VAD_THRESHOLD%"  set VAD_THRESHOLD=%OVERRIDE_VAD_THRESHOLD%
+                unset /q karaoke_status
+
+
+        rem Warnings for those values we do override (including in get-lyrics script):
+                rem DEBUG: pause "our language is %OUR_LANGUAGE"
+                if  %NUMBER_OF_WHISPERAI_ZOMBIE_PROCESSES%  gt  0  call warning "%italics_on%NUMBER_OF_WHISPERAI_ZOMBIE_PROCESSES%italics_off% set to %bold_on%%blink_on%%NUMBER_OF_WHISPERAI_ZOMBIE_PROCESSES%%blink_off%%bold_off%" big
+                if "%CONSIDER_ALL_LYRICS_APPROVED%"         == "1" call warning "%italics_on%CONSIDER_ALL_LYRICS_APPROVED%italics_off% set to %bold_on%%blink_on%%CONSIDER_ALL_LYRICS_APPROVED%%blink_off%%bold_off%" big
+                if "%OUR_LANGUAGE%"  != "%DEFAULT_LANGUAGE%"       call warning "%italics_on%OUR_LANGUAGE%italics_off% overridden to %bold_on%%blink_on%%OUR_LANGUAGE%%blink_off%%bold_off%" big
+                if "%VAD_THRESHOLD%" != "%DEFAULT_VAD_THRESHOLD%"  call warning "%italics_on%VAD_THRESHOLD%italics_off% overridden to %bold_on%%blink_on%%VAD_THRESHOLD%%blink_off%%bold_off%" big
+                if "%OVERRIDE_FILE_ARTIST_TO_USE%" != ""           call warning "%italics_on%OVERRIDE_FILE_ARTIST_TO_USE%italics_off% overridden to %bold_on%%blink_on%%OVERRIDE_FILE_ARTIST_TO_USE%%blink_off%%bold_off%" big 
+
+                                              
 
 rem Process command line parameters:        
         :process_for_mode_variants
@@ -1136,37 +1146,44 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         rem 10v2: gave "unrecognized arguments: --vad_filter_threshold=0.2" oops it should be vad_threshold not vad_filter_threshold plus we had accidentally left vad_filter=False                                                                                                                                                                    
         :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter False  --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.2               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
         rem 10v3:                                                                                                                                                                                                                                                                                                                                      
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.2               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.2               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
         rem 10v4:  lowering vad_threshold from 0.2 to 0.1 because of metal & punk with fast/hard vocals. May increase hallucations tho                                                                                                                                                                                                                 
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump
         rem 11:  adding --best_of 5  and --vad_alt_method=pyannote_v3 & removed --ff_mdx_kim2 but this clearly gave worse lyrics, terrible ones, with Wet Leg – Girlfriend                                                                                                                                                                             
         :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --vad_alt_method=pyannote_v3 
         rem 12:  going back to original --ff_mdx_kim2 vocal separation but keeping the best_of 5 ... Looks great?                                                                                                                                                                                                                                      
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --vad_alt_method=pyannote_v3 
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --vad_alt_method=pyannote_v3 
         rem 12v2:  reordering                                                                                                                                                                                                                                                                                                                          
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5
         rem 13: adding --max_comma_cent 70                                                                                                                                                                                                                                                                                                             
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70
         rem 14: adding -hst 2 via Purview’s advice to stop the thing where one subtitle gets stuck on for a whollleeee solooooo — it is short for --hallucination_silence_threshold  ... But it absolutely 100% does not solve that problem and gives output that causes concern for discarded lyrics. Have added logging the whisper output [and not just prompt] to the logfile to help track this...
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70               -hst 2 
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70               -hst 2 
         rem 15: adding --max_gap 3.0 — Purfview said there is a --max_gap option -- default is 3.0 but i’m getting gaps way larger than that so I don’t think it’s being enforced so i’m going to explicitly add it                                                                                                                                     
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 3.0 -hst 2 
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 3.0 -hst 2 
         rem 16b: adding --max_gap 3.0 — Purfview said there is a --max_gap option -- default is 3.0 but i’m getting gaps way larger than that so I don’t think it’s being enforced so i’m going to explicitly add it                                                                                                                                    
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 3.0 
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=199 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 3.0 
         rem 17: try shortening max_gap ———————— FINALLY VERY VERY GOOD RESULTS!!!! ————————                                                                                                                                                                                                                                                             
-        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
+        :et CLI_OPS=--model=large-v2 %PARAM_2% %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
         rem 17b: dropping %PARAM_2% business ━━ 🌟 🌟 🌟 🌟 🌟 🌟 This prompt ran for 5,000+ songs!!!!!! 🌟 🌟 🌟 🌟 🌟 🌟                                                                                                                                                                                                                           
-        set CLI_OPS=--model=large-v2           %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
+        :et CLI_OPS=--model=large-v2           %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.1               --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
         rem 18: But then we hit Gwar: Bloody Pit Of Horror Pt 2, that had very low-talking words, and WhisperAI could *NOT* get it right. It just couldn’t.  Not until the vad threshold was lowered...                                                                                                                                                 
         rem 18: 202501xx: lowering --vad_filter Threshold for the 1ˢᵗ time since v10                                                                                                                                                                                                                                                                     
-        set CLI_OPS=--model=large-v2           %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.05              --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
+        :et CLI_OPS=--model=large-v2           %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=0.05              --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
         rem 19v1: 20250219: raising --vad_filter Threshold back up to halfway between what we had for a long time, and what we recently lowered it to. There’s some wonkyness sometimes and we’re just not sure if it may be caused by this. Mostly going on gut feeling from observing it churn and churn and churn.
-        set CLI_OPS=--model=large-v2           %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                     --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=%VAD_THRESHOLD%   --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
+        :et CLI_OPS=--model=large-v2           %3$ --language=%OUR_LANGUAGE% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width 20                                   --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=%VAD_THRESHOLD%   --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
         rem 19v2: 20250601: changing language to be conditional on language set to “None” or not. Still considered Prompt Version 19 because it doesn’t actually change the prompt,j ust how it’s generated
-        set CLI_OPS=--model=large-v2           %3$ %LANGUAGE_PART_OF_PROMPT% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width %SUBTITLE_OUTPUT_WIDTH --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=%%VAD_THRESHOLD%% --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
+        set CLI_OPS=--model=large-v2           %3$ %LANGUAGE_PART_OF_PROMPT% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width %SUBTITLE_OUTPUT_WIDTH               --ff_mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=%%VAD_THRESHOLD%% --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 
+
+        rem 20: 20260411: upgrading Faster-Whisper-XXL from v192.3.4 to v245.4 - newer builds will change --ff_mdx_kim2 --mdx_device cuda to --ff_vocal_extract mdx_kim2 --voc_device cuda
+        set CLI_OPS=--model=large-v2           %3$ %LANGUAGE_PART_OF_PROMPT% --output_dir "%OUTPUT_DIR%" --output_format srt --vad_filter True   --max_line_count 1 --max_line_width %SUBTITLE_OUTPUT_WIDTH --ff_vocal_extract mdx_kim2 --highlight_words False --beep_off --check_files --sentence --verbose True --vad_filter=True --vad_threshold=%%VAD_THRESHOLD%% --vad_min_speech_duration_ms=150 --vad_min_silence_duration_ms=200 --vad_max_speech_duration_s 5 --vad_speech_pad_ms=198 --vad_dump --best_of 5 --max_comma_cent 70 --max_gap 2.0 --multilingual False
+        rem --multilingual MULTILINGUAL                        Perform language detection on every segment. (default: False)
                 
 
+
         rem proposed: Purfview said there is a --max_gap option -- default is 3.0 ... But i haven’t needed to use it
+
+        rem --model_preload true??
 
         rem --nullify_non_speech 
         rem     Avoiding Hallucinations: Sometimes, background noise or soft sounds may cause WhisperAI to “hallucinate” words. --nullify_non_speech helps eliminate this by focusing transcription on clearer speech.
@@ -1398,8 +1415,9 @@ rem Ask if we should proceed:
                 set STORED_ANSWER=%ANSWER%                                                                                     %+ rem echo stored_answer is “%stored_answer” %+ pause %+ echo 0n
                 rem “E”:
                         iff "%STORED_ANSWER%" == "E" then
-                                if not exist "%TXT_FILE%" call warning "%italics_on%TXT_FILE%italics_off% of “%faint_on%%TXT_FILE%%faint_off%” does not exist!"
-                                if     exist "%TXT_FILE%" %EDITOR% "%TXT_FILE%"
+                                rem if not exist "%TXT_FILE%" call warning "%italics_on%TXT_FILE%italics_off% of “%faint_on%%TXT_FILE%%faint_off%” does not exist!"
+                                rem if     exist "%TXT_FILE%" %EDITOR% "%TXT_FILE%"
+                                gosub check_for_answer_of_E "%txt_file%" "%srt_file%" 
                                 goto /i :go_here_after_last_minute_lyric_edit
                         endiff
                 rem “K”:
@@ -1521,13 +1539,16 @@ REM Original Concurrency Check: Check if the encoder is already running in the p
         rem slower if "%isRunning" != "1" (goto /i no_concurrency_issues)
         rem faster:
         rem echo %ANSI_COLOR_DEBUG%- DEBUG: (4) iff @PID[TRANSCRIBER_PDNAME=%TRANSCRIBER_PDNAME%] "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then %ANSI_COLOR_NORMAL%
-        set CONCURRENCY_WAS_TRIGGERED=0       
         echos %@ansi_move_to_col[0]%ansi_save_position% 
-        iff "%@PID[%TRANSCRIBER_PDNAME%]" == "0" then
+        set CONCURRENCY_WAS_TRIGGERED=0       
+
+        gosub check_if_whisper_is_running
+        iff "1" == "%OKAY_TO_START_TRANSCRIPTION%" then                              %+ rem was this until we added code to compensate for zombie processes: iff %@PID[%TRANSCRIBER_PDNAME%] le %actual_zero% the
                 goto /i no_concurrency_issues
         else 
                 if %DEBUG_LOCKFILE% gt 1 echos [🐐Transcriber is running?!?!?!]
         endiff
+
 
                 if "1" == "%been_here_1339%" echos %ANSI_MOVE_UP_2%``
 
@@ -1577,12 +1598,14 @@ REM Original Concurrency Check: Check if the encoder is already running in the p
                         rem Check to see if we waited long enough for the other transcriber instance to no longer be running:
                                 rem "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
                                 rem "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again
-                                if  "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
+                                gosub check_if_whisper_is_running
+                                rem if "%@PID[%TRANSCRIBER_PDNAME%]" != "0"   goto /i concurrency_checks
+                                if "1" != "%OKAY_TO_START_TRANSCRIPTION%" goto /i concurrency_checks
 
                         rem When finally done, echo a green “...”:
                                 @echo %ansi_color_green%...%ansi_color_bright_green%Done%blink_on%!%blink_off%%ansi_reset%
         :no_concurrency_issues
-        if %DEBUG_LOCKFILE% gt 0 echo 🐐 at :no_concurrency_issues "@PID[%%TRANSCRIBER_PDNAME%%]" == “%@PID[%TRANSCRIBER_PDNAME%]”
+        if %DEBUG_LOCKFILE% gt 0 echo 🐐 at :no_concurrency_issues "@PID[%%TRANSCRIBER_PDNAME%%]" == “%@PID[%TRANSCRIBER_PDNAME%] [can add # of whisper processes and if "1" != OKAY_TO_START_TRANSCRIPTION which is  != "%OKAY_TO_START_TRANSCRIPTION%"  ... goto /i concurrency_checks]”
 
 
 REM ════════════════════════════════════════════════════════════════════════════════════ WE’RE DOING IT NOW!!! ════════════════════════════════════════════════════════════════════════════════════ 
@@ -1593,7 +1616,9 @@ REM ═════════════════════════�
 REM  ✨ ✨ Get ready to actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI: ✨ ✨ 
 REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨ 
         rem One last concurrency check:
-                iff "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then
+                gosub check_if_whisper_is_running
+                rem iff "%@PID[%TRANSCRIBER_PDNAME%]" != "0" then
+                iff "1" != "%OKAY_TO_START_TRANSCRIPTION%"   then
                         echo %ANSI_COLOR_WARNING% Actually, it’s still running! %ANSI_RESET%
                         call status-bar unlock
                         rem  /i Check_If_Transcriber_Is_Running_Again
@@ -1612,13 +1637,17 @@ rem A 3rd concurrency check became necessary in my endeavors:
         rem   /m %@RANDOM[2000,12000]
         delay /m %@RANDOM[20,120]
         rem "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again %+ rem yes, a 3rd concurrency check at the very-very last second!
-        if  "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks                    %+ rem yes, a 3rd concurrency check at the very-very last second!
+        rem "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks                    %+ rem yes, a 3rd concurrency check at the very-very last second!
+        gosub check_if_whisper_is_running
+        if "1" != "%OKAY_TO_START_TRANSCRIPTION%" goto /i concurrency_checks                   
 
 
 
 REM  ✨ ✨ ✨ Concurrency check 1435: ✨ ✨ ✨ 
         echo LOCKFILE_ALREADY_EXISTS==“%LOCKFILE_ALREADY_EXISTS%”>nul                          %+ rem debugging for when we have echo 0n
-        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
+        rem if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
+        gosub check_if_whisper_is_running
+        if "1" != "%OKAY_TO_START_TRANSCRIPTION%" goto /i concurrency_checks                   
         delay /m %@RANDOM[100,1000]
         rem if "1" == "%LOCKFILE_ALREADY_EXISTS%" goto /i concurrency_checks
         iff "1" == "%LOCKFILE_ALREADY_EXISTS%" then
@@ -1632,7 +1661,9 @@ REM  ✨ ✨ ✨ Concurrency check 1435: ✨ ✨ ✨
 
 rem 4ᵗʰ concurrency is a new level of preposterousness in this maddening concurrency situation:
 rem echo f "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i Check_If_Transcriber_Is_Running_Again  [4ᵗʰ concurrency check] 🐐
-        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
+        rem if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" goto /i concurrency_checks
+        gosub check_if_whisper_is_running
+        if "1" != "%OKAY_TO_START_TRANSCRIPTION%" goto /i concurrency_checks                   
 
 
 
@@ -1729,15 +1760,25 @@ rem but y’know rather than using tee, i could maybe use copy-move-post ITSELF 
 
 rem 5ᵗʰ++++ concurrency is a new level of preposterousness in this maddening concurrency situation:
         delay /m %@RANDOM[222,5938]
-        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (delay /m %@RANDOM[1000,10000] %+ goto /i concurrency_checks)
+        rem if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (delay /m %@RANDOM[1000,10000] %+ goto /i concurrency_checks)
+        gosub check_if_whisper_is_running
+        if "1" != "%OKAY_TO_START_TRANSCRIPTION%" goto /i concurrency_checks                   
         delay /m %@RANDOM[333,8327]
-        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (delay /m %@RANDOM[1000,10000] %+ goto /i concurrency_checks)
+        rem if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (delay /m %@RANDOM[1000,10000] %+ goto /i concurrency_checks)
+        gosub check_if_whisper_is_running
+        if "1" != "%OKAY_TO_START_TRANSCRIPTION%" goto /i concurrency_checks                   
         delay /m %@RANDOM[123,4567]
-        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (delay /m %@RANDOM[1000,10000] %+ goto /i concurrency_checks)
+        rem if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (delay /m %@RANDOM[1000,10000] %+ goto /i concurrency_checks)
+        gosub check_if_whisper_is_running
+        if "1" != "%OKAY_TO_START_TRANSCRIPTION%" goto /i concurrency_checks                   
         delay /m %@RANDOM[873,3567]
-        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (delay /m %@RANDOM[1000,10000] %+ goto /i concurrency_checks)
+        rem if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (delay /m %@RANDOM[1000,10000] %+ goto /i concurrency_checks)
+        gosub check_if_whisper_is_running
+        if "1" != "%OKAY_TO_START_TRANSCRIPTION%" goto /i concurrency_checks                   
         delay /m %@RANDOM[113,2763]
-        if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (delay /m %@RANDOM[1000,10000] %+ goto /i concurrency_checks)
+        rem if "%@PID[%TRANSCRIBER_PDNAME%]" != "0" (delay /m %@RANDOM[1000,10000] %+ goto /i concurrency_checks)
+        gosub check_if_whisper_is_running
+        if "1" != "%OKAY_TO_START_TRANSCRIPTION%" goto /i concurrency_checks                   
 
 rem Title the window:
                 :actually_do_it
@@ -2020,7 +2061,10 @@ rem Preliminary success SRT-generation message:
         @gosub divider
         @call success "%blink_on%Karaoke created%blink_off% at: %blink_on%%italics_on%%emphasis%%SRT_FILE%%deemphasis%%ANSI_RESET%" 
         title %check% %BASE_TITLE_TEXT% generated successfully! %check% 
-        if "%SOLELY_BY_AI%" == "1" (call warning_soft "%double_underline_on%%italics_on%ONLY%italics_off%%double_underline_off% AI was used. Lyrics were %underline_on%%italics_on%not%italics_off%%underline_off% used for transcription prompting." silent)
+        iff "%SOLELY_BY_AI%" == "1" then
+                call warning_soft "%double_underline_on%%italics_on%ONLY%italics_off%%double_underline_off% AI was used. Lyrics were %underline_on%%italics_on%not%italics_off%%underline_off% used for transcription prompting." silent
+                set JUST_GENERATED_LYRICS=1
+        endiff
 
 
 
@@ -2032,14 +2076,23 @@ rem A chance to edit/reject the karaoke:
                                 echo %ansi_color_debug%- DEBUG: LYRICS_ACCEPTABLE=“%LYRICS_ACCEPTABLE%” %blink_oN%do we ... exit now if this happens???%blink_off%%ansi_reset%
                         endiff 
                 else 
-                        rem echo LYRICS_ACCEPTABLE is “%LYRICS_ACCEPTABLE%” 
+                        rem echo %star2% LYRICS_ACCEPTABLE is “%LYRICS_ACCEPTABLE%” 
                 endiff
 
 
 rem Make sure postprocessed lyrics exist because we’re about to print them:
         gosub create_or_set_postprocessed_lyrics "%POSTPROCESSED_LYRICS%" 
-        call subtle "%star2% Postprocessed lyrics are now “%postprocessed_lyrics%” GOAT"
+        call subtle "%star2% Postprocessed lyrics are now “%postprocessed_lyrics%” GOAT JUST_GENERATED_LYRICS=%JUST_GENERATED_LYRICS%"
         if "1" == "%DEBUG_TRACE_CSFF%" pause "Are we here at 1882"
+
+
+
+
+rem IF the lyrics already existed (and weren’t backfilled from one of our transcriptions), then do some comparisons:
+        iff "1" == "%JUST_GENERATED_LYRICS" then
+                call subtle "Lyrics were just generated, so comparisons will be skipped"
+                goto /i :endpoint_for_skipping_lyric_comparisons_because_they_were_just_generated
+        endiff
 
 
 rem Compare lyrics vs postprocessed vs transcription, with visual stripes between (stL=lower stripe, stB=both, stU=upper stripe):
@@ -2047,8 +2100,6 @@ rem Compare lyrics vs postprocessed vs transcription, with visual stripes betwee
         iff exist "%TXT_FILE%" then
                 if %@FILESIZE["%TXT_FILE%"] gt 2 call review-file -wh -stL      "%TXT_FILE%"            "¹Lyrics (raw)"
         endiff
-
-
 
         if "1" == "%DEBUG_TRACE_CSFF%" pause "Are we even here 1911"        
         iff "" != "%POSTPROCESSED_LYRICS%" then
@@ -2064,6 +2115,7 @@ rem Compare lyrics vs postprocessed vs transcription, with visual stripes betwee
 
 
 rem Review the subtitle file, if it exists and is non-zero (enough) in size:
+        :endpoint_for_skipping_lyric_comparisons_because_they_were_just_generated
         iff exist "%SRT_FILE%" then
                 if %@FILESIZE["%SRT_FILE%"] gt 5 call review-file -wh -stU -ins "%SRT_FILE%"            "³Transcription"
         endiff
@@ -2328,8 +2380,8 @@ goto /i skip_subroutines
                         goto /i go_here_if_we_unpproved_or_deleted_the_karaoke
                 endiff
                 set player_command_extra_options=show_karaoke
-                gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%INPUT_FILE%"
-                gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_Q "%INPUT_FILE%"
+                gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
+                gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
                 unset /q player_command_extra_options
 
                 rem Which answers should lead us back to asking the question agan?  Answer: N/P/Q
@@ -2494,6 +2546,11 @@ goto /i skip_subroutines
         return
         :clear_rows_for_lockfile_messages [num_rows]
                 repeat %num_rows% echo. %+ echo %@ANSI_MOVE_TO_ROW[%@EVAL[%_ROWS-(%num_rows%+1)]]
+        return
+        :create_or_set_postprocessed_lyrics [opt]
+                if "1" == "%DEBUG_ECHO_CALLS_TO_GETLYRICS%" echo %ansi_color_debug%%EMOJI_PHONE%  BEGIN: gosub [get-karaoke::]create_or_set_postprocessed_lyrics %opt%  ... postprocessed_lyrics is now =“%postprocessed_lyrics%”%ansi_color_normal%
+                gosub "%BAT%\get-lyrics-for-file.btm" create_or_set_postprocessed_lyrics "%@UNQUOTE["%opt%"]"
+                if "1" == "%DEBUG_ECHO_CALLS_TO_GETLYRICS%" echo %ansi_color_debug%%EMOJI_PHONE%  ENDED: gosub [get-karaoke::]create_or_set_postprocessed_lyrics %opt%  ... postprocessed_lyrics is now =“%postprocessed_lyrics%”%ansi_color_normal%
         return
         :debug [msg]
                 echo %ANSI_COLOR_DEBUG%- DEBUG: %msg% %ansi_color_normal%
@@ -2755,10 +2812,19 @@ goto /i skip_subroutines
         :rename_audio_file_as_instr_if_answer_was_I [opt]
                 if "I" == "%ANSWER%" gosub rename_audio_file_as_instrumental %opt%
         return
-        :create_or_set_postprocessed_lyrics [opt]
-                if "1" == "%DEBUG_ECHO_CALLS_TO_GETLYRICS%" echo %ansi_color_debug%%EMOJI_PHONE%  BEGIN: gosub [get-karaoke::]create_or_set_postprocessed_lyrics %opt%  ... postprocessed_lyrics is now =“%postprocessed_lyrics%”%ansi_color_normal%
-                gosub "%BAT%\get-lyrics-for-file.btm" create_or_set_postprocessed_lyrics "%@UNQUOTE["%opt%"]"
-                if "1" == "%DEBUG_ECHO_CALLS_TO_GETLYRICS%" echo %ansi_color_debug%%EMOJI_PHONE%  ENDED: gosub [get-karaoke::]create_or_set_postprocessed_lyrics %opt%  ... postprocessed_lyrics is now =“%postprocessed_lyrics%”%ansi_color_normal%
+        :check_if_whisper_is_running
+                rem ASSUMES TRANSCRIBER_PDNAME is set to the process name (greppable from tasklist) of our transcriber
+                rem ASSUMES tasklist, grep, and wc are in path
+                rem ASSUMES CONVENTION of setting env var NUMBER_OF_WHISPERAI_ZOMBIE_PROCESSES to X if there are X zombie processes.  
+                rem SETS    WHISPER_PROCESS_COUNT to the # of whisper processes going on (generally 0 or 1)
+                rem SETS    OKAY_TO_START_TRANSCRIPTION to 1 if we are good to go (which generally means having 0 whisper processes, unless there are X zombie processes, in which case it’s 0+X) and 0 if we are not
+                if not defined NUMBER_OF_WHISPERAI_ZOMBIE_PROCESSES set NUMBER_OF_WHISPERAI_ZOMBIE_PROCESSES=0
+                set whisper_process_count=%@EXECSTR[*tasklist | *grep -i %TRANSCRIBER_PDNAME% | wc -l]
+                iff %whisper_process_count% le %NUMBER_OF_WHISPERAI_ZOMBIE_PROCESSES% then                              %+ rem was this until we added code to compensate for zombie processes: iff %@PID[%TRANSCRIBER_PDNAME%] le %actual_zero% the
+                        set OKAY_TO_START_TRANSCRIPTION=1
+                else
+                        set OKAY_TO_START_TRANSCRIPTION=0
+                endiff
         return
         :usage
                 %color_advice%
