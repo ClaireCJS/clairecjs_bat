@@ -31,7 +31,8 @@ rem CONFIGURATION: FILENAMES:
         set    transcription_filelist=filelist-transcriptions.txt
         set                report_log=lyric-subtitle-compliance.log
         rem If this changes, also update the similar values in clean-up-AI-transcription-trash-files-everywhere.bat:
-        set            AI_TRASH_FILES=*._vad_collected_chunks*.wav *._vad_collected_chunks*.log *._vad_collected_chunks*.srt *._vad_original*.srt *._vad_pyannote_*chunks*.wav *._vad_pyannote_v3.txt create-the-missing-karaokes-here-temp*.bat get-the-missing-lyrics-here-temp*.bat get-the-missing-karaoke-here-temp*.bat
+        set            AI_TRASH_FILES=*._vad_collected_chunks*.wav *._vad_collected_chunks*.log *._vad_collected_chunks*.srt *._vad_original*.srt *._vad_pyannote_*chunks*.wav *._vad_pyannote_v3.txt create-the-missing-karaokes-here-temp*.bat get-the-missing-lyrics-here-temp*.bat get-the-missing-karaoke-here-temp*.bat *._vad_ten.srt *._vad_silero*.srt
+
 
 
 rem Validate environment (once):

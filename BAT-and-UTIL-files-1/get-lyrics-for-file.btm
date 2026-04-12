@@ -3186,7 +3186,8 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         echo %ANSI_COLOR_WARNING_soft%%EMOJI_CAUTION%Player command is now: %lq%%player_command%%rq%!%ansi_color_normal%
                 endiff
                 if "%PLAYER_COMMAND%" == "" (eset player_command %+ goto /i try_again)
-                rem echo %arrow% %arrow% %arrow% check_for_answer_of_P [] ... audio_file = %lq%%AUDIO_FILE%%rq%, SONGFILE= %lq%%SONGFILE%%rq% and alias of song_file is %lq%%SONG_FILE%%rq%, opt=%lq%%opt%%rq%, answer=%lq%%answer%%rq% ... %ansi_color_magenta%[PLAYER_COMMAND=%lq%%PLAYER_COMMAND%%rq%]%ansi_color_normal%  🐐
+                rem 
+echo %arrow% %arrow% %arrow% check_for_answer_of_P [opt=%opt%] ... audio_file = %lq%%AUDIO_FILE%%rq%, SONGFILE= %lq%%SONGFILE%%rq% and alias of song_file is %lq%%SONG_FILE%%rq%, opt=%lq%%opt%%rq%, answer=%lq%%answer%%rq% ... %ansi_color_magenta%[PLAYER_COMMAND=%lq%%PLAYER_COMMAND%%rq%]%ansi_color_normal%  🐐
                 if "%answer%" != "P" .and. "%answer%" != "Q" goto :not_really_playing
                         set FILE_TO_USE=%AUDIO_FILE%
                         set size=-1

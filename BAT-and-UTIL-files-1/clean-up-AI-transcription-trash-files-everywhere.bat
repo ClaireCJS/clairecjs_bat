@@ -2,6 +2,13 @@
 @loadbtm on
 @on break cancel
 
+
+rem  :USAGE: set ONLY_CLEAN_UP_LOCALLY=1 if you only want to perform this in the current folder
+
+
+
+
+
 rem PLEASE RUN THIS EVERY REBOOT!
 rem INSERT THIS INTO YOUR AUTOEXEC.BAT / MAINTENANCE.BAT / FREE-UP-HARDDRIVE-SPACE.BAT
 
@@ -31,8 +38,12 @@ rem General harddrive/file maintanance mode:
         endiff
 
 
+
+
+
+
 rem Delete files that could be anywhere:
-        call less_important "Erasing %italics_on%trash%italics_off% AI transcription files to ensure accurate statistics..."
+        if "1" != "%ONLY_CLEAN_UP_LOCALLY%" call less_important "Erasing %italics_on%trash%italics_off% AI transcription files to ensure accurate statistics..."
 
         iff "%1" != "include-dot-files" goto :no_dot_files
                 gosub DeleteEverywhere        .CurrentlyDoingTranscriptionsHere      %+ rem Folder-level lockfiles don’t make sense after a reboot, which is when this script is typically run
@@ -47,6 +58,8 @@ rem Delete files that could be anywhere:
                 gosub DeleteEverywhere               *._vad_original*.*
                 gosub DeleteEverywhere               *._vad_pyannote_*chunks*.wav
                 rem   DeleteEverywhere               *._vad_pyannote_v3.txt
+                gosub DeleteEverywhere               *._vad_ten.srt
+                gosub DeleteEverywhere               *._vad_silero*.srt
 
         if "1" == "%DO_NOT_DELETE_BATS%" goto :do_not_delete_BATs
                 gosub DeleteEverywhere  create-the-missing-karaokes-here-temp*.bat
@@ -79,6 +92,9 @@ rem Delete files that could be anywhere:
 
 rem Now❟ back to business as usual:
         :DoneDeletingBecauseThisIsANormalInvocation
+
+rem For local mode we’re done
+        if "1" == "%ONLY_CLEAN_UP_LOCALLY%"  goto :END
 
 rem Take note of how much was free after we started finished — though these scripts are small, so "megabytes" is too big of a unit for this situation:
         set FREE_C_AFTER=%@DISKFREE[c]
@@ -114,6 +130,7 @@ rem —————————————————————————�
                         if     exist %files% (*del /e /s /a: /f /k /L /X /Y /Z %files%) >nul
                         rem echos %ansi_restore_position%%@repeat[ ,%@len[%@name[%files_param%]]]
                 return
+
         rem Create a folder if it is no longer exists:                
                 :CreateIfGone [dir_param]
                         set dir="%@UNQUOTE[%dir_param]"
@@ -121,28 +138,34 @@ rem —————————————————————————�
                         if not isdir %dir% (call error.bat "Problem when creating “%italics_on%%dir%%italics_off%”!")
                 return
 
-        rem Delete a file no matter where it exists on all of our harddrives:
+        rem Delete a file no matter where it exists on all of our harddrives, unless we are in ONLY_CLEAN_UP_LOCALLY mode, then just do it in the current folder:
                 :deleteEverywhere [file]
                         rem Parameters:
                                 set file="%@UNQUOTE[%file]"                                             %+ rem Strip quotes off file mask and re-quote it
                                 rem DEBUG: echo * filemask=%file
 
-                        rem Let us know which filename we are on the hunt for:
-                                echos         %ANSI_RESET%``                                            %+ rem Indent this part
-                                call less_important "looking for “%italics_on%%file%%italics_off%”%ansi_save_position%"     %+ rem Indented "looking for {filename}" message
-                                rem DEBUG: echos %ansi_restore_position%%ansi_move_up_1%
-                                echos %@randfg_soft[]%@randcursor[]
                         
-                        rem Find all instances of the file [found via everything] we are deleting, pipe to sort-and-uniq to dedupe it, then insert "del-if-exists" [and a quote] before it, a quote after it, then pipe *all that* directly to the command line, then pipe it to fast_cat to fix ansi rendering errors:
-                        rem Be damn sure you know what you’re doing if you change this. Best put an "echo " before the "*del" and test it out if you do.
-                                call set-tmp-file "deleting AI trash"
-                                (((*everything %file% |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "echos {{{{PERCENT}}}}@randfg_soft[]. {{{{PERCENT}}}}+ call del-if-exists /z {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") >:u8 %tmpfile%.bat
-                                call %tmpfile%.bat |:u8 fast_cat
 
-                                rem DEBUG: echo.
+                        iff "1" == "%ONLY_CLEAN_UP_LOCALLY%" then
+                                gosub DelIfExists %file%
+                        else
+                                rem Let us know which filename we are on the hunt for:
+                                        echos         %ANSI_RESET%``                                            %+ rem Indent this part
+                                        call less_important "looking for “%italics_on%%file%%italics_off%”%ansi_save_position%"     %+ rem Indented "looking for {filename}" message
+                                        rem DEBUG: echos %ansi_restore_position%%ansi_move_up_1%
+                                        echos %@randfg_soft[]%@randcursor[]
 
-                                rem echo All done? %+ pause
-                                rem echos %@randfg_soft[]%@randcursor[]
+                                rem Find all instances of the file [found via everything] we are deleting, pipe to sort-and-uniq to dedupe it, then insert "del-if-exists" [and a quote] before it, a quote after it, then pipe *all that* directly to the command line, then pipe it to fast_cat to fix ansi rendering errors:
+                                rem Be damn sure you know what you’re doing if you change this. Best put an "echo " before the "*del" and test it out if you do.
+                                        call set-tmp-file "deleting AI trash"
+                                        (((*everything %file% |:u8 sort |:u8 uniq ) |:u8 insert-before-each-line.py "echos {{{{PERCENT}}}}@randfg_soft[]. {{{{PERCENT}}}}+ call del-if-exists /z {{{{QUOTE}}}}")   |:u8 insert-after-each-line.pl "{{{{QUOTE}}}}") >:u8 %tmpfile%.bat
+                                        call %tmpfile%.bat |:u8 fast_cat
+
+                                        rem DEBUG: echo.
+
+                                        rem echo All done? %+ pause
+                                        rem echos %@randfg_soft[]%@randcursor[]
+                        endiff
                 return
         :skip_subroutine_definitions
 rem ———————————————————————————————————————————————— SUBROUTINES: END —————————————————————————————————————————————————

@@ -482,7 +482,7 @@ rem If it is better, back up the old version and replace it with this one:
                                 set HOLD_476_ANSWER=%ANSWER%
                                 call AskYN "%message_header%Convert these subtitles %italics_on%back%italics_off% to lyrics" no 0
                                         iff "Y" == "%ANSWER%" then
-                                                call srt2txt "%srt%"
+                                                call srt2txt "%srt%" silent
                                                 if not defined tmpfile call set-tmp-file "postprocessed lyrics"
                                                 echo %ansi_color_debug%%EMOIJI_GEAR% Running %italics_on%lyric-postprocessor.pl%italics_off% -A -L -S  "%LYR_RAW%"  `>`:u8 %faint_on%%tmpfile%%faint_off%%ansi_color_normal%
                                                                                                          lyric-postprocessor.pl              -A -L -S  "%LYR_RAW%"    >:u8 %tmpfile%
@@ -624,7 +624,7 @@ rem ═════════════════════════�
         :cleanup_after_editing_subs
                 call AskYN "%message_header%Re-convert subtitles to text" no 0 
                 iff "Y" == "%ANSWER%" then
-                        call srt2txt "%SRT_NEW%" 
+                        call srt2txt "%SRT_NEW%" silent
                 endiff
 
                 repeat 4 echo.
