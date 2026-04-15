@@ -727,6 +727,13 @@ Reviews all karaoke files in current folder, using ```print-with-columns``` to e
 <img width="1779" height="1586" alt="image" src="https://github.com/user-attachments/assets/5da5ac3b-cbed-457a-8a09-707c01d067e4" />
 
 
+### 🌟 [review-SRTs-and-TXTs.bat / review-transcriptions.bat](../review-SRTs-and-TXTs.bat):
+
+Same as above script, but also reviews TXT files. 
+
+
+
+
 ### 🌟 cfmk / [check-for-missing-karaoke](../check-for-missing-karaoke.bat):
 
 Displays a list of files in the *current folder* which are missing *karaoke* files, defaulting to use ```these.m3u``` is the playlist to check.

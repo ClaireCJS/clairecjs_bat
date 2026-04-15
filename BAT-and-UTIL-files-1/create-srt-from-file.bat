@@ -1416,6 +1416,17 @@ rem Ask if we should proceed:
         if "%LYRIC_STATUS%"     == "APPROVED" .and. "1" != "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set PROCEED_WITH_AI_CONSIDERATION_TIME=9  %+ rem When in thorough mode, this value would be 0
         if "%LYRICLESS_STATUS%" == "APPROVED"                                                        set PROCEED_WITH_AI_CONSIDERATION_TIME=30 %+ rem Even in thorough mode, we want to auto-pass through *this* *one* prompt when it’s lyricless because there’s nothing more to consider at this point
         :proceed_prompt
+
+
+        rem Before we ask, check that the target doesn’t exist yet:
+                iff exist "%SRT_FILE%" then 
+                        gosub say_if_exists SRT_FILE
+                        echo warning "Aborting because the %bold_on%%italics_on%SRT_FILE%italics_off%%bold_off% already exists: %italics_on%%faint_on%%SRT_FILE%%faint_off%%italics_off%"
+                else
+                        call debug "SRT file does not exist" %+ rem GOAT
+                endiff
+
+
         unset /q answer stored_answer
         @call AskYn "Do the transcription%ADDITIONAL_OPTIONS_TEXT%" yes %PROCEED_WITH_AI_CONSIDERATION_TIME% %ADDITIONAL_OPTIONS_LETTERS% %ADDITIONAL_OPTIONS_MEANINGS%
                 set STORED_ANSWER=%ANSWER%                                                                                     %+ rem echo stored_answer is “%stored_answer” %+ pause %+ echo 0n

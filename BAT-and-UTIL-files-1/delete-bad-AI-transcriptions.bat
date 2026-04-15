@@ -111,7 +111,7 @@ rem Grab parameter:
 
 rem Validate environment (once):
         iff "True" != "%validated_dbaitrr%" then
-                call validate-in-path               grep insert-before-each-line.py insert-after-each-line.py run-piped-input-as-bat.bat askyn del-maybe-after-review uniq sed fatal_error delete-zero-byte-files 
+                call validate-in-path               grep insert-before-each-line.py insert-after-each-line.py run-piped-input-as-bat.bat askyn del-maybe-after-review uniq sed fatal_error delete-zero-byte-files clean-up-AI-transcription-trash-files-here.bat
                 call validate-environment-variables ansi_colors_have_been_set emoji_have_been_set 
                 call validate-environment-variables FILEMASK_AUDIO skip_validation_existence
                 call validate-is-function           ansi_move_to_col randcursor ANSI_MOVE_RIGHT randfg_soft cursive cursive_plain
@@ -188,6 +188,10 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
         :skip_old_way
 
 rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
+
+        rem First, we can delete some by virtue of their filename alone, saving the user the headache of reviewing them:
+                call clean-up-AI-transcription-trash-files-here.bat
+
 
         rem either LRCget or LyricsGenius.exe seems to have chosen “Lady In Red” by Chris DeBurg for TONS AND TONS of inapplicable songs, as well as “Black City” by Voivod:
                 :new_way

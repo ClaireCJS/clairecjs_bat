@@ -656,12 +656,8 @@ rem Get artist and song so we can use them to download lyrics:
                         if %DEBUG_VALUE_TRANSFER% gt 0 (echo %ansi_color_debug%%star9% argh: PROBE_COMMAND=“%PROBE_COMMAND%”)
                         unset /q probe_output        
 
-                        rem echo %ansi_color_debug%- DEBUG [aaa]: [about to set probe output] [] probe_command=“%probe_command” 👾 %ansi_color_normal%
-
                         call set-tmp-file "probed_results"
                         set tmpfile=%tmpfile%.txt
-
-                        rem echo %ansi_color_debug%- DEBUG [ccc]: old command was: rem (set probe_output=`%`@execstr[%PROBE_COMMAND% `|`:u8 change-single-quotes-to-double-apostrophes.py])%ansi_color_normal%
 
                         (%PROBE_COMMAND% |:u8 change-single-quotes-to-double-apostrophes.py) >:u8 %tmpfile%
 

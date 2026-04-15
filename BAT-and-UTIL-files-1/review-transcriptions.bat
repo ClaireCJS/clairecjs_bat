@@ -1,0 +1,1 @@
+@call review-SRTs-and-TXTs %*

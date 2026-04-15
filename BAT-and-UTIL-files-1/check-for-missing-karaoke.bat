@@ -128,7 +128,7 @@ rem Variable definitions ported from our outer environment into this script for 
 rem Validate Environment (once per session, expiring daily):
         :env_check
         iff  "%_DOY" != "%validated_cfmk%" then
-                call validate-in-path              check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index delete-bad-ai-transcriptions errorlevel
+                call validate-in-path              check_a_filelist_for_files_missing_sidecar_files_of_the_provided_extensions.py  askyn warning insert-before-each-line.py  fast_cat  mp3index delete-bad-ai-transcriptions errorlevel clean-up-AI-transcription-trash-files-here.bat
                 call validate-environment-variable filemask_audio   skip_validation_existence
                 call validate-environment-variable DEFAULT_FILEMASK skip_validation_existence
                 call validate-environment-variable ANSI_COLORS_HAVE_BEEN_SET EMOJI_HAVE_BEEN_SET
