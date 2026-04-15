@@ -1,2 +1,2 @@
 @loadbtm on
-@call create-the-missing-karaokes-here.bat  %*
+@call create-missing-karaoke-files.bat  %*

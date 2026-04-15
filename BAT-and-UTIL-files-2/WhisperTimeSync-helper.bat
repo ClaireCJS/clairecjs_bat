@@ -167,7 +167,7 @@ rem Inform user if final timestamp on new subtitles is different from final time
 
         rem Run our WhisperTimeSync postprocessor which saves the parts WhisperTimeSync drops:
                 whispertimesync-postprocessor.py "%@UNQUOTE["%srt_old%"]" "%@UNQUOTE["%srt_new%"]"
-                pause "GOATGOAT we just ran whispertimesync-postprocessor!🐐🐐🐐"
+                rem pause "we just ran whispertimesync-postprocessor!"
 
 
         rem 2025/12/21 moved to WhisperTimeSync.bat:

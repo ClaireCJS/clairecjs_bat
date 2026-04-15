@@ -9,7 +9,7 @@ rem Redundant environment variable creation in case this is being run without it
  
   
 rem Validate environment (once):
-        iff 1 ne %validated_ctmkh then
+        iff "1" != "%validated_ctmkh%" then
                 call validate-in-path               less_important check-for-missing-karaoke clean-up-AI-transcription-trash-files-here
                 call validate-environment-variables filemask_audio ansi_color_warning_soft star
                 set  validated_ctmkh=1
@@ -28,7 +28,7 @@ rem Make sure we have the files we need:
         endiff
 
 
-rem Clean up any trash so we dont try to make karaokes for the trash files:
+rem Clean up any trash so we don’t try to make karaokes for the trash files:
         call clean-up-AI-transcription-trash-files-here.bat
         if exist   all.m3u (*del /q   all.m3u >nul >&>nul)
         if exist these.m3u (*del /q these.m3u >nul >&>nul)

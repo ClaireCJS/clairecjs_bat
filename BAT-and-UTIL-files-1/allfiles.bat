@@ -60,7 +60,7 @@ rem Environment validation
              if "%PERL"   == "" SET   PERL=perl
             :if "%EDITOR" == "" SET EDITOR=notepad
             iff "1" != "%validated_allfiles%" then
-                call validate-environment-variables  BAT EDITOR 
+                call validate-environment-variables  BAT EDITOR
                 call validate-in-path                perl
                 set  validated_allfiles=1
             endiff

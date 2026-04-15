@@ -1476,6 +1476,8 @@ return
             SET WWWCL_BACKUP=%WWWCL_BACKUP_DRIVE%:\BACKUPS\wwwcl.bak
             SET VCRDRIVE=%WWWCLDRIVE%
             SET VCR=%WWWCL%\MEDIA
+            SET CONCERTSDRIVE=%WWWCLDRIVE%
+            SET CONCERTS=%WWWCL%\MEDIA\concerts.htm
             SET WWW=%WWWCL% %+ SET WWWDRIVE=%WWWCLDRIVE%          %+ REM /* Aliases */
             SET WWWCASDRIVE=%WWWCLDRIVE%
             SET WWWCAS=%WWWCL%\carolyn
@@ -1624,6 +1626,7 @@ return
             %gosubValidateFolderExists%                    RANTSDRIVE RANTS
             %gosubValidateFolderExists%                    WWWCLDRIVE WWWCL
             %gosubValidateFolderExists%            WWWCL_BACKUP_DRIVE WWWCL_BACKUP
+            %gosubValidateFolderExists%                 CONCERTSDRIVE CONCERTS
             %gosubValidateFolderExists%           WWWCAS_BACKUP_DRIVE WWWCAS_BACKUP
             %gosubValidateFolderExists%                   QUOTESDRIVE QUOTES
             %gosubValidateFolderExists%                  DROPBOXDRIVE DROPBOX

@@ -124,10 +124,6 @@ rem If we were supplied a filename, process it as a list of files:              
                         set Filelist_to_Check_for_Missing_Lyrics_in=
                         shift
 
-                        rem Kill bad transcriptions first:
-                                if "0" != "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" call delete-bad-ai-transcriptions 3
-                                setdos /x0
-
 
                         iff "%@EXT[%@UNQUOTE["%1"]]" == "m3u" then
                                 rem echo it’s an m3u! limit=%limit%
@@ -163,6 +159,21 @@ rem If we were supplied a filename, process it as a list of files:              
 
 
 
+rem Check for fast mode:
+        iff "%1" == "fast" then
+                set CFML_FAST=1
+        else
+                set CFML_FAST=0
+        endiff
+
+
+
+rem Kill bad transcriptions unless in fast mode:
+        if "0" != "%DELETE_BAD_AI_TRANSCRIPTIONS_FIRST%" .and. "1" != "%CFML_FAST%" .and. exist *.srt call delete-bad-ai-transcriptions 3
+        setdos /x0
+
+
+
 
 
 rem Set our getter, depending on whether we’re in lyric mode, or “hidden” karaoke mode:
@@ -179,7 +190,7 @@ rem Set our getter, depending on whether we’re in lyric mode, or “hidden” 
 
 
 rem Debug:
-        rem echo ETC is “%ETC%”, GET=“%GET%”, GET_KARAOKE=“%GET_KARAOKE%”, GETTER=“%GETTER%”, NATURE=“%findNature”, flielist_mode=“%flielist_mode%”, limit=“%limit%” %%*=“%*”, %%1=“%1” %+ pause
+        rem echo ETC is “%ETC%”, GET=“%GET%”, GET_KARAOKE=“%GET_KARAOKE%”, GETTER=“%GETTER%”, NATURE=“%findNature”, flielist_mode=“%flielist_mode%”, limit=“%limit%” %%*=“%*”, %%1=“%1” %+ pause, CFML_FAST=“%CFML_FAST%”
 
 
 
