@@ -116,7 +116,7 @@ rem IF NO BRANCH, WARN THAT WE ARE * Using THE DEFAULT:
                 REM            **current**, **already-existing** instance of EditPlus rather than opening up a new one
                 start /ELEVATED "EditPlus" "%EDITPLUS_EXE%" "           !!!!!!!!!!!!!!!!!! HIT ESCAPE !!!!!!!!!!!!!!!!!!                     " 
             ) else (
-                start /ELEVATED "EditPlus"  "%EDITPLUS_EXE%" %ALL_ARGS%
+                start /ELEVATED "EditPlus" "%EDITPLUS_EXE%" %ALL_ARGS%
             )
 
             popd

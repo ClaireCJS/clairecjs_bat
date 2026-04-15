@@ -589,7 +589,7 @@ rem ═════════════════════════�
                         endiff
 
                 rem Debug:
-                        echo wtf last_divider_newline=%last_divider_newline% should we do one? >nul
+                        rem echo wtf last_divider_newline=%last_divider_newline% should we do one? >nul
         return
 
 
