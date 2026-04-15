@@ -1605,10 +1605,6 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                         if  "L" == "%SAVED_ANSWER%"   goto /i END_OF_GET_LYRICS
                         if  "P" == "%SAVED_ANSWER%"   goto /i Ask_Again_p_12
                         if  "Q" == "%SAVED_ANSWER%"   goto /i Ask_Again_p_12
-                        iff "H" == "%SAVED_ANSWER%"   then
-                                pause "Goat been having problems with Hand-edit-h working here"
-                                gosub edit_lyrics_now_if_we_answered_H H
-                        endiff
                         gosub check_for_answer_of_I
                         rem echo [G] Just got back from “these good” around line 975 🏠🏠🏠🏠🏠🏠 ...answer=“%ANSWER%”, goto_end=“%GOTO_END%”, LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”, LYRIC_STATUS=“%LYRIC_STATUS%”, LYRICS_ACCEPTABLE=“%LYRICS_ACCEPTABLE%”,  LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%” !!!!!
                         rem echo answer=“%answer%”,goto_end=“%goto_end%”
@@ -1625,7 +1621,6 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 iff "%ANSWER%" == "Y" .or. "%ANSWER%" == "H" then
                         *copy /q "%MAYBE_LYRICS_1%" "%LYRIC_FILE%" >nul
 
-
                         iff not exist "%LYRIC_FILE%" then
                                 call error "Well. This shouldn%apostrophe%t happen. #9334033440" 
                                 beep 
@@ -1635,7 +1630,8 @@ rem Check if we have one in our lyric repository already, via 2 different filena
 
                         iff exist "%LYRIC_FILE%" then
                                 rem echo [1☁] about to call edit_lyrics_now_if_we_answered_H 🐐
-                                if "%ANSWER%" == "H" gosub edit_lyrics_now_if_we_answered_H H
+                                if "%SAVED_ANSWER%" == "H" gosub edit_lyrics_now_if_we_answered_H H
+
                                 set DO_NOT_ASK_TO_HAND_EDIT=1
                                 set    JUST_APPROVED_LYRICS=1
                                 set       LYRICS_ACCEPTABLE=1
@@ -3207,8 +3203,7 @@ echo %arrow% %arrow% %arrow% check_for_answer_of_P [opt=%opt%] ... audio_file = 
                                 endiff
                         :opt_empty
                         set size=%@FILESIZE["%FILE_TO_USE%"] 
-                        rem 
-                        echo %arrow% %arrow% %arrow% check_for_answer_of_P [] ... %ansi_color_bright_yellow%file_to_use%ansi_color_normal%=%lq%%FILE_TO_USE%%rq% and size is %lq%%size%%rq% 🐐
+                        rem DEBUG: echo %arrow% %arrow% %arrow% check_for_answer_of_P [] ... %ansi_color_bright_yellow%file_to_use%ansi_color_normal%=%lq%%FILE_TO_USE%%rq% and size is %lq%%size%%rq% 🐐
 
                         if "" == "%@UNQUOTE["%FILE_TO_USE%"]" pause "we got problems here 3108"
 
@@ -3470,7 +3465,7 @@ echo %arrow% %arrow% %arrow% check_for_answer_of_P [opt=%opt%] ... audio_file = 
                         :edit_it_already_2751
                         echos %ANSI_POSITION_SAVE%
                         set EDIT_CALL=%EDITOR% "%LYRIC_FILE%"
-                        echo %star2% editing lyric file because answer=“%answer%”  ... google_now=“%google_now%”.... call = “%blink_on%%edit_call%%blink_off%” 💩 FILE_SONG_TO_USE=“%FILE_SONG_TO_USE” 🐐
+                        rem DEBUG: echo %star2% DEBUG: editing lyric file because answer=“%answer%”  ... google_now=“%google_now%”.... call = “%blink_on%%edit_call%%blink_off%” 💩 FILE_SONG_TO_USE=“%FILE_SONG_TO_USE” 🐐
                         %EDIT_CALL%
                         pause "%blink_on%Press any key when done editing%blink_off%"
                         set   ALREADY_HAND_EDITED=1                                                                                                                                                                                                     %+ rem echo checking[bb] if filesize["%LYRIC_FILE%"] of “%@FILESIZE["%LYRIC_FILE%"]” lt 5 then 

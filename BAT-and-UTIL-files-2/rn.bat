@@ -54,14 +54,16 @@ rem Get/react to auto argument:
         if "%3" == "auto" set RN_SKIP_USER_EDIT=1
         if "%3" != "auto" set RN_SKIP_USER_EDIT=0
 
+rem Unset previous audit values:
+        unset /q last_renamed*
 
 rem Count files matching parameter:
-    set FILES=%@FILES["%@UNQUOTE[%1]"] 
-    if defined debug call print-if-DEBUG "FILES is “%FILES%”"
-    set ISDIR=0
-    if  isdir    %1 goto :IsDir
-    if %FILES% gt 1 goto :IsManyFiles
-                    goto :IsSingleFile
+        set FILES=%@FILES["%@UNQUOTE[%1]"] 
+        if defined debug call print-if-DEBUG "FILES is “%FILES%”"
+        set ISDIR=0
+        if  isdir    %1 goto :IsDir
+        if %FILES% gt 1 goto :IsManyFiles
+                        goto :IsSingleFile
 
 
 rem React to count accordingly?
@@ -146,7 +148,11 @@ rem             for /a:  %fi in (%1) if exist %as_instrmental_param%      call r
                 set  UNDOCOMMAND=%REN% "%FILENAME_NEW%" "%@UNQUOTE[%FILENAME_OLD%]" 
                 set      COMMAND=%REN% "%FILENAME_OLD%" "%@UNQUOTE[%FILENAME_NEW%]"      
                 set  REDOCOMMAND=%COMMAND%   
+
+        rem Store action performed for auditing / return value to calling scripts:
+                set LAST_RENAMED_FROM=%@UNQUOTE["%FILENAME_OLD%"]
                 set LAST_RENAMED_TO=%@UNQUOTE["%FILENAME_NEW%"]
+                set LAST_RENAMED=from %LAST_RENAMED_FROM% to %LAST_RENAMED_TO% in %_CWP at %_datetime
 
         rem Add any decorator we’ve defined for cosmetic porpuses:
                 %COLOR_SUCCCESS%
@@ -233,6 +239,8 @@ rem             for /a:  %fi in (%1) if exist %as_instrmental_param%      call r
                 :old_file_seems_to_be_gone
 
 
+        if "0" == "%old_file_seems_to_be_gone%" set RN_PERFORMED=0
+        if "1" == "%old_file_seems_to_be_gone%" set RN_PERFORMED=1
             
 
 goto /i :END_of_rn
@@ -272,7 +280,9 @@ rem     ━━━━━━━━━━━━━━━━━━━━━━━━
                 echos %ansi_color_run%%star% ``
                 ren "%@UNQUOTE["%1"]" "%@UNQUOTE["%2"]" 
                 set UNDOCOMMAND=    ren "%@UNQUOTE["%2"]" "%@UNQUOTE["%1"]" 
+                set LAST_RENAMED_FROM=%@UNQUOTE[%1]
                 set LAST_RENAMED_TO=%@UNQUOTE[%2]
+                set LAST_RENAMED=renamed %LAST_RENAMED_FROM% to %LAST_RENAMED_TO% in %_CWP at %_datetime
         goto :END_of_rn
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -301,6 +311,8 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 
 :END_of_rn
+
+
         unset /q fix_run no_change
         iff "%1" == "" then 
                 echo %ansi_color_fatal_error% rn %blink_on%WHAT?!%blink_off%?! %ansi_color_normal% *beep

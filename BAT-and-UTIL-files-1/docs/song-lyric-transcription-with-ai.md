@@ -729,9 +729,7 @@ Reviews all karaoke files in current folder, using ```print-with-columns``` to e
 
 ### 🌟 [review-SRTs-and-TXTs.bat / review-transcriptions.bat](../review-SRTs-and-TXTs.bat):
 
-Same as above script, but also reviews TXT files. 
-
-
+Checks each subtitle file against its sidecar LRC/TXT files, giving user an opportunity to delete lyrics/subtitles/LRC, approve/disapprove lyrics/subtitles, or rename files.
 
 
 ### 🌟 cfmk / [check-for-missing-karaoke](../check-for-missing-karaoke.bat):

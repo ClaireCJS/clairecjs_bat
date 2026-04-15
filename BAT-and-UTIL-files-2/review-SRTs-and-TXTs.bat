@@ -20,7 +20,7 @@ rem Validate environment (once):
         iff "1" != "%validated_review_transcriptions%" then
                 if not defined emoji_have_been_set     validate-environment-variable emoji_have_been_set 
                 if not defined ansi_color_has_been_set validate-environment-variable ansi_color_has_been_set 
-                call validate-in-path clean-up-AI-transcription-trash-files-here.bat review-files review-file AskYN unapprove-subtitles unapprove-lyrics approve-subtitles approve-lyrics srt2txt srt2lrc error print-message
+                call validate-in-path clean-up-AI-transcription-trash-files-here.bat review-files review-file AskYN unapprove-subtitles unapprove-lyrics approve-subtitles approve-lyrics srt2txt srt2lrc error print-message rn
                 set  validated_review_transcriptions=1                                                                      
         endiff
 
@@ -73,24 +73,32 @@ goto :END
 
                 rem Ask if user wants to delete any of them?
                         :re_ask
-                        call AskYN "Delete any? [%ansi_color_bright_green%N%ansi_color_prompt%o/Next, del %ansi_color_bright_green%t%ansi_color_prompt%xt,del %ansi_color_bright_green%s%ansi_color_prompt%ubs,del %ansi_color_bright_green%L%ansi_color_prompt%RC,approve sub(%ansi_color_bright_green%A%ansi_color_prompt%)/lyr(%ansi_color_bright_green%B%ansi_color_prompt%)/%ansi_color_bright_green%C%ansi_color_prompt%=%italics_on%both%italics_off%,unapprove sub(%ansi_color_bright_green%U%ansi_color_prompt%)/lyr(%ansi_color_bright_green%V%ansi_color_prompt%)/%ansi_color_bright_green%W%ansi_color_prompt%=%italics_on%both%italics_off%]" No 0 YNABCUVWTSL Y:Yeah,N:No!,A:approve_karaoke,B:approve_lyrics,C:approve_all U:unapprove_karaoke,V:unapprove_lyrics,W:unapprove_all,T:delete_TXT_lyrics,S:delete_subtitles,L:delete_LRC
+                        call AskYN "Delete any? [%ansi_color_bright_green%N%ansi_color_prompt%o/Next, del %ansi_color_bright_green%t%ansi_color_prompt%xt,del %ansi_color_bright_green%s%ansi_color_prompt%ubs,del %ansi_color_bright_green%L%ansi_color_prompt%RC,approve sub(%ansi_color_bright_green%A%ansi_color_prompt%)/lyr(%ansi_color_bright_green%B%ansi_color_prompt%)/%ansi_color_bright_green%C%ansi_color_prompt%=%italics_on%both%italics_off%,unapprove sub(%ansi_color_bright_green%U%ansi_color_prompt%)/lyr(%ansi_color_bright_green%V%ansi_color_prompt%)/%ansi_color_bright_green%W%ansi_color_prompt%=%italics_on%both%italics_off%,%ansi_color_bright_green%Rename%ansi_color_prompt%]" No 0 YNABCUVWTSLR Y:Yeah,N:No!,A:approve_karaoke,B:approve_lyrics,C:approve_all U:unapprove_karaoke,V:unapprove_lyrics,W:unapprove_all,T:delete_TXT_lyrics,S:delete_subtitles,L:delete_LRC,R:rename_file(s)
 
                         if "N" == "%ANSWER%" goto :done_with_this_one
-                        if "T" == "%ANSWER%" (gosub delete_file "%TXT%" %+ goto /i :re_ask)
-                        if "S" == "%ANSWER%" (gosub delete_file "%SRT%" %+ call srt2txt "%SRT%" %+ goto /i :re_ask)
-                        if "L" == "%ANSWER%" (gosub delete_file "%LRC%" %+ call srt2lrc  >nul   %+ goto /i :re_ask)
-                        if "A" == "%ANSWER%" (if exist "%SRT%" call   approve-subtitles "%SRT%" %+ goto /i :re_ask)
-                        if "B" == "%ANSWER%" (if exist "%TXT%" call   approve-lyrics    "%TXT%" %+ goto /i :re_ask)
-                        if "U" == "%ANSWER%" (if exist "%SRT%" call unapprove-subtitles "%SRT%" %+ goto /i :re_ask)
-                        if "V" == "%ANSWER%" (if exist "%TXT%" call unapprove-lyrics    "%TXT%" %+ goto /i :re_ask)
-                        if "C" == "%ANSWER%" (if exist "%TXT%" call   approve-lyrics    "%TXT%" %+ if exist "%SRT%" call   approve-subtitles "%SRT%" %+ goto /i :re_ask)
-                        if "W" == "%ANSWER%" (if exist "%TXT%" call unapprove-lyrics    "%TXT%" %+ if exist "%SRT%" call unapprove-subtitles "%SRT%" %+ goto /i :re_ask)
+                        if "T" == "%ANSWER%" (gosub delete_file "%TXT%")
+                        if "S" == "%ANSWER%" (gosub delete_file "%SRT%" %+ call srt2txt "%SRT%")
+                        if "L" == "%ANSWER%" (gosub delete_file "%LRC%" %+ call srt2lrc  >nul  )
+                        if "A" == "%ANSWER%" (if exist "%SRT%" call   approve-subtitles "%SRT%")
+                        if "B" == "%ANSWER%" (if exist "%TXT%" call   approve-lyrics    "%TXT%")
+                        if "U" == "%ANSWER%" (if exist "%SRT%" call unapprove-subtitles "%SRT%")
+                        if "V" == "%ANSWER%" (if exist "%TXT%" call unapprove-lyrics    "%TXT%")
+                        if "C" == "%ANSWER%" (if exist "%TXT%" call   approve-lyrics    "%TXT%" %+ if exist "%SRT%" call   approve-subtitles "%SRT%")
+                        if "W" == "%ANSWER%" (if exist "%TXT%" call unapprove-lyrics    "%TXT%" %+ if exist "%SRT%" call unapprove-subtitles "%SRT%")
                         
+                        iff "R" == "%ANSWER%" then
+                                if exist "%TXT%" (call rn "%TXT%" %+ if "1" == "%RN_PERFORMED%" set TXT=%LAST_RENAMED_TO%)
+                                if exist "%SRT%" (call rn "%SRT%" %+ if "1" == "%RN_PERFORMED%" set SRT=%LAST_RENAMED_TO%)
+                                if exist "%LRC%" (call rn "%LRC%" %+ if "1" == "%RN_PERFORMED%" set LCR=%LAST_RENAMED_TO%)
+                        endiff
+
                         iff "Y" == "%ANSWER%" then
                                 if exist "%TXT%" call AskYN "delete the TXT lyrics" no 0 %+ if exist "%TXT%" if "Y" == "%ANSWER%" gosub delete_file "%TXT%"
                                 if exist "%LRC%" call AskYN "delete the LRC subs"   no 0 %+ if exist "%LRC%" if "Y" == "%ANSWER%" gosub delete_file "%LRC%"
                                 if exist "%SRT%" call AskYN "delete the SRT subs"   no 0 %+ if exist "%SRT%" if "Y" == "%ANSWER%" gosub delete_file "%SRT%"
                         endiff
+
+                        goto :re_ask
 
                 rem Close out this file:
                         :done_with_this_one
