@@ -134,7 +134,7 @@ rem Get mode type:
 
 
 
-rem Create meaningfully-named temporary file:
+rem Make sure the # of steps is right ... if it’s too low, you’ll potentially get errors like: CC: (Sys) C:\BAT\delete-bad-ai-transcriptions.bat [301]  The parameter is incorrect.  "%@repeat[━,-11]"
         set DELETING_BAD_AI_TRANSCRIPTIONS=1
         rem NUM_STEPS=20   
         rem NUM_STEPS=12   

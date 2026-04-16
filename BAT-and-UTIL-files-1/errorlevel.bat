@@ -103,7 +103,8 @@ REM Parameters: Process: calling file
 
 
 iff %OUR_ERRORLEVEL% le 0 then
-        echos %@ANSI_CURSOR_CHANGE_COLOR_HEX[%color_success_hex]%ANSI_PREFERRED_CURSOR_SHAPE%
+        rem Seems to have problems in some piping situatoins: echos %@ANSI_CURSOR_CHANGE_COLOR_HEX[%color_success_hex]
+        if defined color_success_hex .and. defined ANSI_PREFERRED_CURSOR_SHAPE echos %ANSI_PREFERRED_CURSOR_SHAPE%
         iff defined OUR_SUCCESS_MESSAGE then
                 rem @Echo OFF
                 %COLOR_SUCCESS%

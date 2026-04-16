@@ -87,8 +87,10 @@ rem Capture parameters:
                 iff "%1" != "" then
                         iff "%1" == "show_karaoke" then
                                 set SHOW_KARAOKE=1
+                                shift
                         elseiff "%1" == "do_not_show_karaoke" .or. "%1" == "dont_show_karaoke" then
                                 set SHOW_KARAOKE=0
+                                shift
                         else
                                 call error "Unknown 2ⁿᵈ parameter of “%1” given to preview-audio-file"
                                 goto /i END
@@ -130,7 +132,7 @@ rem Announce the preview: Outer-script should be responsible for saying this, bu
         if "%_PBATCHNAME" == "" echo %ansi_color_bright_green%%emoji_play_button%Previewing file: %ansi_color_green%%italics_on%“%audio_file_to_preview%”%italics_off%%ansi_color_normal%
 
 rem Do the actual preview:
-        set      PAF_COMMAND=%PAF_START% %PAF_PLAYER% %*
+        set      PAF_COMMAND=%PAF_START% %PAF_PLAYER% %param_1% %1$
         set LAST_PAF_COMMAND=%PAF_COMMAND%
         echo %ansi_color_unimportant%* Preview cmd is: %faint_on%%PAF_COMMAND%%ansi_color_normal%%faint_off%
         %PAF_COMMAND%
