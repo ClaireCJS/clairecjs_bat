@@ -73,9 +73,13 @@
     - install the *LyricsGenius* package: 
       - install: ```pip install git+https://github.com/johnwillmr/LyricsGenius.git```
       - upgrade: ```pip install -U lyricsgenius```
-      - ensure that ```lyricsgenius``` is in your path and works as a command
+      - ensure that ```lyricsgenius.exe``` is in your path and works as a command
+    - install the *SyncedLyrics* package:
+      - install: ```pip install syncedlyrics```
+      - ensure that ```syncedLyrics.exe``` is in your path and works as a command
     - install the *WhisperTimeSync* package:
       - https://github.com/EtienneAb3d/WhisperTimeSync
+      - install: ```pip install WhisperTimeSync``` maybe? [untested]
       - Set ```JAVA_WHISPERTIMESYNC``` enivronemnt variable  to the path of the java.exe you wish to use. Or just set it to "java" if the java command is in your path and happens to be the version you’re comfortable with using.
         As of 2026, what works for me is: ```set JAVA_WHISPERTIMESYNC=C:\Program Files\Java\jre-1.8\bin\java.exe```
 
@@ -719,18 +723,20 @@ This searches an entire folder tree (in random order) for bad karaoke transcript
 
 #### These commands find & obtain missing karaoke files.
 
-### 🌟 [review-subtitles.bat / review-all-SRTs / review-all-subtitles / review-SRTs / review-LRCs](../review-subtitles.bat):
-
-Reviews all karaoke files in current folder, using ```print-with-columns``` to eliminate most scrolling up.
-
-![image](https://github.com/user-attachments/assets/9b579cf2-ca93-4684-aec5-35df8c793143)
-<img width="1779" height="1586" alt="image" src="https://github.com/user-attachments/assets/5da5ac3b-cbed-457a-8a09-707c01d067e4" />
 
 
 ### 🌟 [review-SRTs-and-TXTs.bat / review-transcriptions.bat](../review-SRTs-and-TXTs.bat):
 
-Checks each subtitle file against its sidecar LRC/TXT files, giving user an opportunity to delete lyrics/subtitles/LRC, approve/disapprove lyrics/subtitles, or rename files.
+Checks each subtitle file against its sidecar LRC/TXT files, using ```print-with-columns``` to eliminate most scrolling up, pausing to ask if we want to delete lyrics/SRT/LRC, approve/disapprove lyrics/SRT, play, or rename files.
+<img width="2988" height="1579" alt="image" src="https://github.com/user-attachments/assets/e63558dc-e8f7-418e-a18f-c7578b6d686d" />
 
+### 🌟 [review-subtitles.bat / review-all-SRTs / review-all-subtitles / review-SRTs / review-LRCs](../review-subtitles.bat):
+
+Reviews all karaoke files in current folder, using ```print-with-columns``` to eliminate most scrolling up.
+Just spits out all the SRT files without pausing in between.
+
+![image](https://github.com/user-attachments/assets/9b579cf2-ca93-4684-aec5-35df8c793143)
+<img width="1779" height="1586" alt="image" src="https://github.com/user-attachments/assets/5da5ac3b-cbed-457a-8a09-707c01d067e4" />
 
 ### 🌟 cfmk / [check-for-missing-karaoke](../check-for-missing-karaoke.bat):
 
@@ -1153,13 +1159,14 @@ Technically should be called “```audio_file_index.bat```”... but isn’t.
 
 
 
-TODO: may have to unapprove any txt if the LRC/SRT is generated?
 TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency. instrumentals. etc.
 NOTE: New hallucation patterns must be added to: delete-bad-AI-transcriptions.bat lyric-postprocessor.pl subtitle-postprocessor.pl remove-period-at-ends-of-lines.pl
 			NEW HALLUCNATION: I’m sorry, I don’t know what I’m doing - very uncommon? do we bother? cover both smart/dumb apostrophes
-			NEW HALLUCNATION: © BF-WATCH TV 2021
 
-TODO: search for other todos below
 TODO: mention about local repo search: c:\lyrics\M\Metallica\Metallica - One.txt search
 TODO: IDEA: Go thru existing lyrics & subtitles, if non-english language charcaters are found, take the line, run through translation API, then add english version in parenthesis at end of line .... But what happens with a mixed-language line then? Nothing, just treat it the same.
+
+
+
+TODO: search for other todos below
 

@@ -122,6 +122,9 @@ rem CONFIG: EXTERNAL PROGRAMS:
         set LYRIC_DOWNLOADER_1=lyricsgenius.exe                                       %+ rem LyricsGenius.exe is a Python package from github —— https://github.com/johnwmillr/LyricsGenius  ... There’s also this website, though I’m not sure if it’s the same thing: https://lyricsgenius.readthedocs.io/en/master/
         SET LYRIC_DOWNLOADER_1_EXPECTED_EXT=JSON                                      %+ rem LyricsGenius.exe downloads files in JSON format. And the output filename isn’t really specifiable, which creates issues. (Solution: Create temp file, run, see if latest file date-wise is the temp file you created or not, if not, then that’s the output file)
         set LYRIC_DOWNLOADER_1_SOURCE=Genius                                          %+ rem Where the LYRIC_DOWNLOADER gets its stuff from — Genius, SongText, etc
+        set LYRIC_DOWNLOADER_2=syncedlyrics.exe
+        SET LYRIC_DOWNLOADER_2_EXPECTED_EXT=TXT                                       %+ rem SyncedLyrics.exe downloads files in JSON format. And the output filename isn’t really specifiable, which creates issues. (Solution: Create temp file, run, see if latest file date-wise is the temp file you created or not, if not, then that’s the output file)
+        set LYRIC_DOWNLOADER_2_SOURCE=SyncedLyrics                                    %+ rem Where the LYRIC_DOWNLOADER gets its stuff from — Genius, SongText, etc
         set MOST_BYTES_THAT_LYRICS_COULD_BE=50000                                     %+ rem due to HTML, this is rather useless. Originally thought it was a chracter count of just the lyrics themselves.            
 rem CONFIG: LYRIC-GOOGLE’ING BEHAVIOR:                                               
         set AUTOMATIC_HAND_EDITING_IF_GOOGLING=0                                      %+ rem It turns out that it’s annoying to have an empty TXT file opened up, Google and find no lyrics, then have the file be auto-deleted for being 0-bytes, then have the text editor complain that the file you have open no longer exists. It may make more sense to ask for hand editing AFTER googling... If we have results, yes to hand edit so we can paste them in. Otherwise, no.
@@ -284,7 +287,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 rem VALIDATE ENVIRONMENT [once per session]:
         rem rem echo y α linish 189
-        iff "1" != "%VALIDATED_GLVMS_ENV%" then
+        iff "2" != "%VALIDATED_GLVMS_ENV%" then
                 rem pause "validating create-lyr env"
                 rem Default values to help portability:
                         if not defined ESCAPE                                        set                                            ESCAPE=%@CHAR[27]
@@ -300,7 +303,7 @@ rem VALIDATE ENVIRONMENT [once per session]:
                         if "%@ANSI_CURSOR_CHANGE_COLOR_WORD[]" == ""            function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                                
                         if not defined FILEMASK_AUDIO                                set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.dtshd
                 rem Now Validate:
-                        call validate-in-path              %LYRIC_DOWNLOADER_1% %PROBER% %PLAYER_COMMAND% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset eset.bat eset-alias.bat insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl insert-before-each-line.py newspaper.bat print_with_columns.py print-with-columns.bat newspaper.bat srt2lrc.py change-single-quotes-to-double-apostrophes.py add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat approve-lyrics.bat disapprove-lyrics.bat display-lyric-status-for-file.bat review-lyrics.bat review-files.bat approve-lyric-file.bat disapprove-lyric-file.bat approve-subtitle-file.bat disapprove-subtitle-file.bat get-lyric-status.bat approve-LYRICLESSNESS-for-file.bat disapprove-lyriclessness-for-file.bat unapprove-lyriclessness-for-file.bat cut.exe srt2txt.py lrc2txt.py rn.bat clean-up-AI-transcription-trash-files-here.bat check-for-future-dated-files.bat
+                        call validate-in-path               %LYRIC_DOWNLOADER_1% %LYRIC_DOWNLOADER_2% %PROBER% %PLAYER_COMMAND% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset eset.bat eset-alias.bat insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl insert-before-each-line.py newspaper.bat print_with_columns.py print-with-columns.bat newspaper.bat srt2lrc.py change-single-quotes-to-double-apostrophes.py add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat approve-lyrics.bat disapprove-lyrics.bat display-lyric-status-for-file.bat review-lyrics.bat review-files.bat approve-lyric-file.bat disapprove-lyric-file.bat approve-subtitle-file.bat disapprove-subtitle-file.bat get-lyric-status.bat approve-LYRICLESSNESS-for-file.bat disapprove-lyriclessness-for-file.bat unapprove-lyriclessness-for-file.bat cut.exe srt2txt.py lrc2txt.py rn.bat clean-up-AI-transcription-trash-files-here.bat check-for-future-dated-files.bat
                         rem  call unimportant               "Validated: lyric downloader, audio file prober"
                         call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET BAT TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME cool_question_mark star check LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO 
                         if not defined filemask_audio       call validate-environment-variable filemask_audio skip_validation_existence
@@ -308,7 +311,7 @@ rem VALIDATE ENVIRONMENT [once per session]:
                         call validate-plugin                StRiPaNsI
                         call checkeditor
                         if "1" == "%WINAMP_INTEGRATION_GETLYRICS%" call validate-in-path enqueue.bat winamp-next.bat enqueueee.exe
-                        set  VALIDATED_GLVMS_ENV=1
+                        set  VALIDATED_GLVMS_ENV=2
         endiff
 
         if not defined TRANSCRIBER_VALID_EXTENSIONS gosub "%BAT%\create-srt-from-file.bat" set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME
@@ -389,9 +392,19 @@ rem VALIDATE PARAMETERS [every time]:
                 rem rem echo y α linish 271
                 iff "%2" == "genius" .or. "%3" == "genius" .or. "%4" == "genius" .or. "%5" == "genius" then
                         set genius_only=1
+                        set PROVIDER_ONLY=LyricsGenius
+                        set CURRENT_LYRIC_PROVIDER=LyricsGenius
                         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=8
                 else
                         set genius_only=0
+                endiff
+                iff "%2" == "syncedLyrics" .or. "%3" == "syncedLyrics" .or. "%4" == "syncedLyrics" .or. "%5" == "syncedLyrics" then
+                        set syncedLyrics_only=1
+                        set PROVIDER_ONLY=SyncedLyrics
+                        set CURRENT_LYRIC_PROVIDER=SyncedLyrics
+                        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=8
+                else
+                        set syncedLyrics_only=0
                 endiff
 
         rem Chedk for “force” option which may only have been provided this BAT when directly called (it’s often set in get-karaoke.bat)
@@ -1597,14 +1610,15 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 unset /q ANSWER hold_answer
                 call AskYn "These good? (e%ansi_color_bright_green%D%ansi_color_prompt%it band/song,%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%H%ansi_color_prompt%and-edit,%ansi_color_bright_green%L%ansi_color_prompt%yric give-up(%ansi_color_bright_green%Z%ansi_color_prompt%=all),I=%ansi_color_bright_green%I%ansi_color_prompt%nstr(%ansi_color_bright_green%X%ansi_color_prompt%=All),d%ansi_color_bright_green%O%ansi_color_prompt%/l)" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% DHILOPQXZ H:Yes_but_hand_edit_first,L:No!_Marking_as_lyricless,I:Mark_the_track_as_an_instrumental_track,Q:enQueue_in_winamp,P:Play_theeee_file,Z:mark_all_songs_in_folder_as_lyricless,D:edit_artist/song_name,O:dOwnload_lyrics_nOw,X:mark_all_as_instrumental
                         set SAVED_ANSWER=%ANSWER%
+                        set SAVED_ANSWER_THESE_GOOD=%ANSWER%
                         if "%ANSWER%" == "O" .or. "1" == "%goto_download_with_lyric_downloader_1%" goto download_with_lyric_downloader_init
                         gosub check_for_answer_of_D_to_eset_artist_and_song
                         gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
+                        if  "P" == "%SAVED_ANSWER%"   goto /i Ask_Again_p_12
                         gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
+                        if  "Q" == "%SAVED_ANSWER%"   goto /i Ask_Again_p_12
                         gosub check_for_answer_of_L
                         if  "L" == "%SAVED_ANSWER%"   goto /i END_OF_GET_LYRICS
-                        if  "P" == "%SAVED_ANSWER%"   goto /i Ask_Again_p_12
-                        if  "Q" == "%SAVED_ANSWER%"   goto /i Ask_Again_p_12
                         gosub check_for_answer_of_I
                         rem echo [G] Just got back from “these good” around line 975 🏠🏠🏠🏠🏠🏠 ...answer=“%ANSWER%”, goto_end=“%GOTO_END%”, LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”, LYRIC_STATUS=“%LYRIC_STATUS%”, LYRICS_ACCEPTABLE=“%LYRICS_ACCEPTABLE%”,  LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%” !!!!!
                         rem echo answer=“%answer%”,goto_end=“%goto_end%”
@@ -1615,9 +1629,10 @@ rem Check if we have one in our lyric repository already, via 2 different filena
         if  "L" == "%ANSWER%"            goto /i END_OF_GET_LYRICS
         if  "P" == "%ANSWER%"            goto /i Ask_Again_p_12
         if  "1" == "%goto_download_with_lyric_downloader_1%" goto download_with_lyric_downloader_init
+
         iff "1" == "%PROCESS_MAYBE_1%" then
                 unset /q ANSWER hold_answer
-                call AskYn "%conceal_on%2%conceal_off%Do %italics_on%these%italics_off% look acceptable (%ansi_color_bright_green%H%ansi_color_prompt%=Yes+%ansi_color_bright_green%H%ansi_color_prompt%and-edit,%ansi_color_bright_green%L%ansi_color_prompt%=No! Give up/%ansi_color_bright_green%L%ansi_color_prompt%yriclessness)" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% HL H:Yes_but_hand_edit_it_first,L:No!_Marking_as_lyricless
+                if "%SAVED_ANSWER_THESE_GOOD%" != "Y" call AskYn "%conceal_on%2%conceal_off%Do %italics_on%these%italics_off% look acceptable (%ansi_color_bright_green%H%ansi_color_prompt%=Yes+%ansi_color_bright_green%H%ansi_color_prompt%and-edit,%ansi_color_bright_green%L%ansi_color_prompt%=No! Give up/%ansi_color_bright_green%L%ansi_color_prompt%yriclessness)" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% HL H:Yes_but_hand_edit_it_first,L:No!_Marking_as_lyricless
                 iff "%ANSWER%" == "Y" .or. "%ANSWER%" == "H" then
                         *copy /q "%MAYBE_LYRICS_1%" "%LYRIC_FILE%" >nul
 
@@ -1973,7 +1988,19 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 rem Download the lyrics using LYRIC_DOWNLOADER_1: SETUP: —————————————————————————————————————————————————————————————————
 rem Set the values that we will use when using LYRIC_DOWNLOADER_1 the first time [they get changed during subsequent download attempts]:
         rem Don’t go here unless we haven’t performed our first search yet; otherwise goto download_with_lyric_downloader_1 instead
+
+
+
+rem Deal with the fact that we have multiple lyric providers:
         :download_with_lyric_downloader_init
+        :download_with_current_provider_init
+        
+
+        rem if /i "%CURRENT_LYRIC_PROVIDER%" == "SyncedLyrics" goto download_with_syncedlyrics 🐐
+        rem if /i "%CURRENT_LYRIC_PROVIDER%" == "LyricsGenius" goto download_with_lyricsgenius
+
+
+        :download_with_lyricsgenius_init
                 setdos /x0
                 *setdos /x-9
                 if "1" == "%lyric_downloader_initialized%" goto /i done_with_download_with_lyric_downloader_init
@@ -1984,7 +2011,8 @@ rem Set the values that we will use when using LYRIC_DOWNLOADER_1 the first time
                         set       FILE_ALBUM_TO_USE=%FILE_ALBUM%
                         set lyric_downloader_initialized=1
                         rem gosub debug "🎨🎨🎨[40] FILE_ARTIST_TO_USE=“%FILE_ARTIST_TO_USE%, FILE_ARTIST=“%FILE_ARTIST%””"
-        :done_with_download_with_lyric_downloader_init
+
+                :done_with_download_with_lyric_downloader_init
         
 
 rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ——————————————————————————————————————————————————————————————————
@@ -1992,7 +2020,12 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
         rem Initialize/debug/audit:
                 :download_with_lyric_downloader_1
                 rem echo 🌧🌧🌧 got to %italics_on%download_with_lyric_downloader_1%italics_off% with %italics_on%FILE_SONG_TO_USE%italics_off%=“%FILE_SONG_TO_USE%” and %italics_on%FILE_ARTIST_TO_USE%italics_off%=“%FILE_ARTIST_TO_USE%”
-                set current_search=%FILE_SONG_TO_USE% :::: %FILE_ARTIST_TO_USE%``
+
+                rem OLD: set current_search=%FILE_SONG_TO_USE% :::: %FILE_ARTIST_TO_USE%``
+                rem NEW:
+                set CURRENT_LYRIC_PROVIDER_KEY=%@LOWER[%@REPLACE[ ,_,%CURRENT_LYRIC_PROVIDER%]]
+                set current_search=%CURRENT_LYRIC_PROVIDER_KEY% :::: %FILE_SONG_TO_USE% :::: %FILE_ARTIST_TO_USE%``
+
                 rem echo %ANSI_COLOR_DEBUG% - DEBUG: current_search set to %ansi_color_orange%"%current_search%"%ansi_color_normal% 666
 
         rem Don’t repeat the same search as the last search:
@@ -2003,7 +2036,10 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
 
 
         rem Don’t repeat previous searches we’ve already made:
-                set   already_searched_for_this=%[already_searched_for_%file_song_to_use%_%file_artist_to_use%]
+                rem OLD: set already_searched_for_this=%[already_searched_for_%file_song_to_use%_%file_artist_to_use%]
+                rem NEW:
+                set already_searched_for_this=%[already_searched_for_%CURRENT_LYRIC_PROVIDER_KEY%_%file_song_to_use%_%file_artist_to_use%]
+                set already_searched_for_%CURRENT_LYRIC_PROVIDER_KEY%_%[file_song_to_use]_%[file_artist_to_use]=1
                 iff "%already_searched_for_this%" == "1" then
                         echos %ansi_color_bright_red%%NO% %blink_on%Skipping%ansi_color_bright_red% search because we’ve already searched for %ansi_color_warning_soft%“%blink_on%%ansi_color_green%%file_song_to_use%%ansi_color_warning_soft%” 
                         if "" != "%file_artist_to_use%" echos  %blink_on%%ansi_color_bright_red%by %ansi_color_warning_soft%“%ansi_color_green%%blink_on%%file_artist_to_use%%ansi_color_warning_soft%”%blink_off%%ansi_color_normal%
@@ -2037,8 +2073,10 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 if "" != "%OVERRIDE_FILE_ARTIST_TO_USE%" set FILE_ARTIST_TO_USE=%OVERRIDE_FILE_ARTIST_TO_USE%
 
         rem Create our command:
-                set                               LYRIC_RETRIEVAL_COMMAND=%LYRIC_DOWNLOADER_1% song "%FILE_SONG_TO_USE%" "%FILE_ARTIST_TO_USE%" --save
-                rem  %ANSI_COLOR_DEBUG- COMMAND: %LYRIC_RETRIEVAL_COMMAND%%ANSI_COLOR_NORMAL%
+                                                                   set LYRIC_RETRIEVAL_COMMAND=%LYRIC_DOWNLOADER_1% song "%FILE_SONG_TO_USE%" "%FILE_ARTIST_TO_USE%" --save
+                if /i "%CURRENT_LYRIC_PROVIDER%" == "LyricsGenius" set LYRIC_RETRIEVAL_COMMAND=%LYRIC_DOWNLOADER_1% song "%FILE_SONG_TO_USE%" "%FILE_ARTIST_TO_USE%" --save
+                if /i "%CURRENT_LYRIC_PROVIDER%" == "SyncedLyrics" set LYRIC_RETRIEVAL_COMMAND=%LYRIC_DOWNLOADER_2% 
+
                 
                 iff "1" == "%cover_original_attempt%" then
                         set blink_maybe=%blink_on%
@@ -2051,8 +2089,19 @@ rem Download the lyrics using LYRIC_DOWNLOADER_1: BEGIN: ———————�
                 echos %BIG_OFF%%@ANSI_CURSOR_COLOR_BY_WORD[yellow]
                 echo %BIG_OFF%%ANSI_COLOR_IMPORTANT_LESS%%STAR% Searching %italics_on%%LYRIC_DOWNLOADER_1_SOURCE%%italics_off% for %ansi_color_important%“%ansi_color_important_less%%italics_on%%FILE_SONG_TO_USE%%italics_off%%ansi_color_important%”%ansi_color_important_less%%@IF["" != "%FILE_ARTIST_TO_USE%", by ,]%ansi_color_important%%italics_off%%blink_maybe%%FILE_ARTIST_TO_USE%%blink_off%%ansi_color_important_less%...%italics_off%%ANSI_RESET%%conceal_on%[1119]%conceal_off%
                 set last_search=%FILE_SONG_TO_USE% :::: %FILE_ARTIST_TO_USE%``
-                set      already_searched_for_%[file_song_to_use]_%[file_artist_to_use]=1     %+ rem Attach the fact that we’ve performed a Genius search for this file temporarily to the current environemnt session                
-                echo True>"%@UNQUOTE["%audio_file%"]:genius_searched_already"                 %+ rem Attach the fact that we’ve performed a Genius search for this file permanently to the file itself using ADS tag
+
+
+                rem OLD:                set      already_searched_for_%[file_song_to_use]_%[file_artist_to_use]=1     %+ rem Attach the fact that we’ve performed a Genius search for this file temporarily to the current environemnt session                
+                rem NEW:
+                set      already_searched_for_%CURRENT_LYRIC_PROVIDER_KEY%_%[file_song_to_use]_%[file_artist_to_use]=1
+
+
+                set provider_type_for_adb_tag=genius
+                if /i "%CURRENT_LYRIC_PROVIDER%" == "SyncedLyrics" set provider_type_for_adb_tag=syncedlyrics
+                if /i "%CURRENT_LYRIC_PROVIDER%" == "LyricsGenius" set provider_type_for_adb_tag=genius
+
+                echo True>"%@UNQUOTE["%audio_file%"]:%provider_type_for_adb_tag%_searched_already"                 %+ rem Attach the fact that we’ve performed a Genius search for this file permanently to the file itself using ADS tag
+
 
 
         rem Store original environment variable value for PYTHONIOENCODING:            

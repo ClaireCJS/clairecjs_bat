@@ -144,7 +144,8 @@ rem Create meaningfully-named temporary file:
         rem NUM_STEPS=16
         rem NUM_STEPS=17
         rem NUM_STEPS=18
-        set NUM_STEPS=19
+        rem NUM_STEPS=19
+        set NUM_STEPS=25
         set     step_num=1
         gosub   step
         call set-tmp-file "kill bad AI transcriptions filelist A1_original"               %+  set tmpfile1=%tmpfile%.lst
@@ -203,11 +204,18 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
                         gosub step %+ (grep -i and.we.are.back                                              %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i a.little.pause\.\.\.                                         %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i this.is.the.first.sentence                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
-                        gosub step %+ (grep -i And.this.is.the.second.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i this.is.the.second.sentence                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i A?n?d?.?this.is.the.first.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i A?n?d?.?this.is.the.second.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i A?n?d?.?this.is.the.third.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i A?n?d?.?this.is.the.fourth.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i A?n?d?.?this.is.the.fifth.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i Ding,.ding,.bop                                              %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i I.m.going.to.play.a.little.bit.of.the.first.one.*and.then    %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i Thank.you.for.watching                                       %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i Thanks.for.watching                                          %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i ©.BF-WATCH.TV.2021                                           %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+
                         rem ✨✨✨ ADD NEW PATTERNS TO LYRIC-POSTPROCESSOR.PL and SUBTITLE-POSTPROCESSER.PL  ✨✨✨
                         rem POSSIBLE ONE: “Oh, honey, wait for me.”
                 rem MIS-IDENTIFIED SONG HALLUCINATIONS WHICH ARE A SLIGHTLY DIFFERENT NATURE AND NOT HANDLED IN OUR LYRIC/SUBTITLE POSTPROCESSORS:

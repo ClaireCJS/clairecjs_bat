@@ -18,10 +18,12 @@ rem                     4) with an option to delete TXT/LRC/SIDECAR
 
 rem Validate environment (once):
         iff "1" != "%validated_review_transcriptions%" then
-                if not defined emoji_have_been_set     validate-environment-variable emoji_have_been_set 
-                if not defined ansi_color_has_been_set validate-environment-variable ansi_color_has_been_set 
-                call validate-in-path clean-up-AI-transcription-trash-files-here.bat review-files review-file AskYN unapprove-subtitles unapprove-lyrics approve-subtitles approve-lyrics srt2txt srt2lrc error print-message rn
-                set  validated_review_transcriptions=1                                                                      
+                if not defined editor                  call validate-environment-variable editor
+                if not defined FILEEXT_AUDIO           call validate-environment-variable FILEEXT_AUDIO
+                if not defined emoji_have_been_set     call validate-environment-variable emoji_have_been_set 
+                if not defined ansi_color_has_been_set call validate-environment-variable ansi_color_has_been_set 
+                call validate-in-path clean-up-AI-transcription-trash-files-here.bat review-files review-file AskYN unapprove-subtitles unapprove-lyrics approve-subtitles approve-lyrics srt2txt srt2lrc error print-message rn preview-audio-file WhisperTimeSync.bat
+                set  validated_review_transcriptions=1
         endiff
 
 
@@ -39,6 +41,7 @@ rem First, clean up any trash files, so we don’t have to waste time looking at
 
 
 rem Go through each subtitle file to look for our comparison files...
+unset /q last_columns
 echo.
 do tmp_file in *.srt
         gosub process_file "%@UNQUOTE[%tmp_file%]"
@@ -50,9 +53,19 @@ goto :END
 
         :process_file [tmp_file]
                 rem Generate comparison (sidecar) filenames:
-                        set srt=%@UNQUOTE[%tmp_file%]
-                        set lrc=%@name["%srt%"].lrc
-                        set txt=%@name["%srt%"].txt
+                        set  srt=%@UNQUOTE[%tmp_file%]
+                        set  lrc=%@name["%srt%"].lrc
+                        set json=%@name["%srt%"].json
+                        set  log=%@name["%srt%"].log
+                        set  txt=%@name["%srt%"].txt
+
+                        rem do this:
+                                set  mp3=%@name["%srt%"].mp3
+                                set flac=%@name["%srt%"].flac
+                        rem but for every known audio extension:
+                                for tmptype in (%fileext_audio%) set %tmptype%=%@name["%srt%"].%tmptype%
+
+
 
                 rem If there’s nothing to compare this SRT to, skip this one...
                         iff not exist "%lrc%" .and. not exist "%txt%" .and. "1" != "%REVIEW_ALL_SRT_FILES%" then
@@ -71,20 +84,33 @@ goto :END
                         if     exist %SRT%                   call review-files -wh -stU "%SRT%" %+ rem SRT will be representation-striped at the top
                         gosub  divider
 
-                rem Ask if user wants to delete any of them?
+                rem Ask if user wants to delete any of them or take various other actions:
                         :re_ask
-                        call AskYN "Delete any? [%ansi_color_bright_green%N%ansi_color_prompt%o/Next, del %ansi_color_bright_green%t%ansi_color_prompt%xt,del %ansi_color_bright_green%s%ansi_color_prompt%ubs,del %ansi_color_bright_green%L%ansi_color_prompt%RC,approve sub(%ansi_color_bright_green%A%ansi_color_prompt%)/lyr(%ansi_color_bright_green%B%ansi_color_prompt%)/%ansi_color_bright_green%C%ansi_color_prompt%=%italics_on%both%italics_off%,unapprove sub(%ansi_color_bright_green%U%ansi_color_prompt%)/lyr(%ansi_color_bright_green%V%ansi_color_prompt%)/%ansi_color_bright_green%W%ansi_color_prompt%=%italics_on%both%italics_off%,%ansi_color_bright_green%Rename%ansi_color_prompt%]" No 0 YNABCUVWTSLR Y:Yeah,N:No!,A:approve_karaoke,B:approve_lyrics,C:approve_all U:unapprove_karaoke,V:unapprove_lyrics,W:unapprove_all,T:delete_TXT_lyrics,S:delete_subtitles,L:delete_LRC,R:rename_file(s)
+                        call AskYN "Delete any? [%ansi_color_bright_green%N%ansi_color_prompt%o/Next, del %ansi_color_bright_green%t%ansi_color_prompt%xt,del %ansi_color_bright_green%s%ansi_color_prompt%ubs,del %ansi_color_bright_green%L%ansi_color_prompt%RC,approve sub(%ansi_color_bright_green%A%ansi_color_prompt%)/lyr(%ansi_color_bright_green%B%ansi_color_prompt%)/%ansi_color_bright_green%C%ansi_color_prompt%=%italics_on%both%italics_off%,unapprove sub(%ansi_color_bright_green%U%ansi_color_prompt%)/lyr(%ansi_color_bright_green%V%ansi_color_prompt%)/%ansi_color_bright_green%W%ansi_color_prompt%=%italics_on%both%italics_off%,%ansi_color_bright_green%R%ansi_color_prompt%ename,%ansi_color_bright_green%P%ansi_color_prompt%lay file,%ansi_color_bright_green%E%ansi_color_prompt%dit,%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync]" No 0 YNABCUVXTSLRPEW Y:Yeah,N:No!,A:approve_karaoke,B:approve_lyrics,C:approve_all U:unapprove_karaoke,V:unapprove_lyrics,X:unapprove_all,T:delete_TXT_lyrics,S:delete_subtitles,L:delete_LRC,R:rename_file(s),P:play_file,E:edit_file,W:WhisperTimeSync
 
                         if "N" == "%ANSWER%" goto :done_with_this_one
-                        if "T" == "%ANSWER%" (gosub delete_file "%TXT%")
-                        if "S" == "%ANSWER%" (gosub delete_file "%SRT%" %+ call srt2txt "%SRT%")
-                        if "L" == "%ANSWER%" (gosub delete_file "%LRC%" %+ call srt2lrc  >nul  )
+                        if "T" == "%ANSWER%" (gosub delete_file "%TXT%" %+ if exist "%SRT%" call srt2txt "%SRT%")
+                        if "L" == "%ANSWER%" (gosub delete_file "%LRC%" %+ if exist "%SRT%" call srt2lrc  >nul  )
+                        if "S" == "%ANSWER%" (gosub delete_file "%SRT%" %+ gosub delete_file "%LOG%" %+ gosub delete_file "%JSON%" )
                         if "A" == "%ANSWER%" (if exist "%SRT%" call   approve-subtitles "%SRT%")
                         if "B" == "%ANSWER%" (if exist "%TXT%" call   approve-lyrics    "%TXT%")
                         if "U" == "%ANSWER%" (if exist "%SRT%" call unapprove-subtitles "%SRT%")
                         if "V" == "%ANSWER%" (if exist "%TXT%" call unapprove-lyrics    "%TXT%")
                         if "C" == "%ANSWER%" (if exist "%TXT%" call   approve-lyrics    "%TXT%" %+ if exist "%SRT%" call   approve-subtitles "%SRT%")
-                        if "W" == "%ANSWER%" (if exist "%TXT%" call unapprove-lyrics    "%TXT%" %+ if exist "%SRT%" call unapprove-subtitles "%SRT%")
+                        if "X" == "%ANSWER%" (if exist "%TXT%" call unapprove-lyrics    "%TXT%" %+ if exist "%SRT%" call unapprove-subtitles "%SRT%")
+
+                        iff "W" == "%ANSWER%" then
+                                iff exist "%SRT%" .and. exist "%TXT%" then
+                                        call WhisperTimeSync "%SRT%" "%TXT%"
+                                else
+                                        echo %ANSI_COLOR_ERROR%%STAR% ERROR: WhisperTimeSync requires a subtitle (SRT) and lyric (TXT) file, and both of those are not currently present.%ANSI_COLOR_NORMAL%
+                                endiff
+                        endiff
+
+                        iff "P" == "%ANSWER%" then
+                                rem DEBUG: echos %ansi_color_purple% for tmptype in (%FILEEXT_AUDIO%) echo if exist "%[%tmptype%]" echo call preview-audio-file "%[%tmptype%]"                                        echos %ansi_color_orange%                                for tmptype in (%FILEEXT_AUDIO%)      if exist "%[%tmptype%]" echo call preview-audio-file "%[%tmptype%]"                                        echos %ansi_color_blue%
+                                for tmptype in (%FILEEXT_AUDIO%) if exist "%[%tmptype%]" call preview-audio-file "%[%tmptype%]"
+                        endiff
                         
                         iff "R" == "%ANSWER%" then
                                 if exist "%TXT%" (call rn "%TXT%" %+ if "1" == "%RN_PERFORMED%" set TXT=%LAST_RENAMED_TO%)
@@ -92,10 +118,18 @@ goto :END
                                 if exist "%LRC%" (call rn "%LRC%" %+ if "1" == "%RN_PERFORMED%" set LCR=%LAST_RENAMED_TO%)
                         endiff
 
+                        iff "E" == "%ANSWER%" then
+                                if exist "%TXT%"  (%EDITOR% "%TXT%" )
+                                if exist "%SRT%"  (%EDITOR% "%SRT%" )
+                                if exist "%LRC%"  (%EDITOR% "%LRC%" )
+                                if exist "%LOG%"  (%EDITOR% "%LOG%" )
+                                if exist "%JSON%" (%EDITOR% "%JSON%")
+                        endiff
+
                         iff "Y" == "%ANSWER%" then
-                                if exist "%TXT%" call AskYN "delete the TXT lyrics" no 0 %+ if exist "%TXT%" if "Y" == "%ANSWER%" gosub delete_file "%TXT%"
-                                if exist "%LRC%" call AskYN "delete the LRC subs"   no 0 %+ if exist "%LRC%" if "Y" == "%ANSWER%" gosub delete_file "%LRC%"
-                                if exist "%SRT%" call AskYN "delete the SRT subs"   no 0 %+ if exist "%SRT%" if "Y" == "%ANSWER%" gosub delete_file "%SRT%"
+                                if exist "%TXT%" call AskYN "delete the TXT lyrics" no 0 %+ if exist "%TXT%" if "Y" == "%ANSWER%"  gosub delete_file "%TXT%"
+                                if exist "%LRC%" call AskYN "delete the LRC subs"   no 0 %+ if exist "%LRC%" if "Y" == "%ANSWER%"  gosub delete_file "%LRC%"
+                                if exist "%SRT%" call AskYN "delete the SRT subs"   no 0 %+ if exist "%SRT%" if "Y" == "%ANSWER%" (gosub delete_file "%SRT%" %+ gosub delete_file "%log%" %+ gosub delete_file "%json%")
                         endiff
 
                         goto :re_ask
@@ -109,6 +143,7 @@ goto :END
 
         :delete_file [fil]
                 :delete_it
+                if not exist %fil% return
                 *del /q /Ns %fil% >&>nul
                 echos %ansi_color_normal%
                 iff exist %fil% then
@@ -116,21 +151,24 @@ goto :END
                         call askyn "Try deleting again" yes 0
                         if "Y" == "%ANSWER%" goto /i :delete_it
                 else
-                echo %ansi_color_warning_soft%%EMOJI_AXE% %underline_on%Deleted%underline_off%: %fil% %EMOJI_GHOST%%ansi_color_normal%
+                        echo %ansi_color_warning_soft%%EMOJI_AXE% %underline_on%Deleted%underline_off%: %fil% %EMOJI_GHOST%%ansi_color_normal%
                 endiff
         return
 
         :divider [divider_param]
-                iff "1" == "%suppress_next_divider%" then
-                        set  suppress_next_divider=0
-                        return
-                endiff
+                rem Unused in this script: iff "1" == "%suppress_next_divider%" then
+                rem Unused in this script:         set  suppress_next_divider=0
+                rem Unused in this script:         return
+                rem Unused in this script: endiff
 
                 rem Determine divider file to use:
+                        if "%_columns" == "%last_columns%" goto :speedup_1
                         set wd=%@EVAL[%_columns - 1]
                         set nm=%bat%\dividers\rainbow-%wd%.txt
+                        set last_columns=%_columns
 
                 rem Type divider file if it exists:
+                        :speedup_1
                         iff exist %nm% then
                                 *type %nm%
                                 rem set last_divider_method=type

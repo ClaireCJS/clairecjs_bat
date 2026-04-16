@@ -204,10 +204,13 @@ move $tempfile, $filename or die "Error: Cannot overwrite original file: $!\n"; 
 sub whisper_ai_postprocess {
 	my $s=$_[0];
 	
-	$s =~ s/A little pause... *//gi;		                                                                             #"... These are common WhisperAI hallucinations.
-	$s =~ s/And we are back\.*//gi;			                                                                             #"... These are common WhisperAI hallucinations.
-	$s =~ s/Ding, ding, bop ?//gi;			                                                                             #"... These are common WhisperAI hallucinations.
-	$s =~ s/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?//gi;				 #"... These are common WhisperAI hallucinations.
+	$s =~ s/A little pause... *//gi;		                                                                             #"... These are common WhisperAI hallucinations. But these are mostly removed elsewhere and this is a bit redundant here.
+	$s =~ s/And we are back\.*//gi;			                                                                             #"... These are common WhisperAI hallucinations. But these are mostly removed elsewhere and this is a bit redundant here.
+	$s =~ s/Ding, ding, bop ?//gi;			                                                                             #"... These are common WhisperAI hallucinations. But these are mostly removed elsewhere and this is a bit redundant here.
+	$s =~ s/Thank you for watching[!\/]*//gi;			                                                                 #"... These are common WhisperAI hallucinations. But these are mostly removed elsewhere and this is a bit redundant here.
+	$s =~ s/Thanks for watching[!\/]*//gi;																				 #"... These are common WhisperAI hallucinations. But these are mostly removed elsewhere and this is a bit redundant here.
+	$s =~ s/© BF-WATCH TV 2021//gi;																						 #"... These are common WhisperAI hallucinations. But these are mostly removed elsewhere and this is a bit redundant here.	
+	$s =~ s/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?//gi;				 #"... These are common WhisperAI hallucinations. But these are mostly removed elsewhere and this is a bit redundant here.
 	
 	$s = &de_censor($s);
 

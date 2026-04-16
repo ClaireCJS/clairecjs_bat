@@ -1298,7 +1298,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         :endiff_no_text_1017
         :No_Text
         rem if "1" == "%goto_end%" goto /i END
-        if "1" == "%come_back_to_1386%" (unset /q come_back_to_1386 %+ goto /i come_back_to_1386)
+        if "1" == "%come_back_to_1504%" (unset /q come_back_to_1504 %+ goto /i come_back_to_1504)
 
 
 
@@ -1491,20 +1491,22 @@ rem Ask if we should proceed:
 REM quick chance to edit prompt:
         :edit_ai_prompt
         unset /q ANSWER
-        @call AskYn "Edit the AI prompt first" no %PROMPT_EDIT_CONSIDERATION_TIME%
-        rem “Y” answer:
-                iff "%answer%" == "Y" then
-                        rem Get new VAD threshold:
-                                gosub            VAD_threshold_advice
-                                call  eset-alias VAD_threshold        quick
 
-                        rem Regenerate our prompt:
-                                rem OLD: 
-                                rem NEW:
-                                set come_back_to_1386=1
-                                goto /i reassemble_prompt
-                                :come_back_to_1386
-                                call  eset-alias LAST_WHISPER_COMMAND quick
+        @call AskYn "Edit the AI prompt first [%ansi_color_bright_green%G%ansi_color_prompt%=Get lyrics 1ˢᵗ]" no %PROMPT_EDIT_CONSIDERATION_TIME% G:get_lyrics
+                rem “G” answer:
+                        gosub check_for_answer_of_G "%@UNQUOTE["%SONGFILE%"]"
+                        if  "%STORED_ANSWER%" == "G" goto /i :g_key_goes_here_after_rerunning_getlyrics
+                rem “Y” answer:
+                        iff "%answer%" == "Y" then
+                                rem Get new VAD threshold:
+                                        gosub            VAD_threshold_advice
+                                        call  eset-alias VAD_threshold        quick
+
+                                rem Regenerate our prompt:
+                                        set come_back_to_1504=1
+                                        goto /i reassemble_prompt
+                                        :come_back_to_1504
+                                        call  eset-alias LAST_WHISPER_COMMAND quick
                 endiff
 
 
@@ -1746,7 +1748,7 @@ REM  ✨ ✨ ✨ ✨ ✨ ✨ ACTUALLY DO THE AI-TRANSCRIPTION: ✨ ✨ ✨ ✨ �
                 rem Cosmetics:
                         @if "1" == "%LAUNCHING_AI_DISPLAYED%" goto :launching_ai_already_displayed
                         @echo.
-                        @call bigecho %ANSI_COLOR_BRIGHT_RED%%EMOJI_FIREWORKS% Preparing to launch AI! %EMOJI_FIREWORKS%%ansi_color_normal%
+                        @call bigecho %ANSI_COLOR_PINK%%EMOJI_ROCKET%%EMOJI_ROCKET%%EMOJI_ROCKET% Preparing to launch AI! %EMOJI_ROCKET%%EMOJI_ROCKET%%EMOJI_ROCKET%%ansi_color_normal%
                         set LAUNCHING_AI_DISPLAYED=1
                         echo.
                         echo %faint_on%%star2% Now = %[_ISODATE] %[_TIME]%faint_off%
@@ -2263,7 +2265,7 @@ rem Full-endeavor success message:
                         if not exist "%TXT_FILE%" .and. not exist "%SRT_FILE%" goto :skip_asking_to_edit_karaoke_file
 
                         set USE_WAIT_TIME=%EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME%
-                        @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%R%ansi_color_prompt%etry]" no %USE_WAIT_TIME% notitle ADEFGIPQRSTUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,R:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,G:_get_lyrics
+                        @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%R%ansi_color_prompt%etry]" no %USE_WAIT_TIME% notitle ADEFGIMPQRSTUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,R:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,G:_get_lyrics,M:rename_it
                         set HELD_ANSWER_1922=%ANSWER%
                         :just_asked_to_edit_karaoke
                                 rem DEBUG: echo DEBUG: "%ansi_color_debug%- DEBUG: about to check iff %lq%%ANSWER%%rq% == %lq%Y%rq%" ......it is %lq%%ANSWER%%rq% 🍪%ansi_color_normal% "
@@ -2292,6 +2294,9 @@ rem Full-endeavor success message:
                                 rem “I”:
                                         set ANSWER=%HELD_ANSWER_1922%
                                         gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
+                                rem “M”:
+                                        set ANSWER=%HELD_ANSWER_1922%
+                                        gosub check_for_answer_of_M "%@UNQUOTE["%INPUT_FILE%"]"
                                 rem “S”:
                                         set ANSWER=%HELD_ANSWER_1922%
                                         rem   check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]" and answer=%ANSWER%
@@ -2386,7 +2391,7 @@ goto /i skip_subroutines
                 gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
                 gosub check_for_answer_of_E "%SRT_FILE%" "%TXT_FILE%"
                 gosub check_for_answer_of_B
-                gosub check_for_answer_of_M
+                gosub check_for_answer_of_M_to_restart_winamp
                 if  "R" == "%ANSWER%" goto /i go_here_for_encoding_retries
                 rem call debug "done checking answers TIEBM line 2225ish"
                 set ANSWER=%HOLD_ANSWER_2006%
@@ -2487,11 +2492,6 @@ goto /i skip_subroutines
                         goto /i Do_Whisper_Time_Sync
                 endiff           
         return
-        :check_for_answer_of_M [opt1]                        
-                iff "M" == "%ANSWER%" then
-                      call restart-winamp
-                endiff
-        return
         :check_for_answer_of_G [opt]
                 if "%@UNQUOTE["%opt%"]" == "" call fatal_error "check_for_answer_of_G in create-srt-from-file.bat needs to be passed a filename of the audio file [opt=%opt%]"
                 if "G" != "%ANSWER%" goto :g_return 
@@ -2514,6 +2514,26 @@ goto /i skip_subroutines
                 on break resume
                 gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_L %opt% %opt2%
                 on break cancel
+        return
+        :check_for_answer_of_M_to_restart_winamp [opt1]                        
+                iff "M" == "%ANSWER%" then
+                      call restart-winamp
+                endiff
+        return
+        :check_for_answer_of_M_to_rename_file
+        :check_for_answer_of_M [opt]                        
+                set file_to_use=%INPUT_FILE%
+                set opt_1=%@UNQUOTE["%opt%"]
+                if exist "%opt_1%" set file_to_use=%opt_1%
+                iff exist "%FILE_TO_USE%" then
+                        call rn "%FILE_TO_USE%" 
+                        iff "1" == "%RN_PERFORMED%" then
+                                set   SONGFILE=%LAST_RENAMED_TO%
+                                set INPUT_FILE=%LAST_RENAMED_TO%
+                        endiff
+                else
+                        call warning "File doesn’t seem to exist: %italics_on%%FILE_TO_USE%%italics_off%"
+                endiff
         return
         :check_for_answer_of_P [opt]                        
                 on break resume
