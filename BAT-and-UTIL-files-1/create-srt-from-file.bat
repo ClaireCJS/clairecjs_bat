@@ -231,17 +231,18 @@ REM values set from parameters:
 
         *setdos /x-4
         setdos /x0
-        set LRC_FILE=%SONGDIR%%SONGBASE%.lrc
-        set SRT_FILE=%SONGDIR%%SONGBASE%.srt
-        set TXT_FILE=%SONGDIR%%SONGBASE%.txt
-        set JSN_FILE=%SONGDIR%%SONGBASE%.json
+        set ELRC_FILE=%SONGDIR%%SONGBASE%.elrc
+        set  LRC_FILE=%SONGDIR%%SONGBASE%.lrc
+        set  SRT_FILE=%SONGDIR%%SONGBASE%.srt
+        set  TXT_FILE=%SONGDIR%%SONGBASE%.txt
+        set  JSN_FILE=%SONGDIR%%SONGBASE%.json
         if "%@EXT[%2]" == "txt" (
                 set POTENTIAL_LYRIC_FILE=%@UNQUOTE[%2]
         ) else (                
                 set POTENTIAL_LYRIC_FILE=%@UNQUOTE[%TXT_FILE%]
         )
-        rem VOC_FILE=%SONGDIR%%SONGBASE%.vocals.wav
-        rem LRCFILE2=%SONGDIR%%SONGBASE%.vocals.lrc
+
+
 
 
 rem BRANCH CONDITIONS: Only postprocess files, or only make the LRC, if we’ve been told to just do that part:
@@ -274,6 +275,8 @@ REM Cosmetics:
                 echos %CURSOR_RESET%%@CHAR[27]]10;rgb:c0/c0/c0%@CHAR[27]\%@CHAR[27]]11;rgb:00/00/00%@CHAR[27]\
 
 
+REM Before we ask, check that we don’t have an LRC already:
+        gosub abort_if_lrc_file_exists
 
 
 REM Set flags and default values:
@@ -1421,18 +1424,12 @@ rem Ask if we should proceed:
 
 
         rem Before we ask, check that we don’t have an LRC already:
-                iff exist "%LRC_FILE%" then 
-                        gosub say_if_exists LRC_FILE
-                        echo warning "Aborting because an %bold_on%%italics_on%LRC%italics_off% file%bold_off% already exists: %italics_on%%faint_on%%LRC_FILE%%faint_off%%italics_off%"
-                        rem todo this could be a question
-                else
-                        call debug "SRT file does not exist" %+ rem GOAT
-                endiff
+                gosub abort_if_lrc_file_exists
 
         rem Before we ask, check that the target doesn’t exist yet:
                 iff exist "%SRT_FILE%" then 
                         gosub say_if_exists SRT_FILE
-                        echo warning "Aborting because the %bold_on%%italics_on%SRT_FILE%italics_off%%bold_off% already exists: %italics_on%%faint_on%%SRT_FILE%%faint_off%%italics_off%"
+                        call warning "Aborting because the %bold_on%%italics_on%SRT_FILE%italics_off%%bold_off% already exists: %italics_on%%faint_on%%SRT_FILE%%faint_off%%italics_off%"
                 else
                         call debug "SRT file does not exist" %+ rem GOAT
                 endiff
@@ -2366,6 +2363,20 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 goto /i skip_subroutines
 
 
+        :abort_if_lrc_file_exists []
+                iff exist "%LRC_FILE%" then 
+                        rem gosub say_if_exists LRC_FILE
+                        call warning "%bold_on%LRC file%bold_off% %italics_on%already%italics_off% exists: %italics_off%%faint_on%%LRC_FILE%%faint_off%%italics_off%"
+                        call AskYN   "Abort, or continue" yes 10 C C:continue
+                        if "Y" != "%ANSWER%" return
+                        call bigecho "%BANG%%BANG%%BANG% Aborted! %BANG%%BANG%%BANG%"
+                        gosub divider
+                        exit /b
+                        goto :aborted_because_lrc_already_exists
+                else
+                        call debug "SRT file does not exist" %+ rem GOAT
+                endiff
+        return
         :ask_about_instrumental [opt opt2 opt3]
                 gosub "%BAT%\get-lyrics-for-file.btm" ask_about_instrumental %opt% %opt2% %opt3%
         return
@@ -2975,6 +2986,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 :csff_onbreak
 :nothing_generated
 :just_do_the_cleanup
+:aborted_because_lrc_already_exists
         rem Unlock the status bar: [moved from after to before “stop the timer” on 20260318]
                 setdos /x0
                 call status-bar unlock

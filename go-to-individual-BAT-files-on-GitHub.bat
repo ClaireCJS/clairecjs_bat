@@ -1,1 +1,1 @@
-https://github.com/ClaireCJS/clairecjs_bat/tree/main/opera*
+https://github.com/ClaireCJS/clairecjs_bat/tree/main/
