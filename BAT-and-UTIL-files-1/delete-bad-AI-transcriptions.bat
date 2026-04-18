@@ -1,4 +1,4 @@
-@loadbtm on
+loadbtm on
 @Echo Off
 @on break cancel
 @set old_title_dbat=%_title

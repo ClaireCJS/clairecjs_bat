@@ -74,12 +74,12 @@ rem HALT CONDITIONS:  (copy to check-for-missing-lyrics & check-for-missing-kara
 
                 rem If certain halt patterns ARE in our filename, gather our failure type:
                         if "1" == "%instr_in_foldname%" ( set cfml_fail_type=instrumental     %+ set cfml_fail_point=dir name)
+                        if "1" == "%untra_in_foldname%" ( set cfml_fail_type=untranscribeable %+ set cfml_fail_point=dir name)
                         if "1" == "%chipt_in_foldname%" ( set cfml_fail_type=chiptune         %+ set cfml_fail_point=dir name)
                         if "1" == "%sndfx_in_foldname%" ( set cfml_fail_type=sound effects    %+ set cfml_fail_point=dir name)
                         if "1" == "%sndcl_in_foldname%" ( set cfml_fail_type=sound clips      %+ set cfml_fail_point=dir name)
                         if "1" == "%novoc_in_foldname%" ( set cfml_fail_type=no vocals        %+ set cfml_fail_point=dir name)
                         if "1" == "%nolyr_in_foldname%" ( set cfml_fail_type=no lyrics        %+ set cfml_fail_point=dir name)
-                        rem if "1" == "%untra_in_foldname%" ( set cfml_fail_type=untranscribeable %+ set cfml_fail_point=dir name)
 
                 rem Signal our failure to any other processes watching this environment variable:
                         if "dir name" == "%cfml_fail_point%" set BAD_AI_TRANSCRIPTION_FOLDER=%_CWP                  
@@ -377,7 +377,7 @@ rem Create the fix-script, if there are any to fix:
                                         echo %CURSOR_RESET%%blink_off%
                                         iff exist "%TARGET_SCRIPT%" then
                                                 echos %ansi_color_unimportant%
-                                                ren  "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
+                                                *ren /Ns "%TARGET_SCRIPT%" "%TARGET_SCRIPT_TO_CALL%"
                                         endiff
                                         :target_script_exists_1
                                                 if not exist "%TARGET_SCRIPT_TO_CALL%" call warning "Why doesn’t TARGET_SCRIPT_TO_CALL exist? “%TARGET_SCRIPT_TO_CALL%”'
@@ -419,10 +419,11 @@ rem —————————————————————————�
                                              return                                
                                         endiff
                                         rem ✪✪✪ We still want lyrics for untranscribeable songs, so let’s NOT do this: ✪✪✪
-                                        rem iff "1" == "%@RegEx[[\(\[\\]untranscribeable?[\)\]\\],%namey%]" then
-                                        rem      echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is untranscribeable: %zzzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
-                                        rem      return                                
-                                        rem endiff
+                                        rem ✪✪✪ Actualy, we do NOT want lyrics for untranscribeable songs. If we had them, we’d at least be able to hand-transcribe. ✪✪✪
+                                        iff "1" == "%@RegEx[[\(\[\\]untranscribeable?[\)\]\\],%namey%]" then
+                                             echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is untranscribeable: %zzzzzzzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
+                                             return                                
+                                        endiff
                                         iff "1" == "%@RegEx[[\(\[\\]sound effect?[\)\]\\],%namey%]" then
                                              echo %ansi_color_yellow%%@CHAR[10060]%@CHAR[0] songfile is sound effect: %zzzz%%faint_on%%@UNQUOTE[%CFML_AudioFile%]%faint_off%``                        
                                              return                                

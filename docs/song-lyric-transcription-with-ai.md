@@ -540,6 +540,15 @@ Create karaoke files for **all songs** *in the current folder* that do not have 
 Songs that have pre-approved lyrics go through the process automatically.
 To do for an entire folder tree, preceed with ```global /i ```
 
+### 🌟 [get-lrc](../get-lrc) {audio_file} (alias to ```get-lyrics```’s ```quick_lrc``` mode):
+
+Uses *SyncedLyrics* to quickly gather *just* the LRC file that belongs with an audio file.  
+This is to find LRC files in MULTIPLE sources that can then save us the trouble of having to make our own SRT/LRC files.
+
+
+### 🌟 [get-all-LRCs](../get-lrc) (alias to ```get-lyrics```’s ```quick_lrc``` mode):
+
+Same as above, but for all audio files in the folder.
 
 ### 🌟 [create-srt-from-playlist.bat](../create-srt-from-playlist) (called via ```get-karaoke *{playlist}*```):
 

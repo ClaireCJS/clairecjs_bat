@@ -77,7 +77,7 @@ rem Ask for each file, and delete:
                         if "%BRACKETED_TEXT%" == " []" unset /q BRACKETED_TEXT
 
 
-                call askyn "₇Delete %lq%%ansi_color_bright_yellow%%@UNQUOTE["%file%"]%ansi_color_prompt%%rq%%BRACKETED_TEXT%" no 0 %LETTER_E_MAYBE%%EVEN_MORE_EXTRA_LETTERS% %E_EXPLANATION%%EVEN_MORE_EXTRA_EXPLANATIONS%
+                call askyn "₇Edit out hallucinations or Delete %lq%%ansi_color_bright_yellow%%@UNQUOTE["%file%"]%ansi_color_prompt%%rq%%BRACKETED_TEXT%" no 0 %LETTER_E_MAYBE%%EVEN_MORE_EXTRA_LETTERS% %E_EXPLANATION%%EVEN_MORE_EXTRA_EXPLANATIONS%
                 iff not exist "%@UNQUOTE["%file%"]" then
                         call warning "₄File “%italics_on%%@UNQUOTE["%file%"]%italics_off%” doesn’t seem to exist... [anymore?]"
                         pause

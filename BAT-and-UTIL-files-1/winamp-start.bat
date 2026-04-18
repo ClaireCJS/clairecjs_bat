@@ -41,7 +41,10 @@ rem BRANCH VIA PARAMETERS:
                      if "%1"=="autoexec" (call play)
                     :20240417 - after downgrading to winamp 5.666 it seems MiniLyrics needs to be independently started? Huh>
                     call MiniLyrics
-                    if "%1" != "noposfix" call fix-MiniLyrics-window-size-and-position
+                        iff "%1" != "noposfix" then
+                                call AskYN "Fix Minilyrics size & position" no 10
+                                if "Y" == "%ANSWER%" call fix-MiniLyrics-window-size-and-position
+                        endiff
 			goto :Winamp_Exists_DONE
 
 		:Winamp_Exists_NO

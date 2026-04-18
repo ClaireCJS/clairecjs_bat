@@ -64,8 +64,8 @@ rem Girder?
 REM Above all else, the music must flow —— but only if it's the music server:
         iff "%MACHINENAME%" == "%MUSICSERVERMACHINENAME%" then
             call winamp autoexec
-            call sleep 3
-            call fix-minilyrics-window-size-and-position
+            rem call sleep 3
+            rem call fix-minilyrics-window-size-and-position
             if isfunction randcursor (echos %@RANDCURSOR[])
         endiff
 

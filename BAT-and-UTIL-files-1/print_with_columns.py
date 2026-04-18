@@ -393,7 +393,7 @@ def read_input(wrapping, max_width):
             input_lines.append(line)
 
     if not input_lines:
-        sys.exit("No input data provided.")
+        sys.exit(" 💥 No file 💥 ")
 
     if wrapping:
         wrapped_lines = []

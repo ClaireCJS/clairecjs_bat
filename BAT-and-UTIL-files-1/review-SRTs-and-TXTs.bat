@@ -55,6 +55,7 @@ goto :END
                 rem Generate comparison (sidecar) filenames:
                         set  srt=%@UNQUOTE[%tmp_file%]
                         set  lrc=%@name["%srt%"].lrc
+                        set elrc=%@name["%srt%"].elrc
                         set json=%@name["%srt%"].json
                         set  log=%@name["%srt%"].log
                         set  txt=%@name["%srt%"].txt
@@ -90,8 +91,8 @@ goto :END
 
                         if "N" == "%ANSWER%" goto :done_with_this_one
                         if "T" == "%ANSWER%" (gosub delete_file "%TXT%" %+ if exist "%SRT%" call srt2txt "%SRT%")
-                        if "L" == "%ANSWER%" (gosub delete_file "%LRC%" %+ if exist "%SRT%" call srt2lrc  >nul  )
-                        if "S" == "%ANSWER%" (gosub delete_file "%SRT%" %+ gosub delete_file "%LOG%" %+ gosub delete_file "%JSON%" )
+                        if "L" == "%ANSWER%" (gosub delete_file "%LRC%" %+ if exist "%SRT%" call srt2lrc  >nul  %+ gosub delete_file "%ELRC%")
+                        if "S" == "%ANSWER%" (gosub delete_file "%SRT%" %+ gosub delete_file "%LOG%" %+ gosub delete_file "%JSON%")
                         if "A" == "%ANSWER%" (if exist "%SRT%" call   approve-subtitles "%SRT%")
                         if "B" == "%ANSWER%" (if exist "%TXT%" call   approve-lyrics    "%TXT%")
                         if "U" == "%ANSWER%" (if exist "%SRT%" call unapprove-subtitles "%SRT%")
@@ -113,22 +114,24 @@ goto :END
                         endiff
                         
                         iff "R" == "%ANSWER%" then
-                                if exist "%TXT%" (call rn "%TXT%" %+ if "1" == "%RN_PERFORMED%" set TXT=%LAST_RENAMED_TO%)
-                                if exist "%SRT%" (call rn "%SRT%" %+ if "1" == "%RN_PERFORMED%" set SRT=%LAST_RENAMED_TO%)
-                                if exist "%LRC%" (call rn "%LRC%" %+ if "1" == "%RN_PERFORMED%" set LCR=%LAST_RENAMED_TO%)
+                                if exist  "%TXT%" (call rn  "%TXT%" %+ if "1" == "%RN_PERFORMED%" set TXT=%LAST_RENAMED_TO%)
+                                if exist  "%SRT%" (call rn  "%SRT%" %+ if "1" == "%RN_PERFORMED%" set SRT=%LAST_RENAMED_TO%)
+                                if exist  "%LRC%" (call rn  "%LRC%" %+ if "1" == "%RN_PERFORMED%" set LCR=%LAST_RENAMED_TO%)
+                                if exist "%ELRC%" (call rn "%ELRC%" %+ if "1" == "%RN_PERFORMED%" set LCR=%LAST_RENAMED_TO%)
                         endiff
 
                         iff "E" == "%ANSWER%" then
-                                if exist "%TXT%"  (%EDITOR% "%TXT%" )
-                                if exist "%SRT%"  (%EDITOR% "%SRT%" )
-                                if exist "%LRC%"  (%EDITOR% "%LRC%" )
-                                if exist "%LOG%"  (%EDITOR% "%LOG%" )
+                                if exist  "%TXT%" (%EDITOR%  "%TXT%")
+                                if exist  "%SRT%" (%EDITOR%  "%SRT%")
+                                if exist  "%LRC%" (%EDITOR%  "%LRC%")
+                                if exist  "%LRC%" (%EDITOR% "%ELRC%")
+                                if exist  "%LOG%" (%EDITOR%  "%LOG%")
                                 if exist "%JSON%" (%EDITOR% "%JSON%")
                         endiff
 
                         iff "Y" == "%ANSWER%" then
                                 if exist "%TXT%" call AskYN "delete the TXT lyrics" no 0 %+ if exist "%TXT%" if "Y" == "%ANSWER%"  gosub delete_file "%TXT%"
-                                if exist "%LRC%" call AskYN "delete the LRC subs"   no 0 %+ if exist "%LRC%" if "Y" == "%ANSWER%"  gosub delete_file "%LRC%"
+                                if exist "%LRC%" call AskYN "delete the LRC subs"   no 0 %+ if exist "%LRC%" if "Y" == "%ANSWER%" (gosub delete_file "%LRC%" %+ gosub delete_file "%ELRC%")
                                 if exist "%SRT%" call AskYN "delete the SRT subs"   no 0 %+ if exist "%SRT%" if "Y" == "%ANSWER%" (gosub delete_file "%SRT%" %+ gosub delete_file "%log%" %+ gosub delete_file "%json%")
                         endiff
 
