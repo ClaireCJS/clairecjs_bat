@@ -170,7 +170,7 @@ if __name__ == '__main__':
         print("\n💫 Usage:\n  python srt2lrc.py go [force]\n\nOptions:\n  go     = convert all .SRT files in folder to .LRC\n  force  = overwrite existing .lrc files\n")
         sys.exit(1)
 
-    print("\n* About to convert all SRT files in folder...\n");
+    print("\n* About to convert all SRT files in folder...");
     for file_name in glob.glob('*.srt'):
         print(f"    * Converting file: {file_name}");
         srt_file_to_irc(file_name, force)

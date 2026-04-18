@@ -402,6 +402,8 @@ sub whisper_ai_postprocess {
 	$s =~ s/!“/!”/g;																			                         # copied from lyric-postprocessor: kludge bug fix
 	$s =~ s/„/”/g;
 	#$s =~ s/’’/’/g;
+	$s =~ s/^†/“/g;																										 #\__  WhisperAI keeps using the † symbol instead of “ for some reason
+	$s =~ s/ †/ “/g;																									 #/
 
 																							                            
 	################ CHAR-BASED CHARACTER FIXES: COMMAND-LINE COMPATIBILITY ###############		                         # these aren’t needed because nothing in our subtitles ever reaches the command line!

@@ -9,5 +9,5 @@ rem Validate environment:
 
 
 rem Run Get-LRC on all audio files:
-        for %getalllrcstmpfile in (%FILEMASK_AUDIO%) do call get-lrc getalllrcstmpfile
+        for %getalllrcstmpfile in (%FILEMASK_AUDIO%) do call get-lrc "%@UNQUOTE["%getalllrcstmpfile%"]"
 

@@ -36,11 +36,11 @@ rem CONFIGURATION: FILENAMES:
 
 
 rem Validate environment (once):
-        iff "1" != "%validated_countsoffiletype%" then
-                call validate-in-path               grep egrep uniq wc copy-move-post makefilelist warning_soft set-tmp-file fast_cat clean-up-AI-transcription-trash-files-everywhere.bat wc
+        iff "2" != "%validated_countsoffiletype%" then
+                call validate-in-path               grep egrep uniq wc copy-move-post makefilelist warning_soft set-tmp-file fast_cat clean-up-AI-transcription-trash-files-everywhere.bat wc trimext uniq
                 call validate-is-function           ansi_move_to_col
                 call validate-environment-variables connecting_equals 
-                set  validated_countsoffiletype=1
+                set  validated_countsoffiletype=2
         endiff
 
 rem Warn, unless we are in the same folder defined as MP3OFFICIAL in our environment:
@@ -123,8 +123,8 @@ rem Count the file types:
 
                         rem Make transcribed filelist:
                                 echos %ansi_color_important%%blink_on%%star2% %blink_off%Making %italics_on%transcribed%italics_off% filelist%@RANDFG_SOFT[]... %ansi_color_normal%
-                                                          ((dir /b /s /[!%AI_TRASH_FILES%]                  *.srt;*.lrc  >:u8%transcription_filelist)) %+ echos %@RANDFG_SOFT[]...
-                                if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%] %incoming_music%\*.srt;*.lrc >>:u8%transcription_filelist)) %+ echos %@RANDFG_SOFT[]...
+                                                          ((dir /b /s /[!%AI_TRASH_FILES%]                  *.srt;*.lrc | trimext | uniq)  >:u8%transcription_filelist) %+ echos %@RANDFG_SOFT[]...
+                                if defined incoming_music ((dir /b /s /[!%AI_TRASH_FILES%] %incoming_music%\*.srt;*.lrc | trimext | uniq) >>:u8%transcription_filelist) %+ echos %@RANDFG_SOFT[]...
                                 echo %mover%%@COMMA[%TRANSCRIBED_COUNT%] %faint_on%files%faint_off%
 
                         rem Cosmetics
@@ -175,7 +175,8 @@ rem Report our totals and percent  progress:
         gosub counttype   "transcribeable" "  =   transcribeable" %ALL_AUDIO_COUNT_PROBED%                        "%@UNQUOTE[%filemask_audio_regex%]" "%transcribeable_filelist%" %+ set   TRANSCRIBEABLE_AUDIO_COUNT_PROBED=%COUNT%  %+ gosub   lineyline
         gosub counttype        "audiobook" "          audiobooks" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "AUDIOBOOK"                         "%transcribeable_filelist%" %+ set                     AUDIOBOOK_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
         gosub counttype           "lyrics" "        have  lyrics" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "\.txt"                                       "%text_filelist%" %+ set                    HAVE_LYRIC_COUNT=%COUNT%
-        gosub counttype          "karaoke" "        have karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "(\.lrc|\.srt)"                      "%transcription_filelist%" %+ set                  HAVE_KARAOKE_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
+        rem   counttype          "karaoke" "        have karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "(\.lrc|\.srt)"                      "%transcription_filelist%" %+ set                  HAVE_KARAOKE_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
+        gosub counttype          "karaoke" "        have karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "."                                  "%transcription_filelist%" %+ set                  HAVE_KARAOKE_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38] %+ rem This file is only the base filename, no LRC/SRT is in it, because having each one listed would be double-counted.
         echo %STAR% %STAR% %STAR% %blink_on%%@COMMA[%HOW_MANY_LEFT%]%blink_off% left! %STAR% %STAR% %STAR% 
         gosub lineyline
         call  divider
