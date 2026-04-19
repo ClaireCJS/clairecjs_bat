@@ -36,7 +36,8 @@ But here are the proper instructions:
 
 1. Run (Windows-R) ```PowerShell``` and type in the following 2 commands:
 ```        Set-ExecutionPolicy -ExecutionPolicy Bypass
-	Add-AppxPackage -Path "https://aka.ms/getwinget"```
+	Add-AppxPackage -Path "https://aka.ms/getwinget"
+```
 
 The 1ˢᵗ command allows for better [TCC](http:///www.jpsoft.com)↔PowerShell integration (particularly for my [display bluetooth battery levels](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/display-bluetooth-battery-levels.ps1) script)
 The 2ⁿᵈ command installs winget, which is used to automate most of the rest of this installation.
