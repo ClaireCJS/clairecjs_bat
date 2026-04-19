@@ -35,7 +35,8 @@ But here are the proper instructions:
 
 
 1. Run (Windows-R) ```PowerShell``` and type in the following 2 commands:
-```        Set-ExecutionPolicy -ExecutionPolicy Bypass
+```        
+	Set-ExecutionPolicy -ExecutionPolicy Bypass
 	Add-AppxPackage -Path "https://aka.ms/getwinget"
 ```
 
