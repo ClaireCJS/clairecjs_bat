@@ -76,7 +76,7 @@
 2025-02-23  17:34            289   34%  as.bat
 2025-01-06  22:04            800   52%  ascii.bat
 2025-11-26  14:03          2,173   62%  ask-command.bat
-2026-04-06  14:52          2,005   63%  ask-if-instrumental.bat
+2026-04-18  13:53          2,005   63%  ask-if-instrumental.bat
 2025-03-27  18:17             46   -4%  ask-if-instrumentals.bat
 2025-03-27  18:13             41   -4%  ask-if-lyricless.bat
 2025-03-24  15:59             54    0%  ask-if-these-are-instrumentals.bat
@@ -90,7 +90,7 @@
 2026-04-10  19:53         43,671   78%  audit-music-files.py
 2024-11-19  02:23          5,089   78%  auto-clean.bat
 2025-01-05  12:11         13,972   74%  auto-process.bat
-2026-01-31  10:10          6,499   72%  autoexec-common.btm
+2026-04-18  10:10          6,507   72%  autoexec-common.btm
 2026-02-27  14:14         44,309   77%  autoexec.ahk
 2024-11-19  02:23            917   52%  AutoHotKey-autoexec.bat
 2025-05-22  19:21          2,692   61%  AutoHotKey.bat
@@ -165,7 +165,7 @@
 2025-12-20  15:25          3,901   77%  check-for-future-dated-files.bat
 2025-01-13  12:09            229   24%  check-for-invalid-audio-files.bat
 2026-04-15  10:50         28,144   75%  check-for-missing-karaoke.bat
-2026-04-15  10:05         51,269   80%  check-for-missing-lyrics.bat
+2026-04-17  16:05         51,437   80%  check-for-missing-lyrics.bat
 2025-01-13  12:08            736   63%  check-if-asking-for-usage.bat
 2026-01-25  00:38            220   30%  check-playlist-for-missing-karaoke.bat
 2025-01-13  11:49            208   29%  check-playlist-for-missing-lyrics.bat
@@ -186,7 +186,7 @@
 2024-11-19  07:29          4,081   65%  clean-dbcu.bat
 2024-11-19  07:29            140   15%  clean-dropbox.bat
 2024-11-19  07:29            554   46%  clean-rocksmith-dlc-dir.bat
-2026-04-12  15:23         11,007   72%  clean-up-AI-transcription-trash-files-everywhere.bat
+2026-04-19  11:44         11,261   72%  clean-up-AI-transcription-trash-files-everywhere.bat
 2026-04-12  15:06          1,946   76%  clean-up-AI-transcription-trash-files-here.bat
 2025-01-13  11:49          1,059   69%  clean-up-AI-transcription-trash-files.bat
 2024-11-19  07:48             39   -5%  clean.bat
@@ -260,7 +260,7 @@
 2026-04-14  11:54          2,849   61%  create-missing-karaoke-files.bat
 2025-06-08  16:27          1,310   58%  create-srt-file-for-currently-playing-song.bat
 2025-01-13  11:49            220   38%  create-srt-for-soundclip.bat
-2026-04-15  10:43        256,607   79%  create-srt-from-file.bat
+2026-04-20  10:07        261,947   79%  create-srt-from-file.bat
 2025-07-29  09:48          1,265   51%  create-srt-from-playlist.bat
 2025-01-13  11:48          1,276   53%  create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat
 2025-01-13  11:48            367   45%  create-srt.bat
@@ -288,10 +288,10 @@
 2024-11-26  15:13             17  -11%  defragment-files-in-this-folder-tree.bat
 2024-11-19  02:50            215   29%  del-FLACs-if-mp3s-exist.bat
 2025-07-30  05:17          2,317   64%  del-if-exists.bat
-2026-04-02  00:06          7,736   72%  del-maybe-after-review.bat
+2026-04-17  23:25          7,763   72%  del-maybe-after-review.bat
 2024-11-19  02:50            213   28%  del-WAVs-if-mp3s-exist.bat
 2024-11-19  02:50            359   36%  del-WAVs-if-mp3s-or-flacs-exist.bat
-2026-04-15  10:50         34,595   81%  delete-bad-AI-transcriptions.bat
+2026-04-17  23:25         35,958   81%  delete-bad-AI-transcriptions.bat
 2024-11-19  02:50            445   39%  delete-duplicate-files-in-each-subfolder-but-not-across-current-folder.bat
 2024-11-19  02:50          2,110   58%  delete-duplicate-files-including-subfolder-duplicates.bat
 2024-12-08  18:17            661   48%  delete-largest-file.bat
@@ -413,7 +413,7 @@
 2025-01-05  11:47             19  -10%  editgr.bat
 2024-11-19  07:36             62   -3%  editGrep.bat
 2024-11-19  07:47            360   33%  editor-slow.bat
-2026-03-22  21:54          8,566   71%  editplus.bat
+2026-04-15  11:32          8,565   71%  editplus.bat
 2025-01-05  16:01            369   52%  egrep-alias.bat
 2024-11-19  07:47             50   -4%  eject-usb.bat
 2024-11-19  07:47             50   -4%  eject.bat
@@ -421,7 +421,7 @@
 2024-11-19  07:47             41   -4%  emoji-grep.bat
 2024-12-09  15:35             39   -5%  emoji-search-online.bat
 2025-01-12  17:30          2,105   60%  emoji-search.bat
-2026-01-15  23:54        102,763   78%  emoji.env
+2026-04-16  18:28        102,814   78%  emoji.env
 2025-05-29  07:15          1,940   57%  enqueue-file-into-winamp-playlist.bat
 2024-12-11  17:04             80   15%  enqueue-regex-to-winamp.bat
 2024-11-19  07:47             66   -3%  enqueue.bat
@@ -434,7 +434,7 @@
 2026-04-14  11:17        259,838   84%  environm.btm
 2025-02-21  17:44             33   -6%  erase-scrollback.bat
 2025-01-13  11:54             73    2%  error.bat
-2026-03-27  23:07         13,423   75%  errorlevel.bat
+2026-04-16  16:26         13,564   75%  errorlevel.bat
 2024-11-04  02:30              1 -200%  escape.txt
 2025-05-19  18:53          3,984   64%  eset-alias.bat
 2024-12-12  22:21             21   -9%  eset.bat
@@ -511,6 +511,7 @@
 2024-05-24  12:32            569   48%  generate_color_cycle_background_ansi.py
 2023-06-02  08:51          8,693   74%  generate_midi_randomly.py
 2024-11-27  14:59          7,944   72%  generate_thesem3u_and_allm3u_playlists_in_folder.py
+2026-04-20  01:47          1,772   56%  get-all-LRCs.bat
 2024-11-19  07:47             52   -3%  get-command-line.bat
 2025-01-14  11:28            243   28%  get-current-escape-character.bat
 2025-04-28  19:49         12,251   67%  get-current-song-playing.pl
@@ -518,11 +519,12 @@
 2024-11-19  07:47            567   58%  get-image-dimensions.bat
 2025-04-17  14:39            486   64%  get-karaoke-prompts-only.bat
 2026-04-04  13:41         17,438   85%  get-karaoke.bat
+2026-04-18  14:20            385   43%  get-lrc.bat
 2025-02-20  19:11          2,876   64%  get-lyriclessness-status.bat
 2025-01-14  21:33            559   51%  get-lyrics-for-all-songs-in-this-folder.bat
 2024-11-11  15:33            418   42%  get-lyrics-for-currently-playing-song.bat
 2025-01-13  11:45             49    0%  get-lyrics-for-file.bat
-2026-04-15  10:40        383,062   82%  get-lyrics-for-file.btm
+2026-04-20  14:17        453,703   83%  get-lyrics-for-file.btm
 2025-03-01  21:15          1,068   53%  get-lyrics-for-playlist.bat
 2024-11-11  15:34             65   -3%  get-lyrics-for-song.bat
 2025-01-13  11:48             61   -1%  get-lyrics-from-song.bat
@@ -530,7 +532,7 @@
 2024-12-05  21:49         62,796   78%  get-lyrics-via-multiple-sources.bat
 2024-12-08  23:59          2,466   72%  get-lyrics-with-lyricsgenius-json-processor.pl
 2025-01-13  11:48             77    3%  get-lyrics-with-lyricsgenius.bat
-2026-03-20  22:24          5,334   69%  get-lyrics.bat
+2026-04-16  14:09          5,334   69%  get-lyrics.bat
 2024-10-18  12:53          4,561   67%  get-meat-from-mp3-filename.pl
 2026-04-14  11:53             57   -3%  get-missing-karaoke.bat
 2025-01-13  11:48             47   -4%  get-missing-lyrics-here.bat
@@ -681,7 +683,7 @@
 2025-05-19  18:30          7,117   68%  lrc2txt.bat
 2026-04-11  20:32         33,870   77%  lrc2txt.py
 2026-03-24  05:17          2,166   63%  lrcget.bat
-2026-04-10  21:07         30,859   71%  lyric-postprocessor.pl
+2026-04-16  06:21         31,010   71%  lyric-postprocessor.pl
 2024-11-19  07:56            448   37%  make-attrib_lst.bat
 2024-04-05  18:06            410   55%  make-black-into-a-random-black.bat
 2024-11-25  13:04          7,683   68%  make-CD-ISO-based-on-playlists.bat
@@ -797,14 +799,14 @@
 2024-11-19  21:35             40   -5%  prev.bat
 2025-02-21  23:33          1,236   49%  prevdir.bat
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
-2025-06-09  12:12          8,949   73%  preview-audio-file.bat
+2026-04-19  11:21          9,107   73%  preview-audio-file.bat
 2025-04-04  14:37             40   -5%  preview-image-file.bat
 2025-04-04  14:37             40   -5%  preview-video-file.bat
 2024-11-19  21:35             31   -6%  previousdir.bat
 2025-01-13  12:02             98    9%  print-if-debug.bat
-2026-04-10  16:33         45,857   77%  print-message.bat
+2026-04-19  13:27         46,482   77%  print-message.bat
 2025-11-05  13:31             39   -5%  print-with-columns.bat
-2025-11-06  00:17         90,752   79%  print_with_columns.py
+2026-04-17  17:03         90,748   79%  print_with_columns.py
 2025-09-02  14:23         16,194   75%  process-done-torrent.btm
 2024-11-19  21:35             43   -4%  process-filelist-to-prevent-consecutive-entries-from-same-folder.bat
 2024-11-19  15:18          2,210   64%  process-rookie-folders.bat
@@ -872,7 +874,7 @@
 2024-12-08  18:12          3,185   63%  remove-filename-characters-invalid-for-xbox360.bat
 2025-04-16  11:07            667   53%  remove-leading-0s-from-music-filenames.bat
 2024-12-08  18:12          2,283   59%  remove-percents-from-filenames.bat
-2025-09-24  18:51         23,116   80%  remove-period-at-ends-of-lines.pl
+2026-04-16  05:04         24,004   80%  remove-period-at-ends-of-lines.pl
 2024-12-08  18:11          1,850   57%  remove-pluses-from-filenames.bat
 2019-10-01  10:28            158   25%  remove-trailing-spaces.pl
 2024-11-19  15:15          1,701   60%  remove-x-characters-from-beginning-of-filenames.bat
@@ -881,7 +883,7 @@
 2023-07-10  03:06            982   61%  rename_images_to_incorporate_folder_name.py
 2024-12-08  18:19          2,201   55%  renumber-all-music-files-(to-randomize-usb-sticks).bat
 2024-10-18  13:30          6,904   66%  reorder_playlist.py
-2026-04-12  15:24         24,375   79%  report-lyric-and-subtitle-percentage-completion.bat
+2026-04-18  15:05         24,801   78%  report-lyric-and-subtitle-percentage-completion.bat
 2025-03-13  18:49          2,403   68%  report-lyric-approval-progress.bat
 2026-01-04  14:28            733   48%  rescue-winamp-window.ahk
 2024-11-19  15:15            202   19%  research-this-dir-on-discogs.bat
@@ -917,13 +919,13 @@
 2025-01-13  11:47             58   -1%  review-all-SRTs.bat
 2025-01-13  11:46             39   -5%  review-all-subtitles.bat
 2025-01-13  11:47             57   -1%  review-all-TXTs.bat
-2025-11-05  13:31         14,719   77%  review-file.bat
+2026-04-19  16:39         15,284   76%  review-file.bat
 2025-05-22  00:32             38   -5%  review-files.bat
 2025-01-30  16:11             27   -7%  review-karaokes.bat
 2025-01-13  11:47             58   -1%  review-LRCs.bat
 2025-01-13  11:47             57   -1%  review-lyrics.bat
 2025-02-07  15:41             58   13%  review-srt.bat
-2026-04-15  10:53             77    3%  review-SRTs-and-TXTs.bat
+2026-04-17  03:37         12,925   75%  review-SRTs-and-TXTs.bat
 2025-06-09  17:45             71    0%  review-SRTs.bat
 2025-01-13  11:46          1,518   56%  review-subtitles.bat
 2025-01-31  08:27          5,841   79%  review-transcriptions-against-lyrics.bat
@@ -935,7 +937,7 @@
 2025-01-29  12:24            552   51%  rn-currently-playing-song.bat
 2025-10-23  13:20          5,142   70%  rn-latest-for-youtube-dl.bat
 2024-11-19  15:16            177   18%  rn-latest.bat
-2026-03-12  20:17         25,503   81%  rn.bat
+2026-04-15  13:44         26,148   81%  rn.bat
 2025-03-20  17:43            898   50%  roll-lastfm-log.bat
 2024-11-19  15:16            248   25%  roll-log-madvr.bat
 2025-03-20  17:42          2,989   69%  roll-logs.bat
@@ -1047,7 +1049,7 @@
 2024-11-19  15:19            109   27%  splvx.bat
 2024-11-19  15:19            108   27%  splx.bat
 2025-01-13  11:46             27   -7%  srt.bat
-2025-09-23  09:24         10,794   69%  srt2lrc.py
+2026-04-18  14:46         10,792   69%  srt2lrc.py
 2026-04-11  20:31         23,463   78%  srt2txt.py
 2025-01-13  11:46             70    0%  srtthis.bat
 2025-10-30  07:40          4,654   61%  srt_comparator.py
@@ -1087,7 +1089,7 @@
 2024-11-15  17:40         22,528   11%  StripAnsi.dll
 2024-04-10  22:25             44   12%  StripAnsi.txt
 2025-09-24  20:01            924   51%  subtitle-integrity-checker.bat
-2026-04-10  16:11         45,475   81%  subtitle-postprocessor.pl
+2026-04-18  15:00         45,755   80%  subtitle-postprocessor.pl
 2025-10-01  19:42         18,350   65%  subtitle-verifier.py
 2025-01-13  12:01             74    2%  subtle.bat
 2025-01-13  12:03            154   15%  success.bat
@@ -1261,7 +1263,7 @@
 2025-06-09  12:12          1,601   64%  WhisperTimeSync-currently-playing-song.bat
 2026-04-12  20:26         13,321   72%  WhisperTimeSync-helper.bat
 2026-04-10  07:18         31,226   74%  whispertimesync-postprocessor.py
-2026-04-11  23:38         40,956   78%  WhisperTimeSync.bat
+2026-04-20  13:26         41,186   78%  WhisperTimeSync.bat
 2025-01-12  16:43          4,367   70%  white-noise.bat
 2024-11-26  15:16             42    0%  who.bat
 2024-12-03  15:16             39   -5%  winamp-add.bat
@@ -1275,7 +1277,7 @@
 2024-11-19  15:01            187   18%  winamp-prev.bat
 2024-11-19  15:01          1,893   58%  winamp-randomize-playlist.bat
 2024-12-03  15:12             54   -1%  winamp-restart.bat
-2026-03-12  14:55          3,242   68%  winamp-start.bat
+2026-04-17  12:14          3,421   68%  winamp-start.bat
 2024-12-11  17:23            993   52%  winamp-status-from-file.pl
 2024-08-22  06:52            979   52%  winamp-status.pl
 2024-11-19  15:01          1,269   66%  winamp-stop.bat

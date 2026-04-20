@@ -858,9 +858,10 @@ REM If we say "force", skip the already-exists check and contiune
 
 REM If it’s an instrumental, don’t bother:
         rem echo α 1200
+        unset /q REGEX_RESULT
         set REGEX_RESULT=%@REGEX[instrumental,%INPUT_FILE%]
-        if "%REGEX_RESULT%" == "1" then
-                @call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent 
+        iff "%REGEX_RESULT%" == "1" then
+                @call warning "Sorry, nothing to transcribe because this file appears to be an instrumental: %INPUT_FILE%" silent 
                 goto /i END
                 exit /b
         endiff
@@ -1134,6 +1135,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         if "1" == "%DEBUG_TRACE_CSFF%"    pause "did we get here 1088"
         if "1" == "%AUTO_LYRIC_APPROVAL%" goto /i use_text
         if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto /i endiff_no_text_1017
+                :reassemble_prompt_lyrics
                 :use_text
 
                 if "1" == "%DEBUG_TRACE_CSFF%" pause "we are here: 1904"
@@ -2013,7 +2015,7 @@ rem A chance to edit/reject the karaoke:
 
 rem Make sure postprocessed lyrics exist because we’re about to print them:
         gosub create_or_set_postprocessed_lyrics "%POSTPROCESSED_LYRICS%" 
-        call subtle "%star2% Postprocessed lyrics are now “%postprocessed_lyrics%” GOAT JUST_GENERATED_LYRICS=%JUST_GENERATED_LYRICS%"
+        call subtle "Postprocessed lyrics are now “%postprocessed_lyrics%” GOAT JUST_GENERATED_LYRICS=%JUST_GENERATED_LYRICS%"
         if "1" == "%DEBUG_TRACE_CSFF%" pause "Are we here at 1882"
 
 
@@ -2178,11 +2180,12 @@ rem Full-endeavor success message:
                         set USE_WAIT_TIME=%EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME%
 
 
+                        call debug "karaoke_edit_already_asked is “%karaoke_edit_already_asked%”"
                         iff "1" == "%karaoke_edit_already_asked%" then
                                 call subtle "not asking to edit karaoke file because we already asked"                                
                                 goto /i :no_need_to_edit_it
                         endiff
-                        @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%R%ansi_color_prompt%etry,rena%ansi_color_bright_green%M%ansi_color_prompt%e files]" no %USE_WAIT_TIME% notitle ADEFGIMPQ1STUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,1:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,G:_get_lyrics,M:rename_it
+                        @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%1%ansi_color_prompt%=Retry,rena%ansi_color_bright_green%M%ansi_color_prompt%e files]" no %USE_WAIT_TIME% notitle ADEFGIMPQ1STUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,1:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,G:_get_lyrics,M:rename_it
 
 
                         set HELD_ANSWER_1922=%ANSWER%
@@ -2288,7 +2291,7 @@ goto /i skip_subroutines
                         exit /b
                         goto :aborted_because_lrc_already_exists
                 else
-                        call debug "SRT file does not exist" %+ rem GOAT
+                        rem call debug "SRT file does not exist" 
                 endiff
         return
         :ask_about_instrumental [opt opt2 opt3]

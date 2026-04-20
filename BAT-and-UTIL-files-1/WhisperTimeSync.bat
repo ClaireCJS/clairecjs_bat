@@ -451,18 +451,16 @@ rem If it is better, back up the old version and replace it with this one:
         set whisper_alignment_happened=0
         set original_srt_before_whispertimesync=%srt%.pre-wts.%_DATETIME.bak
         iff "Y" == "%ANSWER%" then
-                rem Cosmetic:
-                        echos %CHECK% ``
                 rem Audit flag:
                         set whisper_alignment_happened=1
-                rem back up the old/existing karaoke:
-                        echos %ansi_color_removal%
+                rem Cosmetic:
+                rem backup the old/existing karaoke:
+                        echos    %RED_X%%ansi_color_removal% %OVERSTRIKE_ON%
                         rem echo *copy /Nst "%srt%"     "%original_srt_before_whispertimesync%"
                         echo ray|*copy /Nst "%srt%"     "%original_srt_before_whispertimesync%"
                 rem move the new karaoke to overwrite the now-backed-up old karaoke:
-                        echos %ansi_color_success%
-                        rem echo *copy /Nst "%SRT_NEW%" "%srt%" 
-                        echo ray|*copy /Nst "%SRT_NEW%" "%srt%" %+ rem pause
+                        echos %OVERSTRIKE_OFF%%ansi_color_success%   %check% ``
+                        echo ray|*copy /Nst "%SRT_NEW%" "%srt%" 
 
                 rem Cleanup after editing our subs (check for srt->txt/lrc conversion,etc):
                         gosub cleanup_after_editing_subs
