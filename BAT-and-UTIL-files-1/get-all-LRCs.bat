@@ -24,6 +24,13 @@ rem Don’t run if we’ve already run here:
                 goto :END_OF_GET_ALL_LRCs
         endiff
 
+rem Skip doing anything if there are no files of appropriate extension
+        iff not exist %FILEMASK_VOCAL% then
+                call warning_soft "No files of proper format here"
+                goto /i :trigger_getalllrcs
+        endiff
+
+
 rem Run Get-LRC on all audio files:
         rem Anti-message dancing invocation:
                 set MESSAGE_DANCING=0
@@ -39,6 +46,7 @@ rem Run Get-LRC on all audio files:
 
 
 rem Leave breadcrumb that we’ve now run this here:
+        :trigger_getalllrcs
         >%TRIGGER_FILE%
 
 
