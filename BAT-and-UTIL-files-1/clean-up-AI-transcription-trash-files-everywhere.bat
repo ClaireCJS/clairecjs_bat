@@ -48,6 +48,11 @@ rem Delete files that could be anywhere:
         iff "%1" != "include-dot-files" goto :no_dot_files
                 gosub DeleteEverywhere        .CurrentlyDoingTranscriptionsHere      %+ rem Folder-level lockfiles don’t make sense after a reboot, which is when this script is typically run
                 gosub DeleteEverywhere        .LastInvalidAITranscriptionCheck       %+ rem Relates to delete-bad-AI-transcriptions.bat, which is designed to not be re-run every 72 hours. However, upon reboot, we will clean up the trash so that these files don’t stick around forever once we stop using that component
+
+                rem After the project is done: GOAT: enable this:
+                rem call  AskYN "Delete all .GetAllLRCsRunHereAlready files?" no 60
+                rem if "Y" == "%ANSWER%" gosub DeleteEverywhere        .GetAllLRCsRunHereAlready
+
         :no_dot_files
 
         rem If any of these filename values changes also update the AI_TRASH_FILES variable in report-lyric-and-subtitle-percentage-completion.bat

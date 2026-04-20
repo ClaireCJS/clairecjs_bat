@@ -21,9 +21,11 @@ set print_message_running=1
 :USAGE:                                           
 :USAGE: call print-message message without quotes —— WRONG!! —— no 3rd arg of 0|1 will cause the whole line to be treated as a message without a message type. This is really only meant for processing malformed calls in a non-execution-breaking way. We’re NOT supposed to do it this way.
 :USAGE:
-:USAGE: ENVIRONMENT: set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1 to suppress audio effects. DOES INDEED need to be set each call.
-:USAGE: ENVIRONMENT: set                        SLEEPING=1 to suppress audio effects. DOES  *NOT* need to be set each call.
-:USAGE: ENVIRONMENT: set             NEWLINE_REPLACEMENT=1 to replace \n w/ newlines. DOES INDEED need to be set each call.
+:USAGE: ENVIRONMENT: set PRINTMESSAGE_OPT_SUPPRESS_AUDIO=1 to suppress audio effects once.               DOES INDEED need to be re-set each call.
+:USAGE: ENVIRONMENT: set                 MESSAGE_SILENCE=1 to suppress audio effects until turned on.    Does  *NOT* need to be re-set each call.
+:USAGE: ENVIRONMENT: set                        SLEEPING=1 to suppress audio effects until turned on.    DOES  *NOT* need to be re-set each call.
+:USAGE: ENVIRONMENT: set             NEWLINE_REPLACEMENT=1 to replace \n w/ newlines once.               DOES INDEED need to be re-set each call.
+:USAGE: ENVIRONMENT: set                 MESSAGE_DANCING=0 to stop animation effects until turned on.    Does  *NOT* need to be re-set each call.
 :USAGE:
 :USAGE: NOTE: “hand” and “question” windows system sounds are currently used 
 :USAGE:           —— hear them with the “beep hand” & “beep question” commands
@@ -85,6 +87,7 @@ REM Process parameters
     if "%PM_PARAM3%"       == "1"                                (set  EXECUTE_PROTECTION_PAUSES=1)
     if "%PM_PARAM2%"       == "yes"                              (set  EXECUTE_PROTECTION_PAUSES=1)                         %+ REM capture a few potential call mistakes
     if "%PM_PARAM2%"       == "pause"                            (set  EXECUTE_PROTECTION_PAUSES=1)                         %+ REM capture a few potential call mistakes
+    if 1 == "%MESSAGE_SILENCE%"                                  (set  SILENT_MESSAGE=1)
     if 1 eq %PRINTMESSAGE_OPT_SUPPRESS_AUDIO                     (set  SILENT_MESSAGE=1)
     if "%PM_PARAM3%"       == "2" .or. "%PM_PARAM3%" == "silent" (set  SILENT_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
     if "%PM_PARAM3%"       == "3" .or. "%PM_PARAM3%" == "big"    (set     BIG_MESSAGE=1 %+ set PM_PARAMS3= %+ set PM_PARAMS2=%2 %4$)
@@ -207,8 +210,11 @@ REM Type alias/synonym handling
 
 REM Behavior overides and message decorators depending on the type of message?
                                        set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT=
-    if  "%TYPE%"  == "ADVICE"         (set DECORATOR_LEFT=%EMOJI_BACKHAND_INDEX_POINTING_RIGHT% `` %+ set DECORATOR_RIGHT= %EMOJI_BACKHAND_INDEX_POINTING_LEFT% %+ goto decorator_defined) 
     if  "%TYPE%"  == "WARNING_LESS"   (set DECORATOR_LEFT=%STAR% ``     %+ set DECORATOR_RIGHT= %STAR% %+ goto decorator_defined) 
+    if  "%TYPE%"  == "ADVICE"         (set DECORATOR_LEFT=%EMOJI_BACKHAND_INDEX_POINTING_RIGHT% `` %+ set DECORATOR_RIGHT= %EMOJI_BACKHAND_INDEX_POINTING_LEFT% %+ goto decorator_defined) 
+    rem "%TYPE%"  == "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR% %+ goto decorator_defined)
+    if  "%TYPE%"  == "CELEBRATION"    (set DECORATOR_LEFT=%blink_off%%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF% %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR% %+ goto decorator_defined)
+    if  "%TYPE%"  == "SUBTLE"         (set DECORATOR_LEFT=%STAR8%``    %+ goto decorator_defined) 
     rem "%TYPE%"  == "WARNING"        (set DECORATOR_LEFT=%EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %blink%!!%blink_off% `` %+ set DECORATOR_RIGHT= %blink%!!%blink_off% %EMOJI_WARNING%%EMOJI_WARNING%%EMOJI_WARNING% %+ goto decorator_defined)
     rem "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT% `` %+ set DECORATOR_RIGHT= %ANSI_RESET%%@ANSI_FG[255,0,0]%reverse_on%%blink_on%%EMOJI_FLEUR_DE_LIS%%blink_off%%reverse_off%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED% %+ goto decorator_defined)
     rem "%TYPE%"  == "IMPORTANT"      (set DECORATOR_LEFT=%ANSI_RED%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_COLORABLE%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_COLORABLE%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_COLORABLE%%@ANSI_FG[200,0,200]%EMOJI_TRUMPET_COLORABLE%  %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT% %DOUBLE_UNDERLINE_ON%`` %+ set DECORATOR_RIGHT=%DOUBLE_UNDERLINE_OFF% %ANSI_RESET%%BLINKING_PENTAGRAM%%ANSI_COLOR_IMPORTANT%  %@ANSI_FG[200,0,200]%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_BLUE%%EMOJI_TRUMPET_FLIPPED%%ANSI_BRIGHT_GREEN%%EMOJI_TRUMPET_FLIPPED%%@ansi_fg[212,234,0]%EMOJI_TRUMPET_FLIPPED%%@ANSI_FG[255,127,0]%EMOJI_TRUMPET_FLIPPED%%ANSI_RED%%EMOJI_TRUMPET_FLIPPED% %+ goto decorator_defined)
@@ -223,13 +229,11 @@ REM Behavior overides and message decorators depending on the type of message?
     REM to avoid issues with the redirection character, ADVICE’s left-decorator needs to be inserted at runtime if it contains a “>” character. Could proably avoid this with setdos
     if  "%TYPE%"  == "SUCCESS"        (set DECORATOR_LEFT=%REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%BLINK_OFF%%REVERSE_OFF% ``        %+ set DECORATOR_RIGHT= %REVERSE%%BLINK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%EMOJI_CHECK_MARK%%REVERSE_OFF%%BLINK_OFF% %PARTY_POPPER%%EMOJI_BIRTHDAY_CAKE% %+ goto decorator_defined)
     if  "%TYPE%"  == "COMPLETION"     (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT=! *** %+ goto decorator_defined)
-    rem "%TYPE%"  == "CELEBRATION"    (set DECORATOR_LEFT=%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF%! %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR% %+ goto decorator_defined)
-    if  "%TYPE%"  == "CELEBRATION"    (set DECORATOR_LEFT=%blink_off%%emoji_STAR%%emoji_STAR%%emoji_STAR% %BLINK_ON%%EMOJI_PARTYING_FACE% %ITALICS%``        %+ set DECORATOR_RIGHT=%ITALICS_OFF% %EMOJI_PARTYING_FACE%%BLINK_OFF% %emoji_STAR%%emoji_STAR%%emoji_STAR% %+ goto decorator_defined)
     if  "%TYPE%"  == "REMOVAL"        (set DECORATOR_LEFT=%RED_SKULL%%SKULL%%RED_SKULL% ``        %+ set DECORATOR_RIGHT= %RED_SKULL%%SKULL%%RED_SKULL% %+ goto decorator_defined)
     if  "%TYPE%"  == "ERROR"          (set DECORATOR_LEFT=*** ``        %+ set DECORATOR_RIGHT= *** %+ goto decorator_defined)
+    if  "%TYPE%"  == "NORMAL"         (set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT= %+ goto decorator_defined) 
     if  "%TYPE%"  == "FATAL_ERROR"    (set DECORATOR_LEFT=***** !!! ``  %+ set DECORATOR_RIGHT= !!! ***** %+ goto decorator_defined)
     if  "%TYPE%"  == "ALARM"          (set DECORATOR_LEFT=* ``          %+ set DECORATOR_RIGHT= * %+ goto decorator_defined)
-    if  "%TYPE%"  == "NORMAL"         (set DECORATOR_LEFT=              %+ set DECORATOR_RIGHT= %+ goto decorator_defined) 
     rem 20240419 moved to after setting COLOR_TO_USE so we can start setting that before the right decorator in case the message contents changed the color: set DECORATED_MESSAGE=%DECORATOR_LEFT%%MESSAGE%%DECORATOR_RIGHT%
     :decorator_defined        
 
@@ -463,7 +467,7 @@ REM Post-message delays and pauses:
         if "1" == "%PM_FAST%" set DO_DELAY=0 
 
 REM Post-message beeps and sound effects
-        if %PRINTMESSAGE_OPT_SUPPRESS_AUDIO eq 1 (goto :No_Beeps_2)
+        if "1" == "%PRINTMESSAGE_OPT_SUPPRESS_AUDIO%" .or. "1" != "%SILENT_MESSAGE%" goto :No_Beeps_2
             if "%TYPE%" == "CELEBRATION" .or. "%TYPE%" == "COMPLETION" (beep exclamation)
             if "%TYPE%" == "ERROR" .or. "%TYPE%" == "ALARM"   (
                     beep 145 1 
@@ -488,12 +492,12 @@ REM Post-message beeps and sound effects
         :No_Beeps_2
 
     REM Do delay:
-        if %DO_DELAY gt 0 .and. 1 ne %SILENT_MESSAGE (delay %DO_DELAY)
+        if %DO_DELAY gt 0 .and. "0" != "%MESSAGE_DANCING%" (delay %DO_DELAY)
     
 
 rem Do animation for big ones:
   echo off
-        iff "1" == "%BIG_MESSAGE%" .or. "%TYPE%" == "CELEBRATION" then
+        iff ("1" == "%BIG_MESSAGE%" .or. "%TYPE%" == "CELEBRATION") .and. "0" != "%MESSAGE_DANCING%" then
                         rem Set values based on whether we are in fast/fast-dance mode or not:
                                 iff "1" != "%PM_FAST%" then
                                         set min_delay=50 
@@ -501,7 +505,7 @@ rem Do animation for big ones:
                                         set num_anims=10                               
                                 else
                                         set min_delay=1 
-                                        set max_delay=8
+                                        set max_delay=4
                                         set num_anims=15
                                 endiff
 

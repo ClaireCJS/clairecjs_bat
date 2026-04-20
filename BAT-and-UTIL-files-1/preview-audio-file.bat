@@ -36,8 +36,8 @@ rem USAGE:
                 echo %ansi_color_advice%* USAGE: optional:   set              PAF_START=start /min      [defines how we start our previewer] [default value=“%DEFAULT_PAF_START%”]%ansi_color_normal%
                 echo %ansi_color_advice%* USAGE: optional:   set             PAF_PLAYER={command}       [to set command to use as player] [default value=“%DEFAULT_PAF_PLAYER%”]
                 echo %ansi_color_advice%* USAGE: optional:   set PAF_WINAMP_INTEGRATION=%DEFAULT_PAF_WINAMP_INTEGRATION%               [defines whether we pause WinAmp] [default value=“%DEFAULT_PAF_WINAMP_INTEGRATION%”]%ansi_color_normal%
-                echo %ansi_color_advice%* USAGE: optional:   set               LRC_FILE=whatever.lrc    [“show_karaoke” parameter uses this LRC instead of searching for a sidecar LRC]
-                echo %ansi_color_advice%* USAGE: optional:   set               SRT_FILE=whatever.srt    [“show_karaoke” parameter uses this SRT instead of searching for a sidecar SRT]
+                echo %ansi_color_advice%* USAGE: optional:   set           PAF_LRC_FILE=whatever.lrc    [“show_karaoke” parameter uses this LRC instead of searching for a sidecar LRC]
+                echo %ansi_color_advice%* USAGE: optional:   set           PAF_SRT_FILE=whatever.srt    [“show_karaoke” parameter uses this SRT instead of searching for a sidecar SRT]
 
                 echo.
                 echo %ansi_color_advice%* USAGE: call preview-audio-file {filename} {parameters}
@@ -65,8 +65,8 @@ rem Capture parameters:
                         if not defined PAF_START              set  PAF_START=%DEFAULT_PAF_START%
                         if not defined PAF_WINAMP_INTEGRATION set  PAF_WINAMP_INTEGRATION=%PAF_WINAMP_INTEGRATION%
                         if not defined PAF_PLAYER             set  PAF_PLAYER=%DEFAULT_PAF_PLAYER%
-                        if not defined LRC_FILE               echo Don’t worry about it, LRC_FILE is dealt with below 😊 >nul
-                        if not defined SRT_FILE               echo Don’t worry about it, SRT_FILE is dealt with below 😊 >nul
+                        if not defined PAF_LRC_FILE           echo Don’t worry about it, PAF_LRC_FILE is dealt with below 😊 >nul
+                        if not defined PAF_SRT_FILE           echo Don’t worry about it, PAF_SRT_FILE is dealt with below 😊 >nul
 
                 rem ❷ Override settings if we inherit any other WinAmp integration flags from other systems:
                         if "1" == "%WINAMP_INTEGRATION_GETLYRICS%" set PAF_WINAMP_INTEGRATION=1 %+ rem WINAMP_INTEGRATION_GETLYRICS is used by our AI-music-transcription system’s   lyric  component
@@ -105,22 +105,22 @@ rem Actions to take BEFORE preview (pausing music):
                 ((call winamp-pause quick)>&>nul) >&>nul
         endiff
 
-rem Are LRC_file / SRT_file even defined?
+rem Are PAF_LRC_FILE / PAF_SRT_FILE even defined?
         set potential_preview_lrc=%@NAME[%@UNQUOTE["%audio_file_to_preview%"]].lrc
         set potential_preview_srt=%@NAME[%@UNQUOTE["%audio_file_to_preview%"]].srt
-        iff not defined LRC_file if exist "%potential_preview_lrc%" set LRC_FILE=%potential_preview_lrc%
-        iff not defined SRT_file if exist "%potential_preview_srt%" set LRC_FILE=%potential_preview_srt%
+        iff not defined PAF_LRC_FILE if exist "%potential_preview_lrc%" set PAF_LRC_FILE=%potential_preview_lrc%
+        iff not defined PAF_SRT_FILE if exist "%potential_preview_srt%" set PAF_LRC_FILE=%potential_preview_srt%
 
 rem Show raw karaoke:
         iff "1" == "%SHOW_KARAOKE%" then
                 set printed_something=0
-                iff exist "%LRC_FILE%" then
-                        call print-with-columns -cw %_COLUMNS "%LRC_FILE%" 
+                iff exist "%PAF_LRC_FILE%" then
+                        call print-with-columns -cw %_COLUMNS "%PAF_LRC_FILE%" 
                         set printed_something=1
                 endiff
-                iff exist "%SRT_FILE%" then
+                iff exist "%PAF_SRT_FILE%" then
                         if "1" == "%printed_something%" call divider
-                        call print-with-columns -cw %_COLUMNS "%SRT_FILE%"  
+                        call print-with-columns -cw %_COLUMNS "%PAF_SRT_FILE%"  
                         set printed_something=1
                 endiff
                 if "1" == "%printed_something%" call divider
@@ -146,7 +146,7 @@ rem Actions to take AFTER preview (unpausing music):
 
 rem Cleanup:
         :END
-        rem unset /q PAF_COMMAND PAF_START PAF_WINAMP_INTEGRATION PAF_PLAYER     %+ rem Because this can be an env-var parameter, unset it so internally-set values don’t become env-var-parameters of future invocations
+        unset /q PAF_COMMAND PAF_START PAF_WINAMP_INTEGRATION PAF_PLAYER PAF_LRC_FILE PAF_SRT_FILE    %+ rem Because this can be an env-var parameter, unset it so internally-set values don’t become env-var-parameters of future invocations
 
 
 

@@ -635,11 +635,11 @@ rem ═════════════════════════�
                 endiff
                 repeat 4 echo.
 
-                call AskYN "%message_header%Re-convert %italics_on%all%italics_off% subtitles to LRC if no LRC exists" no 0 
-                iff "Y" == "%ANSWER%" then
-                        if exist "%aud_LRC%" *del /q "%aud_LRC%" >&>nul
-                        srt2lrc.py go %+ rem don’t run with “force” option
-                endiff
+                rem not doing this because we created quick-lrc-fetch mode: call AskYN "%message_header%Re-convert %italics_on%all%italics_off% subtitles to LRC if no LRC exists" no 0 
+                rem not doing this because we created quick-lrc-fetch mode: iff "Y" == "%ANSWER%" then
+                rem not doing this because we created quick-lrc-fetch mode:     if exist "%aud_LRC%" *del /q "%aud_LRC%" >&>nul
+                rem not doing this because we created quick-lrc-fetch mode:     srt2lrc.py go %+ rem don’t run with “force” option
+                rem not doing this because we created quick-lrc-fetch mode: endiff
         return
 
 

@@ -12,7 +12,7 @@
 
 ## 📓 Terminology: 📓
 
-<summary>Click here to view full definitions of “karaoke files” and “sidecar files”</summary>  
+<details><summary>Click here to view full definitions of “karaoke files” and “sidecar files”</summary>  
   
   &nbsp;
   
@@ -36,6 +36,9 @@
     - vocals that aren’t lyrics, i.e. lyricless opera, skat, choruses going “ahhh”, etc
     - words that aren’t vocals, i.e. an electronica song but it starts off with a spoken-word sample
     - Some of these may need to be marked “[no lyrics]” to prevent processing
+
+</details>
+
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -71,16 +74,16 @@
 3. 🐍 Python requirements 
     - Install Python Anaconda ... That one specifically. [TODO link this]
     - install the *LyricsGenius* package: 
-      - install: ```pip install git+https://github.com/johnwillmr/LyricsGenius.git```
+      - install: ```pip install lyricsgenius```
       - upgrade: ```pip install -U lyricsgenius```
       - ensure that ```lyricsgenius.exe``` is in your path and works as a command
     - install the *SyncedLyrics* package:
       - install: ```pip install syncedlyrics```
       - ensure that ```syncedLyrics.exe``` is in your path and works as a command
     - install the *WhisperTimeSync* package:
-      - https://github.com/EtienneAb3d/WhisperTimeSync
-      - install: ```pip install WhisperTimeSync``` maybe? [untested]
-      - Set ```JAVA_WHISPERTIMESYNC``` enivronemnt variable  to the path of the java.exe you wish to use. Or just set it to "java" if the java command is in your path and happens to be the version you’re comfortable with using.
+      - install: ```pip install WhisperTimeSync```
+      - if that doesn’t work, check out instructions at: ttps://github.com/EtienneAb3d/WhisperTimeSync
+      - Set ```JAVA_WHISPERTIMESYNC``` enivronment variable  to the path of the java.exe you wish to use. Or just set it to "java" if the java command is in your path and happens to be the version you’re comfortable with using.
         As of 2026, what works for me is: ```set JAVA_WHISPERTIMESYNC=C:\Program Files\Java\jre-1.8\bin\java.exe```
 
 &nbsp;
@@ -546,9 +549,11 @@ Uses *SyncedLyrics* to quickly gather *just* the LRC file that belongs with an a
 This is to find LRC files in MULTIPLE sources that can then save us the trouble of having to make our own SRT/LRC files.
 
 
-### 🌟 [get-all-LRCs](../get-lrc) (alias to ```get-lyrics```’s ```quick_lrc``` mode):
+### 🌟 [get-all-LRCs](../get-lrc) (alias to ```get-lyrics```’s ```quick_lrc``` mode) [force]:
 
 Same as above, but for all audio files in the folder.
+Leaves breadcrumb files to mark folders as already done, to prevent wasting time re-running in the same folder more than once.
+Use the ```force``` / ```--force``` parameter to run it on a folder that’s already been marked
 
 ### 🌟 [create-srt-from-playlist.bat](../create-srt-from-playlist) (called via ```get-karaoke *{playlist}*```):
 
@@ -649,6 +654,7 @@ Reviews all lyric files in current folder, using ```print-with-columns``` to red
 
 To add visual representation stripe, use the “-st”, “-stU”, “stL”, and “-stB” parameters for default stripe, upper stripe, lower stripe, and both stripes.
 
+To keep the timestamps in an SRT file visible in the final review, use the “```--KeepTimestamps```” parameter. Double-dashed to set it apart from parameter that are ultimately passed on to print-with-columns.
 
 
 
@@ -884,12 +890,19 @@ A ```LRC``` to ```TXT``` converter. Pass filename to convert single file or ```a
 
 <details><summary>Click here to view command list & descriptions.</summary>  
 
-### 🌟 [print_with_columns.py](../print_with_columns.py) / [newspaper.bat](../newspaper.bat):
+### 🌟 [print_with_columns.py](../print_with_columns.py), called by [print-with-columns.bat](../print-with-columns.bat)/[newspaper.bat](../newspaper.bat):
 
-Created to review lyrics & karaoke for this project without the interruption of having to scroll up!
+📰 Newspaper-style column-based file viewer 📰 —— Displays text in column (“newspaper”) format with columns to use as little vertical space as possible.
 
-Displays text in column (“newspaper”) format with columns.
-A useful replacement for the ```type``` command.
+A useful replacement for the ```type```/```cat``` command, created to review lyrics & karaoke for this project without the *constant* interruption of having to scroll up! It was *constant*.
+
+Used by ([review-file.bat](../review-file.bat)/([review-files.bat](../review-files.bat) which do additional things like optionally strip off the timestamps of a subtitle file for prettier viewing.
+
+This one was a surprising amount of work.
+
+&nbsp;
+</details>
+
 
 
 ### 🌟 [google.py](../google.py):
@@ -923,7 +936,7 @@ Add ```-L``` option to turn on  adding a character to the end of each line [DEFA
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# 👉👉 *Under-The-Hood*: Pre/Post-Processor/Fetch Utility Commands:
+# 👉👉 *Under-The-Hood*: Lyric/Subtitle-System-Specific Pre/Post-Processor/Fetch Utility Commands:
 
 Preprocessors / Postprocessors developed for this project.
 
@@ -973,6 +986,10 @@ Uses my [claire_console.py](../clairecjs_utils/claire_console.py) library to ach
 
 &nbsp;
 </details>
+
+
+
+
 
 <details><summary>⚡ WinAmp 🦙 integration to operate on “song currently playing”</summary>  
 

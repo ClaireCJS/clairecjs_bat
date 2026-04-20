@@ -433,99 +433,6 @@ rem Make sure it’s a transcribeable filename:
                 exit /b
                 goto /i The_Very_Very_END
         endiff
-        goto skip_sub_414
-                                :validate_transcribeable_filename [input_file verb]
-                                        rem Debug:
-                                                rem echo %ansi_color_debug%- DEBUG: called validate_transcribeable_filename [input_file=%input_file% verb=%verb%]%ansi_color_normal%
-
-                                        rem Failure flag:
-                                                unset /q retval
-                                                set QUIT_BECAUSE_UNTRANSCRIBEABLE=0
-                                                set fail=0
-                                                unset /q fail_type fail_point *_in_filename *_in_foldname
-
-
-                                        rem Make our file name checks:  ✨✨✨ update in check-for-missing-karaoke too ✨✨✨              //NOTE: A redundant check occurs later but should no longer happen, and looks like this: if "%@REGEX[instrumental,%INPUT_FILE%]" == "1" (@call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent %+ goto :END)
-                                                rem chipt_in_filename=%@REGEX["\[[cC][hH][iI][pP][tT][uU][nN][eE][sS]*\]",%INPUT_FILE%]
-                                                set instr_in_filename=%@REGEX["[^\-][iI][nN][sS][tT][rR][uU][mM][eE][nN][tT][aA][lL][\)\]]",%INPUT_FILE%]
-                                                set chipt_in_foldname=%@REGEX["[\\\[\(][cC][hH][iI][pP][tT][uU][nN][eE][sS]*[\\\]\)]",%@FULL["%INPUT_FILE%"]]
-                                                set sndfx_in_filename=%@REGEX["[\[\(][sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*[\)\]]",%INPUT_FILE%]
-                                                set sndcl_in_filename=%@REGEX["[\[\(][sS][oO][uU][nN][dD] [Cc][Ll][Ii][Pp][sS]*[\)\]]",%INPUT_FILE%]
-                                                set nolyr_in_filename=%@REGEX["[\[\(][Nn][Oo] [Ll][Yy][Rr][Ii][Cc][sS]*[\)\]]",%INPUT_FILE%]                                                    %+ rem \___To accomodate songs that aren’t instrumentals but which still don’t have lyrics or vocals, for example if they just have moans or grunts
-                                                set novoc_in_filename=%@REGEX["[\[\(][Nn][Oo] [Vv][Oo][Cc][Aa][Ll][sS]*[\)\]]",%INPUT_FILE%]                                                    %+ rem /
-                                                set untra_in_filename=%@REGEX["[\[\(][Uu][Nn][Tt][Rr][Aa][Nn][Ss][sS][Cc][Rr][Ii][Aa][Bb][Ee]*[Aa][Bb][Ll][Ee][\)\]]",%INPUT_FILE%]
-
-                                        rem Make our folder name checks:  ✨✨✨ update in check-for-missing-karaoke too ✨✨✨              //NOTE: A redundant check occurs later but should no longer happen, and looks like this: if "%@REGEX[instrumental,%INPUT_FILE%]" == "1" (@call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent %+ goto :END)
-                                                set instr_in_foldname=%@REGEX["[\[\(\\][iI][nN][sS][tT][rR][uU][mM][eE][nN][tT][aA][lL][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]
-                                                set chipt_in_foldname=%@REGEX["[\[\(\\][Cc][Hh][Ii][Pp][Tt][Uu][Nn][Ee][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]
-                                                set sndfx_in_foldname=%@REGEX["[\[\(\\][sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]                      %+ rem NEW: to accomodate folder names like “sound effects & ambient sound”     
-                                                set sndcl_in_foldname=%@REGEX["[\[\(\\][sS][oO][uU][nN][dD] [cC][Ll][Ii][Pp][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]                              %+ rem NEW: to accomodate folder names like “sound   clips & ambient sound”
-                                                set nolyr_in_foldname=%@REGEX["[\[\(\\][No][oO] [Ll][Yy][Rr][Ii][Cc][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]                                      
-                                                set novoc_in_foldname=%@REGEX["[\[\(\\][No][oO] [Vv][Oo][Cc][Aa][Ll][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]                                      
-                                                set untra_in_foldname=%@REGEX["[\[\(\\][Uu][Nn][Tt][Rr][Aa][Nn][Ss][Cc][Rr][Ii][Bb][Ee][Aa][Bb][Ll][Ee]*[\\\)\]]",%@PATH[%@FULL["%INPUT_FILE%"]]]
-
-                                        rem These definitely happen in this order for the reason of error message precedence:
-                                                unset /q fail_type fail_point
-                                                if "1" == "%instr_in_filename%" ( set fail_type=instrumental     %+ set fail_point=filename) 
-                                                if "1" == "%chipt_in_filename%" ( set fail_type=chiptune         %+ set fail_point=filename)
-                                                if "1" == "%sndfx_in_filename%" ( set fail_type=sound effects    %+ set fail_point=filename)
-                                                if "1" == "%sndcl_in_filename%" ( set fail_type=sound clips      %+ set fail_point=filename)
-                                                if "1" == "%novoc_in_filename%" ( set fail_type=no vocals/lyrics %+ set fail_point=filename)
-                                                if "1" == "%nolyr_in_filename%" ( set fail_type=no lyrics/vocals %+ set fail_point=filename)
-                                                if "1" == "%untra_in_filename%" ( set fail_type=untranscribeable %+ set fail_point=filename)
-                                                if "1" == "%sndfx_in_foldname%" ( set fail_type=sound effects    %+ set fail_point=dir name1)
-                                                if "1" == "%novoc_in_foldname%" ( set fail_type=no vocals/lyrics %+ set fail_point=dir nam2e)
-                                                if "1" == "%nolyr_in_foldname%" ( set fail_type=no lyrics/vocals %+ set fail_point=dir nam3e)
-                                                if "1" == "%sndcl_in_foldname%" ( set fail_type=sound clips      %+ set fail_point=dir nam4e)
-                                                if "1" == "%untra_in_foldname%" ( set fail_type=untranscribeable %+ set fail_point=dir name5)
-                                                if "1" == "%chipt_in_foldname%" ( set fail_type=chiptune         %+ set fail_point=dir name6)
-                                                if "1" == "%instr_in_foldname%" ( set fail_type=instrumental     %+ set fail_point=dir name7)
-                                                                                                                                           
-                                        rem Debug stuffs:
-                                                goto :debug_406_no
-                                                goto :debug_406_yes
-                                                     :debug_406_yes
-                                                        echo instr_in_filename == “%instr_in_filename%”
-                                                        echo chipt_in_filename == “%chipt_in_filename%”
-                                                        echo sndfx_in_filename == “%sndfx_in_filename%”
-                                                        echo sndcl_in_filename == “%sndcl_in_filename%”
-                                                        echo novoc_in_filename == “%novoc_in_filename%”
-                                                        echo nolyr_in_filename == “%nolyr_in_filename%”
-                                                        echo untra_in_filename == “%untra_in_filename%”
-
-                                                        echo instr_in_foldname == “%instr_in_foldname%”
-                                                        echo chipt_in_foldname == “%chipt_in_foldname%”
-                                                        echo sndfx_in_foldname == “%sndfx_in_foldname%”
-                                                        echo sndcl_in_foldname == “%sndcl_in_foldname%”
-                                                        echo novoc_in_foldname == “%novoc_in_foldname%”
-                                                        echo nolyr_in_foldname == “%nolyr_in_foldname%”
-                                                        echo untra_in_foldname == “%untra_in_foldname%”
-
-                                                        echo fail_type         == “%fail_type%”
-                                                        echo fail_point        == “%fail_point%”
-                                                :debug_406_no
-
-                                        rem Set environment flag to signal other processes, but I think this is unused, just an idea:
-                                                if "dir name" == "%fail_point%" set BAD_AI_TRANSCRIPTION_FOLDER=%_CWP                                                                                
-
-                                        rem Notify of error and quit if applicable:
-                                                if "" == "%fail_type%" goto :we_are_fine_403 %+ rem else:
-                                                        unset /q strN
-                                                        if "%fail_type%" == "instrumental" set strN=n
-                                                        call bigecho "%ansi_color_warning%%star2%%star2%%star2%%star2%%star2% %fail_type%!!!%star2%%star2%%star2%%star2%%star2%%ansi_color_normal%"
-                                                        echo %ansi_color_warning%%no% Sorry! Not %italics_on%%verb%%italics_off% because this %italics_on%%fail_point%%italics_off% indicates a%strN% %ansi_resetNOLETSNOTDOTHAT%%ansi_color_red%%italics_on%%blink_on%%fail_type%%blink_off%%italics_off%%ANSI_COLOR_WARNING% file:%ansi_color_normal% %faint_on%“%@UNQUOTE["%INPUT_FILE%"]”%faint_off%%ansi_color_normal%
-                                                        set fail=1
-                                                        if "%2" == "force" .or. "1" == "%FORCE_REGEN%" (echo %emoji_warning% ₉Ignoring this fact!!! %faint_on%[force=%lq%%force%%rq%,force_regen=%lq%%FORCE_REGEN%%rq%]%faint_off% %+ set fail=0)
-                                                        call sleep 1
-                                                :we_are_fine_403
-
-                                        rem Return success/fail:
-                                                if "1" == "%fail%" (set retval=666 %+ set QUIT_BECAUSE_UNTRANSCRIBEABLE=1 %+ return 666)
-                                                if "1" != "%fail%" (set retval=777 %+ set QUIT_BECAUSE_UNTRANSCRIBEABLE=0 %+ return 777)
-                                return
-
-                
-        :skip_sub_414
 
 
 rem Do subtitles exist?
@@ -1958,21 +1865,6 @@ goto /i prompt_about_marking_karaoke_as_untranscribable
 
 rem /////////////////////////////////////////////////////////////////////////////////////////////////////////////////// SUBROUTINES:
 
-        :say_if_exists [it]
-                if not defined %[it] (@call error "say_if_exists called but “%it%” is not defined")
-                set filename=%[%[it]]
-                iff exist %filename then
-                        set BOOL_DOES=1 %+ set does_punctuation=: %+ set does=%BOLD%%UNDERLINE%%italics%does%italics_off%%UNDERLINE_OFF%%BOLD_OFF%    ``
-                else
-                        set BOOL_DOES=0 %+ set does_punctuation=: %+ set does=does %FAINT%%ITALICS%%blink%not%blink_off%%ITALICS_OFF%%FAINT_OFF%
-                endiff
-                %COLOR_IMPORTANT_LESS%
-                        if "%BOOL_DOES%" == "0" (set DECORATOR_ON=  %strikethrough% %+ set DECORATOR_OFF=%strikethrough_off%)
-                        if "%BOOL_DOES%" == "1" (set DECORATOR_ON=%PARTY_POPPER%%faint_off%    %+ set DECORATOR_OFF=%PARTY_POPPER%     )
-                        @echos * %@FORMAT[11,%it%] %does% exist%does_punctuation% %FAINT%%decorator_on% %filename% %decorator_off%%FAINT_OFF%
-                %COLOR_NORMAL%
-                @echo.
-        return
 
 
 
@@ -2423,10 +2315,6 @@ goto /i skip_subroutines
                         endiff
         return
         :ask_to_approve_karaoke [opt]
-                iff "1" == "%karaoke_approval_asked%" .and.  "1" == "%karaoke_edit_refused%" then
-                        call less_important "Not asking to approve karaoke again because we already asked and a karaoke edit was refused"
-                        return
-                endiff
                 
        
 
@@ -2436,7 +2324,11 @@ goto /i skip_subroutines
                 rem assumes %SRT_FILE% is our karaoke file and %INPUT_FILE% is our audio file
                 :ask_about_karaoke_approval                                        
                 unset /q ANSWER
-                @call askyn  "Approve/edit karaoke file? [=%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync,%ansi_color_bright_green%R%ansi_color_prompt%etry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ABDEIP1QTWM  E:edit_karaoke,Q:enQueue_in_winamp,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete__it,M:restart_winamp,B:regenerate_karaoke,1:retry_the_transcription
+                iff "1" == "%karaoke_approval_asked%" .and.  "1" == "%karaoke_edit_refused%" then
+                        call less_important "Not asking to approve karaoke again because we already asked and a karaoke edit was refused"
+                else
+                        @call askyn  "Approve/edit karaoke file? [=%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync,%ansi_color_bright_green%R%ansi_color_prompt%etry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ABDEIP1QTWM  E:edit_karaoke,Q:enQueue_in_winamp,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete__it,M:restart_winamp,B:regenerate_karaoke,1:retry_the_transcription
+                endiff
                 set karaoke_approval_asked=1
                 set karaoke_edit_already_asked=1
                 call debug "karaoke_edit_already_asked & karaoke_approval_asked both set to 1"
@@ -2614,7 +2506,7 @@ goto /i skip_subroutines
                 on break resume
                 gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_S %opt%
                 on break cancel
-        return
+        return      
         :check_for_answer_of_T [opt]
                 set file_to_use=%INPUT_FILE%
                 set opt_1=%@UNQUOTE["%opt%"]
@@ -2718,6 +2610,11 @@ goto /i skip_subroutines
         :delete_file [file]
                 echos %ANSI_COLOR_REMOVAL%%EMOJI_AXE%%EMOJI_AXE%%EMOJI_AXE% Deleting: ``
                 *del /Ns %file%
+        return
+        :DisplayAudioDirectory [opt opt2 opt3]                        
+                on break resume
+                gosub "%BAT%\get-lyrics-for-file.btm" DisplayAudioDirectory %opt% %opt2% %opt3%
+                on break cancel
         return
         :DisplayAudioFileName [opt]
                 echo %star% Audio filename: %faint_on%%INPUT_FILE%%faint_off%%conceal_on%%0%%conceal_off%
@@ -2973,6 +2870,27 @@ goto /i skip_subroutines
         :rename_audio_file_as_instr_if_answer_was_I [opt]
                 if "I" == "%ANSWER%" gosub rename_audio_file_as_instrumental %opt%
         return
+        :say_if_exists [it formatting]
+                if not defined %[it] (@call error "say_if_exists called but “%it%” is not defined")
+                set filename=%[%[it]]
+                iff exist %filename then
+                        iff "0" == "%formatting" .or. "FALSE" == "%formatting" then
+                                set BOOL_DOES=1 %+ set does_punctuation=: %+ set does=%BOLD%%UNDERLINE%%italics%does%italics_off%%UNDERLINE_OFF%%BOLD_OFF%
+                        else
+                                set BOOL_DOES=1 %+ set does_punctuation=: %+ set does=%BOLD%%UNDERLINE%%italics%does%italics_off%%UNDERLINE_OFF%%BOLD_OFF%    ``
+                        endiff
+                else
+                        set BOOL_DOES=0 %+ set does_punctuation=: %+ set does=does %FAINT%%ITALICS%%blink%not%blink_off%%ITALICS_OFF%%FAINT_OFF%
+                endiff
+                %COLOR_IMPORTANT_LESS%
+                        if "%BOOL_DOES%" == "0" (set DECORATOR_ON=  %strikethrough%            %+ set DECORATOR_OFF=%strikethrough_off%)
+                        if "%BOOL_DOES%" == "1" (set DECORATOR_ON=%PARTY_POPPER%%faint_off%    %+ set DECORATOR_OFF=%PARTY_POPPER%     )
+                        set it4print=%@FORMAT[11,%it%]
+                        if "0" == "%formatting" .or. "FALSE" == "%formatting" set it4print=%it%
+                        @echos * %it4print% %does% exist%does_punctuation% %FAINT%%decorator_on% %filename% %decorator_off%%FAINT_OFF%
+                %COLOR_NORMAL%
+                @echo.
+        return
         :usage [opt]
                 %color_advice%
                 echo.
@@ -3009,8 +2927,106 @@ goto /i skip_subroutines
                 call advice "Lower the VAD threshold from %DEFAULT_VAD_THRESHOLD% to something lower to capture more detail."                silent
                 call advice "I have had to go as low as 0 for success!"                                                                      silent
         return
+        :validate_transcribeable_filename [input_file verb]
+                rem Debug:
+                        rem echo %ansi_color_debug%- DEBUG: called validate_transcribeable_filename [input_file=%input_file% verb=%verb%]%ansi_color_normal%
 
-        :skip_subroutines
+                rem Failure flag:
+                        unset /q retval
+                        set QUIT_BECAUSE_UNTRANSCRIBEABLE=0
+                        set fail=0
+                        unset /q fail_type fail_point *_in_filename *_in_foldname
+
+
+                rem Make our file name checks:  ✨✨✨ update in check-for-missing-karaoke too ✨✨✨              //NOTE: A redundant check occurs later but should no longer happen, and looks like this: if "%@REGEX[instrumental,%INPUT_FILE%]" == "1" (@call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent %+ goto :END)
+                        rem chipt_in_filename=%@REGEX["\[[cC][hH][iI][pP][tT][uU][nN][eE][sS]*\]",%INPUT_FILE%]
+                        set instr_in_filename=%@REGEX["[^\-][iI][nN][sS][tT][rR][uU][mM][eE][nN][tT][aA][lL][\)\]]",%INPUT_FILE%]
+                        set chipt_in_foldname=%@REGEX["[\\\[\(][cC][hH][iI][pP][tT][uU][nN][eE][sS]*[\\\]\)]",%@FULL["%INPUT_FILE%"]]
+                        set sndfx_in_filename=%@REGEX["[\[\(][sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*[\)\]]",%INPUT_FILE%]
+                        set sndcl_in_filename=%@REGEX["[\[\(][sS][oO][uU][nN][dD] [Cc][Ll][Ii][Pp][sS]*[\)\]]",%INPUT_FILE%]
+                        set nolyr_in_filename=%@REGEX["[\[\(][Nn][Oo] [Ll][Yy][Rr][Ii][Cc][sS]*[\)\]]",%INPUT_FILE%]                                                    %+ rem \___To accomodate songs that aren’t instrumentals but which still don’t have lyrics or vocals, for example if they just have moans or grunts
+                        set novoc_in_filename=%@REGEX["[\[\(][Nn][Oo] [Vv][Oo][Cc][Aa][Ll][sS]*[\)\]]",%INPUT_FILE%]                                                    %+ rem /
+                        set untra_in_filename=%@REGEX["[\[\(][Uu][Nn][Tt][Rr][Aa][Nn][Ss][sS][Cc][Rr][Ii][Aa][Bb][Ee]*[Aa][Bb][Ll][Ee][\)\]]",%INPUT_FILE%]
+
+                rem Make our folder name checks:  ✨✨✨ update in check-for-missing-karaoke too ✨✨✨              //NOTE: A redundant check occurs later but should no longer happen, and looks like this: if "%@REGEX[instrumental,%INPUT_FILE%]" == "1" (@call warning "Sorry, nothing to transcribe because this appears to be an instrumental: %INPUT_FILE%" silent %+ goto :END)
+                        set instr_in_foldname=%@REGEX["[\[\(\\][iI][nN][sS][tT][rR][uU][mM][eE][nN][tT][aA][lL][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]
+                        set chipt_in_foldname=%@REGEX["[\[\(\\][Cc][Hh][Ii][Pp][Tt][Uu][Nn][Ee][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]
+                        set sndfx_in_foldname=%@REGEX["[\[\(\\][sS][oO][uU][nN][dD] [eE][fF][fF][eE][cC][tT][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]                      %+ rem NEW: to accomodate folder names like “sound effects & ambient sound”     
+                        set sndcl_in_foldname=%@REGEX["[\[\(\\][sS][oO][uU][nN][dD] [cC][Ll][Ii][Pp][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]                              %+ rem NEW: to accomodate folder names like “sound   clips & ambient sound”
+                        set nolyr_in_foldname=%@REGEX["[\[\(\\][No][oO] [Ll][Yy][Rr][Ii][Cc][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]                                      
+                        set novoc_in_foldname=%@REGEX["[\[\(\\][No][oO] [Vv][Oo][Cc][Aa][Ll][sS]*[\)\]\\]",%@PATH[%@FULL["%INPUT_FILE%"]]]                                      
+                        set untra_in_foldname=%@REGEX["[\[\(\\][Uu][Nn][Tt][Rr][Aa][Nn][Ss][Cc][Rr][Ii][Bb][Ee][Aa][Bb][Ll][Ee]*[\\\)\]]",%@PATH[%@FULL["%INPUT_FILE%"]]]
+
+                rem These definitely happen in this order for the reason of error message precedence:
+                        unset /q fail_type fail_point
+                        if "1" == "%instr_in_filename%" ( set fail_type=instrumental     %+ set fail_point=filename) 
+                        if "1" == "%sndfx_in_filename%" ( set fail_type=sound effects    %+ set fail_point=filename)
+                        if "1" == "%sndcl_in_filename%" ( set fail_type=sound clips      %+ set fail_point=filename)
+                        if "1" == "%novoc_in_filename%" ( set fail_type=no vocals/lyrics %+ set fail_point=filename)
+                        if "1" == "%nolyr_in_filename%" ( set fail_type=no lyrics/vocals %+ set fail_point=filename)
+                        if "1" == "%sndfx_in_foldname%" ( set fail_type=sound effects    %+ set fail_point=dir name1)
+                        if "1" == "%novoc_in_foldname%" ( set fail_type=no vocals/lyrics %+ set fail_point=dir nam2e)
+                        if "1" == "%nolyr_in_foldname%" ( set fail_type=no lyrics/vocals %+ set fail_point=dir nam3e)
+                        if "1" == "%sndcl_in_foldname%" ( set fail_type=sound clips      %+ set fail_point=dir nam4e)
+                        iff "1" != "%QUICK_LRC_MODE%" then
+                                if "1" == "%untra_in_filename%" ( set fail_type=untranscribeable %+ set fail_point=filename)
+                                if "1" == "%untra_in_foldname%" ( set fail_type=untranscribeable %+ set fail_point=dir name5)
+                                if "1" == "%chipt_in_filename%" ( set fail_type=chiptune         %+ set fail_point=filename)  %+ rem \__ might be fun to have
+                                if "1" == "%chipt_in_foldname%" ( set fail_type=chiptune         %+ set fail_point=dir name6) %+ rem /   LRCs for our chiptunes
+                        endiff
+                        if "1" == "%instr_in_foldname%" ( set fail_type=instrumental     %+ set fail_point=dir name7)
+                                                                                                                   
+                rem Debug stuffs:
+                        goto :debug_406_no
+                        goto :debug_406_yes
+                             :debug_406_yes
+                                echo instr_in_filename == “%instr_in_filename%”
+                                echo chipt_in_filename == “%chipt_in_filename%”
+                                echo sndfx_in_filename == “%sndfx_in_filename%”
+                                echo sndcl_in_filename == “%sndcl_in_filename%”
+                                echo novoc_in_filename == “%novoc_in_filename%”
+                                echo nolyr_in_filename == “%nolyr_in_filename%”
+                                echo untra_in_filename == “%untra_in_filename%”
+
+                                echo instr_in_foldname == “%instr_in_foldname%”
+                                echo chipt_in_foldname == “%chipt_in_foldname%”
+                                echo sndfx_in_foldname == “%sndfx_in_foldname%”
+                                echo sndcl_in_foldname == “%sndcl_in_foldname%”
+                                echo novoc_in_foldname == “%novoc_in_foldname%”
+                                echo nolyr_in_foldname == “%nolyr_in_foldname%”
+                                echo untra_in_foldname == “%untra_in_foldname%”
+
+                                echo fail_type         == “%fail_type%”
+                                echo fail_point        == “%fail_point%”
+                        :debug_406_no
+
+                rem Set environment flag to signal other processes, but I think this is unused, just an idea:
+                        if "dir name" == "%fail_point%" set BAD_AI_TRANSCRIPTION_FOLDER=%_CWP                                                                                
+
+                rem Notify of error and quit if applicable:
+                        if "" == "%fail_type%" goto :we_are_fine_403 %+ rem else:
+                                gosub divider
+                                unset /q strN
+                                if "%fail_type%" == "instrumental" set strN=n
+                                call important_less "%ansi_color_bright_cyan%Dir%ansi_color_important_less%:  %_CWD"
+                                call important_less "%ansi_color_bright_cyan%File%ansi_color_important_less%: %@UNQUOTE["%INPUT_FILE%"]
+                                gosub divider
+                                call bigecho "%ansi_color_warning%%star2%%star2%%star2%%star2%%star2% %fail_type%!!!%star2%%star2%%star2%%star2%%star2%%ansi_color_normal%"
+                                echo %ansi_color_warning%%no% Sorry! Not %italics_on%%verb%%italics_off% because this %italics_on%%fail_point%%italics_off% indicates a%strN% %ansi_resetNOLETSNOTDOTHAT%%ansi_color_red%%italics_on%%blink_on%%fail_type%%blink_off%%italics_off%%ANSI_COLOR_WARNING% file:%ansi_color_normal% %faint_on%“%@UNQUOTE["%INPUT_FILE%"]”%faint_off%%ansi_color_normal%
+                                set fail=1
+                                if "%2" == "force" .or. "1" == "%FORCE_REGEN%" (echo %emoji_warning% ₉Ignoring this fact!!! %faint_on%[force=%lq%%force%%rq%,force_regen=%lq%%FORCE_REGEN%%rq%]%faint_off% %+ set fail=0)
+                                if "1" == "%QUICK_LRC_MODE%" goto :about_to_return_3011
+                                call sleep 1
+                        :we_are_fine_403
+
+                rem Return success/fail:
+                        :about_to_return_3011
+                        if "1" == "%fail%" (set retval=666 %+ set QUIT_BECAUSE_UNTRANSCRIBEABLE=1 %+ return 666)
+                        if "1" != "%fail%" (set retval=777 %+ set QUIT_BECAUSE_UNTRANSCRIBEABLE=0 %+ return 777)
+        return
+
+
+:skip_subroutines
 
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -6,8 +6,11 @@ setdos /x0
 
 rem Usage:
         iff "%1" == "" then
-                echo USAGE: review_files -options_to_pass_to_print-with-columns `<`file`>` `<`file2`>` `<`file3`>` 
+                echo USAGE: review_files [--KeepTimestamps] -OptionsThatGoToPrintWithColumnsScript `<`file`>` `<`file2`>` `<`file3`>` 
                 echo.
+                echo. --KeepTimestamps does not get passed to print-with-columns, and what it does is it PREVENTS the removal of timestamps from SRT files, which makes them prettier to view, but less informative without the timestamps
+                echo.
+
                 echo EXAMPLE: review-files a.txt
                 echo EXAMPLE: review-files a.txt b.txt c.txt
                 echo EXAMPLE: review-files *.txt
@@ -16,11 +19,13 @@ rem Usage:
                 echo EXAMPLE: review-files -wh -1 *.txt ——— passes “-wh” and “-1” on to print-with-columns
                 echo EXAMPLE: review-files -wh -1 *.txt ——— passes “-wh” and “-1” on to print-with-columns
                 echo.
+                echo. SPECIAL: the “-wh”  action turns word-highlighting on
                 echo. SPECIAL: the “-st”  action can be stacked with “-wh”, even though print-with-columns doesn’t work like that
                 echo.
                 echo. SPECIAL: the “-stU” action causes the stripe to be an “upper stripe” before divider
                 echo. SPECIAL: the “-stL” action causes the stripe to be a  “lower stripe”  after  divider, which is the same as the “-st” option
                 echo. SPECIAL: the “-stB” action causes both stripes to be displayed
+                echo.
                 echo. SPECIAL: the “-o {filename}” or “--output_filename {filename}” causes output to be rendered to a filename instead
                 goto /i END
 endiff
@@ -33,6 +38,7 @@ rem First, process any arguments that start with “-”:
         set STRIPEL=0
         set STRIPEU=0
         set TO_FILE=0                        
+        set KEEP_SRT_TIMESTAMPS=0
         :check_next_arg_for_pwd_opts
         set  left1=%@UNQUOTE[%@LEFT[2,"%1"]]
         iff "%left1%" == "-" then
@@ -47,8 +53,10 @@ rem First, process any arguments that start with “-”:
                         set STRIPEL=0
                 elseiff "%1" == "-o"   .or. "%1" == "--output_filename" .or. "%1" == "--output_file" .or. "%1" == "--output" then
                         set TO_FILE=1
-                        shift
+                        shift 
                         set TO_FILENAME=%@UNQUOTE["%1"]
+                elseiff "%1" == "--KeepTimestamps" then
+                        set KEEP_SRT_TIMESTAMPS=1
                 else
                         rem echo * Adding PWC_OPTION of “%1”
                         set PWC_OPTIONS=%PWC_OPTIONS% %1
@@ -229,7 +237,7 @@ rem ══════════════════ SUBROUTINES: ══�
                 rem Debug:      rem echo %ansi_color_debug%- DEBUG: %left_quote%%%ext%%%right_quote% is %left_quote%%ext%%right_quote% %warning%CP2309234%warning%
 
                 rem If it is a SRT file, we need to strip out the lines that are not actual subtitle content:
-                        iff "%ext%" == "srt" then
+                        iff "%ext%" == "srt" .and. "1" != "%KEEP_SRT_TIMESTAMPS%" then
                                 set PWC_OPTIONS=%PWC_OPTIONS% -ins 
                                 type "%review_file_tmp_file_1%" |:u8 grep -vE "^[[:space:]]*$|^[0-9]+[[:space:]]*$|^[0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{2,3} -->.*"  >:u8"%review_file_tmp_file_2%"
                                 type "%review_file_tmp_file_2%" |:u8 grep -vE "^#\s"                                                                              >:u8"%review_file_tmp_file_1%"
