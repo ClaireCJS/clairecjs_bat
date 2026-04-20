@@ -119,6 +119,9 @@ REM Setting audio transcriber, valid extensions to transcribe, and lockfile name
         return
         :set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME_done
 
+rem Set parent BAT file:
+        set CREATE_SRT_PARENT_BAT=%@NAME[%_PBATCHNAME] %+ rem the calling BAT filename without path or extension i.e. “whatever” as opposed to “c:\bat\whatever.bat”
+
 
 rem Set filemask to match audio files:
         iff not defined filemask_audio then
@@ -211,7 +214,10 @@ rem Start our processing of command line parameters with giving USAGE if no comm
         endiff
 
 rem Pre-Cleanup:
-        unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_709_ALREADY karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused
+        unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_709_ALREADY 
+        pause "calling bat is “%CREATE_SRT_PARENT_BAT%”"
+
+        unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused
 REM values set from parameters:
         *setdos /x-4
         set SONGFILE=%@UNQUOTE["%1"]
@@ -3102,7 +3108,9 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 :Unset_Variables
         rem The big list of vars to unset:
-                unset /q failure_ads_result PROMPT_CONSIDERATION_TIME PROMPT_EDIT_CONSIDERATION_TIME JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE ABANDONED_SEARCH LYRICLESSNESS_STATUS AUTO_LYRIC_APPROVAL        ALREADY_HAND_EDITED FORCE_AI_ENCODE_FROM_LYRIC_GET JUST_RENAMED_TO_INSTRUMENTAL  goto_end abort_karaoke_kreation MAYBE_SRT* karaoke_status audio_file input_file postprocessed_lyrics LAUNCHING_AI_DISPLAYED WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL  ALREADY_ASKED_TO_DELETE_LOCKEFILE SONG_PROBED_VIA_CALL_FROM_CREATE_SRT LOCKFILE_NOT_FOR_THIS_PROCESS_MENTIONED JUST_CONVERTED_SRT_TO_TEXT JUST_CONVERTED_LRC_TO_TEXT LYRICS_ACCEPTABLE OKAY_THAT_WE_HAVE_SRT_ALREADY UNFORTUNATELY_WE_COULD_NOT_CREATE_SAID JUST_RENAMED PROBED_709_ALREADY karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused 
+                unset /q failure_ads_result PROMPT_CONSIDERATION_TIME PROMPT_EDIT_CONSIDERATION_TIME JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE ABANDONED_SEARCH LYRICLESSNESS_STATUS AUTO_LYRIC_APPROVAL        ALREADY_HAND_EDITED FORCE_AI_ENCODE_FROM_LYRIC_GET JUST_RENAMED_TO_INSTRUMENTAL  goto_end abort_karaoke_kreation MAYBE_SRT* karaoke_status audio_file input_file postprocessed_lyrics LAUNCHING_AI_DISPLAYED WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL  ALREADY_ASKED_TO_DELETE_LOCKEFILE SONG_PROBED_VIA_CALL_FROM_CREATE_SRT LOCKFILE_NOT_FOR_THIS_PROCESS_MENTIONED JUST_CONVERTED_SRT_TO_TEXT JUST_CONVERTED_LRC_TO_TEXT LYRICS_ACCEPTABLE OKAY_THAT_WE_HAVE_SRT_ALREADY UNFORTUNATELY_WE_COULD_NOT_CREATE_SAID JUST_RENAMED PROBED_709_ALREADY 
+call debug "CREATE_SRT_PARENT_BAT=“%CREATE_SRT_PARENT_BAT%” GOATGOAGOAT" 
+                unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused 
 
                
 :The_Very_Very_END
