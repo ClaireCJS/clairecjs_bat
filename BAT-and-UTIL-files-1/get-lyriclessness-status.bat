@@ -7,8 +7,8 @@ rem Usage:
         iff "%1" eq "" then
                 %color_advice%
                 text
-                :USAGE: get-lyriclessness-status {songfile}        —— sets LYRICLESSNESS_STATUS to our return value
-                :USAGE: get-lyriclessness-status {songfile} silent —— silent mode: no error output
+                :USAGE: get-lyriclessness-status {songfile}        -- sets LYRICLESSNESS_STATUS to our return value
+                :USAGE: get-lyriclessness-status {songfile} silent -- silent mode: no error output
                 endtext
                 %color_normal%
                 goto :END

@@ -214,8 +214,8 @@ rem Start our processing of command line parameters with giving USAGE if no comm
         endiff
 
 rem Pre-Cleanup:
-        unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_709_ALREADY 
-        pause "calling bat is “%CREATE_SRT_PARENT_BAT%”"
+        unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_OR_REFUSED_ALREADY_709 
+        rem DEBUG: pause "calling bat is “%CREATE_SRT_PARENT_BAT%”"
 
         unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused
 REM values set from parameters:
@@ -569,11 +569,7 @@ REM display debug info:
         endiff
 
 rem If a txt file exists and it is approved, and a subtitle does not exist, jump straight to ai
-        rem echos [refresh_lyric_status]
-        rem echo α 600
         if "%LYRIC_STATUS%" == "" gosub refresh_lyric_status
-        rem echos [/refresh_lyric_status]
-        rem echo Trace %ansi_color_orange%lyric_status is "%LYRIC_STATUS%"%ansi_color_normal% %@cool[{olaf}]
 
 
 REM Earlier, we retrieved the values for MAYBE_SRT_[1|2] via probing the songfile via the shared probe code in get-lyrics-for-file.btm
@@ -656,19 +652,13 @@ REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
                 rem TODO: refactor this internally for speedup
                 call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO%
         rem endiff
-        rem echo α 750
-        rem echo α 760
-        rem echo α 770
+
+
 REM If our input file is lyricless and we’ve approved its lyriclessness, then we’ve decided to transcribe without a lyrics file
-        rem echo α 780
         rem call get-lyriclessness-status "%INPUT_FILE%"
-        rem echo α 800
         rem echo y set LYRICLESSNESS_STATUS=%%@EXECSTR[type {lt}"%@unquote["%INPUT_FILE%"]:lyriclessness" {gt}&{gt}nul]``
         set LYRICLESSNESS_STATUS=%@EXECSTR[type <"%@unquote["%INPUT_FILE%"]:lyriclessness" >&>nul]``
         rem echo y HEY ARE WE HERE WHAT HAPPENED
-        rem echo α 805
-        rem echo 🐐3 LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%” ... 
-        rem echo α 806        
         iff "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "%LYRIC_STATUS%" != "APPROVED" then  %+ rem NOTE: sometimes we can download and approve lyrics after a songfile is set to lyriclessness, so in that situation, defer to the approved lyrics!
                 rem echo α 807.5                                                                                                        
                 call success "%italics_on%Lyric%underline_on%less%underline_off%ness%italics_off% already approved! Using AI only!" big
@@ -676,23 +666,14 @@ REM If our input file is lyricless and we’ve approved its lyriclessness, then 
                 if defined EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME .and. "0" != "%EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME%" set EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME=10       %+ rem 🐮 hard-coded value warning
                 set goto_forcing_ai_generation=1
         else                
-                rem echo α 807.6
                 set goto_forcing_ai_generation=0
         endiff
-        rem echo α 809
         if "1" == "%goto_forcing_ai_generation%" goto /i forcing_ai_generation
-        rem echo α 809.1
 
 
 REM if we already have a SRT file, we have a problem unless we’re forcing a re-creation of it:
-        rem echo α 809.2
         iff exist "%SRT_FILE%" .and. "%OKAY_THAT_WE_HAVE_SRT_ALREADY%" != "1" .and. "%SOLELY_BY_AI%" != "1" then
-                rem echo α 809.2.3
                 iff exist "%TXT_FILE%" .and. %@FILESIZE["%TXT_FILE%"] gt 0 then
-                        rem @gosub divider
-                        rem call bigecho %STAR% %ANSI_COLOR_IMPORTANT_LESS%Review the lyrics:%ANSI_RESET%
-                        rem @echos %ANSI_COLOR_BRIGHT_YELLOW%
-                        rem (type "%TXT_FILE%" |:u8 unique-lines -A -L)|:u8 print-with-columns -wh
                         call review-file -wh "%TXT_FILE%" "Review the lyrics"
                         iff %@FILESIZE["%TXT_FILE%"] lt 5 then
                                 echo         %ANSI_COLOR_WARNING%Hmm. Nothing there.%ANSI_RESET%
@@ -700,11 +681,10 @@ REM if we already have a SRT file, we have a problem unless we’re forcing a re
                         @gosub divider
                 endiff
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[green]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
-                call bigecho %ansi_color_warning% %emoji_warning% Already have this karaoke! %emoji_warning% %ansi_color_normal%
-                call warning "We already have a file created: %emphasis%%srt_file%%deemphasis%"
-                call review-subtitles "%srt_file%"
+                call  bigecho %ansi_color_warning% %emoji_warning% Already have this karaoke! %emoji_warning% %ansi_color_normal%
+                call  warning "We already have a file created: %emphasis%%srt_file%%deemphasis%"
+                call  review-subtitles "%srt_file%"
                 gosub divider
-
 
                 iff "%SOLELY_BY_AI" == "1" then
                         @call advice "Automatically answer the next prompt as Yes by adding the parameter “force-regen” or “redo”"
@@ -803,6 +783,7 @@ REM I believe this is where we want to re-jump in, if we *create* lyrics with a 
 
 
 
+
 REM If "%SOLELY_BY_AI%" == "1", we nuke the LRC/SRT file and go straight to AI-generating, and we only use the TEXT
 REM file if it is pre-approved or we are set in AutoLyricsApproval mode:
         :forcing_ai_generation
@@ -853,11 +834,18 @@ REM If we say "force", skip the already-exists check and contiune
 
 
 
+
+
+
+
+
+
+
+
+
 :attempt_to_download_LRC 
 :attempt_to_download_LRC_with_lyricy
-        REM FAILED: Let’s NOT try downloading a LRC with lyricy first because it gets mismatches whenever none exists, which is almost always:
-               rem call get-lrc-with-lyricy "%CURRENT_SONG_FILE%"
-               rem if exist %LRC_FILE% (@call success "Looks like %italics_on%lyricy%italics_off% found an LRC for us!" %+ goto /i END)
+        REM FAILED: Let’s NOT try downloading a LRC with lyricy first because it gets mismatches whenever none exists, which is almost always: rem call get-lrc-with-lyricy "%CURRENT_SONG_FILE%" rem if exist %LRC_FILE% (@call success "Looks like %italics_on%lyricy%italics_off% found an LRC for us!" %+ goto /i END) ... [2026 update: SyncedLyrics was what we were looking for, and it’s now utilized inside of get-lyrics ... for reasons]
 
 
 
@@ -881,7 +869,7 @@ REM In terms of automation, as of 10/28/2024 we are only comfortable with FULLY 
 REM in the event that a txt file also exists.  To enforce this, we will only generate with a "force" parameter if the txt file does not exist
         :check_for_txtfile
         rem echo α 1400
-        if "1" == "%SOLELY_BY_AI%" goto /i we_decided_to_never_check_for_txtfile
+        if "1" == "%SOLELY_BY_AI%" .or. "1" == "%PROBED_OR_REFUSED_ALREADY_709%" goto /i we_decided_to_never_check_for_txtfile
    
         rem not exist "%TXT_FILE%" .and.  1  !=  %FORCE_REGEN%  .and.  1  ==  %LYRIC_ATTEMPT_MADE   then
         rem not exist "%TXT_FILE%" .and.  1  !=  %FORCE_REGEN%                                      then
@@ -946,36 +934,26 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
         rem echo α 1500.0.0 ━━ "LYRICLESSNESS_STATUS" == "%LYRICLESSNESS_STATUS%" 
         if "%LYRICLESSNESS_STATUS%" == "APPROVED" goto /i do_not_refetch_lyrics
         rem echo α 1500.0.1
-        rem echo α 1500.0.2 - how can this show up but not the next one?
         :Refetch_Lyrics
-        rem echo α 1500.1.0 - helloooooooooooo???
         iff not exist "%TXT_FILE%" .and. "1" != "%FORCE_REGEN%" .and. "1" == "%LYRIC_ATTEMPT_MADE%" then
-                rem echo α 1500.1.1
                 rem this is just the same “iff” condition copied from the block above
                 rem believe it or not, this is for code readability reasons :) :) :)
         else
                 rem echo α 1500.1.2
                 rem echo * Refetch_Lyrics[2A]: LYRIC_STATUS=“%LYRIC_STATUS%”, LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
                 if "%LYRIC_STATUS%" == "" gosub  refresh_lyric_status
-                rem echo * Refetch_Lyrics[2B]: LYRIC_STATUS=“%LYRIC_STATUS%”, LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
                 if "%LYRICLESSNESS_STATUS%" == "" gosub  refresh_lyriclessness_status
-                rem echo * Refetch_Lyrics[2Z]: LYRIC_STATUS=“%LYRIC_STATUS%”, LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
-                rem echo %ansi_color_normal%🐐 calling: %@cool[calling get-lyrics-for-file] [333A]
                 call get-lyrics-for-file "%SONGFILE%" 
                 if "1" == "%abort_karaoke_kreation%"       goto /i :end
                 if "1" == "%JUST_RENAMED_TO_INSTRUMENTAL%" set GOTO_END_AFTER_GET_LYRICS_CALLED=1
-                rem echo %ansi_color_normal%🐐 return: %@cool[calling get-lyrics-for-file] [333Z] [GOTO_END_AFTER_GET_LYRICS_CALLED=%GOTO_END_AFTER_GET_LYRICS_CALLED%]
                 if "%_CWD\" != "%SOnGDIR%" pushd "%SONGDIR%"
                 set LYRIC_ATTEMPT_MADE=1
                 if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto /i :END
                 goto /i :We_Have_A_Text_File_Now
         endiff
         rem echo α 1500.1.98 - helloooooooooooo???
-        rem if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" set goto_end=1
-        rem echo α 1500.1.99 - helloooooooooooo???
         if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto /i END
         :We_Have_A_Text_File_Now
-        rem echo α 1500.10.1 - hello???!?!?
 
 
 rem GOAT hope this is the right place for this label:
@@ -1738,6 +1716,9 @@ rem Title the window:
                 :actually_do_it
                 title %EMOJI_EAR%%BASE_TITLE_TEXT%
 
+rem Pre-clean-up:
+        unset /q PROBED_OR_REFUSED_ALREADY_709 karaoke_edit_already_asked karaoke_approval_asked
+
 
 rem ACTUALLY DO IT!!!:
                        %LAST_WHISPER_COMMAND%                            |:u8 copy-move-post whisper -t"%OUR_LOGFILE%"  
@@ -1745,7 +1726,7 @@ rem ACTUALLY DO IT!!!:
 rem Title the window that we are done!:
                 title %CHECK% WhisperAI complete!
 
-rem Varoius cleanup:
+rem Various cleanup:
                 unset /q WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL %+ rem These need to be unset so that they are properly set next time we wait for a lockfile
                 on break cancel                      %+ rem Re-Enable proper Ctrl-Break behavior under TCC+WindowsTerminal                       
                 goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
@@ -3108,7 +3089,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 :Unset_Variables
         rem The big list of vars to unset:
-                unset /q failure_ads_result PROMPT_CONSIDERATION_TIME PROMPT_EDIT_CONSIDERATION_TIME JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE ABANDONED_SEARCH LYRICLESSNESS_STATUS AUTO_LYRIC_APPROVAL        ALREADY_HAND_EDITED FORCE_AI_ENCODE_FROM_LYRIC_GET JUST_RENAMED_TO_INSTRUMENTAL  goto_end abort_karaoke_kreation MAYBE_SRT* karaoke_status audio_file input_file postprocessed_lyrics LAUNCHING_AI_DISPLAYED WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL  ALREADY_ASKED_TO_DELETE_LOCKEFILE SONG_PROBED_VIA_CALL_FROM_CREATE_SRT LOCKFILE_NOT_FOR_THIS_PROCESS_MENTIONED JUST_CONVERTED_SRT_TO_TEXT JUST_CONVERTED_LRC_TO_TEXT LYRICS_ACCEPTABLE OKAY_THAT_WE_HAVE_SRT_ALREADY UNFORTUNATELY_WE_COULD_NOT_CREATE_SAID JUST_RENAMED PROBED_709_ALREADY 
+                unset /q failure_ads_result PROMPT_CONSIDERATION_TIME PROMPT_EDIT_CONSIDERATION_TIME JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE ABANDONED_SEARCH LYRICLESSNESS_STATUS AUTO_LYRIC_APPROVAL        ALREADY_HAND_EDITED FORCE_AI_ENCODE_FROM_LYRIC_GET JUST_RENAMED_TO_INSTRUMENTAL  goto_end abort_karaoke_kreation MAYBE_SRT* karaoke_status audio_file input_file postprocessed_lyrics LAUNCHING_AI_DISPLAYED WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL  ALREADY_ASKED_TO_DELETE_LOCKEFILE SONG_PROBED_VIA_CALL_FROM_CREATE_SRT LOCKFILE_NOT_FOR_THIS_PROCESS_MENTIONED JUST_CONVERTED_SRT_TO_TEXT JUST_CONVERTED_LRC_TO_TEXT LYRICS_ACCEPTABLE OKAY_THAT_WE_HAVE_SRT_ALREADY UNFORTUNATELY_WE_COULD_NOT_CREATE_SAID JUST_RENAMED PROBED_OR_REFUSED_ALREADY_709 
 call debug "CREATE_SRT_PARENT_BAT=“%CREATE_SRT_PARENT_BAT%” GOATGOAGOAT" 
                 unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused 
 

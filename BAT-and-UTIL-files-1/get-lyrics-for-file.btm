@@ -150,7 +150,7 @@ rem CONFIG: EXTERNAL PROGRAMS:
         rem Keep Genius out of the SyncedLyrics pass so the fallback pass is meaningfully different:
         rem LYRIC_DOWNLOADER_SYNCED_PROVIDER_ARGS=-p Musixmatch Lrclib NetEase Megalobiz
         rem Default provider order for normal runs:
-        set DEFAULT_LYRIC_PROVIDER=SYNCEDLYRICS
+        set DEFAULT_LYRIC_PROVIDER=SyncedLyrics
         rem Backwards-compatible aliases used by the old Genius codepath:
         rem LYRIC_DOWNLOADER_1_SOURCE=Genius                                          %+ rem Where the LYRIC_DOWNLOADER gets its stuff from — Genius, SongText, etc
         set LYRIC_DOWNLOADER_1_SOURCE=%LYRIC_DOWNLOADER_GENIUS_SOURCE%                %+ rem Where the LYRIC_DOWNLOADER gets its stuff from — Genius, SongText, etc
@@ -505,8 +505,8 @@ rem VALIDATE PARAMETERS [every time]:
                         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=8
                 elseiff "%2" == "syncedlyrics" .or. "%3" == "syncedlyrics" .or. "%4" == "syncedlyrics" .or. "%5" == "syncedlyrics" then
                         set SYNCEDLYRICS_ONLY=1
-                        set PROVIDER_ONLY=SYNCEDLYRICS
-                        set PRIMARY_LYRIC_PROVIDER=SYNCEDLYRICS
+                        set PROVIDER_ONLY=SyncedLyrics
+                        set PRIMARY_LYRIC_PROVIDER=SyncedLyrics
                         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=8
                 endiff
 
@@ -805,12 +805,12 @@ rem Get artist and song so we can use them to download lyrics:
                         set "probe_hmm="
                                                 
                 rem Skip if we already probed the file (for instance, in the outer-layer/LRC-creator):
-                        if "%PROBED_709_ALREADY%" == "1" (echo %ansi_color_subtle%* already probed%ansi_color_normal% %+ goto /i :already_probed)
+                        if "%PROBED_OR_REFUSED_ALREADY_709%" == "1" (echo %ansi_color_subtle%* already probed%ansi_color_normal% %+ goto /i :already_probed)
                         set already_probed=0
                         if "1" == "%QUICK_LRC_MODE%" goto :continue_the_probe
                         iff "%last_file_probed%" == "%AUDIO_FILE%" .and. defined probe_output .and. "" != "%PROBE_OUTPUT%" then
                                 call warning_soft "We’ve already probed “%italics_on%%audio_file%%italics_off%”"
-                                call debug "GOAT PROBED_709_ALREADY=%PROBED_709_ALREADY%!"
+                                call debug "GOATEE PROBED_OR_REFUSED_ALREADY_709=“%PROBED_OR_REFUSED_ALREADY_709%”"
                                 unset /q answer hold_answer                                 
                                 iff "1" == "%QUICK_LRC_MODE%" then
                                         set REPROBE_QUESTION_WAIT_TIME=3
@@ -820,6 +820,12 @@ rem Get artist and song so we can use them to download lyrics:
                                         set REPROBE_DEFAULT_ANSWER=no
                                 endiff
                                 call AskYN "₆Re-get lyrics / Re-Probe again [%ansi_color_bright_green%G%ansi_color_prompt%/%ansi_color_bright_green%S%ansi_color_prompt%=use Genius/SyncedLyrics]" %REPROBE_DEFAULT_ANSWER% %REPROBE_QUESTION_WAIT_TIME% GS G:do_a_Genius_search,S:do_a_SyncedLyrics_search
+                                if "Y" == "%ANSWER%" .or. "N" == "%ANSWER%" set PROBED_OR_REFUSED_ALREADY_709=1
+                                iff  "N" == "%ANSWER%" then
+                                        set PROBED_OR_REFUSED_ALREADY_709=1
+                                        call subtle "Probe refused [GOAT]
+                                        goto /i :END_OF_GET_LYRICS
+                                endiff
                                 iff "G" == "%ANSWER%" then 
                                         set CURRENT_LYRIC_PROVIDER=LyricsGenius 
                                         echo %arrow% Search using %italics_on%LyricGenius... %italics_off% 
@@ -830,9 +836,10 @@ rem Get artist and song so we can use them to download lyrics:
                                         echo %arrow% Search using %italics_on%SyncedLyrics...%italics_off% 
                                         goto /i download_with_current_provider_init
                                 endiff
-
-                                if "Y" == "%ANSWER%" set PROBED_709_ALREADY=1
-                                if "Y" == "%ANSWER%" goto /i :continue_the_probe
+                                iff "Y" == "%ANSWER%" then
+                                        set PROBED_OR_REFUSED_ALREADY_709=1
+                                        goto /i :continue_the_probe
+                                endiff
                                 goto /i :already_probed
                         endiff
                         :continue_the_probe
@@ -1001,6 +1008,7 @@ rem Check if the lyrics are already approved was here until 20251220
 
 
 rem Check if lyriclessness is already approved
+        :check_if_lyriclessness_is_approved
         if "1" == "%QUICK_LRC_MODE%" goto :end_of_refresh_lyriclessness %+ rem Skip this section if we are in quick-lrc_mode
         gosub "%BAT%\create-srt-from-file.bat" refresh_lyriclessness_status
         rem echo [GM]   INITIAL lyriclessness status ===== “%LYRICLESSNESS_STATUS%”
@@ -1495,7 +1503,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
 rem Branch off for Quick LRC mode:
         iff "1" == "%QUICK_LRC_MODE%" then
-                set CURRENT_LYRIC_PROVIDER=SYNCEDLYRICS
+                set CURRENT_LYRIC_PROVIDER=SyncedLyrics
                 rem Unnecessary here: gosub refresh_current_lyric_provider_metadatas
                 goto /i download_with_lyric_downloader_init
         endiff
@@ -1833,7 +1841,8 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                                 *del /q /Ns "%MAYBE_LYRICS_1"
                                 goto /i MaybeLyrics2
                         endiff
-                        iff "Y" == "%SAVED_ANSWER_THESE_GOOD%" then
+                        gosub check_for_answer_of_H
+                        iff "Y" == "%SAVED_ANSWER_THESE_GOOD%" .or. "H" == "%SAVED_ANSWER_THESE_GOOD%" then
                                 echo yr | *copy /Ns /q "%MAYBE_LYRICS_1%" "%LYRIC_FILE%
                                 set LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE=1
 
@@ -1848,6 +1857,7 @@ rem Check if we have one in our lyric repository already, via 2 different filena
 
                         gosub check_for_answer_of_Q "%@UNQUOTE["%AUDIO_FILE%"]"
                         if  "Q" == "%SAVED_ANSWER_THESE_GOOD%"   goto /i Ask_Again_p_12
+
 
                         gosub check_for_answer_of_L
                         if  "L" == "%SAVED_ANSWER_THESE_GOOD%"   goto /i END_OF_GET_LYRICS
@@ -2290,8 +2300,9 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                 rem DEBUG: echo %ANSI_COLOR_DEBUG%- [DEBUG]  ❶set already_searched_for_%CURRENT_LYRIC_PROVIDER%_%[file_song_to_use]_%[file_artist_to_use]=1
                 iff "%already_searched_for_this%" == "1" then
                         echos %ansi_color_bright_red%%NO% %blink_on%Skipping%ansi_color_bright_red% search because we’ve already searched for %ansi_color_warning_soft%“%blink_on%%ansi_color_green%%file_song_to_use%%ansi_color_warning_soft%” 
-                        if "" != "%file_artist_to_use%" echos  %blink_on%%ansi_color_bright_red%by %ansi_color_warning_soft%“%ansi_color_green%%blink_on%%file_artist_to_use%%ansi_color_warning_soft%”%blink_off%%ansi_color_normal%
-                        echo.
+                        if "" != "%file_artist_to_use%" echos  %blink_on%%ansi_color_bright_red%by %ansi_color_warning_soft%“%ansi_color_green%%blink_on%%file_artist_to_use%%ansi_color_warning_soft%”
+                        echos with %ansi_color_orange%%italics_on%%CURRENT_LYRIC_PROVIDER%%italics_off%
+                        echo %blink_off%%ansi_color_normal%
                         goto /i skip_this_search
                 endiff
 
@@ -2634,7 +2645,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                         iff exist  "%TXT_SIDECAR_FILENAME_TEMP%" .and. not exist  "%TXT_SIDECAR_FILENAME%" then
                                                 call review-file -wh "%TXT_SIDECAR_FILENAME_TEMP%" 
                                                 :reask_sl_5
-                                                call AskYN "Keep lyrics [%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%H%ansi_color_prompt%=Hand-edit,mark %ansi_color_bright_green%L%ansi_color_bright_prompt%yricless]" no %USE_TIME% PL P:Play_File,H:hand_edit,L:Mark_this_audio_file_as_lyricLESS
+                                                call AskYN "Keep lyrics [%ansi_color_bright_green%P%ansi_color_prompt%=Play,yes but %ansi_color_bright_green%H%ansi_color_prompt%=and edit it,mark %ansi_color_bright_green%L%ansi_color_prompt%yric%italics_on%%underline_on%less%italics_off%%underline_off%]" no %USE_TIME% PLH P:Play_File,H:hand_edit,L:Mark_this_audio_file_as_lyricLESS
                                                 gosub check_for_answer_of_P "%@UNQUOTE["%AUDIO_FILE%"]"
                                                 gosub check_for_answer_of_H "%@UNQUOTE["%AUDIO_FILE%"]"
                                                 gosub check_for_answer_of_L "%@UNQUOTE["%AUDIO_FILE%"]"
@@ -2680,7 +2691,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                 goto /i end_quick_lrc_mode_success
                                         endiff
                                 else
-                                        if "1" == "%VERBOSE_COMPLIANCE_LOGGING%" call subtle "Nothing to do to log for compliance?"
+                                        if "1" == "%VERBOSE_COMPLIANCE_LOGGING%" echo call subtle "Nothing to do to log for compliance?" >nul
                                 endiff
 
 
@@ -2696,10 +2707,15 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
                         rem Perform the actual LyricsGenius.exe search:
                                 rem call debug "Initiating search with LyricsGenius...CURRENT_LYRIC_PROVIDER = %CURRENT_LYRIC_PROVIDER% GOAT"
-                                ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 %BAT%\insert-before-each-line.py "          "   |:u8 %BAT%\strip-ansi |:u8 %BAT%\highlight "[A-Za-z0-9_]*.json") 
+                                rem OLD: ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 %BAT%\insert-before-each-line.py "          "   |:u8 %BAT%\strip-ansi |:u8 %BAT%\highlight "[A-Za-z0-9_]*.json") 
+                                rem NEW:
+                                call set-tmp-file "genius-lyric-maybe"
+                                (echo y | %LYRIC_RETRIEVAL_COMMAND%) >:u8%TMPFILE1%
                                 call errorlevel "Problem retrieving lyrics in %0"
-
-
+                                iff exist %TMPFILE1% then
+                                        set GENIUS_FRESH_LYRICS=%TMPFILE1%
+                                        type "%GENIUS_FRESH_LYRICS%" |:u8 %BAT%\insert-before-each-line.py "          "   |:u8 %BAT%\strip-ansi |:u8 %BAT%\highlight "[A-Za-z0-9_]*.json"
+                                endiff
 
                 :endiff_2316
         rem End of running our lyric downloader command
@@ -2720,9 +2736,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                 endiff
 
         rem Skip past Genius-specific code if we are not using the LyricsGenius provider
-                rem DEBUG: 
-call debug "[9A9A9A] CURRENT_LYRIC_PROVIDER = %CURRENT_LYRIC_PROVIDER% goat" 
-echo            iff "%CURRENT_LYRIC_PROVIDER%" != "LyricsGenius" then
+                rem DEBUG: call debug "[9A9A9A] CURRENT_LYRIC_PROVIDER = %CURRENT_LYRIC_PROVIDER% goat" 
                 iff "%CURRENT_LYRIC_PROVIDER%" != "LyricsGenius" then
                         call subtle "Skipping %italics_on%LyricGenius%italics_off% section..."
                         goto /i :end_of_lyric_genius_section_1
@@ -4630,11 +4644,11 @@ echo GOATGOAT                                gosub check_for_answer_of_M "%@UNQU
                 iff "%CURRENT_LYRIC_PROVIDER%" == "GENIUS" then
                         set PROVIDER_PASS_DONE_GENIUS=1
                         if "1" == "%PROVIDER_PASS_DONE_SYNCEDLYRICS%" return
-                        set CURRENT_LYRIC_PROVIDER=SYNCEDLYRICS
+                        set CURRENT_LYRIC_PROVIDER=SyncedLyrics
                 else
                         set PROVIDER_PASS_DONE_SYNCEDLYRICS=1
                         if "1" == "%PROVIDER_PASS_DONE_GENIUS%" return
-                        set CURRENT_LYRIC_PROVIDER=GENIUS
+                        set CURRENT_LYRIC_PROVIDER=Genius
                 endiff
 
                 gosub refresh_current_lyric_provider_metadatas
@@ -4833,12 +4847,12 @@ echo GOATGOAT                                gosub check_for_answer_of_M "%@UNQU
 
         :refresh_current_lyric_provider_metadatas [opt]
                 iff "%CURRENT_LYRIC_PROVIDER%" == "GENIUS" then
-                        set CURRENT_LYRIC_PROVIDER=GENIUS
+                        set CURRENT_LYRIC_PROVIDER=Genius
                         set CURRENT_LYRIC_PROVIDER_DISPLAY=Genius
-                        set OTHER_LYRIC_PROVIDER=SYNCEDLYRICS
+                        set OTHER_LYRIC_PROVIDER=SyncedLyrics
                         set OTHER_LYRIC_PROVIDER_DISPLAY=SyncedLyrics
                 else
-                        set CURRENT_LYRIC_PROVIDER=SYNCEDLYRICS
+                        set CURRENT_LYRIC_PROVIDER=SyncedLyrics
                         set CURRENT_LYRIC_PROVIDER_DISPLAY=SyncedLyrics
                         set OTHER_LYRIC_PROVIDER=GENIUS
                         set OTHER_LYRIC_PROVIDER_DISPLAY=Genius
@@ -4928,7 +4942,7 @@ rem ━━━━━━━━━━━━━━ ENDINGS: BEGIN ━━━━━━
         goto :END_OF_GET_LYRICS
         
 :END_OF_GET_LYRICS
-
+        call subtle "End of get-lyrics (parent_bat=%PARENT_BAT%)"
 
 rem ━━━━━━━━━━━━━━ ENDINGS: END ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -4982,7 +4996,7 @@ rem Debug stuffs:
             rem unset /q LYRIC_SEARCH_FAILED            //leave this one for auditing
             rem unset /q LYRIC_RETRIEVAL_1_FAILED       //leave this one for auditing
             rem unset /q JUST_RENAMED_TO_INSTRUMENTAL   //leave this one for the outer create-srt to know result of
-            rem unset /q PROBED_709_ALREADY
+            rem unset /q PROBED_OR_REFUSED_ALREADY_709
                 unset /q LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE  found_broad_lyrics_branch_1 LYRIC_SUCCESS_CELEBRATION_DISPLAYED already_tried_potential_lyrics_* did_not_go_to_end_169 goto_download_with_lyric_downloader_1 FIRST_SEARCH_COMPLETE goto_download_with_lyric* lyric_downloader_initialized  debanded LAST_ALIGNMENT_TEMP_INDEX PREV_GENIUS_FNAME_2_USE postprocessed_lyrics DO_NOT_ASK_TO_SET_LYRICLESS_AGAIN quick_lrc_mode REFUSED_LOCAL_REPO
                 unset /q CURRENT_LYRIC_PROVIDER CURRENT_LYRIC_PROVIDER_DISPLAY OTHER_LYRIC_PROVIDER OTHER_LYRIC_PROVIDER_DISPLAY PRIMARY_LYRIC_PROVIDER PROVIDER_ONLY PROVIDER_PASS_DONE_GENIUS PROVIDER_PASS_DONE_SYNCEDLYRICS RESTARTED_WITH_OTHER_LYRIC_PROVIDER PREVIOUS_LYRIC_PROVIDER_DISPLAY SYNCEDLYRICS_ONLY current_provider_key
             rem unset /q JUST_CONVERTED_LRC_TO_TEXT=0 JUST_CONVERTED_SRT_TO_TEXT=0 %+ rem TODO i think maybe this should not be added: 
