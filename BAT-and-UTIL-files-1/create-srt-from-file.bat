@@ -120,7 +120,7 @@ REM Setting audio transcriber, valid extensions to transcribe, and lockfile name
         :set_TRANSCRIBER_VALID_EXTENSIONS_AND_LOCK_FILE_NAME_done
 
 rem Set parent BAT file:
-        set CREATE_SRT_PARENT_BAT=%@NAME[%_PBATCHNAME] %+ rem the calling BAT filename without path or extension i.e. “whatever” as opposed to “c:\bat\whatever.bat”
+        set CREATE_SRT_PARENT_BAT1=%@NAME[%_PBATCHNAME] %+ rem the calling BAT filename without path or extension i.e. “whatever” as opposed to “c:\bat\whatever.bat”
 
 
 rem Set filemask to match audio files:
@@ -217,7 +217,7 @@ rem Pre-Cleanup:
         unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_OR_REFUSED_ALREADY_709 
         rem DEBUG: pause "calling bat is “%CREATE_SRT_PARENT_BAT%”"
 
-        unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused
+        rem unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused
 REM values set from parameters:
         *setdos /x-4
         set SONGFILE=%@UNQUOTE["%1"]
@@ -542,10 +542,10 @@ REM Lyric file stuffs:
                         echo %ansi_color_bright_green%...%italics_on%and they are %blink_on%approved%blink_off%!%italics_off%%ansi_color_normal%
                         set sidecar_was_present_from_the_start=1
                         set LYRIC_FILE=%TXT_FILE%
-                        goto /i AI_generation
+                        rem so we had them all along so we should process them.... goto /i AI_generation
                 else
                         echo %ansi_color_bright_red%...but the lyrics are not approved!%ansi_color_normal%
-                        goto /i AI_generation
+                        rem even if they aren’t approved, we shoudl still use them.... goto /i AI_generation
                 endiff
         :end_of_potential_lyric_file_initial_processing
 
@@ -559,7 +559,8 @@ REM display debug info:
         if %DEBUG gt 0 echo %ansi_color_debug%- DEBUG: (8)%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE=“%ITALICS_ON%%SONGBASE%%ITALICS_OFF%”%NEWLINE%%TAB%%TAB%LRC_FILE=“%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%”, %NEWLINE%%TAB%%TAB%TXT_FILE=“%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%”%FAINT_OFF%%ansi_color_normal%
         gosub divider
         iff "1" == "%ANNOUNCE_IF_SIDECAR_FILES_EXIST%" then
-                                       gosub say_if_exists SONGFILE
+                                       gosub say_if_exists SONGFILE 
+                                        if exist "%@UNQUOTE["%SONGFILE%"]" set INPUT_FILE=%SONGFILE%
                                        gosub say_if_exists SRT_FILE
                                        gosub say_if_exists LRC_FILE
                                        gosub say_if_exists TXT_FILE
@@ -574,6 +575,7 @@ rem If a txt file exists and it is approved, and a subtitle does not exist, jump
 
 REM Earlier, we retrieved the values for MAYBE_SRT_[1|2] via probing the songfile via the shared probe code in get-lyrics-for-file.btm
 REM Now, let’s check these values:
+        call subtle "Checking repo for maybe-lyrics #1"
         if not exist "%@UNQUOTE[%MAYBE_SRT_1%]" .and. not exist "%@UNQUOTE[%MAYBE_SRT_2%]" goto :endiff_610
                 if exist "%@UNQUOTE[%MAYBE_SRT_2%]" set found_subtitle_file=%@UNQUOTE["%MAYBE_SRT_2%"]
                 if exist "%@UNQUOTE[%MAYBE_SRT_1%]" set found_subtitle_file=%@UNQUOTE["%MAYBE_SRT_1%"]
@@ -645,7 +647,7 @@ REM Now, let’s check these values:
 
 REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
         rem echo α 700
-        if not exist "%INPUT_FILE%" call validate-environment-variable INPUT_FILE
+        if not exist "%@UNQUOTE["%INPUT_FILE%"]" call validate-environment-variable INPUT_FILE
         rem iff "%FORCE_REGEN%" == "1" .or. "%SOLELY_BY_AI%" == "1" then
         rem         rem Skip validation because we’re doing things automatically
         rem else
@@ -1331,7 +1333,7 @@ rem Ask if we should proceed:
                         gosub say_if_exists SRT_FILE
                         call warning "Aborting because the %bold_on%%italics_on%SRT_FILE%italics_off%%bold_off% already exists: %italics_on%%faint_on%%SRT_FILE%%faint_off%%italics_off%"
                 else
-                        call debug "SRT file does not exist" %+ rem GOAT
+                        rem call debug "SRT file does not exist" 
                 endiff
 
 
@@ -1638,7 +1640,7 @@ rem Check lockfile once again at the end:
 
 rem We have to then READ the lockfile for it’s process 
         gosub lockfile_read_lockfile_values
-        if "1" == "%DEBUG_LOCKFILE%" call debug "lockfile_pid is “%lockfile_pid%”"
+        if "1" == "%DEBUG_LOCKFILE%" call debug "lockfile_pid is “%lockfile_pid%”" silent
         iff "%lockfile_pid%" != "%_PID%" then
                 call less_important "This is another process’s lockfile"
                 goto /i concurrency_checks
@@ -1937,13 +1939,13 @@ rem Let user know if we were NOT succesful, then skip to the end:
                         gosub divider
                         unset /q ANSWER
                         rem TODO formatting of prompt green letters:
-                        call AskYN "Mark karaoke as failed so we don’t try again [%ansi_color_bright_green%N%ansi_color_prompt%=No, mark %italics_on%instrumental%italics_off% instead,%ansi_color_bright_green%P%ansi_color_prompt%lay it,%ansi_color_bright_green%S%ansi_color_prompt%=Mark as soundclip,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%1%ansi_color_prompt%=retry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% IPQ!SU I:no_instead_mark_mark_instrumental,Q:enQueue_in_winamp,P:play,S:no_instead_mark_mark_as_sound_effect,1:retry_encode_from_start,U:mark_it_as_untranscribeable
+                        call AskYN "Mark karaoke as failed so we don’t try again [%ansi_color_bright_green%N%ansi_color_prompt%=No, mark %italics_on%instrumental%italics_off% instead,%ansi_color_bright_green%P%ansi_color_prompt%lay it,%ansi_color_bright_green%S%ansi_color_prompt%=Mark as soundclip,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%!%ansi_color_prompt%=retry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% IPQ!SU I:no_instead_mark_mark_instrumental,Q:enQueue_in_winamp,P:play,S:no_instead_mark_mark_as_sound_effect,!:retry_encode_from_start,U:mark_it_as_untranscribeable
                                 gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
                                 gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
                                 gosub check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
                                 gosub check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
                                 if  "U" == "%ANSWER%" gosub   ask_if_untranscribeable "%@UNQUOTE["%INPUT_FILE%"]"
-                                if  "1" == "%ANSWER%" goto /i go_here_for_encoding_retries
+                                if  "!" == "%ANSWER%" goto /i go_here_for_encoding_retries
                                 if  "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" goto /i ask_about_instrumental_1500
                                 iff "Y" == "%ANSWER%" .or. "I" == "%ANSWER%" then
                                       echo Tru`>%@`UNQUOTE["%INPUT_FILE%"]:karaoke_failed" 🐐🐐🐐🐐🐐🐐🐐>nul
@@ -2018,7 +2020,11 @@ rem IF the lyrics already existed (and weren’t backfilled from one of our tran
 rem Compare lyrics vs postprocessed vs transcription, with visual stripes between (stL=lower stripe, stB=both, stU=upper stripe):
         :review_changes_with_stripes
         iff exist "%TXT_FILE%" then
-                if %@FILESIZE["%TXT_FILE%"] gt 2 call review-file -wh -stL      "%TXT_FILE%"            "¹Lyrics (raw)"
+                set CSFB_DO_IT=1
+                iff exist "%POSTPROCESSED_LYRICS%" then
+                        if %@CRC32["%POSTPROCESSED_LYRICS%"] == %@CRC32["%TXT_FILE%"] set CSFB_DO_IT=0
+                endiff
+                if "1" == "%CSFB_DO_IT%" .and. %@FILESIZE["%TXT_FILE%"] gt 3 call review-file -wh -stL "%TXT_FILE%" "¹Lyrics (raw)"
         endiff
 
         if "1" == "%DEBUG_TRACE_CSFF%" pause "Are we even here 1911"        
@@ -2028,7 +2034,7 @@ rem Compare lyrics vs postprocessed vs transcription, with visual stripes betwee
                         rem pause "postprocessed lyrics exist"
                         rem if     exist "%POSTPROCESSED_LYRICS%" echo    exists: POSTPROCESSED_LYRICS: "%POSTPROCESSED_LYRICS%"
                         rem if not exist "%POSTPROCESSED_LYRICS%" echo NOT exist: POSTPROCESSED_LYRICS: "%POSTPROCESSED_LYRICS%"
-                        if %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 call review-file -wh -stB      "%POSTPROCESSED_LYRICS" "²Lyrics (processed)"
+                        if %@FILESIZE["%POSTPROCESSED_LYRICS%"] gt 2 call review-file -wh -stB "%POSTPROCESSED_LYRICS" "²Lyrics (processed)"
                 :endiff_1897
         endiff
         @echo off
@@ -2037,7 +2043,7 @@ rem Compare lyrics vs postprocessed vs transcription, with visual stripes betwee
 rem Review the subtitle file, if it exists and is non-zero (enough) in size:
         :endpoint_for_skipping_lyric_comparisons_because_they_were_just_generated
         iff exist "%SRT_FILE%" then
-                if %@FILESIZE["%SRT_FILE%"] gt 5 call review-file -wh -stU -ins "%SRT_FILE%"            "³Transcription"
+                if %@FILESIZE["%SRT_FILE%"] gt 5 call review-file -wh -stU -ins "%SRT_FILE%" "³Transcription"
         endiff
         rem @gosub divider                                                                                          
         rem @call bigecho %ANSI_COLOR_BRIGHT_GREEN%%check%  %underline_on%Transcription%underline_off%:
@@ -2100,7 +2106,7 @@ rem Full-endeavor success message:
                
                 :ask_2185
                 unset /q answer 
-                rem call debug "* UNQUOTED INPUT FILE IS “%@UNQUOTE["%INPUT_FILE%"]”"
+                rem call debug "* UNQUOTED INPUT FILE IS “%@UNQUOTE["%INPUT_FILE%"]”" silent
                 @call AskYN "Align %italics_on%mis-heard%italics_off% karaoke to original lyrics with %italics_on%WhisperTimeSync%%italics_off% [%ansi_green%P%ansi_color_prompt%=Play 1st,%ansi_green%A%ansi_color_prompt%=Approve now,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_green%E%ansi_color_prompt%dit it]"            no %WHISPERTIMESYNC_QUERY_WAIT_TIME%         AEIP1QTW Q:enQueue_in_winamp,P:Play_It,A:approve_the_karaoke_right_now,T:delete,E:Edit_transcription,I:mark_as_instrumental,W:align_with_WhisperTimeSync,1:retry_transcription
                         rem @Echo OFF %+ echo answer is %ANSWER%
                         set HELD_ANSWER_1787=%ANSWER%
@@ -2167,12 +2173,18 @@ rem Full-endeavor success message:
                         set USE_WAIT_TIME=%EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME%
 
 
-                        call debug "karaoke_edit_already_asked is “%karaoke_edit_already_asked%”"
+                        call debug "karaoke_edit_already_asked is “%karaoke_edit_already_asked%”" silent
                         iff "1" == "%karaoke_edit_already_asked%" then
                                 call subtle "not asking to edit karaoke file because we already asked"                                
-                                goto /i :no_need_to_edit_it
+                                goto /i :no_need_to_edit_it_or_ask_to_approve_it
+                        else
+                                call subtle "asking to edit karaoke file because we already asked because karaoke_edit_already_asked==“%karaoke_edit_already_asked%”"                                
                         endiff
+                        call subtle "About to ask (karaoke_edit_already_asked=%karaoke_edit_already_asked%)"
                         @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%1%ansi_color_prompt%=Retry,rena%ansi_color_bright_green%M%ansi_color_prompt%e files]" no %USE_WAIT_TIME% notitle ADEFGIMPQ1STUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,1:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,G:_get_lyrics,M:rename_it
+                        set karaoke_approval_asked=1
+                        set karaoke_edit_already_asked=1
+                        call debug "[A] karaoke_edit_already_asked & karaoke_approval_asked both set to 1" silent
 
 
                         set HELD_ANSWER_1922=%ANSWER%
@@ -2212,7 +2224,8 @@ rem Full-endeavor success message:
                                         gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
                                 rem “F”:
                                         set ANSWER=%HELD_ANSWER_1922%
-                                        gosub check_for_answer_of_F "%@UNQUOTE["%INPUT_FILE%"]"
+                                        rem gosub check_for_answer_of_F "%@UNQUOTE["%INPUT_FILE%"]"
+                                        if "F" == "%ANSWER%" goto /i        end_quick_lrc_mode_fail                                        
                                 rem “T”:
                                         set ANSWER=%HELD_ANSWER_1922%
                                         gosub check_for_answer_of_T "%@UNQUOTE["%INPUT_FILE%"]"
@@ -2248,6 +2261,7 @@ rem Full-endeavor success message:
                 :no_need_to_edit_it
                 if "1" == "%DEBUG_KARAOKE_APPROVAL%" echo * about to gosub approve karaoke 1526
                 gosub ask_to_approve_karaoke
+                :no_need_to_edit_it_or_ask_to_approve_it
                 :go_here_if_we_just_approved_the_karaoke
 
         rem Update the title to say we’re done! We are!
@@ -2278,7 +2292,7 @@ goto /i skip_subroutines
                         exit /b
                         goto :aborted_because_lrc_already_exists
                 else
-                        rem call debug "SRT file does not exist" 
+                        rem call debug "SRT file does not exist"  silent
                 endiff
         return
         :ask_about_instrumental [opt opt2 opt3]
@@ -2321,7 +2335,7 @@ goto /i skip_subroutines
                 endiff
                 set karaoke_approval_asked=1
                 set karaoke_edit_already_asked=1
-                call debug "karaoke_edit_already_asked & karaoke_approval_asked both set to 1"
+                call debug "[B] karaoke_edit_already_asked & karaoke_approval_asked both set to 1" silent
                 rem “1” for retry:
                         if  "1" == "%ANSWER%" goto /i go_here_for_encoding_retries
                 set HOLD_ANSWER_2006=%ANSWER%
@@ -2332,7 +2346,7 @@ goto /i skip_subroutines
                 gosub check_for_answer_of_B
                 gosub check_for_answer_of_M_to_restart_winamp
                 if  "1" == "%ANSWER%" goto /i go_here_for_encoding_retries
-                rem call debug "done checking answers TIEBM line 2225ish"
+                rem call debug "done checking answers TIEBM line 2225ish" silent
                 set ANSWER=%HOLD_ANSWER_2006%
                 iff "%ANSWER" == "W" then
                         set   DO_WHISPER_TIME_SYNC=1
@@ -2389,7 +2403,7 @@ goto /i skip_subroutines
                 rem check_for_answer_of_E pretty exclusively is for editing the subtitles after
                 rem Thing is, if there are mistakes in subtitles, there may be mistakes in lyrics, too.
                 if not defined EDITOR call fatal_error "EDITOR needs to be defined as your text editor command,a nd was not, in create-srt-from-file subroutine check_for_answer_of_E"
-                iff "E" == "%ANSWER%" then
+                iff "E" == "%ANSWER%" .or. "H" == "%ANSWER%" then
 
                         rem Determine file to edit based on options passed (or lack thereof):
                                 set FILES_TO_USE=%TXT_FILE% 
@@ -2423,6 +2437,7 @@ goto /i skip_subroutines
                 endiff
         return
         :check_for_answer_of_F [opt]
+                pause "Let’s deprecate this out"
                 iff "F" == "%ANSWER%" then
                         goto /i ask_about_failed
                 endiff
@@ -2435,12 +2450,11 @@ goto /i skip_subroutines
                 if "%@UNQUOTE["%opt%"]" == "" call fatal_error "check_for_answer_of_G in create-srt-from-file.bat needs to be passed a filename of the audio file [opt=%opt%]"
                 if "G" != "%ANSWER%" goto :g_return 
 
-                call debug "Check_For_Answer_Of_G called with %opt% and answer of %lq%%answer%%rq%"
+                call debug "Check_For_Answer_Of_G called with %opt% and answer of %lq%%answer%%rq%" silent
 
                 unset /q SOLELY_BY_AI
                 call get-lyrics "%@UNQUOTE["%opt%"]" force
-                rem DEBUG:
-                pause "[7XE4] about to goto /i :g_key_goes_here_after_rerunning_getlyrics GOAT"
+                rem DEBUG: pause "[7XE4] about to goto /i :g_key_goes_here_after_rerunning_getlyrics GOAT"
 
                 rem Is this messing things up? 
                 goto :g_key_goes_here_after_rerunning_getlyrics
@@ -2659,7 +2673,7 @@ goto /i skip_subroutines
                         set pos=%@INDEX[%clean,Process ]
                         set after=%@SUBSTR[%clean,%@EVAL[%pos + 8]]
                         set lockfile_pid=%@WORD[0,%after]
-                        if %DEBUG_LOCKFILE% gt 0 call debug "🔒🔒🔒 Detected lockfile PID of “%lockfile_pid%” (our pid is %_PID)" 
+                        if %DEBUG_LOCKFILE% gt 0 call debug "🔒🔒🔒 Detected lockfile PID of “%lockfile_pid%” (our pid is %_PID)"  silent
 
                 rem Get lockfile’s filename:
                         set pos1=%@INDEX[%clean,“]
@@ -2667,7 +2681,7 @@ goto /i skip_subroutines
                         set start=%@EVAL[%pos1 + 2]
                         set len=%@EVAL[%pos2 - %start]
                         set lockfile_filename=%@SUBSTR[%clean,%start,%len]
-                        if %DEBUG_LOCKFILE% gt 0 call debug "🔒🔒🔒 Detected lockfile filename of “%lockfile_filename%”"         
+                        if %DEBUG_LOCKFILE% gt 0 call debug "🔒🔒🔒 Detected lockfile filename of “%lockfile_filename%”"          silent
         return %lockfile_pid%
         :lockfile_delete_transcriber_lock_file [opt]
                 if %DEBUG_LOCKFILE% gt 0 echo 📞📞📞 called :lockfile_delete_transcriber_lock_file [%opt%] 📞📞📞 🐐
@@ -2865,16 +2879,16 @@ goto /i skip_subroutines
                 set filename=%[%[it]]
                 iff exist %filename then
                         iff "0" == "%formatting" .or. "FALSE" == "%formatting" then
-                                set BOOL_DOES=1 %+ set does_punctuation=: %+ set does=%BOLD%%UNDERLINE%%italics%does%italics_off%%UNDERLINE_OFF%%BOLD_OFF%
+                                set BOOL_DOES=1 %+ set does_punctuation=: %+ set does=%BOLD%%UNDERLINE%%italics%does%italics_off%%UNDERLINE_OFF%%BOLD_OFF%       %+ rem The difference is the lack of 4 spaces at the end
                         else
-                                set BOOL_DOES=1 %+ set does_punctuation=: %+ set does=%BOLD%%UNDERLINE%%italics%does%italics_off%%UNDERLINE_OFF%%BOLD_OFF%    ``
+                                set BOOL_DOES=1 %+ set does_punctuation=: %+ set does=%BOLD%%UNDERLINE%%italics%does%italics_off%%UNDERLINE_OFF%%BOLD_OFF%    `` %+ rem The difference is  including  4 spaces at the end
                         endiff
                 else
-                        set BOOL_DOES=0 %+ set does_punctuation=: %+ set does=does %FAINT%%ITALICS%%blink%not%blink_off%%ITALICS_OFF%%FAINT_OFF%
+                        set BOOL_DOES=0 %+ set does_punctuation=: %+ set does=%ansi_color_bright_red%%FAINT_ON%does %ITALICS%%blink%not%blink_off%%ITALICS_OFF%%FAINT_OFF%%ansi_color_important_less%
                 endiff
                 %COLOR_IMPORTANT_LESS%
-                        if "%BOOL_DOES%" == "0" (set DECORATOR_ON=  %strikethrough%            %+ set DECORATOR_OFF=%strikethrough_off%)
-                        if "%BOOL_DOES%" == "1" (set DECORATOR_ON=%PARTY_POPPER%%faint_off%    %+ set DECORATOR_OFF=%PARTY_POPPER%     )
+                        if "%BOOL_DOES%" == "0" (set DECORATOR_ON=  %strikethrough%%ansi_color_orange%%faint_on%  %+ set DECORATOR_OFF=%strikethrough_off%%faint_off%)
+                        if "%BOOL_DOES%" == "1" (set DECORATOR_ON=%PARTY_POPPER%%faint_off%                       %+ set DECORATOR_OFF=%PARTY_POPPER%                )
                         set it4print=%@FORMAT[11,%it%]
                         if "0" == "%formatting" .or. "FALSE" == "%formatting" set it4print=%it%
                         @echos * %it4print% %does% exist%does_punctuation% %FAINT%%decorator_on% %filename% %decorator_off%%FAINT_OFF%
@@ -3090,8 +3104,8 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 :Unset_Variables
         rem The big list of vars to unset:
                 unset /q failure_ads_result PROMPT_CONSIDERATION_TIME PROMPT_EDIT_CONSIDERATION_TIME JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE ABANDONED_SEARCH LYRICLESSNESS_STATUS AUTO_LYRIC_APPROVAL        ALREADY_HAND_EDITED FORCE_AI_ENCODE_FROM_LYRIC_GET JUST_RENAMED_TO_INSTRUMENTAL  goto_end abort_karaoke_kreation MAYBE_SRT* karaoke_status audio_file input_file postprocessed_lyrics LAUNCHING_AI_DISPLAYED WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL  ALREADY_ASKED_TO_DELETE_LOCKEFILE SONG_PROBED_VIA_CALL_FROM_CREATE_SRT LOCKFILE_NOT_FOR_THIS_PROCESS_MENTIONED JUST_CONVERTED_SRT_TO_TEXT JUST_CONVERTED_LRC_TO_TEXT LYRICS_ACCEPTABLE OKAY_THAT_WE_HAVE_SRT_ALREADY UNFORTUNATELY_WE_COULD_NOT_CREATE_SAID JUST_RENAMED PROBED_OR_REFUSED_ALREADY_709 
-call debug "CREATE_SRT_PARENT_BAT=“%CREATE_SRT_PARENT_BAT%” GOATGOAGOAT" 
-                unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused 
+call debug "CREATE_SRT_PARENT_BAT2=“%CREATE_SRT_PARENT_BAT%” GOATGOAGOAT"  silent
+                rem unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused 
 
                
 :The_Very_Very_END

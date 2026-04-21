@@ -1,4 +1,4 @@
-loadbtm on
+@loadbtm on
 @Echo Off
 @on break cancel
 @set old_title_dbat=%_title
@@ -48,7 +48,7 @@ rem ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ CONFIG: BEHAVIOR TO change whenver you feel 
         rem How many hours do you want to go by before it is permissible to run this in a folder again?  It’s a delay-step in productivity
         rem so we reallllllllllllllly don’t like running this unnecessarily:
                 set HOURS_BEFORE_REDO=72                                                  
-                if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set HOURS_BEFORE_REDO=0.01 
+                if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set HOURS_BEFORE_REDO=24
 
 rem ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ CONFIG: CONSTANTS THAT SHOULDN’T BE CHANGED AS THEY ARE USED IN OTHER FILES: ✨ ✨ ✨ ✨ ✨ ✨ ✨ ✨ 
                 set BAD_AI_SEARCH_TRIGGER_FILENAME=.LastInvalidAITranscriptionCheck
@@ -80,6 +80,9 @@ rem Halt condition 1: No subtitles/lyrics/text to even bother searching for bad 
 
 rem Halt condition 2: We have checked in the last 24 hrs or whatever our user-defined-interval is
         iff exist %BAD_AI_SEARCH_TRIGGER_FILENAME% .and. "%2" != "force" .and. "%1" != "force" then
+
+                rem DEBUG: call debug "checking timestamp of BAD_AI_SEARCH_TRIGGER_FILENAME" silent
+
                 rem Basic time constants to make our code more readable:
                         set TIMESTAMP_PER_SECOND=10000000
                         set   SECONDS_PER_MINUTE=60
@@ -97,7 +100,7 @@ rem Halt condition 2: We have checked in the last 24 hrs or whatever our user-de
                         set CURRENT_DELTA_HOU=%@EVAL[%CURRENT_DELTA_MIN% /     %MINUTES_PER_HOUR%]
                 rem Halt if the current time difference is less than how long we want to wait to do this again:
                         set HALT=%@EVAL[%CURRENT_DELTA_MIN% < %MINUTES_BEFORE_REDO%]                                                                  
-                        rem DEBUG: pause "halt == “%HALT%   HOURS_BEFORE_REDO=“%HOURS_BEFORE_REDO%” , CURRENT_Δ_HOURS=“%@FORMATN[0.1,%CURRENT_DELTA_HOU%]"”"
+                        rem DEBUG: pause "halt == “%HALT%   HOURS_BEFORE_REDO=“%HOURS_BEFORE_REDO%” , CURRENT_Δ_HOURS=“%@FORMATN[0.1,%CURRENT_DELTA_HOU%](%CURRENT_DELTA_HOU%)"”"
                         iff "1" == "%HALT%" then
                                 if "%_PBATCHNAME" == "" echo.
                                 echo %ansi_color_red%%zzzzz%%star2% Until %italics_on%%@cool_number[%HOURS_BEFORE_REDO%]%italics_off%%ansi_color_red% hours %@cursive_plain[have] passed, %double_underline_on%%italics_on%will not%double_underline_off%%italics_off% look for invalid AI transcriptions %@cursive_plain[in]: %dir_txt% 
@@ -204,21 +207,28 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
                         gosub step %+ (grep -i and.we.are.back                                              %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i a.little.pause\.\.\.                                         %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i this.is.the.first.sentence                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
-                        gosub step %+ (grep -i this.is.the.second.sentence                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
-                        gosub step %+ (grep -i A?n?d?.?this.is.the.first.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
-                        gosub step %+ (grep -i A?n?d?.?this.is.the.second.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
-                        gosub step %+ (grep -i A?n?d?.?this.is.the.third.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
-                        gosub step %+ (grep -i A?n?d?.?this.is.the.fourth.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
-                        gosub step %+ (grep -i A?n?d?.?this.is.the.fifth.one                                   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i this.is.the.second.sentence                                  %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i A?n?d?.?this.is.the.first.one                                %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i A?n?d?.?this.is.the.second.one                               %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i A?n?d?.?this.is.the.third.one                                %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i A?n?d?.?this.is.the.fourth.one                               %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
+                        gosub step %+ (grep -i A?n?d?.?this.is.the.fifth.one                                %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i Ding,.ding,.bop                                              %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i I.m.going.to.play.a.little.bit.of.the.first.one.*and.then    %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i Thank.you.for.watching                                       %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i Thanks.for.watching                                          %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
                         gosub step %+ (grep -i ©.BF-WATCH.TV.2021                                           %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem WhisperAI silence hallucination
-
                         rem ✨✨✨ ADD NEW PATTERNS TO LYRIC-POSTPROCESSOR.PL and SUBTITLE-POSTPROCESSER.PL  ✨✨✨
+                        rem ✨✨✨ ADD NEW PATTERNS TO LYRIC-POSTPROCESSOR.PL and SUBTITLE-POSTPROCESSER.PL  ✨✨✨
+                        rem ✨✨✨ ADD NEW PATTERNS TO LYRIC-POSTPROCESSOR.PL and SUBTITLE-POSTPROCESSER.PL  ✨✨✨
+                        rem ✨✨✨ ADD NEW PATTERNS TO LYRIC-POSTPROCESSOR.PL and SUBTITLE-POSTPROCESSER.PL  ✨✨✨
+                        rem ✨✨✨ ADD NEW PATTERNS TO LYRIC-POSTPROCESSOR.PL and SUBTITLE-POSTPROCESSER.PL  ✨✨✨
+                        rem ✨✨✨ ADD NEW PATTERNS TO LYRIC-POSTPROCESSOR.PL and SUBTITLE-POSTPROCESSER.PL  ✨✨✨
+
                         rem POSSIBLE ONE: “Oh, honey, wait for me.”
-                rem MIS-IDENTIFIED SONG HALLUCINATIONS WHICH ARE A SLIGHTLY DIFFERENT NATURE AND NOT HANDLED IN OUR LYRIC/SUBTITLE POSTPROCESSORS:
+
+                rem MIS-IDENTIFIED SONG ERRORS WHICH ARE A SLIGHTLY DIFFERENT NATURE (not an AI hallucination, but an LRCGet.exe error) 
+                rem AND NOT HANDLED IN OUR LYRIC/SUBTITLE POSTPROCESSORS AND ONLY HANDLED HERE:
                         gosub step %+ (grep -i "I.ve never seen you looking so lovely as you did tonight"   %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem incorrectly-placed lyrics: “Chris DeBurg - Lady In Red”   \___ todo: consider that this part might not work as well after refactoring
                         gosub step %+ (grep -i "Closed lamps, curfews, dead leaves"                         %tmpfile8%          >>:u8 %tmpfile1%       ) %+ rem incorrectly-placed lyrics:       “Voivod - Black City”    /
                 rem 0-BYTE FILE ARE TRASH, TOO:

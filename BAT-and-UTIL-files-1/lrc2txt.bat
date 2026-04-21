@@ -24,6 +24,11 @@ rem Usage:
 rem Parameter fetch:
         set OPTION=%@UNQUOTE["%@LOWER["%1"]"]
         set PROCESS_ALL=0
+        iff "%3" == "silent" then
+                set LRC2TXT_SILENT=1
+        else
+                set LRC2TXT_SILENT=0
+        endiff
         iff "%OPTION%" == "-a"  .or. "%OPTION%" == "-all" .or. "%OPTION%" == "all"  .or. "%OPTION%" == "*"  .or. "%OPTION%" == "*.lrc" then            %+ rem Check for the “all” option
                 set PROCESS_ALL=1
         else
@@ -36,8 +41,12 @@ rem Parameter validate:
         iff 0 eq %PROCESS_ALL% then 
 
                 rem Validate input file:
-                        call validate-environment-variable   LRC_file 
-                        call validate-is-extension         "%LRC_file%"  *.lrc
+                        if not exist %LRC_file% call validate-environment-variable LRC_file 
+                        iff "%@EXT["%LRC_file%"]" == "lrc.maybe" .or. "%@EXT["%LRC_file%"]" == "maybe" then
+                                echo We won’t validate the extension %LRC2TXT_SILENT%>nul
+                        else
+                                call validate-is-extension "%LRC_file%"  *.lrc
+                        endiff
 
                 rem Prevent output file collision:
                         rem if exist "%output_file%" (call less_important "TXT file already exists: “%italics_on%%output_file%italics_off%”" %+ goto :END)
@@ -48,7 +57,7 @@ rem Parameter validate:
         
 
 rem Cosmetics:
-        if "%2" != "silent" gosub divider
+        if "0" == "%LRC2TXT_SILENT%" gosub divider
         
 
 rem Perform the actual conversion:        
@@ -91,7 +100,8 @@ rem Perform the actual conversion:
                         )
                         goto :END
                 endiff
-                call validate-environment-variable FILE_OR_FILES_TO_REVIEW
+                set FILE_OR_FILES_TO_REVIEW=%@ReReplace[.lrc.txt,.txt,%FILE_OR_FILES_TO_REVIEW%]
+                if not exist %FILE_OR_FILES_TO_REVIEW% call validate-environment-variable FILE_OR_FILES_TO_REVIEW
         endiff
 
 
@@ -102,7 +112,7 @@ rem Mark that these files have been generated and were not manually typed out [a
 
 
 rem Review output:
-        iff "%2" != "silent" then
+        iff  "0" == "%LRC2TXT_SILENT%" then
                 set first_file=1
                 for %%tmp_review_file in (%file_or_files_to_review%) do (
                         set idea=maybe ask to hand-edit
@@ -134,3 +144,8 @@ goto :skip_subroutines
                 endiff
         return
 :skip_subroutines
+
+
+
+
+

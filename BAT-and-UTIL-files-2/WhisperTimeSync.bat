@@ -296,33 +296,33 @@ rem Do the subtitle comparator I created, which i think is the most useful:
                 goto :end_of_discarded_alternatives
                                                         rem Let’s try specifically printing the comparator output with 2 columns only:
                                                                 gosub divider
-                                                                rem call debug "(print tmpfile2 with 2 columns)"
+                                                                rem call debug "(print tmpfile2 with 2 columns)" silent
                                                                 call print-with-columns "%tmpfile2%" -c 2
 
                                                         rem Let’s try specifically printing the comparator output with 2/4/6/8 columns:
-                                                                rem call debug "(print tmpfile2 with dynamic columns)"
+                                                                rem call debug "(print tmpfile2 with dynamic columns)" silent
                                                                 gosub divider
                                                                 if not defined SUBTITLE_OUTPUT_WIDTH set SUBTITLE_OUTPUT_WIDTH=30
                                                                 SET COMPARATOR_PADDING=7
                                                                 set COL_PADDING=5
                                                                 set COL_SIZE=%@eval[%SUBTITLE_OUTPUT_WIDTH% + %COMPARATOR_PADDING%]
-                                                                rem call debug "COL_SIZE initial value is %lq%%COL_SIZE%%rq%"
+                                                                rem call debug "COL_SIZE initial value is %lq%%COL_SIZE%%rq%" silent
                                                                 REM set    initial_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 1 * PADDING + 7]
                                                                 REM set subsequent_column_pair_width=%@EVAL[2 * SUBTITLE_OUTPUT_WIDTH + 2 * PADDING]
                                                                 set INITIAL_COLS_TO_USE=10
                                                                 set         COLS_TO_USE=%INITIAL_COLS_TO_USE%
                                                                 :recol_calc
                                                                 set TOTAL_WIDTH=%@EVAL[(%COLS_TO_USE% * %COL_SIZE%) + ((%COLS_TO_USE% - 1) * %COL_PADDING%)]
-                                                                rem call debug "TOTAL_WIDTH for %COLS_TO_USE% columns is now being set to %lq%%TOTAL_WIDTH%%rq% [columns=%_COLUMNS]"
+                                                                rem call debug "TOTAL_WIDTH for %COLS_TO_USE% columns is now being set to %lq%%TOTAL_WIDTH%%rq% [columns=%_COLUMNS]" silent
                                                                 rem @EVAL[%initial_column_pair_width% + %subsequent_column_pair_width%] lt %@EVAL[%_COLUMNS-1] (set COLS_TO_USE=%@EVAL[%cols_to_use% + 2] %+ goto :recol_calc)
                                                                 set MAX_WIDTH=%@EVAL[%_COLUMNS-3]
                                                                 iff %TOTAL_WIDTH% gt %MAX_WIDTH% then
                                                                         set COLS_TO_USE=%@EVAL[%cols_to_use% - 1] 
-                                                                        rem call debug "Because TOTAL_WIDTH[%TOTAL_WIDTH%] gt MAX_WIDTH[%MAX_WIDTH%] we need to use 1 fewer column, so wet have set COLS_TO_USE=%COLS_TO_USE%"
+                                                                        rem call debug "Because TOTAL_WIDTH[%TOTAL_WIDTH%] gt MAX_WIDTH[%MAX_WIDTH%] we need to use 1 fewer column, so wet have set COLS_TO_USE=%COLS_TO_USE%" silent
                                                                         if %COLS_TO_USE% gt 2 goto :recol_calc
                                                                 endiff
-                                                                rem call debug "determined # of even columns to use of %lq%%COLS_TO_USE%%rq%, COL_SIZE=%lq%%COL_SIZE%%rq%"                
-                                                                rem call debug "call print-with-columns %tmpfile2% -c %COLS_TO_USE% [screen width=%_COLUMNS]"
+                                                                rem call debug "determined # of even columns to use of %lq%%COLS_TO_USE%%rq%, COL_SIZE=%lq%%COL_SIZE%%rq%"                 silent
+                                                                rem call debug "call print-with-columns %tmpfile2% -c %COLS_TO_USE% [screen width=%_COLUMNS]" silent
                                                                 call print-with-columns "%tmpfile2%" -c %COLS_TO_USE%
                 :end_of_discarded_alternatives
 
@@ -511,13 +511,13 @@ rem Load the new song into winamp to test?
                         if exist "%aud_mp3%"  set our_audio=%aud_mp3%
                         if exist "%aud_flac%" set our_audio=%aud_flac%
                         iff not exist "%our_audio%" then
-                                rem call debug   "[our_audio=%lq%%italics_on%%our_audio%%italics_off%%rq%]"
+                                rem call debug   "[our_audio=%lq%%italics_on%%our_audio%%italics_off%%rq%]" silent
                                 call warning "Oops! Can%smart_apostrophe%t find our audio file!"
                                 call advice  "Try manually setting it?"
                                 eset our_audio
                         endiff
                         iff not exist "%our_audio%" then
-                                rem call debug   "[our_audio=%lq%%italics_on%%our_audio%%italics_off%%rq%]"
+                                rem call debug   "[our_audio=%lq%%italics_on%%our_audio%%italics_off%%rq%]" silent
                                 call warning "Still can%smart_apostrophe%t find our audio file! Giving up!"
                                 goto /i END_OF_WTS
                         endiff

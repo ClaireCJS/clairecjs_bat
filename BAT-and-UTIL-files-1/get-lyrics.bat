@@ -79,7 +79,7 @@ rem Error out if a parameter is given that doesn’t exist:
 
 rem Process playlists / audio files:
         *setdos /x-4
-        iff exist %1 then
+        if not exist %1 goto :else_90
                 setdos /x0
                 set ext=%@ext[%1]
                 rem echo ext is %ext
@@ -87,11 +87,14 @@ rem Process playlists / audio files:
                 rem Process either a playlist or an individual song:
                         if "m3u" == "%ext%" call get-lyrics-for-playlist %1$       %+ rem Process individual playlist
                         if "m3u" != "%ext%" call get-lyrics-for-file.btm %1$       %+ rem Process individual audiofile
-        else 
+                goto :endiff_96
+        :else_90
                 setdos /x0
                 call alarm "get-lyrics reached point of confusion"
                 pause
-        endiff
+        
+        :endiff_96
+
         setdos /x0
 
 

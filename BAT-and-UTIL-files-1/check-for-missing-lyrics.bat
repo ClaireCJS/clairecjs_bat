@@ -540,7 +540,7 @@ rem —————————————————————————�
                                                         set coloring2=%ansi_color_bright_red%                                                               %+ rem    ...set the color to an alarming "angry" color
                                                 endiff                                                                                                      
                                         else                                                                                                                %+ rem If the lyrics don’t exist at all,
-                                                set rem=DEBUG: call debug "Textfile “%txtfile%” DOES NOT EXIST"                                                        
+                                                set rem=DEBUG: call debug "Textfile “%txtfile%” DOES NOT EXIST" silent
                                                 set TXT_EXISTS=0                                                                                            %+ rem    ...set a flag storing this fact
                                                 set coloring=%ansi_color_bright_black%                                                                      
                                                 set coloring2=%ansi_color_bright_black%                                                                     
@@ -599,7 +599,7 @@ rem —————————————————————————�
                                 rem DEBUG: echo %ansi_color_normal%* Checking[cc] %faint_on%%CFML_AudioFile%%faint_off% %@ansi_move_to_col[65] txtfile=%faint_on%%txtfile%%faint_off% %tab% %@ANSI_MOVE_TO_COL[125]%coloring%EXISTS=%txt_exists%%ansi_color_normal%   %coloring2%APPROVED=%LYRIC_APPROVAL_VALUE%
              setdos /x0
              
-             rem call debug "Done with loop!"
+             rem call debug "Done with loop!" silent
              
              return
         :process_file_end

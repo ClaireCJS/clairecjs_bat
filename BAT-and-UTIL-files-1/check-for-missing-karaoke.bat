@@ -289,12 +289,12 @@ goto :END
 
 rem ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
         :lockfile_folderlevel_initialize_lockfile_values [opt]
-                if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Initializing folder level lockfile"
+                if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Initializing folder level lockfile" silent
                 set KARAOKE_FOLDER_LOCKFILE_FILENAME=.CurrentlyDoingTranscriptionsHere
         return
         :lockfile_folderlevel_check_lockfile [opt]
                 rem Return if no lockfile exists:                
-                        if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Checking folder level lockfile"
+                        if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Checking folder level lockfile" silent
                         iff not exist "%KARAOKE_FOLDER_LOCKFILE_FILENAME%" then
                                 return
                         endiff
@@ -369,7 +369,7 @@ rem ═════════════════════════�
                         iff "%raw2" == "NONE" unset folder_lockfile_pid
         return %folder_lockfile_pid%
         :lockfile_folderlevel_create_lockfile [opt]
-                if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Creating folder level lockfile"
+                if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Creating folder level lockfile" silent
                 echo ％_DATETIME: >%KARAOKE_FOLDER_LOCKFILE_FILENAME%
                 echo %_DATETIME  >>%KARAOKE_FOLDER_LOCKFILE_FILENAME%
                 echo ％_PID:     >>%KARAOKE_FOLDER_LOCKFILE_FILENAME%
@@ -379,10 +379,10 @@ rem ═════════════════════════�
         :lockfile_folderlevel_delete_lockfile [opt]
                 :delete_it
                 iff not exist "%KARAOKE_FOLDER_LOCKFILE_FILENAME%" then
-                        if %DEBUG_CFMK_LOCKFILE% gt 0 .and. "1" == "%ONLY_RUN_ONCE_PER_FOLDER%" call debug "No lockfile to delete"
+                        if %DEBUG_CFMK_LOCKFILE% gt 0 .and. "1" == "%ONLY_RUN_ONCE_PER_FOLDER%" call debug "No lockfile to delete" silent
                         return
                 endiff
-                if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Deleting folder level lockfile"
+                if %DEBUG_CFMK_LOCKFILE% gt 0 call debug "Deleting folder level lockfile" silent
                 iff exist "%KARAOKE_FOLDER_LOCKFILE_FILENAME%" then
                         rem echo %ansi_color_removal%%emoji_axe% Deleting lock file: “%italics_on%%faint_on%%KARAOKE_FOLDER_LOCKFILE_FILENAME%%faint_off%%italics_off%”"%ansi_color_normal%
                         attrib -r          "%KARAOKE_FOLDER_LOCKFILE_FILENAME%" >&nul

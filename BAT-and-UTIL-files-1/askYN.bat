@@ -404,10 +404,12 @@ REM Actually answer the question here —— make the windows “question” noi
         echos %BLINK_OFF%%ANSI_CURSOR_SHOW%
 
 REM set default answer if we hit ENTER, or timed out (which should only happen if WAIT_OPS exists):
-        if "%WAIT_OPS%" != "" .and. ("%OUR_ANSWER%" == "" .or. "%OUR_ANSWER%" == "@28") (
-            set OUR_ANSWER=%default_answer%
-            call print-if-debug "timed out, OUR_ANSWER set to “%OUR_ANSWER%”"
-        )        
+        if "%WAIT_OPS%" != "" .and. ("%OUR_ANSWER%" == "" .or. "%OUR_ANSWER%" == "@28") goto :do_it_407
+                                                                                        goto :endiff_412
+                :do_it_407
+                        set OUR_ANSWER=%default_answer%
+                        call print-if-debug "timed out, OUR_ANSWER set to “%OUR_ANSWER%”"
+        :endiff_412
 
 REM Make sure we have an answer, and initialize our return values
         if not defined OUR_ANSWER ( call error "OUR_ANSWER is not defined in %0" )

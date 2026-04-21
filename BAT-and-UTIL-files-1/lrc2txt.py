@@ -488,7 +488,7 @@ if __name__ == "__main__":                                                      
         escaped_pattern = glob.escape(        pattern)                                                                 # wow, glob is stupid... Let us use parens and brackets without complication, we don’t always want regex! geeze.
         matched_files   = glob.  glob(escaped_pattern)                                                                 # Expand wildcards and get matching files
         if not matched_files:                                                                                          # If no files matched the pattern
-            print(f"?! No files matched pattern: {pattern}")                                                              # Display a warning message
+            print(f"?! No files matched pattern: {pattern}")                                                           # Display a warning message
         input_files.extend(matched_files)                                                                              # Add matched files to input_files list
 
     if not input_files:                                                                                                # If no input files were found
@@ -502,11 +502,14 @@ if __name__ == "__main__":                                                      
     #—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
     for input_file in input_files:                                                                                     # Iterate over each input file
-        if args.output: output_file = args.output                                                                      # If output filename is specified, use the specified output filename
-        else:           output_file = re.sub(r'\.[^.]+$', EXTENSION_TO_PRODUCE, input_file)                            # If no output filename is provided, replace input file's extension with EXTENSION
-        print(f"⚙  Converting LRC 🠊 TXT: {input_file}")                                                                         # convert it
+        if args.output:
+            output_file = args.output                                                                                  # If output filename is specified, use the specified output filename
+        else:
+            output_file = re.sub(r'\.[^.]+$', EXTENSION_TO_PRODUCE, input_file)                                        # If no output filename is provided, replace input file's extension with EXTENSION
+            output_file = re.sub(r'\.lrc\.txt', '.txt', output_file)                                                   # If no output filename is provided, replace input file's extension with EXTENSION, but also, don’t let .lrc.txt happen, just make it .txt
+        print(f"{Fore.YELLOW}{Style.BRIGHT}⚙  Converting LRC 🠊 TXT:           “{Style.NORMAL}{input_file}{Style.BRIGHT}”{Style.RESET_ALL}")  # convert it
         lrc_to_txt(input_file, output_file)                                                                            # Call the main function with input and output files
-        print(f'✔  LRC karaoke conversion success: “{output_file}”')                                                      # Display success message
+        print( f'{Fore.GREEN}{Style.BRIGHT}✔  LRC karaoke conversion success: “{Style.NORMAL}{output_file}{Style.BRIGHT}”{Style.RESET_ALL}')  # Display success message
 
     #—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
