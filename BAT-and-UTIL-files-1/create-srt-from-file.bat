@@ -2427,7 +2427,7 @@ goto /i skip_subroutines
                 call debug "Answer of $ detected, running subordinate get-lyrics"
                 call get-lyrics-for-file "%SONGFILE%"
                 call debug "Returning from subordinate get-lyrics"
-        endiff
+        return
         :check_for_answer_of_E [opt1 opt2 opt3 opt4]          
                 rem check_for_answer_of_H in get-lyrics usually edits the lyrics
                 rem check_for_answer_of_E pretty exclusively is for editing the subtitles after
