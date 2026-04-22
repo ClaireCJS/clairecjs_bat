@@ -11,7 +11,8 @@ rem Redundant environment variable creation in case this is being run without it
 rem Validate environment (once):
         iff "1" != "%validated_ctmkh%" then
                 call validate-in-path               less_important check-for-missing-karaoke clean-up-AI-transcription-trash-files-here
-                call validate-environment-variables filemask_audio ansi_color_warning_soft star
+                call validate-environment-variables ansi_colors_have_been_set emoji_have_been_set star
+                rem no need to validate filemask_audio due to above snippet
                 set  validated_ctmkh=1
         endiff
 
@@ -21,6 +22,7 @@ rem Filename for our script to create the missing karaokes (if we decide to do t
 
        
 rem Make sure we have the files we need:
+
         iff "%1" == "/s" .or. "%2" == "/s" then
                 if not %@FILES[/h/s,%filemask_audio%] gt 0 (echos %ansi_color_warning_soft%%star% No files in %_CWP or its subfolders %conceal_on%121249212993%conceal_off%%+ goto :end)
         else

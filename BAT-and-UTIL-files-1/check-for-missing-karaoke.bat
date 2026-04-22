@@ -271,18 +271,14 @@ rem If there was nothing to do, let user know:
         rem pause "hmm"
 
 rem If we passed the “get” parameter, then run the script to get them:
-rem echo 💣💣💣💣💣💣       iff %%1"%1" == "get" .or. %%2"%2" == "get" .or. %%3"%3" == "get" t h e n  params=%1$
-        iff "%CFMK_GET%" == "1" .or. "%1" == "get" .or. "%2" == "get" .or. "%3" == "get" then 
-                iff exist create-the-missing-karaokes-here-temp.bat then
-                        call create-the-missing-karaokes-here-temp.bat
-                else
-                        rem call warning_soft "create-the-missing-karaokes-here-temp.bat does not exist"
-                endiff
-        endiff
+        rem %CFMK_GET%" == "1"  .or. "%1" == "get"  .or. "%2" == "get"  .or. "%3" == "get" then 
+        if "%CFMK_GET%" != "1" .and. "%1" != "get" .and. "%2" != "get" .and. "%3" != "get" goto :past_the_point_of_creating_the_missing_karaokes_here
+                if     exist create-the-missing-karaokes-here-temp.bat  call create-the-missing-karaokes-here-temp.bat
+                if not exist create-the-missing-karaokes-here-temp.bat  rem call warning_soft "create-the-missing-karaokes-here-temp.bat does not exist"
+        :past_the_point_of_creating_the_missing_karaokes_here
 
 
 :cmfk_onbreak
-rem pause "we’re done already?!"       
 gosub lockfile_folderlevel_delete_lockfile
 
 goto :END

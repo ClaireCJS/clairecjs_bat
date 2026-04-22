@@ -244,17 +244,28 @@ rem ACTUALLY SEARCH FOR BAD AI TRANSCRIPTIONS!!!
                         set EVEN_MORE_EXTRA_LETTERS=%EVEN_MORE_EXTRA_LETTERS%Q
                 endiff
 
-        rem create scripts:
-                set                                 EXTRACT_FILENAME=sed -s "s/:.*$//ig"
-                echo @Echo off                                                                                               >:u8 %tmpfile9%
-                echo "%_CWP"                                                                                                >>:u8 %tmpfile9%
-                echo on break cancel                                                                                        >>:u8 %tmpfile9%
-                echo echo.                                                                                                  >>:u8 %tmpfile9%
-                gosub step %+ type %tmpfile1% |:u8 %EXTRACT_FILENAME%                                                       >>:u8 %tmpfile7%
-                gosub step %+ type %tmpfile7% |:u8 uniq                                                                     >>:u8 %tmpfile2%
-                gosub step %+ type %tmpfile2% |:u8 insert-before-each-line.py "%PROCESSING_COMMAND_TO_USE% {{{{QUOTE}}}}"   >>:u8 %tmpfile3%
-                gosub step %+ type %tmpfile3% |:u8  insert-after-each-line.py "{{{{QUOTE}}}}"                               >>:u8 %tmpfile9%
-                echos %@ANSI_MOVE_TO_COL[0]%ANSI_ERASE_TO_EOL%
+
+        rem create filename extractor that is referenced in the script we create in our next step::
+                set EXTRACT_FILENAME=sed -s "s/:.*$//ig"
+
+        rem Set flag for controlling system-specific behavior (mostly cosmetic) in del-afte-review.bat, which is what PROCESSING_COMMAND_TO_USE calls:
+                set DEL_AFTER_REVIEW_MODE=AILyrics
+
+                rem ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨ Create script to run once: ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+                rem ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨ Create script to run once: ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+                rem ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨ Create script to run once: ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+                        echo @Echo off                                                                                               >:u8 %tmpfile9%
+                        echo "%_CWP"                                                                                                >>:u8 %tmpfile9%
+                        echo on break cancel                                                                                        >>:u8 %tmpfile9%
+                        echo echo.                                                                                                  >>:u8 %tmpfile9%
+                        gosub step %+ type %tmpfile1% |:u8 %EXTRACT_FILENAME%                                                       >>:u8 %tmpfile7%
+                        gosub step %+ type %tmpfile7% |:u8 uniq                                                                     >>:u8 %tmpfile2%
+                        gosub step %+ type %tmpfile2% |:u8 insert-before-each-line.py "%PROCESSING_COMMAND_TO_USE% {{{{QUOTE}}}}"   >>:u8 %tmpfile3%
+                        gosub step %+ type %tmpfile3% |:u8  insert-after-each-line.py "{{{{QUOTE}}}}"                               >>:u8 %tmpfile9%
+                        echos %@ANSI_MOVE_TO_COL[0]%ANSI_ERASE_TO_EOL%
+
+        rem Unset flag for controlling system-specific behavior (mostly cosmetic) in del-afte-review.bat:
+                unset /q DEL_AFTER_REVIEW_MODE
 
         rem Run script if it exists:
                 rem echo %ANSI_COLOR_DEBUG%- DEBUG: executing: %italics_on%%tmpfile9%%italics_off%%newline%%ansi_color_bright_yellow% %+ type %tmpfile9%

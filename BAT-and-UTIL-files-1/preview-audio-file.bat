@@ -28,16 +28,17 @@ rem CONFIG:
                 set DEFAULT_SHOW_KARAOKE=1                                      %+ rem 1=show any existing LRC/SRT karaoke sidecars prior to preview
 
 
-
+                                           
 
 rem USAGE:
         iff "%1" == "" then
                 echo.
-                echo %ansi_color_advice%* USAGE: optional:   set              PAF_START=start /min      [defines how we start our previewer] [default value=“%DEFAULT_PAF_START%”]%ansi_color_normal%
-                echo %ansi_color_advice%* USAGE: optional:   set             PAF_PLAYER={command}       [to set command to use as player] [default value=“%DEFAULT_PAF_PLAYER%”]
-                echo %ansi_color_advice%* USAGE: optional:   set PAF_WINAMP_INTEGRATION=%DEFAULT_PAF_WINAMP_INTEGRATION%               [defines whether we pause WinAmp] [default value=“%DEFAULT_PAF_WINAMP_INTEGRATION%”]%ansi_color_normal%
-                echo %ansi_color_advice%* USAGE: optional:   set           PAF_LRC_FILE=whatever.lrc    [“show_karaoke” parameter uses this LRC instead of searching for a sidecar LRC]
-                echo %ansi_color_advice%* USAGE: optional:   set           PAF_SRT_FILE=whatever.srt    [“show_karaoke” parameter uses this SRT instead of searching for a sidecar SRT]
+                echo %ansi_color_advice%* USAGE: optional:   set     PAF_WINAMP_INTEGRATION=%DEFAULT_PAF_WINAMP_INTEGRATION%               [defines whether we pause WinAmp: 1=yes,2=no]   [default value=“%DEFAULT_PAF_WINAMP_INTEGRATION%”]%ansi_color_normal%
+                echo %ansi_color_advice%* USAGE: optional:   set PAUSE_AFTER_RUNNING_PLAYER=1               %zzzzzzzzzzzzzzzzzzzzzzzzzzzzz%[pauses for any key to be pressed after we play, 1=yes,2=no]
+                echo %ansi_color_advice%* USAGE: optional:   set                  PAF_START=start /min      %zzzzzzzzzzzzzzzzzzzzzzzzzzzzz%[defines how we start our previewer]            [default value=“%DEFAULT_PAF_START%”]%ansi_color_normal%
+                echo %ansi_color_advice%* USAGE: optional:   set                 PAF_PLAYER={command}       %zzzzzzzzzzzzzzzzzzzzzzzzzzzzz%[to set command to use as player]               [default value=“%DEFAULT_PAF_PLAYER%”]
+                echo %ansi_color_advice%* USAGE: optional:   set               PAF_LRC_FILE=whatever.lrc    %zzzzzzzzzzzzzzzzzzzzzzzzzzzzz%[“show_karaoke” parameter uses this LRC instead of searching for a sidecar LRC]
+                echo %ansi_color_advice%* USAGE: optional:   set               PAF_SRT_FILE=whatever.srt    %zzzzzzzzzzzzzzzzzzzzzzzzzzzzz%[“show_karaoke” parameter uses this SRT instead of searching for a sidecar SRT]
 
                 echo.
                 echo %ansi_color_advice%* USAGE: call preview-audio-file {filename} {parameters}
@@ -54,7 +55,7 @@ rem USAGE:
 rem Validate environment:
         iff "1" != "%validated_previewaudiofile%" then
                 call validate-environment-variable emojis_have_been_set ansi_colors_have_been_set
-                call validate-in-path vlc print-with-columns.bat print_with_columns.py
+                call validate-in-path vlc print-with-columns.bat print_with_columns.py winamp-pause error.bat print-message.bat divider subtle.bat
                 set  validated_previewaudiofile=1
         endiff
 
@@ -101,7 +102,7 @@ rem Capture parameters:
 
 rem Actions to take BEFORE preview (pausing music):
         iff "1" == "%PAF_WINAMP_INTEGRATION%" then
-                echo %italics_off%%emoji_pause_button%%emoji_llama%   Pausing ⚡WinAmp⚡
+                echos %italics_off%%emoji_pause_button%%emoji_llama%   Pausing ⚡WinAmp⚡%ANSI_EOL%%@ANSI_MOVE_TO_COL[1]
                 ((call winamp-pause quick)>&>nul) >&>nul
         endiff
 
@@ -128,19 +129,28 @@ rem Show raw karaoke:
         endiff
         
 
-rem Announce the preview: Outer-script should be responsible for saying this, but if none exists, say it ourselves: 
+rem OLD: Announce the preview: Outer-script should be responsible for saying this, but if none exists, say it ourselves: 
         if "%_PBATCHNAME" == "" echo %ansi_color_bright_green%%emoji_play_button%Previewing file: %ansi_color_green%%italics_on%“%audio_file_to_preview%”%italics_off%%ansi_color_normal%
+
+rem NEW: Announce the preview no matter what:
+        echo %ANSI_COLOR_IMPORTANT%%EMOJI_PLAY_BUTTON% %blink_on%Playing file: %blink_on%“%ansi_color_important_less%%blink_on%%@UNQUOTE["%FILE_TO_USE%"]%ansi_color_important%%blink_on%”%blink_off% %EMOJI_PLAY_BUTTON%%ansi_color_normal%%ANSI_EOL%
 
 rem Do the actual preview:
         set      PAF_COMMAND=%PAF_START% %PAF_PLAYER% %param_1% %1$
         set LAST_PAF_COMMAND=%PAF_COMMAND%
-        echo %ansi_color_unimportant%* Preview cmd is: %faint_on%%PAF_COMMAND%%ansi_color_normal%%faint_off%
+        call subtle " Playback command is: %faint_on%%PAF_COMMAND%%ansi_color_normal%%faint_off%"
+        echos %ANSI_MOVE_UP_1%%ANSI_MOVE_UP_1%
         %PAF_COMMAND%
+
+rem NEW: Announce that we’ve played it, overwriting the announcement that we were *playing* it:
+        echo %ANSI_COLOR_REMOVAL%%EMOJI_STOP_BUTTON% Played file: “%ansi_color_bright_pink%%@UNQUOTE["%FILE_TO_USE%"]%ansi_color_removal%” %EMOJI_STOP_BUTTON%%ansi_color_normal%
+
+rem If we have an environment option to pause, do so:
         if "1" == "%PAUSE_AFTER_RUNNING_PLAYER%" pause
 
 rem Actions to take AFTER preview (unpausing music):
         iff "1" == "%PAF_WINAMP_INTEGRATION%" then
-                echo %italics_off%%emoji_pause_button%%emoji_llama% Unpausing ⚡WinAmp⚡
+                echos %italics_off%%emoji_pause_button%%emoji_llama% Unpausing ⚡WinAmp⚡%ANSI_EOL%%@ANSI_MOVE_TO_COL[1]
                 ((call winamp-unpause quick)>&>nul) >&>nul
         endiff
 

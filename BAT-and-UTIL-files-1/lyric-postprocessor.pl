@@ -238,6 +238,7 @@ while (my $raw = <$INPUT>) {
 
 	# On raw input, chomp may leave \r behind on CRLF files, so strip line ending explicitly.
 	$line =~ s/\r?\n\z/ /;
+	$line =~ s/[\r\n]+/ /g;
 	$line =~ s/\n/ /ig;
 
 
@@ -423,7 +424,7 @@ if ($ONE_LINE) {
 	#very final postprocessing:
     $final_output =~ s/, +$//;		# Remove the last trailing “,” [comma] if it exists
     $final_output =~ s/^\d\.? ?//;  # Remove “1. ”-type stuff at beginning
-	$final_output =~ s/|/ /;		# Remove pipe symbol because of command-line issues it creates and it not being anything we’d ever want in an AI-prompt particularly because it’s invalid on the command line without setdos pre/postfixing
+	$final_output =~ s/\f|/ /;		# Remove pipe symbol because of command-line issues it creates and it not being anything we’d ever want in an AI-prompt particularly because it’s invalid on the command line without setdos pre/postfixing
 	#$final_output =~ s/
     print $final_output;
 } else {
