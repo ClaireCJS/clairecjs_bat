@@ -1,5 +1,5 @@
-@Echo off
 @loadbtm on
+@Echo off
 rem @on break resume
 
 
@@ -8,8 +8,8 @@ rem @on break resume
 
 
 
-
-set DO_NOT_FETCH_LRC_IF_SRT_EXISTS=1
+rem Quick-LRC mode config:
+        set DO_NOT_FETCH_LRC_IF_SRT_EXISTS=1
 
 
 
@@ -375,7 +375,7 @@ rem VALIDATE ENVIRONMENT [once per session]:
                         if "%@ANSI_CURSOR_CHANGE_COLOR_WORD[]" == ""            function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                                
                         if not defined FILEMASK_AUDIO                                set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.dtshd
                 rem Now Validate:
-                        call validate-in-path               %LYRIC_DOWNLOADER_1% %LYRIC_DOWNLOADER_2% %PROBER% %PLAYER_COMMAND% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset eset.bat eset-alias.bat insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl insert-before-each-line.py newspaper.bat print_with_columns.py print-with-columns.bat newspaper.bat srt2lrc.py change-single-quotes-to-double-apostrophes.py add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat approve-lyrics.bat disapprove-lyrics.bat display-lyric-status-for-file.bat review-lyrics.bat review-files.bat approve-lyric-file.bat disapprove-lyric-file.bat approve-subtitle-file.bat disapprove-subtitle-file.bat get-lyric-status.bat approve-LYRICLESSNESS-for-file.bat disapprove-lyriclessness-for-file.bat unapprove-lyriclessness-for-file.bat cut.exe srt2txt.py lrc2txt.bat lrc2txt.py rn.bat clean-up-AI-transcription-trash-files-here.bat check-for-future-dated-files.bat
+                        call validate-in-path               %LYRIC_DOWNLOADER_1% %LYRIC_DOWNLOADER_2% %PROBER% %PLAYER_COMMAND% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset eset.bat eset-alias.bat insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl newspaper.bat print_with_columns.py print-with-columns.bat newspaper.bat srt2lrc.py change-single-quotes-to-double-apostrophes.py add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat approve-lyrics.bat disapprove-lyrics.bat display-lyric-status-for-file.bat review-lyrics.bat review-files.bat approve-lyric-file.bat disapprove-lyric-file.bat approve-subtitle-file.bat disapprove-subtitle-file.bat get-lyric-status.bat approve-LYRICLESSNESS-for-file.bat disapprove-lyriclessness-for-file.bat unapprove-lyriclessness-for-file.bat cut.exe srt2txt.py lrc2txt.bat lrc2txt.py rn.bat clean-up-AI-transcription-trash-files-here.bat check-for-future-dated-files.bat
                         rem  call unimportant               "Validated: lyric downloader, audio file prober"
                         call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET BAT TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME cool_question_mark star check LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO 
                         if not defined filemask_audio       call validate-environment-variable filemask_audio skip_validation_existence
@@ -1853,7 +1853,7 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                                 goto /i check_local_lyric_repository
                                 goto /i MaybeLyrics2
                         endiff
-                        gosub check_for_answer_of_H
+                        rem NO! We’re not using our subroutine here, for reasons: gosub check_for_answer_of_H
                         iff "Y" == "%SAVED_ANSWER_THESE_GOOD%" .or. "H" == "%SAVED_ANSWER_THESE_GOOD%" then
                                 echos %ansi_color_success% %check% ``
                                 echo yr | *copy /Ns "%MAYBE_LYRICS_1%" "%LYRIC_FILE%
@@ -2532,7 +2532,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                         set KEEP_LRC=0
                                                         set REPLACE_LRC=0
                                                         echo %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an LRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR%%ansi_color_grey% ``
-                                                        tail -5           "%LRC_SIDECAR_FILENAME_TEMP%" |:u8 insert-before-each-line "     " 
+                                                        tail -5           "%LRC_SIDECAR_FILENAME_TEMP%" |:u8 insert-before-each-line.py "       " 
                                                         echos %@ANSI_MOVE_TO_COL[1]
                                                         gosub delete_file "%LRC_SIDECAR_FILENAME_TEMP%"
                                                 endiff
@@ -2556,7 +2556,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                 rem Warn+Preview+Delete if it is not an LRC:
                                                         iff "0" == "%ELRC_IS_LRC%" .and. exist "%ELRC_SIDECAR_FILENAME_TEMP%" then
                                                                 echo %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an ELRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR%%ansi_color_grey% ``
-                                                                tail -5           "%ELRC_SIDECAR_FILENAME_TEMP%"  |:u8 insert-before-each-line "     " %+ echos %@ANSI_MOVE_TO_COL[1]
+                                                                tail -5           "%ELRC_SIDECAR_FILENAME_TEMP%"  |:u8 insert-before-each-line.py "       " %+ echos %@ANSI_MOVE_TO_COL[1]
                                                                 gosub delete_file "%ELRC_SIDECAR_FILENAME_TEMP%"
                                                         endiff
                                         endiff
@@ -2914,7 +2914,7 @@ if "1" == "%QUICK_LRC_MODE%" goto :skip_debug_2606
 call debug "goat lyric file is %lyric_file%, latest_file = %LATEST_FILE%, PREFERRED_LATEST_FILE_NAME=%PREFERRED_LATEST_FILE_NAME%, WHAT_WE_SEARCHED_GENIUS_FOR=%WHAT_WE_SEARCHED_GENIUS_FOR%, " silent
 rem pause
 rem dir "%lyric_file%"
-dir /odt |:u8 tail -8  |:u8 insert-before-each-line "     " 
+dir /odt |:u8 tail -8  |:u8 insert-before-each-line.py "     " 
 rem pause "we’re here x9234"
 :skip_debug_2606
 
@@ -3439,7 +3439,8 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 rem echo 🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂 Have_acceptable_lyrics_now_or_at_the_very_least_are_done 🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂🎂 LYRICS_ACCEPTABLE=“%LYRICS_ACCEPTABLE%” >nul
 
 
-echos %ANSI_CURSOR_CHANGE_TO_underline_BLINKING%                                                        %+ rem Update cursor
+rem Update cursor:
+        echos %ANSI_CURSOR_CHANGE_TO_underline_BLINKING%                                                        
 
 
 
@@ -4959,7 +4960,8 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                 rem but let’s not do this now:     (20260401): 
                                 set INPUT_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
                                 call subtle "INPUT_FILE set to: %INPUT_FILE%"
-                                set JUST_RENAMED_TO_INSTRUMENTAL=1
+pause "set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% in the variable name"
+                                set JUST_RENAMED_TO_%nature%=1
                                 set JUST_RENAMED=1
                         endiff
 
@@ -5145,3 +5147,4 @@ rem Debug stuffs:
         @setdos /x0
         echo PARENT_BAT was %PARENT_BAT% >nul
         call subtle "End of get-lyrics (parent_bat=%PARENT_BAT%) ends"
+

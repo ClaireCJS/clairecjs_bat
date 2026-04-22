@@ -910,11 +910,13 @@ This one was a surprising amount of work.
 Invokes a google search in primary browser, all while properly preserving the quotes given at the command line. 
 Way harder to do than it should be.
 
-### 🌟 [insert-before-each-line.py](../insert-before-each-line.py) / [insert-after-each-line.py](../insert-after-each-line.py):
+### 🌟 [insert-before-each-line.py](../insert-before-each-line.pl) / [insert-after-each-line.py](../insert-after-each-line.pl):
 
 Inserts text before/after each line of STDIN. Used for script generation.   
 Put ```{{{{QUOTE}}}}``` in the argument to turn it into a quote mark in the final output.
 ![image](https://github.com/user-attachments/assets/e3423665-783c-45e2-b275-7837d93d5ad9)
+
+The Perl version is 30% faster than Python version, but less reliable, especially with emoji & weirder file encodings.
 
 ### 🌟 [lyric-postprocessor.pl](../lyric-postprocessor.pl):
 

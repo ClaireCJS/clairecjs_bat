@@ -165,7 +165,7 @@ rem validate environment [once]:
                         if not defined ANSI_COLOR_ORANGE                           set ANSI_COLOR_ORANGE=%@CHAR[27][38;2;235;107;0m
                         rem TODO BLINK_ON, BLINK_OFF ITALICS_ON ITALICS_OFF, QUOTE, etc
                 rem Perform the actual validations:
-                        @call validate-in-path                %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  status-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alarm.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat restart-winamp.bat appdata.bat winamp.bat display-horizontal-divider.bat pause-for-x-seconds whispertimesync-postprocessor.py wc
+                        @call validate-in-path                %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  insert-before-each-line.py bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  status-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alarm.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat restart-winamp.bat appdata.bat winamp.bat display-horizontal-divider.bat pause-for-x-seconds whispertimesync-postprocessor.py wc
                         @if not defined TRANSCRIBER_PDNAME    @call validate-environment-variable  TRANSCRIBER_PDNAME  skip_validation_existence
                         @if not defined FILEMASK_AUDIO        @call validate-environment-variable  FILEMASK_AUDIO      skip_validation_existence
                         @call validate-environment-variables  ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET UnicodeOutputDefault machinename STAR STAR2 STAR5
@@ -377,10 +377,6 @@ rem Process command line parameters:
                 rem echo %reverse_on%after “shift”, %%1$ is now: %1$%reverse_off% >nul
                 goto /i process_for_mode_variants
         endiff    
-
-
-        rem echo AUTO_LYRIC_APPROVAL is %AUTO_LYRIC_APPROVAL%  %+ pause
-        
         if "1" == "%CLEANUP%" (goto /i just_do_the_cleanup)
 
         set MAKING_KARAOKE=1
@@ -763,13 +759,11 @@ REM if we already have a SRT file, we have a problem unless we’re forcing a re
                 if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto /i :END
                 if "1" == "%GOTO_END%"                         goto /i :END
         endiff
-        rem echo α 809.3
         iff "1" == "%goto_Force_AI_Generation%" then 
                 rem echo α 809.3.2
                 unset /q goto_Force_AI_Generation=1
                 goto /i Force_AI_Generation
         endiff
-        rem echo α 900
 
 
 
@@ -782,7 +776,6 @@ REM I believe this is where we want to re-jump in, if we *create* lyrics with a 
 REM If "%SOLELY_BY_AI%" == "1", we nuke the LRC/SRT file and go straight to AI-generating, and we only use the TEXT
 REM file if it is pre-approved or we are set in AutoLyricsApproval mode:
         :forcing_ai_generation
-        rem echo α 1000.0
         iff "1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%" then
                 rem echo α 1000.0.1
                 @call important_less "Forcing AI generation..."
@@ -792,11 +785,13 @@ REM file if it is pre-approved or we are set in AutoLyricsApproval mode:
                                 if exist "%SRT_FILE%" (*ren /Ns /q "%SRT_FILE%" "%@NAME[%SRT_FILE%].srt.%_datetime.bak")
                         endiff
                 else 
-                        if "%AUTO_LYRIC_APPROVAL%" != "1" (set SKIP_TXTFILE_PROMPTING=1)
-                        goto /i AI_generation
+                        rem Changed our mind as this caused lyrics to not get integrated into our prompt in certain situations and is so archaic in the timeline of this project that it might not make functional sense anymore
+                                rem if "%AUTO_LYRIC_APPROVAL%" != "1" (set SKIP_TXTFILE_PROMPTING=1)
+
+                        rem Go do the transcription:
+                                goto /i AI_generation
                 endiff
         endiff
-        rem echo α 1000.1
 
 REM If we say "force", skip the already-exists check and contiune
         rem Orch "1" == "%AUTO_LYRIC_APPROVAL%"
@@ -846,7 +841,6 @@ REM If we say "force", skip the already-exists check and contiune
 
 
 REM If it’s an instrumental, don’t bother:
-        rem echo α 1200
         unset /q REGEX_RESULT
         set REGEX_RESULT=%@REGEX[instrumental,%INPUT_FILE%]
         iff "%REGEX_RESULT%" == "1" then
@@ -863,7 +857,6 @@ REM If it’s an instrumental, don’t bother:
 REM In terms of automation, as of 10/28/2024 we are only comfortable with FULLY automatic (i.e. going through a whole playlist) generation
 REM in the event that a txt file also exists.  To enforce this, we will only generate with a "force" parameter if the txt file does not exist
         :check_for_txtfile
-        rem echo α 1400
         if "1" == "%SOLELY_BY_AI%" .or. "1" == "%PROBED_OR_REFUSED_ALREADY_709%" goto /i we_decided_to_never_check_for_txtfile
    
         rem not exist "%TXT_FILE%" .and.  1  !=  %FORCE_REGEN%  .and.  1  ==  %LYRIC_ATTEMPT_MADE   then
@@ -871,7 +864,6 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
         iff not exist "%TXT_FILE%" .and. "1" != "%FORCE_REGEN%" .and. "1" == "%LYRIC_ATTEMPT_MADE%" then
                 
                 :Generate_AI_Anyway_question        
-                        rem echo α 1450
                         rem Refetch lyriclessness status:
                                 rem echo ➕ lyriclessness status before refresh: “%LYRICLESSNESS_STATUS%”
                                 if "" == "%LYRICLESSNESS_STATUS%" gosub  refresh_lyriclessness_status
@@ -915,10 +907,11 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                                 endiff
                 goto /i END
         else
-                iff %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST gt 0 then
-                        call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
+                iff defined WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST then
+                        iff %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST gt 0 then
+                                call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
+                        endiff
                 endiff
-
         endiff
 
         if "%LYRICLESSNESS_STATUS%" == "APPROVED" goto /i do_not_refetch_lyrics
@@ -994,7 +987,6 @@ rem Only include the “--language” part of the prompt if %OUR_LANGUAGE% is se
         else
                 unset /q LANGUAGE_PART_OF_PROMPT
         endiff
-        if "1" == "%DEBUG_TRACE_CSFF%" pause "did we get here 993"
 
 REM if a text file of the lyrics exists, we need to engineer our AI transcription prompt with it to get better results
         :reassemble_prompt
@@ -1103,6 +1095,10 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
 
         if "1" == "%DEBUG_TRACE_CSFF%"    pause "did we get here 1088"
         if "1" == "%AUTO_LYRIC_APPROVAL%" goto /i use_text
+
+echo    Sometimes lyrics aren’t getting integrated into the AI prompt for some reason, and it seems to be after somethingsomethingsomething⁉️⁉️⁉️⁉️
+echo    if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto /i endiff_no_text_1017 GOAT %+ pause
+
         if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto /i endiff_no_text_1017
                 :reassemble_prompt_lyrics
                 :use_text
@@ -1387,6 +1383,18 @@ REM quick chance to edit prompt:
         :edit_ai_prompt
         unset /q ANSWER
 
+
+rem We can end up here when we shouldn’t, so:
+        call subtle "GOAT checking iff 1 == %SUCCESSFUL_GENERATION% .and. exist "%SRT_FILE%" "
+        iff "1" == "%SUCCESSFUL_GENERATION%" .and. exist "%SRT_FILE%" then
+                pause "skipping code here based on SUCCESSFUL_GENERATION flag being 1, though we are un-setting it now"
+                unset /q SUCCESSFUL_GENERATION
+                goto /i :just_do_the_cleanup
+        endiff
+
+
+
+rem Edit the AI prompt first?
         if not defined PROMPT_EDIT_CONSIDERATION_TIME set PROMPT_EDIT_CONSIDERATION_TIME=20
         @call AskYn "Edit the AI prompt first [%ansi_color_bright_green%G%ansi_color_prompt%=Get lyrics 1st]" no %PROMPT_EDIT_CONSIDERATION_TIME% YNG Y:Yes,N:No,G:get_lyrics
                 rem “G” answer:
@@ -1713,7 +1721,7 @@ rem Title the window that we are done!:
                 title %CHECK% WhisperAI complete!
 
 rem Various cleanup:
-                unset /q WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL %+ rem These need to be unset so that they are properly set next time we wait for a lockfile
+                unset /q WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL JUST_RENAMED* %+ rem These need to be unset at a very specific time to not create holistic consequences
                 on break cancel                      %+ rem Re-Enable proper Ctrl-Break behavior under TCC+WindowsTerminal                       
                 goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
                 goto /i Done_Transcribing            %+ rem  \____ If this seems ridiculous, it is because we want to make sure we don’t lose our place in this script if the script has been modified during running. It’s probably a hopeless endeavor to recover from that.
@@ -2160,6 +2168,9 @@ rem Full-endeavor success message:
                                 if "1" == "%DEBUG_KARAOKE_APPROVAL%" call subtle "asking to edit karaoke file because we already asked because karaoke_edit_already_asked==“%karaoke_edit_already_asked%”"                                
                         endiff
                         if "1" == "%DEBUG_KARAOKE_APPROVAL%" call subtle "About to ask (karaoke_edit_already_asked=%karaoke_edit_already_asked%)"
+
+
+        rem Edit karaoke file?
                         @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%1%ansi_color_prompt%=Retry,rena%ansi_color_bright_green%M%ansi_color_prompt%e files]" no %USE_WAIT_TIME% notitle ADEFGIMPQ1STUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,1:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,G:_get_lyrics,M:rename_it
                         set karaoke_approval_asked=1
                         set karaoke_edit_already_asked=1
@@ -2235,7 +2246,7 @@ rem Full-endeavor success message:
                         set ANSWER=%HELD_ANSWER_1922%
 
 
-        rem If we got here, we need to ask about karaoke approval:
+        rem Approve karaoke file? —— If we got here, we need to ask about karaoke approval:
                 :no_need_to_edit_it
                 if "1" == "%DEBUG_KARAOKE_APPROVAL%" echo * about to gosub approve karaoke 1526
                 gosub ask_to_approve_karaoke
@@ -2245,7 +2256,7 @@ rem Full-endeavor success message:
         rem Update the title to say we’re done! We are!
                 set MSG=%CHECK% %SRT_FILE% generated successfully! %check%      
                 title %MSG%
-                echo %ansi_color_important%%star% %msg%%ansi_color_normal%
+                echo %ansi_color_success%%star% %msg%%ansi_color_normal%
                 if "%SOLELY_BY_AI%" == "1" (call warning "ONLY AI WAS USED. Lyrics were not used for prompting")
 
         rem If we deleted/unapproved our karaoke, we should end up here:
@@ -3005,8 +3016,8 @@ goto /i skip_subroutines
         return
 
 
-:skip_subroutines
 
+:skip_subroutines
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
