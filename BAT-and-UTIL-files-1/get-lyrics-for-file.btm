@@ -2504,8 +2504,9 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                 if "A" == "%SYNCEDLYRICS_MODE%"                                                                     (echo %@ansi_move_to_col[1]%ansi_erase_to_eol%%ansi_color_less_important%%star2% Attempting to fetch %ansi_color_important%%italics_on%extended%italics_off% subtitles %ansi_color_important_less%with %[italics_on]SyncedLyrics%italics_off%...%ansi_color_normal% `` %+ echos %ANSI_SAVE_POSITION%  %ANSI_COLOR_NORMAL%%ARROW%  %EXSUB_RETRIEVAL_COMMAND%%ZZZANSI_RESTORE_POSITION%%ZZZANSI_MOVE_UP_1ZZZ% %+ (%EXSUB_RETRIEVAL_COMMAND% >&nul) |:u8 copy-move-post) ) %+ SET TEMPCHAR=%@IF[exist "%ELRC_SIDECAR_FILENAME_TEMP%",%CHECK%,%RED_X%] %+ echo  %TEMPCHAR%%@ansi_move_to_col[3]%TEMPCHAR% %+ rem call errorlevel "%CURRENT_LYRIC_PROVIDER% Problem retrieving extended subtitles in %0")
                                 :next_one_3
                                 on break echos %EMOJI_BANG%
+                                echos %@ansi_move_to_col[1]%ansi_erase_to_eol%
 
-                       :skip_this_search_2413                                                                                                                                    echos %@ansi_move_to_col[1]%ansi_erase_to_eol%
+                       :skip_this_search_2413                                                                                                                                    
 
                         rem Make sure LRC is actually an LRC:
                                 iff exist "%LRC_SIDECAR_FILENAME_TEMP%" then
@@ -2525,7 +2526,8 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                         set KEEP_LRC=0
                                                         set REPLACE_LRC=0
                                                         echo %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an LRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR% ``
-                                                        tail -5           "%LRC_SIDECAR_FILENAME_TEMP%" |:u8 insert-before-each-line "     " %+ echos %@ANSI_MOVE_TO_COL[1]
+                                                        tail -5           "%LRC_SIDECAR_FILENAME_TEMP%" |:u8 insert-before-each-line "     " 
+                                                        echos %@ANSI_MOVE_TO_COL[1]
                                                         gosub delete_file "%LRC_SIDECAR_FILENAME_TEMP%"
                                                 endiff
                                 endiff
@@ -3111,7 +3113,7 @@ rem Try again if massaged names exist (that is, if the massaged names are differ
         :Already_Did_Massaged
 
         rem Not sure why this was a good idea, in quick_lrc_mode it surely is not:
-        if "1" != "%QUICK_LRC_MODE%" exist "%LYRIC_FILE" (*ren /p /Ns /q "%LYRIC_FILE" "%LYRIC_FILE%.%_datetime.failed-lyric-search.bak" )
+        if "1" != "%QUICK_LRC_MODE%" .and. exist "%LYRIC_FILE" (*ren /p /Ns /q "%LYRIC_FILE" "%LYRIC_FILE%.%_datetime.failed-lyric-search.bak" )
 
         rem gosub divider
         rem Continue on... We have failed so far.  (DON’T do this here: goto /i end_of_massage_attempt)
@@ -4950,6 +4952,7 @@ echo GOATGOAT                                gosub check_for_answer_of_M "%@UNQU
                                 rem     let’s not do this anymore: (20250221): set AUDIO_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
                                 rem but let’s not do this now:     (20260401): 
                                 set INPUT_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
+                                call subtle "INPUT_FILE set to: %INPUT_FILE%"
                                 set JUST_RENAMED_TO_INSTRUMENTAL=1
                                 set JUST_RENAMED=1
                         endiff

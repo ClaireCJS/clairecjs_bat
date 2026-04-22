@@ -559,8 +559,11 @@ REM display debug info:
         if %DEBUG gt 0 echo %ansi_color_debug%- DEBUG: (8)%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE=“%ITALICS_ON%%SONGBASE%%ITALICS_OFF%”%NEWLINE%%TAB%%TAB%LRC_FILE=“%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%”, %NEWLINE%%TAB%%TAB%TXT_FILE=“%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%”%FAINT_OFF%%ansi_color_normal%
         gosub divider
         iff "1" == "%ANNOUNCE_IF_SIDECAR_FILES_EXIST%" then
+                iff exist "%@UNQUOTE["%SONGFILE%"]" then
+                        set INPUT_FILE=%@UNQUOTE["%SONGFILE%"]
+                        call subtle "INPUT_FILE is now: %INPUT_FILE%"
+                endiff
                                        gosub say_if_exists SONGFILE 
-                                        if exist "%@UNQUOTE["%SONGFILE%"]" set INPUT_FILE=%SONGFILE%
                                        gosub say_if_exists SRT_FILE
                                        gosub say_if_exists LRC_FILE
                                        gosub say_if_exists TXT_FILE
@@ -646,21 +649,12 @@ REM Now, let’s check these values:
         :retry_after_lrc_copy
 
 REM if our input MP3/FLAC/audio file doesn’t exist, we have problems:
-        rem echo α 700
         if not exist "%@UNQUOTE["%INPUT_FILE%"]" call validate-environment-variable INPUT_FILE
-        rem iff "%FORCE_REGEN%" == "1" .or. "%SOLELY_BY_AI%" == "1" then
-        rem         rem Skip validation because we’re doing things automatically
-        rem else
-                rem TODO: refactor this internally for speedup
-                call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO%
-        rem endiff
+        call validate-file-extension "%INPUT_FILE%" %FILEMASK_AUDIO%
 
 
 REM If our input file is lyricless and we’ve approved its lyriclessness, then we’ve decided to transcribe without a lyrics file
-        rem call get-lyriclessness-status "%INPUT_FILE%"
-        rem echo y set LYRICLESSNESS_STATUS=%%@EXECSTR[type {lt}"%@unquote["%INPUT_FILE%"]:lyriclessness" {gt}&{gt}nul]``
         set LYRICLESSNESS_STATUS=%@EXECSTR[type <"%@unquote["%INPUT_FILE%"]:lyriclessness" >&>nul]``
-        rem echo y HEY ARE WE HERE WHAT HAPPENED
         iff "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "%LYRIC_STATUS%" != "APPROVED" then  %+ rem NOTE: sometimes we can download and approve lyrics after a songfile is set to lyriclessness, so in that situation, defer to the approved lyrics!
                 rem echo α 807.5                                                                                                        
                 call success "%italics_on%Lyric%underline_on%less%underline_off%ness%italics_off% already approved! Using AI only!" big
@@ -709,7 +703,6 @@ REM if we already have a SRT file, we have a problem unless we’re forcing a re
                         endiff
                 endiff
                 :automatic_skip_for_ai_parameter
-                rem FORCE_REGEN is %FORCE_REGEN %+ pause
                 iff "1" != "%FORCE_REGEN%" then
                         unset /q ANSWER
                         @call askYN "%conceal_on%22%conceal_off%Regenerate it anyway? %faint_on%[“no” will mark karaoke as %italics%approved%italics_off%]%faint_off%" no %REGENERATE_SRT_AGAIN_EVEN_IF_IT_EXISTS_WAIT_TIME%
@@ -922,27 +915,18 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                                 endiff
                 goto /i END
         else
-                rem echo α 1475
-                rem This seems inapplicable now (2024/12/11): @echo %ansi_color_warning_soft%%star% Not yet generating %emphasis%%SRT_FILE%%deemphasis%%ansi_color_warning_soft% because %emphasis%%TXT_FILE%%deemphasis%%ansi_color_warning_soft% does not exist!%ansi_color_normal%
-                rem Let’s save this for our usage response: @echo %ansi_color_advice%`---->` Use “%italics_on%force%italics_off%” option to override.
-                rem Let’s save this for our usage response: @echo %ansi_color_advice%`---->` Try to get the lyrics first. SRT-generation is most accurate if we also have a TXT file of lyrics!
-                rem Don’t need this (2025/01/04) because get-lyrics-for-file calls its own divider: gosub divider
                 iff %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST gt 0 then
-                    call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
+                        call pause-for-x-seconds %WAIT_TIME_ON_NOTICE_OF_LYRICS_NOT_FOUND_AT_FIRST%
                 endiff
 
         endiff
 
-        rem echo α 1500.0.0 ━━ "LYRICLESSNESS_STATUS" == "%LYRICLESSNESS_STATUS%" 
         if "%LYRICLESSNESS_STATUS%" == "APPROVED" goto /i do_not_refetch_lyrics
-        rem echo α 1500.0.1
         :Refetch_Lyrics
         iff not exist "%TXT_FILE%" .and. "1" != "%FORCE_REGEN%" .and. "1" == "%LYRIC_ATTEMPT_MADE%" then
                 rem this is just the same “iff” condition copied from the block above
                 rem believe it or not, this is for code readability reasons :) :) :)
         else
-                rem echo α 1500.1.2
-                rem echo * Refetch_Lyrics[2A]: LYRIC_STATUS=“%LYRIC_STATUS%”, LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
                 if "%LYRIC_STATUS%" == "" gosub  refresh_lyric_status
                 if "%LYRICLESSNESS_STATUS%" == "" gosub  refresh_lyriclessness_status
                 call get-lyrics-for-file "%SONGFILE%" 
@@ -953,7 +937,6 @@ REM in the event that a txt file also exists.  To enforce this, we will only gen
                 if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto /i :END
                 goto /i :We_Have_A_Text_File_Now
         endiff
-        rem echo α 1500.1.98 - helloooooooooooo???
         if "1" == "%GOTO_END_AFTER_GET_LYRICS_CALLED%" goto /i END
         :We_Have_A_Text_File_Now
 
@@ -1404,6 +1387,8 @@ REM quick chance to edit prompt:
         :edit_ai_prompt
         unset /q ANSWER
 
+        if not defined PROMPT_EDIT_CONSIDERATION_TIME set PROMPT_EDIT_CONSIDERATION_TIME=20
+echo GOATGOAT: @call AskYn "Edit the AI prompt first [%ansi_color_bright_green%G%ansi_color_prompt%=Get lyrics 1st]" no %PROMPT_EDIT_CONSIDERATION_TIME% YNG Y:Yes,N:No,G:get_lyrics
         @call AskYn "Edit the AI prompt first [%ansi_color_bright_green%G%ansi_color_prompt%=Get lyrics 1st]" no %PROMPT_EDIT_CONSIDERATION_TIME% YNG Y:Yes,N:No,G:get_lyrics
                 rem “G” answer:
                         gosub check_for_answer_of_G "%@UNQUOTE["%SONGFILE%"]"
