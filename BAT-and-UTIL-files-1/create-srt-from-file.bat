@@ -219,7 +219,7 @@ rem Start our processing of command line parameters with giving USAGE if no comm
         endiff
 
 rem Pre-Cleanup:
-        unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_OR_REFUSED_ALREADY_709 SUCCESSFUL_GENERATION
+        unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_OR_REFUSED_ALREADY_709 SUCCESSFUL_GENERATION AUDIO_FILE_LENGTH
         rem DEBUG: pause "calling bat is “%CREATE_SRT_PARENT_BAT%”"
         rem unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused
 
@@ -1551,7 +1551,6 @@ REM ═════════════════════════�
 
 
 
-REM  ✨ ✨ Get ready to actually generate the SRT file [used to be LRC but we have now coded specifically to SRT] —— start AI: ✨ ✨ 
 REM  ✨ ✨ ✨ Concurrency checks: ✨ ✨ ✨ 
         rem One last concurrency check:
                 gosub check_if_whisper_is_running
@@ -1676,7 +1675,7 @@ REM  ✨ ✨ ✨ ✨ ✨ ✨ ACTUALLY DO THE AI-TRANSCRIPTION: ✨ ✨ ✨ ✨ �
                         title waiting: %BASE_TITLE_TEXT%
                         :launching_ai_already_displayed
 
-rem Prepare to actually do it!
+rem Prepare to do it!
                 echo. %+ rem this is the blank line after “launching ai”
                 option //UnicodeOutput=yes
                 on break rem
@@ -1733,8 +1732,8 @@ rem ACTUALLY DO IT!!!:
 rem Title the window that we are done!:
                 title %CHECK% WhisperAI complete!
 
-rem Various cleanup:
-                unset /q WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL JUST_RENAMED* LYRICS_JUST_DISAPPROVED %+ rem These need to be unset at a very specific time to not create holistic consequences
+rem Various pre-transcription cleanup:
+                unset /q AUDIO_FILE_LENGTH WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL JUST_RENAMED* LYRICS_JUST_DISAPPROVED %+ rem These need to be unset at a very specific time to not create holistic consequences
 
 
 rem ACTUALLY DO THE TRANSCRIPTION:

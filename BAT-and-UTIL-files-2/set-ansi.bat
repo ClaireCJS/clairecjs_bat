@@ -174,6 +174,7 @@ rem —————————————————————————�
         rem Cursor color:
                 rem Changing color by word, i.e. 'red', 'magenta':                
                         function    ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                
+                        rem Is this one named too long?:
                         function ANSI_CURSOR_COLOR_CHANGE_BY_WORD=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
                         function    ANSI_SET_CURSOR_COLOR_BY_WORD=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
                         function      CURSOR_COLOR_CHANGE_BY_WORD=`%@ANSI_CURSOR_CHANGE_COLOR_WORD[%1$]`
@@ -200,6 +201,7 @@ rem —————————————————————————�
                         function         ANSI_CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
                         function          SET_CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
                         function              CURSOR_COLOR_BY_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
+                        function                       CURSOR_HEX=`%@char[27][ q%@char[27]]12;#%1%@char[7]`
 
                 rem Random color:
                         function ANSI_CURSOR_CHANGE_COLOR_RANDOM=`%@ansi_cursor_color_by_hex[%@random_rgb_hex[]]`
