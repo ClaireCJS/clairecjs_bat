@@ -1108,8 +1108,8 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
         if "1" == "%DEBUG_TRACE_CSFF%"    pause "did we get here 1088"
         if "1" == "%AUTO_LYRIC_APPROVAL%" goto /i use_text
 
-echo    Sometimes lyrics aren’t getting integrated into the AI prompt for some reason, and it seems to be after somethingsomethingsomething⁉️⁉️⁉️⁉️
-echo    if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto /i endiff_no_text_1017 GOAT %+ pause
+        rem DEBUG: echo    Sometimes lyrics aren’t getting integrated into the AI prompt for some reason, and it seems to be after somethingsomethingsomething⁉️⁉️⁉️⁉️
+        rem DEBUG: echo    if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto /i endiff_no_text_1017 GOAT %+ pause
 
         if not exist %TXT_FILE% .or. "1" == "%SKIP_TXTFILE_PROMPTING%" .or. ("1" == "%SOLELY_BY_AI%" .and. "1" != "%AUTO_LYRIC_APPROVAL%") goto /i endiff_no_text_1017
                 :reassemble_prompt_lyrics
@@ -2191,7 +2191,8 @@ rem Full-endeavor success message:
 
 
         rem Edit karaoke file?
-                        @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%1%ansi_color_prompt%=Retry,rena%ansi_color_bright_green%M%ansi_color_prompt%e files]" no %USE_WAIT_TIME% notitle ADEFGIMPQ1STUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,1:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,$:get_lyrics,M:rename_it
+                        :final_edit_karaoke_askyn
+                        @call AskYN "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%1%ansi_color_prompt%=Retry,rena%ansi_color_bright_green%M%ansi_color_prompt%e files]" no %USE_WAIT_TIME% notitle ADEFGIMPQ1STUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,1:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,$:get_lyrics,M:rename_it
                         set karaoke_approval_asked=1
                         set karaoke_edit_already_asked=1
                         if "1" == "%DEBUG_KARAOKE_APPROVAL%" call debug "[A] karaoke_edit_already_asked & karaoke_approval_asked both set to 1" silent
@@ -2241,12 +2242,12 @@ rem Full-endeavor success message:
                                         if "T" == "%HELD_ANSWER_1922%" goto :ask_about_karaoke_edit
                                 rem “P”/“Q”: 
                                         set ANSWER=%HELD_ANSWER_1922%
-                                        set player_command_extra_options=show_karaoke
-                                        iff "%ANSWER" == "P" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
-                                        iff "%ANSWER" == "Q" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
-                                        unset /q player_command_extra_options
+                                                set player_command_extra_options=show_karaoke
+                                                        iff "%ANSWER" == "P" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
+                                                        iff "%ANSWER" == "Q" gosub "%BAT%\get-lyrics-for-file.btm" check_for_answer_of_Q "%@UNQUOTE["%INPUT_FILE%"]"
+                                                unset /q player_command_extra_options
                                         set ANSWER=%HELD_ANSWER_1922%
-                                        iff "%ANSWER" == "P" .or. "%ANSWER" == "Q" then goto /i ask_about_karaoke_edit
+                                        iff "%ANSWER" == "P" .or. "%ANSWER" == "Q" then goto /i final_edit_karaoke_askyn
                                 rem “A”/“D”: 
                                         set ANSWER=%HELD_ANSWER_1922%
                                         iff "A" == "%ANSWER%" then
@@ -2421,7 +2422,7 @@ goto /i skip_subroutines
                 endiff
         return
         :check_for_answer_of_dollar [opt1]                        
-                call debug "Checking for answer of $"
+                rem DEBUG: call debug "Checking for answer of $" silent
                 if "$" != "%ANSWER%" return
                 call debug "Answer of $ detected, running subordinate get-lyrics"
                 call get-lyrics-for-file "%SONGFILE%"

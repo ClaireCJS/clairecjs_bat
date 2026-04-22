@@ -101,8 +101,8 @@ text
 :USAGE:                                           1) "SetVarsOnly"     —— to just set the MAYBE_LYRICS_1/2/BROAD_SEARCH environment variables
 :USAGE:                                           2)    "force"        —— to get lyrics for songs that are already in an approved-lyricLESSness state
 :USAGE:                                           3)    "genius"       —— to ONLY perform the Genius.com/LyricsGenius.exe download
-:USAGE:                                           4)    "syncedlyrics" —— to ONLY perform the SyncedLyrics download                                          GOATGOATADDTOMAINDOCS
-:USAGE:                                           5)    "quick_LRC"    —— to ONLY perform a quick LRC download for each file                                 GOATGOATADDTOMAINDOCS
+:USAGE:                                           4)    "syncedlyrics" —— to ONLY perform the SyncedLyrics download                                         GOATADDTOMAINDOCS
+:USAGE:                                           5)    "quick_LRC"    —— to ONLY perform a quick LRC download for each file                                GOATADDTOMAINDOCS
 :USAGE: Forms of automation via environment variables:
 :USAGE:     set OVERRIDE_FILE_ARTIST_TO_USE=Misfits      //override artist name, especially useful if you want to predownload lyrics for a bunch of tribute/cover albums of a particular band. For example, I have 10 tribute albums for The Misfits that I want to pre-download lyrics for, but I have a hunch the downloader will not find the right lyrics if my original artist tag is missing on any of these files, plus a lot of people who upload lyrics upload without the “The”. And although this script compensates for both those contingencies, setting this can speed things up.
 :USAGE:     set CONSIDER_ALL_LYRICS_APPROVED=1           //automatically approves lyrics at first prompt and reduces prompt from %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% to %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO% seconds
@@ -662,7 +662,7 @@ iff "%2" != "SetVarsOnly" .and. "1" != "%QUICK_LRC_MODE%" then
         set quote_color=%ansi_color_bright_green%
 
 
-        iff "now" == "goatgoatgoat before 20260428" then
+        iff "now" == "goatgoat before 20260428" then
                 iff "%LYRICLESSNESS_STATUS%" == "APPROVED" .and. "1" != "%force_regen_LYRICS%" then
                         call warning "is this the infinite loop?!?!?!"
                         call AskYN   "Sorry. Not gonna do it. Unless you really want me to" no 30
@@ -1842,7 +1842,8 @@ rem Check if we have one in our lyric repository already, via 2 different filena
         rem iff "1" == "%LYRICS_ACCEPTABLE%" .and. exist "%MAYBE_LYRICS_1%" .and. %@FILESIZE["%MAYBE_LYRICS_1%"] gt 0 .and. "1" != %GENIUS_ONLY% then
         if "1" != "%PROCESS_MAYBE_1%" goto /i endiff_991
                 @gosub divider
-                @call less_important "Found possible lyrics (type 1) at %emphasis%%maybe_lyrics_1%%deemphasis%!%conceal_on%3838%conceal_off%"
+                rem “Found possible lyrics”
+                @call less_important "Found %italics_on%possible%italics_off% lyrics (type 1) at %emphasis%%maybe_lyrics_1%%deemphasis%!%conceal_on%3838%conceal_off%"
                 @call less_important "Let’s review them..."
                 rem @gosub divider
                 rem @call bigecho %ANSI_COLOR_IMPORTANT_LESS%%star% %underscore_on%Let’s review:%underscore_off%%ANSI_RESET%
@@ -1957,7 +1958,8 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 set PROCESS_MAYBE_2=0
         endiff
         iff "1" == "%PROCESS_MAYBE_2%" then
-                call less_important "Found possible lyrics (type 2) at %emphasis%%maybe_lyrics_2%%emphasis%!%conceal_on%7272%conceal_off%"
+                rem “Found possible lyrics”
+                call less_important "Found %italics_on%possible%italics_off% lyrics (type 2) at %emphasis%%maybe_lyrics_2%%emphasis%!%conceal_on%7272%conceal_off%"
                 call less_important "Let’s review them:"
                 rem gosub divider
                 rem @call bigecho %ANSI_COLOR_IMPORTANT_LESS%Let’s review!%ANSI_RESET%
@@ -2028,7 +2030,8 @@ rem If we still didn’t find anything acceptable, but have potentially matching
                         )
                         if "%[already_tried_potential_lyrics_%expanded%]" == "1" echo %star% We already decided these lyrics weren’t good: %italics_on%%faint_on%%expanded%%faint_off%%italics_off%
                         if "%[already_tried_potential_lyrics_%expanded%]" == "1" goto /i Nevermind_about_this_1
-                        call less_important "Found possible lyrics (type 3) at %emphasis%%expanded%%deemphasis%!"
+                        rem “Found possible lyrics”
+                        call less_important "Found %italics_on%possible%italics_off% lyrics (type 3) at: %emphasis%%expanded%%deemphasis%!"
                                 call less_important "Let’s review them..."
                                 set  found_broad_lyrics_branch_1=1
                                 *copy /Ns "%expanded%" "%TMPREVIEWFILE%" 
@@ -4130,7 +4133,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         
                                                                                                                                                                                                                 rem echo ** if "Y" ==   LAST_ANSWER_TO_ISTHISINSTRUMENTAL{which is "%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%"} then..  %+ rem echo ** if "Y" == "%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%" then
                                 iff "Y" == "%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%" then
-                                        rem gosub debug "❷[222] Marked file with ADS tag: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
+                                        rem DEBUG: gosub debug "❷[222] Marked file with ADS tag: “%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%”"
                                         echo True>"%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%"
                                         iff "" !=  "%LAST_RENAMED_TO%" then
                                                 set AUDIO_FILE=%@UNQUOTE[%LAST_RENAMED_TO%]
@@ -4139,11 +4142,6 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                                 pause "goatgoat IS_INSTRUMENTAL_or_whatever_ADS_FILENAME=%IS_INSTRUMENTAL_or_whatever_ADS_FILENAME%"
                                         endiff
                                         gosub rename_audio_file_as_instrumental %@UNQUOTE["%AUDIO_FILE%"]
-                                        rem Section removed after it started rn’ing previous %AUDIO_FILE%s and not the current due to rename code not beinog fully perfected
-                                        rem if not exist "%AUDIO_FILE%" goto /i endif_2479
-                                        rem         echo %ansi_color_warning_soft%%star2% Last chance for bonus renaming:
-                                        rem         call rn "%AUDIO_FILE%"
-                                        rem :endif_2479
                                         goto /i END_OF_GET_LYRICS %+ rem TODOTODO? 2025/05/07 update: will this stop the problem of asking us to mark it as a failed transcription in the case of renaming a file as an instrumental after a lyricless transcription that triggers out “possible instrumental detected” logic ? 2026/04: I dunno, i guess? don’t recall this still being a problem anymore
                                         goto /i endiff_2313
                                 else
@@ -4157,7 +4155,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
         return
 
         :ask_if_want_mark_lyriclessness []
-                rem echo 🌷🌷🌷  Asking if we want to mark as lyricless.... 🌷🌷🌷 >nul
+                rem DEBUG: echo 🌷🌷🌷  Asking if we want to mark as lyricless.... 🌷🌷🌷 >nul
                 echo %ansi_color_advice%%star2% NOTE: “%ansi_color_bright_yellow%lyric%underline_on%less%underline_on%%ansi_color_advice%”     means “we can’t/won’t find lyrics for this song”
                 echo %ansi_color_advice%%star2%       “%ansi_color_bright_yellow%linstrumental%ansi_color_advice%” means “no words are sung or spoken at all”
                 :ask_if_want_mark_lyriclessness_2
@@ -4916,7 +4914,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                 endiff
 
                         rem 4) If we opted not to rename it (did not press a key that results in renaming), then abort this function (return):
-                                gosub debug "answer at 3942 is %answer% 🐐"
+                                rem DEBUG: gosub debug "answer at 3942 is %answer% 🐐"
                                 iff  "Y" != "%ANSWER%" .and. "I" != "%ANSWER%" .and. "S" != "%ANSWER%" .and. "C" != "%ANSWER%" then    rem We use “I” in place of “Y” for Yes-rename-as-instrumental
                                         echo %ansi_color_warning_soft%%star%Fine, won’t rename as %italics_on%%nature%%italics_off% then!%ansi_color_normal%
                                         return
@@ -4966,33 +4964,47 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                 rem :endiff_not_exist_LYRIC_SIDECAR
 
                                 rem old way as a fallback:
-                                        rem echos %ansi_color_bright_yellow% %EMOJI_AXE%%EMOJI_AXE%%EMOJI_AXE% ``   
-                                        set AXER=%EMOJI_AXE%%EMOJI_AXE%%EMOJI_AXE% ``
-                                        iff exist "%LYRIC_SIDECAR%" then
-                                                call review-file -wh -stu -ins "%LYRIC_SIDECAR%"        
-                                                call askyn "%AXER%⁵Delete lyric sidecar" yes 0 
-                                                        iff "Y" == "%ANSWER%" then
-                                                                echos %AXER% ``
-                                                                *del /Ns "%LYRIC_SIDECAR%" 
-                                                                set JUST_APPROVED_LYRICS=0
-                                                                set LYRICS_JUST_DISAPPROVED=1
-                                                                set LYRIC_STATUS=NOT_APPROVED
-                                                        endiff
-                                        endiff
-                                        iff exist   "%SRT_SIDECAR%" .or. exist "%LRC_SIDECAR%" then
-                                                if exist "%LRC_SIDECAR%"                             (set KIND=LRC     %+ set sidecar=sidecar %+ call review-file -wh -stu -ins "%LRC_SIDECAR%")
-                                                if exist "%SRT_SIDECAR%"                             (set KIND=SRT     %+ set sidecar=sidecar %+ call review-file -wh -stu -ins "%SRT_SIDECAR%")
-                                                if exist "%SRT_SIDECAR%" .and. exist "%LRC_SIDECAR%" (set KIND=SRT/LRC %+ set sidecar=sidecars)
-                                                call askyn "%AXER%Delete %KIND% %SIDECAR%" yes 0 
-                                                iff "Y" == "%ANSWER%" then
-                                                        if exist "%SRT_SIDECAR%" (echos %AXER% %+ *del /Ns "%SRT_SIDECAR%")
-                                                        if exist "%LRC_SIDECAR%" (echos %AXER% %+ *del /Ns "%LRC_SIDECAR%")
-                                                endiff
-                                        endiff
-                                        if exist  "%LOG_SIDECAR%" (call askyn "%AXER%⁶Delete logfile sidecar" yes 0 %+ if "Y" == "%ANSWER%" (echos    %AXER% `` %+ *del /Ns  "%LOG_SIDECAR%"))
-                                        if exist "%JSON_SIDECAR%" (call askyn "%AXER%⁷Delete JSON sidecar"    yes 0 %+ if "Y" == "%ANSWER%" (echos    %AXER% `` %+ *del /Ns "%JSON_SIDECAR%"))
+                                        rem Cosmetics:
+                                                set AXER=%EMOJI_AXE%%EMOJI_AXE%%EMOJI_AXE% ``
 
-                                echos %ansi_color_normal%
+                                        rem Delete any files that are too teeny:
+                                                set THRESH=5
+                                                if %@FILESIZE["%LYRIC_SIDECAR%"] lt %THRESH% gosub delete_file "%LYRIC_SIDECAR%"
+                                                if %@FILESIZE["%ELRC_SIDECAR%"]  lt %THRESH% gosub delete_file  "%ELRC_SIDECAR%"
+                                                if %@FILESIZE["%LRC_SIDECAR%"]   lt %THRESH% gosub delete_file   "%LRC_SIDECAR%"
+                                                if %@FILESIZE["%SRT_SIDECAR%"]   lt %THRESH% gosub delete_file   "%SRT_SIDECAR%"
+                                                if %@FILESIZE["%TXT_SIDECAR%"]   lt %THRESH% gosub delete_file   "%TXT_SIDECAR%"
+
+                                        rem Deal with lyrics:                        
+                                                iff exist "%LYRIC_SIDECAR%" then
+                                                        call review-file -wh -stu -ins "%LYRIC_SIDECAR%"        
+                                                        call askyn "%AXER%⁵Delete lyric sidecar" yes 0 
+                                                                iff "Y" == "%ANSWER%" then
+                                                                        rem echos %AXER% ``
+                                                                        rem *del /Ns "%LYRIC_SIDECAR%" 
+                                                                        gosub delete_file "%LYRIC_SIDECAR%" 
+                                                                        set JUST_APPROVED_LYRICS=0
+                                                                        set LYRICS_JUST_DISAPPROVED=1
+                                                                        set LYRIC_STATUS=NOT_APPROVED
+                                                                endiff
+                                                endiff
+                                        rem Deal with subtitles:                        
+                                                iff exist   "%SRT_SIDECAR%" .or. exist "%LRC_SIDECAR%" then
+                                                        if exist "%LRC_SIDECAR%"                             (set KIND=LRC     %+ set sidecar=sidecar %+ call review-file -wh -stu -ins "%LRC_SIDECAR%")
+                                                        if exist "%SRT_SIDECAR%"                             (set KIND=SRT     %+ set sidecar=sidecar %+ call review-file -wh -stu -ins "%SRT_SIDECAR%")
+                                                        if exist "%SRT_SIDECAR%" .and. exist "%LRC_SIDECAR%" (set KIND=SRT/LRC %+ set sidecar=sidecars)
+                                                        call askyn "%AXER%Delete %KIND% %SIDECAR%" yes 0 
+                                                        iff "Y" == "%ANSWER%" then
+                                                                if exist "%SRT_SIDECAR%" (echos %AXER% %+ *del /Ns "%SRT_SIDECAR%")
+                                                                if exist "%LRC_SIDECAR%" (echos %AXER% %+ *del /Ns "%LRC_SIDECAR%")
+                                                        endiff
+                                                endiff
+                                        rem Deal with administrative/audit files:                        
+                                                if exist  "%LOG_SIDECAR%" (call askyn "%AXER%⁶Delete logfile sidecar" yes 0 %+ if "Y" == "%ANSWER%" (echos    %AXER% `` %+ *del /Ns  "%LOG_SIDECAR%"))
+                                                if exist "%JSON_SIDECAR%" (call askyn "%AXER%⁷Delete JSON sidecar"    yes 0 %+ if "Y" == "%ANSWER%" (echos    %AXER% `` %+ *del /Ns "%JSON_SIDECAR%"))
+
+                                        rem Cosmetics:
+                                                echos %ansi_color_normal%
 
                         :no_delete_20934
 
