@@ -45,7 +45,7 @@ REM CONFIG: 2025:
         set DEFAULT_LANGUAGE=en                                                                        %+ rem Default language. MAKE SURE TO SET/OVERRIDE TO “None” IF YOU DON’T WANT ONE! WhisperAI is actually pretty good at knowing which language something is, anyway
         set DEBUG_LOCKFILE=0                                                                           %+ rem Whether to show lockfile-related debugging info
         set DEBUG_TRACE_CSFF=0                                                                         %+ rem Whether we want to echo our “we are here” debug traces
-        set DEBUG_KARAOKE_APPROVAL=0                                                                   %+ rem Whether to let us know where calls to approving the karaoke file are made
+        set DEBUG_KARAOKE_APPROVAL=1                                                                   %+ rem Whether to let us know where calls to approving the karaoke file are made
         set DEBUG_ECHO_CALLS_TO_GETLYRICS=0                                                            %+ rem Whether to echo to the screen any calls to the get-lyrics functionality
         set DEFAULT_VAD_THRESHOLD=0.075                                                                %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
         set DEFAULT_VAD_THRESHOLD=0.07                                                                 %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
@@ -214,7 +214,7 @@ rem Start our processing of command line parameters with giving USAGE if no comm
         endiff
 
 rem Pre-Cleanup:
-        unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_OR_REFUSED_ALREADY_709 
+        unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_OR_REFUSED_ALREADY_709 SUCCESSFUL_GENERATION
         rem DEBUG: pause "calling bat is “%CREATE_SRT_PARENT_BAT%”"
 
         rem unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused
@@ -1388,7 +1388,6 @@ REM quick chance to edit prompt:
         unset /q ANSWER
 
         if not defined PROMPT_EDIT_CONSIDERATION_TIME set PROMPT_EDIT_CONSIDERATION_TIME=20
-echo GOATGOAT: @call AskYn "Edit the AI prompt first [%ansi_color_bright_green%G%ansi_color_prompt%=Get lyrics 1st]" no %PROMPT_EDIT_CONSIDERATION_TIME% YNG Y:Yes,N:No,G:get_lyrics
         @call AskYn "Edit the AI prompt first [%ansi_color_bright_green%G%ansi_color_prompt%=Get lyrics 1st]" no %PROMPT_EDIT_CONSIDERATION_TIME% YNG Y:Yes,N:No,G:get_lyrics
                 rem “G” answer:
                         gosub check_for_answer_of_G "%@UNQUOTE["%SONGFILE%"]"
@@ -2062,7 +2061,8 @@ rem Full-endeavor success message:
         rem call approve-subtitle-file "%SRT_FILE%"
         @gosub divider
         title %CHECK% %SRT_FILE% generated successfully! %check%             
-        @call  bigecho "%check%%check%%check% %bold_on%%ansi_color_green%“%bold_off%%italics_on%%@NAME[%SRT_FILE%].%@EXT[%SRT_FILE%]%italics_off%” %ansi_color_bright_green%generated successfully!%ansi_color_normal% %check%%check%%check%%party_popper%%emoji_birthday_cake%" 
+        @call  bigecho "%check%%check%%check% File %faint_on%%ansi_color_green%“%bold_off%%italics_on%%@NAME[%SRT_FILE%].%@EXT[%SRT_FILE%]%italics_off%”%faint_off% %ansi_color_bright_green%generated successfully!%ansi_color_normal% %check%%check%%check%%party_popper%%emoji_birthday_cake%" 
+        set SUCCESSFUL_GENERATION=1
         echos %TAB%%TAB%%TAB%%TAB%%ansi_color_less_important%%star2% %italics_on%``
         iff "1" == "%SOLELY_BY_AI%" then
                 echos %italics_on%NOT%italics_off% u``
@@ -2075,12 +2075,6 @@ rem Full-endeavor success message:
 
         rem Current folder voodoo:
                 if "%_CWD\" != "%SONGDIR%" *cd "%SONGDIR%"
-
-        rem 20160416 phase this out to combine with the IMPROVE our karaoke prompt: rem Ask to approve our karaoke:
-        rem 20160416 phase this out to combine with the IMPROVE our karaoke prompt:         rem if "1" == "%DEBUG_KARAOKE_APPROVAL%" echo About to ask_to_approve_karaoke around line 1969ish
-        rem 20160416 phase this out to combine with the IMPROVE our karaoke prompt:         if "1" == "%DEBUG_KARAOKE_APPROVAL%" echo %ansi_color_warning_soft%🐐 about to gosub ask_to_approve_approve_karaoke [1670] BUT MAYBE WE CAN SKIP THIS%ansi_color_normal% but let’s try adding if not exist "%TXT_FILE%" 
-        rem 20160416 phase this out to combine with the IMPROVE our karaoke prompt:         if not exist "%TXT_FILE%" gosub ask_to_approve_karaoke
-        rem 20160416 phase this out to combine with the IMPROVE our karaoke prompt:         rem removed: if "Y" == "%ANSWER%"      goto /i go_here_if_we_just_approved_the_karaoke
 
         rem (1) Stuations to EXCLUDE from asking to improve our karaoke:
                 if not exist "%TXT_FILE%" .or. "1" == "%JUST_CONVERTED_LRC_TO_TEXT%" .or. "1" == "%JUST_CONVERTED_SRT_TO_TEXT%" .or. "1" == "%whisper_alignment_happened%" goto /i do_not_ask_to_align_with_txt
@@ -2209,8 +2203,7 @@ rem Full-endeavor success message:
                                         gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
                                 rem “F”:
                                         set ANSWER=%HELD_ANSWER_1922%
-                                        rem gosub check_for_answer_of_F "%@UNQUOTE["%INPUT_FILE%"]"
-                                        if "F" == "%ANSWER%" goto /i        end_quick_lrc_mode_fail                                        
+                                        gosub check_for_answer_of_F "%@UNQUOTE["%INPUT_FILE%"]"
                                 rem “T”:
                                         set ANSWER=%HELD_ANSWER_1922%
                                         gosub check_for_answer_of_T "%@UNQUOTE["%INPUT_FILE%"]"
@@ -2304,9 +2297,6 @@ goto /i skip_subroutines
                         endiff
         return
         :ask_to_approve_karaoke [opt]
-                
-       
-
                 if "%KARAOKE_STATUS%" == "APPROVED" (echo %ansi_color_important_less%%star2% Karaoke already approved...%zzzzzz%%ansi_color_normal% %+ return)
                 if not exist "%SRT_FILE%"           (echo %ansi_color_important_less%%star2% Karaoke doesn’t exist to approve...%ansi_color_normal% %+ return)
 
@@ -2314,7 +2304,7 @@ goto /i skip_subroutines
                 :ask_about_karaoke_approval                                        
                 unset /q ANSWER
                 iff "1" == "%karaoke_approval_asked%" .and.  "1" == "%karaoke_edit_refused%" then
-                        call less_important "Not asking to approve karaoke again because we already asked and a karaoke edit was refused"
+                        rem DEBUG:call subtle "Not asking to approve karaoke again because we already asked and a karaoke edit was refused"
                 else
                         @call askyn  "Approve/edit karaoke file? [=%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync,%ansi_color_bright_green%R%ansi_color_prompt%etry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ABDEIP1QTWM  E:edit_karaoke,Q:enQueue_in_winamp,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete__it,M:restart_winamp,B:regenerate_karaoke,1:retry_the_transcription
                 endiff
