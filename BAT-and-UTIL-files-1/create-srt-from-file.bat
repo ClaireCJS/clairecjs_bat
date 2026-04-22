@@ -2173,18 +2173,18 @@ rem Full-endeavor success message:
                         set USE_WAIT_TIME=%EDIT_KARAOKE_AFTER_CREATION_WAIT_TIME%
 
 
-                        call debug "karaoke_edit_already_asked is “%karaoke_edit_already_asked%”" silent
+                        if "1" == "%DEBUG_KARAOKE_APPROVAL%" call debug "karaoke_edit_already_asked is “%karaoke_edit_already_asked%”" silent
                         iff "1" == "%karaoke_edit_already_asked%" then
-                                call subtle "not asking to edit karaoke file because we already asked"                                
+                                if "1" == "%DEBUG_KARAOKE_APPROVAL%" call subtle "not asking to edit karaoke file because we already asked"                                
                                 goto /i :no_need_to_edit_it_or_ask_to_approve_it
                         else
-                                call subtle "asking to edit karaoke file because we already asked because karaoke_edit_already_asked==“%karaoke_edit_already_asked%”"                                
+                                if "1" == "%DEBUG_KARAOKE_APPROVAL%" call subtle "asking to edit karaoke file because we already asked because karaoke_edit_already_asked==“%karaoke_edit_already_asked%”"                                
                         endiff
-                        call subtle "About to ask (karaoke_edit_already_asked=%karaoke_edit_already_asked%)"
+                        if "1" == "%DEBUG_KARAOKE_APPROVAL%" call subtle "About to ask (karaoke_edit_already_asked=%karaoke_edit_already_asked%)"
                         @call askyn  "Edit karaoke file%blink_on%?%blink_off% %faint_on%[in case of mistakes]%faint_off% [%ansi_color_bright_green%W%ansi_color_prompt%=Run %italics_on%WhisperTimeSync%italics_off%,%ansi_color_bright_green%A%ansi_color_prompt%pprove karaoke,%ansi_color_bright_green%D%ansi_color_prompt%isapprove karaoke,%ansi_color_bright_green%T%ansi_color_prompt%=Dele%ansi_color_green%t%ansi_color_prompt%e+retry,%ansi_color_bright_green%I%ansi_color_prompt%=%ansi_color_bright_green%i%ansi_color_prompt%nstrumental,%ansi_color_bright_green%S%ansi_color_prompt%ound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%1%ansi_color_prompt%=Retry,rena%ansi_color_bright_green%M%ansi_color_prompt%e files]" no %USE_WAIT_TIME% notitle ADEFGIMPQ1STUW Q:enQueue_in_winamp,E:edit_the_karaoke_file,P:Play_It,W:Fix_With_WhisperTimeSync,A:go_ahead_and_approve_the_karaoke_file,U:mark_as_untranscribeable,D:disapprove_karaoke,T:delete_karaoke_files,I:Yooo_it's_an_instrumental_actually,F:mark_as_failed_and_untranscribeable,1:retry_the_transcription_process,S:Yooo_it's_a_sound_effect_actually,G:_get_lyrics,M:rename_it
                         set karaoke_approval_asked=1
                         set karaoke_edit_already_asked=1
-                        call debug "[A] karaoke_edit_already_asked & karaoke_approval_asked both set to 1" silent
+                        if "1" == "%DEBUG_KARAOKE_APPROVAL%" call debug "[A] karaoke_edit_already_asked & karaoke_approval_asked both set to 1" silent
 
 
                         set HELD_ANSWER_1922=%ANSWER%
@@ -2335,7 +2335,7 @@ goto /i skip_subroutines
                 endiff
                 set karaoke_approval_asked=1
                 set karaoke_edit_already_asked=1
-                call debug "[B] karaoke_edit_already_asked & karaoke_approval_asked both set to 1" silent
+                rem DEBUG: call debug "[B] karaoke_edit_already_asked & karaoke_approval_asked both set to 1" silent
                 rem “1” for retry:
                         if  "1" == "%ANSWER%" goto /i go_here_for_encoding_retries
                 set HOLD_ANSWER_2006=%ANSWER%
@@ -3104,7 +3104,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 :Unset_Variables
         rem The big list of vars to unset:
                 unset /q failure_ads_result PROMPT_CONSIDERATION_TIME PROMPT_EDIT_CONSIDERATION_TIME JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE ABANDONED_SEARCH LYRICLESSNESS_STATUS AUTO_LYRIC_APPROVAL        ALREADY_HAND_EDITED FORCE_AI_ENCODE_FROM_LYRIC_GET JUST_RENAMED_TO_INSTRUMENTAL  goto_end abort_karaoke_kreation MAYBE_SRT* karaoke_status audio_file input_file postprocessed_lyrics LAUNCHING_AI_DISPLAYED WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL  ALREADY_ASKED_TO_DELETE_LOCKEFILE SONG_PROBED_VIA_CALL_FROM_CREATE_SRT LOCKFILE_NOT_FOR_THIS_PROCESS_MENTIONED JUST_CONVERTED_SRT_TO_TEXT JUST_CONVERTED_LRC_TO_TEXT LYRICS_ACCEPTABLE OKAY_THAT_WE_HAVE_SRT_ALREADY UNFORTUNATELY_WE_COULD_NOT_CREATE_SAID JUST_RENAMED PROBED_OR_REFUSED_ALREADY_709 
-call debug "CREATE_SRT_PARENT_BAT2=“%CREATE_SRT_PARENT_BAT%” GOATGOAGOAT"  silent
+                rem DEBUG: call debug "CREATE_SRT_PARENT_BAT2=“%CREATE_SRT_PARENT_BAT%” GOATGOAGOAT"  silent
                 rem unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused 
 
                
