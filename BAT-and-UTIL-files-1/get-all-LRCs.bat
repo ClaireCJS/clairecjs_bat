@@ -40,7 +40,7 @@ rem Run Get-LRC on all audio files:
                 unset /q QUICK_LRC_FAILED QUICK_LRC_SKIPPED QUICK_LRC_SUCCESS
 
         rem Actually run Get-LRC on all files:
-                for %getalllrcstmpfile in (%FILEMASK_AUDIO%) do if "1" != "%SKIPPING_GET_LRCS_FOR_REST_OF_FOLDER%" call get-lrc "%@UNQUOTE["%getalllrcstmpfile%"]"
+                for %getalllrcstmpfile in (%FILEMASK_AUDIO%) do if "1" != "%SKIPPING_GET_LRCS_FOR_REST_OF_FOLDER%" call get-lrc "%@UNQUOTE["%getalllrcstmpfile%"]" %*
                 unset /q SKIPPING_GET_LRCS_FOR_REST_OF_FOLDER
 
         rem Restore message dancing state:

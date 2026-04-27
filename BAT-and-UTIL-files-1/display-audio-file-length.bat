@@ -1,3 +1,4 @@
+@loadbtm on
 @on break cancel
 @Echo off
 
@@ -14,7 +15,7 @@ rem Usage:
         iff "%1" == "" .or. "%1" == "--help" .or. "%1" == "-help" .or. "%1" == "-h" .or. "%1" == "-?" .or. "%1" == "/?" then
                 echo.
                 echos %ansi_color_advice%
-                echo ✨ USAGE: %0 {audio_filename} [silent`|`verbose]
+                echo ✨ USAGE: %0 {audio filename or LRC file} [silent`|`verbose]
                 echo.
                 echo. EXAMPLE 1: display-audio-file-length.bat whatever.mp3         — mode 1/default mode: displays one-line blurb showing length
                 echo. EXAMPLE 3: display-audio-file-length.bat whatever.mp3  silent — mode 2/silent mode: only sets return value variables
@@ -28,7 +29,7 @@ rem Validate parameters:
         unset /q READER_OUTPUT DISPLAY_AUDIO_FILE_LENGTH_OUTPUT
         set DAFL_AUDIO_FILE=%@UNQUOTE[%1]
         if not exist %DAFL_AUDIO_FILE%  call validate-environment-variable  DAFL_AUDIO_FILE FILEMASK_AUDIO
-        if "%@EXT["%DAFL_AUDIO_FILE%"]" != "mp3" .and. "%@EXT["%DAFL_AUDIO_FILE%"]" != "flac" call validate-file-extension  "%DAFL_AUDIO_FILE%" %FILEMASK_AUDIO%
+        if "%@EXT["%DAFL_AUDIO_FILE%"]" != "mp3" .and. "%@EXT["%DAFL_AUDIO_FILE%"]" != "flac" .and. "%@EXT["%DAFL_AUDIO_FILE%"]" != "lrc" .and. "%@EXT["%DAFL_AUDIO_FILE%"]" != "srt" call validate-file-extension  "%DAFL_AUDIO_FILE%" %FILEMASK_AUDIO%
         set PRETTY_DAFL_AUDIO_FILE=%@UNQUOTE[%DAFL_AUDIO_FILE%] 
 
 rem Cosmetics:
@@ -40,7 +41,7 @@ rem History:
         rem set NEWPUT=%@EXECSTR[grep -i length %tmpfile1% |:u8 sed -e "s/ 00:/ /" -e "s/ 0/  /" -e "s/ *:/:/" -e "s/^ *//ig" -e "s/:/:%ANSI_COLOR_IMPORTANT%%ITALICS_ON%/" ]
 
 rem Create tmp file:
-        if not defined tmpfile1 call set-tmp-file "display-mp3-length"
+        if not defined tmpfile1 call set-tmp-file "display-audio-file-length"
 
 rem Read the thing:
         rem If we needed to branch based on extension we could grab it like this: set ext=%@EXT["%DAFL_AUDIO_FILE%"] %+ rem call debug "ext=“%ext%”"
