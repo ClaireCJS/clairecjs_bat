@@ -4512,8 +4512,8 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         if "%@EXT["%opt1%"]" != "mp3" return
                         set AUDIO_FILE_LENGTH=error reading %opt%
 
-                        call display-mp3-length "%opt1%" silent      
-                        set AUDIO_FILE_LENGTH=%DISPLAY_MP3_LENGTH_OUTPUT%
+                        call display-audio-file-length "%opt1%" silent      
+                        set AUDIO_FILE_LENGTH=%DISPLAY_AUDIO_FILE_LENGTH_AiTranscriptionSystem%
                 return
 
 
