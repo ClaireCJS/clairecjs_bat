@@ -551,7 +551,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                         gosub divider %+ call warning_soft "Skipping LRC retrieval because we already have an LRC" silent %+ goto /i :end_quick_lrc_mode_skip
                                 endiff
                         rem Abort if we already have a SRT file -- TODO we will want to turn this off eventually so that we can do upgrades?
-echo FORCE_REDOWNLOAD is %FORCE_REDOWNLOAD%
+                                rem DEBUG: echo FORCE_REDOWNLOAD is %FORCE_REDOWNLOAD%
                                 iff exist "%SRT_SIDECAR_FILENAME%" .and. "%DO_NOT_FETCH_LRC_IF_SRT_EXISTS%" == "1" .and. "1" != "%FORCE_REDOWNLOAD%" then
                                         gosub divider %+ call warning_soft "Skipping LRC retrieval because we already have a SRT"  silent %+ goto /i :end_quick_lrc_mode_skip
                                 endiff
@@ -2338,9 +2338,9 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
         rem Initialize/debug/audit:
                 :download_with_lyric_downloader_1
-                call debug "current_lyric_provider[BEFRE] = “%current_lyric_provider%”" silent
+                rem call debug "current_lyric_provider[BEFRE] = “%current_lyric_provider%”" silent
                 gosub refresh_current_lyric_provider_metadatas
-                call debug "current_lyric_provider[AFTER] = “%current_lyric_provider%”" silent
+                rem call debug "current_lyric_provider[AFTER] = “%current_lyric_provider%”" silent
                 set current_search=%CURRENT_LYRIC_PROVIDER% :::: %FILE_SONG_TO_USE% :::: %FILE_ARTIST_TO_USE%``
                 call debug "Checking %italics_on%current_search%italics_off% of %faint_on%current_search%faint_off% set to %ansi_color_blue%%lq%%current_search%%rq%%ansi_color_normal%, JUST_RENAMED_TO_INSTRUMENTAL=“%JUST_RENAMED_TO_INSTRUMENTAL%”" silent
                 rem NO! if "1" == "%QUICK_LRC_MODE%" goto end_quick_lrc_mode_fail

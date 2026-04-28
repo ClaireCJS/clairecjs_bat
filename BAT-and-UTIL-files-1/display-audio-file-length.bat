@@ -26,11 +26,13 @@ rem Usage:
         endiff
 
 rem Validate parameters:
-        unset /q READER_OUTPUT DISPLAY_AUDIO_FILE_LENGTH_OUTPUT
         set DAFL_AUDIO_FILE=%@UNQUOTE[%1]
-        if not exist %DAFL_AUDIO_FILE%  call validate-environment-variable  DAFL_AUDIO_FILE FILEMASK_AUDIO
-        if "%@EXT["%DAFL_AUDIO_FILE%"]" != "mp3" .and. "%@EXT["%DAFL_AUDIO_FILE%"]" != "flac" .and. "%@EXT["%DAFL_AUDIO_FILE%"]" != "lrc" .and. "%@EXT["%DAFL_AUDIO_FILE%"]" != "srt" call validate-file-extension  "%DAFL_AUDIO_FILE%" %FILEMASK_AUDIO%
         set PRETTY_DAFL_AUDIO_FILE=%@UNQUOTE[%DAFL_AUDIO_FILE%] 
+        if not exist   "%DAFL_AUDIO_FILE%" call validate-environment-variable DAFL_AUDIO_FILE "Must pass an audio or LRC/SRT file as 1ˢᵗ parameter"
+        if not defined    FILEMASK_AUDIO   call validate-environment-variable FILEMASK_AUDIO
+        set EXT=%@EXT["%DAFL_AUDIO_FILE%"]
+        if "%EXT%" == "maybe" set EXT=%@EXT[%@NAME["%DAFL_AUDIO_FILE%"]]
+        if "%EXT%" != "mp3" .and. "%EXT%" != "flac" .and. "%EXT%" != "lrc" .and. "%EXT%" != "srt" call validate-file-extension  "%DAFL_AUDIO_FILE%" %FILEMASK_AUDIO%
 
 rem Cosmetics:
         echos %@CURSOR_COLOR[indigo]%ANSI_COLOR_RUN%%EMOJI_GEAR% Reading length of: %faint_on%%italics_on%%@NAME["%DAFL_AUDIO_FILE%"]%italics_off%...%faint_off%%@ANSI_MOVE_TO_COL[0]
@@ -43,24 +45,46 @@ rem History:
 rem Create tmp file:
         if not defined tmpfile1 call set-tmp-file "display-audio-file-length"
 
-rem Read the thing:
-        rem If we needed to branch based on extension we could grab it like this: set ext=%@EXT["%DAFL_AUDIO_FILE%"] %+ rem call debug "ext=“%ext%”"
 
-        rem old way, 2.05sec: set READER_OUTPUT=%@EXECSTR[call display-mp3-tags "%DAFL_AUDIO_FILE%" |& grep -i Length |& sed -e "s/^ *Length *: [0:]*//i"]
-        rem new way: 0.05sec:
-        set READER_OUTPUT=%@EXECSTR[ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "%DAFL_AUDIO_FILE%"]
+rem Read non-audio file length:
+        iff "%EXT%" == "lrc" .or. "%EXT%" == "srt" then
+                set DISPLAY_AUDIO_FILE_LENGTH_SECONDS_FLOAT=-1
+                set DISPLAY_AUDIO_FILE_LENGTH_MINUTES_FLOAT=-1
+                set DISPLAY_AUDIO_FILE_LENGTH_HOURS_FLOAT=-1
+        endiff
+        iff "%EXT%" == "lrc" then
+                echo lrc processing here
+        elseiff "%EXT%" == "srt" then
+                echo srt processing here
+rem Read audio file length:
+        else
+                rem If we needed to branch based on extension we could grab it like this: set ext=%@EXT["%DAFL_AUDIO_FILE%"] %+ rem call debug "ext=“%ext%”"
 
+                rem old way, 2.05sec: set READER_OUTPUT=%@EXECSTR[call display-mp3-tags "%DAFL_AUDIO_FILE%" |& grep -i Length |& sed -e "s/^ *Length *: [0:]*//i"]
+                rem new way: 0.05sec:
+                        unset /q READER_OUTPUT DISPLAY_AUDIO_FILE_LENGTH_OUTPUT
+                        set READER_OUTPUT=%@EXECSTR[ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "%DAFL_AUDIO_FILE%"]
+                        call debug "READER_OUTPUT is “%READER_OUTPUT%”"
+                        iff "N/A" == "%READER_OUTPUT%" then 
+                                set DISPLAY_AUDIO_FILE_LENGTH_SECONDS_FLOAT=-1
+                                set DISPLAY_AUDIO_FILE_LENGTH_MINUTES_FLOAT=-1
+                                set DISPLAY_AUDIO_FILE_LENGTH_HOURS_FLOAT=-1
+                                goto /i :ffmpeg_fail
+                        endiff
 
-rem Saving the results:
-        unset /q display_audio_file*
-        set DISPLAY_AUDIO_FILE_LENGTH_OUTPUT=%READER_OUTPUT%
+                rem Saving the results:
+                        unset /q display_audio_file*
+                        set DISPLAY_AUDIO_FILE_LENGTH_OUTPUT=%READER_OUTPUT%
 
-rem Compute various values:
-        rem Floating point i.e.  1.97528 hours, 118.51667 minutes, 7111.569000 second:
-                set DISPLAY_AUDIO_FILE_LENGTH_SECONDS_FLOAT=%DISPLAY_AUDIO_FILE_LENGTH_OUTPUT%
-                set DISPLAY_AUDIO_FILE_LENGTH_MINUTES_FLOAT=%@FORMATn[.2,%@EVAL[%@FLOOR[%DISPLAY_AUDIO_FILE_LENGTH_OUTPUT+.05]/60]]
-                set DISPLAY_AUDIO_FILE_LENGTH_HOURS_FLOAT=%@FORMATn[.2,%@EVAL[%@FLOOR[%DISPLAY_AUDIO_FILE_LENGTH_OUTPUT+.05]/60/60]]
+                rem Compute various values: set base values: Floating point i.e.  1.97528 hours, 118.51667 minutes, 7111.569000 second:
+                        set DISPLAY_AUDIO_FILE_LENGTH_SECONDS_FLOAT=%DISPLAY_AUDIO_FILE_LENGTH_OUTPUT%
+                        set DISPLAY_AUDIO_FILE_LENGTH_MINUTES_FLOAT=%@FORMATn[.2,%@EVAL[%@FLOOR[%DISPLAY_AUDIO_FILE_LENGTH_OUTPUT+.05]/60]]
+                        set DISPLAY_AUDIO_FILE_LENGTH_HOURS_FLOAT=%@FORMATn[.2,%@EVAL[%@FLOOR[%DISPLAY_AUDIO_FILE_LENGTH_OUTPUT+.05]/60/60]]
+        endiff
+
+rem Compute various values: calculate derived values:
         rem truncated integar values i.e.  1 hours, 118 minutes, 7111 second:
+        :ffmpeg_fail
                 set DISPLAY_AUDIO_FILE_LENGTH_MINUTES_INT=%@FLOOR[%DISPLAY_AUDIO_FILE_LENGTH_MINUTES_FLOAT%]
                 set DISPLAY_AUDIO_FILE_LENGTH_SECONDS_INT=%@FLOOR[%DISPLAY_AUDIO_FILE_LENGTH_SECONDs_FLOAT%]
                 set DISPLAY_AUDIO_FILE_LENGTH_HOURS_INT=%@FLOOR[%DISPLAY_AUDIO_FILE_LENGTH_HOURS_FLOAT%]
@@ -133,6 +157,13 @@ rem Pretty output unless we give the silent option:
 
         :silent_dmp3l
         echos %ANSI_ERASE_TO_EOL%
+
+REM END:
+        goto :END
+
+rem Failure endpoints:
+        :ffmpeg_fail_backup
+                echo %bang% %ansi_color_error% %italics_on%ffmpeg%italics_off% could not read a length for file: %faint_on%%italics_on%%DAFL_AUDIO_FILE%%italics_off%%faint_off% %ansi_color_normal% %bang%
 
 rem End/Cleanup:
         :END        

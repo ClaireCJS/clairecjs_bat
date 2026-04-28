@@ -1198,3 +1198,7 @@ TODO: IDEA: Go thru existing lyrics & subtitles, if non-english language charcat
 
 TODO: search for other todos below
 
+TODO: subtitle_length.py add to docs and display-audio-file-length.bat
+
+
+
