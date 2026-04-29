@@ -37,7 +37,7 @@ REM CONFIG: OUTPUT FILE WIDTH:
 
 REM CONFIG: 2026:
         set DUMPS=c:\logs\dumps.%machinename%\*.dmp                                                    %+ rem Location of WhisperTimeSync’s dumps, which can get to 300G in 12 hours if you are transcribing hour long radio shows all night long... So we must regularly purge them.
-        set DEBUG_EDITOR=1                                                                             %+ rem Whether we want to echo out the command line calls used to send files to our favorite text editor [as defined in the environment variable %EDITOR%]
+        set DEBUG_EDITOR=0                                                                             %+ rem Whether we want to echo out the command line calls used to send files to our favorite text editor [as defined in the environment variable %EDITOR%]
 
 REM CONFIG: 2025:
         set DEFAULT_LANGUAGE=en                                                                        %+ rem Default language. MAKE SURE TO SET/OVERRIDE TO “None” IF YOU DON’T WANT ONE! WhisperAI is actually pretty good at knowing which language something is, anyway
@@ -45,8 +45,8 @@ REM CONFIG: 2025:
         set LOCKFILE_MESSAGE_ROWS_TO_CLEAR=10                                                          %+ rem cosmetic: How many rows to clear out (scroll text up these many rows) to make space for lockfile messages to appear on the same part of the screen with more consistency
 
 REM CONFIG: 2025: DEBUG:
+        set DEBUG_KARAOKE_APPROVAL=0                                                                   %+ rem Whether to let us know where calls to approving the karaoke file are made
         set DEBUG_ECHO_CALLS_TO_GETLYRICS=0                                                            %+ rem Whether to echo to the screen any calls to the get-lyrics functionality
-        set DEBUG_KARAOKE_APPROVAL=1                                                                   %+ rem Whether to let us know where calls to approving the karaoke file are made
         set DEBUG_LOCKFILE=0                                                                           %+ rem Whether to show lockfile-related debugging info
         set DEBUG_TRACE_CSFF=0                                                                         %+ rem Whether we want to echo our “we are here” debug traces
 
@@ -221,7 +221,8 @@ rem Start our processing of command line parameters with giving USAGE if no comm
 rem Pre-Cleanup:
         unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_OR_REFUSED_ALREADY_709 SUCCESSFUL_GENERATION AUDIO_FILE_LENGTH
         rem DEBUG: pause "calling bat is “%CREATE_SRT_PARENT_BAT%”"
-        rem unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused
+        rem 
+        unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused
 
 REM values set from parameters:
         *setdos /x-4
@@ -1159,7 +1160,8 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
 
                         rem The newer way: Letting the lyric postprocess open up the file directly to bypass limitations of command-line’s text piping:
                                 rem echo %ansi_color_less_important%%star3% Postprocessing lyrics...  %faint_on%command: lyric-postprocessor.pl -A -1 -L {TXT_FILE=}"%@UNQUOTE["%TXT_FILE%"]" %ARROW%:u8 {tmppromptfile=}%tmppromptfile%%faint_off%
-                                lyric-postprocessor.pl -A -1 -L "%@UNQUOTE["%TXT_FILE%"]" >:u8 %tmppromptfile%
+                                rem c-postprocessor.pl -A -1 -L "%@UNQUOTE["%TXT_FILE%"]" >:u8 %tmppromptfile% oops! need unique lines only:
+                                lyric-postprocessor.pl -U -1 -L "%@UNQUOTE["%TXT_FILE%"]" >:u8 %tmppromptfile%
                                 call errorlevel "You %italics_on%may%italics_off% need to %italics_on%manually%italics_off% re-save the file in %underline_on%UTF-8%underline_off% format" %+ rem The worst possible thing, and you really can’t overestimate how hard it is to prevent this from *EVER* happening, when dealing with world-sourced input files made by people with different editors in different countries with different languages and character sets and encodings and *waves hands* ... all ✨that✨
 
 
@@ -1722,8 +1724,9 @@ rem Title the window:
                 title %EMOJI_EAR%%BASE_TITLE_TEXT%
 
 rem Pre-clean-up:
-                unset /q PROBED_OR_REFUSED_ALREADY_709 karaoke_edit_already_asked karaoke_approval_asked
-                call debug "unsetting karaoke_edit_already_asked, karaoke_approval_asked, PROBED_OR_REFUSED_ALREADY_709"
+                unset /q PROBED_OR_REFUSED_ALREADY_709 
+                rem karaoke_edit_already_asked karaoke_approval_asked 
+call debug "not unsetting karaoke_edit_already_asked, karaoke_approval_asked, PROBED_OR_REFUSED_ALREADY_709"
 
 
 rem ACTUALLY DO IT!!!:

@@ -53,64 +53,26 @@
 
 ###########  CONSTANTS: BEGIN:  ###########
 my $ADDED_END_LINE_CHARACTER    = ".";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online. Without adding a “phantom period” to the end of each line, WhisperAI’s ‘--sentence’ parameter will not function correclty, and awkward transcriptions are generated where multiple lines of lyrics are one one line of transcriptino
-my $MAX_KARAOKE_WIDTH_MINUS_ONE =  24;					#This system aims for a max width of 25, so that minus one is 24
 ###########  CONSTANTS: ^^END^  ###########
 
-###########  AI CONFIGURATION: BEGIN:  ###########
-my @OLDhallucination_patterns              = (								     # WhisperAI silence hallucination
-		qr/A little pause..?.? */i,
-		qr/And we are back\.*/i,
-		qr/Ding, ding, bop ?/i,
-		qr/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?/i,
-		qr/This is the first sentence/i,                         
-		qr/This is the second sentence/i,                         
-		qr/A?n?d? ?this is the second one/i,                         # WhisperAI silence hallucination
-		qr/A?n?d? ?this is the third one/i,                         # WhisperAI silence hallucination
-		qr/A?n?d? ?this is the fourth one/i,                         # WhisperAI silence hallucination
-		qr/A?n?d? ?this is the fifth one/i,                         # WhisperAI silence hallucination
-		qr/Ding, ding, bop/i,                                    # WhisperAI silence hallucination
-		qr/I.m going to play a little bit of the first one.*and then/i,
-		qr/Thank you for watching[\.!]*/i,
-		qr/Thanks for watching[\.!]*/i,
-      	qr/© BF-WATCH TV 2021/i,
-		#### NOTE: Add new patterns to lyric-postprocessor.pl & delete-bad-AI-transcriptions.bat
-);
-
-my @hallucination_patterns = (
-    # Your original four lines, unchanged in behavior
-    qr/A little pause..?.? */i,
-    qr/And we are back\.* */i,
-    qr/Ding, ding, bop ?/i,
-    qr/I.m going to play a little bit of the first one, and then we.ll move on to the next one ?/i,
-
-    # New ones based on your grep patterns, but kept simple & non-greedy
-    qr/This is the first sentence/i,
-    qr/And this is the second one/i,
-    qr/And this is the third one/i,
-    qr/And this is the fourth one/i,
-    qr/And this is the fifth one/i,
-    qr/Thank you for watching/i,
-    qr/Thanks for watching/i,
-);
-
-###########  AI CONFIGURATION: ^^END^  ###########
-
-
+# libraries
 use strict;
 use warnings;
 use utf8;												# enable processing of modern character sets
-#binmode(STDOUT, ":utf8");								# enable processing of modern character sets
-#binmode(STDIN , ":utf8");								# enable processing of modern character sets
-#binmode(STDERR, ":utf8");								# enable processing of modern character sets
-
-
 use Encode qw(decode FB_CROAK);
 binmode(STDOUT, ":encoding(UTF-8)");					# output real UTF-8
 binmode(STDERR, ":encoding(UTF-8)");					# error output real UTF-8
 binmode(STDIN , ":raw");								# input must arrive as raw bytes so WE can decode it safely
 use Encode::Guess;
-
-
+use FindBin;
+use lib $FindBin::Bin;
+use LimitRepeats;
+use WhisperAIProcessing;	
+use BulletproofFileReading;
+use LyricsProcessing;
+use SmartQuotes;
+use CharacterEncodingFlaws;
+use CommandLine;
 
 # Default modes:
 my $LYRICS_MODE         = 1;							# default mode
@@ -164,7 +126,8 @@ my $file_album="";
 my $original_line;
 my $file_orig_artist;
 my $i="";
-                  
+         
+# grab some values from the environment, if they happen to be in there. They can provide additional information used to massage lyrics.				  
 if ($LYRICS_MODE) {
 	$file_artist      = $ENV{FILE_ARTIST}      || "";		# grab some values from the environment, if appropriate environment variables set
 	$file_orig_artist = $ENV{FILE_ORIG_ARTIST} || "";		# grab some values from the environment, if appropriate environment variables set
@@ -177,13 +140,9 @@ my $line_number=0;
 
 $file_itle=$file_title;
 $file_itle=~s/^.(.*)$/$1/;
-#print "FILE_TITLE = “$file_title” \n";
-#print "FILE_ITLE  = “$file_itle” \n\n";
 
 use Encode qw(decode FB_DEFAULT FB_CROAK FB_QUIET FB_WARN);
 use Encode::Guess;
-#OLD: while (<STDIN>) {
-#NEW:
 my $INPUT;
 if ($filename eq "") {
 	$INPUT = *STDIN;
@@ -192,7 +151,6 @@ if ($filename eq "") {
 	#pen($INPUT, "<:raw" , $filename) or die "💥 lyric-postprocessor could not open file '$filename': $!";		# open raw, and decode to UTF-8 later after fixing malformed characters
 	#pen($INPUT, "<:utf8", $filename) or die "💥 lyric-postprocessor could not open file '$filename': $!";		# breaks on malformed files, of which there are many
 	open($INPUT, "<:raw" , $filename) or die "💥 lyric-postprocessor could not open file '$filename': $!";
-
 }
 
 
@@ -256,10 +214,10 @@ while (my $raw = <$INPUT>) {
 			$line =~ s/(\d{1-3})([^\d]+)/$2/;	#remove up to 3 leading digits from 1ˢᵗ line [2 weren't enough!]
 		}
 
-		#divider lines to get rid of
+		#website spam: divider lines to get rid of
 		$line =~ s/^-+//;					#get rid of lines like: ---------------
 
-		#song sections to get rid of
+		#website spam: song sections to get rid of
 		for ($i=1; $i<=2; $i++) {			#twice to get things like "Intro/Chorus" or "Guitar Solo/Bridge", which meant changing the regex to include an ending of / where previously it just included ]
 			#line =~    s/[\[\(]?(Intro|Sample|Hook|Verse|Pre\-Chorus|Refrain|Chorus|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Bridge|Interlude|False Ending|Outro) *\d*:* *[\w \-&'",]*[\]\)\/]?//i;
 			#line =~    s/[\[\(]? ?(Spoken|Whispered|Sample|Sample \d+|Intro|Intro \d+|Hook|Build:? ?[a-z &]+|Verse|Verse +\d|Pre\-Chorus|Refrain|Refrain +\d|Drop|Chorus|Chorus \d|Post\-Chorus|Instrumental (Intro|Break|Outro)|Breakdown|Solo|[\da-z]+ Solo|Solo +\d+|Bridge|Instrumental Interlude|Interlude|False Ending|Outro)[\.]* *\d*:* *[\w \-&'",]* *[\]\)\/]?//i;
@@ -276,21 +234,28 @@ while (my $raw = <$INPUT>) {
 		}
 
 
-		#website crap to get rid of
-		$line =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;														# common junk found in downloaded lyrics
-		$line =~ s/\*? (No|\[(duble|metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z\d]+lyrics[a-z\d]*|\[[a-z0-9]+ )\]) filter used//i;
-        $line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
-        $line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
-		$line =~ s/Album tracklist with lyrics//;
-		$line =~ s/You might also like//i;
-		$line =~ s/Get tickets as low as \$[\d\.]+//i;
+
 
 		#word corrections
 		$line =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;			#the word “Embed” is sometimes tacked onto the end of a line of downloaded lyrics:
 		$line =~ s/our selves/ourselves/g;	
 
-		################ LINE-BASED FIXES: WHISPER-AI HALLUCATIONS ################
+
+
+		################ LINE-BASED FIXES: ################
 		for my $re (@hallucination_patterns) { $line =~ s/$re//g; }
+
+		#website spam to get rid of
+		#$line =~ s/^(.*[a-zA-Z])Embed\.?$/$1/i;														# common junk found in downloaded lyrics
+		#$line =~ s/\*? (No|\[(duble|metrolyrics|lyrics[a-z]+|lyrics4all|sing365|[a-z\d]+lyrics[a-z\d]*|\[[a-z0-9]+ )\]) filter used//i;
+        #$line =~ s/\*? ?Downloaded from: http:\/\/[a-z0-9_\-.\/]+//i;
+        #$line =~ s/\*? ?Downloaded from: http:\/\/[^ ]+//i;
+		#$line =~ s/Album tracklist with lyrics//;
+		#$line =~ s/You might also like//i;
+		#$line =~ s/^[0-9] Contributors$//;
+		#$line =~ s/^.* Lyrics$//;							# todo we could be probing and using the songtitle here to be more restrictive
+		#$line =~ s/Get tickets as low as \$[\d\.]+//i;
+		for my $re (@lyric_website_spam_patterns) { $line =~ s/$re//g; }
 
 
 
@@ -313,25 +278,35 @@ while (my $raw = <$INPUT>) {
 		}
 		$line =~ s/^Lyrics by .*$//;
 
+		#however our environment variables aren’t always set, 
+		#so we ended up needing to do this more aggressively:
+		$line =~  s/^Album: [\w\s]+\.?$//i; 
+		$line =~  s/^Title: [\w\s]+\.?$//i; 
+		$line =~ s/^Artist: [\w\s]+\.?$//i; 
+		$line =~     s/^id: [\w\s]+\.?$//i; 
+
+
 
 		#line-level fixes:
 		$line =~ s/^, *$//;			#remove leading comma like ", a line of text"
 
 		#character-level fixes: commas and quotes and dashes and punctuation, oh my!
-		$line =~ s/[â′'`]/’/ig;			# apostrophes and misrepresentations thereof
-		$line =~ s/â€™/’/ig;			# apostrophes and misrepresentations thereof (kludge 20250424 1358)
-		$line =~ s/€™/’/ig;
-		#$line =~ s/’’/’/ig;				# apostrophes and misrepresentations thereof (kludge 20250424 1358)
-		
+		#$line =~ s/[â′'`]/’/ig;			# apostrophes and misrepresentations thereof
+		#$line =~ s/â€™/’/ig;			# apostrophes and misrepresentations thereof (kludge 20250424 1358)
+		#$line =~ s/€™/’/ig;
+		##$line =~ s/’’/’/ig;				# apostrophes and misrepresentations thereof (kludge 20250424 1358)
 		#OLD: $line =~ s/\-\-/—/g;		# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
-		$line =~ s/\-\-([^>])/—$1/g;	# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
-		$line =~ s/„/”/g;				# copied from lyric-postprocessor: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
+		#$line =~ s/\-\-([^>])/—$1/g;	# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
+		#$line =~ s/„/”/g;				# copied from WhisperAIProcessing.pm: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
+		$line = &fix_common_character_encoding_flaws($line);
+		
 
-		#character-level fixes: for command line compatibility, because our lyrics become part of a command-line prompt to WhisperAI:
-		$line =~ s/\|/│/g;				# redirection characters should not reach our command-line, which is what our lyrics mode is used for		
-	    $line =~ s/"/'/g;				# change quotes to apostrophes so these can be used as a quoted command line argument
-		$line =~ s/</⧼/g;				# redirection characters should not reach our command-line, which is what our lyrics mode is used for
-		$line =~ s/>/⧽/g;				# redirection characters should not reach our command-line, which is what our lyrics mode is used for
+		#character-level fixes for command line compatibility: because our lyrics become part of a command-line prompt to WhisperAI:
+		#$line =~ s/\|/│/g;				# because our lyrics hit the command line, we need to ensure redirection characters not reach our command-line, which is what our lyrics mode is used for		
+	    #$line =~ s/"/'/g;				# change quotes to apostrophes so these can be used as a quoted command line argument
+		#$line =~ s/</⧼/g;				# redirection characters should not reach our command-line, which is what our lyrics mode is used for
+		#$line =~ s/>/⧽/g;				# redirection characters should not reach our command-line, which is what our lyrics mode is used for
+		$line = &fix_invalid_command_line_characters($line);
 
 		# word level fixes
 		$line =~ s/([a-z]) (\-)([a-z])/$1$2$3/ig;												   # turn things like “double -dutch” back into “double-dutch”
@@ -344,20 +319,7 @@ while (my $raw = <$INPUT>) {
 		}
 
 		#fix crap like: “ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo”
-		# Use regex to match any character repeated more than 24 times and replace it with 24 of that character ... 
-		$line =~ s/(\w)\1{24,}/$1 x $MAX_KARAOKE_WIDTH_MINUS_ONE/eg;
-		# But this may not work, so double-do it with this:
 		$line = &limit_repeats($line, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);  
-
-
-
-
-		#however our environment variables aren’t always set, 
-		#so we ended up needing to do this more aggressively:
-		$line =~  s/^Album: [\w\s]+\.?$//i; 
-		$line =~  s/^Title: [\w\s]+\.?$//i; 
-		$line =~ s/^Artist: [\w\s]+\.?$//i; 
-		$line =~     s/^id: [\w\s]+\.?$//i; 
 
 		#clean leading/trailing spaces
 		$line =~ s/^ *//g;
@@ -369,7 +331,6 @@ while (my $raw = <$INPUT>) {
 		}
 	}
 
-
 	#key is massaged line  
 	$key = lc($line);			 # Convert line to lowercase for case insensitive comparison
 	$key =~ s/^ //ig;
@@ -378,24 +339,17 @@ while (my $raw = <$INPUT>) {
 	#handle whether we do the new line at the end or not
 	$to_print = $line;
 	if ($ONE_LINE) { 
-		$to_print  =~ s/’’/’/ig;											#kludge 20250424 1358 copied here 20250505 1833
+		#Removed 20260429 code cleanup: $to_print  =~ s/’’/’/ig;	#kludge added 20250424 1358 copied here 20250505 1833
 		$to_print .=  " ";
 	} else { 
-		#print "to_print is “$to_print”\n";
 		if (($to_print eq "") && ($to_print_last eq "")) {
 			# (do nothing)
-			#$do_it = 0;
 		} else {
-			#$do_it = 1;
 			$to_print .= "\n";
 		}
 	}
 
-	#print only if unique
-    #print $to_print unless $seen{$key}++;
-
 	# store only if unique, postprocess later
-	#why? $to_print_last="";
 	if ($LYRICS_MODE==1) { $test=((!$UNIQUE_LINES_MODE) || (!$seen{$key}++) || ($original_line eq "")); }
 	else                 { $test=((!$UNIQUE_LINES_MODE) || (!$seen{$key}++)); }
 	if ($test) {
@@ -411,31 +365,17 @@ while (my $raw = <$INPUT>) {
 }
 
 # postprocessing for when lines are separate:
-$lines[-1] =~ s/,$// if @lines;				#Remove the comma from the last line if it exists
-
+$lines[-1] =~ s/,$// if @lines;								# Remove the comma from the last line if it exists
 my $output="";
-
-# Print all lines
-# foreach my $line (@lines) { print $line; }
 if ($ONE_LINE) {
-    # Join all lines into a single string and remove the trailing comma if it exists
-    my $final_output = join('', @lines);
-
-	#very final postprocessing:
-    $final_output =~ s/, +$//;		# Remove the last trailing “,” [comma] if it exists
-    $final_output =~ s/^\d\.? ?//;  # Remove “1. ”-type stuff at beginning
-	$final_output =~ s/\f|/ /;		# Remove pipe symbol because of command-line issues it creates and it not being anything we’d ever want in an AI-prompt particularly because it’s invalid on the command line without setdos pre/postfixing
-	#$final_output =~ s/
+    my $final_output = join('', @lines);				    # Join all lines into a single string and remove the trailing comma if it exists
+    $final_output =~ s/, +$//;								# Remove the last trailing “,” [comma] if it exists
+    $final_output =~ s/^\d\.? ?//;							# Remove “1. ”-type stuff at beginning
+	#$final_output =~ s/\f|/│/;								# Remove pipe symbol because of command-line issues it creates and it not being anything we’d ever want in an AI-prompt particularly because it’s invalid on the command line without setdos pre/postfixing
     print $final_output;
-} else {
-	# postprocessing for when lines are together:
-    # Remove the comma from the last line if it exists
-    $lines[-1] =~ s/, *$// if @lines;
-    # Print all lines
-    foreach my $line (@lines) {
-        $output .= $line;
-    }
-	#$output =~ s/\n\n\n/\n\n/g;
+} else {													# postprocessing for when lines are together:
+    $lines[-1] =~ s/, *$// if @lines;					    # Remove the comma from the last line if it exists
+    foreach my $line (@lines) { $output .= $line; }		    # Print all lines
 }
 print $output;
 
@@ -465,158 +405,6 @@ sub show_usage {
 	print   "      * Removes redundant lyric website mentions of artist/song title/album\n";	
 	print   "      * Removes special command-line characters if in smushing-into-one-line mode (“-1”)\n";	
 	print   "      * Removes divider lines like “-------”\n";	
-	print   "      * Removes leading comma from lines that start with a comma\n";	
-
-	print "\n";
+	print   "      * Removes leading comma from lines that start with a comma\n\n";	
 }
 
-# Combine any of these command-line parameters:
-#               “-U” parameter to print unique lines only
-#     [DEFAULT] “-A” parameter to print *all*  lines
-#               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#     [DEFAULT] “-L” parameter to treat it as downloaded lyrics, which need extended/special postprocessing 
-#               “-N” parameter to treat it as downloaded lyrics, which need extended/special postprocessing 
-#               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#               “-1” parameter to     smush it all into one line {for AI command-line prompting}
-#     [DEFAULT] “-0” parameter to NOT smush it all into one line 
-#               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#     [DEFAULT] “-P” parameter to     add character to end of each line
-#               “-S” parameter to NOT add character to end of each line
-
-sub replace_smart_quotes {
-	#converted from my python function with chatgpt
-	my ($text) = @_;
-	return "" if !defined($text) or $text eq "";
-	return "“”" if $text eq '""';
-	return "“"  if $text eq '"';
-
-	# Basic edge-replacement of first/last quotes
-	$text =~ s/^"/“/;
-	$text =~ s/"$/”/;
-
-	my @chars = split //, $text;
-	my @result;
-	my $in_quotes = 0;
-	my $last_non_space = "";
-	my $char_used;
-
-	for (my $i = 0; $i < @chars; $i++) {
-		my $char = $chars[$i];
-		my $prev  = $i > 0           ? $chars[$i-1] : "";
-		my $pprev = $i > 1           ? $chars[$i-2] : "";
-		my $next  = $i < $#chars     ? $chars[$i+1] : "";
-		my $nnext = $i < $#chars - 1 ? $chars[$i+2] : "";
-
-		if ($char eq '“') { $in_quotes = 1; }
-		if ($char eq '”') { $in_quotes = 0; }
-
-		if ($char eq '"') {							#[chatgpt:2025/05/19]
-			if ($prev =~ /^[\[\(\{<¡!¿“]$/) {		#[chatgpt:2025/05/19]	#possibly remove exclaimation point
-				$char_used = "“";					#[chatgpt:2025/05/19]
-				$in_quotes = 1;						#[chatgpt:2025/05/19]
-			}
-			elsif ($prev =~ /^\s?$/ && $next =~ /^\s?$/) {
-				if ($last_non_space eq "”") {
-					$char_used = "“";
-					$in_quotes = 1;
-				} elsif ($last_non_space eq "“") {
-					$char_used = "”";
-					$in_quotes = 0;
-				} elsif (($last_non_space =~ /\p{Punct}/ && $last_non_space ne "“" && $nnext =~ /\p{Alpha}/)
-				      || ($last_non_space =~ /\p{Alpha}/ && $nnext =~ /\p{Alpha}/)) {
-					$char_used = "“";
-					$in_quotes = 1;
-				} else {
-					$char_used = "”";
-					$in_quotes = 0;
-				}
-			} elsif ($prev eq " " && $next =~ /\p{Alpha}/ && $last_non_space ne ".") {
-				$char_used = "“";
-				$in_quotes = 1;
-			} elsif ($prev =~ /\p{Punct}/ || $prev =~ /\p{Alpha}/) {
-				$char_used = "”";
-				$in_quotes = 0;
-			} elsif (($prev eq "" || $prev =~ /\p{Punct}/) && $last_non_space ne "“") {
-				$char_used = "“";
-				$in_quotes = 1;
-			} else {
-				$char_used = $in_quotes ? "”" : "“";
-				$in_quotes = !$in_quotes;
-			}
-			push @result, $char_used;
-		} else {
-			$char_used = $char;
-			push @result, $char;
-		}
-
-		if ($char ne " ") {
-			$last_non_space = ($char_used eq "“" || $char_used eq "”") ? $char_used : $char;
-		}
-	}
-
-	my $result = join("", @result);
-
-	$result =~ s/!“/!”/g;				# kludge bug fix
-
-	return $result
-}
-
-
-sub limit_repeats {
-    my ($s, $max) = @_;
-    my $result = '';
-    my $last_char = '';
-    my $count = 0;
-
-    foreach my $c (split //, $s) {
-        if ($c eq $last_char) {
-            $count++;
-        } else {
-            $last_char = $c;
-            $count = 1;
-        }
-        $result .= $c if $count <= $max;
-    }
-
-    return $result;
-}
-
-
-sub decode_mixed_line {
-	my ($raw) = @_;
-	my $out = "";
-	my $utf8_chunk;
-
-	pos($raw) = 0;
-
-	while (pos($raw) < length($raw)) {
-
-		# Fast path: plain ASCII bytes
-		if ($raw =~ /\G([\x00-\x7F]+)/gc) {
-			$out .= $1;
-			next;
-		}
-
-		# Valid UTF-8 sequence starting at the current byte position
-		if ($raw =~ /\G(
-				[\xC2-\xDF][\x80-\xBF]                            |   # 2-byte UTF-8
-				\xE0[\xA0-\xBF][\x80-\xBF]                        |   # 3-byte UTF-8 (special low bound)
-				[\xE1-\xEC\xEE-\xEF][\x80-\xBF]{2}                |   # 3-byte UTF-8
-				\xED[\x80-\x9F][\x80-\xBF]                        |   # 3-byte UTF-8 (surrogate-safe)
-				\xF0[\x90-\xBF][\x80-\xBF]{2}                     |   # 4-byte UTF-8 (special low bound)
-				[\xF1-\xF3][\x80-\xBF]{3}                         |   # 4-byte UTF-8
-				\xF4[\x80-\x8F][\x80-\xBF]{2}                         # 4-byte UTF-8 (special high bound)
-			)/xgc) {
-			$utf8_chunk = $1;
-			$out .= decode('UTF-8', $utf8_chunk, FB_CROAK);
-			next;
-		}
-
-		# One stray non-UTF-8 byte: interpret JUST THAT BYTE as Windows-1252.
-		# This is the crucial part that lets files survive mixed encodings.
-		$raw =~ /\G(.)/sgc;
-		$out .= decode('Windows-1252', $1);
-	}
-
-	return $out;
-}

@@ -977,6 +977,12 @@ This also also has some extra karaoke postprocessing functionality slipped in:
 If ⚡ WinAmp 🦙 Integration is enabled, runs [subtitle-postprocessor.pl](../subtitle-postprocessor.pl) on the currently playing song.
 
 
+
+### 🌟 [downloaded-lrc-postprocessor.pl](../downloaded-lrc-postprocessor.pl.pl):
+
+Postprocessor for *downloaded* LRC files.
+
+
 </details>
 
 -----------------------------------------------------------------------------------------------------------------------------------------------

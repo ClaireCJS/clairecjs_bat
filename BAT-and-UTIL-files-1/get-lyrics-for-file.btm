@@ -263,7 +263,8 @@ rem For testing the “divider” subroutine:
         endiff
 
 rem If the FIRST arg is SetVarsOnly, we are just setting variables without having an associated audio file. So no probing. So this is it.
-        if "%1" == "SetVarsOnly" goto /i END_OF_GET_LYRICS
+        rem "%1" == "SetVarsOnly" goto /i END_OF_GET_LYRICS
+        if  "%1" == "SetVarsOnly" goto /i final_ending
 
 
 
@@ -2551,7 +2552,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                        :skip_this_search_2413                                                                                                                                    
 
                         rem Make sure LRC is actually an LRC:
-                                iff exist "%LRC_SIDECAR_FILENAME_TEMP%" then
+                                if not exist "%LRC_SIDECAR_FILENAME_TEMP%" goto :end_of_ensure_LRC_compliance
                                         rem Determine if it’s an LRC or not:
                                                 unset /q COMP3 COMP4
                                                 set COMP3=%@execstr[grep "\[[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]*\]" "%LRC_SIDECAR_FILENAME_TEMP%"]
@@ -2564,10 +2565,10 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
                                         rem Warn+Preview+Delete if it is not an LRC:
                                                 rem DEBUG: type "%LRC_SIDECAR_FILENAME_TEMP%" %+ call important "this is/isn’t an lrc: %lrc_is_lrc" %+ call pause-for-x-seconds 2
-                                                iff "0" == "%LRC_IS_LRC%" .and. exist  "%LRC_SIDECAR_FILENAME_TEMP%" then
+                                                if  "1" == "%LRC_IS_LRC%" .or.  not exist "%LRC_SIDECAR_FILENAME_TEMP%" goto :endiff_2598
                                                         set KEEP_LRC=0
                                                         set REPLACE_LRC=0
-                                                        echo %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an LRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR%%ansi_color_grey%%italics_on% ``
+                                                        echo      %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an LRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR%%ansi_color_grey%%italics_on% ``
                                                         tail -5           "%LRC_SIDECAR_FILENAME_TEMP%" |:u8 insert-before-each-line.py "       " 
                                                         echos %@ANSI_MOVE_TO_COL[1]%italics_off%
                                                         iff exist "%TXT_SIDECAR_FILENAME%" then
@@ -2594,12 +2595,12 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                                 else
                                                                         if "Y" != "%ANSWER%" gosub delete_file "%LRC_SIDECAR_FILENAME_TEMP%"
                                                                 endiff
-                                                endiff
-                                endiff
+                                                :endiff_2598
+                                :end_of_ensure_LRC_compliance
 
 
                         rem Make sure ELRC is actually an LRC:
-                                iff exist "%ELRC_SIDECAR_FILENAME_TEMP%" then
+                                if not exist "%ELRC_SIDECAR_FILENAME_TEMP%" goto :end_of_ensure_eLRC_compliance
                                         iff "1" != "%QUICK_LRC_MODE%" then
                                                 rem Determine if it’s an actual LRC ir not:
                                                         set KEEP_ELRC=0
@@ -2614,13 +2615,13 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                         endiff
                                                 rem Warn+Preview+Delete if it is not an LRC:
                                                         iff "0" == "%ELRC_IS_LRC%" .and. exist "%ELRC_SIDECAR_FILENAME_TEMP%" then
-                                                                echo %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an ELRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR%%ansi_color_grey%%italics_on% ``
+                                                                echo      %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an ELRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR%%ansi_color_grey%%italics_on% ``
                                                                 tail -5           "%ELRC_SIDECAR_FILENAME_TEMP%"  |:u8 insert-before-each-line.py "       " %+ echos %@ANSI_MOVE_TO_COL[1]
                                                                 echos %@ANSI_MOVE_TO_COL[1]%italics_off%
                                                                 gosub delete_file "%ELRC_SIDECAR_FILENAME_TEMP%"
                                                         endiff
                                         endiff
-                                endiff
+                                :end_of_ensure_eLRC_compliance
 
                         rem Duplicate checking: TODO:maybe add more combos:
                                 if (exist "%ELRC_SIDECAR_FILENAME_TEMP%" .and. exist "%LRC_SIDECAR_FILENAME_TEMP%") .or. (exist "%ELRC_SIDECAR_FILENAME_TEMP%" .and. exist "%LRC_SIDECAR_FILENAME%") .or. (exist  "%LRC_SIDECAR_FILENAME_TEMP%" .and. exist "%TXT_SIDECAR_FILENAME_TEMP%") .or. (exist  "%LRC_SIDECAR_FILENAME_TEMP%" .and. exist "%TXT_SIDECAR_FILENAME%") .or. (exist "%ELRC_SIDECAR_FILENAME_TEMP%" .and. exist "%TXT_SIDECAR_FILENAME_TEMP%") .or. (exist "%ELRC_SIDECAR_FILENAME_TEMP%" .and. exist "%TXT_SIDECAR_FILENAME%") call less_important "Comparing downloads to each other and to existing files..."
