@@ -543,17 +543,26 @@ Create karaoke files for **all songs** *in the current folder* that do not have 
 Songs that have pre-approved lyrics go through the process automatically.
 To do for an entire folder tree, preceed with ```global /i ```
 
-### 🌟 [get-lrc](../get-lrc) {audio_file} (alias to ```get-lyrics```’s ```quick_lrc``` mode):
+
+
+### 🌟 [get-lrc](../get-lrc) {audio_file} / ```get-lyrics quick_lrc``` mode:
 
 Uses *SyncedLyrics* to quickly gather *just* the LRC file that belongs with an audio file.  
-This is to find LRC files in MULTIPLE sources that can then save us the trouble of having to make our own SRT/LRC files.
+*SyncedLyrics* uses MULTIPLE sources, which can then save us the trouble of having to make our own SRT/LRC files, which might be less accurate anyway.
+
+Downloads are compared to existing files *and* to each other to prevent duplicates.
+Downloads are checked to ensure they are actually LRC, and if they are not, treated as TXT.
+Downloads and audio file are checked for duration, and user is warned if subtitles are longer in duration than the audio file.
+Downloads are compared to existing files (including visual representation stripe)
 
 
-### 🌟 [get-all-LRCs](../get-lrc) (alias to ```get-lyrics```’s ```quick_lrc``` mode) [force]:
+
+### 🌟 [get-all-LRCs](../get-all-LRCs.bat) / [get-LRCs](../get-LRCs.bat):
 
 Same as above, but for all audio files in the folder.
-Leaves breadcrumb files to mark folders as already done, to prevent wasting time re-running in the same folder more than once.
-Use the ```force``` / ```--force``` parameter to run it on a folder that’s already been marked
+Leaves breadcrumb files (```.GetAllLRCsRunHereAlready```) in folders to mark them as done, to prevent wasting time re-running in the same folder more than once.
+Use the ```force``` / ```--force``` parameter to run it on a folder that’s already been marked with the breadcrumb.
+To easily delete every breadcrumb file on your computer, go into ```clean-up-AI-transcription-trash-files-everywhere.bat``` and uncomment/add ```gosub DeleteEverywhere .GetAllLRCsRunHereAlready``` and run.
 
 ### 🌟 [create-srt-from-playlist.bat](../create-srt-from-playlist) (called via ```get-karaoke *{playlist}*```):
 

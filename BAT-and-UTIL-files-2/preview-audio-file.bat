@@ -7,6 +7,8 @@ rem CONFIG:
 
 
         rem ❶ The default player we use to preview audio files:
+                set DEFAULT_PAF_PLAYER=call mpc32 
+                set DEFAULT_PAF_PLAYER=call vlc
                 set DEFAULT_PAF_PLAYER=vlc.exe --volume 200
 
 
