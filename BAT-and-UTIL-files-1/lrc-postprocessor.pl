@@ -14,8 +14,8 @@ use File::Copy qw(move);                                                        
 use utf8;                                                                                              # enable UTF-8 character support
 use FindBin;
 use lib $FindBin::Bin;
-use DeCensor;
-use LimitRepeats;
+#use DeCensor;
+#use LimitRepeats;
 use WhisperAIProcessing;	
 use BulletproofFileReading;
 
@@ -24,9 +24,8 @@ use BulletproofFileReading;
 
 my $LEAVE_CENSORSHIP       =  0;                  # Set to 0 to de-censor things, set to 1 to leave things censored
 my $USE_WORDS_MODE         =  1;                  # Use full lyric/WhisperAI-style postprocessing instead of only removing final periods
-my @LRC_patterns_to_delete =  (                   # stuff we want taken out of downloaded LRC files
-    qr/^[0-9]+ Contributors$/,
-    qr/^.*Lyrics$/,
+my @LRC_patterns_to_delete =  (                   # stuff we want taken out of downloaded LRC files but not out of TXT/SRT files
+		# (currently empty)
 );
 
 
@@ -53,8 +52,9 @@ if ($do_test_suite) { &do_test_suite; exit; }
 
 ##### VALIDATE INPUT FILE: #####################################################################################################################################################################################################################
 
-if (   !$filename) { die "Error: No file specified.\nUse --help for usage instructions.\n"; }
-if (!-e $filename) { die "Error: File “$filename” does not exist.\n"; }
+my   $read_from_stdin = (!defined($filename) || $filename eq '-');
+if (!$read_from_stdin && !-e $filename) { die "Error: File '$filename' does not exist.\n"; }
+
 
 
 ##### OPEN OUTPUT FILE: #####################################################################################################################################################################################################################
@@ -62,9 +62,20 @@ if (!-e $filename) { die "Error: File “$filename” does not exist.\n"; }
 binmode(STDOUT, ":utf8");                                                                              # enable UTF-8 character support on standard out
 binmode(STDIN , ":utf8");                                                                              # enable UTF-8 character support on standard in
 binmode(STDERR, ":utf8");                                                                              # enable UTF-8 character support on standard err
-my $tempfile = "$filename.tmp";
-open my $in , '<:encoding(UTF-8)', $filename or die "Error: Cannot open input file: $!\n";
-open my $out, '>:encoding(UTF-8)', $tempfile or die "Error: Cannot create temporary file: $!\n";
+
+my $in;
+my $out;
+my $tempfile;
+
+if ($read_from_stdin) {
+    $in  = \*STDIN;
+    $out = \*STDOUT;
+} else {
+	$tempfile = "$filename.tmp";
+    open $in , '<:encoding(UTF-8)', $filename or die "Error: Cannot open input file: $!\n";
+    open $out, '>:encoding(UTF-8)', $tempfile or die "Error: Cannot create temporary file: $!\n";
+}
+
 
 
 ##### PROCESS INPUT & WRITE OUTPUT: ##########################################################################################################################################################################################################
@@ -73,15 +84,20 @@ my $tmpline1;
 my $tmpline2;
 while (my $line = <$in>) {
     chomp $line;
-    $tmpline1 = process_lrc_line_but_it_may_just_be_a_txt_file($line);
-	$tmpline2 = &limit_repeats($tmpline1, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);  
-    print $out "$tmpline2\n";
+    $tmpline1 = &process_lrc_line_but_it_may_just_be_a_txt_file($line);			# this is done in WhisperAIProcessing.pm:	$tmpline2 = &limit_repeats($tmpline1, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);  
+    print $out "$tmpline1\n";
 }
-close $in  or die "Error: Cannot close input file:     $!\n";
-close $out or die "Error: Cannot close temporary file: $!\n";
-move $tempfile, $filename or die "Error: Cannot overwrite original file: $!\n";
 
-1;
+
+
+##### CLOSE OUTPUT FILE: #####################################################################################################################################################################################################################
+
+if (!$read_from_stdin) {
+    close $in  or die "Error: Cannot close input file: $!\n";
+    close $out or die "Error: Cannot close temporary file: $!\n";
+
+    move $tempfile, $filename or die "Error: Cannot overwrite original file: $!\n";
+}
 
 
 
@@ -102,7 +118,7 @@ sub process_lrc_line_but_it_may_just_be_a_txt_file {
 
 sub dlrcpusage {
     print <<'USAGE';
-    Usage: perl downloaded-lrc-postprocessor.pl [options] <file>
+    Usage: perl lrc-postprocessor.pl [options] <file>
 
     Options:
       -w, --WhisperAI, --words      Enable advanced processing mode
@@ -119,3 +135,8 @@ USAGE
 
     exit;
 }
+
+
+1;
+
+

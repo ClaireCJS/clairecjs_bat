@@ -1092,7 +1092,7 @@ rem Check if lyriclessness is already approved
 rem Delete lyrics if they are zero bytes...
         iff 0 eq %@FILESIZE["%LYRIC_FILE%"] then
                 call warning "Deleting 0-byte lyric file: %faint_on%%LYRIC_FILE%%faint_off%" silent
-                echo ray | gosub delete_file /q "%LYRIC_FILE%"
+                gosub delete_file /q "%LYRIC_FILE%"
                 goto /i top
         endiff
 
@@ -2482,10 +2482,10 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
                         rem Fetch mode:
                                 rem Define search mode mode variables:
-                                        set SYNCEDLYRICS_MODE_A_4PRINT=%ansi_color_important%all%[ansi_color_less_important]... LRC %italics_on%and%italics_off% TXT %italics_on%and%italics_off% ELRC
-                                        set SYNCEDLYRICS_MODE_L_4PRINT=%ansi_color_important%LRC%[ansi_color_less_important] file %italics_on%only%italics_off% 
-                                        set SYNCEDLYRICS_MODE_T_4PRINT=%ansi_color_important%TXT%[ansi_color_less_important] lyrics %italics_on%only%italics_off% 
-                                        set SYNCEDLYRICS_MODE_B_4PRINT=%ansi_color_important%both%ansi_color_less_important% LRC file %italics_on%and%italics_off% TXT lyrics
+                                        set SYNCEDLYRICS_MODE_A_4PRINT=all%[ansi_color_less_unimportant]... LRC %italics_on%%ZZZZZZZZ%and%ZZZZZZ%%italics_off% TXT %italics_on%and%italics_off% ELRC
+                                        set SYNCEDLYRICS_MODE_L_4PRINT=LRC%[ansi_color_less_unimportant] file %italics_on%%ZZZZZZZZZZ%only%ZZZZZ%%italics_off% 
+                                        set SYNCEDLYRICS_MODE_T_4PRINT=TXT%[ansi_color_less_unimportant] lyrics %italics_on%%ZZZZZZZZ%only%ZZZZZ%%italics_off% 
+                                        set SYNCEDLYRICS_MODE_B_4PRINT=both%ansi_color_less_unimportant% LRC file %italics_on%a%ZZZZZ%nd%ZZZZZZZ%%italics_off% TXT lyrics
                                                                    
                                 rem Set default modes only if not already set; otherwise, carryover modes from previous runs:
                                         if not defined SYNCEDLYRICS_MODE       set SYNCEDLYRICS_MODE=A 
@@ -2545,10 +2545,23 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                 on break goto :next_one_3
                                 if "A" == "%SYNCEDLYRICS_MODE%"                                                                     (echo %@ansi_move_to_col[1]%ansi_erase_to_eol%%ansi_color_less_important%%star2% Attempting to fetch %ansi_color_important%%italics_on%extended%italics_off% subtitles %ansi_color_important_less%with %[italics_on]SyncedLyrics%italics_off%...%ansi_color_normal% `` %+ echos %ANSI_SAVE_POSITION%  %ANSI_COLOR_NORMAL%%ARROW%  %EXSUB_RETRIEVAL_COMMAND%%ZZZANSI_RESTORE_POSITION%%ZZZANSI_MOVE_UP_1ZZZ% %+ (%EXSUB_RETRIEVAL_COMMAND% >&nul) |:u8 copy-move-post) ) %+ SET TEMPCHAR=%@IF[exist "%ELRC_SIDECAR_FILENAME_TEMP%",%CHECK%,%RED_X%] %+ echo  %TEMPCHAR%%@ansi_move_to_col[3]%TEMPCHAR% %+ rem call errorlevel "%CURRENT_LYRIC_PROVIDER% Problem retrieving extended subtitles in %0")
                                 :next_one_3
-                                on break echos %EMOJI_BANG%
+                                on break echos %EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%%EMOJI_BANG%
                                 echos %@ansi_move_to_col[1]%ansi_erase_to_eol%
 
+
                        :skip_this_search_2413                                                                                                                                    
+
+
+
+                        rem Postprocess those that we can postprocess inline: (TODO: postprocess lyrics maybe? but that requires tmp file stuffs)
+                                if exist "%ELRC_SIDECAR_FILENAME_TEMP%"      lrc-postprocessor.pl "%ELRC_SIDECAR_FILENAME_TEMP%"                            
+                                if exist  "%LRC_SIDECAR_FILENAME_TEMP%"      lrc-postprocessor.pl  "%LRC_SIDECAR_FILENAME_TEMP%"                            
+                                if exist  "%SRT_SIDECAR_FILENAME_TEMP%" subtitle-postprocessor.pl  "%SRT_SIDECAR_FILENAME_TEMP%"                            
+                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%"      lrc-postprocessor.pl  "%TXT_SIDECAR_FILENAME_TEMP%"       %+ rem Lyrics-postprocessor isn’t inline, so we’ll “cheat” by using LRC-postprocessor 
+
+
+
+
 
                         rem Make sure LRC is actually an LRC:
                                 if not exist "%LRC_SIDECAR_FILENAME_TEMP%" goto :end_of_ensure_LRC_compliance
@@ -2590,10 +2603,11 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                                 if  "P" == "%ANSWER%" goto :reask_2585
                                                                 if  "I" == "%ANSWER%" goto :reask_2585
                                                                 iff "Y" == "%ANSWER%" then
-                                                                        if exist "%TXT_SIDECAR_FILENAME%" gosub delete_file "%TXT_SIDECAR_FILENAME_TEMP%" "%TXT_SIDECAR_FILENAME%"
-                                                                        gosub rename_file   "%LRC_SIDECAR_FILENAME_TEMP%"   "%TXT_SIDECAR_FILENAME%"
-                                                                else
-                                                                        if "Y" != "%ANSWER%" gosub delete_file "%LRC_SIDECAR_FILENAME_TEMP%"
+                                                                        if exist "%TXT_SIDECAR_FILENAME%" gosub backup_file "%TXT_SIDECAR_FILENAME%" "replacing-with-LRC-that-was-really-a-TXT"
+                                                                        gosub rename_file "%LRC_SIDECAR_FILENAME_TEMP%" "%TXT_SIDECAR_FILENAME%"
+                                                                endiff
+                                                                iff "N" == "%ANSWER%" then
+                                                                        gosub delete_file "%LRC_SIDECAR_FILENAME_TEMP%"
                                                                 endiff
                                                 :endiff_2598
                                 :end_of_ensure_LRC_compliance
@@ -2635,7 +2649,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
                                                 iff exist "%LRC_SIDECAR_FILENAME%" then
                                                         set  COMPARE2=%@COMPARE["%ELRC_SIDECAR_FILENAME_TEMP%","%LRC_SIDECAR_FILENAME%"]       
-                                                        if "%COMPARE2%" == "1" (echos %ANSI_COLOR_REMOVAL% %EMOJI_AXE% Removing dupe: `` %+ *del /Ns "%ELRC_SIDECAR_FILENAME_TEMP" %+ echos %ANSI_COLOR_NORMAL%)
+                                                        if "%COMPARE2%" == "1" (echos   %ANSI_COLOR_REMOVAL%%EMOJI_AXE% Removing dupe: `` %+ *del /Ns "%ELRC_SIDECAR_FILENAME_TEMP" %+ echos %ANSI_COLOR_NORMAL%)
                                                 endiff
                                         endiff
 
@@ -2643,11 +2657,11 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                         iff exist "%LRC_SIDECAR_FILENAME_TEMP%" then
                                                 iff exist "%TXT_SIDECAR_FILENAME_TEMP%" then
                                                         set  COMPARE3=%@COMPARE["%LRC_SIDECAR_FILENAME_TEMP%","%TXT_SIDECAR_FILENAME_TEMP%"]   
-                                                        if "%COMPARE3%" == "1" (echos %ANSI_COLOR_REMOVAL% %EMOJI_AXE% Removing dupe: `` %+ *del /Ns  "%TXT_SIDECAR_FILENAME_TEMP" %+ echos %ANSI_COLOR_NORMAL%)
+                                                        if "%COMPARE3%" == "1" (echos   %ANSI_COLOR_REMOVAL%%EMOJI_AXE% Removing dupe: `` %+ *del /Ns  "%TXT_SIDECAR_FILENAME_TEMP" %+ echos %ANSI_COLOR_NORMAL%)
                                                 endiff
                                                 iff exist "%TXT_SIDECAR_FILENAME%" then
                                                         set COMPARE4=%@COMPARE["%LRC_SIDECAR_FILENAME_TEMP%","%TXT_SIDECAR_FILENAME%"]        
-                                                        if "%COMPARE4%" == "1" (echos %ANSI_COLOR_REMOVAL% %EMOJI_AXE% Removing dupe: `` %+ *del /Ns  "%TXT_SIDECAR_FILENAME"      %+ echos %ANSI_COLOR_NORMAL%) %+ rem This could be a mistake
+                                                        if "%COMPARE4%" == "1" (echos   %ANSI_COLOR_REMOVAL%%EMOJI_AXE% Removing dupe: `` %+ *del /Ns  "%TXT_SIDECAR_FILENAME"      %+ echos %ANSI_COLOR_NORMAL%) %+ rem This could be a mistake
                                                 endiff
                                         endiff
 
@@ -2655,17 +2669,13 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                         iff exist "%ELRC_SIDECAR_FILENAME_TEMP%" then
                                                 iff exist "%TXT_SIDECAR_FILENAME_TEMP%" then
                                                         set  COMPARE5=%@COMPARE["%ELRC_SIDECAR_FILENAME_TEMP%","%TXT_SIDECAR_FILENAME_TEMP%"]  
-                                                        if "%COMPARE5%" == "1" (echos %ANSI_COLOR_REMOVAL% %EMOJI_AXE% Removing dupe: `` %+ *del /Ns "%ELRC_SIDECAR_FILENAME_TEMP" %+ echos %ANSI_COLOR_NORMAL%)
+                                                        if "%COMPARE5%" == "1" (echos   %ANSI_COLOR_REMOVAL%%EMOJI_AXE% Removing dupe: `` %+ *del /Ns "%ELRC_SIDECAR_FILENAME_TEMP" %+ echos %ANSI_COLOR_NORMAL%)
                                                 endiff
                                                 iff exist "%TXT_SIDECAR_FILENAME%" then
                                                         set  COMPARE6=%@COMPARE["%ELRC_SIDECAR_FILENAME_TEMP%","%TXT_SIDECAR_FILENAME%"]       
-                                                        if "%COMPARE6%" == "1" (echos %ANSI_COLOR_REMOVAL% %EMOJI_AXE% Removing dupe: `` %+ *del /Ns "%ELRC_SIDECAR_FILENAME_TEMP" %+ echos %ANSI_COLOR_NORMAL%)
+                                                        if "%COMPARE6%" == "1" (echos   %ANSI_COLOR_REMOVAL%%EMOJI_AXE% Removing dupe: `` %+ *del /Ns "%ELRC_SIDECAR_FILENAME_TEMP" %+ echos %ANSI_COLOR_NORMAL%)
                                                 endiff
                                         endiff
-
-                        rem Postprocess those that we can postprocess inline: (TODO: postprocess lyrics maybe? but that requires tmp file stuffs)
-                                if exist    "%SRT_SIDECAR_FILENAME_TEMP%" subtitle-postprocessor.pl    "%SRT_SIDECAR_FILENAME_TEMP%"                            
-                                if exist "%LRC_COMPARISON_FILENAME_TEMP%"      lrc-postprocessor.pl "%LRC_COMPARISON_FILENAME_TEMP%"
 
                         rem Ask if these are worthy of replacement (if old lyrics exist) or of keeping (if these are the only ones that exist)?
                                 rem Set up prompt time:
@@ -2803,7 +2813,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                                 call warning_soft "Downloaded LRC is longer than the audio file" big
                                                                 set DEFAULTANSWER=N
                                                         endiff
-                                                        call AskYN "Keep %italics_on%LRC%italics_off% file [or %ansi_color_bright_green%P%ansi_color_prompt%lay/dele%ansi_color_bright_green%T%ansi_color_prompt%e,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%E%ansi_color_prompt%dit files%MAYBE_PRINTABLE_K%,%ansi_color_bright_green%R%ansi_color_prompt%ename,mark %ansi_color_bright_green%L%ansi_color_prompt%yric%italics_on%%underline_on%less%italics_off%%underline_off%,choose to %ansi_color_bright_green%F%ansi_color_prompt%ail,%ansi_color_bright_green%C%ansi_color_prompt%onvert new LRC%arrow%TXT,e%ansi_color_bright_green%D%ansi_color_prompt%it band/song]" %DEFAULTANSWER% %USE_TIME% YNPTIE%maybe_option_k%LFCd P:Play_File,T:Delete_some_files,I:mark_as_Instrumental,E:edit_files%MAYBE_DESCRIPTION_K%,M:renaMe,L:mark_as_lyricless,F:fail,C:convert_LRC_to_TXT,Y:yea,N:nay,D:eDit_artist_and_song
+                                                        call AskYN "Keep %italics_on%LRC%italics_off% file [or %ansi_color_bright_green%P%ansi_color_prompt%lay/dele%ansi_color_bright_green%T%ansi_color_prompt%e,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%E%ansi_color_prompt%dit files%MAYBE_PRINTABLE_K%,%ansi_color_bright_green%R%ansi_color_prompt%ename,mark %ansi_color_bright_green%L%ansi_color_prompt%yric%italics_on%%underline_on%less%italics_off%%underline_off%,%MAYBE_PRINTABLE_K%%ansi_color_bright_green%C%ansi_color_prompt%onvert new LRC%arrow%TXT,e%ansi_color_bright_green%D%ansi_color_prompt%it band/song]" %DEFAULTANSWER% %USE_TIME% YNPTIE%MAYBE_OPTION_K%LFCd P:Play_File,T:Delete_some_files,I:mark_as_Instrumental,E:edit_files%MAYBE_DESCRIPTION_K%,M:renaMe,L:mark_as_lyricless,F:fail,C:convert_LRC_to_TXT,Y:yea,N:nay,D:eDit_artist_and_song
                                                         iff "D" == "%ANSWER%" then
                                                                 gosub eset_fileartist_and_filesong
                                                                 goto /i download_with_lyric_downloader_init
@@ -3233,12 +3243,15 @@ rem Try again if massaged names exist (that is, if the massaged names are differ
         :Already_Did_Massaged
 
         rem Not sure why this was a good idea, in quick_lrc_mode it surely is not:
-        if "1" != "%QUICK_LRC_MODE%" .and. exist "%LYRIC_FILE" (echos %ansi_color_removal%%red_x% `` %+ *ren /Ns /q "%LYRIC_FILE" "%LYRIC_FILE%.%_datetime.failed-lyric-search.bak" %+ echos %ansi_color_normal%)
+        iff "1" != "%QUICK_LRC_MODE%" .and. exist "%LYRIC_FILE" then
+                rem becuase we’re using /q: echos %ansi_color_removal%%red_x% `` 
+                *ren /Ns /q "%LYRIC_FILE" "%LYRIC_FILE%.%_datetime.failed-lyric-search.bak" 
+                rem becuase we’re using /q: echos %ansi_color_normal%
+        endiff
 
         rem gosub divider
         rem Continue on... We have failed so far.  (DON’T do this here: goto /i end_of_massage_attempt)
         unset /q LD1_MASSAGED_ATTEMPT_1
-        rem echo 🐐 Trace LT3 -- LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”
 
 
 rem ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━-━-━-━
@@ -3251,7 +3264,6 @@ rem If we’ve still failed, and it’s a cover song, let’s try with the origi
                 rem 2ⁿᵈ we started with  initial, so if that fails we’d try original...
                 set FILE_ARTIST_TO_USE=%FILE_ORIG_ARTIST%
                 set cover_original_attempt=1
-                rem gosub debug "🎨🎨🎨[20] FILE_ARTIST_TO_USE=“%FILE_ARTIST_TO_USE%, FILE_ARTIST=“%FILE_ARTIST%””"
                 goto /i download_with_lyric_downloader_init
         endiff                
         
@@ -3260,16 +3272,13 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 rem If we’ve still failed, and the artist has “feat” like “Michael Jacksonfeat Metallica”, strip and try again:
         if "" == "%FILE_ARTIST_TO_USE%" goto /i feat_stuff_done
                 iff 1 eq %@Regex[ feat\.? ,"%FILE_ARTIST_TO_USE%"] then
-                        rem echo %ANSI_COLOR_DEBUG%- DEBUG: “Feat\.” is in the %italics_on%FILE_ARTIST_TO_USE%italics_off% of “%FILE_ARTIST_TO_USE%”
                         set  FILE_ARTIST_TO_USE=%@UNQUOTE[%@ReReplace[ feat\.? .*$,,"%FILE_ARTIST_TO_USE%"]]
                         set  varname=already_tried_featured_with_%file_artist_to_use%
                         set  already_tried_featured_for_this_one=%[%VARNAME%]
                         iff "%already_tried_featured_for_this_one%" != "1" then
-                                rem echo %ANSI_COLOR_DEBUG%- DEBUG: We have not tried de-feat.-ing this one                        
                                 set  %VARNAME%=1
                                 goto /i download_with_lyric_downloader_init
                         else
-                                rem echo %ANSI_COLOR_DEBUG%- DEBUG: We’ve already tried de-feat.-ing this one                        
                         endiff
                 else
                         rem echo featured no!
@@ -3281,15 +3290,8 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 rem If we’ve still failed, and the artist has “The” at the beginning, strip and try again:
         if "" == "%FILE_ARTIST_TO_USE%" goto /i the_stuff_done
         *setdos /x-5
-        rem echo 🐐 file_artist_to_use is “%file_artist_to_use%”
         set REGEX_VALUE="%@RegEx[^THE,%@UPPER[%file_artist_to_use%]]"  
-        rem echo    [DE-THE] REGEX_VALUE=“%REGEX_VALUE%”
-        rem echo    [DE-THE] if "0" eq"%%@RegEx[^THE ,%@UPPER[%file_artist_to_use%]]" goto the_stuff_done 
-        rem echo    [DE-THE] if "0" eq "%@RegEx[^THE ,%@UPPER[%file_artist_to_use%]]" goto the_stuff_done 
         if          "0" == "%@RegEx[^THE ,%@UPPER[%file_artist_to_use%]]" goto /i the_stuff_done
-                rem echo %ANSI_COLOR_DEBUG%- DEBUG: “The ” is in the %italics_on%FILE_ARTIST_TO_USE%italics_off% of “%FILE_ARTIST_TO_USE%”
-                rem  FILE_ARTIST_TO_USE=%@UNQUOTE[%@ReReplace[^The ,,"%FILE_ARTIST_TO_USE%"]]
-                rem  FILE_ARTIST_TO_USE=%@UNQUOTE[%@ReReplace[[Tt][Hh][Ee] ,,"%FILE_ARTIST_TO_USE%"]] didn’t work
                 set  FILE_ARTIST_TO_USE=%@UNQUOTE[%@ReReplace[^[Tt][Hh][Ee] ,,%FILE_ARTIST_TO_USE%]]
                 set  varname=already_tried_the_with_%file_artist_to_use%
                 set   already_tried_the_for_this_one=%[%VARNAME%]
@@ -3310,15 +3312,10 @@ rem If we’ve still failed, and the artist has “ @ ” in it, it’s probably
         *setdos /x-5
         rem echo 🐐 file_artist_to_use is “%file_artist_to_use%”
         if "0" == "%@RegEx[ @ ,%@UPPER[%file_artist_to_use%]]" goto /i at_stuff_done
-                rem echo %ANSI_COLOR_DEBUG%- DEBUG: “ @ ” is in the %italics_on%FILE_ARTIST_TO_USE%italics_off% of “%FILE_ARTIST_TO_USE%”
-                rem  FILE_ARTIST_TO_USE=%@UNQUOTE[%@ReReplace[^The ,,"%FILE_ARTIST_TO_USE%"]]
-                rem  FILE_ARTIST_TO_USE=%@UNQUOTE[%@ReReplace[[Tt][Hh][Ee] ,,"%FILE_ARTIST_TO_USE%"]] didn’t work
                 set  FILE_ARTIST_TO_USE=%@UNQUOTE[%@ReReplace[ \@ .*$,,%FILE_ARTIST_TO_USE%]]
-                rem echo %ANSI_COLOR_DEBUG%- DEBUG: “ @ ” remove attemped: %italics_n%FILE_ARTIST_TO_USE%italics_off%=“%FILE_ARTIST_TO_USE%”
                 set  varname=already_tried_at_with_%file_artist_to_use%
                 set   already_tried_at_for_this_one=%[%VARNAME%]
                 iff "%already_tried_at_for_this_one%" != "1" then
-                        rem echo %ANSI_COLOR_DEBUG%- DEBUG: We have not tried de-@-ing this one %dash% this is the first one
                         set  %VARNAME%=1
                         goto /i download_with_lyric_downloader_init
                 else
@@ -3332,9 +3329,7 @@ rem Still nothing? Let’s try removing the band name altogether (de-band-name�
 
         if "" == "%FILE_ARTIST_TO_USE%" goto noband_stuff_done
                 *setdos /x-5
-                rem echos 🐐 file_artist_to_use was “%file_artist_to_use%”
                 unset /q file_artist_to_use
-                rem echo  but is now “%file_artist_to_use%”
                 iff "%debanded%" != "1" then
                         rem echo %ANSI_COLOR_DEBUG%- DEBUG: We have not tried no-band-ing this one %dash% this is the first one [varname=%varname%] [file_artist=“%file_artist%”]
                         set  debanded=1
@@ -3375,7 +3370,7 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
         unset /q GOOGLE_NOW
         gosub set_up_variables_for_answer_of_K
         if "1" == "%QUICK_LRC_MODE%" set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=60
-        call AskYN "Change artist/song? (%ansi_color_bright_green%L%ansi_color_prompt%=Lyricless(%ansi_color_bright_green%Z%ansi_color_prompt%=All),%ansi_color_bright_green%N%ansi_color_prompt%=ai %italics_on%%ansi_color_bright_green%N%ansi_color_prompt%ow%italics_off%,G=%ansi_color_bright_green%G%ansi_color_prompt%oogle,%ansi_color_bright_green%A%ansi_color_prompt%pprove lyrics,%ansi_color_bright_green%I%ansi_color_prompt%nstr(%ansi_color_bright-green%X%ansi_color_prompt%=ALL)%MAYBE_PRINTABLE_K%,%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%D%ansi_color_prompt%ir,%ansi_color_bright_green%F%ansi_color_prompt%ail)" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME% ADEGILNOPQRXZ%MAYBE_OPTION_K%F$ L:Mark_As_Lyricless,Z:Mark_all_as_lyricless,N:AI_encode_NOW_without_lyrics,G:Google_for_the_lyrics,A:the_lyrics_are_good_actually!,I:rename_it_as_an_instrumental_file,Q:enQueue_in_winamp,P:play_the_file,X:Mark_all_songs_in_folder_as_instrumental,O:download_lyrics,D:eDit_and_change_song_title_and_artist,R:rename_file,E:edit_the_lyrics_manually,2:dir%MAYBE_DESCRIPTION_K%,f:Fail_this_one,$:run_get_lyrics,
+        call AskYN "Change artist/song? (%ansi_color_bright_green%L%ansi_color_prompt%=Lyricless(%ansi_color_bright_green%Z%ansi_color_prompt%=All),%ansi_color_bright_green%N%ansi_color_prompt%=ai %italics_on%%ansi_color_bright_green%N%ansi_color_prompt%ow%italics_off%,G=%ansi_color_bright_green%G%ansi_color_prompt%oogle,%ansi_color_bright_green%A%ansi_color_prompt%pprove lyrics,%ansi_color_bright_green%I%ansi_color_prompt%nstr(%ansi_color_bright-green%X%ansi_color_prompt%=ALL)%MAYBE_PRINTABLE_K%,%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%D%ansi_color_prompt%ir,%ansi_color_bright_green%F%ansi_color_prompt%ail)" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME% ADEGILNOPQRXZ%MAYBE_OPTION_K%$ L:Mark_As_Lyricless,Z:Mark_all_as_lyricless,N:AI_encode_NOW_without_lyrics,G:Google_for_the_lyrics,A:the_lyrics_are_good_actually!,I:rename_it_as_an_instrumental_file,Q:enQueue_in_winamp,P:play_the_file,X:Mark_all_songs_in_folder_as_instrumental,O:download_lyrics,D:eDit_and_change_song_title_and_artist,R:rename_file,E:edit_the_lyrics_manually,2:dir,%MAYBE_DESCRIPTION_K%$:run_get_lyrics,
                 set HELD_ANSWER_2923=%ANSWER%
                 rem Special case when in QUICK-LRC mode:
                         if  "1" == "%QUICK_LRC_MODE%" .and. "%ANSWER%" == "N" goto /i :end_quick_lrc_mode_fail
@@ -4504,14 +4499,27 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                 echo %ANSI_COLOR_DEBUG%- DEBUG: %msg% %ansi_color_normal%
         return
 
-        :delete_file [file]
+        :delete_file [file file2 file3 file4 file5 file6 file7 file8 file9]
+echo WHYYYYYYYYYYYYYYYYYYY               *del /Ns %file% %file2% %file3% %file4% %file5% %file6% %file7% %file8% %file9%
                 echos %ANSI_COLOR_REMOVAL%%EMOJI_AXE%%EMOJI_AXE%%EMOJI_AXE% ``
-                *del /Ns %file%
+                *del /Ns %file% %file2% %file3% %file4% %file5% %file6% %file7% %file8% %file9%
+                echos %ANSI_COLOR_NORMAL%
+        return
+        :backup_file [file_parameter reason_parameter opt3 opt4 opt5 opt6 opt7 opt8 opt9]
+                set file=%@UNQUOTE[%file_parameter%]
+                set reason=%@UNQUOTE[%reason_parameter%]
+echo BACKING UPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP:                *ren /Ns /q "%file%" "%file%.%reason%.%[_datetime].bak"
+                echos %ANSI_COLOR_RUN%%EMOJI_BOOK% ``
+                *ren /Ns /q "%file%" "%file%.%reason%.%[_datetime].bak"
                 echos %ANSI_COLOR_NORMAL%
         return
         :rename_file [opt1 opt2 opt3 opt4 opt5 opt6 opt7 opt8 opt9]
                 echos %ANSI_COLOR_RUN%%EMOJI_GEAR% ``
+                set FILE2=%@UNQUOTE[%opt2%]
+                if exist "%FILE2%" *ren /Ns /q "%FILE2%" "%FILE2%.replaced_on_%_datetime.bak" 
                 *ren /Ns %opt1% %opt2% %opt3% %opt4% %opt5% %opt6% %opt7% %opt8% %opt9%
+                rem goatgoatgoat put this null on previous lnie when things settle >nul
+
                 echos %ANSI_COLOR_NORMAL%
         return
         :delete_maybe_files []
@@ -4560,6 +4568,9 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                 rem        if not defined LAST_FILE_LENGTH gosub get_audio_file_length %audfile% %opt2% %opt3% %opt4%
                 rem But now that we use this on multiple files, we just re-read it each time. It’s fast anyway:
                         gosub get_audio_file_length %audfile% %opt2% %opt3% %opt4%
+
+                rem Deal with failures:
+                        if "%READER_OUTPUT%" == "N/A" .or. "%READER_OUTPUT%" == "-1" call warning "FUCKUPFUCKUP"
 
                 rem Define columns for output:
                         set COL1=9
@@ -5219,10 +5230,10 @@ echo "%blink_on%set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% 
                 call debug "%underline_on%LATEST_FILE%underline_off% is now set to: %lq%%faint_on%%LATEST_FILE%%faint_off%%rq%" silent
         return
         :set_up_variables_for_answer_of_K [opt]
-                iff "1" == "%QUICK_LRC_MODE%" then
+                iff "1" == "%QUICK_LRC_MODE%" .or. "GOATGOAT" == "GOATGOAT" then
                         set MAYBE_OPTION_K=K
-                        set MAYBE_DESCRIPTION_K=,K:sKip_the_rest_of_this_folder
-                        set MAYBE_PRINTABLE_K=,s%ansi_color_bright_green%K%ansi_color_prompt%ip file/folder
+                        set MAYBE_DESCRIPTION_K=K:sKip_the_rest_of_this_folder,
+                        set MAYBE_PRINTABLE_K=s%ansi_color_bright_green%K%ansi_color_prompt%ip file/folder,
                 else
                         unset /q MAYBE_OPTION_K MAYBE_DESCRIPTION_K MAYBE_PRINTABLE_K
                 endiff
@@ -5280,15 +5291,7 @@ rem ━━━━━━━━━━━━━━ ENDINGS: END ━━━━━━�
 
 
 
-rem Debug stuffs:
-        rem echo 🦴 this is the end! %+ rem call pause-for-x-seconds 9
-        rem echo 🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁 end 🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁 >nul
-        echo This is the end of get-lyrics-for-file! pbatchname=%_PBATCHNAME>nul
-
-
-
-:SetVarsOnly_skip_to_2
-:The_VERY_End
+:Not_Quite_The_VERY_End
         echo 🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁 end 🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁 >nul
         rem echo 🦴 this is the very end! %+ rem call pause-for-x-seconds 9
 
@@ -5336,6 +5339,7 @@ rem Debug stuffs:
 :final_ending
         rem echo 🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁 END GET-LYRICS %* !!!! 🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁🏁 (pbatchname=%_PBATCHNAME)  {LYRIC_STATUS=“%LYRIC_STATUS”,LYRICLESSNESS_STATUS=“%LYRICLESSNESS_STATUS%”} >nul
         unset /q logged_lyricapproval_* player_command_to_use currently_getting_lyrics
+        :SetVarsOnly_skip_to_2
         @setdos /x0
         echo PARENT_BAT was %PARENT_BAT% >nul
         call subtle "End of get-lyrics (parent_bat=%PARENT_BAT%) ends"

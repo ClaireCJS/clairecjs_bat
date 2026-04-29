@@ -26,7 +26,7 @@ rem Let user know:
 
 rem Run LRC get:
         repeat 4 echo.
-        call important "Starting %italics_on%LRCget%italics_off% ... click the %EMOJI_GEAR%" big
+        call important "Starting %italics_on%LRCget%italics_off% ... click %@char[8942], then %EMOJI_GEAR%" big
         LRCget.exe
 
 
