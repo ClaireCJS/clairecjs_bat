@@ -308,7 +308,7 @@ Type “work”         to be interactively asked as to the nature of your work.
 
   1. [thorough.bat](../thorough.bat) - sets/unsets the ```%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%``` environment variables for thorough mode, so that no prompts auto-timeout. This is for those who want to trade thoroughness for speed.  You can’t run things overnight in thorough mode.
 
-
+  1. [display-audio-file-length.bat](../display-audio-file-length.bat) - Displays the length of an audio file or of an SRT/LRC file (bonus overloaded functionality). To use the value elsewhere, add ```silent``` to run it with no output, with the return value in seconds stored in the environment variable ```%DISPLAY_AUDIO_FILE_LENGTH_OUTPUT%```. Use ```env.bat length_readable``` to inspect the environment variables containing the return value in various readable formats.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -978,9 +978,9 @@ If ⚡ WinAmp 🦙 Integration is enabled, runs [subtitle-postprocessor.pl](../s
 
 
 
-### 🌟 [downloaded-lrc-postprocessor.pl](../downloaded-lrc-postprocessor.pl.pl):
+### 🌟 [lrc-postprocessor.pl](../lrc-postprocessor.pl):
 
-Postprocessor for *downloaded* LRC files.
+Postprocessor for [downloaded] LRC files.
 
 
 </details>
@@ -1213,7 +1213,7 @@ TODO: IDEA: Go thru existing lyrics & subtitles, if non-english language charcat
 
 TODO: search for other todos below
 
-TODO: subtitle_length.py add to docs and display-audio-file-length.bat
+TODO: subtitle_length.py add to docs and 
 
 
 
