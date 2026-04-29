@@ -3,6 +3,7 @@ package AbbreviatedWords;
 use strict;
 use warnings;
 use Exporter 'import';
+use utf8;
 our @EXPORT = qw(
 	remove_period_from_end_of_line_unless_abbreviation
 	abbreviated_words

@@ -4,6 +4,7 @@ package DeCensor;
 use strict;
 use warnings;
 use Exporter 'import';
+use utf8;
 
 our @EXPORT = qw(
 	de_censor

@@ -3,6 +3,7 @@ package LyricsProcessing;
 use strict;
 use warnings;
 use Exporter 'import';
+use utf8;
 
 our @EXPORT = qw(
 	@lyric_website_spam_patterns

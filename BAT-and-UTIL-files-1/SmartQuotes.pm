@@ -3,6 +3,7 @@ package SmartQuotes;
 use strict;
 use warnings;
 use Exporter 'import';
+use utf8;
 
 our @EXPORT = qw(
 	replace_dumb_quotes_with_smart_quotes 
@@ -90,7 +91,7 @@ sub replace_quotes_with_smart_quotes {
 
 	my $result = join("", @result);
 
-	$result =~ s/!“/!”/g;				# kludge bug fix
+	#SUSPEND: $result =~ s/!“/!”/g;				# kludge bug fix
 
 	return $result
 }

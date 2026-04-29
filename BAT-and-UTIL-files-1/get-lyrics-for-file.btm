@@ -2554,10 +2554,10 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
 
                         rem Postprocess those that we can postprocess inline: (TODO: postprocess lyrics maybe? but that requires tmp file stuffs)
-                                if exist "%ELRC_SIDECAR_FILENAME_TEMP%"      lrc-postprocessor.pl "%ELRC_SIDECAR_FILENAME_TEMP%"                            
-                                if exist  "%LRC_SIDECAR_FILENAME_TEMP%"      lrc-postprocessor.pl  "%LRC_SIDECAR_FILENAME_TEMP%"                            
-                                if exist  "%SRT_SIDECAR_FILENAME_TEMP%" subtitle-postprocessor.pl  "%SRT_SIDECAR_FILENAME_TEMP%"                            
-                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%"      lrc-postprocessor.pl  "%TXT_SIDECAR_FILENAME_TEMP%"       %+ rem Lyrics-postprocessor isn’t inline, so we’ll “cheat” by using LRC-postprocessor 
+                                if exist "%ELRC_SIDECAR_FILENAME_TEMP%"      lrc-postprocessor.pl   "%ELRC_SIDECAR_FILENAME_TEMP%"                            
+                                if exist  "%LRC_SIDECAR_FILENAME_TEMP%"      lrc-postprocessor.pl    "%LRC_SIDECAR_FILENAME_TEMP%"                            
+                                if exist  "%SRT_SIDECAR_FILENAME_TEMP%" subtitle-postprocessor.pl    "%SRT_SIDECAR_FILENAME_TEMP%"                            
+                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%"   lyrics-postprocessor.pl -L "%TXT_SIDECAR_FILENAME_TEMP%"       
 
 
 
@@ -2581,7 +2581,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                         set    KEEP_LRC=0
                                                         set REPLACE_LRC=0
                                                         echo      %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an LRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR%%ansi_color_grey%%italics_on% ``
-                                                        tail -5           "%LRC_SIDECAR_FILENAME_TEMP%" |:u8 insert-before-each-line.py "       " 
+                                                        tail -5           "%LRC_SIDECAR_FILENAME_TEMP%" |:u8 insert-before-each-line.py "        " 
                                                         echos %@ANSI_MOVE_TO_COL[1]%italics_off%
                                                         iff exist "%TXT_SIDECAR_FILENAME%" then
                                                                 rem OUR_QUESTION=Replace existing TXT lyric file with this LRC download that wasn’t actually an LRC
@@ -2630,7 +2630,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                 rem Warn+Preview+Delete if it is not an LRC:
                                                         iff "0" == "%ELRC_IS_LRC%" .and. exist "%ELRC_SIDECAR_FILENAME_TEMP%" then
                                                                 echo      %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an ELRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR%%ansi_color_grey%%italics_on% ``
-                                                                tail -5           "%ELRC_SIDECAR_FILENAME_TEMP%"  |:u8 insert-before-each-line.py "       " %+ echos %@ANSI_MOVE_TO_COL[1]
+                                                                tail -5           "%ELRC_SIDECAR_FILENAME_TEMP%"  |:u8 insert-before-each-line.py "        " %+ echos %@ANSI_MOVE_TO_COL[1]
                                                                 echos %@ANSI_MOVE_TO_COL[1]%italics_off%
                                                                 gosub delete_file "%ELRC_SIDECAR_FILENAME_TEMP%"
                                                         endiff
@@ -2934,14 +2934,14 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
                         rem Perform the actual LyricsGenius.exe search:
                                 rem call debug "Initiating search with LyricsGenius...CURRENT_LYRIC_PROVIDER = %CURRENT_LYRIC_PROVIDER% GOAT" silent
-                                rem OLD: ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 %BAT%\insert-before-each-line.py "          "   |:u8 %BAT%\strip-ansi |:u8 %BAT%\highlight "[A-Za-z0-9_]*.json") 
+                                rem OLD: ((echo y | %LYRIC_RETRIEVAL_COMMAND%) |:u8 %BAT%\insert-before-each-line.py "           "   |:u8 %BAT%\strip-ansi |:u8 %BAT%\highlight "[A-Za-z0-9_]*.json") 
                                 rem NEW:
                                 call set-tmp-file "genius-lyric-maybe"
                                 (echo y | %LYRIC_RETRIEVAL_COMMAND%) >:u8%TMPFILE1%
                                 call errorlevel "Problem retrieving lyrics in %0"
                                 iff exist %TMPFILE1% then
                                         set GENIUS_FRESH_LYRICS=%TMPFILE1%
-                                        type "%GENIUS_FRESH_LYRICS%" |:u8 %BAT%\insert-before-each-line.py "          "   |:u8 %BAT%\strip-ansi |:u8 %BAT%\highlight "[A-Za-z0-9_]*.json"
+                                        type "%GENIUS_FRESH_LYRICS%" |:u8 %BAT%\insert-before-each-line.py "           "   |:u8 %BAT%\strip-ansi |:u8 %BAT%\highlight "[A-Za-z0-9_]*.json"
                                 endiff
 
                 :endiff_2316
@@ -2966,7 +2966,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
         rem Skip past Genius-specific code if we are not using the LyricsGenius provider
                 rem DEBUG: call debug "[9A9A9A] CURRENT_LYRIC_PROVIDER = %CURRENT_LYRIC_PROVIDER% goat"  silent
                 iff "%CURRENT_LYRIC_PROVIDER%" != "LyricsGenius" then
-                        call subtle "Skipping %italics_on%LyricGenius%italics_off% section because %italics_on%current_lyric_provider%italics_off% is “%underline_on%%CURRENT_LYRIC_PROVIDER%%underline_off%”..."
+                        rem call subtle "Skipping %italics_on%LyricGenius%italics_off% section because %italics_on%current_lyric_provider%italics_off% is “%underline_on%%CURRENT_LYRIC_PROVIDER%%underline_off%”..."
                         goto /i :end_of_lyric_genius_section_1
                 else
                         call subtle "Continuing into %italics_on%LyricsGenius%italics_off% section..."
@@ -3031,7 +3031,7 @@ if "1" == "%QUICK_LRC_MODE%" goto :skip_debug_2606
 call debug "goat lyric file is %lyric_file%, latest_file = %LATEST_FILE%, EXPECTED_JSON_FILE_NAME=%EXPECTED_JSON_FILE_NAME%, WHAT_WE_SEARCHED_GENIUS_FOR=%WHAT_WE_SEARCHED_GENIUS_FOR%, " silent
 rem pause
 rem dir "%lyric_file%"
-dir /odt /k |:u8 tail -5  |:u8 insert-before-each-line.py "     " 
+rem dir /odt /k |:u8 tail -5  |:u8 insert-before-each-line.py "      " 
 rem pause "we’re here x9234"
 :skip_debug_2606
 

@@ -67,5 +67,6 @@ rem POSSIBLE FUTURE IDEA: workflow-related automatic reactions to a freshly-name
 
 rem Cleanup:
         if defined REMOVE_ARTIST_ALBUM_FROM_FILENAME_MODE (set REMOVE_ARTIST_ALBUM_FROM_FILENAME_MODE=)
+        if exist .GetAllLRCsRunHereAlready..GetAllLRCsRunHereAlready ren /q .GetAllLRCsRunHereAlready..GetAllLRCsRunHereAlready .GetAllLRCsRunHereAlready
 
 

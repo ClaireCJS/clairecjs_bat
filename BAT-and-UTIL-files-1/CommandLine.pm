@@ -3,6 +3,7 @@ package CommandLine;
 use strict;
 use warnings;
 use Exporter 'import';
+use utf8;
 
 our @EXPORT = qw(
 	fix_invalid_command_line_characters

@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Exporter 'import';
 our @EXPORT = qw(fix_common_character_encoding_flaws);
+use utf8;
 
 sub fix_common_character_encoding_flaws {
 	my $s = $_[0];

@@ -203,7 +203,7 @@ while (my $raw = <$INPUT>) {
 	$line_number++;
 	my $original_line = $line;
 
-	if ($SMART_QUOTE_CONVERT) {  $line = replace_smart_quotes($line); }		# convert dumb quotes ("") to smart quotes (“”)
+	if ($SMART_QUOTE_CONVERT) {  $line = &replace_quotes_with_smart_quotes($line); }		# convert dumb quotes ("") to smart quotes (“”)
 	if ($LYRICS_MODE) {
 		#pre-processing
 		$line =~ s/ +$//;					#remove trailing spaces
@@ -298,6 +298,8 @@ while (my $raw = <$INPUT>) {
 		#OLD: $line =~ s/\-\-/—/g;		# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
 		#$line =~ s/\-\-([^>])/—$1/g;	# fix “--” which is an archaic way of representing “—” ... Although this really should be turned into “——” if we are in a monospaced situation
 		#$line =~ s/„/”/g;				# copied from WhisperAIProcessing.pm: this is how Germans OPEN quotes („like this”), and we’re not German, so we convert „ to “
+
+
 		$line = &fix_common_character_encoding_flaws($line);
 		
 

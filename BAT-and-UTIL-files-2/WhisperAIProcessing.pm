@@ -2,6 +2,7 @@ package WhisperAIProcessing;
 
 use strict;
 use warnings;
+use utf8;
 use Exporter 'import';
 use FindBin;
 use lib $FindBin::Bin;

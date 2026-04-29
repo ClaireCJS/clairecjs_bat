@@ -4,6 +4,7 @@ package LimitRepeats;
 use strict;
 use warnings;
 use Exporter 'import';
+use utf8;
 
 our @EXPORT = qw(
 	limit_repeats

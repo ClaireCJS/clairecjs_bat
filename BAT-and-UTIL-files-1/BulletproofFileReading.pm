@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Exporter 'import';
 use Encode qw(decode FB_CROAK);
+use utf8;
 
 our @EXPORT = qw(
 	decode_mixed_line
