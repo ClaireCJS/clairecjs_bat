@@ -2603,13 +2603,15 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                                 endiff
                                                         else
                                                                 call review-file -wh  "%LRC_SIDECAR_FILENAME_TEMP%" 
-                                                                set OUR_QUESTION=Rename this LRC download that wasn’t actually an LRC into the TXT lyric file
+                                                                set OUR_QUESTION=Rename this LRC download that wasn’t actually an LRC into the TXT lyric file [%ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%F%ansi_color_prompt%ail]
                                                         endiff
                                                         :reask_2585
-                                                        call AskYN "%OUR_QUESTION%" 0 0 YNIP Y:Yes,N:No,P:Play,I:mark_as_instrumental
-                                                                gosub check_for_answer_of_I "%@UNQUOTE[%AUDIO_FILE%]"
+                                                        call AskYN "%OUR_QUESTION%" 0 0 YNIPK Y:Yes,N:No,P:Play,I:mark_as_instrumental,K:FAILLLLLLLLLL
+                                                                gosub check_for_answer_of_K "%@UNQUOTE[%AUDIO_FILE%]"
+                                                                if  "K" == "%ANSWER%" goto /i :end_quick_lrc_mode_skip
                                                                 gosub check_for_answer_of_P "%@UNQUOTE[%AUDIO_FILE%]"
                                                                 if  "P" == "%ANSWER%" goto :reask_2585
+                                                                gosub check_for_answer_of_I "%@UNQUOTE[%AUDIO_FILE%]"
                                                                 if  "I" == "%ANSWER%" goto :reask_2585
                                                                 iff "Y" == "%ANSWER%" then
                                                                         if exist "%TXT_SIDECAR_FILENAME%" gosub backup_file "%TXT_SIDECAR_FILENAME%" "replacing-with-LRC-that-was-really-a-TXT"
@@ -2638,10 +2640,16 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                         endiff
                                                 rem Warn+Preview+Delete if it is not an LRC:
                                                         iff "0" == "%ELRC_IS_LRC%" .and. exist "%ELRC_SIDECAR_FILENAME_TEMP%" then
+                                                                set    KEEP_ELRC=0
+                                                                set REPLACE_ELRC=0
                                                                 echo      %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an ELRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR%%ansi_color_grey%%italics_on% ``
                                                                 tail -5           "%ELRC_SIDECAR_FILENAME_TEMP%"  |:u8 insert-before-each-line.py "        " %+ echos %@ANSI_MOVE_TO_COL[1]
                                                                 echos %@ANSI_MOVE_TO_COL[1]%italics_off%
+
+                                                                rem OLD: 
                                                                 gosub delete_file "%ELRC_SIDECAR_FILENAME_TEMP%"
+                                                                rem NEW:
+                                                                rem TODO decide if we want to copy the section above for LRC, here in ELRC
                                                         endiff
                                         endiff
                                 :end_of_ensure_eLRC_compliance
