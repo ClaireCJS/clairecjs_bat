@@ -1664,7 +1664,7 @@ rem Check if we already have approved lyrics in the same folder:
 
 
                 rem Display line #1: the directory:
-                        gosub DisplayAudioDirectory 
+                        gosub DisplayAudioDirectory "%@UNQUOTE[%AUDIO_FILE%]"
 
                 rem Display line #1.5: the audio filename without processing
                          IF "%PREVIOUS_GENIUS_FILENAME%" !=  "" echo %ansi_color_prompt%%star% %ansi_color_bright_yellow%Syst%@IF["%PREVIOUS_GENIUS_FILENAME%" !=  "",e,]m filename%ansi_color_yellow%: %ansi_color_pink%%@IF["%PREVIOUS_GENIUS_FILENAME%" !=  "",%tmpSpacer%,]%blink_off%“%blink_off%%ansi_color_green%%ansi_color_pink%%italics_on%%AUDIO_FILE%%blink_off%%italics_off%%ansi_color_prompt%”
@@ -3067,7 +3067,11 @@ rem pause "we’re here x9234"
 
         rem TODO COMMENT HERE:
                 iff "1" == "%QUICK_LRC_MODE%" then
-                        if "1" == "%JUST_RENAMED_TO_INSTRUMENTAL%" goto /i :END_OF_GET_LYRICS
+                        iff "1" == "%JUST_RENAMED_TO_INSTRUMENTAL%" then
+                                call debug "going to end of get lyrics because 1==JUST_RENAMED_TO_INSTRUMENTAL"
+                                gosub divider
+                                goto /i :END_OF_GET_LYRICS
+                        endiff
                         goto /i :skip_from_2657
                 endiff
                 if not exist "%LYRIC_FILE%" .or. %@FILESIZE["%LYRIC_FILE%"] lt 5 goto /i then_block_1455
@@ -3394,7 +3398,7 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
         unset /q GOOGLE_NOW
         gosub set_up_variables_for_answer_of_K
         if "1" == "%QUICK_LRC_MODE%" set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=60
-        call AskYN "Change artist/song? (%ansi_color_bright_green%L%ansi_color_prompt%=Lyricless(%ansi_color_bright_green%Z%ansi_color_prompt%=All),%ansi_color_bright_green%N%ansi_color_prompt%=ai %italics_on%%ansi_color_bright_green%N%ansi_color_prompt%ow%italics_off%,G=%ansi_color_bright_green%G%ansi_color_prompt%oogle,%ansi_color_bright_green%A%ansi_color_prompt%pprove lyrics,%ansi_color_bright_green%I%ansi_color_prompt%nstr(%ansi_color_bright-green%X%ansi_color_prompt%=ALL)%MAYBE_PRINTABLE_K%,%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%D%ansi_color_prompt%ir,%ansi_color_bright_green%F%ansi_color_prompt%ail)" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME% ADEGILNOPQRXZ%MAYBE_OPTION_K%$ L:Mark_As_Lyricless,Z:Mark_all_as_lyricless,N:AI_encode_NOW_without_lyrics,G:Google_for_the_lyrics,A:the_lyrics_are_good_actually!,I:rename_it_as_an_instrumental_file,Q:enQueue_in_winamp,P:play_the_file,X:Mark_all_songs_in_folder_as_instrumental,O:download_lyrics,D:eDit_and_change_song_title_and_artist,R:rename_file,E:edit_the_lyrics_manually,2:dir,%MAYBE_DESCRIPTION_K%$:run_get_lyrics,
+        call AskYN "Change artist/song? (%ansi_color_bright_green%L%ansi_color_prompt%=Lyricless(%ansi_color_bright_green%Z%ansi_color_prompt%=All),%ansi_color_bright_green%N%ansi_color_prompt%=ai %italics_on%%ansi_color_bright_green%N%ansi_color_prompt%ow%italics_off%,G=%ansi_color_bright_green%G%ansi_color_prompt%oogle,%ansi_color_bright_green%A%ansi_color_prompt%pprove lyrics,%ansi_color_bright_green%I%ansi_color_prompt%nstr(%ansi_color_bright_green%X%ansi_color_prompt%=ALL)%MAYBE_PRINTABLE_K%,%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%D%ansi_color_prompt%ir,%ansi_color_bright_green%F%ansi_color_prompt%ail)" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME% ADEGILNOPQRXZ%MAYBE_OPTION_K%$ L:Mark_As_Lyricless,Z:Mark_all_as_lyricless,N:AI_encode_NOW_without_lyrics,G:Google_for_the_lyrics,A:the_lyrics_are_good_actually!,I:rename_it_as_an_instrumental_file,Q:enQueue_in_winamp,P:play_the_file,X:Mark_all_songs_in_folder_as_instrumental,O:download_lyrics,D:eDit_and_change_song_title_and_artist,R:rename_file,E:edit_the_lyrics_manually,2:dir,%MAYBE_DESCRIPTION_K%$:run_get_lyrics,
                 set HELD_ANSWER_2923=%ANSWER%
                 rem Special case when in QUICK-LRC mode:
                         if  "1" == "%QUICK_LRC_MODE%" .and. "%ANSWER%" == "N" goto /i :end_quick_lrc_mode_fail
@@ -4566,8 +4570,10 @@ echo BACKING UPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP:                *ren /Ns 
         return
 
         :DisplayAudioDirectory [opt opt2 opt3]
+                set AUDIO_FILE_TO_USE=%AUDIO_FILE%
+                if %opt% != ""set AUDIO_FILE_TO_USE=%@UNQUOTE[%opt%]
                 rem  %ansi_color_prompt%%star% %ansi_color_bright_yellow%Audio directory: %ansi_color_bright_red%“%italics_on%%blink_off%%ansi_color_green%%@PATH[%AUDIO_FILE%]%blink_off%%italics_off%%ansi_color_prompt%%ansi_color_bright_red%”%ansi_color_normal%                        
-                echo %ansi_color_prompt%%star% %ansi_color_yellow%Audio directory: %ansi_color_bright_red%%faint_on%%italics_on%%blink_off%%ansi_color_green%%ansi_color_pink%%@IF["" != "%@UNQUOTE[%@PATH[%AUDIO_FILE%]]",%@PATH[%AUDIO_FILE%],%_CWD]%blink_off%%italics_off%%faint_off%%ansi_color_prompt%%ansi_color_bright_red%%ansi_color_normal%
+                echo %ansi_color_prompt%%star% %ansi_color_yellow%Audio directory: %ansi_color_bright_red%%faint_on%%italics_on%%blink_off%%ansi_color_green%%ansi_color_pink%%@IF["" != "%@UNQUOTE[%@PATH[%AUDIO_FILE_TO_USE%]]",%@PATH[%AUDIO_FILE_TO_USE%],%_CWD]%blink_off%%italics_off%%faint_off%%ansi_color_prompt%%ansi_color_bright_red%%ansi_color_normal%
                 rem echo %ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP%%ARROW_UP% TESTING 🐐
                 if "%opt%" ==   "noFilename" goto /i nofilename
                 if "%opt%" == "withFilename" goto /i with_filename
