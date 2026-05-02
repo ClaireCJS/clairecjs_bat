@@ -3,8 +3,22 @@
 Stretch or compress LRC timestamps proportionally.
 
 This is for stretching LRCs made from studio versions of songs so they are
-suitable for live versions of the song, which may be played slightly faster or
-slower and therefore need slightly different timestamps.
+suitable for live versions of the song, which may be played faster or
+slower and offset by singer banter/crowd noise, and therefore need
+a completely different set of timestamps that are proportional to the original.
+
+Accepts +/- and floating point number of seconds to offset as an alternate call
+
+Primary call is to accept 2 timestamps: the new first-lyric-sung and last-lyric-sung
+timestamples, i.e.:
+
+        stretch_lrc song.mp3 0:30,4:56
+
+Maybe song.mp3 initially started at 0:10 and ended at 5:25, but the live version starts
+with 20 seconds of crowd banter, and is played more slowly so it finishes later.
+
+This would produce an LRC where the lyric timing would actually match!
+
 """
 
 from __future__ import annotations
@@ -29,8 +43,31 @@ DEFAULT_ADDED_FRACTION_DIGITS = 2
 MAX_TIMESTAMP_TOKEN_CHARS = 64
 RESET_COLOR = "\033[0m"
 
-BRACKETED_TEXT_RE = re.compile(r"([\[<])([^\[\]<>\r\n]{0,64})([\]>])")
+BRACKETED_TEXT_RE  = re.compile(r"([\[<])([^\[\]<>\r\n]{0,64})([\]>])")
 BRACKETED_BYTES_RE = re.compile(rb"([\[<])([^\[\]<>\r\n]{0,64})([\]>])")
+
+
+ESC           =  "\x1b"                           # the escape character
+RESET         = f"{ESC}[0m"                       # reset color back to default
+BRIGHT_CYAN   = f"{ESC}[96m"                      # column 1 (Du)
+GREEN         = f"{ESC}[32m"                      # success
+BRIGHT_GREEN  = f"{ESC}[42m"                      # success
+CYAN          = f"{ESC}[36m"                      # column 2 (Overlap)
+RED           = f"{ESC}[31m"                      # column 3 (Lines)
+FAINT_ON      = f"{ESC}[2m"
+FAINT_OFF     = f"{ESC}[22m"
+ITALICS_ON    = f"{ESC}[3m"
+ITALICS_OFF   = f"{ESC}[23m"
+BRIGHT_RED    = f"{ESC}[91m"                      # errors
+BRIGHT_YELLOW = f"{ESC}[93m"                      # warnings
+ORANGE        = f"{ESC}[38;2;235;107;0m"          # column 4 (Lyrics)
+MAGENTA       = f"{ESC}[35m"                      # borders/lines
+BRIGHT_GREEN  = f"{ESC}[92m"                      # header text
+BIG_TOP       = f"{ESC}#3"                        # double-height text: on. Font/Mode =  top   half of double-height text
+BIG_BOT       = f"{ESC}#4"                        # double-height text: on. Font/Mode = bottom half of double-height text
+BIG_OFF       = f"{ESC}#5"                        # double-height text: off
+
+
 
 
 @dataclass(frozen=True)
@@ -781,7 +818,7 @@ def main(argv: list[str]) -> int:
         return EXIT_OK
 
     if len(argv) != 3:
-        error(f"Expected exactly 2 parameters. Got argv")
+        error(f"Expected exactly 2 parameters. Got {argv}")
         print(usage(), file=sys.stderr)
         return EXIT_ERROR
 
@@ -850,19 +887,20 @@ def main(argv: list[str]) -> int:
             transform_plan.duration_delta or Decimal(0), force_sign=True
         )
         print(
-            f"Remapped {changed_count} timestamps "
-            f"(start {original_start_display}s -> {new_start_display}s, "
+            f"{GREEN}🗺 Remapped: {changed_count} timestamps "
+            f"📂 (start {original_start_display}s -> {new_start_display}s, "
             f"final {original_display}s -> {new_display}s; "
             f"duration stretch {duration_delta_display}s)."
         )
     else:
         print(
-            f"Stretched {changed_count} timestamps by {stretch_display}s "
-            f"(final {original_display}s -> {new_display}s)."
+            f"{GREEN}↔ Stretched: {changed_count} timestamps {FAINT_ON} by {stretch_display}s "
+            f"(final {original_display}s -> {new_display}s).{FAINT_OFF}"
         )
-    print(f"Backup: {backup_path}")
-    print(f"Updated: {path}")
+    print(f"{GREEN}⚙{FAINT_ON} Backup:   {ITALICS_ON}{backup_path}{ITALICS_OFF}{FAINT_OFF}")
+    print(f"{BRIGHT_GREEN}✅ Updated:  {GREEN}{ITALICS_ON}{path}{ITALICS_OFF}")
     return EXIT_OK
+
 
 
 if __name__ == "__main__":

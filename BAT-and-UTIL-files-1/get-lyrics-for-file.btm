@@ -5336,7 +5336,7 @@ echo "%blink_on%set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% 
         
                         call important_less "The first timestamp in the LRC must be the actual first sung word %faint_on%(not spammy song intro/transcriber credit stuff)%faint_off%"
                         call important_less "The last timestamp in the LRC must be the actual last sung word %faint_on%(not transcriber credits or blank)%faint_off%"
-                        call AskYN "Edit LRC first? (paticularly if either of these timestamp requirements are false)" 0 0 
+                        call AskYN "Edit LRC first? %faint_on%(particularly if either of these timestamp requirements are false)%faint_off%" 0 0 YN Y:yes,N:no
                         iff "Y" == "%ANSWER%" then
                                 echos %ANSI_POSITION_SAVE%
                                 set EDIT_CALL=%EDITOR% "%LRC_FILE_TO_STRETCH_TO_USE%"
@@ -5373,7 +5373,7 @@ echo "%blink_on%set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% 
                         
                                 rem calling: stretch_lrc.py                                                                
                                 echo %ansi_color_run%%ansi_color_debug%%bold_on%%STAR2% calling%bold_off%:  stretch_lrc.py %faint_on%"%LRC_FILE_TO_STRETCH_TO_USE%"%faint_off% %blink_on%%LRC_STRETCH_ARGUMENT%%blink_off%%ansi_color_normal%
-                                pause "Press any key to %underline_on%stretch%underline_off% the LRC"
+                                pause "%ansi_color_warning_soft%Press any key to %underline_on%stretch%underline_off% the LRC...%ansi_color_normal%"
                                 stretch_lrc.py "%@UNQUOTE["%LRC_FILE_TO_STRETCH_TO_USE%"]" %LRC_STRETCH_ARGUMENT%
                                 call errorlevel
                         endiff
