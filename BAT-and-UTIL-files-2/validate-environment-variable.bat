@@ -21,35 +21,33 @@ rem USAGE:
                 echos %ansi_color_advice%
                 echo %bold_on%%star3% %double_underline_on%USAGES%double_underline_off%:%bold_off%
                 echo        ❶  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off% 
-                echo        ❶  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off%  skip_validation_existence
-                echo        ❷  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off% %italics_on%"custom error message"%italics_off% 
-                echo        ❸  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off% %italics_on%"custom error message" "custom error header"%italics_off%
+                echo        ❷  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off%  skip_validation_existence
+                echo        ❸  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off% %italics_on%"custom error message"%italics_off% 
+                echo        ❹  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off% %italics_on%"custom error message" "custom error header"%italics_off%
                 echo.
                 echos %ansi_color_important_less%
                 echo %bold_on%%star3% %double_underline_on%EXAMPLES%double_underline_off%:%bold_off%
-                echo        %faint_off%%ansi_color_important_less%❶  call validate-environment-variable FILE_INDEX ━━ %ansi_color_green%checks if %italics_on%%%FILE_INDEX%%%italics_off% is defined
-                echo                                                            %faint_on%If it’s value seems to be a filename/wildcard, %italics_on%checks if it exists%italics_off%%faint_off%
+                echo        %faint_off%%ansi_color_important_less%❶  call validate-environment-variable FILE_INDEX ━━ %ansi_color_green%%bold_on%Checks if %italics_on%%%FILE_INDEX%%%italics_off% is defined%bold_off%
+                echo                                                            %faint_on%If it’s value seems to be a filename/wildcard, %italics_on%%faint_off%%bold_on%checks if it exists%bold_off%%italics_off%%faint_off%
+                echo                                                            %ansi_color_bright_red%%bold_on%If there is an error, user is given a chance edit the value and 
+                echo                                                            return to the script... or to exit back to the command line.%bold_off%%ansi_color_normal%
                 echo.
                 echo        %faint_off%%ansi_color_important_less%❷  call validate-environment-variable FILE_INDEX skip_validation_existence 
-                echo                                                         %ansi_color_important_less%━━ %ansi_color_green%%faint_on%Same as ❶  but %italics_on%without%italics_off% checking if it exits
+                echo                                                         %ansi_color_important_less%━━ %ansi_color_green%%faint_on%Same as %ansi_color_yellow%❶%ansi_color_green%  but %italics_on%without%italics_off% checking if it exits
                 echo.
                 echo        %faint_off%%ansi_color_important_less%❸  call validate-environment-variable INPUT_MP3 "1ˢᵗ parameter must be an %italics_on%mp3%italics_off% file that exists" 
-                echo                                                         %ansi_color_important_less%━━ %ansi_color_green%%faint_on%Same as ❶  but %italics_on%with a custom error message%italics_off% 
+                echo                                                         %ansi_color_important_less%━━ %ansi_color_green%%faint_on%Same as %ansi_color_yellow%❶%ansi_color_green%  but %italics_on%with a custom error message%italics_off% 
                 echo.
-                echo        %faint_off%%ansi_color_important_less%❸  call validate-environment-variable INPUT_MP3 "1ˢᵗ parameter must be an %italics_on%mp3%italics_off% file that exists" "Parameter Error"
+                echo        %faint_off%%ansi_color_important_less%❹  call validate-environment-variable INPUT_MP3 "1ˢᵗ parameter must be an %italics_on%mp3%italics_off% file that exists" "Parameter Error"
                 echo                                                         %ansi_color_important_less%━━ %ansi_color_green%%faint_on%Same as %ansi_color_bright_yellow%❸%ansi_color_green%  but %italics_on%with a a custom error header%italics_off% that changes the 
-                echo                                                         %ansi_color_important_less%━━ %ansi_color_green%%faint_on%default header of “%faint_on%Env Variable Error%faint_off%” to “%faint_on%Parameter Error%faint_off%”
+                echo                                                         %ansi_color_important_less%━━ %ansi_color_green%default header%faint_on% of “%faint_on%%italics_on%Env Variable Error%italics_off%” to “%faint_on%%italics_on%Parameter Error%italics_off%%faint_off%”
+                echo %ansi_color_unimportant%%bold_on%%star3% %double_underline_on%SPEEDUP PATTERN%double_underline_off%:%bold_off%
+                echo        %italics_on%When possible, do a quick manual validation before calling.
+                echo        That can speed things up without sacrificing all the handling:%italics_off%
                 echo.
-                echo.
-                echo        %faint_off%%ansi_color_important_less%❺  call validate-environment-variable FILE_INDEX ━━
-                echo.
-                echo        %faint_off%%ansi_color_important_less%❻  call validate-environment-variable FILE_INDEX ━━
-                echo.
-                echo        %faint_off%%ansi_color_important_less%❼  call validate-environment-variable FILE_INDEX ━━
-                echo.
-                echo        %faint_off%%ansi_color_important_less%❽  call validate-environment-variable FILE_INDEX ━━
-                echo.
-                echo        %faint_off%%ansi_color_important_less%❾  call validate-environment-variable FILE_INDEX ━━
+                echo              iff not defined INPUT_MP3 .or. not exist INPUT_MP3 then
+                echo                      call validate-environment-variable INPUT_MP3 "must supply input mp3 as first parameter" "Song File Problem"
+                echo              endiff
                 goto /i :END
         :have_parameters
 
@@ -58,7 +56,7 @@ rem USAGE:
 rem Opening cosmetics:
         if defined italics_on set italics_maybe=%italics_on%
         gosub save_cusor_position
-        gosub display_temp_output
+        gosub display_temp_output %1
 
 rem GET PARAMETERS:
         set LAST_TITLE=%_TITLE
@@ -66,7 +64,9 @@ rem GET PARAMETERS:
         set VARNAME=%1      
         set PARAM2=%2
         set PARAM3=%3
-        set USER_MESSAGE=%2$
+        rem USER_MESSAGE=%2$ %+ rem As of 20260502 and introduction of custom header messages, this might really mess things up hahaha
+        set USER_MESSAGE=%2
+        set CUSTOM_HEADER=%3
         if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX% if defined %VARNAME% goto :Defined_YES)
         set LAST_TITLE=%_WINTITLE
         title %0
@@ -121,14 +121,18 @@ rem Make sure ansi_move_to function is defined:
 
 
 
+rem Custom header?
+        if "" == "%CUSTOM_HEADER%" set CUSTOM_HEADER=ENV VAR ERROR!
+
+
 rem Validate parameters:
         rem call debug "param3            is %param3%"
         rem call debug "validate_multiple is %validate_multiple%"
         rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
         if "%@NAME[%OUR_CALLER%]" == "validate-environment-variables" set VALIDATE_MULTIPLE=1
-        iff "%PARAM3%" != "" .and. "%VALIDATE_MULTIPLE%" != "1" then
+        iff "%PARAM4%" != "" .and. "%VALIDATE_MULTIPLE%" != "1" then
                 gosub restore_cusor_position
-                call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
+                call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] %CUSTOM_HEADER% %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
                 color bright white on red
                 echo  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
                 echo  %underline%Did you mean%underline_off%: %italics%validate-environment-variable%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
@@ -147,7 +151,9 @@ rem Validate parameters: Validate existence of variable contents or not:
     set SKIP_VALIDATION_EXISTENCE=0
     if "%PARAM2%" == "skip_validation_existence" .or. "%PARAM2%" == "skip_existence_validation" .or. "%PARAM2%" == "skip_validation" (
         set SKIP_VALIDATION_EXISTENCE=1 
-        set USER_MESSAGE=%3$
+        rem USER_MESSAGE=%3$  %+ rem As of 20260502 and introduction of custom header messages, this might really mess things up hahaha
+        set USER_MESSAGE=%3
+        set CUSTOM_HEADER=%4
     )
     if %DEBUG_NORMALIZE_MESSAGE eq 1 (gosub restore_cusor_position %+ echo %ansi_color_debug%- DEBUG: PARAM2: %left_quotes%%PARAM2%%right_quotes%%ansi_color_normal%)
 
@@ -182,11 +188,11 @@ goto :Past_The_End_Of_The_Subroutines
     :validate_environment_variable [VARNAME]
         rem debug: echo validate_environment_variable %varname%
         rem echos %@RANDCURSOR[]
-        ::::: SEE IF IT IS DEFINED:
+        rem SEE IF IT IS DEFINED:
             if defined %VARNAME% (goto :Defined_YES)
             if ""  ==  %VARNAME% (goto :Defined_NO )
 
-                    ::::: RESPOND IF IT IS NOT DEFINED/EXISTING:
+                    rem RESPOND IF IT IS NOT DEFINED/EXISTING:
                         :Defined_NO
                             gosub restore_cusor_position
                             set any_env_var_validations_failed=1
@@ -202,92 +208,122 @@ goto :Past_The_End_Of_The_Subroutines
                                 REM Normalize width of ERROR_MESSAGE to be same width as USER_MESSAGE
                                 if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: User message found)
 
-                                rem Get the length of both variables
-                                set "ERROR_LENGTH=%@LEN[%ERROR_MESSAGE]"
-                                set  "USER_LENGTH=%@LEN[%USER_MESSAGE%]"
+                                rem Get the length of both variables:
+                                        set "ERROR_LENGTH=%@LEN[%ERROR_MESSAGE]"
+                                        set  "USER_LENGTH=%@LEN[%USER_MESSAGE%]"
 
                                 rem Calculate the difference in length
-                                set /a "LENGTH_DIFF=!USER_LENGTH! - !ERROR_LENGTH!"
+                                        set /a "LENGTH_DIFF=!USER_LENGTH! - !ERROR_LENGTH!"
 
-                                REM for /L %%i in (1,1,%LENGTH_DIFF%) do (set EXCLAMATION_MARKS=%EXCLAMATION_MARKS%!)
-                                REM 
-                                REM rem Substitute the final sequence of exclamation marks in ERROR_MESSAGE
-                                REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: EXCLAMATION_MARKS is %left_quotes%%EXCLAMATION_MARKS%%right_quotes%)
-                                REM set NORMALIZED_ERROR_MESSAGE=%@REPLACE[!!!,%EXCLAMATION_MARKS%,%ERROR_MESSAGE%]
-                                REM set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
 
-                                iff %LENGTH_DIFF% lss 0 then
-                                    set /a "LENGTH_DIFF=-%LENGTH_DIFF% / 2"
-                                endiff
-                                iff %LENGTH_DIFF% lss 0 then
-                                    rem If USER_MESSAGE is longer
-                                    for /L %%i in (1,1,%LENGTH_DIFF%)    do   (set "ERROR_MESSAGE=*%ERROR_MESSAGE%*")
-                                    if          %@EVAL[%LENGTH_DIFF % 2] == 0 (set "ERROR_MESSAGE=%ERROR_MESSAGE%*" )
-                                else
-                                    rem If ERROR_MESSAGE is longer
-                                    for /L %%i in (1,1,%LENGTH_DIFF%)    do   (set "USER_MESSAGE=*%USER_MESSAGE%*")
-                                    if          %@EVAL[%LENGTH_DIFF % 2] == 0 (set "USER_MESSAGE=%USER_MESSAGE%*" )
-                                endiff
+                                rem Junk:
+                                        REM for /L %%i in (1,1,%LENGTH_DIFF%) do (set EXCLAMATION_MARKS=%EXCLAMATION_MARKS%!)
+                                        REM 
+                                        REM rem Substitute the final sequence of exclamation marks in ERROR_MESSAGE
+                                        REM if DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo - DEBUG: EXCLAMATION_MARKS is %left_quotes%%EXCLAMATION_MARKS%%right_quotes%)
+                                        REM set NORMALIZED_ERROR_MESSAGE=%@REPLACE[!!!,%EXCLAMATION_MARKS%,%ERROR_MESSAGE%]
+                                        REM set ERROR_MESSAGE=%NORMALIZED_ERROR_MESSAGE%
 
-                            :Do_It_1_Done
-                            if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo ERROR_MESSAGE[2]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
-                            call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%ansi_color_normal%"
-                            rem Output the updated ERROR_MESSAGE
-                            %COLOR_ALARM%       
-                            rem The warning right before 
-                            echos %ERROR_MESSAGE%  
-                            %COLOR_NORMAL% 
-                            echo.
-                            if "%USER_MESSAGE%" != "" (
-                                REM Although this is technically advice, we 
-                                REM are coloring it warning-style because 
-                                REM advice related to an error in this context
-                                REM pretty much *DOES* mean a warning in the 
-                                REM outer context of our calling script, and 
-                                REM that level of importance shoudln’t be as 
-                                REM easily visually discarded as the advice 
-                                REM color might usually be, because it’s more
-                                REM important than simply advice -- 
-                                REM      -- it represents a system failure!!!
-                                REM ...so let’s put asterisks around it, too!
-                                call warning "%@UNQUOTE[%USER_MESSAGE%]"
-                            )
+                                rem Formatting voodoo: Set it to ½ in this situation:                        
+                                        iff %LENGTH_DIFF% lss 0 then
+                                            set /a "LENGTH_DIFF=-%LENGTH_DIFF% / 2"
+                                        endiff
+                                rem Formatting voodoo:
+                                        iff %LENGTH_DIFF% lss 0 then
+                                            rem If USER_MESSAGE is longer
+                                            for /L %%i in (1,1,%LENGTH_DIFF%)    do   (set "ERROR_MESSAGE=*%ERROR_MESSAGE%*")
+                                            if          %@EVAL[%LENGTH_DIFF % 2] == 0 (set "ERROR_MESSAGE=%ERROR_MESSAGE%*" )
+                                        else
+                                            rem If ERROR_MESSAGE is longer
+                                            for /L %%i in (1,1,%LENGTH_DIFF%)    do   (set "USER_MESSAGE=*%USER_MESSAGE%*")
+                                            if          %@EVAL[%LENGTH_DIFF % 2] == 0 (set "USER_MESSAGE=%USER_MESSAGE%*" )
+                                        endiff
+
+
+
+                        rem Showtime:
+                                rem Debug:                                
+                                        :Do_It_1_Done
+                                        if %DEBUG_NORMALIZE_MESSAGE eq 1 (%COLOR_DEBUG% %+ echo ERROR_MESSAGE[2]: %ERROR_MESSAGE% [length_diff=%LENGTH_DIFF%] [errlen=%ERROR_LENGTH,userlen=%USER_LENGTH])
+
+                                rem Display default header or custom header:
+                                        echo %@CHAR[10060]%@CHAR[0]
+                                        echo. %+ rem echo %@char[128165]
+                                        call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] %CUSTOM_HEADER% %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%ansi_color_normal%"
+
+                                rem Output the updated ERROR_MESSAGE:
+                                        %COLOR_ALARM%       
+                                        rem The warning right before 
+                                        echos %ERROR_MESSAGE%  
+                                        %COLOR_NORMAL% 
+                                        echo.
+
+                                rem Output custom error message if we have one:
+                                        if "%USER_MESSAGE%" != "" (
+                                                REM Although this is technically advice, we  are coloring it warning-style because advice 
+                                                REM related to an error in this context pretty much *DOES* mean a warning in the outer context
+                                                REM context of our calling script, and that level of importance shoudln’t be as easily visually 
+                                                REM discarded as the advice color might usually be, because it’s more important than simply 
+                                                REM advice -- it represents a system failure!!! ...so let’s put asterisks around it, too!
+                                                echo.
+                                                call warning "%@UNQUOTE[%USER_MESSAGE%]"
+                                                echo.
+                                        )
                                 
-                            %COLOR_ALARM%  %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo. %+ rem right after
-                            call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR!!! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%ansi_color_normal%"
-                            eset %varname
+
+                                rem Output this no matter what:
+                                        %COLOR_ALARM%  %+ echos %ERROR_MESSAGE% %+ %COLOR_NORMAL% %+ echo. %+ rem right after
+
+                                rem Output custom message again:
+                                        call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] %CUSTOM_HEADER% %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%ansi_color_normal%"
 
 
-                            rem Optional message as 2nd parameter for validate-environment-variablE  {singular} 
-                            rem                           but NOT for validate-environment-variableS { plural }:
-                                    iff  defined  PARAM2  .and.  not defined  %PARAM2%  then
-                                        call warning "%PARAM2"
-                                        rem  about to bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!"
-                                        call          bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined! ... set it?"
-                                        *eset %PARAM2%
-                                        call warning "%PARAM2"
-                                    endiff
+                                rem Give user chance to edit variable:
+                                        echo.
+                                        echo %ansi_color_important%%star2% You can set it now, if you want:
+                                        eset %varname
 
 
-                            REM call alarm-beep     %+ REM was too annoying for the severity of the corresponding situations
-                            call white-noise 1      %+ REM reduced to 2 seconds, then after a year or few, reduced to 1 second
-                            REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
-                            REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
-                            REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
-                            REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
-                            REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+                                rem Removed:
+                                        rem GOES AWAY 20260502: rem Optional message as 2nd parameter for validate-environment-variablE  {singular} 
+                                        rem GOES AWAY 20260502: rem                           but NOT for validate-environment-variableS { plural }:
+                                        rem GOES AWAY 20260502:         iff  defined  PARAM2  .and.  not defined  %PARAM2%  then
+                                        rem GOES AWAY 20260502:         iff  defined  PARAM2  .and.  not defined  %PARAM2%  then
+                                        rem GOES AWAY 20260502:             call warning "%PARAM2"
+                                        rem GOES AWAY 20260502:             rem  about to bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined!"
+                                        rem GOES AWAY 20260502:             call          bigecho "%ANSI_COLOR_WARNING%%italics_on%%@unquote[%PARAM2]%italics_off% is not defined! ... set it?"
+                                        rem GOES AWAY 20260502:             *eset %PARAM2%
+                                        rem GOES AWAY 20260502:             call warning "%PARAM2"
+                                        rem GOES AWAY 20260502:         endiff
 
-                                         call exit-maybe
 
-                            REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
-                            REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
-                            REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
-                            REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
-                            REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+
+                                rem Some noise!
+                                        REM call alarm-beep     %+ REM was too annoying for the severity of the corresponding situations
+                                        call white-noise 1      %+ REM reduced to 2 seconds, then after a year or few, reduced to 1 second
+
+
+                                rem Pre-Exit-Maybe fanfare:
+                                        REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+                                        REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+                                        REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+                                        REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+                                        REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+
+
+                                rem ✨✨✨✨✨✨✨✨ GIVE USER CHANCE TO GO BACK TO THE COMMAND-LINE: ✨✨✨✨✨✨✨✨ 
+                                                call exit-maybe
+
+                                rem Post-Exit-Maybe fanfare:
+                                        REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+                                        REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+                                        REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+                                        REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
+                                        REM %COLOR_PROMPT% %+ pause %+ %COLOR_NORMAL%
                         goto :END
 
 
-        ::::: ADDITIONALLY, VALIDATE THAT IT EXISTS, IF IT SEEMS TO BE POINTING TO A FOLDER/FILE:
+        rem ADDITIONALLY, VALIDATE THAT IT EXISTS, IF IT SEEMS TO BE POINTING TO A FOLDER/FILE:
                 :Defined_YES
                 if "%[%VARNAME%]" !=  "" set VARVALUE=%[%VARNAME%]
                 rem echo [1] VARVALUE==`%[%VARNAME]`==`%[`%VARNAME%]==“%VARVALUE%”
@@ -339,13 +375,13 @@ goto :Past_The_End_Of_The_Subroutines
 
         rem echo Doesn’t seem to exist ... 🐐🐐
 
-        ::::: SET ERROR FLAGS (store error specifics for debugging analysis):
+        rem SET ERROR FLAGS (store error specifics for debugging analysis):
                 set ERROR=1
                 set ERROR_ENVIRONMENT_VALIDATION_FAILED=1
                 SET ERROR_ENVIRONMENT_VALIDATION_FAILED_NAME=%VARNAME%
                 SET ERROR_ENVIRONMENT_VALIDATION_FAILED_VALUE=%VARNVALUE%
                 
-        ::::: LET USER KNOW OF ERROR:
+        rem LET USER KNOW OF ERROR:
                 REM without messaging system:
                     REM %COLOR_ALARM%   %+ echos * Environment variable %@UPPER[%VARNAME%] appears to be a file location that does not exist: %VARVALUE%
                     REM %COLOR_NORMAL%  %+ echo. %+ call white-noise 1
