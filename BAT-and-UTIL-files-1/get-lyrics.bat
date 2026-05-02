@@ -24,6 +24,8 @@ rem Validate usage:
                         echo %STAR% USAGE: %ansi_color_pink%get-lyrics %italics_on%playlist.m3u%italics_off% %ansi_color_advice%—— attempts to align lyrics for all audio files in a playlist
                         echo %STAR% USAGE: %ansi_color_pink%get-lyrics here         %ansi_color_advice%—— attempts to align lyrics for all audio files in the current folder
                         echo %STAR% USAGE: %ansi_color_pink%get-lyrics this         %ansi_color_advice%—— attempts to align lyrics for the audio file currently playing in WinAmp                        
+                        echo %STAR% USAGE: %ansi_color_pink%get-lyrics quick_lrc    %ansi_color_advice%—— attempts to fetch LRC file (which can be converted into lyrics via menu)
+
                         echo                                      %italics_on%nowplaying, np, now,%italics_off% and %italics_on%winamp%italics_off% —— should also work
                         echo.
                         echo. %STAR% ENVIRONMENT VARIABLE PARAMETERS:

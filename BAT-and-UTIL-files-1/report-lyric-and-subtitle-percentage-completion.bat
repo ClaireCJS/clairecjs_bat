@@ -177,7 +177,7 @@ rem Report our totals and percent  progress:
         gosub counttype           "lyrics" "        have  lyrics" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "\.txt"                                       "%text_filelist%" %+ set                    HAVE_LYRIC_COUNT=%COUNT%
         rem   counttype          "karaoke" "        have karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "(\.lrc|\.srt)"                      "%transcription_filelist%" %+ set                  HAVE_KARAOKE_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38]
         gosub counttype          "karaoke" "        have karaoke" %TRANSCRIBEABLE_AUDIO_COUNT_PROBED%             "."                                  "%transcription_filelist%" %+ set                  HAVE_KARAOKE_COUNT=%COUNT%  %+ echo   %@REPEAT[━,38] %+ rem This file is only the base filename, no LRC/SRT is in it, because having each one listed would be double-counted.
-        echo %STAR% %STAR% %STAR% %blink_on%%@COMMA[%HOW_MANY_LEFT%]%blink_off% left! %STAR% %STAR% %STAR% 
+        echo        %STAR% %STAR% %STAR% %blink_on%%@COMMA[%HOW_MANY_LEFT%]%blink_off% left! %STAR% %STAR% %STAR% 
         gosub lineyline
         call  divider
         echo.

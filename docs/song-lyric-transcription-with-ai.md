@@ -195,7 +195,10 @@ From a running TCC command line, use whatever system commands you’d like from 
 
   - For single songs/files: ```get-lyrics {filename}``` to align lyrics, ```get-karaoke {filename}``` to transcribe aligned lyrics to subtitle/karaoke file. 
     - ⚡ For Winamp Integration only: ⚡ To operate on the song currently playing in WinAmp: ```glt``` (```get-lyrics this```) to align lyrics, ```gkt``` (```get-karaoke this```) to transcribe
-    - Add the ```fast``` parameter to skip the search & deletion of bad AI files.
+    - Add the ```fast``` parameter to skip the search & deletion of bad AI files and have shorter prompts.
+    - Add the ```force``` parameter to regenerate one that already exists
+    - Add the ```last``` parameter (with no filename) to regenerate the last one again, in case you had to break from it
+    - Add the ```quick_lrc``` parameter to instead only attempt to fetch an LRC file using our quick-LRC system
 
 
   - For albums/folders: ```glh``` (```get-lyrics-here```) until lyrics are aligned, then ```gkh``` (```get-karaokes-here```) to transcribe.  Beforehand, optionally use ```predownload-lyrics```, ```ask-if-instrumentals``` and ```ask-if-lyricless```.
@@ -406,22 +409,32 @@ It does this by completely removing the ```is_instrumental``` ADS tag from every
 
 ### 🌠 BASIC LYRIC ALIGNMENT PROCESS (all optional): mark instrumentals ➜ mark lyriclessness ➜ predownload lyrics ➜ review/re-download/google lyrics ➜ approve lyrics
 
-### 🌟 ❶ OPTIONAL STEP 1: [predownload-all-lyrics-in-all-subfolders.bat](../predownload-all-lyrics-in-all-subfolders.bat)
+### 🌟 ❶ OPTIONAL STEP 1: [lrcget.bat](../lrcget.bat):
 
-You can ```set OVERRIDE_FILE_ARTIST_TO_USE=Artist Name``` to override the artist name.
+Use [lrcget.bat](../lrcget.bat) to run LRCget to very-quickly fetch any TXT/LRC files that can be easily found. Beware of live/remixes.
 
-Runs an initial pass of pre-downloading lyrics from Genius **in a completely unattended fashion**, for an entire folder tree, for later review. 
+### 🌟 ❷ OPTIONAL STEP 2: [get-lrc.bat](../get-lrc.bat) {filename} [upgrade] and [get-all-lrcs.bat](../get-all-lrcs.bat) / [get-lrcs.bat](../get-lrcs.bat)  [upgrade]:
 
-  - BENEFIT 1: THIS SAVES TIME!!!!!!!!  By doing initial fetches in advance, you aren’t wasting *your* time, but *attended* time.
-  - BENEFIT 2: This allows for lyric approval/disapproval to be performed when internet connectivity is down.
+Runs our quick-lrc alternate system which uses *SyncedLyrics* to try to fetch an LRC file directly for each/every song.  Slow, but more accurate than generating one ourself.
 
-### 🌟 ❷ OPTIONAL STEP 2: Mark any instrumentals with [ask-if-instrumentals.bat](../ask-if-these-are-instrumentals.bat)
+Skips the process if an LRC or SRT file exists.  Add the ```upgrade``` parameter to run even if an SRT exists.
 
-Particularly useful for soundtrack scores... and easy way to add “[instrumental]” to filenames so that we don’t spend AI-energy trying to transcribe files that have no lyrics.  
+### 🌟 ❸ OPTIONAL STEP 3: [predownload-all-lyrics-in-all-subfolders.bat](../predownload-all-lyrics-in-all-subfolders.bat)
 
-*Side-note:* We recommend using “[semi-instrumental]” to denote songs that have vocals but no lyrics (i.e. chorus voices being used as instruments), or songs that have a few words but no real vocals (i.e. a 3 minute electronic tracks with a spoken sample at the beginning). Semi-instrumentals will still be transcribed if caught by our scripts, but only 1 attempt will be made before they are flagged with an ADS tag to prevent infinite re-attempts.
+You can ```set OVERRIDE_FILE_ARTIST_TO_USE=Artist Name``` to override the artist name, which is very useful for cover/tribute albums.
 
-### 🌟 ❸ OPTIONAL STEP 3: Mark any songs with unfindable lyrics as “lyricless” with ```ask-if-lyricless.bat``` [ask-if-lyricless.bat](../ask-if-these-are-lyricless.bat)
+Runs an initial pass of *pre-downloading* lyrics from Genius **in a completely unattended fashion**, for an entire folder tree, for later review. 
+
+  - BENEFIT 1: THIS SAVES TIME!!!!!!!!  By doing initial fetches in advance, you aren’t wasting your *attended* time, but instead using *unattended* time. Run it on your whole music collection for example.
+  - BENEFIT 2: This allows for lyric approval/disapproval to be performed later even if internet connectivity is down. [This happened to me.]
+
+### 🌟 ❹ OPTIONAL STEP 4: Mark any instrumentals / sound clips with [ask-if-instrumentals.bat](../ask-if-these-are-instrumentals.bat)
+
+Particularly useful for soundtrack scores... and easy way to add “[instrumental]” / “[sound clip]” / “[semi-instrumental]” / “[no vocals]” / “[no lyrics]” to filenames so that we don’t spend AI-energy trying to transcribe files that have no lyrics.  
+
+*Side-note:* We recommend using “[semi-instrumental]” to denote songs that have vocals but no lyrics (i.e. chorus voices being used as instruments), or songs that have a few words but no real vocals (i.e. a 3 minute electronic tracks with a spoken sample at the beginning). Semi-instrumentals will still be transcribed if caught by our scripts, but only 1 attempt will be made before they are flagged with an ADS tag to prevent infinite re-attempts. Semi-instrumentals (or any other song) can further be clarified with “[no lyrics]” (or the less common “[no vocals]”) in order to prevent transcription in a way that isproperly counted by our reports.
+
+### 🌟 ❺ OPTIONAL STEP 5: Mark any songs with unfindable lyrics as “lyricless” with ```ask-if-lyricless.bat``` [ask-if-lyricless.bat](../ask-if-these-are-lyricless.bat)
 
 I usually skip this one except in rare instances, buuuut:
 
@@ -435,7 +448,7 @@ Maybe it’s:
 
 This will go through the songs one at a time and ask if you want to mark any as lyricless / in a state of lyriclessness, which is our internal nomenclature for “we don’t want to bother looking for lyrics anymore”. Ultimately, this is a bit faster than running into these songs one at a time later.
 
-### 🌟 ❹ STEP 4: Get and approve lyrics with [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-file {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../get-lyrics-via-multiple-sources.bat):
+### 🌟 ❻ STEP 6: Get and approve lyrics with [get-lyrics {*songfile* | *playlist* / “this”} / get-lyrics-for-file {*songfile*} / get-lyrics-for-song {*songfile*} / get-lyrics-via-multiple-sources {*songfile*}](../get-lyrics-via-multiple-sources.bat):
 
 Obtains the lyrics for a song file, a playlist, or the currently playing song. 
 - transcriptions work **much** better with lyrics
@@ -449,6 +462,8 @@ Obtains the lyrics for a song file, a playlist, or the currently playing song.
 - can approve lyric*less*ness “give up” on a lyric search (to allow aforementioned automatic AI-generation to happen even though no lyrics were found, and to prevent us from searching for lyrics a 2ⁿᵈ time at a later date)
 - lyrics are processed (for example, the apostrophe conversion of changing ```'``` into ```’```)
 - lyrics are filtered (spam and unrelated text that follows common patterns are removed)
+
+### 🌟 ❼ STEP 7: This is where you would continue on to Generate an SRT file if we did not already manage to fetch an LRC file in the process.
 
 
 ## OTHER LYRIC ALIGNMENT COMMANDS:
@@ -522,7 +537,7 @@ If you would like to check how many lyric approvals you did on a certain day, ju
 Performs the AI transcription process for a single song file.
 Run without parameters to see various options, as the list here is not guaranteed to be synchronized with the most up-to-date options. Options include:
 
-    - ```         force``` — generate it even if it already exists, or is an instrumental (some instrumentals have samples or backing choruses you might want displayed)
+    - ```     quick_lrc``` — generate it even if it already exists, or is an instrumental (some instrumentals have samples or backing choruses you     - ```         force``` — generate it even if it already exists, or is an instrumental (some instrumentals have samples or backing choruses you might want displayed)
     - ```            ai``` — skips  the   lyrics   component, and transcribes file only with AI
     - ```LyricsApproved``` — don’t skip the lyrics component, and transcribes file with existing lyrics *even if not pre-approved* [i.e. consider them approved regardless]
     - ```          fast``` — shortens prompt timer lengths [to get more done overnight]
@@ -564,6 +579,34 @@ Same as above, but for all audio files in the folder.
 Leaves breadcrumb files (```.GetAllLRCsRunHereAlready```) in folders to mark them as done, to prevent wasting time re-running in the same folder more than once.
 Use the ```force``` / ```--force``` parameter to run it on a folder that’s already been marked with the breadcrumb.
 To easily delete every breadcrumb file on your computer, go into ```clean-up-AI-transcription-trash-files-everywhere.bat``` and uncomment/add ```gosub DeleteEverywhere .GetAllLRCsRunHereAlready``` and run.
+
+
+
+### 🌟 [stretch_lrc.py](../stretch_lrc.py):
+
+!!!!!!!!!!!!! GREAT FOR LIVE SONGS AND COVERS !!!!!!!!!!!!! 
+
+Live songs and covers frequently are assigned an LRC file (either by ```LRCget``` or *quick-lrc* mode) that actually belongs to the original studio version. This LRC almost never works correctly because the length and doesn’t match exactly, and the starting time is often offset by singer banter during live performances.
+
+```stretch_lrc.py``` time-stretches LRC files to compensate for this situation, such that a song that is a different length of time or has a different initial singing point can use a mismatched LRC from the original studio version of song.  
+
+Accepts input in the form of a pair of timestams (i.e. ```0:12,3:45```) which represent the new timestamps for the first and last entry in the original LRC file.  Also accepts input in the form of +/- seconds (ie. ```-4.5``` or ```+2```), but this is not really used.
+
+Timestamps on the LRC file are then time-stretched and time-slid into newly-calculated values that should match the pace and starting point of the current song.  The original LRC file is backed up automatically.
+
+HOWTO: 
+  1. Review the LRC with ```review-files``` (happens automatically in quick-LRC mode)
+  1. Optionally edit the LRC so that the first timestamp is actually the first line sung (i.e. remove spammmy stuff in the beginning) for more accurate results.
+  1. Look at the first timestamp in the LRC file
+  1. Play the audio file with ```preview-audio-file``` (hit the ```P``` key in quick-LRC mode)
+  1. Listen to see when that first lyric is actually sung: This is your new beginning timestamp 
+  1. Look at the last timestamp in the LRC file
+  1. Fast-forward to that approximate position and listen to see when that last lyric is actually sung: This your new ending timestamp
+  1. If you’re not in quick-lrc mode, run stretch_lrc.py with these parameters. You’re done!
+  1. If you *are* in quick-lrc mode, hit the ```C``` key for *stretCh* to run ```stretch_lrc```. it will ask you for your timestamp parameters. Input them in the proper format. For exmaple, ```:23,4:45``` to indicate a new starting timestamp at the 23 second mark, and a new ending timestamp at the 4 minutes, 45 seconds mark. LRC will be stretched and displayed on the screen with ```review-files```. Optionally hit ```P``` to play the file and double-check it against the newly-generated LRC.
+
+
+
 
 ### 🌟 [create-srt-from-playlist.bat](../create-srt-from-playlist) (called via ```get-karaoke *{playlist}*```):
 
@@ -1203,7 +1246,7 @@ Technically should be called “```audio_file_index.bat```”... but isn’t.
 
 
 
-TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency. instrumentals. etc.
+TODO: update about section to include list of obstacles while doing this -- hallucination-prevention was tough. so was encoding. and concurrency. instrumentals. etc. Live songs sung at a different pace.
 NOTE: New hallucation patterns must be added to: delete-bad-AI-transcriptions.bat lyric-postprocessor.pl subtitle-postprocessor.pl remove-period-at-ends-of-lines.pl
 			NEW HALLUCNATION: I’m sorry, I don’t know what I’m doing - very uncommon? do we bother? cover both smart/dumb apostrophes
 
