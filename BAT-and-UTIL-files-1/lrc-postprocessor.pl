@@ -117,6 +117,7 @@ sub process_lrc_line_but_it_may_just_be_a_txt_file {
 }
 
 sub dlrcpusage {
+	no warnings 'utf8';
     print <<'USAGE';
     Usage: perl lrc-postprocessor.pl [options] <file>
 

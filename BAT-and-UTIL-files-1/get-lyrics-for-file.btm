@@ -2710,7 +2710,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                         if not defined USE_TIME set USE_TIME=600
                                                         set DEFAULTANSWER=yes
                                                         iff %@EVAL[%LENGTH_SS_LRC_TEMP% - %LENGTH_SS_AUDIO% > %THRESHOLD_IN_SECONDS_FOR_SUBTITLES_BEING_LONGER_THAN_AUDIO%] then
-                                                                call warning_soft "Downloaded LRC is longer (%LENGTH_SS_LRC_TEMP_SHORT%sec) than the audio file (%LENGTH_SS_AUDIO_SHORT%sec)" big
+                                                                call warning_soft "Downloaded LRC is longer (%LENGTH_SS_LRC_TEMP_SHORT%) than the audio file (%LENGTH_SS_AUDIO_SHORT%)" big
                                                                 set DEFAULTANSWER=N
                                                         endiff
 

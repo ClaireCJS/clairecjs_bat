@@ -264,10 +264,10 @@
 2026-04-22  08:48          2,935   61%  create-missing-karaoke-files.bat
 2025-06-08  16:27          1,310   58%  create-srt-file-for-currently-playing-song.bat
 2025-01-13  11:49            220   38%  create-srt-for-soundclip.bat
-2026-04-29  12:13        264,330   79%  create-srt-from-file.bat
+2026-05-02  11:00        266,938   79%  create-srt-from-file.bat
 2025-07-29  09:48          1,265   51%  create-srt-from-playlist.bat
 2025-01-13  11:48          1,276   53%  create-SRT-without-lyrics-or-voice-detection-for-an-entire-folder-tree.bat
-2026-04-21  13:47            361   44%  create-srt.bat
+2026-05-02  10:50            386   47%  create-srt.bat
 2024-11-19  07:35            354   39%  create-symlinks-by_Letter_only.bat
 2025-01-12  16:43         24,800   80%  create-symlinks.bat
 2025-01-13  11:49             57   -3%  create-the-missing-karaokes-here.bat
@@ -342,7 +342,7 @@
 2025-07-02  14:11          4,155   66%  discord_bot_clairecjs_bot.py
 2025-06-02  22:16          2,574   59%  display-ADS-tag-from-file.bat
 2024-11-19  07:36            434   44%  display-all-@CHARs.bat
-2026-04-28  13:26         14,168   79%  display-audio-file-length.bat
+2026-05-01  17:19         15,756   80%  display-audio-file-length.bat
 2026-04-25  10:11            144   12%  display-audio-file-lengths.bat
 2024-11-19  07:36             71   -2%  display-bitrate.bat
 2024-03-15  00:06            399   39%  display-bluetooth-battery-levels.ps1
@@ -530,13 +530,13 @@
 2024-11-19  07:47            567   58%  get-image-dimensions.bat
 2025-04-17  14:39            486   64%  get-karaoke-prompts-only.bat
 2026-04-04  13:41         17,438   85%  get-karaoke.bat
-2026-04-22  13:48            510   42%  get-lrc.bat
+2026-05-02  14:43            732   47%  get-lrc.bat
 2026-04-29  08:09             28    0%  get-LRCs.bat
 2026-04-20  17:09          2,868   64%  get-lyriclessness-status.bat
 2025-01-14  21:33            559   51%  get-lyrics-for-all-songs-in-this-folder.bat
 2024-11-11  15:33            418   42%  get-lyrics-for-currently-playing-song.bat
 2025-01-13  11:45             49    0%  get-lyrics-for-file.bat
-2026-04-30  00:51        487,904   83%  get-lyrics-for-file.btm
+2026-05-02  15:45        500,476   83%  get-lyrics-for-file.btm
 2025-03-01  21:15          1,068   53%  get-lyrics-for-playlist.bat
 2024-11-11  15:34             65   -3%  get-lyrics-for-song.bat
 2025-01-13  11:48             61   -1%  get-lyrics-from-song.bat
@@ -544,7 +544,7 @@
 2024-12-05  21:49         62,796   78%  get-lyrics-via-multiple-sources.bat
 2024-12-08  23:59          2,466   72%  get-lyrics-with-lyricsgenius-json-processor.pl
 2025-01-13  11:48             77    3%  get-lyrics-with-lyricsgenius.bat
-2026-04-21  12:55          5,398   69%  get-lyrics.bat
+2026-05-02  11:02          5,584   69%  get-lyrics.bat
 2024-10-18  12:53          4,561   67%  get-meat-from-mp3-filename.pl
 2026-04-14  11:53             57   -3%  get-missing-karaoke.bat
 2025-01-13  11:48             47   -4%  get-missing-lyrics-here.bat
@@ -692,7 +692,7 @@
 2025-01-12  16:40          2,158   57%  logging.bat
 2024-12-08  18:21          1,791   57%  lowercase-all-filenames.bat
 2019-10-01  10:28             28   -7%  lowercase.pl
-2026-04-29  16:39          7,742   74%  lrc-postprocessor.pl
+2026-05-02  15:32          7,764   74%  lrc-postprocessor.pl
 2025-01-13  11:48             66    2%  lrc.bat
 2026-04-21  14:10          7,710   69%  lrc2txt.bat
 2026-04-21  14:26         34,205   77%  lrc2txt.py
@@ -814,7 +814,7 @@
 2024-11-19  21:35             40   -5%  prev.bat
 2025-02-21  23:33          1,236   49%  prevdir.bat
 2023-05-31  10:55            117   22%  prevent-duplicate-lines.pl
-2026-04-28  14:15         10,443   73%  preview-audio-file.bat
+2026-05-02  15:18         10,442   73%  preview-audio-file.bat
 2025-04-04  14:37             40   -5%  preview-image-file.bat
 2025-04-04  14:37             40   -5%  preview-video-file.bat
 2024-11-19  21:35             31   -6%  previousdir.bat
@@ -898,7 +898,7 @@
 2023-07-10  03:06            982   61%  rename_images_to_incorporate_folder_name.py
 2024-12-08  18:19          2,201   55%  renumber-all-music-files-(to-randomize-usb-sticks).bat
 2024-10-18  13:30          6,904   66%  reorder_playlist.py
-2026-04-18  15:05         24,801   78%  report-lyric-and-subtitle-percentage-completion.bat
+2026-04-30  01:45         24,808   78%  report-lyric-and-subtitle-percentage-completion.bat
 2025-03-13  18:49          2,403   68%  report-lyric-approval-progress.bat
 2026-01-04  14:28            733   48%  rescue-winamp-window.ahk
 2024-11-19  15:15            202   19%  research-this-dir-on-discogs.bat
@@ -934,7 +934,7 @@
 2025-01-13  11:47             58   -1%  review-all-SRTs.bat
 2025-01-13  11:46             39   -5%  review-all-subtitles.bat
 2025-01-13  11:47             57   -1%  review-all-TXTs.bat
-2026-04-19  16:39         15,284   76%  review-file.bat
+2026-05-02  13:10         15,025   77%  review-file.bat
 2025-05-22  00:32             38   -5%  review-files.bat
 2025-01-30  16:11             27   -7%  review-karaokes.bat
 2025-01-13  11:47             58   -1%  review-LRCs.bat
@@ -1101,6 +1101,7 @@
 2024-11-19  21:35             62   -3%  stop-windows-11-automatic-repair-mode.bat
 2024-11-19  21:35             36   -5%  stop-windows-update-reboot-nag.bat
 2024-11-19  21:35             40   -5%  stop.bat
+2026-05-02  15:13         33,824   75%  stretch_lrc.py
 2024-11-19  15:20            808   59%  strings.bat
 2019-10-01  10:28             53   10%  strip-ansi.pl
 2024-11-12  02:20             53   -3%  strip-blank-lines.bat
@@ -1242,7 +1243,7 @@
 2025-03-31  14:30             29   -6%  validate-are-functions.bat
 2025-01-13  11:30             71    5%  validate-env-var.bat
 2025-01-13  11:29             70    3%  validate-env-vars.bat
-2026-01-08  17:51         28,147   78%  validate-environment-variable.bat
+2026-05-02  14:40         35,568   79%  validate-environment-variable.bat
 2025-05-16  14:08            569   47%  validate-environment-variables.bat
 2025-01-22  02:57             32   -6%  validate-extension.bat
 2026-04-27  23:10          4,929   66%  validate-file-extension.bat
