@@ -1,57 +1,99 @@
 @loadbtm on
-@rem @echo %ansi_reset%%conceal_off%%ansi_color_orange%📞📞📞 “%0 %1$” called by %_PBATCHNAME / %PBATCH2% 📞📞📞%ansi_color_normal%
 @Echo off
 @on break cancel
 @setdos /x0
-if defined italics_on set italics_maybe=%italics_on%
-gosub save_cusor_position
-rem pause "about to gosub display_temp_output"
-gosub display_temp_output
-rem why won’t this work for this bat? @setlocal
 
-::::: GET PARAMETERS:
-    set LAST_TITLE=%_TITLE
-    set VEVPARAMS=%1$
-    set VARNAME=%1      
-    set PARAM2=%2
-    set PARAM3=%3
-    set USER_MESSAGE=%2$
-    if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX% if defined %VARNAME% goto :Defined_YES)
-    set LAST_TITLE=%_WINTITLE
-    title %0
 
 :USAGE:  call validate-environment-variable VARNAME_NO_PERCENT [a custom error message] or "skip_validation_existence"
 :USAGE:       where option can be:
-:USAGE:                             "skip_validation_existence" to skip existence validation
-:USAGE:                             "some error message"        to be additional information provided to user if there is an error
-
+:USAGE:                             "skip_validation_existence"           to skip existence validation
+:USAGE:                             "some error message"                  to be additional information provided to user if there is an error
+:USAGE:                             "some error message" "type of error"  to be additional information provided to user if there is an error
 :REQUIRES: exit-maybe.bat, warning.bat, fatalerror.bat, white-noise.bat (optional), bigecho.bat (optional)
-:                                       REM car.bat, nocar.bat removed from requires 20230825
 
 
-::::: DEBUG STUFFS:
+rem USAGE:
+        if "%1" != "" goto :have_parameters
+                repeat 2 echo. 
+                echo           %big_top%%ansi_color_important%%GLITCH_STAR%  %star% %blink_on%Validate-Environment-Variable%blink_off% %star% %GLITCH_STAR% ``
+                echo           %big_bot%%ansi_color_important%%GLITCH_STAR%  %star% %blink_on%Validate-Environment-Variable%blink_off% %star% %GLITCH_STAR% ``
+                echo  %big_off%
+                echos %ansi_color_advice%
+                echo %bold_on%%star3% %double_underline_on%USAGES%double_underline_off%:%bold_off%
+                echo        ❶  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off% 
+                echo        ❶  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off%  skip_validation_existence
+                echo        ❷  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off% %italics_on%"custom error message"%italics_off% 
+                echo        ❸  call validate-environment-variable %faint_on%%italics_on%VARNAME%italics_off%%faint_off% %italics_on%"custom error message" "custom error header"%italics_off%
+                echo.
+                echos %ansi_color_important_less%
+                echo %bold_on%%star3% %double_underline_on%EXAMPLES%double_underline_off%:%bold_off%
+                echo        %faint_off%%ansi_color_important_less%❶  call validate-environment-variable FILE_INDEX ━━ %ansi_color_green%checks if %italics_on%%%FILE_INDEX%%%italics_off% is defined
+                echo                                                            %faint_on%If it’s value seems to be a filename/wildcard, %italics_on%checks if it exists%italics_off%%faint_off%
+                echo.
+                echo        %faint_off%%ansi_color_important_less%❷  call validate-environment-variable FILE_INDEX skip_validation_existence 
+                echo                                                         %ansi_color_important_less%━━ %ansi_color_green%%faint_on%Same as ❶  but %italics_on%without%italics_off% checking if it exits
+                echo.
+                echo        %faint_off%%ansi_color_important_less%❸  call validate-environment-variable INPUT_MP3 "1ˢᵗ parameter must be an %italics_on%mp3%italics_off% file that exists" 
+                echo                                                         %ansi_color_important_less%━━ %ansi_color_green%%faint_on%Same as ❶  but %italics_on%with a custom error message%italics_off% 
+                echo.
+                echo        %faint_off%%ansi_color_important_less%❸  call validate-environment-variable INPUT_MP3 "1ˢᵗ parameter must be an %italics_on%mp3%italics_off% file that exists" "Parameter Error"
+                echo                                                         %ansi_color_important_less%━━ %ansi_color_green%%faint_on%Same as %ansi_color_bright_yellow%❸%ansi_color_green%  but %italics_on%with a a custom error header%italics_off% that changes the 
+                echo                                                         %ansi_color_important_less%━━ %ansi_color_green%%faint_on%default header of “%faint_on%Env Variable Error%faint_off%” to “%faint_on%Parameter Error%faint_off%”
+                echo.
+                echo.
+                echo        %faint_off%%ansi_color_important_less%❺  call validate-environment-variable FILE_INDEX ━━
+                echo.
+                echo        %faint_off%%ansi_color_important_less%❻  call validate-environment-variable FILE_INDEX ━━
+                echo.
+                echo        %faint_off%%ansi_color_important_less%❼  call validate-environment-variable FILE_INDEX ━━
+                echo.
+                echo        %faint_off%%ansi_color_important_less%❽  call validate-environment-variable FILE_INDEX ━━
+                echo.
+                echo        %faint_off%%ansi_color_important_less%❾  call validate-environment-variable FILE_INDEX ━━
+                goto /i :END
+        :have_parameters
+
+
+
+rem Opening cosmetics:
+        if defined italics_on set italics_maybe=%italics_on%
+        gosub save_cusor_position
+        gosub display_temp_output
+
+rem GET PARAMETERS:
+        set LAST_TITLE=%_TITLE
+        set VEVPARAMS=%1$
+        set VARNAME=%1      
+        set PARAM2=%2
+        set PARAM3=%3
+        set USER_MESSAGE=%2$
+        if %DEBUG_VALIDATE_ENV_VAR% eq 1 (echo %DEBUGPREFIX% if defined %VARNAME% goto :Defined_YES)
+        set LAST_TITLE=%_WINTITLE
+        title %0
+
+
+
+rem DEBUG STUFFS:
     rem echo %ANSI_COLOR_DEBUG% %0 called with 1=%1, 2=%2, VARNAME=%VARNAME%, VEVPARAMS=%VEVPARAMS% %ANSI_COLOR_RESET%
 
 
-::::: CLEAR LONGTERM ERROR FLAGS:
-    set DEBUG_VALIDATE_ENV_VAR=0
-    set DEBUG_NORMALIZE_MESSAGE=0
-    set ERROR_MESSAGE=
-    set ERROR=0
-    set any_env_var_validations_failed=0
-
-::::: CLEAR LONGTERM ERROR FLAGS:
-    set ENVIRONMENT_VALIDATION_FAILED=0
-    set ENVIRONMENT_VALIDATION_FAILED_NAME=
-    set ENVIRONMENT_VALIDATION_FAILED_VALUE=
-    set DEBUGPREFIX=- {validate-environment-variable} * ``
+rem CLEAR LONGTERM ERROR FLAGS:
+        set DEBUG_VALIDATE_ENV_VAR=0
+        set DEBUG_NORMALIZE_MESSAGE=0
+        set ERROR_MESSAGE=
+        set ERROR=0
+        set any_env_var_validations_failed=0
+        set ENVIRONMENT_VALIDATION_FAILED=0
+        set ENVIRONMENT_VALIDATION_FAILED_NAME=
+        set ENVIRONMENT_VALIDATION_FAILED_VALUE=
+        set DEBUGPREFIX=- {validate-environment-variable} * ``
     
-::::: GET CALLING-BAT-FILE INFO, INCLUDING THAT MANUALLY PASSED FROM GRANDPARENT BATCH FILE:
+rem GET CALLING-BAT-FILE INFO, INCLUDING THAT MANUALLY PASSED FROM GRANDPARENT BATCH FILE:
         set OUR_CALLER=%_PBATCHNAME
         if "%_PBATCHNAME" == "%bat%\validate-environment-variables.bat" .and. defined PBATCH2 .and. "" != "%PBATCH2%" (set OUR_CALLER=%PBATCH2%)
         set OUR_CALLER=%@NAME[%our_caller].%@EXT[%our_caller]
     
-::::: VALIDATE ENVIRONMENT:
+rem VALIDATE ENVIRONMENT:
 rem Make sure ansi_move_to function is defined:
         if "" == "%@function[ANSI_MOVE_TO]" function ANSI_MOVE_TO=`%@CHAR[27][%1H%@CHAR[27][%2G`        
         if "" != "%@function[RANDFG_SOFT]"  goto :endif_66
@@ -79,28 +121,29 @@ rem Make sure ansi_move_to function is defined:
 
 
 
-::::: VALIDATE PARAMETERS STRICTLY
-    rem call debug "param3            is %param3%"
-    rem call debug "validate_multiple is %validate_multiple%"
-    rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
-    if "%@NAME[%OUR_CALLER%]" == "validate-environment-variables" set VALIDATE_MULTIPLE=1
-    iff "%PARAM3%" != "" .and. "%VALIDATE_MULTIPLE%" != "1" then
-        gosub restore_cusor_position
-        call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
-        color bright white on red
-        echo  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
-        echo  %underline%Did you mean%underline_off%: %italics%validate-environment-variable%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
-        echo                                   (with an %left_quote%s%right_quote% after %left_quote%%italics%variable%italics_off%%right_quote%)  ????
+rem Validate parameters:
+        rem call debug "param3            is %param3%"
+        rem call debug "validate_multiple is %validate_multiple%"
+        rem call debug "about to check if PARAM3 [%param3%] ne '' .and. VALIDATE_MULTIPLE [%VALIDATE_MULTIPLE] ne 1 .... ALL_PARAMS is: %VEVPARAMS%"
+        if "%@NAME[%OUR_CALLER%]" == "validate-environment-variables" set VALIDATE_MULTIPLE=1
+        iff "%PARAM3%" != "" .and. "%VALIDATE_MULTIPLE%" != "1" then
+                gosub restore_cusor_position
+                call bigecho "%ANSI_COLOR_ALARM%%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0] ENV VAR ERROR! %@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]%@CHAR[11088]%@CHAR[0]"
+                color bright white on red
+                echo  We can’t be passing a %italics%%blink%third%blink_off%%italics_off% parameter to validate-environment-variable.bat 
+                echo  %underline%Did you mean%underline_off%: %italics%validate-environment-variable%double_underline%%blink%s%blink_off%%double_underline_off% %VEVPARAMS%%italics_off% 
+                echo                                   (with an %left_quote%s%right_quote% after %left_quote%%italics%variable%italics_off%%right_quote%)  ????
 
-        call exit-maybe
-        if %FORCE_EXIT eq 1 (goto :END)
-        
-        set VEV_COMMENT=repeat 4 beep
-        set VEV_COMMENT=repeat 25 *pause
+                call exit-maybe
+                if %FORCE_EXIT eq 1 (goto :END)
 
-        goto :END
-    endiff
+                set VEV_COMMENT=repeat 4 beep
+                set VEV_COMMENT=repeat 25 *pause
 
+                goto :END
+        endiff
+
+rem Validate parameters: Validate existence of variable contents or not:
     set SKIP_VALIDATION_EXISTENCE=0
     if "%PARAM2%" == "skip_validation_existence" .or. "%PARAM2%" == "skip_existence_validation" .or. "%PARAM2%" == "skip_validation" (
         set SKIP_VALIDATION_EXISTENCE=1 
@@ -109,11 +152,15 @@ rem Make sure ansi_move_to function is defined:
     if %DEBUG_NORMALIZE_MESSAGE eq 1 (gosub restore_cusor_position %+ echo %ansi_color_debug%- DEBUG: PARAM2: %left_quotes%%PARAM2%%right_quotes%%ansi_color_normal%)
 
 
+rem If validating multiple environment variables, a special branch:
     iff "1" != "%VALIDATE_MULTIPLE%" then
         gosub validate_environment_variable %VARNAME%
 
         rem If this script gets aborted, leaving this flag set can create false errors:
                 unset /q VALIDATE_MULTIPLE 
+
+
+rem If validating a single environment variables, do it this way:
     else 
         set USER_MESSAGE=
         do i = 1 to %# 

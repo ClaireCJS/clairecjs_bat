@@ -1481,8 +1481,8 @@ rem Check if we already have a LRC/SRT file but no TXT file
                                                         if exist "%LYRIC_FILE%" (*ren  /Ns /q "%LYRIC_FILE%" "%LYRIC_FILE%.%_datetime.rejected-after-conversion-from-%just_converted_from%.bak")                                                
                                                 endiff
                                         rem On “Y”/“A”/“D”/“I”/“L”/“P”/“Q”:
-                                                gosub check_for_answer_of_P "%@UNQUOTE[%AUDIO_FILE%]"
                                                 gosub check_for_answer_of_Q "%@UNQUOTE[%AUDIO_FILE%]"
+                                                gosub check_for_answer_of_P "%@UNQUOTE[%AUDIO_FILE%]"
                                                 if "P" == "%OUR_LAST_ANSWER_HERE%" goto /i Ask_Again_845
                                                 if "E" == "%OUR_LAST_ANSWER_HERE%" goto /i Ask_Again_845
                                                 if "Q" == "%OUR_LAST_ANSWER_HERE%" goto /i Ask_Again_845
@@ -2534,10 +2534,10 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
 
                         rem Postprocess those that we can postprocess inline: (TODO: postprocess lyrics maybe? but that requires tmp file stuffs)
-                                if exist "%ELRC_SIDECAR_FILENAME_TEMP%"      lrc-postprocessor.pl   "%ELRC_SIDECAR_FILENAME_TEMP%"                            
-                                if exist  "%LRC_SIDECAR_FILENAME_TEMP%"      lrc-postprocessor.pl    "%LRC_SIDECAR_FILENAME_TEMP%"                            
-                                if exist  "%SRT_SIDECAR_FILENAME_TEMP%" subtitle-postprocessor.pl    "%SRT_SIDECAR_FILENAME_TEMP%"                            
-                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%"   lyrics-postprocessor.pl -L "%TXT_SIDECAR_FILENAME_TEMP%"       
+                                if exist "%ELRC_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%ELRC%italics_off%...%ansi_color_normal% %+       lrc-postprocessor.pl   "%ELRC_SIDECAR_FILENAME_TEMP%" )
+                                if exist  "%LRC_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%LRC%[italics_off]...%ansi_color_normal% %+       lrc-postprocessor.pl    "%LRC_SIDECAR_FILENAME_TEMP%" )
+                                if exist  "%SRT_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%SRT%[italics_off]...%ansi_color_normal% %+  subtitle-postprocessor.pl    "%SRT_SIDECAR_FILENAME_TEMP%" )
+                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%TXT%[italics_off]...%ansi_color_normal% %+    lyrics-postprocessor.pl -L "%TXT_SIDECAR_FILENAME_TEMP%" )
 
 
 
@@ -2565,7 +2565,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                         echos %@ANSI_MOVE_TO_COL[1]%italics_off%
                                                         iff exist "%TXT_SIDECAR_FILENAME%" then
                                                                 rem OUR_QUESTION=Replace existing TXT lyric file with this LRC download that wasn’t actually an LRC
-                                                                set OUR_QUESTION=Replace %blink_on%existing%blink_off% TXT lyric file with this %underline_on%LRC%underline_off% download %italics_on%that wasn’t actually an LRC%italics_off%
+                                                                set OUR_QUESTION=%blink_on%%underline_on%Replace%underline_off% %italics_on%existing%italics_off%%blink_off% TXT lyric file with this %underline_on%LRC%underline_off% download %italics_on%that wasn’t actually an LRC%italics_off%
                                                                 call advice "if the LRC is not an LRC it may be TXT lyrics that we could still use"
                                                                 iff "%TXT_FILE_REVIEWED%" != "1" then
                                                                         call review-file -wh -stL "%LRC_SIDECAR_FILENAME_TEMP%"  
@@ -2718,8 +2718,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                         :reask_sl_1
                                                         call AskYN "Replace old LRC with new [%ansi_color_bright_green%P%ansi_color_prompt%=Play,%ansi_color_bright_green%C%ansi_color_prompt%=stretch,%ansi_color_bright_green%F%ansi_color_prompt%=Fail]"  %DEFAULTANSWER% %USE_TIME% PFIC P:Play_File,F:Fail_voluntarily,I:instrumental,C:stretch_the_new_LRC
                                                                 
-                                                                gosub check_for_answer_of_P "%@UNQUOTE[%AUDIO_FILE%]" 
-                                                                
+                                                                gosub check_for_answer_of_P "%@UNQUOTE[%AUDIO_FILE%]" do_not_show_karaoke
                                                                 gosub check_for_answer_of_I "%@UNQUOTE[%AUDIO_FILE%]" 
                                                                 
                                                                 rem gosub check_for_answer_of_F "%@UNQUOTE[%AUDIO_FILE%]" 
@@ -2938,10 +2937,10 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                 :skip_for_quick_lrc_mode_2486
 
                         rem If we are replacing, back up the file we will replace:
-                                if exist  "%LRC_SIDECAR_FILENAME_TEMP%" .and. exist  "%LRC_SIDECAR_FILENAME%" (echos %ANSI_COLOR_REMOVAL%  %EMOJI_GEAR% Backing up: `` %+ *ren /Ns /q  "%LRC_SIDECAR_FILENAME%"  "%LRC_SIDECAR_FILENAME%.bak.replaced-with-syncedlyrics-download-on-%_datetime.bak" %+ echos %ANSI_COLOR_NORMAL%) %+ rem don’t need to add “.and. "1" == "%REPLACE_LRC" ” to the conditions because the _TEMP file would not exist if we were not replacing or keeping
+                                if exist  "%LRC_SIDECAR_FILENAME_TEMP%" .and. exist  "%LRC_SIDECAR_FILENAME%" (echos %ANSI_COLOR_REMOVAL%   %EMOJI_GEAR% Backing up: `` %+ *ren /Ns  "%LRC_SIDECAR_FILENAME%"  "%LRC_SIDECAR_FILENAME%.bak.replaced-with-syncedlyrics-download-on-%_datetime.bak" %+ echos %ANSI_COLOR_NORMAL%) %+ rem don’t need to add “.and. "1" == "%REPLACE_LRC" ” to the conditions because the _TEMP file would not exist if we were not replacing or keeping
                                 if "1" == "%QUICK_LRC_MODE%" goto :skip_for_quick_lrc_mode_2492
-                                if exist "%ELRC_SIDECAR_FILENAME_TEMP%" .and. exist "%ELRC_SIDECAR_FILENAME%" (echos %ANSI_COLOR_REMOVAL%  %EMOJI_GEAR% Backing up: `` %+ *ren /Ns /q "%ELRC_SIDECAR_FILENAME%" "%ELRC_SIDECAR_FILENAME%.bak.replaced-with-syncedlyrics-download-on-%_datetime.bak" %+ echos %ANSI_COLOR_NORMAL%) %+ rem don’t need to add “.and. "1" == "%REPLACE_ELRC"” to the conditions because the _TEMP file would not exist if we were not replacing or keeping
-                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%" .and. exist  "%TXT_SIDECAR_FILENAME%" (echos %ANSI_COLOR_REMOVAL%  %EMOJI_GEAR% Backing up: `` %+ *ren /Ns /q  "%TXT_SIDECAR_FILENAME%"  "%TXT_SIDECAR_FILENAME%.bak.replaced-with-syncedlyrics-download-on-%_datetime.bak" %+ echos %ANSI_COLOR_NORMAL%) %+ rem don’t need to add “.and. "1" == "%REPLACE_TXT" ” to the conditions because the _TEMP file would not exist if we were not replacing or keeping
+                                if exist "%ELRC_SIDECAR_FILENAME_TEMP%" .and. exist "%ELRC_SIDECAR_FILENAME%" (echos %ANSI_COLOR_REMOVAL%   %EMOJI_GEAR% Backing up: `` %+ *ren /Ns "%ELRC_SIDECAR_FILENAME%" "%ELRC_SIDECAR_FILENAME%.bak.replaced-with-syncedlyrics-download-on-%_datetime.bak" %+ echos %ANSI_COLOR_NORMAL%) %+ rem don’t need to add “.and. "1" == "%REPLACE_ELRC"” to the conditions because the _TEMP file would not exist if we were not replacing or keeping
+                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%" .and. exist  "%TXT_SIDECAR_FILENAME%" (echos %ANSI_COLOR_REMOVAL%   %EMOJI_GEAR% Backing up: `` %+ *ren /Ns  "%TXT_SIDECAR_FILENAME%"  "%TXT_SIDECAR_FILENAME%.bak.replaced-with-syncedlyrics-download-on-%_datetime.bak" %+ echos %ANSI_COLOR_NORMAL%) %+ rem don’t need to add “.and. "1" == "%REPLACE_TXT" ” to the conditions because the _TEMP file would not exist if we were not replacing or keeping
                                 :skip_for_quick_lrc_mode_2492
 
                         rem Whether replacing or keeping, the next step is to move the downloaded file from the temp filename into the proper filename:
@@ -5336,24 +5335,33 @@ echo "%blink_on%set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% 
         
                         call important_less "The first timestamp in the LRC must be the actual first sung word %faint_on%(not spammy song intro/transcriber credit stuff)%faint_off%"
                         call important_less "The last timestamp in the LRC must be the actual last sung word %faint_on%(not transcriber credits or blank)%faint_off%"
-                        call AskYN "Edit LRC first? %faint_on%(particularly if either of these timestamp requirements are false)%faint_off%" 0 0 YN Y:yes,N:no
+                        :Ask_Again_5300
+                        call AskYN "Edit LRC first? %faint_on%(particularly if either of these timestamp requirements are false)%faint_off%" no 0 YNP p:PlaY_IT
+                        echos %ansi_color_normal%
+                        gosub check_for_answer_of_P "%@UNQUOTE[%AUDIO_FILE%]"
+                        if  "P" == "%ANSWER%" goto /i Ask_Again_5300
                         iff "Y" == "%ANSWER%" then
-                                echos %ANSI_POSITION_SAVE%
+                                repeat 2 echo.
+                                echos %@ANSI_MOVE_UP[2]%ANSI_POSITION_SAVE%
                                 set EDIT_CALL=%EDITOR% "%LRC_FILE_TO_STRETCH_TO_USE%"
                                 rem DEBUG: echo %star2% DEBUG: editing lyric file because answer=“%answer%”  ... google_now=“%google_now%”.... call = “%blink_on%%edit_call%%blink_off%” 💩 FILE_SONG_TO_USE=“%FILE_SONG_TO_USE” 🐐
                                 %EDIT_CALL%
-                                pause "%blink_on%Press any key when done editing%blink_off%"’
+                                pause "%blink_on%Press any key when done editing%blink_off%"
                                 echos %ANSI_POSITION_RESTORE%%ANSI_CLEAR_TO_END_OF_SCREEN%     
-                                echo %ansi_color_success%%check% LRC edited %check%%ansi_color_normal%
+                                echo %ansi_color_success%%check% LRC edited %check%%ansi_color_normal%%ansi_erase_to_end_of_line%%ansi_erase_to_end_of_screen%
+                                if exist "%LRC_FILE_TO_STRETCH_TO_USE%" call review-file --KeepTimestamps -wh -stU "%LRC_FILE_TO_STRETCH_TO_USE%" "%underline_on%LRC after your edit%underline_off%"
+                
+
+                                goto /i Ask_Again_5300                
                         endiff
                         gosub divider
 
                 rem Get the parameters for our stretch:
                         call advice "Stretch argument examples:"
                 
-                                echo %ansi_color_advice%%star% Usage 1: seconds to stretch final timestamp by, e.g. %ansi_color_bright_green%+2.45%ansi_color_advice% or %ansi_color_bright_green%-1%ansi_color_normal%
+                                echo %ansi_color_advice%%star% Usage 1: seconds to slide every timestamp by, e.g. %ansi_color_bright_green%+2.45%ansi_color_advice% or %ansi_color_bright_green%-2.5s%ansi_color_normal%
                 
-                                echo %ansi_color_advice%%star% Usage 2: new final timestamp, e.g. %ansi_color_bright_green%1:59%ansi_color_advice% or %ansi_color_bright_green%0:35.22%ansi_color_normal%
+                                echo %ansi_color_advice%%star% Usage 2: new final timestamp %faint_on%(slides all timestamps so the last one lands there)%faint_off%, e.g. %ansi_color_bright_green%1:59%ansi_color_advice% or %ansi_color_bright_green%0:35.22%ansi_color_normal%
                 
                                 echo %ansi_color_advice%%star% Usage 3: new beginning and final timestamps, e.g. %ansi_color_bright_green%0:30,4:45%ansi_color_normal%
                 
@@ -5374,7 +5382,7 @@ echo "%blink_on%set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% 
                                 rem calling: stretch_lrc.py                                                                
                                 echo %ansi_color_run%%ansi_color_debug%%bold_on%%STAR2% calling%bold_off%:  stretch_lrc.py %faint_on%"%LRC_FILE_TO_STRETCH_TO_USE%"%faint_off% %blink_on%%LRC_STRETCH_ARGUMENT%%blink_off%%ansi_color_normal%
                                 pause "%ansi_color_warning_soft%Press any key to %underline_on%stretch%underline_off% the LRC...%ansi_color_normal%"
-                                stretch_lrc.py "%@UNQUOTE["%LRC_FILE_TO_STRETCH_TO_USE%"]" %LRC_STRETCH_ARGUMENT%
+                                stretch_lrc.py "%@UNQUOTE["%LRC_FILE_TO_STRETCH_TO_USE%"]" "%LRC_STRETCH_ARGUMENT%"
                                 call errorlevel
                         endiff
 

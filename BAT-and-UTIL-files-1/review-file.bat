@@ -4,6 +4,22 @@ rem on break cancel
 set onbreak=goto:END
 setdos /x0
 
+
+rem Cosmetics:
+        echos %ANSI_RESET%%ANSI_COLOR_NORMAL%
+
+
+rem Validate environment (once):
+        iff "4" != "%validated_review_file%" then
+                call validate-in-path print-with-columns grep remove-blank-lines warning preview-audio-file preview-video-file preview-image-file print-with-columns print_with_columns.py get-lyrics-for-file.btm
+                if not defined emoji_have_been_set .or. not defined ansi_colors_have_been_set call validate-environment-variables ansi_colors_have_been_set emoji_have_been_set 
+                if not defined filemask_video call validate-environment-variables filemask_video skip_validation_existence
+                if not defined filemask_audio call validate-environment-variables filemask_audio skip_alidation_existence
+                if not defined filemask_audio call validate-environment-variables filemask_image skip_validation_existence
+                set  validated_review_file=4
+        endiff
+
+
 rem Usage:
         iff "%1" == "" then
                 echo USAGE: review_files [--KeepTimestamps] -OptionsThatGoToPrintWithColumnsScript `<`file`>` `<`file2`>` `<`file3`>` 
@@ -122,36 +138,17 @@ rem Only review a single file, if [what is hopefully] a filename is provided:
                         return                
               :skip_check_for_filemask
 
-rem Validate environment:
-        iff "4" != "%validated_review_subtitles%" then
-                call validate-in-path print-with-columns grep remove-blank-lines warning preview-audio-file preview-video-file preview-image-file print-with-columns print_with_columns.py
-                call validate-environment-variables ansi_colors_have_been_set emoji_have_been_set 
-                if not defined filemask_video call validate-environment-variables filemask_video skip_validation_existence
-                if not defined filemask_audio call validate-environment-variables filemask_audio skip_alidation_existence
-                if not defined filemask_audio call validate-environment-variables filemask_image skip_validation_existence
-                set  validated_review_subtitles=4
-        endiff
         
-rem Check if SRT files are actually here:
-
-rem Go through each one and review it:
-        rem for less: set lc_all=en_US.UTF-8
-        rem for less: set LANG=en_US.UTF-8
-        rem for less: set LESSCHARSET=utf-8
-        rem for less: set columns=%_columns
-
 
 rem Set temp files:
         rem bad for concurrency: if defined review_file_tmp_file_1 goto :defined_1        
         call set-tmp-file
         set review_file_tmp_file_1=%tmpfile%
-        rem gosub debug "review_file_tmp_file_1==“%review_file_tmp_file_1%”"
         :defined_1
 
         rem bad for concurrency: if defined review_file_tmp_file_2 goto :defined_2
         call set-tmp-file
         set review_file_tmp_file_2=%tmpfile%
-        rem gosub debug "review_file_tmp_file_2==“%review_file_tmp_file_2%”"
         :defined_2
 
 rem Make sure our files exist first:

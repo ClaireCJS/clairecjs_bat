@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Stretch or compress LRC timestamps proportionally.
+Slide or remap LRC timestamps.
 
 This is for stretching LRCs made from studio versions of songs so they are
 suitable for live versions of the song, which may be played faster or
 slower and offset by singer banter/crowd noise, and therefore need
 a completely different set of timestamps that are proportional to the original.
 
-Accepts +/- and floating point number of seconds to offset as an alternate call
+Accepts +/- and floating point number of seconds to offset every timestamp as
+an alternate call.
 
 Primary call is to accept 2 timestamps: the new first-lyric-sung and last-lyric-sung
 timestamples, i.e.:
@@ -45,6 +46,10 @@ RESET_COLOR = "\033[0m"
 
 BRACKETED_TEXT_RE  = re.compile(r"([\[<])([^\[\]<>\r\n]{0,64})([\]>])")
 BRACKETED_BYTES_RE = re.compile(rb"([\[<])([^\[\]<>\r\n]{0,64})([\]>])")
+SECONDS_DELTA_RE   = re.compile(
+    r"^\s*([+-]?(?:\d+(?:[\.,]\d*)?|[\.,]\d+))(?:\s*(?:s|sec|secs|second|seconds))?\s*$",
+    re.IGNORECASE,
+)
 
 
 ESC           =  "\x1b"                           # the escape character
@@ -58,6 +63,8 @@ FAINT_ON      = f"{ESC}[2m"
 FAINT_OFF     = f"{ESC}[22m"
 ITALICS_ON    = f"{ESC}[3m"
 ITALICS_OFF   = f"{ESC}[23m"
+UNDERLINE_ON  = f"{ESC}[4m"
+UNDERLINE_OFF = f"{ESC}[24m"
 BRIGHT_RED    = f"{ESC}[91m"                      # errors
 BRIGHT_YELLOW = f"{ESC}[93m"                      # warnings
 ORANGE        = f"{ESC}[38;2;235;107;0m"          # column 4 (Lyrics)
@@ -154,12 +161,12 @@ def usage() -> str:
     program = Path(sys.argv[0]).name
     return f"""Usage:
   {program} filename.lrc +2.45
-  {program} filename.lrc -1
+  {program} filename.lrc -2.5s
   {program} filename.lrc 1:59
   {program} filename.lrc 0:35.22
   {program} filename.lrc 0:30,4:45
 
-Stretch or compress LRC timestamps proportionally.
+Slide or remap LRC timestamps.
 
 This is for stretching LRCs made from studio versions of songs so they are
 suitable for use as LRCs for live versions of the song, which are played
@@ -169,13 +176,13 @@ Parameter 1:
   The LRC filename. If it does not exist, this exits gracefully.
 
 Parameter 2, usage 1:
-  Number of seconds to stretch the final timestamp by. Use a positive or
-  negative number, such as +2.45 or -1.
+  Number of seconds to slide every timestamp by. Use a positive or negative
+  number, such as +2.45, -1, or -2.5s.
 
 Parameter 2, usage 2:
   New final timestamp, such as 1:59 or 0:35.22. If this argument contains a
   colon, the script compares it to the original final timestamp, calculates the
-  stretch in seconds, then proceeds as usage 1.
+  slide in seconds, then moves every timestamp by that amount.
 
 Parameter 2, usage 3:
   New beginning and final timestamps, separated by a comma, such as 0:30,4:45.
@@ -187,7 +194,7 @@ Recognized timestamp examples:
   [30]  [:30]  [0:30]  [00:30.25]  [0.30.00]  [00:30:25]
 
 Before replacing the file, the original is backed up as:
-  whatever.before_+2.45_second_stretch.YYYYMMDDHHMMSS.bak
+  whatever.before_+2.45_second_slide.YYYYMMDDHHMMSS.bak
   whatever.before_+10_second_slide_+5_second_stretch.YYYYMMDDHHMMSS.bak
 """
 
@@ -679,34 +686,40 @@ def build_transform_plan(
             backup_label=backup_label,
         )
 
-    stretch_seconds = parse_stretch_argument(argument, original_final)
-    if stretch_seconds is None:
+    slide_seconds = parse_slide_argument(argument, original_final)
+    if slide_seconds is None:
         return None
 
-    new_final = original_final + stretch_seconds
+    new_start = original_start + slide_seconds
+    new_final = original_final + slide_seconds
     if new_final <= 0:
         error(
-            "Stretch would make the final timestamp zero or negative "
+            "Slide would make the final timestamp zero or negative "
             f"({format_seconds_for_display(new_final)} seconds)."
         )
         return None
 
-    factor = new_final / original_final
-    backup_label = f"{format_seconds_for_display(stretch_seconds, force_sign=True)}_second_stretch"
+    if new_start < 0:
+        warning(
+            "Slide would move the earliest timestamp below zero; affected timestamps "
+            "will be clamped to 0."
+        )
+
+    backup_label = f"{format_seconds_for_display(slide_seconds, force_sign=True)}_second_slide"
     return TransformPlan(
-        transform_seconds=lambda seconds: seconds * factor,
-        mode="final",
+        transform_seconds=lambda seconds: seconds + slide_seconds,
+        mode="slide",
         original_start=original_start,
         original_final=original_final,
-        new_start=None,
+        new_start=new_start,
         new_final=new_final,
-        final_delta=stretch_seconds,
+        final_delta=slide_seconds,
         duration_delta=None,
         backup_label=backup_label,
     )
 
 
-def parse_stretch_argument(argument: str, original_final: Decimal) -> Decimal | None:
+def parse_slide_argument(argument: str, original_final: Decimal) -> Decimal | None:
     if ":" in argument:
         parsed = parse_timestamp(argument)
         if parsed is None:
@@ -714,11 +727,18 @@ def parse_stretch_argument(argument: str, original_final: Decimal) -> Decimal | 
             return None
         return parsed.seconds - original_final
 
-    stretch = parse_decimal(argument)
-    if stretch is None:
-        error(f"Stretch amount is not a valid number of seconds: {argument}")
+    slide = parse_seconds_delta_argument(argument)
+    if slide is None:
+        error(f"Slide amount is not a valid number of seconds: {argument}")
         return None
-    return stretch
+    return slide
+
+
+def parse_seconds_delta_argument(argument: str) -> Decimal | None:
+    match = SECONDS_DELTA_RE.fullmatch(argument)
+    if not match:
+        return None
+    return parse_decimal(match.group(1).replace(",", "."))
 
 
 def format_seconds_for_display(value: Decimal, force_sign: bool = False) -> str:
@@ -801,7 +821,21 @@ def run_self_tests() -> int:
     assert changed_remap == 3
     assert transformed_remap == b"[00:30]start\n[02:37.50]middle\n[04:45]end\n"
 
-    comma_decimal_plan = build_transform_plan("0:35,22", Decimal("0"), Decimal("60"))
+    slide_plan = build_transform_plan("-2.5s", Decimal("19"), Decimal("184"))
+    assert slide_plan is not None
+    assert slide_plan.mode == "slide"
+    assert slide_plan.new_start == Decimal("16.5")
+    assert slide_plan.new_final == Decimal("181.5")
+    assert slide_plan.transform_seconds(Decimal("19")) == Decimal("16.5")
+    assert slide_plan.transform_seconds(Decimal("184")) == Decimal("181.5")
+
+    final_timestamp_plan = build_transform_plan("3:01.50", Decimal("19"), Decimal("184"))
+    assert final_timestamp_plan is not None
+    assert final_timestamp_plan.mode == "slide"
+    assert final_timestamp_plan.transform_seconds(Decimal("19")) == Decimal("16.50")
+    assert final_timestamp_plan.transform_seconds(Decimal("184")) == Decimal("181.50")
+
+    comma_decimal_plan = build_transform_plan("0:35,22", Decimal("30"), Decimal("60"))
     assert comma_decimal_plan is not None
     assert comma_decimal_plan.new_final == Decimal("35.22")
 
@@ -865,7 +899,7 @@ def main(argv: list[str]) -> int:
         error(f"Could not write output file or backup for {path}: {exc}")
         return EXIT_ERROR
 
-    stretch_display = format_seconds_for_display(transform_plan.final_delta, force_sign=True)
+    delta_display = format_seconds_for_display(transform_plan.final_delta, force_sign=True)
     original_start_display = format_seconds_for_display(original_start)
     new_start_display = (
         format_seconds_for_display(transform_plan.new_start)
@@ -887,17 +921,18 @@ def main(argv: list[str]) -> int:
             transform_plan.duration_delta or Decimal(0), force_sign=True
         )
         print(
-            f"{GREEN}🗺 Remapped: {changed_count} timestamps "
-            f"📂 (start {original_start_display}s -> {new_start_display}s, "
-            f"final {original_display}s -> {new_display}s; "
-            f"duration stretch {duration_delta_display}s)."
+            f"{GREEN}↔  Remapped:  {changed_count} timestamps {FAINT_ON}"
+            f"({UNDERLINE_ON}start{UNDERLINE_OFF}: {original_start_display}s -> {ITALICS_ON}{new_start_display}s{ITALICS_OFF}, "
+            f"{UNDERLINE_ON}end{UNDERLINE_OFF}: {original_display}s -> {ITALICS_ON}{new_display}s{ITALICS_OFF}; "
+            f"duration stretch: {ITALICS_ON}{duration_delta_display}s){ITALICS_OFF}{FAINT_OFF}"
         )
     else:
         print(
-            f"{GREEN}↔ Stretched: {changed_count} timestamps {FAINT_ON} by {stretch_display}s "
-            f"(final {original_display}s -> {new_display}s).{FAINT_OFF}"
+            f"{GREEN}➡ Slid:  {changed_count} timestamps {FAINT_ON}by{FAINT_OFF} {delta_display}s {FAINT_ON}"
+            f"({UNDERLINE_ON}start{UNDERLINE_Off}: {original_start_display}s -> {ITALICS_ON}{new_start_display}s{ITALICS_OFF}, "
+            f"{UNDERLINE_ON}end{UNDERLINE_Off}: {original_display}s -> {ITALICS_ON}{new_display}s{{ITALICS_OFF}}){FAINT_OFF}"
         )
-    print(f"{GREEN}⚙{FAINT_ON} Backup:   {ITALICS_ON}{backup_path}{ITALICS_OFF}{FAINT_OFF}")
+    print(f"{GREEN}{FAINT_ON}🗃  Backup:   {ITALICS_ON}{backup_path}{ITALICS_OFF}{FAINT_OFF}")
     print(f"{BRIGHT_GREEN}✅ Updated:  {GREEN}{ITALICS_ON}{path}{ITALICS_OFF}")
     return EXIT_OK
 
