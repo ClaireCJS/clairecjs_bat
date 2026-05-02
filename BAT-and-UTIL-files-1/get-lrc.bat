@@ -12,7 +12,7 @@ rem Get parameter:
         set FILE=%@UNQUOTE["%1"]
 
 rem Validate parameter:
-        if not exist FILE (call validate-environment-variable FILE "1ˢᵗ parameter must be a file that exists" "Parameter Error" %+ goto :END)
+        if not exist "%FILE%" (call validate-environment-variable FILE "1ˢᵗ parameter must be a file that exists" "Parameter Error" %+ goto :END)
 
 rem Unset holistic flags:
         unset /q QUICK_LRC_FAILED QUICK_LRC_SKIPPED QUICK_LRC_SUCCESS

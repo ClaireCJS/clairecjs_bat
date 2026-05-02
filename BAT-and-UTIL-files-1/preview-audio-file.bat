@@ -140,7 +140,7 @@ rem NEW: Announce the preview no matter what:
 rem Do the actual preview:
         set      PAF_COMMAND=%PAF_START% %PAF_PLAYER% %param_1% %1$
         set LAST_PAF_COMMAND=%PAF_COMMAND%
-        call subtle " Playback command is: %faint_on%%PAF_COMMAND%%ansi_color_normal%%faint_off%"
+        call subtle "Playback command is: %faint_on%%PAF_COMMAND%%ansi_color_normal%%faint_off%"
         echos %ANSI_MOVE_UP_1%%ANSI_MOVE_UP_1%
         %PAF_COMMAND%
 

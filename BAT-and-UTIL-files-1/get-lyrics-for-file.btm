@@ -370,7 +370,7 @@ rem VALIDATE ENVIRONMENT [once per session]:
                         if "%@ANSI_CURSOR_CHANGE_COLOR_WORD[]" == ""            function ANSI_CURSOR_CHANGE_COLOR_WORD=`%@char[27][ q%@char[27]]12;%1%@char[7]`                                
                         if not defined FILEMASK_AUDIO                                set FILEMASK_AUDIO=*.mp3;*.wav;*.rm;*.voc;*.au;*.mid;*.stm;*.mod;*.vqf;*.ogg;*.mpc;*.wma;*.mp4;*.flac;*.snd;*.aac;*.opus;*.ac3;*.dtshd
                 rem Now Validate:
-                        call validate-in-path               %LYRIC_DOWNLOADER_1% %LYRIC_DOWNLOADER_2% %PROBER% %PLAYER_COMMAND% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset eset.bat eset-alias.bat insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl newspaper.bat print_with_columns.py print-with-columns.bat newspaper.bat srt2lrc.py stretch_lrc.py py.exe change-single-quotes-to-double-apostrophes.py add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat approve-lyrics.bat disapprove-lyrics.bat display-lyric-status-for-file.bat review-lyrics.bat review-files.bat approve-lyric-file.bat disapprove-lyric-file.bat approve-subtitle-file.bat disapprove-subtitle-file.bat get-lyric-status.bat approve-LYRICLESSNESS-for-file.bat disapprove-lyriclessness-for-file.bat unapprove-lyriclessness-for-file.bat cut.exe srt2txt.py lrc2txt.bat lrc2txt.py rn.bat clean-up-AI-transcription-trash-files-here.bat check-for-future-dated-files.bat display-mp3-length
+                        call validate-in-path               %LYRIC_DOWNLOADER_1% %LYRIC_DOWNLOADER_2% %PROBER% %PLAYER_COMMAND% delete-zero-byte-files get-lyrics-with-lyricsgenius-json-processor.pl tail echos  divider unimportant success alarm unimportant debug warning error fatal_error advice  important important_less celebrate eset eset.bat eset-alias.bat insert-before-each-line.pl insert-before-each-line.py pause-alias google.bat google.py google.pl newspaper.bat print_with_columns.py print-with-columns.bat newspaper.bat srt2lrc.py stretch_lrc.py change-single-quotes-to-double-apostrophes.py add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat approve-lyrics.bat disapprove-lyrics.bat display-lyric-status-for-file.bat review-lyrics.bat review-files.bat approve-lyric-file.bat disapprove-lyric-file.bat approve-subtitle-file.bat disapprove-subtitle-file.bat get-lyric-status.bat approve-LYRICLESSNESS-for-file.bat disapprove-lyriclessness-for-file.bat unapprove-lyriclessness-for-file.bat cut.exe srt2txt.py lrc2txt.bat lrc2txt.py rn.bat clean-up-AI-transcription-trash-files-here.bat check-for-future-dated-files.bat display-mp3-length
                         rem  call unimportant               "Validated: lyric downloader, audio file prober"
                         call validate-environment-variables ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET BAT TEMP LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME LYRIC_SELECT_FROM_FILELIST_WAIT_TIME cool_question_mark star check LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO 
                         if not defined filemask_audio       call validate-environment-variable filemask_audio skip_validation_existence
@@ -2394,7 +2394,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                 if "" != "%current_search_artist%" set ARTIST_BLURB= by “%ansi_color_important%%current_search_artist%%ansi_color_less_important%”
                 :reask_nextsearch
                 call less_important " Next search will be for: “%italics_on%%ansi_color_important%%current_search_song%%italics_off%%ansi_color_less_important%”%ARTIST_BLURB%"
-                call askyn "Start %italics_on%%DISPLAY_NAME%%italics_off% search w/%italics_on%%CURRENT_LYRIC_PROVIDER%%italics_off% [%ansi_color_bright_green%F%ansi_color_prompt%=fail file,%ansi_color_bright_green%K%ansi_color_prompt%=fail folder,e=e%ansi_color_bright_green%D%ansi_color_prompt%it band/artist,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%P%ansi_color_prompt%lay]" yes 12 FKDIP F:fail,K:fail_file/folder,D:eDit_artist_and_song,I:it_is_an_instrumental_actually,P:play_it_now
+                call askyn          "Start %italics_on%%DISPLAY_NAME%%italics_off% search w/%italics_on%%CURRENT_LYRIC_PROVIDER%%italics_off% [%ansi_color_bright_green%K%ansi_color_prompt%=fail file or folder,e=e%ansi_color_bright_green%D%ansi_color_prompt%it band/artist,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%P%ansi_color_prompt%lay]" yes 12 KDIP K:fail_file/folder,D:eDit_artist_and_song,I:it_is_an_instrumental_actually,P:play_it_now
                         rem “I”/“D”/“K”:
                                 gosub check_for_answer_of_I "%@UNQUOTE[%AUDIO_FILE%]"
                                 gosub check_for_answer_of_D
@@ -2534,10 +2534,10 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
 
                         rem Postprocess those that we can postprocess inline: (TODO: postprocess lyrics maybe? but that requires tmp file stuffs)
-                                if exist "%ELRC_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%ELRC%italics_off%...%ansi_color_normal% %+       lrc-postprocessor.pl   "%ELRC_SIDECAR_FILENAME_TEMP%" )
-                                if exist  "%LRC_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%LRC%[italics_off]...%ansi_color_normal% %+       lrc-postprocessor.pl    "%LRC_SIDECAR_FILENAME_TEMP%" )
-                                if exist  "%SRT_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%SRT%[italics_off]...%ansi_color_normal% %+  subtitle-postprocessor.pl    "%SRT_SIDECAR_FILENAME_TEMP%" )
-                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%TXT%[italics_off]...%ansi_color_normal% %+    lyrics-postprocessor.pl -L "%TXT_SIDECAR_FILENAME_TEMP%" )
+                                if exist "%ELRC_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%ELRC%italics_off% file... %ELRC_SIDECAR_FILENAME_TEMP% %ansi_color_normal% %+       lrc-postprocessor.pl   "%ELRC_SIDECAR_FILENAME_TEMP%" )
+                                if exist  "%LRC_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%LRC%[italics_off] file... %[LRC_SIDECAR_FILENAME_TEMP] %ansi_color_normal% %+       lrc-postprocessor.pl    "%LRC_SIDECAR_FILENAME_TEMP%" )
+                                if exist  "%SRT_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%SRT%[italics_off] file... %[SRT_SIDECAR_FILENAME_TEMP] %ansi_color_normal% %+  subtitle-postprocessor.pl    "%SRT_SIDECAR_FILENAME_TEMP%" )
+                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%TXT%[italics_off] file... %[TXT_SIDECAR_FILENAME_TEMP] %ansi_color_normal% %+    lyrics-postprocessor.pl    "%TXT_SIDECAR_FILENAME_TEMP%" )
 
 
 
@@ -2844,11 +2844,9 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
 
                                                 rem Ask if we want to keep the file:
                                                         :reask_sl_4
-                                                        call AskYN "Keep %italics_on%LRC%italics_off% file [or %ansi_color_bright_green%P%ansi_color_prompt%lay/%ansi_color_bright_green%C%ansi_color_prompt%=stretch/dele%ansi_color_bright_green%T%ansi_color_prompt%e,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%E%ansi_color_prompt%dit files%MAYBE_PRINTABLE_K%%ansi_color_bright_green%R%ansi_color_prompt%ename,mark %ansi_color_bright_green%L%ansi_color_prompt%yric%italics_on%%underline_on%less%italics_off%%underline_off%,%MAYBE_PRINTABLE_K%con%ansi_color_bright_green%V%ansi_color_prompt%ert new LRC%arrow%TXT,e%ansi_color_bright_green%D%ansi_color_prompt%it band/song]" %DEFAULTANSWER% %USE_TIME% YNPTIEC%MAYBE_OPTION_K%LFVd P:Play_File,C:stretch_the_new_LRC,T:Delete_some_files,I:mark_as_Instrumental,E:edit_files%MAYBE_DESCRIPTION_K%,M:renaMe,L:mark_as_lyricless,F:fail,V:conVert_LRC_to_TXT,Y:yea,N:nay,D:eDit_artist_and_song
-                                                        iff "D" == "%ANSWER%" then
-                                                                gosub eset_fileartist_and_filesong
-                                                                goto /i download_with_lyric_downloader_init
-                                                        endiff
+                                                        rem Keep LRC file?
+                                                        call AskYN "Keep %italics_on%LRC%italics_off% file [or %ansi_color_bright_green%P%ansi_color_prompt%lay/%ansi_color_bright_green%C%ansi_color_prompt%=stretch/dele%ansi_color_bright_green%T%ansi_color_prompt%e,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%E%ansi_color_prompt%dit files%MAYBE_PRINTABLE_K%%ansi_color_bright_green%R%ansi_color_prompt%ename,mark %ansi_color_bright_green%L%ansi_color_prompt%yric%italics_on%%underline_on%less%italics_off%%underline_off%,%MAYBE_PRINTABLE_K%con%ansi_color_bright_green%V%ansi_color_prompt%ert new LRC%arrow%TXT,e%ansi_color_bright_green%D%ansi_color_prompt%it band/song]" %DEFAULTANSWER% %USE_TIME% YNPTIEC%MAYBE_OPTION_K%LFVD P:Play_File,C:stretch_the_new_LRC,T:Delete_some_files,I:mark_as_Instrumental,E:edit_files%MAYBE_DESCRIPTION_K%,M:renaMe,L:mark_as_lyricless,F:fail,V:conVert_LRC_to_TXT,Y:yea,N:nay,D:eDit_artist_and_song
+                                                        
 
                                                 rem Deal with answers:
                                                         set ANSWER_252825=%ANSWER%
@@ -2876,6 +2874,10 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                         
                                                         endiff
                                                         
+                                                        iff "D" == "%ANSWER_252825%" then
+                                                                gosub eset_fileartist_and_filesong
+                                                                goto /i download_with_lyric_downloader_init
+                                                        endiff
                                                         iff "V" == "%ANSWER_252825%" then
                                                                 
                                                                 echo %ansi_color_important%%star4% Converting %italics_on%new%italics_off% %underline_on%LRC%underline_off% into %underline_on%TXT%underline_off%...
@@ -5380,7 +5382,7 @@ echo "%blink_on%set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% 
                         else
                         
                                 rem calling: stretch_lrc.py                                                                
-                                echo %ansi_color_run%%ansi_color_debug%%bold_on%%STAR2% calling%bold_off%:  stretch_lrc.py %faint_on%"%LRC_FILE_TO_STRETCH_TO_USE%"%faint_off% %blink_on%%LRC_STRETCH_ARGUMENT%%blink_off%%ansi_color_normal%
+                                echo %ansi_color_run%%ansi_color_debug%%bold_on%%emoji_telephone_receiver% Calling:%bold_off%  stretch_lrc.py %faint_on%"%LRC_FILE_TO_STRETCH_TO_USE%"%faint_off% %blink_on%%LRC_STRETCH_ARGUMENT%%blink_off%%ansi_color_normal%
                                 pause "%ansi_color_warning_soft%Press any key to %underline_on%stretch%underline_off% the LRC...%ansi_color_normal%"
                                 stretch_lrc.py "%@UNQUOTE["%LRC_FILE_TO_STRETCH_TO_USE%"]" "%LRC_STRETCH_ARGUMENT%"
                                 call errorlevel

@@ -54,7 +54,6 @@ rem USAGE:
 
 
 rem Opening cosmetics:
-        if defined italics_on set italics_maybe=%italics_on%
         gosub save_cusor_position
         gosub display_temp_output %1
 
@@ -118,6 +117,7 @@ rem Make sure ansi_move_to function is defined:
         else
                 set validated_validate_env_vars=1
         endiff
+        if defined italics_on set italics_maybe=%italics_on%
 
 
 
@@ -500,15 +500,12 @@ goto :Past_The_End_Of_The_Subroutines
                         endiff
 
                 set coloring=%@randfg_soft[]
-                echos %ansi_cursor_invisible%
-                echos %@randfg_soft[]
+                echos %ansi_cursor_invisible%%@randfg_soft[]
                 rem ❸ Alternating italics give it a little “jiggle” in its dance:
                 if defined italics_maybe echos %italics_maybe%  
                 echos %@CHAR[9733] Validating variable: %@randfg_soft[]
                 if defined varname echos %VARNAME%
-                echos %@randfg_soft[]...%ansi_erase_to_eol%
-                echos %@randfg_soft[]
-                echos %ansi_cursor_invisible%
+                echos %@randfg_soft[]...%ansi_erase_to_eol%%@randfg_soft[]%ansi_cursor_invisible%
                 set temp_output_vev_length=%@EVAL[26 + %@LEN[%VARNAME%]]
         return
         ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

@@ -921,7 +921,7 @@ def main(argv: list[str]) -> int:
             transform_plan.duration_delta or Decimal(0), force_sign=True
         )
         print(
-            f"{GREEN}↔  Remapped:  {changed_count} timestamps {FAINT_ON}"
+            f"{GREEN}🔄 Remapped: {changed_count} timestamps {FAINT_ON}"
             f"({UNDERLINE_ON}start{UNDERLINE_OFF}: {original_start_display}s -> {ITALICS_ON}{new_start_display}s{ITALICS_OFF}, "
             f"{UNDERLINE_ON}end{UNDERLINE_OFF}: {original_display}s -> {ITALICS_ON}{new_display}s{ITALICS_OFF}; "
             f"duration stretch: {ITALICS_ON}{duration_delta_display}s){ITALICS_OFF}{FAINT_OFF}"
