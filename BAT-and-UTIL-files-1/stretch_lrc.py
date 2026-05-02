@@ -929,8 +929,8 @@ def main(argv: list[str]) -> int:
     else:
         print(
             f"{GREEN}➡ Slid:  {changed_count} timestamps {FAINT_ON}by{FAINT_OFF} {delta_display}s {FAINT_ON}"
-            f"({UNDERLINE_ON}start{UNDERLINE_Off}: {original_start_display}s -> {ITALICS_ON}{new_start_display}s{ITALICS_OFF}, "
-            f"{UNDERLINE_ON}end{UNDERLINE_Off}: {original_display}s -> {ITALICS_ON}{new_display}s{{ITALICS_OFF}}){FAINT_OFF}"
+            f"({UNDERLINE_ON}start{UNDERLINE_OFF}: {original_start_display}s -> {ITALICS_ON}{new_start_display}s{ITALICS_OFF}, "
+            f"{UNDERLINE_ON}end{UNDERLINE_OFF}: {original_display}s -> {ITALICS_ON}{new_display}s{{ITALICS_OFF}}){FAINT_OFF}"
         )
     print(f"{GREEN}{FAINT_ON}🗃  Backup:   {ITALICS_ON}{backup_path}{ITALICS_OFF}{FAINT_OFF}")
     print(f"{BRIGHT_GREEN}✅ Updated:  {GREEN}{ITALICS_ON}{path}{ITALICS_OFF}")

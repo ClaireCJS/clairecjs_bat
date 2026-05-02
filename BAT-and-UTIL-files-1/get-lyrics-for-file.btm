@@ -271,7 +271,7 @@ rem Remove any trash environment variables left over from a previously-aborted r
         rem rem echo y α linish 151
         rem unset /q LYRIC_RETRIEVAL_1_FAILED
         unset /q LD1_MASSAGED_ATTEMPT_1 WE_GOOGLED TRY_SELECTION_AGAIN ONLY_ONE_FILE_AND_IT_WAS_TRIED cover_original_attempt DO_NOT_ASK_TO_HAND_EDIT ALREADY_HAND_EDITED already_searched_for* GOOGLE_NOW ANSWER HOLD_ANSWER goto_download_with_lyric_downloader_1 goto_download_with_lyric DO_NOT_ASK_TO_HAND_EDIT PREV_GENIUS_FNAME_2_USE postprocessed_lyrics FORCE_REGEN_LYRICS logged_lyricapproval_* quick_lrc_mode REFUSED_LOCAL_REPO LAST_FILE_LENGTH
-        unset /q CURRENT_LYRIC_PROVIDER CURRENT_LYRIC_PROVIDER_DISPLAY OTHER_LYRIC_PROVIDER OTHER_LYRIC_PROVIDER_DISPLAY PRIMARY_LYRIC_PROVIDER PROVIDER_ONLY PROVIDER_PASS_DONE_GENIUS PROVIDER_PASS_DONE_SYNCEDLYRICS RESTARTED_WITH_OTHER_LYRIC_PROVIDER PREVIOUS_LYRIC_PROVIDER_DISPLAY SYNCEDLYRICS_ONLY current_provider_key DO_NOT_ASK_TO_SET_LYRICLESS_AGAIN COPIED_REPO_LYRIC
+        unset /q CURRENT_LYRIC_PROVIDER CURRENT_LYRIC_PROVIDER_DISPLAY OTHER_LYRIC_PROVIDER OTHER_LYRIC_PROVIDER_DISPLAY PRIMARY_LYRIC_PROVIDER PROVIDER_ONLY PROVIDER_PASS_DONE_GENIUS PROVIDER_PASS_DONE_SYNCEDLYRICS RESTARTED_WITH_OTHER_LYRIC_PROVIDER PREVIOUS_LYRIC_PROVIDER_DISPLAY SYNCEDLYRICS_ONLY current_provider_key DO_NOT_ASK_TO_SET_LYRICLESS_AGAIN COPIED_REPO_LYRIC LRC_STRETCH_ARGUMENT
         set goto_END=0
         set debanded=0
         set FORCE_HAND_EDIT=0
@@ -5351,10 +5351,8 @@ echo "%blink_on%set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% 
                                 pause "%blink_on%Press any key when done editing%blink_off%"
                                 echos %ANSI_POSITION_RESTORE%%ANSI_CLEAR_TO_END_OF_SCREEN%     
                                 echo %ansi_color_success%%check% LRC edited %check%%ansi_color_normal%%ansi_erase_to_end_of_line%%ansi_erase_to_end_of_screen%
-                                if exist "%LRC_FILE_TO_STRETCH_TO_USE%" call review-file --KeepTimestamps -wh -stU "%LRC_FILE_TO_STRETCH_TO_USE%" "%underline_on%LRC after your edit%underline_off%"
-                
-
-                                goto /i Ask_Again_5300                
+                                if exist "%LRC_FILE_TO_STRETCH_TO_USE%" call review-file --KeepTimestamps -wh -stU "%LRC_FILE_TO_STRETCH_TO_USE%" "%underline_on%LRC after your edit%underline_off%"               
+                                rem goto /i Ask_Again_5300                
                         endiff
                         gosub divider
 
@@ -5367,7 +5365,7 @@ echo "%blink_on%set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% 
                 
                                 echo %ansi_color_advice%%star% Usage 3: new beginning and final timestamps, e.g. %ansi_color_bright_green%0:30,4:45%ansi_color_normal%
                 
-                        set  LRC_STRETCH_ARGUMENT=0
+                        if not defined LRC_STRETCH_ARGUMENT set LRC_STRETCH_ARGUMENT=0
                 
                         eset LRC_STRETCH_ARGUMENT
 
@@ -5391,7 +5389,7 @@ echo "%blink_on%set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% 
                 
 
                 rem Display/Review our results:
-                        if exist "%LRC_FILE_TO_STRETCH_TO_USE%" call review-file --KeepTimestamps -wh -stU "%LRC_FILE_TO_STRETCH_TO_USE%" "%underline_on%LRC after stretch step%underline_off%"
+                        if exist "%LRC_FILE_TO_STRETCH_TO_USE%" call review-file --KeepTimestamps -wh -stL "%LRC_FILE_TO_STRETCH_TO_USE%" "%underline_on%LRC after stretch step%underline_off% - %LRC_FILE_TO_STRETCH_TO_USE%"
                 
                         gosub divider
         
@@ -5492,7 +5490,7 @@ rem ━━━━━━━━━━━━━━ ENDINGS: END ━━━━━━�
             rem unset /q JUST_RENAMED_TO_INSTRUMENTAL   //leave this one for the outer create-srt to know result of
             rem unset /q PROBED_OR_REFUSED_ALREADY_709
                 unset /q LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE  found_broad_lyrics_branch_1 LYRIC_SUCCESS_CELEBRATION_DISPLAYED already_tried_potential_lyrics_* did_not_go_to_end_169 goto_download_with_lyric_downloader_1 FIRST_SEARCH_COMPLETE goto_download_with_lyric* lyric_downloader_initialized  debanded LAST_ALIGNMENT_TEMP_INDEX PREV_GENIUS_FNAME_2_USE postprocessed_lyrics DO_NOT_ASK_TO_SET_LYRICLESS_AGAIN REFUSED_LOCAL_REPO COPIED_REPO_LYRIC
-                unset /q CURRENT_LYRIC_PROVIDER CURRENT_LYRIC_PROVIDER_DISPLAY OTHER_LYRIC_PROVIDER OTHER_LYRIC_PROVIDER_DISPLAY PRIMARY_LYRIC_PROVIDER PROVIDER_ONLY PROVIDER_PASS_DONE_GENIUS PROVIDER_PASS_DONE_SYNCEDLYRICS RESTARTED_WITH_OTHER_LYRIC_PROVIDER PREVIOUS_LYRIC_PROVIDER_DISPLAY SYNCEDLYRICS_ONLY current_provider_key
+                unset /q CURRENT_LYRIC_PROVIDER CURRENT_LYRIC_PROVIDER_DISPLAY OTHER_LYRIC_PROVIDER OTHER_LYRIC_PROVIDER_DISPLAY PRIMARY_LYRIC_PROVIDER PROVIDER_ONLY PROVIDER_PASS_DONE_GENIUS PROVIDER_PASS_DONE_SYNCEDLYRICS RESTARTED_WITH_OTHER_LYRIC_PROVIDER PREVIOUS_LYRIC_PROVIDER_DISPLAY SYNCEDLYRICS_ONLY current_provider_key 
             rem unset /q JUST_CONVERTED_LRC_TO_TEXT=0 JUST_CONVERTED_SRT_TO_TEXT=0 %+ rem TODO i think maybe this should not be added: 
 
 
