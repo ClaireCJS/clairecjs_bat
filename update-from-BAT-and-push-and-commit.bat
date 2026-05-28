@@ -85,10 +85,10 @@ rem Make sure none of our files are set as read-only, so that we can successfull
                                         rem This subroutine also gets called when we are done, but with "+r" instead of "-r"
                                         call    less_important "Setting file attributes to %italics_on%%attrib_to_set%%italics_off%                        
                                         set     attrib_to_use=%@unquote[%attrib_to_set]
-                                        attrib %attrib_to_use% %TARGET_2%\*.*      >nul
-                                        attrib %attrib_to_use% %TARGET_1%\*.*      >nul     
-                                        attrib %attrib_to_use% %TARGET_1%\docs\*.* >nul     
-                                        attrib %attrib_to_use%            docs\*.* >nul
+                                        attrib %attrib_to_use%    %TARGET_2%\*.*      >nul
+                                        attrib %attrib_to_use%    %TARGET_1%\*.*      >nul     
+                                        attrib %attrib_to_use% /s %TARGET_1%\docs\*.* >nul     
+                                        attrib %attrib_to_use% /s            docs\*.* >nul
                                 return
                         :end_of_subroutines
 
@@ -137,9 +137,7 @@ rem Manually-selected files from locations other than C:\BAT\ ——— Step #3 
                 set   COPY=*copy /u /q
                 set COPY_S=*copy /u /q /s
         rem Adjustment for special modes:
-                iff 1 eq %DOCS_ONLY then
-                        goto :docs_only_goto_1
-                endiff                        
+                if "1" == "%DOCS_ONLY%" goto :docs_only_goto_1
         rem Files that don’t normally live in C:\BAT\ but which we copy there for distribution, to keep things simple:        
                 %copy%  %TCMD_INI%                            %BAT%\tcmd.ini
                 %copy%  %TCMD_INI%                    %TARGET_MAIN%\tcmd.ini

@@ -90,21 +90,21 @@ ReleaseAllMods() {
                         
 ;-------         "-"    ;         Hyphen ------ for normal default hyphen                     (compound words, words interrupted by line break)
 ^-::Send         "–"    ;    Ctrl+Hyphen –––––– for en dash                                   (ranges,    quotations)
-;;; !-::Send         "—"    ;     Alt+Hyphen —————— for em dash                                   (interruptions, breaks)
-!-:: {
-    try {
-        Send "—"
-        return
-    }
-    finally {
-        Sleep 50
-        Send "{Alt up}"
-        ReleaseAllMods()
-        Sleep 50
-        Send "{Alt up}"
-        ReleaseAllMods()
-    }
-}
+!-::Send         "—"    ;     Alt+Hyphen —————— for em dash                                   (interruptions, breaks)
+;; !-:: {
+;;     try {
+;;         Send "—"
+;;         return
+;;     }
+;;     finally {
+;;         Sleep 25
+;;         Send "{Alt up}"
+;;         ReleaseAllMods()
+;;         Sleep 25
+;;         ReleaseAllMods()
+;;         Send "{Alt up}"
+;;     }
+;; }
 
 ^!-::Send        "━"    ;Ctrl-Alt+Hyphen ━━━━━━ for unicode box drawing heavy horizontal line (      dividers       )      
                       

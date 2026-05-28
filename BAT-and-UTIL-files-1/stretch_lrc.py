@@ -63,8 +63,6 @@ FAINT_ON      = f"{ESC}[2m"
 FAINT_OFF     = f"{ESC}[22m"
 ITALICS_ON    = f"{ESC}[3m"
 ITALICS_OFF   = f"{ESC}[23m"
-UNDERLINE_ON  = f"{ESC}[4m"
-UNDERLINE_OFF = f"{ESC}[24m"
 BRIGHT_RED    = f"{ESC}[91m"                      # errors
 BRIGHT_YELLOW = f"{ESC}[93m"                      # warnings
 ORANGE        = f"{ESC}[38;2;235;107;0m"          # column 4 (Lyrics)
@@ -624,18 +622,32 @@ def final_timestamp_from_data(data: bytes) -> Decimal | None:
     return bounds[1]
 
 
-def parse_beginning_end_argument(argument: str) -> tuple[Decimal, Decimal] | None:
-    if "," not in argument:
-        return None
-
+def looks_like_beginning_end_argument(argument: str) -> bool:
     parts = argument.split(",")
     if len(parts) != 2:
-        return None
+        return False
 
     start_text = parts[0].strip()
     end_text = parts[1].strip()
-    if ":" not in start_text or ":" not in end_text:
+    start_has_colon = ":" in start_text
+    end_has_colon = ":" in end_text
+
+    if start_has_colon and end_has_colon:
+        return True
+
+    # Allow a seconds-only beginning with a clock-style ending, such as 0,:44.
+    # Do not mirror this for clock,seconds because 0:35,22 is a valid timestamp
+    # using a comma fractional separator.
+    return not start_has_colon and end_has_colon
+
+
+def parse_beginning_end_argument(argument: str) -> tuple[Decimal, Decimal] | None:
+    if not looks_like_beginning_end_argument(argument):
         return None
+
+    parts = argument.split(",")
+    start_text = parts[0].strip()
+    end_text = parts[1].strip()
 
     parsed_start = parse_timestamp(start_text)
     parsed_end = parse_timestamp(end_text)
@@ -648,10 +660,7 @@ def parse_beginning_end_argument(argument: str) -> tuple[Decimal, Decimal] | Non
 def build_transform_plan(
     argument: str, original_start: Decimal, original_final: Decimal
 ) -> TransformPlan | None:
-    parts = argument.split(",")
-    looks_like_beginning_end = (
-        len(parts) == 2 and ":" in parts[0].strip() and ":" in parts[1].strip()
-    )
+    looks_like_beginning_end = looks_like_beginning_end_argument(argument)
     beginning_end = parse_beginning_end_argument(argument)
     if looks_like_beginning_end and beginning_end is None:
         return None
@@ -839,6 +848,12 @@ def run_self_tests() -> int:
     assert comma_decimal_plan is not None
     assert comma_decimal_plan.new_final == Decimal("35.22")
 
+    seconds_only_start_plan = build_transform_plan("0,:44", Decimal("10"), Decimal("250"))
+    assert seconds_only_start_plan is not None
+    assert seconds_only_start_plan.mode == "beginning_end"
+    assert seconds_only_start_plan.new_start == Decimal("0")
+    assert seconds_only_start_plan.new_final == Decimal("44")
+
     print("stretch_lrc.py self-test passed.")
     return EXIT_OK
 
@@ -921,19 +936,19 @@ def main(argv: list[str]) -> int:
             transform_plan.duration_delta or Decimal(0), force_sign=True
         )
         print(
-            f"{GREEN}🔄 Remapped: {changed_count} timestamps {FAINT_ON}"
-            f"({UNDERLINE_ON}start{UNDERLINE_OFF}: {original_start_display}s -> {ITALICS_ON}{new_start_display}s{ITALICS_OFF}, "
-            f"{UNDERLINE_ON}end{UNDERLINE_OFF}: {original_display}s -> {ITALICS_ON}{new_display}s{ITALICS_OFF}; "
-            f"duration stretch: {ITALICS_ON}{duration_delta_display}s){ITALICS_OFF}{FAINT_OFF}"
+            f"{GREEN}Remapped: {changed_count} timestamps "
+            f"(start {original_start_display}s -> {new_start_display}s, "
+            f"final {original_display}s -> {new_display}s; "
+            f"duration stretch {duration_delta_display}s)."
         )
     else:
         print(
-            f"{GREEN}➡ Slid:  {changed_count} timestamps {FAINT_ON}by{FAINT_OFF} {delta_display}s {FAINT_ON}"
-            f"({UNDERLINE_ON}start{UNDERLINE_OFF}: {original_start_display}s -> {ITALICS_ON}{new_start_display}s{ITALICS_OFF}, "
-            f"{UNDERLINE_ON}end{UNDERLINE_OFF}: {original_display}s -> {ITALICS_ON}{new_display}s{{ITALICS_OFF}}){FAINT_OFF}"
+            f"{GREEN}Slid: {changed_count} timestamps {FAINT_ON}by {delta_display}s "
+            f"(start {original_start_display}s -> {new_start_display}s, "
+            f"final {original_display}s -> {new_display}s).{FAINT_OFF}"
         )
-    print(f"{GREEN}{FAINT_ON}🗃  Backup:   {ITALICS_ON}{backup_path}{ITALICS_OFF}{FAINT_OFF}")
-    print(f"{BRIGHT_GREEN}✅ Updated:  {GREEN}{ITALICS_ON}{path}{ITALICS_OFF}")
+    print(f"{GREEN}{FAINT_ON}Backup:   {ITALICS_ON}{backup_path}{ITALICS_OFF}{FAINT_OFF}")
+    print(f"{BRIGHT_GREEN}Updated:  {GREEN}{ITALICS_ON}{path}{ITALICS_OFF}")
     return EXIT_OK
 
 

@@ -7,6 +7,11 @@ cls
 
 :USAGE: get-lyrics {songfile}
 
+
+
+
+
+
 rem Validate environment once:
         iff "1" != "%validated_getlyrics2%" then
                 rem call validate-in-path get-lyrics-for-currently-playing-song check-for-missing-lyrics get-lyrics-for-playlist get-lyrics-for-song fatal_error alarm

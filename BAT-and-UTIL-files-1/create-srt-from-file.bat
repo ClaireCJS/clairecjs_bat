@@ -1013,9 +1013,13 @@ rem Mandatory review of lyrics
 :Force_AI_Generation
 :AI_generation
 
+rem Before we ask, check that we don’t have an LRC already:
+        gosub abort_if_lrc_file_exists
+
 rem DEBUG:
         @gosub divider
         echo ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇  %@rainbow[AI generation: go!] ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ ❇ %ansi_color_normal%
+
 
 
 
@@ -1187,6 +1191,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
                         rem The newer way: Letting the lyric postprocess open up the file directly to bypass limitations of command-line’s text piping:
                                 rem echo %ansi_color_less_important%%star3% Postprocessing lyrics...  %faint_on%command: lyric-postprocessor.pl -A -1 -L {TXT_FILE=}"%@UNQUOTE["%TXT_FILE%"]" %ARROW%:u8 {tmppromptfile=}%tmppromptfile%%faint_off%
                                 rem c-postprocessor.pl -A -1 -L "%@UNQUOTE["%TXT_FILE%"]" >:u8 %tmppromptfile% oops! need unique lines only:
+                                if "1" == "%DEBUG_POSTPROCESSORS%" echo %ansi_color_debug%[DEBUG] lyric-postprocessor.pl -U -1 -L "%@UNQUOTE["%TXT_FILE%"]" `>`:u8 %tmppromptfile%%ansi_color_normal%
                                 lyric-postprocessor.pl -U -1 -L "%@UNQUOTE["%TXT_FILE%"]" >:u8 %tmppromptfile%
                                 call errorlevel "You %italics_on%may%italics_off% need to %italics_on%manually%italics_off% re-save the file in %underline_on%UTF-8%underline_off% format" %+ rem The worst possible thing, and you really can’t overestimate how hard it is to prevent this from *EVER* happening, when dealing with world-sourced input files made by people with different editors in different countries with different languages and character sets and encodings and *waves hands* ... all ✨that✨
 
@@ -1861,6 +1866,7 @@ REM did we create the SRT file? If so, then keep track of how many, and if no TX
 
                                 rem Postprocess the freshly-converted lyrics with our postprocessor
                                         if not defined tmpfile call set-tmp-file "postprocessed lyrics"
+                                        if "1" == "%DEBUG_POSTPROCESSORS%" echo %ansi_color_debug%[DEBUG] lyric-postprocessor.pl -A -L -S  "%TXT_FILE%"  `>`:u8 %tmpfile%%ansi_color_normal%
                                         lyric-postprocessor.pl -A -L -S  "%TXT_FILE%"  >:u8 %tmpfile%
                                         if not exist %tmpfile% pause "Uh oh, tmpfile does not exist in create-srt-from-file line 1807ish: %tmpfile%"
                                         rem DEBUG: show the actual copy: echo %ansi_color_debug%[DEBUG] *copy /q %tmpfile% "%TXT_FILE%" `>`nul %ansi_color_normal% 
@@ -2352,7 +2358,7 @@ goto /i skip_subroutines
                 iff "1" == "%karaoke_approval_asked%" .and.  "1" == "%karaoke_edit_refused%" then
                         rem DEBUG:call subtle "Not asking to approve karaoke again because we already asked and a karaoke edit was refused"
                 else
-                        @call askyn  "Approve/edit karaoke file? [=%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync,%ansi_color_bright_green%R%ansi_color_prompt%etry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ADEIP1QTWM  E:edit_karaoke,Q:enQueue_in_winamp,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete__it,M:restart_winamp,1:retry_the_transcription
+                        @call askyn  "Approve/edit karaoke file? [%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync,%ansi_color_bright_green%R%ansi_color_prompt%etry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ADEIP1QTWM  E:edit_karaoke,Q:enQueue_in_winamp,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete__it,M:restart_winamp,1:retry_the_transcription
                 endiff
                 set karaoke_approval_asked=1
                 set karaoke_edit_already_asked=1

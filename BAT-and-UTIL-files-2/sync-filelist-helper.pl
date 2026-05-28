@@ -14,7 +14,7 @@ my $COPY_SIDECARS                      = 1;							#set to “1” to copy sideca
 my $PUT_EACH_SONG_IN_RANDOM_FOLDER     = 0;							#set to “1” for each file to be individually copied to a random folder name, which allows a smulated shuffle on the MANY standalone speakers (almost all of them) that don’t have shuffle functionality
 my $COLLAPSE_FILES_TO_ROOT_WHEN_DONE   = 0;							#set to “1” to move all files to the root folder when done; useful for players that can only do random in a single folder
 my $COPY_FLACS                         = 1;							#set to “0” to not copy FLAC files, if you are dealing with an older player that doesn’t support them
-my $COPY_IF_TARGET_FILE_EXISTS         = 0;							#set to “1” to run the copy /u command on target files even if they exist. Although this won’t copy if the file is the same, the comparison to determine that takes time, and this can REALLLLLLLLY slow down an update that may only be 1% of the files to take possibly as long as the same amount of time for updating 100% of the files... So we usually keep this set to 0!
+my $COPY_IF_TARGET_FILE_EXISTS         = 1;							#set to “1” to run the copy /u command on target files even if they exist. Although this won’t copy if the file is the same, the comparison to determine that takes time, and this can REALLLLLLLLY slow down an update that may only be 1% of the files to take possibly as long as the same amount of time for updating 100% of the files... So we usually keep this set to 0!
 
 ##### CONFIGURATION: INTERNALS:
 
@@ -142,7 +142,9 @@ foreach $file (@FILES) {
 
 						 
 	$newFolder =  $folder;
-	$newFolder =~ s/\\_PROCESSING\\/$destination/ig;									
+	$newFolder =~ s/[A-Z]?:?\\new\\music\\changerrecent\\/$destination/ig;									
+	$newFolder =~ s/[A-Z]?:?\\new\\music\\/$destination/ig;									
+	$newFolder =~ s/[A-Z]?:?\\_PROCESSING\\/$destination/ig;									
 	$newFolder =~ s/[A-Z]?:?[\\\/]testing([\\\/])J?1 - ONEDIR JUDGE WITH CAROLYN/$destination$1MISC/gi;		#special case, not the best line to copy-paste for other transformations
 	$newFolder =~ s/[A-Z]?:?[\\\/]testing([\\\/])J?2 - ALREADY-IN-ATTRIB-BUT-NEED-JUDGMENT-WITH-CAROLYN/$destination$1MISC/gi;		#special case, not the best line to copy-paste for other transformations
 	$newFolder =~ s/[A-Z]?:?[\\\/]testing([\\\/])/$destination/gi;
@@ -170,7 +172,8 @@ foreach $file (@FILES) {
 	$newFolder =~ s/[\\\/][\\\/]/$SLASH/g;										# fix extra slash deposits made by anything above
 	$newFolder =~ s/CAROLYN-PROCESS[^\\\/]*//;
 
-	### Do these after the last	 ones:
+	### Do these after the last	ones:
+	$newFolder =~ s/\Qc:$destination\E/$destination/i;							# strip c: off beginning of destination is after it, i.e. if destination was g:\, convert “c:g:” ➜ “g:”
 	$newFolder =~ s/\Q$destination$destination\E/$destination/i;				# convert repeating drive letters i.e. “g:\g:\g:\” ➜ “g:\” ... use \Q and \E to prevent filenames from being interpreted as regexes
 	$newFolder =~ s/^(.*)([A-Z]:.*$)/$2/;										# Because we don't branch for each of the above substitutions, sometimes we end up with the target folder prefixing twice
 	$newFolder =~ s/\\mp3music\\/\\mp3\\/ig;									# Because we don't branch for each of the above substitutions, sometimes we end up with the target folder prefixing twice

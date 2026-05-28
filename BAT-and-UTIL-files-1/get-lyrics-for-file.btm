@@ -89,9 +89,9 @@ text
 :USAGE:                                           5)    "quick_LRC"         —— to ONLY perform a quick LRC download for each file that does not have an LRC *OR* SRT file                               GOATADDTOMAINDOCS
 :USAGE:                                           5)    "quick_LRC upgrade" —— to ONLY perform a quick LRC download for each file that does not have an LRC file ... even if a SRT exists               GOATADDTOMAINDOCS
 :USAGE: Forms of automation via environment variables:
+:USAGE:     set LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE=1  //no automatic timeouts; always waits for user input
 :USAGE:     set OVERRIDE_FILE_ARTIST_TO_USE=Misfits      //override artist name, especially useful if you want to predownload lyrics for a bunch of tribute/cover albums of a particular band. For example, I have 10 tribute albums for The Misfits that I want to pre-download lyrics for, but I have a hunch the downloader will not find the right lyrics if my original artist tag is missing on any of these files, plus a lot of people who upload lyrics upload without the “The”. And although this script compensates for both those contingencies, setting this can speed things up.
 :USAGE:     set CONSIDER_ALL_LYRICS_APPROVED=1           //automatically approves lyrics at first prompt and reduces prompt from %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% to %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO% seconds
-:USAGE:     set LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE=1  //no automatic timeouts; always waits for user input
 endtext
 
 
@@ -108,7 +108,7 @@ rem CONFIG: DEBUG:
         set DEBUG_DISPLAY_PROBE_RESULTS=0                                             %+ rem (1) whether we want to display the probe results to the screen for debug purposes
         set DEBUG_TOKEN_PROCESSING=0                                                  %+ rem (2) whether we want to display each probe value token as it is processed
         set DEBUG_VALUE_TRANSFER=0                                                    %+ rem (3) whether we want to display the transfer of each probe value token to local environment varial
-        set DEBUG_POSTPROCESSORS=0                                                    %+ rem (4) whether we want to display the calls to postprocessor(s)
+        set DEBUG_POSTPROCESSORS=1                                                    %+ rem (4) whether we want to display the calls to postprocessor(s)
         set DEBUG_ADS_MARKING=0                                                       %+ rem (5) whether we want to display when we ADS mark files
         set DEBUG_INSTRUMENTAL=0                                                      %+ rem (6) whether we want to display certain instrumental-marking–related debugs
         set DEBUG_LYRICLESS_STATUS=0                                                  %+ rem (7) whether we want to display certain     lyricless-status–related debugs
@@ -177,9 +177,10 @@ rem CONFIG: WAIT TIMES: DEFAULTS ━━ MAKE SURE ANY NEW ONES GET ADDED TO MODE
         SET WAIT_TO_DELETE_LYRICS=300                                                 %+ rem How long to wait for the prompt: “Delete these lyrics?”
         set LARGE_DOWNLOAD_WARNING_WAIT_TIME=0                                        %+ rem Wait time after announcing that the lyrics downloaded seemed larger than expected [pretty uselessi n practice]
         set LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS=800                            %+ rem give us 15 minutes to hand edit in case we get distracted
-        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=180                                  %+ rem How long to show lyrics on the screen for them to get approval or not —— was 60 but running this while playing games made me miss the prompt so increased to 180
+        rem LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=180                                  %+ rem How long to show lyrics on the screen for them to get approval or not —— was 60 but running this while playing games made me miss the prompt so increased to 180
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=1800                                 %+ rem How long to show lyrics on the screen for them to get approval or not —— was 60 but running this while playing games made me miss the prompt so increased to 180
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO=4                               %+ rem How long to show lyrics on the screen for them to get approval or not —— if the environment variable says they are already pre-approved
+        set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_IN_QUICK_LRC_MODE=120                %+ rem same as above ^^^^^^^ but for when we are in Quick_LRC mode
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_FOR_FORCE_REGEN=10                   %+ rem How long to show lyrics on the screen for them to get approval or not when we are in force-regen mode and probably already did this
         rem LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=30                                   %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can’t be done in automatic mode], before proceeding on 
         set LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=180                                  %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can’t be done in automatic mode], before proceeding on 
@@ -217,6 +218,7 @@ rem CONFIG: WAIT TIMES: MODE-DEPENDENT: THOROUGH MODE: basically a copy of the d
         set LARGE_DOWNLOAD_WARNING_WAIT_TIME=0                                        %+ rem Wait time after announcing that the lyrics downloaded seemed larger than expected [pretty uselessi n practice]
         set LONGEST_POSSIBLE_HAND_EDIT_TIME_IN_SECONDS=0                              %+ rem give us 15 minutes to hand edit in case we get distracted
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=0                                    %+ rem How long to show lyrics on the screen for them to get approval or not —— was 60 but running this while playing games made me miss the prompt so increased to 180
+        rem LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_IN_QUICK_LRC_MODE=120                %+ rem No, we don’t want to do this.
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_AUTO=0                               %+ rem How long to show lyrics on the screen for them to get approval or not —— if the environment variable says they are already pre-approved
         set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_FOR_FORCE_REGEN=0                    %+ rem How long to show lyrics on the screen for them to get approval or not when we are in force-regen mode and probably already did this
         set LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=0                                    %+ rem how long to get an affirmative response on selecting a file from multilpe files [which can’t be done in automatic mode], before proceeding on 
@@ -1441,12 +1443,14 @@ rem Check if we already have a LRC/SRT file but no TXT file
                         if "1" == "%GENIUS_ONLY%" .or. "%PROVIDER_ONLY%" != "" .or. "1" == "%QUICK_LRC_MODE%" goto /i :do_not_convert_if_in_genius_only_mode
 
                         rem Do convert if a sidecar exists but no TXT file exists, and we’re NOT in genius-download-only mode:
+                                @echo off
                                 iff exist "%SRT_SIDECAR_FILENAME%" then                
                                         call warning_soft "%italics_on%SRT%italics_off% exists...but no lyrics: ‘%italics_on%%LRC_SIDECAR_FILENAME%%italics_off’%"
                                         call less_important "Converting SRT file to TXT"
                                         call srt2txt.bat "%SRT_SIDECAR_FILENAME%" silent
                                         if not defined tmpfile call set-tmp-file "postprocessed lyrics"
-                                        lyric-postprocessor.pl -A -L -S  "%TXT_SIDECAR_FILENAME%"  >:u8 %tmpfile%
+                                        if "1" == "%DEBUG_POSTPROCESSORS%" echo %ansi_color_debug%[DEBUG] if exist "%TXT_SIDECAR_FILENAME%" lyric-postprocessor.pl -A -L -S  "%TXT_SIDECAR_FILENAME%" `>`:u8 %tmpfile%%ansi_color_normal%
+                                                                                                          if exist "%TXT_SIDECAR_FILENAME%" lyric-postprocessor.pl -A -L -S  "%TXT_SIDECAR_FILENAME%"   >:u8 %tmpfile%
                                         *copy /q /Ns "%tmpfile%"             "%TXT_SIDECAR_FILENAME%"  >nul
                                         unset /q LYRIC_STATUS
                                         set JUST_GENERATED_LYRICS=1
@@ -2545,7 +2549,9 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                 if exist "%ELRC_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%ELRC%italics_off% file... %ELRC_SIDECAR_FILENAME_TEMP% %ansi_color_normal% %+       lrc-postprocessor.pl   "%ELRC_SIDECAR_FILENAME_TEMP%" )
                                 if exist  "%LRC_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%LRC%[italics_off] file... %[LRC_SIDECAR_FILENAME_TEMP] %ansi_color_normal% %+       lrc-postprocessor.pl    "%LRC_SIDECAR_FILENAME_TEMP%" )
                                 if exist  "%SRT_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%SRT%[italics_off] file... %[SRT_SIDECAR_FILENAME_TEMP] %ansi_color_normal% %+  subtitle-postprocessor.pl    "%SRT_SIDECAR_FILENAME_TEMP%" )
-                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%TXT%[italics_off] file... %[TXT_SIDECAR_FILENAME_TEMP] %ansi_color_normal% %+     lyric-postprocessor.pl    "%TXT_SIDECAR_FILENAME_TEMP%" )
+
+                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%" if "1" == "%DEBUG_POSTPROCESSORS%" echo %ansi_color_debug%[DEBUG] lyric-postprocessor.pl -A -L -S "%TXT_SIDECAR_FILENAME_TEMP%" 
+                                if exist  "%TXT_SIDECAR_FILENAME_TEMP%" (echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%TXT%[italics_off] file... %[TXT_SIDECAR_FILENAME_TEMP] %ansi_color_normal% %+     lyric-postprocessor.pl -A -L -S "%TXT_SIDECAR_FILENAME_TEMP%" )
 
 
 
@@ -2610,8 +2616,8 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                         set KEEP_ELRC=0
                                                         set REPLACE_ELRC=0
                                                         unset /q COMP1 COMP2
-                                                        set COMP1=%@execstr[grep "\[[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]*\]" "%ELRC_SIDECAR_FILENAME_TEMP%"]
-                                                        set COMP2=%@execstr[grep "\[[0-9][0-9]:[0-9][0-9]]"                    "%ELRC_SIDECAR_FILENAME_TEMP%"]
+                                                        if exist "%ELRC_SIDECAR_FILENAME_TEMP%" set COMP1=%@execstr[grep "\[[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]*\]" "%ELRC_SIDECAR_FILENAME_TEMP%"]
+                                                        if exist "%ELRC_SIDECAR_FILENAME_TEMP%" set COMP2=%@execstr[grep "\[[0-9][0-9]:[0-9][0-9]]"                    "%ELRC_SIDECAR_FILENAME_TEMP%"]
                                                         iff "" == "%COMP1%" .and. "" == "%COMP2%" then
                                                                 set ELRC_IS_LRC=0
                                                         else
@@ -2622,8 +2628,9 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                                 set    KEEP_ELRC=0
                                                                 set REPLACE_ELRC=0
                                                                 echo      %ansi_color_warning_soft%%emoji_warning%%emoji_warning%%emoji_warning% Downloaded LRC %bold_on%isn’t %italics_on%actually%italics_off%%bold_off% an ELRC! %emoji_warning%%emoji_warning%%emoji_warning%  %STAR%%ansi_color_grey%%italics_on% ``
-                                                                tail -5           "%ELRC_SIDECAR_FILENAME_TEMP%"  |:u8 insert-before-each-line.py "        " %+ echos %@ANSI_MOVE_TO_COL[1]
-                                                                echos %@ANSI_MOVE_TO_COL[1]%italics_off%
+                                                                if exist "%ELRC_SIDECAR_FILENAME_TEMP%" tail -5 "%ELRC_SIDECAR_FILENAME_TEMP%" |:u8 insert-before-each-line.py "        " 
+                                                                echos %@ANSI_MOVE_TO_COL[1]
+                                                                echos %[italics_off]%@ANSI_MOVE_TO_COL[1]%[italics_off]
 
                                                                 rem OLD: 
                                                                 gosub delete_file "%ELRC_SIDECAR_FILENAME_TEMP%"
@@ -2856,7 +2863,7 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                                 rem Ask if we want to keep the file:
                                                         :reask_sl_4
                                                         rem Keep LRC file?
-                                                        call AskYN "Keep %italics_on%LRC%italics_off% file [or %ansi_color_bright_green%P%ansi_color_prompt%lay/%ansi_color_bright_green%C%ansi_color_prompt%=stretch/dele%ansi_color_bright_green%T%ansi_color_prompt%e,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%E%ansi_color_prompt%dit files%MAYBE_PRINTABLE_K%%ansi_color_bright_green%R%ansi_color_prompt%ename,mark %ansi_color_bright_green%L%ansi_color_prompt%yric%italics_on%%underline_on%less%italics_off%%underline_off%,%MAYBE_PRINTABLE_K%con%ansi_color_bright_green%V%ansi_color_prompt%ert new LRC%arrow%TXT,e%ansi_color_bright_green%D%ansi_color_prompt%it band/song]" %DEFAULTANSWER% %USE_TIME% YNPTIEC%MAYBE_OPTION_K%LFVD P:Play_File,C:stretch_the_new_LRC,T:Delete_some_files,I:mark_as_Instrumental,E:edit_files%MAYBE_DESCRIPTION_K%,M:renaMe,L:mark_as_lyricless,F:fail,V:conVert_LRC_to_TXT,Y:yea,N:nay,D:eDit_artist_and_song
+                                                        call AskYN "Keep %italics_on%LRC%italics_off% file [or %ansi_color_bright_green%P%ansi_color_prompt%lay/%ansi_color_bright_green%C%ansi_color_prompt%=stretch/dele%ansi_color_bright_green%T%ansi_color_prompt%e,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%E%ansi_color_prompt%dit files%MAYBE_PRINTABLE_K%rena%ansi_color_bright_green%M%ansi_color_prompt%e,mark %ansi_color_bright_green%L%ansi_color_prompt%yric%italics_on%%underline_on%less%italics_off%%underline_off%,%MAYBE_PRINTABLE_K%con%ansi_color_bright_green%V%ansi_color_prompt%ert new LRC%arrow%TXT,e%ansi_color_bright_green%D%ansi_color_prompt%it band/song]" %DEFAULTANSWER% %USE_TIME% YNPTIEC%MAYBE_OPTION_K%LFVD P:Play_File,C:stretch_the_new_LRC,T:Delete_some_files,I:mark_as_Instrumental,E:edit_files%MAYBE_DESCRIPTION_K%,M:renaMe,L:mark_as_lyricless,F:fail,V:conVert_LRC_to_TXT,Y:yea,N:nay,D:eDit_artist_and_song
                                                         
 
                                                 rem Deal with answers:
@@ -3147,6 +3154,7 @@ rem pause "we’re here x9234"
                                 if not defined LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME set LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME=180
                                 set USE_WAIT_TIME=%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME%
                                 if "1" == "%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%" set USE_WAIT_TIME=0
+                                if "1" == "%QUICI_LRC_MODE%"                        set USE_WAIT_TIME=%LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME_IN_QUICK_LRC_MODE%
                                 rem DEBUG: pause "if “1” == “%LYRIC_KARAOKE_ALIGNMENT_THOROUGH_MODE%” set USE_WAIT_TIME=0 has set USE_WAIT_TIME to %USE_WAIT_TIME%"
                                 @call AskYn "₈Are they good? [D%ANSI_COLOR_PROMPT%%CONNECTING_EQUALS%e%ansi_color_bright_green%D%ansi_color_prompt%it artist/song,%ANSI_COLOR_bright_green%H%ANSI_COLOR_PROMPT%and-edit lyrics,%ANSI_COLOR_bright_green%G%ANSI_COLOR_PROMPT%oogle lyrics,%ANSI_COLOR_bright_green%L%ansi_color_prompt%yricless(%ansi_color_bright_green%Z%ansi_color_prompt%=all),%ANSI_COLOR_bright_green%I%ansi_color_prompt%nstrum(%ansi_color_bright_green%X%ansi_color_prompt%=All),%ANSI_COLOR_bright_green%P%ansi_color_prompt%=Play,s%ansi_color_bright_green%K%ansi_color_prompt%ip/%ansi_color_bright_green%F%ansi_color_prompt%ail,dele%ansi_color_bright_green%T%ansi_color_prompt%e file(s),rena%ansi_color_bright_green%M%ansi_color_prompt%e]" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %USE_WAIT_TIME% DEGHILmPQXZTF D:Edit_artist_and_song_name,G:Google_for_some_lyrics,H:Yes_but_hand_edit_them,L:No_and_Mark_As_Lyricless,Z:Mark_all_as_lyricless,I:rename_as_instrumental,Q:enQueue_in_winamp,P:play_it_baby,X:mark_all_files_as_instrumental,m:rename_the_file_first,S:Skip_file,T:delete_file(s),F:Fail_out
                                         set hold_answer_main=%ANSWER%
@@ -4671,9 +4679,10 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                 :nofilename
         return
         :DisplayAudioFileName [opt]
-                                      set FILE2USE=%@UNQUOTE[%AUDIO_FILE%]
-                if exist %INPUT_FILE% set FILE2USE=%@UNQUOTE[%INPUT_FILE%]
-                if exist %opt%        set FILE2USE=%@UNQUOTE[%opt]
+echo                                      set FILE2USE=%@UNQUOTE["%AUDIO_FILE%"]
+                                      set FILE2USE=%@UNQUOTE["%AUDIO_FILE%"]
+                if exist %INPUT_FILE% set FILE2USE=%@UNQUOTE["%INPUT_FILE%"]
+                if exist %opt%        set FILE2USE=%@UNQUOTE[%opt%]
                 rem echo %star% Audio file: %faint_on%%FILE2USE%%faint_off%%conceal_on%%0%%conceal_off%
                 echo %ansi_color_bright_yellow%%star% Audio filename:  %ansi_color_bright_red%%faint_on%%FILE2USE%%faint_off%%ansi_color_normal%%conceal_on%0%conceal_off%
         return
@@ -5308,7 +5317,8 @@ echo "%blink_on%set JUST_RENAMED_TO_%nature%=1 this is testing using %%nature%% 
                 endiff
         return
         :refresh_lyric_status [opt]
-                rem echo %ANSI_COLOR_DEBUG%- DEBUG: 🐐 called 💚 refresh_lyric_status 💚 [%opt%]%ansi_color_normal%
+                rem 
+                echo %ANSI_COLOR_DEBUG%- DEBUG: 🐐 called 💚 refresh_lyric_status 💚 [%opt%]%ansi_color_normal%
                 unset /q FILE_TO_GET_LYRIC_STATUS_OF
                 set FILE_TO_GET_LYRIC_STATUS_OF=%LYRIC_FILE%
                 if exist %opt% set FILE_TO_GET_LYRIC_STATUS_OF="%@UNQUOTE["%opt%"]"

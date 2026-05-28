@@ -22,5 +22,6 @@ rem Validate environment (once):
 
 rem Do it:
         rem call advice "using image opener of %IMAGE_OPENER%"
-        start %IMAGE_OPENER% %param%
+         start             %IMAGE_OPENER% %param%
+        rem call start-nonelevated %IMAGE_OPENER% %param%
 

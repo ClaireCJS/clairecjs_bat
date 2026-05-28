@@ -1332,4 +1332,5 @@ TODO: IDEA: Go thru existing lyrics & subtitles, if non-english language charcat
 
 TODO: search for other todos below
 
+TODO: add ydl.bat to the doc as it saves SRT files
 
