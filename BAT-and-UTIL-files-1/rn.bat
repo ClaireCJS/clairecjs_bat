@@ -68,9 +68,9 @@ rem Count files matching parameter:
 
 rem React to count accordingly?
     :IsManyFiles
-                for /a: %%fi in (%1)                                 echo call rn %as_instrmental_param% "%fi" %2 recursive
-rem             for /a:  %fi in (%1) if exist %as_instrmental_param%      call rn %as_instrmental_param% "%fi" %2 recursive
-                for /a:  %fi in (%1)                                      call rn %as_instrmental_param% "%fi" %2 recursive
+                rem for /a: %%fi in (%1)                                 echo call rn %as_instrmental_param% "%fi" %2 recursive
+                rem for /a:  %fi in (%1) if exist %as_instrmental_param%      call rn %as_instrmental_param% "%fi" %2 recursive
+                    for /a:  %fi in (%1)                                      call rn %as_instrmental_param% "%fi" %2 recursive
             gosub :after
     goto :END_of_rn
 
