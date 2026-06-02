@@ -221,23 +221,24 @@ Both subsystems:
 
 Lyric subsystem only:
 
-| Key     | Meaning                                            | Action                                                                                             |
-| ------- | ----------------------------                       | -------------------------------------------------------------------------------------------------- |
-| ```A``` | Approve                                            | set the current lyric status to *APPROVED*                                                         | 
-| ```D``` | eDit                                               | [when fetching lyrics] eDit current artist / song title prior to next lyric search                 | 
-| ```D``` | Disapprove                                         | [when reviewing lyrics] set the current lyric status to *NOT APPROVED*                             | 
-| ```F``` | Fail                                               | skip getting lyrics for the current song or folder (i.e. choosing to fail)                         |
-| ```G``` | Google the lyrics                                  | manually search for lyrics with google to paste them into the system                               | 
-| ```H``` | Hand-edit                                          | eDit currently fetched lyrics in your favorite text editor                                         | 
-| ```K``` | Skip                                               | skip getting lyrics for the current song or folder (i.e. choosing to fail)                         |
-| ```O``` | dOwnload the lyrics                                | return to the lyric downloader and immediately try fetching lyrics again                           | 
-| ```U``` | Unset search history                               | Unset lyric search history in case one wants to repeat a search (if prevented by internet outage)  | 
-| ```V``` | conVert                                            | converts downloaded LRC transcriptions into TXT lyrics                                             | 
+| Key     | Meaning                                            | Action                                                                                                        |
+| ------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| ```A``` | Approve                                            | set the current lyric status to *APPROVED*                                                                    | 
+| ```D``` | eDit                                               | [when fetching lyrics] eDit current artist / song title prior to next lyric search                            | 
+| ```D``` | Disapprove                                         | [when reviewing lyrics] set the current lyric status to *NOT APPROVED*                                        | 
+| ```F``` | Fail                                               | skip getting lyrics for the current song or folder (i.e. choosing to fail)                                    |
+| ```G``` | Google the lyrics                                  | for some prompts, manually search for lyrics with google to paste them into the system                        | 
+| ```G``` | switch to Genius mode                              | for some prompts, G causes us to use/switch to using the LyricsGenius tool (instead of the SyncedLyrics tool) | 
+| ```H``` | Hand-edit                                          | eDit currently fetched lyrics in your favorite text editor                                                    | 
+| ```K``` | Skip                                               | skip getting lyrics for the current song or folder (i.e. choosing to fail)                                    |
+| ```O``` | dOwnload the lyrics                                | return to the lyric downloader and immediately try fetching lyrics again                                      | 
+| ```U``` | Unset search history                               | Unset lyric search history in case one wants to repeat a search (if prevented by internet outage)             | 
+| ```V``` | conVert                                            | converts downloaded LRC transcriptions into TXT lyrics                                                        | 
 
 Transcription/Subtitle/Karaoke subsystem only:
 
 | Key     | Meaning                                                                | Action                                                                        |
-| ------- | ----------------------------                                           | ----------------------------------------------------------------------------  |
+| ------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | ```1``` | Retry transcription                                                    | start over and retry the current subtitle/karaoke transcription again         | 
 | ```A``` | Aapprove karaoke                                                       | sets transcription status to *APPROVED*                                       | 
 | ```C``` | stretCh                                                                | time-stretch and time-slide LRC file to shape studio transcriptions to live/cover transcriptions performed at a different pace | 

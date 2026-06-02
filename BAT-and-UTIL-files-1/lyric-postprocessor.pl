@@ -46,6 +46,7 @@
 #   - changes “â€™” to “’” which comes up way too often in downloaded lyrics   #
 #   - Removes special command-line characters if in -1 mode					   #
 #   - Removes leading comma from lines that start with a comma				   #
+#   - Beta: expands trailing repeat markers like x3, (x 3), and multiply-sign  #
 ################################################################################
 
 
@@ -53,6 +54,7 @@
 
 ###########  CONSTANTS: BEGIN:  ###########
 my $ADDED_END_LINE_CHARACTER    = ".";					#character to append to each line of lyrics, since people don't typically add periods or commas to the end of posted lyrics online. Without adding a “phantom period” to the end of each line, WhisperAI’s ‘--sentence’ parameter will not function correclty, and awkward transcriptions are generated where multiple lines of lyrics are one one line of transcriptino
+my $MAX_REPEAT_EXPANSION        = 999;					#highest supported count for trailing repeat markers like "x3", "(x 3)", or a multiplication sign plus a number
 ###########  CONSTANTS: ^^END^  ###########
 
 # libraries
@@ -202,6 +204,7 @@ while (my $raw = <$INPUT>) {
 
 	$line_number++;
 	my $original_line = $line;
+	my $repeat_count = 1;
 
 	if ($SMART_QUOTE_CONVERT) {  $line = &replace_quotes_with_smart_quotes($line); }		# convert dumb quotes ("") to smart quotes (“”)
 	if ($LYRICS_MODE) {
@@ -327,10 +330,15 @@ while (my $raw = <$INPUT>) {
 		$line =~ s/^ *//g;
 		$line =~ s/ *$//g;
 
+		($line, $repeat_count) = &extract_trailing_repeat_marker($line);
+
 		#add our invisible character at the end but do it Last!
 		if (($ADD_CHARACTER_MODE) && ($line ne "")) {
 			$line =~ s/([a-z0-9])$/$1$ADDED_END_LINE_CHARACTER/ig;			#if line ends in letter, add comma to end of it —— to give WhisperAI a better sense of where to split lines
 		}
+	}
+	else {
+		($line, $repeat_count) = &extract_trailing_repeat_marker($line);
 	}
 
 	#key is massaged line  
@@ -352,16 +360,19 @@ while (my $raw = <$INPUT>) {
 	}
 
 	# store only if unique, postprocess later
-	if ($LYRICS_MODE==1) { $test=((!$UNIQUE_LINES_MODE) || (!$seen{$key}++) || ($original_line eq "")); }
-	else                 { $test=((!$UNIQUE_LINES_MODE) || (!$seen{$key}++)); }
+	if    ($repeat_count > 1) { $test=1; }
+	elsif ($LYRICS_MODE==1)  { $test=((!$UNIQUE_LINES_MODE) || (!$seen{$key}++) || ($original_line eq "")); }
+	else                     { $test=((!$UNIQUE_LINES_MODE) || (!$seen{$key}++)); }
 	if ($test) {
-		if (($LYRICS_MODE==1) && ($to_print_last eq $to_print) && ($to_print !~ /[a-z0-9_-]/) && ($to_print ne "") && ($to_print ne "\n")) {
-			#Don't print 2 identical non-lyric lines!?
-			if (!$UNIQUE_LINES_MODE) { push @lines, $to_print; }
-		} else {
-			push @lines, $to_print;
+		for (my $repeat_index = 1; $repeat_index <= $repeat_count; $repeat_index++) {
+			if (($LYRICS_MODE==1) && ($to_print_last eq $to_print) && ($to_print !~ /[a-z0-9_-]/) && ($to_print ne "") && ($to_print ne "\n")) {
+				#Don't print 2 identical non-lyric lines!?
+				if (!$UNIQUE_LINES_MODE) { push @lines, $to_print; }
+			} else {
+				push @lines, $to_print;
+			}
+			$to_print_last = $to_print;
 		}
-		$to_print_last = $to_print;
 	}
 
 }
@@ -380,6 +391,43 @@ if ($ONE_LINE) {
     foreach my $line (@lines) { $output .= $line; }		    # Print all lines
 }
 print $output;
+
+sub extract_trailing_repeat_marker {
+	my ($line) = @_;
+	my $original_line = $line;
+	my $number = qr/[1-9][0-9]{0,2}/;
+	my $marker = qr/[xX\x{00D7}]/;
+	my $count = 1;
+
+	if ($line =~ s{
+		\s*
+		(?:
+			[\(\[\{]\s*
+			(?:
+				$marker\s*($number)
+				|
+				($number)\s*$marker
+			)
+			\s*[\)\]\}]
+			|
+			(?:
+				$marker\s*($number)
+				|
+				($number)\s*$marker
+			)
+		)
+		\s*\z
+	}{}x) {
+		$count = $1 || $2 || $3 || $4 || 1;
+		$count = $MAX_REPEAT_EXPANSION if $count > $MAX_REPEAT_EXPANSION;
+		$line =~ s/^\s+//g;
+		$line =~ s/\s+$//g;
+		return ("", 1) if $line eq "";
+		return ($line, $count);
+	}
+
+	return ($original_line, 1);
+}
 
 sub show_usage {
 	print "\n ***** USAGE: *****\n\n";
@@ -407,6 +455,7 @@ sub show_usage {
 	print   "      * Removes redundant lyric website mentions of artist/song title/album\n";	
 	print   "      * Removes special command-line characters if in smushing-into-one-line mode (“-1”)\n";	
 	print   "      * Removes divider lines like “-------”\n";	
-	print   "      * Removes leading comma from lines that start with a comma\n\n";	
+	print   "      * Removes leading comma from lines that start with a comma\n";	
+	print   "      * Expands trailing repeat markers like x3, (x 3), X3, 3x, and multiply-sign variants\n\n";	
 }
 

@@ -50,6 +50,9 @@ REM CONFIG: 2025: DEBUG:
         set DEBUG_LOCKFILE=0                                                                           %+ rem Whether to show lockfile-related debugging info
         set DEBUG_TRACE_CSFF=0                                                                         %+ rem Whether we want to echo our “we are here” debug traces
 
+REM CONFIG: 2026: DEBUG:
+        set DEBUG_POSTPROCESSORS=1                                                                     %+ rem Mathced to value set in get-lyrics-for-file.btm
+
 REM CONFIG: 2024/2025: Changing VAD Threshold history:
         set DEFAULT_VAD_THRESHOLD=0.075                                                                %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
         set DEFAULT_VAD_THRESHOLD=0.07                                                                 %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
@@ -170,12 +173,13 @@ rem validate environment [once]:
                         if not defined ANSI_COLOR_ORANGE                           set ANSI_COLOR_ORANGE=%@CHAR[27][38;2;235;107;0m
                         rem TODO BLINK_ON, BLINK_OFF ITALICS_ON ITALICS_OFF, QUOTE, etc
                 rem Perform the actual validations:
-                        @call validate-in-path                %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  insert-before-each-line.py bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  status-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl lyric-postprocessor.pl success.bat alarm.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat restart-winamp.bat appdata.bat winamp.bat display-horizontal-divider.bat pause-for-x-seconds whispertimesync-postprocessor.py wc
+                        @call validate-in-path                %TRANSCRIBER_TO_USE% get-lyrics.bat  debug.bat  lyricy.exe  copy-move-post  paste.exe  divider  less_important  insert-before-each-line  insert-before-each-line.py bigecho  deprecate  errorlevel  grep  isRunning fast_cat  top-message  top-banner  unlock-top  status-bar.bat footer.bat unlock-bot deprecate.bat  add-ADS-tag-to-file.bat remove-ADS-tag-from-file.bat display-ADS-tag-from-file.bat display-ADS-tag-from-file.bat review-subtitles.bat  error.bat print-message.bat  get-lyrics-for-file.btm delete-bad-ai-transcriptions.bat subtitle-postprocessor.pl 
+                        @call validate-in-path                 lyric-postprocessor.pl success.bat alarm.bat  WhisperTimeSync.bat WhisperTimeSync-helper.bat restart-winamp.bat appdata.bat winamp.bat display-horizontal-divider.bat pause-for-x-seconds whispertimesync-postprocessor.py wc
                         @if not defined TRANSCRIBER_PDNAME    @call validate-environment-variable  TRANSCRIBER_PDNAME  skip_validation_existence
                         @if not defined FILEMASK_AUDIO        @call validate-environment-variable  FILEMASK_AUDIO      skip_validation_existence
-                        @call validate-environment-variables  ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET UnicodeOutputDefault machinename STAR STAR2 STAR5
-                        @call validate-is-function            ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD                
-                        @call validate-plugin                 StripANSI
+                        @call validate-environment-variables   ANSI_COLORS_HAVE_BEEN_SET EMOJIS_HAVE_BEEN_SET UnicodeOutputDefault machinename STAR STAR2 STAR5
+                        @call validate-is-function             ansi_randfg_soft randfg_soft ANSI_CURSOR_CHANGE_COLOR_WORD                
+                        @call validate-plugin                  StripANSI
                         @call checkeditor
                         @set VALIDATED_CREATE_LRC_FF=1
         endiff
@@ -1168,7 +1172,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
                                 rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type  "%@UNQUOTE[%TXT_FILE]"   | awk "!seen[$0]++" ]] .... This was getting unruly, wrote a perl script that like “uniq”, but more for this specific situation
                                 rem OUR_LYRICS=%@REPLACE[%QUOTE%,',%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 unique-lines.pl -1 -L]] 
                                 rem OUR_LYRICS_TRUNCATED=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%OUR_LYRICS%]
-                                rem OUR_LYRICS_2=%@LEFT[%MAXIMUM_PROMPT_SIZE%,%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -A -1 -L]]                               
+                                rem OUR_LYRICS_2= % @ LEFT[%MAXIMUM_PROMPT_SIZE%,%@EXECSTR[type "%@UNQUOTE["%TXT_FILE%"]" PIPE:u8 lyric-postprocessor.pl -A -1 -L]]                               
 
                         rem The older way: piping the lyrics into the postprocessor: very problematic with special characters:
                                 rem    rem Essentially make it so there is no command separator character. CHAR[1] should NOT come up in any lyrics
@@ -1176,7 +1180,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
                                 rem    rem The problem with *setdos /x-1 is that it makes “*Echo” and commands prefixed with “*” invalid
                                 rem    rem nevermind! *setdos /c%@CHAR[1] 
                                 rem    rem But wait! This isn’t setting separator to  %@ASCII[1], but to “%”! oops!
-                                rem    (type "%@UNQUOTE["%TXT_FILE%"]" |:u8 lyric-postprocessor.pl -A -1 -L) >%tmppromptfile%
+                                rem    (type "%@UNQUOTE["%TXT_FILE%"]" PIPE:u8 lyric-postprocessor.pl -A -1 -L) >%tmppromptfile%
                                 rem    setdos /x0
 
 
@@ -1186,7 +1190,7 @@ REM if a text file of the lyrics exists, we need to engineer our AI transcriptio
                                 rem iconv-perl-2009.exe -t UTF-8 "%@UNQUOTE["%TXT_FILE%"]"  >:u8%lyr_utf8%  %+ rem Convert to UTF-8
                                 rem call errorlevel                                                         %+ rem Catch any errors
                                 rem if not exist %lyr_utf8% call validate-environment-variable lyr_utf8     %+ rem Double-check that we did it
-                                rem lyric-postprocessor.pl -A -1 -L "%@UNQUOTE["%lyr_utf8%"]" >:u8 %tmppromptfile%
+                                rem lyric-postprocessor . pl -A -1 -L "%@UNQUOTE["%lyr_utf8%"]" >:u8 %tmppromptfile%
 
                         rem The newer way: Letting the lyric postprocess open up the file directly to bypass limitations of command-line’s text piping:
                                 rem echo %ansi_color_less_important%%star3% Postprocessing lyrics...  %faint_on%command: lyric-postprocessor.pl -A -1 -L {TXT_FILE=}"%@UNQUOTE["%TXT_FILE%"]" %ARROW%:u8 {tmppromptfile=}%tmppromptfile%%faint_off%
@@ -1971,7 +1975,7 @@ rem Let user know if we were NOT succesful, then skip to the end:
                         gosub divider
                         unset /q ANSWER
                         rem TODO formatting of prompt green letters:
-                        call AskYN "Mark karaoke as failed so we don’t try again [%ansi_color_bright_green%N%ansi_color_prompt%=No, mark %italics_on%instrumental%italics_off% instead,%ansi_color_bright_green%P%ansi_color_prompt%lay it,%ansi_color_bright_green%S%ansi_color_prompt%=Mark as soundclip,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%!%ansi_color_prompt%=retry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% IPQ1SU I:no_instead_mark_mark_instrumental,Q:enQueue_in_winamp,P:play,S:no_instead_mark_mark_as_sound_effect,1:retry_encode_from_start,U:mark_it_as_untranscribeable
+                        call AskYN "Mark karaoke as failed so we don’t try again [%ansi_color_bright_green%N%ansi_color_prompt%=No, mark %italics_on%instrumental%italics_off% instead,%ansi_color_bright_green%P%ansi_color_prompt%lay it,%ansi_color_bright_green%S%ansi_color_prompt%=Mark as soundclip,%ansi_color_bright_green%U%ansi_color_prompt%ntranscribeable,%ansi_color_bright_green%1%ansi_color_prompt%=retry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% IPQ1SU I:no_instead_mark_mark_instrumental,Q:enQueue_in_winamp,P:play,S:no_instead_mark_mark_as_sound_effect,1:retry_encode_from_start,U:mark_it_as_untranscribeable
                                 gosub check_for_answer_of_I "%@UNQUOTE["%INPUT_FILE%"]"
                                 gosub check_for_answer_of_S "%@UNQUOTE["%INPUT_FILE%"]"
                                 gosub check_for_answer_of_P "%@UNQUOTE["%INPUT_FILE%"]"
