@@ -2407,9 +2407,10 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                 if "" != "%current_search_artist%" set ARTIST_BLURB= by “%ansi_color_important%%current_search_artist%%ansi_color_less_important%”
                 :reask_nextsearch
                 call less_important " Next search will be for: %italics_on%%ansi_color_important%“%@UNQUOTE[%current_search_song%]”%italics_off%%ansi_color_less_important%%ARTIST_BLURB% with %CURRENT_LYRIC_PROVIDER%"
-                call askyn          "Start %italics_on%%DISPLAY_NAME%%italics_off% search w/%italics_on%%CURRENT_LYRIC_PROVIDER%%italics_off% [%ansi_color_bright_green%K%ansi_color_prompt%=fail file or folder,e=e%ansi_color_bright_green%D%ansi_color_prompt%it band/artist,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%P%ansi_color_prompt%lay]" yes 12 KDIP K:fail_file/folder,D:eDit_artist_and_song,I:it_is_an_instrumental_actually,P:play_it_now
-                        rem “I”/“D”/“K”:
+                call askyn          "Start %italics_on%%DISPLAY_NAME%%italics_off% search w/%italics_on%%CURRENT_LYRIC_PROVIDER%%italics_off% [%ansi_color_bright_green%K%ansi_color_prompt%=fail file or folder,e=e%ansi_color_bright_green%D%ansi_color_prompt%it band/artist,mark as %ansi_color_bright_green%I%ansi_color_prompt%nstrumental,%ansi_color_bright_green%P%ansi_color_prompt%lay,mark %ansi_color_bright_green%L%ansi_color_prompt%yric%underline_on%%italics_on%less%italics_off%%underline_off%]" yes 12 KDIPL K:fail_file/folder,D:eDit_artist_and_song,I:it_is_an_instrumental_actually,P:play_it_now,L:mark_as_lyricless
+                        rem “I”/“D”/“K”/“L”:
                                 gosub check_for_answer_of_I "%@UNQUOTE[%AUDIO_FILE%]"
+                                gosub check_for_answer_of_L "%@UNQUOTE[%AUDIO_FILE%]"
                                 gosub check_for_answer_of_D
                                 gosub check_for_answer_of_K
                         rem “P”:
@@ -2424,7 +2425,8 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                 echos %ANSI_MOVE_UP_1%%ANSI_ERASE_TO_EOL%
 
         rem Display “searching for lyrics with LyricsGenius for...”:                                                                        
-                echos %BIG_OFF%%@ANSI_CURSOR_COLOR_BY_WORD[yellow]%ANSI_COLOR_IMPORTANT_LESS%%STAR% %blink_on%Searching%blink_off% for lyrics with %italics_on%%CURRENT_LYRIC_PROVIDER%%italics_off% for %ansi_color_important%“%ansi_color_pink%%italics_on%%@UNQUOTE[%FILE_SONG_TO_USE%]%italics_off%%ansi_color_important%”%ansi_color_important_less%%@IF["" != "%FILE_ARTIST_TO_USE%", by ,]%ansi_color_pink%%italics_off%%blink_maybe%%FILE_ARTIST_TO_USE%%blink_off%%ansi_color_important_less%...%italics_off%%ANSI_RESET%%conceal_on%[1119]%conceal_off%
+                rem 20260601: changed from echos to echo:
+                echo %BIG_OFF%%@ANSI_CURSOR_COLOR_BY_WORD[yellow]%ANSI_COLOR_IMPORTANT_LESS%%STAR% %blink_on%Searching%blink_off% for lyrics with %italics_on%%CURRENT_LYRIC_PROVIDER%%italics_off% for %ansi_color_important%“%ansi_color_pink%%italics_on%%@UNQUOTE[%FILE_SONG_TO_USE%]%italics_off%%ansi_color_important%”%ansi_color_important_less%%@IF["" != "%FILE_ARTIST_TO_USE%", by ,]%ansi_color_pink%%italics_off%%blink_maybe%%FILE_ARTIST_TO_USE%%blink_off%%ansi_color_important_less%...%italics_off%%ANSI_RESET%%conceal_on%🥡%conceal_off%
 
         rem Store our command in history:
                 set last_search=%CURRENT_LYRIC_PROVIDER% :::: %FILE_SONG_TO_USE% :::: %FILE_ARTIST_TO_USE%``
