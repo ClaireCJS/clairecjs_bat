@@ -344,8 +344,7 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
     #get max possible columns, then triple it to be sure
     max_possible_columns = console_width // avg_line_width                           # Start with the maximum possible columns based on the average line
 
-    # what if we removed this line... max_possible_columns = max_possible_columns * 3
-    # and replaced it with: #GOATGOAT
+    #ax_possible_columns = max_possible_columns * 3
     max_possible_columns = max_possible_columns + 2
 
     #make sure max possible columns has been set
@@ -358,10 +357,8 @@ def determine_optimal_columns(lines, console_width, divider_length, desired_max_
         required_width = cols * max_line_length + (cols -1) * divider_length
         if required_width <= console_width and rows <= desired_max_height:
             if verbose or DEBUG_DETERMINE_OPTIMAL_COLUMNS: print(f"🔍 ??? Optimal columns determined: {cols} with {rows} rows per column")
-            #eturn cols #chatgpt20250302
             return max_possible_columns
 
-    #eturn cols #chatgpt20250302
     if verbose or DEBUG_DETERMINE_OPTIMAL_COLUMNS: print(f"‼️‼️‼️‼️‼️‼️ ??? max_possible_columns ===═==══{max_possible_columns}")
     return max_possible_columns
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
@@ -451,25 +448,25 @@ def format_columns(lines, columns, column_widths, divider):
 
 
 
-# ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
-def distribute_lines_into_columns_PRODTIL202510(lines, columns, rows_per_col):
-    global VERBOSE
-    """
-    Distribute lines into the specified number of columns.
-    """
-    columns_data = []
-    for col in range(columns):
-        start_index = col         * rows_per_col
-        end_index   = start_index + rows_per_col
-        column      = lines[start_index:end_index]
-        columns_data.append(column)
-
-    if VERBOSE:
-        print(f"✍ distributed lines into {columns} columns")
-        print(f"💥columns_data={columns_data}")
-
-    return columns_data
-# ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
+## ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
+#def distribute_lines_into_columns_productin_version_used_until_202510(lines, columns, rows_per_col):
+#    global VERBOSE
+#    """
+#    Distribute lines into the specified number of columns.
+#    """
+#    columns_data = []
+#    for col in range(columns):
+#        start_index = col         * rows_per_col
+#        end_index   = start_index + rows_per_col
+#        column      = lines[start_index:end_index]
+#        columns_data.append(column)
+#
+#    if VERBOSE:
+#        print(f"✍ distributed lines into {columns} columns")
+#        print(f"💥columns_data={columns_data}")
+#
+#    return columns_data
+## ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
@@ -493,31 +490,28 @@ def distribute_lines_into_columns(lines, columns, rows_per_col):
 
         # Optional: calculate widths using stripped lines if you need max column widths
         max_width = max((len(strip_ansi(line)) for line in column_lines), default=0)
-        if VERBOSE:
-            print(f"📏 Column {col} max width (visible chars): {max_width}")
+        if VERBOSE: print(f"📏 Column {col} max width (visible chars): {max_width}")
 
-    if VERBOSE:
-        print(f"✍ distributed lines into {columns} columns")
-        print(f"💥columns_data={columns_data}")
+    if VERBOSE: print(f"✍ distributed lines into {columns} columns\n💥columns_data={columns_data}")
 
     return columns_data
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
 
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════###
-def calculate_column_widths_PRODTIL202510(columns_data):
-    """
-    Calculate the maximum width for each column.
-    """
-    column_widths = []
-    for col in columns_data:
-        if col:
-            #ax_width = max(len     (line) for line in col)
-            max_width = max(wcswidth(line) for line in col)
-        else:
-            max_width = 0
-        column_widths.append(max_width)
-    return column_widths
+#def calculate_column_widths_used_in_production_until_202510(columns_data):
+#    """
+#    Calculate the maximum width for each column.
+#    """
+#    column_widths = []
+#    for col in columns_data:
+#        if col:
+#            #ax_width = max(len     (line) for line in col)
+#            max_width = max(wcswidth(line) for line in col)
+#        else:
+#            max_width = 0
+#        column_widths.append(max_width)
+#    return column_widths
 def calculate_column_widths(columns_data):
     """
     Given a list of columns (each a list of lines), return the max visible width per column.
@@ -554,7 +548,7 @@ def log_line_parts_and_process_them_too(line_parts, row_num, column_widths, rend
         part_width   = wcswidth(part)
         col_width    = column_widths[col_num-1]
         stripped_row = strip_ansi(rendered_row)
-        #en2         =        len(stripped_row)
+        #en2         =        len(stripped_row)                     # this did not properly account for double-width characters. len() is old hat; width() is the new len() these days
         len2         =   wcswidth(stripped_row)
         if col_num == 1:
             tmpstr = f"\n🪓 Row {row_num}:      Length={len2:3} / length2={len2:3} / con width={console_width}\n{rendered_row}\n"
@@ -784,7 +778,7 @@ def hsl_to_rgb(h, s, l):
 # ═════════════════════════════════════════════════════════════════════════════════
 def apply_background_color(r, g, b):
     """
-    Apply a subtle background color to the text.
+    Apply a (very) subtle background color to the text.
     """
     luminance            = 0.2126 * r + 0.7152 * g + 0.0722 * b                                                           # Calculate the luminance of the text color
     background_intensity =      MAX_BACKGROUND_INTENSITY * (1 - luminance / 255)                                          # Determine the background color intensity based on luminance
@@ -901,6 +895,7 @@ import re
 def convert_stretched_stripe(stripe, columns, console_width):
     result = ''
     words = []
+    how_many_letter_to_put_on_each_stripe_segment = 2
 
     for i in range(0, len(stripe), 2):
         if i + 1 < len(stripe):
@@ -911,15 +906,14 @@ def convert_stretched_stripe(stripe, columns, console_width):
 
     num_words = len(words)
     min_per_word_width = 2
-    #if num_words * min_per_word_width > console_width:
-    #    return "(stripe too wide)"
+    #if num_words * min_per_word_width > console_width: return "(stripe too wide)"
 
     max_letters = 2
-    while max_letters * num_words > console_width and max_letters > 1:
-        max_letters -= 1
+    while max_letters * num_words > console_width and max_letters > 1: max_letters -= 1
 
     total_chars = max_letters * num_words
     total_padding = console_width - total_chars
+
     if num_words:   base_pad = total_padding // num_words
     else:           base_pad = total_padding
     if num_words:  extra_pad = total_padding  % num_words
@@ -951,7 +945,8 @@ def convert_stretched_stripe(stripe, columns, console_width):
         ansi = f"\033[38;2;{r_fg};{g_fg};{b_fg}m\033[48;2;{r_bg};{g_bg};{b_bg}m"
 
         if len(word) >= 2 and max_letters >= 2:
-            letters = word[0].upper() + word[1].lower()
+            #etters = word[0].upper() + word[1].lower()
+            letters = word[0]         + word[1]
         else:
             letters = word[:1].upper()
 

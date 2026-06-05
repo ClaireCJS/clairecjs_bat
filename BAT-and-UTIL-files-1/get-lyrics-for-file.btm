@@ -1,4 +1,6 @@
-@call subtle "%blink_on%Beginning%blink_off% of get-lyrics"
+rem @call subtle "%blink_on%Beginning%blink_off% of get-lyrics"
+
+
 @loadbtm on
 @Echo off
 rem @on break resume
@@ -3472,7 +3474,7 @@ rem If we still don’t have a downloaded file, let us manually edit the song an
         unset /q GOOGLE_NOW
         gosub set_up_variables_for_answer_of_K
         if "1" == "%QUICK_LRC_MODE%" set HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME=60
-        call AskYN "Change artist/song? (%ansi_color_bright_green%L%ansi_color_prompt%=Lyricless(%ansi_color_bright_green%Z%ansi_color_prompt%=All),%ansi_color_bright_green%N%ansi_color_prompt%=ai %italics_on%%ansi_color_bright_green%N%ansi_color_prompt%ow%italics_off%,G=%ansi_color_bright_green%G%ansi_color_prompt%oogle,%ansi_color_bright_green%A%ansi_color_prompt%pprove lyrics,%ansi_color_bright_green%I%ansi_color_prompt%nstr(%ansi_color_bright_green%X%ansi_color_prompt%=ALL)%MAYBE_PRINTABLE_K%%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%D%ansi_color_prompt%ir,%ansi_color_bright_green%F%ansi_color_prompt%ail,rena%ansi_color_bright_green%M%ansi_color_prompt%e)" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME% ADEGILMNOPQXZ%MAYBE_OPTION_K%$ L:Mark_As_Lyricless,Z:Mark_all_as_lyricless,N:AI_encode_NOW_without_lyrics,G:Google_for_the_lyrics,A:the_lyrics_are_good_actually!,I:rename_it_as_an_instrumental_file,Q:enQueue_in_winamp,P:play_the_file,X:Mark_all_songs_in_folder_as_instrumental,O:download_lyrics,D:eDit_and_change_song_title_and_artist,M:rename_file,E:edit_the_lyrics_manually,2:dir,%MAYBE_DESCRIPTION_K%$:run_get_lyrics,
+        call AskYN "Change artist/song? (%ansi_color_bright_green%L%ansi_color_prompt%=Lyricless(%ansi_color_bright_green%Z%ansi_color_prompt%=All),%ansi_color_bright_green%N%ansi_color_prompt%=ai %italics_on%%ansi_color_bright_green%N%ansi_color_prompt%ow%italics_off%,G=%ansi_color_bright_green%G%ansi_color_prompt%oogle,%ansi_color_bright_green%A%ansi_color_prompt%pprove lyrics,%ansi_color_bright_green%I%ansi_color_prompt%nstr(%ansi_color_bright_green%X%ansi_color_prompt%=ALL)%MAYBE_PRINTABLE_K%%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%D%ansi_color_prompt%ir,%ansi_color_bright_green%F%ansi_color_prompt%ail,rena%ansi_color_bright_green%M%ansi_color_prompt%e)" no %HAND_EDIT_ARTIST_AND_SONG_AND_LYRICS_PROMPT_WAIT_TIME% ADEGILMNOPQXZ%MAYBE_OPTION_K%3 L:Mark_As_Lyricless,Z:Mark_all_as_lyricless,N:AI_encode_NOW_without_lyrics,G:Google_for_the_lyrics,A:the_lyrics_are_good_actually!,I:rename_it_as_an_instrumental_file,Q:enQueue_in_winamp,P:play_the_file,X:Mark_all_songs_in_folder_as_instrumental,O:download_lyrics,D:eDit_and_change_song_title_and_artist,M:rename_file,E:edit_the_lyrics_manually,2:dir,%MAYBE_DESCRIPTION_K%3:run_get_lyrics,
                 set HELD_ANSWER_2923=%ANSWER%
                 rem Special case when in QUICK-LRC mode:
                         if  "1" == "%QUICK_LRC_MODE%" .and. "%ANSWER%" == "N" goto /i :end_quick_lrc_mode_fail
@@ -3660,7 +3662,7 @@ iff "0" == "%LYRICS_ACCEPTABLE%" .and. "1" != "%LYRICS_FOUND_TO_HAVE_BEEN_PREAPP
         gosub ask_about_instrumental
         rem echo something should be done here? but what?
         echo GOAT: let’s go back to the start in almost all situations except... one, where we’d really want to go to the end????
-        rem goatgoatgoat we delete the lyrics then!
+        rem goagoat we delete the lyrics then!
         gosub delete_file "%LYRIC_FILE%"
         if "%current_search_song%" == "" goto /i continue_the_probe
         rem no actually as of 20260319 let’s NOT go back to the start, let’s just.... flow thru and see what happens"
@@ -4275,9 +4277,15 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                                                 if "1" == "%ASKED_ABOUT_INSTRUMENTAL_ALREADY%" .or. "1" == "%LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE%" goto :asked_about_intrumental_already_or_we_skipped_it
 
                                                 if not defined IS_THIS_AN_INSTRUMENTAL_WAIT_TIME call validate-environment-variable IS_THIS_AN_INSTRUMENTAL_WAIT_TIME
-                                                call AskYN "₁Is this an instrumental? [%ansi_color_bright_green%P%faint_on%/%faint_off%Q%ansi_color_prompt%=Preview/enQueue,%ansi_color_bright_green%S%ansi_color_prompt%=sound effect]" No %IS_THIS_AN_INSTRUMENTAL_WAIT_TIME% IPQS Q:enQueue_in_winamp,P:preview_song,I:instrumental_it_is!,S:no_but_its_a_sound_effect
+                                                call AskYN "₁Is this an instrumental? [%ansi_color_bright_green%P%faint_on%/%faint_off%Q%ansi_color_prompt%=Preview/enQueue,%ansi_color_bright_green%S%ansi_color_prompt%=sound effect,%ansi_color_bright_green%U%ansi_color_prompt%ntrancribeable]" No %IS_THIS_AN_INSTRUMENTAL_WAIT_TIME% IPQSU Q:enQueue_in_winamp,P:preview_song,I:instrumental_it_is!,S:no_but_its_a_sound_effect,U:untranscribeable
                                                 SET ASKED_ABOUT_INSTRUMENTAL_ALREADY=1
                                                 SET LAST_ANSWER_TO_ISTHISINSTRUMENTAL=%ANSWER%
+
+
+                                                iff "U" == "%ANSWER%" then
+                                                        set temp_ads_tag_name=untranscribeable
+                                                        set IS_INSTRUMENTAL_or_whatever_ADS_FILENAME=%@name[%@UNQUOTE["%AUDIO_FILE%"]].%@EXT[%@UNQUOTE["%AUDIO_FILE%"]]:%temp_ads_tag_name%
+                                                endiff
 
                                                 gosub check_for_answer_of_P "%@UNQUOTE[%AUDIO_FILE%]"
                                                 if "P" == "%ANSWER%" gosub ask_again_2283
@@ -4292,6 +4300,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
 
                                                 SET   ANSWER=%LAST_ANSWER_TO_ISTHISINSTRUMENTAL%
                                                 if "I" == "%ANSWER%" .or. "Y" == "%ANSWER%" (echos %EMOJI_BEAR% %+ gosub rename_audio_file_as_instrumental %+ goto /i END_OF_GET_LYRICS)
+                                                if "U" == "%ANSWER%"                        (echos GOATGOATGOAT TESTING THIS FUNCTOINALITYYYYYYYYYYYYYYY %EMOJI_BEAR% %+ gosub "%BAT%\create-srt-from-file.bat" "%@UNQUOTE[%AUDIO_FILE%]" mark_as_untranscribeable          %+ goto /i END_OF_GET_LYRICS)
                                         set   ANSWER=%HELD_ANSWER%
                                         :asked_about_intrumental_already_or_we_skipped_it
                                         goto /i endiff_2300

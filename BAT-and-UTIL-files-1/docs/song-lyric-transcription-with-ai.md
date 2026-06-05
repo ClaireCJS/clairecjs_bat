@@ -205,19 +205,20 @@ The obvious:
 
 Both subsystems:
 
-| Key     | Meaning                                            | Action                                                                                                        |
-| ------- | ----------------------------                       | ------------------------------------------------------------------------------------------------------------- |
-| ```$``` | Retry lyrics                                       | start over by going back to the lyric-fetching system                                                         | 
-| ```E``` | Edit                                               | opens lyrics and transcribed karaoke subtitles in your favorite text editor                                   | 
-| ```I``` | Is Instrumental                                    | marks current file as ```[instrumental]``` to prevent transcription and ensure accurate file status reporting | 
-| ```L``` | is Lyric*less*                                     | marks current file as lyric*less* which means lyrics are impossible to find, so stop trying                   | 
-| ```M``` | renaMe                                             | rename the current file and corresponding sidecar files [can also achieve this with ```I``` and ```S```]      | 
-| ```P``` | Play                                               | Preview the audio by Playing it ... usually in VLCplayer¹                                                     | 
-| ```Q``` | enQueue                                            | enQueue the song into WinAmp for the purpose of previewing subtitle display²                                  | 
-| ```S``` | is sound effect                                    | marks current file as ```[sound effect]``` to prevent transcription and ensure accurate file status reporting | 
-| ```T``` | deleTe                                             | delete audio/transcription/lyric/log/json files with option to regenerate transcription if applicable         |
-| ```X``` | mark all as instrumental                           | mark ALL files in folder as instrumental                                                                      | 
-| ```Z``` | mark all as lyricless                              | mark ALL files in folder as lyric*less*                                                                       | 
+| Key     | Meaning                                             | Action                                                                                                        |
+| ------- | ----------------------------                        | ------------------------------------------------------------------------------------------------------------- |
+| ```1``` | Retry lyrics [TODO:may still be “$” in some places] | start over by going back to the lyric-fetching system                                                         | 
+| ```E``` | Edit                                                | opens lyrics and transcribed karaoke subtitles in your favorite text editor                                   | 
+| ```I``` | mark as Instrumental                                | marks current file as ```[instrumental]``` to prevent transcription and ensure accurate file status reporting | 
+| ```L``` | mark as Lyric*less*                                 | marks current file as lyric*less* which means lyrics are impossible to find, so stop trying                   | 
+| ```M``` | renaMe                                              | rename the current file and corresponding sidecar files [can also achieve this with ```I``` and ```S```]      | 
+| ```P``` | Play                                                | Preview the audio by Playing it ... usually in VLCplayer¹                                                     | 
+| ```Q``` | enQueue                                             | enQueue the song into WinAmp for the purpose of previewing subtitle display²                                  | 
+| ```S``` | is sound effect                                     | marks current file as ```[sound effect]``` to prevent transcription and ensure accurate file status reporting | 
+| ```T``` | deleTe                                              | delete audio/transcription/lyric/log/json files with option to regenerate transcription if applicable         |
+| ```U``` | mark as Untranscribeable                            | mark audio file as Untranscribeable so that it isn’t later retried infinitely | 
+| ```X``` | mark all as instrumental                            | mark ALL files in folder as instrumental                                                                      | 
+| ```Z``` | mark all as lyricless                               | mark ALL files in folder as lyric*less*                                                                       | 
 
 Lyric subsystem only:
 
@@ -244,7 +245,6 @@ Transcription/Subtitle/Karaoke subsystem only:
 | ```C``` | stretCh                                                                | time-stretch and time-slide LRC file to shape studio transcriptions to live/cover transcriptions performed at a different pace | 
 | ```D``` | Disapprove karaoke                                                     | sets transcription status to *NOT APPROVED*                                   | 
 | ```G``` | Get lyrics instead                                                     | switch back to getting lyrics prior to running transcription                  | 
-| ```U``` | is Untranscribeable                                                    | mark audio file as Untranscribeable so that it isn’t later retried infinitely | 
 | ```W``` | run [WhisperTimeSync](https://github.com/EtienneAb3d/WhisperTimeSync)  | resolve mis-heard AI transcriptions against valid lyrics using [WhisperTimeSync](https://github.com/EtienneAb3d/WhisperTimeSync) with our added enhancements and workflow | 
 
 ¹Requires ⚡ [WinAmp](https://forums.winamp.com/forum/winamp/winamp-discussion/306661-winamp-5-666-released-build-3516) ⚡ integration

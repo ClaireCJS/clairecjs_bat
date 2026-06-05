@@ -226,7 +226,7 @@ rem Pre-Cleanup:
         unset /q JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation ABANDONED_SEARCH LYRICLESSNESS_STATUS FAILURE_ADS_RESULT LYRIC_APPROVAL LYRICS_APPROVAL LYRICLESSNESS_APPROVAL  MAYBE_SRT_1 MAYBE_SRT_2 WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL LYRIC_STATUS our_lyrics* tmppromptfile file_title file_song just_renamed GOTO_END PROBED_OR_REFUSED_ALREADY_709 SUCCESSFUL_GENERATION AUDIO_FILE_LENGTH
         rem DEBUG: pause "calling bat is “%CREATE_SRT_PARENT_BAT%”"
         rem 
-        unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused
+        unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused already_asked_about_*
 
 REM values set from parameters:
         *setdos /x-4
@@ -1983,9 +1983,14 @@ rem Let user know if we were NOT succesful, then skip to the end:
                                 if  "U" == "%ANSWER%" gosub   ask_if_untranscribeable "%@UNQUOTE["%INPUT_FILE%"]"
                                 if  "1" == "%ANSWER%" goto /i go_here_for_encoding_retries
                                 if  "P" == "%ANSWER%" .or. "Q" == "%ANSWER%" .or. "S" == "%ANSWER%" goto /i ask_about_instrumental_1500
+                                call debug "INPUT_FILE=“%@unquote[%INPUT_FILE]” goatGOAT"
                                 iff "Y" == "%ANSWER%" .or. "I" == "%ANSWER%" then
-                                      echo Tru`>%@`UNQUOTE["%INPUT_FILE%"]:karaoke_failed" 🐐🐐🐐🐐🐐🐐🐐>nul
-                                      echo True>"%@UNQUOTE["%INPUT_FILE%"]:karaoke_failed"
+                                        iff exist "%@UNQUOTE["%INPUT_FILE%"]" then
+                                                echo Tru`>%@`UNQUOTE["%INPUT_FILE%"]:karaoke_failed" 🐐🐐🐐🐐🐐🐐🐐>nul
+                                                echo True>"%@UNQUOTE["%INPUT_FILE%"]:karaoke_failed"
+                                        else
+                                                call warning "INPUT_FILE doesn’t exist: %@UNQUOTE[%INPUT_FILE%]"
+                                        endiff
                                 endiff
                         goto /i nothing_generated
         endiff
@@ -2362,7 +2367,7 @@ goto /i skip_subroutines
                 iff "1" == "%karaoke_approval_asked%" .and.  "1" == "%karaoke_edit_refused%" then
                         rem DEBUG:call subtle "Not asking to approve karaoke again because we already asked and a karaoke edit was refused"
                 else
-                        @call askyn  "Approve/edit karaoke file? [%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync,%ansi_color_bright_green%R%ansi_color_prompt%etry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ADEIP1QTWM  E:edit_karaoke,Q:enQueue_in_winamp,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete__it,M:restart_winamp,1:retry_the_transcription
+                        @call askyn  "Approve/edit karaoke file? [%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync,%ansi_color_bright_green%1%ansi_color_prompt%=retry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ADEIP1QTWM1  E:edit_karaoke,Q:enQueue_in_winamp,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete__it,M:restart_winamp,1:retry_the_transcription
                 endiff
                 set karaoke_approval_asked=1
                 set karaoke_edit_already_asked=1
@@ -2552,8 +2557,8 @@ goto /i skip_subroutines
                         if "M" != "%ANSWER%" return
 
                 rem Determine our file to use —- hopefully a parameter was passed:
-                        if exist "%@UNQUOTE["%INPUT_FILE%"] set file_to_use=%INPUT_FILE%
-                        if exist "%@UNQUOTE["%AUDIO_FILE%"] set file_to_use=%AUDIO_FILE%
+                        if exist "%@UNQUOTE["%INPUT_FILE%"]" set file_to_use=%INPUT_FILE%
+                        if exist "%@UNQUOTE["%AUDIO_FILE%"]" set file_to_use=%AUDIO_FILE%
                         set opt_1=%@UNQUOTE["%opt%"]
                         if exist "%opt_1%" set file_to_use=%opt_1%
 
