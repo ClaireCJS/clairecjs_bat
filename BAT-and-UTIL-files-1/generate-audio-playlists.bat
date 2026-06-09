@@ -25,7 +25,7 @@ rem NO LONGER NECESSARY:     :COLOR_RUN%       %+    dir /b /s %VID    >nul     
 
 	rem Perl -CSDA flag makes it process unicode but causes failures in tag reading and MAJOR slow down, so don't do that
     %COLOR_NORMAL%    
-    perl %BAT%\generate-filelists-by-attribute.pl -g -i%BAT%\generate-filelists-by-attribute-audio.ini
+    perl %BAT%\generate-filelists-by-attribute.pl -g -i%BAT%\generate-filelists-by-attribute-audio.ini %*
 
 ::::: CLEANUP:
     %COLOR_RUN%       

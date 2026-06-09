@@ -332,7 +332,13 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
 
 - TAGGING: STEP 6: THE ACTUAL TAGGING: – Tag&Rename — finally giving up on id3v1 tags in 2023!
     	- get all fields of all id3v2 tags right
+                - do not leave empty GENRE/TCON tags; either set a real genre or remove the genre tag entirely
+                - keep punk-family genre tags simple: Pop Punk, Post-Punk, Post-Hardcore, etc. should usually be collapsed to Punk
                 - cover songs: sometimes we like to mention original artists in the comments
+                - URL-only comments should be moved into URL tags, not left as comments:
+                    - e.g. COMMENT="Visit https://glassbeach.bandcamp.com" should become URL="https://glassbeach.bandcamp.com"
+                    - after moving the URL, remove the empty/fake COMMENT unless there is a real prose comment worth keeping
+                - if a single/loose copy is the same recording as the on-album copy, keep the on-album copy active and rename the redundant single/loose file to *.flac.deprecated.on-album or *.mp3.deprecated.on-album
 
 
 
@@ -438,6 +444,7 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
 	- FROM WITHIN OUR BATCH FOLDER, run "*del /s /E *.m3u8" because tag&rename (i think) creates these when we preview songs while tagging
 	- FROM WITHIN OUR BATCH FOLDER, run "sweep dep-mp3s-if-flacs-exist" to deprecate mp3s if a companion flac exists 
 		- we deprecate the file rather than delete, in case something goes wrong, it's nice to have the m3ps to fall back on.  
+		- if an mp3 has the same basename as a flac sidecar in the same folder, the mp3 is truly redundant and should be renamed to *.mp3.deprecated-by-codex
 		- A few years from now (2022) when we are more comfortable with the validity of flac files, we can delete the deprecated companion mp3s, but for now (2022), we're going to keep them around, and now (2024) we're realizing this situation doesn't even come up so who cares
 	- FROM WITHIN OUR BATCH FOLDER, run "ldg \.wav$" to check for WAV files -- they really shouldn't be here at this point in the workflow, at all!!!!!!!!!
 		- at this point, any WAV files were already supposed to be mp3s that have embedded art and are tagged properly, so wtf!

@@ -18,6 +18,7 @@ import sys
 import fnmatch
 import colorama
 import random
+import stat
 import threading
 import time
 try:
@@ -35,17 +36,66 @@ DEBUG = False
 
 
 
+def warn_playlist_problem(action, playlist, error):                                                # Warn about one bad playlist without aborting the whole tree
+    print(f"\n{Fore.YELLOW}WARNING: Could not {action} {playlist}: {error}{Style.RESET_ALL}")
+
+
+
+def remove_playlist_if_possible(playlist):                                                         # Delete one playlist, tolerating read-only or locked files
+    if not os.path.exists(playlist): return True
+
+    try:
+        os.remove(playlist)
+        return True
+    except PermissionError:
+        try:
+            os.chmod(playlist, stat.S_IWRITE)
+            os.remove(playlist)
+            return True
+        except OSError as error:
+            warn_playlist_problem("delete", playlist, error)
+            return False
+    except OSError as error:
+        warn_playlist_problem("delete", playlist, error)
+        return False
+
+
+
+def write_playlist_if_possible(playlist, filenames, use_absolute_paths=False):                      # Write one playlist, but keep going if Windows blocks it
+    try:
+        with open(playlist, 'w', encoding='utf-8') as f:
+            for filename in filenames:
+                if use_absolute_paths: f.write(os.path.abspath(filename) + '\n')
+                else:                  f.write(filename + '\n')
+        return True
+    except PermissionError:
+        try:
+            if os.path.exists(playlist): os.chmod(playlist, stat.S_IWRITE)
+            with open(playlist, 'w', encoding='utf-8') as f:
+                for filename in filenames:
+                    if use_absolute_paths: f.write(os.path.abspath(filename) + '\n')
+                    else:                  f.write(filename + '\n')
+            return True
+        except OSError as error:
+            warn_playlist_problem("write", playlist, error)
+            return False
+    except OSError as error:
+        warn_playlist_problem("write", playlist, error)
+        return False
+
+
+
 def delete_existing_playlists(folder):                                                              # Function to delete existing playlist files
     these_playlist = os.path.join(folder, 'these.m3u')                                              # playlist for the files in current folder
     all_playlist   = os.path.join(folder, 'all.m3u'  )                                              # playlist for all files in all subfolders
 
     if os.path.exists(these_playlist):                                                              # playlist for the files in current folder
-        os.remove(these_playlist)                                                                   #     (delete it before we make a new one)
-        if DEBUG: print(f"{Fore.YELLOW}Deleted existing these.m3u in {folder}{Style.RESET_ALL}")    #             (debug info)
+        if remove_playlist_if_possible(these_playlist):                                             #     (delete it before we make a new one)
+            if DEBUG: print(f"{Fore.YELLOW}Deleted existing these.m3u in {folder}{Style.RESET_ALL}")#             (debug info)
 
     if os.path.exists(all_playlist):                                                                # playlist for all files in all subfolders
-        os.remove(all_playlist)                                                                     #     (delete it before we make a new one)
-        if DEBUG: print(f"{Fore.YELLOW}Deleted existing all.m3u in {folder}{Style.RESET_ALL}")      #             (debug info)
+        if remove_playlist_if_possible(all_playlist):                                               #     (delete it before we make a new one)
+            if DEBUG: print(f"{Fore.YELLOW}Deleted existing all.m3u in {folder}{Style.RESET_ALL}")  #             (debug info)
 
 
 
@@ -63,14 +113,12 @@ def create_playlists(folder, audio_extensions):                                 
                 else:                all_files.append(os.path.join(root, file))                     # flies in      subfolders go in the playlist for all flies in all subfolders
 
     if these_files:                                                                                 # write these.m3u
-        with open(these_playlist, 'w', encoding='utf-8') as f:                                      # in utf-8 format
-            for filename in these_files: f.write(filename + '\n')                                   # for all the files we found
-        if DEBUG: print(f"{Fore.GREEN}Created these.m3u in {folder}{Style.RESET_ALL}")              # with debug nfo
+        if write_playlist_if_possible(these_playlist, these_files):                                 # in utf-8 format
+            if DEBUG: print(f"{Fore.GREEN}Created these.m3u in {folder}{Style.RESET_ALL}")          # with debug nfo
 
     if all_files:                                                                                   # write these.m3u
-        with open(all_playlist, 'w', encoding='utf-8') as f:                                        # in utf-8 format
-            for filename in all_files: f.write(os.path.abspath(filename) + '\n')                    # for all the files we found
-        if DEBUG: print(f"{Fore.GREEN}Created all.m3u in {folder}{Style.RESET_ALL}")                # with debug nfo
+        if write_playlist_if_possible(all_playlist, all_files, use_absolute_paths=True):             # in utf-8 format
+            if DEBUG: print(f"{Fore.GREEN}Created all.m3u in {folder}{Style.RESET_ALL}")            # with debug nfo
 
 
 # Parallel thread for color-cycling during long beginning pause——to assuage program-hang-anxiety
