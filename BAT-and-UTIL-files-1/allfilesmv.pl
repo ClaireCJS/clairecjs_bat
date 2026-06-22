@@ -2127,7 +2127,7 @@ if (($BITRATES_ALL_THE_SAME==1) && ($FREQUENCIES_ALL_THE_SAME) && ($CHANNELS_ALL
 	}
 
 	##### Actually add (or not, if it's already there) the zero byte file indicating our bitrate/source info:
-	if ("" == $filenameNoteFilename) {
+	if ("" eq $filenameNoteFilename) {
 		print "***** NOT ADDING ZERO-BYTE FILE BECAUSE WE HAVE NONE TO ADD *****\n";
 	} elsif (-e $filenameNoteFilename) {
 		print "***** NOT ADDING ZERO-BYTE FILE BECAUSE IT ALREADY EXISTS: $filenameNoteFilename ***\n";

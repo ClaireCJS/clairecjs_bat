@@ -40,4 +40,7 @@ goto :END
 
 
 
+:END
 %COLOR_NORMAL%
+
+

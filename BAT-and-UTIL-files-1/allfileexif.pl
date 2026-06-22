@@ -106,7 +106,7 @@ while ($filename=<NEWNAMES>) {
 	$filename =~ s/.AVI$/.avi/;								#capital extensions are bad!
 
 	##### Don't rename it if it already has the original prefix:
-	if      (($original_filename =~ /^$filenameprefix/i) && ($filenameprefix != "")) {
+	if      (($original_filename =~ /^$filenameprefix/i) && ($filenameprefix ne "")) {
 		print qq[::::: Skipping "$original_filename" -- already prefixed with "$filenameprefix" (final)! (TIME=$TIME)\n];
 		$SKIP=1;
 	}

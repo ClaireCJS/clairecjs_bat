@@ -70,7 +70,7 @@ if "%MSYSTEM%"=="MINGW64" (
  
 
 
-set POWERSHELLTEST = $host.Name
+set POWERSHELLTEST=$host.Name
 %ECHO% POWERSHELLTEST is %POWERSHELLTEST%
 :if(($host.Name -match 'consolehost')) { set OUR_COMMAND_LINE=bleorp }
 

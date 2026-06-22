@@ -1333,13 +1333,13 @@ unicode_to_ascii_custom_character_mapping = {
     "😖": [">.<", "{confounded face}"],    # confounded face
     "😕": [":/", "{confused face}"],    # confused face
     "😢": [")':", "{crying face}"],   # crying face
-    "😭": [")':", "TT"],   # loudly crying face
-    "😓": ["^^;", "^^'"],   # downcast face with sweat
+    "😭": [")':", "TT", "{loudly crying face}"],   # loudly crying face
+    "😓": ["^^;", "^^'", "^_^;", "{downcast face with sweat},"],   # downcast face with sweat
     "😈": [">;)", "{devil smiling}"],   # devil smiling
     "😞": ["):", "]-["],    # disappointed face
     "😑": ["-_-"],          # expressionless face
     "😮": [":o", "O_O"],    # face with open mouth
-    "😤": [">:(", "]-["],   # face with steam from nose
+    "😤": [">:(", "]-[", "{face with steam from nose}"],   # face with steam from nose
     "😨": [":o", "O_O"],    # fearful face
     "😳": [":$", "O_O"],    # flushed face
     "😦": ["):", "]-["],    # frowning face with open mouth
@@ -1355,7 +1355,6 @@ unicode_to_ascii_custom_character_mapping = {
     "😘": [":*", "{blowing a kiss}"],    # kiss blowing face
     "😙": [":*", "{kiss with smiling eyes}"],    # kissing face with smiling eyes
     "😚": ["XOXO"],         # kissing face with closed eyes
-    "😭": [")':", "{loudly crying face}"],   # loudly crying face
     "😔": ["):", "{pensive face}"],    # pensive face
     "😣": [">.<", "{persevering face}"],    # persevering face
     "😡": [">_<", "{pouting face}"],   # pouting face
@@ -1391,11 +1390,9 @@ unicode_to_ascii_custom_character_mapping = {
 
     # Emojis with ASCII equivalents: faces:
     "😝":    ["XP", "XP"],       # {squinting face with tongue}
-    "😤":    [">:(", "{face with steam from nose}"],      # {steam from nose}
     "😛":    [":p", "{sticking out tongue}"],       # {sticking out tongue}
     "😊":    [":)", "=)"],       # {smiling face with smiling_eyes}
     "😏":    [";)", "{smirking}"],       # {smirking_face}
-    "😓":    ["^_^;", "{downcast face with sweat},"],     # {sweat face aka downcast_face_with_sweat}
     "😂":    ["XD", "XD"],       # {tears of joy face}
     "😫":    [":/", "{tired face}"],       # {tired_face}
     "😒":    [":/", "{unamused face}"],       # {unamused_face}
@@ -1425,7 +1422,6 @@ unicode_to_ascii_custom_character_mapping = {
     'π' :   'Pi',   #decent
     'ⁱ'	:   '^i', 	#Superscript Latin Small Letter I
     'ⁿ' :   '^n',   #Superscript n which is upper-ASCII and not actually unicode \____ might be the same chracter really
-    'ⁿ'	:   '^n', 	#Superscript Latin Small Letter N                            /
     '⁰'	:   '^o', 	#Superscript Zero
     '²' :   '^2',   #Superscript 2 which is upper-ASCII and not actually unicode
     '⁴'	:   '^4', 	#Superscript Four
@@ -1500,7 +1496,7 @@ unicode_to_ascii_custom_character_mapping = {
     '\uE0047'    :["G"],            #Latin Capital Letter G
     '\ue006d'    :["m"],            #Latin Small Letter M
     '\ue0064'    :["d"],            #Latin Small Letter D
-    '\ue0067'    :["g"],            #Latin Small Letter G
+    '\ue0067'    :["g", "E"],       #Latin Small Letter G
     '\uE0051'    :["Q"],            #Latin Capital Letter Q
     '\uE0045'    :["E"],            #Latin Capital Letter E
     '\uE004A'    :["J"],            #Latin Capital Letter J
@@ -1555,7 +1551,6 @@ unicode_to_ascii_custom_character_mapping = {
     'code u008d' : ["{reverse line feed}",],        #workaround
 
     "'":          ["'"],                             #is this a unicode apostrophe?
-    '\ue0067':    ["E","g"],
     '\u0081':     ["{control}",],
     '\u0090':     ["{device control}",],
     '\u008F':     ["3",],                                  #"single shift 3"
@@ -1573,7 +1568,6 @@ unicode_to_ascii_custom_character_mapping = {
     #"ðŸ¯":       ["{tiger face}",],              /
     #"ðŸ’¸":      ["{money with wings}",],       /
     "🎉":         ["{party popper}",],
-    "⧸":          ["/","--"],
     "\u29F8":     ["/","--"],
     "／":         ["/","--"],                   #what strange new slash is this?
     "♬":         ["♫",],                          #unicode 'beamed music note' to ascii music note

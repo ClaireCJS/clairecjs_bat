@@ -58,9 +58,10 @@ class PlasmaGenerator:
       return num
 
 
-   def newPlasma(self,(width, height)): #TODO GOAT OH OH OH
+   def newPlasma(self, xxx_todo_changeme): #TODO GOAT OH OH OH
    #def newPlasma(width, height):	#runtime error!
-      if(self.cache.has_key((width,height))):
+      (width, height) = xxx_todo_changeme
+      if((width,height) in self.cache):
          # we have a cached plasma in this size. To use or generate new, that is the question.
          # odds of making new = 1/<cached count> 
          if(randint(0,len(self.cache[(width,height)])) == 0): # generate new
@@ -179,38 +180,38 @@ except:
 
 #print "files is " + f.printlines()
 for f in (files):
-  print "* listed:", f,
+  print("* listed:", f, end=' ')
 
 for f in (files):
    f=f.rstrip()
-   print "Trying file \"", f, "\"..."
+   print("Trying file \"", f, "\"...")
    try:
       #cl= Image.open(sys.argv[f])
       cl= Image.open(f)
    except:
-      print "Hmmm, ", f, "didn't seem to open...."
+      print("Hmmm, ", f, "didn't seem to open....")
       continue
    if(cl != None):
       cl.thumbnail((maxwidth,maxheight), Image.ANTIALIAS) #if the image is larger than the max allowable, shrink
       #sys.stdout.write("Adding image %s" %(sys.argv[f]))
-      print "Adding image",  f
+      print("Adding image",  f)
       mask = p.newPlasma(cl.size)
       img.paste(cl, (randint(-100,width+50), randint(-100,height+50)), mask)
 
 ########## copy of previous loop again ##############
 for f in (files):
    f=f.rstrip()
-   print "Trying file \"", f, "\"..."
+   print("Trying file \"", f, "\"...")
    try:
       #cl= Image.open(sys.argv[f])
       cl= Image.open(f)
    except:
-      print "Hmmm, ", f, "didn't seem to open...."
+      print("Hmmm, ", f, "didn't seem to open....")
       continue
    if(cl != None):
       cl.thumbnail((maxwidth,maxheight), Image.ANTIALIAS) #if the image is larger than the max allowable, shrink
       #sys.stdout.write("Adding image %s" %(sys.argv[f]))
-      print "Adding image",  f
+      print("Adding image",  f)
       mask = p.newPlasma(cl.size)
       img.paste(cl, (randint(-100,width+50), randint(-100,height+50)), mask)
 ########## copy of previous loop again ##############

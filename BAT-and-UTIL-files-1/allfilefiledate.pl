@@ -37,19 +37,11 @@ while ($filename=<NEWNAMES>) {
 	else                        { $created = time2str('%Y%m%d'     , $mtime); }
 
 
-	##### Do the rename: exclude extensions we don't want to rename:
-	if (
-		    (($original_filename !~ /^[12][0-9][0-9][0-9][0-9][01][0-9][0-3][0-9] [0-2][0-9][0-5][0-9]/) && ($TIME==1))
-		 || (($original_filename !~ /^[12][0-9][0-9][0-9][0-9][01][0-9][0-3][0-9]/)                      && ($TIME==0))
-	     ||  ($original_filename !~ /^_/)
-	     ||  ($original_filename !~ /\.bat$/)
-	     ||  ($original_filename !~ /\.btm$/)
-	     ||  ($original_filename !~ /\.exe$/)
-	     ||  ($original_filename !~ /\.lst$/)
-	     ||  ($original_filename !~ /\.txt$/)
-	     ||  ($original_filename !~ /\.stackdump$/)
-	   )
-	{
+	##### Do the rename: exclude extensions/conditions we don't want to rename:
+	my $already_dated = ($TIME && $original_filename =~ /^[12]\d{7} [0-2]\d[0-5]\d/) || (!$TIME && $original_filename =~ /^[12]\d{7}/);
+	my $excluded      =           $original_filename =~ /^_/                         || $original_filename            =~ /\.(bat|btm|exe|lst|txt|stackdump)$/i;
+
+	if (!$already_dated && !$excluded) {
 		$ADDITIONAL_FILENAME_STUFF_TO_USE = $ADDITIONAL_FILENAME_STUFF;	   if ($original_filename =~ /$ADDITIONAL_FILENAME_STUFF/i) { $ADDITIONAL_FILENAME_STUFF_TO_USE=""; }	#don't add if it's already in
 		$created_to_use="$created - ";		                               if ($original_filename =~ /$created/i)                   { $created_to_use="";                   }	#don't add if it's already in
 
