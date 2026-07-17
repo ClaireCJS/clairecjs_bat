@@ -462,9 +462,9 @@ REM Generate "pretty" answers & update the title:
         call print-if-debug "our_answer is “%OUR_ANSWER”, default_answer is “%DEFAULT_ANSWER%”, answer is “%ANSWER%”, PRETTY_ANSWER is “%PRETTY_ANSWER%”"
         if "1" == "%NOTITLE%" (goto :title_done_3)        
                 set newtitle=%@REPLACE[%EMOJI_RED_QUESTION_MARK,,%@STRIPANSI[%@UNQUOTE[%ASK_QUESTION]? %EMDASH% %PRETTY_ANSWER%]]
-                echo %newline%[DEBUG] goatgoatgoat newtitle is %newtitle% ... command tail is askyn %*
+                rem echo %newline%[DEBUG] newtitle is %newtitle% ... command tail is askyn %* 🐐🐐🐐
                 title %newtitle%
-                echo -------- "just updated title" --------- 🐐🐐🐐
+                rem echo -------- "just updated title" --------- 🐐🐐🐐
         :title_done_3
 
 

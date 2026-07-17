@@ -15,10 +15,10 @@ rem LET USER KNOW WHAT WE'RE DOING:
          call less_important "Rolling wanted log files into: %italics_on%%bold_on%%LOGDIR%%bold_off%%italics_off%"
 
 rem EASY CLEANUPS:
-        if exist c:\*.log                                 (move /q /a: c:\*.log          %LOGDIR)
-        if exist c:\bootlog*.*                            (move /q /a: c:\bootlog*.*     %LOGDIR)
-        if exist c:\util\wget-log*                        (move /q /a: c:\util\wget-log* %LOGDIR)
-        if exist %logs%\wawi*.log .and. isdir %logs%\wawi (move /q /a: %logs%\wawi*.log %logs%\wawi)
+        if exist c:\*.log                                 (echo yr|move /q /a: c:\*.log          %LOGDIR)
+        if exist c:\bootlog*.*                            (echo yr|move /q /a: c:\bootlog*.*     %LOGDIR)
+        if exist c:\util\wget-log*                        (echo yr|move /q /a: c:\util\wget-log* %LOGDIR)
+        if exist %logs%\wawi*.log .and. isdir %logs%\wawi (echo yr|move /q /a: %logs%\wawi*.log  %logs%\wawi)
 
 rem CLEANUPS MOVED TO OTHER SCRIPTS:                         {add any new ones to the validate-in-path command above}
         call roll-log-madvr

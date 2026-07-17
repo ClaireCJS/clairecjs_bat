@@ -18,6 +18,7 @@ our @lyric_website_spam_patterns = (
 	qr/You might also like/i,
 	qr/^(.*[a-zA-Z])Embed\.?$/i,
 	qr/^[0-9]+ Contributors?$/,
+	qr/^encoding: utf-8$/,
 	qr/^.* Lyrics$/,							# todo we could be probing and using the songtitle here to be more restrictive
 );
 

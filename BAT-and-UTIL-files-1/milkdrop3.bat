@@ -9,7 +9,8 @@ rem    *start    /elevated %@SFN["c:\util2\Milkdrop3\MilkDrop latest\MilkDrop 3.
 popd
 
 call sleep 1
-call fix-minilyrics-window-size-and-position
+call askyn "fix minilyrics window size and position" no 30
+if "Y" == "%ANSWER%" call fix-minilyrics-window-size-and-position
 
 
 

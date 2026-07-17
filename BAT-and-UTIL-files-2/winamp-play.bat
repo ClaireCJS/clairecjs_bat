@@ -15,6 +15,7 @@
         endiff
 
 ::::: SETUP:
+	unset /q WINAMP_PLAY_HDMI_REPAIR_WAIT
 	call get-winamp-state
 
 
@@ -37,14 +38,24 @@ goto :END
 
 
 		:Play_YES
+                        set WINAMP_PLAY_HDMI_REPAIR_WAIT=1
                         if "%1"=="exit" call less_important "Attempting to start music via WinAmp WAWI web interface, using %italics_on%wget%italics_off%..."             %+  echos %ansi_COLOR_LOGGING% 
                         call                   wget32    --tries=3 --wait=1 --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS% --spider http://%TMPMUSICSERVER/play        %+  echos %ansi_COLOR_NORMAL%%ANSI_ERASE_TO_EOL%
                         call   get-winamp-state
                         if "%BOTH" == "1" call wget32    --tries=3 --wait=1 --http-user=%WAWI_USER% --http-passwd=%WAWI_PASS% --spider http://%TMPMUSICSERVER/play
-                        if /i "%1" == "exit" .or. "%1" == "exitafter" exit
+                        if /i "%1" == "exit" .or. "%1" == "exitafter" goto :ExitAfterRepair
 		goto :END
+
+
+                :ExitAfterRepair
+                        if "%WINAMP_PLAY_HDMI_REPAIR_WAIT%" == "1" call wait 1 "(waiting for WinAmp audio session to attach)"
+                        call winamp-fix-out-ds-hdmi-splitter
+                        unset /q WINAMP_PLAY_HDMI_REPAIR_WAIT
+                        exit
 
 
 :END
 :DoNothing
-
+        if "%WINAMP_PLAY_HDMI_REPAIR_WAIT%" == "1" call wait 1 "(waiting for WinAmp audio session to attach)"
+        call winamp-fix-out-ds-hdmi-splitter
+        unset /q WINAMP_PLAY_HDMI_REPAIR_WAIT
