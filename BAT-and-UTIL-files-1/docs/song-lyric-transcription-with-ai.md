@@ -763,6 +763,11 @@ Goes to my NON-MUSIC/audiobooks folder and works all the folders in random order
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
+
+### 🌟 [audit_music_batch.py](../audit_music_batch.py):
+
+Read-only batch-wide audit/proposal engine for incoming music processing batches. It checks workflow concerns that sit outside pure lyric/karaoke auditing, including ReplayGain, embedded art, empty genres, URL-only comments, active TODO filenames, same-stem MP3/FLAC pairs, temp transcription files, archive-folder do-not-play markers, and never-default cleanup guardrails for .bak and __ something __ files. See [audit-music-batch.md](audit-music-batch.md).
+
 # 👉👉👉 *Auditing Commands* for *Lyrics*:
 
 #### These commands find & obtain missing lyric files.

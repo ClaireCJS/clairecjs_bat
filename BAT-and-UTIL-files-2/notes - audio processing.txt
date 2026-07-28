@@ -388,6 +388,27 @@ TAGGING: STEP 8: review ReplayGain tags:	possibly an old step we don’t really 
 
 
 
+
+GOATGOATADDEDBYCHATGPTBEGIN
+- AI/Codex audit automation: run `audit_music_batch.py` from the root of a music-processing batch when you want a broad proposal/audit pass before making changes.
+    - The tool is read-only: it does not edit tags, delete files, merge audio, or fetch art.
+    - Pre-audit karaoke sidecar fix: before `audit_music_batch.py`, run `lrc2srt.py MiniLyricsFix --recursive --automatic-overwrites` from the batch root.
+        - This creates a missing same-stem `.srt` only when a timestamped `.lrc` and matching `.txt` both already exist.
+        - Untimed/no-cue LRC files are skipped; bad empty SRT files are worse than no SRT.
+        - It should happen before the audit so MiniLyrics display compatibility is already normalized before the proposal pass.
+    - For merged tracks where only one section is instrumental/no-lyric, label the section with shorthand like `[semi-instr] [no-lyr]`; do not mark the whole active filename `[instrumental]` or `[no lyrics]`, because those mean whole-file suppression.
+    - Interactive mode is the default: plain `audit_music_batch.py .` prints the audit and then asks through the approval prompts.
+    - Typical commands:
+        - `lrc2srt.py MiniLyricsFix --recursive --automatic-overwrites`
+        - `audit_music_batch.py . --write-reports`
+        - `audit_music_batch.py . --no-interactive --write-reports`
+    - Interactive prompts use capitalized defaults: `[Y/n]` means Enter approves; `[y/N]` means Enter skips/rejects.
+    - Prompts use ANSI color by default; add `--no-color` if a terminal displays escape codes literally.
+    - The approval plan is written to `audit_music_batch_approval_plan.json`; reports are written to `audit_music_batch_report.json`, `.md`, and `.txt`.
+    - Good audit targets include missing ReplayGain, missing embedded art, missing/empty genres, URL-only comments, punk-family genre simplification, active TODO filenames, same-stem MP3/FLAC pairs, missing SRT when timestamped LRC+TXT exist, VAD scratch files, temp BATs, active WAVs, archive-folder `attrib.lst`, and sidecar preservation warnings.
+    - Guardrails: never default-delete `.bak`; never default-delete `__ something __` marker/comment files; do not treat logs as default-delete; same-stem MP3/FLAC deprecation must preserve MP3-only sidecars first.
+    - Full documentation lives at `C:\BAT\docs\audit-music-batch.md`.
+GOATGOATADDEDBYCHATGPTEND
 - Inside the batch, run: preprocess-audio-tagging-batch 
 		- this deletes some junk files
 
@@ -591,3 +612,5 @@ BRAINSTORMING: Flac files don't display internal album art correctly, so if it's
 
 
 			- AI/Codex cleanup rule: NEVER default to deleting *.bak files. Treat BAK files as keep-by-default; only delete a specific BAK file/class after explicit user approval and explanation.
+			- AI/Codex cleanup rule: zero-byte files named like __ something __ are usually user comments/markers and must be kept by default. Only delete bare junk markers like __, or specific marker classes after explicit approval.
+

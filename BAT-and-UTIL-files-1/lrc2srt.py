@@ -986,6 +986,8 @@ def build_minilyricsfix_tasks(
     tasks: list[ConversionTask] = []
     missing_txt_count = 0
     existing_srt_count = 0
+    zero_cue_lrc_count = 0
+    unreadable_lrc_count = 0
     non_lrc_count = 0
 
     for input_file in input_files:
@@ -1014,6 +1016,28 @@ def build_minilyricsfix_tasks(
             )
             continue
 
+        try:
+            events, encoding = parse_lrc_file(input_file)
+        except Exception as exc:
+            unreadable_lrc_count += 1
+            print(f"    * Skipping unreadable LRC: {input_file} ({type(exc).__name__}: {exc})")
+            log_event(
+                "minilyricsfix_skipped_unreadable_lrc",
+                input_file=str(input_file),
+                error=f"{type(exc).__name__}: {exc}",
+            )
+            continue
+
+        if not events:
+            zero_cue_lrc_count += 1
+            print(f"    * Skipping untimed/no-cue LRC: {input_file} ({encoding})")
+            log_event(
+                "minilyricsfix_skipped_zero_cue_lrc",
+                input_file=str(input_file),
+                encoding=encoding,
+            )
+            continue
+
         tasks.append(
             ConversionTask(
                 input_file=input_file,
@@ -1026,13 +1050,17 @@ def build_minilyricsfix_tasks(
         "    * MiniLyricsFix scan: "
         f"{len(tasks)} eligible; "
         f"{missing_txt_count} missing TXT; "
-        f"{existing_srt_count} already had SRT."
+        f"{existing_srt_count} already had SRT; "
+        f"{zero_cue_lrc_count} untimed/no-cue LRC; "
+        f"{unreadable_lrc_count} unreadable LRC."
     )
     log_event(
         "minilyricsfix_scan_completed",
         eligible=len(tasks),
         missing_txt=missing_txt_count,
         existing_srt=existing_srt_count,
+        zero_cue_lrc=zero_cue_lrc_count,
+        unreadable_lrc=unreadable_lrc_count,
         non_lrc=non_lrc_count,
         recursive=recursive,
     )
@@ -1395,10 +1423,10 @@ def render_usage() -> str:
                 ("cli", " [--recursive] [--automatic-overwrites] [--dry-run]"),
             ),
             usage_note(
-                "  ^ Generate SRT only if LRC & TXT both exist and SRT does "
-                "not. Necessary to fix a MiniLyrics bug where timed subtitles "
-                "are not displayed if there is an LRC and TXT present but not "
-                "an SRT."
+                "  ^ Generate SRT only if timestamped LRC & TXT both exist "
+                "and SRT does not. Necessary to fix a MiniLyrics bug where "
+                "timed subtitles are not displayed if there is an LRC and TXT "
+                "present but not an SRT."
             ),
             "",
             *usage_double_height_header(examples_header_text, ANSI_GREEN),
@@ -1688,7 +1716,7 @@ class Lrc2SrtUnitTests(unittest.TestCase):
         self.assertIn("--dry-run", plain_usage)
         self.assertIn("^ all means convert every *.lrc file in the current folder", plain_usage)
         self.assertIn("^ go is the old quick shorthand", plain_usage)
-        self.assertIn("Generate SRT only if LRC & TXT both exist and SRT does not", plain_usage)
+        self.assertIn("Generate SRT only if timestamped LRC & TXT both exist", plain_usage)
         self.assertIn("MiniLyrics bug where timed subtitles are not displayed", plain_usage)
         self.assertIn("Rebuild only SRT files that this converter previously created", plain_usage)
         self.assertIn("Rebuild every matched SRT that has a same-named .lrc sidecar", plain_usage)
@@ -1749,7 +1777,7 @@ class Lrc2SrtUnitTests(unittest.TestCase):
             """
 1
 00:00:01,000 --> 00:00:04,000
-\u201cKeep\u201d \u201cgoing\u201d don\u2019t \u2019round \u2019til \u2019round \u00abalready\u00bb 5'6"
+\u201cKeep\u201d \u201cgoing\u201d don\u2019t \u2019round \u2018til \u2019round \u00abalready\u00bb 5'6"
             """,
         )
 
@@ -1909,6 +1937,8 @@ new line
             eligible_lrc = temp_dir / "eligible.lrc"
             eligible_txt = temp_dir / "eligible.txt"
             missing_txt_lrc = temp_dir / "missing-txt.lrc"
+            untimed_lrc = temp_dir / "untimed.lrc"
+            untimed_txt = temp_dir / "untimed.txt"
             existing_srt_lrc = temp_dir / "existing-srt.lrc"
             existing_srt_txt = temp_dir / "existing-srt.txt"
             existing_srt = temp_dir / "existing-srt.srt"
@@ -1920,6 +1950,8 @@ new line
             eligible_lrc.write_text("[00:01.00]eligible line\n", encoding="utf-8")
             eligible_txt.write_text("eligible line\n", encoding="utf-8")
             missing_txt_lrc.write_text("[00:01.00]missing txt\n", encoding="utf-8")
+            untimed_lrc.write_text("untimed lyric text\n", encoding="utf-8")
+            untimed_txt.write_text("untimed lyric text\n", encoding="utf-8")
             existing_srt_lrc.write_text("[00:01.00]already has srt\n", encoding="utf-8")
             existing_srt_txt.write_text("already has srt\n", encoding="utf-8")
             existing_srt.write_text("do not replace\n", encoding="utf-8")
@@ -1942,6 +1974,7 @@ new line
             self.assertTrue((temp_dir / "eligible.srt").exists())
             self.assertTrue((child_dir / "child-eligible.srt").exists())
             self.assertFalse((temp_dir / "missing-txt.srt").exists())
+            self.assertFalse((temp_dir / "untimed.srt").exists())
             self.assertEqual("do not replace\n", existing_srt.read_text(encoding="utf-8"))
             self.assertTrue(srt_file_was_created_by_this_tool(temp_dir / "eligible.srt"))
 

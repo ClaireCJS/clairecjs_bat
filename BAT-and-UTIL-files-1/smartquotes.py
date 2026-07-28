@@ -24,10 +24,14 @@ Dumb direction:
 
 Algorithm notes:
     * ASCII double quotes are opened or closed from local context.
-    * ASCII apostrophes, grave accents, and acute accents become right single
-      quotes when smart apostrophes are enabled.
+    * ASCII apostrophes and acute accents generally become right single quotes
+      when smart apostrophes are enabled; a plain apostrophe is preserved only
+      when it is acting as a feet mark in a measurement.
+    * Grave accents generally become left single quotes, except when they are
+      the obvious closer in a grave/accent/apostrophe pair.
     * Measurement marks such as 5'6" and 12" wide stay dumb because they are
-      feet/inch symbols, not lyric punctuation.
+      feet/inch symbols, not lyric punctuation. Outside that measurement
+      context, apostrophes and double quotes are converted.
     * Angle expression marks such as ‹this› and «this» are preserved; even
       though Unicode names may call them quotation marks, Claire uses them as
       non-quote expression markers.
@@ -41,7 +45,9 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import shutil
 import sys
+import textwrap
 import unicodedata
 import unittest
 from dataclasses import dataclass
@@ -56,6 +62,8 @@ RIGHT_SINGLE_QUOTE = "\u2019"
 
 DUMB_DOUBLE_QUOTE = '"'
 DUMB_SINGLE_QUOTE = "'"
+GRAVE_ACCENT = "\u0060"
+ACUTE_ACCENT = "\u00b4"
 
 SMART_DOUBLE_QUOTES_TO_DUMB = {
     "\u201c": DUMB_DOUBLE_QUOTE,  # “““““ left double quotation mark
@@ -85,8 +93,8 @@ SMART_SINGLE_QUOTES_TO_DUMB = {
 }
 
 QUOTE_SUBSTITUTES_TO_DUMB = {
-    "\u0060": DUMB_SINGLE_QUOTE,  # ````` grave accent, common apostrophe substitute
-    "\u00b4": DUMB_SINGLE_QUOTE,  # ´´´´´ acute accent, common apostrophe substitute
+    GRAVE_ACCENT: DUMB_SINGLE_QUOTE,  # ````` grave accent, common apostrophe substitute
+    ACUTE_ACCENT: DUMB_SINGLE_QUOTE,  # ´´´´´ acute accent, common apostrophe substitute
 }
 
 SMART_QUOTES_TO_DUMB = {
@@ -98,7 +106,12 @@ SMART_QUOTE_TRANSLATION = str.maketrans(SMART_QUOTES_TO_DUMB)
 SMART_QUOTE_CHARACTERS = frozenset(
     set(SMART_DOUBLE_QUOTES_TO_DUMB) | set(SMART_SINGLE_QUOTES_TO_DUMB)
 )
-DUMB_SINGLE_QUOTE_CHARACTERS = frozenset({DUMB_SINGLE_QUOTE, "\u0060", "\u00b4"})
+DUMB_SINGLE_QUOTE_CHARACTERS = frozenset(
+    {DUMB_SINGLE_QUOTE, GRAVE_ACCENT, ACUTE_ACCENT}
+)
+SINGLE_QUOTE_PAIR_CLOSERS = frozenset(
+    {DUMB_SINGLE_QUOTE, GRAVE_ACCENT, ACUTE_ACCENT}
+)
 DUMB_QUOTE_CHARACTERS = frozenset({DUMB_DOUBLE_QUOTE}) | DUMB_SINGLE_QUOTE_CHARACTERS
 ANY_QUOTE_CHARACTERS = SMART_QUOTE_CHARACTERS | DUMB_QUOTE_CHARACTERS
 OPENING_DOUBLE_QUOTE_CONTEXT = set("[({<\u00a1!\u00bf" + LEFT_DOUBLE_QUOTE)
@@ -159,86 +172,171 @@ def quote_target_label(target: str) -> str:
     return "ASCII apostrophe (')"
 
 
-def character_row(character: str, target: str) -> str:
-    codepoint = f"U+{ord(character):04X}"
-    display = character * 5
-    name = unicodedata.name(character, "unnamed character")
-    return (
-        "  "
-        f"{ANSI_CYAN}{display}{ANSI_RESET} "
-        f"{ANSI_BLUE}{codepoint}{ANSI_RESET} "
-        f"{ANSI_DIM}{name}{ANSI_RESET} "
-        f"{ANSI_YELLOW}-> {quote_target_label(target)}{ANSI_RESET}"
+def get_console_width() -> int:
+    return max(60, shutil.get_terminal_size((120, 24)).columns)
+
+
+def character_display_width(character: str) -> int:
+    if not character:
+        return 0
+    if unicodedata.combining(character):
+        return 0
+    if unicodedata.category(character) in {"Cc", "Cf"}:
+        return 0
+    if unicodedata.east_asian_width(character) in {"F", "W"}:
+        return 2
+    return 1
+
+
+def display_width(text: str) -> int:
+    return sum(character_display_width(character) for character in text)
+
+
+def pad_display(text: str, width: int) -> str:
+    return text + " " * max(0, width - display_width(text))
+
+
+def character_swatch(character: str) -> str:
+    repeat_count = 3 if character_display_width(character) > 1 else 5
+    return character * repeat_count
+
+
+def usage_table_column_widths(console_width: int | None = None) -> list[int]:
+    table_width = min(get_console_width() if console_width is None else console_width, 118)
+    table_width = max(60, table_width)
+    available_cell_width = table_width - 15
+    character_width = 7
+    codepoint_width = 6
+    remaining_width = available_cell_width - character_width - codepoint_width
+    name_width = min(34, max(16, remaining_width // 2))
+    result_width = remaining_width - name_width
+
+    if result_width < 12:
+        name_width = max(12, name_width - (12 - result_width))
+        result_width = remaining_width - name_width
+
+    return [character_width, codepoint_width, name_width, result_width]
+
+
+def wrap_table_cell(text: str, width: int) -> list[str]:
+    return textwrap.wrap(
+        text,
+        width=width,
+        break_long_words=True,
+        break_on_hyphens=False,
+    ) or [""]
+
+
+def table_cell_style(column_index: int, is_header: bool = False) -> str:
+    if is_header:
+        return f"{ANSI_BOLD}{ANSI_GREEN}"
+    return [ANSI_CYAN, ANSI_BLUE, ANSI_DIM, ANSI_YELLOW][column_index]
+
+
+def render_usage_table(
+    headers: list[str],
+    rows: list[list[str]],
+    console_width: int | None = None,
+) -> list[str]:
+    widths = usage_table_column_widths(console_width)
+    separator = (
+        ANSI_DIM
+        + "  +"
+        + "+".join("-" * (width + 2) for width in widths)
+        + "+"
+        + ANSI_RESET
     )
 
+    def render_row(cells: list[str], is_header: bool = False) -> list[str]:
+        wrapped_cells = [
+            wrap_table_cell(cell, width) for cell, width in zip(cells, widths)
+        ]
+        row_height = max(len(cell_lines) for cell_lines in wrapped_cells)
+        rendered_rows = []
 
-def character_rows(mapping: dict[str, str]) -> list[str]:
-    return [character_row(character, target) for character, target in mapping.items()]
+        for line_index in range(row_height):
+            rendered_cells = []
+            for column_index, (cell_lines, width) in enumerate(zip(wrapped_cells, widths)):
+                cell_text = cell_lines[line_index] if line_index < len(cell_lines) else ""
+                padded_cell = pad_display(cell_text, width)
+                style = table_cell_style(column_index, is_header)
+                rendered_cells.append(f"{style}{padded_cell}{ANSI_RESET}")
+            rendered_rows.append("  | " + " | ".join(rendered_cells) + " |")
+
+        return rendered_rows
+
+    table_lines = [separator]
+    table_lines.extend(render_row(headers, is_header=True))
+    table_lines.append(separator)
+    for row in rows:
+        table_lines.extend(render_row(row))
+    table_lines.append(separator)
+    return table_lines
 
 
-def smartening_character_rows() -> list[str]:
-    rows = [
-        (
+def character_table_row(character: str, result: str) -> list[str]:
+    return [
+        character_swatch(character),
+        f"U+{ord(character):04X}",
+        unicodedata.name(character, "unnamed character"),
+        result,
+    ]
+
+
+def dumbifying_character_table_rows(mapping: dict[str, str]) -> list[list[str]]:
+    return [
+        character_table_row(character, quote_target_label(target))
+        for character, target in mapping.items()
+    ]
+
+
+def smartening_character_table_rows() -> list[list[str]]:
+    return [
+        character_table_row(
             DUMB_DOUBLE_QUOTE,
-            f"{LEFT_DOUBLE_QUOTE} or {RIGHT_DOUBLE_QUOTE}",
-            "opening/closing smart double quote by context",
+            f"{LEFT_DOUBLE_QUOTE} or {RIGHT_DOUBLE_QUOTE}; opening/closing by context",
         ),
-        (
+        character_table_row(
             DUMB_SINGLE_QUOTE,
-            RIGHT_SINGLE_QUOTE,
-            "right single quote unless it is a feet mark",
+            f"{RIGHT_SINGLE_QUOTE}; unless it is a feet mark",
         ),
-        (
-            "\u0060",
-            RIGHT_SINGLE_QUOTE,
-            "grave accent apostrophe substitute",
+        character_table_row(
+            GRAVE_ACCENT,
+            (
+                f"{LEFT_SINGLE_QUOTE}; or {RIGHT_SINGLE_QUOTE} when it closes "
+                "an obvious pair"
+            ),
         ),
-        (
-            "\u00b4",
-            RIGHT_SINGLE_QUOTE,
-            "acute accent apostrophe substitute",
+        character_table_row(
+            ACUTE_ACCENT,
+            f"{RIGHT_SINGLE_QUOTE}; acute accent apostrophe substitute",
         ),
     ]
-    rendered_rows = []
-    for character, target, note in rows:
-        codepoint = f"U+{ord(character):04X}"
-        display = character * 5
-        name = unicodedata.name(character, "unnamed character")
-        rendered_rows.append(
-            "  "
-            f"{ANSI_CYAN}{display}{ANSI_RESET} "
-            f"{ANSI_BLUE}{codepoint}{ANSI_RESET} "
-            f"{ANSI_DIM}{name}{ANSI_RESET} "
-            f"{ANSI_YELLOW}-> {target}{ANSI_RESET} "
-            f"{ANSI_DIM}{note}{ANSI_RESET}"
-        )
-    return rendered_rows
 
 
-def preserved_character_rows() -> list[str]:
-    rows = [
-        ("\u2039", "preserved as a left angle expression mark"),
-        ("\u203a", "preserved as a right angle expression mark"),
-        ("\u00ab", "preserved as a double left angle expression mark"),
-        ("\u00bb", "preserved as a double right angle expression mark"),
-        ("<", "preserved in <this>-style expression text"),
-        (">", "preserved in <this>-style expression text"),
-        (DUMB_SINGLE_QUOTE, "preserved as a feet mark in 5'6\" and 6' tall"),
-        (DUMB_DOUBLE_QUOTE, "preserved as an inches mark in 5'6\" and 12\" wide"),
+def preserved_character_table_rows() -> list[list[str]]:
+    return [
+        character_table_row("\u2039", "preserved as a left angle expression mark"),
+        character_table_row("\u203a", "preserved as a right angle expression mark"),
+        character_table_row("\u00ab", "preserved as a double left angle expression mark"),
+        character_table_row("\u00bb", "preserved as a double right angle expression mark"),
+        character_table_row("<", "preserved in <this>-style expression text"),
+        character_table_row(">", "preserved in <this>-style expression text"),
+        character_table_row(
+            DUMB_SINGLE_QUOTE,
+            (
+                "ONLY preserved as a feet mark in 5'6\" or 6' tall; otherwise "
+                f"smartened to {RIGHT_SINGLE_QUOTE}"
+            ),
+        ),
+        character_table_row(
+            DUMB_DOUBLE_QUOTE,
+            (
+                "ONLY preserved as an inches mark in 5'6\" or 12\" wide; "
+                "otherwise smartened by context"
+            ),
+        ),
     ]
-    rendered_rows = []
-    for character, note in rows:
-        codepoint = f"U+{ord(character):04X}"
-        display = character * 5
-        name = unicodedata.name(character, "unnamed character")
-        rendered_rows.append(
-            "  "
-            f"{ANSI_CYAN}{display}{ANSI_RESET} "
-            f"{ANSI_BLUE}{codepoint}{ANSI_RESET} "
-            f"{ANSI_DIM}{name}{ANSI_RESET} "
-            f"{ANSI_YELLOW}-> {note}{ANSI_RESET}"
-        )
-    return rendered_rows
 
 
 def console_safe_text(text: str) -> str:
@@ -254,16 +352,22 @@ def console_safe_text(text: str) -> str:
     return text
 
 
-def render_usage() -> str:
+def render_usage(console_width: int | None = None) -> str:
     title_header_text = "\u2728\u2731\u2728 smartquotes.py \u2728\u2731\u2728"
     usage_header_text = "\u2728\u2731\u2728 Usage: \u2728\u2731\u2728"
     flags_header_text = "\u2728\u2731\u2728 Flags: \u2728\u2731\u2728"
     algorithm_header_text = "\u2728\u2731\u2728 Algorithm: \u2728\u2731\u2728"
     examples_header_text = "\u2728\u2731\u2728 Examples: \u2728\u2731\u2728"
-    converts_header_text = "\u2728\u2731\u2728 Characters Converted: \u2728\u2731\u2728"
+    smartening_converts_header_text = (
+        "\u2728\u2731\u2728 Smartening Characters Converted: \u2728\u2731\u2728"
+    )
+    dumbifying_converts_header_text = (
+        "\u2728\u2731\u2728 Dumbening Characters Converted: \u2728\u2731\u2728"
+    )
     preserved_header_text = "\u2728\u2731\u2728 Characters Preserved: \u2728\u2731\u2728"
     code_header_text = "\u2728\u2731\u2728 Code Samples: \u2728\u2731\u2728"
     tests_header_text = "\u2728\u2731\u2728 Tests: \u2728\u2731\u2728"
+    table_headers = ["Char", "Code", "Name", "Converts / preserves"]
 
     return "\n".join(
         [
@@ -304,8 +408,9 @@ def render_usage() -> str:
             "",
             usage_command(("cli", "--no-smart-apostrophes")),
             usage_note(
-                "  ^ In default smartening mode, leave ASCII apostrophes, "
-                "grave accents, and acute accents unchanged."
+                "  ^ Override default smartening: leave ASCII apostrophes, "
+                "grave accents, and acute accents unchanged even when they "
+                "would normally convert."
             ),
             "",
             usage_command(("cli", "--usage  -h  --help")),
@@ -325,15 +430,23 @@ def render_usage() -> str:
                 "forms from nearby punctuation, words, spacing, and quote state."
             ),
             usage_note(
-                "  3. ASCII apostrophes plus ````` grave and ´´´´´ acute "
-                "substitutes become right single quotes in smartening mode."
+                "  3. ASCII apostrophes and ´´´´´ acute substitutes usually "
+                "become right single quotes in smartening mode."
             ),
             usage_note(
-                "  4. Measurement marks stay plain: 5'6\", 6' tall, and "
-                "12\" wide are treated as feet/inches, not quotes."
+                "     Plain apostrophes are preserved only as feet marks in "
+                "measurements; otherwise they convert."
             ),
             usage_note(
-                "  5. Angle expression marks stay untouched: ‹this›, «this», "
+                "  4. ````` grave accents usually become left single quotes, "
+                "but close as right single quotes in obvious pairs."
+            ),
+            usage_note(
+                "  5. Measurement marks stay plain: 5'6\", 6' tall, and "
+                "12\" wide are treated as feet/inches, not quote punctuation."
+            ),
+            usage_note(
+                "  6. Angle expression marks stay untouched: ‹this›, «this», "
                 "and <this> are not quote-normalized."
             ),
             "",
@@ -341,6 +454,9 @@ def render_usage() -> str:
             "",
             usage_command(("cli", "py smartquotes.py "), ("example", '"don\'t stop"')),
             usage_note(f"  ^ -> don{RIGHT_SINGLE_QUOTE}t stop"),
+            "",
+            usage_command(("cli", "py smartquotes.py "), ("example", '"`til `n\' roll"')),
+            usage_note(f"  ^ -> {LEFT_SINGLE_QUOTE}til {LEFT_SINGLE_QUOTE}n{RIGHT_SINGLE_QUOTE} roll"),
             "",
             usage_command(("cli", "py smartquotes.py "), ("example", '\'"hello"\'')),
             usage_note(f"  ^ -> {LEFT_DOUBLE_QUOTE}hello{RIGHT_DOUBLE_QUOTE}"),
@@ -363,38 +479,90 @@ def render_usage() -> str:
             usage_command(("cli", "py smartquotes.py "), ("example", '"‹this› «that» <still-this>"')),
             usage_note("  ^ -> ‹this› «that» <still-this>"),
             "",
-            *usage_double_height_header(converts_header_text),
+            *usage_double_height_header(smartening_converts_header_text),
             "",
-            usage_note("  Default smartening mode converts these first:"),
-            *smartening_character_rows(),
+            usage_note("  Default smartening mode converts these characters:"),
+            *render_usage_table(
+                table_headers,
+                smartening_character_table_rows(),
+                console_width,
+            ),
+            "",
+            *usage_double_height_header(dumbifying_converts_header_text),
             "",
             usage_note("  --to-dumb converts these double quote characters to ASCII:"),
-            *character_rows(SMART_DOUBLE_QUOTES_TO_DUMB),
+            *render_usage_table(
+                table_headers,
+                dumbifying_character_table_rows(SMART_DOUBLE_QUOTES_TO_DUMB),
+                console_width,
+            ),
             "",
             usage_note("  --to-dumb converts these single quote/apostrophe characters to ASCII:"),
-            *character_rows(SMART_SINGLE_QUOTES_TO_DUMB),
+            *render_usage_table(
+                table_headers,
+                dumbifying_character_table_rows(SMART_SINGLE_QUOTES_TO_DUMB),
+                console_width,
+            ),
             "",
             usage_note("  --to-dumb also converts these apostrophe substitutes to ASCII:"),
-            *character_rows(QUOTE_SUBSTITUTES_TO_DUMB),
+            *render_usage_table(
+                table_headers,
+                dumbifying_character_table_rows(QUOTE_SUBSTITUTES_TO_DUMB),
+                console_width,
+            ),
             "",
             *usage_double_height_header(preserved_header_text),
             "",
-            *preserved_character_rows(),
+            *render_usage_table(
+                table_headers,
+                preserved_character_table_rows(),
+                console_width,
+            ),
+            usage_note(
+                "  Plain apostrophe is not generally preserved; it appears in "
+                "this table only for the feet-mark measurement exception."
+            ),
             usage_note("  <this> as a whole remains <this>; no quote conversion is applied."),
             "",
             *usage_double_height_header(code_header_text),
             "",
             usage_example_value("  import smartquotes"),
+            "",
+            usage_example_value('  smartquotes.smartify_quotes("don\'t stop")'),
+            usage_note(f"  ^ returns don{RIGHT_SINGLE_QUOTE}t stop"),
+            "",
+            usage_example_value('  smartquotes.smartify_quotes("5\'6\\" and 12\\" wide")'),
+            usage_note("  ^ returns 5'6\" and 12\" wide because those marks are feet/inches."),
+            "",
+            usage_example_value('  smartquotes.smartify_quotes("`hello\' and `til")'),
+            usage_note(f"  ^ returns {LEFT_SINGLE_QUOTE}hello{RIGHT_SINGLE_QUOTE} and {LEFT_SINGLE_QUOTE}til"),
+            "",
             usage_example_value("  smartquotes.smartify_quotes('\"Don\\'t,\" she said.')"),
             usage_note(f"  ^ returns {LEFT_DOUBLE_QUOTE}Don{RIGHT_SINGLE_QUOTE}t,{RIGHT_DOUBLE_QUOTE} she said."),
+            "",
+            usage_example_value(
+                '  smartquotes.replace_dumb_quotes_with_smart_quotes("don\'t", smarten_apostrophes=False)'
+            ),
+            usage_note("  ^ returns don't because apostrophe smartening is explicitly disabled."),
             "",
             usage_example_value(
                 f"  smartquotes.replace_smart_quotes_with_dumb_quotes('{LEFT_DOUBLE_QUOTE}Don{RIGHT_SINGLE_QUOTE}t{RIGHT_DOUBLE_QUOTE}')"
             ),
             usage_note("  ^ returns \"Don't\""),
             "",
+            usage_example_value(
+                f"  smartquotes.replace_smart_quotes_with_dumb_quotes('{LEFT_DOUBLE_QUOTE}quote{RIGHT_DOUBLE_QUOTE} \u2039kept\u203a \u00abkept\u00bb')"
+            ),
+            usage_note("  ^ returns \"quote\" ‹kept› «kept»; angle expression marks stay preserved."),
+            "",
             usage_example_value("  smartquotes.contains_smart_quotes('can’t')"),
             usage_note("  ^ returns True"),
+            "",
+            usage_example_value("  smartquotes.contains_unconverted_dumb_quotes(\"5'6\\\"\")"),
+            usage_note("  ^ returns False because the marks are measurement symbols."),
+            "",
+            usage_example_value("  smartquotes.contains_unconverted_dumb_quotes(\"don't\")"),
+            usage_note("  ^ returns True because the apostrophe should convert."),
             "",
             usage_example_value("  smartquotes.contains_unconverted_dumb_quotes('5\\'6\" and don\\'t')"),
             usage_note("  ^ returns True because don't still has a convertible apostrophe."),
@@ -504,6 +672,16 @@ def _is_preserved_measurement_quote(text: str, index: int) -> bool:
     return False
 
 
+def _is_single_quote_closing_context(text: str, index: int) -> bool:
+    previous = text[index - 1] if index > 0 else ""
+    next_character = text[index + 1] if index < len(text) - 1 else ""
+    return (
+        _is_word_character(previous)
+        or previous in SINGLE_QUOTE_PAIR_CLOSERS
+        or previous == LEFT_SINGLE_QUOTE
+    ) and _is_boundary_after_measurement_mark(next_character)
+
+
 def count_unconverted_dumb_quote_characters(text: str | None) -> int:
     if not text:
         return 0
@@ -610,11 +788,12 @@ def replace_dumb_double_quotes_with_smart_quotes(text: str | None) -> str:
 
 
 def replace_ascii_apostrophes_with_smart_apostrophes(text: str | None) -> str:
-    """Match the old SRT2TXT behavior: dumb apostrophes become right singles."""
+    """Convert dumb apostrophe-like marks while preserving measurements."""
     if text is None:
         return ""
 
     result = []
+    in_grave_quote_pair = False
     for index, character in enumerate(text):
         if character not in DUMB_SINGLE_QUOTE_CHARACTERS:
             result.append(character)
@@ -622,6 +801,17 @@ def replace_ascii_apostrophes_with_smart_apostrophes(text: str | None) -> str:
 
         if _is_feet_mark_context(text, index):
             result.append(DUMB_SINGLE_QUOTE)
+            in_grave_quote_pair = False
+        elif character == GRAVE_ACCENT:
+            if in_grave_quote_pair and _is_single_quote_closing_context(text, index):
+                result.append(RIGHT_SINGLE_QUOTE)
+                in_grave_quote_pair = False
+            else:
+                result.append(LEFT_SINGLE_QUOTE)
+                in_grave_quote_pair = True
+        elif in_grave_quote_pair and _is_single_quote_closing_context(text, index):
+            result.append(RIGHT_SINGLE_QUOTE)
+            in_grave_quote_pair = False
         else:
             result.append(RIGHT_SINGLE_QUOTE)
 
@@ -780,8 +970,9 @@ class SmartQuotesUnitTests(unittest.TestCase):
         self.assertNotIn("\u00bb", SMART_DOUBLE_QUOTES_TO_DUMB)
 
     def test_render_usage_is_a_standalone_reference(self) -> None:
-        usage = render_usage()
+        usage = render_usage(console_width=80)
         plain_usage = re.sub(r"\033(?:\[[0-?]*[ -/]*[@-~]|#[0-9])", "", usage)
+        plain_lines = plain_usage.splitlines()
 
         self.assertGreaterEqual(usage.count(ANSI_DOUBLE_HEIGHT_TOP), 8)
         self.assertGreaterEqual(usage.count(ANSI_DOUBLE_HEIGHT_BOTTOM), 8)
@@ -798,7 +989,8 @@ class SmartQuotesUnitTests(unittest.TestCase):
             "Flags:",
             "Algorithm:",
             "Examples:",
-            "Characters Converted:",
+            "Smartening Characters Converted:",
+            "Dumbening Characters Converted:",
             "Characters Preserved:",
             "Code Samples:",
             "Tests:",
@@ -811,7 +1003,13 @@ class SmartQuotesUnitTests(unittest.TestCase):
         for character in SMART_QUOTES_TO_DUMB:
             self.assertIn(f"U+{ord(character):04X}", plain_usage)
         for character in (DUMB_DOUBLE_QUOTE, DUMB_SINGLE_QUOTE, "\u0060", "\u00b4"):
-            self.assertIn(f"{character * 5} U+{ord(character):04X}", plain_usage)
+            self.assertTrue(
+                any(
+                    character_swatch(character) in line
+                    and f"U+{ord(character):04X}" in line
+                    for line in plain_lines
+                )
+            )
         for character in (
             "\u2039",
             "\u203a",
@@ -820,19 +1018,69 @@ class SmartQuotesUnitTests(unittest.TestCase):
             "<",
             ">",
         ):
-            self.assertIn(f"{character * 5} U+{ord(character):04X}", plain_usage)
+            self.assertTrue(
+                any(
+                    character_swatch(character) in line
+                    and f"U+{ord(character):04X}" in line
+                    for line in plain_lines
+                )
+            )
 
         self.assertIn("ASCII double quotes choose opening or closing curly", plain_usage)
         self.assertIn("Angle expression marks stay untouched", plain_usage)
+        self.assertIn("| Char", plain_usage)
+        self.assertIn("Converts /", plain_usage)
+        table_lines = [
+            line for line in plain_lines if line.startswith("  | ") or line.startswith("  +")
+        ]
+        self.assertTrue(table_lines)
+        self.assertLessEqual(max(display_width(line) for line in table_lines), 80)
         self.assertLess(
-            plain_usage.index("Default smartening mode converts these first:"),
+            plain_usage.index("Smartening Characters Converted:"),
+            plain_usage.index("Dumbening Characters Converted:"),
+        )
+        self.assertLess(
+            plain_usage.index("Default smartening mode converts these characters:"),
             plain_usage.index("--to-dumb converts these double quote characters"),
         )
-        self.assertIn("preserved as a left angle expression mark", plain_usage)
-        self.assertIn("preserved in <this>-style expression text", plain_usage)
+        self.assertIn("grave accents usually become left single quotes", plain_usage)
+        self.assertIn("Plain apostrophes are preserved only as feet marks", plain_usage)
+        self.assertIn("ONLY preserved as a feet", plain_usage)
+        self.assertIn("mark in 5'6", plain_usage)
+        self.assertIn("apostrophe is not generally preserved", plain_usage)
+        self.assertIn("preserved as a left angle", plain_usage)
+        self.assertIn("expression mark", plain_usage)
+        self.assertIn("preserved in <this>-style", plain_usage)
+        self.assertIn("expression text", plain_usage)
         self.assertIn("import smartquotes", plain_usage)
+        self.assertIn('smartquotes.smartify_quotes("don\'t stop")', plain_usage)
+        self.assertIn("smartquotes.smartify_quotes(\"5'6\\\" and 12\\\" wide\")", plain_usage)
+        self.assertIn('smartquotes.smartify_quotes("`hello\' and `til")', plain_usage)
+        self.assertIn("smarten_apostrophes=False", plain_usage)
+        self.assertIn("angle expression marks stay preserved", plain_usage)
+        self.assertIn('smartquotes.contains_unconverted_dumb_quotes("don\'t")', plain_usage)
         self.assertIn("smartquotes.smartify_quotes", plain_usage)
         self.assertIn("smartquotes.replace_smart_quotes_with_dumb_quotes", plain_usage)
+
+    def test_usage_table_uses_display_width_for_fullwidth_characters(self) -> None:
+        self.assertEqual(2, character_display_width("\uff07"))
+        self.assertEqual("\uff07" * 3, character_swatch("\uff07"))
+        self.assertEqual(DUMB_SINGLE_QUOTE * 5, character_swatch(DUMB_SINGLE_QUOTE))
+
+        table = render_usage_table(
+            ["Char", "Code", "Name", "Converts / preserves"],
+            [character_table_row("\uff07", "ASCII apostrophe (')")],
+            console_width=80,
+        )
+        plain_table = re.sub(
+            r"\033(?:\[[0-?]*[ -/]*[@-~]|#[0-9])",
+            "",
+            "\n".join(table),
+        )
+        table_lines = plain_table.splitlines()
+        self.assertTrue(any("\uff07" * 3 in line for line in table_lines))
+        self.assertFalse(any("\uff07" * 5 in line for line in table_lines))
+        self.assertLessEqual(max(display_width(line) for line in table_lines), 80)
 
     def test_usage_flag_prints_reference(self) -> None:
         import contextlib
@@ -845,7 +1093,8 @@ class SmartQuotesUnitTests(unittest.TestCase):
         output = buffer.getvalue()
         self.assertEqual(0, exit_code)
         self.assertIn("smartquotes.py", output)
-        self.assertIn("Characters Converted:", output)
+        self.assertIn("Smartening Characters Converted:", output)
+        self.assertIn("Dumbening Characters Converted:", output)
 
     def test_smartify_single_double_quote_matches_existing_perl_edge_case(self) -> None:
         self.assertEqual(LEFT_DOUBLE_QUOTE, replace_dumb_quotes_with_smart_quotes('"'))
@@ -888,8 +1137,34 @@ class SmartQuotesUnitTests(unittest.TestCase):
         self.assertEqual(f"don{RIGHT_SINGLE_QUOTE}t", smartify_quotes("don't"))
         self.assertEqual(f"{RIGHT_SINGLE_QUOTE}round", smartify_quotes("'round"))
         self.assertEqual(f"1980{RIGHT_SINGLE_QUOTE}s", smartify_quotes("1980's"))
+        self.assertNotIn(DUMB_SINGLE_QUOTE, smartify_quotes("don't 'round 1980's"))
         self.assertFalse(contains_unconverted_dumb_quotes("5'6\" and 12\" wide"))
         self.assertTrue(contains_unconverted_dumb_quotes("don't stop"))
+
+    def test_smartify_grave_accent_opens_single_quotes_by_default(self) -> None:
+        self.assertEqual(f"{LEFT_SINGLE_QUOTE}til", smartify_quotes("`til"))
+        self.assertEqual(
+            f"rock {LEFT_SINGLE_QUOTE}n{RIGHT_SINGLE_QUOTE} roll",
+            smartify_quotes("rock `n' roll"),
+        )
+
+    def test_smartify_grave_accent_obvious_pairs(self) -> None:
+        self.assertEqual(
+            f"{LEFT_SINGLE_QUOTE}hello{RIGHT_SINGLE_QUOTE}",
+            smartify_quotes("`hello'"),
+        )
+        self.assertEqual(
+            f"{LEFT_SINGLE_QUOTE}hello{RIGHT_SINGLE_QUOTE}",
+            smartify_quotes("`hello`"),
+        )
+        self.assertEqual(
+            f"{LEFT_SINGLE_QUOTE}hello{RIGHT_SINGLE_QUOTE}",
+            smartify_quotes("`hello\u00b4"),
+        )
+        self.assertEqual(
+            LEFT_SINGLE_QUOTE + RIGHT_SINGLE_QUOTE,
+            smartify_quotes("``"),
+        )
 
     def test_smartify_preserves_existing_smart_quotes(self) -> None:
         text = (
@@ -905,7 +1180,7 @@ class SmartQuotesUnitTests(unittest.TestCase):
                 f"{LEFT_DOUBLE_QUOTE}Don{RIGHT_SINGLE_QUOTE}t,{RIGHT_DOUBLE_QUOTE} "
                 f"she said, {LEFT_DOUBLE_QUOTE}it{RIGHT_SINGLE_QUOTE}s "
                 f"5'6\".{RIGHT_DOUBLE_QUOTE} "
-                f"{RIGHT_SINGLE_QUOTE}til {RIGHT_SINGLE_QUOTE}round"
+                f"{LEFT_SINGLE_QUOTE}til {RIGHT_SINGLE_QUOTE}round"
             ),
             smartify_quotes('"Don\'t," she said, "it\'s 5\'6"." `til \u00b4round'),
         )
