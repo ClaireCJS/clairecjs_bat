@@ -108,7 +108,7 @@ rem EXECUTION:
 
         rem can we add subtitles?
                 rem   %YDL% --ignore-config -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail --js-runtimes "deno:C:\Users\ClioC\AppData\Local\Microsoft\WinGet\Packages\DenoLand.Deno_Microsoft.Winget.Source_8wekyb3d8bbwe\deno.exe" --js-runtimes "node:C:\Program Files\nodejs\node.exe" --remote-components ejs:github  --write-subs --write-auto-subs --sub-langs en                         --convert-subs srt "%URL%"
-                call  %YDL% --ignore-config -vU --verbose --write-description --compat-options filename-sanitization  --cookies c:\cookies.txt --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail --js-runtimes "deno:C:\Users\ClioC\AppData\Local\Microsoft\WinGet\Packages\DenoLand.Deno_Microsoft.Winget.Source_8wekyb3d8bbwe\deno.exe" --js-runtimes "node:C:\Program Files\nodejs\node.exe" --remote-components ejs:github  --write-subs --write-auto-subs --sub-langs en --sub-format "srt/best" --convert-subs srt "%URL%"
+                call  %YDL% --ignore-config -vU --verbose --write-description --compat-options filename-sanitization                           --embed-chapters --add-metadata --embed-metadata --embed-subs --embed-info-json --sub-langs en --write-thumbnail --embed-thumbnail --js-runtimes "deno:C:\Users\ClioC\AppData\Local\Microsoft\WinGet\Packages\DenoLand.Deno_Microsoft.Winget.Source_8wekyb3d8bbwe\deno.exe" --js-runtimes "node:C:\Program Files\nodejs\node.exe" --remote-components ejs:github  --write-subs --write-auto-subs --sub-langs en --sub-format "srt/best" --convert-subs srt "%URL%"
 
 
                                                                                                                                                                 
@@ -182,6 +182,9 @@ rem CLEANUP:
 
     rem multiple-file downloads is janky and .description files don’t all get turned into .txt correctly
         if exist *.description (ren *.description *.txt)
+
+    rem Files left over from failed downloads:
+        if exist .json *del .json
 
     rem move files back into original folder we started in
         :dangerous: mv * ..

@@ -190,6 +190,18 @@ rem CONFIG: WAIT TIMES: DEFAULTS ━━ MAKE SURE ANY NEW ONES GET ADDED TO MODE
         set PAUSED_DEBUG_WAIT_TIME=5                                                  %+ rem how long to wait for debug statements we’re particularly focusing on
         set WAIT_AFTER_ANNOUNCING_MASSAGED_SEARCH=0                                   %+ rem How long to wait after displaying the massaged artist/title prior to searching for the (if the 1st search with non-massaged failed). If set to 0, there will be no notice at all
 : ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+rem DETERMINING CALLING SCRIPT:
+        set PARENT_BAT=%@NAME[%_PBATCHNAME] %+ rem the calling BAT filename without path or extension ... can be “get-the-missing-lyrics-here-temp-20260728085628”, “get-lyrics”, “create-srt-from-file”
+        iff "%PARENT_BAT%" == "create-srt-from-file" .or. "%PARENT_BAT%" == "create-srt-for-currently-playing-song" .or. "%PARENT_BAT%" == "create-srt-for-all-audio-files" then
+                set currently_getting_lyrics=0
+                set calling_bat_nature=karaoke
+        else
+                set currently_getting_lyrics=1
+                set calling_bat_nature=lyrics
+        endiff
+        pause "PARENT_BAT is %PARENT_BAT%, calling_bat_nature is “%blink_on%%calling_bat_nature%%blink_off%”, currently_getting_lyrics=“%currently_getting_lyrics%”" 
+
+: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 rem CONFIG: WAIT TIMES: DEPENDING ON CALLING SCRIPT:
         iff "%PARENT_BAT%" == "get-lyrics" then                              
                 SET APPROVE_LYRICLESS_SONGS_WAIT_TIME=5                       %+ rem how long to pause on the prompt: “Do you want to approve “lyriclessness” status, and officially give up on finding lyrics for this song?”
@@ -262,9 +274,6 @@ rem If the FIRST arg is SetVarsOnly, we are just setting variables without havin
 
 
 
-rem SETUP: GRAB CALLING BAT FILE NAME, IF ANY:
-        set PARENT_BAT=%@NAME[%_PBATCHNAME] %+ rem the calling BAT filename without path or extension i.e. “whatever” as opposed to “c:\bat\whatever.bat”
-        set currently_getting_lyrics=1
 
 rem DEBUG: 
         rem call bigecho CONSIDER_ALL_LYRICS_APPROVED is %CONSIDER_ALL_LYRICS_APPROVED% 
@@ -1134,8 +1143,7 @@ rem If we are in Genius-download-only mode, skip if we’ve already tried it for
                 rem DEBUG: pause "GENIUS_SEARCHED_ALREADY is “%GENIUS_SEARCHED_ALREADY%” for “%audio_file%”  🐻"
                 iff "%genius_search_status%" == "True" then
                         gosub divider
-                        echo  displayaudiofilename 01
-                        gosub DisplayAudioFileName "%AUDIO_FILE%"
+                        gosub DisplayAudioFileName "%AUDIO_FILE%" 1
                         echo %star% %conceal_off%%ansi_color_bright_yellow%Already searched this file in genius-only mode. Skipping.%ansi_color_reset%
                         goto /i END_OF_GET_LYRICS
                 endiff
@@ -1872,8 +1880,7 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 call review-file -wh "%MAYBE_LYRICS_1%" 
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[bright cyan]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
                 gosub divider
-                echo  displayaudiofilename 02
-                gosub DisplayAudioFileName "%AUDIO_FILE%"
+                gosub DisplayAudioFileName "%AUDIO_FILE%" 2
                 :Ask_Again_p_12
                 unset /q ANSWER hold_answer
                 call AskYn "These good? (e%ansi_color_bright_green%D%ansi_color_prompt%it band/song,%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%H%ansi_color_prompt%and-edit,%ansi_color_bright_green%L%ansi_color_prompt%yric give-up(%ansi_color_bright_green%Z%ansi_color_prompt%=all),I=%ansi_color_bright_green%I%ansi_color_prompt%nstr(%ansi_color_bright_green%X%ansi_color_prompt%=All),delet%ansi_color_bright_green%T%ansi_color_prompt%e)" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% DHILOPQXZT H:Yes_but_hand_edit_first,L:No!_Marking_as_lyricless,I:Mark_the_track_as_an_instrumental_track,Q:enQueue_in_winamp,P:Play_theeee_file,Z:mark_all_songs_in_folder_as_lyricless,D:edit_artist/song_name,O:dOwnload_lyrics_nOw,X:mark_all_as_instrumental,T:deleTe_them!
@@ -1988,8 +1995,7 @@ rem Check if we have one in our lyric repository already, via 2 different filena
                 call review-file -wh "%MAYBE_LYRICS_2%" "%ANSI_COLOR_IMPORTANT_LESS%Let’s review!%ANSI_RESET%"
                 echos %@ANSI_CURSOR_CHANGE_COLOR_WORD[bright cyan]%ANSI_CURSOR_CHANGE_TO_BLOCK_BLINKING%   
                 gosub divider
-                echo  displayaudiofilename 03
-                gosub DisplayAudioFileName "%AUDIO_FILE%"
+                gosub DisplayAudioFileName "%AUDIO_FILE%" 3
                 :ask_again_1297
                 unset /q ANSWER hold_answer
                 call AskYn "%conceal_on%3%conceal_off%Do these look acceptable [%ansi_color_bright_green%P%ansi_color_prompt%lay,%ansi_color_bright_green%H%ansi_color_prompt%and-edit,dele%ansi_color_bright_green%T%ansi_color_prompt%e these repo lyrics]" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% HPQT H:Yes_but_hand-edit_first,Q:enQueue_in_winamp,P:play,T:delete_crappy_repo_lyrics                                
@@ -2071,8 +2077,7 @@ rem If we still didn’t find anything acceptable, but have potentially matching
                         dir /b "%MAYBE_LYRICS_1_BROAD_SEARCH%" |:u8 insert-before-each-line.py "        %@REPEAT[%EMOJI_red_QUESTION_MARK,2] "
                         unset /q ANSWER
                         :Ask_Again_p_13
-                        echo  DisplayAudioFileName 04
-                        gosub DisplayAudioFileName "%AUDIO_FILE%"
+                        gosub DisplayAudioFileName "%AUDIO_FILE%" 4
                         unset /q ANSWER
                         if not defined LYRIC_SELECT_FROM_FILELIST_WAIT_TIME set LYRIC_SELECT_FROM_FILELIST_WAIT_TIME=180
                         if "1" == "%REFUSED_LOCAL_REPO%" .and. "1" == "%QUICK_LRC_MODE%" goto /i end_quick_lrc_mode_fail
@@ -2154,8 +2159,7 @@ rem Now we have gotten past the “Select from existing filelist” part
                 if %DEBUG gt 0 (gosub debug "TMPREVIEWFILE of size %@FILESIZE[%TMPREVIEWFILE%] exists: %TMPREVIEWFILE%")
                 call review-file -wh "%TMPREVIEWFILE%" "Lyrics from local repo"
                 gosub divider
-                echo  displayaudiofilename 05
-                gosub DisplayAudioFileName  "%AUDIO_FILE%"
+                gosub DisplayAudioFileName  "%AUDIO_FILE%" 5
                 :ask_if_these_are_acceptible_1
                 unset /q ANSWER hold_answer 
                 call  AskYn "These %italics_on%%underline_on%local repo%underline_off%%italics_off% lyrics good?%conceal_on%4%conceal_off%[%ANSI_GREEN%H%ANSI_COLOR_PROMPT%%connecting_equals%edit lyr,%ANSI_COLOR_PROMPT%e%ansi_color_bright_green%D%ansi_color_prompt%it band/tit,d%ansi_color_bright_green%O%ansi_color_prompt%wnload,%ANSI_GREEN%L%ANSI_COLOR_PROMPT%=%ANSI_GREEN%L%ANSI_COLOR_PROMPT%yricless,%ANSI_GREEN%I%ANSI_COLOR_PROMPT%=Instr(%ansi_color_green%X%ansi_color_prompt%=all),%ANSI_color_bright_GREEN%G%ANSI_COLOR_PROMPT%oogle,%ANSI_GREEN%P%ANSI_COLOR_PROMPT%lay%%ansi_color_prompt%,dele%ansi_color_bright_green%T%ansi_color_prompt%e it,rena%ansi_color_bright_green%M%ansi_color_prompt%e]" %DEFAULT_LYRIC_ACCEPTANCE_PROMPT_1%  %LYRIC_ACCEPTABILITY_REVIEW_WAIT_TIME% ADGHILMOPQXZT H:Yes_but_hand-edit_1st,D:eDit_and_change_artist_or_song_name_first,O:dOwnload_now,L:Mark_as_lyricless!!!,Z:Mark_all_as_lyricless,I:Rename_as_instrumental,Q:enQueue_in_winamp,P:Play_it!,G:Google_for_better_lyrics,X:mark_all_as_instrumental,t:deleTe_themmmm,M:rename_the_file
@@ -2599,7 +2603,8 @@ rem Download the lyrics using the currently-selected provider: BEGIN: ———�
                                 iff exist  "%TXT_SIDECAR_FILENAME_TEMP%" then
                                         echo %ansi_color_run%%emoji_gear% Postprocessing potential %italics_on%TXT%[italics_off] file... %[TXT_SIDECAR_FILENAME_TEMP] %ansi_color_normal% 
                                         if "1" == "%DEBUG_POSTPROCESSORS%" echo %ansi_color_debug%[DEBUG] lyric-postprocessor.pl -A -L -S "%TXT_SIDECAR_FILENAME_TEMP%" 
-                                                                                                          lyric-postprocessor.pl -A -L -S "%TXT_SIDECAR_FILENAME_TEMP%" 
+                                                                                                          lyric-postprocessor.pl -A -L -S "%TXT_SIDECAR_FILENAME_TEMP%" >:u8 delme.templyrics
+                                                                                                          if exist delme.templyrics .and. %@FILESIZE[delme.templyrics] gt 0 *move delme.templyrics "%TXT_SIDECAR_FILENAME_TEMP%"
                                 endiff
 
 
@@ -4740,9 +4745,8 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                         echos %ansi_color_prompt%%star% %ansi_color_bright_yellow%Audio %dspauddir_spacer%filename%ansi_color_yellow%:%ansi_color_prompt%  %dspauddir_spacer%“%italics_on%%blink_off%%ansi_color_green%%AUDIO_FILE_TO_DISPLAY_NAME%%blink_off%%italics_off%%ansi_color_prompt%”
                 :nofilename
         return
-        :DisplayAudioFileName [opt]
-                echo Why is this happening?
-                echo Called :DisplayAudioFileName [%opt%] --------------
+        :DisplayAudioFileName [opt reason]
+                echo %ansi_color_debug%* Called :DisplayAudioFileName [%opt%] [reason=%reason%] --------------%ansi_color_normal% goatgoat
                 if exist "%@UNQUOTE["%AUDIO_FILE%"]" set FILE2USE=%@UNQUOTE["%AUDIO_FILE%"]
                 if exist "%@UNQUOTE["%INPUT_FILE%"]" set FILE2USE=%@UNQUOTE["%INPUT_FILE%"]
                 if exist "%@unquote["%opt%"]"        set FILE2USE=%@UNQUOTE["%opt%"]

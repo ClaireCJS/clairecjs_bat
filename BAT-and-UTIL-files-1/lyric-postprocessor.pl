@@ -258,7 +258,10 @@ while (my $raw = <$INPUT>) {
 		#$line =~ s/^[0-9] Contributors$//;
 		#$line =~ s/^.* Lyrics$//;							# todo we could be probing and using the songtitle here to be more restrictive
 		#$line =~ s/Get tickets as low as \$[\d\.]+//i;
-		for my $re (@lyric_website_spam_patterns) { $line =~ s/$re//g; }
+		for my $re (@lyric_website_spam_patterns) { 
+			#DEBUG: print "* processing regex " . $re . "\n";
+			$line =~ s/$re//gi; 
+		}
 
 
 

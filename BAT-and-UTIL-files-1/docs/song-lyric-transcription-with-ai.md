@@ -1000,6 +1000,94 @@ Invoke it with ```approve-lyriclessness ask``` if you want it to ask individuall
 
 A *batch* SRT-file to LRC-file converter that’s better than all the other ones on the internet. Used by [eccsrt2lrc2clip.bat](../eccsrt2lrc2clip.bat) in the very rare event of [MiniLyrics](https://minilyrics.en.softonic.com/) not properly importing an ```SRT``` file.
 
+GOATGOATADDEDBYCHATGPTSTART
+### converter: [lrc2srt.py](../lrc2srt.py):
+
+An ```LRC``` to ```SRT``` converter for cases where we have downloaded/salvaged LRC karaoke but need a real subtitle sidecar. Generated SRT files begin with ```NOTE``` comment lines identifying them as created by Claire Sawyer's LRC2SRT converter, plus an internal marker the script can detect later.
+
+Lyric text is normalized through [smartquotes.py](../smartquotes.py) before it is written to SRT. Existing smart/typographic quotes are preserved, and dumb quote characters such as ```"```, ```'```, backticks, and acute-accent apostrophe substitutes are converted to smart quotes like ```“...”``` and ```don’t```. Numeric measurement marks are preserved, so ```5'6"``` stays ```5'6"``` instead of becoming curly quotes. The smartquotes library is dependency-free, includes its own unit tests, and its local corpus test checks at least 100 quote-bearing lyric/subtitle/text files from ```C:\mp3``` when that folder exists.
+
+Usage shape:
+
+```bat
+py lrc2srt.py "Some Song.lrc" [flags]
+```
+
+Common flags:
+
+- ```--automatic-overwrites```: back up and replace existing SRT files without pausing for overwrite or review prompts
+- ```-f```, ```--force```, and ```force```: legacy aliases for ```--automatic-overwrites```; kept for old batch habits, but ```--automatic-overwrites``` is clearer
+- ```-a``` and ```--all```: same as the ```all``` mode: convert every ```*.lrc``` file in the current folder
+- ```-r``` and ```--recursive```: include subfolders when expanding wildcards or the ```all```, ```go```, ```MiniLyricsFix```, and regeneration modes; for multi-folder batches, print a folder header before that folder's files
+- ```--seconds-per-word 0.65```: tune estimated lyric duration from sung word count when the LRC has no end timestamps; higher values keep lines onscreen longer
+- ```--seconds-per-syllable```, ```--line-padding```, ```--punctuation-pause```, ```--min-duration```, and ```--max-duration```: optional timing knobs for slower, faster, denser, or more punctuated lyric lines
+- ```--max-blank-end-marker-duration``` and ```--trust-blank-end-markers```: control how blank LRC timestamps are treated as explicit end markers; by default, distant blank timestamps fall back to estimated lyric duration
+- ```--gap-before-next``` and ```--merge-cues-within```: keep a tiny gap before the next lyric and merge very nearby nonblank LRC lines into one cue
+- ```--song-length```: cap estimated cue endings at a known song length. If omitted and the final lyric estimate is the only cue that may need a cap, the converter tries to read a same-named audio sidecar such as ```.flac```, ```.mp3```, ```.wav```, ```.m4a```, ```.ogg```, or ```.opus``` first. In a 200-file local survey, this automatic cap was actually needed about ```2%``` of the time.
+- ```--line-width 25``` and ```--no-wrap```: by default, SRT text wraps at ```25``` characters per line; ```--line-width``` changes that width, and ```--no-wrap``` disables wrapping so each lyric line stays intact
+- ```--dry-run```: preview work without writing files
+- ```-o``` and ```--output```: write one named input to a specific SRT path; not valid with wildcards, ```all```/```go```, or regeneration modes
+- ```--self-test```: run the built-in unit tests, including smartquotes and audio probing checks
+- ```-h``` and ```--help```: show argparse's plain help screen
+
+Modes:
+
+```bat
+py lrc2srt.py --regenerate-converted-srts [--recursive] [--automatic-overwrites] [--dry-run]
+py lrc2srt.py --regenerate-all-srts [--recursive] [--automatic-overwrites] [--dry-run]
+py lrc2srt.py all [--recursive] [--automatic-overwrites] [--dry-run]
+py lrc2srt.py go [--recursive] [--automatic-overwrites] [--dry-run]
+py lrc2srt.py MiniLyricsFix [--recursive] [--automatic-overwrites] [--dry-run]
+```
+
+- ```--regenerate-converted-srts```: rebuild only SRT files that this converter previously created, using the marker in the SRT and a same-named ```.lrc``` sidecar
+- ```--regenerate-all-srts```: rebuild every matched SRT that has a same-named ```.lrc``` sidecar, even if the SRT was not originally made by this tool
+- ```all```: convert every ```*.lrc``` file in the current folder; add ```--recursive``` for subfolders, ```--automatic-overwrites``` for unattended batch replacement with backups, or ```--dry-run``` to preview
+- ```go```: old quick shorthand for converting every ```*.lrc``` file in the current folder; add ```--recursive``` when you want subfolders too
+- ```MiniLyricsFix```: generate SRT only if LRC & TXT both exist and SRT does not; necessary to fix a MiniLyrics bug where timed subtitles are not displayed if there is an LRC and TXT present but not an SRT
+
+Examples:
+
+```bat
+py lrc2srt.py *.lrc
+py lrc2srt.py *.lrc --recursive
+py lrc2srt.py *.lrc --automatic-overwrites
+py lrc2srt.py all --recursive --automatic-overwrites
+py lrc2srt.py all --recursive --dry-run
+py lrc2srt.py go --automatic-overwrites
+py lrc2srt.py go --recursive --automatic-overwrites
+py lrc2srt.py MiniLyricsFix --recursive --automatic-overwrites
+py lrc2srt.py MiniLyricsFix --recursive --dry-run
+py lrc2srt.py --regenerate-converted-srts --automatic-overwrites
+py lrc2srt.py --regenerate-converted-srts --recursive --automatic-overwrites
+py lrc2srt.py --regenerate-all-srts --automatic-overwrites
+py lrc2srt.py --regenerate-all-srts --recursive --automatic-overwrites
+py lrc2srt.py "Some Song.lrc" --seconds-per-word 0.65
+py lrc2srt.py --self-test
+py lrc2srt.py --help
+```
+
+Wildcard input is supported, including ```*.lrc``` and any other shell-expanded or Python-expanded pattern. When processing many files, the converter prints each filename as it starts and finishes. With ```--recursive```, it walks subfolders and prints a folder header whenever it moves into a different folder.
+
+Unlike SRT, LRC has only start timestamps. This converter does **not** simply keep a lyric on screen until the next lyric line, because that makes one line hang across guitar solos and other instrumental gaps. Instead:
+
+- if the LRC contains an empty timestamp line, such as ```[01:23.45]``` with no lyric text, that timestamp is treated as an explicit end marker for the previous lyric when it is reasonably close
+- otherwise, it estimates each line's duration from word count, rough syllable count, punctuation, and a small padding value
+- nonblank LRC lines starting within ```0.35s``` of each other are merged into one SRT cue, which avoids blink-and-miss-it subtitle flashes from title/credit markers or over-eager LRC timing
+- if the next lyric starts before that estimate finishes, the cue is trimmed to end just before the next lyric
+- if the next lyric or blank timestamp starts much later, the cue ends at the estimate, leaving the instrumental gap subtitle-free
+
+Default timing is intentionally a little generous: ```0.55s/word + 0.12s/estimated syllable + 0.55s padding```, clamped to ```1.25s``` through ```8.00s``` unless a nearby explicit blank LRC timestamp supplies the end. Blank end markers farther than ```12.00s``` from the lyric line are treated as suspicious and fall back to the estimate; use ```--trust-blank-end-markers``` to preserve them no matter how far away they are. If the final estimated lyric would overrun a same-named audio sidecar, the converter caps it to the probed audio duration. Adjustable knobs include ```--seconds-per-word```, ```--seconds-per-syllable```, ```--line-padding```, ```--min-duration```, ```--max-duration```, ```--max-blank-end-marker-duration```, ```--trust-blank-end-markers```, ```--gap-before-next```, ```--merge-cues-within```, ```--line-width```, ```--no-wrap```, and ```--song-length```.
+
+Replacement is cautious. Existing SRT files are never deleted; they are backed up first using a name like ```Some Song.srt.bak.YYYYMMDD.replaced-by-lrc2srt.bak```, with a numbered variant if that backup already exists. By default, overwrites ask for approval and finished conversions show a short review ending with "Does this look good?". Use ```--automatic-overwrites``` to suppress those prompts for batch use. Legacy ```force``` and ```--force``` are kept as aliases for automatic replacement behavior.
+
+Regeneration modes operate on SRT files and look for same-named LRC sidecars. ```--regenerate-converted-srts``` only rebuilds SRTs whose marker says they were created by this tool. ```--regenerate-all-srts``` rebuilds every matched SRT that has a same-named LRC file, regardless of marker. Both modes honor ```--recursive``` and both require either approval prompts or ```--automatic-overwrites``` before replacing anything.
+
+Every run appends JSON-lines audit records to ```C:\logs\audiofile-transcription-lrc2srt-conversions.log```, including discovered tasks, folder changes, prompts, backups, writes, dry runs, skips, reviews, audio-duration probes, and self-tests.
+
+No new Python package is required. If ```chardet``` happens to be installed, the script may use it for encoding detection, but it falls back to standard-library decoding attempts. The timing defaults are based on the practical subtitle duration limits used by timed-text systems plus the observed fact that sung words are substantially longer than spoken words; see [Netflix timed text general requirements](https://partnerhelp.netflixstudios.com/hc/en-us/articles/215758617-Timed-Text-Style-Guide-General-Requirements) and the singing/speaking duration comparison in [Speech variability: speaking versus untrained singing](https://pmc.ncbi.nlm.nih.gov/articles/PMC7438159/).
+GOATGOATADDEDBYCHATGPTEND
+
 ### 🌟 converter: [srt2txt.bat](../srt2txt.bat) / [srt2txt.py](../srt2txt.py):
 
 A ```SRT``` to ```TXT``` coverter. Pass filename to convert single file or ```all``` to convert all SRT files into TXT. Used when we already have SRT files for a song (say, from a download), but don’t have a TXT version of the lyrics.  One is automatically created to ensure file uniformity. Configurable thresholds for joining subtitle lines together into 1 text line (if they are really close together in time, i.e. under ≈0.5 seconds), or for adding a blank line between lyrics (if the subtitles are really far in time from each other, i.e. over ≈3 seconds)

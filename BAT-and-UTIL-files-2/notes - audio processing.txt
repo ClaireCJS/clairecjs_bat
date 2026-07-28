@@ -588,3 +588,6 @@ BRAINSTORMING: Flac files don't display internal album art correctly, so if it's
 
 
 
+
+
+			- AI/Codex cleanup rule: NEVER default to deleting *.bak files. Treat BAK files as keep-by-default; only delete a specific BAK file/class after explicit user approval and explanation.

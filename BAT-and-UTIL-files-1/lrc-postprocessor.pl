@@ -18,12 +18,14 @@ use lib $FindBin::Bin;
 #use LimitRepeats;
 use WhisperAIProcessing;	
 use BulletproofFileReading;
+use SmartQuotes;
 
 
 ##### CONFIG: LRC-SPECIFIC CONFIG: #################################################################################################
 
-my $LEAVE_CENSORSHIP       =  0;                  # Set to 0 to de-censor things, set to 1 to leave things censored
+my $SMART_QUOTE_CONVERT    = 1;                   # default mode - we did not add a command-line way to change out of this mode
 my $USE_WORDS_MODE         =  1;                  # Use full lyric/WhisperAI-style postprocessing instead of only removing final periods
+my $LEAVE_CENSORSHIP       = 0;
 my @LRC_patterns_to_delete =  (                   # stuff we want taken out of downloaded LRC files but not out of TXT/SRT files
 		# (currently empty)
 );
@@ -84,7 +86,8 @@ my $tmpline1;
 my $tmpline2;
 while (my $line = <$in>) {
     chomp $line;
-    $tmpline1 = &process_lrc_line_but_it_may_just_be_a_txt_file($line);			# this is done in WhisperAIProcessing.pm:	$tmpline2 = &limit_repeats($tmpline1, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);  
+    $tmpline1 = &process_lrc_line_but_it_may_just_be_a_txt_file($line);						# this is done in WhisperAIProcessing.pm:	$tmpline2 = &limit_repeats($tmpline1, $MAX_KARAOKE_WIDTH_MINUS_ONE - 4);  
+	if ($SMART_QUOTE_CONVERT) {  $line = &replace_quotes_with_smart_quotes($line); }        # convert dumb quotes ("") to smart quotes (“”)my $LEAVE_CENSORSHIP       =  0;                  # Set to 0 to de-censor things, set to 1 to leave things censored
     print $out "$tmpline1\n";
 }
 

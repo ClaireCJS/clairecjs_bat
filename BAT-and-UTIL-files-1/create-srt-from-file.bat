@@ -318,6 +318,7 @@ REM Set flags and default values:
                 set LOCKFILE_MENTIONED_ALREADY=0
                 set JUST_RENAMED_TO_INSTRUMENTAL=0
                 set QUIT_BECAUSE_UNTRANSCRIBEABLE=0
+                set ASKED_APPROVE_EDIT_KARAOKE_FILE=0
                 set ALREADY_ASKED_TO_DELETE_LOCKEFILE=0
                 set DELETE_BAD_AI_TRANSCRIPTIONS_FIRST=1                                                       %+ rem Whether we run delete-bad-ai-transcriptions in folders ... This used to be configurable, but now the system only runs the cleaner every 72 hours at most, so it doesn’t represent enough of a time-slow down to be considered a configurable option anymore. Better to always keep it on.
                 set SONG_PROBED_VIA_CALL_FROM_CREATE_SRT=0                                                     %+ rem Also gets set later but put here as a formality so this list is more thorough
@@ -598,14 +599,17 @@ REM display debug info:
                         set INPUT_FILE=%SONGFILE%
                         call subtle "%italics_on%INPUT_FILE%italics_off% is now: “%faint_on%%INPUT_FILE%%faint_off%”"
                 endiff
-                                               gosub DisplayAudioDirectory
-                                               gosub say_if_exists SONGFILE 
-                                               gosub say_if_exists SRT_FILE
-                                               gosub say_if_exists LRC_FILE
-                                               gosub say_if_exists TXT_FILE
-                                               gosub say_if_exists JSN_FILE
-                        if defined MAYBE_SRT_1 gosub say_if_exists MAYBE_SRT_1
-                        if defined MAYBE_SRT_2 gosub say_if_exists MAYBE_SRT_2
+
+                        if "%LYRIC_STATUS%" == "APPROVED" goto :Try_Skipping_These_20260728
+                                                               gosub DisplayAudioDirectory
+                                                               gosub say_if_exists SONGFILE 
+                                                               gosub say_if_exists SRT_FILE
+                                                               gosub say_if_exists LRC_FILE
+                                                               gosub say_if_exists TXT_FILE
+                                                               gosub say_if_exists JSN_FILE
+                                        if defined MAYBE_SRT_1 gosub say_if_exists MAYBE_SRT_1
+                                        if defined MAYBE_SRT_2 gosub say_if_exists MAYBE_SRT_2
+                        :Try_Skipping_These_20260728
         endiff
 
 rem If a txt file exists and it is approved, and a subtitle does not exist, jump straight to ai
@@ -614,7 +618,7 @@ rem If a txt file exists and it is approved, and a subtitle does not exist, jump
 
 REM Earlier, we retrieved the values for MAYBE_SRT_[1|2] via probing the songfile via the shared probe code in get-lyrics-for-file.btm
 REM Now, let’s check these values:
-        call subtle "Checking repo for maybe-lyrics #1"
+        call subtle "Checking existing lyric repo for maybe-lyrics #1"
         if not exist "%@UNQUOTE[%MAYBE_SRT_1%]" .and. not exist "%@UNQUOTE[%MAYBE_SRT_2%]" goto :endiff_610
                 if exist "%@UNQUOTE[%MAYBE_SRT_2%]" set found_subtitle_file=%@UNQUOTE["%MAYBE_SRT_2%"]
                 if exist "%@UNQUOTE[%MAYBE_SRT_1%]" set found_subtitle_file=%@UNQUOTE["%MAYBE_SRT_1%"]
@@ -2210,7 +2214,7 @@ rem Full-endeavor success message:
 
 
                         if "1" == "%DEBUG_KARAOKE_APPROVAL%" call debug "karaoke_edit_already_asked is “%karaoke_edit_already_asked%”" silent
-                        iff "1" == "%karaoke_edit_already_asked%" then
+                        iff "1" == "%karaoke_edit_already_asked%" .or. "1" == "%ALREADY_ASKED_TO_DELETE_LOCKEFILE%" then
                                 if "1" == "%DEBUG_KARAOKE_APPROVAL%" call subtle "not asking to edit karaoke file because we already asked"                                
                                 goto /i :no_need_to_edit_it_or_ask_to_approve_it
                         else
@@ -2368,6 +2372,7 @@ goto /i skip_subroutines
                         rem DEBUG:call subtle "Not asking to approve karaoke again because we already asked and a karaoke edit was refused"
                 else
                         @call askyn  "Approve/edit karaoke file? [%ansi_color_bright_green%D%ansi_color_prompt%isapprove,dele%ansi_color_bright_green%T%ansi_color_prompt%e,%ansi_color_bright_green%P%ansi_color_prompt%lay,E=%ansi_color_bright_green%E%ansi_color_prompt%dit karaoke,W=%ansi_color_bright_green%W%ansi_color_prompt%hisperTimeSync,%ansi_color_bright_green%1%ansi_color_prompt%=retry transcription]" no %KARAOKE_APPROVAL_WAIT_TIME% notitle ADEIP1QTWM1  E:edit_karaoke,Q:enQueue_in_winamp,P:Play_It,D:DISapprove_them,W:Whisper_Time_sync_fix,A:Yes_approve_it,I:mark_instrumental,T:delete__it,M:restart_winamp,1:retry_the_transcription
+                        set ASKED_APPROVE_EDIT_KARAOKE_FILE=1
                 endiff
                 set karaoke_approval_asked=1
                 set karaoke_edit_already_asked=1
@@ -3208,7 +3213,7 @@ rem ━━━━━━━━━━━━━━━━━━━━━━━━━�
                 unset /q failure_ads_result PROMPT_CONSIDERATION_TIME PROMPT_EDIT_CONSIDERATION_TIME JUST_APPROVED_LYRICLESSNESS goto_forcing_ai_generation LYRICS_SHOULD_BE_CONSIDERED_ACCEPTIBLE ABANDONED_SEARCH LYRICLESSNESS_STATUS AUTO_LYRIC_APPROVAL        ALREADY_HAND_EDITED FORCE_AI_ENCODE_FROM_LYRIC_GET JUST_RENAMED_TO_INSTRUMENTAL  goto_end abort_karaoke_kreation MAYBE_SRT* karaoke_status audio_file input_file postprocessed_lyrics LAUNCHING_AI_DISPLAYED WAITING_ON_LOCKFILE_ROW WAITING_ON_LOCKFILE_COL WAITING_FOR_COMPL_ROW WAITING_FOR_COMPL_COL  ALREADY_ASKED_TO_DELETE_LOCKEFILE SONG_PROBED_VIA_CALL_FROM_CREATE_SRT LOCKFILE_NOT_FOR_THIS_PROCESS_MENTIONED JUST_CONVERTED_SRT_TO_TEXT JUST_CONVERTED_LRC_TO_TEXT LYRICS_ACCEPTABLE OKAY_THAT_WE_HAVE_SRT_ALREADY UNFORTUNATELY_WE_COULD_NOT_CREATE_SAID JUST_RENAMED PROBED_OR_REFUSED_ALREADY_709 
                 rem DEBUG: call debug "CREATE_SRT_PARENT_BAT2=“%CREATE_SRT_PARENT_BAT%”"  silent
                 rem GOATGOAT
-                unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused 
+                unset /q karaoke_approval_asked karaoke_edit_already_asked karaoke_edit_refused ASKED_APPROVE_EDIT_KARAOKE_FILE
 
                
 :The_Very_Very_END
