@@ -121,6 +121,15 @@ not an apply script.
 - temp transcription files, VAD scratch files, `.m3u8`, `.xmp`
 - archive/do-not-play folder compliance
 
+## Metadata Conventions
+
+- Featured artists stay in the artist string, using lowercase `feat`: `Main
+  Artist feat Guest`.
+- Use that same full string for `artist` and `albumartist` on loose
+  singles/MISC tracks.
+- Keep the `title` clean: do not add `(feat Guest)` to the title unless the
+  release title itself is an explicit version/remix label.
+
 ## Non-Goals
 
 This script does not search the internet, pick album covers, listen to audio,

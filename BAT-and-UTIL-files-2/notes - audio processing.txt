@@ -334,6 +334,16 @@ To identify songs with an AI (limit: 10 per day):  https://www.aha-music.com/ide
     	- get all fields of all id3v2 tags right
                 - do not leave empty GENRE/TCON tags; either set a real genre or remove the genre tag entirely
                 - keep punk-family genre tags simple: Pop Punk, Post-Punk, Post-Hardcore, etc. should usually be collapsed to Punk
+GOATGOATADDEDBYCHATGPTBEGIN
+                - featured-artist tag convention, based on the manually corrected Lauren Sanderson batch:
+                    - Use lowercase `feat` in the artist string: `Main Artist feat Guest`.
+                    - For loose singles/MISC tracks, put that same full featured-artist string in both ARTIST and ALBUMARTIST.
+                    - Keep TITLE clean: do not put `(feat Guest)` in TITLE just because the artist has a featured guest.
+                    - If the release itself names a version/remix, put that version detail in TITLE, e.g. `Come Say Sum (Fred Durst version)`.
+                    - Examples:
+                        - `Lauren Sanderson feat Fred Durst - Come Say Sum.flac`: ARTIST/ALBUMARTIST=`Lauren Sanderson feat Fred Durst`, TITLE=`Come Say Sum (Fred Durst version)`.
+                        - `Stand Atlantic feat Lauren Sanderson - I’m The Man.flac`: ARTIST/ALBUMARTIST=`Stand Atlantic feat Lauren Sanderson`, TITLE=`I'm The Man`.
+GOATGOATADDEDBYCHATGPTEND
                 - cover songs: sometimes we like to mention original artists in the comments
                 - URL-only comments should be moved into URL tags, not left as comments:
                     - e.g. COMMENT="Visit https://glassbeach.bandcamp.com" should become URL="https://glassbeach.bandcamp.com"
