@@ -251,6 +251,7 @@ Now that we have an environment, and our file are backed up, and we can relax...
 
 1. Manging music files:
 	* [audit-music-files.py](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/audit-music-files.py) — Audits music collection for flaws (missing ReplayGain tags, read-only files, 0-byte files, incorrect naming conventions) and generates a fix script
+	* ```audit_music_batch.py``` — Audits an incoming music-processing batch for metadata, embedded lyrics and timed karaoke, cover art, ReplayGain, sidecar, archive, duplicate, and cleanup issues. It is read-only by default and produces categorized findings and optional approval reports. See the [full audit_music_batch.py documentation](https://github.com/ClaireCJS/clairecjs_bat/blob/main/docs/audit-music-batch.md).
 
 1. Tagging music: Displaying & embedding tags (including *album art* and *ReplayGain*) in audio files:
 	* Dipslaying *Tagged Lyrics*: [display-lyrics.bat](https://github.com/ClaireCJS/clairecjs_bat/blob/main/BAT-and-UTIL-files-1/display-lyrics.bat)

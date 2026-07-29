@@ -156,28 +156,30 @@ def log_event(action: str, **details: Any) -> None:
             log_file.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
     except Exception as exc:
         if not LOG_WARNING_ALREADY_PRINTED:
-            print(f"       * WARNING: could not write log file '{LOG_FILE}': {exc}")
+            print_warning(f"       * WARNING: could not write log file '{LOG_FILE}': {exc}")
             LOG_WARNING_ALREADY_PRINTED = True
 
 
 def prompt_yes_no(question: str, default: bool) -> bool:
     default_label = "Y/n" if default else "y/N"
     if not sys.stdin.isatty():
-        print(
+        print_warning(
             f"       * Non-interactive session: defaulting to "
             f"{'YES' if default else 'NO'} for: {question}"
         )
         return default
 
     while True:
-        answer = input(f"{question} [{default_label}] ").strip().lower()
+        answer = input(
+            console_safe_text(output_color(f"{question} [{default_label}] ", ANSI_YELLOW))
+        ).strip().lower()
         if not answer:
             return default
         if answer in {"y", "yes"}:
             return True
         if answer in {"n", "no"}:
             return False
-        print("Please answer yes or no.")
+        print_warning("Please answer yes or no.")
 
 
 def unique_preserving_order(values: Iterable[str]) -> list[str]:
@@ -729,9 +731,9 @@ def review_conversion_result(
     if options.automatic_overwrites:
         return None
 
-    print(f"       * Review: {output_file}")
+    print_info(f"       * Review: {output_file}")
     print(textwrap.indent(preview_srt_text(srt_text), "         "))
-    print(
+    print_warning(
         "       * Does this look good? "
         "Use --automatic-overwrites to suppress this prompt."
     )
@@ -742,7 +744,7 @@ def review_conversion_result(
         approved=approved,
     )
     if not approved:
-        print(
+        print_warning(
             "       * Review was not approved. The generated file remains in "
             "place; any replaced file was already preserved as a backup."
         )
@@ -805,10 +807,10 @@ def convert_lrc_file(
     backup_file = None
     if resolved_output_file.exists():
         if not (options.force or options.automatic_overwrites):
-            print(
+            print_warning(
                 f"       * WARNING: SRT '{resolved_output_file}' already exists."
             )
-            print(
+            print_warning(
                 "       * It will be backed up before replacement. "
                 "Use --automatic-overwrites to skip this prompt."
             )
@@ -823,7 +825,7 @@ def convert_lrc_file(
                 approved=should_replace,
             )
             if not should_replace:
-                print(f"       * Skipping: {resolved_output_file}")
+                print_warning(f"       * Skipping: {resolved_output_file}")
                 log_event(
                     "conversion_skipped_existing_output",
                     input_file=str(input_file),
@@ -841,13 +843,13 @@ def convert_lrc_file(
 
         backup_file = backup_path_for_replaced_file(resolved_output_file)
         if options.dry_run:
-            print(
+            print_info(
                 f"       * DRY RUN: would back up '{resolved_output_file}' as "
                 f"'{backup_file}'"
             )
         else:
             os.rename(resolved_output_file, backup_file)
-            print(
+            print_warning(
                 f"       * WARNING: SRT '{resolved_output_file}' already existed - "
                 f"backed up as '{backup_file}'"
             )
@@ -860,7 +862,7 @@ def convert_lrc_file(
         )
 
     if options.dry_run:
-        print(
+        print_info(
             f"       * DRY RUN: would convert '{input_file}' ({encoding}) to "
             f"'{resolved_output_file}' with {len(cues)} cues"
         )
@@ -937,7 +939,7 @@ def expand_files(
         if file_matches:
             files.extend(file_matches)
         else:
-            print(f"?! No files matched pattern: {pattern}")
+            print_warning(f"?! No files matched pattern: {pattern}")
             log_event("pattern_matched_no_files", pattern=pattern, recursive=recursive)
 
     unique_files = []
@@ -986,8 +988,6 @@ def build_minilyricsfix_tasks(
     tasks: list[ConversionTask] = []
     missing_txt_count = 0
     existing_srt_count = 0
-    zero_cue_lrc_count = 0
-    unreadable_lrc_count = 0
     non_lrc_count = 0
 
     for input_file in input_files:
@@ -1016,28 +1016,6 @@ def build_minilyricsfix_tasks(
             )
             continue
 
-        try:
-            events, encoding = parse_lrc_file(input_file)
-        except Exception as exc:
-            unreadable_lrc_count += 1
-            print(f"    * Skipping unreadable LRC: {input_file} ({type(exc).__name__}: {exc})")
-            log_event(
-                "minilyricsfix_skipped_unreadable_lrc",
-                input_file=str(input_file),
-                error=f"{type(exc).__name__}: {exc}",
-            )
-            continue
-
-        if not events:
-            zero_cue_lrc_count += 1
-            print(f"    * Skipping untimed/no-cue LRC: {input_file} ({encoding})")
-            log_event(
-                "minilyricsfix_skipped_zero_cue_lrc",
-                input_file=str(input_file),
-                encoding=encoding,
-            )
-            continue
-
         tasks.append(
             ConversionTask(
                 input_file=input_file,
@@ -1046,21 +1024,17 @@ def build_minilyricsfix_tasks(
             )
         )
 
-    print(
+    print_info(
         "    * MiniLyricsFix scan: "
         f"{len(tasks)} eligible; "
         f"{missing_txt_count} missing TXT; "
-        f"{existing_srt_count} already had SRT; "
-        f"{zero_cue_lrc_count} untimed/no-cue LRC; "
-        f"{unreadable_lrc_count} unreadable LRC."
+        f"{existing_srt_count} already had SRT."
     )
     log_event(
         "minilyricsfix_scan_completed",
         eligible=len(tasks),
         missing_txt=missing_txt_count,
         existing_srt=existing_srt_count,
-        zero_cue_lrc=zero_cue_lrc_count,
-        unreadable_lrc=unreadable_lrc_count,
         non_lrc=non_lrc_count,
         recursive=recursive,
     )
@@ -1081,7 +1055,7 @@ def build_regeneration_tasks(
 
         was_created_here = srt_file_was_created_by_this_tool(srt_file)
         if converted_only and not was_created_here:
-            print(f"    * Skipping SRT not created by this tool: {srt_file}")
+            print_warning(f"    * Skipping SRT not created by this tool: {srt_file}")
             log_event(
                 "regeneration_skipped_not_created_by_tool",
                 srt_file=str(srt_file),
@@ -1090,7 +1064,7 @@ def build_regeneration_tasks(
 
         lrc_file = srt_file.with_suffix(".lrc")
         if not lrc_file.exists():
-            print(f"    * Skipping SRT with no LRC sidecar: {srt_file}")
+            print_warning(f"    * Skipping SRT with no LRC sidecar: {srt_file}")
             log_event(
                 "regeneration_skipped_missing_lrc",
                 srt_file=str(srt_file),
@@ -1120,7 +1094,8 @@ def print_folder_header_if_needed(
 ) -> Path:
     folder = task.input_file.parent.resolve()
     if show_headers and folder != last_folder:
-        print(f"\n=== Folder: {folder} ===")
+        print()
+        print_folder_header(f"=== Folder: {folder} ===")
         log_event("folder_started", folder=str(folder))
     return folder
 
@@ -1135,7 +1110,7 @@ def run_conversion_tasks(
 
     for task in tasks:
         last_folder = print_folder_header_if_needed(task, last_folder, show_folder_headers)
-        print(f"    * Converting: {task.input_file}")
+        print_info(f"    * Converting: {task.input_file}")
         result = convert_lrc_file(
             task.input_file,
             task.output_file,
@@ -1145,11 +1120,11 @@ def run_conversion_tasks(
         results.append(result)
 
         if result.skipped:
-            print(f"       * Finished skipped: {result.output_file}")
+            print_warning(f"       * Finished skipped: {result.output_file}")
         elif result.dry_run:
-            print(f"       * Finished dry run: {result.output_file}")
+            print_info(f"       * Finished dry run: {result.output_file}")
         else:
-            print(
+            print_success(
                 f"       * Finished: {result.output_file} "
                 f"({result.cue_count} cues)"
             )
@@ -1198,8 +1173,37 @@ ANSI_GREEN = "\033[92m"
 ANSI_MAGENTA = "\033[95m"
 ANSI_BLUE = "\033[94m"
 ANSI_YELLOW = "\033[93m"
+ANSI_RED = "\033[91m"
 ANSI_DOUBLE_HEIGHT_TOP = "\033#3"
 ANSI_DOUBLE_HEIGHT_BOTTOM = "\033#4"
+
+
+def output_color(text: str, color: str, extra_style: str = "") -> str:
+    return f"{extra_style}{color}{text}{ANSI_RESET}"
+
+
+def print_colored(text: str, color: str, extra_style: str = "") -> None:
+    print(console_safe_text(output_color(text, color, extra_style)))
+
+
+def print_info(text: str) -> None:
+    print_colored(text, ANSI_CYAN)
+
+
+def print_success(text: str) -> None:
+    print_colored(text, ANSI_GREEN, ANSI_BOLD)
+
+
+def print_warning(text: str) -> None:
+    print_colored(text, ANSI_YELLOW)
+
+
+def print_error(text: str) -> None:
+    print_colored(text, ANSI_RED, ANSI_BOLD)
+
+
+def print_folder_header(text: str) -> None:
+    print_colored(text, ANSI_BLUE, ANSI_BOLD)
 
 
 def usage_cli(text: str) -> str:
@@ -1423,10 +1427,10 @@ def render_usage() -> str:
                 ("cli", " [--recursive] [--automatic-overwrites] [--dry-run]"),
             ),
             usage_note(
-                "  ^ Generate SRT only if timestamped LRC & TXT both exist "
-                "and SRT does not. Necessary to fix a MiniLyrics bug where "
-                "timed subtitles are not displayed if there is an LRC and TXT "
-                "present but not an SRT."
+                "  ^ Generate SRT only if LRC & TXT both exist and SRT does "
+                "not. Necessary to fix a MiniLyrics bug where timed subtitles "
+                "are not displayed if there is an LRC and TXT present but not "
+                "an SRT."
             ),
             "",
             *usage_double_height_header(examples_header_text, ANSI_GREEN),
@@ -1716,7 +1720,7 @@ class Lrc2SrtUnitTests(unittest.TestCase):
         self.assertIn("--dry-run", plain_usage)
         self.assertIn("^ all means convert every *.lrc file in the current folder", plain_usage)
         self.assertIn("^ go is the old quick shorthand", plain_usage)
-        self.assertIn("Generate SRT only if timestamped LRC & TXT both exist", plain_usage)
+        self.assertIn("Generate SRT only if LRC & TXT both exist and SRT does not", plain_usage)
         self.assertIn("MiniLyrics bug where timed subtitles are not displayed", plain_usage)
         self.assertIn("Rebuild only SRT files that this converter previously created", plain_usage)
         self.assertIn("Rebuild every matched SRT that has a same-named .lrc sidecar", plain_usage)
@@ -1937,8 +1941,6 @@ new line
             eligible_lrc = temp_dir / "eligible.lrc"
             eligible_txt = temp_dir / "eligible.txt"
             missing_txt_lrc = temp_dir / "missing-txt.lrc"
-            untimed_lrc = temp_dir / "untimed.lrc"
-            untimed_txt = temp_dir / "untimed.txt"
             existing_srt_lrc = temp_dir / "existing-srt.lrc"
             existing_srt_txt = temp_dir / "existing-srt.txt"
             existing_srt = temp_dir / "existing-srt.srt"
@@ -1950,8 +1952,6 @@ new line
             eligible_lrc.write_text("[00:01.00]eligible line\n", encoding="utf-8")
             eligible_txt.write_text("eligible line\n", encoding="utf-8")
             missing_txt_lrc.write_text("[00:01.00]missing txt\n", encoding="utf-8")
-            untimed_lrc.write_text("untimed lyric text\n", encoding="utf-8")
-            untimed_txt.write_text("untimed lyric text\n", encoding="utf-8")
             existing_srt_lrc.write_text("[00:01.00]already has srt\n", encoding="utf-8")
             existing_srt_txt.write_text("already has srt\n", encoding="utf-8")
             existing_srt.write_text("do not replace\n", encoding="utf-8")
@@ -1974,7 +1974,6 @@ new line
             self.assertTrue((temp_dir / "eligible.srt").exists())
             self.assertTrue((child_dir / "child-eligible.srt").exists())
             self.assertFalse((temp_dir / "missing-txt.srt").exists())
-            self.assertFalse((temp_dir / "untimed.srt").exists())
             self.assertEqual("do not replace\n", existing_srt.read_text(encoding="utf-8"))
             self.assertTrue(srt_file_was_created_by_this_tool(temp_dir / "eligible.srt"))
 
@@ -2005,6 +2004,30 @@ new line
             self.assertEqual(0, exit_code)
             self.assertTrue(child_srt.exists())
             self.assertTrue(srt_file_was_created_by_this_tool(child_srt))
+
+    def test_main_output_uses_ansi_color_and_blank_line_before_summary(self) -> None:
+        import contextlib
+        import io
+
+        old_cwd = Path.cwd()
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temp_dir = Path(temporary_directory)
+            lrc_file = temp_dir / "color-test.lrc"
+            lrc_file.write_text("[00:01.00]color output\n", encoding="utf-8")
+
+            buffer = io.StringIO()
+            try:
+                os.chdir(temp_dir)
+                with contextlib.redirect_stdout(buffer):
+                    exit_code = main(["color-test.lrc", "--automatic-overwrites"])
+            finally:
+                os.chdir(old_cwd)
+
+        output = buffer.getvalue()
+        self.assertEqual(0, exit_code)
+        self.assertIn(f"{ANSI_CYAN}    * Converting:", output)
+        self.assertIn(f"{ANSI_BOLD}{ANSI_GREEN}       * Finished:", output)
+        self.assertIn(f"\n\n{ANSI_BOLD}{ANSI_GREEN}* All done!", output)
 
     def test_audio_duration_probe_reads_wav_and_archives_fixture(self) -> None:
         temp_dir = Path(tempfile.mkdtemp(prefix="lrc2srt-audio-probe-"))
@@ -2096,7 +2119,7 @@ def run_self_test() -> None:
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     if not result.wasSuccessful():
         raise AssertionError("Self-test failed.")
-    print("Self-test passed.")
+    print_success("Self-test passed.")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -2142,12 +2165,12 @@ def main(argv: list[str] | None = None) -> int:
             patterns.append(item)
 
     if args.regenerate_all_srts and args.regenerate_converted_srts:
-        print("Error: choose only one regeneration mode.")
+        print_error("Error: choose only one regeneration mode.")
         log_event("tool_error", error="both_regeneration_modes_requested")
         return 1
 
     if process_minilyricsfix and (args.regenerate_all_srts or args.regenerate_converted_srts):
-        print("Error: Cannot combine MiniLyricsFix with regeneration modes.")
+        print_error("Error: Cannot combine MiniLyricsFix with regeneration modes.")
         log_event("tool_error", error="minilyricsfix_with_regeneration")
         return 1
 
@@ -2164,12 +2187,12 @@ def main(argv: list[str] | None = None) -> int:
     automatic_overwrites = args.automatic_overwrites or force
 
     if (args.regenerate_all_srts or args.regenerate_converted_srts) and args.output:
-        print("Error: Cannot specify --output with regeneration modes.")
+        print_error("Error: Cannot specify --output with regeneration modes.")
         log_event("tool_error", error="output_with_regeneration")
         return 1
 
     if process_minilyricsfix and args.output:
-        print("Error: Cannot specify --output with MiniLyricsFix mode.")
+        print_error("Error: Cannot specify --output with MiniLyricsFix mode.")
         log_event("tool_error", error="output_with_minilyricsfix")
         return 1
 
@@ -2202,22 +2225,25 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.regenerate_converted_srts:
-            print("\n* Regenerating SRT files previously created by this converter...")
+            print()
+            print_info("* Regenerating SRT files previously created by this converter...")
             tasks = build_regeneration_tasks(
                 patterns,
                 args.recursive,
                 converted_only=True,
             )
         elif args.regenerate_all_srts:
-            print("\n* Regenerating all SRT files with matching LRC sidecars...")
+            print()
+            print_info("* Regenerating all SRT files with matching LRC sidecars...")
             tasks = build_regeneration_tasks(
                 patterns,
                 args.recursive,
                 converted_only=False,
             )
         elif process_minilyricsfix:
-            print(
-                "\n* MiniLyricsFix: generating SRT only where LRC and TXT exist "
+            print()
+            print_info(
+                "* MiniLyricsFix: generating SRT only where LRC and TXT exist "
                 "but SRT is missing..."
             )
             tasks = build_minilyricsfix_tasks(
@@ -2225,7 +2251,8 @@ def main(argv: list[str] | None = None) -> int:
                 args.recursive,
             )
         else:
-            print("\n* About to convert LRC files to SRT...")
+            print()
+            print_info("* About to convert LRC files to SRT...")
             tasks = build_lrc_tasks(
                 patterns,
                 process_all,
@@ -2233,12 +2260,12 @@ def main(argv: list[str] | None = None) -> int:
                 args.output,
             )
     except ValueError as exc:
-        print(f"Error: {exc}")
+        print_error(f"Error: {exc}")
         log_event("tool_error", error=str(exc))
         return 1
 
     if not tasks:
-        print("No files to process.")
+        print_warning("No files to process.")
         log_event("tool_finished", tasks=0, converted=0, skipped=0)
         return 1
 
@@ -2259,7 +2286,8 @@ def main(argv: list[str] | None = None) -> int:
     converted_count = len([result for result in results if not result.skipped])
     skipped_count = len([result for result in results if result.skipped])
 
-    print(
+    print()
+    print_success(
         f"* All done! Converted/regenerated: {converted_count}; "
         f"skipped: {skipped_count}; log: {LOG_FILE}"
     )

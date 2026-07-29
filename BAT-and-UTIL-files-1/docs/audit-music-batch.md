@@ -1,6 +1,7 @@
 # audit_music_batch.py
 
-`audit_music_batch.py` is a read-only proposal engine for incoming music batches.
+`audit_music_batch.py` audits incoming music batches and can immediately apply
+supported actions after interactive confirmation.
 It audits the current batch against the recurring workflow rules from
 `C:\notes\audio-processing-batch-NOTES.txt` and produces reports/proposal codes
 instead of silently changing files.
@@ -24,8 +25,8 @@ From the root of a batch:
 audit_music_batch.py
 ```
 
-That prints the audit and then starts the attention-friendly approval prompt by
-default.
+That prints the audit and then prompts through findings that have concrete,
+implemented actions. `Y` applies the displayed action immediately; `N` skips it.
 
 Or with an explicit folder:
 
@@ -45,13 +46,24 @@ Run report-only without prompts:
 audit_music_batch.py . --no-interactive --write-reports
 ```
 
+Run the self-contained generated-audio safety tests:
+
+```bat
+audit_music_batch.py --unit-tests
+```
+
+Unit-test mode uses disposable temporary audio and exits before scanning or
+modifying any music batch.
+
 The default interactive pass uses capitalized defaults:
 
-- `[Y/n]` means Enter approves the proposal.
-- `[y/N]` means Enter rejects/skips the proposal.
+- `[Y/n]` means `Y` approves, `N` rejects, and Enter approves by default.
+- `[y/N]` means `Y` approves, `N` rejects, and Enter rejects/skips by default.
 
-Prompts use ANSI color by default. Use `--no-color` if a terminal displays ANSI
-escape codes literally.
+`Y` and `N` take effect from a single keypress; they do not require Enter. The
+capitalized default choice is bright/bold and the lowercase non-default choice
+is faint. Prompts use ANSI styling by default. Use `--no-color` if a terminal
+displays ANSI escape codes literally.
 
 ## Dependencies
 
@@ -68,12 +80,9 @@ unless `--output-dir` is provided:
 - `audit_music_batch_report.md`
 - `audit_music_batch_report.txt`
 
-In default interactive mode, it also writes:
-
-- `audit_music_batch_approval_plan.json`
-
-The approval plan records approved/rejected proposal codes. It is intentionally
-not an apply script.
+Interactive mode does not write a deferred approval plan. Approved actions are
+performed immediately. Findings that require missing information or subjective
+judgment remain in the report but are not presented as executable prompts.
 
 ## Finding Types
 
@@ -110,7 +119,8 @@ not an apply script.
 - missing ReplayGain
 - missing embedded cover art
 - FLACs with embedded art but no obvious sidecar art
-- missing lyrics/karaoke sidecars for non-instrumental tracks
+- missing embedded plain lyrics for non-instrumental/non-no-lyrics tracks
+- missing embedded timed karaoke for non-instrumental/non-no-lyrics tracks
 - missing SRT when same-stem LRC and TXT already exist
 - unsynced-only embedded lyrics
 - timestamped LRC sidecars that are not embedded as synced lyrics
@@ -133,5 +143,6 @@ not an apply script.
 ## Non-Goals
 
 This script does not search the internet, pick album covers, listen to audio,
-merge tracks, delete backups, or modify metadata. It is the audit/proposal layer
-that should run before a human or a separate apply tool makes changes.
+merge tracks, or delete backups. It is read-only by default. The explicit
+`--embed-lyrics` option is the exception: it embeds available same-stem
+TXT/LRC/SRT material (and may derive missing TXT/LRC sidecars) before auditing.
