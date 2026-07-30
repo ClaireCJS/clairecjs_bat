@@ -2039,7 +2039,7 @@ class BatchAudit:
                             f"a usable {timed_source.suffix.upper()} sidecar exists "
                             f"with {timed_line_count} timestamped lyric "
                             f"line{'s' if timed_line_count != 1 else ''}.",
-                            "Approve the Y/n prompt below, or run with --embed-lyrics, to embed timed lyrics (SYLT plus compatibility LRC for MP3; SYNCEDLYRICS for FLAC).",
+                            "Approve the Y/n prompt below, or run with --embed-lyrics, to embed timed karaoke (SYLT plus compatibility LRC for MP3; SYNCEDLYRICS for FLAC).",
                             sidecar=self.rel(timed_source),
                             usable_lines=timed_line_count,
                         )
@@ -2063,7 +2063,7 @@ class BatchAudit:
                             "missing_karaoke",
                             path,
                             "No embedded timed karaoke lyrics and no timestamped LRC/SRT sidecar were found.",
-                            "Find/create timed lyrics, or mark the track instrumental/no lyrics.",
+                            "Find/create timed karaoke, or mark the track instrumental/no lyrics.",
                         )
                 if outdated_components:
                     kinds = " and ".join(
@@ -2146,7 +2146,11 @@ class BatchAudit:
             finally:
                 self.progress_update()
 
-    def audit(self, embed_lyrics_first: bool = False) -> dict[str, Any]:
+    def audit(
+        self,
+        embed_lyrics_first: bool = False,
+        refresh_embedded_lyrics: bool = False,
+    ) -> dict[str, Any]:
         progress = None
         embedded: list[dict[str, Any]] = []
         enumeration_started = time.monotonic()
@@ -2207,7 +2211,11 @@ class BatchAudit:
                     self.progress_show_audio(path)
                     try:
                         if not self.is_instrumental_or_no_lyrics(path):
-                            actions = embed_lyrics(path, write=True)
+                            actions = embed_lyrics(
+                                path,
+                                write=True,
+                                force_refresh=refresh_embedded_lyrics,
+                            )
                             if actions:
                                 embedded.append(
                                     {"path": self.rel(path), "actions": actions}
@@ -2230,6 +2238,11 @@ class BatchAudit:
         report = self.report_data()
         if embed_lyrics_first:
             report["embedded_lyrics"] = embedded
+            report["embedded_lyrics_mode"] = (
+                "refresh"
+                if refresh_embedded_lyrics
+                else "automatic"
+            )
         return report
 
     def assign_codes(self) -> None:
@@ -2550,7 +2563,12 @@ def ensure_lyric_sidecars(path: Path, write: bool) -> tuple[Path | None, Path | 
     return txt, lrc
 
 
-def embed_lyrics(path: Path, write: bool = True) -> list[str]:
+def embed_lyrics(
+    path: Path,
+    write: bool = True,
+    *,
+    force_refresh: bool = False,
+) -> list[str]:
     txt, lrc = ensure_lyric_sidecars(path, write)
     plain_source, _plain_line_count = first_usable_plain_sidecar(
         [
@@ -2584,22 +2602,28 @@ def embed_lyrics(path: Path, write: bool = True) -> list[str]:
         plain_needs_refresh = bool(
             plain
             and plain_source
-            and lyric_refresh_reasons(
-                path,
-                plain_source,
-                plain,
-                current_plain,
+            and (
+                force_refresh
+                or lyric_refresh_reasons(
+                    path,
+                    plain_source,
+                    plain,
+                    current_plain,
+                )
             )
         )
         synced_needs_refresh = bool(
             synced
             and lrc
-            and lyric_refresh_reasons(
-                path,
-                lrc,
-                synced,
-                current_synced,
-                timed=True,
+            and (
+                force_refresh
+                or lyric_refresh_reasons(
+                    path,
+                    lrc,
+                    synced,
+                    current_synced,
+                    timed=True,
+                )
             )
         )
         if not write:
@@ -2642,22 +2666,28 @@ def embed_lyrics(path: Path, write: bool = True) -> list[str]:
     plain_needs_refresh = bool(
         plain
         and plain_source
-        and lyric_refresh_reasons(
-            path,
-            plain_source,
-            plain,
-            current_plain,
+        and (
+            force_refresh
+            or lyric_refresh_reasons(
+                path,
+                plain_source,
+                plain,
+                current_plain,
+            )
         )
     )
     synced_needs_refresh = bool(
         synced
         and lrc
-        and lyric_refresh_reasons(
-            path,
-            lrc,
-            synced,
-            current_synced,
-            timed=True,
+        and (
+            force_refresh
+            or lyric_refresh_reasons(
+                path,
+                lrc,
+                synced,
+                current_synced,
+                timed=True,
+            )
         )
     )
     if not write:
@@ -3918,7 +3948,7 @@ def artwork_preview_geometry(
 def waveform_preview_geometry() -> ArtworkPreviewGeometry:
     """Use nearly the full live viewport for diagnostic waveform review."""
     return artwork_preview_geometry(
-        indent_columns=1,
+        indent_columns=12,
         right_margin_columns=1,
         reserved_text_rows=9,
     )
@@ -3943,21 +3973,50 @@ def fitted_preview_image(
     return image.resize(target, Image.Resampling.LANCZOS)
 
 
+def width_filling_preview_image(
+    image,
+    width: int,
+    height: int,
+):
+    """Fill the requested width without ever exceeding the height limit."""
+    source_width, source_height = image.size
+    if source_width < 1 or source_height < 1:
+        raise RuntimeError("Preview source has invalid dimensions")
+    proportional_height = max(
+        1,
+        round(source_height * width / source_width),
+    )
+    target_height = min(max(1, height), proportional_height)
+    target = (max(1, width), target_height)
+    if target == image.size:
+        return image
+    return image.resize(target, Image.Resampling.LANCZOS)
+
+
 def ansi_half_block_preview(
     path: Path,
     *,
     use_color: bool,
     geometry: ArtworkPreviewGeometry | None = None,
+    stretch_to_width: bool = False,
 ) -> str:
     """Fill the available console area with a portable half-block preview."""
     if Image is None:
         raise RuntimeError("Pillow is unavailable for the ANSI artwork preview")
     geometry = geometry or artwork_preview_geometry()
     with Image.open(path) as source:
-        image = fitted_preview_image(
-            source.convert("RGB"),
-            geometry.columns,
-            geometry.rows * 2,
+        image = (
+            width_filling_preview_image(
+                source.convert("RGB"),
+                geometry.columns,
+                geometry.rows * 2,
+            )
+            if stretch_to_width
+            else fitted_preview_image(
+                source.convert("RGB"),
+                geometry.columns,
+                geometry.rows * 2,
+            )
         )
         canvas_height = image.height + (image.height % 2)
         canvas = Image.new("RGB", (image.width, canvas_height), (0, 0, 0))
@@ -4006,16 +4065,25 @@ def sixel_preview_bytes(
     path: Path,
     *,
     geometry: ArtworkPreviewGeometry | None = None,
+    stretch_to_width: bool = False,
 ) -> bytes:
     """Encode a console-filling 64-color Sixel using only Pillow and stdlib."""
     if Image is None:
         raise RuntimeError("Pillow is unavailable for the Sixel preview")
     geometry = geometry or artwork_preview_geometry()
     with Image.open(path) as source:
-        image = fitted_preview_image(
-            source.convert("RGB"),
-            geometry.pixel_width,
-            geometry.pixel_height,
+        image = (
+            width_filling_preview_image(
+                source.convert("RGB"),
+                geometry.pixel_width,
+                geometry.pixel_height,
+            )
+            if stretch_to_width
+            else fitted_preview_image(
+                source.convert("RGB"),
+                geometry.pixel_width,
+                geometry.pixel_height,
+            )
         )
         quantized = image.quantize(
             colors=64,
@@ -4102,6 +4170,7 @@ def render_artwork_preview(
     use_color: bool,
     prefer_sixel: bool = False,
     geometry: ArtworkPreviewGeometry | None = None,
+    stretch_to_width: bool = False,
 ) -> str:
     """Fit artwork to the live console through Chafa or built-in renderers."""
     geometry = geometry or artwork_preview_geometry()
@@ -4111,7 +4180,11 @@ def render_artwork_preview(
     )
     if chafa is None and sixel:
         emit_sixel_preview(
-            sixel_preview_bytes(path, geometry=geometry),
+            sixel_preview_bytes(
+                path,
+                geometry=geometry,
+                stretch_to_width=stretch_to_width,
+            ),
             geometry=geometry,
         )
         return "built-in Sixel"
@@ -4121,6 +4194,7 @@ def render_artwork_preview(
                 path,
                 use_color=use_color,
                 geometry=geometry,
+                stretch_to_width=stretch_to_width,
             )
         )
         return "built-in ANSI half-blocks"
@@ -4129,12 +4203,15 @@ def render_artwork_preview(
         str(chafa),
         f"--format={output_format}",
         f"--size={geometry.columns}x{geometry.rows}",
+        f"--view-size={geometry.columns}x{geometry.rows}",
         "--scale=max",
         "--animate=off",
         "--relative=off",
         "--margin-right=0",
         "--work=9",
     ]
+    if stretch_to_width:
+        command.append("--fit-width")
     if not sixel:
         command.extend(
             (
@@ -4152,7 +4229,11 @@ def render_artwork_preview(
     if result.returncode != 0 or not result.stdout:
         if sixel:
             emit_sixel_preview(
-                sixel_preview_bytes(path, geometry=geometry),
+                sixel_preview_bytes(
+                    path,
+                    geometry=geometry,
+                    stretch_to_width=stretch_to_width,
+                ),
                 geometry=geometry,
             )
             return "built-in Sixel"
@@ -4161,6 +4242,7 @@ def render_artwork_preview(
                 path,
                 use_color=use_color,
                 geometry=geometry,
+                stretch_to_width=stretch_to_width,
             )
         )
         return "built-in ANSI half-blocks"
@@ -4187,6 +4269,7 @@ def render_waveform_preview(path: Path, *, use_color: bool) -> str:
         use_color=use_color,
         prefer_sixel=True,
         geometry=waveform_preview_geometry(),
+        stretch_to_width=True,
     )
 
 
@@ -4378,6 +4461,7 @@ def artwork_review_choice(
             color=(105, 95, 145),
             dim=True,
         )
+        prompt_visible = False
         while True:
             prompt = urgent_prompt_text(question, use_color)
             steady = (
@@ -4387,14 +4471,16 @@ def artwork_review_choice(
             interactive_terminal = bool(
                 getattr(sys.stdout, "isatty", lambda: False)()
             )
-            print(
-                blinking_approval_prompt(
-                    steady,
-                    use_color and interactive_terminal,
-                ),
-                end="",
-                flush=True,
-            )
+            if not prompt_visible:
+                print(
+                    blinking_approval_prompt(
+                        steady,
+                        use_color and interactive_terminal,
+                    ),
+                    end="",
+                    flush=True,
+                )
+                prompt_visible = True
             key = read_artwork_review_key(key_reader, rendered_size)
             if key == "\x03":
                 raise KeyboardInterrupt
@@ -4417,6 +4503,7 @@ def artwork_review_choice(
                     erase_wrapped_console_text(steady)
                 else:
                     print()
+                prompt_visible = False
                 try:
                     opened_with = viewer(path)
                     cover_narration(
@@ -4435,11 +4522,12 @@ def artwork_review_choice(
                         color=(255, 90, 100),
                     )
                 continue
-            if key in {"\r", "\n", ""} or lowered in {"a", "y"}:
+            if key in {"\r", "\n"} or lowered == "y":
                 accepted = True
             elif lowered == "n":
                 accepted = False
             else:
+                invalid_key_beep()
                 continue
             settled = (
                 f"            {prompt} "
@@ -4459,17 +4547,16 @@ def artwork_review_choice(
 def waveform_review_choices(use_color: bool) -> str:
     """Render explicit diagnostic waveform-review controls."""
     plain = (
-        "F=Fine/Next | P=Problem | E=Edit audio | "
-        "R=Regenerate | V=View waveform"
+        "N=It’s fine | Y=There is a problem | "
+        "E=Edit audio | V=View fullscreen"
     )
     if not use_color:
         return f"[{plain}]"
     parts = (
-        ("F", "=Fine/Next | ", (95, 245, 135)),
-        ("P", "=Problem | ", (255, 105, 105)),
+        ("N", "=It’s fine | ", (95, 245, 135)),
+        ("Y", "=There is a problem | ", (255, 105, 105)),
         ("E", "=Edit audio | ", (255, 185, 75)),
-        ("R", "=Regenerate | ", (255, 220, 80)),
-        ("V", "=View waveform", (185, 145, 255)),
+        ("V", "=View fullscreen", (185, 145, 255)),
     )
     rendered = [rgb_text("[", 255, 205, 55, True)]
     for key, label, color in parts:
@@ -4485,15 +4572,285 @@ def waveform_review_choices(use_color: bool) -> str:
 def waveform_decision_answer(decision: str, use_color: bool) -> str:
     """Render a stable non-blinking waveform diagnostic decision."""
     if decision == "fine":
-        text, color = "Fine — next file.", (95, 245, 135)
+        text, color = "No — it’s fine; next file.", (95, 245, 135)
     else:
-        text, color = "Problem marked for review!", (255, 120, 80)
+        text, color = "Yes — there is a problem.", (255, 120, 80)
     if not use_color:
         return text
     return (
         f"{ANSI['bold']}\033[38;2;{color[0]};{color[1]};"
         f"{color[2]}m{text}{ANSI['reset']}"
     )
+
+
+def rename_waveform_problem_family(
+    audio_path: Path,
+    new_filename: str,
+) -> tuple[Path, list[Path], list[Path]]:
+    """Rename audio plus same-stem sidecars/backups and local playlists."""
+    source = audio_path.resolve()
+    requested = new_filename.strip().strip('"')
+    if not requested:
+        return source, [], []
+    if Path(requested).name != requested or any(
+        character in requested for character in '<>:"/\\|?*'
+    ):
+        raise ValueError(
+            "Enter a filename only; folders and reserved characters "
+            "are not allowed"
+        )
+    if requested.endswith((" ", ".")):
+        raise ValueError(
+            "A Windows filename cannot end with a space or period"
+        )
+    destination_audio = source.with_name(requested)
+    if destination_audio.suffix.casefold() != source.suffix.casefold():
+        raise ValueError(
+            f"Keep the original {source.suffix} audio extension when renaming"
+        )
+    if requested == source.name:
+        return source, [], []
+
+    old_stem = source.stem
+    new_stem = destination_audio.stem
+    family = [
+        candidate
+        for candidate in source.parent.iterdir()
+        if candidate.is_file()
+        and (
+            candidate.name.casefold() == source.name.casefold()
+            or candidate.name.casefold().startswith(
+                f"{old_stem}.".casefold()
+            )
+        )
+    ]
+    if source not in family:
+        raise FileNotFoundError(
+            f"Audio file disappeared before rename: {source}"
+        )
+    mappings = [
+        (
+            candidate,
+            (
+                destination_audio
+                if candidate == source
+                else candidate.with_name(
+                    new_stem + candidate.name[len(old_stem) :]
+                )
+            ),
+        )
+        for candidate in family
+    ]
+    destination_keys = [
+        str(destination).casefold() for _source, destination in mappings
+    ]
+    if len(destination_keys) != len(set(destination_keys)):
+        raise FileExistsError(
+            "The interactive rename creates duplicate filenames"
+        )
+    sources = {candidate.resolve() for candidate, _destination in mappings}
+    for _candidate, destination in mappings:
+        if destination.exists() and destination.resolve() not in sources:
+            raise FileExistsError(
+                f"Refusing rename collision: {destination.name}"
+            )
+
+    playlist_updates: list[tuple[Path, str, str, str]] = []
+    for playlist in source.parent.iterdir():
+        if (
+            not playlist.is_file()
+            or playlist.suffix.casefold() not in PLAYLIST_EXTS
+        ):
+            continue
+        original, encoding = read_text_and_encoding(playlist)
+        updated = re.sub(
+            re.escape(source.name),
+            lambda _match: destination_audio.name,
+            original,
+            flags=re.I,
+        )
+        if updated != original:
+            playlist_updates.append(
+                (playlist, original, updated, encoding)
+            )
+
+    backups = [
+        backup_before_inline_replacement(playlist)
+        for playlist, _original, _updated, _encoding in playlist_updates
+    ]
+    staged: list[tuple[Path, Path, Path]] = []
+    finalized: list[tuple[Path, Path, Path]] = []
+    try:
+        for index, (candidate, destination) in enumerate(
+            mappings,
+            start=1,
+        ):
+            temporary = collision_safe_path(
+                source.parent
+                / f".audit_music_batch-waveform-rename-{index:04d}.tmp"
+            )
+            candidate.rename(temporary)
+            staged.append((candidate, temporary, destination))
+        for candidate, temporary, destination in staged:
+            temporary.rename(destination)
+            finalized.append((candidate, temporary, destination))
+        for playlist, _original, updated, encoding in playlist_updates:
+            playlist.write_bytes(updated.encode(encoding))
+    except Exception:
+        for playlist, original, _updated, encoding in playlist_updates:
+            try:
+                playlist.write_bytes(original.encode(encoding))
+            except Exception:
+                pass
+        for candidate, _temporary, destination in reversed(finalized):
+            try:
+                if destination.exists() and not candidate.exists():
+                    destination.rename(candidate)
+            except Exception:
+                pass
+        finalized_temporaries = {
+            temporary for _candidate, temporary, _destination in finalized
+        }
+        for candidate, temporary, _destination in reversed(staged):
+            if temporary in finalized_temporaries:
+                continue
+            try:
+                if temporary.exists() and not candidate.exists():
+                    temporary.rename(candidate)
+            except Exception:
+                pass
+        raise
+
+    renamed = [destination for _candidate, destination in mappings]
+    if not destination_audio.is_file() or any(
+        not destination.is_file() for destination in renamed
+    ):
+        raise RuntimeError(
+            "Interactive waveform-problem rename did not verify"
+        )
+    return destination_audio, renamed, backups
+
+
+def read_interactive_filename_edit(
+    prompt: str,
+    initial_filename: str,
+    input_reader=None,
+) -> str:
+    """Read an editable, prefilled filename on Windows with safe fallbacks."""
+    if input_reader is not None:
+        return input_reader(prompt)
+    if (
+        os.name == "nt"
+        and bool(getattr(sys.stdin, "isatty", lambda: False)())
+        and bool(getattr(sys.stdout, "isatty", lambda: False)())
+    ):
+        try:
+            import ctypes
+            import msvcrt
+
+            class ConsoleReadControl(ctypes.Structure):
+                _fields_ = (
+                    ("nLength", ctypes.c_ulong),
+                    ("nInitialChars", ctypes.c_ulong),
+                    ("dwCtrlWakeupMask", ctypes.c_ulong),
+                    ("dwControlKeyState", ctypes.c_ulong),
+                )
+
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            read_console = kernel32.ReadConsoleW
+            read_console.argtypes = (
+                ctypes.c_void_p,
+                ctypes.c_void_p,
+                ctypes.c_ulong,
+                ctypes.POINTER(ctypes.c_ulong),
+                ctypes.POINTER(ConsoleReadControl),
+            )
+            read_console.restype = ctypes.c_int
+            handle = msvcrt.get_osfhandle(sys.stdin.fileno())
+            capacity = 32768
+            buffer = ctypes.create_unicode_buffer(capacity)
+            buffer.value = initial_filename
+            characters_read = ctypes.c_ulong()
+            control = ConsoleReadControl()
+            control.nLength = ctypes.sizeof(ConsoleReadControl)
+            control.nInitialChars = len(initial_filename)
+            print(prompt, end="", flush=True)
+            if read_console(
+                handle,
+                buffer,
+                capacity - 1,
+                ctypes.byref(characters_read),
+                ctypes.byref(control),
+            ):
+                return buffer[: characters_read.value].rstrip("\r\n")
+        except Exception:
+            pass
+    return input(prompt)
+
+
+def prompt_for_waveform_problem_rename(
+    audio_path: Path,
+    *,
+    use_color: bool,
+    input_reader=None,
+) -> Path:
+    """Offer an rn.bat-style filename edit and rename its complete family."""
+    print(f"            {music_filename(audio_path.name, use_color)}")
+    prompt = (
+        "            "
+        + urgent_prompt_text(
+            "New filename (press ENTER to leave unchanged):",
+            use_color,
+        )
+        + " "
+    )
+    try:
+        entered = read_interactive_filename_edit(
+            prompt,
+            audio_path.name,
+            input_reader=input_reader,
+        ).strip()
+    except EOFError:
+        entered = ""
+    reset_console_pager_after_user_input()
+    if not entered or entered.strip('"') == audio_path.name:
+        print(
+            rgb_text(
+                "            ❌ Unchanged — the problem remains flagged only "
+                "in this review’s results.",
+                175,
+                155,
+                145,
+                use_color,
+                dim=True,
+            )
+        )
+        return audio_path
+    renamed_audio, renamed, backups = rename_waveform_problem_family(
+        audio_path,
+        entered,
+    )
+    print(
+        colorize(
+            f"            ✅ Renamed and verified {len(renamed)} matching "
+            f"file{'s' if len(renamed) != 1 else ''}.",
+            "green",
+            use_color,
+        )
+    )
+    if backups:
+        print(
+            rgb_text(
+                f"            💾 Kept {len(backups)} playlist backup"
+                f"{'s' if len(backups) != 1 else ''}.",
+                170,
+                170,
+                175,
+                use_color,
+                dim=True,
+            )
+        )
+    return renamed_audio
 
 
 def waveform_review_choice(
@@ -4505,12 +4862,14 @@ def waveform_review_choice(
     preview_renderer=None,
     image_viewer=None,
     audio_editor=None,
-    regenerate=None,
-) -> tuple[str, int]:
+    problem_renamer=None,
+    rename_input_reader=None,
+) -> tuple[str, int, Path]:
     """Review one disposable waveform for problems, editing, or navigation."""
     renderer = preview_renderer or render_waveform_preview
     viewer = image_viewer or launch_irfanview
     editor = audio_editor or launch_audio_editor
+    renamer = problem_renamer or prompt_for_waveform_problem_rename
     question = f"Does this waveform show a problem in {audio_path.name}?"
     edits_opened = 0
     while True:
@@ -4524,6 +4883,7 @@ def waveform_review_choice(
             color=(105, 95, 145),
             dim=True,
         )
+        prompt_visible = False
         while True:
             prompt = urgent_prompt_text(question, use_color)
             steady = (
@@ -4533,14 +4893,16 @@ def waveform_review_choice(
             interactive_terminal = bool(
                 getattr(sys.stdout, "isatty", lambda: False)()
             )
-            print(
-                blinking_approval_prompt(
-                    steady,
-                    use_color and interactive_terminal,
-                ),
-                end="",
-                flush=True,
-            )
+            if not prompt_visible:
+                print(
+                    blinking_approval_prompt(
+                        steady,
+                        use_color and interactive_terminal,
+                    ),
+                    end="",
+                    flush=True,
+                )
+                prompt_visible = True
             key = read_artwork_review_key(key_reader, rendered_size)
             if key == "\x03":
                 raise KeyboardInterrupt
@@ -4558,26 +4920,12 @@ def waveform_review_choice(
                     dim=True,
                 )
                 break
-            if lowered == "r":
-                if interactive_terminal:
-                    erase_wrapped_console_text(steady)
-                else:
-                    print()
-                if regenerate is not None:
-                    cover_narration(
-                        "🔄",
-                        "Regenerating the waveform from the current audio file…",
-                        use_color=use_color,
-                        color=(105, 145, 180),
-                        dim=True,
-                    )
-                    regenerate()
-                break
             if lowered == "v":
                 if interactive_terminal:
                     erase_wrapped_console_text(steady)
                 else:
                     print()
+                prompt_visible = False
                 try:
                     opened_with = viewer(waveform_path)
                     cover_narration(
@@ -4599,13 +4947,13 @@ def waveform_review_choice(
                     erase_wrapped_console_text(steady)
                 else:
                     print()
+                prompt_visible = False
                 try:
                     opened_with = editor(audio_path)
                     edits_opened += 1
                     cover_narration(
                         "🎛️",
-                        f"Opened the audio in {Path(opened_with).name}. "
-                        "After saving, press R to regenerate the waveform.",
+                        f"Opened the audio in {Path(opened_with).name}.",
                         use_color=use_color,
                         color=(210, 155, 85),
                         dim=True,
@@ -4616,9 +4964,10 @@ def waveform_review_choice(
                         use_color,
                     )
                 continue
-            if lowered not in {"f", "p"}:
+            if lowered not in {"n", "y"}:
+                invalid_key_beep()
                 continue
-            decision = "fine" if lowered == "f" else "problem"
+            decision = "fine" if lowered == "n" else "problem"
             settled = (
                 f"            {prompt} "
                 f"{waveform_decision_answer(decision, use_color)}"
@@ -4629,7 +4978,50 @@ def waveform_review_choice(
             else:
                 print(waveform_decision_answer(decision, use_color))
             reset_console_pager_after_user_input()
-            return decision, edits_opened
+            if decision == "fine":
+                return decision, edits_opened, audio_path
+            if prompt_for_approval(
+                "Want to edit this audio file now?",
+                False,
+                use_color,
+                key_reader=key_reader,
+                indent="            ",
+            ):
+                try:
+                    opened_with = editor(audio_path)
+                    edits_opened += 1
+                    cover_narration(
+                        "🎛️",
+                        f"Opened the audio in {Path(opened_with).name}.",
+                        use_color=use_color,
+                        color=(210, 155, 85),
+                        dim=True,
+                    )
+                except Exception as exc:
+                    print_formatted_error(
+                        f"Could not open an audio editor: {exc}",
+                        use_color,
+                    )
+            final_audio_path = audio_path
+            if prompt_for_approval(
+                "Want to rename this audio file to flag the problem?",
+                False,
+                use_color,
+                key_reader=key_reader,
+                indent="            ",
+            ):
+                try:
+                    final_audio_path = renamer(
+                        audio_path,
+                        use_color=use_color,
+                        input_reader=rename_input_reader,
+                    )
+                except Exception as exc:
+                    print_formatted_error(
+                        f"Could not rename the problem audio file: {exc}",
+                        use_color,
+                    )
+            return decision, edits_opened, final_audio_path
 
 
 def rejected_artwork_path(path: Path) -> Path:
@@ -4647,6 +5039,35 @@ def waveform_staging_root() -> Path:
     if recycled.is_dir() and os.access(recycled, os.W_OK):
         return recycled
     return Path(tempfile.gettempdir())
+
+
+def waveform_channel_count(audio_path: Path) -> int:
+    """Read the channel count needed to draw every waveform separator."""
+    if mutagen_file is None:
+        return 1
+    try:
+        audio = mutagen_file(audio_path)
+        channels = int(
+            getattr(getattr(audio, "info", None), "channels", 0) or 0
+        )
+    except Exception:
+        return 1
+    return max(1, min(32, channels))
+
+
+def waveform_frame_filters(audio_path: Path) -> str:
+    """Draw the outer frame and a divider between every stacked channel."""
+    line = "color=0x777777@0.60:t=fill"
+    filters = [
+        "drawbox=x=0:y=0:w=iw:h=ih:"
+        "color=0x777777@0.60:t=4"
+    ]
+    channels = waveform_channel_count(audio_path)
+    filters.extend(
+        f"drawbox=x=0:y=ih*{index}/{channels}-2:w=iw:h=4:{line}"
+        for index in range(1, channels)
+    )
+    return ",".join(filters)
 
 
 def generate_waveform_jpeg(
@@ -4674,6 +5095,11 @@ def generate_waveform_jpeg(
     temporary = collision_safe_path(
         target.with_name(f".{target.name}.generating.jpg")
     )
+    waveform_filters = (
+        "showwavespic=s=1800x700:"
+        "split_channels=1:colors=0x55dcff,"
+        f"{waveform_frame_filters(audio_path)}"
+    )
     command = [
         str(ffmpeg),
         "-hide_banner",
@@ -4683,12 +5109,7 @@ def generate_waveform_jpeg(
         "-i",
         str(audio_path),
         "-filter_complex",
-        (
-            "showwavespic=s=1800x700:"
-            "split_channels=1:colors=0x55dcff,"
-            "drawbox=x=0:y=0:w=iw:h=ih:"
-            "color=0x777777@0.60:t=4"
-        ),
+        waveform_filters,
         "-frames:v",
         "1",
         "-q:v",
@@ -4833,18 +5254,7 @@ def review_waveforms(
                 f"            {music_filename(audit.rel(audio_path), use_color)}"
             )
             future = futures[audio_path]
-            if future.done():
-                print(
-                    rgb_text(
-                        "            ⚡ Background waveform render is ready.",
-                        145,
-                        215,
-                        255,
-                        use_color,
-                        dim=True,
-                    )
-                )
-            else:
+            if not future.done():
                 print(
                     rgb_text(
                         "            ⏳ Finishing the background waveform render…",
@@ -4857,7 +5267,7 @@ def review_waveforms(
                 )
             try:
                 staged_waveform, _staging_backup = future.result()
-                decision, edit_count = waveform_review_choice(
+                decision, edit_count, reviewed_audio_path = waveform_review_choice(
                     staged_waveform,
                     audio_path,
                     use_color=use_color,
@@ -4867,16 +5277,11 @@ def review_waveforms(
                     ),
                     image_viewer=image_viewer,
                     audio_editor=discovered_editor,
-                    regenerate=lambda: generate_waveform_jpeg(
-                        audio_path,
-                        narrate=True,
-                        destination=staged_waveform,
-                    ),
                 )
                 if edit_count:
-                    edited.append(str(audio_path))
+                    edited.append(str(reviewed_audio_path))
                 if decision == "fine":
-                    fine.append(str(audio_path))
+                    fine.append(str(reviewed_audio_path))
                     print(
                         colorize(
                             "            ✔️ Marked fine; continuing to the "
@@ -4888,14 +5293,19 @@ def review_waveforms(
                 else:
                     problems.append(
                         {
-                            "path": str(audio_path),
+                            "path": str(reviewed_audio_path),
                             "waveform": str(staged_waveform),
+                            **(
+                                {"renamed_from": str(audio_path)}
+                                if reviewed_audio_path != audio_path
+                                else {}
+                            ),
                         }
                     )
                     print(
                         rgb_text(
-                            "            ⚠️ Problem marked for later review; "
-                            "the audio file was not changed.",
+                            "            ⚠️ Problem recorded in the waveform "
+                            "review results.",
                             255,
                             180,
                             65,
@@ -4946,6 +5356,43 @@ def review_waveforms(
         "failed": failed,
         "staging_folder": str(staging_folder),
     }
+
+
+def offer_post_audit_waveform_review(
+    root: Path,
+    *,
+    interactive: bool,
+    suppressed: bool,
+    include_archives: bool,
+    use_color: bool,
+    workers: int,
+    key_reader=None,
+    reviewer=None,
+) -> dict[str, Any] | None:
+    """Offer a default-No handoff from a normal audit to waveform review."""
+    if not interactive or suppressed:
+        return None
+    if not prompt_for_approval(
+        "Run the interactive waveform review now?",
+        False,
+        use_color,
+        key_reader=key_reader,
+        indent="        ",
+    ):
+        return None
+    if shutil.which("ffmpeg") is None:
+        raise RuntimeError(
+            "Waveform review cannot start because ffmpeg is not in PATH"
+        )
+    review = reviewer or review_waveforms
+    return review(
+        root,
+        include_archives=include_archives,
+        use_color=use_color,
+        interactive=True,
+        key_reader=key_reader,
+        workers=workers,
+    )
 
 
 def find_cover_and_embed(
@@ -5721,7 +6168,7 @@ def humanized_action(action: str) -> str:
     if action == "plain_lyrics":
         return "plain lyrics"
     if action == "synced_lyrics":
-        return "timed lyrics"
+        return "timed karaoke"
     if action.startswith("renamed_group:"):
         return f"renamed {action.partition(':')[2]}"
     if action.startswith("updated_playlists:"):
@@ -5843,10 +6290,22 @@ def embedded_lyrics_console_lines(
     embedded = data.get("embedded_lyrics", [])
     if not embedded:
         return []
+    refresh_mode = data.get("embedded_lyrics_mode") == "refresh"
+    flag = (
+        "--refresh-embedded-lyrics"
+        if refresh_mode
+        else "--embed-lyrics"
+    )
+    verb = "refreshed" if refresh_mode else "embedded"
+    title = (
+        "Lyrics/karaoke refreshed by --refresh-embedded-lyrics"
+        if refresh_mode
+        else "Lyrics/karaoke embedded by --embed-lyrics"
+    )
     lines: list[str] = []
     lines.extend(
         double_height_gradient_section(
-            "Lyrics embedded by --embed-lyrics",
+            title,
             use_color,
             ((255, 125, 215), (100, 205, 255)),
         )
@@ -5860,7 +6319,7 @@ def embedded_lyrics_console_lines(
         ]
         description = ", ".join(changed) or "available lyrics"
         lines.append(
-            f"        🎤 --embed-lyrics embedded {description}:"
+            f"        🎤 {flag} {verb} {description}:"
         )
         lines.append(
             f"            {music_filename(str(item['path']), use_color)}"
@@ -6672,7 +7131,8 @@ def render_usage(use_color: bool = True) -> str:
         "  * full-console Chafa, Sixel, or ANSI artwork previews that automatically",
         "    re-render after a live window/font-size change; V opens the original",
         "  * full-width diagnostic waveform review with parallel background pre-rendering,",
-        "    live resize, problem marking, image viewing, and E=Edit audio",
+        "    live resize, problem marking, image viewing, editing, and optional rename",
+        "  * a default-No end-of-audit offer to begin waveform review immediately",
         "  * default detection of excessive leading, internal, or trailing silence",
         "  * comment-filtered plain/timed lyric embedding plus newer-sidecar refresh",
         "  * timestamped backups, immediate repairs, and post-write re-auditing",
@@ -6707,8 +7167,15 @@ def render_usage(use_color: bool = True) -> str:
         f"  {command('--embed-lyrics')}  {command('--no-embed-lyrics')}  "
         f"{default_badge(configured_defaults.embed_lyrics)}",
         note(
-            "  ^ Enable or suppress comment-filtered embedding and "
-            "newer-sidecar refresh."
+            "  ^ Enable or suppress comment-filtered plain-lyrics AND "
+            "timed-karaoke embedding together."
+        ),
+        "",
+        f"  {command('--refresh-embedded-lyrics')}  "
+        f"{default_badge(False)}",
+        note(
+            "  ^ Force-refresh both plain lyrics and timed karaoke from "
+            "validated sidecars, then re-audit."
         ),
         "",
         f"  {command('--find-cover')}  {command('--no-find-cover')}  "
@@ -6727,11 +7194,12 @@ def render_usage(use_color: bool = True) -> str:
         note("  ^ Flag silence strictly longer than this duration."),
         "",
         f"  {command('--review-waveforms')}  "
+        f"{command('--no-review-waveforms')}  "
         f"{command('--waveform-workers')} {example('NUMBER')}  "
         f"{default_badge(False)}  {default_value_badge('2 workers')}",
         note(
-            "  ^ Diagnose waveforms only; F advances, P marks a problem, "
-            "E edits audio, and 1-8 workers pre-render."
+            "  ^ Run waveform review directly, suppress its normal end-of-audit "
+            "offer, or choose 1-8 pre-render workers."
         ),
         "",
         f"  {command('--configure-defaults')}  {command('--show-defaults')}  "
@@ -6771,6 +7239,13 @@ def render_usage(use_color: bool = True) -> str:
         note(
             "  ^ Resolve missing covers by release, review all supplied art, "
             "embed only approved Front, and re-audit."
+        ),
+        "",
+        f"  {command('audit_music_batch.py')} {example('.')} "
+        f"{command('--refresh-embedded-lyrics')}",
+        note(
+            "  ^ Force-refresh both embedded plain lyrics and timed karaoke "
+            "from their current sidecars."
         ),
         "",
         f"  {command('audit_music_batch.py --review-waveforms')}",
@@ -6939,6 +7414,29 @@ def read_single_key() -> str:
     return line[:1] if line else "\r"
 
 
+def invalid_key_beep(
+    frequency_hz: int = 100,
+    duration_seconds: float = 0.2,
+) -> None:
+    """Reject an unsupported prompt key audibly without changing the screen."""
+    if os.name == "nt":
+        try:
+            import winsound
+
+            winsound.Beep(
+                max(37, min(32767, int(frequency_hz))),
+                max(1, round(float(duration_seconds) * 1000)),
+            )
+            return
+        except Exception:
+            pass
+    try:
+        sys.stderr.write("\a")
+        sys.stderr.flush()
+    except Exception:
+        pass
+
+
 def prompt_for_approval(
     question: str,
     default_yes: bool,
@@ -6961,7 +7459,7 @@ def prompt_for_approval(
             if interactive_terminal:
                 print(ANSI["reset"], end="", flush=True)
             raise KeyboardInterrupt
-        if key in {"\r", "\n", ""}:
+        if key in {"\r", "\n"}:
             if interactive_terminal:
                 erase_wrapped_console_text(steady_prompt)
                 print(
@@ -6985,6 +7483,7 @@ def prompt_for_approval(
                 print(approval_answer(answer_yes, use_color))
             reset_console_pager_after_user_input()
             return answer_yes
+        invalid_key_beep()
 
 
 def behavior_config_path(path: Path | None = None) -> Path:
@@ -7146,6 +7645,8 @@ def effective_behavior_flags(
         if args.embed_lyrics is None
         else bool(args.embed_lyrics)
     )
+    if getattr(args, "refresh_embedded_lyrics", False):
+        embed_lyrics = True
     find_cover = (
         defaults.find_cover
         if args.find_cover is None
@@ -7283,11 +7784,12 @@ def prompt_for_action_scope(
             if interactive_terminal:
                 print(ANSI["reset"], end="", flush=True)
             raise KeyboardInterrupt
-        if key in {"\r", "\n", ""}:
+        if key in {"\r", "\n"}:
             choice = "yes" if default_yes else "no"
         else:
             choice = ACTION_SCOPE_KEYS.get(key.casefold())
             if choice is None:
+                invalid_key_beep()
                 continue
         if interactive_terminal:
             erase_wrapped_console_text(steady_prompt)
@@ -8281,11 +8783,11 @@ def run_unit_tests() -> int:
                     use_color=False,
                 )
                 self.assertIn(
-                    "Lyrics embedded by --embed-lyrics",
+                    "Lyrics/karaoke embedded by --embed-lyrics",
                     console,
                 )
                 self.assertIn(
-                    "🎤 --embed-lyrics embedded plain lyrics, timed lyrics:",
+                    "🎤 --embed-lyrics embedded plain lyrics, timed karaoke:",
                     console,
                 )
                 self.assertIn(" ♪ 01 Test Song.flac", console)
@@ -8293,7 +8795,7 @@ def run_unit_tests() -> int:
                 self.assertIn("✔️ Re-audited in this audit pass.", console)
                 markdown = render_markdown(report, max_examples=0)
                 self.assertIn(
-                    "## Lyrics Embedded by `--embed-lyrics`",
+                    "## Lyrics/Karaoke Embedded by `--embed-lyrics`",
                     markdown,
                 )
                 self.assertIn("`01 Test Song.flac`", markdown)
@@ -8452,6 +8954,84 @@ def run_unit_tests() -> int:
                             audio_path.relative_to(root).as_posix(),
                         ),
                     )
+
+        def test_refresh_embedded_lyrics_forces_plain_and_karaoke_together(
+            self,
+        ) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio_path = make_silent_flac(root, "Forced Refresh")
+                audio_path.with_suffix(".txt").write_text(
+                    "Plain lyric\n",
+                    encoding="utf-8",
+                )
+                audio_path.with_suffix(".lrc").write_text(
+                    "[00:00.00]Timed karaoke\n",
+                    encoding="utf-8",
+                )
+                first_actions = embed_lyrics(audio_path, write=True)
+                self.assertIn("plain_lyrics", first_actions)
+                self.assertIn("synced_lyrics", first_actions)
+                self.assertEqual([], embed_lyrics(audio_path, write=True))
+
+                report = BatchAudit(root).audit(
+                    embed_lyrics_first=True,
+                    refresh_embedded_lyrics=True,
+                )
+                self.assertEqual(
+                    "refresh",
+                    report["embedded_lyrics_mode"],
+                )
+                refreshed_actions = [
+                    action
+                    for item in report["embedded_lyrics"]
+                    for action in item["actions"]
+                ]
+                self.assertIn("plain_lyrics", refreshed_actions)
+                self.assertIn("synced_lyrics", refreshed_actions)
+                self.assertEqual(
+                    2,
+                    len(
+                        list(
+                            root.glob(
+                                "Forced Refresh.flac.bak.*."
+                                "replaced-by-chatgpt*.bak"
+                            )
+                        )
+                    ),
+                )
+                console = render_console_report(
+                    report,
+                    max_examples=0,
+                    use_color=False,
+                )
+                self.assertIn(
+                    "Lyrics/karaoke refreshed by "
+                    "--refresh-embedded-lyrics",
+                    console,
+                )
+                self.assertIn(
+                    "--refresh-embedded-lyrics refreshed "
+                    "plain lyrics, timed karaoke",
+                    console,
+                )
+                markdown = render_markdown(report, max_examples=0)
+                self.assertIn(
+                    "## Lyrics/Karaoke Refreshed by "
+                    "`--refresh-embedded-lyrics`",
+                    markdown,
+                )
+                args = parse_args(
+                    [".", "--refresh-embedded-lyrics"]
+                )
+                self.assertTrue(args.refresh_embedded_lyrics)
+                self.assertIsNone(args.embed_lyrics)
+                self.assertTrue(
+                    effective_behavior_flags(
+                        args,
+                        BehaviorDefaults(embed_lyrics=False),
+                    ).embed_lyrics
+                )
 
         def test_instrumental_is_exempt(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -9619,10 +10199,10 @@ def run_unit_tests() -> int:
         def test_waveform_jpeg_generation_is_verified(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
-                audio = make_patterned_flac(
+                audio = make_silent_flac(
                     root,
                     "Waveform Fixture [instrumental]",
-                    [(0.25, False), (0.5, True), (0.25, False)],
+                    channels=2,
                 )
                 staged = root / "staged.waveform.jpg"
                 waveform, backup = generate_waveform_jpeg(
@@ -9641,6 +10221,14 @@ def run_unit_tests() -> int:
                         20,
                     )
                     self.assertGreater(sum(border_pixel), 120)
+                    center_pixel = preview.convert("RGB").getpixel(
+                        (preview.width // 2, preview.height // 2)
+                    )
+                    self.assertLess(
+                        max(center_pixel) - min(center_pixel),
+                        20,
+                    )
+                    self.assertGreater(sum(center_pixel), 120)
                 self.assertTrue(staged.exists())
                 self.assertFalse(
                     audio.with_name(f"{audio.stem}.waveform.jpg").exists()
@@ -9672,6 +10260,78 @@ def run_unit_tests() -> int:
             review.assert_called_once()
             self.assertEqual(Path("."), review.call_args.args[0])
 
+        def test_post_audit_waveform_offer_can_run_or_be_suppressed(
+            self,
+        ) -> None:
+            review_result = {
+                "audio_files": 1,
+                "fine": [r"C:\Music\Track.flac"],
+                "problems": [],
+                "edited": [],
+                "failed": [],
+                "staging_folder": r"C:\recycled\waveforms",
+            }
+            reviewer = mock.Mock(return_value=review_result)
+            with mock.patch.object(
+                shutil,
+                "which",
+                return_value=r"C:\util\ffmpeg.exe",
+            ), contextlib.redirect_stdout(io.StringIO()):
+                declined = offer_post_audit_waveform_review(
+                    Path(r"C:\Music"),
+                    interactive=True,
+                    suppressed=False,
+                    include_archives=False,
+                    use_color=False,
+                    workers=3,
+                    key_reader=lambda: "n",
+                    reviewer=reviewer,
+                )
+                accepted = offer_post_audit_waveform_review(
+                    Path(r"C:\Music"),
+                    interactive=True,
+                    suppressed=False,
+                    include_archives=True,
+                    use_color=False,
+                    workers=3,
+                    key_reader=lambda: "y",
+                    reviewer=reviewer,
+                )
+                suppressed = offer_post_audit_waveform_review(
+                    Path(r"C:\Music"),
+                    interactive=True,
+                    suppressed=True,
+                    include_archives=False,
+                    use_color=False,
+                    workers=3,
+                    key_reader=lambda: (_ for _ in ()).throw(
+                        AssertionError("Suppressed offer read a key")
+                    ),
+                    reviewer=reviewer,
+                )
+            self.assertIsNone(declined)
+            self.assertEqual(review_result, accepted)
+            self.assertIsNone(suppressed)
+            reviewer.assert_called_once()
+            self.assertTrue(
+                reviewer.call_args.kwargs["include_archives"]
+            )
+            self.assertEqual(3, reviewer.call_args.kwargs["workers"])
+            self.assertTrue(
+                parse_args(
+                    [".", "--no-review-waveforms"]
+                ).no_review_waveforms
+            )
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    parse_args(
+                        [
+                            ".",
+                            "--review-waveforms",
+                            "--no-review-waveforms",
+                        ]
+                    )
+
         def test_waveform_geometry_uses_nearly_full_live_console(self) -> None:
             module = sys.modules[__name__]
             with mock.patch.object(
@@ -9684,11 +10344,22 @@ def run_unit_tests() -> int:
                 return_value=(10, 20),
             ):
                 geometry = waveform_preview_geometry()
-            self.assertEqual(1, geometry.indent_columns)
-            self.assertEqual(198, geometry.columns)
+            self.assertEqual(12, geometry.indent_columns)
+            self.assertEqual(187, geometry.columns)
             self.assertEqual(51, geometry.rows)
-            self.assertEqual(1980, geometry.pixel_width)
+            self.assertEqual(1870, geometry.pixel_width)
             self.assertEqual(1020, geometry.pixel_height)
+            source = Image.new("RGB", (1800, 700), "black")
+            width_filled = width_filling_preview_image(
+                source,
+                geometry.pixel_width,
+                geometry.pixel_height,
+            )
+            self.assertEqual(geometry.pixel_width, width_filled.width)
+            self.assertLessEqual(
+                width_filled.height,
+                geometry.pixel_height,
+            )
             completed = mock.Mock(
                 returncode=0,
                 stdout=b"mock-sixel",
@@ -9702,7 +10373,7 @@ def run_unit_tests() -> int:
                 subprocess,
                 "run",
                 return_value=completed,
-            ), mock.patch.object(
+            ) as run, mock.patch.object(
                 module,
                 "emit_sixel_preview",
             ) as emit:
@@ -9713,8 +10384,13 @@ def run_unit_tests() -> int:
                         use_color=True,
                         prefer_sixel=True,
                         geometry=geometry,
+                        stretch_to_width=True,
                     ),
                 )
+            command = run.call_args.args[0]
+            self.assertIn("--size=187x51", command)
+            self.assertIn("--view-size=187x51", command)
+            self.assertIn("--fit-width", command)
             emit.assert_called_once_with(
                 b"mock-sixel",
                 geometry=geometry,
@@ -9740,16 +10416,17 @@ def run_unit_tests() -> int:
                 output.getvalue().count(ANSI["erase_line"]),
             )
 
-        def test_waveform_diagnostic_can_edit_regenerate_view_and_mark_problem(
+        def test_waveform_diagnostic_can_edit_view_and_mark_problem(
             self,
         ) -> None:
             waveform = Path(r"C:\Temp\track.waveform.jpg")
             audio = Path(r"C:\Music\Track.flac")
-            keys = iter(("e", "r", "v", "p"))
+            renamed_audio = audio.with_name("Track [waveform problem].flac")
+            keys = iter(("e", "v", "y", "y", "y"))
             calls = {
                 "render": 0,
                 "edit": 0,
-                "regenerate": 0,
+                "rename": 0,
                 "view": 0,
             }
 
@@ -9758,7 +10435,7 @@ def run_unit_tests() -> int:
                 return result
 
             with contextlib.redirect_stdout(io.StringIO()) as output:
-                decision, edits = waveform_review_choice(
+                decision, edits, reviewed_path = waveform_review_choice(
                     waveform,
                     audio,
                     use_color=False,
@@ -9772,24 +10449,153 @@ def run_unit_tests() -> int:
                     audio_editor=lambda path: count(
                         "edit", Path(r"C:\Program Files\Adobe\Audition.exe")
                     ),
-                    regenerate=lambda: count("regenerate", None),
+                    problem_renamer=lambda path, **_kwargs: count(
+                        "rename",
+                        renamed_audio,
+                    ),
                 )
             self.assertEqual("problem", decision)
-            self.assertEqual(1, edits)
+            self.assertEqual(2, edits)
+            self.assertEqual(renamed_audio, reviewed_path)
             self.assertEqual(
                 {
-                    "render": 2,
-                    "edit": 1,
-                    "regenerate": 1,
+                    "render": 1,
+                    "edit": 2,
+                    "rename": 1,
                     "view": 1,
                 },
                 calls,
             )
             rendered = output.getvalue()
-            self.assertIn("F=Fine/Next", rendered)
-            self.assertIn("P=Problem", rendered)
+            self.assertIn("N=It’s fine", rendered)
+            self.assertIn("Y=There is a problem", rendered)
             self.assertIn("E=Edit audio", rendered)
-            self.assertIn("Problem marked for review!", rendered)
+            self.assertIn("V=View fullscreen", rendered)
+            self.assertIn("Yes — there is a problem.", rendered)
+            self.assertIn("Want to edit this audio file now?", rendered)
+            self.assertIn(
+                "Want to rename this audio file to flag the problem?",
+                rendered,
+            )
+
+        def test_invalid_prompt_keys_beep_without_reprinting(self) -> None:
+            module = sys.modules[__name__]
+            output = io.StringIO()
+            with mock.patch.object(
+                module,
+                "invalid_key_beep",
+            ) as beep, contextlib.redirect_stdout(output):
+                approval_keys = iter(("x", "n"))
+                self.assertFalse(
+                    prompt_for_approval(
+                        "Continue this operation?",
+                        False,
+                        False,
+                        key_reader=lambda: next(approval_keys),
+                    )
+                )
+                scope_keys = iter(("x", "n"))
+                self.assertEqual(
+                    "no",
+                    prompt_for_action_scope(
+                        "Apply this repair?",
+                        False,
+                        False,
+                        key_reader=lambda: next(scope_keys),
+                    ),
+                )
+                artwork_keys = iter(("x", "y"))
+                self.assertTrue(
+                    artwork_review_choice(
+                        Path(r"C:\Temp\cover.jpg"),
+                        label="cover.jpg",
+                        use_color=False,
+                        key_reader=lambda: next(artwork_keys),
+                        preview_renderer=(
+                            lambda _path, *, use_color: "mock Sixel"
+                        ),
+                    )
+                )
+                waveform_keys = iter(("x", "n"))
+                decision, edits, reviewed_path = waveform_review_choice(
+                    Path(r"C:\Temp\track.waveform.jpg"),
+                    Path(r"C:\Music\Track.flac"),
+                    use_color=False,
+                    key_reader=lambda: next(waveform_keys),
+                    preview_renderer=(
+                        lambda _path, *, use_color: "mock Sixel"
+                    ),
+                )
+            self.assertEqual("fine", decision)
+            self.assertEqual(0, edits)
+            self.assertEqual(Path(r"C:\Music\Track.flac"), reviewed_path)
+            self.assertEqual(4, beep.call_count)
+            rendered = output.getvalue()
+            self.assertEqual(
+                1,
+                rendered.count(
+                    "Does this waveform show a problem in Track.flac?"
+                ),
+            )
+            self.assertEqual(
+                1,
+                rendered.count(
+                    "Approve this downloaded artwork image as cover.jpg?"
+                ),
+            )
+            if os.name == "nt":
+                with mock.patch("winsound.Beep") as native_beep:
+                    invalid_key_beep()
+                native_beep.assert_called_once_with(100, 200)
+
+        def test_waveform_problem_rename_includes_sidecars_backups_and_playlist(
+            self,
+        ) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio = root / "Track.flac"
+                lyric = root / "Track.lrc"
+                old_backup = root / "Track.flac.bak.202601010101.old.bak"
+                playlist = root / "all.m3u"
+                audio.write_bytes(b"audio")
+                lyric.write_text("[00:00.00] lyric", encoding="utf-8")
+                old_backup.write_bytes(b"backup")
+                playlist.write_text("Track.flac\n", encoding="utf-8")
+
+                renamed_audio, renamed, playlist_backups = (
+                    rename_waveform_problem_family(
+                        audio,
+                        "Track [waveform problem].flac",
+                    )
+                )
+
+                self.assertEqual(
+                    root / "Track [waveform problem].flac",
+                    renamed_audio,
+                )
+                self.assertEqual(3, len(renamed))
+                self.assertTrue(renamed_audio.is_file())
+                self.assertTrue(
+                    root.joinpath(
+                        "Track [waveform problem].lrc"
+                    ).is_file()
+                )
+                self.assertTrue(
+                    root.joinpath(
+                        "Track [waveform problem].flac.bak."
+                        "202601010101.old.bak"
+                    ).is_file()
+                )
+                self.assertFalse(audio.exists())
+                self.assertEqual(
+                    "Track [waveform problem].flac\n",
+                    playlist.read_text(encoding="utf-8"),
+                )
+                self.assertEqual(1, len(playlist_backups))
+                self.assertEqual(
+                    "Track.flac\n",
+                    playlist_backups[0].read_text(encoding="utf-8"),
+                )
 
         def test_waveform_review_keeps_only_disposable_staged_preview(
             self,
@@ -9826,17 +10632,21 @@ def run_unit_tests() -> int:
                 ), mock.patch.object(
                     module,
                     "waveform_review_choice",
-                    return_value=("fine", 0),
+                    return_value=("fine", 0, audio),
                 ), mock.patch.object(
                     module,
                     "audio_editor_executable",
                     return_value=None,
-                ), contextlib.redirect_stdout(io.StringIO()):
+                ), contextlib.redirect_stdout(io.StringIO()) as output:
                     result = review_waveforms(
                         root,
                         use_color=False,
                         workers=1,
                     )
+                self.assertNotIn(
+                    "Background waveform render is ready",
+                    output.getvalue(),
+                )
                 self.assertEqual([str(audio)], result["fine"])
                 self.assertEqual([], result["problems"])
                 staged_folder = Path(result["staging_folder"])
@@ -10267,6 +11077,11 @@ def run_unit_tests() -> int:
             )
             self.assertIn("[default = 2 workers]", usage)
             self.assertIn("--embed-lyrics  --no-embed-lyrics", usage)
+            self.assertIn("--refresh-embedded-lyrics", usage)
+            self.assertIn(
+                "plain lyrics and timed karaoke",
+                usage,
+            )
             self.assertIn("--find-cover  --no-find-cover", usage)
             self.assertIn("--check-silence  --no-silence-check", usage)
             self.assertIn("--review-waveforms", usage)
@@ -11940,7 +12755,15 @@ def render_markdown(data: dict[str, Any], max_examples: int) -> str:
     ]
     embedded = data.get("embedded_lyrics", [])
     if embedded:
-        lines.extend(["", "## Lyrics Embedded by `--embed-lyrics`", ""])
+        refresh_mode = data.get("embedded_lyrics_mode") == "refresh"
+        heading = (
+            "## Lyrics/Karaoke Refreshed by "
+            "`--refresh-embedded-lyrics`"
+            if refresh_mode
+            else "## Lyrics/Karaoke Embedded by `--embed-lyrics`"
+        )
+        verb = "refreshed" if refresh_mode else "embedded"
+        lines.extend(["", heading, ""])
         for item in embedded:
             changed = [
                 humanized_action(str(action))
@@ -11949,7 +12772,7 @@ def render_markdown(data: dict[str, Any], max_examples: int) -> str:
             ]
             description = ", ".join(changed) or "available lyrics"
             lines.append(
-                f"- `{md_escape(str(item['path']))}` — embedded {description}; "
+                f"- `{md_escape(str(item['path']))}` — {verb} {description}; "
                 "re-audited in this pass."
             )
             for action in item.get("actions", []):
@@ -12082,12 +12905,23 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         action="store_true",
         help="Run self-contained generated-audio tests and exit without auditing or modifying a music folder.",
     )
-    parser.add_argument(
+    waveform_behavior = parser.add_mutually_exclusive_group()
+    waveform_behavior.add_argument(
         "--review-waveforms",
         action="store_true",
         help=(
             "Diagnose per-track waveforms interactively; defaults to the "
             "current folder when no root is supplied."
+        ),
+    )
+    waveform_behavior.add_argument(
+        "--no-review-waveforms",
+        "--no-waveform-review",
+        dest="no_review_waveforms",
+        action="store_true",
+        help=(
+            "Suppress the default-No offer to begin waveform review after "
+            "a normal interactive audit."
         ),
     )
     parser.add_argument(
@@ -12110,6 +12944,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         dest="embed_lyrics",
         action="store_false",
         help="Suppress automatic lyric/karaoke embedding for this run.",
+    )
+    lyric_behavior.add_argument(
+        "--refresh-embedded-lyrics",
+        action="store_true",
+        help=(
+            "Force-refresh both plain lyrics and timed karaoke from every "
+            "available validated sidecar, then re-audit."
+        ),
     )
     cover_behavior = parser.add_mutually_exclusive_group()
     cover_behavior.add_argument(
@@ -12221,17 +13063,17 @@ def _main(argv: list[str] | None = None) -> int:
             )
             return 3
         return run_unit_tests()
+    if not 1 <= args.waveform_workers <= 8:
+        print_formatted_error(
+            "--waveform-workers must be between 1 and 8.",
+            not args.no_color,
+        )
+        return 2
     if args.review_waveforms:
         if not args.interactive:
             print_formatted_error(
                 "--review-waveforms is an interactive preview workflow "
                 "and cannot be combined with --no-interactive.",
-                not args.no_color,
-            )
-            return 2
-        if not 1 <= args.waveform_workers <= 8:
-            print_formatted_error(
-                "--waveform-workers must be between 1 and 8.",
                 not args.no_color,
             )
             return 2
@@ -12323,9 +13165,13 @@ def _main(argv: list[str] | None = None) -> int:
         check_silence=effective.check_silence,
         silence_threshold_seconds=effective.silence_threshold_seconds,
     )
-    data = audit.audit(embed_lyrics_first=effective.embed_lyrics)
+    data = audit.audit(
+        embed_lyrics_first=effective.embed_lyrics,
+        refresh_embedded_lyrics=args.refresh_embedded_lyrics,
+    )
     if effective.find_cover and args.interactive:
         original_embedded_lyrics = data.get("embedded_lyrics")
+        original_embedded_lyrics_mode = data.get("embedded_lyrics_mode")
         cover_results, refreshed = find_covers_for_batch(
             Path(args.root),
             data,
@@ -12335,6 +13181,7 @@ def _main(argv: list[str] | None = None) -> int:
         data = refreshed
         if original_embedded_lyrics is not None:
             data["embedded_lyrics"] = original_embedded_lyrics
+            data["embedded_lyrics_mode"] = original_embedded_lyrics_mode
         data["found_cover_art"] = cover_results
     elif effective.find_cover:
         print(
@@ -12371,6 +13218,7 @@ def _main(argv: list[str] | None = None) -> int:
             print("Reports written:")
             for kind, path in data["written_reports"].items():
                 print(f"  {kind}: {path}")
+    waveform_handoff_failed = False
     if args.interactive:
         result = interactive_apply(data, use_color=not args.no_color)
         if result["decisions"]:
@@ -12393,7 +13241,34 @@ def _main(argv: list[str] | None = None) -> int:
                 )
                 + "\n"
             )
-    return 1 if data["counts"]["by_severity"].get("problem", 0) else 0
+        try:
+            waveform_handoff = offer_post_audit_waveform_review(
+                Path(args.root),
+                interactive=True,
+                suppressed=args.no_review_waveforms,
+                include_archives=args.include_archives,
+                use_color=not args.no_color,
+                workers=args.waveform_workers,
+            )
+            waveform_handoff_failed = bool(
+                waveform_handoff
+                and waveform_handoff.get("failed")
+            )
+        except Exception as exc:
+            waveform_handoff_failed = True
+            print_formatted_error(
+                f"Could not start the post-audit waveform review: "
+                f"{type(exc).__name__}: {exc}",
+                not args.no_color,
+            )
+    return (
+        1
+        if (
+            data["counts"]["by_severity"].get("problem", 0)
+            or waveform_handoff_failed
+        )
+        else 0
+    )
 
 
 def main(argv: list[str] | None = None) -> int:

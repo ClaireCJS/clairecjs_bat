@@ -63,8 +63,10 @@ Include archived/deprecated audio in active tag checks.
 
 `--embed-lyrics` / `--no-embed-lyrics`
 
-Force automatic validated lyric/karaoke-sidecar embedding on or off for this
-run. The built-in default is on and can be changed with
+Force automatic validated plain-lyrics **and** timed-karaoke sidecar embedding
+on or off together for this run. “Lyrics” in these option names is the umbrella
+term; enabling lyric embedding always includes karaoke, and suppressing it
+suppresses both. The built-in default is on and can be changed with
 `--configure-defaults`. Every changed audio file is
 then named in a `Lyrics embedded by --embed-lyrics` section, together with the
 plain/timed lyric work performed, its backup, and confirmation that the file was
@@ -80,6 +82,16 @@ copies and also compares sidecar/audio modification times. It refreshes an
 embed when content differs or a sidecar was regenerated after the last audio
 write. An exact, older-or-equal match is a no-op: it does not rewrite the audio
 or create another backup.
+
+`--refresh-embedded-lyrics`
+
+Explicitly force-refresh both embedded plain lyrics and timed karaoke from every
+available validated sidecar, even when the currently embedded payload is already
+identical and no sidecar timestamp is newer. This option implies
+`--embed-lyrics`, creates the normal verified backup for every audio file it
+refreshes, narrates each plain/karaoke update, and re-audits afterward. It is
+mutually exclusive with `--embed-lyrics` and `--no-embed-lyrics` because it is
+the forced form of the same combined operation.
 
 `--find-cover` / `--no-find-cover`
 
@@ -104,22 +116,30 @@ on.
 For this run, flag only silence strictly longer than this value. The built-in
 default-default value is `10.0` seconds.
 
-`--review-waveforms`
+`--review-waveforms` / `--no-review-waveforms`
 
 Run only the interactive waveform-diagnostic workflow. It does not perform
-metadata, lyrics, cover, ReplayGain, cleanup, or rename auditing. If no folder
-is supplied, it reviews the current folder; both of these are equivalent:
+metadata, lyrics, cover, ReplayGain, cleanup, or automatic filename auditing.
+If no folder is supplied, it reviews the current folder; both of these are
+equivalent:
 
 ```bat
 audit_music_batch.py --review-waveforms
 audit_music_batch.py . --review-waveforms
 ```
 
+After an ordinary interactive audit finishes, the script gives one default-No
+prompt offering to begin this waveform workflow immediately for the same root.
+`--no-review-waveforms` (also accepted as `--no-waveform-review`) suppresses
+that final offer completely. `--review-waveforms` remains the direct
+waveform-only mode.
+
 Each waveform is a disposable preview used to inspect the audio for excessive
 silence, clipping or flattened peaks, dropouts, channel imbalance, and other
-suspicious shapes. `F` marks the track fine and advances, `P` records a problem
-for later review, `E` opens the audio in the discovered editor, `R` regenerates
-the waveform after an edit, and `V` opens the waveform image externally.
+suspicious shapes. `N` means the waveform is fine and advances, `Y` records a
+problem, `E` opens the audio in the discovered editor, and `V` opens the
+waveform image full-screen. After `Y`, separate default-No prompts offer to edit
+the audio and to rename the audio file to flag the problem.
 
 `--waveform-workers NUMBER`
 
@@ -203,6 +223,17 @@ MusicBrainz release ID can proceed under the flag's explicit authorization.
 Any search result that is not an exact tagged release still requires a separate
 default-No release-identity confirmation before artwork is downloaded.
 
+Force-refresh both plain lyrics and timed karaoke from current sidecars:
+
+```bat
+audit_music_batch.py . --refresh-embedded-lyrics
+```
+
+This deliberately rewrites every audio file that has at least one usable
+plain-lyrics or timed-karaoke source, even if its current embed is already
+identical. Use ordinary `--embed-lyrics` for the smarter missing/stale-only
+behavior.
+
 Review only waveforms, with three background render workers:
 
 ```bat
@@ -229,12 +260,14 @@ audit_music_batch.py --unit-tests
 ```
 
 Unit-test mode uses disposable temporary audio and exits before scanning or
-modifying any music batch. It reports 74 independently named tests so positive
+modifying any music batch. It reports 78 independently named tests so positive
 and negative cases appear as separate pass/fail results. Coverage includes:
 
 - complete and incomplete metadata, ReplayGain, comments, and genre rules
 - plain lyrics, timed karaoke, instrumentals, timed/untimed sidecars, embedding,
   generator-comment exclusion, newer-sidecar detection, and verified refreshes
+- forced combined plain-lyrics/timed-karaoke refreshes, including flag
+  implication, backup creation, narration, and post-refresh re-auditing
 - missing, single, multiple, sidecar-less, front/back/disc artwork; mocked exact
   and fuzzy cover lookup; invalid downloads; full artwork-set naming;
   release-level download deduplication; and image approve/reject/view behavior
@@ -244,10 +277,11 @@ and negative cases appear as separate pass/fail results. Coverage includes:
 - active versus archived audio, archive repairs, duplicate formats, and filenames
 - grouped album-artist filename cleanup, table output, playlist rewriting,
   collision refusal, and post-rename re-auditing
-- immediate actions, path-containment safety, prompt behavior, and CLI usage
+- immediate actions, path-containment safety, invalid-key beeping without prompt
+  duplication, prompt behavior, and CLI usage
 - current-folder waveform invocation, full-width pixel geometry, a grey preview
-  boundary, multi-row prompt erasure, editor/regenerate/view/problem controls,
-  and disposable-only waveform staging
+  boundary, multi-row prompt erasure, editor/view/problem controls, grouped
+  problem-file/sidecar/backup renaming, and disposable-only waveform staging
 - progress-library discovery beside the script and in either
   `clairecjs_util` or `clairecjs_utils` subfolders
 
@@ -274,6 +308,11 @@ remain onscreen. Wrapped prompts count and erase every occupied console row,
 so a long question is not left duplicated above its settled answer. Prompts use
 ANSI styling by default. Use `--no-color` if a
 terminal displays ANSI escape codes literally.
+
+Unsupported keys never print another copy of the waiting prompt. They produce a
+100 Hz, 0.2-second warning beep and leave the original blinking prompt exactly
+where it is. Arrow keys and other extended console keys are rejected the same
+way instead of being mistaken for Enter or a default answer.
 
 Repeatable action prompts additionally show
 `Y=Yes / N=No / A=Always / V=Never / F=Just Do For This Folder`.
@@ -562,19 +601,26 @@ remaining audio queue to a bounded worker pool, so up to
 `--waveform-workers` JPEGs render concurrently while the user reviews the
 current full-width Sixel/ANSI preview. The renderer re-reads the live viewport
 and Windows console-font cell size for each preview, and automatically
-re-renders when the window or font size changes. It uses all available width
-except one left and one right cell; a faint grey box marks the waveform's exact
-top, bottom, left, and right bounds.
+re-renders when the window or font size changes. It begins at the same 12-cell
+indent as the filename/status lines and uses Chafa's explicit live view size
+plus fit-to-view-width mode to reach every remaining cell except the one-cell
+right margin. A faint grey box marks the waveform's exact top, bottom, left,
+and right bounds, with matching faint grey dividers between every stacked audio
+channel.
 
 The controls answer a diagnostic question rather than asking whether to keep a
 generated JPEG:
 
-- `F` — the waveform looks fine; continue to the next track
-- `P` — mark the track and its staged preview as a problem for later review
+- `N` — no problem; the waveform looks fine and review continues
+- `Y` — yes, there is a problem; record it and ask whether to edit or rename
 - `E` — open the audio itself in Adobe Audition, Cool Edit, Audacity,
   ocenaudio, Sound Forge, or a configured editor
-- `R` — regenerate the preview from the current audio file after an edit
-- `V` — open the waveform JPEG through `openimage.bat`/IrfanView
+- `V` — view the waveform JPEG full-screen through `openimage.bat`/IrfanView
+
+When the `Y` follow-up rename is approved, an `rn.bat`-style editable filename
+prompt starts with the current audio filename. The verified rename includes the
+audio, matching same-stem lyric/log sidecars, old `.bak…` family members, and
+local playlist references. Playlist content is backed up before replacement.
 
 `AUDIO_EDITOR_EXECUTABLE` in the `USER CONFIGURATION` section or the
 `AUDIT_MUSIC_AUDIO_EDITOR` environment variable can name a preferred editor.
@@ -584,8 +630,10 @@ known local editor/launcher paths.
 Waveform JPEGs are never copied beside the music. Their timestamped staging
 directory is created under `C:\recycled` when that writable directory exists,
 otherwise under `%TEMP%`, and remains there as disposable temporary material
-until ordinary temporary-file cleanup. A track marked `P` retains the exact
-staged preview path in the review result; neither `F` nor `P` changes the audio.
+until ordinary temporary-file cleanup. A track marked `Y` retains the exact
+staged preview path in the review result. `N` never changes the audio; `Y` only
+opens an editor or renames files when those separate follow-up prompts are also
+approved.
 
 ## Album Filename Normalization
 
@@ -751,7 +799,9 @@ embed only the approved Front, and re-audit.
 This script does not use AI image search, choose arbitrary web images, merge
 tracks, or delete backups. Its default normal audit may embed validated
 lyric/karaoke sidecars after creating backups; use `--no-embed-lyrics` to
-suppress that behavior. Cover acquisition remains interactive and its built-in
+suppress both parts of that behavior. `--refresh-embedded-lyrics` is the
+explicit force-refresh form and likewise always handles plain lyrics and timed
+karaoke together. Cover acquisition remains interactive and its built-in
 default is off. For a strictly report-only run, use
 `--no-interactive --no-embed-lyrics --no-find-cover`. `--find-cover` performs
 the structured, confirmation-gated MusicBrainz/Cover Art Archive and optional
