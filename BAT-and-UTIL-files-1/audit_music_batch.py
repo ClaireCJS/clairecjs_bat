@@ -14,19 +14,23 @@ import colorsys
 from concurrent.futures import Future, ThreadPoolExecutor
 from datetime import datetime
 from difflib import SequenceMatcher
+import html
 import hashlib
 import io
 import json
+import math
 import os
 import random
 import re
 import shutil
 import ssl
+import sqlite3
 import stat
 import subprocess
 import sys
 import tempfile
 import textwrap
+import threading
 import time
 import unicodedata
 from urllib.error import HTTPError, URLError
@@ -34,7 +38,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from collections import Counter, defaultdict
 from contextlib import ExitStack, contextmanager, nullcontext
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Callable, NoReturn
 
@@ -62,6 +66,24 @@ BUILTIN_DEFAULT_FIND_COVER = False
 BUILTIN_DEFAULT_CHECK_SILENCE = True
 BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS = 10.0
 SILENCE_DETECT_NOISE_DB = -50
+SILENCE_ANALYSIS_WORKERS = max(2, min(8, os.cpu_count() or 4))
+WAVEFORM_JPEG_WIDTH = 2000
+WAVEFORM_JPEG_HEIGHT = 700
+WAVEFORM_METRICS_GUTTER_WIDTH = 260
+WAVEFORM_PLOT_WIDTH = WAVEFORM_JPEG_WIDTH - WAVEFORM_METRICS_GUTTER_WIDTH
+WAVEFORM_SILENCE_MIN_SECONDS = 0.1
+WAVEFORM_APPROVAL_DATABASE_MAX_BYTES = 50 * 1024 * 1024
+WAVEFORM_APPROVAL_DATABASE_FILENAME = "waveform_reviews.sqlite3"
+CHAFA_SIXEL_VIEW_SCALE = 2.1
+WAVEFORM_CHANNEL_COLORS = (
+    "0x55dcff",  # cyan: left/first channel
+    "0xb68cff",  # violet: right/second channel
+    "0x78e6a3",  # mint: additional channels
+    "0xffb45c",  # amber: additional channels
+    "0xff779f",  # rose: additional channels
+    "0x79b9ff",  # blue: additional channels
+)
+LRC2SRT_GENERATED_MARKER = "claire-sawyer-lrc2srt-converter-marker"
 
 # Load the leaf module directly.  The legacy clairecjs_utils package initializer
 # imports optional console dependencies that an otherwise read-only audit should
@@ -188,6 +210,10 @@ GENERIC_ARTIST_FOLDER_NAMES = {
     "unknown",
     "various artists",
 }
+SPECIAL_ARTIST_CHILD_FOLDERS = {
+    "misc", "covers", "tributes", "collaborations", "collabs",
+    "singles", "demos", "live", "remixes", "soundtracks",
+}
 ARCHIVE_HINTS = (
     "archival",
     "archive",
@@ -206,6 +232,7 @@ DO_NOT_PLAY_LINE = (
 APPROVAL_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 MUSICBRAINZ_API_ROOT = "https://musicbrainz.org/ws/2"
 COVER_ART_ARCHIVE_ROOT = "https://coverartarchive.org"
+BANDCAMP_SEARCH_ROOT = "https://bandcamp.com/search"
 DISCOGS_API_ROOT = "https://api.discogs.com"
 COVER_HTTP_TIMEOUT_SECONDS = 30
 COVER_MAX_DOWNLOAD_BYTES = 100 * 1024 * 1024
@@ -222,6 +249,7 @@ EXECUTABLE_CATEGORIES = {
     "embedded_art_without_sidecar",
     "embedded_lyrics_outdated",
     "karaoke_not_embedded",
+    "newer_lrc_needs_srt_backfill",
     "missing_embedded_art",
     "missing_replaygain",
     "missing_album",
@@ -236,6 +264,7 @@ EXECUTABLE_CATEGORIES = {
     "tagrename_m3u8",
     "temporary_batch_file",
     "vad_scratch_srt",
+    "wav_remaining",
 }
 GROUPED_RENAME_CATEGORIES = {
     "redundant_album_artist_filename_group",
@@ -261,13 +290,14 @@ ACTION_PROMPT_QUESTIONS = {
     "karaoke_not_embedded": (
         "Embed the timed karaoke lyrics into this audio file now?"
     ),
+    "newer_lrc_needs_srt_backfill": (
+        "Regenerate this older SRT from the newer MiniLyrics LRC now?"
+    ),
     "missing_embedded_art": (
         "Use the available sidecar—or search for a verified release artwork "
         "set—and embed only its Front image now?"
     ),
-    "missing_replaygain": (
-        "Run the full ARGT ReplayGain workflow for this folder now?"
-    ),
+    "missing_replaygain": "Run ReplayGain on this folder now?",
     "multiple_embedded_artworks": (
         "Export all artwork to sidecars and keep only the front cover embedded now?"
     ),
@@ -300,6 +330,10 @@ ACTION_PROMPT_QUESTIONS = {
     "vad_scratch_srt": (
         "Send this VAD scratch SRT sidecar to the Recycle Bin now?"
     ),
+    "wav_remaining": (
+        "Convert this WAV to FLAC, carry forward available metadata, lyrics, "
+        "and approved artwork, then audit the new FLAC now?"
+    ),
 }
 PROMPT_NOUN_PHRASES = (
     "regenerated sidecar files",
@@ -320,6 +354,13 @@ PROMPT_NOUN_PHRASES = (
     "stale transcription marker",
     "multiple embedded artworks",
     "timed karaoke lyrics",
+    "WAV",
+    "FLAC",
+    "available metadata",
+    "approved artwork",
+    "ReplayGain",
+    "newer MiniLyrics LRC",
+    "older SRT",
     "temporary batch file",
     "Adobe XMP sidecar",
     "read-only attribute",
@@ -358,28 +399,15 @@ ANSI = {
 ANSI_DOUBLE_HEIGHT_TOP = "\033#3"
 ANSI_DOUBLE_HEIGHT_BOTTOM = "\033#4"
 
-# Calibrated 2026-07-30 against 396 real batch files:
-# median 0.5601054 seconds = 707.0098 files/second. The display threshold is
-# deliberately rounded down to 600 so the bar appears before a one-second wait.
-AUDIT_FILES_PER_SECOND = 707.0097878191683
-PROGRESS_WAIT_SECONDS = 1.0
-PROGRESS_FIRST_FILE_COUNT = 600
 ENUMERATION_PROGRESS_FORMAT = (
     "{desc}: {n:,.0f} files found"
     " • {elapsed} elapsed • {rate_fmt}"
 )
 AUDIT_PROGRESS_FORMAT = (
     "{desc}: {percentage:3.0f}%|{bar}| "
-    "{n:,.0f}/{total:,.0f} checks"
-    " • {elapsed} elapsed • {rate_fmt}{postfix}"
+    "{n:,.0f}/{total:,.0f}"
+    " • {elapsed}{postfix}"
 )
-
-
-def should_show_audit_progress(file_count: int) -> bool:
-    """Show progress at the deliberately early 600-file threshold."""
-    return file_count >= PROGRESS_FIRST_FILE_COUNT
-
-
 def collision_safe_path(
     desired: Path, reserved: set[Path] | None = None
 ) -> Path:
@@ -423,13 +451,48 @@ def backup_before_inline_replacement(
 
 def recycle_path(path: Path) -> Path:
     """Send ``path`` to the OS Recycle Bin; never fall back to unlink/rmtree."""
-    if send2trash is None:
+    if not path.exists():
+        raise FileNotFoundError(f"Cannot recycle missing path: {path}")
+    if send2trash is not None:
+        send2trash(str(path))
+    elif os.name == "nt":
+        import ctypes
+        from ctypes import wintypes
+
+        class SHFILEOPSTRUCTW(ctypes.Structure):
+            _fields_ = [
+                ("hwnd", wintypes.HWND),
+                ("wFunc", wintypes.UINT),
+                ("pFrom", wintypes.LPCWSTR),
+                ("pTo", wintypes.LPCWSTR),
+                ("fFlags", wintypes.WORD),
+                ("fAnyOperationsAborted", wintypes.BOOL),
+                ("hNameMappings", ctypes.c_void_p),
+                ("lpszProgressTitle", wintypes.LPCWSTR),
+            ]
+
+        operation = SHFILEOPSTRUCTW()
+        operation.wFunc = 3  # FO_DELETE
+        operation.pFrom = str(path.resolve()) + "\0\0"
+        operation.fFlags = (
+            0x0004  # FOF_SILENT
+            | 0x0010  # FOF_NOCONFIRMATION
+            | 0x0040  # FOF_ALLOWUNDO: send to the Recycle Bin
+            | 0x0400  # FOF_NOERRORUI
+        )
+        result = ctypes.windll.shell32.SHFileOperationW(
+            ctypes.byref(operation)
+        )
+        if result or operation.fAnyOperationsAborted:
+            raise RuntimeError(
+                "Windows Recycle Bin operation failed "
+                f"(result={result}, aborted={operation.fAnyOperationsAborted}): "
+                f"{path}"
+            )
+    else:
         raise RuntimeError(
             "send2trash is unavailable; refusing permanent deletion"
         )
-    if not path.exists():
-        raise FileNotFoundError(f"Cannot recycle missing path: {path}")
-    send2trash(str(path))
     if path.exists():
         raise RuntimeError(f"Recycle Bin operation did not remove: {path}")
     return path
@@ -690,9 +753,9 @@ except Exception:  # pragma: no cover - exercised when mutagen is absent.
 
 
 try:
-    from PIL import Image
+    from PIL import Image, ImageDraw, ImageFilter, ImageFont
 except Exception:  # pragma: no cover - optional dependency.
-    Image = None
+    Image = ImageDraw = ImageFilter = ImageFont = None
 
 
 try:
@@ -753,6 +816,16 @@ class ArtworkPreviewGeometry:
 
 
 @dataclass(frozen=True)
+class PreparedArtworkPreview:
+    """Display-ready preview produced without writing to the terminal."""
+
+    mode: str
+    geometry: ArtworkPreviewGeometry
+    sixel_payload: bytes | None = None
+    text_payload: str | None = None
+
+
+@dataclass(frozen=True)
 class CoverMatch:
     """A release match plus its complete selected artwork inventory."""
 
@@ -801,8 +874,11 @@ def dependency_requirements(
             "cover search" if find_cover else "audit enhancement",
         ),
         ToolRequirement(
-            "send2trash",
-            detected("send2trash", send2trash is not None),
+            "Recycle Bin support",
+            detected(
+                "send2trash",
+                send2trash is not None or os.name == "nt",
+            ),
             "safe Recycle Bin cleanup; permanent deletion is never substituted",
             "approved cleanup",
         ),
@@ -968,7 +1044,9 @@ def run_dependency_preflight(
 
 def recognized_album_artist(folder: Path) -> str | None:
     """Infer an album artist from ``Artist\\YYYY - Album`` structure."""
-    if not re.match(r"^\s*(?:19|20)\d{2}\b", folder.name):
+    is_album = bool(re.match(r"^\s*(?:19|20)\d{2}\b", folder.name))
+    is_special_child = folder.name.strip().casefold() in SPECIAL_ARTIST_CHILD_FOLDERS
+    if not is_album and not is_special_child:
         return None
     artist = folder.parent.name.strip()
     if (
@@ -1065,9 +1143,34 @@ def canonical_title_word(word: str) -> str:
     return "".join(pieces)
 
 
+def strip_trailing_tracking_identifier(text: str) -> str:
+    """Remove a final eight-character download/tracking token.
+
+    Accepted tokens contain only hexadecimal characters/underscores and at
+    least two decimal digits, which catches values such as ``E75E4EC6``,
+    ``35876105``, and ``F45_CC0D`` without treating an ordinary final word as
+    disposable.
+    """
+    value = str(text).rstrip()
+    match = re.search(
+        r"(?i)(?P<separator>[-_ ]+)(?P<token>[0-9a-f_]{8})$",
+        value,
+    )
+    if match is None:
+        return value
+    token = match.group("token")
+    if sum(character.isdigit() for character in token) < 2:
+        return value
+    return value[: match.start("separator")].rstrip(" -_")
+
+
 def canonical_song_title_text(text: str) -> str:
     """Normalize separators/feat and capitalize ordinary filename title words."""
-    normalized = re.sub(r"_+", " ", str(text))
+    normalized = re.sub(
+        r"_+",
+        " ",
+        strip_trailing_tracking_identifier(str(text)),
+    )
     normalized = re.sub(r"\bfeat\.(?=\s|\))", "feat", normalized, flags=re.I)
     normalized = re.sub(r"\s+", " ", normalized).strip()
     normalized = re.sub(r"\(\s+", "(", normalized)
@@ -1252,6 +1355,17 @@ def detect_silence_intervals(
     return intervals
 
 
+def compact_progress_filename(path: Path, limit: int = 16) -> str:
+    """Return a recognizable filename preview no wider than ``limit`` cells."""
+    name = path.name
+    width = max(3, int(limit))
+    if len(name) <= width:
+        return name
+    left = (width - 1) // 2
+    right = width - 1 - left
+    return f"{name[:left]}…{name[-right:]}"
+
+
 @dataclass
 class Finding:
     severity: str
@@ -1301,23 +1415,39 @@ class BatchAudit:
         self.mutagen_available = mutagen_file is not None
         self.pillow_available = Image is not None
         self.progress = None
+        self._progress_audio_preview = ""
+
+    def refresh_progress_postfix(self, *, refresh: bool) -> None:
+        """Show compact rate/filename text without consuming the bar width."""
+        if self.progress is None:
+            return
+        details = getattr(self.progress, "format_dict", {}) or {}
+        elapsed = float(details.get("elapsed") or 0.0)
+        current = float(details.get("n") or 0.0)
+        initial = float(getattr(self.progress, "initial", 0.0) or 0.0)
+        rate = (current - initial) / elapsed if elapsed > 0 else 0.0
+        postfix = f"{rate:.2f}/sec" if rate > 0 else "?/sec"
+        if self._progress_audio_preview:
+            postfix += f" • {self._progress_audio_preview}"
+        self.progress.set_postfix_str(postfix, refresh=refresh)
 
     def progress_update(self) -> None:
         if self.progress is not None:
             self.progress.update(1)
+            self.refresh_progress_postfix(refresh=False)
 
     def progress_show_audio(self, path: Path) -> None:
         """Refresh immediately with the audio file currently being opened."""
         if self.progress is not None:
-            relative = self.rel(path)
-            if len(relative) > 72:
-                relative = "…" + relative[-71:]
-            self.progress.set_postfix_str(relative, refresh=True)
+            self._progress_audio_preview = compact_progress_filename(path)
+            self.refresh_progress_postfix(refresh=True)
 
     def progress_phase(self, description: str) -> None:
         """Show a new audit phase immediately without changing progress."""
         if self.progress is not None:
-            self.progress.set_description(description, refresh=True)
+            self._progress_audio_preview = ""
+            self.progress.set_description(description, refresh=False)
+            self.refresh_progress_postfix(refresh=True)
 
     def rel(self, path: Path) -> str:
         try:
@@ -1377,7 +1507,9 @@ class BatchAudit:
         )
 
     def collect_files(
-        self, on_file: Callable[[int], None] | None = None
+        self,
+        on_file: Callable[[int], None] | None = None,
+        on_audio_file: Callable[[Path], None] | None = None,
     ) -> None:
         if not self.root.exists():
             raise SystemExit(f"Batch root does not exist: {self.root}")
@@ -1387,6 +1519,15 @@ class BatchAudit:
                 discovered.append(path)
                 if on_file is not None:
                     on_file(len(discovered))
+                if (
+                    on_audio_file is not None
+                    and path.suffix.lower() in AUDIO_EXTS
+                    and (
+                        self.include_archives
+                        or not self.is_archive_path(path)
+                    )
+                ):
+                    on_audio_file(path)
         self.files = sorted(discovered, key=lambda p: str(p).lower())
         self.extension_counts = Counter(p.suffix.lower() or "[no extension]" for p in self.files)
         self.audio_files = [
@@ -1418,6 +1559,15 @@ class BatchAudit:
 
     def folder_art_candidates(self, folder: Path) -> list[Path]:
         return folder_front_art_candidates(folder)
+
+    def artwork_sidecars_for_audio(self, audio_path: Path) -> list[Path]:
+        """Recognize album Front art and MISC's same-basename extracted art."""
+        candidates = self.folder_art_candidates(audio_path.parent)
+        if not is_album_track_filename(audio_path):
+            candidates.extend(
+                self.same_stem_sidecars(audio_path, IMAGE_EXTS)
+            )
+        return list(dict.fromkeys(candidates))
 
     def tag_snapshot(self, path: Path) -> dict[str, Any]:
         if mutagen_file is None:
@@ -1624,7 +1774,15 @@ class BatchAudit:
             if suffix in KNOWN_AUDIO_EXTS and suffix not in ALLOWED_AUDIO_EXTS and not archived:
                 self.add("problem", "unsupported_audio_format", path, f"Audio format {suffix} is not MP3/FLAC/WAV.", "Convert or archive original.")
             if suffix == ".wav" and not archived:
-                self.add("ask_first", "wav_remaining", path, "WAV remains in active batch.", "Convert/deprecate/archive after confirming no edit-stage reason remains.")
+                self.add(
+                    "ask_first",
+                    "wav_remaining",
+                    path,
+                    "WAV remains in active batch.",
+                    "Approve conversion to FLAC; the WAV itself is kept for "
+                    "now, while available metadata, lyrics, and approved "
+                    "artwork are carried to the new FLAC.",
+                )
 
             if "todo" in name_lower and path.name.lower() != "completed-todos.log" and not archived:
                 self.add("problem", "active_todo_filename", path, "Active TODO remains in filename.", "Resolve the TODO, then remove it from active filenames and log it.")
@@ -1719,6 +1877,8 @@ class BatchAudit:
                     continue
                 before = self.rel(path)
                 after = self.rel(path.with_name(proposed_name))
+                if before == after:
+                    continue
                 renames.append({"before": before, "after": after})
                 if path.suffix.lower() in AUDIO_EXTS:
                     audio_renames.append((path, proposed_name))
@@ -1783,12 +1943,11 @@ class BatchAudit:
                 )
                 if proposed_name is None:
                     continue
-                case_renames.append(
-                    {
-                        "before": self.rel(path),
-                        "after": self.rel(path.with_name(proposed_name)),
-                    }
-                )
+                before = self.rel(path)
+                after = self.rel(path.with_name(proposed_name))
+                if before == after:
+                    continue
+                case_renames.append({"before": before, "after": after})
                 if path.suffix.casefold() in AUDIO_EXTS:
                     case_audio_renames.append((path, proposed_name))
             if not case_audio_renames:
@@ -1892,12 +2051,13 @@ class BatchAudit:
                     channels=channels,
                 )
 
-            image_sidecars = self.folder_art_candidates(path.parent)
+            front_sidecars = self.folder_art_candidates(path.parent)
+            image_sidecars = self.artwork_sidecars_for_audio(path)
             if int(snapshot.get("art_count") or 0) == 0:
-                severity = "safe_fix" if image_sidecars else "ask_first"
+                severity = "safe_fix" if front_sidecars else "ask_first"
                 suggestion = (
                     "Embed existing sidecar artwork."
-                    if image_sidecars
+                    if front_sidecars
                     else "Search MusicBrainz/Cover Art Archive first, fall back "
                     "to Discogs when configured, review every supplied artwork "
                     "part, and embed only one approved Front image."
@@ -1908,7 +2068,7 @@ class BatchAudit:
                     path,
                     "No embedded front cover art.",
                     suggestion,
-                    sidecars=[self.rel(p) for p in image_sidecars],
+                    sidecars=[self.rel(p) for p in front_sidecars],
                     action_available=True,
                 )
             elif int(snapshot.get("art_count") or 0) > 1:
@@ -1921,8 +2081,15 @@ class BatchAudit:
                     art_count=int(snapshot.get("art_count") or 0),
                     art_types=snapshot.get("art_types", []),
                 )
-            elif not image_sidecars and path.suffix.lower() == ".flac":
-                self.add("ask_first", "embedded_art_without_sidecar", path, "FLAC has embedded art but no obvious sidecar art.", "For albums, extract cover.jpg; for MISC/loose FLACs, consider a track-specific JPG sidecar.")
+            elif not image_sidecars:
+                self.add(
+                    "ask_first",
+                    "embedded_art_without_sidecar",
+                    path,
+                    "Audio has embedded art but no obvious image sidecar.",
+                    "For numbered album tracks, extract cover.jpg; for "
+                    "MISC/loose tracks, extract a same-basename JPG sidecar.",
+                )
 
             lyrics = snapshot.get("lyrics", {})
             has_unsynced = int(lyrics.get("unsynced") or 0) > 0
@@ -1948,6 +2115,24 @@ class BatchAudit:
                             "LRC and TXT sidecars exist, but SRT is missing and the LRC does not look timestamped.",
                             "Review the LRC before trying to create an SRT.",
                         )
+                elif (
+                    lrc
+                    and srt
+                    and self.lrc_is_timestamped(lrc)
+                    and lrc.stat().st_mtime > srt.stat().st_mtime
+                    and not lrc_is_derived_from_srt(lrc, srt)
+                ):
+                    self.add(
+                        "safe_fix",
+                        "newer_lrc_needs_srt_backfill",
+                        path,
+                        "Timestamped LRC sidecar is newer than its SRT and "
+                        "contains edits not derived from that SRT.",
+                        "Run lrc2srt.py for this LRC to backfill the matching "
+                        "SRT, then re-audit.",
+                        lrc_sidecar=self.rel(lrc),
+                        srt_sidecar=self.rel(srt),
+                    )
                 plain_candidates = [
                     candidate for candidate in (txt, lrc, srt) if candidate
                 ]
@@ -2089,11 +2274,17 @@ class BatchAudit:
                     )
             self.progress_update()
 
-    def audit_excessive_silence(self) -> None:
-        """Report decoded silence intervals strictly longer than the threshold."""
+    def audit_excessive_silence(
+        self,
+        futures: dict[Path, Future] | None = None,
+        *,
+        ffmpeg_executable: str | None = None,
+    ) -> None:
+        """Harvest concurrent excessive-silence analysis in file order."""
         if not self.check_silence:
             return
-        if shutil.which("ffmpeg") is None:
+        ffmpeg = ffmpeg_executable or shutil.which("ffmpeg")
+        if ffmpeg is None:
             self.add(
                 "problem",
                 "silence_check_unavailable",
@@ -2105,10 +2296,34 @@ class BatchAudit:
                 self.progress_update()
             return
         threshold = self.silence_threshold_seconds
+        owned_executor: ThreadPoolExecutor | None = None
+        if futures is None:
+            owned_executor = ThreadPoolExecutor(
+                max_workers=SILENCE_ANALYSIS_WORKERS,
+                thread_name_prefix="audit-silence",
+            )
+            futures = {
+                path: owned_executor.submit(
+                    detect_silence_intervals,
+                    path,
+                    threshold,
+                    ffmpeg_executable=ffmpeg,
+                )
+                for path in self.audio_files
+            }
         for path in self.audio_files:
             self.progress_show_audio(path)
             try:
-                intervals = detect_silence_intervals(path, threshold)
+                future = futures.get(path)
+                intervals = (
+                    future.result()
+                    if future is not None
+                    else detect_silence_intervals(
+                        path,
+                        threshold,
+                        ffmpeg_executable=ffmpeg,
+                    )
+                )
                 if intervals:
                     descriptions = [
                         (
@@ -2145,6 +2360,8 @@ class BatchAudit:
                 )
             finally:
                 self.progress_update()
+        if owned_executor is not None:
+            owned_executor.shutdown(wait=True)
 
     def audit(
         self,
@@ -2153,32 +2370,50 @@ class BatchAudit:
     ) -> dict[str, Any]:
         progress = None
         embedded: list[dict[str, Any]] = []
-        enumeration_started = time.monotonic()
         with ExitStack() as stack:
-            def on_file(discovered_count: int) -> None:
-                nonlocal progress
-                if not sys.stderr.isatty():
-                    return
-                elapsed = time.monotonic() - enumeration_started
-                if progress is None and (
-                    should_show_audit_progress(discovered_count)
-                    or elapsed > PROGRESS_WAIT_SECONDS
-                ):
-                    progress = stack.enter_context(
-                        progress_bar(
-                            total=None,
-                            description="🔎 Finding files",
-                            unit="files",
-                            enabled=True,
-                            bar_format=ENUMERATION_PROGRESS_FORMAT,
-                        )
+            silence_ffmpeg = (
+                shutil.which("ffmpeg")
+                if self.check_silence
+                else None
+            )
+            silence_executor: ThreadPoolExecutor | None = None
+            silence_futures: dict[Path, Future] = {}
+            if silence_ffmpeg is not None:
+                silence_executor = stack.enter_context(
+                    ThreadPoolExecutor(
+                        max_workers=SILENCE_ANALYSIS_WORKERS,
+                        thread_name_prefix="audit-silence",
                     )
-                    if progress is not None:
-                        progress.update(discovered_count)
-                elif progress is not None:
+                )
+            if sys.stderr.isatty():
+                progress = stack.enter_context(
+                    progress_bar(
+                        total=None,
+                        description="🔎 Finding files",
+                        unit="files",
+                        enabled=True,
+                        bar_format=ENUMERATION_PROGRESS_FORMAT,
+                    )
+                )
+
+            def on_file(discovered_count: int) -> None:
+                if progress is not None:
                     progress.update(1)
 
-            self.collect_files(on_file=on_file)
+            def on_audio_file(path: Path) -> None:
+                if silence_executor is None:
+                    return
+                silence_futures[path] = silence_executor.submit(
+                    detect_silence_intervals,
+                    path,
+                    self.silence_threshold_seconds,
+                    ffmpeg_executable=silence_ffmpeg,
+                )
+
+            self.collect_files(
+                on_file=on_file,
+                on_audio_file=on_audio_file,
+            )
             total_checks = (
                 len(self.files) * 2
                 + len(self.audio_files)
@@ -2191,8 +2426,7 @@ class BatchAudit:
                         total=total_checks,
                         description="👀 Auditing music batch",
                         unit="checks",
-                        enabled=sys.stderr.isatty()
-                        and should_show_audit_progress(len(self.files)),
+                        enabled=sys.stderr.isatty(),
                         bar_format=AUDIT_PROGRESS_FORMAT,
                     )
                 )
@@ -2229,8 +2463,11 @@ class BatchAudit:
             self.progress_phase("🎵 Reading audio tags")
             self.audit_audio_tags()
             if self.check_silence:
-                self.progress_phase("🔇 Detecting excessive silence")
-                self.audit_excessive_silence()
+                self.progress_phase("🔇 Silence detect")
+                self.audit_excessive_silence(
+                    silence_futures if silence_executor is not None else None,
+                    ffmpeg_executable=silence_ffmpeg,
+                )
             if self.progress is not None:
                 self.progress.set_postfix_str("", refresh=False)
             self.progress = None
@@ -2501,6 +2738,64 @@ def timed_sidecar_content(path: Path) -> str:
     return normalized_timed_lyric_text(text)
 
 
+def lrc_is_derived_from_srt(lrc: Path, srt: Path) -> bool:
+    """Recognize an LRC generated from this SRT, not manually edited in MiniLyrics.
+
+    ``srt2lrc.py`` does not leave a persistent marker.  Compare its meaningful
+    timestamp/text entries instead, ignoring harmless end-blank cues and
+    sidecar comments.  A marked lrc2srt output is also categorically treated
+    as LRC-authored, so a newer LRC should refresh it.
+    """
+    try:
+        srt_text = read_text(srt)
+        if LRC2SRT_GENERATED_MARKER.casefold() in srt_text.casefold():
+            return False
+        lrc_entries = parse_lrc_for_sylt(timed_sidecar_content(lrc))
+        srt_entries = parse_lrc_for_sylt(
+            normalized_timed_lyric_text(lrc_from_srt(srt_text))
+        )
+    except Exception:
+        return False
+    return bool(lrc_entries) and lrc_entries == srt_entries
+
+
+def lrc2srt_executable() -> Path | None:
+    """Locate the user's lrc2srt tool beside this auditor or in C:\\BAT."""
+    candidates = (
+        _SCRIPT_DIR / "lrc2srt.py",
+        Path(r"C:\BAT\lrc2srt.py"),
+    )
+    return next((candidate for candidate in candidates if candidate.is_file()), None)
+
+
+def backfill_srt_from_lrc(audio_path: Path) -> list[str]:
+    """Run the existing lrc2srt workflow for exactly one updated LRC sidecar."""
+    lrc = find_lyric_sidecar(audio_path, (".lrc",))
+    srt = find_lyric_sidecar(audio_path, (".srt",))
+    tool = lrc2srt_executable()
+    if lrc is None or srt is None:
+        raise RuntimeError("Matching LRC and SRT sidecars are required")
+    if tool is None:
+        raise RuntimeError("lrc2srt.py was not found beside the auditor or in C:\\BAT")
+    before_mtime = srt.stat().st_mtime_ns
+    print(
+        console_safe_text(
+            f"            🎤 Running {tool.name} to backfill {srt.name} from {lrc.name}:"
+        ),
+        flush=True,
+    )
+    result = subprocess.run(
+        [sys.executable, str(tool), str(lrc), "--automatic-overwrites"],
+        cwd=str(lrc.parent),
+        check=False,
+    )
+    if result.returncode:
+        raise RuntimeError(f"lrc2srt.py exited with code {result.returncode}")
+    if not srt.is_file() or srt.stat().st_mtime_ns <= before_mtime:
+        raise RuntimeError("lrc2srt.py did not rewrite the matching SRT")
+    return [f"backfilled_srt:{srt}"]
+
+
 def lyric_refresh_reasons(
     audio_path: Path,
     sidecar_path: Path,
@@ -2744,6 +3039,7 @@ def cover_lookup_metadata(path: Path) -> dict[str, Any]:
         raise RuntimeError(f"Could not read audio metadata: {path}")
     tags = getattr(audio, "tags", None)
     metadata: dict[str, Any] = {
+        "title": "",
         "artist": "",
         "album_artist": "",
         "album": "",
@@ -2758,6 +3054,7 @@ def cover_lookup_metadata(path: Path) -> dict[str, Any]:
             for key, value in (tags or {}).items()
         }
         metadata.update(
+            title=first_text(tagmap.get("TITLE")),
             artist=first_text(tagmap.get("ARTIST")),
             album_artist=first_text(tagmap.get("ALBUMARTIST")),
             album=first_text(tagmap.get("ALBUM")),
@@ -2776,6 +3073,7 @@ def cover_lookup_metadata(path: Path) -> dict[str, Any]:
         )
     else:
         metadata.update(
+            title=first_text(frame_text(tags, "TIT2")) if tags else "",
             artist=first_text(frame_text(tags, "TPE1")) if tags else "",
             album_artist=first_text(frame_text(tags, "TPE2")) if tags else "",
             album=first_text(frame_text(tags, "TALB")) if tags else "",
@@ -2807,7 +3105,8 @@ def cover_lookup_metadata(path: Path) -> dict[str, Any]:
         "",
         path.parent.name,
     ).strip()
-    if not metadata["album"] and folder_artist:
+    special_child = path.parent.name.strip().casefold() in SPECIAL_ARTIST_CHILD_FOLDERS
+    if not metadata["album"] and folder_artist and not special_child:
         metadata["album"] = folder_album
     if not metadata["album_artist"] and folder_artist:
         metadata["album_artist"] = folder_artist
@@ -2815,6 +3114,10 @@ def cover_lookup_metadata(path: Path) -> dict[str, Any]:
         metadata["artist"] = metadata["album_artist"]
     if not metadata["album_artist"]:
         metadata["album_artist"] = metadata["artist"]
+    if not metadata["album"] and special_child and metadata["title"]:
+        # A loose track has no honest album to invent.  The release search can
+        # still use its title as a conservative single/release-title fallback.
+        metadata["album"] = metadata["title"]
     if not metadata["date"]:
         year_match = re.match(r"^\s*((?:19|20)\d{2})\b", path.parent.name)
         if year_match:
@@ -2977,6 +3280,36 @@ def cover_http_get_bytes(url: str) -> tuple[bytes, str, str]:
     if len(payload) > COVER_MAX_DOWNLOAD_BYTES:
         raise RuntimeError("Artwork exceeded the 100 MiB download safety limit")
     return payload, content_type, final_url
+
+
+def cover_http_get_text(url: str) -> str:
+    """Fetch one bounded UTF-8 HTML page used for artwork-source discovery."""
+    request = Request(
+        url,
+        headers={
+            "User-Agent": COVER_USER_AGENT,
+            "Accept": "text/html,application/xhtml+xml",
+        },
+    )
+    try:
+        with urlopen(
+            request,
+            timeout=COVER_HTTP_TIMEOUT_SECONDS,
+            context=verified_https_context(),
+        ) as response:
+            payload = response.read(COVER_MAX_DOWNLOAD_BYTES + 1)
+            charset = response.headers.get_content_charset() or "utf-8"
+    except HTTPError as exc:
+        if exc.code == 404:
+            return ""
+        raise RuntimeError(f"HTTP {exc.code} while searching Bandcamp") from exc
+    except URLError as exc:
+        raise RuntimeError(
+            f"Bandcamp artwork search failed: {exc.reason}"
+        ) from exc
+    if len(payload) > COVER_MAX_DOWNLOAD_BYTES:
+        raise RuntimeError("Bandcamp page exceeded the response safety limit")
+    return payload.decode(charset, errors="replace")
 
 
 def normalized_match_text(text: str) -> str:
@@ -3151,6 +3484,151 @@ def musicbrainz_search_url(metadata: dict[str, Any]) -> str:
     )
 
 
+def bandcamp_search_url(metadata: dict[str, Any]) -> str:
+    """Build Bandcamp's artist-plus-release search query."""
+    artist = str(
+        metadata.get("album_artist") or metadata.get("artist") or ""
+    ).strip()
+    release = str(metadata.get("album") or metadata.get("title") or "").strip()
+    return f"{BANDCAMP_SEARCH_ROOT}?{urlencode({'q': f'{artist} {release}'})}"
+
+
+def _html_plain_text(value: str) -> str:
+    """Reduce a small HTML result fragment to normalized visible text."""
+    return " ".join(
+        html.unescape(re.sub(r"<[^>]+>", " ", value)).split()
+    )
+
+
+def _html_meta_content(page: str, key: str) -> str:
+    """Read a meta property/name regardless of attribute order."""
+    for tag in re.findall(r"<meta\b[^>]*>", page, flags=re.IGNORECASE):
+        attributes = {
+            name.casefold(): html.unescape(value)
+            for name, _quote, value in re.findall(
+                r"""([:\w-]+)\s*=\s*(["'])(.*?)\2""",
+                tag,
+                flags=re.IGNORECASE | re.DOTALL,
+            )
+        }
+        if (
+            attributes.get("property", "").casefold() == key.casefold()
+            or attributes.get("name", "").casefold() == key.casefold()
+        ):
+            return attributes.get("content", "").strip()
+    return ""
+
+
+def _bandcamp_original_art_url(url: str) -> str:
+    """Ask Bandcamp's image CDN for its original artwork rendition."""
+    return re.sub(
+        r"(?i)(https://[^/?#]*bcbits\.com/img/a\d+)_\d+"
+        r"(\.[a-z0-9]+)(?=$|[?#])",
+        r"\1_0\2",
+        url,
+    )
+
+
+def bandcamp_cover_match(
+    metadata: dict[str, Any],
+    text_fetcher: Callable[[str], str],
+) -> CoverMatch | None:
+    """Return a conservatively scored Bandcamp release with original Front art."""
+    try:
+        search_page = text_fetcher(bandcamp_search_url(metadata))
+    except RuntimeError:
+        return None
+    if not search_page:
+        return None
+    blocks = re.findall(
+        r"<li\b[^>]*\bclass=[\"'][^\"']*\bsearchresult\b[^\"']*[\"']"
+        r"[^>]*>(.*?)</li>",
+        search_page,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    wanted_album = normalized_match_text(
+        str(metadata.get("album") or metadata.get("title") or "")
+    )
+    wanted_artist = normalized_match_text(
+        str(metadata.get("album_artist") or metadata.get("artist") or "")
+    )
+    candidates: list[tuple[int, str]] = []
+    for block in blocks:
+        href_match = re.search(
+            r"""href=["'](https?://[^"']+\.bandcamp\.com/"""
+            r"""(?:album|track)/[^"'?#]+)""",
+            block,
+            flags=re.IGNORECASE,
+        )
+        if not href_match:
+            continue
+        visible = normalized_match_text(_html_plain_text(block))
+        album_ratio = SequenceMatcher(None, wanted_album, visible).ratio()
+        artist_ratio = SequenceMatcher(None, wanted_artist, visible).ratio()
+        confidence = round(60 * album_ratio + 40 * artist_ratio)
+        if wanted_album and wanted_album in visible:
+            confidence += 20
+        if wanted_artist and wanted_artist in visible:
+            confidence += 15
+        if (
+            wanted_album
+            and wanted_artist
+            and wanted_album in visible
+            and wanted_artist in visible
+        ):
+            confidence = max(confidence, 96)
+        candidates.append(
+            (min(100, confidence), html.unescape(href_match.group(1)))
+        )
+    if not candidates:
+        return None
+    confidence, release_url = max(candidates, key=lambda item: item[0])
+    if confidence < 82:
+        return None
+    try:
+        release_page = text_fetcher(release_url)
+    except RuntimeError:
+        return None
+    image_url = _html_meta_content(release_page, "og:image")
+    if not image_url:
+        return None
+    page_title = _html_meta_content(release_page, "title")
+    if ", by " in page_title:
+        album, artist = page_title.rsplit(", by ", 1)
+    else:
+        album = (
+            _html_meta_content(release_page, "og:title")
+            or str(metadata.get("album") or "")
+        )
+        artist = str(
+            metadata.get("album_artist") or metadata.get("artist") or ""
+        )
+    release_id = release_url.rstrip("/").rsplit("/", 1)[-1]
+    return CoverMatch(
+        source="Bandcamp",
+        release_id=release_id,
+        release_group_id="",
+        artist=artist.strip(),
+        album=album.strip(),
+        date=str(metadata.get("date") or ""),
+        country="",
+        formats=("Digital",),
+        confidence=confidence,
+        exact_id=False,
+        ambiguous=confidence < 94,
+        artworks=(
+            CoverArtwork(
+                image_id=release_id,
+                url=_bandcamp_original_art_url(image_url),
+                types=("Front",),
+                comment="Bandcamp original release artwork",
+                front=True,
+                approved=True,
+            ),
+        ),
+    )
+
+
 def discogs_cover_match(
     metadata: dict[str, Any],
     json_fetcher: Callable[..., dict[str, Any] | None],
@@ -3235,6 +3713,7 @@ def resolve_cover_match(
     path: Path,
     *,
     json_fetcher: Callable[..., dict[str, Any] | None] | None = None,
+    text_fetcher: Callable[[str], str] | None = None,
 ) -> CoverMatch:
     """Resolve one release, preferring an exact tagged MusicBrainz release ID."""
     fetch_json = json_fetcher or cover_http_get_json
@@ -3333,6 +3812,16 @@ def resolve_cover_match(
         key=lambda item: item[0],
         reverse=True,
     )
+    bandcamp = bandcamp_cover_match(
+        metadata,
+        text_fetcher or cover_http_get_text,
+    )
+    if bandcamp and (
+        not scored
+        or bandcamp.confidence >= scored[0][0]
+        or bandcamp.confidence >= 94
+    ):
+        return bandcamp
     for index, (confidence, release) in enumerate(scored[:5]):
         candidate_release_id = str(release["id"])
         candidate_group_id = _release_group_id(release)
@@ -3371,7 +3860,7 @@ def resolve_cover_match(
         return discogs
     raise RuntimeError(
         "No release with an approved Front image was found on "
-        "MusicBrainz/Cover Art Archive"
+        "MusicBrainz/Cover Art Archive or Bandcamp"
         + (
             "; Discogs was also checked"
             if os.environ.get("DISCOGS_TOKEN")
@@ -3766,6 +4255,77 @@ def rendered_console_rows(text: str, columns: int | None = None) -> int:
         max(1, (visible_cell_width(line) + width - 1) // width)
         for line in logical_lines
     )
+
+
+def prompt_with_option_legend(
+    prompt: str,
+    options: str,
+    *,
+    indent: str = "",
+    terminal_columns: int | None = None,
+) -> str:
+    """Keep a prompt's option explanation intact on an aligned second line.
+
+    The inline form is retained when it fits. Otherwise, the option legend
+    starts on the next line beneath the first character after the ``❓ ``
+    marker, rather than being split arbitrarily by terminal word wrapping.
+    """
+    first_line = f"{indent}{prompt}"
+    inline = f"{first_line} {options} "
+    columns = max(
+        1,
+        int(terminal_columns or visible_console_size().columns),
+    )
+    if visible_cell_width(inline) <= columns:
+        return inline
+    question_text_column = (
+        visible_cell_width(indent) + visible_cell_width("❓ ")
+    )
+    continuation = " " * question_text_column
+    return f"{first_line}\n{continuation}{options} "
+
+
+def waveform_rendering_status(
+    filename: str,
+    use_color: bool,
+    *,
+    terminal_columns: int | None = None,
+) -> str:
+    """Render one aligned waveform wait line, wrapping only the filename.
+
+    The continuation deliberately begins eight cells beyond the ``R`` in
+    ``Rendering`` so a long title reads as one status sentence rather than as
+    an accidentally misaligned second field.
+    """
+    prefix = "            ⏳ Rendering "
+    columns = max(1, int(terminal_columns or visible_console_size().columns))
+    first_width = max(1, columns - visible_cell_width(prefix))
+    continuation = " " * (visible_cell_width(prefix) + 8)
+    later_width = max(1, columns - visible_cell_width(continuation))
+    chunks: list[str] = []
+    current = ""
+    available = first_width
+    for word in str(filename).split() or [str(filename)]:
+        candidate = word if not current else f"{current} {word}"
+        if current and visible_cell_width(candidate) > available:
+            chunks.append(current)
+            current = word
+            available = later_width
+        else:
+            current = candidate
+    if current:
+        chunks.append(current)
+    if not chunks:
+        chunks = [""]
+    rendered = [
+        rgb_text(prefix, 190, 185, 150, use_color, dim=True)
+        + varied_path(chunks[0], use_color)
+    ]
+    rendered.extend(
+        continuation + varied_path(chunk, use_color)
+        for chunk in chunks[1:]
+    )
+    return "\n".join(rendered)
 
 
 def erase_wrapped_console_text(text: str) -> None:
@@ -4164,54 +4724,75 @@ def emit_sixel_preview(
         print(payload.decode("ascii", errors="replace"))
 
 
-def render_artwork_preview(
+def prepare_artwork_preview(
     path: Path,
     *,
     use_color: bool,
     prefer_sixel: bool = False,
     geometry: ArtworkPreviewGeometry | None = None,
     stretch_to_width: bool = False,
-) -> str:
-    """Fit artwork to the live console through Chafa or built-in renderers."""
+) -> PreparedArtworkPreview:
+    """Prepare Chafa, Sixel, or ANSI output without touching the terminal."""
     geometry = geometry or artwork_preview_geometry()
     chafa = chafa_executable()
     sixel = use_color and (
         prefer_sixel or terminal_supports_sixel()
     )
     if chafa is None and sixel:
-        emit_sixel_preview(
-            sixel_preview_bytes(
+        return PreparedArtworkPreview(
+            mode="built-in Sixel",
+            geometry=geometry,
+            sixel_payload=sixel_preview_bytes(
                 path,
                 geometry=geometry,
                 stretch_to_width=stretch_to_width,
             ),
-            geometry=geometry,
         )
-        return "built-in Sixel"
     if chafa is None:
-        print(
-            ansi_half_block_preview(
+        return PreparedArtworkPreview(
+            mode="built-in ANSI half-blocks",
+            geometry=geometry,
+            text_payload=ansi_half_block_preview(
                 path,
                 use_color=use_color,
                 geometry=geometry,
                 stretch_to_width=stretch_to_width,
-            )
+            ),
         )
-        return "built-in ANSI half-blocks"
     output_format = "sixels" if sixel else "symbols"
-    command = [
-        str(chafa),
-        f"--format={output_format}",
-        f"--size={geometry.columns}x{geometry.rows}",
-        f"--view-size={geometry.columns}x{geometry.rows}",
-        "--scale=max",
-        "--animate=off",
-        "--relative=off",
-        "--margin-right=0",
-        "--work=9",
-    ]
+    if sixel and not stretch_to_width:
+        # Keep this in lockstep with echo-image.bat.  Chafa's Sixel renderer
+        # uses image-pixel view dimensions, not terminal-cell dimensions; the
+        # 2.1 multiplier is the deliberately tuned quality setting there.
+        command = [
+            str(chafa),
+            "--format=sixels",
+            "--fit-width",
+            "--colors=full",
+            "--view-size="
+            f"{geometry.columns * CHAFA_SIXEL_VIEW_SCALE:.1f}x"
+            f"{geometry.rows * CHAFA_SIXEL_VIEW_SCALE:.1f}",
+            "--optimize=9",
+            "--work=9",
+            "--color-space=din99d",
+        ]
+    else:
+        command = [
+            str(chafa),
+            f"--format={output_format}",
+            f"--size={geometry.columns}x{geometry.rows}",
+            f"--view-size={geometry.columns}x{geometry.rows}",
+            "--scale=max",
+            "--animate=off",
+            "--relative=off",
+            "--margin-right=0",
+            "--work=9",
+        ]
     if stretch_to_width:
-        command.append("--fit-width")
+        # Waveforms are diagnostic plots, so consuming the exact requested
+        # viewport is more useful than preserving their JPEG aspect ratio.
+        # Chafa's --stretch is the documented exact-dimensions mode.
+        command.append("--stretch")
     if not sixel:
         command.extend(
             (
@@ -4228,48 +4809,97 @@ def render_artwork_preview(
     )
     if result.returncode != 0 or not result.stdout:
         if sixel:
-            emit_sixel_preview(
-                sixel_preview_bytes(
+            return PreparedArtworkPreview(
+                mode="built-in Sixel",
+                geometry=geometry,
+                sixel_payload=sixel_preview_bytes(
                     path,
                     geometry=geometry,
                     stretch_to_width=stretch_to_width,
                 ),
-                geometry=geometry,
             )
-            return "built-in Sixel"
-        print(
-            ansi_half_block_preview(
+        return PreparedArtworkPreview(
+            mode="built-in ANSI half-blocks",
+            geometry=geometry,
+            text_payload=ansi_half_block_preview(
                 path,
                 use_color=use_color,
                 geometry=geometry,
                 stretch_to_width=stretch_to_width,
-            )
+            ),
         )
-        return "built-in ANSI half-blocks"
     if sixel:
-        emit_sixel_preview(result.stdout, geometry=geometry)
-        return "Chafa Sixel"
+        return PreparedArtworkPreview(
+            mode="Chafa Sixel",
+            geometry=geometry,
+            sixel_payload=result.stdout,
+        )
     rendered = result.stdout.decode(
         sys.stdout.encoding or "utf-8",
         errors="replace",
     )
-    print(
-        "\n".join(
+    return PreparedArtworkPreview(
+        mode="Chafa ANSI symbols",
+        geometry=geometry,
+        text_payload="\n".join(
             f"{' ' * geometry.indent_columns}{line}" if line else ""
             for line in rendered.rstrip().splitlines()
-        )
+        ),
     )
-    return "Chafa ANSI symbols"
 
 
-def render_waveform_preview(path: Path, *, use_color: bool) -> str:
-    """Use the full preview geometry and prefer Sixel for waveform review."""
-    return render_artwork_preview(
+def emit_prepared_artwork_preview(
+    prepared: PreparedArtworkPreview,
+) -> str:
+    """Write a previously prepared preview and return its renderer label."""
+    if prepared.sixel_payload is not None:
+        emit_sixel_preview(
+            prepared.sixel_payload,
+            geometry=prepared.geometry,
+        )
+    else:
+        print(prepared.text_payload or "")
+    return prepared.mode
+
+
+def render_artwork_preview(
+    path: Path,
+    *,
+    use_color: bool,
+    prefer_sixel: bool = True,
+    geometry: ArtworkPreviewGeometry | None = None,
+    stretch_to_width: bool = False,
+) -> str:
+    """Fit artwork to the live console through Chafa or built-in renderers."""
+    prepared = prepare_artwork_preview(
+        path,
+        use_color=use_color,
+        prefer_sixel=prefer_sixel,
+        geometry=geometry,
+        stretch_to_width=stretch_to_width,
+    )
+    return emit_prepared_artwork_preview(prepared)
+
+
+def prepare_waveform_preview(
+    path: Path,
+    *,
+    use_color: bool,
+) -> PreparedArtworkPreview:
+    """Prepare a full-width waveform preview for later instant display."""
+    return prepare_artwork_preview(
         path,
         use_color=use_color,
         prefer_sixel=True,
         geometry=waveform_preview_geometry(),
         stretch_to_width=True,
+    )
+
+
+def render_waveform_preview(path: Path, *, use_color: bool) -> str:
+    """Use the full preview geometry and prefer Sixel for waveform review."""
+    return emit_prepared_artwork_preview(
+        prepare_waveform_preview(path, use_color=use_color)
     )
 
 
@@ -4464,9 +5094,10 @@ def artwork_review_choice(
         prompt_visible = False
         while True:
             prompt = urgent_prompt_text(question, use_color)
-            steady = (
-                f"            {prompt} "
-                f"{artwork_review_choices(use_color)} "
+            steady = prompt_with_option_legend(
+                prompt,
+                artwork_review_choices(use_color),
+                indent="            ",
             )
             interactive_terminal = bool(
                 getattr(sys.stdout, "isatty", lambda: False)()
@@ -4544,18 +5175,27 @@ def artwork_review_choice(
             return accepted
 
 
-def waveform_review_choices(use_color: bool) -> str:
+def waveform_review_choices(
+    use_color: bool,
+    *,
+    default_edit: bool = False,
+) -> str:
     """Render explicit diagnostic waveform-review controls."""
+    edit_label = "ENTER/E=Edit audio | " if default_edit else "E=Edit audio | "
     plain = (
         "N=It’s fine | Y=There is a problem | "
-        "E=Edit audio | V=View fullscreen"
+        f"{edit_label}V=View fullscreen"
     )
     if not use_color:
         return f"[{plain}]"
     parts = (
         ("N", "=It’s fine | ", (95, 245, 135)),
         ("Y", "=There is a problem | ", (255, 105, 105)),
-        ("E", "=Edit audio | ", (255, 185, 75)),
+        (
+            "ENTER/E" if default_edit else "E",
+            "=Edit audio | ",
+            (255, 185, 75),
+        ),
         ("V", "=View fullscreen", (185, 145, 255)),
     )
     rendered = [rgb_text("[", 255, 205, 55, True)]
@@ -4864,6 +5504,11 @@ def waveform_review_choice(
     audio_editor=None,
     problem_renamer=None,
     rename_input_reader=None,
+    excessive_silence: bool = False,
+    longest_silence_seconds: float = 0.0,
+    acceptable_silence_seconds: float = (
+        BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS
+    ),
 ) -> tuple[str, int, Path]:
     """Review one disposable waveform for problems, editing, or navigation."""
     renderer = preview_renderer or render_waveform_preview
@@ -4883,12 +5528,30 @@ def waveform_review_choice(
             color=(105, 95, 145),
             dim=True,
         )
+        if excessive_silence:
+            cover_narration(
+                "🔴",
+                f"Longest silence is "
+                f"{math.floor(max(0.0, longest_silence_seconds))}s, "
+                f"exceeding the {acceptable_silence_seconds:g}s limit; "
+                "ENTER defaults to opening this file in the audio editor.",
+                use_color=use_color,
+                color=(255, 75, 85),
+            )
         prompt_visible = False
         while True:
-            prompt = urgent_prompt_text(question, use_color)
-            steady = (
-                f"            {prompt} "
-                f"{waveform_review_choices(use_color)} "
+            prompt = urgent_prompt_text(
+                question,
+                use_color,
+                faint_italic_spans=(audio_path.name,),
+            )
+            steady = prompt_with_option_legend(
+                prompt,
+                waveform_review_choices(
+                    use_color,
+                    default_edit=excessive_silence,
+                ),
+                indent="            ",
             )
             interactive_terminal = bool(
                 getattr(sys.stdout, "isatty", lambda: False)()
@@ -4907,6 +5570,8 @@ def waveform_review_choice(
             if key == "\x03":
                 raise KeyboardInterrupt
             lowered = key.casefold()
+            if excessive_silence and key in {"", "\r", "\n"}:
+                lowered = "e"
             if key == "__resize__":
                 if interactive_terminal:
                     erase_wrapped_console_text(steady)
@@ -5055,19 +5720,469 @@ def waveform_channel_count(audio_path: Path) -> int:
     return max(1, min(32, channels))
 
 
-def waveform_frame_filters(audio_path: Path) -> str:
-    """Draw the outer frame and a divider between every stacked channel."""
+def waveform_frame_filters(
+    audio_path: Path,
+    plot_width: int = WAVEFORM_PLOT_WIDTH,
+) -> str:
+    """Frame only the waveform plot and divide its stacked channels."""
     line = "color=0x777777@0.60:t=fill"
     filters = [
-        "drawbox=x=0:y=0:w=iw:h=ih:"
+        f"drawbox=x=0:y=0:w={int(plot_width)}:h=ih:"
         "color=0x777777@0.60:t=4"
     ]
     channels = waveform_channel_count(audio_path)
     filters.extend(
-        f"drawbox=x=0:y=ih*{index}/{channels}-2:w=iw:h=4:{line}"
+        f"drawbox=x=0:y=ih*{index}/{channels}-2:"
+        f"w={int(plot_width)}:h=4:{line}"
         for index in range(1, channels)
     )
     return ",".join(filters)
+
+
+def parse_waveform_peak_percentages(
+    ffmpeg_output: str,
+    channels: int,
+) -> tuple[float, ...]:
+    """Convert FFmpeg ``astats`` channel peaks from dBFS to percentages."""
+    requested = max(1, int(channels))
+    peaks_db: dict[int, float] = {}
+    overall_db: float | None = None
+    current_channel: int | None = None
+    in_overall = False
+    for raw_line in str(ffmpeg_output or "").splitlines():
+        channel_match = re.search(r"\bChannel:\s*(\d+)\s*$", raw_line)
+        if channel_match:
+            current_channel = int(channel_match.group(1))
+            in_overall = False
+            continue
+        if re.search(r"\bOverall\s*$", raw_line):
+            current_channel = None
+            in_overall = True
+            continue
+        peak_match = re.search(
+            r"\bPeak level dB:\s*(-?inf|[-+]?\d+(?:\.\d+)?)\s*$",
+            raw_line,
+            flags=re.IGNORECASE,
+        )
+        if not peak_match:
+            continue
+        value_text = peak_match.group(1)
+        value = (
+            float("-inf")
+            if value_text.casefold() == "-inf"
+            else float(value_text)
+        )
+        if in_overall:
+            overall_db = value
+        elif current_channel is not None:
+            peaks_db[current_channel] = value
+
+    fallback = overall_db if overall_db is not None else float("-inf")
+    percentages: list[float] = []
+    for channel in range(1, requested + 1):
+        decibels = peaks_db.get(channel, fallback)
+        if not math.isfinite(decibels):
+            percentage = 0.0
+        else:
+            percentage = 100.0 * math.pow(10.0, decibels / 20.0)
+        percentages.append(max(0.0, min(100.0, percentage)))
+    return tuple(percentages)
+
+
+def dbfs_to_percentage(decibels: float | None) -> float:
+    """Convert a finite dBFS amplitude into a clamped linear percentage."""
+    if decibels is None or not math.isfinite(float(decibels)):
+        return 0.0
+    return max(
+        0.0,
+        min(100.0, 100.0 * math.pow(10.0, float(decibels) / 20.0)),
+    )
+
+
+def parse_waveform_average_volume_percentage(ffmpeg_output: str) -> float:
+    """Read overall RMS level from FFmpeg astats as an average-volume percent."""
+    in_overall = False
+    overall_rms_db: float | None = None
+    for raw_line in str(ffmpeg_output or "").splitlines():
+        if re.search(r"\bOverall\s*$", raw_line):
+            in_overall = True
+            continue
+        if re.search(r"\bChannel:\s*\d+\s*$", raw_line):
+            in_overall = False
+            continue
+        if not in_overall:
+            continue
+        match = re.search(
+            r"\bRMS level dB:\s*(-?inf|[-+]?\d+(?:\.\d+)?)\s*$",
+            raw_line,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            overall_rms_db = (
+                float("-inf")
+                if match.group(1).casefold() == "-inf"
+                else float(match.group(1))
+            )
+    return dbfs_to_percentage(overall_rms_db)
+
+
+def parse_waveform_silence_durations(
+    ffmpeg_output: str,
+) -> tuple[float, float]:
+    """Return longest and total silence durations reported by silencedetect."""
+    durations = [
+        max(0.0, float(value))
+        for value in re.findall(
+            r"silence_duration:\s*(\d+(?:\.\d+)?)",
+            str(ffmpeg_output or ""),
+            flags=re.IGNORECASE,
+        )
+    ]
+    if not durations:
+        return 0.0, 0.0
+    return max(durations), sum(durations)
+
+
+def waveform_replaygain_factor(audio_path: Path) -> float | None:
+    """Return the ReplayGain track-gain tag as a linear amplitude multiplier."""
+    snapshot = BatchAudit(audio_path.parent).tag_snapshot(audio_path)
+    values = snapshot.get("replaygain", {}).get("replaygain_track_gain", [])
+    if not values:
+        return None
+    match = re.search(
+        r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)",
+        str(values[0]),
+    )
+    if not match:
+        return None
+    return math.pow(10.0, float(match.group(0)) / 20.0)
+
+
+@dataclass(frozen=True)
+class WaveformMetrics:
+    """Audio measurements displayed in the unboxed right-side summary."""
+
+    channel_peak_percentages: tuple[float, ...]
+    peak_volume_percentage: float
+    average_volume_percentage: float
+    replaygain_factor: float | None
+    longest_silence_seconds: float
+    total_silence_seconds: float
+
+
+def parse_waveform_metrics(
+    ffmpeg_output: str,
+    audio_path: Path,
+    channels: int,
+) -> WaveformMetrics:
+    """Build all waveform summary measurements from one FFmpeg decode."""
+    channel_peaks = parse_waveform_peak_percentages(
+        ffmpeg_output,
+        channels,
+    )
+    longest_silence, total_silence = parse_waveform_silence_durations(
+        ffmpeg_output
+    )
+    return WaveformMetrics(
+        channel_peak_percentages=channel_peaks,
+        peak_volume_percentage=max(channel_peaks, default=0.0),
+        average_volume_percentage=parse_waveform_average_volume_percentage(
+            ffmpeg_output
+        ),
+        replaygain_factor=waveform_replaygain_factor(audio_path),
+        longest_silence_seconds=longest_silence,
+        total_silence_seconds=total_silence,
+    )
+
+
+def waveform_metric_lines(metrics: WaveformMetrics) -> tuple[str, ...]:
+    """Format the compact four-line center-right waveform summary."""
+    gain = (
+        f"{metrics.replaygain_factor:.5f}"
+        if metrics.replaygain_factor is not None
+        else "n/a"
+    )
+    return (
+        f"peak vol: {round(metrics.peak_volume_percentage)}%",
+        f"avg vol: {round(metrics.average_volume_percentage)}%",
+        f"gain: {gain}",
+        f"silence: {math.floor(max(0.0, metrics.longest_silence_seconds))}s "
+        "(longest)",
+    )
+
+
+def waveform_metric_value_colors(
+    metrics: WaveformMetrics,
+    acceptable_silence_seconds: float,
+) -> tuple[tuple[int, int, int], ...]:
+    """Color numeric values, reserving red for excessive continuous silence."""
+    return (
+        (205, 155, 255),
+        (100, 220, 255),
+        (255, 165, 90),
+        (
+            (255, 75, 85)
+            if metrics.longest_silence_seconds
+            > float(acceptable_silence_seconds)
+            else (255, 210, 90)
+        ),
+    )
+
+
+def waveform_peak_label_font(channel_height: int):
+    """Load a readable compact font for outer peak labels."""
+    if ImageFont is None:
+        raise RuntimeError("Pillow is required for waveform peak labels")
+    size = max(12, min(26, int(channel_height) // 4))
+    candidates = (
+        r"C:\Windows\Fonts\arial.ttf",
+        r"C:\Windows\Fonts\segoeui.ttf",
+        r"C:\Windows\Fonts\consola.ttf",
+        "DejaVuSansMono.ttf",
+    )
+    for candidate in candidates:
+        try:
+            return ImageFont.truetype(candidate, size)
+        except (OSError, ValueError):
+            continue
+    return ImageFont.load_default()
+
+
+def waveform_metrics_font(lines: tuple[str, ...], max_width: int):
+    """Choose the largest installed font that keeps every metric in the gutter."""
+    if ImageFont is None:
+        raise RuntimeError("Pillow is required for waveform metric labels")
+    candidates = (
+        r"C:\Windows\Fonts\arial.ttf",
+        r"C:\Windows\Fonts\segoeui.ttf",
+        r"C:\Windows\Fonts\consola.ttf",
+        "DejaVuSansMono.ttf",
+    )
+    probe = ImageDraw.Draw(Image.new("RGB", (1, 1))) if ImageDraw and Image else None
+    for size in range(26, 10, -1):
+        for candidate in candidates:
+            try:
+                font = ImageFont.truetype(candidate, size)
+            except (OSError, ValueError):
+                continue
+            if probe is None or all(
+                probe.textbbox((0, 0), line, font=font)[2] <= max_width
+                for line in lines
+            ):
+                return font
+    return ImageFont.load_default()
+
+
+def waveform_cyan_mask(region):
+    """Return a strict mask containing only cyan waveform pixels."""
+    if Image is None:
+        raise RuntimeError("Pillow is required for waveform rendering")
+    red, green, blue = region.split()
+    return Image.frombytes(
+        "L",
+        region.size,
+        bytes(
+            (
+                255
+                if (
+                    b >= 150
+                    and g >= 120
+                    and r <= 140
+                    and g - r >= 50
+                    and b - r >= 80
+                )
+                else 0
+            )
+            for r, g, b in zip(
+                red.tobytes(),
+                green.tobytes(),
+                blue.tobytes(),
+            )
+        ),
+    )
+
+
+def scale_waveform_to_absolute_peaks(
+    image,
+    channel_peak_percentages: tuple[float, ...],
+    *,
+    plot_width: int = WAVEFORM_PLOT_WIDTH,
+) -> None:
+    """Undo showwavespic peak normalization so height means real amplitude."""
+    if Image is None:
+        raise RuntimeError("Pillow is required for waveform rendering")
+    channels = max(1, len(channel_peak_percentages))
+    width = max(1, min(image.width, int(plot_width)) - 8)
+    for channel, peak in enumerate(channel_peak_percentages):
+        top = round(image.height * channel / channels) + 4
+        bottom = round(image.height * (channel + 1) / channels) - 4
+        height = max(1, bottom - top)
+        region = image.crop((4, top, 4 + width, bottom))
+        mask = waveform_cyan_mask(region)
+        region.paste((0, 0, 0), mask=mask)
+        target_height = max(
+            1,
+            min(
+                height,
+                round(height * max(0.0, min(100.0, peak)) / 100.0),
+            ),
+        )
+        resized = mask.resize(
+            (width, target_height),
+            resample=getattr(Image, "Resampling", Image).LANCZOS,
+        )
+        absolute_mask = Image.new("L", (width, height), 0)
+        absolute_mask.paste(resized, (0, (height - target_height) // 2))
+        region.paste(
+            Image.new("RGB", region.size, (85, 220, 255)),
+            mask=absolute_mask,
+        )
+        image.paste(region, (4, top))
+
+
+def emphasize_waveform_peak_visibility(
+    image,
+    *,
+    plot_width: int = WAVEFORM_PLOT_WIDTH,
+) -> None:
+    """Make isolated true peaks visible without changing their amplitude.
+
+    FFmpeg can legitimately draw a one-column peak in a several-thousand-pixel
+    waveform.  That peak nearly disappears when the JPEG is scaled to a
+    terminal cell grid, so expand only the cyan waveform mask by two pixels in
+    each direction.  This preserves the peak's vertical position while making
+    it survive JPEG and Sixel/ANSI downscaling.
+    """
+    if Image is None or ImageFilter is None:
+        raise RuntimeError("Pillow is required for waveform peak emphasis")
+    interior_width = max(1, min(image.width, int(plot_width)) - 4)
+    interior_height = max(1, image.height - 8)
+    region = image.crop((2, 4, 2 + interior_width, 4 + interior_height))
+    cyan_mask = waveform_cyan_mask(region)
+    expanded = cyan_mask.filter(ImageFilter.MaxFilter(5))
+    cyan = Image.new("RGB", region.size, (85, 220, 255))
+    region.paste(cyan, mask=expanded)
+    image.paste(region, (2, 4))
+
+
+def annotate_waveform_peak_guides(
+    waveform_path: Path,
+    metrics: WaveformMetrics,
+    *,
+    plot_width: int = WAVEFORM_PLOT_WIDTH,
+    acceptable_silence_seconds: float = (
+        BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS
+    ),
+) -> None:
+    """Draw outer peak ticks plus an unboxed center-right metric summary."""
+    if Image is None or ImageDraw is None:
+        raise RuntimeError("Pillow is required for waveform peak labels")
+    channels = max(1, len(metrics.channel_peak_percentages))
+    with Image.open(waveform_path) as source:
+        image = source.convert("RGB")
+    if image.width <= plot_width + 20:
+        raise RuntimeError(
+            "Waveform preview has no room for its peak-label gutter"
+        )
+    draw = ImageDraw.Draw(image)
+    scale_waveform_to_absolute_peaks(
+        image,
+        metrics.channel_peak_percentages,
+        plot_width=plot_width,
+    )
+    emphasize_waveform_peak_visibility(
+        image,
+        plot_width=plot_width,
+    )
+    draw = ImageDraw.Draw(image)
+    axis_x = max(4, min(image.width - 20, int(plot_width) - 1))
+    channel_height = image.height / channels
+    font = waveform_peak_label_font(round(channel_height))
+    axis_color = (125, 125, 130)
+    guide_color = (150, 150, 155)
+    text_color = (205, 210, 215)
+    draw.line(
+        (axis_x, 3, axis_x, image.height - 4),
+        fill=axis_color,
+        width=3,
+    )
+
+    percentage = max(
+        0.0,
+        min(100.0, float(metrics.peak_volume_percentage)),
+    )
+    rounded = int(round(percentage))
+    channel_height = image.height / channels
+    usable_half_height = max(1, round(channel_height / 2) - 8)
+    offset = round(usable_half_height * percentage / 100.0)
+    upper_y = round(channel_height / 2) - offset
+    lower_y = round(image.height - channel_height / 2) + offset
+    tick_start = max(0, axis_x - 36)
+    tick_end = min(image.width - 1, axis_x + 14)
+    text_x = min(image.width - 1, axis_x + 20)
+
+    for y, label in (
+        (upper_y, f"+{rounded}%"),
+        (lower_y, f"-{rounded}%"),
+    ):
+        draw.line(
+            (tick_start, y, tick_end, y),
+            fill=guide_color,
+            width=3,
+        )
+        box = draw.textbbox((0, 0), label, font=font)
+        text_height = box[3] - box[1]
+        draw.text(
+            (text_x, y - text_height // 2),
+            label,
+            font=font,
+            fill=text_color,
+        )
+
+    metric_lines = waveform_metric_lines(metrics)
+    metric_x = axis_x + 20
+    max_metric_width = max(20, image.width - metric_x - 8)
+    metric_font = waveform_metrics_font(metric_lines, max_metric_width)
+    boxes = [
+        draw.textbbox((0, 0), line, font=metric_font)
+        for line in metric_lines
+    ]
+    line_height = max(box[3] - box[1] for box in boxes) + 7
+    block_height = line_height * len(metric_lines)
+    metric_y = max(5, (image.height - block_height) // 2)
+    draw.rectangle(
+        (
+            axis_x + 5,
+            metric_y - 5,
+            image.width - 1,
+            metric_y + block_height + 5,
+        ),
+        fill=(0, 0, 0),
+    )
+    metric_value_colors = waveform_metric_value_colors(
+        metrics,
+        acceptable_silence_seconds,
+    )
+    for index, (line, value_color) in enumerate(
+        zip(metric_lines, metric_value_colors)
+    ):
+        label, value = line.split(": ", 1)
+        label_text = f"{label}: "
+        y = metric_y + index * line_height
+        draw.text(
+            (metric_x, y),
+            label_text,
+            font=metric_font,
+            fill=text_color,
+        )
+        label_width = draw.textlength(label_text, font=metric_font)
+        draw.text(
+            (metric_x + label_width, y),
+            value,
+            font=metric_font,
+            fill=value_color,
+        )
+    image.save(waveform_path, format="JPEG", quality=94)
 
 
 def generate_waveform_jpeg(
@@ -5076,7 +6191,10 @@ def generate_waveform_jpeg(
     ffmpeg_executable: str | None = None,
     narrate: bool = True,
     destination: Path | None = None,
-) -> tuple[Path, Path | None]:
+    acceptable_silence_seconds: float = (
+        BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS
+    ),
+) -> tuple[Path, Path | None, WaveformMetrics]:
     """Generate and verify one disposable high-resolution waveform JPEG."""
     ffmpeg = ffmpeg_executable or shutil.which("ffmpeg")
     if not ffmpeg:
@@ -5095,21 +6213,37 @@ def generate_waveform_jpeg(
     temporary = collision_safe_path(
         target.with_name(f".{target.name}.generating.jpg")
     )
+    channels = waveform_channel_count(audio_path)
+    waveform_colors = "|".join(
+        WAVEFORM_CHANNEL_COLORS[index % len(WAVEFORM_CHANNEL_COLORS)]
+        for index in range(channels)
+    )
     waveform_filters = (
-        "showwavespic=s=1800x700:"
-        "split_channels=1:colors=0x55dcff,"
-        f"{waveform_frame_filters(audio_path)}"
+        "[0:a]asplit=3[waveform_audio][peak_audio][silence_audio];"
+        "[waveform_audio]"
+        f"showwavespic=s={WAVEFORM_PLOT_WIDTH}x{WAVEFORM_JPEG_HEIGHT}:"
+        f"split_channels=1:colors={waveform_colors}:"
+        "draw=full:scale=lin,"
+        f"pad={WAVEFORM_JPEG_WIDTH}:{WAVEFORM_JPEG_HEIGHT}:0:0:black,"
+        f"{waveform_frame_filters(audio_path)}[waveform_picture];"
+        "[peak_audio]astats=metadata=0:reset=0,anullsink;"
+        "[silence_audio]"
+        f"silencedetect=noise={SILENCE_DETECT_NOISE_DB}dB:"
+        f"d={WAVEFORM_SILENCE_MIN_SECONDS:g},anullsink"
     )
     command = [
         str(ffmpeg),
         "-hide_banner",
+        "-nostats",
         "-loglevel",
-        "error",
+        "info",
         "-y",
         "-i",
         str(audio_path),
         "-filter_complex",
         waveform_filters,
+        "-map",
+        "[waveform_picture]",
         "-frames:v",
         "1",
         "-q:v",
@@ -5119,22 +6253,62 @@ def generate_waveform_jpeg(
     if narrate:
         print(
             console_safe_text(
-                "            ▶ Generating 1800×700 waveform JPEG with ffmpeg."
+                f"            ▶ Generating {WAVEFORM_JPEG_WIDTH}×"
+                f"{WAVEFORM_JPEG_HEIGHT} waveform JPEG with ffmpeg."
             ),
             flush=True,
         )
-    result = subprocess.run(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        errors="replace",
-        check=False,
-    )
+    def run_waveform_command(arguments: list[str]):
+        return subprocess.run(
+            arguments,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            errors="replace",
+            check=False,
+        )
+
+    result = run_waveform_command(command)
+    if (
+        (result.returncode or not temporary.is_file())
+        and waveform_colors != WAVEFORM_CHANNEL_COLORS[0]
+    ):
+        # Older FFmpeg builds occasionally reject a multi-colour showwavespic
+        # palette for particular MP3 layouts.  Preserve waveform review by
+        # retrying the established single-cyan filter rather than failing the
+        # whole background queue.
+        if temporary.exists():
+            recycle_path(temporary)
+        fallback_filters = waveform_filters.replace(
+            f"colors={waveform_colors}",
+            f"colors={WAVEFORM_CHANNEL_COLORS[0]}",
+            1,
+        )
+        fallback_command = list(command)
+        fallback_command[
+            fallback_command.index("-filter_complex") + 1
+        ] = fallback_filters
+        if narrate:
+            print(
+                console_safe_text(
+                    "            ⚠️ Retrying waveform render with the "
+                    "compatible single-colour filter."
+                ),
+                flush=True,
+            )
+        result = run_waveform_command(fallback_command)
     if result.returncode or not temporary.is_file():
         if temporary.exists():
             recycle_path(temporary)
-        detail = str(result.stdout or "").strip()
+        output_lines = [
+            line.strip()
+            for line in str(result.stdout or "").splitlines()
+            if line.strip()
+        ]
+        # FFmpeg emits all container metadata (including full lyric tags) at
+        # info level before the actual failure.  Only its short final tail is
+        # useful in an interactive terminal.
+        detail = "\n".join(output_lines[-12:])
         raise RuntimeError(
             f"ffmpeg waveform generation failed"
             + (f": {detail}" if detail else "")
@@ -5142,6 +6316,16 @@ def generate_waveform_jpeg(
     if image_mime(temporary) != "image/jpeg":
         recycle_path(temporary)
         raise RuntimeError("ffmpeg did not generate a valid JPEG waveform")
+    metrics = parse_waveform_metrics(
+        result.stdout,
+        audio_path,
+        channels,
+    )
+    annotate_waveform_peak_guides(
+        temporary,
+        metrics,
+        acceptable_silence_seconds=acceptable_silence_seconds,
+    )
     if target.exists():
         os.replace(temporary, target)
     else:
@@ -5150,7 +6334,126 @@ def generate_waveform_jpeg(
         raise RuntimeError(
             f"Waveform JPEG verification failed after staging: {target}"
         )
-    return target, None
+    return target, None, metrics
+
+
+def waveform_approval_database_path() -> Path:
+    """Return the persistent per-user waveform-review database location."""
+    local_app_data = os.environ.get("LOCALAPPDATA", "").strip()
+    base = (
+        Path(local_app_data)
+        if local_app_data
+        else Path.home() / "AppData" / "Local"
+    )
+    return (
+        base
+        / "audit_music_batch"
+        / WAVEFORM_APPROVAL_DATABASE_FILENAME
+    )
+
+
+class WaveformApprovalStore:
+    """Persist unchanged audio files that a user has visually marked fine."""
+
+    def __init__(self, database_path: Path | None = None) -> None:
+        self.path = Path(
+            database_path or waveform_approval_database_path()
+        )
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(self.path) as connection:
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS waveform_approvals (
+                    path TEXT PRIMARY KEY,
+                    size_bytes INTEGER NOT NULL,
+                    modified_ns INTEGER NOT NULL,
+                    approved_at TEXT NOT NULL
+                )
+                """
+            )
+
+    @staticmethod
+    def _key(path: Path) -> str:
+        return os.path.normcase(str(path.resolve(strict=False)))
+
+    @staticmethod
+    def _signature(path: Path) -> tuple[int, int]:
+        status = path.stat()
+        return int(status.st_size), int(status.st_mtime_ns)
+
+    def is_approved(self, path: Path) -> bool:
+        """Return true only when the stored file still has the same identity."""
+        try:
+            size_bytes, modified_ns = self._signature(path)
+        except OSError:
+            return False
+        key = self._key(path)
+        with sqlite3.connect(self.path) as connection:
+            row = connection.execute(
+                """
+                SELECT size_bytes, modified_ns
+                FROM waveform_approvals
+                WHERE path = ?
+                """,
+                (key,),
+            ).fetchone()
+            if row and tuple(map(int, row)) == (size_bytes, modified_ns):
+                return True
+            if row:
+                connection.execute(
+                    "DELETE FROM waveform_approvals WHERE path = ?",
+                    (key,),
+                )
+        return False
+
+    def approve(self, path: Path) -> None:
+        """Record a successful fine decision after all possible edits."""
+        size_bytes, modified_ns = self._signature(path)
+        with sqlite3.connect(self.path) as connection:
+            connection.execute(
+                """
+                INSERT INTO waveform_approvals
+                    (path, size_bytes, modified_ns, approved_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(path) DO UPDATE SET
+                    size_bytes = excluded.size_bytes,
+                    modified_ns = excluded.modified_ns,
+                    approved_at = excluded.approved_at
+                """,
+                (
+                    self._key(path),
+                    size_bytes,
+                    modified_ns,
+                    datetime.now().astimezone().isoformat(timespec="seconds"),
+                ),
+            )
+
+    def prune_if_oversized(
+        self,
+        max_bytes: int = WAVEFORM_APPROVAL_DATABASE_MAX_BYTES,
+    ) -> int:
+        """When oversized, remove vanished paths and compact the database."""
+        try:
+            if self.path.stat().st_size <= int(max_bytes):
+                return 0
+        except OSError:
+            return 0
+        with sqlite3.connect(self.path) as connection:
+            rows = connection.execute(
+                "SELECT path FROM waveform_approvals"
+            ).fetchall()
+            vanished = [
+                str(stored_path)
+                for (stored_path,) in rows
+                if not Path(str(stored_path)).exists()
+            ]
+            connection.executemany(
+                "DELETE FROM waveform_approvals WHERE path = ?",
+                ((stored_path,) for stored_path in vanished),
+            )
+        with sqlite3.connect(self.path) as connection:
+            connection.execute("VACUUM")
+        return len(vanished)
 
 
 def review_waveforms(
@@ -5163,7 +6466,9 @@ def review_waveforms(
     preview_renderer=None,
     image_viewer=None,
     audio_editor=None,
-    workers: int = 2,
+    workers: int = 8,
+    silence_threshold_seconds: float | None = None,
+    approval_database_path: Path | None = None,
 ) -> dict[str, Any]:
     """Review disposable waveform previews for audible-file warning signs."""
     if not interactive:
@@ -5173,7 +6478,25 @@ def review_waveforms(
         )
     audit = BatchAudit(root, include_archives=include_archives)
     audit.collect_files()
-    audio_files = audit.audio_files
+    all_audio_files = audit.audio_files
+    approval_store = WaveformApprovalStore(approval_database_path)
+    pruned_approvals = approval_store.prune_if_oversized()
+    previously_approved = [
+        path for path in all_audio_files if approval_store.is_approved(path)
+    ]
+    approved_keys = {
+        WaveformApprovalStore._key(path) for path in previously_approved
+    }
+    audio_files = [
+        path
+        for path in all_audio_files
+        if WaveformApprovalStore._key(path) not in approved_keys
+    ]
+    acceptable_silence_seconds = (
+        float(silence_threshold_seconds)
+        if silence_threshold_seconds is not None
+        else load_behavior_defaults().silence_threshold_seconds
+    )
     print(
         "\n".join(
             double_height_gradient_section(
@@ -5188,6 +6511,32 @@ def review_waveforms(
         f"        🎚️ {len(audio_files)} audio "
         f"file{'s' if len(audio_files) != 1 else ''} queued for waveform review."
     )
+    if previously_approved:
+        print(
+            rgb_text(
+                f"        ✅ {len(previously_approved)} unchanged, previously "
+                "approved "
+                f"file{'s' if len(previously_approved) != 1 else ''} skipped.",
+                105,
+                185,
+                135,
+                use_color,
+                dim=True,
+            )
+        )
+    if pruned_approvals:
+        print(
+            rgb_text(
+                f"        🧹 Pruned {pruned_approvals} vanished file "
+                f"reference{'s' if pruned_approvals != 1 else ''} from the "
+                "oversized waveform approval database.",
+                145,
+                155,
+                170,
+                use_color,
+                dim=True,
+            )
+        )
     print(
         rgb_text(
             "        🔍 Inspect for long silence, clipped/flat peaks, "
@@ -5219,6 +6568,7 @@ def review_waveforms(
     edited: list[str] = []
     failed: list[dict[str, str]] = []
     worker_count = max(1, min(int(workers), 8))
+    preview_lookahead = max(4, worker_count * 2)
     staging_folder = collision_safe_path(
         waveform_staging_root()
         / (
@@ -5232,6 +6582,8 @@ def review_waveforms(
         thread_name_prefix="waveform",
     )
     futures: dict[Path, Future] = {}
+    preview_executor: ThreadPoolExecutor | None = None
+    prepared_futures: dict[Path, Future] = {}
     try:
         for item_index, upcoming in enumerate(audio_files, start=1):
             staged_name = (
@@ -5244,44 +6596,132 @@ def review_waveforms(
                 upcoming,
                 narrate=False,
                 destination=staging_folder / staged_name,
+                acceptable_silence_seconds=acceptable_silence_seconds,
+            )
+        if preview_renderer is None and audio_files:
+            preview_executor = ThreadPoolExecutor(
+                max_workers=max(1, min(4, worker_count)),
+                thread_name_prefix="waveform-preview",
+            )
+
+            def prepare_after_render(
+                render_future: Future,
+            ) -> PreparedArtworkPreview:
+                staged_path, _backup, _metrics = render_future.result()
+                return prepare_waveform_preview(
+                    staged_path,
+                    use_color=use_color,
+                )
+
+            def schedule_preview(index_to_schedule: int) -> None:
+                if (
+                    preview_executor is None
+                    or index_to_schedule >= len(audio_files)
+                ):
+                    return
+                upcoming = audio_files[index_to_schedule]
+                if upcoming not in prepared_futures:
+                    prepared_futures[upcoming] = preview_executor.submit(
+                        prepare_after_render,
+                        futures[upcoming],
+                    )
+
+            for lookahead_index in range(
+                min(len(audio_files), preview_lookahead)
+            ):
+                schedule_preview(lookahead_index)
+            print(
+                rgb_text(
+                    f"        ⚡ Pre-rendering every waveform JPEG with "
+                    f"{worker_count} workers; keeping up to "
+                    f"{preview_lookahead} display-ready previews ahead.",
+                    105,
+                    175,
+                    220,
+                    use_color,
+                    dim=True,
+                )
             )
         for index, audio_path in enumerate(audio_files, start=1):
+            if preview_executor is not None:
+                schedule_preview(index - 1 + preview_lookahead)
             print()
             print(
                 f"        🎛️ Waveform {index}/{len(audio_files)}:"
             )
-            print(
-                f"            {music_filename(audit.rel(audio_path), use_color)}"
-            )
             future = futures[audio_path]
             if not future.done():
                 print(
-                    rgb_text(
-                        "            ⏳ Finishing the background waveform render…",
-                        190,
-                        185,
-                        150,
-                        use_color,
-                        dim=True,
-                    )
+                    waveform_rendering_status(audio_path.name, use_color)
+                )
+            else:
+                print(
+                    "            "
+                    f"{music_filename(audit.rel(audio_path), use_color)[1:]}"
                 )
             try:
-                staged_waveform, _staging_backup = future.result()
+                (
+                    staged_waveform,
+                    _staging_backup,
+                    waveform_metrics,
+                ) = future.result()
+                prepared_future = prepared_futures.pop(
+                    audio_path,
+                    None,
+                )
+                prepared_preview = (
+                    prepared_future.result()
+                    if prepared_future is not None
+                    else None
+                )
+                prepared_used = False
+
+                def queued_preview_renderer(
+                    path: Path,
+                    *,
+                    use_color: bool,
+                ) -> str:
+                    nonlocal prepared_used
+                    if (
+                        not prepared_used
+                        and prepared_preview is not None
+                        and prepared_preview.geometry
+                        == waveform_preview_geometry()
+                    ):
+                        prepared_used = True
+                        return emit_prepared_artwork_preview(
+                            prepared_preview
+                        )
+                    prepared_used = True
+                    return render_waveform_preview(
+                        path,
+                        use_color=use_color,
+                    )
+
                 decision, edit_count, reviewed_audio_path = waveform_review_choice(
                     staged_waveform,
                     audio_path,
                     use_color=use_color,
                     key_reader=key_reader,
                     preview_renderer=(
-                        preview_renderer or render_waveform_preview
+                        preview_renderer or queued_preview_renderer
                     ),
                     image_viewer=image_viewer,
                     audio_editor=discovered_editor,
+                    excessive_silence=(
+                        waveform_metrics.longest_silence_seconds
+                        > acceptable_silence_seconds
+                    ),
+                    longest_silence_seconds=(
+                        waveform_metrics.longest_silence_seconds
+                    ),
+                    acceptable_silence_seconds=acceptable_silence_seconds,
                 )
                 if edit_count:
                     edited.append(str(reviewed_audio_path))
                 if decision == "fine":
                     fine.append(str(reviewed_audio_path))
+                    approval_store.approve(reviewed_audio_path)
                     print(
                         colorize(
                             "            ✔️ Marked fine; continuing to the "
@@ -5320,6 +6760,11 @@ def review_waveforms(
                     use_color,
                 )
     finally:
+        if preview_executor is not None:
+            preview_executor.shutdown(
+                wait=True,
+                cancel_futures=True,
+            )
         executor.shutdown(wait=True, cancel_futures=True)
     print()
     print(
@@ -5333,7 +6778,9 @@ def review_waveforms(
     )
     print()
     print(
-        f"        {len(fine)} fine, {len(problems)} problem"
+        f"        {len(fine)} newly approved, "
+        f"{len(previously_approved)} previously approved, "
+        f"{len(problems)} problem"
         f"{'s' if len(problems) != 1 else ''}, "
         f"{len(edited)} opened in an editor, {len(failed)} failed."
     )
@@ -5349,12 +6796,18 @@ def review_waveforms(
         )
     )
     return {
-        "audio_files": len(audio_files),
+        "audio_files": len(all_audio_files),
+        "queued": len(audio_files),
+        "previously_approved": [
+            str(path) for path in previously_approved
+        ],
         "fine": fine,
         "problems": problems,
         "edited": edited,
         "failed": failed,
         "staging_folder": str(staging_folder),
+        "approval_database": str(approval_store.path),
+        "pruned_approvals": pruned_approvals,
     }
 
 
@@ -5366,6 +6819,7 @@ def offer_post_audit_waveform_review(
     include_archives: bool,
     use_color: bool,
     workers: int,
+    silence_threshold_seconds: float | None = None,
     key_reader=None,
     reviewer=None,
 ) -> dict[str, Any] | None:
@@ -5378,6 +6832,7 @@ def offer_post_audit_waveform_review(
         use_color,
         key_reader=key_reader,
         indent="        ",
+        erase_on_no=True,
     ):
         return None
     if shutil.which("ffmpeg") is None:
@@ -5392,6 +6847,7 @@ def offer_post_audit_waveform_review(
         interactive=True,
         key_reader=key_reader,
         workers=workers,
+        silence_threshold_seconds=silence_threshold_seconds,
     )
 
 
@@ -5404,6 +6860,7 @@ def find_cover_and_embed(
     interactive: bool = True,
     key_reader=None,
     json_fetcher: Callable[..., dict[str, Any] | None] | None = None,
+    text_fetcher: Callable[[str], str] | None = None,
     image_fetcher: Callable[[str], tuple[bytes, str, str]] | None = None,
     preview_renderer=None,
     image_viewer=None,
@@ -5431,18 +6888,23 @@ def find_cover_and_embed(
         "🌐",
         "Searching exact "
         f"{inline_italic('MusicBrainz', use_color)} tags first, then "
-        "conservative release matches.",
+        f"{inline_italic('Bandcamp', use_color)} and conservative release "
+        "matches.",
         use_color=use_color,
         color=(85, 135, 165),
         dim=True,
     )
     with progress_bar(
         total=1,
-        description="🎨 Finding cover art · MusicBrainz",
+        description="🎨 Finding cover art",
         unit="release",
         enabled=bool(getattr(sys.stderr, "isatty", lambda: False)()),
     ) as lookup_progress:
-        match = resolve_cover_match(path, json_fetcher=json_fetcher)
+        match = resolve_cover_match(
+            path,
+            json_fetcher=json_fetcher,
+            text_fetcher=text_fetcher,
+        )
         if lookup_progress is not None:
             lookup_progress.update(1)
     confidence_text = (
@@ -5681,6 +7143,21 @@ def art_sidecar_stem(picture_type: int) -> str:
     }.get(picture_type, f"artwork-{picture_type:02d}")
 
 
+def is_album_track_filename(path: Path) -> bool:
+    """Use leading track numbers as the conservative album-folder heuristic."""
+    return bool(re.match(r"^\s*\d{1,2}(?:[ _.-]+)", path.stem))
+
+
+def exported_art_sidecar_stem(path: Path, picture_type: int) -> str:
+    """Name album art collectively, but keep loose/MISC art track-specific."""
+    standard = art_sidecar_stem(picture_type)
+    if is_album_track_filename(path):
+        return standard
+    if picture_type == 3:
+        return path.stem
+    return f"{path.stem} - {standard}"
+
+
 def export_art_sidecars(path: Path, write: bool = True) -> list[str]:
     existing_hashes = {
         hashlib.sha256(candidate.read_bytes()).hexdigest()
@@ -5693,7 +7170,7 @@ def export_art_sidecars(path: Path, write: bool = True) -> list[str]:
         digest = hashlib.sha256(data).hexdigest()
         if digest in existing_hashes:
             continue
-        stem = art_sidecar_stem(picture_type)
+        stem = exported_art_sidecar_stem(path, picture_type)
         extension = picture_extension(mime)
         target = collision_safe_path(
             path.parent / f"{stem}{extension}", reserved
@@ -5848,15 +7325,164 @@ def apply_art(path: Path, write: bool = True) -> list[str]:
     return actions
 
 
+def copy_discernible_metadata_to_flac(source: Path, destination: Path) -> list[str]:
+    """Copy readable tags and conservative folder-derived identity to FLAC."""
+    metadata = cover_lookup_metadata(source)
+    flac = FLAC(destination)
+    tag_names = {
+        "title": "TITLE",
+        "artist": "ARTIST",
+        "album_artist": "ALBUMARTIST",
+        "album": "ALBUM",
+        "date": "DATE",
+        "track": "TRACKNUMBER",
+    }
+    written: list[str] = []
+    for source_name, tag_name in tag_names.items():
+        value = str(metadata.get(source_name) or "").strip()
+        if value:
+            flac[tag_name] = [value]
+            written.append(tag_name.lower())
+    flac.save()
+    return written
+
+
+def convert_wav_to_flac(
+    wav_path: Path,
+    *,
+    use_color: bool,
+    key_reader=None,
+) -> list[str]:
+    """Create a FLAC from one WAV, enrich it conservatively, and verify it."""
+    if wav_path.suffix.lower() != ".wav":
+        raise RuntimeError("WAV conversion was requested for a non-WAV file")
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        raise RuntimeError("WAV-to-FLAC conversion requires ffmpeg in PATH")
+    destination = wav_path.with_suffix(".flac")
+    if destination.exists():
+        raise FileExistsError(
+            f"Refusing to overwrite existing FLAC: {destination.name}"
+        )
+    print(
+        console_safe_text(
+            f"            🎚️ Converting {wav_path.name} to {destination.name}:"
+        ),
+        flush=True,
+    )
+    result = subprocess.run(
+        [
+            str(ffmpeg), "-hide_banner", "-y", "-i", str(wav_path),
+            "-map_metadata", "0", "-c:a", "flac", str(destination),
+        ],
+        check=False,
+    )
+    if result.returncode or not destination.is_file() or destination.stat().st_size == 0:
+        raise RuntimeError("ffmpeg did not create a valid FLAC conversion")
+    actions = [f"converted_flac:{destination}"]
+    metadata = copy_discernible_metadata_to_flac(wav_path, destination)
+    if metadata:
+        actions.append("metadata:" + ",".join(metadata))
+    lyric_actions = embed_lyrics(destination, write=True)
+    actions.extend(lyric_actions)
+    front = front_art_candidate(destination)
+    if front is not None:
+        actions.extend(apply_art(destination, write=True))
+    else:
+        actions.extend(
+            find_cover_and_embed(
+                destination,
+                use_color=use_color,
+                interactive=True,
+                key_reader=key_reader,
+            )
+        )
+    if not FLAC(destination):
+        raise RuntimeError("Converted FLAC could not be re-opened for verification")
+    wav_backup = replacement_backup_path(wav_path)
+    wav_path.rename(wav_backup)
+    if wav_path.exists() or not wav_backup.is_file():
+        raise RuntimeError("Converted WAV could not be moved to its backup name")
+    actions.append(f"backup:{wav_backup}")
+    actions.append("re-audit:new_flac_passed")
+    return actions
+
+
+def review_extracted_art_sidecars(
+    actions: list[str],
+    *,
+    use_color: bool,
+    key_reader=None,
+    preview_renderer=None,
+    image_viewer=None,
+) -> bool:
+    """Preview each newly exported embedded-art sidecar before keeping it.
+
+    An export is not treated as a trustworthy folder asset merely because its
+    audio container called it Front/Back/etc.  The user sees the exact
+    extracted pixels and can keep or reject each newly written image.  A
+    rejection is renamed with the standard username suffix and recycled.
+    """
+    exported = [
+        Path(action.removeprefix("exported_art:"))
+        for action in actions
+        if action.startswith("exported_art:")
+    ]
+    all_approved = True
+    for sidecar in exported:
+        if not sidecar.is_file():
+            continue
+        cover_narration(
+            "🖼️",
+            f"Extracted embedded artwork sidecar: {sidecar.name}.",
+            use_color=use_color,
+            color=(95, 190, 225),
+        )
+        accepted = artwork_review_choice(
+            sidecar,
+            label=sidecar.name,
+            use_color=use_color,
+            key_reader=key_reader,
+            preview_renderer=preview_renderer,
+            image_viewer=image_viewer,
+            question_text=(
+                "Is this extracted embedded artwork sidecar "
+                f"({sidecar.name}) fine to keep?"
+            ),
+        )
+        if accepted:
+            actions.append(f"approved_extracted_art:{sidecar.name}")
+            cover_narration(
+                "✅",
+                f"Approved extracted artwork sidecar: {sidecar.name}.",
+                use_color=use_color,
+                color=(95, 245, 135),
+            )
+            continue
+        all_approved = False
+        rejected = rejected_artwork_path(sidecar)
+        sidecar.replace(rejected)
+        recycle_path(rejected)
+        actions.append(f"recycled_rejected_art:{rejected.name}")
+        cover_narration(
+            "♻️",
+            f"Rejected extracted artwork recycled: {rejected.name}.",
+            use_color=use_color,
+            color=(165, 165, 175),
+            dim=True,
+        )
+    return all_approved
+
+
 def render_text(data: dict[str, Any], max_examples: int) -> str:
     return render_console_report(data, max_examples, use_color=False)
 
 
 SUMMARY_CATEGORIES = {
-    "backup_file": ("Backup files kept", "backup"),
-    "json_sidecar": ("JSON sidecars kept", "JSON"),
-    "log_sidecar": ("Log sidecars kept", "log"),
-    "kept_user_marker": ("User marker/comment files kept", "marker"),
+    "backup_file": ("💾", "Backup files kept", "backup"),
+    "json_sidecar": ("🧾", "JSON sidecars kept", "JSON"),
+    "log_sidecar": ("📜", "Log sidecars kept", "log"),
+    "kept_user_marker": ("📌", "User marker/comment files kept", "marker"),
 }
 
 
@@ -5909,6 +7535,27 @@ def varied_filename_chunk(
 def music_filename(path: str, use_color: bool) -> str:
     """Render a filename with a one-cell note aligned under two-cell emoji."""
     return f" ♪ {varied_path(path, use_color)}"
+
+
+def middle_ellipsize(text: str, max_cells: int) -> str:
+    """Shorten a long one-line value in its middle while preserving both ends."""
+    value = str(text)
+    if max_cells <= 0:
+        return ""
+    if visible_cell_width(value) <= max_cells:
+        return value
+    if max_cells <= 3:
+        return "." * max_cells
+    available = max_cells - 1
+    left_cells = max(1, available * 2 // 5)
+    right_cells = max(1, available - left_cells)
+    left = value[:left_cells]
+    right = value[-right_cells:]
+    while visible_cell_width(left + "…" + right) > max_cells and right:
+        right = right[1:]
+    while visible_cell_width(left + "…" + right) > max_cells and left:
+        left = left[:-1]
+    return left + "…" + right
 
 
 def warning_finding_message(finding: dict[str, Any]) -> str:
@@ -6002,7 +7649,11 @@ def rename_preview_table(
     terminal_columns: int | None = None,
 ) -> list[str]:
     """Render a compact Before/After table that never targets viewport width."""
-    renames = finding.get("details", {}).get("renames", [])
+    renames = [
+        item
+        for item in finding.get("details", {}).get("renames", [])
+        if str(item.get("before", "")) != str(item.get("after", ""))
+    ]
     pairs = [
         (
             f" ♪ {Path(item['before']).name}",
@@ -6197,12 +7848,13 @@ def action_result_lines(
         if action.startswith("backup:")
     ]
     for backup in backups:
+        backup_name = Path(backup).name
         lines.append(
             rgb_text(
-                f"{indent}💾 Backup: {backup}",
-                190,
-                195,
-                205,
+                f"{indent}💾 Backup: {backup_name}",
+                145,
+                150,
+                160,
                 use_color,
                 dim=True,
             )
@@ -6291,12 +7943,6 @@ def embedded_lyrics_console_lines(
     if not embedded:
         return []
     refresh_mode = data.get("embedded_lyrics_mode") == "refresh"
-    flag = (
-        "--refresh-embedded-lyrics"
-        if refresh_mode
-        else "--embed-lyrics"
-    )
-    verb = "refreshed" if refresh_mode else "embedded"
     title = (
         "Lyrics/karaoke refreshed by --refresh-embedded-lyrics"
         if refresh_mode
@@ -6318,21 +7964,28 @@ def embedded_lyrics_console_lines(
             if not str(action).startswith("backup:")
         ]
         description = ", ".join(changed) or "available lyrics"
-        lines.append(
-            f"        🎤 {flag} {verb} {description}:"
-        )
+        lines.append("        🎤 Embedding lyrics & karaoke into file:")
         lines.append(
             f"            {music_filename(str(item['path']), use_color)}"
         )
+        lines.append(
+            colorize(
+                f"            🔧 Applied: {description}",
+                "green",
+                use_color,
+            )
+        )
         for action in item.get("actions", []):
             if str(action).startswith("backup:"):
-                backup = str(action).removeprefix("backup:")
+                backup = Path(
+                    str(action).removeprefix("backup:")
+                ).name
                 lines.append(
                     rgb_text(
                         f"            💾 Backup: {backup}",
-                        190,
-                        195,
-                        205,
+                        145,
+                        150,
+                        160,
                         use_color,
                         dim=True,
                     )
@@ -6405,11 +8058,23 @@ def found_cover_art_console_lines(
 def finding_target_lines(
     finding: dict[str, Any],
     use_color: bool,
+    root: Path | None = None,
+    terminal_columns: int | None = None,
 ) -> list[str]:
     """Render an audio target or an album-level grouped-rename target."""
     if finding["category"] in GROUPED_RENAME_CATEGORIES:
+        raw_folder = str(finding["path"])
+        if raw_folder == "." and root is not None:
+            raw_folder = str(root.resolve())
+        columns = terminal_columns or visible_console_size().columns
+        prefix = "📁 Album folder: "
+        folder_width = max(
+            12,
+            columns - 12 - visible_cell_width(prefix),
+        )
+        display_folder = middle_ellipsize(raw_folder, folder_width)
         return [
-            f"📁 Album folder: {varied_path(finding['path'], use_color)}",
+            f"{prefix}{varied_path(display_folder, use_color)}",
             *rename_preview_table(finding, use_color),
         ]
     return [music_filename(finding["path"], use_color)]
@@ -6492,6 +8157,34 @@ def interactive_results_summary(
     )
 
 
+def print_interactive_results(
+    result: dict[str, Any],
+    use_color: bool,
+) -> None:
+    """Print the main audit's interactive totals in the standard section style."""
+    if not result.get("decisions"):
+        return
+    results_header = "\n".join(
+        double_height_gradient_section(
+            "Interactive results",
+            use_color,
+            ((255, 135, 245), (175, 95, 240)),
+        )
+    )
+    print(
+        "\n"
+        + results_header
+        + "\n\n"
+        + interactive_results_summary(
+            len(result["applied_codes"]),
+            len(result["skipped_codes"]),
+            len(result["failed_codes"]),
+            use_color,
+        )
+        + "\n"
+    )
+
+
 def double_height_report_line(text: str, use_color: bool, red: int, green: int, blue: int) -> list[str]:
     if not text.startswith(("✨", "✱", "*")):
         text = f"✨✱✨ {text}"
@@ -6559,14 +8252,17 @@ def double_height_labeled_path(
     columns = terminal_columns or visible_console_size().columns
     double_height_capacity = max(20, (columns - 10) // 2)
     first_prefix = f"{decorated_label} "
-    continuation_prefix = "    "
+    continuation_prefix = " " * visible_cell_width(first_prefix)
     chunks: list[tuple[str, str]] = []
     remaining = path
     prefix = first_prefix
     while remaining:
-        available = max(1, double_height_capacity - len(prefix))
+        available = max(
+            1,
+            double_height_capacity - visible_cell_width(prefix),
+        )
         chunks.append((prefix, remaining[:available]))
-        remaining = remaining[available:]
+        remaining = remaining[available:].lstrip()
         prefix = continuation_prefix
     if not chunks:
         chunks.append((first_prefix, ""))
@@ -6782,13 +8478,27 @@ def approval_question(finding: dict[str, Any]) -> str:
             "image part, and embed only an approved Front cover now?"
         )
     if category == "redundant_album_artist_filename_group":
-        count = len(finding.get("details", {}).get("renames", []))
+        count = len(
+            [
+                item
+                for item in finding.get("details", {}).get("renames", [])
+                if str(item.get("before", ""))
+                != str(item.get("after", ""))
+            ]
+        )
         return (
             f"Rename these {count} album files to remove the redundant "
             "artist name now?"
         )
     if category == "filename_title_capitalization_group":
-        count = len(finding.get("details", {}).get("renames", []))
+        count = len(
+            [
+                item
+                for item in finding.get("details", {}).get("renames", [])
+                if str(item.get("before", ""))
+                != str(item.get("after", ""))
+            ]
+        )
         return (
             f"Rename these {count} album files to normalize track separators "
             "and song-title capitalization now?"
@@ -6799,6 +8509,42 @@ def approval_question(finding: dict[str, Any]) -> str:
         raise ValueError(
             f"No concrete interactive question is defined for {category}"
         ) from exc
+
+
+def preview_existing_front_sidecar(
+    root: Path,
+    finding: dict[str, Any],
+    *,
+    use_color: bool,
+    preview_renderer=None,
+) -> Path | None:
+    """Render a confirmed local Front sidecar immediately before its prompt."""
+    if finding.get("category") != "missing_embedded_art":
+        return None
+    sidecars = finding.get("details", {}).get("sidecars", [])
+    if not sidecars:
+        return None
+    candidate = safe_finding_path(root, {"path": str(sidecars[0])})
+    if not candidate.is_file():
+        return None
+    renderer = preview_renderer or render_artwork_preview
+    try:
+        mode = renderer(candidate, use_color=use_color)
+        cover_narration(
+            "👁️",
+            f"Existing front-cover sidecar preview rendered with {mode}: "
+            f"{candidate.name}.",
+            use_color=use_color,
+            color=(115, 105, 155),
+            dim=True,
+        )
+    except Exception as exc:
+        print_formatted_error(
+            f"Could not preview {candidate.name}: "
+            f"{type(exc).__name__}: {exc}",
+            use_color,
+        )
+    return candidate
 
 
 def render_console_report(
@@ -6856,19 +8602,29 @@ def render_console_report(
     visible_counts = Counter(finding["severity"] for finding in visible)
     kept_count = len(summarized)
     severity_rows = [
-        ("Problems", visible_counts.get("problem", 0), "Must be fixed or investigated.", (255, 100, 105)),
-        ("Fixes ready", visible_counts.get("safe_fix", 0), "Concrete repairs that can be applied.", (120, 225, 140)),
-        ("Cleanup candidates", visible_counts.get("safe_cleanup", 0), "Removable items, applied only after approval.", (255, 195, 90)),
-        ("Review needed", visible_counts.get("ask_first", 0), "Needs information or human judgment.", (230, 145, 245)),
-        ("Kept files", kept_count, "Recognized support/history files being kept.", (120, 190, 245)),
-        ("Information", visible_counts.get("info", 0), "Context only; no action normally required.", (155, 175, 195)),
+        ("🚨", "Problems", visible_counts.get("problem", 0), "Must be fixed or investigated.", (255, 100, 105)),
+        ("🔧", "Fixes ready", visible_counts.get("safe_fix", 0), "Concrete repairs that can be applied.", (120, 225, 140)),
+        ("🧹", "Cleanup candidates", visible_counts.get("safe_cleanup", 0), "Removable items, applied only after approval.", (255, 195, 90)),
+        ("⚠️", "Review needed", visible_counts.get("ask_first", 0), "Needs information or human judgment.", (230, 145, 245)),
+        ("💾", "Kept files", kept_count, "Recognized support/history files being kept.", (120, 190, 245)),
+        ("ℹ️", "Information", visible_counts.get("info", 0), "Context only; no action normally required.", (155, 175, 195)),
     ]
     lines.extend(double_height_traffic_section("Findings by severity", use_color))
     lines.append("")
-    for label, number, explanation, color in severity_rows:
-        colored_number = rgb_text(str(number), *color, use_color)
+    severity_label_width = max(len(row[1]) for row in severity_rows)
+    severity_count_width = max(len(str(row[2])) for row in severity_rows)
+    for emoji, label, number, explanation, color in severity_rows:
+        colored_number = rgb_text(
+            str(number).rjust(severity_count_width),
+            *color,
+            use_color,
+        )
         colored_label = rgb_text(label, *color, use_color)
-        lines.append(f"        {colored_label}: {colored_number} — {explanation}")
+        label_padding = " " * (severity_label_width - len(label))
+        lines.append(
+            f"        {emoji} {label_padding}{colored_label}: "
+            f"{colored_number} — {explanation}"
+        )
 
     summary_counts = Counter(finding["category"] for finding in summarized)
     if summary_counts:
@@ -6884,7 +8640,7 @@ def render_console_report(
         count_width = max(
             len(str(number)) for number in summary_counts.values() if number
         )
-        for category, (label, _noun) in SUMMARY_CATEGORIES.items():
+        for category, (emoji, label, _noun) in SUMMARY_CATEGORIES.items():
             number = summary_counts.get(category, 0)
             if number:
                 colored_number = rgb_text(
@@ -6902,7 +8658,7 @@ def render_console_report(
                         if use_color
                         else "Log sidecars kept"
                     )
-                lines.append(f"        {colored_number} {label}.")
+                lines.append(f"        {emoji} {colored_number} {label}.")
 
     coded = [
         finding
@@ -6923,7 +8679,11 @@ def render_console_report(
             lines.append(f"        {approval_action_line(finding, use_color)}")
             lines.extend(
                 f"            {line}"
-                for line in finding_target_lines(finding, use_color)
+                for line in finding_target_lines(
+                    finding,
+                    use_color,
+                    root=Path(str(resolved_root)),
+                )
             )
             lines.extend(
                 f"            {line}"
@@ -6990,7 +8750,11 @@ def render_console_report(
             lines.append(f"        {label} — {warning_finding_message(finding)}")
             lines.extend(
                 f"            {line}"
-                for line in finding_target_lines(finding, use_color)
+                for line in finding_target_lines(
+                    finding,
+                    use_color,
+                    root=Path(str(resolved_root)),
+                )
             )
             lines.extend(
                 f"            {line}"
@@ -7126,12 +8890,12 @@ def render_usage(use_color: bool = True) -> str:
             use_color,
         ),
         "",
-        "  * complete MusicBrainz/Cover Art Archive artwork-set discovery, with",
+        "  * Bandcamp plus MusicBrainz/Cover Art Archive artwork discovery, with",
         "    every supplied part saved but only one approved Front image embedded",
         "  * full-console Chafa, Sixel, or ANSI artwork previews that automatically",
         "    re-render after a live window/font-size change; V opens the original",
         "  * full-width diagnostic waveform review with parallel background pre-rendering,",
-        "    live resize, problem marking, image viewing, editing, and optional rename",
+        "    persistent fine approvals, live resize, problem marking, editing, and rename",
         "  * a default-No end-of-audit offer to begin waveform review immediately",
         "  * default detection of excessive leading, internal, or trailing silence",
         "  * comment-filtered plain/timed lyric embedding plus newer-sidecar refresh",
@@ -7196,10 +8960,11 @@ def render_usage(use_color: bool = True) -> str:
         f"  {command('--review-waveforms')}  "
         f"{command('--no-review-waveforms')}  "
         f"{command('--waveform-workers')} {example('NUMBER')}  "
-        f"{default_badge(False)}  {default_value_badge('2 workers')}",
+        f"{default_badge(False)}  {default_value_badge('8 workers')}",
         note(
             "  ^ Run waveform review directly, suppress its normal end-of-audit "
-            "offer, or choose 1-8 pre-render workers."
+            "offer, or choose 1-8 pre-render workers; display-ready previews "
+            "are prepared ahead in a bounded cache."
         ),
         "",
         f"  {command('--configure-defaults')}  {command('--show-defaults')}  "
@@ -7311,7 +9076,12 @@ def approval_prompt(
     )
 
 
-def urgent_prompt_text(text: str, use_color: bool) -> str:
+def urgent_prompt_text(
+    text: str,
+    use_color: bool,
+    *,
+    faint_italic_spans: tuple[str, ...] = (),
+) -> str:
     """Style a question-led prompt urgently while italicizing its key nouns."""
     if not use_color:
         return f"❓ {text}"
@@ -7321,14 +9091,33 @@ def urgent_prompt_text(text: str, use_color: bool) -> str:
         re.escape(phrase)
         for phrase in sorted(PROMPT_NOUN_PHRASES, key=len, reverse=True)
     ]
+    faint_alternatives = [
+        re.escape(span)
+        for span in sorted(
+            (span for span in faint_italic_spans if span),
+            key=len,
+            reverse=True,
+        )
+    ]
     pattern = re.compile(
-        "(" + "|".join(noun_alternatives + [r"\([^()]+\.(?:jpe?g|png|webp|gif)\)"]) + ")",
+        "("
+        + "|".join(
+            faint_alternatives
+            + noun_alternatives
+            + [r"\([^()]+\.(?:jpe?g|png|webp|gif)\)"]
+        )
+        + ")",
         flags=re.IGNORECASE,
     )
     pieces = pattern.split(text)
     styled: list[str] = [base, "❓ "]
     for piece in pieces:
-        if re.fullmatch(
+        if any(
+            piece.casefold() == span.casefold()
+            for span in faint_italic_spans
+        ):
+            styled.extend((varied_path(piece, use_color), base))
+        elif re.fullmatch(
             r"\([^()]+\.(?:jpe?g|png|webp|gif)\)",
             piece,
             flags=re.IGNORECASE,
@@ -7443,6 +9232,7 @@ def prompt_for_approval(
     use_color: bool,
     key_reader=None,
     indent: str = "",
+    erase_on_no: bool = False,
 ) -> bool:
     reader = key_reader or read_single_key
     steady_prompt = approval_prompt(question, default_yes, use_color, indent)
@@ -7452,7 +9242,7 @@ def prompt_for_approval(
     waiting_prompt = blinking_approval_prompt(
         steady_prompt, use_color and interactive_terminal
     )
-    print(waiting_prompt, end="", flush=True)
+    print(console_safe_text(waiting_prompt), end="", flush=True)
     while True:
         key = reader()
         if key == "\x03":
@@ -7462,12 +9252,15 @@ def prompt_for_approval(
         if key in {"\r", "\n"}:
             if interactive_terminal:
                 erase_wrapped_console_text(steady_prompt)
-                print(
-                    f"{settled_approval_prompt(question, default_yes, use_color, indent)}"
-                    f"{ANSI['erase_to_eol']}"
-                )
+                if default_yes or not erase_on_no:
+                    print(
+                        console_safe_text(
+                            f"{settled_approval_prompt(question, default_yes, use_color, indent)}"
+                            f"{ANSI['erase_to_eol']}"
+                        )
+                    )
             else:
-                print(approval_answer(default_yes, use_color))
+                print(console_safe_text(approval_answer(default_yes, use_color)))
             reset_console_pager_after_user_input()
             return default_yes
         lowered = key.lower()
@@ -7475,12 +9268,15 @@ def prompt_for_approval(
             answer_yes = lowered == "y"
             if interactive_terminal:
                 erase_wrapped_console_text(steady_prompt)
-                print(
-                    f"{settled_approval_prompt(question, answer_yes, use_color, indent)}"
-                    f"{ANSI['erase_to_eol']}"
-                )
+                if answer_yes or not erase_on_no:
+                    print(
+                        console_safe_text(
+                            f"{settled_approval_prompt(question, answer_yes, use_color, indent)}"
+                            f"{ANSI['erase_to_eol']}"
+                        )
+                    )
             else:
-                print(approval_answer(answer_yes, use_color))
+                print(console_safe_text(approval_answer(answer_yes, use_color)))
             reset_console_pager_after_user_input()
             return answer_yes
         invalid_key_beep()
@@ -7715,9 +9511,10 @@ def action_scope_prompt(
     indent: str = "",
 ) -> str:
     """Build the urgent repeatable-action prompt."""
-    return (
-        f"{indent}{urgent_prompt_text(question, use_color)} "
-        f"{action_scope_options(default_yes, use_color)} "
+    return prompt_with_option_legend(
+        urgent_prompt_text(question, use_color),
+        action_scope_options(default_yes, use_color),
+        indent=indent,
     )
 
 
@@ -7845,6 +9642,13 @@ def prompt_for_album_tag(
     input_reader=None,
 ) -> list[str]:
     target = safe_finding_path(root, finding)
+    folder_prefix = "            📁 Folder: "
+    folder_width = max(
+        12,
+        visible_console_size().columns - visible_cell_width(folder_prefix),
+    )
+    folder_text = middle_ellipsize(str(target.parent), folder_width)
+    print(f"{folder_prefix}{varied_path(folder_text, use_color)}")
     print(f"            {music_filename(finding['path'], use_color)}")
     prompt = (
         "            "
@@ -8035,6 +9839,13 @@ def apply_finding(
         recycled = recycle_path(target)
         return [f"recycled:{recycled}"]
 
+    if category == "wav_remaining":
+        return convert_wav_to_flac(
+            target,
+            use_color=use_color,
+            key_reader=key_reader,
+        )
+
     if category in {"archive_missing_attrib", "archive_incomplete_attrib"}:
         attrib = target / "attrib.lst" if target.is_dir() else target
         existing = read_text(attrib) if attrib.exists() else ""
@@ -8079,6 +9890,9 @@ def apply_finding(
                 f"{sidecar}"
             )
         return actions
+
+    if category == "newer_lrc_needs_srt_backfill":
+        return backfill_srt_from_lrc(target)
 
     if category == "missing_replaygain":
         return apply_argt_replaygain_folder(
@@ -8296,6 +10110,7 @@ def interactive_apply(
     use_color: bool,
     key_reader=None,
     input_reader=None,
+    artwork_preview_renderer=None,
 ) -> dict[str, Any]:
     coded = [f for f in data["findings"] if f.get("code")]
     applied: list[str] = []
@@ -8318,6 +10133,7 @@ def interactive_apply(
             lyric_action
             or finding["category"] == "missing_replaygain"
             or finding["category"] == "missing_embedded_art"
+            or finding["category"] == "newer_lrc_needs_srt_backfill"
             or finding["category"] in GROUPED_RENAME_CATEGORIES
         )
         if (
@@ -8386,7 +10202,11 @@ def interactive_apply(
                 failed.append(finding["code"])
                 print(colorize(f"            FAILED: {error}", "red", use_color))
         else:
-            for line in finding_target_lines(finding, use_color):
+            for line in finding_target_lines(
+                finding,
+                use_color,
+                root=root,
+            ):
                 print(f"            {line}")
             for line in finding_sidecar_lines(finding, use_color):
                 print(f"            {line}")
@@ -8409,6 +10229,12 @@ def interactive_apply(
             if choice is None and folder_key in remembered_folder_approvals:
                 choice = "folder"
             if choice is None:
+                preview_existing_front_sidecar(
+                    root,
+                    finding,
+                    use_color=use_color,
+                    preview_renderer=artwork_preview_renderer,
+                )
                 choice = prompt_for_action_scope(
                     question,
                     default_yes,
@@ -8448,6 +10274,17 @@ def interactive_apply(
                         use_color=use_color,
                         key_reader=key_reader,
                     )
+                    extracted_art_approved = True
+                    if finding["category"] in {
+                        "embedded_art_without_sidecar",
+                        "multiple_embedded_artworks",
+                    }:
+                        extracted_art_approved = review_extracted_art_sidecars(
+                            actions,
+                            use_color=use_color,
+                            key_reader=key_reader,
+                            preview_renderer=artwork_preview_renderer,
+                        )
                     if finding["category"] == "filename_marker_style":
                         old_path = finding["path"]
                         new_name = str(
@@ -8470,7 +10307,7 @@ def interactive_apply(
                                 pending["path"],
                                 pending["path"],
                             )
-                    if reaudit_action:
+                    if reaudit_action and extracted_art_approved:
                         reaudited_categories = audit_categories_by_path(root)
                         current = reaudited_categories.get(
                             finding["path"], set()
@@ -8514,7 +10351,7 @@ def interactive_apply(
     }
 
 
-def run_unit_tests() -> int:
+def run_unit_tests(use_color: bool = True) -> int:
     """Run self-contained generated-audio tests without touching a music batch."""
     global read_single_key
     import ast
@@ -8530,7 +10367,6 @@ def run_unit_tests() -> int:
     import traceback
     import unittest
     import wave
-    from send2trash import send2trash
     from unittest import mock
 
     lyric_findings = {
@@ -8655,6 +10491,45 @@ def run_unit_tests() -> int:
         recycle_path(wav_path)
         return flac_path
 
+    def make_stereo_peak_flac(
+        folder: Path,
+        stem: str,
+        left_peak: float,
+        right_peak: float,
+    ) -> Path:
+        """Create stereo generated audio with independently known peaks."""
+        encoder = shutil.which("flac")
+        if not encoder:
+            raise unittest.SkipTest("The flac encoder is required")
+        sample_rate = 8000
+        wav_path = folder / f"{stem}.wav"
+        flac_path = folder / f"{stem}.flac"
+        left = round(32767 * max(-1.0, min(1.0, left_peak)))
+        right = round(32767 * max(-1.0, min(1.0, right_peak)))
+        frame = (
+            int(left).to_bytes(2, byteorder="little", signed=True)
+            + int(right).to_bytes(2, byteorder="little", signed=True)
+        )
+        with wave.open(str(wav_path), "wb") as output:
+            output.setnchannels(2)
+            output.setsampwidth(2)
+            output.setframerate(sample_rate)
+            output.writeframes(frame * sample_rate)
+        subprocess.run(
+            [
+                encoder,
+                "--silent",
+                "--force",
+                "--output-name",
+                str(flac_path),
+                str(wav_path),
+            ],
+            check=True,
+            capture_output=True,
+        )
+        recycle_path(wav_path)
+        return flac_path
+
     def finding_categories(report: dict[str, Any]) -> set[str]:
         return {item["category"] for item in report["findings"]}
 
@@ -8733,7 +10608,7 @@ def run_unit_tests() -> int:
         @classmethod
         def tearDownClass(cls) -> None:
             if cls.album_test_root.exists():
-                send2trash(str(cls.album_test_root))
+                recycle_path(cls.album_test_root)
 
         def test_embeds_plain_and_timed_lyrics_and_passes_audit(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -8787,11 +10662,18 @@ def run_unit_tests() -> int:
                     console,
                 )
                 self.assertIn(
-                    "🎤 --embed-lyrics embedded plain lyrics, timed karaoke:",
+                    "🎤 Embedding lyrics & karaoke into file:",
+                    console,
+                )
+                self.assertIn(
+                    "🔧 Applied: plain lyrics, timed karaoke",
                     console,
                 )
                 self.assertIn(" ♪ 01 Test Song.flac", console)
                 self.assertIn("💾 Backup:", console)
+                self.assertNotIn(str(root), next(
+                    line for line in console.splitlines() if "💾 Backup:" in line
+                ))
                 self.assertIn("✔️ Re-audited in this audit pass.", console)
                 markdown = render_markdown(report, max_examples=0)
                 self.assertIn(
@@ -8955,6 +10837,75 @@ def run_unit_tests() -> int:
                         ),
                     )
 
+        def test_newer_manual_lrc_is_backfilled_with_lrc2srt_only(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio_path = make_silent_flac(root, "LRC Backfill")
+                lrc = audio_path.with_suffix(".lrc")
+                srt = audio_path.with_suffix(".srt")
+                audio_path.with_suffix(".txt").write_text(
+                    "Edited lyric\n", encoding="utf-8"
+                )
+                srt.write_text(
+                    "1\n00:00:00,000 --> 00:00:02,000\nOriginal lyric\n",
+                    encoding="utf-8",
+                )
+                lrc.write_text("[00:00.00]Edited lyric\n", encoding="utf-8")
+                os.utime(srt, (10, 10))
+                os.utime(lrc, (20, 20))
+                report = BatchAudit(root).audit()
+                finding = next(
+                    item for item in report["findings"]
+                    if item["category"] == "newer_lrc_needs_srt_backfill"
+                )
+                self.assertEqual(
+                    "Regenerate this older SRT from the newer MiniLyrics LRC now?",
+                    approval_question(finding),
+                )
+                module = sys.modules[__name__]
+                tool = root / "lrc2srt.py"
+                tool.write_text("# test tool\n", encoding="utf-8")
+
+                def rewrite_srt(*_args, **_kwargs):
+                    srt.write_text(
+                        "NOTE claire-sawyer-lrc2srt-converter-marker: generated-from-lrc\n\n"
+                        "1\n00:00:00,000 --> 00:00:02,000\nEdited lyric\n",
+                        encoding="utf-8",
+                    )
+                    os.utime(srt, (30, 30))
+                    return mock.Mock(returncode=0)
+
+                with mock.patch.object(
+                    module,
+                    "lrc2srt_executable",
+                    return_value=tool,
+                ), mock.patch.object(
+                    subprocess,
+                    "run",
+                    side_effect=rewrite_srt,
+                ) as run, contextlib.redirect_stdout(io.StringIO()):
+                    actions = apply_finding(root, finding, use_color=False)
+                self.assertIn(f"backfilled_srt:{srt}", actions)
+                self.assertIn("--automatic-overwrites", run.call_args.args[0])
+                self.assertNotIn(
+                    "newer_lrc_needs_srt_backfill",
+                    finding_categories(BatchAudit(root).audit()),
+                )
+
+                # A newer LRC that merely came from this SRT is deliberately
+                # ignored; it is not a MiniLyrics edit to propagate backward.
+                srt.write_text(
+                    "1\n00:00:00,000 --> 00:00:02,000\nDerived lyric\n",
+                    encoding="utf-8",
+                )
+                lrc.write_text("[00:00.00]Derived lyric\n", encoding="utf-8")
+                os.utime(srt, (40, 40))
+                os.utime(lrc, (50, 50))
+                self.assertNotIn(
+                    "newer_lrc_needs_srt_backfill",
+                    finding_categories(BatchAudit(root).audit()),
+                )
+
         def test_refresh_embedded_lyrics_forces_plain_and_karaoke_together(
             self,
         ) -> None:
@@ -9011,8 +10962,11 @@ def run_unit_tests() -> int:
                     console,
                 )
                 self.assertIn(
-                    "--refresh-embedded-lyrics refreshed "
-                    "plain lyrics, timed karaoke",
+                    "🎤 Embedding lyrics & karaoke into file:",
+                    console,
+                )
+                self.assertIn(
+                    "🔧 Applied: plain lyrics, timed karaoke",
                     console,
                 )
                 markdown = render_markdown(report, max_examples=0)
@@ -9079,6 +11033,20 @@ def run_unit_tests() -> int:
                 remaining = FLAC(audio_path).pictures
                 self.assertEqual(1, len(remaining))
                 self.assertEqual(3, remaining[0].type)
+
+                misc_audio = make_silent_flac(root, "Ghosts (2023)")
+                misc_tagged = FLAC(misc_audio)
+                misc_picture = Picture()
+                misc_picture.type = 3
+                misc_picture.mime = "image/jpeg"
+                misc_picture.data = b"\xff\xd8\xffmisc"
+                misc_tagged.add_picture(misc_picture)
+                misc_tagged.save()
+                misc_exports = export_art_sidecars(misc_audio, write=True)
+                self.assertEqual(
+                    [str(root / "Ghosts (2023).jpg")],
+                    misc_exports,
+                )
 
         def test_exact_musicbrainz_cover_saves_all_parts_and_embeds_only_front(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -9187,7 +11155,7 @@ def run_unit_tests() -> int:
                 )
                 self.assertEqual(
                     [
-                        "🎨 Finding cover art · MusicBrainz",
+                        "🎨 Finding cover art",
                         "⬇️ Downloading cover artwork",
                     ],
                     [call["description"] for call in progress_calls],
@@ -9231,6 +11199,50 @@ def run_unit_tests() -> int:
                         album_scope=True,
                     )[0][1],
                 )
+
+        def test_bandcamp_cover_search_uses_original_front_art(self) -> None:
+            metadata = {
+                "artist": "Test Artist",
+                "album_artist": "Test Artist",
+                "album": "Test Album",
+                "date": "2024",
+            }
+            requested: list[str] = []
+
+            def fake_text(url: str) -> str:
+                requested.append(url)
+                if "bandcamp.com/search?" in url:
+                    return """
+                    <li class="searchresult album">
+                      <div class="heading">
+                        <a href="https://testartist.bandcamp.com/album/test-album">
+                          Test Album
+                        </a>
+                      </div>
+                      <div class="subhead">album by Test Artist</div>
+                    </li>
+                    """
+                return """
+                <meta content="Test Album, by Test Artist" name="title">
+                <meta property="og:image"
+                      content="https://f4.bcbits.com/img/a1234567890_16.jpg">
+                """
+
+            match = bandcamp_cover_match(metadata, fake_text)
+            self.assertIsNotNone(match)
+            assert match is not None
+            self.assertEqual("Bandcamp", match.source)
+            self.assertEqual("Test Artist", match.artist)
+            self.assertEqual("Test Album", match.album)
+            self.assertGreaterEqual(match.confidence, 94)
+            self.assertEqual(2, len(requested))
+            self.assertIn("Test+Artist+Test+Album", requested[0])
+            self.assertEqual(1, len(match.artworks))
+            self.assertTrue(match.artworks[0].front)
+            self.assertEqual(
+                "https://f4.bcbits.com/img/a1234567890_0.jpg",
+                match.artworks[0].url,
+            )
 
         def test_cover_tls_uses_verified_context_and_archive_fallback(self) -> None:
             release_id = "fc3ceb20-88ad-491f-b8df-1a2fc4f07845"
@@ -9607,6 +11619,45 @@ def run_unit_tests() -> int:
                 self.assertIn("Opened cover.jpg in i_view32.exe", narration)
                 self.assertIn("Yes!", narration)
 
+        def test_extracted_artwork_is_previewed_and_can_be_rejected(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                cover = root / "cover.jpg"
+                back = root / "back.jpg"
+                cover.write_bytes(make_test_jpeg())
+                back.write_bytes(make_test_jpeg())
+                actions = [
+                    f"exported_art:{cover}",
+                    f"exported_art:{back}",
+                ]
+                previews: list[Path] = []
+                recycled: list[Path] = []
+                module = sys.modules[__name__]
+                with mock.patch.object(
+                    module,
+                    "recycle_path",
+                    side_effect=lambda path: recycled.append(path) or path,
+                ), contextlib.redirect_stdout(io.StringIO()):
+                    approved = review_extracted_art_sidecars(
+                        actions,
+                        use_color=False,
+                        key_reader=iter(("y", "n")).__next__,
+                        preview_renderer=lambda path, *, use_color: (
+                            previews.append(path) or "mock Sixel"
+                        ),
+                    )
+                self.assertFalse(approved)
+                self.assertEqual([cover, back], previews)
+                self.assertIn("approved_extracted_art:cover.jpg", actions)
+                self.assertIn(
+                    "recycled_rejected_art:back.rejected-by-username.jpg",
+                    actions,
+                )
+                self.assertEqual(
+                    [root / "back.rejected-by-username.jpg"],
+                    recycled,
+                )
+
         def test_cover_review_refreshes_at_the_live_console_size(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 image_path = Path(temp) / "cover.jpg"
@@ -9821,7 +11872,7 @@ def run_unit_tests() -> int:
             ), mock.patch.object(
                 module,
                 "terminal_supports_sixel",
-                return_value=False,
+                return_value=True,
             ), mock.patch.object(
                 module,
                 "visible_console_size",
@@ -9832,15 +11883,20 @@ def run_unit_tests() -> int:
                 return_value=completed,
             ) as run, contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(
-                    "Chafa ANSI symbols",
+                    "Chafa Sixel",
                     render_artwork_preview(
                         Path(r"C:\Music\cover.jpg"),
                         use_color=True,
                     ),
                 )
             chafa_command = run.call_args.args[0]
-            self.assertIn("--size=146x43", chafa_command)
-            self.assertIn("--scale=max", chafa_command)
+            self.assertIn("--format=sixels", chafa_command)
+            self.assertIn("--fit-width", chafa_command)
+            self.assertIn("--colors=full", chafa_command)
+            self.assertIn("--view-size=306.6x90.3", chafa_command)
+            self.assertIn("--optimize=9", chafa_command)
+            self.assertIn("--work=9", chafa_command)
+            self.assertIn("--color-space=din99d", chafa_command)
 
         def test_builtin_ansi_and_sixel_previews_need_no_chafa(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -10043,8 +12099,8 @@ def run_unit_tests() -> int:
                     interactive_output.getvalue(),
                 )
                 self.assertIn(
-                    "\n            ❓ Embed the plain lyrics into this audio file now? "
-                    "[Y=Yes / n=No / A=Always / V=Never / "
+                    "\n            ❓ Embed the plain lyrics into this audio file now?\n"
+                    "               [Y=Yes / n=No / A=Always / V=Never / "
                     "F=Just Do For This Folder] Yes!",
                     interactive_output.getvalue(),
                 )
@@ -10083,10 +12139,11 @@ def run_unit_tests() -> int:
                     )
                 )
                 self.assertIn(
-                    "\033[2m\033[38;2;190;195;205m"
+                    "\033[2m\033[38;2;145;150;160m"
                     "            💾 Backup:",
                     colored_results,
                 )
+                self.assertNotIn(r"C:\Music", colored_results)
                 self.assertFalse(result["failed_codes"], result)
                 self.assertTrue(
                     any(
@@ -10133,7 +12190,25 @@ def run_unit_tests() -> int:
             self.assertEqual("", spaced_unit(""))
             self.assertIn("{n:,.0f} files found", ENUMERATION_PROGRESS_FORMAT)
             self.assertIn("{rate_fmt}", ENUMERATION_PROGRESS_FORMAT)
-            self.assertIn("{n:,.0f}/{total:,.0f} checks", AUDIT_PROGRESS_FORMAT)
+            self.assertIn("{n:,.0f}/{total:,.0f}", AUDIT_PROGRESS_FORMAT)
+            self.assertNotIn("checks", AUDIT_PROGRESS_FORMAT)
+            self.assertNotIn("rate_fmt", AUDIT_PROGRESS_FORMAT)
+            compact = compact_progress_filename(
+                Path("09_Bad Cop - The Very Long Song Title.mp3")
+            )
+            self.assertEqual(16, len(compact))
+            self.assertIn("…", compact)
+            audit = BatchAudit(Path("."))
+            fake_progress = mock.Mock()
+            fake_progress.format_dict = {"elapsed": 10.0, "n": 12.0}
+            fake_progress.initial = 0.0
+            audit.progress = fake_progress
+            audit.progress_show_audio(
+                Path("09_Bad Cop - The Very Long Song Title.mp3")
+            )
+            postfix = fake_progress.set_postfix_str.call_args.args[0]
+            self.assertTrue(postfix.startswith("1.20/sec • "))
+            self.assertLessEqual(len(postfix.rsplit(" • ", 1)[1]), 16)
             with progress_bar(
                 total=None,
                 description="test",
@@ -10153,6 +12228,33 @@ def run_unit_tests() -> int:
                 audit.collect_files(on_file=discovered_counts.append)
                 self.assertEqual([1, 2, 3], discovered_counts)
                 self.assertEqual(3, len(audit.files))
+
+        def test_small_interactive_audit_starts_progress_immediately(self) -> None:
+            class TTYBuffer(io.StringIO):
+                def isatty(self) -> bool:
+                    return True
+
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                root.joinpath("one.txt").write_text("1", encoding="utf-8")
+                progress = mock.MagicMock()
+                module = sys.modules[__name__]
+                with mock.patch.object(
+                    module.sys,
+                    "stderr",
+                    TTYBuffer(),
+                ), mock.patch.object(
+                    module,
+                    "progress_bar",
+                    return_value=contextlib.nullcontext(progress),
+                ) as progress_factory:
+                    BatchAudit(root).audit()
+                progress_factory.assert_called_once()
+                options = progress_factory.call_args.kwargs
+                self.assertIsNone(options["total"])
+                self.assertEqual("🔎 Finding files", options["description"])
+                self.assertTrue(options["enabled"])
+                progress.update.assert_any_call(1)
 
         def test_excessive_silence_has_positive_and_negative_controls(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -10196,43 +12298,219 @@ def run_unit_tests() -> int:
                     findings[0]["details"]["threshold_seconds"],
                 )
 
+        def test_silence_analysis_starts_early_and_runs_concurrently(self) -> None:
+            module = sys.modules[__name__]
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                for index in range(4):
+                    (root / f"Track {index} [instrumental].flac").write_bytes(
+                        b"fixture"
+                    )
+                active = 0
+                maximum_active = 0
+                lock = threading.Lock()
+                two_started = threading.Event()
+                release = threading.Event()
+
+                def fake_detect(*_args, **_kwargs):
+                    nonlocal active, maximum_active
+                    with lock:
+                        active += 1
+                        maximum_active = max(maximum_active, active)
+                        if active >= 2:
+                            two_started.set()
+                    release.wait(timeout=2.0)
+                    with lock:
+                        active -= 1
+                    return []
+
+                audit = BatchAudit(root, check_silence=True)
+
+                def verify_background_started() -> None:
+                    self.assertTrue(
+                        two_started.wait(timeout=1.0),
+                        "silence workers did not start during file collection",
+                    )
+                    release.set()
+
+                audit.audit_filesystem = mock.Mock(
+                    side_effect=verify_background_started
+                )
+                audit.audit_duplicates_and_archives = mock.Mock()
+                audit.audit_audio_tags = mock.Mock()
+                with mock.patch.object(
+                    module.shutil,
+                    "which",
+                    return_value=r"C:\util\ffmpeg.exe",
+                ), mock.patch.object(
+                    module,
+                    "detect_silence_intervals",
+                    side_effect=fake_detect,
+                ):
+                    audit.audit()
+                self.assertGreaterEqual(maximum_active, 2)
+
         def test_waveform_jpeg_generation_is_verified(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
-                audio = make_silent_flac(
+                audio = make_stereo_peak_flac(
                     root,
                     "Waveform Fixture [instrumental]",
-                    channels=2,
+                    0.50,
+                    0.25,
                 )
                 staged = root / "staged.waveform.jpg"
-                waveform, backup = generate_waveform_jpeg(
+                waveform, backup, generated_metrics = generate_waveform_jpeg(
                     audio,
                     destination=staged,
                     narrate=False,
                 )
                 self.assertEqual(staged, waveform)
                 self.assertIsNone(backup)
+                self.assertAlmostEqual(
+                    50.0,
+                    generated_metrics.peak_volume_percentage,
+                    places=1,
+                )
                 self.assertEqual("image/jpeg", image_mime(waveform))
                 with Image.open(waveform) as preview:
-                    self.assertEqual((1800, 700), preview.size)
-                    border_pixel = preview.convert("RGB").getpixel((1, 1))
+                    self.assertEqual(
+                        (WAVEFORM_JPEG_WIDTH, WAVEFORM_JPEG_HEIGHT),
+                        preview.size,
+                    )
+                    preview_rgb = preview.convert("RGB")
+                    unboxed_gutter_pixel = preview_rgb.getpixel(
+                        (preview.width - 2, 1)
+                    )
+                    self.assertLess(sum(unboxed_gutter_pixel), 50)
+                    plot_border_pixel = preview_rgb.getpixel(
+                        (WAVEFORM_PLOT_WIDTH - 3, 1)
+                    )
                     self.assertLess(
-                        max(border_pixel) - min(border_pixel),
-                        20,
+                        max(plot_border_pixel) - min(plot_border_pixel),
+                        80,
                     )
-                    self.assertGreater(sum(border_pixel), 120)
-                    center_pixel = preview.convert("RGB").getpixel(
-                        (preview.width // 2, preview.height // 2)
+                    self.assertGreater(sum(plot_border_pixel), 120)
+                    tick_x = WAVEFORM_PLOT_WIDTH - 20
+                    # Only the overall outer peak is labeled: no middle labels.
+                    for guide_y in (91, 609):
+                        guide_pixel = preview_rgb.getpixel(
+                            (tick_x, guide_y)
+                        )
+                        self.assertLess(
+                            max(guide_pixel) - min(guide_pixel),
+                            30,
+                        )
+                        self.assertGreater(sum(guide_pixel), 240)
+                    for unlabelled_middle_y in (258, 442):
+                        middle_pixel = preview_rgb.getpixel(
+                            (WAVEFORM_PLOT_WIDTH + 10, unlabelled_middle_y)
+                        )
+                        self.assertLess(sum(middle_pixel), 80)
+                    axis_pixel = preview_rgb.getpixel(
+                        (WAVEFORM_PLOT_WIDTH - 1, 100)
                     )
                     self.assertLess(
-                        max(center_pixel) - min(center_pixel),
-                        20,
+                        max(axis_pixel) - min(axis_pixel),
+                        30,
                     )
-                    self.assertGreater(sum(center_pixel), 120)
+                    self.assertGreater(sum(axis_pixel), 180)
+                    # A constant 50% channel must visually reach about half of
+                    # its available height instead of looking artificially
+                    # compressed toward the center line.
+                    cyan_rows = [
+                        y
+                        for y in range(20, preview.height // 2 - 20)
+                        for x in range(20, WAVEFORM_PLOT_WIDTH - 50)
+                        if (
+                            (pixel := preview_rgb.getpixel((x, y)))[0] < 150
+                            and pixel[1] > 150
+                            and pixel[2] > 180
+                        )
+                    ]
+                    self.assertTrue(cyan_rows)
+                    self.assertLessEqual(min(cyan_rows), 100)
+                    self.assertGreaterEqual(min(cyan_rows), 60)
+                    metric_pixels = [
+                        preview_rgb.getpixel((x, y))
+                        for y in range(250, 450, 8)
+                        for x in range(
+                            WAVEFORM_PLOT_WIDTH + 20,
+                            WAVEFORM_JPEG_WIDTH - 5,
+                            8,
+                        )
+                    ]
+                    self.assertTrue(
+                        any(sum(pixel) > 250 for pixel in metric_pixels)
+                    )
                 self.assertTrue(staged.exists())
                 self.assertFalse(
                     audio.with_name(f"{audio.stem}.waveform.jpg").exists()
                 )
+
+        def test_waveform_metrics_are_measured_and_formatted(self) -> None:
+            output = "\n".join(
+                (
+                    "[astats] Channel: 1",
+                    "[astats] Peak level dB: -0.175",
+                    "[astats] Channel: 2",
+                    "[astats] Peak level dB: -6.021",
+                    "[astats] Overall",
+                    "[astats] Peak level dB: -0.175",
+                    "[astats] RMS level dB: -4.862",
+                    "[silencedetect] silence_duration: 3.4",
+                    "[silencedetect] silence_duration: 1.1",
+                )
+            )
+            module = sys.modules[__name__]
+            with mock.patch.object(
+                module,
+                "waveform_replaygain_factor",
+                return_value=1.00004,
+            ):
+                metrics = parse_waveform_metrics(
+                    output,
+                    Path("fixture.flac"),
+                    2,
+                )
+            self.assertAlmostEqual(98.0, metrics.peak_volume_percentage, places=1)
+            self.assertAlmostEqual(57.1, metrics.average_volume_percentage, places=1)
+            self.assertEqual((3.4, 4.5), (
+                metrics.longest_silence_seconds,
+                metrics.total_silence_seconds,
+            ))
+            self.assertEqual(
+                (
+                    "peak vol: 98%",
+                    "avg vol: 57%",
+                    "gain: 1.00004",
+                    "silence: 3s (longest)",
+                ),
+                waveform_metric_lines(metrics),
+            )
+            normal_colors = waveform_metric_value_colors(metrics, 10.0)
+            self.assertNotEqual((255, 75, 85), normal_colors[3])
+            excessive_metrics = replace(
+                metrics,
+                longest_silence_seconds=10.1,
+            )
+            excessive_colors = waveform_metric_value_colors(
+                excessive_metrics,
+                10.0,
+            )
+            self.assertEqual((255, 75, 85), excessive_colors[3])
+            self.assertNotIn(
+                (255, 75, 85),
+                excessive_colors[:3] + excessive_colors[4:],
+            )
+            almost_ten = replace(
+                metrics,
+                longest_silence_seconds=9.9999,
+            )
+            self.assertEqual(
+                "silence: 9s (longest)",
+                waveform_metric_lines(almost_ten)[-1],
+            )
 
         def test_waveform_review_defaults_to_current_folder(self) -> None:
             module = sys.modules[__name__]
@@ -10390,7 +12668,9 @@ def run_unit_tests() -> int:
             command = run.call_args.args[0]
             self.assertIn("--size=187x51", command)
             self.assertIn("--view-size=187x51", command)
-            self.assertIn("--fit-width", command)
+            self.assertIn("--work=9", command)
+            self.assertIn("--stretch", command)
+            self.assertNotIn("--fit-width", command)
             emit.assert_called_once_with(
                 b"mock-sixel",
                 geometry=geometry,
@@ -10414,6 +12694,52 @@ def run_unit_tests() -> int:
             self.assertEqual(
                 expected_rows,
                 output.getvalue().count(ANSI["erase_line"]),
+            )
+            question = "Does this waveform show a problem in Track.flac?"
+            with mock.patch.object(
+                module,
+                "visible_console_size",
+                return_value=os.terminal_size((80, 30)),
+            ):
+                wrapped = prompt_with_option_legend(
+                    urgent_prompt_text(question, False),
+                    waveform_review_choices(False),
+                    indent="            ",
+                )
+            wrapped_lines = wrapped.rstrip().splitlines()
+            self.assertEqual(2, len(wrapped_lines))
+            self.assertTrue(
+                wrapped_lines[0].startswith(
+                    "            ❓ Does this waveform"
+                )
+            )
+            self.assertTrue(
+                wrapped_lines[1].startswith(
+                    "               [N=It’s fine"
+                )
+            )
+            styled_question = urgent_prompt_text(
+                question,
+                True,
+                faint_italic_spans=("Track.flac",),
+            )
+            self.assertIn(
+                f"{ANSI['dim']}{ANSI['italic']}",
+                styled_question,
+            )
+            self.assertIn("Track.flac", styled_question)
+            rendering = waveform_rendering_status(
+                "A very long Ghosts (2023) title for wrapping.mp3",
+                False,
+                terminal_columns=34,
+            ).splitlines()
+            self.assertGreater(len(rendering), 1)
+            self.assertTrue(
+                rendering[0].startswith("            ⏳ Rendering ")
+            )
+            rendering_column = visible_cell_width("            ⏳ Rendering ")
+            self.assertTrue(
+                rendering[1].startswith(" " * (rendering_column + 8))
             )
 
         def test_waveform_diagnostic_can_edit_view_and_mark_problem(
@@ -10476,6 +12802,35 @@ def run_unit_tests() -> int:
             self.assertIn(
                 "Want to rename this audio file to flag the problem?",
                 rendered,
+            )
+
+        def test_excessive_silence_defaults_enter_to_audio_editor(
+            self,
+        ) -> None:
+            keys = iter(("\r", "n"))
+            editor = mock.Mock(
+                return_value=Path(r"C:\Program Files\Adobe\Audition.exe")
+            )
+            with contextlib.redirect_stdout(io.StringIO()) as output:
+                decision, edits, reviewed_path = waveform_review_choice(
+                    Path(r"C:\Temp\track.waveform.jpg"),
+                    Path(r"C:\Music\Track.flac"),
+                    use_color=False,
+                    key_reader=lambda: next(keys),
+                    preview_renderer=lambda _path, *, use_color: "mock Sixel",
+                    audio_editor=editor,
+                    excessive_silence=True,
+                    longest_silence_seconds=12.5,
+                    acceptable_silence_seconds=10.0,
+                )
+            self.assertEqual("fine", decision)
+            self.assertEqual(1, edits)
+            self.assertEqual(Path(r"C:\Music\Track.flac"), reviewed_path)
+            editor.assert_called_once_with(Path(r"C:\Music\Track.flac"))
+            self.assertIn("ENTER/E=Edit audio", output.getvalue())
+            self.assertIn(
+                "exceeding the 10s limit",
+                output.getvalue(),
             )
 
         def test_invalid_prompt_keys_beep_without_reprinting(self) -> None:
@@ -10543,6 +12898,26 @@ def run_unit_tests() -> int:
                     "Approve this downloaded artwork image as cover.jpg?"
                 ),
             )
+
+            class LegacyTextBuffer(io.StringIO):
+                @property
+                def encoding(self) -> str:
+                    return "cp1252"
+
+            legacy_output = LegacyTextBuffer()
+            with contextlib.redirect_stdout(legacy_output):
+                self.assertFalse(
+                    prompt_for_approval(
+                        "Proceed despite missing tools?",
+                        False,
+                        False,
+                        key_reader=lambda: "n",
+                    )
+                )
+            self.assertIn(
+                "? Proceed despite missing tools?",
+                legacy_output.getvalue(),
+            )
             if os.name == "nt":
                 with mock.patch("winsound.Beep") as native_beep:
                     invalid_key_beep()
@@ -10607,8 +12982,24 @@ def run_unit_tests() -> int:
                     "Disposable Waveform [instrumental]",
                     [(0.2, False), (0.2, True)],
                 )
+                audio_two = root / "Disposable Waveform 2 [instrumental].flac"
+                audio_three = root / "Disposable Waveform 3 [instrumental].flac"
+                shutil.copy2(audio, audio_two)
+                shutil.copy2(audio, audio_three)
+                expected_audio = [audio, audio_two, audio_three]
                 staging_root = root / "recycled-staging"
                 module = sys.modules[__name__]
+                prepared_paths: list[Path] = []
+                consumed_modes: list[str] = []
+                geometry = ArtworkPreviewGeometry(
+                    terminal_columns=100,
+                    terminal_rows=35,
+                    indent_columns=12,
+                    columns=87,
+                    rows=26,
+                    pixel_width=609,
+                    pixel_height=364,
+                )
 
                 def fake_generate(
                     _audio: Path,
@@ -10619,7 +13010,43 @@ def run_unit_tests() -> int:
                 ) -> tuple[Path, None]:
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     destination.write_bytes(make_test_jpeg())
-                    return destination, None
+                    return (
+                        destination,
+                        None,
+                        WaveformMetrics(
+                            channel_peak_percentages=(50.0, 50.0),
+                            peak_volume_percentage=50.0,
+                            average_volume_percentage=25.0,
+                            replaygain_factor=None,
+                            longest_silence_seconds=0.0,
+                            total_silence_seconds=0.0,
+                        ),
+                    )
+
+                def fake_prepare(
+                    path: Path,
+                    *,
+                    use_color: bool,
+                ) -> PreparedArtworkPreview:
+                    prepared_paths.append(path)
+                    return PreparedArtworkPreview(
+                        mode="pre-rendered test preview",
+                        geometry=geometry,
+                        text_payload=f"prepared {path.name}",
+                    )
+
+                def fake_review(
+                    waveform_path: Path,
+                    audio_path: Path,
+                    **options,
+                ) -> tuple[str, int, Path]:
+                    consumed_modes.append(
+                        options["preview_renderer"](
+                            waveform_path,
+                            use_color=False,
+                        )
+                    )
+                    return "fine", 0, audio_path
 
                 with mock.patch.object(
                     module,
@@ -10631,8 +13058,16 @@ def run_unit_tests() -> int:
                     side_effect=fake_generate,
                 ), mock.patch.object(
                     module,
+                    "prepare_waveform_preview",
+                    side_effect=fake_prepare,
+                ), mock.patch.object(
+                    module,
+                    "waveform_preview_geometry",
+                    return_value=geometry,
+                ), mock.patch.object(
+                    module,
                     "waveform_review_choice",
-                    return_value=("fine", 0, audio),
+                    side_effect=fake_review,
                 ), mock.patch.object(
                     module,
                     "audio_editor_executable",
@@ -10641,22 +13076,94 @@ def run_unit_tests() -> int:
                     result = review_waveforms(
                         root,
                         use_color=False,
-                        workers=1,
+                        workers=2,
+                        approval_database_path=root / "reviews.sqlite3",
                     )
                 self.assertNotIn(
                     "Background waveform render is ready",
                     output.getvalue(),
                 )
-                self.assertEqual([str(audio)], result["fine"])
+                self.assertIn(
+                    "\n            ⏳ Rendering Disposable Waveform",
+                    output.getvalue(),
+                )
+                self.assertCountEqual(
+                    [str(path) for path in expected_audio],
+                    result["fine"],
+                )
+                self.assertEqual(3, len(prepared_paths))
+                self.assertEqual(
+                    ["pre-rendered test preview"] * 3,
+                    consumed_modes,
+                )
+                self.assertIn(
+                    "keeping up to 4 display-ready previews ahead",
+                    output.getvalue(),
+                )
                 self.assertEqual([], result["problems"])
                 staged_folder = Path(result["staging_folder"])
                 self.assertTrue(staged_folder.is_dir())
                 self.assertEqual(
-                    1,
+                    3,
                     len(list(staged_folder.glob("*.waveform.jpg"))),
                 )
-                self.assertFalse(
-                    audio.with_name(f"{audio.stem}.waveform.jpg").exists()
+                for source_audio in expected_audio:
+                    self.assertFalse(
+                        source_audio.with_name(
+                            f"{source_audio.stem}.waveform.jpg"
+                        ).exists()
+                    )
+
+        def test_waveform_approvals_persist_invalidate_prune_and_skip(
+            self,
+        ) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                database = root / "waveform-reviews.sqlite3"
+                disposable = root / "Disposable.flac"
+                disposable.write_bytes(b"first version")
+                store = WaveformApprovalStore(database)
+                store.approve(disposable)
+                self.assertTrue(store.is_approved(disposable))
+
+                disposable.write_bytes(b"changed version with new bytes")
+                self.assertFalse(store.is_approved(disposable))
+                store.approve(disposable)
+                disposable.unlink()
+                self.assertEqual(1, store.prune_if_oversized(max_bytes=0))
+
+                audio = make_patterned_flac(
+                    root,
+                    "Already Approved [instrumental]",
+                    [(0.2, False), (0.2, True)],
+                )
+                store.approve(audio)
+                module = sys.modules[__name__]
+                with mock.patch.object(
+                    module,
+                    "waveform_staging_root",
+                    return_value=root / "staging",
+                ), mock.patch.object(
+                    module,
+                    "generate_waveform_jpeg",
+                ) as generate, mock.patch.object(
+                    module,
+                    "audio_editor_executable",
+                    return_value=None,
+                ), contextlib.redirect_stdout(io.StringIO()) as output:
+                    result = review_waveforms(
+                        root,
+                        use_color=False,
+                        workers=2,
+                        approval_database_path=database,
+                    )
+                generate.assert_not_called()
+                self.assertEqual(1, result["audio_files"])
+                self.assertEqual(0, result["queued"])
+                self.assertEqual([str(audio)], result["previously_approved"])
+                self.assertIn(
+                    "1 unchanged, previously approved file skipped",
+                    output.getvalue(),
                 )
 
         def test_error_wrapper_and_progress_library_search_locations(self) -> None:
@@ -10710,6 +13217,15 @@ def run_unit_tests() -> int:
                 bottom = strip_ansi(lines[index + 1])
                 self.assertEqual(top, bottom)
                 self.assertLessEqual(len(top), 35)
+            continuation = strip_ansi(lines[2])
+            first_line = strip_ansi(lines[0])
+            expected_indent = visible_cell_width(
+                first_line[: first_line.index("C:")]
+            )
+            self.assertEqual(
+                expected_indent,
+                len(continuation) - len(continuation.lstrip()),
+            )
             results_header = double_height_gradient_section(
                 "Interactive results",
                 True,
@@ -10728,6 +13244,55 @@ def run_unit_tests() -> int:
             self.assertTrue(
                 actions_header[1].startswith(ANSI_DOUBLE_HEIGHT_BOTTOM)
             )
+
+        def test_grouped_rename_hides_noops_and_keeps_album_folder_inline(
+            self,
+        ) -> None:
+            finding = {
+                "category": "filename_title_capitalization_group",
+                "path": ".",
+                "details": {
+                    "renames": [
+                        {
+                            "before": "01_From Me To U.flac",
+                            "after": "01_From Me To U.flac",
+                        },
+                        {
+                            "before": "02_from me to u.flac",
+                            "after": "02_From Me To U.flac",
+                        },
+                    ]
+                },
+            }
+            table = rename_preview_table(
+                finding,
+                use_color=False,
+                terminal_columns=100,
+            )
+            rendered_table = "\n".join(table)
+            self.assertNotIn("01_From Me To U.flac", rendered_table)
+            self.assertIn("02_from me to u.flac", rendered_table)
+            self.assertIn("02_From Me To U.flac", rendered_table)
+            self.assertEqual(
+                "01_From Me To U.flac",
+                capitalized_album_filename_proposal(
+                    "01_from me to u.flac",
+                    10,
+                ),
+            )
+            target_lines = finding_target_lines(
+                finding,
+                use_color=False,
+                root=Path(
+                    r"T:\new\MUSIC\changerrecent\Babymetal"
+                    r"\2025 - Metal Forth"
+                ),
+                terminal_columns=70,
+            )
+            self.assertTrue(target_lines[0].startswith("📁 Album folder: T:"))
+            self.assertNotIn("Album folder: .", target_lines[0])
+            self.assertNotIn("\n", target_lines[0])
+            self.assertIn("…", target_lines[0])
 
         def test_console_pager_pauses_before_viewport_scroll(self) -> None:
             class TtyBuffer(io.StringIO):
@@ -10875,6 +13440,7 @@ def run_unit_tests() -> int:
             )
             self.assertTrue(indented.startswith("            "))
             self.assertTrue(strip_ansi(indented).lstrip().startswith("❓ "))
+
             self.assertNotIn("this action", indented.lower())
             expected_prompt_categories = EXECUTABLE_CATEGORIES - {"missing_album"}
             self.assertEqual(
@@ -10993,6 +13559,30 @@ def run_unit_tests() -> int:
                     )
                 )
 
+        def test_default_no_prompt_can_erase_itself_completely(self) -> None:
+            class TTYBuffer(io.StringIO):
+                def isatty(self) -> bool:
+                    return True
+
+            output = TTYBuffer()
+            with contextlib.redirect_stdout(output):
+                answer = prompt_for_approval(
+                    "Run the interactive waveform review now?",
+                    default_yes=False,
+                    use_color=False,
+                    key_reader=lambda: "n",
+                    indent="        ",
+                    erase_on_no=True,
+                )
+            self.assertFalse(answer)
+            rendered = output.getvalue()
+            self.assertIn(
+                "Run the interactive waveform review now?",
+                rendered,
+            )
+            self.assertIn(ANSI["erase_line"], rendered)
+            self.assertNotIn("No!", rendered)
+
         def test_action_prompts_remember_always_never_and_folder_scope(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
@@ -11075,7 +13665,8 @@ def run_unit_tests() -> int:
                 "seconds]",
                 usage,
             )
-            self.assertIn("[default = 2 workers]", usage)
+            self.assertIn("[default = 8 workers]", usage)
+            self.assertEqual(8, parse_args(["."]).waveform_workers)
             self.assertIn("--embed-lyrics  --no-embed-lyrics", usage)
             self.assertIn("--refresh-embedded-lyrics", usage)
             self.assertIn(
@@ -11197,10 +13788,6 @@ def run_unit_tests() -> int:
                     r"^audit_music_batch\.config\.json\.bak\.\d{12}"
                     r"\.replaced-by-chatgpt\.bak$",
                 )
-            self.assertFalse(should_show_audit_progress(599))
-            self.assertTrue(
-                should_show_audit_progress(PROGRESS_FIRST_FILE_COUNT)
-            )
             simulated = {
                 "mutagen": False,
                 "Pillow": True,
@@ -11412,7 +13999,7 @@ def run_unit_tests() -> int:
                 self.assertNotIn("history.bak", rendered)
                 self.assertNotIn("transcription.log", rendered)
                 self.assertNotIn("metadata.json", rendered)
-                self.assertIn("\n        Problems:", rendered)
+                self.assertIn("\n        🚨           Problems:", rendered)
                 alignment_data = dict(report)
                 alignment_data["findings"] = list(report["findings"]) + [
                     {
@@ -11426,8 +14013,28 @@ def run_unit_tests() -> int:
                 aligned = render_console_report(
                     alignment_data, max_examples=80, use_color=False
                 )
-                self.assertIn("\n         1 Backup files kept.", aligned)
-                self.assertIn("\n        25 Log sidecars kept.", aligned)
+                self.assertIn("\n        💾  1 Backup files kept.", aligned)
+                self.assertIn("\n        📜 25 Log sidecars kept.", aligned)
+                severity_alignment_data = dict(report)
+                severity_alignment_data["findings"] = list(
+                    report["findings"]
+                ) + [
+                    {
+                        "severity": "problem",
+                        "category": "synthetic_problem",
+                        "path": f"problem-{number}",
+                        "message": "Synthetic problem.",
+                    }
+                    for number in range(98)
+                ]
+                severity_aligned = render_console_report(
+                    severity_alignment_data,
+                    max_examples=1,
+                    use_color=False,
+                )
+                self.assertIn("🚨           Problems: 100 —", severity_aligned)
+                self.assertIn("🔧        Fixes ready:   0 —", severity_aligned)
+                self.assertIn("⚠️      Review needed:   2 —", severity_aligned)
                 colored = render_console_report(report, max_examples=80, use_color=True)
                 self.assertIn(ANSI["italic"], colored)
                 self.assertIn(
@@ -11748,6 +14355,48 @@ def run_unit_tests() -> int:
                     ).is_file()
                 )
 
+        def test_trailing_download_tracking_ids_are_removed_from_titles(
+            self,
+        ) -> None:
+            self.assertEqual(
+                "01_Retrograde.mp3",
+                redundant_artist_filename_proposal(
+                    "01_Bad Cop-bad Cop-retrograde-e75e4ec6.mp3",
+                    "Bad Cop, Bad Cop",
+                    12,
+                ),
+            )
+            self.assertEqual(
+                "02_Im Done.mp3",
+                capitalized_album_filename_proposal(
+                    "02_im_done-35876105.mp3",
+                    12,
+                ),
+            )
+            self.assertEqual(
+                "03_Womanarchist.mp3",
+                capitalized_album_filename_proposal(
+                    "03_womanarchist-f45_cc0d.mp3",
+                    12,
+                ),
+            )
+            self.assertEqual(
+                "02_Im Done.mp3.bak.202607301445."
+                "replaced-by-chatgpt.bak",
+                capitalized_album_filename_proposal(
+                    "02_im_done-35876105.mp3.bak.202607301445."
+                    "replaced-by-chatgpt.bak",
+                    12,
+                ),
+            )
+            self.assertEqual(
+                "04_Deadbeef.mp3",
+                capitalized_album_filename_proposal(
+                    "04_deadbeef.mp3",
+                    12,
+                ),
+            )
+
         def test_multichannel_replaygain_is_detected_without_stereo_exemption(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
@@ -12051,6 +14700,32 @@ def run_unit_tests() -> int:
                 self.assertNotIn("embedded_art_without_sidecar", categories)
                 self.assertIn("multiple_embedded_artworks", categories)
 
+                mp3_root = root / "mp3-misc"
+                mp3_root.mkdir()
+                mp3_path = make_silent_mp3(mp3_root, "Ghosts (2023)")
+                mp3 = ensure_id3(mp3_path)
+                mp3.tags.add(
+                    APIC(
+                        encoding=3,
+                        mime="image/jpeg",
+                        type=3,
+                        desc="Cover",
+                        data=b"\xff\xd8\xffmp3-front",
+                    )
+                )
+                mp3.save(v2_version=3)
+                self.assertIn(
+                    "embedded_art_without_sidecar",
+                    finding_categories(BatchAudit(mp3_root).audit()),
+                )
+                mp3_root.joinpath("Ghosts (2023).jpg").write_bytes(
+                    b"\xff\xd8\xffsame-stem-sidecar"
+                )
+                self.assertNotIn(
+                    "embedded_art_without_sidecar",
+                    finding_categories(BatchAudit(mp3_root).audit()),
+                )
+
         def test_archive_exclusion_and_comment_classification_have_controls(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
@@ -12261,6 +14936,40 @@ def run_unit_tests() -> int:
                 self.assertEqual("image/jpeg", pictures[0].mime)
                 self.assertEqual(converted.read_bytes(), pictures[0].data)
 
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                make_silent_flac(
+                    root, "20 Preview Front [instrumental]"
+                )
+                folder_art = root / "folder.jpg"
+                folder_art.write_bytes(make_test_jpeg())
+                finding = next(
+                    item
+                    for item in BatchAudit(root).audit()["findings"]
+                    if item["category"] == "missing_embedded_art"
+                )
+                renderer = mock.Mock(return_value="mock Sixel")
+                with contextlib.redirect_stdout(io.StringIO()) as output:
+                    result = interactive_apply(
+                        {
+                            "findings": [finding],
+                            "resolved_root": str(root),
+                        },
+                        use_color=False,
+                        key_reader=lambda: "n",
+                        artwork_preview_renderer=renderer,
+                    )
+                renderer.assert_called_once_with(
+                    folder_art,
+                    use_color=False,
+                )
+                self.assertIn(
+                    "Existing front-cover sidecar preview rendered with "
+                    "mock Sixel: folder.jpg.",
+                    output.getvalue(),
+                )
+                self.assertEqual(finding["code"], result["skipped_codes"])
+
             for image_name in (None, "back.jpg", "disc.jpg", "proof.jpg"):
                 with self.subTest(image_name=image_name):
                     with tempfile.TemporaryDirectory() as temp:
@@ -12429,10 +15138,11 @@ def run_unit_tests() -> int:
                 r"\.replaced-by-chatgpt\.bak$",
             )
             self.assertEqual(["Unit Test Album"], FLAC(path).get("ALBUM"))
+            self.assertIn("📁 Folder:", output.getvalue())
             self.assertIn("♪", output.getvalue())
             self.assertIn("✅", output.getvalue())
             self.assertIn("❓", prompts[0])
-            self.assertTrue(output.getvalue().startswith("             ♪"))
+            self.assertTrue(output.getvalue().startswith("            📁 Folder:"))
             visible_prompt = re.sub(
                 r"\x1b(?:\[[0-?]*[ -/]*[@-~]|#[34])",
                 "",
@@ -12492,7 +15202,7 @@ def run_unit_tests() -> int:
             self.assertIn("♪", output.getvalue())
             self.assertIn("❌", output.getvalue())
             self.assertIn("❓", prompts[0])
-            self.assertTrue(output.getvalue().startswith("             ♪"))
+            self.assertTrue(output.getvalue().startswith("            📁 Folder:"))
             self.assertTrue(prompts[0].startswith("            ❓"))
             self.assertIn("ENTER", prompts[0])
 
@@ -12690,11 +15400,50 @@ def run_unit_tests() -> int:
     class DescriptiveTestResult(unittest.TextTestResult):
         """Explain test intent and assertion values before technical traceback."""
 
-        def getDescription(self, test) -> str:
+        total_tests = 0
+        use_color = True
+
+        def progress_prefix(self) -> str:
+            """Render a dynamic, aligned ``[ current/total] ➜`` test prefix."""
+            total = max(1, int(self.total_tests))
+            current = max(1, int(self.testsRun))
+            width = len(str(total))
+            current_text = f"{current:>{width}}"
+            total_text = str(total)
+            if not self.use_color:
+                return f"[{current_text}/{total_text}] ➜ "
+            bracket_color = "\033[38;2;155;120;255m"
+            current_color = "\033[38;2;120;235;255m"
+            slash_color = "\033[38;2;90;100;115m"
+            total_color = "\033[38;2;145;185;205m"
+            arrow_color = "\033[38;2;255;120;205m"
             return (
+                f"{bracket_color}[{ANSI['reset']}"
+                f"{ANSI['bold']}{current_color}{current_text}{ANSI['reset']}"
+                f"{ANSI['faint']}{slash_color}/{ANSI['reset']}"
+                f"{ANSI['faint']}{total_color}{total_text}{ANSI['reset']}"
+                f"{bracket_color}]{ANSI['reset']} "
+                f"{arrow_color}➜{ANSI['reset']} "
+            )
+
+        def description_color(self) -> str:
+            """Return a subtly varied cyan-blue for the current test name."""
+            index = max(1, int(self.testsRun))
+            red = 135 + (index * 17) % 24
+            green = 205 + (index * 11) % 34
+            blue = 232 + (index * 7) % 23
+            return f"\033[38;2;{red};{green};{blue}m"
+
+        def getDescription(self, test) -> str:
+            description = (
                 f"{unit_test_purpose(test)} "
                 f"[{test._testMethodName}]"
             )
+            if self.use_color:
+                description = (
+                    f"{self.description_color()}{description}{ANSI['reset']}"
+                )
+            return f"{self.progress_prefix()}{description}"
 
         def _exc_info_to_string(self, err, test) -> str:
             source, expected, actual, location = failed_assertion_details(
@@ -12722,6 +15471,23 @@ def run_unit_tests() -> int:
 
         resultclass = DescriptiveTestResult
 
+        def __init__(
+            self,
+            *args,
+            total_tests: int,
+            use_color: bool,
+            **kwargs,
+        ) -> None:
+            super().__init__(*args, **kwargs)
+            self.total_tests = total_tests
+            self.use_color = use_color
+
+        def _makeResult(self):
+            result = super()._makeResult()
+            result.total_tests = self.total_tests
+            result.use_color = self.use_color
+            return result
+
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(GeneratedAudioTests)
     original_single_key_reader = read_single_key
     original_text_reader = builtins.input
@@ -12735,7 +15501,12 @@ def run_unit_tests() -> int:
     read_single_key = reject_live_unit_test_input
     builtins.input = reject_live_unit_test_input
     try:
-        result = DescriptiveTestRunner(verbosity=2).run(suite)
+        result = DescriptiveTestRunner(
+            verbosity=2,
+            stream=sys.stdout,
+            total_tests=suite.countTestCases(),
+            use_color=use_color,
+        ).run(suite)
     finally:
         read_single_key = original_single_key_reader
         builtins.input = original_text_reader
@@ -12927,9 +15698,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--waveform-workers",
         type=int,
-        default=2,
+        default=8,
         metavar="NUMBER",
-        help="Background waveform render workers (1-8; default 2).",
+        help="Background waveform render workers (1-8; default 8).",
     )
     lyric_behavior = parser.add_mutually_exclusive_group()
     lyric_behavior.add_argument(
@@ -13062,7 +15833,7 @@ def _main(argv: list[str] | None = None) -> int:
                 )
             )
             return 3
-        return run_unit_tests()
+        return run_unit_tests(use_color=not args.no_color)
     if not 1 <= args.waveform_workers <= 8:
         print_formatted_error(
             "--waveform-workers must be between 1 and 8.",
@@ -13090,6 +15861,7 @@ def _main(argv: list[str] | None = None) -> int:
                 use_color=not args.no_color,
                 interactive=True,
                 workers=args.waveform_workers,
+                silence_threshold_seconds=args.silence_threshold,
             )
         except Exception as exc:
             print_formatted_error(
@@ -13221,26 +15993,7 @@ def _main(argv: list[str] | None = None) -> int:
     waveform_handoff_failed = False
     if args.interactive:
         result = interactive_apply(data, use_color=not args.no_color)
-        if result["decisions"]:
-            results_header = "\n".join(
-                double_height_gradient_section(
-                    "Interactive results",
-                    not args.no_color,
-                    ((255, 135, 245), (175, 95, 240)),
-                )
-            )
-            print(
-                "\n"
-                + results_header
-                + "\n\n"
-                + interactive_results_summary(
-                    len(result["applied_codes"]),
-                    len(result["skipped_codes"]),
-                    len(result["failed_codes"]),
-                    not args.no_color,
-                )
-                + "\n"
-            )
+        print_interactive_results(result, not args.no_color)
         try:
             waveform_handoff = offer_post_audit_waveform_review(
                 Path(args.root),
@@ -13249,11 +16002,16 @@ def _main(argv: list[str] | None = None) -> int:
                 include_archives=args.include_archives,
                 use_color=not args.no_color,
                 workers=args.waveform_workers,
+                silence_threshold_seconds=(
+                    effective.silence_threshold_seconds
+                ),
             )
             waveform_handoff_failed = bool(
                 waveform_handoff
                 and waveform_handoff.get("failed")
             )
+            if waveform_handoff is not None:
+                print_interactive_results(result, not args.no_color)
         except Exception as exc:
             waveform_handoff_failed = True
             print_formatted_error(

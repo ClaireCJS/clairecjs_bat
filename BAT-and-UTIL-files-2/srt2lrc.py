@@ -93,12 +93,32 @@ def time_difference(time1, time2):
 # converts a single SRT file to LRC
 def srt_file_to_irc(fname, force=False):
 
-    # First, we need to detect the encoding:                                                    # fix for real-world files that have varied encoding
-    with open(fname, 'rb') as raw_file:                                                         # fix for real-world files that have varied encoding
-        result = chardet.detect(raw_file.read(1000))  # Detect encoding based on a sample       # fix for real-world files that have varied encoding
-        encoding = result['encoding'] or 'utf-8'                                                # fix for real-world files that have varied encoding
-        if encoding.lower() == 'ascii' or encoding=="Windows-1252": encoding = 'utf-8'          # fix for real-world files that have varied encoding
-        #DEBUG: print(f"using encoding {encoding}")                                             # fix for real-world files that have varied encoding
+    # Prefer strict UTF-8 validation before statistical detection. This prevents valid UTF-8
+    # characters from being misidentified as a legacy Windows code page.
+    with open(fname, 'rb') as raw_file:
+        raw_data = raw_file.read()
+
+    try:
+        raw_data.decode('utf-8-sig')
+        encoding = 'utf-8-sig'
+    except UnicodeDecodeError:
+        detected = chardet.detect(raw_data).get('encoding')
+        encoding = None
+
+        for candidate in (detected, 'cp1252', 'latin-1'):
+            if not candidate:
+                continue
+            try:
+                raw_data.decode(candidate)
+                encoding = candidate
+                break
+            except (UnicodeDecodeError, LookupError):
+                continue
+
+        if encoding is None:
+            raise UnicodeError(f"Could not decode subtitle file: {fname}")
+
+    #DEBUG: print(f"using encoding {encoding}")
 
     # Then, we read the file with the proper encoding, which the original program didn’t do:    # fix for real-world files that have varied encoding
     #ith open(fname, encoding='utf8'  ) as file_in:                                             # fix for real-world files that have varied encoding

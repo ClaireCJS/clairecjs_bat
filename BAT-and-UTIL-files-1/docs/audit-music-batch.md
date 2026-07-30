@@ -67,9 +67,9 @@ Force automatic validated plain-lyrics **and** timed-karaoke sidecar embedding
 on or off together for this run. “Lyrics” in these option names is the umbrella
 term; enabling lyric embedding always includes karaoke, and suppressing it
 suppresses both. The built-in default is on and can be changed with
-`--configure-defaults`. Every changed audio file is
-then named in a `Lyrics embedded by --embed-lyrics` section, together with the
-plain/timed lyric work performed, its backup, and confirmation that the file was
+`--configure-defaults`. Every changed audio file is then named under an
+`Embedding lyrics & karaoke into file:` line, together with the plain/timed work
+performed, the shortened backup filename, and confirmation that the file was
 included in the following audit pass.
 
 Hash-prefixed transcription-generator comments are metadata, not lyrics. Lines
@@ -98,8 +98,10 @@ the forced form of the same combined operation.
 Force automatic missing-cover lookup on or off for this run. The built-in
 default is **off**. `--find-cover` explicitly resolves release artwork for
 audio that lacks an embedded Front cover. The workflow uses an exact tagged
-MusicBrainz release ID first, then a conservative MusicBrainz release search,
-and finally Discogs when `DISCOGS_TOKEN` is set.
+MusicBrainz release ID first, then searches Bandcamp alongside conservative
+MusicBrainz release matches, and finally Discogs when `DISCOGS_TOKEN` is set.
+Strong Bandcamp matches use the original-resolution release image from
+Bandcamp's artwork CDN.
 Once a release is selected, every distinct available artwork part is
 downloaded to the album folder—Front, Back, booklet, lyrics, inlay, disc/vinyl,
 matrix, spine, obi, and other supplied types—but only the approved primary
@@ -141,11 +143,22 @@ problem, `E` opens the audio in the discovered editor, and `V` opens the
 waveform image full-screen. After `Y`, separate default-No prompts offer to edit
 the audio and to rename the audio file to flag the problem.
 
+An `N`/fine decision is remembered in the per-user SQLite database
+`%LOCALAPPDATA%\audit_music_batch\waveform_reviews.sqlite3`. A future review
+skips that audio before scheduling any FFmpeg or terminal-preview work when its
+normalized full path, byte size, and nanosecond modification time are all
+unchanged. Editing, replacing, or moving the audio invalidates that approval
+and makes it reviewable again. When the database exceeds 50 MiB, startup removes
+records for files that no longer exist and compacts the database.
+
 `--waveform-workers NUMBER`
 
 Use 1 through 8 concurrent `ffmpeg` workers to pre-render the entire remaining
 waveform queue while one full-screen preview is being reviewed. The default is
-2 workers.
+8 workers. A second bounded pool also converts upcoming JPEGs into
+display-ready Chafa/Sixel/ANSI payloads, keeping up to twice the configured
+worker count ready ahead without allowing a very large batch to consume
+unbounded memory.
 
 `--configure-defaults` / `--show-defaults`
 
@@ -260,8 +273,12 @@ audit_music_batch.py --unit-tests
 ```
 
 Unit-test mode uses disposable temporary audio and exits before scanning or
-modifying any music batch. It reports 78 independently named tests so positive
-and negative cases appear as separate pass/fail results. Coverage includes:
+modifying any music batch. It reports 89 independently named tests so positive
+and negative cases appear as separate pass/fail results. Every test line starts
+with a dynamically sized, right-aligned progress prefix such as
+`[ 1/89] ➜`; in normal color mode, its brackets, bold current number, faint
+total, darker slash, arrow, and subtly varied test description use distinct
+colors. Coverage includes:
 
 - complete and incomplete metadata, ReplayGain, comments, and genre rules
 - plain lyrics, timed karaoke, instrumentals, timed/untimed sidecars, embedding,
@@ -280,8 +297,12 @@ and negative cases appear as separate pass/fail results. Coverage includes:
 - immediate actions, path-containment safety, invalid-key beeping without prompt
   duplication, prompt behavior, and CLI usage
 - current-folder waveform invocation, full-width pixel geometry, a grey preview
-  boundary, multi-row prompt erasure, editor/view/problem controls, grouped
+  boundary, amplitude-honest peak scaling, measured waveform summaries,
+  multi-row prompt erasure, editor/view/problem controls, grouped
   problem-file/sidecar/backup renaming, and disposable-only waveform staging
+- immediate progress on small and large interactive audits, aligned wrapped
+  audit-root paths, no-op grouped-rename rejection, compact inline album-folder
+  display, and self-erasing default-No waveform handoffs
 - progress-library discovery beside the script and in either
   `clairecjs_util` or `clairecjs_utils` subfolders
 
@@ -305,8 +326,11 @@ that same line is erased and immediately redrawn without blinking. The
 `[Y/n]`/`[y/N]` block is replaced by a colored `Yes!` or `No!`, followed by
 ANSI erase-to-end-of-line so no characters from the longer waiting prompt
 remain onscreen. Wrapped prompts count and erase every occupied console row,
-so a long question is not left duplicated above its settled answer. Prompts use
-ANSI styling by default. Use `--no-color` if a
+so a long question is not left duplicated above its settled answer. When a
+question plus its explanatory key legend would exceed the live console width,
+the complete legend moves to a second line whose first character aligns with
+the first word after `❓`; the terminal is never left to split that legend at an
+arbitrary character. Prompts use ANSI styling by default. Use `--no-color` if a
 terminal displays ANSI escape codes literally.
 
 Unsupported keys never print another copy of the waiting prompt. They produce a
@@ -380,9 +404,13 @@ The terminal report is intentionally summarized:
 - a completely clean audit ends with an undecorated, unindented double-height
   green confirmation line
 - section headings use sparkle/asterisk decoration
-- severity counts include a plain-language explanation of each level
-- backup, JSON, log, and user-marker files are reported as right-aligned kept totals
-  rather than long individual filename lists
+- severity rows have category-specific emoji, right-justified labels immediately
+  beside aligned colons, right-aligned counts, and a plain-language explanation
+  of each level
+- backup, JSON, log, and user-marker files have their own emoji and are reported
+  as right-aligned kept totals rather than long individual filename lists
+- action-result backups show only a subdued backup filename rather than a full
+  path
 - only actionable or manually reviewable findings list paths
 - listed paths are faint and italic, with stable slight RGB variations that
   separate adjacent filenames visually; every audio filename begins with `♪`
@@ -420,11 +448,11 @@ The terminal report is intentionally summarized:
   top and bottom halves can never wrap at different positions
 
 The original progress timing was calibrated from five read-only passes over a
-real 396-file batch. Median runtime was `0.5601054` seconds (`707.0098` files
-per second). The deliberately early display threshold is now **600 files**, so
-the bar appears before the measured one-second point instead of waiting until
-708 files. This timing decision lives in
-`audit_music_batch.py`. Rendering is delegated to
+real 396-file batch. Tag reads and automatic embedding can still take several
+seconds on much smaller albums, so every interactive audit now starts an
+indeterminate file-enumeration progress bar immediately and converts it to the
+determinate audit bar as soon as the file total is known. Rendering is delegated
+to
 `claire_progressbar.py`, whose bar cycles through a bright HSV rainbow by
 default; Python callers can pass `rainbow=False` to use ordinary `tqdm`
 coloring. To remain portable when the script and library are copied together,
@@ -443,7 +471,11 @@ runs a number and unit together as `11933file`.
 `--embed-lyrics` uses the same collection pass and the same continuous bar
 instead of collecting the tree twice. Phase labels distinguish lyric embedding,
 filesystem, duplicate/archive, and audio-tag work; the current audio filename
-is displayed before it is opened. The shared bar uses a 0.05-second minimum
+is displayed before it is opened. Determinate audit bars omit the words
+`checks` and `checks/s`; their compact throughput is formatted as `1.20/sec`,
+and their middle-ellipsized filename preview is never longer than 16
+characters. The silence phase is labeled simply `Silence detect`. The shared
+bar uses a 0.05-second minimum
 refresh interval, a 0.5-second maximum interval, and one update per refresh
 opportunity so large batches do not appear stalled.
 
@@ -484,6 +516,17 @@ overwritten.
 
 ## Cover Finding and Complete Artwork Sets
 
+## WAV Conversion
+
+Each active WAV is an approval-backed conversion option rather than a dead-end
+warning. Approval creates a same-name FLAC, then renames the original WAV to
+the standard timestamped `.bak.…replaced-by-chatgpt.bak` form, preserves
+readable source metadata and conservative folder-derived title/artist/album/date
+details, embeds usable lyric/karaoke sidecars, uses an existing approved Front
+sidecar when present, or enters the normal cover-download/render/approval flow.
+The newly created FLAC is re-opened and audited before the action reports
+success. Existing FLACs are never overwritten.
+
 When an audio file lacks an embedded cover, interactive mode always offers a
 concrete choice. If local Front artwork exists, `Y` embeds it as before. If no
 local Front exists, `Y` invokes the same conservative discovery workflow as
@@ -491,11 +534,38 @@ local Front exists, `Y` invokes the same conservative discovery workflow as
 image, save every approved part, embed only Front, and immediately re-audit the
 affected audio.
 
+Before asking to embed an existing local `cover.*` or `folder.*`, the script
+renders that exact sidecar using the same full-console Chafa/Sixel/ANSI preview
+system used for downloaded artwork. The prompt follows the preview and still
+names the candidate explicitly, such as `(folder.jpg)`.
+
+When the auditor exports artwork already embedded in a FLAC or MP3 because the
+folder had no matching sidecar (or the audio held multiple pictures), each
+newly extracted image is likewise rendered and reviewed before it is kept.
+Approve to retain it; reject to rename it with `.rejected-by-username` and send
+it to the Recycle Bin. This prevents an incorrectly typed embedded picture from
+quietly becoming a trusted `cover.jpg`, `back.jpg`, or other folder asset.
+This sidecar-less embedded-art check applies equally to FLAC and MP3 files.
+
+For numbered album-track filenames, extracted Front artwork is named
+`cover.jpg` and the other typed parts use their normal folder names such as
+`back.jpg` and `disc.jpg`. For a loose/MISC file with no leading track number,
+the Front image is track-specific instead—for example `Ghosts (2023).jpg`—so
+unrelated singles never overwrite one another's art. Artwork review prefers
+the tuned Chafa Sixel renderer directly; ANSI symbols are only a fallback when
+Sixel rendering itself cannot be used.
+
+That matching same-basename MISC image is also recognized on later audits as
+the track's existing extracted-art sidecar, so it does not repeatedly offer a
+second export. It is not inferred to be automatically embeddable in unrelated
+files; only explicit `cover.*` and `folder.*` remain automatic Front-art inputs.
+
 Cover lookup does not run as a default startup phase. It begins only after an
 explicit `--find-cover` or an approved missing-cover action. The double-height
 header is `Finding cover art:` and is emitted only when at least one missing
 cover will actually be handled. MusicBrainz release resolution and the
-artwork-download queue each use the shared rainbow progress bar, so
+Bandcamp/MusicBrainz artwork search and download queue each use the shared
+rainbow progress bar, so
 network waits remain visibly active.
 
 Resolution is deliberately ordered from strongest evidence to weakest:
@@ -503,9 +573,11 @@ Resolution is deliberately ordered from strongest evidence to weakest:
 1. An exact MusicBrainz release ID already embedded in the audio tags.
 2. The tagged MusicBrainz release group's Front image, when the exact release
    has no Front.
-3. A fielded MusicBrainz release search using album, album artist, date, track
+3. Bandcamp search using album/track and artist, accepting only a strongly
+   matching release and requesting its original-resolution Front image.
+4. A fielded MusicBrainz release search using album, album artist, date, track
    count, and release format.
-4. Discogs only when `DISCOGS_TOKEN` is configured.
+5. Discogs only when `DISCOGS_TOKEN` is configured.
 
 The MusicBrainz client identifies itself and spaces API requests to respect the
 service's one-request-per-second application limit. An exact tagged release
@@ -594,19 +666,48 @@ longer than the effective threshold; the built-in default-default is `10.0`
 seconds. `--silence-threshold`, `--check-silence`, `--no-silence-check`, and
 `--configure-defaults` control that behavior. The finding includes the
 interval type, timestamps, and duration, and suggests the separate waveform
-review workflow.
+review workflow. Up to eight silence decoders begin concurrently as audio files
+are discovered, while enumeration and the other audit checks continue. Their
+results are harvested later in deterministic filename order, avoiding a
+serial silence-analysis pause at startup or at the end of the audit.
 
 `--review-waveforms` performs only waveform diagnosis. It submits the entire
-remaining audio queue to a bounded worker pool, so up to
+not-yet-approved audio queue to a bounded worker pool, so up to
 `--waveform-workers` JPEGs render concurrently while the user reviews the
-current full-width Sixel/ANSI preview. The renderer re-reads the live viewport
-and Windows console-font cell size for each preview, and automatically
-re-renders when the window or font size changes. It begins at the same 12-cell
-indent as the filename/status lines and uses Chafa's explicit live view size
-plus fit-to-view-width mode to reach every remaining cell except the one-cell
-right margin. A faint grey box marks the waveform's exact top, bottom, left,
-and right bounds, with matching faint grey dividers between every stacked audio
-channel.
+current full-width Sixel/ANSI preview. The default eight-worker queue starts
+every JPEG job before review begins. Independently, a bounded look-ahead cache
+prepares Chafa, built-in Sixel, or ANSI terminal output for the next 16 tracks
+by default, so advancing normally emits an already converted payload instead
+of synchronously invoking the renderer. If the window or font changes, the
+cached geometry is discarded for that track and it is rendered again at the
+new live size. The renderer re-reads the live viewport and Windows
+console-font cell size for each uncached or resized preview. It begins at the same 12-cell
+indent as the filename/status lines; the filename formatter's usual extra
+one-cell list alignment is removed on this screen so its note begins at the
+waveform's exact left edge. Chafa receives the explicit live view dimensions
+and exact-dimensions stretch mode so a height-limited JPEG cannot leave unused
+columns. The only unused horizontal cell is the deliberate one-cell right
+margin. A faint grey box marks the waveform's exact top, bottom, left, and
+right bounds, with matching faint grey dividers between every stacked audio
+channel. An unboxed area at the right edge contains a grey amplitude axis and
+four centered measurements: peak volume, average (RMS) volume, the linear
+ReplayGain multiplier, and longest detected silence.
+The measurements use a wider proportional font, with purple, blue, orange,
+yellow, and purple numerical values. If the longest continuous silence exceeds
+the effective threshold, that value alone turns red. If no ReplayGain
+track-gain tag exists, the multiplier reads `n/a`.
+Longest-silence seconds are truncated rather than rounded, so `9.9999` seconds
+is displayed as `9s`; cumulative silence is not displayed.
+
+The same FFmpeg decode that renders the picture measures every channel's actual
+sample peak, RMS level, and silence intervals. Because FFmpeg's waveform picture
+normalizes its drawing independently, the script rescales each stacked channel
+to its measured absolute peak. A small cyan-only antialiasing pass widens
+isolated true-peak columns enough to remain visible after JPEG and terminal
+downscaling without changing their vertical amplitude. Short horizontal guides
+and percentage labels appear only at the outer top and bottom peak heights;
+none are repeated beside the middle channel divider. In the decision prompt,
+the audio filename is faint and italic.
 
 The controls answer a diagnostic question rather than asking whether to keep a
 generated JPEG:
@@ -616,6 +717,12 @@ generated JPEG:
 - `E` — open the audio itself in Adobe Audition, Cool Edit, Audacity,
   ocenaudio, Sound Forge, or a configured editor
 - `V` — view the waveform JPEG full-screen through `openimage.bat`/IrfanView
+
+For a waveform whose longest silence exceeds the effective threshold, the
+screen shows a red warning and changes the legend to `ENTER/E=Edit audio`.
+Pressing Enter therefore opens the audio editor by default; after the editor
+opens, the review prompt remains available so the file can still be marked or
+renamed.
 
 When the `Y` follow-up rename is approved, an `rn.bat`-style editable filename
 prompt starts with the current audio filename. The verified rename includes the
@@ -634,6 +741,11 @@ until ordinary temporary-file cleanup. A track marked `Y` retains the exact
 staged preview path in the review result. `N` never changes the audio; `Y` only
 opens an editor or renames files when those separate follow-up prompts are also
 approved.
+
+Files marked fine are recorded only after the decision (and after any editor
+round-trip). The results distinguish newly approved files from unchanged,
+previously approved files that were skipped. This persistent approval database
+uses Python's built-in SQLite support and never writes into the music folder.
 
 ## Album Filename Normalization
 
@@ -654,6 +766,11 @@ become spaces, ordinary title words are capitalized, accepted all-caps/mixed
 case words are preserved, repeated whitespace is collapsed, and `feat.` is
 normalized to `feat` without the period. The same basename is used for
 matching sidecars and timestamped `.bak...replaced-by-chatgpt.bak` descendants.
+An eight-character hexadecimal/underscore download-tracking token at the very
+end of a title is also removed when it contains at least two digits, covering
+suffixes such as `-E75E4EC6`, `-35876105`, and `-F45_CC0D` without stripping
+ordinary final words. The same removal applies to audio, matching sidecars, and
+timestamped backup descendants.
 The Before/After table uses only the width its contents require and wraps only
 when that natural width would exceed the live console viewport.
 
@@ -765,6 +882,8 @@ is reported before the corresponding audio format is modified.
 - present-but-unusable plain or timed lyric sidecars, distinguished from tracks
   with no corresponding sidecar
 - missing SRT sidecar when matching LRC and TXT sidecars already exist
+- a newer manually edited MiniLyrics LRC that needs the matching SRT backfilled
+  through `lrc2srt.py`; LRCs that merely derive from their SRT are left alone
 - unsynced-only embedded lyrics
 - timestamped LRC sidecars that are not embedded as synced lyrics
 - matching MP3/FLAC pairs in the same folder
