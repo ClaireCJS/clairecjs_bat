@@ -1,1 +1,1 @@
-https://github.com/ClaireCJS/clairecjs_bat/tree/main/..\Metallica\
+https://github.com/ClaireCJS/clairecjs_bat/tree/main/T:\new

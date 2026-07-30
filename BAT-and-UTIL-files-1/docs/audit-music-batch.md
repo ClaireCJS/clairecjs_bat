@@ -4,10 +4,13 @@
 
 - missing or questionable title, artist, album, genre, comment, and URL tags
 - missing ReplayGain track gain/peak tags
+- leading, internal, or trailing silence longer than the configured threshold
 - missing, multiple, or sidecar-less embedded cover artwork, with optional
   conservative release-art discovery
-- missing embedded plain lyrics or timed karaoke on vocal tracks
+- missing or stale embedded plain lyrics/timed karaoke on vocal tracks
 - unsupported audio formats and matching MP3/FLAC duplicates
+- redundant artist prefixes, track separators, title capitalization, and
+  matching audio/sidecar/backup filename families
 - active TODOs, suspicious filenames, and zero-byte files
 - disposable sidecars, transcription leftovers, logs, and kept backups
 - archive/do-not-play folders missing their marker or `attrib.lst` rules
@@ -21,11 +24,21 @@ The auditor is self-contained; lyric embedding, timed-karaoke embedding, artwork
 extraction, and single-front-cover enforcement do not require a separate
 `process_ready_batch.py` helper.
 
+Its interactive workflows also provide full-console Chafa/Sixel/ANSI artwork
+previews with live resize re-rendering, original-image viewing through
+`openimage.bat`/IrfanView, complete release-art-set downloads with Front-only
+embedding, parallel waveform pre-render/review, excessive-silence detection,
+timestamped backups, immediate post-write re-auditing, rainbow progress bars,
+and More-style single-key paging.
+
 ## Flags
 
 `--no-interactive`
 
-Strictly read-only: report findings without prompts or changes.
+Suppress action prompts. Automatic lyric/karaoke embedding still follows its
+configured default. Missing-cover downloads are skipped because downloaded
+images cannot be reviewed. Add `--no-embed-lyrics --no-find-cover` for a
+strictly report-only run.
 
 `--write-reports`
 
@@ -48,23 +61,81 @@ Limit how many audit findings are printed in each standard-output section;
 
 Include archived/deprecated audio in active tag checks.
 
-`--embed-lyrics`
+`--embed-lyrics` / `--no-embed-lyrics`
 
-Embed all available lyric sidecars before auditing. Every changed audio file is
+Force automatic validated lyric/karaoke-sidecar embedding on or off for this
+run. The built-in default is on and can be changed with
+`--configure-defaults`. Every changed audio file is
 then named in a `Lyrics embedded by --embed-lyrics` section, together with the
 plain/timed lyric work performed, its backup, and confirmation that the file was
 included in the following audit pass.
 
-`--find-cover`
+Hash-prefixed transcription-generator comments are metadata, not lyrics. Lines
+whose lyric text begins with `#` are excluded from TXT, LRC, and SRT-derived
+plain/timed payloads and are never inserted into FLAC or MP3 tags. The source
+sidecars themselves are left unchanged.
 
-Resolve release artwork for audio that lacks an embedded Front cover. The
-workflow uses an exact tagged MusicBrainz release ID first, then a conservative
-MusicBrainz release search, and finally Discogs when `DISCOGS_TOKEN` is set.
+The automatic pass compares normalized sidecar payloads with the embedded
+copies and also compares sidecar/audio modification times. It refreshes an
+embed when content differs or a sidecar was regenerated after the last audio
+write. An exact, older-or-equal match is a no-op: it does not rewrite the audio
+or create another backup.
+
+`--find-cover` / `--no-find-cover`
+
+Force automatic missing-cover lookup on or off for this run. The built-in
+default is **off**. `--find-cover` explicitly resolves release artwork for
+audio that lacks an embedded Front cover. The workflow uses an exact tagged
+MusicBrainz release ID first, then a conservative MusicBrainz release search,
+and finally Discogs when `DISCOGS_TOKEN` is set.
 Once a release is selected, every distinct available artwork part is
 downloaded to the album folder—Front, Back, booklet, lyrics, inlay, disc/vinyl,
 matrix, spine, obi, and other supplied types—but only the approved primary
 Front image is embedded into audio. Every downloaded image is validated,
 previewed, approved or rejected by one keypress, and followed by a re-audit.
+
+`--check-silence` / `--no-silence-check`
+
+Force automatic excessive-silence analysis on or off. The built-in default is
+on.
+
+`--silence-threshold SECONDS`
+
+For this run, flag only silence strictly longer than this value. The built-in
+default-default value is `10.0` seconds.
+
+`--review-waveforms`
+
+Run only the interactive waveform-diagnostic workflow. It does not perform
+metadata, lyrics, cover, ReplayGain, cleanup, or rename auditing. If no folder
+is supplied, it reviews the current folder; both of these are equivalent:
+
+```bat
+audit_music_batch.py --review-waveforms
+audit_music_batch.py . --review-waveforms
+```
+
+Each waveform is a disposable preview used to inspect the audio for excessive
+silence, clipping or flattened peaks, dropouts, channel imbalance, and other
+suspicious shapes. `F` marks the track fine and advances, `P` records a problem
+for later review, `E` opens the audio in the discovered editor, `R` regenerates
+the waveform after an edit, and `V` opens the waveform image externally.
+
+`--waveform-workers NUMBER`
+
+Use 1 through 8 concurrent `ffmpeg` workers to pre-render the entire remaining
+waveform queue while one full-screen preview is being reviewed. The default is
+2 workers.
+
+`--configure-defaults` / `--show-defaults`
+
+Interactively persist or display automatic lyric, cover, and silence behavior
+beside the installed script. The config file is created only by
+`--configure-defaults`; ordinary runs and installations do not create it.
+
+`--no-pager`
+
+Disable the automatic More-style single-key pause used in a real console.
 
 `--no-color`
 
@@ -117,7 +188,7 @@ audit_music_batch.py . --write-reports
 Run report-only without prompts:
 
 ```bat
-audit_music_batch.py . --no-interactive --write-reports
+audit_music_batch.py . --no-interactive --no-embed-lyrics --no-find-cover --write-reports
 ```
 
 Find missing covers and retain the complete release artwork set:
@@ -132,6 +203,25 @@ MusicBrainz release ID can proceed under the flag's explicit authorization.
 Any search result that is not an exact tagged release still requires a separate
 default-No release-identity confirmation before artwork is downloaded.
 
+Review only waveforms, with three background render workers:
+
+```bat
+audit_music_batch.py . --review-waveforms --waveform-workers 3
+```
+
+Override the excessive-silence threshold for one normal audit:
+
+```bat
+audit_music_batch.py . --silence-threshold 15
+```
+
+Change or inspect persistent automatic behavior:
+
+```bat
+audit_music_batch.py --configure-defaults
+audit_music_batch.py --show-defaults
+```
+
 Run the self-contained generated-audio safety tests:
 
 ```bat
@@ -139,11 +229,12 @@ audit_music_batch.py --unit-tests
 ```
 
 Unit-test mode uses disposable temporary audio and exits before scanning or
-modifying any music batch. It reports 59 independently named tests so positive
+modifying any music batch. It reports 74 independently named tests so positive
 and negative cases appear as separate pass/fail results. Coverage includes:
 
 - complete and incomplete metadata, ReplayGain, comments, and genre rules
-- plain lyrics, timed karaoke, instrumentals, timed/untimed sidecars, and embedding
+- plain lyrics, timed karaoke, instrumentals, timed/untimed sidecars, embedding,
+  generator-comment exclusion, newer-sidecar detection, and verified refreshes
 - missing, single, multiple, sidecar-less, front/back/disc artwork; mocked exact
   and fuzzy cover lookup; invalid downloads; full artwork-set naming;
   release-level download deduplication; and image approve/reject/view behavior
@@ -154,6 +245,11 @@ and negative cases appear as separate pass/fail results. Coverage includes:
 - grouped album-artist filename cleanup, table output, playlist rewriting,
   collision refusal, and post-rename re-auditing
 - immediate actions, path-containment safety, prompt behavior, and CLI usage
+- current-folder waveform invocation, full-width pixel geometry, a grey preview
+  boundary, multi-row prompt erasure, editor/regenerate/view/problem controls,
+  and disposable-only waveform staging
+- progress-library discovery beside the script and in either
+  `clairecjs_util` or `clairecjs_utils` subfolders
 
 The album-write and blank-Enter tests share a folder named
 `audit_music_batch-testdata-YYYYMMDDHHMMSS` under the system temporary folder.
@@ -174,8 +270,18 @@ timed karaoke lyrics into this audio file now?” Once a valid answer is receive
 that same line is erased and immediately redrawn without blinking. The
 `[Y/n]`/`[y/N]` block is replaced by a colored `Yes!` or `No!`, followed by
 ANSI erase-to-end-of-line so no characters from the longer waiting prompt
-remain onscreen. Prompts use ANSI styling by default. Use `--no-color` if a
+remain onscreen. Wrapped prompts count and erase every occupied console row,
+so a long question is not left duplicated above its settled answer. Prompts use
+ANSI styling by default. Use `--no-color` if a
 terminal displays ANSI escape codes literally.
+
+Repeatable action prompts additionally show
+`Y=Yes / N=No / A=Always / V=Never / F=Just Do For This Folder`.
+`Always` and `Never` remember the decision for that action category for the
+rest of the run. `Just Do For This Folder` approves the same category for the
+current folder only. Remembered decisions are narrated without asking for
+another keypress. Album-tag value entry remains per-file because it requires
+actual text, not a reusable yes/no decision.
 
 ## Dependencies
 
@@ -187,20 +293,25 @@ Before scanning any music, the script runs a dependency preflight covering:
 - `send2trash` for approved Recycle Bin cleanup
 - `claire_progressbar` for long enumeration/audit progress
 - `metamp3` and `metaflac` for ARGT-equivalent ReplayGain repairs
+- `ffmpeg` for the default excessive-silence audit and waveform JPEG rendering
 - `flac` and `ffmpeg` when `--unit-tests` needs generated FLAC/MP3 fixtures
 
 Cover lookup uses Python's standard HTTPS client, so it does not require the
-third-party `requests` package. MusicBrainz/Cover Art Archive lookup works
-without a secret. Discogs is an optional final fallback and is enabled only
-when the `DISCOGS_TOKEN` environment variable contains a token.
+third-party `requests` package. HTTPS verification prefers the installed
+`certifi` CA bundle and never disables certificate checking. A Cover Art
+Archive certificate-validation failure is retried through that release's
+verified Internet Archive `mbid-.../index.json` object; CAA image URLs have the
+same direct Internet Archive fallback. MusicBrainz/Cover Art Archive lookup
+works without a secret. Discogs is an optional final fallback and is enabled
+only when the `DISCOGS_TOKEN` environment variable contains a token.
 
 Chafa is optional. When `chafa` is on PATH or `C:\util\Chafa.exe` exists, it is
-used for artwork previews. Without it, the script itself produces the same
-review capability using a built-in 64-color Sixel encoder on a Sixel-capable
-terminal or full-color ANSI half-blocks everywhere else. No binary is silently
-downloaded or installed.
+used at its highest accuracy setting for artwork previews. Without it, the
+script itself produces the same review capability using a built-in 64-color
+Sixel encoder on a Sixel-capable terminal or full-color ANSI half-blocks
+everywhere else. No binary is silently downloaded or installed.
 
-The `V` review key prefers `openimage.bat`. Because Claire's launcher uses
+The `V` review key prefers `openimage.bat`. Because that launcher uses
 TCC-specific syntax, the script invokes it through TCC when available;
 otherwise it duplicates the launcher's effective action by starting IrfanView
 directly. If neither route can find an image viewer, dependency preflight warns
@@ -251,7 +362,8 @@ The terminal report is intentionally summarized:
 - suggestion lines are faint, darker cyan, and retain their category-specific
   emoji so they remain identifiable without competing with the warning
 - successful writes separate subdued light-grey `💾 Backup:` details from the
-  green `✅ Applied:` result and the explicit `🔁 Re-audit: passed` status
+  green `🔧 Applied:` result and the explicit unboxed-green
+  `✔️ Re-audit: passed` status
 - cover discovery narrates source matching, downloads, validation, preview
   mode, approval/rejection, saved artwork, Front-only embedding, and re-audit
 - rejected downloads are reported under their
@@ -262,6 +374,8 @@ The terminal report is intentionally summarized:
 - every colored header uses a per-character RGB fade; “Other files detected”
   is double-height bright-cyan through bright-blue, while review warnings fade
   from bright yellow to deeper yellow
+- script-generated errors begin and end with `💥💥💥`; the bright-red
+  `ERROR:` label blinks when ANSI styling is enabled
 - long labeled paths are split before DEC double-height rendering using
   `bigecho.bat`'s half-terminal-width and ten-column safety-margin rule, so the
   top and bottom halves can never wrap at different positions
@@ -272,10 +386,13 @@ per second). The deliberately early display threshold is now **600 files**, so
 the bar appears before the measured one-second point instead of waiting until
 708 files. This timing decision lives in
 `audit_music_batch.py`. Rendering is delegated to
-`C:\clairecjs_utils\claire_progressbar.py`, whose bar cycles through a bright
-HSV rainbow by default; Python callers can pass `rainbow=False` to use ordinary
-`tqdm` coloring. The shared library deliberately contains no timing,
-throughput, or “slow enough” policy.
+`claire_progressbar.py`, whose bar cycles through a bright HSV rainbow by
+default; Python callers can pass `rainbow=False` to use ordinary `tqdm`
+coloring. To remain portable when the script and library are copied together,
+the loader checks beside `audit_music_batch.py`, then its
+`clairecjs_util\` and `clairecjs_utils\` subfolders. The installed shared
+library normally lives at `C:\clairecjs_utils\claire_progressbar.py`. The
+library deliberately contains no timing, throughput, or “slow enough” policy.
 
 `collect_files()` now feeds that same bar. It appears as soon as discovery
 reaches 600 files or actually takes more than one second, backfills the files
@@ -335,6 +452,13 @@ local Front exists, `Y` invokes the same conservative discovery workflow as
 image, save every approved part, embed only Front, and immediately re-audit the
 affected audio.
 
+Cover lookup does not run as a default startup phase. It begins only after an
+explicit `--find-cover` or an approved missing-cover action. The double-height
+header is `Finding cover art:` and is emitted only when at least one missing
+cover will actually be handled. MusicBrainz release resolution and the
+artwork-download queue each use the shared rainbow progress bar, so
+network waits remain visibly active.
+
 Resolution is deliberately ordered from strongest evidence to weakest:
 
 1. An exact MusicBrainz release ID already embedded in the audio tags.
@@ -370,25 +494,27 @@ for that release—not just the cover. Common filenames are:
 Repeated types receive `-2`, `-3`, and so on. A collision with an existing
 filesystem entry receives ` (1)`, ` (2)`, and so on; existing art is never
 overwritten. In recognized album folders, these names live at album scope.
-Loose/MISC audio uses same-name artwork so unrelated singles do not share art.
+Loose/MISC audio still receives the descriptive release-art files in its own
+immediate folder; the local embedding candidate remains strictly `cover.*` or
+`folder.*`.
 
 Every response is size-limited and checked for an image content type. Pillow
 must decode it successfully; tiny images and implausibly shaped Front images
 are rejected. Accepted candidates are normalized to high-quality JPEG before
 review.
 
-During an interactive run, each image gets a terminal preview and a single-key
-`[A/r/v]` decision:
+During an interactive run, each image gets a terminal preview and the expanded
+`[Y=Yes/Enter | N=No | R=Refresh | V=View original]` decision:
 
-- `A` or Enter approves the image.
-- `R` rejects it.
-- `V` opens it through `openimage.bat`/IrfanView, then returns to the same
-  approval question.
+- `Y` or Enter approves the image.
+- `N` rejects it.
+- `R` re-renders the preview using the current console viewport.
+- `V` opens the original image through `openimage.bat`/IrfanView, then returns
+  to the same approval question.
 
-With the deliberately unattended combination
-`--no-interactive --find-cover`, only exact tagged release IDs can proceed and
-the explicit flag authorizes their images without terminal previews. A fuzzy
-identity is never auto-approved.
+With `--no-interactive`, all cover lookup/download work is skipped—even when
+`--find-cover` is supplied—because neither release identity nor downloaded
+images can be reviewed safely. Use interactive mode for cover acquisition.
 
 Chafa supplies Sixel or full-color ANSI output when installed. Without Chafa,
 the script's own renderer emits Sixel when the terminal advertises support and
@@ -396,12 +522,18 @@ ANSI half-block art otherwise. Set `AUDIT_MUSIC_ART_PREVIEW=sixel` to force
 Sixel or `AUDIT_MUSIC_ART_PREVIEW=ansi` to force the portable ANSI renderer.
 
 All three renderers read the live console width and height for every image.
-They subtract the normal 12-column indent, a two-column right margin, and seven
-rows reserved for preview status, the `[A/r/v]` question, and a possible
-IrfanView message. The artwork is then enlarged or reduced without distortion
-to occupy the largest possible portion of every remaining console cell. There
-is no fixed `72x24` preview cap. Very small terminals automatically reduce the
-indent and reserve while preserving room for both image and prompt.
+While a Windows review prompt is waiting, the script polls the live viewport;
+resizing the window or changing the console font size automatically triggers a
+new render. `R` provides the same refresh explicitly. The renderers subtract
+the normal 12-column indent, a two-column right margin, and seven rows reserved
+for preview status, the expanded review question, and a possible IrfanView
+message. The artwork is enlarged or reduced without distortion to occupy the
+largest possible portion of every remaining console cell. There is no fixed
+`72x24` preview cap. Very small terminals automatically reduce the indent and
+reserve while preserving room for both image and prompt. ANSI-symbol sharpness
+is limited by the number of terminal character cells, so a smaller console
+font produces a sharper re-render; Sixel or `V=View original` remains the
+highest-detail option.
 
 Before recycling a rejected download, the script renames it to include
 `rejected-by-username`, for example
@@ -415,6 +547,48 @@ The workflow does not ask an AI to guess from arbitrary image-search results.
 Its confidence comes from structured release identifiers and metadata; fuzzy
 or fallback identities remain human-approved.
 
+## Silence and Waveform Review
+
+Normal audits use `ffmpeg` to detect leading, internal, and trailing silence at
+`-50 dB`. A finding is created only when one continuous interval is strictly
+longer than the effective threshold; the built-in default-default is `10.0`
+seconds. `--silence-threshold`, `--check-silence`, `--no-silence-check`, and
+`--configure-defaults` control that behavior. The finding includes the
+interval type, timestamps, and duration, and suggests the separate waveform
+review workflow.
+
+`--review-waveforms` performs only waveform diagnosis. It submits the entire
+remaining audio queue to a bounded worker pool, so up to
+`--waveform-workers` JPEGs render concurrently while the user reviews the
+current full-width Sixel/ANSI preview. The renderer re-reads the live viewport
+and Windows console-font cell size for each preview, and automatically
+re-renders when the window or font size changes. It uses all available width
+except one left and one right cell; a faint grey box marks the waveform's exact
+top, bottom, left, and right bounds.
+
+The controls answer a diagnostic question rather than asking whether to keep a
+generated JPEG:
+
+- `F` — the waveform looks fine; continue to the next track
+- `P` — mark the track and its staged preview as a problem for later review
+- `E` — open the audio itself in Adobe Audition, Cool Edit, Audacity,
+  ocenaudio, Sound Forge, or a configured editor
+- `R` — regenerate the preview from the current audio file after an edit
+- `V` — open the waveform JPEG through `openimage.bat`/IrfanView
+
+`AUDIO_EDITOR_EXECUTABLE` in the `USER CONFIGURATION` section or the
+`AUDIT_MUSIC_AUDIO_EDITOR` environment variable can name a preferred editor.
+Otherwise the script searches PATH, installed Adobe Audition directories, and
+known local editor/launcher paths.
+
+Waveform JPEGs are never copied beside the music. Their timestamped staging
+directory is created under `C:\recycled` when that writable directory exists,
+otherwise under `%TEMP%`, and remains there as disposable temporary material
+until ordinary temporary-file cleanup. A track marked `P` retains the exact
+staged preview path in the review result; neither `F` nor `P` changes the audio.
+
+## Album Filename Normalization
+
 For a recognized `Artist\YYYY - Album\` directory, repeated filename prefixes
 such as `10-babymetal-pa_pa_ya.flac` are detected only when at least two audio
 tracks share the pattern. The audio files and matching TXT/LRC/SRT/image/JSON/log
@@ -425,11 +599,15 @@ slightly different faint RGB shade on each continuation line. One default-No
 prompt approves or rejects the entire group.
 
 The proposed name removes the redundant artist and uses a track-number
-underscore: `02_Da da dance (feat Tak Matsumoto).flac`. Albums with fewer than
+underscore: `02_Da Da Dance (feat Tak Matsumoto).flac`. Albums with fewer than
 ten distinct track numbers drop the leading zero (`2_Title.flac`); albums with
 ten or more retain two digits (`02_Title.flac`). Underscores inside the title
-become spaces, repeated whitespace is collapsed, and `feat.` is normalized to
-`feat` without the period. The same basename is used for matching sidecars.
+become spaces, ordinary title words are capitalized, accepted all-caps/mixed
+case words are preserved, repeated whitespace is collapsed, and `feat.` is
+normalized to `feat` without the period. The same basename is used for
+matching sidecars and timestamped `.bak...replaced-by-chatgpt.bak` descendants.
+The Before/After table uses only the width its contents require and wraps only
+when that natural width would exceed the live console viewport.
 
 Approval preflights every source and destination before moving the first file.
 Any collision aborts the whole group unchanged. Local M3U/M3U8 references are
@@ -437,7 +615,7 @@ backed up with the standard `replaced-by-chatgpt` filename, rewritten using
 their original text encoding, and restored if a later operation fails. After
 the grouped rename, the album is re-audited and the action fails unless the
 redundant-artist finding has disappeared. A successful prompt prints that
-re-audit as its own `🔁 Re-audit: passed` line. Generic organizational
+re-audit as its own `✔️ Re-audit: passed` line. Generic organizational
 directories such as `MISC` and `Various Artists` are not treated as artist
 names.
 
@@ -452,6 +630,16 @@ says that none was found. After an approved write, the audio file is re-audited
 immediately; the action is failed if the corresponding missing-lyrics finding
 remains.
 
+Already-embedded lyrics are not assumed current merely because the tags exist.
+For both FLAC and MP3, the auditor compares the normalized embedded plain/timed
+payloads with the usable sidecars. It also detects a sidecar modification time
+newer than the audio, covering a transcription that was regenerated with
+identical text. A single `Embedded lyrics need refreshing` finding lists the
+affected sidecars and explains whether their content differs, they are newer,
+or both. Interactive approval refreshes all affected lyric payloads with one
+backup and immediately re-audits; the default automatic lyric pass performs the
+same refresh before reporting.
+
 Sidecar lookup replaces the audio extension exactly once, so periods inside a
 track name—such as `(feat._Artist).flac`—cannot truncate the sidecar stem.
 
@@ -465,7 +653,7 @@ multichannel audio. ReplayGain tags are validated on multichannel files rather
 than skipped, so 5.1 and 7.1 files are not exempt from gain/peak checks.
 
 Approving a missing-ReplayGain finding runs a portable Python reproduction of
-Claire's `argt` / `add-ReplayGain-tags.bat` workflow on that track's immediate
+the `argt` / `add-ReplayGain-tags.bat` workflow on that track's immediate
 folder:
 
 1. Discover all immediate-child MP3 and FLAC files; the operation is
@@ -524,6 +712,8 @@ is reported before the corresponding audio format is modified.
 - FLACs with embedded art but no obvious sidecar art
 - missing embedded plain lyrics for non-instrumental/non-no-lyrics tracks
 - missing embedded timed karaoke for non-instrumental/non-no-lyrics tracks
+- embedded lyrics or karaoke that differ from their current sidecars, or whose
+  sidecars were regenerated after the last audio write
 - present-but-unusable plain or timed lyric sidecars, distinguished from tracks
   with no corresponding sidecar
 - missing SRT sidecar when matching LRC and TXT sidecars already exist
@@ -538,15 +728,14 @@ is reported before the corresponding audio format is modified.
 - temp transcription files, VAD scratch files, `.m3u8`, `.xmp`
 - archive/do-not-play folder compliance
 
-For missing embedded covers, detection and execution share the same candidate
-rules. A same-name image or `cover`, `folder`, or `front` image is preferred.
-As in `embed-album-art-recursively-if-there-is-only-1-image-in-the-folder.bat`,
-a folder's sole plausible image can also be embedded even when it has an
-album-specific filename. A sole explicitly non-front image such as `back.jpg`
-or `disc.jpg` is never promoted to the embedded cover. If no usable local image
-exists, the prompt explicitly offers to search for the release artwork,
-download and review every selected image part, embed only the approved Front,
-and re-audit.
+For missing embedded covers, detection and execution share the same strict
+candidate rules: only a local `cover.*` or `folder.*` file can become the
+embedded Front cover. `proof.*`, `front.*`, same-name images, a folder's sole
+image, `back.*`, `disc.*`, and other artwork parts are never promoted. An
+approved non-JPEG Front candidate is converted to a collision-safe JPEG before
+embedding. If no usable local Front exists, the prompt explicitly offers to
+search for the release artwork, download and review every selected image part,
+embed only the approved Front, and re-audit.
 
 ## Metadata Conventions
 
@@ -559,10 +748,11 @@ and re-audit.
 
 ## Non-Goals
 
-This script does not use AI image search, choose arbitrary web images, listen
-to audio, merge tracks, or delete backups. It is read-only when no write action
-is approved and neither write flag is supplied. `--embed-lyrics` embeds
-matching TXT/LRC/SRT lyric-sidecar material (and may derive missing TXT/LRC
-sidecars). `--find-cover` performs the structured, confirmation-gated
-MusicBrainz/Cover Art Archive and optional Discogs artwork workflow described
-above.
+This script does not use AI image search, choose arbitrary web images, merge
+tracks, or delete backups. Its default normal audit may embed validated
+lyric/karaoke sidecars after creating backups; use `--no-embed-lyrics` to
+suppress that behavior. Cover acquisition remains interactive and its built-in
+default is off. For a strictly report-only run, use
+`--no-interactive --no-embed-lyrics --no-find-cover`. `--find-cover` performs
+the structured, confirmation-gated MusicBrainz/Cover Art Archive and optional
+Discogs artwork workflow described above.

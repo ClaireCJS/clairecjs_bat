@@ -594,7 +594,7 @@ REM display debug info:
         rem echo α 500
         if %DEBUG gt 0 echo %ansi_color_debug%- DEBUG: (8)%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%    SONGFILE=“%ITALICS_ON%%DOUBLE_UNDERLINE%%SONGFILE%%UNDERLINE_OFF%%ITALICS_OFF%”:%NEWLINE%%TAB%%TAB%%FAINT_ON%SONGBASE=“%ITALICS_ON%%SONGBASE%%ITALICS_OFF%”%NEWLINE%%TAB%%TAB%LRC_FILE=“%ITALICS_ON%%LRC_FILE%%ITALICS_OFF%”, %NEWLINE%%TAB%%TAB%TXT_FILE=“%ITALICS_ON%%TXT_FILE%%ITALICS_OFF%”%FAINT_OFF%%ansi_color_normal%
         gosub divider
-        iff "1" == "%ANNOUNCE_IF_SIDECAR_FILES_EXIST%" then
+        if "1" != "%ANNOUNCE_IF_SIDECAR_FILES_EXIST%" goto :endiff_do_not_announce_613
                 iff exist "%@UNQUOTE[%SONGFILE%]" .or. exist %SONGFILE% then
                         set INPUT_FILE=%SONGFILE%
                         call subtle "%italics_on%INPUT_FILE%italics_off% is now: “%faint_on%%INPUT_FILE%%faint_off%”"
@@ -610,7 +610,7 @@ REM display debug info:
                                         if defined MAYBE_SRT_1 gosub say_if_exists MAYBE_SRT_1
                                         if defined MAYBE_SRT_2 gosub say_if_exists MAYBE_SRT_2
                         :Try_Skipping_These_20260728
-        endiff
+        :endiff_do_not_announce_613
 
 rem If a txt file exists and it is approved, and a subtitle does not exist, jump straight to ai
         if "%LYRIC_STATUS%" == "" gosub refresh_lyric_status
@@ -2670,7 +2670,7 @@ goto /i skip_subroutines
                                                         unset /q ANSWER
                                                 call AskYN "Edit lyrics" no 0
                                                         iff "Y" == "%ANSWER%" then
-                                                                unset our_lyrics*
+                                                                unset /q our_lyrics*
                                                                 gosub check_for_answer_of_E "%txt_file%" "%srt_file%" 
                                                         else
                                                                 echo %star2% Current lyrics are: %lq%%italics_on%%our_lyrics%%italics_on%%rq%
