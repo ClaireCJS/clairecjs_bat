@@ -1,12 +1,69 @@
 # audit_music_batch.py
 
-`audit_music_batch.py` audits incoming music batches and can immediately apply
-supported actions after interactive confirmation.
-It audits the current batch against the recurring workflow rules from
-`C:\notes\audio-processing-batch-NOTES.txt` and produces reports/proposal codes
-instead of silently changing files.
+`audit_music_batch.py` audits incoming music batches for:
 
-## Basic Usage
+- missing or questionable title, artist, album, genre, comment, and URL tags
+- missing ReplayGain track gain/peak tags
+- missing, multiple, or sidecar-less embedded cover artwork
+- missing embedded plain lyrics or timed karaoke on vocal tracks
+- unsupported audio formats and same-stem MP3/FLAC duplicates
+- active TODOs, suspicious filenames, and zero-byte files
+- disposable sidecars, transcription leftovers, logs, and kept backups
+- archive/do-not-play folders missing their marker or `attrib.lst` rules
+
+Every finding is explained. Supported actions can be applied immediately after
+interactive confirmation; judgment calls remain visible without being presented
+as executable actions. The checks reflect the recurring workflow rules from
+`C:\notes\audio-processing-batch-NOTES.txt`.
+
+The auditor is self-contained; lyric embedding, timed-karaoke embedding, artwork
+extraction, and single-front-cover enforcement do not require a separate
+`process_ready_batch.py` helper.
+
+## Flags
+
+`--no-interactive`
+
+Strictly read-only: report findings without prompts or changes.
+
+`--write-reports`
+
+Write JSON, Markdown, and text reports.
+
+`--output-dir FOLDER`
+
+Write reports to a selected folder instead of the audited folder.
+
+`--format text|json|markdown`
+
+Select the standard-output report format.
+
+`--max-examples NUMBER`
+
+Limit how many audit findings are printed in each standard-output section;
+`0` prints every finding.
+
+`--include-archives`
+
+Include archived/deprecated audio in active tag checks.
+
+`--embed-lyrics`
+
+Embed all available lyric sidecars before auditing.
+
+`--no-color`
+
+Disable ANSI styling.
+
+`--unit-tests`
+
+Run disposable generated-audio tests without scanning a music folder.
+
+`-h` / `--help`
+
+Show the styled usage screen.
+
+## Examples
 
 Pre-audit karaoke sidecar fix:
 
@@ -19,14 +76,16 @@ same-stem `.srt` files only when a timestamped `.lrc` and matching `.txt`
 already exist. Untimed/no-cue LRC files are skipped, leaving songs without
 usable karaoke timing for the later lyric/karaoke workflow.
 
-From the root of a batch:
+From the root of a batch, explicitly pass `.`:
 
 ```bat
-audit_music_batch.py
+audit_music_batch.py .
 ```
 
 That prints the audit and then prompts through findings that have concrete,
 implemented actions. `Y` applies the displayed action immediately; `N` skips it.
+Running `audit_music_batch.py` without a folder or flags displays the styled
+usage screen and performs no audit.
 
 Or with an explicit folder:
 
@@ -53,7 +112,19 @@ audit_music_batch.py --unit-tests
 ```
 
 Unit-test mode uses disposable temporary audio and exits before scanning or
-modifying any music batch.
+modifying any music batch. It reports 46 independently named tests so positive
+and negative cases appear as separate pass/fail results. Coverage includes:
+
+- complete and incomplete metadata, ReplayGain, comments, and genre rules
+- plain lyrics, timed karaoke, instrumentals, timed/untimed sidecars, and embedding
+- missing, single, multiple, sidecar-less, front/back/disc artwork
+- zero-byte media, cleanup candidates, kept backups/logs/markers, and TODOs
+- active versus archived audio, archive repairs, duplicate formats, and filenames
+- immediate actions, path-containment safety, prompt behavior, and CLI usage
+
+The album-write and blank-Enter tests share a folder named
+`audit_music_batch-testdata-YYYYMMDDHHMMSS` under the system temporary folder.
+The folder is sent to the Recycle Bin after the test class finishes.
 
 The default interactive pass uses capitalized defaults:
 
@@ -73,6 +144,45 @@ tag checks were skipped.
 
 ## Outputs
 
+The terminal report is intentionally summarized:
+
+- all double-height lines begin with sparkle/asterisk decoration
+- audit root and active-audio/file totals use double-height colored lines
+- “Findings by severity” and “Review needed” use double-height headings
+- section headings use sparkle/asterisk decoration
+- severity counts include a plain-language explanation of each level
+- backup, JSON, log, and user-marker files are reported as right-aligned kept totals
+  rather than long individual filename lists
+- only actionable or manually reviewable findings list paths
+- listed paths are faint and italic, with stable slight RGB variations that
+  separate adjacent filenames visually
+- report indentation uses four-space stops
+- warning/review headings and missing-album labels use bright yellow
+- every colored header uses a per-character RGB fade; “Other files detected”
+  is double-height bright-cyan through bright-blue, while review warnings fade
+  from bright yellow to deeper yellow
+- long labeled paths are split before DEC double-height rendering using
+  `bigecho.bat`'s half-terminal-width and ten-column safety-margin rule, so the
+  top and bottom halves can never wrap at different positions
+
+The progress threshold is calibrated from five read-only passes over a real
+396-file batch. Median runtime was `0.5601054` seconds (`707.0098` files per
+second), so the `tqdm` status bar first appears at 708 files—the first integer
+count predicted to exceed one second. This timing decision lives in
+`audit_music_batch.py`. Rendering is delegated to
+`C:\clairecjs_utils\claire_progressbar.py`, whose bar cycles through a bright
+HSV rainbow by default; Python callers can pass `rainbow=False` to use ordinary
+`tqdm` coloring. The shared library deliberately contains no timing,
+throughput, or “slow enough” policy.
+
+Enumeration now feeds that same bar. It appears as soon as discovery crosses
+the calibrated threshold or actually takes more than one second, backfills the
+files already found, then switches to a known combined enumeration/audit total.
+Phase labels distinguish filesystem, duplicate/archive, and audio-tag work; the
+current audio filename is displayed before its tags are opened. The shared bar
+uses a 0.05-second minimum refresh interval, a 0.5-second maximum interval, and
+one update per refresh opportunity so large batches do not appear stalled.
+
 With `--write-reports`, the script writes these files to the audited folder
 unless `--output-dir` is provided:
 
@@ -83,6 +193,24 @@ unless `--output-dir` is provided:
 Interactive mode does not write a deferred approval plan. Approved actions are
 performed immediately. Findings that require missing information or subjective
 judgment remain in the report but are not presented as executable prompts.
+Missing album tags are the exception: the auditor asks for an album value.
+Entering text writes and verifies the tag; pressing Enter on a blank prompt
+leaves the file unchanged.
+
+When usable TXT/LRC/SRT sidecars exist but lyrics are not embedded, the finding
+explicitly mentions `--embed-lyrics` and interactive mode offers a default-yes
+`Y/n` repair. After an approved write, the audio file is re-audited immediately;
+the action is failed if the corresponding missing-lyrics finding remains.
+
+The former `process_ready_batch.py` and `test_music_lyrics.py` sidecars are not
+part of this workflow. Batch processing and generated-audio tests are contained
+in `audit_music_batch.py`; run the latter with `--unit-tests`.
+
+The filesystem/audio pass also detects suspiciously tiny audio, the Windows
+read-only attribute, noncanonical parenthesized filename markers, and
+multichannel audio. ReplayGain tags are validated on multichannel files rather
+than skipped: `rsgain` ReplayGain 2.0 uses `libebur128`/ITU BS.1770 for
+multichannel analysis, so 5.1 and 7.1 files are not exempt from gain/peak checks.
 
 ## Finding Types
 

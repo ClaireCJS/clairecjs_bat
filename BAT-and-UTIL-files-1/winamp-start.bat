@@ -5,7 +5,7 @@
 rem BRANCH VIA PARAMETERS:
 	if "%1"=="plugins" (goto :Plugins  )
 	if "%1"=="appdata" (goto :Appdata  )
-		                goto :RunWinAmp
+	                    goto :RunWinAmp
 
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -28,22 +28,7 @@ rem BRANCH VIA PARAMETERS:
 	if exist %WINAMP% goto :Winamp_Exists_YES
 	                       :Winamp_Exists_NO
 		:Winamp_Exists_YES
-            REM 20221102 changing nonelevated to elevated because of polka stuff not playing
-            rem set CLI_OPTIONS=/device=2
-            unset /q CLI_OPTIONS=
-            REM echo ** call start-elevated %@SFN[%WINAMP]% %CLI_OPTIONS% 
-            call winamp-fix-out-ds-hdmi-splitter
-			echo ** call start-elevated       %WINAMP   %CLI_OPTIONS% 
-			        call start-elevated       %WINAMP   %CLI_OPTIONS% 
-                    :20230424 reduced this sleep from 3 to 2
-                    :20230616 put it to 4 cause winamp 5.92 starts a bit slower?
-                        call wait 4 "(waiting for %italics_on%WinAmp%italics_off% to start)"
-                    :20260707 Winamp/out_ds can rewrite cfg_dev2 while loading, so re-apply before autoexec playback
-                        call winamp-fix-out-ds-hdmi-splitter
-                    :20241213 trying to get it to play earlier
-                     if "%1"=="autoexec" (call play)
-                    :20240417 - after downgrading to winamp 5.666 it seems MiniLyrics needs to be independently started? Huh>
-                    call MiniLyrics
+                        call MiniLyrics
                         iff "%1" != "noposfix" then
                                 call AskYN "Fix Minilyrics size & position" no 10
                                 if "Y" == "%ANSWER%" call fix-MiniLyrics-window-size-and-position
@@ -78,4 +63,7 @@ goto :End
 
 
 :End
+
 repeat 5 echo.
+
+
