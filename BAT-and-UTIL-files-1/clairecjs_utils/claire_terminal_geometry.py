@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import ctypes
 import json
+import math
 import os
 import re
 import time
@@ -99,8 +100,15 @@ class TerminalGeometry:
 
     @property
     def chafa_options(self) -> str:
+        # Chafa's pixel protocols define one view cell as 8x8 pixels. Scale
+        # the terminal's character grid by its real cell height so Sixel
+        # output reaches the physical viewport, while font-ratio accounts for
+        # the cell's non-square width.
+        sixel_scale = self.cell_height / 8
+        view_width = max(1, math.floor(self.columns * sixel_scale))
+        view_height = max(1, math.floor(self.rows * sixel_scale))
         return (
-            f"--view-size={self.columns}x{self.rows} "
+            f"--view-size={view_width}x{view_height} "
             f"--font-ratio={self.cell_width}/{self.cell_height}"
         )
 

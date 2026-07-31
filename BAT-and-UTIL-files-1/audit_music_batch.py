@@ -65,6 +65,10 @@ BUILTIN_DEFAULT_EMBED_LYRICS = True
 BUILTIN_DEFAULT_FIND_COVER = False
 BUILTIN_DEFAULT_CHECK_SILENCE = True
 BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS = 10.0
+# ReplayGain adjustments inside this ±dB window are effectively neutral and
+# are not offered for destructive sample-data baking. Change this one value to
+# make both the folder-wide workflow and the per-file B option more/less strict.
+REPLAYGAIN_BAKE_THRESHOLD_DB = 0.05
 SILENCE_DETECT_NOISE_DB = -50
 SILENCE_ANALYSIS_WORKERS = max(2, min(8, os.cpu_count() or 4))
 WAVEFORM_JPEG_WIDTH = 2000
@@ -74,6 +78,7 @@ WAVEFORM_PLOT_WIDTH = WAVEFORM_JPEG_WIDTH - WAVEFORM_METRICS_GUTTER_WIDTH
 WAVEFORM_SILENCE_MIN_SECONDS = 0.1
 WAVEFORM_APPROVAL_DATABASE_MAX_BYTES = 50 * 1024 * 1024
 WAVEFORM_APPROVAL_DATABASE_FILENAME = "waveform_reviews.sqlite3"
+CHAFA_SIXEL_VIEW_SCALE = 2.1
 WAVEFORM_CHANNEL_COLORS = (
     "0x55dcff",  # cyan: left/first channel
     "0xb68cff",  # violet: right/second channel
@@ -118,11 +123,6 @@ except Exception as _progress_exc:
         """Small stdlib fallback retained for diagnostics and unit-test output."""
         red, green, blue = colorsys.hsv_to_rgb(float(position) % 1.0, 1.0, 1.0)
         return f"#{round(red * 255):02x}{round(green * 255):02x}{round(blue * 255):02x}"
-
-try:
-    from claire_terminal_geometry import query_terminal_geometry
-except Exception:  # pragma: no cover - shared utility is optional.
-    query_terminal_geometry = None
 
 
 AUDIO_EXTS = {".mp3", ".flac"}
@@ -932,9 +932,9 @@ def dependency_requirements(
             "waveform audio preview",
         ),
         ToolRequirement(
-            "play_audio_file.py",
+            "play_wav_file.py",
             detected(
-                "play_audio_file.py",
+                "play_wav_file.py",
                 audio_preview_player_script() is not None,
             ),
             (
@@ -4283,16 +4283,9 @@ def windows_visible_console_size() -> os.terminal_size | None:
 
 
 def windows_console_font_cell_size() -> tuple[int, int] | None:
-    """Return the active terminal character-cell size in physical pixels."""
+    """Return the active Win32 console font cell size in physical pixels."""
     if os.name != "nt":
         return None
-    if query_terminal_geometry is not None:
-        try:
-            geometry = query_terminal_geometry(timeout_seconds=0.35)
-            if geometry.cell_width > 0 and geometry.cell_height > 0:
-                return geometry.cell_width, geometry.cell_height
-        except Exception:
-            pass
     try:
         import ctypes
         import msvcrt
@@ -4895,16 +4888,17 @@ def prepare_artwork_preview(
         )
     output_format = "sixels" if sixel else "symbols"
     if sixel and not stretch_to_width:
-        cell_width = max(1, round(geometry.pixel_width / geometry.columns))
-        cell_height = max(1, round(geometry.pixel_height / geometry.rows))
+        # Keep this in lockstep with echo-image.bat.  Chafa's Sixel renderer
+        # uses image-pixel view dimensions, not terminal-cell dimensions; the
+        # 2.1 multiplier is the deliberately tuned quality setting there.
         command = [
             str(chafa),
             "--format=sixels",
+            "--fit-width",
             "--colors=full",
-            f"--size={geometry.columns}x{geometry.rows}",
-            f"--view-size={geometry.columns}x{geometry.rows}",
-            f"--font-ratio={cell_width}/{cell_height}",
-            "--scale=max",
+            "--view-size="
+            f"{geometry.columns * CHAFA_SIXEL_VIEW_SCALE:.1f}x"
+            f"{geometry.rows * CHAFA_SIXEL_VIEW_SCALE:.1f}",
             "--optimize=9",
             "--work=9",
             "--color-space=din99d",
@@ -5154,15 +5148,15 @@ def audio_preview_player_script() -> Path | None:
     """Find the legacy-named interactive FFplay controller."""
     script_folder = Path(__file__).resolve().parent
     candidates = (
-        script_folder / "play_audio_file.py",
+        script_folder / "play_wav_file.py",
         script_folder / "play_wave_file.py",
-        Path(r"C:\BAT\play_audio_file.py"),
+        Path(r"C:\BAT\play_wav_file.py"),
         Path(r"C:\BAT\play_wave_file.py"),
     )
     for candidate in candidates:
         if candidate.is_file():
             return candidate
-    for name in ("play_audio_file.py", "play_wave_file.py"):
+    for name in ("play_wav_file.py", "play_wave_file.py"):
         discovered = shutil.which(name)
         if discovered:
             return Path(discovered)
@@ -5174,7 +5168,7 @@ def launch_audio_preview(audio_path: Path) -> Path:
     player = audio_preview_player_script()
     if player is None:
         raise RuntimeError(
-            "play_audio_file.py was not found beside audit_music_batch.py, "
+            "play_wav_file.py was not found beside audit_music_batch.py, "
             "under C:\\BAT, or in PATH"
         )
     result = subprocess.run(
@@ -5680,6 +5674,22 @@ def replaygain_decibels_from_factor(factor: float | None) -> float | None:
     return 20.0 * math.log10(float(factor))
 
 
+def replaygain_needs_baking(
+    metrics: WaveformMetrics | None,
+    audio_path: Path,
+    *,
+    threshold_db: float = REPLAYGAIN_BAKE_THRESHOLD_DB,
+) -> bool:
+    """Return whether a supported file's tagged gain is outside ±threshold."""
+    if metrics is None or audio_path.suffix.casefold() not in {".flac", ".mp3"}:
+        return False
+    tagged_db = replaygain_decibels_from_factor(metrics.replaygain_factor)
+    return (
+        tagged_db is not None
+        and abs(tagged_db) > abs(float(threshold_db)) + 1e-9
+    )
+
+
 def safely_baked_replaygain_db(
     metrics: WaveformMetrics,
 ) -> tuple[float, float]:
@@ -6068,12 +6078,10 @@ def waveform_review_choice(
             if current_metrics is not None
             else None
         )
-        allow_bake_gain = (
-            requested_gain_db is not None
-            and abs(requested_gain_db) >= 0.10
-            and audio_path.suffix.casefold() in {".flac", ".mp3"}
-            and not gain_baked
-        )
+        allow_bake_gain = replaygain_needs_baking(
+            current_metrics,
+            audio_path,
+        ) and not gain_baked
         prompt_visible = False
         while True:
             prompt = urgent_prompt_text(
@@ -7295,6 +7303,11 @@ def review_waveforms(
         thread_name_prefix="waveform",
     )
     futures: dict[Path, Future] = {}
+    rendered_results: dict[
+        Path, tuple[Path, Path | None, WaveformMetrics]
+    ] = {}
+    before_bake_waveforms: dict[Path, Path] = {}
+    folder_baked_audio: set[Path] = set()
     preview_executor: ThreadPoolExecutor | None = None
     prepared_futures: dict[Path, Future] = {}
     try:
@@ -7311,6 +7324,85 @@ def review_waveforms(
                 destination=staging_folder / staged_name,
                 acceptable_silence_seconds=acceptable_silence_seconds,
             )
+        tagged_bake_candidates = [
+            path
+            for path in audio_files
+            if (
+                (tagged_db := replaygain_decibels_from_factor(
+                    waveform_replaygain_factor(path)
+                ))
+                is not None
+                and abs(tagged_db)
+                > REPLAYGAIN_BAKE_THRESHOLD_DB + 1e-9
+                and path.suffix.casefold() in {".flac", ".mp3"}
+            )
+        ]
+        if tagged_bake_candidates:
+            print()
+            threshold_text = f"±{REPLAYGAIN_BAKE_THRESHOLD_DB:g} dB"
+            if prompt_for_approval(
+                f"Bake ReplayGain into the audio data for all "
+                f"{len(tagged_bake_candidates)} file"
+                f"{'s' if len(tagged_bake_candidates) != 1 else ''} outside "
+                f"{threshold_text} before waveform review? Blue originals "
+                "will be preserved for comparison; newly baked waveforms "
+                "will be green.",
+                False,
+                use_color,
+                key_reader=key_reader,
+                indent="        ",
+            ):
+                cover_narration(
+                    "🔵",
+                    "Finishing and preserving the original blue waveform "
+                    "previews before changing any audio data.",
+                    use_color=use_color,
+                    color=(85, 190, 245),
+                    dim=True,
+                )
+                for candidate in tagged_bake_candidates:
+                    try:
+                        old_result = futures[candidate].result()
+                        rendered_results[candidate] = old_result
+                        old_waveform, _old_backup, old_metrics = old_result
+                        comparison = collision_safe_path(
+                            old_waveform.with_name(
+                                f"{old_waveform.stem}"
+                                ".before-replaygain-bake"
+                                f"{old_waveform.suffix}"
+                            )
+                        )
+                        shutil.copy2(old_waveform, comparison)
+                        backup, applied_db = bake_replaygain_into_audio(
+                            candidate,
+                            old_metrics,
+                            use_color=use_color,
+                        )
+                        new_result = generate_waveform_jpeg(
+                            candidate,
+                            narrate=False,
+                            destination=old_waveform,
+                            acceptable_silence_seconds=(
+                                acceptable_silence_seconds
+                            ),
+                        )
+                        recolor_newly_baked_waveform(new_result[0])
+                        rendered_results[candidate] = new_result
+                        before_bake_waveforms[candidate] = comparison
+                        folder_baked_audio.add(candidate)
+                        cover_narration(
+                            "🔧",
+                            f"Baked {applied_db:+.2f} dB into "
+                            f"{candidate.name}; kept {backup.name}.",
+                            use_color=use_color,
+                            color=(95, 220, 140),
+                        )
+                    except Exception as exc:
+                        print_formatted_error(
+                            f"Could not bake ReplayGain into "
+                            f"{candidate.name}: {exc}",
+                            use_color,
+                        )
         if preview_renderer is None and audio_files:
             preview_executor = ThreadPoolExecutor(
                 max_workers=max(1, min(4, worker_count)),
@@ -7326,6 +7418,9 @@ def review_waveforms(
                     use_color=use_color,
                 )
 
+            def prepare_rendered_path(path: Path) -> PreparedArtworkPreview:
+                return prepare_waveform_preview(path, use_color=use_color)
+
             def schedule_preview(index_to_schedule: int) -> None:
                 if (
                     preview_executor is None
@@ -7334,10 +7429,16 @@ def review_waveforms(
                     return
                 upcoming = audio_files[index_to_schedule]
                 if upcoming not in prepared_futures:
-                    prepared_futures[upcoming] = preview_executor.submit(
-                        prepare_after_render,
-                        futures[upcoming],
-                    )
+                    if upcoming in rendered_results:
+                        prepared_futures[upcoming] = preview_executor.submit(
+                            prepare_rendered_path,
+                            rendered_results[upcoming][0],
+                        )
+                    else:
+                        prepared_futures[upcoming] = preview_executor.submit(
+                            prepare_after_render,
+                            futures[upcoming],
+                        )
 
             for lookahead_index in range(
                 min(len(audio_files), preview_lookahead)
@@ -7377,7 +7478,7 @@ def review_waveforms(
                     staged_waveform,
                     _staging_backup,
                     waveform_metrics,
-                ) = future.result()
+                ) = rendered_results.get(audio_path) or future.result()
                 prepared_future = prepared_futures.pop(
                     audio_path,
                     None,
@@ -7409,6 +7510,37 @@ def review_waveforms(
                     return render_waveform_preview(
                         path,
                         use_color=use_color,
+                    )
+
+                comparison_waveform = before_bake_waveforms.get(audio_path)
+                if comparison_waveform is not None:
+                    cover_narration(
+                        "🔵",
+                        "Before baking: original blue waveform for comparison "
+                        "only; no response is needed.",
+                        use_color=use_color,
+                        color=(85, 190, 245),
+                    )
+                    reset_console_pager_after_user_input()
+                    comparison_mode = (
+                        preview_renderer or render_waveform_preview
+                    )(
+                        comparison_waveform,
+                        use_color=use_color,
+                    )
+                    cover_narration(
+                        "👁️",
+                        f"Original comparison rendered with {comparison_mode}.",
+                        use_color=use_color,
+                        color=(105, 95, 145),
+                        dim=True,
+                    )
+                    cover_narration(
+                        "🌱",
+                        "After baking: the green waveform below is the current "
+                        "audio and is the one being reviewed.",
+                        use_color=use_color,
+                        color=(80, 255, 130),
                     )
 
                 decision, edit_count, reviewed_audio_path = waveform_review_choice(
@@ -9759,7 +9891,7 @@ def render_usage(use_color: bool = True) -> str:
             "are prepared ahead in a bounded cache."
         ),
         note(
-            "    P=Preview audio uses play_audio_file.py: arrows seek 5 seconds, "
+            "    P=Preview audio uses play_wav_file.py: arrows seek 5 seconds, "
             "Shift+arrows seek 15, and Esc/X/Q/Ctrl+W/Alt+F4/Ctrl+C/"
             "Ctrl+Break stop playback."
         ),
@@ -12941,10 +13073,6 @@ def run_unit_tests(use_color: bool = True) -> int:
                 "visible_console_size",
                 return_value=os.terminal_size((160, 50)),
             ), mock.patch.object(
-                module,
-                "windows_console_font_cell_size",
-                return_value=(10, 20),
-            ), mock.patch.object(
                 subprocess,
                 "run",
                 return_value=completed,
@@ -12958,12 +13086,9 @@ def run_unit_tests(use_color: bool = True) -> int:
                 )
             chafa_command = run.call_args.args[0]
             self.assertIn("--format=sixels", chafa_command)
-            self.assertNotIn("--fit-width", chafa_command)
+            self.assertIn("--fit-width", chafa_command)
             self.assertIn("--colors=full", chafa_command)
-            self.assertIn("--size=146x43", chafa_command)
-            self.assertIn("--view-size=146x43", chafa_command)
-            self.assertIn("--font-ratio=10/20", chafa_command)
-            self.assertIn("--scale=max", chafa_command)
+            self.assertIn("--view-size=306.6x90.3", chafa_command)
             self.assertIn("--optimize=9", chafa_command)
             self.assertIn("--work=9", chafa_command)
             self.assertIn("--color-space=din99d", chafa_command)
@@ -12978,10 +13103,6 @@ def run_unit_tests(use_color: bool = True) -> int:
                     sys.modules[__name__],
                     "visible_console_size",
                     return_value=os.terminal_size((100, 35)),
-                ), mock.patch.object(
-                    sys.modules[__name__],
-                    "windows_console_font_cell_size",
-                    return_value=(7, 14),
                 ):
                     ansi = ansi_half_block_preview(
                         image_path,
@@ -13961,6 +14082,151 @@ def run_unit_tests(use_color: bool = True) -> int:
                     delta=0.04,
                 )
 
+        def test_replaygain_bake_threshold_is_configurable_and_strict(
+            self,
+        ) -> None:
+            audio = Path("Track.flac")
+
+            def metrics_for_db(decibels: float) -> WaveformMetrics:
+                return WaveformMetrics(
+                    channel_peak_percentages=(50.0, 50.0),
+                    peak_volume_percentage=50.0,
+                    average_volume_percentage=25.0,
+                    replaygain_factor=10 ** (decibels / 20.0),
+                    longest_silence_seconds=0.0,
+                    total_silence_seconds=0.0,
+                )
+
+            self.assertFalse(
+                replaygain_needs_baking(metrics_for_db(0.05), audio)
+            )
+            self.assertFalse(
+                replaygain_needs_baking(metrics_for_db(-0.05), audio)
+            )
+            self.assertTrue(
+                replaygain_needs_baking(metrics_for_db(0.051), audio)
+            )
+            self.assertTrue(
+                replaygain_needs_baking(metrics_for_db(-0.051), audio)
+            )
+            self.assertFalse(
+                replaygain_needs_baking(
+                    metrics_for_db(0.051),
+                    Path("Track.wav"),
+                )
+            )
+
+        def test_waveform_review_can_batch_bake_and_show_blue_before_green(
+            self,
+        ) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                first = root / "First [instrumental].flac"
+                second = root / "Second [instrumental].mp3"
+                first.write_bytes(b"fake flac")
+                second.write_bytes(b"fake mp3")
+                staging_root = root / "recycled-staging"
+                module = sys.modules[__name__]
+                generated: list[Path] = []
+                baked: list[Path] = []
+                recolored: list[Path] = []
+                rendered: list[Path] = []
+                keys = iter(["y", "n", "n"])
+
+                def metric(decibels: float = 2.0) -> WaveformMetrics:
+                    return WaveformMetrics(
+                        channel_peak_percentages=(50.0, 50.0),
+                        peak_volume_percentage=50.0,
+                        average_volume_percentage=25.0,
+                        replaygain_factor=10 ** (decibels / 20.0),
+                        longest_silence_seconds=0.0,
+                        total_silence_seconds=0.0,
+                    )
+
+                def fake_generate(
+                    audio: Path,
+                    *,
+                    narrate: bool,
+                    destination: Path,
+                    **_kwargs,
+                ) -> tuple[Path, None, WaveformMetrics]:
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes(make_test_jpeg())
+                    generated.append(audio)
+                    return destination, None, metric(0.0 if generated.count(audio) > 1 else 2.0)
+
+                def fake_bake(
+                    audio: Path,
+                    _metrics: WaveformMetrics,
+                    **_kwargs,
+                ) -> tuple[Path, float]:
+                    baked.append(audio)
+                    backup = audio.with_name(f"{audio.name}.bak.test.bak")
+                    backup.write_bytes(audio.read_bytes())
+                    return backup, 2.0
+
+                def fake_renderer(path: Path, *, use_color: bool) -> str:
+                    rendered.append(path)
+                    return "test renderer"
+
+                with mock.patch.object(
+                    module,
+                    "waveform_staging_root",
+                    return_value=staging_root,
+                ), mock.patch.object(
+                    module,
+                    "waveform_replaygain_factor",
+                    return_value=10 ** (2.0 / 20.0),
+                ), mock.patch.object(
+                    module,
+                    "generate_waveform_jpeg",
+                    side_effect=fake_generate,
+                ), mock.patch.object(
+                    module,
+                    "bake_replaygain_into_audio",
+                    side_effect=fake_bake,
+                ), mock.patch.object(
+                    module,
+                    "recolor_newly_baked_waveform",
+                    side_effect=lambda path: recolored.append(path),
+                ), mock.patch.object(
+                    module,
+                    "audio_editor_executable",
+                    return_value=None,
+                ), contextlib.redirect_stdout(io.StringIO()) as output:
+                    result = review_waveforms(
+                        root,
+                        use_color=False,
+                        key_reader=lambda: next(keys),
+                        preview_renderer=fake_renderer,
+                        workers=2,
+                        approval_database_path=root / "reviews.sqlite3",
+                    )
+
+                self.assertCountEqual([first, second], baked)
+                self.assertEqual(4, len(generated))
+                self.assertEqual(2, len(recolored))
+                self.assertEqual(4, len(rendered))
+                self.assertTrue(
+                    all(
+                        "before-replaygain-bake" in rendered[index].name
+                        for index in (0, 2)
+                    )
+                )
+                self.assertTrue(
+                    all(
+                        "before-replaygain-bake" not in rendered[index].name
+                        for index in (1, 3)
+                    )
+                )
+                self.assertEqual(2, len(result["fine"]))
+                self.assertEqual(
+                    1,
+                    output.getvalue().count(
+                        "Bake ReplayGain into the audio data for all"
+                    ),
+                )
+
         def test_waveform_gain_prompt_bakes_then_shows_new_preview(self) -> None:
             metrics = WaveformMetrics(
                 channel_peak_percentages=(50.0, 50.0),
@@ -14309,7 +14575,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                         "edit", Path(r"C:\Program Files\Adobe\Audition.exe")
                     ),
                     audio_previewer=lambda path: count(
-                        "preview", Path(r"C:\BAT\play_audio_file.py")
+                        "preview", Path(r"C:\BAT\play_wav_file.py")
                     ),
                     problem_renamer=lambda path, **_kwargs: count(
                         "rename",
@@ -14336,7 +14602,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertIn("E=Edit audio", rendered)
             self.assertIn("V=View fullscreen", rendered)
             self.assertIn(
-                "Audio preview ended in play_audio_file.py",
+                "Audio preview ended in play_wav_file.py",
                 rendered,
             )
             self.assertIn("Yes — there is a problem.", rendered)
@@ -14625,10 +14891,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                     "Background waveform render is ready",
                     output.getvalue(),
                 )
-                self.assertIn(
-                    "\n            ⏳ Rendering Disposable Waveform",
-                    output.getvalue(),
-                )
+                self.assertIn("Disposable Waveform", output.getvalue())
                 self.assertCountEqual(
                     [str(path) for path in expected_audio],
                     result["fine"],
@@ -15356,7 +15619,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                 "flac": True,
                 "ffmpeg": True,
                 "ffplay": True,
-                "play_audio_file.py": True,
+                "play_wav_file.py": True,
                 "IrfanView": True,
             }
             missing = [

@@ -157,7 +157,18 @@ to flag the problem.
 
 ### Bake ReplayGain into the audio (`B`)
 
-During waveform review, when a usable nonzero ReplayGain track-gain tag exists,
+Before waveform review begins, the auditor checks every supported track's
+tagged ReplayGain correction. If any FLAC or MP3 lies outside the configurable
+`REPLAYGAIN_BAKE_THRESHOLD_DB` window (±0.05 dB by default), one folder-wide
+prompt offers to bake all qualifying tracks. Tracks inside that window are
+treated as effectively neutral. Approving the folder prompt first preserves
+the original blue waveform for every qualifying track, processes the audio,
+and creates a green replacement waveform. During the subsequent review, each
+changed track shows its blue original as a no-response comparison immediately
+before its green current waveform.
+
+During waveform review, when a usable ReplayGain track-gain tag lies outside
+the same threshold and has not already been handled by the folder workflow,
 `B` offers to bake that
 loudness adjustment into the audio itself so players that ignore ReplayGain
 receive approximately the same loudness. Positive gain is capped at the
@@ -326,10 +337,10 @@ audit_music_batch.py --unit-tests
 ```
 
 Unit-test mode uses disposable temporary audio and exits before scanning or
-modifying any music batch. It reports 98 independently named tests so positive
+modifying any music batch. It reports 100 independently named tests so positive
 and negative cases appear as separate pass/fail results. Every test line starts
 with a dynamically sized, right-aligned progress prefix such as
-`[ 1/98] ➜`; in normal color mode, its brackets, bold current number, faint
+`[  1/100] ➜`; in normal color mode, its brackets, bold current number, faint
 total, darker slash, arrow, and subtly varied test description use distinct
 colors. Coverage includes:
 
