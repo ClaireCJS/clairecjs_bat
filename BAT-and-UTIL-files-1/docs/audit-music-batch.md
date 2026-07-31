@@ -75,7 +75,10 @@ included in the following audit pass.
 Hash-prefixed transcription-generator comments are metadata, not lyrics. Lines
 whose lyric text begins with `#` are excluded from TXT, LRC, and SRT-derived
 plain/timed payloads and are never inserted into FLAC or MP3 tags. The source
-sidecars themselves are left unchanged.
+sidecars themselves are left unchanged. Source selection is based on usable
+content rather than extension alone: an empty or comment-only LRC cannot shadow
+a same-basename SRT containing valid timestamps. In that case the SRT directly
+supplies the embedded timed lyrics and the unusable LRC remains untouched.
 
 The automatic pass compares normalized sidecar payloads with the embedded
 copies and also compares sidecar/audio modification times. It refreshes an
@@ -96,8 +99,11 @@ the forced form of the same combined operation.
 `--find-cover` / `--no-find-cover`
 
 Force automatic missing-cover lookup on or off for this run. The built-in
-default is **off**. `--find-cover` explicitly resolves release artwork for
-audio that lacks an embedded Front cover. The workflow uses an exact tagged
+default is **off**. A usable local `cover.*`, `folder.*`, or exact
+same-basename image for an unnumbered/MISC track always takes priority: it is
+previewed and offered for embedding without a network lookup.
+`--find-cover` resolves release artwork only when the audio lacks both an
+embedded Front cover and a usable local Front sidecar. The workflow uses an exact tagged
 MusicBrainz release ID first, then searches Bandcamp alongside conservative
 MusicBrainz release matches, and finally Discogs when `DISCOGS_TOKEN` is set.
 Strong Bandcamp matches use the original-resolution release image from
@@ -139,9 +145,52 @@ waveform-only mode.
 Each waveform is a disposable preview used to inspect the audio for excessive
 silence, clipping or flattened peaks, dropouts, channel imbalance, and other
 suspicious shapes. `N` means the waveform is fine and advances, `Y` records a
-problem, `E` opens the audio in the discovered editor, and `V` opens the
-waveform image full-screen. After `Y`, separate default-No prompts offer to edit
-the audio and to rename the audio file to flag the problem.
+problem, `P` previews the audio, `E` opens the audio in the discovered editor,
+and `V` opens the waveform image full-screen. Audio preview runs synchronously
+through the neighboring legacy-named `play_wav_file.py`, then returns to the
+same waveform question. Left and right arrows seek five seconds; Shift+left and
+Shift+right seek fifteen seconds. Escape, `X`, `Q`, Ctrl+W, Alt+F4, Ctrl+C, or
+Ctrl+Break stops preview playback. Despite its filename, the player uses
+FFplay and supports WAV, FLAC, MP3, and other FFmpeg-decodable audio. After `Y`,
+separate default-No prompts offer to edit the audio and to rename the audio file
+to flag the problem.
+
+### Bake ReplayGain into the audio (`B`)
+
+During waveform review, when a usable nonzero ReplayGain track-gain tag exists,
+`B` offers to bake that
+loudness adjustment into the audio itself so players that ignore ReplayGain
+receive approximately the same loudness. Positive gain is capped at the
+measured peak headroom to prevent clipping; the prompt shows both the requested
+and safely applied values whenever they differ. FLAC PCM is adjusted and
+losslessly re-encoded. MP3 is decoded and re-encoded with FFmpeg/LAME's
+highest-quality VBR setting, which is necessarily lossy; the prompt states this
+before approval. In both cases, the original is retained as a verified
+timestamped backup, artwork and metadata are preserved, and ReplayGain is
+calculated again from the changed audio. After processing, the original blue
+waveform is shown once more as a comparison only, without asking a question.
+The replacement waveform is then rendered in green and shown immediately for
+another review decision. The narration states the old tagged correction, the
+amount baked into the samples, and the replacement file's freshly calculated
+ReplayGain correction.
+
+When the full tagged correction can be baked safely, the fresh ReplayGain value
+should be approximately `+0.00 dB`. A player that honors ReplayGain and one that
+ignores it should therefore produce approximately the same loudness from the
+replacement file. If a positive correction is limited to prevent clipping, the
+fresh tag retains the unapplied remainder: a tag-aware player can still reach
+the target, while a tag-ignorant player remains quieter by that remainder.
+
+The staged replacement is installed atomically when the volume permits it. If
+Windows reports `Access is denied` because that volume allows file writes but
+denies destination delete/rename access, the script falls back to a flushed
+in-place write, verifies the complete result against the staged file with
+SHA-256, and sends the staging file to the Recycle Bin. The already verified
+timestamped original remains available throughout either route.
+
+This is loudness correction based on the existing ReplayGain analysis, not
+peak normalization to an arbitrary percentage. `B` is an interactive waveform
+review control rather than a standalone command-line flag.
 
 An `N`/fine decision is remembered in the per-user SQLite database
 `%LOCALAPPDATA%\audit_music_batch\waveform_reviews.sqlite3`. A future review
@@ -184,16 +233,20 @@ Show the styled usage screen.
 
 ## Examples
 
-Pre-audit karaoke sidecar fix:
+The command used for a missing-karaoke-sidecar repair is:
 
 ```bat
 lrc2srt.py MiniLyricsFix --recursive --automatic-overwrites
 ```
 
-Run that from the batch root before `audit_music_batch.py`. It creates missing
-matching `.srt` sidecars only when a timestamped `.lrc` sidecar and `.txt` sidecar
-already exist. Untimed/no-cue LRC files are skipped, leaving songs without
-usable karaoke timing for the later lyric/karaoke workflow.
+When the audit finds at least one timestamped `.lrc` plus matching `.txt` but
+no matching `.srt`, interactive mode offers to run that exact command from the
+batch root. The prompt defaults to Yes, streams the converter output, runs the
+recursive repair once for the batch, and re-audits the affected tracks. Its
+legend deliberately omits `F=Do All in Folder`, because the command already
+operates recursively over the entire audited batch root.
+Untimed/no-cue LRC files are skipped, leaving songs without usable karaoke
+timing for the later lyric/karaoke workflow.
 
 From the root of a batch, explicitly pass `.`:
 
@@ -273,16 +326,22 @@ audit_music_batch.py --unit-tests
 ```
 
 Unit-test mode uses disposable temporary audio and exits before scanning or
-modifying any music batch. It reports 89 independently named tests so positive
+modifying any music batch. It reports 98 independently named tests so positive
 and negative cases appear as separate pass/fail results. Every test line starts
 with a dynamically sized, right-aligned progress prefix such as
-`[ 1/89] ➜`; in normal color mode, its brackets, bold current number, faint
+`[ 1/98] ➜`; in normal color mode, its brackets, bold current number, faint
 total, darker slash, arrow, and subtly varied test description use distinct
 colors. Coverage includes:
 
+Unit-test mode always disables the More-style pager, even in an interactive
+console. Output produced internally by a passing test is buffered so progress
+bars, carriage returns, and erase-line sequences cannot overwrite that test's
+numbered name; each successful case remains as one complete `... ok` line.
+
 - complete and incomplete metadata, ReplayGain, comments, and genre rules
 - plain lyrics, timed karaoke, instrumentals, timed/untimed sidecars, embedding,
-  generator-comment exclusion, newer-sidecar detection, and verified refreshes
+  generator-comment exclusion, newer-sidecar detection, recursive default-Yes
+  MiniLyricsFix SRT generation, and verified refreshes
 - forced combined plain-lyrics/timed-karaoke refreshes, including flag
   implication, backup creation, narration, and post-refresh re-auditing
 - missing, single, multiple, sidecar-less, front/back/disc artwork; mocked exact
@@ -339,12 +398,14 @@ where it is. Arrow keys and other extended console keys are rejected the same
 way instead of being mistaken for Enter or a default answer.
 
 Repeatable action prompts additionally show
-`Y=Yes / N=No / A=Always / V=Never / F=Just Do For This Folder`.
+`Y=Yes / N=No / A=Always / V=Never / F=Do All in Folder`.
 `Always` and `Never` remember the decision for that action category for the
-rest of the run. `Just Do For This Folder` approves the same category for the
+rest of the run. `Do All in Folder` approves the same category for the
 current folder only. Remembered decisions are narrated without asking for
-another keypress. Album-tag value entry remains per-file because it requires
-actual text, not a reusable yes/no decision.
+another keypress. Root-wide actions such as recursive MiniLyricsFix omit the
+folder choice because they are not per-file operations. Album-tag value entry
+remains per-file because it requires actual text, not a reusable yes/no
+decision.
 
 ## Dependencies
 
@@ -527,17 +588,22 @@ sidecar when present, or enters the normal cover-download/render/approval flow.
 The newly created FLAC is re-opened and audited before the action reports
 success. Existing FLACs are never overwritten.
 
-When an audio file lacks an embedded cover, interactive mode always offers a
-concrete choice. If local Front artwork exists, `Y` embeds it as before. If no
-local Front exists, `Y` invokes the same conservative discovery workflow as
+When an audio file lacks an embedded cover, interactive mode always checks the
+folder again immediately before prompting. If local `cover.*`, `folder.*`, or
+an exact same-basename image beside an unnumbered/MISC track exists, the script
+renders that exact image and asks whether to embed it; it does not search or
+download anything. This local-preview action
+also takes priority when `--find-cover` is active. Only when no usable local
+Front exists does `Y` invoke the same conservative discovery workflow as
 `--find-cover`: identify the release, obtain its artwork set, preview every
 image, save every approved part, embed only Front, and immediately re-audit the
 affected audio.
 
-Before asking to embed an existing local `cover.*` or `folder.*`, the script
-renders that exact sidecar using the same full-console Chafa/Sixel/ANSI preview
-system used for downloaded artwork. The prompt follows the preview and still
-names the candidate explicitly, such as `(folder.jpg)`.
+Before asking to embed an existing local `cover.*`, `folder.*`, or eligible
+same-basename MISC image, the script renders that exact sidecar using the same
+full-console Chafa/Sixel/ANSI preview system used for downloaded artwork. The
+prompt follows the preview and still names the candidate explicitly, such as
+`(folder.jpg)` or `(Ghosts -- I'm Baby (live).jpg)`.
 
 When the auditor exports artwork already embedded in a FLAC or MP3 because the
 folder had no matching sidecar (or the audio held multiple pictures), each
@@ -555,10 +621,10 @@ unrelated singles never overwrite one another's art. Artwork review prefers
 the tuned Chafa Sixel renderer directly; ANSI symbols are only a fallback when
 Sixel rendering itself cannot be used.
 
-That matching same-basename MISC image is also recognized on later audits as
-the track's existing extracted-art sidecar, so it does not repeatedly offer a
-second export. It is not inferred to be automatically embeddable in unrelated
-files; only explicit `cover.*` and `folder.*` remain automatic Front-art inputs.
+That matching same-basename MISC image is recognized on later audits as the
+track's own Front-art candidate: it is previewed, approved, and embedded only
+into that exact unnumbered audio file. It is never inferred to apply to another
+file. Numbered album tracks still require album-scoped `cover.*` or `folder.*`.
 
 Cover lookup does not run as a default startup phase. It begins only after an
 explicit `--find-cover` or an approved missing-cover action. The double-height
@@ -606,8 +672,8 @@ Repeated types receive `-2`, `-3`, and so on. A collision with an existing
 filesystem entry receives ` (1)`, ` (2)`, and so on; existing art is never
 overwritten. In recognized album folders, these names live at album scope.
 Loose/MISC audio still receives the descriptive release-art files in its own
-immediate folder; the local embedding candidate remains strictly `cover.*` or
-`folder.*`.
+immediate folder; an exact same-basename image may be used only for its matching
+unnumbered track.
 
 Every response is size-limited and checked for an image content type. Pillow
 must decode it successfully; tiny images and implausibly shaped Front images
@@ -665,11 +731,14 @@ Normal audits use `ffmpeg` to detect leading, internal, and trailing silence at
 longer than the effective threshold; the built-in default-default is `10.0`
 seconds. `--silence-threshold`, `--check-silence`, `--no-silence-check`, and
 `--configure-defaults` control that behavior. The finding includes the
-interval type, timestamps, and duration, and suggests the separate waveform
-review workflow. Up to eight silence decoders begin concurrently as audio files
-are discovered, while enumeration and the other audit checks continue. Their
-results are harvested later in deterministic filename order, avoiding a
-serial silence-analysis pause at startup or at the end of the audit.
+interval type, timestamps, and duration. In interactive mode it asks to open
+the exact flagged audio file in the configured editor; Enter defaults to Yes
+so an excessive-silence repair is not easy to skip accidentally. The separate
+waveform-review workflow remains available for visual confirmation. Up to
+eight silence decoders begin concurrently as audio files are discovered, while
+enumeration and the other audit checks continue. Their results are harvested
+later in deterministic filename order, avoiding a serial silence-analysis
+pause at startup or at the end of the audit.
 
 `--review-waveforms` performs only waveform diagnosis. It submits the entire
 not-yet-approved audio queue to a bounded worker pool, so up to
@@ -690,22 +759,27 @@ columns. The only unused horizontal cell is the deliberate one-cell right
 margin. A faint grey box marks the waveform's exact top, bottom, left, and
 right bounds, with matching faint grey dividers between every stacked audio
 channel. An unboxed area at the right edge contains a grey amplitude axis and
-four centered measurements: peak volume, average (RMS) volume, the linear
-ReplayGain multiplier, and longest detected silence.
-The measurements use a wider proportional font, with purple, blue, orange,
-yellow, and purple numerical values. If the longest continuous silence exceeds
+five centered measurements: peak volume, average (RMS) volume, the current
+ReplayGain correction in dB, its linear multiplier, and longest detected
+silence. The measurements use a wider proportional font, with purple, blue,
+mint, orange, and yellow numerical values. If the longest continuous silence exceeds
 the effective threshold, that value alone turns red. If no ReplayGain
-track-gain tag exists, the multiplier reads `n/a`.
+track-gain tag exists, both ReplayGain values read `n/a`.
 Longest-silence seconds are truncated rather than rounded, so `9.9999` seconds
 is displayed as `9s`; cumulative silence is not displayed.
 
 The same FFmpeg decode that renders the picture measures every channel's actual
 sample peak, RMS level, and silence intervals. Because FFmpeg's waveform picture
 normalizes its drawing independently, the script rescales each stacked channel
-to its measured absolute peak. A small cyan-only antialiasing pass widens
+to its measured absolute peak and an automatically selected vertical axis.
+The axis ceiling is the next 5% step with a small amount of headroom: a 66%
+peak uses a ±70% graph, 75% uses ±80%, and near-full-scale audio remains at
+±100%. The top and bottom labels show that real axis limit, while `peak vol`
+continues to report the actual measured peak. Labels are clamped inside the
+image so the auto-zoom cannot crop them. A small cyan-only antialiasing pass widens
 isolated true-peak columns enough to remain visible after JPEG and terminal
 downscaling without changing their vertical amplitude. Short horizontal guides
-and percentage labels appear only at the outer top and bottom peak heights;
+and percentage labels appear only at the outer top and bottom axis limits;
 none are repeated beside the middle channel divider. In the decision prompt,
 the audio filename is faint and italic.
 
@@ -716,6 +790,8 @@ generated JPEG:
 - `Y` — yes, there is a problem; record it and ask whether to edit or rename
 - `E` — open the audio itself in Adobe Audition, Cool Edit, Audacity,
   ocenaudio, Sound Forge, or a configured editor
+- `B` — bake the tagged ReplayGain loudness change into FLAC/MP3 audio, refresh
+  the tags, and display a newly generated green waveform
 - `V` — view the waveform JPEG full-screen through `openimage.bat`/IrfanView
 
 For a waveform whose longest silence exceeds the effective threshold, the
@@ -794,6 +870,13 @@ executable approval is offered. If no sidecar exists, the message explicitly
 says that none was found. After an approved write, the audio file is re-audited
 immediately; the action is failed if the corresponding missing-lyrics finding
 remains.
+
+Sidecar text decoding recognizes UTF-8, Windows-1252, UTF-16, and UTF-32,
+including byte-order marks and strong BOM-less UTF-16 patterns. Consequently,
+UTF-16 SRT files written by subtitle or lyrics tools retain their readable
+`HH:MM:SS,mmm --> HH:MM:SS,mmm` timestamps and participate in the same
+automatic timed-karaoke embedding workflow instead of being misreported as
+unusable.
 
 Already-embedded lyrics are not assumed current merely because the tags exist.
 For both FLAC and MP3, the auditor compares the normalized embedded plain/timed
@@ -896,9 +979,11 @@ is reported before the corresponding audio format is modified.
 - archive/do-not-play folder compliance
 
 For missing embedded covers, detection and execution share the same strict
-candidate rules: only a local `cover.*` or `folder.*` file can become the
-embedded Front cover. `proof.*`, `front.*`, same-name images, a folder's sole
-image, `back.*`, `disc.*`, and other artwork parts are never promoted. An
+candidate rules: a local `cover.*` or `folder.*` can become album Front art;
+an exact same-basename image can become Front art only for its matching
+unnumbered/MISC audio file. `proof.*`, `front.*`, unrelated same-name images, a
+folder's sole arbitrary image, `back.*`, `disc.*`, and other artwork parts are
+never promoted. An
 approved non-JPEG Front candidate is converted to a collision-safe JPEG before
 embedding. If no usable local Front exists, the prompt explicitly offers to
 search for the release artwork, download and review every selected image part,

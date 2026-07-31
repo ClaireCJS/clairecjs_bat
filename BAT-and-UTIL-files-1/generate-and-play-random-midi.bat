@@ -20,5 +20,5 @@ REM                    if exist "%WAV%" (*del /q "%WAV%")
 REM                    convert_midi_to_wav_with_soundfont.py %MIDI% %WAV% >nul
 REM
 REM                REM Play wav file
-REM                    play_wav_file.py %WAV%
+REM                    play_audio_file.py %WAV%
 REM

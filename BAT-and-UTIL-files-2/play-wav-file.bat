@@ -2,7 +2,7 @@
 @on break cancel
 
 rem Validate environment:
-        if 1 ne %validated_play_wav_file (
+        if 1 ne %validated_play_audio_file (
                 rem we want ffplay, part of ffmpeg:
                     set      validate_in_path_message=FFMPEG needs to be installed
                     call     validate-in-path ffplay 
@@ -14,7 +14,7 @@ rem Validate environment:
                     call validate-environment-variables PLAY CHECK ANSI_SAVE_POSITION ANSI_MOVE_UP_1 ANSI_RESTORE_POSITION ANSI_COLOR_BRIGHT_GREEN ANSI_COLOR_GREEN BLINK_ON BLINK_OFF ITALICS_ON ITALICS_OFF ANSI_EOL  EMOJI_SPEAKER_HIGH_VOLUME ANSI_RESET ANSI_ERASE_LINE ANSI_COLOR_BRIGHT_RED
 
                 rem Prevent repeat environment validation:
-                    set  validated_play_wav_file=1
+                    set  validated_play_audio_file=1
         )
 
 rem Validate that the parameter exists, and is a wav file:

@@ -74,7 +74,6 @@ WAVEFORM_PLOT_WIDTH = WAVEFORM_JPEG_WIDTH - WAVEFORM_METRICS_GUTTER_WIDTH
 WAVEFORM_SILENCE_MIN_SECONDS = 0.1
 WAVEFORM_APPROVAL_DATABASE_MAX_BYTES = 50 * 1024 * 1024
 WAVEFORM_APPROVAL_DATABASE_FILENAME = "waveform_reviews.sqlite3"
-CHAFA_SIXEL_VIEW_SCALE = 2.1
 WAVEFORM_CHANNEL_COLORS = (
     "0x55dcff",  # cyan: left/first channel
     "0xb68cff",  # violet: right/second channel
@@ -119,6 +118,11 @@ except Exception as _progress_exc:
         """Small stdlib fallback retained for diagnostics and unit-test output."""
         red, green, blue = colorsys.hsv_to_rgb(float(position) % 1.0, 1.0, 1.0)
         return f"#{round(red * 255):02x}{round(green * 255):02x}{round(blue * 255):02x}"
+
+try:
+    from claire_terminal_geometry import query_terminal_geometry
+except Exception:  # pragma: no cover - shared utility is optional.
+    query_terminal_geometry = None
 
 
 AUDIO_EXTS = {".mp3", ".flac"}
@@ -248,7 +252,9 @@ EXECUTABLE_CATEGORIES = {
     "bare_marker",
     "embedded_art_without_sidecar",
     "embedded_lyrics_outdated",
+    "excessive_silence",
     "karaoke_not_embedded",
+    "missing_srt_from_lrc_txt",
     "newer_lrc_needs_srt_backfill",
     "missing_embedded_art",
     "missing_replaygain",
@@ -270,6 +276,9 @@ GROUPED_RENAME_CATEGORIES = {
     "redundant_album_artist_filename_group",
     "filename_title_capitalization_group",
 }
+ROOT_WIDE_ACTION_CATEGORIES = {
+    "missing_srt_from_lrc_txt",
+}
 ACTION_PROMPT_QUESTIONS = {
     "adobe_xmp": "Send this Adobe XMP sidecar to the Recycle Bin now?",
     "archive_incomplete_attrib": (
@@ -287,6 +296,10 @@ ACTION_PROMPT_QUESTIONS = {
         "Refresh the embedded lyrics and timed karaoke from the regenerated "
         "sidecar files now?"
     ),
+    "excessive_silence": (
+        "Open this audio file in the configured editor to fix the excessive "
+        "silence now?"
+    ),
     "karaoke_not_embedded": (
         "Embed the timed karaoke lyrics into this audio file now?"
     ),
@@ -298,6 +311,10 @@ ACTION_PROMPT_QUESTIONS = {
         "set—and embed only its Front image now?"
     ),
     "missing_replaygain": "Run ReplayGain on this folder now?",
+    "missing_srt_from_lrc_txt": (
+        "Run lrc2srt.py MiniLyricsFix --recursive --automatic-overwrites "
+        "from this batch root now?"
+    ),
     "multiple_embedded_artworks": (
         "Export all artwork to sidecars and keep only the front cover embedded now?"
     ),
@@ -337,6 +354,10 @@ ACTION_PROMPT_QUESTIONS = {
 }
 PROMPT_NOUN_PHRASES = (
     "regenerated sidecar files",
+    "configured editor",
+    "excessive silence",
+    "MiniLyricsFix",
+    "batch root",
     "embedded lyrics",
     "proposed canonical marker spelling",
     "standard archive marker file",
@@ -391,6 +412,7 @@ ANSI = {
     "magenta": "\033[35m",
     "white": "\033[37m",
     "dim": "\033[2m",
+    "faint": "\033[2m",
     "italic": "\033[3m",
     "blink": "\033[5m",
     "erase_line": "\033[2K",
@@ -902,6 +924,24 @@ def dependency_requirements(
             detected("metaflac", shutil.which("metaflac") is not None),
             "ARGT-equivalent ReplayGain writes for FLAC files",
             "approved repair",
+        ),
+        ToolRequirement(
+            "ffplay",
+            detected("ffplay", shutil.which("ffplay") is not None),
+            "P=Preview audio during interactive waveform review",
+            "waveform audio preview",
+        ),
+        ToolRequirement(
+            "play_audio_file.py",
+            detected(
+                "play_audio_file.py",
+                audio_preview_player_script() is not None,
+            ),
+            (
+                "keyboard-controlled waveform audio preview with seeking "
+                "and immediate stop keys"
+            ),
+            "waveform audio preview",
         ),
     ]
     if check_silence:
@@ -2051,7 +2091,7 @@ class BatchAudit:
                     channels=channels,
                 )
 
-            front_sidecars = self.folder_art_candidates(path.parent)
+            front_sidecars = embeddable_front_art_candidates(path)
             image_sidecars = self.artwork_sidecars_for_audio(path)
             if int(snapshot.get("art_count") or 0) == 0:
                 severity = "safe_fix" if front_sidecars else "ask_first"
@@ -2344,9 +2384,9 @@ class BatchAudit:
                             + "; ".join(descriptions)
                             + "."
                         ),
-                        "Run --review-waveforms to inspect the full-screen "
-                        "waveform; trim only after confirming the silence is "
-                        "unintentional.",
+                        "Approve the default-Yes editor prompt to inspect and "
+                        "trim this file now, or run --review-waveforms to "
+                        "inspect the full-screen waveform first.",
                         threshold_seconds=threshold,
                         intervals=intervals,
                     )
@@ -2542,12 +2582,43 @@ def extract_url_only_comment(text: str) -> str | None:
 
 
 def read_text(path: Path) -> str:
-    for encoding in ("utf-8-sig", "utf-8", "cp1252"):
+    def decoded_text(raw_bytes: bytes, encoding: str, **kwargs) -> str:
+        """Decode text while preserving Path.read_text's newline semantics."""
+        return (
+            raw_bytes.decode(encoding, **kwargs)
+            .replace("\r\n", "\n")
+            .replace("\r", "\n")
+        )
+
+    raw = path.read_bytes()
+    bom_encodings = (
+        (b"\x00\x00\xfe\xff", "utf-32"),
+        (b"\xff\xfe\x00\x00", "utf-32"),
+        (b"\xff\xfe", "utf-16"),
+        (b"\xfe\xff", "utf-16"),
+        (b"\xef\xbb\xbf", "utf-8-sig"),
+    )
+    for signature, encoding in bom_encodings:
+        if raw.startswith(signature):
+            return decoded_text(raw, encoding)
+
+    # MiniLyrics and subtitle tools also produce BOM-less UTF-16 files. A
+    # strong alternating-NUL pattern is safe to distinguish from ordinary
+    # single-byte lyric text before falling back to UTF-8/Windows-1252.
+    if len(raw) >= 8:
+        even_null_ratio = raw[0::2].count(0) / len(raw[0::2])
+        odd_null_ratio = raw[1::2].count(0) / len(raw[1::2])
+        if odd_null_ratio >= 0.30 and even_null_ratio <= 0.05:
+            return decoded_text(raw, "utf-16-le")
+        if even_null_ratio >= 0.30 and odd_null_ratio <= 0.05:
+            return decoded_text(raw, "utf-16-be")
+
+    for encoding in ("utf-8", "cp1252"):
         try:
-            return path.read_text(encoding=encoding)
+            return decoded_text(raw, encoding)
         except UnicodeDecodeError:
             continue
-    return path.read_text(errors="replace")
+    return decoded_text(raw, sys.getdefaultencoding(), errors="replace")
 
 
 def ensure_id3(path: Path):
@@ -2768,6 +2839,39 @@ def lrc2srt_executable() -> Path | None:
     return next((candidate for candidate in candidates if candidate.is_file()), None)
 
 
+def generate_missing_srt_sidecars(root: Path, audio_path: Path) -> list[str]:
+    """Run the user's recursive MiniLyricsFix workflow once at the batch root."""
+    lrc = find_lyric_sidecar(audio_path, (".lrc",))
+    expected_srt = audio_path.with_suffix(".srt")
+    tool = lrc2srt_executable()
+    if lrc is None:
+        raise RuntimeError("The matching timestamped LRC sidecar is unavailable")
+    if tool is None:
+        raise RuntimeError(
+            "lrc2srt.py was not found beside the auditor or in C:\\BAT"
+        )
+    command = [
+        sys.executable,
+        str(tool),
+        "MiniLyricsFix",
+        "--recursive",
+        "--automatic-overwrites",
+    ]
+    print(
+        console_safe_text(
+            "            🎤 Running the recursive MiniLyricsFix SRT "
+            f"backfill from {root}:"
+        ),
+        flush=True,
+    )
+    run_live_command(command, cwd=root, stream_output=True)
+    if not expected_srt.is_file():
+        raise RuntimeError(
+            f"lrc2srt.py did not create the matching SRT: {expected_srt.name}"
+        )
+    return [f"generated_srt_sidecars:{root}", f"confirmed_srt:{expected_srt}"]
+
+
 def backfill_srt_from_lrc(audio_path: Path) -> list[str]:
     """Run the existing lrc2srt workflow for exactly one updated LRC sidecar."""
     lrc = find_lyric_sidecar(audio_path, (".lrc",))
@@ -2843,7 +2947,18 @@ def ensure_lyric_sidecars(path: Path, write: bool) -> tuple[Path | None, Path | 
     srt = find_lyric_sidecar(path, (".srt",))
     if txt is None and (lrc or srt):
         txt = path.with_suffix(".txt")
-        plain = plain_from_lrc(read_text(lrc)) if lrc else plain_from_srt(read_text(srt))
+        plain_source, _line_count = first_usable_plain_sidecar(
+            [
+                candidate
+                for candidate in (lrc, srt)
+                if candidate and candidate.exists()
+            ]
+        )
+        plain = (
+            usable_plain_sidecar_content(plain_source)
+            if plain_source
+            else ""
+        )
         if plain and write:
             txt.write_text(plain, encoding="utf-8")
         if not plain:
@@ -2865,10 +2980,11 @@ def embed_lyrics(
     force_refresh: bool = False,
 ) -> list[str]:
     txt, lrc = ensure_lyric_sidecars(path, write)
+    srt = find_lyric_sidecar(path, (".srt",))
     plain_source, _plain_line_count = first_usable_plain_sidecar(
         [
             candidate
-            for candidate in (txt, lrc)
+            for candidate in (txt, lrc, srt)
             if candidate and candidate.exists()
         ]
     )
@@ -2877,7 +2993,18 @@ def embed_lyrics(
         if plain_source
         else ""
     )
-    synced = timed_sidecar_content(lrc) if lrc and lrc.exists() else ""
+    timed_source, _timed_line_count = first_usable_timed_sidecar(
+        [
+            candidate
+            for candidate in (lrc, srt)
+            if candidate and candidate.exists()
+        ]
+    )
+    synced = (
+        timed_sidecar_content(timed_source)
+        if timed_source
+        else ""
+    )
     synced_entries = parse_lrc_for_sylt(synced) if synced else []
     if not synced_entries:
         synced = ""
@@ -2909,12 +3036,12 @@ def embed_lyrics(
         )
         synced_needs_refresh = bool(
             synced
-            and lrc
+            and timed_source
             and (
                 force_refresh
                 or lyric_refresh_reasons(
                     path,
-                    lrc,
+                    timed_source,
                     synced,
                     current_synced,
                     timed=True,
@@ -2973,12 +3100,12 @@ def embed_lyrics(
     )
     synced_needs_refresh = bool(
         synced
-        and lrc
+        and timed_source
         and (
             force_refresh
             or lyric_refresh_reasons(
                 path,
-                lrc,
+                timed_source,
                 synced,
                 current_synced,
                 timed=True,
@@ -4156,9 +4283,16 @@ def windows_visible_console_size() -> os.terminal_size | None:
 
 
 def windows_console_font_cell_size() -> tuple[int, int] | None:
-    """Return the active Win32 console font cell size in physical pixels."""
+    """Return the active terminal character-cell size in physical pixels."""
     if os.name != "nt":
         return None
+    if query_terminal_geometry is not None:
+        try:
+            geometry = query_terminal_geometry(timeout_seconds=0.35)
+            if geometry.cell_width > 0 and geometry.cell_height > 0:
+                return geometry.cell_width, geometry.cell_height
+        except Exception:
+            pass
     try:
         import ctypes
         import msvcrt
@@ -4761,17 +4895,16 @@ def prepare_artwork_preview(
         )
     output_format = "sixels" if sixel else "symbols"
     if sixel and not stretch_to_width:
-        # Keep this in lockstep with echo-image.bat.  Chafa's Sixel renderer
-        # uses image-pixel view dimensions, not terminal-cell dimensions; the
-        # 2.1 multiplier is the deliberately tuned quality setting there.
+        cell_width = max(1, round(geometry.pixel_width / geometry.columns))
+        cell_height = max(1, round(geometry.pixel_height / geometry.rows))
         command = [
             str(chafa),
             "--format=sixels",
-            "--fit-width",
             "--colors=full",
-            "--view-size="
-            f"{geometry.columns * CHAFA_SIXEL_VIEW_SCALE:.1f}x"
-            f"{geometry.rows * CHAFA_SIXEL_VIEW_SCALE:.1f}",
+            f"--size={geometry.columns}x{geometry.rows}",
+            f"--view-size={geometry.columns}x{geometry.rows}",
+            f"--font-ratio={cell_width}/{cell_height}",
+            "--scale=max",
             "--optimize=9",
             "--work=9",
             "--color-space=din99d",
@@ -5017,6 +5150,44 @@ def launch_audio_editor(audio_path: Path) -> Path:
     return editor
 
 
+def audio_preview_player_script() -> Path | None:
+    """Find the legacy-named interactive FFplay controller."""
+    script_folder = Path(__file__).resolve().parent
+    candidates = (
+        script_folder / "play_audio_file.py",
+        script_folder / "play_wave_file.py",
+        Path(r"C:\BAT\play_audio_file.py"),
+        Path(r"C:\BAT\play_wave_file.py"),
+    )
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    for name in ("play_audio_file.py", "play_wave_file.py"):
+        discovered = shutil.which(name)
+        if discovered:
+            return Path(discovered)
+    return None
+
+
+def launch_audio_preview(audio_path: Path) -> Path:
+    """Synchronously preview audio with the keyboard-controlled local player."""
+    player = audio_preview_player_script()
+    if player is None:
+        raise RuntimeError(
+            "play_audio_file.py was not found beside audit_music_batch.py, "
+            "under C:\\BAT, or in PATH"
+        )
+    result = subprocess.run(
+        [sys.executable, str(player), str(audio_path)],
+        check=False,
+    )
+    if result.returncode:
+        raise RuntimeError(
+            f"{player.name} exited with status {result.returncode}"
+        )
+    return player
+
+
 def read_artwork_review_key(
     key_reader,
     rendered_size: os.terminal_size,
@@ -5179,22 +5350,31 @@ def waveform_review_choices(
     use_color: bool,
     *,
     default_edit: bool = False,
+    allow_bake_gain: bool = False,
 ) -> str:
     """Render explicit diagnostic waveform-review controls."""
     edit_label = "ENTER/E=Edit audio | " if default_edit else "E=Edit audio | "
     plain = (
         "N=It’s fine | Y=There is a problem | "
-        f"{edit_label}V=View fullscreen"
+        f"P=Preview audio | {edit_label}"
+        + ("B=Bake ReplayGain | " if allow_bake_gain else "")
+        + "V=View fullscreen"
     )
     if not use_color:
         return f"[{plain}]"
     parts = (
         ("N", "=It’s fine | ", (95, 245, 135)),
         ("Y", "=There is a problem | ", (255, 105, 105)),
+        ("P", "=Preview audio | ", (95, 205, 255)),
         (
             "ENTER/E" if default_edit else "E",
             "=Edit audio | ",
             (255, 185, 75),
+        ),
+        *(
+            (("B", "=Bake ReplayGain | ", (90, 225, 150)),)
+            if allow_bake_gain
+            else ()
         ),
         ("V", "=View fullscreen", (185, 145, 255)),
     )
@@ -5493,6 +5673,338 @@ def prompt_for_waveform_problem_rename(
     return renamed_audio
 
 
+def replaygain_decibels_from_factor(factor: float | None) -> float | None:
+    """Convert a positive ReplayGain multiplier back to its tagged dB value."""
+    if factor is None or not math.isfinite(float(factor)) or factor <= 0:
+        return None
+    return 20.0 * math.log10(float(factor))
+
+
+def safely_baked_replaygain_db(
+    metrics: WaveformMetrics,
+) -> tuple[float, float]:
+    """Return requested and peak-protected ReplayGain adjustments in dB."""
+    requested = replaygain_decibels_from_factor(metrics.replaygain_factor)
+    if requested is None:
+        raise RuntimeError("This audio file has no usable ReplayGain track gain")
+    applied = requested
+    peak_ratio = max(0.0, metrics.peak_volume_percentage / 100.0)
+    if requested > 0 and peak_ratio > 0:
+        # Retain 0.1% numerical headroom for codec/sample-format rounding.
+        maximum_safe = 20.0 * math.log10(0.999 / peak_ratio)
+        applied = min(requested, maximum_safe)
+    return requested, applied
+
+
+def _remove_flac_replaygain_tags(path: Path) -> None:
+    """Remove now-stale FLAC ReplayGain fields before fresh analysis."""
+    tagged = FLAC(path)
+    for key in list(tagged.keys()):
+        if str(key).casefold().startswith("replaygain_"):
+            del tagged[key]
+    tagged.save()
+
+
+def file_sha256(path: Path) -> str:
+    """Hash a potentially large media file without loading it all at once."""
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def replace_staged_media(
+    staged: Path,
+    destination: Path,
+    *,
+    use_color: bool,
+) -> str:
+    """Install staged media, falling back when Windows denies rename/delete.
+
+    ``os.replace`` is preferred because it is atomic. Some Windows volumes
+    permit writing a file but deny the delete/rename permission required by
+    ``os.replace``. In that specific case, copy the already validated staged
+    bytes over the destination, flush them, verify SHA-256, and recycle the
+    staging file.
+    """
+    denied_error: OSError | None = None
+    try:
+        os.replace(staged, destination)
+        return "atomic-replace"
+    except OSError as atomic_error:
+        access_denied = (
+            isinstance(atomic_error, PermissionError)
+            or getattr(atomic_error, "winerror", None) in {5, 32}
+            or getattr(atomic_error, "errno", None) in {1, 13}
+        )
+        if not access_denied:
+            raise
+        denied_error = atomic_error
+
+    try:
+        with staged.open("rb") as source, destination.open("wb") as target:
+            shutil.copyfileobj(source, target, length=1024 * 1024)
+            target.flush()
+            os.fsync(target.fileno())
+    except Exception as copy_error:
+        raise RuntimeError(
+            "Windows denied atomic replacement, and the verified in-place "
+            f"copy fallback also failed: {copy_error}"
+        ) from denied_error
+
+    if (
+        destination.stat().st_size != staged.stat().st_size
+        or file_sha256(destination) != file_sha256(staged)
+    ):
+        raise RuntimeError(
+            "Windows denied atomic replacement, and SHA-256 verification of "
+            "the in-place copy fallback failed"
+        ) from denied_error
+
+    try:
+        recycle_path(staged)
+        staging_note = "the staging file was sent to the Recycle Bin."
+    except Exception as recycle_error:
+        staging_note = (
+            "the verified staging file was kept because Recycle Bin cleanup "
+            f"failed ({type(recycle_error).__name__}: {recycle_error})."
+        )
+    cover_narration(
+        "🛡️",
+        "Windows denied atomic replacement; used a flushed, SHA-256-verified "
+        f"in-place media write instead, and {staging_note}",
+        use_color=use_color,
+        color=(165, 185, 205),
+        dim=True,
+    )
+    return "verified-copy-fallback"
+
+
+def bake_replaygain_into_audio(
+    audio_path: Path,
+    metrics: WaveformMetrics,
+    *,
+    use_color: bool = True,
+    stream_output: bool = True,
+    ffmpeg_executable: str | None = None,
+    metaflac_executable: str | None = None,
+    metamp3_executable: str | None = None,
+) -> tuple[Path, float]:
+    """Bake track gain into FLAC/MP3 audio, then calculate fresh tags."""
+    source = audio_path.resolve()
+    requested_db, applied_db = safely_baked_replaygain_db(metrics)
+    suffix = source.suffix.casefold()
+    if suffix not in {".flac", ".mp3"}:
+        raise RuntimeError(
+            "Baked ReplayGain currently supports FLAC and MP3 audio"
+        )
+    limited = applied_db < requested_db - 0.01
+    cover_narration(
+        "🎚️",
+        f"Tagged track gain requests {requested_db:+.2f} dB; applying "
+        f"{applied_db:+.2f} dB"
+        + (" after peak protection." if limited else "."),
+        use_color=use_color,
+        color=(105, 220, 155),
+    )
+    backup: Path | None = None
+    if suffix == ".flac":
+        ffmpeg = ffmpeg_executable or shutil.which("ffmpeg")
+        metaflac = metaflac_executable or shutil.which("metaflac")
+        if not ffmpeg or not metaflac:
+            raise RuntimeError(
+                "Baking FLAC ReplayGain requires ffmpeg and metaflac in PATH"
+            )
+        temporary = collision_safe_path(
+            source.with_name(f".{source.name}.baking-replaygain.flac")
+        )
+        original = FLAC(source)
+        bits_per_sample = int(
+            getattr(
+                getattr(original, "info", None),
+                "bits_per_sample",
+                16,
+            )
+            or 16
+        )
+        command = [
+            str(ffmpeg),
+            "-hide_banner",
+            "-y",
+            "-i",
+            str(source),
+            "-map",
+            "0",
+            "-map_metadata",
+            "0",
+            "-c",
+            "copy",
+            "-c:a",
+            "flac",
+            "-sample_fmt",
+            "s16" if bits_per_sample <= 16 else "s32",
+            "-filter:a",
+            f"volume={applied_db:+.8f}dB",
+            str(temporary),
+        ]
+        print(
+            console_safe_text(
+                f"        ▶ {subprocess.list2cmdline(command)}"
+            ),
+            flush=True,
+        )
+        options: dict[str, Any] = {"check": False}
+        if not stream_output:
+            options.update(
+                {
+                    "stdout": subprocess.PIPE,
+                    "stderr": subprocess.STDOUT,
+                    "text": True,
+                    "errors": "replace",
+                }
+            )
+        result = subprocess.run(command, **options)
+        if result.returncode or not temporary.is_file():
+            if temporary.exists():
+                recycle_path(temporary)
+            detail = str(getattr(result, "stdout", "") or "").strip()
+            raise RuntimeError(
+                "FFmpeg could not bake ReplayGain into this FLAC"
+                + (f": {detail}" if detail else "")
+            )
+        try:
+            normalized = FLAC(temporary)
+            if not normalized.info or normalized.info.length <= 0:
+                raise RuntimeError("Baked FLAC has no valid audio stream")
+            _remove_flac_replaygain_tags(temporary)
+            backup = backup_before_inline_replacement(source)
+            replace_staged_media(
+                temporary,
+                source,
+                use_color=use_color,
+            )
+            run_live_command(
+                [str(metaflac), "--add-replay-gain", str(source)],
+                cwd=source.parent,
+                stream_output=stream_output,
+            )
+        except Exception:
+            if temporary.exists():
+                recycle_path(temporary)
+            if backup is not None and backup.is_file():
+                shutil.copy2(backup, source)
+            raise
+    else:
+        ffmpeg = ffmpeg_executable or shutil.which("ffmpeg")
+        metamp3 = metamp3_executable or shutil.which("metamp3")
+        if not ffmpeg or not metamp3:
+            raise RuntimeError(
+                "Baking MP3 ReplayGain requires ffmpeg and metamp3 in PATH"
+            )
+        temporary = collision_safe_path(
+            source.with_name(f".{source.name}.baking-replaygain.mp3")
+        )
+        command = [
+            str(ffmpeg),
+            "-hide_banner",
+            "-y",
+            "-i",
+            str(source),
+            "-map",
+            "0",
+            "-map_metadata",
+            "0",
+            "-c",
+            "copy",
+            "-c:a",
+            "libmp3lame",
+            "-q:a",
+            "0",
+            "-filter:a",
+            f"volume={applied_db:+.8f}dB",
+            "-id3v2_version",
+            "3",
+            str(temporary),
+        ]
+        print(
+            console_safe_text(
+                f"        ▶ {subprocess.list2cmdline(command)}"
+            ),
+            flush=True,
+        )
+        options = {"check": False}
+        if not stream_output:
+            options.update(
+                {
+                    "stdout": subprocess.PIPE,
+                    "stderr": subprocess.STDOUT,
+                    "text": True,
+                    "errors": "replace",
+                }
+            )
+        result = subprocess.run(command, **options)
+        if result.returncode or not temporary.is_file():
+            if temporary.exists():
+                recycle_path(temporary)
+            detail = str(getattr(result, "stdout", "") or "").strip()
+            raise RuntimeError(
+                "FFmpeg could not re-encode this MP3 with baked ReplayGain"
+                + (f": {detail}" if detail else "")
+            )
+        try:
+            encoded = MP3(temporary)
+            if not encoded.info or encoded.info.length <= 0:
+                raise RuntimeError("Re-encoded MP3 has no valid audio stream")
+            if encoded.tags is not None:
+                for frame in list(encoded.tags.getall("TXXX")):
+                    if frame.desc.casefold().startswith("replaygain_"):
+                        encoded.tags.delall(f"TXXX:{frame.desc}")
+                encoded.save(v2_version=3)
+            backup = backup_before_inline_replacement(source)
+            replace_staged_media(
+                temporary,
+                source,
+                use_color=use_color,
+            )
+            run_live_command(
+                [str(metamp3), "--replay-gain", str(source)],
+                cwd=source.parent,
+                stream_output=stream_output,
+            )
+        except Exception:
+            if temporary.exists():
+                recycle_path(temporary)
+            if backup is not None and backup.is_file():
+                shutil.copy2(backup, source)
+            raise
+    if backup is None or not backup.is_file():
+        raise RuntimeError("Baked ReplayGain backup verification failed")
+    if waveform_replaygain_factor(source) is None:
+        shutil.copy2(backup, source)
+        raise RuntimeError(
+            "Fresh ReplayGain tags were not verified; original was restored"
+        )
+    return backup, applied_db
+
+
+def recolor_newly_baked_waveform(waveform_path: Path) -> None:
+    """Turn only the plotted cyan waveform green after gain was just baked."""
+    if Image is None:
+        raise RuntimeError("Pillow is required to recolor waveform previews")
+    with Image.open(waveform_path) as source:
+        image = source.convert("RGB")
+    plot_width = max(1, min(image.width, WAVEFORM_PLOT_WIDTH))
+    plot = image.crop((0, 0, plot_width, image.height))
+    mask = waveform_cyan_mask(plot)
+    plot.paste(
+        Image.new("RGB", plot.size, (80, 255, 130)),
+        mask=mask,
+    )
+    image.paste(plot, (0, 0))
+    image.save(waveform_path, format="JPEG", quality=94)
+
+
 def waveform_review_choice(
     waveform_path: Path,
     audio_path: Path,
@@ -5502,8 +6014,13 @@ def waveform_review_choice(
     preview_renderer=None,
     image_viewer=None,
     audio_editor=None,
+    audio_previewer=None,
     problem_renamer=None,
     rename_input_reader=None,
+    waveform_metrics: WaveformMetrics | None = None,
+    gain_baker=None,
+    waveform_generator=None,
+    waveform_recolorer=None,
     excessive_silence: bool = False,
     longest_silence_seconds: float = 0.0,
     acceptable_silence_seconds: float = (
@@ -5514,9 +6031,15 @@ def waveform_review_choice(
     renderer = preview_renderer or render_waveform_preview
     viewer = image_viewer or launch_irfanview
     editor = audio_editor or launch_audio_editor
+    previewer = audio_previewer or launch_audio_preview
     renamer = problem_renamer or prompt_for_waveform_problem_rename
+    baker = gain_baker or bake_replaygain_into_audio
+    generator = waveform_generator or generate_waveform_jpeg
+    recolorer = waveform_recolorer or recolor_newly_baked_waveform
     question = f"Does this waveform show a problem in {audio_path.name}?"
     edits_opened = 0
+    current_metrics = waveform_metrics
+    gain_baked = False
     while True:
         rendered_size = visible_console_size()
         reset_console_pager_after_user_input()
@@ -5538,6 +6061,19 @@ def waveform_review_choice(
                 use_color=use_color,
                 color=(255, 75, 85),
             )
+        requested_gain_db = (
+            replaygain_decibels_from_factor(
+                current_metrics.replaygain_factor
+            )
+            if current_metrics is not None
+            else None
+        )
+        allow_bake_gain = (
+            requested_gain_db is not None
+            and abs(requested_gain_db) >= 0.10
+            and audio_path.suffix.casefold() in {".flac", ".mp3"}
+            and not gain_baked
+        )
         prompt_visible = False
         while True:
             prompt = urgent_prompt_text(
@@ -5550,6 +6086,7 @@ def waveform_review_choice(
                 waveform_review_choices(
                     use_color,
                     default_edit=excessive_silence,
+                    allow_bake_gain=allow_bake_gain,
                 ),
                 indent="            ",
             )
@@ -5607,6 +6144,28 @@ def waveform_review_choice(
                         use_color,
                     )
                 continue
+            if lowered == "p":
+                if interactive_terminal:
+                    erase_wrapped_console_text(steady)
+                else:
+                    print()
+                prompt_visible = False
+                try:
+                    previewed_with = previewer(audio_path)
+                    cover_narration(
+                        "🔊",
+                        f"Audio preview ended in {Path(previewed_with).name}; "
+                        "returning to waveform review.",
+                        use_color=use_color,
+                        color=(95, 185, 225),
+                        dim=True,
+                    )
+                except Exception as exc:
+                    print_formatted_error(
+                        f"Could not preview this audio file: {exc}",
+                        use_color,
+                    )
+                continue
             if lowered == "e":
                 if interactive_terminal:
                     erase_wrapped_console_text(steady)
@@ -5629,6 +6188,131 @@ def waveform_review_choice(
                         use_color,
                     )
                 continue
+            if lowered == "b" and allow_bake_gain and current_metrics is not None:
+                if interactive_terminal:
+                    erase_wrapped_console_text(steady)
+                else:
+                    print()
+                prompt_visible = False
+                requested_db, applied_db = safely_baked_replaygain_db(
+                    current_metrics
+                )
+                protection = (
+                    f"; peak protection limits the applied change to "
+                    f"{applied_db:+.2f} dB"
+                    if applied_db < requested_db - 0.01
+                    else ""
+                )
+                method = (
+                    "FLAC PCM amplitudes will change and be losslessly "
+                    "re-encoded"
+                    if audio_path.suffix.casefold() == ".flac"
+                    else "the MP3 will be decoded and lossily re-encoded at "
+                    "the highest LAME VBR quality"
+                )
+                if not prompt_for_approval(
+                    f"Bake the tagged ReplayGain adjustment "
+                    f"({requested_db:+.2f} dB{protection}) into this audio "
+                    f"now? {method}; the original will be kept as a verified "
+                    "backup and ReplayGain tags will then be recalculated.",
+                    False,
+                    use_color,
+                    key_reader=key_reader,
+                    indent="            ",
+                ):
+                    continue
+                try:
+                    before_bake_waveform = collision_safe_path(
+                        waveform_path.with_name(
+                            f"{waveform_path.stem}"
+                            ".before-replaygain-bake"
+                            f"{waveform_path.suffix}"
+                        )
+                    )
+                    shutil.copy2(waveform_path, before_bake_waveform)
+                    backup, applied_db = baker(
+                        audio_path,
+                        current_metrics,
+                        use_color=use_color,
+                    )
+                    (
+                        regenerated_waveform,
+                        _regenerated_backup,
+                        regenerated_metrics,
+                    ) = generator(
+                        audio_path,
+                        narrate=True,
+                        destination=waveform_path,
+                        acceptable_silence_seconds=(
+                            acceptable_silence_seconds
+                        ),
+                    )
+                    recolorer(regenerated_waveform)
+                    current_metrics = regenerated_metrics
+                    gain_baked = True
+                    excessive_silence = (
+                        regenerated_metrics.longest_silence_seconds
+                        > acceptable_silence_seconds
+                    )
+                    longest_silence_seconds = (
+                        regenerated_metrics.longest_silence_seconds
+                    )
+                    refreshed_db = replaygain_decibels_from_factor(
+                        regenerated_metrics.replaygain_factor
+                    )
+                    cover_narration(
+                        "💾",
+                        f"Original kept as {backup.name}.",
+                        use_color=use_color,
+                        color=(145, 150, 155),
+                        dim=True,
+                    )
+                    cover_narration(
+                        "🔵",
+                        "Before: original blue waveform; a ReplayGain-aware "
+                        f"player applies {requested_db:+.2f} dB from its tag. "
+                        "Comparison only — no response is needed.",
+                        use_color=use_color,
+                        color=(85, 190, 245),
+                    )
+                    reset_console_pager_after_user_input()
+                    comparison_mode = renderer(
+                        before_bake_waveform,
+                        use_color=use_color,
+                    )
+                    cover_narration(
+                        "👁️",
+                        f"Original comparison rendered with {comparison_mode}.",
+                        use_color=use_color,
+                        color=(105, 95, 145),
+                        dim=True,
+                    )
+                    refreshed_text = (
+                        f"{refreshed_db:+.2f} dB"
+                        if refreshed_db is not None
+                        else "unavailable"
+                    )
+                    cover_narration(
+                        "🌱",
+                        f"New waveform rendered in green after baking "
+                        f"{applied_db:+.2f} dB into the samples; its fresh "
+                        f"ReplayGain correction is {refreshed_text}.",
+                        use_color=use_color,
+                        color=(80, 255, 130),
+                    )
+                    cover_narration(
+                        "✔️",
+                        "Re-audit: changed audio, fresh ReplayGain tags, and "
+                        "new waveform verified.",
+                        use_color=use_color,
+                        color=(95, 225, 130),
+                    )
+                except Exception as exc:
+                    print_formatted_error(
+                        f"Could not bake ReplayGain into this audio: {exc}",
+                        use_color,
+                    )
+                break
             if lowered not in {"n", "y"}:
                 invalid_key_beep()
                 continue
@@ -5896,15 +6580,24 @@ def parse_waveform_metrics(
 
 
 def waveform_metric_lines(metrics: WaveformMetrics) -> tuple[str, ...]:
-    """Format the compact four-line center-right waveform summary."""
+    """Format the compact center-right waveform and ReplayGain summary."""
     gain = (
         f"{metrics.replaygain_factor:.5f}"
         if metrics.replaygain_factor is not None
         else "n/a"
     )
+    replaygain_db = replaygain_decibels_from_factor(
+        metrics.replaygain_factor
+    )
+    replaygain = (
+        f"{replaygain_db:+.2f} dB"
+        if replaygain_db is not None
+        else "n/a"
+    )
     return (
         f"peak vol: {round(metrics.peak_volume_percentage)}%",
         f"avg vol: {round(metrics.average_volume_percentage)}%",
+        f"ReplayGain: {replaygain}",
         f"gain: {gain}",
         f"silence: {math.floor(max(0.0, metrics.longest_silence_seconds))}s "
         "(longest)",
@@ -5919,6 +6612,7 @@ def waveform_metric_value_colors(
     return (
         (205, 155, 255),
         (100, 220, 255),
+        (115, 235, 165),
         (255, 165, 90),
         (
             (255, 75, 85)
@@ -6002,17 +6696,34 @@ def waveform_cyan_mask(region):
     )
 
 
+def waveform_axis_ceiling_percent(metrics: WaveformMetrics) -> float:
+    """Choose a truthful 5% axis ceiling with a small visible headroom."""
+    peak = max(
+        [float(metrics.peak_volume_percentage)]
+        + [float(value) for value in metrics.channel_peak_percentages]
+    )
+    peak = max(0.0, min(100.0, peak))
+    if peak >= 100.0:
+        return 100.0
+    headroom = max(2.0, peak * 0.05)
+    return float(
+        max(5, min(100, math.ceil((peak + headroom) / 5.0) * 5))
+    )
+
+
 def scale_waveform_to_absolute_peaks(
     image,
     channel_peak_percentages: tuple[float, ...],
     *,
     plot_width: int = WAVEFORM_PLOT_WIDTH,
+    axis_ceiling_percent: float = 100.0,
 ) -> None:
-    """Undo showwavespic peak normalization so height means real amplitude."""
+    """Scale normalized waves against the explicitly labeled amplitude axis."""
     if Image is None:
         raise RuntimeError("Pillow is required for waveform rendering")
     channels = max(1, len(channel_peak_percentages))
     width = max(1, min(image.width, int(plot_width)) - 8)
+    ceiling = max(0.1, min(100.0, float(axis_ceiling_percent)))
     for channel, peak in enumerate(channel_peak_percentages):
         top = round(image.height * channel / channels) + 4
         bottom = round(image.height * (channel + 1) / channels) - 4
@@ -6024,7 +6735,7 @@ def scale_waveform_to_absolute_peaks(
             1,
             min(
                 height,
-                round(height * max(0.0, min(100.0, peak)) / 100.0),
+                round(height * max(0.0, min(ceiling, peak)) / ceiling),
             ),
         )
         resized = mask.resize(
@@ -6084,11 +6795,13 @@ def annotate_waveform_peak_guides(
         raise RuntimeError(
             "Waveform preview has no room for its peak-label gutter"
         )
+    axis_ceiling = waveform_axis_ceiling_percent(metrics)
     draw = ImageDraw.Draw(image)
     scale_waveform_to_absolute_peaks(
         image,
         metrics.channel_peak_percentages,
         plot_width=plot_width,
+        axis_ceiling_percent=axis_ceiling,
     )
     emphasize_waveform_peak_visibility(
         image,
@@ -6107,16 +6820,11 @@ def annotate_waveform_peak_guides(
         width=3,
     )
 
-    percentage = max(
-        0.0,
-        min(100.0, float(metrics.peak_volume_percentage)),
-    )
-    rounded = int(round(percentage))
+    rounded = int(round(axis_ceiling))
     channel_height = image.height / channels
     usable_half_height = max(1, round(channel_height / 2) - 8)
-    offset = round(usable_half_height * percentage / 100.0)
-    upper_y = round(channel_height / 2) - offset
-    lower_y = round(image.height - channel_height / 2) + offset
+    upper_y = round(channel_height / 2) - usable_half_height
+    lower_y = round(image.height - channel_height / 2) + usable_half_height
     tick_start = max(0, axis_x - 36)
     tick_end = min(image.width - 1, axis_x + 14)
     text_x = min(image.width - 1, axis_x + 20)
@@ -6132,8 +6840,12 @@ def annotate_waveform_peak_guides(
         )
         box = draw.textbbox((0, 0), label, font=font)
         text_height = box[3] - box[1]
+        label_y = max(
+            2,
+            min(image.height - text_height - 2, y - text_height // 2),
+        )
         draw.text(
-            (text_x, y - text_height // 2),
+            (text_x, label_y),
             label,
             font=font,
             fill=text_color,
@@ -6466,6 +7178,7 @@ def review_waveforms(
     preview_renderer=None,
     image_viewer=None,
     audio_editor=None,
+    audio_previewer=None,
     workers: int = 8,
     silence_threshold_seconds: float | None = None,
     approval_database_path: Path | None = None,
@@ -6708,6 +7421,8 @@ def review_waveforms(
                     ),
                     image_viewer=image_viewer,
                     audio_editor=discovered_editor,
+                    audio_previewer=audio_previewer,
+                    waveform_metrics=waveform_metrics,
                     excessive_silence=(
                         waveform_metrics.longest_silence_seconds
                         > acceptable_silence_seconds
@@ -7183,19 +7898,48 @@ def export_art_sidecars(path: Path, write: bool = True) -> list[str]:
     return exports
 
 
+def same_basename_front_art_candidates(audio_path: Path) -> list[Path]:
+    """Return track-specific Front art only for an unnumbered/MISC audio file."""
+    if is_album_track_filename(audio_path):
+        return []
+    candidates: list[Path] = []
+    for extension in FRONT_ART_EXTENSION_PRIORITY:
+        candidate = audio_path.with_suffix(extension)
+        if candidate.is_file() and candidate.stat().st_size > 0:
+            candidates.append(candidate)
+    return candidates
+
+
+def embeddable_front_art_candidates(audio_path: Path) -> list[Path]:
+    """Prefer folder Front art, then an exact MISC-track basename image."""
+    candidates = folder_front_art_candidates(audio_path.parent)
+    candidates.extend(same_basename_front_art_candidates(audio_path))
+    return list(dict.fromkeys(candidates))
+
+
 def front_art_candidate(path: Path) -> Path | None:
-    candidates = folder_front_art_candidates(path.parent)
+    candidates = embeddable_front_art_candidates(path)
     return candidates[0] if candidates else None
 
 
-def is_allowed_front_art_name(path: Path) -> bool:
-    """Accept explicit Front names, including collision-safe numeric suffixes."""
-    return bool(
-        re.fullmatch(
-            r"(?:cover|folder)(?: \(\d+\))?",
-            path.stem,
-            flags=re.IGNORECASE,
-        )
+def is_allowed_front_art_name(
+    path: Path,
+    *,
+    audio_path: Path | None = None,
+) -> bool:
+    """Accept folder Front names or the exact basename of one MISC track."""
+    if re.fullmatch(
+        r"(?:cover|folder)(?: \(\d+\))?",
+        path.stem,
+        flags=re.IGNORECASE,
+    ):
+        return True
+    if audio_path is None or is_album_track_filename(audio_path):
+        return False
+    return (
+        path.parent.resolve() == audio_path.parent.resolve()
+        and path.stem.casefold() == audio_path.stem.casefold()
+        and path.suffix.casefold() in IMAGE_EXTS
     )
 
 
@@ -7220,10 +7964,11 @@ def folder_front_art_candidates(folder: Path) -> list[Path]:
 def normalized_local_front_jpeg(
     image: Path,
     *,
+    audio_path: Path | None = None,
     write: bool = True,
 ) -> tuple[Path, bool]:
     """Return a JPEG Front sidecar, creating a collision-safe copy if needed."""
-    if not is_allowed_front_art_name(image):
+    if not is_allowed_front_art_name(image, audio_path=audio_path):
         raise RuntimeError(
             f"Refusing non-cover artwork sidecar: {image.name}"
         )
@@ -7266,9 +8011,10 @@ def normalized_local_front_jpeg(
 
 
 def embed_front_art(path: Path, image: Path, force: bool) -> Path | None:
-    if not is_allowed_front_art_name(image):
+    if not is_allowed_front_art_name(image, audio_path=path):
         raise RuntimeError(
-            f"Only cover.* or folder.* may be embedded; refusing {image.name}"
+            "Only cover.*, folder.*, or an exact unnumbered-track basename "
+            f"may be embedded; refusing {image.name}"
         )
     pictures = embedded_pictures(path)
     if pictures and not force:
@@ -7304,6 +8050,7 @@ def apply_art(path: Path, write: bool = True) -> list[str]:
     if candidate and picture_count != 1:
         jpeg_candidate, created_jpeg = normalized_local_front_jpeg(
             candidate,
+            audio_path=path,
             write=write,
         )
         if created_jpeg:
@@ -8351,6 +9098,7 @@ def friendly_category(category: str) -> str:
     names = {
         "missing_album": "Missing album tag",
         "embedded_lyrics_outdated": "Embedded lyrics need refreshing",
+        "excessive_silence": "Excessive silence detected",
         "lrc_txt_missing_srt_but_lrc_untimed": "Untimed LRC cannot create karaoke",
         "missing_plain_lyrics": "Plain lyrics missing",
         "missing_karaoke": "Timed karaoke missing",
@@ -8358,6 +9106,7 @@ def friendly_category(category: str) -> str:
         "unusable_plain_lyric_sidecar": "Plain-lyrics sidecar needs repair",
         "missing_embedded_art": "Embedded cover missing",
         "missing_replaygain": "ReplayGain missing",
+        "missing_srt_from_lrc_txt": "SRT sidecars ready to generate",
         "karaoke_not_embedded": "Timed karaoke ready to embed",
         "plain_lyrics_not_embedded": "Plain lyrics ready to embed",
         "redundant_album_artist_filename_group": (
@@ -8394,6 +9143,8 @@ def finding_category_emoji(category: str) -> str:
         return "🎤"
     if category == "missing_replaygain":
         return "🎚️"
+    if category == "excessive_silence":
+        return "🔇"
     if category in GROUPED_RENAME_CATEGORIES:
         return "✂️"
     if category in {
@@ -8509,6 +9260,41 @@ def approval_question(finding: dict[str, Any]) -> str:
         raise ValueError(
             f"No concrete interactive question is defined for {category}"
         ) from exc
+
+
+def refresh_missing_art_sidecars(
+    root: Path,
+    finding: dict[str, Any],
+) -> list[Path]:
+    """Refresh local Front candidates immediately before prompting.
+
+    The filesystem is authoritative here: a cover may have appeared after the
+    initial audit, and a stale finding must never offer a network search while
+    a usable local ``cover.*`` or ``folder.*`` already exists.
+    """
+    if finding.get("category") != "missing_embedded_art":
+        return []
+    target = safe_finding_path(root, finding)
+    candidates = embeddable_front_art_candidates(target)
+    details = finding.setdefault("details", {})
+    details["sidecars"] = [
+        str(candidate.resolve().relative_to(root.resolve()))
+        for candidate in candidates
+    ]
+    if candidates:
+        finding["severity"] = "safe_fix"
+        finding["suggestion"] = (
+            "Preview the existing local Front sidecar, approve it, embed it, "
+            "and re-audit; no artwork download is needed."
+        )
+    else:
+        finding["severity"] = "ask_first"
+        finding["suggestion"] = (
+            "Search MusicBrainz/Cover Art Archive and Bandcamp first, fall "
+            "back to Discogs when configured, review every supplied artwork "
+            "part, and embed only one approved Front image."
+        )
+    return candidates
 
 
 def preview_existing_front_sidecar(
@@ -8895,7 +9681,12 @@ def render_usage(use_color: bool = True) -> str:
         "  * full-console Chafa, Sixel, or ANSI artwork previews that automatically",
         "    re-render after a live window/font-size change; V opens the original",
         "  * full-width diagnostic waveform review with parallel background pre-rendering,",
-        "    persistent fine approvals, live resize, problem marking, editing, and rename",
+        "    persistent approvals, keyboard-controlled audio preview, editing,",
+        "    and optional problem-file renaming",
+        "  * B=Bake ReplayGain changes audio for players that ignore its tags:",
+        "    FLAC is losslessly re-encoded; MP3 is decoded and LAME-re-encoded",
+        "    at highest VBR quality; a blue-before/green-after comparison is",
+        "    shown, originals are backed up, and tags are recalculated",
         "  * a default-No end-of-audit offer to begin waveform review immediately",
         "  * default detection of excessive leading, internal, or trailing silence",
         "  * comment-filtered plain/timed lyric embedding plus newer-sidecar refresh",
@@ -8945,8 +9736,9 @@ def render_usage(use_color: bool = True) -> str:
         f"  {command('--find-cover')}  {command('--no-find-cover')}  "
         f"{default_badge(configured_defaults.find_cover)}",
         note(
-            "  ^ Enable or suppress missing-cover lookup; approved Front is "
-            "the only image embedded."
+            "  ^ Enable or suppress missing-cover lookup. Existing cover.*, "
+            "folder.*, or exact unnumbered-track sidecar is previewed first; "
+            "otherwise every found part is reviewed and only Front is embedded."
         ),
         "",
         f"  {command('--check-silence')}  {command('--no-silence-check')}  "
@@ -8965,6 +9757,17 @@ def render_usage(use_color: bool = True) -> str:
             "  ^ Run waveform review directly, suppress its normal end-of-audit "
             "offer, or choose 1-8 pre-render workers; display-ready previews "
             "are prepared ahead in a bounded cache."
+        ),
+        note(
+            "    P=Preview audio uses play_audio_file.py: arrows seek 5 seconds, "
+            "Shift+arrows seek 15, and Esc/X/Q/Ctrl+W/Alt+F4/Ctrl+C/"
+            "Ctrl+Break stop playback."
+        ),
+        note(
+            "    During review, B=Bake ReplayGain applies the tagged loudness "
+            "correction to the samples, keeps the original, recalculates "
+            "ReplayGain, re-shows the old waveform in blue without a prompt, "
+            "then displays the replacement waveform in green."
         ),
         "",
         f"  {command('--configure-defaults')}  {command('--show-defaults')}  "
@@ -9478,13 +10281,19 @@ ACTION_SCOPE_KEYS = {
 }
 
 
-def action_scope_options(default_yes: bool, use_color: bool) -> str:
+def action_scope_options(
+    default_yes: bool,
+    use_color: bool,
+    *,
+    allow_folder: bool = True,
+) -> str:
     """Render all single-key choices for a repeatable batch action."""
     yes_key = "Y" if default_yes else "y"
     no_key = "n" if default_yes else "N"
+    folder_plain = " / F=Do All in Folder" if allow_folder else ""
     plain = (
-        f"[{yes_key}=Yes / {no_key}=No / A=Always / V=Never / "
-        "F=Just Do For This Folder]"
+        f"[{yes_key}=Yes / {no_key}=No / A=Always / V=Never"
+        f"{folder_plain}]"
     )
     if not use_color:
         return plain
@@ -9497,10 +10306,15 @@ def action_scope_options(default_yes: bool, use_color: bool) -> str:
         rgb_text("A=Always", 255, 225, 80, True),
         rgb_text(" / ", 255, 165, 45, True),
         rgb_text("V=Never", 255, 145, 80, True),
-        rgb_text(" / ", 255, 165, 45, True),
-        rgb_text("F=Just Do For This Folder", 145, 215, 255, True),
-        rgb_text("]", 255, 205, 55, True),
     ]
+    if allow_folder:
+        chunks.extend(
+            [
+                rgb_text(" / ", 255, 165, 45, True),
+                rgb_text("F=Do All in Folder", 145, 215, 255, True),
+            ]
+        )
+    chunks.append(rgb_text("]", 255, 205, 55, True))
     return "".join(chunks)
 
 
@@ -9509,11 +10323,17 @@ def action_scope_prompt(
     default_yes: bool,
     use_color: bool,
     indent: str = "",
+    *,
+    allow_folder: bool = True,
 ) -> str:
     """Build the urgent repeatable-action prompt."""
     return prompt_with_option_legend(
         urgent_prompt_text(question, use_color),
-        action_scope_options(default_yes, use_color),
+        action_scope_options(
+            default_yes,
+            use_color,
+            allow_folder=allow_folder,
+        ),
         indent=indent,
     )
 
@@ -9525,7 +10345,7 @@ def action_scope_answer(choice: str, use_color: bool) -> str:
         "no": ("No!", (255, 105, 105)),
         "always": ("Always!", (255, 225, 80)),
         "never": ("Never!", (255, 125, 80)),
-        "folder": ("Just This Folder!", (145, 215, 255)),
+        "folder": ("All in This Folder!", (145, 215, 255)),
     }
     label, color = labels[choice]
     if not use_color:
@@ -9555,6 +10375,8 @@ def prompt_for_action_scope(
     use_color: bool,
     key_reader=None,
     indent: str = "",
+    *,
+    allow_folder: bool = True,
 ) -> str:
     """Read Y/N/Always/Never/Folder with one key and no required Enter."""
     reader = key_reader or read_single_key
@@ -9563,6 +10385,7 @@ def prompt_for_action_scope(
         default_yes,
         use_color,
         indent,
+        allow_folder=allow_folder,
     )
     interactive_terminal = bool(
         getattr(sys.stdout, "isatty", lambda: False)()
@@ -9585,7 +10408,7 @@ def prompt_for_action_scope(
             choice = "yes" if default_yes else "no"
         else:
             choice = ACTION_SCOPE_KEYS.get(key.casefold())
-            if choice is None:
+            if choice is None or (choice == "folder" and not allow_folder):
                 invalid_key_beep()
                 continue
         if interactive_terminal:
@@ -9894,6 +10717,13 @@ def apply_finding(
     if category == "newer_lrc_needs_srt_backfill":
         return backfill_srt_from_lrc(target)
 
+    if category == "missing_srt_from_lrc_txt":
+        return generate_missing_srt_sidecars(root, target)
+
+    if category == "excessive_silence":
+        editor = launch_audio_editor(target)
+        return [f"opened_editor:{editor}", f"audio:{target}"]
+
     if category == "missing_replaygain":
         return apply_argt_replaygain_folder(
             target.parent,
@@ -9976,10 +10806,19 @@ def find_covers_for_batch(
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Apply ``--find-cover`` once per release, then re-audit the whole batch."""
     root = root.resolve()
-    missing = [
+    all_missing = [
         finding
         for finding in data.get("findings", [])
         if finding.get("category") == "missing_embedded_art"
+    ]
+    # Existing local Front art is not a search job. Leave it in the normal
+    # interactive list, which previews the exact image and asks before
+    # embedding. In particular, --find-cover must not download merely because
+    # the audio has not yet embedded its available cover.jpg.
+    missing = [
+        finding
+        for finding in all_missing
+        if front_art_candidate(safe_finding_path(root, finding)) is None
     ]
     if not missing:
         return [], data
@@ -10124,6 +10963,8 @@ def interactive_apply(
     remembered_folder_approvals: set[tuple[str, str]] = set()
 
     for finding in coded:
+        if finding["category"] == "missing_embedded_art":
+            refresh_missing_art_sidecars(root, finding)
         lyric_action = finding["category"] in {
             "embedded_lyrics_outdated",
             "plain_lyrics_not_embedded",
@@ -10134,6 +10975,7 @@ def interactive_apply(
             or finding["category"] == "missing_replaygain"
             or finding["category"] == "missing_embedded_art"
             or finding["category"] == "newer_lrc_needs_srt_backfill"
+            or finding["category"] == "missing_srt_from_lrc_txt"
             or finding["category"] in GROUPED_RENAME_CATEGORIES
         )
         if (
@@ -10154,7 +10996,10 @@ def interactive_apply(
                 }
             )
             continue
-        default_yes = finding["severity"] in {"safe_fix", "safe_cleanup"}
+        default_yes = (
+            finding["severity"] in {"safe_fix", "safe_cleanup"}
+            or finding["category"] == "excessive_silence"
+        )
         category_label = finding_category_label(finding["category"])
         if finding["category"] == "missing_album":
             category_label += ":"
@@ -10223,10 +11068,17 @@ def interactive_apply(
                 str(finding["category"]),
                 str(scope_folder.resolve()).casefold(),
             )
+            allow_folder_scope = (
+                finding["category"] not in ROOT_WIDE_ACTION_CATEGORIES
+            )
             choice = remembered_category_choices.get(
                 str(finding["category"])
             )
-            if choice is None and folder_key in remembered_folder_approvals:
+            if (
+                choice is None
+                and allow_folder_scope
+                and folder_key in remembered_folder_approvals
+            ):
                 choice = "folder"
             if choice is None:
                 preview_existing_front_sidecar(
@@ -10241,6 +11093,7 @@ def interactive_apply(
                     use_color,
                     key_reader=key_reader,
                     indent="            ",
+                    allow_folder=allow_folder_scope,
                 )
                 if choice in {"always", "never"}:
                     remembered_category_choices[
@@ -10906,6 +11759,89 @@ def run_unit_tests(use_color: bool = True) -> int:
                     finding_categories(BatchAudit(root).audit()),
                 )
 
+        def test_missing_srt_runs_recursive_minilyricsfix_on_enter(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio_path = make_silent_flac(root, "Missing SRT")
+                audio_path.with_suffix(".txt").write_text(
+                    "Timed lyric\n",
+                    encoding="utf-8",
+                )
+                audio_path.with_suffix(".lrc").write_text(
+                    "[00:00.00]Timed lyric\n",
+                    encoding="utf-8",
+                )
+                report = BatchAudit(root).audit()
+                finding = next(
+                    item
+                    for item in report["findings"]
+                    if item["category"] == "missing_srt_from_lrc_txt"
+                )
+                self.assertEqual(
+                    "Run lrc2srt.py MiniLyricsFix --recursive "
+                    "--automatic-overwrites from this batch root now?",
+                    approval_question(finding),
+                )
+                tool = root / "lrc2srt.py"
+                tool.write_text("# test tool\n", encoding="utf-8")
+                expected_srt = audio_path.with_suffix(".srt")
+                commands: list[tuple[list[str], Path, bool]] = []
+
+                def fake_live_command(command, *, cwd, stream_output):
+                    commands.append((command, cwd, stream_output))
+                    expected_srt.write_text(
+                        "NOTE claire-sawyer-lrc2srt-converter-marker: "
+                        "generated-from-lrc\n\n"
+                        "1\n00:00:00,000 --> 00:00:02,000\nTimed lyric\n",
+                        encoding="utf-8",
+                    )
+
+                module = sys.modules[__name__]
+                keys = iter(("f", "\r"))
+                with mock.patch.object(
+                    module,
+                    "lrc2srt_executable",
+                    return_value=tool,
+                ), mock.patch.object(
+                    module,
+                    "run_live_command",
+                    side_effect=fake_live_command,
+                ), mock.patch.object(
+                    module,
+                    "audit_categories_by_path",
+                    return_value={finding["path"]: set()},
+                ), mock.patch.object(
+                    module,
+                    "invalid_key_beep",
+                ) as beep, contextlib.redirect_stdout(io.StringIO()) as output:
+                    result = interactive_apply(
+                        {**report, "findings": [finding]},
+                        use_color=False,
+                        key_reader=lambda: next(keys),
+                    )
+
+                self.assertEqual(finding["code"], result["applied_codes"])
+                self.assertTrue(result["decisions"][0]["default"])
+                beep.assert_called_once_with()
+                self.assertNotIn("F=Do All in Folder", output.getvalue())
+                self.assertIn(
+                    "[Y=Yes / n=No / A=Always / V=Never]",
+                    output.getvalue(),
+                )
+                self.assertEqual(
+                    [
+                        sys.executable,
+                        str(tool),
+                        "MiniLyricsFix",
+                        "--recursive",
+                        "--automatic-overwrites",
+                    ],
+                    commands[0][0],
+                )
+                self.assertEqual(root, commands[0][1])
+                self.assertTrue(commands[0][2])
+                self.assertTrue(expected_srt.is_file())
+
         def test_refresh_embedded_lyrics_forces_plain_and_karaoke_together(
             self,
         ) -> None:
@@ -11558,6 +12494,133 @@ def run_unit_tests(use_color: bool = True) -> int:
                     render_markdown(refreshed, max_examples=0),
                 )
 
+        def test_find_cover_defers_local_front_to_previewed_embedding(
+            self,
+        ) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio = make_silent_flac(
+                    root,
+                    "Local Front Priority [instrumental]",
+                )
+                cover = root / "cover.jpg"
+                cover.write_bytes(make_test_jpeg())
+                finding = next(
+                    item
+                    for item in BatchAudit(root).audit()["findings"]
+                    if item["category"] == "missing_embedded_art"
+                )
+                # Simulate stale audit data to prove the prompt checks the
+                # filesystem again instead of offering a network search.
+                finding["details"]["sidecars"] = []
+                finding["severity"] = "ask_first"
+                finding["suggestion"] = "Search for release artwork."
+                initial = {
+                    "findings": [finding],
+                    "resolved_root": str(root),
+                }
+                renderer = mock.Mock(return_value="mock Sixel")
+                module = sys.modules[__name__]
+                with mock.patch.object(
+                    module,
+                    "find_cover_and_embed",
+                    side_effect=AssertionError(
+                        "network cover search must not run with local Front art"
+                    ),
+                ) as network_search, contextlib.redirect_stdout(
+                    io.StringIO()
+                ) as output:
+                    results, unchanged = find_covers_for_batch(
+                        root,
+                        initial,
+                        interactive=True,
+                        use_color=False,
+                    )
+                    applied = interactive_apply(
+                        unchanged,
+                        use_color=False,
+                        key_reader=lambda: "y",
+                        artwork_preview_renderer=renderer,
+                    )
+                self.assertEqual([], results)
+                network_search.assert_not_called()
+                renderer.assert_called_once_with(cover, use_color=False)
+                self.assertFalse(applied["failed_codes"], applied)
+                self.assertEqual(1, len(FLAC(audio).pictures))
+                rendered = output.getvalue()
+                self.assertIn(
+                    "Embed the available front-cover sidecar (cover.jpg)",
+                    rendered,
+                )
+                self.assertNotIn(
+                    "Search for the release artwork, download",
+                    rendered,
+                )
+                self.assertNotIn("Finding cover art", rendered)
+
+        def test_misc_same_basename_art_is_previewed_and_embedded(
+            self,
+        ) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                stem = (
+                    "Ghosts -- I'm Baby (by Lil Mariko) (live) "
+                    "(20231027) (The Engine Rooms)"
+                )
+                audio = make_silent_flac(root, stem)
+                sidecar = root / f"{stem}.jpg"
+                sidecar.write_bytes(make_test_jpeg())
+                finding = next(
+                    item
+                    for item in BatchAudit(root).audit()["findings"]
+                    if item["category"] == "missing_embedded_art"
+                )
+                self.assertEqual(
+                    [sidecar.name],
+                    finding["details"]["sidecars"],
+                )
+                self.assertEqual(
+                    "Embed the available front-cover sidecar "
+                    f"({sidecar.name}) into this audio file now?",
+                    approval_question(finding),
+                )
+                renderer = mock.Mock(return_value="mock Sixel")
+                module = sys.modules[__name__]
+                with mock.patch.object(
+                    module,
+                    "find_cover_and_embed",
+                    side_effect=AssertionError(
+                        "same-basename MISC art must prevent a download"
+                    ),
+                ) as network_search, contextlib.redirect_stdout(
+                    io.StringIO()
+                ) as output:
+                    result = interactive_apply(
+                        {
+                            "findings": [finding],
+                            "resolved_root": str(root),
+                        },
+                        use_color=False,
+                        key_reader=lambda: "y",
+                        artwork_preview_renderer=renderer,
+                    )
+                network_search.assert_not_called()
+                renderer.assert_called_once_with(sidecar, use_color=False)
+                self.assertFalse(result["failed_codes"], result)
+                pictures = FLAC(audio).pictures
+                self.assertEqual(1, len(pictures))
+                self.assertEqual(sidecar.read_bytes(), pictures[0].data)
+                rendered = output.getvalue()
+                self.assertIn(sidecar.name, rendered)
+                self.assertNotIn(
+                    "Search for the release artwork, download",
+                    rendered,
+                )
+                self.assertNotIn(
+                    "missing_embedded_art",
+                    audit_categories_for_path(root, audio.name),
+                )
+
         def test_downloaded_artwork_preview_can_open_irfanview_then_approve(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
@@ -11878,6 +12941,10 @@ def run_unit_tests(use_color: bool = True) -> int:
                 "visible_console_size",
                 return_value=os.terminal_size((160, 50)),
             ), mock.patch.object(
+                module,
+                "windows_console_font_cell_size",
+                return_value=(10, 20),
+            ), mock.patch.object(
                 subprocess,
                 "run",
                 return_value=completed,
@@ -11891,9 +12958,12 @@ def run_unit_tests(use_color: bool = True) -> int:
                 )
             chafa_command = run.call_args.args[0]
             self.assertIn("--format=sixels", chafa_command)
-            self.assertIn("--fit-width", chafa_command)
+            self.assertNotIn("--fit-width", chafa_command)
             self.assertIn("--colors=full", chafa_command)
-            self.assertIn("--view-size=306.6x90.3", chafa_command)
+            self.assertIn("--size=146x43", chafa_command)
+            self.assertIn("--view-size=146x43", chafa_command)
+            self.assertIn("--font-ratio=10/20", chafa_command)
+            self.assertIn("--scale=max", chafa_command)
             self.assertIn("--optimize=9", chafa_command)
             self.assertIn("--work=9", chafa_command)
             self.assertIn("--color-space=din99d", chafa_command)
@@ -11908,6 +12978,10 @@ def run_unit_tests(use_color: bool = True) -> int:
                     sys.modules[__name__],
                     "visible_console_size",
                     return_value=os.terminal_size((100, 35)),
+                ), mock.patch.object(
+                    sys.modules[__name__],
+                    "windows_console_font_cell_size",
+                    return_value=(7, 14),
                 ):
                     ansi = ansi_half_block_preview(
                         image_path,
@@ -12047,6 +13121,99 @@ def run_unit_tests(use_color: bool = True) -> int:
                 self.assertIn("synced_lyrics", apply_finding(root, finding))
                 self.assertTrue(FLAC(audio_path).get("SYNCEDLYRICS"))
 
+        def test_header_only_lrc_does_not_shadow_usable_srt_embedding(
+            self,
+        ) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio_path = make_silent_flac(root, "03_Erotomania")
+                lrc = audio_path.with_suffix(".lrc")
+                srt = audio_path.with_suffix(".srt")
+                txt = audio_path.with_suffix(".txt")
+                header_only = (
+                    "# Generated by Claire\n"
+                    "# Sawyer’s WhisperAI-based\n"
+                    "# transcription system.\n"
+                    "# Kill yourself, Trumpers.\n"
+                )
+                lrc.write_text(header_only, encoding="utf-8")
+                srt.write_text(
+                    header_only
+                    + "\n1\n"
+                    "00:00:02,420 --> 00:00:04,140\n"
+                    "First saw you\n\n"
+                    "2\n"
+                    "00:00:04,660 --> 00:00:06,640\n"
+                    "Had a heart attack\n",
+                    encoding="utf-8",
+                )
+                txt.write_text(
+                    "First saw you\nHad a heart attack\n",
+                    encoding="utf-8",
+                )
+                report = BatchAudit(root).audit()
+                finding = next(
+                    item
+                    for item in report["findings"]
+                    if item["category"] == "karaoke_not_embedded"
+                )
+                self.assertEqual(
+                    srt.name,
+                    finding["details"]["sidecar"],
+                )
+                self.assertIn(
+                    "a usable .SRT sidecar exists with 2 timestamped lyric lines",
+                    finding["message"],
+                )
+                actions = apply_finding(root, finding)
+                self.assertIn("synced_lyrics", actions)
+                embedded = FLAC(audio_path).get("SYNCEDLYRICS")
+                self.assertTrue(embedded)
+                self.assertIn("[00:02.42]First saw you", embedded[0])
+                self.assertIn("[00:04.66]Had a heart attack", embedded[0])
+                self.assertEqual(header_only, lrc.read_text(encoding="utf-8"))
+                refreshed_categories = {
+                    item["category"]
+                    for item in BatchAudit(root).audit()["findings"]
+                }
+                self.assertNotIn(
+                    "karaoke_not_embedded",
+                    refreshed_categories,
+                )
+
+        def test_utf16_srt_is_automatically_embedded_as_karaoke(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio_path = make_silent_flac(root, "07_I'm Alright")
+                srt = audio_path.with_suffix(".srt")
+                srt.write_text(
+                    "1\n"
+                    "00:00:07,670 --> 00:00:12,260\n"
+                    "Whoops\n\n"
+                    "2\n"
+                    "00:00:12,260 --> 00:00:13,350\n"
+                    "I've been taking\n",
+                    encoding="utf-16",
+                )
+
+                self.assertNotIn("\x00", read_text(srt))
+                self.assertEqual(2, len(usable_timed_sidecar_entries(srt)))
+                report = BatchAudit(root).audit(embed_lyrics_first=True)
+                actions = [
+                    action
+                    for item in report["embedded_lyrics"]
+                    for action in item["actions"]
+                ]
+                self.assertIn("plain_lyrics", actions)
+                self.assertIn("synced_lyrics", actions)
+                embedded = FLAC(audio_path).get("SYNCEDLYRICS")
+                self.assertTrue(embedded)
+                self.assertIn("[00:07.67]Whoops", embedded[0])
+                self.assertIn("[00:12.26]I've been taking", embedded[0])
+                categories = finding_categories(report)
+                self.assertNotIn("unusable_karaoke_sidecar", categories)
+                self.assertNotIn("karaoke_not_embedded", categories)
+
         def test_interactive_lyric_approval_embeds_and_reaudits(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
@@ -12101,7 +13268,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                 self.assertIn(
                     "\n            ❓ Embed the plain lyrics into this audio file now?\n"
                     "               [Y=Yes / n=No / A=Always / V=Never / "
-                    "F=Just Do For This Folder] Yes!",
+                    "F=Do All in Folder] Yes!",
                     interactive_output.getvalue(),
                 )
                 self.assertIn(
@@ -12297,6 +13464,21 @@ def run_unit_tests(use_color: bool = True) -> int:
                     10.0,
                     findings[0]["details"]["threshold_seconds"],
                 )
+                editor = Path(r"C:\Program Files\Adobe\Audition.exe")
+                module = sys.modules[__name__]
+                with mock.patch.object(
+                    module,
+                    "launch_audio_editor",
+                    return_value=editor,
+                ) as launch, contextlib.redirect_stdout(io.StringIO()):
+                    result = interactive_apply(
+                        {**report, "findings": [findings[0]]},
+                        use_color=False,
+                        key_reader=lambda: "\r",
+                    )
+                self.assertEqual(findings[0]["code"], result["applied_codes"])
+                self.assertTrue(result["decisions"][0]["default"])
+                launch.assert_called_once_with(excessive)
 
         def test_silence_analysis_starts_early_and_runs_concurrently(self) -> None:
             module = sys.modules[__name__]
@@ -12392,8 +13574,9 @@ def run_unit_tests(use_color: bool = True) -> int:
                     )
                     self.assertGreater(sum(plot_border_pixel), 120)
                     tick_x = WAVEFORM_PLOT_WIDTH - 20
-                    # Only the overall outer peak is labeled: no middle labels.
-                    for guide_y in (91, 609):
+                    # Only the auto-scaled outer axis is labeled: no middle
+                    # labels. A measured 50% peak uses a truthful ±55% axis.
+                    for guide_y in (8, 692):
                         guide_pixel = preview_rgb.getpixel(
                             (tick_x, guide_y)
                         )
@@ -12415,9 +13598,8 @@ def run_unit_tests(use_color: bool = True) -> int:
                         30,
                     )
                     self.assertGreater(sum(axis_pixel), 180)
-                    # A constant 50% channel must visually reach about half of
-                    # its available height instead of looking artificially
-                    # compressed toward the center line.
+                    # A constant 50% channel fills most of its ±55% axis,
+                    # retaining only the small labeled headroom.
                     cyan_rows = [
                         y
                         for y in range(20, preview.height // 2 - 20)
@@ -12429,8 +13611,8 @@ def run_unit_tests(use_color: bool = True) -> int:
                         )
                     ]
                     self.assertTrue(cyan_rows)
-                    self.assertLessEqual(min(cyan_rows), 100)
-                    self.assertGreaterEqual(min(cyan_rows), 60)
+                    self.assertLessEqual(min(cyan_rows), 35)
+                    self.assertGreaterEqual(min(cyan_rows), 8)
                     metric_pixels = [
                         preview_rgb.getpixel((x, y))
                         for y in range(250, 450, 8)
@@ -12483,13 +13665,14 @@ def run_unit_tests(use_color: bool = True) -> int:
                 (
                     "peak vol: 98%",
                     "avg vol: 57%",
+                    "ReplayGain: +0.00 dB",
                     "gain: 1.00004",
                     "silence: 3s (longest)",
                 ),
                 waveform_metric_lines(metrics),
             )
             normal_colors = waveform_metric_value_colors(metrics, 10.0)
-            self.assertNotEqual((255, 75, 85), normal_colors[3])
+            self.assertNotEqual((255, 75, 85), normal_colors[4])
             excessive_metrics = replace(
                 metrics,
                 longest_silence_seconds=10.1,
@@ -12498,10 +13681,46 @@ def run_unit_tests(use_color: bool = True) -> int:
                 excessive_metrics,
                 10.0,
             )
-            self.assertEqual((255, 75, 85), excessive_colors[3])
+            self.assertEqual((255, 75, 85), excessive_colors[4])
             self.assertNotIn(
                 (255, 75, 85),
-                excessive_colors[:3] + excessive_colors[4:],
+                excessive_colors[:4] + excessive_colors[5:],
+            )
+            self.assertEqual(
+                "ReplayGain: -9.23 dB",
+                waveform_metric_lines(
+                    replace(metrics, replaygain_factor=0.34554)
+                )[2],
+            )
+            self.assertEqual(
+                70.0,
+                waveform_axis_ceiling_percent(
+                    replace(
+                        metrics,
+                        channel_peak_percentages=(66.0, 40.0),
+                        peak_volume_percentage=66.0,
+                    )
+                ),
+            )
+            self.assertEqual(
+                80.0,
+                waveform_axis_ceiling_percent(
+                    replace(
+                        metrics,
+                        channel_peak_percentages=(75.0,),
+                        peak_volume_percentage=75.0,
+                    )
+                ),
+            )
+            self.assertEqual(
+                100.0,
+                waveform_axis_ceiling_percent(
+                    replace(
+                        metrics,
+                        channel_peak_percentages=(99.0,),
+                        peak_volume_percentage=99.0,
+                    )
+                ),
             )
             almost_ten = replace(
                 metrics,
@@ -12510,6 +13729,318 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertEqual(
                 "silence: 9s (longest)",
                 waveform_metric_lines(almost_ten)[-1],
+            )
+
+        def test_baked_replaygain_reencodes_mp3_and_refreshes_tags(self) -> None:
+            ffmpeg = shutil.which("ffmpeg")
+            metamp3 = shutil.which("metamp3")
+            if not ffmpeg or not metamp3:
+                raise unittest.SkipTest(
+                    "ffmpeg and metamp3 are required for baked MP3 gain"
+                )
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio = root / "Baked Gain [instrumental].mp3"
+                subprocess.run(
+                    [
+                        ffmpeg,
+                        "-hide_banner",
+                        "-loglevel",
+                        "error",
+                        "-f",
+                        "lavfi",
+                        "-i",
+                        "sine=frequency=440:sample_rate=44100",
+                        "-t",
+                        "1",
+                        "-filter:a",
+                        "volume=0.25",
+                        "-q:a",
+                        "4",
+                        str(audio),
+                    ],
+                    check=True,
+                    capture_output=True,
+                )
+                tagged = MP3(audio, ID3=ID3)
+                if tagged.tags is None:
+                    tagged.add_tags()
+                tagged.tags.add(
+                    TXXX(
+                        encoding=3,
+                        desc="replaygain_track_gain",
+                        text=["+6.00 dB"],
+                    )
+                )
+                tagged.tags.add(
+                    TXXX(
+                        encoding=3,
+                        desc="replaygain_track_peak",
+                        text=["0.25"],
+                    )
+                )
+                tagged.tags.add(
+                    APIC(
+                        encoding=3,
+                        mime="image/jpeg",
+                        type=3,
+                        desc="Front Cover",
+                        data=make_test_jpeg(),
+                    )
+                )
+                tagged.save(v2_version=3)
+                _before_waveform, _before_backup, before_metrics = (
+                    generate_waveform_jpeg(
+                        audio,
+                        destination=root / "before.waveform.jpg",
+                        narrate=False,
+                    )
+                )
+                before = audio.read_bytes()
+                metrics = WaveformMetrics(
+                    channel_peak_percentages=(25.0,),
+                    peak_volume_percentage=25.0,
+                    average_volume_percentage=10.0,
+                    replaygain_factor=math.pow(10.0, 6.0 / 20.0),
+                    longest_silence_seconds=0.0,
+                    total_silence_seconds=0.0,
+                )
+                with contextlib.redirect_stdout(io.StringIO()):
+                    backup, applied_db = bake_replaygain_into_audio(
+                        audio,
+                        metrics,
+                        use_color=False,
+                        stream_output=False,
+                        ffmpeg_executable=ffmpeg,
+                        metamp3_executable=metamp3,
+                    )
+                self.assertAlmostEqual(6.0, applied_db, places=2)
+                self.assertTrue(backup.is_file())
+                self.assertEqual(before, backup.read_bytes())
+                self.assertNotEqual(before, audio.read_bytes())
+                refreshed = MP3(audio, ID3=ID3)
+                self.assertEqual(1, len(refreshed.tags.getall("APIC")))
+                self.assertIsNotNone(waveform_replaygain_factor(audio))
+                waveform, _backup, new_metrics = generate_waveform_jpeg(
+                    audio,
+                    destination=root / "baked.waveform.jpg",
+                    narrate=False,
+                )
+                measured_ratio = (
+                    new_metrics.peak_volume_percentage
+                    / before_metrics.peak_volume_percentage
+                )
+                self.assertAlmostEqual(
+                    math.pow(10.0, applied_db / 20.0),
+                    measured_ratio,
+                    delta=0.12,
+                )
+                recolor_newly_baked_waveform(waveform)
+                with Image.open(waveform) as preview:
+                    pixels = preview.convert("RGB").crop(
+                        (0, 0, WAVEFORM_PLOT_WIDTH, preview.height)
+                    ).getdata()
+                    self.assertTrue(
+                        any(
+                            green > red + 50 and green > blue + 40
+                            for red, green, blue in pixels
+                        )
+                    )
+
+        def test_baked_replaygain_real_flac_survives_access_denied_replace(
+            self,
+        ) -> None:
+            ffmpeg = shutil.which("ffmpeg")
+            metaflac = shutil.which("metaflac")
+            if not ffmpeg or not metaflac:
+                raise unittest.SkipTest(
+                    "ffmpeg and metaflac are required for baked FLAC gain"
+                )
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio = root / "Baked Gain [instrumental].flac"
+                subprocess.run(
+                    [
+                        ffmpeg,
+                        "-hide_banner",
+                        "-loglevel",
+                        "error",
+                        "-f",
+                        "lavfi",
+                        "-i",
+                        "sine=frequency=523.25:sample_rate=48000",
+                        "-t",
+                        "1",
+                        "-filter:a",
+                        "volume=0.25",
+                        "-c:a",
+                        "flac",
+                        str(audio),
+                    ],
+                    check=True,
+                    capture_output=True,
+                )
+                tagged = FLAC(audio)
+                tagged["title"] = ["Generated FLAC ReplayGain fixture"]
+                tagged["replaygain_track_gain"] = ["+6.00 dB"]
+                tagged["replaygain_track_peak"] = ["0.25"]
+                picture = Picture()
+                picture.type = 3
+                picture.mime = "image/jpeg"
+                picture.desc = "Front Cover"
+                picture.data = make_test_jpeg()
+                tagged.add_picture(picture)
+                tagged.save()
+                _before_waveform, _before_backup, before_metrics = (
+                    generate_waveform_jpeg(
+                        audio,
+                        destination=root / "before.flac.waveform.jpg",
+                        narrate=False,
+                    )
+                )
+                before = audio.read_bytes()
+                metrics = replace(
+                    before_metrics,
+                    replaygain_factor=math.pow(10.0, 6.0 / 20.0),
+                )
+                denied_replace = mock.Mock(
+                    side_effect=PermissionError(
+                        13,
+                        "Access is denied",
+                        str(audio),
+                    )
+                )
+                recycler = mock.Mock(return_value=Path("Recycle Bin"))
+                module = sys.modules[__name__]
+                with mock.patch.object(
+                    module.os,
+                    "replace",
+                    denied_replace,
+                ), mock.patch.object(
+                    module,
+                    "recycle_path",
+                    recycler,
+                ), contextlib.redirect_stdout(io.StringIO()) as narration:
+                    backup, applied_db = bake_replaygain_into_audio(
+                        audio,
+                        metrics,
+                        use_color=False,
+                        stream_output=False,
+                        ffmpeg_executable=ffmpeg,
+                        metaflac_executable=metaflac,
+                    )
+                denied_replace.assert_called_once()
+                recycler.assert_called_once()
+                self.assertIn(
+                    "SHA-256-verified in-place media write",
+                    narration.getvalue(),
+                )
+                self.assertAlmostEqual(6.0, applied_db, places=2)
+                self.assertTrue(backup.is_file())
+                self.assertEqual(before, backup.read_bytes())
+                self.assertNotEqual(before, audio.read_bytes())
+                refreshed = FLAC(audio)
+                self.assertEqual(
+                    ["Generated FLAC ReplayGain fixture"],
+                    refreshed.get("title"),
+                )
+                self.assertEqual(1, len(refreshed.pictures))
+                self.assertIsNotNone(waveform_replaygain_factor(audio))
+                _waveform, _backup, new_metrics = generate_waveform_jpeg(
+                    audio,
+                    destination=root / "baked.flac.waveform.jpg",
+                    narrate=False,
+                )
+                measured_ratio = (
+                    new_metrics.peak_volume_percentage
+                    / before_metrics.peak_volume_percentage
+                )
+                self.assertAlmostEqual(
+                    math.pow(10.0, applied_db / 20.0),
+                    measured_ratio,
+                    delta=0.04,
+                )
+
+        def test_waveform_gain_prompt_bakes_then_shows_new_preview(self) -> None:
+            metrics = WaveformMetrics(
+                channel_peak_percentages=(50.0, 50.0),
+                peak_volume_percentage=50.0,
+                average_volume_percentage=12.0,
+                replaygain_factor=math.pow(10.0, 3.0 / 20.0),
+                longest_silence_seconds=0.0,
+                total_silence_seconds=0.0,
+            )
+            refreshed_metrics = replace(
+                metrics,
+                peak_volume_percentage=70.6,
+                replaygain_factor=1.0,
+            )
+            keys = iter(("b", "y", "n"))
+            module = sys.modules[__name__]
+            renderer = mock.Mock(return_value="mock Sixel")
+            baker = mock.Mock(
+                return_value=(Path("original.backup.flac"), 3.0)
+            )
+            generator = mock.Mock(
+                return_value=(
+                    Path("track.waveform.jpg"),
+                    None,
+                    refreshed_metrics,
+                )
+            )
+            recolorer = mock.Mock()
+            with tempfile.TemporaryDirectory() as temp:
+                waveform = Path(temp) / "track.waveform.jpg"
+                waveform.write_bytes(b"blue waveform fixture")
+                generator.return_value = (
+                    waveform,
+                    None,
+                    refreshed_metrics,
+                )
+                with mock.patch.object(
+                    module,
+                    "visible_console_size",
+                    return_value=os.terminal_size((120, 40)),
+                ), contextlib.redirect_stdout(io.StringIO()) as output:
+                    decision, edits, reviewed = waveform_review_choice(
+                        waveform,
+                        Path("Track.flac"),
+                        use_color=False,
+                        key_reader=lambda: next(keys),
+                        preview_renderer=renderer,
+                        waveform_metrics=metrics,
+                        gain_baker=baker,
+                        waveform_generator=generator,
+                        waveform_recolorer=recolorer,
+                    )
+                rendered_paths = [
+                    call.args[0] for call in renderer.call_args_list
+                ]
+                self.assertEqual(waveform, rendered_paths[0])
+                self.assertIn(
+                    ".before-replaygain-bake",
+                    rendered_paths[1].name,
+                )
+                self.assertEqual(waveform, rendered_paths[2])
+            self.assertEqual(("fine", 0, Path("Track.flac")), (
+                decision,
+                edits,
+                reviewed,
+            ))
+            baker.assert_called_once()
+            generator.assert_called_once()
+            recolorer.assert_called_once_with(waveform)
+            self.assertEqual(3, renderer.call_count)
+            self.assertIn("B=Bake ReplayGain", output.getvalue())
+            self.assertIn("original blue waveform", output.getvalue())
+            self.assertIn(
+                "Comparison only — no response is needed",
+                output.getvalue(),
+            )
+            self.assertIn("New waveform rendered in green", output.getvalue())
+            self.assertIn(
+                "fresh ReplayGain correction is +0.00 dB",
+                output.getvalue(),
             )
 
         def test_waveform_review_defaults_to_current_folder(self) -> None:
@@ -12707,17 +14238,18 @@ def run_unit_tests(use_color: bool = True) -> int:
                     indent="            ",
                 )
             wrapped_lines = wrapped.rstrip().splitlines()
-            self.assertEqual(2, len(wrapped_lines))
+            self.assertGreaterEqual(len(wrapped_lines), 2)
             self.assertTrue(
                 wrapped_lines[0].startswith(
                     "            ❓ Does this waveform"
                 )
             )
-            self.assertTrue(
-                wrapped_lines[1].startswith(
-                    "               [N=It’s fine"
+            for continuation in wrapped_lines[1:]:
+                self.assertTrue(
+                    continuation.startswith(
+                        "               "
+                    )
                 )
-            )
             styled_question = urgent_prompt_text(
                 question,
                 True,
@@ -12748,10 +14280,11 @@ def run_unit_tests(use_color: bool = True) -> int:
             waveform = Path(r"C:\Temp\track.waveform.jpg")
             audio = Path(r"C:\Music\Track.flac")
             renamed_audio = audio.with_name("Track [waveform problem].flac")
-            keys = iter(("e", "v", "y", "y", "y"))
+            keys = iter(("p", "e", "v", "y", "y", "y"))
             calls = {
                 "render": 0,
                 "edit": 0,
+                "preview": 0,
                 "rename": 0,
                 "view": 0,
             }
@@ -12775,6 +14308,9 @@ def run_unit_tests(use_color: bool = True) -> int:
                     audio_editor=lambda path: count(
                         "edit", Path(r"C:\Program Files\Adobe\Audition.exe")
                     ),
+                    audio_previewer=lambda path: count(
+                        "preview", Path(r"C:\BAT\play_audio_file.py")
+                    ),
                     problem_renamer=lambda path, **_kwargs: count(
                         "rename",
                         renamed_audio,
@@ -12787,6 +14323,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                 {
                     "render": 1,
                     "edit": 2,
+                    "preview": 1,
                     "rename": 1,
                     "view": 1,
                 },
@@ -12795,8 +14332,13 @@ def run_unit_tests(use_color: bool = True) -> int:
             rendered = output.getvalue()
             self.assertIn("N=It’s fine", rendered)
             self.assertIn("Y=There is a problem", rendered)
+            self.assertIn("P=Preview audio", rendered)
             self.assertIn("E=Edit audio", rendered)
             self.assertIn("V=View fullscreen", rendered)
+            self.assertIn(
+                "Audio preview ended in play_audio_file.py",
+                rendered,
+            )
             self.assertIn("Yes — there is a problem.", rendered)
             self.assertIn("Want to edit this audio file now?", rendered)
             self.assertIn(
@@ -13294,6 +14836,14 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertNotIn("\n", target_lines[0])
             self.assertIn("…", target_lines[0])
 
+        def test_unit_tests_disable_console_paging(self) -> None:
+            self.assertFalse(console_paging_enabled(["--unit-tests"]))
+            self.assertFalse(
+                console_paging_enabled(["--unit-tests", "--no-color"])
+            )
+            self.assertFalse(console_paging_enabled([".", "--no-pager"]))
+            self.assertTrue(console_paging_enabled(["."]))
+
         def test_console_pager_pauses_before_viewport_scroll(self) -> None:
             class TtyBuffer(io.StringIO):
                 def isatty(self) -> bool:
@@ -13652,6 +15202,14 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertIn("Interactive workflow features", usage)
             self.assertIn("Chafa, Sixel, or ANSI artwork previews", usage)
             self.assertIn("parallel background pre-rendering", usage)
+            self.assertIn(
+                "B=Bake ReplayGain changes audio for players that ignore its tags",
+                usage,
+            )
+            self.assertIn(
+                "MP3 is decoded and LAME-re-encoded",
+                usage,
+            )
             self.assertIn("rainbow progress bars", usage)
             self.assertIn(
                 "--interactive  --no-interactive",
@@ -13797,6 +15355,8 @@ def run_unit_tests(use_color: bool = True) -> int:
                 "metaflac": False,
                 "flac": True,
                 "ffmpeg": True,
+                "ffplay": True,
+                "play_audio_file.py": True,
                 "IrfanView": True,
             }
             missing = [
@@ -14216,7 +15776,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                 self.assertIn("After filename", output.getvalue())
                 self.assertIn(
                     "[y=Yes / N=No / A=Always / V=Never / "
-                    "F=Just Do For This Folder] Yes!",
+                    "F=Do All in Folder] Yes!",
                     output.getvalue(),
                 )
                 self.assertIn(
@@ -15504,6 +17064,7 @@ def run_unit_tests(use_color: bool = True) -> int:
         result = DescriptiveTestRunner(
             verbosity=2,
             stream=sys.stdout,
+            buffer=True,
             total_tests=suite.countTestCases(),
             use_color=use_color,
         ).run(suite)
@@ -16029,10 +17590,18 @@ def _main(argv: list[str] | None = None) -> int:
     )
 
 
+def console_paging_enabled(raw_argv: list[str]) -> bool:
+    """Disable paging for unit tests and explicit non-paged invocations."""
+    return (
+        "--no-pager" not in raw_argv
+        and "--unit-tests" not in raw_argv
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run with automatic paging unless explicitly disabled or redirected."""
     raw_argv = sys.argv[1:] if argv is None else argv
-    with paged_console_output("--no-pager" not in raw_argv):
+    with paged_console_output(console_paging_enabled(raw_argv)):
         return _main(raw_argv)
 
 

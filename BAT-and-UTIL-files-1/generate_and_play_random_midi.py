@@ -5,7 +5,7 @@
 import sys
 import generate_midi_randomly
 import convert_midi_to_wav_with_soundfont
-import play_wav_file
+import play_audio_file
 
 defaut_duration = 15
 midi            = "c:\\bat\\midirandia.midi"   #\___contents don't matter, but needs(?) to exist(?)
@@ -22,7 +22,7 @@ def main():
 
     generate_midi_randomly.create_random_midi(duration_to_use, midi)
     wav2 = convert_midi_to_wav_with_soundfont.convert_midi_to_wav_using_soundfont(midi, wav1)
-    play_wav_file.play_wav_filename(wav2)
+    play_audio_file.play_audio_filename(wav2)
 
 if __name__ == "__main__":
     main()

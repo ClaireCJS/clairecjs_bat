@@ -1110,7 +1110,7 @@ def run_conversion_tasks(
 
     for task in tasks:
         last_folder = print_folder_header_if_needed(task, last_folder, show_folder_headers)
-        print_info(f"    * Converting: {task.input_file}")
+        print_info(f"    * Converting: {style_progress_path(task.input_file)}")
         result = convert_lrc_file(
             task.input_file,
             task.output_file,
@@ -1120,12 +1120,12 @@ def run_conversion_tasks(
         results.append(result)
 
         if result.skipped:
-            print_warning(f"       * Finished skipped: {result.output_file}")
+            print_warning(f"      * Finished skipped: {style_progress_path(result.output_file)}")
         elif result.dry_run:
-            print_info(f"       * Finished dry run: {result.output_file}")
+            print_info(f"      * Finished dry run: {style_progress_path(result.output_file)}")
         else:
             print_success(
-                f"       * Finished: {result.output_file} "
+                f"      * Finished: {style_progress_path(result.output_file, underline_extension=True)} "
                 f"({result.cue_count} cues)"
             )
 
@@ -1166,8 +1166,12 @@ def validate_options(options: ConversionOptions) -> None:
 
 ANSI_RESET = "\033[0m"
 ANSI_BOLD = "\033[1m"
+ANSI_ITALIC = "\033[3m"
 ANSI_BLINK = "\033[5m"
 ANSI_DIM = "\033[2m"
+ANSI_UNDERLINE = "\033[4m"
+ANSI_NO_ITALIC = "\033[23m"
+ANSI_NO_UNDERLINE = "\033[24m"
 ANSI_CYAN = "\033[96m"
 ANSI_GREEN = "\033[92m"
 ANSI_MAGENTA = "\033[95m"
@@ -1180,6 +1184,14 @@ ANSI_DOUBLE_HEIGHT_BOTTOM = "\033#4"
 
 def output_color(text: str, color: str, extra_style: str = "") -> str:
     return f"{extra_style}{color}{text}{ANSI_RESET}"
+
+
+def style_progress_path(path: Path | str, underline_extension: bool = False) -> str:
+    text = str(path)
+    suffix = Path(text).suffix if underline_extension else ""
+    if suffix and text.endswith(suffix):
+        text = f"{text[:-len(suffix)]}{ANSI_UNDERLINE}{suffix}{ANSI_NO_UNDERLINE}"
+    return f"{ANSI_ITALIC}{text}{ANSI_NO_ITALIC}"
 
 
 def print_colored(text: str, color: str, extra_style: str = "") -> None:
@@ -2025,8 +2037,10 @@ new line
 
         output = buffer.getvalue()
         self.assertEqual(0, exit_code)
-        self.assertIn(f"{ANSI_CYAN}    * Converting:", output)
-        self.assertIn(f"{ANSI_BOLD}{ANSI_GREEN}       * Finished:", output)
+        self.assertIn(f"{ANSI_CYAN}    * Converting: {ANSI_ITALIC}", output)
+        self.assertIn(f"{ANSI_BOLD}{ANSI_GREEN}      * Finished: {ANSI_ITALIC}", output)
+        self.assertNotIn(f"{ANSI_BOLD}{ANSI_GREEN}       * Finished:", output)
+        self.assertIn(f"{ANSI_UNDERLINE}.srt{ANSI_NO_UNDERLINE}{ANSI_NO_ITALIC} (", output)
         self.assertIn(f"\n\n{ANSI_BOLD}{ANSI_GREEN}* All done!", output)
 
     def test_audio_duration_probe_reads_wav_and_archives_fixture(self) -> None:
