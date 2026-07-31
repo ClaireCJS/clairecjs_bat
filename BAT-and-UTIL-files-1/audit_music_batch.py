@@ -78,7 +78,6 @@ WAVEFORM_PLOT_WIDTH = WAVEFORM_JPEG_WIDTH - WAVEFORM_METRICS_GUTTER_WIDTH
 WAVEFORM_SILENCE_MIN_SECONDS = 0.1
 WAVEFORM_APPROVAL_DATABASE_MAX_BYTES = 50 * 1024 * 1024
 WAVEFORM_APPROVAL_DATABASE_FILENAME = "waveform_reviews.sqlite3"
-CHAFA_SIXEL_VIEW_SCALE = 2.1
 WAVEFORM_CHANNEL_COLORS = (
     "0x55dcff",  # cyan: left/first channel
     "0xb68cff",  # violet: right/second channel
@@ -123,6 +122,29 @@ except Exception as _progress_exc:
         """Small stdlib fallback retained for diagnostics and unit-test output."""
         red, green, blue = colorsys.hsv_to_rgb(float(position) % 1.0, 1.0, 1.0)
         return f"#{round(red * 255):02x}{round(green * 255):02x}{round(blue * 255):02x}"
+
+# The geometry helper may travel alongside the script, inside either spelling
+# of the shared utilities folder, or in the canonical library location.
+# Import its leaf module directly; the package initializer is intentionally
+# avoided because this utility must still run in minimal copied installations.
+_TERMINAL_GEOMETRY_SEARCH_DIRS = (
+    Path.cwd(),
+    Path.cwd() / "clairecjs_util",
+    Path.cwd() / "clairecjs_utils",
+    _SCRIPT_DIR,
+    _SCRIPT_DIR / "clairecjs_util",
+    _SCRIPT_DIR / "clairecjs_utils",
+    Path(r"C:\clairecjs_utils"),
+    Path(r"C:\BAT\clairecjs_utils"),
+)
+for _geometry_dir in _TERMINAL_GEOMETRY_SEARCH_DIRS:
+    if (_geometry_dir / "claire_terminal_geometry.py").is_file():
+        sys.path.insert(0, str(_geometry_dir))
+        break
+try:
+    from claire_terminal_geometry import query_terminal_geometry
+except Exception:
+    query_terminal_geometry = None
 
 
 AUDIO_EXTS = {".mp3", ".flac"}
@@ -238,6 +260,7 @@ MUSICBRAINZ_API_ROOT = "https://musicbrainz.org/ws/2"
 COVER_ART_ARCHIVE_ROOT = "https://coverartarchive.org"
 BANDCAMP_SEARCH_ROOT = "https://bandcamp.com/search"
 DISCOGS_API_ROOT = "https://api.discogs.com"
+ITUNES_SEARCH_ROOT = "https://itunes.apple.com/search"
 COVER_HTTP_TIMEOUT_SECONDS = 30
 COVER_MAX_DOWNLOAD_BYTES = 100 * 1024 * 1024
 COVER_USER_AGENT = (
@@ -249,6 +272,7 @@ EXECUTABLE_CATEGORIES = {
     "archive_incomplete_attrib",
     "archive_missing_attrib",
     "archive_missing_marker",
+    "all_caps_album_title",
     "bare_marker",
     "embedded_art_without_sidecar",
     "embedded_lyrics_outdated",
@@ -278,8 +302,12 @@ GROUPED_RENAME_CATEGORIES = {
 }
 ROOT_WIDE_ACTION_CATEGORIES = {
     "missing_srt_from_lrc_txt",
+    "missing_replaygain",
 }
 ACTION_PROMPT_QUESTIONS = {
+    "all_caps_album_title": (
+        "Rename this all-caps album title with normal title capitalization now?"
+    ),
     "adobe_xmp": "Send this Adobe XMP sidecar to the Recycle Bin now?",
     "archive_incomplete_attrib": (
         "Add the standard do-not-play line to attrib.lst now?"
@@ -624,7 +652,7 @@ def apply_argt_replaygain_folder(
     folder: Path,
     *,
     use_color: bool,
-    stream_output: bool = True,
+    stream_output: bool = False,
 ) -> list[str]:
     """Reproduce ARGT's MP3-first, then per-FLAC ReplayGain workflow."""
     immediate_audio = [
@@ -721,6 +749,53 @@ def apply_argt_replaygain_folder(
             # Both original ARGT child BATs end in "bright red on black".
             print("\033[91;40m", end="", flush=True)
     return actions
+
+
+def apply_replaygain_file(
+    audio_path: Path,
+    *,
+    use_color: bool,
+    stream_output: bool = True,
+) -> list[str]:
+    """Recalculate ReplayGain for exactly one edited MP3 or FLAC file."""
+    suffix = audio_path.suffix.casefold()
+    if suffix not in {".mp3", ".flac"}:
+        raise RuntimeError(
+            f"ReplayGain tagging is supported here for MP3 and FLAC, not "
+            f"{suffix or 'extensionless'} audio"
+        )
+    if not audio_path.is_file():
+        raise FileNotFoundError(audio_path)
+
+    backup = backup_before_inline_replacement(audio_path)
+    if suffix == ".mp3":
+        executable = require_replaygain_program("metamp3")
+        command = [executable, "--replay-gain", audio_path.name]
+    else:
+        executable = require_replaygain_program("metaflac")
+        command = [executable, "--add-replay-gain", str(audio_path)]
+
+    emit_argt_random_color(
+        foreground_only=(suffix == ".mp3"),
+        use_color=use_color,
+    )
+    print(
+        console_safe_text(
+            f"        🔢 Recalculating ReplayGain for edited file: "
+            f"{audio_path.name}"
+        ),
+        flush=True,
+    )
+    try:
+        run_live_command(
+            command,
+            cwd=audio_path.parent,
+            stream_output=stream_output,
+        )
+    finally:
+        if use_color:
+            print("\033[91;40m", end="", flush=True)
+    return [f"backup:{backup}", f"replaygain:{audio_path}"]
 
 
 def canonicalized_filename(name: str) -> str:
@@ -845,6 +920,7 @@ class PreparedArtworkPreview:
     geometry: ArtworkPreviewGeometry
     sixel_payload: bytes | None = None
     text_payload: str | None = None
+    renderer_options: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -932,9 +1008,9 @@ def dependency_requirements(
             "waveform audio preview",
         ),
         ToolRequirement(
-            "play_wav_file.py",
+            "play_audio_file.py",
             detected(
-                "play_wav_file.py",
+                "play_audio_file.py",
                 audio_preview_player_script() is not None,
             ),
             (
@@ -1087,7 +1163,8 @@ def recognized_album_artist(folder: Path) -> str | None:
     is_album = bool(re.match(r"^\s*(?:19|20)\d{2}\b", folder.name))
     is_special_child = folder.name.strip().casefold() in SPECIAL_ARTIST_CHILD_FOLDERS
     if not is_album and not is_special_child:
-        return None
+        inferred = inferred_album_filename_identity(folder)
+        return inferred[0] if inferred else None
     artist = folder.parent.name.strip()
     if (
         not artist
@@ -1096,6 +1173,33 @@ def recognized_album_artist(folder: Path) -> str | None:
     ):
         return None
     return artist
+
+
+def inferred_album_filename_identity(folder: Path) -> tuple[str, str] | None:
+    """Infer ``Artist, Album`` from repeated ``Artist - Album - NN Title`` names."""
+    candidates: Counter[tuple[str, str]] = Counter()
+    try:
+        files = folder.iterdir()
+    except OSError:
+        return None
+    for candidate in files:
+        if not candidate.is_file() or candidate.suffix.casefold() not in AUDIO_EXTS:
+            continue
+        match = re.match(
+            r"^\s*(?P<artist>.+?)\s+-\s+(?P<album>.+?)\s+-\s+"
+            r"(?P<track>\d{1,2})[ _.\-]+.+$",
+            candidate.stem,
+        )
+        if not match:
+            continue
+        artist = match.group("artist").strip()
+        album = match.group("album").strip()
+        if artist and album:
+            candidates[(artist, album)] += 1
+    if not candidates:
+        return None
+    identity, count = candidates.most_common(1)[0]
+    return identity if count >= 2 else None
 
 
 def redundant_artist_filename_proposal(
@@ -1135,6 +1239,43 @@ def redundant_artist_filename_proposal(
         path,
         match.group("rest"),
     )
+    title = canonical_song_title_text(title_source)
+    proposed = f"{track}_{title}{suffix}"
+    return proposed if proposed != path.name else None
+
+
+def album_prefixed_filename_proposal(
+    filename: str,
+    artist: str,
+    album: str,
+    album_track_count: int,
+) -> str | None:
+    """Strip repeated artist/album prefixes from an album track and its sidecars."""
+    path = Path(filename)
+    if path.suffix.lower() not in CANONICAL_RENAME_EXTS:
+        return None
+    def phrase_pattern(value: str) -> str:
+        return r"[-_. ]+".join(
+            re.escape(word) for word in re.findall(r"[A-Za-z0-9]+", value)
+        )
+    artist_pattern = phrase_pattern(artist)
+    album_pattern = phrase_pattern(album)
+    if not artist_pattern or not album_pattern:
+        return None
+    match = re.match(
+        rf"^{artist_pattern}[-_. ]+{album_pattern}[-_. ]+"
+        rf"(?P<track>\d{{1,3}})[-_. ]+(?P<rest>.+)$",
+        path.stem,
+        flags=re.I,
+    )
+    if not match:
+        return None
+    track_number = int(match.group("track"))
+    track = f"{track_number:02d}" if album_track_count >= 10 else str(track_number)
+    title_source, suffix = rename_title_and_suffix(path, match.group("rest"))
+    title_source = title_source.translate(str.maketrans({
+        "‘": "'", "’": "'", "“": '"', "”": '"',
+    }))
     title = canonical_song_title_text(title_source)
     proposed = f"{track}_{title}{suffix}"
     return proposed if proposed != path.name else None
@@ -1206,6 +1347,9 @@ def strip_trailing_tracking_identifier(text: str) -> str:
 
 def canonical_song_title_text(text: str) -> str:
     """Normalize separators/feat and capitalize ordinary filename title words."""
+    normalized = str(text).translate(str.maketrans({
+        "‘": "'", "’": "'", "“": '"', "”": '"',
+    }))
     normalized = re.sub(
         r"_+",
         " ",
@@ -1215,6 +1359,7 @@ def canonical_song_title_text(text: str) -> str:
     normalized = re.sub(r"\s+", " ", normalized).strip()
     normalized = re.sub(r"\(\s+", "(", normalized)
     normalized = re.sub(r"\s+\)", ")", normalized)
+    normalized = re.sub(r"\bYoull\b", "You'll", normalized, flags=re.I)
     marker_values = {
         value.casefold(): value
         for value in CANONICAL_FILENAME_MARKERS.values()
@@ -1291,6 +1436,43 @@ def capitalized_album_filename_proposal(
         match.group("rest"),
     )
     title = canonical_song_title_text(title_source)
+    proposed = f"{track}_{title}{suffix}"
+    return proposed if proposed != path.name else None
+
+
+def all_caps_album_title_proposal(
+    filename: str,
+    album_track_count: int,
+) -> str | None:
+    """Suggest conservative title case for an otherwise all-caps album title.
+
+    This deliberately only detects titles whose alphabetic characters are all
+    uppercase.  Mixed-case titles are left to the ordinary capitalization
+    audit; ALL CAPS is a distinct, reviewable style decision.
+    """
+    path = Path(filename)
+    if path.suffix.casefold() not in CANONICAL_RENAME_EXTS:
+        return None
+    match = re.match(
+        r"^(?P<track>\d{1,3})[-_. ]+(?P<rest>.+)$",
+        path.stem,
+    )
+    if match is None:
+        return None
+    title_source, suffix = rename_title_and_suffix(path, match.group("rest"))
+    title_source = title_source.translate(str.maketrans({
+        "‘": "'", "’": "'", "“": '"', "”": '"',
+    }))
+    letters = "".join(character for character in title_source if character.isalpha())
+    if not letters or letters != letters.upper():
+        return None
+    track_number = int(match.group("track"))
+    track = f"{track_number:02d}" if album_track_count >= 10 else str(track_number)
+    title = re.sub(
+        r"[A-Za-zÀ-ÖØ-öø-ÿ]+(?:['’][A-Za-zÀ-ÖØ-öø-ÿ]+)?",
+        lambda word: word.group(0).capitalize(),
+        title_source,
+    )
     proposed = f"{track}_{title}{suffix}"
     return proposed if proposed != path.name else None
 
@@ -1893,13 +2075,20 @@ class BatchAudit:
             artist = recognized_album_artist(folder)
             if artist is None or self.is_archive_path(folder):
                 continue
+            inferred_identity = inferred_album_filename_identity(folder)
+            inferred_album = (
+                inferred_identity[1]
+                if inferred_identity and inferred_identity[0].casefold()
+                == artist.casefold()
+                else None
+            )
             track_numbers = {
                 int(match.group("track"))
                 for path in files
                 if path.suffix.lower() in AUDIO_EXTS
                 and (
-                    match := re.match(
-                        r"^(?P<track>\d{1,3})[-_. ]+",
+                    match := re.search(
+                        r"(?:^|[-_. ])(?P<track>\d{1,2})[-_. ]+",
                         path.name,
                     )
                 )
@@ -1913,6 +2102,13 @@ class BatchAudit:
                     artist,
                     album_track_count,
                 )
+                if proposed_name is None and inferred_album:
+                    proposed_name = album_prefixed_filename_proposal(
+                        path.name,
+                        artist,
+                        inferred_album,
+                        album_track_count,
+                    )
                 if proposed_name is None:
                     continue
                 before = self.rel(path)
@@ -1952,8 +2148,13 @@ class BatchAudit:
                     "ask_first",
                     "redundant_album_artist_filename_group",
                     folder,
-                    f'Artist name "{artist}" is repeated after the track number '
-                    f"in {len(renames)} album filenames.",
+                    (
+                        f'Artist name "{artist}" and album name '
+                        f'"{inferred_album}" prefix {len(renames)} album filenames.'
+                        if inferred_album else
+                        f'Artist name "{artist}" is repeated after the track number '
+                        f"in {len(renames)} album filenames."
+                    ),
                     "Approve one grouped rename for the audio and matching "
                     "sidecars/backups; local playlist references will be "
                     "backed up and updated.",
@@ -1964,18 +2165,54 @@ class BatchAudit:
                     playlists=playlists,
                 )
 
+            # All-caps titles are intentionally handled one audio family at a
+            # time: the proposed capitalization is useful, but the user gets
+            # an rn.bat-style editable filename before anything is renamed.
+            all_caps_audio_paths: set[Path] = set()
+            for path in sorted(files, key=lambda item: item.name.lower()):
+                if path.suffix.casefold() not in AUDIO_EXTS:
+                    continue
+                proposed_name = all_caps_album_title_proposal(
+                    path.name,
+                    album_track_count,
+                )
+                if proposed_name is None:
+                    continue
+                all_caps_audio_paths.add(path)
+                self.add(
+                    "ask_first",
+                    "all_caps_album_title",
+                    path,
+                    "Album-track title is written entirely in capital letters.",
+                    "Use the suggested capitalization or edit the filename "
+                    "yourself before the audio, sidecars, backups, and local "
+                    "playlist references are renamed together.",
+                    proposed_name=proposed_name,
+                    track_count=album_track_count,
+                )
+
             case_renames: list[dict[str, str]] = []
             case_audio_renames: list[tuple[Path, str]] = []
             for path in sorted(files, key=lambda item: item.name.lower()):
                 if self.rel(path) in redundant_before:
                     continue
+                if path in all_caps_audio_paths:
+                    continue
                 # Do not reinterpret a lone artist-prefixed title as ordinary
                 # title text; the repeated pattern is the safety signal.
-                if redundant_artist_filename_proposal(
+                prefix_proposal = redundant_artist_filename_proposal(
                     path.name,
                     artist,
                     album_track_count,
-                ) is not None:
+                )
+                if prefix_proposal is None and inferred_album:
+                    prefix_proposal = album_prefixed_filename_proposal(
+                        path.name,
+                        artist,
+                        inferred_album,
+                        album_track_count,
+                    )
+                if prefix_proposal is not None:
                     continue
                 proposed_name = capitalized_album_filename_proposal(
                     path.name,
@@ -3620,6 +3857,21 @@ def bandcamp_search_url(metadata: dict[str, Any]) -> str:
     return f"{BANDCAMP_SEARCH_ROOT}?{urlencode({'q': f'{artist} {release}'})}"
 
 
+def itunes_search_url(metadata: dict[str, Any]) -> str:
+    """Build a conservative Apple Music/iTunes album-catalog search URL."""
+    artist = str(
+        metadata.get("album_artist") or metadata.get("artist") or ""
+    ).strip()
+    album = str(metadata.get("album") or metadata.get("title") or "").strip()
+    params = {
+        'term': f'{artist} {album}',
+        'entity': 'album',
+        'limit': 25,
+        'country': 'US',
+    }
+    return f"{ITUNES_SEARCH_ROOT}?{urlencode(params)}"
+
+
 def _html_plain_text(value: str) -> str:
     """Reduce a small HTML result fragment to normalized visible text."""
     return " ".join(
@@ -3749,6 +4001,76 @@ def bandcamp_cover_match(
                 url=_bandcamp_original_art_url(image_url),
                 types=("Front",),
                 comment="Bandcamp original release artwork",
+                front=True,
+                approved=True,
+            ),
+        ),
+    )
+
+
+def _itunes_original_art_url(url: str) -> str:
+    """Request the largest standard iTunes artwork rendition from its CDN."""
+    return re.sub(r"/\d+x\d+(?:bb)?(?=[.-])", "/3000x3000bb", url)
+
+
+def itunes_cover_match(
+    metadata: dict[str, Any],
+    json_fetcher: Callable[..., dict[str, Any] | None],
+) -> CoverMatch | None:
+    """Return a conservatively matched Apple Music/iTunes Front artwork image."""
+    payload = json_fetcher(itunes_search_url(metadata), musicbrainz=False) or {}
+    results = payload.get("results", [])
+    if not isinstance(results, list):
+        return None
+    wanted_album = normalized_match_text(
+        str(metadata.get("album") or metadata.get("title") or "")
+    )
+    wanted_artist = normalized_match_text(
+        str(metadata.get("album_artist") or metadata.get("artist") or "")
+    )
+    candidates: list[tuple[int, dict[str, Any]]] = []
+    for result in results:
+        if not isinstance(result, dict):
+            continue
+        artwork_url = str(result.get("artworkUrl100") or "").strip()
+        album = normalized_match_text(str(result.get("collectionName") or ""))
+        artist = normalized_match_text(str(result.get("artistName") or ""))
+        if not artwork_url or not album or not artist:
+            continue
+        confidence = round(
+            60 * SequenceMatcher(None, wanted_album, album).ratio()
+            + 40 * SequenceMatcher(None, wanted_artist, artist).ratio()
+        )
+        if wanted_album and wanted_album == album:
+            confidence += 20
+        if wanted_artist and wanted_artist == artist:
+            confidence += 15
+        candidates.append((min(100, confidence), result))
+    if not candidates:
+        return None
+    confidence, result = max(candidates, key=lambda item: item[0])
+    if confidence < 86:
+        return None
+    artwork_url = str(result["artworkUrl100"])
+    release_id = str(result.get("collectionId") or artwork_url)
+    return CoverMatch(
+        source="Apple Music / iTunes",
+        release_id=release_id,
+        release_group_id="",
+        artist=str(result.get("artistName") or "").strip(),
+        album=str(result.get("collectionName") or "").strip(),
+        date=str(result.get("releaseDate") or metadata.get("date") or "")[:10],
+        country=str(result.get("country") or ""),
+        formats=("Digital",),
+        confidence=confidence,
+        exact_id=False,
+        ambiguous=confidence < 96,
+        artworks=(
+            CoverArtwork(
+                image_id=release_id,
+                url=_itunes_original_art_url(artwork_url),
+                types=("Front",),
+                comment="Apple Music/iTunes catalog artwork",
                 front=True,
                 approved=True,
             ),
@@ -3939,16 +4261,8 @@ def resolve_cover_match(
         key=lambda item: item[0],
         reverse=True,
     )
-    bandcamp = bandcamp_cover_match(
-        metadata,
-        text_fetcher or cover_http_get_text,
-    )
-    if bandcamp and (
-        not scored
-        or bandcamp.confidence >= scored[0][0]
-        or bandcamp.confidence >= 94
-    ):
-        return bandcamp
+    # Archive-backed releases come first because they can include the complete
+    # approved set (back, inlay, disc, booklet, etc.), not merely a Front.
     for index, (confidence, release) in enumerate(scored[:5]):
         candidate_release_id = str(release["id"])
         candidate_group_id = _release_group_id(release)
@@ -3985,13 +4299,22 @@ def resolve_cover_match(
     discogs = discogs_cover_match(metadata, fetch_json)
     if discogs:
         return discogs
+    bandcamp = bandcamp_cover_match(
+        metadata,
+        text_fetcher or cover_http_get_text,
+    )
+    if bandcamp:
+        return bandcamp
+    itunes = itunes_cover_match(metadata, fetch_json)
+    if itunes:
+        return itunes
     raise RuntimeError(
         "No release with an approved Front image was found on "
-        "MusicBrainz/Cover Art Archive or Bandcamp"
+        "MusicBrainz/Cover Art Archive, Discogs, Bandcamp, or Apple Music/iTunes"
         + (
-            "; Discogs was also checked"
+            "; Discogs was checked"
             if os.environ.get("DISCOGS_TOKEN")
-            else "; set DISCOGS_TOKEN to enable the Discogs fallback"
+            else "; set DISCOGS_TOKEN to enable the Discogs artwork-set fallback"
         )
     )
 
@@ -4641,6 +4964,32 @@ def waveform_preview_geometry() -> ArtworkPreviewGeometry:
     )
 
 
+def chafa_sixel_geometry_options(geometry: ArtworkPreviewGeometry) -> list[str]:
+    """Return the exact shared-library Chafa options used by echo-image.bat."""
+    if callable(query_terminal_geometry):
+        try:
+            live = query_terminal_geometry()
+            # This is intentionally the same public API echo-image.bat calls:
+            # ``python -m clairecjs_utils.claire_terminal_geometry --format
+            # chafa --reserve-rows N``.  Do not duplicate its pixel math here.
+            return [
+                *live.chafa_options_for(
+                    reserved_rows=ART_PREVIEW_RESERVED_TEXT_ROWS
+                ).split(),
+                "--scale=max",
+            ]
+        except Exception:
+            pass
+    return [
+        "--view-size="
+        # This is the deliberately *smaller* no-helper fallback.  It is only
+        # used by copied installations that genuinely lack the shared helper.
+        f"{geometry.columns * 0.80:.1f}x"
+        f"{geometry.rows * 0.80:.1f}",
+        "--scale=max",
+    ]
+
+
 def fitted_preview_image(
     image,
     width: int,
@@ -4865,6 +5214,15 @@ def prepare_artwork_preview(
     sixel = use_color and (
         prefer_sixel or terminal_supports_sixel()
     )
+    if sixel and not stretch_to_width:
+        # echo-image starts its sixel image at the left edge and lets the
+        # shared geometry helper own the complete viewport calculation.  The
+        # former indentation was an extra, incompatible width constraint.
+        geometry = artwork_preview_geometry(
+            indent_columns=0,
+            right_margin_columns=0,
+            reserved_text_rows=ART_PREVIEW_RESERVED_TEXT_ROWS,
+        )
     if chafa is None and sixel:
         return PreparedArtworkPreview(
             mode="built-in Sixel",
@@ -4888,17 +5246,14 @@ def prepare_artwork_preview(
         )
     output_format = "sixels" if sixel else "symbols"
     if sixel and not stretch_to_width:
-        # Keep this in lockstep with echo-image.bat.  Chafa's Sixel renderer
-        # uses image-pixel view dimensions, not terminal-cell dimensions; the
-        # 2.1 multiplier is the deliberately tuned quality setting there.
+        # Keep this in lockstep with echo-image.bat: its geometry helper uses
+        # live cell pixels plus --font-ratio, rather than guessing from cells.
         command = [
             str(chafa),
             "--format=sixels",
             "--fit-width",
             "--colors=full",
-            "--view-size="
-            f"{geometry.columns * CHAFA_SIXEL_VIEW_SCALE:.1f}x"
-            f"{geometry.rows * CHAFA_SIXEL_VIEW_SCALE:.1f}",
+            *chafa_sixel_geometry_options(geometry),
             "--optimize=9",
             "--work=9",
             "--color-space=din99d",
@@ -4960,6 +5315,7 @@ def prepare_artwork_preview(
             mode="Chafa Sixel",
             geometry=geometry,
             sixel_payload=result.stdout,
+            renderer_options=tuple(command[1:-1]),
         )
     rendered = result.stdout.decode(
         sys.stdout.encoding or "utf-8",
@@ -4980,6 +5336,25 @@ def emit_prepared_artwork_preview(
 ) -> str:
     """Write a previously prepared preview and return its renderer label."""
     if prepared.sixel_payload is not None:
+        if prepared.mode == "Chafa Sixel" and prepared.renderer_options:
+            compact_options = " ".join(
+                option.replace("--format=sixels", "fmt=sixels")
+                .replace("--fit-width", "fit-width")
+                .replace("--colors=full", "colors=full")
+                .replace("--view-size=", "view=")
+                .replace("--font-ratio=", "ratio=")
+                .replace("--scale=max", "scale=max")
+                .replace("--optimize=", "opt=")
+                .replace("--work=", "work=")
+                .replace("--color-space=", "space=")
+                for option in prepared.renderer_options
+            )
+            print(
+                rgb_text(
+                    "            Chafa opts: " + compact_options,
+                    135, 135, 150, True, dim=True,
+                )
+            )
         emit_sixel_preview(
             prepared.sixel_payload,
             geometry=prepared.geometry,
@@ -5145,21 +5520,18 @@ def launch_audio_editor(audio_path: Path) -> Path:
 
 
 def audio_preview_player_script() -> Path | None:
-    """Find the legacy-named interactive FFplay controller."""
+    """Find the format-neutral interactive FFplay controller."""
     script_folder = Path(__file__).resolve().parent
     candidates = (
-        script_folder / "play_wav_file.py",
-        script_folder / "play_wave_file.py",
-        Path(r"C:\BAT\play_wav_file.py"),
-        Path(r"C:\BAT\play_wave_file.py"),
+        script_folder / "play_audio_file.py",
+        Path(r"C:\BAT\play_audio_file.py"),
     )
     for candidate in candidates:
         if candidate.is_file():
             return candidate
-    for name in ("play_wav_file.py", "play_wave_file.py"):
-        discovered = shutil.which(name)
-        if discovered:
-            return Path(discovered)
+    discovered = shutil.which("play_audio_file.py")
+    if discovered:
+        return Path(discovered)
     return None
 
 
@@ -5168,7 +5540,7 @@ def launch_audio_preview(audio_path: Path) -> Path:
     player = audio_preview_player_script()
     if player is None:
         raise RuntimeError(
-            "play_wav_file.py was not found beside audit_music_batch.py, "
+            "play_audio_file.py was not found beside audit_music_batch.py, "
             "under C:\\BAT, or in PATH"
         )
     result = subprocess.run(
@@ -5667,6 +6039,50 @@ def prompt_for_waveform_problem_rename(
     return renamed_audio
 
 
+def prompt_for_all_caps_album_title_rename(
+    audio_path: Path,
+    suggested_filename: str,
+    *,
+    use_color: bool,
+    input_reader=None,
+) -> tuple[Path, list[str]]:
+    """Offer the suggested title case, then an rn.bat-style editable rename."""
+    print(f"            {music_filename(audio_path.name, use_color)}")
+    print(
+        "            "
+        + rgb_text("💡 Suggested: ", 105, 175, 205, use_color, dim=True)
+        + music_filename(suggested_filename, use_color)
+    )
+    prompt = (
+        "            "
+        + urgent_prompt_text(
+            "New filename (press ENTER to use the suggested capitalization):",
+            use_color,
+        )
+        + " "
+    )
+    try:
+        entered = read_interactive_filename_edit(
+            prompt,
+            suggested_filename,
+            input_reader=input_reader,
+        ).strip()
+    except EOFError:
+        entered = ""
+    reset_console_pager_after_user_input()
+    if not entered:
+        entered = suggested_filename
+    if entered.strip('"') == audio_path.name:
+        return audio_path, ["unchanged:filename"]
+    renamed_audio, renamed, backups = rename_waveform_problem_family(
+        audio_path,
+        entered,
+    )
+    actions = [f"renamed:{renamed_audio}", f"renamed_family:{len(renamed)}"]
+    actions.extend(f"backup:{backup}" for backup in backups)
+    return renamed_audio, actions
+
+
 def replaygain_decibels_from_factor(factor: float | None) -> float | None:
     """Convert a positive ReplayGain multiplier back to its tagged dB value."""
     if factor is None or not math.isfinite(float(factor)) or factor <= 0:
@@ -5858,12 +6274,13 @@ def bake_replaygain_into_audio(
             f"volume={applied_db:+.8f}dB",
             str(temporary),
         ]
-        print(
+        if stream_output:
+            print(
             console_safe_text(
                 f"        ▶ {subprocess.list2cmdline(command)}"
             ),
-            flush=True,
-        )
+                flush=True,
+            )
         options: dict[str, Any] = {"check": False}
         if not stream_output:
             options.update(
@@ -5937,7 +6354,8 @@ def bake_replaygain_into_audio(
             "3",
             str(temporary),
         ]
-        print(
+        if stream_output:
+            print(
             console_safe_text(
                 f"        ▶ {subprocess.list2cmdline(command)}"
             ),
@@ -5998,21 +6416,165 @@ def bake_replaygain_into_audio(
     return backup, applied_db
 
 
-def recolor_newly_baked_waveform(waveform_path: Path) -> None:
-    """Turn only the plotted cyan waveform green after gain was just baked."""
+def replaygain_bake_waveform_cache_paths(audio_path: Path) -> tuple[Path, Path]:
+    """Return persistent-in-Recycle-Bin comparison paths for one audio file."""
+    identity = hashlib.sha256(
+        str(audio_path.resolve()).encode("utf-8", errors="replace")
+    ).hexdigest()[:16]
+    folder = waveform_staging_root() / "audit_music_batch-replaygain-bake-waveforms"
+    return (
+        folder / f"{identity}.before-replaygain-bake.jpg",
+        folder / f"{identity}.after-replaygain-bake.jpg",
+    )
+
+
+def replaygain_bake_candidates(audio_files: Iterable[Path]) -> list[Path]:
+    """Find MP3/FLAC files whose tagged adjustment merits sample-data baking."""
+    return [
+        path
+        for path in audio_files
+        if (
+            (tagged_db := replaygain_decibels_from_factor(
+                waveform_replaygain_factor(path)
+            ))
+            is not None
+            and abs(tagged_db) > REPLAYGAIN_BAKE_THRESHOLD_DB + 1e-9
+            and path.suffix.casefold() in {".flac", ".mp3"}
+        )
+    ]
+
+
+def bake_replaygain_for_batch(
+    audio_files: Iterable[Path],
+    *,
+    use_color: bool,
+    key_reader=None,
+    acceptable_silence_seconds: float = (
+        BUILTIN_DEFAULT_SILENCE_THRESHOLD_SECONDS
+    ),
+) -> list[Path]:
+    """Offer normal-audit ReplayGain baking and retain before/after gradients."""
+    candidates = replaygain_bake_candidates(audio_files)
+    if not candidates:
+        return []
+    threshold_text = f"±{REPLAYGAIN_BAKE_THRESHOLD_DB:g} dB"
+    if not prompt_for_approval(
+        f"Bake ReplayGain into the audio data for all {len(candidates)} file"
+        f"{'s' if len(candidates) != 1 else ''} outside {threshold_text} now? "
+        "Red-to-purple before and cyan-to-green after waveforms will be saved for a later "
+        "waveform review.",
+        False,
+        use_color,
+        key_reader=key_reader,
+        indent="        ",
+    ):
+        return []
+
+    baked: list[Path] = []
+    cover_narration(
+        "🔴",
+        "Rendering and keeping red-to-purple before-waveforms before changing audio data.",
+        use_color=use_color,
+        color=(85, 190, 245),
+        dim=True,
+    )
+    bake_progress_context = progress_bar(
+        total=len(candidates),
+        description="🎚 Baking ReplayGain",
+        unit="file",
+        enabled=bool(getattr(sys.stderr, "isatty", lambda: False)()),
+    )
+    bake_progress = bake_progress_context.__enter__()
+    for audio_path in candidates:
+        before_path, after_path = replaygain_bake_waveform_cache_paths(audio_path)
+        before_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            _before, _backup, before_metrics = generate_waveform_jpeg(
+                audio_path,
+                narrate=False,
+                destination=before_path,
+                acceptable_silence_seconds=acceptable_silence_seconds,
+            )
+            recolor_before_baked_waveform(before_path)
+            backup, applied_db = bake_replaygain_into_audio(
+                audio_path,
+                before_metrics,
+                use_color=use_color,
+            )
+            _after, _backup, _after_metrics = generate_waveform_jpeg(
+                audio_path,
+                narrate=False,
+                destination=after_path,
+                acceptable_silence_seconds=acceptable_silence_seconds,
+            )
+            recolor_newly_baked_waveform(after_path)
+            baked.append(audio_path)
+            cover_narration(
+                "🟢",
+                f"Baked {applied_db:+.2f} dB into {audio_path.name}; kept "
+                f"{backup.name}; before/after gradient waveforms saved.",
+                use_color=use_color,
+                color=(95, 225, 130),
+            )
+        except Exception as exc:
+            print_formatted_error(
+                f"Could not bake ReplayGain into {audio_path.name}: {exc}",
+                use_color,
+            )
+        finally:
+            if bake_progress is not None:
+                bake_progress.update(1)
+    bake_progress_context.__exit__(None, None, None)
+    return baked
+
+
+def recolor_waveform_vertical_gradient(
+    waveform_path: Path,
+    center_color: tuple[int, int, int],
+    outer_color: tuple[int, int, int],
+    *,
+    channels: int = 2,
+) -> None:
+    """Color each channel symmetrically from its center toward loud edges."""
     if Image is None:
         raise RuntimeError("Pillow is required to recolor waveform previews")
     with Image.open(waveform_path) as source:
         image = source.convert("RGB")
     plot_width = max(1, min(image.width, WAVEFORM_PLOT_WIDTH))
     plot = image.crop((0, 0, plot_width, image.height))
-    mask = waveform_cyan_mask(plot)
-    plot.paste(
-        Image.new("RGB", plot.size, (80, 255, 130)),
-        mask=mask,
-    )
+    mask = waveform_colored_mask(plot)
+    channel_count = max(1, int(channels))
+    rows = bytearray()
+    for y in range(plot.height):
+        local = ((y + 0.5) * channel_count / max(1, plot.height)) % 1.0
+        distance = min(1.0, abs(local - 0.5) * 2.0)
+        color = tuple(
+            round(center + (outer - center) * distance)
+            for center, outer in zip(center_color, outer_color)
+        )
+        rows.extend(bytes(color) * plot.width)
+    gradient = Image.frombytes("RGB", plot.size, bytes(rows))
+    plot.paste(gradient, mask=mask)
     image.paste(plot, (0, 0))
     image.save(waveform_path, format="JPEG", quality=94)
+
+
+def recolor_before_baked_waveform(waveform_path: Path) -> None:
+    """Use red centers and purple extremes for the original comparison."""
+    recolor_waveform_vertical_gradient(
+        waveform_path,
+        (255, 65, 75),
+        (175, 85, 255),
+    )
+
+
+def recolor_newly_baked_waveform(waveform_path: Path) -> None:
+    """Use cyan-green centers and true-green extremes for baked audio."""
+    recolor_waveform_vertical_gradient(
+        waveform_path,
+        (55, 235, 205),
+        (70, 255, 105),
+    )
 
 
 def waveform_review_choice(
@@ -6031,6 +6593,7 @@ def waveform_review_choice(
     gain_baker=None,
     waveform_generator=None,
     waveform_recolorer=None,
+    audio_retreater=None,
     excessive_silence: bool = False,
     longest_silence_seconds: float = 0.0,
     acceptable_silence_seconds: float = (
@@ -6046,6 +6609,7 @@ def waveform_review_choice(
     baker = gain_baker or bake_replaygain_into_audio
     generator = waveform_generator or generate_waveform_jpeg
     recolorer = waveform_recolorer or recolor_newly_baked_waveform
+    retreater = audio_retreater or retreat_edited_audio
     question = f"Does this waveform show a problem in {audio_path.name}?"
     edits_opened = 0
     current_metrics = waveform_metrics
@@ -6190,12 +6754,45 @@ def waveform_review_choice(
                         color=(210, 155, 85),
                         dim=True,
                     )
+                    retreater(
+                        audio_path,
+                        use_color=use_color,
+                        key_reader=key_reader,
+                    )
+                    (
+                        regenerated_waveform,
+                        _regenerated_backup,
+                        regenerated_metrics,
+                    ) = generator(
+                        audio_path,
+                        narrate=True,
+                        destination=waveform_path,
+                        acceptable_silence_seconds=(
+                            acceptable_silence_seconds
+                        ),
+                    )
+                    waveform_path = regenerated_waveform
+                    current_metrics = regenerated_metrics
+                    excessive_silence = (
+                        regenerated_metrics.longest_silence_seconds
+                        > acceptable_silence_seconds
+                    )
+                    longest_silence_seconds = (
+                        regenerated_metrics.longest_silence_seconds
+                    )
+                    cover_narration(
+                        "🔄",
+                        "Fresh waveform generated from the saved edit.",
+                        use_color=use_color,
+                        color=(95, 185, 225),
+                        dim=True,
+                    )
                 except Exception as exc:
                     print_formatted_error(
                         f"Could not open an audio editor: {exc}",
                         use_color,
                     )
-                continue
+                break
             if lowered == "b" and allow_bake_gain and current_metrics is not None:
                 if interactive_terminal:
                     erase_wrapped_console_text(steady)
@@ -6238,6 +6835,7 @@ def waveform_review_choice(
                         )
                     )
                     shutil.copy2(waveform_path, before_bake_waveform)
+                    recolor_before_baked_waveform(before_bake_waveform)
                     backup, applied_db = baker(
                         audio_path,
                         current_metrics,
@@ -6277,7 +6875,7 @@ def waveform_review_choice(
                     )
                     cover_narration(
                         "🔵",
-                        "Before: original blue waveform; a ReplayGain-aware "
+                        "Before: original red-to-purple waveform; a ReplayGain-aware "
                         f"player applies {requested_db:+.2f} dB from its tag. "
                         "Comparison only — no response is needed.",
                         use_color=use_color,
@@ -6353,6 +6951,11 @@ def waveform_review_choice(
                         use_color=use_color,
                         color=(210, 155, 85),
                         dim=True,
+                    )
+                    retreater(
+                        audio_path,
+                        use_color=use_color,
+                        key_reader=key_reader,
                     )
                 except Exception as exc:
                     print_formatted_error(
@@ -6704,6 +7307,99 @@ def waveform_cyan_mask(region):
     )
 
 
+def waveform_colored_mask(region):
+    """Return a mask for any saturated configured waveform-channel color."""
+    if Image is None:
+        raise RuntimeError("Pillow is required for waveform rendering")
+    red, green, blue = region.split()
+    return Image.frombytes(
+        "L",
+        region.size,
+        bytes(
+            (
+                255
+                if (
+                    max(r, g, b) >= 110
+                    and max(r, g, b) - min(r, g, b) >= 35
+                )
+                else 0
+            )
+            for r, g, b in zip(
+                red.tobytes(),
+                green.tobytes(),
+                blue.tobytes(),
+            )
+        ),
+    )
+
+
+def waveform_channel_rgb(channel_index: int) -> tuple[int, int, int]:
+    """Return the configured RGB plotting color for one channel."""
+    encoded = WAVEFORM_CHANNEL_COLORS[
+        channel_index % len(WAVEFORM_CHANNEL_COLORS)
+    ]
+    value = int(encoded.removeprefix("0x"), 16)
+    return ((value >> 16) & 255, (value >> 8) & 255, value & 255)
+
+
+def waveform_channel_mask(region, channel_index: int):
+    """Mask one configured channel color, accepting old FFmpeg cyan fallback."""
+    if Image is None:
+        raise RuntimeError("Pillow is required for waveform rendering")
+    expected = waveform_channel_rgb(channel_index)
+    red, green, blue = region.split()
+    mask = Image.frombytes(
+        "L",
+        region.size,
+        bytes(
+            (
+                255
+                if (
+                    max(r, g, b) - min(r, g, b) >= 35
+                    and sum(
+                        abs(component - target)
+                        for component, target in zip(
+                            (r, g, b),
+                            expected,
+                        )
+                    )
+                    <= 220
+                )
+                else 0
+            )
+            for r, g, b in zip(
+                red.tobytes(),
+                green.tobytes(),
+                blue.tobytes(),
+            )
+        ),
+    )
+    if mask.getbbox() is None and channel_index:
+        # Some older FFmpeg builds reject the multicolor palette and the
+        # generator deliberately retries every channel in cyan.
+        return waveform_cyan_mask(region)
+    return mask
+
+
+def waveform_vertical_rainbow(size: tuple[int, int]):
+    """Create one ROYGBIV fill, repeated identically for every channel."""
+    if Image is None:
+        raise RuntimeError("Pillow is required for waveform rendering")
+    width, height = size
+    height = max(1, int(height))
+    rows = bytearray()
+    for y in range(height):
+        # HSV hue 0.00→0.78 gives red, orange, yellow, green, blue, indigo,
+        # and violet without assigning separate colors to left/right channels.
+        red, green, blue = colorsys.hsv_to_rgb(
+            0.78 * y / max(1, height - 1),
+            0.72,
+            1.0,
+        )
+        rows.extend(bytes((round(red * 255), round(green * 255), round(blue * 255))) * width)
+    return Image.frombytes("RGB", (width, height), bytes(rows))
+
+
 def waveform_axis_ceiling_percent(metrics: WaveformMetrics) -> float:
     """Choose a truthful 5% axis ceiling with a small visible headroom."""
     peak = max(
@@ -6737,8 +7433,12 @@ def scale_waveform_to_absolute_peaks(
         bottom = round(image.height * (channel + 1) / channels) - 4
         height = max(1, bottom - top)
         region = image.crop((4, top, 4 + width, bottom))
-        mask = waveform_cyan_mask(region)
+        mask = waveform_channel_mask(region, channel)
         region.paste((0, 0, 0), mask=mask)
+        occupied_bounds = mask.getbbox()
+        if occupied_bounds is None:
+            image.paste(region, (4, top))
+            continue
         target_height = max(
             1,
             min(
@@ -6746,14 +7446,23 @@ def scale_waveform_to_absolute_peaks(
                 round(height * max(0.0, min(ceiling, peak)) / ceiling),
             ),
         )
-        resized = mask.resize(
+        # FFmpeg normalizes showwavespic independently and can leave a large
+        # amount of black space above/below its actual envelope. Resizing that
+        # whole channel canvas merely scales the empty space and leaves the
+        # waveform visibly much shorter than its measured peak. Crop to the
+        # occupied envelope first, then map that envelope to the truthful
+        # peak-to-peak height represented by the labeled axis.
+        occupied_mask = mask.crop(
+            (0, occupied_bounds[1], width, occupied_bounds[3])
+        )
+        resized = occupied_mask.resize(
             (width, target_height),
             resample=getattr(Image, "Resampling", Image).LANCZOS,
         )
         absolute_mask = Image.new("L", (width, height), 0)
         absolute_mask.paste(resized, (0, (height - target_height) // 2))
         region.paste(
-            Image.new("RGB", region.size, (85, 220, 255)),
+            waveform_vertical_rainbow(region.size),
             mask=absolute_mask,
         )
         image.paste(region, (4, top))
@@ -6763,6 +7472,7 @@ def emphasize_waveform_peak_visibility(
     image,
     *,
     plot_width: int = WAVEFORM_PLOT_WIDTH,
+    channel_count: int = 1,
 ) -> None:
     """Make isolated true peaks visible without changing their amplitude.
 
@@ -6774,14 +7484,23 @@ def emphasize_waveform_peak_visibility(
     """
     if Image is None or ImageFilter is None:
         raise RuntimeError("Pillow is required for waveform peak emphasis")
+    channels = max(1, int(channel_count))
     interior_width = max(1, min(image.width, int(plot_width)) - 4)
-    interior_height = max(1, image.height - 8)
-    region = image.crop((2, 4, 2 + interior_width, 4 + interior_height))
-    cyan_mask = waveform_cyan_mask(region)
-    expanded = cyan_mask.filter(ImageFilter.MaxFilter(5))
-    cyan = Image.new("RGB", region.size, (85, 220, 255))
-    region.paste(cyan, mask=expanded)
-    image.paste(region, (2, 4))
+    # Work on each occupied channel band separately so its own configured
+    # color is preserved; stop when a band contains no waveform pixels.
+    for channel in range(channels):
+        top = round(image.height * channel / channels) + 2
+        bottom = round(image.height * (channel + 1) / channels) - 2
+        if bottom <= top:
+            continue
+        region = image.crop((2, top, 2 + interior_width, bottom))
+        channel_mask = waveform_colored_mask(region)
+        if channel_mask.getbbox() is None:
+            continue
+        expanded = channel_mask.filter(ImageFilter.MaxFilter(5))
+        color = waveform_vertical_rainbow(region.size)
+        region.paste(color, mask=expanded)
+        image.paste(region, (2, top))
 
 
 def annotate_waveform_peak_guides(
@@ -6814,6 +7533,7 @@ def annotate_waveform_peak_guides(
     emphasize_waveform_peak_visibility(
         image,
         plot_width=plot_width,
+        channel_count=channels,
     )
     draw = ImageDraw.Draw(image)
     axis_x = max(4, min(image.width - 20, int(plot_width) - 1))
@@ -7324,19 +8044,11 @@ def review_waveforms(
                 destination=staging_folder / staged_name,
                 acceptable_silence_seconds=acceptable_silence_seconds,
             )
-        tagged_bake_candidates = [
-            path
-            for path in audio_files
-            if (
-                (tagged_db := replaygain_decibels_from_factor(
-                    waveform_replaygain_factor(path)
-                ))
-                is not None
-                and abs(tagged_db)
-                > REPLAYGAIN_BAKE_THRESHOLD_DB + 1e-9
-                and path.suffix.casefold() in {".flac", ".mp3"}
-            )
-        ]
+        for path in audio_files:
+            before_path, after_path = replaygain_bake_waveform_cache_paths(path)
+            if before_path.is_file() and after_path.is_file():
+                before_bake_waveforms[path] = before_path
+        tagged_bake_candidates = replaygain_bake_candidates(audio_files)
         if tagged_bake_candidates:
             print()
             threshold_text = f"±{REPLAYGAIN_BAKE_THRESHOLD_DB:g} dB"
@@ -7344,17 +8056,17 @@ def review_waveforms(
                 f"Bake ReplayGain into the audio data for all "
                 f"{len(tagged_bake_candidates)} file"
                 f"{'s' if len(tagged_bake_candidates) != 1 else ''} outside "
-                f"{threshold_text} before waveform review? Blue originals "
+                f"{threshold_text} before waveform review? Red-to-purple originals "
                 "will be preserved for comparison; newly baked waveforms "
-                "will be green.",
+                "will be cyan-to-green.",
                 False,
                 use_color,
                 key_reader=key_reader,
                 indent="        ",
             ):
                 cover_narration(
-                    "🔵",
-                    "Finishing and preserving the original blue waveform "
+                    "🔴",
+                    "Finishing and preserving the original red-to-purple waveform "
                     "previews before changing any audio data.",
                     use_color=use_color,
                     color=(85, 190, 245),
@@ -7373,6 +8085,7 @@ def review_waveforms(
                             )
                         )
                         shutil.copy2(old_waveform, comparison)
+                        recolor_before_baked_waveform(comparison)
                         backup, applied_db = bake_replaygain_into_audio(
                             candidate,
                             old_metrics,
@@ -7516,7 +8229,7 @@ def review_waveforms(
                 if comparison_waveform is not None:
                     cover_narration(
                         "🔵",
-                        "Before baking: original blue waveform for comparison "
+                        "Before baking: original red-to-purple waveform for comparison "
                         "only; no response is needed.",
                         use_color=use_color,
                         color=(85, 190, 245),
@@ -7537,7 +8250,7 @@ def review_waveforms(
                     )
                     cover_narration(
                         "🌱",
-                        "After baking: the green waveform below is the current "
+                        "After baking: the cyan-to-green waveform below is the current "
                         "audio and is the one being reviewed.",
                         use_color=use_color,
                         color=(80, 255, 130),
@@ -7680,6 +8393,7 @@ def offer_post_audit_waveform_review(
         key_reader=key_reader,
         indent="        ",
         erase_on_no=True,
+        erase_on_yes=True,
     ):
         return None
     if shutil.which("ffmpeg") is None:
@@ -7735,8 +8449,10 @@ def find_cover_and_embed(
         "🌐",
         "Searching exact "
         f"{inline_italic('MusicBrainz', use_color)} tags first, then "
-        f"{inline_italic('Bandcamp', use_color)} and conservative release "
-        "matches.",
+        f"{inline_italic('Cover Art Archive', use_color)}, "
+        f"{inline_italic('Discogs', use_color)} when configured, "
+        f"{inline_italic('Bandcamp', use_color)}, and "
+        f"{inline_italic('Apple Music/iTunes', use_color)}.",
         use_color=use_color,
         color=(85, 135, 165),
         dim=True,
@@ -7991,8 +8707,10 @@ def art_sidecar_stem(picture_type: int) -> str:
 
 
 def is_album_track_filename(path: Path) -> bool:
-    """Use leading track numbers as the conservative album-folder heuristic."""
-    return bool(re.match(r"^\s*\d{1,2}(?:[ _.-]+)", path.stem))
+    """Recognize leading or artist/album-prefixed two-digit album track numbers."""
+    return bool(
+        re.search(r"(?:^|[-_. ])\d{1,2}(?:[ _.-]+)", path.stem)
+    )
 
 
 def exported_art_sidecar_stem(path: Path, picture_type: int) -> str:
@@ -8386,6 +9104,24 @@ def varied_path(path: str, use_color: bool) -> str:
     )
 
 
+def bright_cyan_path(path: str, use_color: bool) -> str:
+    """Render a prominent audio target, distinct from dim suggestion text."""
+    if not use_color:
+        return path
+    digest = hashlib.sha256(path.encode("utf-8", errors="replace")).digest()
+    offsets = tuple((byte % 19) - 9 for byte in digest[:3])
+    base = (65, 245, 255)
+    color = tuple(
+        max(80, min(255, value + offset))
+        for value, offset in zip(base, offsets)
+    )
+    return (
+        f"{ANSI['italic']}"
+        f"\033[38;2;{color[0]};{color[1]};{color[2]}m"
+        f"{path}{ANSI['reset']}"
+    )
+
+
 def varied_filename_chunk(
     chunk: str,
     identity: str,
@@ -8411,9 +9147,15 @@ def varied_filename_chunk(
     )
 
 
-def music_filename(path: str, use_color: bool) -> str:
+def music_filename(
+    path: str,
+    use_color: bool,
+    *,
+    prominent: bool = False,
+) -> str:
     """Render a filename with a one-cell note aligned under two-cell emoji."""
-    return f" ♪ {varied_path(path, use_color)}"
+    renderer = bright_cyan_path if prominent else varied_path
+    return f" ♪ {renderer(path, use_color)}"
 
 
 def middle_ellipsize(text: str, max_cells: int) -> str:
@@ -8821,12 +9563,7 @@ def embedded_lyrics_console_lines(
     embedded = data.get("embedded_lyrics", [])
     if not embedded:
         return []
-    refresh_mode = data.get("embedded_lyrics_mode") == "refresh"
-    title = (
-        "Lyrics/karaoke refreshed by --refresh-embedded-lyrics"
-        if refresh_mode
-        else "Lyrics/karaoke embedded by --embed-lyrics"
-    )
+    title = "Lyric/karaoke embedding"
     lines: list[str] = []
     lines.extend(
         double_height_gradient_section(
@@ -8956,7 +9693,30 @@ def finding_target_lines(
             f"{prefix}{varied_path(display_folder, use_color)}",
             *rename_preview_table(finding, use_color),
         ]
-    return [music_filename(finding["path"], use_color)]
+    return [music_filename(finding["path"], use_color, prominent=True)]
+
+
+def finding_filename_columns(
+    findings: list[dict[str, Any]], use_color: bool
+) -> list[str]:
+    """Render unique finding filenames in compact, console-width columns."""
+    names = list(dict.fromkeys(str(item["path"]) for item in findings))
+    if not names:
+        return []
+    columns = max(40, visible_console_size().columns)
+    cell_width = min(44, max(18, max(visible_cell_width(name) for name in names)))
+    column_count = max(1, (columns - 12) // (cell_width + 4))
+    rendered: list[str] = []
+    for start in range(0, len(names), column_count):
+        cells = []
+        for name in names[start : start + column_count]:
+            display = middle_ellipsize(name, cell_width)
+            cells.append(
+                music_filename(display, use_color, prominent=True)
+                + " " * max(0, cell_width - visible_cell_width(display))
+            )
+        rendered.append("            " + "   ".join(cells).rstrip())
+    return rendered
 
 
 def report_section(title: str, use_color: bool, color: str = "cyan") -> str:
@@ -9247,6 +10007,7 @@ def friendly_category(category: str) -> str:
         "filename_title_capitalization_group": (
             "Album filename capitalization"
         ),
+        "all_caps_album_title": "All-caps album title",
         "same_stem_mp3_flac": "Matching MP3/FLAC pair",
     }
     return names.get(category, category.replace("_", " ").capitalize())
@@ -9277,7 +10038,7 @@ def finding_category_emoji(category: str) -> str:
         return "🎚️"
     if category == "excessive_silence":
         return "🔇"
-    if category in GROUPED_RENAME_CATEGORIES:
+    if category in GROUPED_RENAME_CATEGORIES or category == "all_caps_album_title":
         return "✂️"
     if category in {
         "empty_genre",
@@ -9427,6 +10188,29 @@ def refresh_missing_art_sidecars(
             "part, and embed only one approved Front image."
         )
     return candidates
+
+
+def artwork_finding_still_needs_action(
+    root: Path,
+    finding: dict[str, Any],
+) -> bool:
+    """Re-survey live artwork state before acting on a stale initial finding."""
+    category = str(finding.get("category") or "")
+    if category == "missing_embedded_art":
+        # A newly extracted cover still needs embedding into this particular
+        # file, but its details must be refreshed before the prompt.
+        refresh_missing_art_sidecars(root, finding)
+        return True
+    if category not in {
+        "embedded_art_without_sidecar",
+        "multiple_embedded_artworks",
+    }:
+        return True
+    target = safe_finding_path(root, finding)
+    # ``write=False`` reports only image payloads genuinely absent from the
+    # folder. If another track already exported the same artwork, do not ask
+    # the duplicate question.
+    return bool(export_art_sidecars(target, write=False))
 
 
 def preview_existing_front_sidecar(
@@ -9626,7 +10410,7 @@ def render_console_report(
         lines.append("")
         lines.extend(
             double_height_gradient_section(
-                "Review needed — warnings",
+                "Detected Problems",
                 use_color,
                 ((255, 255, 80), (255, 175, 0)),
             )
@@ -9654,7 +10438,26 @@ def render_console_report(
                     lines.append(
                         f"            {music_filename(finding['path'], use_color)}"
                     )
-        for finding in other_review[: max_examples or None]:
+        grouped_review: list[list[dict[str, Any]]] = []
+        grouped_lookup: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
+        for candidate in other_review:
+            # A category/message/suggestion triple is one repeated problem;
+            # list all affected tracks underneath it instead of repeating the
+            # same paragraph for every song in an album.
+            key = (
+                str(candidate["category"]),
+                str(candidate.get("message", "")),
+                str(candidate.get("suggestion", "")),
+            )
+            group = grouped_lookup.get(key)
+            if group is None:
+                group = []
+                grouped_lookup[key] = group
+                grouped_review.append(group)
+            group.append(candidate)
+        printed_review_file_sets: set[tuple[str, ...]] = set()
+        for group in grouped_review[: max_examples or None]:
+            finding = group[0]
             label_color = (
                 (255, 255, 0)
                 if finding["category"] == "missing_album"
@@ -9666,18 +10469,10 @@ def render_console_report(
                 use_color,
             )
             lines.append(f"        {label} — {warning_finding_message(finding)}")
-            lines.extend(
-                f"            {line}"
-                for line in finding_target_lines(
-                    finding,
-                    use_color,
-                    root=Path(str(resolved_root)),
-                )
-            )
-            lines.extend(
-                f"            {line}"
-                for line in finding_sidecar_lines(finding, use_color)
-            )
+            file_set = tuple(sorted(str(item["path"]) for item in group))
+            if file_set not in printed_review_file_sets:
+                printed_review_file_sets.add(file_set)
+                lines.extend(finding_filename_columns(group, use_color))
             if finding.get("suggestion") and finding["category"] != "missing_album":
                 lines.append(
                     f"            {suggested_text(finding, use_color)}"
@@ -9808,8 +10603,9 @@ def render_usage(use_color: bool = True) -> str:
             use_color,
         ),
         "",
-        "  * Bandcamp plus MusicBrainz/Cover Art Archive artwork discovery, with",
-        "    every supplied part saved but only one approved Front image embedded",
+        "  * MusicBrainz/Cover Art Archive, Discogs, Bandcamp, and Apple Music/iTunes",
+        "    artwork discovery; archive-backed sets retain back/inlay/disc/etc., while",
+        "    every supplied part is saved but only one approved Front image is embedded",
         "  * full-console Chafa, Sixel, or ANSI artwork previews that automatically",
         "    re-render after a live window/font-size change; V opens the original",
         "  * full-width diagnostic waveform review with parallel background pre-rendering,",
@@ -9817,7 +10613,7 @@ def render_usage(use_color: bool = True) -> str:
         "    and optional problem-file renaming",
         "  * B=Bake ReplayGain changes audio for players that ignore its tags:",
         "    FLAC is losslessly re-encoded; MP3 is decoded and LAME-re-encoded",
-        "    at highest VBR quality; a blue-before/green-after comparison is",
+        "    at highest VBR quality; red-to-purple before and cyan-to-green after",
         "    shown, originals are backed up, and tags are recalculated",
         "  * a default-No end-of-audit offer to begin waveform review immediately",
         "  * default detection of excessive leading, internal, or trailing silence",
@@ -9891,15 +10687,15 @@ def render_usage(use_color: bool = True) -> str:
             "are prepared ahead in a bounded cache."
         ),
         note(
-            "    P=Preview audio uses play_wav_file.py: arrows seek 5 seconds, "
+            "    P=Preview audio uses play_audio_file.py: arrows seek 5 seconds, "
             "Shift+arrows seek 15, and Esc/X/Q/Ctrl+W/Alt+F4/Ctrl+C/"
             "Ctrl+Break stop playback."
         ),
         note(
             "    During review, B=Bake ReplayGain applies the tagged loudness "
             "correction to the samples, keeps the original, recalculates "
-            "ReplayGain, re-shows the old waveform in blue without a prompt, "
-            "then displays the replacement waveform in green."
+            "ReplayGain, re-shows the red-to-purple original without a prompt, "
+            "then displays the cyan-to-green replacement waveform."
         ),
         "",
         f"  {command('--configure-defaults')}  {command('--show-defaults')}  "
@@ -10161,6 +10957,49 @@ def invalid_key_beep(
         pass
 
 
+def wait_for_audio_editor_space(
+    *,
+    use_color: bool,
+    key_reader=None,
+) -> None:
+    """Wait for a literal Space after editing; Enter is deliberately invalid."""
+    reader = key_reader or read_single_key
+    question = "Finish and save the audio edit, then press SPACE to continue."
+    prompt = (
+        f"            {urgent_prompt_text(question, use_color)} "
+        f"{rgb_text('[SPACE only — ENTER will not work]', 255, 185, 70, use_color)}"
+    )
+    interactive_terminal = bool(
+        getattr(sys.stdout, "isatty", lambda: False)()
+    )
+    print(
+        blinking_approval_prompt(
+            prompt,
+            use_color and interactive_terminal,
+        ),
+        end="",
+        flush=True,
+    )
+    while True:
+        key = reader()
+        if key == "\x03":
+            raise KeyboardInterrupt
+        if key == " ":
+            if interactive_terminal:
+                erase_wrapped_console_text(prompt)
+            else:
+                print()
+            cover_narration(
+                "⏯️",
+                "SPACE received; re-treating the edited audio file.",
+                use_color=use_color,
+                color=(105, 210, 170),
+            )
+            reset_console_pager_after_user_input()
+            return
+        invalid_key_beep()
+
+
 def prompt_for_approval(
     question: str,
     default_yes: bool,
@@ -10168,6 +11007,7 @@ def prompt_for_approval(
     key_reader=None,
     indent: str = "",
     erase_on_no: bool = False,
+    erase_on_yes: bool = False,
 ) -> bool:
     reader = key_reader or read_single_key
     steady_prompt = approval_prompt(question, default_yes, use_color, indent)
@@ -10187,7 +11027,10 @@ def prompt_for_approval(
         if key in {"\r", "\n"}:
             if interactive_terminal:
                 erase_wrapped_console_text(steady_prompt)
-                if default_yes or not erase_on_no:
+                if not (
+                    (default_yes and erase_on_yes)
+                    or (not default_yes and erase_on_no)
+                ):
                     print(
                         console_safe_text(
                             f"{settled_approval_prompt(question, default_yes, use_color, indent)}"
@@ -10203,7 +11046,10 @@ def prompt_for_approval(
             answer_yes = lowered == "y"
             if interactive_terminal:
                 erase_wrapped_console_text(steady_prompt)
-                if answer_yes or not erase_on_no:
+                if not (
+                    (answer_yes and erase_on_yes)
+                    or (not answer_yes and erase_on_no)
+                ):
                     print(
                         console_safe_text(
                             f"{settled_approval_prompt(question, answer_yes, use_color, indent)}"
@@ -10778,6 +11624,7 @@ def apply_finding(
     finding: dict[str, Any],
     use_color: bool = True,
     key_reader=None,
+    input_reader=None,
 ) -> list[str]:
     category = finding["category"]
     target = safe_finding_path(root, finding)
@@ -10822,6 +11669,15 @@ def apply_finding(
     if category in GROUPED_RENAME_CATEGORIES:
         return apply_redundant_album_artist_filename_group(root, finding)
 
+    if category == "all_caps_album_title":
+        _renamed_audio, actions = prompt_for_all_caps_album_title_rename(
+            target,
+            str(finding.get("details", {}).get("proposed_name") or target.name),
+            use_color=use_color,
+            input_reader=input_reader,
+        )
+        return actions
+
     if category in {
         "embedded_lyrics_outdated",
         "plain_lyrics_not_embedded",
@@ -10854,7 +11710,15 @@ def apply_finding(
 
     if category == "excessive_silence":
         editor = launch_audio_editor(target)
-        return [f"opened_editor:{editor}", f"audio:{target}"]
+        actions = [f"opened_editor:{editor}", f"audio:{target}"]
+        actions.extend(
+            retreat_edited_audio(
+                target,
+                use_color=use_color,
+                key_reader=key_reader,
+            )
+        )
+        return actions
 
     if category == "missing_replaygain":
         return apply_argt_replaygain_folder(
@@ -11076,6 +11940,66 @@ def audit_categories_by_path(root: Path) -> dict[str, set[str]]:
     return grouped
 
 
+def retreat_edited_audio(
+    audio_path: Path,
+    *,
+    use_color: bool,
+    key_reader=None,
+) -> list[str]:
+    """Wait for editing to finish, restore embeddable data, and re-audit."""
+    wait_for_audio_editor_space(
+        use_color=use_color,
+        key_reader=key_reader,
+    )
+    if not audio_path.is_file():
+        raise FileNotFoundError(
+            f"The edited audio file no longer exists: {audio_path}"
+        )
+
+    actions: list[str] = []
+    if audio_path.suffix.casefold() in {".mp3", ".flac"}:
+        actions.extend(
+            apply_replaygain_file(
+                audio_path,
+                use_color=use_color,
+                stream_output=True,
+            )
+        )
+    else:
+        cover_narration(
+            "⚠️",
+            f"ReplayGain was not written to {audio_path.suffix.upper() or 'this format'}; "
+            "portable ReplayGain tagging is supported here only for MP3 and FLAC.",
+            use_color=use_color,
+            color=(255, 190, 70),
+        )
+
+    lyric_actions = embed_lyrics(audio_path, write=True)
+    actions.extend(lyric_actions)
+    if front_art_candidate(audio_path) is not None:
+        actions.extend(apply_art(audio_path, write=True))
+
+    relative = audio_path.name
+    remaining = audit_categories_for_path(audio_path.parent, relative)
+    actions.append("re-audit:passed")
+    cover_narration(
+        "✅",
+        "Edited file re-treated and re-audited; ReplayGain, available lyrics/"
+        "karaoke, and approved sidecar artwork were refreshed where supported.",
+        use_color=use_color,
+        color=(95, 225, 130),
+    )
+    if remaining:
+        cover_narration(
+            "⚠️",
+            "Remaining review findings: " + ", ".join(sorted(remaining)),
+            use_color=use_color,
+            color=(255, 190, 70),
+            dim=True,
+        )
+    return actions
+
+
 def interactive_apply(
     data: dict[str, Any],
     use_color: bool,
@@ -11095,8 +12019,20 @@ def interactive_apply(
     remembered_folder_approvals: set[tuple[str, str]] = set()
 
     for finding in coded:
-        if finding["category"] == "missing_embedded_art":
-            refresh_missing_art_sidecars(root, finding)
+        if not artwork_finding_still_needs_action(root, finding):
+            skipped.append(finding["code"])
+            decisions.append(
+                {
+                    "code": finding["code"],
+                    "applied": False,
+                    "skipped": True,
+                    "error": None,
+                    "actions": ["already_resolved_by_prior_artwork_action"],
+                    "default": True,
+                    "finding": finding,
+                }
+            )
+            continue
         lyric_action = finding["category"] in {
             "embedded_lyrics_outdated",
             "plain_lyrics_not_embedded",
@@ -11108,6 +12044,7 @@ def interactive_apply(
             or finding["category"] == "missing_embedded_art"
             or finding["category"] == "newer_lrc_needs_srt_backfill"
             or finding["category"] == "missing_srt_from_lrc_txt"
+            or finding["category"] == "all_caps_album_title"
             or finding["category"] in GROUPED_RENAME_CATEGORIES
         )
         if (
@@ -11258,6 +12195,7 @@ def interactive_apply(
                         finding,
                         use_color=use_color,
                         key_reader=key_reader,
+                        input_reader=input_reader,
                     )
                     extracted_art_approved = True
                     if finding["category"] in {
@@ -11292,6 +12230,26 @@ def interactive_apply(
                                 pending["path"],
                                 pending["path"],
                             )
+                    elif finding["category"] == "all_caps_album_title":
+                        old_path = finding["path"]
+                        new_path = next(
+                            (
+                                action.removeprefix("renamed:")
+                                for action in actions
+                                if action.startswith("renamed:")
+                            ),
+                            old_path,
+                        )
+                        old_stem = Path(old_path).stem.casefold()
+                        new_stem = Path(new_path).stem
+                        for pending in coded:
+                            pending_path = Path(pending["path"])
+                            if pending_path.name.casefold().startswith(old_stem + "."):
+                                pending["path"] = str(
+                                    pending_path.with_name(
+                                        new_stem + pending_path.name[len(old_stem):]
+                                    )
+                                )
                     if reaudit_action and extracted_art_approved:
                         reaudited_categories = audit_categories_by_path(root)
                         current = reaudited_categories.get(
@@ -11643,7 +12601,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                     use_color=False,
                 )
                 self.assertIn(
-                    "Lyrics/karaoke embedded by --embed-lyrics",
+                    "Lyric/karaoke embedding:",
                     console,
                 )
                 self.assertIn(
@@ -12025,8 +12983,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                     use_color=False,
                 )
                 self.assertIn(
-                    "Lyrics/karaoke refreshed by "
-                    "--refresh-embedded-lyrics",
+                    "Lyric/karaoke embedding:",
                     console,
                 )
                 self.assertIn(
@@ -12311,6 +13268,64 @@ def run_unit_tests(use_color: bool = True) -> int:
                 "https://f4.bcbits.com/img/a1234567890_0.jpg",
                 match.artworks[0].url,
             )
+
+        def test_prefixed_album_folder_uses_cover_and_grouped_rename(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                folder = Path(temp) / "[2022] Death of a Fantasy"
+                folder.mkdir()
+                first = folder / "Lauren Sanderson - Death of a Fantasy - 01 Hi.flac"
+                second = folder / "Lauren Sanderson - Death of a Fantasy - 02 Is It Normal.flac"
+                first.touch()
+                second.touch()
+                self.assertEqual(
+                    ("Lauren Sanderson", "Death of a Fantasy"),
+                    inferred_album_filename_identity(folder),
+                )
+                self.assertEqual("Lauren Sanderson", recognized_album_artist(folder))
+                self.assertTrue(is_album_track_filename(first))
+                self.assertEqual("cover", exported_art_sidecar_stem(first, 3))
+                self.assertEqual(
+                    "01_Hi.flac",
+                    album_prefixed_filename_proposal(
+                        first.name,
+                        "Lauren Sanderson",
+                        "Death of a Fantasy",
+                        11,
+                    ),
+                )
+
+        def test_itunes_cover_search_uses_largest_verified_catalog_art(self) -> None:
+            metadata = {
+                "artist": "Test Artist",
+                "album_artist": "Test Artist",
+                "album": "Test Album",
+            }
+
+            def fake_json(url: str, *, musicbrainz: bool = False):
+                self.assertFalse(musicbrainz)
+                self.assertIn("itunes.apple.com/search", url)
+                return {
+                    "results": [{
+                        "collectionId": 123,
+                        "collectionName": "Test Album",
+                        "artistName": "Test Artist",
+                        "artworkUrl100": (
+                            "https://is1-ssl.mzstatic.com/image/thumb/"
+                            "Music/v4/example/100x100bb.jpg"
+                        ),
+                        "releaseDate": "2024-01-02T08:00:00Z",
+                        "country": "USA",
+                    }]
+                }
+
+            match = itunes_cover_match(metadata, fake_json)
+            self.assertIsNotNone(match)
+            assert match is not None
+            self.assertEqual("Apple Music / iTunes", match.source)
+            self.assertEqual("https://is1-ssl.mzstatic.com/image/thumb/"
+                             "Music/v4/example/3000x3000bb.jpg",
+                             match.artworks[0].url)
+            self.assertTrue(match.artworks[0].front)
 
         def test_cover_tls_uses_verified_context_and_archive_fallback(self) -> None:
             release_id = "fc3ceb20-88ad-491f-b8df-1a2fc4f07845"
@@ -13073,6 +14088,10 @@ def run_unit_tests(use_color: bool = True) -> int:
                 "visible_console_size",
                 return_value=os.terminal_size((160, 50)),
             ), mock.patch.object(
+                module,
+                "query_terminal_geometry",
+                None,
+            ), mock.patch.object(
                 subprocess,
                 "run",
                 return_value=completed,
@@ -13088,7 +14107,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertIn("--format=sixels", chafa_command)
             self.assertIn("--fit-width", chafa_command)
             self.assertIn("--colors=full", chafa_command)
-            self.assertIn("--view-size=306.6x90.3", chafa_command)
+            self.assertIn("--view-size=116.8x34.4", chafa_command)
             self.assertIn("--optimize=9", chafa_command)
             self.assertIn("--work=9", chafa_command)
             self.assertIn("--color-space=din99d", chafa_command)
@@ -13591,7 +14610,11 @@ def run_unit_tests(use_color: bool = True) -> int:
                     module,
                     "launch_audio_editor",
                     return_value=editor,
-                ) as launch, contextlib.redirect_stdout(io.StringIO()):
+                ) as launch, mock.patch.object(
+                    module,
+                    "retreat_edited_audio",
+                    return_value=["re-audit:passed"],
+                ) as retreat, contextlib.redirect_stdout(io.StringIO()):
                     result = interactive_apply(
                         {**report, "findings": [findings[0]]},
                         use_color=False,
@@ -13600,6 +14623,11 @@ def run_unit_tests(use_color: bool = True) -> int:
                 self.assertEqual(findings[0]["code"], result["applied_codes"])
                 self.assertTrue(result["decisions"][0]["default"])
                 launch.assert_called_once_with(excessive)
+                retreat.assert_called_once_with(
+                    excessive,
+                    use_color=False,
+                    key_reader=mock.ANY,
+                )
 
         def test_silence_analysis_starts_early_and_runs_concurrently(self) -> None:
             module = sys.modules[__name__]
@@ -13689,9 +14717,9 @@ def run_unit_tests(use_color: bool = True) -> int:
                     plot_border_pixel = preview_rgb.getpixel(
                         (WAVEFORM_PLOT_WIDTH - 3, 1)
                     )
-                    self.assertLess(
+                    self.assertLessEqual(
                         max(plot_border_pixel) - min(plot_border_pixel),
-                        80,
+                        85,
                     )
                     self.assertGreater(sum(plot_border_pixel), 120)
                     tick_x = WAVEFORM_PLOT_WIDTH - 20
@@ -13721,19 +14749,57 @@ def run_unit_tests(use_color: bool = True) -> int:
                     self.assertGreater(sum(axis_pixel), 180)
                     # A constant 50% channel fills most of its ±55% axis,
                     # retaining only the small labeled headroom.
-                    cyan_rows = [
+                    rainbow_rows = [
                         y
                         for y in range(20, preview.height // 2 - 20)
                         for x in range(20, WAVEFORM_PLOT_WIDTH - 50)
                         if (
-                            (pixel := preview_rgb.getpixel((x, y)))[0] < 150
-                            and pixel[1] > 150
-                            and pixel[2] > 180
+                            (pixel := preview_rgb.getpixel((x, y)))
+                            and max(pixel) >= 120
+                            and max(pixel) - min(pixel) >= 45
                         )
                     ]
-                    self.assertTrue(cyan_rows)
-                    self.assertLessEqual(min(cyan_rows), 35)
-                    self.assertGreaterEqual(min(cyan_rows), 8)
+                    self.assertTrue(rainbow_rows)
+                    self.assertLessEqual(min(rainbow_rows), 35)
+                    self.assertGreaterEqual(min(rainbow_rows), 8)
+                    self.assertGreaterEqual(max(rainbow_rows), 315)
+                    self.assertGreaterEqual(
+                        max(rainbow_rows) - min(rainbow_rows),
+                        280,
+                    )
+                    axis_ceiling = waveform_axis_ceiling_percent(
+                        generated_metrics
+                    )
+                    channel_height = preview.height // 2
+                    for channel_index, measured_peak in enumerate(
+                        generated_metrics.channel_peak_percentages
+                    ):
+                        channel_region = preview_rgb.crop(
+                            (
+                                4,
+                                channel_index * channel_height + 4,
+                                WAVEFORM_PLOT_WIDTH - 4,
+                                (channel_index + 1) * channel_height - 4,
+                            )
+                        )
+                        envelope = waveform_colored_mask(
+                            channel_region
+                        ).getbbox()
+                        self.assertIsNotNone(envelope)
+                        rendered_ratio = (
+                            (envelope[3] - envelope[1])
+                            / channel_region.height
+                        )
+                        self.assertAlmostEqual(
+                            measured_peak / axis_ceiling,
+                            rendered_ratio,
+                            # JPEG chroma bleed and the deliberate five-pixel
+                            # true-peak emphasis can extend a nearly full-height
+                            # envelope to the channel boundary. This generous
+                            # compression tolerance still fails the former
+                            # empty-canvas bug by a very wide margin.
+                            delta=0.12,
+                        )
                     metric_pixels = [
                         preview_rgb.getpixel((x, y))
                         for y in range(250, 450, 8)
@@ -14116,7 +15182,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                 )
             )
 
-        def test_waveform_review_can_batch_bake_and_show_blue_before_green(
+        def test_waveform_review_can_batch_bake_and_show_gradient_comparisons(
             self,
         ) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -14227,6 +15293,76 @@ def run_unit_tests(use_color: bool = True) -> int:
                     ),
                 )
 
+        def test_normal_audit_replaygain_bake_saves_gradient_comparisons(
+            self,
+        ) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                audio = root / "Normal Audit.flac"
+                audio.write_bytes(b"fixture")
+                cache_root = root / "recycled-staging"
+                module = sys.modules[__name__]
+                metrics = WaveformMetrics(
+                    channel_peak_percentages=(50.0, 50.0),
+                    peak_volume_percentage=50.0,
+                    average_volume_percentage=25.0,
+                    replaygain_factor=math.pow(10.0, 2.0 / 20.0),
+                    longest_silence_seconds=0.0,
+                    total_silence_seconds=0.0,
+                )
+                recolored: list[Path] = []
+
+                def fake_generate(
+                    _audio: Path,
+                    *,
+                    destination: Path,
+                    **_kwargs,
+                ) -> tuple[Path, None, WaveformMetrics]:
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes(make_test_jpeg())
+                    return destination, None, metrics
+
+                with mock.patch.object(
+                    module,
+                    "waveform_staging_root",
+                    return_value=cache_root,
+                ), mock.patch.object(
+                    module,
+                    "waveform_replaygain_factor",
+                    return_value=metrics.replaygain_factor,
+                ), mock.patch.object(
+                    module,
+                    "prompt_for_approval",
+                    return_value=True,
+                ) as prompt, mock.patch.object(
+                    module,
+                    "generate_waveform_jpeg",
+                    side_effect=fake_generate,
+                ), mock.patch.object(
+                    module,
+                    "bake_replaygain_into_audio",
+                    return_value=(root / "original.bak", 2.0),
+                ) as baker, mock.patch.object(
+                    module,
+                    "recolor_before_baked_waveform",
+                    side_effect=lambda path: recolored.append(path),
+                ), mock.patch.object(
+                    module,
+                    "recolor_newly_baked_waveform",
+                ) as green:
+                    baked = bake_replaygain_for_batch(
+                        [audio],
+                        use_color=False,
+                    )
+
+                self.assertEqual([audio], baked)
+                self.assertTrue(prompt.called)
+                baker.assert_called_once()
+                self.assertEqual(1, len(recolored))
+                green.assert_called_once()
+                self.assertTrue(recolored[0].is_file())
+                self.assertTrue(green.call_args.args[0].is_file())
+
         def test_waveform_gain_prompt_bakes_then_shows_new_preview(self) -> None:
             metrics = WaveformMetrics(
                 channel_peak_percentages=(50.0, 50.0),
@@ -14257,7 +15393,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             recolorer = mock.Mock()
             with tempfile.TemporaryDirectory() as temp:
                 waveform = Path(temp) / "track.waveform.jpg"
-                waveform.write_bytes(b"blue waveform fixture")
+                waveform.write_bytes(b"waveform fixture")
                 generator.return_value = (
                     waveform,
                     None,
@@ -14267,6 +15403,9 @@ def run_unit_tests(use_color: bool = True) -> int:
                     module,
                     "visible_console_size",
                     return_value=os.terminal_size((120, 40)),
+                ), mock.patch.object(
+                    module,
+                    "recolor_before_baked_waveform",
                 ), contextlib.redirect_stdout(io.StringIO()) as output:
                     decision, edits, reviewed = waveform_review_choice(
                         waveform,
@@ -14298,7 +15437,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             recolorer.assert_called_once_with(waveform)
             self.assertEqual(3, renderer.call_count)
             self.assertIn("B=Bake ReplayGain", output.getvalue())
-            self.assertIn("original blue waveform", output.getvalue())
+            self.assertIn("original red-to-purple waveform", output.getvalue())
             self.assertIn(
                 "Comparison only — no response is needed",
                 output.getvalue(),
@@ -14550,6 +15689,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             calls = {
                 "render": 0,
                 "edit": 0,
+                "retreat": 0,
                 "preview": 0,
                 "rename": 0,
                 "view": 0,
@@ -14574,8 +15714,23 @@ def run_unit_tests(use_color: bool = True) -> int:
                     audio_editor=lambda path: count(
                         "edit", Path(r"C:\Program Files\Adobe\Audition.exe")
                     ),
+                    audio_retreater=lambda path, **_kwargs: count(
+                        "retreat", []
+                    ),
+                    waveform_generator=lambda path, **_kwargs: (
+                        waveform,
+                        None,
+                        WaveformMetrics(
+                            channel_peak_percentages=(50.0, 50.0),
+                            peak_volume_percentage=50.0,
+                            average_volume_percentage=20.0,
+                            replaygain_factor=1.0,
+                            longest_silence_seconds=0.0,
+                            total_silence_seconds=0.0,
+                        ),
+                    ),
                     audio_previewer=lambda path: count(
-                        "preview", Path(r"C:\BAT\play_wav_file.py")
+                        "preview", Path(r"C:\BAT\play_audio_file.py")
                     ),
                     problem_renamer=lambda path, **_kwargs: count(
                         "rename",
@@ -14587,8 +15742,9 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertEqual(renamed_audio, reviewed_path)
             self.assertEqual(
                 {
-                    "render": 1,
+                    "render": 2,
                     "edit": 2,
+                    "retreat": 2,
                     "preview": 1,
                     "rename": 1,
                     "view": 1,
@@ -14602,7 +15758,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertIn("E=Edit audio", rendered)
             self.assertIn("V=View fullscreen", rendered)
             self.assertIn(
-                "Audio preview ended in play_wav_file.py",
+                "Audio preview ended in play_audio_file.py",
                 rendered,
             )
             self.assertIn("Yes — there is a problem.", rendered)
@@ -14627,6 +15783,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                     key_reader=lambda: next(keys),
                     preview_renderer=lambda _path, *, use_color: "mock Sixel",
                     audio_editor=editor,
+                    audio_retreater=lambda _path, **_kwargs: [],
                     excessive_silence=True,
                     longest_silence_seconds=12.5,
                     acceptable_silence_seconds=10.0,
@@ -14639,6 +15796,68 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertIn(
                 "exceeding the 10s limit",
                 output.getvalue(),
+            )
+
+        def test_editor_completion_requires_space_and_rejects_enter(
+            self,
+        ) -> None:
+            module = sys.modules[__name__]
+            keys = iter(("\r", "x", " "))
+            with mock.patch.object(
+                module,
+                "invalid_key_beep",
+            ) as beep, contextlib.redirect_stdout(io.StringIO()) as output:
+                wait_for_audio_editor_space(
+                    use_color=False,
+                    key_reader=lambda: next(keys),
+                )
+            self.assertEqual(2, beep.call_count)
+            self.assertIn("press SPACE", output.getvalue())
+            self.assertIn("ENTER will not work", output.getvalue())
+            self.assertIn("SPACE received", output.getvalue())
+
+        def test_single_file_replaygain_targets_only_edited_audio(
+            self,
+        ) -> None:
+            module = sys.modules[__name__]
+            audio = Path(r"C:\Music\Edited Track.flac")
+            backup = Path(
+                r"C:\Music\Edited Track.flac.bak.202607302359."
+                r"replaced-by-chatgpt.bak"
+            )
+            with mock.patch.object(
+                module,
+                "require_replaygain_program",
+                return_value=r"C:\UTIL\metaflac.exe",
+            ), mock.patch.object(
+                module,
+                "backup_before_inline_replacement",
+                return_value=backup,
+            ), mock.patch.object(
+                module,
+                "run_live_command",
+            ) as run, mock.patch.object(
+                Path,
+                "is_file",
+                return_value=True,
+            ), contextlib.redirect_stdout(io.StringIO()):
+                actions = apply_replaygain_file(
+                    audio,
+                    use_color=False,
+                    stream_output=True,
+                )
+            run.assert_called_once_with(
+                [
+                    r"C:\UTIL\metaflac.exe",
+                    "--add-replay-gain",
+                    str(audio),
+                ],
+                cwd=audio.parent,
+                stream_output=True,
+            )
+            self.assertEqual(
+                [f"backup:{backup}", f"replaygain:{audio}"],
+                actions,
             )
 
         def test_invalid_prompt_keys_beep_without_reprinting(self) -> None:
@@ -15199,6 +16418,19 @@ def run_unit_tests(use_color: bool = True) -> int:
                 visible_cell_width(lines[1].split("Searching", 1)[0]),
             )
 
+        def test_action_target_filename_is_prominent_bright_cyan(self) -> None:
+            finding = {
+                "category": "missing_embedded_art",
+                "path": "MISC\\Artist - Song.mp3",
+            }
+            line = finding_target_lines(finding, use_color=True)[0]
+            self.assertIn(
+                bright_cyan_path(finding["path"], True),
+                line,
+            )
+            self.assertNotIn(ANSI["dim"], line)
+            self.assertIn(ANSI["italic"], line)
+
             colored = io.StringIO()
             with contextlib.redirect_stdout(colored):
                 cover_narration(
@@ -15395,6 +16627,22 @@ def run_unit_tests(use_color: bool = True) -> int:
             )
             self.assertIn(ANSI["erase_line"], rendered)
             self.assertNotIn("No!", rendered)
+
+            accepted_output = TTYBuffer()
+            with contextlib.redirect_stdout(accepted_output):
+                answer = prompt_for_approval(
+                    "Run the interactive waveform review now?",
+                    default_yes=False,
+                    use_color=False,
+                    key_reader=lambda: "y",
+                    indent="        ",
+                    erase_on_no=True,
+                    erase_on_yes=True,
+                )
+            self.assertTrue(answer)
+            accepted_rendered = accepted_output.getvalue()
+            self.assertIn(ANSI["erase_line"], accepted_rendered)
+            self.assertNotIn("Yes!", accepted_rendered)
 
         def test_action_prompts_remember_always_never_and_folder_scope(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -15619,7 +16867,7 @@ def run_unit_tests(use_color: bool = True) -> int:
                 "flac": True,
                 "ffmpeg": True,
                 "ffplay": True,
-                "play_wav_file.py": True,
+                "play_audio_file.py": True,
                 "IrfanView": True,
             }
             missing = [
@@ -16339,6 +17587,24 @@ def run_unit_tests(use_color: bool = True) -> int:
                 self.assertNotIn("stdout", recorded_options)
                 self.assertNotIn("stderr", recorded_options)
 
+        def test_folder_wide_replaygain_prompt_omits_redundant_folder_choice(
+            self,
+        ) -> None:
+            self.assertIn(
+                "missing_replaygain",
+                ROOT_WIDE_ACTION_CATEGORIES,
+            )
+            prompt = action_scope_prompt(
+                ACTION_PROMPT_QUESTIONS["missing_replaygain"],
+                default_yes=False,
+                use_color=False,
+                allow_folder=(
+                    "missing_replaygain" not in ROOT_WIDE_ACTION_CATEGORIES
+                ),
+            )
+            self.assertIn("Run ReplayGain on this folder now?", prompt)
+            self.assertNotIn("F=Do All in Folder", prompt)
+
         def test_finished_and_unfinished_vad_scratch_are_distinguished(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
@@ -16549,6 +17815,30 @@ def run_unit_tests(use_color: bool = True) -> int:
                     finding_categories(BatchAudit(mp3_root).audit()),
                 )
 
+        def test_second_matching_artwork_finding_is_resurveyed_and_skipped(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                first = make_silent_flac(root, "01 First")
+                second = make_silent_flac(root, "02 Second")
+                picture_data = b"\xff\xd8\xffshared-front"
+                for audio_path in (first, second):
+                    audio = FLAC(audio_path)
+                    front = Picture()
+                    front.type = 3
+                    front.mime = "image/jpeg"
+                    front.data = picture_data
+                    audio.add_picture(front)
+                    audio.save()
+                findings = [
+                    item for item in BatchAudit(root).audit()["findings"]
+                    if item["category"] == "embedded_art_without_sidecar"
+                ]
+                self.assertEqual(2, len(findings))
+                apply_finding(root, findings[0], use_color=False)
+                self.assertFalse(
+                    artwork_finding_still_needs_action(root, findings[1])
+                )
+
         def test_archive_exclusion_and_comment_classification_have_controls(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
@@ -16672,6 +17962,36 @@ def run_unit_tests(use_color: bool = True) -> int:
                     finding["message"],
                 )
                 self.assertNotIn("code", finding)
+
+        def test_all_caps_album_titles_offer_editable_normalization(self) -> None:
+            with tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                album = root / "Lauren Sanderson" / "2022 - Death of a Fantasy"
+                album.mkdir()
+                audio = make_silent_flac(album, "05_DON'T WATCH THE NEWS!")
+                sidecar = audio.with_suffix(".srt")
+                sidecar.write_text("1\n00:00:00,000 --> 00:00:01,000\nHi\n")
+                mixed = make_silent_flac(album, "08_Girl From The Internet")
+                self.assertEqual(
+                    "05_Don't Watch The News!.flac",
+                    all_caps_album_title_proposal(audio.name, 11),
+                )
+                self.assertIsNone(all_caps_album_title_proposal(mixed.name, 11))
+                report = BatchAudit(root).audit()
+                finding = next(
+                    item for item in report["findings"]
+                    if item["category"] == "all_caps_album_title"
+                )
+                with contextlib.redirect_stdout(io.StringIO()):
+                    actions = apply_finding(
+                        root,
+                        finding,
+                        use_color=False,
+                        input_reader=lambda _prompt: "05_Custom News Title.flac",
+                    )
+                self.assertTrue((album / "05_Custom News Title.flac").is_file())
+                self.assertTrue((album / "05_Custom News Title.srt").is_file())
+                self.assertIn("renamed_family:2", actions)
 
         def test_embedded_cover_with_sidecar_does_not_report_art_problem(self) -> None:
             with tempfile.TemporaryDirectory() as temp:
@@ -17765,6 +19085,22 @@ def _main(argv: list[str] | None = None) -> int:
         embed_lyrics_first=effective.embed_lyrics,
         refresh_embedded_lyrics=args.refresh_embedded_lyrics,
     )
+    if args.interactive:
+        baked_paths = bake_replaygain_for_batch(
+            audit.audio_files,
+            use_color=not args.no_color,
+            acceptable_silence_seconds=(
+                effective.silence_threshold_seconds
+            ),
+        )
+        if baked_paths:
+            data = audit.audit(
+                embed_lyrics_first=effective.embed_lyrics,
+                refresh_embedded_lyrics=args.refresh_embedded_lyrics,
+            )
+            data["baked_replaygain"] = [
+                str(path) for path in baked_paths
+            ]
     if effective.find_cover and args.interactive:
         original_embedded_lyrics = data.get("embedded_lyrics")
         original_embedded_lyrics_mode = data.get("embedded_lyrics_mode")

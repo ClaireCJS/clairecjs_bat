@@ -147,7 +147,7 @@ silence, clipping or flattened peaks, dropouts, channel imbalance, and other
 suspicious shapes. `N` means the waveform is fine and advances, `Y` records a
 problem, `P` previews the audio, `E` opens the audio in the discovered editor,
 and `V` opens the waveform image full-screen. Audio preview runs synchronously
-through the neighboring legacy-named `play_wav_file.py`, then returns to the
+through the neighboring format-neutral `play_audio_file.py`, then returns to the
 same waveform question. Left and right arrows seek five seconds; Shift+left and
 Shift+right seek fifteen seconds. Escape, `X`, `Q`, Ctrl+W, Alt+F4, Ctrl+C, or
 Ctrl+Break stops preview playback. Despite its filename, the player uses
@@ -157,15 +157,15 @@ to flag the problem.
 
 ### Bake ReplayGain into the audio (`B`)
 
-Before waveform review begins, the auditor checks every supported track's
-tagged ReplayGain correction. If any FLAC or MP3 lies outside the configurable
+Every normal interactive audit checks every supported track's tagged ReplayGain
+correction, even when waveform review is declined. If any FLAC or MP3 lies outside the configurable
 `REPLAYGAIN_BAKE_THRESHOLD_DB` window (±0.05 dB by default), one folder-wide
 prompt offers to bake all qualifying tracks. Tracks inside that window are
-treated as effectively neutral. Approving the folder prompt first preserves
-the original blue waveform for every qualifying track, processes the audio,
-and creates a green replacement waveform. During the subsequent review, each
-changed track shows its blue original as a no-response comparison immediately
-before its green current waveform.
+treated as effectively neutral. Approving the folder prompt first preserves a
+blue original waveform and a green replacement waveform for every qualifying
+track under the disposable recycle-bin staging area. A later waveform review
+automatically reuses the blue comparison before showing the green current
+waveform.
 
 During waveform review, when a usable ReplayGain track-gain tag lies outside
 the same threshold and has not already been handled by the folder workflow,
@@ -337,10 +337,10 @@ audit_music_batch.py --unit-tests
 ```
 
 Unit-test mode uses disposable temporary audio and exits before scanning or
-modifying any music batch. It reports 100 independently named tests so positive
+modifying any music batch. It reports 105 independently named tests so positive
 and negative cases appear as separate pass/fail results. Every test line starts
 with a dynamically sized, right-aligned progress prefix such as
-`[  1/100] ➜`; in normal color mode, its brackets, bold current number, faint
+`[  1/105] ➜`; in normal color mode, its brackets, bold current number, faint
 total, darker slash, arrow, and subtly varied test description use distinct
 colors. Coverage includes:
 
@@ -769,7 +769,10 @@ and exact-dimensions stretch mode so a height-limited JPEG cannot leave unused
 columns. The only unused horizontal cell is the deliberate one-cell right
 margin. A faint grey box marks the waveform's exact top, bottom, left, and
 right bounds, with matching faint grey dividers between every stacked audio
-channel. An unboxed area at the right edge contains a grey amplitude axis and
+channel. Every channel uses the same vertical ROYGBIV waveform fill—red/orange
+at its top through green and blue to violet at its bottom—rather than assigning
+different colors to left and right. A newly ReplayGain-baked comparison remains
+solid green as its explicit “new audio” status cue. An unboxed area at the right edge contains a grey amplitude axis and
 five centered measurements: peak volume, average (RMS) volume, the current
 ReplayGain correction in dB, its linear multiplier, and longest detected
 silence. The measurements use a wider proportional font, with purple, blue,
@@ -782,7 +785,12 @@ is displayed as `9s`; cumulative silence is not displayed.
 The same FFmpeg decode that renders the picture measures every channel's actual
 sample peak, RMS level, and silence intervals. Because FFmpeg's waveform picture
 normalizes its drawing independently, the script rescales each stacked channel
-to its measured absolute peak and an automatically selected vertical axis.
+to its measured absolute peak and an automatically selected vertical axis. It
+first crops away FFmpeg's unused black space around the detected waveform
+envelope, then expands that occupied envelope to the measured peak height; the
+empty source canvas is never included in the scaling calculation. Thus a 33%
+peak on a ±40% axis visibly reaches about 82.5% of the available half-channel
+height instead of remaining a misleadingly thin line.
 The axis ceiling is the next 5% step with a small amount of headroom: a 66%
 peak uses a ±70% graph, 75% uses ±80%, and near-full-scale audio remains at
 ±100%. The top and bottom labels show that real axis limit, while `peak vol`
@@ -807,9 +815,14 @@ generated JPEG:
 
 For a waveform whose longest silence exceeds the effective threshold, the
 screen shows a red warning and changes the legend to `ENTER/E=Edit audio`.
-Pressing Enter therefore opens the audio editor by default; after the editor
-opens, the review prompt remains available so the file can still be marked or
-renamed.
+Pressing Enter therefore opens the audio editor by default. After every editor
+launch, save and finish the edit, then press **SPACE** in the auditor. Enter is
+deliberately rejected with a beep at this checkpoint. The auditor then treats
+the changed file as newly edited: it recalculates ReplayGain for that one MP3 or
+FLAC (not the whole folder), refreshes available lyric/karaoke and approved art
+sidecars, and re-audits the file before review continues. WAV has no reliably
+portable ReplayGain-tag convention, so WAV is re-audited but is not falsely
+reported as ReplayGain-tagged.
 
 When the `Y` follow-up rename is approved, an `rn.bat`-style editable filename
 prompt starts with the current audio filename. The verified rename includes the

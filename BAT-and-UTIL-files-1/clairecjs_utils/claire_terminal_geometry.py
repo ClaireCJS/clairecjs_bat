@@ -98,19 +98,23 @@ class TerminalGeometry:
     font_face: str
     source: str
 
-    @property
-    def chafa_options(self) -> str:
+    def chafa_options_for(self, *, reserved_rows: int = 0) -> str:
         # Chafa's pixel protocols define one view cell as 8x8 pixels. Scale
         # the terminal's character grid by its real cell height so Sixel
         # output reaches the physical viewport, while font-ratio accounts for
         # the cell's non-square width.
+        usable_rows = max(1, self.rows - max(0, reserved_rows))
         sixel_scale = self.cell_height / 8
         view_width = max(1, math.floor(self.columns * sixel_scale))
-        view_height = max(1, math.floor(self.rows * sixel_scale))
+        view_height = max(1, math.floor(usable_rows * sixel_scale))
         return (
             f"--view-size={view_width}x{view_height} "
             f"--font-ratio={self.cell_width}/{self.cell_height}"
         )
+
+    @property
+    def chafa_options(self) -> str:
+        return self.chafa_options_for()
 
 
 def _kernel32():
@@ -345,11 +349,21 @@ def main(argv: list[str] | None = None) -> int:
         choices=("json", "chafa"),
         default="json",
     )
+    parser.add_argument(
+        "--reserve-rows",
+        type=int,
+        default=0,
+        help="Keep this many terminal rows free beneath Chafa output.",
+    )
     parser.add_argument("--timeout", type=float, default=1.2)
     args = parser.parse_args(argv)
     geometry = query_terminal_geometry(timeout_seconds=args.timeout)
     if args.format == "chafa":
-        print(geometry.chafa_options)
+        print(
+            geometry.chafa_options_for(
+                reserved_rows=max(0, args.reserve_rows),
+            )
+        )
     else:
         print(json.dumps(asdict(geometry), ensure_ascii=False))
     return 0

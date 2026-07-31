@@ -40,12 +40,25 @@ SEEK_BACK_5 = "seek-back-5"
 SEEK_FORWARD_5 = "seek-forward-5"
 SEEK_BACK_15 = "seek-back-15"
 SEEK_FORWARD_15 = "seek-forward-15"
+PAUSE_TOGGLE = "pause-toggle"
+LOOP_TOGGLE = "loop-toggle"
+VOLUME_UP_5 = "volume-up-5"
+VOLUME_DOWN_5 = "volume-down-5"
+VOLUME_UP_20 = "volume-up-20"
+VOLUME_DOWN_20 = "volume-down-20"
 
 SEEK_SECONDS = {
     SEEK_BACK_5: -5.0,
     SEEK_FORWARD_5: 5.0,
     SEEK_BACK_15: -15.0,
     SEEK_FORWARD_15: 15.0,
+}
+
+VOLUME_STEPS = {
+    VOLUME_UP_5: 5,
+    VOLUME_DOWN_5: -5,
+    VOLUME_UP_20: 20,
+    VOLUME_DOWN_20: -20,
 }
 
 
@@ -127,6 +140,10 @@ def interpret_console_key(
         return STOP
     if first.casefold() in {"q", "x"}:
         return STOP
+    if first == " " or first.casefold() == "p":
+        return PAUSE_TOGGLE
+    if first.casefold() == "l":
+        return LOOP_TOGGLE
     if ctrl and first.casefold() in {"c", "w"}:
         return STOP
     if first not in {"\x00", "\xe0"}:
@@ -135,6 +152,10 @@ def interpret_console_key(
         return SEEK_BACK_15 if shift else SEEK_BACK_5
     if extended == "M":
         return SEEK_FORWARD_15 if shift else SEEK_FORWARD_5
+    if extended == "H":
+        return VOLUME_UP_20 if shift else VOLUME_UP_5
+    if extended == "P":
+        return VOLUME_DOWN_20 if shift else VOLUME_DOWN_5
     # F4 is scan code 62 (">"); some Windows hosts report Alt+F4 as 107
     # ("k").  The asynchronous Alt/F4 check below covers other hosts.
     if alt and extended in {">", "k"}:
@@ -185,6 +206,7 @@ def ffplay_command(
     executable: Path,
     audio_path: Path,
     start_seconds: float,
+    volume: int,
 ) -> list[str]:
     """Build a quiet, audio-only FFplay command starting at an offset."""
     return [
@@ -196,6 +218,8 @@ def ffplay_command(
         "error",
         "-ss",
         f"{max(0.0, start_seconds):.3f}",
+        "-volume",
+        str(volume),
         str(audio_path),
     ]
 
@@ -278,7 +302,7 @@ def play_audio_file(
     sleeper=time.sleep,
     install_signal_handlers: bool = True,
 ) -> str:
-    """Play and control one audio file, returning ``completed`` or ``stopped``."""
+    """Play one audio file with seeking, pausing, volume, and looping."""
     audio_path = validate_file(file_path)
     player = ffplay or ffplay_executable()
     duration = duration_probe(audio_path)
@@ -297,18 +321,30 @@ def play_audio_file(
             signal.signal(supported, request_abort)
 
     position = 0.0
+    volume = 100
+    looping = True
     process = None
+    def finish_playback(result: str) -> str:
+        """Replace the complete playback UI with its final, compact title."""
+        write_console(
+            "\r\033[4A\033[2K\033[32m🔊 Played:\033[0m "
+            f"\033[34;3m{audio_path.name}\033[0m ({format_duration_label(duration)})"
+            "\033[J\033[0m\n"
+        )
+        return result
+
     try:
         write_console(
-            "\033[32m🔊 Previewing:\033[0m "
+            "\033[32m🔊 Playing:\033[0m "
             f"\033[34;3m{audio_path.name}\033[0m ({format_duration_label(duration)})\n"
             "\033[2;90m   Stop: Esc/X/Q/Ctrl+W/Alt+F4/Ctrl+C/Ctrl+Break\033[0m\n"
             "\033[2;90m   Seek: ← / → 5 seconds; Shift+← / Shift+→ 15 seconds\033[0m\n"
+            "\033[2;90m   Pause: Space/P; volume: ↑/↓ (Shift = faster); loop: L (on)\033[0m\n"
         )
         indicator = "▶️"
         last_status_write = 0.0
         while True:
-            command = ffplay_command(player, audio_path, position)
+            command = ffplay_command(player, audio_path, position, volume)
             process = process_factory(
                 command,
                 stdin=subprocess.DEVNULL,
@@ -324,13 +360,46 @@ def play_audio_file(
                     last_status_write = now
                 if abort_requested.is_set():
                     stop_process(process)
-                    write_console("\r\033[2K⏹️ Playback stopped.\n")
-                    return "stopped"
+                    return finish_playback("stopped")
                 action = key_action_reader()
                 if action == STOP:
                     stop_process(process)
-                    write_console("\r\033[2K⏹️ Playback stopped.\n")
-                    return "stopped"
+                    return finish_playback("stopped")
+                if action == LOOP_TOGGLE:
+                    looping = not looping
+                    state = "on" if looping else "off"
+                    write_console(f"\r\033[2K\033[2;90mLoop {state}; volume {volume}%\033[0m")
+                    continue
+                if action in VOLUME_STEPS:
+                    volume = min(100, max(0, volume + VOLUME_STEPS[action]))
+                    position += elapsed
+                    if duration is not None:
+                        position = min(position, max(0.0, duration - 0.05))
+                    stop_process(process)
+                    write_console(f"\r\033[2K\033[2;90mVolume {volume}%\033[0m")
+                    break
+                if action == PAUSE_TOGGLE:
+                    position += elapsed
+                    if duration is not None:
+                        position = min(position, max(0.0, duration - 0.05))
+                    stop_process(process)
+                    write_console("\r\033[2K⏸️ Paused")
+                    while True:
+                        paused_action = key_action_reader()
+                        if abort_requested.is_set() or paused_action == STOP:
+                            return finish_playback("stopped")
+                        if paused_action == PAUSE_TOGGLE:
+                            indicator = "▶️"
+                            break
+                        if paused_action == LOOP_TOGGLE:
+                            looping = not looping
+                            state = "on" if looping else "off"
+                            write_console(f"\r\033[2K\033[2;90mPaused; loop {state}; volume {volume}%\033[0m")
+                        if paused_action in VOLUME_STEPS:
+                            volume = min(100, max(0, volume + VOLUME_STEPS[paused_action]))
+                            write_console(f"\r\033[2K\033[2;90mPaused; volume {volume}%\033[0m")
+                        sleeper(0.02)
+                    break
                 if action in SEEK_SECONDS:
                     destination = max(
                         0.0,
@@ -352,14 +421,12 @@ def play_audio_file(
                 sleeper(0.02)
             else:
                 if abort_requested.is_set():
-                    write_console("\r\033[2K⏹️ Playback stopped.\n")
-                    return "stopped"
-                write_console(
-                    "\r\033[3A\033[2K\033[32m✅ Previewed:\033[0m "
-                    f"\033[34;3m{audio_path.name}\033[0m ({format_duration_label(duration)})"
-                    "\033[J\033[0m\n"
-                )
-                return "completed"
+                    return finish_playback("stopped")
+                if looping:
+                    position = 0.0
+                    indicator = "🔁"
+                    continue
+                return finish_playback("completed")
     finally:
         stop_process(process)
         for supported, previous in previous_handlers.items():
@@ -413,6 +480,17 @@ class PlayWaveFileTests(unittest.TestCase):
                 shift=True,
             ),
         )
+        self.assertEqual(PAUSE_TOGGLE, interpret_console_key(" "))
+        self.assertEqual(PAUSE_TOGGLE, interpret_console_key("p"))
+        self.assertEqual(LOOP_TOGGLE, interpret_console_key("l"))
+        self.assertEqual(
+            VOLUME_UP_5,
+            interpret_console_key("\xe0", extended="H"),
+        )
+        self.assertEqual(
+            VOLUME_DOWN_20,
+            interpret_console_key("\xe0", extended="P", shift=True),
+        )
 
     def test_seek_restarts_ffplay_at_requested_offsets(self) -> None:
         class FakeProcess:
@@ -463,9 +541,10 @@ class PlayWaveFileTests(unittest.TestCase):
                 )
         self.assertEqual("stopped", result)
         self.assertEqual(3, len(commands))
-        self.assertEqual("0.000", commands[0][-2])
-        self.assertEqual("5.000", commands[1][-2])
-        self.assertEqual("20.000", commands[2][-2])
+        self.assertEqual("0.000", commands[0][-4])
+        self.assertEqual("5.000", commands[1][-4])
+        self.assertEqual("20.000", commands[2][-4])
+        self.assertTrue(all(command[-2] == "100" for command in commands))
         self.assertTrue(all(process.terminated for process in processes))
 
 

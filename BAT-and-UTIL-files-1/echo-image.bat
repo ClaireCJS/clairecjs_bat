@@ -4,6 +4,7 @@
 
 rem CONFIG:
         set chafa_scale=1.9
+        set chafa_reserved_text_rows=2
         set chafa_global_options=--optimize=9 --work=9 --color-space=din99d
         set chafa_nonworking_symbols=imported  ugly        none
         set chafa_working_symbols=all  sextant narrow  legacy block      wedge inverted  quad braille ascii   extra   bad  geometric     alnum  half   solid space   dot vhalf hhalf border   diagonal alpha latin  stipple     ambiguous digit    technical                             wide %+ rem These were painstakingly evaluated and ranked subjectively vs lots of images
@@ -43,7 +44,7 @@ rem PARAMETER VALIDATE:
 
 rem GLOBAL OPTIONS:
         rem Query this terminal's live cells and font pixels, then fit both axes.
-        set chafa_view_size=%@EXECSTR[python -m clairecjs_utils.claire_terminal_geometry --format chafa] --scale=max
+        set chafa_view_size=%@EXECSTR[python -m clairecjs_utils.claire_terminal_geometry --format chafa --reserve-rows %chafa_reserved_text_rows] --scale=max
         set chafa_rest=%chafa_global_options%  %chafa_file%  %chafa_command_tail%
 
 rem RENDERING:
@@ -61,5 +62,5 @@ rem RENDERING:
         endiff
         iff defined LAST_CHAFA_COMMAND then
                 %LAST_CHAFA_COMMAND%
-                echo %ansi_color_debug%LAST_CHAFA_COMMAND=%LAST_CHAFA_COMMAND%%ansi_color_normal%
+                rem DEBUG: echo %ansi_color_debug%LAST_CHAFA_COMMAND=%LAST_CHAFA_COMMAND%%ansi_color_normal%
         endiff
