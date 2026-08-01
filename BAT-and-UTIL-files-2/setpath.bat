@@ -109,6 +109,8 @@ rem DOCUMENTATION:
     :2024
             gosub AddFolderToPathEndOnlyIfItExists "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_1.22.10861.0_x64__8wekyb3d8bbwe" %+ rem WinGet
             gosub AddFolderToPathEndOnlyIfItExists "C:\Program Files\WindowsApps\Microsoft.DesktopAppInstaller_1.22.11132.0_x64__8wekyb3d8bbwe" %+ rem WinGet
+    :2026
+            gosub AddFolderToPathEndOnlyIfItExists "C:\BAT\.local\bin"
 
 ::::: MOST IMPORTANT STUFF: machinename-specific, then OS-specific BATs, then main/normal/non-specific -- for both BATs and UTILs:
 	gosub AddFolderToPathBegOnlyIfItExists C:\UTIL\

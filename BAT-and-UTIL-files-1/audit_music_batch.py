@@ -57,6 +57,10 @@ AUDIO_EDITOR_EXECUTABLE: str | None = None
 ART_PREVIEW_RESERVED_TEXT_ROWS = 7
 ART_PREVIEW_INDENT_COLUMNS = 12
 ART_PREVIEW_RIGHT_MARGIN_COLUMNS = 2
+# Scale artwork previews relative to the live geometry calculated by the shared
+# claire_terminal_geometry helper.  1.00 uses its full fitted size; 0.90 leaves
+# a little breathing room around artwork without changing waveform previews.
+ART_PREVIEW_SCALE = 0.90
 
 # Built-in behavior defaults apply when no adjacent configuration file exists.
 # Use --configure-defaults to create/update that file interactively.
@@ -381,6 +385,7 @@ ACTION_PROMPT_QUESTIONS = {
     ),
 }
 PROMPT_NOUN_PHRASES = (
+    "all-caps album title",
     "regenerated sidecar files",
     "configured editor",
     "excessive silence",
@@ -4972,22 +4977,56 @@ def chafa_sixel_geometry_options(geometry: ArtworkPreviewGeometry) -> list[str]:
             # This is intentionally the same public API echo-image.bat calls:
             # ``python -m clairecjs_utils.claire_terminal_geometry --format
             # chafa --reserve-rows N``.  Do not duplicate its pixel math here.
-            return [
+            options = [
                 *live.chafa_options_for(
                     reserved_rows=ART_PREVIEW_RESERVED_TEXT_ROWS
                 ).split(),
                 "--scale=max",
             ]
+            return scale_chafa_view_size(options, ART_PREVIEW_SCALE)
         except Exception:
             pass
-    return [
+    return scale_chafa_view_size([
         "--view-size="
         # This is the deliberately *smaller* no-helper fallback.  It is only
         # used by copied installations that genuinely lack the shared helper.
         f"{geometry.columns * 0.80:.1f}x"
         f"{geometry.rows * 0.80:.1f}",
         "--scale=max",
-    ]
+    ], ART_PREVIEW_SCALE)
+
+
+def scale_chafa_view_size(options: list[str], scale: float) -> list[str]:
+    """Scale only Chafa's fitted viewport while preserving shared options."""
+    factor = max(0.10, float(scale))
+    scaled: list[str] = []
+    for option in options:
+        match = re.fullmatch(r"--view-size=([0-9.]+)x([0-9.]+)", option)
+        if match:
+            scaled.append(
+                f"--view-size={float(match.group(1)) * factor:.1f}x"
+                f"{float(match.group(2)) * factor:.1f}"
+            )
+        else:
+            scaled.append(option)
+    return scaled
+
+
+def scaled_artwork_geometry(
+    geometry: ArtworkPreviewGeometry,
+    scale: float = ART_PREVIEW_SCALE,
+) -> ArtworkPreviewGeometry:
+    """Scale artwork dimensions without changing the terminal measurements."""
+    factor = max(0.10, float(scale))
+    return ArtworkPreviewGeometry(
+        terminal_columns=geometry.terminal_columns,
+        terminal_rows=geometry.terminal_rows,
+        indent_columns=geometry.indent_columns,
+        columns=max(4, round(geometry.columns * factor)),
+        rows=max(2, round(geometry.rows * factor)),
+        pixel_width=max(1, round(geometry.pixel_width * factor)),
+        pixel_height=max(1, round(geometry.pixel_height * factor)),
+    )
 
 
 def fitted_preview_image(
@@ -5224,6 +5263,7 @@ def prepare_artwork_preview(
             reserved_text_rows=ART_PREVIEW_RESERVED_TEXT_ROWS,
         )
     if chafa is None and sixel:
+        geometry = scaled_artwork_geometry(geometry)
         return PreparedArtworkPreview(
             mode="built-in Sixel",
             geometry=geometry,
@@ -5234,6 +5274,8 @@ def prepare_artwork_preview(
             ),
         )
     if chafa is None:
+        if not stretch_to_width:
+            geometry = scaled_artwork_geometry(geometry)
         return PreparedArtworkPreview(
             mode="built-in ANSI half-blocks",
             geometry=geometry,
@@ -6226,14 +6268,15 @@ def bake_replaygain_into_audio(
             "Baked ReplayGain currently supports FLAC and MP3 audio"
         )
     limited = applied_db < requested_db - 0.01
-    cover_narration(
-        "🎚️",
-        f"Tagged track gain requests {requested_db:+.2f} dB; applying "
-        f"{applied_db:+.2f} dB"
-        + (" after peak protection." if limited else "."),
-        use_color=use_color,
-        color=(105, 220, 155),
-    )
+    if stream_output:
+        cover_narration(
+            "🎚️",
+            f"Tagged track gain requests {requested_db:+.2f} dB; applying "
+            f"{applied_db:+.2f} dB"
+            + (" after peak protection." if limited else "."),
+            use_color=use_color,
+            color=(105, 220, 155),
+        )
     backup: Path | None = None
     if suffix == ".flac":
         ffmpeg = ffmpeg_executable or shutil.which("ffmpeg")
@@ -6500,6 +6543,7 @@ def bake_replaygain_for_batch(
                 audio_path,
                 before_metrics,
                 use_color=use_color,
+                stream_output=False,
             )
             _after, _backup, _after_metrics = generate_waveform_jpeg(
                 audio_path,
@@ -6509,13 +6553,6 @@ def bake_replaygain_for_batch(
             )
             recolor_newly_baked_waveform(after_path)
             baked.append(audio_path)
-            cover_narration(
-                "🟢",
-                f"Baked {applied_db:+.2f} dB into {audio_path.name}; kept "
-                f"{backup.name}; before/after gradient waveforms saved.",
-                use_color=use_color,
-                color=(95, 225, 130),
-            )
         except Exception as exc:
             print_formatted_error(
                 f"Could not bake ReplayGain into {audio_path.name}: {exc}",
@@ -8072,6 +8109,13 @@ def review_waveforms(
                     color=(85, 190, 245),
                     dim=True,
                 )
+                bake_progress_context = progress_bar(
+                    total=len(tagged_bake_candidates),
+                    description="🎚️ Baking ReplayGain",
+                    unit="file",
+                    enabled=bool(getattr(sys.stderr, "isatty", lambda: False)()),
+                )
+                bake_progress = bake_progress_context.__enter__()
                 for candidate in tagged_bake_candidates:
                     try:
                         old_result = futures[candidate].result()
@@ -8090,6 +8134,7 @@ def review_waveforms(
                             candidate,
                             old_metrics,
                             use_color=use_color,
+                            stream_output=False,
                         )
                         new_result = generate_waveform_jpeg(
                             candidate,
@@ -8103,19 +8148,16 @@ def review_waveforms(
                         rendered_results[candidate] = new_result
                         before_bake_waveforms[candidate] = comparison
                         folder_baked_audio.add(candidate)
-                        cover_narration(
-                            "🔧",
-                            f"Baked {applied_db:+.2f} dB into "
-                            f"{candidate.name}; kept {backup.name}.",
-                            use_color=use_color,
-                            color=(95, 220, 140),
-                        )
                     except Exception as exc:
                         print_formatted_error(
                             f"Could not bake ReplayGain into "
                             f"{candidate.name}: {exc}",
                             use_color,
                         )
+                    finally:
+                        if bake_progress is not None:
+                            bake_progress.update(1)
+                bake_progress_context.__exit__(None, None, None)
         if preview_renderer is None and audio_files:
             preview_executor = ThreadPoolExecutor(
                 max_workers=max(1, min(4, worker_count)),
@@ -9693,26 +9735,66 @@ def finding_target_lines(
             f"{prefix}{varied_path(display_folder, use_color)}",
             *rename_preview_table(finding, use_color),
         ]
-    return [music_filename(finding["path"], use_color, prominent=True)]
+    raw_path = Path(str(finding["path"]))
+    lines: list[str] = []
+    if raw_path.parent != Path("."):
+        folder_text = str(raw_path.parent)
+        columns = terminal_columns or visible_console_size().columns
+        prefix = "📁 Folder: "
+        folder_width = max(12, columns - 12 - visible_cell_width(prefix))
+        lines.append(
+            f"{prefix}{varied_path(middle_ellipsize(folder_text, folder_width), use_color)}"
+        )
+    lines.append(music_filename(raw_path.name, use_color, prominent=True))
+    return lines
 
 
 def finding_filename_columns(
     findings: list[dict[str, Any]], use_color: bool
 ) -> list[str]:
     """Render unique finding filenames in compact, console-width columns."""
-    names = list(dict.fromkeys(str(item["path"]) for item in findings))
+    raw_names = list(dict.fromkeys(str(item["path"]) for item in findings))
+    names: list[str] = []
+    for raw_name in raw_names:
+        raw_path = Path(raw_name)
+        basename = raw_path.name
+        # These grids identify tracks, not formats. Remove stacked audio
+        # suffixes such as .mp3.flac as well as the ordinary final extension.
+        while Path(basename).suffix.casefold() in AUDIO_EXTS:
+            basename = Path(basename).stem
+        # Album downloads commonly repeat "Artist - Album - " on every row.
+        # The surrounding finding already supplies that context, so begin at
+        # the track number and spend the saved width on the actual song title.
+        match = re.search(r"(?i)(?:^| - )(\d{1,3}(?:[_. -]).*)$", basename)
+        if match:
+            basename = match.group(1)
+        parent = "" if raw_path.parent == Path(".") else str(raw_path.parent)
+        names.append(f"{parent}\\{basename}" if parent else basename)
     if not names:
         return []
-    columns = max(40, visible_console_size().columns)
-    cell_width = min(44, max(18, max(visible_cell_width(name) for name in names)))
-    column_count = max(1, (columns - 12) // (cell_width + 4))
+    console_columns = max(40, visible_console_size().columns)
+    available_width = max(20, console_columns - 12)
+    longest = max(visible_cell_width(name) for name in names)
+    preferred_width = min(52, max(22, longest + 2))
+    column_count = max(
+        1,
+        min(len(names), (available_width + 3) // (preferred_width + 3)),
+    )
+    cell_width = max(12, (available_width - 3 * (column_count - 1)) // column_count)
     rendered: list[str] = []
-    for start in range(0, len(names), column_count):
+    # Newspaper order: fill downward in the first column before beginning the
+    # next (1/4, 2/5, 3/6), not ordinary row-major 1/2, 3/4, 5/6.
+    row_count = math.ceil(len(names) / column_count)
+    for row_index in range(row_count):
         cells = []
-        for name in names[start : start + column_count]:
+        for column_index in range(column_count):
+            index = row_index + column_index * row_count
+            if index >= len(names):
+                continue
+            name = names[index]
             display = middle_ellipsize(name, cell_width)
             cells.append(
-                music_filename(display, use_color, prominent=True)
+                music_filename(display, use_color, prominent=False)
                 + " " * max(0, cell_width - visible_cell_width(display))
             )
         rendered.append("            " + "   ".join(cells).rstrip())
@@ -10207,9 +10289,13 @@ def artwork_finding_still_needs_action(
     }:
         return True
     target = safe_finding_path(root, finding)
-    # ``write=False`` reports only image payloads genuinely absent from the
-    # folder. If another track already exported the same artwork, do not ask
-    # the duplicate question.
+    # If this particular track has no local Front candidate yet, it must get
+    # the first extraction prompt. Once that prompt writes cover.jpg/a
+    # same-basename sidecar, later identical findings are safely skipped.
+    if front_art_candidate(target) is None:
+        return True
+    # ``write=False`` then reports only artwork payloads genuinely absent from
+    # the folder, so redundant later prompts remain suppressed.
     return bool(export_art_sidecars(target, write=False))
 
 
@@ -10377,16 +10463,24 @@ def render_console_report(
             )
         )
         lines.append("")
-        for finding in coded[: max_examples or None]:
-            lines.append(f"        {approval_action_line(finding, use_color)}")
-            lines.extend(
-                f"            {line}"
-                for line in finding_target_lines(
-                    finding,
-                    use_color,
-                    root=Path(str(resolved_root)),
-                )
+        action_groups: list[list[dict[str, Any]]] = []
+        action_lookup: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
+        for candidate in coded:
+            key = (
+                str(candidate["category"]),
+                str(candidate.get("message", "")),
+                str(candidate.get("suggestion", "")),
             )
+            group = action_lookup.get(key)
+            if group is None:
+                group = []
+                action_lookup[key] = group
+                action_groups.append(group)
+            group.append(candidate)
+        for group in action_groups[: max_examples or None]:
+            finding = group[0]
+            lines.append(f"        {approval_action_line(finding, use_color)}")
+            lines.extend(finding_filename_columns(group, use_color))
             lines.extend(
                 f"            {line}"
                 for line in finding_sidecar_lines(finding, use_color)
@@ -10408,12 +10502,14 @@ def render_console_report(
     ]
     if review:
         lines.append("")
+        # Windows Terminal does not render DEC double-height correctly; it
+        # displays the required top/bottom source lines as duplicate headings.
         lines.extend(
             double_height_gradient_section(
                 "Detected Problems",
                 use_color,
                 ((255, 255, 80), (255, 175, 0)),
-            )
+            )[:1]
         )
         lines.append("")
         album_findings = [
@@ -10455,28 +10551,40 @@ def render_console_report(
                 grouped_lookup[key] = group
                 grouped_review.append(group)
             group.append(candidate)
-        printed_review_file_sets: set[tuple[str, ...]] = set()
+        same_file_set_groups: dict[tuple[str, ...], list[list[dict[str, Any]]]] = {}
+        same_file_set_order: list[tuple[str, ...]] = []
         for group in grouped_review[: max_examples or None]:
-            finding = group[0]
-            label_color = (
-                (255, 255, 0)
-                if finding["category"] == "missing_album"
-                else (245, 190, 105)
-            )
-            label = rgb_text(
-                finding_category_label(finding["category"]),
-                *label_color,
-                use_color,
-            )
-            lines.append(f"        {label} — {warning_finding_message(finding)}")
             file_set = tuple(sorted(str(item["path"]) for item in group))
-            if file_set not in printed_review_file_sets:
-                printed_review_file_sets.add(file_set)
-                lines.extend(finding_filename_columns(group, use_color))
-            if finding.get("suggestion") and finding["category"] != "missing_album":
-                lines.append(
-                    f"            {suggested_text(finding, use_color)}"
+            if file_set not in same_file_set_groups:
+                same_file_set_groups[file_set] = []
+                same_file_set_order.append(file_set)
+            same_file_set_groups[file_set].append(group)
+        for file_set in same_file_set_order:
+            related_groups = same_file_set_groups[file_set]
+            # Two diagnoses sharing exactly the same tracks belong together:
+            # show both labels first, then one shared newspaper-style file list.
+            for group in related_groups:
+                finding = group[0]
+                label_color = (
+                    (255, 255, 0)
+                    if finding["category"] == "missing_album"
+                    else (245, 190, 105)
                 )
+                label = rgb_text(
+                    finding_category_label(finding["category"]),
+                    *label_color,
+                    use_color,
+                )
+                lines.append(
+                    f"        {label} — {warning_finding_message(finding)}:"
+                )
+            lines.extend(finding_filename_columns(related_groups[0], use_color))
+            for group in related_groups:
+                finding = group[0]
+                if finding.get("suggestion"):
+                    lines.append(
+                        f"            {suggested_text(finding, use_color)}"
+                    )
         if max_examples and len(review) > max_examples:
             lines.append(f"        … {len(review) - max_examples} more findings omitted.")
 
@@ -11256,6 +11364,7 @@ ACTION_SCOPE_KEYS = {
     "v": "never",
     "f": "folder",
     "j": "folder",
+    "s": "stop_folder",
 }
 
 
@@ -11264,15 +11373,21 @@ def action_scope_options(
     use_color: bool,
     *,
     allow_folder: bool = True,
+    allow_always: bool = True,
+    allow_stop_folder: bool = False,
 ) -> str:
     """Render all single-key choices for a repeatable batch action."""
     yes_key = "Y" if default_yes else "y"
     no_key = "n" if default_yes else "N"
-    folder_plain = " / F=Do All in Folder" if allow_folder else ""
-    plain = (
-        f"[{yes_key}=Yes / {no_key}=No / A=Always / V=Never"
-        f"{folder_plain}]"
-    )
+    choices = [f"{yes_key}=Yes", f"{no_key}=No"]
+    if allow_always:
+        choices.append("A=Always")
+    if allow_stop_folder:
+        choices.append("S=Stop Asking For This Folder")
+    choices.append("V=Never")
+    if allow_folder:
+        choices.append("F=Do All in Folder")
+    plain = "[" + " / ".join(choices) + "]"
     if not use_color:
         return plain
     chunks = [
@@ -11280,11 +11395,21 @@ def action_scope_options(
         rgb_text(f"{yes_key}=Yes", 95, 245, 135, True),
         rgb_text(" / ", 255, 165, 45, True),
         rgb_text(f"{no_key}=No", 255, 105, 105, True),
-        rgb_text(" / ", 255, 165, 45, True),
-        rgb_text("A=Always", 255, 225, 80, True),
+    ]
+    if allow_always:
+        chunks.extend([
+            rgb_text(" / ", 255, 165, 45, True),
+            rgb_text("A=Always", 255, 225, 80, True),
+        ])
+    if allow_stop_folder:
+        chunks.extend([
+            rgb_text(" / ", 255, 165, 45, True),
+            rgb_text("S=Stop Asking For This Folder", 255, 205, 95, True),
+        ])
+    chunks.extend([
         rgb_text(" / ", 255, 165, 45, True),
         rgb_text("V=Never", 255, 145, 80, True),
-    ]
+    ])
     if allow_folder:
         chunks.extend(
             [
@@ -11303,6 +11428,8 @@ def action_scope_prompt(
     indent: str = "",
     *,
     allow_folder: bool = True,
+    allow_always: bool = True,
+    allow_stop_folder: bool = False,
 ) -> str:
     """Build the urgent repeatable-action prompt."""
     return prompt_with_option_legend(
@@ -11311,6 +11438,8 @@ def action_scope_prompt(
             default_yes,
             use_color,
             allow_folder=allow_folder,
+            allow_always=allow_always,
+            allow_stop_folder=allow_stop_folder,
         ),
         indent=indent,
     )
@@ -11324,6 +11453,7 @@ def action_scope_answer(choice: str, use_color: bool) -> str:
         "always": ("Always!", (255, 225, 80)),
         "never": ("Never!", (255, 125, 80)),
         "folder": ("All in This Folder!", (145, 215, 255)),
+        "stop_folder": ("Stopped Asking for This Folder!", (255, 205, 95)),
     }
     label, color = labels[choice]
     if not use_color:
@@ -11355,6 +11485,8 @@ def prompt_for_action_scope(
     indent: str = "",
     *,
     allow_folder: bool = True,
+    allow_always: bool = True,
+    allow_stop_folder: bool = False,
 ) -> str:
     """Read Y/N/Always/Never/Folder with one key and no required Enter."""
     reader = key_reader or read_single_key
@@ -11364,6 +11496,8 @@ def prompt_for_action_scope(
         use_color,
         indent,
         allow_folder=allow_folder,
+        allow_always=allow_always,
+        allow_stop_folder=allow_stop_folder,
     )
     interactive_terminal = bool(
         getattr(sys.stdout, "isatty", lambda: False)()
@@ -11386,7 +11520,12 @@ def prompt_for_action_scope(
             choice = "yes" if default_yes else "no"
         else:
             choice = ACTION_SCOPE_KEYS.get(key.casefold())
-            if choice is None or (choice == "folder" and not allow_folder):
+            if (
+                choice is None
+                or (choice == "folder" and not allow_folder)
+                or (choice == "always" and not allow_always)
+                or (choice == "stop_folder" and not allow_stop_folder)
+            ):
                 invalid_key_beep()
                 continue
         if interactive_terminal:
@@ -12017,6 +12156,7 @@ def interactive_apply(
     printed_prompt = False
     remembered_category_choices: dict[str, str] = {}
     remembered_folder_approvals: set[tuple[str, str]] = set()
+    remembered_folder_skips: set[tuple[str, str]] = set()
 
     for finding in coded:
         if not artwork_finding_still_needs_action(root, finding):
@@ -12140,6 +12280,7 @@ def interactive_apply(
             allow_folder_scope = (
                 finding["category"] not in ROOT_WIDE_ACTION_CATEGORIES
             )
+            replaygain_scope = finding["category"] == "missing_replaygain"
             choice = remembered_category_choices.get(
                 str(finding["category"])
             )
@@ -12149,6 +12290,8 @@ def interactive_apply(
                 and folder_key in remembered_folder_approvals
             ):
                 choice = "folder"
+            if choice is None and folder_key in remembered_folder_skips:
+                choice = "stop_folder"
             if choice is None:
                 preview_existing_front_sidecar(
                     root,
@@ -12163,6 +12306,8 @@ def interactive_apply(
                     key_reader=key_reader,
                     indent="            ",
                     allow_folder=allow_folder_scope,
+                    allow_always=not replaygain_scope,
+                    allow_stop_folder=replaygain_scope,
                 )
                 if choice in {"always", "never"}:
                     remembered_category_choices[
@@ -12170,6 +12315,8 @@ def interactive_apply(
                     ] = choice
                 elif choice == "folder":
                     remembered_folder_approvals.add(folder_key)
+                elif choice == "stop_folder":
+                    remembered_folder_skips.add(folder_key)
             else:
                 print(
                     settled_action_scope_prompt(
@@ -14107,7 +14254,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             self.assertIn("--format=sixels", chafa_command)
             self.assertIn("--fit-width", chafa_command)
             self.assertIn("--colors=full", chafa_command)
-            self.assertIn("--view-size=116.8x34.4", chafa_command)
+            self.assertIn("--view-size=115.2x31.0", chafa_command)
             self.assertIn("--optimize=9", chafa_command)
             self.assertIn("--work=9", chafa_command)
             self.assertIn("--color-space=din99d", chafa_command)
@@ -16423,9 +16570,11 @@ def run_unit_tests(use_color: bool = True) -> int:
                 "category": "missing_embedded_art",
                 "path": "MISC\\Artist - Song.mp3",
             }
-            line = finding_target_lines(finding, use_color=True)[0]
+            lines = finding_target_lines(finding, use_color=True)
+            self.assertIn("Folder:", lines[0])
+            line = lines[-1]
             self.assertIn(
-                bright_cyan_path(finding["path"], True),
+                bright_cyan_path("Artist - Song.mp3", True),
                 line,
             )
             self.assertNotIn(ANSI["dim"], line)
@@ -17967,7 +18116,7 @@ def run_unit_tests(use_color: bool = True) -> int:
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
                 album = root / "Lauren Sanderson" / "2022 - Death of a Fantasy"
-                album.mkdir()
+                album.mkdir(parents=True)
                 audio = make_silent_flac(album, "05_DON'T WATCH THE NEWS!")
                 sidecar = audio.with_suffix(".srt")
                 sidecar.write_text("1\n00:00:00,000 --> 00:00:01,000\nHi\n")

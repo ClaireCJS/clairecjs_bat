@@ -32,6 +32,8 @@ rem Delete files in specific places:
         gosub DelIfExists  c:\recycled\*.*
         gosub DelIfExists  C:\logs\dumps.%MACHINENAME%
 
+        gosub DelIfExists  C:\users\clioc\appdata\local\crashdumps\*.dmp
+
 rem Delete files that could be anywhere❟ on any harddrive❟ with a name we hate:
         if "%USERNAME%" == "Claire" call clean-up-AI-transcription-trash-files-everywhere.bat include-dot-files %+ rem clean up files leftover by AI music transcription system
         if "%USERNAME%" == "Claire" call clean-up-AI-transcription-trash-files-everywhere.bat audit-music-files %+ rem clean up files leftover by audit-music-files.py

@@ -10,6 +10,7 @@ rem CONFIG:
                 set DEFAULT_PAF_PLAYER=call mpc32 
                 set DEFAULT_PAF_PLAYER=call vlc
                 set DEFAULT_PAF_PLAYER=vlc.exe --volume 200
+                set DEFAULT_PAF_PLAYER=play_audio_file.py
 
 
         rem ❷ Whether WinAmp integration is active or not:
