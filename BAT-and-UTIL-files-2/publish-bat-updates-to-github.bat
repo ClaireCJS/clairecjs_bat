@@ -21,7 +21,7 @@ rem Do the updates:
         title .
         rem echo pentagram test: %pentagram% %+ pause 
         set torun=update-from-BAT-and-push-and-commit.bat
-        call validate-in-path %torun% 
+        if not exist %torun% call validate-in-path %torun% 
         
 rem Actually do it:        
         call %torun% %pbutg_params%
