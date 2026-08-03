@@ -23,9 +23,9 @@ my $target_filename    = "attrib.lst";
 ##### NEAR-CONSTANT:
 #y $METHOD   = "2011";		#Last.fm likes to change their logfile format. Remember, this method affects code below too, so search for $METHOD to update those pieces of code as well
 my $METHOD   = "2024";		#no longer using last.fm
-if ($METHOD eq "2008") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "CScrobbler::OnTrackPlay"; }
-if ($METHOD eq "2009") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = ": Sent Start for "      ; }
 if ($METHOD eq "2011") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "CScrobbler::ASStart"    ; $AUDIOSCROBBLER_LOG_SEARCH_FOR2 = "Event::TrackChanged"; }	
+if ($METHOD eq "2009") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = ": Sent Start for "      ; }
+if ($METHOD eq "2008") { $AUDIOSCROBBLER_LOG_SEARCH_FOR = "CScrobbler::OnTrackPlay"; }
 
 
 ##### DRIVE-LETTER REMAPPING VOODOO:
@@ -34,6 +34,8 @@ my $REMAPENVVAR        = "REMAP$MACHINE_NAME";
 my $REMAP              = $ENV{$REMAPENVVAR};
 my @REMAPS             = split(/\s+/,"$REMAP");
 #DEBUG: print "echo name=$MACHINE_NAME, \$REMAPENVVAR=$REMAPENVVAR         REMAP=$REMAP\n\n";
+print $ENV{"WHATEVER_TEST1"} . "\n";
+print $ENV{"WHATEVER_TEST2"} . "\n";
 
 
 ##### COMMAND-LINE ARGUMENTS:
@@ -56,16 +58,19 @@ if ($ENV{"HADES_DOWN"}) {
 
 
 ##### SET FILES TO READ:
-my  $ALL_SONGS_LIST     = $ENV{"ALL_SONGS_PLAYLIST"};
-my  $NOW_PLAYING_TXT    = $ENV{"NOW_PLAYING_TXT"};
+my  $ALL_SONGS_PLAYLIST_ENV = $ENV{"ALL_SONGS_PLAYLIST"};
+my  $ALL_SONGS_LIST         = $ENV{"ALL_SONGS_PLAYLIST"};
+my  $NOW_PLAYING_TXT        = $ENV{"NOW_PLAYING_TXT"};
 if (!-e $ALL_SONGS_LIST) {
 	my  $ALL_SONGS_LIST     = $ENV{"MP3OFFICIAL"}        . "\\LISTS\\everything.m3u";
 	if (!-e $ALL_SONGS_LIST) {
 			$ALL_SONGS_LIST =                       "c:\\mp3\\LISTS\\everything.m3u";
 	}
 }
+#DEBUG: print "all songs list is $ALL_SONGS_LIST";
 if (!-e $ALL_SONGS_LIST) {
-	die("need all_songs_list defined via ALL_SONGS_PLAYLIST env var");
+	my $diemsg = "need all_songs_list defined via ALL_SONGS_PLAYLIST env var to point to an actual list of all your songs.\n* ALL_SONGS_LIST environment variable’s value is “" . $ALL_SONGS_LIST ."” \n* the ALL_SONGS_PLAYLIST environment variable’s value is “" . $ALL_SONGS_PLAYLIST_ENV ."”";
+	die($diemsg);
 }	
 
 														#WORK-SPECIFIC KLUDGE:

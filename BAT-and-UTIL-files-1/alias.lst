@@ -162,7 +162,7 @@ ldgjava=global /i /q if exist *.java grep --color=always -i -H %1$ *.java
 LSDG=dir/b|:u8 grep --color=always %1$
 mvfast=move /r /g /h /E
 
-psgr=@Echo ON %+ @tasklist /L |:u8 @gr %1$ |:u8 @call 80
+psgr=@tasklist /L |:u8 @gr %1$ |:u8 @call 80 %+ if defined ansi_reset echos %ansi_reset%
 psgrep=psgr
 psg=psgr
 pg=psgr
