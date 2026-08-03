@@ -4,7 +4,7 @@
 rem Validate environment:
         iff 1 ne    %validated_capbat% then
                 set  validated_capbat=1
-                call validate-environment-variable EMOJI_FIRE "run %italics_on%set-emoji.bat%italics_off% to define emojis"
+                if not defined EMOJI_FIRE call validate-environment-variable EMOJI_FIRE "run %italics_on%set-emoji.bat%italics_off% to define emojis"
                 call validate-in-path commit git-push
         endiff
         

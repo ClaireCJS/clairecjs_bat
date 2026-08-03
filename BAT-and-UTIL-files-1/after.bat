@@ -418,7 +418,7 @@ goto :END
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :concert
-        call validate-environment-variables WWWCL username editor italics_on italics_off
+        call validate-environment-variables WWWCL username editor ansi_has_been_set
         call validate-in-path               al.bat divider.bat as.bat  askyn success.bat print-message.bat as.bat diary.bat
 
         call AskYN "Edit concert list" no  0

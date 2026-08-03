@@ -6,7 +6,7 @@
 
 rem Validate our environment: [we  can actually live without most of the cosmetic ones, but validating them for completion's sake]
         if not "1" == "%VALIDATED_DISPLAYDRIVESBYCOMPUTER%" (
-                call validate-environment-variables MACHINENAME DRIVES_%MACHINENAME% MAX_MACHINENAME_LENGTH THE_ALPHABET EMOJI_COMPUTER_DISK BOLD_ON BOLD_OFF ITALICS_ON ITALICS_OFF NEWLINE BIG_TOP BIG_BOT ANSI_COLOR_IMPORTANT
+                call validate-environment-variables MACHINENAME DRIVES_%MACHINENAME% MAX_MACHINENAME_LENGTH THE_ALPHABET EMOJI_COMPUTER_DISK ansi_has_been_set
                 call validate-in-path               highlight-by-computer-name
                 set VALIDATED_DISPLAYDRIVESBYCOMPUTER=1
         )

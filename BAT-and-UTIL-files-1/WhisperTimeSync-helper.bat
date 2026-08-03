@@ -55,7 +55,7 @@ rem VALIDATE PARAMETERS:
         set LYR=%@UNQUOTE[%2]
         set AFL=%@UNQUOTE[%3]
         iff "1" != "%validated_srt_and_txt_for_whispertimesync_already%" then
-                call validate-environment-variables   SRT     LYR
+                if not exist %SRT% .or. not exist %LRT% call validate-environment-variables   SRT     LYR
                 call validate-is-extension          "%SRT%" *.srt
                 call validate-is-extension          "%LYR%" *.txt
         endiff

@@ -4,7 +4,7 @@
 
 rem Validate environment (once):
         iff "1" != "%validated_create_srt_file_for_currently_playing_song%" then
-                call validate-in-path go-to-currently-playing-song-dir errorlevel validate-environment-variable fatal_error WhisperTimeSync
+                call validate-in-path go-to-currently-playing-song-dir errorlevel fatal_error WhisperTimeSync
                 call validate-environment-variables ansi_colors_have_been_set
                 set  validated_create_srt_file_for_currently_playing_song=1
         endiff
@@ -26,7 +26,8 @@ rem Make sure the previous script currently set %CURRENT_SONG_FILE%
         if not exist "%WTCCAF_TXT%" call validate-environment-variable WTCCAF_TXT "No lyric%zzzzzzz% file for audio file: %italics_on%%CURRENT_SONG_FILE%%italics_off%"
 
 rem Create an LRC file for that file:
-        echo call WhisperTimeSync %* "%WTCCAF_SRT%" "%WTCCAF_TXT%" "%CURRENT_SONG_FILE%" 
-        call WhisperTimeSync %* "%WTCCAF_SRT%" "%WTCCAF_TXT%" "%CURRENT_SONG_FILE%" 
+        echo %ansi_color_subtle%`>`call WhisperTimeSync %* "%WTCCAF_SRT%" "%WTCCAF_TXT%" "%CURRENT_SONG_FILE%" %ansi_color_normal
+                                   call WhisperTimeSync %* "%WTCCAF_SRT%" "%WTCCAF_TXT%" "%CURRENT_SONG_FILE%" 
+                   set LATSCOMMAND=call WhisperTimeSync %* "%WTCCAF_SRT%" "%WTCCAF_TXT%" "%CURRENT_SONG_FILE%" 
 
 :END

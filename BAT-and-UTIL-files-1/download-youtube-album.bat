@@ -32,7 +32,7 @@ REM check parameters & environment
         if "1" == "%validated_downloadyoutubealbum_1%" goto :validated_already
                 if "%1"    == "" .or. "%URL%" == "" (call error "Need URL!" %+ goto :END)
                 call validate-in-path               ingest_youtube_album.py delete-zero-byte-files important important_less errorlevel delete-largest-file warning error print-if-debug set-task metamp3 metaflac yt-dlp set-latest-filename openimage get-image-dimensions askyn crop-center-square-of-image make-image-square celebration change-into-temp-folder expand-image-to-square randfg advice
-                call validate-environment-variables ANSI_BRIGHT_CYAN faint_on faint_off italics_on italics_off underline_on underline_off %+ REM most of these are set by set-colors.bat:
+                call validate-environment-variables ansi_has_been_set 
                 if not defined filemask_image call validate-environment-variable  filemask_image skip_existence_validation
                 if not defined filemask_audio call validate-environment-variable  filemask_audio skip_existence_validation
                 set validated_downloadyoutubealbum_1=1

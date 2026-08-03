@@ -1,5 +1,7 @@
 @Echo OFF
 @on break cancel
+@loadbtm on
+
 
 set timestr=%@DATEFMT[*,%%r]
 
@@ -21,5 +23,6 @@ set NICETIME=%TIME_VERY_NICE%
 
 REM call debug "NICE_TIME IS %NICE_TIME%"
 
-call validate-environment-variables VERY_NICE_TIME NICE_TIME_VERY NICE_TIME TIME_VERYNICE TIME_NICE_VERY TIME_NICE TIME_VERY_NICE NICETIME
+if not defined VERY_NICE_TIME .or. not defined NICE_TIME_VERY .or. not defined NICE_TIME .or. not defined TIME_VERYNICE .or. not defined TIME_NICE_VERY .or. not defined TIME_NICE .or. not defined TIME_VERY_NICE .or. not defined NICETIME call validate-environment-variables VERY_NICE_TIME NICE_TIME_VERY NICE_TIME TIME_VERYNICE TIME_NICE_VERY TIME_NICE TIME_VERY_NICE NICETIME
+
 
