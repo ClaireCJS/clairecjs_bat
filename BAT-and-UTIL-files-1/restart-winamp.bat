@@ -2,6 +2,8 @@
 @on break cancel
 
 
+set WINAMP_RESTART_SAVE_WINDOW_POSITIONS=0
+
 
 rem Validate environment (once):
         iff "1" != "%validated_restart_winamp%" then
@@ -33,8 +35,10 @@ rem CLOSE WINAMP:
     if "%1" == "fast" .or. "%1" == "Quick" goto :quick_1        
     echo.
     echo.
-        REM call save-window-positions 
-            call save-window-positions WinampLast
+        
+                iff "1" == "%WINAMP_RESTART_SAVE_WINDOW_POSITIONS%" then
+                        call save-window-positions WinampLast
+                endiff
     :quick_1
 
 
