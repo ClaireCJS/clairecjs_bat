@@ -1,41 +1,115 @@
+#!/usr/bin/env python3
 """claire_lastfm
 ===================
 
-This module provides a small helper for scrobbling tracks to Last.fm.  It can be
-used as a command line tool or imported as a library.
+Claire's Last.fm helper can be imported by PAFPlayer or run directly from a
+command prompt.  The original job of this module is scrobbling one track.  V2
+adds a second, deliberately long-running maintenance mode that walks the user's
+Last.fm recently-played history and backfills PAFPlayer's local latest-played
+SQLite database.
 
 Requirements
 ------------
 * Python 3.8+
-* ``requests`` library (``pip install requests``)
+* ``requests`` (``pip install requests``)
 
 Configuration
 -------------
-The module expects two environment variables to be set:
+The module expects a Last.fm API key and secret from either these environment
+variables::
 
-``LASTFM_API_KEY``
-    Your Last.fm API key.
-``LASTFM_API_SECRET``
-    Your Last.fm API secret.
+    LASTFM_API_KEY
+    LASTFM_API_SECRET
 
-If the environment variables are missing the module will raise a clear error.
+or ``bat/private.env`` containing::
+
+    lastfm_api_key=...
+    lastfm_api_secret=...
+
+The optional ``LASTFM_USERNAME`` or ``PAFPLAYER_LASTFM_USERNAME`` environment
+variable can pre-seed the account name used by history crawling.  Otherwise V2
+tries the saved username, then the authenticated Last.fm session, and finally
+asks interactively.  Once entered/discovered, the username is saved in
+``~/.claire_lastfm_username`` for later PAFPlayer/claire_lastfm runs.
 
 Authentication flow
 -------------------
-The first time the module is used it will open a browser window asking the
-user to authorize the application.  The resulting session key is stored in
-``~/.claire_lastfm_session`` so subsequent calls do not need to re‑authenticate.
+The first scrobble opens Last.fm authorization in a browser if no session key
+exists.  The resulting session key remains stored as plaintext in
+``~/.claire_lastfm_session`` for backward compatibility with older copies of
+this helper.  The username is stored separately.
 
-Usage
------
-Command line:
-
+Command-line scrobbling
+-----------------------
 ::
 
-    python claire_lastfm.py --artist "Artist" --title "Song" [--album "Album"]
+    python claire_lastfm.py --artist "Artist" --title "Song" --album "Album"
 
-Library:
+Recently-played history crawl
+-----------------------------
+::
 
+    python claire_lastfm.py --crawl-lastfm-recently-played-pages
+
+This mode uses Last.fm's official ``user.getRecentTracks`` web-service pages at
+50 scrobbles per page.  It starts with page 1 (newest) and continues backward
+through every page Last.fm reports.  Processing newest-first is intentional: as
+soon as a track identity has been seen, older occurrences of that same identity
+cannot improve a latest-played database and are therefore cheap to bypass.
+
+Before the first web page is processed, the complete PAFPlayer table is read
+into memory.  The crawler compares every dated Last.fm scrobble against that
+snapshot and only writes when the web timestamp is newer.  SQL uses ``MAX`` as
+an additional guard, so even if another PAFPlayer instance writes concurrently,
+an older web play cannot replace a newer local play.
+
+PAFPlayer's table is filename-first and intentionally does not retain full
+paths.  A Last.fm page has artist/title/date but no local filename or duration.
+For an already-known filename+artist/title identity, V2 updates every matching
+stored duration row.  For a history-only track that has no filename row at all,
+V2 seeds one filename-fast-path row using the normalized Last.fm title and a
+sentinel duration of 1 second.  This is useful because PAFPlayer treats a sole
+filename candidate as authoritative without probing metadata.  When PAFPlayer
+later actually plays that file, its real duration/tag row is newer and naturally
+supersedes the historical seed.  If a filename is already ambiguous and the
+artist/title does not match an existing row, V2 refuses to invent an identity;
+that avoids turning a filename collision into a false history match.
+
+The history database location is the same location PAFPlayer uses.  An explicit
+``PLAY_AUDIO_FILE_HISTORY_DB`` environment variable wins.  Otherwise this helper
+looks for ``play_audio_file.py`` in the current directory, ``C:\\bat``, its own
+directory and PATH directories, then uses/creates
+``play_audio_file-play-history.sqlite3`` beside that PAFPlayer script.
+
+Display while crawling
+----------------------
+Each page keeps a two-line live display.  The first line is rewritten in place,
+for example::
+
+    Processing page 2: [25/50] [ 63 songs /  34 bands] [total: 106 songs /  44 bands] [time:2m14s] [total time:6m49s]
+
+The song/band counters are minimum-width 3 so columns line up through 999; four
+or more digits are allowed to expand naturally.  Every changing numeric field
+is recolored on each refresh.  The second line is the usual bright rainbow
+progress bar.  When a page completes the bar is erased, and the next page's
+summary begins on that vacated line.
+
+Stopping is intentionally difficult because a multi-hour crawl is expensive to
+restart.  Ctrl+C, Ctrl+Break, Q, X and Ctrl+W count as quit requests.  Three quit
+requests are required before the crawler stops.  The first two only warn how
+many confirmations remain.  Normal completion, a three-confirmation stop, and
+fatal errors all leave already-committed page work intact.
+
+Logging
+-------
+Every completed page is appended to ``lastfm-webpage-import.log`` beside this
+script.  The log is deliberately plain text (Unicode decoration is cosmetic,
+not structured logging).  Each page contains a divider, an emojified page
+header, an ``* Updates:`` section, and a summary containing checked count,
+updated database rows/bands, elapsed page time and total elapsed time.
+
+Library use
+-----------
 ::
 
     from claire_lastfm import scrobble_track
@@ -46,28 +120,27 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import hmac
 import json
 import os
+import random
+import re
+import shutil
+import signal
+import sqlite3
 import sys
 import time
-import urllib.parse
+import unicodedata
 import webbrowser
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Dict, Optional
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path, PureWindowsPath
+from typing import Dict, Iterable, Optional
 
-# The `requests` library is a third‑party dependency that may not be
-# available in all environments. Importing it unconditionally causes
-# static type checkers (e.g. Pylance) to emit a warning if the package
-# cannot be resolved. To make the module robust and provide a clear
-# runtime error, we attempt to import `requests` and raise a helpful
-# message if it is missing.
 try:
-    import requests  # type: ignore  # Suppress Pylance warning if the library is not installed in the analysis environment
-except ImportError as exc:  # pragma: no cover - exercised via tests
+    import requests  # type: ignore
+except ImportError as exc:  # pragma: no cover - dependency failure is environment-specific
     raise RuntimeError(
-        "The 'requests' library is required for Last.fm scrobbling. "
+        "The 'requests' library is required for Last.fm scrobbling/history crawling. "
         "Install it with 'pip install requests' and retry."
     ) from exc
 
@@ -75,17 +148,29 @@ except ImportError as exc:  # pragma: no cover - exercised via tests
 # Configuration constants
 # ---------------------------------------------------------------------------
 API_URL = "https://ws.audioscrobbler.com/2.0/"
-REQUEST_TOKEN_URL = "https://ws.audioscrobbler.com/2.0/"
+REQUEST_TOKEN_URL = API_URL
 SESSION_KEY_FILE = Path.home() / ".claire_lastfm_session"
+USERNAME_FILE = Path.home() / ".claire_lastfm_username"
+WEB_IMPORT_LOG_NAME = "lastfm-webpage-import.log"
+PAF_HISTORY_DB_NAME = "play_audio_file-play-history.sqlite3"
+RECENT_TRACKS_PAGE_SIZE = 50
+WEB_HISTORY_SENTINEL_DURATION = 1
+REQUEST_TIMEOUT_SECONDS = 30
+REQUEST_RETRIES = 4
+
+# Audio suffixes are used only for best-effort path display.  The crawler does
+# not recursively index the music library: PAFPlayer's DB intentionally stores
+# filename identities, so guessing a path would be more dangerous than useful.
+AUDIO_SUFFIXES = {
+    ".mp3", ".flac", ".m4a", ".aac", ".ogg", ".opus", ".wav", ".wma", ".ape",
+}
 
 
 def _get_env_var(name: str) -> str:
-    """Return the value of an environment variable or raise an error.
+    """Return a required environment value.
 
-    Parameters
-    ----------
-    name:
-        Name of the environment variable.
+    Motivation: keep credential failures explicit and centralized instead of
+    letting a missing key surface later as a confusing Last.fm HTTP/API error.
     """
     value = os.getenv(name)
     if not value:
@@ -93,35 +178,29 @@ def _get_env_var(name: str) -> str:
     return value
 
 
-# Load API credentials from environment variables or a local private.env file.
-# The private.env file is expected to be located at `bat/private.env` relative
-# to the workspace root and contain lines of the form
-#   lastfm_api_key=YOUR_KEY
-#   lastfm_api_secret=YOUR_SECRET
-# This allows developers to keep secrets out of the repository while still
-# enabling local testing.
 def _load_api_credentials() -> tuple[str, str]:
-    """Load Last.fm API credentials.
+    """Load the Last.fm API key/secret from environment or ``bat/private.env``.
 
-    The function first checks the ``LASTFM_API_KEY`` and ``LASTFM_API_SECRET``
-    environment variables. If they are not present, it falls back to reading a
-    ``bat/private.env`` file located at the repository root. The file should
-    contain ``lastfm_api_key=...`` and ``lastfm_api_secret=...`` lines.
-
-    If neither source provides both values, a ``RuntimeError`` is raised with a
-    clear message. This guarantees that callers always receive a valid tuple
-    and prevents ``None`` values from propagating.
+    Motivation: the helper is used both from a checked-out repo and as a loose
+    utility file, so secrets need a predictable non-source-code location in
+    both workflows.
     """
     env_key = os.getenv("LASTFM_API_KEY")
     env_secret = os.getenv("LASTFM_API_SECRET")
     if env_key and env_secret:
         return env_key, env_secret
 
-    private_path = Path("bat/private.env")
-    if private_path.exists():
+    candidate_paths = [
+        Path("bat/private.env"),
+        Path(__file__).resolve().parent / "bat" / "private.env",
+        Path(__file__).resolve().parent.parent / "bat" / "private.env",
+    ]
+    for private_path in candidate_paths:
+        if not private_path.exists():
+            continue
         key: Optional[str] = None
         secret: Optional[str] = None
-        for line in private_path.read_text(encoding="utf-8").splitlines():
+        for line in private_path.read_text(encoding="utf-8", errors="replace").splitlines():
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
@@ -134,146 +213,210 @@ def _load_api_credentials() -> tuple[str, str]:
 
     raise RuntimeError(
         "Last.fm API credentials not found. Set LASTFM_API_KEY and "
-        "LASTFM_API_SECRET environment variables or provide them in "
-        "bat/private.env."
+        "LASTFM_API_SECRET or provide bat/private.env."
     )
 
-# Load credentials once at import time.
+
+# Load credentials once so library calls fail early, matching the original helper.
 API_KEY, API_SECRET = _load_api_credentials()
 
 
 def _api_signature(params: Dict[str, str]) -> str:
-    """Return the MD5 API signature for a set of parameters.
+    """Return the Last.fm MD5 request signature for ``params``.
 
-    The signature is calculated by sorting the parameters alphabetically by
-    key, concatenating key+value pairs, appending the API secret, and then
-    computing the MD5 hash of the resulting string.
+    Motivation: authenticated Last.fm calls require an exact deterministic
+    key/value ordering; one shared implementation prevents subtle signature
+    drift between scrobbling and username discovery.
     """
-    sorted_items = sorted(params.items())
-    concatenated = "".join(f"{k}{v}" for k, v in sorted_items)
+    concatenated = "".join(f"{key}{value}" for key, value in sorted(params.items()))
     concatenated += API_SECRET
     return hashlib.md5(concatenated.encode("utf-8")).hexdigest()
 
 
-class LastFMClient:
-    """Simple Last.fm client for scrobbling tracks.
+def _request_json(method: str, *, params: dict[str, str], post: bool = False) -> dict:
+    """Perform one Last.fm JSON request with bounded retry/backoff.
 
-    The client handles authentication, session key persistence, and the
-    ``track.scrobble`` API call.
+    Motivation: a history crawl may make thousands of page requests, so a
+    transient 429/5xx/network hiccup should not destroy hours of completed work.
+    """
+    payload = dict(params)
+    payload["method"] = method
+    payload["api_key"] = API_KEY
+    payload["format"] = "json"
+    last_error: BaseException | None = None
+    for attempt in range(REQUEST_RETRIES):
+        try:
+            if post:
+                response = requests.post(API_URL, data=payload, timeout=REQUEST_TIMEOUT_SECONDS)
+            else:
+                response = requests.get(API_URL, params=payload, timeout=REQUEST_TIMEOUT_SECONDS)
+            if response.status_code == 429 or response.status_code >= 500:
+                raise requests.HTTPError(
+                    f"Last.fm returned HTTP {response.status_code}", response=response
+                )
+            response.raise_for_status()
+            data = response.json()
+            if isinstance(data, dict) and data.get("error"):
+                code = data.get("error")
+                message = data.get("message", "unknown Last.fm API error")
+                if code in (16, 29) and attempt + 1 < REQUEST_RETRIES:
+                    raise RuntimeError(f"temporary Last.fm API error {code}: {message}")
+                raise RuntimeError(f"Last.fm API error {code}: {message}")
+            if not isinstance(data, dict):
+                raise RuntimeError("Last.fm returned a non-object JSON response")
+            return data
+        except (requests.RequestException, ValueError, RuntimeError) as exc:
+            last_error = exc
+            if attempt + 1 >= REQUEST_RETRIES:
+                break
+            time.sleep(min(8.0, 1.0 * (2 ** attempt)))
+    raise RuntimeError(f"Last.fm request failed after {REQUEST_RETRIES} attempts: {last_error}")
+
+
+class LastFMClient:
+    """Small Last.fm client for authentication and scrobbling.
+
+    Motivation: PAFPlayer needs one importable object that owns session-key
+    persistence while standalone CLI modes can reuse the same credentials.
     """
 
     def __init__(self, session_file: Path | str = SESSION_KEY_FILE):
+        """Load an existing session if present.
+
+        Motivation: normal scrobbles must remain non-interactive after the user
+        has authorized this application once.
+        """
         self.session_file = Path(session_file)
         self.session_key: Optional[str] = None
+        self.username: Optional[str] = None
         self._load_session()
 
-    # ---------------------------------------------------------------------
-    # Session handling
-    # ---------------------------------------------------------------------
     def _load_session(self) -> None:
+        """Read the legacy plaintext session-key file.
+
+        Motivation: V2 deliberately preserves the old on-disk format so older
+        PAFPlayer/helper copies do not break when sharing the same home folder.
+        """
         if self.session_file.exists():
-            self.session_key = self.session_file.read_text(encoding="utf-8").strip()
+            self.session_key = self.session_file.read_text(encoding="utf-8").strip() or None
 
     def _save_session(self) -> None:
+        """Persist only the Last.fm session key.
+
+        Motivation: keeping username metadata in a separate file avoids making
+        the longstanding session-key file incompatible with older releases.
+        """
         if self.session_key:
             self.session_file.write_text(self.session_key, encoding="utf-8")
 
     def _ensure_authenticated(self) -> None:
+        """Create and save a session only when no usable session is loaded.
+
+        Motivation: scrobbling is often called from live playback, so browser
+        authentication must never repeat unnecessarily.
+        """
         if self.session_key:
             return
-        # No session key – perform OAuth flow
         self.session_key = self._authenticate()
         self._save_session()
 
     def _authenticate(self) -> str:
-        """Perform the Last.fm OAuth flow and return a session key.
+        """Run Last.fm desktop authentication and return the new session key.
 
-        The flow is:
-        1. Request a temporary token.
-        2. Open the authorization URL in the user's browser.
-        3. Poll the API until the user authorises the request token.
-        4. Exchange the request token for a session key.
+        Motivation: interactive browser authorization keeps the API secret out
+        of user prompts and is the supported flow for this desktop helper.
         """
-        # 1. Request token (signature must be calculated without the "format" parameter)
-        token_params = {
-            "method": "auth.getToken",
-            "api_key": API_KEY,
-        }
+        token_params = {"method": "auth.getToken", "api_key": API_KEY}
         token_params["api_sig"] = _api_signature(token_params)
         token_params["format"] = "json"
-        resp = requests.get(API_URL, params=token_params)
-        resp.raise_for_status()
-        token = resp.json()["token"]
+        response = requests.get(API_URL, params=token_params, timeout=REQUEST_TIMEOUT_SECONDS)
+        response.raise_for_status()
+        token = response.json()["token"]
 
-        # 2. Open browser for user to authorize
         auth_url = f"https://www.last.fm/api/auth/?api_key={API_KEY}&token={token}"
         print("Opening browser for Last.fm authentication…")
         webbrowser.open(auth_url)
-        # 3. Wait for the user to authorize the request token.
-        # The script will continuously poll the API until the session key is available.
-        # Directly start polling the API; the loop will only exit once the
-        # user has clicked "Allow" in the browser and the session becomes
-        # available.
 
-        # 4. Poll for the session key after the user authorizes.
-        timeout_seconds = 300  # 5 minutes
+        timeout_seconds = 300
         interval = 2
         elapsed = 0
         while elapsed < timeout_seconds:
             time.sleep(interval)
             elapsed += interval
-            poll_params = {
-                "method": "auth.getSession",
-                "api_key": API_KEY,
-                "token": token,
-            }
+            poll_params = {"method": "auth.getSession", "api_key": API_KEY, "token": token}
             poll_params["api_sig"] = _api_signature(poll_params)
             poll_params["format"] = "json"
-            poll_resp = requests.get(API_URL, params=poll_params)
+            poll_response = requests.get(
+                API_URL, params=poll_params, timeout=REQUEST_TIMEOUT_SECONDS
+            )
             try:
-                data = poll_resp.json()
+                data = poll_response.json()
             except ValueError:
                 continue
             if "session" in data:
-                return data["session"]["key"]
-            # If the token is not yet authorized, the API may include error 14.
+                session = data["session"]
+                discovered_name = str(session.get("name") or "").strip()
+                if discovered_name:
+                    self.username = discovered_name
+                    _save_lastfm_username(discovered_name)
+                return str(session["key"])
             if data.get("error") not in (None, 14):
                 raise RuntimeError(f"Authentication error: {data.get('message', 'unknown')}")
         raise RuntimeError(
-            "Authentication timed out. Please ensure you authorized the "
-            "application in the opened browser."
+            "Authentication timed out. Please ensure you authorized the application "
+            "in the opened browser."
         )
 
-    # ---------------------------------------------------------------------
-    # Scrobble API
-    # ---------------------------------------------------------------------
-    def scrobble(self, artist: str, title: str, album: Optional[str] = None,
-                  duration: Optional[int] = None, track_number: Optional[int] = None,
-                  timestamp: Optional[int] = None) -> Dict:
-        """Scrobble a track to Last.fm.
+    def discover_authenticated_username(self) -> Optional[str]:
+        """Ask Last.fm which user owns the saved authenticated session.
 
-        Parameters
-        ----------
-        artist, title:
-            Track metadata.
-        album:
-            Optional album name.
-        duration:
-            Length of the track in seconds.
-        track_number:
-            Track number on the album.
-        timestamp:
-            Unix timestamp of when the track started playing.  If omitted the
-            current time is used.
+        Motivation: the history crawler should not prompt for a username when
+        PAFPlayer already has enough Last.fm authentication state to discover it.
+        Failure is intentionally non-fatal because public history only needs a
+        username, which can still come from env/file/prompt.
+        """
+        if self.username:
+            return self.username
+        if not self.session_key:
+            return None
+        signed = {
+            "method": "user.getInfo",
+            "api_key": API_KEY,
+            "sk": self.session_key,
+        }
+        signed["api_sig"] = _api_signature(signed)
+        signed["format"] = "json"
+        try:
+            response = requests.get(API_URL, params=signed, timeout=REQUEST_TIMEOUT_SECONDS)
+            response.raise_for_status()
+            data = response.json()
+            name = str(data.get("user", {}).get("name") or "").strip()
+            if name:
+                self.username = name
+                _save_lastfm_username(name)
+                return name
+        except (requests.RequestException, ValueError, AttributeError, TypeError):
+            pass
+        return None
+
+    def scrobble(
+        self,
+        artist: str,
+        title: str,
+        album: Optional[str] = None,
+        duration: Optional[int] = None,
+        track_number: Optional[int] = None,
+        timestamp: Optional[int] = None,
+    ) -> Dict:
+        """Submit one scrobble and return Last.fm's JSON response.
+
+        Motivation: this is the original public behavior used by PAFPlayer; V2
+        keeps its call signature stable while adding independent crawl features.
         """
         self._ensure_authenticated()
         if not self.session_key:
             raise RuntimeError("Failed to obtain session key")
 
-        # Build the parameters required for the scrobble request.
-        # The API signature must be calculated **before** adding the "format"
-        # parameter, as the Last.fm API does not include "format" in the
-        # signature calculation.
         params = {
             "method": "track.scrobble",
             "api_key": API_KEY,
@@ -288,48 +431,1068 @@ class LastFMClient:
             params["duration"] = str(duration)
         if track_number:
             params["trackNumber"] = str(track_number)
-
-        # Compute the API signature before adding the format.
         params["api_sig"] = _api_signature(params)
-        # Add the format parameter for the request.
         params["format"] = "json"
 
-        resp = requests.post(API_URL, data=params)
-        resp.raise_for_status()
-        return resp.json()
+        response = requests.post(API_URL, data=params, timeout=REQUEST_TIMEOUT_SECONDS)
+        response.raise_for_status()
+        return response.json()
 
 
-# ---------------------------------------------------------------------------
-# Library helper
-# ---------------------------------------------------------------------------
-def scrobble_track(artist: str, title: str, album: Optional[str] = None,
-                    duration: Optional[int] = None, track_number: Optional[int] = None,
-                    timestamp: Optional[int] = None) -> Dict:
-    """Convenience wrapper for scrobbling a track.
+def scrobble_track(
+    artist: str,
+    title: str,
+    album: Optional[str] = None,
+    duration: Optional[int] = None,
+    track_number: Optional[int] = None,
+    timestamp: Optional[int] = None,
+) -> Dict:
+    """Convenience wrapper used by PAFPlayer and other Python callers.
 
-    This function can be imported and called directly from other Python code.
+    Motivation: callers should not need to construct/manage a client just to
+    submit the common single-track scrobble operation.
     """
-    client = LastFMClient()
-    return client.scrobble(artist, title, album, duration, track_number, timestamp)
+    return LastFMClient().scrobble(artist, title, album, duration, track_number, timestamp)
 
 
-# ---------------------------------------------------------------------------
-# Command line interface
-# ---------------------------------------------------------------------------
+def _save_lastfm_username(username: str) -> None:
+    """Persist the validated account name for future crawl runs.
+
+    Motivation: asking for the same username on every multi-hour crawl is
+    needless friction, and a separate file is backward compatible.
+    """
+    cleaned = username.strip()
+    if cleaned:
+        USERNAME_FILE.write_text(cleaned + "\n", encoding="utf-8")
+
+
+def _resolve_lastfm_username(explicit: Optional[str] = None) -> str:
+    """Find the Last.fm username from CLI/env/cache/session, then prompt.
+
+    Motivation: "ask only if PAFPlayer doesn't know" requires several cheap
+    sources to be exhausted before making the crawl interactive.
+    """
+    candidates = [
+        explicit,
+        os.getenv("PAFPLAYER_LASTFM_USERNAME"),
+        os.getenv("LASTFM_USERNAME"),
+    ]
+    if USERNAME_FILE.exists():
+        try:
+            candidates.append(USERNAME_FILE.read_text(encoding="utf-8").strip())
+        except OSError:
+            pass
+    for candidate in candidates:
+        if candidate and candidate.strip():
+            name = candidate.strip()
+            _save_lastfm_username(name)
+            return name
+
+    discovered = LastFMClient().discover_authenticated_username()
+    if discovered:
+        return discovered
+
+    if not sys.stdin.isatty():
+        raise RuntimeError(
+            "Last.fm username is unknown and stdin is not interactive. Set "
+            "LASTFM_USERNAME or PAFPLAYER_LASTFM_USERNAME."
+        )
+    while True:
+        name = input("Last.fm username for PAFPlayer history crawl: ").strip()
+        if name:
+            _save_lastfm_username(name)
+            return name
+        print("A Last.fm username is required.", file=sys.stderr)
+
+
+def _normalize_history_text(value: str) -> str:
+    """Match PAFPlayer's NFKC/whitespace/casefold text normalization.
+
+    Motivation: a crawler identity must compare byte-for-byte with the keys the
+    player itself writes, or the backfilled history would silently miss tracks.
+    """
+    normalized = unicodedata.normalize("NFKC", str(value or ""))
+    return re.sub(r"\s+", " ", normalized).strip().casefold()
+
+
+def _history_filename_key(value: str | os.PathLike[str] | Path) -> str:
+    """Match PAFPlayer's extension/track-number-stripped basename key.
+
+    Motivation: Last.fm supplies a title rather than a Windows path, but common
+    local filenames such as ``01_Blackened.mp3`` normalize to the same key as
+    the Last.fm title ``Blackened``.  The Last.fm title is normalized directly
+    (rather than treated as a filename) so titles containing dots, such as
+    ``Mr. Brightside``, are not accidentally mistaken for file extensions.
+    """
+    if isinstance(value, Path):
+        name = value.name
+    else:
+        raw = str(value or "")
+        name = PureWindowsPath(raw).name if "\\" in raw else Path(raw).name
+    stem = PureWindowsPath(name).stem
+    stem = re.sub(r"^(?:\s*\d{1,3}\s*[-_. ]+\s*)+", "", stem)
+    return _normalize_history_text(stem)
+
+
+def _history_tag_key(artist: str, title: str) -> str:
+    """Return PAFPlayer's normalized ``artist\x1ftitle`` identity.
+
+    Motivation: filename collisions exist, so artist/title is the second half
+    of the player-compatible identity used to avoid cross-song contamination.
+    """
+    return "\x1f".join((_normalize_history_text(artist), _normalize_history_text(title)))
+
+
+def _candidate_paf_script_paths() -> list[Path]:
+    """Return likely PAFPlayer script locations in priority order.
+
+    Motivation: ``claire_lastfm.py`` commonly lives in ``C:\\clairecjs_utils``
+    while PAFPlayer itself lives in ``C:\\bat``; assuming the DB sits beside
+    this helper would therefore update the wrong file.
+    """
+    candidates: list[Path] = [
+        Path.cwd() / "play_audio_file.py",
+        Path(r"C:\bat\play_audio_file.py"),
+        Path(__file__).resolve().with_name("play_audio_file.py"),
+        Path(__file__).resolve().parent.parent / "play_audio_file.py",
+    ]
+    which = shutil.which("play_audio_file.py")
+    if which:
+        candidates.append(Path(which))
+    for directory in os.getenv("PATH", "").split(os.pathsep):
+        if directory:
+            candidates.append(Path(directory) / "play_audio_file.py")
+
+    unique: list[Path] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        key = os.path.normcase(os.path.abspath(str(candidate)))
+        if key not in seen:
+            seen.add(key)
+            unique.append(candidate)
+    return unique
+
+
+def _paf_history_database_path() -> Path:
+    """Resolve the same SQLite path PAFPlayer uses.
+
+    Motivation: the crawler is useful only if it changes PAFPlayer's actual
+    history database; explicit override and PAF script discovery prevent a
+    misleading shadow database beside the helper.
+    """
+    override = os.getenv("PLAY_AUDIO_FILE_HISTORY_DB")
+    if override:
+        return Path(override)
+
+    script_candidates = _candidate_paf_script_paths()
+    for script in script_candidates:
+        if script.is_file():
+            return script.resolve().with_name(PAF_HISTORY_DB_NAME)
+
+    # If the script cannot be located, prefer an already-existing known DB.
+    db_candidates = [
+        Path.cwd() / PAF_HISTORY_DB_NAME,
+        Path(r"C:\bat") / PAF_HISTORY_DB_NAME,
+        Path(__file__).resolve().with_name(PAF_HISTORY_DB_NAME),
+    ]
+    existing = [path for path in db_candidates if path.is_file()]
+    if existing:
+        return max(existing, key=lambda path: path.stat().st_mtime)
+
+    raise RuntimeError(
+        "Could not locate PAFPlayer/play_audio_file.py or its history database. "
+        "Set PLAY_AUDIO_FILE_HISTORY_DB to the exact play_audio_file-play-history.sqlite3 path."
+    )
+
+
+def _create_history_table(database: sqlite3.Connection) -> None:
+    """Create PAFPlayer's current filename-first history table.
+
+    Motivation: the crawler may be the first component to initialize history on
+    a new installation, so it must be able to create the exact current schema.
+    """
+    database.execute(
+        """CREATE TABLE played_tracks_recent (
+            filename TEXT NOT NULL,
+            duration_seconds INTEGER NOT NULL,
+            tag TEXT NOT NULL,
+            played_at REAL NOT NULL,
+            PRIMARY KEY (filename, duration_seconds, tag)
+        ) WITHOUT ROWID"""
+    )
+
+
+def _ensure_history_schema(database: sqlite3.Connection) -> None:
+    """Migrate compatible older PAF history layouts to the current schema.
+
+    Motivation: history backfill can be run after an older PAFPlayer release;
+    matching PAFPlayer's own migration behavior avoids either data loss or SQL
+    failures when the column order/key changed over time.
+    """
+    row = database.execute(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name='played_tracks_recent'"
+    ).fetchone()
+    if row is None:
+        _create_history_table(database)
+        return
+
+    columns = [
+        str(info[1])
+        for info in database.execute("PRAGMA table_info(played_tracks_recent)").fetchall()
+    ]
+    expected = ["filename", "duration_seconds", "tag", "played_at"]
+    if columns == expected:
+        return
+
+    if set(expected).issubset(columns):
+        rows = database.execute(
+            "SELECT filename, duration_seconds, tag, played_at FROM played_tracks_recent"
+        ).fetchall()
+        database.execute("DROP TABLE IF EXISTS played_tracks_recent_new")
+        database.execute(
+            """CREATE TABLE played_tracks_recent_new (
+                filename TEXT NOT NULL,
+                duration_seconds INTEGER NOT NULL,
+                tag TEXT NOT NULL,
+                played_at REAL NOT NULL,
+                PRIMARY KEY (filename, duration_seconds, tag)
+            ) WITHOUT ROWID"""
+        )
+        normalized: dict[tuple[str, int, str], float] = {}
+        for filename, duration_seconds, tag, played_at in rows:
+            filename_key = _history_filename_key(str(filename))
+            try:
+                duration = int(duration_seconds)
+                when = float(played_at)
+            except (TypeError, ValueError):
+                continue
+            tag_text = str(tag)
+            if not filename_key or duration <= 0 or not tag_text or tag_text == "\x1f":
+                continue
+            key = (filename_key, duration, tag_text)
+            normalized[key] = max(normalized.get(key, float("-inf")), when)
+        database.executemany(
+            "INSERT INTO played_tracks_recent_new(filename, duration_seconds, tag, played_at) "
+            "VALUES (?, ?, ?, ?)",
+            [(filename, duration, tag, when) for (filename, duration, tag), when in normalized.items()],
+        )
+        database.execute("DROP TABLE played_tracks_recent")
+        database.execute("ALTER TABLE played_tracks_recent_new RENAME TO played_tracks_recent")
+        return
+
+    # Preserve an old duration+tag-only table rather than pretending its missing
+    # filenames can be reconstructed.  This mirrors PAFPlayer's safe migration.
+    suffix = int(time.time())
+    database.execute(
+        f'ALTER TABLE played_tracks_recent RENAME TO "played_tracks_recent_backup_{suffix}"'
+    )
+    _create_history_table(database)
+
+
+def _open_history_database() -> tuple[sqlite3.Connection, Path]:
+    """Open PAFPlayer history with WAL/safe schema setup.
+
+    Motivation: page commits should coexist with a live PAFPlayer process and
+    remain durable without forcing full synchronous disk flushes on every row.
+    """
+    path = _paf_history_database_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    database = sqlite3.connect(path, timeout=30.0)
+    database.execute("PRAGMA journal_mode=WAL")
+    database.execute("PRAGMA synchronous=NORMAL")
+    _ensure_history_schema(database)
+    database.execute("DROP INDEX IF EXISTS played_tracks_recent_tag_duration_idx")
+    database.execute("DROP INDEX IF EXISTS played_tracks_recent_filename_played_idx")
+    database.commit()
+    return database, path
+
+
+@dataclass
+class HistoryMemory:
+    """In-memory mirror of only the fields the crawler needs for fast skipping.
+
+    Motivation: loading the compact table once avoids a SQLite SELECT for each
+    scrobble across potentially hundreds of thousands of Last.fm history rows.
+    """
+
+    rows_by_filename: dict[str, list[tuple[int, str, float]]] = field(default_factory=dict)
+
+    @classmethod
+    def from_database(cls, database: sqlite3.Connection) -> "HistoryMemory":
+        """Read the whole current history table into filename buckets.
+
+        Motivation: page 1 is newest, so the memory map can be updated as writes
+        happen and older pages then become pure in-memory skip checks.
+        """
+        memory = cls()
+        for filename, duration, tag, played_at in database.execute(
+            "SELECT filename, duration_seconds, tag, played_at FROM played_tracks_recent"
+        ):
+            memory.rows_by_filename.setdefault(str(filename), []).append(
+                (int(duration), str(tag), float(played_at))
+            )
+        return memory
+
+    def matching_rows(self, filename: str, tag: str) -> list[tuple[int, str, float]]:
+        """Return rows with both the filename and normalized artist/title tag.
+
+        Motivation: matching tag rows can be updated safely even when a filename
+        has several real duration variants.
+        """
+        return [row for row in self.rows_by_filename.get(filename, []) if row[1] == tag]
+
+    def max_matching_time(self, filename: str, tag: str) -> float:
+        """Return the newest stored timestamp for this web identity.
+
+        Motivation: this is the core cheap test that bypasses any database write
+        when PAFPlayer already knows an equal/newer play.
+        """
+        return max((row[2] for row in self.matching_rows(filename, tag)), default=0.0)
+
+    def update_matching_times(self, filename: str, tag: str, played_at: float) -> None:
+        """Refresh all matching in-memory rows after SQL has been updated.
+
+        Motivation: later/older pages must see writes made earlier in this same
+        process without re-reading SQLite.
+        """
+        rows = self.rows_by_filename.get(filename, [])
+        self.rows_by_filename[filename] = [
+            (duration, stored_tag, max(stored_time, played_at) if stored_tag == tag else stored_time)
+            for duration, stored_tag, stored_time in rows
+        ]
+
+    def seed(self, filename: str, tag: str, played_at: float) -> None:
+        """Add one history-only sentinel identity to memory.
+
+        Motivation: an old Last.fm play for a filename PAF has never seen should
+        affect shuffle ordering immediately without pretending Last.fm supplied
+        a real local duration.
+        """
+        self.rows_by_filename.setdefault(filename, []).append(
+            (WEB_HISTORY_SENTINEL_DURATION, tag, played_at)
+        )
+
+
+@dataclass(frozen=True)
+class RecentScrobble:
+    """Minimal normalized representation of one dated Last.fm page row.
+
+    Motivation: page parsing, DB comparison and display/logging should exchange
+    one stable shape rather than passing raw Last.fm JSON dictionaries around.
+    """
+
+    artist: str
+    title: str
+    album: str
+    timestamp: int
+
+    @property
+    def filename_key(self) -> str:
+        """Derive PAFPlayer's fast filename identity from the Last.fm title.
+
+        Motivation: the web service does not expose local file paths.
+        """
+        return _normalize_history_text(self.title)
+
+    @property
+    def tag_key(self) -> str:
+        """Derive PAFPlayer's artist/title disambiguation identity.
+
+        Motivation: normalized tags protect against filename collisions.
+        """
+        return _history_tag_key(self.artist, self.title)
+
+
+def _artist_name(track: dict) -> str:
+    """Extract artist text across Last.fm's two common JSON shapes.
+
+    Motivation: API responses have historically represented artist either as a
+    ``#text`` dict or a nested name, so defensive parsing keeps old/new payloads
+    crawlable.
+    """
+    artist = track.get("artist", {})
+    if isinstance(artist, dict):
+        return str(artist.get("#text") or artist.get("name") or "").strip()
+    return str(artist or "").strip()
+
+
+def _album_name(track: dict) -> str:
+    """Extract album text without making album presence mandatory.
+
+    Motivation: album is useful context but PAF history identity is artist/title,
+    and many scrobbles legitimately omit album metadata.
+    """
+    album = track.get("album", {})
+    if isinstance(album, dict):
+        return str(album.get("#text") or album.get("name") or "").strip()
+    return str(album or "").strip()
+
+
+def _parse_recent_scrobbles(payload: dict) -> tuple[list[RecentScrobble], int, int]:
+    """Parse one ``user.getRecentTracks`` payload and pagination metadata.
+
+    Motivation: now-playing entries have no historical timestamp and must never
+    be backfilled as though they were completed past plays.
+    """
+    recent = payload.get("recenttracks", {})
+    if not isinstance(recent, dict):
+        raise RuntimeError("Last.fm response did not contain recenttracks")
+    attributes = recent.get("@attr", {}) if isinstance(recent.get("@attr", {}), dict) else {}
+    try:
+        page = int(attributes.get("page", 1))
+    except (TypeError, ValueError):
+        page = 1
+    try:
+        total_pages = max(1, int(attributes.get("totalPages", 1)))
+    except (TypeError, ValueError):
+        total_pages = 1
+
+    raw_tracks = recent.get("track", [])
+    if isinstance(raw_tracks, dict):
+        raw_tracks = [raw_tracks]
+    if not isinstance(raw_tracks, list):
+        raw_tracks = []
+
+    parsed: list[RecentScrobble] = []
+    for track in raw_tracks:
+        if not isinstance(track, dict):
+            continue
+        date = track.get("date")
+        if not isinstance(date, dict) or not date.get("uts"):
+            continue  # current now-playing row, not a completed historical play
+        try:
+            timestamp = int(date["uts"])
+        except (TypeError, ValueError):
+            continue
+        artist = _artist_name(track)
+        title = str(track.get("name") or "").strip()
+        if not artist or not title or timestamp <= 0:
+            continue
+        parsed.append(RecentScrobble(artist, title, _album_name(track), timestamp))
+    return parsed, page, total_pages
+
+
+def _fetch_recent_page(username: str, page: int) -> tuple[list[RecentScrobble], int]:
+    """Fetch exactly one 50-item Last.fm recent-tracks page.
+
+    Motivation: page-sized requests make progress/log sections correspond to
+    the same units the user sees in Last.fm and bound recovery after failures.
+    """
+    payload = _request_json(
+        "user.getRecentTracks",
+        params={
+            "user": username,
+            "page": str(page),
+            "limit": str(RECENT_TRACKS_PAGE_SIZE),
+            "extended": "0",
+        },
+    )
+    tracks, returned_page, total_pages = _parse_recent_scrobbles(payload)
+    if returned_page != page:
+        # Not fatal, but it is a strong signal if Last.fm ever changes paging.
+        print(
+            f"⚠ Last.fm returned page {returned_page} while page {page} was requested.",
+            file=sys.stderr,
+        )
+    return tracks, total_pages
+
+
+def _format_elapsed(seconds: float) -> str:
+    """Format elapsed seconds as compact ``XmYYs``/``XhYYmZZs`` text.
+
+    Motivation: the live display refreshes often, so stable compact time strings
+    are easier to scan than verbose timedelta formatting.
+    """
+    whole = max(0, int(seconds))
+    hours, remainder = divmod(whole, 3600)
+    minutes, secs = divmod(remainder, 60)
+    if hours:
+        return f"{hours}h{minutes:02d}m{secs:02d}s"
+    return f"{minutes}m{secs:02d}s"
+
+
+def _ansi_random_number(text: str) -> str:
+    """Wrap one changing numeric field in a fresh bright 24-bit ANSI color.
+
+    Motivation: Claire asked for every changing number to be visually distinct
+    on every rewrite, while punctuation/labels remain stable anchors.
+    """
+    if not sys.stdout.isatty():
+        return text
+    rgb = tuple(random.randint(120, 255) for _ in range(3))
+    return f"\033[38;2;{rgb[0]};{rgb[1]};{rgb[2]}m{text}\033[0m"
+
+
+def _colorize_elapsed(value: str) -> str:
+    """Color each numeric run in a formatted elapsed-time string.
+
+    Motivation: minutes/hours/seconds all change independently and the request
+    specifically calls for changing numbers—not the labels—to change color.
+    """
+    return re.sub(r"\d+", lambda match: _ansi_random_number(match.group(0)), value)
+
+
+def _crawler_summary_line(
+    *,
+    page: int,
+    checked: int,
+    page_total: int,
+    page_updates: int,
+    page_bands: int,
+    total_updates: int,
+    total_bands: int,
+    page_elapsed: float,
+    total_elapsed: float,
+) -> str:
+    """Build one aligned, colorized live status line.
+
+    Motivation: central formatting keeps initial/intermediate/final page output
+    column-compatible and guarantees the requested minimum width of 3 counters.
+    """
+    return (
+        f"Processing page {_ansi_random_number(str(page))}: "
+        f"[{_ansi_random_number(f'{checked:02d}')}/{_ansi_random_number(f'{page_total:02d}')}] "
+        f"[{_ansi_random_number(f'{page_updates:3d}')} songs / "
+        f"{_ansi_random_number(f'{page_bands:3d}')} bands] "
+        f"[total: {_ansi_random_number(f'{total_updates:3d}')} songs / "
+        f"{_ansi_random_number(f'{total_bands:3d}')} bands] "
+        f"[time:{_colorize_elapsed(_format_elapsed(page_elapsed))}] "
+        f"[total time:{_colorize_elapsed(_format_elapsed(total_elapsed))}]"
+    )
+
+
+def _rainbow_bar(fraction: float, width: Optional[int] = None) -> str:
+    """Render the crawler's one-line Claire-style rainbow progress bar.
+
+    Motivation: this mode needs cursor-controlled two-line rewriting and page-bar
+    erasure that tqdm cannot expose through claire_progressbar's simple context
+    manager, so it reproduces the shared helper's bright HSV progress behavior.
+    """
+    fraction = min(1.0, max(0.0, float(fraction)))
+    terminal_width = shutil.get_terminal_size((100, 24)).columns
+    bar_width = width or max(20, min(60, terminal_width - 14))
+    filled = int(round(bar_width * fraction))
+    empty = max(0, bar_width - filled)
+    if sys.stdout.isatty():
+        # Same HSV-wheel concept used by claire_progressbar.RainbowTqdm.
+        hue = fraction % 1.0
+        import colorsys
+
+        red, green, blue = colorsys.hsv_to_rgb(hue, 1.0, 1.0)
+        rgb = (round(red * 255), round(green * 255), round(blue * 255))
+        done = f"\033[38;2;{rgb[0]};{rgb[1]};{rgb[2]}m{'█' * filled}\033[0m"
+    else:
+        done = "#" * filled
+    rest = "░" * empty if sys.stdout.isatty() else "-" * empty
+    return f"[{done}{rest}] {fraction * 100:5.1f}%"
+
+
+class CrawlerDisplay:
+    """Own the two-line in-place page display and cursor transitions.
+
+    Motivation: page N+1 must occupy page N's erased progress-bar line while the
+    completed summary remains visible above it, which ordinary print/tqdm calls
+    cannot guarantee together.
+    """
+
+    def __init__(self) -> None:
+        """Initialize display state without touching the terminal yet.
+
+        Motivation: the first page should decide when live cursor output begins.
+        """
+        self.live = sys.stdout.isatty()
+        self.started = False
+
+    def start_page(self, summary: str) -> None:
+        """Place a new page summary where the prior bar was, then add a bar line.
+
+        Motivation: this creates the requested vertical history of completed
+        page summaries without leaving stale progress bars behind.
+        """
+        if self.live:
+            if self.started:
+                sys.stdout.write("\r\033[2K" + summary + "\n")
+            else:
+                sys.stdout.write(summary + "\n")
+                self.started = True
+            sys.stdout.write("\033[2K" + _rainbow_bar(0.0))
+            sys.stdout.flush()
+        else:
+            print(summary)
+            self.started = True
+
+    def refresh(self, summary: str, fraction: float) -> None:
+        """Rewrite summary and bar without scrolling the terminal.
+
+        Motivation: long pages should communicate activity continuously while
+        leaving only two live lines regardless of refresh count.
+        """
+        if self.live:
+            sys.stdout.write("\r\033[1A\033[2K" + summary + "\n")
+            sys.stdout.write("\033[2K" + _rainbow_bar(fraction))
+            sys.stdout.flush()
+
+    def finish_page(self, summary: str) -> None:
+        """Freeze the final summary and erase its progress bar.
+
+        Motivation: the next page summary can then reuse exactly the old bar
+        line, matching the requested stacked-page display.
+        """
+        if self.live:
+            self.refresh(summary, 1.0)
+            sys.stdout.write("\r\033[2K")
+            sys.stdout.flush()
+        else:
+            print(summary)
+
+    def message(self, text: str) -> None:
+        """Temporarily print a warning below/around the live display safely.
+
+        Motivation: triple-quit confirmations must be visible without corrupting
+        the ANSI cursor bookkeeping used by the page/status lines.
+        """
+        if self.live:
+            sys.stdout.write("\r\033[2K" + text + "\n")
+            sys.stdout.flush()
+        else:
+            print(text)
+
+    def close(self) -> None:
+        """Leave the cursor on a clean new line at final program exit.
+
+        Motivation: an erased bar line without a trailing newline would make the
+        shell prompt appear inside the crawler's display area.
+        """
+        if self.live and self.started:
+            sys.stdout.write("\r\033[2K\n")
+            sys.stdout.flush()
+
+
+class QuitGuard:
+    """Require three supported quit requests before ending a crawl.
+
+    Motivation: a full history import can run for hours; one accidental Ctrl+C
+    or Q should not discard the remaining crawl opportunity.
+    """
+
+    def __init__(self, display: CrawlerDisplay):
+        """Create the guard and remember the display used for warnings.
+
+        Motivation: signal handlers need a tiny state object they can safely
+        update without raising KeyboardInterrupt on the first two requests.
+        """
+        self.display = display
+        self.confirmations = 0
+        self.stop_requested = False
+        self._old_sigint = None
+        self._old_sigbreak = None
+
+    def __enter__(self) -> "QuitGuard":
+        """Install Ctrl+C/Ctrl+Break handlers for the crawl's lifetime.
+
+        Motivation: default Python signal behavior exits on the first interrupt,
+        contrary to the requested three-confirmation safeguard.
+        """
+        self._old_sigint = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, self._signal_handler)
+        if hasattr(signal, "SIGBREAK"):
+            self._old_sigbreak = signal.getsignal(signal.SIGBREAK)  # type: ignore[attr-defined]
+            signal.signal(signal.SIGBREAK, self._signal_handler)  # type: ignore[attr-defined]
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> bool:
+        """Restore prior handlers after the crawl.
+
+        Motivation: imported/library use must not permanently change the host
+        application's signal policy.
+        """
+        if self._old_sigint is not None:
+            signal.signal(signal.SIGINT, self._old_sigint)
+        if hasattr(signal, "SIGBREAK") and self._old_sigbreak is not None:
+            signal.signal(signal.SIGBREAK, self._old_sigbreak)  # type: ignore[attr-defined]
+        return False
+
+    def _signal_handler(self, signum, frame) -> None:
+        """Convert an interrupt signal into one of three required confirmations.
+
+        Motivation: signal callbacks must not throw on confirmations 1/2, or
+        requests would escape the guard as ordinary KeyboardInterrupt exceptions.
+        """
+        name = "Ctrl+Break" if hasattr(signal, "SIGBREAK") and signum == signal.SIGBREAK else "Ctrl+C"  # type: ignore[attr-defined]
+        self.request(name)
+
+    def request(self, source: str) -> None:
+        """Record one quit key and stop only after the third request.
+
+        Motivation: Q/X/Ctrl+W and signal-based keys should all obey exactly the
+        same three-strike behavior.
+        """
+        if self.stop_requested:
+            return
+        self.confirmations += 1
+        if self.confirmations >= 3:
+            self.stop_requested = True
+            self.display.message(f"🛑 Quit confirmed 3/3 by {source}; stopping after current safe point.")
+        else:
+            remaining = 3 - self.confirmations
+            self.display.message(
+                f"⚠ Quit request {self.confirmations}/3 ({source}). "
+                f"Repeat a quit key {remaining} more time{'s' if remaining != 1 else ''} to stop."
+            )
+
+    def poll_console_keys(self) -> None:
+        """Non-blockingly recognize PAF-style Q/X/Ctrl+W quit keys on Windows.
+
+        Motivation: standalone crawling has no playback key loop, so without
+        polling only signal-based quit keys would receive triple protection.
+        """
+        if os.name != "nt":
+            return
+        try:
+            import msvcrt
+        except ImportError:  # pragma: no cover
+            return
+        while msvcrt.kbhit():
+            char = msvcrt.getwch()
+            if char in ("q", "Q", "x", "X", "\x17"):
+                label = "Ctrl+W" if char == "\x17" else char.upper()
+                self.request(label)
+            elif char in ("\x00", "\xe0") and msvcrt.kbhit():
+                msvcrt.getwch()  # consume unrelated extended key sequence
+
+
+@dataclass
+class PageResult:
+    """Counters and log lines produced while processing one Last.fm page.
+
+    Motivation: display, logging and final totals need the same definition of
+    "updated songs/bands" without recomputing page work.
+    """
+
+    checked: int = 0
+    updated_rows: int = 0
+    updated_bands: set[str] = field(default_factory=set)
+    update_lines: list[str] = field(default_factory=list)
+
+
+def _format_log_timestamp(timestamp: int) -> str:
+    """Render a Last.fm Unix timestamp in the machine's local timezone.
+
+    Motivation: page logs are for human audit and should match the user's local
+    calendar rather than forcing mental UTC conversion.
+    """
+    return datetime.fromtimestamp(timestamp).astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+
+
+def _update_history_for_scrobble(
+    database: sqlite3.Connection,
+    memory: HistoryMemory,
+    scrobble: RecentScrobble,
+) -> tuple[int, list[str]]:
+    """Apply one scrobble only if it improves PAFPlayer's latest-played time.
+
+    Motivation: this function is the correctness boundary.  It combines the
+    preloaded-memory fast skip, collision-safe sentinel seeding and SQL ``MAX``
+    protection so web history can never move a track backward in time.
+    """
+    filename = scrobble.filename_key
+    tag = scrobble.tag_key
+    if not filename or not tag or tag == "\x1f":
+        return 0, []
+    when = float(scrobble.timestamp)
+
+    matching = memory.matching_rows(filename, tag)
+    if matching:
+        newest = max(row[2] for row in matching)
+        if newest >= when:
+            return 0, []
+        durations = sorted({row[0] for row in matching})
+        database.executemany(
+            """UPDATE played_tracks_recent
+               SET played_at=MAX(played_at, ?)
+               WHERE filename=? AND duration_seconds=? AND tag=?""",
+            [(when, filename, duration, tag) for duration in durations],
+        )
+        memory.update_matching_times(filename, tag, when)
+        details = [
+            f"        Updated to {_format_log_timestamp(scrobble.timestamp)}: "
+            f"{scrobble.artist} — {scrobble.title} "
+            f"[PAF filename key={filename!r}, duration={duration}s]"
+            for duration in durations
+        ]
+        return len(durations), details
+
+    existing_filename_rows = memory.rows_by_filename.get(filename, [])
+    if existing_filename_rows:
+        # Do not add a duration=1 row to an already ambiguous/different filename;
+        # PAFPlayer would then probe exact metadata and the synthetic duration
+        # could never match. Skipping is safer than manufacturing a false play.
+        return 0, []
+
+    database.execute(
+        """INSERT INTO played_tracks_recent(filename, duration_seconds, tag, played_at)
+           VALUES (?, ?, ?, ?)
+           ON CONFLICT(filename, duration_seconds, tag)
+           DO UPDATE SET played_at=MAX(played_tracks_recent.played_at, excluded.played_at)""",
+        (filename, WEB_HISTORY_SENTINEL_DURATION, tag, when),
+    )
+    memory.seed(filename, tag, when)
+    return 1, [
+        f"        Updated to {_format_log_timestamp(scrobble.timestamp)}: "
+        f"{scrobble.artist} — {scrobble.title} "
+        f"[PAF filename key={filename!r}, web-history seed]"
+    ]
+
+
+def _append_page_log(
+    *,
+    log_path: Path,
+    page: int,
+    result: PageResult,
+    page_elapsed: float,
+    total_elapsed: float,
+) -> None:
+    """Append one completed page section to the requested plaintext log.
+
+    Motivation: page-at-a-time flushes make the log a durable recovery/audit
+    trail even if a later web request or manual stop ends the overall crawl.
+    """
+    lines = [
+        "=" * 88,
+        f"✨*✨*✨*✨  PAGE {page}  ✨*✨*✨*✨",
+        "",
+        "* Updates:",
+    ]
+    if result.update_lines:
+        lines.extend(result.update_lines)
+    else:
+        lines.append("        (none)")
+    lines.extend(
+        [
+            "",
+            "- Page summary:",
+            f"  Checked: {result.checked}",
+            f"  Updated: {result.updated_rows} songs from {len(result.updated_bands)} bands",
+            f"  Time elapsed: {_format_elapsed(page_elapsed)}",
+            f"  Total time elapsed: {_format_elapsed(total_elapsed)}",
+            "",
+        ]
+    )
+    with log_path.open("a", encoding="utf-8", newline="\n") as handle:
+        handle.write("\n".join(lines) + "\n")
+
+
+def crawl_lastfm_recently_played_pages(username: Optional[str] = None) -> None:
+    """Walk all Last.fm recent-track pages and backfill PAFPlayer play history.
+
+    Motivation: local Last.fm desktop logs only cover periods/machines where the
+    logger existed.  Last.fm's account history can reach farther back, allowing
+    PAFPlayer's history-biased shuffle to know about older listens it never saw.
+    """
+    username = _resolve_lastfm_username(username)
+    database, database_path = _open_history_database()
+    log_path = Path(__file__).resolve().with_name(WEB_IMPORT_LOG_NAME)
+    memory = HistoryMemory.from_database(database)
+
+    print(f"🎧 Last.fm user: {username}")
+    print(f"🗃️  PAFPlayer history database: {database_path}")
+    print(f"📝 Import log: {log_path}")
+    print(f"🧠 Loaded {sum(len(rows) for rows in memory.rows_by_filename.values()):,} history rows into memory.")
+
+    display = CrawlerDisplay()
+    total_started = time.monotonic()
+    total_updates = 0
+    total_bands: set[str] = set()
+    seen_web_identities: set[tuple[str, str]] = set()
+    page = 1
+    pages_completed = 0
+    total_pages: Optional[int] = None
+
+    try:
+        with QuitGuard(display) as quit_guard:
+            while total_pages is None or page <= total_pages:
+                if quit_guard.stop_requested:
+                    break
+
+                page_started = time.monotonic()
+                tracks, reported_total_pages = _fetch_recent_page(username, page)
+                total_pages = reported_total_pages if total_pages is None else max(total_pages, reported_total_pages)
+                page_total = len(tracks)
+                result = PageResult()
+
+                initial = _crawler_summary_line(
+                    page=page,
+                    checked=0,
+                    page_total=page_total,
+                    page_updates=0,
+                    page_bands=0,
+                    total_updates=total_updates,
+                    total_bands=len(total_bands),
+                    page_elapsed=0.0,
+                    total_elapsed=time.monotonic() - total_started,
+                )
+                display.start_page(initial)
+
+                for index, scrobble in enumerate(tracks, start=1):
+                    quit_guard.poll_console_keys()
+                    if quit_guard.stop_requested:
+                        break
+                    result.checked += 1
+
+                    web_identity = (scrobble.filename_key, scrobble.tag_key)
+                    if web_identity not in seen_web_identities:
+                        seen_web_identities.add(web_identity)
+                        updated, details = _update_history_for_scrobble(database, memory, scrobble)
+                        if updated:
+                            result.updated_rows += updated
+                            total_updates += updated
+                            band_key = _normalize_history_text(scrobble.artist)
+                            if band_key:
+                                result.updated_bands.add(band_key)
+                                total_bands.add(band_key)
+                            result.update_lines.extend(details)
+
+                    # Commit each row rather than each page so Ctrl+Break or power
+                    # loss loses at most one SQL operation. WAL keeps this cheap.
+                    database.commit()
+                    now = time.monotonic()
+                    summary = _crawler_summary_line(
+                        page=page,
+                        checked=index,
+                        page_total=page_total,
+                        page_updates=result.updated_rows,
+                        page_bands=len(result.updated_bands),
+                        total_updates=total_updates,
+                        total_bands=len(total_bands),
+                        page_elapsed=now - page_started,
+                        total_elapsed=now - total_started,
+                    )
+                    display.refresh(summary, index / max(1, page_total))
+
+                page_elapsed = time.monotonic() - page_started
+                total_elapsed = time.monotonic() - total_started
+                final_summary = _crawler_summary_line(
+                    page=page,
+                    checked=result.checked,
+                    page_total=page_total,
+                    page_updates=result.updated_rows,
+                    page_bands=len(result.updated_bands),
+                    total_updates=total_updates,
+                    total_bands=len(total_bands),
+                    page_elapsed=page_elapsed,
+                    total_elapsed=total_elapsed,
+                )
+                display.finish_page(final_summary)
+                _append_page_log(
+                    log_path=log_path,
+                    page=page,
+                    result=result,
+                    page_elapsed=page_elapsed,
+                    total_elapsed=total_elapsed,
+                )
+                pages_completed += 1
+
+                if quit_guard.stop_requested:
+                    break
+                if not tracks:
+                    break
+                page += 1
+
+            display.close()
+            if quit_guard.stop_requested:
+                print(
+                    f"🛑 Crawl stopped after three quit confirmations. "
+                    f"Committed {total_updates:,} history-row update(s)."
+                )
+            else:
+                print(
+                    f"✅ Last.fm crawl complete: {pages_completed:,} page(s), "
+                    f"{total_updates:,} history-row update(s), {len(total_bands):,} band(s)."
+                )
+    finally:
+        database.commit()
+        database.close()
+
+
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Scrobble a track to Last.fm")
-    parser.add_argument("--artist", required=True, help="Artist name")
-    parser.add_argument("--title", required=True, help="Track title")
+    """Build the standalone CLI with mutually exclusive scrobble/crawl modes.
+
+    Motivation: V1 required artist/title unconditionally; V2 must let the new
+    maintenance switch run by itself while preserving concise help and examples.
+    """
+    parser = argparse.ArgumentParser(
+        description="Scrobble a track to Last.fm or crawl recent-history pages into PAFPlayer.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""Examples:
+  python claire_lastfm.py --artist "Metallica" --title "Blackened" --album "...And Justice for All"
+  python claire_lastfm.py --crawl-lastfm-recently-played-pages
+
+History crawl:
+  Walks Last.fm recent-track pages (50 plays/page), newest to oldest; loads
+  PAFPlayer's SQLite history into memory first; only newer Last.fm timestamps
+  are written. Ctrl+C/Ctrl+Break/Q/X/Ctrl+W require three quit confirmations.
+  Progress is shown as a color-changing two-line page display and every finished
+  page is appended to lastfm-webpage-import.log.
+""",
+    )
+    parser.add_argument("--artist", help="Artist name for single-track scrobbling")
+    parser.add_argument("--title", help="Track title for single-track scrobbling")
     parser.add_argument("--album", help="Album name")
     parser.add_argument("--duration", type=int, help="Track duration in seconds")
     parser.add_argument("--track", type=int, dest="track_number", help="Track number on album")
-    parser.add_argument("--timestamp", type=int, help="Unix timestamp of when the track started")
+    parser.add_argument("--timestamp", type=int, help="Unix timestamp when the track started")
+    parser.add_argument(
+        "--crawl-lastfm-recently-played-pages",
+        action="store_true",
+        help=(
+            "crawl all 50-play Last.fm recent-history pages and backfill only newer "
+            "timestamps into PAFPlayer's play-history database"
+        ),
+    )
+    parser.add_argument(
+        "--lastfm-username",
+        help="optional username override for the crawl; normally discovered/saved automatically",
+    )
     return parser
 
 
 def main(argv: Optional[list[str]] = None) -> None:
+    """Dispatch either the history crawler or original one-track scrobble mode.
+
+    Motivation: keeping one entry point makes the helper easy to invoke manually
+    and keeps PAFPlayer's existing import/scrobble API unchanged.
+    """
     parser = _build_parser()
     args = parser.parse_args(argv)
+
+    if args.crawl_lastfm_recently_played_pages:
+        if any(
+            value is not None
+            for value in (
+                args.artist,
+                args.title,
+                args.album,
+                args.duration,
+                args.track_number,
+                args.timestamp,
+            )
+        ):
+            parser.error(
+                "--crawl-lastfm-recently-played-pages is a standalone mode; "
+                "do not combine it with scrobble metadata options"
+            )
+        try:
+            crawl_lastfm_recently_played_pages(args.lastfm_username)
+        except Exception as exc:
+            print(f"Error crawling Last.fm recently played pages: {exc}", file=sys.stderr)
+            raise SystemExit(1)
+        return
+
+    if args.lastfm_username:
+        parser.error("--lastfm-username is only used with --crawl-lastfm-recently-played-pages")
+    if not args.artist or not args.title:
+        parser.error("single-track scrobbling requires both --artist and --title")
+
     try:
         result = scrobble_track(
             artist=args.artist,
@@ -342,7 +1505,7 @@ def main(argv: Optional[list[str]] = None) -> None:
         print("Scrobble successful:", json.dumps(result, indent=2))
     except Exception as exc:
         print("Error scrobbling track:", exc, file=sys.stderr)
-        sys.exit(1)
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
