@@ -43,6 +43,12 @@ from pathlib import Path
 from typing import Any, Callable, NoReturn
 
 # USER CONFIGURATION ---------------------------------------------------------
+# Published releases are deliberately separate from the timestamped safety
+# backups that the auditor makes before replacements. Update both values only
+# when publishing a new named release.
+AUDIT_MUSIC_BATCH_VERSION = "v105"
+AUDIT_MUSIC_BATCH_RELEASE_NAME = "interactive-music-audit"
+
 # Set this to a full executable path only when automatic discovery cannot find
 # your preferred image viewer. The V key first honors openimage.bat, then this
 # value, then IrfanView found on PATH or in established portable paths.
@@ -285,6 +291,7 @@ EXECUTABLE_CATEGORIES = {
     "missing_srt_from_lrc_txt",
     "newer_lrc_needs_srt_backfill",
     "missing_embedded_art",
+    "corrupted_legacy_id3_frames",
     "missing_replaygain",
     "missing_album",
     "multiple_embedded_artworks",
@@ -341,6 +348,9 @@ ACTION_PROMPT_QUESTIONS = {
     "missing_embedded_art": (
         "Use the available sidecar—or search for a verified release artwork "
         "set—and embed only its Front image now?"
+    ),
+    "corrupted_legacy_id3_frames": (
+        "Remove the clearly corrupted legacy ID3 frames from this audio file now?"
     ),
     "missing_replaygain": "Run ReplayGain on this folder now?",
     "missing_srt_from_lrc_txt": (
@@ -2281,6 +2291,21 @@ class BatchAudit:
                 self.progress_update()
                 continue
 
+            corrupt_id3 = corrupted_legacy_id3_frames(path)
+            if corrupt_id3:
+                self.add(
+                    "safe_fix",
+                    "corrupted_legacy_id3_frames",
+                    path,
+                    "Corrupted legacy ID3 frames detected: "
+                    + ", ".join(sorted(corrupt_id3))
+                    + ". The values contain broken UTF-8/BOM mojibake and may be reordered.",
+                    "Back up this MP3 and remove only the corrupted non-core "
+                    "ID3 frames; clean title, artist, album, and ReplayGain "
+                    "frames are kept unchanged.",
+                    frames=sorted(corrupt_id3),
+                )
+
             channels = int(snapshot.get("channels") or 0)
             if channels > 2:
                 self.add(
@@ -2816,6 +2841,69 @@ def frame_text(tags: Any, frame_id: str) -> list[str]:
     for frame in tags.getall(frame_id):
         out.extend(str(x) for x in getattr(frame, "text", []))
     return out
+
+
+CORRUPTED_LEGACY_ID3_FRAME_IDS = (
+    "TPOS",  # disc number
+    "TLEN",  # duration
+    "TBPM",  # tempo
+    "TKEY",  # musical key
+    "TSRC",  # ISRC
+    "TSSE",  # encoder
+    "TPUB",  # publisher
+    "TCOP",  # copyright
+    "TEXT",  # lyricist/text writer
+)
+
+
+def corrupted_legacy_id3_frames(path: Path) -> dict[str, list[str]]:
+    """Return known non-core ID3 frames bearing the broken UTF-8/BOM pattern.
+
+    This intentionally does not attempt to guess at a reconstruction: the
+    affected serialisation can both prepend mojibake and reorder characters.
+    Clean core frames such as title/artist/album and ReplayGain are excluded.
+    """
+    if path.suffix.casefold() != ".mp3" or MP3 is None or ID3 is None:
+        return {}
+    try:
+        tags = MP3(path, ID3=ID3).tags
+    except Exception:
+        return {}
+    if not tags:
+        return {}
+    corrupt: dict[str, list[str]] = {}
+    for frame_id in CORRUPTED_LEGACY_ID3_FRAME_IDS:
+        values = frame_text(tags, frame_id)
+        if any(
+            "├" in value
+            or "╛" in value
+            or "ï»¿" in value
+            or re.match(r"^\?{2,}", value)
+            for value in values
+        ):
+            corrupt[frame_id] = values
+    return corrupt
+
+
+def repair_corrupted_legacy_id3_frames(path: Path) -> list[str]:
+    """Back up and remove only proven-corrupt legacy ID3 frame types."""
+    corrupt = corrupted_legacy_id3_frames(path)
+    if not corrupt:
+        raise RuntimeError("No recognized corrupted legacy ID3 frames remain")
+    backup = backup_before_inline_replacement(path)
+    tagged = MP3(path, ID3=ID3)
+    if not tagged.tags:
+        raise RuntimeError("MP3 does not contain ID3 tags")
+    for frame_id in corrupt:
+        tagged.tags.delall(frame_id)
+    tagged.save(v2_version=3)
+    remaining = corrupted_legacy_id3_frames(path)
+    if remaining:
+        raise RuntimeError(
+            "Corrupted legacy ID3 frame verification failed: "
+            + ", ".join(sorted(remaining))
+        )
+    return [f"backup:{backup}", "removed_corrupt_id3:" + ",".join(sorted(corrupt))]
 
 
 def extract_url_only_comment(text: str) -> str | None:
@@ -10079,6 +10167,7 @@ def friendly_category(category: str) -> str:
         "unusable_karaoke_sidecar": "Timed sidecar needs repair",
         "unusable_plain_lyric_sidecar": "Plain-lyrics sidecar needs repair",
         "missing_embedded_art": "Embedded cover missing",
+        "corrupted_legacy_id3_frames": "Corrupted legacy ID3 frames",
         "missing_replaygain": "ReplayGain missing",
         "missing_srt_from_lrc_txt": "SRT sidecars ready to generate",
         "karaoke_not_embedded": "Timed karaoke ready to embed",
@@ -10687,6 +10776,8 @@ def render_usage(use_color: bool = True) -> str:
     lines = [
         "",
         *usage_header("✨✱✨ audit_music_batch.py ✨✱✨", use_color),
+        "",
+        f"  Release {AUDIT_MUSIC_BATCH_VERSION} — {AUDIT_MUSIC_BATCH_RELEASE_NAME.replace('-', ' ')}",
         "",
         "Audit an incoming music folder for:",
         "",
@@ -11786,6 +11877,9 @@ def apply_finding(
             use_color=use_color,
             key_reader=key_reader,
         )
+
+    if category == "corrupted_legacy_id3_frames":
+        return repair_corrupted_legacy_id3_frames(target)
 
     if category in {"archive_missing_attrib", "archive_incomplete_attrib"}:
         attrib = target / "attrib.lst" if target.is_dir() else target
@@ -18940,6 +19034,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument("root", nargs="?", default=None, help="Batch root to audit; use . for the current folder.")
     parser.add_argument("-h", "--help", action="store_true", help="Show the styled usage screen and exit.")
+    parser.add_argument("--version", action="store_true", help="Show the named published release version and exit.")
     parser.add_argument("--include-archives", action="store_true", help="Include archived/deprecated audio in active tag checks.")
     parser.add_argument("--format", choices=("text", "json", "markdown"), default="text", help="Report format for stdout.")
     parser.add_argument("--write-reports", action="store_true", help="Write JSON, Markdown, and text reports.")
@@ -19076,6 +19171,9 @@ def _main(argv: list[str] | None = None) -> int:
     args = parse_args(raw_argv)
     if args.help:
         print_usage(use_color=not args.no_color)
+        return 0
+    if args.version:
+        print(f"audit_music_batch.py {AUDIT_MUSIC_BATCH_VERSION} ({AUDIT_MUSIC_BATCH_RELEASE_NAME})")
         return 0
     if args.review_waveforms and args.root is None:
         args.root = "."

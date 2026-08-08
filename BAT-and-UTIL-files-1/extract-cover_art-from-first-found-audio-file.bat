@@ -31,14 +31,20 @@ rem DETERMINE IF WE SHOULDN'T BE HERE AT ALL:
 rem FIND FIRST MP3:
         set AN_MP3=%@EXECSTR[ffind /f /m *.mp3]
         set AN_FLA=%@EXECSTR[ffind /f /m *.flac]
-        %COLOR_DEBUG% %+ echo *** found  MP3?: %AN_MP3% %+ %COLOR_NORMAL%
-        %COLOR_DEBUG% %+ echo *** found FLAC?: %AN_FLA% %+ %COLOR_NORMAL%
+        if "1" == "%DEBUG%" (%COLOR_DEBUG% %+ echo *** found  MP3?: %AN_MP3% %+ %COLOR_NORMAL%)
+        if "1" == "%DEBUG%" (%COLOR_DEBUG% %+ echo *** found FLAC?: %AN_FLA% %+ %COLOR_NORMAL%)
 
 
 rem EXTRACT ARTWORK:
         :NO: ffmpeg -i "%AN_MP3%" cover.jpg
-        if "%AN_MP3" ne "" (metamp3-v0.91.exe   --save-pict       cover.jpg "%AN_MP3%" >nul)
-        if "%AN_FLA" ne "" (metaflac          --export-picture-to cover.jpg "%AN_FLA%" >nul)
+        iff "%AN_MP3" != "" then
+                LAST_EXTRACT_COMMAND=metamp3-v0.91.exe   --save-pict       cover.jpg "%AN_MP3%" 
+                %LAST_EXTRACT_COMMAND% >nul
+        endiff
+        iff "%AN_FLA" != "" then
+                LAST_EXTRACT_COMMAND=metaflac          --export-picture-to cover.jpg "%AN_FLA%" 
+                %LAST_EXTRACT_COMMAND% >nul
+        endiff
         if exist cover.jpg goto :Artwork_Created_Successfully
 
             :: complain if extraction failed:

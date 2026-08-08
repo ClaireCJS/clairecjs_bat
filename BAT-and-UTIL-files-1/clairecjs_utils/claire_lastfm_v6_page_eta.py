@@ -103,9 +103,8 @@ those values add visual noise without useful information.
 
 The ``going back to`` field is the oldest completed-play date encountered so
 far in this run.  After it, the crawler uses the actual console width to append
-a current-page artist list ordered by page frequency. Artists that actually caused
-a database update during this crawl are preferred and blink in ANSI; every sampled
-artist still gets its own color, and only complete ``[Artist]`` blocks that fit before the right
+a random sample of artist names already encountered; each sampled artist gets
+its own color and only complete ``[Artist]`` blocks that fit before the right
 edge are printed.
 
 The second line is a rainbow page-position bar for the *entire Last.fm page
@@ -140,7 +139,6 @@ Library use
 from __future__ import annotations
 
 import argparse
-from collections import Counter
 import hashlib
 import json
 import os
@@ -156,7 +154,7 @@ import webbrowser
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path, PureWindowsPath
-from typing import Dict, Iterable, Optional, Sequence, Mapping
+from typing import Dict, Iterable, Optional, Sequence
 
 try:
     import requests  # type: ignore
@@ -711,32 +709,6 @@ def _ensure_history_schema(database: sqlite3.Connection) -> None:
     _create_history_table(database)
 
 
-def _checkpoint_history_database(
-    database: sqlite3.Connection, *, final: bool = False
-) -> tuple[int, int, int] | None:
-    """Checkpoint PAFPlayer's SQLite WAL without abandoning WAL mode.
-
-    Motivation: the crawler commits continuously into SQLite's WAL so it can
-    coexist safely with PAFPlayer, but that means the main ``.sqlite3`` file may
-    appear unchanged during a long import.  Every 100 completed Last.fm pages we
-    issue a PASSIVE checkpoint so committed WAL frames are copied back into the
-    main database without waiting on other readers.  On clean shutdown we try a
-    TRUNCATE checkpoint so the sidecar WAL can be folded away when SQLite can do
-    so safely.  A busy live PAFPlayer is not an error: checkpointing is cosmetic/
-    maintenance work and must never interrupt the import.
-    """
-    mode = "TRUNCATE" if final else "PASSIVE"
-    try:
-        row = database.execute(f"PRAGMA wal_checkpoint({mode})").fetchone()
-        if row is None:
-            return None
-        return tuple(int(value) for value in row)
-    except sqlite3.Error:
-        # The history writes themselves are the important operation.  A blocked
-        # or unsupported checkpoint must not make a successful crawl fail.
-        return None
-
-
 def _open_history_database() -> tuple[sqlite3.Connection, Path]:
     """Open PAFPlayer history with WAL/safe schema setup.
 
@@ -1012,109 +984,27 @@ def _visible_len(text: str) -> int:
     return len(plain)
 
 
-def _artist_sample_suffix(
-    artist_counts: Mapping[str, int],
-    available_columns: int,
-    preferred_artists: Iterable[str] = (),
-) -> str:
-    """Build a width-safe current-page artist sampler ordered by frequency.
+def _artist_sample_suffix(artists: Iterable[str], available_columns: int) -> str:
+    """Build a random, individually-colored artist sample that fits exactly.
 
-    Motivation: the page summary should describe *this page*, not an ever-growing
-    pool of artists encountered on earlier pages. Artists that caused at least
-    one database update on *this specific page* are the preferred/blinking
-    category. Artists merely encountered on the page are rendered faint and do
-    not blink. Within both categories, artists are
-    ordered by how many scrobbles they had on the current Last.fm page, highest
-    first. Equal-frequency names are shuffled so repeated pages do not look
-    needlessly static. Only complete ``[Artist]`` blocks are emitted.
+    Motivation: spare horizontal space is more useful as a lively glimpse of
+    the artists being traversed than as padding.  Only whole ``[Artist]`` blocks
+    are emitted so resizing a console cannot leave a chopped name at the edge.
     """
     if available_columns < 4:
         return ""
-
-    counts = {
-        str(name).strip(): int(count)
-        for name, count in artist_counts.items()
-        if str(name).strip() and int(count) > 0
-    }
-    if not counts:
-        return ""
-
-    preferred = {str(name).strip() for name in preferred_artists if str(name).strip()}
-
-    def frequency_order(names: Iterable[str]) -> list[str]:
-        """Sort by page frequency descending while randomizing exact ties."""
-        buckets: dict[int, list[str]] = {}
-        for name in names:
-            buckets.setdefault(counts[name], []).append(name)
-        ordered: list[str] = []
-        for count in sorted(buckets, reverse=True):
-            tied = buckets[count]
-            random.shuffle(tied)
-            ordered.extend(tied)
-        return ordered
-
-    preferred_choices = frequency_order(name for name in counts if name in preferred)
-    fallback_choices = frequency_order(name for name in counts if name not in preferred)
-
+    choices = sorted({str(name).strip() for name in artists if str(name).strip()}, key=str.casefold)
+    random.shuffle(choices)
     pieces: list[str] = []
     used = 0
-    for artist in preferred_choices + fallback_choices:
+    for artist in choices:
         plain = f" [{artist}]"
         width = _visible_len(plain)
         if used + width > available_columns:
             continue
-        if sys.stdout.isatty():
-            rgb = tuple(random.randint(120, 255) for _ in range(3))
-            # Every individual artist starts from a known terminal state.
-            # Motivation: some Windows terminals can preserve blink/intensity
-            # attributes across adjacent SGR sequences unless they are explicitly
-            # neutralized before styling the next token.
-            prefix = "\033[0m\033[25m"
-            if artist in preferred:
-                # Only artists that caused a database update on THIS page blink.
-                rendered = (
-                    f"{prefix}\033[5;22;38;2;{rgb[0]};{rgb[1]};{rgb[2]}m"
-                    f"{artist}\033[0m\033[25m"
-                )
-            else:
-                # Encountered-but-not-updated artists are deliberately faint and
-                # explicitly non-blinking, even after a blinking neighbor.
-                rendered = (
-                    f"{prefix}\033[2;38;2;{rgb[0]};{rgb[1]};{rgb[2]}m"
-                    f"{artist}\033[0m\033[25m"
-                )
-        else:
-            rendered = artist
-        pieces.append(" [" + rendered + "]")
+        pieces.append(" [" + _ansi_random_text(artist) + "]")
         used += width
     return "".join(pieces)
-
-
-
-@dataclass
-class SummaryCountWidths:
-    """Remember the minimum width needed by each crawler count field.
-
-    Motivation: dynamic remembered-width fields waste space early in a crawl, but
-    allowing widths to shrink makes successive status lines jitter. Each field
-    therefore starts at one column and grows only when a value actually needs
-    another digit (9→10, 99→100, and so on). Once grown, that field keeps the
-    wider width for the remainder of this invocation.
-    """
-
-    page_songs: int = 1
-    page_bands: int = 1
-    total_songs: int = 1
-    total_bands: int = 1
-
-    def observe(
-        self, *, page_songs: int, page_bands: int, total_songs: int, total_bands: int
-    ) -> None:
-        """Grow widths only when a displayed non-negative count gains digits."""
-        self.page_songs = max(self.page_songs, len(str(max(0, page_songs))))
-        self.page_bands = max(self.page_bands, len(str(max(0, page_bands))))
-        self.total_songs = max(self.total_songs, len(str(max(0, total_songs))))
-        self.total_bands = max(self.total_bands, len(str(max(0, total_bands))))
 
 
 def _crawler_summary_line(
@@ -1126,9 +1016,7 @@ def _crawler_summary_line(
     total_bands: int,
     total_elapsed: float,
     oldest_timestamp: Optional[int],
-    sampled_artists: Mapping[str, int],
-    preferred_artists: Iterable[str] = (),
-    count_widths: Optional[SummaryCountWidths] = None,
+    sampled_artists: Iterable[str],
 ) -> str:
     """Build the console-width-aware, colorized live crawler status line.
 
@@ -1140,20 +1028,12 @@ def _crawler_summary_line(
     oldest_date = "----------"
     if oldest_timestamp:
         oldest_date = datetime.fromtimestamp(oldest_timestamp).strftime("%Y-%m-%d")
-    if count_widths is None:
-        count_widths = SummaryCountWidths()
-    count_widths.observe(
-        page_songs=page_updates,
-        page_bands=page_bands,
-        total_songs=total_updates,
-        total_bands=total_bands,
-    )
     base = (
         f"Processing page {_ansi_random_number(str(page))}: "
-        f"[{_ansi_random_number(f'{page_updates:{count_widths.page_songs}d}')} songs / "
-        f"{_ansi_random_number(f'{page_bands:{count_widths.page_bands}d}')} bands] "
-        f"[total: {_ansi_random_number(f'{total_updates:{count_widths.total_songs}d}')} songs / "
-        f"{_ansi_random_number(f'{total_bands:{count_widths.total_bands}d}')} bands] "
+        f"[{_ansi_random_number(f'{page_updates:3d}')} songs / "
+        f"{_ansi_random_number(f'{page_bands:3d}')} bands] "
+        f"[total: {_ansi_random_number(f'{total_updates:3d}')} songs / "
+        f"{_ansi_random_number(f'{total_bands:3d}')} bands] "
         f"[total time:{_colorize_elapsed(_format_elapsed(total_elapsed))}] "
         f"[going back to:{oldest_date}]"
     )
@@ -1163,12 +1043,7 @@ def _crawler_summary_line(
     # logical status row into two physical rows and break ANSI cursor-up logic.
     safe_width = max(1, console_width - 1)
     available = max(0, safe_width - _visible_len(base))
-    rendered = base + _artist_sample_suffix(
-        sampled_artists, available, preferred_artists=preferred_artists
-    )
-    # Belt-and-suspenders reset: even if a terminal handles SGR 5/25 oddly,
-    # never allow blink/color/intensity attributes to leak beyond this row.
-    return rendered + ("\033[0m" if sys.stdout.isatty() else "")
+    return base + _artist_sample_suffix(sampled_artists, available)
 
 
 def _rainbow_bar(
@@ -1200,8 +1075,7 @@ def _rainbow_bar(
     else:
         done = "#" * filled
     rest = "░" * empty if sys.stdout.isatty() else "-" * empty
-    rendered = f"[{done}{rest}]{suffix}"
-    return rendered + ("\033[0m" if sys.stdout.isatty() else "")
+    return f"[{done}{rest}]{suffix}"
 
 
 def _rolling_page_eta(page_times: Sequence[float], *, page: int, total_pages: int) -> Optional[float]:
@@ -1585,7 +1459,7 @@ def crawl_lastfm_recently_played_pages(username: Optional[str] = None) -> None:
     recent_page_times: list[float] = []
     total_pages: Optional[int] = None
     oldest_timestamp: Optional[int] = None
-    summary_count_widths = SummaryCountWidths()
+    encountered_artists: set[str] = set()
 
     try:
         with QuitGuard(display) as quit_guard:
@@ -1598,8 +1472,6 @@ def crawl_lastfm_recently_played_pages(username: Optional[str] = None) -> None:
                 total_pages = reported_total_pages if total_pages is None else max(total_pages, reported_total_pages)
                 page_total = len(tracks)
                 result = PageResult()
-                page_artist_counts: Counter[str] = Counter()
-                page_updated_artists: set[str] = set()
 
                 initial = _crawler_summary_line(
                     page=page,
@@ -1609,9 +1481,7 @@ def crawl_lastfm_recently_played_pages(username: Optional[str] = None) -> None:
                     total_bands=len(total_bands),
                     total_elapsed=time.monotonic() - total_started,
                     oldest_timestamp=oldest_timestamp,
-                    sampled_artists={},
-                    preferred_artists=page_updated_artists,
-                    count_widths=summary_count_widths,
+                    sampled_artists=encountered_artists,
                 )
                 # Page progress is intentionally page-granular: the bar remains
                 # fixed while all tracks on this page are processed.
@@ -1631,7 +1501,7 @@ def crawl_lastfm_recently_played_pages(username: Optional[str] = None) -> None:
                     if quit_guard.stop_requested:
                         break
                     result.checked += 1
-                    page_artist_counts[scrobble.artist] += 1
+                    encountered_artists.add(scrobble.artist)
                     if oldest_timestamp is None or scrobble.timestamp < oldest_timestamp:
                         oldest_timestamp = scrobble.timestamp
 
@@ -1646,9 +1516,6 @@ def crawl_lastfm_recently_played_pages(username: Optional[str] = None) -> None:
                             if band_key:
                                 result.updated_bands.add(band_key)
                                 total_bands.add(band_key)
-                                # Blink eligibility is page-local: only artists that
-                                # actually changed the database on this page qualify.
-                                page_updated_artists.add(scrobble.artist)
                             result.update_lines.extend(details)
 
                     # Commit each row rather than each page so Ctrl+Break or power
@@ -1674,9 +1541,7 @@ def crawl_lastfm_recently_played_pages(username: Optional[str] = None) -> None:
                     total_bands=len(total_bands),
                     total_elapsed=total_elapsed,
                     oldest_timestamp=oldest_timestamp,
-                    sampled_artists=page_artist_counts,
-                    preferred_artists=page_updated_artists,
-                    count_widths=summary_count_widths,
+                    sampled_artists=encountered_artists,
                 )
                 final_fraction = page / max(1, total_pages)
                 display.finish_page(
@@ -1697,13 +1562,6 @@ def crawl_lastfm_recently_played_pages(username: Optional[str] = None) -> None:
                 )
                 pages_completed += 1
 
-                # Periodically fold committed WAL frames back into the visible
-                # .sqlite3 file.  Keep WAL mode enabled; PASSIVE does not block a
-                # simultaneously running PAFPlayer and does not require readers
-                # to release their snapshots.
-                if pages_completed % 100 == 0:
-                    _checkpoint_history_database(database)
-
                 if quit_guard.stop_requested:
                     break
                 if not tracks:
@@ -1723,14 +1581,13 @@ def crawl_lastfm_recently_played_pages(username: Optional[str] = None) -> None:
                 )
     finally:
         database.commit()
-        _checkpoint_history_database(database, final=True)
         database.close()
 
 
 def _build_parser() -> argparse.ArgumentParser:
     """Build the standalone CLI with mutually exclusive scrobble/crawl modes.
 
-    Motivation: V1 required artist/title unconditionally; the crawler must let the new
+    Motivation: V1 required artist/title unconditionally; V2 must let the new
     maintenance switch run by itself while preserving concise help and examples.
     """
     parser = argparse.ArgumentParser(
@@ -1745,7 +1602,7 @@ History crawl:
   through 50-play pages; loads PAFPlayer's SQLite history into memory first and
   only writes newer timestamps. Ctrl+C/Ctrl+Break/Q/X/Ctrl+W require three quit
   confirmations. The live summary shows updates, total time, oldest date reached,
-  and a console-width-aware artist sample that prefers/blinks only artists updated on that page; other page artists are faint. Every 100 completed pages the crawler passively checkpoints SQLite WAL data back into the main database file; a final checkpoint is attempted on exit. The rainbow bar tracks overall
+  and a console-width-aware random artist sample. The rainbow bar tracks overall
   progress through Last.fm pages and shows an ETA calculated from the rolling
   average of up to the 50 most recently completed pages. Every finished page is appended to
   lastfm-webpage-import.log.

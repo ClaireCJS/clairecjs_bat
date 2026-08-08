@@ -29,6 +29,7 @@
             "id": "User.find"
         }
     ],
+    "alwaysShowNotificationIcon": true,
     "copyFormatting": "none",
     "copyOnSelect": false,
     "defaultProfile": "{dd3810e8-e081-487d-a281-8b3a8c934f95}",
@@ -188,5 +189,5 @@
     "schemes": [],
     "tabWidthMode": "equal",
     "themes": [],
-    "useAcrylicInTabRow": false
+    "useAcrylicInTabRow": true
 }
