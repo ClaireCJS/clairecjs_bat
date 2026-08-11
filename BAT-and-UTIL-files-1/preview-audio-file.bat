@@ -10,10 +10,13 @@ rem CONFIG:
                 set DEFAULT_PAF_PLAYER=call mpc32 
                 set DEFAULT_PAF_PLAYER=call vlc
                 set DEFAULT_PAF_PLAYER=vlc.exe --volume 200
-                set DEFAULT_PAF_PLAYER=play_audio_file.py
+                set DEFAULT_PAF_PLAYER=play_audio_file.py 
+                set DEFAULT_PAF_PLAYER=play_audio_file.py --no-album-art --no-external-album-art  --no-web-server --no-now-playing-sidecar 
 
+        rem ❶ Whether we announce our previews or not (we set this to 0 because PAFPlayer/play_audio_file.py has it’s own announce):
+                set PREVIEW_AUDIO_FILE_ANNOUNCE=0
 
-        rem ❷ Whether WinAmp integration is active or not:
+        rem ❷ Whether WinAmp/PAFPlayer integration is active or not:
         rem     You can pre-set PAF_WINAMP_INTEGRATION=1 or 0 to control WinAmp integration prior to invocation
         rem             ...which is whether WinAmp will be paused/unpaused before/after previewing
         rem     Or you can let it use the defualt value here:
@@ -135,8 +138,8 @@ rem Show raw karaoke:
 rem OLD: Announce the preview: Outer-script should be responsible for saying this, but if none exists, say it ourselves: 
         if "%_PBATCHNAME" == "" echo %ansi_color_bright_green%%emoji_play_button%Previewing file: %ansi_color_green%%italics_on%“%audio_file_to_preview%”%italics_off%%ansi_color_normal%
 
-rem NEW: Announce the preview no matter what:
-        echo %ANSI_COLOR_IMPORTANT%%EMOJI_PLAY_BUTTON% %blink_on%Playing file: %blink_on%“%ansi_color_important_less%%blink_on%%@UNQUOTE["%FILE_TO_USE%"]%ansi_color_important%%blink_on%”%blink_off% %EMOJI_PLAY_BUTTON%%ansi_color_normal%%ANSI_EOL%
+rem NEW: Announce the preview if configured to do so:
+        if "1" == "%PREVIEW_AUDIO_FILE_ANNOUNCE%" echo %ANSI_COLOR_IMPORTANT%%EMOJI_PLAY_BUTTON% %blink_on%Playing file: %blink_on%“%ansi_color_important_less%%blink_on%%@UNQUOTE["%FILE_TO_USE%"]%ansi_color_important%%blink_on%”%blink_off% %EMOJI_PLAY_BUTTON%%ansi_color_normal%%ANSI_EOL%
 
 rem Do the actual preview:
         set      PAF_COMMAND=%PAF_START% %PAF_PLAYER% %param_1% %1$

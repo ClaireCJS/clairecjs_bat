@@ -67,6 +67,7 @@ ART_PREVIEW_RIGHT_MARGIN_COLUMNS = 2
 # claire_terminal_geometry helper.  1.00 uses its full fitted size; 0.90 leaves
 # a little breathing room around artwork without changing waveform previews.
 ART_PREVIEW_SCALE = 0.90
+ART_PREVIEW_SCALE = 0.33
 
 # Built-in behavior defaults apply when no adjacent configuration file exists.
 # Use --configure-defaults to create/update that file interactively.
@@ -5078,8 +5079,8 @@ def chafa_sixel_geometry_options(geometry: ArtworkPreviewGeometry) -> list[str]:
         "--view-size="
         # This is the deliberately *smaller* no-helper fallback.  It is only
         # used by copied installations that genuinely lack the shared helper.
-        f"{geometry.columns * 0.80:.1f}x"
-        f"{geometry.rows * 0.80:.1f}",
+        f"{geometry.columns * 0.33:.1f}x"
+        f"{geometry.rows * 0.33:.1f}",
         "--scale=max",
     ], ART_PREVIEW_SCALE)
 

@@ -1,26 +1,28 @@
 @on break cancel
 @echo off
 
-::::: VALIDATE ENVIRONMENT:
-    call validate-environment-variables THE_ALPHABET COLOR_NORMAL EMOJI_GLOWING_STAR ansi_green_bright
-    call validate-in-path               windowhide.exe
+rem VALIDATE ENVIRONMENT (once):
+        iff "1" != "%validated_drives_bat%" then
+                call validate-environment-variables THE_ALPHABET COLOR_NORMAL EMOJI_GLOWING_STAR ansi_green_bright
+                call validate-in-path               windowhide.exe
+                set  validated_drives_bat=1
+        endiff
+
+rem PARAMETERS:
+        if "%@UPPER[%2]"      eq "HIDDEN"    (set HIDDEN=1    %+ set MINIMIZE_FIRST=1)
+        if "%@UPPER[%1]"      eq "EXITAFTER" (set EXITAFTER=1 %+ set MINIMIZE_FIRST=1)
+        if "%MINIMIZE_FIRST%" eq "1"         (window minimize)
+        if "%HIDDEN%"         eq "1"         (windowhide.exe /hide *drives.bat*hidden* %+ window /trans=0)
 
 
-::::: PARAMETERS:
-    if "%@UPPER[%2]"      eq "HIDDEN"    (set HIDDEN=1    %+ set MINIMIZE_FIRST=1)
-    if "%@UPPER[%1]"      eq "EXITAFTER" (set EXITAFTER=1 %+ set MINIMIZE_FIRST=1)
-    if "%MINIMIZE_FIRST%" eq "1"         (window minimize)
-    if "%HIDDEN%"         eq "1"         (windowhide.exe /hide *drives.bat*hidden* %+ window /trans=0)
 
-
-
-::::: MAIN:
-    echo.
-    setdos /x-678
-    echo %ANSI_WIDE_LINE%  %EMOJI_GLOWING_STAR%%ansi_green_bright%%double_underline_on%Drives%double_underline_off%:%EMOJI_GLOWING_STAR% %ANSI_RESET%
-    setdos /x0
-    :or %drive in (%_drives     ) gosub describeDrive %drive%
-    for %drive in (%THE_ALPHABET) gosub describeDrive %drive%:
+rem MAIN:
+        echo.
+        setdos /x-678
+        echo %ANSI_WIDE_LINE%  %EMOJI_GLOWING_STAR%%ansi_green_bright%%double_underline_on%Drives%double_underline_off%:%EMOJI_GLOWING_STAR% %ANSI_RESET%
+        setdos /x0
+        :or %drive in (%_drives     ) gosub describeDrive %drive%
+        for %drive in (%THE_ALPHABET) gosub describeDrive %drive%:
 
 goto :END
 

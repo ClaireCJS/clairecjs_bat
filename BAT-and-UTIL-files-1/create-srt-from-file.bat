@@ -2,7 +2,7 @@
 
 REM INIT:
         @rem echo %@colorful[🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗 CREATE-SRT-FROM-FILE 🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗🚗] CWP=%_CWP
-        @Echo off                                               
+        @Echo off
         @setdos /x0
         @on break cancel                                        
         @on break goto :csff_onbreak
@@ -38,6 +38,7 @@ REM CONFIG: OUTPUT FILE WIDTH:
 REM CONFIG: 2026:
         set DUMPS=c:\logs\dumps.%machinename%\*.dmp                                                    %+ rem Location of WhisperTimeSync’s dumps, which can get to 300G in 12 hours if you are transcribing hour long radio shows all night long... So we must regularly purge them.
         set DEBUG_EDITOR=0                                                                             %+ rem Whether we want to echo out the command line calls used to send files to our favorite text editor [as defined in the environment variable %EDITOR%]
+        set DEBUG_POSTPROCESSORS=0                                                                     %+ rem Mathced to value set in get-lyrics-for-file.btm
 
 REM CONFIG: 2025:
         set DEFAULT_LANGUAGE=en                                                                        %+ rem Default language. MAKE SURE TO SET/OVERRIDE TO “None” IF YOU DON’T WANT ONE! WhisperAI is actually pretty good at knowing which language something is, anyway
@@ -49,9 +50,6 @@ REM CONFIG: 2025: DEBUG:
         set DEBUG_ECHO_CALLS_TO_GETLYRICS=0                                                            %+ rem Whether to echo to the screen any calls to the get-lyrics functionality
         set DEBUG_LOCKFILE=0                                                                           %+ rem Whether to show lockfile-related debugging info
         set DEBUG_TRACE_CSFF=0                                                                         %+ rem Whether we want to echo our “we are here” debug traces
-
-REM CONFIG: 2026: DEBUG:
-        set DEBUG_POSTPROCESSORS=1                                                                     %+ rem Mathced to value set in get-lyrics-for-file.btm
 
 REM CONFIG: 2024/2025: Changing VAD Threshold history:
         set DEFAULT_VAD_THRESHOLD=0.075                                                                %+ rem Whatever threshold we by default —— we may be asked to lower it if we choose to delete subtitles because they didn’t pick up most of the vocals
@@ -1438,7 +1436,7 @@ REM quick chance to edit prompt:
 
 
 rem We can end up here when we shouldn’t, so:
-        call subtle "GOAT checking iff 1 == %SUCCESSFUL_GENERATION% .and. exist "%SRT_FILE%" "
+        rem call subtle "checking iff 1 == %SUCCESSFUL_GENERATION% .and. exist "%SRT_FILE%" "
         iff "1" == "%SUCCESSFUL_GENERATION%" .and. exist "%SRT_FILE%" then
                 pause "skipping code here based on SUCCESSFUL_GENERATION flag being 1, though we are un-setting it now"
                 unset /q SUCCESSFUL_GENERATION
@@ -2237,20 +2235,22 @@ rem Full-endeavor success message:
                                         set ANSWER=%HELD_ANSWER_1922%
                                         gosub check_for_answer_of_M "%@UNQUOTE["%INPUT_FILE%"]"
                                 rem “N” for no, don’t edit it (but it’s fine!):
-                                        iff  "N" == "%ANSWER%" then
+                                        iff  "N" == "%HELD_ANSWER_1922%" then
                                                 set karaoke_edit_refused=1
                                                 goto /i no_need_to_edit_it
                                         endiff
                                 rem “U” for untranscribeable:
-                                        if  "U" == "%ANSWER%" gosub ask_if_untranscribeable
+                                        if  "U" == "%HELD_ANSWER_1922%" gosub ask_if_untranscribeable
+                
                                 rem “1” for retry:
-                                        if  "1" == "%ANSWER%" goto /i go_here_for_encoding_retries
+                                        if  "1" == "%HELD_ANSWER_1922%" goto /i go_here_for_encoding_retries
                                 rem “Y”/“E”:
                                         rem This can work for either of the previous AskYN calls:
-                                        iff "%ANSWER" == "Y" .or. "%ANSWER" == "E" then
+                                        iff "%HELD_ANSWER_1922" == "Y" .or. "%HELD_ANSWER_1922" == "E" then
                                                 rem @echo %ANSI_COLOR_DEBUG%- DEBUG: %EDITOR% "%SRT_FILE%" [and maybe "%TXT_FILE%"] %ANSI_RESET%
                                                 title %check% %SRT_FILE% generated successfully! %check%             
                                                 iff not exist "%TXT_FILE%" then
+                                                        call askyn "Should we edit this automatically or make it a prompt" 0 0
                                                         %EDITOR% "%SRT_FILE%" 
                                                 else
                                                         rem DEBUG: echo %ANSI_COLOR_DEBUG%- [DEBUG] CALL IS: %EDITOR% "%TXT_FILE%" "%SRT_FILE%" %ANSI_COLOR_NORMAL% 
@@ -2502,7 +2502,7 @@ goto /i skip_subroutines
                 endiff
         return
         :check_for_answer_of_F [opt]
-                pause "Let’s deprecate this out"
+                rem pause "Let’s deprecate this out"
                 iff "F" == "%ANSWER%" then
                         goto /i ask_about_failed
                 endiff
